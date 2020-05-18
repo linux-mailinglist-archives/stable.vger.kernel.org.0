@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C8FD41D8408
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:11:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 145C81D829F
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:58:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732964AbgERSFb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:05:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53114 "EHLO mail.kernel.org"
+        id S1731371AbgERR6D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:58:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37080 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732472AbgERSFa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 14:05:30 -0400
+        id S1729934AbgERR6C (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:58:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C3DAE20671;
-        Mon, 18 May 2020 18:05:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CDCE720715;
+        Mon, 18 May 2020 17:58:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589825130;
+        s=default; t=1589824682;
         bh=O9xcISJN/z1FNJAF1HxhOJkTIsQ+vTAHx4xaTb60ltw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zLoAitBfy75mnspJNMoArozFtYYFDQ2qTTTCLK5fnrwiyTVpbPo1ZTR6sIxhiad9H
-         qy3zDOFOXZ426vzJxvQJRu+pKZixSkUG/GjIohY0r/cXdavVHHY8qycjz6N15sYCNS
-         RbvKluYjU6cJXfcp1OVC6qpfXylAqqLBWG9n1MLQ=
+        b=ZaT/1baEsJdeijgHk07C1r4JJVyZnTnuuRyJGQO+CM+5ln7EOHWSHKSdKn62zAMHP
+         1PDv/YiZ34z6GPbevSVHKvONmMnQFQakRoLkmD4hhcvcks1Gpk+/8CHI/Y8SNuCymP
+         YsDWkN+xBWMuPP7R7Y3g6LuKLDRzt6s0ez5e3L0g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Jesus Ramos <jesus-ramos@live.com>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.6 141/194] ALSA: usb-audio: Add control message quirk delay for Kingston HyperX headset
+Subject: [PATCH 5.4 108/147] ALSA: usb-audio: Add control message quirk delay for Kingston HyperX headset
 Date:   Mon, 18 May 2020 19:37:11 +0200
-Message-Id: <20200518173543.047990857@linuxfoundation.org>
+Message-Id: <20200518173526.673184044@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
-References: <20200518173531.455604187@linuxfoundation.org>
+In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
+References: <20200518173513.009514388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
