@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 748741D80F0
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:43:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC4951D85EB
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:22:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729589AbgERRna (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:43:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41124 "EHLO mail.kernel.org"
+        id S1730877AbgERSVz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:21:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53802 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729584AbgERRn3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:43:29 -0400
+        id S1728824AbgERRvM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:51:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 387FE20657;
-        Mon, 18 May 2020 17:43:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F33EF20835;
+        Mon, 18 May 2020 17:51:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589823808;
-        bh=fGBROYDxdQQozDWu/J6DkYIQUBAR/xN0ABEzDiLWZuc=;
+        s=default; t=1589824272;
+        bh=+6HXk2UMA27rJGUNFJRM/kYWivwQLBdXHPemxk9PlsQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U+tpmqBlkDoMgXfVIkrym8vLlfduqDyFNbEkUZJlTgqMJSh0/Z87hsfqcfkOJ8DYL
-         7Nqm4Qqc3yCRlLDW0CTIytwUceVIZ2KZGF1WI4h9Q+Nzp+wMku73rmdHkaNoq9RFhm
-         Z4pL4AKm1u5mTc3S+BK/1EFoIzbRX6QdoDFf2jAY=
+        b=i0Iwm86ICY1e1Ao4JLW0svFL5Ya2TWDs5/i8Zk/5GwPWNSID8o2QG3SoAHFe1bVqn
+         nCXaLF+YJFfGJZad2+xD1HRZ8r8BXs6ZKvOsSEsroWqXOfez5DfjNDffGEB56P4QPi
+         X+8mlAfII54L1ujd5Kc6VsS3VirPnRoFpDv4NMFQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,12 +30,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Neil Horman <nhorman@tuxdriver.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 44/90] drop_monitor: work around gcc-10 stringop-overflow warning
-Date:   Mon, 18 May 2020 19:36:22 +0200
-Message-Id: <20200518173500.248110788@linuxfoundation.org>
+Subject: [PATCH 4.19 05/80] drop_monitor: work around gcc-10 stringop-overflow warning
+Date:   Mon, 18 May 2020 19:36:23 +0200
+Message-Id: <20200518173451.203122210@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173450.930655662@linuxfoundation.org>
-References: <20200518173450.930655662@linuxfoundation.org>
+In-Reply-To: <20200518173450.097837707@linuxfoundation.org>
+References: <20200518173450.097837707@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -72,10 +72,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 7 insertions(+), 4 deletions(-)
 
 diff --git a/net/core/drop_monitor.c b/net/core/drop_monitor.c
-index ca2c9c8b9a3e9..6d7ff117f3792 100644
+index c7785efeea577..3978a5e8d261c 100644
 --- a/net/core/drop_monitor.c
 +++ b/net/core/drop_monitor.c
-@@ -159,6 +159,7 @@ static void sched_send_work(unsigned long _data)
+@@ -154,6 +154,7 @@ static void sched_send_work(struct timer_list *t)
  static void trace_drop_common(struct sk_buff *skb, void *location)
  {
  	struct net_dm_alert_msg *msg;
@@ -83,7 +83,7 @@ index ca2c9c8b9a3e9..6d7ff117f3792 100644
  	struct nlmsghdr *nlh;
  	struct nlattr *nla;
  	int i;
-@@ -177,11 +178,13 @@ static void trace_drop_common(struct sk_buff *skb, void *location)
+@@ -172,11 +173,13 @@ static void trace_drop_common(struct sk_buff *skb, void *location)
  	nlh = (struct nlmsghdr *)dskb->data;
  	nla = genlmsg_data(nlmsg_data(nlh));
  	msg = nla_data(nla);
@@ -99,7 +99,7 @@ index ca2c9c8b9a3e9..6d7ff117f3792 100644
  	}
  	if (msg->entries == dm_hit_limit)
  		goto out;
-@@ -190,8 +193,8 @@ static void trace_drop_common(struct sk_buff *skb, void *location)
+@@ -185,8 +188,8 @@ static void trace_drop_common(struct sk_buff *skb, void *location)
  	 */
  	__nla_reserve_nohdr(dskb, sizeof(struct net_dm_drop_point));
  	nla->nla_len += NLA_ALIGN(sizeof(struct net_dm_drop_point));
