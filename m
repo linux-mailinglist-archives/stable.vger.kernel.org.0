@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A69DD1D83C2
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:08:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 233051D83C3
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:08:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733308AbgERSH1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1733311AbgERSH1 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 18 May 2020 14:07:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56114 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:56190 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732304AbgERSHX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 14:07:23 -0400
+        id S1733292AbgERSHZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 14:07:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D7FD820715;
-        Mon, 18 May 2020 18:07:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5066620853;
+        Mon, 18 May 2020 18:07:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589825242;
-        bh=tAt1cr0a+MsZFss6QR0805je8mZPTx//0IaCX7J2qMI=;
+        s=default; t=1589825244;
+        bh=GnCW7mSOCGz0pmBLR1C3H7STub9TUkxiDKSawdq/atY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I1ygG2a0GIdJX1Jarrppf4HQ1ctvNW1NS9R0GaBv3l/Bkc1IEAd2BPAymQhCDShsy
-         V8hqUg/7x2C+NONW1Lkji2lr+Ex6yIwLrQnDvxsUD9lUzg0a5gLCfrQx+9EIQZHl3M
-         6oiVQCmNWnU2Z1FSQFGEkq8RjZlKtRl156jCB/1A=
+        b=QXGRpvKHVQTHlz1uIt3nSJkRM5WbqKEF4zhFqobf+hSla+tQb/jPQ1CcCNiH+V8a6
+         EDDV4bl/BGpCK7wf2WtzzPAMInn63QRYL1xUl9w/QTCAJDorE/ZsXrGH8dSyS+dYt8
+         G9nvsj1o8f6CanV6CLvsNfq3psVqVgc5wwWovOzM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nayna Jain <nayna@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Mimi Zohar <zohar@linux.ibm.com>
-Subject: [PATCH 5.6 186/194] powerpc/ima: Fix secure boot rules in ima arch policy
-Date:   Mon, 18 May 2020 19:37:56 +0200
-Message-Id: <20200518173546.947786203@linuxfoundation.org>
+        stable@vger.kernel.org, Yishai Hadas <yishaih@mellanox.com>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Jason Gunthorpe <jgg@mellanox.com>
+Subject: [PATCH 5.6 187/194] RDMA/uverbs: Do not discard the IB_EVENT_DEVICE_FATAL event
+Date:   Mon, 18 May 2020 19:37:57 +0200
+Message-Id: <20200518173547.023218812@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
 References: <20200518173531.455604187@linuxfoundation.org>
@@ -44,60 +44,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nayna Jain <nayna@linux.ibm.com>
+From: Jason Gunthorpe <jgg@mellanox.com>
 
-commit fa4f3f56ccd28ac031ab275e673ed4098855fed4 upstream.
+commit c485b19d52c4ba269dfd027945dee81755fdd530 upstream.
 
-To prevent verifying the kernel module appended signature
-twice (finit_module), once by the module_sig_check() and again by IMA,
-powerpc secure boot rules define an IMA architecture specific policy
-rule only if CONFIG_MODULE_SIG_FORCE is not enabled. This,
-unfortunately, does not take into account the ability of enabling
-"sig_enforce" on the boot command line (module.sig_enforce=1).
+The commit below moved all of the destruction to the disassociate step and
+cleaned up the event channel during destroy_uobj.
 
-Including the IMA module appraise rule results in failing the
-finit_module syscall, unless the module signing public key is loaded
-onto the IMA keyring.
+However, when ib_uverbs_free_hw_resources() pushes IB_EVENT_DEVICE_FATAL
+and then immediately goes to destroy all uobjects this causes
+ib_uverbs_free_event_queue() to discard the queued event if userspace
+hasn't already read() it.
 
-This patch fixes secure boot policy rules to be based on
-CONFIG_MODULE_SIG instead.
+Unlike all other event queues async FD needs to defer the
+ib_uverbs_free_event_queue() until FD release. This still unregisters the
+handler from the IB device during disassociation.
 
-Fixes: 4238fad366a6 ("powerpc/ima: Add support to initialize ima policy rules")
-Signed-off-by: Nayna Jain <nayna@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
-Link: https://lore.kernel.org/r/1588342612-14532-1-git-send-email-nayna@linux.ibm.com
+Fixes: 3e032c0e92aa ("RDMA/core: Make ib_uverbs_async_event_file into a uobject")
+Link: https://lore.kernel.org/r/20200507063348.98713-2-leon@kernel.org
+Signed-off-by: Yishai Hadas <yishaih@mellanox.com>
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/kernel/ima_arch.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/infiniband/core/rdma_core.c                 |    3 +-
+ drivers/infiniband/core/uverbs.h                    |    1 
+ drivers/infiniband/core/uverbs_main.c               |    2 -
+ drivers/infiniband/core/uverbs_std_types_async_fd.c |   26 +++++++++++++++++++-
+ 4 files changed, 29 insertions(+), 3 deletions(-)
 
---- a/arch/powerpc/kernel/ima_arch.c
-+++ b/arch/powerpc/kernel/ima_arch.c
-@@ -19,12 +19,12 @@ bool arch_ima_get_secureboot(void)
-  * to be stored as an xattr or as an appended signature.
-  *
-  * To avoid duplicate signature verification as much as possible, the IMA
-- * policy rule for module appraisal is added only if CONFIG_MODULE_SIG_FORCE
-+ * policy rule for module appraisal is added only if CONFIG_MODULE_SIG
-  * is not enabled.
-  */
- static const char *const secure_rules[] = {
- 	"appraise func=KEXEC_KERNEL_CHECK appraise_flag=check_blacklist appraise_type=imasig|modsig",
--#ifndef CONFIG_MODULE_SIG_FORCE
-+#ifndef CONFIG_MODULE_SIG
- 	"appraise func=MODULE_CHECK appraise_flag=check_blacklist appraise_type=imasig|modsig",
- #endif
- 	NULL
-@@ -50,7 +50,7 @@ static const char *const secure_and_trus
- 	"measure func=KEXEC_KERNEL_CHECK template=ima-modsig",
- 	"measure func=MODULE_CHECK template=ima-modsig",
- 	"appraise func=KEXEC_KERNEL_CHECK appraise_flag=check_blacklist appraise_type=imasig|modsig",
--#ifndef CONFIG_MODULE_SIG_FORCE
-+#ifndef CONFIG_MODULE_SIG
- 	"appraise func=MODULE_CHECK appraise_flag=check_blacklist appraise_type=imasig|modsig",
- #endif
- 	NULL
+--- a/drivers/infiniband/core/rdma_core.c
++++ b/drivers/infiniband/core/rdma_core.c
+@@ -459,7 +459,8 @@ alloc_begin_fd_uobject(const struct uver
+ 	struct ib_uobject *uobj;
+ 	struct file *filp;
+ 
+-	if (WARN_ON(fd_type->fops->release != &uverbs_uobject_fd_release))
++	if (WARN_ON(fd_type->fops->release != &uverbs_uobject_fd_release &&
++		    fd_type->fops->release != &uverbs_async_event_release))
+ 		return ERR_PTR(-EINVAL);
+ 
+ 	new_fd = get_unused_fd_flags(O_CLOEXEC);
+--- a/drivers/infiniband/core/uverbs.h
++++ b/drivers/infiniband/core/uverbs.h
+@@ -219,6 +219,7 @@ void ib_uverbs_init_event_queue(struct i
+ void ib_uverbs_init_async_event_file(struct ib_uverbs_async_event_file *ev_file);
+ void ib_uverbs_free_event_queue(struct ib_uverbs_event_queue *event_queue);
+ void ib_uverbs_flow_resources_free(struct ib_uflow_resources *uflow_res);
++int uverbs_async_event_release(struct inode *inode, struct file *filp);
+ 
+ int ib_alloc_ucontext(struct uverbs_attr_bundle *attrs);
+ int ib_init_ucontext(struct uverbs_attr_bundle *attrs);
+--- a/drivers/infiniband/core/uverbs_main.c
++++ b/drivers/infiniband/core/uverbs_main.c
+@@ -346,7 +346,7 @@ const struct file_operations uverbs_asyn
+ 	.owner	 = THIS_MODULE,
+ 	.read	 = ib_uverbs_async_event_read,
+ 	.poll    = ib_uverbs_async_event_poll,
+-	.release = uverbs_uobject_fd_release,
++	.release = uverbs_async_event_release,
+ 	.fasync  = ib_uverbs_async_event_fasync,
+ 	.llseek	 = no_llseek,
+ };
+--- a/drivers/infiniband/core/uverbs_std_types_async_fd.c
++++ b/drivers/infiniband/core/uverbs_std_types_async_fd.c
+@@ -26,10 +26,34 @@ static int uverbs_async_event_destroy_uo
+ 		container_of(uobj, struct ib_uverbs_async_event_file, uobj);
+ 
+ 	ib_unregister_event_handler(&event_file->event_handler);
+-	ib_uverbs_free_event_queue(&event_file->ev_queue);
+ 	return 0;
+ }
+ 
++int uverbs_async_event_release(struct inode *inode, struct file *filp)
++{
++	struct ib_uverbs_async_event_file *event_file;
++	struct ib_uobject *uobj = filp->private_data;
++	int ret;
++
++	if (!uobj)
++		return uverbs_uobject_fd_release(inode, filp);
++
++	event_file =
++		container_of(uobj, struct ib_uverbs_async_event_file, uobj);
++
++	/*
++	 * The async event FD has to deliver IB_EVENT_DEVICE_FATAL even after
++	 * disassociation, so cleaning the event list must only happen after
++	 * release. The user knows it has reached the end of the event stream
++	 * when it sees IB_EVENT_DEVICE_FATAL.
++	 */
++	uverbs_uobject_get(uobj);
++	ret = uverbs_uobject_fd_release(inode, filp);
++	ib_uverbs_free_event_queue(&event_file->ev_queue);
++	uverbs_uobject_put(uobj);
++	return ret;
++}
++
+ DECLARE_UVERBS_NAMED_METHOD(
+ 	UVERBS_METHOD_ASYNC_EVENT_ALLOC,
+ 	UVERBS_ATTR_FD(UVERBS_ATTR_ASYNC_EVENT_ALLOC_FD_HANDLE,
 
 
