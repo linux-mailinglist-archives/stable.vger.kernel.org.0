@@ -2,39 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A4D4A1D86FB
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:31:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 57F2F1D8746
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:32:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730787AbgERS2e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:28:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39696 "EHLO mail.kernel.org"
+        id S1728610AbgERRis (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:38:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33046 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729448AbgERRmg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:42:36 -0400
+        id S1728596AbgERRir (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:38:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C868320715;
-        Mon, 18 May 2020 17:42:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B9F9C20853;
+        Mon, 18 May 2020 17:38:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589823756;
-        bh=92C6p6tlwbBMVt5XS+W92fxk5AXDJDTfJrbzkbFQ0D8=;
+        s=default; t=1589823526;
+        bh=0wij+4SMfYt8fX0y0Plfm3QfI9RMGO92NpN60AKPhuU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PjyqmiU8iJm+kQtk8g2XYxZiqXDlGTOtlN/KEyQHMq5VieT5STm9FL4k6AwLqI6Hv
-         d1aFxYvY7ckmLp7kF4wCQmGFHayK8NZFYLsDQYyV6Mk6pSwDVGuKU0StFZINCi3C2o
-         17zOftUZPdlfBvj1qpHPC2KasOSN6IyOpl+ZJWX8=
+        b=OmhimJohI/22Ucf2PRxluKeUjr0MnSYxsi5COgIRdGQzDKUe/LZ+LumXjr67Q/i9L
+         iPnP9OdzKmFSMCAtO152W7tkDi6Giiq1bvBZIY9r3Qe0WK1AcaVXJ3YrcyO9+eOwt9
+         lNyXNVi+lGQN68IxeFzbg9CSF6w3ANlnd+fw0QBs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 03/90] fq_codel: fix TCA_FQ_CODEL_DROP_BATCH_SIZE sanity checks
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        Ali Saidi <alisaidi@amazon.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Michal Hocko <mhocko@suse.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Jann Horn <jannh@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.4 10/86] binfmt_elf: move brk out of mmap when doing direct loader exec
 Date:   Mon, 18 May 2020 19:35:41 +0200
-Message-Id: <20200518173451.710909306@linuxfoundation.org>
+Message-Id: <20200518173452.495203298@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173450.930655662@linuxfoundation.org>
-References: <20200518173450.930655662@linuxfoundation.org>
+In-Reply-To: <20200518173450.254571947@linuxfoundation.org>
+References: <20200518173450.254571947@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,32 +50,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit 14695212d4cd8b0c997f6121b6df8520038ce076 ]
+commit bbdc6076d2e5d07db44e74c11b01a3e27ab90b32 upstream.
 
-My intent was to not let users set a zero drop_batch_size,
-it seems I once again messed with min()/max().
+Commmit eab09532d400 ("binfmt_elf: use ELF_ET_DYN_BASE only for PIE"),
+made changes in the rare case when the ELF loader was directly invoked
+(e.g to set a non-inheritable LD_LIBRARY_PATH, testing new versions of
+the loader), by moving into the mmap region to avoid both ET_EXEC and
+PIE binaries.  This had the effect of also moving the brk region into
+mmap, which could lead to the stack and brk being arbitrarily close to
+each other.  An unlucky process wouldn't get its requested stack size
+and stack allocations could end up scribbling on the heap.
 
-Fixes: 9d18562a2278 ("fq_codel: add batch ability to fq_codel_drop()")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Acked-by: Toke Høiland-Jørgensen <toke@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This is illustrated here.  In the case of using the loader directly, brk
+(so helpfully identified as "[heap]") is allocated with the _loader_ not
+the binary.  For example, with ASLR entirely disabled, you can see this
+more clearly:
+
+$ /bin/cat /proc/self/maps
+555555554000-55555555c000 r-xp 00000000 ... /bin/cat
+55555575b000-55555575c000 r--p 00007000 ... /bin/cat
+55555575c000-55555575d000 rw-p 00008000 ... /bin/cat
+55555575d000-55555577e000 rw-p 00000000 ... [heap]
+...
+7ffff7ff7000-7ffff7ffa000 r--p 00000000 ... [vvar]
+7ffff7ffa000-7ffff7ffc000 r-xp 00000000 ... [vdso]
+7ffff7ffc000-7ffff7ffd000 r--p 00027000 ... /lib/x86_64-linux-gnu/ld-2.27.so
+7ffff7ffd000-7ffff7ffe000 rw-p 00028000 ... /lib/x86_64-linux-gnu/ld-2.27.so
+7ffff7ffe000-7ffff7fff000 rw-p 00000000 ...
+7ffffffde000-7ffffffff000 rw-p 00000000 ... [stack]
+
+$ /lib/x86_64-linux-gnu/ld-2.27.so /bin/cat /proc/self/maps
+...
+7ffff7bcc000-7ffff7bd4000 r-xp 00000000 ... /bin/cat
+7ffff7bd4000-7ffff7dd3000 ---p 00008000 ... /bin/cat
+7ffff7dd3000-7ffff7dd4000 r--p 00007000 ... /bin/cat
+7ffff7dd4000-7ffff7dd5000 rw-p 00008000 ... /bin/cat
+7ffff7dd5000-7ffff7dfc000 r-xp 00000000 ... /lib/x86_64-linux-gnu/ld-2.27.so
+7ffff7fb2000-7ffff7fd6000 rw-p 00000000 ...
+7ffff7ff7000-7ffff7ffa000 r--p 00000000 ... [vvar]
+7ffff7ffa000-7ffff7ffc000 r-xp 00000000 ... [vdso]
+7ffff7ffc000-7ffff7ffd000 r--p 00027000 ... /lib/x86_64-linux-gnu/ld-2.27.so
+7ffff7ffd000-7ffff7ffe000 rw-p 00028000 ... /lib/x86_64-linux-gnu/ld-2.27.so
+7ffff7ffe000-7ffff8020000 rw-p 00000000 ... [heap]
+7ffffffde000-7ffffffff000 rw-p 00000000 ... [stack]
+
+The solution is to move brk out of mmap and into ELF_ET_DYN_BASE since
+nothing is there in the direct loader case (and ET_EXEC is still far
+away at 0x400000).  Anything that ran before should still work (i.e.
+the ultimately-launched binary already had the brk very far from its
+text, so this should be no different from a COMPAT_BRK standpoint).  The
+only risk I see here is that if someone started to suddenly depend on
+the entire memory space lower than the mmap region being available when
+launching binaries via a direct loader execs which seems highly
+unlikely, I'd hope: this would mean a binary would _not_ work when
+exec()ed normally.
+
+(Note that this is only done under CONFIG_ARCH_HAS_ELF_RANDOMIZATION
+when randomization is turned on.)
+
+Link: http://lkml.kernel.org/r/20190422225727.GA21011@beast
+Link: https://lkml.kernel.org/r/CAGXu5jJ5sj3emOT2QPxQkNQk0qbU6zEfu9=Omfhx_p0nCKPSjA@mail.gmail.com
+Fixes: eab09532d400 ("binfmt_elf: use ELF_ET_DYN_BASE only for PIE")
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Reported-by: Ali Saidi <alisaidi@amazon.com>
+Cc: Ali Saidi <alisaidi@amazon.com>
+Cc: Guenter Roeck <linux@roeck-us.net>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Jann Horn <jannh@google.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/sched/sch_fq_codel.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/sched/sch_fq_codel.c
-+++ b/net/sched/sch_fq_codel.c
-@@ -428,7 +428,7 @@ static int fq_codel_change(struct Qdisc
- 		q->quantum = max(256U, nla_get_u32(tb[TCA_FQ_CODEL_QUANTUM]));
+---
+ fs/binfmt_elf.c |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+--- a/fs/binfmt_elf.c
++++ b/fs/binfmt_elf.c
+@@ -1097,6 +1097,17 @@ static int load_elf_binary(struct linux_
+ 	current->mm->start_stack = bprm->p;
  
- 	if (tb[TCA_FQ_CODEL_DROP_BATCH_SIZE])
--		q->drop_batch_size = min(1U, nla_get_u32(tb[TCA_FQ_CODEL_DROP_BATCH_SIZE]));
-+		q->drop_batch_size = max(1U, nla_get_u32(tb[TCA_FQ_CODEL_DROP_BATCH_SIZE]));
- 
- 	if (tb[TCA_FQ_CODEL_MEMORY_LIMIT])
- 		q->memory_limit = min(1U << 31, nla_get_u32(tb[TCA_FQ_CODEL_MEMORY_LIMIT]));
+ 	if ((current->flags & PF_RANDOMIZE) && (randomize_va_space > 1)) {
++		/*
++		 * For architectures with ELF randomization, when executing
++		 * a loader directly (i.e. no interpreter listed in ELF
++		 * headers), move the brk area out of the mmap region
++		 * (since it grows up, and may collide early with the stack
++		 * growing down), and into the unused ELF_ET_DYN_BASE region.
++		 */
++		if (IS_ENABLED(CONFIG_ARCH_HAS_ELF_RANDOMIZE) && !interpreter)
++			current->mm->brk = current->mm->start_brk =
++				ELF_ET_DYN_BASE;
++
+ 		current->mm->brk = current->mm->start_brk =
+ 			arch_randomize_brk(current->mm);
+ #ifdef compat_brk_randomized
 
 
