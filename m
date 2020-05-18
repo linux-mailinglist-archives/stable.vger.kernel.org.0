@@ -2,39 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FBBD1D8481
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:14:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D67751D80A0
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:40:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732267AbgERSEQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:04:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51028 "EHLO mail.kernel.org"
+        id S1729178AbgERRkx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:40:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36856 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732758AbgERSEP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 14:04:15 -0400
+        id S1729174AbgERRkx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:40:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 06F9C207D3;
-        Mon, 18 May 2020 18:04:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D0BDD20657;
+        Mon, 18 May 2020 17:40:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589825055;
-        bh=X2Df0dKFjqT5/2DCl87p0uzmyYZJ8m8uEBOTVMJ0uLM=;
+        s=default; t=1589823652;
+        bh=8JEMHKTX3965n4n18+Ai3xzuSK/PYEZl1GVXvu9fqag=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Iy+T1rcE1IQCw5DxubsDNKRHZRKRiAsrIZq+l10+l3V8kpAkgopPOOfonCumBA59c
-         dk16axRMjUUizh58Z4LyeAPCYhcbdG8QSkhvehKDndhYJ+wu0vhOLNDyOH2V4gYkUo
-         Y9rzsQ8RTC9RxST+277FC7sXNCXIcfT5ccI67HqI=
+        b=ilCQ/IF27GG8VWgkdSuX6PFcssoGHGQI29XTZyXHKNdYD2OqKwhsl5xj6Cyv79Ka4
+         SburagasyoOS9/eXl3ga4dBdMNPdFBF+Oz5O6rygz5ULt9du3aiJKGxIEdyXvJYpbY
+         wuzfI96XH97VK3a7NsrZbm4NDCqrMlXDPUP5eQrk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Phil Sutter <phil@nwl.cc>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 110/194] netfilter: nft_set_rbtree: Add missing expired checks
+        stable@vger.kernel.org,
+        syzbot+e73ceacfd8560cc8a3ca@syzkaller.appspotmail.com,
+        syzbot+c2fb6f9ddcea95ba49b5@syzkaller.appspotmail.com,
+        Jarod Wilson <jarod@redhat.com>,
+        Nikolay Aleksandrov <nikolay@cumulusnetworks.com>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Jann Horn <jannh@google.com>,
+        Jay Vosburgh <jay.vosburgh@canonical.com>,
+        Cong Wang <xiyou.wangcong@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.4 69/86] net: fix a potential recursive NETDEV_FEAT_CHANGE
 Date:   Mon, 18 May 2020 19:36:40 +0200
-Message-Id: <20200518173540.951820648@linuxfoundation.org>
+Message-Id: <20200518173504.310523547@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
-References: <20200518173531.455604187@linuxfoundation.org>
+In-Reply-To: <20200518173450.254571947@linuxfoundation.org>
+References: <20200518173450.254571947@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,74 +51,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phil Sutter <phil@nwl.cc>
+From: Cong Wang <xiyou.wangcong@gmail.com>
 
-[ Upstream commit 340eaff651160234bdbce07ef34b92a8e45cd540 ]
+[ Upstream commit dd912306ff008891c82cd9f63e8181e47a9cb2fb ]
 
-Expired intervals would still match and be dumped to user space until
-garbage collection wiped them out. Make sure they stop matching and
-disappear (from users' perspective) as soon as they expire.
+syzbot managed to trigger a recursive NETDEV_FEAT_CHANGE event
+between bonding master and slave. I managed to find a reproducer
+for this:
 
-Fixes: 8d8540c4f5e03 ("netfilter: nft_set_rbtree: add timeout support")
-Signed-off-by: Phil Sutter <phil@nwl.cc>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  ip li set bond0 up
+  ifenslave bond0 eth0
+  brctl addbr br0
+  ethtool -K eth0 lro off
+  brctl addif br0 bond0
+  ip li set br0 up
+
+When a NETDEV_FEAT_CHANGE event is triggered on a bonding slave,
+it captures this and calls bond_compute_features() to fixup its
+master's and other slaves' features. However, when syncing with
+its lower devices by netdev_sync_lower_features() this event is
+triggered again on slaves when the LRO feature fails to change,
+so it goes back and forth recursively until the kernel stack is
+exhausted.
+
+Commit 17b85d29e82c intentionally lets __netdev_update_features()
+return -1 for such a failure case, so we have to just rely on
+the existing check inside netdev_sync_lower_features() and skip
+NETDEV_FEAT_CHANGE event only for this specific failure case.
+
+Fixes: fd867d51f889 ("net/core: generic support for disabling netdev features down stack")
+Reported-by: syzbot+e73ceacfd8560cc8a3ca@syzkaller.appspotmail.com
+Reported-by: syzbot+c2fb6f9ddcea95ba49b5@syzkaller.appspotmail.com
+Cc: Jarod Wilson <jarod@redhat.com>
+Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Cc: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: Jann Horn <jannh@google.com>
+Reviewed-by: Jay Vosburgh <jay.vosburgh@canonical.com>
+Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
+Acked-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netfilter/nft_set_rbtree.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ net/core/dev.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/net/netfilter/nft_set_rbtree.c b/net/netfilter/nft_set_rbtree.c
-index 46d976969ca30..accbb54c2b714 100644
---- a/net/netfilter/nft_set_rbtree.c
-+++ b/net/netfilter/nft_set_rbtree.c
-@@ -79,6 +79,10 @@ static bool __nft_rbtree_lookup(const struct net *net, const struct nft_set *set
- 				parent = rcu_dereference_raw(parent->rb_left);
- 				continue;
- 			}
-+
-+			if (nft_set_elem_expired(&rbe->ext))
-+				return false;
-+
- 			if (nft_rbtree_interval_end(rbe)) {
- 				if (nft_set_is_anonymous(set))
- 					return false;
-@@ -94,6 +98,7 @@ static bool __nft_rbtree_lookup(const struct net *net, const struct nft_set *set
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -6449,11 +6449,13 @@ static void netdev_sync_lower_features(s
+ 			netdev_dbg(upper, "Disabling feature %pNF on lower dev %s.\n",
+ 				   &feature, lower->name);
+ 			lower->wanted_features &= ~feature;
+-			netdev_update_features(lower);
++			__netdev_update_features(lower);
  
- 	if (set->flags & NFT_SET_INTERVAL && interval != NULL &&
- 	    nft_set_elem_active(&interval->ext, genmask) &&
-+	    !nft_set_elem_expired(&interval->ext) &&
- 	    nft_rbtree_interval_start(interval)) {
- 		*ext = &interval->ext;
- 		return true;
-@@ -154,6 +159,9 @@ static bool __nft_rbtree_get(const struct net *net, const struct nft_set *set,
- 				continue;
- 			}
- 
-+			if (nft_set_elem_expired(&rbe->ext))
-+				return false;
-+
- 			if (!nft_set_ext_exists(&rbe->ext, NFT_SET_EXT_FLAGS) ||
- 			    (*nft_set_ext_flags(&rbe->ext) & NFT_SET_ELEM_INTERVAL_END) ==
- 			    (flags & NFT_SET_ELEM_INTERVAL_END)) {
-@@ -170,6 +178,7 @@ static bool __nft_rbtree_get(const struct net *net, const struct nft_set *set,
- 
- 	if (set->flags & NFT_SET_INTERVAL && interval != NULL &&
- 	    nft_set_elem_active(&interval->ext, genmask) &&
-+	    !nft_set_elem_expired(&interval->ext) &&
- 	    ((!nft_rbtree_interval_end(interval) &&
- 	      !(flags & NFT_SET_ELEM_INTERVAL_END)) ||
- 	     (nft_rbtree_interval_end(interval) &&
-@@ -418,6 +427,8 @@ static void nft_rbtree_walk(const struct nft_ctx *ctx,
- 
- 		if (iter->count < iter->skip)
- 			goto cont;
-+		if (nft_set_elem_expired(&rbe->ext))
-+			goto cont;
- 		if (!nft_set_elem_active(&rbe->ext, iter->genmask))
- 			goto cont;
- 
--- 
-2.20.1
-
+ 			if (unlikely(lower->features & feature))
+ 				netdev_WARN(upper, "failed to disable %pNF on %s!\n",
+ 					    &feature, lower->name);
++			else
++				netdev_features_change(lower);
+ 		}
+ 	}
+ }
 
 
