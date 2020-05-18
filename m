@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 133E11D823B
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:54:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EDD871D80C9
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:42:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731319AbgERRye (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:54:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59326 "EHLO mail.kernel.org"
+        id S1729367AbgERRmD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:42:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38812 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731317AbgERRyd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:54:33 -0400
+        id S1728682AbgERRmC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:42:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 61B7A207C4;
-        Mon, 18 May 2020 17:54:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8E86F207C4;
+        Mon, 18 May 2020 17:42:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824472;
-        bh=xURob6Yxsaifegk/rKDVTt3iGfWy/FpxpLBBuq79G/w=;
+        s=default; t=1589823722;
+        bh=JPkpRm0BfBT5z2CG2nT7W1EMNek7CBPjCyePZ2NfKok=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EdX/mPRxpDylEb7KWoPODm70aDdHLYz2zrFgpVvV4QnrVOabIUAIdo9sNlUEqcpGi
-         X7XSCCV4B4kkwipz/LEJzMxErPaHpeuwrzlwgtanov8l59cjI88CjdHvxMnRPoL9zL
-         j0bJfxzDGA2UCh8qilQhcQq2Ad1vAHOGTmD3v9U8=
+        b=YbUNPZjiTKarqOw4dsz6b89CXC/8lq7X1mOBeZLW80188mlKvbrBFTDjzn7hIxROC
+         tjUksDczJ2SVjPlbQtGwSNSwrcq7VlPgWbohfYcU+kbhJvqlRo+1FDYUhdADDB5l+q
+         PUJcgs/7Dh7kiVBy1CyKX1/eHt/ZX8hc5OYhYWR8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        Soheil Hassas Yeganeh <soheil@google.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 025/147] tcp: fix error recovery in tcp_zerocopy_receive()
+        stable@vger.kernel.org, Moshe Shemesh <moshe@mellanox.com>,
+        Eran Ben Elisha <eranbe@mellanox.com>,
+        Saeed Mahameed <saeedm@mellanox.com>
+Subject: [PATCH 4.9 10/90] net/mlx5: Fix forced completion access non initialized command entry
 Date:   Mon, 18 May 2020 19:35:48 +0200
-Message-Id: <20200518173516.952261293@linuxfoundation.org>
+Message-Id: <20200518173453.340240579@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
-References: <20200518173513.009514388@linuxfoundation.org>
+In-Reply-To: <20200518173450.930655662@linuxfoundation.org>
+References: <20200518173450.930655662@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,76 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Moshe Shemesh <moshe@mellanox.com>
 
-[ Upstream commit e776af608f692a7a647455106295fa34469e7475 ]
+[ Upstream commit f3cb3cebe26ed4c8036adbd9448b372129d3c371 ]
 
-If user provides wrong virtual address in TCP_ZEROCOPY_RECEIVE
-operation we want to return -EINVAL error.
+mlx5_cmd_flush() will trigger forced completions to all valid command
+entries. Triggered by an asynch event such as fast teardown it can
+happen at any stage of the command, including command initialization.
+It will trigger forced completion and that can lead to completion on an
+uninitialized command entry.
 
-But depending on zc->recv_skip_hint content, we might return
--EIO error if the socket has SOCK_DONE set.
+Setting MLX5_CMD_ENT_STATE_PENDING_COMP only after command entry is
+initialized will ensure force completion is treated only if command
+entry is initialized.
 
-Make sure to return -EINVAL in this case.
-
-BUG: KMSAN: uninit-value in tcp_zerocopy_receive net/ipv4/tcp.c:1833 [inline]
-BUG: KMSAN: uninit-value in do_tcp_getsockopt+0x4494/0x6320 net/ipv4/tcp.c:3685
-CPU: 1 PID: 625 Comm: syz-executor.0 Not tainted 5.7.0-rc4-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Call Trace:
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0x1c9/0x220 lib/dump_stack.c:118
- kmsan_report+0xf7/0x1e0 mm/kmsan/kmsan_report.c:121
- __msan_warning+0x58/0xa0 mm/kmsan/kmsan_instr.c:215
- tcp_zerocopy_receive net/ipv4/tcp.c:1833 [inline]
- do_tcp_getsockopt+0x4494/0x6320 net/ipv4/tcp.c:3685
- tcp_getsockopt+0xf8/0x1f0 net/ipv4/tcp.c:3728
- sock_common_getsockopt+0x13f/0x180 net/core/sock.c:3131
- __sys_getsockopt+0x533/0x7b0 net/socket.c:2177
- __do_sys_getsockopt net/socket.c:2192 [inline]
- __se_sys_getsockopt+0xe1/0x100 net/socket.c:2189
- __x64_sys_getsockopt+0x62/0x80 net/socket.c:2189
- do_syscall_64+0xb8/0x160 arch/x86/entry/common.c:297
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-RIP: 0033:0x45c829
-Code: 0d b7 fb ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 db b6 fb ff c3 66 2e 0f 1f 84 00 00 00 00
-RSP: 002b:00007f1deeb72c78 EFLAGS: 00000246 ORIG_RAX: 0000000000000037
-RAX: ffffffffffffffda RBX: 00000000004e01e0 RCX: 000000000045c829
-RDX: 0000000000000023 RSI: 0000000000000006 RDI: 0000000000000009
-RBP: 000000000078bf00 R08: 0000000020000200 R09: 0000000000000000
-R10: 00000000200001c0 R11: 0000000000000246 R12: 00000000ffffffff
-R13: 00000000000001d8 R14: 00000000004d3038 R15: 00007f1deeb736d4
-
-Local variable ----zc@do_tcp_getsockopt created at:
- do_tcp_getsockopt+0x1a74/0x6320 net/ipv4/tcp.c:3670
- do_tcp_getsockopt+0x1a74/0x6320 net/ipv4/tcp.c:3670
-
-Fixes: 05255b823a61 ("tcp: add TCP_ZEROCOPY_RECEIVE support for zerocopy receive")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Acked-by: Soheil Hassas Yeganeh <soheil@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 73dd3a4839c1 ("net/mlx5: Avoid using pending command interface slots")
+Signed-off-by: Moshe Shemesh <moshe@mellanox.com>
+Signed-off-by: Eran Ben Elisha <eranbe@mellanox.com>
+Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/tcp.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/cmd.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/ipv4/tcp.c
-+++ b/net/ipv4/tcp.c
-@@ -1757,10 +1757,11 @@ static int tcp_zerocopy_receive(struct s
+--- a/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
+@@ -813,7 +813,6 @@ static void cmd_work_handler(struct work
+ 	}
  
- 	down_read(&current->mm->mmap_sem);
+ 	cmd->ent_arr[ent->idx] = ent;
+-	set_bit(MLX5_CMD_ENT_STATE_PENDING_COMP, &ent->state);
+ 	lay = get_inst(cmd, ent->idx);
+ 	ent->lay = lay;
+ 	memset(lay, 0, sizeof(*lay));
+@@ -835,6 +834,7 @@ static void cmd_work_handler(struct work
  
--	ret = -EINVAL;
- 	vma = find_vma(current->mm, address);
--	if (!vma || vma->vm_start > address || vma->vm_ops != &tcp_vm_ops)
--		goto out;
-+	if (!vma || vma->vm_start > address || vma->vm_ops != &tcp_vm_ops) {
-+		up_read(&current->mm->mmap_sem);
-+		return -EINVAL;
-+	}
- 	zc->length = min_t(unsigned long, zc->length, vma->vm_end - address);
+ 	if (ent->callback)
+ 		schedule_delayed_work(&ent->cb_timeout_work, cb_timeout);
++	set_bit(MLX5_CMD_ENT_STATE_PENDING_COMP, &ent->state);
  
- 	tp = tcp_sk(sk);
+ 	/* Skip sending command to fw if internal error */
+ 	if (pci_channel_offline(dev->pdev) ||
 
 
