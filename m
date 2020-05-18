@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 929921D808A
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:40:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A1171D86A6
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:28:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728402AbgERRkT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:40:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35782 "EHLO mail.kernel.org"
+        id S1729996AbgERSZ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:25:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45418 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729029AbgERRkT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:40:19 -0400
+        id S1729998AbgERRqC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:46:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E4634207FB;
-        Mon, 18 May 2020 17:40:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BD53320674;
+        Mon, 18 May 2020 17:46:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589823618;
-        bh=rI69ELdrINCHlnyvofm74tGYIw+cV8yJBh7GJpNNMKA=;
+        s=default; t=1589823962;
+        bh=pBf0XhgFQd7xKxxEm+vthMbvXZNC6xtGEr3S4kcDNIo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TY9bXI6gzfFcxHp526oLrQBIup8fSCtv0u1zhU4WdFfLuDw7QG/gBPyRRjnr3RQMu
-         PKN7TA8SRhl2LhFzL8cjdedLB7IpzT0YrYxmVYk1TCu1cgsCSwBM7IrI7tHtEQAf1w
-         XxAt0eBIfqKJnfqSvC9ACFmcz8LXndLz66/n5AUA=
+        b=dG4VIvj5oIUktrWxJx+0ekgGVZuojilDt4bE2MFDz/+IK1v9QbBsKTtvLW+BdzF+l
+         oe/ofaly5Fbr9ofpyWkAHJTZ3pT29tWnOF4aO3EF2AlBHYjfMPJ4BZhUYgvyLGDZqk
+         lOqd1N/H3TGXZT9QcKGEsLBq0sU2coUZ6+Yiv5hE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ivan Delalande <colona@arista.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Borislav Petkov <bp@suse.de>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.4 16/86] scripts/decodecode: fix trapping instruction formatting
-Date:   Mon, 18 May 2020 19:35:47 +0200
-Message-Id: <20200518173453.793425023@linuxfoundation.org>
+        stable@vger.kernel.org, Jason Gerecke <jason.gerecke@wacom.com>,
+        Aaron Armstrong Skomra <aaron.skomra@wacom.com>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 4.14 016/114] HID: wacom: Read HID_DG_CONTACTMAX directly for non-generic devices
+Date:   Mon, 18 May 2020 19:35:48 +0200
+Message-Id: <20200518173506.610881590@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173450.254571947@linuxfoundation.org>
-References: <20200518173450.254571947@linuxfoundation.org>
+In-Reply-To: <20200518173503.033975649@linuxfoundation.org>
+References: <20200518173503.033975649@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,46 +45,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ivan Delalande <colona@arista.com>
+From: Jason Gerecke <jason.gerecke@wacom.com>
 
-commit e08df079b23e2e982df15aa340bfbaf50f297504 upstream.
+commit 778fbf4179991e7652e97d7f1ca1f657ef828422 upstream.
 
-If the trapping instruction contains a ':', for a memory access through
-segment registers for example, the sed substitution will insert the '*'
-marker in the middle of the instruction instead of the line address:
+We've recently switched from extracting the value of HID_DG_CONTACTMAX
+at a fixed offset (which may not be correct for all tablets) to
+injecting the report into the driver for the generic codepath to handle.
+Unfortunately, this change was made for *all* tablets, even those which
+aren't generic. Because `wacom_wac_report` ignores reports from non-
+generic devices, the contact count never gets initialized. Ultimately
+this results in the touch device itself failing to probe, and thus the
+loss of touch input.
 
-	2b:   65 48 0f c7 0f          cmpxchg16b %gs:*(%rdi)          <-- trapping instruction
+This commit adds back the fixed-offset extraction for non-generic devices.
 
-I started to think I had forgotten some quirk of the assembly syntax
-before noticing that it was actually coming from the script.  Fix it to
-add the address marker at the right place for these instructions:
-
-	28:   49 8b 06                mov    (%r14),%rax
-	2b:*  65 48 0f c7 0f          cmpxchg16b %gs:(%rdi)           <-- trapping instruction
-	30:   0f 94 c0                sete   %al
-
-Fixes: 18ff44b189e2 ("scripts/decodecode: make faulting insn ptr more robust")
-Signed-off-by: Ivan Delalande <colona@arista.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Borislav Petkov <bp@suse.de>
-Link: http://lkml.kernel.org/r/20200419223653.GA31248@visor
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Link: https://github.com/linuxwacom/input-wacom/issues/155
+Fixes: 184eccd40389 ("HID: wacom: generic: read HID_DG_CONTACTMAX from any feature report")
+Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+Reviewed-by: Aaron Armstrong Skomra <aaron.skomra@wacom.com>
+CC: stable@vger.kernel.org # 5.3+
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- scripts/decodecode |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hid/wacom_sys.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/scripts/decodecode
-+++ b/scripts/decodecode
-@@ -98,7 +98,7 @@ faultlinenum=$(( $(wc -l $T.oo  | cut -d
- faultline=`cat $T.dis | head -1 | cut -d":" -f2-`
- faultline=`echo "$faultline" | sed -e 's/\[/\\\[/g; s/\]/\\\]/g'`
- 
--cat $T.oo | sed -e "${faultlinenum}s/^\(.*:\)\(.*\)/\1\*\2\t\t<-- trapping instruction/"
-+cat $T.oo | sed -e "${faultlinenum}s/^\([^:]*:\)\(.*\)/\1\*\2\t\t<-- trapping instruction/"
- echo
- cat $T.aa
- cleanup
+--- a/drivers/hid/wacom_sys.c
++++ b/drivers/hid/wacom_sys.c
+@@ -132,9 +132,11 @@ static void wacom_feature_mapping(struct
+ 			data[0] = field->report->id;
+ 			ret = wacom_get_report(hdev, HID_FEATURE_REPORT,
+ 					       data, n, WAC_CMD_RETRIES);
+-			if (ret == n) {
++			if (ret == n && features->type == HID_GENERIC) {
+ 				ret = hid_report_raw_event(hdev,
+ 					HID_FEATURE_REPORT, data, n, 0);
++			} else if (ret == 2 && features->type != HID_GENERIC) {
++				features->touch_max = data[1];
+ 			} else {
+ 				features->touch_max = 16;
+ 				hid_warn(hdev, "wacom_feature_mapping: "
 
 
