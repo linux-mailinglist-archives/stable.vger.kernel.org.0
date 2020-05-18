@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 761111D81E9
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:52:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B1F4C1D8366
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:05:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730902AbgERRv4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:51:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54950 "EHLO mail.kernel.org"
+        id S1732775AbgERSEY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:04:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51398 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730412AbgERRvz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:51:55 -0400
+        id S1732257AbgERSEX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 14:04:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 00B8620884;
-        Mon, 18 May 2020 17:51:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 50FBA20715;
+        Mon, 18 May 2020 18:04:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824314;
-        bh=KFbd1vMPx1N9D3//2dkbNX6qzqR1HhfZr1JgaPOh90s=;
+        s=default; t=1589825062;
+        bh=tJRGNk7SX8eNPltUjlQO5LmafLOMsO6yY9TLKgqoxrU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=whI5lTZX7pjh6jrBV4HZzKJ3EX5TwLi70PGi+e4ozX1ONUv3GH42am/Sk1vztK6LV
-         nuzMMUj/zfZXOc93wcTdB9TKmIyjwpkt88KtOFdTCKjSqkDroo2RNDJbZp3eJA8j+t
-         r4H80UZoB7CUnA48ru4sWax0dmsDa3OKjOSO4Kh4=
+        b=ZJgIgzYzkSLqQB2QmeXxGewdgCZ1pRg6k/ki4PiCElySSyd+W8g/lUOOPrVrUAG8A
+         k7kLa6zjLyB3EHNiYxMsPsP68uiowd18P7js4UohZaIU647ZYKRXy7Ac2L4gkQroOK
+         SfiUw3iGg6IE9W1lde1tJPalBlPVu9L8ZuMLon6M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org,
+        Jack Morgenstein <jackm@dev.mellanox.co.il>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 25/80] cpufreq: intel_pstate: Only mention the BIOS disabling turbo mode once
+Subject: [PATCH 5.6 113/194] IB/core: Fix potential NULL pointer dereference in pkey cache
 Date:   Mon, 18 May 2020 19:36:43 +0200
-Message-Id: <20200518173455.410591612@linuxfoundation.org>
+Message-Id: <20200518173541.154322083@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173450.097837707@linuxfoundation.org>
-References: <20200518173450.097837707@linuxfoundation.org>
+In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
+References: <20200518173531.455604187@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,34 +46,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Wilson <chris@chris-wilson.co.uk>
+From: Jack Morgenstein <jackm@dev.mellanox.co.il>
 
-[ Upstream commit 8c539776ac83c0857395e1ccc9c6b516521a2d32 ]
+[ Upstream commit 1901b91f99821955eac2bd48fe25ee983385dc00 ]
 
-Make a note of the first time we discover the turbo mode has been
-disabled by the BIOS, as otherwise we complain every time we try to
-update the mode.
+The IB core pkey cache is populated by procedure ib_cache_update().
+Initially, the pkey cache pointer is NULL. ib_cache_update allocates a
+buffer and populates it with the device's pkeys, via repeated calls to
+procedure ib_query_pkey().
 
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+If there is a failure in populating the pkey buffer via ib_query_pkey(),
+ib_cache_update does not replace the old pkey buffer cache with the
+updated one -- it leaves the old cache as is.
+
+Since initially the pkey buffer cache is NULL, when calling
+ib_cache_update the first time, a failure in ib_query_pkey() will cause
+the pkey buffer cache pointer to remain NULL.
+
+In this situation, any calls subsequent to ib_get_cached_pkey(),
+ib_find_cached_pkey(), or ib_find_cached_pkey_exact() will try to
+dereference the NULL pkey cache pointer, causing a kernel panic.
+
+Fix this by checking the ib_cache_update() return value.
+
+Fixes: 8faea9fd4a39 ("RDMA/cache: Move the cache per-port data into the main ib_port_data")
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Link: https://lore.kernel.org/r/20200507071012.100594-1-leon@kernel.org
+Signed-off-by: Jack Morgenstein <jackm@dev.mellanox.co.il>
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpufreq/intel_pstate.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/infiniband/core/cache.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/cpufreq/intel_pstate.c b/drivers/cpufreq/intel_pstate.c
-index 29f25d5d65e00..e7b3d4ed8eff4 100644
---- a/drivers/cpufreq/intel_pstate.c
-+++ b/drivers/cpufreq/intel_pstate.c
-@@ -957,7 +957,7 @@ static ssize_t store_no_turbo(struct kobject *a, struct kobj_attribute *b,
+diff --git a/drivers/infiniband/core/cache.c b/drivers/infiniband/core/cache.c
+index 17bfedd24cc34..4619629b958cd 100644
+--- a/drivers/infiniband/core/cache.c
++++ b/drivers/infiniband/core/cache.c
+@@ -1536,8 +1536,11 @@ int ib_cache_setup_one(struct ib_device *device)
+ 	if (err)
+ 		return err;
  
- 	update_turbo_state();
- 	if (global.turbo_disabled) {
--		pr_warn("Turbo disabled by BIOS or unavailable on processor\n");
-+		pr_notice_once("Turbo disabled by BIOS or unavailable on processor\n");
- 		mutex_unlock(&intel_pstate_limits_lock);
- 		mutex_unlock(&intel_pstate_driver_lock);
- 		return -EPERM;
+-	rdma_for_each_port (device, p)
+-		ib_cache_update(device, p, true);
++	rdma_for_each_port (device, p) {
++		err = ib_cache_update(device, p, true);
++		if (err)
++			return err;
++	}
+ 
+ 	return 0;
+ }
 -- 
 2.20.1
 
