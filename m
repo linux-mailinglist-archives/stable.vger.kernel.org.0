@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE0F71D8382
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:05:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1060A1D8510
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:17:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730627AbgERSF3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:05:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53080 "EHLO mail.kernel.org"
+        id S1731850AbgERR6B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:58:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37008 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732160AbgERSF2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 14:05:28 -0400
+        id S1731847AbgERR6A (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:58:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5DF52207D3;
-        Mon, 18 May 2020 18:05:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 52D2A20715;
+        Mon, 18 May 2020 17:57:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589825127;
-        bh=8W5kfFh37VEb/OX1ZIecgC5GijoPKDRsNoEBJ4aaWZo=;
+        s=default; t=1589824679;
+        bh=V1Ja0lg4oMTIl71tYsWdRm+4wxF6tLKWIy2gbpYiJMU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qWsmzPFR0BV9gebp4vdGRNu01UVTKuXvvFyoRqjlEzzYj3lVyr9q8sPOaNwfVNQE7
-         pVVfdAEn34yTLha5+ohYwmZaNgo2dUuWF2VPnYjI1ZlJH+xzB/taTyFgxf4dd4v6O/
-         mCW4ciE4hw6L9fmDygtfarZEVTn7MS6ES4/Q/5yk=
+        b=MEcPpG/p40yL0xI0pnWgU2j6q+XlDrrluzImHhLCVeA9j+TFMr5o10LZuGImKefcU
+         nfoE2DQXTq/AGuI9o1t4tCUSQ/EAuPn6kg7OrKzquhjLgMn7KpPJyfxJC/OVy05NFN
+         wpSlthcdGb5xPyREBTkLUifCanjs3CxsAtRSoi88=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, butt3rflyh4ck <butterflyhuangxx@gmail.com>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.6 140/194] ALSA: rawmidi: Fix racy buffer resize under concurrent accesses
+Subject: [PATCH 5.4 107/147] ALSA: rawmidi: Fix racy buffer resize under concurrent accesses
 Date:   Mon, 18 May 2020 19:37:10 +0200
-Message-Id: <20200518173542.979747345@linuxfoundation.org>
+Message-Id: <20200518173526.564944717@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
-References: <20200518173531.455604187@linuxfoundation.org>
+In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
+References: <20200518173513.009514388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -88,7 +88,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	wait_queue_head_t sleep;
 --- a/sound/core/rawmidi.c
 +++ b/sound/core/rawmidi.c
-@@ -120,6 +120,17 @@ static void snd_rawmidi_input_event_work
+@@ -97,6 +97,17 @@ static void snd_rawmidi_input_event_work
  		runtime->event(runtime->substream);
  }
  
@@ -106,7 +106,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  static int snd_rawmidi_runtime_create(struct snd_rawmidi_substream *substream)
  {
  	struct snd_rawmidi_runtime *runtime;
-@@ -669,6 +680,11 @@ static int resize_runtime_buffer(struct
+@@ -646,6 +657,11 @@ static int resize_runtime_buffer(struct
  		if (!newbuf)
  			return -ENOMEM;
  		spin_lock_irq(&runtime->lock);
@@ -118,7 +118,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		oldbuf = runtime->buffer;
  		runtime->buffer = newbuf;
  		runtime->buffer_size = params->buffer_size;
-@@ -1019,8 +1035,10 @@ static long snd_rawmidi_kernel_read1(str
+@@ -945,8 +961,10 @@ static long snd_rawmidi_kernel_read1(str
  	long result = 0, count1;
  	struct snd_rawmidi_runtime *runtime = substream->runtime;
  	unsigned long appl_ptr;
@@ -129,7 +129,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	while (count > 0 && runtime->avail) {
  		count1 = runtime->buffer_size - runtime->appl_ptr;
  		if (count1 > count)
-@@ -1039,16 +1057,19 @@ static long snd_rawmidi_kernel_read1(str
+@@ -965,16 +983,19 @@ static long snd_rawmidi_kernel_read1(str
  		if (userbuf) {
  			spin_unlock_irqrestore(&runtime->lock, flags);
  			if (copy_to_user(userbuf + result,
@@ -153,7 +153,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  }
  
  long snd_rawmidi_kernel_read(struct snd_rawmidi_substream *substream,
-@@ -1342,6 +1363,7 @@ static long snd_rawmidi_kernel_write1(st
+@@ -1268,6 +1289,7 @@ static long snd_rawmidi_kernel_write1(st
  			return -EAGAIN;
  		}
  	}
@@ -161,7 +161,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	while (count > 0 && runtime->avail > 0) {
  		count1 = runtime->buffer_size - runtime->appl_ptr;
  		if (count1 > count)
-@@ -1373,6 +1395,7 @@ static long snd_rawmidi_kernel_write1(st
+@@ -1299,6 +1321,7 @@ static long snd_rawmidi_kernel_write1(st
  	}
        __end:
  	count1 = runtime->avail < runtime->buffer_size;
