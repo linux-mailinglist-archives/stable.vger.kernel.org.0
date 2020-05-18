@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 643551D8250
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:55:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 48EA21D8474
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:13:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729932AbgERRzV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:55:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60668 "EHLO mail.kernel.org"
+        id S1732551AbgERSCk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:02:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47232 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730610AbgERRzV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:55:21 -0400
+        id S1732537AbgERSCj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 14:02:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 095FB20674;
-        Mon, 18 May 2020 17:55:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8290220884;
+        Mon, 18 May 2020 18:02:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824520;
-        bh=8ZRbF1oT0PlniE7k0j5hKHHVmF3lXbnS8elI06OuwuY=;
+        s=default; t=1589824959;
+        bh=PXKcnrdYSP9RGpx8YL6Ph46rp7ixJa2f5AWPppSHqVM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z3VZYLjoXf8SqIYnsV2CxhKo8il1Cxkydsika/i1i7raEKjkxa5lptB8KUtWLRMKq
-         CLhZ9OqTMr66Pbhfp1Yv7QKXUyxrt1WUVbqfh6uT+KxDnIMzCdqfkyzjs6Gif3C9bf
-         EbaJcU21HMs7gYFn1zgD0utcc4E2hC8Zha3defhQ=
+        b=mguJ5S2OvLtrrQtdR2AOLFctH/I/2CF5AJsK3agOgA9o2kmCJwJCTh85EO3n/T3x2
+         Rf6EmwlFMiQAgnjiV6qKMLzAEC6jg2x2RollUzNFnSGIwrxb2BWCC1ES9CfFyc3ZZu
+         7+RmUuehroQz19nAcN9gTWvQPyY8JOIIoQPtn6Ss=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmitry Golovin <dima@golovin.in>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Ilie Halip <ilie.halip@gmail.com>,
-        Fangrui Song <maskray@google.com>,
-        Palmer Dabbelt <palmerdabbelt@google.com>,
+        stable@vger.kernel.org, Andreas Gruenbacher <agruenba@redhat.com>,
+        Bob Peterson <rpeterso@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 037/147] riscv: fix vdso build with lld
-Date:   Mon, 18 May 2020 19:36:00 +0200
-Message-Id: <20200518173518.716945487@linuxfoundation.org>
+Subject: [PATCH 5.6 071/194] gfs2: Another gfs2_walk_metadata fix
+Date:   Mon, 18 May 2020 19:36:01 +0200
+Message-Id: <20200518173537.694046759@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
-References: <20200518173513.009514388@linuxfoundation.org>
+In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
+References: <20200518173531.455604187@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,52 +44,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilie Halip <ilie.halip@gmail.com>
+From: Andreas Gruenbacher <agruenba@redhat.com>
 
-[ Upstream commit 3c1918c8f54166598195d938564072664a8275b1 ]
+[ Upstream commit 566a2ab3c9005f62e784bd39022d58d34ef4365c ]
 
-When building with the LLVM linker this error occurrs:
-    LD      arch/riscv/kernel/vdso/vdso-syms.o
-  ld.lld: error: no input files
+Make sure we don't walk past the end of the metadata in gfs2_walk_metadata: the
+inode holds fewer pointers than indirect blocks.
 
-This happens because the lld treats -R as an alias to -rpath, as opposed
-to ld where -R means --just-symbols.
+Slightly clean up gfs2_iomap_get.
 
-Use the long option name for compatibility between the two.
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/805
-Reported-by: Dmitry Golovin <dima@golovin.in>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Ilie Halip <ilie.halip@gmail.com>
-Reviewed-by: Fangrui Song <maskray@google.com>
-Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
+Fixes: a27a0c9b6a20 ("gfs2: gfs2_walk_metadata fix")
+Cc: stable@vger.kernel.org # v5.3+
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Signed-off-by: Bob Peterson <rpeterso@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/kernel/vdso/Makefile | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ fs/gfs2/bmap.c | 16 +++++++++-------
+ 1 file changed, 9 insertions(+), 7 deletions(-)
 
-diff --git a/arch/riscv/kernel/vdso/Makefile b/arch/riscv/kernel/vdso/Makefile
-index 33b16f4212f7a..a4ee3a0e7d20d 100644
---- a/arch/riscv/kernel/vdso/Makefile
-+++ b/arch/riscv/kernel/vdso/Makefile
-@@ -33,15 +33,15 @@ $(obj)/vdso.so.dbg: $(src)/vdso.lds $(obj-vdso) FORCE
- 	$(call if_changed,vdsold)
+diff --git a/fs/gfs2/bmap.c b/fs/gfs2/bmap.c
+index 08f6fbb3655e2..31ed264356253 100644
+--- a/fs/gfs2/bmap.c
++++ b/fs/gfs2/bmap.c
+@@ -528,10 +528,12 @@ static int gfs2_walk_metadata(struct inode *inode, struct metapath *mp,
  
- # We also create a special relocatable object that should mirror the symbol
--# table and layout of the linked DSO.  With ld -R we can then refer to
--# these symbols in the kernel code rather than hand-coded addresses.
-+# table and layout of the linked DSO. With ld --just-symbols we can then
-+# refer to these symbols in the kernel code rather than hand-coded addresses.
+ 		/* Advance in metadata tree. */
+ 		(mp->mp_list[hgt])++;
+-		if (mp->mp_list[hgt] >= sdp->sd_inptrs) {
+-			if (!hgt)
++		if (hgt) {
++			if (mp->mp_list[hgt] >= sdp->sd_inptrs)
++				goto lower_metapath;
++		} else {
++			if (mp->mp_list[hgt] >= sdp->sd_diptrs)
+ 				break;
+-			goto lower_metapath;
+ 		}
  
- SYSCFLAGS_vdso.so.dbg = -shared -s -Wl,-soname=linux-vdso.so.1 \
- 	-Wl,--build-id -Wl,--hash-style=both
- $(obj)/vdso-dummy.o: $(src)/vdso.lds $(obj)/rt_sigreturn.o FORCE
- 	$(call if_changed,vdsold)
+ fill_up_metapath:
+@@ -876,10 +878,9 @@ static int gfs2_iomap_get(struct inode *inode, loff_t pos, loff_t length,
+ 					ret = -ENOENT;
+ 					goto unlock;
+ 				} else {
+-					/* report a hole */
+ 					iomap->offset = pos;
+ 					iomap->length = length;
+-					goto do_alloc;
++					goto hole_found;
+ 				}
+ 			}
+ 			iomap->length = size;
+@@ -933,8 +934,6 @@ static int gfs2_iomap_get(struct inode *inode, loff_t pos, loff_t length,
+ 	return ret;
  
--LDFLAGS_vdso-syms.o := -r -R
-+LDFLAGS_vdso-syms.o := -r --just-symbols
- $(obj)/vdso-syms.o: $(obj)/vdso-dummy.o FORCE
- 	$(call if_changed,ld)
+ do_alloc:
+-	iomap->addr = IOMAP_NULL_ADDR;
+-	iomap->type = IOMAP_HOLE;
+ 	if (flags & IOMAP_REPORT) {
+ 		if (pos >= size)
+ 			ret = -ENOENT;
+@@ -956,6 +955,9 @@ static int gfs2_iomap_get(struct inode *inode, loff_t pos, loff_t length,
+ 		if (pos < size && height == ip->i_height)
+ 			ret = gfs2_hole_size(inode, lblock, len, mp, iomap);
+ 	}
++hole_found:
++	iomap->addr = IOMAP_NULL_ADDR;
++	iomap->type = IOMAP_HOLE;
+ 	goto out;
+ }
  
 -- 
 2.20.1
