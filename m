@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EAFE31D826D
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:56:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E2EA1D81C4
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:50:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731620AbgERR4V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:56:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34176 "EHLO mail.kernel.org"
+        id S1730185AbgERRul (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:50:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52914 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730827AbgERR4U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:56:20 -0400
+        id S1729939AbgERRuk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:50:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6B412207C4;
-        Mon, 18 May 2020 17:56:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E592E20715;
+        Mon, 18 May 2020 17:50:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824579;
-        bh=qPiPvnOGJzhRxWccUafyKknE9pRDCl2DUrjtZb6VY4k=;
+        s=default; t=1589824239;
+        bh=mZDpFq78a3s4o+gGZkg4N/z1GPyCKTvpTor0KpjQaMo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jubR3iFZ18W8xBdy2fBzQMKcLKN+5w9nfi0Iba2DsN6xaT6EFgvLIXNSirOMWpBoe
-         a+ADFBYDBE8lV/+HdVKJmj5viyWXrWOHlq2yfb9dwJ4POwQ79dWH1EntFsSe7fVStq
-         jx7pLf1gb6W25PYafnGykmVqo9tgApX66fDHEgsE=
+        b=hMR+ZM2nI4ugMew2zUhWsOYclE3pj915utCLmYevN/vf1YZEJkseRoRWdHuiRqorW
+         iSnFW0/4BG3u0O62gL+FMPNJCpztBoWTFvUVFxQEKKlAmQzvKOMp1HPQasLzbnS43i
+         0oUpMrbzzZ+eitLk1w7LHsxbgVPF/BL6GQB0fQw4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Grzegorz Kowal <custos.mentis@gmail.com>,
-        Ben Chuang <ben.chuang@genesyslogic.com.tw>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 067/147] mmc: sdhci-pci-gli: Fix can not access GL9750 after reboot from Windows 10
-Date:   Mon, 18 May 2020 19:36:30 +0200
-Message-Id: <20200518173522.359872335@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Willem de Bruijn <willemb@google.com>,
+        Xin Long <lucien.xin@gmail.com>,
+        Hannes Frederic Sowa <hannes@stressinduktion.org>,
+        =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <maze@google.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 13/80] Revert "ipv6: add mtu lock check in __ip6_rt_update_pmtu"
+Date:   Mon, 18 May 2020 19:36:31 +0200
+Message-Id: <20200518173453.039802676@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
-References: <20200518173513.009514388@linuxfoundation.org>
+In-Reply-To: <20200518173450.097837707@linuxfoundation.org>
+References: <20200518173450.097837707@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,51 +47,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Chuang <ben.chuang@genesyslogic.com.tw>
+From: "Maciej Żenczykowski" <maze@google.com>
 
-[ Upstream commit b56ff195c317ad28c05d354aeecbb9995b8e08c1 ]
+[ Upstream commit 09454fd0a4ce23cb3d8af65066c91a1bf27120dd ]
 
-Need to clear some bits in a vendor-defined register after reboot from
-Windows 10.
+This reverts commit 19bda36c4299ce3d7e5bce10bebe01764a655a6d:
 
-Fixes: e51df6ce668a ("mmc: host: sdhci-pci: Add Genesys Logic GL975x support")
-Reported-by: Grzegorz Kowal <custos.mentis@gmail.com>
-Signed-off-by: Ben Chuang <ben.chuang@genesyslogic.com.tw>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Tested-by: Grzegorz Kowal <custos.mentis@gmail.com>
-Link: https://lore.kernel.org/r/20200504063957.6638-1-benchuanggli@gmail.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+| ipv6: add mtu lock check in __ip6_rt_update_pmtu
+|
+| Prior to this patch, ipv6 didn't do mtu lock check in ip6_update_pmtu.
+| It leaded to that mtu lock doesn't really work when receiving the pkt
+| of ICMPV6_PKT_TOOBIG.
+|
+| This patch is to add mtu lock check in __ip6_rt_update_pmtu just as ipv4
+| did in __ip_rt_update_pmtu.
+
+The above reasoning is incorrect.  IPv6 *requires* icmp based pmtu to work.
+There's already a comment to this effect elsewhere in the kernel:
+
+  $ git grep -p -B1 -A3 'RTAX_MTU lock'
+  net/ipv6/route.c=4813=
+
+  static int rt6_mtu_change_route(struct fib6_info *f6i, void *p_arg)
+  ...
+    /* In IPv6 pmtu discovery is not optional,
+       so that RTAX_MTU lock cannot disable it.
+       We still use this lock to block changes
+       caused by addrconf/ndisc.
+    */
+
+This reverts to the pre-4.9 behaviour.
+
+Cc: Eric Dumazet <edumazet@google.com>
+Cc: Willem de Bruijn <willemb@google.com>
+Cc: Xin Long <lucien.xin@gmail.com>
+Cc: Hannes Frederic Sowa <hannes@stressinduktion.org>
+Signed-off-by: Maciej Żenczykowski <maze@google.com>
+Fixes: 19bda36c4299 ("ipv6: add mtu lock check in __ip6_rt_update_pmtu")
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/host/sdhci-pci-gli.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ net/ipv6/route.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/mmc/host/sdhci-pci-gli.c b/drivers/mmc/host/sdhci-pci-gli.c
-index ff39d81a5742c..fd76aa672e020 100644
---- a/drivers/mmc/host/sdhci-pci-gli.c
-+++ b/drivers/mmc/host/sdhci-pci-gli.c
-@@ -26,6 +26,9 @@
- #define   SDHCI_GLI_9750_DRIVING_2    GENMASK(27, 26)
- #define   GLI_9750_DRIVING_1_VALUE    0xFFF
- #define   GLI_9750_DRIVING_2_VALUE    0x3
-+#define   SDHCI_GLI_9750_SEL_1        BIT(29)
-+#define   SDHCI_GLI_9750_SEL_2        BIT(31)
-+#define   SDHCI_GLI_9750_ALL_RST      (BIT(24)|BIT(25)|BIT(28)|BIT(30))
+--- a/net/ipv6/route.c
++++ b/net/ipv6/route.c
+@@ -2360,8 +2360,10 @@ static void __ip6_rt_update_pmtu(struct
+ 	const struct in6_addr *daddr, *saddr;
+ 	struct rt6_info *rt6 = (struct rt6_info *)dst;
  
- #define SDHCI_GLI_9750_PLL	      0x864
- #define   SDHCI_GLI_9750_PLL_TX2_INV    BIT(23)
-@@ -122,6 +125,8 @@ static void gli_set_9750(struct sdhci_host *host)
- 				    GLI_9750_DRIVING_1_VALUE);
- 	driving_value |= FIELD_PREP(SDHCI_GLI_9750_DRIVING_2,
- 				    GLI_9750_DRIVING_2_VALUE);
-+	driving_value &= ~(SDHCI_GLI_9750_SEL_1|SDHCI_GLI_9750_SEL_2|SDHCI_GLI_9750_ALL_RST);
-+	driving_value |= SDHCI_GLI_9750_SEL_2;
- 	sdhci_writel(host, driving_value, SDHCI_GLI_9750_DRIVING);
+-	if (dst_metric_locked(dst, RTAX_MTU))
+-		return;
++	/* Note: do *NOT* check dst_metric_locked(dst, RTAX_MTU)
++	 * IPv6 pmtu discovery isn't optional, so 'mtu lock' cannot disable it.
++	 * [see also comment in rt6_mtu_change_route()]
++	 */
  
- 	sw_ctrl_value &= ~SDHCI_GLI_9750_SW_CTRL_4;
--- 
-2.20.1
-
+ 	if (iph) {
+ 		daddr = &iph->daddr;
 
 
