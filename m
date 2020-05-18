@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B58591D8555
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:18:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 556D61D8604
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:22:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732208AbgERSSE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:18:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34288 "EHLO mail.kernel.org"
+        id S1732023AbgERSWX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:22:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52980 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730827AbgERR4Z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:56:25 -0400
+        id S1730772AbgERRun (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:50:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 82C4D20674;
-        Mon, 18 May 2020 17:56:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C16F320674;
+        Mon, 18 May 2020 17:50:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824585;
-        bh=U8uXab8S/0VqSIOvJlQ4HEIViMdPlfMG23RGCtqDmaY=;
+        s=default; t=1589824242;
+        bh=cQVQT3iUocej6eK0goFCTG8v0zVNtUi2E3q8neVuBng=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=crmHxqxlitOHpR4L1vMpllAiQ+2J8qOzZpxja8ECPMo7xryyWsOaTKPTFhpTnpJVz
-         lXESSos97vpEfyETkcpUKkGQIEwFqOtgR1ZU9QeVej8Of9f/8m45vSp0JFvXtPPJ8Y
-         JwCooww/RqQMeSiASF9s4CqJHTyvOlTYnU7cn8us=
+        b=FoKYT3ySgQ6DsEiixRdSUdgNvJeXDnNLOUusNh1CxEfuBqxCAcXHXYy3N+43IduNv
+         xr5UgF6/WrXrdc3aAE3DnD9sPbObK9hqVcSTX3+kbpgLF2hAhrr51cbehHM+ymf5J2
+         UVNkL6TmMPKEsEUri6sDj0vt0xe/BaH9SNlluanc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sahitya Tummala <stummala@codeaurora.org>,
-        Sarthak Garg <sartgarg@codeaurora.org>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 069/147] mmc: core: Fix recursive locking issue in CQE recovery path
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        Soheil Hassas Yeganeh <soheil@google.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 14/80] tcp: fix error recovery in tcp_zerocopy_receive()
 Date:   Mon, 18 May 2020 19:36:32 +0200
-Message-Id: <20200518173522.620037806@linuxfoundation.org>
+Message-Id: <20200518173453.263188710@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
-References: <20200518173513.009514388@linuxfoundation.org>
+In-Reply-To: <20200518173450.097837707@linuxfoundation.org>
+References: <20200518173450.097837707@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,76 +45,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sarthak Garg <sartgarg@codeaurora.org>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 39a22f73744d5baee30b5f134ae2e30b668b66ed ]
+[ Upstream commit e776af608f692a7a647455106295fa34469e7475 ]
 
-Consider the following stack trace
+If user provides wrong virtual address in TCP_ZEROCOPY_RECEIVE
+operation we want to return -EINVAL error.
 
--001|raw_spin_lock_irqsave
--002|mmc_blk_cqe_complete_rq
--003|__blk_mq_complete_request(inline)
--003|blk_mq_complete_request(rq)
--004|mmc_cqe_timed_out(inline)
--004|mmc_mq_timed_out
+But depending on zc->recv_skip_hint content, we might return
+-EIO error if the socket has SOCK_DONE set.
 
-mmc_mq_timed_out acquires the queue_lock for the first
-time. The mmc_blk_cqe_complete_rq function also tries to acquire
-the same queue lock resulting in recursive locking where the task
-is spinning for the same lock which it has already acquired leading
-to watchdog bark.
+Make sure to return -EINVAL in this case.
 
-Fix this issue with the lock only for the required critical section.
+BUG: KMSAN: uninit-value in tcp_zerocopy_receive net/ipv4/tcp.c:1833 [inline]
+BUG: KMSAN: uninit-value in do_tcp_getsockopt+0x4494/0x6320 net/ipv4/tcp.c:3685
+CPU: 1 PID: 625 Comm: syz-executor.0 Not tainted 5.7.0-rc4-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Call Trace:
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0x1c9/0x220 lib/dump_stack.c:118
+ kmsan_report+0xf7/0x1e0 mm/kmsan/kmsan_report.c:121
+ __msan_warning+0x58/0xa0 mm/kmsan/kmsan_instr.c:215
+ tcp_zerocopy_receive net/ipv4/tcp.c:1833 [inline]
+ do_tcp_getsockopt+0x4494/0x6320 net/ipv4/tcp.c:3685
+ tcp_getsockopt+0xf8/0x1f0 net/ipv4/tcp.c:3728
+ sock_common_getsockopt+0x13f/0x180 net/core/sock.c:3131
+ __sys_getsockopt+0x533/0x7b0 net/socket.c:2177
+ __do_sys_getsockopt net/socket.c:2192 [inline]
+ __se_sys_getsockopt+0xe1/0x100 net/socket.c:2189
+ __x64_sys_getsockopt+0x62/0x80 net/socket.c:2189
+ do_syscall_64+0xb8/0x160 arch/x86/entry/common.c:297
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+RIP: 0033:0x45c829
+Code: 0d b7 fb ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 db b6 fb ff c3 66 2e 0f 1f 84 00 00 00 00
+RSP: 002b:00007f1deeb72c78 EFLAGS: 00000246 ORIG_RAX: 0000000000000037
+RAX: ffffffffffffffda RBX: 00000000004e01e0 RCX: 000000000045c829
+RDX: 0000000000000023 RSI: 0000000000000006 RDI: 0000000000000009
+RBP: 000000000078bf00 R08: 0000000020000200 R09: 0000000000000000
+R10: 00000000200001c0 R11: 0000000000000246 R12: 00000000ffffffff
+R13: 00000000000001d8 R14: 00000000004d3038 R15: 00007f1deeb736d4
 
-Cc: <stable@vger.kernel.org>
-Fixes: 1e8e55b67030 ("mmc: block: Add CQE support")
-Suggested-by: Sahitya Tummala <stummala@codeaurora.org>
-Signed-off-by: Sarthak Garg <sartgarg@codeaurora.org>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Link: https://lore.kernel.org/r/1588868135-31783-1-git-send-email-vbadigan@codeaurora.org
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Local variable ----zc@do_tcp_getsockopt created at:
+ do_tcp_getsockopt+0x1a74/0x6320 net/ipv4/tcp.c:3670
+ do_tcp_getsockopt+0x1a74/0x6320 net/ipv4/tcp.c:3670
+
+Fixes: 05255b823a61 ("tcp: add TCP_ZEROCOPY_RECEIVE support for zerocopy receive")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Acked-by: Soheil Hassas Yeganeh <soheil@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/core/queue.c | 13 ++++---------
- 1 file changed, 4 insertions(+), 9 deletions(-)
+ net/ipv4/tcp.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/mmc/core/queue.c b/drivers/mmc/core/queue.c
-index 9edc08685e86d..4d1e468d39823 100644
---- a/drivers/mmc/core/queue.c
-+++ b/drivers/mmc/core/queue.c
-@@ -107,7 +107,7 @@ static enum blk_eh_timer_return mmc_cqe_timed_out(struct request *req)
- 	case MMC_ISSUE_DCMD:
- 		if (host->cqe_ops->cqe_timeout(host, mrq, &recovery_needed)) {
- 			if (recovery_needed)
--				__mmc_cqe_recovery_notifier(mq);
-+				mmc_cqe_recovery_notifier(mrq);
- 			return BLK_EH_RESET_TIMER;
- 		}
- 		/* No timeout (XXX: huh? comment doesn't make much sense) */
-@@ -125,18 +125,13 @@ static enum blk_eh_timer_return mmc_mq_timed_out(struct request *req,
- 	struct request_queue *q = req->q;
- 	struct mmc_queue *mq = q->queuedata;
- 	unsigned long flags;
--	int ret;
-+	bool ignore_tout;
+--- a/net/ipv4/tcp.c
++++ b/net/ipv4/tcp.c
+@@ -1774,10 +1774,11 @@ static int tcp_zerocopy_receive(struct s
  
- 	spin_lock_irqsave(&mq->lock, flags);
--
--	if (mq->recovery_needed || !mq->use_cqe)
--		ret = BLK_EH_RESET_TIMER;
--	else
--		ret = mmc_cqe_timed_out(req);
--
-+	ignore_tout = mq->recovery_needed || !mq->use_cqe;
- 	spin_unlock_irqrestore(&mq->lock, flags);
+ 	down_read(&current->mm->mmap_sem);
  
--	return ret;
-+	return ignore_tout ? BLK_EH_RESET_TIMER : mmc_cqe_timed_out(req);
- }
+-	ret = -EINVAL;
+ 	vma = find_vma(current->mm, address);
+-	if (!vma || vma->vm_start > address || vma->vm_ops != &tcp_vm_ops)
+-		goto out;
++	if (!vma || vma->vm_start > address || vma->vm_ops != &tcp_vm_ops) {
++		up_read(&current->mm->mmap_sem);
++		return -EINVAL;
++	}
+ 	zc->length = min_t(unsigned long, zc->length, vma->vm_end - address);
  
- static void mmc_mq_recovery_handler(struct work_struct *work)
--- 
-2.20.1
-
+ 	tp = tcp_sk(sk);
 
 
