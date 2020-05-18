@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C4131D8445
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:11:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C9EB1D829B
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:58:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732917AbgERSFR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:05:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52726 "EHLO mail.kernel.org"
+        id S1731339AbgERR5w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:57:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36636 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732915AbgERSFQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 14:05:16 -0400
+        id S1731500AbgERR5s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:57:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E04DA20671;
-        Mon, 18 May 2020 18:05:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2220F20826;
+        Mon, 18 May 2020 17:57:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589825115;
+        s=default; t=1589824667;
         bh=Bf23uZnLV3OlKoZqeEjp8dJdg25q3YALsYaxnGvftpM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pXQDxTREor8w7WS1DgiQsO0W4C/JPmUhgYT721s7tgPgkWywkypghSySHD6e+UZjK
-         ZFwcCagB7VmD9UglLUlaeJHFTJ/fRPjKQT4NLXXgAG+k5ZYjvTwAZ6OBGdFuubz/cP
-         QBsDF/8BFP42PKGZJhJyGYlMHP+jlXrZE1zy7hiw=
+        b=NClvyZdAmi1Myq9wGuUUm3O5SY87MRvUdBcCmlfayILONkm53+o6arDjEAfvcLfun
+         U2S907Rc3D4H9ztDTBa6IQZtBrslVgGHaUKYMt9maIyAHK6cWxKX12qx+DNGJ/nEWb
+         ZNbgYGcm7oIaZdB9hI77mOZ5ZeOUOA9fg5IBw1qI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Jeremy Linton <jeremy.linton@arm.com>
-Subject: [PATCH 5.6 136/194] usb: usbfs: correct kernel->user page attribute mismatch
+Subject: [PATCH 5.4 103/147] usb: usbfs: correct kernel->user page attribute mismatch
 Date:   Mon, 18 May 2020 19:37:06 +0200
-Message-Id: <20200518173542.716290256@linuxfoundation.org>
+Message-Id: <20200518173526.165987477@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
-References: <20200518173531.455604187@linuxfoundation.org>
+In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
+References: <20200518173513.009514388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
