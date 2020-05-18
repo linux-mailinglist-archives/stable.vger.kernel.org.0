@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C2D381D8482
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:14:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2EA871D8657
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:27:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732760AbgERSEQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:04:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50780 "EHLO mail.kernel.org"
+        id S1729704AbgERRoT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:44:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732728AbgERSEN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 14:04:13 -0400
+        id S1728632AbgERRoQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:44:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 864F420715;
-        Mon, 18 May 2020 18:04:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4D60E20715;
+        Mon, 18 May 2020 17:44:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589825053;
-        bh=FkJLExItuks75TnP9rWu4Y876nPik2+uGczOJPytK8E=;
+        s=default; t=1589823855;
+        bh=QO9TZvUO7IE6Ksg12DGblAXw8sMQrH5Vu4SkEHvgSEQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0s1p+XESXLR2z0hudquESwOad8YbTLB5WvspfDd3VuLVa53lfB16lieqccn9mNIDf
-         ezYuhqK8hc4eTBOmtLEQ/2pCy3O+B0t2LbKHAg51jb7kg5/iLwuGv7BfmIcoLLCpmK
-         JD0/t+wrTKa3fw/fiDmoRrx74DbU+zXbHXFf5J2g=
+        b=QZWW0NQjPRsGmGZEIAIgP8l1KU5L8OUAEODQlXPyxK1v7n4r5eGEyJlt+GOGv+KbZ
+         Tt0jkEFL9dgMRy2gub+mfkR+P8h2O9jEgt4qyFL7v2lPSuoNHZW+48E17OMNQ78yvw
+         +GgtZ5XS4dKE7SUT2IxkbAZL5YOZWjfg833nCmlE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Blakey <paulb@mellanox.com>,
-        Roi Dayan <roid@mellanox.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 109/194] netfilter: flowtable: set NF_FLOW_TEARDOWN flag on entry expiration
-Date:   Mon, 18 May 2020 19:36:39 +0200
-Message-Id: <20200518173540.886988657@linuxfoundation.org>
+        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 62/90] net: phy: micrel: Use strlcpy() for ethtool::get_strings
+Date:   Mon, 18 May 2020 19:36:40 +0200
+Message-Id: <20200518173503.737543425@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
-References: <20200518173531.455604187@linuxfoundation.org>
+In-Reply-To: <20200518173450.930655662@linuxfoundation.org>
+References: <20200518173450.930655662@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,51 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit 9ed81c8e0deb7bd2aa0d69371e4a0f9a7b31205d ]
+commit 55f53567afe5f0cd2fd9e006b174c08c31c466f8 upstream.
 
-If the flow timer expires, the gc sets on the NF_FLOW_TEARDOWN flag.
-Otherwise, the flowtable software path might race to refresh the
-timeout, leaving the state machine in inconsistent state.
+Our statistics strings are allocated at initialization without being
+bound to a specific size, yet, we would copy ETH_GSTRING_LEN bytes using
+memcpy() which would create out of bounds accesses, this was flagged by
+KASAN. Replace this with strlcpy() to make sure we are bound the source
+buffer size and we also always NUL-terminate strings.
 
-Fixes: c29f74e0df7a ("netfilter: nf_flow_table: hardware offload support")
-Reported-by: Paul Blakey <paulb@mellanox.com>
-Reviewed-by: Roi Dayan <roid@mellanox.com>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 2b2427d06426 ("phy: micrel: Add ethtool statistics counters")
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- net/netfilter/nf_flow_table_core.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/net/phy/micrel.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/netfilter/nf_flow_table_core.c b/net/netfilter/nf_flow_table_core.c
-index 70ebebaf5bc12..0ee78a1663786 100644
---- a/net/netfilter/nf_flow_table_core.c
-+++ b/net/netfilter/nf_flow_table_core.c
-@@ -271,7 +271,7 @@ static void flow_offload_del(struct nf_flowtable *flow_table,
+--- a/drivers/net/phy/micrel.c
++++ b/drivers/net/phy/micrel.c
+@@ -677,8 +677,8 @@ static void kszphy_get_strings(struct ph
+ 	int i;
  
- 	if (nf_flow_has_expired(flow))
- 		flow_offload_fixup_ct(flow->ct);
--	else if (test_bit(NF_FLOW_TEARDOWN, &flow->flags))
-+	else
- 		flow_offload_fixup_ct_timeout(flow->ct);
+ 	for (i = 0; i < ARRAY_SIZE(kszphy_hw_stats); i++) {
+-		memcpy(data + i * ETH_GSTRING_LEN,
+-		       kszphy_hw_stats[i].string, ETH_GSTRING_LEN);
++		strlcpy(data + i * ETH_GSTRING_LEN,
++			kszphy_hw_stats[i].string, ETH_GSTRING_LEN);
+ 	}
+ }
  
- 	flow_offload_free(flow);
-@@ -348,8 +348,10 @@ static void nf_flow_offload_gc_step(struct flow_offload *flow, void *data)
- {
- 	struct nf_flowtable *flow_table = data;
- 
--	if (nf_flow_has_expired(flow) || nf_ct_is_dying(flow->ct) ||
--	    test_bit(NF_FLOW_TEARDOWN, &flow->flags)) {
-+	if (nf_flow_has_expired(flow) || nf_ct_is_dying(flow->ct))
-+		set_bit(NF_FLOW_TEARDOWN, &flow->flags);
-+
-+	if (test_bit(NF_FLOW_TEARDOWN, &flow->flags)) {
- 		if (test_bit(NF_FLOW_HW, &flow->flags)) {
- 			if (!test_bit(NF_FLOW_HW_DYING, &flow->flags))
- 				nf_flow_offload_del(flow_table, flow);
--- 
-2.20.1
-
 
 
