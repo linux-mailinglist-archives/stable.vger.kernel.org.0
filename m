@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 33B1E1D833A
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:04:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F3F91D8691
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:27:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732053AbgERSDC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:03:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48030 "EHLO mail.kernel.org"
+        id S2387902AbgERSY7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:24:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47484 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732595AbgERSDB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 14:03:01 -0400
+        id S1730209AbgERRrQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:47:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 701C420853;
-        Mon, 18 May 2020 18:03:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4F1D820657;
+        Mon, 18 May 2020 17:47:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824980;
-        bh=zvL4WUKqUr4egYTxLwiT19jrJbcEYPSa8vWOmxhsTdY=;
+        s=default; t=1589824035;
+        bh=Dxtp7wZr+KCgB4BFiDjfvZsiwpeRcjrdT8Aibw8qr8g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DNzlw+xMPB/wC/jNr1+zDwczEhJDXOZ0QNwr69PAXIwzW4ZmNjq8kiGWsFEnL80my
-         8rHS6hPt9ityc7MXkcSQM8VQSPQNsj4+r5GO60wLZEIpeS4hEq9UPEgYatw1cQCD0s
-         HIuQoBjvXR0dFa5DPJEwcWlhXCbl79RHMjR2WjRk=
+        b=Xg5JNgUWrh3g/aY0xzNefQXq01Ca/JSjo6C3mU3+VBUIuek7vWvTR1Jg0dVVhALJ7
+         jloYq4AKrj+FV9JVAJF71sFsHHBbG1rYmOr0Ft4CBFOANRmhrEHHgNNfXMDg3znVlm
+         jd2nwpfpvJjO/kxLM31/wOi5udHBjTq7INheIB+4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.6 043/194] net: dsa: loop: Add module soft dependency
+        stable@vger.kernel.org, Matt Jolly <Kangie@footclan.ninja>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.14 001/114] USB: serial: qcserial: Add DW5816e support
 Date:   Mon, 18 May 2020 19:35:33 +0200
-Message-Id: <20200518173535.348876432@linuxfoundation.org>
+Message-Id: <20200518173503.301392253@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
-References: <20200518173531.455604187@linuxfoundation.org>
+In-Reply-To: <20200518173503.033975649@linuxfoundation.org>
+References: <20200518173503.033975649@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -43,32 +45,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Matt Jolly <Kangie@footclan.ninja>
 
-[ Upstream commit 3047211ca11bf77b3ecbce045c0aa544d934b945 ]
+commit 78d6de3cfbd342918d31cf68d0d2eda401338aef upstream.
 
-There is a soft dependency against dsa_loop_bdinfo.ko which sets up the
-MDIO device registration, since there are no symbols referenced by
-dsa_loop.ko, there is no automatic loading of dsa_loop_bdinfo.ko which
-is needed.
+Add support for Dell Wireless 5816e to drivers/usb/serial/qcserial.c
 
-Fixes: 98cd1552ea27 ("net: dsa: Mock-up driver")
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Matt Jolly <Kangie@footclan.ninja>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/dsa/dsa_loop.c |    1 +
+ drivers/usb/serial/qcserial.c |    1 +
  1 file changed, 1 insertion(+)
 
---- a/drivers/net/dsa/dsa_loop.c
-+++ b/drivers/net/dsa/dsa_loop.c
-@@ -360,6 +360,7 @@ static void __exit dsa_loop_exit(void)
- }
- module_exit(dsa_loop_exit);
- 
-+MODULE_SOFTDEP("pre: dsa_loop_bdinfo");
- MODULE_LICENSE("GPL");
- MODULE_AUTHOR("Florian Fainelli");
- MODULE_DESCRIPTION("DSA loopback driver");
+--- a/drivers/usb/serial/qcserial.c
++++ b/drivers/usb/serial/qcserial.c
+@@ -177,6 +177,7 @@ static const struct usb_device_id id_tab
+ 	{DEVICE_SWI(0x413c, 0x81b3)},	/* Dell Wireless 5809e Gobi(TM) 4G LTE Mobile Broadband Card (rev3) */
+ 	{DEVICE_SWI(0x413c, 0x81b5)},	/* Dell Wireless 5811e QDL */
+ 	{DEVICE_SWI(0x413c, 0x81b6)},	/* Dell Wireless 5811e QDL */
++	{DEVICE_SWI(0x413c, 0x81cc)},	/* Dell Wireless 5816e */
+ 	{DEVICE_SWI(0x413c, 0x81cf)},   /* Dell Wireless 5819 */
+ 	{DEVICE_SWI(0x413c, 0x81d0)},   /* Dell Wireless 5819 */
+ 	{DEVICE_SWI(0x413c, 0x81d1)},   /* Dell Wireless 5818 */
 
 
