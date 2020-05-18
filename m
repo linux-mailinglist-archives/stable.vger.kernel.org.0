@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 702551D80DB
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:43:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 377771D8159
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:47:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729460AbgERRmk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:42:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39732 "EHLO mail.kernel.org"
+        id S1730206AbgERRrP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:47:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47440 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729456AbgERRmj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:42:39 -0400
+        id S1730201AbgERRrN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:47:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 37AF8207C4;
-        Mon, 18 May 2020 17:42:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D81C720715;
+        Mon, 18 May 2020 17:47:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589823758;
-        bh=eRR5JLpyGQWbddfqfgr7COthF+C/JL4OZYqmjDeULOc=;
+        s=default; t=1589824033;
+        bh=d8TpndUKMkZTzUSVBQ0ZYLadEtwCBmuqyFVt2tbwMRY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IAHbCaLYC6aOsjE/M0VshmOAOhDjOGcUEkolOhvnR9kC28iZP6en1eE2dgavQwcG5
-         AEezsiR98KvW36ytguNlFcpSOpsUiIz0k42YWhBCyYrqfzOmsR3HcGpTjMtnU/kkQ6
-         w0Q888U9zA0YRU+F4F5/UK2CQVT7U7MV3/aj8Bzc=
+        b=WUU2w0W5IULydDXw+11M0ODlA53+b6+QfiDQL66BH2hGUtoVU6pKBWszTOOjNgWO2
+         y4Uk0aNW/KajmJul2VT1FdpO4YMTpRcBJgK475mJMP6Rx4KvhQbZ9F6iIbWJYuLr5e
+         5+G7JOMOqiQqOyVCv8cX/gjl5vvKnAWLepHRsQTo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Scott Dial <scott@scottdial.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 04/90] net: macsec: preserve ingress frame ordering
+        stable@vger.kernel.org, Moshe Shemesh <moshe@mellanox.com>,
+        Eran Ben Elisha <eranbe@mellanox.com>,
+        Saeed Mahameed <saeedm@mellanox.com>
+Subject: [PATCH 4.14 010/114] net/mlx5: Fix forced completion access non initialized command entry
 Date:   Mon, 18 May 2020 19:35:42 +0200
-Message-Id: <20200518173451.911405640@linuxfoundation.org>
+Message-Id: <20200518173505.180863849@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173450.930655662@linuxfoundation.org>
-References: <20200518173450.930655662@linuxfoundation.org>
+In-Reply-To: <20200518173503.033975649@linuxfoundation.org>
+References: <20200518173503.033975649@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,75 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Scott Dial <scott@scottdial.com>
+From: Moshe Shemesh <moshe@mellanox.com>
 
-[ Upstream commit ab046a5d4be4c90a3952a0eae75617b49c0cb01b ]
+[ Upstream commit f3cb3cebe26ed4c8036adbd9448b372129d3c371 ]
 
-MACsec decryption always occurs in a softirq context. Since
-the FPU may not be usable in the softirq context, the call to
-decrypt may be scheduled on the cryptd work queue. The cryptd
-work queue does not provide ordering guarantees. Therefore,
-preserving order requires masking out ASYNC implementations
-of gcm(aes).
+mlx5_cmd_flush() will trigger forced completions to all valid command
+entries. Triggered by an asynch event such as fast teardown it can
+happen at any stage of the command, including command initialization.
+It will trigger forced completion and that can lead to completion on an
+uninitialized command entry.
 
-For instance, an Intel CPU with AES-NI makes available the
-generic-gcm-aesni driver from the aesni_intel module to
-implement gcm(aes). However, this implementation requires
-the FPU, so it is not always available to use from a softirq
-context, and will fallback to the cryptd work queue, which
-does not preserve frame ordering. With this change, such a
-system would select gcm_base(ctr(aes-aesni),ghash-generic).
-While the aes-aesni implementation prefers to use the FPU, it
-will fallback to the aes-asm implementation if unavailable.
+Setting MLX5_CMD_ENT_STATE_PENDING_COMP only after command entry is
+initialized will ensure force completion is treated only if command
+entry is initialized.
 
-By using a synchronous version of gcm(aes), the decryption
-will complete before returning from crypto_aead_decrypt().
-Therefore, the macsec_decrypt_done() callback will be called
-before returning from macsec_decrypt(). Thus, the order of
-calls to macsec_post_decrypt() for the frames is preserved.
-
-While it's presumable that the pure AES-NI version of gcm(aes)
-is more performant, the hybrid solution is capable of gigabit
-speeds on modest hardware. Regardless, preserving the order
-of frames is paramount for many network protocols (e.g.,
-triggering TCP retries). Within the MACsec driver itself, the
-replay protection is tripped by the out-of-order frames, and
-can cause frames to be dropped.
-
-This bug has been present in this code since it was added in
-v4.6, however it may not have been noticed since not all CPUs
-have FPU offload available. Additionally, the bug manifests
-as occasional out-of-order packets that are easily
-misattributed to other network phenomena.
-
-When this code was added in v4.6, the crypto/gcm.c code did
-not restrict selection of the ghash function based on the
-ASYNC flag. For instance, x86 CPUs with PCLMULQDQ would
-select the ghash-clmulni driver instead of ghash-generic,
-which submits to the cryptd work queue if the FPU is busy.
-However, this bug was was corrected in v4.8 by commit
-b30bdfa86431afbafe15284a3ad5ac19b49b88e3, and was backported
-all the way back to the v3.14 stable branch, so this patch
-should be applicable back to the v4.6 stable branch.
-
-Signed-off-by: Scott Dial <scott@scottdial.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 73dd3a4839c1 ("net/mlx5: Avoid using pending command interface slots")
+Signed-off-by: Moshe Shemesh <moshe@mellanox.com>
+Signed-off-by: Eran Ben Elisha <eranbe@mellanox.com>
+Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/macsec.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlx5/core/cmd.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/macsec.c
-+++ b/drivers/net/macsec.c
-@@ -1315,7 +1315,8 @@ static struct crypto_aead *macsec_alloc_
- 	struct crypto_aead *tfm;
- 	int ret;
+--- a/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
+@@ -831,7 +831,6 @@ static void cmd_work_handler(struct work
+ 	}
  
--	tfm = crypto_alloc_aead("gcm(aes)", 0, 0);
-+	/* Pick a sync gcm(aes) cipher to ensure order is preserved. */
-+	tfm = crypto_alloc_aead("gcm(aes)", 0, CRYPTO_ALG_ASYNC);
+ 	cmd->ent_arr[ent->idx] = ent;
+-	set_bit(MLX5_CMD_ENT_STATE_PENDING_COMP, &ent->state);
+ 	lay = get_inst(cmd, ent->idx);
+ 	ent->lay = lay;
+ 	memset(lay, 0, sizeof(*lay));
+@@ -853,6 +852,7 @@ static void cmd_work_handler(struct work
  
- 	if (IS_ERR(tfm))
- 		return tfm;
+ 	if (ent->callback)
+ 		schedule_delayed_work(&ent->cb_timeout_work, cb_timeout);
++	set_bit(MLX5_CMD_ENT_STATE_PENDING_COMP, &ent->state);
+ 
+ 	/* Skip sending command to fw if internal error */
+ 	if (pci_channel_offline(dev->pdev) ||
 
 
