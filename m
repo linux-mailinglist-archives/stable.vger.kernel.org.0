@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 17C0E1D80C1
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:42:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D15051D81C3
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:50:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729315AbgERRlv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:41:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38456 "EHLO mail.kernel.org"
+        id S1728606AbgERRuh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:50:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52730 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728567AbgERRlu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:41:50 -0400
+        id S1730696AbgERRuc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:50:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3E85820715;
-        Mon, 18 May 2020 17:41:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 968B720674;
+        Mon, 18 May 2020 17:50:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589823709;
-        bh=sSvJHe06iRpb5deyo+DbN4FZgAprwvRWcz2+nK5hBAU=;
+        s=default; t=1589824232;
+        bh=XjSsmsaj+0cGZzRkm6yFrZT7XEPAlcmNRcivnp2RI7s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nXFNOexOmphMGq/Cp3ZPrqTVZZOKrsw+rDgqbZPBdPYyF8A6pEjjPj9K+nxbacn0C
-         vGsa7XlgDf5wCdonVcIlDV5+G1LjGDgQMDOSNONcsbe4tqBZiCE98ePeC3cDZpyEdn
-         pMeVVxZ7wOf7mKXRyQ7USK1C5YcLfhnJDX+gb59s=
+        b=dG4EJZhcwon6UtZ9rmbV5I2aiEL4aYQszD8CtKk7rLIXziQbEgIcz3zTthBilhaSB
+         Tmy37pKTki3gT9rxu9ZQrE5asURdUlccQ3syKVRrozNaiu2IW/1hOsQBhGCspXD1at
+         xvTvfLvtAqdl7Wrtpsg5qnjA4GVAi/kZILptQq1E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Nick Desaulniers <ndesaulniers@google.com>
-Subject: [PATCH 4.4 57/86] kbuild: compute false-positive -Wmaybe-uninitialized cases in Kconfig
+        stable@vger.kernel.org, Matthew Sheets <matthew.sheets@gd-ms.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Paul Moore <paul@paul-moore.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 10/80] netlabel: cope with NULL catmap
 Date:   Mon, 18 May 2020 19:36:28 +0200
-Message-Id: <20200518173502.003533957@linuxfoundation.org>
+Message-Id: <20200518173452.287129397@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173450.254571947@linuxfoundation.org>
-References: <20200518173450.254571947@linuxfoundation.org>
+In-Reply-To: <20200518173450.097837707@linuxfoundation.org>
+References: <20200518173450.097837707@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,101 +45,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <yamada.masahiro@socionext.com>
+From: Paolo Abeni <pabeni@redhat.com>
 
-commit b303c6df80c9f8f13785aa83a0471fca7e38b24d upstream.
+[ Upstream commit eead1c2ea2509fd754c6da893a94f0e69e83ebe4 ]
 
-Since -Wmaybe-uninitialized was introduced by GCC 4.7, we have patched
-various false positives:
+The cipso and calipso code can set the MLS_CAT attribute on
+successful parsing, even if the corresponding catmap has
+not been allocated, as per current configuration and external
+input.
 
- - commit e74fc973b6e5 ("Turn off -Wmaybe-uninitialized when building
-   with -Os") turned off this option for -Os.
+Later, selinux code tries to access the catmap if the MLS_CAT flag
+is present via netlbl_catmap_getlong(). That may cause null ptr
+dereference while processing incoming network traffic.
 
- - commit 815eb71e7149 ("Kbuild: disable 'maybe-uninitialized' warning
-   for CONFIG_PROFILE_ALL_BRANCHES") turned off this option for
-   CONFIG_PROFILE_ALL_BRANCHES
+Address the issue setting the MLS_CAT flag only if the catmap is
+really allocated. Additionally let netlbl_catmap_getlong() cope
+with NULL catmap.
 
- - commit a76bcf557ef4 ("Kbuild: enable -Wmaybe-uninitialized warning
-   for "make W=1"") turned off this option for GCC < 4.9
-   Arnd provided more explanation in https://lkml.org/lkml/2017/3/14/903
-
-I think this looks better by shifting the logic from Makefile to Kconfig.
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/350
-Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Tested-by: Nick Desaulniers <ndesaulniers@google.com>
+Reported-by: Matthew Sheets <matthew.sheets@gd-ms.com>
+Fixes: 4b8feff251da ("netlabel: fix the horribly broken catmap functions")
+Fixes: ceba1832b1b2 ("calipso: Set the calipso socket label to match the secattr.")
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Acked-by: Paul Moore <paul@paul-moore.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- Makefile             |    5 ++++-
- init/Kconfig         |   17 +++++++++++++++++
- kernel/trace/Kconfig |    1 +
- 3 files changed, 22 insertions(+), 1 deletion(-)
+ net/ipv4/cipso_ipv4.c        |    6 ++++--
+ net/ipv6/calipso.c           |    3 ++-
+ net/netlabel/netlabel_kapi.c |    6 ++++++
+ 3 files changed, 12 insertions(+), 3 deletions(-)
 
---- a/Makefile
-+++ b/Makefile
-@@ -631,7 +631,6 @@ ARCH_CFLAGS :=
- include arch/$(SRCARCH)/Makefile
+--- a/net/ipv4/cipso_ipv4.c
++++ b/net/ipv4/cipso_ipv4.c
+@@ -1272,7 +1272,8 @@ static int cipso_v4_parsetag_rbm(const s
+ 			return ret_val;
+ 		}
  
- KBUILD_CFLAGS	+= $(call cc-option,-fno-delete-null-pointer-checks,)
--KBUILD_CFLAGS	+= $(call cc-disable-warning,maybe-uninitialized,)
- KBUILD_CFLAGS	+= $(call cc-disable-warning,frame-address,)
- KBUILD_CFLAGS	+= $(call cc-disable-warning, format-truncation)
- KBUILD_CFLAGS	+= $(call cc-disable-warning, format-overflow)
-@@ -649,6 +648,10 @@ KBUILD_CFLAGS   += -O2
- endif
- endif
+-		secattr->flags |= NETLBL_SECATTR_MLS_CAT;
++		if (secattr->attr.mls.cat)
++			secattr->flags |= NETLBL_SECATTR_MLS_CAT;
+ 	}
  
-+ifdef CONFIG_CC_DISABLE_WARN_MAYBE_UNINITIALIZED
-+KBUILD_CFLAGS   += -Wno-maybe-uninitialized
-+endif
+ 	return 0;
+@@ -1453,7 +1454,8 @@ static int cipso_v4_parsetag_rng(const s
+ 			return ret_val;
+ 		}
+ 
+-		secattr->flags |= NETLBL_SECATTR_MLS_CAT;
++		if (secattr->attr.mls.cat)
++			secattr->flags |= NETLBL_SECATTR_MLS_CAT;
+ 	}
+ 
+ 	return 0;
+--- a/net/ipv6/calipso.c
++++ b/net/ipv6/calipso.c
+@@ -1061,7 +1061,8 @@ static int calipso_opt_getattr(const uns
+ 			goto getattr_return;
+ 		}
+ 
+-		secattr->flags |= NETLBL_SECATTR_MLS_CAT;
++		if (secattr->attr.mls.cat)
++			secattr->flags |= NETLBL_SECATTR_MLS_CAT;
+ 	}
+ 
+ 	secattr->type = NETLBL_NLTYPE_CALIPSO;
+--- a/net/netlabel/netlabel_kapi.c
++++ b/net/netlabel/netlabel_kapi.c
+@@ -748,6 +748,12 @@ int netlbl_catmap_getlong(struct netlbl_
+ 	if ((off & (BITS_PER_LONG - 1)) != 0)
+ 		return -EINVAL;
+ 
++	/* a null catmap is equivalent to an empty one */
++	if (!catmap) {
++		*offset = (u32)-1;
++		return 0;
++	}
 +
- # Tell gcc to never replace conditional load with a non-conditional one
- KBUILD_CFLAGS	+= $(call cc-option,--param=allow-store-data-races=0)
- 
---- a/init/Kconfig
-+++ b/init/Kconfig
-@@ -16,6 +16,22 @@ config DEFCONFIG_LIST
- 	default "$ARCH_DEFCONFIG"
- 	default "arch/$ARCH/defconfig"
- 
-+config CC_HAS_WARN_MAYBE_UNINITIALIZED
-+	def_bool $(cc-option,-Wmaybe-uninitialized)
-+	help
-+	  GCC >= 4.7 supports this option.
-+
-+config CC_DISABLE_WARN_MAYBE_UNINITIALIZED
-+	bool
-+	depends on CC_HAS_WARN_MAYBE_UNINITIALIZED
-+	default CC_IS_GCC && GCC_VERSION < 40900  # unreliable for GCC < 4.9
-+	help
-+	  GCC's -Wmaybe-uninitialized is not reliable by definition.
-+	  Lots of false positive warnings are produced in some cases.
-+
-+	  If this option is enabled, -Wno-maybe-uninitialzed is passed
-+	  to the compiler to suppress maybe-uninitialized warnings.
-+
- config CONSTRUCTORS
- 	bool
- 	depends on !UML
-@@ -1331,6 +1347,7 @@ config CC_OPTIMIZE_FOR_PERFORMANCE
- 
- config CC_OPTIMIZE_FOR_SIZE
- 	bool "Optimize for size"
-+	imply CC_DISABLE_WARN_MAYBE_UNINITIALIZED  # avoid false positives
- 	help
- 	  Enabling this option will pass "-Os" instead of "-O2" to
- 	  your compiler resulting in a smaller kernel.
---- a/kernel/trace/Kconfig
-+++ b/kernel/trace/Kconfig
-@@ -312,6 +312,7 @@ config PROFILE_ANNOTATED_BRANCHES
- config PROFILE_ALL_BRANCHES
- 	bool "Profile all if conditionals"
- 	select TRACE_BRANCH_PROFILING
-+	imply CC_DISABLE_WARN_MAYBE_UNINITIALIZED  # avoid false positives
- 	help
- 	  This tracer profiles all branch conditions. Every if ()
- 	  taken in the kernel is recorded whether it hit or miss.
+ 	if (off < catmap->startbit) {
+ 		off = catmap->startbit;
+ 		*offset = off;
 
 
