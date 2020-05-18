@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 19F891D8410
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:11:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 42D9A1D81AB
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:50:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731713AbgERSFv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:05:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53610 "EHLO mail.kernel.org"
+        id S1728684AbgERRty (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:49:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51682 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733030AbgERSFv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 14:05:51 -0400
+        id S1730589AbgERRtx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:49:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C122820671;
-        Mon, 18 May 2020 18:05:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2FA7B20671;
+        Mon, 18 May 2020 17:49:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589825150;
-        bh=Dn46o8FNGNi9iQGafECaUOunAbyZTI/1mmcR33N+8Ms=;
+        s=default; t=1589824192;
+        bh=tyPWl9a+CQko/HHoUmFTcDmz8KlCfkitFMDU0Mrw2R0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zhioVzri1i2pRYrYu3wpHsPPGqnNEpmakgvhhQcAETrvK5a9vg/YTXn9s/7BEXD1D
-         RZNSPjBcOR+yBIXhrtI77msYM/NExfoOMljd5QDq18gUJGhrBuJ52DedKoBAM6yFgy
-         SFfqCSFJfc2eYBZBnIpcL7+x8QCHARYHN0ypDFMQ=
+        b=JEzz6OtLkxCc7p952xy+E47BzR00FJuj/pzJHmfyLlEasJlNsAVxyHNaFHUvgJBff
+         ai0ZCxAcV8Uz0s9W+oAViYO8Egur67TJQy4V3CpLCMvylBbV5P8+tcvvALiQI4r0R4
+         aINahnL55qOO+ahtCHixCJr2Y4vCKYCI9Q2JdUZ8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fabio Estevam <festevam@gmail.com>,
-        Stefan Riedmueller <s.riedmueller@phytec.de>,
-        Shawn Guo <shawnguo@kernel.org>
-Subject: [PATCH 5.6 149/194] ARM: dts: imx27-phytec-phycard-s-rdk: Fix the I2C1 pinctrl entries
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wei Yongjun <weiyongjun1@huawei.com>,
+        Felipe Balbi <balbi@kernel.org>
+Subject: [PATCH 4.14 107/114] usb: gadget: legacy: fix error return code in cdc_bind()
 Date:   Mon, 18 May 2020 19:37:19 +0200
-Message-Id: <20200518173543.673488900@linuxfoundation.org>
+Message-Id: <20200518173520.469863861@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
-References: <20200518173531.455604187@linuxfoundation.org>
+In-Reply-To: <20200518173503.033975649@linuxfoundation.org>
+References: <20200518173503.033975649@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,43 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabio Estevam <festevam@gmail.com>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-commit 0caf34350a25907515d929a9c77b9b206aac6d1e upstream.
+commit e8f7f9e3499a6d96f7f63a4818dc7d0f45a7783b upstream.
 
-The I2C2 pins are already used and the following errors are seen:
+If 'usb_otg_descriptor_alloc()' fails, we must return a
+negative error code -ENOMEM, not 0.
 
-imx27-pinctrl 10015000.iomuxc: pin MX27_PAD_I2C2_SDA already requested by 10012000.i2c; cannot claim for 1001d000.i2c
-imx27-pinctrl 10015000.iomuxc: pin-69 (1001d000.i2c) status -22
-imx27-pinctrl 10015000.iomuxc: could not request pin 69 (MX27_PAD_I2C2_SDA) from group i2c2grp  on device 10015000.iomuxc
-imx-i2c 1001d000.i2c: Error applying setting, reverse things back
-imx-i2c: probe of 1001d000.i2c failed with error -22
-
-Fix it by adding the correct I2C1 IOMUX entries for the pinctrl_i2c1 group.
-
-Cc: <stable@vger.kernel.org>
-Fixes: 61664d0b432a ("ARM: dts: imx27 phyCARD-S pinctrl")
-Signed-off-by: Fabio Estevam <festevam@gmail.com>
-Reviewed-by: Stefan Riedmueller <s.riedmueller@phytec.de>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Fixes: ab6796ae9833 ("usb: gadget: cdc2: allocate and init otg descriptor by otg capabilities")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/boot/dts/imx27-phytec-phycard-s-rdk.dts |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/gadget/legacy/cdc2.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/arch/arm/boot/dts/imx27-phytec-phycard-s-rdk.dts
-+++ b/arch/arm/boot/dts/imx27-phytec-phycard-s-rdk.dts
-@@ -75,8 +75,8 @@
- 	imx27-phycard-s-rdk {
- 		pinctrl_i2c1: i2c1grp {
- 			fsl,pins = <
--				MX27_PAD_I2C2_SDA__I2C2_SDA 0x0
--				MX27_PAD_I2C2_SCL__I2C2_SCL 0x0
-+				MX27_PAD_I2C_DATA__I2C_DATA 0x0
-+				MX27_PAD_I2C_CLK__I2C_CLK 0x0
- 			>;
- 		};
+--- a/drivers/usb/gadget/legacy/cdc2.c
++++ b/drivers/usb/gadget/legacy/cdc2.c
+@@ -183,8 +183,10 @@ static int cdc_bind(struct usb_composite
+ 		struct usb_descriptor_header *usb_desc;
  
+ 		usb_desc = usb_otg_descriptor_alloc(gadget);
+-		if (!usb_desc)
++		if (!usb_desc) {
++			status = -ENOMEM;
+ 			goto fail1;
++		}
+ 		usb_otg_descriptor_init(gadget, usb_desc);
+ 		otg_desc[0] = usb_desc;
+ 		otg_desc[1] = NULL;
 
 
