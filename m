@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EF63F1D80B7
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:41:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 73C0A1D865E
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:27:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729300AbgERRlj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:41:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37980 "EHLO mail.kernel.org"
+        id S1729818AbgERRox (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:44:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43316 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729294AbgERRlg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:41:36 -0400
+        id S1729803AbgERRot (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:44:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8748420657;
-        Mon, 18 May 2020 17:41:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BEA842083E;
+        Mon, 18 May 2020 17:44:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589823695;
-        bh=d4BMgLQoXzWEKnQZXDP1fQuQggJi+WIqwZC85rLTDCQ=;
+        s=default; t=1589823888;
+        bh=urpJaHN2EIxnumCX9RaMskzOc4V4jk6eMrt58IG4yMo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YMFzhB7UshjTh1m+AllZ3M0AdMtCLywJfRhZnGr78FYAJ1ME9CTDAAvRydKAPyi/l
-         RbGIJCcW2EQ8kzbs4gTSJT34St2/yzgbBF8b/TIV3d4WJoTEP17pgXSHSrQWSs466T
-         s2GbwWFbmomP4PbXiGpLwvvsvFMdBg2zCpDHUuKo=
+        b=r11vAlcpxpDYlORQrGasE5xY0aPvPMvQY4rNh3P7FUMuTl7PsUiLMgdQ1/m2VbJI6
+         5O0DVcoxNp1gYWygb5zYKH+qlepG3XV69cctWU+9Ifa2zGhEVNQurWQzOra1iO6PWm
+         H3imyApIYPvWWBg4ncrlfVyNi3cS156tQ1l72EwA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Ulrich Hecht <uli+renesas@fpond.eu>
-Subject: [PATCH 4.4 84/86] ARM: dts: r8a7740: Add missing extal2 to CPG node
+        stable@vger.kernel.org, Kyungtae Kim <kt0755@gmail.com>,
+        Felipe Balbi <balbi@kernel.org>
+Subject: [PATCH 4.9 77/90] USB: gadget: fix illegal array access in binding with UDC
 Date:   Mon, 18 May 2020 19:36:55 +0200
-Message-Id: <20200518173507.594465380@linuxfoundation.org>
+Message-Id: <20200518173506.941393298@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173450.254571947@linuxfoundation.org>
-References: <20200518173450.254571947@linuxfoundation.org>
+In-Reply-To: <20200518173450.930655662@linuxfoundation.org>
+References: <20200518173450.930655662@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,38 +43,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Kyungtae Kim <kt0755@gmail.com>
 
-commit e47cb97f153193d4b41ca8d48127da14513d54c7 upstream.
+commit 15753588bcd4bbffae1cca33c8ced5722477fe1f upstream.
 
-The Clock Pulse Generator (CPG) device node lacks the extal2 clock.
-This may lead to a failure registering the "r" clock, or to a wrong
-parent for the "usb24s" clock, depending on MD_CK2 pin configuration and
-boot loader CPG_USBCKCR register configuration.
+FuzzUSB (a variant of syzkaller) found an illegal array access
+using an incorrect index while binding a gadget with UDC.
 
-This went unnoticed, as this does not affect the single upstream board
-configuration, which relies on the first clock input only.
+Reference: https://www.spinics.net/lists/linux-usb/msg194331.html
 
-Fixes: d9ffd583bf345e2e ("ARM: shmobile: r8a7740: add SoC clocks to DTS")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Ulrich Hecht <uli+renesas@fpond.eu>
-Link: https://lore.kernel.org/r/20200508095918.6061-1-geert+renesas@glider.be
+This bug occurs when a size variable used for a buffer
+is misused to access its strcpy-ed buffer.
+Given a buffer along with its size variable (taken from user input),
+from which, a new buffer is created using kstrdup().
+Due to the original buffer containing 0 value in the middle,
+the size of the kstrdup-ed buffer becomes smaller than that of the original.
+So accessing the kstrdup-ed buffer with the same size variable
+triggers memory access violation.
+
+The fix makes sure no zero value in the buffer,
+by comparing the strlen() of the orignal buffer with the size variable,
+so that the access to the kstrdup-ed buffer is safe.
+
+BUG: KASAN: slab-out-of-bounds in gadget_dev_desc_UDC_store+0x1ba/0x200
+drivers/usb/gadget/configfs.c:266
+Read of size 1 at addr ffff88806a55dd7e by task syz-executor.0/17208
+
+CPU: 2 PID: 17208 Comm: syz-executor.0 Not tainted 5.6.8 #1
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS Bochs 01/01/2011
+Call Trace:
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0xce/0x128 lib/dump_stack.c:118
+ print_address_description.constprop.4+0x21/0x3c0 mm/kasan/report.c:374
+ __kasan_report+0x131/0x1b0 mm/kasan/report.c:506
+ kasan_report+0x12/0x20 mm/kasan/common.c:641
+ __asan_report_load1_noabort+0x14/0x20 mm/kasan/generic_report.c:132
+ gadget_dev_desc_UDC_store+0x1ba/0x200 drivers/usb/gadget/configfs.c:266
+ flush_write_buffer fs/configfs/file.c:251 [inline]
+ configfs_write_file+0x2f1/0x4c0 fs/configfs/file.c:283
+ __vfs_write+0x85/0x110 fs/read_write.c:494
+ vfs_write+0x1cd/0x510 fs/read_write.c:558
+ ksys_write+0x18a/0x220 fs/read_write.c:611
+ __do_sys_write fs/read_write.c:623 [inline]
+ __se_sys_write fs/read_write.c:620 [inline]
+ __x64_sys_write+0x73/0xb0 fs/read_write.c:620
+ do_syscall_64+0x9e/0x510 arch/x86/entry/common.c:294
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+Signed-off-by: Kyungtae Kim <kt0755@gmail.com>
+Reported-and-tested-by: Kyungtae Kim <kt0755@gmail.com>
+Cc: Felipe Balbi <balbi@kernel.org>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200510054326.GA19198@pizza01
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/boot/dts/r8a7740.dtsi |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/gadget/configfs.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/arch/arm/boot/dts/r8a7740.dtsi
-+++ b/arch/arm/boot/dts/r8a7740.dtsi
-@@ -461,7 +461,7 @@
- 		cpg_clocks: cpg_clocks@e6150000 {
- 			compatible = "renesas,r8a7740-cpg-clocks";
- 			reg = <0xe6150000 0x10000>;
--			clocks = <&extal1_clk>, <&extalr_clk>;
-+			clocks = <&extal1_clk>, <&extal2_clk>, <&extalr_clk>;
- 			#clock-cells = <1>;
- 			clock-output-names = "system", "pllc0", "pllc1",
- 					     "pllc2", "r",
+--- a/drivers/usb/gadget/configfs.c
++++ b/drivers/usb/gadget/configfs.c
+@@ -259,6 +259,9 @@ static ssize_t gadget_dev_desc_UDC_store
+ 	char *name;
+ 	int ret;
+ 
++	if (strlen(page) < len)
++		return -EOVERFLOW;
++
+ 	name = kstrdup(page, GFP_KERNEL);
+ 	if (!name)
+ 		return -ENOMEM;
 
 
