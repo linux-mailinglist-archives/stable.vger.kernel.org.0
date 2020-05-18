@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E46741D857B
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:19:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 79A311D8137
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:46:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730843AbgERRyb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:54:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59166 "EHLO mail.kernel.org"
+        id S1728514AbgERRp6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:45:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45288 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731303AbgERRy2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:54:28 -0400
+        id S1729998AbgERRp6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:45:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8739220715;
-        Mon, 18 May 2020 17:54:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E18EC20674;
+        Mon, 18 May 2020 17:45:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824468;
-        bh=daS6GalhjnGYoPZ3TDKNy1AUcN8WR2LaRd4LmL2ZeTQ=;
+        s=default; t=1589823957;
+        bh=OieQ1O9n5MvWlMhty8zIfO6HjQ6PPi8mI7Vrkk0pb68=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rMzwpjn/DgMehKt5ACzyEz2Nm0y2kuucjknlGs3nO+VRUSiCMnnZxkfKqP2ZZ0/IY
-         AB6myI22hCyX49y/DY0kH/BdYwT4XIQEvZND/XZKbuSmYdqlVEfMOeK6YRcvc1q2fY
-         n2lUN/8oMMh6WN+5Hn4PT4QThqNqUL2eBDkx8VZA=
+        b=ffQz3j4uj8ILsVIhEtarxS3GCz92Q0/qwzdUj+6PKxoGR2azv2MFx4foVmznIJ7U+
+         afu2pAI+GTuwWaaPNh4fGb72pcJ9YpsEL0wBbU4p16Q+Y4MoA2cGcuZsXL9rABZm5I
+         JLNzxxIQKAnu6RAAD3RPb0MD9b7IjVmjqXILo24Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?David=20Bala=C5=BEic?= <xerces9@gmail.com>,
-        Guillaume Nault <gnault@redhat.com>,
+        stable@vger.kernel.org, syzbot <syzkaller@googlegroups.com>,
+        Willem de Bruijn <willemb@google.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 023/147] pppoe: only process PADT targeted at local interfaces
+Subject: [PATCH 4.14 014/114] net: stricter validation of untrusted gso packets
 Date:   Mon, 18 May 2020 19:35:46 +0200
-Message-Id: <20200518173516.719890797@linuxfoundation.org>
+Message-Id: <20200518173506.216684812@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
-References: <20200518173513.009514388@linuxfoundation.org>
+In-Reply-To: <20200518173503.033975649@linuxfoundation.org>
+References: <20200518173503.033975649@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,35 +44,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guillaume Nault <gnault@redhat.com>
+From: Willem de Bruijn <willemb@google.com>
 
-[ Upstream commit b8c158395119be62294da73646a3953c29ac974b ]
+[ Upstream commit 9274124f023b5c56dc4326637d4f787968b03607 ]
 
-We don't want to disconnect a session because of a stray PADT arriving
-while the interface is in promiscuous mode.
-Furthermore, multicast and broadcast packets make no sense here, so
-only PACKET_HOST is accepted.
+Syzkaller again found a path to a kernel crash through bad gso input:
+a packet with transport header extending beyond skb_headlen(skb).
 
-Reported-by: David Balažic <xerces9@gmail.com>
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Guillaume Nault <gnault@redhat.com>
+Tighten validation at kernel entry:
+
+- Verify that the transport header lies within the linear section.
+
+    To avoid pulling linux/tcp.h, verify just sizeof tcphdr.
+    tcp_gso_segment will call pskb_may_pull (th->doff * 4) before use.
+
+- Match the gso_type against the ip_proto found by the flow dissector.
+
+Fixes: bfd5f4a3d605 ("packet: Add GSO/csum offload support.")
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: Willem de Bruijn <willemb@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ppp/pppoe.c |    3 +++
- 1 file changed, 3 insertions(+)
+ include/linux/virtio_net.h |   24 ++++++++++++++++++++++--
+ 1 file changed, 22 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ppp/pppoe.c
-+++ b/drivers/net/ppp/pppoe.c
-@@ -492,6 +492,9 @@ static int pppoe_disc_rcv(struct sk_buff
- 	if (!skb)
- 		goto out;
+--- a/include/linux/virtio_net.h
++++ b/include/linux/virtio_net.h
+@@ -3,6 +3,8 @@
+ #define _LINUX_VIRTIO_NET_H
  
-+	if (skb->pkt_type != PACKET_HOST)
-+		goto abort;
+ #include <linux/if_vlan.h>
++#include <uapi/linux/tcp.h>
++#include <uapi/linux/udp.h>
+ #include <uapi/linux/virtio_net.h>
+ 
+ static inline int virtio_net_hdr_set_proto(struct sk_buff *skb,
+@@ -28,17 +30,25 @@ static inline int virtio_net_hdr_to_skb(
+ 					bool little_endian)
+ {
+ 	unsigned int gso_type = 0;
++	unsigned int thlen = 0;
++	unsigned int ip_proto;
+ 
+ 	if (hdr->gso_type != VIRTIO_NET_HDR_GSO_NONE) {
+ 		switch (hdr->gso_type & ~VIRTIO_NET_HDR_GSO_ECN) {
+ 		case VIRTIO_NET_HDR_GSO_TCPV4:
+ 			gso_type = SKB_GSO_TCPV4;
++			ip_proto = IPPROTO_TCP;
++			thlen = sizeof(struct tcphdr);
+ 			break;
+ 		case VIRTIO_NET_HDR_GSO_TCPV6:
+ 			gso_type = SKB_GSO_TCPV6;
++			ip_proto = IPPROTO_TCP;
++			thlen = sizeof(struct tcphdr);
+ 			break;
+ 		case VIRTIO_NET_HDR_GSO_UDP:
+ 			gso_type = SKB_GSO_UDP;
++			ip_proto = IPPROTO_UDP;
++			thlen = sizeof(struct udphdr);
+ 			break;
+ 		default:
+ 			return -EINVAL;
+@@ -57,16 +67,20 @@ static inline int virtio_net_hdr_to_skb(
+ 
+ 		if (!skb_partial_csum_set(skb, start, off))
+ 			return -EINVAL;
 +
- 	if (!pskb_may_pull(skb, sizeof(struct pppoe_hdr)))
- 		goto abort;
++		if (skb_transport_offset(skb) + thlen > skb_headlen(skb))
++			return -EINVAL;
+ 	} else {
+ 		/* gso packets without NEEDS_CSUM do not set transport_offset.
+ 		 * probe and drop if does not match one of the above types.
+ 		 */
+ 		if (gso_type && skb->network_header) {
++			struct flow_keys keys;
++
+ 			if (!skb->protocol)
+ 				virtio_net_hdr_set_proto(skb, hdr);
+ retry:
+-			skb_probe_transport_header(skb, -1);
+-			if (!skb_transport_header_was_set(skb)) {
++			if (!skb_flow_dissect_flow_keys(skb, &keys, 0)) {
+ 				/* UFO does not specify ipv4 or 6: try both */
+ 				if (gso_type & SKB_GSO_UDP &&
+ 				    skb->protocol == htons(ETH_P_IP)) {
+@@ -75,6 +89,12 @@ retry:
+ 				}
+ 				return -EINVAL;
+ 			}
++
++			if (keys.control.thoff + thlen > skb_headlen(skb) ||
++			    keys.basic.ip_proto != ip_proto)
++				return -EINVAL;
++
++			skb_set_transport_header(skb, keys.control.thoff);
+ 		}
+ 	}
  
 
 
