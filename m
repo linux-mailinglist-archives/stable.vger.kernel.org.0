@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E1ACE1D867A
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:27:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 447091D8705
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:31:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730093AbgERRq3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:46:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46116 "EHLO mail.kernel.org"
+        id S1730737AbgERS25 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:28:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39382 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730088AbgERRq2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:46:28 -0400
+        id S1728841AbgERRmY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:42:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7B0B820671;
-        Mon, 18 May 2020 17:46:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6FD292083E;
+        Mon, 18 May 2020 17:42:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589823987;
-        bh=MIcijl7c7wJLvGMHBOy1pNw7+Kp/EwThWXFFjm0CaiE=;
+        s=default; t=1589823743;
+        bh=TMnk9m68iVlJ4LzBplDanu5lel2viDBbZ466dVlUj3U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bBUqjR/tGmFDkbguOokF24bZ+/ERJ1tyqv+lNo5O7uznFMZmsV0h/D/i0bKHdpTsm
-         pZk2SMCHCS7tAF5EfJYqCFaXv63M8ZKiFrbR5CuO0jfghkGBJolYPykOn4Np5cniWm
-         4cXqEw1ptljG02beesuVEB9zi0jb6cozP/lSuS40=
+        b=09C5N90MAzevv7L/QRZCwXvWGZLP+qzfWbABcuI/PutWPf3VyHV8RiQdQrfjLsCNv
+         2aR3MIoqXNw39RMMwTGwlE2gZjRfrc4sEyvGZZBe8dhHO1ZrvcnJnsqhBG9J9bDNqj
+         56nFP/8hvDeG6JgKvtj/4c8NGat9i1alWc1ZcD+0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, George Spelvin <lkml@sdf.org>,
         Sven Eckelmann <sven@narfation.org>,
         Simon Wunderlich <sw@simonwunderlich.de>
-Subject: [PATCH 4.14 025/114] batman-adv: fix batadv_nc_random_weight_tq
+Subject: [PATCH 4.9 19/90] batman-adv: fix batadv_nc_random_weight_tq
 Date:   Mon, 18 May 2020 19:35:57 +0200
-Message-Id: <20200518173508.260752094@linuxfoundation.org>
+Message-Id: <20200518173455.116745688@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173503.033975649@linuxfoundation.org>
-References: <20200518173503.033975649@linuxfoundation.org>
+In-Reply-To: <20200518173450.930655662@linuxfoundation.org>
+References: <20200518173450.930655662@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -88,7 +88,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/net/batman-adv/network-coding.c
 +++ b/net/batman-adv/network-coding.c
-@@ -1017,15 +1017,8 @@ static struct batadv_nc_path *batadv_nc_
+@@ -1012,15 +1012,8 @@ static struct batadv_nc_path *batadv_nc_
   */
  static u8 batadv_nc_random_weight_tq(u8 tq)
  {
