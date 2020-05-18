@@ -2,45 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CF7A61D84F3
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:16:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F14191D859C
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:19:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731996AbgERSPK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:15:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40760 "EHLO mail.kernel.org"
+        id S1728750AbgERRxm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:53:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57818 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732134AbgERR7w (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:59:52 -0400
+        id S1731180AbgERRxk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:53:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0A14F20835;
-        Mon, 18 May 2020 17:59:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0659D20715;
+        Mon, 18 May 2020 17:53:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824791;
-        bh=C3QjyvfMA2/0h9o42z5Tga0tOWFXXJ4MGKYsh8FyOF4=;
+        s=default; t=1589824420;
+        bh=XdSVoiFRtf3cyz7ypktPW4mY6jLVSFfO5OzF2dGq2VA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vJBYpAlSEDTxBoymVt4v55fR8flZL0WSkkZNn6U1mQRMqylVWI8g3J12IOQy9zwdp
-         cLYIS9+3NKP4iKbTKMGr3In8ke4ogM94/3X3f+yFuzLPQAcj8R6NMMnS4PeA4Wr6DZ
-         6Hsl9MUNy56I/a4sFJs2jsNuO2goiXqELKfQyzX4=
+        b=kKJ3yE655t7s+Kk2Q02ZxP9zI1GFhW/8W8uuHxVcea20ekc4H9o4apVtFJxDo69PY
+         ooszUoQ5HeUqxq534Q8tzRHWV0wf0eD8ZYwc1HKThxn9YH+D4H/I0HzZbgFs6DKh9h
+         M5mzwxwTCIbnShkJE2qzmNYVbBNP+dTlOTBJy1VE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, YongQin Liu <yongqin.liu@linaro.org>,
-        Anurag Kumar Vulisha <anurag.kumar.vulisha@xilinx.com>,
-        Yang Fei <fei.yang@intel.com>,
-        Thinh Nguyen <thinhn@synopsys.com>,
-        Tejas Joglekar <tejas.joglekar@synopsys.com>,
-        Andrzej Pietrasiewicz <andrzej.p@collabora.com>,
-        Jack Pham <jackp@codeaurora.org>, Josh Gao <jmgao@google.com>,
-        Todd Kjos <tkjos@google.com>, Felipe Balbi <balbi@kernel.org>,
-        linux-usb@vger.kernel.org, John Stultz <john.stultz@linaro.org>
-Subject: [PATCH 5.4 125/147] dwc3: Remove check for HWO flag in dwc3_gadget_ep_reclaim_trb_sg()
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wei Yongjun <weiyongjun1@huawei.com>,
+        Felipe Balbi <balbi@kernel.org>
+Subject: [PATCH 4.19 70/80] usb: gadget: legacy: fix error return code in gncm_bind()
 Date:   Mon, 18 May 2020 19:37:28 +0200
-Message-Id: <20200518173528.444595278@linuxfoundation.org>
+Message-Id: <20200518173504.513021640@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
-References: <20200518173513.009514388@linuxfoundation.org>
+In-Reply-To: <20200518173450.097837707@linuxfoundation.org>
+References: <20200518173450.097837707@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,54 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Stultz <john.stultz@linaro.org>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-commit 00e21763f2c8cab21b7befa52996d1b18bde5c42 upstream.
+commit e27d4b30b71c66986196d8a1eb93cba9f602904a upstream.
 
-The check for the HWO flag in dwc3_gadget_ep_reclaim_trb_sg()
-causes us to break out of the loop before we call
-dwc3_gadget_ep_reclaim_completed_trb(), which is what likely
-should be clearing the HWO flag.
+If 'usb_otg_descriptor_alloc()' fails, we must return a
+negative error code -ENOMEM, not 0.
 
-This can cause odd behavior where we never reclaim all the trbs
-in the sg list, so we never call giveback on a usb req, and that
-will causes transfer stalls.
-
-This effectively resovles the adb stalls seen on HiKey960
-after userland changes started only using AIO in adbd.
-
-Cc: YongQin Liu <yongqin.liu@linaro.org>
-Cc: Anurag Kumar Vulisha <anurag.kumar.vulisha@xilinx.com>
-Cc: Yang Fei <fei.yang@intel.com>
-Cc: Thinh Nguyen <thinhn@synopsys.com>
-Cc: Tejas Joglekar <tejas.joglekar@synopsys.com>
-Cc: Andrzej Pietrasiewicz <andrzej.p@collabora.com>
-Cc: Jack Pham <jackp@codeaurora.org>
-Cc: Josh Gao <jmgao@google.com>
-Cc: Todd Kjos <tkjos@google.com>
-Cc: Felipe Balbi <balbi@kernel.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: linux-usb@vger.kernel.org
-Cc: stable@vger.kernel.org #4.20+
-Signed-off-by: John Stultz <john.stultz@linaro.org>
+Fixes: 1156e91dd7cc ("usb: gadget: ncm: allocate and init otg descriptor by otg capabilities")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
 Signed-off-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/dwc3/gadget.c |    3 ---
- 1 file changed, 3 deletions(-)
+ drivers/usb/gadget/legacy/ncm.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -2480,9 +2480,6 @@ static int dwc3_gadget_ep_reclaim_trb_sg
- 	for_each_sg(sg, s, pending, i) {
- 		trb = &dep->trb_pool[dep->trb_dequeue];
+--- a/drivers/usb/gadget/legacy/ncm.c
++++ b/drivers/usb/gadget/legacy/ncm.c
+@@ -156,8 +156,10 @@ static int gncm_bind(struct usb_composit
+ 		struct usb_descriptor_header *usb_desc;
  
--		if (trb->ctrl & DWC3_TRB_CTRL_HWO)
--			break;
--
- 		req->sg = sg_next(s);
- 		req->num_pending_sgs--;
- 
+ 		usb_desc = usb_otg_descriptor_alloc(gadget);
+-		if (!usb_desc)
++		if (!usb_desc) {
++			status = -ENOMEM;
+ 			goto fail;
++		}
+ 		usb_otg_descriptor_init(gadget, usb_desc);
+ 		otg_desc[0] = usb_desc;
+ 		otg_desc[1] = NULL;
 
 
