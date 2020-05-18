@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DBC0C1D8105
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:44:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A0B6C1D8098
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:40:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729199AbgERRoH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:44:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42148 "EHLO mail.kernel.org"
+        id S1728508AbgERRko (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:40:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36538 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729680AbgERRoG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:44:06 -0400
+        id S1729134AbgERRkn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:40:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 19FB52083E;
-        Mon, 18 May 2020 17:44:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 797E720835;
+        Mon, 18 May 2020 17:40:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589823845;
-        bh=J3IsPnupG1bprp4tyhjpuDkdCJ3abZNdijJ9J9kjQPw=;
+        s=default; t=1589823642;
+        bh=k+sP1Ye2sq++ijswRFnpLTlJM38933ANkE+pDkrZzCA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HodCwC4k44W3WJa013Q+LdSQekngSTdfidAfd+FKUk8Nm6OOVyNbwZFbryDv59mtD
-         MWkT2rFKVmseDfkRe1q0if63HQ7du83BzIGaF9AY+98y8lw5fV5Q6/hcgiHgS/RRgz
-         VeJL/ycNGaIojTvXQrii9Vx1C3IN6hJiOjYKxZsE=
+        b=2XvQncyKPmMhME1yW8nUws4HXCN0oGnQKCsk7cdxcjYE/SQ5Tgt3xT4WayYxBbYVf
+         HDOW39Gg0b5/NZWtl6omKJJ46h+EoN3vDZW9/M1qXF1IaOCNKZAe5V3QYfsfRW0ncx
+         tBeMnrNOpVn1oC9jm6phr7zREY3or2GIHjPRr+oc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jason Gunthorpe <jgg@mellanox.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 4.9 58/90] pnp: Use list_for_each_entry() instead of open coding
+        stable@vger.kernel.org, Jianchao Wang <jianchao.w.wang@oracle.com>,
+        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>,
+        Giuliano Procida <gprocida@google.com>
+Subject: [PATCH 4.4 65/86] blk-mq: sync the update nr_hw_queues with blk_mq_queue_tag_busy_iter
 Date:   Mon, 18 May 2020 19:36:36 +0200
-Message-Id: <20200518173502.918228186@linuxfoundation.org>
+Message-Id: <20200518173503.473464673@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173450.930655662@linuxfoundation.org>
-References: <20200518173450.930655662@linuxfoundation.org>
+In-Reply-To: <20200518173450.254571947@linuxfoundation.org>
+References: <20200518173450.254571947@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,90 +44,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Gunthorpe <jgg@mellanox.com>
+From: Jianchao Wang <jianchao.w.wang@oracle.com>
 
-commit 01b2bafe57b19d9119413f138765ef57990921ce upstream.
+commit f5bbbbe4d63577026f908a809f22f5fd5a90ea1f upstream.
 
-Aside from good practice, this avoids a warning from gcc 10:
+For blk-mq, part_in_flight/rw will invoke blk_mq_in_flight/rw to
+account the inflight requests. It will access the queue_hw_ctx and
+nr_hw_queues w/o any protection. When updating nr_hw_queues and
+blk_mq_in_flight/rw occur concurrently, panic comes up.
 
-./include/linux/kernel.h:997:3: warning: array subscript -31 is outside array bounds of ‘struct list_head[1]’ [-Warray-bounds]
-  997 |  ((type *)(__mptr - offsetof(type, member))); })
-      |  ~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-./include/linux/list.h:493:2: note: in expansion of macro ‘container_of’
-  493 |  container_of(ptr, type, member)
-      |  ^~~~~~~~~~~~
-./include/linux/pnp.h:275:30: note: in expansion of macro ‘list_entry’
-  275 | #define global_to_pnp_dev(n) list_entry(n, struct pnp_dev, global_list)
-      |                              ^~~~~~~~~~
-./include/linux/pnp.h:281:11: note: in expansion of macro ‘global_to_pnp_dev’
-  281 |  (dev) != global_to_pnp_dev(&pnp_global); \
-      |           ^~~~~~~~~~~~~~~~~
-arch/x86/kernel/rtc.c:189:2: note: in expansion of macro ‘pnp_for_each_dev’
-  189 |  pnp_for_each_dev(dev) {
+Before update nr_hw_queues, the q will be frozen. So we could use
+q_usage_counter to avoid the race. percpu_ref_is_zero is used here
+so that we will not miss any in-flight request. The access to
+nr_hw_queues and queue_hw_ctx in blk_mq_queue_tag_busy_iter are
+under rcu critical section, __blk_mq_update_nr_hw_queues could use
+synchronize_rcu to ensure the zeroed q_usage_counter to be globally
+visible.
 
-Because the common code doesn't cast the starting list_head to the
-containing struct.
+--------------
+NOTE: Back-ported to 4.4.y.
 
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
-[ rjw: Whitespace adjustments ]
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+The upstream commit was intended to prevent concurrent manipulation of
+nr_hw_queues and iteration over queues. The former doesn't happen in
+this in 4.4.7 (as __blk_mq_update_nr_hw_queues doesn't exist). The
+extra locking is also buggy in this commit but fixed in a follow-up.
+
+It may protect against other concurrent accesses such as queue removal
+by synchronising RCU locking around q_usage_counter.
+--------------
+
+Signed-off-by: Jianchao Wang <jianchao.w.wang@oracle.com>
+Reviewed-by: Ming Lei <ming.lei@redhat.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Giuliano Procida <gprocida@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- include/linux/pnp.h |   29 +++++++++--------------------
- 1 file changed, 9 insertions(+), 20 deletions(-)
+ block/blk-mq-tag.c |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
---- a/include/linux/pnp.h
-+++ b/include/linux/pnp.h
-@@ -219,10 +219,8 @@ struct pnp_card {
- #define global_to_pnp_card(n) list_entry(n, struct pnp_card, global_list)
- #define protocol_to_pnp_card(n) list_entry(n, struct pnp_card, protocol_list)
- #define to_pnp_card(n) container_of(n, struct pnp_card, dev)
--#define pnp_for_each_card(card) \
--	for((card) = global_to_pnp_card(pnp_cards.next); \
--	(card) != global_to_pnp_card(&pnp_cards); \
--	(card) = global_to_pnp_card((card)->global_list.next))
-+#define pnp_for_each_card(card)	\
-+	list_for_each_entry(card, &pnp_cards, global_list)
+--- a/block/blk-mq-tag.c
++++ b/block/blk-mq-tag.c
+@@ -481,6 +481,14 @@ void blk_mq_queue_tag_busy_iter(struct r
+ 	struct blk_mq_hw_ctx *hctx;
+ 	int i;
  
- struct pnp_card_link {
- 	struct pnp_card *card;
-@@ -275,14 +273,9 @@ struct pnp_dev {
- #define card_to_pnp_dev(n) list_entry(n, struct pnp_dev, card_list)
- #define protocol_to_pnp_dev(n) list_entry(n, struct pnp_dev, protocol_list)
- #define	to_pnp_dev(n) container_of(n, struct pnp_dev, dev)
--#define pnp_for_each_dev(dev) \
--	for((dev) = global_to_pnp_dev(pnp_global.next); \
--	(dev) != global_to_pnp_dev(&pnp_global); \
--	(dev) = global_to_pnp_dev((dev)->global_list.next))
--#define card_for_each_dev(card,dev) \
--	for((dev) = card_to_pnp_dev((card)->devices.next); \
--	(dev) != card_to_pnp_dev(&(card)->devices); \
--	(dev) = card_to_pnp_dev((dev)->card_list.next))
-+#define pnp_for_each_dev(dev) list_for_each_entry(dev, &pnp_global, global_list)
-+#define card_for_each_dev(card, dev)	\
-+	list_for_each_entry(dev, &(card)->devices, card_list)
- #define pnp_dev_name(dev) (dev)->name
++	/*
++	 * Avoid potential races with things like queue removal.
++	 */
++	rcu_read_lock();
++	if (percpu_ref_is_zero(&q->q_usage_counter)) {
++		rcu_read_unlock();
++		return;
++	}
  
- static inline void *pnp_get_drvdata(struct pnp_dev *pdev)
-@@ -436,14 +429,10 @@ struct pnp_protocol {
- };
+ 	queue_for_each_hw_ctx(q, hctx, i) {
+ 		struct blk_mq_tags *tags = hctx->tags;
+@@ -497,7 +505,7 @@ void blk_mq_queue_tag_busy_iter(struct r
+ 		bt_for_each(hctx, &tags->bitmap_tags, tags->nr_reserved_tags, fn, priv,
+ 		      false);
+ 	}
+-
++	rcu_read_unlock();
+ }
  
- #define to_pnp_protocol(n) list_entry(n, struct pnp_protocol, protocol_list)
--#define protocol_for_each_card(protocol,card) \
--	for((card) = protocol_to_pnp_card((protocol)->cards.next); \
--	(card) != protocol_to_pnp_card(&(protocol)->cards); \
--	(card) = protocol_to_pnp_card((card)->protocol_list.next))
--#define protocol_for_each_dev(protocol,dev) \
--	for((dev) = protocol_to_pnp_dev((protocol)->devices.next); \
--	(dev) != protocol_to_pnp_dev(&(protocol)->devices); \
--	(dev) = protocol_to_pnp_dev((dev)->protocol_list.next))
-+#define protocol_for_each_card(protocol, card)	\
-+	list_for_each_entry(card, &(protocol)->cards, protocol_list)
-+#define protocol_for_each_dev(protocol, dev)	\
-+	list_for_each_entry(dev, &(protocol)->devices, protocol_list)
- 
- extern struct bus_type pnp_bus_type;
- 
+ static unsigned int bt_unused_tags(struct blk_mq_bitmap_tags *bt)
 
 
