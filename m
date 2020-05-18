@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 684171D866E
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:27:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 268201D833C
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:04:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729089AbgERRps (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:45:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44962 "EHLO mail.kernel.org"
+        id S1732604AbgERSDE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:03:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48130 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729452AbgERRpr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:45:47 -0400
+        id S1732600AbgERSDE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 14:03:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BBD6720674;
-        Mon, 18 May 2020 17:45:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DAFC6207D3;
+        Mon, 18 May 2020 18:03:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589823947;
-        bh=x9sPUck7yGR2tWg2w6qovXsDndLDcIPgf6857mP3fQc=;
+        s=default; t=1589824983;
+        bh=tehWF7fpkndSMrdZ/mvh2Ukdq+BeAudbWlSRcul9Fdg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MVEfO8tsySjp9U0jkg85dLsVwN3B6cziJ7YJM8zPWVlaWUp3Ddm0GIk5j2vmoXoOh
-         QK+DMRbSkazBp3BvmemtasxoYfBpKSMp458N/n6zojB33ja8llBoFrbw5soiJ2Z3xp
-         syez3+kvkKcGXh6ymzxvCUTJsiqKpRxMixBBgBCQ=
+        b=SEjHOZj80DggZ1usXq9144RvPp11wEHDbwRH8OvkM1ZtRDWJAGB2s0cYqoawQLfnr
+         mBoATwBujsiEOvUKoauqQbqkmudcDQNgfqT2np27gbstR5z+QefMtqISy29gYxnjmr
+         jumjAKAMBT0W6OgtNordkxcELlYsvW5i7uW8zui0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julia Lawall <Julia.Lawall@inria.fr>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 002/114] dp83640: reverse arguments to list_add_tail
+        stable@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Colin Walters <walters@redhat.com>
+Subject: [PATCH 5.6 044/194] net: ipv4: really enforce backoff for redirects
 Date:   Mon, 18 May 2020 19:35:34 +0200
-Message-Id: <20200518173503.493601438@linuxfoundation.org>
+Message-Id: <20200518173535.436284069@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173503.033975649@linuxfoundation.org>
-References: <20200518173503.033975649@linuxfoundation.org>
+In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
+References: <20200518173531.455604187@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,34 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Julia Lawall <Julia.Lawall@inria.fr>
+From: Paolo Abeni <pabeni@redhat.com>
 
-[ Upstream commit 865308373ed49c9fb05720d14cbf1315349b32a9 ]
+[ Upstream commit 57644431a6c2faac5d754ebd35780cf43a531b1a ]
 
-In this code, it appears that phyter_clocks is a list head, based on
-the previous list_for_each, and that clock->list is intended to be a
-list element, given that it has just been initialized in
-dp83640_clock_init.  Accordingly, switch the arguments to
-list_add_tail, which takes the list head as the second argument.
+In commit b406472b5ad7 ("net: ipv4: avoid mixed n_redirects and
+rate_tokens usage") I missed the fact that a 0 'rate_tokens' will
+bypass the backoff algorithm.
 
-Fixes: cb646e2b02b27 ("ptp: Added a clock driver for the National Semiconductor PHYTER.")
-Signed-off-by: Julia Lawall <Julia.Lawall@inria.fr>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Since rate_tokens is cleared after a redirect silence, and never
+incremented on redirects, if the host keeps receiving packets
+requiring redirect it will reply ignoring the backoff.
+
+Additionally, the 'rate_last' field will be updated with the
+cadence of the ingress packet requiring redirect. If that rate is
+high enough, that will prevent the host from generating any
+other kind of ICMP messages
+
+The check for a zero 'rate_tokens' value was likely a shortcut
+to avoid the more complex backoff algorithm after a redirect
+silence period. Address the issue checking for 'n_redirects'
+instead, which is incremented on successful redirect, and
+does not interfere with other ICMP replies.
+
+Fixes: b406472b5ad7 ("net: ipv4: avoid mixed n_redirects and rate_tokens usage")
+Reported-and-tested-by: Colin Walters <walters@redhat.com>
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/phy/dp83640.c |    2 +-
+ net/ipv4/route.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/phy/dp83640.c
-+++ b/drivers/net/phy/dp83640.c
-@@ -1110,7 +1110,7 @@ static struct dp83640_clock *dp83640_clo
- 		goto out;
- 	}
- 	dp83640_clock_init(clock, bus);
--	list_add_tail(&phyter_clocks, &clock->list);
-+	list_add_tail(&clock->list, &phyter_clocks);
- out:
- 	mutex_unlock(&phyter_clocks_lock);
- 
+--- a/net/ipv4/route.c
++++ b/net/ipv4/route.c
+@@ -915,7 +915,7 @@ void ip_rt_send_redirect(struct sk_buff
+ 	/* Check for load limit; set rate_last to the latest sent
+ 	 * redirect.
+ 	 */
+-	if (peer->rate_tokens == 0 ||
++	if (peer->n_redirects == 0 ||
+ 	    time_after(jiffies,
+ 		       (peer->rate_last +
+ 			(ip_rt_redirect_load << peer->n_redirects)))) {
 
 
