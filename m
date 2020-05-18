@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C93871D86F7
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:31:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C01E1D84A6
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:14:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728845AbgERRmU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:42:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39240 "EHLO mail.kernel.org"
+        id S2387526AbgERSNO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:13:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46094 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728830AbgERRmT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:42:19 -0400
+        id S1732498AbgERSCW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 14:02:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 85CCC20657;
-        Mon, 18 May 2020 17:42:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 35D862086A;
+        Mon, 18 May 2020 18:02:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589823739;
-        bh=yKwxbu0ssZHksUJJ8DfAuGLrwFXRBVCuaG65HeQ1Mrg=;
+        s=default; t=1589824941;
+        bh=Uegwi40m6VKoo3qYz46wXwuY83tyEhWX7RHlaRpzbXs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OnWslDzmTkVZltiqYLAsLHOngorH2ZJKoa1HJNqrpQ1ZGDTQbqb+K2bJqQt5aIENl
-         I1PwU9BikTfCftJ+94S0CikaJDz6yt8IK4fKOIKOVe9Pyzem7IglcgMu4DmJ93NuD0
-         i/9ubWsG/ppzgAZb5gZk8mL5RnSCKvLZ5LAIBKWA=
+        b=zfBff8ZEQg1QohqnCS7yWAtSILvFmsPMWXArok+l6meqeMr+Q0x96O0rOOxf9Lj4d
+         iyGq2WLK4D3ZiBDCM8ZkoXozgoLYtTed5ryKTvEBTgc9okzczruvJoRlzUTXpbEWnv
+         mmAtJAta05eKToveP7C85axeVPxHiJgh5lEE5e6I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Tzvetomir Stoyanov (VMware)" <tz.stoyanov@gmail.com>,
-        Joerg Roedel <jroedel@suse.de>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 4.9 17/90] tracing: Add a vmalloc_sync_mappings() for safe measure
+        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
+        Gerd Hoffmann <kraxel@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 065/194] drm/qxl: lost qxl_bo_kunmap_atomic_page in qxl_image_init_helper()
 Date:   Mon, 18 May 2020 19:35:55 +0200
-Message-Id: <20200518173454.769765722@linuxfoundation.org>
+Message-Id: <20200518173537.137141979@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173450.930655662@linuxfoundation.org>
-References: <20200518173450.930655662@linuxfoundation.org>
+In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
+References: <20200518173531.455604187@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,62 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (VMware) <rostedt@goodmis.org>
+From: Vasily Averin <vvs@virtuozzo.com>
 
-commit 11f5efc3ab66284f7aaacc926e9351d658e2577b upstream.
+[ Upstream commit 5b5703dbafae74adfbe298a56a81694172caf5e6 ]
 
-x86_64 lazily maps in the vmalloc pages, and the way this works with per_cpu
-areas can be complex, to say the least. Mappings may happen at boot up, and
-if nothing synchronizes the page tables, those page mappings may not be
-synced till they are used. This causes issues for anything that might touch
-one of those mappings in the path of the page fault handler. When one of
-those unmapped mappings is touched in the page fault handler, it will cause
-another page fault, which in turn will cause a page fault, and leave us in
-a loop of page faults.
+v2: removed TODO reminder
 
-Commit 763802b53a42 ("x86/mm: split vmalloc_sync_all()") split
-vmalloc_sync_all() into vmalloc_sync_unmappings() and
-vmalloc_sync_mappings(), as on system exit, it did not need to do a full
-sync on x86_64 (although it still needed to be done on x86_32). By chance,
-the vmalloc_sync_all() would synchronize the page mappings done at boot up
-and prevent the per cpu area from being a problem for tracing in the page
-fault handler. But when that synchronization in the exit of a task became a
-nop, it caused the problem to appear.
-
-Link: https://lore.kernel.org/r/20200429054857.66e8e333@oasis.local.home
-
-Cc: stable@vger.kernel.org
-Fixes: 737223fbca3b1 ("tracing: Consolidate buffer allocation code")
-Reported-by: "Tzvetomir Stoyanov (VMware)" <tz.stoyanov@gmail.com>
-Suggested-by: Joerg Roedel <jroedel@suse.de>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
+Link: http://patchwork.freedesktop.org/patch/msgid/a4e0ae09-a73c-1c62-04ef-3f990d41bea9@virtuozzo.com
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace.c |   13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ drivers/gpu/drm/qxl/qxl_image.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -7032,6 +7032,19 @@ static int allocate_trace_buffers(struct
- 	 */
- 	allocate_snapshot = false;
- #endif
-+
-+	/*
-+	 * Because of some magic with the way alloc_percpu() works on
-+	 * x86_64, we need to synchronize the pgd of all the tables,
-+	 * otherwise the trace events that happen in x86_64 page fault
-+	 * handlers can't cope with accessing the chance that a
-+	 * alloc_percpu()'d memory might be touched in the page fault trace
-+	 * event. Oh, and we need to audit all other alloc_percpu() and vmalloc()
-+	 * calls in tracing, because something might get triggered within a
-+	 * page fault trace event!
-+	 */
-+	vmalloc_sync_mappings();
-+
- 	return 0;
- }
- 
+diff --git a/drivers/gpu/drm/qxl/qxl_image.c b/drivers/gpu/drm/qxl/qxl_image.c
+index 43688ecdd8a04..60ab7151b84dc 100644
+--- a/drivers/gpu/drm/qxl/qxl_image.c
++++ b/drivers/gpu/drm/qxl/qxl_image.c
+@@ -212,7 +212,8 @@ qxl_image_init_helper(struct qxl_device *qdev,
+ 		break;
+ 	default:
+ 		DRM_ERROR("unsupported image bit depth\n");
+-		return -EINVAL; /* TODO: cleanup */
++		qxl_bo_kunmap_atomic_page(qdev, image_bo, ptr);
++		return -EINVAL;
+ 	}
+ 	image->u.bitmap.flags = QXL_BITMAP_TOP_DOWN;
+ 	image->u.bitmap.x = width;
+-- 
+2.20.1
+
 
 
