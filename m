@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 56C501D82CF
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:59:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 398221D83B3
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:07:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732064AbgERR7b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:59:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40018 "EHLO mail.kernel.org"
+        id S1733241AbgERSHD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:07:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55530 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732063AbgERR73 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:59:29 -0400
+        id S1733238AbgERSHA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 14:07:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ECDA020873;
-        Mon, 18 May 2020 17:59:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7DBBE20897;
+        Mon, 18 May 2020 18:06:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824769;
-        bh=KZFGpym89vL+pkYsJKw1YvGqavgp7Flu1HyOh8N8L3w=;
+        s=default; t=1589825220;
+        bh=+DcNASjsA2v1ITdZ/hawtXHmtd2lUeMmvAxI3Pnpl5A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lm9gDaXLEskMpKAL5hDNJgmpd/diYNqaaznkOKiAkZ5SKgA8bYdXWJRlM4V9wmEpi
-         Pr0rrAi/FbLeQpiaO9FXR9fo9c4lxiXO6G70SQPazWhp6apTYIsTmV8j0ZiDa8uJwQ
-         VeOY1eZRFwhnfVpREjIE9S5zKE6w2izDhoJrbB14=
+        b=BlLNgPgDMAreHEUipj0yck+HJN72Wm4YQ+pbevm5dXIMXFzXc4TJXKPoC1xWjECz6
+         p8oBBTwsZhpL27p1Jv/pUyb5Cf145C/b4hmmdm83fFoqPxqGknmrcl/Q64IlBV9T9f
+         4l8Vbzh4zCCjOfPnY/xCclyMM0BwnHGSUyNVS2II=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sergei Trofimovich <slyfox@gentoo.org>,
-        Jiri Kosina <jkosina@suse.cz>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Thomas Backlund <tmb@mageia.org>
-Subject: [PATCH 5.4 144/147] Makefile: disallow data races on gcc-10 as well
-Date:   Mon, 18 May 2020 19:37:47 +0200
-Message-Id: <20200518173530.903242359@linuxfoundation.org>
+        stable@vger.kernel.org, Adam Ford <aford173@gmail.com>,
+        Shawn Guo <shawnguo@kernel.org>
+Subject: [PATCH 5.6 178/194] arm64: dts: imx8mn: Change SDMA1 ahb clock for imx8mn
+Date:   Mon, 18 May 2020 19:37:48 +0200
+Message-Id: <20200518173546.353447019@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
-References: <20200518173513.009514388@linuxfoundation.org>
+In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
+References: <20200518173531.455604187@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,34 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergei Trofimovich <slyfox@gentoo.org>
+From: Adam Ford <aford173@gmail.com>
 
-commit b1112139a103b4b1101d0d2d72931f2d33d8c978 upstream.
+commit 15ddc3e17aec0de4c69d595b873e184432b9791d upstream.
 
-gcc-10 will rename --param=allow-store-data-races=0
-to -fno-allow-store-data-races.
+Using SDMA1 with UART1 is causing a "Timeout waiting for CH0" error.
+This patch changes to ahb clock from SDMA1_ROOT to AHB which fixes the
+timeout error.
 
-The flag change happened at https://gcc.gnu.org/PR92046.
+Fixes: 6c3debcbae47 ("arm64: dts: freescale: Add i.MX8MN dtsi support")
 
-Signed-off-by: Sergei Trofimovich <slyfox@gentoo.org>
-Acked-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Cc: Thomas Backlund <tmb@mageia.org>
+Signed-off-by: Adam Ford <aford173@gmail.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- Makefile |    1 +
- 1 file changed, 1 insertion(+)
+ arch/arm64/boot/dts/freescale/imx8mn.dtsi |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/Makefile
-+++ b/Makefile
-@@ -709,6 +709,7 @@ endif
- 
- # Tell gcc to never replace conditional load with a non-conditional one
- KBUILD_CFLAGS	+= $(call cc-option,--param=allow-store-data-races=0)
-+KBUILD_CFLAGS	+= $(call cc-option,-fno-allow-store-data-races)
- 
- include scripts/Makefile.kcov
- include scripts/Makefile.gcc-plugins
+--- a/arch/arm64/boot/dts/freescale/imx8mn.dtsi
++++ b/arch/arm64/boot/dts/freescale/imx8mn.dtsi
+@@ -661,7 +661,7 @@
+ 				reg = <0x30bd0000 0x10000>;
+ 				interrupts = <GIC_SPI 2 IRQ_TYPE_LEVEL_HIGH>;
+ 				clocks = <&clk IMX8MN_CLK_SDMA1_ROOT>,
+-					 <&clk IMX8MN_CLK_SDMA1_ROOT>;
++					 <&clk IMX8MN_CLK_AHB>;
+ 				clock-names = "ipg", "ahb";
+ 				#dma-cells = <3>;
+ 				fsl,sdma-ram-script-name = "imx/sdma/sdma-imx7d.bin";
 
 
