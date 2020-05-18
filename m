@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DD3631D862A
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:23:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE4771D836E
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:05:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732416AbgERSXW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:23:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50710 "EHLO mail.kernel.org"
+        id S1732822AbgERSEl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:04:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51796 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729400AbgERRtP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:49:15 -0400
+        id S1732814AbgERSEi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 14:04:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3FCDF20674;
-        Mon, 18 May 2020 17:49:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8983620826;
+        Mon, 18 May 2020 18:04:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824154;
-        bh=bn+0jV5CaXBmRGOJ7t0CtgxsTfEHiDXFyApcbux1kbU=;
+        s=default; t=1589825078;
+        bh=mLNNcdMEzcijcd6WQUrQiMn6mZLH+CN0WL25fCbmqLo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PP2oRVE51Cw4s4GutfuerG4Mf/7lqZSf0UqMijqc2Rgjzm4tsFECKta2t6VHfuC8s
-         iFII1VMw/z1D+KI+g92J+W0EW+hyuhYTMwqgJQkTzgMfhfAia4EGtY4acRpXK1A4UX
-         iihJD5bzjHVqq1i209aAjK9mg74xpNOcrIxTgmi0=
+        b=KLu21Yuh411wPRrNEg+Trok+URExLsNDofeVHgOJXURSlp7fqkzjU4CME+NlqQHcF
+         6ZgR2ML7UQGLAoL+WWbiQSQR6y0csPp85uHmf31ffo72rRX6Wqs1hFGPBkqiPL8uQY
+         zaJ9cXe8IYYwMkuYlFIPmiZ1D6Gao8S2DvimbevI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 076/114] gcc-10: disable stringop-overflow warning for now
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wei Yongjun <weiyongjun1@huawei.com>,
+        Ursula Braun <ubraun@linux.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 118/194] s390/ism: fix error return code in ism_probe()
 Date:   Mon, 18 May 2020 19:36:48 +0200
-Message-Id: <20200518173516.490561046@linuxfoundation.org>
+Message-Id: <20200518173541.485451607@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173503.033975649@linuxfoundation.org>
-References: <20200518173503.033975649@linuxfoundation.org>
+In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
+References: <20200518173531.455604187@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,32 +46,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-commit 5a76021c2eff7fcf2f0918a08fd8a37ce7922921 upstream.
+[ Upstream commit 29b74cb75e3572d83708745e81e24d37837415f9 ]
 
-This is the final array bounds warning removal for gcc-10 for now.
+Fix to return negative error code -ENOMEM from the smcd_alloc_dev()
+error handling case instead of 0, as done elsewhere in this function.
 
-Again, the warning is good, and we should re-enable all these warnings
-when we have converted all the legacy array declaration cases to
-flexible arrays. But in the meantime, it's just noise.
-
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 684b89bc39ce ("s390/ism: add device driver for internal shared memory")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Makefile |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/s390/net/ism_drv.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/Makefile
-+++ b/Makefile
-@@ -803,6 +803,7 @@ KBUILD_CFLAGS += $(call cc-disable-warni
- # We'll want to enable this eventually, but it's not going away for 5.7 at least
- KBUILD_CFLAGS += $(call cc-disable-warning, zero-length-bounds)
- KBUILD_CFLAGS += $(call cc-disable-warning, array-bounds)
-+KBUILD_CFLAGS += $(call cc-disable-warning, stringop-overflow)
+diff --git a/drivers/s390/net/ism_drv.c b/drivers/s390/net/ism_drv.c
+index 4fc2056bd2272..e615dc240150b 100644
+--- a/drivers/s390/net/ism_drv.c
++++ b/drivers/s390/net/ism_drv.c
+@@ -521,8 +521,10 @@ static int ism_probe(struct pci_dev *pdev, const struct pci_device_id *id)
  
- # Enabled with W=2, disabled by default as noisy
- KBUILD_CFLAGS += $(call cc-disable-warning, maybe-uninitialized)
+ 	ism->smcd = smcd_alloc_dev(&pdev->dev, dev_name(&pdev->dev), &ism_ops,
+ 				   ISM_NR_DMBS);
+-	if (!ism->smcd)
++	if (!ism->smcd) {
++		ret = -ENOMEM;
+ 		goto err_resource;
++	}
+ 
+ 	ism->smcd->priv = ism;
+ 	ret = ism_dev_init(ism);
+-- 
+2.20.1
+
 
 
