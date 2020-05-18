@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C7E0C1D819A
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:49:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A7DB21D85B9
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:21:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730511AbgERRtV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:49:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50784 "EHLO mail.kernel.org"
+        id S1728622AbgERRwP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:52:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55334 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729211AbgERRtU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:49:20 -0400
+        id S1730914AbgERRwM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:52:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1963A20657;
-        Mon, 18 May 2020 17:49:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 572B020715;
+        Mon, 18 May 2020 17:52:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824159;
-        bh=LrTXq/dkUrb8jTWPcMFz5tG0IRGolFV8Mo1nOSI7fw8=;
+        s=default; t=1589824331;
+        bh=mbshnHENIYRB/FCVM459hXbxASVXtHsDAXUwyCDDyBQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mYrz3ynpYjoghfm4Wo+Y802TF1hMe02YELJ3Z9hL88LA+p6vVGn4b3QiEWiLnKTt3
-         GF13TpysLHCuGJmW3YzCWgBjAp10E6+QzuBIB5mqajshlYs6jzPpSFY9TXLKj56J9K
-         d8Cjr9IZW5Tx4ibB0hDyyKdqCcfSPE/I1Oe05yNw=
+        b=OziNCjWPuBW+xLloKa62AvDOrj7eClBljeA2uAY0AWs7CXjbwjoVQGslMgL3o17rj
+         /lt7F5Fq+5EBp9AFCYy92QP32xjnZzjM1vrJkYcCBhfdlTeyBPHg9jYZG5RNQHuajc
+         Ef6556VcqTLRA6QANrf0HQgJUxVE9imGh5XYiIc4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sergei Trofimovich <slyfox@gentoo.org>,
-        Borislav Petkov <bp@suse.de>, Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 4.14 095/114] x86: Fix early boot crash on gcc-10, third try
+        stable@vger.kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.19 49/80] gcc-10: disable array-bounds warning for now
 Date:   Mon, 18 May 2020 19:37:07 +0200
-Message-Id: <20200518173519.031923237@linuxfoundation.org>
+Message-Id: <20200518173500.338372416@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173503.033975649@linuxfoundation.org>
-References: <20200518173503.033975649@linuxfoundation.org>
+In-Reply-To: <20200518173450.097837707@linuxfoundation.org>
+References: <20200518173450.097837707@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,141 +43,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Borislav Petkov <bp@suse.de>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-commit a9a3ed1eff3601b63aea4fb462d8b3b92c7c1e7e upstream.
+commit 44720996e2d79e47d508b0abe99b931a726a3197 upstream.
 
-... or the odyssey of trying to disable the stack protector for the
-function which generates the stack canary value.
+This is another fine warning, related to the 'zero-length-bounds' one,
+but hitting the same historical code in the kernel.
 
-The whole story started with Sergei reporting a boot crash with a kernel
-built with gcc-10:
+Because C didn't historically support flexible array members, we have
+code that instead uses a one-sized array, the same way we have cases of
+zero-sized arrays.
 
-  Kernel panic — not syncing: stack-protector: Kernel stack is corrupted in: start_secondary
-  CPU: 1 PID: 0 Comm: swapper/1 Not tainted 5.6.0-rc5—00235—gfffb08b37df9 #139
-  Hardware name: Gigabyte Technology Co., Ltd. To be filled by O.E.M./H77M—D3H, BIOS F12 11/14/2013
-  Call Trace:
-    dump_stack
-    panic
-    ? start_secondary
-    __stack_chk_fail
-    start_secondary
-    secondary_startup_64
-  -—-[ end Kernel panic — not syncing: stack—protector: Kernel stack is corrupted in: start_secondary
+The one-sized arrays come from either not wanting to use the gcc
+zero-sized array extension, or from a slight convenience-feature, where
+particularly for strings, the size of the structure now includes the
+allocation for the final NUL character.
 
-This happens because gcc-10 tail-call optimizes the last function call
-in start_secondary() - cpu_startup_entry() - and thus emits a stack
-canary check which fails because the canary value changes after the
-boot_init_stack_canary() call.
+So with a "char name[1];" at the end of a structure, you can do things
+like
 
-To fix that, the initial attempt was to mark the one function which
-generates the stack canary with:
+       v = my_malloc(sizeof(struct vendor) + strlen(name));
 
-  __attribute__((optimize("-fno-stack-protector"))) ... start_secondary(void *unused)
+and avoid the "+1" for the terminator.
 
-however, using the optimize attribute doesn't work cumulatively
-as the attribute does not add to but rather replaces previously
-supplied optimization options - roughly all -fxxx options.
+Yes, the modern way to do that is with a flexible array, and using
+'offsetof()' instead of 'sizeof()', and adding the "+1" by hand.  That
+also technically gets the size "more correct" in that it avoids any
+alignment (and thus padding) issues, but this is another long-term
+cleanup thing that will not happen for 5.7.
 
-The key one among them being -fno-omit-frame-pointer and thus leading to
-not present frame pointer - frame pointer which the kernel needs.
+So disable the warning for now, even though it's potentially quite
+useful.  Having a slew of warnings that then hide more urgent new issues
+is not an improvement.
 
-The next attempt to prevent compilers from tail-call optimizing
-the last function call cpu_startup_entry(), shy of carving out
-start_secondary() into a separate compilation unit and building it with
--fno-stack-protector, was to add an empty asm("").
-
-This current solution was short and sweet, and reportedly, is supported
-by both compilers but we didn't get very far this time: future (LTO?)
-optimization passes could potentially eliminate this, which leads us
-to the third attempt: having an actual memory barrier there which the
-compiler cannot ignore or move around etc.
-
-That should hold for a long time, but hey we said that about the other
-two solutions too so...
-
-Reported-by: Sergei Trofimovich <slyfox@gentoo.org>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Tested-by: Kalle Valo <kvalo@codeaurora.org>
-Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/20200314164451.346497-1-slyfox@gentoo.org
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/include/asm/stackprotector.h |    7 ++++++-
- arch/x86/kernel/smpboot.c             |    8 ++++++++
- arch/x86/xen/smp_pv.c                 |    1 +
- include/linux/compiler.h              |    6 ++++++
- init/main.c                           |    2 ++
- 5 files changed, 23 insertions(+), 1 deletion(-)
+ Makefile |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/x86/include/asm/stackprotector.h
-+++ b/arch/x86/include/asm/stackprotector.h
-@@ -55,8 +55,13 @@
- /*
-  * Initialize the stackprotector canary value.
-  *
-- * NOTE: this must only be called from functions that never return,
-+ * NOTE: this must only be called from functions that never return
-  * and it must always be inlined.
-+ *
-+ * In addition, it should be called from a compilation unit for which
-+ * stack protector is disabled. Alternatively, the caller should not end
-+ * with a function call which gets tail-call optimized as that would
-+ * lead to checking a modified canary value.
-  */
- static __always_inline void boot_init_stack_canary(void)
- {
---- a/arch/x86/kernel/smpboot.c
-+++ b/arch/x86/kernel/smpboot.c
-@@ -270,6 +270,14 @@ static void notrace start_secondary(void
+--- a/Makefile
++++ b/Makefile
+@@ -794,6 +794,7 @@ KBUILD_CFLAGS += $(call cc-disable-warni
  
- 	wmb();
- 	cpu_startup_entry(CPUHP_AP_ONLINE_IDLE);
-+
-+	/*
-+	 * Prevent tail call to cpu_startup_entry() because the stack protector
-+	 * guard has been changed a couple of function calls up, in
-+	 * boot_init_stack_canary() and must not be checked before tail calling
-+	 * another function.
-+	 */
-+	prevent_tail_call_optimization();
- }
+ # We'll want to enable this eventually, but it's not going away for 5.7 at least
+ KBUILD_CFLAGS += $(call cc-disable-warning, zero-length-bounds)
++KBUILD_CFLAGS += $(call cc-disable-warning, array-bounds)
  
- /**
---- a/arch/x86/xen/smp_pv.c
-+++ b/arch/x86/xen/smp_pv.c
-@@ -89,6 +89,7 @@ asmlinkage __visible void cpu_bringup_an
- {
- 	cpu_bringup();
- 	cpu_startup_entry(CPUHP_AP_ONLINE_IDLE);
-+	prevent_tail_call_optimization();
- }
- 
- void xen_smp_intr_free_pv(unsigned int cpu)
---- a/include/linux/compiler.h
-+++ b/include/linux/compiler.h
-@@ -382,4 +382,10 @@ unsigned long read_word_at_a_time(const
- 	(_________p1); \
- })
- 
-+/*
-+ * This is needed in functions which generate the stack canary, see
-+ * arch/x86/kernel/smpboot.c::start_secondary() for an example.
-+ */
-+#define prevent_tail_call_optimization()	mb()
-+
- #endif /* __LINUX_COMPILER_H */
---- a/init/main.c
-+++ b/init/main.c
-@@ -706,6 +706,8 @@ asmlinkage __visible void __init start_k
- 
- 	/* Do the rest non-__init'ed, we're now alive */
- 	rest_init();
-+
-+	prevent_tail_call_optimization();
- }
- 
- /* Call all constructor functions linked into the kernel. */
+ # Enabled with W=2, disabled by default as noisy
+ KBUILD_CFLAGS += $(call cc-disable-warning, maybe-uninitialized)
 
 
