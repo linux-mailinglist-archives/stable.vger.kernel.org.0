@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D64D1D860E
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:23:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D6B541D8436
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:11:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728918AbgERRtg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:49:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51258 "EHLO mail.kernel.org"
+        id S1729773AbgERSKV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:10:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53222 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729029AbgERRtf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:49:35 -0400
+        id S1732991AbgERSFg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 14:05:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C976320657;
-        Mon, 18 May 2020 17:49:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 967BB20715;
+        Mon, 18 May 2020 18:05:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824175;
-        bh=2qitLLezr2UjIB2vLsXLPOmzr97R3cyIBcTQTL+j+xg=;
+        s=default; t=1589825135;
+        bh=w0ZrLg5lzqmzm0eeVVAtly+CMKhxn//9Aig3YAGpsMI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gWy+gCZjG3l6rxBk16FAhpGhMdDVSxOBU6OG46qFOydY55ySdf0nJVqLZCA8krNoB
-         ofNX+fCnJegvFYMG/1t5VHD+G//qRSmD0Le4zqVRUlu9jL+LJvWjrVw0BJw1TvfexO
-         BULywGBYUPKGUtgsgbE0DAp12SUJtifKNfgqZVCU=
+        b=d5kOxC5/4e0mLNvfcvxfbivc0pEwrO3645fmBacqJSkzggecLw6BZMkY4BnEcV/f8
+         Hxg9RHrR3O8KQaWS2bJKBTan8DK2pkLDbTDEMYi/0s7gBG1vbwLYRVoOmvoAA+1/fb
+         r8damkQHCn6ROpznyAmeobW8epmTeHKMCc9L/tJ8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Machek <pavel@denx.de>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Subject: [PATCH 4.14 101/114] x86/unwind/orc: Fix error handling in __unwind_start()
+        stable@vger.kernel.org, Baolin Wang <baolin.wang@linaro.org>,
+        Peter Chen <peter.chen@nxp.com>, Li Jun <jun.li@nxp.com>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 5.6 143/194] usb: host: xhci-plat: keep runtime active when removing host
 Date:   Mon, 18 May 2020 19:37:13 +0200
-Message-Id: <20200518173519.747046062@linuxfoundation.org>
+Message-Id: <20200518173543.195557886@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173503.033975649@linuxfoundation.org>
-References: <20200518173503.033975649@linuxfoundation.org>
+In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
+References: <20200518173531.455604187@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,81 +44,135 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josh Poimboeuf <jpoimboe@redhat.com>
+From: Li Jun <jun.li@nxp.com>
 
-commit 71c95825289f585014fe9741b051d32a7a916680 upstream.
+commit 1449cb2c2253d37d998c3714aa9b95416d16d379 upstream.
 
-The unwind_state 'error' field is used to inform the reliable unwinding
-code that the stack trace can't be trusted.  Set this field for all
-errors in __unwind_start().
+While removing the host (e.g. for USB role switch from host to device),
+if runtime pm is enabled by user, below oops occurs on dwc3 and cdns3
+platforms.
+Keeping the xhci-plat device active during host removal, and disabling
+runtime pm before calling pm_runtime_set_suspended() fixes them.
 
-Also, move the zeroing out of the unwind_state struct to before the ORC
-table initialization check, to prevent the caller from reading
-uninitialized data if the ORC table is corrupted.
+oops1:
+Unable to handle kernel NULL pointer dereference at virtual address
+0000000000000240
+Internal error: Oops: 96000004 [#1] PREEMPT SMP
+Modules linked in:
+CPU: 0 PID: 5 Comm: kworker/0:0 Not tainted 5.4.3-00107-g64d454a-dirty
+Hardware name: FSL i.MX8MP EVK (DT)
+Workqueue: pm pm_runtime_work
+pstate: 60000005 (nZCv daif -PAN -UAO)
+pc : xhci_suspend+0x34/0x698
+lr : xhci_plat_runtime_suspend+0x2c/0x38
+sp : ffff800011ddbbc0
+Call trace:
+ xhci_suspend+0x34/0x698
+ xhci_plat_runtime_suspend+0x2c/0x38
+ pm_generic_runtime_suspend+0x28/0x40
+ __rpm_callback+0xd8/0x138
+ rpm_callback+0x24/0x98
+ rpm_suspend+0xe0/0x448
+ rpm_idle+0x124/0x140
+ pm_runtime_work+0xa0/0xf8
+ process_one_work+0x1dc/0x370
+ worker_thread+0x48/0x468
+ kthread+0xf0/0x120
+ ret_from_fork+0x10/0x1c
 
-Fixes: af085d9084b4 ("stacktrace/x86: add function for detecting reliable stack traces")
-Fixes: d3a09104018c ("x86/unwinder/orc: Dont bail on stack overflow")
-Fixes: 98d0c8ebf77e ("x86/unwind/orc: Prevent unwinding before ORC initialization")
-Reported-by: Pavel Machek <pavel@denx.de>
-Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/d6ac7215a84ca92b895fdd2e1aa546729417e6e6.1589487277.git.jpoimboe@redhat.com
+oops2:
+usb 2-1: USB disconnect, device number 2
+xhci-hcd xhci-hcd.1.auto: remove, state 4
+usb usb2: USB disconnect, device number 1
+xhci-hcd xhci-hcd.1.auto: USB bus 2 deregistered
+xhci-hcd xhci-hcd.1.auto: remove, state 4
+usb usb1: USB disconnect, device number 1
+Unable to handle kernel NULL pointer dereference at virtual address
+0000000000000138
+Internal error: Oops: 96000004 [#1] PREEMPT SMP
+Modules linked in:
+CPU: 2 PID: 7 Comm: kworker/u8:0 Not tainted 5.6.0-rc4-next-20200304-03578
+Hardware name: Freescale i.MX8QXP MEK (DT)
+Workqueue: 1-0050 tcpm_state_machine_work
+pstate: 20000005 (nzCv daif -PAN -UAO)
+pc : xhci_free_dev+0x214/0x270
+lr : xhci_plat_runtime_resume+0x78/0x88
+sp : ffff80001006b5b0
+Call trace:
+ xhci_free_dev+0x214/0x270
+ xhci_plat_runtime_resume+0x78/0x88
+ pm_generic_runtime_resume+0x30/0x48
+ __rpm_callback+0x90/0x148
+ rpm_callback+0x28/0x88
+ rpm_resume+0x568/0x758
+ rpm_resume+0x260/0x758
+ rpm_resume+0x260/0x758
+ __pm_runtime_resume+0x40/0x88
+ device_release_driver_internal+0xa0/0x1c8
+ device_release_driver+0x1c/0x28
+ bus_remove_device+0xd4/0x158
+ device_del+0x15c/0x3a0
+ usb_disable_device+0xb0/0x268
+ usb_disconnect+0xcc/0x300
+ usb_remove_hcd+0xf4/0x1dc
+ xhci_plat_remove+0x78/0xe0
+ platform_drv_remove+0x30/0x50
+ device_release_driver_internal+0xfc/0x1c8
+ device_release_driver+0x1c/0x28
+ bus_remove_device+0xd4/0x158
+ device_del+0x15c/0x3a0
+ platform_device_del.part.0+0x20/0x90
+ platform_device_unregister+0x28/0x40
+ cdns3_host_exit+0x20/0x40
+ cdns3_role_stop+0x60/0x90
+ cdns3_role_set+0x64/0xd8
+ usb_role_switch_set_role.part.0+0x3c/0x68
+ usb_role_switch_set_role+0x20/0x30
+ tcpm_mux_set+0x60/0xf8
+ tcpm_reset_port+0xa4/0xf0
+ tcpm_detach.part.0+0x28/0x50
+ tcpm_state_machine_work+0x12ac/0x2360
+ process_one_work+0x1c8/0x470
+ worker_thread+0x50/0x428
+ kthread+0xfc/0x128
+ ret_from_fork+0x10/0x18
+Code: c8037c02 35ffffa3 17ffe7c3 f9800011 (c85f7c01)
+---[ end trace 45b1a173d2679e44 ]---
+
+[minor commit message cleanup  -Mathias]
+Cc: Baolin Wang <baolin.wang@linaro.org>
+Cc: <stable@vger.kernel.org>
+Fixes: b0c69b4bace3 ("usb: host: plat: Enable xHCI plat runtime PM")
+Reviewed-by: Peter Chen <peter.chen@nxp.com>
+Tested-by: Peter Chen <peter.chen@nxp.com>
+Signed-off-by: Li Jun <jun.li@nxp.com>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20200514110432.25564-3-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- arch/x86/kernel/unwind_orc.c |   16 +++++++++-------
- 1 file changed, 9 insertions(+), 7 deletions(-)
+ drivers/usb/host/xhci-plat.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/arch/x86/kernel/unwind_orc.c
-+++ b/arch/x86/kernel/unwind_orc.c
-@@ -505,23 +505,23 @@ EXPORT_SYMBOL_GPL(unwind_next_frame);
- void __unwind_start(struct unwind_state *state, struct task_struct *task,
- 		    struct pt_regs *regs, unsigned long *first_frame)
- {
--	if (!orc_init)
--		goto done;
--
- 	memset(state, 0, sizeof(*state));
- 	state->task = task;
+--- a/drivers/usb/host/xhci-plat.c
++++ b/drivers/usb/host/xhci-plat.c
+@@ -363,6 +363,7 @@ static int xhci_plat_remove(struct platf
+ 	struct clk *reg_clk = xhci->reg_clk;
+ 	struct usb_hcd *shared_hcd = xhci->shared_hcd;
  
-+	if (!orc_init)
-+		goto err;
-+
- 	/*
- 	 * Refuse to unwind the stack of a task while it's executing on another
- 	 * CPU.  This check is racy, but that's ok: the unwinder has other
- 	 * checks to prevent it from going off the rails.
- 	 */
- 	if (task_on_another_cpu(task))
--		goto done;
-+		goto err;
++	pm_runtime_get_sync(&dev->dev);
+ 	xhci->xhc_state |= XHCI_STATE_REMOVING;
  
- 	if (regs) {
- 		if (user_mode(regs))
--			goto done;
-+			goto the_end;
+ 	usb_remove_hcd(shared_hcd);
+@@ -376,8 +377,9 @@ static int xhci_plat_remove(struct platf
+ 	clk_disable_unprepare(reg_clk);
+ 	usb_put_hcd(hcd);
  
- 		state->ip = regs->ip;
- 		state->sp = kernel_stack_pointer(regs);
-@@ -554,6 +554,7 @@ void __unwind_start(struct unwind_state
- 		 * generate some kind of backtrace if this happens.
- 		 */
- 		void *next_page = (void *)PAGE_ALIGN((unsigned long)state->sp);
-+		state->error = true;
- 		if (get_stack_info(next_page, state->task, &state->stack_info,
- 				   &state->stack_mask))
- 			return;
-@@ -579,8 +580,9 @@ void __unwind_start(struct unwind_state
+-	pm_runtime_set_suspended(&dev->dev);
+ 	pm_runtime_disable(&dev->dev);
++	pm_runtime_put_noidle(&dev->dev);
++	pm_runtime_set_suspended(&dev->dev);
  
- 	return;
- 
--done:
-+err:
-+	state->error = true;
-+the_end:
- 	state->stack_info.type = STACK_TYPE_UNKNOWN;
--	return;
+ 	return 0;
  }
- EXPORT_SYMBOL_GPL(__unwind_start);
 
 
