@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A32211D851E
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:17:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 72ABB1D81A5
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:50:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732529AbgERSQg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:16:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37342 "EHLO mail.kernel.org"
+        id S1730563AbgERRtl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:49:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51340 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731861AbgERR6L (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:58:11 -0400
+        id S1730557AbgERRti (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:49:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 46B76207C4;
-        Mon, 18 May 2020 17:58:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4A01620715;
+        Mon, 18 May 2020 17:49:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824689;
-        bh=IztXwAnFP7rKmuGHeUYIUA+aDMj69Z7Ar3ifUjWQpVE=;
+        s=default; t=1589824177;
+        bh=uTBIJlybcM3W1oW3VUQHvQu5bP/hn68P7BCE1Var7H4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BDfsexZxfc+Lu9m+j1HL5LUKtSKG5XX1nupi4ek/CPLvflLFJgtORD7rDtsZXPZ/p
-         Gq6euTYuEe1Qhxz7iwSw1DwZfC4yQsEmcwKPXWX0MZHz5lLZdHFtFgbiCLf0DadSHF
-         lwKNoivY97iy+mGwL4CMPjuCDf2YPi+A7F9zTJB4=
+        b=ZHy2jgk5DjR5iWUlj3EvnGeZkSy5U5lTpBU1DR/PqE5UMlx5GENggZe0Y35OkZeiA
+         Z2HpNWtW3YF3vqRJSqudRMGMaoDh2i/XCSo3pvK/DvYS22K+A65t2MufycGzRQGs8D
+         w4sniTW0FCYYzRVcjfAsCN7j1voh+7rSWhLgy0IQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Chen <peter.chen@nxp.com>,
-        Felipe Balbi <balbi@kernel.org>
-Subject: [PATCH 5.4 111/147] usb: cdns3: gadget: prev_req->trb is NULL for ep0
+        stable@vger.kernel.org, "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: [PATCH 4.14 102/114] exec: Move would_dump into flush_old_exec
 Date:   Mon, 18 May 2020 19:37:14 +0200
-Message-Id: <20200518173526.966721892@linuxfoundation.org>
+Message-Id: <20200518173519.856865511@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
-References: <20200518173513.009514388@linuxfoundation.org>
+In-Reply-To: <20200518173503.033975649@linuxfoundation.org>
+References: <20200518173503.033975649@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,97 +42,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Chen <peter.chen@nxp.com>
+From: Eric W. Biederman <ebiederm@xmission.com>
 
-commit 95cd7dc47abd71d1a0c9c43594ff2fa32552f46c upstream.
+commit f87d1c9559164294040e58f5e3b74a162bf7c6e8 upstream.
 
-And there are no multiple TRBs on EP0 and WA1 workaround,
-so it doesn't need to change TRB for EP0. It fixes below oops.
+I goofed when I added mm->user_ns support to would_dump.  I missed the
+fact that in the case of binfmt_loader, binfmt_em86, binfmt_misc, and
+binfmt_script bprm->file is reassigned.  Which made the move of
+would_dump from setup_new_exec to __do_execve_file before exec_binprm
+incorrect as it can result in would_dump running on the script instead
+of the interpreter of the script.
 
-configfs-gadget gadget: high-speed config #1: b
-android_work: sent uevent USB_STATE=CONFIGURED
-Unable to handle kernel read from unreadable memory at virtual address 0000000000000008
-Mem abort info:
-android_work: sent uevent USB_STATE=DISCONNECTED
-  ESR = 0x96000004
-  EC = 0x25: DABT (current EL), IL = 32 bits
+The net result is that the code stopped making unreadable interpreters
+undumpable.  Which allows them to be ptraced and written to disk
+without special permissions.  Oops.
 
-  SET = 0, FnV = 0
-  EA = 0, S1PTW = 0
-Data abort info:
-  ISV = 0, ISS = 0x00000004
-  CM = 0, WnR = 0
-user pgtable: 4k pages, 48-bit VAs, pgdp=00000008b5bb7000
-[0000000000000008] pgd=0000000000000000
-Internal error: Oops: 96000004 [#1] PREEMPT SMP
-Modules linked in:
-CPU: 2 PID: 430 Comm: HwBinder:401_1 Not tainted 5.4.24-06071-g6fa8921409c1-dirty #77
-Hardware name: Freescale i.MX8QXP MEK (DT)
-pstate: 60400085 (nZCv daIf +PAN -UAO)
-pc : cdns3_gadget_ep_dequeue+0x1d4/0x270
-lr : cdns3_gadget_ep_dequeue+0x48/0x270
-sp : ffff800012763ba0
-x29: ffff800012763ba0 x28: ffff00082c653c00
-x27: 0000000000000000 x26: ffff000068fa7b00
-x25: ffff0000699b2000 x24: ffff00082c6ac000
-x23: ffff000834f0a480 x22: ffff000834e87b9c
-x21: 0000000000000000 x20: ffff000834e87800
-x19: ffff000069eddc00 x18: 0000000000000000
-x17: 0000000000000000 x16: 0000000000000000
-x15: 0000000000000000 x14: 0000000000000000
-x13: 0000000000000000 x12: 0000000000000001
-x11: ffff80001180fbe8 x10: 0000000000000001
-x9 : ffff800012101558 x8 : 0000000000000001
-x7 : 0000000000000006 x6 : ffff000835d9c668
-x5 : ffff000834f0a4c8 x4 : 0000000096000000
-x3 : 0000000000001810 x2 : 0000000000000000
-x1 : ffff800024bd001c x0 : 0000000000000001
-Call trace:
- cdns3_gadget_ep_dequeue+0x1d4/0x270
- usb_ep_dequeue+0x34/0xf8
- composite_dev_cleanup+0x154/0x170
- configfs_composite_unbind+0x6c/0xa8
- usb_gadget_remove_driver+0x44/0x70
- usb_gadget_unregister_driver+0x74/0xe0
- unregister_gadget+0x28/0x58
- gadget_dev_desc_UDC_store+0x80/0x110
- configfs_write_file+0x1e0/0x2a0
- __vfs_write+0x48/0x90
- vfs_write+0xe4/0x1c8
- ksys_write+0x78/0x100
- __arm64_sys_write+0x24/0x30
- el0_svc_common.constprop.0+0x74/0x168
- el0_svc_handler+0x34/0xa0
- el0_svc+0x8/0xc
-Code: 52830203 b9407660 f94042e4 11000400 (b9400841)
----[ end trace 1574516e4c1772ca ]---
-Kernel panic - not syncing: Fatal exception
-SMP: stopping secondary CPUs
-Kernel Offset: disabled
-CPU features: 0x0002,20002008
-Memory Limit: none
-Rebooting in 5 seconds..
+The move was necessary because the call in set_new_exec was after
+bprm->mm was no longer valid.
 
-Fixes: f616c3bda47e ("usb: cdns3: Fix dequeue implementation")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Peter Chen <peter.chen@nxp.com>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
+To correct this mistake move the misplaced would_dump from
+__do_execve_file into flos_old_exec, before exec_mmap is called.
+
+I tested and confirmed that without this fix I can attach with gdb to
+a script with an unreadable interpreter, and with this fix I can not.
+
+Cc: stable@vger.kernel.org
+Fixes: f84df2a6f268 ("exec: Ensure mm->user_ns contains the execed files")
+Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/cdns3/gadget.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/exec.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/cdns3/gadget.c
-+++ b/drivers/usb/cdns3/gadget.c
-@@ -2105,7 +2105,7 @@ found:
- 	link_trb = priv_req->trb;
+--- a/fs/exec.c
++++ b/fs/exec.c
+@@ -1264,6 +1264,8 @@ int flush_old_exec(struct linux_binprm *
+ 	 */
+ 	set_mm_exe_file(bprm->mm, bprm->file);
  
- 	/* Update ring only if removed request is on pending_req_list list */
--	if (req_on_hw_ring) {
-+	if (req_on_hw_ring && link_trb) {
- 		link_trb->buffer = TRB_BUFFER(priv_ep->trb_pool_dma +
- 			((priv_req->end_trb + 1) * TRB_SIZE));
- 		link_trb->control = (link_trb->control & TRB_CYCLE) |
++	would_dump(bprm, bprm->file);
++
+ 	/*
+ 	 * Release all of the old mmap stuff
+ 	 */
+@@ -1797,8 +1799,6 @@ static int do_execveat_common(int fd, st
+ 	if (retval < 0)
+ 		goto out;
+ 
+-	would_dump(bprm, bprm->file);
+-
+ 	retval = exec_binprm(bprm);
+ 	if (retval < 0)
+ 		goto out;
 
 
