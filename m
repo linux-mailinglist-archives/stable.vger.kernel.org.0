@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B67341D83D5
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:08:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C74D21D821A
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:53:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387436AbgERSH4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:07:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57144 "EHLO mail.kernel.org"
+        id S1729457AbgERRx1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:53:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57336 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387453AbgERSHz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 14:07:55 -0400
+        id S1731136AbgERRx0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:53:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4403720715;
-        Mon, 18 May 2020 18:07:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3D45F20674;
+        Mon, 18 May 2020 17:53:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589825274;
-        bh=XdSVoiFRtf3cyz7ypktPW4mY6jLVSFfO5OzF2dGq2VA=;
+        s=default; t=1589824405;
+        bh=9WUTVBkVvOZ42jHj7RLlH/ztWyXVSliArMwmGyFVlTg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lubQ/c4isrqLxTBAprtw6kF4g4HNrxUJMeNBsxFEpasCxpSn+/x+3BHLFqUbTx0C3
-         ssVwD+I257vyebV3+hsIiUVbpBcthL7Rr02rkDwloOs2p6frTrDDozFJqTxHEJwfS3
-         79bOW+mGRlBSg1RnyhazEPAwzKTOUegzTJb/9MI4=
+        b=RAOkmH/vvrQQt4d8oA7Cb1R7f4Z1VTDgctFQYd7FJEByIz23Zlu34Ih7Icdrmit27
+         IccoFUYpJWSEXSWs/U/mX2oW603gVCpUNVUbkV6D9nHYbg9xLQgDVeiOia3V6rJg+J
+         WTl5JvvmC+75AJEX7CakHoJblfao6kNXAckapie0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Wei Yongjun <weiyongjun1@huawei.com>,
-        Felipe Balbi <balbi@kernel.org>
-Subject: [PATCH 5.6 168/194] usb: gadget: legacy: fix error return code in gncm_bind()
+        stable@vger.kernel.org, Sergei Trofimovich <slyfox@gentoo.org>,
+        Jiri Kosina <jkosina@suse.cz>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Thomas Backlund <tmb@mageia.org>
+Subject: [PATCH 4.19 80/80] Makefile: disallow data races on gcc-10 as well
 Date:   Mon, 18 May 2020 19:37:38 +0200
-Message-Id: <20200518173545.187850802@linuxfoundation.org>
+Message-Id: <20200518173506.766187250@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
-References: <20200518173531.455604187@linuxfoundation.org>
+In-Reply-To: <20200518173450.097837707@linuxfoundation.org>
+References: <20200518173450.097837707@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,36 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Yongjun <weiyongjun1@huawei.com>
+From: Sergei Trofimovich <slyfox@gentoo.org>
 
-commit e27d4b30b71c66986196d8a1eb93cba9f602904a upstream.
+commit b1112139a103b4b1101d0d2d72931f2d33d8c978 upstream.
 
-If 'usb_otg_descriptor_alloc()' fails, we must return a
-negative error code -ENOMEM, not 0.
+gcc-10 will rename --param=allow-store-data-races=0
+to -fno-allow-store-data-races.
 
-Fixes: 1156e91dd7cc ("usb: gadget: ncm: allocate and init otg descriptor by otg capabilities")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
+The flag change happened at https://gcc.gnu.org/PR92046.
+
+Signed-off-by: Sergei Trofimovich <slyfox@gentoo.org>
+Acked-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Cc: Thomas Backlund <tmb@mageia.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/gadget/legacy/ncm.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ Makefile |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/usb/gadget/legacy/ncm.c
-+++ b/drivers/usb/gadget/legacy/ncm.c
-@@ -156,8 +156,10 @@ static int gncm_bind(struct usb_composit
- 		struct usb_descriptor_header *usb_desc;
+--- a/Makefile
++++ b/Makefile
+@@ -664,6 +664,7 @@ endif
  
- 		usb_desc = usb_otg_descriptor_alloc(gadget);
--		if (!usb_desc)
-+		if (!usb_desc) {
-+			status = -ENOMEM;
- 			goto fail;
-+		}
- 		usb_otg_descriptor_init(gadget, usb_desc);
- 		otg_desc[0] = usb_desc;
- 		otg_desc[1] = NULL;
+ # Tell gcc to never replace conditional load with a non-conditional one
+ KBUILD_CFLAGS	+= $(call cc-option,--param=allow-store-data-races=0)
++KBUILD_CFLAGS	+= $(call cc-option,-fno-allow-store-data-races)
+ 
+ include scripts/Makefile.kcov
+ include scripts/Makefile.gcc-plugins
 
 
