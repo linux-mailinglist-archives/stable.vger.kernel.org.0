@@ -2,39 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A0A9A1D838F
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:06:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D3C5B1D85FB
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:22:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731769AbgERSFz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:05:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53666 "EHLO mail.kernel.org"
+        id S1729866AbgERRuP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:50:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52306 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733042AbgERSFx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 14:05:53 -0400
+        id S1730640AbgERRuP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:50:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 418FE207D3;
-        Mon, 18 May 2020 18:05:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 507A020715;
+        Mon, 18 May 2020 17:50:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589825152;
-        bh=kOd0bcbUg8fHPHC0USq6DxLSQK0hSCY2zfafB+/Tfwg=;
+        s=default; t=1589824214;
+        bh=isc2ypdDeaNKoeAr0qghBgsxXZHrsQiYfG69IJWBIOY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HGZlOH/pKz7UhuZDNt4QVuGFA0dnwq37KvJeYuWY0IKxbxTc296qQMNt+5Rv1SRZV
-         o/3/rathz59NcvhJ6gV2gX12fBukXVqqzejOX0AqnaEj+WIM3iQF+OfDHpe/bm0Y/K
-         Pln3DetEUzaHinqQqAHbTK8iA8s+KzESc0fgAM2M=
+        b=cPZ/F4wLkrIgBpoLhuOO3l4DKcnNIRFHQ2pflM/TRAwsEZDUosgAE69c7qhIsVX45
+         QCW6faGzlvyPdFjS9f/kcyjuuf7QKw3UmTBMNnIromtz+WOmSlkjr9JLhO9a8qAK9V
+         IAzDDPETEsUDaI7NV+HI4kBpHtDF6QHwgp2a2WqE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Olga Kornievskaia <kolga@netapp.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 123/194] NFSv3: fix rpc receive buffer size for MOUNT call
+        stable@vger.kernel.org,
+        syzbot+e73ceacfd8560cc8a3ca@syzkaller.appspotmail.com,
+        syzbot+c2fb6f9ddcea95ba49b5@syzkaller.appspotmail.com,
+        Jarod Wilson <jarod@redhat.com>,
+        Nikolay Aleksandrov <nikolay@cumulusnetworks.com>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Jann Horn <jannh@google.com>,
+        Jay Vosburgh <jay.vosburgh@canonical.com>,
+        Cong Wang <xiyou.wangcong@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 081/114] net: fix a potential recursive NETDEV_FEAT_CHANGE
 Date:   Mon, 18 May 2020 19:36:53 +0200
-Message-Id: <20200518173541.823374362@linuxfoundation.org>
+Message-Id: <20200518173517.131930221@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
-References: <20200518173531.455604187@linuxfoundation.org>
+In-Reply-To: <20200518173503.033975649@linuxfoundation.org>
+References: <20200518173503.033975649@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,51 +51,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Olga Kornievskaia <olga.kornievskaia@gmail.com>
+From: Cong Wang <xiyou.wangcong@gmail.com>
 
-[ Upstream commit 8eed292bc8cbf737e46fb1c119d4c8f6dcb00650 ]
+[ Upstream commit dd912306ff008891c82cd9f63e8181e47a9cb2fb ]
 
-Prior to commit e3d3ab64dd66 ("SUNRPC: Use au_rslack when
-computing reply buffer size"), there was enough slack in the reply
-buffer to commodate filehandles of size 60bytes. However, the real
-problem was that the reply buffer size for the MOUNT operation was
-not correctly calculated. Received buffer size used the filehandle
-size for NFSv2 (32bytes) which is much smaller than the allowed
-filehandle size for the v3 mounts.
+syzbot managed to trigger a recursive NETDEV_FEAT_CHANGE event
+between bonding master and slave. I managed to find a reproducer
+for this:
 
-Fix the reply buffer size (decode arguments size) for the MNT command.
+  ip li set bond0 up
+  ifenslave bond0 eth0
+  brctl addbr br0
+  ethtool -K eth0 lro off
+  brctl addif br0 bond0
+  ip li set br0 up
 
-Fixes: 2c94b8eca1a2 ("SUNRPC: Use au_rslack when computing reply buffer size")
-Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+When a NETDEV_FEAT_CHANGE event is triggered on a bonding slave,
+it captures this and calls bond_compute_features() to fixup its
+master's and other slaves' features. However, when syncing with
+its lower devices by netdev_sync_lower_features() this event is
+triggered again on slaves when the LRO feature fails to change,
+so it goes back and forth recursively until the kernel stack is
+exhausted.
+
+Commit 17b85d29e82c intentionally lets __netdev_update_features()
+return -1 for such a failure case, so we have to just rely on
+the existing check inside netdev_sync_lower_features() and skip
+NETDEV_FEAT_CHANGE event only for this specific failure case.
+
+Fixes: fd867d51f889 ("net/core: generic support for disabling netdev features down stack")
+Reported-by: syzbot+e73ceacfd8560cc8a3ca@syzkaller.appspotmail.com
+Reported-by: syzbot+c2fb6f9ddcea95ba49b5@syzkaller.appspotmail.com
+Cc: Jarod Wilson <jarod@redhat.com>
+Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Cc: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: Jann Horn <jannh@google.com>
+Reviewed-by: Jay Vosburgh <jay.vosburgh@canonical.com>
+Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
+Acked-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nfs/mount_clnt.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/core/dev.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/fs/nfs/mount_clnt.c b/fs/nfs/mount_clnt.c
-index 35c8cb2d76372..dda5c3e65d8d6 100644
---- a/fs/nfs/mount_clnt.c
-+++ b/fs/nfs/mount_clnt.c
-@@ -30,6 +30,7 @@
- #define encode_dirpath_sz	(1 + XDR_QUADLEN(MNTPATHLEN))
- #define MNT_status_sz		(1)
- #define MNT_fhandle_sz		XDR_QUADLEN(NFS2_FHSIZE)
-+#define MNT_fhandlev3_sz	XDR_QUADLEN(NFS3_FHSIZE)
- #define MNT_authflav3_sz	(1 + NFS_MAX_SECFLAVORS)
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -7282,11 +7282,13 @@ static void netdev_sync_lower_features(s
+ 			netdev_dbg(upper, "Disabling feature %pNF on lower dev %s.\n",
+ 				   &feature, lower->name);
+ 			lower->wanted_features &= ~feature;
+-			netdev_update_features(lower);
++			__netdev_update_features(lower);
  
- /*
-@@ -37,7 +38,7 @@
-  */
- #define MNT_enc_dirpath_sz	encode_dirpath_sz
- #define MNT_dec_mountres_sz	(MNT_status_sz + MNT_fhandle_sz)
--#define MNT_dec_mountres3_sz	(MNT_status_sz + MNT_fhandle_sz + \
-+#define MNT_dec_mountres3_sz	(MNT_status_sz + MNT_fhandlev3_sz + \
- 				 MNT_authflav3_sz)
- 
- /*
--- 
-2.20.1
-
+ 			if (unlikely(lower->features & feature))
+ 				netdev_WARN(upper, "failed to disable %pNF on %s!\n",
+ 					    &feature, lower->name);
++			else
++				netdev_features_change(lower);
+ 		}
+ 	}
+ }
 
 
