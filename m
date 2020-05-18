@@ -2,46 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 384F21D867F
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:27:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 372C71D8476
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:13:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730137AbgERRqy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:46:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46950 "EHLO mail.kernel.org"
+        id S1732590AbgERSC7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:02:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47856 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730149AbgERRqy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:46:54 -0400
+        id S1731198AbgERSC4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 14:02:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F229420715;
-        Mon, 18 May 2020 17:46:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B4A8B207D3;
+        Mon, 18 May 2020 18:02:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824013;
-        bh=1WbaTJpCskWe+VDdU5uH9XMNgsIAJxBGSgPlR8VHLZE=;
+        s=default; t=1589824976;
+        bh=cTsk6Vd1CBdbHwWM2rAQN9WqRfHIR5FG9DzF31Adokw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a0X4g+w3rGgxnzscO089ZzYmlF0Pd6eicOFJTPF11/Brv8AM4xZWWdiHEjCRxdHrW
-         lvJHmqPBa3er0ke7Lfl+ba4XYDxrLDVF37KhuIl3fT/q/saLMWRq5E7loPxn8b9cLu
-         QoQ8WJvgSB+RRL7SDBI3wurMZYGmGmxEwOkf/07s=
+        b=XV9cywZWMaW4eKwjpvgF4UuTVoim1bO3wRhKOdHg/GKmCBBv233lD1iTgZEq5ffNo
+         pisZ2u3u6ZfvsXyfBiQb9VvcYIFu8I5RATM9FHfGvU6BtuqoxdWGJujnv2H/BEW3Ue
+         yBx86eGvChaSnKGO81nwN8uqsSgihUv/ijIDqEm4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vince Weaver <vincent.weaver@maine.edu>,
-        Dave Jones <dsj@fb.com>, Steven Rostedt <rostedt@goodmis.org>,
-        Vegard Nossum <vegard.nossum@oracle.com>,
-        Joe Mario <jmario@redhat.com>, Miroslav Benes <mbenes@suse.cz>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Ingo Molnar <mingo@kernel.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Jann Horn <jannh@google.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 4.14 035/114] objtool: Fix stack offset tracking for indirect CFAs
+        stable@vger.kernel.org, Ansuel Smith <ansuelsmth@gmail.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 077/194] pinctrl: qcom: fix wrong write in update_dual_edge
 Date:   Mon, 18 May 2020 19:36:07 +0200
-Message-Id: <20200518173509.967486986@linuxfoundation.org>
+Message-Id: <20200518173538.215907782@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173503.033975649@linuxfoundation.org>
-References: <20200518173503.033975649@linuxfoundation.org>
+In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
+References: <20200518173531.455604187@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,50 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josh Poimboeuf <jpoimboe@redhat.com>
+From: Ansuel Smith <ansuelsmth@gmail.com>
 
-commit d8dd25a461e4eec7190cb9d66616aceacc5110ad upstream.
+[ Upstream commit 90bcb0c3ca0809d1ed358bfbf838df4b3d4e58e0 ]
 
-When the current frame address (CFA) is stored on the stack (i.e.,
-cfa->base == CFI_SP_INDIRECT), objtool neglects to adjust the stack
-offset when there are subsequent pushes or pops.  This results in bad
-ORC data at the end of the ENTER_IRQ_STACK macro, when it puts the
-previous stack pointer on the stack and does a subsequent push.
+Fix a typo in the readl/writel accessor conversion where val is used
+instead of pol changing the behavior of the original code.
 
-This fixes the following unwinder warning:
-
-  WARNING: can't dereference registers at 00000000f0a6bdba for ip interrupt_entry+0x9f/0xa0
-
-Fixes: 627fce14809b ("objtool: Add ORC unwind table generation")
-Reported-by: Vince Weaver <vincent.weaver@maine.edu>
-Reported-by: Dave Jones <dsj@fb.com>
-Reported-by: Steven Rostedt <rostedt@goodmis.org>
-Reported-by: Vegard Nossum <vegard.nossum@oracle.com>
-Reported-by: Joe Mario <jmario@redhat.com>
-Reviewed-by: Miroslav Benes <mbenes@suse.cz>
-Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Jann Horn <jannh@google.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lore.kernel.org/r/853d5d691b29e250333332f09b8e27410b2d9924.1587808742.git.jpoimboe@redhat.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Cc: stable@vger.kernel.org
+Fixes: 6c73698904aa pinctrl: qcom: Introduce readl/writel accessors
+Signed-off-by: Ansuel Smith <ansuelsmth@gmail.com>
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20200414003726.25347-1-ansuelsmth@gmail.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/objtool/check.c |    2 +-
+ drivers/pinctrl/qcom/pinctrl-msm.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/tools/objtool/check.c
-+++ b/tools/objtool/check.c
-@@ -1291,7 +1291,7 @@ static int update_insn_state_regs(struct
- 	struct cfi_reg *cfa = &state->cfa;
- 	struct stack_op *op = &insn->stack_op;
+diff --git a/drivers/pinctrl/qcom/pinctrl-msm.c b/drivers/pinctrl/qcom/pinctrl-msm.c
+index 1a948c3f54b7c..9f1c9951949ea 100644
+--- a/drivers/pinctrl/qcom/pinctrl-msm.c
++++ b/drivers/pinctrl/qcom/pinctrl-msm.c
+@@ -692,7 +692,7 @@ static void msm_gpio_update_dual_edge_pos(struct msm_pinctrl *pctrl,
  
--	if (cfa->base != CFI_SP)
-+	if (cfa->base != CFI_SP && cfa->base != CFI_SP_INDIRECT)
- 		return 0;
+ 		pol = msm_readl_intr_cfg(pctrl, g);
+ 		pol ^= BIT(g->intr_polarity_bit);
+-		msm_writel_intr_cfg(val, pctrl, g);
++		msm_writel_intr_cfg(pol, pctrl, g);
  
- 	/* push */
+ 		val2 = msm_readl_io(pctrl, g) & BIT(g->in_bit);
+ 		intstat = msm_readl_intr_status(pctrl, g);
+-- 
+2.20.1
+
 
 
