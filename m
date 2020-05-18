@@ -2,128 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E0051D7ACC
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 16:13:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E0D101D7ACF
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 16:14:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727007AbgERONN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 10:13:13 -0400
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:42519 "EHLO
-        out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726907AbgERONM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 May 2020 10:13:12 -0400
+        id S1727006AbgEROOJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 10:14:09 -0400
+Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:41643 "EHLO
+        forward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726997AbgEROOJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 May 2020 10:14:09 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.nyi.internal (Postfix) with ESMTP id 5DC5B5C00E7;
-        Mon, 18 May 2020 10:13:11 -0400 (EDT)
+        by mailforward.nyi.internal (Postfix) with ESMTP id 930D91940F13;
+        Mon, 18 May 2020 10:14:08 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Mon, 18 May 2020 10:13:11 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:content-transfer-encoding:in-reply-to; s=fm3; bh=l
-        TiLsK+U4dypRGvxSSjsUgf2lfqxSO6N+hxi8kKGses=; b=BEPVsUhUklZGRQ4VT
-        1M2UXwS9vJ16L1vtH+pRqpkiCbPDwjyeQeV8CGpwgDWp+/4fpXuCp7rc3tbGvps+
-        K6EtiDITask7gYgjksDLxc4xraPFgbYy44UiYoTdxUjpofGx7gTAZsxCPx7LfDdH
-        tKXeu+WWiEAAafC7ZDQ0sLghn82gQ2zX26MZ3f8zvLbKbIO8m/Ww7J/NbM+oRg2A
-        rOOedsscRoKfpjLvhEA1phc/p8sI3C8JILQlwMcnv+dgy24UdsOfsK0sMOTG4aR4
-        huYO1glF0fN7qh6JxDpFsvmNACeZCtTWM5JPDCu3s+/6t8yWHsSibamd2QpxMj36
-        Q7Otw==
+  by compute1.internal (MEProxy); Mon, 18 May 2020 10:14:08 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:in-reply-to:message-id:mime-version:references
-        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
-        :x-sasl-enc; s=fm2; bh=lTiLsK+U4dypRGvxSSjsUgf2lfqxSO6N+hxi8kKGs
-        es=; b=354ksZ/N83pUH8emmJ54aqNng/mqZ1RFB2IDjm5fKVICVyUNagBKxtHDu
-        R6V8uX9NrnQ+Rq2YhKOUvGg8aztXKCylj81EvplLyIwjlB9vZ9QLpDHS9Pgxqtkc
-        JBoeJzGiiQCLWGeFuOhA/FNL/zXuYHNUk7FN8WGbwZLnBoRM06VgKJ4L5tr/wnqu
-        tI2SJ5D9hIHFZtN7vBMYZwZNXnw1KzAWXGYOc5eIOp3yTkmFZ5FGpuoXWv70F+3Q
-        9UBbRLUs5IIiqf+hqwZDO/8bqtArdhs0hDx+yfxjSLbEHu5sI7Hrck7AJaYRm1j6
-        HQI1WauplBU010N39P7EU9Dm4NziQ==
-X-ME-Sender: <xms:9pfCXpfGcWWvCU74dpye20iQWmBj-fIjbV7viK7EMbauon7yjKOUsw>
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=KBC5Ma
+        qnGhILThCWqbWS7em45AH/qOFC4gyOKGpGgvw=; b=bkMUJrIR0Bhxu7imUt2bAw
+        oLRAlZP1ZFx52H3wKYVzzqw0YkxkEtU3QrIXLj8w7g5ACMQSHl7Oz62S4ugdCGp9
+        Jf5+MBS4dFV2kICYsFoh6/NWKynNI2UUoMhH2oqm3XNrriGs+8aHDBM2ZkQbIs6u
+        m04gKyNa5E/DJIsLvTFYez5fMX05TBJk7dMXKAN2iLuHoFm2XwCJy2aK3jgvGx+f
+        0CUpDS3TS/LqwesOfnReuQ9H+JuodpDl158ynTnzz3yVg+oyLOrpcIe4xGVbfsxr
+        VFGWsVu/GcLdB0kgXYunPsG5wNq45dLTidjFzhsscdzIJbqeqdcWzgqPpflQf9yA
+        ==
+X-ME-Sender: <xms:MJjCXkF2--oRpN4h27jHQwCEdYqZG9jHuR02u9_5tmkPbThrAR15Lw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedruddthedgjeefucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtugfgjgesthekredttddtjeenucfhrhhomhepifhrvghg
-    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepveeuue
-    dvhfetveefgfefgfejffeutedvteduhfffkeejvdeuffehgeejvefgleevnecuffhomhgr
-    ihhnpehkvghrnhgvlhdrohhrghdprghmrgiiohhnrgifshdrtghomhenucfkphepkeefrd
-    ekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghi
-    lhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:9pfCXnNUB7dJ2O4RHcKCxwURsqLK2F7Ok1UEjITUS0AAldNOLhwT_g>
-    <xmx:9pfCXiifYg-oQQ-r0LrJMj0U6iMG60APOt0Nk6QHLfNUGHBe1D7cOg>
-    <xmx:9pfCXi8gv9XfROFBDGmV1Qa400ByguXhNKipzTC98cXqBjEAMFdF7g>
-    <xmx:95fCXmViwjXhov-DN1CuCFKv8hk3TRqwQ1l8BlRsdrMuBoCmGO2PvA>
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
+    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
+    keefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpe
+    hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:MJjCXtXbMaNyCaIlU97W66mW0NuTL17jKbZ14nF_E6ktTki6Y1LPFw>
+    <xmx:MJjCXuJPeJ0aeKJDRryDb5duUSZGtZdhST7KjwFzFv-GKsj3BeUO-w>
+    <xmx:MJjCXmF7OglhHQ9dXpa0d4CrM3XGF_vJnoeBxkgfqoEdBtvC6BlA2w>
+    <xmx:MJjCXlDUg4Ha1HSvS-DDBRtKn9mLgwwdViA0BFhczR4JjL8j00V7qA>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 8599130663CF;
-        Mon, 18 May 2020 10:13:10 -0400 (EDT)
-Date:   Mon, 18 May 2020 16:13:08 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Rachel Sibley <rasibley@redhat.com>
-Cc:     CKI Project <cki-project@redhat.com>,
-        Linux Stable maillist <stable@vger.kernel.org>,
-        Memory Management <mm-qe@redhat.com>,
-        Jan Stancek <jstancek@redhat.com>
-Subject: Re: =?utf-8?B?4p2MIEZBSUw=?= =?utf-8?Q?=3A?= Test report for kernel
- 5.6.13-3f0cc50.cki (stable-queue)
-Message-ID: <20200518141308.GA1675843@kroah.com>
-References: <cki.1A49C7CD82.EYM9JXWA38@redhat.com>
- <89124b8f-c77f-5601-9e4f-8abce7e7050f@redhat.com>
+        by mail.messagingengine.com (Postfix) with ESMTPA id C7CF630663F8;
+        Mon, 18 May 2020 10:14:07 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] fanotify: fix merging marks masks with FAN_ONDIR" failed to apply to 4.19-stable tree
+To:     amir73il@gmail.com, jack@suse.cz
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 18 May 2020 16:14:06 +0200
+Message-ID: <1589811246113140@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <89124b8f-c77f-5601-9e4f-8abce7e7050f@redhat.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, May 18, 2020 at 10:00:39AM -0400, Rachel Sibley wrote:
-> 
-> 
-> On 5/18/20 9:58 AM, CKI Project wrote:
-> > 
-> > Hello,
-> > 
-> > We ran automated tests on a recent commit from this kernel tree:
-> > 
-> >         Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-> >              Commit: 3f0cc50b2470 - net: broadcom: Select BROADCOM_PHY for BCMGENET
-> > 
-> > The results of these automated tests are provided below.
-> > 
-> >      Overall result: FAILED (see details below)
-> >               Merge: OK
-> >             Compile: OK
-> >               Tests: FAILED
-> > 
-> > All kernel binaries, config files, and logs are available for download here:
-> > 
-> >    https://cki-artifacts.s3.us-east-2.amazonaws.com/index.html?prefix=datawarehouse/2020/05/16/570411
-> > 
-> > One or more kernel tests failed:
-> > 
-> >      s390x:
-> >       ❌ LTP
-> > 
-> >      aarch64:
-> >       ❌ LTP
-> > 
-> >      x86_64:
-> >       ❌ LTP
-> 
-> Hi! Looks like fanotify09 is still failing as we're missing the following commits:
-> https://cki-artifacts.s3.us-east-2.amazonaws.com/datawarehouse/2020/05/16/570411/LTP/aarch64_1_ltp_syscalls.fail.log
-> 
->     23	HINT: You _MAY_ be missing kernel fixes, see:
->     24	
->     25	https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=54a307ba8d3c
->     26	https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=b469e7e47c8a
->     27	https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=55bf882c7f13
 
-Nice if someone would have told us that last commit was needed for
-stable kernels :(
+The patch below does not apply to the 4.19-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-{sigh}
-
-I'll go queue it up now...
+thanks,
 
 greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 55bf882c7f13dda8bbe624040c6d5b4fbb812d16 Mon Sep 17 00:00:00 2001
+From: Amir Goldstein <amir73il@gmail.com>
+Date: Thu, 19 Mar 2020 17:10:17 +0200
+Subject: [PATCH] fanotify: fix merging marks masks with FAN_ONDIR
+
+Change the logic of FAN_ONDIR in two ways that are similar to the logic
+of FAN_EVENT_ON_CHILD, that was fixed in commit 54a307ba8d3c ("fanotify:
+fix logic of events on child"):
+
+1. The flag is meaningless in ignore mask
+2. The flag refers only to events in the mask of the mark where it is set
+
+This is what the fanotify_mark.2 man page says about FAN_ONDIR:
+"Without this flag, only events for files are created."  It doesn't
+say anything about setting this flag in ignore mask to stop getting
+events on directories nor can I think of any setup where this capability
+would be useful.
+
+Currently, when marks masks are merged, the FAN_ONDIR flag set in one
+mark affects the events that are set in another mark's mask and this
+behavior causes unexpected results.  For example, a user adds a mark on a
+directory with mask FAN_ATTRIB | FAN_ONDIR and a mount mark with mask
+FAN_OPEN (without FAN_ONDIR).  An opendir() of that directory (which is
+inside that mount) generates a FAN_OPEN event even though neither of the
+marks requested to get open events on directories.
+
+Link: https://lore.kernel.org/r/20200319151022.31456-10-amir73il@gmail.com
+Signed-off-by: Amir Goldstein <amir73il@gmail.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
+
+diff --git a/fs/notify/fanotify/fanotify.c b/fs/notify/fanotify/fanotify.c
+index 97d34b958761..960f4f4d9e8f 100644
+--- a/fs/notify/fanotify/fanotify.c
++++ b/fs/notify/fanotify/fanotify.c
+@@ -171,6 +171,13 @@ static u32 fanotify_group_event_mask(struct fsnotify_group *group,
+ 		if (!fsnotify_iter_should_report_type(iter_info, type))
+ 			continue;
+ 		mark = iter_info->marks[type];
++		/*
++		 * If the event is on dir and this mark doesn't care about
++		 * events on dir, don't send it!
++		 */
++		if (event_mask & FS_ISDIR && !(mark->mask & FS_ISDIR))
++			continue;
++
+ 		/*
+ 		 * If the event is for a child and this mark doesn't care about
+ 		 * events on a child, don't send it!
+@@ -203,10 +210,6 @@ static u32 fanotify_group_event_mask(struct fsnotify_group *group,
+ 		user_mask &= ~FAN_ONDIR;
+ 	}
+ 
+-	if (event_mask & FS_ISDIR &&
+-	    !(marks_mask & FS_ISDIR & ~marks_ignored_mask))
+-		return 0;
+-
+ 	return test_mask & user_mask;
+ }
+ 
+
