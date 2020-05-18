@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B61F91D8222
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:53:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 83FDE1D84DF
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:15:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731176AbgERRxj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:53:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57736 "EHLO mail.kernel.org"
+        id S1732129AbgERR7v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:59:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40690 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731173AbgERRxi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:53:38 -0400
+        id S1731651AbgERR7u (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:59:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8A8CE207C4;
-        Mon, 18 May 2020 17:53:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DA976207C4;
+        Mon, 18 May 2020 17:59:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824418;
-        bh=bDJ1mgZU+h5ToiLcvLdkwXTROH+5BR7TJ+0MyXthK4M=;
+        s=default; t=1589824789;
+        bh=ZJxifm2L9pOtEbCR4LMQt0wDqcoKiXMau1jrI71o23k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QtmzQk6t6QyK3krBYCiiVE68wECaRlIE/a5IFSiuL9FfSU9JsHthh1TQelaGI4Da3
-         aBxnYPBR/+BUAWqu2Q26d3LC/2BQtN/IRE1TQbdCuUEsnSHF7mPZdL9dCXuZUH5him
-         1Vbq+gwC7uVgweDGc6E92m3iryVQCB4XwNSPpq7w=
+        b=d5WPWsnPFlWn8klHhxE9oYC7Tux8KP94aA/MuN4O1J5CkpvzRp5E39bCvwFyRNCYu
+         b9FLeXF6fvwHOSODaa86xlDgY6QjskZ72I7RjmotJPzLgO3hGMiYYGmMJ4ylntB8Hu
+         4Dj++BFVOYYaO+KjeDuGDjLCHxQVBw+Yws05HPwI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Chen <peter.chen@nxp.com>,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Felipe Balbi <balbi@kernel.org>
-Subject: [PATCH 4.19 69/80] usb: gadget: audio: Fix a missing error return value in audio_bind()
+        stable@vger.kernel.org,
+        Justin Swartz <justin.swartz@risingedge.co.za>,
+        Heiko Stuebner <heiko@sntech.de>
+Subject: [PATCH 5.4 124/147] clk: rockchip: fix incorrect configuration of rk3228 aclk_gpu* clocks
 Date:   Mon, 18 May 2020 19:37:27 +0200
-Message-Id: <20200518173504.266735216@linuxfoundation.org>
+Message-Id: <20200518173528.345904956@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173450.097837707@linuxfoundation.org>
-References: <20200518173450.097837707@linuxfoundation.org>
+In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
+References: <20200518173513.009514388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,35 +44,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Justin Swartz <justin.swartz@risingedge.co.za>
 
-commit 19b94c1f9c9a16d41a8de3ccbdb8536cf1aecdbf upstream.
+commit cec9d101d70a3509da9bd2e601e0b242154ce616 upstream.
 
-If 'usb_otg_descriptor_alloc()' fails, we must return an error code, not 0.
+The following changes prevent the unrecoverable freezes and rcu_sched
+stall warnings experienced in each of my attempts to take advantage of
+lima.
 
-Fixes: 56023ce0fd70 ("usb: gadget: audio: allocate and init otg descriptor by otg capabilities")
-Reviewed-by: Peter Chen <peter.chen@nxp.com>
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Replace the COMPOSITE_NOGATE definition of aclk_gpu_pre with a
+COMPOSITE that retains the selection of HDMIPHY as the PLL source, but
+instead makes uses of the aclk_gpu PLL source gate and parent names
+defined by mux_pll_src_4plls_p rather than mux_aclk_gpu_pre_p.
+
+Remove the now unused mux_aclk_gpu_pre_p and the four named but also
+unused definitions (cpll_gpu, gpll_gpu, hdmiphy_gpu and usb480m_gpu)
+of the aclk_gpu PLL source gate.
+
+Use the correct gate offset for aclk_gpu and aclk_gpu_noc.
+
+Fixes: 307a2e9ac524 ("clk: rockchip: add clock controller for rk3228")
+Cc: stable@vger.kernel.org
+Signed-off-by: Justin Swartz <justin.swartz@risingedge.co.za>
+[double-checked against SoC manual and added fixes tag]
+Link: https://lore.kernel.org/r/20200114162503.7548-1-justin.swartz@risingedge.co.za
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/gadget/legacy/audio.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/clk/rockchip/clk-rk3228.c |   17 ++++-------------
+ 1 file changed, 4 insertions(+), 13 deletions(-)
 
---- a/drivers/usb/gadget/legacy/audio.c
-+++ b/drivers/usb/gadget/legacy/audio.c
-@@ -300,8 +300,10 @@ static int audio_bind(struct usb_composi
- 		struct usb_descriptor_header *usb_desc;
+--- a/drivers/clk/rockchip/clk-rk3228.c
++++ b/drivers/clk/rockchip/clk-rk3228.c
+@@ -156,8 +156,6 @@ PNAME(mux_i2s_out_p)		= { "i2s1_pre", "x
+ PNAME(mux_i2s2_p)		= { "i2s2_src", "i2s2_frac", "xin12m" };
+ PNAME(mux_sclk_spdif_p)		= { "sclk_spdif_src", "spdif_frac", "xin12m" };
  
- 		usb_desc = usb_otg_descriptor_alloc(cdev->gadget);
--		if (!usb_desc)
-+		if (!usb_desc) {
-+			status = -ENOMEM;
- 			goto fail;
-+		}
- 		usb_otg_descriptor_init(cdev->gadget, usb_desc);
- 		otg_desc[0] = usb_desc;
- 		otg_desc[1] = NULL;
+-PNAME(mux_aclk_gpu_pre_p)	= { "cpll_gpu", "gpll_gpu", "hdmiphy_gpu", "usb480m_gpu" };
+-
+ PNAME(mux_uart0_p)		= { "uart0_src", "uart0_frac", "xin24m" };
+ PNAME(mux_uart1_p)		= { "uart1_src", "uart1_frac", "xin24m" };
+ PNAME(mux_uart2_p)		= { "uart2_src", "uart2_frac", "xin24m" };
+@@ -468,16 +466,9 @@ static struct rockchip_clk_branch rk3228
+ 			RK2928_CLKSEL_CON(24), 6, 10, DFLAGS,
+ 			RK2928_CLKGATE_CON(2), 8, GFLAGS),
+ 
+-	GATE(0, "cpll_gpu", "cpll", 0,
+-			RK2928_CLKGATE_CON(3), 13, GFLAGS),
+-	GATE(0, "gpll_gpu", "gpll", 0,
+-			RK2928_CLKGATE_CON(3), 13, GFLAGS),
+-	GATE(0, "hdmiphy_gpu", "hdmiphy", 0,
+-			RK2928_CLKGATE_CON(3), 13, GFLAGS),
+-	GATE(0, "usb480m_gpu", "usb480m", 0,
++	COMPOSITE(0, "aclk_gpu_pre", mux_pll_src_4plls_p, 0,
++			RK2928_CLKSEL_CON(34), 5, 2, MFLAGS, 0, 5, DFLAGS,
+ 			RK2928_CLKGATE_CON(3), 13, GFLAGS),
+-	COMPOSITE_NOGATE(0, "aclk_gpu_pre", mux_aclk_gpu_pre_p, 0,
+-			RK2928_CLKSEL_CON(34), 5, 2, MFLAGS, 0, 5, DFLAGS),
+ 
+ 	COMPOSITE(SCLK_SPI0, "sclk_spi0", mux_pll_src_2plls_p, 0,
+ 			RK2928_CLKSEL_CON(25), 8, 1, MFLAGS, 0, 7, DFLAGS,
+@@ -582,8 +573,8 @@ static struct rockchip_clk_branch rk3228
+ 	GATE(0, "pclk_peri_noc", "pclk_peri", CLK_IGNORE_UNUSED, RK2928_CLKGATE_CON(12), 2, GFLAGS),
+ 
+ 	/* PD_GPU */
+-	GATE(ACLK_GPU, "aclk_gpu", "aclk_gpu_pre", 0, RK2928_CLKGATE_CON(13), 14, GFLAGS),
+-	GATE(0, "aclk_gpu_noc", "aclk_gpu_pre", 0, RK2928_CLKGATE_CON(13), 15, GFLAGS),
++	GATE(ACLK_GPU, "aclk_gpu", "aclk_gpu_pre", 0, RK2928_CLKGATE_CON(7), 14, GFLAGS),
++	GATE(0, "aclk_gpu_noc", "aclk_gpu_pre", 0, RK2928_CLKGATE_CON(7), 15, GFLAGS),
+ 
+ 	/* PD_BUS */
+ 	GATE(0, "sclk_initmem_mbist", "aclk_cpu", 0, RK2928_CLKGATE_CON(8), 1, GFLAGS),
 
 
