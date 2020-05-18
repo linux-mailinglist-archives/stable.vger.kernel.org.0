@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 764341D8314
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:02:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B92DA1D86E6
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:31:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731810AbgERSB6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:01:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44580 "EHLO mail.kernel.org"
+        id S1729023AbgERRkR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:40:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35666 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729294AbgERSB5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 14:01:57 -0400
+        id S1729017AbgERRkQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:40:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 15853207D3;
-        Mon, 18 May 2020 18:01:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1C34720657;
+        Mon, 18 May 2020 17:40:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824916;
-        bh=n1mz1mu8yVWyo3xoJFTGzVFj2+WDzOfgdPH4m6e8cBY=;
+        s=default; t=1589823615;
+        bh=+9GdmBuolRCyZ3pi6dKFM2QtqpE5BRC0JJodR3rBbQI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VcxpvjxgWmCNQuZN51UowBrmPeO83K3ELKViWD13KuOCbcMFwVD0Cai4UsNAw6Ygw
-         gRj/bkMCy2qliXDEUb8vPhejlatWsHVfMC/qanPnZ9lT40kFOIc6HWdLoLBcyeC5pR
-         mtY6rdeUxFim34/6ucEZjKjZtlmURbiHMzvxpIZQ=
+        b=CmsarTpYXN9c7bYTi7na5YRPOFQgyw66rj1UgYsNvve87eg/0YTDE5S18XoEVDShy
+         hDoUhc+pt5kGWjbfgGeJ4JNEqSK7UZ58bhxlPGkZPvHUEzOmVAnv05F+j6r7hXJJ67
+         HvQT3ve47IkIYoFPo/w0ORix015arR2OZX+lf51k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiaodong Yan <Xiaodong.Yan@amd.com>,
-        Tony Cheng <Tony.Cheng@amd.com>,
-        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 056/194] drm/amd/display: blank dp stream before re-train the link
+        stable@vger.kernel.org, George Spelvin <lkml@sdf.org>,
+        Sven Eckelmann <sven@narfation.org>,
+        Simon Wunderlich <sw@simonwunderlich.de>
+Subject: [PATCH 4.4 15/86] batman-adv: fix batadv_nc_random_weight_tq
 Date:   Mon, 18 May 2020 19:35:46 +0200
-Message-Id: <20200518173536.399457226@linuxfoundation.org>
+Message-Id: <20200518173453.612485931@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
-References: <20200518173531.455604187@linuxfoundation.org>
+In-Reply-To: <20200518173450.254571947@linuxfoundation.org>
+References: <20200518173450.254571947@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,59 +44,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaodong Yan <Xiaodong.Yan@amd.com>
+From: George Spelvin <lkml@sdf.org>
 
-[ Upstream commit 718a5569b6fa6e1f49f1ae76a3c18acb4ddb74f1 ]
+commit fd0c42c4dea54335967c5a86f15fc064235a2797 upstream.
 
-[Why]
-When link loss happened, monitor can not light up if only re-train the
-link.
+and change to pseudorandom numbers, as this is a traffic dithering
+operation that doesn't need crypto-grade.
 
-[How]
-Blank all the DP streams on this link before re-train the link, and then
-unblank the stream
+The previous code operated in 4 steps:
 
-Signed-off-by: Xiaodong Yan <Xiaodong.Yan@amd.com>
-Reviewed-by: Tony Cheng <Tony.Cheng@amd.com>
-Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+1. Generate a random byte 0 <= rand_tq <= 255
+2. Multiply it by BATADV_TQ_MAX_VALUE - tq
+3. Divide by 255 (= BATADV_TQ_MAX_VALUE)
+4. Return BATADV_TQ_MAX_VALUE - rand_tq
+
+This would apperar to scale (BATADV_TQ_MAX_VALUE - tq) by a random
+value between 0/255 and 255/255.
+
+But!  The intermediate value between steps 3 and 4 is stored in a u8
+variable.  So it's truncated, and most of the time, is less than 255, after
+which the division produces 0.  Specifically, if tq is odd, the product is
+always even, and can never be 255.  If tq is even, there's exactly one
+random byte value that will produce a product byte of 255.
+
+Thus, the return value is 255 (511/512 of the time) or 254 (1/512
+of the time).
+
+If we assume that the truncation is a bug, and the code is meant to scale
+the input, a simpler way of looking at it is that it's returning a random
+value between tq and BATADV_TQ_MAX_VALUE, inclusive.
+
+Well, we have an optimized function for doing just that.
+
+Fixes: 3c12de9a5c75 ("batman-adv: network coding - code and transmit packets if possible")
+Signed-off-by: George Spelvin <lkml@sdf.org>
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ net/batman-adv/network-coding.c |    9 +--------
+ 1 file changed, 1 insertion(+), 8 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c b/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
-index fd9e69634c50a..1b6c75a4dd60a 100644
---- a/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
-+++ b/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
-@@ -2885,6 +2885,12 @@ bool dc_link_handle_hpd_rx_irq(struct dc_link *link, union hpd_irq_data *out_hpd
- 					sizeof(hpd_irq_dpcd_data),
- 					"Status: ");
+--- a/net/batman-adv/network-coding.c
++++ b/net/batman-adv/network-coding.c
+@@ -991,15 +991,8 @@ static struct batadv_nc_path *batadv_nc_
+  */
+ static u8 batadv_nc_random_weight_tq(u8 tq)
+ {
+-	u8 rand_val, rand_tq;
+-
+-	get_random_bytes(&rand_val, sizeof(rand_val));
+-
+ 	/* randomize the estimated packet loss (max TQ - estimated TQ) */
+-	rand_tq = rand_val * (BATADV_TQ_MAX_VALUE - tq);
+-
+-	/* normalize the randomized packet loss */
+-	rand_tq /= BATADV_TQ_MAX_VALUE;
++	u8 rand_tq = prandom_u32_max(BATADV_TQ_MAX_VALUE + 1 - tq);
  
-+		for (i = 0; i < MAX_PIPES; i++) {
-+			pipe_ctx = &link->dc->current_state->res_ctx.pipe_ctx[i];
-+			if (pipe_ctx && pipe_ctx->stream && pipe_ctx->stream->link == link)
-+				link->dc->hwss.blank_stream(pipe_ctx);
-+		}
-+
- 		for (i = 0; i < MAX_PIPES; i++) {
- 			pipe_ctx = &link->dc->current_state->res_ctx.pipe_ctx[i];
- 			if (pipe_ctx && pipe_ctx->stream && pipe_ctx->stream->link == link)
-@@ -2904,6 +2910,12 @@ bool dc_link_handle_hpd_rx_irq(struct dc_link *link, union hpd_irq_data *out_hpd
- 		if (pipe_ctx->stream->signal == SIGNAL_TYPE_DISPLAY_PORT_MST)
- 			dc_link_reallocate_mst_payload(link);
- 
-+		for (i = 0; i < MAX_PIPES; i++) {
-+			pipe_ctx = &link->dc->current_state->res_ctx.pipe_ctx[i];
-+			if (pipe_ctx && pipe_ctx->stream && pipe_ctx->stream->link == link)
-+				link->dc->hwss.unblank_stream(pipe_ctx, &previous_link_settings);
-+		}
-+
- 		status = false;
- 		if (out_link_loss)
- 			*out_link_loss = true;
--- 
-2.20.1
-
+ 	/* convert to (randomized) estimated tq again */
+ 	return BATADV_TQ_MAX_VALUE - rand_tq;
 
 
