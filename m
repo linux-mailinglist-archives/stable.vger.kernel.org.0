@@ -2,100 +2,141 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 129871D83E8
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:08:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CA511D84C4
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:14:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387497AbgERSIY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:08:24 -0400
-Received: from foss.arm.com ([217.140.110.172]:46554 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732579AbgERSIW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 14:08:22 -0400
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 1230E101E;
-        Mon, 18 May 2020 11:08:21 -0700 (PDT)
-Received: from [192.168.0.14] (unknown [172.31.20.19])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id D701B3F305;
-        Mon, 18 May 2020 11:08:18 -0700 (PDT)
-Subject: Re: [ACPI] b13663bdf9:
- BUG:sleeping_function_called_from_invalid_context_at_kernel/locking/mutex.c
-To:     Dan Williams <dan.j.williams@intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Cc:     kernel test robot <rong.a.chen@intel.com>,
-        stable <stable@vger.kernel.org>, Len Brown <lenb@kernel.org>,
-        Borislav Petkov <bp@alien8.de>,
-        Ira Weiny <ira.weiny@intel.com>,
-        Erik Kaneda <erik.kaneda@intel.com>,
-        Myron Stowe <myron.stowe@redhat.com>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-nvdimm <linux-nvdimm@lists.01.org>, lkp@lists.01.org,
-        Linux ACPI <linux-acpi@vger.kernel.org>,
-        "Huang, Ying" <ying.huang@intel.com>
-References: <20200511090034.GX5770@shao2-debian>
- <440dae1b-9146-0bc3-e8f2-bd3cb3aa89bb@intel.com>
- <CAPcyv4jKZp2bOZZ+ZMrcbFw9fPzeDu8waqwG6mBVpWwGq2DGtw@mail.gmail.com>
-From:   James Morse <james.morse@arm.com>
-Message-ID: <438c1743-5c8a-287d-3f97-e4a451ae8027@arm.com>
-Date:   Mon, 18 May 2020 19:08:17 +0100
-User-Agent: Mozilla/5.0 (X11; Linux aarch64; rv:60.0) Gecko/20100101
- Thunderbird/60.9.0
+        id S1732976AbgERSOS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:14:18 -0400
+Received: from fllv0015.ext.ti.com ([198.47.19.141]:38994 "EHLO
+        fllv0015.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1732376AbgERSOR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 May 2020 14:14:17 -0400
+Received: from fllv0034.itg.ti.com ([10.64.40.246])
+        by fllv0015.ext.ti.com (8.15.2/8.15.2) with ESMTP id 04IIE3BI085441;
+        Mon, 18 May 2020 13:14:03 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
+        s=ti-com-17Q1; t=1589825643;
+        bh=krVs+kruRFwBMP7hMokQq0Nkw7/V8H8gRqCagZh3dMk=;
+        h=Subject:To:CC:References:From:Date:In-Reply-To;
+        b=OZFCYDYUsyAybe9//eGhtoCVs8IV8NXx3pd2a2vjw+kBWic6ilQCNWTYnzgjMrpzR
+         /qCoSe1QECSHfETpYPE9xPzX+IKCxLLZ6UGOG2g2/3zFEJQr2FvocnyY22gOaUlL+g
+         AFIYZrprgtGMkMNPf6RtaHZ+uCr9XYwZtCCuCFUU=
+Received: from DFLE115.ent.ti.com (dfle115.ent.ti.com [10.64.6.36])
+        by fllv0034.itg.ti.com (8.15.2/8.15.2) with ESMTPS id 04IIE2X3115908
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Mon, 18 May 2020 13:14:03 -0500
+Received: from DFLE111.ent.ti.com (10.64.6.32) by DFLE115.ent.ti.com
+ (10.64.6.36) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1979.3; Mon, 18
+ May 2020 13:14:02 -0500
+Received: from fllv0039.itg.ti.com (10.64.41.19) by DFLE111.ent.ti.com
+ (10.64.6.32) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1979.3 via
+ Frontend Transport; Mon, 18 May 2020 13:14:02 -0500
+Received: from [10.250.100.73] (ileax41-snat.itg.ti.com [10.172.224.153])
+        by fllv0039.itg.ti.com (8.15.2/8.15.2) with ESMTP id 04IIDx9N088498;
+        Mon, 18 May 2020 13:14:00 -0500
+Subject: Re: [PATCH 5.6 019/194] net: Make PTP-specific drivers depend on
+ PTP_1588_CLOCK
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     <stable@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+        Richard Cochran <richardcochran@gmail.com>,
+        Nicolas Pitre <nico@fluxnic.net>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Clay McClure <clay@daemons.net>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+References: <20200518173531.455604187@linuxfoundation.org>
+ <20200518173533.160651742@linuxfoundation.org>
+From:   Grygorii Strashko <grygorii.strashko@ti.com>
+Message-ID: <05fd5be4-a969-2b7f-52e4-754d9651a280@ti.com>
+Date:   Mon, 18 May 2020 21:13:54 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 MIME-Version: 1.0
-In-Reply-To: <CAPcyv4jKZp2bOZZ+ZMrcbFw9fPzeDu8waqwG6mBVpWwGq2DGtw@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-GB
+In-Reply-To: <20200518173533.160651742@linuxfoundation.org>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
+X-EXCLAIMER-MD-CONFIG: e1e8a2fd-e40a-4ac6-ac9b-f7e9cc9ee180
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi guys,
+Hi Greg,
 
-On 12/05/2020 19:05, Dan Williams wrote:
-> On Tue, May 12, 2020 at 9:28 AM Rafael J. Wysocki
-> <rafael.j.wysocki@intel.com> wrote:
->> Dan,
->>
->> Has this been addressed in the v2?
+On 18/05/2020 20:35, Greg Kroah-Hartman wrote:
+> From: Clay McClure <clay@daemons.net>
 > 
-> No, this looks like a case I was concerned about, i.e. the GHES code
-> is not being completely careful to avoid calling potentially sleeping
-> functions with interrupts disabled. There is the nice comment that
-> indicates that the fixmap should be used when ghes_notify_lock_irq()
-> is held, but there seems to be no infrastructure to use / divert to
-> the fixmap in the ghes_proc() path.
+> [ Upstream commit b6d49cab44b567b3e0a5544b3d61e516a7355fad ]
+> 
+> Commit d1cbfd771ce8 ("ptp_clock: Allow for it to be optional") changed
+> all PTP-capable Ethernet drivers from `select PTP_1588_CLOCK` to `imply
+> PTP_1588_CLOCK`, "in order to break the hard dependency between the PTP
+> clock subsystem and ethernet drivers capable of being clock providers."
+> As a result it is possible to build PTP-capable Ethernet drivers without
+> the PTP subsystem by deselecting PTP_1588_CLOCK. Drivers are required to
+> handle the missing dependency gracefully.
+> 
+> Some PTP-capable Ethernet drivers (e.g., TI_CPSW) factor their PTP code
+> out into separate drivers (e.g., TI_CPTS_MOD). The above commit also
+> changed these PTP-specific drivers to `imply PTP_1588_CLOCK`, making it
+> possible to build them without the PTP subsystem. But as Grygorii
+> Strashko noted in [1]:
+> 
+> On Wed, Apr 22, 2020 at 02:16:11PM +0300, Grygorii Strashko wrote:
+> 
+>> Another question is that CPTS completely nonfunctional in this case and
+>> it was never expected that somebody will even try to use/run such
+>> configuration (except for random build purposes).
+> 
+> In my view, enabling a PTP-specific driver without the PTP subsystem is
+> a configuration error made possible by the above commit. Kconfig should
+> not allow users to create a configuration with missing dependencies that
+> results in "completely nonfunctional" drivers.
+> 
+> I audited all network drivers that call ptp_clock_register() but merely
+> `imply PTP_1588_CLOCK` and found five PTP-specific drivers that are
+> likely nonfunctional without PTP_1588_CLOCK:
+> 
+>      NET_DSA_MV88E6XXX_PTP
+>      NET_DSA_SJA1105_PTP
+>      MACB_USE_HWSTAMP
+>      CAVIUM_PTP
+>      TI_CPTS_MOD
+> 
+> Note how these symbols all reference PTP or timestamping in their name;
+> this is a clue that they depend on PTP_1588_CLOCK.
+> 
+> Change them from `imply PTP_1588_CLOCK` [2] to `depends on PTP_1588_CLOCK`.
+> I'm not using `select PTP_1588_CLOCK` here because PTP_1588_CLOCK has
+> its own dependencies, which `select` would not transitively apply.
+> 
+> Additionally, remove the `select NET_PTP_CLASSIFY` from CPTS_TI_MOD;
+> PTP_1588_CLOCK already selects that.
+> 
+> [1]: https://lore.kernel.org/lkml/c04458ed-29ee-1797-3a11-7f3f560553e6@ti.com/
+> 
+> [2]: NET_DSA_SJA1105_PTP had never declared any type of dependency on
+> PTP_1588_CLOCK (`imply` or otherwise); adding a `depends on PTP_1588_CLOCK`
+> here seems appropriate.
+> 
+> Cc: Arnd Bergmann <arnd@arndb.de>
+> Cc: Richard Cochran <richardcochran@gmail.com>
+> Cc: Nicolas Pitre <nico@fluxnic.net>
+> Cc: Grygorii Strashko <grygorii.strashko@ti.com>
+> Cc: Geert Uytterhoeven <geert@linux-m68k.org>
+> Fixes: d1cbfd771ce8 ("ptp_clock: Allow for it to be optional")
+> Signed-off-by: Clay McClure <clay@daemons.net>
+> Signed-off-by: David S. Miller <davem@davemloft.net>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
 
-ghes_map()/ghes_unmap() use the fixmap for reading the firmware provided records,
-but this came through apei_read(), which claims to be IRQ and NMI safe...
+Could you drop this patch, pls?
+it's not for stable and can cause build failures.
 
-
-> That needs to be reworked first.
-> It seems the implementation was getting lucky before to hit the cached
-> acpi_ioremap in this path under rcu_read_lock(), but it appears it
-> should have always been using the fixmap. Ying, James, is my read
-> correct?
-
-The path through this thing is pretty tortuous: The static HEST contains the address of
-the pointer that firmware updates to point to CPER records when they are generated. This
-pointer might be static (records are always in the same place), it might not.
-
-The address in the tables is static. ghes.c maps it in ghes_new():
-|	rc = apei_map_generic_address(&generic->error_status_address);
-
-which happens before the ghes_add_timer()/request_irq()/ghes_nmi_add() stuff, so we should
-always use the existing mapping.
-
-__ghes_peek_estatus() reads the pointer with apei_read(), which should use the mapping
-from ghes_new(), then uses ghes_copy_tofrom_phys() which uses the fixmap to read the CPER
-records.
-
-
-Does apei_map_generic_address() no longer keep the GAR/address mapped?
-(also possible I've totally mis-understood how ACPIs caching of mappings works!)
-
-
-Thanks,
-
-James
+-- 
+Best regards,
+grygorii
