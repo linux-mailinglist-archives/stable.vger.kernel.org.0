@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F00A1D862F
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:23:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D3F61D85D1
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:21:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730462AbgERRtB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:49:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50170 "EHLO mail.kernel.org"
+        id S1730759AbgERRvv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:51:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54816 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730456AbgERRs6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:48:58 -0400
+        id S1730761AbgERRvu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:51:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E628020657;
-        Mon, 18 May 2020 17:48:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 265FB207F5;
+        Mon, 18 May 2020 17:51:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824137;
-        bh=mtin70/tczYBldlX8vAJG1SyEuIs8VXY9/Z6HZC1mKM=;
+        s=default; t=1589824309;
+        bh=ewKaz7VLHOf9HNs60KfzVpxH3IxyiCDrULONC5NIVjA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d7AOjl1XRW4rgqJLFZO9uWjiTmXdx0RHWKPQf9Sr6r83Wlrhig6LQXSvYBUAkVwDc
-         Is35E72QYH9DW/I6Zg8uh5A7DFincALBTiJm9ePWJwtSdeTsDKh3KHbLxHS8jytDAU
-         68sdQgc9WFIY6jotUuitCiij1npR6wiNeJpTwVf0=
+        b=Mr1akdaB6yrUfGWd6n+sLrOCWPboZJsPrZv+qJVdj1G7rurCmuSdZUODzMwoH86Zk
+         E2iwbrAmX3EeNW3TMMcV1DoKLVUe51WfXHRsTYzWPWZwnuRQje9KYOqGaZIs5GLwJK
+         NwPPlsyezz9374io3gcgWQRMhDdRMsqFbT+wBBXM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Colin Walters <walters@redhat.com>
-Subject: [PATCH 4.14 087/114] net: ipv4: really enforce backoff for redirects
+        stable@vger.kernel.org, Stefano Brivio <sbrivio@redhat.com>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 41/80] netfilter: nft_set_rbtree: Introduce and use nft_rbtree_interval_start()
 Date:   Mon, 18 May 2020 19:36:59 +0200
-Message-Id: <20200518173518.183640004@linuxfoundation.org>
+Message-Id: <20200518173458.612903024@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173503.033975649@linuxfoundation.org>
-References: <20200518173503.033975649@linuxfoundation.org>
+In-Reply-To: <20200518173450.097837707@linuxfoundation.org>
+References: <20200518173450.097837707@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,48 +44,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Abeni <pabeni@redhat.com>
+From: Stefano Brivio <sbrivio@redhat.com>
 
-[ Upstream commit 57644431a6c2faac5d754ebd35780cf43a531b1a ]
+[ Upstream commit 6f7c9caf017be8ab0fe3b99509580d0793bf0833 ]
 
-In commit b406472b5ad7 ("net: ipv4: avoid mixed n_redirects and
-rate_tokens usage") I missed the fact that a 0 'rate_tokens' will
-bypass the backoff algorithm.
+Replace negations of nft_rbtree_interval_end() with a new helper,
+nft_rbtree_interval_start(), wherever this helps to visualise the
+problem at hand, that is, for all the occurrences except for the
+comparison against given flags in __nft_rbtree_get().
 
-Since rate_tokens is cleared after a redirect silence, and never
-incremented on redirects, if the host keeps receiving packets
-requiring redirect it will reply ignoring the backoff.
+This gets especially useful in the next patch.
 
-Additionally, the 'rate_last' field will be updated with the
-cadence of the ingress packet requiring redirect. If that rate is
-high enough, that will prevent the host from generating any
-other kind of ICMP messages
-
-The check for a zero 'rate_tokens' value was likely a shortcut
-to avoid the more complex backoff algorithm after a redirect
-silence period. Address the issue checking for 'n_redirects'
-instead, which is incremented on successful redirect, and
-does not interfere with other ICMP replies.
-
-Fixes: b406472b5ad7 ("net: ipv4: avoid mixed n_redirects and rate_tokens usage")
-Reported-and-tested-by: Colin Walters <walters@redhat.com>
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Stefano Brivio <sbrivio@redhat.com>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/route.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/netfilter/nft_set_rbtree.c | 17 +++++++++++------
+ 1 file changed, 11 insertions(+), 6 deletions(-)
 
---- a/net/ipv4/route.c
-+++ b/net/ipv4/route.c
-@@ -921,7 +921,7 @@ void ip_rt_send_redirect(struct sk_buff
- 	/* Check for load limit; set rate_last to the latest sent
- 	 * redirect.
- 	 */
--	if (peer->rate_tokens == 0 ||
-+	if (peer->n_redirects == 0 ||
- 	    time_after(jiffies,
- 		       (peer->rate_last +
- 			(ip_rt_redirect_load << peer->n_redirects)))) {
+diff --git a/net/netfilter/nft_set_rbtree.c b/net/netfilter/nft_set_rbtree.c
+index 0221510328d4f..84d317418d184 100644
+--- a/net/netfilter/nft_set_rbtree.c
++++ b/net/netfilter/nft_set_rbtree.c
+@@ -36,6 +36,11 @@ static bool nft_rbtree_interval_end(const struct nft_rbtree_elem *rbe)
+ 	       (*nft_set_ext_flags(&rbe->ext) & NFT_SET_ELEM_INTERVAL_END);
+ }
+ 
++static bool nft_rbtree_interval_start(const struct nft_rbtree_elem *rbe)
++{
++	return !nft_rbtree_interval_end(rbe);
++}
++
+ static bool nft_rbtree_equal(const struct nft_set *set, const void *this,
+ 			     const struct nft_rbtree_elem *interval)
+ {
+@@ -67,7 +72,7 @@ static bool __nft_rbtree_lookup(const struct net *net, const struct nft_set *set
+ 			if (interval &&
+ 			    nft_rbtree_equal(set, this, interval) &&
+ 			    nft_rbtree_interval_end(rbe) &&
+-			    !nft_rbtree_interval_end(interval))
++			    nft_rbtree_interval_start(interval))
+ 				continue;
+ 			interval = rbe;
+ 		} else if (d > 0)
+@@ -92,7 +97,7 @@ static bool __nft_rbtree_lookup(const struct net *net, const struct nft_set *set
+ 
+ 	if (set->flags & NFT_SET_INTERVAL && interval != NULL &&
+ 	    nft_set_elem_active(&interval->ext, genmask) &&
+-	    !nft_rbtree_interval_end(interval)) {
++	    nft_rbtree_interval_start(interval)) {
+ 		*ext = &interval->ext;
+ 		return true;
+ 	}
+@@ -221,9 +226,9 @@ static int __nft_rbtree_insert(const struct net *net, const struct nft_set *set,
+ 			p = &parent->rb_right;
+ 		else {
+ 			if (nft_rbtree_interval_end(rbe) &&
+-			    !nft_rbtree_interval_end(new)) {
++			    nft_rbtree_interval_start(new)) {
+ 				p = &parent->rb_left;
+-			} else if (!nft_rbtree_interval_end(rbe) &&
++			} else if (nft_rbtree_interval_start(rbe) &&
+ 				   nft_rbtree_interval_end(new)) {
+ 				p = &parent->rb_right;
+ 			} else if (nft_set_elem_active(&rbe->ext, genmask)) {
+@@ -314,10 +319,10 @@ static void *nft_rbtree_deactivate(const struct net *net,
+ 			parent = parent->rb_right;
+ 		else {
+ 			if (nft_rbtree_interval_end(rbe) &&
+-			    !nft_rbtree_interval_end(this)) {
++			    nft_rbtree_interval_start(this)) {
+ 				parent = parent->rb_left;
+ 				continue;
+-			} else if (!nft_rbtree_interval_end(rbe) &&
++			} else if (nft_rbtree_interval_start(rbe) &&
+ 				   nft_rbtree_interval_end(this)) {
+ 				parent = parent->rb_right;
+ 				continue;
+-- 
+2.20.1
+
 
 
