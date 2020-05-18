@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F35C1D806D
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:40:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A45711D80E2
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:43:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728887AbgERRjr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:39:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34746 "EHLO mail.kernel.org"
+        id S1729502AbgERRm7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:42:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40198 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728883AbgERRjq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:39:46 -0400
+        id S1729499AbgERRm7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:42:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 466B12083E;
-        Mon, 18 May 2020 17:39:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3584A207C4;
+        Mon, 18 May 2020 17:42:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589823585;
-        bh=qAHCWrioLNufzVaxB4pLOJpa7VgRqthNqvTyV3ytbwM=;
+        s=default; t=1589823778;
+        bh=DtZk9N0jACzETeARCKHK0Dvij7sIsuRxKR5jxQ1/l2g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VnyZYwde1onS47vTtiF1jnKlOqne4l1xrnt82XkDxM4K03sObQep9GStU1UXkdeXg
-         cTvp//tss+3K6dpmToRw74QsZaLA8mLL8h0WKPOpITMUrNqw/Jpt/MhIWRQr8k0KwH
-         qy2v+FuomkIhIc6pp/cRHZUVP1GTsleA1QYwZbGk=
+        b=Kojuri1zkpxIBr5hf5cgOs//yndKtGjTpZdOzdWJW18OVE/PIEC251KHqtuZrdx/9
+         i5JuDYOkaQnyUuHPORjuG4PTCQjwGLDbRxVoJ5pNZo8t+bHdT0KoPMR/da9tDlLai3
+         +fzg/YIVu5Zx2dv3YgVpIJxwQDCWTfFCE1X+8ST8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "wuxu.wu" <wuxu.wu@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
-        "Nobuhiro Iwamatsu (CIP)" <nobuhiro1.iwamatsu@toshiba.co.jp>
-Subject: [PATCH 4.4 40/86] spi: spi-dw: Add lock protect dw_spi rx/tx to prevent concurrent calls
+        stable@vger.kernel.org, Ming Lei <ming.lei@redhat.com>,
+        Bob Liu <bob.liu@oracle.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Cengiz Can <cengiz@kernel.wtf>, Jens Axboe <axboe@kernel.dk>,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 33/90] blktrace: fix dereference after null check
 Date:   Mon, 18 May 2020 19:36:11 +0200
-Message-Id: <20200518173458.510093508@linuxfoundation.org>
+Message-Id: <20200518173457.869823680@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173450.254571947@linuxfoundation.org>
-References: <20200518173450.254571947@linuxfoundation.org>
+In-Reply-To: <20200518173450.930655662@linuxfoundation.org>
+References: <20200518173450.930655662@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,130 +47,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: wuxu.wu <wuxu.wu@huawei.com>
+From: Cengiz Can <cengiz@kernel.wtf>
 
-commit 19b61392c5a852b4e8a0bf35aecb969983c5932d upstream.
+commit 153031a301bb07194e9c37466cfce8eacb977621 upstream.
 
-dw_spi_irq() and dw_spi_transfer_one concurrent calls.
+There was a recent change in blktrace.c that added a RCU protection to
+`q->blk_trace` in order to fix a use-after-free issue during access.
 
-I find a panic in dw_writer(): txw = *(u8 *)(dws->tx), when dw->tx==null,
-dw->len==4, and dw->tx_end==1.
+However the change missed an edge case that can lead to dereferencing of
+`bt` pointer even when it's NULL:
 
-When tpm driver's message overtime dw_spi_irq() and dw_spi_transfer_one
-may concurrent visit dw_spi, so I think dw_spi structure lack of protection.
+Coverity static analyzer marked this as a FORWARD_NULL issue with CID
+1460458.
 
-Otherwise dw_spi_transfer_one set dw rx/tx buffer and then open irq,
-store dw rx/tx instructions and other cores handle irq load dw rx/tx
-instructions may out of order.
+```
+/kernel/trace/blktrace.c: 1904 in sysfs_blk_trace_attr_store()
+1898            ret = 0;
+1899            if (bt == NULL)
+1900                    ret = blk_trace_setup_queue(q, bdev);
+1901
+1902            if (ret == 0) {
+1903                    if (attr == &dev_attr_act_mask)
+>>>     CID 1460458:  Null pointer dereferences  (FORWARD_NULL)
+>>>     Dereferencing null pointer "bt".
+1904                            bt->act_mask = value;
+1905                    else if (attr == &dev_attr_pid)
+1906                            bt->pid = value;
+1907                    else if (attr == &dev_attr_start_lba)
+1908                            bt->start_lba = value;
+1909                    else if (attr == &dev_attr_end_lba)
+```
 
-	[ 1025.321302] Call trace:
-	...
-	[ 1025.321319]  __crash_kexec+0x98/0x148
-	[ 1025.321323]  panic+0x17c/0x314
-	[ 1025.321329]  die+0x29c/0x2e8
-	[ 1025.321334]  die_kernel_fault+0x68/0x78
-	[ 1025.321337]  __do_kernel_fault+0x90/0xb0
-	[ 1025.321346]  do_page_fault+0x88/0x500
-	[ 1025.321347]  do_translation_fault+0xa8/0xb8
-	[ 1025.321349]  do_mem_abort+0x68/0x118
-	[ 1025.321351]  el1_da+0x20/0x8c
-	[ 1025.321362]  dw_writer+0xc8/0xd0
-	[ 1025.321364]  interrupt_transfer+0x60/0x110
-	[ 1025.321365]  dw_spi_irq+0x48/0x70
-	...
+Added a reassignment with RCU annotation to fix the issue.
 
-Signed-off-by: wuxu.wu <wuxu.wu@huawei.com>
-Link: https://lore.kernel.org/r/1577849981-31489-1-git-send-email-wuxu.wu@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Nobuhiro Iwamatsu (CIP) <nobuhiro1.iwamatsu@toshiba.co.jp>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: c780e86dd48 ("blktrace: Protect q->blk_trace with RCU")
+Reviewed-by: Ming Lei <ming.lei@redhat.com>
+Reviewed-by: Bob Liu <bob.liu@oracle.com>
+Reviewed-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Cengiz Can <cengiz@kernel.wtf>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-dw.c |   15 ++++++++++++---
- drivers/spi/spi-dw.h |    1 +
- 2 files changed, 13 insertions(+), 3 deletions(-)
+ kernel/trace/blktrace.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/spi/spi-dw.c
-+++ b/drivers/spi/spi-dw.c
-@@ -180,9 +180,11 @@ static inline u32 rx_max(struct dw_spi *
- 
- static void dw_writer(struct dw_spi *dws)
- {
--	u32 max = tx_max(dws);
-+	u32 max;
- 	u16 txw = 0;
- 
-+	spin_lock(&dws->buf_lock);
-+	max = tx_max(dws);
- 	while (max--) {
- 		/* Set the tx word if the transfer's original "tx" is not null */
- 		if (dws->tx_end - dws->len) {
-@@ -194,13 +196,16 @@ static void dw_writer(struct dw_spi *dws
- 		dw_write_io_reg(dws, DW_SPI_DR, txw);
- 		dws->tx += dws->n_bytes;
+diff --git a/kernel/trace/blktrace.c b/kernel/trace/blktrace.c
+index 78a896acd21ac..6d3b432a748a6 100644
+--- a/kernel/trace/blktrace.c
++++ b/kernel/trace/blktrace.c
+@@ -1826,8 +1826,11 @@ static ssize_t sysfs_blk_trace_attr_store(struct device *dev,
  	}
-+	spin_unlock(&dws->buf_lock);
- }
  
- static void dw_reader(struct dw_spi *dws)
- {
--	u32 max = rx_max(dws);
-+	u32 max;
- 	u16 rxw;
+ 	ret = 0;
+-	if (bt == NULL)
++	if (bt == NULL) {
+ 		ret = blk_trace_setup_queue(q, bdev);
++		bt = rcu_dereference_protected(q->blk_trace,
++				lockdep_is_held(&q->blk_trace_mutex));
++	}
  
-+	spin_lock(&dws->buf_lock);
-+	max = rx_max(dws);
- 	while (max--) {
- 		rxw = dw_read_io_reg(dws, DW_SPI_DR);
- 		/* Care rx only if the transfer's original "rx" is not null */
-@@ -212,6 +217,7 @@ static void dw_reader(struct dw_spi *dws
- 		}
- 		dws->rx += dws->n_bytes;
- 	}
-+	spin_unlock(&dws->buf_lock);
- }
- 
- static void int_error_stop(struct dw_spi *dws, const char *msg)
-@@ -284,6 +290,7 @@ static int dw_spi_transfer_one(struct sp
- {
- 	struct dw_spi *dws = spi_master_get_devdata(master);
- 	struct chip_data *chip = spi_get_ctldata(spi);
-+	unsigned long flags;
- 	u8 imask = 0;
- 	u16 txlevel = 0;
- 	u16 clk_div;
-@@ -291,12 +298,13 @@ static int dw_spi_transfer_one(struct sp
- 	int ret;
- 
- 	dws->dma_mapped = 0;
--
-+	spin_lock_irqsave(&dws->buf_lock, flags);
- 	dws->tx = (void *)transfer->tx_buf;
- 	dws->tx_end = dws->tx + transfer->len;
- 	dws->rx = transfer->rx_buf;
- 	dws->rx_end = dws->rx + transfer->len;
- 	dws->len = transfer->len;
-+	spin_unlock_irqrestore(&dws->buf_lock, flags);
- 
- 	spi_enable_chip(dws, 0);
- 
-@@ -488,6 +496,7 @@ int dw_spi_add_host(struct device *dev,
- 	dws->dma_inited = 0;
- 	dws->dma_addr = (dma_addr_t)(dws->paddr + DW_SPI_DR);
- 	snprintf(dws->name, sizeof(dws->name), "dw_spi%d", dws->bus_num);
-+	spin_lock_init(&dws->buf_lock);
- 
- 	ret = request_irq(dws->irq, dw_spi_irq, IRQF_SHARED, dws->name, master);
- 	if (ret < 0) {
---- a/drivers/spi/spi-dw.h
-+++ b/drivers/spi/spi-dw.h
-@@ -117,6 +117,7 @@ struct dw_spi {
- 	size_t			len;
- 	void			*tx;
- 	void			*tx_end;
-+	spinlock_t		buf_lock;
- 	void			*rx;
- 	void			*rx_end;
- 	int			dma_mapped;
+ 	if (ret == 0) {
+ 		if (attr == &dev_attr_act_mask)
+-- 
+2.20.1
+
 
 
