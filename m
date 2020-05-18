@@ -2,41 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 073461D8101
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:44:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BECA01D864A
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:24:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729660AbgERRn6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:43:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41892 "EHLO mail.kernel.org"
+        id S1728692AbgERSY0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:24:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48430 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729657AbgERRn4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:43:56 -0400
+        id S1730285AbgERRrx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:47:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5F76620835;
-        Mon, 18 May 2020 17:43:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7AFAB20657;
+        Mon, 18 May 2020 17:47:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589823835;
-        bh=EHKhD3gXwdngNPGPb9pG6smmQeya9nmvVhYi+tzowL8=;
+        s=default; t=1589824072;
+        bh=TMrnDyP4MNmjV73iXl+Vaj/o8UvSmNm/5BIhilAenZE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NZbG6t32H+ehh0sRe1DVqczC5c5rnjoyuqchDVSS9vy6n/5uM13jQtSrWDuDOvlRL
-         t5jwUg69UGkADTeg7ydVPSGHIZ7U+IkpFcOK4N44ImRk6COt6wlhIpcE24b6dmaaci
-         tjYxbbdJ4m+lYhaQgtb8DBfle1Cejfk2BggCnszU=
+        b=HAa8B6qjp60l+kG78HRuCbIJGmjCTViLjlPs2w2bi98itYFbI6F9BWJYsBu4PULBY
+         WxQCsR1cfxupg4iwVXIvk4f97li0cr1+YWVSZWQObcaK+fHUFOUdbetXXh/AsNTht3
+         zYSC3g2kqCxNyiIg8hhVOYpw/rPNeJNGCceh1ivw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Grace Kao <grace.kao@intel.com>,
-        Brian Norris <briannorris@chromium.org>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        stable@vger.kernel.org, Andreas Schwab <schwab@suse.de>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Vasily Averin <vvs@virtuozzo.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Waiman Long <longman@redhat.com>, NeilBrown <neilb@suse.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Davidlohr Bueso <dave@stgolabs.net>,
+        Manfred Spraul <manfred@colorfullife.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 54/90] pinctrl: cherryview: Add missing spinlock usage in chv_gpio_irq_handler
+Subject: [PATCH 4.14 060/114] ipc/util.c: sysvipc_find_ipc() incorrectly updates position index
 Date:   Mon, 18 May 2020 19:36:32 +0200
-Message-Id: <20200518173502.111936595@linuxfoundation.org>
+Message-Id: <20200518173513.971628928@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173450.930655662@linuxfoundation.org>
-References: <20200518173450.930655662@linuxfoundation.org>
+In-Reply-To: <20200518173503.033975649@linuxfoundation.org>
+References: <20200518173503.033975649@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,48 +53,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Grace Kao <grace.kao@intel.com>
+From: Vasily Averin <vvs@virtuozzo.com>
 
-[ Upstream commit 69388e15f5078c961b9e5319e22baea4c57deff1 ]
+[ Upstream commit 5e698222c70257d13ae0816720dde57c56f81e15 ]
 
-According to Braswell NDA Specification Update (#557593),
-concurrent read accesses may result in returning 0xffffffff and write
-instructions may be dropped. We have an established format for the
-commit references, i.e.
-cdca06e4e859 ("pinctrl: baytrail: Add missing spinlock usage in
-byt_gpio_irq_handler")
+Commit 89163f93c6f9 ("ipc/util.c: sysvipc_find_ipc() should increase
+position index") is causing this bug (seen on 5.6.8):
 
-Fixes: 0bd50d719b00 ("pinctrl: cherryview: prevent concurrent access to GPIO controllers")
-Signed-off-by: Grace Kao <grace.kao@intel.com>
-Reported-by: Brian Norris <briannorris@chromium.org>
-Reviewed-by: Brian Norris <briannorris@chromium.org>
-Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+   # ipcs -q
+
+   ------ Message Queues --------
+   key        msqid      owner      perms      used-bytes   messages
+
+   # ipcmk -Q
+   Message queue id: 0
+   # ipcs -q
+
+   ------ Message Queues --------
+   key        msqid      owner      perms      used-bytes   messages
+   0x82db8127 0          root       644        0            0
+
+   # ipcmk -Q
+   Message queue id: 1
+   # ipcs -q
+
+   ------ Message Queues --------
+   key        msqid      owner      perms      used-bytes   messages
+   0x82db8127 0          root       644        0            0
+   0x76d1fb2a 1          root       644        0            0
+
+   # ipcrm -q 0
+   # ipcs -q
+
+   ------ Message Queues --------
+   key        msqid      owner      perms      used-bytes   messages
+   0x76d1fb2a 1          root       644        0            0
+   0x76d1fb2a 1          root       644        0            0
+
+   # ipcmk -Q
+   Message queue id: 2
+   # ipcrm -q 2
+   # ipcs -q
+
+   ------ Message Queues --------
+   key        msqid      owner      perms      used-bytes   messages
+   0x76d1fb2a 1          root       644        0            0
+   0x76d1fb2a 1          root       644        0            0
+
+   # ipcmk -Q
+   Message queue id: 3
+   # ipcrm -q 1
+   # ipcs -q
+
+   ------ Message Queues --------
+   key        msqid      owner      perms      used-bytes   messages
+   0x7c982867 3          root       644        0            0
+   0x7c982867 3          root       644        0            0
+   0x7c982867 3          root       644        0            0
+   0x7c982867 3          root       644        0            0
+
+Whenever an IPC item with a low id is deleted, the items with higher ids
+are duplicated, as if filling a hole.
+
+new_pos should jump through hole of unused ids, pos can be updated
+inside "for" cycle.
+
+Fixes: 89163f93c6f9 ("ipc/util.c: sysvipc_find_ipc() should increase position index")
+Reported-by: Andreas Schwab <schwab@suse.de>
+Reported-by: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Acked-by: Waiman Long <longman@redhat.com>
+Cc: NeilBrown <neilb@suse.com>
+Cc: Steven Rostedt <rostedt@goodmis.org>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Peter Oberparleiter <oberpar@linux.ibm.com>
+Cc: Davidlohr Bueso <dave@stgolabs.net>
+Cc: Manfred Spraul <manfred@colorfullife.com>
+Cc: <stable@vger.kernel.org>
+Link: http://lkml.kernel.org/r/4921fe9b-9385-a2b4-1dc4-1099be6d2e39@virtuozzo.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/intel/pinctrl-cherryview.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ ipc/util.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/pinctrl/intel/pinctrl-cherryview.c b/drivers/pinctrl/intel/pinctrl-cherryview.c
-index e8c08eb975301..d1a99b2e2d4c3 100644
---- a/drivers/pinctrl/intel/pinctrl-cherryview.c
-+++ b/drivers/pinctrl/intel/pinctrl-cherryview.c
-@@ -1509,11 +1509,15 @@ static void chv_gpio_irq_handler(struct irq_desc *desc)
- 	struct chv_pinctrl *pctrl = gpiochip_get_data(gc);
- 	struct irq_chip *chip = irq_desc_get_chip(desc);
- 	unsigned long pending;
-+	unsigned long flags;
- 	u32 intr_line;
+diff --git a/ipc/util.c b/ipc/util.c
+index 7989f5e532198..5a65b0cbae7db 100644
+--- a/ipc/util.c
++++ b/ipc/util.c
+@@ -750,21 +750,21 @@ static struct kern_ipc_perm *sysvipc_find_ipc(struct ipc_ids *ids, loff_t pos,
+ 			total++;
+ 	}
  
- 	chained_irq_enter(chip, desc);
+-	*new_pos = pos + 1;
++	ipc = NULL;
+ 	if (total >= ids->in_use)
+-		return NULL;
++		goto out;
  
-+	raw_spin_lock_irqsave(&chv_lock, flags);
- 	pending = readl(pctrl->regs + CHV_INTSTAT);
-+	raw_spin_unlock_irqrestore(&chv_lock, flags);
-+
- 	for_each_set_bit(intr_line, &pending, pctrl->community->nirqs) {
- 		unsigned irq, offset;
+ 	for (; pos < IPCMNI; pos++) {
+ 		ipc = idr_find(&ids->ipcs_idr, pos);
+ 		if (ipc != NULL) {
+ 			rcu_read_lock();
+ 			ipc_lock_object(ipc);
+-			return ipc;
++			break;
+ 		}
+ 	}
+-
+-	/* Out of range - return NULL to terminate iteration */
+-	return NULL;
++out:
++	*new_pos = pos + 1;
++	return ipc;
+ }
  
+ static void *sysvipc_proc_next(struct seq_file *s, void *it, loff_t *pos)
 -- 
 2.20.1
 
