@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 923DC1D8613
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:23:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47C2F1D82A9
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:58:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730606AbgERSW6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:22:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51574 "EHLO mail.kernel.org"
+        id S1731885AbgERR6S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:58:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37576 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730100AbgERRts (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:49:48 -0400
+        id S1730713AbgERR6S (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:58:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 182EA20671;
-        Mon, 18 May 2020 17:49:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EFF3220715;
+        Mon, 18 May 2020 17:58:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824187;
-        bh=ofP+ox0i8hIBVUZOAQQWKyZiQX3MVp0DDqnhSr9Tdu8=;
+        s=default; t=1589824697;
+        bh=Fq473D+whRVjLlot7rBxZ1jmAR8eyjkU37pEWOtJWyA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z7rlVuaZZVo4wNlDsU8/nz5NSzDTQBkMMJ9/pxbOWdkPDF1w5W8dLjRNygiM2hBwi
-         suViy9WqyOWjkOmvsR3wSP1azbUr77r9/KcSfFjILED1mFoqfE+xn3Fiej81qsSGm2
-         H7qtpIbxUVzZl31BZg6dwSa6UwfwyFog8XQJiVGQ=
+        b=OGfv5Li8dA/mmBIfQkoAL3BX09ZqNV2HED6eSYxrOOMeFVgfOZfmhWtH49vHY9XIj
+         1j2LHjfuLKnfHaGDNAIaM9LUO8udlv7cioPgf2q097pMxG8epxR04OSnvA2TB4TCvq
+         hIwYqluGqUzZZzq1Iduaj6eZJuwwKPqnzeGUd+Tc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Chen <peter.chen@nxp.com>,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Felipe Balbi <balbi@kernel.org>
-Subject: [PATCH 4.14 105/114] usb: gadget: audio: Fix a missing error return value in audio_bind()
+        stable@vger.kernel.org, Peter Jones <pjones@redhat.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>
+Subject: [PATCH 5.4 114/147] Make the "Reducing compressed framebufer size" message be DRM_INFO_ONCE()
 Date:   Mon, 18 May 2020 19:37:17 +0200
-Message-Id: <20200518173520.203720337@linuxfoundation.org>
+Message-Id: <20200518173527.265985773@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173503.033975649@linuxfoundation.org>
-References: <20200518173503.033975649@linuxfoundation.org>
+In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
+References: <20200518173513.009514388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,35 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Peter Jones <pjones@redhat.com>
 
-commit 19b94c1f9c9a16d41a8de3ccbdb8536cf1aecdbf upstream.
+commit 82152d424b6cb6fc1ede7d03d69c04e786688740 upstream.
 
-If 'usb_otg_descriptor_alloc()' fails, we must return an error code, not 0.
+This was sort of annoying me:
 
-Fixes: 56023ce0fd70 ("usb: gadget: audio: allocate and init otg descriptor by otg capabilities")
-Reviewed-by: Peter Chen <peter.chen@nxp.com>
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
+random:~$ dmesg | tail -1
+[523884.039227] [drm] Reducing the compressed framebuffer size. This may lead to less power savings than a non-reduced-size. Try to increase stolen memory size if available in BIOS.
+random:~$ dmesg | grep -c "Reducing the compressed"
+47
+
+This patch makes it DRM_INFO_ONCE() just like the similar message
+farther down in that function is pr_info_once().
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Peter Jones <pjones@redhat.com>
+Acked-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/1745
+Link: https://patchwork.freedesktop.org/patch/msgid/20180706190424.29194-1-pjones@redhat.com
+[vsyrjala: Rebase due to per-device logging]
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+(cherry picked from commit 6b7fc6a3e6af4ff5773949d0fed70d8e7f68d5ce)
+[Rodrigo: port back to DRM_INFO_ONCE]
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/gadget/legacy/audio.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/i915/display/intel_fbc.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/usb/gadget/legacy/audio.c
-+++ b/drivers/usb/gadget/legacy/audio.c
-@@ -303,8 +303,10 @@ static int audio_bind(struct usb_composi
- 		struct usb_descriptor_header *usb_desc;
+--- a/drivers/gpu/drm/i915/display/intel_fbc.c
++++ b/drivers/gpu/drm/i915/display/intel_fbc.c
+@@ -504,8 +504,7 @@ static int intel_fbc_alloc_cfb(struct in
+ 	if (!ret)
+ 		goto err_llb;
+ 	else if (ret > 1) {
+-		DRM_INFO("Reducing the compressed framebuffer size. This may lead to less power savings than a non-reduced-size. Try to increase stolen memory size if available in BIOS.\n");
+-
++		DRM_INFO_ONCE("Reducing the compressed framebuffer size. This may lead to less power savings than a non-reduced-size. Try to increase stolen memory size if available in BIOS.\n");
+ 	}
  
- 		usb_desc = usb_otg_descriptor_alloc(cdev->gadget);
--		if (!usb_desc)
-+		if (!usb_desc) {
-+			status = -ENOMEM;
- 			goto fail;
-+		}
- 		usb_otg_descriptor_init(cdev->gadget, usb_desc);
- 		otg_desc[0] = usb_desc;
- 		otg_desc[1] = NULL;
+ 	fbc->threshold = ret;
 
 
