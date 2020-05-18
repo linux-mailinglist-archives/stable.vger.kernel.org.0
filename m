@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 55D8A1D8217
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:53:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2EEB41D82C1
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:59:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730641AbgERRxW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:53:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57218 "EHLO mail.kernel.org"
+        id S1731990AbgERR7A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:59:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38924 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731130AbgERRxV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:53:21 -0400
+        id S1731986AbgERR7A (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:59:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5F80120674;
-        Mon, 18 May 2020 17:53:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 21BA220826;
+        Mon, 18 May 2020 17:58:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824400;
-        bh=a57QUVjycIWqq5gybYpQ5AcfJtRPK/9jBiOO2JvtkoM=;
+        s=default; t=1589824739;
+        bh=x2k6H2u4z4R3Mw2PyUDpbwdtIYEjroK2GYUDNPg6l3A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bOsOFAvP1fdAwgNYgcbyvNvSOifbuqAp9h+ZG+7FmVXHy5p2M5f73rOgYxu/HrHQ2
-         P3gaP1AtGBqqxDePIwiymLtvg5MeLvKQ1yKU2Oi3WXZxYBjgEmSBf9CcPoKapGl8PF
-         96xk6wKnSS0awrAxfytm/5UQryF3JegAs+MBskc0=
+        b=XYK5aDb4mjmO5yOu3rkDoliXAAb0+5LPTYK7FKnzEYo5EOPqt12okt0SC2P+eMwVL
+         QRvSYI1VPA99R8n0aRMpY03BcdVANtqF5XLWG2llF6ixQRkjqO5n/W+BQ/k5YXv0Dr
+         FIj294FlNGRuNWEsamQ57vG6FQ3QaqMH17/DWLnQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Ulrich Hecht <uli+renesas@fpond.eu>
-Subject: [PATCH 4.19 78/80] ARM: dts: r8a7740: Add missing extal2 to CPG node
+        Christian Hewitt <christianshewitt@gmail.com>,
+        Neil Armstrong <narmstrong@baylibre.com>,
+        Kevin Hilman <khilman@baylibre.com>,
+        Jerome Brunet <jbrunet@baylibre.com>
+Subject: [PATCH 5.4 133/147] arm64: dts: meson-g12b-khadas-vim3: add missing frddr_a status property
 Date:   Mon, 18 May 2020 19:37:36 +0200
-Message-Id: <20200518173506.359601234@linuxfoundation.org>
+Message-Id: <20200518173529.894863202@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173450.097837707@linuxfoundation.org>
-References: <20200518173450.097837707@linuxfoundation.org>
+In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
+References: <20200518173513.009514388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,38 +46,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Neil Armstrong <narmstrong@baylibre.com>
 
-commit e47cb97f153193d4b41ca8d48127da14513d54c7 upstream.
+commit 5ac0869fb39b1c1ba84d4d75c550f82e0bf44c96 upstream.
 
-The Clock Pulse Generator (CPG) device node lacks the extal2 clock.
-This may lead to a failure registering the "r" clock, or to a wrong
-parent for the "usb24s" clock, depending on MD_CK2 pin configuration and
-boot loader CPG_USBCKCR register configuration.
+In the process of moving the VIM3 audio nodes to a G12B specific dtsi
+for enabling the SM1 based VIM3L, the frddr_a status = "okay" property
+got dropped.
+This re-enables the frddr_a node to fix audio support.
 
-This went unnoticed, as this does not affect the single upstream board
-configuration, which relies on the first clock input only.
-
-Fixes: d9ffd583bf345e2e ("ARM: shmobile: r8a7740: add SoC clocks to DTS")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Ulrich Hecht <uli+renesas@fpond.eu>
-Link: https://lore.kernel.org/r/20200508095918.6061-1-geert+renesas@glider.be
+Fixes: 4f26cc1c96c9 ("arm64: dts: khadas-vim3: move common nodes into meson-khadas-vim3.dtsi")
+Reported-by: Christian Hewitt <christianshewitt@gmail.com>
+Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
+Signed-off-by: Kevin Hilman <khilman@baylibre.com>
+Reviewed-by: Jerome Brunet <jbrunet@baylibre.com>
+Tested-by: Jerome Brunet <jbrunet@baylibre.com>
+Link: https://lore.kernel.org/r/20191018140216.4257-1-narmstrong@baylibre.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/boot/dts/r8a7740.dtsi |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/boot/dts/amlogic/meson-g12b-khadas-vim3.dtsi |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/arch/arm/boot/dts/r8a7740.dtsi
-+++ b/arch/arm/boot/dts/r8a7740.dtsi
-@@ -479,7 +479,7 @@
- 		cpg_clocks: cpg_clocks@e6150000 {
- 			compatible = "renesas,r8a7740-cpg-clocks";
- 			reg = <0xe6150000 0x10000>;
--			clocks = <&extal1_clk>, <&extalr_clk>;
-+			clocks = <&extal1_clk>, <&extal2_clk>, <&extalr_clk>;
- 			#clock-cells = <1>;
- 			clock-output-names = "system", "pllc0", "pllc1",
- 					     "pllc2", "r",
+--- a/arch/arm64/boot/dts/amlogic/meson-g12b-khadas-vim3.dtsi
++++ b/arch/arm64/boot/dts/amlogic/meson-g12b-khadas-vim3.dtsi
+@@ -152,6 +152,10 @@
+ 	clock-latency = <50000>;
+ };
+ 
++&frddr_a {
++	status = "okay";
++};
++
+ &frddr_b {
+ 	status = "okay";
+ };
 
 
