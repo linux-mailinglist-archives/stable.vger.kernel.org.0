@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EC0491D861E
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:23:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC6181D81F2
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:52:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731117AbgERSXN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:23:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51048 "EHLO mail.kernel.org"
+        id S1730958AbgERRwS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:52:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55470 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730523AbgERRtZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:49:25 -0400
+        id S1730954AbgERRwR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:52:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6D00520715;
-        Mon, 18 May 2020 17:49:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3146920715;
+        Mon, 18 May 2020 17:52:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824164;
-        bh=seknKxSv+DaRyGlwZogVGF+DYMRm5Pq8n3UvU5yQipQ=;
+        s=default; t=1589824336;
+        bh=miDcrF9d0NgroOIR43hUyItCPnWvb7dfrxKBI3G+1HQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MvWG+ZRkPpmR7R8PPs+U7cyC8yYXrlb+BHxBvhaW6h8k+dvBWyq2lSOpQhuzVZbAG
-         zj6Rc/cSSXlyRzLNmD+r6SOlZZrMAv8Oe0ELaSrzmF4L6TticuFQPW5j57Nujj49+Q
-         TwDdVDCD8CWLQSyLyTj1DwgsRUqTXTSJSPqJ8wNc=
+        b=y0aif4JZL4+YPOFrzxk3EBKh+ftEePt4vFkQ8IdiYWzZLjK5uFhTJ67P1knjX9IMs
+         x7xCD4ajQQPF4OxufmIA9H6O7ZoYqt/vhazr3n4lSAOeXGTROEkCEvr0WCC35IcW8U
+         LhKjzmO4zT0/CAo1Ho6AuvxMPqAMpsKTXVMFl1hc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        Hardik Gajjar <hgajjar@de.adit-jv.com>,
-        linux-renesas-soc@vger.kernel.org, linux-usb@vger.kernel.org,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Eugeniu Rosca <erosca@de.adit-jv.com>
-Subject: [PATCH 4.14 097/114] usb: core: hub: limit HUB_QUIRK_DISABLE_AUTOSUSPEND to USB5534B
+        stable@vger.kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.19 51/80] gcc-10: disable restrict warning for now
 Date:   Mon, 18 May 2020 19:37:09 +0200
-Message-Id: <20200518173519.260708121@linuxfoundation.org>
+Message-Id: <20200518173500.773423994@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173503.033975649@linuxfoundation.org>
-References: <20200518173503.033975649@linuxfoundation.org>
+In-Reply-To: <20200518173450.097837707@linuxfoundation.org>
+References: <20200518173450.097837707@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,72 +43,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eugeniu Rosca <erosca@de.adit-jv.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-commit 76e1ef1d81a4129d7e2fb8c48c83b166d1c8e040 upstream.
+commit adc71920969870dfa54e8f40dac8616284832d02 upstream.
 
-On Tue, May 12, 2020 at 09:36:07PM +0800, Kai-Heng Feng wrote [1]:
-> This patch prevents my Raven Ridge xHCI from getting runtime suspend.
+gcc-10 now warns about passing aliasing pointers to functions that take
+restricted pointers.
 
-The problem described in v5.6 commit 1208f9e1d758c9 ("USB: hub: Fix the
-broken detection of USB3 device in SMSC hub") applies solely to the
-USB5534B hub [2] present on the Kingfisher Infotainment Carrier Board,
-manufactured by Shimafuji Electric Inc [3].
+That's actually a great warning, and if we ever start using 'restrict'
+in the kernel, it might be quite useful.  But right now we don't, and it
+turns out that the only thing this warns about is an idiom where we have
+declared a few functions to be "printf-like" (which seems to make gcc
+pick up the restricted pointer thing), and then we print to the same
+buffer that we also use as an input.
 
-Despite that, the aforementioned commit applied the quirk to _all_ hubs
-carrying vendor ID 0x424 (i.e. SMSC), of which there are more [4] than
-initially expected. Consequently, the quirk is now enabled on platforms
-carrying SMSC/Microchip hub models which potentially don't exhibit the
-original issue.
+And people do that as an odd concatenation pattern, with code like this:
 
-To avoid reports like [1], further limit the quirk's scope to
-USB5534B [2], by employing both Vendor and Product ID checks.
+    #define sysfs_show_gen_prop(buffer, fmt, ...) \
+        snprintf(buffer, PAGE_SIZE, "%s"fmt, buffer, __VA_ARGS__)
 
-Tested on H3ULCB + Kingfisher rev. M05.
+where we have 'buffer' as both the destination of the final result, and
+as the initial argument.
 
-[1] https://lore.kernel.org/linux-renesas-soc/73933975-6F0E-40F5-9584-D2B8F615C0F3@canonical.com/
-[2] https://www.microchip.com/wwwproducts/en/USB5534B
-[3] http://www.shimafuji.co.jp/wp/wp-content/uploads/2018/08/SBEV-RCAR-KF-M06Board_HWSpecificationEN_Rev130.pdf
-[4] https://devicehunt.com/search/type/usb/vendor/0424/device/any
+Yes, it's a bit questionable.  And outside of the kernel, people do have
+standard declarations like
 
-Fixes: 1208f9e1d758c9 ("USB: hub: Fix the broken detection of USB3 device in SMSC hub")
-Cc: stable@vger.kernel.org # v4.14+
-Cc: Alan Stern <stern@rowland.harvard.edu>
-Cc: Hardik Gajjar <hgajjar@de.adit-jv.com>
-Cc: linux-renesas-soc@vger.kernel.org
-Cc: linux-usb@vger.kernel.org
-Reported-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Signed-off-by: Eugeniu Rosca <erosca@de.adit-jv.com>
-Tested-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Link: https://lore.kernel.org/r/20200514220246.13290-1-erosca@de.adit-jv.com
+    int snprintf( char *restrict buffer, size_t bufsz,
+                  const char *restrict format, ... );
+
+where that output buffer is marked as a restrict pointer that cannot
+alias with any other arguments.
+
+But in the context of the kernel, that 'use snprintf() to concatenate to
+the end result' does work, and the pattern shows up in multiple places.
+And we have not marked our own version of snprintf() as taking restrict
+pointers, so the warning is incorrect for now, and gcc picks it up on
+its own.
+
+If we do start using 'restrict' in the kernel (and it might be a good
+idea if people find places where it matters), we'll need to figure out
+how to avoid this issue for snprintf and friends.  But in the meantime,
+this warning is not useful.
+
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/core/hub.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ Makefile |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/usb/core/hub.c
-+++ b/drivers/usb/core/hub.c
-@@ -37,6 +37,7 @@
+--- a/Makefile
++++ b/Makefile
+@@ -797,6 +797,9 @@ KBUILD_CFLAGS += $(call cc-disable-warni
+ KBUILD_CFLAGS += $(call cc-disable-warning, array-bounds)
+ KBUILD_CFLAGS += $(call cc-disable-warning, stringop-overflow)
  
- #define USB_VENDOR_GENESYS_LOGIC		0x05e3
- #define USB_VENDOR_SMSC				0x0424
-+#define USB_PRODUCT_USB5534B			0x5534
- #define HUB_QUIRK_CHECK_PORT_AUTOSUSPEND	0x01
- #define HUB_QUIRK_DISABLE_AUTOSUSPEND		0x02
++# Another good warning that we'll want to enable eventually
++KBUILD_CFLAGS += $(call cc-disable-warning, restrict)
++
+ # Enabled with W=2, disabled by default as noisy
+ KBUILD_CFLAGS += $(call cc-disable-warning, maybe-uninitialized)
  
-@@ -5317,8 +5318,11 @@ out_hdev_lock:
- }
- 
- static const struct usb_device_id hub_id_table[] = {
--    { .match_flags = USB_DEVICE_ID_MATCH_VENDOR | USB_DEVICE_ID_MATCH_INT_CLASS,
-+    { .match_flags = USB_DEVICE_ID_MATCH_VENDOR
-+                   | USB_DEVICE_ID_MATCH_PRODUCT
-+                   | USB_DEVICE_ID_MATCH_INT_CLASS,
-       .idVendor = USB_VENDOR_SMSC,
-+      .idProduct = USB_PRODUCT_USB5534B,
-       .bInterfaceClass = USB_CLASS_HUB,
-       .driver_info = HUB_QUIRK_DISABLE_AUTOSUSPEND},
-     { .match_flags = USB_DEVICE_ID_MATCH_VENDOR
 
 
