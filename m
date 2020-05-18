@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BCF131D858E
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:19:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9ED941D81AE
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:50:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731199AbgERRxt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:53:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58030 "EHLO mail.kernel.org"
+        id S1730602AbgERRt7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:49:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51816 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731195AbgERRxs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:53:48 -0400
+        id S1730589AbgERRt6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:49:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5C40820674;
-        Mon, 18 May 2020 17:53:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5DA5520671;
+        Mon, 18 May 2020 17:49:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824427;
-        bh=aWNKYEvi4zIwEu5BpGs3Vn4GreSVeDHYt9+9/Nog1Dk=;
+        s=default; t=1589824197;
+        bh=bpZJJ53Hdlnk4eaAmfNWc7QGpjuXH/AvDsxsd5CCyPk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vxh/Sp933qoZ+QzXwD70cOhSQ4Pcuzd42y44OnE7es1QOQDfpQYZrJ9EpUtX1e7Lm
-         9zhUtXHKDP/T2rqZpqDbDQtdOOsP6mq+fxPXZ30501PILFsxSDOXsk4Skt5lBHehp0
-         SMYehiaU7MpD/4eKUVzISocofvn3TMy647PfioNM=
+        b=1H+2KPzf5Q3OiccwHLHatADzgMw6x6+FukBr9Fo2v/WAxmqWlRmFD2ZEj6O+CoChP
+         6uXDEjPF2k0Qt7O/yr1MRju5ZPWS4KLDLbKd1HDMr3FSJJU0lZVk+/9wzRVv+8g4Uv
+         3CKVugnDJtX+ER144lEALGpLety8fpyuRio5riOM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sergei Trofimovich <slyfox@gentoo.org>,
-        Borislav Petkov <bp@suse.de>, Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 4.19 63/80] x86: Fix early boot crash on gcc-10, third try
+        stable@vger.kernel.org, Chen-Yu Tsai <wens@csie.org>,
+        Heiko Stuebner <heiko@sntech.de>
+Subject: [PATCH 4.14 109/114] arm64: dts: rockchip: Replace RK805 PMIC node name with "pmic" on rk3328 boards
 Date:   Mon, 18 May 2020 19:37:21 +0200
-Message-Id: <20200518173503.119342410@linuxfoundation.org>
+Message-Id: <20200518173520.753471648@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173450.097837707@linuxfoundation.org>
-References: <20200518173450.097837707@linuxfoundation.org>
+In-Reply-To: <20200518173503.033975649@linuxfoundation.org>
+References: <20200518173503.033975649@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,141 +43,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Borislav Petkov <bp@suse.de>
+From: Chen-Yu Tsai <wens@csie.org>
 
-commit a9a3ed1eff3601b63aea4fb462d8b3b92c7c1e7e upstream.
+commit 83b994129fb4c18a8460fd395864a28740e5e7fb upstream.
 
-... or the odyssey of trying to disable the stack protector for the
-function which generates the stack canary value.
+In some board device tree files, "rk805" was used for the RK805 PMIC's
+node name. However the policy for device trees is that generic names
+should be used.
 
-The whole story started with Sergei reporting a boot crash with a kernel
-built with gcc-10:
+Replace the "rk805" node name with the generic "pmic" name.
 
-  Kernel panic — not syncing: stack-protector: Kernel stack is corrupted in: start_secondary
-  CPU: 1 PID: 0 Comm: swapper/1 Not tainted 5.6.0-rc5—00235—gfffb08b37df9 #139
-  Hardware name: Gigabyte Technology Co., Ltd. To be filled by O.E.M./H77M—D3H, BIOS F12 11/14/2013
-  Call Trace:
-    dump_stack
-    panic
-    ? start_secondary
-    __stack_chk_fail
-    start_secondary
-    secondary_startup_64
-  -—-[ end Kernel panic — not syncing: stack—protector: Kernel stack is corrupted in: start_secondary
-
-This happens because gcc-10 tail-call optimizes the last function call
-in start_secondary() - cpu_startup_entry() - and thus emits a stack
-canary check which fails because the canary value changes after the
-boot_init_stack_canary() call.
-
-To fix that, the initial attempt was to mark the one function which
-generates the stack canary with:
-
-  __attribute__((optimize("-fno-stack-protector"))) ... start_secondary(void *unused)
-
-however, using the optimize attribute doesn't work cumulatively
-as the attribute does not add to but rather replaces previously
-supplied optimization options - roughly all -fxxx options.
-
-The key one among them being -fno-omit-frame-pointer and thus leading to
-not present frame pointer - frame pointer which the kernel needs.
-
-The next attempt to prevent compilers from tail-call optimizing
-the last function call cpu_startup_entry(), shy of carving out
-start_secondary() into a separate compilation unit and building it with
--fno-stack-protector, was to add an empty asm("").
-
-This current solution was short and sweet, and reportedly, is supported
-by both compilers but we didn't get very far this time: future (LTO?)
-optimization passes could potentially eliminate this, which leads us
-to the third attempt: having an actual memory barrier there which the
-compiler cannot ignore or move around etc.
-
-That should hold for a long time, but hey we said that about the other
-two solutions too so...
-
-Reported-by: Sergei Trofimovich <slyfox@gentoo.org>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Tested-by: Kalle Valo <kvalo@codeaurora.org>
-Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/20200314164451.346497-1-slyfox@gentoo.org
+Fixes: 1e28037ec88e ("arm64: dts: rockchip: add rk805 node for rk3328-evb")
+Fixes: 955bebde057e ("arm64: dts: rockchip: add rk3328-rock64 board")
+Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+Link: https://lore.kernel.org/r/20200327030414.5903-3-wens@kernel.org
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/include/asm/stackprotector.h |    7 ++++++-
- arch/x86/kernel/smpboot.c             |    8 ++++++++
- arch/x86/xen/smp_pv.c                 |    1 +
- include/linux/compiler.h              |    6 ++++++
- init/main.c                           |    2 ++
- 5 files changed, 23 insertions(+), 1 deletion(-)
+ arch/arm64/boot/dts/rockchip/rk3328-evb.dts    |    2 +-
+ arch/arm64/boot/dts/rockchip/rk3328-rock64.dts |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/x86/include/asm/stackprotector.h
-+++ b/arch/x86/include/asm/stackprotector.h
-@@ -55,8 +55,13 @@
- /*
-  * Initialize the stackprotector canary value.
-  *
-- * NOTE: this must only be called from functions that never return,
-+ * NOTE: this must only be called from functions that never return
-  * and it must always be inlined.
-+ *
-+ * In addition, it should be called from a compilation unit for which
-+ * stack protector is disabled. Alternatively, the caller should not end
-+ * with a function call which gets tail-call optimized as that would
-+ * lead to checking a modified canary value.
-  */
- static __always_inline void boot_init_stack_canary(void)
- {
---- a/arch/x86/kernel/smpboot.c
-+++ b/arch/x86/kernel/smpboot.c
-@@ -269,6 +269,14 @@ static void notrace start_secondary(void
+--- a/arch/arm64/boot/dts/rockchip/rk3328-evb.dts
++++ b/arch/arm64/boot/dts/rockchip/rk3328-evb.dts
+@@ -91,7 +91,7 @@
+ &i2c1 {
+ 	status = "okay";
  
- 	wmb();
- 	cpu_startup_entry(CPUHP_AP_ONLINE_IDLE);
-+
-+	/*
-+	 * Prevent tail call to cpu_startup_entry() because the stack protector
-+	 * guard has been changed a couple of function calls up, in
-+	 * boot_init_stack_canary() and must not be checked before tail calling
-+	 * another function.
-+	 */
-+	prevent_tail_call_optimization();
- }
+-	rk805: rk805@18 {
++	rk805: pmic@18 {
+ 		compatible = "rockchip,rk805";
+ 		reg = <0x18>;
+ 		interrupt-parent = <&gpio2>;
+--- a/arch/arm64/boot/dts/rockchip/rk3328-rock64.dts
++++ b/arch/arm64/boot/dts/rockchip/rk3328-rock64.dts
+@@ -149,7 +149,7 @@
+ &i2c1 {
+ 	status = "okay";
  
- /**
---- a/arch/x86/xen/smp_pv.c
-+++ b/arch/x86/xen/smp_pv.c
-@@ -89,6 +89,7 @@ asmlinkage __visible void cpu_bringup_an
- {
- 	cpu_bringup();
- 	cpu_startup_entry(CPUHP_AP_ONLINE_IDLE);
-+	prevent_tail_call_optimization();
- }
- 
- void xen_smp_intr_free_pv(unsigned int cpu)
---- a/include/linux/compiler.h
-+++ b/include/linux/compiler.h
-@@ -351,4 +351,10 @@ static inline void *offset_to_ptr(const
- 	compiletime_assert(__native_word(t),				\
- 		"Need native word sized stores/loads for atomicity.")
- 
-+/*
-+ * This is needed in functions which generate the stack canary, see
-+ * arch/x86/kernel/smpboot.c::start_secondary() for an example.
-+ */
-+#define prevent_tail_call_optimization()	mb()
-+
- #endif /* __LINUX_COMPILER_H */
---- a/init/main.c
-+++ b/init/main.c
-@@ -735,6 +735,8 @@ asmlinkage __visible void __init start_k
- 
- 	/* Do the rest non-__init'ed, we're now alive */
- 	rest_init();
-+
-+	prevent_tail_call_optimization();
- }
- 
- /* Call all constructor functions linked into the kernel. */
+-	rk805: rk805@18 {
++	rk805: pmic@18 {
+ 		compatible = "rockchip,rk805";
+ 		reg = <0x18>;
+ 		interrupt-parent = <&gpio2>;
 
 
