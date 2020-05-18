@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 42D9A1D81AB
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:50:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 146861D8610
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:23:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728684AbgERRty (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:49:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51682 "EHLO mail.kernel.org"
+        id S1730605AbgERRuA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:50:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51746 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730589AbgERRtx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:49:53 -0400
+        id S1730596AbgERRtz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:49:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2FA7B20671;
-        Mon, 18 May 2020 17:49:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9FAD920674;
+        Mon, 18 May 2020 17:49:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824192;
-        bh=tyPWl9a+CQko/HHoUmFTcDmz8KlCfkitFMDU0Mrw2R0=;
+        s=default; t=1589824195;
+        bh=kszVDRYCIaCRP68xZeHGWaRaIxu6FkskzVt1W9UP1Zs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JEzz6OtLkxCc7p952xy+E47BzR00FJuj/pzJHmfyLlEasJlNsAVxyHNaFHUvgJBff
-         ai0ZCxAcV8Uz0s9W+oAViYO8Egur67TJQy4V3CpLCMvylBbV5P8+tcvvALiQI4r0R4
-         aINahnL55qOO+ahtCHixCJr2Y4vCKYCI9Q2JdUZ8=
+        b=ZgUIhAJiPVBe6rZSIVvdIKwmunS922jYw88hpSNdjUNvS3bACLxmwwvNEoH5WxmxX
+         O6I/dGK82rqms62S+JU7joyxHeS1xF68MEBMW7TEDf7jV5Of+bLsG/bFswqZKqFN7a
+         WaWzkqMXIo+kfv3Mnhu34Snf1BY5YLYknK8aXxTE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Wei Yongjun <weiyongjun1@huawei.com>,
-        Felipe Balbi <balbi@kernel.org>
-Subject: [PATCH 4.14 107/114] usb: gadget: legacy: fix error return code in cdc_bind()
-Date:   Mon, 18 May 2020 19:37:19 +0200
-Message-Id: <20200518173520.469863861@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.14 108/114] Revert "ALSA: hda/realtek: Fix pop noise on ALC225"
+Date:   Mon, 18 May 2020 19:37:20 +0200
+Message-Id: <20200518173520.604737985@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200518173503.033975649@linuxfoundation.org>
 References: <20200518173503.033975649@linuxfoundation.org>
@@ -44,36 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Yongjun <weiyongjun1@huawei.com>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-commit e8f7f9e3499a6d96f7f63a4818dc7d0f45a7783b upstream.
+commit f41224efcf8aafe80ea47ac870c5e32f3209ffc8 upstream.
 
-If 'usb_otg_descriptor_alloc()' fails, we must return a
-negative error code -ENOMEM, not 0.
+This reverts commit 3b36b13d5e69d6f51ff1c55d1b404a74646c9757.
 
-Fixes: ab6796ae9833 ("usb: gadget: cdc2: allocate and init otg descriptor by otg capabilities")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Enable power save node breaks some systems with ACL225. Revert the patch
+and use a platform specific quirk for the original issue isntead.
+
+Fixes: 3b36b13d5e69 ("ALSA: hda/realtek: Fix pop noise on ALC225")
+BugLink: https://bugs.launchpad.net/bugs/1875916
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Link: https://lore.kernel.org/r/20200503152449.22761-1-kai.heng.feng@canonical.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/gadget/legacy/cdc2.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ sound/pci/hda/patch_realtek.c |    2 --
+ 1 file changed, 2 deletions(-)
 
---- a/drivers/usb/gadget/legacy/cdc2.c
-+++ b/drivers/usb/gadget/legacy/cdc2.c
-@@ -183,8 +183,10 @@ static int cdc_bind(struct usb_composite
- 		struct usb_descriptor_header *usb_desc;
- 
- 		usb_desc = usb_otg_descriptor_alloc(gadget);
--		if (!usb_desc)
-+		if (!usb_desc) {
-+			status = -ENOMEM;
- 			goto fail1;
-+		}
- 		usb_otg_descriptor_init(gadget, usb_desc);
- 		otg_desc[0] = usb_desc;
- 		otg_desc[1] = NULL;
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -4691,8 +4691,6 @@ static void alc_determine_headset_type(s
+ 		is_ctia = (val & 0x1c02) == 0x1c02;
+ 		break;
+ 	case 0x10ec0225:
+-		codec->power_save_node = 1;
+-		/* fall through */
+ 	case 0x10ec0295:
+ 	case 0x10ec0299:
+ 		alc_process_coef_fw(codec, alc225_pre_hsmode);
 
 
