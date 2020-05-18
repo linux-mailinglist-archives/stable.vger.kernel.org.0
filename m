@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EB09E1D81CF
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:51:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F2901D8497
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:14:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730798AbgERRvC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:51:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53382 "EHLO mail.kernel.org"
+        id S1732336AbgERSMe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:12:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48670 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730768AbgERRu6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:50:58 -0400
+        id S1731073AbgERSDV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 14:03:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 07342207C4;
-        Mon, 18 May 2020 17:50:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4E4B120853;
+        Mon, 18 May 2020 18:03:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824257;
-        bh=l42xB4oGlhaeR8PUztWRNqvqP554Gac2q5JPYzz4pVk=;
+        s=default; t=1589825000;
+        bh=qPiPvnOGJzhRxWccUafyKknE9pRDCl2DUrjtZb6VY4k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fsBpyGhMySQNvDGMZ2INmTu1rNIPRTxwCAyV2Yzq8P/rVBTWPCgh6hCLEWqeoh6e9
-         uRrIDch3E1Vuu8N/S99fVpTI1jqAMIBRk+ITX6xNfk5Ye4igiNGpgP+wauFRc1cT8G
-         MA9A3PAjClctQoTn+j/YPEPmzU/GUI8AT5XNzAgA=
+        b=E1snMUohdoan0/P+MKbqUQ4U/ur3mu2vp4bV6Vy6JGFGhxWcH4XFqWaO0gg8BBrdH
+         RQfTpz8rqLvncqWpVSQxpfk9dsHmWZX5EtS/Bg3ZdpX2WUIOwqYOB033r97SILQn1P
+         PUUtM981Krj7HSNOgYWiMPxR2KgBjyOmndaKh8Qo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+c8a8197c8852f566b9d9@syzkaller.appspotmail.com,
-        syzbot+40b71e145e73f78f81ad@syzkaller.appspotmail.com,
-        Hugh Dickins <hughd@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Yang Shi <yang.shi@linux.alibaba.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Grzegorz Kowal <custos.mentis@gmail.com>,
+        Ben Chuang <ben.chuang@genesyslogic.com.tw>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 02/80] shmem: fix possible deadlocks on shmlock_user_lock
+Subject: [PATCH 5.6 090/194] mmc: sdhci-pci-gli: Fix can not access GL9750 after reboot from Windows 10
 Date:   Mon, 18 May 2020 19:36:20 +0200
-Message-Id: <20200518173450.633393924@linuxfoundation.org>
+Message-Id: <20200518173539.125024739@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173450.097837707@linuxfoundation.org>
-References: <20200518173450.097837707@linuxfoundation.org>
+In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
+References: <20200518173531.455604187@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,78 +46,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hugh Dickins <hughd@google.com>
+From: Ben Chuang <ben.chuang@genesyslogic.com.tw>
 
-[ Upstream commit ea0dfeb4209b4eab954d6e00ed136bc6b48b380d ]
+[ Upstream commit b56ff195c317ad28c05d354aeecbb9995b8e08c1 ]
 
-Recent commit 71725ed10c40 ("mm: huge tmpfs: try to split_huge_page()
-when punching hole") has allowed syzkaller to probe deeper, uncovering a
-long-standing lockdep issue between the irq-unsafe shmlock_user_lock,
-the irq-safe xa_lock on mapping->i_pages, and shmem inode's info->lock
-which nests inside xa_lock (or tree_lock) since 4.8's shmem_uncharge().
+Need to clear some bits in a vendor-defined register after reboot from
+Windows 10.
 
-user_shm_lock(), servicing SysV shmctl(SHM_LOCK), wants
-shmlock_user_lock while its caller shmem_lock() holds info->lock with
-interrupts disabled; but hugetlbfs_file_setup() calls user_shm_lock()
-with interrupts enabled, and might be interrupted by a writeback endio
-wanting xa_lock on i_pages.
-
-This may not risk an actual deadlock, since shmem inodes do not take
-part in writeback accounting, but there are several easy ways to avoid
-it.
-
-Requiring interrupts disabled for shmlock_user_lock would be easy, but
-it's a high-level global lock for which that seems inappropriate.
-Instead, recall that the use of info->lock to guard info->flags in
-shmem_lock() dates from pre-3.1 days, when races with SHMEM_PAGEIN and
-SHMEM_TRUNCATE could occur: nowadays it serves no purpose, the only flag
-added or removed is VM_LOCKED itself, and calls to shmem_lock() an inode
-are already serialized by the caller.
-
-Take info->lock out of the chain and the possibility of deadlock or
-lockdep warning goes away.
-
-Fixes: 4595ef88d136 ("shmem: make shmem_inode_info::lock irq-safe")
-Reported-by: syzbot+c8a8197c8852f566b9d9@syzkaller.appspotmail.com
-Reported-by: syzbot+40b71e145e73f78f81ad@syzkaller.appspotmail.com
-Signed-off-by: Hugh Dickins <hughd@google.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Acked-by: Yang Shi <yang.shi@linux.alibaba.com>
-Cc: Yang Shi <yang.shi@linux.alibaba.com>
-Link: http://lkml.kernel.org/r/alpine.LSU.2.11.2004161707410.16322@eggly.anvils
-Link: https://lore.kernel.org/lkml/000000000000e5838c05a3152f53@google.com/
-Link: https://lore.kernel.org/lkml/0000000000003712b305a331d3b1@google.com/
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: e51df6ce668a ("mmc: host: sdhci-pci: Add Genesys Logic GL975x support")
+Reported-by: Grzegorz Kowal <custos.mentis@gmail.com>
+Signed-off-by: Ben Chuang <ben.chuang@genesyslogic.com.tw>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Tested-by: Grzegorz Kowal <custos.mentis@gmail.com>
+Link: https://lore.kernel.org/r/20200504063957.6638-1-benchuanggli@gmail.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/shmem.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/mmc/host/sdhci-pci-gli.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/mm/shmem.c b/mm/shmem.c
-index 0a2e1e7801d68..dea5120565d30 100644
---- a/mm/shmem.c
-+++ b/mm/shmem.c
-@@ -2149,7 +2149,11 @@ int shmem_lock(struct file *file, int lock, struct user_struct *user)
- 	struct shmem_inode_info *info = SHMEM_I(inode);
- 	int retval = -ENOMEM;
+diff --git a/drivers/mmc/host/sdhci-pci-gli.c b/drivers/mmc/host/sdhci-pci-gli.c
+index ff39d81a5742c..fd76aa672e020 100644
+--- a/drivers/mmc/host/sdhci-pci-gli.c
++++ b/drivers/mmc/host/sdhci-pci-gli.c
+@@ -26,6 +26,9 @@
+ #define   SDHCI_GLI_9750_DRIVING_2    GENMASK(27, 26)
+ #define   GLI_9750_DRIVING_1_VALUE    0xFFF
+ #define   GLI_9750_DRIVING_2_VALUE    0x3
++#define   SDHCI_GLI_9750_SEL_1        BIT(29)
++#define   SDHCI_GLI_9750_SEL_2        BIT(31)
++#define   SDHCI_GLI_9750_ALL_RST      (BIT(24)|BIT(25)|BIT(28)|BIT(30))
  
--	spin_lock_irq(&info->lock);
-+	/*
-+	 * What serializes the accesses to info->flags?
-+	 * ipc_lock_object() when called from shmctl_do_lock(),
-+	 * no serialization needed when called from shm_destroy().
-+	 */
- 	if (lock && !(info->flags & VM_LOCKED)) {
- 		if (!user_shm_lock(inode->i_size, user))
- 			goto out_nomem;
-@@ -2164,7 +2168,6 @@ int shmem_lock(struct file *file, int lock, struct user_struct *user)
- 	retval = 0;
+ #define SDHCI_GLI_9750_PLL	      0x864
+ #define   SDHCI_GLI_9750_PLL_TX2_INV    BIT(23)
+@@ -122,6 +125,8 @@ static void gli_set_9750(struct sdhci_host *host)
+ 				    GLI_9750_DRIVING_1_VALUE);
+ 	driving_value |= FIELD_PREP(SDHCI_GLI_9750_DRIVING_2,
+ 				    GLI_9750_DRIVING_2_VALUE);
++	driving_value &= ~(SDHCI_GLI_9750_SEL_1|SDHCI_GLI_9750_SEL_2|SDHCI_GLI_9750_ALL_RST);
++	driving_value |= SDHCI_GLI_9750_SEL_2;
+ 	sdhci_writel(host, driving_value, SDHCI_GLI_9750_DRIVING);
  
- out_nomem:
--	spin_unlock_irq(&info->lock);
- 	return retval;
- }
- 
+ 	sw_ctrl_value &= ~SDHCI_GLI_9750_SW_CTRL_4;
 -- 
 2.20.1
 
