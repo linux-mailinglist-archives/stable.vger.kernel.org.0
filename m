@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CF231D8388
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:06:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A32211D851E
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:17:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729470AbgERSFk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:05:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53282 "EHLO mail.kernel.org"
+        id S1732529AbgERSQg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:16:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37342 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733063AbgERSFi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 14:05:38 -0400
+        id S1731861AbgERR6L (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:58:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 18FEE20671;
-        Mon, 18 May 2020 18:05:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 46B76207C4;
+        Mon, 18 May 2020 17:58:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589825137;
-        bh=iVaQ01TA7rrWyhKD+pi6al0fOTLwJwW1sYYX16Xtivw=;
+        s=default; t=1589824689;
+        bh=IztXwAnFP7rKmuGHeUYIUA+aDMj69Z7Ar3ifUjWQpVE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pNUbu+RC2w/OXk50ZOP4HtpDEGyp6pMB3u98oOV7knozTRVYYbTqiwXXmzEXt7UDK
-         cxXcrIqJrLH+n2ZLIbv4gqjvfP1zsxmioftk8d81UUolovvg/0YPk3aUwsHdiH2a8w
-         jVhQC+0bzJVXn4wZj6lpPRMJYfVOV5nPLHQYkKNw=
+        b=BDfsexZxfc+Lu9m+j1HL5LUKtSKG5XX1nupi4ek/CPLvflLFJgtORD7rDtsZXPZ/p
+         Gq6euTYuEe1Qhxz7iwSw1DwZfC4yQsEmcwKPXWX0MZHz5lLZdHFtFgbiCLf0DadSHF
+         lwKNoivY97iy+mGwL4CMPjuCDf2YPi+A7F9zTJB4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Peter Chen <peter.chen@nxp.com>,
         Felipe Balbi <balbi@kernel.org>
-Subject: [PATCH 5.6 144/194] usb: cdns3: gadget: prev_req->trb is NULL for ep0
+Subject: [PATCH 5.4 111/147] usb: cdns3: gadget: prev_req->trb is NULL for ep0
 Date:   Mon, 18 May 2020 19:37:14 +0200
-Message-Id: <20200518173543.271587521@linuxfoundation.org>
+Message-Id: <20200518173526.966721892@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
-References: <20200518173531.455604187@linuxfoundation.org>
+In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
+References: <20200518173513.009514388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -126,7 +126,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/usb/cdns3/gadget.c
 +++ b/drivers/usb/cdns3/gadget.c
-@@ -2548,7 +2548,7 @@ found:
+@@ -2105,7 +2105,7 @@ found:
  	link_trb = priv_req->trb;
  
  	/* Update ring only if removed request is on pending_req_list list */
