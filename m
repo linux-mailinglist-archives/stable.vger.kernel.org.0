@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F16B1D8589
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:19:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AEB7A1D84B3
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:14:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731249AbgERRyJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:54:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58574 "EHLO mail.kernel.org"
+        id S1732431AbgERSNu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:13:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44102 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731245AbgERRyI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:54:08 -0400
+        id S1732424AbgERSBj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 14:01:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7390F207C4;
-        Mon, 18 May 2020 17:54:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EBA6E207C4;
+        Mon, 18 May 2020 18:01:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824447;
-        bh=0bGfIT093qQ9vQN8ZTgqObBdEYENQQ1lD1pDuR4jFqA=;
+        s=default; t=1589824899;
+        bh=/yFRTgkjOjuakAcUHMYNBsrRG7i5WsGSgwVe2mmzVsQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=erdnY+359YOtGOncEsLcvdwHl+tfn5y9IUW2hcLWuzv7+lJiWhf880TZEUEpeJmQL
-         rgT9TCL99a8uHlBNYpILjtPzApmX/FflfFo9xCjAh836V5Xu2ktlFGIVWw5Y6F0DfG
-         zzvt/20cN2kmmDSYWk2rfu2QywDWEiMF3Ki3DyJw=
+        b=J/lRikDQ7Ysu0ZUxQ5EySsDMS2+uozAYCUhhZaXzwocipfKfGXH3wMITszSF+/GeD
+         ZzDPb1ga5yva4agvIPe7sPabYlOzXJYPwpRBX3R0KdxpfdGv6Jq/J/tdfJoRfXOfVZ
+         1MHRxakIE5ODW/7OTh+IFovGpVlBV89aOs6afSy0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <rong.a.chen@intel.com>,
-        Hangbin Liu <liuhangbin@gmail.com>
-Subject: [PATCH 5.4 016/147] selftests/bpf: fix goto cleanup label not defined
+        stable@vger.kernel.org, Vincent Minet <v.minet@criteo.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.6 049/194] umh: fix memory leak on execve failure
 Date:   Mon, 18 May 2020 19:35:39 +0200
-Message-Id: <20200518173515.782204255@linuxfoundation.org>
+Message-Id: <20200518173535.892437661@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
-References: <20200518173513.009514388@linuxfoundation.org>
+In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
+References: <20200518173531.455604187@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,39 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangbin Liu <liuhangbin@gmail.com>
+From: Vincent Minet <v.minet@criteo.com>
 
-kernel test robot found a warning when build bpf selftest for 5.4.y stable
-tree:
+[ Upstream commit db803036ada7d61d096783726f9771b3fc540370 ]
 
-prog_tests/stacktrace_build_id_nmi.c:55:3: error: label ‘cleanup’ used but not defined
-   goto cleanup;
-   ^~~~
+If a UMH process created by fork_usermode_blob() fails to execute,
+a pair of struct file allocated by umh_pipe_setup() will leak.
 
-This is because we are lacking upstream commit dde53c1b763b
-("selftests/bpf: Convert few more selftest to skeletons"). But this
-commit is too large and need more backports. To fix it, the
-easiest way is just use the current goto label 'close_prog'.
+Under normal conditions, the caller (like bpfilter) needs to manage the
+lifetime of the UMH and its two pipes. But when fork_usermode_blob()
+fails, the caller doesn't really have a way to know what needs to be
+done. It seems better to do the cleanup ourselves in this case.
 
-Reported-by: kernel test robot <rong.a.chen@intel.com>
-Fixes: da43712a7262 ("selftests/bpf: Skip perf hw events test if the setup disabled it")
-Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
+Fixes: 449325b52b7a ("umh: introduce fork_usermode_blob() helper")
+Signed-off-by: Vincent Minet <v.minet@criteo.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- tools/testing/selftests/bpf/prog_tests/stacktrace_build_id_nmi.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/umh.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/tools/testing/selftests/bpf/prog_tests/stacktrace_build_id_nmi.c
-+++ b/tools/testing/selftests/bpf/prog_tests/stacktrace_build_id_nmi.c
-@@ -52,7 +52,7 @@ retry:
- 	if (pmu_fd < 0 && errno == ENOENT) {
- 		printf("%s:SKIP:no PERF_COUNT_HW_CPU_CYCLES\n", __func__);
- 		test__skip();
--		goto cleanup;
-+		goto close_prog;
- 	}
- 	if (CHECK(pmu_fd < 0, "perf_event_open", "err %d errno %d\n",
- 		  pmu_fd, errno))
+--- a/kernel/umh.c
++++ b/kernel/umh.c
+@@ -475,6 +475,12 @@ static void umh_clean_and_save_pid(struc
+ {
+ 	struct umh_info *umh_info = info->data;
+ 
++	/* cleanup if umh_pipe_setup() was successful but exec failed */
++	if (info->pid && info->retval) {
++		fput(umh_info->pipe_to_umh);
++		fput(umh_info->pipe_from_umh);
++	}
++
+ 	argv_free(info->argv);
+ 	umh_info->pid = info->pid;
+ }
 
 
