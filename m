@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C16F1D8203
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:52:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 19F891D8410
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:11:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731031AbgERRwp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:52:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56188 "EHLO mail.kernel.org"
+        id S1731713AbgERSFv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:05:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53610 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731027AbgERRwo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:52:44 -0400
+        id S1733030AbgERSFv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 14:05:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 745EF20674;
-        Mon, 18 May 2020 17:52:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C122820671;
+        Mon, 18 May 2020 18:05:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824363;
-        bh=RfkX7dMrDN71LREFdUGr1HWXv6KFGxNUxXuzOej2pdg=;
+        s=default; t=1589825150;
+        bh=Dn46o8FNGNi9iQGafECaUOunAbyZTI/1mmcR33N+8Ms=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=exxoKnkTo6IGBe9n5RzcKrfxNSTh1dn9Qdd0iVXlJB7F9GmHiLs0nKLZaG5YJxxqm
-         mvwW0InBXIVLSUqMtOivpWZlG3vnjRcObjrqB4WjGh1S/dEcKV87SypafKds8QrlQm
-         a+Ec808rLcq8/yGKPmJfguCVVScN/JWGGit7Rzw0=
+        b=zhioVzri1i2pRYrYu3wpHsPPGqnNEpmakgvhhQcAETrvK5a9vg/YTXn9s/7BEXD1D
+         RZNSPjBcOR+yBIXhrtI77msYM/NExfoOMljd5QDq18gUJGhrBuJ52DedKoBAM6yFgy
+         SFfqCSFJfc2eYBZBnIpcL7+x8QCHARYHN0ypDFMQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Fabio Estevam <festevam@gmail.com>,
         Stefan Riedmueller <s.riedmueller@phytec.de>,
         Shawn Guo <shawnguo@kernel.org>
-Subject: [PATCH 4.19 61/80] ARM: dts: imx27-phytec-phycard-s-rdk: Fix the I2C1 pinctrl entries
+Subject: [PATCH 5.6 149/194] ARM: dts: imx27-phytec-phycard-s-rdk: Fix the I2C1 pinctrl entries
 Date:   Mon, 18 May 2020 19:37:19 +0200
-Message-Id: <20200518173502.772199489@linuxfoundation.org>
+Message-Id: <20200518173543.673488900@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173450.097837707@linuxfoundation.org>
-References: <20200518173450.097837707@linuxfoundation.org>
+In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
+References: <20200518173531.455604187@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -71,7 +71,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/arch/arm/boot/dts/imx27-phytec-phycard-s-rdk.dts
 +++ b/arch/arm/boot/dts/imx27-phytec-phycard-s-rdk.dts
-@@ -81,8 +81,8 @@
+@@ -75,8 +75,8 @@
  	imx27-phycard-s-rdk {
  		pinctrl_i2c1: i2c1grp {
  			fsl,pins = <
