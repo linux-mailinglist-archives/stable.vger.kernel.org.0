@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 25B691D874E
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:32:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FAEE1D8580
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:19:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728760AbgERSb7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:31:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33622 "EHLO mail.kernel.org"
+        id S1730744AbgERRzB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:55:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60118 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728703AbgERRjK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:39:10 -0400
+        id S1728822AbgERRzA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:55:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 29E1C20829;
-        Mon, 18 May 2020 17:39:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 889712083E;
+        Mon, 18 May 2020 17:54:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589823548;
-        bh=bqL8njQcBWcAVj8w3cU6kdLpwiCsrDRbVhJNWo/25T8=;
+        s=default; t=1589824500;
+        bh=svHddsaV96M/0BQ97tYSdQCU0OUWVwtFZXRg1loGZLE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1G3XIITz1a2uxmuvGdco+Iqio23WUS0MfrflPj0stHCFSGYXzPo7f+Srnw7hTLjPK
-         F3T+sVW+zBJ9gPLMQeZHecVPcBcs8IDvS+0G5WnCxACNZJRVmd1/jf+93eSzLK13p5
-         DmDOu7U2MKfOI88raN8ffaxeOAMI/oG5yDoiPJqg=
+        b=Y37ff+rANrA/BHEeH6QGEm5ZkhaAFtwdaEqa6gr6NUcoD4iwftB1k+ikyXNOGYu16
+         e8QTfehZc9TYMVD/7tJQ/L/kD0g9pL6fjl3CngxXvXXPenio4s73gLSwMeKMmPhT+Q
+         wemXGn5Sy4w4DNX9UfX9al5w4Bo2nd1CxdXjdcBs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ming Lei <ming.lei@redhat.com>,
-        Bob Liu <bob.liu@oracle.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Cengiz Can <cengiz@kernel.wtf>, Jens Axboe <axboe@kernel.dk>,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>
-Subject: [PATCH 4.4 27/86] blktrace: fix dereference after null check
+        stable@vger.kernel.org,
+        =?UTF-8?q?Camale=C3=B3n?= <noelamac@gmail.com>,
+        Heiner Kallweit <hkallweit1@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.4 035/147] r8169: re-establish support for RTL8401 chip version
 Date:   Mon, 18 May 2020 19:35:58 +0200
-Message-Id: <20200518173455.995560766@linuxfoundation.org>
+Message-Id: <20200518173518.496434575@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173450.254571947@linuxfoundation.org>
-References: <20200518173450.254571947@linuxfoundation.org>
+In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
+References: <20200518173513.009514388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,65 +45,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cengiz Can <cengiz@kernel.wtf>
+From: Heiner Kallweit <hkallweit1@gmail.com>
 
-commit 153031a301bb07194e9c37466cfce8eacb977621 upstream.
+[ Upstream commit 1f8492df081bd66255764f3ce82ba1b2c37def49 ]
 
-There was a recent change in blktrace.c that added a RCU protection to
-`q->blk_trace` in order to fix a use-after-free issue during access.
+r8169 never had native support for the RTL8401, however it reportedly
+worked with the fallback to RTL8101e [0]. Therefore let's add this
+as an explicit assignment.
 
-However the change missed an edge case that can lead to dereferencing of
-`bt` pointer even when it's NULL:
+[0] https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=956868
 
-Coverity static analyzer marked this as a FORWARD_NULL issue with CID
-1460458.
-
-```
-/kernel/trace/blktrace.c: 1904 in sysfs_blk_trace_attr_store()
-1898            ret = 0;
-1899            if (bt == NULL)
-1900                    ret = blk_trace_setup_queue(q, bdev);
-1901
-1902            if (ret == 0) {
-1903                    if (attr == &dev_attr_act_mask)
->>>     CID 1460458:  Null pointer dereferences  (FORWARD_NULL)
->>>     Dereferencing null pointer "bt".
-1904                            bt->act_mask = value;
-1905                    else if (attr == &dev_attr_pid)
-1906                            bt->pid = value;
-1907                    else if (attr == &dev_attr_start_lba)
-1908                            bt->start_lba = value;
-1909                    else if (attr == &dev_attr_end_lba)
-```
-
-Added a reassignment with RCU annotation to fix the issue.
-
-Fixes: c780e86dd48 ("blktrace: Protect q->blk_trace with RCU")
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
-Reviewed-by: Bob Liu <bob.liu@oracle.com>
-Reviewed-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Cengiz Can <cengiz@kernel.wtf>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
+Fixes: b4cc2dcc9c7c ("r8169: remove default chip versions")
+Reported-by: Camaleón <noelamac@gmail.com>
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/blktrace.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/realtek/r8169_main.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/kernel/trace/blktrace.c
-+++ b/kernel/trace/blktrace.c
-@@ -1822,8 +1822,11 @@ static ssize_t sysfs_blk_trace_attr_stor
- 	}
- 
- 	ret = 0;
--	if (bt == NULL)
-+	if (bt == NULL) {
- 		ret = blk_trace_setup_queue(q, bdev);
-+		bt = rcu_dereference_protected(q->blk_trace,
-+				lockdep_is_held(&q->blk_trace_mutex));
-+	}
- 
- 	if (ret == 0) {
- 		if (attr == &dev_attr_act_mask)
+--- a/drivers/net/ethernet/realtek/r8169_main.c
++++ b/drivers/net/ethernet/realtek/r8169_main.c
+@@ -2202,6 +2202,8 @@ static void rtl8169_get_mac_version(stru
+ 		{ 0x7cf, 0x348,	RTL_GIGA_MAC_VER_07 },
+ 		{ 0x7cf, 0x248,	RTL_GIGA_MAC_VER_07 },
+ 		{ 0x7cf, 0x340,	RTL_GIGA_MAC_VER_13 },
++		/* RTL8401, reportedly works if treated as RTL8101e */
++		{ 0x7cf, 0x240,	RTL_GIGA_MAC_VER_13 },
+ 		{ 0x7cf, 0x343,	RTL_GIGA_MAC_VER_10 },
+ 		{ 0x7cf, 0x342,	RTL_GIGA_MAC_VER_16 },
+ 		{ 0x7c8, 0x348,	RTL_GIGA_MAC_VER_09 },
 
 
