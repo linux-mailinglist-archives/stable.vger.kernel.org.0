@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C6B4A1D8109
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:44:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 57B471D82B5
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:58:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729689AbgERRoP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:44:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42342 "EHLO mail.kernel.org"
+        id S1731933AbgERR6l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:58:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38280 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729704AbgERRoN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:44:13 -0400
+        id S1731922AbgERR6k (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:58:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 930AF20835;
-        Mon, 18 May 2020 17:44:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4BCE520849;
+        Mon, 18 May 2020 17:58:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589823853;
-        bh=FVLgpGr8qex7mofHgRNQMo+UaiHfOrUMGaBPTCsnP+Y=;
+        s=default; t=1589824719;
+        bh=NexhZO8KU731jrVhj/4ZheMV293i2c59rM7N1run5IU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YVwSh0UcozbEvk+Z9SBff4MkW8Bal3iH/DXTWRHOqiX8MTRucHMRbXxWlSbMa0HWf
-         5PH1FF1sS3u82YXCODiC2EE2IkcvVIpsV6sLI0Kzj0h/D4XJfzmJzxZ2Er9J2oOa9g
-         yYfaGQW6Fuq+xNP2UEucUdSLXVJhcXSFFUbeFNSA=
+        b=PWdjmkmgmzU6GPu7z34Zt8cyO329OkfBVLwhuz4gjCAvfAQioGUYEmm+DC6yy1Pp5
+         OzgMALet0AC/dxc46IHD1UYhMBIGDfhJLN2qnEcpF6TpcImOSQfZQofiSF63WE5oEe
+         MG3XKKl5srbph0DLJdECP9ih2E5xBNIAGFRL9KAo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.9 61/90] Stop the ad-hoc games with -Wno-maybe-initialized
+        stable@vger.kernel.org, Dave Wysochanski <dwysocha@redhat.com>,
+        David Howells <dhowells@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 076/147] NFSv4: Fix fscache cookie aux_data to ensure change_attr is included
 Date:   Mon, 18 May 2020 19:36:39 +0200
-Message-Id: <20200518173503.542960889@linuxfoundation.org>
+Message-Id: <20200518173523.307922408@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173450.930655662@linuxfoundation.org>
-References: <20200518173450.930655662@linuxfoundation.org>
+In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
+References: <20200518173513.009514388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,109 +44,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Dave Wysochanski <dwysocha@redhat.com>
 
-commit 78a5255ffb6a1af189a83e493d916ba1c54d8c75 upstream.
+[ Upstream commit 50eaa652b54df1e2b48dc398d9e6114c9ed080eb ]
 
-We have some rather random rules about when we accept the
-"maybe-initialized" warnings, and when we don't.
+Commit 402cb8dda949 ("fscache: Attach the index key and aux data to
+the cookie") added the aux_data and aux_data_len to parameters to
+fscache_acquire_cookie(), and updated the callers in the NFS client.
+In the process it modified the aux_data to include the change_attr,
+but missed adding change_attr to a couple places where aux_data was
+used.  Specifically, when opening a file and the change_attr is not
+added, the following attempt to lookup an object will fail inside
+cachefiles_check_object_xattr() = -116 due to
+nfs_fscache_inode_check_aux() failing memcmp on auxdata and returning
+FSCACHE_CHECKAUX_OBSOLETE.
 
-For example, we consider it unreliable for gcc versions < 4.9, but also
-if -O3 is enabled, or if optimizing for size.  And then various kernel
-config options disabled it, because they know that they trigger that
-warning by confusing gcc sufficiently (ie PROFILE_ALL_BRANCHES).
+Fix this by adding nfs_fscache_update_auxdata() to set the auxdata
+from all relevant fields in the inode, including the change_attr.
 
-And now gcc-10 seems to be introducing a lot of those warnings too, so
-it falls under the same heading as 4.9 did.
-
-At the same time, we have a very straightforward way to _enable_ that
-warning when wanted: use "W=2" to enable more warnings.
-
-So stop playing these ad-hoc games, and just disable that warning by
-default, with the known and straight-forward "if you want to work on the
-extra compiler warnings, use W=123".
-
-Would it be great to have code that is always so obvious that it never
-confuses the compiler whether a variable is used initialized or not?
-Yes, it would.  In a perfect world, the compilers would be smarter, and
-our source code would be simpler.
-
-That's currently not the world we live in, though.
-
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 402cb8dda949 ("fscache: Attach the index key and aux data to the cookie")
+Signed-off-by: Dave Wysochanski <dwysocha@redhat.com>
+Signed-off-by: David Howells <dhowells@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Makefile             |    7 +++----
- init/Kconfig         |   17 -----------------
- kernel/trace/Kconfig |    1 -
- 3 files changed, 3 insertions(+), 22 deletions(-)
+ fs/nfs/fscache.c | 34 ++++++++++++++++------------------
+ 1 file changed, 16 insertions(+), 18 deletions(-)
 
---- a/Makefile
-+++ b/Makefile
-@@ -663,10 +663,6 @@ else
- KBUILD_CFLAGS   += -O2
- endif
+diff --git a/fs/nfs/fscache.c b/fs/nfs/fscache.c
+index d0c629f97789e..7d6721ec31d4d 100644
+--- a/fs/nfs/fscache.c
++++ b/fs/nfs/fscache.c
+@@ -227,6 +227,19 @@ void nfs_fscache_release_super_cookie(struct super_block *sb)
+ 	}
+ }
  
--ifdef CONFIG_CC_DISABLE_WARN_MAYBE_UNINITIALIZED
--KBUILD_CFLAGS   += -Wno-maybe-uninitialized
--endif
--
- # Tell gcc to never replace conditional load with a non-conditional one
- KBUILD_CFLAGS	+= $(call cc-option,--param=allow-store-data-races=0)
- 
-@@ -801,6 +797,9 @@ KBUILD_CFLAGS += $(call cc-disable-warni
- # disable stringop warnings in gcc 8+
- KBUILD_CFLAGS += $(call cc-disable-warning, stringop-truncation)
- 
-+# Enabled with W=2, disabled by default as noisy
-+KBUILD_CFLAGS += $(call cc-disable-warning, maybe-uninitialized)
++static void nfs_fscache_update_auxdata(struct nfs_fscache_inode_auxdata *auxdata,
++				  struct nfs_inode *nfsi)
++{
++	memset(auxdata, 0, sizeof(*auxdata));
++	auxdata->mtime_sec  = nfsi->vfs_inode.i_mtime.tv_sec;
++	auxdata->mtime_nsec = nfsi->vfs_inode.i_mtime.tv_nsec;
++	auxdata->ctime_sec  = nfsi->vfs_inode.i_ctime.tv_sec;
++	auxdata->ctime_nsec = nfsi->vfs_inode.i_ctime.tv_nsec;
 +
- # disable invalid "can't wrap" optimizations for signed / pointers
- KBUILD_CFLAGS	+= $(call cc-option,-fno-strict-overflow)
++	if (NFS_SERVER(&nfsi->vfs_inode)->nfs_client->rpc_ops->version == 4)
++		auxdata->change_attr = inode_peek_iversion_raw(&nfsi->vfs_inode);
++}
++
+ /*
+  * Initialise the per-inode cache cookie pointer for an NFS inode.
+  */
+@@ -240,14 +253,7 @@ void nfs_fscache_init_inode(struct inode *inode)
+ 	if (!(nfss->fscache && S_ISREG(inode->i_mode)))
+ 		return;
  
---- a/init/Kconfig
-+++ b/init/Kconfig
-@@ -16,22 +16,6 @@ config DEFCONFIG_LIST
- 	default "$ARCH_DEFCONFIG"
- 	default "arch/$ARCH/defconfig"
+-	memset(&auxdata, 0, sizeof(auxdata));
+-	auxdata.mtime_sec  = nfsi->vfs_inode.i_mtime.tv_sec;
+-	auxdata.mtime_nsec = nfsi->vfs_inode.i_mtime.tv_nsec;
+-	auxdata.ctime_sec  = nfsi->vfs_inode.i_ctime.tv_sec;
+-	auxdata.ctime_nsec = nfsi->vfs_inode.i_ctime.tv_nsec;
+-
+-	if (NFS_SERVER(&nfsi->vfs_inode)->nfs_client->rpc_ops->version == 4)
+-		auxdata.change_attr = inode_peek_iversion_raw(&nfsi->vfs_inode);
++	nfs_fscache_update_auxdata(&auxdata, nfsi);
  
--config CC_HAS_WARN_MAYBE_UNINITIALIZED
--	def_bool $(cc-option,-Wmaybe-uninitialized)
--	help
--	  GCC >= 4.7 supports this option.
--
--config CC_DISABLE_WARN_MAYBE_UNINITIALIZED
--	bool
--	depends on CC_HAS_WARN_MAYBE_UNINITIALIZED
--	default CC_IS_GCC && GCC_VERSION < 40900  # unreliable for GCC < 4.9
--	help
--	  GCC's -Wmaybe-uninitialized is not reliable by definition.
--	  Lots of false positive warnings are produced in some cases.
--
--	  If this option is enabled, -Wno-maybe-uninitialzed is passed
--	  to the compiler to suppress maybe-uninitialized warnings.
--
- config CONSTRUCTORS
- 	bool
- 	depends on !UML
-@@ -1349,7 +1333,6 @@ config CC_OPTIMIZE_FOR_PERFORMANCE
+ 	nfsi->fscache = fscache_acquire_cookie(NFS_SB(inode->i_sb)->fscache,
+ 					       &nfs_fscache_inode_object_def,
+@@ -267,11 +273,7 @@ void nfs_fscache_clear_inode(struct inode *inode)
  
- config CC_OPTIMIZE_FOR_SIZE
- 	bool "Optimize for size"
--	imply CC_DISABLE_WARN_MAYBE_UNINITIALIZED  # avoid false positives
- 	help
- 	  Enabling this option will pass "-Os" instead of "-O2" to
- 	  your compiler resulting in a smaller kernel.
---- a/kernel/trace/Kconfig
-+++ b/kernel/trace/Kconfig
-@@ -342,7 +342,6 @@ config PROFILE_ANNOTATED_BRANCHES
- config PROFILE_ALL_BRANCHES
- 	bool "Profile all if conditionals"
- 	select TRACE_BRANCH_PROFILING
--	imply CC_DISABLE_WARN_MAYBE_UNINITIALIZED  # avoid false positives
- 	help
- 	  This tracer profiles all branch conditions. Every if ()
- 	  taken in the kernel is recorded whether it hit or miss.
+ 	dfprintk(FSCACHE, "NFS: clear cookie (0x%p/0x%p)\n", nfsi, cookie);
+ 
+-	memset(&auxdata, 0, sizeof(auxdata));
+-	auxdata.mtime_sec  = nfsi->vfs_inode.i_mtime.tv_sec;
+-	auxdata.mtime_nsec = nfsi->vfs_inode.i_mtime.tv_nsec;
+-	auxdata.ctime_sec  = nfsi->vfs_inode.i_ctime.tv_sec;
+-	auxdata.ctime_nsec = nfsi->vfs_inode.i_ctime.tv_nsec;
++	nfs_fscache_update_auxdata(&auxdata, nfsi);
+ 	fscache_relinquish_cookie(cookie, &auxdata, false);
+ 	nfsi->fscache = NULL;
+ }
+@@ -311,11 +313,7 @@ void nfs_fscache_open_file(struct inode *inode, struct file *filp)
+ 	if (!fscache_cookie_valid(cookie))
+ 		return;
+ 
+-	memset(&auxdata, 0, sizeof(auxdata));
+-	auxdata.mtime_sec  = nfsi->vfs_inode.i_mtime.tv_sec;
+-	auxdata.mtime_nsec = nfsi->vfs_inode.i_mtime.tv_nsec;
+-	auxdata.ctime_sec  = nfsi->vfs_inode.i_ctime.tv_sec;
+-	auxdata.ctime_nsec = nfsi->vfs_inode.i_ctime.tv_nsec;
++	nfs_fscache_update_auxdata(&auxdata, nfsi);
+ 
+ 	if (inode_is_open_for_write(inode)) {
+ 		dfprintk(FSCACHE, "NFS: nfsi 0x%p disabling cache\n", nfsi);
+-- 
+2.20.1
+
 
 
