@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B57461D816C
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:48:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DA721D854C
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:18:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730276AbgERRr4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:47:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48516 "EHLO mail.kernel.org"
+        id S1731624AbgERR43 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:56:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34364 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729787AbgERRr4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:47:56 -0400
+        id S1731630AbgERR42 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:56:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E7D3C20671;
-        Mon, 18 May 2020 17:47:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F26FA20715;
+        Mon, 18 May 2020 17:56:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824075;
-        bh=q2u77E1FPverEm4DQR/iNwj9letvCXzBK1lryef+zLU=;
+        s=default; t=1589824587;
+        bh=Svaos6vxxlnOv44Wz/7DLBgu5pGY5TzjWg76st8tLXc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rngIOEl/ijhS48fBeegIqrHMxMlaldKnhdoZD0dEHe/yc1PYCYaKAQtMsxW02U67Y
-         +hJJ07KbSk7RupSQSl6PHIBNTrnn/UL83yL1GtCuNWOFHHV7G2mH7wf0Bj0npxaaaL
-         wn4dHK8VNW/mEX+Dd/LgSUgRx9Q6mWdb6wUckeDU=
+        b=cLWLfFWel16YgumHuarIDdkN7WjdREr+r6JfCQ21sGIupw4ly4aK7/LQlXYZ6eoE0
+         SUasX8i81gmBl7XHVF00yBT0pyCmGIqlBjjWQqWSsIGpnsgYfRPF1wseDcSxYuUNZf
+         BieNrDHQcZy/9ylJ1orMMPl25l4/8W7pOkba4qRM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 061/114] ALSA: hda/realtek - Fix S3 pop noise on Dell Wyse
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 070/147] mmc: block: Fix request completion in the CQE timeout path
 Date:   Mon, 18 May 2020 19:36:33 +0200
-Message-Id: <20200518173514.133775689@linuxfoundation.org>
+Message-Id: <20200518173522.721555003@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173503.033975649@linuxfoundation.org>
-References: <20200518173503.033975649@linuxfoundation.org>
+In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
+References: <20200518173513.009514388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,70 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-[ Upstream commit 52e4e36807aeac1cdd07b14e509c8a64101e1a09 ]
+[ Upstream commit c077dc5e0620508a29497dac63a2822324ece52a ]
 
-Commit 317d9313925c ("ALSA: hda/realtek - Set default power save node to
-0") makes the ALC225 have pop noise on S3 resume and cold boot.
+First, it should be noted that the CQE timeout (60 seconds) is substantial
+so a CQE request that times out is really stuck, and the race between
+timeout and completion is extremely unlikely. Nevertheless this patch
+fixes an issue with it.
 
-The previous fix enable power save node universally for ALC225, however
-it makes some ALC225 systems unable to produce any sound.
+Commit ad73d6feadbd7b ("mmc: complete requests from ->timeout")
+preserved the existing functionality, to complete the request.
+However that had only been necessary because the block layer
+timeout handler had been marking the request to prevent it from being
+completed normally. That restriction was removed at the same time, the
+result being that a request that has gone will have been completed anyway.
+That is, the completion was unnecessary.
 
-So let's only enable power save node for the affected Dell Wyse
-platform.
+At the time, the unnecessary completion was harmless because the block
+layer would ignore it, although that changed in kernel v5.0.
 
-Fixes: 317d9313925c ("ALSA: hda/realtek - Set default power save node to 0")
-BugLink: https://bugs.launchpad.net/bugs/1866357
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Link: https://lore.kernel.org/r/20200503152449.22761-2-kai.heng.feng@canonical.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Note for stable, this patch will not apply cleanly without patch "mmc:
+core: Fix recursive locking issue in CQE recovery path"
+
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Fixes: ad73d6feadbd7b ("mmc: complete requests from ->timeout")
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20200508062227.23144-1-adrian.hunter@intel.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_realtek.c | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ drivers/mmc/core/queue.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
-index b2aec97414fb8..d578f6594223f 100644
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -5354,6 +5354,15 @@ static void alc233_alc662_fixup_lenovo_dual_codecs(struct hda_codec *codec,
- 	}
- }
- 
-+static void alc225_fixup_s3_pop_noise(struct hda_codec *codec,
-+				      const struct hda_fixup *fix, int action)
-+{
-+	if (action != HDA_FIXUP_ACT_PRE_PROBE)
-+		return;
-+
-+	codec->power_save_node = 1;
-+}
-+
- /* Forcibly assign NID 0x03 to HP/LO while NID 0x02 to SPK for EQ */
- static void alc274_fixup_bind_dacs(struct hda_codec *codec,
- 				    const struct hda_fixup *fix, int action)
-@@ -5507,6 +5516,7 @@ enum {
- 	ALC233_FIXUP_LENOVO_MULTI_CODECS,
- 	ALC294_FIXUP_LENOVO_MIC_LOCATION,
- 	ALC225_FIXUP_DELL_WYSE_MIC_NO_PRESENCE,
-+	ALC225_FIXUP_S3_POP_NOISE,
- 	ALC700_FIXUP_INTEL_REFERENCE,
- 	ALC274_FIXUP_DELL_BIND_DACS,
- 	ALC274_FIXUP_DELL_AIO_LINEOUT_VERB,
-@@ -6339,6 +6349,12 @@ static const struct hda_fixup alc269_fixups[] = {
- 			{ }
- 		},
- 		.chained = true,
-+		.chain_id = ALC225_FIXUP_S3_POP_NOISE
-+	},
-+	[ALC225_FIXUP_S3_POP_NOISE] = {
-+		.type = HDA_FIXUP_FUNC,
-+		.v.func = alc225_fixup_s3_pop_noise,
-+		.chained = true,
- 		.chain_id = ALC269_FIXUP_HEADSET_MODE_NO_HP_MIC
- 	},
- 	[ALC700_FIXUP_INTEL_REFERENCE] = {
+diff --git a/drivers/mmc/core/queue.c b/drivers/mmc/core/queue.c
+index 4d1e468d39823..9c0ccb3744c28 100644
+--- a/drivers/mmc/core/queue.c
++++ b/drivers/mmc/core/queue.c
+@@ -110,8 +110,7 @@ static enum blk_eh_timer_return mmc_cqe_timed_out(struct request *req)
+ 				mmc_cqe_recovery_notifier(mrq);
+ 			return BLK_EH_RESET_TIMER;
+ 		}
+-		/* No timeout (XXX: huh? comment doesn't make much sense) */
+-		blk_mq_complete_request(req);
++		/* The request has gone already */
+ 		return BLK_EH_DONE;
+ 	default:
+ 		/* Timeout is handled by mmc core */
 -- 
 2.20.1
 
