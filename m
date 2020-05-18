@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AC9361D84E8
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:16:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B17E1D84E9
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:16:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732209AbgERSAY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:00:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41706 "EHLO mail.kernel.org"
+        id S1731242AbgERSA0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:00:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41802 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732203AbgERSAW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 14:00:22 -0400
+        id S1732210AbgERSAZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 14:00:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8FE9820826;
-        Mon, 18 May 2020 18:00:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0DF2D207D3;
+        Mon, 18 May 2020 18:00:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824822;
-        bh=KCg1yyOVD4K2OKUGu9sfernH4qKqFq5o9U83i/HgAkU=;
+        s=default; t=1589824824;
+        bh=rZe7RgQTbU2+URaYJ7uJtJiULLuneyg1T7kqNoH9dDs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AHClFn59kbv8PpAE5Wbq4hIuTFqmknY7veXML4zhfXmORtwrodr5lCRHXAQZtorxW
-         p+ZAU0P9fzM/JoeyZSXEtGQ/7ILpTAq7YUVG421NtE1aPSwBO3kDroEIB5bj3zFZxs
-         L0uyR5VmbRmAQqebduhsvBe5A4KbEbHlbaC3hzZU=
+        b=XrA/AXd7hlmQHnr3DKtB5pKrQgogdfKrdkOWSPPyZjSIVgs0I++X2bK1+GklD1yT5
+         VRhlo0hBS+usKb32n+DHmQ9Rs1hyWmUmlVqLJqzWpxcb7L3pf23zsqpXhCkTN2T5QB
+         MWPYXJx0DlaMykmqezFtemk9OZkQnj+gqDvYPAGY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Haiyang Zhang <haiyangz@microsoft.com>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Richard Cochran <richardcochran@gmail.com>,
+        Nicolas Pitre <nico@fluxnic.net>,
+        Grygorii Strashko <grygorii.strashko@ti.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Clay McClure <clay@daemons.net>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 018/194] hv_netvsc: Fix netvsc_start_xmits return type
-Date:   Mon, 18 May 2020 19:35:08 +0200
-Message-Id: <20200518173533.090744758@linuxfoundation.org>
+Subject: [PATCH 5.6 019/194] net: Make PTP-specific drivers depend on PTP_1588_CLOCK
+Date:   Mon, 18 May 2020 19:35:09 +0200
+Message-Id: <20200518173533.160651742@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
 References: <20200518173531.455604187@linuxfoundation.org>
@@ -46,101 +49,146 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Clay McClure <clay@daemons.net>
 
-[ Upstream commit 7fdc66debebc6a7170a37c8c9b0d9585a9788fb4 ]
+[ Upstream commit b6d49cab44b567b3e0a5544b3d61e516a7355fad ]
 
-netvsc_start_xmit is used as a callback function for the ndo_start_xmit
-function pointer. ndo_start_xmit's return type is netdev_tx_t but
-netvsc_start_xmit's return type is int.
+Commit d1cbfd771ce8 ("ptp_clock: Allow for it to be optional") changed
+all PTP-capable Ethernet drivers from `select PTP_1588_CLOCK` to `imply
+PTP_1588_CLOCK`, "in order to break the hard dependency between the PTP
+clock subsystem and ethernet drivers capable of being clock providers."
+As a result it is possible to build PTP-capable Ethernet drivers without
+the PTP subsystem by deselecting PTP_1588_CLOCK. Drivers are required to
+handle the missing dependency gracefully.
 
-This causes a failure with Control Flow Integrity (CFI), which requires
-function pointer prototypes and callback function definitions to match
-exactly. When CFI is in enforcing, the kernel panics. When booting a
-CFI kernel with WSL 2, the VM is immediately terminated because of this.
+Some PTP-capable Ethernet drivers (e.g., TI_CPSW) factor their PTP code
+out into separate drivers (e.g., TI_CPTS_MOD). The above commit also
+changed these PTP-specific drivers to `imply PTP_1588_CLOCK`, making it
+possible to build them without the PTP subsystem. But as Grygorii
+Strashko noted in [1]:
 
-The splat when CONFIG_CFI_PERMISSIVE is used:
+On Wed, Apr 22, 2020 at 02:16:11PM +0300, Grygorii Strashko wrote:
 
-[    5.916765] CFI failure (target: netvsc_start_xmit+0x0/0x10):
-[    5.916771] WARNING: CPU: 8 PID: 0 at kernel/cfi.c:29 __cfi_check_fail+0x2e/0x40
-[    5.916772] Modules linked in:
-[    5.916774] CPU: 8 PID: 0 Comm: swapper/8 Not tainted 5.7.0-rc3-next-20200424-microsoft-cbl-00001-ged4eb37d2c69-dirty #1
-[    5.916776] RIP: 0010:__cfi_check_fail+0x2e/0x40
-[    5.916777] Code: 48 c7 c7 70 98 63 a9 48 c7 c6 11 db 47 a9 e8 69 55 59 00 85 c0 75 02 5b c3 48 c7 c7 73 c6 43 a9 48 89 de 31 c0 e8 12 2d f0 ff <0f> 0b 5b c3 00 00 cc cc 00 00 cc cc 00 00 cc cc 00 00 85 f6 74 25
-[    5.916778] RSP: 0018:ffffa803c0260b78 EFLAGS: 00010246
-[    5.916779] RAX: 712a1af25779e900 RBX: ffffffffa8cf7950 RCX: ffffffffa962cf08
-[    5.916779] RDX: ffffffffa9c36b60 RSI: 0000000000000082 RDI: ffffffffa9c36b5c
-[    5.916780] RBP: ffff8ffc4779c2c0 R08: 0000000000000001 R09: ffffffffa9c3c300
-[    5.916781] R10: 0000000000000151 R11: ffffffffa9c36b60 R12: ffff8ffe39084000
-[    5.916782] R13: ffffffffa8cf7950 R14: ffffffffa8d12cb0 R15: ffff8ffe39320140
-[    5.916784] FS:  0000000000000000(0000) GS:ffff8ffe3bc00000(0000) knlGS:0000000000000000
-[    5.916785] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[    5.916786] CR2: 00007ffef5749408 CR3: 00000002f4f5e000 CR4: 0000000000340ea0
-[    5.916787] Call Trace:
-[    5.916788]  <IRQ>
-[    5.916790]  __cfi_check+0x3ab58/0x450e0
-[    5.916793]  ? dev_hard_start_xmit+0x11f/0x160
-[    5.916795]  ? sch_direct_xmit+0xf2/0x230
-[    5.916796]  ? __dev_queue_xmit.llvm.11471227737707190958+0x69d/0x8e0
-[    5.916797]  ? neigh_resolve_output+0xdf/0x220
-[    5.916799]  ? neigh_connected_output.cfi_jt+0x8/0x8
-[    5.916801]  ? ip6_finish_output2+0x398/0x4c0
-[    5.916803]  ? nf_nat_ipv6_out+0x10/0xa0
-[    5.916804]  ? nf_hook_slow+0x84/0x100
-[    5.916807]  ? ip6_input_finish+0x8/0x8
-[    5.916807]  ? ip6_output+0x6f/0x110
-[    5.916808]  ? __ip6_local_out.cfi_jt+0x8/0x8
-[    5.916810]  ? mld_sendpack+0x28e/0x330
-[    5.916811]  ? ip_rt_bug+0x8/0x8
-[    5.916813]  ? mld_ifc_timer_expire+0x2db/0x400
-[    5.916814]  ? neigh_proxy_process+0x8/0x8
-[    5.916816]  ? call_timer_fn+0x3d/0xd0
-[    5.916817]  ? __run_timers+0x2a9/0x300
-[    5.916819]  ? rcu_core_si+0x8/0x8
-[    5.916820]  ? run_timer_softirq+0x14/0x30
-[    5.916821]  ? __do_softirq+0x154/0x262
-[    5.916822]  ? native_x2apic_icr_write+0x8/0x8
-[    5.916824]  ? irq_exit+0xba/0xc0
-[    5.916825]  ? hv_stimer0_vector_handler+0x99/0xe0
-[    5.916826]  ? hv_stimer0_callback_vector+0xf/0x20
-[    5.916826]  </IRQ>
-[    5.916828]  ? hv_stimer_global_cleanup.cfi_jt+0x8/0x8
-[    5.916829]  ? raw_setsockopt+0x8/0x8
-[    5.916830]  ? default_idle+0xe/0x10
-[    5.916832]  ? do_idle.llvm.10446269078108580492+0xb7/0x130
-[    5.916833]  ? raw_setsockopt+0x8/0x8
-[    5.916833]  ? cpu_startup_entry+0x15/0x20
-[    5.916835]  ? cpu_hotplug_enable.cfi_jt+0x8/0x8
-[    5.916836]  ? start_secondary+0x188/0x190
-[    5.916837]  ? secondary_startup_64+0xa5/0xb0
-[    5.916838] ---[ end trace f2683fa869597ba5 ]---
+> Another question is that CPTS completely nonfunctional in this case and
+> it was never expected that somebody will even try to use/run such
+> configuration (except for random build purposes).
 
-Avoid this by using the right return type for netvsc_start_xmit.
+In my view, enabling a PTP-specific driver without the PTP subsystem is
+a configuration error made possible by the above commit. Kconfig should
+not allow users to create a configuration with missing dependencies that
+results in "completely nonfunctional" drivers.
 
-Fixes: fceaf24a943d8 ("Staging: hv: add the Hyper-V virtual network driver")
-Link: https://github.com/ClangBuiltLinux/linux/issues/1009
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Reviewed-by: Haiyang Zhang <haiyangz@microsoft.com>
+I audited all network drivers that call ptp_clock_register() but merely
+`imply PTP_1588_CLOCK` and found five PTP-specific drivers that are
+likely nonfunctional without PTP_1588_CLOCK:
+
+    NET_DSA_MV88E6XXX_PTP
+    NET_DSA_SJA1105_PTP
+    MACB_USE_HWSTAMP
+    CAVIUM_PTP
+    TI_CPTS_MOD
+
+Note how these symbols all reference PTP or timestamping in their name;
+this is a clue that they depend on PTP_1588_CLOCK.
+
+Change them from `imply PTP_1588_CLOCK` [2] to `depends on PTP_1588_CLOCK`.
+I'm not using `select PTP_1588_CLOCK` here because PTP_1588_CLOCK has
+its own dependencies, which `select` would not transitively apply.
+
+Additionally, remove the `select NET_PTP_CLASSIFY` from CPTS_TI_MOD;
+PTP_1588_CLOCK already selects that.
+
+[1]: https://lore.kernel.org/lkml/c04458ed-29ee-1797-3a11-7f3f560553e6@ti.com/
+
+[2]: NET_DSA_SJA1105_PTP had never declared any type of dependency on
+PTP_1588_CLOCK (`imply` or otherwise); adding a `depends on PTP_1588_CLOCK`
+here seems appropriate.
+
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Richard Cochran <richardcochran@gmail.com>
+Cc: Nicolas Pitre <nico@fluxnic.net>
+Cc: Grygorii Strashko <grygorii.strashko@ti.com>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>
+Fixes: d1cbfd771ce8 ("ptp_clock: Allow for it to be optional")
+Signed-off-by: Clay McClure <clay@daemons.net>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/hyperv/netvsc_drv.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/dsa/mv88e6xxx/Kconfig    | 2 +-
+ drivers/net/dsa/sja1105/Kconfig      | 1 +
+ drivers/net/ethernet/cadence/Kconfig | 2 +-
+ drivers/net/ethernet/cavium/Kconfig  | 2 +-
+ drivers/net/ethernet/ti/Kconfig      | 3 +--
+ 5 files changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/hyperv/netvsc_drv.c b/drivers/net/hyperv/netvsc_drv.c
-index 2c0a24c606fc7..28a5d46ad5266 100644
---- a/drivers/net/hyperv/netvsc_drv.c
-+++ b/drivers/net/hyperv/netvsc_drv.c
-@@ -710,7 +710,8 @@ static int netvsc_xmit(struct sk_buff *skb, struct net_device *net, bool xdp_tx)
- 	goto drop;
- }
+diff --git a/drivers/net/dsa/mv88e6xxx/Kconfig b/drivers/net/dsa/mv88e6xxx/Kconfig
+index 6435020d690dd..51185e4d7d15e 100644
+--- a/drivers/net/dsa/mv88e6xxx/Kconfig
++++ b/drivers/net/dsa/mv88e6xxx/Kconfig
+@@ -24,8 +24,8 @@ config NET_DSA_MV88E6XXX_PTP
+ 	bool "PTP support for Marvell 88E6xxx"
+ 	default n
+ 	depends on NET_DSA_MV88E6XXX_GLOBAL2
++	depends on PTP_1588_CLOCK
+ 	imply NETWORK_PHY_TIMESTAMPING
+-	imply PTP_1588_CLOCK
+ 	help
+ 	  Say Y to enable PTP hardware timestamping on Marvell 88E6xxx switch
+ 	  chips that support it.
+diff --git a/drivers/net/dsa/sja1105/Kconfig b/drivers/net/dsa/sja1105/Kconfig
+index 0fe1ae173aa1a..68c3086af9af8 100644
+--- a/drivers/net/dsa/sja1105/Kconfig
++++ b/drivers/net/dsa/sja1105/Kconfig
+@@ -20,6 +20,7 @@ tristate "NXP SJA1105 Ethernet switch family support"
+ config NET_DSA_SJA1105_PTP
+ 	bool "Support for the PTP clock on the NXP SJA1105 Ethernet switch"
+ 	depends on NET_DSA_SJA1105
++	depends on PTP_1588_CLOCK
+ 	help
+ 	  This enables support for timestamping and PTP clock manipulations in
+ 	  the SJA1105 DSA driver.
+diff --git a/drivers/net/ethernet/cadence/Kconfig b/drivers/net/ethernet/cadence/Kconfig
+index 53b50c24d9c95..2c4c12b03502d 100644
+--- a/drivers/net/ethernet/cadence/Kconfig
++++ b/drivers/net/ethernet/cadence/Kconfig
+@@ -35,8 +35,8 @@ config MACB
+ config MACB_USE_HWSTAMP
+ 	bool "Use IEEE 1588 hwstamp"
+ 	depends on MACB
++	depends on PTP_1588_CLOCK
+ 	default y
+-	imply PTP_1588_CLOCK
+ 	---help---
+ 	  Enable IEEE 1588 Precision Time Protocol (PTP) support for MACB.
  
--static int netvsc_start_xmit(struct sk_buff *skb, struct net_device *ndev)
-+static netdev_tx_t netvsc_start_xmit(struct sk_buff *skb,
-+				     struct net_device *ndev)
- {
- 	return netvsc_xmit(skb, ndev, false);
- }
+diff --git a/drivers/net/ethernet/cavium/Kconfig b/drivers/net/ethernet/cavium/Kconfig
+index 6a700d34019e3..4520e7ee00fe1 100644
+--- a/drivers/net/ethernet/cavium/Kconfig
++++ b/drivers/net/ethernet/cavium/Kconfig
+@@ -54,7 +54,7 @@ config	THUNDER_NIC_RGX
+ config CAVIUM_PTP
+ 	tristate "Cavium PTP coprocessor as PTP clock"
+ 	depends on 64BIT && PCI
+-	imply PTP_1588_CLOCK
++	depends on PTP_1588_CLOCK
+ 	---help---
+ 	  This driver adds support for the Precision Time Protocol Clocks and
+ 	  Timestamping coprocessor (PTP) found on Cavium processors.
+diff --git a/drivers/net/ethernet/ti/Kconfig b/drivers/net/ethernet/ti/Kconfig
+index bf98e0fa7d8be..cd6eda83e1f8c 100644
+--- a/drivers/net/ethernet/ti/Kconfig
++++ b/drivers/net/ethernet/ti/Kconfig
+@@ -89,9 +89,8 @@ config TI_CPTS
+ config TI_CPTS_MOD
+ 	tristate
+ 	depends on TI_CPTS
++	depends on PTP_1588_CLOCK
+ 	default y if TI_CPSW=y || TI_KEYSTONE_NETCP=y || TI_CPSW_SWITCHDEV=y
+-	select NET_PTP_CLASSIFY
+-	imply PTP_1588_CLOCK
+ 	default m
+ 
+ config TI_KEYSTONE_NETCP
 -- 
 2.20.1
 
