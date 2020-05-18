@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2EB131D8076
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:40:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C7BF1D8180
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:48:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728935AbgERRj4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:39:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34960 "EHLO mail.kernel.org"
+        id S1729914AbgERRsh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:48:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49520 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728927AbgERRj4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:39:56 -0400
+        id S1729851AbgERRsd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:48:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 55F312083E;
-        Mon, 18 May 2020 17:39:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DCDF620674;
+        Mon, 18 May 2020 17:48:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589823595;
-        bh=krDD4ztRtlpneNTbB+Wy4C8g2LMKXTuwNJpmlDzaQhw=;
+        s=default; t=1589824112;
+        bh=X5VBS3TNvKUYBPPMPcwvJy24E0JjcB+EjIgcktLfkgk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1fMFdYXRSVEC4QcQoyUeOj3+tftt6Za6wiZkEjSArLChlKFH+8W/xEwH86y8dzS4x
-         22gr/aqc7TuJ2dsuurumey3T6tMC+Q6h6q7km684NZqFE+BP4wKgtUwMMOBnoQ6ta6
-         1ZPqrNy7EuPK1eGMK6YSCMVy3+Q/hfxIBLLrRP/k=
+        b=Bs502BWXdyFb17+s2moBRej5gynSPv9ChDDop3sqVXN10VXtfQVi4ZbfEaXVKK11y
+         64cFDLWxuZSP4eGSWP969B6Xb/d2KihfM0vxaz1anyvlTusRjikVDs4wKT/Dk6EUyu
+         UXT43m5ywiOhJokEzXW4V9qnjupgkh2682+LNpvk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lubomir Rintel <lkundrak@v3.sk>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 44/86] dmaengine: mmp_tdma: Reset channel error on release
+        stable@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>
+Subject: [PATCH 4.14 043/114] f2fs: introduce read_inline_xattr
 Date:   Mon, 18 May 2020 19:36:15 +0200
-Message-Id: <20200518173459.426322918@linuxfoundation.org>
+Message-Id: <20200518173511.191263897@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173450.254571947@linuxfoundation.org>
-References: <20200518173450.254571947@linuxfoundation.org>
+In-Reply-To: <20200518173503.033975649@linuxfoundation.org>
+References: <20200518173503.033975649@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,41 +44,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lubomir Rintel <lkundrak@v3.sk>
+From: Chao Yu <yuchao0@huawei.com>
 
-[ Upstream commit 0c89446379218698189a47871336cb30286a7197 ]
+commit a5f433f7410530ae6bb907ebc049547d9dce665b upstream.
 
-When a channel configuration fails, the status of the channel is set to
-DEV_ERROR so that an attempt to submit it fails. However, this status
-sticks until the heat end of the universe, making it impossible to
-recover from the error.
+Commit ba38c27eb93e ("f2fs: enhance lookup xattr") introduces
+lookup_all_xattrs duplicating from read_all_xattrs, which leaves
+lots of similar codes in between them, so introduce new help
+read_inline_xattr to clean up redundant codes.
 
-Let's reset it when the channel is released so that further use of the
-channel with correct configuration is not impacted.
-
-Signed-off-by: Lubomir Rintel <lkundrak@v3.sk>
-Link: https://lore.kernel.org/r/20200419164912.670973-5-lkundrak@v3.sk
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/dma/mmp_tdma.c | 2 ++
- 1 file changed, 2 insertions(+)
+ fs/f2fs/xattr.c |   59 +++++++++++++++++++++++++++-----------------------------
+ 1 file changed, 29 insertions(+), 30 deletions(-)
 
-diff --git a/drivers/dma/mmp_tdma.c b/drivers/dma/mmp_tdma.c
-index 3df0422607d59..ac9aede1bfbec 100644
---- a/drivers/dma/mmp_tdma.c
-+++ b/drivers/dma/mmp_tdma.c
-@@ -364,6 +364,8 @@ static void mmp_tdma_free_descriptor(struct mmp_tdma_chan *tdmac)
- 		gen_pool_free(gpool, (unsigned long)tdmac->desc_arr,
- 				size);
- 	tdmac->desc_arr = NULL;
-+	if (tdmac->status == DMA_ERROR)
-+		tdmac->status = DMA_COMPLETE;
- 
- 	return;
+--- a/fs/f2fs/xattr.c
++++ b/fs/f2fs/xattr.c
+@@ -241,6 +241,29 @@ static struct f2fs_xattr_entry *__find_i
+ 	return entry;
  }
--- 
-2.20.1
-
+ 
++static int read_inline_xattr(struct inode *inode, struct page *ipage,
++							void *txattr_addr)
++{
++	struct f2fs_sb_info *sbi = F2FS_I_SB(inode);
++	unsigned int inline_size = inline_xattr_size(inode);
++	struct page *page = NULL;
++	void *inline_addr;
++
++	if (ipage) {
++		inline_addr = inline_xattr_addr(ipage);
++	} else {
++		page = get_node_page(sbi, inode->i_ino);
++		if (IS_ERR(page))
++			return PTR_ERR(page);
++
++		inline_addr = inline_xattr_addr(page);
++	}
++	memcpy(txattr_addr, inline_addr, inline_size);
++	f2fs_put_page(page, 1);
++
++	return 0;
++}
++
+ static int lookup_all_xattrs(struct inode *inode, struct page *ipage,
+ 				unsigned int index, unsigned int len,
+ 				const char *name, struct f2fs_xattr_entry **xe,
+@@ -263,21 +286,9 @@ static int lookup_all_xattrs(struct inod
+ 
+ 	/* read from inline xattr */
+ 	if (inline_size) {
+-		struct page *page = NULL;
+-		void *inline_addr;
+-
+-		if (ipage) {
+-			inline_addr = inline_xattr_addr(ipage);
+-		} else {
+-			page = get_node_page(sbi, inode->i_ino);
+-			if (IS_ERR(page)) {
+-				err = PTR_ERR(page);
+-				goto out;
+-			}
+-			inline_addr = inline_xattr_addr(page);
+-		}
+-		memcpy(txattr_addr, inline_addr, inline_size);
+-		f2fs_put_page(page, 1);
++		err = read_inline_xattr(inode, ipage, txattr_addr);
++		if (err)
++			goto out;
+ 
+ 		*xe = __find_inline_xattr(txattr_addr, &last_addr,
+ 						index, len, name);
+@@ -339,21 +350,9 @@ static int read_all_xattrs(struct inode
+ 
+ 	/* read from inline xattr */
+ 	if (inline_size) {
+-		struct page *page = NULL;
+-		void *inline_addr;
+-
+-		if (ipage) {
+-			inline_addr = inline_xattr_addr(ipage);
+-		} else {
+-			page = get_node_page(sbi, inode->i_ino);
+-			if (IS_ERR(page)) {
+-				err = PTR_ERR(page);
+-				goto fail;
+-			}
+-			inline_addr = inline_xattr_addr(page);
+-		}
+-		memcpy(txattr_addr, inline_addr, inline_size);
+-		f2fs_put_page(page, 1);
++		err = read_inline_xattr(inode, ipage, txattr_addr);
++		if (err)
++			goto fail;
+ 	}
+ 
+ 	/* read from xattr node block */
 
 
