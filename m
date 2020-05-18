@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B9BA1D866A
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:27:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 37B2F1D8298
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:57:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729890AbgERRpO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:45:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43926 "EHLO mail.kernel.org"
+        id S1731488AbgERR5o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:57:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36486 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729829AbgERRpN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:45:13 -0400
+        id S1731837AbgERR5n (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:57:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 75B4B207C4;
-        Mon, 18 May 2020 17:45:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CE49220674;
+        Mon, 18 May 2020 17:57:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589823912;
-        bh=RGT0VjGe9TRQuJHjMcP/kiurgPyuxbygJwlZVLInTgw=;
+        s=default; t=1589824662;
+        bh=MT8t/Y/qjbY9lEmvs0LhPBNuEWj5pnEFucUdNsbCr0E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RitQpEmRdA6Hjs6OAf2UcpktsdHqCdyW5nrRDRUJ7EV67d6pzG4STChfVZOQq7ZBZ
-         u4QQMiMflB5q7mEN61B6Rq57CKVM7y2EWjXiOEvvRZIOcWwq22tnnhCU8im2O64yWk
-         irkVM30/pVakzX9cWNwRAsL9dKHEe0hNZmGew/HI=
+        b=qZMQfDiq2IXiqd8kaDRqUUPyYyDhfvts1jRPPN4iAxDv4DKjCixkV4s1VmuUOrWPe
+         esYt2/wYQiNrVTwnRryD0v1ah8hOtFp/YwdF/o8Iv6v251PMdn2jSa4BdpmZpF2roZ
+         Vjldm/KG2ZA1obnH0fB4tTixSPQQCNXk7DAdA/ec=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.9 86/90] Revert "ALSA: hda/realtek: Fix pop noise on ALC225"
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 101/147] gcc-10: mark more functions __init to avoid section mismatch warnings
 Date:   Mon, 18 May 2020 19:37:04 +0200
-Message-Id: <20200518173508.600506560@linuxfoundation.org>
+Message-Id: <20200518173525.986717228@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173450.930655662@linuxfoundation.org>
-References: <20200518173450.930655662@linuxfoundation.org>
+In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
+References: <20200518173513.009514388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,36 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-commit f41224efcf8aafe80ea47ac870c5e32f3209ffc8 upstream.
+commit e99332e7b4cda6e60f5b5916cf9943a79dbef902 upstream.
 
-This reverts commit 3b36b13d5e69d6f51ff1c55d1b404a74646c9757.
+It seems that for whatever reason, gcc-10 ends up not inlining a couple
+of functions that used to be inlined before.  Even if they only have one
+single callsite - it looks like gcc may have decided that the code was
+unlikely, and not worth inlining.
 
-Enable power save node breaks some systems with ACL225. Revert the patch
-and use a platform specific quirk for the original issue isntead.
+The code generation difference is harmless, but caused a few new section
+mismatch errors, since the (now no longer inlined) function wasn't in
+the __init section, but called other init functions:
 
-Fixes: 3b36b13d5e69 ("ALSA: hda/realtek: Fix pop noise on ALC225")
-BugLink: https://bugs.launchpad.net/bugs/1875916
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Link: https://lore.kernel.org/r/20200503152449.22761-1-kai.heng.feng@canonical.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+   Section mismatch in reference from the function kexec_free_initrd() to the function .init.text:free_initrd_mem()
+   Section mismatch in reference from the function tpm2_calc_event_log_size() to the function .init.text:early_memremap()
+   Section mismatch in reference from the function tpm2_calc_event_log_size() to the function .init.text:early_memunmap()
+
+So add the appropriate __init annotation to make modpost not complain.
+In both cases there were trivially just a single callsite from another
+__init function.
+
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/pci/hda/patch_realtek.c |    2 --
- 1 file changed, 2 deletions(-)
+ drivers/firmware/efi/tpm.c |    2 +-
+ init/initramfs.c           |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -4212,8 +4212,6 @@ static void alc_determine_headset_type(s
- 		is_ctia = (val & 0x1c02) == 0x1c02;
- 		break;
- 	case 0x10ec0225:
--		codec->power_save_node = 1;
--		/* fall through */
- 	case 0x10ec0295:
- 	case 0x10ec0299:
- 		alc_process_coef_fw(codec, coef0225);
+--- a/drivers/firmware/efi/tpm.c
++++ b/drivers/firmware/efi/tpm.c
+@@ -16,7 +16,7 @@
+ int efi_tpm_final_log_size;
+ EXPORT_SYMBOL(efi_tpm_final_log_size);
+ 
+-static int tpm2_calc_event_log_size(void *data, int count, void *size_info)
++static int __init tpm2_calc_event_log_size(void *data, int count, void *size_info)
+ {
+ 	struct tcg_pcr_event2_head *header;
+ 	int event_size, size = 0;
+--- a/init/initramfs.c
++++ b/init/initramfs.c
+@@ -534,7 +534,7 @@ void __weak free_initrd_mem(unsigned lon
+ }
+ 
+ #ifdef CONFIG_KEXEC_CORE
+-static bool kexec_free_initrd(void)
++static bool __init kexec_free_initrd(void)
+ {
+ 	unsigned long crashk_start = (unsigned long)__va(crashk_res.start);
+ 	unsigned long crashk_end   = (unsigned long)__va(crashk_res.end);
 
 
