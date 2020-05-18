@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 563581D804C
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:38:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 990481D8682
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:27:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728566AbgERRin (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:38:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32904 "EHLO mail.kernel.org"
+        id S1729533AbgERRrW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:47:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47276 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728582AbgERRim (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:38:42 -0400
+        id S1730181AbgERRrH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:47:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 08D9D20835;
-        Mon, 18 May 2020 17:38:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8945820671;
+        Mon, 18 May 2020 17:47:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589823521;
-        bh=aFUTyjB84LtmFYdF74WD3KpQt5EZkYCI96cgLucpqz4=;
+        s=default; t=1589824026;
+        bh=pUIO6TEaK9n0rE5E5dO/hj2zx7EL6SpRabCZcLs9Ka8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p+EQbk4YslU+Rxgv/ij5vJ6h1owPaAoqRZxbLhAEhPiGODlIycDJmZfvQMjGovw11
-         r05TbIIA1SqL/UmOxRXesWC18tYNX4oQxN5Lvst6zFsrord1w7qE37ZcfpEwK3g0mZ
-         BcHBtiJ+cvW2F6Z7cIXzAigHa6md5LZnNj85RH9Y=
+        b=GyILyw8FnSwT4YnUwftxdijooWbwdTStg7HdCXkq2lYtuzygbps9iPEbI4uZ5Gq6v
+         O/ocEy9OyAWM1ImL82rbvgaPGSzYM3oMRvOUnB0w8FqW6QKCGuU8ceXAC5xlOzZdas
+         cwRBiQ3fohlA+b920VhmG60SWGTP+ZQ63giaCz+4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        Govindarajulu Varadarajan <gvaradar@cisco.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 4.4 08/86] enic: do not overwrite error code
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        Cong Wang <xiyou.wangcong@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 007/114] sch_choke: avoid potential panic in choke_reset()
 Date:   Mon, 18 May 2020 19:35:39 +0200
-Message-Id: <20200518173452.013849689@linuxfoundation.org>
+Message-Id: <20200518173504.443663488@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173450.254571947@linuxfoundation.org>
-References: <20200518173450.254571947@linuxfoundation.org>
+In-Reply-To: <20200518173503.033975649@linuxfoundation.org>
+References: <20200518173503.033975649@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,48 +45,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Govindarajulu Varadarajan <gvaradar@cisco.com>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 56f772279a762984f6e9ebbf24a7c829faba5712 upstream.
+[ Upstream commit 8738c85c72b3108c9b9a369a39868ba5f8e10ae0 ]
 
-In failure path, we overwrite err to what vnic_rq_disable() returns. In
-case it returns 0, enic_open() returns success in case of error.
+If choke_init() could not allocate q->tab, we would crash later
+in choke_reset().
 
-Reported-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
-Fixes: e8588e268509 ("enic: enable rq before updating rq descriptors")
-Signed-off-by: Govindarajulu Varadarajan <gvaradar@cisco.com>
+BUG: KASAN: null-ptr-deref in memset include/linux/string.h:366 [inline]
+BUG: KASAN: null-ptr-deref in choke_reset+0x208/0x340 net/sched/sch_choke.c:326
+Write of size 8 at addr 0000000000000000 by task syz-executor822/7022
+
+CPU: 1 PID: 7022 Comm: syz-executor822 Not tainted 5.7.0-rc1-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Call Trace:
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0x188/0x20d lib/dump_stack.c:118
+ __kasan_report.cold+0x5/0x4d mm/kasan/report.c:515
+ kasan_report+0x33/0x50 mm/kasan/common.c:625
+ check_memory_region_inline mm/kasan/generic.c:187 [inline]
+ check_memory_region+0x141/0x190 mm/kasan/generic.c:193
+ memset+0x20/0x40 mm/kasan/common.c:85
+ memset include/linux/string.h:366 [inline]
+ choke_reset+0x208/0x340 net/sched/sch_choke.c:326
+ qdisc_reset+0x6b/0x520 net/sched/sch_generic.c:910
+ dev_deactivate_queue.constprop.0+0x13c/0x240 net/sched/sch_generic.c:1138
+ netdev_for_each_tx_queue include/linux/netdevice.h:2197 [inline]
+ dev_deactivate_many+0xe2/0xba0 net/sched/sch_generic.c:1195
+ dev_deactivate+0xf8/0x1c0 net/sched/sch_generic.c:1233
+ qdisc_graft+0xd25/0x1120 net/sched/sch_api.c:1051
+ tc_modify_qdisc+0xbab/0x1a00 net/sched/sch_api.c:1670
+ rtnetlink_rcv_msg+0x44e/0xad0 net/core/rtnetlink.c:5454
+ netlink_rcv_skb+0x15a/0x410 net/netlink/af_netlink.c:2469
+ netlink_unicast_kernel net/netlink/af_netlink.c:1303 [inline]
+ netlink_unicast+0x537/0x740 net/netlink/af_netlink.c:1329
+ netlink_sendmsg+0x882/0xe10 net/netlink/af_netlink.c:1918
+ sock_sendmsg_nosec net/socket.c:652 [inline]
+ sock_sendmsg+0xcf/0x120 net/socket.c:672
+ ____sys_sendmsg+0x6bf/0x7e0 net/socket.c:2362
+ ___sys_sendmsg+0x100/0x170 net/socket.c:2416
+ __sys_sendmsg+0xec/0x1b0 net/socket.c:2449
+ do_syscall_64+0xf6/0x7d0 arch/x86/entry/common.c:295
+
+Fixes: 77e62da6e60c ("sch_choke: drop all packets in queue during reset")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Cc: Cong Wang <xiyou.wangcong@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Cc: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/net/ethernet/cisco/enic/enic_main.c |    9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ net/sched/sch_choke.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/cisco/enic/enic_main.c
-+++ b/drivers/net/ethernet/cisco/enic/enic_main.c
-@@ -1708,7 +1708,7 @@ static int enic_open(struct net_device *
- {
- 	struct enic *enic = netdev_priv(netdev);
- 	unsigned int i;
--	int err;
-+	int err, ret;
+--- a/net/sched/sch_choke.c
++++ b/net/sched/sch_choke.c
+@@ -327,7 +327,8 @@ static void choke_reset(struct Qdisc *sc
  
- 	err = enic_request_intr(enic);
- 	if (err) {
-@@ -1766,10 +1766,9 @@ static int enic_open(struct net_device *
- 
- err_out_free_rq:
- 	for (i = 0; i < enic->rq_count; i++) {
--		err = vnic_rq_disable(&enic->rq[i]);
--		if (err)
--			return err;
--		vnic_rq_clean(&enic->rq[i], enic_free_rq_buf);
-+		ret = vnic_rq_disable(&enic->rq[i]);
-+		if (!ret)
-+			vnic_rq_clean(&enic->rq[i], enic_free_rq_buf);
- 	}
- 	enic_dev_notify_unset(enic);
- err_out_free_intr:
+ 	sch->q.qlen = 0;
+ 	sch->qstats.backlog = 0;
+-	memset(q->tab, 0, (q->tab_mask + 1) * sizeof(struct sk_buff *));
++	if (q->tab)
++		memset(q->tab, 0, (q->tab_mask + 1) * sizeof(struct sk_buff *));
+ 	q->head = q->tail = 0;
+ 	red_restart(&q->vars);
+ }
 
 
