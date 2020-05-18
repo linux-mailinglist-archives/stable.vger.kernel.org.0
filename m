@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B761B1D837B
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:05:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E9AE1D8625
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:23:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732400AbgERSFL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:05:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52558 "EHLO mail.kernel.org"
+        id S1730011AbgERRtI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:49:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50512 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732893AbgERSFI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 14:05:08 -0400
+        id S1729669AbgERRtH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:49:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3F8D620671;
-        Mon, 18 May 2020 18:05:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F05E120715;
+        Mon, 18 May 2020 17:49:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589825107;
-        bh=j6Q93TPyp66Zjj7q2ocE5UWkMJC5FKfVTyZa9hUgzEI=;
+        s=default; t=1589824147;
+        bh=eDNVAQR9bAqbtW3RfWRqf3JH/mbMza7PvaMw3TiDEdY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GeTV6cu+BE73rdRl7w6Bc4qnVvhsZslVqXriuXdYQ70Zd1viyRTfnuCG8xv+JXdsH
-         2iR5CQwPnlX2pldfF6FbHnbmSlQKV1nCuPuEEa3h3WU2BFx8v0FYoOKnaPnkmqno1C
-         ctzCpvV5zzWrwO0Sz4iCN17pJatVFXLv8JEBKquo=
+        b=2IZ6UAUQTqUR39T7VhmwJCNgINcAzaEc/S1ht2J2PiiI9jJQIkKcQdhinr3l2WrE/
+         IjbjKQX0GmilW6qzrvvesMo2qRZVhwIIrBIsfjq4owxKX0gdNFZ64ZBnVYYayFo44w
+         GyxOFwdqefUCwCWDPF14z0mIzN4/V4b/B6Vj5Ctw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.6 133/194] gcc-10: avoid shadowing standard library free() in crypto
+        syzbot+194dffdb8b22fc5d207a@syzkaller.appspotmail.com,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.14 091/114] ALSA: rawmidi: Initialize allocated buffers
 Date:   Mon, 18 May 2020 19:37:03 +0200
-Message-Id: <20200518173542.515765508@linuxfoundation.org>
+Message-Id: <20200518173518.607030025@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
-References: <20200518173531.455604187@linuxfoundation.org>
+In-Reply-To: <20200518173503.033975649@linuxfoundation.org>
+References: <20200518173503.033975649@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,84 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 1a263ae60b04de959d9ce9caea4889385eefcc7b upstream.
+commit 5a7b44a8df822e0667fc76ed7130252523993bda upstream.
 
-gcc-10 has started warning about conflicting types for a few new
-built-in functions, particularly 'free()'.
+syzbot reported the uninitialized value exposure in certain situations
+using virmidi loop.  It's likely a very small race at writing and
+reading, and the influence is almost negligible.  But it's safer to
+paper over this just by replacing the existing kvmalloc() with
+kvzalloc().
 
-This results in warnings like:
-
-   crypto/xts.c:325:13: warning: conflicting types for built-in function ‘free’; expected ‘void(void *)’ [-Wbuiltin-declaration-mismatch]
-
-because the crypto layer had its local freeing functions called
-'free()'.
-
-Gcc-10 is in the wrong here, since that function is marked 'static', and
-thus there is no chance of confusion with any standard library function
-namespace.
-
-But the simplest thing to do is to just use a different name here, and
-avoid this gcc mis-feature.
-
-[ Side note: gcc knowing about 'free()' is in itself not the
-  mis-feature: the semantics of 'free()' are special enough that a
-  compiler can validly do special things when seeing it.
-
-  So the mis-feature here is that gcc thinks that 'free()' is some
-  restricted name, and you can't shadow it as a local static function.
-
-  Making the special 'free()' semantics be a function attribute rather
-  than tied to the name would be the much better model ]
-
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Reported-by: syzbot+194dffdb8b22fc5d207a@syzkaller.appspotmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- crypto/lrw.c |    4 ++--
- crypto/xts.c |    4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ sound/core/rawmidi.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/crypto/lrw.c
-+++ b/crypto/lrw.c
-@@ -287,7 +287,7 @@ static void exit_tfm(struct crypto_skcip
- 	crypto_free_skcipher(ctx->child);
- }
- 
--static void free(struct skcipher_instance *inst)
-+static void free_inst(struct skcipher_instance *inst)
- {
- 	crypto_drop_skcipher(skcipher_instance_ctx(inst));
- 	kfree(inst);
-@@ -400,7 +400,7 @@ static int create(struct crypto_template
- 	inst->alg.encrypt = encrypt;
- 	inst->alg.decrypt = decrypt;
- 
--	inst->free = free;
-+	inst->free = free_inst;
- 
- 	err = skcipher_register_instance(tmpl, inst);
- 	if (err)
---- a/crypto/xts.c
-+++ b/crypto/xts.c
-@@ -322,7 +322,7 @@ static void exit_tfm(struct crypto_skcip
- 	crypto_free_cipher(ctx->tweak);
- }
- 
--static void free(struct skcipher_instance *inst)
-+static void free_inst(struct skcipher_instance *inst)
- {
- 	crypto_drop_skcipher(skcipher_instance_ctx(inst));
- 	kfree(inst);
-@@ -434,7 +434,7 @@ static int create(struct crypto_template
- 	inst->alg.encrypt = encrypt;
- 	inst->alg.decrypt = decrypt;
- 
--	inst->free = free;
-+	inst->free = free_inst;
- 
- 	err = skcipher_register_instance(tmpl, inst);
- 	if (err)
+--- a/sound/core/rawmidi.c
++++ b/sound/core/rawmidi.c
+@@ -125,7 +125,7 @@ static int snd_rawmidi_runtime_create(st
+ 		runtime->avail = 0;
+ 	else
+ 		runtime->avail = runtime->buffer_size;
+-	if ((runtime->buffer = kmalloc(runtime->buffer_size, GFP_KERNEL)) == NULL) {
++	if ((runtime->buffer = kzalloc(runtime->buffer_size, GFP_KERNEL)) == NULL) {
+ 		kfree(runtime);
+ 		return -ENOMEM;
+ 	}
+@@ -650,7 +650,7 @@ int snd_rawmidi_output_params(struct snd
+ 		return -EINVAL;
+ 	}
+ 	if (params->buffer_size != runtime->buffer_size) {
+-		newbuf = kmalloc(params->buffer_size, GFP_KERNEL);
++		newbuf = kzalloc(params->buffer_size, GFP_KERNEL);
+ 		if (!newbuf)
+ 			return -ENOMEM;
+ 		spin_lock_irq(&runtime->lock);
 
 
