@@ -2,128 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AC681D891B
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 22:26:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D340F1D89D3
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 23:16:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726276AbgERUZi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 16:25:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52012 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726250AbgERUZi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 16:25:38 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1EBC820643;
-        Mon, 18 May 2020 20:25:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589833537;
-        bh=n/AJNzIqOGK3k3i8uTfeOxcd4iC5EjLvpksE2xWdpO8=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=lDiYzOeGUtHXYfLGM6Jq7hHrE8CugUF3Qgi+hYePpg1is6oLCF36Lgh00jj3Z2KL7
-         LOY9+25077N8zIyF8zKSXMwVS7kTim5u4cuBcvLgFpNj7dfEMPotlQSLnRAQoXQYlW
-         hk5XD2Uv1AkxIYkwX0cmitFL2EIYlkc+YiYp0PZE=
-Date:   Mon, 18 May 2020 16:25:35 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Grygorii Strashko <grygorii.strashko@ti.com>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Arnd Bergmann <arnd@arndb.de>,
-        Richard Cochran <richardcochran@gmail.com>,
-        Nicolas Pitre <nico@fluxnic.net>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Clay McClure <clay@daemons.net>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: Re: [PATCH 5.6 019/194] net: Make PTP-specific drivers depend on
- PTP_1588_CLOCK
-Message-ID: <20200518202535.GE33628@sasha-vm>
-References: <20200518173531.455604187@linuxfoundation.org>
- <20200518173533.160651742@linuxfoundation.org>
- <05fd5be4-a969-2b7f-52e4-754d9651a280@ti.com>
+        id S1726270AbgERVNd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 17:13:33 -0400
+Received: from jabberwock.ucw.cz ([46.255.230.98]:39506 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726250AbgERVNd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 May 2020 17:13:33 -0400
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 8B42D1C025E; Mon, 18 May 2020 23:13:31 +0200 (CEST)
+Date:   Mon, 18 May 2020 23:13:30 +0200
+From:   Pavel Machek <pavel@denx.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        syzbot+c8a8197c8852f566b9d9@syzkaller.appspotmail.com,
+        syzbot+40b71e145e73f78f81ad@syzkaller.appspotmail.com,
+        Hugh Dickins <hughd@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Yang Shi <yang.shi@linux.alibaba.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 4.19 02/80] shmem: fix possible deadlocks on
+ shmlock_user_lock
+Message-ID: <20200518211330.GA25576@amd>
+References: <20200518173450.097837707@linuxfoundation.org>
+ <20200518173450.633393924@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="8t9RHnE3ZwKMSgU+"
 Content-Disposition: inline
-In-Reply-To: <05fd5be4-a969-2b7f-52e4-754d9651a280@ti.com>
+In-Reply-To: <20200518173450.633393924@linuxfoundation.org>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, May 18, 2020 at 09:13:54PM +0300, Grygorii Strashko wrote:
->Hi Greg,
->
->On 18/05/2020 20:35, Greg Kroah-Hartman wrote:
->>From: Clay McClure <clay@daemons.net>
->>
->>[ Upstream commit b6d49cab44b567b3e0a5544b3d61e516a7355fad ]
->>
->>Commit d1cbfd771ce8 ("ptp_clock: Allow for it to be optional") changed
->>all PTP-capable Ethernet drivers from `select PTP_1588_CLOCK` to `imply
->>PTP_1588_CLOCK`, "in order to break the hard dependency between the PTP
->>clock subsystem and ethernet drivers capable of being clock providers."
->>As a result it is possible to build PTP-capable Ethernet drivers without
->>the PTP subsystem by deselecting PTP_1588_CLOCK. Drivers are required to
->>handle the missing dependency gracefully.
->>
->>Some PTP-capable Ethernet drivers (e.g., TI_CPSW) factor their PTP code
->>out into separate drivers (e.g., TI_CPTS_MOD). The above commit also
->>changed these PTP-specific drivers to `imply PTP_1588_CLOCK`, making it
->>possible to build them without the PTP subsystem. But as Grygorii
->>Strashko noted in [1]:
->>
->>On Wed, Apr 22, 2020 at 02:16:11PM +0300, Grygorii Strashko wrote:
->>
->>>Another question is that CPTS completely nonfunctional in this case and
->>>it was never expected that somebody will even try to use/run such
->>>configuration (except for random build purposes).
->>
->>In my view, enabling a PTP-specific driver without the PTP subsystem is
->>a configuration error made possible by the above commit. Kconfig should
->>not allow users to create a configuration with missing dependencies that
->>results in "completely nonfunctional" drivers.
->>
->>I audited all network drivers that call ptp_clock_register() but merely
->>`imply PTP_1588_CLOCK` and found five PTP-specific drivers that are
->>likely nonfunctional without PTP_1588_CLOCK:
->>
->>     NET_DSA_MV88E6XXX_PTP
->>     NET_DSA_SJA1105_PTP
->>     MACB_USE_HWSTAMP
->>     CAVIUM_PTP
->>     TI_CPTS_MOD
->>
->>Note how these symbols all reference PTP or timestamping in their name;
->>this is a clue that they depend on PTP_1588_CLOCK.
->>
->>Change them from `imply PTP_1588_CLOCK` [2] to `depends on PTP_1588_CLOCK`.
->>I'm not using `select PTP_1588_CLOCK` here because PTP_1588_CLOCK has
->>its own dependencies, which `select` would not transitively apply.
->>
->>Additionally, remove the `select NET_PTP_CLASSIFY` from CPTS_TI_MOD;
->>PTP_1588_CLOCK already selects that.
->>
->>[1]: https://lore.kernel.org/lkml/c04458ed-29ee-1797-3a11-7f3f560553e6@ti.com/
->>
->>[2]: NET_DSA_SJA1105_PTP had never declared any type of dependency on
->>PTP_1588_CLOCK (`imply` or otherwise); adding a `depends on PTP_1588_CLOCK`
->>here seems appropriate.
->>
->>Cc: Arnd Bergmann <arnd@arndb.de>
->>Cc: Richard Cochran <richardcochran@gmail.com>
->>Cc: Nicolas Pitre <nico@fluxnic.net>
->>Cc: Grygorii Strashko <grygorii.strashko@ti.com>
->>Cc: Geert Uytterhoeven <geert@linux-m68k.org>
->>Fixes: d1cbfd771ce8 ("ptp_clock: Allow for it to be optional")
->>Signed-off-by: Clay McClure <clay@daemons.net>
->>Signed-off-by: David S. Miller <davem@davemloft.net>
->>Signed-off-by: Sasha Levin <sashal@kernel.org>
->>---
->
->Could you drop this patch, pls?
->it's not for stable and can cause build failures.
 
-My bad - now dropped. Sorry!
+--8t9RHnE3ZwKMSgU+
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
--- 
-Thanks,
-Sasha
+Hi!
+
+> This may not risk an actual deadlock, since shmem inodes do not take
+> part in writeback accounting, but there are several easy ways to avoid
+> it.
+
+=2E..
+
+> Take info->lock out of the chain and the possibility of deadlock or
+> lockdep warning goes away.
+
+It is unclear to me if actual possibility of deadlock exists or not,
+but anyway:
+
+>  	int retval =3D -ENOMEM;
+> =20
+> -	spin_lock_irq(&info->lock);
+> +	/*
+> +	 * What serializes the accesses to info->flags?
+> +	 * ipc_lock_object() when called from shmctl_do_lock(),
+> +	 * no serialization needed when called from shm_destroy().
+> +	 */
+>  	if (lock && !(info->flags & VM_LOCKED)) {
+>  		if (!user_shm_lock(inode->i_size, user))
+>  			goto out_nomem;
+
+Should we have READ_ONCE() here? If it is okay, are concurency
+sanitizers smart enough to realize that it is okay? Replacing warning
+with different one would not be exactly a win...
+
+Best regards,
+
+									Pavel
+--=20
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
+g.html
+
+--8t9RHnE3ZwKMSgU+
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAl7C+noACgkQMOfwapXb+vIp4QCeOHGsBJ1v5LOYIQ5B6hvE0DCT
+6KEAn02mxYUIBMKxf6gx/Zb4s1ygGl9Z
+=HaBo
+-----END PGP SIGNATURE-----
+
+--8t9RHnE3ZwKMSgU+--
