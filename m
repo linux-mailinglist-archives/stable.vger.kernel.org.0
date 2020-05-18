@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 399571D81EE
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:52:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 077271D866B
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:27:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730943AbgERRwL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:52:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55236 "EHLO mail.kernel.org"
+        id S1729900AbgERRpR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:45:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43986 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730931AbgERRwH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:52:07 -0400
+        id S1729896AbgERRpP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:45:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 64F3C20835;
-        Mon, 18 May 2020 17:52:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E729F20657;
+        Mon, 18 May 2020 17:45:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824326;
-        bh=48APL4Me6i32PibkpfwGlIUpRfmeApshF9jBQdy6avw=;
+        s=default; t=1589823915;
+        bh=NM+61okHoeZrlRYKybin1UV6GNvIOPisbB5yJ8j6QjM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N0MhCDSaV/Bw/MaIwxKN0hnePG8HdbiTo4zGxxE9hCfwEaI41P4j/tdp9Np5kvYJs
-         bixGw5ummocijamHZ6q0OGCHdH6BvjnruuNCVGlcTHp2o2X79PqQwUbWhxi8mipr8p
-         xG547uQCzkREcnl34srGCBCj5KYv9K+Kw08sMLWw=
+        b=Q/2Gjp0OwBAaGw70w8NAMAJiMesBTBtsOedfA1iBUptmY8c5z1+5bTWYu9n7DArJX
+         I0kmoaOBpPBxfgFwngtrAQwBzhfMauW+1/DenQbqDUvMx1LhJodwr0syx2ChI3h/DR
+         PdcnzXPcWXBd3lik/3pcTDAqBM1x9wqqTamSAsjs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 47/80] Stop the ad-hoc games with -Wno-maybe-initialized
+        Geert Uytterhoeven <geert+renesas@glider.be>
+Subject: [PATCH 4.9 87/90] ARM: dts: r8a73a4: Add missing CMT1 interrupts
 Date:   Mon, 18 May 2020 19:37:05 +0200
-Message-Id: <20200518173459.930021014@linuxfoundation.org>
+Message-Id: <20200518173508.807412847@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173450.097837707@linuxfoundation.org>
-References: <20200518173450.097837707@linuxfoundation.org>
+In-Reply-To: <20200518173450.930655662@linuxfoundation.org>
+References: <20200518173450.930655662@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,109 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-commit 78a5255ffb6a1af189a83e493d916ba1c54d8c75 upstream.
+commit 0f739fdfe9e5ce668bd6d3210f310df282321837 upstream.
 
-We have some rather random rules about when we accept the
-"maybe-initialized" warnings, and when we don't.
+The R-Mobile APE6 Compare Match Timer 1 generates 8 interrupts, one for
+each channel, but currently only 1 is described.
+Fix this by adding the missing interrupts.
 
-For example, we consider it unreliable for gcc versions < 4.9, but also
-if -O3 is enabled, or if optimizing for size.  And then various kernel
-config options disabled it, because they know that they trigger that
-warning by confusing gcc sufficiently (ie PROFILE_ALL_BRANCHES).
-
-And now gcc-10 seems to be introducing a lot of those warnings too, so
-it falls under the same heading as 4.9 did.
-
-At the same time, we have a very straightforward way to _enable_ that
-warning when wanted: use "W=2" to enable more warnings.
-
-So stop playing these ad-hoc games, and just disable that warning by
-default, with the known and straight-forward "if you want to work on the
-extra compiler warnings, use W=123".
-
-Would it be great to have code that is always so obvious that it never
-confuses the compiler whether a variable is used initialized or not?
-Yes, it would.  In a perfect world, the compilers would be smarter, and
-our source code would be simpler.
-
-That's currently not the world we live in, though.
-
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: f7b65230019b9dac ("ARM: shmobile: r8a73a4: Add CMT1 node")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Link: https://lore.kernel.org/r/20200408090926.25201-1-geert+renesas@glider.be
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- Makefile             |    7 +++----
- init/Kconfig         |   17 -----------------
- kernel/trace/Kconfig |    1 -
- 3 files changed, 3 insertions(+), 22 deletions(-)
+ arch/arm/boot/dts/r8a73a4.dtsi |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/Makefile
-+++ b/Makefile
-@@ -662,10 +662,6 @@ else
- KBUILD_CFLAGS   += -O2
- endif
- 
--ifdef CONFIG_CC_DISABLE_WARN_MAYBE_UNINITIALIZED
--KBUILD_CFLAGS   += -Wno-maybe-uninitialized
--endif
--
- # Tell gcc to never replace conditional load with a non-conditional one
- KBUILD_CFLAGS	+= $(call cc-option,--param=allow-store-data-races=0)
- 
-@@ -796,6 +792,9 @@ KBUILD_CFLAGS += $(call cc-disable-warni
- # disable stringop warnings in gcc 8+
- KBUILD_CFLAGS += $(call cc-disable-warning, stringop-truncation)
- 
-+# Enabled with W=2, disabled by default as noisy
-+KBUILD_CFLAGS += $(call cc-disable-warning, maybe-uninitialized)
-+
- # disable invalid "can't wrap" optimizations for signed / pointers
- KBUILD_CFLAGS	+= $(call cc-option,-fno-strict-overflow)
- 
---- a/init/Kconfig
-+++ b/init/Kconfig
-@@ -26,22 +26,6 @@ config CLANG_VERSION
- config CC_HAS_ASM_GOTO
- 	def_bool $(success,$(srctree)/scripts/gcc-goto.sh $(CC))
- 
--config CC_HAS_WARN_MAYBE_UNINITIALIZED
--	def_bool $(cc-option,-Wmaybe-uninitialized)
--	help
--	  GCC >= 4.7 supports this option.
--
--config CC_DISABLE_WARN_MAYBE_UNINITIALIZED
--	bool
--	depends on CC_HAS_WARN_MAYBE_UNINITIALIZED
--	default CC_IS_GCC && GCC_VERSION < 40900  # unreliable for GCC < 4.9
--	help
--	  GCC's -Wmaybe-uninitialized is not reliable by definition.
--	  Lots of false positive warnings are produced in some cases.
--
--	  If this option is enabled, -Wno-maybe-uninitialzed is passed
--	  to the compiler to suppress maybe-uninitialized warnings.
--
- config CONSTRUCTORS
- 	bool
- 	depends on !UML
-@@ -1099,7 +1083,6 @@ config CC_OPTIMIZE_FOR_PERFORMANCE
- 
- config CC_OPTIMIZE_FOR_SIZE
- 	bool "Optimize for size"
--	imply CC_DISABLE_WARN_MAYBE_UNINITIALIZED  # avoid false positives
- 	help
- 	  Enabling this option will pass "-Os" instead of "-O2" to
- 	  your compiler resulting in a smaller kernel.
---- a/kernel/trace/Kconfig
-+++ b/kernel/trace/Kconfig
-@@ -370,7 +370,6 @@ config PROFILE_ANNOTATED_BRANCHES
- config PROFILE_ALL_BRANCHES
- 	bool "Profile all if conditionals" if !FORTIFY_SOURCE
- 	select TRACE_BRANCH_PROFILING
--	imply CC_DISABLE_WARN_MAYBE_UNINITIALIZED  # avoid false positives
- 	help
- 	  This tracer profiles all branch conditions. Every if ()
- 	  taken in the kernel is recorded whether it hit or miss.
+--- a/arch/arm/boot/dts/r8a73a4.dtsi
++++ b/arch/arm/boot/dts/r8a73a4.dtsi
+@@ -135,7 +135,14 @@
+ 	cmt1: timer@e6130000 {
+ 		compatible = "renesas,cmt-48-r8a73a4", "renesas,cmt-48-gen2";
+ 		reg = <0 0xe6130000 0 0x1004>;
+-		interrupts = <GIC_SPI 120 IRQ_TYPE_LEVEL_HIGH>;
++		interrupts = <GIC_SPI 120 IRQ_TYPE_LEVEL_HIGH>,
++			     <GIC_SPI 121 IRQ_TYPE_LEVEL_HIGH>,
++			     <GIC_SPI 122 IRQ_TYPE_LEVEL_HIGH>,
++			     <GIC_SPI 123 IRQ_TYPE_LEVEL_HIGH>,
++			     <GIC_SPI 124 IRQ_TYPE_LEVEL_HIGH>,
++			     <GIC_SPI 125 IRQ_TYPE_LEVEL_HIGH>,
++			     <GIC_SPI 126 IRQ_TYPE_LEVEL_HIGH>,
++			     <GIC_SPI 127 IRQ_TYPE_LEVEL_HIGH>;
+ 		clocks = <&mstp3_clks R8A73A4_CLK_CMT1>;
+ 		clock-names = "fck";
+ 		power-domains = <&pd_c5>;
 
 
