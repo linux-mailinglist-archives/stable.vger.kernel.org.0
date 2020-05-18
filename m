@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 46F301D84D4
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:15:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 549821D83AF
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:07:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732046AbgERR72 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:59:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39914 "EHLO mail.kernel.org"
+        id S1733230AbgERSG4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:06:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55404 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732057AbgERR72 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:59:28 -0400
+        id S1733228AbgERSGz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 14:06:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8BB6220853;
-        Mon, 18 May 2020 17:59:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3F7DF20853;
+        Mon, 18 May 2020 18:06:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824767;
-        bh=CtGAiR054GBcIyzq0SxlDddh7UtdI2tp8Iq/R5uVTH8=;
+        s=default; t=1589825214;
+        bh=o17/TW0X+DbStAST/+2VmncIN6BYEU6alqBMmFDmoL4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lXZJ4NN9bFjk93emo4jerRSNhzPkxl1DXktDGjU273XB7SuUL0o2B32oDO270yHVS
-         kpGd86zwaSgXA+leVOTpQTxM4OXavmb4nS8kpVACqQhseMrzsdZvwPJCEVN9eIwHN7
-         n4COjuSKlKb1ERg+PMB1AsObpKWQK5g1VknxBgqA=
+        b=1prsjZ0bGY6lL/QFUDdIHYtzfksfzmzNefbO4dtuacyX0Em0ejlEGPCdm6p2U1amq
+         3UD9pd50ZQp0xgJq3NKADyxxnr/oYvhMT/TAk11DMaJhiF93MPvxwSzU3814pFpGvh
+         fTw2Tazjp1pEiLOEtnbQdFSZ3BOqVE7+8OSj2nKE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jue Wang <juew@google.com>,
-        Jim Mattson <jmattson@google.com>,
-        Peter Shier <pshier@google.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.4 143/147] KVM: x86: Fix off-by-one error in kvm_vcpu_ioctl_x86_setup_mce
+        stable@vger.kernel.org, Chen-Yu Tsai <wens@csie.org>,
+        Heiko Stuebner <heiko@sntech.de>
+Subject: [PATCH 5.6 176/194] arm64: dts: rockchip: Replace RK805 PMIC node name with "pmic" on rk3328 boards
 Date:   Mon, 18 May 2020 19:37:46 +0200
-Message-Id: <20200518173530.805819546@linuxfoundation.org>
+Message-Id: <20200518173546.234930983@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
-References: <20200518173513.009514388@linuxfoundation.org>
+In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
+References: <20200518173531.455604187@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,37 +43,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jim Mattson <jmattson@google.com>
+From: Chen-Yu Tsai <wens@csie.org>
 
-commit c4e0e4ab4cf3ec2b3f0b628ead108d677644ebd9 upstream.
+commit 83b994129fb4c18a8460fd395864a28740e5e7fb upstream.
 
-Bank_num is a one-based count of banks, not a zero-based index. It
-overflows the allocated space only when strictly greater than
-KVM_MAX_MCE_BANKS.
+In some board device tree files, "rk805" was used for the RK805 PMIC's
+node name. However the policy for device trees is that generic names
+should be used.
 
-Fixes: a9e38c3e01ad ("KVM: x86: Catch potential overrun in MCE setup")
-Signed-off-by: Jue Wang <juew@google.com>
-Signed-off-by: Jim Mattson <jmattson@google.com>
-Reviewed-by: Peter Shier <pshier@google.com>
-Message-Id: <20200511225616.19557-1-jmattson@google.com>
-Reviewed-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Replace the "rk805" node name with the generic "pmic" name.
+
+Fixes: 1e28037ec88e ("arm64: dts: rockchip: add rk805 node for rk3328-evb")
+Fixes: 955bebde057e ("arm64: dts: rockchip: add rk3328-rock64 board")
+Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+Link: https://lore.kernel.org/r/20200327030414.5903-3-wens@kernel.org
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kvm/x86.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/boot/dts/rockchip/rk3328-evb.dts    |    2 +-
+ arch/arm64/boot/dts/rockchip/rk3328-rock64.dts |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -3682,7 +3682,7 @@ static int kvm_vcpu_ioctl_x86_setup_mce(
- 	unsigned bank_num = mcg_cap & 0xff, bank;
+--- a/arch/arm64/boot/dts/rockchip/rk3328-evb.dts
++++ b/arch/arm64/boot/dts/rockchip/rk3328-evb.dts
+@@ -92,7 +92,7 @@
+ &i2c1 {
+ 	status = "okay";
  
- 	r = -EINVAL;
--	if (!bank_num || bank_num >= KVM_MAX_MCE_BANKS)
-+	if (!bank_num || bank_num > KVM_MAX_MCE_BANKS)
- 		goto out;
- 	if (mcg_cap & ~(kvm_mce_cap_supported | 0xff | 0xff0000))
- 		goto out;
+-	rk805: rk805@18 {
++	rk805: pmic@18 {
+ 		compatible = "rockchip,rk805";
+ 		reg = <0x18>;
+ 		interrupt-parent = <&gpio2>;
+--- a/arch/arm64/boot/dts/rockchip/rk3328-rock64.dts
++++ b/arch/arm64/boot/dts/rockchip/rk3328-rock64.dts
+@@ -169,7 +169,7 @@
+ &i2c1 {
+ 	status = "okay";
+ 
+-	rk805: rk805@18 {
++	rk805: pmic@18 {
+ 		compatible = "rockchip,rk805";
+ 		reg = <0x18>;
+ 		interrupt-parent = <&gpio2>;
 
 
