@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 444DB1D854E
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:18:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5279E1D80BA
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:41:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731571AbgERR4E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:56:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33720 "EHLO mail.kernel.org"
+        id S1729322AbgERRlo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:41:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38264 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730533AbgERR4D (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:56:03 -0400
+        id S1729315AbgERRln (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:41:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3ED0520674;
-        Mon, 18 May 2020 17:56:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E566620715;
+        Mon, 18 May 2020 17:41:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824562;
-        bh=PL0ZmeWqc8FMIxU1IoNlidUEHrZGToEEtWQh6ygb26A=;
+        s=default; t=1589823702;
+        bh=NiLw0/Kb0xmuy06SBKrKtUCqZfQThB7sAaJN2reodso=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LQTkzqr9z8kScq169296mnCLEYDi5RYKfaG0SxXqwF+esk7Of1phDCOAbAtn8kNpk
-         MLkq3tP/TtxYtsTvMokKQ3KQdzY0MECzazyfMPx/SE/QKxGRyEsBq0jGXg3SWbVL2H
-         uIytfMY9fXw97Xwn923bZOXDye+Os3XqD/Imc69o=
+        b=j8wHAzud1hziGAv4bzRsIPvLvj+tvWSSdkNtp8xtDwkv/uA4FX2sj3HEeFFkV7Xsh
+         ADXZGYS3OO3sQzgvYFSe9Jw4W3vfRqf/Sy6guo6R5ndmnmnWyd3J08XhYtMRCa3xaL
+         tNI7d0YbjRKCaXs2EfIpyobrvZMl5zZIdVZnLr3o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Sakamoto <o-takashi@sakamocchi.jp>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 061/147] ALSA: firewire-lib: fix function sizeof not defined error of tracepoints format
-Date:   Mon, 18 May 2020 19:36:24 +0200
-Message-Id: <20200518173521.629862027@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Jack Morgenstein <jackm@dev.mellanox.co.il>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 54/86] IB/mlx4: Test return value of calls to ib_get_cached_pkey
+Date:   Mon, 18 May 2020 19:36:25 +0200
+Message-Id: <20200518173501.461163403@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
-References: <20200518173513.009514388@linuxfoundation.org>
+In-Reply-To: <20200518173450.254571947@linuxfoundation.org>
+References: <20200518173450.254571947@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,57 +46,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+From: Jack Morgenstein <jackm@dev.mellanox.co.il>
 
-[ Upstream commit 1034872123a06b759aba772b1c99612ccb8e632a ]
+[ Upstream commit 6693ca95bd4330a0ad7326967e1f9bcedd6b0800 ]
 
-The snd-firewire-lib.ko has 'amdtp-packet' event of tracepoints. Current
-printk format for the event includes 'sizeof(u8)' macro expected to be
-extended in compilation time. However, this is not done. As a result,
-perf tools cannot parse the event for printing:
+In the mlx4_ib_post_send() flow, some functions call ib_get_cached_pkey()
+without checking its return value. If ib_get_cached_pkey() returns an
+error code, these functions should return failure.
 
-$ mount -l -t debugfs
-debugfs on /sys/kernel/debug type debugfs (rw,nosuid,nodev,noexec,relatime)
-$ cat /sys/kernel/debug/tracing/events/snd_firewire_lib/amdtp_packet/format
-...
-print fmt: "%02u %04u %04x %04x %02d %03u %02u %03u %02u %01u %02u %s",
-  REC->second, REC->cycle, REC->src, REC->dest, REC->channel,
-  REC->payload_quadlets, REC->data_blocks, REC->data_block_counter,
-  REC->packet_index, REC->irq, REC->index,
-  __print_array(__get_dynamic_array(cip_header),
-                __get_dynamic_array_len(cip_header),
-                sizeof(u8))
-
-$ sudo perf record -e snd_firewire_lib:amdtp_packet
-  [snd_firewire_lib:amdtp_packet] function sizeof not defined
-  Error: expected type 5 but read 0
-
-This commit fixes it by obsoleting the macro with actual size.
-
-Cc: <stable@vger.kernel.org>
-Fixes: bde2bbdb307a ("ALSA: firewire-lib: use dynamic array for CIP header of tracing events")
-Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
-Link: https://lore.kernel.org/r/20200503045718.86337-1-o-takashi@sakamocchi.jp
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 1ffeb2eb8be9 ("IB/mlx4: SR-IOV IB context objects and proxy/tunnel SQP support")
+Fixes: 225c7b1feef1 ("IB/mlx4: Add a driver Mellanox ConnectX InfiniBand adapters")
+Fixes: e622f2f4ad21 ("IB: split struct ib_send_wr")
+Link: https://lore.kernel.org/r/20200426075921.130074-1-leon@kernel.org
+Signed-off-by: Jack Morgenstein <jackm@dev.mellanox.co.il>
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/firewire/amdtp-stream-trace.h | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/infiniband/hw/mlx4/qp.c | 14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
-diff --git a/sound/firewire/amdtp-stream-trace.h b/sound/firewire/amdtp-stream-trace.h
-index 16c7f6605511e..26e7cb555d3c5 100644
---- a/sound/firewire/amdtp-stream-trace.h
-+++ b/sound/firewire/amdtp-stream-trace.h
-@@ -66,8 +66,7 @@ TRACE_EVENT(amdtp_packet,
- 		__entry->irq,
- 		__entry->index,
- 		__print_array(__get_dynamic_array(cip_header),
--			      __get_dynamic_array_len(cip_header),
--			      sizeof(u8)))
-+			      __get_dynamic_array_len(cip_header), 1))
- );
+diff --git a/drivers/infiniband/hw/mlx4/qp.c b/drivers/infiniband/hw/mlx4/qp.c
+index 348828271cb07..ecd461ee6dbe2 100644
+--- a/drivers/infiniband/hw/mlx4/qp.c
++++ b/drivers/infiniband/hw/mlx4/qp.c
+@@ -2156,6 +2156,7 @@ static int build_sriov_qp0_header(struct mlx4_ib_sqp *sqp,
+ 	int send_size;
+ 	int header_size;
+ 	int spc;
++	int err;
+ 	int i;
  
- #endif
+ 	if (wr->wr.opcode != IB_WR_SEND)
+@@ -2190,7 +2191,9 @@ static int build_sriov_qp0_header(struct mlx4_ib_sqp *sqp,
+ 
+ 	sqp->ud_header.lrh.virtual_lane    = 0;
+ 	sqp->ud_header.bth.solicited_event = !!(wr->wr.send_flags & IB_SEND_SOLICITED);
+-	ib_get_cached_pkey(ib_dev, sqp->qp.port, 0, &pkey);
++	err = ib_get_cached_pkey(ib_dev, sqp->qp.port, 0, &pkey);
++	if (err)
++		return err;
+ 	sqp->ud_header.bth.pkey = cpu_to_be16(pkey);
+ 	if (sqp->qp.mlx4_ib_qp_type == MLX4_IB_QPT_TUN_SMI_OWNER)
+ 		sqp->ud_header.bth.destination_qpn = cpu_to_be32(wr->remote_qpn);
+@@ -2423,9 +2426,14 @@ static int build_mlx_header(struct mlx4_ib_sqp *sqp, struct ib_ud_wr *wr,
+ 	}
+ 	sqp->ud_header.bth.solicited_event = !!(wr->wr.send_flags & IB_SEND_SOLICITED);
+ 	if (!sqp->qp.ibqp.qp_num)
+-		ib_get_cached_pkey(ib_dev, sqp->qp.port, sqp->pkey_index, &pkey);
++		err = ib_get_cached_pkey(ib_dev, sqp->qp.port, sqp->pkey_index,
++					 &pkey);
+ 	else
+-		ib_get_cached_pkey(ib_dev, sqp->qp.port, wr->pkey_index, &pkey);
++		err = ib_get_cached_pkey(ib_dev, sqp->qp.port, wr->pkey_index,
++					 &pkey);
++	if (err)
++		return err;
++
+ 	sqp->ud_header.bth.pkey = cpu_to_be16(pkey);
+ 	sqp->ud_header.bth.destination_qpn = cpu_to_be32(wr->remote_qpn);
+ 	sqp->ud_header.bth.psn = cpu_to_be32((sqp->send_psn++) & ((1 << 24) - 1));
 -- 
 2.20.1
 
