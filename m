@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 869071D8677
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:27:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FAAF1D86F6
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:31:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730050AbgERRqT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:46:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45814 "EHLO mail.kernel.org"
+        id S1729402AbgERRmR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:42:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39200 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730062AbgERRqR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:46:17 -0400
+        id S1729399AbgERRmR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:42:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BC66020657;
-        Mon, 18 May 2020 17:46:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1E4B720853;
+        Mon, 18 May 2020 17:42:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589823977;
-        bh=wTaUMCm6MSW1jvD4dj3eMAa7vjgtXNySyMYn6acQZQE=;
+        s=default; t=1589823736;
+        bh=nqk65ExJOdZgrlp+sPs18FmX7l3Sc++Un1T815Rqp1c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zd+jYGiwomCwE0cDytHRdEpyg6nzkkqLdrunLBuWSRC/mWmePTSHWjXSs0sb9fKgW
-         +ntmE+FHuSYYvPUnPOGV1SKOZC/G9LbiryFGCY4reQI1BGSjUCdtow57yN4Zk73ty7
-         85s1tQdv7eLr0+CDBDCG+zZ5H8nK4SPSmCkqDCzA=
+        b=Qp8YDdwtBbiX/nsVGfOKQA6OT3bHt6T7Kg0iqZQBV0FiDJkD3Q7SxXb9uM/SwxxDo
+         w8kfCdvDZxcR6R3Lewmsez7cz2c3pCwZbjmxlSs5dWFDXOqj+/hqOtSHe7k4mvEaI6
+         q9dn4At74Q86gQGZJ+Ktllr428b5uPyLN0phGXf8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Tzvetomir Stoyanov (VMware)" <tz.stoyanov@gmail.com>,
-        Joerg Roedel <jroedel@suse.de>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 4.14 021/114] tracing: Add a vmalloc_sync_mappings() for safe measure
-Date:   Mon, 18 May 2020 19:35:53 +0200
-Message-Id: <20200518173507.540177073@linuxfoundation.org>
+        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
+        Johan Hovold <johan@kernel.org>,
+        syzbot+d29e9263e13ce0b9f4fd@syzkaller.appspotmail.com
+Subject: [PATCH 4.9 16/90] USB: serial: garmin_gps: add sanity checking for data length
+Date:   Mon, 18 May 2020 19:35:54 +0200
+Message-Id: <20200518173454.516123435@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173503.033975649@linuxfoundation.org>
-References: <20200518173503.033975649@linuxfoundation.org>
+In-Reply-To: <20200518173450.930655662@linuxfoundation.org>
+References: <20200518173450.930655662@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,62 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (VMware) <rostedt@goodmis.org>
+From: Oliver Neukum <oneukum@suse.com>
 
-commit 11f5efc3ab66284f7aaacc926e9351d658e2577b upstream.
+commit e9b3c610a05c1cdf8e959a6d89c38807ff758ee6 upstream.
 
-x86_64 lazily maps in the vmalloc pages, and the way this works with per_cpu
-areas can be complex, to say the least. Mappings may happen at boot up, and
-if nothing synchronizes the page tables, those page mappings may not be
-synced till they are used. This causes issues for anything that might touch
-one of those mappings in the path of the page fault handler. When one of
-those unmapped mappings is touched in the page fault handler, it will cause
-another page fault, which in turn will cause a page fault, and leave us in
-a loop of page faults.
+We must not process packets shorter than a packet ID
 
-Commit 763802b53a42 ("x86/mm: split vmalloc_sync_all()") split
-vmalloc_sync_all() into vmalloc_sync_unmappings() and
-vmalloc_sync_mappings(), as on system exit, it did not need to do a full
-sync on x86_64 (although it still needed to be done on x86_32). By chance,
-the vmalloc_sync_all() would synchronize the page mappings done at boot up
-and prevent the per cpu area from being a problem for tracing in the page
-fault handler. But when that synchronization in the exit of a task became a
-nop, it caused the problem to appear.
-
-Link: https://lore.kernel.org/r/20200429054857.66e8e333@oasis.local.home
-
-Cc: stable@vger.kernel.org
-Fixes: 737223fbca3b1 ("tracing: Consolidate buffer allocation code")
-Reported-by: "Tzvetomir Stoyanov (VMware)" <tz.stoyanov@gmail.com>
-Suggested-by: Joerg Roedel <jroedel@suse.de>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Reported-and-tested-by: syzbot+d29e9263e13ce0b9f4fd@syzkaller.appspotmail.com
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/trace/trace.c |   13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ drivers/usb/serial/garmin_gps.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -7666,6 +7666,19 @@ static int allocate_trace_buffers(struct
- 	 */
- 	allocate_snapshot = false;
- #endif
-+
-+	/*
-+	 * Because of some magic with the way alloc_percpu() works on
-+	 * x86_64, we need to synchronize the pgd of all the tables,
-+	 * otherwise the trace events that happen in x86_64 page fault
-+	 * handlers can't cope with accessing the chance that a
-+	 * alloc_percpu()'d memory might be touched in the page fault trace
-+	 * event. Oh, and we need to audit all other alloc_percpu() and vmalloc()
-+	 * calls in tracing, because something might get triggered within a
-+	 * page fault trace event!
-+	 */
-+	vmalloc_sync_mappings();
-+
- 	return 0;
- }
+--- a/drivers/usb/serial/garmin_gps.c
++++ b/drivers/usb/serial/garmin_gps.c
+@@ -1161,8 +1161,8 @@ static void garmin_read_process(struct g
+ 		   send it directly to the tty port */
+ 		if (garmin_data_p->flags & FLAGS_QUEUING) {
+ 			pkt_add(garmin_data_p, data, data_length);
+-		} else if (bulk_data ||
+-			   getLayerId(data) == GARMIN_LAYERID_APPL) {
++		} else if (bulk_data || (data_length >= sizeof(u32) &&
++				getLayerId(data) == GARMIN_LAYERID_APPL)) {
  
+ 			spin_lock_irqsave(&garmin_data_p->lock, flags);
+ 			garmin_data_p->flags |= APP_RESP_SEEN;
 
 
