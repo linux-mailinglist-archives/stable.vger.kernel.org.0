@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 309CC1D84D8
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:15:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B78F1D83F3
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:09:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732097AbgERR7l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:59:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40322 "EHLO mail.kernel.org"
+        id S1733272AbgERSHM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:07:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55824 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732095AbgERR7k (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:59:40 -0400
+        id S1733268AbgERSHK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 14:07:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F2A34207C4;
-        Mon, 18 May 2020 17:59:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7C2D020671;
+        Mon, 18 May 2020 18:07:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824779;
-        bh=2LASOvTvTrONAR+ocAmH7QR9a1jeIKG1nWnEI8PmZrg=;
+        s=default; t=1589825229;
+        bh=a57QUVjycIWqq5gybYpQ5AcfJtRPK/9jBiOO2JvtkoM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZK8bCoMYUYjZz7jrHkLDS61A8EEP740NC0C3VULUxfFqUpM5Z2dtofI29v5OfLy2p
-         2Wsce7P1Xa3npHP3EjqYACb1efr9iwfz/1wPJLZ42ksCgTYUe/tAQyGx76DlJdUkYJ
-         Irsje9wTiP86n1szph4pDSVfXgVZJbe9tER9McrA=
+        b=ik0clNb0zkkvb1OcQiM6i85qPAoe5D26lrHjYfZXoXN5+J9sBLVeELzShyExCqtiK
+         gnNj18kgwV5Az9MhSzGv3otpU7+nI5K9iGSjFk0+6bYDEOhd6IWeT3SLRxyd8iJgTS
+         E+4c/EyOXzPAcevDfO/MUC+zhs5Q968avsWk28dM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Kamal Mostafa <kamal@canonical.com>
-Subject: [PATCH 5.4 147/147] bpf: Test_progs, fix test_get_stack_rawtp_err.c build
-Date:   Mon, 18 May 2020 19:37:50 +0200
-Message-Id: <20200518173531.196702589@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Ulrich Hecht <uli+renesas@fpond.eu>
+Subject: [PATCH 5.6 181/194] ARM: dts: r8a7740: Add missing extal2 to CPG node
+Date:   Mon, 18 May 2020 19:37:51 +0200
+Message-Id: <20200518173546.558423833@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
-References: <20200518173513.009514388@linuxfoundation.org>
+In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
+References: <20200518173531.455604187@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,39 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kamal Mostafa <kamal@canonical.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-The linux-5.4.y commit 8781011a302b ("bpf: Test_progs, add test to catch
-retval refine error handling") fails to build when libbpf headers are
-not installed, as it tries to include <bpf/bpf_helpers.h>:
+commit e47cb97f153193d4b41ca8d48127da14513d54c7 upstream.
 
-  progs/test_get_stack_rawtp_err.c:4:10:
-      fatal error: 'bpf/bpf_helpers.h' file not found
+The Clock Pulse Generator (CPG) device node lacks the extal2 clock.
+This may lead to a failure registering the "r" clock, or to a wrong
+parent for the "usb24s" clock, depending on MD_CK2 pin configuration and
+boot loader CPG_USBCKCR register configuration.
 
-For 5.4-stable (only) the new test prog needs to include "bpf_helpers.h"
-instead (like all the rest of progs/*.c do) because 5.4-stable does not
-carry commit e01a75c15969 ("libbpf: Move bpf_{helpers, helper_defs,
-endian, tracing}.h into libbpf").
+This went unnoticed, as this does not affect the single upstream board
+configuration, which relies on the first clock input only.
 
-Signed-off-by: Kamal Mostafa <kamal@canonical.com>
-Fixes: 8781011a302b ("bpf: Test_progs, add test to catch retval refine error handling")
-Cc: <stable@vger.kernel.org> # v5.4
+Fixes: d9ffd583bf345e2e ("ARM: shmobile: r8a7740: add SoC clocks to DTS")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Ulrich Hecht <uli+renesas@fpond.eu>
+Link: https://lore.kernel.org/r/20200508095918.6061-1-geert+renesas@glider.be
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- tools/testing/selftests/bpf/progs/test_get_stack_rawtp_err.c |    2 +-
+ arch/arm/boot/dts/r8a7740.dtsi |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/tools/testing/selftests/bpf/progs/test_get_stack_rawtp_err.c
-+++ b/tools/testing/selftests/bpf/progs/test_get_stack_rawtp_err.c
-@@ -1,7 +1,7 @@
- // SPDX-License-Identifier: GPL-2.0
- 
- #include <linux/bpf.h>
--#include <bpf/bpf_helpers.h>
-+#include "bpf_helpers.h"
- 
- #define MAX_STACK_RAWTP 10
- 
+--- a/arch/arm/boot/dts/r8a7740.dtsi
++++ b/arch/arm/boot/dts/r8a7740.dtsi
+@@ -479,7 +479,7 @@
+ 		cpg_clocks: cpg_clocks@e6150000 {
+ 			compatible = "renesas,r8a7740-cpg-clocks";
+ 			reg = <0xe6150000 0x10000>;
+-			clocks = <&extal1_clk>, <&extalr_clk>;
++			clocks = <&extal1_clk>, <&extal2_clk>, <&extalr_clk>;
+ 			#clock-cells = <1>;
+ 			clock-output-names = "system", "pllc0", "pllc1",
+ 					     "pllc2", "r",
 
 
