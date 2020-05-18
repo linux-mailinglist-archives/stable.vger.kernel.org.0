@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 52C991D868F
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:27:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB09E1D81CF
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:51:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730739AbgERSY6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:24:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47614 "EHLO mail.kernel.org"
+        id S1730798AbgERRvC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:51:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53382 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728802AbgERRrV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:47:21 -0400
+        id S1730768AbgERRu6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:50:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 395E320897;
-        Mon, 18 May 2020 17:47:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 07342207C4;
+        Mon, 18 May 2020 17:50:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824040;
-        bh=o2rLPypImoZuBzXNaJCVkrUbeXVB7IAIYi8FmvN374E=;
+        s=default; t=1589824257;
+        bh=l42xB4oGlhaeR8PUztWRNqvqP554Gac2q5JPYzz4pVk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=giHSfbzRszVIUja7d/JGMdUkWYkvOMfvKCcPnifL2UxwB0qCf9d4hH4FcVYTlzsmM
-         nsa1H8WLQaDGKmTkRl/XUXm7BVS+jh8RIOFPJpb5bYxY0wFytvXRFlGvFi4vyPTxtA
-         xm3p9ZgefMl34O7qYoC0ShwjKZEU+xCGrKe9xPCE=
+        b=fsBpyGhMySQNvDGMZ2INmTu1rNIPRTxwCAyV2Yzq8P/rVBTWPCgh6hCLEWqeoh6e9
+         uRrIDch3E1Vuu8N/S99fVpTI1jqAMIBRk+ITX6xNfk5Ye4igiNGpgP+wauFRc1cT8G
+         MA9A3PAjClctQoTn+j/YPEPmzU/GUI8AT5XNzAgA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jon Hunter <jonathanh@nvidia.com>,
-        Thierry Reding <treding@nvidia.com>,
-        Bhadram Varka <vbhadram@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jisheng Zhang <Jisheng.Zhang@synaptics.com>
-Subject: [PATCH 4.14 048/114] net: stmmac: Use mutex instead of spinlock
+        stable@vger.kernel.org,
+        syzbot+c8a8197c8852f566b9d9@syzkaller.appspotmail.com,
+        syzbot+40b71e145e73f78f81ad@syzkaller.appspotmail.com,
+        Hugh Dickins <hughd@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Yang Shi <yang.shi@linux.alibaba.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 02/80] shmem: fix possible deadlocks on shmlock_user_lock
 Date:   Mon, 18 May 2020 19:36:20 +0200
-Message-Id: <20200518173511.977609991@linuxfoundation.org>
+Message-Id: <20200518173450.633393924@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173503.033975649@linuxfoundation.org>
-References: <20200518173503.033975649@linuxfoundation.org>
+In-Reply-To: <20200518173450.097837707@linuxfoundation.org>
+References: <20200518173450.097837707@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,230 +49,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thierry Reding <treding@nvidia.com>
+From: Hugh Dickins <hughd@google.com>
 
-commit 29555fa3de865630570b5f53c847b953413daf1a upstream.
+[ Upstream commit ea0dfeb4209b4eab954d6e00ed136bc6b48b380d ]
 
-Some drivers, such as DWC EQOS on Tegra, need to perform operations that
-can sleep under this lock (clk_set_rate() in tegra_eqos_fix_speed()) for
-proper operation. Since there is no need for this lock to be a spinlock,
-convert it to a mutex instead.
+Recent commit 71725ed10c40 ("mm: huge tmpfs: try to split_huge_page()
+when punching hole") has allowed syzkaller to probe deeper, uncovering a
+long-standing lockdep issue between the irq-unsafe shmlock_user_lock,
+the irq-safe xa_lock on mapping->i_pages, and shmem inode's info->lock
+which nests inside xa_lock (or tree_lock) since 4.8's shmem_uncharge().
 
-Fixes: e6ea2d16fc61 ("net: stmmac: dwc-qos: Add Tegra186 support")
-Reported-by: Jon Hunter <jonathanh@nvidia.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
-Tested-by: Bhadram Varka <vbhadram@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Jisheng Zhang <Jisheng.Zhang@synaptics.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+user_shm_lock(), servicing SysV shmctl(SHM_LOCK), wants
+shmlock_user_lock while its caller shmem_lock() holds info->lock with
+interrupts disabled; but hugetlbfs_file_setup() calls user_shm_lock()
+with interrupts enabled, and might be interrupted by a writeback endio
+wanting xa_lock on i_pages.
+
+This may not risk an actual deadlock, since shmem inodes do not take
+part in writeback accounting, but there are several easy ways to avoid
+it.
+
+Requiring interrupts disabled for shmlock_user_lock would be easy, but
+it's a high-level global lock for which that seems inappropriate.
+Instead, recall that the use of info->lock to guard info->flags in
+shmem_lock() dates from pre-3.1 days, when races with SHMEM_PAGEIN and
+SHMEM_TRUNCATE could occur: nowadays it serves no purpose, the only flag
+added or removed is VM_LOCKED itself, and calls to shmem_lock() an inode
+are already serialized by the caller.
+
+Take info->lock out of the chain and the possibility of deadlock or
+lockdep warning goes away.
+
+Fixes: 4595ef88d136 ("shmem: make shmem_inode_info::lock irq-safe")
+Reported-by: syzbot+c8a8197c8852f566b9d9@syzkaller.appspotmail.com
+Reported-by: syzbot+40b71e145e73f78f81ad@syzkaller.appspotmail.com
+Signed-off-by: Hugh Dickins <hughd@google.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Acked-by: Yang Shi <yang.shi@linux.alibaba.com>
+Cc: Yang Shi <yang.shi@linux.alibaba.com>
+Link: http://lkml.kernel.org/r/alpine.LSU.2.11.2004161707410.16322@eggly.anvils
+Link: https://lore.kernel.org/lkml/000000000000e5838c05a3152f53@google.com/
+Link: https://lore.kernel.org/lkml/0000000000003712b305a331d3b1@google.com/
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac.h         |    2 -
- drivers/net/ethernet/stmicro/stmmac/stmmac_ethtool.c |   12 +++----
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c    |   31 ++++++++-----------
- 3 files changed, 21 insertions(+), 24 deletions(-)
+ mm/shmem.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac.h
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac.h
-@@ -96,7 +96,7 @@ struct stmmac_priv {
- 	struct net_device *dev;
- 	struct device *device;
- 	struct mac_device_info *hw;
--	spinlock_t lock;
-+	struct mutex lock;
+diff --git a/mm/shmem.c b/mm/shmem.c
+index 0a2e1e7801d68..dea5120565d30 100644
+--- a/mm/shmem.c
++++ b/mm/shmem.c
+@@ -2149,7 +2149,11 @@ int shmem_lock(struct file *file, int lock, struct user_struct *user)
+ 	struct shmem_inode_info *info = SHMEM_I(inode);
+ 	int retval = -ENOMEM;
  
- 	/* RX Queue */
- 	struct stmmac_rx_queue rx_queue[MTL_MAX_RX_QUEUES];
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_ethtool.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_ethtool.c
-@@ -392,13 +392,13 @@ stmmac_ethtool_set_link_ksettings(struct
- 			ADVERTISED_10baseT_Half |
- 			ADVERTISED_10baseT_Full);
+-	spin_lock_irq(&info->lock);
++	/*
++	 * What serializes the accesses to info->flags?
++	 * ipc_lock_object() when called from shmctl_do_lock(),
++	 * no serialization needed when called from shm_destroy().
++	 */
+ 	if (lock && !(info->flags & VM_LOCKED)) {
+ 		if (!user_shm_lock(inode->i_size, user))
+ 			goto out_nomem;
+@@ -2164,7 +2168,6 @@ int shmem_lock(struct file *file, int lock, struct user_struct *user)
+ 	retval = 0;
  
--		spin_lock(&priv->lock);
-+		mutex_lock(&priv->lock);
- 
- 		if (priv->hw->mac->pcs_ctrl_ane)
- 			priv->hw->mac->pcs_ctrl_ane(priv->ioaddr, 1,
- 						    priv->hw->ps, 0);
- 
--		spin_unlock(&priv->lock);
-+		mutex_unlock(&priv->lock);
- 
- 		return 0;
- 	}
-@@ -615,12 +615,12 @@ static void stmmac_get_wol(struct net_de
- {
- 	struct stmmac_priv *priv = netdev_priv(dev);
- 
--	spin_lock_irq(&priv->lock);
-+	mutex_lock(&priv->lock);
- 	if (device_can_wakeup(priv->device)) {
- 		wol->supported = WAKE_MAGIC | WAKE_UCAST;
- 		wol->wolopts = priv->wolopts;
- 	}
--	spin_unlock_irq(&priv->lock);
-+	mutex_unlock(&priv->lock);
+ out_nomem:
+-	spin_unlock_irq(&info->lock);
+ 	return retval;
  }
  
- static int stmmac_set_wol(struct net_device *dev, struct ethtool_wolinfo *wol)
-@@ -649,9 +649,9 @@ static int stmmac_set_wol(struct net_dev
- 		disable_irq_wake(priv->wol_irq);
- 	}
- 
--	spin_lock_irq(&priv->lock);
-+	mutex_lock(&priv->lock);
- 	priv->wolopts = wol->wolopts;
--	spin_unlock_irq(&priv->lock);
-+	mutex_unlock(&priv->lock);
- 
- 	return 0;
- }
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-@@ -365,7 +365,6 @@ bool stmmac_eee_init(struct stmmac_priv
- {
- 	struct net_device *ndev = priv->dev;
- 	int interface = priv->plat->interface;
--	unsigned long flags;
- 	bool ret = false;
- 
- 	if ((interface != PHY_INTERFACE_MODE_MII) &&
-@@ -392,7 +391,7 @@ bool stmmac_eee_init(struct stmmac_priv
- 			 * changed).
- 			 * In that case the driver disable own timers.
- 			 */
--			spin_lock_irqsave(&priv->lock, flags);
-+			mutex_lock(&priv->lock);
- 			if (priv->eee_active) {
- 				netdev_dbg(priv->dev, "disable EEE\n");
- 				del_timer_sync(&priv->eee_ctrl_timer);
-@@ -400,11 +399,11 @@ bool stmmac_eee_init(struct stmmac_priv
- 							     tx_lpi_timer);
- 			}
- 			priv->eee_active = 0;
--			spin_unlock_irqrestore(&priv->lock, flags);
-+			mutex_unlock(&priv->lock);
- 			goto out;
- 		}
- 		/* Activate the EEE and start timers */
--		spin_lock_irqsave(&priv->lock, flags);
-+		mutex_lock(&priv->lock);
- 		if (!priv->eee_active) {
- 			priv->eee_active = 1;
- 			setup_timer(&priv->eee_ctrl_timer,
-@@ -421,7 +420,7 @@ bool stmmac_eee_init(struct stmmac_priv
- 		priv->hw->mac->set_eee_pls(priv->hw, ndev->phydev->link);
- 
- 		ret = true;
--		spin_unlock_irqrestore(&priv->lock, flags);
-+		mutex_unlock(&priv->lock);
- 
- 		netdev_dbg(priv->dev, "Energy-Efficient Ethernet initialized\n");
- 	}
-@@ -799,13 +798,12 @@ static void stmmac_adjust_link(struct ne
- {
- 	struct stmmac_priv *priv = netdev_priv(dev);
- 	struct phy_device *phydev = dev->phydev;
--	unsigned long flags;
- 	bool new_state = false;
- 
- 	if (!phydev)
- 		return;
- 
--	spin_lock_irqsave(&priv->lock, flags);
-+	mutex_lock(&priv->lock);
- 
- 	if (phydev->link) {
- 		u32 ctrl = readl(priv->ioaddr + MAC_CTRL_REG);
-@@ -864,7 +862,7 @@ static void stmmac_adjust_link(struct ne
- 	if (new_state && netif_msg_link(priv))
- 		phy_print_status(phydev);
- 
--	spin_unlock_irqrestore(&priv->lock, flags);
-+	mutex_unlock(&priv->lock);
- 
- 	if (phydev->is_pseudo_fixed_link)
- 		/* Stop PHY layer to call the hook to adjust the link in case
-@@ -4284,7 +4282,7 @@ int stmmac_dvr_probe(struct device *devi
- 			       (8 * priv->plat->rx_queues_to_use));
- 	}
- 
--	spin_lock_init(&priv->lock);
-+	mutex_init(&priv->lock);
- 
- 	/* If a specific clk_csr value is passed from the platform
- 	 * this means that the CSR Clock Range selection cannot be
-@@ -4375,6 +4373,7 @@ int stmmac_dvr_remove(struct device *dev
- 	    priv->hw->pcs != STMMAC_PCS_TBI &&
- 	    priv->hw->pcs != STMMAC_PCS_RTBI)
- 		stmmac_mdio_unregister(ndev);
-+	mutex_destroy(&priv->lock);
- 	free_netdev(ndev);
- 
- 	return 0;
-@@ -4392,7 +4391,6 @@ int stmmac_suspend(struct device *dev)
- {
- 	struct net_device *ndev = dev_get_drvdata(dev);
- 	struct stmmac_priv *priv = netdev_priv(ndev);
--	unsigned long flags;
- 
- 	if (!ndev || !netif_running(ndev))
- 		return 0;
-@@ -4400,7 +4398,7 @@ int stmmac_suspend(struct device *dev)
- 	if (ndev->phydev)
- 		phy_stop(ndev->phydev);
- 
--	spin_lock_irqsave(&priv->lock, flags);
-+	mutex_lock(&priv->lock);
- 
- 	netif_device_detach(ndev);
- 	stmmac_stop_all_queues(priv);
-@@ -4423,7 +4421,7 @@ int stmmac_suspend(struct device *dev)
- 		clk_disable_unprepare(priv->plat->pclk);
- 		clk_disable_unprepare(priv->plat->stmmac_clk);
- 	}
--	spin_unlock_irqrestore(&priv->lock, flags);
-+	mutex_unlock(&priv->lock);
- 
- 	priv->oldlink = false;
- 	priv->speed = SPEED_UNKNOWN;
-@@ -4467,7 +4465,6 @@ int stmmac_resume(struct device *dev)
- {
- 	struct net_device *ndev = dev_get_drvdata(dev);
- 	struct stmmac_priv *priv = netdev_priv(ndev);
--	unsigned long flags;
- 
- 	if (!netif_running(ndev))
- 		return 0;
-@@ -4479,9 +4476,9 @@ int stmmac_resume(struct device *dev)
- 	 * from another devices (e.g. serial console).
- 	 */
- 	if (device_may_wakeup(priv->device)) {
--		spin_lock_irqsave(&priv->lock, flags);
-+		mutex_lock(&priv->lock);
- 		priv->hw->mac->pmt(priv->hw, 0);
--		spin_unlock_irqrestore(&priv->lock, flags);
-+		mutex_unlock(&priv->lock);
- 		priv->irq_wake = 0;
- 	} else {
- 		pinctrl_pm_select_default_state(priv->device);
-@@ -4497,7 +4494,7 @@ int stmmac_resume(struct device *dev)
- 
- 	netif_device_attach(ndev);
- 
--	spin_lock_irqsave(&priv->lock, flags);
-+	mutex_lock(&priv->lock);
- 
- 	stmmac_reset_queues_param(priv);
- 
-@@ -4516,7 +4513,7 @@ int stmmac_resume(struct device *dev)
- 
- 	stmmac_start_all_queues(priv);
- 
--	spin_unlock_irqrestore(&priv->lock, flags);
-+	mutex_unlock(&priv->lock);
- 
- 	if (ndev->phydev)
- 		phy_start(ndev->phydev);
+-- 
+2.20.1
+
 
 
