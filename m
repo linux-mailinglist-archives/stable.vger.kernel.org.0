@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BFC5E1D81E3
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:51:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA5E31D86B2
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:28:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730738AbgERRvo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:51:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54606 "EHLO mail.kernel.org"
+        id S1728618AbgERS07 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:26:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43368 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730330AbgERRvo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:51:44 -0400
+        id S1729813AbgERRov (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:44:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DB50120829;
-        Mon, 18 May 2020 17:51:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4759520715;
+        Mon, 18 May 2020 17:44:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824302;
-        bh=plqYo22biTGHgNsqsufKV0Ht2FGCe/Y2/qOpDAwRLo4=;
+        s=default; t=1589823890;
+        bh=kdS5j2A6PO8m645JzTY/Zwhoyz4W+w8yLimNgWncQYQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=md9UwGjptTlt2edX345D92kKHSrbVvm/LSH7jQxqBB9NoGI3s0ftF+qtV4zRTrfh/
-         nGnPQumBdKfFCJQ2amxNgryfHQVuPlljtZMtjl0W34hNmQD+eL050iwwqGgjvddpHq
-         ERXGYibA1qOcyVONacPyq4+G/E8r0UHU2677N2g8=
+        b=HMw/OqInXJc8oVmp1iaPuNHBmwZ4dirHSeUKL4cTTsfZlGfkrdQzCUvCjsO0qH8mO
+         P7SdlOrbspS7CNJxwvc2gla20J4LaYO777x5gpbhf5nLwD3Dx1wyL5OAtXvnitHulO
+         9io24h0JOaM62V4PfDavtlc0qNeyZi7YX84IiIpE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dave Wysochanski <dwysocha@redhat.com>,
-        David Howells <dhowells@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 38/80] NFSv4: Fix fscache cookie aux_data to ensure change_attr is included
+        stable@vger.kernel.org,
+        Sriharsha Allenki <sallenki@codeaurora.org>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 4.9 78/90] usb: xhci: Fix NULL pointer dereference when enqueuing trbs from urb sg list
 Date:   Mon, 18 May 2020 19:36:56 +0200
-Message-Id: <20200518173458.056584883@linuxfoundation.org>
+Message-Id: <20200518173507.126798691@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173450.097837707@linuxfoundation.org>
-References: <20200518173450.097837707@linuxfoundation.org>
+In-Reply-To: <20200518173450.930655662@linuxfoundation.org>
+References: <20200518173450.930655662@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,100 +44,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Wysochanski <dwysocha@redhat.com>
+From: Sriharsha Allenki <sallenki@codeaurora.org>
 
-[ Upstream commit 50eaa652b54df1e2b48dc398d9e6114c9ed080eb ]
+commit 3c6f8cb92c9178fc0c66b580ea3df1fa3ac1155a upstream.
 
-Commit 402cb8dda949 ("fscache: Attach the index key and aux data to
-the cookie") added the aux_data and aux_data_len to parameters to
-fscache_acquire_cookie(), and updated the callers in the NFS client.
-In the process it modified the aux_data to include the change_attr,
-but missed adding change_attr to a couple places where aux_data was
-used.  Specifically, when opening a file and the change_attr is not
-added, the following attempt to lookup an object will fail inside
-cachefiles_check_object_xattr() = -116 due to
-nfs_fscache_inode_check_aux() failing memcmp on auxdata and returning
-FSCACHE_CHECKAUX_OBSOLETE.
+On platforms with IOMMU enabled, multiple SGs can be coalesced into one
+by the IOMMU driver. In that case the SG list processing as part of the
+completion of a urb on a bulk endpoint can result into a NULL pointer
+dereference with the below stack dump.
 
-Fix this by adding nfs_fscache_update_auxdata() to set the auxdata
-from all relevant fields in the inode, including the change_attr.
+<6> Unable to handle kernel NULL pointer dereference at virtual address 0000000c
+<6> pgd = c0004000
+<6> [0000000c] *pgd=00000000
+<6> Internal error: Oops: 5 [#1] PREEMPT SMP ARM
+<2> PC is at xhci_queue_bulk_tx+0x454/0x80c
+<2> LR is at xhci_queue_bulk_tx+0x44c/0x80c
+<2> pc : [<c08907c4>]    lr : [<c08907bc>]    psr: 000000d3
+<2> sp : ca337c80  ip : 00000000  fp : ffffffff
+<2> r10: 00000000  r9 : 50037000  r8 : 00004000
+<2> r7 : 00000000  r6 : 00004000  r5 : 00000000  r4 : 00000000
+<2> r3 : 00000000  r2 : 00000082  r1 : c2c1a200  r0 : 00000000
+<2> Flags: nzcv  IRQs off  FIQs off  Mode SVC_32  ISA ARM  Segment none
+<2> Control: 10c0383d  Table: b412c06a  DAC: 00000051
+<6> Process usb-storage (pid: 5961, stack limit = 0xca336210)
+<snip>
+<2> [<c08907c4>] (xhci_queue_bulk_tx)
+<2> [<c0881b3c>] (xhci_urb_enqueue)
+<2> [<c0831068>] (usb_hcd_submit_urb)
+<2> [<c08350b4>] (usb_sg_wait)
+<2> [<c089f384>] (usb_stor_bulk_transfer_sglist)
+<2> [<c089f2c0>] (usb_stor_bulk_srb)
+<2> [<c089fe38>] (usb_stor_Bulk_transport)
+<2> [<c089f468>] (usb_stor_invoke_transport)
+<2> [<c08a11b4>] (usb_stor_control_thread)
+<2> [<c014a534>] (kthread)
 
-Fixes: 402cb8dda949 ("fscache: Attach the index key and aux data to the cookie")
-Signed-off-by: Dave Wysochanski <dwysocha@redhat.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The above NULL pointer dereference is the result of block_len and the
+sent_len set to zero after the first SG of the list when IOMMU driver
+is enabled. Because of this the loop of processing the SGs has run
+more than num_sgs which resulted in a sg_next on the last SG of the
+list which has SG_END set.
+
+Fix this by check for the sg before any attributes of the sg are
+accessed.
+
+[modified reason for null pointer dereference in commit message subject -Mathias]
+Fixes: f9c589e142d04 ("xhci: TD-fragment, align the unsplittable case with a bounce buffer")
+Cc: stable@vger.kernel.org
+Signed-off-by: Sriharsha Allenki <sallenki@codeaurora.org>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20200514110432.25564-2-mathias.nyman@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nfs/fscache.c | 34 ++++++++++++++++------------------
- 1 file changed, 16 insertions(+), 18 deletions(-)
+ drivers/usb/host/xhci-ring.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/nfs/fscache.c b/fs/nfs/fscache.c
-index 0a4d6b35545a3..7dfa45a380882 100644
---- a/fs/nfs/fscache.c
-+++ b/fs/nfs/fscache.c
-@@ -231,6 +231,19 @@ void nfs_fscache_release_super_cookie(struct super_block *sb)
- 	}
- }
- 
-+static void nfs_fscache_update_auxdata(struct nfs_fscache_inode_auxdata *auxdata,
-+				  struct nfs_inode *nfsi)
-+{
-+	memset(auxdata, 0, sizeof(*auxdata));
-+	auxdata->mtime_sec  = nfsi->vfs_inode.i_mtime.tv_sec;
-+	auxdata->mtime_nsec = nfsi->vfs_inode.i_mtime.tv_nsec;
-+	auxdata->ctime_sec  = nfsi->vfs_inode.i_ctime.tv_sec;
-+	auxdata->ctime_nsec = nfsi->vfs_inode.i_ctime.tv_nsec;
-+
-+	if (NFS_SERVER(&nfsi->vfs_inode)->nfs_client->rpc_ops->version == 4)
-+		auxdata->change_attr = inode_peek_iversion_raw(&nfsi->vfs_inode);
-+}
-+
- /*
-  * Initialise the per-inode cache cookie pointer for an NFS inode.
-  */
-@@ -244,14 +257,7 @@ void nfs_fscache_init_inode(struct inode *inode)
- 	if (!(nfss->fscache && S_ISREG(inode->i_mode)))
- 		return;
- 
--	memset(&auxdata, 0, sizeof(auxdata));
--	auxdata.mtime_sec  = nfsi->vfs_inode.i_mtime.tv_sec;
--	auxdata.mtime_nsec = nfsi->vfs_inode.i_mtime.tv_nsec;
--	auxdata.ctime_sec  = nfsi->vfs_inode.i_ctime.tv_sec;
--	auxdata.ctime_nsec = nfsi->vfs_inode.i_ctime.tv_nsec;
--
--	if (NFS_SERVER(&nfsi->vfs_inode)->nfs_client->rpc_ops->version == 4)
--		auxdata.change_attr = inode_peek_iversion_raw(&nfsi->vfs_inode);
-+	nfs_fscache_update_auxdata(&auxdata, nfsi);
- 
- 	nfsi->fscache = fscache_acquire_cookie(NFS_SB(inode->i_sb)->fscache,
- 					       &nfs_fscache_inode_object_def,
-@@ -271,11 +277,7 @@ void nfs_fscache_clear_inode(struct inode *inode)
- 
- 	dfprintk(FSCACHE, "NFS: clear cookie (0x%p/0x%p)\n", nfsi, cookie);
- 
--	memset(&auxdata, 0, sizeof(auxdata));
--	auxdata.mtime_sec  = nfsi->vfs_inode.i_mtime.tv_sec;
--	auxdata.mtime_nsec = nfsi->vfs_inode.i_mtime.tv_nsec;
--	auxdata.ctime_sec  = nfsi->vfs_inode.i_ctime.tv_sec;
--	auxdata.ctime_nsec = nfsi->vfs_inode.i_ctime.tv_nsec;
-+	nfs_fscache_update_auxdata(&auxdata, nfsi);
- 	fscache_relinquish_cookie(cookie, &auxdata, false);
- 	nfsi->fscache = NULL;
- }
-@@ -315,11 +317,7 @@ void nfs_fscache_open_file(struct inode *inode, struct file *filp)
- 	if (!fscache_cookie_valid(cookie))
- 		return;
- 
--	memset(&auxdata, 0, sizeof(auxdata));
--	auxdata.mtime_sec  = nfsi->vfs_inode.i_mtime.tv_sec;
--	auxdata.mtime_nsec = nfsi->vfs_inode.i_mtime.tv_nsec;
--	auxdata.ctime_sec  = nfsi->vfs_inode.i_ctime.tv_sec;
--	auxdata.ctime_nsec = nfsi->vfs_inode.i_ctime.tv_nsec;
-+	nfs_fscache_update_auxdata(&auxdata, nfsi);
- 
- 	if (inode_is_open_for_write(inode)) {
- 		dfprintk(FSCACHE, "NFS: nfsi 0x%p disabling cache\n", nfsi);
--- 
-2.20.1
-
+--- a/drivers/usb/host/xhci-ring.c
++++ b/drivers/usb/host/xhci-ring.c
+@@ -3347,8 +3347,8 @@ int xhci_queue_bulk_tx(struct xhci_hcd *
+ 			/* New sg entry */
+ 			--num_sgs;
+ 			sent_len -= block_len;
+-			if (num_sgs != 0) {
+-				sg = sg_next(sg);
++			sg = sg_next(sg);
++			if (num_sgs != 0 && sg) {
+ 				block_len = sg_dma_len(sg);
+ 				addr = (u64) sg_dma_address(sg);
+ 				addr += sent_len;
 
 
