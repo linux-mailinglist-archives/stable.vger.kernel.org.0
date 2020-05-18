@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 605441D812C
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:46:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD3631D862A
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:23:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729970AbgERRpg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:45:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44496 "EHLO mail.kernel.org"
+        id S1732416AbgERSXW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:23:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50710 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729965AbgERRpf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:45:35 -0400
+        id S1729400AbgERRtP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:49:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 789D420657;
-        Mon, 18 May 2020 17:45:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3FCDF20674;
+        Mon, 18 May 2020 17:49:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589823934;
-        bh=xy+Y9XI0kG1f8Pu63JShmxH5Fg/KC5WG2EGzsp6SV2k=;
+        s=default; t=1589824154;
+        bh=bn+0jV5CaXBmRGOJ7t0CtgxsTfEHiDXFyApcbux1kbU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vvFrZMopJlMo5z4Ts/3KqW+akAFIDz/wAbQ6fpi15HBrdQezwsydaa5eiTTu5fnpL
-         eYORbCR3rdy9MPNtAZC2z7V3UPCL85Hkiu87RoKytE2COLpZsAAbys5ZZNeJjhaHlw
-         55z+V9OMTzpaCsTIcmwOsifNLyVskmVWDWQSa8PU=
+        b=PP2oRVE51Cw4s4GutfuerG4Mf/7lqZSf0UqMijqc2Rgjzm4tsFECKta2t6VHfuC8s
+         iFII1VMw/z1D+KI+g92J+W0EW+hyuhYTMwqgJQkTzgMfhfAia4EGtY4acRpXK1A4UX
+         iihJD5bzjHVqq1i209aAjK9mg74xpNOcrIxTgmi0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Willem de Bruijn <willemb@google.com>,
-        Xin Long <lucien.xin@gmail.com>,
-        Hannes Frederic Sowa <hannes@stressinduktion.org>,
-        =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <maze@google.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 70/90] Revert "ipv6: add mtu lock check in __ip6_rt_update_pmtu"
+        stable@vger.kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.14 076/114] gcc-10: disable stringop-overflow warning for now
 Date:   Mon, 18 May 2020 19:36:48 +0200
-Message-Id: <20200518173505.463294723@linuxfoundation.org>
+Message-Id: <20200518173516.490561046@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173450.930655662@linuxfoundation.org>
-References: <20200518173450.930655662@linuxfoundation.org>
+In-Reply-To: <20200518173503.033975649@linuxfoundation.org>
+References: <20200518173503.033975649@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,63 +43,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Maciej Żenczykowski" <maze@google.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-[ Upstream commit 09454fd0a4ce23cb3d8af65066c91a1bf27120dd ]
+commit 5a76021c2eff7fcf2f0918a08fd8a37ce7922921 upstream.
 
-This reverts commit 19bda36c4299ce3d7e5bce10bebe01764a655a6d:
+This is the final array bounds warning removal for gcc-10 for now.
 
-| ipv6: add mtu lock check in __ip6_rt_update_pmtu
-|
-| Prior to this patch, ipv6 didn't do mtu lock check in ip6_update_pmtu.
-| It leaded to that mtu lock doesn't really work when receiving the pkt
-| of ICMPV6_PKT_TOOBIG.
-|
-| This patch is to add mtu lock check in __ip6_rt_update_pmtu just as ipv4
-| did in __ip_rt_update_pmtu.
+Again, the warning is good, and we should re-enable all these warnings
+when we have converted all the legacy array declaration cases to
+flexible arrays. But in the meantime, it's just noise.
 
-The above reasoning is incorrect.  IPv6 *requires* icmp based pmtu to work.
-There's already a comment to this effect elsewhere in the kernel:
-
-  $ git grep -p -B1 -A3 'RTAX_MTU lock'
-  net/ipv6/route.c=4813=
-
-  static int rt6_mtu_change_route(struct fib6_info *f6i, void *p_arg)
-  ...
-    /* In IPv6 pmtu discovery is not optional,
-       so that RTAX_MTU lock cannot disable it.
-       We still use this lock to block changes
-       caused by addrconf/ndisc.
-    */
-
-This reverts to the pre-4.9 behaviour.
-
-Cc: Eric Dumazet <edumazet@google.com>
-Cc: Willem de Bruijn <willemb@google.com>
-Cc: Xin Long <lucien.xin@gmail.com>
-Cc: Hannes Frederic Sowa <hannes@stressinduktion.org>
-Signed-off-by: Maciej Żenczykowski <maze@google.com>
-Fixes: 19bda36c4299 ("ipv6: add mtu lock check in __ip6_rt_update_pmtu")
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/ipv6/route.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/net/ipv6/route.c
-+++ b/net/ipv6/route.c
-@@ -1373,8 +1373,10 @@ static void __ip6_rt_update_pmtu(struct
- {
- 	struct rt6_info *rt6 = (struct rt6_info *)dst;
+---
+ Makefile |    1 +
+ 1 file changed, 1 insertion(+)
+
+--- a/Makefile
++++ b/Makefile
+@@ -803,6 +803,7 @@ KBUILD_CFLAGS += $(call cc-disable-warni
+ # We'll want to enable this eventually, but it's not going away for 5.7 at least
+ KBUILD_CFLAGS += $(call cc-disable-warning, zero-length-bounds)
+ KBUILD_CFLAGS += $(call cc-disable-warning, array-bounds)
++KBUILD_CFLAGS += $(call cc-disable-warning, stringop-overflow)
  
--	if (dst_metric_locked(dst, RTAX_MTU))
--		return;
-+	/* Note: do *NOT* check dst_metric_locked(dst, RTAX_MTU)
-+	 * IPv6 pmtu discovery isn't optional, so 'mtu lock' cannot disable it.
-+	 * [see also comment in rt6_mtu_change_route()]
-+	 */
- 
- 	dst_confirm(dst);
- 	mtu = max_t(u32, mtu, IPV6_MIN_MTU);
+ # Enabled with W=2, disabled by default as noisy
+ KBUILD_CFLAGS += $(call cc-disable-warning, maybe-uninitialized)
 
 
