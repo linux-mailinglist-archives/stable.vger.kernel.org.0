@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 59C971D82A7
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:58:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E4D81D860F
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:23:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731875AbgERR6Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:58:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37504 "EHLO mail.kernel.org"
+        id S1730103AbgERRtt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:49:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51544 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729934AbgERR6Q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:58:16 -0400
+        id S1730090AbgERRtp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:49:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8548520715;
-        Mon, 18 May 2020 17:58:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A4FC620835;
+        Mon, 18 May 2020 17:49:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824695;
-        bh=kVjtdmkF7nZwBOwVr6H9sprK2ZBhzSY0oqfnYe0VdP0=;
+        s=default; t=1589824185;
+        bh=IQGRJknKyaZjCOxSLRNNYP/kisqa8Fs/sQW+wF75x1g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ztuASY9L2MKJTH7p/N0N2aSpjk+N6+eSYBJ8OW9rsx8kIGhZUO+diHzPubrOrIb9C
-         gQcm/mXrlh1XdOvxKkc/1t9rK8bfY657+/V50Dxs/F20WTFK77wFLLw5d5KyTlf11+
-         +c7o4Bt2/RXkrYthqVyDKjW9bgFFokW1Mey+t1+8=
+        b=xg7RPjPBZauzG1y62Qi9sGLRI3hPBWqeNbZcemFzR5aP31rQwdHQWW6Bb/SJoXIKl
+         i6VvOuvfZPMDIM4kyfrdc2zbTg0uRGtXdDZYPeJDeKmozLsKZ6Cjdl63Ukc96UeoJi
+         ldxmWYKbJBFB6gI2V5sbe0VxSDzTli/qrQNHxqtI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Sriharsha Allenki <sallenki@codeaurora.org>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 5.4 113/147] usb: xhci: Fix NULL pointer dereference when enqueuing trbs from urb sg list
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Felipe Balbi <balbi@kernel.org>
+Subject: [PATCH 4.14 104/114] usb: gadget: net2272: Fix a memory leak in an error handling path in net2272_plat_probe()
 Date:   Mon, 18 May 2020 19:37:16 +0200
-Message-Id: <20200518173527.171668275@linuxfoundation.org>
+Message-Id: <20200518173520.083694185@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
-References: <20200518173513.009514388@linuxfoundation.org>
+In-Reply-To: <20200518173503.033975649@linuxfoundation.org>
+References: <20200518173503.033975649@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,74 +44,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sriharsha Allenki <sallenki@codeaurora.org>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-commit 3c6f8cb92c9178fc0c66b580ea3df1fa3ac1155a upstream.
+commit ccaef7e6e354fb65758eaddd3eae8065a8b3e295 upstream.
 
-On platforms with IOMMU enabled, multiple SGs can be coalesced into one
-by the IOMMU driver. In that case the SG list processing as part of the
-completion of a urb on a bulk endpoint can result into a NULL pointer
-dereference with the below stack dump.
+'dev' is allocated in 'net2272_probe_init()'. It must be freed in the error
+handling path, as already done in the remove function (i.e.
+'net2272_plat_remove()')
 
-<6> Unable to handle kernel NULL pointer dereference at virtual address 0000000c
-<6> pgd = c0004000
-<6> [0000000c] *pgd=00000000
-<6> Internal error: Oops: 5 [#1] PREEMPT SMP ARM
-<2> PC is at xhci_queue_bulk_tx+0x454/0x80c
-<2> LR is at xhci_queue_bulk_tx+0x44c/0x80c
-<2> pc : [<c08907c4>]    lr : [<c08907bc>]    psr: 000000d3
-<2> sp : ca337c80  ip : 00000000  fp : ffffffff
-<2> r10: 00000000  r9 : 50037000  r8 : 00004000
-<2> r7 : 00000000  r6 : 00004000  r5 : 00000000  r4 : 00000000
-<2> r3 : 00000000  r2 : 00000082  r1 : c2c1a200  r0 : 00000000
-<2> Flags: nzcv  IRQs off  FIQs off  Mode SVC_32  ISA ARM  Segment none
-<2> Control: 10c0383d  Table: b412c06a  DAC: 00000051
-<6> Process usb-storage (pid: 5961, stack limit = 0xca336210)
-<snip>
-<2> [<c08907c4>] (xhci_queue_bulk_tx)
-<2> [<c0881b3c>] (xhci_urb_enqueue)
-<2> [<c0831068>] (usb_hcd_submit_urb)
-<2> [<c08350b4>] (usb_sg_wait)
-<2> [<c089f384>] (usb_stor_bulk_transfer_sglist)
-<2> [<c089f2c0>] (usb_stor_bulk_srb)
-<2> [<c089fe38>] (usb_stor_Bulk_transport)
-<2> [<c089f468>] (usb_stor_invoke_transport)
-<2> [<c08a11b4>] (usb_stor_control_thread)
-<2> [<c014a534>] (kthread)
-
-The above NULL pointer dereference is the result of block_len and the
-sent_len set to zero after the first SG of the list when IOMMU driver
-is enabled. Because of this the loop of processing the SGs has run
-more than num_sgs which resulted in a sg_next on the last SG of the
-list which has SG_END set.
-
-Fix this by check for the sg before any attributes of the sg are
-accessed.
-
-[modified reason for null pointer dereference in commit message subject -Mathias]
-Fixes: f9c589e142d04 ("xhci: TD-fragment, align the unsplittable case with a bounce buffer")
-Cc: stable@vger.kernel.org
-Signed-off-by: Sriharsha Allenki <sallenki@codeaurora.org>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20200514110432.25564-2-mathias.nyman@linux.intel.com
+Fixes: 90fccb529d24 ("usb: gadget: Gadget directory cleanup - group UDC drivers")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/host/xhci-ring.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/gadget/udc/net2272.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/usb/host/xhci-ring.c
-+++ b/drivers/usb/host/xhci-ring.c
-@@ -3421,8 +3421,8 @@ int xhci_queue_bulk_tx(struct xhci_hcd *
- 			/* New sg entry */
- 			--num_sgs;
- 			sent_len -= block_len;
--			if (num_sgs != 0) {
--				sg = sg_next(sg);
-+			sg = sg_next(sg);
-+			if (num_sgs != 0 && sg) {
- 				block_len = sg_dma_len(sg);
- 				addr = (u64) sg_dma_address(sg);
- 				addr += sent_len;
+--- a/drivers/usb/gadget/udc/net2272.c
++++ b/drivers/usb/gadget/udc/net2272.c
+@@ -2666,6 +2666,8 @@ net2272_plat_probe(struct platform_devic
+  err_req:
+ 	release_mem_region(base, len);
+  err:
++	kfree(dev);
++
+ 	return ret;
+ }
+ 
 
 
