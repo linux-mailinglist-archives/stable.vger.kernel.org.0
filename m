@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 387E21D86C6
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:28:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F1A2F1D81DA
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:51:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730175AbgERS1u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:27:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41402 "EHLO mail.kernel.org"
+        id S1729582AbgERRvX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:51:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54014 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729610AbgERRnj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:43:39 -0400
+        id S1730849AbgERRvU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:51:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EA61F20873;
-        Mon, 18 May 2020 17:43:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7166320674;
+        Mon, 18 May 2020 17:51:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589823818;
-        bh=pLKK1rWfKBUkBR8Z+9c0T7j+u/CPpMhUJDWsMDYB5aY=;
+        s=default; t=1589824279;
+        bh=zq0oqNj3eL1q44cUgZZ31g2WWkcBkOdI0T4dpp6mlZU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M89gzHfeQl9Rm3aG91iZT9R0f9iFPNE+qhl+itWAdXIIX7kyso2H9NxNWUAUZTpdL
-         xGD7aPOgGmt2YXcZ0FITKf5mLVXQudVCYwtVWqjm23j3M9XAcuYRxoEtsom+W50++3
-         AxUnmp8zYhwGQ/4XhWDbKr9SNA5vZ0Tix1NGUREs=
+        b=Bln/phBNjxFRQOrYnBgx8IwGvN5o24hwA1IqeEQfdRp/hEdEmk/5CYcvj1SIYFEK7
+         SDCOFWDj2BMX4s/fFYUAKu48UqqzLufeWbi2IZx+D844V5P5aDnqlD0Kh9riTB+VHe
+         Dvouq2gskJ+60H+KwNCUuIEBgoQ4ByMn478CUGh8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ronnie Sahlberg <lsahlber@redhat.com>,
-        Pavel Shilovsky <pshilov@microsoft.com>,
-        Steve French <stfrench@microsoft.com>,
+        stable@vger.kernel.org, Raul E Rangel <rrangel@chromium.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 48/90] cifs: Fix a race condition with cifs_echo_request
+Subject: [PATCH 4.19 08/80] mmc: sdhci-acpi: Add SDHCI_QUIRK2_BROKEN_64_BIT_DMA for AMDI0040
 Date:   Mon, 18 May 2020 19:36:26 +0200
-Message-Id: <20200518173500.990164419@linuxfoundation.org>
+Message-Id: <20200518173451.867382726@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173450.930655662@linuxfoundation.org>
-References: <20200518173450.930655662@linuxfoundation.org>
+In-Reply-To: <20200518173450.097837707@linuxfoundation.org>
+References: <20200518173450.097837707@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,63 +46,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ronnie Sahlberg <lsahlber@redhat.com>
+From: Raul E Rangel <rrangel@chromium.org>
 
-[ Upstream commit f2caf901c1b7ce65f9e6aef4217e3241039db768 ]
+[ Upstream commit 45a3fe3bf93b7cfeddc28ef7386555e05dc57f06 ]
 
-There is a race condition with how we send (or supress and don't send)
-smb echos that will cause the client to incorrectly think the
-server is unresponsive and thus needs to be reconnected.
+The AMD eMMC 5.0 controller does not support 64 bit DMA.
 
-Summary of the race condition:
- 1) Daisy chaining scheduling creates a gap.
- 2) If traffic comes unfortunate shortly after
-    the last echo, the planned echo is suppressed.
- 3) Due to the gap, the next echo transmission is delayed
-    until after the timeout, which is set hard to twice
-    the echo interval.
-
-This is fixed by changing the timeouts from 2 to three times the echo interval.
-
-Detailed description of the bug: https://lutz.donnerhacke.de/eng/Blog/Groundhog-Day-with-SMB-remount
-
-Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
-Reviewed-by: Pavel Shilovsky <pshilov@microsoft.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Fixes: 34597a3f60b1 ("mmc: sdhci-acpi: Add support for ACPI HID of AMD Controller with HS400")
+Signed-off-by: Raul E Rangel <rrangel@chromium.org>
+Link: https://marc.info/?l=linux-mmc&m=158879884514552&w=2
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Link: https://lore.kernel.org/r/20200508165344.1.Id5bb8b1ae7ea576f26f9d91c761df7ccffbf58c5@changeid
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/connect.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/mmc/host/sdhci-acpi.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
-index 37c8cac86431f..3545b237187a8 100644
---- a/fs/cifs/connect.c
-+++ b/fs/cifs/connect.c
-@@ -551,10 +551,10 @@ static bool
- server_unresponsive(struct TCP_Server_Info *server)
- {
- 	/*
--	 * We need to wait 2 echo intervals to make sure we handle such
-+	 * We need to wait 3 echo intervals to make sure we handle such
- 	 * situations right:
- 	 * 1s  client sends a normal SMB request
--	 * 2s  client gets a response
-+	 * 3s  client gets a response
- 	 * 30s echo workqueue job pops, and decides we got a response recently
- 	 *     and don't need to send another
- 	 * ...
-@@ -563,9 +563,9 @@ server_unresponsive(struct TCP_Server_Info *server)
- 	 */
- 	if ((server->tcpStatus == CifsGood ||
- 	    server->tcpStatus == CifsNeedNegotiate) &&
--	    time_after(jiffies, server->lstrp + 2 * server->echo_interval)) {
-+	    time_after(jiffies, server->lstrp + 3 * server->echo_interval)) {
- 		cifs_dbg(VFS, "Server %s has not responded in %lu seconds. Reconnecting...\n",
--			 server->hostname, (2 * server->echo_interval) / HZ);
-+			 server->hostname, (3 * server->echo_interval) / HZ);
- 		cifs_reconnect(server);
- 		wake_up(&server->response_q);
- 		return true;
+diff --git a/drivers/mmc/host/sdhci-acpi.c b/drivers/mmc/host/sdhci-acpi.c
+index 57c1ec322e421..145143b6a0e6d 100644
+--- a/drivers/mmc/host/sdhci-acpi.c
++++ b/drivers/mmc/host/sdhci-acpi.c
+@@ -552,10 +552,12 @@ static int sdhci_acpi_emmc_amd_probe_slot(struct platform_device *pdev,
+ }
+ 
+ static const struct sdhci_acpi_slot sdhci_acpi_slot_amd_emmc = {
+-	.chip   = &sdhci_acpi_chip_amd,
+-	.caps   = MMC_CAP_8_BIT_DATA | MMC_CAP_NONREMOVABLE,
+-	.quirks = SDHCI_QUIRK_32BIT_DMA_ADDR | SDHCI_QUIRK_32BIT_DMA_SIZE |
+-			SDHCI_QUIRK_32BIT_ADMA_SIZE,
++	.chip		= &sdhci_acpi_chip_amd,
++	.caps		= MMC_CAP_8_BIT_DATA | MMC_CAP_NONREMOVABLE,
++	.quirks		= SDHCI_QUIRK_32BIT_DMA_ADDR |
++			  SDHCI_QUIRK_32BIT_DMA_SIZE |
++			  SDHCI_QUIRK_32BIT_ADMA_SIZE,
++	.quirks2	= SDHCI_QUIRK2_BROKEN_64_BIT_DMA,
+ 	.probe_slot     = sdhci_acpi_emmc_amd_probe_slot,
+ };
+ 
 -- 
 2.20.1
 
