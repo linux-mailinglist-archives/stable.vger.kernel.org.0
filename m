@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E10F81D8317
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:02:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 929921D808A
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:40:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732447AbgERSCD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:02:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44910 "EHLO mail.kernel.org"
+        id S1728402AbgERRkT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:40:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35782 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732459AbgERSCC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 14:02:02 -0400
+        id S1729029AbgERRkT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:40:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5553B20872;
-        Mon, 18 May 2020 18:02:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E4634207FB;
+        Mon, 18 May 2020 17:40:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824921;
-        bh=iI6/4pieNmhea6dG1LXDMXm/LdTJkwUeGnsdS5TIGu4=;
+        s=default; t=1589823618;
+        bh=rI69ELdrINCHlnyvofm74tGYIw+cV8yJBh7GJpNNMKA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J1qfnGqCAzbTfCmte00XSjgYxyTOQQ8/f+gQpk7x8abj/NDRUN1amWOZ8yzBRAR0R
-         Pp7OHDadt2BI3Yz9ReRs1PsIDdcqgTgYB31gM3k24XZqTKDjeMcdwHD96rx/fYNnr0
-         O1OLvBB0tAsWyY9duZR3VNsJnhKekaGgSvVZk+7Y=
+        b=TY9bXI6gzfFcxHp526oLrQBIup8fSCtv0u1zhU4WdFfLuDw7QG/gBPyRRjnr3RQMu
+         PKN7TA8SRhl2LhFzL8cjdedLB7IpzT0YrYxmVYk1TCu1cgsCSwBM7IrI7tHtEQAf1w
+         XxAt0eBIfqKJnfqSvC9ACFmcz8LXndLz66/n5AUA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiao Yang <yangx.jy@cn.fujitsu.com>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 057/194] selftests/ftrace: Check the first record for kprobe_args_type.tc
+        stable@vger.kernel.org, Ivan Delalande <colona@arista.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Borislav Petkov <bp@suse.de>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.4 16/86] scripts/decodecode: fix trapping instruction formatting
 Date:   Mon, 18 May 2020 19:35:47 +0200
-Message-Id: <20200518173536.471309562@linuxfoundation.org>
+Message-Id: <20200518173453.793425023@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
-References: <20200518173531.455604187@linuxfoundation.org>
+In-Reply-To: <20200518173450.254571947@linuxfoundation.org>
+References: <20200518173450.254571947@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,49 +45,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiao Yang <yangx.jy@cn.fujitsu.com>
+From: Ivan Delalande <colona@arista.com>
 
-[ Upstream commit f0c0d0cf590f71b2213b29a7ded2cde3d0a1a0ba ]
+commit e08df079b23e2e982df15aa340bfbaf50f297504 upstream.
 
-It is possible to get multiple records from trace during test and then more
-than 4 arguments are assigned to ARGS.  This situation results in the failure
-of kprobe_args_type.tc.  For example:
------------------------------------------------------------
-grep testprobe trace
-   ftracetest-5902  [001] d... 111195.682227: testprobe: (_do_fork+0x0/0x460) arg1=334823024 arg2=334823024 arg3=0x13f4fe70 arg4=7
-     pmlogger-5949  [000] d... 111195.709898: testprobe: (_do_fork+0x0/0x460) arg1=345308784 arg2=345308784 arg3=0x1494fe70 arg4=7
- grep testprobe trace
- sed -e 's/.* arg1=\(.*\) arg2=\(.*\) arg3=\(.*\) arg4=\(.*\)/\1 \2 \3 \4/'
-ARGS='334823024 334823024 0x13f4fe70 7
-345308784 345308784 0x1494fe70 7'
------------------------------------------------------------
+If the trapping instruction contains a ':', for a memory access through
+segment registers for example, the sed substitution will insert the '*'
+marker in the middle of the instruction instead of the line address:
 
-We don't care which process calls do_fork so just check the first record to
-fix the issue.
+	2b:   65 48 0f c7 0f          cmpxchg16b %gs:*(%rdi)          <-- trapping instruction
 
-Signed-off-by: Xiao Yang <yangx.jy@cn.fujitsu.com>
-Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+I started to think I had forgotten some quirk of the assembly syntax
+before noticing that it was actually coming from the script.  Fix it to
+add the address marker at the right place for these instructions:
+
+	28:   49 8b 06                mov    (%r14),%rax
+	2b:*  65 48 0f c7 0f          cmpxchg16b %gs:(%rdi)           <-- trapping instruction
+	30:   0f 94 c0                sete   %al
+
+Fixes: 18ff44b189e2 ("scripts/decodecode: make faulting insn ptr more robust")
+Signed-off-by: Ivan Delalande <colona@arista.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Borislav Petkov <bp@suse.de>
+Link: http://lkml.kernel.org/r/20200419223653.GA31248@visor
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- .../testing/selftests/ftrace/test.d/kprobe/kprobe_args_type.tc  | 2 +-
+ scripts/decodecode |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/ftrace/test.d/kprobe/kprobe_args_type.tc b/tools/testing/selftests/ftrace/test.d/kprobe/kprobe_args_type.tc
-index 1bcb67dcae267..81490ecaaa927 100644
---- a/tools/testing/selftests/ftrace/test.d/kprobe/kprobe_args_type.tc
-+++ b/tools/testing/selftests/ftrace/test.d/kprobe/kprobe_args_type.tc
-@@ -38,7 +38,7 @@ for width in 64 32 16 8; do
-   echo 0 > events/kprobes/testprobe/enable
+--- a/scripts/decodecode
++++ b/scripts/decodecode
+@@ -98,7 +98,7 @@ faultlinenum=$(( $(wc -l $T.oo  | cut -d
+ faultline=`cat $T.dis | head -1 | cut -d":" -f2-`
+ faultline=`echo "$faultline" | sed -e 's/\[/\\\[/g; s/\]/\\\]/g'`
  
-   : "Confirm the arguments is recorded in given types correctly"
--  ARGS=`grep "testprobe" trace | sed -e 's/.* arg1=\(.*\) arg2=\(.*\) arg3=\(.*\) arg4=\(.*\)/\1 \2 \3 \4/'`
-+  ARGS=`grep "testprobe" trace | head -n 1 | sed -e 's/.* arg1=\(.*\) arg2=\(.*\) arg3=\(.*\) arg4=\(.*\)/\1 \2 \3 \4/'`
-   check_types $ARGS $width
- 
-   : "Clear event for next loop"
--- 
-2.20.1
-
+-cat $T.oo | sed -e "${faultlinenum}s/^\(.*:\)\(.*\)/\1\*\2\t\t<-- trapping instruction/"
++cat $T.oo | sed -e "${faultlinenum}s/^\([^:]*:\)\(.*\)/\1\*\2\t\t<-- trapping instruction/"
+ echo
+ cat $T.aa
+ cleanup
 
 
