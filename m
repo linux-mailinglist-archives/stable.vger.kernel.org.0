@@ -2,38 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 98CB71D86EE
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:31:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 605441D812C
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:46:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729237AbgERRlQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:41:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37484 "EHLO mail.kernel.org"
+        id S1729970AbgERRpg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:45:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44496 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729233AbgERRlP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:41:15 -0400
+        id S1729965AbgERRpf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:45:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8E7AA20657;
-        Mon, 18 May 2020 17:41:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 789D420657;
+        Mon, 18 May 2020 17:45:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589823675;
-        bh=N+jhR+gk5hcEwX7Xm6LZLDjMDUQeoeOZfbtJOm6xB+4=;
+        s=default; t=1589823934;
+        bh=xy+Y9XI0kG1f8Pu63JShmxH5Fg/KC5WG2EGzsp6SV2k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rReAUGmO/AaSfcgcjpdLojxmyoNkI9XdN7IsrjB4cECtnNFuDAPPrek0TltZ4tbxy
-         I86uUMjwZS6PTSXQoxwUnHT+X2BkgsQkpJCdTGOZtzmqOJ4HJb2QIsgG6aqXrGSDGA
-         RUzvZG//jQJI8x9ijuBy50t2x4+hTz2Ebx5AXQvE=
+        b=vvFrZMopJlMo5z4Ts/3KqW+akAFIDz/wAbQ6fpi15HBrdQezwsydaa5eiTTu5fnpL
+         eYORbCR3rdy9MPNtAZC2z7V3UPCL85Hkiu87RoKytE2COLpZsAAbys5ZZNeJjhaHlw
+         55z+V9OMTzpaCsTIcmwOsifNLyVskmVWDWQSa8PU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sergei Trofimovich <slyfox@gentoo.org>,
-        Borislav Petkov <bp@suse.de>, Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 4.4 77/86] x86: Fix early boot crash on gcc-10, third try
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Willem de Bruijn <willemb@google.com>,
+        Xin Long <lucien.xin@gmail.com>,
+        Hannes Frederic Sowa <hannes@stressinduktion.org>,
+        =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <maze@google.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 70/90] Revert "ipv6: add mtu lock check in __ip6_rt_update_pmtu"
 Date:   Mon, 18 May 2020 19:36:48 +0200
-Message-Id: <20200518173506.153893146@linuxfoundation.org>
+Message-Id: <20200518173505.463294723@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173450.254571947@linuxfoundation.org>
-References: <20200518173450.254571947@linuxfoundation.org>
+In-Reply-To: <20200518173450.930655662@linuxfoundation.org>
+References: <20200518173450.930655662@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,142 +47,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Borislav Petkov <bp@suse.de>
+From: "Maciej Żenczykowski" <maze@google.com>
 
-commit a9a3ed1eff3601b63aea4fb462d8b3b92c7c1e7e upstream.
+[ Upstream commit 09454fd0a4ce23cb3d8af65066c91a1bf27120dd ]
 
-... or the odyssey of trying to disable the stack protector for the
-function which generates the stack canary value.
+This reverts commit 19bda36c4299ce3d7e5bce10bebe01764a655a6d:
 
-The whole story started with Sergei reporting a boot crash with a kernel
-built with gcc-10:
+| ipv6: add mtu lock check in __ip6_rt_update_pmtu
+|
+| Prior to this patch, ipv6 didn't do mtu lock check in ip6_update_pmtu.
+| It leaded to that mtu lock doesn't really work when receiving the pkt
+| of ICMPV6_PKT_TOOBIG.
+|
+| This patch is to add mtu lock check in __ip6_rt_update_pmtu just as ipv4
+| did in __ip_rt_update_pmtu.
 
-  Kernel panic — not syncing: stack-protector: Kernel stack is corrupted in: start_secondary
-  CPU: 1 PID: 0 Comm: swapper/1 Not tainted 5.6.0-rc5—00235—gfffb08b37df9 #139
-  Hardware name: Gigabyte Technology Co., Ltd. To be filled by O.E.M./H77M—D3H, BIOS F12 11/14/2013
-  Call Trace:
-    dump_stack
-    panic
-    ? start_secondary
-    __stack_chk_fail
-    start_secondary
-    secondary_startup_64
-  -—-[ end Kernel panic — not syncing: stack—protector: Kernel stack is corrupted in: start_secondary
+The above reasoning is incorrect.  IPv6 *requires* icmp based pmtu to work.
+There's already a comment to this effect elsewhere in the kernel:
 
-This happens because gcc-10 tail-call optimizes the last function call
-in start_secondary() - cpu_startup_entry() - and thus emits a stack
-canary check which fails because the canary value changes after the
-boot_init_stack_canary() call.
+  $ git grep -p -B1 -A3 'RTAX_MTU lock'
+  net/ipv6/route.c=4813=
 
-To fix that, the initial attempt was to mark the one function which
-generates the stack canary with:
+  static int rt6_mtu_change_route(struct fib6_info *f6i, void *p_arg)
+  ...
+    /* In IPv6 pmtu discovery is not optional,
+       so that RTAX_MTU lock cannot disable it.
+       We still use this lock to block changes
+       caused by addrconf/ndisc.
+    */
 
-  __attribute__((optimize("-fno-stack-protector"))) ... start_secondary(void *unused)
+This reverts to the pre-4.9 behaviour.
 
-however, using the optimize attribute doesn't work cumulatively
-as the attribute does not add to but rather replaces previously
-supplied optimization options - roughly all -fxxx options.
-
-The key one among them being -fno-omit-frame-pointer and thus leading to
-not present frame pointer - frame pointer which the kernel needs.
-
-The next attempt to prevent compilers from tail-call optimizing
-the last function call cpu_startup_entry(), shy of carving out
-start_secondary() into a separate compilation unit and building it with
--fno-stack-protector, was to add an empty asm("").
-
-This current solution was short and sweet, and reportedly, is supported
-by both compilers but we didn't get very far this time: future (LTO?)
-optimization passes could potentially eliminate this, which leads us
-to the third attempt: having an actual memory barrier there which the
-compiler cannot ignore or move around etc.
-
-That should hold for a long time, but hey we said that about the other
-two solutions too so...
-
-Reported-by: Sergei Trofimovich <slyfox@gentoo.org>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Tested-by: Kalle Valo <kvalo@codeaurora.org>
-Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/20200314164451.346497-1-slyfox@gentoo.org
+Cc: Eric Dumazet <edumazet@google.com>
+Cc: Willem de Bruijn <willemb@google.com>
+Cc: Xin Long <lucien.xin@gmail.com>
+Cc: Hannes Frederic Sowa <hannes@stressinduktion.org>
+Signed-off-by: Maciej Żenczykowski <maze@google.com>
+Fixes: 19bda36c4299 ("ipv6: add mtu lock check in __ip6_rt_update_pmtu")
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- arch/x86/include/asm/stackprotector.h |    7 ++++++-
- arch/x86/kernel/smpboot.c             |    8 ++++++++
- arch/x86/xen/smp.c                    |    1 +
- include/linux/compiler.h              |    7 +++++++
- init/main.c                           |    2 ++
- 5 files changed, 24 insertions(+), 1 deletion(-)
+ net/ipv6/route.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/arch/x86/include/asm/stackprotector.h
-+++ b/arch/x86/include/asm/stackprotector.h
-@@ -54,8 +54,13 @@
- /*
-  * Initialize the stackprotector canary value.
-  *
-- * NOTE: this must only be called from functions that never return,
-+ * NOTE: this must only be called from functions that never return
-  * and it must always be inlined.
-+ *
-+ * In addition, it should be called from a compilation unit for which
-+ * stack protector is disabled. Alternatively, the caller should not end
-+ * with a function call which gets tail-call optimized as that would
-+ * lead to checking a modified canary value.
-  */
- static __always_inline void boot_init_stack_canary(void)
+--- a/net/ipv6/route.c
++++ b/net/ipv6/route.c
+@@ -1373,8 +1373,10 @@ static void __ip6_rt_update_pmtu(struct
  {
---- a/arch/x86/kernel/smpboot.c
-+++ b/arch/x86/kernel/smpboot.c
-@@ -243,6 +243,14 @@ static void notrace start_secondary(void
+ 	struct rt6_info *rt6 = (struct rt6_info *)dst;
  
- 	wmb();
- 	cpu_startup_entry(CPUHP_ONLINE);
-+
-+	/*
-+	 * Prevent tail call to cpu_startup_entry() because the stack protector
-+	 * guard has been changed a couple of function calls up, in
-+	 * boot_init_stack_canary() and must not be checked before tail calling
-+	 * another function.
+-	if (dst_metric_locked(dst, RTAX_MTU))
+-		return;
++	/* Note: do *NOT* check dst_metric_locked(dst, RTAX_MTU)
++	 * IPv6 pmtu discovery isn't optional, so 'mtu lock' cannot disable it.
++	 * [see also comment in rt6_mtu_change_route()]
 +	 */
-+	prevent_tail_call_optimization();
- }
  
- void __init smp_store_boot_cpu_info(void)
---- a/arch/x86/xen/smp.c
-+++ b/arch/x86/xen/smp.c
-@@ -116,6 +116,7 @@ asmlinkage __visible void cpu_bringup_an
- #endif
- 	cpu_bringup();
- 	cpu_startup_entry(CPUHP_ONLINE);
-+	prevent_tail_call_optimization();
- }
- 
- static void xen_smp_intr_free(unsigned int cpu)
---- a/include/linux/compiler.h
-+++ b/include/linux/compiler.h
-@@ -556,4 +556,11 @@ static __always_inline void __write_once
- # define __kprobes
- # define nokprobe_inline	inline
- #endif
-+
-+/*
-+ * This is needed in functions which generate the stack canary, see
-+ * arch/x86/kernel/smpboot.c::start_secondary() for an example.
-+ */
-+#define prevent_tail_call_optimization()	mb()
-+
- #endif /* __LINUX_COMPILER_H */
---- a/init/main.c
-+++ b/init/main.c
-@@ -683,6 +683,8 @@ asmlinkage __visible void __init start_k
- 
- 	/* Do the rest non-__init'ed, we're now alive */
- 	rest_init();
-+
-+	prevent_tail_call_optimization();
- }
- 
- /* Call all constructor functions linked into the kernel. */
+ 	dst_confirm(dst);
+ 	mtu = max_t(u32, mtu, IPV6_MIN_MTU);
 
 
