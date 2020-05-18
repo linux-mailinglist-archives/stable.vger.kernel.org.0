@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6833C1D846E
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:13:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 869071D8677
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:27:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730666AbgERSCW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:02:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45810 "EHLO mail.kernel.org"
+        id S1730050AbgERRqT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:46:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45814 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731969AbgERSCR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 14:02:17 -0400
+        id S1730062AbgERRqR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:46:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4E7D920853;
-        Mon, 18 May 2020 18:02:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BC66020657;
+        Mon, 18 May 2020 17:46:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824936;
-        bh=9TQ8eH1qNM1RYSKmIofJoLlaKrOcwsV2rTGyt/yiM/4=;
+        s=default; t=1589823977;
+        bh=wTaUMCm6MSW1jvD4dj3eMAa7vjgtXNySyMYn6acQZQE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lPBeuZhQPsc9bRuckyxMqUWaq0FMThAPFhL1krKD8182N0F+7jMiAw6yK/bLDCk9B
-         LKRgtovCbiOUXN5J42beJPaBx/ZX5khhI1MupJt0B6pj1Tc4egvNWijQUTvpd1kIcd
-         O4vceK5u9vSv0LcgaqQnERdlpVIFBYwV7988uUIM=
+        b=zd+jYGiwomCwE0cDytHRdEpyg6nzkkqLdrunLBuWSRC/mWmePTSHWjXSs0sb9fKgW
+         +ntmE+FHuSYYvPUnPOGV1SKOZC/G9LbiryFGCY4reQI1BGSjUCdtow57yN4Zk73ty7
+         85s1tQdv7eLr0+CDBDCG+zZ5H8nK4SPSmCkqDCzA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
-        Aric Cyr <Aric.Cyr@amd.com>,
-        Aurabindo Pillai <aurabindo.pillai@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 063/194] drm/amd/display: Defer cursor update around VUPDATE for all ASIC
+        "Tzvetomir Stoyanov (VMware)" <tz.stoyanov@gmail.com>,
+        Joerg Roedel <jroedel@suse.de>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 4.14 021/114] tracing: Add a vmalloc_sync_mappings() for safe measure
 Date:   Mon, 18 May 2020 19:35:53 +0200
-Message-Id: <20200518173536.966424990@linuxfoundation.org>
+Message-Id: <20200518173507.540177073@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
-References: <20200518173531.455604187@linuxfoundation.org>
+In-Reply-To: <20200518173503.033975649@linuxfoundation.org>
+References: <20200518173503.033975649@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,86 +45,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+From: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-[ Upstream commit fdfd2a858590d318cfee483bd1c73e00f77533af ]
+commit 11f5efc3ab66284f7aaacc926e9351d658e2577b upstream.
 
-[Why]
-Fixes the following scenario:
+x86_64 lazily maps in the vmalloc pages, and the way this works with per_cpu
+areas can be complex, to say the least. Mappings may happen at boot up, and
+if nothing synchronizes the page tables, those page mappings may not be
+synced till they are used. This causes issues for anything that might touch
+one of those mappings in the path of the page fault handler. When one of
+those unmapped mappings is touched in the page fault handler, it will cause
+another page fault, which in turn will cause a page fault, and leave us in
+a loop of page faults.
 
-- Flip has been prepared sometime during the frame, update pending
-- Cursor update happens right when VUPDATE would happen
-- OPTC lock acquired, VUPDATE is blocked until next frame
-- Flip is delayed potentially infinitely
+Commit 763802b53a42 ("x86/mm: split vmalloc_sync_all()") split
+vmalloc_sync_all() into vmalloc_sync_unmappings() and
+vmalloc_sync_mappings(), as on system exit, it did not need to do a full
+sync on x86_64 (although it still needed to be done on x86_32). By chance,
+the vmalloc_sync_all() would synchronize the page mappings done at boot up
+and prevent the per cpu area from being a problem for tracing in the page
+fault handler. But when that synchronization in the exit of a task became a
+nop, it caused the problem to appear.
 
-With the igt@kms_cursor_legacy cursor-vs-flip-legacy test we can
-observe nearly *13* frames of delay for some flips on Navi.
+Link: https://lore.kernel.org/r/20200429054857.66e8e333@oasis.local.home
 
-[How]
-Apply the Raven workaround generically. When close enough to VUPDATE
-block cursor updates from occurring from the dc_stream_set_cursor_*
-helpers.
+Cc: stable@vger.kernel.org
+Fixes: 737223fbca3b1 ("tracing: Consolidate buffer allocation code")
+Reported-by: "Tzvetomir Stoyanov (VMware)" <tz.stoyanov@gmail.com>
+Suggested-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-This could perhaps be a little smarter by checking if there were
-pending updates or flips earlier in the frame on the HUBP side before
-applying the delay, but this should be fine for now.
-
-This fixes the kms_cursor_legacy test.
-
-Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Reviewed-by: Aric Cyr <Aric.Cyr@amd.com>
-Acked-by: Aurabindo Pillai <aurabindo.pillai@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../gpu/drm/amd/display/dc/core/dc_stream.c   | 28 +++++++++----------
- 1 file changed, 14 insertions(+), 14 deletions(-)
+ kernel/trace/trace.c |   13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_stream.c b/drivers/gpu/drm/amd/display/dc/core/dc_stream.c
-index 6ddbb00ed37a5..8c20e9e907b2f 100644
---- a/drivers/gpu/drm/amd/display/dc/core/dc_stream.c
-+++ b/drivers/gpu/drm/amd/display/dc/core/dc_stream.c
-@@ -239,24 +239,24 @@ static void delay_cursor_until_vupdate(struct pipe_ctx *pipe_ctx, struct dc *dc)
- 	struct dc_stream_state *stream = pipe_ctx->stream;
- 	unsigned int us_per_line;
- 
--	if (stream->ctx->asic_id.chip_family == FAMILY_RV &&
--			ASICREV_IS_RAVEN(stream->ctx->asic_id.hw_internal_rev)) {
-+	if (!dc->hwss.get_vupdate_offset_from_vsync)
-+		return;
- 
--		vupdate_line = dc->hwss.get_vupdate_offset_from_vsync(pipe_ctx);
--		if (!dc_stream_get_crtc_position(dc, &stream, 1, &vpos, &nvpos))
--			return;
-+	vupdate_line = dc->hwss.get_vupdate_offset_from_vsync(pipe_ctx);
-+	if (!dc_stream_get_crtc_position(dc, &stream, 1, &vpos, &nvpos))
-+		return;
- 
--		if (vpos >= vupdate_line)
--			return;
-+	if (vpos >= vupdate_line)
-+		return;
- 
--		us_per_line = stream->timing.h_total * 10000 / stream->timing.pix_clk_100hz;
--		lines_to_vupdate = vupdate_line - vpos;
--		us_to_vupdate = lines_to_vupdate * us_per_line;
-+	us_per_line =
-+		stream->timing.h_total * 10000 / stream->timing.pix_clk_100hz;
-+	lines_to_vupdate = vupdate_line - vpos;
-+	us_to_vupdate = lines_to_vupdate * us_per_line;
- 
--		/* 70 us is a conservative estimate of cursor update time*/
--		if (us_to_vupdate < 70)
--			udelay(us_to_vupdate);
--	}
-+	/* 70 us is a conservative estimate of cursor update time*/
-+	if (us_to_vupdate < 70)
-+		udelay(us_to_vupdate);
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -7666,6 +7666,19 @@ static int allocate_trace_buffers(struct
+ 	 */
+ 	allocate_snapshot = false;
  #endif
++
++	/*
++	 * Because of some magic with the way alloc_percpu() works on
++	 * x86_64, we need to synchronize the pgd of all the tables,
++	 * otherwise the trace events that happen in x86_64 page fault
++	 * handlers can't cope with accessing the chance that a
++	 * alloc_percpu()'d memory might be touched in the page fault trace
++	 * event. Oh, and we need to audit all other alloc_percpu() and vmalloc()
++	 * calls in tracing, because something might get triggered within a
++	 * page fault trace event!
++	 */
++	vmalloc_sync_mappings();
++
+ 	return 0;
  }
  
--- 
-2.20.1
-
 
 
