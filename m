@@ -2,145 +2,214 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EDF2A1D8753
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:33:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 57E4B1D8781
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:48:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729286AbgERSdN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:33:13 -0400
-Received: from mta-02.yadro.com ([89.207.88.252]:52756 "EHLO mta-01.yadro.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1728490AbgERSdM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 14:33:12 -0400
-Received: from localhost (unknown [127.0.0.1])
-        by mta-01.yadro.com (Postfix) with ESMTP id DEB5E4C667;
-        Mon, 18 May 2020 18:33:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=yadro.com; h=
-        content-type:content-type:content-transfer-encoding:mime-version
-        :x-mailer:message-id:date:date:subject:subject:from:from
-        :received:received:received; s=mta-01; t=1589826786; x=
-        1591641187; bh=5veyLmE+XwlS6sb+AeD6bFUjXEVExdI2mtSwN4PL/P0=; b=o
-        aWC7UelGUiQ5XJmzXZZjr6S/pJRGkNtROZ3e9JfhowuWzPuhIrj7+HQ+h51X3Tnh
-        sxlyo5U2OuWbsrYuglJcIUp0zTEMlMJ7o8BbqPw8BvcfwC0tpVakH23cu50yf2j6
-        KQD/EGC2cf0acgfnFN1s7AijEE4tpUAx4uzquGpvJM=
-X-Virus-Scanned: amavisd-new at yadro.com
-Received: from mta-01.yadro.com ([127.0.0.1])
-        by localhost (mta-01.yadro.com [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id OoTef8jXwn9X; Mon, 18 May 2020 21:33:06 +0300 (MSK)
-Received: from T-EXCH-02.corp.yadro.com (t-exch-02.corp.yadro.com [172.17.10.102])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mta-01.yadro.com (Postfix) with ESMTPS id A20D04128B;
-        Mon, 18 May 2020 21:33:05 +0300 (MSK)
-Received: from localhost (172.17.204.212) by T-EXCH-02.corp.yadro.com
- (172.17.10.102) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384_P384) id 15.1.669.32; Mon, 18
- May 2020 21:33:07 +0300
-From:   Roman Bolshakov <r.bolshakov@yadro.com>
-To:     <linux-scsi@vger.kernel.org>
-CC:     <GR-QLogic-Storage-Upstream@marvell.com>,
-        <target-devel@vger.kernel.org>, <linux@yadro.com>,
-        Roman Bolshakov <r.bolshakov@yadro.com>,
-        Quinn Tran <qutran@marvell.com>, Arun Easi <aeasi@marvell.com>,
-        Nilesh Javali <njavali@marvell.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        Daniel Wagner <dwagner@suse.de>,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Martin Wilck <mwilck@suse.com>, <stable@vger.kernel.org>
-Subject: [PATCH] scsi: qla2xxx: Keep initiator ports after RSCN
-Date:   Mon, 18 May 2020 21:31:42 +0300
-Message-ID: <20200518183141.66621-1-r.bolshakov@yadro.com>
-X-Mailer: git-send-email 2.26.1
+        id S1728557AbgERSsg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:48:36 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:50564 "EHLO
+        shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728954AbgERSsg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 May 2020 14:48:36 -0400
+Received: from [192.168.4.242] (helo=deadeye)
+        by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.89)
+        (envelope-from <ben@decadent.org.uk>)
+        id 1jakoR-0006ww-61; Mon, 18 May 2020 19:48:31 +0100
+Received: from ben by deadeye with local (Exim 4.93)
+        (envelope-from <ben@decadent.org.uk>)
+        id 1jakoQ-003gD0-OG; Mon, 18 May 2020 19:48:30 +0100
+Message-ID: <f794df630d41231c9f727d41da842bf76e6e6fa6.camel@decadent.org.uk>
+Subject: Re: [RFC/PATCH for 3.16] spi: spi-dw: Add lock protect dw_spi rx/tx
+ to prevent concurrent calls
+From:   Ben Hutchings <ben@decadent.org.uk>
+To:     Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>,
+        stable@vger.kernel.org
+Cc:     gregkh@linuxfoundation.org, "wuxu.wu" <wuxu.wu@huawei.com>,
+        Mark Brown <broonie@kernel.org>
+Date:   Mon, 18 May 2020 19:48:26 +0100
+In-Reply-To: <20200515012829.1070159-1-nobuhiro1.iwamatsu@toshiba.co.jp>
+References: <20200515012829.1070159-1-nobuhiro1.iwamatsu@toshiba.co.jp>
+Content-Type: multipart/signed; micalg="pgp-sha512";
+        protocol="application/pgp-signature"; boundary="=-TC19sbEvoya/jICJ9PN5"
+User-Agent: Evolution 3.36.2-1 
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-Originating-IP: [172.17.204.212]
-X-ClientProxiedBy: T-EXCH-01.corp.yadro.com (172.17.10.101) To
- T-EXCH-02.corp.yadro.com (172.17.10.102)
+X-SA-Exim-Connect-IP: 192.168.4.242
+X-SA-Exim-Mail-From: ben@decadent.org.uk
+X-SA-Exim-Scanned: No (on shadbolt.decadent.org.uk); SAEximRunCond expanded to false
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The driver performs SCR (state change registration) in all modes
-including pure target mode.
 
-For each RSCN, scan_needed flag is set in qla2x00_handle_rscn() for the
-port mentioned in the RSCN and fabric rescan is scheduled. During the
-rescan, GNN_FT handler, qla24xx_async_gnnft_done() deletes session of
-the port that caused the RSCN.
+--=-TC19sbEvoya/jICJ9PN5
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-In target mode, the session deletion has an impact on ATIO handler,
-qlt_24xx_atio_pkt(). Target responds with SAM STATUS BUSY to I/O
-incoming from the deleted session. qlt_handle_cmd_for_atio() and
-qlt_handle_task_mgmt() return -EFAULT if they are not able to find
-session of the command/TMF, and that results in invocation of
-qlt_send_busy():
+On Fri, 2020-05-15 at 10:28 +0900, Nobuhiro Iwamatsu wrote:
+> From: "wuxu.wu" <wuxu.wu@huawei.com>
+>=20
+> commit 19b61392c5a852b4e8a0bf35aecb969983c5932d upstream.
 
-  qlt_24xx_atio_pkt_all_vps: qla_target(0): type 6 ox_id 0014
-  qla_target(0): Unable to send command to target, sending BUSY status
+Queued up for 3.16, thanks.
 
-Such response causes command timeout on the initiator. Error handler
-thread on the initiator will be spawned to abort the commands:
+Ben.
 
-  scsi 23:0:0:0: tag#0 abort scheduled
-  scsi 23:0:0:0: tag#0 aborting command
-  qla2xxx [0000:af:00.0]-188c:23: Entered qla24xx_abort_command.
-  qla2xxx [0000:af:00.0]-801c:23: Abort command issued nexus=23:0:0 -- 0 2003.
+> dw_spi_irq() and dw_spi_transfer_one concurrent calls.
+>=20
+> I find a panic in dw_writer(): txw =3D *(u8 *)(dws->tx), when dw->tx=3D=
+=3Dnull,
+> dw->len=3D=3D4, and dw->tx_end=3D=3D1.
+>=20
+> When tpm driver's message overtime dw_spi_irq() and dw_spi_transfer_one
+> may concurrent visit dw_spi, so I think dw_spi structure lack of protecti=
+on.
+>=20
+> Otherwise dw_spi_transfer_one set dw rx/tx buffer and then open irq,
+> store dw rx/tx instructions and other cores handle irq load dw rx/tx
+> instructions may out of order.
+>=20
+> 	[ 1025.321302] Call trace:
+> 	...
+> 	[ 1025.321319]  __crash_kexec+0x98/0x148
+> 	[ 1025.321323]  panic+0x17c/0x314
+> 	[ 1025.321329]  die+0x29c/0x2e8
+> 	[ 1025.321334]  die_kernel_fault+0x68/0x78
+> 	[ 1025.321337]  __do_kernel_fault+0x90/0xb0
+> 	[ 1025.321346]  do_page_fault+0x88/0x500
+> 	[ 1025.321347]  do_translation_fault+0xa8/0xb8
+> 	[ 1025.321349]  do_mem_abort+0x68/0x118
+> 	[ 1025.321351]  el1_da+0x20/0x8c
+> 	[ 1025.321362]  dw_writer+0xc8/0xd0
+> 	[ 1025.321364]  interrupt_transfer+0x60/0x110
+> 	[ 1025.321365]  dw_spi_irq+0x48/0x70
+> 	...
+>=20
+> Signed-off-by: wuxu.wu <wuxu.wu@huawei.com>
+> Link: https://lore.kernel.org/r/1577849981-31489-1-git-send-email-wuxu.wu=
+@huawei.com
+> Signed-off-by: Mark Brown <broonie@kernel.org>
+> [iwamatsu: Backported to 3.16: adjut context]
+> Signed-off-by: Nobuhiro Iwamatsu (CIP) <nobuhiro1.iwamatsu@toshiba.co.jp>
+> ---
+>  drivers/spi/spi-dw.c | 14 ++++++++++++--
+>  drivers/spi/spi-dw.h |  1 +
+>  2 files changed, 13 insertions(+), 2 deletions(-)
+>=20
+> diff --git a/drivers/spi/spi-dw.c b/drivers/spi/spi-dw.c
+> index 66e9e5196c8c5..b3e697d5b5966 100644
+> --- a/drivers/spi/spi-dw.c
+> +++ b/drivers/spi/spi-dw.c
+> @@ -182,9 +182,11 @@ static inline u32 rx_max(struct dw_spi *dws)
+> =20
+>  static void dw_writer(struct dw_spi *dws)
+>  {
+> -	u32 max =3D tx_max(dws);
+> +	u32 max;
+>  	u16 txw =3D 0;
+> =20
+> +	spin_lock(&dws->buf_lock);
+> +	max =3D tx_max(dws);
+>  	while (max--) {
+>  		/* Set the tx word if the transfer's original "tx" is not null */
+>  		if (dws->tx_end - dws->len) {
+> @@ -196,13 +198,16 @@ static void dw_writer(struct dw_spi *dws)
+>  		dw_writew(dws, DW_SPI_DR, txw);
+>  		dws->tx +=3D dws->n_bytes;
+>  	}
+> +	spin_unlock(&dws->buf_lock);
+>  }
+> =20
+>  static void dw_reader(struct dw_spi *dws)
+>  {
+> -	u32 max =3D rx_max(dws);
+> +	u32 max;
+>  	u16 rxw;
+> =20
+> +	spin_lock(&dws->buf_lock);
+> +	max =3D rx_max(dws);
+>  	while (max--) {
+>  		rxw =3D dw_readw(dws, DW_SPI_DR);
+>  		/* Care rx only if the transfer's original "rx" is not null */
+> @@ -214,6 +219,7 @@ static void dw_reader(struct dw_spi *dws)
+>  		}
+>  		dws->rx +=3D dws->n_bytes;
+>  	}
+> +	spin_unlock(&dws->buf_lock);
+>  }
+> =20
+>  static void *next_transfer(struct dw_spi *dws)
+> @@ -368,6 +374,7 @@ static void pump_transfers(unsigned long data)
+>  	struct spi_transfer *previous =3D NULL;
+>  	struct spi_device *spi =3D NULL;
+>  	struct chip_data *chip =3D NULL;
+> +	unsigned long flags;
+>  	u8 bits =3D 0;
+>  	u8 imask =3D 0;
+>  	u8 cs_change =3D 0;
+> @@ -406,6 +413,7 @@ static void pump_transfers(unsigned long data)
+>  	dws->dma_width =3D chip->dma_width;
+>  	dws->cs_control =3D chip->cs_control;
+> =20
+> +	spin_lock_irqsave(&dws->buf_lock, flags);
+>  	dws->rx_dma =3D transfer->rx_dma;
+>  	dws->tx_dma =3D transfer->tx_dma;
+>  	dws->tx =3D (void *)transfer->tx_buf;
+> @@ -415,6 +423,7 @@ static void pump_transfers(unsigned long data)
+>  	dws->len =3D dws->cur_transfer->len;
+>  	if (chip !=3D dws->prev_chip)
+>  		cs_change =3D 1;
+> +	spin_unlock_irqrestore(&dws->buf_lock, flags);
+> =20
+>  	cr0 =3D chip->cr0;
+> =20
+> @@ -651,6 +660,7 @@ int dw_spi_add_host(struct device *dev, struct dw_spi=
+ *dws)
+>  	dws->dma_addr =3D (dma_addr_t)(dws->paddr + 0x60);
+>  	snprintf(dws->name, sizeof(dws->name), "dw_spi%d",
+>  			dws->bus_num);
+> +	spin_lock_init(&dws->buf_lock);
+> =20
+>  	ret =3D request_irq(dws->irq, dw_spi_irq, IRQF_SHARED, dws->name, dws);
+>  	if (ret < 0) {
+> diff --git a/drivers/spi/spi-dw.h b/drivers/spi/spi-dw.h
+> index 6d2acad34f64f..be4119a2159bf 100644
+> --- a/drivers/spi/spi-dw.h
+> +++ b/drivers/spi/spi-dw.h
+> @@ -116,6 +116,7 @@ struct dw_spi {
+>  	size_t			len;
+>  	void			*tx;
+>  	void			*tx_end;
+> +	spinlock_t		buf_lock;
+>  	void			*rx;
+>  	void			*rx_end;
+>  	int			dma_mapped;
+--=20
+Ben Hutchings
+The two most common things in the universe are hydrogen and stupidity.
 
-Command abort is rejected by target and fails (2003), error handler then
-tries to perform DEVICE RESET and TARGET RESET but they're also doomed
-to fail because TMFs are ignored for the deleted sessions.
 
-Then initiator makes BUS RESET that resets the link via
-qla2x00_full_login_lip(). BUS RESET succeeds and brings initiator port
-up, SAN switch detects that and sends RSCN to the target port and it
-fails again the same way as described above. It never goes out of the
-loop.
 
-The change breaks the RSCN loop by keeping initiator sessions mentioned
-in RSCN payload in all modes, including dual and pure target mode.
+--=-TC19sbEvoya/jICJ9PN5
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
 
-Fixes: 2037ce49d30a ("scsi: qla2xxx: Fix stale session")
-Cc: Quinn Tran <qutran@marvell.com>
-Cc: Arun Easi <aeasi@marvell.com>
-Cc: Nilesh Javali <njavali@marvell.com>
-Cc: Bart Van Assche <bvanassche@acm.org>
-Cc: Daniel Wagner <dwagner@suse.de>
-Cc: Himanshu Madhani <himanshu.madhani@oracle.com>
-Cc: Martin Wilck <mwilck@suse.com>
-Cc: stable@vger.kernel.org # v5.4+
-Signed-off-by: Roman Bolshakov <r.bolshakov@yadro.com>
----
- drivers/scsi/qla2xxx/qla_gs.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+-----BEGIN PGP SIGNATURE-----
 
-Hi Martin,
+iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAl7C2HoACgkQ57/I7JWG
+EQlYlw/9FxgsRPpIJkBLJXUjEi5SysPRJH6yRjzywyLPqj5QDYKv4klUUs05PREr
+Ilh8baedO330XNEM0jeYGbvMhb+E1vy9pUAskckSK1vQIhPi0miTPQTiMVmGjQPS
+15mq8coWd/P+WUhkfKwjVITtbq/Om+hTN57LxZv3e0XbzQGGRs+rLN5jgq/Kyyax
+EP7eIyyDXTQpGOfd/tYTMynpcgkKOkhad2nyww+VoHdr0JzepMOULA+++RJLQOMH
+sZI7wezGiDep8QHz+JtmdT2b+/QfQxQSiYFOAtwg9/oSYafOv9g0MPXol1BqNr6+
+tcQjI/uFHUFFc4sWDphQZtdvx4s+JHkt3XErsS9FvjeeP9xgMiguERr2leNqsxeg
+HU4blGYjJ+pFcly66GK234AeN5MFADu/L6fvKFHDaeSyOS4sP31+vAPuDXNqZIu5
+nO3X+6fQDQL0goVIMlHCIQJTzWVPS7Ex2owd4I0WnaSgR03e9Fw3Hj0MDjCge8oS
+XMZO/jNCrV9ERDI/hHm1uuv/lPzXluEXg4zW/R6xaXTAkUI1bBRAPqK4IeEvtyB1
+n8G8jgKEVY3kjoIOKJ8VjkYn5NT4M4XY1p8mUAFGgGnY4bY2yokBck+Dr4HPkiId
+xiEmCf/l9f1xWFrya+X+LVG/yInR5ORbroSIxtPCyiFlXZ/XomI=
+=nwWg
+-----END PGP SIGNATURE-----
 
-Please apply the patch to scsi-fixes/5.7 at your earliest convenience.
-
-qla2xxx in target and, likely, dual mode is unusable in some SAN fabrics
-due to the bug.
-
-Thanks,
-Roman
-
-diff --git a/drivers/scsi/qla2xxx/qla_gs.c b/drivers/scsi/qla2xxx/qla_gs.c
-index 42c3ad27f1cb..b9955af5cffe 100644
---- a/drivers/scsi/qla2xxx/qla_gs.c
-+++ b/drivers/scsi/qla2xxx/qla_gs.c
-@@ -3495,8 +3495,10 @@ void qla24xx_async_gnnft_done(scsi_qla_host_t *vha, srb_t *sp)
- 			if ((fcport->flags & FCF_FABRIC_DEVICE) == 0) {
- 				qla2x00_clear_loop_id(fcport);
- 				fcport->flags |= FCF_FABRIC_DEVICE;
--			} else if (fcport->d_id.b24 != rp->id.b24 ||
--				fcport->scan_needed) {
-+			} else if ((fcport->d_id.b24 != rp->id.b24 ||
-+				    fcport->scan_needed) &&
-+				   (fcport->port_type != FCT_INITIATOR &&
-+				    fcport->port_type != FCT_NVME_INITIATOR)) {
- 				qlt_schedule_sess_for_deletion(fcport);
- 			}
- 			fcport->d_id.b24 = rp->id.b24;
--- 
-2.26.1
-
+--=-TC19sbEvoya/jICJ9PN5--
