@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D0D61D874A
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:32:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CFB111D8536
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:17:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728715AbgERRjM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:39:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33662 "EHLO mail.kernel.org"
+        id S1730351AbgERR5A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:57:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35234 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728710AbgERRjL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:39:11 -0400
+        id S1731722AbgERR46 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:56:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 922C220873;
-        Mon, 18 May 2020 17:39:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 460D520674;
+        Mon, 18 May 2020 17:56:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589823551;
-        bh=R3OFtDSNSKo9Y6kM7usTYKgPt88aIPs/IFl0nxhwCEU=;
+        s=default; t=1589824617;
+        bh=/yFRTgkjOjuakAcUHMYNBsrRG7i5WsGSgwVe2mmzVsQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GoIBiYuYW1rDUMO8xrgZbUvS9UK34R4m0+eZlPrU+ZsDzRbMos3DIwb5UYYGNagSB
-         dg5D1syWOOukArRnggoGUk1SP632thuh0evyUuoDizWmFvyAiA2nplonuCgV6mYiw1
-         elYWgSkQu/JG2aXcfB0aYO/A+n3g1JV9ijdSqt2A=
+        b=JXZRYEWhr8KJ3mQh1BfLmnE1jiZJ+dAMYvGTNdOms8+6Vvu0+PQdsWKYpahireXc3
+         5syekWbpv3XVLG2A8RkxQFWu2ZEHE2CxMzvQDbCoDFCxtqZF0CCsik4jY2qw2MVowL
+         W0iKIWu0VzIj5rzQLSlkZXLRHlZ2ie4Scz8iY+I0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Richard Cochran <richardcochran@gmail.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>
-Subject: [PATCH 4.4 28/86] ptp: do not explicitly set drvdata in ptp_clock_register()
+        stable@vger.kernel.org, Vincent Minet <v.minet@criteo.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.4 036/147] umh: fix memory leak on execve failure
 Date:   Mon, 18 May 2020 19:35:59 +0200
-Message-Id: <20200518173456.193877073@linuxfoundation.org>
+Message-Id: <20200518173518.608541981@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173450.254571947@linuxfoundation.org>
-References: <20200518173450.254571947@linuxfoundation.org>
+In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
+References: <20200518173513.009514388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,32 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Vincent Minet <v.minet@criteo.com>
 
-commit 882f312dc0751c973db26478f07f082c584d16aa upstream.
+[ Upstream commit db803036ada7d61d096783726f9771b3fc540370 ]
 
-We do not need explicitly call dev_set_drvdata(), as it is done for us by
-device_create().
+If a UMH process created by fork_usermode_blob() fails to execute,
+a pair of struct file allocated by umh_pipe_setup() will leak.
 
-Acked-by: Richard Cochran <richardcochran@gmail.com>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
+Under normal conditions, the caller (like bpfilter) needs to manage the
+lifetime of the UMH and its two pipes. But when fork_usermode_blob()
+fails, the caller doesn't really have a way to know what needs to be
+done. It seems better to do the cleanup ourselves in this case.
+
+Fixes: 449325b52b7a ("umh: introduce fork_usermode_blob() helper")
+Signed-off-by: Vincent Minet <v.minet@criteo.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/ptp/ptp_clock.c |    2 --
- 1 file changed, 2 deletions(-)
+ kernel/umh.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/ptp/ptp_clock.c
-+++ b/drivers/ptp/ptp_clock.c
-@@ -220,8 +220,6 @@ struct ptp_clock *ptp_clock_register(str
- 	if (IS_ERR(ptp->dev))
- 		goto no_device;
+--- a/kernel/umh.c
++++ b/kernel/umh.c
+@@ -475,6 +475,12 @@ static void umh_clean_and_save_pid(struc
+ {
+ 	struct umh_info *umh_info = info->data;
  
--	dev_set_drvdata(ptp->dev, ptp);
--
- 	err = ptp_populate_sysfs(ptp);
- 	if (err)
- 		goto no_sysfs;
++	/* cleanup if umh_pipe_setup() was successful but exec failed */
++	if (info->pid && info->retval) {
++		fput(umh_info->pipe_to_umh);
++		fput(umh_info->pipe_from_umh);
++	}
++
+ 	argv_free(info->argv);
+ 	umh_info->pid = info->pid;
+ }
 
 
