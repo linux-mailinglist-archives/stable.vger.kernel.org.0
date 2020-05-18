@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B4ED1D81B0
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:50:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C4831D821B
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:53:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730596AbgERRuD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:50:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51918 "EHLO mail.kernel.org"
+        id S1731147AbgERRxa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:53:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57418 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730618AbgERRuD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:50:03 -0400
+        id S1731141AbgERRx2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:53:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 335C220671;
-        Mon, 18 May 2020 17:50:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9FF0420674;
+        Mon, 18 May 2020 17:53:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824202;
-        bh=AIDuqpFwK4loOrrBPfN4kswXj1atAMquNwmhwqFlyYI=;
+        s=default; t=1589824408;
+        bh=8KW1i2wmH5EBan1tCvs1sWmWIm+rOa+TpyNnyeV6VdQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mANI1i9bDryIa3w/8Zn1wrN18mif/yZaErsgEagv7q9jsHebiCNIY4DfRGr8ZBF35
-         Q7IC9h6o7wIWGfS1NHgPWAP3CmDsXz1W8AiIR2zZYP4i0KMrqy5pWYYOlGHbDocfiU
-         d0VxywmwX/wmqmIzXrTYebrTgbhuxS2VKXrEx4YI=
+        b=PSVj2YFhBWnv9VzphZiQNodVLyUi0/HohShdbtFh49XcnFysUWJ242ssV139SSvuJ
+         zSxzIKjQDDpUBY/yZOgF3uQ2wOs70VHYyKvncnnR4s5+vDQ0UwCKE+86PAWYM8GXhw
+         hYNDBWyjlrec2qOwO49XMWuuJz8PZtq6zB+QWvig=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>
-Subject: [PATCH 4.14 111/114] ARM: dts: r8a73a4: Add missing CMT1 interrupts
+        stable@vger.kernel.org, "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: [PATCH 4.19 65/80] exec: Move would_dump into flush_old_exec
 Date:   Mon, 18 May 2020 19:37:23 +0200
-Message-Id: <20200518173520.976032946@linuxfoundation.org>
+Message-Id: <20200518173503.493770817@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173503.033975649@linuxfoundation.org>
-References: <20200518173503.033975649@linuxfoundation.org>
+In-Reply-To: <20200518173450.097837707@linuxfoundation.org>
+References: <20200518173450.097837707@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,40 +42,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Eric W. Biederman <ebiederm@xmission.com>
 
-commit 0f739fdfe9e5ce668bd6d3210f310df282321837 upstream.
+commit f87d1c9559164294040e58f5e3b74a162bf7c6e8 upstream.
 
-The R-Mobile APE6 Compare Match Timer 1 generates 8 interrupts, one for
-each channel, but currently only 1 is described.
-Fix this by adding the missing interrupts.
+I goofed when I added mm->user_ns support to would_dump.  I missed the
+fact that in the case of binfmt_loader, binfmt_em86, binfmt_misc, and
+binfmt_script bprm->file is reassigned.  Which made the move of
+would_dump from setup_new_exec to __do_execve_file before exec_binprm
+incorrect as it can result in would_dump running on the script instead
+of the interpreter of the script.
 
-Fixes: f7b65230019b9dac ("ARM: shmobile: r8a73a4: Add CMT1 node")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Link: https://lore.kernel.org/r/20200408090926.25201-1-geert+renesas@glider.be
+The net result is that the code stopped making unreadable interpreters
+undumpable.  Which allows them to be ptraced and written to disk
+without special permissions.  Oops.
+
+The move was necessary because the call in set_new_exec was after
+bprm->mm was no longer valid.
+
+To correct this mistake move the misplaced would_dump from
+__do_execve_file into flos_old_exec, before exec_mmap is called.
+
+I tested and confirmed that without this fix I can attach with gdb to
+a script with an unreadable interpreter, and with this fix I can not.
+
+Cc: stable@vger.kernel.org
+Fixes: f84df2a6f268 ("exec: Ensure mm->user_ns contains the execed files")
+Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/boot/dts/r8a73a4.dtsi |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ fs/exec.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/arm/boot/dts/r8a73a4.dtsi
-+++ b/arch/arm/boot/dts/r8a73a4.dtsi
-@@ -133,7 +133,14 @@
- 	cmt1: timer@e6130000 {
- 		compatible = "renesas,cmt-48-r8a73a4", "renesas,cmt-48-gen2";
- 		reg = <0 0xe6130000 0 0x1004>;
--		interrupts = <GIC_SPI 120 IRQ_TYPE_LEVEL_HIGH>;
-+		interrupts = <GIC_SPI 120 IRQ_TYPE_LEVEL_HIGH>,
-+			     <GIC_SPI 121 IRQ_TYPE_LEVEL_HIGH>,
-+			     <GIC_SPI 122 IRQ_TYPE_LEVEL_HIGH>,
-+			     <GIC_SPI 123 IRQ_TYPE_LEVEL_HIGH>,
-+			     <GIC_SPI 124 IRQ_TYPE_LEVEL_HIGH>,
-+			     <GIC_SPI 125 IRQ_TYPE_LEVEL_HIGH>,
-+			     <GIC_SPI 126 IRQ_TYPE_LEVEL_HIGH>,
-+			     <GIC_SPI 127 IRQ_TYPE_LEVEL_HIGH>;
- 		clocks = <&mstp3_clks R8A73A4_CLK_CMT1>;
- 		clock-names = "fck";
- 		power-domains = <&pd_c5>;
+--- a/fs/exec.c
++++ b/fs/exec.c
+@@ -1269,6 +1269,8 @@ int flush_old_exec(struct linux_binprm *
+ 	 */
+ 	set_mm_exe_file(bprm->mm, bprm->file);
+ 
++	would_dump(bprm, bprm->file);
++
+ 	/*
+ 	 * Release all of the old mmap stuff
+ 	 */
+@@ -1814,8 +1816,6 @@ static int __do_execve_file(int fd, stru
+ 	if (retval < 0)
+ 		goto out;
+ 
+-	would_dump(bprm, bprm->file);
+-
+ 	retval = exec_binprm(bprm);
+ 	if (retval < 0)
+ 		goto out;
 
 
