@@ -2,39 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 48EA21D8474
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:13:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1756D1D865B
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:27:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732551AbgERSCk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:02:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47232 "EHLO mail.kernel.org"
+        id S1729292AbgERRol (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:44:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42930 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732537AbgERSCj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 14:02:39 -0400
+        id S1729164AbgERRod (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:44:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8290220884;
-        Mon, 18 May 2020 18:02:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 439FA207C4;
+        Mon, 18 May 2020 17:44:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824959;
-        bh=PXKcnrdYSP9RGpx8YL6Ph46rp7ixJa2f5AWPppSHqVM=;
+        s=default; t=1589823872;
+        bh=YJ+ZL8Gk6sA7MQHo52M5Pih7/8OQABFuySkueOQZfW8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mguJ5S2OvLtrrQtdR2AOLFctH/I/2CF5AJsK3agOgA9o2kmCJwJCTh85EO3n/T3x2
-         Rf6EmwlFMiQAgnjiV6qKMLzAEC6jg2x2RollUzNFnSGIwrxb2BWCC1ES9CfFyc3ZZu
-         7+RmUuehroQz19nAcN9gTWvQPyY8JOIIoQPtn6Ss=
+        b=Svn5KNGX9Q/G21lydwIy1X+W55yeVXoNm1riLhpp2CBHZDt8nRoo7cwY51Tp33VsJ
+         V+udtrLY+kxTtOO732LgTv9UzF3Jj5347U7jEiQ5FfRzsjGmpBS3QrNJv1Kl2kdaFo
+         wru5N3yYtOeC7O+F9xRtpSmnYrzShlZJIHEwm+sY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andreas Gruenbacher <agruenba@redhat.com>,
-        Bob Peterson <rpeterso@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 071/194] gfs2: Another gfs2_walk_metadata fix
+        stable@vger.kernel.org, Vince Weaver <vincent.weaver@maine.edu>,
+        Dave Jones <dsj@fb.com>, Steven Rostedt <rostedt@goodmis.org>,
+        Vegard Nossum <vegard.nossum@oracle.com>,
+        Joe Mario <jmario@redhat.com>, Miroslav Benes <mbenes@suse.cz>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        Jann Horn <jannh@google.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 4.9 23/90] objtool: Fix stack offset tracking for indirect CFAs
 Date:   Mon, 18 May 2020 19:36:01 +0200
-Message-Id: <20200518173537.694046759@linuxfoundation.org>
+Message-Id: <20200518173455.871408373@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
-References: <20200518173531.455604187@linuxfoundation.org>
+In-Reply-To: <20200518173450.930655662@linuxfoundation.org>
+References: <20200518173450.930655662@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,77 +51,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Gruenbacher <agruenba@redhat.com>
+From: Josh Poimboeuf <jpoimboe@redhat.com>
 
-[ Upstream commit 566a2ab3c9005f62e784bd39022d58d34ef4365c ]
+commit d8dd25a461e4eec7190cb9d66616aceacc5110ad upstream.
 
-Make sure we don't walk past the end of the metadata in gfs2_walk_metadata: the
-inode holds fewer pointers than indirect blocks.
+When the current frame address (CFA) is stored on the stack (i.e.,
+cfa->base == CFI_SP_INDIRECT), objtool neglects to adjust the stack
+offset when there are subsequent pushes or pops.  This results in bad
+ORC data at the end of the ENTER_IRQ_STACK macro, when it puts the
+previous stack pointer on the stack and does a subsequent push.
 
-Slightly clean up gfs2_iomap_get.
+This fixes the following unwinder warning:
 
-Fixes: a27a0c9b6a20 ("gfs2: gfs2_walk_metadata fix")
-Cc: stable@vger.kernel.org # v5.3+
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
-Signed-off-by: Bob Peterson <rpeterso@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  WARNING: can't dereference registers at 00000000f0a6bdba for ip interrupt_entry+0x9f/0xa0
+
+Fixes: 627fce14809b ("objtool: Add ORC unwind table generation")
+Reported-by: Vince Weaver <vincent.weaver@maine.edu>
+Reported-by: Dave Jones <dsj@fb.com>
+Reported-by: Steven Rostedt <rostedt@goodmis.org>
+Reported-by: Vegard Nossum <vegard.nossum@oracle.com>
+Reported-by: Joe Mario <jmario@redhat.com>
+Reviewed-by: Miroslav Benes <mbenes@suse.cz>
+Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Jann Horn <jannh@google.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lore.kernel.org/r/853d5d691b29e250333332f09b8e27410b2d9924.1587808742.git.jpoimboe@redhat.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- fs/gfs2/bmap.c | 16 +++++++++-------
- 1 file changed, 9 insertions(+), 7 deletions(-)
+ tools/objtool/check.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/gfs2/bmap.c b/fs/gfs2/bmap.c
-index 08f6fbb3655e2..31ed264356253 100644
---- a/fs/gfs2/bmap.c
-+++ b/fs/gfs2/bmap.c
-@@ -528,10 +528,12 @@ static int gfs2_walk_metadata(struct inode *inode, struct metapath *mp,
+--- a/tools/objtool/check.c
++++ b/tools/objtool/check.c
+@@ -1264,7 +1264,7 @@ static int update_insn_state_regs(struct
+ 	struct cfi_reg *cfa = &state->cfa;
+ 	struct stack_op *op = &insn->stack_op;
  
- 		/* Advance in metadata tree. */
- 		(mp->mp_list[hgt])++;
--		if (mp->mp_list[hgt] >= sdp->sd_inptrs) {
--			if (!hgt)
-+		if (hgt) {
-+			if (mp->mp_list[hgt] >= sdp->sd_inptrs)
-+				goto lower_metapath;
-+		} else {
-+			if (mp->mp_list[hgt] >= sdp->sd_diptrs)
- 				break;
--			goto lower_metapath;
- 		}
+-	if (cfa->base != CFI_SP)
++	if (cfa->base != CFI_SP && cfa->base != CFI_SP_INDIRECT)
+ 		return 0;
  
- fill_up_metapath:
-@@ -876,10 +878,9 @@ static int gfs2_iomap_get(struct inode *inode, loff_t pos, loff_t length,
- 					ret = -ENOENT;
- 					goto unlock;
- 				} else {
--					/* report a hole */
- 					iomap->offset = pos;
- 					iomap->length = length;
--					goto do_alloc;
-+					goto hole_found;
- 				}
- 			}
- 			iomap->length = size;
-@@ -933,8 +934,6 @@ static int gfs2_iomap_get(struct inode *inode, loff_t pos, loff_t length,
- 	return ret;
- 
- do_alloc:
--	iomap->addr = IOMAP_NULL_ADDR;
--	iomap->type = IOMAP_HOLE;
- 	if (flags & IOMAP_REPORT) {
- 		if (pos >= size)
- 			ret = -ENOENT;
-@@ -956,6 +955,9 @@ static int gfs2_iomap_get(struct inode *inode, loff_t pos, loff_t length,
- 		if (pos < size && height == ip->i_height)
- 			ret = gfs2_hole_size(inode, lblock, len, mp, iomap);
- 	}
-+hole_found:
-+	iomap->addr = IOMAP_NULL_ADDR;
-+	iomap->type = IOMAP_HOLE;
- 	goto out;
- }
- 
--- 
-2.20.1
-
+ 	/* push */
 
 
