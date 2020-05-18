@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BC611D8469
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:13:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 702551D80DB
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:43:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732256AbgERSBr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:01:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44244 "EHLO mail.kernel.org"
+        id S1729460AbgERRmk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:42:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39732 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732286AbgERSBr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 14:01:47 -0400
+        id S1729456AbgERRmj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:42:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 47D62207F5;
-        Mon, 18 May 2020 18:01:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 37AF8207C4;
+        Mon, 18 May 2020 17:42:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824906;
-        bh=8ZRbF1oT0PlniE7k0j5hKHHVmF3lXbnS8elI06OuwuY=;
+        s=default; t=1589823758;
+        bh=eRR5JLpyGQWbddfqfgr7COthF+C/JL4OZYqmjDeULOc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0pWsOhyQJdD1RdSRQDjYwBlnNOh0xtD9GZA0WTseYJkWclMBK+Y0xCXFkLjN+WaL6
-         CrEjWlJzi0GlSq2D0lEqmoOYqQAvzpVLIhIMw0ZICswDklv9UL71LU+hYnUf/XFQbn
-         UgukYlryB2tSuw319/gXtt00lNhF8QneKWynKbEs=
+        b=IAHbCaLYC6aOsjE/M0VshmOAOhDjOGcUEkolOhvnR9kC28iZP6en1eE2dgavQwcG5
+         AEezsiR98KvW36ytguNlFcpSOpsUiIz0k42YWhBCyYrqfzOmsR3HcGpTjMtnU/kkQ6
+         w0Q888U9zA0YRU+F4F5/UK2CQVT7U7MV3/aj8Bzc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmitry Golovin <dima@golovin.in>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Ilie Halip <ilie.halip@gmail.com>,
-        Fangrui Song <maskray@google.com>,
-        Palmer Dabbelt <palmerdabbelt@google.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 052/194] riscv: fix vdso build with lld
+        stable@vger.kernel.org, Scott Dial <scott@scottdial.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 04/90] net: macsec: preserve ingress frame ordering
 Date:   Mon, 18 May 2020 19:35:42 +0200
-Message-Id: <20200518173536.112258675@linuxfoundation.org>
+Message-Id: <20200518173451.911405640@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
-References: <20200518173531.455604187@linuxfoundation.org>
+In-Reply-To: <20200518173450.930655662@linuxfoundation.org>
+References: <20200518173450.930655662@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,55 +43,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilie Halip <ilie.halip@gmail.com>
+From: Scott Dial <scott@scottdial.com>
 
-[ Upstream commit 3c1918c8f54166598195d938564072664a8275b1 ]
+[ Upstream commit ab046a5d4be4c90a3952a0eae75617b49c0cb01b ]
 
-When building with the LLVM linker this error occurrs:
-    LD      arch/riscv/kernel/vdso/vdso-syms.o
-  ld.lld: error: no input files
+MACsec decryption always occurs in a softirq context. Since
+the FPU may not be usable in the softirq context, the call to
+decrypt may be scheduled on the cryptd work queue. The cryptd
+work queue does not provide ordering guarantees. Therefore,
+preserving order requires masking out ASYNC implementations
+of gcm(aes).
 
-This happens because the lld treats -R as an alias to -rpath, as opposed
-to ld where -R means --just-symbols.
+For instance, an Intel CPU with AES-NI makes available the
+generic-gcm-aesni driver from the aesni_intel module to
+implement gcm(aes). However, this implementation requires
+the FPU, so it is not always available to use from a softirq
+context, and will fallback to the cryptd work queue, which
+does not preserve frame ordering. With this change, such a
+system would select gcm_base(ctr(aes-aesni),ghash-generic).
+While the aes-aesni implementation prefers to use the FPU, it
+will fallback to the aes-asm implementation if unavailable.
 
-Use the long option name for compatibility between the two.
+By using a synchronous version of gcm(aes), the decryption
+will complete before returning from crypto_aead_decrypt().
+Therefore, the macsec_decrypt_done() callback will be called
+before returning from macsec_decrypt(). Thus, the order of
+calls to macsec_post_decrypt() for the frames is preserved.
 
-Link: https://github.com/ClangBuiltLinux/linux/issues/805
-Reported-by: Dmitry Golovin <dima@golovin.in>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Ilie Halip <ilie.halip@gmail.com>
-Reviewed-by: Fangrui Song <maskray@google.com>
-Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+While it's presumable that the pure AES-NI version of gcm(aes)
+is more performant, the hybrid solution is capable of gigabit
+speeds on modest hardware. Regardless, preserving the order
+of frames is paramount for many network protocols (e.g.,
+triggering TCP retries). Within the MACsec driver itself, the
+replay protection is tripped by the out-of-order frames, and
+can cause frames to be dropped.
+
+This bug has been present in this code since it was added in
+v4.6, however it may not have been noticed since not all CPUs
+have FPU offload available. Additionally, the bug manifests
+as occasional out-of-order packets that are easily
+misattributed to other network phenomena.
+
+When this code was added in v4.6, the crypto/gcm.c code did
+not restrict selection of the ghash function based on the
+ASYNC flag. For instance, x86 CPUs with PCLMULQDQ would
+select the ghash-clmulni driver instead of ghash-generic,
+which submits to the cryptd work queue if the FPU is busy.
+However, this bug was was corrected in v4.8 by commit
+b30bdfa86431afbafe15284a3ad5ac19b49b88e3, and was backported
+all the way back to the v3.14 stable branch, so this patch
+should be applicable back to the v4.6 stable branch.
+
+Signed-off-by: Scott Dial <scott@scottdial.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/riscv/kernel/vdso/Makefile | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/macsec.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/riscv/kernel/vdso/Makefile b/arch/riscv/kernel/vdso/Makefile
-index 33b16f4212f7a..a4ee3a0e7d20d 100644
---- a/arch/riscv/kernel/vdso/Makefile
-+++ b/arch/riscv/kernel/vdso/Makefile
-@@ -33,15 +33,15 @@ $(obj)/vdso.so.dbg: $(src)/vdso.lds $(obj-vdso) FORCE
- 	$(call if_changed,vdsold)
+--- a/drivers/net/macsec.c
++++ b/drivers/net/macsec.c
+@@ -1315,7 +1315,8 @@ static struct crypto_aead *macsec_alloc_
+ 	struct crypto_aead *tfm;
+ 	int ret;
  
- # We also create a special relocatable object that should mirror the symbol
--# table and layout of the linked DSO.  With ld -R we can then refer to
--# these symbols in the kernel code rather than hand-coded addresses.
-+# table and layout of the linked DSO. With ld --just-symbols we can then
-+# refer to these symbols in the kernel code rather than hand-coded addresses.
+-	tfm = crypto_alloc_aead("gcm(aes)", 0, 0);
++	/* Pick a sync gcm(aes) cipher to ensure order is preserved. */
++	tfm = crypto_alloc_aead("gcm(aes)", 0, CRYPTO_ALG_ASYNC);
  
- SYSCFLAGS_vdso.so.dbg = -shared -s -Wl,-soname=linux-vdso.so.1 \
- 	-Wl,--build-id -Wl,--hash-style=both
- $(obj)/vdso-dummy.o: $(src)/vdso.lds $(obj)/rt_sigreturn.o FORCE
- 	$(call if_changed,vdsold)
- 
--LDFLAGS_vdso-syms.o := -r -R
-+LDFLAGS_vdso-syms.o := -r --just-symbols
- $(obj)/vdso-syms.o: $(obj)/vdso-dummy.o FORCE
- 	$(call if_changed,ld)
- 
--- 
-2.20.1
-
+ 	if (IS_ERR(tfm))
+ 		return tfm;
 
 
