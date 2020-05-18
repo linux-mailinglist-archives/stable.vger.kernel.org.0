@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D3A401D8747
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:32:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 970EF1D8675
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:27:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728624AbgERRiv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:38:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33114 "EHLO mail.kernel.org"
+        id S1730044AbgERRqK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:46:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45606 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728615AbgERRit (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:38:49 -0400
+        id S1729197AbgERRqJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:46:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 494E020878;
-        Mon, 18 May 2020 17:38:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 084BC207C4;
+        Mon, 18 May 2020 17:46:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589823528;
-        bh=NYb8c7J1Gfowmxh8CILJGefXONSD55TVtFOevI5w1/U=;
+        s=default; t=1589823969;
+        bh=vNZivytMBWAhlteQOYiqnhPyfZQnjhltAJXHLe92+kk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yspssO0xEbYpC+8kHMgWJbbeI0iU9h0LKqDJgSlSbXmW2EpLYa8G7yfswLWS1p/n0
-         O61Qr9ptjF9Z7uQqOXO+1WNEJXMyMHkTYmEtXXjpbyrJ6JsiQ4A7m2WoZz1D4nr2OC
-         FLhmMkGeC1JK95wi9Cpdj66sWk4t3ZYm2yOQE8l4=
+        b=s6wlbgO2kk6/C8vKuorkoTYvwLLpdb0k+7VYK1BCHtxciRpCSFSi5ydb20NFzo8/D
+         zNDYSw9eO6F1sG43znGVI61Nm/DZ1ZxsEaY9BavJJvuAPCjhsvz9RAz0wkS4oQm5ri
+         gPal0BM4D37j4Q4/x8RaPoep6wbCpXpuPw9pPVY0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Richard Kojedzinszky <richard@kojedz.in>
-Subject: [PATCH 4.4 19/86] binfmt_elf: Do not move brk for INTERP-less ET_EXEC
-Date:   Mon, 18 May 2020 19:35:50 +0200
-Message-Id: <20200518173454.352345138@linuxfoundation.org>
+        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
+        =?UTF-8?q?Julian=20Gro=C3=9F?= <julian.g@posteo.de>
+Subject: [PATCH 4.14 019/114] USB: uas: add quirk for LaCie 2Big Quadra
+Date:   Mon, 18 May 2020 19:35:51 +0200
+Message-Id: <20200518173507.149711736@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173450.254571947@linuxfoundation.org>
-References: <20200518173450.254571947@linuxfoundation.org>
+In-Reply-To: <20200518173503.033975649@linuxfoundation.org>
+References: <20200518173503.033975649@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,39 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Oliver Neukum <oneukum@suse.com>
 
-commit 7be3cb019db1cbd5fd5ffe6d64a23fefa4b6f229 upstream.
+commit 9f04db234af691007bb785342a06abab5fb34474 upstream.
 
-When brk was moved for binaries without an interpreter, it should have
-been limited to ET_DYN only. In other words, the special case was an
-ET_DYN that lacks an INTERP, not just an executable that lacks INTERP.
-The bug manifested for giant static executables, where the brk would end
-up in the middle of the text area on 32-bit architectures.
+This device needs US_FL_NO_REPORT_OPCODES to avoid going
+through prolonged error handling on enumeration.
 
-Reported-and-tested-by: Richard Kojedzinszky <richard@kojedz.in>
-Fixes: bbdc6076d2e5 ("binfmt_elf: move brk out of mmap when doing direct loader exec")
-Cc: stable@vger.kernel.org
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Reported-by: Julian Groß <julian.g@posteo.de>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200429155218.7308-1-oneukum@suse.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/binfmt_elf.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/usb/storage/unusual_uas.h |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/fs/binfmt_elf.c
-+++ b/fs/binfmt_elf.c
-@@ -1104,7 +1104,8 @@ static int load_elf_binary(struct linux_
- 		 * (since it grows up, and may collide early with the stack
- 		 * growing down), and into the unused ELF_ET_DYN_BASE region.
- 		 */
--		if (IS_ENABLED(CONFIG_ARCH_HAS_ELF_RANDOMIZE) && !interpreter)
-+		if (IS_ENABLED(CONFIG_ARCH_HAS_ELF_RANDOMIZE) &&
-+		    loc->elf_ex.e_type == ET_DYN && !interpreter)
- 			current->mm->brk = current->mm->start_brk =
- 				ELF_ET_DYN_BASE;
+--- a/drivers/usb/storage/unusual_uas.h
++++ b/drivers/usb/storage/unusual_uas.h
+@@ -41,6 +41,13 @@
+  * and don't forget to CC: the USB development list <linux-usb@vger.kernel.org>
+  */
  
++/* Reported-by: Julian Groß <julian.g@posteo.de> */
++UNUSUAL_DEV(0x059f, 0x105f, 0x0000, 0x9999,
++		"LaCie",
++		"2Big Quadra USB3",
++		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
++		US_FL_NO_REPORT_OPCODES),
++
+ /*
+  * Apricorn USB3 dongle sometimes returns "USBSUSBSUSBS" in response to SCSI
+  * commands in UAS mode.  Observed with the 1.28 firmware; are there others?
 
 
