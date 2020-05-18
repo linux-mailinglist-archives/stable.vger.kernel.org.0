@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 487A41D8073
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:40:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 07D961D8643
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:24:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728918AbgERRjy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:39:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34910 "EHLO mail.kernel.org"
+        id S1730407AbgERSYF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:24:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49422 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728915AbgERRjx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:39:53 -0400
+        id S1728840AbgERRsa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:48:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E04512086A;
-        Mon, 18 May 2020 17:39:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7058C20657;
+        Mon, 18 May 2020 17:48:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589823593;
-        bh=21RvU87suyQJ5Bno2TZaPg+6cnc/R8INOsdBybhJ+a4=;
+        s=default; t=1589824109;
+        bh=tbPH4fX5iPahAc68h/Ix2JabO6ya2WIuRe6PLDpthWM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EzckmMIint4WAj6+lhtT0GgKR2VNBJ1gLmkqxmH8810lBqh/3JLY9J4sgGfC/J+Tw
-         /CpaYxQ1ZqXPuq6zugs19L2Ryew/YDm6SJ7LLkHnAyOPQncjls9+Jd2znwYpUCrU9B
-         9qOtRBdCSGdIKtINn2CNeukgCZA8N5SnzOJhiaP0=
+        b=ynvYOzKxop+tjqCFPs1FGvfcDJS4gZKEocjxrYFTpyBqhhgB2/B9oUViYgJSjXasx
+         V8yH76ZSdNXNLoy94hT3UYewQhg7WD+6DapEUPUoN4UAZOtZX7jVm+PQ8HkL+kksyl
+         JjtG7iDOvRtYST+yesO0SFKIFZw81u0W4GicCAwU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 43/86] dmaengine: pch_dma.c: Avoid data race between probe and irq handler
+        stable@vger.kernel.org, Ming Lei <ming.lei@redhat.com>,
+        Bob Liu <bob.liu@oracle.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Cengiz Can <cengiz@kernel.wtf>, Jens Axboe <axboe@kernel.dk>,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>
+Subject: [PATCH 4.14 042/114] blktrace: fix dereference after null check
 Date:   Mon, 18 May 2020 19:36:14 +0200
-Message-Id: <20200518173459.156844096@linuxfoundation.org>
+Message-Id: <20200518173511.050085773@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173450.254571947@linuxfoundation.org>
-References: <20200518173450.254571947@linuxfoundation.org>
+In-Reply-To: <20200518173503.033975649@linuxfoundation.org>
+References: <20200518173503.033975649@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,47 +46,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>
+From: Cengiz Can <cengiz@kernel.wtf>
 
-[ Upstream commit 2e45676a4d33af47259fa186ea039122ce263ba9 ]
+commit 153031a301bb07194e9c37466cfce8eacb977621 upstream.
 
-pd->dma.dev is read in irq handler pd_irq().
-However, it is set to pdev->dev after request_irq().
-Therefore, set pd->dma.dev to pdev->dev before request_irq() to
-avoid data race between pch_dma_probe() and pd_irq().
+There was a recent change in blktrace.c that added a RCU protection to
+`q->blk_trace` in order to fix a use-after-free issue during access.
 
-Found by Linux Driver Verification project (linuxtesting.org).
+However the change missed an edge case that can lead to dereferencing of
+`bt` pointer even when it's NULL:
 
-Signed-off-by: Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>
-Link: https://lore.kernel.org/r/20200416062335.29223-1-madhuparnabhowmik10@gmail.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Coverity static analyzer marked this as a FORWARD_NULL issue with CID
+1460458.
+
+```
+/kernel/trace/blktrace.c: 1904 in sysfs_blk_trace_attr_store()
+1898            ret = 0;
+1899            if (bt == NULL)
+1900                    ret = blk_trace_setup_queue(q, bdev);
+1901
+1902            if (ret == 0) {
+1903                    if (attr == &dev_attr_act_mask)
+>>>     CID 1460458:  Null pointer dereferences  (FORWARD_NULL)
+>>>     Dereferencing null pointer "bt".
+1904                            bt->act_mask = value;
+1905                    else if (attr == &dev_attr_pid)
+1906                            bt->pid = value;
+1907                    else if (attr == &dev_attr_start_lba)
+1908                            bt->start_lba = value;
+1909                    else if (attr == &dev_attr_end_lba)
+```
+
+Added a reassignment with RCU annotation to fix the issue.
+
+Fixes: c780e86dd48 ("blktrace: Protect q->blk_trace with RCU")
+Reviewed-by: Ming Lei <ming.lei@redhat.com>
+Reviewed-by: Bob Liu <bob.liu@oracle.com>
+Reviewed-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Cengiz Can <cengiz@kernel.wtf>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/dma/pch_dma.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/trace/blktrace.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/dma/pch_dma.c b/drivers/dma/pch_dma.c
-index 113605f6fe208..32517003e118e 100644
---- a/drivers/dma/pch_dma.c
-+++ b/drivers/dma/pch_dma.c
-@@ -877,6 +877,7 @@ static int pch_dma_probe(struct pci_dev *pdev,
+--- a/kernel/trace/blktrace.c
++++ b/kernel/trace/blktrace.c
+@@ -1911,8 +1911,11 @@ static ssize_t sysfs_blk_trace_attr_stor
  	}
  
- 	pci_set_master(pdev);
-+	pd->dma.dev = &pdev->dev;
+ 	ret = 0;
+-	if (bt == NULL)
++	if (bt == NULL) {
+ 		ret = blk_trace_setup_queue(q, bdev);
++		bt = rcu_dereference_protected(q->blk_trace,
++				lockdep_is_held(&q->blk_trace_mutex));
++	}
  
- 	err = request_irq(pdev->irq, pd_irq, IRQF_SHARED, DRV_NAME, pd);
- 	if (err) {
-@@ -892,7 +893,6 @@ static int pch_dma_probe(struct pci_dev *pdev,
- 		goto err_free_irq;
- 	}
- 
--	pd->dma.dev = &pdev->dev;
- 
- 	INIT_LIST_HEAD(&pd->dma.channels);
- 
--- 
-2.20.1
-
+ 	if (ret == 0) {
+ 		if (attr == &dev_attr_act_mask)
 
 
