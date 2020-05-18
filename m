@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A62C1D858A
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:19:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DA281D84B4
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:14:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729051AbgERRyG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:54:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58516 "EHLO mail.kernel.org"
+        id S1732421AbgERSBj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:01:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44036 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728981AbgERRyF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:54:05 -0400
+        id S1732415AbgERSBh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 14:01:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E3A1A207F5;
-        Mon, 18 May 2020 17:54:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 39893207C4;
+        Mon, 18 May 2020 18:01:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824445;
-        bh=4obmFbAA/DVvTb4BHmCCLVDrga54rTsJEGqlCpJWLQU=;
+        s=default; t=1589824896;
+        bh=E62aFs6PBTk5tFC7+VokOo5cOK1GtOKO7f7fTsT5TE8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hkC/N9BpkSKpXnqehgmT9JJDWzw4sYiDJfWjibwMgeG1iiVIckHcxhym18OzcqSRX
-         8TDSi6nC62KUMoLkVimx048vtWwnOzyJFD8g6ikmGzzECkkuXonqB1IGWPZIdT+/0T
-         g20LSjRDJdkXXFpZ95ChUPIBLyDm/4gCxCB1Y9iE=
+        b=LpDj2PErEKeCQALJhG3WOeJnWboS3j3vEvxtNXf12/oFTBgav8KWA8msPNeJvcCUr
+         mDuZKjc8urpD6G+9IkG+xO/4seoG5gLqw4/NZ1mGqi96uw7zqBJPCA3V0NsNHbWA8N
+         QS9rNqoxJCN5X9X/FeTNHngjRVMYrqDAie2FH7RY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Douglas Gilbert <dgilbert@interlog.com>,
-        Wu Bo <wubo40@huawei.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 5.4 015/147] scsi: sg: add sg_remove_request in sg_write
+        stable@vger.kernel.org,
+        =?UTF-8?q?Camale=C3=B3n?= <noelamac@gmail.com>,
+        Heiner Kallweit <hkallweit1@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.6 048/194] r8169: re-establish support for RTL8401 chip version
 Date:   Mon, 18 May 2020 19:35:38 +0200
-Message-Id: <20200518173515.636749011@linuxfoundation.org>
+Message-Id: <20200518173535.816265470@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
-References: <20200518173513.009514388@linuxfoundation.org>
+In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
+References: <20200518173531.455604187@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,39 +45,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wu Bo <wubo40@huawei.com>
+From: Heiner Kallweit <hkallweit1@gmail.com>
 
-commit 83c6f2390040f188cc25b270b4befeb5628c1aee upstream.
+[ Upstream commit 1f8492df081bd66255764f3ce82ba1b2c37def49 ]
 
-If the __copy_from_user function failed we need to call sg_remove_request
-in sg_write.
+r8169 never had native support for the RTL8401, however it reportedly
+worked with the fallback to RTL8101e [0]. Therefore let's add this
+as an explicit assignment.
 
-Link: https://lore.kernel.org/r/610618d9-e983-fd56-ed0f-639428343af7@huawei.com
-Acked-by: Douglas Gilbert <dgilbert@interlog.com>
-Signed-off-by: Wu Bo <wubo40@huawei.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
-[groeck: Backport to v5.4.y and older kernels]
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+[0] https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=956868
+
+Fixes: b4cc2dcc9c7c ("r8169: remove default chip versions")
+Reported-by: Camaleón <noelamac@gmail.com>
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/scsi/sg.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/realtek/r8169_main.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/scsi/sg.c
-+++ b/drivers/scsi/sg.c
-@@ -689,8 +689,10 @@ sg_write(struct file *filp, const char _
- 	hp->flags = input_size;	/* structure abuse ... */
- 	hp->pack_id = old_hdr.pack_id;
- 	hp->usr_ptr = NULL;
--	if (__copy_from_user(cmnd, buf, cmd_size))
-+	if (__copy_from_user(cmnd, buf, cmd_size)) {
-+		sg_remove_request(sfp, srp);
- 		return -EFAULT;
-+	}
- 	/*
- 	 * SG_DXFER_TO_FROM_DEV is functionally equivalent to SG_DXFER_FROM_DEV,
- 	 * but is is possible that the app intended SG_DXFER_TO_DEV, because there
+--- a/drivers/net/ethernet/realtek/r8169_main.c
++++ b/drivers/net/ethernet/realtek/r8169_main.c
+@@ -2127,6 +2127,8 @@ static void rtl8169_get_mac_version(stru
+ 		{ 0x7cf, 0x348,	RTL_GIGA_MAC_VER_07 },
+ 		{ 0x7cf, 0x248,	RTL_GIGA_MAC_VER_07 },
+ 		{ 0x7cf, 0x340,	RTL_GIGA_MAC_VER_13 },
++		/* RTL8401, reportedly works if treated as RTL8101e */
++		{ 0x7cf, 0x240,	RTL_GIGA_MAC_VER_13 },
+ 		{ 0x7cf, 0x343,	RTL_GIGA_MAC_VER_10 },
+ 		{ 0x7cf, 0x342,	RTL_GIGA_MAC_VER_16 },
+ 		{ 0x7c8, 0x348,	RTL_GIGA_MAC_VER_09 },
 
 
