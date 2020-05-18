@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E208F1D8333
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:03:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 342E21D8697
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:28:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731555AbgERSCt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:02:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47566 "EHLO mail.kernel.org"
+        id S1730637AbgERSZT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:25:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46682 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732573AbgERSCr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 14:02:47 -0400
+        id S1729583AbgERRqr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:46:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D534C20715;
-        Mon, 18 May 2020 18:02:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D07FE20671;
+        Mon, 18 May 2020 17:46:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824966;
-        bh=Hj7HmATqitQOrextsJJ4opt0C/dkn/Vl8y5f30JReP4=;
+        s=default; t=1589824006;
+        bh=iZoVEaznfcLc5KPtg9brvQf4P2LvgoMn81YSjkt2QUk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Pa5F3OkHjBP9PdyKrkSXmK8uzVBmUG1X0jVgk8bBZ7X30LuK3LmBHSxhIB5MXlGfj
-         sFGmuDiCrCAPBqTV51yEQMQxBf8cY/3C9mVUIWOcLWdw7T5NKAvO8zmhRcNNvnSh0Z
-         evXAWr5477eA8u491+bkp2NauHQw/qfPjLKj1unM=
+        b=kw+dJuUPLd7EvWTkVGYk6T2v6cKVuk8WFplHQW4+wOvMWUFqa8LGI3xNeLCGOhI66
+         O4TYFK8OLp/HVm/Sakd36Gdmzm5wgnQOlhUO3N1/xPiE6XbqBvYiBAq15kDNMgayWs
+         slA9ZCJtGVal9y4c/Udv2TAx+7m4V3p/0dMAlDU4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Todd Brandt <todd.e.brandt@linux.intel.com>,
-        Chris Chiu <chiu@endlessm.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 074/194] ACPI: EC: PM: Avoid premature returns from acpi_s2idle_wake()
+        stable@vger.kernel.org, Miroslav Benes <mbenes@suse.cz>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        Andy Lutomirski <luto@kernel.org>, Dave Jones <dsj@fb.com>,
+        Jann Horn <jannh@google.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Vince Weaver <vincent.weaver@maine.edu>
+Subject: [PATCH 4.14 032/114] x86/unwind/orc: Prevent unwinding before ORC initialization
 Date:   Mon, 18 May 2020 19:36:04 +0200
-Message-Id: <20200518173537.955194367@linuxfoundation.org>
+Message-Id: <20200518173509.513162349@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
-References: <20200518173531.455604187@linuxfoundation.org>
+In-Reply-To: <20200518173503.033975649@linuxfoundation.org>
+References: <20200518173503.033975649@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,132 +49,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Josh Poimboeuf <jpoimboe@redhat.com>
 
-[ Upstream commit 7b301750f7f8f6503e11f1af4a03832525f58c66 ]
+commit 98d0c8ebf77e0ba7c54a9ae05ea588f0e9e3f46e upstream.
 
-If the EC GPE status is not set after checking all of the other GPEs,
-acpi_s2idle_wake() returns 'false', to indicate that the SCI event
-that has just triggered is not a system wakeup one, but it does that
-without canceling the pending wakeup and re-arming the SCI for system
-wakeup which is a mistake, because it may cause s2idle_loop() to busy
-spin until the next valid wakeup event.  [If that happens, the first
-spurious wakeup is still pending after acpi_s2idle_wake() has
-returned, so s2idle_enter() does nothing, acpi_s2idle_wake()
-is called again and it sees that the SCI has triggered, but no GPEs
-are active, so 'false' is returned again, and so on.]
+If the unwinder is called before the ORC data has been initialized,
+orc_find() returns NULL, and it tries to fall back to using frame
+pointers.  This can cause some unexpected warnings during boot.
 
-Fix that by moving all of the GPE checking logic from
-acpi_s2idle_wake() to acpi_ec_dispatch_gpe() and making the
-latter return 'true' only if a non-EC GPE has triggered and
-'false' otherwise, which will cause acpi_s2idle_wake() to
-cancel the pending SCI wakeup and re-arm the SCI for system
-wakeup regardless of the EC GPE status.
+Move the 'orc_init' check from orc_find() to __unwind_init(), so that it
+doesn't even try to unwind from an uninitialized state.
 
-This also addresses a lockup observed on an Elitegroup EF20EA laptop
-after attempting to wake it up from suspend-to-idle by a key press.
+Fixes: ee9f8fce9964 ("x86/unwind: Add the ORC unwinder")
+Reviewed-by: Miroslav Benes <mbenes@suse.cz>
+Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Dave Jones <dsj@fb.com>
+Cc: Jann Horn <jannh@google.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Vince Weaver <vincent.weaver@maine.edu>
+Link: https://lore.kernel.org/r/069d1499ad606d85532eb32ce39b2441679667d5.1587808742.git.jpoimboe@redhat.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Fixes: d5406284ff80 ("ACPI: PM: s2idle: Refine active GPEs check")
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=207603
-Reported-by: Todd Brandt <todd.e.brandt@linux.intel.com>
-Fixes: fdde0ff8590b ("ACPI: PM: s2idle: Prevent spurious SCIs from waking up the system")
-Link: https://lore.kernel.org/linux-acpi/CAB4CAwdqo7=MvyG_PE+PGVfeA17AHF5i5JucgaKqqMX6mjArbQ@mail.gmail.com/
-Reported-by: Chris Chiu <chiu@endlessm.com>
-Tested-by: Chris Chiu <chiu@endlessm.com>
-Cc: 5.4+ <stable@vger.kernel.org> # 5.4+
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/ec.c       | 24 ++++++++++++++++--------
- drivers/acpi/internal.h |  1 -
- drivers/acpi/sleep.c    | 14 ++------------
- 3 files changed, 18 insertions(+), 21 deletions(-)
+ arch/x86/kernel/unwind_orc.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/acpi/ec.c b/drivers/acpi/ec.c
-index 35dd2f1fb0e61..03b3067811c99 100644
---- a/drivers/acpi/ec.c
-+++ b/drivers/acpi/ec.c
-@@ -2042,23 +2042,31 @@ void acpi_ec_set_gpe_wake_mask(u8 action)
- 		acpi_set_gpe_wake_mask(NULL, first_ec->gpe, action);
- }
+--- a/arch/x86/kernel/unwind_orc.c
++++ b/arch/x86/kernel/unwind_orc.c
+@@ -90,9 +90,6 @@ static struct orc_entry null_orc_entry =
  
--bool acpi_ec_other_gpes_active(void)
--{
--	return acpi_any_gpe_status_set(first_ec ? first_ec->gpe : U32_MAX);
--}
--
- bool acpi_ec_dispatch_gpe(void)
+ static struct orc_entry *orc_find(unsigned long ip)
  {
- 	u32 ret;
- 
- 	if (!first_ec)
-+		return acpi_any_gpe_status_set(U32_MAX);
-+
-+	/*
-+	 * Report wakeup if the status bit is set for any enabled GPE other
-+	 * than the EC one.
-+	 */
-+	if (acpi_any_gpe_status_set(first_ec->gpe))
-+		return true;
-+
-+	if (ec_no_wakeup)
- 		return false;
- 
-+	/*
-+	 * Dispatch the EC GPE in-band, but do not report wakeup in any case
-+	 * to allow the caller to process events properly after that.
-+	 */
- 	ret = acpi_dispatch_gpe(NULL, first_ec->gpe);
--	if (ret == ACPI_INTERRUPT_HANDLED) {
-+	if (ret == ACPI_INTERRUPT_HANDLED)
- 		pm_pr_dbg("EC GPE dispatched\n");
--		return true;
--	}
-+
- 	return false;
- }
- #endif /* CONFIG_PM_SLEEP */
-diff --git a/drivers/acpi/internal.h b/drivers/acpi/internal.h
-index d44c591c4ee4d..3616daec650b1 100644
---- a/drivers/acpi/internal.h
-+++ b/drivers/acpi/internal.h
-@@ -202,7 +202,6 @@ void acpi_ec_remove_query_handler(struct acpi_ec *ec, u8 query_bit);
- 
- #ifdef CONFIG_PM_SLEEP
- void acpi_ec_flush_work(void);
--bool acpi_ec_other_gpes_active(void);
- bool acpi_ec_dispatch_gpe(void);
- #endif
- 
-diff --git a/drivers/acpi/sleep.c b/drivers/acpi/sleep.c
-index 4edc8a3ce40fd..3850704570c0c 100644
---- a/drivers/acpi/sleep.c
-+++ b/drivers/acpi/sleep.c
-@@ -1013,20 +1013,10 @@ static bool acpi_s2idle_wake(void)
- 		if (acpi_check_wakeup_handlers())
- 			return true;
- 
--		/*
--		 * If the status bit is set for any enabled GPE other than the
--		 * EC one, the wakeup is regarded as a genuine one.
--		 */
--		if (acpi_ec_other_gpes_active())
-+		/* Check non-EC GPE wakeups and dispatch the EC GPE. */
-+		if (acpi_ec_dispatch_gpe())
- 			return true;
- 
--		/*
--		 * If the EC GPE status bit has not been set, the wakeup is
--		 * regarded as a spurious one.
--		 */
--		if (!acpi_ec_dispatch_gpe())
--			return false;
+-	if (!orc_init)
+-		return NULL;
 -
- 		/*
- 		 * Cancel the wakeup and process all pending events in case
- 		 * there are any wakeup ones in there.
--- 
-2.20.1
-
+ 	if (ip == 0)
+ 		return &null_orc_entry;
+ 
+@@ -508,6 +505,9 @@ EXPORT_SYMBOL_GPL(unwind_next_frame);
+ void __unwind_start(struct unwind_state *state, struct task_struct *task,
+ 		    struct pt_regs *regs, unsigned long *first_frame)
+ {
++	if (!orc_init)
++		goto done;
++
+ 	memset(state, 0, sizeof(*state));
+ 	state->task = task;
+ 
 
 
