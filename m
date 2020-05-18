@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 538AB1D81D2
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:51:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A84531D815C
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:47:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730807AbgERRvJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:51:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53670 "EHLO mail.kernel.org"
+        id S1730218AbgERRrY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:47:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47680 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730821AbgERRvI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:51:08 -0400
+        id S1730216AbgERRrY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:47:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D37E3207F5;
-        Mon, 18 May 2020 17:51:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0F4D120657;
+        Mon, 18 May 2020 17:47:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824267;
-        bh=zLUCqSvC236bu0DFeMlfYuTWti5TF2S5odgN6soGDug=;
+        s=default; t=1589824043;
+        bh=z5M26JN3oKmUKVO7Mo17wDGwsf4KLmWreqXcBVOtFX0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uLE8z4l9rSKNIZH9GoBDTq/S7C91Vk1kL637d1ckucBMTLHZCpS1ezB5550Fh3NMh
-         p9+K7hVGoMFDToixtuSkLjP5hGPWQLAwPiPjyo7H9PtIf8eRIYuJlq2buvb68kZQgc
-         ltYBVA+pucmMVqmop4hd7L8CfWwNNoUeSWHqof3A=
+        b=r2hAtbCu74E/dld5Nzo1TaAz/D37SSKBUUi0dMVHRulDnIUEbsIg/7twHKSb6qOmY
+         zO1V/npM3PmnIOp2rvWNOdWY2ejzJlIRsBjYKPouPxIvOYNEmBYcCN7o2ElzgkozRb
+         TpooiGtEBkpZCSw2eC360WUvTWgfexwhquJcqkl0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        "David S. Miller" <davem@davemloft.net>,
+        syzbot+c8a8197c8852f566b9d9@syzkaller.appspotmail.com,
+        syzbot+40b71e145e73f78f81ad@syzkaller.appspotmail.com,
+        Hugh Dickins <hughd@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Yang Shi <yang.shi@linux.alibaba.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 03/80] net/sonic: Fix a resource leak in an error handling path in jazz_sonic_probe()
+Subject: [PATCH 4.14 049/114] shmem: fix possible deadlocks on shmlock_user_lock
 Date:   Mon, 18 May 2020 19:36:21 +0200
-Message-Id: <20200518173450.825849382@linuxfoundation.org>
+Message-Id: <20200518173512.163301759@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173450.097837707@linuxfoundation.org>
-References: <20200518173450.097837707@linuxfoundation.org>
+In-Reply-To: <20200518173503.033975649@linuxfoundation.org>
+References: <20200518173503.033975649@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,47 +49,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Hugh Dickins <hughd@google.com>
 
-[ Upstream commit 10e3cc180e64385edc9890c6855acf5ed9ca1339 ]
+[ Upstream commit ea0dfeb4209b4eab954d6e00ed136bc6b48b380d ]
 
-A call to 'dma_alloc_coherent()' is hidden in 'sonic_alloc_descriptors()',
-called from 'sonic_probe1()'.
+Recent commit 71725ed10c40 ("mm: huge tmpfs: try to split_huge_page()
+when punching hole") has allowed syzkaller to probe deeper, uncovering a
+long-standing lockdep issue between the irq-unsafe shmlock_user_lock,
+the irq-safe xa_lock on mapping->i_pages, and shmem inode's info->lock
+which nests inside xa_lock (or tree_lock) since 4.8's shmem_uncharge().
 
-This is correctly freed in the remove function, but not in the error
-handling path of the probe function.
-Fix it and add the missing 'dma_free_coherent()' call.
+user_shm_lock(), servicing SysV shmctl(SHM_LOCK), wants
+shmlock_user_lock while its caller shmem_lock() holds info->lock with
+interrupts disabled; but hugetlbfs_file_setup() calls user_shm_lock()
+with interrupts enabled, and might be interrupted by a writeback endio
+wanting xa_lock on i_pages.
 
-While at it, rename a label in order to be slightly more informative.
+This may not risk an actual deadlock, since shmem inodes do not take
+part in writeback accounting, but there are several easy ways to avoid
+it.
 
-Fixes: efcce839360f ("[PATCH] macsonic/jazzsonic network drivers update")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Requiring interrupts disabled for shmlock_user_lock would be easy, but
+it's a high-level global lock for which that seems inappropriate.
+Instead, recall that the use of info->lock to guard info->flags in
+shmem_lock() dates from pre-3.1 days, when races with SHMEM_PAGEIN and
+SHMEM_TRUNCATE could occur: nowadays it serves no purpose, the only flag
+added or removed is VM_LOCKED itself, and calls to shmem_lock() an inode
+are already serialized by the caller.
+
+Take info->lock out of the chain and the possibility of deadlock or
+lockdep warning goes away.
+
+Fixes: 4595ef88d136 ("shmem: make shmem_inode_info::lock irq-safe")
+Reported-by: syzbot+c8a8197c8852f566b9d9@syzkaller.appspotmail.com
+Reported-by: syzbot+40b71e145e73f78f81ad@syzkaller.appspotmail.com
+Signed-off-by: Hugh Dickins <hughd@google.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Acked-by: Yang Shi <yang.shi@linux.alibaba.com>
+Cc: Yang Shi <yang.shi@linux.alibaba.com>
+Link: http://lkml.kernel.org/r/alpine.LSU.2.11.2004161707410.16322@eggly.anvils
+Link: https://lore.kernel.org/lkml/000000000000e5838c05a3152f53@google.com/
+Link: https://lore.kernel.org/lkml/0000000000003712b305a331d3b1@google.com/
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/natsemi/jazzsonic.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ mm/shmem.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/natsemi/jazzsonic.c b/drivers/net/ethernet/natsemi/jazzsonic.c
-index 51fa82b429a3c..40970352d2082 100644
---- a/drivers/net/ethernet/natsemi/jazzsonic.c
-+++ b/drivers/net/ethernet/natsemi/jazzsonic.c
-@@ -235,11 +235,13 @@ static int jazz_sonic_probe(struct platform_device *pdev)
+diff --git a/mm/shmem.c b/mm/shmem.c
+index f9a1e0ba259f3..24005c3b345ca 100644
+--- a/mm/shmem.c
++++ b/mm/shmem.c
+@@ -2129,7 +2129,11 @@ int shmem_lock(struct file *file, int lock, struct user_struct *user)
+ 	struct shmem_inode_info *info = SHMEM_I(inode);
+ 	int retval = -ENOMEM;
  
- 	err = register_netdev(dev);
- 	if (err)
--		goto out1;
-+		goto undo_probe1;
+-	spin_lock_irq(&info->lock);
++	/*
++	 * What serializes the accesses to info->flags?
++	 * ipc_lock_object() when called from shmctl_do_lock(),
++	 * no serialization needed when called from shm_destroy().
++	 */
+ 	if (lock && !(info->flags & VM_LOCKED)) {
+ 		if (!user_shm_lock(inode->i_size, user))
+ 			goto out_nomem;
+@@ -2144,7 +2148,6 @@ int shmem_lock(struct file *file, int lock, struct user_struct *user)
+ 	retval = 0;
  
- 	return 0;
+ out_nomem:
+-	spin_unlock_irq(&info->lock);
+ 	return retval;
+ }
  
--out1:
-+undo_probe1:
-+	dma_free_coherent(lp->device, SIZEOF_SONIC_DESC * SONIC_BUS_SCALE(lp->dma_bitmode),
-+			  lp->descriptors, lp->descriptors_laddr);
- 	release_mem_region(dev->base_addr, SONIC_MEM_SIZE);
- out:
- 	free_netdev(dev);
 -- 
 2.20.1
 
