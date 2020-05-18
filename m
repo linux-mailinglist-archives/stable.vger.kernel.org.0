@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8279C1D8115
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:45:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 080E71D85E8
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:22:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729093AbgERRol (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:44:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42998 "EHLO mail.kernel.org"
+        id S1730064AbgERRv3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:51:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54182 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729275AbgERRof (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:44:35 -0400
+        id S1730348AbgERRv2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:51:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D276620715;
-        Mon, 18 May 2020 17:44:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ACC7920715;
+        Mon, 18 May 2020 17:51:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589823875;
-        bh=bDA3ORR6saXc6yEWqMEoxIh7cCsWEQXRzhmnx+QhUaw=;
+        s=default; t=1589824287;
+        bh=WnNstYCDUFAAXrsF4FoTE8vpCGvT/AX729NNv95uTrM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pnK/ISPTGYLn8JgxCkgPbt44GiQRDG7k3OUWtJD+eM5d+M1KCwh+kZN0HeLiu2wCC
-         WSrM59BDmUYhL7E94H+DA0rZeOgjoYT0gFCipzK0AJFyGd/Rk7AUsi42Tz6lHd7SXP
-         Sazo8yNSBeKmFjnXOjDZakx58Dyds0Z4/iqMiznE=
+        b=B5yPLn9F/3DRwj+PH5BmVcAxmIlD3U+TGRsixSXdGVARzKxu+6UdrbAJUlqZHJprt
+         UvOAwsITA9qwEyLi3tq6L97faLjAkMNiEcB+oPzgxn4pvHM/ieYPIrA6YOBJVpvRCa
+         wyA258heGjurDMtkvyL+e1Cc4JT0WpFHoPE4rsRs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.9 64/90] gcc-10: disable zero-length-bounds warning for now
+        stable@vger.kernel.org, Lubomir Rintel <lkundrak@v3.sk>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 24/80] dmaengine: mmp_tdma: Reset channel error on release
 Date:   Mon, 18 May 2020 19:36:42 +0200
-Message-Id: <20200518173504.147510115@linuxfoundation.org>
+Message-Id: <20200518173455.213498172@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173450.930655662@linuxfoundation.org>
-References: <20200518173450.930655662@linuxfoundation.org>
+In-Reply-To: <20200518173450.097837707@linuxfoundation.org>
+References: <20200518173450.097837707@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,42 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Lubomir Rintel <lkundrak@v3.sk>
 
-commit 5c45de21a2223fe46cf9488c99a7fbcf01527670 upstream.
+[ Upstream commit 0c89446379218698189a47871336cb30286a7197 ]
 
-This is a fine warning, but we still have a number of zero-length arrays
-in the kernel that come from the traditional gcc extension.  Yes, they
-are getting converted to flexible arrays, but in the meantime the gcc-10
-warning about zero-length bounds is very verbose, and is hiding other
-issues.
+When a channel configuration fails, the status of the channel is set to
+DEV_ERROR so that an attempt to submit it fails. However, this status
+sticks until the heat end of the universe, making it impossible to
+recover from the error.
 
-I missed one actual build failure because it was hidden among hundreds
-of lines of warning.  Thankfully I caught it on the second go before
-pushing things out, but it convinced me that I really need to disable
-the new warnings for now.
+Let's reset it when the channel is released so that further use of the
+channel with correct configuration is not impacted.
 
-We'll hopefully be all done with our conversion to flexible arrays in
-the not too distant future, and we can then re-enable this warning.
-
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Lubomir Rintel <lkundrak@v3.sk>
+Link: https://lore.kernel.org/r/20200419164912.670973-5-lkundrak@v3.sk
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Makefile |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/dma/mmp_tdma.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/Makefile
-+++ b/Makefile
-@@ -797,6 +797,9 @@ KBUILD_CFLAGS += $(call cc-disable-warni
- # disable stringop warnings in gcc 8+
- KBUILD_CFLAGS += $(call cc-disable-warning, stringop-truncation)
+diff --git a/drivers/dma/mmp_tdma.c b/drivers/dma/mmp_tdma.c
+index 13c68b6434ce2..15b4a44e60069 100644
+--- a/drivers/dma/mmp_tdma.c
++++ b/drivers/dma/mmp_tdma.c
+@@ -362,6 +362,8 @@ static void mmp_tdma_free_descriptor(struct mmp_tdma_chan *tdmac)
+ 		gen_pool_free(gpool, (unsigned long)tdmac->desc_arr,
+ 				size);
+ 	tdmac->desc_arr = NULL;
++	if (tdmac->status == DMA_ERROR)
++		tdmac->status = DMA_COMPLETE;
  
-+# We'll want to enable this eventually, but it's not going away for 5.7 at least
-+KBUILD_CFLAGS += $(call cc-disable-warning, zero-length-bounds)
-+
- # Enabled with W=2, disabled by default as noisy
- KBUILD_CFLAGS += $(call cc-disable-warning, maybe-uninitialized)
- 
+ 	return;
+ }
+-- 
+2.20.1
+
 
 
