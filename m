@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5740C1D84CE
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:15:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B1A5E1D82C8
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:59:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732000AbgERR7I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:59:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39194 "EHLO mail.kernel.org"
+        id S1732015AbgERR7N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:59:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39368 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731999AbgERR7H (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:59:07 -0400
+        id S1732014AbgERR7M (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:59:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D1C69207D3;
-        Mon, 18 May 2020 17:59:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BAEA0207D3;
+        Mon, 18 May 2020 17:59:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824747;
-        bh=YSPe1livLa9ajmbYeUYS17498NRPX2FUCt/YUQrxklU=;
+        s=default; t=1589824752;
+        bh=ZHobTLHe8zeHCbBSAE8eFwEmwmHHNRo2N/t8g3ZARIA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vRs8gL0luwJ+25rqlne7E9dlVYqdU3lpQguca0gh7E2Ct2XDgxd8+QZjzG6xbPF/f
-         V9mcJFXXoRuoWPgKyra1hmm6RCfhqeqC/a4SmtXOR3/Jz683CWdLugas2vcIjmMKtk
-         IfLCNIWE4ZeyMwtsXMWY4qX0SAA30cle+Qz7HowQ=
+        b=URPEvkfHjU3yi62gkhA8H7aGKVRSua9Nkk3EsOZ2iUj9Zw0FfYfRgSCevr8rKCI0M
+         b2eBQFq5W1O9DxlaccRpnlVZICL5VMLCiA15ujz0S55ea2xvQCQzIDJ+TOboOrVV0J
+         hqzXOpcEkfDTJmlrrfh27UiMcM2I75ftOgIGMUAg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chen-Yu Tsai <wens@csie.org>,
-        Heiko Stuebner <heiko@sntech.de>
-Subject: [PATCH 5.4 136/147] arm64: dts: rockchip: Rename dwc3 device nodes on rk3399 to make dtc happy
-Date:   Mon, 18 May 2020 19:37:39 +0200
-Message-Id: <20200518173530.153616983@linuxfoundation.org>
+        stable@vger.kernel.org, Adam Ford <aford173@gmail.com>,
+        Shawn Guo <shawnguo@kernel.org>
+Subject: [PATCH 5.4 137/147] arm64: dts: imx8mn: Change SDMA1 ahb clock for imx8mn
+Date:   Mon, 18 May 2020 19:37:40 +0200
+Message-Id: <20200518173530.237924524@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
 References: <20200518173513.009514388@linuxfoundation.org>
@@ -43,46 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen-Yu Tsai <wens@csie.org>
+From: Adam Ford <aford173@gmail.com>
 
-commit 190c7f6fd43a776d4a6da1dac44408104649e9b7 upstream.
+commit 15ddc3e17aec0de4c69d595b873e184432b9791d upstream.
 
-The device tree compiler complains that the dwc3 nodes have regs
-properties but no matching unit addresses.
+Using SDMA1 with UART1 is causing a "Timeout waiting for CH0" error.
+This patch changes to ahb clock from SDMA1_ROOT to AHB which fixes the
+timeout error.
 
-Add the unit addresses to the device node name. While at it, also rename
-the nodes from "dwc3" to "usb", as guidelines require device nodes have
-generic names.
+Fixes: 6c3debcbae47 ("arm64: dts: freescale: Add i.MX8MN dtsi support")
 
-Fixes: 7144224f2c2b ("arm64: dts: rockchip: support dwc3 USB for rk3399")
-Signed-off-by: Chen-Yu Tsai <wens@csie.org>
-Link: https://lore.kernel.org/r/20200327030414.5903-7-wens@kernel.org
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Signed-off-by: Adam Ford <aford173@gmail.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm64/boot/dts/rockchip/rk3399.dtsi |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm64/boot/dts/freescale/imx8mn.dtsi |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/arm64/boot/dts/rockchip/rk3399.dtsi
-+++ b/arch/arm64/boot/dts/rockchip/rk3399.dtsi
-@@ -410,7 +410,7 @@
- 		reset-names = "usb3-otg";
- 		status = "disabled";
- 
--		usbdrd_dwc3_0: dwc3 {
-+		usbdrd_dwc3_0: usb@fe800000 {
- 			compatible = "snps,dwc3";
- 			reg = <0x0 0xfe800000 0x0 0x100000>;
- 			interrupts = <GIC_SPI 105 IRQ_TYPE_LEVEL_HIGH 0>;
-@@ -446,7 +446,7 @@
- 		reset-names = "usb3-otg";
- 		status = "disabled";
- 
--		usbdrd_dwc3_1: dwc3 {
-+		usbdrd_dwc3_1: usb@fe900000 {
- 			compatible = "snps,dwc3";
- 			reg = <0x0 0xfe900000 0x0 0x100000>;
- 			interrupts = <GIC_SPI 110 IRQ_TYPE_LEVEL_HIGH 0>;
+--- a/arch/arm64/boot/dts/freescale/imx8mn.dtsi
++++ b/arch/arm64/boot/dts/freescale/imx8mn.dtsi
+@@ -616,7 +616,7 @@
+ 				reg = <0x30bd0000 0x10000>;
+ 				interrupts = <GIC_SPI 2 IRQ_TYPE_LEVEL_HIGH>;
+ 				clocks = <&clk IMX8MN_CLK_SDMA1_ROOT>,
+-					 <&clk IMX8MN_CLK_SDMA1_ROOT>;
++					 <&clk IMX8MN_CLK_AHB>;
+ 				clock-names = "ipg", "ahb";
+ 				#dma-cells = <3>;
+ 				fsl,sdma-ram-script-name = "imx/sdma/sdma-imx7d.bin";
 
 
