@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E7E581D86D4
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:28:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C27C61D8458
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:11:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387982AbgERS2V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:28:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40342 "EHLO mail.kernel.org"
+        id S1732514AbgERSLW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:11:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51978 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728986AbgERRnE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:43:04 -0400
+        id S1732836AbgERSEq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 14:04:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1D67320829;
-        Mon, 18 May 2020 17:43:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D6BDC20873;
+        Mon, 18 May 2020 18:04:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589823783;
-        bh=WUEUGB2ztG/wBFWKvIh0YzlNR0DI/wK08Ilpm3Lx+Gc=;
+        s=default; t=1589825085;
+        bh=vvO58edxBBfMDGU/CA+sbKPkuGmRSwNhdMK6PcSRDFk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y7ePXNlKrCVoAsAyzlS8v4bg3j4CH+y9BI9foFQsbCG1dClTDGTS3+zWGbTVMxhL7
-         uM3+GFUkCV29awvfFDTgInSq5A0i/FYPLt0mQZfo1Sdl0kn49CCPxNBfuV/5NJGGM3
-         AHKgOosAi/e+NHtlyM2uNlBaVH9JCbmi3uOzQsUU=
+        b=a+U4c8GWZe5nf2fMQRk6ZCbbrGV8V5HhQKDRIIu2C/zFiumNTqXzZufhgVQGJvvlH
+         U36W+grfU48WTOjeiN5RDfxRFyhZ/252vXAoPYRKZByV+XDY4cydxuUSQgowvsb/em
+         f8FYE8assUV78CxX95WkgShQsTLX64HcBVwaUw7U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        stable@vger.kernel.org, Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
+        Chris Wilson <chris@chris-wilson.co.uk>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 35/90] ptp: use is_visible method to hide unused attributes
-Date:   Mon, 18 May 2020 19:36:13 +0200
-Message-Id: <20200518173458.246665640@linuxfoundation.org>
+Subject: [PATCH 5.6 084/194] drm/i915/gt: Make timeslicing an explicit engine property
+Date:   Mon, 18 May 2020 19:36:14 +0200
+Message-Id: <20200518173538.719488345@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173450.930655662@linuxfoundation.org>
-References: <20200518173450.930655662@linuxfoundation.org>
+In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
+References: <20200518173531.455604187@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,213 +45,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Chris Wilson <chris@chris-wilson.co.uk>
 
-commit af59e717d5ff9c8dbf9bcc581c0dfb3b2a9c9030 upstream.
+[ Upstream commit fe5a708267911d55cce42910d93e303924b088fd ]
 
-Instead of creating selected attributes after the device is created (and
-after userspace potentially seen uevent), lets use attribute group
-is_visible() method to control which attributes are shown. This will allow
-us to create all attributes (except "pins" group, which will be taken care
-of later) before userspace gets notified about new ptp class device.
+In order to allow userspace to rely on timeslicing to reorder their
+batches, we must support preemption of those user batches. Declare
+timeslicing as an explicit property that is a combination of having the
+kernel support and HW support.
 
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
+Suggested-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Fixes: 8ee36e048c98 ("drm/i915/execlists: Minimalistic timeslicing")
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Reviewed-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200501122249.12417-1-chris@chris-wilson.co.uk
+(cherry picked from commit a211da9c771bf97395a3ced83a3aa383372b13a7)
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ptp/ptp_sysfs.c | 125 ++++++++++++++++++----------------------
- 1 file changed, 55 insertions(+), 70 deletions(-)
+ drivers/gpu/drm/i915/gt/intel_engine.h       |  9 ---------
+ drivers/gpu/drm/i915/gt/intel_engine_types.h | 18 ++++++++++++++----
+ drivers/gpu/drm/i915/gt/intel_lrc.c          |  5 ++++-
+ 3 files changed, 18 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/ptp/ptp_sysfs.c b/drivers/ptp/ptp_sysfs.c
-index 302e626fe6b01..a55a6eb4dfde9 100644
---- a/drivers/ptp/ptp_sysfs.c
-+++ b/drivers/ptp/ptp_sysfs.c
-@@ -46,27 +46,6 @@ PTP_SHOW_INT(n_periodic_outputs, n_per_out);
- PTP_SHOW_INT(n_programmable_pins, n_pins);
- PTP_SHOW_INT(pps_available, pps);
- 
--static struct attribute *ptp_attrs[] = {
--	&dev_attr_clock_name.attr,
--	&dev_attr_max_adjustment.attr,
--	&dev_attr_n_alarms.attr,
--	&dev_attr_n_external_timestamps.attr,
--	&dev_attr_n_periodic_outputs.attr,
--	&dev_attr_n_programmable_pins.attr,
--	&dev_attr_pps_available.attr,
--	NULL,
--};
--
--static const struct attribute_group ptp_group = {
--	.attrs = ptp_attrs,
--};
--
--const struct attribute_group *ptp_groups[] = {
--	&ptp_group,
--	NULL,
--};
--
--
- static ssize_t extts_enable_store(struct device *dev,
- 				  struct device_attribute *attr,
- 				  const char *buf, size_t count)
-@@ -91,6 +70,7 @@ static ssize_t extts_enable_store(struct device *dev,
- out:
- 	return err;
+diff --git a/drivers/gpu/drm/i915/gt/intel_engine.h b/drivers/gpu/drm/i915/gt/intel_engine.h
+index 5df003061e442..beb3211a6249d 100644
+--- a/drivers/gpu/drm/i915/gt/intel_engine.h
++++ b/drivers/gpu/drm/i915/gt/intel_engine.h
+@@ -338,13 +338,4 @@ intel_engine_has_preempt_reset(const struct intel_engine_cs *engine)
+ 	return intel_engine_has_preemption(engine);
  }
-+static DEVICE_ATTR(extts_enable, 0220, NULL, extts_enable_store);
  
- static ssize_t extts_fifo_show(struct device *dev,
- 			       struct device_attribute *attr, char *page)
-@@ -124,6 +104,7 @@ out:
- 	mutex_unlock(&ptp->tsevq_mux);
- 	return cnt;
- }
-+static DEVICE_ATTR(fifo, 0444, extts_fifo_show, NULL);
+-static inline bool
+-intel_engine_has_timeslices(const struct intel_engine_cs *engine)
+-{
+-	if (!IS_ACTIVE(CONFIG_DRM_I915_TIMESLICE_DURATION))
+-		return false;
+-
+-	return intel_engine_has_semaphores(engine);
+-}
+-
+ #endif /* _INTEL_RINGBUFFER_H_ */
+diff --git a/drivers/gpu/drm/i915/gt/intel_engine_types.h b/drivers/gpu/drm/i915/gt/intel_engine_types.h
+index 92be41a6903c0..4ea067e1508a5 100644
+--- a/drivers/gpu/drm/i915/gt/intel_engine_types.h
++++ b/drivers/gpu/drm/i915/gt/intel_engine_types.h
+@@ -473,10 +473,11 @@ struct intel_engine_cs {
+ #define I915_ENGINE_SUPPORTS_STATS   BIT(1)
+ #define I915_ENGINE_HAS_PREEMPTION   BIT(2)
+ #define I915_ENGINE_HAS_SEMAPHORES   BIT(3)
+-#define I915_ENGINE_NEEDS_BREADCRUMB_TASKLET BIT(4)
+-#define I915_ENGINE_IS_VIRTUAL       BIT(5)
+-#define I915_ENGINE_HAS_RELATIVE_MMIO BIT(6)
+-#define I915_ENGINE_REQUIRES_CMD_PARSER BIT(7)
++#define I915_ENGINE_HAS_TIMESLICES   BIT(4)
++#define I915_ENGINE_NEEDS_BREADCRUMB_TASKLET BIT(5)
++#define I915_ENGINE_IS_VIRTUAL       BIT(6)
++#define I915_ENGINE_HAS_RELATIVE_MMIO BIT(7)
++#define I915_ENGINE_REQUIRES_CMD_PARSER BIT(8)
+ 	unsigned int flags;
  
- static ssize_t period_store(struct device *dev,
- 			    struct device_attribute *attr,
-@@ -151,6 +132,7 @@ static ssize_t period_store(struct device *dev,
- out:
- 	return err;
+ 	/*
+@@ -573,6 +574,15 @@ intel_engine_has_semaphores(const struct intel_engine_cs *engine)
+ 	return engine->flags & I915_ENGINE_HAS_SEMAPHORES;
  }
-+static DEVICE_ATTR(period, 0220, NULL, period_store);
  
- static ssize_t pps_enable_store(struct device *dev,
- 				struct device_attribute *attr,
-@@ -177,6 +159,57 @@ static ssize_t pps_enable_store(struct device *dev,
- out:
- 	return err;
- }
-+static DEVICE_ATTR(pps_enable, 0220, NULL, pps_enable_store);
-+
-+static struct attribute *ptp_attrs[] = {
-+	&dev_attr_clock_name.attr,
-+
-+	&dev_attr_max_adjustment.attr,
-+	&dev_attr_n_alarms.attr,
-+	&dev_attr_n_external_timestamps.attr,
-+	&dev_attr_n_periodic_outputs.attr,
-+	&dev_attr_n_programmable_pins.attr,
-+	&dev_attr_pps_available.attr,
-+
-+	&dev_attr_extts_enable.attr,
-+	&dev_attr_fifo.attr,
-+	&dev_attr_period.attr,
-+	&dev_attr_pps_enable.attr,
-+	NULL
-+};
-+
-+static umode_t ptp_is_attribute_visible(struct kobject *kobj,
-+					struct attribute *attr, int n)
++static inline bool
++intel_engine_has_timeslices(const struct intel_engine_cs *engine)
 +{
-+	struct device *dev = kobj_to_dev(kobj);
-+	struct ptp_clock *ptp = dev_get_drvdata(dev);
-+	struct ptp_clock_info *info = ptp->info;
-+	umode_t mode = attr->mode;
++	if (!IS_ACTIVE(CONFIG_DRM_I915_TIMESLICE_DURATION))
++		return false;
 +
-+	if (attr == &dev_attr_extts_enable.attr ||
-+	    attr == &dev_attr_fifo.attr) {
-+		if (!info->n_ext_ts)
-+			mode = 0;
-+	} else if (attr == &dev_attr_period.attr) {
-+		if (!info->n_per_out)
-+			mode = 0;
-+	} else if (attr == &dev_attr_pps_enable.attr) {
-+		if (!info->pps)
-+			mode = 0;
-+	}
-+
-+	return mode;
++	return engine->flags & I915_ENGINE_HAS_TIMESLICES;
 +}
 +
-+static const struct attribute_group ptp_group = {
-+	.is_visible	= ptp_is_attribute_visible,
-+	.attrs		= ptp_attrs,
-+};
-+
-+const struct attribute_group *ptp_groups[] = {
-+	&ptp_group,
-+	NULL
-+};
- 
- static int ptp_pin_name2index(struct ptp_clock *ptp, const char *name)
+ static inline bool
+ intel_engine_needs_breadcrumb_tasklet(const struct intel_engine_cs *engine)
  {
-@@ -235,26 +268,11 @@ static ssize_t ptp_pin_store(struct device *dev, struct device_attribute *attr,
- 	return count;
- }
- 
--static DEVICE_ATTR(extts_enable, 0220, NULL, extts_enable_store);
--static DEVICE_ATTR(fifo,         0444, extts_fifo_show, NULL);
--static DEVICE_ATTR(period,       0220, NULL, period_store);
--static DEVICE_ATTR(pps_enable,   0220, NULL, pps_enable_store);
--
- int ptp_cleanup_sysfs(struct ptp_clock *ptp)
- {
- 	struct device *dev = ptp->dev;
- 	struct ptp_clock_info *info = ptp->info;
- 
--	if (info->n_ext_ts) {
--		device_remove_file(dev, &dev_attr_extts_enable);
--		device_remove_file(dev, &dev_attr_fifo);
--	}
--	if (info->n_per_out)
--		device_remove_file(dev, &dev_attr_period);
--
--	if (info->pps)
--		device_remove_file(dev, &dev_attr_pps_enable);
--
- 	if (info->n_pins) {
- 		sysfs_remove_group(&dev->kobj, &ptp->pin_attr_group);
- 		kfree(ptp->pin_attr);
-@@ -307,46 +325,13 @@ no_dev_attr:
- 
- int ptp_populate_sysfs(struct ptp_clock *ptp)
- {
--	struct device *dev = ptp->dev;
- 	struct ptp_clock_info *info = ptp->info;
- 	int err;
- 
--	if (info->n_ext_ts) {
--		err = device_create_file(dev, &dev_attr_extts_enable);
--		if (err)
--			goto out1;
--		err = device_create_file(dev, &dev_attr_fifo);
--		if (err)
--			goto out2;
--	}
--	if (info->n_per_out) {
--		err = device_create_file(dev, &dev_attr_period);
--		if (err)
--			goto out3;
--	}
--	if (info->pps) {
--		err = device_create_file(dev, &dev_attr_pps_enable);
--		if (err)
--			goto out4;
--	}
- 	if (info->n_pins) {
- 		err = ptp_populate_pins(ptp);
- 		if (err)
--			goto out5;
-+			return err;
+diff --git a/drivers/gpu/drm/i915/gt/intel_lrc.c b/drivers/gpu/drm/i915/gt/intel_lrc.c
+index 31455eceeb0c6..5bebda4a2d0b4 100644
+--- a/drivers/gpu/drm/i915/gt/intel_lrc.c
++++ b/drivers/gpu/drm/i915/gt/intel_lrc.c
+@@ -4194,8 +4194,11 @@ void intel_execlists_set_default_submission(struct intel_engine_cs *engine)
+ 	engine->flags |= I915_ENGINE_SUPPORTS_STATS;
+ 	if (!intel_vgpu_active(engine->i915)) {
+ 		engine->flags |= I915_ENGINE_HAS_SEMAPHORES;
+-		if (HAS_LOGICAL_RING_PREEMPTION(engine->i915))
++		if (HAS_LOGICAL_RING_PREEMPTION(engine->i915)) {
+ 			engine->flags |= I915_ENGINE_HAS_PREEMPTION;
++			if (IS_ACTIVE(CONFIG_DRM_I915_TIMESLICE_DURATION))
++				engine->flags |= I915_ENGINE_HAS_TIMESLICES;
++		}
  	}
- 	return 0;
--out5:
--	if (info->pps)
--		device_remove_file(dev, &dev_attr_pps_enable);
--out4:
--	if (info->n_per_out)
--		device_remove_file(dev, &dev_attr_period);
--out3:
--	if (info->n_ext_ts)
--		device_remove_file(dev, &dev_attr_fifo);
--out2:
--	if (info->n_ext_ts)
--		device_remove_file(dev, &dev_attr_extts_enable);
--out1:
--	return err;
- }
+ 
+ 	if (INTEL_GEN(engine->i915) >= 12)
 -- 
 2.20.1
 
