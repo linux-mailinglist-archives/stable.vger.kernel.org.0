@@ -2,46 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 76CD11D812A
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:46:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 638A41D80AD
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:41:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729932AbgERRpc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:45:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44344 "EHLO mail.kernel.org"
+        id S1729224AbgERRlM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:41:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37330 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729930AbgERRpa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:45:30 -0400
+        id S1729219AbgERRlL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:41:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 744BB20657;
-        Mon, 18 May 2020 17:45:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A87ED20657;
+        Mon, 18 May 2020 17:41:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589823930;
-        bh=SxwLSk3uZevJ8oYo9YJfEefOaMoVzDApfnytjn6DlrQ=;
+        s=default; t=1589823670;
+        bh=Q6OxYPg+HEkGz2LIWB5H4R2fxd0AQ+iGVhEsHiX43Pk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g9f8ix8ZVivIeXYRcTjCL2ltB9IgnooaPe/tidA5oOPtkQyQpsr6myeZAEMdnrEH/
-         +lZpeDX6tBfCbI7wSZfWvMKqjpyZkIOAg/kLOCLOApgmbG2GaEgQ1id5xeAakB0cxO
-         FxIC2i+L0rXoS7LPNhGYj7+oQVRALFnNFqJW28pA=
+        b=1E+zIVY4rKvFOtwQ1HFs9/BdBwtXfJvYD8wAlPNrEha9gYgiO9xsxQoo4eacjWfSW
+         ZVG9AJhHmNl3M7u2uQZX+aHrTJZmgEUIcqeA2D2/2nNUb16pYttI0B4gtdmndaaR6k
+         7FssJr3RIMRXv7fmfLivWSguo32u1Ouxz7zRmGbo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+e73ceacfd8560cc8a3ca@syzkaller.appspotmail.com,
-        syzbot+c2fb6f9ddcea95ba49b5@syzkaller.appspotmail.com,
-        Jarod Wilson <jarod@redhat.com>,
-        Nikolay Aleksandrov <nikolay@cumulusnetworks.com>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Jann Horn <jannh@google.com>,
-        Jay Vosburgh <jay.vosburgh@canonical.com>,
-        Cong Wang <xiyou.wangcong@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 68/90] net: fix a potential recursive NETDEV_FEAT_CHANGE
+        stable@vger.kernel.org, Kyungtae Kim <kt0755@gmail.com>,
+        Felipe Balbi <balbi@kernel.org>
+Subject: [PATCH 4.4 75/86] USB: gadget: fix illegal array access in binding with UDC
 Date:   Mon, 18 May 2020 19:36:46 +0200
-Message-Id: <20200518173505.049325848@linuxfoundation.org>
+Message-Id: <20200518173505.756313534@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173450.930655662@linuxfoundation.org>
-References: <20200518173450.930655662@linuxfoundation.org>
+In-Reply-To: <20200518173450.254571947@linuxfoundation.org>
+References: <20200518173450.254571947@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,66 +43,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cong Wang <xiyou.wangcong@gmail.com>
+From: Kyungtae Kim <kt0755@gmail.com>
 
-[ Upstream commit dd912306ff008891c82cd9f63e8181e47a9cb2fb ]
+commit 15753588bcd4bbffae1cca33c8ced5722477fe1f upstream.
 
-syzbot managed to trigger a recursive NETDEV_FEAT_CHANGE event
-between bonding master and slave. I managed to find a reproducer
-for this:
+FuzzUSB (a variant of syzkaller) found an illegal array access
+using an incorrect index while binding a gadget with UDC.
 
-  ip li set bond0 up
-  ifenslave bond0 eth0
-  brctl addbr br0
-  ethtool -K eth0 lro off
-  brctl addif br0 bond0
-  ip li set br0 up
+Reference: https://www.spinics.net/lists/linux-usb/msg194331.html
 
-When a NETDEV_FEAT_CHANGE event is triggered on a bonding slave,
-it captures this and calls bond_compute_features() to fixup its
-master's and other slaves' features. However, when syncing with
-its lower devices by netdev_sync_lower_features() this event is
-triggered again on slaves when the LRO feature fails to change,
-so it goes back and forth recursively until the kernel stack is
-exhausted.
+This bug occurs when a size variable used for a buffer
+is misused to access its strcpy-ed buffer.
+Given a buffer along with its size variable (taken from user input),
+from which, a new buffer is created using kstrdup().
+Due to the original buffer containing 0 value in the middle,
+the size of the kstrdup-ed buffer becomes smaller than that of the original.
+So accessing the kstrdup-ed buffer with the same size variable
+triggers memory access violation.
 
-Commit 17b85d29e82c intentionally lets __netdev_update_features()
-return -1 for such a failure case, so we have to just rely on
-the existing check inside netdev_sync_lower_features() and skip
-NETDEV_FEAT_CHANGE event only for this specific failure case.
+The fix makes sure no zero value in the buffer,
+by comparing the strlen() of the orignal buffer with the size variable,
+so that the access to the kstrdup-ed buffer is safe.
 
-Fixes: fd867d51f889 ("net/core: generic support for disabling netdev features down stack")
-Reported-by: syzbot+e73ceacfd8560cc8a3ca@syzkaller.appspotmail.com
-Reported-by: syzbot+c2fb6f9ddcea95ba49b5@syzkaller.appspotmail.com
-Cc: Jarod Wilson <jarod@redhat.com>
-Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Cc: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: Jann Horn <jannh@google.com>
-Reviewed-by: Jay Vosburgh <jay.vosburgh@canonical.com>
-Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
-Acked-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+BUG: KASAN: slab-out-of-bounds in gadget_dev_desc_UDC_store+0x1ba/0x200
+drivers/usb/gadget/configfs.c:266
+Read of size 1 at addr ffff88806a55dd7e by task syz-executor.0/17208
+
+CPU: 2 PID: 17208 Comm: syz-executor.0 Not tainted 5.6.8 #1
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS Bochs 01/01/2011
+Call Trace:
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0xce/0x128 lib/dump_stack.c:118
+ print_address_description.constprop.4+0x21/0x3c0 mm/kasan/report.c:374
+ __kasan_report+0x131/0x1b0 mm/kasan/report.c:506
+ kasan_report+0x12/0x20 mm/kasan/common.c:641
+ __asan_report_load1_noabort+0x14/0x20 mm/kasan/generic_report.c:132
+ gadget_dev_desc_UDC_store+0x1ba/0x200 drivers/usb/gadget/configfs.c:266
+ flush_write_buffer fs/configfs/file.c:251 [inline]
+ configfs_write_file+0x2f1/0x4c0 fs/configfs/file.c:283
+ __vfs_write+0x85/0x110 fs/read_write.c:494
+ vfs_write+0x1cd/0x510 fs/read_write.c:558
+ ksys_write+0x18a/0x220 fs/read_write.c:611
+ __do_sys_write fs/read_write.c:623 [inline]
+ __se_sys_write fs/read_write.c:620 [inline]
+ __x64_sys_write+0x73/0xb0 fs/read_write.c:620
+ do_syscall_64+0x9e/0x510 arch/x86/entry/common.c:294
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+Signed-off-by: Kyungtae Kim <kt0755@gmail.com>
+Reported-and-tested-by: Kyungtae Kim <kt0755@gmail.com>
+Cc: Felipe Balbi <balbi@kernel.org>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200510054326.GA19198@pizza01
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/core/dev.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -6939,11 +6939,13 @@ static void netdev_sync_lower_features(s
- 			netdev_dbg(upper, "Disabling feature %pNF on lower dev %s.\n",
- 				   &feature, lower->name);
- 			lower->wanted_features &= ~feature;
--			netdev_update_features(lower);
-+			__netdev_update_features(lower);
+---
+ drivers/usb/gadget/configfs.c |    3 +++
+ 1 file changed, 3 insertions(+)
+
+--- a/drivers/usb/gadget/configfs.c
++++ b/drivers/usb/gadget/configfs.c
+@@ -260,6 +260,9 @@ static ssize_t gadget_dev_desc_UDC_store
+ 	char *name;
+ 	int ret;
  
- 			if (unlikely(lower->features & feature))
- 				netdev_WARN(upper, "failed to disable %pNF on %s!\n",
- 					    &feature, lower->name);
-+			else
-+				netdev_features_change(lower);
- 		}
- 	}
- }
++	if (strlen(page) < len)
++		return -EOVERFLOW;
++
+ 	name = kstrdup(page, GFP_KERNEL);
+ 	if (!name)
+ 		return -ENOMEM;
 
 
