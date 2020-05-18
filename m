@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 07D961D8643
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:24:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 684F21D8292
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:57:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730407AbgERSYF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:24:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49422 "EHLO mail.kernel.org"
+        id S1731807AbgERR5e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:57:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32894 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728840AbgERRsa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:48:30 -0400
+        id S1731508AbgERRzf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:55:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7058C20657;
-        Mon, 18 May 2020 17:48:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DA67A20674;
+        Mon, 18 May 2020 17:55:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824109;
-        bh=tbPH4fX5iPahAc68h/Ix2JabO6ya2WIuRe6PLDpthWM=;
+        s=default; t=1589824535;
+        bh=MvciCjxqbATbF9bVFNFSQoSFaxr/QAeTiCBmuMcVyko=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ynvYOzKxop+tjqCFPs1FGvfcDJS4gZKEocjxrYFTpyBqhhgB2/B9oUViYgJSjXasx
-         V8yH76ZSdNXNLoy94hT3UYewQhg7WD+6DapEUPUoN4UAZOtZX7jVm+PQ8HkL+kksyl
-         JjtG7iDOvRtYST+yesO0SFKIFZw81u0W4GicCAwU=
+        b=TvKcSlQHWgrxbYFTVdW7ek1TJ2RBw9uxtp7mVUQy7rcZovQvvA92Vkx9ygvs9dGiG
+         UYqFTr0XwnyRCKHF1/oRbx5rfNtV+Kw+dlD0cmR4ZFoxOICyrplOzTSDsgDACIzEsb
+         VAhHphEdsehwWfLLWQRpwAQIvS2t99r6KKQweGQY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ming Lei <ming.lei@redhat.com>,
-        Bob Liu <bob.liu@oracle.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Cengiz Can <cengiz@kernel.wtf>, Jens Axboe <axboe@kernel.dk>,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>
-Subject: [PATCH 4.14 042/114] blktrace: fix dereference after null check
+        stable@vger.kernel.org,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 051/147] ALSA: hda/realtek - Fix S3 pop noise on Dell Wyse
 Date:   Mon, 18 May 2020 19:36:14 +0200
-Message-Id: <20200518173511.050085773@linuxfoundation.org>
+Message-Id: <20200518173520.322944614@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173503.033975649@linuxfoundation.org>
-References: <20200518173503.033975649@linuxfoundation.org>
+In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
+References: <20200518173513.009514388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,65 +44,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cengiz Can <cengiz@kernel.wtf>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-commit 153031a301bb07194e9c37466cfce8eacb977621 upstream.
+[ Upstream commit 52e4e36807aeac1cdd07b14e509c8a64101e1a09 ]
 
-There was a recent change in blktrace.c that added a RCU protection to
-`q->blk_trace` in order to fix a use-after-free issue during access.
+Commit 317d9313925c ("ALSA: hda/realtek - Set default power save node to
+0") makes the ALC225 have pop noise on S3 resume and cold boot.
 
-However the change missed an edge case that can lead to dereferencing of
-`bt` pointer even when it's NULL:
+The previous fix enable power save node universally for ALC225, however
+it makes some ALC225 systems unable to produce any sound.
 
-Coverity static analyzer marked this as a FORWARD_NULL issue with CID
-1460458.
+So let's only enable power save node for the affected Dell Wyse
+platform.
 
-```
-/kernel/trace/blktrace.c: 1904 in sysfs_blk_trace_attr_store()
-1898            ret = 0;
-1899            if (bt == NULL)
-1900                    ret = blk_trace_setup_queue(q, bdev);
-1901
-1902            if (ret == 0) {
-1903                    if (attr == &dev_attr_act_mask)
->>>     CID 1460458:  Null pointer dereferences  (FORWARD_NULL)
->>>     Dereferencing null pointer "bt".
-1904                            bt->act_mask = value;
-1905                    else if (attr == &dev_attr_pid)
-1906                            bt->pid = value;
-1907                    else if (attr == &dev_attr_start_lba)
-1908                            bt->start_lba = value;
-1909                    else if (attr == &dev_attr_end_lba)
-```
-
-Added a reassignment with RCU annotation to fix the issue.
-
-Fixes: c780e86dd48 ("blktrace: Protect q->blk_trace with RCU")
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
-Reviewed-by: Bob Liu <bob.liu@oracle.com>
-Reviewed-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Cengiz Can <cengiz@kernel.wtf>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 317d9313925c ("ALSA: hda/realtek - Set default power save node to 0")
+BugLink: https://bugs.launchpad.net/bugs/1866357
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Link: https://lore.kernel.org/r/20200503152449.22761-2-kai.heng.feng@canonical.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/blktrace.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ sound/pci/hda/patch_realtek.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
---- a/kernel/trace/blktrace.c
-+++ b/kernel/trace/blktrace.c
-@@ -1911,8 +1911,11 @@ static ssize_t sysfs_blk_trace_attr_stor
+diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
+index 64270983ab7db..1a01e7c5b6d0a 100644
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -5743,6 +5743,15 @@ static void alc233_alc662_fixup_lenovo_dual_codecs(struct hda_codec *codec,
  	}
+ }
  
- 	ret = 0;
--	if (bt == NULL)
-+	if (bt == NULL) {
- 		ret = blk_trace_setup_queue(q, bdev);
-+		bt = rcu_dereference_protected(q->blk_trace,
-+				lockdep_is_held(&q->blk_trace_mutex));
-+	}
- 
- 	if (ret == 0) {
- 		if (attr == &dev_attr_act_mask)
++static void alc225_fixup_s3_pop_noise(struct hda_codec *codec,
++				      const struct hda_fixup *fix, int action)
++{
++	if (action != HDA_FIXUP_ACT_PRE_PROBE)
++		return;
++
++	codec->power_save_node = 1;
++}
++
+ /* Forcibly assign NID 0x03 to HP/LO while NID 0x02 to SPK for EQ */
+ static void alc274_fixup_bind_dacs(struct hda_codec *codec,
+ 				    const struct hda_fixup *fix, int action)
+@@ -5932,6 +5941,7 @@ enum {
+ 	ALC233_FIXUP_ACER_HEADSET_MIC,
+ 	ALC294_FIXUP_LENOVO_MIC_LOCATION,
+ 	ALC225_FIXUP_DELL_WYSE_MIC_NO_PRESENCE,
++	ALC225_FIXUP_S3_POP_NOISE,
+ 	ALC700_FIXUP_INTEL_REFERENCE,
+ 	ALC274_FIXUP_DELL_BIND_DACS,
+ 	ALC274_FIXUP_DELL_AIO_LINEOUT_VERB,
+@@ -6817,6 +6827,12 @@ static const struct hda_fixup alc269_fixups[] = {
+ 			{ }
+ 		},
+ 		.chained = true,
++		.chain_id = ALC225_FIXUP_S3_POP_NOISE
++	},
++	[ALC225_FIXUP_S3_POP_NOISE] = {
++		.type = HDA_FIXUP_FUNC,
++		.v.func = alc225_fixup_s3_pop_noise,
++		.chained = true,
+ 		.chain_id = ALC269_FIXUP_HEADSET_MODE_NO_HP_MIC
+ 	},
+ 	[ALC700_FIXUP_INTEL_REFERENCE] = {
+-- 
+2.20.1
+
 
 
