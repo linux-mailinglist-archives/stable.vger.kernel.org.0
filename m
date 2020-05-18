@@ -2,48 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BECA01D864A
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:24:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B58591D8555
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:18:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728692AbgERSY0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:24:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48430 "EHLO mail.kernel.org"
+        id S1732208AbgERSSE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:18:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34288 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730285AbgERRrx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:47:53 -0400
+        id S1730827AbgERR4Z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:56:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7AFAB20657;
-        Mon, 18 May 2020 17:47:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 82C4D20674;
+        Mon, 18 May 2020 17:56:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824072;
-        bh=TMrnDyP4MNmjV73iXl+Vaj/o8UvSmNm/5BIhilAenZE=;
+        s=default; t=1589824585;
+        bh=U8uXab8S/0VqSIOvJlQ4HEIViMdPlfMG23RGCtqDmaY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HAa8B6qjp60l+kG78HRuCbIJGmjCTViLjlPs2w2bi98itYFbI6F9BWJYsBu4PULBY
-         WxQCsR1cfxupg4iwVXIvk4f97li0cr1+YWVSZWQObcaK+fHUFOUdbetXXh/AsNTht3
-         zYSC3g2kqCxNyiIg8hhVOYpw/rPNeJNGCceh1ivw=
+        b=crmHxqxlitOHpR4L1vMpllAiQ+2J8qOzZpxja8ECPMo7xryyWsOaTKPTFhpTnpJVz
+         lXESSos97vpEfyETkcpUKkGQIEwFqOtgR1ZU9QeVej8Of9f/8m45vSp0JFvXtPPJ8Y
+         JwCooww/RqQMeSiASF9s4CqJHTyvOlTYnU7cn8us=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andreas Schwab <schwab@suse.de>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Vasily Averin <vvs@virtuozzo.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Waiman Long <longman@redhat.com>, NeilBrown <neilb@suse.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Davidlohr Bueso <dave@stgolabs.net>,
-        Manfred Spraul <manfred@colorfullife.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Sahitya Tummala <stummala@codeaurora.org>,
+        Sarthak Garg <sartgarg@codeaurora.org>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 060/114] ipc/util.c: sysvipc_find_ipc() incorrectly updates position index
+Subject: [PATCH 5.4 069/147] mmc: core: Fix recursive locking issue in CQE recovery path
 Date:   Mon, 18 May 2020 19:36:32 +0200
-Message-Id: <20200518173513.971628928@linuxfoundation.org>
+Message-Id: <20200518173522.620037806@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173503.033975649@linuxfoundation.org>
-References: <20200518173503.033975649@linuxfoundation.org>
+In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
+References: <20200518173513.009514388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,123 +46,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Averin <vvs@virtuozzo.com>
+From: Sarthak Garg <sartgarg@codeaurora.org>
 
-[ Upstream commit 5e698222c70257d13ae0816720dde57c56f81e15 ]
+[ Upstream commit 39a22f73744d5baee30b5f134ae2e30b668b66ed ]
 
-Commit 89163f93c6f9 ("ipc/util.c: sysvipc_find_ipc() should increase
-position index") is causing this bug (seen on 5.6.8):
+Consider the following stack trace
 
-   # ipcs -q
+-001|raw_spin_lock_irqsave
+-002|mmc_blk_cqe_complete_rq
+-003|__blk_mq_complete_request(inline)
+-003|blk_mq_complete_request(rq)
+-004|mmc_cqe_timed_out(inline)
+-004|mmc_mq_timed_out
 
-   ------ Message Queues --------
-   key        msqid      owner      perms      used-bytes   messages
+mmc_mq_timed_out acquires the queue_lock for the first
+time. The mmc_blk_cqe_complete_rq function also tries to acquire
+the same queue lock resulting in recursive locking where the task
+is spinning for the same lock which it has already acquired leading
+to watchdog bark.
 
-   # ipcmk -Q
-   Message queue id: 0
-   # ipcs -q
+Fix this issue with the lock only for the required critical section.
 
-   ------ Message Queues --------
-   key        msqid      owner      perms      used-bytes   messages
-   0x82db8127 0          root       644        0            0
-
-   # ipcmk -Q
-   Message queue id: 1
-   # ipcs -q
-
-   ------ Message Queues --------
-   key        msqid      owner      perms      used-bytes   messages
-   0x82db8127 0          root       644        0            0
-   0x76d1fb2a 1          root       644        0            0
-
-   # ipcrm -q 0
-   # ipcs -q
-
-   ------ Message Queues --------
-   key        msqid      owner      perms      used-bytes   messages
-   0x76d1fb2a 1          root       644        0            0
-   0x76d1fb2a 1          root       644        0            0
-
-   # ipcmk -Q
-   Message queue id: 2
-   # ipcrm -q 2
-   # ipcs -q
-
-   ------ Message Queues --------
-   key        msqid      owner      perms      used-bytes   messages
-   0x76d1fb2a 1          root       644        0            0
-   0x76d1fb2a 1          root       644        0            0
-
-   # ipcmk -Q
-   Message queue id: 3
-   # ipcrm -q 1
-   # ipcs -q
-
-   ------ Message Queues --------
-   key        msqid      owner      perms      used-bytes   messages
-   0x7c982867 3          root       644        0            0
-   0x7c982867 3          root       644        0            0
-   0x7c982867 3          root       644        0            0
-   0x7c982867 3          root       644        0            0
-
-Whenever an IPC item with a low id is deleted, the items with higher ids
-are duplicated, as if filling a hole.
-
-new_pos should jump through hole of unused ids, pos can be updated
-inside "for" cycle.
-
-Fixes: 89163f93c6f9 ("ipc/util.c: sysvipc_find_ipc() should increase position index")
-Reported-by: Andreas Schwab <schwab@suse.de>
-Reported-by: Randy Dunlap <rdunlap@infradead.org>
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Acked-by: Waiman Long <longman@redhat.com>
-Cc: NeilBrown <neilb@suse.com>
-Cc: Steven Rostedt <rostedt@goodmis.org>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Peter Oberparleiter <oberpar@linux.ibm.com>
-Cc: Davidlohr Bueso <dave@stgolabs.net>
-Cc: Manfred Spraul <manfred@colorfullife.com>
 Cc: <stable@vger.kernel.org>
-Link: http://lkml.kernel.org/r/4921fe9b-9385-a2b4-1dc4-1099be6d2e39@virtuozzo.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 1e8e55b67030 ("mmc: block: Add CQE support")
+Suggested-by: Sahitya Tummala <stummala@codeaurora.org>
+Signed-off-by: Sarthak Garg <sartgarg@codeaurora.org>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Link: https://lore.kernel.org/r/1588868135-31783-1-git-send-email-vbadigan@codeaurora.org
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- ipc/util.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/mmc/core/queue.c | 13 ++++---------
+ 1 file changed, 4 insertions(+), 9 deletions(-)
 
-diff --git a/ipc/util.c b/ipc/util.c
-index 7989f5e532198..5a65b0cbae7db 100644
---- a/ipc/util.c
-+++ b/ipc/util.c
-@@ -750,21 +750,21 @@ static struct kern_ipc_perm *sysvipc_find_ipc(struct ipc_ids *ids, loff_t pos,
- 			total++;
- 	}
- 
--	*new_pos = pos + 1;
-+	ipc = NULL;
- 	if (total >= ids->in_use)
--		return NULL;
-+		goto out;
- 
- 	for (; pos < IPCMNI; pos++) {
- 		ipc = idr_find(&ids->ipcs_idr, pos);
- 		if (ipc != NULL) {
- 			rcu_read_lock();
- 			ipc_lock_object(ipc);
--			return ipc;
-+			break;
+diff --git a/drivers/mmc/core/queue.c b/drivers/mmc/core/queue.c
+index 9edc08685e86d..4d1e468d39823 100644
+--- a/drivers/mmc/core/queue.c
++++ b/drivers/mmc/core/queue.c
+@@ -107,7 +107,7 @@ static enum blk_eh_timer_return mmc_cqe_timed_out(struct request *req)
+ 	case MMC_ISSUE_DCMD:
+ 		if (host->cqe_ops->cqe_timeout(host, mrq, &recovery_needed)) {
+ 			if (recovery_needed)
+-				__mmc_cqe_recovery_notifier(mq);
++				mmc_cqe_recovery_notifier(mrq);
+ 			return BLK_EH_RESET_TIMER;
  		}
- 	}
+ 		/* No timeout (XXX: huh? comment doesn't make much sense) */
+@@ -125,18 +125,13 @@ static enum blk_eh_timer_return mmc_mq_timed_out(struct request *req,
+ 	struct request_queue *q = req->q;
+ 	struct mmc_queue *mq = q->queuedata;
+ 	unsigned long flags;
+-	int ret;
++	bool ignore_tout;
+ 
+ 	spin_lock_irqsave(&mq->lock, flags);
 -
--	/* Out of range - return NULL to terminate iteration */
--	return NULL;
-+out:
-+	*new_pos = pos + 1;
-+	return ipc;
+-	if (mq->recovery_needed || !mq->use_cqe)
+-		ret = BLK_EH_RESET_TIMER;
+-	else
+-		ret = mmc_cqe_timed_out(req);
+-
++	ignore_tout = mq->recovery_needed || !mq->use_cqe;
+ 	spin_unlock_irqrestore(&mq->lock, flags);
+ 
+-	return ret;
++	return ignore_tout ? BLK_EH_RESET_TIMER : mmc_cqe_timed_out(req);
  }
  
- static void *sysvipc_proc_next(struct seq_file *s, void *it, loff_t *pos)
+ static void mmc_mq_recovery_handler(struct work_struct *work)
 -- 
 2.20.1
 
