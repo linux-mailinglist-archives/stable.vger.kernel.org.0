@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 843A11D8050
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:39:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AB70D1D831E
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:02:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728627AbgERRiw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:38:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33168 "EHLO mail.kernel.org"
+        id S1732488AbgERSCR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:02:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45498 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728621AbgERRiv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:38:51 -0400
+        id S1732479AbgERSCN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 14:02:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AC66820874;
-        Mon, 18 May 2020 17:38:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7F16C20872;
+        Mon, 18 May 2020 18:02:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589823531;
-        bh=K0nTKFYR4erZ7CrFK5RO8VsqlyURu8lK5DXwvEtK5Ag=;
+        s=default; t=1589824932;
+        bh=0zUgoL8zGPgVJ5XXJhZqITkeX4BLPqERLZPMDtUiQog=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BsYlhIuXDQVb9gDe7UIT6IxhiXTcih3wr5I4Odzq4zcG4PqknwmJ6LYhY4JLQ6nMO
-         JGt5YRJBkwqSGKaOI/+8qORN5btfMsp8jfSlvXFbDMbSj+OCHX86a5cxAkT0wVGqIN
-         zqGpMPDlY9bTk44TCgOA8d0Fvue41QeeayRwzIWQ=
+        b=NvJqWjw4dcVB25GrNXfzqUm9PY3ThlRmBMbyO02dlVNBHLKSX3QA6i4SyfcLUIK21
+         AJu7VXZXypiYuB0A8USMDsjA3TvaktPMWyDjNbqGRk0rYOgM7zYOe0tyvPXmz4vB8N
+         xN+lDVOsIF28bnlsc/fBMqF8u+1kF8FvyCNDmSoI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
-        Shijie Luo <luoshijie1@huawei.com>,
-        Theodore Tso <tytso@mit.edu>, stable@kernel.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>
-Subject: [PATCH 4.4 20/86] ext4: add cond_resched() to ext4_protect_reserved_inode
+        stable@vger.kernel.org,
+        =?UTF-8?q?Marek=20Ol=C5=A1=C3=A1k?= <marek.olsak@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Pierre-Eric Pelloux-Prayer <pierre-eric.pelloux-prayer@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 061/194] drm/amdgpu: bump version for invalidate L2 before SDMA IBs
 Date:   Mon, 18 May 2020 19:35:51 +0200
-Message-Id: <20200518173454.557562877@linuxfoundation.org>
+Message-Id: <20200518173536.800109596@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173450.254571947@linuxfoundation.org>
-References: <20200518173450.254571947@linuxfoundation.org>
+In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
+References: <20200518173531.455604187@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,64 +47,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shijie Luo <luoshijie1@huawei.com>
+From: Marek Olšák <marek.olsak@amd.com>
 
-commit af133ade9a40794a37104ecbcc2827c0ea373a3c upstream.
+[ Upstream commit 9017a4897a20658f010bebea825262963c10afa6 ]
 
-When journal size is set too big by "mkfs.ext4 -J size=", or when
-we mount a crafted image to make journal inode->i_size too big,
-the loop, "while (i < num)", holds cpu too long. This could cause
-soft lockup.
+This fixes GPU hangs due to cache coherency issues.
+Bump the driver version. Split out from the original patch.
 
-[  529.357541] Call trace:
-[  529.357551]  dump_backtrace+0x0/0x198
-[  529.357555]  show_stack+0x24/0x30
-[  529.357562]  dump_stack+0xa4/0xcc
-[  529.357568]  watchdog_timer_fn+0x300/0x3e8
-[  529.357574]  __hrtimer_run_queues+0x114/0x358
-[  529.357576]  hrtimer_interrupt+0x104/0x2d8
-[  529.357580]  arch_timer_handler_virt+0x38/0x58
-[  529.357584]  handle_percpu_devid_irq+0x90/0x248
-[  529.357588]  generic_handle_irq+0x34/0x50
-[  529.357590]  __handle_domain_irq+0x68/0xc0
-[  529.357593]  gic_handle_irq+0x6c/0x150
-[  529.357595]  el1_irq+0xb8/0x140
-[  529.357599]  __ll_sc_atomic_add_return_acquire+0x14/0x20
-[  529.357668]  ext4_map_blocks+0x64/0x5c0 [ext4]
-[  529.357693]  ext4_setup_system_zone+0x330/0x458 [ext4]
-[  529.357717]  ext4_fill_super+0x2170/0x2ba8 [ext4]
-[  529.357722]  mount_bdev+0x1a8/0x1e8
-[  529.357746]  ext4_mount+0x44/0x58 [ext4]
-[  529.357748]  mount_fs+0x50/0x170
-[  529.357752]  vfs_kern_mount.part.9+0x54/0x188
-[  529.357755]  do_mount+0x5ac/0xd78
-[  529.357758]  ksys_mount+0x9c/0x118
-[  529.357760]  __arm64_sys_mount+0x28/0x38
-[  529.357764]  el0_svc_common+0x78/0x130
-[  529.357766]  el0_svc_handler+0x38/0x78
-[  529.357769]  el0_svc+0x8/0xc
-[  541.356516] watchdog: BUG: soft lockup - CPU#0 stuck for 23s! [mount:18674]
-
-Link: https://lore.kernel.org/r/20200211011752.29242-1-luoshijie1@huawei.com
-Reviewed-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Shijie Luo <luoshijie1@huawei.com>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
-Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Marek Olšák <marek.olsak@amd.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Tested-by: Pierre-Eric Pelloux-Prayer <pierre-eric.pelloux-prayer@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/block_validity.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/fs/ext4/block_validity.c
-+++ b/fs/ext4/block_validity.c
-@@ -152,6 +152,7 @@ static int ext4_protect_reserved_inode(s
- 		return PTR_ERR(inode);
- 	num = (inode->i_size + sb->s_blocksize - 1) >> sb->s_blocksize_bits;
- 	while (i < num) {
-+		cond_resched();
- 		map.m_lblk = i;
- 		map.m_len = num - i;
- 		n = ext4_map_blocks(NULL, inode, &map, 0);
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
+index 42f4febe24c6d..8d45a2b662aeb 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
+@@ -85,9 +85,10 @@
+  * - 3.34.0 - Non-DC can flip correctly between buffers with different pitches
+  * - 3.35.0 - Add drm_amdgpu_info_device::tcc_disabled_mask
+  * - 3.36.0 - Allow reading more status registers on si/cik
++ * - 3.37.0 - L2 is invalidated before SDMA IBs, needed for correctness
+  */
+ #define KMS_DRIVER_MAJOR	3
+-#define KMS_DRIVER_MINOR	36
++#define KMS_DRIVER_MINOR	37
+ #define KMS_DRIVER_PATCHLEVEL	0
+ 
+ int amdgpu_vram_limit = 0;
+-- 
+2.20.1
+
 
 
