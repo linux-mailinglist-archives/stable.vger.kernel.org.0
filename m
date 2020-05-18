@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CADED1D84D1
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:15:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FE141D83A9
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:07:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732020AbgERR7S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:59:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39442 "EHLO mail.kernel.org"
+        id S1733206AbgERSGm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:06:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55006 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732014AbgERR7P (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:59:15 -0400
+        id S1730517AbgERSGm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 14:06:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3F458207C4;
-        Mon, 18 May 2020 17:59:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8956220897;
+        Mon, 18 May 2020 18:06:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824754;
-        bh=eV3kUzzlf5OSTxkiuVstu95fzxA6qQ/NqCtoRjvFgUE=;
+        s=default; t=1589825202;
+        bh=VbO+1Gp4ofR2slg/DwcBWnfYz0lhF7lK5Xs9pZ5dAEE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Uym2KRsHpfJH/l52ORPpwCaKzCm17ERxvRj+u2EeTM3rAys5zwJtR3WQF+OGclJu/
-         ZNmFmx97MtPoPlGkbCZ/fTTNIKRCbKiV5KsGOC+lXk+jCKvQ2646tkZ05cWb5SAAjz
-         1kyts8NnNi2eVFufm3myp10n/8Fl7EnMiGP7S/8Y=
+        b=d/oBptPrs0Hjvb6JilNW8aLbk9iqRdm1b+WrtROsfpB9Zma7q6IlJdF4aEYnCRcLK
+         3BrtAkfQuLElVRx4aTpI0eyXKRKPXy5Ogywy14jVr0ur+Yc7zURvNNY8EB2QEo9s4R
+         bCgX1mt14C8qK8d1nfLI1IyBa+7UFOFJQJOLIvvA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>
-Subject: [PATCH 5.4 138/147] ARM: dts: r8a73a4: Add missing CMT1 interrupts
+        stable@vger.kernel.org, Naresh Kamboju <naresh.kamboju@linaro.org>,
+        Tero Kristo <t-kristo@ti.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Stephen Boyd <sboyd@kernel.org>
+Subject: [PATCH 5.6 171/194] clk: ti: clkctrl: Fix Bad of_node_put within clkctrl_get_name
 Date:   Mon, 18 May 2020 19:37:41 +0200
-Message-Id: <20200518173530.326943987@linuxfoundation.org>
+Message-Id: <20200518173545.962289841@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
-References: <20200518173513.009514388@linuxfoundation.org>
+In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
+References: <20200518173531.455604187@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,40 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Tero Kristo <t-kristo@ti.com>
 
-commit 0f739fdfe9e5ce668bd6d3210f310df282321837 upstream.
+commit e1f9e0d28ff025564dfdb1001a7839b4af5db2e2 upstream.
 
-The R-Mobile APE6 Compare Match Timer 1 generates 8 interrupts, one for
-each channel, but currently only 1 is described.
-Fix this by adding the missing interrupts.
+clkctrl_get_name incorrectly calls of_node_put when it is not really
+doing of_node_get. This causes a boot time warning later on:
 
-Fixes: f7b65230019b9dac ("ARM: shmobile: r8a73a4: Add CMT1 node")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Link: https://lore.kernel.org/r/20200408090926.25201-1-geert+renesas@glider.be
+[    0.000000] OF: ERROR: Bad of_node_put() on /ocp/interconnect@4a000000/segmen
+t@0/target-module@5000/cm_core_aon@0/ipu-cm@500/ipu1-clkctrl@20
+
+Fix by dropping the of_node_put from the function.
+
+Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
+Fixes: 6c3090520554 ("clk: ti: clkctrl: Fix hidden dependency to node name")
+Signed-off-by: Tero Kristo <t-kristo@ti.com>
+Link: https://lkml.kernel.org/r/20200424124725.9895-1-t-kristo@ti.com
+Acked-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/boot/dts/r8a73a4.dtsi |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/clk/ti/clkctrl.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/arch/arm/boot/dts/r8a73a4.dtsi
-+++ b/arch/arm/boot/dts/r8a73a4.dtsi
-@@ -131,7 +131,14 @@
- 	cmt1: timer@e6130000 {
- 		compatible = "renesas,r8a73a4-cmt1", "renesas,rcar-gen2-cmt1";
- 		reg = <0 0xe6130000 0 0x1004>;
--		interrupts = <GIC_SPI 120 IRQ_TYPE_LEVEL_HIGH>;
-+		interrupts = <GIC_SPI 120 IRQ_TYPE_LEVEL_HIGH>,
-+			     <GIC_SPI 121 IRQ_TYPE_LEVEL_HIGH>,
-+			     <GIC_SPI 122 IRQ_TYPE_LEVEL_HIGH>,
-+			     <GIC_SPI 123 IRQ_TYPE_LEVEL_HIGH>,
-+			     <GIC_SPI 124 IRQ_TYPE_LEVEL_HIGH>,
-+			     <GIC_SPI 125 IRQ_TYPE_LEVEL_HIGH>,
-+			     <GIC_SPI 126 IRQ_TYPE_LEVEL_HIGH>,
-+			     <GIC_SPI 127 IRQ_TYPE_LEVEL_HIGH>;
- 		clocks = <&mstp3_clks R8A73A4_CLK_CMT1>;
- 		clock-names = "fck";
- 		power-domains = <&pd_c5>;
+--- a/drivers/clk/ti/clkctrl.c
++++ b/drivers/clk/ti/clkctrl.c
+@@ -461,7 +461,6 @@ static char * __init clkctrl_get_name(st
+ 			return name;
+ 		}
+ 	}
+-	of_node_put(np);
+ 
+ 	return NULL;
+ }
 
 
