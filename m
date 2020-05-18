@@ -2,40 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 25B081D827E
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:57:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 384F21D867F
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:27:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731710AbgERR4y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:56:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35080 "EHLO mail.kernel.org"
+        id S1730137AbgERRqy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:46:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46950 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731705AbgERR4x (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:56:53 -0400
+        id S1730149AbgERRqy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:46:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 253E020674;
-        Mon, 18 May 2020 17:56:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F229420715;
+        Mon, 18 May 2020 17:46:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824612;
-        bh=qQJ8XuGD1yqiYvBBlA+XTk9Ka7sBVbNnfFgy4ubIWrU=;
+        s=default; t=1589824013;
+        bh=1WbaTJpCskWe+VDdU5uH9XMNgsIAJxBGSgPlR8VHLZE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qg1gSl5a+YwEJlTbPJMdTUNVAgyG2xoeAEej3HIGjJhPYQKBIWUAr2yXD6idGdE7x
-         H9aF13CBDXiWoIOd2CCCvyfTYuLZx5JyDiH7xsgLx0POFNJoEtRRXVcCe1vjiu4iLM
-         c7h9BvrJYi5MGK7v9EAY+QJ0dL/G06htDk2fCZm0=
+        b=a0X4g+w3rGgxnzscO089ZzYmlF0Pd6eicOFJTPF11/Brv8AM4xZWWdiHEjCRxdHrW
+         lvJHmqPBa3er0ke7Lfl+ba4XYDxrLDVF37KhuIl3fT/q/saLMWRq5E7loPxn8b9cLu
+         QoQ8WJvgSB+RRL7SDBI3wurMZYGmGmxEwOkf/07s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Evan Quan <evan.quan@amd.com>,
-        Tiecheng Zhou <Tiecheng.Zhou@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 044/147] drm/amd/powerplay: avoid using pm_en before it is initialized revised
+        stable@vger.kernel.org, Vince Weaver <vincent.weaver@maine.edu>,
+        Dave Jones <dsj@fb.com>, Steven Rostedt <rostedt@goodmis.org>,
+        Vegard Nossum <vegard.nossum@oracle.com>,
+        Joe Mario <jmario@redhat.com>, Miroslav Benes <mbenes@suse.cz>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        Jann Horn <jannh@google.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 4.14 035/114] objtool: Fix stack offset tracking for indirect CFAs
 Date:   Mon, 18 May 2020 19:36:07 +0200
-Message-Id: <20200518173519.543648334@linuxfoundation.org>
+Message-Id: <20200518173509.967486986@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
-References: <20200518173513.009514388@linuxfoundation.org>
+In-Reply-To: <20200518173503.033975649@linuxfoundation.org>
+References: <20200518173503.033975649@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,55 +51,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tiecheng Zhou <Tiecheng.Zhou@amd.com>
+From: Josh Poimboeuf <jpoimboe@redhat.com>
 
-[ Upstream commit 690ae30be163d5262feae01335b2a6f30569e5aa ]
+commit d8dd25a461e4eec7190cb9d66616aceacc5110ad upstream.
 
-hwmgr->pm_en is initialized at hwmgr_hw_init.
+When the current frame address (CFA) is stored on the stack (i.e.,
+cfa->base == CFI_SP_INDIRECT), objtool neglects to adjust the stack
+offset when there are subsequent pushes or pops.  This results in bad
+ORC data at the end of the ENTER_IRQ_STACK macro, when it puts the
+previous stack pointer on the stack and does a subsequent push.
 
-during amdgpu_device_init, there is amdgpu_asic_reset that calls to
-soc15_asic_reset (for V320 usecase, Vega10 asic), in which:
-1) soc15_asic_reset_method calls to pp_get_asic_baco_capability (pm_en)
-2) soc15_asic_baco_reset calls to pp_set_asic_baco_state (pm_en)
+This fixes the following unwinder warning:
 
-pm_en is used in the above two cases while it has not yet been initialized
+  WARNING: can't dereference registers at 00000000f0a6bdba for ip interrupt_entry+0x9f/0xa0
 
-So avoid using pm_en in the above two functions for V320 passthrough.
+Fixes: 627fce14809b ("objtool: Add ORC unwind table generation")
+Reported-by: Vince Weaver <vincent.weaver@maine.edu>
+Reported-by: Dave Jones <dsj@fb.com>
+Reported-by: Steven Rostedt <rostedt@goodmis.org>
+Reported-by: Vegard Nossum <vegard.nossum@oracle.com>
+Reported-by: Joe Mario <jmario@redhat.com>
+Reviewed-by: Miroslav Benes <mbenes@suse.cz>
+Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Jann Horn <jannh@google.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lore.kernel.org/r/853d5d691b29e250333332f09b8e27410b2d9924.1587808742.git.jpoimboe@redhat.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Reviewed-by: Evan Quan <evan.quan@amd.com>
-Signed-off-by: Tiecheng Zhou <Tiecheng.Zhou@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/powerplay/amd_powerplay.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ tools/objtool/check.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/powerplay/amd_powerplay.c b/drivers/gpu/drm/amd/powerplay/amd_powerplay.c
-index d306cc7119976..8bb5fbef7de0f 100644
---- a/drivers/gpu/drm/amd/powerplay/amd_powerplay.c
-+++ b/drivers/gpu/drm/amd/powerplay/amd_powerplay.c
-@@ -1425,7 +1425,8 @@ static int pp_get_asic_baco_capability(void *handle, bool *cap)
- 	if (!hwmgr)
- 		return -EINVAL;
+--- a/tools/objtool/check.c
++++ b/tools/objtool/check.c
+@@ -1291,7 +1291,7 @@ static int update_insn_state_regs(struct
+ 	struct cfi_reg *cfa = &state->cfa;
+ 	struct stack_op *op = &insn->stack_op;
  
--	if (!hwmgr->pm_en || !hwmgr->hwmgr_func->get_asic_baco_capability)
-+	if (!(hwmgr->not_vf && amdgpu_dpm) ||
-+		!hwmgr->hwmgr_func->get_asic_baco_capability)
+-	if (cfa->base != CFI_SP)
++	if (cfa->base != CFI_SP && cfa->base != CFI_SP_INDIRECT)
  		return 0;
  
- 	mutex_lock(&hwmgr->smu_lock);
-@@ -1459,7 +1460,8 @@ static int pp_set_asic_baco_state(void *handle, int state)
- 	if (!hwmgr)
- 		return -EINVAL;
- 
--	if (!hwmgr->pm_en || !hwmgr->hwmgr_func->set_asic_baco_state)
-+	if (!(hwmgr->not_vf && amdgpu_dpm) ||
-+		!hwmgr->hwmgr_func->set_asic_baco_state)
- 		return 0;
- 
- 	mutex_lock(&hwmgr->smu_lock);
--- 
-2.20.1
-
+ 	/* push */
 
 
