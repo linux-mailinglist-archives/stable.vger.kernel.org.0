@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7021A1D857A
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:19:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D5FB1D8135
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:46:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729988AbgERRyY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:54:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59022 "EHLO mail.kernel.org"
+        id S1729484AbgERRpx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:45:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45116 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731293AbgERRyX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:54:23 -0400
+        id S1730008AbgERRpw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:45:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A61E820826;
-        Mon, 18 May 2020 17:54:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B8E5520674;
+        Mon, 18 May 2020 17:45:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824463;
-        bh=n7nRvTCn9YchxNsik27yMI+NE74Rkr4uORdvsNKGRXI=;
+        s=default; t=1589823952;
+        bh=hBjtYZJ5CvsH4u+wYPEqeBG0fOmlntBuMqfYioHyMZE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wF/v9juL5GWThdsYluY/aG22RsI7xGzIN1QjBJhe1swEj+rNDvqsFMOTpAqIV+js4
-         VZ2gup8DnaNhctZmvaVR3U15VVVO7rkAEHiZkVT0MwfQdZRWElzGXZfeE0OV0xxqfP
-         Q5Vk7w9F/HfxjoAADTVDsf9wFUO2673V4Cb12RRw=
+        b=dkEAskBWhbLOtMhAvchTayb/G26drV6wrobnmr77JYsOpbSqEG6gyLDqei0nrfl8C
+         erNM0AKXqCZU05U0M6iR7cI99Nv4PrpISBroo71RXFHqmKjsHVjmV5OPhcHjdkUg7k
+         BD2MIe0l5suo5mwWkfnlpzEzJmMWBkPAX696Q4kA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiner Kallweit <hkallweit1@gmail.com>,
+        stable@vger.kernel.org, Michael Chan <michael.chan@broadcom.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 021/147] net: phy: fix aneg restart in phy_ethtool_set_eee
+Subject: [PATCH 4.14 012/114] bnxt_en: Improve AER slot reset.
 Date:   Mon, 18 May 2020 19:35:44 +0200
-Message-Id: <20200518173516.450714019@linuxfoundation.org>
+Message-Id: <20200518173505.705981494@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
-References: <20200518173513.009514388@linuxfoundation.org>
+In-Reply-To: <20200518173503.033975649@linuxfoundation.org>
+References: <20200518173503.033975649@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,39 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiner Kallweit <hkallweit1@gmail.com>
+From: Michael Chan <michael.chan@broadcom.com>
 
-[ Upstream commit 9de5d235b60a7cdfcdd5461e70c5663e713fde87 ]
+[ Upstream commit bae361c54fb6ac6eba3b4762f49ce14beb73ef13 ]
 
-phy_restart_aneg() enables aneg in the PHY. That's not what we want
-if phydev->autoneg is disabled. In this case still update EEE
-advertisement register, but don't enable aneg and don't trigger an
-aneg restart.
+Improve the slot reset sequence by disabling the device to prevent bad
+DMAs if slot reset fails.  Return the proper result instead of always
+PCI_ERS_RESULT_RECOVERED to the caller.
 
-Fixes: f75abeb8338e ("net: phy: restart phy autonegotiation after EEE advertisment change")
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+Fixes: 6316ea6db93d ("bnxt_en: Enable AER support.")
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/phy/phy.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
---- a/drivers/net/phy/phy.c
-+++ b/drivers/net/phy/phy.c
-@@ -1160,9 +1160,11 @@ int phy_ethtool_set_eee(struct phy_devic
- 		/* Restart autonegotiation so the new modes get sent to the
- 		 * link partner.
- 		 */
--		ret = phy_restart_aneg(phydev);
--		if (ret < 0)
--			return ret;
-+		if (phydev->autoneg == AUTONEG_ENABLE) {
-+			ret = phy_restart_aneg(phydev);
-+			if (ret < 0)
-+				return ret;
-+		}
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+@@ -8423,8 +8423,11 @@ static pci_ers_result_t bnxt_io_slot_res
+ 		}
  	}
  
- 	return 0;
+-	if (result != PCI_ERS_RESULT_RECOVERED && netif_running(netdev))
+-		dev_close(netdev);
++	if (result != PCI_ERS_RESULT_RECOVERED) {
++		if (netif_running(netdev))
++			dev_close(netdev);
++		pci_disable_device(pdev);
++	}
+ 
+ 	rtnl_unlock();
+ 
+@@ -8435,7 +8438,7 @@ static pci_ers_result_t bnxt_io_slot_res
+ 			 err); /* non-fatal, continue */
+ 	}
+ 
+-	return PCI_ERS_RESULT_RECOVERED;
++	return result;
+ }
+ 
+ /**
 
 
