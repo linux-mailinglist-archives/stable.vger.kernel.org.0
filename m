@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C08A1D81B5
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:50:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E3A9B1D8414
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:11:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730629AbgERRuG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:50:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52030 "EHLO mail.kernel.org"
+        id S1733108AbgERSGG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:06:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53958 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730627AbgERRuF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:50:05 -0400
+        id S1733104AbgERSGF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 14:06:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9C10E20715;
-        Mon, 18 May 2020 17:50:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A5CEA20671;
+        Mon, 18 May 2020 18:06:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824205;
-        bh=3jL/axdTlYd33laaCHBdmLeN7tXf5UZO0qK9ao31xS8=;
+        s=default; t=1589825165;
+        bh=FgZLxAPgb7DLaY9FCyci9lQV4m8kCQb9DxJA1gfHYXg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D5nTuw96YfPdhhRqcv7k5YSpKicJB4a3T+BCbDDqL6Oz8qjT/wqmrXYA8XIgb6R8o
-         nvUt+gWtQIh7E+Gh2tW066lkF0g5GSYuhGgO7VblC90fknTm6NnSUXWIOfx+Mvsy9S
-         4XNt3UPGUUSBgWODtTjYfG7bbpcrdSG2g2JkgOzY=
+        b=jqcBcTHO2+E+bHJEDvYMipN+bI7QsGu8B18jqlkWoPR5o2MGRtw2plGy2mIr7evU3
+         1OWkpND9DExi/v8L9K9qHghWqGDFcJZ4yWRugxWpuqo8x5KeNp//+HN8gPs4rmy/pg
+         LQIvRiBhXkYkalhTvmrBHqwR2YA4aOyliBeiFXBA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Ulrich Hecht <uli+renesas@fpond.eu>
-Subject: [PATCH 4.14 112/114] ARM: dts: r8a7740: Add missing extal2 to CPG node
+        stable@vger.kernel.org, Aurelien Jarno <aurelien@aurel32.net>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.6 154/194] powerpc/vdso32: Fallback on getres syscall when clock is unknown
 Date:   Mon, 18 May 2020 19:37:24 +0200
-Message-Id: <20200518173521.106309759@linuxfoundation.org>
+Message-Id: <20200518173544.061842259@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173503.033975649@linuxfoundation.org>
-References: <20200518173503.033975649@linuxfoundation.org>
+In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
+References: <20200518173531.455604187@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,38 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-commit e47cb97f153193d4b41ca8d48127da14513d54c7 upstream.
+commit e963b7a28b2bf2416304e1a15df967fcf662aff5 upstream.
 
-The Clock Pulse Generator (CPG) device node lacks the extal2 clock.
-This may lead to a failure registering the "r" clock, or to a wrong
-parent for the "usb24s" clock, depending on MD_CK2 pin configuration and
-boot loader CPG_USBCKCR register configuration.
+There are other clocks than the standard ones, for instance
+per process clocks. Therefore, being above the last standard clock
+doesn't mean it is a bad clock. So, fallback to syscall instead
+of returning -EINVAL inconditionaly.
 
-This went unnoticed, as this does not affect the single upstream board
-configuration, which relies on the first clock input only.
-
-Fixes: d9ffd583bf345e2e ("ARM: shmobile: r8a7740: add SoC clocks to DTS")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Ulrich Hecht <uli+renesas@fpond.eu>
-Link: https://lore.kernel.org/r/20200508095918.6061-1-geert+renesas@glider.be
+Fixes: e33ffc956b08 ("powerpc/vdso32: implement clock_getres entirely")
+Cc: stable@vger.kernel.org # v5.6+
+Reported-by: Aurelien Jarno <aurelien@aurel32.net>
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Tested-by: Aurelien Jarno <aurelien@aurel32.net>
+Link: https://lore.kernel.org/r/7316a9e2c0c2517923eb4b0411c4a08d15e675a4.1589017281.git.christophe.leroy@csgroup.eu
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/boot/dts/r8a7740.dtsi |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/kernel/vdso32/gettimeofday.S |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/arch/arm/boot/dts/r8a7740.dtsi
-+++ b/arch/arm/boot/dts/r8a7740.dtsi
-@@ -467,7 +467,7 @@
- 		cpg_clocks: cpg_clocks@e6150000 {
- 			compatible = "renesas,r8a7740-cpg-clocks";
- 			reg = <0xe6150000 0x10000>;
--			clocks = <&extal1_clk>, <&extalr_clk>;
-+			clocks = <&extal1_clk>, <&extal2_clk>, <&extalr_clk>;
- 			#clock-cells = <1>;
- 			clock-output-names = "system", "pllc0", "pllc1",
- 					     "pllc2", "r",
+--- a/arch/powerpc/kernel/vdso32/gettimeofday.S
++++ b/arch/powerpc/kernel/vdso32/gettimeofday.S
+@@ -218,11 +218,11 @@ V_FUNCTION_BEGIN(__kernel_clock_getres)
+ 	blr
+ 
+ 	/*
+-	 * invalid clock
++	 * syscall fallback
+ 	 */
+ 99:
+-	li	r3, EINVAL
+-	crset	so
++	li	r0,__NR_clock_getres
++	sc
+ 	blr
+   .cfi_endproc
+ V_FUNCTION_END(__kernel_clock_getres)
 
 
