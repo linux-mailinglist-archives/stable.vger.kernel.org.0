@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 33F761D840B
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:11:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 124D21D82A2
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:58:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732943AbgERSFe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:05:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53182 "EHLO mail.kernel.org"
+        id S1731863AbgERR6I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:58:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37184 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729470AbgERSFd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 14:05:33 -0400
+        id S1731861AbgERR6G (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:58:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2D41120671;
-        Mon, 18 May 2020 18:05:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4925420826;
+        Mon, 18 May 2020 17:58:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589825132;
-        bh=aEbCs/ehsd1uykQYJPlIZO/uC6PeDCBHQ8EMD2l9lFY=;
+        s=default; t=1589824684;
+        bh=LnLghrpkiXkZxc4mghN+U/ZB0oWcDxHaMgo41YTF53o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gc4qRFWqVvLTB/CpRNx2jyqWugkZj5aiwcsMzOwkhm2HPswUykrzVu/5+zYRVTCBP
-         1NYhApjCdQGf49MJ/tIkIlC3U3NyN5hyggZ84zFAVOFg09fyhqL7b4r6PF1CgZwtjk
-         ILlSlcjkmTPlz8lKw5mjMTGjlRUh71Nxgvcpsqtg=
+        b=mMDVrYfrWHTTXXnyesUCpeV1eSPPjmYgT9dARNOBIIX4Dts1HBx6uPC8NTqaLpx9W
+         LdbHcKRAwpFi+zFL3zgLZeQK9772hCNp9ROelV1Wf6oXmkBf5ceO8QvCpY5vWWSsag
+         pJm7tsdsFrvDkCoTtvhx5dkpjwoCDe3I/vjU4wJg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -31,12 +31,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         linux-renesas-soc@vger.kernel.org, linux-usb@vger.kernel.org,
         Kai-Heng Feng <kai.heng.feng@canonical.com>,
         Eugeniu Rosca <erosca@de.adit-jv.com>
-Subject: [PATCH 5.6 142/194] usb: core: hub: limit HUB_QUIRK_DISABLE_AUTOSUSPEND to USB5534B
+Subject: [PATCH 5.4 109/147] usb: core: hub: limit HUB_QUIRK_DISABLE_AUTOSUSPEND to USB5534B
 Date:   Mon, 18 May 2020 19:37:12 +0200
-Message-Id: <20200518173543.121249652@linuxfoundation.org>
+Message-Id: <20200518173526.765169555@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
-References: <20200518173531.455604187@linuxfoundation.org>
+In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
+References: <20200518173513.009514388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -92,7 +92,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/usb/core/hub.c
 +++ b/drivers/usb/core/hub.c
-@@ -39,6 +39,7 @@
+@@ -38,6 +38,7 @@
  
  #define USB_VENDOR_GENESYS_LOGIC		0x05e3
  #define USB_VENDOR_SMSC				0x0424
@@ -100,7 +100,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  #define HUB_QUIRK_CHECK_PORT_AUTOSUSPEND	0x01
  #define HUB_QUIRK_DISABLE_AUTOSUSPEND		0x02
  
-@@ -5621,8 +5622,11 @@ out_hdev_lock:
+@@ -5506,8 +5507,11 @@ out_hdev_lock:
  }
  
  static const struct usb_device_id hub_id_table[] = {
