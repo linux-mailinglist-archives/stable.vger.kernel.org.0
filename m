@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D4A581D79FC
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 15:35:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F3AA81D7A20
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 15:37:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727034AbgERNfp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 09:35:45 -0400
-Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:52771 "EHLO
+        id S1726940AbgERNho (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 09:37:44 -0400
+Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:51695 "EHLO
         forward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727020AbgERNfo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 May 2020 09:35:44 -0400
+        by vger.kernel.org with ESMTP id S1726726AbgERNho (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 May 2020 09:37:44 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 7219219409F5;
-        Mon, 18 May 2020 09:35:43 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Mon, 18 May 2020 09:35:43 -0400
+        by mailforward.nyi.internal (Postfix) with ESMTP id 508841940A10;
+        Mon, 18 May 2020 09:37:43 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Mon, 18 May 2020 09:37:43 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=crdetf
-        UAHdFgqFi55MjgO2xgSEzB3C6F2dQynMRSyok=; b=FH1FimwTxdf6mYJH9xq++m
-        PaKfkPrzvgyX1YzLxew7LdROFqTYiU7Et3BE6R8w8I9dtb9B5zGUMqmZxx889sNU
-        R0w/+blN9J2XjKxkDeEwSyP8PaCGy1/gizERON091y+jdDy4cblZizJkEM7UOmeI
-        ox7v+V5+RygzKk3pZbaMYmfyoMlwGO2Ea4D3i7GunPBNWyrqzIlLMa/bYsmExjwS
-        qWlrCkOLasn05SolPIq8VQ+6mmHSsW6S/4zQZYYjbQFF0f3+dcJRQysxMsiRDpqj
-        tfv/xKyb0kIY++nSbCf5fw2rOGPQX/BNxiQgCKGGIt+GxF9ISZx6emfGFFv8ZAZA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=vnuzox
+        /o+7ClX0fjfwETanMhR1GtH6Xi2f6hOEJDMjc=; b=aIMV+qEjY7kBmpyqynkzLL
+        L/Gm77aUet3PD7V8wv1epizo1MQFvzjuMcESMKZIqDqllC7BjQ1cCoqDCHjooKlf
+        rWoXs7fVw0QEeJ/UzA8lIwn67Zam76btUAwWaAZvWlWqzEHYA5MwRPubB4jZKZ3I
+        /e3FBRQjd3eFhGUvLIFI4YmIJ11WBYANGsn1jcagwCiTIXY39pzeVlU4tTSgir2D
+        nrf0mC5l3fqfktqtyntg5FhbTIqU8YWj7paMiSD127/FYj5giwVlbBuLYkm0J8rj
+        h/87ZqkCNL6I0r+ZEwz4UyUmWuW0LFTdSUpBvU1CfxqFlQyPvTUzyix5feMjz1zQ
         ==
-X-ME-Sender: <xms:L4_CXtsAKNQN9oQ3Jzv8vTeAwR9ViAzd6Po9tw6jXV79XmgUBHjaoQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedruddthedgieehucetufdoteggodetrfdotf
+X-ME-Sender: <xms:p4_CXhlhFqlzPpjh1-c9fOvypVMneoVIYZ-EVLfXwP4hbnotYRiZqw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedruddthedgieeiucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
     etveeuveeludejjefgteehnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushht
-    vghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
+    vghrufhiiigvpedunecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
     drtghomh
-X-ME-Proxy: <xmx:L4_CXmc7p0ERb16fcISWpw8066VnnmhNcS3TU8x2gAmgBKYqPhu46g>
-    <xmx:L4_CXgwt5z-NFYsjI3hFmW_z4gAbhyl1MYUw2c2R4ALrUKgrd0PnYw>
-    <xmx:L4_CXkNi2hvDFKQhOGxh_9xQX-GpjQN9_bsG0QDzwUCFmIyWTm1pYg>
-    <xmx:L4_CXiLUGlOsfzX4MFTbaqtyOIqLJ7qOSrqi5kizYNgBLuu_MWoQOg>
+X-ME-Proxy: <xmx:p4_CXs3pxZJhc_jy318Y6Kwx9gGLixZixN65VI19Js-lZJczX4IgDw>
+    <xmx:p4_CXnoSr5SORjU66mbwegNT9OX-LUNXx3cak-ps9i6i9EQNqoL4KA>
+    <xmx:p4_CXhnmf7IECfXRICpCZrpgXizZ6chkaLK2XNLN856EgUV1TTxNOw>
+    <xmx:p4_CXkipHmV2MHE0BIz077mW4ZJEcS-B8LdoNeiZZCyLLL_17sDC3A>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id EBAC43280067;
-        Mon, 18 May 2020 09:35:42 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] drm/amdgpu: enable hibernate support on Navi1X" failed to apply to 5.6-stable tree
-To:     evan.quan@amd.com, alexander.deucher@amd.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id E25A130663FF;
+        Mon, 18 May 2020 09:37:42 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] arm64: fix the flush_icache_range arguments in machine_kexec" failed to apply to 4.14-stable tree
+To:     hch@lst.de, catalin.marinas@arm.com, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 18 May 2020 15:35:41 +0200
-Message-ID: <1589808941179223@kroah.com>
+Date:   Mon, 18 May 2020 15:37:33 +0200
+Message-ID: <158980905320474@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -58,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.6-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -69,55 +69,28 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From b2b6290a23986a5c88384887b8a589a3c4ebe292 Mon Sep 17 00:00:00 2001
-From: Evan Quan <evan.quan@amd.com>
-Date: Thu, 7 May 2020 18:17:55 +0800
-Subject: [PATCH] drm/amdgpu: enable hibernate support on Navi1X
+From d51c214541c5154dda3037289ee895ea3ded5ebd Mon Sep 17 00:00:00 2001
+From: Christoph Hellwig <hch@lst.de>
+Date: Sun, 10 May 2020 09:54:41 +0200
+Subject: [PATCH] arm64: fix the flush_icache_range arguments in machine_kexec
 
-BACO is needed to support hibernate on Navi1X.
+The second argument is the end "pointer", not the length.
 
-Signed-off-by: Evan Quan <evan.quan@amd.com>
-Acked-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+Fixes: d28f6df1305a ("arm64/kexec: Add core kexec support")
+Cc: <stable@vger.kernel.org> # 4.8.x-
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu.h b/drivers/gpu/drm/amd/amdgpu/amdgpu.h
-index 2992a49ad4a5..8ac1581a6b53 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu.h
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu.h
-@@ -945,6 +945,7 @@ struct amdgpu_device {
+diff --git a/arch/arm64/kernel/machine_kexec.c b/arch/arm64/kernel/machine_kexec.c
+index 8e9c924423b4..a0b144cfaea7 100644
+--- a/arch/arm64/kernel/machine_kexec.c
++++ b/arch/arm64/kernel/machine_kexec.c
+@@ -177,6 +177,7 @@ void machine_kexec(struct kimage *kimage)
+ 	 * the offline CPUs. Therefore, we must use the __* variant here.
+ 	 */
+ 	__flush_icache_range((uintptr_t)reboot_code_buffer,
++			     (uintptr_t)reboot_code_buffer +
+ 			     arm64_relocate_new_kernel_size);
  
- 	/* s3/s4 mask */
- 	bool                            in_suspend;
-+	bool				in_hibernate;
- 
- 	/* record last mm index being written through WREG32*/
- 	unsigned long last_mm_index;
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
-index 466bfe541e45..a735d79a717b 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
-@@ -1181,7 +1181,9 @@ static int amdgpu_pmops_freeze(struct device *dev)
- 	struct amdgpu_device *adev = drm_dev->dev_private;
- 	int r;
- 
-+	adev->in_hibernate = true;
- 	r = amdgpu_device_suspend(drm_dev, true);
-+	adev->in_hibernate = false;
- 	if (r)
- 		return r;
- 	return amdgpu_asic_reset(adev);
-diff --git a/drivers/gpu/drm/amd/powerplay/amdgpu_smu.c b/drivers/gpu/drm/amd/powerplay/amdgpu_smu.c
-index 09fa685b811b..e77046931e4c 100644
---- a/drivers/gpu/drm/amd/powerplay/amdgpu_smu.c
-+++ b/drivers/gpu/drm/amd/powerplay/amdgpu_smu.c
-@@ -1476,7 +1476,7 @@ static int smu_disable_dpm(struct smu_context *smu)
- 	bool use_baco = !smu->is_apu &&
- 		((adev->in_gpu_reset &&
- 		  (amdgpu_asic_reset_method(adev) == AMD_RESET_METHOD_BACO)) ||
--		 (adev->in_runpm && amdgpu_asic_supports_baco(adev)));
-+		 ((adev->in_runpm || adev->in_hibernate) && amdgpu_asic_supports_baco(adev)));
- 
- 	ret = smu_get_smc_version(smu, NULL, &smu_version);
- 	if (ret) {
+ 	/* Flush the kimage list and its buffers. */
 
