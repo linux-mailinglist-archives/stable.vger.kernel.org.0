@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D57081D8295
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:57:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 567B81D818E
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:49:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731508AbgERR5i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:57:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36366 "EHLO mail.kernel.org"
+        id S1730482AbgERRtF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:49:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731818AbgERR5i (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:57:38 -0400
+        id S1730476AbgERRtF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:49:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F028E20674;
-        Mon, 18 May 2020 17:57:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 89C3A20674;
+        Mon, 18 May 2020 17:49:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824657;
-        bh=0Uq8owQ8ExjNuIYq095tsJvoJ8AZlElDeAs7qUZXrRE=;
+        s=default; t=1589824145;
+        bh=kPFn484w+BiSCbABNfwtu0OdzTQiYjUuJcyTIB6nJQo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZrgZ1LL1X6yDvnhqQ1FwYSiBQtLlMAxMYDxqk3nboRdTonjUL3lnmYBkyWmI9BbuF
-         yCVueG21LCQtVlI0WN7HAuOZ9mRHe8grlADca2s1CuOlZ1GhepbniJu7z9eEkeoVF3
-         sAX4EcHH2u7OqEv+QXhUIJcCSSEmDxJFuh1GtIaA=
+        b=ffQkrr1soomlnEfWYQtHXK9sqs9Ik/ohyi/okmxom1wUs0yYx+J3ZIa/VMK3z3mWv
+         eGmAsqofJAEbCIXYV/5Y+9PcSSkwBiXuyHeKjxnhRlwSZjewkxOdc1FebS9MwJY3EH
+         tKmWXXyPKSSSbi2ZEJYVPik2XqimBnaElr18gwOY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 099/147] gcc-10: disable restrict warning for now
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.14 090/114] ALSA: hda/realtek - Limit int mic boost for Thinkpad T530
 Date:   Mon, 18 May 2020 19:37:02 +0200
-Message-Id: <20200518173525.782291968@linuxfoundation.org>
+Message-Id: <20200518173518.490040347@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
-References: <20200518173513.009514388@linuxfoundation.org>
+In-Reply-To: <20200518173503.033975649@linuxfoundation.org>
+References: <20200518173503.033975649@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,66 +42,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit adc71920969870dfa54e8f40dac8616284832d02 upstream.
+commit b590b38ca305d6d7902ec7c4f7e273e0069f3bcc upstream.
 
-gcc-10 now warns about passing aliasing pointers to functions that take
-restricted pointers.
+Lenovo Thinkpad T530 seems to have a sensitive internal mic capture
+that needs to limit the mic boost like a few other Thinkpad models.
+Although we may change the quirk for ALC269_FIXUP_LENOVO_DOCK, this
+hits way too many other laptop models, so let's add a new fixup model
+that limits the internal mic boost on top of the existing quirk and
+apply to only T530.
 
-That's actually a great warning, and if we ever start using 'restrict'
-in the kernel, it might be quite useful.  But right now we don't, and it
-turns out that the only thing this warns about is an idiom where we have
-declared a few functions to be "printf-like" (which seems to make gcc
-pick up the restricted pointer thing), and then we print to the same
-buffer that we also use as an input.
-
-And people do that as an odd concatenation pattern, with code like this:
-
-    #define sysfs_show_gen_prop(buffer, fmt, ...) \
-        snprintf(buffer, PAGE_SIZE, "%s"fmt, buffer, __VA_ARGS__)
-
-where we have 'buffer' as both the destination of the final result, and
-as the initial argument.
-
-Yes, it's a bit questionable.  And outside of the kernel, people do have
-standard declarations like
-
-    int snprintf( char *restrict buffer, size_t bufsz,
-                  const char *restrict format, ... );
-
-where that output buffer is marked as a restrict pointer that cannot
-alias with any other arguments.
-
-But in the context of the kernel, that 'use snprintf() to concatenate to
-the end result' does work, and the pattern shows up in multiple places.
-And we have not marked our own version of snprintf() as taking restrict
-pointers, so the warning is incorrect for now, and gcc picks it up on
-its own.
-
-If we do start using 'restrict' in the kernel (and it might be a good
-idea if people find places where it matters), we'll need to figure out
-how to avoid this issue for snprintf and friends.  But in the meantime,
-this warning is not useful.
-
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+BugLink: https://bugzilla.suse.com/show_bug.cgi?id=1171293
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200514160533.10337-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- Makefile |    3 +++
- 1 file changed, 3 insertions(+)
+ sound/pci/hda/patch_realtek.c |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
---- a/Makefile
-+++ b/Makefile
-@@ -861,6 +861,9 @@ KBUILD_CFLAGS += $(call cc-disable-warni
- KBUILD_CFLAGS += $(call cc-disable-warning, array-bounds)
- KBUILD_CFLAGS += $(call cc-disable-warning, stringop-overflow)
- 
-+# Another good warning that we'll want to enable eventually
-+KBUILD_CFLAGS += $(call cc-disable-warning, restrict)
-+
- # Enabled with W=2, disabled by default as noisy
- KBUILD_CFLAGS += $(call cc-disable-warning, maybe-uninitialized)
- 
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -5433,6 +5433,7 @@ enum {
+ 	ALC269_FIXUP_HP_LINE1_MIC1_LED,
+ 	ALC269_FIXUP_INV_DMIC,
+ 	ALC269_FIXUP_LENOVO_DOCK,
++	ALC269_FIXUP_LENOVO_DOCK_LIMIT_BOOST,
+ 	ALC269_FIXUP_NO_SHUTUP,
+ 	ALC286_FIXUP_SONY_MIC_NO_PRESENCE,
+ 	ALC269_FIXUP_PINCFG_NO_HP_TO_LINEOUT,
+@@ -5726,6 +5727,12 @@ static const struct hda_fixup alc269_fix
+ 		.chained = true,
+ 		.chain_id = ALC269_FIXUP_PINCFG_NO_HP_TO_LINEOUT
+ 	},
++	[ALC269_FIXUP_LENOVO_DOCK_LIMIT_BOOST] = {
++		.type = HDA_FIXUP_FUNC,
++		.v.func = alc269_fixup_limit_int_mic_boost,
++		.chained = true,
++		.chain_id = ALC269_FIXUP_LENOVO_DOCK,
++	},
+ 	[ALC269_FIXUP_PINCFG_NO_HP_TO_LINEOUT] = {
+ 		.type = HDA_FIXUP_FUNC,
+ 		.v.func = alc269_fixup_pincfg_no_hp_to_lineout,
+@@ -6612,7 +6619,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x17aa, 0x21b8, "Thinkpad Edge 14", ALC269_FIXUP_SKU_IGNORE),
+ 	SND_PCI_QUIRK(0x17aa, 0x21ca, "Thinkpad L412", ALC269_FIXUP_SKU_IGNORE),
+ 	SND_PCI_QUIRK(0x17aa, 0x21e9, "Thinkpad Edge 15", ALC269_FIXUP_SKU_IGNORE),
+-	SND_PCI_QUIRK(0x17aa, 0x21f6, "Thinkpad T530", ALC269_FIXUP_LENOVO_DOCK),
++	SND_PCI_QUIRK(0x17aa, 0x21f6, "Thinkpad T530", ALC269_FIXUP_LENOVO_DOCK_LIMIT_BOOST),
+ 	SND_PCI_QUIRK(0x17aa, 0x21fa, "Thinkpad X230", ALC269_FIXUP_LENOVO_DOCK),
+ 	SND_PCI_QUIRK(0x17aa, 0x21f3, "Thinkpad T430", ALC269_FIXUP_LENOVO_DOCK),
+ 	SND_PCI_QUIRK(0x17aa, 0x21fb, "Thinkpad T430s", ALC269_FIXUP_LENOVO_DOCK),
+@@ -6744,6 +6751,7 @@ static const struct hda_model_fixup alc2
+ 	{.id = ALC269_FIXUP_HEADSET_MODE, .name = "headset-mode"},
+ 	{.id = ALC269_FIXUP_HEADSET_MODE_NO_HP_MIC, .name = "headset-mode-no-hp-mic"},
+ 	{.id = ALC269_FIXUP_LENOVO_DOCK, .name = "lenovo-dock"},
++	{.id = ALC269_FIXUP_LENOVO_DOCK_LIMIT_BOOST, .name = "lenovo-dock-limit-boost"},
+ 	{.id = ALC269_FIXUP_HP_GPIO_LED, .name = "hp-gpio-led"},
+ 	{.id = ALC269_FIXUP_HP_DOCK_GPIO_MIC1_LED, .name = "hp-dock-gpio-mic1-led"},
+ 	{.id = ALC269_FIXUP_DELL1_MIC_NO_PRESENCE, .name = "dell-headset-multi"},
 
 
