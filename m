@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AA5DB1D8084
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:40:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CBCDF1D84AF
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:14:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728947AbgERRkI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:40:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35460 "EHLO mail.kernel.org"
+        id S1733207AbgERSNh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:13:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44376 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728978AbgERRkI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:40:08 -0400
+        id S1732432AbgERSBw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 14:01:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7208120853;
-        Mon, 18 May 2020 17:40:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 29A8E207C4;
+        Mon, 18 May 2020 18:01:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589823607;
-        bh=XP312QEKG9ACypwj04DGBWos0WkM813/41HdoPyONdo=;
+        s=default; t=1589824911;
+        bh=CiUqSGGZ/wftLj2uPpD1velB9FbEfAK86NJmC+dCe74=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TCXyPh+TPJ/fLOIXW0x/f564mHO+AFCmULgQXz/q2boRRAQ+IoT83S5iXz9Xdc5C2
-         NhfAoHHDEff72J8Q5zkbnPaXBxfMW25eBBWzi3pxlb+UI1ZzAPLJ6DRTk9dDXajED+
-         vKVHu10nW+ZJXmYTnBSB1zeq1tzhgseVRrmJ2TBM=
+        b=PHopFwl60q+WWNjwUmUdUQWMsNch2l/aywL678I2bPsL2wn1iCqvpJdAfbI5QGtpW
+         udBOE/ll0HAs8oluD3M0CMqTuaL38Ba5Nl+75IwWNPq+jJX+AJVgO3/cDPw6Fme7Nu
+         ygLkZjQNKK2oJqKcn6v4aSMSFruTvHnB2mL5K53w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
-        =?UTF-8?q?Julian=20Gro=C3=9F?= <julian.g@posteo.de>
-Subject: [PATCH 4.4 13/86] USB: uas: add quirk for LaCie 2Big Quadra
+        stable@vger.kernel.org, Lubomir Rintel <lkundrak@v3.sk>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 054/194] dmaengine: mmp_tdma: Do not ignore slave config validation errors
 Date:   Mon, 18 May 2020 19:35:44 +0200
-Message-Id: <20200518173453.216712227@linuxfoundation.org>
+Message-Id: <20200518173536.258813664@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173450.254571947@linuxfoundation.org>
-References: <20200518173450.254571947@linuxfoundation.org>
+In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
+References: <20200518173531.455604187@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,38 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Neukum <oneukum@suse.com>
+From: Lubomir Rintel <lkundrak@v3.sk>
 
-commit 9f04db234af691007bb785342a06abab5fb34474 upstream.
+[ Upstream commit 363c32701c7fdc8265a84b21a6a4f45d1202b9ca ]
 
-This device needs US_FL_NO_REPORT_OPCODES to avoid going
-through prolonged error handling on enumeration.
+With an invalid dma_slave_config set previously,
+mmp_tdma_prep_dma_cyclic() would detect an error whilst configuring the
+channel, but proceed happily on:
 
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Reported-by: Julian Groß <julian.g@posteo.de>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200429155218.7308-1-oneukum@suse.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  [  120.756530] mmp-tdma d42a0800.adma: mmp_tdma: unknown burst size.
 
+Signed-off-by: Lubomir Rintel <lkundrak@v3.sk>
+Link: https://lore.kernel.org/r/20200419164912.670973-2-lkundrak@v3.sk
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/storage/unusual_uas.h |    7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/dma/mmp_tdma.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/storage/unusual_uas.h
-+++ b/drivers/usb/storage/unusual_uas.h
-@@ -40,6 +40,13 @@
-  * and don't forget to CC: the USB development list <linux-usb@vger.kernel.org>
-  */
+diff --git a/drivers/dma/mmp_tdma.c b/drivers/dma/mmp_tdma.c
+index 10117f271b12b..51e08c16756ae 100644
+--- a/drivers/dma/mmp_tdma.c
++++ b/drivers/dma/mmp_tdma.c
+@@ -443,7 +443,8 @@ static struct dma_async_tx_descriptor *mmp_tdma_prep_dma_cyclic(
+ 	if (!desc)
+ 		goto err_out;
  
-+/* Reported-by: Julian Groß <julian.g@posteo.de> */
-+UNUSUAL_DEV(0x059f, 0x105f, 0x0000, 0x9999,
-+		"LaCie",
-+		"2Big Quadra USB3",
-+		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
-+		US_FL_NO_REPORT_OPCODES),
-+
- /*
-  * Apricorn USB3 dongle sometimes returns "USBSUSBSUSBS" in response to SCSI
-  * commands in UAS mode.  Observed with the 1.28 firmware; are there others?
+-	mmp_tdma_config_write(chan, direction, &tdmac->slave_config);
++	if (mmp_tdma_config_write(chan, direction, &tdmac->slave_config))
++		goto err_out;
+ 
+ 	while (buf < buf_len) {
+ 		desc = &tdmac->desc_arr[i];
+-- 
+2.20.1
+
 
 
