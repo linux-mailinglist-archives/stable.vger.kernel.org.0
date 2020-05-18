@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 39D0F1D831D
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:02:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D11961D86F5
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:31:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732487AbgERSCQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:02:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45648 "EHLO mail.kernel.org"
+        id S1729397AbgERRmP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:42:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39140 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731959AbgERSCP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 14:02:15 -0400
+        id S1729395AbgERRmO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:42:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E5283208B8;
-        Mon, 18 May 2020 18:02:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B234A20829;
+        Mon, 18 May 2020 17:42:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824934;
-        bh=dp7iFnJlTuXJo6yAkAJuyAMkJxYlx6hfOyDpFHMYqbg=;
+        s=default; t=1589823734;
+        bh=vNZivytMBWAhlteQOYiqnhPyfZQnjhltAJXHLe92+kk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DFal+/jPjM6amy/YIdKFMWqvHB7L6odaChW4J1LB1piFUPQY0CApda25NLnSXhwK5
-         Z0NDRpYUIyWRKQ1qM/j5huHhi00/dP+iZfb7zrIfXzw/B4fYnhOODBhvgyV96LA49d
-         8p2yDAKbY8lpW135x8XAlykkeMMWs19rdhfRelVE=
+        b=dBgjhSb77buorO/GYujykAfiRmBtjz7Z9RlEbbJDiL5MQlzWszqZ3hgNVi9dOEg9I
+         pHyfuEWF+Rf7CsEqPxB5kKDo0fAtyuJH/LUmPjdjgFHytEtw6w1mqA3XDfjLnBKfLL
+         ky/e8GVCU7mA/NqAZSQYlPl0ii0wLPlhtcgvxM7c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>,
-        Eric Bernstein <Eric.Bernstein@amd.com>,
-        Aurabindo Pillai <aurabindo.pillai@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 062/194] drm/amd/display: check if REFCLK_CNTL register is present
-Date:   Mon, 18 May 2020 19:35:52 +0200
-Message-Id: <20200518173536.875799772@linuxfoundation.org>
+        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
+        =?UTF-8?q?Julian=20Gro=C3=9F?= <julian.g@posteo.de>
+Subject: [PATCH 4.9 15/90] USB: uas: add quirk for LaCie 2Big Quadra
+Date:   Mon, 18 May 2020 19:35:53 +0200
+Message-Id: <20200518173454.305084631@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
-References: <20200518173531.455604187@linuxfoundation.org>
+In-Reply-To: <20200518173450.930655662@linuxfoundation.org>
+References: <20200518173450.930655662@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,38 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>
+From: Oliver Neukum <oneukum@suse.com>
 
-[ Upstream commit 3159d41db3a04330c31ece32f8b29752fc114848 ]
+commit 9f04db234af691007bb785342a06abab5fb34474 upstream.
 
-Check before programming the register since it isn't present on
-all IPs using this code.
+This device needs US_FL_NO_REPORT_OPCODES to avoid going
+through prolonged error handling on enumeration.
 
-Signed-off-by: Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>
-Reviewed-by: Eric Bernstein <Eric.Bernstein@amd.com>
-Acked-by: Aurabindo Pillai <aurabindo.pillai@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Reported-by: Julian Groß <julian.g@posteo.de>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200429155218.7308-1-oneukum@suse.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/usb/storage/unusual_uas.h |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
-index a444fed941849..ad422e00f9fec 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
-@@ -2306,7 +2306,8 @@ void dcn20_fpga_init_hw(struct dc *dc)
+--- a/drivers/usb/storage/unusual_uas.h
++++ b/drivers/usb/storage/unusual_uas.h
+@@ -41,6 +41,13 @@
+  * and don't forget to CC: the USB development list <linux-usb@vger.kernel.org>
+  */
  
- 	REG_UPDATE(DCHUBBUB_GLOBAL_TIMER_CNTL, DCHUBBUB_GLOBAL_TIMER_REFDIV, 2);
- 	REG_UPDATE(DCHUBBUB_GLOBAL_TIMER_CNTL, DCHUBBUB_GLOBAL_TIMER_ENABLE, 1);
--	REG_WRITE(REFCLK_CNTL, 0);
-+	if (REG(REFCLK_CNTL))
-+		REG_WRITE(REFCLK_CNTL, 0);
- 	//
- 
- 
--- 
-2.20.1
-
++/* Reported-by: Julian Groß <julian.g@posteo.de> */
++UNUSUAL_DEV(0x059f, 0x105f, 0x0000, 0x9999,
++		"LaCie",
++		"2Big Quadra USB3",
++		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
++		US_FL_NO_REPORT_OPCODES),
++
+ /*
+  * Apricorn USB3 dongle sometimes returns "USBSUSBSUSBS" in response to SCSI
+  * commands in UAS mode.  Observed with the 1.28 firmware; are there others?
 
 
