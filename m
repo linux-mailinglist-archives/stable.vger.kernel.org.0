@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1533A1D84B8
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:14:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AF4541D8048
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:38:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732948AbgERSN4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:13:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43956 "EHLO mail.kernel.org"
+        id S1728551AbgERRii (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:38:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32768 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732411AbgERSBe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 14:01:34 -0400
+        id S1727938AbgERRii (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:38:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A70FE20826;
-        Mon, 18 May 2020 18:01:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D4BD720835;
+        Mon, 18 May 2020 17:38:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824894;
-        bh=KONOyviHySfFCx8g+X0yBPg7f/PqbVDlYmS8u/zo1G8=;
+        s=default; t=1589823516;
+        bh=yfLVrc3kuOHJvMsqpdPiEyI3dMQCbjYSa4CbCWe2CSQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A+EqDaOjSou/6OPOCD0XE8RR+zAvOMsrzY9XL+yzS+n9KPEamMi9BUqPw5UJqsdYf
-         d6pNHEFzOKw3oQHMBW3jQhE6Xrfs1NeMOhwMOy+RjcjSuTUtqMhUgHihf5d3zRlDgz
-         oIK6F+dW4yMhcaeSJyQeGAWm2Cba1MOR2JUlW2Cw=
+        b=2Go5NdF2OeL7YwSGXJo836KvGHIlOzTVJspxwHOwER18xxOfqgdc6YRuufIyT7i2I
+         GVSa2G8w1bDHInJGiKlRymuUHPugalBEozbtp/XUEG5rZMbmuOX9vXCi/0WMZjiGBT
+         YD+O88IAoZ2y9R1oy6ttsDSoX+3h4Fl9ibg+soFA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Wei Yongjun <weiyongjun1@huawei.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.6 047/194] nfp: abm: fix error return code in nfp_abm_vnic_alloc()
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        Cong Wang <xiyou.wangcong@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.4 06/86] sch_choke: avoid potential panic in choke_reset()
 Date:   Mon, 18 May 2020 19:35:37 +0200
-Message-Id: <20200518173535.739283263@linuxfoundation.org>
+Message-Id: <20200518173451.557308169@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
-References: <20200518173531.455604187@linuxfoundation.org>
+In-Reply-To: <20200518173450.254571947@linuxfoundation.org>
+References: <20200518173450.254571947@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,35 +45,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Yongjun <weiyongjun1@huawei.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 5099dea0a59f1c89525bb0ceac36689178a4c125 ]
+[ Upstream commit 8738c85c72b3108c9b9a369a39868ba5f8e10ae0 ]
 
-Fix to return negative error code -ENOMEM from the kzalloc() error
-handling case instead of 0, as done elsewhere in this function.
+If choke_init() could not allocate q->tab, we would crash later
+in choke_reset().
 
-Fixes: 174ab544e3bc ("nfp: abm: add cls_u32 offload for simple band classification")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+BUG: KASAN: null-ptr-deref in memset include/linux/string.h:366 [inline]
+BUG: KASAN: null-ptr-deref in choke_reset+0x208/0x340 net/sched/sch_choke.c:326
+Write of size 8 at addr 0000000000000000 by task syz-executor822/7022
+
+CPU: 1 PID: 7022 Comm: syz-executor822 Not tainted 5.7.0-rc1-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Call Trace:
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0x188/0x20d lib/dump_stack.c:118
+ __kasan_report.cold+0x5/0x4d mm/kasan/report.c:515
+ kasan_report+0x33/0x50 mm/kasan/common.c:625
+ check_memory_region_inline mm/kasan/generic.c:187 [inline]
+ check_memory_region+0x141/0x190 mm/kasan/generic.c:193
+ memset+0x20/0x40 mm/kasan/common.c:85
+ memset include/linux/string.h:366 [inline]
+ choke_reset+0x208/0x340 net/sched/sch_choke.c:326
+ qdisc_reset+0x6b/0x520 net/sched/sch_generic.c:910
+ dev_deactivate_queue.constprop.0+0x13c/0x240 net/sched/sch_generic.c:1138
+ netdev_for_each_tx_queue include/linux/netdevice.h:2197 [inline]
+ dev_deactivate_many+0xe2/0xba0 net/sched/sch_generic.c:1195
+ dev_deactivate+0xf8/0x1c0 net/sched/sch_generic.c:1233
+ qdisc_graft+0xd25/0x1120 net/sched/sch_api.c:1051
+ tc_modify_qdisc+0xbab/0x1a00 net/sched/sch_api.c:1670
+ rtnetlink_rcv_msg+0x44e/0xad0 net/core/rtnetlink.c:5454
+ netlink_rcv_skb+0x15a/0x410 net/netlink/af_netlink.c:2469
+ netlink_unicast_kernel net/netlink/af_netlink.c:1303 [inline]
+ netlink_unicast+0x537/0x740 net/netlink/af_netlink.c:1329
+ netlink_sendmsg+0x882/0xe10 net/netlink/af_netlink.c:1918
+ sock_sendmsg_nosec net/socket.c:652 [inline]
+ sock_sendmsg+0xcf/0x120 net/socket.c:672
+ ____sys_sendmsg+0x6bf/0x7e0 net/socket.c:2362
+ ___sys_sendmsg+0x100/0x170 net/socket.c:2416
+ __sys_sendmsg+0xec/0x1b0 net/socket.c:2449
+ do_syscall_64+0xf6/0x7d0 arch/x86/entry/common.c:295
+
+Fixes: 77e62da6e60c ("sch_choke: drop all packets in queue during reset")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Cc: Cong Wang <xiyou.wangcong@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/netronome/nfp/abm/main.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ net/sched/sch_choke.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/netronome/nfp/abm/main.c
-+++ b/drivers/net/ethernet/netronome/nfp/abm/main.c
-@@ -333,8 +333,10 @@ nfp_abm_vnic_alloc(struct nfp_app *app,
- 		goto err_free_alink;
+--- a/net/sched/sch_choke.c
++++ b/net/sched/sch_choke.c
+@@ -396,7 +396,8 @@ static void choke_reset(struct Qdisc *sc
+ 		qdisc_drop(skb, sch);
+ 	}
  
- 	alink->prio_map = kzalloc(abm->prio_map_len, GFP_KERNEL);
--	if (!alink->prio_map)
-+	if (!alink->prio_map) {
-+		err = -ENOMEM;
- 		goto err_free_alink;
-+	}
- 
- 	/* This is a multi-host app, make sure MAC/PHY is up, but don't
- 	 * make the MAC/PHY state follow the state of any of the ports.
+-	memset(q->tab, 0, (q->tab_mask + 1) * sizeof(struct sk_buff *));
++	if (q->tab)
++		memset(q->tab, 0, (q->tab_mask + 1) * sizeof(struct sk_buff *));
+ 	q->head = q->tail = 0;
+ 	red_restart(&q->vars);
+ }
 
 
