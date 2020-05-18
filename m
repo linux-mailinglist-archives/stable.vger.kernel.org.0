@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D59241D806F
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:40:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 491731D8562
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:18:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728899AbgERRjt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:39:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34790 "EHLO mail.kernel.org"
+        id S1731455AbgERRzc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:55:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60982 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728897AbgERRjs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:39:48 -0400
+        id S1730833AbgERRzb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:55:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B237A20872;
-        Mon, 18 May 2020 17:39:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BE02120674;
+        Mon, 18 May 2020 17:55:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589823588;
-        bh=bWWUvqAbGRBNZ8OjnEhsfV6kumY5GE42gY2oRDgzrAg=;
+        s=default; t=1589824530;
+        bh=FoizjeQWVQ+PPrHic9gyMac+0ySrT3orkEdMtBwM2/s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z5f8sOFTDhA4xZo31LNOWC0ADhvNkGr1HVPBISkuHb7vlZcZYnE3jp7kFiI+kvpdz
-         1f3t55lxW+OaMrMBk+kd3MynmQ+/ESMQtRorjoywMdzXDK8+D4P1asioJ29sdfRUbM
-         LXDeOlF/x4x38sKEe4yzGg0ELItytdo50cOR7t8c=
+        b=kYHYM8EdrrUUpyNe12dO4LW4uQABsB4GGXGsi7QPpadTdXj9Ghdt/5am0CbG2IXnE
+         Iw1p4uvFzCjv0+ANtqM0ALdpUugHYpXXw3LlvaJ7xvpEli1zSOLb1N9kWt3YRnOY5c
+         Nw8GvX3J+A8fOnFLHoAyVRRbZs+c55c2sL4C4JDU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Samuel Cabrero <scabrero@suse.de>,
-        =?UTF-8?q?Aur=C3=A9lien=20Aptel?= <aaptel@suse.de>,
-        Ronnie Sahlberg <lsahlber@redhat.com>,
-        Steve French <smfrench@gmail.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Marek=20Ol=C5=A1=C3=A1k?= <marek.olsak@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Pierre-Eric Pelloux-Prayer <pierre-eric.pelloux-prayer@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 41/86] cifs: Check for timeout on Negotiate stage
+Subject: [PATCH 5.4 049/147] drm/amdgpu: invalidate L2 before SDMA IBs (v2)
 Date:   Mon, 18 May 2020 19:36:12 +0200
-Message-Id: <20200518173458.701109514@linuxfoundation.org>
+Message-Id: <20200518173520.085222643@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173450.254571947@linuxfoundation.org>
-References: <20200518173450.254571947@linuxfoundation.org>
+In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
+References: <20200518173513.009514388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,119 +47,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Samuel Cabrero <scabrero@suse.de>
+From: Marek Olšák <marek.olsak@amd.com>
 
-[ Upstream commit 76e752701a8af4404bbd9c45723f7cbd6e4a251e ]
+[ Upstream commit fdf83646c0542ecfb9adc4db8f741a1f43dca058 ]
 
-Some servers seem to accept connections while booting but never send
-the SMBNegotiate response neither close the connection, causing all
-processes accessing the share hang on uninterruptible sleep state.
+This fixes GPU hangs due to cache coherency issues.
 
-This happens when the cifs_demultiplex_thread detects the server is
-unresponsive so releases the socket and start trying to reconnect.
-At some point, the faulty server will accept the socket and the TCP
-status will be set to NeedNegotiate. The first issued command accessing
-the share will start the negotiation (pid 5828 below), but the response
-will never arrive so other commands will be blocked waiting on the mutex
-(pid 55352).
+v2: Split the version bump to a separate patch
 
-This patch checks for unresponsive servers also on the negotiate stage
-releasing the socket and reconnecting if the response is not received
-and checking again the tcp state when the mutex is acquired.
-
-PID: 55352  TASK: ffff880fd6cc02c0  CPU: 0   COMMAND: "ls"
- #0 [ffff880fd9add9f0] schedule at ffffffff81467eb9
- #1 [ffff880fd9addb38] __mutex_lock_slowpath at ffffffff81468fe0
- #2 [ffff880fd9addba8] mutex_lock at ffffffff81468b1a
- #3 [ffff880fd9addbc0] cifs_reconnect_tcon at ffffffffa042f905 [cifs]
- #4 [ffff880fd9addc60] smb_init at ffffffffa042faeb [cifs]
- #5 [ffff880fd9addca0] CIFSSMBQPathInfo at ffffffffa04360b5 [cifs]
- ....
-
-Which is waiting a mutex owned by:
-
-PID: 5828   TASK: ffff880fcc55e400  CPU: 0   COMMAND: "xxxx"
- #0 [ffff880fbfdc19b8] schedule at ffffffff81467eb9
- #1 [ffff880fbfdc1b00] wait_for_response at ffffffffa044f96d [cifs]
- #2 [ffff880fbfdc1b60] SendReceive at ffffffffa04505ce [cifs]
- #3 [ffff880fbfdc1bb0] CIFSSMBNegotiate at ffffffffa0438d79 [cifs]
- #4 [ffff880fbfdc1c50] cifs_negotiate_protocol at ffffffffa043b383 [cifs]
- #5 [ffff880fbfdc1c80] cifs_reconnect_tcon at ffffffffa042f911 [cifs]
- #6 [ffff880fbfdc1d20] smb_init at ffffffffa042faeb [cifs]
- #7 [ffff880fbfdc1d60] CIFSSMBQFSInfo at ffffffffa0434eb0 [cifs]
- ....
-
-Signed-off-by: Samuel Cabrero <scabrero@suse.de>
-Reviewed-by: Aurélien Aptel <aaptel@suse.de>
-Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
-Signed-off-by: Steve French <smfrench@gmail.com>
+Signed-off-by: Marek Olšák <marek.olsak@amd.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Tested-by: Pierre-Eric Pelloux-Prayer <pierre-eric.pelloux-prayer@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/cifssmb.c | 12 ++++++++++++
- fs/cifs/connect.c |  3 ++-
- fs/cifs/smb2pdu.c | 12 ++++++++++++
- 3 files changed, 26 insertions(+), 1 deletion(-)
+ .../gpu/drm/amd/amdgpu/navi10_sdma_pkt_open.h    | 16 ++++++++++++++++
+ drivers/gpu/drm/amd/amdgpu/sdma_v5_0.c           | 14 +++++++++++++-
+ 2 files changed, 29 insertions(+), 1 deletion(-)
 
-diff --git a/fs/cifs/cifssmb.c b/fs/cifs/cifssmb.c
-index b9b8f19dce0e1..fa07f7cb85a51 100644
---- a/fs/cifs/cifssmb.c
-+++ b/fs/cifs/cifssmb.c
-@@ -184,6 +184,18 @@ cifs_reconnect_tcon(struct cifs_tcon *tcon, int smb_command)
- 	 * reconnect the same SMB session
- 	 */
- 	mutex_lock(&ses->session_mutex);
+diff --git a/drivers/gpu/drm/amd/amdgpu/navi10_sdma_pkt_open.h b/drivers/gpu/drm/amd/amdgpu/navi10_sdma_pkt_open.h
+index 074a9a09c0a79..a5b60c9a24189 100644
+--- a/drivers/gpu/drm/amd/amdgpu/navi10_sdma_pkt_open.h
++++ b/drivers/gpu/drm/amd/amdgpu/navi10_sdma_pkt_open.h
+@@ -73,6 +73,22 @@
+ #define SDMA_OP_AQL_COPY  0
+ #define SDMA_OP_AQL_BARRIER_OR  0
+ 
++#define SDMA_GCR_RANGE_IS_PA		(1 << 18)
++#define SDMA_GCR_SEQ(x)			(((x) & 0x3) << 16)
++#define SDMA_GCR_GL2_WB			(1 << 15)
++#define SDMA_GCR_GL2_INV		(1 << 14)
++#define SDMA_GCR_GL2_DISCARD		(1 << 13)
++#define SDMA_GCR_GL2_RANGE(x)		(((x) & 0x3) << 11)
++#define SDMA_GCR_GL2_US			(1 << 10)
++#define SDMA_GCR_GL1_INV		(1 << 9)
++#define SDMA_GCR_GLV_INV		(1 << 8)
++#define SDMA_GCR_GLK_INV		(1 << 7)
++#define SDMA_GCR_GLK_WB			(1 << 6)
++#define SDMA_GCR_GLM_INV		(1 << 5)
++#define SDMA_GCR_GLM_WB			(1 << 4)
++#define SDMA_GCR_GL1_RANGE(x)		(((x) & 0x3) << 2)
++#define SDMA_GCR_GLI_INV(x)		(((x) & 0x3) << 0)
 +
-+	/*
-+	 * Recheck after acquire mutex. If another thread is negotiating
-+	 * and the server never sends an answer the socket will be closed
-+	 * and tcpStatus set to reconnect.
+ /*define for op field*/
+ #define SDMA_PKT_HEADER_op_offset 0
+ #define SDMA_PKT_HEADER_op_mask   0x000000FF
+diff --git a/drivers/gpu/drm/amd/amdgpu/sdma_v5_0.c b/drivers/gpu/drm/amd/amdgpu/sdma_v5_0.c
+index 2a792d7abe007..bd715012185c6 100644
+--- a/drivers/gpu/drm/amd/amdgpu/sdma_v5_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/sdma_v5_0.c
+@@ -382,6 +382,18 @@ static void sdma_v5_0_ring_emit_ib(struct amdgpu_ring *ring,
+ 	unsigned vmid = AMDGPU_JOB_GET_VMID(job);
+ 	uint64_t csa_mc_addr = amdgpu_sdma_get_csa_mc_addr(ring, vmid);
+ 
++	/* Invalidate L2, because if we don't do it, we might get stale cache
++	 * lines from previous IBs.
 +	 */
-+	if (server->tcpStatus == CifsNeedReconnect) {
-+		rc = -EHOSTDOWN;
-+		mutex_unlock(&ses->session_mutex);
-+		goto out;
-+	}
++	amdgpu_ring_write(ring, SDMA_PKT_HEADER_OP(SDMA_OP_GCR_REQ));
++	amdgpu_ring_write(ring, 0);
++	amdgpu_ring_write(ring, (SDMA_GCR_GL2_INV |
++				 SDMA_GCR_GL2_WB |
++				 SDMA_GCR_GLM_INV |
++				 SDMA_GCR_GLM_WB) << 16);
++	amdgpu_ring_write(ring, 0xffffff80);
++	amdgpu_ring_write(ring, 0xffff);
 +
- 	rc = cifs_negotiate_protocol(0, ses);
- 	if (rc == 0 && ses->need_reconnect)
- 		rc = cifs_setup_session(0, ses, nls_codepage);
-diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
-index c9793ce0d3368..7022750cae2fd 100644
---- a/fs/cifs/connect.c
-+++ b/fs/cifs/connect.c
-@@ -558,7 +558,8 @@ server_unresponsive(struct TCP_Server_Info *server)
- 	 * 65s kernel_recvmsg times out, and we see that we haven't gotten
- 	 *     a response in >60s.
- 	 */
--	if (server->tcpStatus == CifsGood &&
-+	if ((server->tcpStatus == CifsGood ||
-+	    server->tcpStatus == CifsNeedNegotiate) &&
- 	    time_after(jiffies, server->lstrp + 2 * SMB_ECHO_INTERVAL)) {
- 		cifs_dbg(VFS, "Server %s has not responded in %d seconds. Reconnecting...\n",
- 			 server->hostname, (2 * SMB_ECHO_INTERVAL) / HZ);
-diff --git a/fs/cifs/smb2pdu.c b/fs/cifs/smb2pdu.c
-index d4472a4947581..4ffd5e177288e 100644
---- a/fs/cifs/smb2pdu.c
-+++ b/fs/cifs/smb2pdu.c
-@@ -249,6 +249,18 @@ smb2_reconnect(__le16 smb2_command, struct cifs_tcon *tcon)
- 	 * the same SMB session
- 	 */
- 	mutex_lock(&tcon->ses->session_mutex);
-+
-+	/*
-+	 * Recheck after acquire mutex. If another thread is negotiating
-+	 * and the server never sends an answer the socket will be closed
-+	 * and tcpStatus set to reconnect.
-+	 */
-+	if (server->tcpStatus == CifsNeedReconnect) {
-+		rc = -EHOSTDOWN;
-+		mutex_unlock(&tcon->ses->session_mutex);
-+		goto out;
-+	}
-+
- 	rc = cifs_negotiate_protocol(0, tcon->ses);
- 	if (!rc && tcon->ses->need_reconnect) {
- 		rc = cifs_setup_session(0, tcon->ses, nls_codepage);
+ 	/* An IB packet must end on a 8 DW boundary--the next dword
+ 	 * must be on a 8-dword boundary. Our IB packet below is 6
+ 	 * dwords long, thus add x number of NOPs, such that, in
+@@ -1607,7 +1619,7 @@ static const struct amdgpu_ring_funcs sdma_v5_0_ring_funcs = {
+ 		SOC15_FLUSH_GPU_TLB_NUM_WREG * 3 +
+ 		SOC15_FLUSH_GPU_TLB_NUM_REG_WAIT * 6 * 2 +
+ 		10 + 10 + 10, /* sdma_v5_0_ring_emit_fence x3 for user fence, vm fence */
+-	.emit_ib_size = 7 + 6, /* sdma_v5_0_ring_emit_ib */
++	.emit_ib_size = 5 + 7 + 6, /* sdma_v5_0_ring_emit_ib */
+ 	.emit_ib = sdma_v5_0_ring_emit_ib,
+ 	.emit_fence = sdma_v5_0_ring_emit_fence,
+ 	.emit_pipeline_sync = sdma_v5_0_ring_emit_pipeline_sync,
 -- 
 2.20.1
 
