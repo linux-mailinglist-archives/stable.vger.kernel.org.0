@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 990481D8682
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:27:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F16B1D8589
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:19:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729533AbgERRrW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:47:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47276 "EHLO mail.kernel.org"
+        id S1731249AbgERRyJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:54:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58574 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730181AbgERRrH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:47:07 -0400
+        id S1731245AbgERRyI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:54:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8945820671;
-        Mon, 18 May 2020 17:47:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7390F207C4;
+        Mon, 18 May 2020 17:54:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824026;
-        bh=pUIO6TEaK9n0rE5E5dO/hj2zx7EL6SpRabCZcLs9Ka8=;
+        s=default; t=1589824447;
+        bh=0bGfIT093qQ9vQN8ZTgqObBdEYENQQ1lD1pDuR4jFqA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GyILyw8FnSwT4YnUwftxdijooWbwdTStg7HdCXkq2lYtuzygbps9iPEbI4uZ5Gq6v
-         O/ocEy9OyAWM1ImL82rbvgaPGSzYM3oMRvOUnB0w8FqW6QKCGuU8ceXAC5xlOzZdas
-         cwRBiQ3fohlA+b920VhmG60SWGTP+ZQ63giaCz+4=
+        b=erdnY+359YOtGOncEsLcvdwHl+tfn5y9IUW2hcLWuzv7+lJiWhf880TZEUEpeJmQL
+         rgT9TCL99a8uHlBNYpILjtPzApmX/FflfFo9xCjAh836V5Xu2ktlFGIVWw5Y6F0DfG
+         zzvt/20cN2kmmDSYWk2rfu2QywDWEiMF3Ki3DyJw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        Cong Wang <xiyou.wangcong@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 007/114] sch_choke: avoid potential panic in choke_reset()
+        stable@vger.kernel.org, kernel test robot <rong.a.chen@intel.com>,
+        Hangbin Liu <liuhangbin@gmail.com>
+Subject: [PATCH 5.4 016/147] selftests/bpf: fix goto cleanup label not defined
 Date:   Mon, 18 May 2020 19:35:39 +0200
-Message-Id: <20200518173504.443663488@linuxfoundation.org>
+Message-Id: <20200518173515.782204255@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173503.033975649@linuxfoundation.org>
-References: <20200518173503.033975649@linuxfoundation.org>
+In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
+References: <20200518173513.009514388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,69 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Hangbin Liu <liuhangbin@gmail.com>
 
-[ Upstream commit 8738c85c72b3108c9b9a369a39868ba5f8e10ae0 ]
+kernel test robot found a warning when build bpf selftest for 5.4.y stable
+tree:
 
-If choke_init() could not allocate q->tab, we would crash later
-in choke_reset().
+prog_tests/stacktrace_build_id_nmi.c:55:3: error: label ‘cleanup’ used but not defined
+   goto cleanup;
+   ^~~~
 
-BUG: KASAN: null-ptr-deref in memset include/linux/string.h:366 [inline]
-BUG: KASAN: null-ptr-deref in choke_reset+0x208/0x340 net/sched/sch_choke.c:326
-Write of size 8 at addr 0000000000000000 by task syz-executor822/7022
+This is because we are lacking upstream commit dde53c1b763b
+("selftests/bpf: Convert few more selftest to skeletons"). But this
+commit is too large and need more backports. To fix it, the
+easiest way is just use the current goto label 'close_prog'.
 
-CPU: 1 PID: 7022 Comm: syz-executor822 Not tainted 5.7.0-rc1-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Call Trace:
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0x188/0x20d lib/dump_stack.c:118
- __kasan_report.cold+0x5/0x4d mm/kasan/report.c:515
- kasan_report+0x33/0x50 mm/kasan/common.c:625
- check_memory_region_inline mm/kasan/generic.c:187 [inline]
- check_memory_region+0x141/0x190 mm/kasan/generic.c:193
- memset+0x20/0x40 mm/kasan/common.c:85
- memset include/linux/string.h:366 [inline]
- choke_reset+0x208/0x340 net/sched/sch_choke.c:326
- qdisc_reset+0x6b/0x520 net/sched/sch_generic.c:910
- dev_deactivate_queue.constprop.0+0x13c/0x240 net/sched/sch_generic.c:1138
- netdev_for_each_tx_queue include/linux/netdevice.h:2197 [inline]
- dev_deactivate_many+0xe2/0xba0 net/sched/sch_generic.c:1195
- dev_deactivate+0xf8/0x1c0 net/sched/sch_generic.c:1233
- qdisc_graft+0xd25/0x1120 net/sched/sch_api.c:1051
- tc_modify_qdisc+0xbab/0x1a00 net/sched/sch_api.c:1670
- rtnetlink_rcv_msg+0x44e/0xad0 net/core/rtnetlink.c:5454
- netlink_rcv_skb+0x15a/0x410 net/netlink/af_netlink.c:2469
- netlink_unicast_kernel net/netlink/af_netlink.c:1303 [inline]
- netlink_unicast+0x537/0x740 net/netlink/af_netlink.c:1329
- netlink_sendmsg+0x882/0xe10 net/netlink/af_netlink.c:1918
- sock_sendmsg_nosec net/socket.c:652 [inline]
- sock_sendmsg+0xcf/0x120 net/socket.c:672
- ____sys_sendmsg+0x6bf/0x7e0 net/socket.c:2362
- ___sys_sendmsg+0x100/0x170 net/socket.c:2416
- __sys_sendmsg+0xec/0x1b0 net/socket.c:2449
- do_syscall_64+0xf6/0x7d0 arch/x86/entry/common.c:295
-
-Fixes: 77e62da6e60c ("sch_choke: drop all packets in queue during reset")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Cc: Cong Wang <xiyou.wangcong@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reported-by: kernel test robot <rong.a.chen@intel.com>
+Fixes: da43712a7262 ("selftests/bpf: Skip perf hw events test if the setup disabled it")
+Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/sched/sch_choke.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/net/sched/sch_choke.c
-+++ b/net/sched/sch_choke.c
-@@ -327,7 +327,8 @@ static void choke_reset(struct Qdisc *sc
- 
- 	sch->q.qlen = 0;
- 	sch->qstats.backlog = 0;
--	memset(q->tab, 0, (q->tab_mask + 1) * sizeof(struct sk_buff *));
-+	if (q->tab)
-+		memset(q->tab, 0, (q->tab_mask + 1) * sizeof(struct sk_buff *));
- 	q->head = q->tail = 0;
- 	red_restart(&q->vars);
- }
+---
+ tools/testing/selftests/bpf/prog_tests/stacktrace_build_id_nmi.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/tools/testing/selftests/bpf/prog_tests/stacktrace_build_id_nmi.c
++++ b/tools/testing/selftests/bpf/prog_tests/stacktrace_build_id_nmi.c
+@@ -52,7 +52,7 @@ retry:
+ 	if (pmu_fd < 0 && errno == ENOENT) {
+ 		printf("%s:SKIP:no PERF_COUNT_HW_CPU_CYCLES\n", __func__);
+ 		test__skip();
+-		goto cleanup;
++		goto close_prog;
+ 	}
+ 	if (CHECK(pmu_fd < 0, "perf_event_open", "err %d errno %d\n",
+ 		  pmu_fd, errno))
 
 
