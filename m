@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A30931D86B8
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:28:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B57461D816C
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:48:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730248AbgERS1W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:27:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41974 "EHLO mail.kernel.org"
+        id S1730276AbgERRr4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:47:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48516 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729072AbgERRn6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:43:58 -0400
+        id S1729787AbgERRr4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:47:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CB56420835;
-        Mon, 18 May 2020 17:43:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E7D3C20671;
+        Mon, 18 May 2020 17:47:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589823838;
-        bh=DA2Riofna2a6LVHWbQc8euvuKiv8rA6wkYpFEhamuDo=;
+        s=default; t=1589824075;
+        bh=q2u77E1FPverEm4DQR/iNwj9letvCXzBK1lryef+zLU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b5kWiPBjkB00U0kE+0982zS/Rrja2BQfKTQs+cfqOrbdknaxriNYMgo3VyoYmk6p0
-         siaDP69X86hMf3pVw8NL2U/BcLbIr2gXjJzs2aREI3lRB+GHBmp78y+UpB5X8virvt
-         uEUSE1L6b2WvfsbIsg9BzLIDKtJLN3zqtqr3wjgo=
+        b=rngIOEl/ijhS48fBeegIqrHMxMlaldKnhdoZD0dEHe/yc1PYCYaKAQtMsxW02U67Y
+         +hJJ07KbSk7RupSQSl6PHIBNTrnn/UL83yL1GtCuNWOFHHV7G2mH7wf0Bj0npxaaaL
+         wn4dHK8VNW/mEX+Dd/LgSUgRx9Q6mWdb6wUckeDU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Shiraz Saleem <shiraz.saleem@intel.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 55/90] i40iw: Fix error handling in i40iw_manage_arp_cache()
+        stable@vger.kernel.org,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 061/114] ALSA: hda/realtek - Fix S3 pop noise on Dell Wyse
 Date:   Mon, 18 May 2020 19:36:33 +0200
-Message-Id: <20200518173502.315554109@linuxfoundation.org>
+Message-Id: <20200518173514.133775689@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173450.930655662@linuxfoundation.org>
-References: <20200518173450.930655662@linuxfoundation.org>
+In-Reply-To: <20200518173503.033975649@linuxfoundation.org>
+References: <20200518173503.033975649@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,36 +44,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-[ Upstream commit 37e31d2d26a4124506c24e95434e9baf3405a23a ]
+[ Upstream commit 52e4e36807aeac1cdd07b14e509c8a64101e1a09 ]
 
-The i40iw_arp_table() function can return -EOVERFLOW if
-i40iw_alloc_resource() fails so we can't just test for "== -1".
+Commit 317d9313925c ("ALSA: hda/realtek - Set default power save node to
+0") makes the ALC225 have pop noise on S3 resume and cold boot.
 
-Fixes: 4e9042e647ff ("i40iw: add hw and utils files")
-Link: https://lore.kernel.org/r/20200422092211.GA195357@mwanda
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Acked-by: Shiraz Saleem <shiraz.saleem@intel.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+The previous fix enable power save node universally for ALC225, however
+it makes some ALC225 systems unable to produce any sound.
+
+So let's only enable power save node for the affected Dell Wyse
+platform.
+
+Fixes: 317d9313925c ("ALSA: hda/realtek - Set default power save node to 0")
+BugLink: https://bugs.launchpad.net/bugs/1866357
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Link: https://lore.kernel.org/r/20200503152449.22761-2-kai.heng.feng@canonical.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/i40iw/i40iw_hw.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/pci/hda/patch_realtek.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
-diff --git a/drivers/infiniband/hw/i40iw/i40iw_hw.c b/drivers/infiniband/hw/i40iw/i40iw_hw.c
-index 0c92a40b3e869..e4867d6de7893 100644
---- a/drivers/infiniband/hw/i40iw/i40iw_hw.c
-+++ b/drivers/infiniband/hw/i40iw/i40iw_hw.c
-@@ -479,7 +479,7 @@ void i40iw_manage_arp_cache(struct i40iw_device *iwdev,
- 	int arp_index;
+diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
+index b2aec97414fb8..d578f6594223f 100644
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -5354,6 +5354,15 @@ static void alc233_alc662_fixup_lenovo_dual_codecs(struct hda_codec *codec,
+ 	}
+ }
  
- 	arp_index = i40iw_arp_table(iwdev, ip_addr, ipv4, mac_addr, action);
--	if (arp_index == -1)
-+	if (arp_index < 0)
- 		return;
- 	cqp_request = i40iw_get_cqp_request(&iwdev->cqp, false);
- 	if (!cqp_request)
++static void alc225_fixup_s3_pop_noise(struct hda_codec *codec,
++				      const struct hda_fixup *fix, int action)
++{
++	if (action != HDA_FIXUP_ACT_PRE_PROBE)
++		return;
++
++	codec->power_save_node = 1;
++}
++
+ /* Forcibly assign NID 0x03 to HP/LO while NID 0x02 to SPK for EQ */
+ static void alc274_fixup_bind_dacs(struct hda_codec *codec,
+ 				    const struct hda_fixup *fix, int action)
+@@ -5507,6 +5516,7 @@ enum {
+ 	ALC233_FIXUP_LENOVO_MULTI_CODECS,
+ 	ALC294_FIXUP_LENOVO_MIC_LOCATION,
+ 	ALC225_FIXUP_DELL_WYSE_MIC_NO_PRESENCE,
++	ALC225_FIXUP_S3_POP_NOISE,
+ 	ALC700_FIXUP_INTEL_REFERENCE,
+ 	ALC274_FIXUP_DELL_BIND_DACS,
+ 	ALC274_FIXUP_DELL_AIO_LINEOUT_VERB,
+@@ -6339,6 +6349,12 @@ static const struct hda_fixup alc269_fixups[] = {
+ 			{ }
+ 		},
+ 		.chained = true,
++		.chain_id = ALC225_FIXUP_S3_POP_NOISE
++	},
++	[ALC225_FIXUP_S3_POP_NOISE] = {
++		.type = HDA_FIXUP_FUNC,
++		.v.func = alc225_fixup_s3_pop_noise,
++		.chained = true,
+ 		.chain_id = ALC269_FIXUP_HEADSET_MODE_NO_HP_MIC
+ 	},
+ 	[ALC700_FIXUP_INTEL_REFERENCE] = {
 -- 
 2.20.1
 
