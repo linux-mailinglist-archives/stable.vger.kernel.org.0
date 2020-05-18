@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C3D7E1D8279
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:56:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC4561D867E
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:27:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731688AbgERR4s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:56:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34938 "EHLO mail.kernel.org"
+        id S1730146AbgERRqx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:46:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46862 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730672AbgERR4r (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:56:47 -0400
+        id S1730138AbgERRqv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:46:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E574C20715;
-        Mon, 18 May 2020 17:56:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A0E9220835;
+        Mon, 18 May 2020 17:46:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824607;
-        bh=ArCnMaJ2+sBqpCNTshjMt72aPj/mxeONg96DdATXufU=;
+        s=default; t=1589824011;
+        bh=fhNrhicOFpTPi5d4hyZ4np9bnClrHaWnKQSRWxqvbFc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZPbAbVPVDn0E4FeWVEN83vQ8DN5pek+r2BxlJlvqcBw3F9RfiKd61HhpFJ5e0OVw0
-         jdzNMMDgB8zrVxegtSCHk398UxJScRwT3+/dSTbWRQP8uvuhtFuse950F5oHtRWB+t
-         T3879r2wjpJU1i0ICfK2+3sJLdrOI8SfDBbaKl+k=
+        b=1GffhKS8V8P/qOwo5xBHYmYs+ZUSRXW6NIcsWsfdr+vg5LNSI+mileHYH8N1IqqTX
+         cgGlqRy444AQWmIpNLZKvt6/PGsmK8vdISHyQ9e8T8awRhNLpL4RdZY3o+x+VuSyta
+         rFHlxcLhnrxLpZ12xj/5hOD9OXrz3nYWjrYXbOOw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 042/147] cpufreq: intel_pstate: Only mention the BIOS disabling turbo mode once
-Date:   Mon, 18 May 2020 19:36:05 +0200
-Message-Id: <20200518173519.296562904@linuxfoundation.org>
+        stable@vger.kernel.org, Guillaume Nault <gnault@redhat.com>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 4.14 034/114] netfilter: nat: never update the UDP checksum when its 0
+Date:   Mon, 18 May 2020 19:36:06 +0200
+Message-Id: <20200518173509.806344582@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
-References: <20200518173513.009514388@linuxfoundation.org>
+In-Reply-To: <20200518173503.033975649@linuxfoundation.org>
+References: <20200518173503.033975649@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,36 +44,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Wilson <chris@chris-wilson.co.uk>
+From: Guillaume Nault <gnault@redhat.com>
 
-[ Upstream commit 8c539776ac83c0857395e1ccc9c6b516521a2d32 ]
+commit ea64d8d6c675c0bb712689b13810301de9d8f77a upstream.
 
-Make a note of the first time we discover the turbo mode has been
-disabled by the BIOS, as otherwise we complain every time we try to
-update the mode.
+If the UDP header of a local VXLAN endpoint is NAT-ed, and the VXLAN
+device has disabled UDP checksums and enabled Tx checksum offloading,
+then the skb passed to udp_manip_pkt() has hdr->check == 0 (outer
+checksum disabled) and skb->ip_summed == CHECKSUM_PARTIAL (inner packet
+checksum offloaded).
 
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Because of the ->ip_summed value, udp_manip_pkt() tries to update the
+outer checksum with the new address and port, leading to an invalid
+checksum sent on the wire, as the original null checksum obviously
+didn't take the old address and port into account.
+
+So, we can't take ->ip_summed into account in udp_manip_pkt(), as it
+might not refer to the checksum we're acting on. Instead, we can base
+the decision to update the UDP checksum entirely on the value of
+hdr->check, because it's null if and only if checksum is disabled:
+
+  * A fully computed checksum can't be 0, since a 0 checksum is
+    represented by the CSUM_MANGLED_0 value instead.
+
+  * A partial checksum can't be 0, since the pseudo-header always adds
+    at least one non-zero value (the UDP protocol type 0x11) and adding
+    more values to the sum can't make it wrap to 0 as the carry is then
+    added to the wrapped number.
+
+  * A disabled checksum uses the special value 0.
+
+The problem seems to be there from day one, although it was probably
+not visible before UDP tunnels were implemented.
+
+Fixes: 5b1158e909ec ("[NETFILTER]: Add NAT support for nf_conntrack")
+Signed-off-by: Guillaume Nault <gnault@redhat.com>
+Reviewed-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/cpufreq/intel_pstate.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/netfilter/nf_nat_proto_udp.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/cpufreq/intel_pstate.c b/drivers/cpufreq/intel_pstate.c
-index 45499e0b9f2f3..d3d7c4ef7d045 100644
---- a/drivers/cpufreq/intel_pstate.c
-+++ b/drivers/cpufreq/intel_pstate.c
-@@ -1058,7 +1058,7 @@ static ssize_t store_no_turbo(struct kobject *a, struct kobj_attribute *b,
+--- a/net/netfilter/nf_nat_proto_udp.c
++++ b/net/netfilter/nf_nat_proto_udp.c
+@@ -66,15 +66,14 @@ static bool udp_manip_pkt(struct sk_buff
+ 			  enum nf_nat_manip_type maniptype)
+ {
+ 	struct udphdr *hdr;
+-	bool do_csum;
  
- 	update_turbo_state();
- 	if (global.turbo_disabled) {
--		pr_warn("Turbo disabled by BIOS or unavailable on processor\n");
-+		pr_notice_once("Turbo disabled by BIOS or unavailable on processor\n");
- 		mutex_unlock(&intel_pstate_limits_lock);
- 		mutex_unlock(&intel_pstate_driver_lock);
- 		return -EPERM;
--- 
-2.20.1
-
+ 	if (!skb_make_writable(skb, hdroff + sizeof(*hdr)))
+ 		return false;
+ 
+ 	hdr = (struct udphdr *)(skb->data + hdroff);
+-	do_csum = hdr->check || skb->ip_summed == CHECKSUM_PARTIAL;
++	__udp_manip_pkt(skb, l3proto, iphdroff, hdr, tuple, maniptype,
++			!!hdr->check);
+ 
+-	__udp_manip_pkt(skb, l3proto, iphdroff, hdr, tuple, maniptype, do_csum);
+ 	return true;
+ }
+ 
 
 
