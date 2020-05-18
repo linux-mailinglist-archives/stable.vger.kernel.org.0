@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 18C961D8683
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:27:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C62B01D8348
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:04:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729668AbgERRr2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:47:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47754 "EHLO mail.kernel.org"
+        id S1732649AbgERSD0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:03:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48826 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730222AbgERRr0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:47:26 -0400
+        id S1732646AbgERSD0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 14:03:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7EAB620671;
-        Mon, 18 May 2020 17:47:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 236C5207F5;
+        Mon, 18 May 2020 18:03:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824046;
-        bh=HyYP/wOosNvn+zL16+yWrZlgCfA669VtlRgAiGh5Qjk=;
+        s=default; t=1589825005;
+        bh=U8uXab8S/0VqSIOvJlQ4HEIViMdPlfMG23RGCtqDmaY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ilqnk5xgbRdvA9Kn3kDjW6hlUjTUQjv6CORxoRiy/Z71xqiFbl+g8zxl/vGoLtb30
-         jGw4e2OcSmL34D5v2/edqN+N2+XCyrg8KhslkjgwIMN6fmkY1SXoWNHc/1+Bhlj9xI
-         pUeKfXvPUuFZ2lAnVUAL1g/lvmucUM6iwlqzWabk=
+        b=wDTelpptrBtq5gnlNHoijWTmFrb+ndZPw09Ppd7dvBlcArHLNBukBPMbQKH43ifee
+         5SnhqxrtrA8LIaPJzsoRfq/oavWYCiTwkmZngrUckpHat3pFIA/CotCaTvQi8olN0l
+         QGY7hXAvTRLskOwM9JiAomn2NKLXAG2JIA2jE/oI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Sahitya Tummala <stummala@codeaurora.org>,
+        Sarthak Garg <sartgarg@codeaurora.org>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 050/114] net/sonic: Fix a resource leak in an error handling path in jazz_sonic_probe()
+Subject: [PATCH 5.6 092/194] mmc: core: Fix recursive locking issue in CQE recovery path
 Date:   Mon, 18 May 2020 19:36:22 +0200
-Message-Id: <20200518173512.341620450@linuxfoundation.org>
+Message-Id: <20200518173539.460481216@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173503.033975649@linuxfoundation.org>
-References: <20200518173503.033975649@linuxfoundation.org>
+In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
+References: <20200518173531.455604187@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,49 +46,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Sarthak Garg <sartgarg@codeaurora.org>
 
-[ Upstream commit 10e3cc180e64385edc9890c6855acf5ed9ca1339 ]
+[ Upstream commit 39a22f73744d5baee30b5f134ae2e30b668b66ed ]
 
-A call to 'dma_alloc_coherent()' is hidden in 'sonic_alloc_descriptors()',
-called from 'sonic_probe1()'.
+Consider the following stack trace
 
-This is correctly freed in the remove function, but not in the error
-handling path of the probe function.
-Fix it and add the missing 'dma_free_coherent()' call.
+-001|raw_spin_lock_irqsave
+-002|mmc_blk_cqe_complete_rq
+-003|__blk_mq_complete_request(inline)
+-003|blk_mq_complete_request(rq)
+-004|mmc_cqe_timed_out(inline)
+-004|mmc_mq_timed_out
 
-While at it, rename a label in order to be slightly more informative.
+mmc_mq_timed_out acquires the queue_lock for the first
+time. The mmc_blk_cqe_complete_rq function also tries to acquire
+the same queue lock resulting in recursive locking where the task
+is spinning for the same lock which it has already acquired leading
+to watchdog bark.
 
-Fixes: efcce839360f ("[PATCH] macsonic/jazzsonic network drivers update")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fix this issue with the lock only for the required critical section.
+
+Cc: <stable@vger.kernel.org>
+Fixes: 1e8e55b67030 ("mmc: block: Add CQE support")
+Suggested-by: Sahitya Tummala <stummala@codeaurora.org>
+Signed-off-by: Sarthak Garg <sartgarg@codeaurora.org>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Link: https://lore.kernel.org/r/1588868135-31783-1-git-send-email-vbadigan@codeaurora.org
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/natsemi/jazzsonic.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/mmc/core/queue.c | 13 ++++---------
+ 1 file changed, 4 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/net/ethernet/natsemi/jazzsonic.c b/drivers/net/ethernet/natsemi/jazzsonic.c
-index d5b28884e21eb..9a6c91c9d111c 100644
---- a/drivers/net/ethernet/natsemi/jazzsonic.c
-+++ b/drivers/net/ethernet/natsemi/jazzsonic.c
-@@ -247,13 +247,15 @@ static int jazz_sonic_probe(struct platform_device *pdev)
- 		goto out;
- 	err = register_netdev(dev);
- 	if (err)
--		goto out1;
-+		goto undo_probe1;
+diff --git a/drivers/mmc/core/queue.c b/drivers/mmc/core/queue.c
+index 9edc08685e86d..4d1e468d39823 100644
+--- a/drivers/mmc/core/queue.c
++++ b/drivers/mmc/core/queue.c
+@@ -107,7 +107,7 @@ static enum blk_eh_timer_return mmc_cqe_timed_out(struct request *req)
+ 	case MMC_ISSUE_DCMD:
+ 		if (host->cqe_ops->cqe_timeout(host, mrq, &recovery_needed)) {
+ 			if (recovery_needed)
+-				__mmc_cqe_recovery_notifier(mq);
++				mmc_cqe_recovery_notifier(mrq);
+ 			return BLK_EH_RESET_TIMER;
+ 		}
+ 		/* No timeout (XXX: huh? comment doesn't make much sense) */
+@@ -125,18 +125,13 @@ static enum blk_eh_timer_return mmc_mq_timed_out(struct request *req,
+ 	struct request_queue *q = req->q;
+ 	struct mmc_queue *mq = q->queuedata;
+ 	unsigned long flags;
+-	int ret;
++	bool ignore_tout;
  
- 	printk("%s: MAC %pM IRQ %d\n", dev->name, dev->dev_addr, dev->irq);
+ 	spin_lock_irqsave(&mq->lock, flags);
+-
+-	if (mq->recovery_needed || !mq->use_cqe)
+-		ret = BLK_EH_RESET_TIMER;
+-	else
+-		ret = mmc_cqe_timed_out(req);
+-
++	ignore_tout = mq->recovery_needed || !mq->use_cqe;
+ 	spin_unlock_irqrestore(&mq->lock, flags);
  
- 	return 0;
+-	return ret;
++	return ignore_tout ? BLK_EH_RESET_TIMER : mmc_cqe_timed_out(req);
+ }
  
--out1:
-+undo_probe1:
-+	dma_free_coherent(lp->device, SIZEOF_SONIC_DESC * SONIC_BUS_SCALE(lp->dma_bitmode),
-+			  lp->descriptors, lp->descriptors_laddr);
- 	release_mem_region(dev->base_addr, SONIC_MEM_SIZE);
- out:
- 	free_netdev(dev);
+ static void mmc_mq_recovery_handler(struct work_struct *work)
 -- 
 2.20.1
 
