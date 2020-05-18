@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 94E7D1D8729
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:31:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 073461D8101
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:44:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729100AbgERSas (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:30:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36132 "EHLO mail.kernel.org"
+        id S1729660AbgERRn6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:43:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41892 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728376AbgERRkb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:40:31 -0400
+        id S1729657AbgERRn4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:43:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1EB57207C4;
-        Mon, 18 May 2020 17:40:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5F76620835;
+        Mon, 18 May 2020 17:43:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589823630;
-        bh=RBtMrab00h/AfiPj6f36tLb+wuyzRhdgxgtjsWfA3y4=;
+        s=default; t=1589823835;
+        bh=EHKhD3gXwdngNPGPb9pG6smmQeya9nmvVhYi+tzowL8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q4BHQv3rNhR4lKAzbqeg03/gmJpHEdW1zigDYo9R47V2yI5lcmuln5UVlNA1Jfe5r
-         mu5dK+f29yaXtFTh2Ey1xgFHeucyTVgB9VdcI32BzONPtOldKdC/Wp4vlXkxm74vf9
-         LFAPaROjCrXKcjcSV6B9jn2fwB+hXuWXRZfKo9Lc=
+        b=NZbG6t32H+ehh0sRe1DVqczC5c5rnjoyuqchDVSS9vy6n/5uM13jQtSrWDuDOvlRL
+         t5jwUg69UGkADTeg7ydVPSGHIZ7U+IkpFcOK4N44ImRk6COt6wlhIpcE24b6dmaaci
+         tjYxbbdJ4m+lYhaQgtb8DBfle1Cejfk2BggCnszU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.4 60/86] gcc-10: disable array-bounds warning for now
-Date:   Mon, 18 May 2020 19:36:31 +0200
-Message-Id: <20200518173502.586773004@linuxfoundation.org>
+        stable@vger.kernel.org, Grace Kao <grace.kao@intel.com>,
+        Brian Norris <briannorris@chromium.org>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 54/90] pinctrl: cherryview: Add missing spinlock usage in chv_gpio_irq_handler
+Date:   Mon, 18 May 2020 19:36:32 +0200
+Message-Id: <20200518173502.111936595@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173450.254571947@linuxfoundation.org>
-References: <20200518173450.254571947@linuxfoundation.org>
+In-Reply-To: <20200518173450.930655662@linuxfoundation.org>
+References: <20200518173450.930655662@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,55 +46,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Grace Kao <grace.kao@intel.com>
 
-commit 44720996e2d79e47d508b0abe99b931a726a3197 upstream.
+[ Upstream commit 69388e15f5078c961b9e5319e22baea4c57deff1 ]
 
-This is another fine warning, related to the 'zero-length-bounds' one,
-but hitting the same historical code in the kernel.
+According to Braswell NDA Specification Update (#557593),
+concurrent read accesses may result in returning 0xffffffff and write
+instructions may be dropped. We have an established format for the
+commit references, i.e.
+cdca06e4e859 ("pinctrl: baytrail: Add missing spinlock usage in
+byt_gpio_irq_handler")
 
-Because C didn't historically support flexible array members, we have
-code that instead uses a one-sized array, the same way we have cases of
-zero-sized arrays.
-
-The one-sized arrays come from either not wanting to use the gcc
-zero-sized array extension, or from a slight convenience-feature, where
-particularly for strings, the size of the structure now includes the
-allocation for the final NUL character.
-
-So with a "char name[1];" at the end of a structure, you can do things
-like
-
-       v = my_malloc(sizeof(struct vendor) + strlen(name));
-
-and avoid the "+1" for the terminator.
-
-Yes, the modern way to do that is with a flexible array, and using
-'offsetof()' instead of 'sizeof()', and adding the "+1" by hand.  That
-also technically gets the size "more correct" in that it avoids any
-alignment (and thus padding) issues, but this is another long-term
-cleanup thing that will not happen for 5.7.
-
-So disable the warning for now, even though it's potentially quite
-useful.  Having a slew of warnings that then hide more urgent new issues
-is not an improvement.
-
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 0bd50d719b00 ("pinctrl: cherryview: prevent concurrent access to GPIO controllers")
+Signed-off-by: Grace Kao <grace.kao@intel.com>
+Reported-by: Brian Norris <briannorris@chromium.org>
+Reviewed-by: Brian Norris <briannorris@chromium.org>
+Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Makefile |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/pinctrl/intel/pinctrl-cherryview.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/Makefile
-+++ b/Makefile
-@@ -797,6 +797,7 @@ KBUILD_CFLAGS += $(call cc-disable-warni
+diff --git a/drivers/pinctrl/intel/pinctrl-cherryview.c b/drivers/pinctrl/intel/pinctrl-cherryview.c
+index e8c08eb975301..d1a99b2e2d4c3 100644
+--- a/drivers/pinctrl/intel/pinctrl-cherryview.c
++++ b/drivers/pinctrl/intel/pinctrl-cherryview.c
+@@ -1509,11 +1509,15 @@ static void chv_gpio_irq_handler(struct irq_desc *desc)
+ 	struct chv_pinctrl *pctrl = gpiochip_get_data(gc);
+ 	struct irq_chip *chip = irq_desc_get_chip(desc);
+ 	unsigned long pending;
++	unsigned long flags;
+ 	u32 intr_line;
  
- # We'll want to enable this eventually, but it's not going away for 5.7 at least
- KBUILD_CFLAGS += $(call cc-disable-warning, zero-length-bounds)
-+KBUILD_CFLAGS += $(call cc-disable-warning, array-bounds)
+ 	chained_irq_enter(chip, desc);
  
- # Enabled with W=2, disabled by default as noisy
- KBUILD_CFLAGS += $(call cc-disable-warning, maybe-uninitialized)
++	raw_spin_lock_irqsave(&chv_lock, flags);
+ 	pending = readl(pctrl->regs + CHV_INTSTAT);
++	raw_spin_unlock_irqrestore(&chv_lock, flags);
++
+ 	for_each_set_bit(intr_line, &pending, pctrl->community->nirqs) {
+ 		unsigned irq, offset;
+ 
+-- 
+2.20.1
+
 
 
