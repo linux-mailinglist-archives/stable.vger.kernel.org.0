@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C36C1D846A
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:13:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 56E5F1D8670
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:27:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732288AbgERSBu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:01:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44312 "EHLO mail.kernel.org"
+        id S1730002AbgERRpu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:45:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45044 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731641AbgERSBt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 14:01:49 -0400
+        id S1729998AbgERRpu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:45:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B73C2207C4;
-        Mon, 18 May 2020 18:01:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4820720671;
+        Mon, 18 May 2020 17:45:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824909;
-        bh=1nnHsVdBrNbkfWBXxTVXXxkC6uk3Re/8JIIgBHmsfGw=;
+        s=default; t=1589823949;
+        bh=Zl0uOgz7VZUw9aDWIujEZjYk+KwhoWX6LHcHCVTFqcg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k1HhKfBe6kQ0TKKwk+klTFShhH78yTou8gs0jMK+pK9B/3kFo4PpTFF9Z8wwKzjTg
-         Rd12rJ3aqhIlYbp03ttCUSxJ0DVuV8n5G2H4PvorxLhwCfdSwz3/JDK8IcWdmKfnpE
-         NSbxZ0AEMgR0e8sENuMn8ShZ4/jZ5nPRROero/sw=
+        b=FlwcsDUeHHFDIgBG10Y7rZLFe3CeXxtMT0isCF15pex1nw8ggi8Dn7/PYbHiju2Dd
+         DXoqkCKH4c9soe8YvyNA2cy8Gr3BsB08lUJYp8r4UuLte1KDoVNCvCMM6JuCAwFrRs
+         oIggZyOup3Qqf+uhr4dKyVuOTjZQCWniLG/X8KNY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 053/194] dmaengine: pch_dma.c: Avoid data race between probe and irq handler
+        stable@vger.kernel.org, Moshe Shemesh <moshe@mellanox.com>,
+        Eran Ben Elisha <eranbe@mellanox.com>,
+        Saeed Mahameed <saeedm@mellanox.com>
+Subject: [PATCH 4.14 011/114] net/mlx5: Fix command entry leak in Internal Error State
 Date:   Mon, 18 May 2020 19:35:43 +0200
-Message-Id: <20200518173536.186626885@linuxfoundation.org>
+Message-Id: <20200518173505.410713690@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
-References: <20200518173531.455604187@linuxfoundation.org>
+In-Reply-To: <20200518173503.033975649@linuxfoundation.org>
+References: <20200518173503.033975649@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,47 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>
+From: Moshe Shemesh <moshe@mellanox.com>
 
-[ Upstream commit 2e45676a4d33af47259fa186ea039122ce263ba9 ]
+[ Upstream commit cece6f432cca9f18900463ed01b97a152a03600a ]
 
-pd->dma.dev is read in irq handler pd_irq().
-However, it is set to pdev->dev after request_irq().
-Therefore, set pd->dma.dev to pdev->dev before request_irq() to
-avoid data race between pch_dma_probe() and pd_irq().
+Processing commands by cmd_work_handler() while already in Internal
+Error State will result in entry leak, since the handler process force
+completion without doorbell. Forced completion doesn't release the entry
+and event completion will never arrive, so entry should be released.
 
-Found by Linux Driver Verification project (linuxtesting.org).
-
-Signed-off-by: Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>
-Link: https://lore.kernel.org/r/20200416062335.29223-1-madhuparnabhowmik10@gmail.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 73dd3a4839c1 ("net/mlx5: Avoid using pending command interface slots")
+Signed-off-by: Moshe Shemesh <moshe@mellanox.com>
+Signed-off-by: Eran Ben Elisha <eranbe@mellanox.com>
+Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/dma/pch_dma.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlx5/core/cmd.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/dma/pch_dma.c b/drivers/dma/pch_dma.c
-index 581e7a290d98e..a3b0b4c56a190 100644
---- a/drivers/dma/pch_dma.c
-+++ b/drivers/dma/pch_dma.c
-@@ -865,6 +865,7 @@ static int pch_dma_probe(struct pci_dev *pdev,
+--- a/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
+@@ -865,6 +865,10 @@ static void cmd_work_handler(struct work
+ 		MLX5_SET(mbox_out, ent->out, syndrome, drv_synd);
+ 
+ 		mlx5_cmd_comp_handler(dev, 1UL << ent->idx, true);
++		/* no doorbell, no need to keep the entry */
++		free_ent(cmd, ent->idx);
++		if (ent->callback)
++			free_cmd(ent);
+ 		return;
  	}
  
- 	pci_set_master(pdev);
-+	pd->dma.dev = &pdev->dev;
- 
- 	err = request_irq(pdev->irq, pd_irq, IRQF_SHARED, DRV_NAME, pd);
- 	if (err) {
-@@ -880,7 +881,6 @@ static int pch_dma_probe(struct pci_dev *pdev,
- 		goto err_free_irq;
- 	}
- 
--	pd->dma.dev = &pdev->dev;
- 
- 	INIT_LIST_HEAD(&pd->dma.channels);
- 
--- 
-2.20.1
-
 
 
