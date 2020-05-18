@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A1171D86A6
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:28:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 133E11D823B
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:54:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729996AbgERSZ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:25:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45418 "EHLO mail.kernel.org"
+        id S1731319AbgERRye (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:54:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59326 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729998AbgERRqC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:46:02 -0400
+        id S1731317AbgERRyd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:54:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BD53320674;
-        Mon, 18 May 2020 17:46:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 61B7A207C4;
+        Mon, 18 May 2020 17:54:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589823962;
-        bh=pBf0XhgFQd7xKxxEm+vthMbvXZNC6xtGEr3S4kcDNIo=;
+        s=default; t=1589824472;
+        bh=xURob6Yxsaifegk/rKDVTt3iGfWy/FpxpLBBuq79G/w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dG4VIvj5oIUktrWxJx+0ekgGVZuojilDt4bE2MFDz/+IK1v9QbBsKTtvLW+BdzF+l
-         oe/ofaly5Fbr9ofpyWkAHJTZ3pT29tWnOF4aO3EF2AlBHYjfMPJ4BZhUYgvyLGDZqk
-         lOqd1N/H3TGXZT9QcKGEsLBq0sU2coUZ6+Yiv5hE=
+        b=EdX/mPRxpDylEb7KWoPODm70aDdHLYz2zrFgpVvV4QnrVOabIUAIdo9sNlUEqcpGi
+         X7XSCCV4B4kkwipz/LEJzMxErPaHpeuwrzlwgtanov8l59cjI88CjdHvxMnRPoL9zL
+         j0bJfxzDGA2UCh8qilQhcQq2Ad1vAHOGTmD3v9U8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jason Gerecke <jason.gerecke@wacom.com>,
-        Aaron Armstrong Skomra <aaron.skomra@wacom.com>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 4.14 016/114] HID: wacom: Read HID_DG_CONTACTMAX directly for non-generic devices
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        Soheil Hassas Yeganeh <soheil@google.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 025/147] tcp: fix error recovery in tcp_zerocopy_receive()
 Date:   Mon, 18 May 2020 19:35:48 +0200
-Message-Id: <20200518173506.610881590@linuxfoundation.org>
+Message-Id: <20200518173516.952261293@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173503.033975649@linuxfoundation.org>
-References: <20200518173503.033975649@linuxfoundation.org>
+In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
+References: <20200518173513.009514388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,48 +45,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Gerecke <jason.gerecke@wacom.com>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 778fbf4179991e7652e97d7f1ca1f657ef828422 upstream.
+[ Upstream commit e776af608f692a7a647455106295fa34469e7475 ]
 
-We've recently switched from extracting the value of HID_DG_CONTACTMAX
-at a fixed offset (which may not be correct for all tablets) to
-injecting the report into the driver for the generic codepath to handle.
-Unfortunately, this change was made for *all* tablets, even those which
-aren't generic. Because `wacom_wac_report` ignores reports from non-
-generic devices, the contact count never gets initialized. Ultimately
-this results in the touch device itself failing to probe, and thus the
-loss of touch input.
+If user provides wrong virtual address in TCP_ZEROCOPY_RECEIVE
+operation we want to return -EINVAL error.
 
-This commit adds back the fixed-offset extraction for non-generic devices.
+But depending on zc->recv_skip_hint content, we might return
+-EIO error if the socket has SOCK_DONE set.
 
-Link: https://github.com/linuxwacom/input-wacom/issues/155
-Fixes: 184eccd40389 ("HID: wacom: generic: read HID_DG_CONTACTMAX from any feature report")
-Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
-Reviewed-by: Aaron Armstrong Skomra <aaron.skomra@wacom.com>
-CC: stable@vger.kernel.org # 5.3+
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Guenter Roeck <linux@roeck-us.net>
+Make sure to return -EINVAL in this case.
+
+BUG: KMSAN: uninit-value in tcp_zerocopy_receive net/ipv4/tcp.c:1833 [inline]
+BUG: KMSAN: uninit-value in do_tcp_getsockopt+0x4494/0x6320 net/ipv4/tcp.c:3685
+CPU: 1 PID: 625 Comm: syz-executor.0 Not tainted 5.7.0-rc4-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Call Trace:
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0x1c9/0x220 lib/dump_stack.c:118
+ kmsan_report+0xf7/0x1e0 mm/kmsan/kmsan_report.c:121
+ __msan_warning+0x58/0xa0 mm/kmsan/kmsan_instr.c:215
+ tcp_zerocopy_receive net/ipv4/tcp.c:1833 [inline]
+ do_tcp_getsockopt+0x4494/0x6320 net/ipv4/tcp.c:3685
+ tcp_getsockopt+0xf8/0x1f0 net/ipv4/tcp.c:3728
+ sock_common_getsockopt+0x13f/0x180 net/core/sock.c:3131
+ __sys_getsockopt+0x533/0x7b0 net/socket.c:2177
+ __do_sys_getsockopt net/socket.c:2192 [inline]
+ __se_sys_getsockopt+0xe1/0x100 net/socket.c:2189
+ __x64_sys_getsockopt+0x62/0x80 net/socket.c:2189
+ do_syscall_64+0xb8/0x160 arch/x86/entry/common.c:297
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+RIP: 0033:0x45c829
+Code: 0d b7 fb ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 db b6 fb ff c3 66 2e 0f 1f 84 00 00 00 00
+RSP: 002b:00007f1deeb72c78 EFLAGS: 00000246 ORIG_RAX: 0000000000000037
+RAX: ffffffffffffffda RBX: 00000000004e01e0 RCX: 000000000045c829
+RDX: 0000000000000023 RSI: 0000000000000006 RDI: 0000000000000009
+RBP: 000000000078bf00 R08: 0000000020000200 R09: 0000000000000000
+R10: 00000000200001c0 R11: 0000000000000246 R12: 00000000ffffffff
+R13: 00000000000001d8 R14: 00000000004d3038 R15: 00007f1deeb736d4
+
+Local variable ----zc@do_tcp_getsockopt created at:
+ do_tcp_getsockopt+0x1a74/0x6320 net/ipv4/tcp.c:3670
+ do_tcp_getsockopt+0x1a74/0x6320 net/ipv4/tcp.c:3670
+
+Fixes: 05255b823a61 ("tcp: add TCP_ZEROCOPY_RECEIVE support for zerocopy receive")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Acked-by: Soheil Hassas Yeganeh <soheil@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/hid/wacom_sys.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ net/ipv4/tcp.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/drivers/hid/wacom_sys.c
-+++ b/drivers/hid/wacom_sys.c
-@@ -132,9 +132,11 @@ static void wacom_feature_mapping(struct
- 			data[0] = field->report->id;
- 			ret = wacom_get_report(hdev, HID_FEATURE_REPORT,
- 					       data, n, WAC_CMD_RETRIES);
--			if (ret == n) {
-+			if (ret == n && features->type == HID_GENERIC) {
- 				ret = hid_report_raw_event(hdev,
- 					HID_FEATURE_REPORT, data, n, 0);
-+			} else if (ret == 2 && features->type != HID_GENERIC) {
-+				features->touch_max = data[1];
- 			} else {
- 				features->touch_max = 16;
- 				hid_warn(hdev, "wacom_feature_mapping: "
+--- a/net/ipv4/tcp.c
++++ b/net/ipv4/tcp.c
+@@ -1757,10 +1757,11 @@ static int tcp_zerocopy_receive(struct s
+ 
+ 	down_read(&current->mm->mmap_sem);
+ 
+-	ret = -EINVAL;
+ 	vma = find_vma(current->mm, address);
+-	if (!vma || vma->vm_start > address || vma->vm_ops != &tcp_vm_ops)
+-		goto out;
++	if (!vma || vma->vm_start > address || vma->vm_ops != &tcp_vm_ops) {
++		up_read(&current->mm->mmap_sem);
++		return -EINVAL;
++	}
+ 	zc->length = min_t(unsigned long, zc->length, vma->vm_end - address);
+ 
+ 	tp = tcp_sk(sk);
 
 
