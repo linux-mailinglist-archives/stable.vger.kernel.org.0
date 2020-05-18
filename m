@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EFD951D8116
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:45:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B8EA81D8711
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:31:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729782AbgERRom (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:44:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43124 "EHLO mail.kernel.org"
+        id S1729345AbgERS3m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:29:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37816 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728904AbgERRok (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:44:40 -0400
+        id S1729272AbgERRl1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:41:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 062F72083E;
-        Mon, 18 May 2020 17:44:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 08BEE2083E;
+        Mon, 18 May 2020 17:41:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589823880;
-        bh=eDNVAQR9bAqbtW3RfWRqf3JH/mbMza7PvaMw3TiDEdY=;
+        s=default; t=1589823687;
+        bh=JLwt2QAOm1wDlWCfZPVnnYPNnyM3OYsA0xWfyD8tsvc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oaz2aZk89cJMysBM7GavwX9QrjV/Fl/iJR/p/gSDb2KoWSuGy6q+gkNcabJr/HurG
-         jFbX0KatNxi6NM43YRNPPy6robeZiKy9urR8lJU2Usq8HP8NzdWDs3piH+USR+xfdP
-         dcE83o8RzE8f2tfAJpIXvLigqHIrMUCsL2EwCCKo=
+        b=td5dFi3TwzkHqC1xRKVYiFngLGAHzQUAZc97w4Z6MzgGfS8H/37lqS1vNc6JPALT7
+         DW13iZwR2VwrF8GGrhFqalr2ryU2usudk7e54tkbHrPRbe1/2zyaFlX+n/BRcl7ACW
+         3Tgxa8GzPo62f2JzJhOAflqRDbE00HZTb3cZLnwg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+194dffdb8b22fc5d207a@syzkaller.appspotmail.com,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.9 74/90] ALSA: rawmidi: Initialize allocated buffers
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wei Yongjun <weiyongjun1@huawei.com>,
+        Felipe Balbi <balbi@kernel.org>
+Subject: [PATCH 4.4 81/86] usb: gadget: legacy: fix error return code in gncm_bind()
 Date:   Mon, 18 May 2020 19:36:52 +0200
-Message-Id: <20200518173506.329434545@linuxfoundation.org>
+Message-Id: <20200518173506.994251162@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173450.930655662@linuxfoundation.org>
-References: <20200518173450.930655662@linuxfoundation.org>
+In-Reply-To: <20200518173450.254571947@linuxfoundation.org>
+References: <20200518173450.254571947@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,43 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-commit 5a7b44a8df822e0667fc76ed7130252523993bda upstream.
+commit e27d4b30b71c66986196d8a1eb93cba9f602904a upstream.
 
-syzbot reported the uninitialized value exposure in certain situations
-using virmidi loop.  It's likely a very small race at writing and
-reading, and the influence is almost negligible.  But it's safer to
-paper over this just by replacing the existing kvmalloc() with
-kvzalloc().
+If 'usb_otg_descriptor_alloc()' fails, we must return a
+negative error code -ENOMEM, not 0.
 
-Reported-by: syzbot+194dffdb8b22fc5d207a@syzkaller.appspotmail.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 1156e91dd7cc ("usb: gadget: ncm: allocate and init otg descriptor by otg capabilities")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/core/rawmidi.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/gadget/legacy/ncm.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/sound/core/rawmidi.c
-+++ b/sound/core/rawmidi.c
-@@ -125,7 +125,7 @@ static int snd_rawmidi_runtime_create(st
- 		runtime->avail = 0;
- 	else
- 		runtime->avail = runtime->buffer_size;
--	if ((runtime->buffer = kmalloc(runtime->buffer_size, GFP_KERNEL)) == NULL) {
-+	if ((runtime->buffer = kzalloc(runtime->buffer_size, GFP_KERNEL)) == NULL) {
- 		kfree(runtime);
- 		return -ENOMEM;
- 	}
-@@ -650,7 +650,7 @@ int snd_rawmidi_output_params(struct snd
- 		return -EINVAL;
- 	}
- 	if (params->buffer_size != runtime->buffer_size) {
--		newbuf = kmalloc(params->buffer_size, GFP_KERNEL);
-+		newbuf = kzalloc(params->buffer_size, GFP_KERNEL);
- 		if (!newbuf)
- 			return -ENOMEM;
- 		spin_lock_irq(&runtime->lock);
+--- a/drivers/usb/gadget/legacy/ncm.c
++++ b/drivers/usb/gadget/legacy/ncm.c
+@@ -162,8 +162,10 @@ static int gncm_bind(struct usb_composit
+ 		struct usb_descriptor_header *usb_desc;
+ 
+ 		usb_desc = usb_otg_descriptor_alloc(gadget);
+-		if (!usb_desc)
++		if (!usb_desc) {
++			status = -ENOMEM;
+ 			goto fail;
++		}
+ 		usb_otg_descriptor_init(gadget, usb_desc);
+ 		otg_desc[0] = usb_desc;
+ 		otg_desc[1] = NULL;
 
 
