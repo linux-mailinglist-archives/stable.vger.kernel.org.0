@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 190031D8487
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:14:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A3C801D86EA
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:31:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732888AbgERSL7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:11:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49856 "EHLO mail.kernel.org"
+        id S1729132AbgERRkm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:40:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36444 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732718AbgERSEB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 14:04:01 -0400
+        id S1729121AbgERRkl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:40:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EEFC3207D3;
-        Mon, 18 May 2020 18:03:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0910120829;
+        Mon, 18 May 2020 17:40:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589825040;
-        bh=TxFjLSAL5zDasn9oik92yX0UwttPZd52H+DlXDaqvRw=;
+        s=default; t=1589823640;
+        bh=k6R50BJnSJAsdfMITjdQB0gK2h+S7nINXG3Eh7ugscQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kPWpWebnmUItS2DFmIcUjMO3C3nOd2Fdp2UON4pT5Hs+qonm1wLVBPd0RtHTO5GCb
-         EyM6HHzkA8LUtxFITwpfkvGhfv0CnVhZrGmYeBTS5fRqaF8SmG416uaFJ1LLfILslv
-         3Hw0Clh9LZl86L/i6RB2cIFXvmJ4cYfDtiUrSYHs=
+        b=GXpADY6vy9s4UQi6L/KhuyR2wbWI6ct01c0fpk3+Eh7JGO7/6QRjfNypyOfqDyWIZ
+         WZyc5uR3VuN+y5FZ16nUv4HKLiW3PFU6aTbIiUm/qyf0Sggs6P8ysAvvEVTN2dSAwR
+         BMAGpBk3fTf53729ytaRhNNoTWb++RzJST5gJgEA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
-        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 105/194] drm/i915: Mark concurrent submissions with a weak-dependency
+        stable@vger.kernel.org,
+        Gabriel Krisman Bertazi <krisman@linux.vnet.ibm.com>,
+        Brian King <brking@linux.vnet.ibm.com>,
+        Keith Busch <keith.busch@intel.com>,
+        linux-nvme@lists.infradead.org, linux-block@vger.kernel.org,
+        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@fb.com>,
+        Giuliano Procida <gprocida@google.com>
+Subject: [PATCH 4.4 64/86] blk-mq: Allow timeouts to run while queue is freezing
 Date:   Mon, 18 May 2020 19:36:35 +0200
-Message-Id: <20200518173540.624943414@linuxfoundation.org>
+Message-Id: <20200518173503.327209969@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
-References: <20200518173531.455604187@linuxfoundation.org>
+In-Reply-To: <20200518173450.254571947@linuxfoundation.org>
+References: <20200518173450.254571947@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,131 +48,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Wilson <chris@chris-wilson.co.uk>
+From: Gabriel Krisman Bertazi <krisman@linux.vnet.ibm.com>
 
-[ Upstream commit a9d094dcf7845af85f82adcad9f793e51e4d14c8 ]
+commit 71f79fb3179e69b0c1448a2101a866d871c66e7f upstream.
 
-We recorded the dependencies for WAIT_FOR_SUBMIT in order that we could
-correctly perform priority inheritance from the parallel branches to the
-common trunk. However, for the purpose of timeslicing and reset
-handling, the dependency is weak -- as we the pair of requests are
-allowed to run in parallel and not in strict succession.
+In case a submitted request gets stuck for some reason, the block layer
+can prevent the request starvation by starting the scheduled timeout work.
+If this stuck request occurs at the same time another thread has started
+a queue freeze, the blk_mq_timeout_work will not be able to acquire the
+queue reference and will return silently, thus not issuing the timeout.
+But since the request is already holding a q_usage_counter reference and
+is unable to complete, it will never release its reference, preventing
+the queue from completing the freeze started by first thread.  This puts
+the request_queue in a hung state, forever waiting for the freeze
+completion.
 
-The real significance though is that this allows us to rearrange
-groups of WAIT_FOR_SUBMIT linked requests along the single engine, and
-so can resolve user level inter-batch scheduling dependencies from user
-semaphores.
+This was observed while running IO to a NVMe device at the same time we
+toggled the CPU hotplug code. Eventually, once a request got stuck
+requiring a timeout during a queue freeze, we saw the CPU Hotplug
+notification code get stuck inside blk_mq_freeze_queue_wait, as shown in
+the trace below.
 
-Fixes: c81471f5e95c ("drm/i915: Copy across scheduler behaviour flags across submit fences")
-Testcase: igt/gem_exec_fence/submit
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Cc: <stable@vger.kernel.org> # v5.6+
-Reviewed-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200507155109.8892-1-chris@chris-wilson.co.uk
-(cherry picked from commit 6b6cd2ebd8d071e55998e32b648bb8081f7f02bb)
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+[c000000deaf13690] [c000000deaf13738] 0xc000000deaf13738 (unreliable)
+[c000000deaf13860] [c000000000015ce8] __switch_to+0x1f8/0x350
+[c000000deaf138b0] [c000000000ade0e4] __schedule+0x314/0x990
+[c000000deaf13940] [c000000000ade7a8] schedule+0x48/0xc0
+[c000000deaf13970] [c0000000005492a4] blk_mq_freeze_queue_wait+0x74/0x110
+[c000000deaf139e0] [c00000000054b6a8] blk_mq_queue_reinit_notify+0x1a8/0x2e0
+[c000000deaf13a40] [c0000000000e7878] notifier_call_chain+0x98/0x100
+[c000000deaf13a90] [c0000000000b8e08] cpu_notify_nofail+0x48/0xa0
+[c000000deaf13ac0] [c0000000000b92f0] _cpu_down+0x2a0/0x400
+[c000000deaf13b90] [c0000000000b94a8] cpu_down+0x58/0xa0
+[c000000deaf13bc0] [c0000000006d5dcc] cpu_subsys_offline+0x2c/0x50
+[c000000deaf13bf0] [c0000000006cd244] device_offline+0x104/0x140
+[c000000deaf13c30] [c0000000006cd40c] online_store+0x6c/0xc0
+[c000000deaf13c80] [c0000000006c8c78] dev_attr_store+0x68/0xa0
+[c000000deaf13cc0] [c0000000003974d0] sysfs_kf_write+0x80/0xb0
+[c000000deaf13d00] [c0000000003963e8] kernfs_fop_write+0x188/0x200
+[c000000deaf13d50] [c0000000002e0f6c] __vfs_write+0x6c/0xe0
+[c000000deaf13d90] [c0000000002e1ca0] vfs_write+0xc0/0x230
+[c000000deaf13de0] [c0000000002e2cdc] SyS_write+0x6c/0x110
+[c000000deaf13e30] [c000000000009204] system_call+0x38/0xb4
+
+The fix is to allow the timeout work to execute in the window between
+dropping the initial refcount reference and the release of the last
+reference, which actually marks the freeze completion.  This can be
+achieved with percpu_refcount_tryget, which does not require the counter
+to be alive.  This way the timeout work can do it's job and terminate a
+stuck request even during a freeze, returning its reference and avoiding
+the deadlock.
+
+Allowing the timeout to run is just a part of the fix, since for some
+devices, we might get stuck again inside the device driver's timeout
+handler, should it attempt to allocate a new request in that path -
+which is a quite common action for Abort commands, which need to be sent
+after a timeout.  In NVMe, for instance, we call blk_mq_alloc_request
+from inside the timeout handler, which will fail during a freeze, since
+it also tries to acquire a queue reference.
+
+I considered a similar change to blk_mq_alloc_request as a generic
+solution for further device driver hangs, but we can't do that, since it
+would allow new requests to disturb the freeze process.  I thought about
+creating a new function in the block layer to support unfreezable
+requests for these occasions, but after working on it for a while, I
+feel like this should be handled in a per-driver basis.  I'm now
+experimenting with changes to the NVMe timeout path, but I'm open to
+suggestions of ways to make this generic.
+
+Signed-off-by: Gabriel Krisman Bertazi <krisman@linux.vnet.ibm.com>
+Cc: Brian King <brking@linux.vnet.ibm.com>
+Cc: Keith Busch <keith.busch@intel.com>
+Cc: linux-nvme@lists.infradead.org
+Cc: linux-block@vger.kernel.org
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Jens Axboe <axboe@fb.com>
+Signed-off-by: Giuliano Procida <gprocida@google.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/gpu/drm/i915/gt/intel_lrc.c         | 3 +++
- drivers/gpu/drm/i915/i915_request.c         | 8 ++++++--
- drivers/gpu/drm/i915/i915_scheduler.c       | 6 +++---
- drivers/gpu/drm/i915/i915_scheduler.h       | 3 ++-
- drivers/gpu/drm/i915/i915_scheduler_types.h | 1 +
- 5 files changed, 15 insertions(+), 6 deletions(-)
+ block/blk-mq.c |   15 ++++++++++++++-
+ 1 file changed, 14 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/i915/gt/intel_lrc.c b/drivers/gpu/drm/i915/gt/intel_lrc.c
-index 5bebda4a2d0b4..637c03ee1a57f 100644
---- a/drivers/gpu/drm/i915/gt/intel_lrc.c
-+++ b/drivers/gpu/drm/i915/gt/intel_lrc.c
-@@ -1626,6 +1626,9 @@ static void defer_request(struct i915_request *rq, struct list_head * const pl)
- 			struct i915_request *w =
- 				container_of(p->waiter, typeof(*w), sched);
+--- a/block/blk-mq.c
++++ b/block/blk-mq.c
+@@ -628,7 +628,20 @@ static void blk_mq_rq_timer(unsigned lon
+ 	};
+ 	int i;
  
-+			if (p->flags & I915_DEPENDENCY_WEAK)
-+				continue;
-+
- 			/* Leave semaphores spinning on the other engines */
- 			if (w->engine != rq->engine)
- 				continue;
-diff --git a/drivers/gpu/drm/i915/i915_request.c b/drivers/gpu/drm/i915/i915_request.c
-index a18b2a2447066..32ab154db788c 100644
---- a/drivers/gpu/drm/i915/i915_request.c
-+++ b/drivers/gpu/drm/i915/i915_request.c
-@@ -951,7 +951,9 @@ i915_request_await_request(struct i915_request *to, struct i915_request *from)
- 		return 0;
+-	if (blk_queue_enter(q, GFP_NOWAIT))
++	/* A deadlock might occur if a request is stuck requiring a
++	 * timeout at the same time a queue freeze is waiting
++	 * completion, since the timeout code would not be able to
++	 * acquire the queue reference here.
++	 *
++	 * That's why we don't use blk_queue_enter here; instead, we use
++	 * percpu_ref_tryget directly, because we need to be able to
++	 * obtain a reference even in the short window between the queue
++	 * starting to freeze, by dropping the first reference in
++	 * blk_mq_freeze_queue_start, and the moment the last request is
++	 * consumed, marked by the instant q_usage_counter reaches
++	 * zero.
++	 */
++	if (!percpu_ref_tryget(&q->q_usage_counter))
+ 		return;
  
- 	if (to->engine->schedule) {
--		ret = i915_sched_node_add_dependency(&to->sched, &from->sched);
-+		ret = i915_sched_node_add_dependency(&to->sched,
-+						     &from->sched,
-+						     I915_DEPENDENCY_EXTERNAL);
- 		if (ret < 0)
- 			return ret;
- 	}
-@@ -1084,7 +1086,9 @@ __i915_request_await_execution(struct i915_request *to,
- 
- 	/* Couple the dependency tree for PI on this exposed to->fence */
- 	if (to->engine->schedule) {
--		err = i915_sched_node_add_dependency(&to->sched, &from->sched);
-+		err = i915_sched_node_add_dependency(&to->sched,
-+						     &from->sched,
-+						     I915_DEPENDENCY_WEAK);
- 		if (err < 0)
- 			return err;
- 	}
-diff --git a/drivers/gpu/drm/i915/i915_scheduler.c b/drivers/gpu/drm/i915/i915_scheduler.c
-index 34b654b4e58af..8e419d897c2b4 100644
---- a/drivers/gpu/drm/i915/i915_scheduler.c
-+++ b/drivers/gpu/drm/i915/i915_scheduler.c
-@@ -455,7 +455,8 @@ bool __i915_sched_node_add_dependency(struct i915_sched_node *node,
- }
- 
- int i915_sched_node_add_dependency(struct i915_sched_node *node,
--				   struct i915_sched_node *signal)
-+				   struct i915_sched_node *signal,
-+				   unsigned long flags)
- {
- 	struct i915_dependency *dep;
- 
-@@ -464,8 +465,7 @@ int i915_sched_node_add_dependency(struct i915_sched_node *node,
- 		return -ENOMEM;
- 
- 	if (!__i915_sched_node_add_dependency(node, signal, dep,
--					      I915_DEPENDENCY_EXTERNAL |
--					      I915_DEPENDENCY_ALLOC))
-+					      flags | I915_DEPENDENCY_ALLOC))
- 		i915_dependency_free(dep);
- 
- 	return 0;
-diff --git a/drivers/gpu/drm/i915/i915_scheduler.h b/drivers/gpu/drm/i915/i915_scheduler.h
-index d1dc4efef77b5..6f0bf00fc5690 100644
---- a/drivers/gpu/drm/i915/i915_scheduler.h
-+++ b/drivers/gpu/drm/i915/i915_scheduler.h
-@@ -34,7 +34,8 @@ bool __i915_sched_node_add_dependency(struct i915_sched_node *node,
- 				      unsigned long flags);
- 
- int i915_sched_node_add_dependency(struct i915_sched_node *node,
--				   struct i915_sched_node *signal);
-+				   struct i915_sched_node *signal,
-+				   unsigned long flags);
- 
- void i915_sched_node_fini(struct i915_sched_node *node);
- 
-diff --git a/drivers/gpu/drm/i915/i915_scheduler_types.h b/drivers/gpu/drm/i915/i915_scheduler_types.h
-index d18e705500542..7186875088a0a 100644
---- a/drivers/gpu/drm/i915/i915_scheduler_types.h
-+++ b/drivers/gpu/drm/i915/i915_scheduler_types.h
-@@ -78,6 +78,7 @@ struct i915_dependency {
- 	unsigned long flags;
- #define I915_DEPENDENCY_ALLOC		BIT(0)
- #define I915_DEPENDENCY_EXTERNAL	BIT(1)
-+#define I915_DEPENDENCY_WEAK		BIT(2)
- };
- 
- #endif /* _I915_SCHEDULER_TYPES_H_ */
--- 
-2.20.1
-
+ 	blk_mq_queue_tag_busy_iter(q, blk_mq_check_expired, &data);
 
 
