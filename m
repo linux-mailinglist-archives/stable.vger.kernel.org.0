@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 698BE1D82B3
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:58:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5EAC71D85D9
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:21:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731432AbgERR6i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:58:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38112 "EHLO mail.kernel.org"
+        id S2387844AbgERSVZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:21:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56582 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731922AbgERR6f (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:58:35 -0400
+        id S1731059AbgERRw4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:52:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 02FB520715;
-        Mon, 18 May 2020 17:58:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 93F9020674;
+        Mon, 18 May 2020 17:52:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824714;
-        bh=wjNCLJm8je2dfTo3Dnvetm+uHr8DjiIVmachTBfbvW4=;
+        s=default; t=1589824376;
+        bh=ZxyMZGot4qCsJCnM/6wDEDK6o+19Yya0ofBttyLsprY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DsEeXzGMFvxKkYstGbRnUHKak6BA2vucTO+769vgqHKCREPblHrgJC+sIkMqh2xR3
-         lggPlX0vFYiEAHfpKfUQ1JHrD85gpCm/PAMh6Wl13pTGsxG8+tK8tY9V+0iL99+9K6
-         BrOXqo8nasGy/4IHcIpQlZ2DANLIaxKsfdpzjl1c=
+        b=kaqsu5bymFJkbSL+qry0BkLhIDEti3zaeOL8gGyfdMuUHmPIx5IgHtG8GpAynApFg
+         ZgDKaaNCXOjL9J1ofg3hIgKM1bCoOSKO8ZAAaBWQb7WO08/HIg8thEifhZiRsfvzJu
+         9bjomXVi9CIvTu+ybrtwpFbYxml7ODDRYxcylwMk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
+        stable@vger.kernel.org, Andreas Gruenbacher <agruenba@redhat.com>,
+        Bob Peterson <rpeterso@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 084/147] RDMA/rxe: Always return ERR_PTR from rxe_create_mmap_info()
-Date:   Mon, 18 May 2020 19:36:47 +0200
-Message-Id: <20200518173524.083777446@linuxfoundation.org>
+Subject: [PATCH 4.19 30/80] gfs2: Another gfs2_walk_metadata fix
+Date:   Mon, 18 May 2020 19:36:48 +0200
+Message-Id: <20200518173456.501252925@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
-References: <20200518173513.009514388@linuxfoundation.org>
+In-Reply-To: <20200518173450.097837707@linuxfoundation.org>
+References: <20200518173450.097837707@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,75 +44,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+From: Andreas Gruenbacher <agruenba@redhat.com>
 
-[ Upstream commit bb43c8e382e5da0ee253e3105d4099820ff4d922 ]
+[ Upstream commit 566a2ab3c9005f62e784bd39022d58d34ef4365c ]
 
-The commit below modified rxe_create_mmap_info() to return ERR_PTR's but
-didn't update the callers to handle them. Modify rxe_create_mmap_info() to
-only return ERR_PTR and fix all error checking after
-rxe_create_mmap_info() is called.
+Make sure we don't walk past the end of the metadata in gfs2_walk_metadata: the
+inode holds fewer pointers than indirect blocks.
 
-Ensure that all other exit paths properly set the error return.
+Slightly clean up gfs2_iomap_get.
 
-Fixes: ff23dfa13457 ("IB: Pass only ib_udata in function prototypes")
-Link: https://lore.kernel.org/r/20200425233545.17210-1-sudipm.mukherjee@gmail.com
-Link: https://lore.kernel.org/r/20200511183742.GB225608@mwanda
-Cc: stable@vger.kernel.org [5.4+]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Fixes: a27a0c9b6a20 ("gfs2: gfs2_walk_metadata fix")
+Cc: stable@vger.kernel.org # v5.3+
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Signed-off-by: Bob Peterson <rpeterso@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/sw/rxe/rxe_mmap.c  |  2 +-
- drivers/infiniband/sw/rxe/rxe_queue.c | 11 +++++++----
- 2 files changed, 8 insertions(+), 5 deletions(-)
+ fs/gfs2/bmap.c | 16 +++++++++-------
+ 1 file changed, 9 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/infiniband/sw/rxe/rxe_mmap.c b/drivers/infiniband/sw/rxe/rxe_mmap.c
-index 48f48122ddcb8..6a413d73b95dd 100644
---- a/drivers/infiniband/sw/rxe/rxe_mmap.c
-+++ b/drivers/infiniband/sw/rxe/rxe_mmap.c
-@@ -151,7 +151,7 @@ struct rxe_mmap_info *rxe_create_mmap_info(struct rxe_dev *rxe, u32 size,
+diff --git a/fs/gfs2/bmap.c b/fs/gfs2/bmap.c
+index 096b479721395..43f53020553b5 100644
+--- a/fs/gfs2/bmap.c
++++ b/fs/gfs2/bmap.c
+@@ -530,10 +530,12 @@ static int gfs2_walk_metadata(struct inode *inode, struct metapath *mp,
  
- 	ip = kmalloc(sizeof(*ip), GFP_KERNEL);
- 	if (!ip)
--		return NULL;
-+		return ERR_PTR(-ENOMEM);
+ 		/* Advance in metadata tree. */
+ 		(mp->mp_list[hgt])++;
+-		if (mp->mp_list[hgt] >= sdp->sd_inptrs) {
+-			if (!hgt)
++		if (hgt) {
++			if (mp->mp_list[hgt] >= sdp->sd_inptrs)
++				goto lower_metapath;
++		} else {
++			if (mp->mp_list[hgt] >= sdp->sd_diptrs)
+ 				break;
+-			goto lower_metapath;
+ 		}
  
- 	size = PAGE_ALIGN(size);
+ fill_up_metapath:
+@@ -879,10 +881,9 @@ static int gfs2_iomap_get(struct inode *inode, loff_t pos, loff_t length,
+ 					ret = -ENOENT;
+ 					goto unlock;
+ 				} else {
+-					/* report a hole */
+ 					iomap->offset = pos;
+ 					iomap->length = length;
+-					goto do_alloc;
++					goto hole_found;
+ 				}
+ 			}
+ 			iomap->length = size;
+@@ -936,8 +937,6 @@ static int gfs2_iomap_get(struct inode *inode, loff_t pos, loff_t length,
+ 	return ret;
  
-diff --git a/drivers/infiniband/sw/rxe/rxe_queue.c b/drivers/infiniband/sw/rxe/rxe_queue.c
-index ff92704de32ff..245040c3a35d0 100644
---- a/drivers/infiniband/sw/rxe/rxe_queue.c
-+++ b/drivers/infiniband/sw/rxe/rxe_queue.c
-@@ -45,12 +45,15 @@ int do_mmap_info(struct rxe_dev *rxe, struct mminfo __user *outbuf,
- 
- 	if (outbuf) {
- 		ip = rxe_create_mmap_info(rxe, buf_size, udata, buf);
--		if (!ip)
-+		if (IS_ERR(ip)) {
-+			err = PTR_ERR(ip);
- 			goto err1;
-+		}
- 
--		err = copy_to_user(outbuf, &ip->info, sizeof(ip->info));
--		if (err)
-+		if (copy_to_user(outbuf, &ip->info, sizeof(ip->info))) {
-+			err = -EFAULT;
- 			goto err2;
-+		}
- 
- 		spin_lock_bh(&rxe->pending_lock);
- 		list_add(&ip->pending_mmaps, &rxe->pending_mmaps);
-@@ -64,7 +67,7 @@ int do_mmap_info(struct rxe_dev *rxe, struct mminfo __user *outbuf,
- err2:
- 	kfree(ip);
- err1:
--	return -EINVAL;
-+	return err;
+ do_alloc:
+-	iomap->addr = IOMAP_NULL_ADDR;
+-	iomap->type = IOMAP_HOLE;
+ 	if (flags & IOMAP_REPORT) {
+ 		if (pos >= size)
+ 			ret = -ENOENT;
+@@ -959,6 +958,9 @@ static int gfs2_iomap_get(struct inode *inode, loff_t pos, loff_t length,
+ 		if (pos < size && height == ip->i_height)
+ 			ret = gfs2_hole_size(inode, lblock, len, mp, iomap);
+ 	}
++hole_found:
++	iomap->addr = IOMAP_NULL_ADDR;
++	iomap->type = IOMAP_HOLE;
+ 	goto out;
  }
  
- inline void rxe_queue_reset(struct rxe_queue *q)
 -- 
 2.20.1
 
