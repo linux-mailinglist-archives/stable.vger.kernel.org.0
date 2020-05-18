@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DD09F1D82A6
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:58:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C68B1D838A
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:06:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731358AbgERR6P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:58:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37410 "EHLO mail.kernel.org"
+        id S1732507AbgERSFo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:05:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53374 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730713AbgERR6N (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:58:13 -0400
+        id S1731959AbgERSFl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 14:05:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B273B20715;
-        Mon, 18 May 2020 17:58:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8973420715;
+        Mon, 18 May 2020 18:05:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824692;
+        s=default; t=1589825140;
         bh=Q6OxYPg+HEkGz2LIWB5H4R2fxd0AQ+iGVhEsHiX43Pk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z+u1XS+YbU54yNXENfrjwzrRy7q+SnrdWyFqmzfJKFfQsZlf1pc9wZFRvDQsOtf1v
-         oXGnYZwy5y5kYbGF1GLzvI1vDiZSVb550JIwHmRs1pKrn0Jr+5QswiVv46OKxAuNDn
-         /Ye636BvUiVZQnjcTGrgM8sVcsBRoHngI+O2jPyE=
+        b=IKH3pr0s/QANThuXi9yON0GvCZ1jKhxuBdzgG3dHsJFPhdUHHZEnrwsGxiqZ1DvBs
+         8hFTeYMH0vKZ8K66gBXnwh4WBMI/qeywQ19aVi/H3caR4C8sG1dOz5nke283rqeGLy
+         Tt6xhyfbkDz90u8vQlDbmtpgStj0A/CQJPM3VE80=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Kyungtae Kim <kt0755@gmail.com>,
         Felipe Balbi <balbi@kernel.org>
-Subject: [PATCH 5.4 112/147] USB: gadget: fix illegal array access in binding with UDC
+Subject: [PATCH 5.6 145/194] USB: gadget: fix illegal array access in binding with UDC
 Date:   Mon, 18 May 2020 19:37:15 +0200
-Message-Id: <20200518173527.073653153@linuxfoundation.org>
+Message-Id: <20200518173543.348668217@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
-References: <20200518173513.009514388@linuxfoundation.org>
+In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
+References: <20200518173531.455604187@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
