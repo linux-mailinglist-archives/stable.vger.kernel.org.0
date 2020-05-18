@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DDD41D871A
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:31:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A08331D845C
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:11:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731303AbgERS36 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:29:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37528 "EHLO mail.kernel.org"
+        id S1732836AbgERSLb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:11:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51846 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729240AbgERRlS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:41:18 -0400
+        id S1732820AbgERSEl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 14:04:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 003C620657;
-        Mon, 18 May 2020 17:41:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 07DD7207F5;
+        Mon, 18 May 2020 18:04:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589823677;
-        bh=A25UkX+LNU+bFEj/V3UMxcD4oN7hAO1PbVZSumhT3+k=;
+        s=default; t=1589825080;
+        bh=QA6KwN2HxVjSW1OaLDLvstj9FVTWX1Ucrz1lsQ1LabI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EWbevy8TcV7ITEKeEvFF0QsTgVF082bsjS9H5iIVxYMAefl0sAjgPDy1BPjBgqldN
-         3241+5Hkn9qAh5a5Ko369xuiF7K6L1xOOJ5JjAdBZ3Kkl3zUI/07We77f8Fm3fKW9W
-         aOxqyCyruz+QiYh68qqAFY9yex5swSlocyi00/Gs=
+        b=D19YABdyjpuSxX3WRapOxUweHdAQ/6q2PDWtPfSJ2z+s7LR8VSk5ZSWHfhO9mXwdN
+         oxbKeUt+ZDCrvQS0qcSzLdnpipExX1PWnv5cGazcZerDqDcTjX0B60eYP9BmKgbMSd
+         gs9O1BOjmcuSpwio5nOO5PUAzFnJazHi5n2R+PFM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: [PATCH 4.4 78/86] exec: Move would_dump into flush_old_exec
+        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
+        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
+        Mika Kuoppala <mika.kuoppala@linux.intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 119/194] drm/i915: Handle idling during i915_gem_evict_something busy loops
 Date:   Mon, 18 May 2020 19:36:49 +0200
-Message-Id: <20200518173506.359614795@linuxfoundation.org>
+Message-Id: <20200518173541.555283900@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173450.254571947@linuxfoundation.org>
-References: <20200518173450.254571947@linuxfoundation.org>
+In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
+References: <20200518173531.455604187@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,58 +46,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric W. Biederman <ebiederm@xmission.com>
+From: Chris Wilson <chris@chris-wilson.co.uk>
 
-commit f87d1c9559164294040e58f5e3b74a162bf7c6e8 upstream.
+[ Upstream commit 955da9d77435acac066139e9d7f7723ce7204a1d ]
 
-I goofed when I added mm->user_ns support to would_dump.  I missed the
-fact that in the case of binfmt_loader, binfmt_em86, binfmt_misc, and
-binfmt_script bprm->file is reassigned.  Which made the move of
-would_dump from setup_new_exec to __do_execve_file before exec_binprm
-incorrect as it can result in would_dump running on the script instead
-of the interpreter of the script.
+i915_gem_evict_something() is charged with finding a slot within the GTT
+that we may reuse. Since our goal is not to stall, we first look for a
+slot that only overlaps idle vma. To this end, on the first pass we move
+any active vma to the end of the search list. However, we only stopped
+moving active vma after we see the first active vma twice. If during the
+search, that first active vma completed, we would not notice and keep on
+extending the search list.
 
-The net result is that the code stopped making unreadable interpreters
-undumpable.  Which allows them to be ptraced and written to disk
-without special permissions.  Oops.
-
-The move was necessary because the call in set_new_exec was after
-bprm->mm was no longer valid.
-
-To correct this mistake move the misplaced would_dump from
-__do_execve_file into flos_old_exec, before exec_mmap is called.
-
-I tested and confirmed that without this fix I can attach with gdb to
-a script with an unreadable interpreter, and with this fix I can not.
-
-Cc: stable@vger.kernel.org
-Fixes: f84df2a6f268 ("exec: Ensure mm->user_ns contains the execed files")
-Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/1746
+Fixes: 2850748ef876 ("drm/i915: Pull i915_vma_pin under the vm->mutex")
+Fixes: b1e3177bd1d8 ("drm/i915: Coordinate i915_active with its own mutex")
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Cc: <stable@vger.kernel.org> # v5.5+
+Reviewed-by: Mika Kuoppala <mika.kuoppala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200509115217.26853-1-chris@chris-wilson.co.uk
+(cherry picked from commit 73e28cc40bf00b5d168cb8f5cff1ae63e9097446)
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/exec.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/i915/i915_gem_evict.c | 26 ++++++++++++--------------
+ 1 file changed, 12 insertions(+), 14 deletions(-)
 
---- a/fs/exec.c
-+++ b/fs/exec.c
-@@ -1124,6 +1124,8 @@ int flush_old_exec(struct linux_binprm *
- 	 */
- 	set_mm_exe_file(bprm->mm, bprm->file);
- 
-+	would_dump(bprm, bprm->file);
+diff --git a/drivers/gpu/drm/i915/i915_gem_evict.c b/drivers/gpu/drm/i915/i915_gem_evict.c
+index 0697bedebeef2..d99df9c337089 100644
+--- a/drivers/gpu/drm/i915/i915_gem_evict.c
++++ b/drivers/gpu/drm/i915/i915_gem_evict.c
+@@ -130,6 +130,13 @@ i915_gem_evict_something(struct i915_address_space *vm,
+ 	active = NULL;
+ 	INIT_LIST_HEAD(&eviction_list);
+ 	list_for_each_entry_safe(vma, next, &vm->bound_list, vm_link) {
++		if (vma == active) { /* now seen this vma twice */
++			if (flags & PIN_NONBLOCK)
++				break;
 +
- 	/*
- 	 * Release all of the old mmap stuff
- 	 */
-@@ -1632,8 +1634,6 @@ static int do_execveat_common(int fd, st
- 	if (retval < 0)
- 		goto out;
- 
--	would_dump(bprm, bprm->file);
++			active = ERR_PTR(-EAGAIN);
++		}
++
+ 		/*
+ 		 * We keep this list in a rough least-recently scanned order
+ 		 * of active elements (inactive elements are cheap to reap).
+@@ -145,21 +152,12 @@ i915_gem_evict_something(struct i915_address_space *vm,
+ 		 * To notice when we complete one full cycle, we record the
+ 		 * first active element seen, before moving it to the tail.
+ 		 */
+-		if (i915_vma_is_active(vma)) {
+-			if (vma == active) {
+-				if (flags & PIN_NONBLOCK)
+-					break;
 -
- 	retval = exec_binprm(bprm);
- 	if (retval < 0)
- 		goto out;
+-				active = ERR_PTR(-EAGAIN);
+-			}
+-
+-			if (active != ERR_PTR(-EAGAIN)) {
+-				if (!active)
+-					active = vma;
++		if (active != ERR_PTR(-EAGAIN) && i915_vma_is_active(vma)) {
++			if (!active)
++				active = vma;
+ 
+-				list_move_tail(&vma->vm_link, &vm->bound_list);
+-				continue;
+-			}
++			list_move_tail(&vma->vm_link, &vm->bound_list);
++			continue;
+ 		}
+ 
+ 		if (mark_free(&scan, vma, flags, &eviction_list))
+-- 
+2.20.1
+
 
 
