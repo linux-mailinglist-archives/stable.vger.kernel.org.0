@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E5A0E1D86F3
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:31:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE62E1D83A2
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:06:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728697AbgERRli (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:41:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38096 "EHLO mail.kernel.org"
+        id S1733143AbgERSGa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:06:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54632 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729297AbgERRlh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:41:37 -0400
+        id S1733169AbgERSGa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 14:06:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0557C20715;
-        Mon, 18 May 2020 17:41:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 500ED20715;
+        Mon, 18 May 2020 18:06:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589823697;
-        bh=+jvSoIIa24wM8YY3J5dMy5VGin8vj9b9xKcxlTcyGoo=;
+        s=default; t=1589825189;
+        bh=6N6w2wP3kX6H5vYrBp3ZyXjwxWLpVF52LgoHSd3cLMY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HX8Z9SCcbS9Nc9iBq3SEdtsVGBuH9LzytOXrjlg3ya5YVK9EVCC0+2IR+664iY2Fb
-         5rpxBsFQ/OoBlqR32hpWoXKw25xcZFPJe3vUyVACigoKIAuaUMaVPBDd7KD0K4NJwS
-         H8jpVOgfSsbEA2mcum2PhoiCufDb6iRt1Qo1TYXo=
+        b=KK46HM2QSaR0xayvcs8+hZ9zoIDse1lJVBz05qa/pXOfbaPhzDDDdXFAGVNUH9NTw
+         9mzv7DG3zR7MasTYLykjd8KUvYoSmnrbtq4JuPsOqGHRtvEVgkrtdx+jIRhdm02PS/
+         1F/yY5sksfUa4DftK1/lLHKVgh4jOeiJzqmXcfug=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jue Wang <juew@google.com>,
-        Jim Mattson <jmattson@google.com>,
-        Peter Shier <pshier@google.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 4.4 85/86] KVM: x86: Fix off-by-one error in kvm_vcpu_ioctl_x86_setup_mce
-Date:   Mon, 18 May 2020 19:36:56 +0200
-Message-Id: <20200518173507.791136986@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.6 127/194] gcc-10: disable zero-length-bounds warning for now
+Date:   Mon, 18 May 2020 19:36:57 +0200
+Message-Id: <20200518173542.091835895@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173450.254571947@linuxfoundation.org>
-References: <20200518173450.254571947@linuxfoundation.org>
+In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
+References: <20200518173531.455604187@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,37 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jim Mattson <jmattson@google.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-commit c4e0e4ab4cf3ec2b3f0b628ead108d677644ebd9 upstream.
+commit 5c45de21a2223fe46cf9488c99a7fbcf01527670 upstream.
 
-Bank_num is a one-based count of banks, not a zero-based index. It
-overflows the allocated space only when strictly greater than
-KVM_MAX_MCE_BANKS.
+This is a fine warning, but we still have a number of zero-length arrays
+in the kernel that come from the traditional gcc extension.  Yes, they
+are getting converted to flexible arrays, but in the meantime the gcc-10
+warning about zero-length bounds is very verbose, and is hiding other
+issues.
 
-Fixes: a9e38c3e01ad ("KVM: x86: Catch potential overrun in MCE setup")
-Signed-off-by: Jue Wang <juew@google.com>
-Signed-off-by: Jim Mattson <jmattson@google.com>
-Reviewed-by: Peter Shier <pshier@google.com>
-Message-Id: <20200511225616.19557-1-jmattson@google.com>
-Reviewed-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+I missed one actual build failure because it was hidden among hundreds
+of lines of warning.  Thankfully I caught it on the second go before
+pushing things out, but it convinced me that I really need to disable
+the new warnings for now.
+
+We'll hopefully be all done with our conversion to flexible arrays in
+the not too distant future, and we can then re-enable this warning.
+
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kvm/x86.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ Makefile |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -2941,7 +2941,7 @@ static int kvm_vcpu_ioctl_x86_setup_mce(
- 	unsigned bank_num = mcg_cap & 0xff, bank;
+--- a/Makefile
++++ b/Makefile
+@@ -857,6 +857,9 @@ KBUILD_CFLAGS += -Wno-pointer-sign
+ # disable stringop warnings in gcc 8+
+ KBUILD_CFLAGS += $(call cc-disable-warning, stringop-truncation)
  
- 	r = -EINVAL;
--	if (!bank_num || bank_num >= KVM_MAX_MCE_BANKS)
-+	if (!bank_num || bank_num > KVM_MAX_MCE_BANKS)
- 		goto out;
- 	if (mcg_cap & ~(KVM_MCE_CAP_SUPPORTED | 0xff | 0xff0000))
- 		goto out;
++# We'll want to enable this eventually, but it's not going away for 5.7 at least
++KBUILD_CFLAGS += $(call cc-disable-warning, zero-length-bounds)
++
+ # Enabled with W=2, disabled by default as noisy
+ KBUILD_CFLAGS += $(call cc-disable-warning, maybe-uninitialized)
+ 
 
 
