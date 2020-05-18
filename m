@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EEF7C1D8214
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:53:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4143B1D82BF
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:59:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730608AbgERRxR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:53:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57110 "EHLO mail.kernel.org"
+        id S1731542AbgERR66 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:58:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38832 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731115AbgERRxQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:53:16 -0400
+        id S1731953AbgERR65 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:58:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8B19B20674;
-        Mon, 18 May 2020 17:53:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A926D20715;
+        Mon, 18 May 2020 17:58:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824396;
-        bh=eV3kUzzlf5OSTxkiuVstu95fzxA6qQ/NqCtoRjvFgUE=;
+        s=default; t=1589824737;
+        bh=pa+G38MI220nHFy8k4su+iNcYpvxDIJDPuNMLH5TxK8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pqIpCUI8LJCsBO2WU6wJpk53m+/ZfLrHmkRqF9biKoq5ZeDMYLrtwgDeZ2ikfMT7I
-         KIgitYdQGpCTiU04Bhy1UwIVycP9X1QopOUXWoWo+R1ckaiDA1MjS2wUKTqyuE1tK6
-         439qEQ0hl0ocTjvopt/+CYHN5rYN59IWwqBBTRW4=
+        b=i6JIzJ5n3d4t973eTRh6GLa7aDvq8UCIe6JMR4eMGjXKQF3Jpye2nBJFu64ObmW4G
+         fEHOn9CtddX3NpPHGa6sR39xnPkDLx2Z01ZFp/JQRftp5633pZIqyhZ0pcsnTNofxB
+         BXQ/VD/FJeZt6nT+yQHh16F7G0fqJPXTxPIsXwmQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>
-Subject: [PATCH 4.19 76/80] ARM: dts: r8a73a4: Add missing CMT1 interrupts
-Date:   Mon, 18 May 2020 19:37:34 +0200
-Message-Id: <20200518173505.932736433@linuxfoundation.org>
+        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Michael Turquette <mturquette@baylibre.com>
+Subject: [PATCH 5.4 132/147] clk: Unlink clock if failed to prepare or enable
+Date:   Mon, 18 May 2020 19:37:35 +0200
+Message-Id: <20200518173529.807007387@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173450.097837707@linuxfoundation.org>
-References: <20200518173450.097837707@linuxfoundation.org>
+In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
+References: <20200518173513.009514388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,40 +45,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Marc Zyngier <maz@kernel.org>
 
-commit 0f739fdfe9e5ce668bd6d3210f310df282321837 upstream.
+commit 018d4671b9bbd4a5c55cf6eab3e1dbc70a50b66e upstream.
 
-The R-Mobile APE6 Compare Match Timer 1 generates 8 interrupts, one for
-each channel, but currently only 1 is described.
-Fix this by adding the missing interrupts.
+On failing to prepare or enable a clock, remove the core structure
+from the list it has been inserted as it is about to be freed.
 
-Fixes: f7b65230019b9dac ("ARM: shmobile: r8a73a4: Add CMT1 node")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Link: https://lore.kernel.org/r/20200408090926.25201-1-geert+renesas@glider.be
+This otherwise leads to random crashes when subsequent clocks get
+registered, during which parsing of the clock tree becomes adventurous.
+
+Observed with QEMU's RPi-3 emulation.
+
+Fixes: 12ead77432f2 ("clk: Don't try to enable critical clocks if prepare failed")
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Cc: Guenter Roeck <linux@roeck-us.net>
+Cc: Stephen Boyd <sboyd@kernel.org>
+Cc: Michael Turquette <mturquette@baylibre.com>
+Link: https://lkml.kernel.org/r/20200505140953.409430-1-maz@kernel.org
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/boot/dts/r8a73a4.dtsi |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/clk/clk.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/arch/arm/boot/dts/r8a73a4.dtsi
-+++ b/arch/arm/boot/dts/r8a73a4.dtsi
-@@ -131,7 +131,14 @@
- 	cmt1: timer@e6130000 {
- 		compatible = "renesas,r8a73a4-cmt1", "renesas,rcar-gen2-cmt1";
- 		reg = <0 0xe6130000 0 0x1004>;
--		interrupts = <GIC_SPI 120 IRQ_TYPE_LEVEL_HIGH>;
-+		interrupts = <GIC_SPI 120 IRQ_TYPE_LEVEL_HIGH>,
-+			     <GIC_SPI 121 IRQ_TYPE_LEVEL_HIGH>,
-+			     <GIC_SPI 122 IRQ_TYPE_LEVEL_HIGH>,
-+			     <GIC_SPI 123 IRQ_TYPE_LEVEL_HIGH>,
-+			     <GIC_SPI 124 IRQ_TYPE_LEVEL_HIGH>,
-+			     <GIC_SPI 125 IRQ_TYPE_LEVEL_HIGH>,
-+			     <GIC_SPI 126 IRQ_TYPE_LEVEL_HIGH>,
-+			     <GIC_SPI 127 IRQ_TYPE_LEVEL_HIGH>;
- 		clocks = <&mstp3_clks R8A73A4_CLK_CMT1>;
- 		clock-names = "fck";
- 		power-domains = <&pd_c5>;
+--- a/drivers/clk/clk.c
++++ b/drivers/clk/clk.c
+@@ -3448,6 +3448,9 @@ static int __clk_core_init(struct clk_co
+ out:
+ 	clk_pm_runtime_put(core);
+ unlock:
++	if (ret)
++		hlist_del_init(&core->child_node);
++
+ 	clk_prepare_unlock();
+ 
+ 	if (!ret)
 
 
