@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B6291D86A2
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:28:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E5481D80D6
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:43:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730616AbgERSZm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:25:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46148 "EHLO mail.kernel.org"
+        id S1729432AbgERRmb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:42:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39492 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730095AbgERRq3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:46:29 -0400
+        id S1729428AbgERRma (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:42:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ECFB220674;
-        Mon, 18 May 2020 17:46:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 54F3120715;
+        Mon, 18 May 2020 17:42:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589823989;
-        bh=pW4V60f9TCg33wug+NcMM3l2jUpbcC/+CQ5JRKz0l/o=;
+        s=default; t=1589823748;
+        bh=l7gQ3LDxqyvmZKILg/1bQZEIGSXRweVRKSuXKY7UX0w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CB4JoAw9zHbaHPETygMsDfvhziPjNTAb6F1kIC+GtkH/vHa1B/RNZZl6U+Vh+iEMh
-         fj78RInXyzUhOcnC+j8z468FM5RPG/q4S8Gb80WimfI3AAUZsde2I92XPXgO23jO9k
-         OiU5uKn3XVu1RNPe7ARMWUEZm7vohf/eq4814KhM=
+        b=sKAEIc9hsKAfODKuW/wHCoEFeaEV8V7avxwQEMuk1071CNqOi64daedoLuLLiohOP
+         okoGHyQWg5xf4TlJgBhCmMb+BmBMAb1J9uxm0UAIc0lJYgXAQGd0aaH62gluiZQ9/f
+         cFt8L3t+037bBem28Xr0jQEBvoY36bNc4eQEGtn4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,12 +30,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Xin Tan <tanxin.ctf@gmail.com>,
         Sven Eckelmann <sven@narfation.org>,
         Simon Wunderlich <sw@simonwunderlich.de>
-Subject: [PATCH 4.14 026/114] batman-adv: Fix refcnt leak in batadv_show_throughput_override
+Subject: [PATCH 4.9 20/90] batman-adv: Fix refcnt leak in batadv_show_throughput_override
 Date:   Mon, 18 May 2020 19:35:58 +0200
-Message-Id: <20200518173508.436821979@linuxfoundation.org>
+Message-Id: <20200518173455.286190110@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173503.033975649@linuxfoundation.org>
-References: <20200518173503.033975649@linuxfoundation.org>
+In-Reply-To: <20200518173450.930655662@linuxfoundation.org>
+References: <20200518173450.930655662@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -77,7 +77,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/net/batman-adv/sysfs.c
 +++ b/net/batman-adv/sysfs.c
-@@ -1114,6 +1114,7 @@ static ssize_t batadv_show_throughput_ov
+@@ -1120,6 +1120,7 @@ static ssize_t batadv_show_throughput_ov
  
  	tp_override = atomic_read(&hard_iface->bat_v.throughput_override);
  
