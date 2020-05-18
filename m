@@ -2,34 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C9EB1D829B
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:58:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC2D91D8525
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:17:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731339AbgERR5w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:57:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36636 "EHLO mail.kernel.org"
+        id S1731839AbgERSQy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:16:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36740 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731500AbgERR5s (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:57:48 -0400
+        id S1730836AbgERR5u (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:57:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2220F20826;
-        Mon, 18 May 2020 17:57:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 87A5620715;
+        Mon, 18 May 2020 17:57:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824667;
-        bh=Bf23uZnLV3OlKoZqeEjp8dJdg25q3YALsYaxnGvftpM=;
+        s=default; t=1589824670;
+        bh=FjxbjY8TPADnA/AF5u+7Spbw+rwAX8aoWlhgy1tMX3s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NClvyZdAmi1Myq9wGuUUm3O5SY87MRvUdBcCmlfayILONkm53+o6arDjEAfvcLfun
-         U2S907Rc3D4H9ztDTBa6IQZtBrslVgGHaUKYMt9maIyAHK6cWxKX12qx+DNGJ/nEWb
-         ZNbgYGcm7oIaZdB9hI77mOZ5ZeOUOA9fg5IBw1qI=
+        b=eP9dsBz+L08dVI4zTB3IbxMTqKRRtJJGqJKDzjQBT+xVYK5eqzz0HCVjkk/HBHCXd
+         ZgT36f8AwJ8Wfch+6ICgszukxnPwdwoSnatPrttKvFP0fhxmiQv4+vkdY4QpU8KREz
+         Ci9vFVH+tNVqrXOi1Ojjbk7O4bdRnIDQlA3aMMxw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeremy Linton <jeremy.linton@arm.com>
-Subject: [PATCH 5.4 103/147] usb: usbfs: correct kernel->user page attribute mismatch
-Date:   Mon, 18 May 2020 19:37:06 +0200
-Message-Id: <20200518173526.165987477@linuxfoundation.org>
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Hillf Danton <hdanton@sina.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Jeremy Linton <jeremy.linton@arm.com>,
+        syzbot+353be47c9ce21b68b7ed@syzkaller.appspotmail.com
+Subject: [PATCH 5.4 104/147] USB: usbfs: fix mmap dma mismatch
+Date:   Mon, 18 May 2020 19:37:07 +0200
+Message-Id: <20200518173526.261097789@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
 References: <20200518173513.009514388@linuxfoundation.org>
@@ -42,61 +46,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeremy Linton <jeremy.linton@arm.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit 2bef9aed6f0e22391c8d4570749b1acc9bc3981e upstream.
+commit a0e710a7def471b8eb779ff551fc27701da49599 upstream.
 
-On some architectures (e.g. arm64) requests for
-IO coherent memory may use non-cachable attributes if
-the relevant device isn't cache coherent. If these
-pages are then remapped into userspace as cacheable,
-they may not be coherent with the non-cacheable mappings.
+In commit 2bef9aed6f0e ("usb: usbfs: correct kernel->user page attribute
+mismatch") we switched from always calling remap_pfn_range() to call
+dma_mmap_coherent() to handle issues with systems with non-coherent USB host
+controller drivers.  Unfortunatly, as syzbot quickly told us, not all the world
+is host controllers with DMA support, so we need to check what host controller
+we are attempting to talk to before doing this type of allocation.
 
-In particular this happens with libusb, when it attempts
-to create zero-copy buffers for use by rtl-sdr
-(https://github.com/osmocom/rtl-sdr/). On low end arm
-devices with non-coherent USB ports, the application will
-be unexpectedly killed, while continuing to work fine on
-arm machines with coherent USB controllers.
+Thanks to Christoph for the quick idea of how to fix this.
 
-This bug has been discovered/reported a few times over
-the last few years. In the case of rtl-sdr a compile time
-option to enable/disable zero copy was implemented to
-work around it.
-
-Rather than relaying on application specific workarounds,
-dma_mmap_coherent() can be used instead of remap_pfn_range().
-The page cache/etc attributes will then be correctly set in
-userspace to match the kernel mapping.
-
-Signed-off-by: Jeremy Linton <jeremy.linton@arm.com>
+Fixes: 2bef9aed6f0e ("usb: usbfs: correct kernel->user page attribute mismatch")
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Hillf Danton <hdanton@sina.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Jeremy Linton <jeremy.linton@arm.com>
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200504201348.1183246-1-jeremy.linton@arm.com
+Reported-by: syzbot+353be47c9ce21b68b7ed@syzkaller.appspotmail.com
+Reviewed-by: Jeremy Linton <jeremy.linton@arm.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Link: https://lore.kernel.org/r/20200514112711.1858252-1-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/usb/core/devio.c |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/usb/core/devio.c |   16 +++++++++++++---
+ 1 file changed, 13 insertions(+), 3 deletions(-)
 
 --- a/drivers/usb/core/devio.c
 +++ b/drivers/usb/core/devio.c
-@@ -217,6 +217,7 @@ static int usbdev_mmap(struct file *file
- {
- 	struct usb_memory *usbm = NULL;
- 	struct usb_dev_state *ps = file->private_data;
-+	struct usb_hcd *hcd = bus_to_hcd(ps->dev->bus);
- 	size_t size = vma->vm_end - vma->vm_start;
- 	void *mem;
- 	unsigned long flags;
-@@ -250,9 +251,7 @@ static int usbdev_mmap(struct file *file
+@@ -251,9 +251,19 @@ static int usbdev_mmap(struct file *file
  	usbm->vma_use_count = 1;
  	INIT_LIST_HEAD(&usbm->memlist);
  
--	if (remap_pfn_range(vma, vma->vm_start,
--			virt_to_phys(usbm->mem) >> PAGE_SHIFT,
--			size, vma->vm_page_prot) < 0) {
-+	if (dma_mmap_coherent(hcd->self.sysdev, vma, mem, dma_handle, size)) {
- 		dec_usb_memory_use_count(usbm, &usbm->vma_use_count);
- 		return -EAGAIN;
+-	if (dma_mmap_coherent(hcd->self.sysdev, vma, mem, dma_handle, size)) {
+-		dec_usb_memory_use_count(usbm, &usbm->vma_use_count);
+-		return -EAGAIN;
++	if (hcd->localmem_pool || !hcd_uses_dma(hcd)) {
++		if (remap_pfn_range(vma, vma->vm_start,
++				    virt_to_phys(usbm->mem) >> PAGE_SHIFT,
++				    size, vma->vm_page_prot) < 0) {
++			dec_usb_memory_use_count(usbm, &usbm->vma_use_count);
++			return -EAGAIN;
++		}
++	} else {
++		if (dma_mmap_coherent(hcd->self.sysdev, vma, mem, dma_handle,
++				      size)) {
++			dec_usb_memory_use_count(usbm, &usbm->vma_use_count);
++			return -EAGAIN;
++		}
  	}
+ 
+ 	vma->vm_flags |= VM_IO;
 
 
