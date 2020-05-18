@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AD2381D8666
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:27:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BDA71D8667
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:27:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729871AbgERRpJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729000AbgERRpJ (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 18 May 2020 13:45:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43734 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:43828 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729829AbgERRpG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:45:06 -0400
+        id S1728704AbgERRpI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:45:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1C5E820715;
-        Mon, 18 May 2020 17:45:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8BCF1207C4;
+        Mon, 18 May 2020 17:45:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589823905;
-        bh=Dy9+yzzQGv8TwSLbXo42Lz/TB6+TmkvJluwUjIXx7IM=;
+        s=default; t=1589823908;
+        bh=JLwt2QAOm1wDlWCfZPVnnYPNnyM3OYsA0xWfyD8tsvc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D9XSC8lbJPoROAda3dAkJBDPeAOLKDnfVlltEw4bm/dIFwcPwCYJNKc8Ig9UUkG/Q
-         c7P37hoeo8PPb8XvfKhBbDm0hsJ7Q5j98y7gbKi6ITJ2ZkeSUYO319mnVpZ4mLXXA1
-         I0a0PQxAjq7RC3JnTVrQ2Y+ozJ4V4XjgABpNfO2c=
+        b=H7oRoD3nN1ZI5dsn0VaDinOOFQ31xvK6Cv/nW5r0wKCnX2BRTJOqUXwTlZHe0sEkY
+         Bkm0okRwbg8Wv7GVbjxHcN60oqSBP/Q0/7RzArGqCe7cNmgHeU/xea7i6wN9uOgmgX
+         Emu/2xd2u9ZS4EWFT0C6xmpi8r6UyqoUFQSV6H0U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Chen <peter.chen@nxp.com>,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wei Yongjun <weiyongjun1@huawei.com>,
         Felipe Balbi <balbi@kernel.org>
-Subject: [PATCH 4.9 83/90] usb: gadget: audio: Fix a missing error return value in audio_bind()
-Date:   Mon, 18 May 2020 19:37:01 +0200
-Message-Id: <20200518173508.076631904@linuxfoundation.org>
+Subject: [PATCH 4.9 84/90] usb: gadget: legacy: fix error return code in gncm_bind()
+Date:   Mon, 18 May 2020 19:37:02 +0200
+Message-Id: <20200518173508.251705593@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200518173450.930655662@linuxfoundation.org>
 References: <20200518173450.930655662@linuxfoundation.org>
@@ -44,34 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-commit 19b94c1f9c9a16d41a8de3ccbdb8536cf1aecdbf upstream.
+commit e27d4b30b71c66986196d8a1eb93cba9f602904a upstream.
 
-If 'usb_otg_descriptor_alloc()' fails, we must return an error code, not 0.
+If 'usb_otg_descriptor_alloc()' fails, we must return a
+negative error code -ENOMEM, not 0.
 
-Fixes: 56023ce0fd70 ("usb: gadget: audio: allocate and init otg descriptor by otg capabilities")
-Reviewed-by: Peter Chen <peter.chen@nxp.com>
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Fixes: 1156e91dd7cc ("usb: gadget: ncm: allocate and init otg descriptor by otg capabilities")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
 Signed-off-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/gadget/legacy/audio.c |    4 +++-
+ drivers/usb/gadget/legacy/ncm.c |    4 +++-
  1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/gadget/legacy/audio.c
-+++ b/drivers/usb/gadget/legacy/audio.c
-@@ -249,8 +249,10 @@ static int audio_bind(struct usb_composi
+--- a/drivers/usb/gadget/legacy/ncm.c
++++ b/drivers/usb/gadget/legacy/ncm.c
+@@ -162,8 +162,10 @@ static int gncm_bind(struct usb_composit
  		struct usb_descriptor_header *usb_desc;
  
- 		usb_desc = usb_otg_descriptor_alloc(cdev->gadget);
+ 		usb_desc = usb_otg_descriptor_alloc(gadget);
 -		if (!usb_desc)
 +		if (!usb_desc) {
 +			status = -ENOMEM;
  			goto fail;
 +		}
- 		usb_otg_descriptor_init(cdev->gadget, usb_desc);
+ 		usb_otg_descriptor_init(gadget, usb_desc);
  		otg_desc[0] = usb_desc;
  		otg_desc[1] = NULL;
 
