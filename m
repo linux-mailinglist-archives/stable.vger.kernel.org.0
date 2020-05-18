@@ -2,42 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E2EA1D81C4
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:50:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D5D31D8100
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:44:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730185AbgERRul (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:50:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52914 "EHLO mail.kernel.org"
+        id S1729655AbgERRnz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:43:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41804 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729939AbgERRuk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:50:40 -0400
+        id S1729650AbgERRny (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:43:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E592E20715;
-        Mon, 18 May 2020 17:50:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C4DAA20715;
+        Mon, 18 May 2020 17:43:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824239;
-        bh=mZDpFq78a3s4o+gGZkg4N/z1GPyCKTvpTor0KpjQaMo=;
+        s=default; t=1589823833;
+        bh=QBQmBMW4/VYwjpzzmgQE75wN1ie+nONKrZtdBGqp6KQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hMR+ZM2nI4ugMew2zUhWsOYclE3pj915utCLmYevN/vf1YZEJkseRoRWdHuiRqorW
-         iSnFW0/4BG3u0O62gL+FMPNJCpztBoWTFvUVFxQEKKlAmQzvKOMp1HPQasLzbnS43i
-         0oUpMrbzzZ+eitLk1w7LHsxbgVPF/BL6GQB0fQw4=
+        b=2WQORYnrQmEJ7h/IRjxlDGVT4cuJ/9jaeG19alGgQC8uV45V3Hgf2Ye0DOI4Uw9AX
+         COS7dUXyEVW6/wtcxKN1PwvAt5M/tEW+t7PpoJ9m5xoErOTUHhDB/XSy0mAl5w0/DI
+         Of4tyx9Plh38L8Gelb6O6AxqJOUJM2KLBTeZClIs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Willem de Bruijn <willemb@google.com>,
-        Xin Long <lucien.xin@gmail.com>,
-        Hannes Frederic Sowa <hannes@stressinduktion.org>,
-        =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <maze@google.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 13/80] Revert "ipv6: add mtu lock check in __ip6_rt_update_pmtu"
+        stable@vger.kernel.org, Andreas Schwab <schwab@suse.de>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Vasily Averin <vvs@virtuozzo.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Waiman Long <longman@redhat.com>, NeilBrown <neilb@suse.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Davidlohr Bueso <dave@stgolabs.net>,
+        Manfred Spraul <manfred@colorfullife.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 53/90] ipc/util.c: sysvipc_find_ipc() incorrectly updates position index
 Date:   Mon, 18 May 2020 19:36:31 +0200
-Message-Id: <20200518173453.039802676@linuxfoundation.org>
+Message-Id: <20200518173501.920809708@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173450.097837707@linuxfoundation.org>
-References: <20200518173450.097837707@linuxfoundation.org>
+In-Reply-To: <20200518173450.930655662@linuxfoundation.org>
+References: <20200518173450.930655662@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,63 +53,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Maciej Żenczykowski" <maze@google.com>
+From: Vasily Averin <vvs@virtuozzo.com>
 
-[ Upstream commit 09454fd0a4ce23cb3d8af65066c91a1bf27120dd ]
+[ Upstream commit 5e698222c70257d13ae0816720dde57c56f81e15 ]
 
-This reverts commit 19bda36c4299ce3d7e5bce10bebe01764a655a6d:
+Commit 89163f93c6f9 ("ipc/util.c: sysvipc_find_ipc() should increase
+position index") is causing this bug (seen on 5.6.8):
 
-| ipv6: add mtu lock check in __ip6_rt_update_pmtu
-|
-| Prior to this patch, ipv6 didn't do mtu lock check in ip6_update_pmtu.
-| It leaded to that mtu lock doesn't really work when receiving the pkt
-| of ICMPV6_PKT_TOOBIG.
-|
-| This patch is to add mtu lock check in __ip6_rt_update_pmtu just as ipv4
-| did in __ip_rt_update_pmtu.
+   # ipcs -q
 
-The above reasoning is incorrect.  IPv6 *requires* icmp based pmtu to work.
-There's already a comment to this effect elsewhere in the kernel:
+   ------ Message Queues --------
+   key        msqid      owner      perms      used-bytes   messages
 
-  $ git grep -p -B1 -A3 'RTAX_MTU lock'
-  net/ipv6/route.c=4813=
+   # ipcmk -Q
+   Message queue id: 0
+   # ipcs -q
 
-  static int rt6_mtu_change_route(struct fib6_info *f6i, void *p_arg)
-  ...
-    /* In IPv6 pmtu discovery is not optional,
-       so that RTAX_MTU lock cannot disable it.
-       We still use this lock to block changes
-       caused by addrconf/ndisc.
-    */
+   ------ Message Queues --------
+   key        msqid      owner      perms      used-bytes   messages
+   0x82db8127 0          root       644        0            0
 
-This reverts to the pre-4.9 behaviour.
+   # ipcmk -Q
+   Message queue id: 1
+   # ipcs -q
 
-Cc: Eric Dumazet <edumazet@google.com>
-Cc: Willem de Bruijn <willemb@google.com>
-Cc: Xin Long <lucien.xin@gmail.com>
-Cc: Hannes Frederic Sowa <hannes@stressinduktion.org>
-Signed-off-by: Maciej Żenczykowski <maze@google.com>
-Fixes: 19bda36c4299 ("ipv6: add mtu lock check in __ip6_rt_update_pmtu")
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+   ------ Message Queues --------
+   key        msqid      owner      perms      used-bytes   messages
+   0x82db8127 0          root       644        0            0
+   0x76d1fb2a 1          root       644        0            0
+
+   # ipcrm -q 0
+   # ipcs -q
+
+   ------ Message Queues --------
+   key        msqid      owner      perms      used-bytes   messages
+   0x76d1fb2a 1          root       644        0            0
+   0x76d1fb2a 1          root       644        0            0
+
+   # ipcmk -Q
+   Message queue id: 2
+   # ipcrm -q 2
+   # ipcs -q
+
+   ------ Message Queues --------
+   key        msqid      owner      perms      used-bytes   messages
+   0x76d1fb2a 1          root       644        0            0
+   0x76d1fb2a 1          root       644        0            0
+
+   # ipcmk -Q
+   Message queue id: 3
+   # ipcrm -q 1
+   # ipcs -q
+
+   ------ Message Queues --------
+   key        msqid      owner      perms      used-bytes   messages
+   0x7c982867 3          root       644        0            0
+   0x7c982867 3          root       644        0            0
+   0x7c982867 3          root       644        0            0
+   0x7c982867 3          root       644        0            0
+
+Whenever an IPC item with a low id is deleted, the items with higher ids
+are duplicated, as if filling a hole.
+
+new_pos should jump through hole of unused ids, pos can be updated
+inside "for" cycle.
+
+Fixes: 89163f93c6f9 ("ipc/util.c: sysvipc_find_ipc() should increase position index")
+Reported-by: Andreas Schwab <schwab@suse.de>
+Reported-by: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Acked-by: Waiman Long <longman@redhat.com>
+Cc: NeilBrown <neilb@suse.com>
+Cc: Steven Rostedt <rostedt@goodmis.org>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Peter Oberparleiter <oberpar@linux.ibm.com>
+Cc: Davidlohr Bueso <dave@stgolabs.net>
+Cc: Manfred Spraul <manfred@colorfullife.com>
+Cc: <stable@vger.kernel.org>
+Link: http://lkml.kernel.org/r/4921fe9b-9385-a2b4-1dc4-1099be6d2e39@virtuozzo.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/route.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ ipc/util.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
---- a/net/ipv6/route.c
-+++ b/net/ipv6/route.c
-@@ -2360,8 +2360,10 @@ static void __ip6_rt_update_pmtu(struct
- 	const struct in6_addr *daddr, *saddr;
- 	struct rt6_info *rt6 = (struct rt6_info *)dst;
+diff --git a/ipc/util.c b/ipc/util.c
+index e65ecf3ccbdab..76d4afcde7bbb 100644
+--- a/ipc/util.c
++++ b/ipc/util.c
+@@ -751,21 +751,21 @@ static struct kern_ipc_perm *sysvipc_find_ipc(struct ipc_ids *ids, loff_t pos,
+ 			total++;
+ 	}
  
--	if (dst_metric_locked(dst, RTAX_MTU))
--		return;
-+	/* Note: do *NOT* check dst_metric_locked(dst, RTAX_MTU)
-+	 * IPv6 pmtu discovery isn't optional, so 'mtu lock' cannot disable it.
-+	 * [see also comment in rt6_mtu_change_route()]
-+	 */
+-	*new_pos = pos + 1;
++	ipc = NULL;
+ 	if (total >= ids->in_use)
+-		return NULL;
++		goto out;
  
- 	if (iph) {
- 		daddr = &iph->daddr;
+ 	for (; pos < IPCMNI; pos++) {
+ 		ipc = idr_find(&ids->ipcs_idr, pos);
+ 		if (ipc != NULL) {
+ 			rcu_read_lock();
+ 			ipc_lock_object(ipc);
+-			return ipc;
++			break;
+ 		}
+ 	}
+-
+-	/* Out of range - return NULL to terminate iteration */
+-	return NULL;
++out:
++	*new_pos = pos + 1;
++	return ipc;
+ }
+ 
+ static void *sysvipc_proc_next(struct seq_file *s, void *it, loff_t *pos)
+-- 
+2.20.1
+
 
 
