@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 588F01D8426
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:11:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 629D41D818A
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:49:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728667AbgERSJb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:09:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54750 "EHLO mail.kernel.org"
+        id S1729948AbgERRsz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:48:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50094 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731506AbgERSGd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 14:06:33 -0400
+        id S1730449AbgERRsz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:48:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2293320715;
-        Mon, 18 May 2020 18:06:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4FFBF20715;
+        Mon, 18 May 2020 17:48:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589825192;
-        bh=8QXeBMlGAUFl3D0rEqDXnBSX/SsHzNShv8lCkysrbfc=;
+        s=default; t=1589824134;
+        bh=2xa3pvPKEgoQ0Tksu296dChthZNJ30YWexkmI4oQoiY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vo/XXnQDvVoj8CjDPxEMJl1i1um86GKnpd0cNMTBwxaqhoiXHgN+hv/M6Rm6YxLPp
-         ch6HHS2r3/Aaptyd9cDLQEhjF1raouQsipVG/LjNcCx7J1JK1/l0Vf9GxtdjXku9xS
-         KrOWx2oRRHX47kd9eztc3+v0LpFqjCZ9UdTmkFZA=
+        b=k3Z8P87DsyqwY68Apof+UlaDhbGjl1tWiN3bF2hBWOiTGH7oX/CMn0RLXIxnkm/Ps
+         3Qe/bCk/kAaFibuJmZRGoZJTJ93Px9SO17wlH55gY2DLcbbH8GnQ9wl9EbKYCxzuOc
+         3GVcry87RMvPvMVdVLc9sBhSeJW03k1n1WeEZOzo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.6 128/194] gcc-10: disable array-bounds warning for now
+        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.14 086/114] net: dsa: loop: Add module soft dependency
 Date:   Mon, 18 May 2020 19:36:58 +0200
-Message-Id: <20200518173542.156930968@linuxfoundation.org>
+Message-Id: <20200518173518.051408353@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
-References: <20200518173531.455604187@linuxfoundation.org>
+In-Reply-To: <20200518173503.033975649@linuxfoundation.org>
+References: <20200518173503.033975649@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,55 +43,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-commit 44720996e2d79e47d508b0abe99b931a726a3197 upstream.
+[ Upstream commit 3047211ca11bf77b3ecbce045c0aa544d934b945 ]
 
-This is another fine warning, related to the 'zero-length-bounds' one,
-but hitting the same historical code in the kernel.
+There is a soft dependency against dsa_loop_bdinfo.ko which sets up the
+MDIO device registration, since there are no symbols referenced by
+dsa_loop.ko, there is no automatic loading of dsa_loop_bdinfo.ko which
+is needed.
 
-Because C didn't historically support flexible array members, we have
-code that instead uses a one-sized array, the same way we have cases of
-zero-sized arrays.
-
-The one-sized arrays come from either not wanting to use the gcc
-zero-sized array extension, or from a slight convenience-feature, where
-particularly for strings, the size of the structure now includes the
-allocation for the final NUL character.
-
-So with a "char name[1];" at the end of a structure, you can do things
-like
-
-       v = my_malloc(sizeof(struct vendor) + strlen(name));
-
-and avoid the "+1" for the terminator.
-
-Yes, the modern way to do that is with a flexible array, and using
-'offsetof()' instead of 'sizeof()', and adding the "+1" by hand.  That
-also technically gets the size "more correct" in that it avoids any
-alignment (and thus padding) issues, but this is another long-term
-cleanup thing that will not happen for 5.7.
-
-So disable the warning for now, even though it's potentially quite
-useful.  Having a slew of warnings that then hide more urgent new issues
-is not an improvement.
-
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 98cd1552ea27 ("net: dsa: Mock-up driver")
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- Makefile |    1 +
+ drivers/net/dsa/dsa_loop.c |    1 +
  1 file changed, 1 insertion(+)
 
---- a/Makefile
-+++ b/Makefile
-@@ -859,6 +859,7 @@ KBUILD_CFLAGS += $(call cc-disable-warni
+--- a/drivers/net/dsa/dsa_loop.c
++++ b/drivers/net/dsa/dsa_loop.c
+@@ -357,6 +357,7 @@ static void __exit dsa_loop_exit(void)
+ }
+ module_exit(dsa_loop_exit);
  
- # We'll want to enable this eventually, but it's not going away for 5.7 at least
- KBUILD_CFLAGS += $(call cc-disable-warning, zero-length-bounds)
-+KBUILD_CFLAGS += $(call cc-disable-warning, array-bounds)
- 
- # Enabled with W=2, disabled by default as noisy
- KBUILD_CFLAGS += $(call cc-disable-warning, maybe-uninitialized)
++MODULE_SOFTDEP("pre: dsa_loop_bdinfo");
+ MODULE_LICENSE("GPL");
+ MODULE_AUTHOR("Florian Fainelli");
+ MODULE_DESCRIPTION("DSA loopback driver");
 
 
