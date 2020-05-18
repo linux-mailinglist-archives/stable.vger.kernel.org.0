@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DC29C1D81BD
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:50:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DDA761D853C
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:17:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730671AbgERRuV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:50:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52424 "EHLO mail.kernel.org"
+        id S1731755AbgERR5V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:57:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35768 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730668AbgERRuU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:50:20 -0400
+        id S1731745AbgERR5S (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:57:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5A47320674;
-        Mon, 18 May 2020 17:50:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D46F3207C4;
+        Mon, 18 May 2020 17:57:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824219;
-        bh=bBVMQUF4qeXU5bRiE5oJQwrq4XxQsC6kpd+/+5KYOCw=;
+        s=default; t=1589824637;
+        bh=u+tb1MhbHdj6gwKS2wnmezEU8jBkWZxAUFSiHWyICI0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1MLF3oNas6zsbnUfLJCgORRvneE3bYELL8//0flNFKtFEcgmYk+uzf9HZuaM6ZUfG
-         ko3z+3DZWeQwxyHBnyg+tFv2ARkcCH0tc0v6xxWsBp0TLUsFZn5NZPM8ZF7YnpPzpG
-         zW+7zcqWeVS11jkrhy8OI4IEoXa26mI4iXsAHVL4=
+        b=ajknDsTt1qaJ4Nc/zOvc6YFfsZ+z/v0KSLb4k2+sndjTDfW3y4gHgM0HVW8zbiMRN
+         LtNCXqdW4vcWHYjNfq6dI5ufJK855s6NqRUWi2dV9nY354gBBLfl0osjiElj9Pi5Nx
+         T4VONPww9OkWVZVOWMX6ytnz7SrEBxu/BpUcZ8Is=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiner Kallweit <hkallweit1@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 083/114] net: phy: fix aneg restart in phy_ethtool_set_eee
+        stable@vger.kernel.org, Olga Kornievskaia <kolga@netapp.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 092/147] NFSv3: fix rpc receive buffer size for MOUNT call
 Date:   Mon, 18 May 2020 19:36:55 +0200
-Message-Id: <20200518173517.367144093@linuxfoundation.org>
+Message-Id: <20200518173525.023332403@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173503.033975649@linuxfoundation.org>
-References: <20200518173503.033975649@linuxfoundation.org>
+In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
+References: <20200518173513.009514388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,39 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiner Kallweit <hkallweit1@gmail.com>
+From: Olga Kornievskaia <olga.kornievskaia@gmail.com>
 
-[ Upstream commit 9de5d235b60a7cdfcdd5461e70c5663e713fde87 ]
+[ Upstream commit 8eed292bc8cbf737e46fb1c119d4c8f6dcb00650 ]
 
-phy_restart_aneg() enables aneg in the PHY. That's not what we want
-if phydev->autoneg is disabled. In this case still update EEE
-advertisement register, but don't enable aneg and don't trigger an
-aneg restart.
+Prior to commit e3d3ab64dd66 ("SUNRPC: Use au_rslack when
+computing reply buffer size"), there was enough slack in the reply
+buffer to commodate filehandles of size 60bytes. However, the real
+problem was that the reply buffer size for the MOUNT operation was
+not correctly calculated. Received buffer size used the filehandle
+size for NFSv2 (32bytes) which is much smaller than the allowed
+filehandle size for the v3 mounts.
 
-Fixes: f75abeb8338e ("net: phy: restart phy autonegotiation after EEE advertisment change")
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fix the reply buffer size (decode arguments size) for the MNT command.
+
+Fixes: 2c94b8eca1a2 ("SUNRPC: Use au_rslack when computing reply buffer size")
+Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/phy.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ fs/nfs/mount_clnt.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/net/phy/phy.c
-+++ b/drivers/net/phy/phy.c
-@@ -1257,9 +1257,11 @@ int phy_ethtool_set_eee(struct phy_devic
- 		/* Restart autonegotiation so the new modes get sent to the
- 		 * link partner.
- 		 */
--		ret = phy_restart_aneg(phydev);
--		if (ret < 0)
--			return ret;
-+		if (phydev->autoneg == AUTONEG_ENABLE) {
-+			ret = phy_restart_aneg(phydev);
-+			if (ret < 0)
-+				return ret;
-+		}
- 	}
+diff --git a/fs/nfs/mount_clnt.c b/fs/nfs/mount_clnt.c
+index cb7c10e9721eb..a2593b787cc73 100644
+--- a/fs/nfs/mount_clnt.c
++++ b/fs/nfs/mount_clnt.c
+@@ -32,6 +32,7 @@
+ #define MNT_fhs_status_sz	(1)
+ #define MNT_fhandle_sz		XDR_QUADLEN(NFS2_FHSIZE)
+ #define MNT_fhandle3_sz		(1 + XDR_QUADLEN(NFS3_FHSIZE))
++#define MNT_fhandlev3_sz	XDR_QUADLEN(NFS3_FHSIZE)
+ #define MNT_authflav3_sz	(1 + NFS_MAX_SECFLAVORS)
  
- 	return 0;
+ /*
+@@ -39,7 +40,7 @@
+  */
+ #define MNT_enc_dirpath_sz	encode_dirpath_sz
+ #define MNT_dec_mountres_sz	(MNT_status_sz + MNT_fhandle_sz)
+-#define MNT_dec_mountres3_sz	(MNT_status_sz + MNT_fhandle_sz + \
++#define MNT_dec_mountres3_sz	(MNT_status_sz + MNT_fhandlev3_sz + \
+ 				 MNT_authflav3_sz)
+ 
+ /*
+-- 
+2.20.1
+
 
 
