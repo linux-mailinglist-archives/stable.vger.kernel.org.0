@@ -2,103 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 363C91D6E27
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 01:56:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AED41D7105
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 08:31:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726763AbgEQX4W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 17 May 2020 19:56:22 -0400
-Received: from hqnvemgate25.nvidia.com ([216.228.121.64]:15209 "EHLO
-        hqnvemgate25.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726668AbgEQX4W (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 17 May 2020 19:56:22 -0400
-Received: from hqpgpgate102.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate25.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
-        id <B5ec1ced80000>; Sun, 17 May 2020 16:55:04 -0700
-Received: from hqmail.nvidia.com ([172.20.161.6])
-  by hqpgpgate102.nvidia.com (PGP Universal service);
-  Sun, 17 May 2020 16:56:22 -0700
-X-PGP-Universal: processed;
-        by hqpgpgate102.nvidia.com on Sun, 17 May 2020 16:56:22 -0700
-Received: from HQMAIL107.nvidia.com (172.20.187.13) by HQMAIL105.nvidia.com
- (172.20.187.12) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Sun, 17 May
- 2020 23:56:21 +0000
-Received: from hqnvemgw03.nvidia.com (10.124.88.68) by HQMAIL107.nvidia.com
- (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3 via Frontend
- Transport; Sun, 17 May 2020 23:56:21 +0000
-Received: from sandstorm.nvidia.com (Not Verified[10.2.48.175]) by hqnvemgw03.nvidia.com with Trustwave SEG (v7,5,8,10121)
-        id <B5ec1cf250001>; Sun, 17 May 2020 16:56:21 -0700
-From:   John Hubbard <jhubbard@nvidia.com>
-To:     LKML <linux-kernel@vger.kernel.org>
-CC:     John Hubbard <jhubbard@nvidia.com>,
-        Matt Porter <mporter@kernel.crashing.org>,
-        Alexandre Bounine <alex.bou9@gmail.com>,
-        Sumit Semwal <sumit.semwal@linaro.org>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        <linux-media@vger.kernel.org>, <stable@vger.kernel.org>
-Subject: [PATCH 1/2] rapidio: fix an error in get_user_pages_fast() error handling
-Date:   Sun, 17 May 2020 16:56:19 -0700
-Message-ID: <20200517235620.205225-2-jhubbard@nvidia.com>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200517235620.205225-1-jhubbard@nvidia.com>
-References: <20200517235620.205225-1-jhubbard@nvidia.com>
+        id S1726392AbgERGaQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 02:30:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39130 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726499AbgERGaQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 May 2020 02:30:16 -0400
+Received: from mail-oi1-x242.google.com (mail-oi1-x242.google.com [IPv6:2607:f8b0:4864:20::242])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70BE1C061A0C
+        for <stable@vger.kernel.org>; Sun, 17 May 2020 23:30:16 -0700 (PDT)
+Received: by mail-oi1-x242.google.com with SMTP id r25so8108820oij.4
+        for <stable@vger.kernel.org>; Sun, 17 May 2020 23:30:16 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:sender:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=sHKDXXFmKLefk7ouUJEbUpV3R1SbP7mtwMpt76UA+DA=;
+        b=oOcklF13g5FKv0XdSkU+nIchXKhrMAD2YtKUf53cr/ekI78PeQEwqlwcnGa8/5mFb+
+         i7H/Xf3FRnAjif1CwTTV7+pwmanqQtkY3MOk7AsO+Vfng0g6PI9XCZMXaEfyvsDextzF
+         QM0SJy2oXcoQEKKXnqqz+GdVP2hidVcv3TZVQN2+nqR+SK+b3BCgrrpo7EG6kV1Aw8Ta
+         Y3Qa7O0PztOl4Zprc8Xnq6HcVYSZZQIfT7BiATgHjY/k7pHoD8gGD8jMvkjigYfxsDXU
+         87nDCDaLsNeWgbQRDwa6LB96sDsP2g3o/KjckIca43DoMVZ+DHjFBdmKahGo9QvaAg/C
+         orag==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
+         :to:content-transfer-encoding;
+        bh=sHKDXXFmKLefk7ouUJEbUpV3R1SbP7mtwMpt76UA+DA=;
+        b=ogpUanh5ZQ/Cxr+9Vr7+f/yl66NViWJ4kTh7TxthZpdKOfOpHGvet5B3EnXVzH1Db7
+         9861HVNsHzyBaEwImyEEyUJQHGAvG1L0qkW7sObzZ0V1ON1L3loKZOUW+OzRP/MTPQHi
+         PCLNkp0syPyJwbk4nVtIwVkSnEAY9dH8AyyXy/66UzCla8GgtvAon1thA7z7N+ObSqe4
+         CWVZXo6QQ3kzUBlPoq2ENK7lFwII2nF4J79ig5Dc9C91stoon45O8gcU57y1oBy1EY8B
+         mRfpNSUlSNXUXTFbQzBeJsIZD742HfizvOXcENza5mN8wkbQtCUfOchNnOLkxRy1TkNV
+         Bwuw==
+X-Gm-Message-State: AOAM5305+yvw8mDdzEBKYLltezLlggj78zJX8eZyFJmIOcZG4AxlAJXf
+        kJMkwHk5gLdQbdf1Zs5GOytRfHWJxztjZgnrRnI=
+X-Google-Smtp-Source: ABdhPJwBmlZU258md8ZHINcCKtnMjDr7Nk9BiLOtYdv6WhQuQPRi5ZI4w3QKZ/jiNlFTIEKmCAjXb/ex8rxqEkJwVZo=
+X-Received: by 2002:aca:357:: with SMTP id 84mr9914280oid.145.1589783415630;
+ Sun, 17 May 2020 23:30:15 -0700 (PDT)
 MIME-Version: 1.0
-X-NVConfidentiality: public
+Received: by 2002:ac9:7bc6:0:0:0:0:0 with HTTP; Sun, 17 May 2020 23:30:15
+ -0700 (PDT)
+From:   Hannah Wilson <hannahwilson192@gmail.com>
+Date:   Mon, 18 May 2020 06:30:15 +0000
+X-Google-Sender-Auth: lMxaw5aH_1hmD7CxVrOjYNXdL7M
+Message-ID: <CADHYjy5yWhBS-xq0EhEddJdLsFHrOoqU0SSmvFKGxxouMBhNAA@mail.gmail.com>
+Subject: please i really need your urgent assistance.
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1589759704; bh=/caTfybzk6G8zCAwE/wUhpELjA48X6aFYrwn8ihzqac=;
-        h=X-PGP-Universal:From:To:CC:Subject:Date:Message-ID:X-Mailer:
-         In-Reply-To:References:MIME-Version:X-NVConfidentiality:
-         Content-Transfer-Encoding:Content-Type;
-        b=dmu8XjIpWdlFyVyCLNuEEDWxs3IKVzKyvRAL4FwJTpqxQE6JVIUMLgNPyzRJjKFhp
-         EWzhzIg07dcjnuLMAV18Y48JC2BF6mKHnNrXuM9BcGCHDmTkprjgazysiwJnPr6paU
-         dIsibGJQIs7Jst04M2DTx6ot+HxZfrM7Nt8zovjQk+Ua17VwpMJjWoXZl43m0lrIpK
-         jXb/dElldN9iDmH8iuuGkLT5kC9ndZuZ6hYBi3gDVhcDj9J3pz16B4z+83gyiRnZBT
-         kIiEstjnTRbetP6lnvytfWmEkuePv3Jqixpb4XI8Vuk/0usrpbdnPY8qB0BLNi8khs
-         ffU4GgzyT4x4g==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-In the case of get_user_pages_fast() returning fewer pages than
-requested, rio_dma_transfer() does not quite do the right thing.
-It attempts to release all the pages that were requested, rather
-than just the pages that were pinned.
+Hello My Dear.
 
-Fix the error handling so that only the pages that were successfully
-pinned are released.
+Please do not feel disturbed for contacting =C2=A0you in this regards, It
+was based on the critical health condition I find mine self. =C2=A0My names
+ are Mrs. Hannah Wilson David, a widow and I=E2=80=99m suffering from brain
+tumor disease and this illness has gotten to a very bad stage, I
+ married my husband for Ten years without any family members and no
+child. =C2=A0My husband died after a brief illness that lasted for few
+days.
 
-Fixes: e8de370188d0 ("rapidio: add mport char device driver")
-Cc: Matt Porter <mporter@kernel.crashing.org>
-Cc: Alexandre Bounine <alex.bou9@gmail.com>
-Cc: Sumit Semwal <sumit.semwal@linaro.org>
-Cc: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: linux-media@vger.kernel.org
-Cc: stable@vger.kernel.org
-Signed-off-by: John Hubbard <jhubbard@nvidia.com>
----
- drivers/rapidio/devices/rio_mport_cdev.c | 5 +++++
- 1 file changed, 5 insertions(+)
+Since the death of my husband, I decided not to remarry again, When my
+late husband was alive he deposited the sum of =C2=A0($  11,450,000.00,
+Nine Million Four Hundred and Fifty Thousand Dollars) with the Bank.
+Presently this money is still in bank. And My  Doctor told me that I
+don't have much time to live because my illness has gotten to a very
+bad stage, Having known my condition I  decided to entrust over the
+deposited fund under your custody to take care of the less-privileged
+ones therein your country or position,
+which i believe that you will utilize this money the way I am going to
+instruct herein.
 
-diff --git a/drivers/rapidio/devices/rio_mport_cdev.c b/drivers/rapidio/dev=
-ices/rio_mport_cdev.c
-index 8155f59ece38..10af330153b5 100644
---- a/drivers/rapidio/devices/rio_mport_cdev.c
-+++ b/drivers/rapidio/devices/rio_mport_cdev.c
-@@ -877,6 +877,11 @@ rio_dma_transfer(struct file *filp, u32 transfer_mode,
- 				rmcd_error("pinned %ld out of %ld pages",
- 					   pinned, nr_pages);
- 			ret =3D -EFAULT;
-+			/*
-+			 * Set nr_pages up to mean "how many pages to unpin, in
-+			 * the error handler:
-+			 */
-+			nr_pages =3D pinned;
- 			goto err_pg;
- 		}
-=20
---=20
-2.26.2
+However all I need and required from you is your sincerity and ability
+to carry out the transaction successfully and fulfill my final wish in
+implementing the charitable project as it requires absolute trust and
+devotion without any failure and I will be glad to see that the bank
+finally release and transfer the fund into your bank account in your
+country even before I die here in the hospital, because my present
+health condition is very critical at the moment everything needs to be
+process rapidly as soon as possible.
 
+It will be my pleasure to compensate you as my Investment
+Manager/Partner with 35 % percent of the total fund for your effort in
+ handling the transaction, 5 % percent for any expenses or processing
+charges fee that will involve during this process while 60% of the
+fund will be Invested into the charity project there in your country
+for the mutual benefit of the orphans and the less privileges ones.
+
+Meanwhile I am waiting for your prompt respond, if only you are
+interested for further details of the transaction and execution of
+this  humanitarian project for the glory and honor of God the merciful
+compassionate.
+
+May bless you and your family.
+Regards,
+Mrs. Hannah Wilson David.
+written from Hospital.
