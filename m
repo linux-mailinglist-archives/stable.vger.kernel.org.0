@@ -2,168 +2,144 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 512071D8B1A
-	for <lists+stable@lfdr.de>; Tue, 19 May 2020 00:41:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B90771D8B53
+	for <lists+stable@lfdr.de>; Tue, 19 May 2020 01:01:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727831AbgERWlT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 18:41:19 -0400
-Received: from userp2120.oracle.com ([156.151.31.85]:58954 "EHLO
-        userp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726359AbgERWlT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 May 2020 18:41:19 -0400
-Received: from pps.filterd (userp2120.oracle.com [127.0.0.1])
-        by userp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 04IMbd63186943;
-        Mon, 18 May 2020 22:41:03 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=corp-2020-01-29;
- bh=wfqzLoaxxp4lVJqPw3YFi9A16uL/yoQRMCgjuuIIKA4=;
- b=K5u3wqcOEeuqDuqzTRLVdUswKm0ySp6xLFvhCA85l1Q67h2UDSIJW9Y85rzinCLUfuR7
- SEvQWOmom4eN7cv3JP8sRKrtuKRqpGVqkINeKX0NxddmI9MDeWpGktI/mUOGlE4c6Dvf
- ZgmrDENqjAEfQNclYOm/YJyQbkfcSZVZaklqkJb2WL5TMiPVvWWapdrAWURDj2CM6OPI
- raKLqCq9e1XZ+UT/2aEgClwlQdzvtCDYHf4q79soEyMo14PVoyHzslTSCCU+3EN1JeM7
- w9Ctenxi9MnarrJvByF8Kh6eounEBXJycvcp/UA6SMVl5mxvINgsj32HFcfIj1OW+gR6 7A== 
-Received: from userp3030.oracle.com (userp3030.oracle.com [156.151.31.80])
-        by userp2120.oracle.com with ESMTP id 3128tn9se7-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
-        Mon, 18 May 2020 22:41:03 +0000
-Received: from pps.filterd (userp3030.oracle.com [127.0.0.1])
-        by userp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 04IMYQUk152989;
-        Mon, 18 May 2020 22:41:02 GMT
-Received: from userv0122.oracle.com (userv0122.oracle.com [156.151.31.75])
-        by userp3030.oracle.com with ESMTP id 312t3wm6k2-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 18 May 2020 22:41:02 +0000
-Received: from abhmp0003.oracle.com (abhmp0003.oracle.com [141.146.116.9])
-        by userv0122.oracle.com (8.14.4/8.14.4) with ESMTP id 04IMf1Rp019137;
-        Mon, 18 May 2020 22:41:01 GMT
-Received: from [192.168.1.35] (/70.114.128.235)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Mon, 18 May 2020 15:41:01 -0700
-Subject: Re: [PATCH] scsi: qla2xxx: Keep initiator ports after RSCN
-To:     Roman Bolshakov <r.bolshakov@yadro.com>, linux-scsi@vger.kernel.org
-Cc:     GR-QLogic-Storage-Upstream@marvell.com,
-        target-devel@vger.kernel.org, linux@yadro.com,
-        Quinn Tran <qutran@marvell.com>, Arun Easi <aeasi@marvell.com>,
-        Nilesh Javali <njavali@marvell.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        Daniel Wagner <dwagner@suse.de>,
-        Martin Wilck <mwilck@suse.com>, stable@vger.kernel.org
-References: <20200518183141.66621-1-r.bolshakov@yadro.com>
-From:   Himanshu Madhani <himanshu.madhani@oracle.com>
-Organization: Oracle Corporation
-Message-ID: <59107930-dfae-35be-9fb7-cef729e55412@oracle.com>
-Date:   Mon, 18 May 2020 17:40:58 -0500
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:68.0)
- Gecko/20100101 Thunderbird/68.8.0
+        id S1726539AbgERXBf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 19:01:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53368 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726500AbgERXBf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 May 2020 19:01:35 -0400
+Received: from mail-pg1-x541.google.com (mail-pg1-x541.google.com [IPv6:2607:f8b0:4864:20::541])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 303B8C061A0C;
+        Mon, 18 May 2020 16:01:35 -0700 (PDT)
+Received: by mail-pg1-x541.google.com with SMTP id c75so4511142pga.3;
+        Mon, 18 May 2020 16:01:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=n/2OdOyoZ864HE1NL5cRmRErjnYTeC8BJcUUPBVh8xM=;
+        b=A+9BSmUUtr7xOkMfzrYupN58DMh1l96MQ613yRIEfsWKPqD1QJfdrtHrKaRavl4Zrr
+         +Q0xZEhP4en3JvaFqxqsP0LawRxX5xfdQiwkfUebitrU8BwZk2zluMK2JvXbET7SNkeb
+         OL94AHQq1J12qDvV1UZD4fPNog6B/SyHdmHdJO/wOcsmxWCQEzBChgrWNOucDZynuGq2
+         FkwxBesagZnWfwsQ5eb+S2EJFE5ASRMNah32uFQ1Ffs1xPDedB5/n0x4O/Hl8m9ttRzM
+         sw5YtZKStt+nGP4UWBD6gNxs0AiI/qJvNv9IFo10aVWNSyEnHCoTxmjbjpMLTwWuhMlm
+         1o/A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to:user-agent;
+        bh=n/2OdOyoZ864HE1NL5cRmRErjnYTeC8BJcUUPBVh8xM=;
+        b=NRk2u07dgaPIRXiKE5wyBCoNuI9kYpkyMJz6I+TCxvK8qlE+bueMX8hmVue2TSwoXJ
+         9O0DhxxyJO06/0qUAIIOHG6PxeJztz+8PByCdE+C0oFaDGSCBouEPujXdGfkSfauj4oU
+         CH9NjcKt6FUWU18vTcibuZkVk/o2mMfszmzcyPJggzgn5XExYr7/ShQsp0jWEXLm+yGG
+         popiyWacgB3PkZJ33HrU1/3e79TBktsgyFwOlpSLpwzXsAv96coTjONkJTn+2evBvmQb
+         Z4uGWI3GP2xxsZQmwZhGsu302b4gJtL9lJC5G86maFQTtZpoMdwE8Jf06j6uOFqGV3Cl
+         sRpQ==
+X-Gm-Message-State: AOAM530X54S7QQDVeuarY+CsgWi7td6IxtPM8g0eIZlQMr66xa4pzKAY
+        JXherPbNd/W6PiIcp4sH/58=
+X-Google-Smtp-Source: ABdhPJx7GzJtBjw0rqbTS8tx+JTXheQvDQG/wzKR5PbOQzB2X/jRHeKRAJEZwrDiaHNKIu2UGq/xuQ==
+X-Received: by 2002:a05:6a00:1494:: with SMTP id v20mr13966289pfu.150.1589842894625;
+        Mon, 18 May 2020 16:01:34 -0700 (PDT)
+Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id w199sm3811206pfc.68.2020.05.18.16.01.33
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Mon, 18 May 2020 16:01:33 -0700 (PDT)
+Date:   Mon, 18 May 2020 16:01:32 -0700
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 5.6 000/194] 5.6.14-rc1 review
+Message-ID: <20200518230132.GA176285@roeck-us.net>
+References: <20200518173531.455604187@linuxfoundation.org>
 MIME-Version: 1.0
-In-Reply-To: <20200518183141.66621-1-r.bolshakov@yadro.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9625 signatures=668686
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 malwarescore=0 adultscore=0
- phishscore=0 bulkscore=0 suspectscore=0 mlxscore=0 spamscore=0
- mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2004280000 definitions=main-2005180191
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9625 signatures=668686
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 impostorscore=0 bulkscore=0 spamscore=0
- clxscore=1011 cotscore=-2147483648 suspectscore=0 lowpriorityscore=0
- adultscore=0 phishscore=0 mlxlogscore=999 mlxscore=0 priorityscore=1501
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2004280000 definitions=main-2005180191
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, May 18, 2020 at 07:34:50PM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.6.14 release.
+> There are 194 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 20 May 2020 17:32:42 +0000.
+> Anything received after that time might be too late.
+> 
 
+Quick feedback:
 
-On 5/18/20 1:31 PM, Roman Bolshakov wrote:
-> The driver performs SCR (state change registration) in all modes
-> including pure target mode.
-> 
-> For each RSCN, scan_needed flag is set in qla2x00_handle_rscn() for the
-> port mentioned in the RSCN and fabric rescan is scheduled. During the
-> rescan, GNN_FT handler, qla24xx_async_gnnft_done() deletes session of
-> the port that caused the RSCN.
-> 
-> In target mode, the session deletion has an impact on ATIO handler,
-> qlt_24xx_atio_pkt(). Target responds with SAM STATUS BUSY to I/O
-> incoming from the deleted session. qlt_handle_cmd_for_atio() and
-> qlt_handle_task_mgmt() return -EFAULT if they are not able to find
-> session of the command/TMF, and that results in invocation of
-> qlt_send_busy():
-> 
->    qlt_24xx_atio_pkt_all_vps: qla_target(0): type 6 ox_id 0014
->    qla_target(0): Unable to send command to target, sending BUSY status
-> 
-> Such response causes command timeout on the initiator. Error handler
-> thread on the initiator will be spawned to abort the commands:
-> 
->    scsi 23:0:0:0: tag#0 abort scheduled
->    scsi 23:0:0:0: tag#0 aborting command
->    qla2xxx [0000:af:00.0]-188c:23: Entered qla24xx_abort_command.
->    qla2xxx [0000:af:00.0]-801c:23: Abort command issued nexus=23:0:0 -- 0 2003.
-> 
-> Command abort is rejected by target and fails (2003), error handler then
-> tries to perform DEVICE RESET and TARGET RESET but they're also doomed
-> to fail because TMFs are ignored for the deleted sessions.
-> 
-> Then initiator makes BUS RESET that resets the link via
-> qla2x00_full_login_lip(). BUS RESET succeeds and brings initiator port
-> up, SAN switch detects that and sends RSCN to the target port and it
-> fails again the same way as described above. It never goes out of the
-> loop.
-> 
-> The change breaks the RSCN loop by keeping initiator sessions mentioned
-> in RSCN payload in all modes, including dual and pure target mode.
-> 
-> Fixes: 2037ce49d30a ("scsi: qla2xxx: Fix stale session")
-> Cc: Quinn Tran <qutran@marvell.com>
-> Cc: Arun Easi <aeasi@marvell.com>
-> Cc: Nilesh Javali <njavali@marvell.com>
-> Cc: Bart Van Assche <bvanassche@acm.org>
-> Cc: Daniel Wagner <dwagner@suse.de>
-> Cc: Himanshu Madhani <himanshu.madhani@oracle.com>
-> Cc: Martin Wilck <mwilck@suse.com>
-> Cc: stable@vger.kernel.org # v5.4+
-> Signed-off-by: Roman Bolshakov <r.bolshakov@yadro.com>
-> ---
->   drivers/scsi/qla2xxx/qla_gs.c | 6 ++++--
->   1 file changed, 4 insertions(+), 2 deletions(-)
-> 
-> Hi Martin,
-> 
-> Please apply the patch to scsi-fixes/5.7 at your earliest convenience.
-> 
-> qla2xxx in target and, likely, dual mode is unusable in some SAN fabrics
-> due to the bug.
-> 
-> Thanks,
-> Roman
-> 
-> diff --git a/drivers/scsi/qla2xxx/qla_gs.c b/drivers/scsi/qla2xxx/qla_gs.c
-> index 42c3ad27f1cb..b9955af5cffe 100644
-> --- a/drivers/scsi/qla2xxx/qla_gs.c
-> +++ b/drivers/scsi/qla2xxx/qla_gs.c
-> @@ -3495,8 +3495,10 @@ void qla24xx_async_gnnft_done(scsi_qla_host_t *vha, srb_t *sp)
->   			if ((fcport->flags & FCF_FABRIC_DEVICE) == 0) {
->   				qla2x00_clear_loop_id(fcport);
->   				fcport->flags |= FCF_FABRIC_DEVICE;
-> -			} else if (fcport->d_id.b24 != rp->id.b24 ||
-> -				fcport->scan_needed) {
-> +			} else if ((fcport->d_id.b24 != rp->id.b24 ||
-> +				    fcport->scan_needed) &&
-> +				   (fcport->port_type != FCT_INITIATOR &&
-> +				    fcport->port_type != FCT_NVME_INITIATOR)) {
->   				qlt_schedule_sess_for_deletion(fcport);
->   			}
->   			fcport->d_id.b24 = rp->id.b24;
-> 
-Looks okay.
+You also need to pull in commit 92db978f0d68 ("net: ethernet: ti: Remove
+TI_CPTS_MOD workaround") which fixes commit b6d49cab44b5 ("net: Make
+PTP-specific drivers depend on PTP_1588_CLOCK"). This is necessary to
+avoid various compile errors (see below).
 
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Guenter
 
--- 
-Himanshu Madhani                     Oracle Linux Engineering
+---
+Building arm:omap2plus_defconfig ... failed
+--------------
+Error log:
+arm-linux-gnueabi-ld: drivers/net/ethernet/ti/cpsw.o: in function `cpsw_ndo_stop':
+drivers/net/ethernet/ti/cpsw.c:886: undefined reference to `cpts_unregister'
+arm-linux-gnueabi-ld: drivers/net/ethernet/ti/cpsw.o: in function `cpsw_remove':
+drivers/net/ethernet/ti/cpsw.c:1741: undefined reference to `cpts_release'
+arm-linux-gnueabi-ld: drivers/net/ethernet/ti/cpsw.o: in function `cpsw_rx_handler':
+drivers/net/ethernet/ti/cpsw.c:437: undefined reference to `cpts_rx_timestamp'
+arm-linux-gnueabi-ld: drivers/net/ethernet/ti/cpsw.o: in function `cpsw_ndo_open':
+drivers/net/ethernet/ti/cpsw.c:840: undefined reference to `cpts_register'
+arm-linux-gnueabi-ld: drivers/net/ethernet/ti/cpsw.o: in function `cpsw_probe':
+drivers/net/ethernet/ti/cpsw.c:1716: undefined reference to `cpts_release'
+arm-linux-gnueabi-ld: drivers/net/ethernet/ti/cpsw.o:(.debug_addr+0x34): undefined reference to `cpts_release'
+arm-linux-gnueabi-ld: drivers/net/ethernet/ti/cpsw.o:(.debug_addr+0x194): undefined reference to `cpts_unregister'
+arm-linux-gnueabi-ld: drivers/net/ethernet/ti/cpsw.o:(.debug_addr+0x350): undefined reference to `cpts_rx_timestamp'
+arm-linux-gnueabi-ld: drivers/net/ethernet/ti/cpsw.o:(.debug_addr+0xb20): undefined reference to `cpts_register'
+arm-linux-gnueabi-ld: drivers/net/ethernet/ti/cpsw_priv.o: in function `cpsw_tx_handler':
+drivers/net/ethernet/ti/cpsw_priv.c:68: undefined reference to `cpts_tx_timestamp'
+arm-linux-gnueabi-ld: drivers/net/ethernet/ti/cpsw_priv.o: in function `cpsw_init_common':
+drivers/net/ethernet/ti/cpsw_priv.c:525: undefined reference to `cpts_create'
+arm-linux-gnueabi-ld: drivers/net/ethernet/ti/cpsw_priv.o:(.debug_addr+0xa38): undefined reference to `cpts_tx_timestamp'
+arm-linux-gnueabi-ld: drivers/net/ethernet/ti/cpsw_priv.o:(.debug_addr+0xc90): undefined reference to `cpts_create'
+arm-linux-gnueabi-ld: drivers/net/ethernet/ti/cpsw_new.o: in function `cpsw_ndo_stop':
+drivers/net/ethernet/ti/cpsw_new.c:814: undefined reference to `cpts_unregister'
+arm-linux-gnueabi-ld: drivers/net/ethernet/ti/cpsw_new.o: in function `cpsw_remove':
+drivers/net/ethernet/ti/cpsw_new.c:2028: undefined reference to `cpts_release'
+arm-linux-gnueabi-ld: drivers/net/ethernet/ti/cpsw_new.o: in function `cpsw_rx_handler':
+drivers/net/ethernet/ti/cpsw_new.c:379: undefined reference to `cpts_rx_timestamp'
+arm-linux-gnueabi-ld: drivers/net/ethernet/ti/cpsw_new.o: in function `cpsw_probe':
+drivers/net/ethernet/ti/cpsw_new.c:2004: undefined reference to `cpts_release'
+arm-linux-gnueabi-ld: drivers/net/ethernet/ti/cpsw_new.o: in function `cpsw_ndo_open':
+drivers/net/ethernet/ti/cpsw_new.c:874: undefined reference to `cpts_register'
+arm-linux-gnueabi-ld: drivers/net/ethernet/ti/cpsw_new.o:(.debug_addr+0x38): undefined reference to `cpts_release'
+arm-linux-gnueabi-ld: drivers/net/ethernet/ti/cpsw_new.o:(.debug_addr+0x158): undefined reference to `cpts_unregister'
+arm-linux-gnueabi-ld: drivers/net/ethernet/ti/cpsw_new.o:(.debug_addr+0x2c4): undefined reference to `cpts_rx_timestamp'
+arm-linux-gnueabi-ld: drivers/net/ethernet/ti/cpsw_new.o:(.debug_addr+0xa60): undefined reference to `cpts_register'
+make[1]: *** [vmlinux] Error 1
+make: *** [sub-make] Error 2
+--------------
+
+Building arm:keystone_defconfig ... failed
+--------------
+Error log:
+arm-linux-gnueabi-ld: drivers/net/ethernet/ti/netcp_ethss.o: in function `gbe_rxtstamp':
+drivers/net/ethernet/ti/netcp_ethss.c:2595: undefined reference to `cpts_rx_timestamp'
+arm-linux-gnueabi-ld: drivers/net/ethernet/ti/netcp_ethss.o: in function `gbe_probe':
+drivers/net/ethernet/ti/netcp_ethss.c:3719: undefined reference to `cpts_create'
+arm-linux-gnueabi-ld: drivers/net/ethernet/ti/netcp_ethss.o: in function `gbe_remove':
+drivers/net/ethernet/ti/netcp_ethss.c:3812: undefined reference to `cpts_release'
+arm-linux-gnueabi-ld: drivers/net/ethernet/ti/netcp_ethss.o: in function `gbe_unregister_cpts':
+drivers/net/ethernet/ti/netcp_ethss.c:2731: undefined reference to `cpts_unregister'
+arm-linux-gnueabi-ld: drivers/net/ethernet/ti/netcp_ethss.o: in function `gbe_register_cpts':
+drivers/net/ethernet/ti/netcp_ethss.c:2714: undefined reference to `cpts_register'
+make[1]: *** [vmlinux] Error 1
+make: *** [sub-make] Error 2
