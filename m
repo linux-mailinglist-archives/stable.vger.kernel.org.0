@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CBCDF1D84AF
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:14:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 49C9E1D86DD
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:28:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733207AbgERSNh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:13:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44376 "EHLO mail.kernel.org"
+        id S1728693AbgERRmp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:42:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39824 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732432AbgERSBw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 14:01:52 -0400
+        id S1729464AbgERRmo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:42:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 29A8E207C4;
-        Mon, 18 May 2020 18:01:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 18E3F20829;
+        Mon, 18 May 2020 17:42:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824911;
-        bh=CiUqSGGZ/wftLj2uPpD1velB9FbEfAK86NJmC+dCe74=;
+        s=default; t=1589823763;
+        bh=3k78Qb1XKkUiTDkjbig5PF1UkReCGo2LTb5+63ariSs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PHopFwl60q+WWNjwUmUdUQWMsNch2l/aywL678I2bPsL2wn1iCqvpJdAfbI5QGtpW
-         udBOE/ll0HAs8oluD3M0CMqTuaL38Ba5Nl+75IwWNPq+jJX+AJVgO3/cDPw6Fme7Nu
-         ygLkZjQNKK2oJqKcn6v4aSMSFruTvHnB2mL5K53w=
+        b=YfC/1glbeNSfWQqZ5Jrqrwc6XzDDQ58683YPw29mFCpEvcNzmINqjgIL0VluglYl1
+         06CM82j+VE3Y2bs3EBnQ8hcFLLmUkEmrQe1F1UuSSU1NMwDtFgOU/mWyYCcZ8SMD4Z
+         lY2HuCs92ya4Bf1XdLjgpYLgl7lNQlEJi3P+zL4o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lubomir Rintel <lkundrak@v3.sk>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 054/194] dmaengine: mmp_tdma: Do not ignore slave config validation errors
+        stable@vger.kernel.org, Matt Jolly <Kangie@footclan.ninja>,
+        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 06/90] net: usb: qmi_wwan: add support for DW5816e
 Date:   Mon, 18 May 2020 19:35:44 +0200
-Message-Id: <20200518173536.258813664@linuxfoundation.org>
+Message-Id: <20200518173452.380779041@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
-References: <20200518173531.455604187@linuxfoundation.org>
+In-Reply-To: <20200518173450.930655662@linuxfoundation.org>
+References: <20200518173450.930655662@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,40 +44,29 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lubomir Rintel <lkundrak@v3.sk>
+From: Matt Jolly <Kangie@footclan.ninja>
 
-[ Upstream commit 363c32701c7fdc8265a84b21a6a4f45d1202b9ca ]
+[ Upstream commit 57c7f2bd758eed867295c81d3527fff4fab1ed74 ]
 
-With an invalid dma_slave_config set previously,
-mmp_tdma_prep_dma_cyclic() would detect an error whilst configuring the
-channel, but proceed happily on:
+Add support for Dell Wireless 5816e to drivers/net/usb/qmi_wwan.c
 
-  [  120.756530] mmp-tdma d42a0800.adma: mmp_tdma: unknown burst size.
-
-Signed-off-by: Lubomir Rintel <lkundrak@v3.sk>
-Link: https://lore.kernel.org/r/20200419164912.670973-2-lkundrak@v3.sk
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Matt Jolly <Kangie@footclan.ninja>
+Acked-by: Bjørn Mork <bjorn@mork.no>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/dma/mmp_tdma.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/usb/qmi_wwan.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/dma/mmp_tdma.c b/drivers/dma/mmp_tdma.c
-index 10117f271b12b..51e08c16756ae 100644
---- a/drivers/dma/mmp_tdma.c
-+++ b/drivers/dma/mmp_tdma.c
-@@ -443,7 +443,8 @@ static struct dma_async_tx_descriptor *mmp_tdma_prep_dma_cyclic(
- 	if (!desc)
- 		goto err_out;
- 
--	mmp_tdma_config_write(chan, direction, &tdmac->slave_config);
-+	if (mmp_tdma_config_write(chan, direction, &tdmac->slave_config))
-+		goto err_out;
- 
- 	while (buf < buf_len) {
- 		desc = &tdmac->desc_arr[i];
--- 
-2.20.1
-
+--- a/drivers/net/usb/qmi_wwan.c
++++ b/drivers/net/usb/qmi_wwan.c
+@@ -950,6 +950,7 @@ static const struct usb_device_id produc
+ 	{QMI_FIXED_INTF(0x413c, 0x81b3, 8)},	/* Dell Wireless 5809e Gobi(TM) 4G LTE Mobile Broadband Card (rev3) */
+ 	{QMI_FIXED_INTF(0x413c, 0x81b6, 8)},	/* Dell Wireless 5811e */
+ 	{QMI_FIXED_INTF(0x413c, 0x81b6, 10)},	/* Dell Wireless 5811e */
++	{QMI_FIXED_INTF(0x413c, 0x81cc, 8)},	/* Dell Wireless 5816e */
+ 	{QMI_FIXED_INTF(0x413c, 0x81d7, 0)},	/* Dell Wireless 5821e */
+ 	{QMI_FIXED_INTF(0x413c, 0x81d7, 1)},	/* Dell Wireless 5821e preproduction config */
+ 	{QMI_FIXED_INTF(0x413c, 0x81e0, 0)},	/* Dell Wireless 5821e with eSIM support*/
 
 
