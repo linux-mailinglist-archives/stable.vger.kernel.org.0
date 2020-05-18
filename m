@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C16C1D8584
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:19:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 32CA41D80E1
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:43:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731342AbgERSTR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:19:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59242 "EHLO mail.kernel.org"
+        id S1728540AbgERRmx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:42:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40014 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731311AbgERRyb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:54:31 -0400
+        id S1729482AbgERRmv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:42:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E81CF207F5;
-        Mon, 18 May 2020 17:54:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 67CFF20849;
+        Mon, 18 May 2020 17:42:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824470;
-        bh=rzC9MGi2S9HCI1wE1EFNRig2v1+cv7Lofvm0RsNonKA=;
+        s=default; t=1589823770;
+        bh=dBC2iycTubdslgeJs32ctXRJzOU1GaMI6bhzB2dMpXU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FUsLEwERB1bU9hy+ZotabFhp+qCiXwi+tqvudxhK/TLIAhM8rkWdAL0jouWA0MIK9
-         8oIEqwrrNPGjB7YmqAy+BTjVv3mihIrLzDScZTrFSKlEzvhKDFeM3+fH/kZZMPeCqQ
-         Kn5GdzhjWe5fo+0f371SLj7z8fsoqkcSSFrR63y0=
+        b=aO/+luTOEkB6uKdCGWRcHoXYmA0Wj0ZzitooGfvNvcfDYwvDe542mcj+IC6yqs4bA
+         sJzH2ldTqn9BtLQ+wZdcGK5AH40PJw9MggIvgMW3svvaHaw5TqpZcLpkJdhSRThYl/
+         hQBFkp8xC4pPb5RpFY9PsSI9WLL8z/f1j0wRmF/o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Willem de Bruijn <willemb@google.com>,
-        Xin Long <lucien.xin@gmail.com>,
-        Hannes Frederic Sowa <hannes@stressinduktion.org>,
-        =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <maze@google.com>,
+        stable@vger.kernel.org, Michael Chan <michael.chan@broadcom.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 024/147] Revert "ipv6: add mtu lock check in __ip6_rt_update_pmtu"
+Subject: [PATCH 4.9 09/90] bnxt_en: Fix VLAN acceleration handling in bnxt_fix_features().
 Date:   Mon, 18 May 2020 19:35:47 +0200
-Message-Id: <20200518173516.836413313@linuxfoundation.org>
+Message-Id: <20200518173453.119549591@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
-References: <20200518173513.009514388@linuxfoundation.org>
+In-Reply-To: <20200518173450.930655662@linuxfoundation.org>
+References: <20200518173450.930655662@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,63 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Maciej Żenczykowski" <maze@google.com>
+From: Michael Chan <michael.chan@broadcom.com>
 
-[ Upstream commit 09454fd0a4ce23cb3d8af65066c91a1bf27120dd ]
+[ Upstream commit c72cb303aa6c2ae7e4184f0081c6d11bf03fb96b ]
 
-This reverts commit 19bda36c4299ce3d7e5bce10bebe01764a655a6d:
+The current logic in bnxt_fix_features() will inadvertently turn on both
+CTAG and STAG VLAN offload if the user tries to disable both.  Fix it
+by checking that the user is trying to enable CTAG or STAG before
+enabling both.  The logic is supposed to enable or disable both CTAG and
+STAG together.
 
-| ipv6: add mtu lock check in __ip6_rt_update_pmtu
-|
-| Prior to this patch, ipv6 didn't do mtu lock check in ip6_update_pmtu.
-| It leaded to that mtu lock doesn't really work when receiving the pkt
-| of ICMPV6_PKT_TOOBIG.
-|
-| This patch is to add mtu lock check in __ip6_rt_update_pmtu just as ipv4
-| did in __ip_rt_update_pmtu.
-
-The above reasoning is incorrect.  IPv6 *requires* icmp based pmtu to work.
-There's already a comment to this effect elsewhere in the kernel:
-
-  $ git grep -p -B1 -A3 'RTAX_MTU lock'
-  net/ipv6/route.c=4813=
-
-  static int rt6_mtu_change_route(struct fib6_info *f6i, void *p_arg)
-  ...
-    /* In IPv6 pmtu discovery is not optional,
-       so that RTAX_MTU lock cannot disable it.
-       We still use this lock to block changes
-       caused by addrconf/ndisc.
-    */
-
-This reverts to the pre-4.9 behaviour.
-
-Cc: Eric Dumazet <edumazet@google.com>
-Cc: Willem de Bruijn <willemb@google.com>
-Cc: Xin Long <lucien.xin@gmail.com>
-Cc: Hannes Frederic Sowa <hannes@stressinduktion.org>
-Signed-off-by: Maciej Żenczykowski <maze@google.com>
-Fixes: 19bda36c4299 ("ipv6: add mtu lock check in __ip6_rt_update_pmtu")
+Fixes: 5a9f6b238e59 ("bnxt_en: Enable and disable RX CTAG and RX STAG VLAN acceleration together.")
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/route.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
---- a/net/ipv6/route.c
-+++ b/net/ipv6/route.c
-@@ -2728,8 +2728,10 @@ static void __ip6_rt_update_pmtu(struct
- 	const struct in6_addr *daddr, *saddr;
- 	struct rt6_info *rt6 = (struct rt6_info *)dst;
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+@@ -5997,6 +5997,7 @@ static netdev_features_t bnxt_fix_featur
+ 					   netdev_features_t features)
+ {
+ 	struct bnxt *bp = netdev_priv(dev);
++	netdev_features_t vlan_features;
  
--	if (dst_metric_locked(dst, RTAX_MTU))
--		return;
-+	/* Note: do *NOT* check dst_metric_locked(dst, RTAX_MTU)
-+	 * IPv6 pmtu discovery isn't optional, so 'mtu lock' cannot disable it.
-+	 * [see also comment in rt6_mtu_change_route()]
-+	 */
- 
- 	if (iph) {
- 		daddr = &iph->daddr;
+ 	if ((features & NETIF_F_NTUPLE) && !bnxt_rfs_capable(bp))
+ 		features &= ~NETIF_F_NTUPLE;
+@@ -6004,12 +6005,14 @@ static netdev_features_t bnxt_fix_featur
+ 	/* Both CTAG and STAG VLAN accelaration on the RX side have to be
+ 	 * turned on or off together.
+ 	 */
+-	if ((features & (NETIF_F_HW_VLAN_CTAG_RX | NETIF_F_HW_VLAN_STAG_RX)) !=
+-	    (NETIF_F_HW_VLAN_CTAG_RX | NETIF_F_HW_VLAN_STAG_RX)) {
++	vlan_features = features & (NETIF_F_HW_VLAN_CTAG_RX |
++				    NETIF_F_HW_VLAN_STAG_RX);
++	if (vlan_features != (NETIF_F_HW_VLAN_CTAG_RX |
++			      NETIF_F_HW_VLAN_STAG_RX)) {
+ 		if (dev->features & NETIF_F_HW_VLAN_CTAG_RX)
+ 			features &= ~(NETIF_F_HW_VLAN_CTAG_RX |
+ 				      NETIF_F_HW_VLAN_STAG_RX);
+-		else
++		else if (vlan_features)
+ 			features |= NETIF_F_HW_VLAN_CTAG_RX |
+ 				    NETIF_F_HW_VLAN_STAG_RX;
+ 	}
 
 
