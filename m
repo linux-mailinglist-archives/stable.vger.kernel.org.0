@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A8CC61D8727
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:31:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B23161D8654
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:27:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729139AbgERSam (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:30:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36300 "EHLO mail.kernel.org"
+        id S1729673AbgERRoE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:44:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42032 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729100AbgERRkf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:40:35 -0400
+        id S1729650AbgERRoB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:44:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 17E33207C4;
-        Mon, 18 May 2020 17:40:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 43F52207C4;
+        Mon, 18 May 2020 17:44:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589823635;
-        bh=1kDKxjJeg1LfNC3E7RurznKrh41PNTnWt9redWavVb8=;
+        s=default; t=1589823840;
+        bh=55PKlhmg1rmfRguUkGNgpg1h9UfCnaM6roGxuu9k3bA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QU+qRjjni5MdeE74tabqBsoCwqH2Fj80tO/RcaOWt80PtojXwSqgvwZnSE/ZAvqPH
-         2bNCnmjw/N4tfXKyNhzHmaCkqf5FfZvzFBPo4o4Lc91Lr4h8n7/4o81DYMkVjpD4Fu
-         bNI1i6FgHk/kzaZgWbsqybjrbAsnzxlG0voJgsU0=
+        b=MeHs8rx51KjpLOeGLfBxFioS3orUU6j2CSay1DozoCbChJywlgKCCmz9snO9MUwaF
+         LfVXiL52tr45QpJW3xGzbZaiRnhd6hQlhBKlrmr0p0p3X0PCd/nY4RFa8PTdkCBxTt
+         q+cAICmtfaFPawRxwTKaPo6LGXBT26BFuUyWaqAo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.4 62/86] gcc-10: disable restrict warning for now
-Date:   Mon, 18 May 2020 19:36:33 +0200
-Message-Id: <20200518173502.967629916@linuxfoundation.org>
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 56/90] netfilter: conntrack: avoid gcc-10 zero-length-bounds warning
+Date:   Mon, 18 May 2020 19:36:34 +0200
+Message-Id: <20200518173502.512499313@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173450.254571947@linuxfoundation.org>
-References: <20200518173450.254571947@linuxfoundation.org>
+In-Reply-To: <20200518173450.930655662@linuxfoundation.org>
+References: <20200518173450.930655662@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,66 +44,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit adc71920969870dfa54e8f40dac8616284832d02 upstream.
+[ Upstream commit 2c407aca64977ede9b9f35158e919773cae2082f ]
 
-gcc-10 now warns about passing aliasing pointers to functions that take
-restricted pointers.
+gcc-10 warns around a suspicious access to an empty struct member:
 
-That's actually a great warning, and if we ever start using 'restrict'
-in the kernel, it might be quite useful.  But right now we don't, and it
-turns out that the only thing this warns about is an idiom where we have
-declared a few functions to be "printf-like" (which seems to make gcc
-pick up the restricted pointer thing), and then we print to the same
-buffer that we also use as an input.
+net/netfilter/nf_conntrack_core.c: In function '__nf_conntrack_alloc':
+net/netfilter/nf_conntrack_core.c:1522:9: warning: array subscript 0 is outside the bounds of an interior zero-length array 'u8[0]' {aka 'unsigned char[0]'} [-Wzero-length-bounds]
+ 1522 |  memset(&ct->__nfct_init_offset[0], 0,
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from net/netfilter/nf_conntrack_core.c:37:
+include/net/netfilter/nf_conntrack.h:90:5: note: while referencing '__nfct_init_offset'
+   90 |  u8 __nfct_init_offset[0];
+      |     ^~~~~~~~~~~~~~~~~~
 
-And people do that as an odd concatenation pattern, with code like this:
+The code is correct but a bit unusual. Rework it slightly in a way that
+does not trigger the warning, using an empty struct instead of an empty
+array. There are probably more elegant ways to do this, but this is the
+smallest change.
 
-    #define sysfs_show_gen_prop(buffer, fmt, ...) \
-        snprintf(buffer, PAGE_SIZE, "%s"fmt, buffer, __VA_ARGS__)
-
-where we have 'buffer' as both the destination of the final result, and
-as the initial argument.
-
-Yes, it's a bit questionable.  And outside of the kernel, people do have
-standard declarations like
-
-    int snprintf( char *restrict buffer, size_t bufsz,
-                  const char *restrict format, ... );
-
-where that output buffer is marked as a restrict pointer that cannot
-alias with any other arguments.
-
-But in the context of the kernel, that 'use snprintf() to concatenate to
-the end result' does work, and the pattern shows up in multiple places.
-And we have not marked our own version of snprintf() as taking restrict
-pointers, so the warning is incorrect for now, and gcc picks it up on
-its own.
-
-If we do start using 'restrict' in the kernel (and it might be a good
-idea if people find places where it matters), we'll need to figure out
-how to avoid this issue for snprintf and friends.  But in the meantime,
-this warning is not useful.
-
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: c41884ce0562 ("netfilter: conntrack: avoid zeroing timer")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Makefile |    3 +++
- 1 file changed, 3 insertions(+)
+ include/net/netfilter/nf_conntrack.h | 2 +-
+ net/netfilter/nf_conntrack_core.c    | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
---- a/Makefile
-+++ b/Makefile
-@@ -800,6 +800,9 @@ KBUILD_CFLAGS += $(call cc-disable-warni
- KBUILD_CFLAGS += $(call cc-disable-warning, array-bounds)
- KBUILD_CFLAGS += $(call cc-disable-warning, stringop-overflow)
+diff --git a/include/net/netfilter/nf_conntrack.h b/include/net/netfilter/nf_conntrack.h
+index b57a9f37c297b..7befec513295d 100644
+--- a/include/net/netfilter/nf_conntrack.h
++++ b/include/net/netfilter/nf_conntrack.h
+@@ -103,7 +103,7 @@ struct nf_conn {
+ 	struct hlist_node	nat_bysource;
+ #endif
+ 	/* all members below initialized via memset */
+-	u8 __nfct_init_offset[0];
++	struct { } __nfct_init_offset;
  
-+# Another good warning that we'll want to enable eventually
-+KBUILD_CFLAGS += $(call cc-disable-warning, restrict)
-+
- # Enabled with W=2, disabled by default as noisy
- KBUILD_CFLAGS += $(call cc-disable-warning, maybe-uninitialized)
+ 	/* If we were expected by an expectation, this will be it */
+ 	struct nf_conn *master;
+diff --git a/net/netfilter/nf_conntrack_core.c b/net/netfilter/nf_conntrack_core.c
+index 1bdae8f188e1f..d507d0fc7858a 100644
+--- a/net/netfilter/nf_conntrack_core.c
++++ b/net/netfilter/nf_conntrack_core.c
+@@ -1124,9 +1124,9 @@ __nf_conntrack_alloc(struct net *net,
+ 	*(unsigned long *)(&ct->tuplehash[IP_CT_DIR_REPLY].hnnode.pprev) = hash;
+ 	ct->status = 0;
+ 	write_pnet(&ct->ct_net, net);
+-	memset(&ct->__nfct_init_offset[0], 0,
++	memset(&ct->__nfct_init_offset, 0,
+ 	       offsetof(struct nf_conn, proto) -
+-	       offsetof(struct nf_conn, __nfct_init_offset[0]));
++	       offsetof(struct nf_conn, __nfct_init_offset));
  
+ 	nf_ct_zone_add(ct, zone);
+ 
+-- 
+2.20.1
+
 
 
