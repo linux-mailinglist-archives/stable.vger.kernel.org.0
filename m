@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 638A41D80AD
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:41:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C0ED1D836D
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:05:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729224AbgERRlM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:41:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37330 "EHLO mail.kernel.org"
+        id S1731977AbgERSEk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:04:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51610 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729219AbgERRlL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:41:11 -0400
+        id S1732796AbgERSEd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 14:04:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A87ED20657;
-        Mon, 18 May 2020 17:41:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AF1A7207D3;
+        Mon, 18 May 2020 18:04:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589823670;
-        bh=Q6OxYPg+HEkGz2LIWB5H4R2fxd0AQ+iGVhEsHiX43Pk=;
+        s=default; t=1589825073;
+        bh=VFi5CkaO2DwUtxZQxQco5fy/+XpBrOt7pEBYtSTIFN4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1E+zIVY4rKvFOtwQ1HFs9/BdBwtXfJvYD8wAlPNrEha9gYgiO9xsxQoo4eacjWfSW
-         ZVG9AJhHmNl3M7u2uQZX+aHrTJZmgEUIcqeA2D2/2nNUb16pYttI0B4gtdmndaaR6k
-         7FssJr3RIMRXv7fmfLivWSguo32u1Ouxz7zRmGbo=
+        b=YiU7VX8EOL/dhJZtcpp78pzkYWvH0bLJBoPhgzzoyrQAsg4zyNdtkcl3uojRedQFh
+         7AOjJzVQ+Opxjfip9eUCbxPWjyM2IhYyPGnmGmBtK3YtI4IbN9ATtn0GiTXty/lwst
+         g5mmlOUN8WB3FhZJOLjMH3fSjbx6l+cEzjEwgUZI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kyungtae Kim <kt0755@gmail.com>,
-        Felipe Balbi <balbi@kernel.org>
-Subject: [PATCH 4.4 75/86] USB: gadget: fix illegal array access in binding with UDC
-Date:   Mon, 18 May 2020 19:36:46 +0200
-Message-Id: <20200518173505.756313534@linuxfoundation.org>
+        stable@vger.kernel.org, Samu Nuutamo <samu.nuutamo@vincit.fi>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 117/194] hwmon: (da9052) Synchronize access with mfd
+Date:   Mon, 18 May 2020 19:36:47 +0200
+Message-Id: <20200518173541.419041855@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173450.254571947@linuxfoundation.org>
-References: <20200518173450.254571947@linuxfoundation.org>
+In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
+References: <20200518173531.455604187@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,75 +45,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kyungtae Kim <kt0755@gmail.com>
+From: Samu Nuutamo <samu.nuutamo@vincit.fi>
 
-commit 15753588bcd4bbffae1cca33c8ced5722477fe1f upstream.
+[ Upstream commit 333e22db228f0bd0c839553015a6a8d3db4ba569 ]
 
-FuzzUSB (a variant of syzkaller) found an illegal array access
-using an incorrect index while binding a gadget with UDC.
+When tsi-as-adc is configured it is possible for in7[0123]_input read to
+return an incorrect value if a concurrent read to in[456]_input is
+performed. This is caused by a concurrent manipulation of the mux
+channel without proper locking as hwmon and mfd use different locks for
+synchronization.
 
-Reference: https://www.spinics.net/lists/linux-usb/msg194331.html
+Switch hwmon to use the same lock as mfd when accessing the TSI channel.
 
-This bug occurs when a size variable used for a buffer
-is misused to access its strcpy-ed buffer.
-Given a buffer along with its size variable (taken from user input),
-from which, a new buffer is created using kstrdup().
-Due to the original buffer containing 0 value in the middle,
-the size of the kstrdup-ed buffer becomes smaller than that of the original.
-So accessing the kstrdup-ed buffer with the same size variable
-triggers memory access violation.
-
-The fix makes sure no zero value in the buffer,
-by comparing the strlen() of the orignal buffer with the size variable,
-so that the access to the kstrdup-ed buffer is safe.
-
-BUG: KASAN: slab-out-of-bounds in gadget_dev_desc_UDC_store+0x1ba/0x200
-drivers/usb/gadget/configfs.c:266
-Read of size 1 at addr ffff88806a55dd7e by task syz-executor.0/17208
-
-CPU: 2 PID: 17208 Comm: syz-executor.0 Not tainted 5.6.8 #1
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS Bochs 01/01/2011
-Call Trace:
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0xce/0x128 lib/dump_stack.c:118
- print_address_description.constprop.4+0x21/0x3c0 mm/kasan/report.c:374
- __kasan_report+0x131/0x1b0 mm/kasan/report.c:506
- kasan_report+0x12/0x20 mm/kasan/common.c:641
- __asan_report_load1_noabort+0x14/0x20 mm/kasan/generic_report.c:132
- gadget_dev_desc_UDC_store+0x1ba/0x200 drivers/usb/gadget/configfs.c:266
- flush_write_buffer fs/configfs/file.c:251 [inline]
- configfs_write_file+0x2f1/0x4c0 fs/configfs/file.c:283
- __vfs_write+0x85/0x110 fs/read_write.c:494
- vfs_write+0x1cd/0x510 fs/read_write.c:558
- ksys_write+0x18a/0x220 fs/read_write.c:611
- __do_sys_write fs/read_write.c:623 [inline]
- __se_sys_write fs/read_write.c:620 [inline]
- __x64_sys_write+0x73/0xb0 fs/read_write.c:620
- do_syscall_64+0x9e/0x510 arch/x86/entry/common.c:294
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
-
-Signed-off-by: Kyungtae Kim <kt0755@gmail.com>
-Reported-and-tested-by: Kyungtae Kim <kt0755@gmail.com>
-Cc: Felipe Balbi <balbi@kernel.org>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200510054326.GA19198@pizza01
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 4f16cab19a3d5 ("hwmon: da9052: Add support for TSI channel")
+Signed-off-by: Samu Nuutamo <samu.nuutamo@vincit.fi>
+[rebase to current master, reword commit message slightly]
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/configfs.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/hwmon/da9052-hwmon.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/gadget/configfs.c
-+++ b/drivers/usb/gadget/configfs.c
-@@ -260,6 +260,9 @@ static ssize_t gadget_dev_desc_UDC_store
- 	char *name;
+diff --git a/drivers/hwmon/da9052-hwmon.c b/drivers/hwmon/da9052-hwmon.c
+index 53b517dbe7e6e..4af2fc309c286 100644
+--- a/drivers/hwmon/da9052-hwmon.c
++++ b/drivers/hwmon/da9052-hwmon.c
+@@ -244,9 +244,9 @@ static ssize_t da9052_tsi_show(struct device *dev,
+ 	int channel = to_sensor_dev_attr(devattr)->index;
  	int ret;
  
-+	if (strlen(page) < len)
-+		return -EOVERFLOW;
-+
- 	name = kstrdup(page, GFP_KERNEL);
- 	if (!name)
- 		return -ENOMEM;
+-	mutex_lock(&hwmon->hwmon_lock);
++	mutex_lock(&hwmon->da9052->auxadc_lock);
+ 	ret = __da9052_read_tsi(dev, channel);
+-	mutex_unlock(&hwmon->hwmon_lock);
++	mutex_unlock(&hwmon->da9052->auxadc_lock);
+ 
+ 	if (ret < 0)
+ 		return ret;
+-- 
+2.20.1
+
 
 
