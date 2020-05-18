@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A50D41D864C
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:24:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EAFE31D826D
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:56:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730273AbgERRru (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:47:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48288 "EHLO mail.kernel.org"
+        id S1731620AbgERR4V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:56:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34176 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730254AbgERRrt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:47:49 -0400
+        id S1730827AbgERR4U (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:56:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A066A2083E;
-        Mon, 18 May 2020 17:47:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6B412207C4;
+        Mon, 18 May 2020 17:56:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824068;
-        bh=9M0s6ogtpfEzHXEjhSDKcHFJqu2mZ6vE1gJFHGx8pzs=;
+        s=default; t=1589824579;
+        bh=qPiPvnOGJzhRxWccUafyKknE9pRDCl2DUrjtZb6VY4k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s/hOGvMCF0B2Rm+TGXs8iZ20+vXOeAP4mTBL91AQJ/ISFTTF4ChFuW4X8QhIO+tI0
-         lT56FdJVZL0wUr8rFrcMiChrZkCqBHD2W53RVWpaFu0ZA2en56XDNZGFiNf34EWiMi
-         GQ51waUweP7MjhVG59vp+jOnOvqL4zn4mzaLal5o=
+        b=jubR3iFZ18W8xBdy2fBzQMKcLKN+5w9nfi0Iba2DsN6xaT6EFgvLIXNSirOMWpBoe
+         a+ADFBYDBE8lV/+HdVKJmj5viyWXrWOHlq2yfb9dwJ4POwQ79dWH1EntFsSe7fVStq
+         jx7pLf1gb6W25PYafnGykmVqo9tgApX66fDHEgsE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 058/114] ALSA: hda/hdmi: fix race in monitor detection during probe
+        stable@vger.kernel.org, Grzegorz Kowal <custos.mentis@gmail.com>,
+        Ben Chuang <ben.chuang@genesyslogic.com.tw>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 067/147] mmc: sdhci-pci-gli: Fix can not access GL9750 after reboot from Windows 10
 Date:   Mon, 18 May 2020 19:36:30 +0200
-Message-Id: <20200518173513.647373643@linuxfoundation.org>
+Message-Id: <20200518173522.359872335@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173503.033975649@linuxfoundation.org>
-References: <20200518173503.033975649@linuxfoundation.org>
+In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
+References: <20200518173513.009514388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,47 +46,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+From: Ben Chuang <ben.chuang@genesyslogic.com.tw>
 
-[ Upstream commit ca76282b6faffc83601c25bd2a95f635c03503ef ]
+[ Upstream commit b56ff195c317ad28c05d354aeecbb9995b8e08c1 ]
 
-A race exists between build_pcms() and build_controls() phases of codec
-setup. Build_pcms() sets up notifier for jack events. If a monitor event
-is received before build_controls() is run, the initial jack state is
-lost and never reported via mixer controls.
+Need to clear some bits in a vendor-defined register after reboot from
+Windows 10.
 
-The problem can be hit at least with SOF as the controller driver. SOF
-calls snd_hda_codec_build_controls() in its workqueue-based probe and
-this can be delayed enough to hit the race condition.
-
-Fix the issue by invalidating the per-pin ELD information when
-build_controls() is called. The existing call to hdmi_present_sense()
-will update the ELD contents. This ensures initial monitor state is
-correctly reflected via mixer controls.
-
-BugLink: https://github.com/thesofproject/linux/issues/1687
-Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Link: https://lore.kernel.org/r/20200428123836.24512-1-kai.vehmanen@linux.intel.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: e51df6ce668a ("mmc: host: sdhci-pci: Add Genesys Logic GL975x support")
+Reported-by: Grzegorz Kowal <custos.mentis@gmail.com>
+Signed-off-by: Ben Chuang <ben.chuang@genesyslogic.com.tw>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Tested-by: Grzegorz Kowal <custos.mentis@gmail.com>
+Link: https://lore.kernel.org/r/20200504063957.6638-1-benchuanggli@gmail.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_hdmi.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/mmc/host/sdhci-pci-gli.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/sound/pci/hda/patch_hdmi.c b/sound/pci/hda/patch_hdmi.c
-index 435c0efb9bf29..6b4ebaefd8f85 100644
---- a/sound/pci/hda/patch_hdmi.c
-+++ b/sound/pci/hda/patch_hdmi.c
-@@ -2212,7 +2212,9 @@ static int generic_hdmi_build_controls(struct hda_codec *codec)
+diff --git a/drivers/mmc/host/sdhci-pci-gli.c b/drivers/mmc/host/sdhci-pci-gli.c
+index ff39d81a5742c..fd76aa672e020 100644
+--- a/drivers/mmc/host/sdhci-pci-gli.c
++++ b/drivers/mmc/host/sdhci-pci-gli.c
+@@ -26,6 +26,9 @@
+ #define   SDHCI_GLI_9750_DRIVING_2    GENMASK(27, 26)
+ #define   GLI_9750_DRIVING_1_VALUE    0xFFF
+ #define   GLI_9750_DRIVING_2_VALUE    0x3
++#define   SDHCI_GLI_9750_SEL_1        BIT(29)
++#define   SDHCI_GLI_9750_SEL_2        BIT(31)
++#define   SDHCI_GLI_9750_ALL_RST      (BIT(24)|BIT(25)|BIT(28)|BIT(30))
  
- 	for (pin_idx = 0; pin_idx < spec->num_pins; pin_idx++) {
- 		struct hdmi_spec_per_pin *per_pin = get_pin(spec, pin_idx);
-+		struct hdmi_eld *pin_eld = &per_pin->sink_eld;
+ #define SDHCI_GLI_9750_PLL	      0x864
+ #define   SDHCI_GLI_9750_PLL_TX2_INV    BIT(23)
+@@ -122,6 +125,8 @@ static void gli_set_9750(struct sdhci_host *host)
+ 				    GLI_9750_DRIVING_1_VALUE);
+ 	driving_value |= FIELD_PREP(SDHCI_GLI_9750_DRIVING_2,
+ 				    GLI_9750_DRIVING_2_VALUE);
++	driving_value &= ~(SDHCI_GLI_9750_SEL_1|SDHCI_GLI_9750_SEL_2|SDHCI_GLI_9750_ALL_RST);
++	driving_value |= SDHCI_GLI_9750_SEL_2;
+ 	sdhci_writel(host, driving_value, SDHCI_GLI_9750_DRIVING);
  
-+		pin_eld->eld_valid = false;
- 		hdmi_present_sense(per_pin, 0);
- 	}
- 
+ 	sw_ctrl_value &= ~SDHCI_GLI_9750_SW_CTRL_4;
 -- 
 2.20.1
 
