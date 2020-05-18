@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5EAC71D85D9
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:21:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 98CB71D86EE
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:31:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387844AbgERSVZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:21:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56582 "EHLO mail.kernel.org"
+        id S1729237AbgERRlQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:41:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37484 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731059AbgERRw4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:52:56 -0400
+        id S1729233AbgERRlP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:41:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 93F9020674;
-        Mon, 18 May 2020 17:52:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8E7AA20657;
+        Mon, 18 May 2020 17:41:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824376;
-        bh=ZxyMZGot4qCsJCnM/6wDEDK6o+19Yya0ofBttyLsprY=;
+        s=default; t=1589823675;
+        bh=N+jhR+gk5hcEwX7Xm6LZLDjMDUQeoeOZfbtJOm6xB+4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kaqsu5bymFJkbSL+qry0BkLhIDEti3zaeOL8gGyfdMuUHmPIx5IgHtG8GpAynApFg
-         ZgDKaaNCXOjL9J1ofg3hIgKM1bCoOSKO8ZAAaBWQb7WO08/HIg8thEifhZiRsfvzJu
-         9bjomXVi9CIvTu+ybrtwpFbYxml7ODDRYxcylwMk=
+        b=rReAUGmO/AaSfcgcjpdLojxmyoNkI9XdN7IsrjB4cECtnNFuDAPPrek0TltZ4tbxy
+         I86uUMjwZS6PTSXQoxwUnHT+X2BkgsQkpJCdTGOZtzmqOJ4HJb2QIsgG6aqXrGSDGA
+         RUzvZG//jQJI8x9ijuBy50t2x4+hTz2Ebx5AXQvE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andreas Gruenbacher <agruenba@redhat.com>,
-        Bob Peterson <rpeterso@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 30/80] gfs2: Another gfs2_walk_metadata fix
+        stable@vger.kernel.org, Sergei Trofimovich <slyfox@gentoo.org>,
+        Borislav Petkov <bp@suse.de>, Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 4.4 77/86] x86: Fix early boot crash on gcc-10, third try
 Date:   Mon, 18 May 2020 19:36:48 +0200
-Message-Id: <20200518173456.501252925@linuxfoundation.org>
+Message-Id: <20200518173506.153893146@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173450.097837707@linuxfoundation.org>
-References: <20200518173450.097837707@linuxfoundation.org>
+In-Reply-To: <20200518173450.254571947@linuxfoundation.org>
+References: <20200518173450.254571947@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,77 +43,142 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Gruenbacher <agruenba@redhat.com>
+From: Borislav Petkov <bp@suse.de>
 
-[ Upstream commit 566a2ab3c9005f62e784bd39022d58d34ef4365c ]
+commit a9a3ed1eff3601b63aea4fb462d8b3b92c7c1e7e upstream.
 
-Make sure we don't walk past the end of the metadata in gfs2_walk_metadata: the
-inode holds fewer pointers than indirect blocks.
+... or the odyssey of trying to disable the stack protector for the
+function which generates the stack canary value.
 
-Slightly clean up gfs2_iomap_get.
+The whole story started with Sergei reporting a boot crash with a kernel
+built with gcc-10:
 
-Fixes: a27a0c9b6a20 ("gfs2: gfs2_walk_metadata fix")
-Cc: stable@vger.kernel.org # v5.3+
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
-Signed-off-by: Bob Peterson <rpeterso@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  Kernel panic — not syncing: stack-protector: Kernel stack is corrupted in: start_secondary
+  CPU: 1 PID: 0 Comm: swapper/1 Not tainted 5.6.0-rc5—00235—gfffb08b37df9 #139
+  Hardware name: Gigabyte Technology Co., Ltd. To be filled by O.E.M./H77M—D3H, BIOS F12 11/14/2013
+  Call Trace:
+    dump_stack
+    panic
+    ? start_secondary
+    __stack_chk_fail
+    start_secondary
+    secondary_startup_64
+  -—-[ end Kernel panic — not syncing: stack—protector: Kernel stack is corrupted in: start_secondary
+
+This happens because gcc-10 tail-call optimizes the last function call
+in start_secondary() - cpu_startup_entry() - and thus emits a stack
+canary check which fails because the canary value changes after the
+boot_init_stack_canary() call.
+
+To fix that, the initial attempt was to mark the one function which
+generates the stack canary with:
+
+  __attribute__((optimize("-fno-stack-protector"))) ... start_secondary(void *unused)
+
+however, using the optimize attribute doesn't work cumulatively
+as the attribute does not add to but rather replaces previously
+supplied optimization options - roughly all -fxxx options.
+
+The key one among them being -fno-omit-frame-pointer and thus leading to
+not present frame pointer - frame pointer which the kernel needs.
+
+The next attempt to prevent compilers from tail-call optimizing
+the last function call cpu_startup_entry(), shy of carving out
+start_secondary() into a separate compilation unit and building it with
+-fno-stack-protector, was to add an empty asm("").
+
+This current solution was short and sweet, and reportedly, is supported
+by both compilers but we didn't get very far this time: future (LTO?)
+optimization passes could potentially eliminate this, which leads us
+to the third attempt: having an actual memory barrier there which the
+compiler cannot ignore or move around etc.
+
+That should hold for a long time, but hey we said that about the other
+two solutions too so...
+
+Reported-by: Sergei Trofimovich <slyfox@gentoo.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Tested-by: Kalle Valo <kvalo@codeaurora.org>
+Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/20200314164451.346497-1-slyfox@gentoo.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- fs/gfs2/bmap.c | 16 +++++++++-------
- 1 file changed, 9 insertions(+), 7 deletions(-)
+ arch/x86/include/asm/stackprotector.h |    7 ++++++-
+ arch/x86/kernel/smpboot.c             |    8 ++++++++
+ arch/x86/xen/smp.c                    |    1 +
+ include/linux/compiler.h              |    7 +++++++
+ init/main.c                           |    2 ++
+ 5 files changed, 24 insertions(+), 1 deletion(-)
 
-diff --git a/fs/gfs2/bmap.c b/fs/gfs2/bmap.c
-index 096b479721395..43f53020553b5 100644
---- a/fs/gfs2/bmap.c
-+++ b/fs/gfs2/bmap.c
-@@ -530,10 +530,12 @@ static int gfs2_walk_metadata(struct inode *inode, struct metapath *mp,
+--- a/arch/x86/include/asm/stackprotector.h
++++ b/arch/x86/include/asm/stackprotector.h
+@@ -54,8 +54,13 @@
+ /*
+  * Initialize the stackprotector canary value.
+  *
+- * NOTE: this must only be called from functions that never return,
++ * NOTE: this must only be called from functions that never return
+  * and it must always be inlined.
++ *
++ * In addition, it should be called from a compilation unit for which
++ * stack protector is disabled. Alternatively, the caller should not end
++ * with a function call which gets tail-call optimized as that would
++ * lead to checking a modified canary value.
+  */
+ static __always_inline void boot_init_stack_canary(void)
+ {
+--- a/arch/x86/kernel/smpboot.c
++++ b/arch/x86/kernel/smpboot.c
+@@ -243,6 +243,14 @@ static void notrace start_secondary(void
  
- 		/* Advance in metadata tree. */
- 		(mp->mp_list[hgt])++;
--		if (mp->mp_list[hgt] >= sdp->sd_inptrs) {
--			if (!hgt)
-+		if (hgt) {
-+			if (mp->mp_list[hgt] >= sdp->sd_inptrs)
-+				goto lower_metapath;
-+		} else {
-+			if (mp->mp_list[hgt] >= sdp->sd_diptrs)
- 				break;
--			goto lower_metapath;
- 		}
- 
- fill_up_metapath:
-@@ -879,10 +881,9 @@ static int gfs2_iomap_get(struct inode *inode, loff_t pos, loff_t length,
- 					ret = -ENOENT;
- 					goto unlock;
- 				} else {
--					/* report a hole */
- 					iomap->offset = pos;
- 					iomap->length = length;
--					goto do_alloc;
-+					goto hole_found;
- 				}
- 			}
- 			iomap->length = size;
-@@ -936,8 +937,6 @@ static int gfs2_iomap_get(struct inode *inode, loff_t pos, loff_t length,
- 	return ret;
- 
- do_alloc:
--	iomap->addr = IOMAP_NULL_ADDR;
--	iomap->type = IOMAP_HOLE;
- 	if (flags & IOMAP_REPORT) {
- 		if (pos >= size)
- 			ret = -ENOENT;
-@@ -959,6 +958,9 @@ static int gfs2_iomap_get(struct inode *inode, loff_t pos, loff_t length,
- 		if (pos < size && height == ip->i_height)
- 			ret = gfs2_hole_size(inode, lblock, len, mp, iomap);
- 	}
-+hole_found:
-+	iomap->addr = IOMAP_NULL_ADDR;
-+	iomap->type = IOMAP_HOLE;
- 	goto out;
+ 	wmb();
+ 	cpu_startup_entry(CPUHP_ONLINE);
++
++	/*
++	 * Prevent tail call to cpu_startup_entry() because the stack protector
++	 * guard has been changed a couple of function calls up, in
++	 * boot_init_stack_canary() and must not be checked before tail calling
++	 * another function.
++	 */
++	prevent_tail_call_optimization();
  }
  
--- 
-2.20.1
-
+ void __init smp_store_boot_cpu_info(void)
+--- a/arch/x86/xen/smp.c
++++ b/arch/x86/xen/smp.c
+@@ -116,6 +116,7 @@ asmlinkage __visible void cpu_bringup_an
+ #endif
+ 	cpu_bringup();
+ 	cpu_startup_entry(CPUHP_ONLINE);
++	prevent_tail_call_optimization();
+ }
+ 
+ static void xen_smp_intr_free(unsigned int cpu)
+--- a/include/linux/compiler.h
++++ b/include/linux/compiler.h
+@@ -556,4 +556,11 @@ static __always_inline void __write_once
+ # define __kprobes
+ # define nokprobe_inline	inline
+ #endif
++
++/*
++ * This is needed in functions which generate the stack canary, see
++ * arch/x86/kernel/smpboot.c::start_secondary() for an example.
++ */
++#define prevent_tail_call_optimization()	mb()
++
+ #endif /* __LINUX_COMPILER_H */
+--- a/init/main.c
++++ b/init/main.c
+@@ -683,6 +683,8 @@ asmlinkage __visible void __init start_k
+ 
+ 	/* Do the rest non-__init'ed, we're now alive */
+ 	rest_init();
++
++	prevent_tail_call_optimization();
+ }
+ 
+ /* Call all constructor functions linked into the kernel. */
 
 
