@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C6AB1D830A
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:02:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 641F81D84E3
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:15:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732408AbgERSBc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:01:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43780 "EHLO mail.kernel.org"
+        id S1732175AbgERSAD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:00:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41074 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732402AbgERSB1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 14:01:27 -0400
+        id S1732170AbgERSAD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 14:00:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0C907207C4;
-        Mon, 18 May 2020 18:01:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 50A3F207C4;
+        Mon, 18 May 2020 18:00:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824886;
-        bh=QitNHxHhfqNdqMYNIxGf8Vj+yrlLbQAmtA1kEfXAlLE=;
+        s=default; t=1589824801;
+        bh=gECwyudJR4WdOiQnYSxpLUwUdy7ePxi/kDwXaWyQP58=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lGMrwFRU4fjyZ82omGOMs1eJUkMzMv/gsTGm3yzQvmsPItvOIreQ1B297gVcWlqmW
-         yBCV4UNEywTPtQ4wWr15QqzyTUS8fReQwKZFwzEsae2qUNsNkL5a9zCrmbpiU2LENT
-         QnR//DPfJ8XbL6xFlZiSiSKf110R7HSIRulzcBbU=
+        b=vDkjyKlW2CSJEzd6ptLQomrT5Zl5NosqMJCs3wSlMnkx2ZcXk+sf9ypbgwRCmTGVP
+         qQgCZFumNslmooXDlGOxplk8JOCvP1ksojidNYE8T+DoEquBnMsZL+YIpJ8YB8EG7m
+         FvWXg23pAzROCrvtn2vrvfqPrznhVP0PHIGgnpYk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yuiko Oshino <yuiko.oshino@microchip.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 009/194] net: phy: microchip_t1: add lan87xx_phy_init to initialize the lan87xx phy.
-Date:   Mon, 18 May 2020 19:34:59 +0200
-Message-Id: <20200518173532.401634344@linuxfoundation.org>
+        stable@vger.kernel.org, Julien Grall <julien@xen.org>,
+        Andre Przywara <andre.przywara@arm.com>,
+        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 010/194] KVM: arm: vgic: Synchronize the whole guest on GIC{D,R}_I{S,C}ACTIVER read
+Date:   Mon, 18 May 2020 19:35:00 +0200
+Message-Id: <20200518173532.486874349@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
 References: <20200518173531.455604187@linuxfoundation.org>
@@ -44,235 +44,252 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuiko Oshino <yuiko.oshino@microchip.com>
+From: Marc Zyngier <maz@kernel.org>
 
-[ Upstream commit 63edbcceef612bdd95fa28ce100460c7b79008a4 ]
+[ Upstream commit 9a50ebbffa9862db7604345f5fd763122b0f6fed ]
 
-lan87xx_phy_init() initializes the lan87xx phy hardware
-including its TC10 Wake-up and Sleep features.
+When a guest tries to read the active state of its interrupts,
+we currently just return whatever state we have in memory. This
+means that if such an interrupt lives in a List Register on another
+CPU, we fail to obsertve the latest active state for this interrupt.
 
-Fixes: 3e50d2da5850 ("Add driver for Microchip LAN87XX T1 PHYs")
-Signed-off-by: Yuiko Oshino <yuiko.oshino@microchip.com>
-v0->v1:
-    - Add more details in the commit message and source comments.
-    - Update to the latest initialization sequences.
-    - Add access_ereg_modify_changed().
-    - Fix access_ereg() to access SMI bank correctly.
-Signed-off-by: David S. Miller <davem@davemloft.net>
+In order to remedy this, stop all the other vcpus so that they exit
+and we can observe the most recent value for the state. This is
+similar to what we are doing for the write side of the same
+registers, and results in new MMIO handlers for userspace (which
+do not need to stop the guest, as it is supposed to be stopped
+already).
+
+Reported-by: Julien Grall <julien@xen.org>
+Reviewed-by: Andre Przywara <andre.przywara@arm.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/microchip_t1.c | 171 +++++++++++++++++++++++++++++++++
- 1 file changed, 171 insertions(+)
+ virt/kvm/arm/vgic/vgic-mmio-v2.c |   4 +-
+ virt/kvm/arm/vgic/vgic-mmio-v3.c |  12 ++--
+ virt/kvm/arm/vgic/vgic-mmio.c    | 100 ++++++++++++++++++++-----------
+ virt/kvm/arm/vgic/vgic-mmio.h    |   3 +
+ 4 files changed, 75 insertions(+), 44 deletions(-)
 
-diff --git a/drivers/net/phy/microchip_t1.c b/drivers/net/phy/microchip_t1.c
-index 001def4509c29..fed3e395f18e1 100644
---- a/drivers/net/phy/microchip_t1.c
-+++ b/drivers/net/phy/microchip_t1.c
-@@ -3,9 +3,21 @@
- 
- #include <linux/kernel.h>
- #include <linux/module.h>
-+#include <linux/delay.h>
- #include <linux/mii.h>
- #include <linux/phy.h>
- 
-+/* External Register Control Register */
-+#define LAN87XX_EXT_REG_CTL                     (0x14)
-+#define LAN87XX_EXT_REG_CTL_RD_CTL              (0x1000)
-+#define LAN87XX_EXT_REG_CTL_WR_CTL              (0x0800)
-+
-+/* External Register Read Data Register */
-+#define LAN87XX_EXT_REG_RD_DATA                 (0x15)
-+
-+/* External Register Write Data Register */
-+#define LAN87XX_EXT_REG_WR_DATA                 (0x16)
-+
- /* Interrupt Source Register */
- #define LAN87XX_INTERRUPT_SOURCE                (0x18)
- 
-@@ -14,9 +26,160 @@
- #define LAN87XX_MASK_LINK_UP                    (0x0004)
- #define LAN87XX_MASK_LINK_DOWN                  (0x0002)
- 
-+/* phyaccess nested types */
-+#define	PHYACC_ATTR_MODE_READ		0
-+#define	PHYACC_ATTR_MODE_WRITE		1
-+#define	PHYACC_ATTR_MODE_MODIFY		2
-+
-+#define	PHYACC_ATTR_BANK_SMI		0
-+#define	PHYACC_ATTR_BANK_MISC		1
-+#define	PHYACC_ATTR_BANK_PCS		2
-+#define	PHYACC_ATTR_BANK_AFE		3
-+#define	PHYACC_ATTR_BANK_MAX		7
-+
- #define DRIVER_AUTHOR	"Nisar Sayed <nisar.sayed@microchip.com>"
- #define DRIVER_DESC	"Microchip LAN87XX T1 PHY driver"
- 
-+struct access_ereg_val {
-+	u8  mode;
-+	u8  bank;
-+	u8  offset;
-+	u16 val;
-+	u16 mask;
-+};
-+
-+static int access_ereg(struct phy_device *phydev, u8 mode, u8 bank,
-+		       u8 offset, u16 val)
-+{
-+	u16 ereg = 0;
-+	int rc = 0;
-+
-+	if (mode > PHYACC_ATTR_MODE_WRITE || bank > PHYACC_ATTR_BANK_MAX)
-+		return -EINVAL;
-+
-+	if (bank == PHYACC_ATTR_BANK_SMI) {
-+		if (mode == PHYACC_ATTR_MODE_WRITE)
-+			rc = phy_write(phydev, offset, val);
-+		else
-+			rc = phy_read(phydev, offset);
-+		return rc;
-+	}
-+
-+	if (mode == PHYACC_ATTR_MODE_WRITE) {
-+		ereg = LAN87XX_EXT_REG_CTL_WR_CTL;
-+		rc = phy_write(phydev, LAN87XX_EXT_REG_WR_DATA, val);
-+		if (rc < 0)
-+			return rc;
-+	} else {
-+		ereg = LAN87XX_EXT_REG_CTL_RD_CTL;
-+	}
-+
-+	ereg |= (bank << 8) | offset;
-+
-+	rc = phy_write(phydev, LAN87XX_EXT_REG_CTL, ereg);
-+	if (rc < 0)
-+		return rc;
-+
-+	if (mode == PHYACC_ATTR_MODE_READ)
-+		rc = phy_read(phydev, LAN87XX_EXT_REG_RD_DATA);
-+
-+	return rc;
-+}
-+
-+static int access_ereg_modify_changed(struct phy_device *phydev,
-+				      u8 bank, u8 offset, u16 val, u16 mask)
-+{
-+	int new = 0, rc = 0;
-+
-+	if (bank > PHYACC_ATTR_BANK_MAX)
-+		return -EINVAL;
-+
-+	rc = access_ereg(phydev, PHYACC_ATTR_MODE_READ, bank, offset, val);
-+	if (rc < 0)
-+		return rc;
-+
-+	new = val | (rc & (mask ^ 0xFFFF));
-+	rc = access_ereg(phydev, PHYACC_ATTR_MODE_WRITE, bank, offset, new);
-+
-+	return rc;
-+}
-+
-+static int lan87xx_phy_init(struct phy_device *phydev)
-+{
-+	static const struct access_ereg_val init[] = {
-+		/* TX Amplitude = 5 */
-+		{PHYACC_ATTR_MODE_MODIFY, PHYACC_ATTR_BANK_AFE, 0x0B,
-+		 0x000A, 0x001E},
-+		/* Clear SMI interrupts */
-+		{PHYACC_ATTR_MODE_READ, PHYACC_ATTR_BANK_SMI, 0x18,
-+		 0, 0},
-+		/* Clear MISC interrupts */
-+		{PHYACC_ATTR_MODE_READ, PHYACC_ATTR_BANK_MISC, 0x08,
-+		 0, 0},
-+		/* Turn on TC10 Ring Oscillator (ROSC) */
-+		{PHYACC_ATTR_MODE_MODIFY, PHYACC_ATTR_BANK_MISC, 0x20,
-+		 0x0020, 0x0020},
-+		/* WUR Detect Length to 1.2uS, LPC Detect Length to 1.09uS */
-+		{PHYACC_ATTR_MODE_WRITE, PHYACC_ATTR_BANK_PCS, 0x20,
-+		 0x283C, 0},
-+		/* Wake_In Debounce Length to 39uS, Wake_Out Length to 79uS */
-+		{PHYACC_ATTR_MODE_WRITE, PHYACC_ATTR_BANK_MISC, 0x21,
-+		 0x274F, 0},
-+		/* Enable Auto Wake Forward to Wake_Out, ROSC on, Sleep,
-+		 * and Wake_In to wake PHY
-+		 */
-+		{PHYACC_ATTR_MODE_WRITE, PHYACC_ATTR_BANK_MISC, 0x20,
-+		 0x80A7, 0},
-+		/* Enable WUP Auto Fwd, Enable Wake on MDI, Wakeup Debouncer
-+		 * to 128 uS
-+		 */
-+		{PHYACC_ATTR_MODE_WRITE, PHYACC_ATTR_BANK_MISC, 0x24,
-+		 0xF110, 0},
-+		/* Enable HW Init */
-+		{PHYACC_ATTR_MODE_MODIFY, PHYACC_ATTR_BANK_SMI, 0x1A,
-+		 0x0100, 0x0100},
-+	};
-+	int rc, i;
-+
-+	/* Start manual initialization procedures in Managed Mode */
-+	rc = access_ereg_modify_changed(phydev, PHYACC_ATTR_BANK_SMI,
-+					0x1a, 0x0000, 0x0100);
-+	if (rc < 0)
-+		return rc;
-+
-+	/* Soft Reset the SMI block */
-+	rc = access_ereg_modify_changed(phydev, PHYACC_ATTR_BANK_SMI,
-+					0x00, 0x8000, 0x8000);
-+	if (rc < 0)
-+		return rc;
-+
-+	/* Check to see if the self-clearing bit is cleared */
-+	usleep_range(1000, 2000);
-+	rc = access_ereg(phydev, PHYACC_ATTR_MODE_READ,
-+			 PHYACC_ATTR_BANK_SMI, 0x00, 0);
-+	if (rc < 0)
-+		return rc;
-+	if ((rc & 0x8000) != 0)
-+		return -ETIMEDOUT;
-+
-+	/* PHY Initialization */
-+	for (i = 0; i < ARRAY_SIZE(init); i++) {
-+		if (init[i].mode == PHYACC_ATTR_MODE_MODIFY) {
-+			rc = access_ereg_modify_changed(phydev, init[i].bank,
-+							init[i].offset,
-+							init[i].val,
-+							init[i].mask);
-+		} else {
-+			rc = access_ereg(phydev, init[i].mode, init[i].bank,
-+					 init[i].offset, init[i].val);
-+		}
-+		if (rc < 0)
-+			return rc;
-+	}
-+
-+	return 0;
-+}
-+
- static int lan87xx_phy_config_intr(struct phy_device *phydev)
- {
- 	int rc, val = 0;
-@@ -40,6 +203,13 @@ static int lan87xx_phy_ack_interrupt(struct phy_device *phydev)
- 	return rc < 0 ? rc : 0;
+diff --git a/virt/kvm/arm/vgic/vgic-mmio-v2.c b/virt/kvm/arm/vgic/vgic-mmio-v2.c
+index 5945f062d7497..d63881f60e1a5 100644
+--- a/virt/kvm/arm/vgic/vgic-mmio-v2.c
++++ b/virt/kvm/arm/vgic/vgic-mmio-v2.c
+@@ -422,11 +422,11 @@ static const struct vgic_register_region vgic_v2_dist_registers[] = {
+ 		VGIC_ACCESS_32bit),
+ 	REGISTER_DESC_WITH_BITS_PER_IRQ(GIC_DIST_ACTIVE_SET,
+ 		vgic_mmio_read_active, vgic_mmio_write_sactive,
+-		NULL, vgic_mmio_uaccess_write_sactive, 1,
++		vgic_uaccess_read_active, vgic_mmio_uaccess_write_sactive, 1,
+ 		VGIC_ACCESS_32bit),
+ 	REGISTER_DESC_WITH_BITS_PER_IRQ(GIC_DIST_ACTIVE_CLEAR,
+ 		vgic_mmio_read_active, vgic_mmio_write_cactive,
+-		NULL, vgic_mmio_uaccess_write_cactive, 1,
++		vgic_uaccess_read_active, vgic_mmio_uaccess_write_cactive, 1,
+ 		VGIC_ACCESS_32bit),
+ 	REGISTER_DESC_WITH_BITS_PER_IRQ(GIC_DIST_PRI,
+ 		vgic_mmio_read_priority, vgic_mmio_write_priority, NULL, NULL,
+diff --git a/virt/kvm/arm/vgic/vgic-mmio-v3.c b/virt/kvm/arm/vgic/vgic-mmio-v3.c
+index ebc218840fc22..b1b066c148cee 100644
+--- a/virt/kvm/arm/vgic/vgic-mmio-v3.c
++++ b/virt/kvm/arm/vgic/vgic-mmio-v3.c
+@@ -494,11 +494,11 @@ static const struct vgic_register_region vgic_v3_dist_registers[] = {
+ 		VGIC_ACCESS_32bit),
+ 	REGISTER_DESC_WITH_BITS_PER_IRQ_SHARED(GICD_ISACTIVER,
+ 		vgic_mmio_read_active, vgic_mmio_write_sactive,
+-		NULL, vgic_mmio_uaccess_write_sactive, 1,
++		vgic_uaccess_read_active, vgic_mmio_uaccess_write_sactive, 1,
+ 		VGIC_ACCESS_32bit),
+ 	REGISTER_DESC_WITH_BITS_PER_IRQ_SHARED(GICD_ICACTIVER,
+ 		vgic_mmio_read_active, vgic_mmio_write_cactive,
+-		NULL, vgic_mmio_uaccess_write_cactive,
++		vgic_uaccess_read_active, vgic_mmio_uaccess_write_cactive,
+ 		1, VGIC_ACCESS_32bit),
+ 	REGISTER_DESC_WITH_BITS_PER_IRQ_SHARED(GICD_IPRIORITYR,
+ 		vgic_mmio_read_priority, vgic_mmio_write_priority, NULL, NULL,
+@@ -566,12 +566,12 @@ static const struct vgic_register_region vgic_v3_rd_registers[] = {
+ 		VGIC_ACCESS_32bit),
+ 	REGISTER_DESC_WITH_LENGTH_UACCESS(SZ_64K + GICR_ISACTIVER0,
+ 		vgic_mmio_read_active, vgic_mmio_write_sactive,
+-		NULL, vgic_mmio_uaccess_write_sactive,
+-		4, VGIC_ACCESS_32bit),
++		vgic_uaccess_read_active, vgic_mmio_uaccess_write_sactive, 4,
++		VGIC_ACCESS_32bit),
+ 	REGISTER_DESC_WITH_LENGTH_UACCESS(SZ_64K + GICR_ICACTIVER0,
+ 		vgic_mmio_read_active, vgic_mmio_write_cactive,
+-		NULL, vgic_mmio_uaccess_write_cactive,
+-		4, VGIC_ACCESS_32bit),
++		vgic_uaccess_read_active, vgic_mmio_uaccess_write_cactive, 4,
++		VGIC_ACCESS_32bit),
+ 	REGISTER_DESC_WITH_LENGTH(SZ_64K + GICR_IPRIORITYR0,
+ 		vgic_mmio_read_priority, vgic_mmio_write_priority, 32,
+ 		VGIC_ACCESS_32bit | VGIC_ACCESS_8bit),
+diff --git a/virt/kvm/arm/vgic/vgic-mmio.c b/virt/kvm/arm/vgic/vgic-mmio.c
+index e7abd05ea8964..f659654b09a83 100644
+--- a/virt/kvm/arm/vgic/vgic-mmio.c
++++ b/virt/kvm/arm/vgic/vgic-mmio.c
+@@ -279,8 +279,39 @@ void vgic_mmio_write_cpending(struct kvm_vcpu *vcpu,
+ 	}
  }
  
-+static int lan87xx_config_init(struct phy_device *phydev)
-+{
-+	int rc = lan87xx_phy_init(phydev);
+-unsigned long vgic_mmio_read_active(struct kvm_vcpu *vcpu,
+-				    gpa_t addr, unsigned int len)
 +
-+	return rc < 0 ? rc : 0;
++/*
++ * If we are fiddling with an IRQ's active state, we have to make sure the IRQ
++ * is not queued on some running VCPU's LRs, because then the change to the
++ * active state can be overwritten when the VCPU's state is synced coming back
++ * from the guest.
++ *
++ * For shared interrupts as well as GICv3 private interrupts, we have to
++ * stop all the VCPUs because interrupts can be migrated while we don't hold
++ * the IRQ locks and we don't want to be chasing moving targets.
++ *
++ * For GICv2 private interrupts we don't have to do anything because
++ * userspace accesses to the VGIC state already require all VCPUs to be
++ * stopped, and only the VCPU itself can modify its private interrupts
++ * active state, which guarantees that the VCPU is not running.
++ */
++static void vgic_access_active_prepare(struct kvm_vcpu *vcpu, u32 intid)
++{
++	if (vcpu->kvm->arch.vgic.vgic_model == KVM_DEV_TYPE_ARM_VGIC_V3 ||
++	    intid >= VGIC_NR_PRIVATE_IRQS)
++		kvm_arm_halt_guest(vcpu->kvm);
 +}
 +
- static struct phy_driver microchip_t1_phy_driver[] = {
- 	{
- 		.phy_id         = 0x0007c150,
-@@ -48,6 +218,7 @@ static struct phy_driver microchip_t1_phy_driver[] = {
++/* See vgic_access_active_prepare */
++static void vgic_access_active_finish(struct kvm_vcpu *vcpu, u32 intid)
++{
++	if (vcpu->kvm->arch.vgic.vgic_model == KVM_DEV_TYPE_ARM_VGIC_V3 ||
++	    intid >= VGIC_NR_PRIVATE_IRQS)
++		kvm_arm_resume_guest(vcpu->kvm);
++}
++
++static unsigned long __vgic_mmio_read_active(struct kvm_vcpu *vcpu,
++					     gpa_t addr, unsigned int len)
+ {
+ 	u32 intid = VGIC_ADDR_TO_INTID(addr, 1);
+ 	u32 value = 0;
+@@ -290,6 +321,10 @@ unsigned long vgic_mmio_read_active(struct kvm_vcpu *vcpu,
+ 	for (i = 0; i < len * 8; i++) {
+ 		struct vgic_irq *irq = vgic_get_irq(vcpu->kvm, vcpu, intid + i);
  
- 		.features       = PHY_BASIC_T1_FEATURES,
++		/*
++		 * Even for HW interrupts, don't evaluate the HW state as
++		 * all the guest is interested in is the virtual state.
++		 */
+ 		if (irq->active)
+ 			value |= (1U << i);
  
-+		.config_init	= lan87xx_config_init,
- 		.config_aneg    = genphy_config_aneg,
+@@ -299,6 +334,29 @@ unsigned long vgic_mmio_read_active(struct kvm_vcpu *vcpu,
+ 	return value;
+ }
  
- 		.ack_interrupt  = lan87xx_phy_ack_interrupt,
++unsigned long vgic_mmio_read_active(struct kvm_vcpu *vcpu,
++				    gpa_t addr, unsigned int len)
++{
++	u32 intid = VGIC_ADDR_TO_INTID(addr, 1);
++	u32 val;
++
++	mutex_lock(&vcpu->kvm->lock);
++	vgic_access_active_prepare(vcpu, intid);
++
++	val = __vgic_mmio_read_active(vcpu, addr, len);
++
++	vgic_access_active_finish(vcpu, intid);
++	mutex_unlock(&vcpu->kvm->lock);
++
++	return val;
++}
++
++unsigned long vgic_uaccess_read_active(struct kvm_vcpu *vcpu,
++				    gpa_t addr, unsigned int len)
++{
++	return __vgic_mmio_read_active(vcpu, addr, len);
++}
++
+ /* Must be called with irq->irq_lock held */
+ static void vgic_hw_irq_change_active(struct kvm_vcpu *vcpu, struct vgic_irq *irq,
+ 				      bool active, bool is_uaccess)
+@@ -350,36 +408,6 @@ static void vgic_mmio_change_active(struct kvm_vcpu *vcpu, struct vgic_irq *irq,
+ 		raw_spin_unlock_irqrestore(&irq->irq_lock, flags);
+ }
+ 
+-/*
+- * If we are fiddling with an IRQ's active state, we have to make sure the IRQ
+- * is not queued on some running VCPU's LRs, because then the change to the
+- * active state can be overwritten when the VCPU's state is synced coming back
+- * from the guest.
+- *
+- * For shared interrupts, we have to stop all the VCPUs because interrupts can
+- * be migrated while we don't hold the IRQ locks and we don't want to be
+- * chasing moving targets.
+- *
+- * For private interrupts we don't have to do anything because userspace
+- * accesses to the VGIC state already require all VCPUs to be stopped, and
+- * only the VCPU itself can modify its private interrupts active state, which
+- * guarantees that the VCPU is not running.
+- */
+-static void vgic_change_active_prepare(struct kvm_vcpu *vcpu, u32 intid)
+-{
+-	if (vcpu->kvm->arch.vgic.vgic_model == KVM_DEV_TYPE_ARM_VGIC_V3 ||
+-	    intid >= VGIC_NR_PRIVATE_IRQS)
+-		kvm_arm_halt_guest(vcpu->kvm);
+-}
+-
+-/* See vgic_change_active_prepare */
+-static void vgic_change_active_finish(struct kvm_vcpu *vcpu, u32 intid)
+-{
+-	if (vcpu->kvm->arch.vgic.vgic_model == KVM_DEV_TYPE_ARM_VGIC_V3 ||
+-	    intid >= VGIC_NR_PRIVATE_IRQS)
+-		kvm_arm_resume_guest(vcpu->kvm);
+-}
+-
+ static void __vgic_mmio_write_cactive(struct kvm_vcpu *vcpu,
+ 				      gpa_t addr, unsigned int len,
+ 				      unsigned long val)
+@@ -401,11 +429,11 @@ void vgic_mmio_write_cactive(struct kvm_vcpu *vcpu,
+ 	u32 intid = VGIC_ADDR_TO_INTID(addr, 1);
+ 
+ 	mutex_lock(&vcpu->kvm->lock);
+-	vgic_change_active_prepare(vcpu, intid);
++	vgic_access_active_prepare(vcpu, intid);
+ 
+ 	__vgic_mmio_write_cactive(vcpu, addr, len, val);
+ 
+-	vgic_change_active_finish(vcpu, intid);
++	vgic_access_active_finish(vcpu, intid);
+ 	mutex_unlock(&vcpu->kvm->lock);
+ }
+ 
+@@ -438,11 +466,11 @@ void vgic_mmio_write_sactive(struct kvm_vcpu *vcpu,
+ 	u32 intid = VGIC_ADDR_TO_INTID(addr, 1);
+ 
+ 	mutex_lock(&vcpu->kvm->lock);
+-	vgic_change_active_prepare(vcpu, intid);
++	vgic_access_active_prepare(vcpu, intid);
+ 
+ 	__vgic_mmio_write_sactive(vcpu, addr, len, val);
+ 
+-	vgic_change_active_finish(vcpu, intid);
++	vgic_access_active_finish(vcpu, intid);
+ 	mutex_unlock(&vcpu->kvm->lock);
+ }
+ 
+diff --git a/virt/kvm/arm/vgic/vgic-mmio.h b/virt/kvm/arm/vgic/vgic-mmio.h
+index 5af2aefad4359..30713a44e3faa 100644
+--- a/virt/kvm/arm/vgic/vgic-mmio.h
++++ b/virt/kvm/arm/vgic/vgic-mmio.h
+@@ -152,6 +152,9 @@ void vgic_mmio_write_cpending(struct kvm_vcpu *vcpu,
+ unsigned long vgic_mmio_read_active(struct kvm_vcpu *vcpu,
+ 				    gpa_t addr, unsigned int len);
+ 
++unsigned long vgic_uaccess_read_active(struct kvm_vcpu *vcpu,
++				    gpa_t addr, unsigned int len);
++
+ void vgic_mmio_write_cactive(struct kvm_vcpu *vcpu,
+ 			     gpa_t addr, unsigned int len,
+ 			     unsigned long val);
 -- 
 2.20.1
 
