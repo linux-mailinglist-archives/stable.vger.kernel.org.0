@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C27C61D8458
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:11:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 514F71D86D7
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:28:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732514AbgERSLW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:11:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51978 "EHLO mail.kernel.org"
+        id S1729005AbgERS2U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:28:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40396 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732836AbgERSEq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 14:04:46 -0400
+        id S1729520AbgERRnH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:43:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D6BDC20873;
-        Mon, 18 May 2020 18:04:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 92DE020849;
+        Mon, 18 May 2020 17:43:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589825085;
-        bh=vvO58edxBBfMDGU/CA+sbKPkuGmRSwNhdMK6PcSRDFk=;
+        s=default; t=1589823786;
+        bh=++6rxJ4KjRISx6k9lCyq8Zf09OyDNFQaezhXx9FQq6Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a+U4c8GWZe5nf2fMQRk6ZCbbrGV8V5HhQKDRIIu2C/zFiumNTqXzZufhgVQGJvvlH
-         U36W+grfU48WTOjeiN5RDfxRFyhZ/252vXAoPYRKZByV+XDY4cydxuUSQgowvsb/em
-         f8FYE8assUV78CxX95WkgShQsTLX64HcBVwaUw7U=
+        b=h+hRe3mouFVpZkkkuIOY+ADNVQ5vGhpkSUD7mspi6eN9I3aR1q96k95//MoXY+8ru
+         w6M53SQEyrsbWT7/XhAJNTN4pmthRv4YN5pD4xTDcK7FDOz8fVi6pmSrjPhKevEoc5
+         GCIexGQI7xo+fadVpi+T6qkN068v9p3w+i/u4cgI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
-        Chris Wilson <chris@chris-wilson.co.uk>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        stable@vger.kernel.org,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 084/194] drm/i915/gt: Make timeslicing an explicit engine property
+Subject: [PATCH 4.9 36/90] ptp: create "pins" together with the rest of attributes
 Date:   Mon, 18 May 2020 19:36:14 +0200
-Message-Id: <20200518173538.719488345@linuxfoundation.org>
+Message-Id: <20200518173458.426221453@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
-References: <20200518173531.455604187@linuxfoundation.org>
+In-Reply-To: <20200518173450.930655662@linuxfoundation.org>
+References: <20200518173450.930655662@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,101 +46,169 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Wilson <chris@chris-wilson.co.uk>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-[ Upstream commit fe5a708267911d55cce42910d93e303924b088fd ]
+commit 85a66e55019583da1e0f18706b7a8281c9f6de5b upstream.
 
-In order to allow userspace to rely on timeslicing to reorder their
-batches, we must support preemption of those user batches. Declare
-timeslicing as an explicit property that is a combination of having the
-kernel support and HW support.
+Let's switch to using device_create_with_groups(), which will allow us to
+create "pins" attribute group together with the rest of ptp device
+attributes, and before userspace gets notified about ptp device creation.
 
-Suggested-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Fixes: 8ee36e048c98 ("drm/i915/execlists: Minimalistic timeslicing")
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Reviewed-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200501122249.12417-1-chris@chris-wilson.co.uk
-(cherry picked from commit a211da9c771bf97395a3ced83a3aa383372b13a7)
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+[bwh: Backported to 4.9: adjust context]
+Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/gt/intel_engine.h       |  9 ---------
- drivers/gpu/drm/i915/gt/intel_engine_types.h | 18 ++++++++++++++----
- drivers/gpu/drm/i915/gt/intel_lrc.c          |  5 ++++-
- 3 files changed, 18 insertions(+), 14 deletions(-)
+ drivers/ptp/ptp_clock.c   | 20 +++++++++++---------
+ drivers/ptp/ptp_private.h |  7 ++++---
+ drivers/ptp/ptp_sysfs.c   | 39 +++++++++------------------------------
+ 3 files changed, 24 insertions(+), 42 deletions(-)
 
-diff --git a/drivers/gpu/drm/i915/gt/intel_engine.h b/drivers/gpu/drm/i915/gt/intel_engine.h
-index 5df003061e442..beb3211a6249d 100644
---- a/drivers/gpu/drm/i915/gt/intel_engine.h
-+++ b/drivers/gpu/drm/i915/gt/intel_engine.h
-@@ -338,13 +338,4 @@ intel_engine_has_preempt_reset(const struct intel_engine_cs *engine)
- 	return intel_engine_has_preemption(engine);
+diff --git a/drivers/ptp/ptp_clock.c b/drivers/ptp/ptp_clock.c
+index 08f304b83ad13..d5ac33350889e 100644
+--- a/drivers/ptp/ptp_clock.c
++++ b/drivers/ptp/ptp_clock.c
+@@ -214,16 +214,17 @@ struct ptp_clock *ptp_clock_register(struct ptp_clock_info *info,
+ 	mutex_init(&ptp->pincfg_mux);
+ 	init_waitqueue_head(&ptp->tsev_wq);
+ 
++	err = ptp_populate_pin_groups(ptp);
++	if (err)
++		goto no_pin_groups;
++
+ 	/* Create a new device in our class. */
+-	ptp->dev = device_create(ptp_class, parent, ptp->devid, ptp,
+-				 "ptp%d", ptp->index);
++	ptp->dev = device_create_with_groups(ptp_class, parent, ptp->devid,
++					     ptp, ptp->pin_attr_groups,
++					     "ptp%d", ptp->index);
+ 	if (IS_ERR(ptp->dev))
+ 		goto no_device;
+ 
+-	err = ptp_populate_sysfs(ptp);
+-	if (err)
+-		goto no_sysfs;
+-
+ 	/* Register a new PPS source. */
+ 	if (info->pps) {
+ 		struct pps_source_info pps;
+@@ -251,10 +252,10 @@ no_clock:
+ 	if (ptp->pps_source)
+ 		pps_unregister_source(ptp->pps_source);
+ no_pps:
+-	ptp_cleanup_sysfs(ptp);
+-no_sysfs:
+ 	device_destroy(ptp_class, ptp->devid);
+ no_device:
++	ptp_cleanup_pin_groups(ptp);
++no_pin_groups:
+ 	mutex_destroy(&ptp->tsevq_mux);
+ 	mutex_destroy(&ptp->pincfg_mux);
+ 	ida_simple_remove(&ptp_clocks_map, index);
+@@ -273,8 +274,9 @@ int ptp_clock_unregister(struct ptp_clock *ptp)
+ 	/* Release the clock's resources. */
+ 	if (ptp->pps_source)
+ 		pps_unregister_source(ptp->pps_source);
+-	ptp_cleanup_sysfs(ptp);
++
+ 	device_destroy(ptp_class, ptp->devid);
++	ptp_cleanup_pin_groups(ptp);
+ 
+ 	posix_clock_unregister(&ptp->clock);
+ 	return 0;
+diff --git a/drivers/ptp/ptp_private.h b/drivers/ptp/ptp_private.h
+index 9c5d41421b651..d95888974d0c6 100644
+--- a/drivers/ptp/ptp_private.h
++++ b/drivers/ptp/ptp_private.h
+@@ -54,6 +54,8 @@ struct ptp_clock {
+ 	struct device_attribute *pin_dev_attr;
+ 	struct attribute **pin_attr;
+ 	struct attribute_group pin_attr_group;
++	/* 1st entry is a pointer to the real group, 2nd is NULL terminator */
++	const struct attribute_group *pin_attr_groups[2];
+ };
+ 
+ /*
+@@ -94,8 +96,7 @@ uint ptp_poll(struct posix_clock *pc,
+ 
+ extern const struct attribute_group *ptp_groups[];
+ 
+-int ptp_cleanup_sysfs(struct ptp_clock *ptp);
+-
+-int ptp_populate_sysfs(struct ptp_clock *ptp);
++int ptp_populate_pin_groups(struct ptp_clock *ptp);
++void ptp_cleanup_pin_groups(struct ptp_clock *ptp);
+ 
+ #endif
+diff --git a/drivers/ptp/ptp_sysfs.c b/drivers/ptp/ptp_sysfs.c
+index a55a6eb4dfde9..731d0423c8aa7 100644
+--- a/drivers/ptp/ptp_sysfs.c
++++ b/drivers/ptp/ptp_sysfs.c
+@@ -268,25 +268,14 @@ static ssize_t ptp_pin_store(struct device *dev, struct device_attribute *attr,
+ 	return count;
  }
  
--static inline bool
--intel_engine_has_timeslices(const struct intel_engine_cs *engine)
--{
--	if (!IS_ACTIVE(CONFIG_DRM_I915_TIMESLICE_DURATION))
--		return false;
+-int ptp_cleanup_sysfs(struct ptp_clock *ptp)
++int ptp_populate_pin_groups(struct ptp_clock *ptp)
+ {
+-	struct device *dev = ptp->dev;
+-	struct ptp_clock_info *info = ptp->info;
 -
--	return intel_engine_has_semaphores(engine);
+-	if (info->n_pins) {
+-		sysfs_remove_group(&dev->kobj, &ptp->pin_attr_group);
+-		kfree(ptp->pin_attr);
+-		kfree(ptp->pin_dev_attr);
+-	}
+-	return 0;
 -}
 -
- #endif /* _INTEL_RINGBUFFER_H_ */
-diff --git a/drivers/gpu/drm/i915/gt/intel_engine_types.h b/drivers/gpu/drm/i915/gt/intel_engine_types.h
-index 92be41a6903c0..4ea067e1508a5 100644
---- a/drivers/gpu/drm/i915/gt/intel_engine_types.h
-+++ b/drivers/gpu/drm/i915/gt/intel_engine_types.h
-@@ -473,10 +473,11 @@ struct intel_engine_cs {
- #define I915_ENGINE_SUPPORTS_STATS   BIT(1)
- #define I915_ENGINE_HAS_PREEMPTION   BIT(2)
- #define I915_ENGINE_HAS_SEMAPHORES   BIT(3)
--#define I915_ENGINE_NEEDS_BREADCRUMB_TASKLET BIT(4)
--#define I915_ENGINE_IS_VIRTUAL       BIT(5)
--#define I915_ENGINE_HAS_RELATIVE_MMIO BIT(6)
--#define I915_ENGINE_REQUIRES_CMD_PARSER BIT(7)
-+#define I915_ENGINE_HAS_TIMESLICES   BIT(4)
-+#define I915_ENGINE_NEEDS_BREADCRUMB_TASKLET BIT(5)
-+#define I915_ENGINE_IS_VIRTUAL       BIT(6)
-+#define I915_ENGINE_HAS_RELATIVE_MMIO BIT(7)
-+#define I915_ENGINE_REQUIRES_CMD_PARSER BIT(8)
- 	unsigned int flags;
+-static int ptp_populate_pins(struct ptp_clock *ptp)
+-{
+-	struct device *dev = ptp->dev;
+ 	struct ptp_clock_info *info = ptp->info;
+ 	int err = -ENOMEM, i, n_pins = info->n_pins;
  
- 	/*
-@@ -573,6 +574,15 @@ intel_engine_has_semaphores(const struct intel_engine_cs *engine)
- 	return engine->flags & I915_ENGINE_HAS_SEMAPHORES;
++	if (!n_pins)
++		return 0;
++
+ 	ptp->pin_dev_attr = kzalloc(n_pins * sizeof(*ptp->pin_dev_attr),
+ 				    GFP_KERNEL);
+ 	if (!ptp->pin_dev_attr)
+@@ -310,28 +299,18 @@ static int ptp_populate_pins(struct ptp_clock *ptp)
+ 	ptp->pin_attr_group.name = "pins";
+ 	ptp->pin_attr_group.attrs = ptp->pin_attr;
+ 
+-	err = sysfs_create_group(&dev->kobj, &ptp->pin_attr_group);
+-	if (err)
+-		goto no_group;
++	ptp->pin_attr_groups[0] = &ptp->pin_attr_group;
++
+ 	return 0;
+ 
+-no_group:
+-	kfree(ptp->pin_attr);
+ no_pin_attr:
+ 	kfree(ptp->pin_dev_attr);
+ no_dev_attr:
+ 	return err;
  }
  
-+static inline bool
-+intel_engine_has_timeslices(const struct intel_engine_cs *engine)
-+{
-+	if (!IS_ACTIVE(CONFIG_DRM_I915_TIMESLICE_DURATION))
-+		return false;
-+
-+	return engine->flags & I915_ENGINE_HAS_TIMESLICES;
-+}
-+
- static inline bool
- intel_engine_needs_breadcrumb_tasklet(const struct intel_engine_cs *engine)
+-int ptp_populate_sysfs(struct ptp_clock *ptp)
++void ptp_cleanup_pin_groups(struct ptp_clock *ptp)
  {
-diff --git a/drivers/gpu/drm/i915/gt/intel_lrc.c b/drivers/gpu/drm/i915/gt/intel_lrc.c
-index 31455eceeb0c6..5bebda4a2d0b4 100644
---- a/drivers/gpu/drm/i915/gt/intel_lrc.c
-+++ b/drivers/gpu/drm/i915/gt/intel_lrc.c
-@@ -4194,8 +4194,11 @@ void intel_execlists_set_default_submission(struct intel_engine_cs *engine)
- 	engine->flags |= I915_ENGINE_SUPPORTS_STATS;
- 	if (!intel_vgpu_active(engine->i915)) {
- 		engine->flags |= I915_ENGINE_HAS_SEMAPHORES;
--		if (HAS_LOGICAL_RING_PREEMPTION(engine->i915))
-+		if (HAS_LOGICAL_RING_PREEMPTION(engine->i915)) {
- 			engine->flags |= I915_ENGINE_HAS_PREEMPTION;
-+			if (IS_ACTIVE(CONFIG_DRM_I915_TIMESLICE_DURATION))
-+				engine->flags |= I915_ENGINE_HAS_TIMESLICES;
-+		}
- 	}
- 
- 	if (INTEL_GEN(engine->i915) >= 12)
+-	struct ptp_clock_info *info = ptp->info;
+-	int err;
+-
+-	if (info->n_pins) {
+-		err = ptp_populate_pins(ptp);
+-		if (err)
+-			return err;
+-	}
+-	return 0;
++	kfree(ptp->pin_attr);
++	kfree(ptp->pin_dev_attr);
+ }
 -- 
 2.20.1
 
