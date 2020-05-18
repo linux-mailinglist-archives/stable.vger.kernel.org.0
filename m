@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9684A1D8479
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:13:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 170511D8571
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:19:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732620AbgERSDM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:03:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48288 "EHLO mail.kernel.org"
+        id S1729771AbgERRzG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:55:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60176 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731507AbgERSDL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 14:03:11 -0400
+        id S1728825AbgERRzE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:55:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4FD34207F5;
-        Mon, 18 May 2020 18:03:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 016D620674;
+        Mon, 18 May 2020 17:55:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824990;
-        bh=p+ja2vRe2GOEd4ER0sNd2TiM8cbguWj1RwJgbtZ5bCc=;
+        s=default; t=1589824502;
+        bh=81nyT0KGpUtnfpoIicYrfquw3UI9n/ITzuO8vjPDmWs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ThrXOwfqZF7e35t4JcBDEcZRloPebNQuAmzFxOtFjLbkrC7XJ06WFu3xN+dik3qSc
-         doYyOUfXej0TnKPjXms9JqAVnZ47QyAsDYe/whNoeSChWoWP0yLNpy1E4cXpynrLtP
-         QoCLNgHQd6z2Kgxhq7Yl4BTga6+HADKLN9ss/29E=
+        b=NXF2MuxjjKlIzGm7eC7jvmcF3YwQ3gN0enwO9qHeuhR1o/u1BsOiW+/CWpUkdjeyF
+         LRhxXLkxUAQpEMvM5Z51IimOHiHes3Vcnqsfy1p/JjYnsC9dqGtBsc7ZqoOuGaDkqy
+         bqqGDL1rPCbd8E0s0AtYJJkQpRyByNi64oBorqSA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Willem de Bruijn <willemb@google.com>,
-        Xin Long <lucien.xin@gmail.com>,
-        Hannes Frederic Sowa <hannes@stressinduktion.org>,
-        =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <maze@google.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.6 037/194] Revert "ipv6: add mtu lock check in __ip6_rt_update_pmtu"
+        stable@vger.kernel.org, Julien Grall <julien@xen.org>,
+        Andre Przywara <andre.przywara@arm.com>,
+        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 004/147] KVM: arm: vgic: Synchronize the whole guest on GIC{D,R}_I{S,C}ACTIVER read
 Date:   Mon, 18 May 2020 19:35:27 +0200
-Message-Id: <20200518173534.803818704@linuxfoundation.org>
+Message-Id: <20200518173513.680763880@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
-References: <20200518173531.455604187@linuxfoundation.org>
+In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
+References: <20200518173513.009514388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,63 +44,254 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Maciej Żenczykowski" <maze@google.com>
+From: Marc Zyngier <maz@kernel.org>
 
-[ Upstream commit 09454fd0a4ce23cb3d8af65066c91a1bf27120dd ]
+[ Upstream commit 9a50ebbffa9862db7604345f5fd763122b0f6fed ]
 
-This reverts commit 19bda36c4299ce3d7e5bce10bebe01764a655a6d:
+When a guest tries to read the active state of its interrupts,
+we currently just return whatever state we have in memory. This
+means that if such an interrupt lives in a List Register on another
+CPU, we fail to obsertve the latest active state for this interrupt.
 
-| ipv6: add mtu lock check in __ip6_rt_update_pmtu
-|
-| Prior to this patch, ipv6 didn't do mtu lock check in ip6_update_pmtu.
-| It leaded to that mtu lock doesn't really work when receiving the pkt
-| of ICMPV6_PKT_TOOBIG.
-|
-| This patch is to add mtu lock check in __ip6_rt_update_pmtu just as ipv4
-| did in __ip_rt_update_pmtu.
+In order to remedy this, stop all the other vcpus so that they exit
+and we can observe the most recent value for the state. This is
+similar to what we are doing for the write side of the same
+registers, and results in new MMIO handlers for userspace (which
+do not need to stop the guest, as it is supposed to be stopped
+already).
 
-The above reasoning is incorrect.  IPv6 *requires* icmp based pmtu to work.
-There's already a comment to this effect elsewhere in the kernel:
-
-  $ git grep -p -B1 -A3 'RTAX_MTU lock'
-  net/ipv6/route.c=4813=
-
-  static int rt6_mtu_change_route(struct fib6_info *f6i, void *p_arg)
-  ...
-    /* In IPv6 pmtu discovery is not optional,
-       so that RTAX_MTU lock cannot disable it.
-       We still use this lock to block changes
-       caused by addrconf/ndisc.
-    */
-
-This reverts to the pre-4.9 behaviour.
-
-Cc: Eric Dumazet <edumazet@google.com>
-Cc: Willem de Bruijn <willemb@google.com>
-Cc: Xin Long <lucien.xin@gmail.com>
-Cc: Hannes Frederic Sowa <hannes@stressinduktion.org>
-Signed-off-by: Maciej Żenczykowski <maze@google.com>
-Fixes: 19bda36c4299 ("ipv6: add mtu lock check in __ip6_rt_update_pmtu")
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Julien Grall <julien@xen.org>
+Reviewed-by: Andre Przywara <andre.przywara@arm.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/route.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ virt/kvm/arm/vgic/vgic-mmio-v2.c |   4 +-
+ virt/kvm/arm/vgic/vgic-mmio-v3.c |  12 ++--
+ virt/kvm/arm/vgic/vgic-mmio.c    | 100 ++++++++++++++++++++-----------
+ virt/kvm/arm/vgic/vgic-mmio.h    |   3 +
+ 4 files changed, 75 insertions(+), 44 deletions(-)
 
---- a/net/ipv6/route.c
-+++ b/net/ipv6/route.c
-@@ -2725,8 +2725,10 @@ static void __ip6_rt_update_pmtu(struct
- 	const struct in6_addr *daddr, *saddr;
- 	struct rt6_info *rt6 = (struct rt6_info *)dst;
+diff --git a/virt/kvm/arm/vgic/vgic-mmio-v2.c b/virt/kvm/arm/vgic/vgic-mmio-v2.c
+index 5945f062d7497..d63881f60e1a5 100644
+--- a/virt/kvm/arm/vgic/vgic-mmio-v2.c
++++ b/virt/kvm/arm/vgic/vgic-mmio-v2.c
+@@ -422,11 +422,11 @@ static const struct vgic_register_region vgic_v2_dist_registers[] = {
+ 		VGIC_ACCESS_32bit),
+ 	REGISTER_DESC_WITH_BITS_PER_IRQ(GIC_DIST_ACTIVE_SET,
+ 		vgic_mmio_read_active, vgic_mmio_write_sactive,
+-		NULL, vgic_mmio_uaccess_write_sactive, 1,
++		vgic_uaccess_read_active, vgic_mmio_uaccess_write_sactive, 1,
+ 		VGIC_ACCESS_32bit),
+ 	REGISTER_DESC_WITH_BITS_PER_IRQ(GIC_DIST_ACTIVE_CLEAR,
+ 		vgic_mmio_read_active, vgic_mmio_write_cactive,
+-		NULL, vgic_mmio_uaccess_write_cactive, 1,
++		vgic_uaccess_read_active, vgic_mmio_uaccess_write_cactive, 1,
+ 		VGIC_ACCESS_32bit),
+ 	REGISTER_DESC_WITH_BITS_PER_IRQ(GIC_DIST_PRI,
+ 		vgic_mmio_read_priority, vgic_mmio_write_priority, NULL, NULL,
+diff --git a/virt/kvm/arm/vgic/vgic-mmio-v3.c b/virt/kvm/arm/vgic/vgic-mmio-v3.c
+index 7dfd15dbb308e..4c5909e38f78a 100644
+--- a/virt/kvm/arm/vgic/vgic-mmio-v3.c
++++ b/virt/kvm/arm/vgic/vgic-mmio-v3.c
+@@ -491,11 +491,11 @@ static const struct vgic_register_region vgic_v3_dist_registers[] = {
+ 		VGIC_ACCESS_32bit),
+ 	REGISTER_DESC_WITH_BITS_PER_IRQ_SHARED(GICD_ISACTIVER,
+ 		vgic_mmio_read_active, vgic_mmio_write_sactive,
+-		NULL, vgic_mmio_uaccess_write_sactive, 1,
++		vgic_uaccess_read_active, vgic_mmio_uaccess_write_sactive, 1,
+ 		VGIC_ACCESS_32bit),
+ 	REGISTER_DESC_WITH_BITS_PER_IRQ_SHARED(GICD_ICACTIVER,
+ 		vgic_mmio_read_active, vgic_mmio_write_cactive,
+-		NULL, vgic_mmio_uaccess_write_cactive,
++		vgic_uaccess_read_active, vgic_mmio_uaccess_write_cactive,
+ 		1, VGIC_ACCESS_32bit),
+ 	REGISTER_DESC_WITH_BITS_PER_IRQ_SHARED(GICD_IPRIORITYR,
+ 		vgic_mmio_read_priority, vgic_mmio_write_priority, NULL, NULL,
+@@ -563,12 +563,12 @@ static const struct vgic_register_region vgic_v3_rd_registers[] = {
+ 		VGIC_ACCESS_32bit),
+ 	REGISTER_DESC_WITH_LENGTH_UACCESS(SZ_64K + GICR_ISACTIVER0,
+ 		vgic_mmio_read_active, vgic_mmio_write_sactive,
+-		NULL, vgic_mmio_uaccess_write_sactive,
+-		4, VGIC_ACCESS_32bit),
++		vgic_uaccess_read_active, vgic_mmio_uaccess_write_sactive, 4,
++		VGIC_ACCESS_32bit),
+ 	REGISTER_DESC_WITH_LENGTH_UACCESS(SZ_64K + GICR_ICACTIVER0,
+ 		vgic_mmio_read_active, vgic_mmio_write_cactive,
+-		NULL, vgic_mmio_uaccess_write_cactive,
+-		4, VGIC_ACCESS_32bit),
++		vgic_uaccess_read_active, vgic_mmio_uaccess_write_cactive, 4,
++		VGIC_ACCESS_32bit),
+ 	REGISTER_DESC_WITH_LENGTH(SZ_64K + GICR_IPRIORITYR0,
+ 		vgic_mmio_read_priority, vgic_mmio_write_priority, 32,
+ 		VGIC_ACCESS_32bit | VGIC_ACCESS_8bit),
+diff --git a/virt/kvm/arm/vgic/vgic-mmio.c b/virt/kvm/arm/vgic/vgic-mmio.c
+index 7eacf00e5abeb..fb1dcd397b93a 100644
+--- a/virt/kvm/arm/vgic/vgic-mmio.c
++++ b/virt/kvm/arm/vgic/vgic-mmio.c
+@@ -300,8 +300,39 @@ void vgic_mmio_write_cpending(struct kvm_vcpu *vcpu,
+ 	}
+ }
  
--	if (dst_metric_locked(dst, RTAX_MTU))
--		return;
-+	/* Note: do *NOT* check dst_metric_locked(dst, RTAX_MTU)
-+	 * IPv6 pmtu discovery isn't optional, so 'mtu lock' cannot disable it.
-+	 * [see also comment in rt6_mtu_change_route()]
-+	 */
+-unsigned long vgic_mmio_read_active(struct kvm_vcpu *vcpu,
+-				    gpa_t addr, unsigned int len)
++
++/*
++ * If we are fiddling with an IRQ's active state, we have to make sure the IRQ
++ * is not queued on some running VCPU's LRs, because then the change to the
++ * active state can be overwritten when the VCPU's state is synced coming back
++ * from the guest.
++ *
++ * For shared interrupts as well as GICv3 private interrupts, we have to
++ * stop all the VCPUs because interrupts can be migrated while we don't hold
++ * the IRQ locks and we don't want to be chasing moving targets.
++ *
++ * For GICv2 private interrupts we don't have to do anything because
++ * userspace accesses to the VGIC state already require all VCPUs to be
++ * stopped, and only the VCPU itself can modify its private interrupts
++ * active state, which guarantees that the VCPU is not running.
++ */
++static void vgic_access_active_prepare(struct kvm_vcpu *vcpu, u32 intid)
++{
++	if (vcpu->kvm->arch.vgic.vgic_model == KVM_DEV_TYPE_ARM_VGIC_V3 ||
++	    intid >= VGIC_NR_PRIVATE_IRQS)
++		kvm_arm_halt_guest(vcpu->kvm);
++}
++
++/* See vgic_access_active_prepare */
++static void vgic_access_active_finish(struct kvm_vcpu *vcpu, u32 intid)
++{
++	if (vcpu->kvm->arch.vgic.vgic_model == KVM_DEV_TYPE_ARM_VGIC_V3 ||
++	    intid >= VGIC_NR_PRIVATE_IRQS)
++		kvm_arm_resume_guest(vcpu->kvm);
++}
++
++static unsigned long __vgic_mmio_read_active(struct kvm_vcpu *vcpu,
++					     gpa_t addr, unsigned int len)
+ {
+ 	u32 intid = VGIC_ADDR_TO_INTID(addr, 1);
+ 	u32 value = 0;
+@@ -311,6 +342,10 @@ unsigned long vgic_mmio_read_active(struct kvm_vcpu *vcpu,
+ 	for (i = 0; i < len * 8; i++) {
+ 		struct vgic_irq *irq = vgic_get_irq(vcpu->kvm, vcpu, intid + i);
  
- 	if (iph) {
- 		daddr = &iph->daddr;
++		/*
++		 * Even for HW interrupts, don't evaluate the HW state as
++		 * all the guest is interested in is the virtual state.
++		 */
+ 		if (irq->active)
+ 			value |= (1U << i);
+ 
+@@ -320,6 +355,29 @@ unsigned long vgic_mmio_read_active(struct kvm_vcpu *vcpu,
+ 	return value;
+ }
+ 
++unsigned long vgic_mmio_read_active(struct kvm_vcpu *vcpu,
++				    gpa_t addr, unsigned int len)
++{
++	u32 intid = VGIC_ADDR_TO_INTID(addr, 1);
++	u32 val;
++
++	mutex_lock(&vcpu->kvm->lock);
++	vgic_access_active_prepare(vcpu, intid);
++
++	val = __vgic_mmio_read_active(vcpu, addr, len);
++
++	vgic_access_active_finish(vcpu, intid);
++	mutex_unlock(&vcpu->kvm->lock);
++
++	return val;
++}
++
++unsigned long vgic_uaccess_read_active(struct kvm_vcpu *vcpu,
++				    gpa_t addr, unsigned int len)
++{
++	return __vgic_mmio_read_active(vcpu, addr, len);
++}
++
+ /* Must be called with irq->irq_lock held */
+ static void vgic_hw_irq_change_active(struct kvm_vcpu *vcpu, struct vgic_irq *irq,
+ 				      bool active, bool is_uaccess)
+@@ -371,36 +429,6 @@ static void vgic_mmio_change_active(struct kvm_vcpu *vcpu, struct vgic_irq *irq,
+ 		raw_spin_unlock_irqrestore(&irq->irq_lock, flags);
+ }
+ 
+-/*
+- * If we are fiddling with an IRQ's active state, we have to make sure the IRQ
+- * is not queued on some running VCPU's LRs, because then the change to the
+- * active state can be overwritten when the VCPU's state is synced coming back
+- * from the guest.
+- *
+- * For shared interrupts, we have to stop all the VCPUs because interrupts can
+- * be migrated while we don't hold the IRQ locks and we don't want to be
+- * chasing moving targets.
+- *
+- * For private interrupts we don't have to do anything because userspace
+- * accesses to the VGIC state already require all VCPUs to be stopped, and
+- * only the VCPU itself can modify its private interrupts active state, which
+- * guarantees that the VCPU is not running.
+- */
+-static void vgic_change_active_prepare(struct kvm_vcpu *vcpu, u32 intid)
+-{
+-	if (vcpu->kvm->arch.vgic.vgic_model == KVM_DEV_TYPE_ARM_VGIC_V3 ||
+-	    intid >= VGIC_NR_PRIVATE_IRQS)
+-		kvm_arm_halt_guest(vcpu->kvm);
+-}
+-
+-/* See vgic_change_active_prepare */
+-static void vgic_change_active_finish(struct kvm_vcpu *vcpu, u32 intid)
+-{
+-	if (vcpu->kvm->arch.vgic.vgic_model == KVM_DEV_TYPE_ARM_VGIC_V3 ||
+-	    intid >= VGIC_NR_PRIVATE_IRQS)
+-		kvm_arm_resume_guest(vcpu->kvm);
+-}
+-
+ static void __vgic_mmio_write_cactive(struct kvm_vcpu *vcpu,
+ 				      gpa_t addr, unsigned int len,
+ 				      unsigned long val)
+@@ -422,11 +450,11 @@ void vgic_mmio_write_cactive(struct kvm_vcpu *vcpu,
+ 	u32 intid = VGIC_ADDR_TO_INTID(addr, 1);
+ 
+ 	mutex_lock(&vcpu->kvm->lock);
+-	vgic_change_active_prepare(vcpu, intid);
++	vgic_access_active_prepare(vcpu, intid);
+ 
+ 	__vgic_mmio_write_cactive(vcpu, addr, len, val);
+ 
+-	vgic_change_active_finish(vcpu, intid);
++	vgic_access_active_finish(vcpu, intid);
+ 	mutex_unlock(&vcpu->kvm->lock);
+ }
+ 
+@@ -459,11 +487,11 @@ void vgic_mmio_write_sactive(struct kvm_vcpu *vcpu,
+ 	u32 intid = VGIC_ADDR_TO_INTID(addr, 1);
+ 
+ 	mutex_lock(&vcpu->kvm->lock);
+-	vgic_change_active_prepare(vcpu, intid);
++	vgic_access_active_prepare(vcpu, intid);
+ 
+ 	__vgic_mmio_write_sactive(vcpu, addr, len, val);
+ 
+-	vgic_change_active_finish(vcpu, intid);
++	vgic_access_active_finish(vcpu, intid);
+ 	mutex_unlock(&vcpu->kvm->lock);
+ }
+ 
+diff --git a/virt/kvm/arm/vgic/vgic-mmio.h b/virt/kvm/arm/vgic/vgic-mmio.h
+index 836f418f1ee80..b6aff52524299 100644
+--- a/virt/kvm/arm/vgic/vgic-mmio.h
++++ b/virt/kvm/arm/vgic/vgic-mmio.h
+@@ -157,6 +157,9 @@ void vgic_mmio_write_cpending(struct kvm_vcpu *vcpu,
+ unsigned long vgic_mmio_read_active(struct kvm_vcpu *vcpu,
+ 				    gpa_t addr, unsigned int len);
+ 
++unsigned long vgic_uaccess_read_active(struct kvm_vcpu *vcpu,
++				    gpa_t addr, unsigned int len);
++
+ void vgic_mmio_write_cactive(struct kvm_vcpu *vcpu,
+ 			     gpa_t addr, unsigned int len,
+ 			     unsigned long val);
+-- 
+2.20.1
+
 
 
