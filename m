@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 46EFB1D81EC
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:52:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EDE61D8668
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:27:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730932AbgERRwH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:52:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55124 "EHLO mail.kernel.org"
+        id S1728727AbgERRpL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:45:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43858 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730914AbgERRwC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:52:02 -0400
+        id S1729876AbgERRpK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:45:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 959622083E;
-        Mon, 18 May 2020 17:52:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F14BF20715;
+        Mon, 18 May 2020 17:45:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824322;
-        bh=I8yVPvyo6Odn3MxN2GXm8an0PqLnTd5gLYsP5FuJ5KU=;
+        s=default; t=1589823910;
+        bh=tyPWl9a+CQko/HHoUmFTcDmz8KlCfkitFMDU0Mrw2R0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nSvxh/yriZUnjq8zvPgHtLMUXCPj6xcVEPHASZ6ovDhWXiF/JgJa+cGaV7grN27KV
-         Lz9GQMrXfeWqiR12kPUBA9IP3O4J8PGMnanlRBHy94Y1TtiqRDuEEjn8PkZ5pEzTWq
-         uAlXLFyEf2c7pNYvdvJfHjoIz9P6CpYx6Dv1t+IY=
+        b=IUYnUxNKrj//z+TEHdWoDbR+6w0y8vrs3Uru+VFrpPBuciiC/Q91pyCzLd5w7xVra
+         dJCtrqtrg1q9OkgB7uHFjjzgdJRmYmrR2HDv8eEEudYLu/zqutnWnDcyzV1pDBzSHU
+         0jkuokhSKG3SOmjk4QbC+e4Ngm2tDEdL2DoOguJ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 45/80] gcc-10 warnings: fix low-hanging fruit
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wei Yongjun <weiyongjun1@huawei.com>,
+        Felipe Balbi <balbi@kernel.org>
+Subject: [PATCH 4.9 85/90] usb: gadget: legacy: fix error return code in cdc_bind()
 Date:   Mon, 18 May 2020 19:37:03 +0200
-Message-Id: <20200518173459.442921938@linuxfoundation.org>
+Message-Id: <20200518173508.417541477@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173450.097837707@linuxfoundation.org>
-References: <20200518173450.097837707@linuxfoundation.org>
+In-Reply-To: <20200518173450.930655662@linuxfoundation.org>
+References: <20200518173450.930655662@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,50 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-commit 9d82973e032e246ff5663c9805fbb5407ae932e3 upstream.
+commit e8f7f9e3499a6d96f7f63a4818dc7d0f45a7783b upstream.
 
-Due to a bug-report that was compiler-dependent, I updated one of my
-machines to gcc-10.  That shows a lot of new warnings.  Happily they
-seem to be mostly the valid kind, but it's going to cause a round of
-churn for getting rid of them..
+If 'usb_otg_descriptor_alloc()' fails, we must return a
+negative error code -ENOMEM, not 0.
 
-This is the really low-hanging fruit of removing a couple of zero-sized
-arrays in some core code.  We have had a round of these patches before,
-and we'll have many more coming, and there is nothing special about
-these except that they were particularly trivial, and triggered more
-warnings than most.
-
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: ab6796ae9833 ("usb: gadget: cdc2: allocate and init otg descriptor by otg capabilities")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/linux/fs.h  |    2 +-
- include/linux/tty.h |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/gadget/legacy/cdc2.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/include/linux/fs.h
-+++ b/include/linux/fs.h
-@@ -934,7 +934,7 @@ struct file_handle {
- 	__u32 handle_bytes;
- 	int handle_type;
- 	/* file identifier */
--	unsigned char f_handle[0];
-+	unsigned char f_handle[];
- };
+--- a/drivers/usb/gadget/legacy/cdc2.c
++++ b/drivers/usb/gadget/legacy/cdc2.c
+@@ -183,8 +183,10 @@ static int cdc_bind(struct usb_composite
+ 		struct usb_descriptor_header *usb_desc;
  
- static inline struct file *get_file(struct file *f)
---- a/include/linux/tty.h
-+++ b/include/linux/tty.h
-@@ -66,7 +66,7 @@ struct tty_buffer {
- 	int read;
- 	int flags;
- 	/* Data points here */
--	unsigned long data[0];
-+	unsigned long data[];
- };
- 
- /* Values for .flags field of tty_buffer */
+ 		usb_desc = usb_otg_descriptor_alloc(gadget);
+-		if (!usb_desc)
++		if (!usb_desc) {
++			status = -ENOMEM;
+ 			goto fail1;
++		}
+ 		usb_otg_descriptor_init(gadget, usb_desc);
+ 		otg_desc[0] = usb_desc;
+ 		otg_desc[1] = NULL;
 
 
