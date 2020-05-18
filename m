@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A8591D8254
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:55:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DA1D1D8112
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:45:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731442AbgERRzY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:55:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60746 "EHLO mail.kernel.org"
+        id S1729762AbgERRob (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:44:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42780 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731438AbgERRzX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:55:23 -0400
+        id S1729751AbgERRo2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:44:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 77191207C4;
-        Mon, 18 May 2020 17:55:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7EE2B20715;
+        Mon, 18 May 2020 17:44:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824522;
-        bh=MZoJruzevu0Mqm1XG+YDSEIaVLGDBxikzdKGaPu4uuM=;
+        s=default; t=1589823868;
+        bh=Lv0WdQHZZpH0+zsvuw1nREwCuf/qpR482iS0MwMpNcg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qkr0xF7uBcLN5F7jc2/YCfwHZ30muI7QUBgPNvxi/xH+nPu4BeROUdI+FIoyA44cK
-         BkTHBKbOoUJ4AsiX64mjcwEqkU/RAXvrdNIb2GySV9aqADw9g95R7CXrsKw80rXaO3
-         lHonIA3D+KWRy1MU33XbS1lzv4xS/fSelEbxrp2I=
+        b=gCpy/SWl16bPPEUKkub38EPH4hru1CySi2yKEk5XmpZruo/HkDNncqYl4yQhiSfQB
+         NAT0arNKzikww/0c5IZ/pR2EAQROVwsvdxCsmOHv5ik2QCgYAVtBaU291y2pzjsjIr
+         WRoWFMvkQlPajH1Z+6GX0IuxWSuYfFs09yRVk3rI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sung Lee <sung.lee@amd.com>,
-        Yongqiang Sun <yongqiang.sun@amd.com>,
-        Aurabindo Pillai <aurabindo.pillai@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 046/147] drm/amd/display: Update downspread percent to match spreadsheet for DCN2.1
+Subject: [PATCH 4.9 31/90] blktrace: fix trace mutex deadlock
 Date:   Mon, 18 May 2020 19:36:09 +0200
-Message-Id: <20200518173519.759606237@linuxfoundation.org>
+Message-Id: <20200518173457.510063696@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
-References: <20200518173513.009514388@linuxfoundation.org>
+In-Reply-To: <20200518173450.930655662@linuxfoundation.org>
+References: <20200518173450.930655662@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,41 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sung Lee <sung.lee@amd.com>
+From: Jens Axboe <axboe@kernel.dk>
 
-[ Upstream commit 668a6741f809f2d15d125cfe2b39661e8f1655ea ]
+commit 2967acbb257a6a9bf912f4778b727e00972eac9b upstream.
 
-[WHY]
-The downspread percentage was copied over from a previous version
-of the display_mode_lib spreadsheet. This value has been updated,
-and the previous value is too high to allow for such modes as
-4K120hz. The new value is sufficient for such modes.
+A previous commit changed the locking around registration/cleanup,
+but direct callers of blk_trace_remove() were missed. This means
+that if we hit the error path in setup, we will deadlock on
+attempting to re-acquire the queue trace mutex.
 
-[HOW]
-Update the value in dcn21_resource to match the spreadsheet.
-
-Signed-off-by: Sung Lee <sung.lee@amd.com>
-Reviewed-by: Yongqiang Sun <yongqiang.sun@amd.com>
-Acked-by: Aurabindo Pillai <aurabindo.pillai@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fixes: 1f2cac107c59 ("blktrace: fix unlocked access to init/start-stop/teardown")
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/trace/blktrace.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c b/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
-index 161bf7caf3ae0..bb7add5ea2273 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
-@@ -247,7 +247,7 @@ struct _vcs_dpi_soc_bounding_box_st dcn2_1_soc = {
- 	.dram_channel_width_bytes = 4,
- 	.fabric_datapath_to_dcn_data_return_bytes = 32,
- 	.dcn_downspread_percent = 0.5,
--	.downspread_percent = 0.5,
-+	.downspread_percent = 0.38,
- 	.dram_page_open_time_ns = 50.0,
- 	.dram_rw_turnaround_time_ns = 17.5,
- 	.dram_return_buffer_per_channel_bytes = 8192,
+diff --git a/kernel/trace/blktrace.c b/kernel/trace/blktrace.c
+index 55337d797deb1..a88e677c74f31 100644
+--- a/kernel/trace/blktrace.c
++++ b/kernel/trace/blktrace.c
+@@ -572,7 +572,7 @@ static int __blk_trace_setup(struct request_queue *q, char *name, dev_t dev,
+ 		return ret;
+ 
+ 	if (copy_to_user(arg, &buts, sizeof(buts))) {
+-		blk_trace_remove(q);
++		__blk_trace_remove(q);
+ 		return -EFAULT;
+ 	}
+ 	return 0;
+@@ -618,7 +618,7 @@ static int compat_blk_trace_setup(struct request_queue *q, char *name,
+ 		return ret;
+ 
+ 	if (copy_to_user(arg, &buts.name, ARRAY_SIZE(buts.name))) {
+-		blk_trace_remove(q);
++		__blk_trace_remove(q);
+ 		return -EFAULT;
+ 	}
+ 
 -- 
 2.20.1
 
