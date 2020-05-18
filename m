@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D85E1D860D
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:23:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 33F761D840B
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:11:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729961AbgERRtg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:49:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51220 "EHLO mail.kernel.org"
+        id S1732943AbgERSFe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:05:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53182 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730543AbgERRtd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:49:33 -0400
+        id S1729470AbgERSFd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 14:05:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 60DDC20657;
-        Mon, 18 May 2020 17:49:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2D41120671;
+        Mon, 18 May 2020 18:05:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824172;
-        bh=/HHfS83NJSn6uRGGuNfIQL/iOaixrXdIqnZA9Wc/srM=;
+        s=default; t=1589825132;
+        bh=aEbCs/ehsd1uykQYJPlIZO/uC6PeDCBHQ8EMD2l9lFY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IMBIf8Q5sXATUsLOQdHmAYSQIuh5uRYXD+OCoKlJ8oRz7/3jx6TW4AqQSAE4fWiE5
-         FVG8Utt18od6rvTnEePUmL8Zao0jm5IJIb8Z4pV0CcPtmkubL8zKQJQRVP9dohfA4X
-         K4Q20PWtESK0o4EKfGmFOhfx0Z9cNkc8LW8tMcsY=
+        b=Gc4qRFWqVvLTB/CpRNx2jyqWugkZj5aiwcsMzOwkhm2HPswUykrzVu/5+zYRVTCBP
+         1NYhApjCdQGf49MJ/tIkIlC3U3NyN5hyggZ84zFAVOFg09fyhqL7b4r6PF1CgZwtjk
+         ILlSlcjkmTPlz8lKw5mjMTGjlRUh71Nxgvcpsqtg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sriharsha Allenki <sallenki@codeaurora.org>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 4.14 100/114] usb: xhci: Fix NULL pointer dereference when enqueuing trbs from urb sg list
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Hardik Gajjar <hgajjar@de.adit-jv.com>,
+        linux-renesas-soc@vger.kernel.org, linux-usb@vger.kernel.org,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Eugeniu Rosca <erosca@de.adit-jv.com>
+Subject: [PATCH 5.6 142/194] usb: core: hub: limit HUB_QUIRK_DISABLE_AUTOSUSPEND to USB5534B
 Date:   Mon, 18 May 2020 19:37:12 +0200
-Message-Id: <20200518173519.621240196@linuxfoundation.org>
+Message-Id: <20200518173543.121249652@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173503.033975649@linuxfoundation.org>
-References: <20200518173503.033975649@linuxfoundation.org>
+In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
+References: <20200518173531.455604187@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,74 +46,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sriharsha Allenki <sallenki@codeaurora.org>
+From: Eugeniu Rosca <erosca@de.adit-jv.com>
 
-commit 3c6f8cb92c9178fc0c66b580ea3df1fa3ac1155a upstream.
+commit 76e1ef1d81a4129d7e2fb8c48c83b166d1c8e040 upstream.
 
-On platforms with IOMMU enabled, multiple SGs can be coalesced into one
-by the IOMMU driver. In that case the SG list processing as part of the
-completion of a urb on a bulk endpoint can result into a NULL pointer
-dereference with the below stack dump.
+On Tue, May 12, 2020 at 09:36:07PM +0800, Kai-Heng Feng wrote [1]:
+> This patch prevents my Raven Ridge xHCI from getting runtime suspend.
 
-<6> Unable to handle kernel NULL pointer dereference at virtual address 0000000c
-<6> pgd = c0004000
-<6> [0000000c] *pgd=00000000
-<6> Internal error: Oops: 5 [#1] PREEMPT SMP ARM
-<2> PC is at xhci_queue_bulk_tx+0x454/0x80c
-<2> LR is at xhci_queue_bulk_tx+0x44c/0x80c
-<2> pc : [<c08907c4>]    lr : [<c08907bc>]    psr: 000000d3
-<2> sp : ca337c80  ip : 00000000  fp : ffffffff
-<2> r10: 00000000  r9 : 50037000  r8 : 00004000
-<2> r7 : 00000000  r6 : 00004000  r5 : 00000000  r4 : 00000000
-<2> r3 : 00000000  r2 : 00000082  r1 : c2c1a200  r0 : 00000000
-<2> Flags: nzcv  IRQs off  FIQs off  Mode SVC_32  ISA ARM  Segment none
-<2> Control: 10c0383d  Table: b412c06a  DAC: 00000051
-<6> Process usb-storage (pid: 5961, stack limit = 0xca336210)
-<snip>
-<2> [<c08907c4>] (xhci_queue_bulk_tx)
-<2> [<c0881b3c>] (xhci_urb_enqueue)
-<2> [<c0831068>] (usb_hcd_submit_urb)
-<2> [<c08350b4>] (usb_sg_wait)
-<2> [<c089f384>] (usb_stor_bulk_transfer_sglist)
-<2> [<c089f2c0>] (usb_stor_bulk_srb)
-<2> [<c089fe38>] (usb_stor_Bulk_transport)
-<2> [<c089f468>] (usb_stor_invoke_transport)
-<2> [<c08a11b4>] (usb_stor_control_thread)
-<2> [<c014a534>] (kthread)
+The problem described in v5.6 commit 1208f9e1d758c9 ("USB: hub: Fix the
+broken detection of USB3 device in SMSC hub") applies solely to the
+USB5534B hub [2] present on the Kingfisher Infotainment Carrier Board,
+manufactured by Shimafuji Electric Inc [3].
 
-The above NULL pointer dereference is the result of block_len and the
-sent_len set to zero after the first SG of the list when IOMMU driver
-is enabled. Because of this the loop of processing the SGs has run
-more than num_sgs which resulted in a sg_next on the last SG of the
-list which has SG_END set.
+Despite that, the aforementioned commit applied the quirk to _all_ hubs
+carrying vendor ID 0x424 (i.e. SMSC), of which there are more [4] than
+initially expected. Consequently, the quirk is now enabled on platforms
+carrying SMSC/Microchip hub models which potentially don't exhibit the
+original issue.
 
-Fix this by check for the sg before any attributes of the sg are
-accessed.
+To avoid reports like [1], further limit the quirk's scope to
+USB5534B [2], by employing both Vendor and Product ID checks.
 
-[modified reason for null pointer dereference in commit message subject -Mathias]
-Fixes: f9c589e142d04 ("xhci: TD-fragment, align the unsplittable case with a bounce buffer")
-Cc: stable@vger.kernel.org
-Signed-off-by: Sriharsha Allenki <sallenki@codeaurora.org>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20200514110432.25564-2-mathias.nyman@linux.intel.com
+Tested on H3ULCB + Kingfisher rev. M05.
+
+[1] https://lore.kernel.org/linux-renesas-soc/73933975-6F0E-40F5-9584-D2B8F615C0F3@canonical.com/
+[2] https://www.microchip.com/wwwproducts/en/USB5534B
+[3] http://www.shimafuji.co.jp/wp/wp-content/uploads/2018/08/SBEV-RCAR-KF-M06Board_HWSpecificationEN_Rev130.pdf
+[4] https://devicehunt.com/search/type/usb/vendor/0424/device/any
+
+Fixes: 1208f9e1d758c9 ("USB: hub: Fix the broken detection of USB3 device in SMSC hub")
+Cc: stable@vger.kernel.org # v4.14+
+Cc: Alan Stern <stern@rowland.harvard.edu>
+Cc: Hardik Gajjar <hgajjar@de.adit-jv.com>
+Cc: linux-renesas-soc@vger.kernel.org
+Cc: linux-usb@vger.kernel.org
+Reported-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Signed-off-by: Eugeniu Rosca <erosca@de.adit-jv.com>
+Tested-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Link: https://lore.kernel.org/r/20200514220246.13290-1-erosca@de.adit-jv.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/host/xhci-ring.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/core/hub.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/host/xhci-ring.c
-+++ b/drivers/usb/host/xhci-ring.c
-@@ -3403,8 +3403,8 @@ int xhci_queue_bulk_tx(struct xhci_hcd *
- 			/* New sg entry */
- 			--num_sgs;
- 			sent_len -= block_len;
--			if (num_sgs != 0) {
--				sg = sg_next(sg);
-+			sg = sg_next(sg);
-+			if (num_sgs != 0 && sg) {
- 				block_len = sg_dma_len(sg);
- 				addr = (u64) sg_dma_address(sg);
- 				addr += sent_len;
+--- a/drivers/usb/core/hub.c
++++ b/drivers/usb/core/hub.c
+@@ -39,6 +39,7 @@
+ 
+ #define USB_VENDOR_GENESYS_LOGIC		0x05e3
+ #define USB_VENDOR_SMSC				0x0424
++#define USB_PRODUCT_USB5534B			0x5534
+ #define HUB_QUIRK_CHECK_PORT_AUTOSUSPEND	0x01
+ #define HUB_QUIRK_DISABLE_AUTOSUSPEND		0x02
+ 
+@@ -5621,8 +5622,11 @@ out_hdev_lock:
+ }
+ 
+ static const struct usb_device_id hub_id_table[] = {
+-    { .match_flags = USB_DEVICE_ID_MATCH_VENDOR | USB_DEVICE_ID_MATCH_INT_CLASS,
++    { .match_flags = USB_DEVICE_ID_MATCH_VENDOR
++                   | USB_DEVICE_ID_MATCH_PRODUCT
++                   | USB_DEVICE_ID_MATCH_INT_CLASS,
+       .idVendor = USB_VENDOR_SMSC,
++      .idProduct = USB_PRODUCT_USB5534B,
+       .bInterfaceClass = USB_CLASS_HUB,
+       .driver_info = HUB_QUIRK_DISABLE_AUTOSUSPEND},
+     { .match_flags = USB_DEVICE_ID_MATCH_VENDOR
 
 
