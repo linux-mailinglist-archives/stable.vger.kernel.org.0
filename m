@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A9751D80F4
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:43:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3972D1D834B
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:04:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729612AbgERRnj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:43:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41264 "EHLO mail.kernel.org"
+        id S1732629AbgERSDb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:03:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48978 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729600AbgERRne (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:43:34 -0400
+        id S1732655AbgERSDb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 14:03:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 24D5420835;
-        Mon, 18 May 2020 17:43:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0111E2083E;
+        Mon, 18 May 2020 18:03:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589823813;
-        bh=smg4IoOkcu+Hk1zs9e4SfX0BTLeKSyfVPvxmr7/rkl4=;
+        s=default; t=1589825010;
+        bh=y7ri0T3VsAoCqHNlvv+DHPx9EnBdK9XAZxmV8cFAfNc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d4Au7RPcwyb7YmEoH4+/86maXMKo8ihElz20p4/egXhMB4gNec1XkLsZk+eTfwiQS
-         hy8CoyENWJtPlo8yENHWGCvLCbkL4mNjrbhI4gb0x7opQmL5Y2knBzVZ6f2bdqnQ+0
-         9N+og+Y03XFdL2sUyDeukluQa4Ems9kpXylWlgyo=
+        b=A9qp6sg6S7PnX+EocUffDNJnsEs59xdzMc0A0cFG54pShFHwgVXzScnU2xNMxIhwV
+         mY3t9T7fvyORYYi2xpvcS7HVsNwnYZlUI8YF4Kd80A5TiSQpfIqBOdwDhbSQnaT/1F
+         T+c8KmhXNzLfltxPVIlsy6omWWe4rFPkfKyxwdHw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "wuxu.wu" <wuxu.wu@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
-        "Nobuhiro Iwamatsu (CIP)" <nobuhiro1.iwamatsu@toshiba.co.jp>
-Subject: [PATCH 4.9 46/90] spi: spi-dw: Add lock protect dw_spi rx/tx to prevent concurrent calls
+        stable@vger.kernel.org, Andreas Gruenbacher <agruenba@redhat.com>,
+        Bob Peterson <rpeterso@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 094/194] gfs2: More gfs2_find_jhead fixes
 Date:   Mon, 18 May 2020 19:36:24 +0200
-Message-Id: <20200518173500.621339377@linuxfoundation.org>
+Message-Id: <20200518173539.965917703@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173450.930655662@linuxfoundation.org>
-References: <20200518173450.930655662@linuxfoundation.org>
+In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
+References: <20200518173531.455604187@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,129 +44,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: wuxu.wu <wuxu.wu@huawei.com>
+From: Andreas Gruenbacher <agruenba@redhat.com>
 
-commit 19b61392c5a852b4e8a0bf35aecb969983c5932d upstream.
+[ Upstream commit aa83da7f47b26c9587bade6c4bc4736ffa308f0a ]
 
-dw_spi_irq() and dw_spi_transfer_one concurrent calls.
+It turns out that when extending an existing bio, gfs2_find_jhead fails to
+check if the block number is consecutive, which leads to incorrect reads for
+fragmented journals.
 
-I find a panic in dw_writer(): txw = *(u8 *)(dws->tx), when dw->tx==null,
-dw->len==4, and dw->tx_end==1.
+In addition, limit the maximum bio size to an arbitrary value of 2 megabytes:
+since commit 07173c3ec276 ("block: enable multipage bvecs"), if we just keep
+adding pages until bio_add_page fails, bios will grow much larger than useful,
+which pins more memory than necessary with barely any additional performance
+gains.
 
-When tpm driver's message overtime dw_spi_irq() and dw_spi_transfer_one
-may concurrent visit dw_spi, so I think dw_spi structure lack of protection.
-
-Otherwise dw_spi_transfer_one set dw rx/tx buffer and then open irq,
-store dw rx/tx instructions and other cores handle irq load dw rx/tx
-instructions may out of order.
-
-	[ 1025.321302] Call trace:
-	...
-	[ 1025.321319]  __crash_kexec+0x98/0x148
-	[ 1025.321323]  panic+0x17c/0x314
-	[ 1025.321329]  die+0x29c/0x2e8
-	[ 1025.321334]  die_kernel_fault+0x68/0x78
-	[ 1025.321337]  __do_kernel_fault+0x90/0xb0
-	[ 1025.321346]  do_page_fault+0x88/0x500
-	[ 1025.321347]  do_translation_fault+0xa8/0xb8
-	[ 1025.321349]  do_mem_abort+0x68/0x118
-	[ 1025.321351]  el1_da+0x20/0x8c
-	[ 1025.321362]  dw_writer+0xc8/0xd0
-	[ 1025.321364]  interrupt_transfer+0x60/0x110
-	[ 1025.321365]  dw_spi_irq+0x48/0x70
-	...
-
-Signed-off-by: wuxu.wu <wuxu.wu@huawei.com>
-Link: https://lore.kernel.org/r/1577849981-31489-1-git-send-email-wuxu.wu@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Nobuhiro Iwamatsu (CIP) <nobuhiro1.iwamatsu@toshiba.co.jp>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: f4686c26ecc3 ("gfs2: read journal in large chunks")
+Cc: stable@vger.kernel.org # v5.2+
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Signed-off-by: Bob Peterson <rpeterso@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-dw.c |   15 ++++++++++++---
- drivers/spi/spi-dw.h |    1 +
- 2 files changed, 13 insertions(+), 3 deletions(-)
+ fs/gfs2/lops.c | 19 ++++++++++++-------
+ 1 file changed, 12 insertions(+), 7 deletions(-)
 
---- a/drivers/spi/spi-dw.c
-+++ b/drivers/spi/spi-dw.c
-@@ -180,9 +180,11 @@ static inline u32 rx_max(struct dw_spi *
+diff --git a/fs/gfs2/lops.c b/fs/gfs2/lops.c
+index c090d5ad3f221..3a020bdc358cd 100644
+--- a/fs/gfs2/lops.c
++++ b/fs/gfs2/lops.c
+@@ -259,7 +259,7 @@ static struct bio *gfs2_log_alloc_bio(struct gfs2_sbd *sdp, u64 blkno,
+ 	struct super_block *sb = sdp->sd_vfs;
+ 	struct bio *bio = bio_alloc(GFP_NOIO, BIO_MAX_PAGES);
  
- static void dw_writer(struct dw_spi *dws)
- {
--	u32 max = tx_max(dws);
-+	u32 max;
- 	u16 txw = 0;
+-	bio->bi_iter.bi_sector = blkno << (sb->s_blocksize_bits - 9);
++	bio->bi_iter.bi_sector = blkno << sdp->sd_fsb2bb_shift;
+ 	bio_set_dev(bio, sb->s_bdev);
+ 	bio->bi_end_io = end_io;
+ 	bio->bi_private = sdp;
+@@ -505,7 +505,7 @@ int gfs2_find_jhead(struct gfs2_jdesc *jd, struct gfs2_log_header_host *head,
+ 	unsigned int bsize = sdp->sd_sb.sb_bsize, off;
+ 	unsigned int bsize_shift = sdp->sd_sb.sb_bsize_shift;
+ 	unsigned int shift = PAGE_SHIFT - bsize_shift;
+-	unsigned int readahead_blocks = BIO_MAX_PAGES << shift;
++	unsigned int max_bio_size = 2 * 1024 * 1024;
+ 	struct gfs2_journal_extent *je;
+ 	int sz, ret = 0;
+ 	struct bio *bio = NULL;
+@@ -533,12 +533,17 @@ int gfs2_find_jhead(struct gfs2_jdesc *jd, struct gfs2_log_header_host *head,
+ 				off = 0;
+ 			}
  
-+	spin_lock(&dws->buf_lock);
-+	max = tx_max(dws);
- 	while (max--) {
- 		/* Set the tx word if the transfer's original "tx" is not null */
- 		if (dws->tx_end - dws->len) {
-@@ -194,13 +196,16 @@ static void dw_writer(struct dw_spi *dws
- 		dw_write_io_reg(dws, DW_SPI_DR, txw);
- 		dws->tx += dws->n_bytes;
- 	}
-+	spin_unlock(&dws->buf_lock);
- }
- 
- static void dw_reader(struct dw_spi *dws)
- {
--	u32 max = rx_max(dws);
-+	u32 max;
- 	u16 rxw;
- 
-+	spin_lock(&dws->buf_lock);
-+	max = rx_max(dws);
- 	while (max--) {
- 		rxw = dw_read_io_reg(dws, DW_SPI_DR);
- 		/* Care rx only if the transfer's original "rx" is not null */
-@@ -212,6 +217,7 @@ static void dw_reader(struct dw_spi *dws
- 		}
- 		dws->rx += dws->n_bytes;
- 	}
-+	spin_unlock(&dws->buf_lock);
- }
- 
- static void int_error_stop(struct dw_spi *dws, const char *msg)
-@@ -284,18 +290,20 @@ static int dw_spi_transfer_one(struct sp
- {
- 	struct dw_spi *dws = spi_master_get_devdata(master);
- 	struct chip_data *chip = spi_get_ctldata(spi);
-+	unsigned long flags;
- 	u8 imask = 0;
- 	u16 txlevel = 0;
- 	u32 cr0;
- 	int ret;
- 
- 	dws->dma_mapped = 0;
--
-+	spin_lock_irqsave(&dws->buf_lock, flags);
- 	dws->tx = (void *)transfer->tx_buf;
- 	dws->tx_end = dws->tx + transfer->len;
- 	dws->rx = transfer->rx_buf;
- 	dws->rx_end = dws->rx + transfer->len;
- 	dws->len = transfer->len;
-+	spin_unlock_irqrestore(&dws->buf_lock, flags);
- 
- 	spi_enable_chip(dws, 0);
- 
-@@ -487,6 +495,7 @@ int dw_spi_add_host(struct device *dev,
- 	dws->dma_inited = 0;
- 	dws->dma_addr = (dma_addr_t)(dws->paddr + DW_SPI_DR);
- 	snprintf(dws->name, sizeof(dws->name), "dw_spi%d", dws->bus_num);
-+	spin_lock_init(&dws->buf_lock);
- 
- 	ret = request_irq(dws->irq, dw_spi_irq, IRQF_SHARED, dws->name, master);
- 	if (ret < 0) {
---- a/drivers/spi/spi-dw.h
-+++ b/drivers/spi/spi-dw.h
-@@ -117,6 +117,7 @@ struct dw_spi {
- 	size_t			len;
- 	void			*tx;
- 	void			*tx_end;
-+	spinlock_t		buf_lock;
- 	void			*rx;
- 	void			*rx_end;
- 	int			dma_mapped;
+-			if (!bio || (bio_chained && !off)) {
++			if (!bio || (bio_chained && !off) ||
++			    bio->bi_iter.bi_size >= max_bio_size) {
+ 				/* start new bio */
+ 			} else {
+-				sz = bio_add_page(bio, page, bsize, off);
+-				if (sz == bsize)
+-					goto block_added;
++				sector_t sector = dblock << sdp->sd_fsb2bb_shift;
++
++				if (bio_end_sector(bio) == sector) {
++					sz = bio_add_page(bio, page, bsize, off);
++					if (sz == bsize)
++						goto block_added;
++				}
+ 				if (off) {
+ 					unsigned int blocks =
+ 						(PAGE_SIZE - off) >> bsize_shift;
+@@ -564,7 +569,7 @@ int gfs2_find_jhead(struct gfs2_jdesc *jd, struct gfs2_log_header_host *head,
+ 			off += bsize;
+ 			if (off == PAGE_SIZE)
+ 				page = NULL;
+-			if (blocks_submitted < blocks_read + readahead_blocks) {
++			if (blocks_submitted < 2 * max_bio_size >> bsize_shift) {
+ 				/* Keep at least one bio in flight */
+ 				continue;
+ 			}
+-- 
+2.20.1
+
 
 
