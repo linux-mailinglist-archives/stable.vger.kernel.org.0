@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D45661D8434
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:11:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 59C971D82A7
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:58:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733052AbgERSKM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:10:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53432 "EHLO mail.kernel.org"
+        id S1731875AbgERR6Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:58:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37504 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729773AbgERSFn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 14:05:43 -0400
+        id S1729934AbgERR6Q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:58:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 58F0220671;
-        Mon, 18 May 2020 18:05:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8548520715;
+        Mon, 18 May 2020 17:58:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589825142;
-        bh=fF+tq1WMwk5QChB77xDXUcCef0aahUEPUstfiNI40nI=;
+        s=default; t=1589824695;
+        bh=kVjtdmkF7nZwBOwVr6H9sprK2ZBhzSY0oqfnYe0VdP0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=czUTYUGEhewOd4JU0qI7IBB2Qf/FXCSJdZsmCsXvtBxPxSBVUoeijviNx4cEKbIz7
-         RowhKUwwJIBo+nSSM5J1vHlgReLK/yQLl9uXyqn9IE7h3Y+x3L11KhREivEthAYftr
-         rqvEWmeZV/t4GaqCxnd7ZOosheKjktRf4zE2+5N4=
+        b=ztuASY9L2MKJTH7p/N0N2aSpjk+N6+eSYBJ8OW9rsx8kIGhZUO+diHzPubrOrIb9C
+         gQcm/mXrlh1XdOvxKkc/1t9rK8bfY657+/V50Dxs/F20WTFK77wFLLw5d5KyTlf11+
+         +c7o4Bt2/RXkrYthqVyDKjW9bgFFokW1Mey+t1+8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Sriharsha Allenki <sallenki@codeaurora.org>,
         Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 5.6 146/194] usb: xhci: Fix NULL pointer dereference when enqueuing trbs from urb sg list
+Subject: [PATCH 5.4 113/147] usb: xhci: Fix NULL pointer dereference when enqueuing trbs from urb sg list
 Date:   Mon, 18 May 2020 19:37:16 +0200
-Message-Id: <20200518173543.420247826@linuxfoundation.org>
+Message-Id: <20200518173527.171668275@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
-References: <20200518173531.455604187@linuxfoundation.org>
+In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
+References: <20200518173513.009514388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -102,7 +102,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/usb/host/xhci-ring.c
 +++ b/drivers/usb/host/xhci-ring.c
-@@ -3425,8 +3425,8 @@ int xhci_queue_bulk_tx(struct xhci_hcd *
+@@ -3421,8 +3421,8 @@ int xhci_queue_bulk_tx(struct xhci_hcd *
  			/* New sg entry */
  			--num_sgs;
  			sent_len -= block_len;
