@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A31421D83D7
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:08:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CADED1D84D1
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:15:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387466AbgERSIB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:08:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57288 "EHLO mail.kernel.org"
+        id S1732020AbgERR7S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:59:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39442 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387453AbgERSIA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 14:08:00 -0400
+        id S1732014AbgERR7P (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:59:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 208B920715;
-        Mon, 18 May 2020 18:07:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3F458207C4;
+        Mon, 18 May 2020 17:59:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589825279;
-        bh=d8DyXlhOtVWzpRokN+kIiZrMvEAeG1gd9dcu5S7jx6s=;
+        s=default; t=1589824754;
+        bh=eV3kUzzlf5OSTxkiuVstu95fzxA6qQ/NqCtoRjvFgUE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lLAs9wpX7T5zKTnFSKpCKEakq0xXIjk03vtSFTUqPyczNAryCBhIHM0rawcNGnL6Z
-         ZktgurtFAYVo0aoIMtvPuTueCaRyMrxqzDTv9e6EzAcYDiiapUeqywqzEXxzXm9lY7
-         trI83ZQfoEnua6mF1rDrMZu128dVy1VEXdCO4JfQ=
+        b=Uym2KRsHpfJH/l52ORPpwCaKzCm17ERxvRj+u2EeTM3rAys5zwJtR3WQF+OGclJu/
+         ZNmFmx97MtPoPlGkbCZ/fTTNIKRCbKiV5KsGOC+lXk+jCKvQ2646tkZ05cWb5SAAjz
+         1kyts8NnNi2eVFufm3myp10n/8Fl7EnMiGP7S/8Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.6 170/194] Revert "ALSA: hda/realtek: Fix pop noise on ALC225"
-Date:   Mon, 18 May 2020 19:37:40 +0200
-Message-Id: <20200518173545.879529795@linuxfoundation.org>
+        Geert Uytterhoeven <geert+renesas@glider.be>
+Subject: [PATCH 5.4 138/147] ARM: dts: r8a73a4: Add missing CMT1 interrupts
+Date:   Mon, 18 May 2020 19:37:41 +0200
+Message-Id: <20200518173530.326943987@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
-References: <20200518173531.455604187@linuxfoundation.org>
+In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
+References: <20200518173513.009514388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,36 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-commit f41224efcf8aafe80ea47ac870c5e32f3209ffc8 upstream.
+commit 0f739fdfe9e5ce668bd6d3210f310df282321837 upstream.
 
-This reverts commit 3b36b13d5e69d6f51ff1c55d1b404a74646c9757.
+The R-Mobile APE6 Compare Match Timer 1 generates 8 interrupts, one for
+each channel, but currently only 1 is described.
+Fix this by adding the missing interrupts.
 
-Enable power save node breaks some systems with ACL225. Revert the patch
-and use a platform specific quirk for the original issue isntead.
-
-Fixes: 3b36b13d5e69 ("ALSA: hda/realtek: Fix pop noise on ALC225")
-BugLink: https://bugs.launchpad.net/bugs/1875916
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Link: https://lore.kernel.org/r/20200503152449.22761-1-kai.heng.feng@canonical.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: f7b65230019b9dac ("ARM: shmobile: r8a73a4: Add CMT1 node")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Link: https://lore.kernel.org/r/20200408090926.25201-1-geert+renesas@glider.be
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/pci/hda/patch_realtek.c |    2 --
- 1 file changed, 2 deletions(-)
+ arch/arm/boot/dts/r8a73a4.dtsi |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -8121,8 +8121,6 @@ static int patch_alc269(struct hda_codec
- 		spec->gen.mixer_nid = 0;
- 		break;
- 	case 0x10ec0225:
--		codec->power_save_node = 1;
--		/* fall through */
- 	case 0x10ec0295:
- 	case 0x10ec0299:
- 		spec->codec_variant = ALC269_TYPE_ALC225;
+--- a/arch/arm/boot/dts/r8a73a4.dtsi
++++ b/arch/arm/boot/dts/r8a73a4.dtsi
+@@ -131,7 +131,14 @@
+ 	cmt1: timer@e6130000 {
+ 		compatible = "renesas,r8a73a4-cmt1", "renesas,rcar-gen2-cmt1";
+ 		reg = <0 0xe6130000 0 0x1004>;
+-		interrupts = <GIC_SPI 120 IRQ_TYPE_LEVEL_HIGH>;
++		interrupts = <GIC_SPI 120 IRQ_TYPE_LEVEL_HIGH>,
++			     <GIC_SPI 121 IRQ_TYPE_LEVEL_HIGH>,
++			     <GIC_SPI 122 IRQ_TYPE_LEVEL_HIGH>,
++			     <GIC_SPI 123 IRQ_TYPE_LEVEL_HIGH>,
++			     <GIC_SPI 124 IRQ_TYPE_LEVEL_HIGH>,
++			     <GIC_SPI 125 IRQ_TYPE_LEVEL_HIGH>,
++			     <GIC_SPI 126 IRQ_TYPE_LEVEL_HIGH>,
++			     <GIC_SPI 127 IRQ_TYPE_LEVEL_HIGH>;
+ 		clocks = <&mstp3_clks R8A73A4_CLK_CMT1>;
+ 		clock-names = "fck";
+ 		power-domains = <&pd_c5>;
 
 
