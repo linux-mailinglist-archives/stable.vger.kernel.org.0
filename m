@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CE651D80CE
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:42:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 843A11D8050
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:39:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729385AbgERRmK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:42:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38988 "EHLO mail.kernel.org"
+        id S1728627AbgERRiw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:38:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33168 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729382AbgERRmK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:42:10 -0400
+        id S1728621AbgERRiv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:38:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0087920715;
-        Mon, 18 May 2020 17:42:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AC66820874;
+        Mon, 18 May 2020 17:38:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589823729;
-        bh=gVrthYkBfN2ySYLVUTOzmheUD2ZPxexmzYV/khAHBVc=;
+        s=default; t=1589823531;
+        bh=K0nTKFYR4erZ7CrFK5RO8VsqlyURu8lK5DXwvEtK5Ag=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kOPEvOtYRyG1i5HhCro+HHy4gjSiKw/E6X5jS+xdkF7b+retIa3F6+TxBJxr6SStE
-         9KSZGDMTkJ5or98cvLGoAfgC8gPlxI0s7o4oQy13tC12qTnaHQGdgrwp2vMh04/ipF
-         Z3jwq4IAGNsrIDA681NINBxklO0eZfRv2hjbA88g=
+        b=BsYlhIuXDQVb9gDe7UIT6IxhiXTcih3wr5I4Odzq4zcG4PqknwmJ6LYhY4JLQ6nMO
+         JGt5YRJBkwqSGKaOI/+8qORN5btfMsp8jfSlvXFbDMbSj+OCHX86a5cxAkT0wVGqIN
+         zqGpMPDlY9bTk44TCgOA8d0Fvue41QeeayRwzIWQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 4.9 13/90] Revert "ACPI / video: Add force_native quirk for HP Pavilion dv6"
+        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
+        Shijie Luo <luoshijie1@huawei.com>,
+        Theodore Tso <tytso@mit.edu>, stable@kernel.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>
+Subject: [PATCH 4.4 20/86] ext4: add cond_resched() to ext4_protect_reserved_inode
 Date:   Mon, 18 May 2020 19:35:51 +0200
-Message-Id: <20200518173453.920984244@linuxfoundation.org>
+Message-Id: <20200518173454.557562877@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173450.930655662@linuxfoundation.org>
-References: <20200518173450.930655662@linuxfoundation.org>
+In-Reply-To: <20200518173450.254571947@linuxfoundation.org>
+References: <20200518173450.254571947@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,61 +45,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Shijie Luo <luoshijie1@huawei.com>
 
-commit fd25ea29093e275195d0ae8b2573021a1c98959f upstream.
+commit af133ade9a40794a37104ecbcc2827c0ea373a3c upstream.
 
-Revert commit 6276e53fa8c0 (ACPI / video: Add force_native quirk for
-HP Pavilion dv6).
+When journal size is set too big by "mkfs.ext4 -J size=", or when
+we mount a crafted image to make journal inode->i_size too big,
+the loop, "while (i < num)", holds cpu too long. This could cause
+soft lockup.
 
-In the commit message for the quirk this revert removes I wrote:
+[  529.357541] Call trace:
+[  529.357551]  dump_backtrace+0x0/0x198
+[  529.357555]  show_stack+0x24/0x30
+[  529.357562]  dump_stack+0xa4/0xcc
+[  529.357568]  watchdog_timer_fn+0x300/0x3e8
+[  529.357574]  __hrtimer_run_queues+0x114/0x358
+[  529.357576]  hrtimer_interrupt+0x104/0x2d8
+[  529.357580]  arch_timer_handler_virt+0x38/0x58
+[  529.357584]  handle_percpu_devid_irq+0x90/0x248
+[  529.357588]  generic_handle_irq+0x34/0x50
+[  529.357590]  __handle_domain_irq+0x68/0xc0
+[  529.357593]  gic_handle_irq+0x6c/0x150
+[  529.357595]  el1_irq+0xb8/0x140
+[  529.357599]  __ll_sc_atomic_add_return_acquire+0x14/0x20
+[  529.357668]  ext4_map_blocks+0x64/0x5c0 [ext4]
+[  529.357693]  ext4_setup_system_zone+0x330/0x458 [ext4]
+[  529.357717]  ext4_fill_super+0x2170/0x2ba8 [ext4]
+[  529.357722]  mount_bdev+0x1a8/0x1e8
+[  529.357746]  ext4_mount+0x44/0x58 [ext4]
+[  529.357748]  mount_fs+0x50/0x170
+[  529.357752]  vfs_kern_mount.part.9+0x54/0x188
+[  529.357755]  do_mount+0x5ac/0xd78
+[  529.357758]  ksys_mount+0x9c/0x118
+[  529.357760]  __arm64_sys_mount+0x28/0x38
+[  529.357764]  el0_svc_common+0x78/0x130
+[  529.357766]  el0_svc_handler+0x38/0x78
+[  529.357769]  el0_svc+0x8/0xc
+[  541.356516] watchdog: BUG: soft lockup - CPU#0 stuck for 23s! [mount:18674]
 
-"Note that there are quite a few HP Pavilion dv6 variants, some
-woth ATI and some with NVIDIA hybrid gfx, both seem to need this
-quirk to have working backlight control. There are also some versions
-with only Intel integrated gfx, these may not need this quirk, but it
-should not hurt there."
-
-Unfortunately that seems wrong, I've already received 2 reports of
-this commit causing regressions on some dv6 variants (at least one
-of which actually has a nvidia GPU). So it seems that HP has made a
-mess here by using the same model-name both in marketing and in the
-DMI data for many different variants. Some of which need
-acpi_backlight=native for functional backlight control (as the
-quirk this commit reverts was doing), where as others are broken by
-it. So lets get back to the old sitation so as to avoid regressing
-on models which used to work without any kernel cmdline arguments
-before.
-
-Fixes: 6276e53fa8c0 (ACPI / video: Add force_native quirk for HP Pavilion dv6)
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Cc: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/20200211011752.29242-1-luoshijie1@huawei.com
+Reviewed-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Shijie Luo <luoshijie1@huawei.com>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
+Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/acpi/video_detect.c |   11 -----------
- 1 file changed, 11 deletions(-)
+ fs/ext4/block_validity.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/acpi/video_detect.c
-+++ b/drivers/acpi/video_detect.c
-@@ -314,17 +314,6 @@ static const struct dmi_system_id video_
- 		DMI_MATCH(DMI_PRODUCT_NAME, "Dell System XPS L702X"),
- 		},
- 	},
--	{
--	/* https://bugzilla.redhat.com/show_bug.cgi?id=1204476 */
--	/* https://bugs.launchpad.net/ubuntu/+source/linux-lts-trusty/+bug/1416940 */
--	.callback = video_detect_force_native,
--	.ident = "HP Pavilion dv6",
--	.matches = {
--		DMI_MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
--		DMI_MATCH(DMI_PRODUCT_NAME, "HP Pavilion dv6 Notebook PC"),
--		},
--	},
--
- 	{ },
- };
- 
+--- a/fs/ext4/block_validity.c
++++ b/fs/ext4/block_validity.c
+@@ -152,6 +152,7 @@ static int ext4_protect_reserved_inode(s
+ 		return PTR_ERR(inode);
+ 	num = (inode->i_size + sb->s_blocksize - 1) >> sb->s_blocksize_bits;
+ 	while (i < num) {
++		cond_resched();
+ 		map.m_lblk = i;
+ 		map.m_len = num - i;
+ 		n = ext4_map_blocks(NULL, inode, &map, 0);
 
 
