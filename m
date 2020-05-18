@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BFEF91D8624
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:23:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 283BF1D8509
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:17:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728995AbgERRtE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:49:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50320 "EHLO mail.kernel.org"
+        id S1731816AbgERR5h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:57:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36312 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730010AbgERRtD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:49:03 -0400
+        id S1729474AbgERR5f (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:57:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 14DE020657;
-        Mon, 18 May 2020 17:49:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8968A207D3;
+        Mon, 18 May 2020 17:57:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824142;
-        bh=pd5YWyWFz+tsihJlMqRKZ21NLXrKyDUcvfBo3PqQ9Ow=;
+        s=default; t=1589824655;
+        bh=LhDEdDnPsiUb9bDl6qpKzJTWWl0NBJfBqLAFPrqIEug=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WrdN0ehFoOA7fRHjgtNn5DFeA0Y4fQCSRh9Rwp0u6yJy3dDeKuIFMKLl9jJYJyHdg
-         eRvEoLdgay/7s04ZO+YPvk0d7Kj0zC1ChCE3fXzyxPfS2EPlJnm7tBLt5q05rRmRup
-         vR3qtruRGP2qnl/gffikCBLh0dybStNL+N1HFM9w=
+        b=nDI9PW1vv9FUENiRBcO8LpAHZ0B54vzJwas8YxZHY9OVbP1Zsxu/ISTm60iEPWPcZ
+         Ibl5slpGZT/YfvSW/eBZzzD7NmT5jzLZahPtG9/goJR4oDNwE+iCpIt9EzROfW5Inc
+         W0Cx/vQu3KNC3M/8RrenYxx95V4V1XaxDn1D3tX4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Iris Liu <iris@onechronos.com>,
-        Kelly Littlepage <kelly@onechronos.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Soheil Hassas Yeganeh <soheil@google.com>,
-        Willem de Bruijn <willemb@google.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.14 089/114] net: tcp: fix rx timestamp behavior for tcp_recvmsg
+        stable@vger.kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 098/147] gcc-10: disable stringop-overflow warning for now
 Date:   Mon, 18 May 2020 19:37:01 +0200
-Message-Id: <20200518173518.386266386@linuxfoundation.org>
+Message-Id: <20200518173525.677490455@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173503.033975649@linuxfoundation.org>
-References: <20200518173503.033975649@linuxfoundation.org>
+In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
+References: <20200518173513.009514388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,51 +43,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kelly Littlepage <kelly@onechronos.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-[ Upstream commit cc4de047b33be247f9c8150d3e496743a49642b8 ]
+commit 5a76021c2eff7fcf2f0918a08fd8a37ce7922921 upstream.
 
-The stated intent of the original commit is to is to "return the timestamp
-corresponding to the highest sequence number data returned." The current
-implementation returns the timestamp for the last byte of the last fully
-read skb, which is not necessarily the last byte in the recv buffer. This
-patch converts behavior to the original definition, and to the behavior of
-the previous draft versions of commit 98aaa913b4ed ("tcp: Extend
-SOF_TIMESTAMPING_RX_SOFTWARE to TCP recvmsg") which also match this
-behavior.
+This is the final array bounds warning removal for gcc-10 for now.
 
-Fixes: 98aaa913b4ed ("tcp: Extend SOF_TIMESTAMPING_RX_SOFTWARE to TCP recvmsg")
-Co-developed-by: Iris Liu <iris@onechronos.com>
-Signed-off-by: Iris Liu <iris@onechronos.com>
-Signed-off-by: Kelly Littlepage <kelly@onechronos.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Acked-by: Soheil Hassas Yeganeh <soheil@google.com>
-Acked-by: Willem de Bruijn <willemb@google.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Again, the warning is good, and we should re-enable all these warnings
+when we have converted all the legacy array declaration cases to
+flexible arrays. But in the meantime, it's just noise.
+
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/ipv4/tcp.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/net/ipv4/tcp.c
-+++ b/net/ipv4/tcp.c
-@@ -1977,13 +1977,15 @@ skip_copy:
- 			tp->urg_data = 0;
- 			tcp_fast_path_check(sk);
- 		}
--		if (used + offset < skb->len)
--			continue;
+---
+ Makefile |    1 +
+ 1 file changed, 1 insertion(+)
+
+--- a/Makefile
++++ b/Makefile
+@@ -859,6 +859,7 @@ KBUILD_CFLAGS += $(call cc-disable-warni
+ # We'll want to enable this eventually, but it's not going away for 5.7 at least
+ KBUILD_CFLAGS += $(call cc-disable-warning, zero-length-bounds)
+ KBUILD_CFLAGS += $(call cc-disable-warning, array-bounds)
++KBUILD_CFLAGS += $(call cc-disable-warning, stringop-overflow)
  
- 		if (TCP_SKB_CB(skb)->has_rxtstamp) {
- 			tcp_update_recv_tstamps(skb, &tss);
- 			has_tss = true;
- 		}
-+
-+		if (used + offset < skb->len)
-+			continue;
-+
- 		if (TCP_SKB_CB(skb)->tcp_flags & TCPHDR_FIN)
- 			goto found_fin_ok;
- 		if (!(flags & MSG_PEEK))
+ # Enabled with W=2, disabled by default as noisy
+ KBUILD_CFLAGS += $(call cc-disable-warning, maybe-uninitialized)
 
 
