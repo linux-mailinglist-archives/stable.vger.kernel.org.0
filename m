@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CAA61D81D4
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:51:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 748741D80F0
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:43:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730821AbgERRvN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:51:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53744 "EHLO mail.kernel.org"
+        id S1729589AbgERRna (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:43:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41124 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730829AbgERRvK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:51:10 -0400
+        id S1729584AbgERRn3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:43:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 85C9F20674;
-        Mon, 18 May 2020 17:51:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 387FE20657;
+        Mon, 18 May 2020 17:43:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824270;
-        bh=v17KLpkrUK8PVtqnolrS1fM1oTtoXKQykSbkQwFs/cU=;
+        s=default; t=1589823808;
+        bh=fGBROYDxdQQozDWu/J6DkYIQUBAR/xN0ABEzDiLWZuc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hJrx6oZggjKNW1LRiAOLvr4DMB93cOmymIaLv8k5SJWcPSKvNY554lz9380Dj3bvx
-         ZckAWTv0SZNdh9iqpLB0d1cEIIfTDO04/fkqd5EV2jcrEh2Pgknk9uKJv1EdAJnmyf
-         Dpnvj5UYSLqIf7VY5VHNknSYx3rfYaq9bcALXWIM=
+        b=U+tpmqBlkDoMgXfVIkrym8vLlfduqDyFNbEkUZJlTgqMJSh0/Z87hsfqcfkOJ8DYL
+         7Nqm4Qqc3yCRlLDW0CTIytwUceVIZ2KZGF1WI4h9Q+Nzp+wMku73rmdHkaNoq9RFhm
+         Z4pL4AKm1u5mTc3S+BK/1EFoIzbRX6QdoDFf2jAY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Neil Horman <nhorman@tuxdriver.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 04/80] net: moxa: Fix a potential double free_irq()
+Subject: [PATCH 4.9 44/90] drop_monitor: work around gcc-10 stringop-overflow warning
 Date:   Mon, 18 May 2020 19:36:22 +0200
-Message-Id: <20200518173451.021483004@linuxfoundation.org>
+Message-Id: <20200518173500.248110788@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173450.097837707@linuxfoundation.org>
-References: <20200518173450.097837707@linuxfoundation.org>
+In-Reply-To: <20200518173450.930655662@linuxfoundation.org>
+References: <20200518173450.930655662@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,34 +45,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit ee8d2267f0e39a1bfd95532da3a6405004114b27 ]
+[ Upstream commit dc30b4059f6e2abf3712ab537c8718562b21c45d ]
 
-Should an irq requested with 'devm_request_irq' be released explicitly,
-it should be done by 'devm_free_irq()', not 'free_irq()'.
+The current gcc-10 snapshot produces a false-positive warning:
 
-Fixes: 6c821bd9edc9 ("net: Add MOXA ART SoCs ethernet driver")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+net/core/drop_monitor.c: In function 'trace_drop_common.constprop':
+cc1: error: writing 8 bytes into a region of size 0 [-Werror=stringop-overflow=]
+In file included from net/core/drop_monitor.c:23:
+include/uapi/linux/net_dropmon.h:36:8: note: at offset 0 to object 'entries' with size 4 declared here
+   36 |  __u32 entries;
+      |        ^~~~~~~
+
+I reported this in the gcc bugzilla, but in case it does not get
+fixed in the release, work around it by using a temporary variable.
+
+Fixes: 9a8afc8d3962 ("Network Drop Monitor: Adding drop monitor implementation & Netlink protocol")
+Link: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=94881
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Acked-by: Neil Horman <nhorman@tuxdriver.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/moxa/moxart_ether.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/core/drop_monitor.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/moxa/moxart_ether.c b/drivers/net/ethernet/moxa/moxart_ether.c
-index b34055ac476f7..4db3431b79ac1 100644
---- a/drivers/net/ethernet/moxa/moxart_ether.c
-+++ b/drivers/net/ethernet/moxa/moxart_ether.c
-@@ -561,7 +561,7 @@ static int moxart_remove(struct platform_device *pdev)
- 	struct net_device *ndev = platform_get_drvdata(pdev);
+diff --git a/net/core/drop_monitor.c b/net/core/drop_monitor.c
+index ca2c9c8b9a3e9..6d7ff117f3792 100644
+--- a/net/core/drop_monitor.c
++++ b/net/core/drop_monitor.c
+@@ -159,6 +159,7 @@ static void sched_send_work(unsigned long _data)
+ static void trace_drop_common(struct sk_buff *skb, void *location)
+ {
+ 	struct net_dm_alert_msg *msg;
++	struct net_dm_drop_point *point;
+ 	struct nlmsghdr *nlh;
+ 	struct nlattr *nla;
+ 	int i;
+@@ -177,11 +178,13 @@ static void trace_drop_common(struct sk_buff *skb, void *location)
+ 	nlh = (struct nlmsghdr *)dskb->data;
+ 	nla = genlmsg_data(nlmsg_data(nlh));
+ 	msg = nla_data(nla);
++	point = msg->points;
+ 	for (i = 0; i < msg->entries; i++) {
+-		if (!memcmp(&location, msg->points[i].pc, sizeof(void *))) {
+-			msg->points[i].count++;
++		if (!memcmp(&location, &point->pc, sizeof(void *))) {
++			point->count++;
+ 			goto out;
+ 		}
++		point++;
+ 	}
+ 	if (msg->entries == dm_hit_limit)
+ 		goto out;
+@@ -190,8 +193,8 @@ static void trace_drop_common(struct sk_buff *skb, void *location)
+ 	 */
+ 	__nla_reserve_nohdr(dskb, sizeof(struct net_dm_drop_point));
+ 	nla->nla_len += NLA_ALIGN(sizeof(struct net_dm_drop_point));
+-	memcpy(msg->points[msg->entries].pc, &location, sizeof(void *));
+-	msg->points[msg->entries].count = 1;
++	memcpy(point->pc, &location, sizeof(void *));
++	point->count = 1;
+ 	msg->entries++;
  
- 	unregister_netdev(ndev);
--	free_irq(ndev->irq, ndev);
-+	devm_free_irq(&pdev->dev, ndev->irq, ndev);
- 	moxart_mac_free_memory(ndev);
- 	free_netdev(ndev);
- 
+ 	if (!timer_pending(&data->send_timer)) {
 -- 
 2.20.1
 
