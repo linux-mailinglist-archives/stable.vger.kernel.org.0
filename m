@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 772D51D843B
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:11:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 170941D850D
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:17:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733007AbgERSKm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:10:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52818 "EHLO mail.kernel.org"
+        id S1731016AbgERR5z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:57:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36820 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732933AbgERSFV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 14:05:21 -0400
+        id S1731518AbgERR5x (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:57:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0F79F20671;
-        Mon, 18 May 2020 18:05:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F32DB20829;
+        Mon, 18 May 2020 17:57:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589825120;
+        s=default; t=1589824672;
         bh=qPHsgWoFLk4NPnZi5Ufy/BdEGqUt4vkX6hmOfYFIzsg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cVdHxchjKWJfOqzft5v/XmnGgqPzoLQxErlqwgyFSqSsKABmUffrJWdoK8aGsHe+E
-         hGkzTpptP+LAVpmwAADIesgwgRdalvpUMZaFYQWJRUCGDtdJT5p9hd4FCEod1z1Jg6
-         CDa6FelO/6/PzIPxQfXZD4Mnpjq+97Je5TEM7SQ8=
+        b=kFk9DJy2KM+utDMjpv3PdhhPzbB/TM+oded0StbbAtCdHDceSEicaYDtlIbOTEq2b
+         x7jeN3rOsMHPQny19SRsqGR+SFbfcPSk76FUcTPqtZU+qu5Ts6egTe8asidHcSLOij
+         EKNzl2Ssa2x/Dl3btusyEzbSX5A05qULd++WoOzo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.6 138/194] ALSA: hda/realtek - Limit int mic boost for Thinkpad T530
+Subject: [PATCH 5.4 105/147] ALSA: hda/realtek - Limit int mic boost for Thinkpad T530
 Date:   Mon, 18 May 2020 19:37:08 +0200
-Message-Id: <20200518173542.846812514@linuxfoundation.org>
+Message-Id: <20200518173526.379903952@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
-References: <20200518173531.455604187@linuxfoundation.org>
+In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
+References: <20200518173513.009514388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
