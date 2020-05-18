@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FB241D84AA
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:14:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E73E11D80CD
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:42:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731738AbgERSNY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:13:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45362 "EHLO mail.kernel.org"
+        id S1728566AbgERRmK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:42:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38918 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729660AbgERSCK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 14:02:10 -0400
+        id S1729376AbgERRmH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:42:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1029B2086A;
-        Mon, 18 May 2020 18:02:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6F1F8207C4;
+        Mon, 18 May 2020 17:42:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824929;
-        bh=a4vO50+AyM+E2Zmx3kYrvkyNEiyeQFXO02nvLaYmr1g=;
+        s=default; t=1589823726;
+        bh=Rb7UxkR8SUT5Bw8UAQG6g2rq3U0rT6XFV6zgMx0mh2o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EFtaorcB8D/lHImM1u+Ok2/BDIRR3L40n4z/7POwagxx9hfrN7OnPKYvz5GjjREYZ
-         qyPX5xvvSVy6O9IDLBL1ZTUn8tciQCFze5UxV20SZRD+XRm3pAlx91LNS6zNRD7yKz
-         Pe3VqAe791f8pSsS5RnUAAUpbBWkB4q8TqNYqOMI=
+        b=QCiyrKRKz+NazSHenuN755lfMi2REW1ZV3UobIqw8BqaeGo37xlIBfLWJSBulyys4
+         M2fsGxuwy+AgoxzuVeFwZLciuRdlXxX8JFMU2rFsQpPWsw9GO3bJq23Yx9ycHiA6QY
+         b/7ucnELhaz31rcbWn2Ag8jm2HzLsAAVbw2o73/M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Evan Quan <evan.quan@amd.com>,
-        Tiecheng Zhou <Tiecheng.Zhou@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 060/194] drm/amd/powerplay: avoid using pm_en before it is initialized revised
+        stable@vger.kernel.org, Michael Chan <michael.chan@broadcom.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 12/90] bnxt_en: Improve AER slot reset.
 Date:   Mon, 18 May 2020 19:35:50 +0200
-Message-Id: <20200518173536.724166974@linuxfoundation.org>
+Message-Id: <20200518173453.713553654@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
-References: <20200518173531.455604187@linuxfoundation.org>
+In-Reply-To: <20200518173450.930655662@linuxfoundation.org>
+References: <20200518173450.930655662@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,55 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tiecheng Zhou <Tiecheng.Zhou@amd.com>
+From: Michael Chan <michael.chan@broadcom.com>
 
-[ Upstream commit 690ae30be163d5262feae01335b2a6f30569e5aa ]
+[ Upstream commit bae361c54fb6ac6eba3b4762f49ce14beb73ef13 ]
 
-hwmgr->pm_en is initialized at hwmgr_hw_init.
+Improve the slot reset sequence by disabling the device to prevent bad
+DMAs if slot reset fails.  Return the proper result instead of always
+PCI_ERS_RESULT_RECOVERED to the caller.
 
-during amdgpu_device_init, there is amdgpu_asic_reset that calls to
-soc15_asic_reset (for V320 usecase, Vega10 asic), in which:
-1) soc15_asic_reset_method calls to pp_get_asic_baco_capability (pm_en)
-2) soc15_asic_baco_reset calls to pp_set_asic_baco_state (pm_en)
-
-pm_en is used in the above two cases while it has not yet been initialized
-
-So avoid using pm_en in the above two functions for V320 passthrough.
-
-Reviewed-by: Evan Quan <evan.quan@amd.com>
-Signed-off-by: Tiecheng Zhou <Tiecheng.Zhou@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 6316ea6db93d ("bnxt_en: Enable AER support.")
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/powerplay/amd_powerplay.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/powerplay/amd_powerplay.c b/drivers/gpu/drm/amd/powerplay/amd_powerplay.c
-index c195575366a3b..e4e5a53b2b4ea 100644
---- a/drivers/gpu/drm/amd/powerplay/amd_powerplay.c
-+++ b/drivers/gpu/drm/amd/powerplay/amd_powerplay.c
-@@ -1435,7 +1435,8 @@ static int pp_get_asic_baco_capability(void *handle, bool *cap)
- 	if (!hwmgr)
- 		return -EINVAL;
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+@@ -7166,8 +7166,11 @@ static pci_ers_result_t bnxt_io_slot_res
+ 			result = PCI_ERS_RESULT_RECOVERED;
+ 	}
  
--	if (!hwmgr->pm_en || !hwmgr->hwmgr_func->get_asic_baco_capability)
-+	if (!(hwmgr->not_vf && amdgpu_dpm) ||
-+		!hwmgr->hwmgr_func->get_asic_baco_capability)
- 		return 0;
+-	if (result != PCI_ERS_RESULT_RECOVERED && netif_running(netdev))
+-		dev_close(netdev);
++	if (result != PCI_ERS_RESULT_RECOVERED) {
++		if (netif_running(netdev))
++			dev_close(netdev);
++		pci_disable_device(pdev);
++	}
  
- 	mutex_lock(&hwmgr->smu_lock);
-@@ -1469,7 +1470,8 @@ static int pp_set_asic_baco_state(void *handle, int state)
- 	if (!hwmgr)
- 		return -EINVAL;
+ 	rtnl_unlock();
  
--	if (!hwmgr->pm_en || !hwmgr->hwmgr_func->set_asic_baco_state)
-+	if (!(hwmgr->not_vf && amdgpu_dpm) ||
-+		!hwmgr->hwmgr_func->set_asic_baco_state)
- 		return 0;
+@@ -7178,7 +7181,7 @@ static pci_ers_result_t bnxt_io_slot_res
+ 			 err); /* non-fatal, continue */
+ 	}
  
- 	mutex_lock(&hwmgr->smu_lock);
--- 
-2.20.1
-
+-	return PCI_ERS_RESULT_RECOVERED;
++	return result;
+ }
+ 
+ /**
 
 
