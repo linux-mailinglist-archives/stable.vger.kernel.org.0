@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A3281D834E
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:04:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 996951D80C0
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:42:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732673AbgERSDi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:03:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49156 "EHLO mail.kernel.org"
+        id S1728720AbgERRlt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:41:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38390 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732667AbgERSDg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 14:03:36 -0400
+        id S1729333AbgERRlr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:41:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 535D520715;
-        Mon, 18 May 2020 18:03:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C5A8920715;
+        Mon, 18 May 2020 17:41:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589825015;
-        bh=GGnJNp2Cr9o98JBWRJx55Ike4NOjI4uLkxCaJOm8jGM=;
+        s=default; t=1589823707;
+        bh=qFkv+pTyhAym8MVCXPSeG/lVQMT/Jk6Ed+HrNAXS9xY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ROEyFHuzmGzCmg9scSINo/Ua5AbqRPCVEs9QPVzYrU5QyCi0SwTYCpNBt5aPTXIik
-         NSpSq2+8zG+j+CSgTyn4Ts3iAezxSK6stN/EZk4T5hN22tBOslrWm3+XUMWHlZ6yQg
-         p5T80iS3Fw0FjVlr82kvCLkgu2OQ8X1rE2Cf/21g=
+        b=R3+jKTSlPwedYvGPPOE6cD1+YUAo9A8EWZQbTq+mdi49GKOhj1LiBDKilUWluc/4h
+         K0WpMmeTqxSCZGFYNm+D4SBewxjzAbK3uWDA1hT/urCQLIen2fIs12iJlP3ikFsUbn
+         FJqzVNHKLS/N3BQgiDfm7t7RhflUWEBCHyGk7kaQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 096/194] drm/amdgpu: force fbdev into vram
-Date:   Mon, 18 May 2020 19:36:26 +0200
-Message-Id: <20200518173540.074086739@linuxfoundation.org>
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.4 56/86] gcc-10 warnings: fix low-hanging fruit
+Date:   Mon, 18 May 2020 19:36:27 +0200
+Message-Id: <20200518173501.817340299@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
-References: <20200518173531.455604187@linuxfoundation.org>
+In-Reply-To: <20200518173450.254571947@linuxfoundation.org>
+References: <20200518173450.254571947@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,39 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Deucher <alexander.deucher@amd.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-[ Upstream commit a6aacb2b26e85aa619cf0c6f98d0ca77314cd2a1 ]
+commit 9d82973e032e246ff5663c9805fbb5407ae932e3 upstream.
 
-We set the fb smem pointer to the offset into the BAR, so keep
-the fbdev bo in vram.
+Due to a bug-report that was compiler-dependent, I updated one of my
+machines to gcc-10.  That shows a lot of new warnings.  Happily they
+seem to be mostly the valid kind, but it's going to cause a round of
+churn for getting rid of them..
 
-Bug: https://bugzilla.kernel.org/show_bug.cgi?id=207581
-Fixes: 6c8d74caa2fa33 ("drm/amdgpu: Enable scatter gather display support")
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This is the really low-hanging fruit of removing a couple of zero-sized
+arrays in some core code.  We have had a round of these patches before,
+and we'll have many more coming, and there is nothing special about
+these except that they were particularly trivial, and triggered more
+warnings than most.
+
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_fb.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ include/linux/fs.h  |    2 +-
+ include/linux/tty.h |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_fb.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_fb.c
-index 2672dc64a3101..6a76ab16500fa 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_fb.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_fb.c
-@@ -133,8 +133,7 @@ static int amdgpufb_create_pinned_object(struct amdgpu_fbdev *rfbdev,
- 	u32 cpp;
- 	u64 flags = AMDGPU_GEM_CREATE_CPU_ACCESS_REQUIRED |
- 			       AMDGPU_GEM_CREATE_VRAM_CONTIGUOUS     |
--			       AMDGPU_GEM_CREATE_VRAM_CLEARED 	     |
--			       AMDGPU_GEM_CREATE_CPU_GTT_USWC;
-+			       AMDGPU_GEM_CREATE_VRAM_CLEARED;
+--- a/include/linux/fs.h
++++ b/include/linux/fs.h
+@@ -915,7 +915,7 @@ struct file_handle {
+ 	__u32 handle_bytes;
+ 	int handle_type;
+ 	/* file identifier */
+-	unsigned char f_handle[0];
++	unsigned char f_handle[];
+ };
  
- 	info = drm_get_format_info(adev->ddev, mode_cmd);
- 	cpp = info->cpp[0];
--- 
-2.20.1
-
+ static inline struct file *get_file(struct file *f)
+--- a/include/linux/tty.h
++++ b/include/linux/tty.h
+@@ -64,7 +64,7 @@ struct tty_buffer {
+ 	int read;
+ 	int flags;
+ 	/* Data points here */
+-	unsigned long data[0];
++	unsigned long data[];
+ };
+ 
+ /* Values for .flags field of tty_buffer */
 
 
