@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C1561D8517
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:17:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B05821D8484
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:14:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730897AbgERR6a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:58:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37948 "EHLO mail.kernel.org"
+        id S1732787AbgERSE3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:04:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51464 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731907AbgERR6a (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:58:30 -0400
+        id S1732335AbgERSE2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 14:04:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1F9D9207C4;
-        Mon, 18 May 2020 17:58:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 81378207D3;
+        Mon, 18 May 2020 18:04:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824709;
-        bh=0NmjDoUM5gYgsEDS4Q8qgD6YSor5H2823HhLNhDpAmA=;
+        s=default; t=1589825068;
+        bh=ez2yiaLPZoIhBALY+D2vaAgcAuhJq9y6IBu3Sg2n3zg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HZu9ebdZQpye+b1ESJkqkVSTSls9WBkfs1WgC85kAC9lJaa5vpYFpsYX3GFtkn4FD
-         ooZ5xSXdYl6xfWLjz6updiwLEzmP0+V1G72d/vY/f+5l7xtQ1uOLwscK6StZ7O5Jc0
-         fXIXQqCRadkWU9ODTwbvAz+hVd1abJ3oBMnqsn70=
+        b=EUgxiOaJL6R4J/Clo0C2rf4btvpMb3XM8HT5WLNlj3hA+VkhU8sYN3xilt1u0RFBu
+         tw14MZiJd86ddnV9grnHNf06OWYnM+k9bKxmEXbSOXf5GHhLtrcJ4iJaaFP5VHn580
+         zqcRXmAnhqMlta58x+EU71HmJyx0hg89vXu3JrJg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefano Brivio <sbrivio@redhat.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Potnuri Bharat Teja <bharat@chelsio.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 082/147] netfilter: nft_set_rbtree: Introduce and use nft_rbtree_interval_start()
+Subject: [PATCH 5.6 115/194] RDMA/iw_cxgb4: Fix incorrect function parameters
 Date:   Mon, 18 May 2020 19:36:45 +0200
-Message-Id: <20200518173523.883069486@linuxfoundation.org>
+Message-Id: <20200518173541.287296912@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
-References: <20200518173513.009514388@linuxfoundation.org>
+In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
+References: <20200518173531.455604187@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,83 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefano Brivio <sbrivio@redhat.com>
+From: Potnuri Bharat Teja <bharat@chelsio.com>
 
-[ Upstream commit 6f7c9caf017be8ab0fe3b99509580d0793bf0833 ]
+[ Upstream commit c8b1f340e54158662acfa41d6dee274846370282 ]
 
-Replace negations of nft_rbtree_interval_end() with a new helper,
-nft_rbtree_interval_start(), wherever this helps to visualise the
-problem at hand, that is, for all the occurrences except for the
-comparison against given flags in __nft_rbtree_get().
+While reading the TCB field in t4_tcb_get_field32() the wrong mask is
+passed as a parameter which leads the driver eventually to a kernel
+panic/app segfault from access to an illegal SRQ index while flushing the
+SRQ completions during connection teardown.
 
-This gets especially useful in the next patch.
-
-Signed-off-by: Stefano Brivio <sbrivio@redhat.com>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: 11a27e2121a5 ("iw_cxgb4: complete the cached SRQ buffers")
+Link: https://lore.kernel.org/r/20200511185608.5202-1-bharat@chelsio.com
+Signed-off-by: Potnuri Bharat Teja <bharat@chelsio.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nft_set_rbtree.c | 17 +++++++++++------
- 1 file changed, 11 insertions(+), 6 deletions(-)
+ drivers/infiniband/hw/cxgb4/cm.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/net/netfilter/nft_set_rbtree.c b/net/netfilter/nft_set_rbtree.c
-index a9f804f7a04ac..95fcba34bfd35 100644
---- a/net/netfilter/nft_set_rbtree.c
-+++ b/net/netfilter/nft_set_rbtree.c
-@@ -33,6 +33,11 @@ static bool nft_rbtree_interval_end(const struct nft_rbtree_elem *rbe)
- 	       (*nft_set_ext_flags(&rbe->ext) & NFT_SET_ELEM_INTERVAL_END);
- }
- 
-+static bool nft_rbtree_interval_start(const struct nft_rbtree_elem *rbe)
-+{
-+	return !nft_rbtree_interval_end(rbe);
-+}
-+
- static bool nft_rbtree_equal(const struct nft_set *set, const void *this,
- 			     const struct nft_rbtree_elem *interval)
- {
-@@ -64,7 +69,7 @@ static bool __nft_rbtree_lookup(const struct net *net, const struct nft_set *set
- 			if (interval &&
- 			    nft_rbtree_equal(set, this, interval) &&
- 			    nft_rbtree_interval_end(rbe) &&
--			    !nft_rbtree_interval_end(interval))
-+			    nft_rbtree_interval_start(interval))
- 				continue;
- 			interval = rbe;
- 		} else if (d > 0)
-@@ -89,7 +94,7 @@ static bool __nft_rbtree_lookup(const struct net *net, const struct nft_set *set
- 
- 	if (set->flags & NFT_SET_INTERVAL && interval != NULL &&
- 	    nft_set_elem_active(&interval->ext, genmask) &&
--	    !nft_rbtree_interval_end(interval)) {
-+	    nft_rbtree_interval_start(interval)) {
- 		*ext = &interval->ext;
- 		return true;
+diff --git a/drivers/infiniband/hw/cxgb4/cm.c b/drivers/infiniband/hw/cxgb4/cm.c
+index d69dece3b1d54..30e08bcc9afb5 100644
+--- a/drivers/infiniband/hw/cxgb4/cm.c
++++ b/drivers/infiniband/hw/cxgb4/cm.c
+@@ -2891,8 +2891,7 @@ static int peer_abort(struct c4iw_dev *dev, struct sk_buff *skb)
+ 			srqidx = ABORT_RSS_SRQIDX_G(
+ 					be32_to_cpu(req->srqidx_status));
+ 			if (srqidx) {
+-				complete_cached_srq_buffers(ep,
+-							    req->srqidx_status);
++				complete_cached_srq_buffers(ep, srqidx);
+ 			} else {
+ 				/* Hold ep ref until finish_peer_abort() */
+ 				c4iw_get_ep(&ep->com);
+@@ -3878,8 +3877,8 @@ static int read_tcb_rpl(struct c4iw_dev *dev, struct sk_buff *skb)
+ 		return 0;
  	}
-@@ -224,9 +229,9 @@ static int __nft_rbtree_insert(const struct net *net, const struct nft_set *set,
- 			p = &parent->rb_right;
- 		else {
- 			if (nft_rbtree_interval_end(rbe) &&
--			    !nft_rbtree_interval_end(new)) {
-+			    nft_rbtree_interval_start(new)) {
- 				p = &parent->rb_left;
--			} else if (!nft_rbtree_interval_end(rbe) &&
-+			} else if (nft_rbtree_interval_start(rbe) &&
- 				   nft_rbtree_interval_end(new)) {
- 				p = &parent->rb_right;
- 			} else if (nft_set_elem_active(&rbe->ext, genmask)) {
-@@ -317,10 +322,10 @@ static void *nft_rbtree_deactivate(const struct net *net,
- 			parent = parent->rb_right;
- 		else {
- 			if (nft_rbtree_interval_end(rbe) &&
--			    !nft_rbtree_interval_end(this)) {
-+			    nft_rbtree_interval_start(this)) {
- 				parent = parent->rb_left;
- 				continue;
--			} else if (!nft_rbtree_interval_end(rbe) &&
-+			} else if (nft_rbtree_interval_start(rbe) &&
- 				   nft_rbtree_interval_end(this)) {
- 				parent = parent->rb_right;
- 				continue;
+ 
+-	ep->srqe_idx = t4_tcb_get_field32(tcb, TCB_RQ_START_W, TCB_RQ_START_W,
+-			TCB_RQ_START_S);
++	ep->srqe_idx = t4_tcb_get_field32(tcb, TCB_RQ_START_W, TCB_RQ_START_M,
++					  TCB_RQ_START_S);
+ cleanup:
+ 	pr_debug("ep %p tid %u %016x\n", ep, ep->hwtid, ep->srqe_idx);
+ 
 -- 
 2.20.1
 
