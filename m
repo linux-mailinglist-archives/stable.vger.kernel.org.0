@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B13EC1D8725
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:31:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 550A61D8359
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:04:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728731AbgERSaf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:30:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36624 "EHLO mail.kernel.org"
+        id S1732739AbgERSEG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:04:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50116 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729139AbgERRkp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:40:45 -0400
+        id S1731171AbgERSEG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 14:04:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E193020657;
-        Mon, 18 May 2020 17:40:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2D55D20715;
+        Mon, 18 May 2020 18:04:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589823645;
-        bh=tBs33K+uNGXDzZgMYrAIoeato9mMKDEaIncgrf6We24=;
+        s=default; t=1589825045;
+        bh=kr4mAYS/7C1SqnmoS4djr0Ui+8MkF6b6y+xXe2x6Wy4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V2GVlOLAyy383m3BIlrg/LnEiRLL6weAFmMb1BPopgoEkZv2fofhU5S98HGlBeTq/
-         sbMN6iOlWpHZDkFhars24fVhV+/5IPpEvVCKYtRkxt58wxxUFgNnh/dB0jqeTvcSNC
-         uGw+l4EY5zGymPFinUFFLHO0ucAp8Q6F4phaidhE=
+        b=DEqWni0oL3Xy2HPwVFlzJJ7ZfZ/nqjS5X7ZEZZOEwuEuKhcbP2TZJecTcH77b87oI
+         gSj70x0vCkCEzE1V8nttYBnfrCqubdTnOX2RMpH5ZT/4AyBTVfFiGvdG6PZtdSeL29
+         ilBFmMivBTVEMzj6dQd1+Y3df1ox9VuuFqz7GT8U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jianchao Wang <jianchao.w.wang@oracle.com>,
-        Keith Busch <keith.busch@intel.com>,
-        Jens Axboe <axboe@kernel.dk>,
-        Giuliano Procida <gprocida@google.com>
-Subject: [PATCH 4.4 66/86] blk-mq: Allow blocking queue tag iter callbacks
+        stable@vger.kernel.org, Chuck Lever <chuck.lever@oracle.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 107/194] SUNRPC: Signalled ASYNC tasks need to exit
 Date:   Mon, 18 May 2020 19:36:37 +0200
-Message-Id: <20200518173503.689982128@linuxfoundation.org>
+Message-Id: <20200518173540.755420559@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173450.254571947@linuxfoundation.org>
-References: <20200518173450.254571947@linuxfoundation.org>
+In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
+References: <20200518173531.455604187@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,51 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Keith Busch <keith.busch@intel.com>
+From: Chuck Lever <chuck.lever@oracle.com>
 
-commit 530ca2c9bd6949c72c9b5cfc330cb3dbccaa3f5b upstream.
+[ Upstream commit ce99aa62e1eb793e259d023c7f6ccb7c4879917b ]
 
-A recent commit runs tag iterator callbacks under the rcu read lock,
-but existing callbacks do not satisfy the non-blocking requirement.
-The commit intended to prevent an iterator from accessing a queue that's
-being modified. This patch fixes the original issue by taking a queue
-reference instead of reading it, which allows callbacks to make blocking
-calls.
+Ensure that signalled ASYNC rpc_tasks exit immediately instead of
+spinning until a timeout (or forever).
 
-Fixes: f5bbbbe4d6357 ("blk-mq: sync the update nr_hw_queues with blk_mq_queue_tag_busy_iter")
-Acked-by: Jianchao Wang <jianchao.w.wang@oracle.com>
-Signed-off-by: Keith Busch <keith.busch@intel.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Giuliano Procida <gprocida@google.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To avoid checking for the signal flag on every scheduler iteration,
+the check is instead introduced in the client's finite state
+machine.
 
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Fixes: ae67bd3821bb ("SUNRPC: Fix up task signalling")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-mq-tag.c |    7 ++-----
- 1 file changed, 2 insertions(+), 5 deletions(-)
+ net/sunrpc/clnt.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/block/blk-mq-tag.c
-+++ b/block/blk-mq-tag.c
-@@ -484,11 +484,8 @@ void blk_mq_queue_tag_busy_iter(struct r
- 	/*
- 	 * Avoid potential races with things like queue removal.
- 	 */
--	rcu_read_lock();
--	if (percpu_ref_is_zero(&q->q_usage_counter)) {
--		rcu_read_unlock();
-+	if (!percpu_ref_tryget(&q->q_usage_counter))
+diff --git a/net/sunrpc/clnt.c b/net/sunrpc/clnt.c
+index 7324b21f923e6..3ceaefb2f0bcf 100644
+--- a/net/sunrpc/clnt.c
++++ b/net/sunrpc/clnt.c
+@@ -2416,6 +2416,11 @@ rpc_check_timeout(struct rpc_task *task)
+ {
+ 	struct rpc_clnt	*clnt = task->tk_client;
+ 
++	if (RPC_SIGNALLED(task)) {
++		rpc_call_rpcerror(task, -ERESTARTSYS);
++		return;
++	}
++
+ 	if (xprt_adjust_timeout(task->tk_rqstp) == 0)
  		return;
--	}
  
- 	queue_for_each_hw_ctx(q, hctx, i) {
- 		struct blk_mq_tags *tags = hctx->tags;
-@@ -505,7 +502,7 @@ void blk_mq_queue_tag_busy_iter(struct r
- 		bt_for_each(hctx, &tags->bitmap_tags, tags->nr_reserved_tags, fn, priv,
- 		      false);
- 	}
--	rcu_read_unlock();
-+	blk_queue_exit(q);
- }
- 
- static unsigned int bt_unused_tags(struct blk_mq_bitmap_tags *bt)
+-- 
+2.20.1
+
 
 
