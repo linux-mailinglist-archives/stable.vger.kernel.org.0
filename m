@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D2D01D8163
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:47:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C9E01D8493
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:14:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728838AbgERRrj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:47:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48070 "EHLO mail.kernel.org"
+        id S2387587AbgERSMW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:12:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49278 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729938AbgERRri (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:47:38 -0400
+        id S1732675AbgERSDi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 14:03:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A4F202083E;
-        Mon, 18 May 2020 17:47:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C102D207F5;
+        Mon, 18 May 2020 18:03:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824058;
-        bh=mR3ZUFwRrS+NDGgVw/89s9D33YVvx+Ef+5iNUudGRGM=;
+        s=default; t=1589825018;
+        bh=3cejQLR6s/MHvNqorv02wywqqGCjS/IN8aTKYh+lnJE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XQu6bZeyWW28lYvFwRz7UWGH8DYkajMZoQU7jr52d9AmOFJ2BO0Bl6tufhIhulNW8
-         GYmgNw6rwtv6JtRf74k1a5URoDOw9+iovk3AbVuUjrmZpb5gWqqR+jrE7R6y2lMrpa
-         rqguyP6Q9CxeSeCoWPGPBKKszHMVyXmpolhhOXng=
+        b=Mxi7zRfgwwuXLFvEeTdu3gdvjaKJBgNPOdkUFLIwLH8jqkE35qQjv2SfZZvXs+bXW
+         kIMu0m84bFXJ9nLZ0njjkaOLqdX/0kg4jYrHNW2m8F+xAq3bR6tVMANOeNmHWoeDBr
+         ZlCSKGl4jZtMKzb6d5nhFnc7ABdk7bgf2Kt8W9I4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 055/114] dmaengine: pch_dma.c: Avoid data race between probe and irq handler
+        stable@vger.kernel.org, Dave Wysochanski <dwysocha@redhat.com>,
+        David Howells <dhowells@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 097/194] NFS: Fix fscache super_cookie index_key from changing after umount
 Date:   Mon, 18 May 2020 19:36:27 +0200
-Message-Id: <20200518173513.173629443@linuxfoundation.org>
+Message-Id: <20200518173540.126001999@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173503.033975649@linuxfoundation.org>
-References: <20200518173503.033975649@linuxfoundation.org>
+In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
+References: <20200518173531.455604187@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,45 +44,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>
+From: Dave Wysochanski <dwysocha@redhat.com>
 
-[ Upstream commit 2e45676a4d33af47259fa186ea039122ce263ba9 ]
+[ Upstream commit d9bfced1fbcb35b28d8fbed4e785d2807055ed2b ]
 
-pd->dma.dev is read in irq handler pd_irq().
-However, it is set to pdev->dev after request_irq().
-Therefore, set pd->dma.dev to pdev->dev before request_irq() to
-avoid data race between pch_dma_probe() and pd_irq().
+Commit 402cb8dda949 ("fscache: Attach the index key and aux data to
+the cookie") added the index_key and index_key_len parameters to
+fscache_acquire_cookie(), and updated the callers in the NFS client.
+One of the callers was inside nfs_fscache_get_super_cookie()
+and was changed to use the full struct nfs_fscache_key as the
+index_key.  However, a couple members of this structure contain
+pointers and thus will change each time the same NFS share is
+remounted.  Since index_key is used for fscache_cookie->key_hash
+and this subsequently is used to compare cookies, the effectiveness
+of fscache with NFS is reduced to the point at which a umount
+occurs.   Any subsequent remount of the same share will cause a
+unique NFS super_block index_key and key_hash to be generated for
+the same data, rendering any prior fscache data unable to be
+found.  A simple reproducer demonstrates the problem.
 
-Found by Linux Driver Verification project (linuxtesting.org).
+1. Mount share with 'fsc', create a file, drop page cache
+systemctl start cachefilesd
+mount -o vers=3,fsc 127.0.0.1:/export /mnt
+dd if=/dev/zero of=/mnt/file1.bin bs=4096 count=1
+echo 3 > /proc/sys/vm/drop_caches
 
-Signed-off-by: Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>
-Link: https://lore.kernel.org/r/20200416062335.29223-1-madhuparnabhowmik10@gmail.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+2. Read file into page cache and fscache, then unmount
+dd if=/mnt/file1.bin of=/dev/null bs=4096 count=1
+umount /mnt
+
+3. Remount and re-read which should come from fscache
+mount -o vers=3,fsc 127.0.0.1:/export /mnt
+echo 3 > /proc/sys/vm/drop_caches
+dd if=/mnt/file1.bin of=/dev/null bs=4096 count=1
+
+4. Check for READ ops in mountstats - there should be none
+grep READ: /proc/self/mountstats
+
+Looking at the history and the removed function, nfs_super_get_key(),
+we should only use nfs_fscache_key.key plus any uniquifier, for
+the fscache index_key.
+
+Fixes: 402cb8dda949 ("fscache: Attach the index key and aux data to the cookie")
+Signed-off-by: Dave Wysochanski <dwysocha@redhat.com>
+Signed-off-by: David Howells <dhowells@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/pch_dma.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/nfs/fscache.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/dma/pch_dma.c b/drivers/dma/pch_dma.c
-index f9028e9d0dfc2..d6af2d439b979 100644
---- a/drivers/dma/pch_dma.c
-+++ b/drivers/dma/pch_dma.c
-@@ -873,6 +873,7 @@ static int pch_dma_probe(struct pci_dev *pdev,
- 	}
- 
- 	pci_set_master(pdev);
-+	pd->dma.dev = &pdev->dev;
- 
- 	err = request_irq(pdev->irq, pd_irq, IRQF_SHARED, DRV_NAME, pd);
- 	if (err) {
-@@ -888,7 +889,6 @@ static int pch_dma_probe(struct pci_dev *pdev,
- 		goto err_free_irq;
- 	}
- 
--	pd->dma.dev = &pdev->dev;
- 
- 	INIT_LIST_HEAD(&pd->dma.channels);
- 
+diff --git a/fs/nfs/fscache.c b/fs/nfs/fscache.c
+index 1abf126c2df45..8eff1fd806b1c 100644
+--- a/fs/nfs/fscache.c
++++ b/fs/nfs/fscache.c
+@@ -188,7 +188,8 @@ void nfs_fscache_get_super_cookie(struct super_block *sb, const char *uniq, int
+ 	/* create a cache index for looking up filehandles */
+ 	nfss->fscache = fscache_acquire_cookie(nfss->nfs_client->fscache,
+ 					       &nfs_fscache_super_index_def,
+-					       key, sizeof(*key) + ulen,
++					       &key->key,
++					       sizeof(key->key) + ulen,
+ 					       NULL, 0,
+ 					       nfss, 0, true);
+ 	dfprintk(FSCACHE, "NFS: get superblock cookie (0x%p/0x%p)\n",
 -- 
 2.20.1
 
