@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B1941D8638
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:24:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A40A01D8565
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:18:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387879AbgERSX4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:23:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49722 "EHLO mail.kernel.org"
+        id S1731467AbgERRzr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:55:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33152 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730407AbgERRsk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:48:40 -0400
+        id S1731476AbgERRzq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:55:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 96D9920674;
-        Mon, 18 May 2020 17:48:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D070220715;
+        Mon, 18 May 2020 17:55:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824120;
-        bh=depi0YMU8DCCn2TuI4u3Y9iUeIBgJt6Xy/R+eTHRwjA=;
+        s=default; t=1589824545;
+        bh=xqU7XTG8IrFP4wWzrQNI/Jhvc1jweG7tHLqA+M523ms=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hHKTgqqN2XO1+zZrT3FF36CzqZT87ZA1Q9n8TgBrgO2iAV4ypTP3pugthpVFSL+YB
-         CJ4QNt2J/DzZWPlurUVraPvVpNemwW0jnGV51bwP8fJ1+LZ1FWgA3tDX5ROGPIFUFT
-         PJF447TkyQkdLV4RRzPCWrMsRIjmETY/5PRKh1z8=
+        b=R03FpKkX9qpBy3enh30mbmZgxDvfpJLOMqKo6+HcRpXTo1u2RNc4/PRvbC7LnY6tl
+         Uk/4pPB3nAhLMreNu5jbaQ8hc6XomL0BOnxMgdpswo0hFIbMnC3RL2ezwFmXAMi8qa
+         hMFgpICHStmg3Sy8eqqqdlnJlyrOB+7biexXVudA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randall Huang <huangrandall@google.com>,
-        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>
-Subject: [PATCH 4.14 046/114] f2fs: fix to avoid accessing xattr across the boundary
+        stable@vger.kernel.org,
+        Todd Brandt <todd.e.brandt@linux.intel.com>,
+        Chris Chiu <chiu@endlessm.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 055/147] ACPI: EC: PM: Avoid premature returns from acpi_s2idle_wake()
 Date:   Mon, 18 May 2020 19:36:18 +0200
-Message-Id: <20200518173511.662782638@linuxfoundation.org>
+Message-Id: <20200518173520.835382245@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173503.033975649@linuxfoundation.org>
-References: <20200518173503.033975649@linuxfoundation.org>
+In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
+References: <20200518173513.009514388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,151 +46,132 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randall Huang <huangrandall@google.com>
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-commit 2777e654371dd4207a3a7f4fb5fa39550053a080 upstream.
+[ Upstream commit 7b301750f7f8f6503e11f1af4a03832525f58c66 ]
 
-When we traverse xattr entries via __find_xattr(),
-if the raw filesystem content is faked or any hardware failure occurs,
-out-of-bound error can be detected by KASAN.
-Fix the issue by introducing boundary check.
+If the EC GPE status is not set after checking all of the other GPEs,
+acpi_s2idle_wake() returns 'false', to indicate that the SCI event
+that has just triggered is not a system wakeup one, but it does that
+without canceling the pending wakeup and re-arming the SCI for system
+wakeup which is a mistake, because it may cause s2idle_loop() to busy
+spin until the next valid wakeup event.  [If that happens, the first
+spurious wakeup is still pending after acpi_s2idle_wake() has
+returned, so s2idle_enter() does nothing, acpi_s2idle_wake()
+is called again and it sees that the SCI has triggered, but no GPEs
+are active, so 'false' is returned again, and so on.]
 
-[   38.402878] c7   1827 BUG: KASAN: slab-out-of-bounds in f2fs_getxattr+0x518/0x68c
-[   38.402891] c7   1827 Read of size 4 at addr ffffffc0b6fb35dc by task
-[   38.402935] c7   1827 Call trace:
-[   38.402952] c7   1827 [<ffffff900809003c>] dump_backtrace+0x0/0x6bc
-[   38.402966] c7   1827 [<ffffff9008090030>] show_stack+0x20/0x2c
-[   38.402981] c7   1827 [<ffffff900871ab10>] dump_stack+0xfc/0x140
-[   38.402995] c7   1827 [<ffffff9008325c40>] print_address_description+0x80/0x2d8
-[   38.403009] c7   1827 [<ffffff900832629c>] kasan_report_error+0x198/0x1fc
-[   38.403022] c7   1827 [<ffffff9008326104>] kasan_report_error+0x0/0x1fc
-[   38.403037] c7   1827 [<ffffff9008325000>] __asan_load4+0x1b0/0x1b8
-[   38.403051] c7   1827 [<ffffff90085fcc44>] f2fs_getxattr+0x518/0x68c
-[   38.403066] c7   1827 [<ffffff90085fc508>] f2fs_xattr_generic_get+0xb0/0xd0
-[   38.403080] c7   1827 [<ffffff9008395708>] __vfs_getxattr+0x1f4/0x1fc
-[   38.403096] c7   1827 [<ffffff9008621bd0>] inode_doinit_with_dentry+0x360/0x938
-[   38.403109] c7   1827 [<ffffff900862d6cc>] selinux_d_instantiate+0x2c/0x38
-[   38.403123] c7   1827 [<ffffff900861b018>] security_d_instantiate+0x68/0x98
-[   38.403136] c7   1827 [<ffffff9008377db8>] d_splice_alias+0x58/0x348
-[   38.403149] c7   1827 [<ffffff900858d16c>] f2fs_lookup+0x608/0x774
-[   38.403163] c7   1827 [<ffffff900835eacc>] lookup_slow+0x1e0/0x2cc
-[   38.403177] c7   1827 [<ffffff9008367fe0>] walk_component+0x160/0x520
-[   38.403190] c7   1827 [<ffffff9008369ef4>] path_lookupat+0x110/0x2b4
-[   38.403203] c7   1827 [<ffffff900835dd38>] filename_lookup+0x1d8/0x3a8
-[   38.403216] c7   1827 [<ffffff900835eeb0>] user_path_at_empty+0x54/0x68
-[   38.403229] c7   1827 [<ffffff9008395f44>] SyS_getxattr+0xb4/0x18c
-[   38.403241] c7   1827 [<ffffff9008084200>] el0_svc_naked+0x34/0x38
+Fix that by moving all of the GPE checking logic from
+acpi_s2idle_wake() to acpi_ec_dispatch_gpe() and making the
+latter return 'true' only if a non-EC GPE has triggered and
+'false' otherwise, which will cause acpi_s2idle_wake() to
+cancel the pending SCI wakeup and re-arm the SCI for system
+wakeup regardless of the EC GPE status.
 
-Signed-off-by: Randall Huang <huangrandall@google.com>
-[Jaegeuk Kim: Fix wrong ending boundary]
-Reviewed-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
-[bwh: Backported to 4.14: adjust context]
-Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This also addresses a lockup observed on an Elitegroup EF20EA laptop
+after attempting to wake it up from suspend-to-idle by a key press.
+
+Fixes: d5406284ff80 ("ACPI: PM: s2idle: Refine active GPEs check")
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=207603
+Reported-by: Todd Brandt <todd.e.brandt@linux.intel.com>
+Fixes: fdde0ff8590b ("ACPI: PM: s2idle: Prevent spurious SCIs from waking up the system")
+Link: https://lore.kernel.org/linux-acpi/CAB4CAwdqo7=MvyG_PE+PGVfeA17AHF5i5JucgaKqqMX6mjArbQ@mail.gmail.com/
+Reported-by: Chris Chiu <chiu@endlessm.com>
+Tested-by: Chris Chiu <chiu@endlessm.com>
+Cc: 5.4+ <stable@vger.kernel.org> # 5.4+
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/xattr.c |   36 +++++++++++++++++++++++++++---------
- fs/f2fs/xattr.h |    2 ++
- 2 files changed, 29 insertions(+), 9 deletions(-)
+ drivers/acpi/ec.c       | 24 ++++++++++++++++--------
+ drivers/acpi/internal.h |  1 -
+ drivers/acpi/sleep.c    | 14 ++------------
+ 3 files changed, 18 insertions(+), 21 deletions(-)
 
---- a/fs/f2fs/xattr.c
-+++ b/fs/f2fs/xattr.c
-@@ -201,12 +201,17 @@ static inline const struct xattr_handler
- 	return handler;
+diff --git a/drivers/acpi/ec.c b/drivers/acpi/ec.c
+index 5e6c8bfc66125..5b53a66d403df 100644
+--- a/drivers/acpi/ec.c
++++ b/drivers/acpi/ec.c
+@@ -1962,23 +1962,31 @@ void acpi_ec_set_gpe_wake_mask(u8 action)
+ 		acpi_set_gpe_wake_mask(NULL, first_ec->gpe, action);
  }
  
--static struct f2fs_xattr_entry *__find_xattr(void *base_addr, int index,
--					size_t len, const char *name)
-+static struct f2fs_xattr_entry *__find_xattr(void *base_addr,
-+				void *last_base_addr, int index,
-+				size_t len, const char *name)
+-bool acpi_ec_other_gpes_active(void)
+-{
+-	return acpi_any_gpe_status_set(first_ec ? first_ec->gpe : U32_MAX);
+-}
+-
+ bool acpi_ec_dispatch_gpe(void)
  {
- 	struct f2fs_xattr_entry *entry;
+ 	u32 ret;
  
- 	list_for_each_xattr(entry, base_addr) {
-+		if ((void *)(entry) + sizeof(__u32) > last_base_addr ||
-+			(void *)XATTR_NEXT_ENTRY(entry) > last_base_addr)
-+			return NULL;
+ 	if (!first_ec)
++		return acpi_any_gpe_status_set(U32_MAX);
 +
- 		if (entry->e_name_index != index)
- 			continue;
- 		if (entry->e_name_len != len)
-@@ -289,20 +294,22 @@ static int lookup_all_xattrs(struct inod
- 				const char *name, struct f2fs_xattr_entry **xe,
- 				void **base_addr, int *base_size)
- {
--	void *cur_addr, *txattr_addr, *last_addr = NULL;
-+	void *cur_addr, *txattr_addr, *last_txattr_addr;
-+	void *last_addr = NULL;
- 	nid_t xnid = F2FS_I(inode)->i_xattr_nid;
--	unsigned int size = xnid ? VALID_XATTR_BLOCK_SIZE : 0;
- 	unsigned int inline_size = inline_xattr_size(inode);
- 	int err = 0;
- 
--	if (!size && !inline_size)
-+	if (!xnid && !inline_size)
- 		return -ENODATA;
- 
--	*base_size = inline_size + size + XATTR_PADDING_SIZE;
-+	*base_size = XATTR_SIZE(xnid, inode) + XATTR_PADDING_SIZE;
- 	txattr_addr = kzalloc(*base_size, GFP_F2FS_ZERO);
- 	if (!txattr_addr)
- 		return -ENOMEM;
- 
-+	last_txattr_addr = (void *)txattr_addr + XATTR_SIZE(xnid, inode);
++	/*
++	 * Report wakeup if the status bit is set for any enabled GPE other
++	 * than the EC one.
++	 */
++	if (acpi_any_gpe_status_set(first_ec->gpe))
++		return true;
 +
- 	/* read from inline xattr */
- 	if (inline_size) {
- 		err = read_inline_xattr(inode, ipage, txattr_addr);
-@@ -329,7 +336,11 @@ static int lookup_all_xattrs(struct inod
- 	else
- 		cur_addr = txattr_addr;
++	if (ec_no_wakeup)
+ 		return false;
  
--	*xe = __find_xattr(cur_addr, index, len, name);
-+	*xe = __find_xattr(cur_addr, last_txattr_addr, index, len, name);
-+	if (!*xe) {
-+		err = -EFAULT;
-+		goto out;
-+	}
- check:
- 	if (IS_XATTR_LAST_ENTRY(*xe)) {
- 		err = -ENODATA;
-@@ -562,7 +573,8 @@ static int __f2fs_setxattr(struct inode
- 			struct page *ipage, int flags)
- {
- 	struct f2fs_xattr_entry *here, *last;
--	void *base_addr;
-+	void *base_addr, *last_base_addr;
-+	nid_t xnid = F2FS_I(inode)->i_xattr_nid;
- 	int found, newsize;
- 	size_t len;
- 	__u32 new_hsize;
-@@ -586,8 +598,14 @@ static int __f2fs_setxattr(struct inode
- 	if (error)
- 		return error;
- 
-+	last_base_addr = (void *)base_addr + XATTR_SIZE(xnid, inode);
++	/*
++	 * Dispatch the EC GPE in-band, but do not report wakeup in any case
++	 * to allow the caller to process events properly after that.
++	 */
+ 	ret = acpi_dispatch_gpe(NULL, first_ec->gpe);
+-	if (ret == ACPI_INTERRUPT_HANDLED) {
++	if (ret == ACPI_INTERRUPT_HANDLED)
+ 		pm_pr_dbg("EC GPE dispatched\n");
+-		return true;
+-	}
 +
- 	/* find entry with wanted name. */
--	here = __find_xattr(base_addr, index, len, name);
-+	here = __find_xattr(base_addr, last_base_addr, index, len, name);
-+	if (!here) {
-+		error = -EFAULT;
-+		goto exit;
-+	}
+ 	return false;
+ }
+ #endif /* CONFIG_PM_SLEEP */
+diff --git a/drivers/acpi/internal.h b/drivers/acpi/internal.h
+index cbf7f34c3ce76..afe6636f9ad39 100644
+--- a/drivers/acpi/internal.h
++++ b/drivers/acpi/internal.h
+@@ -201,7 +201,6 @@ void acpi_ec_remove_query_handler(struct acpi_ec *ec, u8 query_bit);
  
- 	found = IS_XATTR_LAST_ENTRY(here) ? 0 : 1;
+ #ifdef CONFIG_PM_SLEEP
+ void acpi_ec_flush_work(void);
+-bool acpi_ec_other_gpes_active(void);
+ bool acpi_ec_dispatch_gpe(void);
+ #endif
  
---- a/fs/f2fs/xattr.h
-+++ b/fs/f2fs/xattr.h
-@@ -74,6 +74,8 @@ struct f2fs_xattr_entry {
- 				entry = XATTR_NEXT_ENTRY(entry))
- #define VALID_XATTR_BLOCK_SIZE	(PAGE_SIZE - sizeof(struct node_footer))
- #define XATTR_PADDING_SIZE	(sizeof(__u32))
-+#define XATTR_SIZE(x,i)		(((x) ? VALID_XATTR_BLOCK_SIZE : 0) +	\
-+						(inline_xattr_size(i)))
- #define MIN_OFFSET(i)		XATTR_ALIGN(inline_xattr_size(i) +	\
- 						VALID_XATTR_BLOCK_SIZE)
+diff --git a/drivers/acpi/sleep.c b/drivers/acpi/sleep.c
+index edad89e58c580..85514c0f3aa53 100644
+--- a/drivers/acpi/sleep.c
++++ b/drivers/acpi/sleep.c
+@@ -1010,20 +1010,10 @@ static bool acpi_s2idle_wake(void)
+ 		if (acpi_check_wakeup_handlers())
+ 			return true;
  
+-		/*
+-		 * If the status bit is set for any enabled GPE other than the
+-		 * EC one, the wakeup is regarded as a genuine one.
+-		 */
+-		if (acpi_ec_other_gpes_active())
++		/* Check non-EC GPE wakeups and dispatch the EC GPE. */
++		if (acpi_ec_dispatch_gpe())
+ 			return true;
+ 
+-		/*
+-		 * If the EC GPE status bit has not been set, the wakeup is
+-		 * regarded as a spurious one.
+-		 */
+-		if (!acpi_ec_dispatch_gpe())
+-			return false;
+-
+ 		/*
+ 		 * Cancel the wakeup and process all pending events in case
+ 		 * there are any wakeup ones in there.
+-- 
+2.20.1
+
 
 
