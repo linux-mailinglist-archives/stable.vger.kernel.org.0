@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 45E7D1D8695
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:28:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A39D1D8340
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:04:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728821AbgERSZM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:25:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47104 "EHLO mail.kernel.org"
+        id S1732624AbgERSDP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:03:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48424 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730160AbgERRq7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:46:59 -0400
+        id S1732089AbgERSDN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 14:03:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 01F7920835;
-        Mon, 18 May 2020 17:46:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 049CA2087D;
+        Mon, 18 May 2020 18:03:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824018;
-        bh=nHSQxOA4eFPm92ICM5ysEkiKPtETBhECb66sYho+7ss=;
+        s=default; t=1589824993;
+        bh=diiVx+TMqGWpq3wIlg8bfWNg67/JwJNk0HLJd5akJTs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=idh+Vzwr3rWJjYLOrl4WnCfsTR+OF4p4E3Dtev/lDXgVYdIqaEJ8xkhg0XzB6UA2e
-         AG3y3SVKVU6+QeZe9aP8l9RO/FKu2WPSJM01eMtlzo0PEuq35vBM15fTywVMNPagD8
-         xHpOM+xTFaansGD4rAd+whQ70HFG4ETUOqUsnUQc=
+        b=BuDj5h6YoB6qIqXs0JbvCJ1b2JBtFEr3Gk2ckopmDOnl0w9BeXzLozoX9dVSyNd9O
+         206h7cTiBrU8NW/pNXW2ZNb/GGRwJMuLf6dwIUMeRbSbeXezaeR+rlZI4Hs4wDe1qC
+         Y4HYM+JQhO8Obm0ZZpKtYrTXwHv25izOsSM94+Mc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sabrina Dubroca <sd@queasysnail.net>,
-        "David S. Miller" <davem@davemloft.net>,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>
-Subject: [PATCH 4.14 037/114] net: ipv6: add net argument to ip6_dst_lookup_flow
+        stable@vger.kernel.org, Jon Hunter <jonathanh@nvidia.com>,
+        Thierry Reding <treding@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 079/194] drm/tegra: Fix SMMU support on Tegra124 and Tegra210
 Date:   Mon, 18 May 2020 19:36:09 +0200
-Message-Id: <20200518173510.312452422@linuxfoundation.org>
+Message-Id: <20200518173538.361802898@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173503.033975649@linuxfoundation.org>
-References: <20200518173503.033975649@linuxfoundation.org>
+In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
+References: <20200518173531.455604187@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,222 +44,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sabrina Dubroca <sd@queasysnail.net>
+From: Thierry Reding <treding@nvidia.com>
 
-commit c4e85f73afb6384123e5ef1bba3315b2e3ad031e upstream.
+[ Upstream commit 501be6c1c72417eab05e7413671a38ea991a8ebc ]
 
-This will be used in the conversion of ipv6_stub to ip6_dst_lookup_flow,
-as some modules currently pass a net argument without a socket to
-ip6_dst_lookup. This is equivalent to commit 343d60aada5a ("ipv6: change
-ipv6_stub_impl.ipv6_dst_lookup to take net argument").
+When testing whether or not to enable the use of the SMMU, consult the
+supported DMA mask rather than the actually configured DMA mask, since
+the latter might already have been restricted.
 
-Signed-off-by: Sabrina Dubroca <sd@queasysnail.net>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-[bwh: Backported to 4.14: adjust context]
-Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 2d9384ff9177 ("drm/tegra: Relax IOMMU usage criteria on old Tegra")
+Tested-by: Jon Hunter <jonathanh@nvidia.com>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/ipv6.h               |    2 +-
- net/dccp/ipv6.c                  |    6 +++---
- net/ipv6/af_inet6.c              |    2 +-
- net/ipv6/datagram.c              |    2 +-
- net/ipv6/inet6_connection_sock.c |    4 ++--
- net/ipv6/ip6_output.c            |    8 ++++----
- net/ipv6/raw.c                   |    2 +-
- net/ipv6/syncookies.c            |    2 +-
- net/ipv6/tcp_ipv6.c              |    4 ++--
- net/l2tp/l2tp_ip6.c              |    2 +-
- net/sctp/ipv6.c                  |    4 ++--
- 11 files changed, 19 insertions(+), 19 deletions(-)
+ drivers/gpu/drm/tegra/drm.c |  3 ++-
+ drivers/gpu/host1x/dev.c    | 13 +++++++++++++
+ include/linux/host1x.h      |  3 +++
+ 3 files changed, 18 insertions(+), 1 deletion(-)
 
---- a/include/net/ipv6.h
-+++ b/include/net/ipv6.h
-@@ -862,7 +862,7 @@ static inline struct sk_buff *ip6_finish
+diff --git a/drivers/gpu/drm/tegra/drm.c b/drivers/gpu/drm/tegra/drm.c
+index bd268028fb3d6..583cd6e0ae27f 100644
+--- a/drivers/gpu/drm/tegra/drm.c
++++ b/drivers/gpu/drm/tegra/drm.c
+@@ -1039,6 +1039,7 @@ void tegra_drm_free(struct tegra_drm *tegra, size_t size, void *virt,
  
- int ip6_dst_lookup(struct net *net, struct sock *sk, struct dst_entry **dst,
- 		   struct flowi6 *fl6);
--struct dst_entry *ip6_dst_lookup_flow(const struct sock *sk, struct flowi6 *fl6,
-+struct dst_entry *ip6_dst_lookup_flow(struct net *net, const struct sock *sk, struct flowi6 *fl6,
- 				      const struct in6_addr *final_dst);
- struct dst_entry *ip6_sk_dst_lookup_flow(struct sock *sk, struct flowi6 *fl6,
- 					 const struct in6_addr *final_dst);
---- a/net/dccp/ipv6.c
-+++ b/net/dccp/ipv6.c
-@@ -211,7 +211,7 @@ static int dccp_v6_send_response(const s
- 	final_p = fl6_update_dst(&fl6, rcu_dereference(np->opt), &final);
- 	rcu_read_unlock();
- 
--	dst = ip6_dst_lookup_flow(sk, &fl6, final_p);
-+	dst = ip6_dst_lookup_flow(sock_net(sk), sk, &fl6, final_p);
- 	if (IS_ERR(dst)) {
- 		err = PTR_ERR(dst);
- 		dst = NULL;
-@@ -282,7 +282,7 @@ static void dccp_v6_ctl_send_reset(const
- 	security_skb_classify_flow(rxskb, flowi6_to_flowi(&fl6));
- 
- 	/* sk = NULL, but it is safe for now. RST socket required. */
--	dst = ip6_dst_lookup_flow(ctl_sk, &fl6, NULL);
-+	dst = ip6_dst_lookup_flow(sock_net(ctl_sk), ctl_sk, &fl6, NULL);
- 	if (!IS_ERR(dst)) {
- 		skb_dst_set(skb, dst);
- 		ip6_xmit(ctl_sk, skb, &fl6, 0, NULL, 0);
-@@ -912,7 +912,7 @@ static int dccp_v6_connect(struct sock *
- 	opt = rcu_dereference_protected(np->opt, lockdep_sock_is_held(sk));
- 	final_p = fl6_update_dst(&fl6, opt, &final);
- 
--	dst = ip6_dst_lookup_flow(sk, &fl6, final_p);
-+	dst = ip6_dst_lookup_flow(sock_net(sk), sk, &fl6, final_p);
- 	if (IS_ERR(dst)) {
- 		err = PTR_ERR(dst);
- 		goto failure;
---- a/net/ipv6/af_inet6.c
-+++ b/net/ipv6/af_inet6.c
-@@ -716,7 +716,7 @@ int inet6_sk_rebuild_header(struct sock
- 					 &final);
- 		rcu_read_unlock();
- 
--		dst = ip6_dst_lookup_flow(sk, &fl6, final_p);
-+		dst = ip6_dst_lookup_flow(sock_net(sk), sk, &fl6, final_p);
- 		if (IS_ERR(dst)) {
- 			sk->sk_route_caps = 0;
- 			sk->sk_err_soft = -PTR_ERR(dst);
---- a/net/ipv6/datagram.c
-+++ b/net/ipv6/datagram.c
-@@ -88,7 +88,7 @@ int ip6_datagram_dst_update(struct sock
- 	final_p = fl6_update_dst(&fl6, opt, &final);
- 	rcu_read_unlock();
- 
--	dst = ip6_dst_lookup_flow(sk, &fl6, final_p);
-+	dst = ip6_dst_lookup_flow(sock_net(sk), sk, &fl6, final_p);
- 	if (IS_ERR(dst)) {
- 		err = PTR_ERR(dst);
- 		goto out;
---- a/net/ipv6/inet6_connection_sock.c
-+++ b/net/ipv6/inet6_connection_sock.c
-@@ -52,7 +52,7 @@ struct dst_entry *inet6_csk_route_req(co
- 	fl6->flowi6_uid = sk->sk_uid;
- 	security_req_classify_flow(req, flowi6_to_flowi(fl6));
- 
--	dst = ip6_dst_lookup_flow(sk, fl6, final_p);
-+	dst = ip6_dst_lookup_flow(sock_net(sk), sk, fl6, final_p);
- 	if (IS_ERR(dst))
- 		return NULL;
- 
-@@ -107,7 +107,7 @@ static struct dst_entry *inet6_csk_route
- 
- 	dst = __inet6_csk_dst_check(sk, np->dst_cookie);
- 	if (!dst) {
--		dst = ip6_dst_lookup_flow(sk, fl6, final_p);
-+		dst = ip6_dst_lookup_flow(sock_net(sk), sk, fl6, final_p);
- 
- 		if (!IS_ERR(dst))
- 			ip6_dst_store(sk, dst, NULL, NULL);
---- a/net/ipv6/ip6_output.c
-+++ b/net/ipv6/ip6_output.c
-@@ -1089,19 +1089,19 @@ EXPORT_SYMBOL_GPL(ip6_dst_lookup);
-  *	It returns a valid dst pointer on success, or a pointer encoded
-  *	error code.
-  */
--struct dst_entry *ip6_dst_lookup_flow(const struct sock *sk, struct flowi6 *fl6,
-+struct dst_entry *ip6_dst_lookup_flow(struct net *net, const struct sock *sk, struct flowi6 *fl6,
- 				      const struct in6_addr *final_dst)
+ static bool host1x_drm_wants_iommu(struct host1x_device *dev)
  {
- 	struct dst_entry *dst = NULL;
- 	int err;
++	struct host1x *host1x = dev_get_drvdata(dev->dev.parent);
+ 	struct iommu_domain *domain;
  
--	err = ip6_dst_lookup_tail(sock_net(sk), sk, &dst, fl6);
-+	err = ip6_dst_lookup_tail(net, sk, &dst, fl6);
- 	if (err)
- 		return ERR_PTR(err);
- 	if (final_dst)
- 		fl6->daddr = *final_dst;
- 
--	return xfrm_lookup_route(sock_net(sk), dst, flowi6_to_flowi(fl6), sk, 0);
-+	return xfrm_lookup_route(net, dst, flowi6_to_flowi(fl6), sk, 0);
- }
- EXPORT_SYMBOL_GPL(ip6_dst_lookup_flow);
- 
-@@ -1126,7 +1126,7 @@ struct dst_entry *ip6_sk_dst_lookup_flow
- 
- 	dst = ip6_sk_dst_check(sk, dst, fl6);
- 	if (!dst)
--		dst = ip6_dst_lookup_flow(sk, fl6, final_dst);
-+		dst = ip6_dst_lookup_flow(sock_net(sk), sk, fl6, final_dst);
- 
- 	return dst;
- }
---- a/net/ipv6/raw.c
-+++ b/net/ipv6/raw.c
-@@ -929,7 +929,7 @@ static int rawv6_sendmsg(struct sock *sk
- 
- 	fl6.flowlabel = ip6_make_flowinfo(ipc6.tclass, fl6.flowlabel);
- 
--	dst = ip6_dst_lookup_flow(sk, &fl6, final_p);
-+	dst = ip6_dst_lookup_flow(sock_net(sk), sk, &fl6, final_p);
- 	if (IS_ERR(dst)) {
- 		err = PTR_ERR(dst);
- 		goto out;
---- a/net/ipv6/syncookies.c
-+++ b/net/ipv6/syncookies.c
-@@ -238,7 +238,7 @@ struct sock *cookie_v6_check(struct sock
- 		fl6.flowi6_uid = sk->sk_uid;
- 		security_req_classify_flow(req, flowi6_to_flowi(&fl6));
- 
--		dst = ip6_dst_lookup_flow(sk, &fl6, final_p);
-+		dst = ip6_dst_lookup_flow(sock_net(sk), sk, &fl6, final_p);
- 		if (IS_ERR(dst))
- 			goto out_free;
- 	}
---- a/net/ipv6/tcp_ipv6.c
-+++ b/net/ipv6/tcp_ipv6.c
-@@ -252,7 +252,7 @@ static int tcp_v6_connect(struct sock *s
- 
- 	security_sk_classify_flow(sk, flowi6_to_flowi(&fl6));
- 
--	dst = ip6_dst_lookup_flow(sk, &fl6, final_p);
-+	dst = ip6_dst_lookup_flow(sock_net(sk), sk, &fl6, final_p);
- 	if (IS_ERR(dst)) {
- 		err = PTR_ERR(dst);
- 		goto failure;
-@@ -865,7 +865,7 @@ static void tcp_v6_send_response(const s
- 	 * Underlying function will use this to retrieve the network
- 	 * namespace
+ 	/*
+@@ -1076,7 +1077,7 @@ static bool host1x_drm_wants_iommu(struct host1x_device *dev)
+ 	 * sufficient and whether or not the host1x is attached to an IOMMU
+ 	 * doesn't matter.
  	 */
--	dst = ip6_dst_lookup_flow(ctl_sk, &fl6, NULL);
-+	dst = ip6_dst_lookup_flow(sock_net(ctl_sk), ctl_sk, &fl6, NULL);
- 	if (!IS_ERR(dst)) {
- 		skb_dst_set(buff, dst);
- 		ip6_xmit(ctl_sk, buff, &fl6, fl6.flowi6_mark, NULL, tclass);
---- a/net/l2tp/l2tp_ip6.c
-+++ b/net/l2tp/l2tp_ip6.c
-@@ -629,7 +629,7 @@ static int l2tp_ip6_sendmsg(struct sock
+-	if (!domain && dma_get_mask(dev->dev.parent) <= DMA_BIT_MASK(32))
++	if (!domain && host1x_get_dma_mask(host1x) <= DMA_BIT_MASK(32))
+ 		return true;
  
- 	fl6.flowlabel = ip6_make_flowinfo(ipc6.tclass, fl6.flowlabel);
+ 	return domain != NULL;
+diff --git a/drivers/gpu/host1x/dev.c b/drivers/gpu/host1x/dev.c
+index 388bcc2889aaf..40a4b9f8b861a 100644
+--- a/drivers/gpu/host1x/dev.c
++++ b/drivers/gpu/host1x/dev.c
+@@ -502,6 +502,19 @@ static void __exit tegra_host1x_exit(void)
+ }
+ module_exit(tegra_host1x_exit);
  
--	dst = ip6_dst_lookup_flow(sk, &fl6, final_p);
-+	dst = ip6_dst_lookup_flow(sock_net(sk), sk, &fl6, final_p);
- 	if (IS_ERR(dst)) {
- 		err = PTR_ERR(dst);
- 		goto out;
---- a/net/sctp/ipv6.c
-+++ b/net/sctp/ipv6.c
-@@ -271,7 +271,7 @@ static void sctp_v6_get_dst(struct sctp_
- 	final_p = fl6_update_dst(fl6, rcu_dereference(np->opt), &final);
- 	rcu_read_unlock();
++/**
++ * host1x_get_dma_mask() - query the supported DMA mask for host1x
++ * @host1x: host1x instance
++ *
++ * Note that this returns the supported DMA mask for host1x, which can be
++ * different from the applicable DMA mask under certain circumstances.
++ */
++u64 host1x_get_dma_mask(struct host1x *host1x)
++{
++	return host1x->info->dma_mask;
++}
++EXPORT_SYMBOL(host1x_get_dma_mask);
++
+ MODULE_AUTHOR("Thierry Reding <thierry.reding@avionic-design.de>");
+ MODULE_AUTHOR("Terje Bergstrom <tbergstrom@nvidia.com>");
+ MODULE_DESCRIPTION("Host1x driver for Tegra products");
+diff --git a/include/linux/host1x.h b/include/linux/host1x.h
+index 62d216ff10979..c230b4e70d759 100644
+--- a/include/linux/host1x.h
++++ b/include/linux/host1x.h
+@@ -17,9 +17,12 @@ enum host1x_class {
+ 	HOST1X_CLASS_GR3D = 0x60,
+ };
  
--	dst = ip6_dst_lookup_flow(sk, fl6, final_p);
-+	dst = ip6_dst_lookup_flow(sock_net(sk), sk, fl6, final_p);
- 	if (!asoc || saddr) {
- 		t->dst = dst;
- 		memcpy(fl, &_fl, sizeof(_fl));
-@@ -329,7 +329,7 @@ static void sctp_v6_get_dst(struct sctp_
- 		fl6->saddr = laddr->a.v6.sin6_addr;
- 		fl6->fl6_sport = laddr->a.v6.sin6_port;
- 		final_p = fl6_update_dst(fl6, rcu_dereference(np->opt), &final);
--		bdst = ip6_dst_lookup_flow(sk, fl6, final_p);
-+		bdst = ip6_dst_lookup_flow(sock_net(sk), sk, fl6, final_p);
++struct host1x;
+ struct host1x_client;
+ struct iommu_group;
  
- 		if (IS_ERR(bdst))
- 			continue;
++u64 host1x_get_dma_mask(struct host1x *host1x);
++
+ /**
+  * struct host1x_client_ops - host1x client operations
+  * @init: host1x client initialization code
+-- 
+2.20.1
+
 
 
