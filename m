@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 05F791D81CD
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:51:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A79691D854A
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:18:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729708AbgERRu5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:50:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53314 "EHLO mail.kernel.org"
+        id S1730608AbgERSR6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:17:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34656 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730750AbgERRuz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:50:55 -0400
+        id S1731652AbgERR4i (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:56:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9438A20715;
-        Mon, 18 May 2020 17:50:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1034F207C4;
+        Mon, 18 May 2020 17:56:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824255;
-        bh=/Ua9XrqbJSoRkQyQ+LB68APHpv44F3/AJIASOFivlPs=;
+        s=default; t=1589824597;
+        bh=2ryGPdVbWJ5MM7YlAGgwROaXtOaGyj/WH4egXmiCPf0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DnZun8pf8svNKPtm/zW1dSfgfnRHyr3NlHrGDkK4p3Oj9phAW2xkz4sQBpqmhFWJN
-         wOE3SUirB7m4uiQbKtsbfXrARld6ToZL1iHmztPhi2kogLDr/z2HPY61rrUyD652GX
-         z3wMJo3UacJfcqnx5qxQe6nF/SWnL23HvOWMPS00=
+        b=pqJ3VpcAScKGD74KVrArpksuiq/GQruO9oZYyyzMSeUz7nfysBrJSDB5mzUpnkTUg
+         E2CI77PM1SYYHU8h9a3tvlYORKaEJX7iUw3hBfo2dVcsoILCYHYLGP4kgYkn9nZght
+         A4WU83QBCO6bA7LkfL+0gpT8H7KxyDhwqd6ipc7c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
-        Zefan Li <lizefan@huawei.com>, Tejun Heo <tj@kernel.org>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 19/80] netprio_cgroup: Fix unlimited memory leak of v2 cgroups
+        stable@vger.kernel.org, Dave Wysochanski <dwysocha@redhat.com>,
+        David Howells <dhowells@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 074/147] NFS: Fix fscache super_cookie index_key from changing after umount
 Date:   Mon, 18 May 2020 19:36:37 +0200
-Message-Id: <20200518173454.260324438@linuxfoundation.org>
+Message-Id: <20200518173523.120685777@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173450.097837707@linuxfoundation.org>
-References: <20200518173450.097837707@linuxfoundation.org>
+In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
+References: <20200518173513.009514388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,50 +44,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zefan Li <lizefan@huawei.com>
+From: Dave Wysochanski <dwysocha@redhat.com>
 
-[ Upstream commit 090e28b229af92dc5b40786ca673999d59e73056 ]
+[ Upstream commit d9bfced1fbcb35b28d8fbed4e785d2807055ed2b ]
 
-If systemd is configured to use hybrid mode which enables the use of
-both cgroup v1 and v2, systemd will create new cgroup on both the default
-root (v2) and netprio_cgroup hierarchy (v1) for a new session and attach
-task to the two cgroups. If the task does some network thing then the v2
-cgroup can never be freed after the session exited.
+Commit 402cb8dda949 ("fscache: Attach the index key and aux data to
+the cookie") added the index_key and index_key_len parameters to
+fscache_acquire_cookie(), and updated the callers in the NFS client.
+One of the callers was inside nfs_fscache_get_super_cookie()
+and was changed to use the full struct nfs_fscache_key as the
+index_key.  However, a couple members of this structure contain
+pointers and thus will change each time the same NFS share is
+remounted.  Since index_key is used for fscache_cookie->key_hash
+and this subsequently is used to compare cookies, the effectiveness
+of fscache with NFS is reduced to the point at which a umount
+occurs.   Any subsequent remount of the same share will cause a
+unique NFS super_block index_key and key_hash to be generated for
+the same data, rendering any prior fscache data unable to be
+found.  A simple reproducer demonstrates the problem.
 
-One of our machines ran into OOM due to this memory leak.
+1. Mount share with 'fsc', create a file, drop page cache
+systemctl start cachefilesd
+mount -o vers=3,fsc 127.0.0.1:/export /mnt
+dd if=/dev/zero of=/mnt/file1.bin bs=4096 count=1
+echo 3 > /proc/sys/vm/drop_caches
 
-In the scenario described above when sk_alloc() is called
-cgroup_sk_alloc() thought it's in v2 mode, so it stores
-the cgroup pointer in sk->sk_cgrp_data and increments
-the cgroup refcnt, but then sock_update_netprioidx()
-thought it's in v1 mode, so it stores netprioidx value
-in sk->sk_cgrp_data, so the cgroup refcnt will never be freed.
+2. Read file into page cache and fscache, then unmount
+dd if=/mnt/file1.bin of=/dev/null bs=4096 count=1
+umount /mnt
 
-Currently we do the mode switch when someone writes to the ifpriomap
-cgroup control file. The easiest fix is to also do the switch when
-a task is attached to a new cgroup.
+3. Remount and re-read which should come from fscache
+mount -o vers=3,fsc 127.0.0.1:/export /mnt
+echo 3 > /proc/sys/vm/drop_caches
+dd if=/mnt/file1.bin of=/dev/null bs=4096 count=1
 
-Fixes: bd1060a1d671 ("sock, cgroup: add sock->sk_cgroup")
-Reported-by: Yang Yingliang <yangyingliang@huawei.com>
-Tested-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: Zefan Li <lizefan@huawei.com>
-Acked-by: Tejun Heo <tj@kernel.org>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+4. Check for READ ops in mountstats - there should be none
+grep READ: /proc/self/mountstats
+
+Looking at the history and the removed function, nfs_super_get_key(),
+we should only use nfs_fscache_key.key plus any uniquifier, for
+the fscache index_key.
+
+Fixes: 402cb8dda949 ("fscache: Attach the index key and aux data to the cookie")
+Signed-off-by: Dave Wysochanski <dwysocha@redhat.com>
+Signed-off-by: David Howells <dhowells@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/netprio_cgroup.c |    2 ++
- 1 file changed, 2 insertions(+)
+ fs/nfs/fscache.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/net/core/netprio_cgroup.c
-+++ b/net/core/netprio_cgroup.c
-@@ -240,6 +240,8 @@ static void net_prio_attach(struct cgrou
- 	struct task_struct *p;
- 	struct cgroup_subsys_state *css;
- 
-+	cgroup_sk_alloc_disable();
-+
- 	cgroup_taskset_for_each(p, css, tset) {
- 		void *v = (void *)(unsigned long)css->cgroup->id;
- 
+diff --git a/fs/nfs/fscache.c b/fs/nfs/fscache.c
+index a6dcc2151e779..3184063322d48 100644
+--- a/fs/nfs/fscache.c
++++ b/fs/nfs/fscache.c
+@@ -188,7 +188,8 @@ void nfs_fscache_get_super_cookie(struct super_block *sb, const char *uniq, int
+ 	/* create a cache index for looking up filehandles */
+ 	nfss->fscache = fscache_acquire_cookie(nfss->nfs_client->fscache,
+ 					       &nfs_fscache_super_index_def,
+-					       key, sizeof(*key) + ulen,
++					       &key->key,
++					       sizeof(key->key) + ulen,
+ 					       NULL, 0,
+ 					       nfss, 0, true);
+ 	dfprintk(FSCACHE, "NFS: get superblock cookie (0x%p/0x%p)\n",
+-- 
+2.20.1
+
 
 
