@@ -2,41 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A9A41D85AC
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:20:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BBC51D83A5
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:06:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730107AbgERRxD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:53:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56720 "EHLO mail.kernel.org"
+        id S1733192AbgERSGi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:06:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54828 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731073AbgERRxB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:53:01 -0400
+        id S1731917AbgERSGi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 14:06:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7C98E20674;
-        Mon, 18 May 2020 17:53:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C9A2220715;
+        Mon, 18 May 2020 18:06:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824381;
-        bh=LITUiDanmyPNVVRug+i/F4XppzmpAHindcAVfWDej58=;
+        s=default; t=1589825197;
+        bh=j2u2scIUvN6BL8JU//rjrF8AV26zcETen8hT2kdQB5o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VLPzbXB1jzCMf5zrcf1WOP+02c6RXl/gMRpOH2EXExYUVYlbvcFzc8hwxrZDb7rdC
-         oh5YuIn03UaEqG68tQwpq6njEykMBFTFqLJLhUWky9A9Qg2nLR8egTCzJVIIiC87P5
-         YbMVCcQqUvClsjNb8GG15uUTLjUJmhLUs00fSHoY=
+        b=NRpVPSbfXgSkzfPDTctp0I65hrys77NvfgaoTSwWJUf6Qii/x+LX7iFN0Wn2IMFgT
+         c5kvx13yk+rOXlhebrwYYIYJEwUk93kpj4bFjb5PN1XAFayFGep+qHfjmpDFjsnF2Q
+         N01olXkAAXKe6vAiYL+evvirpTtEJFnjqVfCiVrc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Grace Kao <grace.kao@intel.com>,
-        Brian Norris <briannorris@chromium.org>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Yafang Shao <laoar.shao@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Shakeel Butt <shakeelb@google.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Chris Down <chris@chrisdown.name>,
+        Michal Hocko <mhocko@suse.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 32/80] pinctrl: cherryview: Add missing spinlock usage in chv_gpio_irq_handler
+Subject: [PATCH 5.6 120/194] mm, memcg: fix inconsistent oom event behavior
 Date:   Mon, 18 May 2020 19:36:50 +0200
-Message-Id: <20200518173456.941785811@linuxfoundation.org>
+Message-Id: <20200518173541.621629323@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173450.097837707@linuxfoundation.org>
-References: <20200518173450.097837707@linuxfoundation.org>
+In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
+References: <20200518173531.455604187@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,48 +50,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Grace Kao <grace.kao@intel.com>
+From: Yafang Shao <laoar.shao@gmail.com>
 
-[ Upstream commit 69388e15f5078c961b9e5319e22baea4c57deff1 ]
+[ Upstream commit 04fd61a4e01028210a91f0efc408c8bc61a3018c ]
 
-According to Braswell NDA Specification Update (#557593),
-concurrent read accesses may result in returning 0xffffffff and write
-instructions may be dropped. We have an established format for the
-commit references, i.e.
-cdca06e4e859 ("pinctrl: baytrail: Add missing spinlock usage in
-byt_gpio_irq_handler")
+A recent commit 9852ae3fe529 ("mm, memcg: consider subtrees in
+memory.events") changed the behavior of memcg events, which will now
+consider subtrees in memory.events.
 
-Fixes: 0bd50d719b00 ("pinctrl: cherryview: prevent concurrent access to GPIO controllers")
-Signed-off-by: Grace Kao <grace.kao@intel.com>
-Reported-by: Brian Norris <briannorris@chromium.org>
-Reviewed-by: Brian Norris <briannorris@chromium.org>
-Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+But oom_kill event is a special one as it is used in both cgroup1 and
+cgroup2.  In cgroup1, it is displayed in memory.oom_control.  The file
+memory.oom_control is in both root memcg and non root memcg, that is
+different with memory.event as it only in non-root memcg.  That commit
+is okay for cgroup2, but it is not okay for cgroup1 as it will cause
+inconsistent behavior between root memcg and non-root memcg.
+
+Here's an example on why this behavior is inconsistent in cgroup1.
+
+       root memcg
+       /
+    memcg foo
+     /
+  memcg bar
+
+Suppose there's an oom_kill in memcg bar, then the oon_kill will be
+
+       root memcg : memory.oom_control(oom_kill)  0
+       /
+    memcg foo : memory.oom_control(oom_kill)  1
+     /
+  memcg bar : memory.oom_control(oom_kill)  1
+
+For the non-root memcg, its memory.oom_control(oom_kill) includes its
+descendants' oom_kill, but for root memcg, it doesn't include its
+descendants' oom_kill.  That means, memory.oom_control(oom_kill) has
+different meanings in different memcgs.  That is inconsistent.  Then the
+user has to know whether the memcg is root or not.
+
+If we can't fully support it in cgroup1, for example by adding
+memory.events.local into cgroup1 as well, then let's don't touch its
+original behavior.
+
+Fixes: 9852ae3fe529 ("mm, memcg: consider subtrees in memory.events")
+Reported-by: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: Yafang Shao <laoar.shao@gmail.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Shakeel Butt <shakeelb@google.com>
+Acked-by: Johannes Weiner <hannes@cmpxchg.org>
+Acked-by: Chris Down <chris@chrisdown.name>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Cc: <stable@vger.kernel.org>
+Link: http://lkml.kernel.org/r/20200502141055.7378-1-laoar.shao@gmail.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/intel/pinctrl-cherryview.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ include/linux/memcontrol.h | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/pinctrl/intel/pinctrl-cherryview.c b/drivers/pinctrl/intel/pinctrl-cherryview.c
-index f16baf9b86962..25932d2a71547 100644
---- a/drivers/pinctrl/intel/pinctrl-cherryview.c
-+++ b/drivers/pinctrl/intel/pinctrl-cherryview.c
-@@ -1485,11 +1485,15 @@ static void chv_gpio_irq_handler(struct irq_desc *desc)
- 	struct chv_pinctrl *pctrl = gpiochip_get_data(gc);
- 	struct irq_chip *chip = irq_desc_get_chip(desc);
- 	unsigned long pending;
-+	unsigned long flags;
- 	u32 intr_line;
+diff --git a/include/linux/memcontrol.h b/include/linux/memcontrol.h
+index e9ba01336d4e7..bc5a3621a9d7d 100644
+--- a/include/linux/memcontrol.h
++++ b/include/linux/memcontrol.h
+@@ -783,6 +783,8 @@ static inline void memcg_memory_event(struct mem_cgroup *memcg,
+ 		atomic_long_inc(&memcg->memory_events[event]);
+ 		cgroup_file_notify(&memcg->events_file);
  
- 	chained_irq_enter(chip, desc);
- 
-+	raw_spin_lock_irqsave(&chv_lock, flags);
- 	pending = readl(pctrl->regs + CHV_INTSTAT);
-+	raw_spin_unlock_irqrestore(&chv_lock, flags);
-+
- 	for_each_set_bit(intr_line, &pending, pctrl->community->nirqs) {
- 		unsigned irq, offset;
- 
++		if (!cgroup_subsys_on_dfl(memory_cgrp_subsys))
++			break;
+ 		if (cgrp_dfl_root.flags & CGRP_ROOT_MEMORY_LOCAL_EVENTS)
+ 			break;
+ 	} while ((memcg = parent_mem_cgroup(memcg)) &&
 -- 
 2.20.1
 
