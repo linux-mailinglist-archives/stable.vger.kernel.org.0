@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 40D3B1D8721
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:31:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FE531D8515
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:17:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730610AbgERSaS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:30:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37236 "EHLO mail.kernel.org"
+        id S1731906AbgERR63 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 13:58:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37880 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729208AbgERRlG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:41:06 -0400
+        id S1731902AbgERR61 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:58:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C20EB20657;
-        Mon, 18 May 2020 17:41:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B8E3620715;
+        Mon, 18 May 2020 17:58:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589823665;
-        bh=typIq0/seAP8Czi1rdqH4ZdtGRHRMXR+6Z2dgm9bv+g=;
+        s=default; t=1589824707;
+        bh=SaX49qfGwTNFGoVpFnGMa04LewjALtVS9R49yIOfXvY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kpoZ3HsXanTPjKGWyPpZxuookMZVAGxhF7Te6u/8EbtuuoZ2BoGPy3Qm6H6a99Bv3
-         D9PuRlTXuC7jfYylC64DhuU1CIGMY+cA+iej3JIri1ldJ02xkfLeikQxsKaEgkjeW6
-         wXmeaFc0JG6MkM1V8868sEACdGRBLAqRtehtlL1w=
+        b=NnuBk+AxtPClKfnFDUTvBWw0TEJxrUVFCMHqoSfR1OyGGWylAQcIoP4RocJbdMrV9
+         +RVNcmyF3M0tXpTAgWPBIiKMTmxzwlv63sQqcIm7Fs2jCzAESXpUHoAPafPCx2J9rN
+         6IKv2C2LNMNLL+UPvz9piQwvfRDgAd6nxeiEwv84=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, butt3rflyh4ck <butterflyhuangxx@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.4 73/86] ALSA: rawmidi: Fix racy buffer resize under concurrent accesses
+        stable@vger.kernel.org, Chuck Lever <chuck.lever@oracle.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 081/147] SUNRPC: Signalled ASYNC tasks need to exit
 Date:   Mon, 18 May 2020 19:36:44 +0200
-Message-Id: <20200518173505.235710995@linuxfoundation.org>
+Message-Id: <20200518173523.780014614@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173450.254571947@linuxfoundation.org>
-References: <20200518173450.254571947@linuxfoundation.org>
+In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
+References: <20200518173513.009514388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,131 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Chuck Lever <chuck.lever@oracle.com>
 
-commit c1f6e3c818dd734c30f6a7eeebf232ba2cf3181d upstream.
+[ Upstream commit ce99aa62e1eb793e259d023c7f6ccb7c4879917b ]
 
-The rawmidi core allows user to resize the runtime buffer via ioctl,
-and this may lead to UAF when performed during concurrent reads or
-writes: the read/write functions unlock the runtime lock temporarily
-during copying form/to user-space, and that's the race window.
+Ensure that signalled ASYNC rpc_tasks exit immediately instead of
+spinning until a timeout (or forever).
 
-This patch fixes the hole by introducing a reference counter for the
-runtime buffer read/write access and returns -EBUSY error when the
-resize is performed concurrently against read/write.
+To avoid checking for the signal flag on every scheduler iteration,
+the check is instead introduced in the client's finite state
+machine.
 
-Note that the ref count field is a simple integer instead of
-refcount_t here, since the all contexts accessing the buffer is
-basically protected with a spinlock, hence we need no expensive atomic
-ops.  Also, note that this busy check is needed only against read /
-write functions, and not in receive/transmit callbacks; the race can
-happen only at the spinlock hole mentioned in the above, while the
-whole function is protected for receive / transmit callbacks.
-
-Reported-by: butt3rflyh4ck <butterflyhuangxx@gmail.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/CAFcO6XMWpUVK_yzzCpp8_XP7+=oUpQvuBeCbMffEDkpe8jWrfg@mail.gmail.com
-Link: https://lore.kernel.org/r/s5heerw3r5z.wl-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Fixes: ae67bd3821bb ("SUNRPC: Fix up task signalling")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/sound/rawmidi.h |    1 +
- sound/core/rawmidi.c    |   31 +++++++++++++++++++++++++++----
- 2 files changed, 28 insertions(+), 4 deletions(-)
+ net/sunrpc/clnt.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/include/sound/rawmidi.h
-+++ b/include/sound/rawmidi.h
-@@ -76,6 +76,7 @@ struct snd_rawmidi_runtime {
- 	size_t avail_min;	/* min avail for wakeup */
- 	size_t avail;		/* max used buffer for wakeup */
- 	size_t xruns;		/* over/underruns counter */
-+	int buffer_ref;		/* buffer reference count */
- 	/* misc */
- 	spinlock_t lock;
- 	wait_queue_head_t sleep;
---- a/sound/core/rawmidi.c
-+++ b/sound/core/rawmidi.c
-@@ -108,6 +108,17 @@ static void snd_rawmidi_input_event_work
- 		runtime->event(runtime->substream);
- }
- 
-+/* buffer refcount management: call with runtime->lock held */
-+static inline void snd_rawmidi_buffer_ref(struct snd_rawmidi_runtime *runtime)
-+{
-+	runtime->buffer_ref++;
-+}
-+
-+static inline void snd_rawmidi_buffer_unref(struct snd_rawmidi_runtime *runtime)
-+{
-+	runtime->buffer_ref--;
-+}
-+
- static int snd_rawmidi_runtime_create(struct snd_rawmidi_substream *substream)
+diff --git a/net/sunrpc/clnt.c b/net/sunrpc/clnt.c
+index f7f78566be463..f1088ca39d44c 100644
+--- a/net/sunrpc/clnt.c
++++ b/net/sunrpc/clnt.c
+@@ -2422,6 +2422,11 @@ rpc_check_timeout(struct rpc_task *task)
  {
- 	struct snd_rawmidi_runtime *runtime;
-@@ -654,6 +665,11 @@ int snd_rawmidi_output_params(struct snd
- 		if (!newbuf)
- 			return -ENOMEM;
- 		spin_lock_irq(&runtime->lock);
-+		if (runtime->buffer_ref) {
-+			spin_unlock_irq(&runtime->lock);
-+			kfree(newbuf);
-+			return -EBUSY;
-+		}
- 		oldbuf = runtime->buffer;
- 		runtime->buffer = newbuf;
- 		runtime->buffer_size = params->buffer_size;
-@@ -962,8 +978,10 @@ static long snd_rawmidi_kernel_read1(str
- 	long result = 0, count1;
- 	struct snd_rawmidi_runtime *runtime = substream->runtime;
- 	unsigned long appl_ptr;
-+	int err = 0;
+ 	struct rpc_clnt	*clnt = task->tk_client;
  
- 	spin_lock_irqsave(&runtime->lock, flags);
-+	snd_rawmidi_buffer_ref(runtime);
- 	while (count > 0 && runtime->avail) {
- 		count1 = runtime->buffer_size - runtime->appl_ptr;
- 		if (count1 > count)
-@@ -982,16 +1000,19 @@ static long snd_rawmidi_kernel_read1(str
- 		if (userbuf) {
- 			spin_unlock_irqrestore(&runtime->lock, flags);
- 			if (copy_to_user(userbuf + result,
--					 runtime->buffer + appl_ptr, count1)) {
--				return result > 0 ? result : -EFAULT;
--			}
-+					 runtime->buffer + appl_ptr, count1))
-+				err = -EFAULT;
- 			spin_lock_irqsave(&runtime->lock, flags);
-+			if (err)
-+				goto out;
- 		}
- 		result += count1;
- 		count -= count1;
- 	}
-+ out:
-+	snd_rawmidi_buffer_unref(runtime);
- 	spin_unlock_irqrestore(&runtime->lock, flags);
--	return result;
-+	return result > 0 ? result : err;
- }
++	if (RPC_SIGNALLED(task)) {
++		rpc_call_rpcerror(task, -ERESTARTSYS);
++		return;
++	}
++
+ 	if (xprt_adjust_timeout(task->tk_rqstp) == 0)
+ 		return;
  
- long snd_rawmidi_kernel_read(struct snd_rawmidi_substream *substream,
-@@ -1262,6 +1283,7 @@ static long snd_rawmidi_kernel_write1(st
- 			return -EAGAIN;
- 		}
- 	}
-+	snd_rawmidi_buffer_ref(runtime);
- 	while (count > 0 && runtime->avail > 0) {
- 		count1 = runtime->buffer_size - runtime->appl_ptr;
- 		if (count1 > count)
-@@ -1293,6 +1315,7 @@ static long snd_rawmidi_kernel_write1(st
- 	}
-       __end:
- 	count1 = runtime->avail < runtime->buffer_size;
-+	snd_rawmidi_buffer_unref(runtime);
- 	spin_unlock_irqrestore(&runtime->lock, flags);
- 	if (count1)
- 		snd_rawmidi_output_trigger(substream, 1);
+-- 
+2.20.1
+
 
 
