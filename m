@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AE7DD1D80BD
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:41:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 387E21D86C6
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:28:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729328AbgERRlq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:41:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38342 "EHLO mail.kernel.org"
+        id S1730175AbgERS1u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:27:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41402 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729311AbgERRlp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:41:45 -0400
+        id S1729610AbgERRnj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:43:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5D0D92083E;
-        Mon, 18 May 2020 17:41:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EA61F20873;
+        Mon, 18 May 2020 17:43:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589823704;
-        bh=S+ElZw8eYrPNlWrD5A8F26NpbasxVhNFXwGf3KO7olU=;
+        s=default; t=1589823818;
+        bh=pLKK1rWfKBUkBR8Z+9c0T7j+u/CPpMhUJDWsMDYB5aY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zELNTQ5mPrzluVZyczFd6V2S95Wzgtzstd1T2tYIrnjBS7VmR+XohcKi4hy+gF/51
-         NTw1E3p5U14tl6dRrpUvsJKWMcvh/aJKqYUVpgONXTFKMoZ/qh+IHxvq82ULAZZLFM
-         4bV97bxlpUmuEEEbGSKndIGpuan9OhWM+wA1X3Qg=
+        b=M89gzHfeQl9Rm3aG91iZT9R0f9iFPNE+qhl+itWAdXIIX7kyso2H9NxNWUAUZTpdL
+         xGD7aPOgGmt2YXcZ0FITKf5mLVXQudVCYwtVWqjm23j3M9XAcuYRxoEtsom+W50++3
+         AxUnmp8zYhwGQ/4XhWDbKr9SNA5vZ0Tix1NGUREs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jason Gunthorpe <jgg@mellanox.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 4.4 55/86] pnp: Use list_for_each_entry() instead of open coding
+        stable@vger.kernel.org, Ronnie Sahlberg <lsahlber@redhat.com>,
+        Pavel Shilovsky <pshilov@microsoft.com>,
+        Steve French <stfrench@microsoft.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 48/90] cifs: Fix a race condition with cifs_echo_request
 Date:   Mon, 18 May 2020 19:36:26 +0200
-Message-Id: <20200518173501.644839806@linuxfoundation.org>
+Message-Id: <20200518173500.990164419@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173450.254571947@linuxfoundation.org>
-References: <20200518173450.254571947@linuxfoundation.org>
+In-Reply-To: <20200518173450.930655662@linuxfoundation.org>
+References: <20200518173450.930655662@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,90 +45,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Gunthorpe <jgg@mellanox.com>
+From: Ronnie Sahlberg <lsahlber@redhat.com>
 
-commit 01b2bafe57b19d9119413f138765ef57990921ce upstream.
+[ Upstream commit f2caf901c1b7ce65f9e6aef4217e3241039db768 ]
 
-Aside from good practice, this avoids a warning from gcc 10:
+There is a race condition with how we send (or supress and don't send)
+smb echos that will cause the client to incorrectly think the
+server is unresponsive and thus needs to be reconnected.
 
-./include/linux/kernel.h:997:3: warning: array subscript -31 is outside array bounds of ‘struct list_head[1]’ [-Warray-bounds]
-  997 |  ((type *)(__mptr - offsetof(type, member))); })
-      |  ~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-./include/linux/list.h:493:2: note: in expansion of macro ‘container_of’
-  493 |  container_of(ptr, type, member)
-      |  ^~~~~~~~~~~~
-./include/linux/pnp.h:275:30: note: in expansion of macro ‘list_entry’
-  275 | #define global_to_pnp_dev(n) list_entry(n, struct pnp_dev, global_list)
-      |                              ^~~~~~~~~~
-./include/linux/pnp.h:281:11: note: in expansion of macro ‘global_to_pnp_dev’
-  281 |  (dev) != global_to_pnp_dev(&pnp_global); \
-      |           ^~~~~~~~~~~~~~~~~
-arch/x86/kernel/rtc.c:189:2: note: in expansion of macro ‘pnp_for_each_dev’
-  189 |  pnp_for_each_dev(dev) {
+Summary of the race condition:
+ 1) Daisy chaining scheduling creates a gap.
+ 2) If traffic comes unfortunate shortly after
+    the last echo, the planned echo is suppressed.
+ 3) Due to the gap, the next echo transmission is delayed
+    until after the timeout, which is set hard to twice
+    the echo interval.
 
-Because the common code doesn't cast the starting list_head to the
-containing struct.
+This is fixed by changing the timeouts from 2 to three times the echo interval.
 
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
-[ rjw: Whitespace adjustments ]
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Detailed description of the bug: https://lutz.donnerhacke.de/eng/Blog/Groundhog-Day-with-SMB-remount
 
+Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Reviewed-by: Pavel Shilovsky <pshilov@microsoft.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/pnp.h |   29 +++++++++--------------------
- 1 file changed, 9 insertions(+), 20 deletions(-)
+ fs/cifs/connect.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/include/linux/pnp.h
-+++ b/include/linux/pnp.h
-@@ -219,10 +219,8 @@ struct pnp_card {
- #define global_to_pnp_card(n) list_entry(n, struct pnp_card, global_list)
- #define protocol_to_pnp_card(n) list_entry(n, struct pnp_card, protocol_list)
- #define to_pnp_card(n) container_of(n, struct pnp_card, dev)
--#define pnp_for_each_card(card) \
--	for((card) = global_to_pnp_card(pnp_cards.next); \
--	(card) != global_to_pnp_card(&pnp_cards); \
--	(card) = global_to_pnp_card((card)->global_list.next))
-+#define pnp_for_each_card(card)	\
-+	list_for_each_entry(card, &pnp_cards, global_list)
- 
- struct pnp_card_link {
- 	struct pnp_card *card;
-@@ -275,14 +273,9 @@ struct pnp_dev {
- #define card_to_pnp_dev(n) list_entry(n, struct pnp_dev, card_list)
- #define protocol_to_pnp_dev(n) list_entry(n, struct pnp_dev, protocol_list)
- #define	to_pnp_dev(n) container_of(n, struct pnp_dev, dev)
--#define pnp_for_each_dev(dev) \
--	for((dev) = global_to_pnp_dev(pnp_global.next); \
--	(dev) != global_to_pnp_dev(&pnp_global); \
--	(dev) = global_to_pnp_dev((dev)->global_list.next))
--#define card_for_each_dev(card,dev) \
--	for((dev) = card_to_pnp_dev((card)->devices.next); \
--	(dev) != card_to_pnp_dev(&(card)->devices); \
--	(dev) = card_to_pnp_dev((dev)->card_list.next))
-+#define pnp_for_each_dev(dev) list_for_each_entry(dev, &pnp_global, global_list)
-+#define card_for_each_dev(card, dev)	\
-+	list_for_each_entry(dev, &(card)->devices, card_list)
- #define pnp_dev_name(dev) (dev)->name
- 
- static inline void *pnp_get_drvdata(struct pnp_dev *pdev)
-@@ -434,14 +427,10 @@ struct pnp_protocol {
- };
- 
- #define to_pnp_protocol(n) list_entry(n, struct pnp_protocol, protocol_list)
--#define protocol_for_each_card(protocol,card) \
--	for((card) = protocol_to_pnp_card((protocol)->cards.next); \
--	(card) != protocol_to_pnp_card(&(protocol)->cards); \
--	(card) = protocol_to_pnp_card((card)->protocol_list.next))
--#define protocol_for_each_dev(protocol,dev) \
--	for((dev) = protocol_to_pnp_dev((protocol)->devices.next); \
--	(dev) != protocol_to_pnp_dev(&(protocol)->devices); \
--	(dev) = protocol_to_pnp_dev((dev)->protocol_list.next))
-+#define protocol_for_each_card(protocol, card)	\
-+	list_for_each_entry(card, &(protocol)->cards, protocol_list)
-+#define protocol_for_each_dev(protocol, dev)	\
-+	list_for_each_entry(dev, &(protocol)->devices, protocol_list)
- 
- extern struct bus_type pnp_bus_type;
- 
+diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
+index 37c8cac86431f..3545b237187a8 100644
+--- a/fs/cifs/connect.c
++++ b/fs/cifs/connect.c
+@@ -551,10 +551,10 @@ static bool
+ server_unresponsive(struct TCP_Server_Info *server)
+ {
+ 	/*
+-	 * We need to wait 2 echo intervals to make sure we handle such
++	 * We need to wait 3 echo intervals to make sure we handle such
+ 	 * situations right:
+ 	 * 1s  client sends a normal SMB request
+-	 * 2s  client gets a response
++	 * 3s  client gets a response
+ 	 * 30s echo workqueue job pops, and decides we got a response recently
+ 	 *     and don't need to send another
+ 	 * ...
+@@ -563,9 +563,9 @@ server_unresponsive(struct TCP_Server_Info *server)
+ 	 */
+ 	if ((server->tcpStatus == CifsGood ||
+ 	    server->tcpStatus == CifsNeedNegotiate) &&
+-	    time_after(jiffies, server->lstrp + 2 * server->echo_interval)) {
++	    time_after(jiffies, server->lstrp + 3 * server->echo_interval)) {
+ 		cifs_dbg(VFS, "Server %s has not responded in %lu seconds. Reconnecting...\n",
+-			 server->hostname, (2 * server->echo_interval) / HZ);
++			 server->hostname, (3 * server->echo_interval) / HZ);
+ 		cifs_reconnect(server);
+ 		wake_up(&server->response_q);
+ 		return true;
+-- 
+2.20.1
+
 
 
