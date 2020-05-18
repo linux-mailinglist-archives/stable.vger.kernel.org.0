@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 59FA21D8521
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:17:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 92D111D837F
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:05:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731221AbgERSQp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 14:16:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36942 "EHLO mail.kernel.org"
+        id S1732949AbgERSFZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:05:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52900 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731839AbgERR56 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:57:58 -0400
+        id S1732943AbgERSFX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 14:05:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DDC19207D3;
-        Mon, 18 May 2020 17:57:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7AB9D20671;
+        Mon, 18 May 2020 18:05:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824677;
+        s=default; t=1589825123;
         bh=cvbtxXlXqYT9A0rzrZXO1xQptHHKJaTUxuVCqN0281E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FXcZeMK1HWjK7VgoW1X75HTWqrVDXHerLlNCBniGgOaGC7I75Vx/3r0feoxfkbuvx
-         Isk3C2ixCI2aCSCOaCHIB0c96eAKjDCRKo/b1RRmYofNwrQ+5XjHqe2m6+erjy+wd0
-         XQtm0Ro1win2bATuAKMBgUscim2cgEwb+8eoMvpM=
+        b=QnFD2IwBFOCwe0QREwuTp4XGy1tqnMkRjBmnbBiGMcRZI+Sk7S8u5yLtCSzpa7T7C
+         G+i5ldWmXTX6dKWFoWFQ3yhZXjN23/dTpLhRC7tlqh5zVI9U1OLJXRki/2lPdggZdL
+         +uOKbxpJFZwgiOPx4Pvk4xum/7ZqscueFg5uz4FI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 106/147] ALSA: hda/realtek - Add COEF workaround for ASUS ZenBook UX431DA
+Subject: [PATCH 5.6 139/194] ALSA: hda/realtek - Add COEF workaround for ASUS ZenBook UX431DA
 Date:   Mon, 18 May 2020 19:37:09 +0200
-Message-Id: <20200518173526.470192086@linuxfoundation.org>
+Message-Id: <20200518173542.912376339@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
-References: <20200518173513.009514388@linuxfoundation.org>
+In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
+References: <20200518173531.455604187@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
