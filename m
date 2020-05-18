@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BDD2E1D82B8
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 19:58:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 05F9D1D8412
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:11:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731942AbgERR6n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:58:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38376 "EHLO mail.kernel.org"
+        id S1733101AbgERSGE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:06:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53814 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731939AbgERR6n (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:58:43 -0400
+        id S1733087AbgERSF6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 14:05:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1FD8220715;
-        Mon, 18 May 2020 17:58:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2F3662087D;
+        Mon, 18 May 2020 18:05:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824722;
-        bh=e1Jc7OCA4Kt+oHbqPtrCW5cQvwRi2pCAlYhq8EIwSHk=;
+        s=default; t=1589825157;
+        bh=fB+roZHtIxggYejk2OF7luJkFNMNH6aS08BxOIv9KII=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qs4L3d8Tt30e7o6Bzyzff+7bXTazm/sQCF55vOLfRIwUN12MSA+ChupSmYu86ArAe
-         l3Id0RlXSMqF6x7lLHqpbXl/zeuXU/TZ1SEaXM5eva9PF8yaGskQMZDmU9uZ7Dyls3
-         d/qLhLhIr5za7VQvyTJpnLNe1GAoigaf5NzdYM7w=
+        b=StB1YKkzsDU9acBW1T4GWmOP5Zh3sM7/JXaEcGVIGEYgz9H2x5EgTw6JtSoBV1NsC
+         tPNxnjiHJzaoDzvWDZMU0B9Zlvp5yRStGEoris/3u6A4Z/bFnuJ74aJSlB+OA/AIo0
+         uUjqlAv5PGvJj6e9hZOuIwPSdf74M4GlKC5qbews=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -31,12 +31,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Alex Deucher <alexander.deucher@amd.com>,
         Harry Wentland <hwentlan@amd.com>,
         Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Subject: [PATCH 5.4 118/147] drm/amd/display: add basic atomic check for cursor plane
+Subject: [PATCH 5.6 151/194] drm/amd/display: add basic atomic check for cursor plane
 Date:   Mon, 18 May 2020 19:37:21 +0200
-Message-Id: <20200518173527.712591629@linuxfoundation.org>
+Message-Id: <20200518173543.827591423@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
-References: <20200518173513.009514388@linuxfoundation.org>
+In-Reply-To: <20200518173531.455604187@linuxfoundation.org>
+References: <20200518173531.455604187@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -71,7 +71,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
 +++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -6921,6 +6921,7 @@ static int dm_update_plane_state(struct
+@@ -7716,6 +7716,7 @@ static int dm_update_plane_state(struct
  	struct drm_crtc_state *old_crtc_state, *new_crtc_state;
  	struct dm_crtc_state *dm_new_crtc_state, *dm_old_crtc_state;
  	struct dm_plane_state *dm_new_plane_state, *dm_old_plane_state;
@@ -79,7 +79,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	bool needs_reset;
  	int ret = 0;
  
-@@ -6930,9 +6931,30 @@ static int dm_update_plane_state(struct
+@@ -7725,9 +7726,30 @@ static int dm_update_plane_state(struct
  	dm_new_plane_state = to_dm_plane_state(new_plane_state);
  	dm_old_plane_state = to_dm_plane_state(old_plane_state);
  
