@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FAEE1D8580
-	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:19:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B6291D86A2
+	for <lists+stable@lfdr.de>; Mon, 18 May 2020 20:28:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730744AbgERRzB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 May 2020 13:55:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60118 "EHLO mail.kernel.org"
+        id S1730616AbgERSZm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 May 2020 14:25:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46148 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728822AbgERRzA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 May 2020 13:55:00 -0400
+        id S1730095AbgERRq3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 May 2020 13:46:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 889712083E;
-        Mon, 18 May 2020 17:54:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ECFB220674;
+        Mon, 18 May 2020 17:46:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589824500;
-        bh=svHddsaV96M/0BQ97tYSdQCU0OUWVwtFZXRg1loGZLE=;
+        s=default; t=1589823989;
+        bh=pW4V60f9TCg33wug+NcMM3l2jUpbcC/+CQ5JRKz0l/o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y37ff+rANrA/BHEeH6QGEm5ZkhaAFtwdaEqa6gr6NUcoD4iwftB1k+ikyXNOGYu16
-         e8QTfehZc9TYMVD/7tJQ/L/kD0g9pL6fjl3CngxXvXXPenio4s73gLSwMeKMmPhT+Q
-         wemXGn5Sy4w4DNX9UfX9al5w4Bo2nd1CxdXjdcBs=
+        b=CB4JoAw9zHbaHPETygMsDfvhziPjNTAb6F1kIC+GtkH/vHa1B/RNZZl6U+Vh+iEMh
+         fj78RInXyzUhOcnC+j8z468FM5RPG/q4S8Gb80WimfI3AAUZsde2I92XPXgO23jO9k
+         OiU5uKn3XVu1RNPe7ARMWUEZm7vohf/eq4814KhM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Camale=C3=B3n?= <noelamac@gmail.com>,
-        Heiner Kallweit <hkallweit1@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 035/147] r8169: re-establish support for RTL8401 chip version
+        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
+        Xin Tan <tanxin.ctf@gmail.com>,
+        Sven Eckelmann <sven@narfation.org>,
+        Simon Wunderlich <sw@simonwunderlich.de>
+Subject: [PATCH 4.14 026/114] batman-adv: Fix refcnt leak in batadv_show_throughput_override
 Date:   Mon, 18 May 2020 19:35:58 +0200
-Message-Id: <20200518173518.496434575@linuxfoundation.org>
+Message-Id: <20200518173508.436821979@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
-References: <20200518173513.009514388@linuxfoundation.org>
+In-Reply-To: <20200518173503.033975649@linuxfoundation.org>
+References: <20200518173503.033975649@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,35 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiner Kallweit <hkallweit1@gmail.com>
+From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
 
-[ Upstream commit 1f8492df081bd66255764f3ce82ba1b2c37def49 ]
+commit f872de8185acf1b48b954ba5bd8f9bc0a0d14016 upstream.
 
-r8169 never had native support for the RTL8401, however it reportedly
-worked with the fallback to RTL8101e [0]. Therefore let's add this
-as an explicit assignment.
+batadv_show_throughput_override() invokes batadv_hardif_get_by_netdev(),
+which gets a batadv_hard_iface object from net_dev with increased refcnt
+and its reference is assigned to a local pointer 'hard_iface'.
 
-[0] https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=956868
+When batadv_show_throughput_override() returns, "hard_iface" becomes
+invalid, so the refcount should be decreased to keep refcount balanced.
 
-Fixes: b4cc2dcc9c7c ("r8169: remove default chip versions")
-Reported-by: Camaleón <noelamac@gmail.com>
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+The issue happens in the normal path of
+batadv_show_throughput_override(), which forgets to decrease the refcnt
+increased by batadv_hardif_get_by_netdev() before the function returns,
+causing a refcnt leak.
+
+Fix this issue by calling batadv_hardif_put() before the
+batadv_show_throughput_override() returns in the normal path.
+
+Fixes: 0b5ecc6811bd ("batman-adv: add throughput override attribute to hard_ifaces")
+Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/ethernet/realtek/r8169_main.c |    2 ++
- 1 file changed, 2 insertions(+)
 
---- a/drivers/net/ethernet/realtek/r8169_main.c
-+++ b/drivers/net/ethernet/realtek/r8169_main.c
-@@ -2202,6 +2202,8 @@ static void rtl8169_get_mac_version(stru
- 		{ 0x7cf, 0x348,	RTL_GIGA_MAC_VER_07 },
- 		{ 0x7cf, 0x248,	RTL_GIGA_MAC_VER_07 },
- 		{ 0x7cf, 0x340,	RTL_GIGA_MAC_VER_13 },
-+		/* RTL8401, reportedly works if treated as RTL8101e */
-+		{ 0x7cf, 0x240,	RTL_GIGA_MAC_VER_13 },
- 		{ 0x7cf, 0x343,	RTL_GIGA_MAC_VER_10 },
- 		{ 0x7cf, 0x342,	RTL_GIGA_MAC_VER_16 },
- 		{ 0x7c8, 0x348,	RTL_GIGA_MAC_VER_09 },
+---
+ net/batman-adv/sysfs.c |    1 +
+ 1 file changed, 1 insertion(+)
+
+--- a/net/batman-adv/sysfs.c
++++ b/net/batman-adv/sysfs.c
+@@ -1114,6 +1114,7 @@ static ssize_t batadv_show_throughput_ov
+ 
+ 	tp_override = atomic_read(&hard_iface->bat_v.throughput_override);
+ 
++	batadv_hardif_put(hard_iface);
+ 	return sprintf(buff, "%u.%u MBit\n", tp_override / 10,
+ 		       tp_override % 10);
+ }
 
 
