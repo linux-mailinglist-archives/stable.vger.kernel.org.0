@@ -2,120 +2,141 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 416071DA1C9
-	for <lists+stable@lfdr.de>; Tue, 19 May 2020 22:00:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 639221DA489
+	for <lists+stable@lfdr.de>; Wed, 20 May 2020 00:28:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728394AbgESUAM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 May 2020 16:00:12 -0400
-Received: from userp2120.oracle.com ([156.151.31.85]:35822 "EHLO
-        userp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728396AbgESUAK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 May 2020 16:00:10 -0400
-Received: from pps.filterd (userp2120.oracle.com [127.0.0.1])
-        by userp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 04JJvO3X163391;
-        Tue, 19 May 2020 19:59:57 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=date : from : to : cc
- : subject : message-id : references : mime-version : content-type :
- in-reply-to; s=corp-2020-01-29;
- bh=KFT7il4oQYnxSD//NHfbPGAV55evT6o96B02J2kbkZc=;
- b=m5Pfir0j+8jvBAJNVLO6/UwXRLk5AYrLZOIA3N/vmvP6+bYmnxX096KKmNhNUMSf/5x4
- 0V2v6IPkBJ9bHq2Tyr+WvMy6gIsRiBdLXV3TYjQLdogQlzLzC+AdEuOoRFsbxPKzQR5U
- r8N/tvlD/nj3Ke3YWsbbWKXxwTRrW/+HG1G9hN5z3uBVpvsyzapUZ0f++Sx/ZtbgMdUw
- KtYmSlx1NAJ53rZPD+B1O4oNyPFZLDO5W9pI8f5wFn1NwQqa3fcb+0kdH61esQrH+6v8
- jmxxmkvDJg4gbvcqpeUsJcCWWtILAUgjwitg4uVVVcVwz3l6Ihph5dShOfG/xHnf4gcF ZQ== 
-Received: from aserp3020.oracle.com (aserp3020.oracle.com [141.146.126.70])
-        by userp2120.oracle.com with ESMTP id 3128tnffh0-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
-        Tue, 19 May 2020 19:59:57 +0000
-Received: from pps.filterd (aserp3020.oracle.com [127.0.0.1])
-        by aserp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 04JJx1AG115652;
-        Tue, 19 May 2020 19:59:56 GMT
-Received: from aserv0122.oracle.com (aserv0122.oracle.com [141.146.126.236])
-        by aserp3020.oracle.com with ESMTP id 312t3586n7-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 19 May 2020 19:59:56 +0000
-Received: from abhmp0003.oracle.com (abhmp0003.oracle.com [141.146.116.9])
-        by aserv0122.oracle.com (8.14.4/8.14.4) with ESMTP id 04JJxsP2028706;
-        Tue, 19 May 2020 19:59:55 GMT
-Received: from ca-dmjordan1.us.oracle.com (/10.211.9.48)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Tue, 19 May 2020 12:59:54 -0700
-Date:   Tue, 19 May 2020 16:00:18 -0400
-From:   Daniel Jordan <daniel.m.jordan@oracle.com>
-To:     Ben Hutchings <ben@decadent.org.uk>
-Cc:     Herbert Xu <herbert@gondor.apana.org.au>,
-        Daniel Jordan <daniel.m.jordan@oracle.com>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        linux-crypto@vger.kernel.org, stable <stable@vger.kernel.org>
-Subject: Re: Backporting "padata: Remove broken queue flushing"
-Message-ID: <20200519200018.5vuyuxmjy5ypgi3w@ca-dmjordan1.us.oracle.com>
-References: <0b158b60fe621552c327e9d822bc3245591a4bd6.camel@decadent.org.uk>
+        id S1726536AbgESW2o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 May 2020 18:28:44 -0400
+Received: from mga12.intel.com ([192.55.52.136]:14393 "EHLO mga12.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726432AbgESW2o (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 May 2020 18:28:44 -0400
+IronPort-SDR: tM64yaY0VVmOTrgLbsyZPHkwBBfokNq25XixByctoKhCrmsrRN9cYFmxrWySPt5NGS8sKZn5IB
+ Y7yA+o2ocXMA==
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga007.jf.intel.com ([10.7.209.58])
+  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 May 2020 15:28:43 -0700
+IronPort-SDR: K4gouk3kgt6TlmETPZvcuoH4GKDKD8iWteFL3OMV34DttzTKYx2Vm86O3xgzK00SdxVPRNm6aX
+ xlKyDYPFpfmg==
+X-IronPort-AV: E=Sophos;i="5.73,411,1583222400"; 
+   d="scan'208";a="253395613"
+Received: from dwillia2-desk3.jf.intel.com (HELO dwillia2-desk3.amr.corp.intel.com) ([10.54.39.16])
+  by orsmga007-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 May 2020 15:28:43 -0700
+Subject: [PATCH v3 0/2] Renovate memcpy_mcsafe with copy_mc_to_{user, kernel}
+From:   Dan Williams <dan.j.williams@intel.com>
+To:     tglx@linutronix.de, mingo@redhat.com
+Cc:     Tony Luck <tony.luck@intel.com>, Vivek Goyal <vgoyal@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Borislav Petkov <bp@alien8.de>, stable@vger.kernel.org,
+        x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Erwin Tsaur <erwin.tsaur@intel.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Mikulas Patocka <mpatocka@redhat.com>,
+        Arnaldo Carvalho de Melo <acme@kernel.org>,
+        linux-kernel@vger.kernel.org, linux-nvdimm@lists.01.org
+Date:   Tue, 19 May 2020 15:12:31 -0700
+Message-ID: <158992635164.403910.2616621400995359522.stgit@dwillia2-desk3.amr.corp.intel.com>
+User-Agent: StGit/0.18-3-g996c
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <0b158b60fe621552c327e9d822bc3245591a4bd6.camel@decadent.org.uk>
-User-Agent: NeoMutt/20180716
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9626 signatures=668686
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 bulkscore=0 spamscore=0 mlxlogscore=968
- phishscore=0 mlxscore=0 malwarescore=0 suspectscore=2 adultscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2004280000
- definitions=main-2005190170
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9626 signatures=668686
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 impostorscore=0 bulkscore=0 spamscore=0
- clxscore=1011 cotscore=-2147483648 suspectscore=2 lowpriorityscore=0
- adultscore=0 phishscore=0 mlxlogscore=990 mlxscore=0 priorityscore=1501
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2004280000 definitions=main-2005190170
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello Ben,
+Changes since v2 [1]:
+- Replace the non-descriptive copy_safe() with copy_mc_to_user() and
+  copy_mc_to_kernel() several code organization cleanups resulted from
+  this rename, which further proves the point that the name deeply
+  matters for maintainability in this case. (Linus)
 
-On Tue, May 19, 2020 at 02:53:05PM +0100, Ben Hutchings wrote:
-> I noticed that commit 07928d9bfc81 "padata: Remove broken queue
-> flushing" has been backported to most stable branches, but commit
-> 6fc4dbcf0276 "padata: Replace delayed timer with immediate workqueue in
-> padata_reorder" has not.
->
-> Is this correct?  What prevents the parallel_data ref-count from
-> dropping to 0 while the timer is scheduled?
+- Do not use copy_user_generic() as the generic x86 backend for
+  copy_mc_to_user() since the #MC handler explicitly wants the exception
+  to be trapped by a _ASM_EXTABLE_FAULT handler. (Vivek).
 
-Doesn't seem like anything does, looking at 4.19.
+- Rename copy_safe_slow() to copy_mc_fragile() to better indicate what
+  the implementation is handling. copy_safe_fast() is replaced with
+  copy_mc_generic().
 
-I can see a race where the timer function uses a parallel_data after free
-whether or not the refcount goes to 0.  Don't think it's likely to happen in
-practice because of how small the window is between the serial callback
-finishing and the timer being deactivated.
+---
 
+The primary motivation to go touch memcpy_mcsafe() is that the existing
+benefit of doing slow "handle with care" copies is obviated on newer
+CPUs. With that concern lifted it also obviates the need to continue to
+update the MCA-recovery capability detection code currently gated by
+"mcsafe_key". Now the old "mcsafe_key" opt-in to perform the copy with
+concerns for recovery fragility can instead be made an opt-out from the
+default fast copy implementation (enable_copy_mc_fragile()).
 
-   task1:
-   padata_reorder
-                                      task2:
-                                      padata_do_serial
-                                        // object arrives in reorder queue
-     // sees reorder_objects > 0,
-     //   set timer for 1 second
-     mod_timer
-     return
-                                        padata_reorder
-                                          // queue serial work, which finishes
-                                          //   (now possibly no more objects
-                                          //    left)
-                                          |
-   task1:                                 |
-   // pd is freed one of two ways:        |
-   //   1) pcrypt is unloaded             |
-   //   2) padata_replace triggered       |
-   //      from userspace                 | (small window)
-                                          |
-   task3:                                 |
-   padata_reorder_timer                   |
-     // uses pd after free                |
-                                          |
-                                          del_timer  // too late
+The discussion with Linus on the first iteration of this patch
+identified that memcpy_mcsafe() was misnamed relative to its usage. The
+new names copy_mc_to_user() and copy_mc_to_kernel() clearly indicate the
+intended use case and lets the architecture organize the implementation
+accordingly.
 
+For both powerpc and x86 a copy_mc_generic() implementation is added as
+the backend for these interfaces.
 
-If I got this right we might want to backport the commit you mentioned to be on
-the safe side.
+Patches are relative to tip/master.
+
+---
+
+Dan Williams (2):
+      x86, powerpc: Rename memcpy_mcsafe() to copy_mc_to_{user,kernel}()
+      x86/copy_mc: Introduce copy_mc_generic()
+
+ arch/powerpc/Kconfig                               |    2 
+ arch/powerpc/include/asm/string.h                  |    2 
+ arch/powerpc/include/asm/uaccess.h                 |   40 +++--
+ arch/powerpc/lib/Makefile                          |    2 
+ arch/powerpc/lib/copy_mc_64.S                      |    4 
+ arch/x86/Kconfig                                   |    2 
+ arch/x86/Kconfig.debug                             |    2 
+ arch/x86/include/asm/copy_mc_test.h                |   75 +++++++++
+ arch/x86/include/asm/mcsafe_test.h                 |   75 ---------
+ arch/x86/include/asm/string_64.h                   |   32 ----
+ arch/x86/include/asm/uaccess_64.h                  |   35 ++--
+ arch/x86/kernel/cpu/mce/core.c                     |    8 -
+ arch/x86/kernel/quirks.c                           |    9 -
+ arch/x86/lib/Makefile                              |    1 
+ arch/x86/lib/copy_mc.c                             |   64 ++++++++
+ arch/x86/lib/copy_mc_64.S                          |  165 ++++++++++++++++++++
+ arch/x86/lib/memcpy_64.S                           |  115 --------------
+ arch/x86/lib/usercopy_64.c                         |   21 ---
+ drivers/md/dm-writecache.c                         |   15 +-
+ drivers/nvdimm/claim.c                             |    2 
+ drivers/nvdimm/pmem.c                              |    6 -
+ include/linux/string.h                             |    9 -
+ include/linux/uaccess.h                            |    9 +
+ include/linux/uio.h                                |   10 +
+ lib/Kconfig                                        |    7 +
+ lib/iov_iter.c                                     |   43 +++--
+ tools/arch/x86/include/asm/copy_safe_test.h        |   13 ++
+ tools/arch/x86/include/asm/mcsafe_test.h           |   13 --
+ tools/arch/x86/lib/memcpy_64.S                     |  115 --------------
+ tools/objtool/check.c                              |    5 -
+ tools/perf/bench/Build                             |    1 
+ tools/perf/bench/mem-memcpy-x86-64-lib.c           |   24 ---
+ tools/testing/nvdimm/test/nfit.c                   |   48 +++---
+ .../testing/selftests/powerpc/copyloops/.gitignore |    2 
+ tools/testing/selftests/powerpc/copyloops/Makefile |    6 -
+ .../testing/selftests/powerpc/copyloops/copy_mc.S  |    0 
+ 36 files changed, 460 insertions(+), 522 deletions(-)
+ rename arch/powerpc/lib/{memcpy_mcsafe_64.S => copy_mc_64.S} (98%)
+ create mode 100644 arch/x86/include/asm/copy_mc_test.h
+ delete mode 100644 arch/x86/include/asm/mcsafe_test.h
+ create mode 100644 arch/x86/lib/copy_mc.c
+ create mode 100644 arch/x86/lib/copy_mc_64.S
+ create mode 100644 tools/arch/x86/include/asm/copy_safe_test.h
+ delete mode 100644 tools/arch/x86/include/asm/mcsafe_test.h
+ delete mode 100644 tools/perf/bench/mem-memcpy-x86-64-lib.c
+ rename tools/testing/selftests/powerpc/copyloops/{memcpy_mcsafe_64.S => copy_mc.S} (100%)
+
+base-commit: bba413deb1065f1291cb1f366247513f11215520
