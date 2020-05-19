@@ -2,108 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 47A581D9607
-	for <lists+stable@lfdr.de>; Tue, 19 May 2020 14:16:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E7951D9610
+	for <lists+stable@lfdr.de>; Tue, 19 May 2020 14:18:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726196AbgESMP7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 May 2020 08:15:59 -0400
-Received: from jabberwock.ucw.cz ([46.255.230.98]:48288 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728612AbgESMP7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 May 2020 08:15:59 -0400
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 8DA941C025A; Tue, 19 May 2020 14:15:57 +0200 (CEST)
-Date:   Tue, 19 May 2020 14:15:57 +0200
-From:   Pavel Machek <pavel@denx.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Sergei Trofimovich <slyfox@gentoo.org>,
-        Borislav Petkov <bp@suse.de>, Kalle Valo <kvalo@codeaurora.org>
-Subject: Re: [PATCH 4.19 63/80] x86: Fix early boot crash on gcc-10, third try
-Message-ID: <20200519121557.GB8342@amd>
-References: <20200518173450.097837707@linuxfoundation.org>
- <20200518173503.119342410@linuxfoundation.org>
+        id S1727077AbgESMSf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 May 2020 08:18:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36154 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727057AbgESMSf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 May 2020 08:18:35 -0400
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01832C08C5C0
+        for <stable@vger.kernel.org>; Tue, 19 May 2020 05:18:34 -0700 (PDT)
+Received: from gallifrey.ext.pengutronix.de ([2001:67c:670:201:5054:ff:fe8d:eefb] helo=[IPv6:::1])
+        by metis.ext.pengutronix.de with esmtp (Exim 4.92)
+        (envelope-from <a.fatoum@pengutronix.de>)
+        id 1jb1Cb-0006RS-ED; Tue, 19 May 2020 14:18:33 +0200
+Subject: Re: FAILED: patch "[PATCH] ARM: imx: provide v7_cpu_resume() only on
+ ARM_CPU_SUSPEND=y" failed to apply to 5.6-stable tree
+To:     gregkh@linuxfoundation.org, clemens.gruber@pqgruber.com,
+        shawnguo@kernel.org, stable@vger.kernel.org
+References: <158980862996131@kroah.com>
+From:   Ahmad Fatoum <a.fatoum@pengutronix.de>
+Message-ID: <00037464-ad28-3a1c-8308-cfc16dcfc213@pengutronix.de>
+Date:   Tue, 19 May 2020 14:18:32 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.5.0
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="4bRzO86E/ozDv8r1"
-Content-Disposition: inline
-In-Reply-To: <20200518173503.119342410@linuxfoundation.org>
-User-Agent: Mutt/1.5.23 (2014-03-12)
+In-Reply-To: <158980862996131@kroah.com>
+Content-Type: text/plain; charset=windows-1252
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-SA-Exim-Connect-IP: 2001:67c:670:201:5054:ff:fe8d:eefb
+X-SA-Exim-Mail-From: a.fatoum@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: stable@vger.kernel.org
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 5/18/20 3:30 PM, gregkh@linuxfoundation.org wrote:
+> 
+> The patch below does not apply to the 5.6-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
 
---4bRzO86E/ozDv8r1
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+For the record, the patch was picked up by both Arnd and Shawn.
+Arnd's pull made it into v5.7-rc3 and Shawn's into v5.7-rc6.
 
-Hi!
+The patch in v5.7-rc3 is already in the stable trees, so nothing
+further to do here.
 
+Cheers
+Ahmad
 
-> To fix that, the initial attempt was to mark the one function which
-> generates the stack canary with:
->=20
->   __attribute__((optimize("-fno-stack-protector"))) ... start_secondary(v=
-oid *unused)
->=20
-> however, using the optimize attribute doesn't work cumulatively
-> as the attribute does not add to but rather replaces previously
-> supplied optimization options - roughly all -fxxx options.
->=20
-> The key one among them being -fno-omit-frame-pointer and thus leading to
-> not present frame pointer - frame pointer which the kernel needs.
->=20
-> The next attempt to prevent compilers from tail-call optimizing
-> the last function call cpu_startup_entry(), shy of carving out
-> start_secondary() into a separate compilation unit and building it with
-> -fno-stack-protector, was to add an empty asm("").
->=20
-> This current solution was short and sweet, and reportedly, is supported
-> by both compilers but we didn't get very far this time: future (LTO?)
-> optimization passes could potentially eliminate this, which leads us
-> to the third attempt: having an actual memory barrier there which the
-> compiler cannot ignore or move around etc.
->=20
-> That should hold for a long time, but hey we said that about the other
-> two solutions too so...
+> 
+> thanks,
+> 
+> greg k-h
+> 
+> ------------------ original commit in Linus's tree ------------------
+> 
+> From 3100423dc133c25679dbaa1099404651b8ae3af9 Mon Sep 17 00:00:00 2001
+> From: Ahmad Fatoum <a.fatoum@pengutronix.de>
+> Date: Mon, 23 Mar 2020 09:19:33 +0100
+> Subject: [PATCH] ARM: imx: provide v7_cpu_resume() only on ARM_CPU_SUSPEND=y
+> 
+> 512a928affd5 ("ARM: imx: build v7_cpu_resume() unconditionally")
+> introduced an unintended linker error for i.MX6 configurations that have
+> ARM_CPU_SUSPEND=n which can happen if neither CONFIG_PM, CONFIG_CPU_IDLE,
+> nor ARM_PSCI_FW are selected.
+> 
+> Fix this by having v7_cpu_resume() compiled only when cpu_resume() it
+> calls is available as well.
+> 
+> The C declaration for the function remains unguarded to avoid future code
+> inadvertently using a stub and introducing a regression to the bug the
+> original commit fixed.
+> 
+> Cc: <stable@vger.kernel.org>
+> Fixes: 512a928affd5 ("ARM: imx: build v7_cpu_resume() unconditionally")
+> Reported-by: Clemens Gruber <clemens.gruber@pqgruber.com>
+> Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
+> Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+> 
+> diff --git a/arch/arm/mach-imx/Makefile b/arch/arm/mach-imx/Makefile
+> index 03506ce46149..e7364e6c8c6b 100644
+> --- a/arch/arm/mach-imx/Makefile
+> +++ b/arch/arm/mach-imx/Makefile
+> @@ -91,8 +91,10 @@ AFLAGS_suspend-imx6.o :=-Wa,-march=armv7-a
+>  obj-$(CONFIG_SOC_IMX6) += suspend-imx6.o
+>  obj-$(CONFIG_SOC_IMX53) += suspend-imx53.o
+>  endif
+> +ifeq ($(CONFIG_ARM_CPU_SUSPEND),y)
+>  AFLAGS_resume-imx6.o :=-Wa,-march=armv7-a
+>  obj-$(CONFIG_SOC_IMX6) += resume-imx6.o
+> +endif
+>  obj-$(CONFIG_SOC_IMX6) += pm-imx6.o
+>  
+>  obj-$(CONFIG_SOC_IMX1) += mach-imx1.o
+> 
+> 
 
-You need compiler barrier, but mb() compiles down to
-
-asm volatile(ALTERNATIVE("lock; addl $0,-4(%%esp)", "mfence", \
-    				     		          X86_FEATURE_XMM2)
-    				     		          :::
-    				     		          "memory",
-    				     		          "cc")
-
-I believe that is a bit of overkill.
-
-I see that empty asm("") is not effective. asm volatile("", :::
-"memory") should be effective, AFAICT. You should be able to use
-existing barrier() macro.
-
-https://elixir.bootlin.com/linux/latest/source/include/linux/compiler-gcc.h=
-#L20
-
-Best regards,
-								Pavel
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
-
---4bRzO86E/ozDv8r1
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAl7Dzf0ACgkQMOfwapXb+vKpeACfW5BaiRlhaceJZKA/LNVEXW4M
-a6YAn15O9i3omDyX+jW1blS/34tTJw1A
-=Q7Ws
------END PGP SIGNATURE-----
-
---4bRzO86E/ozDv8r1--
+-- 
+Pengutronix e.K.                           |                             |
+Steuerwalder Str. 21                       | http://www.pengutronix.de/  |
+31137 Hildesheim, Germany                  | Phone: +49-5121-206917-0    |
+Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
