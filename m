@@ -2,26 +2,26 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 33F6D1D96E2
-	for <lists+stable@lfdr.de>; Tue, 19 May 2020 15:01:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 150681D96E3
+	for <lists+stable@lfdr.de>; Tue, 19 May 2020 15:01:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728869AbgESNBC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 May 2020 09:01:02 -0400
-Received: from relay9-d.mail.gandi.net ([217.70.183.199]:36539 "EHLO
+        id S1728858AbgESNBD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 May 2020 09:01:03 -0400
+Received: from relay9-d.mail.gandi.net ([217.70.183.199]:51583 "EHLO
         relay9-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728855AbgESNBC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 May 2020 09:01:02 -0400
+        with ESMTP id S1728855AbgESNBD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 May 2020 09:01:03 -0400
 X-Originating-IP: 91.224.148.103
 Received: from localhost.localdomain (unknown [91.224.148.103])
         (Authenticated sender: miquel.raynal@bootlin.com)
-        by relay9-d.mail.gandi.net (Postfix) with ESMTPSA id 3AE26FF803;
-        Tue, 19 May 2020 13:01:00 +0000 (UTC)
+        by relay9-d.mail.gandi.net (Postfix) with ESMTPSA id A1B15FF806;
+        Tue, 19 May 2020 13:01:01 +0000 (UTC)
 From:   Miquel Raynal <miquel.raynal@bootlin.com>
 To:     <linux-mtd@lists.infradead.org>
 Cc:     Miquel Raynal <miquel.raynal@bootlin.com>, stable@vger.kernel.org
-Subject: [PATCH v2 40/62] mtd: rawnand: pasemi: Fix the probe error path
-Date:   Tue, 19 May 2020 15:00:13 +0200
-Message-Id: <20200519130035.1883-41-miquel.raynal@bootlin.com>
+Subject: [PATCH v2 42/62] mtd: rawnand: plat_nand: Fix the probe error path
+Date:   Tue, 19 May 2020 15:00:15 +0200
+Message-Id: <20200519130035.1883-43-miquel.raynal@bootlin.com>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200519130035.1883-1-miquel.raynal@bootlin.com>
 References: <20200519130035.1883-1-miquel.raynal@bootlin.com>
@@ -33,8 +33,8 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-nand_cleanup() is supposed to be called on error after a successful
-call to nand_scan() to free all NAND resources.
+nand_release() is supposed be called after MTD device registration.
+Here, only nand_scan() happened, so use nand_cleanup() instead.
 
 There is no real Fixes tag applying here as the use of nand_release()
 in this driver predates by far the introduction of nand_cleanup() in
@@ -47,31 +47,22 @@ Fixes: d44154f969a4 ("mtd: nand: Provide nand_cleanup() function to free NAND re
 Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
 Cc: stable@vger.kernel.org
 ---
- drivers/mtd/nand/raw/pasemi_nand.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/mtd/nand/raw/plat_nand.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/mtd/nand/raw/pasemi_nand.c b/drivers/mtd/nand/raw/pasemi_nand.c
-index 9cfe7395172a..be40b2f32237 100644
---- a/drivers/mtd/nand/raw/pasemi_nand.c
-+++ b/drivers/mtd/nand/raw/pasemi_nand.c
-@@ -146,7 +146,7 @@ static int pasemi_nand_probe(struct platform_device *ofdev)
- 	if (mtd_device_register(pasemi_nand_mtd, NULL, 0)) {
- 		dev_err(dev, "Unable to register MTD device\n");
- 		err = -ENODEV;
--		goto out_lpc;
-+		goto out_cleanup_nand;
- 	}
+diff --git a/drivers/mtd/nand/raw/plat_nand.c b/drivers/mtd/nand/raw/plat_nand.c
+index dc0f3074ddbf..3a495b233443 100644
+--- a/drivers/mtd/nand/raw/plat_nand.c
++++ b/drivers/mtd/nand/raw/plat_nand.c
+@@ -92,7 +92,7 @@ static int plat_nand_probe(struct platform_device *pdev)
+ 	if (!err)
+ 		return err;
  
- 	dev_info(dev, "PA Semi NAND flash at %pR, control at I/O %x\n", &res,
-@@ -154,6 +154,8 @@ static int pasemi_nand_probe(struct platform_device *ofdev)
- 
- 	return 0;
- 
-+out_cleanup:
-+	nand_cleanup(chip);
-  out_lpc:
- 	release_region(lpcctl, 4);
-  out_ior:
+-	nand_release(&data->chip);
++	nand_cleanup(&data->chip);
+ out:
+ 	if (pdata->ctrl.remove)
+ 		pdata->ctrl.remove(pdev);
 -- 
 2.20.1
 
