@@ -2,63 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 299961D91E4
-	for <lists+stable@lfdr.de>; Tue, 19 May 2020 10:16:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD2A41D91EF
+	for <lists+stable@lfdr.de>; Tue, 19 May 2020 10:20:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726674AbgESIQL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 May 2020 04:16:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54888 "EHLO
+        id S1726824AbgESIUK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 May 2020 04:20:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55526 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726318AbgESIQK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 May 2020 04:16:10 -0400
-Received: from mail-lj1-x244.google.com (mail-lj1-x244.google.com [IPv6:2a00:1450:4864:20::244])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3CE2C061A0C
-        for <stable@vger.kernel.org>; Tue, 19 May 2020 01:16:09 -0700 (PDT)
-Received: by mail-lj1-x244.google.com with SMTP id g4so12727403ljl.2
-        for <stable@vger.kernel.org>; Tue, 19 May 2020 01:16:09 -0700 (PDT)
+        with ESMTP id S1726150AbgESIUJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 May 2020 04:20:09 -0400
+Received: from mail-lj1-x243.google.com (mail-lj1-x243.google.com [IPv6:2a00:1450:4864:20::243])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 410ACC061A0C
+        for <stable@vger.kernel.org>; Tue, 19 May 2020 01:20:09 -0700 (PDT)
+Received: by mail-lj1-x243.google.com with SMTP id m18so4344979ljo.5
+        for <stable@vger.kernel.org>; Tue, 19 May 2020 01:20:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc:content-transfer-encoding;
-        bh=BjTBKYbgfQA5s94+kOx4r3jcG29cEry1R5hVu5dFmbw=;
-        b=RYFFe8PinN5tjtTTYBG0NuoUy1gw1/GZRXCJOkkwHtjI+i8x8W4qFwIcVTVhqRUytx
-         qzrv2QqUpfl5b8wL7NH4mfC9GpMaaoabCYNyAxiO0mOqwDmbsK+x//q2YRrxx6xhu18f
-         8JXlZaKNClxp0zXkdmru/zrOzd9jfearAW0S3uSKga7WW73/jn2du7LxlVl6cTOKljIb
-         DfHVvGrwVZc6LXBdj42B5XthQq8bQzMU/AI/eo8LppM7FsFqDABHDzC1DzdyvOTmhByZ
-         uguAxF7n3dbQVI7lIgAsA05fGRHPdmi3e6v6oNXUdgzvdPYZfgOSfttlD+bYtDaDVULx
-         Rwmw==
+        bh=fypbxrvkrndGX/CLErm06ghO8bWCVT16he/kHHLW3Ag=;
+        b=xYYcY2DxMV0LuFmLPFjhqRuSOyCHYpAy0gkT1TnWfyg9ckS048Xi/9+I6QO6mjKNfC
+         7o96Vd59xq6uQ8PGgtWq/touKpWKMldkxWl+IZjx7D3LWZEbMQ6W90e9v+uT6FKHTYWG
+         py1PcDq9GRKp8xvribHb8zS0sV8T6E4nrdHWJU5GshbdD6G7RC4Gt6/j8EALV2zYRFxy
+         BqNNJR/sIU/MjHrnNfOsNBf3vm3agHa4zf/tKBq/3HdYJ8slR3jHVT1tdDbNh2aurO0D
+         dUFDdfaW7Vh1f5Ksrk09fmYwkDmRkqPw80nELy1SJiim9gS/ZCDVpXN1/9Nt+g82WF0S
+         aWFg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc:content-transfer-encoding;
-        bh=BjTBKYbgfQA5s94+kOx4r3jcG29cEry1R5hVu5dFmbw=;
-        b=E2BfwRMUdOFNX4te/s1D/QRQvSxO7Y111cbQCgqzen1Qu8RAJnTznqIqJctqfz7U/l
-         FaBHQO3D5NvmMlyVcqVruKM9FDHYvwwaHCM+byPNg0m/RA6CYTImuExgVU77gSDrj8RX
-         AMoWkrScFaoLAFjDVejEVVk+kZSLaLnvx7azw08fut4t4n0TtRvAQycjbLi0CLGkJbv6
-         Qg4rOvfVl17QBV5gKVfY4GRclMKyMWlVqYB1UKQCCDVUURxpVRhTHQ4cP3bIaDPTccSF
-         9qDTmDiYjWtkoWxuYgdt2JbFO/CZP3V2nrZ7ZTbbdZy4BvaUsFL1+kX3fjLe0dkEtKU/
-         MKBg==
-X-Gm-Message-State: AOAM532JUKJtk7sF37iG/yDwkhHZq3Py0ITktGUhowi8wI3FIzvDD+5W
-        3AHQNbBW5T3JHxCkxg7O1fpSDtOF+U/NVXVdAD0Q/Q==
-X-Google-Smtp-Source: ABdhPJzsA7H4sHipfjd7HaEjwKIUo79QFhef3eecrJK/YFKOd5AFF2gHq0QiAftKiUs9wvNLt6a4drLoUrcdEJ7+ys4=
-X-Received: by 2002:a2e:9455:: with SMTP id o21mr13203272ljh.245.1589876168311;
- Tue, 19 May 2020 01:16:08 -0700 (PDT)
+        bh=fypbxrvkrndGX/CLErm06ghO8bWCVT16he/kHHLW3Ag=;
+        b=m15m6/Isk/s4h2wPCC9OiWYe0v6+6gSBwv6WGxJGoC2a/aG5qPmIM5kqP3q5vjoiIX
+         SI5uK+7+EFMWIPKS+fJZKZpN1ulhdB+nOQLQAAni7ngBDXhZLy6ytmQxq9aF7p77c2P4
+         PpPzZTlMlPxYg3u7R4KzP4kdRB7cRbvgmHQdshUi3XLbByFvG8FP/yVIsPJDb8UKjOm0
+         n6JGkg31MMiL9fiHD70xbFhBqzCFg7rhfybk/ZTabTY+hDzc9AP1YJGKyKgwavssJOOZ
+         0fo9NTGPtt9K3fzDVNE0numOFmBfEBn7FlaXhC31SzZbZcsemA8zC9b7pmP4JCuXfQLH
+         Nzaw==
+X-Gm-Message-State: AOAM530y4Gk2X3bl8G9Th9sODvY9z4MHzm45/AvJWlUveA8K8e1rzu7Q
+        /qq55MnPxGypdEOjlFDsDv8Et6WEv16fc6MVmxNhOA==
+X-Google-Smtp-Source: ABdhPJw11c87+/vd6lSqaHZRJLJdPabZ0ec3xlVpbqbopIQVL4ckmrzXrEVJ3LJ0Hx584BH2fc/umWM1xkzCJHidpmk=
+X-Received: by 2002:a2e:a0cf:: with SMTP id f15mr11974698ljm.165.1589876407651;
+ Tue, 19 May 2020 01:20:07 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200518173503.033975649@linuxfoundation.org>
-In-Reply-To: <20200518173503.033975649@linuxfoundation.org>
+References: <20200518173450.930655662@linuxfoundation.org>
+In-Reply-To: <20200518173450.930655662@linuxfoundation.org>
 From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 19 May 2020 13:45:56 +0530
-Message-ID: <CA+G9fYuPzr_BEU_ytPSDW0B+khsUFMJt=t_W6BO=iLrxd_7Q4A@mail.gmail.com>
-Subject: Re: [PATCH 4.14 000/114] 4.14.181-rc1 review
+Date:   Tue, 19 May 2020 13:49:56 +0530
+Message-ID: <CA+G9fYs8yHobkfZmTFMkNi7QPMWcTSMyvOcvMTaUXBi1=M=Y_A@mail.gmail.com>
+Subject: Re: [PATCH 4.9 00/90] 4.9.224-rc1 review
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     open list <linux-kernel@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        linux- stable <stable@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        lkft-triage@lists.linaro.org,
+        linux- stable <stable@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
@@ -66,11 +66,11 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 18 May 2020 at 23:17, Greg Kroah-Hartman
+On Mon, 18 May 2020 at 23:13, Greg Kroah-Hartman
 <gregkh@linuxfoundation.org> wrote:
 >
-> This is the start of the stable review cycle for the 4.14.181 release.
-> There are 114 patches in this series, all will be posted as a response
+> This is the start of the stable review cycle for the 4.9.224 release.
+> There are 90 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 >
@@ -79,10 +79,10 @@ On Mon, 18 May 2020 at 23:17, Greg Kroah-Hartman
 >
 > The whole patch series can be found in one patch at:
 >         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.14.181-rc1.gz
+4.9.224-rc1.gz
 > or in the git tree and branch at:
 >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.14.y
+-rc.git linux-4.9.y
 > and the diffstat can be found below.
 >
 > thanks,
@@ -95,20 +95,20 @@ No regressions on arm64, arm, x86_64, and i386.
 Summary
 ------------------------------------------------------------------------
 
-kernel: 4.14.181-rc1
+kernel: 4.9.224-rc1
 git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
 le-rc.git
-git branch: linux-4.14.y
-git commit: 53d55a576a17377e7713aa3aaeee0f35b06a1f73
-git describe: v4.14.180-115-g53d55a576a17
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.14-oe/bu=
-ild/v4.14.180-115-g53d55a576a17
+git branch: linux-4.9.y
+git commit: 7cb03e23d3f596ac9f89bee7cc836eb292321418
+git describe: v4.9.223-91-g7cb03e23d3f5
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.9-oe/bui=
+ld/v4.9.223-91-g7cb03e23d3f5
 
-No regressions (compared to build v4.14.180)
+No regressions (compared to build v4.9.223)
 
-No fixes (compared to build v4.14.180)
+No fixes (compared to build v4.9.223)
 
-Ran 32429 total tests in the following environments and test suites.
+Ran 31444 total tests in the following environments and test suites.
 
 Environments
 --------------
@@ -134,8 +134,6 @@ Test Suites
 * kselftest
 * kselftest/drivers
 * kselftest/filesystems
-* kselftest/net
-* kselftest/networking
 * libhugetlbfs
 * linux-log-parser
 * ltp-cap_bounds-tests
@@ -147,6 +145,7 @@ Test Suites
 * ltp-dio-tests
 * ltp-fcntl-locktests-tests
 * ltp-filecaps-tests
+* ltp-fs-tests
 * ltp-fs_bind-tests
 * ltp-fs_perms_simple-tests
 * ltp-fsx-tests
@@ -162,19 +161,17 @@ Test Suites
 * ltp-syscalls-tests
 * perf
 * v4l2-compliance
-* ltp-fs-tests
+* kvm-unit-tests
 * network-basic-tests
 * ltp-open-posix-tests
-* kvm-unit-tests
+* kselftest/net
+* kselftest/networking
 * kselftest-vsyscall-mode-native
 * kselftest-vsyscall-mode-native/drivers
 * kselftest-vsyscall-mode-native/filesystems
-* kselftest-vsyscall-mode-native/net
-* kselftest-vsyscall-mode-native/networking
 * kselftest-vsyscall-mode-none
 * kselftest-vsyscall-mode-none/drivers
 * kselftest-vsyscall-mode-none/filesystems
-* kselftest-vsyscall-mode-none/net
 
 --=20
 Linaro LKFT
