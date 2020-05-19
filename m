@@ -2,181 +2,157 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E58871D9120
-	for <lists+stable@lfdr.de>; Tue, 19 May 2020 09:33:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C7D31D9137
+	for <lists+stable@lfdr.de>; Tue, 19 May 2020 09:42:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727987AbgESHdk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 May 2020 03:33:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48230 "EHLO
+        id S1726892AbgESHmF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 May 2020 03:42:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49542 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726892AbgESHdj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 May 2020 03:33:39 -0400
-Received: from mail-lf1-x142.google.com (mail-lf1-x142.google.com [IPv6:2a00:1450:4864:20::142])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5FA17C05BD09
-        for <stable@vger.kernel.org>; Tue, 19 May 2020 00:33:39 -0700 (PDT)
-Received: by mail-lf1-x142.google.com with SMTP id v5so10313736lfp.13
-        for <stable@vger.kernel.org>; Tue, 19 May 2020 00:33:39 -0700 (PDT)
+        with ESMTP id S1725996AbgESHmE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 May 2020 03:42:04 -0400
+Received: from mail-pl1-x641.google.com (mail-pl1-x641.google.com [IPv6:2607:f8b0:4864:20::641])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7C00C061A0C
+        for <stable@vger.kernel.org>; Tue, 19 May 2020 00:42:04 -0700 (PDT)
+Received: by mail-pl1-x641.google.com with SMTP id w19so3481805ply.11
+        for <stable@vger.kernel.org>; Tue, 19 May 2020 00:42:04 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=cOpdM3JeaSt5vHf5niGi1B+YL5plewk0YJ9dKIK8tUs=;
-        b=ZjqjSqO5GoNdgwpcUjf5PZPZaYDfB3kH9v6Q9gn4vQEll0+lgPLjA79x3rjJn6rH7w
-         ujdOXxKcksCS0paFNJMj3CJfTyAOsrUyO1ocQ1O5eKl0eR2HYkS10dLqHxChjmSTPuv8
-         w8hwKPoOREWlFfmnHfLmoNJyy/65a+zaNQnhB/jDhuO9UVxH0XZWQIWMgvYo2siopCdT
-         nsESj5EtEeDpRD+ITSufOTOVqRY+sKV2QwJjXFpzxxM0zsA9BUG3vWFpD4+0rL5vRBDN
-         /GaXj9RQw9wOUtr42E0f6oaAtjDxkDl412PKtD3VSTQ1aC4e3LmivQUOMPxVVXsErGWs
-         PpkA==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=ygItpqwM2Ecsa4unzlkylMftC6tKo95T35NjMn1L80M=;
+        b=gr0XaVwA9/2ZvO8gGviwIAezgoqNYxDjduH79mof5cVaIvpNAOYGGNuoMQq2QRryUh
+         SoAFF31etviwdN4fR79v9fOrbwP2frIg168o/J9ojlH9ByU7fMmAD8FXbvnyXaPkC+ME
+         cRazwT7TiDa7XHBYz5I+wnKsBG133rdWDzTs0ZCQJvIuKsrtUftbal1ND8+RNaeyp5mP
+         pIyJxwSz+oq3bKmjkzeUojwqrdkB/YdPkINOqkbCKU9GNCTyAJXujozavMkdLL5Vr/qw
+         8gzBH8Z8V5dHVDsyGvxrgjUWzSBJqeZove5P9J66SbSVBHj+dOfhaU+hx28jt2MIdGQ+
+         LQ0A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=cOpdM3JeaSt5vHf5niGi1B+YL5plewk0YJ9dKIK8tUs=;
-        b=bG/l/LyqpGc5oP0HzXFMVGZPTwx9jSx0X7ljlZaNjWluGxI8ZN8FpDdltp8eF2cmQn
-         gvUY+1iAXtalfaglLBg8ZHvEJSm7OOeyUy1JdQ/Dp7v6ki2pt6hchdM7pZPYKTYbc/hM
-         K0q8YoM/ciKPaiGpdec3Ru54k4vTNLvCOkVGIxW4av1ya3WNd6BvWDdemLgdOhA7x1Vy
-         ebZ3m5uIiUr9uHGRKLQ1DY9lvAtrF+HWT4iSS/8WNXQofkLJ1MauaqOFwFH9Z9ZjdPM9
-         vkzoL35OYS5RbZFkKo+da3bWtsWE0oTnFT2yTK4E/dz1HrEYaJyRmJc3aR7cscjpmSSR
-         0fAg==
-X-Gm-Message-State: AOAM5301CNZBi7rvrbEEBvbmvaih2Ac09VfyWxJnbGT2YE0LksKW0LaZ
-        dfYLFXaquLViS1iqu74GnFDhLVK39DUpAR2046wUKw==
-X-Google-Smtp-Source: ABdhPJyKSecfu8pZn09gXh8Wqv4zWcrVnoTzUYx1a5mv2xSZGSjKaAYGtyxWkUITsT/ySi5dwJiNsFBTUMDiXD9xNLA=
-X-Received: by 2002:a19:3817:: with SMTP id f23mr13934285lfa.6.1589873617745;
- Tue, 19 May 2020 00:33:37 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=ygItpqwM2Ecsa4unzlkylMftC6tKo95T35NjMn1L80M=;
+        b=nM/0wWBLbT/ActmWs5Vqy7RxHvwume0YXuI4wtOZlsUyLrXdjrSVpJLCNLUA/SmfBc
+         hd7huTFhjN7scJFThDR+LOUUIchG7xv6Igfv5HgQQPgKoaC2g6SsJdD+3SvEof1Qa+lq
+         iiJCcuWmulEzFlhh+ShDvKOQNt06SjDrpF36fSi0jEMFi20THTybin52hqIsDXpXqiZw
+         fAC36rWJxViIj9nmbIJ1ICyamvTsqW8VAKzBG5h6e6c4q1PHT6E99qAYd+TbKAlbnJHk
+         nhlA75OIsXGtmzY9RYgN7J0JSB3L3wKW9eM9K+hlaBOtFtROn9j2kv3+QbuNlRLrAaop
+         lXmQ==
+X-Gm-Message-State: AOAM5304uDccFFyihNLQF0UJHHLWywCvuFs4UgwiZLFPxNGdJaYOeQR/
+        2AU8urzMQwNGfPDL9qc60IH7jdpjO0I=
+X-Google-Smtp-Source: ABdhPJwZ/RZeZrLXB+ao0BF5R3sBLxrOPZSgE1PLxFZiqa83Lcbpwd3GACWU48aNKVKTMfgy7h/mqA==
+X-Received: by 2002:a17:902:ea8a:: with SMTP id x10mr1588831plb.255.1589874123732;
+        Tue, 19 May 2020 00:42:03 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id f6sm11075724pfn.189.2020.05.19.00.42.02
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 19 May 2020 00:42:02 -0700 (PDT)
+Message-ID: <5ec38dca.1c69fb81.cf78e.2df3@mx.google.com>
+Date:   Tue, 19 May 2020 00:42:02 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20200518173450.097837707@linuxfoundation.org>
-In-Reply-To: <20200518173450.097837707@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 19 May 2020 13:03:26 +0530
-Message-ID: <CA+G9fYtSpLLgJ-ANktVfsTt5EiryaTX8xfYZHZeaoG5bjCe8qA@mail.gmail.com>
-Subject: Re: [PATCH 4.19 00/80] 4.19.124-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        lkft-triage@lists.linaro.org,
-        linux- stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.19.123-81-gff1170bc0ae9
+X-Kernelci-Report-Type: boot
+X-Kernelci-Branch: linux-4.19.y
+Subject: stable-rc/linux-4.19.y boot: 118 boots: 1 failed,
+ 108 passed with 5 offline, 4 untried/unknown (v4.19.123-81-gff1170bc0ae9)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 18 May 2020 at 23:21, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 4.19.124 release.
-> There are 80 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 20 May 2020 17:32:42 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.19.124-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.19.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+******************************************
+* WARNING: Boot tests are now deprecated *
+******************************************
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+As kernelci.org is expanding its functional testing capabilities, the conce=
+pt
+of boot testing is now deprecated.  Boot results are scheduled to be droppe=
+d on
+*5th June 2020*.  The full schedule for boot tests deprecation is available=
+ on
+this GitHub issue: https://github.com/kernelci/kernelci-backend/issues/238
 
-Summary
-------------------------------------------------------------------------
+The new equivalent is the *baseline* test suite which also runs sanity chec=
+ks
+using dmesg and bootrr: https://github.com/kernelci/bootrr
 
-kernel: 4.19.124-rc1
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-4.19.y
-git commit: ff1170bc0ae95f29422b828165e36382a33b2dd3
-git describe: v4.19.123-81-gff1170bc0ae9
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.19-oe/bu=
-ild/v4.19.123-81-gff1170bc0ae9
+See the *baseline results for this kernel revision* on this page:
+https://kernelci.org/test/job/stable-rc/branch/linux-4.19.y/kernel/v4.19.12=
+3-81-gff1170bc0ae9/plan/baseline/
 
-No regressions (compared to build v4.19.123)
+---------------------------------------------------------------------------=
+----
 
-No fixes (compared to build v4.19.123)
+stable-rc/linux-4.19.y boot: 118 boots: 1 failed, 108 passed with 5 offline=
+, 4 untried/unknown (v4.19.123-81-gff1170bc0ae9)
 
-Ran 31223 total tests in the following environments and test suites.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.19.y/kernel/v4.19.123-81-gff1170bc0ae9/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
+y/kernel/v4.19.123-81-gff1170bc0ae9/
 
-Environments
---------------
-- dragonboard-410c - arm64
-- hi6220-hikey - arm64
-- i386
-- juno-r2 - arm64
-- juno-r2-compat
-- juno-r2-kasan
-- qemu_arm
-- qemu_arm64
-- qemu_i386
-- qemu_x86_64
-- x15 - arm
-- x86_64
-- x86-kasan
+Tree: stable-rc
+Branch: linux-4.19.y
+Git Describe: v4.19.123-81-gff1170bc0ae9
+Git Commit: ff1170bc0ae95f29422b828165e36382a33b2dd3
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 76 unique boards, 21 SoC families, 20 builds out of 206
 
-Test Suites
------------
-* build
-* install-android-platform-tools-r2600
-* install-android-platform-tools-r2800
-* kselftest
-* kselftest/drivers
-* kselftest/filesystems
-* kselftest/net
-* kselftest/networking
-* kvm-unit-tests
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* perf
-* ltp-cve-tests
-* ltp-fs-tests
-* ltp-hugetlb-tests
-* ltp-mm-tests
-* ltp-syscalls-tests
-* network-basic-tests
-* v4l2-compliance
-* ltp-open-posix-tests
-* kselftest-vsyscall-mode-native
-* kselftest-vsyscall-mode-native/drivers
-* kselftest-vsyscall-mode-native/filesystems
-* kselftest-vsyscall-mode-native/net
-* kselftest-vsyscall-mode-native/networking
-* kselftest-vsyscall-mode-none
-* kselftest-vsyscall-mode-none/drivers
-* kselftest-vsyscall-mode-none/filesystems
-* kselftest-vsyscall-mode-none/net
-* kselftest-vsyscall-mode-none/networking
+Boot Regressions Detected:
 
---=20
-Linaro LKFT
-https://lkft.linaro.org
+arc:
+
+    hsdk_defconfig:
+        gcc-8:
+          hsdk:
+              lab-baylibre: failing since 4 days (last pass: v4.19.122-49-g=
+6d5c161fb73d - first fail: v4.19.123-2-gbed44563668d)
+
+arm:
+
+    qcom_defconfig:
+        gcc-8:
+          qcom-apq8064-cm-qs600:
+              lab-baylibre-seattle: failing since 6 days (last pass: v4.19.=
+122 - first fail: v4.19.122-48-g92ba0b6b33ad)
+
+    sama5_defconfig:
+        gcc-8:
+          at91-sama5d4_xplained:
+              lab-baylibre: failing since 66 days (last pass: v4.19.108-87-=
+g624c124960e8 - first fail: v4.19.109)
+
+Boot Failure Detected:
+
+arm:
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
+
+Offline Platforms:
+
+arm:
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+            qcom-apq8064-cm-qs600: 1 offline lab
+            stih410-b2120: 1 offline lab
+
+    exynos_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
