@@ -2,160 +2,145 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 857541D923F
-	for <lists+stable@lfdr.de>; Tue, 19 May 2020 10:41:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A8A71D9261
+	for <lists+stable@lfdr.de>; Tue, 19 May 2020 10:47:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726150AbgESIlV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 May 2020 04:41:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58788 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726121AbgESIlU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 May 2020 04:41:20 -0400
-Received: from mail-pf1-x443.google.com (mail-pf1-x443.google.com [IPv6:2607:f8b0:4864:20::443])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C93A2C061A0C
-        for <stable@vger.kernel.org>; Tue, 19 May 2020 01:41:20 -0700 (PDT)
-Received: by mail-pf1-x443.google.com with SMTP id z26so6074936pfk.12
-        for <stable@vger.kernel.org>; Tue, 19 May 2020 01:41:20 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=uruF/HgUZV002ZMJ4fLEEAIqKW4UtPrd/n9Zf07buxU=;
-        b=RHOsnYFSDrEZU3MTcagtgz5uxsiNv2Bhcbi/k7lvUNhkRXp7zkQLJbyHHgQdUDlmlk
-         CDJCNm76HqHzmoN8Vw3qnEfFAxPDvrIplCq89nFYsRNjSjUPlA7Q6JbK1BRGEMOfJYAC
-         TEzrGYI3ijjOF6cZCnQOC6FsdT7DVp6kHExI0aCawLCaDDO4HOExvf5WFKJVTvvHxkHB
-         azeDCqZLYHBAPYSUlckr1TDe6CofojhSGXW9Bbn57aq4qLeM8+Bon4bAUREFVawr+15I
-         hctTJ24+Tx/SXGKtoUlRNGkwjRx+aW1zHo0jpG+42wn/qIBv2qw/tqDNgJLOCuIZQxZe
-         15ng==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=uruF/HgUZV002ZMJ4fLEEAIqKW4UtPrd/n9Zf07buxU=;
-        b=RXCw8yzVvG2iS4TU1JI/M2U/Sl8C4FK54ISc4XY0DQ1XJoHgw1J0nnucRK8uYXCa81
-         JIStUllFYbg3cxO6sayg5Hp0MwQTby2vfbkH8w8FUkfPTWzcAQ0YWtRD4aOggl+kC4Zu
-         1XwNFjQ//MdML6aFAZ7gctv7JDKDWZo2iy3LzMQgvrv2pYizRYSp4lGhYn4ssgH+7VjJ
-         MEMPn/tV6IIdWnRmUqXvZBThW2vVsI8KIBl7eXmfT+mgROlghsDTaxG/4VshPUWWe9NW
-         bbJTXUcb6McH0xJ9RIaOS4MLagfkb0FeEH8F3u59TQ9E9eTQfn7LLx8yDX/6Cg6p7SEq
-         QAyg==
-X-Gm-Message-State: AOAM532Mxmdr1RdzK+mN4VjwHqhveyBK3ETpJyZc0AcWZPwcpoJn/iQB
-        xljuy3ueK4LyPsnFPvt9h32UIOSj5p4=
-X-Google-Smtp-Source: ABdhPJw0SNgP1uRpbHS8Enmqa2pb/hPOxVL6lEDW2IxYrDDciWk3burHeVv7kCYFSo/3lOJkdBwQxw==
-X-Received: by 2002:a63:7f09:: with SMTP id a9mr13076684pgd.400.1589877679970;
-        Tue, 19 May 2020 01:41:19 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id e16sm9561714pgg.8.2020.05.19.01.41.18
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 19 May 2020 01:41:18 -0700 (PDT)
-Message-ID: <5ec39bae.1c69fb81.18578.9ade@mx.google.com>
-Date:   Tue, 19 May 2020 01:41:18 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1726938AbgESIq6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 May 2020 04:46:58 -0400
+Received: from mx2.suse.de ([195.135.220.15]:49804 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726121AbgESIq6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 May 2020 04:46:58 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx2.suse.de (Postfix) with ESMTP id 46FE1AF9F;
+        Tue, 19 May 2020 08:46:59 +0000 (UTC)
+Message-ID: <3ee76f0fc5df716523bfbdd34726b6cccd4971cd.camel@suse.com>
+Subject: Re: [PATCH] scsi: qla2xxx: Keep initiator ports after RSCN
+From:   Martin Wilck <mwilck@suse.com>
+To:     Roman Bolshakov <r.bolshakov@yadro.com>, linux-scsi@vger.kernel.org
+Cc:     GR-QLogic-Storage-Upstream@marvell.com,
+        target-devel@vger.kernel.org, linux@yadro.com,
+        Quinn Tran <qutran@marvell.com>, Arun Easi <aeasi@marvell.com>,
+        Nilesh Javali <njavali@marvell.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Daniel Wagner <dwagner@suse.de>,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        stable@vger.kernel.org
+Date:   Tue, 19 May 2020 10:46:54 +0200
+In-Reply-To: <20200518183141.66621-1-r.bolshakov@yadro.com>
+References: <20200518183141.66621-1-r.bolshakov@yadro.com>
+Content-Type: text/plain; charset="ISO-8859-15"
+User-Agent: Evolution 3.36.2 
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.6.13-195-g4dae52cee3fd
-X-Kernelci-Report-Type: boot
-X-Kernelci-Branch: linux-5.6.y
-Subject: stable-rc/linux-5.6.y boot: 158 boots: 3 failed,
- 145 passed with 5 offline, 5 untried/unknown (v5.6.13-195-g4dae52cee3fd)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-******************************************
-* WARNING: Boot tests are now deprecated *
-******************************************
+On Mon, 2020-05-18 at 21:31 +0300, Roman Bolshakov wrote:
+> The driver performs SCR (state change registration) in all modes
+> including pure target mode.
+> 
+> For each RSCN, scan_needed flag is set in qla2x00_handle_rscn() for
+> the
+> port mentioned in the RSCN and fabric rescan is scheduled. During the
+> rescan, GNN_FT handler, qla24xx_async_gnnft_done() deletes session of
+> the port that caused the RSCN.
+> 
+> In target mode, the session deletion has an impact on ATIO handler,
+> qlt_24xx_atio_pkt(). Target responds with SAM STATUS BUSY to I/O
+> incoming from the deleted session. qlt_handle_cmd_for_atio() and
+> qlt_handle_task_mgmt() return -EFAULT if they are not able to find
+> session of the command/TMF, and that results in invocation of
+> qlt_send_busy():
+> 
+>   qlt_24xx_atio_pkt_all_vps: qla_target(0): type 6 ox_id 0014
+>   qla_target(0): Unable to send command to target, sending BUSY
+> status
+> 
+> Such response causes command timeout on the initiator. Error handler
+> thread on the initiator will be spawned to abort the commands:
+> 
+>   scsi 23:0:0:0: tag#0 abort scheduled
+>   scsi 23:0:0:0: tag#0 aborting command
+>   qla2xxx [0000:af:00.0]-188c:23: Entered qla24xx_abort_command.
+>   qla2xxx [0000:af:00.0]-801c:23: Abort command issued nexus=23:0:0
+> -- 0 2003.
+> 
+> Command abort is rejected by target and fails (2003), error handler
+> then
+> tries to perform DEVICE RESET and TARGET RESET but they're also
+> doomed
+> to fail because TMFs are ignored for the deleted sessions.
+> 
+> Then initiator makes BUS RESET that resets the link via
+> qla2x00_full_login_lip(). BUS RESET succeeds and brings initiator
+> port
+> up, SAN switch detects that and sends RSCN to the target port and it
+> fails again the same way as described above. It never goes out of the
+> loop.
+> 
+> The change breaks the RSCN loop by keeping initiator sessions
+> mentioned
+> in RSCN payload in all modes, including dual and pure target mode.
+> 
+> Fixes: 2037ce49d30a ("scsi: qla2xxx: Fix stale session")
+> Cc: Quinn Tran <qutran@marvell.com>
+> Cc: Arun Easi <aeasi@marvell.com>
+> Cc: Nilesh Javali <njavali@marvell.com>
+> Cc: Bart Van Assche <bvanassche@acm.org>
+> Cc: Daniel Wagner <dwagner@suse.de>
+> Cc: Himanshu Madhani <himanshu.madhani@oracle.com>
+> Cc: Martin Wilck <mwilck@suse.com>
+> Cc: stable@vger.kernel.org # v5.4+
+> Signed-off-by: Roman Bolshakov <r.bolshakov@yadro.com>
+> ---
+>  drivers/scsi/qla2xxx/qla_gs.c | 6 ++++--
+>  1 file changed, 4 insertions(+), 2 deletions(-)
+> 
+> Hi Martin,
+> 
+> Please apply the patch to scsi-fixes/5.7 at your earliest
+> convenience.
+> 
+> qla2xxx in target and, likely, dual mode is unusable in some SAN
+> fabrics
+> due to the bug.
+> 
+> Thanks,
+> Roman
+> 
+> diff --git a/drivers/scsi/qla2xxx/qla_gs.c
+> b/drivers/scsi/qla2xxx/qla_gs.c
+> index 42c3ad27f1cb..b9955af5cffe 100644
+> --- a/drivers/scsi/qla2xxx/qla_gs.c
+> +++ b/drivers/scsi/qla2xxx/qla_gs.c
+> @@ -3495,8 +3495,10 @@ void qla24xx_async_gnnft_done(scsi_qla_host_t
+> *vha, srb_t *sp)
+>  			if ((fcport->flags & FCF_FABRIC_DEVICE) == 0) {
+>  				qla2x00_clear_loop_id(fcport);
+>  				fcport->flags |= FCF_FABRIC_DEVICE;
+> -			} else if (fcport->d_id.b24 != rp->id.b24 ||
+> -				fcport->scan_needed) {
+> +			} else if ((fcport->d_id.b24 != rp->id.b24 ||
+> +				    fcport->scan_needed) &&
+> +				   (fcport->port_type != FCT_INITIATOR
+> &&
+> +				    fcport->port_type !=
+> FCT_NVME_INITIATOR)) {
+>  				qlt_schedule_sess_for_deletion(fcport);
+>  			}
+>  			fcport->d_id.b24 = rp->id.b24;
 
-As kernelci.org is expanding its functional testing capabilities, the conce=
-pt
-of boot testing is now deprecated.  Boot results are scheduled to be droppe=
-d on
-*5th June 2020*.  The full schedule for boot tests deprecation is available=
- on
-this GitHub issue: https://github.com/kernelci/kernelci-backend/issues/238
+Hi Roman,
 
-The new equivalent is the *baseline* test suite which also runs sanity chec=
-ks
-using dmesg and bootrr: https://github.com/kernelci/bootrr
+what if the session does need to be deleted eventually? E.g. if after
+the RSCN the connection to the initiator is actually lost, either
+temporarily or for good? Would the session be deleted in some other
+code path, or would it just continue to lurk around?
 
-See the *baseline results for this kernel revision* on this page:
-https://kernelci.org/test/job/stable-rc/branch/linux-5.6.y/kernel/v5.6.13-1=
-95-g4dae52cee3fd/plan/baseline/
+Martin
 
----------------------------------------------------------------------------=
-----
 
-stable-rc/linux-5.6.y boot: 158 boots: 3 failed, 145 passed with 5 offline,=
- 5 untried/unknown (v5.6.13-195-g4dae52cee3fd)
-
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--5.6.y/kernel/v5.6.13-195-g4dae52cee3fd/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.6.y=
-/kernel/v5.6.13-195-g4dae52cee3fd/
-
-Tree: stable-rc
-Branch: linux-5.6.y
-Git Describe: v5.6.13-195-g4dae52cee3fd
-Git Commit: 4dae52cee3fdd5c174027f69eb44c1876f8837ce
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 100 unique boards, 26 SoC families, 20 builds out of 200
-
-Boot Regressions Detected:
-
-arm:
-
-    exynos_defconfig:
-        gcc-8:
-          exynos5422-odroidxu3:
-              lab-collabora: new failure (last pass: v5.6.13)
-
-    multi_v7_defconfig:
-        gcc-8:
-          sun8i-a83t-bananapi-m3:
-              lab-clabbe: new failure (last pass: v5.6.13)
-
-    versatile_defconfig:
-        gcc-8:
-          versatile-pb:
-              lab-collabora: new failure (last pass: v5.6.13)
-
-Boot Failures Detected:
-
-arm:
-    sama5_defconfig:
-        gcc-8:
-            at91-sama5d4_xplained: 1 failed lab
-
-    multi_v7_defconfig:
-        gcc-8:
-            bcm2836-rpi-2-b: 1 failed lab
-
-    exynos_defconfig:
-        gcc-8:
-            exynos5422-odroidxu3: 1 failed lab
-
-Offline Platforms:
-
-arm:
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-            qcom-apq8064-cm-qs600: 1 offline lab
-            stih410-b2120: 1 offline lab
-
-    exynos_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-
----
-For more info write to <info@kernelci.org>
