@@ -2,89 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C42E81D95FC
-	for <lists+stable@lfdr.de>; Tue, 19 May 2020 14:12:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0462F1D9602
+	for <lists+stable@lfdr.de>; Tue, 19 May 2020 14:14:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728822AbgESMME (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 May 2020 08:12:04 -0400
-Received: from hqnvemgate26.nvidia.com ([216.228.121.65]:10168 "EHLO
-        hqnvemgate26.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726949AbgESMME (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 May 2020 08:12:04 -0400
-Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate26.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
-        id <B5ec3cd080000>; Tue, 19 May 2020 05:11:52 -0700
-Received: from hqmail.nvidia.com ([172.20.161.6])
-  by hqpgpgate101.nvidia.com (PGP Universal service);
-  Tue, 19 May 2020 05:12:04 -0700
-X-PGP-Universal: processed;
-        by hqpgpgate101.nvidia.com on Tue, 19 May 2020 05:12:04 -0700
-Received: from [10.26.74.144] (10.124.1.5) by HQMAIL107.nvidia.com
- (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Tue, 19 May
- 2020 12:12:01 +0000
-Subject: Re: [PATCH 4.19 00/80] 4.19.124-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <linux-kernel@vger.kernel.org>
-CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
-        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
-        <stable@vger.kernel.org>, linux-tegra <linux-tegra@vger.kernel.org>
+        id S1727057AbgESMOA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 May 2020 08:14:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37306 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726196AbgESMN7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 May 2020 08:13:59 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id DB1F1207D8;
+        Tue, 19 May 2020 12:13:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1589890438;
+        bh=bFycJ6timOxlOWfG9iyAet6O/y7aqP8pCPZJr3zjOrI=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=efAjeWdtgiJrlkwyWdQ+NhYP1SS9GNVSYKaB0Ce/lJXVoVJvbWtufzXW+b5JsrSe0
+         nY8VISeYYhtDsl/26Gxw6qR/8NeRmvScxOEvfrDMtTgmNIKbMGFxyQmUxgZZ+E0kFY
+         FJUHjdVSfSG4+5ZLV5+LAuJHiLrUPkjC+13+bFN4=
+Date:   Tue, 19 May 2020 14:13:56 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Pavel Machek <pavel@denx.de>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Stefano Brivio <sbrivio@redhat.com>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 4.19 41/80] netfilter: nft_set_rbtree: Introduce and use
+ nft_rbtree_interval_start()
+Message-ID: <20200519121356.GA354164@kroah.com>
 References: <20200518173450.097837707@linuxfoundation.org>
-From:   Jon Hunter <jonathanh@nvidia.com>
-Message-ID: <a629c5d1-10bd-ced7-5d5f-ba1958873c50@nvidia.com>
-Date:   Tue, 19 May 2020 13:11:58 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+ <20200518173458.612903024@linuxfoundation.org>
+ <20200519120625.GA8342@amd>
 MIME-Version: 1.0
-In-Reply-To: <20200518173450.097837707@linuxfoundation.org>
-X-Originating-IP: [10.124.1.5]
-X-ClientProxiedBy: HQMAIL105.nvidia.com (172.20.187.12) To
- HQMAIL107.nvidia.com (172.20.187.13)
-Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1589890312; bh=s+fXjBaCtqlzY9UmOaoWxd9KQADy3I5FuYRapzhcfsI=;
-        h=X-PGP-Universal:Subject:To:CC:References:From:Message-ID:Date:
-         User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
-         X-ClientProxiedBy:Content-Type:Content-Language:
-         Content-Transfer-Encoding;
-        b=A07Kn+Jnb2rO3E3GZnKs7FCmrLGBMx0Uw9WO78/lV8unn8tiy6b0zuIUxpKbUdnDX
-         6TdPMHgFdCT0ZQQF6PvwTYrzpllj/KUXb2MSlnTdFGy/+XhiKtpbYIpc1T8T0NKhy5
-         6vuRe8cF2ewXFn6PdPDTCpytdNgG089HonL56V43QD8fwFSSyj9m2yQOdGjKXyMENz
-         sEsUnQW6GO01mhtzWnAM93niCTIYuuTyPie/bblotriTngmqmNp5zqmg6zwf3wuM/Z
-         pF9cJtzFIumkFBQBxF4Lm9zzH0UFxP54W+L5jzX+tGNn5JzDS5JoiV+JNFbeRh0WoI
-         iaqLzq8hT5fhg==
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200519120625.GA8342@amd>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-On 18/05/2020 18:36, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.19.124 release.
-> There are 80 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Tue, May 19, 2020 at 02:06:25PM +0200, Pavel Machek wrote:
+> Hi!
 > 
-> Responses should be made by Wed, 20 May 2020 17:32:42 +0000.
-> Anything received after that time might be too late.
+> > [ Upstream commit 6f7c9caf017be8ab0fe3b99509580d0793bf0833 ]
+> > 
+> > Replace negations of nft_rbtree_interval_end() with a new helper,
+> > nft_rbtree_interval_start(), wherever this helps to visualise the
+> > problem at hand, that is, for all the occurrences except for the
+> > comparison against given flags in __nft_rbtree_get().
+> > 
+> > This gets especially useful in the next patch.
 > 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.124-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+> This looks like cleanup in preparation for the next patch. Next patch
+> is there for some series, but not for 4.19.124. Should this be in
+> 4.19, then?
 
-All tests are passing for Tegra.
+What is the "next patch" in this situation?
 
-I am having issues pulling the report, but looks good to me.
+thanks,
 
-Cheers
-Jon
-
--- 
-nvpublic
+greg k-h
