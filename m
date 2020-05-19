@@ -2,163 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 043541D917D
-	for <lists+stable@lfdr.de>; Tue, 19 May 2020 09:55:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C8221D91C6
+	for <lists+stable@lfdr.de>; Tue, 19 May 2020 10:11:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728514AbgESHzg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 May 2020 03:55:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51662 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728493AbgESHzf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 May 2020 03:55:35 -0400
-Received: from mail-pf1-x443.google.com (mail-pf1-x443.google.com [IPv6:2607:f8b0:4864:20::443])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 993D6C061A0C
-        for <stable@vger.kernel.org>; Tue, 19 May 2020 00:55:35 -0700 (PDT)
-Received: by mail-pf1-x443.google.com with SMTP id q8so4338826pfu.5
-        for <stable@vger.kernel.org>; Tue, 19 May 2020 00:55:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=00JBw1Ae7tDCaV7yPPb0emiluWML4/TciTnTWTQkwwQ=;
-        b=1s98L/4sUzqxp046objJAZfEh3PzLFKFdeNO8lyp2tBfKAtkQrKh3imvD9e5NXzlDp
-         ssuSOUrAB/42+kU6r0XVVBLN7tFJzeW0a/9odKYfLJS2OqADpBDoflChSfRQeEJUkOUy
-         VOzpL/1kaKv1649jZQIU9IrBfsk/sT4oNFEIULkkcSu+J0NNOWl4awhCWSP2rsUCtIe6
-         +NgBZi8GVGwS4shtPH1V+i2JCWKQss+em38BhmauTSabG28DwcEx+uzyOfjwGhaqCjtU
-         LhCCOspQOvR5WHJOz6A4vPPmdv98U/3sngTXW9J3vSpMUTIAY9+3VH3EvH6n0dBybW9T
-         ylaw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=00JBw1Ae7tDCaV7yPPb0emiluWML4/TciTnTWTQkwwQ=;
-        b=T2gU/7aGEDAQ1AWn2OHGCmd4O6qaV1RU1xs+Kt/4N3jgSw09aSWpSX+G+x4qegAGzj
-         xCfIE2GcieLFrhvJhCoOjLoSf6XIHBwjBt3gh5cPq7n5ZngwKoAKp5EU1wg3kC6IradV
-         MVqAm+ZTZ8snHDISlpvox3wnGOM6sCK+NWAa6yurJOFWYzxahS7D4QmmIXtT38HQWMP6
-         AbZ56i0QE6iZdUsBG2GJozpWfHJ4WIj55mQLxO/YC/50gMUiZ6kaZLQOD4hzqqixRyGd
-         1peyiTrmJZFyJuYQeFSLrfq615xbPnP4qfnAexfTJO/k83XxiscdoyCt8i1rHW8vabFw
-         gLxg==
-X-Gm-Message-State: AOAM533y2uknM0yCBYBR4mOIqk695zLuunY7TnnHho2XfmClSDKj4H27
-        dVvx1AFr6ImFW+mb47BBwinRx/xDzAk=
-X-Google-Smtp-Source: ABdhPJxntt35VUYfbUsV17dyySu0o4gPLgU0/pJfO8G6zvsG+xD1cGhKrlYaRQIlxppzWBkFv3CX3A==
-X-Received: by 2002:a63:d918:: with SMTP id r24mr3377210pgg.119.1589874934716;
-        Tue, 19 May 2020 00:55:34 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id o190sm10664362pfb.178.2020.05.19.00.55.33
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 19 May 2020 00:55:33 -0700 (PDT)
-Message-ID: <5ec390f5.1c69fb81.700e5.d938@mx.google.com>
-Date:   Tue, 19 May 2020 00:55:33 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1726959AbgESILX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 May 2020 04:11:23 -0400
+Received: from o1.dev.nutanix.com ([198.21.4.205]:2588 "EHLO
+        o1.dev.nutanix.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726860AbgESILX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 May 2020 04:11:23 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sendgrid.net;
+        h=from:subject:mime-version:to:cc:content-transfer-encoding:
+        content-type;
+        s=smtpapi; bh=FyetZpafM/v6XIJbkIYr2RB7YlhXywPDsBHNjztNYEU=;
+        b=jV9LilP4hIzcawYH20i8HqWNol8X/nZtdQwfcS/oscSi3owPPnqwiKr49kkuzPaKCyAl
+        Qt7tHLBnVADXBEpCwTdw6+jr8o3pU0IaUDhw1IYxojxhwivOl/vA2yAjZQL81tDKzs9/Fk
+        4CBYBxId495E61VR5bR7TsK71zYELPfAA=
+Received: by filterdrecv-p3iad2-8ddf98858-lwgxm with SMTP id filterdrecv-p3iad2-8ddf98858-lwgxm-19-5EC394AA-1D
+        2020-05-19 08:11:22.408630125 +0000 UTC m=+4691031.646325677
+Received: from debian.localdomain (unknown)
+        by ismtpd0008p1lon1.sendgrid.net (SG) with ESMTP
+        id 6UUgXTmQRF-ABD9SVFhCQg
+        Tue, 19 May 2020 08:11:22.067 +0000 (UTC)
+From:   Felipe Franciosi <felipe@nutanix.com>
+Subject: [PATCH v2] KVM: x86: respect singlestep when emulating instruction
+Date:   Tue, 19 May 2020 08:11:22 +0000 (UTC)
+Message-Id: <20200519081048.8204-1-felipe@nutanix.com>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.4.41-148-gcac6eb2794c8
-X-Kernelci-Report-Type: boot
-X-Kernelci-Branch: linux-5.4.y
-Subject: stable-rc/linux-5.4.y boot: 138 boots: 1 failed,
- 129 passed with 5 offline, 3 untried/unknown (v5.4.41-148-gcac6eb2794c8)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+X-SG-EID: =?us-ascii?Q?W9goRmNI2M6BaZDnSanVWLdj2DuGbkuGfTWZsqFIAk59ONbkkaLXMDCghpkcaI?=
+ =?us-ascii?Q?PehS=2FLuf7=2F3t083SnZbMEjV=2FhVoVQYNCU8if+b2?=
+ =?us-ascii?Q?hfP+MkdnLaAkF5irJPrTFAwszS9YEc5FrwmrAte?=
+ =?us-ascii?Q?U06=2F=2FITgah6myXAmbMmxM6C+3EkrrrNN8umvDrK?=
+ =?us-ascii?Q?pUsgqrf8itVNQq83Nd5VUYXubrIZC4nnnpo7zFk?=
+ =?us-ascii?Q?eL6aTlMiki1gl1BrCxWsmdQtlcSAOJvjHXzRexk?=
+ =?us-ascii?Q?us34OK=2FBJ5k+Fgs20BJag=3D=3D?=
+To:     Paolo Bonzini <pbonzini@redhat.com>
+Cc:     kvm@vger.kernel.org, stable@vger.kernel.org,
+        Felipe Franciosi <felipe@nutanix.com>
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-******************************************
-* WARNING: Boot tests are now deprecated *
-******************************************
+When userspace configures KVM_GUESTDBG_SINGLESTEP, KVM will manage the
+presence of X86_EFLAGS_TF via kvm_set/get_rflags on vcpus. The actual
+rflag bit is therefore hidden from callers.
 
-As kernelci.org is expanding its functional testing capabilities, the conce=
-pt
-of boot testing is now deprecated.  Boot results are scheduled to be droppe=
-d on
-*5th June 2020*.  The full schedule for boot tests deprecation is available=
- on
-this GitHub issue: https://github.com/kernelci/kernelci-backend/issues/238
+That includes init_emulate_ctxt() which uses the value returned from
+kvm_get_flags() to set ctxt->tf. As a result, x86_emulate_instruction()
+will skip a single step, leaving singlestep_rip stale and not returning
+to userspace.
 
-The new equivalent is the *baseline* test suite which also runs sanity chec=
-ks
-using dmesg and bootrr: https://github.com/kernelci/bootrr
+This resolves the issue by observing the vcpu guest_debug configuration
+alongside ctxt->tf in x86_emulate_instruction(), performing the single
+step if set.
 
-See the *baseline results for this kernel revision* on this page:
-https://kernelci.org/test/job/stable-rc/branch/linux-5.4.y/kernel/v5.4.41-1=
-48-gcac6eb2794c8/plan/baseline/
-
----------------------------------------------------------------------------=
-----
-
-stable-rc/linux-5.4.y boot: 138 boots: 1 failed, 129 passed with 5 offline,=
- 3 untried/unknown (v5.4.41-148-gcac6eb2794c8)
-
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--5.4.y/kernel/v5.4.41-148-gcac6eb2794c8/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.4.y=
-/kernel/v5.4.41-148-gcac6eb2794c8/
-
-Tree: stable-rc
-Branch: linux-5.4.y
-Git Describe: v5.4.41-148-gcac6eb2794c8
-Git Commit: cac6eb2794c85e7777fb0caac6fa75b6364d81a0
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 93 unique boards, 25 SoC families, 21 builds out of 200
-
-Boot Regressions Detected:
-
-arc:
-
-    hsdk_defconfig:
-        gcc-8:
-          hsdk:
-              lab-baylibre: new failure (last pass: v5.4.41-2-ged1728340b22)
-
-arm:
-
-    qcom_defconfig:
-        gcc-8:
-          qcom-apq8064-cm-qs600:
-              lab-baylibre-seattle: failing since 100 days (last pass: v5.4=
-.17-99-gbd0c6624a110 - first fail: v5.4.17-238-gbffcaa93483d)
-
-    sama5_defconfig:
-        gcc-8:
-          at91-sama5d4_xplained:
-              lab-baylibre: failing since 41 days (last pass: v5.4.30-37-g4=
-0da5db79b55 - first fail: v5.4.30-39-g23c04177b89f)
-
-arm64:
-
-    defconfig:
-        gcc-8:
-          sun50i-h6-orangepi-3:
-              lab-clabbe: new failure (last pass: v5.4.41-2-ged1728340b22)
-
-Boot Failure Detected:
-
-arm:
-    sama5_defconfig:
-        gcc-8:
-            at91-sama5d4_xplained: 1 failed lab
-
-Offline Platforms:
-
-arm:
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-            qcom-apq8064-cm-qs600: 1 offline lab
-            stih410-b2120: 1 offline lab
-
-    exynos_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-
+Signed-off-by: Felipe Franciosi <felipe@nutanix.com>
 ---
-For more info write to <info@kernelci.org>
+ arch/x86/kvm/x86.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index c17e6eb9ad43..64cb183636da 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -6919,7 +6919,7 @@ int x86_emulate_instruction(struct kvm_vcpu *vcpu, gpa_t cr2_or_gpa,
+ 		if (!ctxt->have_exception ||
+ 		    exception_type(ctxt->exception.vector) == EXCPT_TRAP) {
+ 			kvm_rip_write(vcpu, ctxt->eip);
+-			if (r && ctxt->tf)
++			if (r && (ctxt->tf || (vcpu->guest_debug & KVM_GUESTDBG_SINGLESTEP)))
+ 				r = kvm_vcpu_do_singlestep(vcpu);
+ 			if (kvm_x86_ops.update_emulated_instruction)
+ 				kvm_x86_ops.update_emulated_instruction(vcpu);
+-- 
+2.20.1
+
