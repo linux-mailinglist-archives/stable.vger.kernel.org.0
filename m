@@ -2,135 +2,181 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 84B531D9198
-	for <lists+stable@lfdr.de>; Tue, 19 May 2020 10:04:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E58871D9120
+	for <lists+stable@lfdr.de>; Tue, 19 May 2020 09:33:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728237AbgESIDz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 May 2020 04:03:55 -0400
-Received: from mx0b-002c1b01.pphosted.com ([148.163.155.12]:50816 "EHLO
-        mx0b-002c1b01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726943AbgESIDz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 May 2020 04:03:55 -0400
-X-Greylist: delayed 1887 seconds by postgrey-1.27 at vger.kernel.org; Tue, 19 May 2020 04:03:54 EDT
-Received: from pps.filterd (m0127843.ppops.net [127.0.0.1])
-        by mx0b-002c1b01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 04J7RHTr012384;
-        Tue, 19 May 2020 00:32:26 -0700
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nutanix.com; h=from : to : cc :
- subject : date : message-id : references : in-reply-to : content-type :
- content-id : content-transfer-encoding : mime-version;
- s=proofpoint20171006; bh=AhKPABPlc22lHdtHSuPoR8wjoLqW3nmS19u+3XgaL6I=;
- b=ai+nQjyztLqGv7reqS4suFtg8V2tI8eqNrWc2hbxkhuoxd2TH8DQM+Qu0MqjF7e/NX60
- pyg+0XUGVKXfZA7Mah6IofX0p6cEGnLYg2HssVD4kLFClbmEn4hhUz1uSu8pPrqfG+vD
- Fh8Yq2hMeOV3iJESCaIGGg17J0EHiK1BI8OCtz9mqJZEmTciacktQBTZ+YmdgxdqCfnU
- sHn4mKnVp8gLTzF8Neo9T3tsITSo7NVXujpi2vexbonxc2PQVsrSeUBto+qncR3LdPW1
- 2h9kvgjQo14AL7zsb0cp9YbX1UoJhZsgbr921MrRQYzIuYI1k2FsrGrEzfBUQ8jrJvHx Yw== 
-Received: from nam10-mw2-obe.outbound.protection.outlook.com (mail-mw2nam10lp2102.outbound.protection.outlook.com [104.47.55.102])
-        by mx0b-002c1b01.pphosted.com with ESMTP id 312e9knhye-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 19 May 2020 00:32:26 -0700
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=ZLKKjd8zCaL5JbvFfTYtNE1aHVrDcXKPC5NJmPX4e7HI2e8zvvTlI6Emq3PDx6acMqVKbDFqx7h5vD3milw9r5NZ0ooDz70MO2HdhldXNanodS2D3Oq1iJTiottD3oIILIPAgPX491C+3ljTVUJ0pj4yY7Q7mrlL0d1tioz1Q8cIBdFb80QLp3haSo45FYTwl8yhk/27I9grdItCo1J11mMLb9zrIY5Y+0bK9zteN2DdbjnR3r49RQZC05F8rPw4cqTiTN7Yr8ysRFzzOybev7sTY5Afly/O/kDF+Da1avPcTD2J+FWSL+T1dnfJT8Vgtq0Ixpt+dpqDSo4NcS8S0g==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=AhKPABPlc22lHdtHSuPoR8wjoLqW3nmS19u+3XgaL6I=;
- b=Kn7UPThRoZDHY1TeoDj7c12FcBVqkfUhOLTZc/kKHO8/WCCvE8f3lOIa/kq/BQwPEw1mk8nkCEvXLpAxmbNBiB12cs9Rsl0gJ4KI6fRIUvpxMUD6mDnfhicQhOngA4QYH3t43zMaMtfdJwYORN+M7pH9KBw6h5LAkSfwjzr83N2jXBuj/pvWJZ8HWD17halBuaQ1yyqfSV6kCZ7U6DZ3drihCxdDgsKBNy6ePBNRfFcXC9GqMDqRIWeEQeHs74pUZwKV2vp6FI6IY15KZga1QZXBNu3lPAiUBWh3miA5fK9QU7B9PVdxgMugJDyrAhDt5msQ3ljTZJ21+2UwCElitg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nutanix.com; dmarc=pass action=none header.from=nutanix.com;
- dkim=pass header.d=nutanix.com; arc=none
-Received: from BYAPR02MB4358.namprd02.prod.outlook.com (2603:10b6:a03:11::17)
- by BYAPR02MB4775.namprd02.prod.outlook.com (2603:10b6:a03:41::16) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3000.27; Tue, 19 May
- 2020 07:32:23 +0000
-Received: from BYAPR02MB4358.namprd02.prod.outlook.com
- ([fe80::78ae:73d2:c58c:78f7]) by BYAPR02MB4358.namprd02.prod.outlook.com
- ([fe80::78ae:73d2:c58c:78f7%7]) with mapi id 15.20.3000.034; Tue, 19 May 2020
- 07:32:23 +0000
-From:   Felipe Franciosi <felipe@nutanix.com>
-To:     Paolo Bonzini <pbonzini@redhat.com>
-CC:     "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [PATCH] KVM: x86: respect singlestep when emulating instruction
-Thread-Topic: [PATCH] KVM: x86: respect singlestep when emulating instruction
-Thread-Index: AQHWLVxnJvxzvPZMJ0O0TV1lpS345qiub1OAgACVOoA=
-Date:   Tue, 19 May 2020 07:32:23 +0000
-Message-ID: <9DE50568-CB68-4EB9-90C2-079F17A88E83@nutanix.com>
-References: <20200518213620.2216-1-felipe@nutanix.com>
- <babce5c7-16d6-7f46-1fd2-21b4b9bac83c@redhat.com>
-In-Reply-To: <babce5c7-16d6-7f46-1fd2-21b4b9bac83c@redhat.com>
-Accept-Language: en-GB, en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-mailer: Apple Mail (2.3608.80.23.2.2)
-authentication-results: redhat.com; dkim=none (message not signed)
- header.d=none;redhat.com; dmarc=none action=none header.from=nutanix.com;
-x-originating-ip: [82.9.225.166]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 6a6b18c9-0260-4455-d1ca-08d7fbc6c5e8
-x-ms-traffictypediagnostic: BYAPR02MB4775:
-x-microsoft-antispam-prvs: <BYAPR02MB4775EF614BB1A45BC3CFA790D7B90@BYAPR02MB4775.namprd02.prod.outlook.com>
-x-proofpoint-crosstenant: true
-x-ms-oob-tlc-oobclassifiers: OLM:8273;
-x-forefront-prvs: 040866B734
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: uWCKy61u81RdZj5pCnZQaJNl8gIAtREF5d80XUZ4V7nFJ4Df8CsZn+Fc2NQKdM6+sG95FXB6hgzSaPYwwBanJWqj4HCCl8RjwND1VaKiue3vipbZljYKtr1yekE77phhzJS/WidVQu9pX/AKmCvNWWnfBoImHtK0J008KBjEIMUizS76+jI88XdxHOMj8xrQSVDyZ239MPiNXBkPhaHuqz8oEZpwp3kbXc9ceL8QXfTX5HSnjDvPNaTr2l+pOnPm09fxKghKwRmcTujTNTrN/gZcwze+ljqPwJpsNysclHbtvmi/WZ3mqXKOSTP7Kg7ymDLeeq5vMfLiu32NWgE6N9NV6lcSU7bEnmuPNeITCExp25zMN+A7C9AzRoxlrdkEMtaAvbRVXvDNv8aEw68NpFmOadpCR1PhLg5peji+xuZLNXTfZHY1srz6GVPw5m6Q
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BYAPR02MB4358.namprd02.prod.outlook.com;PTR:;CAT:NONE;SFTY:;SFS:(396003)(366004)(136003)(39860400002)(376002)(346002)(91956017)(66446008)(64756008)(76116006)(6486002)(8936002)(2616005)(66476007)(66556008)(66946007)(53546011)(8676002)(86362001)(54906003)(6506007)(4744005)(316002)(26005)(4326008)(6512007)(36756003)(5660300002)(33656002)(2906002)(6916009)(71200400001)(478600001)(186003);DIR:OUT;SFP:1102;
-x-ms-exchange-antispam-messagedata: 5636VZkWB61+8GYxyirlzlJwK/spZpXkpYpzixBqrPddpJHCSebmsfMwunXgRdWZUhtqetYbadd1o3Jo67lTLkZGO+iV+lIBUAtKRbuKnF0ONdgLgYG7UukxlpRLvlCNn5niHxMYkeVeQyrsuqp+Au+EBXubS5SONMEZfh1T/frokUdbTjSYa9XZ0qWAzFr5Xeq22sZNTdLXmOfVx/rdVKg1N+rmt8c+CiCyktOJcj5LbHQ0vK0adr+H7oHUgWayzKX6+kc8bH9xLhsov32LnDF/a7mP9NSdBHCcsODmjEC6EY+1XAwjhsiVzFMbAnTO6ExtoYy2F5E8jNng5EGTvm2B1sVWfVL9RVSQmU/nzAksb44avndGT0sqKopNLuy7ciJdIaO8EckKW5qLwS9eKX9xiKsXWzVt2On4PPT28hldzbZvuEnu0u9ciT3BBdP3FP4Q40PpD6FXnZUP1s6SK8F2niz2IeGn630pKjRWFgQ=
-x-ms-exchange-transport-forked: True
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <D01783701F08D94181EFB68B4C22C969@namprd02.prod.outlook.com>
-Content-Transfer-Encoding: quoted-printable
+        id S1727987AbgESHdk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 May 2020 03:33:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48230 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726892AbgESHdj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 May 2020 03:33:39 -0400
+Received: from mail-lf1-x142.google.com (mail-lf1-x142.google.com [IPv6:2a00:1450:4864:20::142])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5FA17C05BD09
+        for <stable@vger.kernel.org>; Tue, 19 May 2020 00:33:39 -0700 (PDT)
+Received: by mail-lf1-x142.google.com with SMTP id v5so10313736lfp.13
+        for <stable@vger.kernel.org>; Tue, 19 May 2020 00:33:39 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=cOpdM3JeaSt5vHf5niGi1B+YL5plewk0YJ9dKIK8tUs=;
+        b=ZjqjSqO5GoNdgwpcUjf5PZPZaYDfB3kH9v6Q9gn4vQEll0+lgPLjA79x3rjJn6rH7w
+         ujdOXxKcksCS0paFNJMj3CJfTyAOsrUyO1ocQ1O5eKl0eR2HYkS10dLqHxChjmSTPuv8
+         w8hwKPoOREWlFfmnHfLmoNJyy/65a+zaNQnhB/jDhuO9UVxH0XZWQIWMgvYo2siopCdT
+         nsESj5EtEeDpRD+ITSufOTOVqRY+sKV2QwJjXFpzxxM0zsA9BUG3vWFpD4+0rL5vRBDN
+         /GaXj9RQw9wOUtr42E0f6oaAtjDxkDl412PKtD3VSTQ1aC4e3LmivQUOMPxVVXsErGWs
+         PpkA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=cOpdM3JeaSt5vHf5niGi1B+YL5plewk0YJ9dKIK8tUs=;
+        b=bG/l/LyqpGc5oP0HzXFMVGZPTwx9jSx0X7ljlZaNjWluGxI8ZN8FpDdltp8eF2cmQn
+         gvUY+1iAXtalfaglLBg8ZHvEJSm7OOeyUy1JdQ/Dp7v6ki2pt6hchdM7pZPYKTYbc/hM
+         K0q8YoM/ciKPaiGpdec3Ru54k4vTNLvCOkVGIxW4av1ya3WNd6BvWDdemLgdOhA7x1Vy
+         ebZ3m5uIiUr9uHGRKLQ1DY9lvAtrF+HWT4iSS/8WNXQofkLJ1MauaqOFwFH9Z9ZjdPM9
+         vkzoL35OYS5RbZFkKo+da3bWtsWE0oTnFT2yTK4E/dz1HrEYaJyRmJc3aR7cscjpmSSR
+         0fAg==
+X-Gm-Message-State: AOAM5301CNZBi7rvrbEEBvbmvaih2Ac09VfyWxJnbGT2YE0LksKW0LaZ
+        dfYLFXaquLViS1iqu74GnFDhLVK39DUpAR2046wUKw==
+X-Google-Smtp-Source: ABdhPJyKSecfu8pZn09gXh8Wqv4zWcrVnoTzUYx1a5mv2xSZGSjKaAYGtyxWkUITsT/ySi5dwJiNsFBTUMDiXD9xNLA=
+X-Received: by 2002:a19:3817:: with SMTP id f23mr13934285lfa.6.1589873617745;
+ Tue, 19 May 2020 00:33:37 -0700 (PDT)
 MIME-Version: 1.0
-X-OriginatorOrg: nutanix.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 6a6b18c9-0260-4455-d1ca-08d7fbc6c5e8
-X-MS-Exchange-CrossTenant-originalarrivaltime: 19 May 2020 07:32:23.7970
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: bb047546-786f-4de1-bd75-24e5b6f79043
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: 0/iFLDDbuQNnzO2onIRH83jNYKTvTJHkVLhz2EYibikBdQOeCg1jqHV+gJHJXl2jJOMLOo+pgnQpdwhCAYONp7NRK+EG/8iKa/QU2CX42gg=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BYAPR02MB4775
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.216,18.0.676
- definitions=2020-05-19_02:2020-05-15,2020-05-19 signatures=0
-X-Proofpoint-Spam-Reason: safe
+References: <20200518173450.097837707@linuxfoundation.org>
+In-Reply-To: <20200518173450.097837707@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 19 May 2020 13:03:26 +0530
+Message-ID: <CA+G9fYtSpLLgJ-ANktVfsTt5EiryaTX8xfYZHZeaoG5bjCe8qA@mail.gmail.com>
+Subject: Re: [PATCH 4.19 00/80] 4.19.124-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        lkft-triage@lists.linaro.org,
+        linux- stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, 18 May 2020 at 23:21, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 4.19.124 release.
+> There are 80 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Wed, 20 May 2020 17:32:42 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.19.124-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.19.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-> On May 18, 2020, at 11:38 PM, Paolo Bonzini <pbonzini@redhat.com> wrote:
->=20
-> On 18/05/20 23:36, Felipe Franciosi wrote:
->> 		    exception_type(ctxt->exception.vector) =3D=3D EXCPT_TRAP) {
->> 			kvm_rip_write(vcpu, ctxt->eip);
->> -			if (r && ctxt->tf)
->> +			if ((r && ctxt->tf) || (vcpu->guest_debug & KVM_GUESTDBG_SINGLESTEP)=
-)
->> 				r =3D kvm_vcpu_do_singlestep(vcpu);
->=20
-> Almost:
->=20
-> 	if (r && (ctxt->tf || (vcpu->guest_debug & KVM_GUESTDBG_SINGLESTEP))
->=20
-> This is because if r =3D=3D 0 you have to exit to userspace with KVM_EXIT=
-_MMIO
-> and KVM_EXIT_IO before completing execution of the instruction.  Once
-> this is done, you'll get here again and you'll be able to go through
-> kvm_vcpu_do_singlestep.
+Summary
+------------------------------------------------------------------------
 
-AHH yeah. I tested *only* with SINGLESTEP enabled and I didn't do any
-MMIO/PIO, so I didn't even realise it. Thanks. Sending v2.
+kernel: 4.19.124-rc1
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-4.19.y
+git commit: ff1170bc0ae95f29422b828165e36382a33b2dd3
+git describe: v4.19.123-81-gff1170bc0ae9
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.19-oe/bu=
+ild/v4.19.123-81-gff1170bc0ae9
 
-F.
+No regressions (compared to build v4.19.123)
 
->=20
-> Thanks,
->=20
-> Paolo
->=20
+No fixes (compared to build v4.19.123)
 
+Ran 31223 total tests in the following environments and test suites.
+
+Environments
+--------------
+- dragonboard-410c - arm64
+- hi6220-hikey - arm64
+- i386
+- juno-r2 - arm64
+- juno-r2-compat
+- juno-r2-kasan
+- qemu_arm
+- qemu_arm64
+- qemu_i386
+- qemu_x86_64
+- x15 - arm
+- x86_64
+- x86-kasan
+
+Test Suites
+-----------
+* build
+* install-android-platform-tools-r2600
+* install-android-platform-tools-r2800
+* kselftest
+* kselftest/drivers
+* kselftest/filesystems
+* kselftest/net
+* kselftest/networking
+* kvm-unit-tests
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* perf
+* ltp-cve-tests
+* ltp-fs-tests
+* ltp-hugetlb-tests
+* ltp-mm-tests
+* ltp-syscalls-tests
+* network-basic-tests
+* v4l2-compliance
+* ltp-open-posix-tests
+* kselftest-vsyscall-mode-native
+* kselftest-vsyscall-mode-native/drivers
+* kselftest-vsyscall-mode-native/filesystems
+* kselftest-vsyscall-mode-native/net
+* kselftest-vsyscall-mode-native/networking
+* kselftest-vsyscall-mode-none
+* kselftest-vsyscall-mode-none/drivers
+* kselftest-vsyscall-mode-none/filesystems
+* kselftest-vsyscall-mode-none/net
+* kselftest-vsyscall-mode-none/networking
+
+--=20
+Linaro LKFT
+https://lkft.linaro.org
