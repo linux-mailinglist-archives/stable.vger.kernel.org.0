@@ -2,61 +2,61 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 322B81D9CA7
-	for <lists+stable@lfdr.de>; Tue, 19 May 2020 18:29:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 801AF1D9CAA
+	for <lists+stable@lfdr.de>; Tue, 19 May 2020 18:29:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729383AbgESQ3M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 May 2020 12:29:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47138 "EHLO
+        id S1729000AbgESQ3l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 May 2020 12:29:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47216 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728775AbgESQ3M (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 May 2020 12:29:12 -0400
-Received: from mail-pg1-x542.google.com (mail-pg1-x542.google.com [IPv6:2607:f8b0:4864:20::542])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 054C3C08C5C0;
-        Tue, 19 May 2020 09:29:12 -0700 (PDT)
-Received: by mail-pg1-x542.google.com with SMTP id d10so72816pgn.4;
-        Tue, 19 May 2020 09:29:12 -0700 (PDT)
+        with ESMTP id S1728775AbgESQ3l (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 May 2020 12:29:41 -0400
+Received: from mail-pf1-x443.google.com (mail-pf1-x443.google.com [IPv6:2607:f8b0:4864:20::443])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1EE03C08C5C0;
+        Tue, 19 May 2020 09:29:41 -0700 (PDT)
+Received: by mail-pf1-x443.google.com with SMTP id z26so132287pfk.12;
+        Tue, 19 May 2020 09:29:41 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=sender:subject:to:cc:references:from:autocrypt:message-id:date
          :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=3CuQF2ouAHkMxYGahTQIg0/9jv3/4gtA4y7n4M0oRHs=;
-        b=KiNMBCbbx0PYU4MzSQWq1WNoRA6+B5z924Rs6swkxoZ4wo5EweTFnh3gg/gDHfUswL
-         VOAzzX2EAoTwoVijzIaa7h/EIFUiD8RPLStYIiNuN4kt7pl6whxeLVWjW6b+9r4pTAkD
-         hpRxUc3AnejbTZeYXGUyUbeplVf+Z4u0YHCqEPmmWJTuxTPdnW3fNISaLEQdpPJxgD7M
-         dLzvavbeNPee+B+305HVl0JkKIvIn4yDlMf/PTTKNMBgv8AbfH6JUM0QEfePPh3YALkn
-         M1AxfJ1/ofD/yF+yCWR7l5kh/9okgAclwZ1O8i6ci4LdpSpKqPWQPcRIpawjYmP8n1Ia
-         Hjzg==
+        bh=V6cMNd1r6QSMURxJh1himotK52g7IwHdxylHjWYwUEU=;
+        b=EIJj/7+ULr3VYgIovsy66RgEBynCRYc3830orikROHPR/ADYq1SIXWZfbuGe+UorFD
+         XaHkekcMEz9C+vfOp4UmZ3nX6B/RVU9HE5cBfhsKSUlcoQ3f3lAWlgYDSIYI2/lxMMZs
+         1oakWRV3UuQQfToA8UkiOh8A7xIQF5uGD3Ff3tQJvXKWHqvxviKslx1qIr9pUicDMTQl
+         Eobw+8PmscCRFvqkeEF/4KH0obB40qoSlacUsnN34j/xgWbpEiW3A4o//53qY98rq/qd
+         fN2yPMFTw/JcpTjN+tJdTDqaGJHoqt4PZP9B1sZBwK/a6cM5KiBizLsB9KMQ2FLAjpUB
+         yYEw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:subject:to:cc:references:from:autocrypt
          :message-id:date:user-agent:mime-version:in-reply-to
          :content-language:content-transfer-encoding;
-        bh=3CuQF2ouAHkMxYGahTQIg0/9jv3/4gtA4y7n4M0oRHs=;
-        b=E92VHxsUHOly7gX0JSKTFMyuqo8Z4uq51wnn/D+qEyqBQCECoJAwegKmbAe7m5FK/s
-         zDmbSdVcYL1j8gK3jfYGVgaInWe2qRj7pxXIU0yL3UtIJvnkxRfa4b5V3gRYKGcAYAZN
-         APKaa4VpNjvhllPNXGzYem0j7fBxIppYpyeB76s2vBOBc4uxNn4PdmXph8BX/FYh8BvO
-         X0Ku3EdvAipo4pSfSLPyzvks340nrMI7lp8O9ygavRM0jNk1pc/Qak1isctP6fmKgHpV
-         FpkRhuC3Xf/JSNPpgXYTb4x5Ce6KpawVhb6JoduODO5L3B+FYvUb96sdJJAU5zGyZknH
-         BVlQ==
-X-Gm-Message-State: AOAM533NUzvgD+EZaSvh6BLRobz7aTc0raH72QSLwrRMeCcqwzFetFRv
-        BL6gXr0aXdCf3lpp926yDHkBFX42
-X-Google-Smtp-Source: ABdhPJwQX859F6yYHBq3BHcBAda6IRNgAt6ED+TPZ4mxDUgaQoYizqWyDAXMMam2o7PV2Og+zs5QPQ==
-X-Received: by 2002:aa7:8ad6:: with SMTP id b22mr17600911pfd.251.1589905751433;
-        Tue, 19 May 2020 09:29:11 -0700 (PDT)
+        bh=V6cMNd1r6QSMURxJh1himotK52g7IwHdxylHjWYwUEU=;
+        b=COLFJSkzLb6GHqvBOIBXdF7IQdC4ggc5m3S98/uwWuTtDZB/Mo3KyTPoRogFTzGYux
+         obB4VqNeFCnYf/VDOJXLfpYmDn8D/ByMxU2LLS+/gRg/bzJzLeCdgfbpAO6ldoAPLqOp
+         JPkNcJHf46fAO+BDlPWxuMcE+UnyqZb02zyOuaz4+pF7tfMiH0EakJgXrQysDdcgYF1B
+         anQiMYVFh7oAlvpu86Ny5UqlbJZ0JzDp+8MM8dblfoUJ00BXRCUKBrt1NuaHbKdg45sb
+         2QMRXXd06Cg7ptFocnxi+fu7Qnh03zkGp2gr/gi8luv0zoc+XyicTPhLKMmTs2ylOz40
+         yihg==
+X-Gm-Message-State: AOAM5302MuYbZTUoXyfvPiiqgrBqjxQvayTg7HqTNEVXBKcixhArAIjg
+        v0m3pDjTsDzoppubLd9kf9RATBbR
+X-Google-Smtp-Source: ABdhPJxce/fac0TJKRKknUktihakkJCbrsshncaJP3Z/SmqHL48ry/S/GdhLNrODAquT4yDGK/SghQ==
+X-Received: by 2002:a63:5864:: with SMTP id i36mr12202pgm.231.1589905780547;
+        Tue, 19 May 2020 09:29:40 -0700 (PDT)
 Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id z66sm6888pfz.141.2020.05.19.09.29.10
+        by smtp.gmail.com with ESMTPSA id w1sm7956pgh.53.2020.05.19.09.29.39
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 19 May 2020 09:29:10 -0700 (PDT)
-Subject: Re: [PATCH 4.19 00/80] 4.19.124-rc1 review
+        Tue, 19 May 2020 09:29:40 -0700 (PDT)
+Subject: Re: [PATCH 5.4 000/147] 5.4.42-rc1 review
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         linux-kernel@vger.kernel.org
 Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
         shuah@kernel.org, patches@kernelci.org,
         ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
         stable@vger.kernel.org
-References: <20200518173450.097837707@linuxfoundation.org>
+References: <20200518173513.009514388@linuxfoundation.org>
 From:   Guenter Roeck <linux@roeck-us.net>
 Autocrypt: addr=linux@roeck-us.net; keydata=
  xsFNBE6H1WcBEACu6jIcw5kZ5dGeJ7E7B2uweQR/4FGxH10/H1O1+ApmcQ9i87XdZQiB9cpN
@@ -101,12 +101,12 @@ Autocrypt: addr=linux@roeck-us.net; keydata=
  WkRwrSuCn7UG+qVWZeKEsFKFOkynOs3pVbcbq1pxbhk3TRWCGRU5JolI4ohy/7JV1TVbjiDI
  HP/aVnm6NC8of26P40Pg8EdAhajZnHHjA7FrJXsy3cyIGqvg9os4rNkUWmrCfLLsZDHD8FnU
  mDW4+i+XlNFUPUYMrIKi9joBhu18ssf5i5Q=
-Message-ID: <0b7d6c68-1a94-9fc0-8610-2cf45a5e4796@roeck-us.net>
-Date:   Tue, 19 May 2020 09:29:09 -0700
+Message-ID: <a8d8bf51-4b14-995d-629a-de1092064543@roeck-us.net>
+Date:   Tue, 19 May 2020 09:29:38 -0700
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.7.0
 MIME-Version: 1.0
-In-Reply-To: <20200518173450.097837707@linuxfoundation.org>
+In-Reply-To: <20200518173513.009514388@linuxfoundation.org>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -115,9 +115,9 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 5/18/20 10:36 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.19.124 release.
-> There are 80 patches in this series, all will be posted as a response
+On 5/18/20 10:35 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.42 release.
+> There are 147 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 > 
@@ -126,8 +126,8 @@ On 5/18/20 10:36 AM, Greg Kroah-Hartman wrote:
 > 
 
 Build results:
-	total: 155 pass: 155 fail: 0
+	total: 157 pass: 157 fail: 0
 Qemu test results:
-	total: 420 pass: 420 fail: 0
+	total: 430 pass: 430 fail: 0
 
 Guenter
