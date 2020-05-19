@@ -2,73 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 702C51DA006
-	for <lists+stable@lfdr.de>; Tue, 19 May 2020 20:53:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 364ED1DA10F
+	for <lists+stable@lfdr.de>; Tue, 19 May 2020 21:37:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726348AbgESSxZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 May 2020 14:53:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41606 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726059AbgESSxZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 May 2020 14:53:25 -0400
-Received: from mail-pg1-x543.google.com (mail-pg1-x543.google.com [IPv6:2607:f8b0:4864:20::543])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7087DC08C5C0
-        for <stable@vger.kernel.org>; Tue, 19 May 2020 11:53:25 -0700 (PDT)
-Received: by mail-pg1-x543.google.com with SMTP id f6so262163pgm.1
-        for <stable@vger.kernel.org>; Tue, 19 May 2020 11:53:25 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:mime-version
-         :content-disposition:user-agent;
-        bh=GhyTpRQ/WCpKEr3XKAYXoKZHCKoIGxPWKo69x2Kd060=;
-        b=vBDh30anCQjvr+xkJgy2MTP+UJHSgNCw8MQmABWuLdm9T++6bBdA91LwWcMtL0yUlY
-         FRpljIXcA/9w48gb6LSilKw+CVTdcu4KPZxq67qWcJYePKDuqsQoROsa4AE+J0+cDGHo
-         Gw6FxagvhvDczHSzFPFcmLsbhX9fwwG2qavocaayXQQ0acPFx70LrOsTTOjNCYK4rZIw
-         XJ8DOjIHTdjLXcFjmGMS3Vb2PYX2fSgvY62/vf+mdQl40J0AO0y20OwEq8xHBWNkE7lL
-         SJGkRJXe6QTIuOmV9eIuYvGPnssLRaMqaqFi0OPaACznghuYtyowi37SgR+D9bgCVAog
-         JVqg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :mime-version:content-disposition:user-agent;
-        bh=GhyTpRQ/WCpKEr3XKAYXoKZHCKoIGxPWKo69x2Kd060=;
-        b=UPTZlL26uym2tAzTvMilm5KPvr5di3QPEzRmNYn3iYlkBtQ4PGV6eINFAtPd0ocxmb
-         GbYZa5ekH9JO+PmwXTfwLBWPMpIKkga2JaXEgPb3K2rcx6EAAMZPSIIi86w9X1fh8eGk
-         1RyR/me7gRORkvN+pvkjwXedTpo01zeXZKCLcQl4b104xP5Eu8NcQkuYaoqvVB+mP8yj
-         ucIxLPlgL7boK2dvW5zuSnJr2iAzawMc1MwH4/tCIv9aKoZwA87yGhyWZqhzWRYeKKUL
-         DtduM+T3xL+X69/h5DnonBTDM3fmQ8q7jBN6v3owrRZ8iBBThVvAUL0SZXTt/HZ9cCkV
-         XuRQ==
-X-Gm-Message-State: AOAM533oWnoMG86XoqXiwGR2yO841oQFTtM1O4zZb6HHnzlNtnc9Kv8l
-        /bdEkZAEPs4g9p3l+emOi2XxHVvl
-X-Google-Smtp-Source: ABdhPJxcMoSli5uA9YHk1d8Zc3lJSYhVhz+CJGqyuKhR/V/PNrk1KKB/w6ZaHc7HhH5LbV89WmtKLQ==
-X-Received: by 2002:a62:4dc3:: with SMTP id a186mr453481pfb.269.1589914404752;
-        Tue, 19 May 2020 11:53:24 -0700 (PDT)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id z29sm193580pff.120.2020.05.19.11.53.23
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Tue, 19 May 2020 11:53:23 -0700 (PDT)
-Date:   Tue, 19 May 2020 11:53:22 -0700
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     stable@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Please apply commit 629823b872402 ("igb: use igb_adapter->io_addr
- instead of e1000_hw->hw_addr") to v4.4.y/v4.9.y
-Message-ID: <20200519185322.GA67531@roeck-us.net>
+        id S1726401AbgESThV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 May 2020 15:37:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35096 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726150AbgESThV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 May 2020 15:37:21 -0400
+Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net [24.9.64.241])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id A1474206C3;
+        Tue, 19 May 2020 19:37:20 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1589917041;
+        bh=3DAfi1do7W57fgZnxWY0nr3tJPESpcQQcVW7ZVWB8Vk=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=d6Q38dYoty1HXOz13soZXjc8bsN5RZu5xMREnE80n+lbFJHvjDU5G9mks/SdrkqSO
+         px0DNWgZTi7Q+FbzqW4lFOX2ia57P4jY4U+qgUZXg7tMH++N4t8k0WtQbL8Omqq8jQ
+         6BkTsAWpOK7ry0iWKXPB2AcT/f60y9XA9X26EYv4=
+Subject: Re: [PATCH 5.6 000/192] 5.6.14-rc2 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org, shuah <shuah@kernel.org>
+References: <20200519054650.064501564@linuxfoundation.org>
+From:   shuah <shuah@kernel.org>
+Message-ID: <aa12b3ae-5b6a-5879-faff-aa0bbcf945f5@kernel.org>
+Date:   Tue, 19 May 2020 13:37:20 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.9.4 (2018-02-28)
+In-Reply-To: <20200519054650.064501564@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+On 5/18/20 11:47 PM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.6.14 release.
+> There are 192 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Thu, 21 May 2020 05:45:41 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.6.14-rc2.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.6.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-please apply upstream commit 629823b87240 ("igb: use igb_adapter->io_addr
-instead of e1000_hw->hw_addr") to v4.4.y and to v4.9.y. The problem solved
-with this commit has been observed in chromeos-4.4.
+Compiled and booted on my test system. No dmesg regressions.
 
-Thanks,
-Guenter
+thanks,
+-- Shuah
