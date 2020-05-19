@@ -2,26 +2,26 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FA641D96E8
-	for <lists+stable@lfdr.de>; Tue, 19 May 2020 15:01:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4641B1D96E9
+	for <lists+stable@lfdr.de>; Tue, 19 May 2020 15:01:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728891AbgESNBN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 May 2020 09:01:13 -0400
-Received: from relay9-d.mail.gandi.net ([217.70.183.199]:58983 "EHLO
+        id S1728901AbgESNBP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 May 2020 09:01:15 -0400
+Received: from relay9-d.mail.gandi.net ([217.70.183.199]:51937 "EHLO
         relay9-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728855AbgESNBN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 May 2020 09:01:13 -0400
+        with ESMTP id S1728855AbgESNBP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 May 2020 09:01:15 -0400
 X-Originating-IP: 91.224.148.103
 Received: from localhost.localdomain (unknown [91.224.148.103])
         (Authenticated sender: miquel.raynal@bootlin.com)
-        by relay9-d.mail.gandi.net (Postfix) with ESMTPSA id ADDC7FF808;
-        Tue, 19 May 2020 13:01:11 +0000 (UTC)
+        by relay9-d.mail.gandi.net (Postfix) with ESMTPSA id 8EB5FFF80A;
+        Tue, 19 May 2020 13:01:13 +0000 (UTC)
 From:   Miquel Raynal <miquel.raynal@bootlin.com>
 To:     <linux-mtd@lists.infradead.org>
 Cc:     Miquel Raynal <miquel.raynal@bootlin.com>, stable@vger.kernel.org
-Subject: [PATCH v2 56/62] mtd: rawnand: tmio: Fix the probe error path
-Date:   Tue, 19 May 2020 15:00:29 +0200
-Message-Id: <20200519130035.1883-57-miquel.raynal@bootlin.com>
+Subject: [PATCH v2 60/62] mtd: rawnand: xway: Fix the probe error path
+Date:   Tue, 19 May 2020 15:00:33 +0200
+Message-Id: <20200519130035.1883-61-miquel.raynal@bootlin.com>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200519130035.1883-1-miquel.raynal@bootlin.com>
 References: <20200519130035.1883-1-miquel.raynal@bootlin.com>
@@ -37,7 +37,7 @@ nand_release() is supposed be called after MTD device registration.
 Here, only nand_scan() happened, so use nand_cleanup() instead.
 
 There is no real Fixes tag applying here as the use of nand_release()
-in this driver predates by far the introduction of nand_cleanup() in
+in this driver predates the introduction of nand_cleanup() in
 commit d44154f969a4 ("mtd: nand: Provide nand_cleanup() function to free NAND related resources")
 which makes this change possible. However, pointing this commit as the
 culprit for backporting purposes makes sense even if this commit is not
@@ -47,22 +47,22 @@ Fixes: d44154f969a4 ("mtd: nand: Provide nand_cleanup() function to free NAND re
 Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
 Cc: stable@vger.kernel.org
 ---
- drivers/mtd/nand/raw/tmio_nand.c | 2 +-
+ drivers/mtd/nand/raw/xway_nand.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/mtd/nand/raw/tmio_nand.c b/drivers/mtd/nand/raw/tmio_nand.c
-index db030f1701ee..4e9a6d94f6e8 100644
---- a/drivers/mtd/nand/raw/tmio_nand.c
-+++ b/drivers/mtd/nand/raw/tmio_nand.c
-@@ -448,7 +448,7 @@ static int tmio_probe(struct platform_device *dev)
- 	if (!retval)
- 		return retval;
+diff --git a/drivers/mtd/nand/raw/xway_nand.c b/drivers/mtd/nand/raw/xway_nand.c
+index 834f794816a9..018311dc8fe1 100644
+--- a/drivers/mtd/nand/raw/xway_nand.c
++++ b/drivers/mtd/nand/raw/xway_nand.c
+@@ -210,7 +210,7 @@ static int xway_nand_probe(struct platform_device *pdev)
  
--	nand_release(nand_chip);
-+	nand_cleanup(nand_chip);
+ 	err = mtd_device_register(mtd, NULL, 0);
+ 	if (err)
+-		nand_release(&data->chip);
++		nand_cleanup(&data->chip);
  
- err_irq:
- 	tmio_hw_stop(dev, tmio);
+ 	return err;
+ }
 -- 
 2.20.1
 
