@@ -2,146 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 493101D989B
-	for <lists+stable@lfdr.de>; Tue, 19 May 2020 15:53:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 574DF1D9899
+	for <lists+stable@lfdr.de>; Tue, 19 May 2020 15:53:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729007AbgESNxW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 May 2020 09:53:22 -0400
-Received: from us-smtp-1.mimecast.com ([207.211.31.81]:51234 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727086AbgESNxW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 May 2020 09:53:22 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1589896401;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=Z3JDC7hHAG3qt8ihx4nUX9Oy4XZ2I9b3feKVYfmOZwY=;
-        b=V+ApZdPmMPK9DxGtzP8YEtIfkwUnqRUyPZynoLfyXlPHBFDf9GRp6YOQwRIG4YQ7qynaRx
-        RH/ltig7lf8tNr1yf0RcC1qV0e0NQRxNF6Z/KHNsBoDe+06USznbkb3cjMvpDrv0s7SOrk
-        teKKr60fNYld5I0QBoRJTaQLD9vu6nU=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-411-BIX5Nvf_MP2OJJmsKvkikA-1; Tue, 19 May 2020 09:53:17 -0400
-X-MC-Unique: BIX5Nvf_MP2OJJmsKvkikA-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 5F9AF107ACF8;
-        Tue, 19 May 2020 13:53:15 +0000 (UTC)
-Received: from elisabeth (unknown [10.36.110.31])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 57FC71001B07;
-        Tue, 19 May 2020 13:53:10 +0000 (UTC)
-Date:   Tue, 19 May 2020 15:53:00 +0200
-From:   Stefano Brivio <sbrivio@redhat.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Pavel Machek <pavel@denx.de>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>, Phil Sutter <phil@nwl.cc>
-Subject: Re: [PATCH 4.19 41/80] netfilter: nft_set_rbtree: Introduce and use
- nft_rbtree_interval_start()
-Message-ID: <20200519155300.3560394f@elisabeth>
-In-Reply-To: <20200519125113.GA376546@kroah.com>
-References: <20200518173450.097837707@linuxfoundation.org>
-        <20200518173458.612903024@linuxfoundation.org>
-        <20200519120625.GA8342@amd>
-        <20200519121356.GA354164@kroah.com>
-        <20200519121907.GA9158@amd>
-        <20200519125113.GA376546@kroah.com>
-Organization: Red Hat
+        id S1728997AbgESNxT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 May 2020 09:53:19 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:55466 "EHLO
+        shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727086AbgESNxT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 May 2020 09:53:19 -0400
+Received: from [192.168.4.242] (helo=deadeye)
+        by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.89)
+        (envelope-from <ben@decadent.org.uk>)
+        id 1jb2gA-0000Ym-T6; Tue, 19 May 2020 14:53:10 +0100
+Received: from ben by deadeye with local (Exim 4.93)
+        (envelope-from <ben@decadent.org.uk>)
+        id 1jb2gA-000uKi-GB; Tue, 19 May 2020 14:53:10 +0100
+Message-ID: <0b158b60fe621552c327e9d822bc3245591a4bd6.camel@decadent.org.uk>
+Subject: Backporting "padata: Remove broken queue flushing"
+From:   Ben Hutchings <ben@decadent.org.uk>
+To:     Herbert Xu <herbert@gondor.apana.org.au>
+Cc:     Daniel Jordan <daniel.m.jordan@oracle.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        linux-crypto@vger.kernel.org, stable <stable@vger.kernel.org>
+Date:   Tue, 19 May 2020 14:53:05 +0100
+Content-Type: multipart/signed; micalg="pgp-sha512";
+        protocol="application/pgp-signature"; boundary="=-8aSYj/hllzzIHLdFqU8o"
+User-Agent: Evolution 3.36.2-1 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
+X-SA-Exim-Connect-IP: 192.168.4.242
+X-SA-Exim-Mail-From: ben@decadent.org.uk
+X-SA-Exim-Scanned: No (on shadbolt.decadent.org.uk); SAEximRunCond expanded to false
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 19 May 2020 14:51:13 +0200
-Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
 
-> On Tue, May 19, 2020 at 02:19:07PM +0200, Pavel Machek wrote:
-> > On Tue 2020-05-19 14:13:56, Greg Kroah-Hartman wrote: =20
-> > > On Tue, May 19, 2020 at 02:06:25PM +0200, Pavel Machek wrote: =20
-> > > > Hi!
-> > > >  =20
-> > > > > [ Upstream commit 6f7c9caf017be8ab0fe3b99509580d0793bf0833 ]
-> > > > >=20
-> > > > > Replace negations of nft_rbtree_interval_end() with a new helper,
-> > > > > nft_rbtree_interval_start(), wherever this helps to visualise the
-> > > > > problem at hand, that is, for all the occurrences except for the
-> > > > > comparison against given flags in __nft_rbtree_get().
-> > > > >=20
-> > > > > This gets especially useful in the next patch. =20
-> > > >=20
-> > > > This looks like cleanup in preparation for the next patch. Next pat=
-ch
-> > > > is there for some series, but not for 4.19.124. Should this be in
-> > > > 4.19, then? =20
-> > >=20
-> > > What is the "next patch" in this situation? =20
-> >=20
-> > In 5.4 you have:
-> >=20
-> > 9956 O   Greg Kroah =E2=94=9C=E2=94=80>[PATCH 5.4 082/147] netfilter: n=
-ft_set_rbtree: Introduce and use nft
-> > 9957     Greg Kroah =E2=94=9C=E2=94=80>[PATCH 5.4 083/147] netfilter: n=
-ft_set_rbtree: Add missing expired c
-> >=20
-> > In 4.19 you have:
-> >=20
-> > 10373 r   Greg Kroah =E2=94=9C=E2=94=80>[PATCH 4.19 41/80] netfilter: n=
-ft_set_rbtree: Introduce and use nft
-> > 10376 O   Greg Kroah =E2=94=9C=E2=94=80>[PATCH 4.19 42/80] IB/mlx4: Tes=
-t return value of calls to ib_get_ca
-> >=20
-> > I believe 41/80 can be dropped from 4.19 series, as it is just a
-> > preparation for 083/147... which is not queued for 4.19. =20
->=20
-> I've queued it up for 4.19 now, thanks.
+--=-8aSYj/hllzzIHLdFqU8o
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Wait, wait, sorry. I thought you were queuing this up as a missing
-dependency or something, but I see it's not the case. That patch is
-*not* the preparation for:
+I noticed that commit 07928d9bfc81 "padata: Remove broken queue
+flushing" has been backported to most stable branches, but commit
+6fc4dbcf0276 "padata: Replace delayed timer with immediate workqueue in
+padata_reorder" has not.
 
-  340eaff65116 netfilter: nft_set_rbtree: Add missing expired checks
+Is this correct?  What prevents the parallel_data ref-count from
+dropping to 0 while the timer is scheduled?
 
-...but rather preparation for:
-
-  7c84d41416d8 netfilter: nft_set_rbtree: Detect partial overlaps on insert=
-ion
-
-whose fix-up:
-
-  72239f2795fa netfilter: nft_set_rbtree: Drop spurious condition for overl=
-ap detection on insertion
-
-was queued for 5.6.x (see <20200421131431.GA793882@kroah.com>).
-
-Now, if you want to backport "Add missing expired checks", it *might* be
-more convenient to also backport:
-
-  6f7c9caf017b netfilter: nft_set_rbtree: Introduce and use nft_rbtree_inte=
-rval_start()
-
-and, perhaps (I haven't tried to actually cherry-pick) also:
-
-  7c84d41416d8 netfilter: nft_set_rbtree: Detect partial overlaps on insert=
-ion
-  72239f2795fa netfilter: nft_set_rbtree: Drop spurious condition for overl=
-ap detection on insertion
-
-and it's safe to either:
-
-- backport only 6f7c9caf017b
-- backport the three of them
-
-but other than avoiding conflicts, there should be no reason to do that.
-Sasha had already queued them up for 4.19 and 5.4, then dropped them as
-they weren't needed, see <20200413163900.GO27528@sasha-vm>.
+Ben.
 
 --=20
-Stefano
+Ben Hutchings
+Larkinson's Law: All laws are basically false.
 
+
+--=-8aSYj/hllzzIHLdFqU8o
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAl7D5MEACgkQ57/I7JWG
+EQm9Bg//QAhe9WehPg50caN5e9YGyXbSJjYPJueqpnQhCSf0m6fXXcCJQyxBe9mY
+4gONFO6eYPCRCZnrEpyq31ZjsQJap6h/u603Rb9F1Awus9ILHxL2L3gBktf4zEcS
+1DtBUPWE75KXHIQxZC0c2APgO+ay3zQ7Qh3X0SJNB7ahELJ4PQX5AIFAxoHLQADq
+Vatu+BFlmzSqbivrb1i92+d1Guhq+ELyX0ZgYjVJJkfb4tlPrsAaOS7JJFsCCqCh
+8ZH9ailNkNLhTi9unMISOypGMdrHVdCf0BeXZTrirOwBtlBluEE19OS/djMgbwS3
+Z0LXWh5HoWPSS6UuzpptycB3sW33xXjW+Xr30Ze1/SPb1ztOFUrWdLr1jbxawF4y
+HuMfWcTYmnMu3DwvcMN3rqik7ghyUV+mWJtuJ9gwHKJ5KILIa116bpct+mqFP270
+kqiFF0/FUlJezRD115ywzL+nwxoIpoOzXzWZpxG/7BTMD+559Lb8ad15RJZOX14Q
+wJFiMfZRGXl0Bbwr9XtCOVHIhRlh3SjY0sHSRLfn1UPqBOlfOIHvF6dvenvyIbpZ
+lkAqVB//CT3WqMWvm70EJC5vhbawl88r08hwFUUx2I647gm4lbQdWLqhU3mTWuS+
+D4iWNS8KxGb4au8JiaBa939kpTbLrC7KLc3LDPSw16RLtcvJtL8=
+=t2oh
+-----END PGP SIGNATURE-----
+
+--=-8aSYj/hllzzIHLdFqU8o--
