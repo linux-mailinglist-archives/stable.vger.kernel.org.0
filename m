@@ -2,85 +2,173 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C62B81D96AB
-	for <lists+stable@lfdr.de>; Tue, 19 May 2020 14:51:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D1E311D96BE
+	for <lists+stable@lfdr.de>; Tue, 19 May 2020 14:54:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728757AbgESMvQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 May 2020 08:51:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47360 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728745AbgESMvQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 May 2020 08:51:16 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1C1152081A;
-        Tue, 19 May 2020 12:51:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589892675;
-        bh=tJ+lbCmEDAHdv4K7nzW2AGiccqfTHL/sgR11LJYMowM=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=KOn7WhNxFSpIXviYjpvQO4XlUs4zxHNOQNHtOF9l0dIC8oKRIjVRT4b2n6AdiJnOj
-         KGPAlZ8Hn3Ktb33xTtAIo+O/4Av9SEoj9YTA3pQYQmFLh3kk4H44odDxnjJDq+s5Du
-         bOh84qWov/p4rjtPDewSQJbdAoHDa4Jl1iataVvg=
-Date:   Tue, 19 May 2020 14:51:13 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Pavel Machek <pavel@denx.de>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Stefano Brivio <sbrivio@redhat.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 4.19 41/80] netfilter: nft_set_rbtree: Introduce and use
- nft_rbtree_interval_start()
-Message-ID: <20200519125113.GA376546@kroah.com>
-References: <20200518173450.097837707@linuxfoundation.org>
- <20200518173458.612903024@linuxfoundation.org>
- <20200519120625.GA8342@amd>
- <20200519121356.GA354164@kroah.com>
- <20200519121907.GA9158@amd>
+        id S1727057AbgESMyM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 May 2020 08:54:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41734 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726169AbgESMyM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 May 2020 08:54:12 -0400
+Received: from mail-pl1-x644.google.com (mail-pl1-x644.google.com [IPv6:2607:f8b0:4864:20::644])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1938DC08C5C0
+        for <stable@vger.kernel.org>; Tue, 19 May 2020 05:54:12 -0700 (PDT)
+Received: by mail-pl1-x644.google.com with SMTP id u22so5577456plq.12
+        for <stable@vger.kernel.org>; Tue, 19 May 2020 05:54:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=yqHgzaPkChvj6Op7XNmbN+COhQ5lZX3kk8+/XTrJ51o=;
+        b=TmldYH9dhWtlK6PiDgZLPlXZ0Sk/zgRfZFjybjsCLlqACSyGkYCMGqYEUZIxReFybG
+         aplZcbIsW2X9st8M0dXazW6jH4xK6e++t7utZSe9J8PJs99RV3GG841V/eZ22Zr0egCH
+         aRApximHHY/2gs8aigUIkA/ZpIeC6bx3HzPs/Ty5sZ5F951L+eoR/gEifIOiTY3IDh5j
+         HCfTheOVwjhc8r2AjjOn/T2EJOKbcqXr/JNgbiWlOI0abP0gEuA+SUCvSQAcPyzR7Aaf
+         16CCNiLEOSJt7CQGSNEKwC1KeK1D+3uykEepC6ayNJKswNN9sv+GQSwYBFM1ytTGSXrO
+         FoUg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=yqHgzaPkChvj6Op7XNmbN+COhQ5lZX3kk8+/XTrJ51o=;
+        b=kfjiwkLDUbGL+pCgVtkLERs25C+3nPG/mK/LD+6V9aBcREOCIHOWao3AhM08R57+E1
+         lbrLfVebgNZhPFsE+fWOLmNxbPHLiXusmvhjZ5A/c8XfvYpioxynfpvQrKeGeA8nXSpb
+         I59qm/4bTcsUZCZT94b0QutCx8RKGFDQQERPA6TFyM793bs8ozWFzEEYKrz41tYKrb6h
+         QVlv60nS86ArU7U58ecmPcl5lb1xBJOsZzjc86criWX4wF3tBUyDbSd4HhRcj10hoTrq
+         pgIERt252Gs7XbbDpZyEWXFz7t3irl+ODa6coE2dQzx0m2V0CDQfyJwaqhqypfQdnnXN
+         +HeQ==
+X-Gm-Message-State: AOAM530EkHVyEwVbxuxfZUe+rHhjQhq2P8l9pJdtvFE+0g8nLlV92xrs
+        amlNCI6UsZGVodg4IGjRVdjME7hApW8=
+X-Google-Smtp-Source: ABdhPJy7KJPwsqZ3dAnsmNLGSjgjOHR8xpYeBoHaSYBI7+EJFdpLzU+6f91auDy5rhvfyt1f0KTocg==
+X-Received: by 2002:a17:90a:4497:: with SMTP id t23mr5006693pjg.88.1589892851244;
+        Tue, 19 May 2020 05:54:11 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id 141sm11496654pfz.171.2020.05.19.05.54.10
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 19 May 2020 05:54:10 -0700 (PDT)
+Message-ID: <5ec3d6f2.1c69fb81.a7e1a.391d@mx.google.com>
+Date:   Tue, 19 May 2020 05:54:10 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20200519121907.GA9158@amd>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v5.6.13-193-g67346f550ad8
+X-Kernelci-Report-Type: boot
+X-Kernelci-Branch: linux-5.6.y
+Subject: stable-rc/linux-5.6.y boot: 163 boots: 3 failed,
+ 148 passed with 5 offline, 6 untried/unknown,
+ 1 conflict (v5.6.13-193-g67346f550ad8)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, May 19, 2020 at 02:19:07PM +0200, Pavel Machek wrote:
-> On Tue 2020-05-19 14:13:56, Greg Kroah-Hartman wrote:
-> > On Tue, May 19, 2020 at 02:06:25PM +0200, Pavel Machek wrote:
-> > > Hi!
-> > > 
-> > > > [ Upstream commit 6f7c9caf017be8ab0fe3b99509580d0793bf0833 ]
-> > > > 
-> > > > Replace negations of nft_rbtree_interval_end() with a new helper,
-> > > > nft_rbtree_interval_start(), wherever this helps to visualise the
-> > > > problem at hand, that is, for all the occurrences except for the
-> > > > comparison against given flags in __nft_rbtree_get().
-> > > > 
-> > > > This gets especially useful in the next patch.
-> > > 
-> > > This looks like cleanup in preparation for the next patch. Next patch
-> > > is there for some series, but not for 4.19.124. Should this be in
-> > > 4.19, then?
-> > 
-> > What is the "next patch" in this situation?
-> 
-> In 5.4 you have:
-> 
-> 9956 O   Greg Kroah ├─>[PATCH 5.4 082/147] netfilter: nft_set_rbtree: Introduce and use nft
-> 9957     Greg Kroah ├─>[PATCH 5.4 083/147] netfilter: nft_set_rbtree: Add missing expired c
-> 
-> In 4.19 you have:
-> 
-> 10373 r   Greg Kroah ├─>[PATCH 4.19 41/80] netfilter: nft_set_rbtree: Introduce and use nft
-> 10376 O   Greg Kroah ├─>[PATCH 4.19 42/80] IB/mlx4: Test return value of calls to ib_get_ca
-> 
-> I believe 41/80 can be dropped from 4.19 series, as it is just a
-> preparation for 083/147... which is not queued for 4.19.
+******************************************
+* WARNING: Boot tests are now deprecated *
+******************************************
 
-I've queued it up for 4.19 now, thanks.
+As kernelci.org is expanding its functional testing capabilities, the conce=
+pt
+of boot testing is now deprecated.  Boot results are scheduled to be droppe=
+d on
+*5th June 2020*.  The full schedule for boot tests deprecation is available=
+ on
+this GitHub issue: https://github.com/kernelci/kernelci-backend/issues/238
 
-greg k-h
+The new equivalent is the *baseline* test suite which also runs sanity chec=
+ks
+using dmesg and bootrr: https://github.com/kernelci/bootrr
+
+See the *baseline results for this kernel revision* on this page:
+https://kernelci.org/test/job/stable-rc/branch/linux-5.6.y/kernel/v5.6.13-1=
+93-g67346f550ad8/plan/baseline/
+
+---------------------------------------------------------------------------=
+----
+
+stable-rc/linux-5.6.y boot: 163 boots: 3 failed, 148 passed with 5 offline,=
+ 6 untried/unknown, 1 conflict (v5.6.13-193-g67346f550ad8)
+
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-5.6.y/kernel/v5.6.13-193-g67346f550ad8/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.6.y=
+/kernel/v5.6.13-193-g67346f550ad8/
+
+Tree: stable-rc
+Branch: linux-5.6.y
+Git Describe: v5.6.13-193-g67346f550ad8
+Git Commit: 67346f550ad85f9ddd257856e32049416df51616
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 99 unique boards, 26 SoC families, 21 builds out of 200
+
+Boot Regressions Detected:
+
+arm:
+
+    exynos_defconfig:
+        gcc-8:
+          exynos5422-odroidxu3:
+              lab-collabora: failing since 1 day (last pass: v5.6.13 - firs=
+t fail: v5.6.13-195-g4dae52cee3fd)
+
+    multi_v7_defconfig:
+        gcc-8:
+          sun8i-h2-plus-orangepi-r1:
+              lab-baylibre: new failure (last pass: v5.6.13-195-g4dae52cee3=
+fd)
+
+    versatile_defconfig:
+        gcc-8:
+          versatile-pb:
+              lab-collabora: new failure (last pass: v5.6.13-195-g4dae52cee=
+3fd)
+
+Boot Failures Detected:
+
+arm:
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
+
+    multi_v7_defconfig:
+        gcc-8:
+            bcm2836-rpi-2-b: 1 failed lab
+
+    exynos_defconfig:
+        gcc-8:
+            exynos5422-odroidxu3: 1 failed lab
+
+Offline Platforms:
+
+arm:
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+            qcom-apq8064-cm-qs600: 1 offline lab
+            stih410-b2120: 1 offline lab
+
+    exynos_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+
+Conflicting Boot Failure Detected: (These likely are not failures as other =
+labs are reporting PASS. Needs review.)
+
+arm:
+    multi_v7_defconfig:
+        sun7i-a20-cubieboard2:
+            lab-clabbe: FAIL (gcc-8)
+            lab-baylibre: PASS (gcc-8)
+
+---
+For more info write to <info@kernelci.org>
