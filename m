@@ -2,186 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CC601D8F95
-	for <lists+stable@lfdr.de>; Tue, 19 May 2020 07:51:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C0551D8F7A
+	for <lists+stable@lfdr.de>; Tue, 19 May 2020 07:50:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728377AbgESFsx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 May 2020 01:48:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60126 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728374AbgESFsx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 May 2020 01:48:53 -0400
-Received: from mail-pl1-x643.google.com (mail-pl1-x643.google.com [IPv6:2607:f8b0:4864:20::643])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF3A8C061A0C
-        for <stable@vger.kernel.org>; Mon, 18 May 2020 22:48:52 -0700 (PDT)
-Received: by mail-pl1-x643.google.com with SMTP id w19so3380605ply.11
-        for <stable@vger.kernel.org>; Mon, 18 May 2020 22:48:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=v0i4SoTNOetxv1TXQohw3BAMTxHV/xX29DYqCh6nNok=;
-        b=BiAh6qN6rXj+DP6zny6iwHi4xUGnjFEEXq3HBK/50r7vZTeK/jDhMaiK8posA1N7Tu
-         kkafipfmwxPLW4sRV5DAjLGoFz36wPeX/dovGuQyarHVNU6oemrD4v+G5p7YZCl1WKqR
-         FJUjTm+3ylcQXDqzn49RZMOd+T5wFMkhuweUxt/TkGGppmwdUxwQ5VAtUpdyIPM106XB
-         fxJAIz+xtoOqEWDpk288Fie177VMO8aLvBkIWXeMfdwpZp+46gkk8egbPySV8QpXCFND
-         SevC+/yqT2WEcEIzrde9QJNTfAKxQ6mk1zBXe6wb4eeBz6sjPPUgm+YreE6Q3So1EiCz
-         x9aQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=v0i4SoTNOetxv1TXQohw3BAMTxHV/xX29DYqCh6nNok=;
-        b=Jfqj4X1YDtJpeRNLPs3eHwqToUrlO8xB4ve/7AeeixisvfTtD/oCBwprBZJ0sdMvzo
-         PlFWyNm3deb2Jr+qgSgovlGPEGn9NSe06yyqHVtf1ijEqSBXlMwRxSRzs0czFEYCc6Cs
-         iFRwEFLS47fpBt9Rhl9NkjA6toK9vaERixr6iks6SYF9VwcoNzHY+IEC7ROO9Haa9Vbf
-         wuEWyOfaE9yZMO6qW5DmYZpze7hoczt83s8CgAAFBChU+l6DaFJM02CxrJiTVuCCkDib
-         ImUWmXgy/wXW5ciGL/u18wBWuiFtc+TAVLPYtnMdx3nIzLP+5IofZiOc0PkRSEY3mL8+
-         39Tw==
-X-Gm-Message-State: AOAM532HwL5NdPTcxLAxqI2fkS+9MYltOClFj/Gq6cOE6pLNBYVhc5Bw
-        j8JPfAALKoLrV+7UgPShJKH7sFoxWd4=
-X-Google-Smtp-Source: ABdhPJyzRXCZTZWBR2aCFH9gSxnYReCmVt9oDSyD3KTRnCxLeD8snOX+Chd+J+NqyUvrOwV/sv5s7A==
-X-Received: by 2002:a17:90b:d8a:: with SMTP id bg10mr3234503pjb.103.1589867331432;
-        Mon, 18 May 2020 22:48:51 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id c2sm9129626pgj.93.2020.05.18.22.48.49
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 18 May 2020 22:48:50 -0700 (PDT)
-Message-ID: <5ec37342.1c69fb81.cb660.9f10@mx.google.com>
-Date:   Mon, 18 May 2020 22:48:50 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1728784AbgESFtn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 May 2020 01:49:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49838 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728776AbgESFtm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 May 2020 01:49:42 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1F1812075F;
+        Tue, 19 May 2020 05:49:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1589867381;
+        bh=FF7KN1OdpHlPUxJsyYLo5KCQclzjlL5l32hhGgYBOlc=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=S184YSdBWMtOHDP29aI0nL6+Vz3uTarBr2r1hGAy4LD18h8TV71WlB0e/skLmU2md
+         zfFN1D56nZtPSLakefrU45pdOvcRca4fJyPaLnRlfgtxCPnYquwQN8BmMQBg78LXUW
+         b9hVs9YtmDz/ZdglI+V4fD2PW0FbBbnYFbIhR2so=
+Date:   Tue, 19 May 2020 07:49:39 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Hugh Dickins <hughd@google.com>
+Cc:     Pavel Machek <pavel@denx.de>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org,
+        syzbot+c8a8197c8852f566b9d9@syzkaller.appspotmail.com,
+        syzbot+40b71e145e73f78f81ad@syzkaller.appspotmail.com,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Yang Shi <yang.shi@linux.alibaba.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 4.19 02/80] shmem: fix possible deadlocks on
+ shmlock_user_lock
+Message-ID: <20200519054939.GB3826326@kroah.com>
+References: <20200518173450.097837707@linuxfoundation.org>
+ <20200518173450.633393924@linuxfoundation.org>
+ <20200518211330.GA25576@amd>
+ <alpine.LSU.2.11.2005181714490.1094@eggly.anvils>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.4.223-87-g5614224b8432
-X-Kernelci-Report-Type: boot
-X-Kernelci-Branch: linux-4.4.y
-Subject: stable-rc/linux-4.4.y boot: 96 boots: 3 failed,
- 81 passed with 6 offline, 4 untried/unknown,
- 2 conflicts (v4.4.223-87-g5614224b8432)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <alpine.LSU.2.11.2005181714490.1094@eggly.anvils>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-******************************************
-* WARNING: Boot tests are now deprecated *
-******************************************
+On Mon, May 18, 2020 at 06:10:58PM -0700, Hugh Dickins wrote:
+> Hi Pavel,
+> 
+> On Mon, 18 May 2020, Pavel Machek wrote:
+> 
+> > Hi!
+> > 
+> > > This may not risk an actual deadlock, since shmem inodes do not take
+> > > part in writeback accounting, but there are several easy ways to avoid
+> > > it.
+> > 
+> > ...
+> > 
+> > > Take info->lock out of the chain and the possibility of deadlock or
+> > > lockdep warning goes away.
+> > 
+> > It is unclear to me if actual possibility of deadlock exists or not,
+> > but anyway:
+> > 
+> > >  	int retval = -ENOMEM;
+> > >  
+> > > -	spin_lock_irq(&info->lock);
+> > > +	/*
+> > > +	 * What serializes the accesses to info->flags?
+> > > +	 * ipc_lock_object() when called from shmctl_do_lock(),
+> > > +	 * no serialization needed when called from shm_destroy().
+> > > +	 */
+> > >  	if (lock && !(info->flags & VM_LOCKED)) {
+> > >  		if (!user_shm_lock(inode->i_size, user))
+> > >  			goto out_nomem;
+> > 
+> > Should we have READ_ONCE() here? If it is okay, are concurency
+> > sanitizers smart enough to realize that it is okay? Replacing warning
+> > with different one would not be exactly a win...
+> 
+> If a sanitizer comes to question this change, I don't see how a
+> READ_ONCE() anywhere near here (on info->flags?) is likely to be
+> enough to satisfy it - it would be asking for a locking scheme that
+> it understands (being unable to read the comment) - and might then
+> ask for that same locking in the numerous other places that read
+> info->flags (and a few that write it).  Add data_race()s all over?
+> 
+> (Or are you concerned about that inode->i_size, which I suppose ought
+> really to be i_size_read(inode) on some 32-bit configurations; though
+> that's of very long standing, and has never caused any concern before.)
+> 
+> I am not at all willing to add annotations speculatively, in case this
+> or that tool turns out to want help later.  So far I've not heard of
+> any such complaint on 5.7-rc[3456] or linux-next: but maybe this is
+> too soon to hear a complaint, and you feel this should not be rushed
+> into -stable?
+> 
+> This was an AUTOSEL selection, to which I have no objection, but it
+> isn't something we were desperate to push into -stable: so I've also
+> no objection if Greg shares your concern, and prefers to withdraw it.
+> (That choice may depend on to what extent he expects to be keeping
+> -stable clean against upcoming sanitizers in future.)
 
-As kernelci.org is expanding its functional testing capabilities, the conce=
-pt
-of boot testing is now deprecated.  Boot results are scheduled to be droppe=
-d on
-*5th June 2020*.  The full schedule for boot tests deprecation is available=
- on
-this GitHub issue: https://github.com/kernelci/kernelci-backend/issues/238
+Sanitizers run on stable trees all the time as that's the releases that
+ends up on products, where people run them.  That's why I like to take
+those types of fixes, especially when tools report them.
 
-The new equivalent is the *baseline* test suite which also runs sanity chec=
-ks
-using dmesg and bootrr: https://github.com/kernelci/bootrr
+thanks,
 
-See the *baseline results for this kernel revision* on this page:
-https://kernelci.org/test/job/stable-rc/branch/linux-4.4.y/kernel/v4.4.223-=
-87-g5614224b8432/plan/baseline/
-
----------------------------------------------------------------------------=
-----
-
-stable-rc/linux-4.4.y boot: 96 boots: 3 failed, 81 passed with 6 offline, 4=
- untried/unknown, 2 conflicts (v4.4.223-87-g5614224b8432)
-
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.4.y/kernel/v4.4.223-87-g5614224b8432/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
-/kernel/v4.4.223-87-g5614224b8432/
-
-Tree: stable-rc
-Branch: linux-4.4.y
-Git Describe: v4.4.223-87-g5614224b8432
-Git Commit: 5614224b8432edc87094945490727479494da465
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 50 unique boards, 18 SoC families, 17 builds out of 190
-
-Boot Regressions Detected:
-
-arm:
-
-    davinci_all_defconfig:
-        gcc-8:
-          da850-evm:
-              lab-baylibre-seattle: new failure (last pass: v4.4.223-36-gce=
-b6b0b3f45d)
-          dm365evm,legacy:
-              lab-baylibre-seattle: new failure (last pass: v4.4.223-36-gce=
-b6b0b3f45d)
-
-    qcom_defconfig:
-        gcc-8:
-          qcom-apq8064-cm-qs600:
-              lab-baylibre-seattle: failing since 5 days (last pass: v4.4.2=
-23 - first fail: v4.4.223-36-g32f5ec9b096d)
-
-    sama5_defconfig:
-        gcc-8:
-          at91-sama5d4_xplained:
-              lab-baylibre: failing since 53 days (last pass: v4.4.216-127-=
-g955137020949 - first fail: v4.4.217)
-
-Boot Failures Detected:
-
-arm:
-    sama5_defconfig:
-        gcc-8:
-            at91-sama5d4_xplained: 1 failed lab
-
-    imx_v4_v5_defconfig:
-        gcc-8:
-            imx27-phytec-phycard-s-rdk: 1 failed lab
-
-    multi_v5_defconfig:
-        gcc-8:
-            imx27-phytec-phycard-s-rdk: 1 failed lab
-
-Offline Platforms:
-
-arm:
-
-    multi_v7_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-            qcom-apq8064-cm-qs600: 1 offline lab
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-
-    davinci_all_defconfig:
-        gcc-8
-            da850-evm: 1 offline lab
-            dm365evm,legacy: 1 offline lab
-
-    exynos_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-
-Conflicting Boot Failures Detected: (These likely are not failures as other=
- labs are reporting PASS. Needs review.)
-
-i386:
-    i386_defconfig:
-        qemu_i386:
-            lab-baylibre: FAIL (gcc-8)
-            lab-collabora: PASS (gcc-8)
-
-x86_64:
-    x86_64_defconfig:
-        qemu_x86_64:
-            lab-baylibre: FAIL (gcc-8)
-            lab-collabora: PASS (gcc-8)
-
----
-For more info write to <info@kernelci.org>
+greg k-h
