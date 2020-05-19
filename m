@@ -2,70 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 082E51D9ED0
-	for <lists+stable@lfdr.de>; Tue, 19 May 2020 20:07:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E92AC1D9F36
+	for <lists+stable@lfdr.de>; Tue, 19 May 2020 20:22:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726510AbgESSHs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 May 2020 14:07:48 -0400
-Received: from us-smtp-2.mimecast.com ([205.139.110.61]:50170 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726059AbgESSHs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 May 2020 14:07:48 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1589911667;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc; bh=megtxqWXyglz/CqjKs2x/itHX3lBYfTYHJlMu70hZuI=;
-        b=hpEnHFsZWae2flxOrgbMzvuAA5joLJ2OsqLpVung+PRaqwsiILYJEmHdV9tZyCnORLjmfi
-        EIW1WVZIBOwmmcU62gEDmI1q9eYxHrIQXCUL2QbqAqq2eKfrD+QKAu1QkSwKjkbxpHFDIp
-        JCZIBcIKvmih9VvXt6qHvHwc+m+1CXM=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-426-8zS8eI4HPqOnJYwKbtq5eQ-1; Tue, 19 May 2020 14:07:46 -0400
-X-MC-Unique: 8zS8eI4HPqOnJYwKbtq5eQ-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id ECE9A107ACCA;
-        Tue, 19 May 2020 18:07:44 +0000 (UTC)
-Received: from virtlab511.virt.lab.eng.bos.redhat.com (virtlab511.virt.lab.eng.bos.redhat.com [10.19.152.198])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 6367410016EB;
-        Tue, 19 May 2020 18:07:44 +0000 (UTC)
-From:   Paolo Bonzini <pbonzini@redhat.com>
-To:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc:     oupton@google.com, stable@vger.kernel.org
-Subject: [PATCH] KVM: x86: allow KVM_STATE_NESTED_MTF_PENDING in kvm_state flags
-Date:   Tue, 19 May 2020 14:07:43 -0400
-Message-Id: <20200519180743.89974-1-pbonzini@redhat.com>
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
+        id S1729529AbgESSWh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 May 2020 14:22:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36752 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726502AbgESSWh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 May 2020 14:22:37 -0400
+X-Greylist: delayed 318 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 19 May 2020 11:22:36 PDT
+Received: from valentin-vidic.from.hr (valentin-vidic.from.hr [IPv6:2001:470:1f0b:3b7::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE5EDC08C5C0;
+        Tue, 19 May 2020 11:22:36 -0700 (PDT)
+X-Virus-Scanned: Debian amavisd-new at valentin-vidic.from.hr
+Received: by valentin-vidic.from.hr (Postfix, from userid 1000)
+        id 8DE56543; Tue, 19 May 2020 20:17:12 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=valentin-vidic.from.hr; s=2020; t=1589912232;
+        bh=agIZSkznk24x5nRuX+3INPmxl6trTGmhxoT+BEZ/4+w=;
+        h=From:To:Cc:Subject:Date:From;
+        b=WqVM+uuRUgP1oDGP2/fRdKOzfeQmkdqItQhcBecTsN9KS2cJ4MLGHyqHmuFWWOJGd
+         EaHbHtp/gY5HAEAfJf5DIcSWCdgd2TwZ5vzc0vbX0S3oMcCrf7xEeu5Od3k1G/7YuT
+         Q6tgt3+H+BWkviCXAwZfriVt9yeJ9XNAuARUMZL4FOSL9jGiM+17P8CwwE0JhdcPgf
+         jL6L4/ir+35XVDbrTsq9SWUuFS6wWYAc3MG2uKM6nfcKa0LGm75Ohwn3GkiXm4Tb8W
+         MQD0BvC+JLyyHOzFpskrIHev9+T7BPIlhCs4kSm7XPGDeCMdxlWlOeXYx63Bsp+xHh
+         aDmMFxWSEpTj6WcJVTQ4DIXHoYCWlqBYfiyK7RBhaSHZMED56bKVRn81BgmbvclSdW
+         J7cEjgaVGmt4iFxyNBMt7kvWnZIs5KMQ4xs51ad1ZuqoOl6wVf33wBXiWslwftRwnQ
+         meQZZfPHOVeHBe/mYt7UQqWdrYIu43CjQHulvp8ZCzFBp8HdnFBHg1U1hNRT+tloUY
+         YBi8u9SkXnc9h60uisWqLmj28RZetBPaMMeAj/qyF6zgXJOdP+8d/dn8GiIt733iQN
+         0iYCBxK+/bJ8zAX5t2+Jqo5iRxV2zcrHkvWuYhwfFVvFzMhb4hn+ZB3Dh04eBKwgR6
+         4cb7wMcsCXGYJ38rKOwgodJ4=
+From:   Valentin Vidic <vvidic@valentin-vidic.from.hr>
+To:     Heiko Carstens <heiko.carstens@de.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Valentin Vidic <vvidic@valentin-vidic.from.hr>,
+        stable@vger.kernel.org
+Subject: [PATCH] s390/sclp_vt220: Fix console name to match device
+Date:   Tue, 19 May 2020 20:16:54 +0200
+Message-Id: <20200519181654.16765-1-vvidic@valentin-vidic.from.hr>
+X-Mailer: git-send-email 2.20.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The migration functionality was left incomplete in commit 5ef8acbdd687
-("KVM: nVMX: Emulate MTF when performing instruction emulation", 2020-02-23),
-fix it.
+Console name reported in /proc/consoles:
 
-Fixes: 5ef8acbdd687 ("KVM: nVMX: Emulate MTF when performing instruction emulation")
+  ttyS1                -W- (EC p  )    4:65
+
+does not match device name:
+
+  crw--w----    1 root     root        4,  65 May 17 12:18 /dev/ttysclp0
+
+so debian-installer gets confused and fails to start.
+
+Signed-off-by: Valentin Vidic <vvidic@valentin-vidic.from.hr>
 Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 ---
- arch/x86/kvm/x86.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/s390/char/sclp_vt220.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index 4f55a44951c3..0001b2addc66 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -4626,7 +4626,7 @@ long kvm_arch_vcpu_ioctl(struct file *filp,
+diff --git a/drivers/s390/char/sclp_vt220.c b/drivers/s390/char/sclp_vt220.c
+index 3f9a6ef650fa..3c2ed6d01387 100644
+--- a/drivers/s390/char/sclp_vt220.c
++++ b/drivers/s390/char/sclp_vt220.c
+@@ -35,8 +35,8 @@
+ #define SCLP_VT220_MINOR		65
+ #define SCLP_VT220_DRIVER_NAME		"sclp_vt220"
+ #define SCLP_VT220_DEVICE_NAME		"ttysclp"
+-#define SCLP_VT220_CONSOLE_NAME		"ttyS"
+-#define SCLP_VT220_CONSOLE_INDEX	1	/* console=ttyS1 */
++#define SCLP_VT220_CONSOLE_NAME		"ttysclp"
++#define SCLP_VT220_CONSOLE_INDEX	0	/* console=ttysclp0 */
  
- 		if (kvm_state.flags &
- 		    ~(KVM_STATE_NESTED_RUN_PENDING | KVM_STATE_NESTED_GUEST_MODE
--		      | KVM_STATE_NESTED_EVMCS))
-+		      | KVM_STATE_NESTED_EVMCS | KVM_STATE_NESTED_MTF_PENDING))
- 			break;
- 
- 		/* nested_run_pending implies guest_mode.  */
+ /* Representation of a single write request */
+ struct sclp_vt220_request {
 -- 
-2.18.2
+2.20.1
 
