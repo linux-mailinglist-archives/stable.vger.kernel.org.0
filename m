@@ -2,61 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 940DE1D95A6
-	for <lists+stable@lfdr.de>; Tue, 19 May 2020 13:49:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B683B1D95D9
+	for <lists+stable@lfdr.de>; Tue, 19 May 2020 14:06:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728887AbgESLtT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 May 2020 07:49:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57958 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728804AbgESLtS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 May 2020 07:49:18 -0400
-Received: from localhost (unknown [137.135.114.1])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 25D5E20758;
-        Tue, 19 May 2020 11:49:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589888958;
-        bh=gt+DL+h2Jj48KB77zFys0B0Z8pdsBWERL6n/XavhLUU=;
-        h=Date:From:To:To:To:Cc:Cc:Subject:In-Reply-To:References:From;
-        b=zWtqkPDItTlUx+MqRZN1NurUjdIXCOdHMBZDtThcoQVNyxZZmo4NPiiIigEuEIccw
-         urT77pytAZl8csK6oOQlB6r9RDfDRilY5jaO0kKoKJTg8d4G03IkG1ib4sgWeARs/g
-         9TtpI1EL3LUh0ihcj6N56mddCnIVMZTARAdcSExQ=
-Date:   Tue, 19 May 2020 11:49:17 +0000
-From:   Sasha Levin <sashal@kernel.org>
-To:     Sasha Levin <sashal@kernel.org>
-To:     Paul Cercueil <paul@crapouillou.net>
-To:     David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>
-Cc:     od@zcrc.me, dri-devel@lists.freedesktop.org
-Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH 06/12] gpu/drm: Ingenic: Fix incorrect assumption about plane->index
-In-Reply-To: <20200516215057.392609-6-paul@crapouillou.net>
-References: <20200516215057.392609-6-paul@crapouillou.net>
-Message-Id: <20200519114918.25D5E20758@mail.kernel.org>
+        id S1728626AbgESMG1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 May 2020 08:06:27 -0400
+Received: from jabberwock.ucw.cz ([46.255.230.98]:47016 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726949AbgESMG1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 May 2020 08:06:27 -0400
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 107141C025A; Tue, 19 May 2020 14:06:26 +0200 (CEST)
+Date:   Tue, 19 May 2020 14:06:25 +0200
+From:   Pavel Machek <pavel@denx.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Stefano Brivio <sbrivio@redhat.com>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 4.19 41/80] netfilter: nft_set_rbtree: Introduce and use
+ nft_rbtree_interval_start()
+Message-ID: <20200519120625.GA8342@amd>
+References: <20200518173450.097837707@linuxfoundation.org>
+ <20200518173458.612903024@linuxfoundation.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="C7zPtVaVf+AK4Oqc"
+Content-Disposition: inline
+In-Reply-To: <20200518173458.612903024@linuxfoundation.org>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi
 
-[This is an automated email]
+--C7zPtVaVf+AK4Oqc
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-This commit has been processed because it contains a "Fixes:" tag
-fixing commit: 90b86fcc47b4 ("DRM: Add KMS driver for the Ingenic JZ47xx SoCs").
+Hi!
 
-The bot has tested the following trees: v5.6.13, v5.4.41.
+> [ Upstream commit 6f7c9caf017be8ab0fe3b99509580d0793bf0833 ]
+>=20
+> Replace negations of nft_rbtree_interval_end() with a new helper,
+> nft_rbtree_interval_start(), wherever this helps to visualise the
+> problem at hand, that is, for all the occurrences except for the
+> comparison against given flags in __nft_rbtree_get().
+>=20
+> This gets especially useful in the next patch.
 
-v5.6.13: Build OK!
-v5.4.41: Failed to apply! Possible dependencies:
-    52e4607dace1 ("gpu/drm: ingenic: Use the plane's src_[x,y] to configure DMA length")
+This looks like cleanup in preparation for the next patch. Next patch
+is there for some series, but not for 4.19.124. Should this be in
+4.19, then?
 
+Best regards,
+								Pavel
+							=09
+--=20
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
+g.html
 
-NOTE: The patch will not be queued to stable trees until it is upstream.
+--C7zPtVaVf+AK4Oqc
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-How should we proceed with this patch?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
 
--- 
-Thanks
-Sasha
+iEYEARECAAYFAl7Dy8EACgkQMOfwapXb+vKMeACglJuua3KLDV+n29v1IdzX5+Z5
+rhQAnRwxKY8T+VPoAhyhs9QipmJAUiK+
+=w+if
+-----END PGP SIGNATURE-----
+
+--C7zPtVaVf+AK4Oqc--
