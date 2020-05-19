@@ -2,79 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B683B1D95D9
-	for <lists+stable@lfdr.de>; Tue, 19 May 2020 14:06:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B85EE1D95EC
+	for <lists+stable@lfdr.de>; Tue, 19 May 2020 14:08:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728626AbgESMG1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 May 2020 08:06:27 -0400
-Received: from jabberwock.ucw.cz ([46.255.230.98]:47016 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726949AbgESMG1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 May 2020 08:06:27 -0400
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 107141C025A; Tue, 19 May 2020 14:06:26 +0200 (CEST)
-Date:   Tue, 19 May 2020 14:06:25 +0200
-From:   Pavel Machek <pavel@denx.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Stefano Brivio <sbrivio@redhat.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 4.19 41/80] netfilter: nft_set_rbtree: Introduce and use
- nft_rbtree_interval_start()
-Message-ID: <20200519120625.GA8342@amd>
-References: <20200518173450.097837707@linuxfoundation.org>
- <20200518173458.612903024@linuxfoundation.org>
+        id S1728822AbgESMIn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 May 2020 08:08:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35880 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726196AbgESMIn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 May 2020 08:08:43 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id D5EAE20708;
+        Tue, 19 May 2020 12:08:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1589890123;
+        bh=EaG4wBKAklDYz64kBQM9KM/hg//IL3j1WxJO74AwWZU=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=otxEaEJcMC3xItziyGQQH7pM13WxQPPuEABs/kQ022PW3yvzigoWGEV2KsydY6+b2
+         KZ0ItBDzoRUyHUhifZm9ZUl3X+AFCsRS7QV9LWnqGUb64tGcHuF8mO/YT+x7bXmM0X
+         FrlgCn/y47de7V5Dn1uSFPKfcheE2saip1Gpw9bA=
+Date:   Tue, 19 May 2020 14:08:41 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Daniel Borkmann <daniel@iogearbox.net>
+Cc:     ast@kernel.org, brendan.d.gregg@gmail.com, hch@lst.de,
+        mhiramat@kernel.org, torvalds@linux-foundation.org,
+        stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] bpf: Restrict bpf_trace_printk()'s %s
+ usage and add %pks," failed to apply to 5.4-stable tree
+Message-ID: <20200519120841.GB332015@kroah.com>
+References: <15898172865189@kroah.com>
+ <72fe3785-bfbe-d672-fa77-8a90fc4d2844@iogearbox.net>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="C7zPtVaVf+AK4Oqc"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200518173458.612903024@linuxfoundation.org>
-User-Agent: Mutt/1.5.23 (2014-03-12)
+In-Reply-To: <72fe3785-bfbe-d672-fa77-8a90fc4d2844@iogearbox.net>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, May 18, 2020 at 09:17:39PM +0200, Daniel Borkmann wrote:
+> Hey Greg,
+> 
+> On 5/18/20 5:54 PM, gregkh@linuxfoundation.org wrote:
+> > 
+> > The patch below does not apply to the 5.4-stable tree.
+> > If someone wants it applied there, or to any other stable or longterm
+> > tree, then please email the backport, including the original git commit
+> > id to <stable@vger.kernel.org>.
+> > 
+> > thanks,
+> > 
+> > greg k-h
+> > 
+> > ------------------ original commit in Linus's tree ------------------
+> > 
+> >  From b2a5212fb634561bb734c6356904e37f6665b955 Mon Sep 17 00:00:00 2001
+> > From: Daniel Borkmann <daniel@iogearbox.net>
+> > Date: Fri, 15 May 2020 12:11:18 +0200
+> > Subject: [PATCH] bpf: Restrict bpf_trace_printk()'s %s usage and add %pks,
+> >   %pus specifier
+> 
+> The whole series related to this commit is:
+> 
+>  - 0ebeea8ca8a4 ("bpf: Restrict bpf_probe_read{, str}() only to archs where they work")
+>  - 47cc0ed574ab ("bpf: Add bpf_probe_read_{user, kernel}_str() to do_refine_retval_range")
+>  - b2a5212fb634 ("bpf: Restrict bpf_trace_printk()'s %s usage and add %pks, %pus specifier")
+> 
+> It would only apply to 5.6.y stable branch, but not older ones.
 
---C7zPtVaVf+AK4Oqc
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Thanks for the information, only the last patch was queued up for 5.6.y,
+I'll queue the other two for the next round after this one.
 
-Hi!
-
-> [ Upstream commit 6f7c9caf017be8ab0fe3b99509580d0793bf0833 ]
->=20
-> Replace negations of nft_rbtree_interval_end() with a new helper,
-> nft_rbtree_interval_start(), wherever this helps to visualise the
-> problem at hand, that is, for all the occurrences except for the
-> comparison against given flags in __nft_rbtree_get().
->=20
-> This gets especially useful in the next patch.
-
-This looks like cleanup in preparation for the next patch. Next patch
-is there for some series, but not for 4.19.124. Should this be in
-4.19, then?
-
-Best regards,
-								Pavel
-							=09
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
-
---C7zPtVaVf+AK4Oqc
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAl7Dy8EACgkQMOfwapXb+vKMeACglJuua3KLDV+n29v1IdzX5+Z5
-rhQAnRwxKY8T+VPoAhyhs9QipmJAUiK+
-=w+if
------END PGP SIGNATURE-----
-
---C7zPtVaVf+AK4Oqc--
+greg k-h
