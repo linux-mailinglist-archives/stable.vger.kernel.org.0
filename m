@@ -2,132 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 439041D9CB0
-	for <lists+stable@lfdr.de>; Tue, 19 May 2020 18:30:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B78D81D9D72
+	for <lists+stable@lfdr.de>; Tue, 19 May 2020 19:04:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729194AbgESQaZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 May 2020 12:30:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47332 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728775AbgESQaZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 May 2020 12:30:25 -0400
-Received: from mail-pg1-x544.google.com (mail-pg1-x544.google.com [IPv6:2607:f8b0:4864:20::544])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC82CC08C5C0;
-        Tue, 19 May 2020 09:30:24 -0700 (PDT)
-Received: by mail-pg1-x544.google.com with SMTP id u35so68106pgk.6;
-        Tue, 19 May 2020 09:30:24 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:subject:to:cc:references:from:autocrypt:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=zl27qRmpnEWPY5MX3lK7b0j3SSfkbuil8NRZek91WDE=;
-        b=CYUHerbZsjjZZn8LrFJpyrGdWRr1VF8zFHmAywfWFC3ZG4LSCtQANHi9Jm3YrwJo5Z
-         fJhq+YJalSrMC9OBgb7qmAHSQ9N9oyYvEFOKqGh6DNDIfRcTeWmXMd/UDXSJ/Vk+DniC
-         MWKHkrq82Rx1O6V+4GTp9OwHQyR31lTfEgV2j7ZPsMm9Y+3yqRG7u2+fgLgynlwSG7yy
-         25OpZ6cb40wtPnA5BoDn4B6oqWnYcl8BRpx7/VrNRDg5n7zhAG11sMkGssUIfxmgLWm8
-         zUUMohosotYvnXdqLg89PrFTWM6yTztpwwWLIs4DXzU0AdgXnBfGLA03pEQVYRyJLupT
-         5jKA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:subject:to:cc:references:from:autocrypt
-         :message-id:date:user-agent:mime-version:in-reply-to
-         :content-language:content-transfer-encoding;
-        bh=zl27qRmpnEWPY5MX3lK7b0j3SSfkbuil8NRZek91WDE=;
-        b=Z4Uta4wEA724Dsj7UFfOujITWPWiOolCUSMGVwpzaerKUkvHzwnE81PSUD+s5QyUX9
-         bk6lwiL1N3EvGg0RVkMJP3pEYIE5JRrmWJOEWKrTNHuonEWiCnNMMMEMzGXmyzppVSnd
-         KGhtUWSEur6YVkcVFipHt6+Zm51jhWZHjxm2HVZIOtp0EoGRWpb1koQmwy6f3cN11H74
-         V7LWhwwyvfeQYiVyFKu76BuAHvCX9QLyAgUi5jrf//useO4dVDEG9xfo8FMOZ2aNusf3
-         tCW5ZzgJdvjbd0ZXens+sUc/FfJ2wpFMhvaJeTj+e5pnod9ve5on2wlKhdbmoY47kqHY
-         idfA==
-X-Gm-Message-State: AOAM530SA0oqgCjUrW5fkbr2uMvnwJBEomGf/677yrjCTfpa4xh50gcs
-        xmqXYqi2wLsB7/WiWCMnYOCOsEmH
-X-Google-Smtp-Source: ABdhPJypTOZPUIJ48RIunmKqZO1ZcLuThjgsZif4KwXDlDqCTU+XL+eOGO4ffqhw3setBjfy+kSCIA==
-X-Received: by 2002:a63:9e41:: with SMTP id r1mr23846pgo.97.1589905824369;
-        Tue, 19 May 2020 09:30:24 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id z190sm25976pfb.1.2020.05.19.09.30.23
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 19 May 2020 09:30:23 -0700 (PDT)
+        id S1729001AbgESREx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 May 2020 13:04:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37514 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728778AbgESREw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 May 2020 13:04:52 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0831B20708;
+        Tue, 19 May 2020 17:04:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1589907891;
+        bh=njSEaIFh9RXLbuVk3Wkbg0wE3C25mo8/xTDnz+hRj+o=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=TKwyT2Jk0UBMVvsQTn9cesqoPHXxrQrs5IanXez7s1I76HFXhGAUNttUnKWPJmGNg
+         QVV0Z8ETdh6RJY4Obym+GG0Y9MPQQbzWl5xp5gD0liwNgiz5wuJ/xFWx8XRqzWNWeV
+         EzsCk+9E5uurfFqYN45ToduDt0RsJkVXjL8/nziE=
+Date:   Tue, 19 May 2020 19:04:49 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Naresh Kamboju <naresh.kamboju@linaro.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        lkft-triage@lists.linaro.org,
+        linux- stable <stable@vger.kernel.org>
 Subject: Re: [PATCH 5.6 000/192] 5.6.14-rc2 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
+Message-ID: <20200519170449.GA1085364@kroah.com>
 References: <20200519054650.064501564@linuxfoundation.org>
-From:   Guenter Roeck <linux@roeck-us.net>
-Autocrypt: addr=linux@roeck-us.net; keydata=
- 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
- mDW4+i+XlNFUPUYMrIKi9joBhu18ssf5i5Q=
-Message-ID: <981436bc-c36d-32e8-73ca-e121b4aea948@roeck-us.net>
-Date:   Tue, 19 May 2020 09:30:22 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+ <CA+G9fYuD66kXa-4kYNFsS+HBmu7qSSpCxSnVVSYzb++X=o=2cg@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <20200519054650.064501564@linuxfoundation.org>
 Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CA+G9fYuD66kXa-4kYNFsS+HBmu7qSSpCxSnVVSYzb++X=o=2cg@mail.gmail.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 5/18/20 10:47 PM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.6.14 release.
-> There are 192 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Tue, May 19, 2020 at 06:25:05PM +0530, Naresh Kamboju wrote:
+> On Tue, 19 May 2020 at 11:17, Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
+> >
+> > This is the start of the stable review cycle for the 5.6.14 release.
+> > There are 192 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> >
+> > Responses should be made by Thu, 21 May 2020 05:45:41 +0000.
+> > Anything received after that time might be too late.
+> >
+> > The whole patch series can be found in one patch at:
+> >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.6.14-rc2.gz
+> > or in the git tree and branch at:
+> >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.6.y
+> > and the diffstat can be found below.
+> >
+> > thanks,
+> >
+> > greg k-h
 > 
-> Responses should be made by Thu, 21 May 2020 05:45:41 +0000.
-> Anything received after that time might be too late.
-> 
+> Results from Linaro’s test farm.
+> No regressions on arm64, arm, x86_64, and i386.
 
-Build results:
-	total: 155 pass: 155 fail: 0
-Qemu test results:
-	total: 431 pass: 431 fail: 0
+Thanks for testing all of these and letting me know.
 
-Guenter
+greg k-h
