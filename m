@@ -2,172 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A53451D9564
-	for <lists+stable@lfdr.de>; Tue, 19 May 2020 13:36:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B90F1D9597
+	for <lists+stable@lfdr.de>; Tue, 19 May 2020 13:49:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728694AbgESLgZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 May 2020 07:36:25 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:38566 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1728658AbgESLgZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 May 2020 07:36:25 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1589888183;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=anDETXwhf+20F673AErHdDJk1touv5h1QiuXeaGAwVo=;
-        b=FRil9r8bcF21O6ou09n/HvcQkcsDHktej3sITCOq5BkQcvnHavqmlHBoNt43qYWdYrYIwt
-        SnwDcxWNl1IU0TG8Bz5zmuoiW0xjEGlIlwPDgvh04AOGHyeYb9+50b9Q0k1GIyf3AOcJC+
-        25B1E+jA7WWEcZD+RRMtG/4kOzHnpGs=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-198-vHxp75QHNPuKDbecYtsieA-1; Tue, 19 May 2020 07:36:21 -0400
-X-MC-Unique: vHxp75QHNPuKDbecYtsieA-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S1728286AbgESLtJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 May 2020 07:49:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57576 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728626AbgESLtJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 May 2020 07:49:09 -0400
+Received: from localhost (unknown [137.135.114.1])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 7F43F1085944;
-        Tue, 19 May 2020 11:36:20 +0000 (UTC)
-Received: from starship (unknown [10.35.207.26])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id F2DC160BF3;
-        Tue, 19 May 2020 11:36:18 +0000 (UTC)
-Message-ID: <b46795c18d2c2e1294b67c530ebde0041fbbe131.camel@redhat.com>
-Subject: Re: [PATCH] KVM: x86: only do L1TF workaround on affected processors
-From:   Maxim Levitsky <mlevitsk@redhat.com>
-To:     Paolo Bonzini <pbonzini@redhat.com>, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org
-Cc:     Tom Lendacky <thomas.lendacky@amd.com>, stable@vger.kernel.org
-Date:   Tue, 19 May 2020 14:36:17 +0300
-In-Reply-To: <adb8a844689f1569875b1e6574ce7db4962e611c.camel@redhat.com>
-References: <20200519095008.1212-1-pbonzini@redhat.com>
-         <adb8a844689f1569875b1e6574ce7db4962e611c.camel@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.34.4 (3.34.4-1.fc31) 
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+        by mail.kernel.org (Postfix) with ESMTPSA id 1574B20709;
+        Tue, 19 May 2020 11:49:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1589888948;
+        bh=Q9HfJy6VdawZJlpU6m18c2Kc27q9zWaPvUZXoLjBWZU=;
+        h=Date:From:To:To:To:Cc:Cc:Cc:Subject:In-Reply-To:References:From;
+        b=LXbImAaUG/gxP2sv1kmRsdu1I7dAYnpXmvFiBIGtwgn7uCRK8GzguaScc3Gu1L2Lr
+         8Xzy0LGSqqaj6/Ecwt5G/OIjoXs7lPrivgy8Gr4awNmeajFSDJu8P+U8A3GnSVjEXu
+         V42GQcd+4wiVoDYOdfQDo4RjPhXXEcZfrVXUaXTs=
+Date:   Tue, 19 May 2020 11:49:06 +0000
+From:   Sasha Levin <sashal@kernel.org>
+To:     Sasha Levin <sashal@kernel.org>
+To:     "tip-bot2 for Borislav Petkov" <tip-bot2@linutronix.de>
+To:     linux-tip-commits@vger.kernel.org
+Cc:     Sergei Trofimovich <slyfox@gentoo.org>
+Cc:     <stable@vger.kernel.org>
+Cc:     stable@vger.kernel.org
+Subject: Re: [tip: x86/urgent] x86: Fix early boot crash on gcc-10, third try
+In-Reply-To: <158954160454.17951.15828011095215471629.tip-bot2@tip-bot2>
+References: <158954160454.17951.15828011095215471629.tip-bot2@tip-bot2>
+Message-Id: <20200519114908.1574B20709@mail.kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 2020-05-19 at 13:59 +0300, Maxim Levitsky wrote:
-> On Tue, 2020-05-19 at 05:50 -0400, Paolo Bonzini wrote:
-> > KVM stores the gfn in MMIO SPTEs as a caching optimization.  These are split
-> > in two parts, as in "[high 11111 low]", to thwart any attempt to use these bits
-> > in an L1TF attack.  This works as long as there are 5 free bits between
-> > MAXPHYADDR and bit 50 (inclusive), leaving bit 51 free so that the MMIO
-> > access triggers a reserved-bit-set page fault.
-> 
-> Most of machines I used have MAXPHYADDR=39, however on larger server machines,
-> isn't MAXPHYADDR already something like 48, thus not allowing enought space for these bits?
-> This is the case for my machine as well.
-> 
-> In this case, if I understand correctly, the MAXPHYADDR value reported to the guest can
-> be reduced to accomodate for these bits, is that true?
-> 
-> 
-> > The bit positions however were computed wrongly for AMD processors that have
-> > encryption support.  In this case, x86_phys_bits is reduced (for example
-> > from 48 to 43, to account for the C bit at position 47 and four bits used
-> > internally to store the SEV ASID and other stuff) while x86_cache_bits in
-> > would remain set to 48, and _all_ bits between the reduced MAXPHYADDR
-> > and bit 51 are set.  
-> 
-> If I understand correctly this is done by the host kernel. I haven't had memory encryption
-> enabled when I did these tests.
-> 
-> 
-> FYI, later on, I did some digging about SME and SEV on my machine (3970X), and found out that memory encryption (SME) does actually work,
-> except that it makes AMD's own amdgpu driver panic on boot and according to google this is a very well known issue.
-> This is why I always thought that it wasn't supported.
-> 
-> I tested this issue while SME is enabled with efifb and it seems that its state (enabled/disabled) doesn't affect this bug,
-> which suggest me that a buggy bios always reports that memory encrypiton is enabled in that msr, or something
-> like that. I haven't yet studied this area well enought to be sure.
-> 
-> SEV on the other hand is not active because the system doesn't seem to have PSP firmware loaded,
-> and only have CCP active (I added some printks to the ccp/psp driver and it shows that PSP reports 0 capability which indicates that it is not there)
-> It is reported as supported in CPUID (even SEV-ES).
-> 
-> I tested this patch and it works.
-> 
-> However note (not related to this patch) that running nested guest,
-> makes the L1 guest panic right in the very startup of the guest when npt=1.
-npt=0 of course - I need more coffee today.
+Hi
 
-Best regards,
-	Maxim Levitsky
+[This is an automated email]
 
-> I tested this with many guest/host combinations and even with fedora kernel 5.3 running
-> on both host and guest, this is the case.
-> 
-> Tested-by: Maxim Levitsky <mlevitsk@redhat.com>
-> 
-> Overall the patch makes sense to me, however I don't yet know this area well enought
-> for a review, but I think I'll dig into it today and once it all makes sense to me,
-> I'll review this patch as well.
-> 
-> Best regards,
-> 	Maxim Levitsky
-> 
-> > Then low_phys_bits would also cover some of the
-> > bits that are set in the shadow_mmio_value, terribly confusing the gfn
-> > caching mechanism.
-> > 
-> > To fix this, avoid splitting gfns as long as the processor does not have
-> > the L1TF bug (which includes all AMD processors).  When there is no
-> > splitting, low_phys_bits can be set to the reduced MAXPHYADDR removing
-> > the overlap.  This fixes "npt=0" operation on EPYC processors.
-> > 
-> > Thanks to Maxim Levitsky for bisecting this bug.
-> > 
-> > Cc: stable@vger.kernel.org
-> > Fixes: 52918ed5fcf0 ("KVM: SVM: Override default MMIO mask if memory encryption is enabled")
-> > Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-> > ---
-> >  arch/x86/kvm/mmu/mmu.c | 19 ++++++++++---------
-> >  1 file changed, 10 insertions(+), 9 deletions(-)
-> > 
-> > diff --git a/arch/x86/kvm/mmu/mmu.c b/arch/x86/kvm/mmu/mmu.c
-> > index 8071952e9cf2..86619631ff6a 100644
-> > --- a/arch/x86/kvm/mmu/mmu.c
-> > +++ b/arch/x86/kvm/mmu/mmu.c
-> > @@ -335,6 +335,8 @@ void kvm_mmu_set_mmio_spte_mask(u64 mmio_mask, u64 mmio_value, u64 access_mask)
-> >  {
-> >  	BUG_ON((u64)(unsigned)access_mask != access_mask);
-> >  	BUG_ON((mmio_mask & mmio_value) != mmio_value);
-> > +	WARN_ON(mmio_value & (shadow_nonpresent_or_rsvd_mask << shadow_nonpresent_or_rsvd_mask_len));
-> > +	WARN_ON(mmio_value & shadow_nonpresent_or_rsvd_lower_gfn_mask);
-> >  	shadow_mmio_value = mmio_value | SPTE_MMIO_MASK;
-> >  	shadow_mmio_mask = mmio_mask | SPTE_SPECIAL_MASK;
-> >  	shadow_mmio_access_mask = access_mask;
-> > @@ -583,16 +585,15 @@ static void kvm_mmu_reset_all_pte_masks(void)
-> >  	 * the most significant bits of legal physical address space.
-> >  	 */
-> >  	shadow_nonpresent_or_rsvd_mask = 0;
-> > -	low_phys_bits = boot_cpu_data.x86_cache_bits;
-> > -	if (boot_cpu_data.x86_cache_bits <
-> > -	    52 - shadow_nonpresent_or_rsvd_mask_len) {
-> > +	low_phys_bits = boot_cpu_data.x86_phys_bits;
-> > +	if (boot_cpu_has_bug(X86_BUG_L1TF) &&
-> > +	    !WARN_ON_ONCE(boot_cpu_data.x86_cache_bits >=
-> > +			  52 - shadow_nonpresent_or_rsvd_mask_len)) {
-> > +		low_phys_bits = boot_cpu_data.x86_cache_bits
-> > +			- shadow_nonpresent_or_rsvd_mask_len;
-> >  		shadow_nonpresent_or_rsvd_mask =
-> > -			rsvd_bits(boot_cpu_data.x86_cache_bits -
-> > -				  shadow_nonpresent_or_rsvd_mask_len,
-> > -				  boot_cpu_data.x86_cache_bits - 1);
-> > -		low_phys_bits -= shadow_nonpresent_or_rsvd_mask_len;
-> > -	} else
-> > -		WARN_ON_ONCE(boot_cpu_has_bug(X86_BUG_L1TF));
-> > +			rsvd_bits(low_phys_bits, boot_cpu_data.x86_cache_bits - 1);
-> > +	}
-> >  
-> >  	shadow_nonpresent_or_rsvd_lower_gfn_mask =
-> >  		GENMASK_ULL(low_phys_bits - 1, PAGE_SHIFT);
+This commit has been processed because it contains a -stable tag.
+The stable tag indicates that it's relevant for the following trees: all
+
+The bot has tested the following trees: v5.6.13, v5.4.41, v4.19.123, v4.14.180, v4.9.223, v4.4.223.
+
+v5.6.13: Build OK!
+v5.4.41: Build OK!
+v4.19.123: Failed to apply! Possible dependencies:
+    53c99bd665a2 ("init: add arch_call_rest_init to allow stack switching")
+    ec0bbef66f86 ("Compiler Attributes: homogenize __must_be_array")
+
+v4.14.180: Failed to apply! Possible dependencies:
+    53c99bd665a2 ("init: add arch_call_rest_init to allow stack switching")
+    771c035372a0 ("deprecate the '__deprecated' attribute warnings entirely and for good")
+    815f0ddb346c ("include/linux/compiler*.h: make compiler-*.h mutually exclusive")
+    8793bb7f4a9d ("kbuild: add macro for controlling warnings to linux/compiler.h")
+    cafa0010cd51 ("Raise the minimum required gcc version to 4.6")
+    ec0bbef66f86 ("Compiler Attributes: homogenize __must_be_array")
+
+v4.9.223: Failed to apply! Possible dependencies:
+    1cec20f0ea0e ("dma-buf: Restart reservation_object_wait_timeout_rcu() after writes")
+    38b8d208a454 ("sched/headers: Prepare for new header dependencies before moving code to <linux/sched/nmi.h>")
+    555570d744f8 ("sched/clock: Update static_key usage")
+    78010cd9736e ("dma-buf/fence: add an lockdep_assert_held()")
+    83b96794e0ea ("x86/xen: split off smp_pv.c")
+    983de5f97169 ("firmware: tegra: Add BPMP support")
+    9881b024b7d7 ("sched/clock: Delay switching sched_clock to stable")
+    a52482d9355e ("x86/xen: split off smp_hvm.c")
+    aa1c84e8ca7f ("x86/xen: split xen_cpu_die()")
+    acb04058de49 ("sched/clock: Fix hotplug crash")
+    b52992c06c90 ("drm/i915: Support asynchronous waits on struct fence from i915_gem_request")
+    ca791d7f4256 ("firmware: tegra: Add IVC library")
+    e601757102cf ("sched/headers: Prepare for new header dependencies before moving code to <linux/sched/clock.h>")
+    f54d1867005c ("dma-buf: Rename struct fence to dma_fence")
+    fedf54132d24 ("dma-buf: Restart reservation_object_get_fences_rcu() after writes")
+
+v4.4.223: Failed to apply! Possible dependencies:
+    090e77c391dd ("cpu/hotplug: Restructure FROZEN state handling")
+    1cf4f629d9d2 ("cpu/hotplug: Move online calls to hotplugged cpu")
+    4baa0afc6719 ("cpu/hotplug: Convert the hotplugged cpu work to a state machine")
+    949338e35131 ("cpu/hotplug: Move scheduler cpu_online notifier to hotplug core")
+    984581728eb4 ("cpu/hotplug: Split out cpu down functions")
+    ba997462435f ("cpu/hotplug: Restructure cpu_up code")
+    cff7d378d3fd ("cpu/hotplug: Convert to a state machine for the control processor")
+    fc6d73d67436 ("arch/hotplug: Call into idle with a proper state")
 
 
+NOTE: The patch will not be queued to stable trees until it is upstream.
+
+How should we proceed with this patch?
+
+-- 
+Thanks
+Sasha
