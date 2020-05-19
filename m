@@ -2,26 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FD3A1D96DC
-	for <lists+stable@lfdr.de>; Tue, 19 May 2020 15:00:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 03AE61D96DD
+	for <lists+stable@lfdr.de>; Tue, 19 May 2020 15:00:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728818AbgESNAt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 May 2020 09:00:49 -0400
-Received: from relay9-d.mail.gandi.net ([217.70.183.199]:42459 "EHLO
+        id S1728830AbgESNAw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 May 2020 09:00:52 -0400
+Received: from relay9-d.mail.gandi.net ([217.70.183.199]:40327 "EHLO
         relay9-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727077AbgESNAt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 May 2020 09:00:49 -0400
+        with ESMTP id S1727077AbgESNAw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 May 2020 09:00:52 -0400
 X-Originating-IP: 91.224.148.103
 Received: from localhost.localdomain (unknown [91.224.148.103])
         (Authenticated sender: miquel.raynal@bootlin.com)
-        by relay9-d.mail.gandi.net (Postfix) with ESMTPSA id 39C17FF81F;
-        Tue, 19 May 2020 13:00:47 +0000 (UTC)
+        by relay9-d.mail.gandi.net (Postfix) with ESMTPSA id 06028FF80B;
+        Tue, 19 May 2020 13:00:50 +0000 (UTC)
 From:   Miquel Raynal <miquel.raynal@bootlin.com>
 To:     <linux-mtd@lists.infradead.org>
-Cc:     Miquel Raynal <miquel.raynal@bootlin.com>, stable@vger.kernel.org
-Subject: [PATCH v2 12/62] mtd: rawnand: diskonchip: Fix the probe error path
-Date:   Tue, 19 May 2020 14:59:45 +0200
-Message-Id: <20200519130035.1883-13-miquel.raynal@bootlin.com>
+Cc:     Miquel Raynal <miquel.raynal@bootlin.com>, stable@vger.kernel.org,
+        Paul Cercueil <paul@crapouillou.net>,
+        Harvey Hunt <harveyhuntnexus@gmail.com>
+Subject: [PATCH v2 21/62] mtd: rawnand: ingenic: Fix the probe error path
+Date:   Tue, 19 May 2020 14:59:54 +0200
+Message-Id: <20200519130035.1883-22-miquel.raynal@bootlin.com>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200519130035.1883-1-miquel.raynal@bootlin.com>
 References: <20200519130035.1883-1-miquel.raynal@bootlin.com>
@@ -33,44 +35,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Not sure nand_cleanup() is the right function to call here but in any
-case it is not nand_release(). Indeed, even a comment says that
-calling nand_release() is a bit of a hack as there is no MTD device to
-unregister. So switch to nand_cleanup() for now and drop this
-comment.
+nand_release() is supposed be called after MTD device registration.
+Here, only nand_scan() happened, so use nand_cleanup() instead.
 
-There is no Fixes tag applying here as the use of nand_release()
-in this driver predates by far the introduction of nand_cleanup() in
+There is no real Fixes tag applying here as the use of nand_release()
+in this driver predates the introduction of nand_cleanup() in
 commit d44154f969a4 ("mtd: nand: Provide nand_cleanup() function to free NAND related resources")
-which makes this change possible. However, pointing this commit as the
-culprit for backporting purposes makes sense even if it did not intruce
-any bug.
+which makes this change possible. Hence, pointing it as the commit to
+fix for backporting purposes, even if this commit is not introducing
+any bug makes sense.
 
 Fixes: d44154f969a4 ("mtd: nand: Provide nand_cleanup() function to free NAND related resources")
 Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
 Cc: stable@vger.kernel.org
+Cc: Paul Cercueil <paul@crapouillou.net>
+Cc: Harvey Hunt <harveyhuntnexus@gmail.com>
 ---
- drivers/mtd/nand/raw/diskonchip.c | 7 ++-----
- 1 file changed, 2 insertions(+), 5 deletions(-)
+ drivers/mtd/nand/raw/ingenic/ingenic_nand_drv.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/mtd/nand/raw/diskonchip.c b/drivers/mtd/nand/raw/diskonchip.c
-index 97f0b05b47c1..f8ccee797645 100644
---- a/drivers/mtd/nand/raw/diskonchip.c
-+++ b/drivers/mtd/nand/raw/diskonchip.c
-@@ -1482,13 +1482,10 @@ static int __init doc_probe(unsigned long physadr)
- 		numchips = doc2001_init(mtd);
+diff --git a/drivers/mtd/nand/raw/ingenic/ingenic_nand_drv.c b/drivers/mtd/nand/raw/ingenic/ingenic_nand_drv.c
+index e7bd845fdbf5..3bfb6fa8bad9 100644
+--- a/drivers/mtd/nand/raw/ingenic/ingenic_nand_drv.c
++++ b/drivers/mtd/nand/raw/ingenic/ingenic_nand_drv.c
+@@ -376,7 +376,7 @@ static int ingenic_nand_init_chip(struct platform_device *pdev,
  
- 	if ((ret = nand_scan(nand, numchips)) || (ret = doc->late_init(mtd))) {
--		/* DBB note: i believe nand_release is necessary here, as
-+		/* DBB note: i believe nand_cleanup is necessary here, as
- 		   buffers may have been allocated in nand_base.  Check with
- 		   Thomas. FIX ME! */
--		/* nand_release will call mtd_device_unregister, but we
--		   haven't yet added it.  This is handled without incident by
--		   mtd_device_unregister, as far as I can tell. */
--		nand_release(nand);
-+		nand_cleanup(nand);
- 		goto fail;
+ 	ret = mtd_device_register(mtd, NULL, 0);
+ 	if (ret) {
+-		nand_release(chip);
++		nand_cleanup(chip);
+ 		return ret;
  	}
  
 -- 
