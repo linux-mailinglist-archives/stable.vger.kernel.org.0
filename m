@@ -2,167 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 544F11D9117
-	for <lists+stable@lfdr.de>; Tue, 19 May 2020 09:30:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7225C1D9119
+	for <lists+stable@lfdr.de>; Tue, 19 May 2020 09:31:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728451AbgESHar (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 May 2020 03:30:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47790 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726892AbgESHar (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 May 2020 03:30:47 -0400
-Received: from mail-pg1-x542.google.com (mail-pg1-x542.google.com [IPv6:2607:f8b0:4864:20::542])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF7D0C061A0C
-        for <stable@vger.kernel.org>; Tue, 19 May 2020 00:30:46 -0700 (PDT)
-Received: by mail-pg1-x542.google.com with SMTP id n11so5982186pgl.9
-        for <stable@vger.kernel.org>; Tue, 19 May 2020 00:30:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=BOmuz2r7A7J1MAZ/Q+d4MjLRIzoJJmLc7Y0dvtveH90=;
-        b=fzPWR1WZOByLVXVQ63JdeDZBh2q+Pl/AfEa+zZuSEnREGJqH1am3e+ck1e1HrL/S9n
-         PfCwd2aMo2ChP3GqRN8tN8XWouQikAhDd5qzvSyvwbGXsM//xq2K4MUW0sFsDntMRSKi
-         MdV82F2mv4LrkrJumY0VFHg0wDw5C9n7tjCMUP5jdqWnXathStbiCa1g0t+R9NjjDcek
-         OV6RZ9SVUJSYfPbygzCc1ElG9QhO4cRFj6sEBTfDdkVw+7h+CuX/4QphE50u3qv55EUH
-         SSY2jBLEOciZvLBcpMl3MVsqjfgOAi/z9FycZ/tI0C61c17Dt/hJE74wbIQ32dZcaffw
-         axjw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=BOmuz2r7A7J1MAZ/Q+d4MjLRIzoJJmLc7Y0dvtveH90=;
-        b=i4hpeVRnAHTQqmuyqlpPTUwpkWn0MnKxL7K6mrZGxbta2On+Pk7+moUniU2bhZaIiA
-         kj5XsiwpeXBVk7Je/rzRwWokzUqp689yHwKjLVtkb4FuLfGua0A13MoRaujQ6gH6ua5f
-         pSx2xuwao92yXkRsUBCuV+XpD8+D3ijhCH1dzN9IorDXoJtf1QTsJerY86dGSrv0KFOW
-         gIhUxiyOsGNcpa6gswdbjZkgOEkznBKt/67Ixl9jvuyDlBUt5ltTLKbm8H4ZVAZESjRx
-         vBWt6OtEr5ph8kdtS4557YXtsEr8cbxzlSXM2sHlLQR+bDe5aUPLJ7WZNANLMOh947Fg
-         Wz+A==
-X-Gm-Message-State: AOAM533mj09ZwiQ8l+PDrKkbo1Jh5lMspEofWcOYGOpLFhA1NofNgZig
-        R2Ig7eLjV+2kQH8DhoyJuwblcLiPWjk=
-X-Google-Smtp-Source: ABdhPJxaDxReKrFYTyn3N2UKpHmOdOwdlRvRIJDD5aqNioWPfg8jvxoxP7W4FFaQAoW8u7fgYGJOLA==
-X-Received: by 2002:aa7:8dc1:: with SMTP id j1mr20819335pfr.285.1589873445851;
-        Tue, 19 May 2020 00:30:45 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id q9sm10254436pff.62.2020.05.19.00.30.44
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 19 May 2020 00:30:44 -0700 (PDT)
-Message-ID: <5ec38b24.1c69fb81.bb7b6.edf7@mx.google.com>
-Date:   Tue, 19 May 2020 00:30:44 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1727057AbgESHbw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 May 2020 03:31:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54316 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726892AbgESHbw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 May 2020 03:31:52 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id AD70720709;
+        Tue, 19 May 2020 07:31:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1589873511;
+        bh=kpEBr85Wx03flYAy3GIfzHpa5SH8nm9D0X9OaKnn8cQ=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=mtsbVGAzkRAe2HIoMmwOCX/hTWpJUwLlklki5L6T8IW/DUAonxwEhjX4NaRMl9ldc
+         gm/3DDRKqYTB/y78SOBtAlIb/P4PEj84I+d3sFgQsUyGOkbgnFOsQGvwrLm4nWVPTC
+         XhxXTJ60fzNbVyazEjZDs/ZzLhQeAa3xp7ry5CXs=
+Date:   Tue, 19 May 2020 09:31:47 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Henri Rosten <henri.rosten@unikie.com>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Christoph Hellwig <hch@lst.de>,
+        Keith Busch <keith.busch@intel.com>, Jens Axboe <axboe@fb.com>,
+        Giuliano Procida <gprocida@google.com>, lukas.bulwahn@gmail.com
+Subject: Re: [PATCH 4.4 63/86] block: defer timeouts to a workqueue
+Message-ID: <20200519073147.GA3997465@kroah.com>
+References: <20200518173450.254571947@linuxfoundation.org>
+ <20200518173503.131794977@linuxfoundation.org>
+ <20200519060036.GA28441@buimax>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.14.180-115-g53d55a576a17
-X-Kernelci-Report-Type: boot
-X-Kernelci-Branch: linux-4.14.y
-Subject: stable-rc/linux-4.14.y boot: 131 boots: 3 failed,
- 117 passed with 5 offline, 6 untried/unknown (v4.14.180-115-g53d55a576a17)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200519060036.GA28441@buimax>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-******************************************
-* WARNING: Boot tests are now deprecated *
-******************************************
+On Tue, May 19, 2020 at 09:00:38AM +0300, Henri Rosten wrote:
+> On Mon, May 18, 2020 at 07:36:34PM +0200, Greg Kroah-Hartman wrote:
+> > From: Christoph Hellwig <hch@lst.de>
+> > 
+> > commit 287922eb0b186e2a5bf54fdd04b734c25c90035c upstream.
+> 
+> I notice 287922eb0b18 has been referenced in Fixes-tag in mainline 
+> commit 5480e299b5ae ("scsi: iscsi: Fix a potential deadlock in the 
+> timeout handler"). Consider if backporting 5480e299b5ae together with 
+> this 4.4 version of 287922eb0b18 is also relevant.
 
-As kernelci.org is expanding its functional testing capabilities, the conce=
-pt
-of boot testing is now deprecated.  Boot results are scheduled to be droppe=
-d on
-*5th June 2020*.  The full schedule for boot tests deprecation is available=
- on
-this GitHub issue: https://github.com/kernelci/kernelci-backend/issues/238
+Ugh, there are lots of "fixes for fixes" in these releases that seem to
+be needed.  Let me dig through and find them all as I should have done
+before starting this -rc round :(
 
-The new equivalent is the *baseline* test suite which also runs sanity chec=
-ks
-using dmesg and bootrr: https://github.com/kernelci/bootrr
+thanks,
 
-See the *baseline results for this kernel revision* on this page:
-https://kernelci.org/test/job/stable-rc/branch/linux-4.14.y/kernel/v4.14.18=
-0-115-g53d55a576a17/plan/baseline/
-
----------------------------------------------------------------------------=
-----
-
-stable-rc/linux-4.14.y boot: 131 boots: 3 failed, 117 passed with 5 offline=
-, 6 untried/unknown (v4.14.180-115-g53d55a576a17)
-
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.14.y/kernel/v4.14.180-115-g53d55a576a17/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
-y/kernel/v4.14.180-115-g53d55a576a17/
-
-Tree: stable-rc
-Branch: linux-4.14.y
-Git Describe: v4.14.180-115-g53d55a576a17
-Git Commit: 53d55a576a17377e7713aa3aaeee0f35b06a1f73
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 75 unique boards, 21 SoC families, 18 builds out of 201
-
-Boot Regressions Detected:
-
-arm:
-
-    qcom_defconfig:
-        gcc-8:
-          qcom-apq8064-cm-qs600:
-              lab-baylibre-seattle: failing since 5 days (last pass: v4.14.=
-180 - first fail: v4.14.180-37-gad4fc99d1989)
-
-    sama5_defconfig:
-        gcc-8:
-          at91-sama5d4_xplained:
-              lab-baylibre: failing since 89 days (last pass: v4.14.170-141=
--g00a0113414f7 - first fail: v4.14.171-29-g9cfe30e85240)
-
-    sunxi_defconfig:
-        gcc-8:
-          sun4i-a10-olinuxino-lime:
-              lab-baylibre: new failure (last pass: v4.14.180-49-g7ab962eff=
-016)
-
-    versatile_defconfig:
-        gcc-8:
-          versatile-pb:
-              lab-collabora: new failure (last pass: v4.14.180-49-g7ab962ef=
-f016)
-
-Boot Failures Detected:
-
-arm:
-    sama5_defconfig:
-        gcc-8:
-            at91-sama5d4_xplained: 1 failed lab
-
-arm64:
-    defconfig:
-        gcc-8:
-            meson-gxbb-p200: 1 failed lab
-            meson-gxm-q200: 1 failed lab
-
-Offline Platforms:
-
-arm:
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-            qcom-apq8064-cm-qs600: 1 offline lab
-            stih410-b2120: 1 offline lab
-
-    exynos_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-
----
-For more info write to <info@kernelci.org>
+greg k-h
