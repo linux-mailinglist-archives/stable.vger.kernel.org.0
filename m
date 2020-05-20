@@ -2,51 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CFDE1DBAFC
-	for <lists+stable@lfdr.de>; Wed, 20 May 2020 19:17:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C8591DBB21
+	for <lists+stable@lfdr.de>; Wed, 20 May 2020 19:21:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726697AbgETRRu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 20 May 2020 13:17:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34508 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726545AbgETRRt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 20 May 2020 13:17:49 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1727083AbgETRVz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 20 May 2020 13:21:55 -0400
+Received: from us-smtp-1.mimecast.com ([205.139.110.61]:40946 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726881AbgETRVx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 20 May 2020 13:21:53 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1589995313;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:in-reply-to:in-reply-to:references:references;
+        bh=WrBR4w78uBBs4VQ3VrdJAzQ/9ZZhP1UKmnG9BOpHw14=;
+        b=H4GEgyJd3w2q0KzQkgvps93B28szy69FPpqtFjw5IUCPUdaTcs1dJPXdHjRKQ6EHAJE8lS
+        +9vYo0OlzXZgOkonsUX1cMZQU3TGrgDMChOoV8Mc028Z8CX8OXmAxT59QX15KxSv/n/zr+
+        M/p5BEMRlaMy5X9C2pZh8do6P6WUU+M=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-78-Z5e_C_Z6Obud2Kubqpe_6Q-1; Wed, 20 May 2020 13:21:48 -0400
+X-MC-Unique: Z5e_C_Z6Obud2Kubqpe_6Q-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 29EE62070A;
-        Wed, 20 May 2020 17:17:49 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589995069;
-        bh=fR8Yhf2uoEujFn3uRwBb7J4spGHzQYDKsKBO0eaRn9M=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=rxE7CtAcAurlZ0om8B2Yyx/avJDINIWJCvr9bsQUWedN7kOi9UM5FLVqOaIju7Fr+
-         JwCc4NyD32gwY4N5SUmraX80Ez8XbweGFRfcnEEoyupdwW1jWtX+qvuSfYqnCHZst2
-         rxvqx385Tka9x5yG60bpo5DQ/Onggv/AhsztM2sU=
-Date:   Wed, 20 May 2020 19:17:47 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     stable@vger.kernel.org, Sasha Levin <sashal@kernel.org>
-Subject: Re: Please apply commit 629823b872402 ("igb: use
- igb_adapter->io_addr instead of e1000_hw->hw_addr") to v4.4.y/v4.9.y
-Message-ID: <20200520171747.GB112902@kroah.com>
-References: <20200519185322.GA67531@roeck-us.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200519185322.GA67531@roeck-us.net>
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 80443A0BE6;
+        Wed, 20 May 2020 17:21:47 +0000 (UTC)
+Received: from virtlab511.virt.lab.eng.bos.redhat.com (virtlab511.virt.lab.eng.bos.redhat.com [10.19.152.198])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 0434E60610;
+        Wed, 20 May 2020 17:21:46 +0000 (UTC)
+From:   Paolo Bonzini <pbonzini@redhat.com>
+To:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc:     vkuznets@redhat.com, Joerg Roedel <jroedel@suse.de>,
+        stable@vger.kernel.org
+Subject: [PATCH 01/24] KVM: nSVM: fix condition for filtering async PF
+Date:   Wed, 20 May 2020 13:21:22 -0400
+Message-Id: <20200520172145.23284-2-pbonzini@redhat.com>
+In-Reply-To: <20200520172145.23284-1-pbonzini@redhat.com>
+References: <20200520172145.23284-1-pbonzini@redhat.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, May 19, 2020 at 11:53:22AM -0700, Guenter Roeck wrote:
-> Hi,
-> 
-> please apply upstream commit 629823b87240 ("igb: use igb_adapter->io_addr
-> instead of e1000_hw->hw_addr") to v4.4.y and to v4.9.y. The problem solved
-> with this commit has been observed in chromeos-4.4.
+Async page faults have to be trapped in the host (L1 in this case),
+since the APF reason was passed from L0 to L1 and stored in the L1 APF
+data page.  This was completely reversed: the page faults were passed
+to the guest, a L2 hypervisor.
 
-Now queued up,t hanks.
+Cc: stable@vger.kernel.org
+Reviewed-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+---
+ arch/x86/kvm/svm/nested.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-greg k-h
+diff --git a/arch/x86/kvm/svm/nested.c b/arch/x86/kvm/svm/nested.c
+index a89a166d1cb8..f4cd2d0cc360 100644
+--- a/arch/x86/kvm/svm/nested.c
++++ b/arch/x86/kvm/svm/nested.c
+@@ -880,8 +880,8 @@ int nested_svm_exit_special(struct vcpu_svm *svm)
+ 			return NESTED_EXIT_HOST;
+ 		break;
+ 	case SVM_EXIT_EXCP_BASE + PF_VECTOR:
+-		/* When we're shadowing, trap PFs, but not async PF */
+-		if (!npt_enabled && svm->vcpu.arch.apf.host_apf_reason == 0)
++		/* Trap async PF even if not shadowing */
++		if (!npt_enabled || svm->vcpu.arch.apf.host_apf_reason)
+ 			return NESTED_EXIT_HOST;
+ 		break;
+ 	default:
+-- 
+2.18.2
+
+
