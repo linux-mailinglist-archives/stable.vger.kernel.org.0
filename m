@@ -2,109 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D3E121DB24B
-	for <lists+stable@lfdr.de>; Wed, 20 May 2020 13:52:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C9AD1DB3EE
+	for <lists+stable@lfdr.de>; Wed, 20 May 2020 14:44:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726566AbgETLwA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 20 May 2020 07:52:00 -0400
-Received: from bhuna.collabora.co.uk ([46.235.227.227]:36548 "EHLO
-        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726224AbgETLwA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 20 May 2020 07:52:00 -0400
-Received: from [127.0.0.1] (localhost [127.0.0.1])
-        (Authenticated sender: sre)
-        with ESMTPSA id EE6A32A2C09
-Received: by earth.universe (Postfix, from userid 1000)
-        id 7DFD33C08C6; Wed, 20 May 2020 13:51:55 +0200 (CEST)
-Date:   Wed, 20 May 2020 13:51:55 +0200
-From:   Sebastian Reichel <sebastian.reichel@collabora.com>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Robert Beckett <bob.beckett@collabora.com>, stable@vger.kernel.org
-Subject: Re: [PATCHv1] ARM: dts/imx6q-bx50v3: Set display interface clock
- parents
-Message-ID: <20200520115155.5vezit2f6tnxxq3l@earth.universe>
-References: <20200514170236.24814-1-sebastian.reichel@collabora.com>
- <20200519114915.DA36520709@mail.kernel.org>
+        id S1726224AbgETMoI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 20 May 2020 08:44:08 -0400
+Received: from mail26.static.mailgun.info ([104.130.122.26]:35072 "EHLO
+        mail26.static.mailgun.info" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727024AbgETMoI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 20 May 2020 08:44:08 -0400
+DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
+ s=smtp; t=1589978647; h=Message-ID: References: In-Reply-To: Subject:
+ Cc: To: From: Date: Content-Transfer-Encoding: Content-Type:
+ MIME-Version: Sender; bh=nLaK/ohEQ1OzRdH5EY+kSAjwbEK+2E1W0vY/2r749BI=;
+ b=MKnmHRhpYVFnCfaTJXkyVzzmiByiQkb6QeYCj9873YxAaFJ/OPX9cHzKJ8flkElaY4M/QQPr
+ XFmLmKuKyamj20SWTnM0kZJxP4xrUFos1WOzeA42Y/A+NTrJCGNAmQtHhUOBkfyM7+rhDt6A
+ uUiBPGg+xmxfw3hjtFSsq+9aXvU=
+X-Mailgun-Sending-Ip: 104.130.122.26
+X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
+Received: from smtp.codeaurora.org
+ (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171]) by
+ smtp-out-n05.prod.us-east-1.postgun.com with SMTP id
+ 5ec526044c3faf51e2931686 (version=TLS1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256); Wed, 20 May 2020 12:43:48
+ GMT
+Received: by smtp.codeaurora.org (Postfix, from userid 1001)
+        id 83CE0C433A0; Wed, 20 May 2020 12:43:47 +0000 (UTC)
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+        aws-us-west-2-caf-mail-1.web.codeaurora.org
+X-Spam-Level: 
+X-Spam-Status: No, score=-1.0 required=2.0 tests=ALL_TRUSTED
+        autolearn=unavailable autolearn_force=no version=3.4.0
+Received: from mail.codeaurora.org (localhost.localdomain [127.0.0.1])
+        (using TLSv1 with cipher ECDHE-RSA-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        (Authenticated sender: rananta)
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id B5A10C433C8;
+        Wed, 20 May 2020 12:43:46 +0000 (UTC)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="3qtduk3zpdcb47ls"
-Content-Disposition: inline
-In-Reply-To: <20200519114915.DA36520709@mail.kernel.org>
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Content-Transfer-Encoding: 7bit
+Date:   Wed, 20 May 2020 05:43:46 -0700
+From:   rananta@codeaurora.org
+To:     Jiri Slaby <jslaby@suse.cz>
+Cc:     gregkh@linuxfoundation.org, andrew@daynix.com,
+        linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH v2] tty: hvc: Fix data abort due to race in hvc_open
+In-Reply-To: <f84a9da7-bb0f-7538-fa00-968c9625335b@suse.cz>
+References: <20200520064708.24278-1-rananta@codeaurora.org>
+ <f84a9da7-bb0f-7538-fa00-968c9625335b@suse.cz>
+Message-ID: <5895803be5c8fd4c5e7725b57ffe79e4@codeaurora.org>
+X-Sender: rananta@codeaurora.org
+User-Agent: Roundcube Webmail/1.3.9
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 2020-05-20 01:59, Jiri Slaby wrote:
+> On 20. 05. 20, 8:47, Raghavendra Rao Ananta wrote:
+>> Potentially, hvc_open() can be called in parallel when two tasks calls
+>> open() on /dev/hvcX. In such a scenario, if the 
+>> hp->ops->notifier_add()
+>> callback in the function fails, where it sets the tty->driver_data to
+>> NULL, the parallel hvc_open() can see this NULL and cause a memory 
+>> abort.
+>> Hence, do a NULL check at the beginning, before proceeding ahead.
+>> 
+>> The issue can be easily reproduced by launching two tasks 
+>> simultaneously
+>> that does an open() call on /dev/hvcX.
+>> For example:
+>> $ cat /dev/hvc0 & cat /dev/hvc0 &
+>> 
+>> Cc: stable@vger.kernel.org
+>> Signed-off-by: Raghavendra Rao Ananta <rananta@codeaurora.org>
+>> ---
+>>  drivers/tty/hvc/hvc_console.c | 3 +++
+>>  1 file changed, 3 insertions(+)
+>> 
+>> diff --git a/drivers/tty/hvc/hvc_console.c 
+>> b/drivers/tty/hvc/hvc_console.c
+>> index 436cc51c92c3..80709f754cc8 100644
+>> --- a/drivers/tty/hvc/hvc_console.c
+>> +++ b/drivers/tty/hvc/hvc_console.c
+>> @@ -350,6 +350,9 @@ static int hvc_open(struct tty_struct *tty, struct 
+>> file * filp)
+>>  	unsigned long flags;
+>>  	int rc = 0;
+>> 
+>> +	if (!hp)
+>> +		return -ENODEV;
+>> +
+> 
+> This is still not fixing the bug properly. See:
+> https://lore.kernel.org/linuxppc-dev/0f7791f5-0a53-59f6-7277-247a789f30c2@suse.cz/
+> 
+> In particular, the paragraph starting "IOW".
+> 
+You are right. This doesn't fix the problem entirely. There are other 
+parts to it which is
+not handled in a clean way by the driver. Apart from the things you've 
+mentioned, it doesn't
+seem to handle the hp->port.count correctly as well.
 
---3qtduk3zpdcb47ls
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+hvc_open:
+   hp->port.count++
+   hp->ops->notifier_add(hp, hp->data) fails
+   tty->driver_data = NULL
 
-Hi,
+hvc_close:
+   returns immediately as tty->driver_data == NULL, without 
+hp->port.count--
 
-On Tue, May 19, 2020 at 11:49:15AM +0000, Sasha Levin wrote:
-> [This is an automated email]
->=20
-> This commit has been processed because it contains a -stable tag.
-> The stable tag indicates that it's relevant for the following trees: all
->=20
-> The bot has tested the following trees: v5.6.13, v5.4.41, v4.19.123, v4.1=
-4.180, v4.9.223, v4.4.223.
->=20
-> v5.6.13: Build OK!
-> v5.4.41: Build OK!
-> v4.19.123: Build OK!
->
-> v4.14.180: Failed to apply! Possible dependencies:
->     e26dead44268 ("ARM: dts: imx6q-bx50v3: Add internal switch")
->=20
-> v4.9.223: Failed to apply! Possible dependencies:
->     1d0c7bb20c08 ("ARM: dts: imx: Correct B850v3 clock assignment")
->     e26dead44268 ("ARM: dts: imx6q-bx50v3: Add internal switch")
->=20
-> v4.4.223: Failed to apply! Possible dependencies:
->     15ef03b86247 ("ARM: dts: imx: b450/b650v3: Move ldb_di clk assignment=
-")
->     1d0c7bb20c08 ("ARM: dts: imx: Correct B850v3 clock assignment")
->     2252792b4677 ("ARM: dts: imx: Add support for Advantech/GE B850v3")
->     226d16c80c61 ("ARM: dts: imx: Add support for Advantech/GE Bx50v3")
->     547da6bbcf08 ("ARM: dts: imx: Add support for Advantech/GE B450v3")
->     987e71877ae6 ("ARM: dts: imx: Add support for Advantech/GE B650v3")
->     b492b8744da9 ("ARM: dts: imx6q-b850v3: Update display clock source")
->     e26dead44268 ("ARM: dts: imx6q-bx50v3: Add internal switch")
->=20
->=20
-> NOTE: The patch will not be queued to stable trees until it is upstream.
->=20
-> How should we proceed with this patch?
+This would leave the port in a stale state, and the second caller of 
+hvc_open doesn't get
+a chance to call/retry hp->ops->notifier_add(hp, hp->data);
 
-Applying it to v4.4 does not make sense (impacted devices are not
-supported on that version) and it should be fine to ignore it for
-v4.9 and v4.14. The impact is broken dual display setup. I tested
-the patch on 4.19 stable tree and I think it makes sense to apply
-it to 4.19 and newer.
+However, the patch is not trying to address the logical issues with 
+hvc_open and hvc_close.
+It's only trying to eliminate the potential NULL pointer dereference, 
+leading to a panic.
+ From what I see, the hvc_open is serialized by tty_lock, and adding a 
+NULL check here is
+preventing the second caller.
+> thanks,
 
--- Sebastian
-
---3qtduk3zpdcb47ls
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAl7FGdIACgkQ2O7X88g7
-+poWuRAAhcNg9OB9fWhZOxkLfvk+OgUbxsGYAt2blVqZEcVUxRhsoqXiQlh3bGOi
-21sRNV13puW05z9IxJrOOJcgVk2qII19//8aFAo5feuumBRhJnC1BOBkdxGZ43K+
-bNskcb2CxKEwMeaIJAI0pvWthb5ioJOi5Qie0GeWPNRRFAAatgjXRsCaIaGX3b9v
-LGY6Z4ojSCo0qoHsChDBMPMqZQIJH6zvbICK4Cp6W1VC0HB9cYZ8bYEfHFN2flwi
-3zwcmnEGsue5AF01VOapQ8ojw2C5SKcYpeJR3OKiwdElB2sypDe3aqcSVnrxm1Xd
-oCVou0eYK8mn5ZUisGJRVBZYhYssOkJxt7ZNzSa+pz+ZwKe8tCe6OHLyL/Jkq5+y
-hSYP30JSQ4zxxOwbj1AH0lqh8pA2xuXg1/VAfuXHBe9HymiqlS3T5eMo1njc57GQ
-jJ9JUqiu0Kj31va9k36bgg4pdO6gvrTXm/qVv6BGJr2XX0u11L9oyELPKLtuGK8o
-YcW6vacHlg4yEh0yf/L+DipwnFeKmNeG+EcZq+Myq1+LclXbKQ7AeZm0TPrBtCWI
-CgZaCCPk9qJ2C0ZGN2BGZxFNejsReoeAOuvt30hGen5t21i4b1G3pudXHoZleGes
-iRBva8IHyuNfQvpXFJeLF1TW3Xv/M2VEiwJkTehJnajVOFcsJSg=
-=CtEu
------END PGP SIGNATURE-----
-
---3qtduk3zpdcb47ls--
+Thank you.
+Raghavendra
