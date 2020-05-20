@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 08FC71DB695
-	for <lists+stable@lfdr.de>; Wed, 20 May 2020 16:26:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E8C41DB679
+	for <lists+stable@lfdr.de>; Wed, 20 May 2020 16:25:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726859AbgETOZw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 20 May 2020 10:25:52 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:32994 "EHLO
+        id S1728311AbgETOZD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 20 May 2020 10:25:03 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:33152 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727000AbgETOW1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 20 May 2020 10:22:27 -0400
+        by vger.kernel.org with ESMTP id S1727056AbgETOW2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 20 May 2020 10:22:28 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1jbPbv-00035i-RX; Wed, 20 May 2020 15:22:19 +0100
+        id 1jbPbv-00035k-UW; Wed, 20 May 2020 15:22:20 +0100
 Received: from ben by deadeye with local (Exim 4.93)
         (envelope-from <ben@decadent.org.uk>)
-        id 1jbPbv-007DS7-Ml; Wed, 20 May 2020 15:22:19 +0100
+        id 1jbPbv-007DSC-No; Wed, 20 May 2020 15:22:19 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,15 +26,17 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Zhihao Cheng" <chengzhihao1@huawei.com>,
-        "zhangyi (F)" <yi.zhang@huawei.com>,
-        "Richard Weinberger" <richard@nod.at>
-Date:   Wed, 20 May 2020 15:14:21 +0100
-Message-ID: <lsq.1589984008.539184755@decadent.org.uk>
+        "Josh Poimboeuf" <jpoimboe@redhat.com>,
+        "Dave Hansen" <dave.hansen@linux.intel.com>,
+        "Neelima Krishnan" <neelima.krishnan@intel.com>,
+        "Thomas Gleixner" <tglx@linutronix.de>,
+        "Pawan Gupta" <pawan.kumar.gupta@linux.intel.com>
+Date:   Wed, 20 May 2020 15:14:22 +0100
+Message-ID: <lsq.1589984008.274460399@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 53/99] ubifs: Fix deadlock in concurrent bulk-read
- and writepage
+Subject: [PATCH 3.16 54/99] x86/cpu: Update cached HLE state on write to
+ TSX_CTRL_CPUID_CLEAR
 In-Reply-To: <lsq.1589984008.673931885@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -48,55 +50,60 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
 
-commit f5de5b83303e61b1f3fb09bd77ce3ac2d7a475f2 upstream.
+commit 5efc6fa9044c3356d6046c6e1da6d02572dbed6b upstream.
 
-In ubifs, concurrent execution of writepage and bulk read on the same file
-may cause ABBA deadlock, for example (Reproduce method see Link):
+/proc/cpuinfo currently reports Hardware Lock Elision (HLE) feature to
+be present on boot cpu even if it was disabled during the bootup. This
+is because cpuinfo_x86->x86_capability HLE bit is not updated after TSX
+state is changed via the new MSR IA32_TSX_CTRL.
 
-Process A(Bulk-read starts from page4)         Process B(write page4 back)
-  vfs_read                                       wb_workfn or fsync
-  ...                                            ...
-  generic_file_buffered_read                     write_cache_pages
-    ubifs_readpage                                 LOCK(page4)
+Update the cached HLE bit also since it is expected to change after an
+update to CPUID_CLEAR bit in MSR IA32_TSX_CTRL.
 
-      ubifs_bulk_read                              ubifs_writepage
-        LOCK(ui->ui_mutex)                           ubifs_write_inode
-
-	  ubifs_do_bulk_read                           LOCK(ui->ui_mutex)
-	    find_or_create_page(alloc page4)                  ↑
-	      LOCK(page4)                   <--     ABBA deadlock occurs!
-
-In order to ensure the serialization execution of bulk read, we can't
-remove the big lock 'ui->ui_mutex' in ubifs_bulk_read(). Instead, we
-allow ubifs_do_bulk_read() to lock page failed by replacing
-find_or_create_page(FGP_LOCK) with
-pagecache_get_page(FGP_LOCK | FGP_NOWAIT).
-
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Suggested-by: zhangyi (F) <yi.zhang@huawei.com>
-Fixes: 4793e7c5e1c ("UBIFS: add bulk-read facility")
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=206153
-Signed-off-by: Richard Weinberger <richard@nod.at>
-[bwh: Backported to 3.16: Keep using constant GFP flags parameter.]
+Fixes: 95c5824f75f3 ("x86/cpu: Add a "tsx=" cmdline option with TSX disabled by default")
+Signed-off-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Neelima Krishnan <neelima.krishnan@intel.com>
+Reviewed-by: Dave Hansen <dave.hansen@linux.intel.com>
+Reviewed-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Link: https://lore.kernel.org/r/2529b99546294c893dfa1c89e2b3e46da3369a59.1578685425.git.pawan.kumar.gupta@linux.intel.com
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- fs/ubifs/file.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/x86/kernel/cpu/tsx.c | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
---- a/fs/ubifs/file.c
-+++ b/fs/ubifs/file.c
-@@ -782,8 +782,9 @@ static int ubifs_do_bulk_read(struct ubi
+--- a/arch/x86/kernel/cpu/tsx.c
++++ b/arch/x86/kernel/cpu/tsx.c
+@@ -115,11 +115,12 @@ void __init tsx_init(void)
+ 		tsx_disable();
  
- 		if (page_offset > end_index)
- 			break;
--		page = find_or_create_page(mapping, page_offset,
--					   GFP_NOFS | __GFP_COLD);
-+		page = pagecache_get_page(mapping, page_offset,
-+				 FGP_LOCK|FGP_ACCESSED|FGP_CREAT|FGP_NOWAIT,
-+				 GFP_NOFS | __GFP_COLD);
- 		if (!page)
- 			break;
- 		if (!PageUptodate(page))
+ 		/*
+-		 * tsx_disable() will change the state of the
+-		 * RTM CPUID bit.  Clear it here since it is now
+-		 * expected to be not set.
++		 * tsx_disable() will change the state of the RTM and HLE CPUID
++		 * bits. Clear them here since they are now expected to be not
++		 * set.
+ 		 */
+ 		setup_clear_cpu_cap(X86_FEATURE_RTM);
++		setup_clear_cpu_cap(X86_FEATURE_HLE);
+ 	} else if (tsx_ctrl_state == TSX_CTRL_ENABLE) {
+ 
+ 		/*
+@@ -131,10 +132,10 @@ void __init tsx_init(void)
+ 		tsx_enable();
+ 
+ 		/*
+-		 * tsx_enable() will change the state of the
+-		 * RTM CPUID bit.  Force it here since it is now
+-		 * expected to be set.
++		 * tsx_enable() will change the state of the RTM and HLE CPUID
++		 * bits. Force them here since they are now expected to be set.
+ 		 */
+ 		setup_force_cpu_cap(X86_FEATURE_RTM);
++		setup_force_cpu_cap(X86_FEATURE_HLE);
+ 	}
+ }
 
