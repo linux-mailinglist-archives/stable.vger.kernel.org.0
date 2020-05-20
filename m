@@ -2,148 +2,194 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 199A81DB724
-	for <lists+stable@lfdr.de>; Wed, 20 May 2020 16:34:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0128A1DB818
+	for <lists+stable@lfdr.de>; Wed, 20 May 2020 17:25:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726596AbgETOeA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 20 May 2020 10:34:00 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:34138 "EHLO
-        shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726943AbgETOd7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 20 May 2020 10:33:59 -0400
-Received: from [192.168.4.242] (helo=deadeye)
-        by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.89)
-        (envelope-from <ben@decadent.org.uk>)
-        id 1jbPn8-0003vS-VC; Wed, 20 May 2020 15:33:55 +0100
-Received: from ben by deadeye with local (Exim 4.93)
-        (envelope-from <ben@decadent.org.uk>)
-        id 1jbPn8-007E8U-Ip; Wed, 20 May 2020 15:33:54 +0100
-Message-ID: <87267d7217e4a3d58440079c16d313e411eab004.camel@decadent.org.uk>
-Subject: Re: Backporting "padata: Remove broken queue flushing"
-From:   Ben Hutchings <ben@decadent.org.uk>
-To:     Daniel Jordan <daniel.m.jordan@oracle.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Cc:     Herbert Xu <herbert@gondor.apana.org.au>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        linux-crypto@vger.kernel.org, stable <stable@vger.kernel.org>
-Date:   Wed, 20 May 2020 15:33:44 +0100
-In-Reply-To: <20200519200018.5vuyuxmjy5ypgi3w@ca-dmjordan1.us.oracle.com>
-References: <0b158b60fe621552c327e9d822bc3245591a4bd6.camel@decadent.org.uk>
-         <20200519200018.5vuyuxmjy5ypgi3w@ca-dmjordan1.us.oracle.com>
-Content-Type: multipart/signed; micalg="pgp-sha512";
-        protocol="application/pgp-signature"; boundary="=-m2IaeLpxmCsA51lvJPJZ"
-User-Agent: Evolution 3.36.2-1 
+        id S1726697AbgETPZ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 20 May 2020 11:25:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36818 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726560AbgETPZz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 20 May 2020 11:25:55 -0400
+Received: from mail-ej1-x644.google.com (mail-ej1-x644.google.com [IPv6:2a00:1450:4864:20::644])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12012C061A0E
+        for <stable@vger.kernel.org>; Wed, 20 May 2020 08:25:55 -0700 (PDT)
+Received: by mail-ej1-x644.google.com with SMTP id l21so4350497eji.4
+        for <stable@vger.kernel.org>; Wed, 20 May 2020 08:25:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=intel-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=MmgOIn7CLKu0/cluJFaG5idJvO1nymi+j4c/I4o6A5Y=;
+        b=Qgy/XtcHoi9ZAcx9KfXpQh1hEMUZwd60c5Tc6HwImodikXHQ3WWjJddr3duPA+g0aJ
+         IOm8S1DosmIyQDxFSiWLzeKIgkYBUuhMHCkWT0Bxb21CIz1zs+LmyTbV0XH+FPGEflMn
+         i2NOLSwhV0pWln/dtffguH47aDwfE2Oa65KFVm7XT/cPVxp/Uv0qKK98Wva5QdhTlUYA
+         SZRi6yhKIWkwWAbF5vEb2MIxNt9+J6hcwHvrbERPeLuaR4vRBenWMILZDxISaQ9EdxgH
+         0966BZYXXprTJAgdtoPxbqoK1oDe0+mJv5OXr5X3SQTtN9mgWJbAPsCWpLAUYT/wALPf
+         EsMg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=MmgOIn7CLKu0/cluJFaG5idJvO1nymi+j4c/I4o6A5Y=;
+        b=hHl+NsKyzSplpWwKz6d16QJ1DRpYnlckKIH1RkVMjqQe3WWVBOKyFfsWxhY8tyZhFa
+         TJvlP0S1Jss01nvAaPfBywt1f6BGpBEoEMG5y6YhF70sEWyUuSdGsP8sBUsaqX82g0FX
+         ol4ut4wTuhhGY0mh5UEPW5WeC6TO9Zb8n5GkhqbjibC+RvVj1RzAS0uabiIy6kQ4WAQ5
+         HGgFUWHktJVKoo6aMm6g7nHcNLHGu4ywawobchFfsSzWRGogHjftpDFmaK3JrwCA7xJQ
+         6Y0DceZqpz7ij+YRU8yVDrK6Gd+enYaOytRn1sP4lZl2y2G0Cyl6RZcCPODSX057sy2U
+         SkmQ==
+X-Gm-Message-State: AOAM530gfb2G6FaCuwG8X940hpPxF1T5Tt3qpaiJPJhG/Fpxe0+k25xi
+        Ky/WKGT3NGU6+RguLL8PW1TDfDhpogG57EraWGv7LA==
+X-Google-Smtp-Source: ABdhPJxKctA75G7J/qj6W53QptYi2MZiZGA/evgiJh+TTmSwgPpMWJZVUfO6u+1qqh8vaK8Uz54Ei0uURfXf108uvpU=
+X-Received: by 2002:a17:906:ff54:: with SMTP id zo20mr4065711ejb.124.1589988353659;
+ Wed, 20 May 2020 08:25:53 -0700 (PDT)
 MIME-Version: 1.0
-X-SA-Exim-Connect-IP: 192.168.4.242
-X-SA-Exim-Mail-From: ben@decadent.org.uk
-X-SA-Exim-Scanned: No (on shadbolt.decadent.org.uk); SAEximRunCond expanded to false
+References: <158992635164.403910.2616621400995359522.stgit@dwillia2-desk3.amr.corp.intel.com>
+ <158992635697.403910.6957168747147028694.stgit@dwillia2-desk3.amr.corp.intel.com>
+ <87d06z7x1a.fsf@mpe.ellerman.id.au>
+In-Reply-To: <87d06z7x1a.fsf@mpe.ellerman.id.au>
+From:   Dan Williams <dan.j.williams@intel.com>
+Date:   Wed, 20 May 2020 08:25:42 -0700
+Message-ID: <CAPcyv4igM-jK6OkPzd91ur_fNCaUxwbWTHhwWsWe-PJNjZdWGw@mail.gmail.com>
+Subject: Re: [PATCH v3 1/2] x86, powerpc: Rename memcpy_mcsafe() to
+ copy_mc_to_{user, kernel}()
+To:     Michael Ellerman <mpe@ellerman.id.au>
+Cc:     Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, X86 ML <x86@kernel.org>,
+        stable <stable@vger.kernel.org>, Borislav Petkov <bp@alien8.de>,
+        Tony Luck <tony.luck@intel.com>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Paul Mackerras <paulus@samba.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Mikulas Patocka <mpatocka@redhat.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Arnaldo Carvalho de Melo <acme@kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-nvdimm <linux-nvdimm@lists.01.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Wed, May 20, 2020 at 2:54 AM Michael Ellerman <mpe@ellerman.id.au> wrote:
+>
+> Hi Dan,
+>
+> Just a couple of minor things ...
+>
+> Dan Williams <dan.j.williams@intel.com> writes:
+> > In reaction to a proposal to introduce a memcpy_mcsafe_fast()
+> > implementation Linus points out that memcpy_mcsafe() is poorly named
+> > relative to communicating the scope of the interface. Specifically what
+> > addresses are valid to pass as source, destination, and what faults /
+> > exceptions are handled. Of particular concern is that even though x86
+> > might be able to handle the semantics of copy_mc_to_user() with its
+> > common copy_user_generic() implementation other archs likely need / want
+> > an explicit path for this case:
+> ...
+>
+> > diff --git a/arch/powerpc/include/asm/uaccess.h b/arch/powerpc/include/asm/uaccess.h
+> > index 0969285996cb..dcbbcbf3552c 100644
+> > --- a/arch/powerpc/include/asm/uaccess.h
+> > +++ b/arch/powerpc/include/asm/uaccess.h
+> > @@ -348,6 +348,32 @@ do {                                                             \
+> >  extern unsigned long __copy_tofrom_user(void __user *to,
+> >               const void __user *from, unsigned long size);
+> >
+> > +#ifdef CONFIG_ARCH_HAS_COPY_MC
+> > +extern unsigned long __must_check
+>
+> We try not to add extern in headers anymore.
 
---=-m2IaeLpxmCsA51lvJPJZ
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Ok, I was doing the copy-pasta dance, but I'll remove this.
 
-On Tue, 2020-05-19 at 16:00 -0400, Daniel Jordan wrote:
-> Hello Ben,
->=20
-> On Tue, May 19, 2020 at 02:53:05PM +0100, Ben Hutchings wrote:
-> > I noticed that commit 07928d9bfc81 "padata: Remove broken queue
-> > flushing" has been backported to most stable branches, but commit
-> > 6fc4dbcf0276 "padata: Replace delayed timer with immediate workqueue in
-> > padata_reorder" has not.
-> >=20
-> > Is this correct?  What prevents the parallel_data ref-count from
-> > dropping to 0 while the timer is scheduled?
->=20
-> Doesn't seem like anything does, looking at 4.19.
+>
+> > +copy_mc_generic(void *to, const void *from, unsigned long size);
+> > +
+> > +static inline unsigned long __must_check
+> > +copy_mc_to_kernel(void *to, const void *from, unsigned long size)
+> > +{
+> > +     return copy_mc_generic(to, from, size);
+> > +}
+> > +#define copy_mc_to_kernel copy_mc_to_kernel
+> > +
+> > +static inline unsigned long __must_check
+> > +copy_mc_to_user(void __user *to, const void *from, unsigned long n)
+> > +{
+> > +     if (likely(check_copy_size(from, n, true))) {
+> > +             if (access_ok(to, n)) {
+> > +                     allow_write_to_user(to, n);
+> > +                     n = copy_mc_generic((void *)to, from, n);
+> > +                     prevent_write_to_user(to, n);
+> > +             }
+> > +     }
+> > +
+> > +     return n;
+> > +}
+> > +#endif
+>
+> Otherwise that looks fine.
 
-OK, so it looks like the following commits should be backported:
+Cool.
 
-[3.16-4.9]  119a0798dc42 padata: Remove unused but set variables
-[3.16]      de5540d088fe padata: avoid race in reordering
-[3.16-4.9]  69b348449bda padata: get_next is never NULL
-[3.16-4.14] cf5868c8a22d padata: ensure the reorder timer callback runs on =
-the correct CPU
-[3.16-4.14] 350ef88e7e92 padata: ensure padata_do_serial() runs on the corr=
-ect CPU
-[3.16-4.19] 6fc4dbcf0276 padata: Replace delayed timer with immediate workq=
-ueue in padata_reorder
-[3.16-4.19] ec9c7d19336e padata: initialize pd->cpu with effective cpumask
-[3.16-4.19] 065cf577135a padata: purge get_cpu and reorder_via_wq from pada=
-ta_do_serial
+>
+> ...
+>
+> > diff --git a/tools/testing/selftests/powerpc/copyloops/Makefile b/tools/testing/selftests/powerpc/copyloops/Makefile
+> > index 0917983a1c78..959817e7567c 100644
+> > --- a/tools/testing/selftests/powerpc/copyloops/Makefile
+> > +++ b/tools/testing/selftests/powerpc/copyloops/Makefile
+> > @@ -45,9 +45,9 @@ $(OUTPUT)/memcpy_p7_t%:     memcpy_power7.S $(EXTRA_SOURCES)
+> >               -D SELFTEST_CASE=$(subst memcpy_p7_t,,$(notdir $@)) \
+> >               -o $@ $^
+> >
+> > -$(OUTPUT)/memcpy_mcsafe_64: memcpy_mcsafe_64.S $(EXTRA_SOURCES)
+> > +$(OUTPUT)/copy_mc: copy_mc.S $(EXTRA_SOURCES)
+> >       $(CC) $(CPPFLAGS) $(CFLAGS) \
+> > -             -D COPY_LOOP=test_memcpy_mcsafe \
+> > +             -D COPY_LOOP=test_copy_mc \
 
-Ben.
+Ok.
 
-> I can see a race where the timer function uses a parallel_data after free
-> whether or not the refcount goes to 0.  Don't think it's likely to happen=
- in
-> practice because of how small the window is between the serial callback
-> finishing and the timer being deactivated.
->=20
->=20
->    task1:
->    padata_reorder
->                                       task2:
->                                       padata_do_serial
->                                         // object arrives in reorder queu=
-e
->      // sees reorder_objects > 0,
->      //   set timer for 1 second
->      mod_timer
->      return
->                                         padata_reorder
->                                           // queue serial work, which fin=
-ishes
->                                           //   (now possibly no more obje=
-cts
->                                           //    left)
->                                           |
->    task1:                                 |
->    // pd is freed one of two ways:        |
->    //   1) pcrypt is unloaded             |
->    //   2) padata_replace triggered       |
->    //      from userspace                 | (small window)
->                                           |
->    task3:                                 |
->    padata_reorder_timer                   |
->      // uses pd after free                |
->                                           |
->                                           del_timer  // too late
->=20
->=20
-> If I got this right we might want to backport the commit you mentioned to=
- be on
-> the safe side.
---=20
-Ben Hutchings
-All the simple programs have been written, and all the good names taken
+>
+> This needs a fixup:
+>
+> diff --git a/tools/testing/selftests/powerpc/copyloops/Makefile b/tools/testing/selftests/powerpc/copyloops/Makefile
+> index 959817e7567c..b4eb5c4c6858 100644
+> --- a/tools/testing/selftests/powerpc/copyloops/Makefile
+> +++ b/tools/testing/selftests/powerpc/copyloops/Makefile
+> @@ -47,7 +47,7 @@ $(OUTPUT)/memcpy_p7_t%:       memcpy_power7.S $(EXTRA_SOURCES)
+>
+>  $(OUTPUT)/copy_mc: copy_mc.S $(EXTRA_SOURCES)
+>         $(CC) $(CPPFLAGS) $(CFLAGS) \
+> -               -D COPY_LOOP=test_copy_mc \
+> +               -D COPY_LOOP=test_copy_mc_generic \
+>                 -o $@ $^
+>
+>  $(OUTPUT)/copyuser_64_exc_t%: copyuser_64.S exc_validate.c ../harness.c \
+>
+>
+> >               -o $@ $^
+> >
+> >  $(OUTPUT)/copyuser_64_exc_t%: copyuser_64.S exc_validate.c ../harness.c \
+> > diff --git a/tools/testing/selftests/powerpc/copyloops/memcpy_mcsafe_64.S b/tools/testing/selftests/powerpc/copyloops/copy_mc.S
+> > similarity index 100%
+> > rename from tools/testing/selftests/powerpc/copyloops/memcpy_mcsafe_64.S
+> > rename to tools/testing/selftests/powerpc/copyloops/copy_mc.S
+>
+> This file is a symlink to the file in arch/powerpc/lib, so the name of
+> the link needs updating, as well as the target.
+>
+> Also is there a reason you dropped the "_64"? It would make most sense
+> to keep it I think, as then the file in selftests and the file in arch/
+> have the same name.
+>
+> If you want to keep the copy_mc.S name it needs the diff below. Though
+> as I said I think it would be better to use copy_mc_64.S.
 
+copy_mc_64.S looks good to me.
 
---=-m2IaeLpxmCsA51lvJPJZ
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAl7FP8gACgkQ57/I7JWG
-EQn6PQ/7B6DuS4mLpMfbLThku0x4T3b4Mhh+LNlKYqNNrY/InGKhOrRt0b+m/UBV
-V8Q2VLfdJTXLcQ4W2i9AK0hSdRMx6RuFCrtqDdKdhsICPqyLTIvqOQB0/2ZID1c8
-Eo1gykwtj8ixN29MjszIJB7YciQETIaXMG/qMpJ1Q6jFLyyaGF83obf4WoTzhJ6U
-/PfHzh0P1oXwtX2OelIPif4qVRko06o+oCioZAldCyAD4Cdp6z+iIvPTNlGFduiy
-cB9WMdL733hCHnevGgn9XLAOK4yhtxS7GCmvCiGF4i9AWbEgzwkNg3kXmPGixW5x
-Imrj1ZTUN42jAtwScnyKcBFcYriG3Q0SeHArR1SJOZIToOZzgJIKMdvS7NJcyE0d
-Vwno/paJOgQx7hEU8aI3Hu8Q9YCF4u2k59tUNK+Agx+MzTtJlYPuFqyoIJCzJ+tZ
-l8UyQt0dZvpGQ19Hku8NrKfqo+4biX/hUdDS+vbMPutMHNVY0mvZHz1+5c/j2OvN
-/6p84DU+ipJP347Lr9SjtfqMCG6Uy9hooMaIbpdS1tFldBgYGggGgvY8fTXwsnDm
-Ly7RPkbNf61qqaGkCPGkktnBqkjienwxo7xE39eeF+wy63g2G+beE7WEV7H4S67N
-dYNxplOEWP8pfLThv61n9wj4BWGDcXD+UNmSewFpj039h30d1Ek=
-=GHff
------END PGP SIGNATURE-----
-
---=-m2IaeLpxmCsA51lvJPJZ--
+Thanks Michael!
