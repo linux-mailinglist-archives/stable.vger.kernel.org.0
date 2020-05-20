@@ -2,61 +2,61 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 54A151DAD89
-	for <lists+stable@lfdr.de>; Wed, 20 May 2020 10:33:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 50F711DAD8A
+	for <lists+stable@lfdr.de>; Wed, 20 May 2020 10:33:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726691AbgETIdQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 20 May 2020 04:33:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56888 "EHLO
+        id S1726650AbgETIdT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 20 May 2020 04:33:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56900 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726436AbgETIdQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 20 May 2020 04:33:16 -0400
-Received: from mail-pl1-x642.google.com (mail-pl1-x642.google.com [IPv6:2607:f8b0:4864:20::642])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91711C061A0E
-        for <stable@vger.kernel.org>; Wed, 20 May 2020 01:33:15 -0700 (PDT)
-Received: by mail-pl1-x642.google.com with SMTP id w19so1017761ply.11
-        for <stable@vger.kernel.org>; Wed, 20 May 2020 01:33:15 -0700 (PDT)
+        with ESMTP id S1726436AbgETIdT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 20 May 2020 04:33:19 -0400
+Received: from mail-pf1-x444.google.com (mail-pf1-x444.google.com [IPv6:2607:f8b0:4864:20::444])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A897C061A0E
+        for <stable@vger.kernel.org>; Wed, 20 May 2020 01:33:19 -0700 (PDT)
+Received: by mail-pf1-x444.google.com with SMTP id b190so1208723pfg.6
+        for <stable@vger.kernel.org>; Wed, 20 May 2020 01:33:19 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=fossix-org.20150623.gappssmtp.com; s=20150623;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=jK3eak8AGYwL0wJRZqsVcAfH4fevuortaENnjYjREuc=;
-        b=KoBiDgTYuD8IKAqJBdXII+sxD6sA6Xi0IPUUqUub+G+3EfhEhjhsSpHZL/JvhHO0dM
-         2HmkJd/HUr826uvD1Vp3f/hieDftN1Bj0Gt9Pj5/OPBqO0kaUEBNKBRikRilWTNxINnH
-         CUi6XhdWliKmD07poHONfOzVzfFSNwkijYCUMh/fsdJTPoUc7qVFqqVokN4sD7a+JugC
-         UlXaCfR61zsJ/DNdrlRdJXk4sc3pyv6Yz9/x/u67nggENWPChw+Y0vU2tK46gsVu0K6z
-         rpuemkIFk3dA37qPpjIHwefNbzQGNSQ5cDK8KHkHMgg0lTXWgUsjb8nrh/27VNnm5X0U
-         fuPw==
+        bh=WEw2wGx1vvAyoxxZ9FPUEcrVmh8BFlemdBg8LI0s3UA=;
+        b=lgiiQjKMJE/dVWoAw0AvHVU2UgJ+yZMqakQ8rhPmPx4MFyq1qv18DIG9HSWsDIv6+8
+         GaABporOSoZ5/i1lkGBK1+w6JJCt0aDDTtnTS6VA8UYlkePLFXiWYvRjHvw1Ph7g8iV9
+         bX3xb8MAzha7hzqAl4OSF4n44OeEnZ9J1381EYS6zI3LX0hyzbu/1lCDguTdnWg4Diku
+         RBYxNBnYM2me47Fv0F6DTMRk6Kuv1+hbVrgeuS1fpchuwPEO1EizgD6xmbHkLaWgMuu9
+         9VEvxTjfvV+kasnPmr6XZVPLFDcMC05MYhjwZnP0Az7auCw2qxHjWahWxNbvVM2OJ/QA
+         20eg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=jK3eak8AGYwL0wJRZqsVcAfH4fevuortaENnjYjREuc=;
-        b=DiviZevGShmzo5GIUksyL13y1g6DHG6QjX8N1VrIqzpzBLZJSSvGf1VlzsB2fprji1
-         sbZicu/yjI511uiDlPtU2JiaXR4O5j4Way4JFg1z6Bdu/+BzSGHCHgggDaIiaGFCicd2
-         UZC6K0Te/UNs3mvHOkwm+tyybhZdG9CeXUrw0pZ6YMn3lM7cBDhbn7A+hfWfeAjBiKG4
-         kxrUn39zvH4Trna0ImSUMhDLupdQl4AqKX3wPYA+2MMu17uD/WAShcnIgLKv2mGOrM+j
-         S/U43VzJWirclswvbEOKK49+CtREEPKiVcDFRwnYzhme4yGI2MYBCz2+46lBt+75Achp
-         9FoA==
-X-Gm-Message-State: AOAM531UO4O3fDV9s17Hz/XH4h2cHx+hR4s723ocA/cWZIcQBOlN3uoB
-        MUcv9Mi3pw0Di311a+C1c5K0afJgak4=
-X-Google-Smtp-Source: ABdhPJzDTT7m+BSVW0Xo6BaI3Xo8msG0e5KvtMajBqg/QMPqaK6NDnNIXye7Ajo6vR+g/ZnmZp9tZw==
-X-Received: by 2002:a17:90a:2586:: with SMTP id k6mr4041874pje.121.1589963594861;
-        Wed, 20 May 2020 01:33:14 -0700 (PDT)
+        bh=WEw2wGx1vvAyoxxZ9FPUEcrVmh8BFlemdBg8LI0s3UA=;
+        b=Ea5cKIBMupfIO8ORMHmxteBUUd1QpE7rDC+jx7rqUt4qGY+2Ue1B70W6D+PTstDPMx
+         GDQkrSj3kCx8fAvkxacG65rnDL7BCGPyJoNqQw9wiAeucP7WTN7/GzJtF93vcIlK8kDO
+         nksCyOMA8wzIEtGtmIGPhcFcQjx7kBDl2J2tZ0dBCjnK0Wa12maHfyvctiMj3EKJeGTF
+         GK7PihXQBlme7tp3FgrWVo7xJUFAaE9taPsdsKtw8lh0uK8BWENjGX/6j3/3Ok/tOyrg
+         8HjxodHIcfcstuCJ0HTnsEps5wdCmIR422ch62hkNS+knfWf+bWMm05XNJgjn5TjbYJ8
+         5Vdw==
+X-Gm-Message-State: AOAM5329Fy6k8Bxxw+CtBCaYKXOiiKkM3pGFOfpFkmlRVFw+OPMes6Hc
+        34sCerMYwZpIbkbN79Co0wo8VimmD7E=
+X-Google-Smtp-Source: ABdhPJw5Qq3QN6wymXN/voLJ8FEV+C4e/lXnltEu3Z86k17QxxrTUCdDvqJQKCn91RQY+EEKI7RZoQ==
+X-Received: by 2002:a63:712:: with SMTP id 18mr3023617pgh.96.1589963598843;
+        Wed, 20 May 2020 01:33:18 -0700 (PDT)
 Received: from santosiv.in.ibm.com.com ([223.181.246.139])
-        by smtp.gmail.com with ESMTPSA id 2sm1553980pfz.39.2020.05.20.01.33.11
+        by smtp.gmail.com with ESMTPSA id 2sm1553980pfz.39.2020.05.20.01.33.15
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 20 May 2020 01:33:14 -0700 (PDT)
+        Wed, 20 May 2020 01:33:18 -0700 (PDT)
 From:   Santosh Sivaraj <santosh@fossix.org>
 To:     <stable@vger.kernel.org>,
         linuxppc-dev <linuxppc-dev@lists.ozlabs.org>
 Cc:     Michael Ellerman <mpe@ellerman.id.au>, Greg KH <greg@kroah.com>,
         Sasha Levin <sashal@kernel.org>,
-        Will Deacon <will.deacon@arm.com>,
+        Peter Zijlstra <peterz@infradead.org>,
         Santosh Sivaraj <santosh@fossix.org>
-Subject: [PATCH v4 2/6] asm-generic/tlb: Track which levels of the page tables have been cleared
-Date:   Wed, 20 May 2020 14:00:21 +0530
-Message-Id: <20200520083025.229011-3-santosh@fossix.org>
+Subject: [PATCH v4 3/6] asm-generic/tlb, arch: Invert CONFIG_HAVE_RCU_TABLE_INVALIDATE
+Date:   Wed, 20 May 2020 14:00:22 +0530
+Message-Id: <20200520083025.229011-4-santosh@fossix.org>
 X-Mailer: git-send-email 2.25.4
 In-Reply-To: <20200520083025.229011-1-santosh@fossix.org>
 References: <20200520083025.229011-1-santosh@fossix.org>
@@ -67,185 +67,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Will Deacon <will.deacon@arm.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-commit a6d60245d6d9b1caf66b0d94419988c4836980af upstream
+commit 96bc9567cbe112e9320250f01b9c060c882e8619 upstream
 
-It is common for architectures with hugepage support to require only a
-single TLB invalidation operation per hugepage during unmap(), rather than
-iterating through the mapping at a PAGE_SIZE increment. Currently,
-however, the level in the page table where the unmap() operation occurs
-is not stored in the mmu_gather structure, therefore forcing
-architectures to issue additional TLB invalidation operations or to give
-up and over-invalidate by e.g. invalidating the entire TLB.
+Make issuing a TLB invalidate for page-table pages the normal case.
 
-Ideally, we could add an interval rbtree to the mmu_gather structure,
-which would allow us to associate the correct mapping granule with the
-various sub-mappings within the range being invalidated. However, this
-is costly in terms of book-keeping and memory management, so instead we
-approximate by keeping track of the page table levels that are cleared
-and provide a means to query the smallest granule required for invalidation.
+The reason is twofold:
 
-Signed-off-by: Will Deacon <will.deacon@arm.com>
+ - too many invalidates is safer than too few,
+ - most architectures use the linux page-tables natively
+   and would thus require this.
+
+Make it an opt-out, instead of an opt-in.
+
+No change in behavior intended.
+
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Cc: <stable@vger.kernel.org> # 4.19
 Signed-off-by: Santosh Sivaraj <santosh@fossix.org>
 [santosh: prerequisite for upcoming tlbflush backports]
 ---
- include/asm-generic/tlb.h | 58 +++++++++++++++++++++++++++++++++------
- mm/memory.c               |  4 ++-
- 2 files changed, 53 insertions(+), 9 deletions(-)
+ arch/Kconfig         | 2 +-
+ arch/powerpc/Kconfig | 1 +
+ arch/sparc/Kconfig   | 1 +
+ arch/x86/Kconfig     | 1 -
+ mm/memory.c          | 2 +-
+ 5 files changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/include/asm-generic/tlb.h b/include/asm-generic/tlb.h
-index 97306b32d8d2..f2b9dc9cbaf8 100644
---- a/include/asm-generic/tlb.h
-+++ b/include/asm-generic/tlb.h
-@@ -114,6 +114,14 @@ struct mmu_gather {
- 	 */
- 	unsigned int		freed_tables : 1;
+diff --git a/arch/Kconfig b/arch/Kconfig
+index a336548487e6..061a12b8140e 100644
+--- a/arch/Kconfig
++++ b/arch/Kconfig
+@@ -363,7 +363,7 @@ config HAVE_ARCH_JUMP_LABEL
+ config HAVE_RCU_TABLE_FREE
+ 	bool
  
-+	/*
-+	 * at which levels have we cleared entries?
-+	 */
-+	unsigned int		cleared_ptes : 1;
-+	unsigned int		cleared_pmds : 1;
-+	unsigned int		cleared_puds : 1;
-+	unsigned int		cleared_p4ds : 1;
-+
- 	struct mmu_gather_batch *active;
- 	struct mmu_gather_batch	local;
- 	struct page		*__pages[MMU_GATHER_BUNDLE];
-@@ -148,6 +156,10 @@ static inline void __tlb_reset_range(struct mmu_gather *tlb)
- 		tlb->end = 0;
- 	}
- 	tlb->freed_tables = 0;
-+	tlb->cleared_ptes = 0;
-+	tlb->cleared_pmds = 0;
-+	tlb->cleared_puds = 0;
-+	tlb->cleared_p4ds = 0;
- }
+-config HAVE_RCU_TABLE_INVALIDATE
++config HAVE_RCU_TABLE_NO_INVALIDATE
+ 	bool
  
- static inline void tlb_flush_mmu_tlbonly(struct mmu_gather *tlb)
-@@ -197,6 +209,25 @@ static inline void tlb_remove_check_page_size_change(struct mmu_gather *tlb,
- }
- #endif
- 
-+static inline unsigned long tlb_get_unmap_shift(struct mmu_gather *tlb)
-+{
-+	if (tlb->cleared_ptes)
-+		return PAGE_SHIFT;
-+	if (tlb->cleared_pmds)
-+		return PMD_SHIFT;
-+	if (tlb->cleared_puds)
-+		return PUD_SHIFT;
-+	if (tlb->cleared_p4ds)
-+		return P4D_SHIFT;
-+
-+	return PAGE_SHIFT;
-+}
-+
-+static inline unsigned long tlb_get_unmap_size(struct mmu_gather *tlb)
-+{
-+	return 1UL << tlb_get_unmap_shift(tlb);
-+}
-+
- /*
-  * In the case of tlb vma handling, we can optimise these away in the
-  * case where we're doing a full MM flush.  When we're doing a munmap,
-@@ -230,13 +261,19 @@ static inline void tlb_remove_check_page_size_change(struct mmu_gather *tlb,
- #define tlb_remove_tlb_entry(tlb, ptep, address)		\
- 	do {							\
- 		__tlb_adjust_range(tlb, address, PAGE_SIZE);	\
-+		tlb->cleared_ptes = 1;				\
- 		__tlb_remove_tlb_entry(tlb, ptep, address);	\
- 	} while (0)
- 
--#define tlb_remove_huge_tlb_entry(h, tlb, ptep, address)	     \
--	do {							     \
--		__tlb_adjust_range(tlb, address, huge_page_size(h)); \
--		__tlb_remove_tlb_entry(tlb, ptep, address);	     \
-+#define tlb_remove_huge_tlb_entry(h, tlb, ptep, address)	\
-+	do {							\
-+		unsigned long _sz = huge_page_size(h);		\
-+		__tlb_adjust_range(tlb, address, _sz);		\
-+		if (_sz == PMD_SIZE)				\
-+			tlb->cleared_pmds = 1;			\
-+		else if (_sz == PUD_SIZE)			\
-+			tlb->cleared_puds = 1;			\
-+		__tlb_remove_tlb_entry(tlb, ptep, address);	\
- 	} while (0)
- 
- /**
-@@ -250,6 +287,7 @@ static inline void tlb_remove_check_page_size_change(struct mmu_gather *tlb,
- #define tlb_remove_pmd_tlb_entry(tlb, pmdp, address)			\
- 	do {								\
- 		__tlb_adjust_range(tlb, address, HPAGE_PMD_SIZE);	\
-+		tlb->cleared_pmds = 1;					\
- 		__tlb_remove_pmd_tlb_entry(tlb, pmdp, address);		\
- 	} while (0)
- 
-@@ -264,6 +302,7 @@ static inline void tlb_remove_check_page_size_change(struct mmu_gather *tlb,
- #define tlb_remove_pud_tlb_entry(tlb, pudp, address)			\
- 	do {								\
- 		__tlb_adjust_range(tlb, address, HPAGE_PUD_SIZE);	\
-+		tlb->cleared_puds = 1;					\
- 		__tlb_remove_pud_tlb_entry(tlb, pudp, address);		\
- 	} while (0)
- 
-@@ -289,7 +328,8 @@ static inline void tlb_remove_check_page_size_change(struct mmu_gather *tlb,
- #define pte_free_tlb(tlb, ptep, address)			\
- 	do {							\
- 		__tlb_adjust_range(tlb, address, PAGE_SIZE);	\
--		tlb->freed_tables = 1;			\
-+		tlb->freed_tables = 1;				\
-+		tlb->cleared_pmds = 1;				\
- 		__pte_free_tlb(tlb, ptep, address);		\
- 	} while (0)
- #endif
-@@ -298,7 +338,8 @@ static inline void tlb_remove_check_page_size_change(struct mmu_gather *tlb,
- #define pmd_free_tlb(tlb, pmdp, address)			\
- 	do {							\
- 		__tlb_adjust_range(tlb, address, PAGE_SIZE);	\
--		tlb->freed_tables = 1;			\
-+		tlb->freed_tables = 1;				\
-+		tlb->cleared_puds = 1;				\
- 		__pmd_free_tlb(tlb, pmdp, address);		\
- 	} while (0)
- #endif
-@@ -308,7 +349,8 @@ static inline void tlb_remove_check_page_size_change(struct mmu_gather *tlb,
- #define pud_free_tlb(tlb, pudp, address)			\
- 	do {							\
- 		__tlb_adjust_range(tlb, address, PAGE_SIZE);	\
--		tlb->freed_tables = 1;			\
-+		tlb->freed_tables = 1;				\
-+		tlb->cleared_p4ds = 1;				\
- 		__pud_free_tlb(tlb, pudp, address);		\
- 	} while (0)
- #endif
-@@ -319,7 +361,7 @@ static inline void tlb_remove_check_page_size_change(struct mmu_gather *tlb,
- #define p4d_free_tlb(tlb, pudp, address)			\
- 	do {							\
- 		__tlb_adjust_range(tlb, address, PAGE_SIZE);	\
--		tlb->freed_tables = 1;			\
-+		tlb->freed_tables = 1;				\
- 		__p4d_free_tlb(tlb, pudp, address);		\
- 	} while (0)
- #endif
+ config ARCH_HAVE_NMI_SAFE_CMPXCHG
+diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
+index 6f475dc5829b..e09cfb109b8c 100644
+--- a/arch/powerpc/Kconfig
++++ b/arch/powerpc/Kconfig
+@@ -216,6 +216,7 @@ config PPC
+ 	select HAVE_PERF_REGS
+ 	select HAVE_PERF_USER_STACK_DUMP
+ 	select HAVE_RCU_TABLE_FREE		if SMP
++	select HAVE_RCU_TABLE_NO_INVALIDATE	if HAVE_RCU_TABLE_FREE
+ 	select HAVE_REGS_AND_STACK_ACCESS_API
+ 	select HAVE_RELIABLE_STACKTRACE		if PPC64 && CPU_LITTLE_ENDIAN
+ 	select HAVE_SYSCALL_TRACEPOINTS
+diff --git a/arch/sparc/Kconfig b/arch/sparc/Kconfig
+index e6f2a38d2e61..d90d632868aa 100644
+--- a/arch/sparc/Kconfig
++++ b/arch/sparc/Kconfig
+@@ -64,6 +64,7 @@ config SPARC64
+ 	select HAVE_KRETPROBES
+ 	select HAVE_KPROBES
+ 	select HAVE_RCU_TABLE_FREE if SMP
++	select HAVE_RCU_TABLE_NO_INVALIDATE if HAVE_RCU_TABLE_FREE
+ 	select HAVE_MEMBLOCK_NODE_MAP
+ 	select HAVE_ARCH_TRANSPARENT_HUGEPAGE
+ 	select HAVE_DYNAMIC_FTRACE
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index af35f5caadbe..181d0d522977 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -181,7 +181,6 @@ config X86
+ 	select HAVE_PERF_REGS
+ 	select HAVE_PERF_USER_STACK_DUMP
+ 	select HAVE_RCU_TABLE_FREE		if PARAVIRT
+-	select HAVE_RCU_TABLE_INVALIDATE	if HAVE_RCU_TABLE_FREE
+ 	select HAVE_REGS_AND_STACK_ACCESS_API
+ 	select HAVE_RELIABLE_STACKTRACE		if X86_64 && (UNWINDER_FRAME_POINTER || UNWINDER_ORC) && STACK_VALIDATION
+ 	select HAVE_STACKPROTECTOR		if CC_HAS_SANE_STACKPROTECTOR
 diff --git a/mm/memory.c b/mm/memory.c
-index bbf0cc4066c8..1832c5ed6ac0 100644
+index 1832c5ed6ac0..ba5689610c04 100644
 --- a/mm/memory.c
 +++ b/mm/memory.c
-@@ -267,8 +267,10 @@ void arch_tlb_finish_mmu(struct mmu_gather *tlb,
+@@ -327,7 +327,7 @@ bool __tlb_remove_page_size(struct mmu_gather *tlb, struct page *page, int page_
+  */
+ static inline void tlb_table_invalidate(struct mmu_gather *tlb)
  {
- 	struct mmu_gather_batch *batch, *next;
- 
--	if (force)
-+	if (force) {
-+		__tlb_reset_range(tlb);
- 		__tlb_adjust_range(tlb, start, end - start);
-+	}
- 
- 	tlb_flush_mmu(tlb);
- 
+-#ifdef CONFIG_HAVE_RCU_TABLE_INVALIDATE
++#ifndef CONFIG_HAVE_RCU_TABLE_NO_INVALIDATE
+ 	/*
+ 	 * Invalidate page-table caches used by hardware walkers. Then we still
+ 	 * need to RCU-sched wait while freeing the pages because software
 -- 
 2.25.4
 
