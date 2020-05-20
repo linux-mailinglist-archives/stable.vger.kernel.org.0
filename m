@@ -2,63 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 553B31DAA02
-	for <lists+stable@lfdr.de>; Wed, 20 May 2020 07:40:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B27331DAAEE
+	for <lists+stable@lfdr.de>; Wed, 20 May 2020 08:47:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726830AbgETFj6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 20 May 2020 01:39:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41930 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726435AbgETFj5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 20 May 2020 01:39:57 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1726375AbgETGrT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 20 May 2020 02:47:19 -0400
+Received: from mail27.static.mailgun.info ([104.130.122.27]:54549 "EHLO
+        mail27.static.mailgun.info" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726224AbgETGrT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 20 May 2020 02:47:19 -0400
+DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
+ s=smtp; t=1589957238; h=Content-Transfer-Encoding: MIME-Version:
+ Message-Id: Date: Subject: Cc: To: From: Sender;
+ bh=xDWEOM39/obrXrVTHRAwQnXOwD7Y6aHVx/XnwR6FAbc=; b=wwaD6WhnYkSOsrVIOTtldD6I/VSkl3//VlaZ0RizG4ut0HLcFFgwtSx6iFWTr9Nyr52cUJkS
+ cWpjLfUY723FzFJbPuebJ93gB7TnBQqfrZk+XRyl+/v5ICGlNMiiLaAHEH24hthJgEercB7x
+ REhgMlejKzY5lkl/OaRtQvlvJnE=
+X-Mailgun-Sending-Ip: 104.130.122.27
+X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
+Received: from smtp.codeaurora.org (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171])
+ by mxa.mailgun.org with ESMTP id 5ec4d276.7f5ec23f8848-smtp-out-n04;
+ Wed, 20 May 2020 06:47:18 -0000 (UTC)
+Received: by smtp.codeaurora.org (Postfix, from userid 1001)
+        id DE524C433C6; Wed, 20 May 2020 06:47:17 +0000 (UTC)
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+        aws-us-west-2-caf-mail-1.web.codeaurora.org
+X-Spam-Level: 
+X-Spam-Status: No, score=-1.0 required=2.0 tests=ALL_TRUSTED,SPF_NONE
+        autolearn=unavailable autolearn_force=no version=3.4.0
+Received: from rananta-linux.qualcomm.com (i-global254.qualcomm.com [199.106.103.254])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F38592075F;
-        Wed, 20 May 2020 05:39:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589953197;
-        bh=GF8ALfHDQj6gILoTls7FkitIXQLfUzf016GL4L23y34=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=1jiYRcghXY1WwFoqBIffuHXT5XJEFtiS5T3iFrSVMsq42QV2v/SXR3xFma2DNOmIb
-         0ZXaIpAjw+gOfY5N51JrleEbg1RCvdRkSxFEeMa7XJ7Yl3iGuyVezBXsgERB4Rzh9W
-         VMaRLJi4kpiAyKrlNC1f50E1btEz2/wRlP5SdxwA=
-Date:   Wed, 20 May 2020 07:39:54 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        (Authenticated sender: rananta)
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id 0E9C1C433C8;
+        Wed, 20 May 2020 06:47:17 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org 0E9C1C433C8
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=none smtp.mailfrom=rananta@codeaurora.org
+From:   Raghavendra Rao Ananta <rananta@codeaurora.org>
+To:     gregkh@linuxfoundation.org, jslaby@suse.com, andrew@daynix.com
+Cc:     linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org,
+        Raghavendra Rao Ananta <rananta@codeaurora.org>,
         stable@vger.kernel.org
-Subject: Re: [PATCH 5.6 000/192] 5.6.14-rc2 review
-Message-ID: <20200520053954.GB2174594@kroah.com>
-References: <20200519054650.064501564@linuxfoundation.org>
- <981436bc-c36d-32e8-73ca-e121b4aea948@roeck-us.net>
+Subject: [PATCH v2] tty: hvc: Fix data abort due to race in hvc_open
+Date:   Tue, 19 May 2020 23:47:08 -0700
+Message-Id: <20200520064708.24278-1-rananta@codeaurora.org>
+X-Mailer: git-send-email 2.23.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <981436bc-c36d-32e8-73ca-e121b4aea948@roeck-us.net>
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, May 19, 2020 at 09:30:22AM -0700, Guenter Roeck wrote:
-> On 5/18/20 10:47 PM, Greg Kroah-Hartman wrote:
-> > This is the start of the stable review cycle for the 5.6.14 release.
-> > There are 192 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> > 
-> > Responses should be made by Thu, 21 May 2020 05:45:41 +0000.
-> > Anything received after that time might be too late.
-> > 
-> 
-> Build results:
-> 	total: 155 pass: 155 fail: 0
-> Qemu test results:
-> 	total: 431 pass: 431 fail: 0
+Potentially, hvc_open() can be called in parallel when two tasks calls
+open() on /dev/hvcX. In such a scenario, if the hp->ops->notifier_add()
+callback in the function fails, where it sets the tty->driver_data to
+NULL, the parallel hvc_open() can see this NULL and cause a memory abort.
+Hence, do a NULL check at the beginning, before proceeding ahead.
 
-Great, thanks for testing all of these and letting me know.
+The issue can be easily reproduced by launching two tasks simultaneously
+that does an open() call on /dev/hvcX.
+For example:
+$ cat /dev/hvc0 & cat /dev/hvc0 &
 
-greg k-h
+Cc: stable@vger.kernel.org
+Signed-off-by: Raghavendra Rao Ananta <rananta@codeaurora.org>
+---
+ drivers/tty/hvc/hvc_console.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/drivers/tty/hvc/hvc_console.c b/drivers/tty/hvc/hvc_console.c
+index 436cc51c92c3..80709f754cc8 100644
+--- a/drivers/tty/hvc/hvc_console.c
++++ b/drivers/tty/hvc/hvc_console.c
+@@ -350,6 +350,9 @@ static int hvc_open(struct tty_struct *tty, struct file * filp)
+ 	unsigned long flags;
+ 	int rc = 0;
+
++	if (!hp)
++		return -ENODEV;
++
+ 	spin_lock_irqsave(&hp->port.lock, flags);
+ 	/* Check and then increment for fast path open. */
+ 	if (hp->port.count++ > 0) {
+--
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
+a Linux Foundation Collaborative Project
