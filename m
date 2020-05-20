@@ -2,163 +2,187 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D54751DA6B5
-	for <lists+stable@lfdr.de>; Wed, 20 May 2020 02:41:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7405A1DA6BB
+	for <lists+stable@lfdr.de>; Wed, 20 May 2020 02:44:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726318AbgETAlR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 May 2020 20:41:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39986 "EHLO
+        id S1726318AbgETAoa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 May 2020 20:44:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40514 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726178AbgETAlR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 May 2020 20:41:17 -0400
-Received: from mail-pj1-x1043.google.com (mail-pj1-x1043.google.com [IPv6:2607:f8b0:4864:20::1043])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59183C061A0E
-        for <stable@vger.kernel.org>; Tue, 19 May 2020 17:41:17 -0700 (PDT)
-Received: by mail-pj1-x1043.google.com with SMTP id n15so466154pjt.4
-        for <stable@vger.kernel.org>; Tue, 19 May 2020 17:41:17 -0700 (PDT)
+        with ESMTP id S1726178AbgETAo3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 May 2020 20:44:29 -0400
+Received: from mail-pf1-x443.google.com (mail-pf1-x443.google.com [IPv6:2607:f8b0:4864:20::443])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DF49C061A0E
+        for <stable@vger.kernel.org>; Tue, 19 May 2020 17:44:29 -0700 (PDT)
+Received: by mail-pf1-x443.google.com with SMTP id z26so718042pfk.12
+        for <stable@vger.kernel.org>; Tue, 19 May 2020 17:44:29 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:user-agent:mime-version;
-        bh=jA+npFtuGAuOYRqDBBiq8LokvaR/cti6/Gz7NnVVCTg=;
-        b=Qygk2oG1wp6Z5CsxBoXTDpGHN0CnKLF7LIwd189Jlb1n8yb1J1GW+DSc64e+qxUVRl
-         hshfm2xNf8KVff4VoBoLKT234jpCLntojfg5AnoT1Ytna5ObyAV+OpXHlBiNTFu0s8mm
-         HziwgE+QQ88J8+5BnE60gcOmP1Bkb75zqJT4cBQnWijfAztuv4HjWRXsqTkQczqVy/gF
-         fAxFejybotsm+WpXWoTEf9oLGZuxq88xNJahMOYy/qBq1OyRMXlbNzCCtByzIjUDXazx
-         9RFFfXpl1u2It3C9HOAkvXviu+3NyAf4jCOZ4t3vpUfRugsJNXVrTGT7UKiVhXrbXbF7
-         CCtg==
+        d=dilger-ca.20150623.gappssmtp.com; s=20150623;
+        h=from:message-id:mime-version:subject:date:in-reply-to:cc:to
+         :references;
+        bh=s430EJB7RmoBPjOWD4EaCDtzUs1PkOuIqbnqhKXMVW0=;
+        b=bedIwYFX9+2cHiNogs4Geq4ODkF4AmzYWVZlqlh271uYjw9lZhHMjqVXSDrzCc/6T/
+         7mWrscT1901ZkbeOAObLowazD1IJJtyIMIY1bwBM7sGu/8Kp5e742X08hOaYs86BPSmn
+         Sr5z67z6xFhx42Nag0h601jRc9Datz6gtKUuvk+TmaspRS8SPSGTojjCNGmSn4VudTlx
+         jHPk2iYOBLe9Li5Cr8dVvmTnq2pm3BBRgOvdRI2HMwB92tTzYYMI319+3GuRpboIeH5V
+         7SnJy9h5l8ie8OISM+5h6ug1GhO22gFwzZS6RYxlwC2wwWJ07yGwkSdy2+jJa49b0mYD
+         w3FA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:user-agent
-         :mime-version;
-        bh=jA+npFtuGAuOYRqDBBiq8LokvaR/cti6/Gz7NnVVCTg=;
-        b=sVuWXACBSEMk+0JRlrxB9asVykfWfZ0vn5xKOFS3hsxOYIa32PbyNoYnidRnAnAP4P
-         Jfz5Rim2v+D7Q2CzxYaNf7Ewht9MyLt2SWwE7IZX0YPfq8bPAYNWd9PIEALId5/aimOs
-         x+OB+dam/At7vE1tpIBD3dBSFl8Zt20TuhQ1sbpSD86sy5ejJaS8oxTRdUfAv21uWF3o
-         hK7FCH6z66yZg7kiUBsYxxD6o44zN2Fjm8sR44l4qPSmUSuZH9xQVzuz/aBpnBFjqO9t
-         m+Okqh8ynzS5p1lVGLt/ZBzZNIKLbvRvlMtXkjrino2YR5YKiZZYbnf1/ut+KpW95Bwr
-         RyQw==
-X-Gm-Message-State: AOAM531iYuRsPQ6+6ztcmJSPkya0IdkFKdXeVcUIElTo/veBhDcoSK+l
-        u8XodmVZPlY1E2q1jVdpjnURwgBCFgs=
-X-Google-Smtp-Source: ABdhPJwcceyCHQgsaYyuvvl0yG/zA6MEVrVXKtMfo1/dirltAWv1MftckyUdsoO1FSMMhrScJxOKCA==
-X-Received: by 2002:a17:90a:de97:: with SMTP id n23mr2248239pjv.164.1589935276478;
-        Tue, 19 May 2020 17:41:16 -0700 (PDT)
-Received: from [2620:15c:17:3:3a5:23a7:5e32:4598] ([2620:15c:17:3:3a5:23a7:5e32:4598])
-        by smtp.gmail.com with ESMTPSA id v3sm547674pja.8.2020.05.19.17.41.15
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 19 May 2020 17:41:15 -0700 (PDT)
-Date:   Tue, 19 May 2020 17:41:15 -0700 (PDT)
-From:   David Rientjes <rientjes@google.com>
-X-X-Sender: rientjes@chino.kir.corp.google.com
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Christoph Hellwig <hch@lst.de>, Peter Gonda <pgonda@google.com>
-cc:     "Grimm, Jon" <Jon.Grimm@amd.com>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        Brijesh Singh <brijesh.singh@amd.com>, stable@vger.kernel.org
-Subject: DMA API stable backports for AMD SEV
-Message-ID: <alpine.DEB.2.22.394.2005191708270.15133@chino.kir.corp.google.com>
-User-Agent: Alpine 2.22 (DEB 394 2020-01-19)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+        h=x-gm-message-state:from:message-id:mime-version:subject:date
+         :in-reply-to:cc:to:references;
+        bh=s430EJB7RmoBPjOWD4EaCDtzUs1PkOuIqbnqhKXMVW0=;
+        b=uOvfsGf9In1XtHIzNVB3IzSY07xHteXSRSgWZS0P0T6ImW10Qpspw9ksYOZ4m/bYwk
+         uts3qiKCOQV1KKfh781xc6XHrXPRMMk1e7Yx7L3mn/o5b6Vr3RjOkrDRYUkXZYsS0Fdv
+         BFM28ka5F19HjofICTN9NaUkKIR1geidKNKvEzq9Ucp4wMFd6IouHggiwtGGt+CkaB8l
+         1tmp23RIuik/UWmFrDvQjPFHzCu0XTF6fgTjbwtjnwyGT9/8x0u8LiAdHOHhposq9nRL
+         4FDX5LDn/UYhPRbxRpndfHS/9vx5VXOy7YydGxzCfagLY3jYvH7zauWQ9vLOMJGvJDjF
+         p/Rw==
+X-Gm-Message-State: AOAM5327DsojDifAp1EP0MN+BC+4FgihVqnWkLY9S3hr1Q9dNQoOzLsG
+        kNKXj0ekWnXfVbHLDFjYNFoiOdPPtXtuiQ==
+X-Google-Smtp-Source: ABdhPJxeximIo3SU1JWO3Fymu331fgRKoVSKm/KPjIWeblowxUhzTB7dC0flzYAjG+QLDpsx85FZlQ==
+X-Received: by 2002:a63:1e5f:: with SMTP id p31mr1596630pgm.19.1589935468995;
+        Tue, 19 May 2020 17:44:28 -0700 (PDT)
+Received: from [192.168.10.160] (S0106a84e3fe4b223.cg.shawcable.net. [70.77.216.213])
+        by smtp.gmail.com with ESMTPSA id n205sm541869pfd.50.2020.05.19.17.44.27
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 19 May 2020 17:44:28 -0700 (PDT)
+From:   Andreas Dilger <adilger@dilger.ca>
+Message-Id: <20AA140E-877B-4240-9BEF-91D24215AF45@dilger.ca>
+Content-Type: multipart/signed;
+ boundary="Apple-Mail=_9BA1F62A-5378-475C-AF76-40175CDC3230";
+ protocol="application/pgp-signature"; micalg=pgp-sha256
+Mime-Version: 1.0 (Mac OS X Mail 10.3 \(3273\))
+Subject: Re: [PATCH 2/2] jbd2: Avoid leaking transaction credits when
+ unreserving handle
+Date:   Tue, 19 May 2020 18:44:25 -0600
+In-Reply-To: <20200518092120.10322-3-jack@suse.cz>
+Cc:     Ted Tso <tytso@mit.edu>, linux-ext4@vger.kernel.org,
+        stable@vger.kernel.org
+To:     Jan Kara <jack@suse.cz>
+References: <20200518092120.10322-1-jack@suse.cz>
+ <20200518092120.10322-3-jack@suse.cz>
+X-Mailer: Apple Mail (2.3273)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg and everyone,
 
-On all kernels, SEV enabled guests hit might_sleep() warnings when a 
-driver (nvme in this case) allocates through the DMA API in a 
-non-blockable context:
+--Apple-Mail=_9BA1F62A-5378-475C-AF76-40175CDC3230
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain;
+	charset=us-ascii
 
-BUG: sleeping function called from invalid context at mm/vmalloc.c:1710
-in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 3383, name: fio
-2 locks held by fio/3383:
- #0: ffff93b6a8568348 (&sb->s_type->i_mutex_key#16){+.+.}, at: ext4_file_write_iter+0xa2/0x5d0
- #1: ffffffffa52a61a0 (rcu_read_lock){....}, at: hctx_lock+0x1a/0xe0
-CPU: 0 PID: 3383 Comm: fio Tainted: G        W         5.5.10 #14
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Call Trace:
- dump_stack+0x98/0xd5
- ___might_sleep+0x175/0x260
- __might_sleep+0x4a/0x80
- _vm_unmap_aliases+0x45/0x250
- vm_unmap_aliases+0x19/0x20
- __set_memory_enc_dec+0xa4/0x130
- set_memory_decrypted+0x10/0x20
- dma_direct_alloc_pages+0x148/0x150
- dma_direct_alloc+0xe/0x10
- dma_alloc_attrs+0x86/0xc0
- dma_pool_alloc+0x16f/0x2b0
- nvme_queue_rq+0x878/0xc30 [nvme]
- __blk_mq_try_issue_directly+0x135/0x200
- blk_mq_request_issue_directly+0x4f/0x80
- blk_mq_try_issue_list_directly+0x46/0xb0
- blk_mq_sched_insert_requests+0x19b/0x2b0
- blk_mq_flush_plug_list+0x22f/0x3b0
- blk_flush_plug_list+0xd1/0x100
- blk_finish_plug+0x2c/0x40
- iomap_dio_rw+0x427/0x490
- ext4_file_write_iter+0x181/0x5d0
- aio_write+0x109/0x1b0
- io_submit_one+0x7d0/0xfa0
- __x64_sys_io_submit+0xa2/0x280
- do_syscall_64+0x5f/0x250
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
+On May 18, 2020, at 3:21 AM, Jan Kara <jack@suse.cz> wrote:
+>=20
+> When reserved transaction handle is unused, we subtract its reserved
+> credits in __jbd2_journal_unreserve_handle() called from
+> jbd2_journal_stop(). However this function forgets to remove reserved
+> credits from transaction->t_outstanding_credits and thus the =
+transaction
+> space that was reserved remains effectively leaked. The leaked
+> transaction space can be quite significant in some cases and leads to
+> unnecessarily small transactions and thus reducing throughput of the
+> journalling machinery. E.g. fsmark workload creating lots of 4k files
+> was observed to have about 20% lower throughput due to this when ext4 =
+is
+> mounted with dioread_nolock mount option.
+>=20
+> Subtract reserved credits from t_outstanding_credits as well.
+>=20
+> CC: stable@vger.kernel.org
+> Fixes: 8f7d89f36829 ("jbd2: transaction reservation support")
+> Signed-off-by: Jan Kara <jack@suse.cz>
 
-There is a series of patches in Christoph's dma-mapping.git repo in the 
-for-next branch on track for 5.8:
+Patch looks reasonable, with one minor nit below.
 
-1d659236fb43 dma-pool: scale the default DMA coherent pool size with memory capacity
-82fef0ad811f x86/mm: unencrypted non-blocking DMA allocations use coherent pools
-2edc5bb3c5cc dma-pool: add pool sizes to debugfs
-76a19940bd62 dma-direct: atomic allocations must come from atomic coherent pools
-54adadf9b085 dma-pool: dynamically expanding atomic pools
-c84dc6e68a1d dma-pool: add additional coherent pools to map to gfp mask
-e860c299ac0d dma-remap: separate DMA atomic pools from direct remap code
+Reviewed-by: Andreas Dilger <adilger@dilger.ca>
 
-We'd like to prepare backports to LTS kernels so that our guest images are 
-not modified by us and don't exhibit this issue.
+> ---
+> fs/jbd2/transaction.c | 17 +++++++++++++----
+> 1 file changed, 13 insertions(+), 4 deletions(-)
+>=20
+> diff --git a/fs/jbd2/transaction.c b/fs/jbd2/transaction.c
+> index 3dccc23cf010..b49a103cff1f 100644
+> --- a/fs/jbd2/transaction.c
+> +++ b/fs/jbd2/transaction.c
+> @@ -541,17 +541,24 @@ handle_t *jbd2_journal_start(journal_t *journal, =
+int nblocks)
+> }
+> EXPORT_SYMBOL(jbd2_journal_start);
+>=20
+> -static void __jbd2_journal_unreserve_handle(handle_t *handle)
+> +static void __jbd2_journal_unreserve_handle(handle_t *handle, =
+transaction_t *t)
+> {
+> 	journal_t *journal =3D handle->h_journal;
+>=20
+> 	WARN_ON(!handle->h_reserved);
+> 	sub_reserved_credits(journal, handle->h_total_credits);
+> +	if (t)
+> +		atomic_sub(handle->h_total_credits, =
+&t->t_outstanding_credits);
+> }
+>=20
+> void jbd2_journal_free_reserved(handle_t *handle)
+> {
+> -	__jbd2_journal_unreserve_handle(handle);
+> +	journal_t *journal =3D handle->h_journal;
+> +
+> +	/* Get j_state_lock to pin running transaction if it exists */
+> +	read_lock(&journal->j_state_lock);
+> +	__jbd2_journal_unreserve_handle(handle, =
+journal->j_running_transaction);
+> +	read_unlock(&journal->j_state_lock);
+> 	jbd2_free_handle(handle);
+> }
+> EXPORT_SYMBOL(jbd2_journal_free_reserved);
+> @@ -721,8 +728,10 @@ static void stop_this_handle(handle_t *handle)
+> 	}
+> 	atomic_sub(handle->h_total_credits,
+> 		   &transaction->t_outstanding_credits);
+> -	if (handle->h_rsv_handle)
+> -		__jbd2_journal_unreserve_handle(handle->h_rsv_handle);
+> +	if (handle->h_rsv_handle) {
+> +		__jbd2_journal_unreserve_handle(handle->h_rsv_handle,
+> +						transaction);
+> +	}
 
-They are bigger than we'd like:
+There isn't any need for braces {} around this one-line if-block.
 
- arch/x86/Kconfig            |   1 +
- drivers/iommu/dma-iommu.c   |   5 +-
- include/linux/dma-direct.h  |   2 +
- include/linux/dma-mapping.h |   6 +-
- kernel/dma/Kconfig          |   6 +-
- kernel/dma/Makefile         |   1 +
- kernel/dma/direct.c         |  56 ++++++--
- kernel/dma/pool.c           | 264 ++++++++++++++++++++++++++++++++++++
- kernel/dma/remap.c          | 121 +----------------
- 9 files changed, 324 insertions(+), 138 deletions(-)
- create mode 100644 kernel/dma/pool.c
 
-But they apply relatively cleanly to more modern kernels like 5.4.  We'd 
-like to backport these all the way to 4.19, however, otherwise guests 
-encounter these bugs.
+Cheers, Andreas
 
-The changes to kernel/dma/remap.c, for example, simply moves code to the 
-new pool.c.  But that original code is actually in arch/arm64 in 4.19 and 
-was moved in 5.0:
 
-commit 0c3b3171ceccb8830c2bb5adff1b4e9b204c1450
-Author: Christoph Hellwig <hch@lst.de>
-Date:   Sun Nov 4 20:29:28 2018 +0100
 
-    dma-mapping: move the arm64 noncoherent alloc/free support to common code
 
-commit f0edfea8ef93ed6cc5f747c46c85c8e53e0798a0
-Author: Christoph Hellwig <hch@lst.de>
-Date:   Fri Aug 24 10:31:08 2018 +0200
 
-    dma-mapping: move the remap helpers to a separate file
 
-And there are most certainly more dependencies to get a cleanly applying 
-series to 4.19.123.  So the backports could be quite extensive.
+--Apple-Mail=_9BA1F62A-5378-475C-AF76-40175CDC3230
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename=signature.asc
+Content-Type: application/pgp-signature;
+	name=signature.asc
+Content-Description: Message signed with OpenPGP
 
-Peter Gonda <pgonda@google.com> is currently handling these and we're 
-looking for advice: should we compile a full list of required backports 
-that would be needed to get a series that would only consist of minor 
-conflicts or is this going to be a non-starter?
+-----BEGIN PGP SIGNATURE-----
+Comment: GPGTools - http://gpgtools.org
 
-Thanks!
+iQIzBAEBCAAdFiEEDb73u6ZejP5ZMprvcqXauRfMH+AFAl7EfWkACgkQcqXauRfM
+H+CjDxAAgR72LLDqfiSa0CiTLsjpEG8ZXL+WEXseIQLOJe66IPm9f/VUmCZzncAw
+0uPAq87QXoos8rmJidrX71JWRtd3+HC+cIVcNxCADtGi3oSRu3U0G0j0+HEEhtpp
+ypGdY1LZ0SQEEa9HPcJqTq+XkybCZJ87MznMx4zacZcIzKw18pUDu+MemzK3KEw8
+rBmb4mMHW/jsib/LifaaNOA6HOrk0aYa91bK8QTMimW93nhT/SVUOXFo156rKG8o
+IC+k+VzIHtcyirI7r3OfzGTqtY3s9ymvtF1lrsY+I9JCyL9Lh8RoHkPXVuMH2oe9
+O8pqWrzctwVre6VTYgXgNglrfpqht/Fq9Q9lmOsS/nohzf0SnTRTE5ZTJJUqLGCQ
+4qQDboRWyOzRnbLawrADwWuP/FLhyPW8PAlUTY2djLX/8zPsOFKAu02AfaQJiZeu
+xginCZFetyaUj/mSKYVTzR+qenrW9Z0J0oH/WxDUyAuvA3U8w16Kxg0HV7giQ5Wo
+IiOUy/3aKvuzL9agECcrWoTWRglD6gydrcX8PEr+2HC/aAsf52S3d6PeRSv8robm
+uQ6t06GsZ4e9yfU9NovWPSB+5L648Eld60a1tzt43Nfhsf3Z/6TrBOb7lVj7+e6V
+Wz03I+AMnOBQh6y+EH93zOhBn1dwQm1wcb3asuzSvYlcZ17HXq8=
+=/5kH
+-----END PGP SIGNATURE-----
+
+--Apple-Mail=_9BA1F62A-5378-475C-AF76-40175CDC3230--
