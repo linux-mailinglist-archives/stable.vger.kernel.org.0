@@ -2,80 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 45A591DB85D
-	for <lists+stable@lfdr.de>; Wed, 20 May 2020 17:35:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 214781DB8B0
+	for <lists+stable@lfdr.de>; Wed, 20 May 2020 17:51:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726799AbgETPey (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 20 May 2020 11:34:54 -0400
-Received: from eu-smtp-delivery-151.mimecast.com ([207.82.80.151]:26253 "EHLO
-        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726688AbgETPey (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 20 May 2020 11:34:54 -0400
-Received: from AcuMS.aculab.com (156.67.243.126 [156.67.243.126]) (Using
- TLS) by relay.mimecast.com with ESMTP id
- uk-mta-228-m9nY-k74MOCgdXhj5Ly8FA-1; Wed, 20 May 2020 16:34:51 +0100
-X-MC-Unique: m9nY-k74MOCgdXhj5Ly8FA-1
-Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) by
- AcuMS.aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) with Microsoft SMTP
- Server (TLS) id 15.0.1347.2; Wed, 20 May 2020 16:34:50 +0100
-Received: from AcuMS.Aculab.com ([fe80::43c:695e:880f:8750]) by
- AcuMS.aculab.com ([fe80::43c:695e:880f:8750%12]) with mapi id 15.00.1347.000;
- Wed, 20 May 2020 16:34:50 +0100
-From:   David Laight <David.Laight@ACULAB.COM>
-To:     David Laight <David.Laight@ACULAB.COM>,
-        'Dan Williams' <dan.j.williams@intel.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-CC:     Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, "X86 ML" <x86@kernel.org>,
-        stable <stable@vger.kernel.org>, Borislav Petkov <bp@alien8.de>,
-        Tony Luck <tony.luck@intel.com>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Paul Mackerras <paulus@samba.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Mikulas Patocka <mpatocka@redhat.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Arnaldo Carvalho de Melo <acme@kernel.org>,
-        "Linus Torvalds" <torvalds@linux-foundation.org>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-nvdimm <linux-nvdimm@lists.01.org>
-Subject: RE: [PATCH v3 1/2] x86, powerpc: Rename memcpy_mcsafe() to
- copy_mc_to_{user, kernel}()
-Thread-Topic: [PATCH v3 1/2] x86, powerpc: Rename memcpy_mcsafe() to
- copy_mc_to_{user, kernel}()
-Thread-Index: AQHWLrr3OGthQXUtsU6REk+fDuiGdKixGiVwgAAAsmA=
-Date:   Wed, 20 May 2020 15:34:50 +0000
-Message-ID: <6a7200e6c57843eb8c6c08db9f991064@AcuMS.aculab.com>
-References: <158992635164.403910.2616621400995359522.stgit@dwillia2-desk3.amr.corp.intel.com>
- <158992635697.403910.6957168747147028694.stgit@dwillia2-desk3.amr.corp.intel.com>
- <87d06z7x1a.fsf@mpe.ellerman.id.au>
- <CAPcyv4igM-jK6OkPzd91ur_fNCaUxwbWTHhwWsWe-PJNjZdWGw@mail.gmail.com>
- <380699aca2424f5ab1fb55c220350908@AcuMS.aculab.com>
-In-Reply-To: <380699aca2424f5ab1fb55c220350908@AcuMS.aculab.com>
-Accept-Language: en-GB, en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [10.202.205.107]
+        id S1726650AbgETPvn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 20 May 2020 11:51:43 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:34508 "EHLO
+        shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726596AbgETPvn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 20 May 2020 11:51:43 -0400
+Received: from [192.168.4.242] (helo=deadeye)
+        by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.89)
+        (envelope-from <ben@decadent.org.uk>)
+        id 1jbR0P-0007Ww-KZ; Wed, 20 May 2020 16:51:41 +0100
+Received: from ben by deadeye with local (Exim 4.93)
+        (envelope-from <ben@decadent.org.uk>)
+        id 1jbR0P-007IXb-7x; Wed, 20 May 2020 16:51:41 +0100
+Message-ID: <08276329b2ec77d11881ff0cae2562f08da66baf.camel@decadent.org.uk>
+Subject: Re: [PATCH 3.16 37/99] clk: tegra: Mark fuse clock as critical
+From:   Ben Hutchings <ben@decadent.org.uk>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Thierry Reding <treding@nvidia.com>,
+        Stephen Warren <swarren@nvidia.com>
+Date:   Wed, 20 May 2020 16:51:36 +0100
+In-Reply-To: <lsq.1589984008.801885396@decadent.org.uk>
+References: <lsq.1589984008.801885396@decadent.org.uk>
+Content-Type: multipart/signed; micalg="pgp-sha512";
+        protocol="application/pgp-signature"; boundary="=-HhFPE6gpZD5IGNS1vMOU"
+User-Agent: Evolution 3.36.2-1 
 MIME-Version: 1.0
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: aculab.com
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: base64
+X-SA-Exim-Connect-IP: 192.168.4.242
+X-SA-Exim-Mail-From: ben@decadent.org.uk
+X-SA-Exim-Scanned: No (on shadbolt.decadent.org.uk); SAEximRunCond expanded to false
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-PiBGcm9tOiBEYW4gV2lsbGlhbXMNCj4gPiBTZW50OiAyMCBNYXkgMjAyMCAxNjoyNg0KPiAuLi4N
-Cj4gPiA+ID4gKyNpZmRlZiBDT05GSUdfQVJDSF9IQVNfQ09QWV9NQw0KPiA+ID4gPiArZXh0ZXJu
-IHVuc2lnbmVkIGxvbmcgX19tdXN0X2NoZWNrDQo+ID4gPg0KPiA+ID4gV2UgdHJ5IG5vdCB0byBh
-ZGQgZXh0ZXJuIGluIGhlYWRlcnMgYW55bW9yZS4NCj4gPg0KPiA+IE9rLCBJIHdhcyBkb2luZyB0
-aGUgY29weS1wYXN0YSBkYW5jZSwgYnV0IEknbGwgcmVtb3ZlIHRoaXMuDQo+IA0KPiBJdCBpcyBk
-YXRhIG5vdCBjb2RlLCBpdCBuZWVkcyB0aGUgZXh0ZXJuIHRvIG5vdCBiZSAnY29tbW9uJy4NCj4g
-T1RPSCB3aGF0IGlzIGEgZ2xvYmFsIHZhcmlhYmxlIGJlaW5nIHVzZWQgZm9yPw0KDQpBYWFyZyBu
-b3QgZW5vdWdoIGNvbnRleHQuLi4NCg0KLQ0KUmVnaXN0ZXJlZCBBZGRyZXNzIExha2VzaWRlLCBC
-cmFtbGV5IFJvYWQsIE1vdW50IEZhcm0sIE1pbHRvbiBLZXluZXMsIE1LMSAxUFQsIFVLDQpSZWdp
-c3RyYXRpb24gTm86IDEzOTczODYgKFdhbGVzKQ0K
 
+--=-HhFPE6gpZD5IGNS1vMOU
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+On Wed, 2020-05-20 at 15:14 +0100, Ben Hutchings wrote:
+> 3.16.84-rc1 review patch.  If anyone has any objections, please let me kn=
+ow.
+>=20
+> ------------------
+>=20
+> From: Stephen Warren <swarren@nvidia.com>
+>=20
+> commit bf83b96f87ae2abb1e535306ea53608e8de5dfbb upstream.
+
+I've now dropped this, as CLK_IS_CRITICAL is not implemented on 3.16.
+
+Ben.
+
+> For a little over a year, U-Boot on Tegra124 has configured the flow
+> controller to perform automatic RAM re-repair on off->on power
+> transitions of the CPU rail[1]. This is mandatory for correct operation
+> of Tegra124. However, RAM re-repair relies on certain clocks, which the
+> kernel must enable and leave running. The fuse clock is one of those
+> clocks. Mark this clock as critical so that LP1 power mode (system
+> suspend) operates correctly.
+>=20
+> [1] 3cc7942a4ae5 ARM: tegra: implement RAM repair
+>=20
+> Reported-by: Jonathan Hunter <jonathanh@nvidia.com>
+> Signed-off-by: Stephen Warren <swarren@nvidia.com>
+> Signed-off-by: Thierry Reding <treding@nvidia.com>
+> Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+> ---
+>  drivers/clk/tegra/clk-tegra-periph.c | 6 +++++-
+>  1 file changed, 5 insertions(+), 1 deletion(-)
+>=20
+> --- a/drivers/clk/tegra/clk-tegra-periph.c
+> +++ b/drivers/clk/tegra/clk-tegra-periph.c
+> @@ -517,7 +517,11 @@ static struct tegra_periph_init_data gat
+>  	GATE("vcp", "clk_m", 29, 0, tegra_clk_vcp, 0),
+>  	GATE("apbdma", "clk_m", 34, 0, tegra_clk_apbdma, 0),
+>  	GATE("kbc", "clk_32k", 36, TEGRA_PERIPH_ON_APB | TEGRA_PERIPH_NO_RESET,=
+ tegra_clk_kbc, 0),
+> -	GATE("fuse", "clk_m", 39, TEGRA_PERIPH_ON_APB, tegra_clk_fuse, 0),
+> +	/*
+> +	 * Critical for RAM re-repair operation, which must occur on resume
+> +	 * from LP1 system suspend and as part of CCPLEX cluster switching.
+> +	 */
+> +	GATE("fuse", "clk_m", 39, TEGRA_PERIPH_ON_APB, tegra_clk_fuse, CLK_IS_C=
+RITICAL),
+>  	GATE("fuse_burn", "clk_m", 39, TEGRA_PERIPH_ON_APB, tegra_clk_fuse_burn=
+, 0),
+>  	GATE("kfuse", "clk_m", 40, TEGRA_PERIPH_ON_APB, tegra_clk_kfuse, 0),
+>  	GATE("apbif", "clk_m", 107, TEGRA_PERIPH_ON_APB, tegra_clk_apbif, 0),
+>=20
+--=20
+Ben Hutchings
+All the simple programs have been written, and all the good names taken
+
+
+
+--=-HhFPE6gpZD5IGNS1vMOU
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAl7FUggACgkQ57/I7JWG
+EQkWDxAAu5MPB6sH+UD5M+rqoTVuv6u3+xpVNpB1ud7i35VbhBDXCxJ0eER+x1HN
+ywxc11cdIxX1q1WjOcjWE7rF+KPSOJAABBMfExitsvaPOVI9B0km5xHX0KXtUl7M
+6zuK+/89tlANyzBZW3xAWwFjCLLszDAzFHtYkMgZFPhGlaPnG6Zaek0Oz/iZ6dB3
+WM8yyC6/qUcs+AVaHUvG4fPqv7QL+nXtLVnnPusSJBLUpK68fUFa4WJKRLmLBa7E
+6A/XN9FlMb0R+3icsed48h43CkdOMBGQ/sbn2DmWb7+3w0Iz5PFA6da1hBZmA2f7
+UGdOkfoS4yYe00Gp3NAMgrTEU+amKMFg6xWfcgiTqC5fWN2F6JYbAD2Zc96MyQjJ
++v0zlCHFolQN+dbfSwwIgJ99/e7N9hcWcXw7mgXY15Vgfj3GZf0ydhxWz7NgC7Q4
+mXmaQdArP7snHoO3yzj4oV5xhva3HjCyDJCINXlVQ01T8R0MepTlZvTV+qxtNpjd
+sgXJ0fsdVW51oDvoxyiA/gQ9013LKcE9PTXd7EjnH02SutuOPlynlczfnYWorR3s
+Q2lGy9MLIw1jvMyKSK8hp9evOQbeOrxs8JuIeXt7jjrB5seTrqLppd6Hv5wyrrEx
+ZEru0XzJ+qmlWBx6mVrcw3om9zxtuwUbPJ4vrgHPSgwFublmHgw=
+=sl0g
+-----END PGP SIGNATURE-----
+
+--=-HhFPE6gpZD5IGNS1vMOU--
