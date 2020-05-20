@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 015351DB678
-	for <lists+stable@lfdr.de>; Wed, 20 May 2020 16:25:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 607411DB66E
+	for <lists+stable@lfdr.de>; Wed, 20 May 2020 16:25:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727818AbgETOZD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 20 May 2020 10:25:03 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:33176 "EHLO
+        id S1728262AbgETOYg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 20 May 2020 10:24:36 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:33184 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727065AbgETOW2 (ORCPT
+        by vger.kernel.org with ESMTP id S1727070AbgETOW2 (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 20 May 2020 10:22:28 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1jbPby-00037e-Dp; Wed, 20 May 2020 15:22:22 +0100
+        id 1jbPby-00037g-9y; Wed, 20 May 2020 15:22:22 +0100
 Received: from ben by deadeye with local (Exim 4.93)
         (envelope-from <ben@decadent.org.uk>)
-        id 1jbPbw-007DUQ-GN; Wed, 20 May 2020 15:22:20 +0100
+        id 1jbPbw-007DUU-Hd; Wed, 20 May 2020 15:22:20 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,14 +26,14 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        "Luis Henriques" <luis.henriques@canonical.com>
-Date:   Wed, 20 May 2020 15:14:37 +0100
-Message-ID: <lsq.1589984009.835833982@decadent.org.uk>
+        "Luis Henriques" <luis.henriques@canonical.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Date:   Wed, 20 May 2020 15:14:38 +0100
+Message-ID: <lsq.1589984009.593772629@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 69/99] tracing: Fix very unlikely race of registering
- two stat tracers
+Subject: [PATCH 3.16 70/99] tracing: Fix tracing_stat return values in
+ error handling paths
 In-Reply-To: <lsq.1589984008.673931885@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -47,81 +47,54 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+From: Luis Henriques <luis.henriques@canonical.com>
 
-commit dfb6cd1e654315168e36d947471bd2a0ccd834ae upstream.
+commit afccc00f75bbbee4e4ae833a96c2d29a7259c693 upstream.
 
-Looking through old emails in my INBOX, I came across a patch from Luis
-Henriques that attempted to fix a race of two stat tracers registering the
-same stat trace (extremely unlikely, as this is done in the kernel, and
-probably doesn't even exist). The submitted patch wasn't quite right as it
-needed to deal with clean up a bit better (if two stat tracers were the
-same, it would have the same files).
+tracing_stat_init() was always returning '0', even on the error paths.  It
+now returns -ENODEV if tracing_init_dentry() fails or -ENOMEM if it fails
+to created the 'trace_stat' debugfs directory.
 
-But to make the code cleaner, all we needed to do is to keep the
-all_stat_sessions_mutex held for most of the registering function.
+Link: http://lkml.kernel.org/r/1410299381-20108-1-git-send-email-luis.henriques@canonical.com
 
-Link: http://lkml.kernel.org/r/1410299375-20068-1-git-send-email-luis.henriques@canonical.com
-
-Fixes: 002bb86d8d42f ("tracing/ftrace: separate events tracing and stats tracing engine")
-Reported-by: Luis Henriques <luis.henriques@canonical.com>
+Fixes: ed6f1c996bfe4 ("tracing: Check return value of tracing_init_dentry()")
+Signed-off-by: Luis Henriques <luis.henriques@canonical.com>
+[ Pulled from the archeological digging of my INBOX ]
 Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+[bwh: Backported to 3.16: adjust context]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- kernel/trace/trace_stat.c | 19 +++++++++----------
- 1 file changed, 9 insertions(+), 10 deletions(-)
+ kernel/trace/trace_stat.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
 --- a/kernel/trace/trace_stat.c
 +++ b/kernel/trace/trace_stat.c
-@@ -302,7 +302,7 @@ static int init_stat_file(struct stat_se
- int register_stat_tracer(struct tracer_stat *trace)
- {
- 	struct stat_session *session, *node;
--	int ret;
-+	int ret = -EINVAL;
+@@ -277,19 +277,23 @@ static int tracing_stat_init(void)
  
- 	if (!trace)
- 		return -EINVAL;
-@@ -313,17 +313,15 @@ int register_stat_tracer(struct tracer_s
- 	/* Already registered? */
- 	mutex_lock(&all_stat_sessions_mutex);
- 	list_for_each_entry(node, &all_stat_sessions, session_list) {
--		if (node->ts == trace) {
--			mutex_unlock(&all_stat_sessions_mutex);
--			return -EINVAL;
--		}
-+		if (node->ts == trace)
-+			goto out;
- 	}
--	mutex_unlock(&all_stat_sessions_mutex);
+ 	d_tracing = tracing_init_dentry();
+ 	if (!d_tracing)
+-		return 0;
++		return -ENODEV;
  
-+	ret = -ENOMEM;
- 	/* Init the session */
- 	session = kzalloc(sizeof(*session), GFP_KERNEL);
- 	if (!session)
--		return -ENOMEM;
-+		goto out;
- 
- 	session->ts = trace;
- 	INIT_LIST_HEAD(&session->session_list);
-@@ -332,15 +330,16 @@ int register_stat_tracer(struct tracer_s
- 	ret = init_stat_file(session);
- 	if (ret) {
- 		destroy_session(session);
--		return ret;
-+		goto out;
- 	}
- 
-+	ret = 0;
- 	/* Register */
--	mutex_lock(&all_stat_sessions_mutex);
- 	list_add_tail(&session->session_list, &all_stat_sessions);
-+ out:
- 	mutex_unlock(&all_stat_sessions_mutex);
- 
--	return 0;
-+	return ret;
+ 	stat_dir = debugfs_create_dir("trace_stat", d_tracing);
+-	if (!stat_dir)
++	if (!stat_dir) {
+ 		pr_warning("Could not create debugfs "
+ 			   "'trace_stat' entry\n");
++		return -ENOMEM;
++	}
+ 	return 0;
  }
  
- void unregister_stat_tracer(struct tracer_stat *trace)
+ static int init_stat_file(struct stat_session *session)
+ {
+-	if (!stat_dir && tracing_stat_init())
+-		return -ENODEV;
++	int ret;
++
++	if (!stat_dir && (ret = tracing_stat_init()))
++		return ret;
+ 
+ 	session->file = debugfs_create_file(session->ts->name, 0644,
+ 					    stat_dir,
 
