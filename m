@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E8C41DB679
-	for <lists+stable@lfdr.de>; Wed, 20 May 2020 16:25:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 964F51DB652
+	for <lists+stable@lfdr.de>; Wed, 20 May 2020 16:24:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728311AbgETOZD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 20 May 2020 10:25:03 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:33152 "EHLO
+        id S1728097AbgETOXu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 20 May 2020 10:23:50 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:33064 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727056AbgETOW2 (ORCPT
+        by vger.kernel.org with ESMTP id S1727035AbgETOW2 (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 20 May 2020 10:22:28 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1jbPbv-00035k-UW; Wed, 20 May 2020 15:22:20 +0100
+        id 1jbPbw-00035n-7D; Wed, 20 May 2020 15:22:20 +0100
 Received: from ben by deadeye with local (Exim 4.93)
         (envelope-from <ben@decadent.org.uk>)
-        id 1jbPbv-007DSC-No; Wed, 20 May 2020 15:22:19 +0100
+        id 1jbPbv-007DSH-Oy; Wed, 20 May 2020 15:22:19 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,17 +26,13 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Josh Poimboeuf" <jpoimboe@redhat.com>,
-        "Dave Hansen" <dave.hansen@linux.intel.com>,
-        "Neelima Krishnan" <neelima.krishnan@intel.com>,
-        "Thomas Gleixner" <tglx@linutronix.de>,
-        "Pawan Gupta" <pawan.kumar.gupta@linux.intel.com>
-Date:   Wed, 20 May 2020 15:14:22 +0100
-Message-ID: <lsq.1589984008.274460399@decadent.org.uk>
+        "Theodore Ts'o" <tytso@mit.edu>, "Kai Li" <li.kai4@h3c.com>
+Date:   Wed, 20 May 2020 15:14:23 +0100
+Message-ID: <lsq.1589984008.10399387@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 54/99] x86/cpu: Update cached HLE state on write to
- TSX_CTRL_CPUID_CLEAR
+Subject: [PATCH 3.16 55/99] jbd2: clear JBD2_ABORT flag before
+ journal_reset to update log tail info when load journal
 In-Reply-To: <lsq.1589984008.673931885@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -50,60 +46,49 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+From: Kai Li <li.kai4@h3c.com>
 
-commit 5efc6fa9044c3356d6046c6e1da6d02572dbed6b upstream.
+commit a09decff5c32060639a685581c380f51b14e1fc2 upstream.
 
-/proc/cpuinfo currently reports Hardware Lock Elision (HLE) feature to
-be present on boot cpu even if it was disabled during the bootup. This
-is because cpuinfo_x86->x86_capability HLE bit is not updated after TSX
-state is changed via the new MSR IA32_TSX_CTRL.
+If the journal is dirty when the filesystem is mounted, jbd2 will replay
+the journal but the journal superblock will not be updated by
+journal_reset() because JBD2_ABORT flag is still set (it was set in
+journal_init_common()). This is problematic because when a new transaction
+is then committed, it will be recorded in block 1 (journal->j_tail was set
+to 1 in journal_reset()). If unclean shutdown happens again before the
+journal superblock is updated, the new recorded transaction will not be
+replayed during the next mount (because of stale sb->s_start and
+sb->s_sequence values) which can lead to filesystem corruption.
 
-Update the cached HLE bit also since it is expected to change after an
-update to CPUID_CLEAR bit in MSR IA32_TSX_CTRL.
-
-Fixes: 95c5824f75f3 ("x86/cpu: Add a "tsx=" cmdline option with TSX disabled by default")
-Signed-off-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Neelima Krishnan <neelima.krishnan@intel.com>
-Reviewed-by: Dave Hansen <dave.hansen@linux.intel.com>
-Reviewed-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Link: https://lore.kernel.org/r/2529b99546294c893dfa1c89e2b3e46da3369a59.1578685425.git.pawan.kumar.gupta@linux.intel.com
+Fixes: 85e0c4e89c1b ("jbd2: if the journal is aborted then don't allow update of the log tail")
+Signed-off-by: Kai Li <li.kai4@h3c.com>
+Link: https://lore.kernel.org/r/20200111022542.5008-1-li.kai4@h3c.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- arch/x86/kernel/cpu/tsx.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ fs/jbd2/journal.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/arch/x86/kernel/cpu/tsx.c
-+++ b/arch/x86/kernel/cpu/tsx.c
-@@ -115,11 +115,12 @@ void __init tsx_init(void)
- 		tsx_disable();
- 
- 		/*
--		 * tsx_disable() will change the state of the
--		 * RTM CPUID bit.  Clear it here since it is now
--		 * expected to be not set.
-+		 * tsx_disable() will change the state of the RTM and HLE CPUID
-+		 * bits. Clear them here since they are now expected to be not
-+		 * set.
- 		 */
- 		setup_clear_cpu_cap(X86_FEATURE_RTM);
-+		setup_clear_cpu_cap(X86_FEATURE_HLE);
- 	} else if (tsx_ctrl_state == TSX_CTRL_ENABLE) {
- 
- 		/*
-@@ -131,10 +132,10 @@ void __init tsx_init(void)
- 		tsx_enable();
- 
- 		/*
--		 * tsx_enable() will change the state of the
--		 * RTM CPUID bit.  Force it here since it is now
--		 * expected to be set.
-+		 * tsx_enable() will change the state of the RTM and HLE CPUID
-+		 * bits. Force them here since they are now expected to be set.
- 		 */
- 		setup_force_cpu_cap(X86_FEATURE_RTM);
-+		setup_force_cpu_cap(X86_FEATURE_HLE);
+--- a/fs/jbd2/journal.c
++++ b/fs/jbd2/journal.c
+@@ -1674,6 +1674,11 @@ int jbd2_journal_load(journal_t *journal
+ 		       journal->j_devname);
+ 		return -EIO;
  	}
- }
++	/*
++	 * clear JBD2_ABORT flag initialized in journal_init_common
++	 * here to update log tail information with the newest seq.
++	 */
++	journal->j_flags &= ~JBD2_ABORT;
+ 
+ 	/* OK, we've finished with the dynamic journal bits:
+ 	 * reinitialise the dynamic contents of the superblock in memory
+@@ -1681,7 +1686,6 @@ int jbd2_journal_load(journal_t *journal
+ 	if (journal_reset(journal))
+ 		goto recovery_error;
+ 
+-	journal->j_flags &= ~JBD2_ABORT;
+ 	journal->j_flags |= JBD2_LOADED;
+ 	return 0;
+ 
 
