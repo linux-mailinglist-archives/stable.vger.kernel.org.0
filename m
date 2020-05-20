@@ -2,89 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D9B321DB140
-	for <lists+stable@lfdr.de>; Wed, 20 May 2020 13:15:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0911B1DB243
+	for <lists+stable@lfdr.de>; Wed, 20 May 2020 13:50:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726566AbgETLPV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 20 May 2020 07:15:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54036 "EHLO
+        id S1726891AbgETLu3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 20 May 2020 07:50:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59610 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726436AbgETLPV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 20 May 2020 07:15:21 -0400
-Received: from mail-lf1-x141.google.com (mail-lf1-x141.google.com [IPv6:2a00:1450:4864:20::141])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87B75C061A0E
-        for <stable@vger.kernel.org>; Wed, 20 May 2020 04:15:20 -0700 (PDT)
-Received: by mail-lf1-x141.google.com with SMTP id c12so2041149lfc.10
-        for <stable@vger.kernel.org>; Wed, 20 May 2020 04:15:20 -0700 (PDT)
+        with ESMTP id S1726224AbgETLu3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 20 May 2020 07:50:29 -0400
+Received: from mail-pg1-x544.google.com (mail-pg1-x544.google.com [IPv6:2607:f8b0:4864:20::544])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07F19C061A0E
+        for <stable@vger.kernel.org>; Wed, 20 May 2020 04:50:29 -0700 (PDT)
+Received: by mail-pg1-x544.google.com with SMTP id c75so1322514pga.3
+        for <stable@vger.kernel.org>; Wed, 20 May 2020 04:50:29 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=flowbird.group; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=5g/o8PUZPrNAJIWyoOWEybfjQaVuCtrfU+HgSjaoumw=;
-        b=kea5AkX0ou1aP/8ibJ65TsXqG7JKMLU5s5e4R3yHJGH+a+ozn11pQBzKtTGq34DtKo
-         RpweiZTOmY7YZ4KFVqDxsCSVe2OZjBDZBVBIn/jeg4Qwn1W5PwPPJokOlzpOoj3vqshv
-         cmORZuq7e91IWNiG9pAOQMeA6/vJ6mMkgATPDXMJg/5XElENes0TWwKd7wN3jFB9mLuO
-         BQys++AIoeAGlaFcfW9EcbCvm3aHIe78PLHpGSPlZyBWp3wlWqbLeZ3RiP1G7rqRx0jJ
-         lg4doC3DKqJzQHczPWTl76Im8fzgIXX6vJTOHa+LhhD+oYvNwbksAc+SLjunjyGdow94
-         JBeg==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=6kyCzZs/zoIG+DL/0ATxq86d6zPj91LW5Gmi03vF/IU=;
+        b=jWL/iaMPTc/hu6pg6mCAvwSQ0rFwP/A0tDF8eNlKZqHWkEurnmPMvs2EyKa3TcTESn
+         rp6TdPgixKWLU2pM9oOcFOL2gsw4IcuAeANuf0VggBUDpWa5Xv2dogP5KIyvio1V3RSG
+         KTaUkl+nOU4p1sQqgOqxX8pOkZhWgpw+W3YBC1NcYIMq0c3HqxLuRH9ZPTFoGFIKvfVq
+         7W4hYdWMVGCM0OrPq65ITU2adN4u1xA3Cnt7xtUCnC1c/mS+7L8MRyQL5cwnE1fGOuj1
+         kR5uW/47s9ysbObVx5/TpwW0mic53/uf379zBIsDs9F5EXh0pYMWl3WeCbQ5Bd8DBbLG
+         Ztag==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=5g/o8PUZPrNAJIWyoOWEybfjQaVuCtrfU+HgSjaoumw=;
-        b=OM/m/uohxkGcJzMcLBMsaZaoFGMbWxMOq03VnpTImP9/dJi9mbswygTYFTwKIvVHNA
-         /JPWcNHXCDz05X+Yt9xYWe00A6541pYOra13y6br5YQtp7O/b80izFKJrgirQNKAYK+J
-         ZzJ7Ht3HulM51gqb8vWifEDbgAyV0uX8OYkTJOB/xpDqrrevSPlMg9UVgh19HrvKfSZT
-         l9Uvj7f3viB51dQkWRxga18Vu/Hu8tQXetwQHcHUj0mEB3COVCDvu4OYYwcg2B0/m92e
-         UbPicQyeRTuSATv+xJ7OkMKifY3mhg3vROu0V9fZqjpvQ9IFzYAphjJa94kk/P18J+ZY
-         0DQg==
-X-Gm-Message-State: AOAM532KFNeKC2s9T6ITg1/gxHO6/gusD1JiVnPprDxw7GJ9gab9VjeN
-        5aevCA89eibDuz5C3GOOFoKW6pOq48OKcqn0rJ0xE9gHK7w=
-X-Google-Smtp-Source: ABdhPJy255WD8U21Ushovf34k+G+2sKMGyfVGQ6u/StQOpa9NwmtllVnOahvkS7bR02qE6ErmJ0TOwu/zbsjmgOWYM8=
-X-Received: by 2002:ac2:4d1c:: with SMTP id r28mr2303943lfi.45.1589973318888;
- Wed, 20 May 2020 04:15:18 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=6kyCzZs/zoIG+DL/0ATxq86d6zPj91LW5Gmi03vF/IU=;
+        b=YuHVIIfpJYf62bnJbOFQyjgSBcMCcJlVM/iwzU9JLJ2MuByDrLwUr2c+HsFpPRJa5E
+         zRPPhTR5FXjGc9OZmX7Zis0UdbFX1tlaLRiEwAKZx4jCeeJsWCW1ohYCtVlYK5SYngIC
+         LCHP8CZSCxriOsb3FoiBhVuzZa/4PLkT0tCpOq3DM50s1gtLIwUvCVw3+BxtgzlQrxD9
+         mj3Y8ncKSYHJDsj9UjUR3qP4HKEf0asFqkZuzq6X26IZmVFBLAEbOY2NGhg88moH61hQ
+         CQ5V0L957xQe4AzG4O1a6/cHXDu74Zs9cjZ7c4IofRwEWXNGOwujAt2kVSnOgE6ycf5W
+         EZLQ==
+X-Gm-Message-State: AOAM530yTBXhz94SVLtOA8sjwHzcVCZ45f+M7KOVmgCRi6wHVQY4nAXu
+        QUvpWERryVsKkuQVc+z9ll2TcYozBqg=
+X-Google-Smtp-Source: ABdhPJyQUH6WS5n6K0CYbC7txhrrsi/rZzVNxpA+wpIjEQVnYQdBU6Pd7fBlda/IbfQ+lpNjLSWscQ==
+X-Received: by 2002:a63:b0f:: with SMTP id 15mr3643674pgl.6.1589975428250;
+        Wed, 20 May 2020 04:50:28 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id t14sm1434678pju.42.2020.05.20.04.50.26
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 20 May 2020 04:50:27 -0700 (PDT)
+Message-ID: <5ec51983.1c69fb81.5eff2.44b5@mx.google.com>
+Date:   Wed, 20 May 2020 04:50:27 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <1589969500-6554-1-git-send-email-martin.fuzzey@flowbird.group> <d7a0646840374e1d7515bfea7da2badd94df0042.camel@pengutronix.de>
-In-Reply-To: <d7a0646840374e1d7515bfea7da2badd94df0042.camel@pengutronix.de>
-From:   "Fuzzey, Martin" <martin.fuzzey@flowbird.group>
-Date:   Wed, 20 May 2020 13:15:07 +0200
-Message-ID: <CANh8Qzz4bx8scFdF3Hhe0UsojEyBswBuwiJQ0UW9HPUjrjpd_Q@mail.gmail.com>
-Subject: Re: [PATCH] drm/etnaviv: fix memory leak when mapping prime imported buffers
-To:     Lucas Stach <l.stach@pengutronix.de>
-Cc:     stable@vger.kernel.org,
-        Christian Gmeiner <christian.gmeiner@gmail.com>,
-        The etnaviv authors <etnaviv@lists.freedesktop.org>,
-        "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable
+X-Kernelci-Kernel: v4.9.224
+X-Kernelci-Report-Type: boot
+X-Kernelci-Branch: linux-4.9.y
+Subject: stable/linux-4.9.y boot: 39 boots: 1 failed,
+ 37 passed with 1 untried/unknown (v4.9.224)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Lucas,
+******************************************
+* WARNING: Boot tests are now deprecated *
+******************************************
 
-> Am Mittwoch, den 20.05.2020, 12:10 +0200 schrieb Martin Fuzzey:
-> What's the use-case where you did hit this issue? mmap'ing of imported
-> buffers through the etnaviv DRM device is currently not well defined
-> and I was pondering the idea of forbidding it completely by not
-> returning a mmap offset for those objects.
->
+As kernelci.org is expanding its functional testing capabilities, the conce=
+pt
+of boot testing is now deprecated.  Boot results are scheduled to be droppe=
+d on
+*5th June 2020*.  The full schedule for boot tests deprecation is available=
+ on
+this GitHub issue: https://github.com/kernelci/kernelci-backend/issues/238
 
-I hit this on Android 8 (on i.MX6 using mesa 20.0.6 with gbm gralloc
-and drm hwcomposer)  and had a memory leak every time an activity was
-started.
-I'm not sure exactly why but Android does a gralloc.lock() and
-gralloc.unlock() on every activity startup.
-Those map and unmap the buffer.
+The new equivalent is the *baseline* test suite which also runs sanity chec=
+ks
+using dmesg and bootrr: https://github.com/kernelci/bootrr
 
-Under Android (at least in 8+) the actual graphics buffer allocations
-are done by a dedicated process
-(android.hardware.graphics.allocator@2.0-service)
-because it uses a "binderized HAL" for the allocation
-[https://source.android.com/devices/architecture/hal-types]
-This means that buffers are *always* imported (though they are usually
-only mmaped for SW rendering or screen shots).
+See the *baseline results for this kernel revision* on this page:
+https://kernelci.org/test/job/stable/branch/linux-4.9.y/kernel/v4.9.224/pla=
+n/baseline/
 
-Regards,
+---------------------------------------------------------------------------=
+----
 
-Martin
+stable/linux-4.9.y boot: 39 boots: 1 failed, 37 passed with 1 untried/unkno=
+wn (v4.9.224)
+
+Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
+9.y/kernel/v4.9.224/
+Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.9.y/ke=
+rnel/v4.9.224/
+
+Tree: stable
+Branch: linux-4.9.y
+Git Describe: v4.9.224
+Git Commit: e4ebe4fae299b559e683eb31a2dc950507842bf7
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e.git
+Tested: 22 unique boards, 10 SoC families, 10 builds out of 197
+
+Boot Regressions Detected:
+
+arm:
+
+    sunxi_defconfig:
+        gcc-8:
+          sun4i-a10-olinuxino-lime:
+              lab-baylibre: new failure (last pass: v4.9.223)
+
+Boot Failure Detected:
+
+arm:
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
+
+---
+For more info write to <info@kernelci.org>
