@@ -2,99 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D9501DB029
-	for <lists+stable@lfdr.de>; Wed, 20 May 2020 12:29:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C587F1DB104
+	for <lists+stable@lfdr.de>; Wed, 20 May 2020 13:07:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726224AbgETK3X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 20 May 2020 06:29:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46782 "EHLO
+        id S1726435AbgETLHX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 20 May 2020 07:07:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52790 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726510AbgETK3W (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 20 May 2020 06:29:22 -0400
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55D98C061A0E
-        for <stable@vger.kernel.org>; Wed, 20 May 2020 03:29:22 -0700 (PDT)
-Received: from gallifrey.ext.pengutronix.de ([2001:67c:670:201:5054:ff:fe8d:eefb] helo=localhost)
-        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <l.stach@pengutronix.de>)
-        id 1jbLyS-0004HF-Sa; Wed, 20 May 2020 12:29:20 +0200
-Message-ID: <d7a0646840374e1d7515bfea7da2badd94df0042.camel@pengutronix.de>
-Subject: Re: [PATCH] drm/etnaviv: fix memory leak when mapping prime
- imported buffers
-From:   Lucas Stach <l.stach@pengutronix.de>
-To:     Martin Fuzzey <martin.fuzzey@flowbird.group>
-Cc:     stable@vger.kernel.org,
-        Christian Gmeiner <christian.gmeiner@gmail.com>,
-        etnaviv@lists.freedesktop.org, linux-kernel@vger.kernel.org
-Date:   Wed, 20 May 2020 12:29:19 +0200
-In-Reply-To: <1589969500-6554-1-git-send-email-martin.fuzzey@flowbird.group>
-References: <1589969500-6554-1-git-send-email-martin.fuzzey@flowbird.group>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.36.2 (3.36.2-1.fc32) 
+        with ESMTP id S1726403AbgETLHW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 20 May 2020 07:07:22 -0400
+Received: from mail-pf1-x441.google.com (mail-pf1-x441.google.com [IPv6:2607:f8b0:4864:20::441])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DC22C061A0E
+        for <stable@vger.kernel.org>; Wed, 20 May 2020 04:07:22 -0700 (PDT)
+Received: by mail-pf1-x441.google.com with SMTP id z26so1368437pfk.12
+        for <stable@vger.kernel.org>; Wed, 20 May 2020 04:07:22 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=yCIsHigfjpcfcEv/881WtYfI5LcSU0JLXgDEKBXWeY4=;
+        b=dq7nhrLwwt5hBk+upjVOoZ3RgQZM8kdo9G1JWcYhzAE/CRVWZ/RW0Nd/ogZamt2jbU
+         8YZl7qUdHsrBdACUJHis73NxELGq+Hd9RQSY67RFFKfkhWjHZ80tDCZwqS8rT73wY112
+         BuEyPhSf2suuy2b5XEGOSGATdzMydcM5PtiWBgDuyslwArzQCHhMhXhvdyFUUmXSVe9y
+         pHCgkzJjzNIMAmINu2i0lEm8TN9PBPBac2DFhkYWW+Wi4h6EO3EICLgxeiviZnL/n5J1
+         WpHhiXQsbmmos6vMiBGtAaN+P0WhKQ1jU2bHCkCiGmAKTPPKQjkWJtMrhVbpcUQfa5TH
+         CcjA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=yCIsHigfjpcfcEv/881WtYfI5LcSU0JLXgDEKBXWeY4=;
+        b=Oi4LzWo/6CkAdjVgFOQjyb4obqndtT/CTvmaDlwoiMmuVra9JYzURGmWfM1Xtrb24t
+         kizk2XYrVQeJb666CIgz91jtTZ2XAUuOM5KF4stpDUBHmou52T3MrmbovTD1sDfG9LhQ
+         zWkvIt0bjuOLLeLrpK2F1/nhGDspfJN0WWWRkAt0ovCN965DbIwjlSH/Xy8SaUNRw2q0
+         TtYCcKWsoJdDwrephbXv5silN/1qPu1FjYq9vNsYfjwvTXLOX+PaUdGIxMA8Ag1UOpkJ
+         QbqDglWWCa03w4faDXvesP9bSevyaQfT2qz2FbRImjSSbVRC92NeVmmh2Qf6Vua+4E/3
+         kNUA==
+X-Gm-Message-State: AOAM530KaVxBsT5/nWLhLF9OwnzBWipRpUXbvg+IYfVI2xTLry1rB36Y
+        RYyFfuQIu8dfYUxpjIqk16xt5lzJAHs=
+X-Google-Smtp-Source: ABdhPJzUtJzK+iO5pjhp4elvxdJPK9BC0c920SdAenY7AV6pHZD6uJpWxrn+UvhoJ0S3nnTmNIHb3A==
+X-Received: by 2002:a63:454c:: with SMTP id u12mr3619575pgk.153.1589972841294;
+        Wed, 20 May 2020 04:07:21 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id k10sm1939336pfa.163.2020.05.20.04.07.19
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 20 May 2020 04:07:20 -0700 (PDT)
+Message-ID: <5ec50f68.1c69fb81.c34e3.7535@mx.google.com>
+Date:   Wed, 20 May 2020 04:07:20 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-SA-Exim-Connect-IP: 2001:67c:670:201:5054:ff:fe8d:eefb
-X-SA-Exim-Mail-From: l.stach@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: stable@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable
+X-Kernelci-Kernel: v4.4.224
+X-Kernelci-Report-Type: boot
+X-Kernelci-Branch: linux-4.4.y
+Subject: stable/linux-4.4.y boot: 30 boots: 3 failed, 27 passed (v4.4.224)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Martin,
+******************************************
+* WARNING: Boot tests are now deprecated *
+******************************************
 
-Am Mittwoch, den 20.05.2020, 12:10 +0200 schrieb Martin Fuzzey:
-> When using mmap() on a prime imported buffer allocated by a
-> different driver (such as imx-drm) the later munmap() does
-> not correctly decrement the refcount of the original enaviv_gem_object,
-> leading to a leak.
-> 
-> Signed-off-by: Martin Fuzzey <martin.fuzzey@flowbird.group>
-> Cc: stable@vger.kernel.org
+As kernelci.org is expanding its functional testing capabilities, the conce=
+pt
+of boot testing is now deprecated.  Boot results are scheduled to be droppe=
+d on
+*5th June 2020*.  The full schedule for boot tests deprecation is available=
+ on
+this GitHub issue: https://github.com/kernelci/kernelci-backend/issues/238
 
-What's the use-case where you did hit this issue? mmap'ing of imported
-buffers through the etnaviv DRM device is currently not well defined
-and I was pondering the idea of forbidding it completely by not
-returning a mmap offset for those objects.
+The new equivalent is the *baseline* test suite which also runs sanity chec=
+ks
+using dmesg and bootrr: https://github.com/kernelci/bootrr
 
-Regards,
-Lucas
+See the *baseline results for this kernel revision* on this page:
+https://kernelci.org/test/job/stable/branch/linux-4.4.y/kernel/v4.4.224/pla=
+n/baseline/
 
-> ---
->  drivers/gpu/drm/etnaviv/etnaviv_gem_prime.c | 20 +++++++++++++++++++-
->  1 file changed, 19 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/gpu/drm/etnaviv/etnaviv_gem_prime.c b/drivers/gpu/drm/etnaviv/etnaviv_gem_prime.c
-> index f24dd21..28a01b8 100644
-> --- a/drivers/gpu/drm/etnaviv/etnaviv_gem_prime.c
-> +++ b/drivers/gpu/drm/etnaviv/etnaviv_gem_prime.c
-> @@ -93,7 +93,25 @@ static void *etnaviv_gem_prime_vmap_impl(struct etnaviv_gem_object *etnaviv_obj)
->  static int etnaviv_gem_prime_mmap_obj(struct etnaviv_gem_object *etnaviv_obj,
->  		struct vm_area_struct *vma)
->  {
-> -	return dma_buf_mmap(etnaviv_obj->base.dma_buf, vma, 0);
-> +	int ret;
-> +
-> +	ret = dma_buf_mmap(etnaviv_obj->base.dma_buf, vma, 0);
-> +
-> +	/* drm_gem_mmap_obj() has already been called before this function
-> +	 * and has incremented our refcount, expecting it to be decremented
-> +	 * on unmap() via drm_gem_vm_close().
-> +	 * However dma_buf_mmap() invokes drm_gem_cma_prime_mmap()
-> +	 * that ends up updating the vma->vma_private_data to point to the
-> +	 * dma_buf's gem object.
-> +	 * Hence our gem object here will not have its refcount decremented
-> +	 * when userspace does unmap().
-> +	 * So decrement the refcount here to avoid a memory leak if the dma
-> +	 * buf mapping was successful.
-> +	 */
-> +	if (!ret)
-> +		drm_gem_object_put_unlocked(&etnaviv_obj->base);
-> +
-> +	return ret;
->  }
->  
->  static const struct etnaviv_gem_ops etnaviv_gem_prime_ops = {
+---------------------------------------------------------------------------=
+----
 
+stable/linux-4.4.y boot: 30 boots: 3 failed, 27 passed (v4.4.224)
+
+Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
+4.y/kernel/v4.4.224/
+Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.4.y/ke=
+rnel/v4.4.224/
+
+Tree: stable
+Branch: linux-4.4.y
+Git Describe: v4.4.224
+Git Commit: d72237c1e00f85e5df1c040280d50561c8a28329
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e.git
+Tested: 16 unique boards, 8 SoC families, 9 builds out of 190
+
+Boot Failures Detected:
+
+arm:
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
+
+    imx_v4_v5_defconfig:
+        gcc-8:
+            imx27-phytec-phycard-s-rdk: 1 failed lab
+
+    multi_v5_defconfig:
+        gcc-8:
+            imx27-phytec-phycard-s-rdk: 1 failed lab
+
+---
+For more info write to <info@kernelci.org>
