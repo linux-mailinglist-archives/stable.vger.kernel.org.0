@@ -2,140 +2,162 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6FB751DC256
-	for <lists+stable@lfdr.de>; Thu, 21 May 2020 00:49:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71C001DC331
+	for <lists+stable@lfdr.de>; Thu, 21 May 2020 01:46:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728424AbgETWt4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 20 May 2020 18:49:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50052 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728261AbgETWt4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 20 May 2020 18:49:56 -0400
-Received: from mail-pj1-x1042.google.com (mail-pj1-x1042.google.com [IPv6:2607:f8b0:4864:20::1042])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C12ACC061A0E
-        for <stable@vger.kernel.org>; Wed, 20 May 2020 15:49:54 -0700 (PDT)
-Received: by mail-pj1-x1042.google.com with SMTP id z15so453361pjb.0
-        for <stable@vger.kernel.org>; Wed, 20 May 2020 15:49:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=subject:date:message-id:mime-version:content-transfer-encoding:cc
-         :from:to;
-        bh=My1EMpvoYIRx22llhfpgyqC9YPWXHuLa0tK1BhFN750=;
-        b=YEJ7VOe5PKEA6QjC9EMegJ+i/bxXF1ATt/07nspHUqK7DT5rj4pPCou2/ezqb4WsG9
-         G19dRahkBbRKQ8FERSyfAyOJRkRboAQFRaDjhCIXFjg59utqMuhSf6h7jQdHy7pm5Sa5
-         1f/BZ2kkuGCsUTF1J9Uz35z8QuH+0BDU/DuW+s1BxS3RPOj1K7GqNIi/3Bfa1GRG3JmS
-         4ML6xI+GA2HUXqaP/FIsGN/Q8++1S1UA41I3vTQdXtPYdhSeorpSFYtpsKItrscY8MdU
-         qUorqizzAfOCF+cZm/VvUXr2xp8zmmMHAPsPDPx7zlmCYW+5W873QrcBJ2H3AyrC11RE
-         2Jqg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:date:message-id:mime-version
-         :content-transfer-encoding:cc:from:to;
-        bh=My1EMpvoYIRx22llhfpgyqC9YPWXHuLa0tK1BhFN750=;
-        b=JrIUTcASfjBNPs04cjMwlFmaf8rObAAOrv0X2drzNOsavmyINJEEFMaVrI/OWLXVNe
-         OOAgZcOlJ0KxNKfV9NKYW8W57xQfDmwkkayPfLAx1FCn6upQc0Dt2boSTtifPh+Nhyq+
-         S+GcDfoKNqiDgpgHWEvrmaqYS9gE53vrAmrbOpP9BoApGTUhiTe66kvUZ1MsuHlJkPoF
-         mMeZAZboEBHvXEkon9wQQ0tw9yP3xtCwtrW0qiT80U50uKGEJ3+J9IcSBFayTA5E75oy
-         leWzTRiTfGfVu9F0W4mRpg4gEa4bV4ONokd6GfvvNM7QR9QKAhPhuvyRxZczlO9BKK5G
-         J9ZQ==
-X-Gm-Message-State: AOAM532/kydIE6/++1kSOj+DlkRSGnV21F37PF+CJmwPvNqLKABJ4ISp
-        emZ2JUNQ3J3vK4YD17ulrD/9mg==
-X-Google-Smtp-Source: ABdhPJzrx78zu4nk+mO8oVH7UjcT4FEelNAOwyjCLRm/+J/lv3wNLsV21d6ubtDlLbVlxtpMY2tXKQ==
-X-Received: by 2002:a17:90a:9606:: with SMTP id v6mr8060884pjo.20.1590014993958;
-        Wed, 20 May 2020 15:49:53 -0700 (PDT)
-Received: from localhost (76-210-143-223.lightspeed.sntcca.sbcglobal.net. [76.210.143.223])
-        by smtp.gmail.com with ESMTPSA id i66sm2353489pfe.135.2020.05.20.15.49.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 20 May 2020 15:49:52 -0700 (PDT)
-Subject: [PATCH 4.19.y] riscv: set max_pfn to the PFN of the last page
-Date:   Wed, 20 May 2020 15:38:44 -0700
-Message-Id: <20200520223843.236080-1-palmerdabbelt@google.com>
-X-Mailer: git-send-email 2.26.2.761.g0e0b3e54be-goog
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Cc:     Vincent Chen <vincent.chen@sifive.com>, stable@vger.kernel.org,
-        Anup Patel <anup@brainfault.org>,
-        Yash Shah <yash.shah@sifive.com>,
-        Palmer Dabbelt <palmerdabbelt@google.com>
-From:   Palmer Dabbelt <palmerdabbelt@google.com>
-To:     Greg KH <gregkh@linuxfoundation.org>
+        id S1726999AbgETXql (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 20 May 2020 19:46:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37912 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726566AbgETXql (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 20 May 2020 19:46:41 -0400
+Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id AEC4F2072C;
+        Wed, 20 May 2020 23:46:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1590018399;
+        bh=B7YrcQDkd1BKM+w20pbPLj/CV31guf6ed94E2pDUfU0=;
+        h=Date:From:To:Subject:In-Reply-To:From;
+        b=l1Gpfi0yjW44OxcVrXtiGDNqE+fSxkd+Ys2slZf5LV9ev4ncPN/oIXkyuFG/pvP0S
+         aLrasx24RHMlBTbkNnlmtaixZvd9c5DnDnOZ440AzBeSEm8x7+5y9Y+u1Yry/aS/ud
+         eCTK3wMha6bVm6zYPdgJQ5LsodaEMy0E6kj+jGfE=
+Date:   Wed, 20 May 2020 16:46:39 -0700
+From:   Andrew Morton <akpm@linux-foundation.org>
+To:     davem@davemloft.net, lkp@intel.com, matorola@gmail.com,
+        mm-commits@vger.kernel.org, rppt@linux.ibm.com,
+        stable@vger.kernel.org
+Subject:  +
+ sparc32-use-pud-rather-than-pgd-to-get-pmd-in-srmmu_nocache_init.patch
+ added to -mm tree
+Message-ID: <20200520234639.Bjq6Hhiq6%akpm@linux-foundation.org>
+In-Reply-To: <20200513175005.1f4839360c18c0238df292d1@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Chen <vincent.chen@sifive.com>
 
-commit c749bb2d554825e007cbc43b791f54e124dadfce upstream.
+The patch titled
+     Subject: sparc32: use PUD rather than PGD to get PMD in srmmu_nocache_init()
+has been added to the -mm tree.  Its filename is
+     sparc32-use-pud-rather-than-pgd-to-get-pmd-in-srmmu_nocache_init.patch
 
-The current max_pfn equals to zero. In this case, I found it caused users
-cannot get some page information through /proc such as kpagecount in v5.6
-kernel because of new sanity checks. The following message is displayed by
-stress-ng test suite with the command "stress-ng --verbose --physpage 1 -t
-1" on HiFive unleashed board.
+This patch should soon appear at
+    http://ozlabs.org/~akpm/mmots/broken-out/sparc32-use-pud-rather-than-pgd-to-get-pmd-in-srmmu_nocache_init.patch
+and later at
+    http://ozlabs.org/~akpm/mmotm/broken-out/sparc32-use-pud-rather-than-pgd-to-get-pmd-in-srmmu_nocache_init.patch
 
- # stress-ng --verbose --physpage 1 -t 1
- stress-ng: debug: [109] 4 processors online, 4 processors configured
- stress-ng: info: [109] dispatching hogs: 1 physpage
- stress-ng: debug: [109] cache allocate: reducing cache level from L3 (too high) to L0
- stress-ng: debug: [109] get_cpu_cache: invalid cache_level: 0
- stress-ng: info: [109] cache allocate: using built-in defaults as no suitable cache found
- stress-ng: debug: [109] cache allocate: default cache size: 2048K
- stress-ng: debug: [109] starting stressors
- stress-ng: debug: [109] 1 stressor spawned
- stress-ng: debug: [110] stress-ng-physpage: started [110] (instance 0)
- stress-ng: error: [110] stress-ng-physpage: cannot read page count for address 0x3fd34de000 in /proc/kpagecount, errno=0 (Success)
- stress-ng: error: [110] stress-ng-physpage: cannot read page count for address 0x3fd32db078 in /proc/kpagecount, errno=0 (Success)
- ...
- stress-ng: error: [110] stress-ng-physpage: cannot read page count for address 0x3fd32db078 in /proc/kpagecount, errno=0 (Success)
- stress-ng: debug: [110] stress-ng-physpage: exited [110] (instance 0)
- stress-ng: debug: [109] process [110] terminated
- stress-ng: info: [109] successful run completed in 1.00s
- #
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
 
-After applying this patch, the kernel can pass the test.
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
 
- # stress-ng --verbose --physpage 1 -t 1
- stress-ng: debug: [104] 4 processors online, 4 processors configured stress-ng: info: [104] dispatching hogs: 1 physpage
- stress-ng: info: [104] cache allocate: using defaults, can't determine cache details from sysfs
- stress-ng: debug: [104] cache allocate: default cache size: 2048K
- stress-ng: debug: [104] starting stressors
- stress-ng: debug: [104] 1 stressor spawned
- stress-ng: debug: [105] stress-ng-physpage: started [105] (instance 0) stress-ng: debug: [105] stress-ng-physpage: exited [105] (instance 0) stress-ng: debug: [104] process [105] terminated
- stress-ng: info: [104] successful run completed in 1.01s
- #
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Vincent Chen <vincent.chen@sifive.com>
-Reviewed-by: Anup Patel <anup@brainfault.org>
-Reviewed-by: Yash Shah <yash.shah@sifive.com>
-Tested-by: Yash Shah <yash.shah@sifive.com>
-[Palmer: back-ported to 4.19]
-Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
+------------------------------------------------------
+From: Mike Rapoport <rppt@linux.ibm.com>
+Subject: sparc32: use PUD rather than PGD to get PMD in srmmu_nocache_init()
+
+The kbuild test robot reported the following warning:
+
+arch/sparc/mm/srmmu.c: In function 'srmmu_nocache_init':
+>> arch/sparc/mm/srmmu.c:300:9: error: variable 'pud' set but not used
+>> [-Werror=unused-but-set-variable]
+300 |  pud_t *pud;
+
+This warning is caused by misprint in the page table traversal in
+srmmu_nocache_init() function which accessed a PMD entry using PGD rather
+than PUD.
+Since sparc32 has only 3 page table levels, the PGD and PUD are essentially
+the same and usage of __nocache_fix() removed the type checking.
+
+Use PUD for the consistency and to silence the compiler warning.
+
+Link: http://lkml.kernel.org/r/20200520132005.GM1059226@linux.ibm.com
+Fixes: 7235db268a2777bc38 ("sparc32: use pgtable-nopud instead of 4level-fixup")
+Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+Reported-by: kbuild test robot <lkp@intel.com>
+Cc: David S. Miller <davem@davemloft.net>
+Cc: Anatoly Pugachev <matorola@gmail.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
- arch/riscv/kernel/setup.c | 2 ++
- 1 file changed, 2 insertions(+)
 
-diff --git a/arch/riscv/kernel/setup.c b/arch/riscv/kernel/setup.c
-index 9713d4e8c22b..6558617bd2ce 100644
---- a/arch/riscv/kernel/setup.c
-+++ b/arch/riscv/kernel/setup.c
-@@ -19,6 +19,7 @@
-  * to the Free Software Foundation, Inc.,
-  */
+ arch/sparc/mm/srmmu.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/arch/sparc/mm/srmmu.c~sparc32-use-pud-rather-than-pgd-to-get-pmd-in-srmmu_nocache_init
++++ a/arch/sparc/mm/srmmu.c
+@@ -333,7 +333,7 @@ static void __init srmmu_nocache_init(vo
+ 		pgd = pgd_offset_k(vaddr);
+ 		p4d = p4d_offset(__nocache_fix(pgd), vaddr);
+ 		pud = pud_offset(__nocache_fix(p4d), vaddr);
+-		pmd = pmd_offset(__nocache_fix(pgd), vaddr);
++		pmd = pmd_offset(__nocache_fix(pud), vaddr);
+ 		pte = pte_offset_kernel(__nocache_fix(pmd), vaddr);
  
-+#include <linux/bootmem.h>
- #include <linux/init.h>
- #include <linux/mm.h>
- #include <linux/memblock.h>
-@@ -187,6 +188,7 @@ static void __init setup_bootmem(void)
- 
- 	set_max_mapnr(PFN_DOWN(mem_size));
- 	max_low_pfn = PFN_DOWN(memblock_end_of_DRAM());
-+	max_pfn = max_low_pfn;
- 
- #ifdef CONFIG_BLK_DEV_INITRD
- 	setup_initrd();
--- 
-2.26.2.761.g0e0b3e54be-goog
+ 		pteval = ((paddr >> 4) | SRMMU_ET_PTE | SRMMU_PRIV);
+_
+
+Patches currently in -mm which might be from rppt@linux.ibm.com are
+
+sparc32-use-pud-rather-than-pgd-to-get-pmd-in-srmmu_nocache_init.patch
+mm-memblock-replace-dereferences-of-memblock_regionnid-with-api-calls.patch
+mm-make-early_pfn_to_nid-and-related-defintions-close-to-each-other.patch
+mm-remove-config_have_memblock_node_map-option.patch
+mm-free_area_init-use-maximal-zone-pfns-rather-than-zone-sizes.patch
+mm-use-free_area_init-instead-of-free_area_init_nodes.patch
+alpha-simplify-detection-of-memory-zone-boundaries.patch
+arm-simplify-detection-of-memory-zone-boundaries.patch
+arm64-simplify-detection-of-memory-zone-boundaries-for-uma-configs.patch
+csky-simplify-detection-of-memory-zone-boundaries.patch
+m68k-mm-simplify-detection-of-memory-zone-boundaries.patch
+parisc-simplify-detection-of-memory-zone-boundaries.patch
+sparc32-simplify-detection-of-memory-zone-boundaries.patch
+unicore32-simplify-detection-of-memory-zone-boundaries.patch
+xtensa-simplify-detection-of-memory-zone-boundaries.patch
+mm-remove-early_pfn_in_nid-and-config_nodes_span_other_nodes.patch
+mm-free_area_init-allow-defining-max_zone_pfn-in-descending-order.patch
+mm-free_area_init-allow-defining-max_zone_pfn-in-descending-order-fix-2.patch
+mm-rename-free_area_init_node-to-free_area_init_memoryless_node.patch
+mm-clean-up-free_area_init_node-and-its-helpers.patch
+mm-simplify-find_min_pfn_with_active_regions.patch
+docs-vm-update-memory-models-documentation.patch
+h8300-remove-usage-of-__arch_use_5level_hack.patch
+arm-add-support-for-folded-p4d-page-tables.patch
+arm-add-support-for-folded-p4d-page-tables-fix.patch
+arm64-add-support-for-folded-p4d-page-tables.patch
+hexagon-remove-__arch_use_5level_hack.patch
+ia64-add-support-for-folded-p4d-page-tables.patch
+nios2-add-support-for-folded-p4d-page-tables.patch
+openrisc-add-support-for-folded-p4d-page-tables.patch
+powerpc-add-support-for-folded-p4d-page-tables.patch
+powerpc-add-support-for-folded-p4d-page-tables-fix.patch
+powerpc-add-support-for-folded-p4d-page-tables-fix-2.patch
+sh-drop-__pxd_offset-macros-that-duplicate-pxd_index-ones.patch
+sh-add-support-for-folded-p4d-page-tables.patch
+unicore32-remove-__arch_use_5level_hack.patch
+asm-generic-remove-pgtable-nop4d-hackh.patch
+mm-remove-__arch_has_5level_hack-and-include-asm-generic-5level-fixuph.patch
+mm-dont-include-asm-pgtableh-if-linux-mmh-is-already-included.patch
+mm-introduce-include-linux-pgtableh.patch
+mm-reorder-includes-after-introduction-of-linux-pgtableh.patch
+csky-replace-definitions-of-__pxd_offset-with-pxd_index.patch
+m68k-mm-motorola-move-comment-about-page-table-allocation-funcitons.patch
+m68k-mm-move-cachenocahe_page-definitions-close-to-their-user.patch
+x86-mm-simplify-init_trampoline-and-surrounding-logic.patch
+mm-pgtable-add-shortcuts-for-accessing-kernel-pmd-and-pte.patch
+mm-pgtable-add-shortcuts-for-accessing-kernel-pmd-and-pte-fix.patch
+mm-pgtable-add-shortcuts-for-accessing-kernel-pmd-and-pte-fix-2.patch
+mm-consolidate-pte_index-and-pte_offset_-definitions.patch
+mm-consolidate-pmd_index-and-pmd_offset-definitions.patch
+mm-consolidate-pud_index-and-pud_offset-definitions.patch
+mm-consolidate-pgd_index-and-pgd_offset_k-definitions.patch
 
