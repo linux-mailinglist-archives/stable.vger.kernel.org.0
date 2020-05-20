@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DD93F1DB6EA
-	for <lists+stable@lfdr.de>; Wed, 20 May 2020 16:28:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 00DAA1DB6E4
+	for <lists+stable@lfdr.de>; Wed, 20 May 2020 16:28:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726916AbgETO2U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 20 May 2020 10:28:20 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:32800 "EHLO
+        id S1726861AbgETOWW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 20 May 2020 10:22:22 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:60966 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726868AbgETOWX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 20 May 2020 10:22:23 -0400
+        by vger.kernel.org with ESMTP id S1726829AbgETOWW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 20 May 2020 10:22:22 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1jbPbu-00035L-Vi; Wed, 20 May 2020 15:22:19 +0100
+        id 1jbPbu-00035N-UU; Wed, 20 May 2020 15:22:18 +0100
 Received: from ben by deadeye with local (Exim 4.93)
         (envelope-from <ben@decadent.org.uk>)
-        id 1jbPbu-007DP7-8F; Wed, 20 May 2020 15:22:18 +0100
+        id 1jbPbu-007DPC-9Y; Wed, 20 May 2020 15:22:18 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,14 +26,13 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Eric Dumazet" <eric.dumazet@gmail.com>,
-        syzbot+c2f1558d49e25cc36e5e@syzkaller.appspotmail.com,
         "Herbert Xu" <herbert@gondor.apana.org.au>
-Date:   Wed, 20 May 2020 15:13:44 +0100
-Message-ID: <lsq.1589984008.269195898@decadent.org.uk>
+Date:   Wed, 20 May 2020 15:13:45 +0100
+Message-ID: <lsq.1589984008.328549696@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 16/99] crypto: af_alg - Use bh_lock_sock in sk_destruct
+Subject: [PATCH 3.16 17/99] crypto: api - Check spawn->alg under lock in
+ crypto_drop_spawn
 In-Reply-To: <lsq.1589984008.673931885@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -49,38 +48,34 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Herbert Xu <herbert@gondor.apana.org.au>
 
-commit 37f96694cf73ba116993a9d2d99ad6a75fa7fdb0 upstream.
+commit 7db3b61b6bba4310f454588c2ca6faf2958ad79f upstream.
 
-As af_alg_release_parent may be called from BH context (most notably
-due to an async request that only completes after socket closure,
-or as reported here because of an RCU-delayed sk_destruct call), we
-must use bh_lock_sock instead of lock_sock.
+We need to check whether spawn->alg is NULL under lock as otherwise
+the algorithm could be removed from under us after we have checked
+it and found it to be non-NULL.  This could cause us to remove the
+spawn from a non-existent list.
 
-Reported-by: syzbot+c2f1558d49e25cc36e5e@syzkaller.appspotmail.com
-Reported-by: Eric Dumazet <eric.dumazet@gmail.com>
-Fixes: c840ac6af3f8 ("crypto: af_alg - Disallow bind/setkey/...")
+Fixes: 7ede5a5ba55a ("crypto: api - Fix crypto_drop_spawn crash...")
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- crypto/af_alg.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ crypto/algapi.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
---- a/crypto/af_alg.c
-+++ b/crypto/af_alg.c
-@@ -136,11 +136,13 @@ void af_alg_release_parent(struct sock *
- 	sk = ask->parent;
- 	ask = alg_sk(sk);
+--- a/crypto/algapi.c
++++ b/crypto/algapi.c
+@@ -618,11 +618,9 @@ EXPORT_SYMBOL_GPL(crypto_init_spawn2);
  
--	lock_sock(sk);
-+	local_bh_disable();
-+	bh_lock_sock(sk);
- 	ask->nokey_refcnt -= nokey;
- 	if (!last)
- 		last = !--ask->refcnt;
--	release_sock(sk);
-+	bh_unlock_sock(sk);
-+	local_bh_enable();
- 
- 	if (last)
- 		sock_put(sk);
+ void crypto_drop_spawn(struct crypto_spawn *spawn)
+ {
+-	if (!spawn->alg)
+-		return;
+-
+ 	down_write(&crypto_alg_sem);
+-	list_del(&spawn->list);
++	if (spawn->alg)
++		list_del(&spawn->list);
+ 	up_write(&crypto_alg_sem);
+ }
+ EXPORT_SYMBOL_GPL(crypto_drop_spawn);
 
