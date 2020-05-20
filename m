@@ -2,214 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CDB841DA48E
-	for <lists+stable@lfdr.de>; Wed, 20 May 2020 00:29:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E7801DA5EE
+	for <lists+stable@lfdr.de>; Wed, 20 May 2020 02:00:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727831AbgESW2y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 May 2020 18:28:54 -0400
-Received: from mga04.intel.com ([192.55.52.120]:17296 "EHLO mga04.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726432AbgESW2y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 May 2020 18:28:54 -0400
-IronPort-SDR: KhfdQ2hGsQORGxneGXB9KJwp2zYf+xDGDQKh1K30260MCBwwOAHsV6rbAONubUzlZpHzFtSeWi
- V8AQdbu+9hRQ==
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga007.fm.intel.com ([10.253.24.52])
-  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 May 2020 15:28:54 -0700
-IronPort-SDR: kfovRO3ZU0v/E1Gg5hcTgC6D/3rQevmVOvf3oUb0xb5m+kqlgk9yzbEp+fjPwX2leW/cnFMSSH
- t1xQrRhUw4nw==
-X-IronPort-AV: E=Sophos;i="5.73,411,1583222400"; 
-   d="scan'208";a="253491432"
-Received: from dwillia2-desk3.jf.intel.com (HELO dwillia2-desk3.amr.corp.intel.com) ([10.54.39.16])
-  by fmsmga007-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 May 2020 15:28:53 -0700
-Subject: [PATCH v3 2/2] x86/copy_mc: Introduce copy_mc_generic()
-From:   Dan Williams <dan.j.williams@intel.com>
-To:     tglx@linutronix.de, mingo@redhat.com
-Cc:     x86@kernel.org, stable@vger.kernel.org,
-        Borislav Petkov <bp@alien8.de>,
-        Vivek Goyal <vgoyal@redhat.com>,
-        Tony Luck <tony.luck@intel.com>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Erwin Tsaur <erwin.tsaur@intel.com>,
-        Erwin Tsaur <erwin.tsaur@intel.com>,
-        linux-kernel@vger.kernel.org, linux-nvdimm@lists.01.org
-Date:   Tue, 19 May 2020 15:12:42 -0700
-Message-ID: <158992636214.403910.12184670538732959406.stgit@dwillia2-desk3.amr.corp.intel.com>
-In-Reply-To: <158992635164.403910.2616621400995359522.stgit@dwillia2-desk3.amr.corp.intel.com>
-References: <158992635164.403910.2616621400995359522.stgit@dwillia2-desk3.amr.corp.intel.com>
-User-Agent: StGit/0.18-3-g996c
+        id S1726344AbgETAA6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 May 2020 20:00:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33648 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726432AbgETAA6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 May 2020 20:00:58 -0400
+Received: from mail-qv1-xf42.google.com (mail-qv1-xf42.google.com [IPv6:2607:f8b0:4864:20::f42])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CAE6C061A0F
+        for <stable@vger.kernel.org>; Tue, 19 May 2020 17:00:57 -0700 (PDT)
+Received: by mail-qv1-xf42.google.com with SMTP id fb16so537611qvb.5
+        for <stable@vger.kernel.org>; Tue, 19 May 2020 17:00:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ziepe.ca; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=oE/Ah52jSj0agjmvQ8lX4jPK/RfpHlM8F3+a9KJkLyM=;
+        b=AtrAp4V4qyOMONdlg7yRBoQGQWCUt4QrrpXDcsQOdpeUxxg0bCzO9iESHoIRmne6if
+         YYpjY8HKK84DltVXZsMXrc43PN6BcSNfsyiTQwVsDE6cCFzhjuGcxyBl5ds70FyR3D6k
+         A2Tutwopig3567YOXAp4WK0+ILjvmHMPM7JjRh0Ia8JGZlRTVBisEDPVOgSaUQQGFuVN
+         vA9DSJJ/pOhQyx9SrI4NpketeK1V+OlHah7Ens6SJ/3faQyS92WDYdCD2gpWAAX4ugjf
+         pQFtt+CxrqzCAw7uculMWzOKUwu0pt2sjfkFP5NfAFcyIfXzxsmhYJYpUx6jw+KMCyEd
+         XlRg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=oE/Ah52jSj0agjmvQ8lX4jPK/RfpHlM8F3+a9KJkLyM=;
+        b=EK5TYMbj39L9EIvY1WZm4xDbO6UiesQ0PcPwYnwwvVKvA7+Xv3uzbjE33SOpwVEzbh
+         28EhK+1DuCs1uwIq6Ira0u1o/jbQvXDpVRB/f8wyokgfF3gz0IfWrE82eTIL12VeEdIW
+         YUdtbkMKp4Cn3Rgp7G1JF1RwiUrok8DkmTBxVrCQZHcxoN+ET3uK1TZ/F5ilDEcn23bU
+         YqWBrpOhcfoXZOEdMQp3dvZsZq2ULZbeNe2rnfmeZf5yD5QAc8+LgPeWJYntxSOSlfYH
+         dO0jLdpkTU4GJUYdiqm6k8hPFsWDj+Sj272bzW745dRtjmnBZAI4b15DvUbHv5SGHtOI
+         QOlQ==
+X-Gm-Message-State: AOAM533nkYhSWraXMSGsh5nigauoxGUpPvLIGzujPEiNdaCv7MKQ/40v
+        zoK2hhy07XeyjyRgMgAS7rAR8g==
+X-Google-Smtp-Source: ABdhPJwkUTtWCGAwdWtVD4Pfac9u33ckw7vmZLGT2Qm6/Epr8GWHFVGiFFpkqYOmLHgZGnBG6kf+Qw==
+X-Received: by 2002:a0c:a5c5:: with SMTP id z63mr2362035qvz.50.1589932856167;
+        Tue, 19 May 2020 17:00:56 -0700 (PDT)
+Received: from ziepe.ca (hlfxns017vw-156-34-48-30.dhcp-dynamic.fibreop.ns.bellaliant.net. [156.34.48.30])
+        by smtp.gmail.com with ESMTPSA id t130sm939740qka.14.2020.05.19.17.00.55
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Tue, 19 May 2020 17:00:55 -0700 (PDT)
+Received: from jgg by mlx.ziepe.ca with local (Exim 4.90_1)
+        (envelope-from <jgg@ziepe.ca>)
+        id 1jbCAJ-0001cg-A4; Tue, 19 May 2020 21:00:55 -0300
+Date:   Tue, 19 May 2020 21:00:55 -0300
+From:   Jason Gunthorpe <jgg@ziepe.ca>
+To:     Dennis Dalessandro <dennis.dalessandro@intel.com>
+Cc:     dledford@redhat.com, linux-rdma@vger.kernel.org,
+        Mike Marciniszyn <mike.marciniszyn@intel.com>,
+        stable@vger.kernel.org, Kaike Wan <kaike.wan@intel.com>
+Subject: Re: [PATCH for-rc or next 3/3] IB/qib: Call kobject_put() when
+ kobject_init_and_add() fails
+Message-ID: <20200520000055.GA6205@ziepe.ca>
+References: <20200512030622.189865.65024.stgit@awfm-01.aw.intel.com>
+ <20200512031328.189865.48627.stgit@awfm-01.aw.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200512031328.189865.48627.stgit@awfm-01.aw.intel.com>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The original copy_mc_fragile() implementation had negative performance
-implications since it did not use the fast-string instruction sequence
-to perform copies. For this reason copy_mc_to_kernel() fell back to
-plain memcpy() to preserve performance on platform that did not indicate
-the capability to recover from machine check exceptions. However, that
-capability detection was not architectural and now that some platforms
-can recover from fast-string consumption of memory errors the memcpy()
-fallback now causes these more capable platforms to fail.
+On Mon, May 11, 2020 at 11:13:28PM -0400, Dennis Dalessandro wrote:
+> From: Kaike Wan <kaike.wan@intel.com>
+> 
+> When kobject_init_and_add() returns an error in the function
+> qib_create_port_files(), the function kobject_put() is not called for
+> the corresponding kobject, which potentially leads to memory leak.
+> 
+> This patch fixes the issue by calling kobject_put() even if
+> kobject_init_and_add() fails. In addition, the ppd->diagc_kobj is
+> released along with other kobjects when the sysfs is unregistered.
+> 
+> Fixes: f931551bafe1 ("IB/qib: Add new qib driver for QLogic PCIe InfiniBand adapters")
+> Cc: <stable@vger.kernel.org>
+> Suggested-by: Lin Yi <teroincn@gmail.com>
+> Reviewed-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
+> Signed-off-by: Kaike Wan <kaike.wan@intel.com>
+> Signed-off-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
+> Reviewed-by: Leon Romanovsky <leonro@mellanox.com>
+> ---
+>  drivers/infiniband/hw/qib/qib_sysfs.c |    9 +++++----
+>  1 file changed, 5 insertions(+), 4 deletions(-)
 
-Introduce copy_mc_generic() as the fast default implementation of
-copy_mc_to_kernel() and finalize the transition of copy_mc_fragile() to
-be a platform quirk to indicate 'fragility'. With this in place
-copy_mc_to_kernel() is fast and recovery-ready by default regardless of
-hardware capability.
+Applied to for-rc
 
-Thanks to Vivek for identifying that copy_user_generic() is not suitable
-as the copy_mc_to_user() backend since the #MC handler explicitly checks
-ex_has_fault_handler().
+Are you respinning the other two patches?
 
-Cc: x86@kernel.org
-Cc: <stable@vger.kernel.org>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Vivek Goyal <vgoyal@redhat.com>
-Cc: Tony Luck <tony.luck@intel.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Reported-by: Erwin Tsaur <erwin.tsaur@intel.com>
-Tested-by: Erwin Tsaur <erwin.tsaur@intel.com>
-Fixes: 92b0729c34ca ("x86/mm, x86/mce: Add memcpy_mcsafe()")
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
----
- arch/x86/include/asm/uaccess_64.h |    3 +++
- arch/x86/lib/copy_mc.c            |   12 +++++------
- arch/x86/lib/copy_mc_64.S         |   40 +++++++++++++++++++++++++++++++++++++
- tools/objtool/check.c             |    1 +
- 4 files changed, 49 insertions(+), 7 deletions(-)
-
-diff --git a/arch/x86/include/asm/uaccess_64.h b/arch/x86/include/asm/uaccess_64.h
-index 9f7e7e27f0a4..422d92460dda 100644
---- a/arch/x86/include/asm/uaccess_64.h
-+++ b/arch/x86/include/asm/uaccess_64.h
-@@ -58,6 +58,9 @@ copy_mc_to_user(void *to, const void *from, unsigned len);
- 
- unsigned long __must_check
- copy_mc_fragile(void *dst, const void *src, unsigned cnt);
-+
-+unsigned long __must_check
-+copy_mc_generic(void *dst, const void *src, unsigned cnt);
- #else
- static inline void enable_copy_mc_fragile(void)
- {
-diff --git a/arch/x86/lib/copy_mc.c b/arch/x86/lib/copy_mc.c
-index cdb8f5dc403d..9e6fac1ab72e 100644
---- a/arch/x86/lib/copy_mc.c
-+++ b/arch/x86/lib/copy_mc.c
-@@ -23,7 +23,7 @@ void enable_copy_mc_fragile(void)
-  *
-  * Call into the 'fragile' version on systems that have trouble
-  * actually do machine check recovery. Everyone else can just
-- * use memcpy().
-+ * use copy_mc_generic().
-  *
-  * Return 0 for success, or number of bytes not copied if there was an
-  * exception.
-@@ -33,8 +33,7 @@ copy_mc_to_kernel(void *dst, const void *src, unsigned cnt)
- {
- 	if (static_branch_unlikely(&copy_mc_fragile_key))
- 		return copy_mc_fragile(dst, src, cnt);
--	memcpy(dst, src, cnt);
--	return 0;
-+	return copy_mc_generic(dst, src, cnt);
- }
- EXPORT_SYMBOL_GPL(copy_mc_to_kernel);
- 
-@@ -56,11 +55,10 @@ copy_mc_to_user(void *to, const void *from, unsigned len)
- {
- 	unsigned long ret;
- 
--	if (!static_branch_unlikely(&copy_mc_fragile_key))
--		return copy_user_generic(to, from, len);
--
- 	__uaccess_begin();
--	ret = copy_mc_fragile(to, from, len);
-+	if (static_branch_unlikely(&copy_mc_fragile_key))
-+		ret = copy_mc_fragile(to, from, len);
-+	ret = copy_mc_generic(to, from, len);
- 	__uaccess_end();
- 	return ret;
- }
-diff --git a/arch/x86/lib/copy_mc_64.S b/arch/x86/lib/copy_mc_64.S
-index 35a67c50890b..96dc4b8fb954 100644
---- a/arch/x86/lib/copy_mc_64.S
-+++ b/arch/x86/lib/copy_mc_64.S
-@@ -2,7 +2,9 @@
- /* Copyright(c) 2016-2020 Intel Corporation. All rights reserved. */
- 
- #include <linux/linkage.h>
-+#include <asm/alternative-asm.h>
- #include <asm/copy_mc_test.h>
-+#include <asm/cpufeatures.h>
- #include <asm/export.h>
- #include <asm/asm.h>
- 
-@@ -122,4 +124,42 @@ EXPORT_SYMBOL_GPL(copy_mc_fragile)
- 	_ASM_EXTABLE(.L_write_leading_bytes, .E_leading_bytes)
- 	_ASM_EXTABLE(.L_write_words, .E_write_words)
- 	_ASM_EXTABLE(.L_write_trailing_bytes, .E_trailing_bytes)
-+
-+/*
-+ * copy_mc_generic - memory copy with exception handling
-+ *
-+ * Fast string copy + fault / exception handling. If the CPU does
-+ * support machine check exception recovery, but does not support
-+ * recovering from fast-string exceptions then this CPU needs to be
-+ * added to the copy_mc_fragile_key set of quirks. Otherwise, absent any
-+ * machine check recovery support this version should be no slower than
-+ * standard memcpy.
-+ */
-+SYM_FUNC_START(copy_mc_generic)
-+	ALTERNATIVE "jmp copy_mc_fragile", "", X86_FEATURE_ERMS
-+	movq %rdi, %rax
-+	movq %rdx, %rcx
-+.L_copy:
-+	rep movsb
-+	/* Copy successful. Return zero */
-+	xorl %eax, %eax
-+	ret
-+SYM_FUNC_END(copy_mc_generic)
-+EXPORT_SYMBOL_GPL(copy_mc_generic)
-+
-+	.section .fixup, "ax"
-+.E_copy:
-+	/*
-+	 * On fault %rcx is updated such that the copy instruction could
-+	 * optionally be restarted at the fault position, i.e. it
-+	 * contains 'bytes remaining'. A non-zero return indicates error
-+	 * to copy_safe() users, or indicate short transfers to
-+	 * user-copy routines.
-+	 */
-+	movq %rcx, %rax
-+	ret
-+
-+	.previous
-+
-+	_ASM_EXTABLE_FAULT(.L_copy, .E_copy)
- #endif
-diff --git a/tools/objtool/check.c b/tools/objtool/check.c
-index b62235004f0b..449a36101385 100644
---- a/tools/objtool/check.c
-+++ b/tools/objtool/check.c
-@@ -546,6 +546,7 @@ static const char *uaccess_safe_builtin[] = {
- 	"__ubsan_handle_shift_out_of_bounds",
- 	/* misc */
- 	"csum_partial_copy_generic",
-+	"copy_mc_generic",
- 	"copy_mc_fragile",
- 	"copy_mc_fragile_handle_tail",
- 	"ftrace_likely_update", /* CONFIG_TRACE_BRANCH_PROFILING */
-
+Thanks,
+Jason
