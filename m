@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 04D311DB65E
-	for <lists+stable@lfdr.de>; Wed, 20 May 2020 16:24:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA96F1DB6A3
+	for <lists+stable@lfdr.de>; Wed, 20 May 2020 16:26:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726846AbgETOYQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 20 May 2020 10:24:16 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:33218 "EHLO
+        id S1726964AbgETO0T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 20 May 2020 10:26:19 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:33040 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727084AbgETOW2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 20 May 2020 10:22:28 -0400
+        by vger.kernel.org with ESMTP id S1727022AbgETOW1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 20 May 2020 10:22:27 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1jbPbx-00036s-JF; Wed, 20 May 2020 15:22:21 +0100
+        id 1jbPbx-00036u-Lh; Wed, 20 May 2020 15:22:21 +0100
 Received: from ben by deadeye with local (Exim 4.93)
         (envelope-from <ben@decadent.org.uk>)
-        id 1jbPbw-007DT9-07; Wed, 20 May 2020 15:22:20 +0100
+        id 1jbPbw-007DTD-1K; Wed, 20 May 2020 15:22:20 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,16 +26,13 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Miaohe Lin" <linmiaohe@huawei.com>,
         "Paolo Bonzini" <pbonzini@redhat.com>,
-        "Sean Christopherson" <sean.j.christopherson@intel.com>,
-        "Liran Alon" <liran.alon@oracle.com>
-Date:   Wed, 20 May 2020 15:14:27 +0100
-Message-ID: <lsq.1589984008.575672866@decadent.org.uk>
+        "Arnd Bergmann" <arnd@arndb.de>
+Date:   Wed, 20 May 2020 15:14:28 +0100
+Message-ID: <lsq.1589984008.289002177@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 59/99] KVM: nVMX: vmread should not set rflags to
- specify success in case of #PF
+Subject: [PATCH 3.16 60/99] x86: kvm: avoid unused variable warning
 In-Reply-To: <lsq.1589984008.673931885@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -49,36 +46,43 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Miaohe Lin <linmiaohe@huawei.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit a4d956b9390418623ae5d07933e2679c68b6f83c upstream.
+commit 7288bde1f9df6c1475675419bdd7725ce84dec56 upstream.
 
-In case writing to vmread destination operand result in a #PF, vmread
-should not call nested_vmx_succeed() to set rflags to specify success.
-Similar to as done in VMPTRST (See handle_vmptrst()).
+Removing one of the two accesses of the maxphyaddr variable led to
+a harmless warning:
 
-Reviewed-by: Liran Alon <liran.alon@oracle.com>
-Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
-Reviewed-by: Sean Christopherson <sean.j.christopherson@intel.com>
+arch/x86/kvm/x86.c: In function 'kvm_set_mmio_spte_mask':
+arch/x86/kvm/x86.c:6563:6: error: unused variable 'maxphyaddr' [-Werror=unused-variable]
+
+Removing the #ifdef seems to be the nicest workaround, as it
+makes the code look cleaner than adding another #ifdef.
+
+Fixes: 28a1f3ac1d0c ("kvm: x86: Set highest physical address bits in non-present/reserved SPTEs")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-[bwh: Backported to 3.16: adjust filename, context]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- arch/x86/kvm/vmx.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/x86/kvm/x86.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
---- a/arch/x86/kvm/vmx.c
-+++ b/arch/x86/kvm/vmx.c
-@@ -6455,8 +6455,10 @@ static int handle_vmread(struct kvm_vcpu
- 		/* _system ok, as nested_vmx_check_permission verified cpl=0 */
- 		if (kvm_write_guest_virt_system(vcpu, gva, &field_value,
- 						(is_long_mode(vcpu) ? 8 : 4),
--						&e))
-+						&e)) {
- 			kvm_inject_page_fault(vcpu, &e);
-+			return 1;
-+		}
- 	}
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -5730,14 +5730,12 @@ static void kvm_set_mmio_spte_mask(void)
+ 	/* Set the present bit. */
+ 	mask |= 1ull;
  
- 	nested_vmx_succeed(vcpu);
+-#ifdef CONFIG_X86_64
+ 	/*
+ 	 * If reserved bit is not supported, clear the present bit to disable
+ 	 * mmio page fault.
+ 	 */
+-	if (maxphyaddr == 52)
++	if (IS_ENABLED(CONFIG_X86_64) && maxphyaddr == 52)
+ 		mask &= ~1ull;
+-#endif
+ 
+ 	kvm_mmu_set_mmio_spte_mask(mask);
+ }
 
