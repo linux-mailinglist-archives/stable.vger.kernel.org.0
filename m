@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 607411DB66E
-	for <lists+stable@lfdr.de>; Wed, 20 May 2020 16:25:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF6301DB66D
+	for <lists+stable@lfdr.de>; Wed, 20 May 2020 16:25:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728262AbgETOYg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1727799AbgETOYg (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 20 May 2020 10:24:36 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:33184 "EHLO
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:33144 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727070AbgETOW2 (ORCPT
+        by vger.kernel.org with ESMTP id S1727067AbgETOW2 (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 20 May 2020 10:22:28 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1jbPby-00037g-9y; Wed, 20 May 2020 15:22:22 +0100
+        id 1jbPby-00037i-HS; Wed, 20 May 2020 15:22:22 +0100
 Received: from ben by deadeye with local (Exim 4.93)
         (envelope-from <ben@decadent.org.uk>)
-        id 1jbPbw-007DUU-Hd; Wed, 20 May 2020 15:22:20 +0100
+        id 1jbPbw-007DUZ-KK; Wed, 20 May 2020 15:22:20 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,14 +26,14 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Luis Henriques" <luis.henriques@canonical.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Date:   Wed, 20 May 2020 15:14:38 +0100
-Message-ID: <lsq.1589984009.593772629@decadent.org.uk>
+        "Jan Kara" <jack@suse.cz>, "zhangyi (F)" <yi.zhang@huawei.com>,
+        "Theodore Ts'o" <tytso@mit.edu>
+Date:   Wed, 20 May 2020 15:14:39 +0100
+Message-ID: <lsq.1589984009.862989987@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 70/99] tracing: Fix tracing_stat return values in
- error handling paths
+Subject: [PATCH 3.16 71/99] jbd2: switch to use jbd2_journal_abort() when
+ failed to submit the commit record
 In-Reply-To: <lsq.1589984008.673931885@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -47,54 +47,44 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Luis Henriques <luis.henriques@canonical.com>
+From: "zhangyi (F)" <yi.zhang@huawei.com>
 
-commit afccc00f75bbbee4e4ae833a96c2d29a7259c693 upstream.
+commit d0a186e0d3e7ac05cc77da7c157dae5aa59f95d9 upstream.
 
-tracing_stat_init() was always returning '0', even on the error paths.  It
-now returns -ENODEV if tracing_init_dentry() fails or -ENOMEM if it fails
-to created the 'trace_stat' debugfs directory.
+We invoke jbd2_journal_abort() to abort the journal and record errno
+in the jbd2 superblock when committing journal transaction besides the
+failure on submitting the commit record. But there is no need for the
+case and we can also invoke jbd2_journal_abort() instead of
+__jbd2_journal_abort_hard().
 
-Link: http://lkml.kernel.org/r/1410299381-20108-1-git-send-email-luis.henriques@canonical.com
-
-Fixes: ed6f1c996bfe4 ("tracing: Check return value of tracing_init_dentry()")
-Signed-off-by: Luis Henriques <luis.henriques@canonical.com>
-[ Pulled from the archeological digging of my INBOX ]
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-[bwh: Backported to 3.16: adjust context]
+Fixes: 818d276ceb83a ("ext4: Add the journal checksum feature")
+Signed-off-by: zhangyi (F) <yi.zhang@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20191204124614.45424-2-yi.zhang@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- kernel/trace/trace_stat.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ fs/jbd2/commit.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/kernel/trace/trace_stat.c
-+++ b/kernel/trace/trace_stat.c
-@@ -277,19 +277,23 @@ static int tracing_stat_init(void)
+--- a/fs/jbd2/commit.c
++++ b/fs/jbd2/commit.c
+@@ -802,7 +802,7 @@ start_journal_io:
+ 		err = journal_submit_commit_record(journal, commit_transaction,
+ 						 &cbh, crc32_sum);
+ 		if (err)
+-			__jbd2_journal_abort_hard(journal);
++			jbd2_journal_abort(journal, err);
+ 	}
  
- 	d_tracing = tracing_init_dentry();
- 	if (!d_tracing)
--		return 0;
-+		return -ENODEV;
- 
- 	stat_dir = debugfs_create_dir("trace_stat", d_tracing);
--	if (!stat_dir)
-+	if (!stat_dir) {
- 		pr_warning("Could not create debugfs "
- 			   "'trace_stat' entry\n");
-+		return -ENOMEM;
-+	}
- 	return 0;
- }
- 
- static int init_stat_file(struct stat_session *session)
- {
--	if (!stat_dir && tracing_stat_init())
--		return -ENODEV;
-+	int ret;
-+
-+	if (!stat_dir && (ret = tracing_stat_init()))
-+		return ret;
- 
- 	session->file = debugfs_create_file(session->ts->name, 0644,
- 					    stat_dir,
+ 	blk_finish_plug(&plug);
+@@ -894,7 +894,7 @@ start_journal_io:
+ 		err = journal_submit_commit_record(journal, commit_transaction,
+ 						&cbh, crc32_sum);
+ 		if (err)
+-			__jbd2_journal_abort_hard(journal);
++			jbd2_journal_abort(journal, err);
+ 	}
+ 	if (cbh)
+ 		err = journal_wait_on_commit_record(journal, cbh);
 
