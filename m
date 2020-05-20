@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C86A91DB6F4
-	for <lists+stable@lfdr.de>; Wed, 20 May 2020 16:28:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E0841DB626
+	for <lists+stable@lfdr.de>; Wed, 20 May 2020 16:22:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728081AbgETO20 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 20 May 2020 10:28:26 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:60998 "EHLO
+        id S1726940AbgETOWZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 20 May 2020 10:22:25 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:32868 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726850AbgETOWX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 20 May 2020 10:22:23 -0400
+        by vger.kernel.org with ESMTP id S1726925AbgETOWZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 20 May 2020 10:22:25 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1jbPbv-00035X-56; Wed, 20 May 2020 15:22:19 +0100
+        id 1jbPbv-00035b-Cm; Wed, 20 May 2020 15:22:19 +0100
 Received: from ben by deadeye with local (Exim 4.93)
         (envelope-from <ben@decadent.org.uk>)
-        id 1jbPbu-007DPX-FJ; Wed, 20 May 2020 15:22:18 +0100
+        id 1jbPbu-007DPb-Fy; Wed, 20 May 2020 15:22:18 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,13 +26,13 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Jan Kara" <jack@suse.cz>
-Date:   Wed, 20 May 2020 15:13:49 +0100
-Message-ID: <lsq.1589984008.638557440@decadent.org.uk>
+        "Kalle Valo" <kvalo@codeaurora.org>,
+        "Johan Hovold" <johan@kernel.org>
+Date:   Wed, 20 May 2020 15:13:50 +0100
+Message-ID: <lsq.1589984008.710387195@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 21/99] reiserfs: Fix spurious unlock in
- reiserfs_fill_super() error handling
+Subject: [PATCH 3.16 22/99] ath9k: fix storage endpoint lookup
 In-Reply-To: <lsq.1589984008.673931885@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -46,30 +46,34 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Jan Kara <jack@suse.cz>
+From: Johan Hovold <johan@kernel.org>
 
-commit 4d5c1adaf893b8aa52525d2b81995e949bcb3239 upstream.
+commit 0ef332951e856efa89507cdd13ba8f4fb8d4db12 upstream.
 
-When we fail to allocate string for journal device name we jump to
-'error' label which tries to unlock reiserfs write lock which is not
-held. Jump to 'error_unlocked' instead.
+Make sure to use the current alternate setting when verifying the
+storage interface descriptors to avoid submitting an URB to an invalid
+endpoint.
 
-Fixes: f32485be8397 ("reiserfs: delay reiserfs lock until journal initialization")
-Signed-off-by: Jan Kara <jack@suse.cz>
+Failing to do so could cause the driver to misbehave or trigger a WARN()
+in usb_submit_urb() that kernels with panic_on_warn set would choke on.
+
+Fixes: 36bcce430657 ("ath9k_htc: Handle storage devices")
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- fs/reiserfs/super.c | 2 +-
+ drivers/net/wireless/ath/ath9k/hif_usb.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/reiserfs/super.c
-+++ b/fs/reiserfs/super.c
-@@ -1901,7 +1901,7 @@ static int reiserfs_fill_super(struct su
- 		if (!sbi->s_jdev) {
- 			SWARN(silent, s, "", "Cannot allocate memory for "
- 				"journal device name");
--			goto error;
-+			goto error_unlocked;
- 		}
- 	}
- #ifdef CONFIG_QUOTA
+--- a/drivers/net/wireless/ath/ath9k/hif_usb.c
++++ b/drivers/net/wireless/ath/ath9k/hif_usb.c
+@@ -1141,7 +1141,7 @@ err_fw:
+ static int send_eject_command(struct usb_interface *interface)
+ {
+ 	struct usb_device *udev = interface_to_usbdev(interface);
+-	struct usb_host_interface *iface_desc = &interface->altsetting[0];
++	struct usb_host_interface *iface_desc = interface->cur_altsetting;
+ 	struct usb_endpoint_descriptor *endpoint;
+ 	unsigned char *cmd;
+ 	u8 bulk_out_ep;
 
