@@ -2,148 +2,135 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CA98F1DBC77
-	for <lists+stable@lfdr.de>; Wed, 20 May 2020 20:16:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F3C731DBDB0
+	for <lists+stable@lfdr.de>; Wed, 20 May 2020 21:13:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726697AbgETSQs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 20 May 2020 14:16:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40268 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726548AbgETSQs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 20 May 2020 14:16:48 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1726737AbgETTN3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 20 May 2020 15:13:29 -0400
+Received: from us-smtp-2.mimecast.com ([205.139.110.61]:56392 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726548AbgETTN3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 20 May 2020 15:13:29 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1590002007;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=uVj+MsI3l6KMi5hkuPwd7L6S2NyrXRTHPrxS0K9UsOs=;
+        b=ZntZSa1aATOrGrEaFf5WIOPm4vh0Z3DSsq8k4b8/fBfwnp0zSK7YWLpO+JKWPxwfUHtkPd
+        1xIHlbkAh9beAREc6hhM7GfDT32O9n/kLmB9SOe0jwVoDThmT14LpZsOekw16K7OR9Vk/9
+        B86JmXaTWU4fdS9AMToEkfNAmOMHCcE=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-248-TUkh5LkHMQm8KIdAbJot0w-1; Wed, 20 May 2020 15:13:23 -0400
+X-MC-Unique: TUkh5LkHMQm8KIdAbJot0w-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CD9512072C;
-        Wed, 20 May 2020 18:16:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1589998607;
-        bh=S/zutDDmcZ7lnGu6DMFPWTBTbQiSF9FetCYn1L66JTM=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=pgqQmiSdsDa1cocMgY6htah52kcScko7buW2f2rIeAOWQoBSyXAS59mPsVr9BHIwG
-         UHdF7VnMGEYDUlBqDw9wrIPu51AQixA+PnR7vS4rjGJUTCJvQTLvgSpDUVzPOgZ4fm
-         //ES2r7oQT+sAtZ+chw517ruLZtwA8etc7EP5wjw=
-Date:   Wed, 20 May 2020 20:16:45 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     David Rientjes <rientjes@google.com>
-Cc:     Christoph Hellwig <hch@lst.de>, Peter Gonda <pgonda@google.com>,
-        "Grimm, Jon" <Jon.Grimm@amd.com>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        Brijesh Singh <brijesh.singh@amd.com>, stable@vger.kernel.org
-Subject: Re: DMA API stable backports for AMD SEV
-Message-ID: <20200520181645.GA339194@kroah.com>
-References: <alpine.DEB.2.22.394.2005191708270.15133@chino.kir.corp.google.com>
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id BCBBB461;
+        Wed, 20 May 2020 19:13:21 +0000 (UTC)
+Received: from horse.redhat.com (ovpn-114-121.rdu2.redhat.com [10.10.114.121])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 476375C1BE;
+        Wed, 20 May 2020 19:13:21 +0000 (UTC)
+Received: by horse.redhat.com (Postfix, from userid 10451)
+        id C16CD22036E; Wed, 20 May 2020 15:13:20 -0400 (EDT)
+Date:   Wed, 20 May 2020 15:13:20 -0400
+From:   Vivek Goyal <vgoyal@redhat.com>
+To:     Dan Williams <dan.j.williams@intel.com>
+Cc:     tglx@linutronix.de, mingo@redhat.com, x86@kernel.org,
+        stable@vger.kernel.org, Borislav Petkov <bp@alien8.de>,
+        Tony Luck <tony.luck@intel.com>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Erwin Tsaur <erwin.tsaur@intel.com>,
+        linux-kernel@vger.kernel.org, linux-nvdimm@lists.01.org
+Subject: Re: [PATCH v3 2/2] x86/copy_mc: Introduce copy_mc_generic()
+Message-ID: <20200520191320.GA3255@redhat.com>
+References: <158992635164.403910.2616621400995359522.stgit@dwillia2-desk3.amr.corp.intel.com>
+ <158992636214.403910.12184670538732959406.stgit@dwillia2-desk3.amr.corp.intel.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <alpine.DEB.2.22.394.2005191708270.15133@chino.kir.corp.google.com>
+In-Reply-To: <158992636214.403910.12184670538732959406.stgit@dwillia2-desk3.amr.corp.intel.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, May 19, 2020 at 05:41:15PM -0700, David Rientjes wrote:
-> Hi Greg and everyone,
+On Tue, May 19, 2020 at 03:12:42PM -0700, Dan Williams wrote:
+> The original copy_mc_fragile() implementation had negative performance
+> implications since it did not use the fast-string instruction sequence
+> to perform copies. For this reason copy_mc_to_kernel() fell back to
+> plain memcpy() to preserve performance on platform that did not indicate
+> the capability to recover from machine check exceptions. However, that
+> capability detection was not architectural and now that some platforms
+> can recover from fast-string consumption of memory errors the memcpy()
+> fallback now causes these more capable platforms to fail.
 > 
-> On all kernels, SEV enabled guests hit might_sleep() warnings when a 
-> driver (nvme in this case) allocates through the DMA API in a 
-> non-blockable context:
+> Introduce copy_mc_generic() as the fast default implementation of
+> copy_mc_to_kernel() and finalize the transition of copy_mc_fragile() to
+> be a platform quirk to indicate 'fragility'. With this in place
+> copy_mc_to_kernel() is fast and recovery-ready by default regardless of
+> hardware capability.
 > 
-> BUG: sleeping function called from invalid context at mm/vmalloc.c:1710
-> in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 3383, name: fio
-> 2 locks held by fio/3383:
->  #0: ffff93b6a8568348 (&sb->s_type->i_mutex_key#16){+.+.}, at: ext4_file_write_iter+0xa2/0x5d0
->  #1: ffffffffa52a61a0 (rcu_read_lock){....}, at: hctx_lock+0x1a/0xe0
-> CPU: 0 PID: 3383 Comm: fio Tainted: G        W         5.5.10 #14
-> Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-> Call Trace:
->  dump_stack+0x98/0xd5
->  ___might_sleep+0x175/0x260
->  __might_sleep+0x4a/0x80
->  _vm_unmap_aliases+0x45/0x250
->  vm_unmap_aliases+0x19/0x20
->  __set_memory_enc_dec+0xa4/0x130
->  set_memory_decrypted+0x10/0x20
->  dma_direct_alloc_pages+0x148/0x150
->  dma_direct_alloc+0xe/0x10
->  dma_alloc_attrs+0x86/0xc0
->  dma_pool_alloc+0x16f/0x2b0
->  nvme_queue_rq+0x878/0xc30 [nvme]
->  __blk_mq_try_issue_directly+0x135/0x200
->  blk_mq_request_issue_directly+0x4f/0x80
->  blk_mq_try_issue_list_directly+0x46/0xb0
->  blk_mq_sched_insert_requests+0x19b/0x2b0
->  blk_mq_flush_plug_list+0x22f/0x3b0
->  blk_flush_plug_list+0xd1/0x100
->  blk_finish_plug+0x2c/0x40
->  iomap_dio_rw+0x427/0x490
->  ext4_file_write_iter+0x181/0x5d0
->  aio_write+0x109/0x1b0
->  io_submit_one+0x7d0/0xfa0
->  __x64_sys_io_submit+0xa2/0x280
->  do_syscall_64+0x5f/0x250
->  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-> 
-> There is a series of patches in Christoph's dma-mapping.git repo in the 
-> for-next branch on track for 5.8:
-> 
-> 1d659236fb43 dma-pool: scale the default DMA coherent pool size with memory capacity
-> 82fef0ad811f x86/mm: unencrypted non-blocking DMA allocations use coherent pools
-> 2edc5bb3c5cc dma-pool: add pool sizes to debugfs
-> 76a19940bd62 dma-direct: atomic allocations must come from atomic coherent pools
-> 54adadf9b085 dma-pool: dynamically expanding atomic pools
-> c84dc6e68a1d dma-pool: add additional coherent pools to map to gfp mask
-> e860c299ac0d dma-remap: separate DMA atomic pools from direct remap code
-> 
-> We'd like to prepare backports to LTS kernels so that our guest images are 
-> not modified by us and don't exhibit this issue.
-> 
-> They are bigger than we'd like:
-> 
->  arch/x86/Kconfig            |   1 +
->  drivers/iommu/dma-iommu.c   |   5 +-
->  include/linux/dma-direct.h  |   2 +
->  include/linux/dma-mapping.h |   6 +-
->  kernel/dma/Kconfig          |   6 +-
->  kernel/dma/Makefile         |   1 +
->  kernel/dma/direct.c         |  56 ++++++--
->  kernel/dma/pool.c           | 264 ++++++++++++++++++++++++++++++++++++
->  kernel/dma/remap.c          | 121 +----------------
->  9 files changed, 324 insertions(+), 138 deletions(-)
->  create mode 100644 kernel/dma/pool.c
-> 
-> But they apply relatively cleanly to more modern kernels like 5.4.  We'd 
-> like to backport these all the way to 4.19, however, otherwise guests 
-> encounter these bugs.
-> 
-> The changes to kernel/dma/remap.c, for example, simply moves code to the 
-> new pool.c.  But that original code is actually in arch/arm64 in 4.19 and 
-> was moved in 5.0:
-> 
-> commit 0c3b3171ceccb8830c2bb5adff1b4e9b204c1450
-> Author: Christoph Hellwig <hch@lst.de>
-> Date:   Sun Nov 4 20:29:28 2018 +0100
-> 
->     dma-mapping: move the arm64 noncoherent alloc/free support to common code
-> 
-> commit f0edfea8ef93ed6cc5f747c46c85c8e53e0798a0
-> Author: Christoph Hellwig <hch@lst.de>
-> Date:   Fri Aug 24 10:31:08 2018 +0200
-> 
->     dma-mapping: move the remap helpers to a separate file
-> 
-> And there are most certainly more dependencies to get a cleanly applying 
-> series to 4.19.123.  So the backports could be quite extensive.
-> 
-> Peter Gonda <pgonda@google.com> is currently handling these and we're 
-> looking for advice: should we compile a full list of required backports 
-> that would be needed to get a series that would only consist of minor 
-> conflicts or is this going to be a non-starter?
+> Thanks to Vivek for identifying that copy_user_generic() is not suitable
+> as the copy_mc_to_user() backend since the #MC handler explicitly checks
+> ex_has_fault_handler().
 
-A full series would be good.  Once these hit Linus's tree and show up in
-a -rc or two, feel free to send on the backports and we can look at them
-then.
+/me is curious to know why #MC handler mandates use of _ASM_EXTABLE_FAULT().
 
-thanks,
+[..]
+> +/*
+> + * copy_mc_generic - memory copy with exception handling
+> + *
+> + * Fast string copy + fault / exception handling. If the CPU does
+> + * support machine check exception recovery, but does not support
+> + * recovering from fast-string exceptions then this CPU needs to be
+> + * added to the copy_mc_fragile_key set of quirks. Otherwise, absent any
+> + * machine check recovery support this version should be no slower than
+> + * standard memcpy.
+> + */
+> +SYM_FUNC_START(copy_mc_generic)
+> +	ALTERNATIVE "jmp copy_mc_fragile", "", X86_FEATURE_ERMS
+> +	movq %rdi, %rax
+> +	movq %rdx, %rcx
+> +.L_copy:
+> +	rep movsb
+> +	/* Copy successful. Return zero */
+> +	xorl %eax, %eax
+> +	ret
+> +SYM_FUNC_END(copy_mc_generic)
+> +EXPORT_SYMBOL_GPL(copy_mc_generic)
+> +
+> +	.section .fixup, "ax"
+> +.E_copy:
+> +	/*
+> +	 * On fault %rcx is updated such that the copy instruction could
+> +	 * optionally be restarted at the fault position, i.e. it
+> +	 * contains 'bytes remaining'. A non-zero return indicates error
+> +	 * to copy_safe() users, or indicate short transfers to
 
-greg k-h
+copy_safe() is vestige of terminology of previous patches?
+
+> +	 * user-copy routines.
+> +	 */
+> +	movq %rcx, %rax
+> +	ret
+> +
+> +	.previous
+> +
+> +	_ASM_EXTABLE_FAULT(.L_copy, .E_copy)
+
+A question for my education purposes.
+
+So copy_mc_generic() can handle MCE both on source and destination
+addresses? (Assuming some device can generate MCE on stores too).
+On the other hand copy_mc_fragile() handles MCE recovery only on
+source and non-MCE recovery on destination.
+
+Thanks
+Vivek
+
