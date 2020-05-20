@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 628FB1DB6AE
-	for <lists+stable@lfdr.de>; Wed, 20 May 2020 16:27:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FDB31DB658
+	for <lists+stable@lfdr.de>; Wed, 20 May 2020 16:24:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728455AbgETO0c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 20 May 2020 10:26:32 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:33066 "EHLO
+        id S1728144AbgETOYC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 20 May 2020 10:24:02 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:33178 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727033AbgETOW1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 20 May 2020 10:22:27 -0400
+        by vger.kernel.org with ESMTP id S1727063AbgETOW2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 20 May 2020 10:22:28 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1jbPby-00037W-GY; Wed, 20 May 2020 15:22:22 +0100
+        id 1jbPbz-00037c-Qy; Wed, 20 May 2020 15:22:23 +0100
 Received: from ben by deadeye with local (Exim 4.93)
         (envelope-from <ben@decadent.org.uk>)
-        id 1jbPbx-007DWS-Ne; Wed, 20 May 2020 15:22:21 +0100
+        id 1jbPbx-007DWY-Q5; Wed, 20 May 2020 15:22:21 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,14 +26,13 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Vincenzo Frascino" <vincenzo.frascino@arm.com>,
-        "Masahiro Yamada" <masahiroy@kernel.org>
-Date:   Wed, 20 May 2020 15:15:01 +0100
-Message-ID: <lsq.1589984009.174312112@decadent.org.uk>
+        "Fabian Frederick" <fabf@skynet.be>,
+        "Trond Myklebust" <trond.myklebust@primarydata.com>
+Date:   Wed, 20 May 2020 15:15:02 +0100
+Message-ID: <lsq.1589984009.804184108@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 93/99] kconfig: fix broken dependency in
- randconfig-generated .config
+Subject: [PATCH 3.16 94/99] nfs: use kmap/kunmap directly
 In-Reply-To: <lsq.1589984008.673931885@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -47,40 +46,167 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Masahiro Yamada <masahiroy@kernel.org>
+From: Fabian Frederick <fabf@skynet.be>
 
-commit c8fb7d7e48d11520ad24808cfce7afb7b9c9f798 upstream.
+commit 0795bf8357c1887e2a95e6e4f5b89d0896a0d929 upstream.
 
-Running randconfig on arm64 using KCONFIG_SEED=0x40C5E904 (e.g. on v5.5)
-produces the .config with CONFIG_EFI=y and CONFIG_CPU_BIG_ENDIAN=y,
-which does not meet the !CONFIG_CPU_BIG_ENDIAN dependency.
+This patch removes useless nfs_readdir_get_array() and
+nfs_readdir_release_array() as suggested by Trond Myklebust
 
-This is because the user choice for CONFIG_CPU_LITTLE_ENDIAN vs
-CONFIG_CPU_BIG_ENDIAN is set by randomize_choice_values() after the
-value of CONFIG_EFI is calculated.
+nfs_readdir() calls nfs_revalidate_mapping() before
+readdir_search_pagecache() , nfs_do_filldir(), uncached_readdir()
+so mapping should be correct.
 
-When this happens, the has_changed flag should be set.
+While kmap() can't fail, all subsequent error checks were removed
+as well as unused labels.
 
-Currently, it takes the result from the last iteration. It should
-accumulate all the results of the loop.
-
-Fixes: 3b9a19e08960 ("kconfig: loop as long as we changed some symbols in randconfig")
-Reported-by: Vincenzo Frascino <vincenzo.frascino@arm.com>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Signed-off-by: Fabian Frederick <fabf@skynet.be>
+Signed-off-by: Trond Myklebust <trond.myklebust@primarydata.com>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- scripts/kconfig/confdata.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/nfs/dir.c | 67 ++++++++++------------------------------------------
+ 1 file changed, 12 insertions(+), 55 deletions(-)
 
---- a/scripts/kconfig/confdata.c
-+++ b/scripts/kconfig/confdata.c
-@@ -1231,7 +1231,7 @@ bool conf_set_all_new_symbols(enum conf_
+--- a/fs/nfs/dir.c
++++ b/fs/nfs/dir.c
+@@ -170,27 +170,6 @@ typedef struct {
+ } nfs_readdir_descriptor_t;
  
- 		sym_calc_value(csym);
- 		if (mode == def_random)
--			has_changed = randomize_choice_values(csym);
-+			has_changed |= randomize_choice_values(csym);
- 		else {
- 			set_all_choice_values(csym);
- 			has_changed = true;
+ /*
+- * The caller is responsible for calling nfs_readdir_release_array(page)
+- */
+-static
+-struct nfs_cache_array *nfs_readdir_get_array(struct page *page)
+-{
+-	void *ptr;
+-	if (page == NULL)
+-		return ERR_PTR(-EIO);
+-	ptr = kmap(page);
+-	if (ptr == NULL)
+-		return ERR_PTR(-ENOMEM);
+-	return ptr;
+-}
+-
+-static
+-void nfs_readdir_release_array(struct page *page)
+-{
+-	kunmap(page);
+-}
+-
+-/*
+  * we are freeing strings created by nfs_add_to_readdir_array()
+  */
+ static
+@@ -229,13 +208,10 @@ int nfs_readdir_make_qstr(struct qstr *s
+ static
+ int nfs_readdir_add_to_array(struct nfs_entry *entry, struct page *page)
+ {
+-	struct nfs_cache_array *array = nfs_readdir_get_array(page);
++	struct nfs_cache_array *array = kmap(page);
+ 	struct nfs_cache_array_entry *cache_entry;
+ 	int ret;
+ 
+-	if (IS_ERR(array))
+-		return PTR_ERR(array);
+-
+ 	cache_entry = &array->array[array->size];
+ 
+ 	/* Check that this entry lies within the page bounds */
+@@ -254,7 +230,7 @@ int nfs_readdir_add_to_array(struct nfs_
+ 	if (entry->eof != 0)
+ 		array->eof_index = array->size;
+ out:
+-	nfs_readdir_release_array(page);
++	kunmap(page);
+ 	return ret;
+ }
+ 
+@@ -343,11 +319,7 @@ int nfs_readdir_search_array(nfs_readdir
+ 	struct nfs_cache_array *array;
+ 	int status;
+ 
+-	array = nfs_readdir_get_array(desc->page);
+-	if (IS_ERR(array)) {
+-		status = PTR_ERR(array);
+-		goto out;
+-	}
++	array = kmap(desc->page);
+ 
+ 	if (*desc->dir_cookie == 0)
+ 		status = nfs_readdir_search_for_pos(array, desc);
+@@ -359,8 +331,7 @@ int nfs_readdir_search_array(nfs_readdir
+ 		desc->current_index += array->size;
+ 		desc->page_index++;
+ 	}
+-	nfs_readdir_release_array(desc->page);
+-out:
++	kunmap(desc->page);
+ 	return status;
+ }
+ 
+@@ -551,13 +522,10 @@ int nfs_readdir_page_filler(nfs_readdir_
+ 	} while (!entry->eof);
+ 
+ 	if (count == 0 || (status == -EBADCOOKIE && entry->eof != 0)) {
+-		array = nfs_readdir_get_array(page);
+-		if (!IS_ERR(array)) {
+-			array->eof_index = array->size;
+-			status = 0;
+-			nfs_readdir_release_array(page);
+-		} else
+-			status = PTR_ERR(array);
++		array = kmap(page);
++		array->eof_index = array->size;
++		status = 0;
++		kunmap(page);
+ 	}
+ 
+ 	put_page(scratch);
+@@ -627,11 +595,7 @@ int nfs_readdir_xdr_to_array(nfs_readdir
+ 		goto out;
+ 	}
+ 
+-	array = nfs_readdir_get_array(page);
+-	if (IS_ERR(array)) {
+-		status = PTR_ERR(array);
+-		goto out_label_free;
+-	}
++	array = kmap(page);
+ 	memset(array, 0, sizeof(struct nfs_cache_array));
+ 	array->eof_index = -1;
+ 
+@@ -655,8 +619,7 @@ int nfs_readdir_xdr_to_array(nfs_readdir
+ 
+ 	nfs_readdir_free_large_page(pages_ptr, pages, array_size);
+ out_release_array:
+-	nfs_readdir_release_array(page);
+-out_label_free:
++	kunmap(page);
+ 	nfs4_label_free(entry.label);
+ out:
+ 	nfs_free_fattr(entry.fattr);
+@@ -754,12 +717,7 @@ int nfs_do_filldir(nfs_readdir_descripto
+ 	struct nfs_cache_array *array = NULL;
+ 	struct nfs_open_dir_context *ctx = file->private_data;
+ 
+-	array = nfs_readdir_get_array(desc->page);
+-	if (IS_ERR(array)) {
+-		res = PTR_ERR(array);
+-		goto out;
+-	}
+-
++	array = kmap(desc->page);
+ 	for (i = desc->cache_entry_index; i < array->size; i++) {
+ 		struct nfs_cache_array_entry *ent;
+ 
+@@ -780,8 +738,7 @@ int nfs_do_filldir(nfs_readdir_descripto
+ 	if (array->eof_index >= 0)
+ 		desc->eof = 1;
+ 
+-	nfs_readdir_release_array(desc->page);
+-out:
++	kunmap(desc->page);
+ 	cache_page_release(desc);
+ 	dfprintk(DIRCACHE, "NFS: nfs_do_filldir() filling ended @ cookie %Lu; returning = %d\n",
+ 			(unsigned long long)*desc->dir_cookie, res);
 
