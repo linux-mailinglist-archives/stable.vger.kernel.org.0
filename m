@@ -2,89 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B27331DAAEE
-	for <lists+stable@lfdr.de>; Wed, 20 May 2020 08:47:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26C011DAB94
+	for <lists+stable@lfdr.de>; Wed, 20 May 2020 09:09:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726375AbgETGrT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 20 May 2020 02:47:19 -0400
-Received: from mail27.static.mailgun.info ([104.130.122.27]:54549 "EHLO
-        mail27.static.mailgun.info" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726224AbgETGrT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 20 May 2020 02:47:19 -0400
-DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
- s=smtp; t=1589957238; h=Content-Transfer-Encoding: MIME-Version:
- Message-Id: Date: Subject: Cc: To: From: Sender;
- bh=xDWEOM39/obrXrVTHRAwQnXOwD7Y6aHVx/XnwR6FAbc=; b=wwaD6WhnYkSOsrVIOTtldD6I/VSkl3//VlaZ0RizG4ut0HLcFFgwtSx6iFWTr9Nyr52cUJkS
- cWpjLfUY723FzFJbPuebJ93gB7TnBQqfrZk+XRyl+/v5ICGlNMiiLaAHEH24hthJgEercB7x
- REhgMlejKzY5lkl/OaRtQvlvJnE=
-X-Mailgun-Sending-Ip: 104.130.122.27
-X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
-Received: from smtp.codeaurora.org (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171])
- by mxa.mailgun.org with ESMTP id 5ec4d276.7f5ec23f8848-smtp-out-n04;
- Wed, 20 May 2020 06:47:18 -0000 (UTC)
-Received: by smtp.codeaurora.org (Postfix, from userid 1001)
-        id DE524C433C6; Wed, 20 May 2020 06:47:17 +0000 (UTC)
-X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
-        aws-us-west-2-caf-mail-1.web.codeaurora.org
-X-Spam-Level: 
-X-Spam-Status: No, score=-1.0 required=2.0 tests=ALL_TRUSTED,SPF_NONE
-        autolearn=unavailable autolearn_force=no version=3.4.0
-Received: from rananta-linux.qualcomm.com (i-global254.qualcomm.com [199.106.103.254])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-SHA256 (128/128 bits))
-        (No client certificate requested)
-        (Authenticated sender: rananta)
-        by smtp.codeaurora.org (Postfix) with ESMTPSA id 0E9C1C433C8;
-        Wed, 20 May 2020 06:47:17 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org 0E9C1C433C8
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=none smtp.mailfrom=rananta@codeaurora.org
-From:   Raghavendra Rao Ananta <rananta@codeaurora.org>
-To:     gregkh@linuxfoundation.org, jslaby@suse.com, andrew@daynix.com
-Cc:     linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org,
-        Raghavendra Rao Ananta <rananta@codeaurora.org>,
-        stable@vger.kernel.org
-Subject: [PATCH v2] tty: hvc: Fix data abort due to race in hvc_open
-Date:   Tue, 19 May 2020 23:47:08 -0700
-Message-Id: <20200520064708.24278-1-rananta@codeaurora.org>
-X-Mailer: git-send-email 2.23.0
+        id S1726520AbgETHHv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 20 May 2020 03:07:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43508 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725998AbgETHHv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 20 May 2020 03:07:51 -0400
+Received: from valentin-vidic.from.hr (valentin-vidic.from.hr [IPv6:2001:470:1f0b:3b7::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6542CC061A0E;
+        Wed, 20 May 2020 00:07:48 -0700 (PDT)
+X-Virus-Scanned: Debian amavisd-new at valentin-vidic.from.hr
+Received: by valentin-vidic.from.hr (Postfix, from userid 1000)
+        id 2F849543; Wed, 20 May 2020 09:07:43 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=valentin-vidic.from.hr; s=2020; t=1589958463;
+        bh=UuLjB4lUIXEJCTsjz0Aui6c45k/IBmfcpv9LSaqLVhE=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=iMRJmr2GHbRzqTq+5jQISZdb5afOot71nAXDKe+7yovTew6TrwuNjUJ1Yx9n4wv6U
+         pzD0vC0taVcmzPkEMZup/pgH0TgQnPgF6OEl8sL2QKJKT2anoPA6c3p02qJ/Q8+r7u
+         u6TUmWcy5h5HEkc/N7zW31HIlA0YiI91GvgfItXquE/+LDa36uAckZUImTumpXpsxe
+         cQZ2j+CLBzdJrVatqN6gc5ZhgEpdGJkNbW88sVpsTq+YaoDbNISmHsqySlZPrxc9X9
+         02CM6JP0vJNLb2Zv4FCTcZt3wRLaN1kF+ABSmK/PJ50LxELaagaTn4Ps86l8pWshu9
+         nWCajQF7IZpaMkegv6O1UHtFWeL2kBDob6qxKTCQSsuqUSIh9Jb71+KbCSHkbrRykT
+         nuPOmuc9QGGmIg1FDvDu7zAgbn5nwN69gBV/XDnEXQFW/sHWRKNCdpmkMa9AY0YUwh
+         SnegZSfj1ySzGoTNy8Zx/StQntry5/gOtfhyAjy0H44UuUxp/c5qTbw5oeCdby0uBW
+         xHcFUHeZ3bgDLiz//PjwHt56Y61g6OQmzSEiU7/paFGudGdYaQiUzd/c4px3mK+TDE
+         Ui7aPOqxpTSk3XIyR0nfwv4KuhB/D30pwMyjZYO2M/r+zPW4ujYWb/QeXADmVenQFz
+         jJA1cESmmngnhnirBa1WVwnc=
+Date:   Wed, 20 May 2020 09:07:43 +0200
+From:   Valentin =?utf-8?B?VmlkacSH?= <vvidic@valentin-vidic.from.hr>
+To:     Christian Borntraeger <borntraeger@de.ibm.com>
+Cc:     Heiko Carstens <heiko.carstens@de.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH] s390/sclp_vt220: Fix console name to match device
+Message-ID: <20200520070743.GO4974@valentin-vidic.from.hr>
+References: <20200519181654.16765-1-vvidic@valentin-vidic.from.hr>
+ <65218cdb-d03f-29a8-1e78-42ff2d4f958d@de.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <65218cdb-d03f-29a8-1e78-42ff2d4f958d@de.ibm.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Potentially, hvc_open() can be called in parallel when two tasks calls
-open() on /dev/hvcX. In such a scenario, if the hp->ops->notifier_add()
-callback in the function fails, where it sets the tty->driver_data to
-NULL, the parallel hvc_open() can see this NULL and cause a memory abort.
-Hence, do a NULL check at the beginning, before proceeding ahead.
+On Wed, May 20, 2020 at 07:25:06AM +0200, Christian Borntraeger wrote:
+> This is not as simple. ttyS1 is the the console name and ttysclp0 is the tty name.
+> This has mostly historic reasons and it obviously causes problems.
+> But there is  documentation out that that actually describes the use of 
+> console=ttyS1 console=ttyS0.
+> to have console output on both sclp consoles and there are probably scripts
+> using ttyS1.
+> 
+> I am wondering. The tty for ttyS0 is named sclp_line0. Does this work in LPAR?
 
-The issue can be easily reproduced by launching two tasks simultaneously
-that does an open() call on /dev/hvcX.
-For example:
-$ cat /dev/hvc0 & cat /dev/hvc0 &
+I ran into this problem with qemu-system-s390x, so not sure about LPAR.
+Would changing the tty name also cause problems?
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Raghavendra Rao Ananta <rananta@codeaurora.org>
----
- drivers/tty/hvc/hvc_console.c | 3 +++
- 1 file changed, 3 insertions(+)
-
-diff --git a/drivers/tty/hvc/hvc_console.c b/drivers/tty/hvc/hvc_console.c
-index 436cc51c92c3..80709f754cc8 100644
---- a/drivers/tty/hvc/hvc_console.c
-+++ b/drivers/tty/hvc/hvc_console.c
-@@ -350,6 +350,9 @@ static int hvc_open(struct tty_struct *tty, struct file * filp)
- 	unsigned long flags;
- 	int rc = 0;
-
-+	if (!hp)
-+		return -ENODEV;
-+
- 	spin_lock_irqsave(&hp->port.lock, flags);
- 	/* Check and then increment for fast path open. */
- 	if (hp->port.count++ > 0) {
---
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
-a Linux Foundation Collaborative Project
+-- 
+Valentin
