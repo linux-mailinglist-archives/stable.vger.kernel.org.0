@@ -2,107 +2,156 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 447081DC7A1
-	for <lists+stable@lfdr.de>; Thu, 21 May 2020 09:29:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E10F1DC7D6
+	for <lists+stable@lfdr.de>; Thu, 21 May 2020 09:40:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728388AbgEUH2E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 21 May 2020 03:28:04 -0400
-Received: from mga11.intel.com ([192.55.52.93]:34925 "EHLO mga11.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728364AbgEUH2C (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 21 May 2020 03:28:02 -0400
-IronPort-SDR: uxl5cRZ9r8lsXXF9qf8sh1cSp8QVcsTe6VSWwN9XcVKNQOtlVGRSWulFZiuhNY35OG2lb7kS3L
- 1L6RlexoaGIw==
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga001.jf.intel.com ([10.7.209.18])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 21 May 2020 00:28:02 -0700
-IronPort-SDR: DFOGtizIgpuw4MPdRMFQ12kOjPRG88bM7vw5xKiVs2I4Lxvfkj8KWdlu8XZ4k5yzfahYnY6M9r
- 2tCM/FL9PGrg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.73,417,1583222400"; 
-   d="scan'208";a="343758695"
-Received: from jtkirshe-desk1.jf.intel.com ([134.134.177.86])
-  by orsmga001.jf.intel.com with ESMTP; 21 May 2020 00:28:00 -0700
-From:   Jeff Kirsher <jeffrey.t.kirsher@intel.com>
-To:     davem@davemloft.net
-Cc:     Alexander Duyck <alexander.h.duyck@linux.intel.com>,
-        netdev@vger.kernel.org, nhorman@redhat.com, sassmann@redhat.com,
-        stable <stable@vger.kernel.org>,
-        Maxim Zhukov <mussitantesmortem@gmail.com>,
-        Jeff Kirsher <jeffrey.t.kirsher@intel.com>
-Subject: [net-next 05/15] e1000: Do not perform reset in reset_task if we are already down
-Date:   Thu, 21 May 2020 00:27:48 -0700
-Message-Id: <20200521072758.440264-6-jeffrey.t.kirsher@intel.com>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200521072758.440264-1-jeffrey.t.kirsher@intel.com>
-References: <20200521072758.440264-1-jeffrey.t.kirsher@intel.com>
+        id S1728300AbgEUHkp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 21 May 2020 03:40:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47740 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728245AbgEUHko (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 21 May 2020 03:40:44 -0400
+Received: from mail-pg1-x543.google.com (mail-pg1-x543.google.com [IPv6:2607:f8b0:4864:20::543])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 602AEC061A0E;
+        Thu, 21 May 2020 00:40:44 -0700 (PDT)
+Received: by mail-pg1-x543.google.com with SMTP id t11so2804272pgg.2;
+        Thu, 21 May 2020 00:40:44 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:subject:to:cc:references:from:autocrypt:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=KlHZFZ8kd58yZu2njFvfVeXNhSGIaKK86J1dDLSLs4g=;
+        b=npemC53QVGxNY55U1FzZZbDbiEMla0VD1kC4PgRYx3HjTuJozHhenKvZt2Pu63tJNl
+         0Jwmd30YF2qRYYS6lqPODbcB75ZMunRplEnzpdrvZYcyym/z9anCq+G0OD07sk8VfuDL
+         aKmfdNprqqF0Wg/H9UTfHCl9kWCDtF++cvQun5h+GnvvatunVqK+62FZGejdiUXgipVB
+         eLxUPv+rDpCcoSyVtw3MLKiIqre8v8aCmV+OzOlShybCfH0m8LW2GfBdEXAA/t2i0qAX
+         M9dn4wLY2uGN9TEaUDFQyNuqe/wH4Q9d+txO1NarP8pNlCrBtrVn1lrL7ajTHsPpWfPE
+         p+lw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:subject:to:cc:references:from:autocrypt
+         :message-id:date:user-agent:mime-version:in-reply-to
+         :content-language:content-transfer-encoding;
+        bh=KlHZFZ8kd58yZu2njFvfVeXNhSGIaKK86J1dDLSLs4g=;
+        b=XSs6xuB7SmBG7h7+7D7pe7pLZA3sNu6Xwx8T6kj0WVAGamoTk6gmR4N4WXfFw9Ui9E
+         JMlVISdsZGdKAAq/hFTgk/Q9ZqqgS3XW4gCc7tvBqIJX/GyutP6gmAiErpNrWWVT96ma
+         K4DeCR+B2SfS+PYot3RkAwPc+dMdiBl/mV+jQ9GwnihMCrat6YY+tRGfoHJYkUVyo7Fp
+         q/qMyIXbRd07lqx9tcD3ZkQgKfEWr9yRN6ZGORnvGP/gpTJdPf+d4B32+wMT+hQ0VpM5
+         KRwrVUDL/Dtjmwvr8IqKGJ7mANuy6GUCknQ0zSKByTgLQzVXjbuUmOwWuvLP/tf0UtbI
+         NzJg==
+X-Gm-Message-State: AOAM531p/FpcNbOI5mLT9bFwyJRR+X9HZQ0gCeRV8s+NIRkozmtZJfPl
+        H9a+w86fLfb5PP//G7/ARoXqyPCJ
+X-Google-Smtp-Source: ABdhPJyyNpUQHouG1A0mRkaIjPOHNKANR21xZFyULunSZEtIF7faRhjHQ6qVcTDv4lxjU9lfn4ctOw==
+X-Received: by 2002:a63:7a12:: with SMTP id v18mr7935261pgc.131.1590046843978;
+        Thu, 21 May 2020 00:40:43 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id x2sm3710071pfc.106.2020.05.21.00.40.42
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 21 May 2020 00:40:43 -0700 (PDT)
+Subject: Re: [PATCH 3.16 00/99] 3.16.84-rc1 review
+To:     Chen-Yu Tsai <wens@kernel.org>, Ben Hutchings <ben@decadent.org.uk>
+Cc:     linux-kernel <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>, torvalds@linux-foundation.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Denis Kirjanov <kda@linux-powerpc.org>
+References: <lsq.1589984008.673931885@decadent.org.uk>
+ <68f801f8-ceb2-13cf-ad29-b6404e2f1142@roeck-us.net>
+ <CAGb2v65AGb+4=+vRn2OdBx=fYXmZLFqASsyh-xh=ruCgbg92ng@mail.gmail.com>
+From:   Guenter Roeck <linux@roeck-us.net>
+Autocrypt: addr=linux@roeck-us.net; keydata=
+ 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
+ mDW4+i+XlNFUPUYMrIKi9joBhu18ssf5i5Q=
+Message-ID: <96227771-f6bd-9508-5a68-ab35df370dc1@roeck-us.net>
+Date:   Thu, 21 May 2020 00:40:41 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAGb2v65AGb+4=+vRn2OdBx=fYXmZLFqASsyh-xh=ruCgbg92ng@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Duyck <alexander.h.duyck@linux.intel.com>
+On 5/20/20 7:47 PM, Chen-Yu Tsai wrote:
+> On Thu, May 21, 2020 at 5:23 AM Guenter Roeck <linux@roeck-us.net> wrote:
+>>
+>> On 5/20/20 7:13 AM, Ben Hutchings wrote:
+>>> This is the start of the stable review cycle for the 3.16.84 release.
+>>> There are 99 patches in this series, which will be posted as responses
+>>> to this one.  If anyone has any issues with these being applied, please
+>>> let me know.
+>>>
+>>> Responses should be made by Fri May 22 20:00:00 UTC 2020.
+>>> Anything received after that time might be too late.
+>>>
+>> Build results:
+>>         total: 135 pass: 135 fail: 0
+>> Qemu test results:
+>>         total: 230 pass: 227 fail: 3
+>> Failed tests:
+>>         arm:cubieboard:multi_v7_defconfig:mem512:sun4i-a10-cubieboard:initrd
+>>         arm:cubieboard:multi_v7_defconfig:usb:mem512:sun4i-a10-cubieboard:rootfs
+>>         arm:cubieboard:multi_v7_defconfig:sata:mem512:sun4i-a10-cubieboard:rootfs
+>>
+>> The arm tests fail due to a compile error.
+>>
+>> drivers/clk/tegra/clk-tegra-periph.c:524:65: error: 'CLK_IS_CRITICAL' undeclared here (not in a function); did you mean 'CLK_IS_BASIC'?
+> 
+> This looks like a result of having
+> 
+>       clk: tegra: Mark fuse clock as critical
+>          [bf83b96f87ae2abb1e535306ea53608e8de5dfbb]
+> 
+> In which case you probably need to add
+> 
+>     32b9b1096186 clk: Allow clocks to be marked as CRITICAL
+> 
 
-We are seeing a deadlock in e1000 down when NAPI is being disabled. Looking
-over the kernel function trace of the system it appears that the interface
-is being closed and then a reset is hitting which deadlocks the interface
-as the NAPI interface is already disabled.
+Then you might also need commit ef56b79b66f ("clk: fix critical
+clock locking") which fixes it.
 
-To prevent this from happening I am disabling the reset task when
-__E1000_DOWN is already set. In addition code has been added so that we set
-the __E1000_DOWN while holding the __E1000_RESET flag in e1000_close in
-order to guarantee that the reset task will not run after we have started
-the close call.
-
-CC: stable <stable@vger.kernel.org>
-Signed-off-by: Alexander Duyck <alexander.h.duyck@linux.intel.com>
-Tested-by: Maxim Zhukov <mussitantesmortem@gmail.com>
-Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
----
- drivers/net/ethernet/intel/e1000/e1000_main.c | 18 ++++++++++++++----
- 1 file changed, 14 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/net/ethernet/intel/e1000/e1000_main.c b/drivers/net/ethernet/intel/e1000/e1000_main.c
-index 05bc6e216bca..d9fa4600f745 100644
---- a/drivers/net/ethernet/intel/e1000/e1000_main.c
-+++ b/drivers/net/ethernet/intel/e1000/e1000_main.c
-@@ -542,8 +542,13 @@ void e1000_reinit_locked(struct e1000_adapter *adapter)
- 	WARN_ON(in_interrupt());
- 	while (test_and_set_bit(__E1000_RESETTING, &adapter->flags))
- 		msleep(1);
--	e1000_down(adapter);
--	e1000_up(adapter);
-+
-+	/* only run the task if not already down */
-+	if (!test_bit(__E1000_DOWN, &adapter->flags)) {
-+		e1000_down(adapter);
-+		e1000_up(adapter);
-+	}
-+
- 	clear_bit(__E1000_RESETTING, &adapter->flags);
- }
- 
-@@ -1433,10 +1438,15 @@ int e1000_close(struct net_device *netdev)
- 	struct e1000_hw *hw = &adapter->hw;
- 	int count = E1000_CHECK_RESET_COUNT;
- 
--	while (test_bit(__E1000_RESETTING, &adapter->flags) && count--)
-+	while (test_and_set_bit(__E1000_RESETTING, &adapter->flags) && count--)
- 		usleep_range(10000, 20000);
- 
--	WARN_ON(test_bit(__E1000_RESETTING, &adapter->flags));
-+	WARN_ON(count < 0);
-+
-+	/* signal that we're down so that the reset task will no longer run */
-+	set_bit(__E1000_DOWN, &adapter->flags);
-+	clear_bit(__E1000_RESETTING, &adapter->flags);
-+
- 	e1000_down(adapter);
- 	e1000_power_down_phy(adapter);
- 	e1000_free_irq(adapter);
--- 
-2.26.2
-
+Guenter
