@@ -2,54 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 255731DD04D
+	by mail.lfdr.de (Postfix) with ESMTP id 9C6291DD04E
 	for <lists+stable@lfdr.de>; Thu, 21 May 2020 16:41:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729738AbgEUOlm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 21 May 2020 10:41:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56822 "EHLO
+        id S1729737AbgEUOlp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 21 May 2020 10:41:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56828 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728256AbgEUOlm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 21 May 2020 10:41:42 -0400
-Received: from mail-yb1-xb49.google.com (mail-yb1-xb49.google.com [IPv6:2607:f8b0:4864:20::b49])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60B81C061A0E
-        for <stable@vger.kernel.org>; Thu, 21 May 2020 07:41:42 -0700 (PDT)
-Received: by mail-yb1-xb49.google.com with SMTP id e14so5515239ybh.16
-        for <stable@vger.kernel.org>; Thu, 21 May 2020 07:41:42 -0700 (PDT)
+        with ESMTP id S1728256AbgEUOlo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 21 May 2020 10:41:44 -0400
+Received: from mail-qv1-xf49.google.com (mail-qv1-xf49.google.com [IPv6:2607:f8b0:4864:20::f49])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A822EC061A0E
+        for <stable@vger.kernel.org>; Thu, 21 May 2020 07:41:44 -0700 (PDT)
+Received: by mail-qv1-xf49.google.com with SMTP id l1so5295282qvy.20
+        for <stable@vger.kernel.org>; Thu, 21 May 2020 07:41:44 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
         h=date:in-reply-to:message-id:mime-version:references:subject:from:to
          :cc;
-        bh=wI+HKpFWvry3kI80xT6j3z58TG59ubekmoG0h0iKulY=;
-        b=Z2e8o1WpTQGbuHGBTDWB4j818PZjhX+33yKcjwhc+dM8Ml4pav9wQYSfuG86klEZtu
-         cbo3viePsX7ITCt1GEygAmwVA1voOBppgppwHRiaJZgxgWzE+DNOQteo0kdNee0al5W/
-         ETPgGjNTvOShKA4sI88tJF/O9yWhTlwVuLr1syJb/kSjsWklrcEJBCZkmY/IWuTPJF3U
-         xJsH+u15poFHpAqICE3mPrNEaQjkAjrVW6S1nLQ3eMvzDk5FWMSE7dgv8OV8vV6HWS9b
-         iGVSxjDn+dW6pkzUusTqffDOyO4XIYhmC4fMFj+u/p3WCYn8j5dl04b6uIIKBvmnUYnn
-         /EKQ==
+        bh=ZTkFaorADc3kdkKpYBTWreQAu7E1CFOTWwVWk/tgO50=;
+        b=Bfnmx77SVdkOwkKC02exE2EF0lVxjC9fXntf1sEguOOSTD9uxlL/IUTcGofNywcveh
+         a/js6T8as8oKSRSdnc16z06j1PpRJ6JE7/NCbiqXwaR2BnpwKykbtqes3E7Z3qNh+M8h
+         HfZ/HjAYZX03b/8HoM7vXJqR8kZBDpY/b9QQSm5ei7iw+k9y5GwQMhgzDYs+7E2THq2D
+         0xW+gRVqO8p/P0a2xopcp0Xhet2aifMhyzCXowMUES8qCdl/kjL5KpngtV/3bgDQuCk2
+         HdECG4gfwfdY9GAJ1IFLDPJMJzYqF97xGL2IT2KGMw3mJLvKKzZHVZWukHgKLrsBPjOj
+         Tuiw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:in-reply-to:message-id:mime-version
          :references:subject:from:to:cc;
-        bh=wI+HKpFWvry3kI80xT6j3z58TG59ubekmoG0h0iKulY=;
-        b=nNGyFx5K7J0VOwCK6BP1oB+kR+bJR2IH9ixdXEvpMU0j2HEsXZYu3OqUkoXMAXa/O1
-         mX9J9/9DxXpCfyGLEBB30NS6yHSse2S7PzjcInOtQ0Tq0XN0RiickBXXUUxQiv5lpII1
-         zPJ/Pos0lOEfBNwIg14zk7lqENX1Bv2ErklSwBgq68M+wAZ/Hlu6H96WrAuNMhWSFA9A
-         GLRHKm4aAOXc+NzD0XTLKh0fS/JPuPqNRPv4hUSnZ1Lr7ooN234FsfP2zqpLlhpUXVV+
-         XlwRoyCachZywVfjnR+HVPB2kw+QOl4dXKVvvuZkZzTaf/bU3SWwuiA1Ic/hx6FZPuqz
-         K6jg==
-X-Gm-Message-State: AOAM531xf0do78D68nVZXCpZV7vaBXtl5V+UdZLlB18p01O7Mcewp6g7
-        6q4iz2nhhn+YF2DPufbcXlPh+syQh1C0jg==
-X-Google-Smtp-Source: ABdhPJyqEaqH0nJ5/CsZbu7cCDj6Hy+1Xkh3jpI7EMK1/x7YPF68IX/rMF3dGJbdlZnMDXLdciFUNL0qQDTJyA==
-X-Received: by 2002:a25:6dd5:: with SMTP id i204mr15950049ybc.347.1590072101566;
- Thu, 21 May 2020 07:41:41 -0700 (PDT)
-Date:   Thu, 21 May 2020 15:40:53 +0100
+        bh=ZTkFaorADc3kdkKpYBTWreQAu7E1CFOTWwVWk/tgO50=;
+        b=IHn0Wa0Bv0L8TvczsDsAcCPeZjGwIC0X+5k0qTR+R/S4dYz186lHmwdX4YihF4ojlU
+         qFsCYSDneAl0hDEbjwnjV/Qy0ygzjYAk0VGGL0sToQfwkENNVKniDEW1bNy7yDTqdWpC
+         Bcdkje1o+HyuNOvZWp2oPE+LWcIfBo4+o2ppfaVv/TRK6XBBVGsemK103kdxtW8hb725
+         0kKJiHZM8Htl9rxQ8+KwCmXlCMykhCGL+b0+IpG12hipONzj1cu7UpUSs5dGq8/Z8ElP
+         kFPZGEgvgqvCikljV/iUVGm5DmHzW2a6zYnirJVlKjBheUvxDJrc82UzVmLHoL9PY2T+
+         YcUg==
+X-Gm-Message-State: AOAM532aURNWF/WPta8hhuQ/Mlta6qNqobN0koc5tU3Y3FMqMWAN9xP+
+        L4eFMcPGp0gJ/Nriql3+q9BaW0t2kkaj/Q==
+X-Google-Smtp-Source: ABdhPJzeMi9RW33ulCHiYs/5CsH/7DWDEnvf+Hk53n6AjX7pVcBsP3za7ktH0bF7S6f8CvHFzCptykUaAEeRkA==
+X-Received: by 2002:a0c:e6c2:: with SMTP id l2mr10194774qvn.91.1590072103767;
+ Thu, 21 May 2020 07:41:43 -0700 (PDT)
+Date:   Thu, 21 May 2020 15:40:54 +0100
 In-Reply-To: <20200521144100.128936-1-gprocida@google.com>
-Message-Id: <20200521144100.128936-16-gprocida@google.com>
+Message-Id: <20200521144100.128936-17-gprocida@google.com>
 Mime-Version: 1.0
 References: <20200521144100.128936-1-gprocida@google.com>
 X-Mailer: git-send-email 2.26.2.761.g0e0b3e54be-goog
-Subject: [PATCH 15/22] l2tp: hold tunnel used while creating sessions with netlink
+Subject: [PATCH 16/22] l2tp: prevent creation of sessions on terminated tunnels
 From:   Giuliano Procida <gprocida@google.com>
 To:     greg@kroah.com
 Cc:     stable@vger.kernel.org, Guillaume Nault <g.nault@alphalink.fr>,
@@ -63,109 +63,167 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Guillaume Nault <g.nault@alphalink.fr>
 
-commit e702c1204eb57788ef189c839c8c779368267d70 uptream.
+commit f3c66d4e144a0904ea9b95d23ed9f8eb38c11bfb uptream.
 
-Use l2tp_tunnel_get() to retrieve tunnel, so that it can't go away on
-us. Otherwise l2tp_tunnel_destruct() might release the last reference
-count concurrently, thus freeing the tunnel while we're using it.
+l2tp_tunnel_destruct() sets tunnel->sock to NULL, then removes the
+tunnel from the pernet list and finally closes all its sessions.
+Therefore, it's possible to add a session to a tunnel that is still
+reachable, but for which tunnel->sock has already been reset. This can
+make l2tp_session_create() dereference a NULL pointer when calling
+sock_hold(tunnel->sock).
 
-Fixes: 309795f4bec2 ("l2tp: Add netlink control API for L2TP")
+This patch adds the .acpt_newsess field to struct l2tp_tunnel, which is
+used by l2tp_tunnel_closeall() to prevent addition of new sessions to
+tunnels. Resetting tunnel->sock is done after l2tp_tunnel_closeall()
+returned, so that l2tp_session_add_to_tunnel() can safely take a
+reference on it when .acpt_newsess is true.
+
+The .acpt_newsess field is modified in l2tp_tunnel_closeall(), rather
+than in l2tp_tunnel_destruct(), so that it benefits all tunnel removal
+mechanisms. E.g. on UDP tunnels, a session could be added to a tunnel
+after l2tp_udp_encap_destroy() proceeded. This would prevent the tunnel
+from being removed because of the references held by this new session
+on the tunnel and its socket. Even though the session could be removed
+manually later on, this defeats the purpose of
+commit 9980d001cec8 ("l2tp: add udp encap socket destroy handler").
+
+Fixes: fd558d186df2 ("l2tp: Split pppol2tp patch into separate l2tp and ppp parts")
 Signed-off-by: Guillaume Nault <g.nault@alphalink.fr>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Giuliano Procida <gprocida@google.com>
 ---
- net/l2tp/l2tp_netlink.c | 21 ++++++++++++---------
- 1 file changed, 12 insertions(+), 9 deletions(-)
+ net/l2tp/l2tp_core.c | 41 ++++++++++++++++++++++++++++-------------
+ net/l2tp/l2tp_core.h |  4 ++++
+ 2 files changed, 32 insertions(+), 13 deletions(-)
 
-diff --git a/net/l2tp/l2tp_netlink.c b/net/l2tp/l2tp_netlink.c
-index 8f39086de144..5ea5d3ffa309 100644
---- a/net/l2tp/l2tp_netlink.c
-+++ b/net/l2tp/l2tp_netlink.c
-@@ -510,8 +510,9 @@ static int l2tp_nl_cmd_session_create(struct sk_buff *skb, struct genl_info *inf
- 		ret = -EINVAL;
- 		goto out;
- 	}
+diff --git a/net/l2tp/l2tp_core.c b/net/l2tp/l2tp_core.c
+index 5d1eb253a0b1..3a7031426b46 100644
+--- a/net/l2tp/l2tp_core.c
++++ b/net/l2tp/l2tp_core.c
+@@ -328,13 +328,21 @@ static int l2tp_session_add_to_tunnel(struct l2tp_tunnel *tunnel,
+ 	struct hlist_head *g_head;
+ 	struct hlist_head *head;
+ 	struct l2tp_net *pn;
++	int err;
+ 
+ 	head = l2tp_session_id_hash(tunnel, session->session_id);
+ 
+ 	write_lock_bh(&tunnel->hlist_lock);
++	if (!tunnel->acpt_newsess) {
++		err = -ENODEV;
++		goto err_tlock;
++	}
 +
- 	tunnel_id = nla_get_u32(info->attrs[L2TP_ATTR_CONN_ID]);
--	tunnel = l2tp_tunnel_find(net, tunnel_id);
-+	tunnel = l2tp_tunnel_get(net, tunnel_id);
- 	if (!tunnel) {
- 		ret = -ENODEV;
- 		goto out;
-@@ -519,24 +520,24 @@ static int l2tp_nl_cmd_session_create(struct sk_buff *skb, struct genl_info *inf
+ 	hlist_for_each_entry(session_walk, head, hlist)
+-		if (session_walk->session_id == session->session_id)
+-			goto exist;
++		if (session_walk->session_id == session->session_id) {
++			err = -EEXIST;
++			goto err_tlock;
++		}
  
- 	if (!info->attrs[L2TP_ATTR_SESSION_ID]) {
- 		ret = -EINVAL;
--		goto out;
-+		goto out_tunnel;
- 	}
- 	session_id = nla_get_u32(info->attrs[L2TP_ATTR_SESSION_ID]);
+ 	if (tunnel->version == L2TP_HDR_VER_3) {
+ 		pn = l2tp_pernet(tunnel->l2tp_net);
+@@ -342,12 +350,21 @@ static int l2tp_session_add_to_tunnel(struct l2tp_tunnel *tunnel,
+ 						session->session_id);
  
- 	if (!info->attrs[L2TP_ATTR_PEER_SESSION_ID]) {
- 		ret = -EINVAL;
--		goto out;
-+		goto out_tunnel;
- 	}
- 	peer_session_id = nla_get_u32(info->attrs[L2TP_ATTR_PEER_SESSION_ID]);
+ 		spin_lock_bh(&pn->l2tp_session_hlist_lock);
++
+ 		hlist_for_each_entry(session_walk, g_head, global_hlist)
+-			if (session_walk->session_id == session->session_id)
+-				goto exist_glob;
++			if (session_walk->session_id == session->session_id) {
++				err = -EEXIST;
++				goto err_tlock_pnlock;
++			}
  
- 	if (!info->attrs[L2TP_ATTR_PW_TYPE]) {
- 		ret = -EINVAL;
--		goto out;
-+		goto out_tunnel;
- 	}
- 	cfg.pw_type = nla_get_u16(info->attrs[L2TP_ATTR_PW_TYPE]);
- 	if (cfg.pw_type >= __L2TP_PWTYPE_MAX) {
- 		ret = -EINVAL;
--		goto out;
-+		goto out_tunnel;
- 	}
- 
- 	if (tunnel->version > 2) {
-@@ -555,7 +556,7 @@ static int l2tp_nl_cmd_session_create(struct sk_buff *skb, struct genl_info *inf
- 			u16 len = nla_len(info->attrs[L2TP_ATTR_COOKIE]);
- 			if (len > 8) {
- 				ret = -EINVAL;
--				goto out;
-+				goto out_tunnel;
- 			}
- 			cfg.cookie_len = len;
- 			memcpy(&cfg.cookie[0], nla_data(info->attrs[L2TP_ATTR_COOKIE]), len);
-@@ -564,7 +565,7 @@ static int l2tp_nl_cmd_session_create(struct sk_buff *skb, struct genl_info *inf
- 			u16 len = nla_len(info->attrs[L2TP_ATTR_PEER_COOKIE]);
- 			if (len > 8) {
- 				ret = -EINVAL;
--				goto out;
-+				goto out_tunnel;
- 			}
- 			cfg.peer_cookie_len = len;
- 			memcpy(&cfg.peer_cookie[0], nla_data(info->attrs[L2TP_ATTR_PEER_COOKIE]), len);
-@@ -607,7 +608,7 @@ static int l2tp_nl_cmd_session_create(struct sk_buff *skb, struct genl_info *inf
- 	if ((l2tp_nl_cmd_ops[cfg.pw_type] == NULL) ||
- 	    (l2tp_nl_cmd_ops[cfg.pw_type]->session_create == NULL)) {
- 		ret = -EPROTONOSUPPORT;
--		goto out;
-+		goto out_tunnel;
++		l2tp_tunnel_inc_refcount(tunnel);
++		sock_hold(tunnel->sock);
+ 		hlist_add_head_rcu(&session->global_hlist, g_head);
++
+ 		spin_unlock_bh(&pn->l2tp_session_hlist_lock);
++	} else {
++		l2tp_tunnel_inc_refcount(tunnel);
++		sock_hold(tunnel->sock);
  	}
  
- 	/* Check that pseudowire-specific params are present */
-@@ -617,7 +618,7 @@ static int l2tp_nl_cmd_session_create(struct sk_buff *skb, struct genl_info *inf
- 	case L2TP_PWTYPE_ETH_VLAN:
- 		if (!info->attrs[L2TP_ATTR_VLAN_ID]) {
- 			ret = -EINVAL;
--			goto out;
-+			goto out_tunnel;
- 		}
- 		break;
- 	case L2TP_PWTYPE_ETH:
-@@ -645,6 +646,8 @@ static int l2tp_nl_cmd_session_create(struct sk_buff *skb, struct genl_info *inf
- 		}
- 	}
+ 	hlist_add_head(&session->hlist, head);
+@@ -355,12 +372,12 @@ static int l2tp_session_add_to_tunnel(struct l2tp_tunnel *tunnel,
  
-+out_tunnel:
-+	l2tp_tunnel_dec_refcount(tunnel);
- out:
- 	return ret;
+ 	return 0;
+ 
+-exist_glob:
++err_tlock_pnlock:
+ 	spin_unlock_bh(&pn->l2tp_session_hlist_lock);
+-exist:
++err_tlock:
+ 	write_unlock_bh(&tunnel->hlist_lock);
+ 
+-	return -EEXIST;
++	return err;
  }
+ 
+ /* Lookup a tunnel by id
+@@ -1246,7 +1263,6 @@ static void l2tp_tunnel_destruct(struct sock *sk)
+ 	/* Remove hooks into tunnel socket */
+ 	sk->sk_destruct = tunnel->old_sk_destruct;
+ 	sk->sk_user_data = NULL;
+-	tunnel->sock = NULL;
+ 
+ 	/* Remove the tunnel struct from the tunnel list */
+ 	pn = l2tp_pernet(tunnel->l2tp_net);
+@@ -1256,6 +1272,8 @@ static void l2tp_tunnel_destruct(struct sock *sk)
+ 	atomic_dec(&l2tp_tunnel_count);
+ 
+ 	l2tp_tunnel_closeall(tunnel);
++
++	tunnel->sock = NULL;
+ 	l2tp_tunnel_dec_refcount(tunnel);
+ 
+ 	/* Call the original destructor */
+@@ -1280,6 +1298,7 @@ void l2tp_tunnel_closeall(struct l2tp_tunnel *tunnel)
+ 		  tunnel->name);
+ 
+ 	write_lock_bh(&tunnel->hlist_lock);
++	tunnel->acpt_newsess = false;
+ 	for (hash = 0; hash < L2TP_HASH_SIZE; hash++) {
+ again:
+ 		hlist_for_each_safe(walk, tmp, &tunnel->session_hlist[hash]) {
+@@ -1583,6 +1602,7 @@ int l2tp_tunnel_create(struct net *net, int fd, int version, u32 tunnel_id, u32
+ 	tunnel->magic = L2TP_TUNNEL_MAGIC;
+ 	sprintf(&tunnel->name[0], "tunl %u", tunnel_id);
+ 	rwlock_init(&tunnel->hlist_lock);
++	tunnel->acpt_newsess = true;
+ 
+ 	/* The net we belong to */
+ 	tunnel->l2tp_net = net;
+@@ -1832,11 +1852,6 @@ struct l2tp_session *l2tp_session_create(int priv_size, struct l2tp_tunnel *tunn
+ 			return ERR_PTR(err);
+ 		}
+ 
+-		l2tp_tunnel_inc_refcount(tunnel);
+-
+-		/* Ensure tunnel socket isn't deleted */
+-		sock_hold(tunnel->sock);
+-
+ 		/* Ignore management session in session count value */
+ 		if (session->session_id != 0)
+ 			atomic_inc(&l2tp_session_count);
+diff --git a/net/l2tp/l2tp_core.h b/net/l2tp/l2tp_core.h
+index f747deaf6e09..39a952962593 100644
+--- a/net/l2tp/l2tp_core.h
++++ b/net/l2tp/l2tp_core.h
+@@ -162,6 +162,10 @@ struct l2tp_tunnel {
+ 
+ 	struct rcu_head rcu;
+ 	rwlock_t		hlist_lock;	/* protect session_hlist */
++	bool			acpt_newsess;	/* Indicates whether this
++						 * tunnel accepts new sessions.
++						 * Protected by hlist_lock.
++						 */
+ 	struct hlist_head	session_hlist[L2TP_HASH_SIZE];
+ 						/* hashed list of sessions,
+ 						 * hashed by id */
 -- 
 2.26.2.761.g0e0b3e54be-goog
 
