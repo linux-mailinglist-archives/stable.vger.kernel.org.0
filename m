@@ -2,251 +2,282 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 471D71DCEB6
-	for <lists+stable@lfdr.de>; Thu, 21 May 2020 15:57:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9768C1DCEEC
+	for <lists+stable@lfdr.de>; Thu, 21 May 2020 16:07:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729563AbgEUN5R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 21 May 2020 09:57:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49760 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728060AbgEUN5R (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 21 May 2020 09:57:17 -0400
-Received: from mail-yb1-xb49.google.com (mail-yb1-xb49.google.com [IPv6:2607:f8b0:4864:20::b49])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2CA09C061A0E
-        for <stable@vger.kernel.org>; Thu, 21 May 2020 06:57:17 -0700 (PDT)
-Received: by mail-yb1-xb49.google.com with SMTP id h129so5327028ybc.3
-        for <stable@vger.kernel.org>; Thu, 21 May 2020 06:57:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:in-reply-to:message-id:mime-version:references:subject:from:to
-         :cc;
-        bh=TxDbuTAr9KEGu3fIT36fm0hwif+YwuuOBFDZ/IT6Rzk=;
-        b=hLyFlmXN3XFDkBusw0ppJSMKnw1tz/P8LLOKXxmchts3Kdp7Nf5mDwlTs/MRHNpPfR
-         EIdoiaWs3QHaId1H979yNuHv8lb1snVZx/QWVg+0aRVVHpO6p8TY3S8WAs07zMqbhySv
-         MQ2cz92bZt4a4D0L7UEmK5WbT1XBUI7HYtxf2jHpoZ95STUg0XYmv5gNOCtoEVudVSli
-         8uOUhVzb6vwiFMsfkpnTYCsVtiqMpUYKgvPo0ZP/MGyQCeIwHnG96RFP2fwiDmz44Qy7
-         oEfVtR4/i3cDFAWqfkOqSEcZyQL9JQxtkw3I6gQqzIMM6odVpYem1zOdWNJ+pcwCpzNv
-         OkDg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:in-reply-to:message-id:mime-version
-         :references:subject:from:to:cc;
-        bh=TxDbuTAr9KEGu3fIT36fm0hwif+YwuuOBFDZ/IT6Rzk=;
-        b=AWLLmrIjAnGOr5GuLhEUysRRO569TCaDSVXlcVQhcnLalyIDmsk4637bN0/zvbMlMc
-         6fOclzLLyvf7/88/ziQpdeV4GBvV66FBcYgGEiPReWAykKy4gIKDA132kjFbR0CoR7XL
-         srGkccTGI1L34HJMdk85tTGcs//tdKuOlb//q5E948ue7jf7mJx3DVU8UGOS+crcGzjK
-         od9uKkNl6EpFugtVwonnz8eF/50VGflRxQJ1unHzE++bEfEkg34ImSzcjIQ3p9I91BwJ
-         yg/iFrrk2uJ16y7dCpLdFjgLGNMhaJBkalX06DULT523y99XyVjE4f99ppNhFtigBIF3
-         wR+A==
-X-Gm-Message-State: AOAM53282abb62+PYcNC46/0j9T2loCovn3+wn7t7Q1RBVVO7Z6W85z+
-        IhnG3W5o5wriDvhYNrxngR7PPeMTR6ggtA==
-X-Google-Smtp-Source: ABdhPJxk22BkmIvx+bQ3STRf8VNotYmqRdylzoRUGRFSrgLtsriv9XLECPNLyIhcvOAdVIZx/FokL1rMy1MUbQ==
-X-Received: by 2002:a25:7607:: with SMTP id r7mr15473891ybc.493.1590069436433;
- Thu, 21 May 2020 06:57:16 -0700 (PDT)
-Date:   Thu, 21 May 2020 14:57:04 +0100
-In-Reply-To: <20200521135704.109812-1-gprocida@google.com>
-Message-Id: <20200521135704.109812-5-gprocida@google.com>
-Mime-Version: 1.0
-References: <20200521135704.109812-1-gprocida@google.com>
-X-Mailer: git-send-email 2.26.2.761.g0e0b3e54be-goog
-Subject: [PATCH 4/4] l2tp: initialise PPP sessions before registering them
-From:   Giuliano Procida <gprocida@google.com>
-To:     greg@kroah.com
-Cc:     stable@vger.kernel.org, Guillaume Nault <g.nault@alphalink.fr>,
-        "David S . Miller" <davem@davemloft.net>,
-        Giuliano Procida <gprocida@google.com>
-Content-Type: text/plain; charset="UTF-8"
+        id S1729708AbgEUOHM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 21 May 2020 10:07:12 -0400
+Received: from stargate.chelsio.com ([12.32.117.8]:14830 "EHLO
+        stargate.chelsio.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729367AbgEUOHM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 21 May 2020 10:07:12 -0400
+Received: from localhost (moto.blr.asicdesigners.com [10.193.184.79] (may be forged))
+        by stargate.chelsio.com (8.13.8/8.13.8) with ESMTP id 04LE6i8l018384;
+        Thu, 21 May 2020 07:06:48 -0700
+Date:   Thu, 21 May 2020 19:36:43 +0530
+From:   Dakshaja Uppalapati <dakshaja@chelsio.com>
+To:     hch@lst.de, sagi@grimberg.me, stable@vger.kernel.org
+Cc:     bharat@chelsio.com, nirranjan@chelsio.com
+Subject: nvme blk_update_request IO error is seen on stable kernel 5.4.41.
+Message-ID: <20200521140642.GA4724@chelsio.com>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="jRHKVT23PllUwdXP"
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guillaume Nault <g.nault@alphalink.fr>
 
-commit f98be6c6359e7e4a61aaefb9964c1db31cb9ec0c upstream.
+--jRHKVT23PllUwdXP
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-pppol2tp_connect() initialises L2TP sessions after they've been exposed
-to the rest of the system by l2tp_session_register(). This puts
-sessions into transient states that are the source of several races, in
-particular with session's deletion path.
+Hi all,
 
-This patch centralises the initialisation code into
-pppol2tp_session_init(), which is called before the registration phase.
-The only field that can't be set before session registration is the
-pppol2tp socket pointer, which has already been converted to RCU. So
-pppol2tp_connect() should now be race-free.
+Issue which is reported in https://lore.kernel.org/linux-nvme/CH2PR12MB40050ACF
+2C0DC7439355ED3FDD270@CH2PR12MB4005.namprd12.prod.outlook.com/T/#r8cfc80b26f0cd
+1cde41879a68fd6a71186e9594c is also seen on stable kernel 5.4.41. 
+In upstream issue is fixed with commit b716e6889c95f64b.
+For stable 5.4 kernel it doesn’t apply clean and needs pulling in the following
+commits. 
 
-The session's .session_close() callback is now set before registration.
-Therefore, it's always called when l2tp_core deletes the session, even
-if it was created by pppol2tp_session_create() and hasn't been plugged
-to a pppol2tp socket yet. That'd prevent session free because the extra
-reference taken by pppol2tp_session_close() wouldn't be dropped by the
-socket's ->sk_destruct() callback (pppol2tp_session_destruct()).
-We could set .session_close() only while connecting a session to its
-pppol2tp socket, or teach pppol2tp_session_close() to avoid grabbing a
-reference when the session isn't connected, but that'd require adding
-some form of synchronisation to be race free.
+commit 2cb6963a16e9e114486decf591af7cb2d69cb154
+Author: Christoph Hellwig <hch@lst.de>
+Date:   Wed Oct 23 10:35:41 2019 -0600
 
-Instead of that, we can just let the pppol2tp socket hold a reference
-on the session as soon as it starts depending on it (that is, in
-pppol2tp_connect()). Then we don't need to utilise
-pppol2tp_session_close() to hold a reference at the last moment to
-prevent l2tp_core from dropping it.
+commit 6f86f2c9d94d55c4d3a6f1ffbc2e1115b5cb38a8
+Author: Christoph Hellwig <hch@lst.de>
+Date:   Wed Oct 23 10:35:42 2019 -0600
 
-When releasing the socket, pppol2tp_release() now deletes the session
-using the standard l2tp_session_delete() function, instead of merely
-removing it from hash tables. l2tp_session_delete() drops the reference
-the sessions holds on itself, but also makes sure it doesn't remove a
-session twice. So it can safely be called, even if l2tp_core already
-tried, or is concurrently trying, to remove the session.
-Finally, pppol2tp_session_destruct() drops the reference held by the
-socket.
+commit 59ef0eaa7741c3543f98220cc132c61bf0230bce
+Author: Christoph Hellwig <hch@lst.de>
+Date:   Wed Oct 23 10:35:43 2019 -0600
 
-Fixes: fd558d186df2 ("l2tp: Split pppol2tp patch into separate l2tp and ppp parts")
-Signed-off-by: Guillaume Nault <g.nault@alphalink.fr>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Giuliano Procida <gprocida@google.com>
----
- net/l2tp/l2tp_ppp.c | 69 +++++++++++++++++++++++++--------------------
- 1 file changed, 38 insertions(+), 31 deletions(-)
+commit e9061c397839eea34207668bfedce0a6c18c5015
+Author: Christoph Hellwig <hch@lst.de>
+Date:   Wed Oct 23 10:35:44 2019 -0600
 
-diff --git a/net/l2tp/l2tp_ppp.c b/net/l2tp/l2tp_ppp.c
-index 0d07ed8ec184..ad07b7cb6558 100644
---- a/net/l2tp/l2tp_ppp.c
-+++ b/net/l2tp/l2tp_ppp.c
-@@ -449,9 +449,6 @@ static void pppol2tp_session_close(struct l2tp_session *session)
- 			inet_shutdown(sk->sk_socket, SEND_SHUTDOWN);
- 		sock_put(sk);
- 	}
--
--	/* Don't let the session go away before our socket does */
--	l2tp_session_inc_refcount(session);
+commit b716e6889c95f64ba32af492461f6cc9341f3f05
+Author: Sagi Grimberg <sagi@grimberg.me>
+Date:   Sun Jan 26 23:23:28 2020 -0800
+
+I tried a patch by including only necessary parts of the commits e9061c397839, 
+59ef0eaa7741 and b716e6889c95. PFA.
+
+With the attached patch, issue is not seen.
+
+Please let me know on how to fix it in stable, can all above 5 changes be 
+cleanly pushed  or if  attached shorter version can be pushed?
+
+Thanks,
+Dakshaja.
+
+
+--jRHKVT23PllUwdXP
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="simple_portable_v54.patch"
+
+diff --git a/drivers/nvme/target/core.c b/drivers/nvme/target/core.c
+index 57a4062cb..47bee01d3 100644
+--- a/drivers/nvme/target/core.c
++++ b/drivers/nvme/target/core.c
+@@ -931,16 +931,35 @@ void nvmet_req_uninit(struct nvmet_req *req)
  }
+ EXPORT_SYMBOL_GPL(nvmet_req_uninit);
  
- /* Really kill the session socket. (Called from sock_put() if
-@@ -507,8 +504,7 @@ static int pppol2tp_release(struct socket *sock)
- 	if (session != NULL) {
- 		struct pppol2tp_session *ps;
- 
--		__l2tp_session_unhash(session);
--		l2tp_session_queue_purge(session);
-+		l2tp_session_delete(session);
- 
- 		ps = l2tp_session_priv(session);
- 		mutex_lock(&ps->sk_lock);
-@@ -600,6 +596,35 @@ static void pppol2tp_show(struct seq_file *m, void *arg)
- }
- #endif
- 
-+static void pppol2tp_session_init(struct l2tp_session *session)
-+{
-+	struct pppol2tp_session *ps;
-+	struct dst_entry *dst;
-+
-+	session->recv_skb = pppol2tp_recv;
-+	session->session_close = pppol2tp_session_close;
-+#if IS_ENABLED(CONFIG_L2TP_DEBUGFS)
-+	session->show = pppol2tp_show;
-+#endif
-+
-+	ps = l2tp_session_priv(session);
-+	mutex_init(&ps->sk_lock);
-+	ps->tunnel_sock = session->tunnel->sock;
-+	ps->owner = current->pid;
-+
-+	/* If PMTU discovery was enabled, use the MTU that was discovered */
-+	dst = sk_dst_get(session->tunnel->sock);
-+	if (dst) {
-+		u32 pmtu = dst_mtu(dst);
-+
-+		if (pmtu) {
-+			session->mtu = pmtu - PPPOL2TP_HEADER_OVERHEAD;
-+			session->mru = pmtu - PPPOL2TP_HEADER_OVERHEAD;
-+		}
-+		dst_release(dst);
+-void nvmet_req_execute(struct nvmet_req *req)
++bool nvmet_check_data_len(struct nvmet_req *req, size_t data_len)
+ {
+-	if (unlikely(req->data_len != req->transfer_len)) {
++	if (unlikely(data_len != req->transfer_len)) {
+ 		req->error_loc = offsetof(struct nvme_common_command, dptr);
+ 		nvmet_req_complete(req, NVME_SC_SGL_INVALID_DATA | NVME_SC_DNR);
+-	} else
+-		req->execute(req);
++		return false;
 +	}
++	return true;
++}
++EXPORT_SYMBOL_GPL(nvmet_check_data_len);
++
++void nvmet_req_execute(struct nvmet_req *req)
++{
++	req->execute(req);
+ }
+ EXPORT_SYMBOL_GPL(nvmet_req_execute);
+ 
++bool nvmet_check_data_len_lte(struct nvmet_req *req, size_t data_len)
++{
++       if (unlikely(data_len > req->transfer_len)) {
++               req->error_loc = offsetof(struct nvme_common_command, dptr);
++               nvmet_req_complete(req, NVME_SC_SGL_INVALID_DATA | NVME_SC_DNR);
++               return false;
++       }
++
++       return true;
 +}
 +
- /* connect() handler. Attach a PPPoX socket to a tunnel UDP socket
-  */
- static int pppol2tp_connect(struct socket *sock, struct sockaddr *uservaddr,
-@@ -611,7 +636,6 @@ static int pppol2tp_connect(struct socket *sock, struct sockaddr *uservaddr,
- 	struct l2tp_session *session = NULL;
- 	struct l2tp_tunnel *tunnel;
- 	struct pppol2tp_session *ps;
--	struct dst_entry *dst;
- 	struct l2tp_session_cfg cfg = { 0, };
- 	int error = 0;
- 	u32 tunnel_id, peer_tunnel_id;
-@@ -763,8 +787,8 @@ static int pppol2tp_connect(struct socket *sock, struct sockaddr *uservaddr,
- 			goto end;
- 		}
- 
-+		pppol2tp_session_init(session);
- 		ps = l2tp_session_priv(session);
--		mutex_init(&ps->sk_lock);
- 		l2tp_session_inc_refcount(session);
- 
- 		mutex_lock(&ps->sk_lock);
-@@ -777,26 +801,6 @@ static int pppol2tp_connect(struct socket *sock, struct sockaddr *uservaddr,
- 		drop_refcnt = true;
- 	}
- 
--	ps->owner	     = current->pid;
--	ps->tunnel_sock = tunnel->sock;
--
--	session->recv_skb	= pppol2tp_recv;
--	session->session_close	= pppol2tp_session_close;
--#if IS_ENABLED(CONFIG_L2TP_DEBUGFS)
--	session->show		= pppol2tp_show;
--#endif
--
--	/* If PMTU discovery was enabled, use the MTU that was discovered */
--	dst = sk_dst_get(tunnel->sock);
--	if (dst != NULL) {
--		u32 pmtu = dst_mtu(dst);
--
--		if (pmtu != 0)
--			session->mtu = session->mru = pmtu -
--				PPPOL2TP_HEADER_OVERHEAD;
--		dst_release(dst);
--	}
--
- 	/* Special case: if source & dest session_id == 0x0000, this
- 	 * socket is being created to manage the tunnel. Just set up
- 	 * the internal context for use by ioctl() and sockopt()
-@@ -830,6 +834,12 @@ static int pppol2tp_connect(struct socket *sock, struct sockaddr *uservaddr,
- 	rcu_assign_pointer(ps->sk, sk);
- 	mutex_unlock(&ps->sk_lock);
- 
-+	/* Keep the reference we've grabbed on the session: sk doesn't expect
-+	 * the session to disappear. pppol2tp_session_destruct() is responsible
-+	 * for dropping it.
-+	 */
-+	drop_refcnt = false;
 +
- 	sk->sk_state = PPPOX_CONNECTED;
- 	l2tp_info(session, L2TP_MSG_CONTROL, "%s: created\n",
- 		  session->name);
-@@ -853,7 +863,6 @@ static int pppol2tp_session_create(struct net *net, struct l2tp_tunnel *tunnel,
+ int nvmet_req_alloc_sgl(struct nvmet_req *req)
  {
- 	int error;
- 	struct l2tp_session *session;
--	struct pppol2tp_session *ps;
+ 	struct pci_dev *p2p_dev = NULL;
+diff --git a/drivers/nvme/target/io-cmd-bdev.c b/drivers/nvme/target/io-cmd-bdev.c
+index 32008d851..498efb062 100644
+--- a/drivers/nvme/target/io-cmd-bdev.c
++++ b/drivers/nvme/target/io-cmd-bdev.c
+@@ -150,6 +150,10 @@ static void nvmet_bdev_execute_rw(struct nvmet_req *req)
+ 	sector_t sector;
+ 	int op, op_flags = 0, i;
  
- 	/* Error if tunnel socket is not prepped */
- 	if (!tunnel->sock) {
-@@ -876,9 +885,7 @@ static int pppol2tp_session_create(struct net *net, struct l2tp_tunnel *tunnel,
- 		goto err;
- 	}
++	if (!nvmet_check_data_len(req, nvmet_rw_len(req)))
++        	return;
++
++
+ 	if (!req->sg_cnt) {
+ 		nvmet_req_complete(req, 0);
+ 		return;
+@@ -207,6 +211,8 @@ static void nvmet_bdev_execute_flush(struct nvmet_req *req)
+ {
+ 	struct bio *bio = &req->b.inline_bio;
  
--	ps = l2tp_session_priv(session);
--	mutex_init(&ps->sk_lock);
--	ps->tunnel_sock = tunnel->sock;
-+	pppol2tp_session_init(session);
++	if (!nvmet_check_data_len(req, 0))
++		return;
+ 	bio_init(bio, req->inline_bvec, ARRAY_SIZE(req->inline_bvec));
+ 	bio_set_dev(bio, req->ns->bdev);
+ 	bio->bi_private = req;
+@@ -274,6 +280,9 @@ static void nvmet_bdev_execute_discard(struct nvmet_req *req)
  
- 	error = l2tp_session_register(session, tunnel);
- 	if (error < 0)
--- 
-2.26.2.761.g0e0b3e54be-goog
+ static void nvmet_bdev_execute_dsm(struct nvmet_req *req)
+ {
++	if (!nvmet_check_data_len_lte(req, nvmet_dsm_len(req)))
++                return;
++
+ 	switch (le32_to_cpu(req->cmd->dsm.attributes)) {
+ 	case NVME_DSMGMT_AD:
+ 		nvmet_bdev_execute_discard(req);
+@@ -295,6 +304,8 @@ static void nvmet_bdev_execute_write_zeroes(struct nvmet_req *req)
+ 	sector_t nr_sector;
+ 	int ret;
+ 
++	if (!nvmet_check_data_len(req, 0))
++        	return;
+ 	sector = le64_to_cpu(write_zeroes->slba) <<
+ 		(req->ns->blksize_shift - 9);
+ 	nr_sector = (((sector_t)le16_to_cpu(write_zeroes->length) + 1) <<
+@@ -319,20 +330,15 @@ u16 nvmet_bdev_parse_io_cmd(struct nvmet_req *req)
+ 	case nvme_cmd_read:
+ 	case nvme_cmd_write:
+ 		req->execute = nvmet_bdev_execute_rw;
+-		req->data_len = nvmet_rw_len(req);
+ 		return 0;
+ 	case nvme_cmd_flush:
+ 		req->execute = nvmet_bdev_execute_flush;
+-		req->data_len = 0;
+ 		return 0;
+ 	case nvme_cmd_dsm:
+ 		req->execute = nvmet_bdev_execute_dsm;
+-		req->data_len = (le32_to_cpu(cmd->dsm.nr) + 1) *
+-			sizeof(struct nvme_dsm_range);
+ 		return 0;
+ 	case nvme_cmd_write_zeroes:
+ 		req->execute = nvmet_bdev_execute_write_zeroes;
+-		req->data_len = 0;
+ 		return 0;
+ 	default:
+ 		pr_err("unhandled cmd %d on qid %d\n", cmd->common.opcode,
+diff --git a/drivers/nvme/target/io-cmd-file.c b/drivers/nvme/target/io-cmd-file.c
+index 05453f5d1..34fc0c04d 100644
+--- a/drivers/nvme/target/io-cmd-file.c
++++ b/drivers/nvme/target/io-cmd-file.c
+@@ -232,6 +232,9 @@ static void nvmet_file_execute_rw(struct nvmet_req *req)
+ {
+ 	ssize_t nr_bvec = req->sg_cnt;
+ 
++	if (!nvmet_check_data_len(req, nvmet_rw_len(req)))
++		return;
++
+ 	if (!req->sg_cnt || !nr_bvec) {
+ 		nvmet_req_complete(req, 0);
+ 		return;
+@@ -273,6 +276,8 @@ static void nvmet_file_flush_work(struct work_struct *w)
+ 
+ static void nvmet_file_execute_flush(struct nvmet_req *req)
+ {
++	if (!nvmet_check_data_len(req, 0))
++		return;
+ 	INIT_WORK(&req->f.work, nvmet_file_flush_work);
+ 	schedule_work(&req->f.work);
+ }
+@@ -331,6 +336,9 @@ static void nvmet_file_dsm_work(struct work_struct *w)
+ 
+ static void nvmet_file_execute_dsm(struct nvmet_req *req)
+ {
++	if (!nvmet_check_data_len_lte(req, nvmet_dsm_len(req)))
++                return;
++
+ 	INIT_WORK(&req->f.work, nvmet_file_dsm_work);
+ 	schedule_work(&req->f.work);
+ }
+@@ -359,6 +367,8 @@ static void nvmet_file_write_zeroes_work(struct work_struct *w)
+ 
+ static void nvmet_file_execute_write_zeroes(struct nvmet_req *req)
+ {
++	if (!nvmet_check_data_len(req, 0))
++	        return;
+ 	INIT_WORK(&req->f.work, nvmet_file_write_zeroes_work);
+ 	schedule_work(&req->f.work);
+ }
+@@ -371,20 +381,15 @@ u16 nvmet_file_parse_io_cmd(struct nvmet_req *req)
+ 	case nvme_cmd_read:
+ 	case nvme_cmd_write:
+ 		req->execute = nvmet_file_execute_rw;
+-		req->data_len = nvmet_rw_len(req);
+ 		return 0;
+ 	case nvme_cmd_flush:
+ 		req->execute = nvmet_file_execute_flush;
+-		req->data_len = 0;
+ 		return 0;
+ 	case nvme_cmd_dsm:
+ 		req->execute = nvmet_file_execute_dsm;
+-		req->data_len = (le32_to_cpu(cmd->dsm.nr) + 1) *
+-			sizeof(struct nvme_dsm_range);
+ 		return 0;
+ 	case nvme_cmd_write_zeroes:
+ 		req->execute = nvmet_file_execute_write_zeroes;
+-		req->data_len = 0;
+ 		return 0;
+ 	default:
+ 		pr_err("unhandled cmd for file ns %d on qid %d\n",
+diff --git a/drivers/nvme/target/nvmet.h b/drivers/nvme/target/nvmet.h
+index c51f8dd01..a8a7744d8 100644
+--- a/drivers/nvme/target/nvmet.h
++++ b/drivers/nvme/target/nvmet.h
+@@ -375,7 +375,9 @@ u16 nvmet_parse_fabrics_cmd(struct nvmet_req *req);
+ bool nvmet_req_init(struct nvmet_req *req, struct nvmet_cq *cq,
+ 		struct nvmet_sq *sq, const struct nvmet_fabrics_ops *ops);
+ void nvmet_req_uninit(struct nvmet_req *req);
++bool nvmet_check_data_len(struct nvmet_req *req, size_t data_len);
+ void nvmet_req_execute(struct nvmet_req *req);
++bool nvmet_check_data_len_lte(struct nvmet_req *req, size_t data_len);
+ void nvmet_req_complete(struct nvmet_req *req, u16 status);
+ int nvmet_req_alloc_sgl(struct nvmet_req *req);
+ void nvmet_req_free_sgl(struct nvmet_req *req);
+@@ -495,6 +497,12 @@ static inline u32 nvmet_rw_len(struct nvmet_req *req)
+ 			req->ns->blksize_shift;
+ }
+ 
++static inline u32 nvmet_dsm_len(struct nvmet_req *req)
++{
++        return (le32_to_cpu(req->cmd->dsm.nr) + 1) *
++                sizeof(struct nvme_dsm_range);
++}
++
+ u16 errno_to_nvme_status(struct nvmet_req *req, int errno);
+ 
+ /* Convert a 32-bit number to a 16-bit 0's based number */
 
+--jRHKVT23PllUwdXP--
