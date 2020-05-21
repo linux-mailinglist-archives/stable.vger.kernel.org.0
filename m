@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 22C1F1DD899
-	for <lists+stable@lfdr.de>; Thu, 21 May 2020 22:43:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EA8E1DD894
+	for <lists+stable@lfdr.de>; Thu, 21 May 2020 22:41:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728959AbgEUUnV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 21 May 2020 16:43:21 -0400
-Received: from userp2120.oracle.com ([156.151.31.85]:58536 "EHLO
-        userp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728547AbgEUUnV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 21 May 2020 16:43:21 -0400
-Received: from pps.filterd (userp2120.oracle.com [127.0.0.1])
-        by userp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 04LKfWwv111166;
-        Thu, 21 May 2020 20:43:00 GMT
+        id S1729220AbgEUUlP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 21 May 2020 16:41:15 -0400
+Received: from aserp2120.oracle.com ([141.146.126.78]:44408 "EHLO
+        aserp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728547AbgEUUlP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 21 May 2020 16:41:15 -0400
+Received: from pps.filterd (aserp2120.oracle.com [127.0.0.1])
+        by aserp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 04LKbpUN110222;
+        Thu, 21 May 2020 20:40:59 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
  subject : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=corp-2020-01-29;
- bh=O2Rb4G05GHKpw4BdRRx8tzqBwdu9RDoYJEASuKBzZnk=;
- b=XrV+YCVml3R7mjomPf40ukEYwEs9triP4gR3O6ut7dmzSHBfQpq8q6Z/GyTHHgDy2Rpq
- JxD7KdCYrtEVx9c/e82hL1riBmkteV3kuffCVYN+IEZexgCwD8dIqeTnangFRYv9Vdh9
- Fo5HnSBk+kIQcIysLbR0L+X5thjR8LOWLtAp9WnBR92tDv+arPm0ZiysU2E0QNUZB+ou
- kXfH7RVDSgfXXWGna5oirQ/QwvI6+H8Djjpg5vH9axwzHjmEniZeYQuHNq19XrY+Rj3G
- A6xwhIZQTHxjXvxb3iTyZFvTqgoW3G/1farwTMaExgRSrrI9BcZQVPZAm/HRt5yyQL1c rw== 
-Received: from userp3030.oracle.com (userp3030.oracle.com [156.151.31.80])
-        by userp2120.oracle.com with ESMTP id 31501rh5y8-1
+ bh=eb3kyvhe6c5MORoZnYAsDDXwrKIUIIWYagBMYe+i3ds=;
+ b=c34tYqLQw8DTeRvJXpu0WYGEPeXGHKBqnCO+cqmC0hDlKZlp7w2zwmkHHSUKlwWrxL/+
+ 32l9nNhTImdBcimEAWVp14OYfs/x2n26+w/dJAglxiLHcdSbcxOAp/yivglBM/0Cjali
+ Jg/tmXnCnxdUW4L0GY5+8BIUImxeVFlQAsgAJ0kfe5I7Iu/1d2ndPkFGmrbTmFDQpgSA
+ KRMJVxdSZUsF0fArXFG9t9gIuuQ4j97bJi1U/93eDGYLW4i2qaKHQflJnG2NUe+/u5Zz
+ A42Z16vDKe9OEWcpdpOgsHeuIlO5j0OzE8KQTqy+BqmHZrHVkESnti+ZT6RghKTO2nnq Dw== 
+Received: from aserp3020.oracle.com (aserp3020.oracle.com [141.146.126.70])
+        by aserp2120.oracle.com with ESMTP id 31284manav-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
-        Thu, 21 May 2020 20:43:00 +0000
-Received: from pps.filterd (userp3030.oracle.com [127.0.0.1])
-        by userp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 04LKYWIl010776;
-        Thu, 21 May 2020 20:41:00 GMT
-Received: from aserv0121.oracle.com (aserv0121.oracle.com [141.146.126.235])
-        by userp3030.oracle.com with ESMTP id 314gm9wjfy-1
+        Thu, 21 May 2020 20:40:59 +0000
+Received: from pps.filterd (aserp3020.oracle.com [127.0.0.1])
+        by aserp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 04LKdEVf052749;
+        Thu, 21 May 2020 20:40:59 GMT
+Received: from aserv0122.oracle.com (aserv0122.oracle.com [141.146.126.236])
+        by aserp3020.oracle.com with ESMTP id 312t3ca9s4-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
         Thu, 21 May 2020 20:40:59 +0000
 Received: from abhmp0014.oracle.com (abhmp0014.oracle.com [141.146.116.20])
-        by aserv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 04LKevft029901;
-        Thu, 21 May 2020 20:40:57 GMT
+        by aserv0122.oracle.com (8.14.4/8.14.4) with ESMTP id 04LKewvu018174;
+        Thu, 21 May 2020 20:40:58 GMT
 Received: from localhost.localdomain (/98.229.125.203)
         by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Thu, 21 May 2020 13:40:57 -0700
+        with ESMTP ; Thu, 21 May 2020 13:40:58 -0700
 From:   Daniel Jordan <daniel.m.jordan@oracle.com>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
@@ -48,71 +48,35 @@ Cc:     Ben Hutchings <ben@decadent.org.uk>,
         Steffen Klassert <steffen.klassert@secunet.com>,
         stable@vger.kernel.org, linux-crypto@vger.kernel.org,
         Daniel Jordan <daniel.m.jordan@oracle.com>
-Subject: [stable-4.19 2/3] padata: initialize pd->cpu with effective cpumask
-Date:   Thu, 21 May 2020 16:40:50 -0400
-Message-Id: <20200521204051.1952184-2-daniel.m.jordan@oracle.com>
+Subject: [stable-4.19 3/3] padata: purge get_cpu and reorder_via_wq from padata_do_serial
+Date:   Thu, 21 May 2020 16:40:51 -0400
+Message-Id: <20200521204051.1952184-3-daniel.m.jordan@oracle.com>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200521204051.1952184-1-daniel.m.jordan@oracle.com>
 References: <20200521204051.1952184-1-daniel.m.jordan@oracle.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9628 signatures=668686
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 malwarescore=0 mlxlogscore=999
- adultscore=0 phishscore=0 mlxscore=0 spamscore=0 suspectscore=0
- bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2004280000 definitions=main-2005210152
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 bulkscore=0 spamscore=0 mlxlogscore=999
+ phishscore=0 mlxscore=0 malwarescore=0 suspectscore=0 adultscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2004280000
+ definitions=main-2005210152
 X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9628 signatures=668686
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 lowpriorityscore=0 spamscore=0
- mlxlogscore=999 clxscore=1015 priorityscore=1501 cotscore=-2147483648
- impostorscore=0 bulkscore=0 adultscore=0 malwarescore=0 phishscore=0
- mlxscore=0 suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2004280000 definitions=main-2005210153
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 mlxscore=0
+ cotscore=-2147483648 impostorscore=0 malwarescore=0 mlxlogscore=999
+ lowpriorityscore=0 phishscore=0 spamscore=0 bulkscore=0 adultscore=0
+ priorityscore=1501 clxscore=1015 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2004280000 definitions=main-2005210152
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit ec9c7d19336ee98ecba8de80128aa405c45feebb ]
+[ Upstream commit 065cf577135a4977931c7a1e1edf442bfd9773dd ]
 
-Exercising CPU hotplug on a 5.2 kernel with recent padata fixes from
-cryptodev-2.6.git in an 8-CPU kvm guest...
+With the removal of the padata timer, padata_do_serial no longer
+needs special CPU handling, so remove it.
 
-    # modprobe tcrypt alg="pcrypt(rfc4106(gcm(aes)))" type=3
-    # echo 0 > /sys/devices/system/cpu/cpu1/online
-    # echo c > /sys/kernel/pcrypt/pencrypt/parallel_cpumask
-    # modprobe tcrypt mode=215
-
-...caused the following crash:
-
-    BUG: kernel NULL pointer dereference, address: 0000000000000000
-    #PF: supervisor read access in kernel mode
-    #PF: error_code(0x0000) - not-present page
-    PGD 0 P4D 0
-    Oops: 0000 [#1] SMP PTI
-    CPU: 2 PID: 134 Comm: kworker/2:2 Not tainted 5.2.0-padata-base+ #7
-    Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.12.0-<snip>
-    Workqueue: pencrypt padata_parallel_worker
-    RIP: 0010:padata_reorder+0xcb/0x180
-    ...
-    Call Trace:
-     padata_do_serial+0x57/0x60
-     pcrypt_aead_enc+0x3a/0x50 [pcrypt]
-     padata_parallel_worker+0x9b/0xe0
-     process_one_work+0x1b5/0x3f0
-     worker_thread+0x4a/0x3c0
-     ...
-
-In padata_alloc_pd, pd->cpu is set using the user-supplied cpumask
-instead of the effective cpumask, and in this case cpumask_first picked
-an offline CPU.
-
-The offline CPU's reorder->list.next is NULL in padata_reorder because
-the list wasn't initialized in padata_init_pqueues, which only operates
-on CPUs in the effective mask.
-
-Fix by using the effective mask in padata_alloc_pd.
-
-Fixes: 6fc4dbcf0276 ("padata: Replace delayed timer with immediate workqueue in padata_reorder")
 Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
 Cc: Herbert Xu <herbert@gondor.apana.org.au>
 Cc: Steffen Klassert <steffen.klassert@secunet.com>
@@ -121,22 +85,50 @@ Cc: linux-kernel@vger.kernel.org
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
 ---
- kernel/padata.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/padata.c | 23 +++--------------------
+ 1 file changed, 3 insertions(+), 20 deletions(-)
 
 diff --git a/kernel/padata.c b/kernel/padata.c
-index 47dc31ce15ac..e9b8d517fd4b 100644
+index e9b8d517fd4b..93e4fb2d9f2e 100644
 --- a/kernel/padata.c
 +++ b/kernel/padata.c
-@@ -451,7 +451,7 @@ static struct parallel_data *padata_alloc_pd(struct padata_instance *pinst,
- 	atomic_set(&pd->refcnt, 1);
- 	pd->pinst = pinst;
- 	spin_lock_init(&pd->lock);
--	pd->cpu = cpumask_first(pcpumask);
-+	pd->cpu = cpumask_first(pd->cpumask.pcpu);
- 	INIT_WORK(&pd->reorder_work, invoke_padata_reorder);
+@@ -324,24 +324,9 @@ static void padata_serial_worker(struct work_struct *serial_work)
+  */
+ void padata_do_serial(struct padata_priv *padata)
+ {
+-	int cpu;
+-	struct padata_parallel_queue *pqueue;
+-	struct parallel_data *pd;
+-	int reorder_via_wq = 0;
+-
+-	pd = padata->pd;
+-
+-	cpu = get_cpu();
+-
+-	/* We need to enqueue the padata object into the correct
+-	 * per-cpu queue.
+-	 */
+-	if (cpu != padata->cpu) {
+-		reorder_via_wq = 1;
+-		cpu = padata->cpu;
+-	}
+-
+-	pqueue = per_cpu_ptr(pd->pqueue, cpu);
++	struct parallel_data *pd = padata->pd;
++	struct padata_parallel_queue *pqueue = per_cpu_ptr(pd->pqueue,
++							   padata->cpu);
  
- 	return pd;
+ 	spin_lock(&pqueue->reorder.lock);
+ 	list_add_tail(&padata->list, &pqueue->reorder.list);
+@@ -355,8 +340,6 @@ void padata_do_serial(struct padata_priv *padata)
+ 	 */
+ 	smp_mb__after_atomic();
+ 
+-	put_cpu();
+-
+ 	padata_reorder(pd);
+ }
+ EXPORT_SYMBOL(padata_do_serial);
 -- 
 2.26.2
 
