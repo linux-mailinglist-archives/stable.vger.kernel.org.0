@@ -2,54 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F1F791DC6B4
-	for <lists+stable@lfdr.de>; Thu, 21 May 2020 07:50:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D5281DC6B6
+	for <lists+stable@lfdr.de>; Thu, 21 May 2020 07:51:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726737AbgEUFur (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 21 May 2020 01:50:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47918 "EHLO mail.kernel.org"
+        id S1727812AbgEUFvh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 21 May 2020 01:51:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48366 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726506AbgEUFuq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 21 May 2020 01:50:46 -0400
+        id S1726869AbgEUFvh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 21 May 2020 01:51:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1FD2D2070A;
-        Thu, 21 May 2020 05:50:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E95332070A;
+        Thu, 21 May 2020 05:51:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590040246;
-        bh=ewfzEifxFa3vrWphej2OMKEoPCkd1LapCDZjg6QwIHc=;
+        s=default; t=1590040297;
+        bh=Rtkz2ylQVv6h6oBytaVU2Lhg5ManWTW+r0G1k4QNU+4=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=lRTwCbFEbSfkgBENhnv+SX3QQbPVpDbaL1bIIYzhgjrv4cGoENWMpn5hq5siuaHW/
-         3xCHThkj/paHGEhExFJ++C1ocGm4wPLmiyvNmcZAdLGsA3MMygzKAjLlKvg7cNlapl
-         ENK5MzOIhksXDyDirJG07kmZBEfHtGW5LHXdX36M=
-Date:   Thu, 21 May 2020 07:50:44 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Ben Hutchings <ben.hutchings@codethink.co.uk>
-Cc:     Sasha Levin <Alexander.Levin@microsoft.com>,
-        stable <stable@vger.kernel.org>
-Subject: Re: [stable] KVM: SVM: Fix potential memory leak in svm_cpu_init()
-Message-ID: <20200521055044.GB2330588@kroah.com>
-References: <dd3fae1fef7287e944e66333762ed16600449484.camel@codethink.co.uk>
+        b=E/8WE8/sCetP9At5nHVGa5rViTycuE26l8J/iqRgmhE6SYcR8pefI/5GHHKdSmQOk
+         hiBZTgpc6sB8j/ycpbTkBAMJk8R+9qMQwQpa/kMJ93r+af+wvbufrWZP21VA0M49C5
+         UcXpp/7aHl8MpDycMpDOy4mCoCMJL9B/D7xOQSYQ=
+Date:   Thu, 21 May 2020 07:51:35 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Palmer Dabbelt <palmerdabbelt@google.com>
+Cc:     Vincent Chen <vincent.chen@sifive.com>, stable@vger.kernel.org,
+        Anup Patel <anup@brainfault.org>,
+        Yash Shah <yash.shah@sifive.com>
+Subject: Re: [PATCH 4.19.y] riscv: set max_pfn to the PFN of the last page
+Message-ID: <20200521055135.GC2330588@kroah.com>
+References: <20200520223843.236080-1-palmerdabbelt@google.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <dd3fae1fef7287e944e66333762ed16600449484.camel@codethink.co.uk>
+In-Reply-To: <20200520223843.236080-1-palmerdabbelt@google.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, May 20, 2020 at 08:57:00PM +0100, Ben Hutchings wrote:
-> Please pick this fix for 4.19 and 5.4 stable branches:
+On Wed, May 20, 2020 at 03:38:44PM -0700, Palmer Dabbelt wrote:
+> From: Vincent Chen <vincent.chen@sifive.com>
 > 
-> commit d80b64ff297e40c2b6f7d7abc1b3eba70d22a068
-> Author: Miaohe Lin <linmiaohe@huawei.com>
-> Date:   Sat Jan 4 16:56:49 2020 +0800
+> commit c749bb2d554825e007cbc43b791f54e124dadfce upstream.
 > 
->     KVM: SVM: Fix potential memory leak in svm_cpu_init()
-> 
-> It applies cleanly to both.
+
+<snip>
 
 Now queued up, thanks.
 
