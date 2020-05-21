@@ -2,57 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 665101DDB1F
+	by mail.lfdr.de (Postfix) with ESMTP id D1D691DDB20
 	for <lists+stable@lfdr.de>; Fri, 22 May 2020 01:39:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729906AbgEUXjq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 21 May 2020 19:39:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56620 "EHLO
+        id S1729657AbgEUXjs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 21 May 2020 19:39:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56626 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729657AbgEUXjp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 21 May 2020 19:39:45 -0400
-Received: from mail-qk1-x749.google.com (mail-qk1-x749.google.com [IPv6:2607:f8b0:4864:20::749])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79CD4C061A0E
-        for <stable@vger.kernel.org>; Thu, 21 May 2020 16:39:45 -0700 (PDT)
-Received: by mail-qk1-x749.google.com with SMTP id y64so9171420qkc.19
-        for <stable@vger.kernel.org>; Thu, 21 May 2020 16:39:45 -0700 (PDT)
+        with ESMTP id S1728706AbgEUXjr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 21 May 2020 19:39:47 -0400
+Received: from mail-qt1-x84a.google.com (mail-qt1-x84a.google.com [IPv6:2607:f8b0:4864:20::84a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98356C061A0E
+        for <stable@vger.kernel.org>; Thu, 21 May 2020 16:39:47 -0700 (PDT)
+Received: by mail-qt1-x84a.google.com with SMTP id 19so9680807qtp.8
+        for <stable@vger.kernel.org>; Thu, 21 May 2020 16:39:47 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
         h=date:in-reply-to:message-id:mime-version:references:subject:from:to
          :cc:content-transfer-encoding;
-        bh=lsHWewZFHpVh3di2yWQfJ/v54VHWbMLTI/JuXiFkJks=;
-        b=FYJqhJFFux8u7DMnpr4LSBB36k7vFiRNmS6AaTsUCEglrnW87bOmG7nAgzZRISD2Qz
-         wDAVOFi2RATuMiwZ15VJ63EZgjnZBdAuzZQH2t4IAAgL2XkyA4c7sORRz/fFjErx8Gi0
-         C/pF1M0EAi7v8Kjew/rkPcEG+Ip+IoRgmIHL6cklNJpMwcjQlQlMJSxPznGcQwBVnr70
-         QPADB0cnCVR8tgC7ZANlPORzZeYKN4/SRA6b1+MQTaoUXIcsW7pmKxEw0SWYsH34Kvc4
-         3gQWQjpnOTk7jKGc1f/GbEXrWRe8ApTOngo1UVL/k8t1kGrYsrAFvCT+q9ffVONVw4Im
-         5CvQ==
+        bh=krsDlQ6qx5PkK3NDZqNCeEPpgBEpikLUWKTXMu7x+0w=;
+        b=NEvN3AxRTyacDAi0XY+OKuE2ZwgZlqz/V9zcpNC9fdbxJLZnTymD5qnbQs3JaBI+oF
+         zwNlyarncg7L/c24XzIIO/T6C+IgwxmZD3KI13piwohVSBmaRkjPw2zGpGmEn4ChWbk7
+         Oxj4nCBehGQkVgpe3VNKmhpPnolbcbtije0z7GJNh82MpbKlAzfHafgQm6kjlnSnC3GN
+         UcbhA8NqhwgjMTJIAxqc/fI9oAeMd9wzn9NxTzmoCiV2ZawPbodibyDa7ThbjeRnA09I
+         q4XM+fHB2hPk9G2X1IKhukv9URCk3Wn8lzHaXGB3KNfRHLLgsmf/wAbfUhooB3m3uPN1
+         zMyA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:in-reply-to:message-id:mime-version
          :references:subject:from:to:cc:content-transfer-encoding;
-        bh=lsHWewZFHpVh3di2yWQfJ/v54VHWbMLTI/JuXiFkJks=;
-        b=Cqglr9DAQs14sPoADFShXGEUzQSWkdIXH9ANRkXiEOx4wUx0/PhJf95FMB20v0Q1Wa
-         mhrhGFtofc1fvk9Yk8f7lhR5EdwCYttK6mXdp3dmZrJhIqPf14bZ9XwiGATdqcMLf/z7
-         a2Q2uHyThX8zW7Hh6zy7JAkAUbtPDF3y0/VV7+Yqgdsnj6Vtol75Zl4wIqwsALhYJVZ8
-         8Z5YmRw00E9BeRtxQTUHLLkGi+bykIxQw1Qb5Z1nFlsHAaNTHINgUjNPzAT6Lrr7VAwE
-         dy0dtiKXX7bfeJeCmK5AaWghYwBuTrKNMl/XgTHEeMbZKpK0jL+TREnutMdf92FQxaHZ
-         l9fA==
-X-Gm-Message-State: AOAM531MYJfSeVgcGryF7/CEHgQLBbHBqrhskcRfjiogqwdS7hfZ+0aE
-        ozGXBE10Exik1Epr3gKkCYBFmMv22Yncsg==
-X-Google-Smtp-Source: ABdhPJwcXyp7+cp2PjaDL7YQ2YK8+am31powMK838M5nM1/ZikDFyFc6To0fbeNeMBqpCMXKYqWqH+XiYJhx4g==
-X-Received: by 2002:a05:6214:3ee:: with SMTP id cf14mr1272683qvb.128.1590104384633;
- Thu, 21 May 2020 16:39:44 -0700 (PDT)
-Date:   Fri, 22 May 2020 00:39:15 +0100
-In-Reply-To: <20200521144100.128936-1-gprocida@google.com>
-Message-Id: <20200521233937.175182-1-gprocida@google.com>
+        bh=krsDlQ6qx5PkK3NDZqNCeEPpgBEpikLUWKTXMu7x+0w=;
+        b=UwPk3TnbvS1BJUeZPFvHzJt0M3uZ3TBNRmVU/qyx/5KSypLLnC91YlXLB9iXnTiGN4
+         9NYiYvlPKivjfxAQj5KIOHro6ipBhW9/90GV9Z+gmgRm33r8cEELt+6pbwOlY6hPu8TC
+         hbfjyKv4AWwbHRQRFNfsa1f/ua65MSY9geFhtWs+4LwXbIlrjtrqVtDkDEPvbz3Mw1t2
+         ny5dKUQIim+Ud/4ij74QZyv2amPqwrNJbxBOFeHf2KlSjZECv039+eB3yWnwCssmJFzK
+         4rPlOb2Ol4pVFoVpwHse5fXrWfiPjbLPDte7TSe51XEOZmWr14ZdE0YPFF12pULBAwHG
+         Ypkg==
+X-Gm-Message-State: AOAM530fhtYCWuYhuxn7hD/3KX5b1kT2uLOrEAcPED4C7hrXywYbvFFn
+        Izl6CL6+07dkmpFvD8RrVK/J4GxDny+yQQ==
+X-Google-Smtp-Source: ABdhPJwIC5kHKRmtwhJM3Y+XC4pu1Z4+Sgv9t9tj/elczDrYv3UHJkkt4GUC4Cthuc7fY+BsM1BrJIa8hgyzug==
+X-Received: by 2002:a0c:fde4:: with SMTP id m4mr1163673qvu.207.1590104386699;
+ Thu, 21 May 2020 16:39:46 -0700 (PDT)
+Date:   Fri, 22 May 2020 00:39:16 +0100
+In-Reply-To: <20200521233937.175182-1-gprocida@google.com>
+Message-Id: <20200521233937.175182-2-gprocida@google.com>
 Mime-Version: 1.0
-References: <20200521144100.128936-1-gprocida@google.com>
+References: <20200521144100.128936-1-gprocida@google.com> <20200521233937.175182-1-gprocida@google.com>
 X-Mailer: git-send-email 2.27.0.rc0.183.gde8f92d652-goog
-Subject: [PATCH v2 00/22] l2tp locking and ordering fixes
+Subject: [PATCH v2 01/22] net: l2tp: export debug flags to UAPI
 From:   Giuliano Procida <gprocida@google.com>
 To:     greg@kroah.com
-Cc:     stable@vger.kernel.org, Giuliano Procida <gprocida@google.com>
+Cc:     stable@vger.kernel.org,
+        "=?UTF-8?q?Asbj=C3=B8rn=20Sloth=20T=C3=B8nnesen?=" 
+        <asbjorn@asbjorn.st>, "David S . Miller" <davem@davemloft.net>,
+        Giuliano Procida <gprocida@google.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
@@ -60,69 +63,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg.
+From: Asbj=C3=B8rn Sloth T=C3=B8nnesen <asbjorn@asbjorn.st>
 
-*Now with better spelling of "upstream".*
+commit 41c43fbee68f4f9a2a9675d83bca91c77862d7f0 upstream.
 
-This is for 4.9.
+Move the L2TP_MSG_* definitions to UAPI, as it is part of
+the netlink API.
 
-This is a follow-up to "fix l2tp use-after-free in pppol2tp_sendmsg"
-for 4.14. Pulling on the thread pulled in many other earlier locking
-fixes in between 4.9 and 4.14.
+Signed-off-by: Asbjoern Sloth Toennesen <asbjorn@asbjorn.st>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Giuliano Procida <gprocida@google.com>
+---
+ include/uapi/linux/l2tp.h | 17 ++++++++++++++++-
+ net/l2tp/l2tp_core.h      | 10 ----------
+ 2 files changed, 16 insertions(+), 11 deletions(-)
 
-I've done some minor rework on a few of these to avoid pulling in
-refcount as a replacement for atomic which would have meant 10+ more
-patches (I still had compilation errors at 10).
-
-Some minor other patch commutation was needed and where it wasn't
-completely trivial, I've added a note to the commit messages.
-
-The series does include a few non-fixes, but they look safe and mean
-that the fixes (and other backports) apply more cleanly.
-
-Regards,
-Giuliano.
-
-Asbj=C3=B8rn Sloth T=C3=B8nnesen (3):
-  net: l2tp: export debug flags to UAPI
-  net: l2tp: deprecate PPPOL2TP_MSG_* in favour of L2TP_MSG_*
-  net: l2tp: ppp: change PPPOL2TP_MSG_* =3D> L2TP_MSG_*
-
-Guillaume Nault (17):
-  l2tp: remove useless duplicate session detection in l2tp_netlink
-  l2tp: remove l2tp_session_find()
-  l2tp: define parameters of l2tp_session_get*() as "const"
-  l2tp: define parameters of l2tp_tunnel_find*() as "const"
-  l2tp: initialise session's refcount before making it reachable
-  l2tp: hold tunnel while looking up sessions in l2tp_netlink
-  l2tp: hold tunnel while processing genl delete command
-  l2tp: hold tunnel while handling genl tunnel updates
-  l2tp: hold tunnel while handling genl TUNNEL_GET commands
-  l2tp: hold tunnel used while creating sessions with netlink
-  l2tp: prevent creation of sessions on terminated tunnels
-  l2tp: pass tunnel pointer to ->session_create()
-  l2tp: fix l2tp_eth module loading
-  l2tp: don't register sessions in l2tp_session_create()
-  l2tp: initialise l2tp_eth sessions before registering them
-  l2tp: protect sock pointer of struct pppol2tp_session with RCU
-  l2tp: initialise PPP sessions before registering them
-
-R. Parameswaran (2):
-  New kernel function to get IP overhead on a socket.
-  L2TP:Adjust intf MTU, add underlay L3, L2 hdrs.
-
- Documentation/networking/l2tp.txt |   8 +-
- include/linux/net.h               |   3 +
- include/uapi/linux/if_pppol2tp.h  |  13 +-
- include/uapi/linux/l2tp.h         |  17 +-
- net/l2tp/l2tp_core.c              | 174 ++++++-----------
- net/l2tp/l2tp_core.h              |  46 +++--
- net/l2tp/l2tp_eth.c               | 214 +++++++++++++--------
- net/l2tp/l2tp_netlink.c           |  79 ++++----
- net/l2tp/l2tp_ppp.c               | 309 ++++++++++++++++++------------
- net/socket.c                      |  46 +++++
- 10 files changed, 516 insertions(+), 393 deletions(-)
-
+diff --git a/include/uapi/linux/l2tp.h b/include/uapi/linux/l2tp.h
+index 4bd27d0270a2..bb2d62037037 100644
+--- a/include/uapi/linux/l2tp.h
++++ b/include/uapi/linux/l2tp.h
+@@ -108,7 +108,7 @@ enum {
+ 	L2TP_ATTR_VLAN_ID,		/* u16 */
+ 	L2TP_ATTR_COOKIE,		/* 0, 4 or 8 bytes */
+ 	L2TP_ATTR_PEER_COOKIE,		/* 0, 4 or 8 bytes */
+-	L2TP_ATTR_DEBUG,		/* u32 */
++	L2TP_ATTR_DEBUG,		/* u32, enum l2tp_debug_flags */
+ 	L2TP_ATTR_RECV_SEQ,		/* u8 */
+ 	L2TP_ATTR_SEND_SEQ,		/* u8 */
+ 	L2TP_ATTR_LNS_MODE,		/* u8 */
+@@ -175,6 +175,21 @@ enum l2tp_seqmode {
+ 	L2TP_SEQ_ALL =3D 2,
+ };
+=20
++/**
++ * enum l2tp_debug_flags - debug message categories for L2TP tunnels/sessi=
+ons
++ *
++ * @L2TP_MSG_DEBUG: verbose debug (if compiled in)
++ * @L2TP_MSG_CONTROL: userspace - kernel interface
++ * @L2TP_MSG_SEQ: sequence numbers
++ * @L2TP_MSG_DATA: data packets
++ */
++enum l2tp_debug_flags {
++	L2TP_MSG_DEBUG		=3D (1 << 0),
++	L2TP_MSG_CONTROL	=3D (1 << 1),
++	L2TP_MSG_SEQ		=3D (1 << 2),
++	L2TP_MSG_DATA		=3D (1 << 3),
++};
++
+ /*
+  * NETLINK_GENERIC related info
+  */
+diff --git a/net/l2tp/l2tp_core.h b/net/l2tp/l2tp_core.h
+index 7c2037184b6c..092698a8f74b 100644
+--- a/net/l2tp/l2tp_core.h
++++ b/net/l2tp/l2tp_core.h
+@@ -23,16 +23,6 @@
+ #define L2TP_HASH_BITS_2	8
+ #define L2TP_HASH_SIZE_2	(1 << L2TP_HASH_BITS_2)
+=20
+-/* Debug message categories for the DEBUG socket option */
+-enum {
+-	L2TP_MSG_DEBUG		=3D (1 << 0),	/* verbose debug (if
+-						 * compiled in) */
+-	L2TP_MSG_CONTROL	=3D (1 << 1),	/* userspace - kernel
+-						 * interface */
+-	L2TP_MSG_SEQ		=3D (1 << 2),	/* sequence numbers */
+-	L2TP_MSG_DATA		=3D (1 << 3),	/* data packets */
+-};
+-
+ struct sk_buff;
+=20
+ struct l2tp_stats {
 --=20
 2.27.0.rc0.183.gde8f92d652-goog
 
