@@ -2,54 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AC15F1DD04C
-	for <lists+stable@lfdr.de>; Thu, 21 May 2020 16:41:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 255731DD04D
+	for <lists+stable@lfdr.de>; Thu, 21 May 2020 16:41:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729733AbgEUOlk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 21 May 2020 10:41:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56814 "EHLO
+        id S1729738AbgEUOlm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 21 May 2020 10:41:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56822 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728256AbgEUOlk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 21 May 2020 10:41:40 -0400
-Received: from mail-qt1-x84a.google.com (mail-qt1-x84a.google.com [IPv6:2607:f8b0:4864:20::84a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 457C2C061A0E
-        for <stable@vger.kernel.org>; Thu, 21 May 2020 07:41:40 -0700 (PDT)
-Received: by mail-qt1-x84a.google.com with SMTP id t57so7925723qte.7
-        for <stable@vger.kernel.org>; Thu, 21 May 2020 07:41:40 -0700 (PDT)
+        with ESMTP id S1728256AbgEUOlm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 21 May 2020 10:41:42 -0400
+Received: from mail-yb1-xb49.google.com (mail-yb1-xb49.google.com [IPv6:2607:f8b0:4864:20::b49])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60B81C061A0E
+        for <stable@vger.kernel.org>; Thu, 21 May 2020 07:41:42 -0700 (PDT)
+Received: by mail-yb1-xb49.google.com with SMTP id e14so5515239ybh.16
+        for <stable@vger.kernel.org>; Thu, 21 May 2020 07:41:42 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
         h=date:in-reply-to:message-id:mime-version:references:subject:from:to
          :cc;
-        bh=WTzJB+DaZGN8di0faLbc1mNIiCX5suV8EZV/5jMAz/0=;
-        b=nQt2V7VOPuBPIGbvqLddl0UV3TorlM+XybXnFLRH/wcJ8T6aGWNxWc0ZA6Ac04y9f4
-         Og2qzvGK4gThXS2bcZPDkpk2kFTK68x/7SBmfM1iryiDwrmETR7NcTR0FYkopC+JIgiF
-         qyjcpg4zCotzD/z3InOMNFvVcuCkFxHzWXr8qUY3istqSz2R7vK7Fnm3zYomcA+XthtT
-         dNbF0jBFbbME1Cp2gkDTeoQnXEBTAjfBnVm+Idu2BrDiDu9qLHi9YNpjewiuR5JjWTTf
-         JIJSGaNWyy6aCrZYA9M9icXdhlJ3OhXduqXJ8ZDWLoA8NYMtds77IevOKOU9VXPV1EJv
-         Zj6w==
+        bh=wI+HKpFWvry3kI80xT6j3z58TG59ubekmoG0h0iKulY=;
+        b=Z2e8o1WpTQGbuHGBTDWB4j818PZjhX+33yKcjwhc+dM8Ml4pav9wQYSfuG86klEZtu
+         cbo3viePsX7ITCt1GEygAmwVA1voOBppgppwHRiaJZgxgWzE+DNOQteo0kdNee0al5W/
+         ETPgGjNTvOShKA4sI88tJF/O9yWhTlwVuLr1syJb/kSjsWklrcEJBCZkmY/IWuTPJF3U
+         xJsH+u15poFHpAqICE3mPrNEaQjkAjrVW6S1nLQ3eMvzDk5FWMSE7dgv8OV8vV6HWS9b
+         iGVSxjDn+dW6pkzUusTqffDOyO4XIYhmC4fMFj+u/p3WCYn8j5dl04b6uIIKBvmnUYnn
+         /EKQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:in-reply-to:message-id:mime-version
          :references:subject:from:to:cc;
-        bh=WTzJB+DaZGN8di0faLbc1mNIiCX5suV8EZV/5jMAz/0=;
-        b=kMq70ddjjMqVz+ZyXyn9bFV2UTI8kHix71IiKH2XkY2l1X85zfUAzvwV1XvfTN/5qT
-         NN3IcXs6KqN/KslYLbHLToaQsfhED9N11LLpbIrAYcQxx6lrCo6gGdsdBBnH5LIuYXwR
-         oFzT5fLi1fHdnnkHVU0XGRvlgXA2HGOO5vVYjAGXd37bpTgLnBi0t4hNjAcTvm6Au0jU
-         4OphIKB7EWyslRawn/yxhDcA0wwUgZeW0C3Z11uuwfkoHOlSxNYE92yj374MG54cqjj0
-         mqx2d1Bata0Ujll29fJhkZ779vyXqQZrv0GZoOKsOGu+ORxEYXNZeiw28+Q1j8xbS+/j
-         ydLQ==
-X-Gm-Message-State: AOAM532RdaerDfchaH0BXxlPfc/RjNDb2Z6LmlmI7/+vZiNoRKXWuU94
-        0Taw7o74DX2uctProfQAx2U9yVUIPrYCcA==
-X-Google-Smtp-Source: ABdhPJyrNuLDPlFO8OMgR98bgneE/ixRM6I3w9tqIiXtlZAX2fcubiXXngm4+MVBwbW6I9MxYVQK9T6FM4YfPw==
-X-Received: by 2002:ad4:4e6a:: with SMTP id ec10mr9969607qvb.225.1590072099492;
- Thu, 21 May 2020 07:41:39 -0700 (PDT)
-Date:   Thu, 21 May 2020 15:40:52 +0100
+        bh=wI+HKpFWvry3kI80xT6j3z58TG59ubekmoG0h0iKulY=;
+        b=nNGyFx5K7J0VOwCK6BP1oB+kR+bJR2IH9ixdXEvpMU0j2HEsXZYu3OqUkoXMAXa/O1
+         mX9J9/9DxXpCfyGLEBB30NS6yHSse2S7PzjcInOtQ0Tq0XN0RiickBXXUUxQiv5lpII1
+         zPJ/Pos0lOEfBNwIg14zk7lqENX1Bv2ErklSwBgq68M+wAZ/Hlu6H96WrAuNMhWSFA9A
+         GLRHKm4aAOXc+NzD0XTLKh0fS/JPuPqNRPv4hUSnZ1Lr7ooN234FsfP2zqpLlhpUXVV+
+         XlwRoyCachZywVfjnR+HVPB2kw+QOl4dXKVvvuZkZzTaf/bU3SWwuiA1Ic/hx6FZPuqz
+         K6jg==
+X-Gm-Message-State: AOAM531xf0do78D68nVZXCpZV7vaBXtl5V+UdZLlB18p01O7Mcewp6g7
+        6q4iz2nhhn+YF2DPufbcXlPh+syQh1C0jg==
+X-Google-Smtp-Source: ABdhPJyqEaqH0nJ5/CsZbu7cCDj6Hy+1Xkh3jpI7EMK1/x7YPF68IX/rMF3dGJbdlZnMDXLdciFUNL0qQDTJyA==
+X-Received: by 2002:a25:6dd5:: with SMTP id i204mr15950049ybc.347.1590072101566;
+ Thu, 21 May 2020 07:41:41 -0700 (PDT)
+Date:   Thu, 21 May 2020 15:40:53 +0100
 In-Reply-To: <20200521144100.128936-1-gprocida@google.com>
-Message-Id: <20200521144100.128936-15-gprocida@google.com>
+Message-Id: <20200521144100.128936-16-gprocida@google.com>
 Mime-Version: 1.0
 References: <20200521144100.128936-1-gprocida@google.com>
 X-Mailer: git-send-email 2.26.2.761.g0e0b3e54be-goog
-Subject: [PATCH 14/22] l2tp: hold tunnel while handling genl TUNNEL_GET commands
+Subject: [PATCH 15/22] l2tp: hold tunnel used while creating sessions with netlink
 From:   Giuliano Procida <gprocida@google.com>
 To:     greg@kroah.com
 Cc:     stable@vger.kernel.org, Guillaume Nault <g.nault@alphalink.fr>,
@@ -63,77 +63,109 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Guillaume Nault <g.nault@alphalink.fr>
 
-commit 4e4b21da3acc68a7ea55f850cacc13706b7480e9 uptream.
+commit e702c1204eb57788ef189c839c8c779368267d70 uptream.
 
-Use l2tp_tunnel_get() instead of l2tp_tunnel_find() so that we get
-a reference on the tunnel, preventing l2tp_tunnel_destruct() from
-freeing it from under us.
-
-Also move l2tp_tunnel_get() below nlmsg_new() so that we only take
-the reference when needed.
+Use l2tp_tunnel_get() to retrieve tunnel, so that it can't go away on
+us. Otherwise l2tp_tunnel_destruct() might release the last reference
+count concurrently, thus freeing the tunnel while we're using it.
 
 Fixes: 309795f4bec2 ("l2tp: Add netlink control API for L2TP")
 Signed-off-by: Guillaume Nault <g.nault@alphalink.fr>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Giuliano Procida <gprocida@google.com>
 ---
- net/l2tp/l2tp_netlink.c | 27 +++++++++++++++------------
- 1 file changed, 15 insertions(+), 12 deletions(-)
+ net/l2tp/l2tp_netlink.c | 21 ++++++++++++---------
+ 1 file changed, 12 insertions(+), 9 deletions(-)
 
 diff --git a/net/l2tp/l2tp_netlink.c b/net/l2tp/l2tp_netlink.c
-index e454f23f31fb..8f39086de144 100644
+index 8f39086de144..5ea5d3ffa309 100644
 --- a/net/l2tp/l2tp_netlink.c
 +++ b/net/l2tp/l2tp_netlink.c
-@@ -436,34 +436,37 @@ static int l2tp_nl_cmd_tunnel_get(struct sk_buff *skb, struct genl_info *info)
+@@ -510,8 +510,9 @@ static int l2tp_nl_cmd_session_create(struct sk_buff *skb, struct genl_info *inf
+ 		ret = -EINVAL;
+ 		goto out;
+ 	}
++
+ 	tunnel_id = nla_get_u32(info->attrs[L2TP_ATTR_CONN_ID]);
+-	tunnel = l2tp_tunnel_find(net, tunnel_id);
++	tunnel = l2tp_tunnel_get(net, tunnel_id);
+ 	if (!tunnel) {
+ 		ret = -ENODEV;
+ 		goto out;
+@@ -519,24 +520,24 @@ static int l2tp_nl_cmd_session_create(struct sk_buff *skb, struct genl_info *inf
  
- 	if (!info->attrs[L2TP_ATTR_CONN_ID]) {
+ 	if (!info->attrs[L2TP_ATTR_SESSION_ID]) {
  		ret = -EINVAL;
 -		goto out;
-+		goto err;
++		goto out_tunnel;
+ 	}
+ 	session_id = nla_get_u32(info->attrs[L2TP_ATTR_SESSION_ID]);
+ 
+ 	if (!info->attrs[L2TP_ATTR_PEER_SESSION_ID]) {
+ 		ret = -EINVAL;
+-		goto out;
++		goto out_tunnel;
+ 	}
+ 	peer_session_id = nla_get_u32(info->attrs[L2TP_ATTR_PEER_SESSION_ID]);
+ 
+ 	if (!info->attrs[L2TP_ATTR_PW_TYPE]) {
+ 		ret = -EINVAL;
+-		goto out;
++		goto out_tunnel;
+ 	}
+ 	cfg.pw_type = nla_get_u16(info->attrs[L2TP_ATTR_PW_TYPE]);
+ 	if (cfg.pw_type >= __L2TP_PWTYPE_MAX) {
+ 		ret = -EINVAL;
+-		goto out;
++		goto out_tunnel;
  	}
  
- 	tunnel_id = nla_get_u32(info->attrs[L2TP_ATTR_CONN_ID]);
- 
--	tunnel = l2tp_tunnel_find(net, tunnel_id);
--	if (tunnel == NULL) {
--		ret = -ENODEV;
+ 	if (tunnel->version > 2) {
+@@ -555,7 +556,7 @@ static int l2tp_nl_cmd_session_create(struct sk_buff *skb, struct genl_info *inf
+ 			u16 len = nla_len(info->attrs[L2TP_ATTR_COOKIE]);
+ 			if (len > 8) {
+ 				ret = -EINVAL;
+-				goto out;
++				goto out_tunnel;
+ 			}
+ 			cfg.cookie_len = len;
+ 			memcpy(&cfg.cookie[0], nla_data(info->attrs[L2TP_ATTR_COOKIE]), len);
+@@ -564,7 +565,7 @@ static int l2tp_nl_cmd_session_create(struct sk_buff *skb, struct genl_info *inf
+ 			u16 len = nla_len(info->attrs[L2TP_ATTR_PEER_COOKIE]);
+ 			if (len > 8) {
+ 				ret = -EINVAL;
+-				goto out;
++				goto out_tunnel;
+ 			}
+ 			cfg.peer_cookie_len = len;
+ 			memcpy(&cfg.peer_cookie[0], nla_data(info->attrs[L2TP_ATTR_PEER_COOKIE]), len);
+@@ -607,7 +608,7 @@ static int l2tp_nl_cmd_session_create(struct sk_buff *skb, struct genl_info *inf
+ 	if ((l2tp_nl_cmd_ops[cfg.pw_type] == NULL) ||
+ 	    (l2tp_nl_cmd_ops[cfg.pw_type]->session_create == NULL)) {
+ 		ret = -EPROTONOSUPPORT;
 -		goto out;
--	}
--
- 	msg = nlmsg_new(NLMSG_DEFAULT_SIZE, GFP_KERNEL);
- 	if (!msg) {
- 		ret = -ENOMEM;
--		goto out;
-+		goto err;
-+	}
-+
-+	tunnel = l2tp_tunnel_get(net, tunnel_id);
-+	if (!tunnel) {
-+		ret = -ENODEV;
-+		goto err_nlmsg;
++		goto out_tunnel;
  	}
  
- 	ret = l2tp_nl_tunnel_send(msg, info->snd_portid, info->snd_seq,
- 				  NLM_F_ACK, tunnel, L2TP_CMD_TUNNEL_GET);
- 	if (ret < 0)
--		goto err_out;
-+		goto err_nlmsg_tunnel;
-+
-+	l2tp_tunnel_dec_refcount(tunnel);
+ 	/* Check that pseudowire-specific params are present */
+@@ -617,7 +618,7 @@ static int l2tp_nl_cmd_session_create(struct sk_buff *skb, struct genl_info *inf
+ 	case L2TP_PWTYPE_ETH_VLAN:
+ 		if (!info->attrs[L2TP_ATTR_VLAN_ID]) {
+ 			ret = -EINVAL;
+-			goto out;
++			goto out_tunnel;
+ 		}
+ 		break;
+ 	case L2TP_PWTYPE_ETH:
+@@ -645,6 +646,8 @@ static int l2tp_nl_cmd_session_create(struct sk_buff *skb, struct genl_info *inf
+ 		}
+ 	}
  
- 	return genlmsg_unicast(net, msg, info->snd_portid);
- 
--err_out:
-+err_nlmsg_tunnel:
++out_tunnel:
 +	l2tp_tunnel_dec_refcount(tunnel);
-+err_nlmsg:
- 	nlmsg_free(msg);
--
--out:
-+err:
+ out:
  	return ret;
  }
- 
 -- 
 2.26.2.761.g0e0b3e54be-goog
 
