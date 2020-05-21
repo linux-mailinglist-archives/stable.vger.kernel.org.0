@@ -2,54 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CAA11DD046
+	by mail.lfdr.de (Postfix) with ESMTP id D9FF91DD047
 	for <lists+stable@lfdr.de>; Thu, 21 May 2020 16:41:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729688AbgEUOlc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729670AbgEUOlc (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 21 May 2020 10:41:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56776 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56782 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729670AbgEUOlb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 21 May 2020 10:41:31 -0400
-Received: from mail-qk1-x749.google.com (mail-qk1-x749.google.com [IPv6:2607:f8b0:4864:20::749])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6CD9C061A0E
-        for <stable@vger.kernel.org>; Thu, 21 May 2020 07:41:29 -0700 (PDT)
-Received: by mail-qk1-x749.google.com with SMTP id p5so2499523qkg.12
-        for <stable@vger.kernel.org>; Thu, 21 May 2020 07:41:29 -0700 (PDT)
+        with ESMTP id S1729694AbgEUOlc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 21 May 2020 10:41:32 -0400
+Received: from mail-yb1-xb4a.google.com (mail-yb1-xb4a.google.com [IPv6:2607:f8b0:4864:20::b4a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE09EC061A0E
+        for <stable@vger.kernel.org>; Thu, 21 May 2020 07:41:31 -0700 (PDT)
+Received: by mail-yb1-xb4a.google.com with SMTP id i190so5517756ybg.6
+        for <stable@vger.kernel.org>; Thu, 21 May 2020 07:41:31 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
         h=date:in-reply-to:message-id:mime-version:references:subject:from:to
          :cc;
-        bh=zWZ14g3wmYf+0hGckUYMw4Jt5cJKxL9KuoFGcp3Ep2s=;
-        b=vzVutMm9l6wBlOKxOv0tzPmXWCm5M8Z4jn2JkVMLPdWlNNuthpSx7Qgl+Y2kxRHiK6
-         +MEhuzkPuQh793D+X6XBZ9HuJ5RD+MU9285E3sHxYMv3ht5k3vLZYKGO73XE4QQTlDxH
-         dHfg7r+EX+Vi2u8jK49IcMxyxw5jsFVUacBlTsxy9D+8rKAKA2XFWs4UrPoy/NOsfjL8
-         oRClURWRycWXDfAz3A+1HwCpgNJERqGjgWHAofQ9V8Yg96d5VT53W1mBJPAo9BKmOjQZ
-         j3IxsdgrefapwXvA3dWcHaUGylIBNJKPbtaGM5G3O87XQ9/2+UPvtGLY1LNk9dCHPZMU
-         hJEA==
+        bh=pd4PcsezU06yo2aQIfnWT+Vqgl+7N/MBWeaqwirBn9o=;
+        b=eaZ/EgXdnfopX8/+94pqzPGn92NGfDqRxIPczMoBPax62dzWB1p7jRzxnY+k0hZr8Y
+         2ZUbappakacMLTauqx19k7aX8mvjrNHA6o9Z+upgQatyyeY/nX70CnnoauDQGhQHwdeD
+         rEhDxGDMF6FBo+NoXYvbMV3G4e1nKAi7tISXJJIdjGTMTuUl4w5UenJksnPSo8ANNs19
+         O5QGaoXeS5cgBV1LdnDLXBtj/Z/B4AIoYdE15TlMqt4l7aUdfw2cg8jLAgdFmkkM+c/D
+         BUr4+RZP6rQh6m1PlbugUSGLMwkD7u+2WLgzQkKF6jhTxCQ8jTP41DEUJK2wmR3sap5m
+         ck2w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:in-reply-to:message-id:mime-version
          :references:subject:from:to:cc;
-        bh=zWZ14g3wmYf+0hGckUYMw4Jt5cJKxL9KuoFGcp3Ep2s=;
-        b=jfEYXCB1OY4eImhfxjAJF3eV/FH6kMtk+NOa1wuYqw8iDW9QQFvzeDWorZWWnr6pix
-         zHK/f3NnXiTHz3Kbrco3/kbVEsD1TMVonpX7Q15VrMJNUlRjng6Yum8do998df3Dqck4
-         tlTfENdqcB33pe480PoL3sH9GrXiVrlKxDJBz0AqxCCd30FEwpHjLH5iTF0noXEIyqHv
-         pF0z3UVO2px2rojDgRVWuQvP59yqgLC//5RvZG1e1udVsF48v9Ii8ZcKzYJSo4NGMTY+
-         CWykXbLkUGogez/PVH0qVsUXd1YlFBelxvfSQTUk6twhyQgwOsKeRs9MP5k8vAf1JTj7
-         HUwQ==
-X-Gm-Message-State: AOAM533Lt8Ol0iQQXJURS4ZvYcFfuWzmqVczngNlnm3FLtQWK1/O+A4U
-        QYV3ROcO8hXqE/RP/4uFMgPlDsR6TWZrTQ==
-X-Google-Smtp-Source: ABdhPJz06Eoqc00G3vJx1Zsg8bgoHpo7EujWE6oBxfuXLeV2KHhA+LdBCJsHXMTmXa9W9pMxS8TKTcVhGGxMRw==
-X-Received: by 2002:a05:6214:42f:: with SMTP id a15mr9975601qvy.170.1590072089034;
- Thu, 21 May 2020 07:41:29 -0700 (PDT)
-Date:   Thu, 21 May 2020 15:40:47 +0100
+        bh=pd4PcsezU06yo2aQIfnWT+Vqgl+7N/MBWeaqwirBn9o=;
+        b=dbBJV//aEWZUB426Arl3kgrgfqsiGc2pvcppAV4IJm7AVUcMh6XeDH2NtZrmTyn5rq
+         t2sFb5z2Ry3WcZJ1lsndIXF64V7QDLlbHAF0KSfz6vJGHe+neLYS9YNT2wr+FWtzM0if
+         XQ+54roiKSirgot1qcPhky4S0xQAtHTPdblUU5LFNhk/rwPOWgEQUT2RZXBtYFQuqidi
+         qYo9+Xm2nphw4l8adD8zOJCawQzuXVcwmST9lRt34wc3pU3Lh7NMYxajWWV0h3RPmXtE
+         vLYeenKN1yeQsyu/bwkao4CofzQpZj0sIRmDe6UwJZ9NaRuh8DpRVOOl0GIVUldUxlUr
+         rDDQ==
+X-Gm-Message-State: AOAM532Dparlu+2LYLL2RBuKHVhxi3WIBNrmmHKp/Nt5A7ePrKoN9YIj
+        DkRoDZ4QB8YSPEIBVuCrn2TQWfUJfrMxLw==
+X-Google-Smtp-Source: ABdhPJw0vKDC3zhdpTYL4ZITMZqDaCIKwjn4TsvlUvX6r5obmlq33yygXzUc/RMUKqARPPqNFOaBEbUUjFP7Ew==
+X-Received: by 2002:a25:8b04:: with SMTP id i4mr15325973ybl.399.1590072091107;
+ Thu, 21 May 2020 07:41:31 -0700 (PDT)
+Date:   Thu, 21 May 2020 15:40:48 +0100
 In-Reply-To: <20200521144100.128936-1-gprocida@google.com>
-Message-Id: <20200521144100.128936-10-gprocida@google.com>
+Message-Id: <20200521144100.128936-11-gprocida@google.com>
 Mime-Version: 1.0
 References: <20200521144100.128936-1-gprocida@google.com>
 X-Mailer: git-send-email 2.26.2.761.g0e0b3e54be-goog
-Subject: [PATCH 09/22] l2tp: define parameters of l2tp_tunnel_find*() as "const"
+Subject: [PATCH 10/22] l2tp: initialise session's refcount before making it reachable
 From:   Giuliano Procida <gprocida@google.com>
 To:     greg@kroah.com
 Cc:     stable@vger.kernel.org, Guillaume Nault <g.nault@alphalink.fr>,
@@ -63,55 +63,50 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Guillaume Nault <g.nault@alphalink.fr>
 
-commit 2f858b928bf5a8174911aaec76b8b72a9ca0533d uptream.
+commit 9ee369a405c57613d7c83a3967780c3e30c52ecc uptream.
 
-l2tp_tunnel_find() and l2tp_tunnel_find_nth() don't modify "net".
+Sessions must be fully initialised before calling
+l2tp_session_add_to_tunnel(). Otherwise, there's a short time frame
+where partially initialised sessions can be accessed by external users.
 
+Backporting Notes
+
+l2tp_core.c: moving code that had been converted from atomic to
+refcount_t by an earlier change (which isn't being included in this
+patch series).
+
+Fixes: dbdbc73b4478 ("l2tp: fix duplicate session creation")
 Signed-off-by: Guillaume Nault <g.nault@alphalink.fr>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Giuliano Procida <gprocida@google.com>
 ---
- net/l2tp/l2tp_core.c | 4 ++--
- net/l2tp/l2tp_core.h | 4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ net/l2tp/l2tp_core.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
 diff --git a/net/l2tp/l2tp_core.c b/net/l2tp/l2tp_core.c
-index be8d7b2b8790..a9d4d42e2ef6 100644
+index a9d4d42e2ef6..7f72957405b8 100644
 --- a/net/l2tp/l2tp_core.c
 +++ b/net/l2tp/l2tp_core.c
-@@ -378,7 +378,7 @@ static int l2tp_session_add_to_tunnel(struct l2tp_tunnel *tunnel,
+@@ -1847,6 +1847,8 @@ struct l2tp_session *l2tp_session_create(int priv_size, struct l2tp_tunnel *tunn
  
- /* Lookup a tunnel by id
-  */
--struct l2tp_tunnel *l2tp_tunnel_find(struct net *net, u32 tunnel_id)
-+struct l2tp_tunnel *l2tp_tunnel_find(const struct net *net, u32 tunnel_id)
- {
- 	struct l2tp_tunnel *tunnel;
- 	struct l2tp_net *pn = l2tp_pernet(net);
-@@ -396,7 +396,7 @@ struct l2tp_tunnel *l2tp_tunnel_find(struct net *net, u32 tunnel_id)
- }
- EXPORT_SYMBOL_GPL(l2tp_tunnel_find);
+ 		l2tp_session_set_header_len(session, tunnel->version);
  
--struct l2tp_tunnel *l2tp_tunnel_find_nth(struct net *net, int nth)
-+struct l2tp_tunnel *l2tp_tunnel_find_nth(const struct net *net, int nth)
- {
- 	struct l2tp_net *pn = l2tp_pernet(net);
- 	struct l2tp_tunnel *tunnel;
-diff --git a/net/l2tp/l2tp_core.h b/net/l2tp/l2tp_core.h
-index 3a3d96df6071..2f9a09097e30 100644
---- a/net/l2tp/l2tp_core.h
-+++ b/net/l2tp/l2tp_core.h
-@@ -239,8 +239,8 @@ struct l2tp_session *l2tp_session_get_nth(struct l2tp_tunnel *tunnel, int nth,
- struct l2tp_session *l2tp_session_get_by_ifname(const struct net *net,
- 						const char *ifname,
- 						bool do_ref);
--struct l2tp_tunnel *l2tp_tunnel_find(struct net *net, u32 tunnel_id);
--struct l2tp_tunnel *l2tp_tunnel_find_nth(struct net *net, int nth);
-+struct l2tp_tunnel *l2tp_tunnel_find(const struct net *net, u32 tunnel_id);
-+struct l2tp_tunnel *l2tp_tunnel_find_nth(const struct net *net, int nth);
++		l2tp_session_inc_refcount(session);
++
+ 		err = l2tp_session_add_to_tunnel(tunnel, session);
+ 		if (err) {
+ 			kfree(session);
+@@ -1854,10 +1856,6 @@ struct l2tp_session *l2tp_session_create(int priv_size, struct l2tp_tunnel *tunn
+ 			return ERR_PTR(err);
+ 		}
  
- int l2tp_tunnel_create(struct net *net, int fd, int version, u32 tunnel_id,
- 		       u32 peer_tunnel_id, struct l2tp_tunnel_cfg *cfg,
+-		/* Bump the reference count. The session context is deleted
+-		 * only when this drops to zero.
+-		 */
+-		l2tp_session_inc_refcount(session);
+ 		l2tp_tunnel_inc_refcount(tunnel);
+ 
+ 		/* Ensure tunnel socket isn't deleted */
 -- 
 2.26.2.761.g0e0b3e54be-goog
 
