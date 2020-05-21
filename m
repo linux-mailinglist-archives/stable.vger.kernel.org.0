@@ -2,90 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 49FA51DCE0D
-	for <lists+stable@lfdr.de>; Thu, 21 May 2020 15:32:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 75A071DCEB2
+	for <lists+stable@lfdr.de>; Thu, 21 May 2020 15:57:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729452AbgEUNcB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 21 May 2020 09:32:01 -0400
-Received: from userp2130.oracle.com ([156.151.31.86]:36370 "EHLO
-        userp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729448AbgEUNcB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 21 May 2020 09:32:01 -0400
-Received: from pps.filterd (userp2130.oracle.com [127.0.0.1])
-        by userp2130.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 04LDRKP6170852;
-        Thu, 21 May 2020 13:31:40 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=date : from : to : cc
- : subject : message-id : references : mime-version : content-type :
- in-reply-to; s=corp-2020-01-29;
- bh=GjO090cWDER39JcJyP9Sclz0pjBt+/gcXOCebGP4+78=;
- b=sHEHaPj5llNQrgSNHrEf7GW/SGrLZ5x9Yx415lk3x/zKGvuOYtE9uMzFIDB23wQegMHR
- vP/vLCJws66shbrPpIkCA7Q723+3jevq+xOHH+9XlkGMXULEYlivKYW57y4OscEhORgS
- s2CupOdfxWgW2eq3QMNZS5TB2FAgQM9IzYjq/9TaqrDeCVVKLNZSxlxfV1eJNuq7Fel8
- rfK19ZNg3TnFn/sW5dHLkDLQMC9ZvRKf1n4dUtj11zMWFqwNpzlttDM2RYFT9Ob6Lr/v
- QkSBBBItL3HIJ6FL0NA3vCem7pKrSFAKhlahcVCQ7x8UtUZf6EPi7xZFwjjSqMvCFBFS Rw== 
-Received: from aserp3030.oracle.com (aserp3030.oracle.com [141.146.126.71])
-        by userp2130.oracle.com with ESMTP id 3127krghcj-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
-        Thu, 21 May 2020 13:31:40 +0000
-Received: from pps.filterd (aserp3030.oracle.com [127.0.0.1])
-        by aserp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 04LDSfgp045941;
-        Thu, 21 May 2020 13:31:39 GMT
-Received: from aserv0122.oracle.com (aserv0122.oracle.com [141.146.126.236])
-        by aserp3030.oracle.com with ESMTP id 313gj5k5x3-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 21 May 2020 13:31:39 +0000
-Received: from abhmp0017.oracle.com (abhmp0017.oracle.com [141.146.116.23])
-        by aserv0122.oracle.com (8.14.4/8.14.4) with ESMTP id 04LDVaD7027451;
-        Thu, 21 May 2020 13:31:38 GMT
-Received: from ca-dmjordan1.us.oracle.com (/10.211.9.48)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Thu, 21 May 2020 06:31:36 -0700
-Date:   Thu, 21 May 2020 09:32:00 -0400
-From:   Daniel Jordan <daniel.m.jordan@oracle.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Ben Hutchings <ben@decadent.org.uk>,
-        Daniel Jordan <daniel.m.jordan@oracle.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        linux-crypto@vger.kernel.org, stable <stable@vger.kernel.org>
-Subject: Re: Backporting "padata: Remove broken queue flushing"
-Message-ID: <20200521133200.xposxym3x3zylfd7@ca-dmjordan1.us.oracle.com>
-References: <0b158b60fe621552c327e9d822bc3245591a4bd6.camel@decadent.org.uk>
- <20200519200018.5vuyuxmjy5ypgi3w@ca-dmjordan1.us.oracle.com>
- <87267d7217e4a3d58440079c16d313e411eab004.camel@decadent.org.uk>
- <20200521080046.GA2615557@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200521080046.GA2615557@kroah.com>
-User-Agent: NeoMutt/20180716
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9627 signatures=668686
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 phishscore=0 spamscore=0 malwarescore=0
- mlxscore=0 adultscore=0 bulkscore=0 suspectscore=0 mlxlogscore=940
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2004280000
- definitions=main-2005210100
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9627 signatures=668686
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 adultscore=0 phishscore=0 spamscore=0
- bulkscore=0 clxscore=1015 priorityscore=1501 mlxscore=0 impostorscore=0
- suspectscore=0 mlxlogscore=965 malwarescore=0 cotscore=-2147483648
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2004280000 definitions=main-2005210100
+        id S1729499AbgEUN5J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 21 May 2020 09:57:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49732 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728060AbgEUN5I (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 21 May 2020 09:57:08 -0400
+Received: from mail-yb1-xb49.google.com (mail-yb1-xb49.google.com [IPv6:2607:f8b0:4864:20::b49])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97B54C061A0E
+        for <stable@vger.kernel.org>; Thu, 21 May 2020 06:57:08 -0700 (PDT)
+Received: by mail-yb1-xb49.google.com with SMTP id r18so5361659ybg.10
+        for <stable@vger.kernel.org>; Thu, 21 May 2020 06:57:08 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=date:message-id:mime-version:subject:from:to:cc;
+        bh=1xlOQNovCivuWKUAbP06Cb/j7GfLljsFtT455sTFP5U=;
+        b=dlFWimWB6JorptEo3xFJxXhpXtu8oK3gtfgFD3ydUOg4w1d7GogW9cmJzZ4zCCmsS0
+         aPbNF3e8IZy2Ek3W9vYiW5vbnht5IK6+mq9MNA9tNnK3xzt+Qb+sHY8uBHslZP9LatYZ
+         y7sCfnclZDcmBQd8mHrtBR/794ZU+8xXR8khBHublkLDLn0gE/BfzvlGkd4PMZDn1b6F
+         Rqlha4FLIjoUHqFC7Aa7wrU8UDy9BjBYqleAG+IX/0FW2PC0N+U0iXHrncqUadLtOUoB
+         v6x6Td7QES7AJVO4Zj4gl6Po+gZva4NjAeoeQonlBkB9yhrbe4sEQUFHglVFEWubWJMx
+         VrzA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
+        bh=1xlOQNovCivuWKUAbP06Cb/j7GfLljsFtT455sTFP5U=;
+        b=MHQM5pRNG1jauvz74FnWkub9jnQfykaT9XN3Au9yp6WcZ9qFUT3icH6pkZfoEZcti2
+         RW4k8xvPItcsxEgtftXBd65HZk/Jmqlye3hD013yu29kB/zNMEPXPcl/ce5Q5gK5/qx5
+         oIiUtF2QE6blLO8ZLmuwnEtQke0gJiNez9VLHZKj4bpnlzSTTpb4Uwdl6glMVhKS5adB
+         GaH0FToFXBWg6Mv6b9GtaLVcM4OgLJLM3LMeheC7jZdq5s1m4m7G//wMnddzB2kfuUGX
+         lAg63ZCvA05gzNY6MKguYOnSj+/syuFnzR0L/ZNRZpCGSJvsV7TV2W4A6xOOyEUWdGW/
+         Q0Lw==
+X-Gm-Message-State: AOAM532f3RM+1Yt97RvW319blwO2HPdGJn92chuNVqIpzCAgtMr1/yFg
+        uH03Pq+ilVah0OWsoUDOK4FcXbDqHg8hew==
+X-Google-Smtp-Source: ABdhPJy4kenILXALQ9HxREiuSaleHD6P3RZ0YMJUBLxETgg7S2U60z21vXuURzIriOyE20FOe3yVGaUnRDHsUQ==
+X-Received: by 2002:a25:8082:: with SMTP id n2mr14965289ybk.427.1590069427812;
+ Thu, 21 May 2020 06:57:07 -0700 (PDT)
+Date:   Thu, 21 May 2020 14:57:00 +0100
+Message-Id: <20200521135704.109812-1-gprocida@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.26.2.761.g0e0b3e54be-goog
+Subject: [PATCH 0/4] [backports] fix l2tp use-after-free in pppol2tp_sendmsg
+From:   Giuliano Procida <gprocida@google.com>
+To:     greg@kroah.com
+Cc:     stable@vger.kernel.org, Giuliano Procida <gprocida@google.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, May 21, 2020 at 10:00:46AM +0200, Greg Kroah-Hartman wrote:
-> but these:
-> 
-> > [3.16-4.19] 6fc4dbcf0276 padata: Replace delayed timer with immediate workqueue in padata_reorder
-> > [3.16-4.19] ec9c7d19336e padata: initialize pd->cpu with effective cpumask
-> > [3.16-4.19] 065cf577135a padata: purge get_cpu and reorder_via_wq from padata_do_serial
-> 
-> Need some non-trivial backporting.  Can you, or someone else do it so I
-> can queue them up?  I don't have the free time at the moment, sorry.
+Hi Greg.
 
-Sure, I'll do these three.
+This is for 4.14.
 
-Daniel
+We received a PoC (code to run as root with a KASAN kernel)
+demonstrating the existence of a use-after-free in pppol2tp_sendmsg.
+This was accompanied by a patch to resolve it, consisting mostly of
+parts of patch 3 plus a little of 4.
+
+The following patches all apply cleanly and compile with allmodconfig.
+However, I lack the hardware to test them.
+
+The changes are already in 4.19. I'll post the changes for 4.9 next.
+
+Regards,
+Giuliano.
+
+Guillaume Nault (4):
+  l2tp: don't register sessions in l2tp_session_create()
+  l2tp: initialise l2tp_eth sessions before registering them
+  l2tp: protect sock pointer of struct pppol2tp_session with RCU
+  l2tp: initialise PPP sessions before registering them
+
+ net/l2tp/l2tp_core.c |  21 ++--
+ net/l2tp/l2tp_core.h |   3 +
+ net/l2tp/l2tp_eth.c  |  99 +++++++++++++-----
+ net/l2tp/l2tp_ppp.c  | 238 +++++++++++++++++++++++++++----------------
+ 4 files changed, 238 insertions(+), 123 deletions(-)
+
+-- 
+2.26.2.761.g0e0b3e54be-goog
+
