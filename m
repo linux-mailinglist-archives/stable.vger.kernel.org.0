@@ -2,193 +2,139 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 963B01DDB69
-	for <lists+stable@lfdr.de>; Fri, 22 May 2020 01:58:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 30A001DDB6A
+	for <lists+stable@lfdr.de>; Fri, 22 May 2020 01:58:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729812AbgEUX6E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 21 May 2020 19:58:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59526 "EHLO
+        id S1729820AbgEUX6H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 21 May 2020 19:58:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59532 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729771AbgEUX6E (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 21 May 2020 19:58:04 -0400
-Received: from mail-yb1-xb49.google.com (mail-yb1-xb49.google.com [IPv6:2607:f8b0:4864:20::b49])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 310E5C061A0E
-        for <stable@vger.kernel.org>; Thu, 21 May 2020 16:58:04 -0700 (PDT)
-Received: by mail-yb1-xb49.google.com with SMTP id r18so7244520ybg.10
-        for <stable@vger.kernel.org>; Thu, 21 May 2020 16:58:04 -0700 (PDT)
+        with ESMTP id S1729771AbgEUX6H (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 21 May 2020 19:58:07 -0400
+Received: from mail-qt1-x849.google.com (mail-qt1-x849.google.com [IPv6:2607:f8b0:4864:20::849])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F066C061A0E
+        for <stable@vger.kernel.org>; Thu, 21 May 2020 16:58:06 -0700 (PDT)
+Received: by mail-qt1-x849.google.com with SMTP id a14so9697489qto.6
+        for <stable@vger.kernel.org>; Thu, 21 May 2020 16:58:06 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
         h=date:in-reply-to:message-id:mime-version:references:subject:from:to
-         :cc;
-        bh=1zP5YXAUai9NuLktmpuGTocokd0bJMpEb1yVDiy65/A=;
-        b=fh/kwZlNEVPnuAsQS6Bx+7SW5tX2XzaILyGIlW11Ng6XwBI525AE6Wtf09aT//NBnF
-         UtvTKRLQFajvsX2YjKaitjbvB0iIerJPdYc3KKWOML5kQc4VWxAE8cnO/6fcQ/nHflS0
-         4bczsemVOq+XsJiTdA7att67niD5l09crBGNK/VTpSSyGVMLqO7CU2dUoQrk5O0xwV2v
-         /gu8ULKD/UfC5D4N1aj4L8AMF6YuAay9DP077i4934rIF94JYK1O+UPHxWkE3bTCsx/3
-         eG+8ozQPlVP1e305rJrDLe5JzfdmOjwGJpCf31C58p+l3PIvS2cGrECszjRsDA677MGc
-         5uqA==
+         :cc:content-transfer-encoding;
+        bh=v0p5GMXDmPiGkCVrY6DBppPjiKqeNNXvxIVNJw0fSqk=;
+        b=WGltLF/y9bqaSwrejn9AfP1lWgzIkDnGFxa+fwWsR6vAFu0Bm4is4uJz+Rc/PwvXTc
+         BegSno12Y+mb41/WVENl0wT3d3Dr5stGGY91J0Zrmm+PHS9xauXtcXFmk50ygWkgC/ZY
+         kEx8f7OapnEBdBzqFEgVrfDvWJxuwTuBPHPQ7f0M1OwDqKjCcucgFd8WFkkeEwPx/tA9
+         WpGCACpKB0Cc1ZY/oOwNBEKSGYN22AGayFFvOk1JUKj997OcLPn9i4Cw9zJ/bLGfLWqH
+         zAJWqzxh6rEvVWTFOkAYA8K8AZBH4/BP9q9KT0aM/S7A9Kza0bjUTvCap4qbzeIT7OXo
+         FIeA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:in-reply-to:message-id:mime-version
-         :references:subject:from:to:cc;
-        bh=1zP5YXAUai9NuLktmpuGTocokd0bJMpEb1yVDiy65/A=;
-        b=dP0thMH6HteBykq4oRXQqTE/rjV/y0AbXGiYa3Zfn/AHVOzLmddNHcMUiKk1cOtluK
-         kADQJsxXt9lFKmMXRgE1WEXl4lTT/pk7Kx7nVVrUJHhhG8DwJ1HdDbPGTHwbwqFBqLwy
-         R5YFYF3ZlzawylhWJ0FEPqlVL1+dvd+Uf2W8/lFFb9m1cLiojvvbXPnlOJA7pnL/PJNC
-         Ypcy4CqawS6ASilkY8yW4Z6dJvmwgatGip7L/rLz9Z0f6n1+dWlpVDAWHHs+pHdf32Lh
-         awV+xkn9c17vvtLW0d1+3g0+RjgGGULWruHqXkXPG5uk6dG1B8CSF84vAuQ8tk0V49jd
-         OdKw==
-X-Gm-Message-State: AOAM5326KkrMpuAVQyR74SeQscjSxkPNISgsOtaw9RNufkGLC6UJlIBl
-        V/bmPSnOFUopRuFpB67Fw292H5yaouw+zg==
-X-Google-Smtp-Source: ABdhPJxdsLDkh+qhF2pe+LDdDz568BrUdV387TwlLHe9tITe1HilU6ungAQ9YcD27yNmthBCTbQXJDG6LkHX8A==
-X-Received: by 2002:a25:76c5:: with SMTP id r188mr10775588ybc.71.1590105483431;
- Thu, 21 May 2020 16:58:03 -0700 (PDT)
-Date:   Fri, 22 May 2020 00:57:18 +0100
+         :references:subject:from:to:cc:content-transfer-encoding;
+        bh=v0p5GMXDmPiGkCVrY6DBppPjiKqeNNXvxIVNJw0fSqk=;
+        b=Xzsjrf2Kg5d5VDo+WXncODIiroxY9zBzL8lPP4MxsxhWcgZDs6tBbSDF1l1Noin9bX
+         06OlZ10Htx516iiAJyQrzwchzk+914dyO8ea1cqTh3rWzdPE6JakfLfCBcykjmAMaaUo
+         Q8uP8j+JQrPkVYGjudWcu0MXVvGKRD/JFDdA9an7rT4E1Vxhw9RjCm6X6LfDY+IC/TLn
+         lVZ8WI3LR2S5N/SdUu+AqDasHRCTSXp0LJTpQfLH2LNPtAr8DbdVjylbRHEqch9dlENR
+         Oeb3dGvLOgrTj3sYP2q20weP7L+WyFVJkynlq39vOmNkHWQwtWRmjF6Vu4OqW3wBMX66
+         eOMw==
+X-Gm-Message-State: AOAM530D70bkHOWy6ZUslBsx0eJK8wr4NM8Tl8eDpAkUUG6TOzbL4aKM
+        oD/Py6sX36dnYHSFBjXYj9NRpe5OvwAzhQ==
+X-Google-Smtp-Source: ABdhPJx5IUdIm8TZsVdfiYLo4rP5os52DxNxEiVzDtIFms069/HkE/XLLOOWeMvAs2JmHKL9PV6r7AwGM+cgMA==
+X-Received: by 2002:a05:6214:526:: with SMTP id x6mr1267635qvw.15.1590105485470;
+ Thu, 21 May 2020 16:58:05 -0700 (PDT)
+Date:   Fri, 22 May 2020 00:57:19 +0100
 In-Reply-To: <20200521235740.191338-1-gprocida@google.com>
-Message-Id: <20200521235740.191338-6-gprocida@google.com>
+Message-Id: <20200521235740.191338-7-gprocida@google.com>
 Mime-Version: 1.0
 References: <20200521235740.191338-1-gprocida@google.com>
 X-Mailer: git-send-email 2.27.0.rc0.183.gde8f92d652-goog
-Subject: [PATCH 05/27] l2tp: don't use l2tp_tunnel_find() in l2tp_ip and l2tp_ip6
+Subject: [PATCH 06/27] net: l2tp: export debug flags to UAPI
 From:   Giuliano Procida <gprocida@google.com>
 To:     greg@kroah.com
-Cc:     stable@vger.kernel.org, Guillaume Nault <g.nault@alphalink.fr>,
-        "David S . Miller" <davem@davemloft.net>,
-        Nicolas Schier <n.schier@avm.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+Cc:     stable@vger.kernel.org,
+        "=?UTF-8?q?Asbj=C3=B8rn=20Sloth=20T=C3=B8nnesen?=" 
+        <asbjorn@asbjorn.st>, "David S . Miller" <davem@davemloft.net>,
         Giuliano Procida <gprocida@google.com>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guillaume Nault <g.nault@alphalink.fr>
+From: Asbj=C3=B8rn Sloth T=C3=B8nnesen <asbjorn@asbjorn.st>
 
-commit 8f7dc9ae4a7aece9fbc3e6637bdfa38b36bcdf09 upstream.
+commit 41c43fbee68f4f9a2a9675d83bca91c77862d7f0 upstream.
 
-Using l2tp_tunnel_find() in l2tp_ip_recv() is wrong for two reasons:
+Move the L2TP_MSG_* definitions to UAPI, as it is part of
+the netlink API.
 
-  * It doesn't take a reference on the returned tunnel, which makes the
-    call racy wrt. concurrent tunnel deletion.
-
-  * The lookup is only based on the tunnel identifier, so it can return
-    a tunnel that doesn't match the packet's addresses or protocol.
-
-For example, a packet sent to an L2TPv3 over IPv6 tunnel can be
-delivered to an L2TPv2 over UDPv4 tunnel. This is worse than a simple
-cross-talk: when delivering the packet to an L2TP over UDP tunnel, the
-corresponding socket is UDP, where ->sk_backlog_rcv() is NULL. Calling
-sk_receive_skb() will then crash the kernel by trying to execute this
-callback.
-
-And l2tp_tunnel_find() isn't even needed here. __l2tp_ip_bind_lookup()
-properly checks the socket binding and connection settings. It was used
-as a fallback mechanism for finding tunnels that didn't have their data
-path registered yet. But it's not limited to this case and can be used
-to replace l2tp_tunnel_find() in the general case.
-
-Fix l2tp_ip6 in the same way.
-
-Fixes: 0d76751fad77 ("l2tp: Add L2TPv3 IP encapsulation (no UDP) support")
-Fixes: a32e0eec7042 ("l2tp: introduce L2TPv3 IP encapsulation support for IPv6")
-Signed-off-by: Guillaume Nault <g.nault@alphalink.fr>
+Signed-off-by: Asbjoern Sloth Toennesen <asbjorn@asbjorn.st>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Cc: Nicolas Schier <n.schier@avm.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Giuliano Procida <gprocida@google.com>
 ---
- net/l2tp/l2tp_ip.c  | 22 ++++++++--------------
- net/l2tp/l2tp_ip6.c | 23 ++++++++---------------
- 2 files changed, 16 insertions(+), 29 deletions(-)
+ include/uapi/linux/l2tp.h | 17 ++++++++++++++++-
+ net/l2tp/l2tp_core.h      | 10 ----------
+ 2 files changed, 16 insertions(+), 11 deletions(-)
 
-diff --git a/net/l2tp/l2tp_ip.c b/net/l2tp/l2tp_ip.c
-index 2a77732c6496..fd7363f8405a 100644
---- a/net/l2tp/l2tp_ip.c
-+++ b/net/l2tp/l2tp_ip.c
-@@ -122,6 +122,7 @@ static int l2tp_ip_recv(struct sk_buff *skb)
- 	unsigned char *ptr, *optr;
- 	struct l2tp_session *session;
- 	struct l2tp_tunnel *tunnel = NULL;
-+	struct iphdr *iph;
- 	int length;
- 
- 	if (!pskb_may_pull(skb, 4))
-@@ -180,23 +181,16 @@ pass_up:
- 		goto discard;
- 
- 	tunnel_id = ntohl(*(__be32 *) &skb->data[4]);
--	tunnel = l2tp_tunnel_find(net, tunnel_id);
--	if (tunnel) {
--		sk = tunnel->sock;
--		sock_hold(sk);
--	} else {
--		struct iphdr *iph = (struct iphdr *) skb_network_header(skb);
-+	iph = (struct iphdr *)skb_network_header(skb);
- 
--		read_lock_bh(&l2tp_ip_lock);
--		sk = __l2tp_ip_bind_lookup(net, iph->daddr, 0, tunnel_id);
--		if (!sk) {
--			read_unlock_bh(&l2tp_ip_lock);
--			goto discard;
--		}
+diff --git a/include/uapi/linux/l2tp.h b/include/uapi/linux/l2tp.h
+index 347ef22a964e..dedfb2b1832a 100644
+--- a/include/uapi/linux/l2tp.h
++++ b/include/uapi/linux/l2tp.h
+@@ -108,7 +108,7 @@ enum {
+ 	L2TP_ATTR_VLAN_ID,		/* u16 */
+ 	L2TP_ATTR_COOKIE,		/* 0, 4 or 8 bytes */
+ 	L2TP_ATTR_PEER_COOKIE,		/* 0, 4 or 8 bytes */
+-	L2TP_ATTR_DEBUG,		/* u32 */
++	L2TP_ATTR_DEBUG,		/* u32, enum l2tp_debug_flags */
+ 	L2TP_ATTR_RECV_SEQ,		/* u8 */
+ 	L2TP_ATTR_SEND_SEQ,		/* u8 */
+ 	L2TP_ATTR_LNS_MODE,		/* u8 */
+@@ -173,6 +173,21 @@ enum l2tp_seqmode {
+ 	L2TP_SEQ_ALL =3D 2,
+ };
+=20
++/**
++ * enum l2tp_debug_flags - debug message categories for L2TP tunnels/sessi=
+ons
++ *
++ * @L2TP_MSG_DEBUG: verbose debug (if compiled in)
++ * @L2TP_MSG_CONTROL: userspace - kernel interface
++ * @L2TP_MSG_SEQ: sequence numbers
++ * @L2TP_MSG_DATA: data packets
++ */
++enum l2tp_debug_flags {
++	L2TP_MSG_DEBUG		=3D (1 << 0),
++	L2TP_MSG_CONTROL	=3D (1 << 1),
++	L2TP_MSG_SEQ		=3D (1 << 2),
++	L2TP_MSG_DATA		=3D (1 << 3),
++};
++
+ /*
+  * NETLINK_GENERIC related info
+  */
+diff --git a/net/l2tp/l2tp_core.h b/net/l2tp/l2tp_core.h
+index ee59d9961d1f..2469f63649bb 100644
+--- a/net/l2tp/l2tp_core.h
++++ b/net/l2tp/l2tp_core.h
+@@ -23,16 +23,6 @@
+ #define L2TP_HASH_BITS_2	8
+ #define L2TP_HASH_SIZE_2	(1 << L2TP_HASH_BITS_2)
+=20
+-/* Debug message categories for the DEBUG socket option */
+-enum {
+-	L2TP_MSG_DEBUG		=3D (1 << 0),	/* verbose debug (if
+-						 * compiled in) */
+-	L2TP_MSG_CONTROL	=3D (1 << 1),	/* userspace - kernel
+-						 * interface */
+-	L2TP_MSG_SEQ		=3D (1 << 2),	/* sequence numbers */
+-	L2TP_MSG_DATA		=3D (1 << 3),	/* data packets */
+-};
 -
--		sock_hold(sk);
-+	read_lock_bh(&l2tp_ip_lock);
-+	sk = __l2tp_ip_bind_lookup(net, iph->daddr, 0, tunnel_id);
-+	if (!sk) {
- 		read_unlock_bh(&l2tp_ip_lock);
-+		goto discard;
- 	}
-+	sock_hold(sk);
-+	read_unlock_bh(&l2tp_ip_lock);
- 
- 	if (!xfrm4_policy_check(sk, XFRM_POLICY_IN, skb))
- 		goto discard_put;
-diff --git a/net/l2tp/l2tp_ip6.c b/net/l2tp/l2tp_ip6.c
-index 4d4561dd4023..5bb5337e74fc 100644
---- a/net/l2tp/l2tp_ip6.c
-+++ b/net/l2tp/l2tp_ip6.c
-@@ -134,6 +134,7 @@ static int l2tp_ip6_recv(struct sk_buff *skb)
- 	unsigned char *ptr, *optr;
- 	struct l2tp_session *session;
- 	struct l2tp_tunnel *tunnel = NULL;
-+	struct ipv6hdr *iph;
- 	int length;
- 
- 	if (!pskb_may_pull(skb, 4))
-@@ -193,24 +194,16 @@ pass_up:
- 		goto discard;
- 
- 	tunnel_id = ntohl(*(__be32 *) &skb->data[4]);
--	tunnel = l2tp_tunnel_find(net, tunnel_id);
--	if (tunnel) {
--		sk = tunnel->sock;
--		sock_hold(sk);
--	} else {
--		struct ipv6hdr *iph = ipv6_hdr(skb);
--
--		read_lock_bh(&l2tp_ip6_lock);
--		sk = __l2tp_ip6_bind_lookup(net, &iph->daddr,
--					    0, tunnel_id);
--		if (!sk) {
--			read_unlock_bh(&l2tp_ip6_lock);
--			goto discard;
--		}
-+	iph = ipv6_hdr(skb);
- 
--		sock_hold(sk);
-+	read_lock_bh(&l2tp_ip6_lock);
-+	sk = __l2tp_ip6_bind_lookup(net, &iph->daddr, 0, tunnel_id);
-+	if (!sk) {
- 		read_unlock_bh(&l2tp_ip6_lock);
-+		goto discard;
- 	}
-+	sock_hold(sk);
-+	read_unlock_bh(&l2tp_ip6_lock);
- 
- 	if (!xfrm6_policy_check(sk, XFRM_POLICY_IN, skb))
- 		goto discard_put;
--- 
+ struct sk_buff;
+=20
+ struct l2tp_stats {
+--=20
 2.27.0.rc0.183.gde8f92d652-goog
 
