@@ -2,54 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 493311DDB21
-	for <lists+stable@lfdr.de>; Fri, 22 May 2020 01:39:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 21C441DDB22
+	for <lists+stable@lfdr.de>; Fri, 22 May 2020 01:39:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729916AbgEUXjv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 21 May 2020 19:39:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56634 "EHLO
+        id S1729318AbgEUXjw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 21 May 2020 19:39:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56640 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728706AbgEUXjv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 21 May 2020 19:39:51 -0400
-Received: from mail-qk1-x749.google.com (mail-qk1-x749.google.com [IPv6:2607:f8b0:4864:20::749])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4572C061A0E
-        for <stable@vger.kernel.org>; Thu, 21 May 2020 16:39:49 -0700 (PDT)
-Received: by mail-qk1-x749.google.com with SMTP id p5so4088703qkg.12
-        for <stable@vger.kernel.org>; Thu, 21 May 2020 16:39:49 -0700 (PDT)
+        with ESMTP id S1728706AbgEUXjw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 21 May 2020 19:39:52 -0400
+Received: from mail-qt1-x849.google.com (mail-qt1-x849.google.com [IPv6:2607:f8b0:4864:20::849])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E53DFC061A0E
+        for <stable@vger.kernel.org>; Thu, 21 May 2020 16:39:51 -0700 (PDT)
+Received: by mail-qt1-x849.google.com with SMTP id a14so9654036qto.6
+        for <stable@vger.kernel.org>; Thu, 21 May 2020 16:39:51 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
         h=date:in-reply-to:message-id:mime-version:references:subject:from:to
          :cc:content-transfer-encoding;
-        bh=gubGlzhk9j5tTpZqS+qnOQcAm29HEDBYodlcgClRy+4=;
-        b=oCh9ZWBNAw/bOjncg/0PEI8DbLS91voT66/GJer6phvb2PDC1FN7x+x1dIxV/s97CK
-         sxU90mYvvVZOzPUndjPcwnWtpyAI9MT4NJoiUrbNbFprGgVWdIuOVfYFGvgHKKGlmr61
-         w0cb45mAMIg8SxXt8T5uClFeSxNZ42rYGvOWuTETRGedSHEKyBEn8BmgD5g6F+ljVYcf
-         bjiR06aXRN7vJIdc1HFOBVcIf4L+aB7zUs+FpMEQSKvlpRdIh2Oe7Llkg3UvdAvqSJal
-         CPPHwt5aN3YOSiT5btd96mQL8d2GyCOPLwim5A01y8AgQLSTl0YRQQTmxQhO7Wy40w80
-         ZU9Q==
+        bh=51IoQhDTW38O4lLs5NvklB3zEWvBmDNqEyUW/HUKE2E=;
+        b=cIrElcSjpJoi4siOgZbXXfHusAZjQjbJrf1u8hHID7P8fS1QItnAgG4kgeZyQyxxez
+         ZhRCEOzEqSqAB4SWlCEJIocBMR1d+oB3BHkXiikPlFjWvZLuP2JfoK/Bjp9z92sKNH+b
+         0eWG7Ho6I2Xi6Z1tHxji0lx4SjY/P43gdVj0T2T/bjrKD4ULd7kmd1jPbF/B2bTihL37
+         EgXp34tu05mV/2XqpKzzaSpi2lbt/Z/DW2Cqh5Y/8kGaH52LF+McvS8FkFb9P4SrExyY
+         hqJMbY4oCbuISPOaKo65zUePmusR7dBeXEzueB5F1xpR5W1lmCN/IReDRDLkeDiJAD/X
+         DqqA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:in-reply-to:message-id:mime-version
          :references:subject:from:to:cc:content-transfer-encoding;
-        bh=gubGlzhk9j5tTpZqS+qnOQcAm29HEDBYodlcgClRy+4=;
-        b=WowfKYHL5eascAv7TZpGzKNLjZoL+xRjjn20v1Q0q+XuUkXnKk+x1PELZoTBfp/X6f
-         IrYDQ3AjJFPu7g6c6Q4hIKfqgv3zwZnCnvon+WRb4XDOaEQVj4xBMG64sDDUQrJ+JUhN
-         SbWmkC9eiUbnOwKu6vu4mB54gf+J+I3dt622Ui6nbtldFKDbGn+XeXOtoKnB7+kC9s1V
-         VvE5QF0V1LW3jriPHGQBXbWCvAuzKfwR5RQ1LVlZHsSQuwp3R9pu1/WVLDCrXeqNpvqX
-         2kpbu5/pHn2Hs3xmr4p9AwER9f8xK7BuKfTXW6mkEaRasABz2lsAQKXkuelYk3m3Z+hm
-         NLog==
-X-Gm-Message-State: AOAM530RIO/PssRSxXJNKVEMwJ+kZ04XLdh9ypPMzINYp2uBruqZ1Nky
-        l/Io8hrQT8Ezu/iS8nf/biN/XRn+ZMCkSA==
-X-Google-Smtp-Source: ABdhPJwyelLnkBa6RgtJh2IoyfyixbQYLGUjfvcYcldYIlyXOUw7i4US+M56tYDnYG4VL5tmvi/xJG7/jWBFyA==
-X-Received: by 2002:ad4:5629:: with SMTP id cb9mr1200311qvb.181.1590104388946;
- Thu, 21 May 2020 16:39:48 -0700 (PDT)
-Date:   Fri, 22 May 2020 00:39:17 +0100
+        bh=51IoQhDTW38O4lLs5NvklB3zEWvBmDNqEyUW/HUKE2E=;
+        b=s24NX0v6sp3Xatw06o354JWt5GVPh1iQnIWN8PnVr5Qb2k1xEij7TWi+Rmc5mgm/Vv
+         xdbBa4HY1oBpPx7Q3eUvPxnuNMx28tIvvqsZXZn2M666IZESJkGkP2t6bU5EzmN0bRyK
+         1JQRKlp2NCnwXxwspuETrwXMKdPn8eDM54eIK8ILO4zdgaItBGuIwzf0eSzIifup+5XI
+         jNFCCw1HWwuKAQpPonGd0cNYBMlGmeH8JxfT/TdMylz1wlTcktoX+MM0WclGk9Ild7Jr
+         DfOeg3GR1JOAYUAkdYYwrxuYwalhc9OpsUlvG2Pmosm5pygY3IqB+EowEARrTBKwMpfN
+         Oyaw==
+X-Gm-Message-State: AOAM530TgqmiyAmdymeyMGS/xSLCtyZp7K7bpW+hH7qCSVG0tSbY5WYb
+        mJ5foNawAJ6sgYj7oJaUEi2tX1uOWzFWQw==
+X-Google-Smtp-Source: ABdhPJziWmVuG8Ifbi0m/c2rLmRqNnYKesC90dhL7I7S3wq4wEu2wa54tjjUOZugP0KApzoHe2WRlzcBjrpSUA==
+X-Received: by 2002:a05:6214:ca:: with SMTP id f10mr1218480qvs.185.1590104391151;
+ Thu, 21 May 2020 16:39:51 -0700 (PDT)
+Date:   Fri, 22 May 2020 00:39:18 +0100
 In-Reply-To: <20200521233937.175182-1-gprocida@google.com>
-Message-Id: <20200521233937.175182-3-gprocida@google.com>
+Message-Id: <20200521233937.175182-4-gprocida@google.com>
 Mime-Version: 1.0
 References: <20200521144100.128936-1-gprocida@google.com> <20200521233937.175182-1-gprocida@google.com>
 X-Mailer: git-send-email 2.27.0.rc0.183.gde8f92d652-goog
-Subject: [PATCH v2 02/22] net: l2tp: deprecate PPPOL2TP_MSG_* in favour of L2TP_MSG_*
+Subject: [PATCH v2 03/22] net: l2tp: ppp: change PPPOL2TP_MSG_* => L2TP_MSG_*
 From:   Giuliano Procida <gprocida@google.com>
 To:     greg@kroah.com
 Cc:     stable@vger.kernel.org,
@@ -65,72 +65,269 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Asbj=C3=B8rn Sloth T=C3=B8nnesen <asbjorn@asbjorn.st>
 
-commit 47c3e7783be4e142b861d34b5c2e223330b05d8a upstream.
-
-PPPOL2TP_MSG_* and L2TP_MSG_* are duplicates, and are being used
-interchangeably in the kernel, so let's standardize on L2TP_MSG_*
-internally, and keep PPPOL2TP_MSG_* defined in UAPI for compatibility.
+commit fba40c632c6473fa89660e870a6042c0fe733f8c upstream.
 
 Signed-off-by: Asbjoern Sloth Toennesen <asbjorn@asbjorn.st>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Giuliano Procida <gprocida@google.com>
 ---
- Documentation/networking/l2tp.txt |  8 ++++----
- include/uapi/linux/if_pppol2tp.h  | 13 ++++++-------
- 2 files changed, 10 insertions(+), 11 deletions(-)
+ net/l2tp/l2tp_ppp.c | 54 ++++++++++++++++++++++-----------------------
+ 1 file changed, 27 insertions(+), 27 deletions(-)
 
-diff --git a/Documentation/networking/l2tp.txt b/Documentation/networking/l=
-2tp.txt
-index 4650a00ed012..9bc271cdc9a8 100644
---- a/Documentation/networking/l2tp.txt
-+++ b/Documentation/networking/l2tp.txt
-@@ -177,10 +177,10 @@ setsockopt on the PPPoX socket to set a debug mask.
+diff --git a/net/l2tp/l2tp_ppp.c b/net/l2tp/l2tp_ppp.c
+index d919b3e6b548..809606f2d54a 100644
+--- a/net/l2tp/l2tp_ppp.c
++++ b/net/l2tp/l2tp_ppp.c
+@@ -231,14 +231,14 @@ static void pppol2tp_recv(struct l2tp_session *sessio=
+n, struct sk_buff *skb, int
+ 	if (sk->sk_state & PPPOX_BOUND) {
+ 		struct pppox_sock *po;
 =20
- The following debug mask bits are available:
+-		l2tp_dbg(session, PPPOL2TP_MSG_DATA,
++		l2tp_dbg(session, L2TP_MSG_DATA,
+ 			 "%s: recv %d byte data frame, passing to ppp\n",
+ 			 session->name, data_len);
 =20
--PPPOL2TP_MSG_DEBUG    verbose debug (if compiled in)
--PPPOL2TP_MSG_CONTROL  userspace - kernel interface
--PPPOL2TP_MSG_SEQ      sequence numbers handling
--PPPOL2TP_MSG_DATA     data packets
-+L2TP_MSG_DEBUG    verbose debug (if compiled in)
-+L2TP_MSG_CONTROL  userspace - kernel interface
-+L2TP_MSG_SEQ      sequence numbers handling
-+L2TP_MSG_DATA     data packets
+ 		po =3D pppox_sk(sk);
+ 		ppp_input(&po->chan, skb);
+ 	} else {
+-		l2tp_dbg(session, PPPOL2TP_MSG_DATA,
++		l2tp_dbg(session, L2TP_MSG_DATA,
+ 			 "%s: recv %d byte data frame, passing to L2TP socket\n",
+ 			 session->name, data_len);
 =20
- If enabled, files under a l2tp debugfs directory can be used to dump
- kernel state about L2TP tunnels and sessions. To access it, the
-diff --git a/include/uapi/linux/if_pppol2tp.h b/include/uapi/linux/if_pppol=
-2tp.h
-index 4bd1f55d6377..6418c4d10241 100644
---- a/include/uapi/linux/if_pppol2tp.h
-+++ b/include/uapi/linux/if_pppol2tp.h
-@@ -18,6 +18,7 @@
- #include <linux/types.h>
- #include <linux/in.h>
- #include <linux/in6.h>
-+#include <linux/l2tp.h>
+@@ -251,7 +251,7 @@ static void pppol2tp_recv(struct l2tp_session *session,=
+ struct sk_buff *skb, int
+ 	return;
 =20
- /* Structure used to connect() the socket to a particular tunnel UDP
-  * socket over IPv4.
-@@ -90,14 +91,12 @@ enum {
- 	PPPOL2TP_SO_REORDERTO	=3D 5,
- };
+ no_sock:
+-	l2tp_info(session, PPPOL2TP_MSG_DATA, "%s: no socket\n", session->name);
++	l2tp_info(session, L2TP_MSG_DATA, "%s: no socket\n", session->name);
+ 	kfree_skb(skb);
+ }
 =20
--/* Debug message categories for the DEBUG socket option */
-+/* Debug message categories for the DEBUG socket option (deprecated) */
- enum {
--	PPPOL2TP_MSG_DEBUG	=3D (1 << 0),	/* verbose debug (if
--						 * compiled in) */
--	PPPOL2TP_MSG_CONTROL	=3D (1 << 1),	/* userspace - kernel
--						 * interface */
--	PPPOL2TP_MSG_SEQ	=3D (1 << 2),	/* sequence numbers */
--	PPPOL2TP_MSG_DATA	=3D (1 << 3),	/* data packets */
-+	PPPOL2TP_MSG_DEBUG	=3D L2TP_MSG_DEBUG,
-+	PPPOL2TP_MSG_CONTROL	=3D L2TP_MSG_CONTROL,
-+	PPPOL2TP_MSG_SEQ	=3D L2TP_MSG_SEQ,
-+	PPPOL2TP_MSG_DATA	=3D L2TP_MSG_DATA,
- };
+@@ -782,7 +782,7 @@ static int pppol2tp_connect(struct socket *sock, struct=
+ sockaddr *uservaddr,
+ 	/* This is how we get the session context from the socket. */
+ 	sk->sk_user_data =3D session;
+ 	sk->sk_state =3D PPPOX_CONNECTED;
+-	l2tp_info(session, PPPOL2TP_MSG_CONTROL, "%s: created\n",
++	l2tp_info(session, L2TP_MSG_CONTROL, "%s: created\n",
+ 		  session->name);
 =20
+ end:
+@@ -833,7 +833,7 @@ static int pppol2tp_session_create(struct net *net, u32=
+ tunnel_id, u32 session_i
+ 	ps =3D l2tp_session_priv(session);
+ 	ps->tunnel_sock =3D tunnel->sock;
+=20
+-	l2tp_info(session, PPPOL2TP_MSG_CONTROL, "%s: created\n",
++	l2tp_info(session, L2TP_MSG_CONTROL, "%s: created\n",
+ 		  session->name);
+=20
+ 	error =3D 0;
+@@ -995,7 +995,7 @@ static int pppol2tp_session_ioctl(struct l2tp_session *=
+session,
+ 	struct l2tp_tunnel *tunnel =3D session->tunnel;
+ 	struct pppol2tp_ioc_stats stats;
+=20
+-	l2tp_dbg(session, PPPOL2TP_MSG_CONTROL,
++	l2tp_dbg(session, L2TP_MSG_CONTROL,
+ 		 "%s: pppol2tp_session_ioctl(cmd=3D%#x, arg=3D%#lx)\n",
+ 		 session->name, cmd, arg);
+=20
+@@ -1018,7 +1018,7 @@ static int pppol2tp_session_ioctl(struct l2tp_session=
+ *session,
+ 		if (copy_to_user((void __user *) arg, &ifr, sizeof(struct ifreq)))
+ 			break;
+=20
+-		l2tp_info(session, PPPOL2TP_MSG_CONTROL, "%s: get mtu=3D%d\n",
++		l2tp_info(session, L2TP_MSG_CONTROL, "%s: get mtu=3D%d\n",
+ 			  session->name, session->mtu);
+ 		err =3D 0;
+ 		break;
+@@ -1034,7 +1034,7 @@ static int pppol2tp_session_ioctl(struct l2tp_session=
+ *session,
+=20
+ 		session->mtu =3D ifr.ifr_mtu;
+=20
+-		l2tp_info(session, PPPOL2TP_MSG_CONTROL, "%s: set mtu=3D%d\n",
++		l2tp_info(session, L2TP_MSG_CONTROL, "%s: set mtu=3D%d\n",
+ 			  session->name, session->mtu);
+ 		err =3D 0;
+ 		break;
+@@ -1048,7 +1048,7 @@ static int pppol2tp_session_ioctl(struct l2tp_session=
+ *session,
+ 		if (put_user(session->mru, (int __user *) arg))
+ 			break;
+=20
+-		l2tp_info(session, PPPOL2TP_MSG_CONTROL, "%s: get mru=3D%d\n",
++		l2tp_info(session, L2TP_MSG_CONTROL, "%s: get mru=3D%d\n",
+ 			  session->name, session->mru);
+ 		err =3D 0;
+ 		break;
+@@ -1063,7 +1063,7 @@ static int pppol2tp_session_ioctl(struct l2tp_session=
+ *session,
+ 			break;
+=20
+ 		session->mru =3D val;
+-		l2tp_info(session, PPPOL2TP_MSG_CONTROL, "%s: set mru=3D%d\n",
++		l2tp_info(session, L2TP_MSG_CONTROL, "%s: set mru=3D%d\n",
+ 			  session->name, session->mru);
+ 		err =3D 0;
+ 		break;
+@@ -1073,7 +1073,7 @@ static int pppol2tp_session_ioctl(struct l2tp_session=
+ *session,
+ 		if (put_user(ps->flags, (int __user *) arg))
+ 			break;
+=20
+-		l2tp_info(session, PPPOL2TP_MSG_CONTROL, "%s: get flags=3D%d\n",
++		l2tp_info(session, L2TP_MSG_CONTROL, "%s: get flags=3D%d\n",
+ 			  session->name, ps->flags);
+ 		err =3D 0;
+ 		break;
+@@ -1083,7 +1083,7 @@ static int pppol2tp_session_ioctl(struct l2tp_session=
+ *session,
+ 		if (get_user(val, (int __user *) arg))
+ 			break;
+ 		ps->flags =3D val;
+-		l2tp_info(session, PPPOL2TP_MSG_CONTROL, "%s: set flags=3D%d\n",
++		l2tp_info(session, L2TP_MSG_CONTROL, "%s: set flags=3D%d\n",
+ 			  session->name, ps->flags);
+ 		err =3D 0;
+ 		break;
+@@ -1100,7 +1100,7 @@ static int pppol2tp_session_ioctl(struct l2tp_session=
+ *session,
+ 		if (copy_to_user((void __user *) arg, &stats,
+ 				 sizeof(stats)))
+ 			break;
+-		l2tp_info(session, PPPOL2TP_MSG_CONTROL, "%s: get L2TP stats\n",
++		l2tp_info(session, L2TP_MSG_CONTROL, "%s: get L2TP stats\n",
+ 			  session->name);
+ 		err =3D 0;
+ 		break;
+@@ -1128,7 +1128,7 @@ static int pppol2tp_tunnel_ioctl(struct l2tp_tunnel *=
+tunnel,
+ 	struct sock *sk;
+ 	struct pppol2tp_ioc_stats stats;
+=20
+-	l2tp_dbg(tunnel, PPPOL2TP_MSG_CONTROL,
++	l2tp_dbg(tunnel, L2TP_MSG_CONTROL,
+ 		 "%s: pppol2tp_tunnel_ioctl(cmd=3D%#x, arg=3D%#lx)\n",
+ 		 tunnel->name, cmd, arg);
+=20
+@@ -1171,7 +1171,7 @@ static int pppol2tp_tunnel_ioctl(struct l2tp_tunnel *=
+tunnel,
+ 			err =3D -EFAULT;
+ 			break;
+ 		}
+-		l2tp_info(tunnel, PPPOL2TP_MSG_CONTROL, "%s: get L2TP stats\n",
++		l2tp_info(tunnel, L2TP_MSG_CONTROL, "%s: get L2TP stats\n",
+ 			  tunnel->name);
+ 		err =3D 0;
+ 		break;
+@@ -1261,7 +1261,7 @@ static int pppol2tp_tunnel_setsockopt(struct sock *sk=
+,
+ 	switch (optname) {
+ 	case PPPOL2TP_SO_DEBUG:
+ 		tunnel->debug =3D val;
+-		l2tp_info(tunnel, PPPOL2TP_MSG_CONTROL, "%s: set debug=3D%x\n",
++		l2tp_info(tunnel, L2TP_MSG_CONTROL, "%s: set debug=3D%x\n",
+ 			  tunnel->name, tunnel->debug);
+ 		break;
+=20
+@@ -1289,7 +1289,7 @@ static int pppol2tp_session_setsockopt(struct sock *s=
+k,
+ 			break;
+ 		}
+ 		session->recv_seq =3D val ? -1 : 0;
+-		l2tp_info(session, PPPOL2TP_MSG_CONTROL,
++		l2tp_info(session, L2TP_MSG_CONTROL,
+ 			  "%s: set recv_seq=3D%d\n",
+ 			  session->name, session->recv_seq);
+ 		break;
+@@ -1307,7 +1307,7 @@ static int pppol2tp_session_setsockopt(struct sock *s=
+k,
+ 				PPPOL2TP_L2TP_HDR_SIZE_NOSEQ;
+ 		}
+ 		l2tp_session_set_header_len(session, session->tunnel->version);
+-		l2tp_info(session, PPPOL2TP_MSG_CONTROL,
++		l2tp_info(session, L2TP_MSG_CONTROL,
+ 			  "%s: set send_seq=3D%d\n",
+ 			  session->name, session->send_seq);
+ 		break;
+@@ -1318,20 +1318,20 @@ static int pppol2tp_session_setsockopt(struct sock =
+*sk,
+ 			break;
+ 		}
+ 		session->lns_mode =3D val ? -1 : 0;
+-		l2tp_info(session, PPPOL2TP_MSG_CONTROL,
++		l2tp_info(session, L2TP_MSG_CONTROL,
+ 			  "%s: set lns_mode=3D%d\n",
+ 			  session->name, session->lns_mode);
+ 		break;
+=20
+ 	case PPPOL2TP_SO_DEBUG:
+ 		session->debug =3D val;
+-		l2tp_info(session, PPPOL2TP_MSG_CONTROL, "%s: set debug=3D%x\n",
++		l2tp_info(session, L2TP_MSG_CONTROL, "%s: set debug=3D%x\n",
+ 			  session->name, session->debug);
+ 		break;
+=20
+ 	case PPPOL2TP_SO_REORDERTO:
+ 		session->reorder_timeout =3D msecs_to_jiffies(val);
+-		l2tp_info(session, PPPOL2TP_MSG_CONTROL,
++		l2tp_info(session, L2TP_MSG_CONTROL,
+ 			  "%s: set reorder_timeout=3D%d\n",
+ 			  session->name, session->reorder_timeout);
+ 		break;
+@@ -1412,7 +1412,7 @@ static int pppol2tp_tunnel_getsockopt(struct sock *sk=
+,
+ 	switch (optname) {
+ 	case PPPOL2TP_SO_DEBUG:
+ 		*val =3D tunnel->debug;
+-		l2tp_info(tunnel, PPPOL2TP_MSG_CONTROL, "%s: get debug=3D%x\n",
++		l2tp_info(tunnel, L2TP_MSG_CONTROL, "%s: get debug=3D%x\n",
+ 			  tunnel->name, tunnel->debug);
+ 		break;
+=20
+@@ -1435,31 +1435,31 @@ static int pppol2tp_session_getsockopt(struct sock =
+*sk,
+ 	switch (optname) {
+ 	case PPPOL2TP_SO_RECVSEQ:
+ 		*val =3D session->recv_seq;
+-		l2tp_info(session, PPPOL2TP_MSG_CONTROL,
++		l2tp_info(session, L2TP_MSG_CONTROL,
+ 			  "%s: get recv_seq=3D%d\n", session->name, *val);
+ 		break;
+=20
+ 	case PPPOL2TP_SO_SENDSEQ:
+ 		*val =3D session->send_seq;
+-		l2tp_info(session, PPPOL2TP_MSG_CONTROL,
++		l2tp_info(session, L2TP_MSG_CONTROL,
+ 			  "%s: get send_seq=3D%d\n", session->name, *val);
+ 		break;
+=20
+ 	case PPPOL2TP_SO_LNSMODE:
+ 		*val =3D session->lns_mode;
+-		l2tp_info(session, PPPOL2TP_MSG_CONTROL,
++		l2tp_info(session, L2TP_MSG_CONTROL,
+ 			  "%s: get lns_mode=3D%d\n", session->name, *val);
+ 		break;
+=20
+ 	case PPPOL2TP_SO_DEBUG:
+ 		*val =3D session->debug;
+-		l2tp_info(session, PPPOL2TP_MSG_CONTROL, "%s: get debug=3D%d\n",
++		l2tp_info(session, L2TP_MSG_CONTROL, "%s: get debug=3D%d\n",
+ 			  session->name, *val);
+ 		break;
+=20
+ 	case PPPOL2TP_SO_REORDERTO:
+ 		*val =3D (int) jiffies_to_msecs(session->reorder_timeout);
+-		l2tp_info(session, PPPOL2TP_MSG_CONTROL,
++		l2tp_info(session, L2TP_MSG_CONTROL,
+ 			  "%s: get reorder_timeout=3D%d\n", session->name, *val);
+ 		break;
 =20
 --=20
 2.27.0.rc0.183.gde8f92d652-goog
