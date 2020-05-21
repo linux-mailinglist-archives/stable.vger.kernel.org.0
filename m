@@ -2,130 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B1451DD69C
-	for <lists+stable@lfdr.de>; Thu, 21 May 2020 21:06:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE05B1DD726
+	for <lists+stable@lfdr.de>; Thu, 21 May 2020 21:23:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730082AbgEUTGt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 21 May 2020 15:06:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51652 "EHLO mail.kernel.org"
+        id S1730183AbgEUTXt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 21 May 2020 15:23:49 -0400
+Received: from mx2.suse.de ([195.135.220.15]:33746 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729548AbgEUTGt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 21 May 2020 15:06:49 -0400
-Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F325520759;
-        Thu, 21 May 2020 19:06:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590088009;
-        bh=5R+efXkM7MK3uCM0o+M4NCp+vdK2KAlMNkQ1dxGDFGo=;
-        h=Date:From:To:Subject:From;
-        b=DhGIyhtZWR36NViw0cMBpjzS/qJYW92dRgoUbhT9NrsXBdrt6RXu3+rEtZkp3hOyo
-         Z055vujR+M4R99NPEcd/+VxumoncTV+dD6nFI2hipYPLPq3870Is1co2eWYllo8wdN
-         GosQ1MbyNNbSnz0Whj/AfpKkHSDwGUvigJMWqAbw=
-Date:   Thu, 21 May 2020 12:06:48 -0700
-From:   akpm@linux-foundation.org
-To:     bp@alien8.de, dave.hansen@linux.intel.com, jbeulich@suse.com,
-        luto@kernel.org, mingo@redhat.com, mm-commits@vger.kernel.org,
-        peterz@infradead.org, stable@vger.kernel.org, steven.price@arm.com,
-        tglx@linutronix.de
-Subject:  + mm-ptdump-expand-type-of-val-in-note_page.patch added
- to -mm tree
-Message-ID: <20200521190648.ahK146y3G%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S1729475AbgEUTXt (ORCPT <rfc822;Stable@vger.kernel.org>);
+        Thu, 21 May 2020 15:23:49 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx2.suse.de (Postfix) with ESMTP id 964D9B21E;
+        Thu, 21 May 2020 19:23:50 +0000 (UTC)
+Received: by lion.mk-sys.cz (Postfix, from userid 1000)
+        id C4B67604F6; Thu, 21 May 2020 21:23:42 +0200 (CEST)
+Date:   Thu, 21 May 2020 21:23:42 +0200
+From:   Michal Kubecek <mkubecek@suse.cz>
+To:     netdev@vger.kernel.org
+Cc:     Chen Yu <yu.c.chen@intel.com>,
+        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Auke Kok <auke-jan.h.kok@intel.com>,
+        Jeff Garzik <jeff@garzik.org>,
+        intel-wired-lan@lists.osuosl.org, linux-kernel@vger.kernel.org,
+        Len Brown <len.brown@intel.com>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        "Shevchenko, Andriy" <andriy.shevchenko@intel.com>,
+        "Neftin, Sasha" <sasha.neftin@intel.com>,
+        "Lifshits, Vitaly" <vitaly.lifshits@intel.com>,
+        Stable@vger.kernel.org
+Subject: Re: [PATCH 2/2] e1000e: Make WOL info in ethtool consistent with
+ device wake up ability
+Message-ID: <20200521192342.GE8771@lion.mk-sys.cz>
+References: <cover.1590081982.git.yu.c.chen@intel.com>
+ <725bad2f3ce7f7b7f1667d53b6527dc059f9e419.1590081982.git.yu.c.chen@intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <725bad2f3ce7f7b7f1667d53b6527dc059f9e419.1590081982.git.yu.c.chen@intel.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Fri, May 22, 2020 at 01:59:13AM +0800, Chen Yu wrote:
+> Currently the ethtool shows that WOL(Wake On Lan) is enabled
+> even if the device wakeup ability has been disabled via sysfs:
+>   cat /sys/devices/pci0000:00/0000:00:1f.6/power/wakeup
+>    disabled
+> 
+>   ethtool eno1
+>   ...
+>   Wake-on: g
+> 
+> Fix this in ethtool to check if the user has explicitly disabled the
+> wake up ability for this device.
 
-The patch titled
-     Subject: mm: ptdump: expand type of 'val' in note_page()
-has been added to the -mm tree.  Its filename is
-     mm-ptdump-expand-type-of-val-in-note_page.patch
+Wouldn't this lead to rather unexpected and inconsistent behaviour when
+the wakeup is disabled? As you don't touch the set_wol handler, I assume
+it will still allow setting enabled modes as usual so that you get e.g.
 
-This patch should soon appear at
-    http://ozlabs.org/~akpm/mmots/broken-out/mm-ptdump-expand-type-of-val-in-note_page.patch
-and later at
-    http://ozlabs.org/~akpm/mmotm/broken-out/mm-ptdump-expand-type-of-val-in-note_page.patch
+  ethtool -s eth0 wol g   # no error or warning, returns 0
+  ethtool eth0            # reports no modes enabled
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
+The first command would set the enabled wol modes but that would be
+hidden from user and even the netlink notification would claim something
+different. Another exampe (with kernel and ethtool >= 5.6):
 
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+  ethtool -s eth0 wol g
+  ethtool -s eth0 wol +m
 
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
+resulting in "mg" if device wakeup is enabled but "m" when it's disabled
+(but the latter would be hidden from user and only revealed when you
+enable the device wakeup).
 
-------------------------------------------------------
-From: Steven Price <steven.price@arm.com>
-Subject: mm: ptdump: expand type of 'val' in note_page()
+This is a general problem discussed recently for EEE and pause
+autonegotiation: if setting A can be effectively used only when B is
+enabled, should we hide actual setting of A from userspace when B is
+disabled or even reset the value of A whenever B gets toggled or rather
+allow setting A and B independently? AFAICS the consensus seemed to be
+that A should be allowed to be set and queried independently of the
+value of B.
 
-The page table entry is passed in the 'val' argument to note_page(),
-however this was previously an "unsigned long" which is fine on 64-bit
-platforms.  But for 32 bit x86 it is not always big enough to contain a
-page table entry which may be 64 bits.
+Michal
 
-Change the type to u64 to ensure that it is always big enough.
-
-Link: http://lkml.kernel.org/r/20200521152308.33096-3-steven.price@arm.com
-Signed-off-by: Steven Price <steven.price@arm.com>
-Reported-by: Jan Beulich <jbeulich@suse.com>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- arch/arm64/mm/dump.c          |    2 +-
- arch/x86/mm/dump_pagetables.c |    2 +-
- include/linux/ptdump.h        |    2 +-
- 3 files changed, 3 insertions(+), 3 deletions(-)
-
---- a/arch/arm64/mm/dump.c~mm-ptdump-expand-type-of-val-in-note_page
-+++ a/arch/arm64/mm/dump.c
-@@ -247,7 +247,7 @@ static void note_prot_wx(struct pg_state
- }
- 
- static void note_page(struct ptdump_state *pt_st, unsigned long addr, int level,
--		      unsigned long val)
-+		      u64 val)
- {
- 	struct pg_state *st = container_of(pt_st, struct pg_state, ptdump);
- 	static const char units[] = "KMGTPE";
---- a/arch/x86/mm/dump_pagetables.c~mm-ptdump-expand-type-of-val-in-note_page
-+++ a/arch/x86/mm/dump_pagetables.c
-@@ -273,7 +273,7 @@ static void effective_prot(struct ptdump
-  * print what we collected so far.
-  */
- static void note_page(struct ptdump_state *pt_st, unsigned long addr, int level,
--		      unsigned long val)
-+		      u64 val)
- {
- 	struct pg_state *st = container_of(pt_st, struct pg_state, ptdump);
- 	pgprotval_t new_prot, new_eff;
---- a/include/linux/ptdump.h~mm-ptdump-expand-type-of-val-in-note_page
-+++ a/include/linux/ptdump.h
-@@ -13,7 +13,7 @@ struct ptdump_range {
- struct ptdump_state {
- 	/* level is 0:PGD to 4:PTE, or -1 if unknown */
- 	void (*note_page)(struct ptdump_state *st, unsigned long addr,
--			  int level, unsigned long val);
-+			  int level, u64 val);
- 	void (*effective_prot)(struct ptdump_state *st, int level, u64 val);
- 	const struct ptdump_range *range;
- };
-_
-
-Patches currently in -mm which might be from steven.price@arm.com are
-
-x86-mm-ptdump-calculate-effective-permissions-correctly.patch
-mm-ptdump-expand-type-of-val-in-note_page.patch
-
+> Fixes: 6ff68026f475 ("e1000e: Use device_set_wakeup_enable")
+> Reported-by: Len Brown <len.brown@intel.com>
+> Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> Cc: <Stable@vger.kernel.org>
+> Signed-off-by: Chen Yu <yu.c.chen@intel.com>
+> ---
+>  drivers/net/ethernet/intel/e1000e/ethtool.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/net/ethernet/intel/e1000e/ethtool.c b/drivers/net/ethernet/intel/e1000e/ethtool.c
+> index 1d47e2503072..0cccd823ff24 100644
+> --- a/drivers/net/ethernet/intel/e1000e/ethtool.c
+> +++ b/drivers/net/ethernet/intel/e1000e/ethtool.c
+> @@ -1891,7 +1891,7 @@ static void e1000_get_wol(struct net_device *netdev,
+>  	wol->wolopts = 0;
+>  
+>  	if (!(adapter->flags & FLAG_HAS_WOL) ||
+> -	    !device_can_wakeup(&adapter->pdev->dev))
+> +	    !device_may_wakeup(&adapter->pdev->dev))
+>  		return;
+>  
+>  	wol->supported = WAKE_UCAST | WAKE_MCAST |
+> -- 
+> 2.17.1
+> 
