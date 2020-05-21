@@ -2,54 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 70F811DD040
-	for <lists+stable@lfdr.de>; Thu, 21 May 2020 16:41:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F6671DD041
+	for <lists+stable@lfdr.de>; Thu, 21 May 2020 16:41:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726973AbgEUOlU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 21 May 2020 10:41:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56736 "EHLO
+        id S1728190AbgEUOlV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 21 May 2020 10:41:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56744 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728190AbgEUOlT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 21 May 2020 10:41:19 -0400
-Received: from mail-qt1-x84a.google.com (mail-qt1-x84a.google.com [IPv6:2607:f8b0:4864:20::84a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 383A3C061A0E
-        for <stable@vger.kernel.org>; Thu, 21 May 2020 07:41:19 -0700 (PDT)
-Received: by mail-qt1-x84a.google.com with SMTP id s65so7838948qtd.21
-        for <stable@vger.kernel.org>; Thu, 21 May 2020 07:41:19 -0700 (PDT)
+        with ESMTP id S1728103AbgEUOlV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 21 May 2020 10:41:21 -0400
+Received: from mail-qt1-x849.google.com (mail-qt1-x849.google.com [IPv6:2607:f8b0:4864:20::849])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 585C6C061A0E
+        for <stable@vger.kernel.org>; Thu, 21 May 2020 07:41:21 -0700 (PDT)
+Received: by mail-qt1-x849.google.com with SMTP id e43so7997669qtc.3
+        for <stable@vger.kernel.org>; Thu, 21 May 2020 07:41:21 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
         h=date:in-reply-to:message-id:mime-version:references:subject:from:to
          :cc;
-        bh=xz8AG2PLIPRjNcGi677EpvqnMTH4UzXVgfhRBhLkdGk=;
-        b=NHc4hgY57YPrGXbxd6QL1J7g12s90zU0HqPdl9OgmuZrnDB5M6NvcfuN6WhSnqKQPg
-         y4NYHNB6TzbB7vqTNUzVpJD12UnG2x3P5/4O4qszNiVer+tZ3b/RlpEbVOCAe+xuePbj
-         3Td7CYidqmXunhKg/cJwLay63bKLbdyjxqFyZdNPwZpToDEHugm+Darvn/Ns7Px/X+R7
-         iKVGy9+RhCW1I9DlzpAw3Q3NM0R3AUHJNzxhXvWHEQcxjP9Vk7kdcsmEmt0XF8TDjPyw
-         NjuMeRXTfAmL/CY3uT22W5as22WcRSf6s82xvmya6jSe+Lgn63GfnOiKQDD1qZTpb9rT
-         j2ew==
+        bh=frdE5+sAuA9v/pij4+HJTPzcJcXg5ns2Wxgv7UFwBUM=;
+        b=KDL+8/GHBq0KllUNOlC6fVg4kWV9/sERiuIKxYG3aC0ylWZXm0uuZ2eah3dHDwqzEC
+         r+3wcOFU9vNV23lb1SMKijJnCB67ILypwSK6sReXFqbZ16TxKZSi8+SCcOnV9KdkSsUn
+         FnZEZein2ZBTawR+CaFe/cM7gIClre4YVXDFnHy+VPrxShz0QcbiQzfCRMg60W3OeRLH
+         XkItNSJGIAU00GlW4n5fkFgd2Y06/a39corieI+6m6NGDRwCjwuqcDRDa1ZIklAYj99K
+         7rYDJu2DcU2OT7V7TBQIA5mAe85qfNJHV8axWR22aaxtPyxPTk0P4ik83VpeNKbok6tV
+         Hykg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:in-reply-to:message-id:mime-version
          :references:subject:from:to:cc;
-        bh=xz8AG2PLIPRjNcGi677EpvqnMTH4UzXVgfhRBhLkdGk=;
-        b=YEbNO2T8LmIXJIk6HaB8l40fiynl1x95KL2h7YPKYJeHnCBKRgAh9J1rILiwFl+M48
-         Sn8jiyhmbvu6/wtVvUhTqKeI6DD/aFro5ePCKrkvz8MkvEp+uPfHuPm/D0fBeOwj3Nb9
-         Baay23d1a0sVWX7Rx/HP+xpdZ6lFFm7Tb0kyVSZVTvAwLWOn5IvGyi3Wq1ajAE5Fp5fC
-         g0Dc8Rh/6FxONg8OXZwdxI5F+H/M1apS0i9iE2nrCA0y202fkH/La4R3T41fb++v9tH/
-         JX7cRj8tfzKBL1qrUA4UdN4OGjvYuVef0XVY6aCdB+FUlycNGEnoSiuqZLWPYkBD19LS
-         +J6w==
-X-Gm-Message-State: AOAM530Jfs7Z1bG4fuKaIwZV1awWct0k1e010lM5WXmuFRMOKQ8vA4r1
-        6640Ixl5zGLDkF1smXR3IrXd2eiW9sNtXA==
-X-Google-Smtp-Source: ABdhPJze/1vqrdeVLOJLFG06NIaBZKJtsCpXZqKWbE2R/jSIat3ijFNua4rbbHXFfPjY0EVzOxHid/B0qAuwSw==
-X-Received: by 2002:a05:6214:1422:: with SMTP id o2mr10391987qvx.13.1590072078409;
- Thu, 21 May 2020 07:41:18 -0700 (PDT)
-Date:   Thu, 21 May 2020 15:40:42 +0100
+        bh=frdE5+sAuA9v/pij4+HJTPzcJcXg5ns2Wxgv7UFwBUM=;
+        b=KGptqUsHly53sNtLfLFWQGyg9ogZRLxA5L55wxGeCB/bZ5mkiDRSaNQLATCftCcAso
+         ZmiPMBsBu3+siijLHZumKOo54hg9A7/xQMAfYXln8yULrpWIIcwQi1MboGOIGJ+5dsu8
+         ldEda5Z2MTbybnfih3cquu04xQzf5PcH4nHidqGQx8bo35eHGM/zYllJXdCMX6Hy9B8T
+         fbnIRSDioAmjddedKt5DOshPT9XeIdJVFiAZBAAcg2ObFPtAUiD+D3Vu0IRxqq332l3V
+         qm3IyMNvz0ZaAuAOjcu0qXylkBDXqBgGZFz8jBUF6dft/uMsLSj8Q4nJWk+3w2bBy29n
+         FgUg==
+X-Gm-Message-State: AOAM533ErdsD1YA26+5Jwg4/MYkL41rNlq0VFcRC770Iz1H5ziKPAsWR
+        MCkmhCzoSpbeVRAbzw/l3GIvHErJXkl+JA==
+X-Google-Smtp-Source: ABdhPJzu656mVywKWhMuLmPrkEdZDMrRHMzrBExygFiFwYfeR0i7TZ+NyBEamIY7x77Uvx7wzXKYvJ+F4O8vbw==
+X-Received: by 2002:a0c:fa8c:: with SMTP id o12mr8974731qvn.60.1590072080558;
+ Thu, 21 May 2020 07:41:20 -0700 (PDT)
+Date:   Thu, 21 May 2020 15:40:43 +0100
 In-Reply-To: <20200521144100.128936-1-gprocida@google.com>
-Message-Id: <20200521144100.128936-5-gprocida@google.com>
+Message-Id: <20200521144100.128936-6-gprocida@google.com>
 Mime-Version: 1.0
 References: <20200521144100.128936-1-gprocida@google.com>
 X-Mailer: git-send-email 2.26.2.761.g0e0b3e54be-goog
-Subject: [PATCH 04/22] New kernel function to get IP overhead on a socket.
+Subject: [PATCH 05/22] L2TP:Adjust intf MTU, add underlay L3, L2 hdrs.
 From:   Giuliano Procida <gprocida@google.com>
 To:     greg@kroah.com
 Cc:     stable@vger.kernel.org,
@@ -65,93 +65,110 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "R. Parameswaran" <parameswaran.r7@gmail.com>
 
-commit 113c3075931a334f899008f6c753abe70a3a9323 upstream.
+commit b784e7ebfce8cfb16c6f95e14e8532d0768ab7ff upstream.
 
-A new function, kernel_sock_ip_overhead(), is provided
-to calculate the cumulative overhead imposed by the IP
-Header and IP options, if any, on a socket's payload.
-The new function returns an overhead of zero for sockets
-that do not belong to the IPv4 or IPv6 address families.
-This is used in the L2TP code path to compute the
-total outer IP overhead on the L2TP tunnel socket when
-calculating the default MTU for Ethernet pseudowires.
+Existing L2TP kernel code does not derive the optimal MTU for Ethernet
+pseudowires and instead leaves this to a userspace L2TP daemon or
+operator. If an MTU is not specified, the existing kernel code chooses
+an MTU that does not take account of all tunnel header overheads, which
+can lead to unwanted IP fragmentation. When L2TP is used without a
+control plane (userspace daemon), we would prefer that the kernel does a
+better job of choosing a default pseudowire MTU, taking account of all
+tunnel header overheads, including IP header options, if any. This patch
+addresses this.
+
+Change-set here uses the new kernel function, kernel_sock_ip_overhead(),
+to factor the outer IP overhead on the L2TP tunnel socket (including
+IP Options, if any) when calculating the default MTU for an Ethernet
+pseudowire, along with consideration of the inner Ethernet header.
 
 Signed-off-by: R. Parameswaran <rparames@brocade.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Giuliano Procida <gprocida@google.com>
 ---
- include/linux/net.h |  3 +++
- net/socket.c        | 46 +++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 49 insertions(+)
+ net/l2tp/l2tp_eth.c | 55 +++++++++++++++++++++++++++++++++++++++++----
+ 1 file changed, 51 insertions(+), 4 deletions(-)
 
-diff --git a/include/linux/net.h b/include/linux/net.h
-index cd0c8bd0a1de..2c8b092f3f17 100644
---- a/include/linux/net.h
-+++ b/include/linux/net.h
-@@ -298,6 +298,9 @@ int kernel_sendpage(struct socket *sock, struct page *page, int offset,
- int kernel_sock_ioctl(struct socket *sock, int cmd, unsigned long arg);
- int kernel_sock_shutdown(struct socket *sock, enum sock_shutdown_cmd how);
+diff --git a/net/l2tp/l2tp_eth.c b/net/l2tp/l2tp_eth.c
+index eecc64e138de..f0efbf1e9a49 100644
+--- a/net/l2tp/l2tp_eth.c
++++ b/net/l2tp/l2tp_eth.c
+@@ -30,6 +30,9 @@
+ #include <net/xfrm.h>
+ #include <net/net_namespace.h>
+ #include <net/netns/generic.h>
++#include <linux/ip.h>
++#include <linux/ipv6.h>
++#include <linux/udp.h>
  
-+/* Following routine returns the IP overhead imposed by a socket.  */
-+u32 kernel_sock_ip_overhead(struct sock *sk);
-+
- #define MODULE_ALIAS_NETPROTO(proto) \
- 	MODULE_ALIAS("net-pf-" __stringify(proto))
+ #include "l2tp_core.h"
  
-diff --git a/net/socket.c b/net/socket.c
-index 65afc8ec68d4..4892719a8a66 100644
---- a/net/socket.c
-+++ b/net/socket.c
-@@ -3321,3 +3321,49 @@ int kernel_sock_shutdown(struct socket *sock, enum sock_shutdown_cmd how)
- 	return sock->ops->shutdown(sock, how);
+@@ -206,6 +209,53 @@ static void l2tp_eth_show(struct seq_file *m, void *arg)
  }
- EXPORT_SYMBOL(kernel_sock_shutdown);
-+
-+/* This routine returns the IP overhead imposed by a socket i.e.
-+ * the length of the underlying IP header, depending on whether
-+ * this is an IPv4 or IPv6 socket and the length from IP options turned
-+ * on at the socket.
-+ */
-+u32 kernel_sock_ip_overhead(struct sock *sk)
+ #endif
+ 
++static void l2tp_eth_adjust_mtu(struct l2tp_tunnel *tunnel,
++				struct l2tp_session *session,
++				struct net_device *dev)
 +{
-+	struct inet_sock *inet;
-+	struct ip_options_rcu *opt;
-+	u32 overhead = 0;
-+	bool owned_by_user;
-+#if IS_ENABLED(CONFIG_IPV6)
-+	struct ipv6_pinfo *np;
-+	struct ipv6_txoptions *optv6 = NULL;
-+#endif /* IS_ENABLED(CONFIG_IPV6) */
++	unsigned int overhead = 0;
++	struct dst_entry *dst;
++	u32 l3_overhead = 0;
 +
-+	if (!sk)
-+		return overhead;
-+
-+	owned_by_user = sock_owned_by_user(sk);
-+	switch (sk->sk_family) {
-+	case AF_INET:
-+		inet = inet_sk(sk);
-+		overhead += sizeof(struct iphdr);
-+		opt = rcu_dereference_protected(inet->inet_opt,
-+						owned_by_user);
-+		if (opt)
-+			overhead += opt->opt.optlen;
-+		return overhead;
-+#if IS_ENABLED(CONFIG_IPV6)
-+	case AF_INET6:
-+		np = inet6_sk(sk);
-+		overhead += sizeof(struct ipv6hdr);
-+		if (np)
-+			optv6 = rcu_dereference_protected(np->opt,
-+							  owned_by_user);
-+		if (optv6)
-+			overhead += (optv6->opt_flen + optv6->opt_nflen);
-+		return overhead;
-+#endif /* IS_ENABLED(CONFIG_IPV6) */
-+	default: /* Returns 0 overhead if the socket is not ipv4 or ipv6 */
-+		return overhead;
++	/* if the encap is UDP, account for UDP header size */
++	if (tunnel->encap == L2TP_ENCAPTYPE_UDP) {
++		overhead += sizeof(struct udphdr);
++		dev->needed_headroom += sizeof(struct udphdr);
 +	}
++	if (session->mtu != 0) {
++		dev->mtu = session->mtu;
++		dev->needed_headroom += session->hdr_len;
++		return;
++	}
++	l3_overhead = kernel_sock_ip_overhead(tunnel->sock);
++	if (l3_overhead == 0) {
++		/* L3 Overhead couldn't be identified, this could be
++		 * because tunnel->sock was NULL or the socket's
++		 * address family was not IPv4 or IPv6,
++		 * dev mtu stays at 1500.
++		 */
++		return;
++	}
++	/* Adjust MTU, factor overhead - underlay L3, overlay L2 hdr
++	 * UDP overhead, if any, was already factored in above.
++	 */
++	overhead += session->hdr_len + ETH_HLEN + l3_overhead;
++
++	/* If PMTU discovery was enabled, use discovered MTU on L2TP device */
++	dst = sk_dst_get(tunnel->sock);
++	if (dst) {
++		/* dst_mtu will use PMTU if found, else fallback to intf MTU */
++		u32 pmtu = dst_mtu(dst);
++
++		if (pmtu != 0)
++			dev->mtu = pmtu;
++		dst_release(dst);
++	}
++	session->mtu = dev->mtu - overhead;
++	dev->mtu = session->mtu;
++	dev->needed_headroom += session->hdr_len;
 +}
-+EXPORT_SYMBOL(kernel_sock_ip_overhead);
++
+ static int l2tp_eth_create(struct net *net, u32 tunnel_id, u32 session_id, u32 peer_session_id, struct l2tp_session_cfg *cfg)
+ {
+ 	struct net_device *dev;
+@@ -249,10 +299,7 @@ static int l2tp_eth_create(struct net *net, u32 tunnel_id, u32 session_id, u32 p
+ 	}
+ 
+ 	dev_net_set(dev, net);
+-	if (session->mtu == 0)
+-		session->mtu = dev->mtu - session->hdr_len;
+-	dev->mtu = session->mtu;
+-	dev->needed_headroom += session->hdr_len;
++	l2tp_eth_adjust_mtu(tunnel, session, dev);
+ 
+ 	priv = netdev_priv(dev);
+ 	priv->dev = dev;
 -- 
 2.26.2.761.g0e0b3e54be-goog
 
