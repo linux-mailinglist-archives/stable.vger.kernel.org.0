@@ -2,86 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DE53F1DD561
-	for <lists+stable@lfdr.de>; Thu, 21 May 2020 19:59:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 74F3B1DD63A
+	for <lists+stable@lfdr.de>; Thu, 21 May 2020 20:46:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729016AbgEUR7K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 21 May 2020 13:59:10 -0400
-Received: from mga18.intel.com ([134.134.136.126]:24539 "EHLO mga18.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727883AbgEUR7K (ORCPT <rfc822;Stable@vger.kernel.org>);
-        Thu, 21 May 2020 13:59:10 -0400
-IronPort-SDR: cDoyhMz7SSkSAdW9mkv1QeVUa9UsKJ3D6QQf+tfinivpglRhVeYKQGJDbBZKnKBvKR40ERHEhJ
- FYM3J1mEpJxw==
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga005.jf.intel.com ([10.7.209.41])
-  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 21 May 2020 10:59:09 -0700
-IronPort-SDR: sZn8coVk+aGRy6cR7nKyBcK9tldIrd57JjTZ0zG9Tkm1tCPvh5em5kKCCCrKUbC8dxHt+bwZhG
- 4+djOVlI0+qw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.73,418,1583222400"; 
-   d="scan'208";a="440543290"
-Received: from chenyu-office.sh.intel.com ([10.239.158.173])
-  by orsmga005.jf.intel.com with ESMTP; 21 May 2020 10:59:06 -0700
-From:   Chen Yu <yu.c.chen@intel.com>
-To:     Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Auke Kok <auke-jan.h.kok@intel.com>,
-        Jeff Garzik <jeff@garzik.org>
-Cc:     intel-wired-lan@lists.osuosl.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Len Brown <len.brown@intel.com>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        "Shevchenko, Andriy" <andriy.shevchenko@intel.com>,
-        "Neftin, Sasha" <sasha.neftin@intel.com>,
-        "Lifshits, Vitaly" <vitaly.lifshits@intel.com>,
-        Chen Yu <yu.c.chen@intel.com>, Stable@vger.kernel.org
-Subject: [PATCH 2/2] e1000e: Make WOL info in ethtool consistent with device wake up ability
-Date:   Fri, 22 May 2020 01:59:13 +0800
-Message-Id: <725bad2f3ce7f7b7f1667d53b6527dc059f9e419.1590081982.git.yu.c.chen@intel.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <cover.1590081982.git.yu.c.chen@intel.com>
-References: <cover.1590081982.git.yu.c.chen@intel.com>
+        id S1728771AbgEUSqH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 21 May 2020 14:46:07 -0400
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:40955 "EHLO
+        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728240AbgEUSqH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 21 May 2020 14:46:07 -0400
+Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
+        by mailout.nyi.internal (Postfix) with ESMTP id 281AC5C00B3;
+        Thu, 21 May 2020 14:46:06 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute3.internal (MEProxy); Thu, 21 May 2020 14:46:06 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=5vLYKu
+        Xa+UUaGWnNM1CRpSE460GjOXDkyZjKCdT783g=; b=0KHI1XI5mrzKJUKfroMclt
+        caUTTAnia0Qon+dGzPX/wRI2SOknY4bkod/GdNT2f0RxPuXNVd0BEtZgt55udaDf
+        psD22x2ec17tAnU0Yj+HH7vbun1DKimUWva0SX98SBrnfc+r2A9QH3ZzG+BrXP3U
+        wSI5kv86DwsKayk9LwQhW9Z83wimA2a0MyznQzwiCWiJmKaG+c+HaIoNpRDmcMWv
+        5wC2CUwc1BUCrhGDOa1TjfPFI9i8lGEZZPI4D6IJhW3VxSgztcJ1E5h1UtxHNErt
+        Z9PmKeo7z5/0/H28EerMW6KqkFT/1mvAlxwpsDO2UJH+ChYN2FkLCIIcZ7J/Ra0g
+        ==
+X-ME-Sender: <xms:bczGXqTWopXQpDgSc8qtXCEPUf9U7SAbPbN2Rnzhd_p09YKK_Zb8SQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudduuddguddvtdcutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
+    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
+    enucfjughrpeffhffvuffkfhggtggujgesghdtreertddtjeenucfhrhhomhepofgrrhgv
+    khcuofgrrhgtiiihkhhofihskhhiqdfikphrvggtkhhiuceomhgrrhhmrghrvghksehinh
+    hvihhsihgslhgvthhhihhnghhslhgrsgdrtghomheqnecuggftrfgrthhtvghrnhepieek
+    geeivdelkeejgeetkeelgeevgefhfeeghfffieehudeuteekueetgeetiefgnecuffhomh
+    grihhnpehmrghrkhhmrghilhdrohhrghenucfkphepledurdeihedrfeegrdeffeenucev
+    lhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehmrghrmhgrrh
+    gvkhesihhnvhhishhisghlvghthhhinhhgshhlrggsrdgtohhm
+X-ME-Proxy: <xmx:bczGXvzXUmL1HdDyECiX4Iav9VuYdxbb-p2Fq4JFeYjxLWIutkeGuQ>
+    <xmx:bczGXn22Aufr2TGoqgHvvxB3f9Gf3f-jIO-8ISISerhrQgrSjhnrng>
+    <xmx:bczGXmBtO7Jubmnk77hQyhgnyL6w0DxBlY7Uo1JBa5YjPDWzUs8HFg>
+    <xmx:bszGXrbEzmw5gVwWBC4Tj0CHrR8SuUZbxOxzKVR3STZbQshtbYgJkQ>
+Received: from mail-itl (unknown [91.65.34.33])
+        by mail.messagingengine.com (Postfix) with ESMTPA id C1469306645C;
+        Thu, 21 May 2020 14:46:04 -0400 (EDT)
+Date:   Thu, 21 May 2020 20:46:02 +0200
+From:   Marek =?utf-8?Q?Marczykowski-G=C3=B3recki?= 
+        <marmarek@invisiblethingslab.com>
+To:     Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Cc:     Juergen Gross <jgross@suse.com>, xen-devel@lists.xenproject.org,
+        linux-kernel@vger.kernel.org,
+        Stefano Stabellini <sstabellini@kernel.org>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] xen/events: avoid NULL pointer dereference in
+ evtchn_from_irq()
+Message-ID: <20200521184602.GP98582@mail-itl>
+References: <20200319071428.12115-1-jgross@suse.com>
+ <30719c35-6de7-d400-7bb8-cff4570f8971@oracle.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="KR/qxknboQ7+Tpez"
+Content-Disposition: inline
+In-Reply-To: <30719c35-6de7-d400-7bb8-cff4570f8971@oracle.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Currently the ethtool shows that WOL(Wake On Lan) is enabled
-even if the device wakeup ability has been disabled via sysfs:
-  cat /sys/devices/pci0000:00/0000:00:1f.6/power/wakeup
-   disabled
 
-  ethtool eno1
-  ...
-  Wake-on: g
+--KR/qxknboQ7+Tpez
+Content-Type: text/plain; protected-headers=v1; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [PATCH] xen/events: avoid NULL pointer dereference in
+ evtchn_from_irq()
 
-Fix this in ethtool to check if the user has explicitly disabled the
-wake up ability for this device.
+On Thu, May 21, 2020 at 01:22:03PM -0400, Boris Ostrovsky wrote:
+> On 3/19/20 3:14 AM, Juergen Gross wrote:
+> > There have been reports of races in evtchn_from_irq() where the info
+> > pointer has been NULL.
+> >
+> > Avoid that case by testing info before dereferencing it.
+> >
+> > In order to avoid accessing a just freed info structure do the kfree()
+> > via kfree_rcu().
+>=20
+>=20
+> Looks like noone ever responded to this.
+>=20
+>=20
+> This change looks fine but is there a background on the problem? I
+> looked in the archives and didn't find the relevant discussion.
 
-Fixes: 6ff68026f475 ("e1000e: Use device_set_wakeup_enable")
-Reported-by: Len Brown <len.brown@intel.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Chen Yu <yu.c.chen@intel.com>
----
- drivers/net/ethernet/intel/e1000e/ethtool.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Here is the original bug report:
+https://xen.markmail.org/thread/44apwkwzeme4uavo
 
-diff --git a/drivers/net/ethernet/intel/e1000e/ethtool.c b/drivers/net/ethernet/intel/e1000e/ethtool.c
-index 1d47e2503072..0cccd823ff24 100644
---- a/drivers/net/ethernet/intel/e1000e/ethtool.c
-+++ b/drivers/net/ethernet/intel/e1000e/ethtool.c
-@@ -1891,7 +1891,7 @@ static void e1000_get_wol(struct net_device *netdev,
- 	wol->wolopts = 0;
- 
- 	if (!(adapter->flags & FLAG_HAS_WOL) ||
--	    !device_can_wakeup(&adapter->pdev->dev))
-+	    !device_may_wakeup(&adapter->pdev->dev))
- 		return;
- 
- 	wol->supported = WAKE_UCAST | WAKE_MCAST |
--- 
-2.17.1
+--=20
+Best Regards,
+Marek Marczykowski-G=C3=B3recki
+Invisible Things Lab
+A: Because it messes up the order in which people normally read text.
+Q: Why is top-posting such a bad thing?
 
+--KR/qxknboQ7+Tpez
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCAAdFiEEhrpukzGPukRmQqkK24/THMrX1ywFAl7GzGkACgkQ24/THMrX
+1yygDAf/RzUmiuF2TM7HvZsoGQmZxnc+ZrcCx9F+FXoYyHUYYjyoj5hnMWPJit1g
+GPLie+6PbPhjOyC+6tYK9TGgEv2HxyO8PNLTWDRDRnxrf8rBTqMKRvcbm8FYZV+J
+9baXNldjf6TvgddPwik9bqetHX+e/QpyeovpcSOzbP1dXKWnxUbypEinsiNxtT97
+vkiW/LfYtzb8arPdFVmVl/9YPmvk+080mm2eTQYARy7qVlM70zqsvtWBYQYFcxd2
+N7OH7AoSARVyncbIT1B5bTrte9HTFB4ewJ1CvTvc3wOGDbUCiyVz7nDxNRQo6/S/
+3x7RfR3nRBE3RwMeEj2cAdsgzOkI9g==
+=oact
+-----END PGP SIGNATURE-----
+
+--KR/qxknboQ7+Tpez--
