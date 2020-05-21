@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4644D1DD8CC
-	for <lists+stable@lfdr.de>; Thu, 21 May 2020 22:49:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EDC01DD8A4
+	for <lists+stable@lfdr.de>; Thu, 21 May 2020 22:47:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730438AbgEUUtW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 21 May 2020 16:49:22 -0400
-Received: from userp2130.oracle.com ([156.151.31.86]:56372 "EHLO
-        userp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730382AbgEUUtV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 21 May 2020 16:49:21 -0400
-Received: from pps.filterd (userp2130.oracle.com [127.0.0.1])
-        by userp2130.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 04LKlgsv143463;
-        Thu, 21 May 2020 20:49:05 GMT
+        id S1729446AbgEUUrS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 21 May 2020 16:47:18 -0400
+Received: from aserp2120.oracle.com ([141.146.126.78]:48608 "EHLO
+        aserp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726858AbgEUUrS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 21 May 2020 16:47:18 -0400
+Received: from pps.filterd (aserp2120.oracle.com [127.0.0.1])
+        by aserp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 04LKfpfp113288;
+        Thu, 21 May 2020 20:47:07 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
  subject : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=corp-2020-01-29;
- bh=3ahmSjfe7WVPI6VDs9i1PKjTTWGYd1+9zkUws2yrtXE=;
- b=CRIal4mAhqvTjVvw6oRvcfH8qq2VJAwq5bovIXm93AUY207dpcaBHGqpSdaYuxr7DshJ
- Uq9GwbrfdXhup8TwpRO/PM7QcCLEMoUleH9XgYksJRoiwlcCtJS4TTmJ+8pCw6LuFVz3
- k9XUNFoSX5msgFkHo6yhT0B2CNsD4hWEbGSYDcMcXZ8m05KCc7okrWBLtRE70Z9hvvnn
- 3o1XSGMdNutlAFviFn8kLcHnVf8kmsArM7S9ZPS+0RKmX0OM/ZNa4jM/NzIgVQWwMtTv
- XcipwWv8DAdkw6QuMplY61TpP0m6OzZIoHd5Xp4YOBTb1FZVNko5kqoXg2SDr8cqtE7C cA== 
-Received: from userp3020.oracle.com (userp3020.oracle.com [156.151.31.79])
-        by userp2130.oracle.com with ESMTP id 3127krjq62-1
+ bh=CF6OJe7RZ0iClgY/Wfc9jssg1+Q4GlwmBjUzdYqjt78=;
+ b=GZFHsNYlIssNKG14BkO40S6CX4BiJexQKNec/4QjG4DlEcKQmork/ywiUASMWteYBj53
+ B+ESkCNzLSkVqoENR/w7ahCY22OM7hMchKJNwA8/H0o3K3hQ8CFZBiis4/zhF7ZU6oC+
+ h0TyZMSHrSDVYn/QtffmLy+m8gRiMoCJzemCQkmAfLi2ZjneyBCjYvMHO/bcEb7hdiRx
+ gMl9sdHscols6x3Xr6Nf1HmDusGAwUnWNOtpvQqp1SPwebogmAmlHOuin+eBpckUuiKx
+ QQ+q+74m5tPzbwPPqze+UQsghEVcLEaS9ijEpQQkT5H5RHD3XXTXrtK77ZKeZt57Ix8P vQ== 
+Received: from userp3030.oracle.com (userp3030.oracle.com [156.151.31.80])
+        by aserp2120.oracle.com with ESMTP id 31284map0g-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
-        Thu, 21 May 2020 20:49:05 +0000
-Received: from pps.filterd (userp3020.oracle.com [127.0.0.1])
-        by userp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 04LKhHb3018174;
-        Thu, 21 May 2020 20:47:05 GMT
+        Thu, 21 May 2020 20:47:07 +0000
+Received: from pps.filterd (userp3030.oracle.com [127.0.0.1])
+        by userp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 04LKiXxb046437;
+        Thu, 21 May 2020 20:47:06 GMT
 Received: from aserv0122.oracle.com (aserv0122.oracle.com [141.146.126.236])
-        by userp3020.oracle.com with ESMTP id 31502343aw-1
+        by userp3030.oracle.com with ESMTP id 314gm9wtg7-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 21 May 2020 20:47:05 +0000
+        Thu, 21 May 2020 20:47:06 +0000
 Received: from abhmp0020.oracle.com (abhmp0020.oracle.com [141.146.116.26])
-        by aserv0122.oracle.com (8.14.4/8.14.4) with ESMTP id 04LKl3xX022334;
-        Thu, 21 May 2020 20:47:03 GMT
+        by aserv0122.oracle.com (8.14.4/8.14.4) with ESMTP id 04LKl52F022361;
+        Thu, 21 May 2020 20:47:05 GMT
 Received: from localhost.localdomain (/98.229.125.203)
         by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Thu, 21 May 2020 13:47:03 -0700
+        with ESMTP ; Thu, 21 May 2020 13:47:04 -0700
 From:   Daniel Jordan <daniel.m.jordan@oracle.com>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
@@ -49,328 +49,95 @@ Cc:     Ben Hutchings <ben@decadent.org.uk>,
         Steffen Klassert <steffen.klassert@secunet.com>,
         stable@vger.kernel.org, linux-crypto@vger.kernel.org,
         Daniel Jordan <daniel.m.jordan@oracle.com>
-Subject: [stable-4.14 2/4] padata: Replace delayed timer with immediate workqueue in padata_reorder
-Date:   Thu, 21 May 2020 16:46:56 -0400
-Message-Id: <20200521204658.1952777-2-daniel.m.jordan@oracle.com>
+Subject: [stable-4.14 3/4] padata: initialize pd->cpu with effective cpumask
+Date:   Thu, 21 May 2020 16:46:57 -0400
+Message-Id: <20200521204658.1952777-3-daniel.m.jordan@oracle.com>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200521204658.1952777-1-daniel.m.jordan@oracle.com>
 References: <20200521204658.1952777-1-daniel.m.jordan@oracle.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9628 signatures=668686
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 spamscore=0 mlxscore=0 mlxlogscore=999
- adultscore=0 bulkscore=0 suspectscore=0 phishscore=0 malwarescore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2004280000
- definitions=main-2005210153
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9628 signatures=668686
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 adultscore=0 phishscore=0 spamscore=0
- bulkscore=0 clxscore=1015 priorityscore=1501 mlxscore=0 impostorscore=0
- suspectscore=0 mlxlogscore=999 malwarescore=0 cotscore=-2147483648
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 malwarescore=0 mlxlogscore=999
+ adultscore=0 phishscore=0 mlxscore=0 spamscore=0 suspectscore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2004280000 definitions=main-2005210154
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9628 signatures=668686
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 mlxscore=0
+ cotscore=-2147483648 impostorscore=0 malwarescore=0 mlxlogscore=999
+ lowpriorityscore=0 phishscore=0 spamscore=0 bulkscore=0 adultscore=0
+ priorityscore=1501 clxscore=1011 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2004280000 definitions=main-2005210153
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
+[ Upstream commit ec9c7d19336ee98ecba8de80128aa405c45feebb ]
 
-[ Upstream commit 6fc4dbcf0276279d488c5fbbfabe94734134f4fa ]
+Exercising CPU hotplug on a 5.2 kernel with recent padata fixes from
+cryptodev-2.6.git in an 8-CPU kvm guest...
 
-The function padata_reorder will use a timer when it cannot progress
-while completed jobs are outstanding (pd->reorder_objects > 0).  This
-is suboptimal as if we do end up using the timer then it would have
-introduced a gratuitous delay of one second.
+    # modprobe tcrypt alg="pcrypt(rfc4106(gcm(aes)))" type=3
+    # echo 0 > /sys/devices/system/cpu/cpu1/online
+    # echo c > /sys/kernel/pcrypt/pencrypt/parallel_cpumask
+    # modprobe tcrypt mode=215
 
-In fact we can easily distinguish between whether completed jobs
-are outstanding and whether we can make progress.  All we have to
-do is look at the next pqueue list.
+...caused the following crash:
 
-This patch does that by replacing pd->processed with pd->cpu so
-that the next pqueue is more accessible.
+    BUG: kernel NULL pointer dereference, address: 0000000000000000
+    #PF: supervisor read access in kernel mode
+    #PF: error_code(0x0000) - not-present page
+    PGD 0 P4D 0
+    Oops: 0000 [#1] SMP PTI
+    CPU: 2 PID: 134 Comm: kworker/2:2 Not tainted 5.2.0-padata-base+ #7
+    Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.12.0-<snip>
+    Workqueue: pencrypt padata_parallel_worker
+    RIP: 0010:padata_reorder+0xcb/0x180
+    ...
+    Call Trace:
+     padata_do_serial+0x57/0x60
+     pcrypt_aead_enc+0x3a/0x50 [pcrypt]
+     padata_parallel_worker+0x9b/0xe0
+     process_one_work+0x1b5/0x3f0
+     worker_thread+0x4a/0x3c0
+     ...
 
-A work queue is used instead of the original try_again to avoid
-hogging the CPU.
+In padata_alloc_pd, pd->cpu is set using the user-supplied cpumask
+instead of the effective cpumask, and in this case cpumask_first picked
+an offline CPU.
 
-Note that we don't bother removing the work queue in
-padata_flush_queues because the whole premise is broken.  You
-cannot flush async crypto requests so it makes no sense to even
-try.  A subsequent patch will fix it by replacing it with a ref
-counting scheme.
+The offline CPU's reorder->list.next is NULL in padata_reorder because
+the list wasn't initialized in padata_init_pqueues, which only operates
+on CPUs in the effective mask.
 
+Fix by using the effective mask in padata_alloc_pd.
+
+Fixes: 6fc4dbcf0276 ("padata: Replace delayed timer with immediate workqueue in padata_reorder")
+Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: Steffen Klassert <steffen.klassert@secunet.com>
+Cc: linux-crypto@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-[dj: - adjust context
-     - corrected setup_timer -> timer_setup to delete hunk
-     - skip padata_flush_queues() hunk, function already removed
-       in 4.14]
 Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
 ---
- include/linux/padata.h | 13 ++----
- kernel/padata.c        | 95 ++++++++----------------------------------
- 2 files changed, 22 insertions(+), 86 deletions(-)
+ kernel/padata.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/linux/padata.h b/include/linux/padata.h
-index 5d13d25da2c8..d803397a28f7 100644
---- a/include/linux/padata.h
-+++ b/include/linux/padata.h
-@@ -24,7 +24,6 @@
- #include <linux/workqueue.h>
- #include <linux/spinlock.h>
- #include <linux/list.h>
--#include <linux/timer.h>
- #include <linux/notifier.h>
- #include <linux/kobject.h>
- 
-@@ -85,18 +84,14 @@ struct padata_serial_queue {
-  * @serial: List to wait for serialization after reordering.
-  * @pwork: work struct for parallelization.
-  * @swork: work struct for serialization.
-- * @pd: Backpointer to the internal control structure.
-  * @work: work struct for parallelization.
-- * @reorder_work: work struct for reordering.
-  * @num_obj: Number of objects that are processed by this cpu.
-  * @cpu_index: Index of the cpu.
-  */
- struct padata_parallel_queue {
-        struct padata_list    parallel;
-        struct padata_list    reorder;
--       struct parallel_data *pd;
-        struct work_struct    work;
--       struct work_struct    reorder_work;
-        atomic_t              num_obj;
-        int                   cpu_index;
- };
-@@ -122,10 +117,10 @@ struct padata_cpumask {
-  * @reorder_objects: Number of objects waiting in the reorder queues.
-  * @refcnt: Number of objects holding a reference on this parallel_data.
-  * @max_seq_nr:  Maximal used sequence number.
-+ * @cpu: Next CPU to be processed.
-  * @cpumask: The cpumasks in use for parallel and serial workers.
-+ * @reorder_work: work struct for reordering.
-  * @lock: Reorder lock.
-- * @processed: Number of already processed objects.
-- * @timer: Reorder timer.
-  */
- struct parallel_data {
- 	struct padata_instance		*pinst;
-@@ -134,10 +129,10 @@ struct parallel_data {
- 	atomic_t			reorder_objects;
- 	atomic_t			refcnt;
- 	atomic_t			seq_nr;
-+	int				cpu;
- 	struct padata_cpumask		cpumask;
-+	struct work_struct		reorder_work;
- 	spinlock_t                      lock ____cacheline_aligned;
--	unsigned int			processed;
--	struct timer_list		timer;
- };
- 
- /**
 diff --git a/kernel/padata.c b/kernel/padata.c
-index 858e82179744..66d96ed62286 100644
+index 66d96ed62286..6d0cdee9d321 100644
 --- a/kernel/padata.c
 +++ b/kernel/padata.c
-@@ -166,23 +166,12 @@ EXPORT_SYMBOL(padata_do_parallel);
-  */
- static struct padata_priv *padata_get_next(struct parallel_data *pd)
- {
--	int cpu, num_cpus;
--	unsigned int next_nr, next_index;
- 	struct padata_parallel_queue *next_queue;
- 	struct padata_priv *padata;
- 	struct padata_list *reorder;
-+	int cpu = pd->cpu;
- 
--	num_cpus = cpumask_weight(pd->cpumask.pcpu);
--
--	/*
--	 * Calculate the percpu reorder queue and the sequence
--	 * number of the next object.
--	 */
--	next_nr = pd->processed;
--	next_index = next_nr % num_cpus;
--	cpu = padata_index_to_cpu(pd, next_index);
- 	next_queue = per_cpu_ptr(pd->pqueue, cpu);
--
- 	reorder = &next_queue->reorder;
- 
- 	spin_lock(&reorder->lock);
-@@ -193,7 +182,8 @@ static struct padata_priv *padata_get_next(struct parallel_data *pd)
- 		list_del_init(&padata->list);
- 		atomic_dec(&pd->reorder_objects);
- 
--		pd->processed++;
-+		pd->cpu = cpumask_next_wrap(cpu, pd->cpumask.pcpu, -1,
-+					    false);
- 
- 		spin_unlock(&reorder->lock);
- 		goto out;
-@@ -216,6 +206,7 @@ static void padata_reorder(struct parallel_data *pd)
- 	struct padata_priv *padata;
- 	struct padata_serial_queue *squeue;
- 	struct padata_instance *pinst = pd->pinst;
-+	struct padata_parallel_queue *next_queue;
- 
- 	/*
- 	 * We need to ensure that only one cpu can work on dequeueing of
-@@ -247,7 +238,6 @@ static void padata_reorder(struct parallel_data *pd)
- 		 * so exit immediately.
- 		 */
- 		if (PTR_ERR(padata) == -ENODATA) {
--			del_timer(&pd->timer);
- 			spin_unlock_bh(&pd->lock);
- 			return;
- 		}
-@@ -266,70 +256,29 @@ static void padata_reorder(struct parallel_data *pd)
- 
- 	/*
- 	 * The next object that needs serialization might have arrived to
--	 * the reorder queues in the meantime, we will be called again
--	 * from the timer function if no one else cares for it.
-+	 * the reorder queues in the meantime.
- 	 *
--	 * Ensure reorder_objects is read after pd->lock is dropped so we see
--	 * an increment from another task in padata_do_serial.  Pairs with
-+	 * Ensure reorder queue is read after pd->lock is dropped so we see
-+	 * new objects from another task in padata_do_serial.  Pairs with
- 	 * smp_mb__after_atomic in padata_do_serial.
- 	 */
- 	smp_mb();
--	if (atomic_read(&pd->reorder_objects)
--			&& !(pinst->flags & PADATA_RESET))
--		mod_timer(&pd->timer, jiffies + HZ);
--	else
--		del_timer(&pd->timer);
- 
--	return;
-+	next_queue = per_cpu_ptr(pd->pqueue, pd->cpu);
-+	if (!list_empty(&next_queue->reorder.list))
-+		queue_work(pinst->wq, &pd->reorder_work);
- }
- 
- static void invoke_padata_reorder(struct work_struct *work)
- {
--	struct padata_parallel_queue *pqueue;
- 	struct parallel_data *pd;
- 
- 	local_bh_disable();
--	pqueue = container_of(work, struct padata_parallel_queue, reorder_work);
--	pd = pqueue->pd;
-+	pd = container_of(work, struct parallel_data, reorder_work);
- 	padata_reorder(pd);
- 	local_bh_enable();
- }
- 
--static void padata_reorder_timer(unsigned long arg)
--{
--	struct parallel_data *pd = (struct parallel_data *)arg;
--	unsigned int weight;
--	int target_cpu, cpu;
--
--	cpu = get_cpu();
--
--	/* We don't lock pd here to not interfere with parallel processing
--	 * padata_reorder() calls on other CPUs. We just need any CPU out of
--	 * the cpumask.pcpu set. It would be nice if it's the right one but
--	 * it doesn't matter if we're off to the next one by using an outdated
--	 * pd->processed value.
--	 */
--	weight = cpumask_weight(pd->cpumask.pcpu);
--	target_cpu = padata_index_to_cpu(pd, pd->processed % weight);
--
--	/* ensure to call the reorder callback on the correct CPU */
--	if (cpu != target_cpu) {
--		struct padata_parallel_queue *pqueue;
--		struct padata_instance *pinst;
--
--		/* The timer function is serialized wrt itself -- no locking
--		 * needed.
--		 */
--		pinst = pd->pinst;
--		pqueue = per_cpu_ptr(pd->pqueue, target_cpu);
--		queue_work_on(target_cpu, pinst->wq, &pqueue->reorder_work);
--	} else {
--		padata_reorder(pd);
--	}
--
--	put_cpu();
--}
--
- static void padata_serial_worker(struct work_struct *serial_work)
- {
- 	struct padata_serial_queue *squeue;
-@@ -383,9 +332,8 @@ void padata_do_serial(struct padata_priv *padata)
- 
- 	cpu = get_cpu();
- 
--	/* We need to run on the same CPU padata_do_parallel(.., padata, ..)
--	 * was called on -- or, at least, enqueue the padata object into the
--	 * correct per-cpu queue.
-+	/* We need to enqueue the padata object into the correct
-+	 * per-cpu queue.
- 	 */
- 	if (cpu != padata->cpu) {
- 		reorder_via_wq = 1;
-@@ -395,12 +343,12 @@ void padata_do_serial(struct padata_priv *padata)
- 	pqueue = per_cpu_ptr(pd->pqueue, cpu);
- 
- 	spin_lock(&pqueue->reorder.lock);
--	atomic_inc(&pd->reorder_objects);
- 	list_add_tail(&padata->list, &pqueue->reorder.list);
-+	atomic_inc(&pd->reorder_objects);
- 	spin_unlock(&pqueue->reorder.lock);
- 
- 	/*
--	 * Ensure the atomic_inc of reorder_objects above is ordered correctly
-+	 * Ensure the addition to the reorder list is ordered correctly
- 	 * with the trylock of pd->lock in padata_reorder.  Pairs with smp_mb
- 	 * in padata_reorder.
- 	 */
-@@ -408,13 +356,7 @@ void padata_do_serial(struct padata_priv *padata)
- 
- 	put_cpu();
- 
--	/* If we're running on the wrong CPU, call padata_reorder() via a
--	 * kernel worker.
--	 */
--	if (reorder_via_wq)
--		queue_work_on(cpu, pd->pinst->wq, &pqueue->reorder_work);
--	else
--		padata_reorder(pd);
-+	padata_reorder(pd);
- }
- EXPORT_SYMBOL(padata_do_serial);
- 
-@@ -470,14 +412,12 @@ static void padata_init_pqueues(struct parallel_data *pd)
- 			continue;
- 		}
- 
--		pqueue->pd = pd;
- 		pqueue->cpu_index = cpu_index;
- 		cpu_index++;
- 
- 		__padata_list_init(&pqueue->reorder);
- 		__padata_list_init(&pqueue->parallel);
- 		INIT_WORK(&pqueue->work, padata_parallel_worker);
--		INIT_WORK(&pqueue->reorder_work, invoke_padata_reorder);
- 		atomic_set(&pqueue->num_obj, 0);
- 	}
- }
-@@ -505,12 +445,13 @@ static struct parallel_data *padata_alloc_pd(struct padata_instance *pinst,
- 
- 	padata_init_pqueues(pd);
- 	padata_init_squeues(pd);
--	setup_timer(&pd->timer, padata_reorder_timer, (unsigned long)pd);
- 	atomic_set(&pd->seq_nr, -1);
- 	atomic_set(&pd->reorder_objects, 0);
+@@ -450,7 +450,7 @@ static struct parallel_data *padata_alloc_pd(struct padata_instance *pinst,
  	atomic_set(&pd->refcnt, 1);
  	pd->pinst = pinst;
  	spin_lock_init(&pd->lock);
-+	pd->cpu = cpumask_first(pcpumask);
-+	INIT_WORK(&pd->reorder_work, invoke_padata_reorder);
+-	pd->cpu = cpumask_first(pcpumask);
++	pd->cpu = cpumask_first(pd->cpumask.pcpu);
+ 	INIT_WORK(&pd->reorder_work, invoke_padata_reorder);
  
  	return pd;
- 
 -- 
 2.26.2
 
