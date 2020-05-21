@@ -2,122 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BC93E1DCFBE
-	for <lists+stable@lfdr.de>; Thu, 21 May 2020 16:31:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7EF2D1DD03C
+	for <lists+stable@lfdr.de>; Thu, 21 May 2020 16:41:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729509AbgEUObF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 21 May 2020 10:31:05 -0400
-Received: from smtp12.smtpout.orange.fr ([80.12.242.134]:23089 "EHLO
-        smtp.smtpout.orange.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727985AbgEUObF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 21 May 2020 10:31:05 -0400
-Received: from [192.168.42.210] ([93.22.132.254])
-        by mwinf5d47 with ME
-        id hSX12200Q5VUqNM03SX1Ps; Thu, 21 May 2020 16:31:02 +0200
-X-ME-Helo: [192.168.42.210]
-X-ME-Auth: Y2hyaXN0b3BoZS5qYWlsbGV0QHdhbmFkb28uZnI=
-X-ME-Date: Thu, 21 May 2020 16:31:02 +0200
-X-ME-IP: 93.22.132.254
-Subject: Re: [PATCH 3.16 35/99] pxa168fb: Fix the function used to release
- some memory in an error handling path
-From:   Marion & Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-To:     Ben Hutchings <ben@decadent.org.uk>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Cc:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        YueHaibing <yuehaibing@huawei.com>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
-        Lubomir Rintel <lkundrak@v3.sk>
-References: <lsq.1589984008.562400019@decadent.org.uk>
- <95e4cf2d-5f50-e7bd-6e1e-a1d172eb24b6@wanadoo.fr>
-Message-ID: <104d4c9f-48d8-19b1-d529-a34fcc1e5606@wanadoo.fr>
-Date:   Thu, 21 May 2020 16:31:02 +0200
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
- Thunderbird/68.8.0
-MIME-Version: 1.0
-In-Reply-To: <95e4cf2d-5f50-e7bd-6e1e-a1d172eb24b6@wanadoo.fr>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Content-Language: en-US
+        id S1729646AbgEUOlL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 21 May 2020 10:41:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56706 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726973AbgEUOlK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 21 May 2020 10:41:10 -0400
+Received: from mail-qt1-x849.google.com (mail-qt1-x849.google.com [IPv6:2607:f8b0:4864:20::849])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F404C061A0E
+        for <stable@vger.kernel.org>; Thu, 21 May 2020 07:41:10 -0700 (PDT)
+Received: by mail-qt1-x849.google.com with SMTP id n33so7885111qtd.10
+        for <stable@vger.kernel.org>; Thu, 21 May 2020 07:41:10 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=date:message-id:mime-version:subject:from:to:cc
+         :content-transfer-encoding;
+        bh=6k14IwnWz9IUoxJi19PZH1jdwcO49hAgm7GG1yHzFMU=;
+        b=rsRZw8yzTeJsbaswmpyeBE+LuI1+i8uAJ7HqXFK4ZFDC1L5SzMxcyX5v06VJYyE18i
+         YgGliRFROPMigqGF9HL0QDMCfX6K+shvUNBc2uaeOFc+yYsNTMB0Nh6RdL22GlBdNuB3
+         puk7vgKejG9FTNS8+JPJtIghzHLRE4T2pRkJJIUn7WSQzXgHBdMwIshtvEsuVVlo/Jet
+         LyfQlZPt42IxhGBK88Xbqtw8GWYsuvwY4DT+IQdqwrTfBYy4qVgwicPboqG8fK2mwL7R
+         OPcHhBifsLO0HKkomAd8T8I/CLaAlpTZh+UgovLAwvmkKqyIPp1heoNy/0Y8VXwwE4Fz
+         vBaA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc
+         :content-transfer-encoding;
+        bh=6k14IwnWz9IUoxJi19PZH1jdwcO49hAgm7GG1yHzFMU=;
+        b=nbGeWVT6TMpltP2H8PJdFkSHQSYgsx9HWWUQQFoaham/U7tLdUFlmcQIiozPdVC2LH
+         fYUmRDgRLCgK/51PjzO7S6t9svxvxigvv4ngdWliB9Im8HtR96L6zFuuDo7i3/67I/pB
+         y/Qsd2EXqRhBLdPwcMa7coOlFWv8/P46Eu/cQ1lGjePDzjdo4fn8eDohjKz9HOHncHZd
+         f2DhoLgVHWE+xMI7BIHz66w8bHc4zcQRAJ8qia68mqspLxIqFv+6yLiP2wkH+a7+AzbY
+         no4mZth4/LpER6SmRJly1dHtvg7ir4gGKF8VLozfggmwX1rnmIWg0+ukISmVImt9ZSlR
+         NQbg==
+X-Gm-Message-State: AOAM531k3r9TPAXOKeyxCTzt9PcGIFuGo4j8IKQ7SEnaioCv4dHtcb2g
+        4e/ETmMK66fyXf86dUB1xWOwecxtDl1UeQ==
+X-Google-Smtp-Source: ABdhPJwGv8sKIcu+imxbH/orWJh1ewr6kmXJnB657rQ/i10HAKCXp76wWkaDCequxsuZ3S7M5z+GvSuv70nTig==
+X-Received: by 2002:ad4:5684:: with SMTP id bc4mr10537193qvb.85.1590072069719;
+ Thu, 21 May 2020 07:41:09 -0700 (PDT)
+Date:   Thu, 21 May 2020 15:40:38 +0100
+Message-Id: <20200521144100.128936-1-gprocida@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.26.2.761.g0e0b3e54be-goog
+Subject: [PATCH 00/22] l2tp locking and ordering fixes
+From:   Giuliano Procida <gprocida@google.com>
+To:     greg@kroah.com
+Cc:     stable@vger.kernel.org, Giuliano Procida <gprocida@google.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+Hi Greg.
 
-sorry for the noise, I have messed up my 
-https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/ usage.
-I thought I was looking at the 3.16.83 branch, but I was not.
+This is for 4.9.
 
-The patch looks good to me.
+This is a follow-up to "fix l2tp use-after-free in pppol2tp_sendmsg"
+for 4.14. Pulling on the thread pulled in many other earlier locking
+fixes in between 4.9 and 4.14.
 
-CJ
+I've done some minor rework on a few of these to avoid pulling in
+refcount as a replacement for atomic which would have meant 10+ more
+patches (I still had compilation errors at 10).
 
-Le 21/05/2020 à 16:09, Marion & Christophe JAILLET a écrit :
-> Hi,
->
-> I don't think that this one is applicable to 3.16.x
->
-> The remove function and the error handling path of the probe function 
-> both use 'dma_free_wc'.
-> I've not look in details, but it looks consistent and the patch would 
-> not apply as-is anyway.
->
-> just my 2c.
->
-> CJ
->
-> Le 20/05/2020 à 16:14, Ben Hutchings a écrit :
->> 3.16.84-rc1 review patch.  If anyone has any objections, please let 
->> me know.
->>
->> ------------------
->>
->> From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
->>
->> commit 3c911fe799d1c338d94b78e7182ad452c37af897 upstream.
->>
->> In the probe function, some resources are allocated using 
->> 'dma_alloc_wc()',
->> they should be released with 'dma_free_wc()', not 'dma_free_coherent()'.
->>
->> We already use 'dma_free_wc()' in the remove function, but not in the
->> error handling path of the probe function.
->>
->> Also, remove a useless 'PAGE_ALIGN()'. 'info->fix.smem_len' is already
->> PAGE_ALIGNed.
->>
->> Fixes: 638772c7553f ("fb: add support of LCD display controller on 
->> pxa168/910 (base layer)")
->> Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
->> Reviewed-by: Lubomir Rintel <lkundrak@v3.sk>
->> CC: YueHaibing <yuehaibing@huawei.com>
->> Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
->> Link: 
->> https://patchwork.freedesktop.org/patch/msgid/20190831100024.3248-1-christophe.jaillet@wanadoo.fr
->> [bwh: Backported to 3.16: Use dma_free_writecombine().]
->> Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
->> ---
->>   drivers/video/fbdev/pxa168fb.c | 6 +++---
->>   1 file changed, 3 insertions(+), 3 deletions(-)
->>
->> --- a/drivers/video/fbdev/pxa168fb.c
->> +++ b/drivers/video/fbdev/pxa168fb.c
->> @@ -772,8 +772,8 @@ failed_free_cmap:
->>   failed_free_clk:
->>       clk_disable(fbi->clk);
->>   failed_free_fbmem:
->> -    dma_free_coherent(fbi->dev, info->fix.smem_len,
->> -            info->screen_base, fbi->fb_start_dma);
->> +    dma_free_writecombine(fbi->dev, info->fix.smem_len,
->> +                  info->screen_base, fbi->fb_start_dma);
->>   failed_free_info:
->>       kfree(info);
->>   failed_put_clk:
->> @@ -809,7 +809,7 @@ static int pxa168fb_remove(struct platfo
->>         irq = platform_get_irq(pdev, 0);
->>   -    dma_free_writecombine(fbi->dev, PAGE_ALIGN(info->fix.smem_len),
->> +    dma_free_writecombine(fbi->dev, info->fix.smem_len,
->>                   info->screen_base, info->fix.smem_start);
->>         clk_disable(fbi->clk);
->>
+Some minor other patch commutation was needed and where it wasn't
+completely trivial, I've added a note to the commit messages.
+
+The series does include a few non-fixes, but they look safe and mean
+that the fixes (and other backports) apply more cleanly.
+
+Regards,
+Giuliano.
+
+Asbj=C3=B8rn Sloth T=C3=B8nnesen (3):
+  net: l2tp: export debug flags to UAPI
+  net: l2tp: deprecate PPPOL2TP_MSG_* in favour of L2TP_MSG_*
+  net: l2tp: ppp: change PPPOL2TP_MSG_* =3D> L2TP_MSG_*
+
+Guillaume Nault (17):
+  l2tp: remove useless duplicate session detection in l2tp_netlink
+  l2tp: remove l2tp_session_find()
+  l2tp: define parameters of l2tp_session_get*() as "const"
+  l2tp: define parameters of l2tp_tunnel_find*() as "const"
+  l2tp: initialise session's refcount before making it reachable
+  l2tp: hold tunnel while looking up sessions in l2tp_netlink
+  l2tp: hold tunnel while processing genl delete command
+  l2tp: hold tunnel while handling genl tunnel updates
+  l2tp: hold tunnel while handling genl TUNNEL_GET commands
+  l2tp: hold tunnel used while creating sessions with netlink
+  l2tp: prevent creation of sessions on terminated tunnels
+  l2tp: pass tunnel pointer to ->session_create()
+  l2tp: fix l2tp_eth module loading
+  l2tp: don't register sessions in l2tp_session_create()
+  l2tp: initialise l2tp_eth sessions before registering them
+  l2tp: protect sock pointer of struct pppol2tp_session with RCU
+  l2tp: initialise PPP sessions before registering them
+
+R. Parameswaran (2):
+  New kernel function to get IP overhead on a socket.
+  L2TP:Adjust intf MTU, add underlay L3, L2 hdrs.
+
+ Documentation/networking/l2tp.txt |   8 +-
+ include/linux/net.h               |   3 +
+ include/uapi/linux/if_pppol2tp.h  |  13 +-
+ include/uapi/linux/l2tp.h         |  17 +-
+ net/l2tp/l2tp_core.c              | 174 ++++++-----------
+ net/l2tp/l2tp_core.h              |  46 +++--
+ net/l2tp/l2tp_eth.c               | 214 +++++++++++++--------
+ net/l2tp/l2tp_netlink.c           |  79 ++++----
+ net/l2tp/l2tp_ppp.c               | 309 ++++++++++++++++++------------
+ net/socket.c                      |  46 +++++
+ 10 files changed, 516 insertions(+), 393 deletions(-)
+
+--=20
+2.26.2.761.g0e0b3e54be-goog
+
