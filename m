@@ -2,86 +2,212 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 87A9C1DED68
-	for <lists+stable@lfdr.de>; Fri, 22 May 2020 18:38:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DA9D1DEF42
+	for <lists+stable@lfdr.de>; Fri, 22 May 2020 20:33:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730648AbgEVQiU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 May 2020 12:38:20 -0400
-Received: from sonic310-14.consmr.mail.bf2.yahoo.com ([74.6.135.124]:37036
-        "EHLO sonic310-14.consmr.mail.bf2.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730526AbgEVQiU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 22 May 2020 12:38:20 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1590165498; bh=/jVDohodGAPbdEuu5RjPi6D9HBdYFTcV1NMg+NrdvTk=; h=Date:From:Reply-To:Subject:References:From:Subject; b=Htv73JCTCEU5twt4nKB0iyPa9dTO5BpK3rH2mWqKBNHYpl9Ije1MzALGE88+Do4Wg7n1PeuMZF1HOU6NohxbwZEja6hm3lBTLN6lo1rBOubzY/HSW2czYvcfE8SgsWGLI+fEYZ+IZ/gJe5A3iHNOKiWt+IgMqTwNCBLXpglJBHgIpIg5FhbEbIF7gzOJNjv7Cx3uYdqZnuQIsQOX3vevC4IwVAtpgQbN2bHHcRQTuqbwpTC2by3w4RPmubtO6UuHSY92enJh9b5XSlFlMyjKX+joCyBHWq1osQQ8kB/Ixd/xQY+bOt/YiSuKjWsZc/sMl3yJc9CDMwlMQuEwz60ifA==
-X-YMail-OSG: Tl6Weq0VM1nrt7r93Q_dji9tpteZMx44WsiqVwKOTS4pmJRIoVtmJ197px.Ewkp
- wN_pzdh21SCKBQlWGM5yCy5buQzqL4dMX74BazV2j0yjVSWIImC5aKJyjRX_MhwtJO.HTf3YzTk4
- KJTrP9cGNi09Nou4k03rk_kXGNJXqlNtmPypVW_F2.X1xvD6xAUvPQzW.1l3Xe_cL.rfylb2Imz8
- 8sNaGOVjgYq_cVNb6LmIRSM_7vHy7rGoBs3RyX80ybjKJS1AL6QyV9k11Yzazd4S9fR6gDqPtbt4
- zUahgO5OZBuM3gZoE6htdEDusXzjftiwezVo5T1RgYTCCliso8yudMjf8hhnvqm59LODbMimEBlO
- qJq1v4n0mKsKNtuq3uwAt4g6X8kczXFjHiqfUXuFW0f9vY0vJPRd60ipYDLIUkLQSALDWgvarMyk
- 9YkZ5sRrxfvBda.4Md5PShcYt8AnQFWrgQgk2x4j5XPxCVgduY9nPjC3Jciq17JFS8ClKOFWTz9Q
- pGK6SYk4zshgX8u1yBqApaTD2uMgRUlzKAvu.kvtyaF0OIxGLJv5WErr8BtWAeGLYMsoduXQJAam
- mBXxmB7VekUxS.rTp6ZiLymVFbVwoY_.okKtHntWZsu947ocx14L4diLpnR0hKDHE4ctrDp5zWb5
- VAXfau43JQ7JUtwWUMvQIIg6Msfk13LvdSarplcbVfHo24XgOUNwPUY89b1Zqf6TOQ4m4y2t72t5
- A_3_qKJW7j3Na8Tgz5CkXwEsg6a7cTRAE0Z2JTlSwh2nmtmEJHWN612PC9BFCG0rvthJ8hnKz788
- XHrzL64MYXwYV9WiwjNCPcxhnn7yslXRH9mW_6UNVSKgCrtgZqCmWY39qvJ.HvavPu8HLOtVzDCo
- 8Su7z1wwyWrtusoI4gdA16OxNjv9EAr1SzKr.cwJowvBSxDuG6toSaWqnVFif.B9Y85IVx8WKNjF
- W1R8u_JWmURNTlAJVGEjkgYwmrDQEGk6KQS8q.InSlec0f7.mjH649f2sMlt6RMBfhU0MdoBUU._
- E8wiWyWk.leE70mbhkF.90fI9RkOirf2M5369RezqqaoYcEaiLFqMtJdh4YMf7sPAP1ByWO.p60N
- MTRJDi60jTnQebo2reyGHzPkpa9_dK3kHnWvYEzrtY.fw.waLWKr.pWM4A11k9Ma7JACTehGl2I7
- kQIo1ok7OXQzMTW6Y8EdtS52GElxQnywkXvcQqe9fGZxI5AnU00W.dqLl3FDes7KYKtmFEjG0N.Z
- R2AoDarjwmSCN6Q4uhr.FFN1s5RFYd9sn4l.tuFNlEp699B0ivgz3X.q5lXnLc_t_2DwXjdZLfMy
- UytyiL0MLnxvYNZD_SQ_XVpW8IGnhO6L443J0iT.8D7zO6n7prWdsX0n54motwJezhOaSOQ--
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic310.consmr.mail.bf2.yahoo.com with HTTP; Fri, 22 May 2020 16:38:18 +0000
-Date:   Fri, 22 May 2020 16:38:17 +0000 (UTC)
-From:   Amina Mahbuba Laboso <amina.laboso347@gmail.com>
-Reply-To: amina.laboso19@gmail.com
-Message-ID: <148810672.737848.1590165497453@mail.yahoo.com>
-Subject: Good day and God bless you
+        id S1730879AbgEVSdJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 May 2020 14:33:09 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:29483 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1730806AbgEVSdI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 22 May 2020 14:33:08 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1590172386;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=uta1I5iF41Eoil1XzR/BDEIMHG3jmCK+59X2nwZOw7Y=;
+        b=Vgqno1AiMXG4CP++6DDDfViWUht/31f9vCJTGpWHCwL8Audvraa7gI8x5JjIjhMeeeOgzv
+        XHYMGSlAoYijJe1fu3Urfop0O5rHRcsTEnbe5EGSr3NnFXhGm2OxMw/HO0CZLHIKjLYwaD
+        X1w7Tue906gTYl4US9XFFzObkvzWwaA=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-205-SvfWgMvlO7SFfECe5E7Arw-1; Fri, 22 May 2020 14:33:04 -0400
+X-MC-Unique: SvfWgMvlO7SFfECe5E7Arw-1
+Received: by mail-wr1-f69.google.com with SMTP id z8so4700192wrp.7
+        for <stable@vger.kernel.org>; Fri, 22 May 2020 11:33:04 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=uta1I5iF41Eoil1XzR/BDEIMHG3jmCK+59X2nwZOw7Y=;
+        b=dZSjOmmJl7/bM7sC1KmFTyVJ0yxDNIQI+ekM+yZ2o4DGruT+GWlU/ua5zrtkU4OGG6
+         S8ro+Jal2MFI4ImlRwVKCe6X6GkDli0QlJpxfbQ53y/IUh5m3KZWaqUqvfHJaRRHmXHd
+         Le21Zlq3Uu/Qk0VW96XcCSvYU1UcHUtUKkGuSftgI3c8zRlMt5p5fqIZVEq0xH4OqCfc
+         0zAeyLiJB2Tx2O96sNTSp0mBWXHFIE/QQ6hiwULG2fSuP3klhNu6w57f7vfiYYpk4pXj
+         3xBMtOkCkXoRePbDXGQONjQGeFSFiVHs3I+I0O4BgcBRwgHv9ZRtVw4zHE/d8R0DYZkJ
+         Y/Wg==
+X-Gm-Message-State: AOAM532zK3jCorEgX1jD2RPSRRsXikA6nixJK0Twp9Uq6gKPGQVwgYsc
+        8XWOoyngsiGIQ3RI+sem72fmbrr9MbcyENv7dSvtBRyjf5ZL6TStxFIDfgFkT3wHZUW864Bg5Rg
+        nAOqDUiSnZJDFaCoA
+X-Received: by 2002:adf:e752:: with SMTP id c18mr4302981wrn.353.1590172383465;
+        Fri, 22 May 2020 11:33:03 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzn/9jhwi2m5kBMJV4PsKRS2Rwy8FdJSifbCfwoz7LBYi0qkU+MUcZbwiy9UVXg/sYxLJm62A==
+X-Received: by 2002:adf:e752:: with SMTP id c18mr4302945wrn.353.1590172383198;
+        Fri, 22 May 2020 11:33:03 -0700 (PDT)
+Received: from ?IPv6:2001:b07:6468:f312:803:ce64:3f04:d540? ([2001:b07:6468:f312:803:ce64:3f04:d540])
+        by smtp.gmail.com with ESMTPSA id x186sm1848481wmg.8.2020.05.22.11.33.01
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 22 May 2020 11:33:02 -0700 (PDT)
+Subject: Re: [PATCH 5.4] KVM: x86: Fix pkru save/restore when guest CR4.PKE=0,
+ move it to x86.c
+To:     Babu Moger <babu.moger@amd.com>, corbet@lwn.net,
+        tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, hpa@zytor.com,
+        sean.j.christopherson@intel.com, stable@vger.kernel.org
+Cc:     x86@kernel.org, vkuznets@redhat.com, wanpengli@tencent.com,
+        jmattson@google.com, joro@8bytes.org, dave.hansen@linux.intel.com,
+        luto@kernel.org, peterz@infradead.org, mchehab+samsung@kernel.org,
+        changbin.du@intel.com, namit@vmware.com, bigeasy@linutronix.de,
+        yang.shi@linux.alibaba.com, asteinhauser@google.com,
+        anshuman.khandual@arm.com, jan.kiszka@siemens.com,
+        akpm@linux-foundation.org, steven.price@arm.com,
+        rppt@linux.vnet.ibm.com, peterx@redhat.com,
+        dan.j.williams@intel.com, arjunroy@google.com, logang@deltatee.com,
+        thellstrom@vmware.com, aarcange@redhat.com, justin.he@arm.com,
+        robin.murphy@arm.com, ira.weiny@intel.com, keescook@chromium.org,
+        jgross@suse.com, andrew.cooper3@citrix.com,
+        pawan.kumar.gupta@linux.intel.com, fenghua.yu@intel.com,
+        vineela.tummalapalli@intel.com, yamada.masahiro@socionext.com,
+        sam@ravnborg.org, acme@redhat.com, linux-doc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+References: <159016509437.3131.17229420966309596602.stgit@naples-babu.amd.com>
+From:   Paolo Bonzini <pbonzini@redhat.com>
+Message-ID: <66c7b432-39ce-c942-d4a1-c5bac540ac94@redhat.com>
+Date:   Fri, 22 May 2020 20:33:00 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.6.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-References: <148810672.737848.1590165497453.ref@mail.yahoo.com>
-X-Mailer: WebService/1.1.15960 YMailNodin Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4127.0 Safari/537.36
-To:     unlisted-recipients:; (no To-header on input)
+In-Reply-To: <159016509437.3131.17229420966309596602.stgit@naples-babu.amd.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 22/05/20 18:32, Babu Moger wrote:
+> [Backported upstream commit 37486135d3a7b03acc7755b63627a130437f066a]
+> 
+> Though rdpkru and wrpkru are contingent upon CR4.PKE, the PKRU
+> resource isn't. It can be read with XSAVE and written with XRSTOR.
+> So, if we don't set the guest PKRU value here(kvm_load_guest_xsave_state),
+> the guest can read the host value.
+> 
+> In case of kvm_load_host_xsave_state, guest with CR4.PKE clear could
+> potentially use XRSTOR to change the host PKRU value.
+> 
+> While at it, move pkru state save/restore to common code and the
+> host_pkru field to kvm_vcpu_arch.  This will let SVM support protection keys.
+> 
+> Cc: stable@vger.kernel.org
+> Reported-by: Jim Mattson <jmattson@google.com>
+> Signed-off-by: Babu Moger <babu.moger@amd.com>
+> Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+> ---
+>  arch/x86/include/asm/kvm_host.h |    1 +
+>  arch/x86/kvm/vmx/vmx.c          |   18 ------------------
+>  arch/x86/kvm/x86.c              |   17 +++++++++++++++++
+>  3 files changed, 18 insertions(+), 18 deletions(-)
+> 
+> diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
+> index 4fc61483919a..e204c43ed4b0 100644
+> --- a/arch/x86/include/asm/kvm_host.h
+> +++ b/arch/x86/include/asm/kvm_host.h
+> @@ -550,6 +550,7 @@ struct kvm_vcpu_arch {
+>  	unsigned long cr4;
+>  	unsigned long cr4_guest_owned_bits;
+>  	unsigned long cr8;
+> +	u32 host_pkru;
+>  	u32 pkru;
+>  	u32 hflags;
+>  	u64 efer;
+> diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
+> index 04a8212704c1..728758880cb6 100644
+> --- a/arch/x86/kvm/vmx/vmx.c
+> +++ b/arch/x86/kvm/vmx/vmx.c
+> @@ -1384,7 +1384,6 @@ void vmx_vcpu_load(struct kvm_vcpu *vcpu, int cpu)
+>  
+>  	vmx_vcpu_pi_load(vcpu, cpu);
+>  
+> -	vmx->host_pkru = read_pkru();
+>  	vmx->host_debugctlmsr = get_debugctlmsr();
+>  }
+>  
+> @@ -6541,11 +6540,6 @@ static void vmx_vcpu_run(struct kvm_vcpu *vcpu)
+>  
+>  	kvm_load_guest_xcr0(vcpu);
+>  
+> -	if (static_cpu_has(X86_FEATURE_PKU) &&
+> -	    kvm_read_cr4_bits(vcpu, X86_CR4_PKE) &&
+> -	    vcpu->arch.pkru != vmx->host_pkru)
+> -		__write_pkru(vcpu->arch.pkru);
+> -
+>  	pt_guest_enter(vmx);
+>  
+>  	atomic_switch_perf_msrs(vmx);
+> @@ -6634,18 +6628,6 @@ static void vmx_vcpu_run(struct kvm_vcpu *vcpu)
+>  
+>  	pt_guest_exit(vmx);
+>  
+> -	/*
+> -	 * eager fpu is enabled if PKEY is supported and CR4 is switched
+> -	 * back on host, so it is safe to read guest PKRU from current
+> -	 * XSAVE.
+> -	 */
+> -	if (static_cpu_has(X86_FEATURE_PKU) &&
+> -	    kvm_read_cr4_bits(vcpu, X86_CR4_PKE)) {
+> -		vcpu->arch.pkru = rdpkru();
+> -		if (vcpu->arch.pkru != vmx->host_pkru)
+> -			__write_pkru(vmx->host_pkru);
+> -	}
+> -
+>  	kvm_put_guest_xcr0(vcpu);
+>  
+>  	vmx->nested.nested_run_pending = 0;
+> diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+> index 5d530521f11d..502a23313e7b 100644
+> --- a/arch/x86/kvm/x86.c
+> +++ b/arch/x86/kvm/x86.c
+> @@ -821,11 +821,25 @@ void kvm_load_guest_xcr0(struct kvm_vcpu *vcpu)
+>  			xsetbv(XCR_XFEATURE_ENABLED_MASK, vcpu->arch.xcr0);
+>  		vcpu->guest_xcr0_loaded = 1;
+>  	}
+> +
+> +	if (static_cpu_has(X86_FEATURE_PKU) &&
+> +	    (kvm_read_cr4_bits(vcpu, X86_CR4_PKE) ||
+> +	     (vcpu->arch.xcr0 & XFEATURE_MASK_PKRU)) &&
+> +	    vcpu->arch.pkru != vcpu->arch.host_pkru)
+> +		__write_pkru(vcpu->arch.pkru);
+>  }
+>  EXPORT_SYMBOL_GPL(kvm_load_guest_xcr0);
+>  
+>  void kvm_put_guest_xcr0(struct kvm_vcpu *vcpu)
+>  {
+> +	if (static_cpu_has(X86_FEATURE_PKU) &&
+> +	    (kvm_read_cr4_bits(vcpu, X86_CR4_PKE) ||
+> +	     (vcpu->arch.xcr0 & XFEATURE_MASK_PKRU))) {
+> +		vcpu->arch.pkru = rdpkru();
+> +		if (vcpu->arch.pkru != vcpu->arch.host_pkru)
+> +			__write_pkru(vcpu->arch.host_pkru);
+> +	}
+> +
+>  	if (vcpu->guest_xcr0_loaded) {
+>  		if (vcpu->arch.xcr0 != host_xcr0)
+>  			xsetbv(XCR_XFEATURE_ENABLED_MASK, host_xcr0);
+> @@ -3437,6 +3451,9 @@ void kvm_arch_vcpu_load(struct kvm_vcpu *vcpu, int cpu)
+>  
+>  	kvm_x86_ops->vcpu_load(vcpu, cpu);
+>  
+> +	/* Save host pkru register if supported */
+> +	vcpu->arch.host_pkru = read_pkru();
+> +
+>  	fpregs_assert_state_consistent();
+>  	if (test_thread_flag(TIF_NEED_FPU_LOAD))
+>  		switch_fpu_return();
+> 
 
-Good day and God bless you as you read this massage, I am by name
-Amina Mahbuba Laboso am 27 years old girl from Kenya, yes my Mother was Lat=
-e
-Mrs. Lorna Laboso the former Kenyan Assistant Minister of Home and
-affairs who was among the plan that crash on board in the remote area
-of Kalong=E2=80=99s westernKenya Read more about the crash with the below w=
-eb
-sitea
+Acked-by: Paolo Bonzini <pbonzini@redhat.com>
 
-http://edition.cnn.com/2008/WORLD/africa/06/10/kenya.crash/index.html
-I am constrained to contact you because of the maltreatment I am
-receiving from my step mother. She planned to take away all my late
-mothers treasury and properties from me since the unexpected death of
-my beloved mother. One day I opened my mother brave case and secretly
-found out that my mother deposited the sum of $ 27.5 million in BOA
-bank Burkina Faso with my name as the next of kin, then I visited
-Burkina Faso to withdraw the money and take care of myself and start a
-new life, on my arrival the Bank Director whom I meet in person Mr.
-Batish Zongo told me that my mother left an instruction to the bank,
-that the money should be release to me only when I am married or I
-present a trustee who will help me and invest the money overseas.
-
-That is the reason why I am in search of a honest and reliable person
-who will help me and stand as my trustee for the Bank to transfer the
-money to his account for me to come over and join you. It will be my
-great pleasure to compensate you with 30% of the money for your help
-and the balance shall be my capital with your kind idea for me to
-invest under your control over there in your country.
-
-As soon as I receive your positive response showing your interest I
-will send you my picture's in my next mail and death certificate of my
-Mon and how you will receive the money in your account.
-
-
-Yours Sincerely
-Amina Mahbuba Laboso=20
