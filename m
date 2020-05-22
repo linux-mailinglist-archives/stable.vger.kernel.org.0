@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CA07B1DEB12
-	for <lists+stable@lfdr.de>; Fri, 22 May 2020 16:58:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E7CF71DEB0D
+	for <lists+stable@lfdr.de>; Fri, 22 May 2020 16:58:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731017AbgEVO6R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 May 2020 10:58:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51714 "EHLO mail.kernel.org"
+        id S1731026AbgEVO6G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 May 2020 10:58:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51744 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730685AbgEVOu3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 May 2020 10:50:29 -0400
+        id S1730693AbgEVOub (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 May 2020 10:50:31 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4C7972072C;
-        Fri, 22 May 2020 14:50:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6F4EE22225;
+        Fri, 22 May 2020 14:50:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590159029;
-        bh=HTQXwy4hfn0GnYPnVOAVpxQx4T3zMeWsNO3v/JrvKpU=;
+        s=default; t=1590159030;
+        bh=LoklJymqYyYNv+3Qr4zP0cMi41+UKRld97tLlQybKaQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W93OvP+tMucRw8WWH8VHgNUKDHnGFPawJMPxb3gr/g2lURa4nslYYwSjM5wuaZrZm
-         ufy88STT//Iac4bagxcuJXDktTxUOATlj+O0nT25btJ8el6MnkaG5FdKhsJdGHL4dX
-         /z9HGGy+zFyaVKfuzORhXWJa0TUTI2ox3FLtaISM=
+        b=JHAsfbDQ3dDiu1xhyAB3OCJ/jvpoFHkWvBUnnRN3pqSdTbg45g3AMINmpy32YcHzJ
+         IvwDWdpye2ybz2w9yZEwN2MpHIqZQAcJMYdrxsyDGrXZ0Uq64c5XLmI6wYLOm5zOMB
+         9j2r9iEnk09jBCC6m2I9b2/MKaMwTNT6Mp0xzZlM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Leo (Hanghong) Ma" <hanghong.ma@amd.com>,
-        Harry Wentland <harry.wentland@amd.com>,
-        Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.6 26/41] drm/amd/amdgpu: Update update_config() logic
-Date:   Fri, 22 May 2020 10:49:43 -0400
-Message-Id: <20200522144959.434379-26-sashal@kernel.org>
+Cc:     "Denis V. Lunev" <den@openvz.org>,
+        Shiraz Saleem <shiraz.saleem@intel.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.6 27/41] IB/i40iw: Remove bogus call to netdev_master_upper_dev_get()
+Date:   Fri, 22 May 2020 10:49:44 -0400
+Message-Id: <20200522144959.434379-27-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200522144959.434379-1-sashal@kernel.org>
 References: <20200522144959.434379-1-sashal@kernel.org>
@@ -46,52 +44,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Leo (Hanghong) Ma" <hanghong.ma@amd.com>
+From: "Denis V. Lunev" <den@openvz.org>
 
-[ Upstream commit 650e723cecf2738dee828564396f3239829aba83 ]
+[ Upstream commit 856ec7f64688387b100b7083cdf480ce3ac41227 ]
 
-[Why]
-For MST case: when update_config is called to disable a stream,
-this clears the settings for all the streams on that link.
-We should only clear the settings for the stream that was disabled.
+Local variable netdev is not used in these calls.
 
-[How]
-Clear the settings after the call to remove display is called.
+It should be noted, that this change is required to work in bonded mode.
+Otherwise we would get the following assert:
 
-Reviewed-by: Harry Wentland <harry.wentland@amd.com>
-Reviewed-by: Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>
-Signed-off-by: Leo (Hanghong) Ma <hanghong.ma@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+ "RTNL: assertion failed at net/core/dev.c (5665)"
+
+With the calltrace as follows:
+	dump_stack+0x19/0x1b
+	netdev_master_upper_dev_get+0x61/0x70
+	i40iw_addr_resolve_neigh+0x1e8/0x220
+	i40iw_make_cm_node+0x296/0x700
+	? i40iw_find_listener.isra.10+0xcc/0x110
+	i40iw_receive_ilq+0x3d4/0x810
+	i40iw_puda_poll_completion+0x341/0x420
+	i40iw_process_ceq+0xa5/0x280
+	i40iw_ceq_dpc+0x1e/0x40
+	tasklet_action+0x83/0x140
+	__do_softirq+0x125/0x2bb
+	call_softirq+0x1c/0x30
+	do_softirq+0x65/0xa0
+	irq_exit+0x105/0x110
+	do_IRQ+0x56/0xf0
+	common_interrupt+0x16a/0x16a
+	? cpuidle_enter_state+0x57/0xd0
+	cpuidle_idle_call+0xde/0x230
+	arch_cpu_idle+0xe/0xc0
+	cpu_startup_entry+0x14a/0x1e0
+	start_secondary+0x1f7/0x270
+	start_cpu+0x5/0x14
+
+Link: https://lore.kernel.org/r/20200428131511.11049-1-den@openvz.org
+Signed-off-by: Denis V. Lunev <den@openvz.org>
+Acked-by: Shiraz Saleem <shiraz.saleem@intel.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_hdcp.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/infiniband/hw/i40iw/i40iw_cm.c | 8 --------
+ 1 file changed, 8 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_hdcp.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_hdcp.c
-index 3abeff7722e3..e80371542622 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_hdcp.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_hdcp.c
-@@ -316,15 +316,15 @@ static void update_config(void *handle, struct cp_psp_stream_config *config)
- 	struct mod_hdcp_display *display = &hdcp_work[link_index].display;
- 	struct mod_hdcp_link *link = &hdcp_work[link_index].link;
+diff --git a/drivers/infiniband/hw/i40iw/i40iw_cm.c b/drivers/infiniband/hw/i40iw/i40iw_cm.c
+index bb78d3280acc..fa7a5ff498c7 100644
+--- a/drivers/infiniband/hw/i40iw/i40iw_cm.c
++++ b/drivers/infiniband/hw/i40iw/i40iw_cm.c
+@@ -1987,7 +1987,6 @@ static int i40iw_addr_resolve_neigh(struct i40iw_device *iwdev,
+ 	struct rtable *rt;
+ 	struct neighbour *neigh;
+ 	int rc = arpindex;
+-	struct net_device *netdev = iwdev->netdev;
+ 	__be32 dst_ipaddr = htonl(dst_ip);
+ 	__be32 src_ipaddr = htonl(src_ip);
  
--	memset(display, 0, sizeof(*display));
--	memset(link, 0, sizeof(*link));
--
--	display->index = aconnector->base.index;
--
- 	if (config->dpms_off) {
- 		hdcp_remove_display(hdcp_work, link_index, aconnector);
- 		return;
+@@ -1997,9 +1996,6 @@ static int i40iw_addr_resolve_neigh(struct i40iw_device *iwdev,
+ 		return rc;
  	}
-+
-+	memset(display, 0, sizeof(*display));
-+	memset(link, 0, sizeof(*link));
-+
-+	display->index = aconnector->base.index;
- 	display->state = MOD_HDCP_DISPLAY_ACTIVE;
  
- 	if (aconnector->dc_sink != NULL)
+-	if (netif_is_bond_slave(netdev))
+-		netdev = netdev_master_upper_dev_get(netdev);
+-
+ 	neigh = dst_neigh_lookup(&rt->dst, &dst_ipaddr);
+ 
+ 	rcu_read_lock();
+@@ -2065,7 +2061,6 @@ static int i40iw_addr_resolve_neigh_ipv6(struct i40iw_device *iwdev,
+ {
+ 	struct neighbour *neigh;
+ 	int rc = arpindex;
+-	struct net_device *netdev = iwdev->netdev;
+ 	struct dst_entry *dst;
+ 	struct sockaddr_in6 dst_addr;
+ 	struct sockaddr_in6 src_addr;
+@@ -2086,9 +2081,6 @@ static int i40iw_addr_resolve_neigh_ipv6(struct i40iw_device *iwdev,
+ 		return rc;
+ 	}
+ 
+-	if (netif_is_bond_slave(netdev))
+-		netdev = netdev_master_upper_dev_get(netdev);
+-
+ 	neigh = dst_neigh_lookup(dst, dst_addr.sin6_addr.in6_u.u6_addr32);
+ 
+ 	rcu_read_lock();
 -- 
 2.25.1
 
