@@ -2,79 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0312F1DE60C
-	for <lists+stable@lfdr.de>; Fri, 22 May 2020 14:00:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 405331DE63A
+	for <lists+stable@lfdr.de>; Fri, 22 May 2020 14:08:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728506AbgEVMAM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 May 2020 08:00:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48844 "EHLO mail.kernel.org"
+        id S1728979AbgEVMHy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 May 2020 08:07:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51698 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728409AbgEVMAM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 May 2020 08:00:12 -0400
+        id S1729850AbgEVMHv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 May 2020 08:07:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7AF10206B6;
-        Fri, 22 May 2020 12:00:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D1EAC2072C;
+        Fri, 22 May 2020 12:07:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590148811;
-        bh=za+1x7fC+5cQVdg7KBn+1sPJn8MXsHpslPvJp9Y3ggs=;
+        s=default; t=1590149271;
+        bh=vHSgjKvbc5R4F0jsQCkcjIrdu+UdsNtu0U/jwyEL4ZA=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=W5ep2rb8pfRdxwG35Hv38VKzEj2tsUyqLnIvp1cOF3Nj9UzTSI25jhq1WNP8ch3bk
-         GkrBGbRr0s6BbAvuE9F7Fp8FQ9i+jxJ0hGJy9ExwvdHFy3WRHGmg1u7/vvi5PrOb+g
-         7L7QUCImxtM623tacD1UMPRKKtv53jU2F2Xo4+Kw=
-Date:   Fri, 22 May 2020 14:00:09 +0200
+        b=Rm6PFaJ5Df1MOII0mNbl59jDH2idX4qKC9sttvY2mJDJfxk5cCMzBRMNY2xq0/Qun
+         zz7P2DauJ1JrLcyi1ioI0L/L1z3LJr6kiQBYbzmYMLBKRJ3/lyFojwxbwyCkIXURRx
+         S1e9pkYTO3R9gBWrh7cdsOHGZYwV6z7/ER8k/HVk=
+Date:   Fri, 22 May 2020 14:07:48 +0200
 From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Dan Williams <dan.j.williams@intel.com>
-Cc:     stable@vger.kernel.org, Oliver O'Halloran <oohall@gmail.com>,
-        Vishal Verma <vishal.l.verma@intel.com>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Paul Mackerras <paulus@samba.org>,
-        Christoph Hellwig <hch@lst.de>, Jeff Moyer <jmoyer@redhat.com>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        linux-nvdimm@lists.01.org
-Subject: Re: [5.4-stable PATCH 0/7] libnvdimm: Cross-arch compatible
- namespace alignment
-Message-ID: <20200522120009.GA1456052@kroah.com>
-References: <159010426294.1062454.8853083370975871627.stgit@dwillia2-desk3.amr.corp.intel.com>
- <20200522115800.GA1451824@kroah.com>
+To:     Giuliano Procida <gprocida@google.com>
+Cc:     stable@vger.kernel.org
+Subject: Re: [PATCH 0/4] [backports] fix l2tp use-after-free in
+ pppol2tp_sendmsg
+Message-ID: <20200522120748.GB1457873@kroah.com>
+References: <20200521135704.109812-1-gprocida@google.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200522115800.GA1451824@kroah.com>
+In-Reply-To: <20200521135704.109812-1-gprocida@google.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, May 22, 2020 at 01:58:00PM +0200, Greg KH wrote:
-> On Thu, May 21, 2020 at 04:37:43PM -0700, Dan Williams wrote:
-> > Hello stable team,
-> > 
-> > These patches have been shipping in mainline since v5.7-rc1 with no
-> > reported issues. They address long standing problems in libnvdimm's
-> > handling of namespace provisioning relative to alignment constraints
-> > including crashes trying to even load the driver on some PowerPC
-> > configurations.
-> > 
-> > I did fold one build fix [1] into "libnvdimm/region: Introduce an 'align'
-> > attribute" so as to not convey the bisection breakage to -stable.
-> > 
-> > Please consider them for v5.4-stable. They do pass the latest
-> > version of the ndctl unit tests.
+On Thu, May 21, 2020 at 02:57:00PM +0100, Giuliano Procida wrote:
+> Hi Greg.
 > 
-> What about 5.6.y?  Any user upgrading from 5.4-stable to 5.6-stable
-> would hit a regression, right?
+> This is for 4.14.
 > 
-> So can we get a series backported to 5.6.y as well?  I need that before
-> I can take this series.
+> We received a PoC (code to run as root with a KASAN kernel)
+> demonstrating the existence of a use-after-free in pppol2tp_sendmsg.
+> This was accompanied by a patch to resolve it, consisting mostly of
+> parts of patch 3 plus a little of 4.
+> 
+> The following patches all apply cleanly and compile with allmodconfig.
+> However, I lack the hardware to test them.
 
-Also, I really don't see the "bug" that this is fixing here.  If this
-didn't work on PowerPC before, it can continue to just "not work" until
-5.7, right?  What problems with 5.4.y and 5.6.y is this series fixing
-that used to work before?
-
-thanks,
+All now queued up, thanks.
 
 greg k-h
