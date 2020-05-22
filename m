@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BB34E1DEB43
+	by mail.lfdr.de (Postfix) with ESMTP id 4E2401DEB42
 	for <lists+stable@lfdr.de>; Fri, 22 May 2020 16:59:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730761AbgEVO7c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 May 2020 10:59:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51122 "EHLO mail.kernel.org"
+        id S1730367AbgEVO7b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 May 2020 10:59:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51138 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730438AbgEVOuK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 May 2020 10:50:10 -0400
+        id S1730461AbgEVOuM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 May 2020 10:50:12 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B25402145D;
-        Fri, 22 May 2020 14:50:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AE97A223BF;
+        Fri, 22 May 2020 14:50:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590159010;
-        bh=kl7MXkBZJGC6s8thZUM2YDAIP7k2Z9xNDyBuU/WLlk8=;
+        s=default; t=1590159011;
+        bh=d07kKZJF85G6WmyNuDRY5D8ZQiahqedqqafcMO5l6EY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gmn0CcJvqJvzQD15hicbSugeIXRsLPrcTQHosx5sPnowKWXTkoNXfBn5ejrWC+jr8
-         SAqu1b1L9+2oqORt0a/4pp7dnDBEiQlmn9G0/zuaaxJ837Oze971VkCt6a67HgMyFp
-         FgJr9IWeJuNciZ0ILOz2fDHWovhuw+H/r59pK05c=
+        b=1qbbp0an1ckFA+GRZyP1Xowpfg/lFgeW9Oiw4tXikierNmnO1tEPFYDWbVIxyCQOq
+         U9pSs1ElkTa67X/L5JfqUqJZ2lS5krhN5drkJfYQ4xeJI7TWT5owGogUcq4aMetxoW
+         SHkkgYpCmYM2cSvQ7G87tSjhfjZRRiL0NA7ZMfqo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andrew Oakley <andrew@adoakley.name>, Takashi Iwai <tiwai@suse.de>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.6 09/41] ALSA: usb-audio: add mapping for ASRock TRX40 Creator
-Date:   Fri, 22 May 2020 10:49:26 -0400
-Message-Id: <20200522144959.434379-9-sashal@kernel.org>
+Cc:     Tony Lindgren <tony@atomide.com>, Sasha Levin <sashal@kernel.org>,
+        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.6 10/41] ARM: dts: omap4-droid4: Fix flakey wlan by disabling internal pull for gpio
+Date:   Fri, 22 May 2020 10:49:27 -0400
+Message-Id: <20200522144959.434379-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200522144959.434379-1-sashal@kernel.org>
 References: <20200522144959.434379-1-sashal@kernel.org>
@@ -42,58 +42,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrew Oakley <andrew@adoakley.name>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit da7a8f1a8fc3e14c6dcc52b4098bddb8f20390be ]
+[ Upstream commit 30fa60c678eaa27b8f2a531920d77f7184658f73 ]
 
-This is another TRX40 based motherboard with ALC1220-VB USB-audio
-that requires a static mapping table.
+The wlan on droid4 is flakey on some devices, and experiments have shown this
+gets fixed if we disable the internal pull for wlan gpio interrupt line.
 
-This motherboard also has a PCI device which advertises no codecs.  The
-PCI ID is 1022:1487 and PCI SSID is 1022:d102.  As this is using the AMD
-vendor ID, don't blacklist for now in case other boards have a working
-audio device with the same ssid.
+The symptoms are that the wlan connection is very slow and almost useless
+with lots of wlcore firmware reboot warnings in the dmesg.
 
-alsa-info.sh report for this board:
-http://alsa-project.org/db/?f=0a742f89066527497b77ce16bca486daccf8a70c
+In addition to configuring the wlan gpio pulls, let's also configure the rest
+of the wlan sd pins. We have not configured those eariler as we're booting
+using kexec.
 
-Signed-off-by: Andrew Oakley <andrew@adoakley.name>
-Link: https://lore.kernel.org/r/20200503141639.35519-1-andrew@adoakley.name
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/mixer_maps.c   | 5 +++++
- sound/usb/quirks-table.h | 1 +
- 2 files changed, 6 insertions(+)
+ .../boot/dts/motorola-mapphone-common.dtsi    | 33 +++++++++++++++++++
+ 1 file changed, 33 insertions(+)
 
-diff --git a/sound/usb/mixer_maps.c b/sound/usb/mixer_maps.c
-index 0260c750e156..bfdc6ad52785 100644
---- a/sound/usb/mixer_maps.c
-+++ b/sound/usb/mixer_maps.c
-@@ -549,6 +549,11 @@ static const struct usbmix_ctl_map usbmix_ctl_maps[] = {
- 		.map = trx40_mobo_map,
- 		.connector_map = trx40_mobo_connector_map,
- 	},
-+	{	/* Asrock TRX40 Creator */
-+		.id = USB_ID(0x26ce, 0x0a01),
-+		.map = trx40_mobo_map,
-+		.connector_map = trx40_mobo_connector_map,
-+	},
- 	{ 0 } /* terminator */
+diff --git a/arch/arm/boot/dts/motorola-mapphone-common.dtsi b/arch/arm/boot/dts/motorola-mapphone-common.dtsi
+index 9067e0ef4240..01ea9a1e2c86 100644
+--- a/arch/arm/boot/dts/motorola-mapphone-common.dtsi
++++ b/arch/arm/boot/dts/motorola-mapphone-common.dtsi
+@@ -367,6 +367,8 @@
  };
  
-diff --git a/sound/usb/quirks-table.h b/sound/usb/quirks-table.h
-index 8c2f5c23e1b4..aa4c16ce0e57 100644
---- a/sound/usb/quirks-table.h
-+++ b/sound/usb/quirks-table.h
-@@ -3647,6 +3647,7 @@ AU0828_DEVICE(0x2040, 0x7270, "Hauppauge", "HVR-950Q"),
- ALC1220_VB_DESKTOP(0x0414, 0xa002), /* Gigabyte TRX40 Aorus Pro WiFi */
- ALC1220_VB_DESKTOP(0x0db0, 0x0d64), /* MSI TRX40 Creator */
- ALC1220_VB_DESKTOP(0x0db0, 0x543d), /* MSI TRX40 */
-+ALC1220_VB_DESKTOP(0x26ce, 0x0a01), /* Asrock TRX40 Creator */
- #undef ALC1220_VB_DESKTOP
+ &mmc3 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&mmc3_pins>;
+ 	vmmc-supply = <&wl12xx_vmmc>;
+ 	/* uart2_tx.sdmmc3_dat1 pad as wakeirq */
+ 	interrupts-extended = <&wakeupgen GIC_SPI 94 IRQ_TYPE_LEVEL_HIGH
+@@ -472,6 +474,37 @@
+ 		>;
+ 	};
  
- #undef USB_DEVICE_VENDOR_SPEC
++	/*
++	 * Android uses PIN_OFF_INPUT_PULLDOWN | PIN_INPUT_PULLUP | MUX_MODE3
++	 * for gpio_100, but the internal pull makes wlan flakey on some
++	 * devices. Off mode value should be tested if we have off mode working
++	 * later on.
++	 */
++	mmc3_pins: pinmux_mmc3_pins {
++		pinctrl-single,pins = <
++		/* 0x4a10008e gpmc_wait2.gpio_100 d23 */
++		OMAP4_IOPAD(0x08e, PIN_INPUT | MUX_MODE3)
++
++		/* 0x4a100102 abe_mcbsp1_dx.sdmmc3_dat2 ab25 */
++		OMAP4_IOPAD(0x102, PIN_INPUT_PULLUP | MUX_MODE1)
++
++		/* 0x4a100104 abe_mcbsp1_fsx.sdmmc3_dat3 ac27 */
++		OMAP4_IOPAD(0x104, PIN_INPUT_PULLUP | MUX_MODE1)
++
++		/* 0x4a100118 uart2_cts.sdmmc3_clk ab26 */
++		OMAP4_IOPAD(0x118, PIN_INPUT | MUX_MODE1)
++
++		/* 0x4a10011a uart2_rts.sdmmc3_cmd ab27 */
++		OMAP4_IOPAD(0x11a, PIN_INPUT_PULLUP | MUX_MODE1)
++
++		/* 0x4a10011c uart2_rx.sdmmc3_dat0 aa25 */
++		OMAP4_IOPAD(0x11c, PIN_INPUT_PULLUP | MUX_MODE1)
++
++		/* 0x4a10011e uart2_tx.sdmmc3_dat1 aa26 */
++		OMAP4_IOPAD(0x11e, PIN_INPUT_PULLUP | MUX_MODE1)
++		>;
++	};
++
+ 	/* gpmc_ncs0.gpio_50 */
+ 	poweroff_gpio: pinmux_poweroff_pins {
+ 		pinctrl-single,pins = <
 -- 
 2.25.1
 
