@@ -2,34 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E2401DEB42
-	for <lists+stable@lfdr.de>; Fri, 22 May 2020 16:59:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 183DD1DEB3C
+	for <lists+stable@lfdr.de>; Fri, 22 May 2020 16:59:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730367AbgEVO7b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 May 2020 10:59:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51138 "EHLO mail.kernel.org"
+        id S1730499AbgEVOuN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 May 2020 10:50:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51190 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730461AbgEVOuM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 May 2020 10:50:12 -0400
+        id S1730488AbgEVOuN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 May 2020 10:50:13 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AE97A223BF;
-        Fri, 22 May 2020 14:50:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AE4B92245D;
+        Fri, 22 May 2020 14:50:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590159011;
-        bh=d07kKZJF85G6WmyNuDRY5D8ZQiahqedqqafcMO5l6EY=;
+        s=default; t=1590159012;
+        bh=BYyPzYkx4ERUweSk9BWxGWyjc7yozBVun6QzBUsgIKA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1qbbp0an1ckFA+GRZyP1Xowpfg/lFgeW9Oiw4tXikierNmnO1tEPFYDWbVIxyCQOq
-         U9pSs1ElkTa67X/L5JfqUqJZ2lS5krhN5drkJfYQ4xeJI7TWT5owGogUcq4aMetxoW
-         SHkkgYpCmYM2cSvQ7G87tSjhfjZRRiL0NA7ZMfqo=
+        b=EBAoQ5ccC+pfpDBZhy71LJSQBFNfUlwi1/tQ1973v5AITP7blSjw3z7w7hQEsKXbH
+         9AlRGvMVoXP9Jo2WLtCvy1HTE5rDloQaKlpQCsYPNw9AMaOyZ9CsKKN3LzzYzrsPVe
+         pPu5kHG1PAUb6/y9cq2bKTNWIqVfDEAijh8IDG4g=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tony Lindgren <tony@atomide.com>, Sasha Levin <sashal@kernel.org>,
-        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.6 10/41] ARM: dts: omap4-droid4: Fix flakey wlan by disabling internal pull for gpio
-Date:   Fri, 22 May 2020 10:49:27 -0400
-Message-Id: <20200522144959.434379-10-sashal@kernel.org>
+Cc:     Tony Lindgren <tony@atomide.com>, maemo-leste@lists.dyne.org,
+        Merlijn Wajer <merlijn@wizzup.org>,
+        Pavel Machek <pavel@ucw.cz>,
+        Sebastian Reichel <sre@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.6 11/41] ARM: dts: omap4-droid4: Fix occasional lost wakeirq for uart1
+Date:   Fri, 22 May 2020 10:49:28 -0400
+Message-Id: <20200522144959.434379-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200522144959.434379-1-sashal@kernel.org>
 References: <20200522144959.434379-1-sashal@kernel.org>
@@ -44,75 +48,61 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit 30fa60c678eaa27b8f2a531920d77f7184658f73 ]
+[ Upstream commit 738b150ecefbffb6e55cfa8a3b66a844f777d8fb ]
 
-The wlan on droid4 is flakey on some devices, and experiments have shown this
-gets fixed if we disable the internal pull for wlan gpio interrupt line.
+Looks like using the UART CTS pin does not always trigger for a wake-up
+when the SoC is idle.
 
-The symptoms are that the wlan connection is very slow and almost useless
-with lots of wlcore firmware reboot warnings in the dmesg.
+This is probably because the modem first uses gpio_149 to signal the SoC
+that data will be sent, and the CTS will only get used later when the
+data transfer is starting.
 
-In addition to configuring the wlan gpio pulls, let's also configure the rest
-of the wlan sd pins. We have not configured those eariler as we're booting
-using kexec.
+Let's fix the issue by configuring the gpio_149 pad as the wakeirq for
+UART. We have gpio_149 managed by the USB PHY for powering up the right
+USB mode, and after that, the gpio gets recycled as the modem wake-up
+pin. If needeed, the USB PHY can also later on be configured to use
+gpio_149 pad as the wakeirq as a shared irq.
 
+Let's also configure the missing properties for uart-has-rtscts and
+current-speed for the modem port while at it. We already configure the
+hardware flow control pins with uart1_pins pinctrl setting.
+
+Cc: maemo-leste@lists.dyne.org
+Cc: Merlijn Wajer <merlijn@wizzup.org>
+Cc: Pavel Machek <pavel@ucw.cz>
+Cc: Sebastian Reichel <sre@kernel.org>
 Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../boot/dts/motorola-mapphone-common.dtsi    | 33 +++++++++++++++++++
- 1 file changed, 33 insertions(+)
+ arch/arm/boot/dts/motorola-mapphone-common.dtsi | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
 diff --git a/arch/arm/boot/dts/motorola-mapphone-common.dtsi b/arch/arm/boot/dts/motorola-mapphone-common.dtsi
-index 9067e0ef4240..01ea9a1e2c86 100644
+index 01ea9a1e2c86..06fbffa81636 100644
 --- a/arch/arm/boot/dts/motorola-mapphone-common.dtsi
 +++ b/arch/arm/boot/dts/motorola-mapphone-common.dtsi
-@@ -367,6 +367,8 @@
+@@ -723,14 +723,18 @@
  };
  
- &mmc3 {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&mmc3_pins>;
- 	vmmc-supply = <&wl12xx_vmmc>;
- 	/* uart2_tx.sdmmc3_dat1 pad as wakeirq */
- 	interrupts-extended = <&wakeupgen GIC_SPI 94 IRQ_TYPE_LEVEL_HIGH
-@@ -472,6 +474,37 @@
- 		>;
- 	};
+ /*
+- * As uart1 is wired to mdm6600 with rts and cts, we can use the cts pin for
+- * uart1 wakeirq.
++ * The uart1 port is wired to mdm6600 with rts and cts. The modem uses gpio_149
++ * for wake-up events for both the USB PHY and the UART. We can use gpio_149
++ * pad as the shared wakeirq for the UART rather than the RX or CTS pad as we
++ * have gpio_149 trigger before the UART transfer starts.
+  */
+ &uart1 {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&uart1_pins>;
+ 	interrupts-extended = <&wakeupgen GIC_SPI 72 IRQ_TYPE_LEVEL_HIGH
+-			       &omap4_pmx_core 0xfc>;
++			       &omap4_pmx_core 0x110>;
++	uart-has-rtscts;
++	current-speed = <115200>;
+ };
  
-+	/*
-+	 * Android uses PIN_OFF_INPUT_PULLDOWN | PIN_INPUT_PULLUP | MUX_MODE3
-+	 * for gpio_100, but the internal pull makes wlan flakey on some
-+	 * devices. Off mode value should be tested if we have off mode working
-+	 * later on.
-+	 */
-+	mmc3_pins: pinmux_mmc3_pins {
-+		pinctrl-single,pins = <
-+		/* 0x4a10008e gpmc_wait2.gpio_100 d23 */
-+		OMAP4_IOPAD(0x08e, PIN_INPUT | MUX_MODE3)
-+
-+		/* 0x4a100102 abe_mcbsp1_dx.sdmmc3_dat2 ab25 */
-+		OMAP4_IOPAD(0x102, PIN_INPUT_PULLUP | MUX_MODE1)
-+
-+		/* 0x4a100104 abe_mcbsp1_fsx.sdmmc3_dat3 ac27 */
-+		OMAP4_IOPAD(0x104, PIN_INPUT_PULLUP | MUX_MODE1)
-+
-+		/* 0x4a100118 uart2_cts.sdmmc3_clk ab26 */
-+		OMAP4_IOPAD(0x118, PIN_INPUT | MUX_MODE1)
-+
-+		/* 0x4a10011a uart2_rts.sdmmc3_cmd ab27 */
-+		OMAP4_IOPAD(0x11a, PIN_INPUT_PULLUP | MUX_MODE1)
-+
-+		/* 0x4a10011c uart2_rx.sdmmc3_dat0 aa25 */
-+		OMAP4_IOPAD(0x11c, PIN_INPUT_PULLUP | MUX_MODE1)
-+
-+		/* 0x4a10011e uart2_tx.sdmmc3_dat1 aa26 */
-+		OMAP4_IOPAD(0x11e, PIN_INPUT_PULLUP | MUX_MODE1)
-+		>;
-+	};
-+
- 	/* gpmc_ncs0.gpio_50 */
- 	poweroff_gpio: pinmux_poweroff_pins {
- 		pinctrl-single,pins = <
+ &uart3 {
 -- 
 2.25.1
 
