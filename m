@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A63BA1DDBEB
-	for <lists+stable@lfdr.de>; Fri, 22 May 2020 02:12:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BA0B1DDBED
+	for <lists+stable@lfdr.de>; Fri, 22 May 2020 02:12:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730687AbgEVAMl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 21 May 2020 20:12:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58774 "EHLO mail.kernel.org"
+        id S1730547AbgEVAMo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 21 May 2020 20:12:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58824 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730686AbgEVAMk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 21 May 2020 20:12:40 -0400
+        id S1730698AbgEVAMl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 21 May 2020 20:12:41 -0400
 Received: from localhost (unknown [137.135.114.1])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DD1DB20823;
-        Fri, 22 May 2020 00:12:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0C1B420874;
+        Fri, 22 May 2020 00:12:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590106360;
-        bh=A45qJT0RUkEKB77p9uZs8SZzgdqs69BaQfR8rQ0U8Qc=;
-        h=Date:From:To:To:To:Cc:CC:Cc:Subject:In-Reply-To:References:From;
-        b=g3lt0ACAyhGtu0V1HJ1qPg0miet8OEbIUfLsegYAFxj7iyxcaNiEEo1ntTIftuq7N
-         zGWTL0qhIFXpHtjCIOqL8wtydHf+ZUm+M9KcBdXXOI9W6v5ftWrGVnHC1HueEYDLhR
-         3OpEWjAjICvlXlmmOJGvKjas6KxSHNP2j8Rmp59Y=
-Date:   Fri, 22 May 2020 00:12:39 +0000
+        s=default; t=1590106361;
+        bh=WOiqB0GpcVWMKmnet1Sc0/6IqMPI2nyLCQayz4Y0Ccw=;
+        h=Date:From:To:To:To:Cc:Cc:Cc:Subject:In-Reply-To:References:From;
+        b=shXL14aIJY516IgdQpOqo9DvswkPQPQS6fMp+EnFYbK+EB+au+HNdAjeaoTmEJLOq
+         orZx5IQL/RLGJepwYV7L/XMHJiOKUK7ewoywhdMOW0dg5mIsY5x8bcukGGCXfhTMEp
+         RwYoheVtM1vRd13u47K3oZYXybpYYWv0lEMAIjP4=
+Date:   Fri, 22 May 2020 00:12:40 +0000
 From:   Sasha Levin <sashal@kernel.org>
 To:     Sasha Levin <sashal@kernel.org>
-To:     Jan Kara <jack@suse.cz>
-To:     Ted Tso <tytso@mit.edu>
-Cc:     <linux-ext4@vger.kernel.org>, Jan Kara <jack@suse.cz>
-CC:     stable@vger.kernel.org
+To:     Miquel Raynal <miquel.raynal@bootlin.com>
+To:     <linux-mtd@lists.infradead.org>
+Cc:     Miquel Raynal <miquel.raynal@bootlin.com>, stable@vger.kernel.org
 Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH 2/2] jbd2: Avoid leaking transaction credits when unreserving handle
-In-Reply-To: <20200518092120.10322-3-jack@suse.cz>
-References: <20200518092120.10322-3-jack@suse.cz>
-Message-Id: <20200522001239.DD1DB20823@mail.kernel.org>
+Cc:     stable@vger.kernel.org
+Subject: Re: [PATCH v2 33/62] mtd: rawnand: orion: Fix the probe error path
+In-Reply-To: <20200519130035.1883-34-miquel.raynal@bootlin.com>
+References: <20200519130035.1883-34-miquel.raynal@bootlin.com>
+Message-Id: <20200522001241.0C1B420874@mail.kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -45,85 +45,39 @@ Hi
 [This is an automated email]
 
 This commit has been processed because it contains a "Fixes:" tag
-fixing commit: 8f7d89f36829 ("jbd2: transaction reservation support").
+fixing commit: d44154f969a4 ("mtd: nand: Provide nand_cleanup() function to free NAND related resources").
 
-The bot has tested the following trees: v5.6.13, v5.4.41, v4.19.123, v4.14.180, v4.9.223, v4.4.223.
+The bot has tested the following trees: v5.6.13, v5.4.41, v4.19.123, v4.14.180, v4.9.223.
 
 v5.6.13: Build OK!
-v5.4.41: Failed to apply! Possible dependencies:
-    5559b2d81b51 ("jbd2: Drop pointless wakeup from jbd2_journal_stop()")
-    933f1c1e0b75 ("jbd2: Rename h_buffer_credits to h_total_credits")
-    a413036791d0 ("ext4: Provide function to handle transaction restarts")
-    a9a8344ee171 ("ext4, jbd2: Provide accessor function for handle credits")
-    dfaf5ffda227 ("jbd2: Reorganize jbd2_journal_stop()")
-    ec8b6f600e49 ("jbd2: Factor out common parts of stopping and restarting a handle")
-    fdc3ef882a5d ("jbd2: Reserve space for revoke descriptor blocks")
-
+v5.4.41: Build OK!
 v4.19.123: Failed to apply! Possible dependencies:
-    0b02f4c0d6d9 ("ext4: fix reserved cluster accounting at delayed write time")
-    1dc0aa46e74a ("ext4: add new pending reservation mechanism")
-    32ea275008d8 ("jbd2: update locking documentation for transaction_t")
-    4c273352bb45 ("jbd2: add missing tracepoint for reserved handle")
-    5559b2d81b51 ("jbd2: Drop pointless wakeup from jbd2_journal_stop()")
-    933f1c1e0b75 ("jbd2: Rename h_buffer_credits to h_total_credits")
-    a413036791d0 ("ext4: Provide function to handle transaction restarts")
-    a9a8344ee171 ("ext4, jbd2: Provide accessor function for handle credits")
-    ad431025aecd ("ext4: generalize extents status tree search functions")
-    dfaf5ffda227 ("jbd2: Reorganize jbd2_journal_stop()")
-    ec8b6f600e49 ("jbd2: Factor out common parts of stopping and restarting a handle")
-    fdc3ef882a5d ("jbd2: Reserve space for revoke descriptor blocks")
+    59ac276f2227 ("mtd: rawnand: Pass a nand_chip object to nand_release()")
 
 v4.14.180: Failed to apply! Possible dependencies:
-    0b02f4c0d6d9 ("ext4: fix reserved cluster accounting at delayed write time")
-    19fe5f643f89 ("iomap: Switch from blkno to disk offset")
-    1dc0aa46e74a ("ext4: add new pending reservation mechanism")
-    32ea275008d8 ("jbd2: update locking documentation for transaction_t")
-    4c273352bb45 ("jbd2: add missing tracepoint for reserved handle")
-    545052e9e35a ("ext4: Switch to iomap for SEEK_HOLE / SEEK_DATA")
-    5559b2d81b51 ("jbd2: Drop pointless wakeup from jbd2_journal_stop()")
-    933f1c1e0b75 ("jbd2: Rename h_buffer_credits to h_total_credits")
-    a413036791d0 ("ext4: Provide function to handle transaction restarts")
-    a9a8344ee171 ("ext4, jbd2: Provide accessor function for handle credits")
-    ad431025aecd ("ext4: generalize extents status tree search functions")
-    dfaf5ffda227 ("jbd2: Reorganize jbd2_journal_stop()")
-    ec8b6f600e49 ("jbd2: Factor out common parts of stopping and restarting a handle")
-    fdc3ef882a5d ("jbd2: Reserve space for revoke descriptor blocks")
+    02f26ecf8c77 ("mtd: nand: add reworked Marvell NAND controller driver")
+    256c4fc76a80 ("mtd: rawnand: add a way to pass an ID table with nand_scan()")
+    39b77c586e17 ("mtd: rawnand: fsl_elbc: fix probe function error path")
+    59ac276f2227 ("mtd: rawnand: Pass a nand_chip object to nand_release()")
+    63fa37f0c512 ("mtd: rawnand: Replace printk() with appropriate pr_*() macro")
+    97d90da8a886 ("mtd: nand: provide several helpers to do common NAND operations")
+    98732da1a08e ("mtd: rawnand: do not export nand_scan_[ident|tail]() anymore")
+    acfc33091f7a ("mtd: rawnand: fsl_ifc: fix probe function error path")
 
 v4.9.223: Failed to apply! Possible dependencies:
-    39bc88e5e38e ("arm64: Disable TTBR0_EL1 during normal kernel execution")
-    4c273352bb45 ("jbd2: add missing tracepoint for reserved handle")
-    538bcaa6261b ("jbd2: fix race when writing superblock")
-    5559b2d81b51 ("jbd2: Drop pointless wakeup from jbd2_journal_stop()")
-    783d94854499 ("ext4: add EXT4_IOC_GOINGDOWN ioctl")
-    7c0f6ba682b9 ("Replace <asm/uaccess.h> with <linux/uaccess.h> globally")
-    81378da64de6 ("jbd2: mark the transaction context with the scope GFP_NOFS context")
-    933f1c1e0b75 ("jbd2: Rename h_buffer_credits to h_total_credits")
-    9cf09d68b89a ("arm64: xen: Enable user access before a privcmd hvc call")
-    b4709067ac09 ("jbd2: preserve original nofs flag during journal restart")
-    bd38967d406f ("arm64: Factor out PAN enabling/disabling into separate uaccess_* macros")
-    dfaf5ffda227 ("jbd2: Reorganize jbd2_journal_stop()")
-    ec8b6f600e49 ("jbd2: Factor out common parts of stopping and restarting a handle")
-    fb7c02445c49 ("ext4: pass -ESHUTDOWN code to jbd2 layer")
-    fdc3ef882a5d ("jbd2: Reserve space for revoke descriptor blocks")
-
-v4.4.223: Failed to apply! Possible dependencies:
-    2a222ca992c3 ("fs: have submit_bh users pass in op and flags separately")
-    38f252553300 ("block: add __blkdev_issue_discard")
-    4c273352bb45 ("jbd2: add missing tracepoint for reserved handle")
-    4e49ea4a3d27 ("block/fs/drivers: remove rw argument from submit_bio")
-    538bcaa6261b ("jbd2: fix race when writing superblock")
-    5559b2d81b51 ("jbd2: Drop pointless wakeup from jbd2_journal_stop()")
-    7a4b188f0c0b ("jbd2: move lockdep instrumentation for jbd2 handles")
-    81378da64de6 ("jbd2: mark the transaction context with the scope GFP_NOFS context")
-    9082e87bfbf8 ("block: remove struct bio_batch")
-    933f1c1e0b75 ("jbd2: Rename h_buffer_credits to h_total_credits")
-    ab714aff4f74 ("jbd2: move lockdep tracking to journal_s")
-    b4709067ac09 ("jbd2: preserve original nofs flag during journal restart")
-    bbd848e0fade ("block: reinstate early return of -EOPNOTSUPP from blkdev_issue_discard")
-    d57d611505d9 ("kernel/fs: fix I/O wait not accounted for RW O_DSYNC")
-    dfaf5ffda227 ("jbd2: Reorganize jbd2_journal_stop()")
-    ec8b6f600e49 ("jbd2: Factor out common parts of stopping and restarting a handle")
-    fdc3ef882a5d ("jbd2: Reserve space for revoke descriptor blocks")
+    24755a55b01f ("Documentation/00-index: update for new core-api folder")
+    4ad4b21b1b81 ("docs-rst: convert usb docbooks to ReST")
+    59ac276f2227 ("mtd: rawnand: Pass a nand_chip object to nand_release()")
+    609f212f6a12 ("docs-rst: convert mtdnand book to ReST")
+    66115335fbb4 ("docs: Fix build failure")
+    7ddedebb03b7 ("ALSA: doc: ReSTize writing-an-alsa-driver document")
+    8551914a5e19 ("ALSA: doc: ReSTize alsa-driver-api document")
+    90f9f118b75c ("docs-rst: convert filesystems book to ReST")
+    93dc3a112bf8 ("doc: Convert the debugobjects DocBook template to sphinx")
+    c441a4781ff1 ("crypto: doc - remove crypto API DocBook")
+    d6ba7a9c8b5a ("doc: Sphinxify the tracepoint docbook")
+    e7f08ffb1855 ("Documentation/workqueue.txt: convert to ReST markup")
+    f3fc83e55533 ("docs: Fix htmldocs build failure")
 
 
 NOTE: The patch will not be queued to stable trees until it is upstream.
