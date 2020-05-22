@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E4D631DEAA2
-	for <lists+stable@lfdr.de>; Fri, 22 May 2020 16:56:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F32631DE9E2
+	for <lists+stable@lfdr.de>; Fri, 22 May 2020 16:51:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730762AbgEVOzN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 May 2020 10:55:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53026 "EHLO mail.kernel.org"
+        id S1730929AbgEVOvQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 May 2020 10:51:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53042 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730945AbgEVOvP (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1730951AbgEVOvP (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 22 May 2020 10:51:15 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E13C522256;
-        Fri, 22 May 2020 14:51:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CAEC722409;
+        Fri, 22 May 2020 14:51:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590159074;
-        bh=gMXF4fl4Dkfvmlk//jveDXjQXmPi/EG1P1zpQCrRKb4=;
+        s=default; t=1590159075;
+        bh=hu3+Cu1mobOMU0osGTqGMIyMafxT7FTy0kESiJ1M/lw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=19x/WWTcQGJh4jECwIu34iInK/W6jAqa1962cZGMq0xAGbx62PR1yA47yNdDHVskQ
-         EAZDdG4iB3z3GGgKwEMh/mbo9KaD8CmxmnVSf3OXMAs4pRz/gW23cF2m9i67RiKiLb
-         oEK65UiJZ2T9uXatZxO4q4iXS94DfX0A2BR4l5Qs=
+        b=EkPHO2k4e2bXlRR9qq6KARoWbQ7DXt84iE6cXl973pOg55CD6fysbbSjE/ZOy9xbC
+         lu3MbG2jCPHchjyxR61Yiqk6Xy2rkWJG6L0tYuQft6OcdbJk44Cb0r4N2AhBwG+xVq
+         VM0T/JmfmxjBzZiZ5Vi73tzuToJoovya1LONvSds=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Liu Yibin <jiulong@linux.alibaba.com>,
-        Guo Ren <guoren@linux.alibaba.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 27/32] csky: Fixup remove duplicate irq_disable
-Date:   Fri, 22 May 2020 10:50:39 -0400
-Message-Id: <20200522145044.434677-27-sashal@kernel.org>
+Cc:     Amy Shih <amy.shih@advantech.com.tw>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Sasha Levin <sashal@kernel.org>, linux-hwmon@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 28/32] hwmon: (nct7904) Fix incorrect range of temperature limit registers
+Date:   Fri, 22 May 2020 10:50:40 -0400
+Message-Id: <20200522145044.434677-28-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200522145044.434677-1-sashal@kernel.org>
 References: <20200522145044.434677-1-sashal@kernel.org>
@@ -43,33 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liu Yibin <jiulong@linux.alibaba.com>
+From: Amy Shih <amy.shih@advantech.com.tw>
 
-[ Upstream commit 6633a5aa8eb6bda70eb3a9837efd28a67ccc6e0a ]
+[ Upstream commit 7b2fd270af27edaf02acb41a7babe805a9441914 ]
 
-Interrupt has been disabled in __schedule() with local_irq_disable()
-and enabled in finish_task_switch->finish_lock_switch() with
-local_irq_enabled(), So needn't to disable irq here.
+The format of temperature limitation registers are 8-bit 2's complement
+and the range is -128~127.
+Converts the reading value to signed char to fix the incorrect range
+of temperature limitation registers.
 
-Signed-off-by: Liu Yibin <jiulong@linux.alibaba.com>
-Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+Signed-off-by: Amy Shih <amy.shih@advantech.com.tw>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/csky/kernel/entry.S | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/hwmon/nct7904.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/csky/kernel/entry.S b/arch/csky/kernel/entry.S
-index a7a5b67df898..65c55f22532a 100644
---- a/arch/csky/kernel/entry.S
-+++ b/arch/csky/kernel/entry.S
-@@ -318,8 +318,6 @@ ENTRY(__switch_to)
+diff --git a/drivers/hwmon/nct7904.c b/drivers/hwmon/nct7904.c
+index 281c81edabc6..dfb122b5e1b7 100644
+--- a/drivers/hwmon/nct7904.c
++++ b/drivers/hwmon/nct7904.c
+@@ -356,6 +356,7 @@ static int nct7904_read_temp(struct device *dev, u32 attr, int channel,
+ 	struct nct7904_data *data = dev_get_drvdata(dev);
+ 	int ret, temp;
+ 	unsigned int reg1, reg2, reg3;
++	s8 temps;
  
- 	mfcr	a2, psr			/* Save PSR value */
- 	stw	a2, (a3, THREAD_SR)	/* Save PSR in task struct */
--	bclri	a2, 6			/* Disable interrupts */
--	mtcr	a2, psr
+ 	switch (attr) {
+ 	case hwmon_temp_input:
+@@ -461,7 +462,8 @@ static int nct7904_read_temp(struct device *dev, u32 attr, int channel,
  
- 	SAVE_SWITCH_STACK
+ 	if (ret < 0)
+ 		return ret;
+-	*val = ret * 1000;
++	temps = ret;
++	*val = temps * 1000;
+ 	return 0;
+ }
  
 -- 
 2.25.1
