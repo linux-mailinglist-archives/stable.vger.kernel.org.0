@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C103E1DEAC3
-	for <lists+stable@lfdr.de>; Fri, 22 May 2020 16:56:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 737CF1DE9CF
+	for <lists+stable@lfdr.de>; Fri, 22 May 2020 16:51:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730869AbgEVOvA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1730789AbgEVOvA (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 22 May 2020 10:51:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52528 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:52546 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730859AbgEVOu5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 May 2020 10:50:57 -0400
+        id S1730863AbgEVOu6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 May 2020 10:50:58 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3AEBE22254;
-        Fri, 22 May 2020 14:50:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3BDCD22256;
+        Fri, 22 May 2020 14:50:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590159056;
-        bh=yrox0QZcIYDU3bUqM6FB7Xb1E77hfNM70fOnG+jZykk=;
+        s=default; t=1590159057;
+        bh=UhDtEsXZBfYTv8NOSw/TS1Z9nSFflnCIyoBgaZZekUQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jlxYa3OqEDN4pl+IXdWlQETBhM+cVkl4q1/arEwE1+dWjidcqWlwiHeMpIBSKi8am
-         CoSSSuQJNcoF9U0HOZU92iaEHh/brTRy/WpWPbMANnoIhjq8hlhaFlA9BkGWyNRXbW
-         QCrC3U0V1gApp3CbSOlHGdf3Vqk5StNahou9UMw8=
+        b=L1Cdl/m8U5poHZkXAruMoFW0ydYdAcGUxJrfxExA15kdi6+PBwmU2V3awfV/J/UDh
+         xSSNNZHHt2IOJ1PqzQbTmNX6tUpXLJM3WalAT7syPX0H29jcQk4boPZuorJDQJB2Dc
+         bNePf9WOfWHZ8zEXVLBH/YMf/eUqF9pzgZLUTJG8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Bob Peterson <rpeterso@redhat.com>,
         Andreas Gruenbacher <agruenba@redhat.com>,
         Sasha Levin <sashal@kernel.org>, cluster-devel@redhat.com
-Subject: [PATCH AUTOSEL 5.4 10/32] gfs2: move privileged user check to gfs2_quota_lock_check
-Date:   Fri, 22 May 2020 10:50:22 -0400
-Message-Id: <20200522145044.434677-10-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 11/32] gfs2: don't call quota_unhold if quotas are not locked
+Date:   Fri, 22 May 2020 10:50:23 -0400
+Message-Id: <20200522145044.434677-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200522145044.434677-1-sashal@kernel.org>
 References: <20200522145044.434677-1-sashal@kernel.org>
@@ -45,53 +45,42 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Bob Peterson <rpeterso@redhat.com>
 
-[ Upstream commit 4ed0c30811cb4d30ef89850b787a53a84d5d2bcb ]
+[ Upstream commit c9cb9e381985bbbe8acd2695bbe6bd24bf06b81c ]
 
-Before this patch, function gfs2_quota_lock checked if it was called
-from a privileged user, and if so, it bypassed the quota check:
-superuser can operate outside the quotas.
-That's the wrong place for the check because the lock/unlock functions
-are separate from the lock_check function, and you can do lock and
-unlock without actually checking the quotas.
-
-This patch moves the check to gfs2_quota_lock_check.
+Before this patch, function gfs2_quota_unlock checked if quotas are
+turned off, and if so, it branched to label out, which called
+gfs2_quota_unhold. With the new system of gfs2_qa_get and put, we
+no longer want to call gfs2_quota_unhold or we won't balance our
+gets and puts.
 
 Signed-off-by: Bob Peterson <rpeterso@redhat.com>
 Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
  fs/gfs2/quota.c | 3 +--
- fs/gfs2/quota.h | 3 ++-
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
 diff --git a/fs/gfs2/quota.c b/fs/gfs2/quota.c
-index 7c016a082aa6..cbee745169b8 100644
+index cbee745169b8..91ca4920bf03 100644
 --- a/fs/gfs2/quota.c
 +++ b/fs/gfs2/quota.c
-@@ -1040,8 +1040,7 @@ int gfs2_quota_lock(struct gfs2_inode *ip, kuid_t uid, kgid_t gid)
- 	u32 x;
- 	int error = 0;
+@@ -1113,7 +1113,7 @@ void gfs2_quota_unlock(struct gfs2_inode *ip)
+ 	int found;
  
--	if (capable(CAP_SYS_RESOURCE) ||
--	    sdp->sd_args.ar_quota != GFS2_QUOTA_ON)
-+	if (sdp->sd_args.ar_quota != GFS2_QUOTA_ON)
- 		return 0;
+ 	if (!test_and_clear_bit(GIF_QD_LOCKED, &ip->i_flags))
+-		goto out;
++		return;
  
- 	error = gfs2_quota_hold(ip, uid, gid);
-diff --git a/fs/gfs2/quota.h b/fs/gfs2/quota.h
-index 765627d9a91e..fe68a91dc16f 100644
---- a/fs/gfs2/quota.h
-+++ b/fs/gfs2/quota.h
-@@ -44,7 +44,8 @@ static inline int gfs2_quota_lock_check(struct gfs2_inode *ip,
- 	int ret;
+ 	for (x = 0; x < ip->i_qadata->qa_qd_num; x++) {
+ 		struct gfs2_quota_data *qd;
+@@ -1150,7 +1150,6 @@ void gfs2_quota_unlock(struct gfs2_inode *ip)
+ 			qd_unlock(qda[x]);
+ 	}
  
- 	ap->allowed = UINT_MAX; /* Assume we are permitted a whole lot */
--	if (sdp->sd_args.ar_quota == GFS2_QUOTA_OFF)
-+	if (capable(CAP_SYS_RESOURCE) ||
-+	    sdp->sd_args.ar_quota == GFS2_QUOTA_OFF)
- 		return 0;
- 	ret = gfs2_quota_lock(ip, NO_UID_QUOTA_CHANGE, NO_GID_QUOTA_CHANGE);
- 	if (ret)
+-out:
+ 	gfs2_quota_unhold(ip);
+ }
+ 
 -- 
 2.25.1
 
