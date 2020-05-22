@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 651C31DEA53
-	for <lists+stable@lfdr.de>; Fri, 22 May 2020 16:54:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB2CC1DEA52
+	for <lists+stable@lfdr.de>; Fri, 22 May 2020 16:54:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731312AbgEVOxv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1730883AbgEVOxv (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 22 May 2020 10:53:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53618 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:53690 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731077AbgEVOvl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 May 2020 10:51:41 -0400
+        id S1731080AbgEVOvm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 May 2020 10:51:42 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D2495223E0;
-        Fri, 22 May 2020 14:51:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 024CA20756;
+        Fri, 22 May 2020 14:51:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590159100;
-        bh=rh/iTIyXUgQYbWqo2GeJdWBSVP/4pOsnGFMjLcnxaoE=;
+        s=default; t=1590159101;
+        bh=MbeZa4VffzmxWAR8MGy0BeRxIsWisBaIT8gBRIYAzuI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0reXHiZ5GluEyQjAsibMwJXwVLkwkET2Twjfp/M7CtY3Pi66+iEidoZQodSUnMjSm
-         Eh+BmgHw8yBHeRVh0nYO2Sspy/l5cg41wcg29hf65m7j19Q4ky/bIsfgKcEOn/r/pJ
-         rP6vkCehNbCVw6M8c/aL+BbYu2dt5W8v54hb7+5A=
+        b=uSKMtHBVyVe3RELfGqGoQW1vbn7Tpo0O35TiAxXuCPLi7TqONhPS8UHILEf1WGgzw
+         3THLw7CSj0C8to8ZARkgG2eIl06pY0wm15hIjDZ0Pn8uUkcvThflK7DhbtVJdTsg5+
+         vgDu8D7sMyQ7EqbYK7UPtDppVP/uqy7c1GTCUa88=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Steve French <stfrench@microsoft.com>,
-        Coverity <scan-admin@coverity.com>,
-        Shyam Prasad N <nspmangalore@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, linux-cifs@vger.kernel.org,
-        samba-technical@lists.samba.org
-Subject: [PATCH AUTOSEL 4.19 18/19] cifs: Fix null pointer check in cifs_read
-Date:   Fri, 22 May 2020 10:51:19 -0400
-Message-Id: <20200522145120.434921-18-sashal@kernel.org>
+Cc:     Matteo Croce <mcroce@redhat.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Yonghong Song <yhs@fb.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 19/19] samples: bpf: Fix build error
+Date:   Fri, 22 May 2020 10:51:20 -0400
+Message-Id: <20200522145120.434921-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200522145120.434921-1-sashal@kernel.org>
 References: <20200522145120.434921-1-sashal@kernel.org>
@@ -45,34 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve French <stfrench@microsoft.com>
+From: Matteo Croce <mcroce@redhat.com>
 
-[ Upstream commit 9bd21d4b1a767c3abebec203342f3820dcb84662 ]
+[ Upstream commit 23ad04669f81f958e9a4121b0266228d2eb3c357 ]
 
-Coverity scan noted a redundant null check
+GCC 10 is very strict about symbol clash, and lwt_len_hist_user contains
+a symbol which clashes with libbpf:
 
-Coverity-id: 728517
-Reported-by: Coverity <scan-admin@coverity.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Reviewed-by: Shyam Prasad N <nspmangalore@gmail.com>
+/usr/bin/ld: samples/bpf/lwt_len_hist_user.o:(.bss+0x0): multiple definition of `bpf_log_buf'; samples/bpf/bpf_load.o:(.bss+0x8c0): first defined here
+collect2: error: ld returned 1 exit status
+
+bpf_log_buf here seems to be a leftover, so removing it.
+
+Signed-off-by: Matteo Croce <mcroce@redhat.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Acked-by: Yonghong Song <yhs@fb.com>
+Link: https://lore.kernel.org/bpf/20200511113234.80722-1-mcroce@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/file.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ samples/bpf/lwt_len_hist_user.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/fs/cifs/file.c b/fs/cifs/file.c
-index cfb0d91289ec..128cbd69911b 100644
---- a/fs/cifs/file.c
-+++ b/fs/cifs/file.c
-@@ -3532,7 +3532,7 @@ cifs_read(struct file *file, char *read_data, size_t read_size, loff_t *offset)
- 			 * than it negotiated since it will refuse the read
- 			 * then.
- 			 */
--			if ((tcon->ses) && !(tcon->ses->capabilities &
-+			if (!(tcon->ses->capabilities &
- 				tcon->ses->server->vals->cap_large_files)) {
- 				current_read_size = min_t(uint,
- 					current_read_size, CIFSMaxBufSize);
+diff --git a/samples/bpf/lwt_len_hist_user.c b/samples/bpf/lwt_len_hist_user.c
+index 587b68b1f8dd..430a4b7e353e 100644
+--- a/samples/bpf/lwt_len_hist_user.c
++++ b/samples/bpf/lwt_len_hist_user.c
+@@ -15,8 +15,6 @@
+ #define MAX_INDEX 64
+ #define MAX_STARS 38
+ 
+-char bpf_log_buf[BPF_LOG_BUF_SIZE];
+-
+ static void stars(char *str, long val, long max, int width)
+ {
+ 	int i;
 -- 
 2.25.1
 
