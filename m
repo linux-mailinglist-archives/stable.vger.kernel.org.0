@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 63D091DE9A5
-	for <lists+stable@lfdr.de>; Fri, 22 May 2020 16:50:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB34E1DEB43
+	for <lists+stable@lfdr.de>; Fri, 22 May 2020 16:59:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730428AbgEVOuK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 May 2020 10:50:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51110 "EHLO mail.kernel.org"
+        id S1730761AbgEVO7c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 May 2020 10:59:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51122 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730412AbgEVOuJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 May 2020 10:50:09 -0400
+        id S1730438AbgEVOuK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 May 2020 10:50:10 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9647D2242F;
-        Fri, 22 May 2020 14:50:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B25402145D;
+        Fri, 22 May 2020 14:50:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590159009;
-        bh=Q2VEt+aFXCG9PoMYDnzPfWKxWW43uF0r8vtt6Oqh2hY=;
+        s=default; t=1590159010;
+        bh=kl7MXkBZJGC6s8thZUM2YDAIP7k2Z9xNDyBuU/WLlk8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yMMRNLLccpswTY94xqVzVoFlUwZoGS/NPtXiGY1gBbOpTkFxDnLRD1rGM+nuum3s5
-         ep01LP3vRS0CMlSCUNQM7uouvbcjLcsLYL9WpVqjuAwp9vAQqsmcoK1iymScedX53r
-         TsrwqGs3+JeLNdzcZrOoKFL1vegYBlg1X0LJ8EfA=
+        b=gmn0CcJvqJvzQD15hicbSugeIXRsLPrcTQHosx5sPnowKWXTkoNXfBn5ejrWC+jr8
+         SAqu1b1L9+2oqORt0a/4pp7dnDBEiQlmn9G0/zuaaxJ837Oze971VkCt6a67HgMyFp
+         FgJr9IWeJuNciZ0ILOz2fDHWovhuw+H/r59pK05c=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Stephen Warren <swarren@nvidia.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, linux-gpio@vger.kernel.org,
-        linux-tegra@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.6 08/41] gpio: tegra: mask GPIO IRQs during IRQ shutdown
-Date:   Fri, 22 May 2020 10:49:25 -0400
-Message-Id: <20200522144959.434379-8-sashal@kernel.org>
+Cc:     Andrew Oakley <andrew@adoakley.name>, Takashi Iwai <tiwai@suse.de>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.6 09/41] ALSA: usb-audio: add mapping for ASRock TRX40 Creator
+Date:   Fri, 22 May 2020 10:49:26 -0400
+Message-Id: <20200522144959.434379-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200522144959.434379-1-sashal@kernel.org>
 References: <20200522144959.434379-1-sashal@kernel.org>
@@ -44,37 +42,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Warren <swarren@nvidia.com>
+From: Andrew Oakley <andrew@adoakley.name>
 
-[ Upstream commit 0cf253eed5d2bdf7bb3152457b38f39b012955f7 ]
+[ Upstream commit da7a8f1a8fc3e14c6dcc52b4098bddb8f20390be ]
 
-The driver currently leaves GPIO IRQs unmasked even when the GPIO IRQ
-client has released the GPIO IRQ. This allows the HW to raise IRQs, and
-SW to process them, after shutdown. Fix this by masking the IRQ when it's
-shut down. This is usually taken care of by the irqchip core, but since
-this driver has a custom irq_shutdown implementation, it must do this
-explicitly itself.
+This is another TRX40 based motherboard with ALC1220-VB USB-audio
+that requires a static mapping table.
 
-Signed-off-by: Stephen Warren <swarren@nvidia.com>
-Link: https://lore.kernel.org/r/20200427232605.11608-1-swarren@wwwdotorg.org
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+This motherboard also has a PCI device which advertises no codecs.  The
+PCI ID is 1022:1487 and PCI SSID is 1022:d102.  As this is using the AMD
+vendor ID, don't blacklist for now in case other boards have a working
+audio device with the same ssid.
+
+alsa-info.sh report for this board:
+http://alsa-project.org/db/?f=0a742f89066527497b77ce16bca486daccf8a70c
+
+Signed-off-by: Andrew Oakley <andrew@adoakley.name>
+Link: https://lore.kernel.org/r/20200503141639.35519-1-andrew@adoakley.name
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpio-tegra.c | 1 +
- 1 file changed, 1 insertion(+)
+ sound/usb/mixer_maps.c   | 5 +++++
+ sound/usb/quirks-table.h | 1 +
+ 2 files changed, 6 insertions(+)
 
-diff --git a/drivers/gpio/gpio-tegra.c b/drivers/gpio/gpio-tegra.c
-index acb99eff9939..86568154cdb3 100644
---- a/drivers/gpio/gpio-tegra.c
-+++ b/drivers/gpio/gpio-tegra.c
-@@ -368,6 +368,7 @@ static void tegra_gpio_irq_shutdown(struct irq_data *d)
- 	struct tegra_gpio_info *tgi = bank->tgi;
- 	unsigned int gpio = d->hwirq;
+diff --git a/sound/usb/mixer_maps.c b/sound/usb/mixer_maps.c
+index 0260c750e156..bfdc6ad52785 100644
+--- a/sound/usb/mixer_maps.c
++++ b/sound/usb/mixer_maps.c
+@@ -549,6 +549,11 @@ static const struct usbmix_ctl_map usbmix_ctl_maps[] = {
+ 		.map = trx40_mobo_map,
+ 		.connector_map = trx40_mobo_connector_map,
+ 	},
++	{	/* Asrock TRX40 Creator */
++		.id = USB_ID(0x26ce, 0x0a01),
++		.map = trx40_mobo_map,
++		.connector_map = trx40_mobo_connector_map,
++	},
+ 	{ 0 } /* terminator */
+ };
  
-+	tegra_gpio_irq_mask(d);
- 	gpiochip_unlock_as_irq(&tgi->gc, gpio);
- }
+diff --git a/sound/usb/quirks-table.h b/sound/usb/quirks-table.h
+index 8c2f5c23e1b4..aa4c16ce0e57 100644
+--- a/sound/usb/quirks-table.h
++++ b/sound/usb/quirks-table.h
+@@ -3647,6 +3647,7 @@ AU0828_DEVICE(0x2040, 0x7270, "Hauppauge", "HVR-950Q"),
+ ALC1220_VB_DESKTOP(0x0414, 0xa002), /* Gigabyte TRX40 Aorus Pro WiFi */
+ ALC1220_VB_DESKTOP(0x0db0, 0x0d64), /* MSI TRX40 Creator */
+ ALC1220_VB_DESKTOP(0x0db0, 0x543d), /* MSI TRX40 */
++ALC1220_VB_DESKTOP(0x26ce, 0x0a01), /* Asrock TRX40 Creator */
+ #undef ALC1220_VB_DESKTOP
  
+ #undef USB_DEVICE_VENDOR_SPEC
 -- 
 2.25.1
 
