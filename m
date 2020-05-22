@@ -2,105 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 51AFC1DE86E
-	for <lists+stable@lfdr.de>; Fri, 22 May 2020 16:02:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 298C31DE99E
+	for <lists+stable@lfdr.de>; Fri, 22 May 2020 16:50:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729700AbgEVOCh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 May 2020 10:02:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49534 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729399AbgEVOCg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 22 May 2020 10:02:36 -0400
-Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4CB3C061A0E;
-        Fri, 22 May 2020 07:02:36 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20170209; h=In-Reply-To:Content-Transfer-Encoding
-        :Content-Type:MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:
-        Sender:Reply-To:Content-ID:Content-Description;
-        bh=OUXZvRPeiF/mojQsg9lMgwxM9yFtvY/919qhkqwilpw=; b=ZevlVQBr2F5sB8UdiKCzXAiinB
-        wEz/2F3iQMF2ciSBjS6tDwa4wePtukgC3MZqR9w8H0XUTZiSy06U9Nx5uCAqsRVZGdcEF4uG8jwVP
-        csbM6cPoiEmFdvkTNKmV5qFA3nDOaauvBQLB78jeUM3dBs31SQ/KUmcsbkcwu/8xTzx1qGT++dO4J
-        x4ZbgV67lJxdRunmCONBsv26kwRUBDlB/rx6lPD6hZ1qKsjbIrLrEfNHGsp45zpAFcpnvepkOwnqA
-        vOcXs4/ydGKCm8id2RB0x6i04c3++kAH2+gDIfUTTMlvjGxjCR0HK4qEbUN2akfkVj2aIwF6ukuMd
-        BUxtmygw==;
-Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=noisy.programming.kicks-ass.net)
-        by bombadil.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1jc8Fo-0000eh-RL; Fri, 22 May 2020 14:02:30 +0000
-Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (Client did not present a certificate)
-        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 7CD2F3011E8;
-        Fri, 22 May 2020 16:02:26 +0200 (CEST)
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
-        id 43B9C236DF5BA; Fri, 22 May 2020 16:02:26 +0200 (CEST)
-Date:   Fri, 22 May 2020 16:02:26 +0200
-From:   Peter Zijlstra <peterz@infradead.org>
-To:     Joel Fernandes <joel@joelfernandes.org>
-Cc:     LKML <linux-kernel@vger.kernel.org>,
-        Matthew Blecker <matthewb@google.com>,
-        Jesse Barnes <jsbarnes@google.com>,
-        Mike Frysinger <vapier@google.com>,
-        Christian Brauner <christian@brauner.io>,
-        Vineeth Remanan Pillai <vpillai@digitalocean.com>,
-        vineethrp@gmail.com, stable <stable@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH RFC] sched/headers: Fix sched_setattr userspace
- compilation issues
-Message-ID: <20200522140226.GT317569@hirez.programming.kicks-ass.net>
-References: <20200521155346.168413-1-joel@joelfernandes.org>
- <CAEXW_YTj83gO0STovrOuL9zgDwEYWRJusUZ3ebVw_jOG6yJxTg@mail.gmail.com>
+        id S1729997AbgEVOuC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 May 2020 10:50:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50872 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729961AbgEVOuB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 May 2020 10:50:01 -0400
+Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4AB662053B;
+        Fri, 22 May 2020 14:50:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1590159001;
+        bh=MkYOQ9+RbrcnOGTMiYU7PEOR/hcCmNziLlgrtAlOs/c=;
+        h=From:To:Cc:Subject:Date:From;
+        b=bOuWo2VVrfoSDcNXaumGB0CuX5jHJhZN+8hyIEROB/cTiXcNpP5FGvmb8ZY46eM0J
+         iJQLxc3Yb9IV1K31UufPA9lBqz8XVLvNrONKCGt4LnMGp8K/1aqBjdUuHF3DRNOgN7
+         j1oyUGKxokOrUbUfpbfueE7/QENXUAO3YZFXfiVw=
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Vinod Koul <vkoul@kernel.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.6 01/41] arm64: dts: qcom: db820c: fix audio configuration
+Date:   Fri, 22 May 2020 10:49:18 -0400
+Message-Id: <20200522144959.434379-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+X-stable: review
+X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAEXW_YTj83gO0STovrOuL9zgDwEYWRJusUZ3ebVw_jOG6yJxTg@mail.gmail.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, May 21, 2020 at 11:55:21AM -0400, Joel Fernandes wrote:
-> On Thu, May 21, 2020 at 11:53 AM Joel Fernandes (Google)
-> <joel@joelfernandes.org> wrote:
-> >
-> > On a modern Linux distro, compiling the following program fails:
-> >  #include<stdlib.h>
-> >  #include<stdint.h>
-> >  #include<pthread.h>
-> >  #include<linux/sched/types.h>
-> >
-> >  void main() {
-> >          struct sched_attr sa;
-> >
-> >          return;
-> >  }
-> >
-> > with:
-> > /usr/include/linux/sched/types.h:8:8: \
-> >                         error: redefinition of ‘struct sched_param’
-> >     8 | struct sched_param {
-> >       |        ^~~~~~~~~~~
-> > In file included from /usr/include/x86_64-linux-gnu/bits/sched.h:74,
-> >                  from /usr/include/sched.h:43,
-> >                  from /usr/include/pthread.h:23,
-> >                  from /tmp/s.c:4:
-> > /usr/include/x86_64-linux-gnu/bits/types/struct_sched_param.h:23:8:
-> > note: originally defined here
-> >    23 | struct sched_param
-> >       |        ^~~~~~~~~~~
-> >
-> > This is also causing a problem on using sched_attr Chrome. The issue is
-> > sched_param is already provided by glibc.
-> >
-> > Guard the kernel's UAPI definition of sched_param with __KERNEL__ so
-> > that userspace can compile.
-> >
-> > Signed-off-by: Joel Fernandes (Google) <joel@joelfernandes.org>
-> 
-> If it is more preferable, another option is to move sched_param to
-> include/linux/sched/types.h
+From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
 
-Yeah, not sure. Ingo, you got a preference?
+[ Upstream commit 7710f80ecd9c74544a22557ab581cf603e713f51 ]
 
-Also, this very much misses a Fixes tag.
+After patch f864edff110d ("ASoC: qdsp6: q6routing: remove default routing")
+and 9b60441692d9 ("ASoC: qdsp6: q6asm-dai: only enable dais from device tree")
+asm dais and routing needs to be properly specified at device tree level.
+
+This patch fixes this.
+
+Tested-by: Vinod Koul <vkoul@kernel.org>
+Reviewed-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20200422101922.8894-1-srinivas.kandagatla@linaro.org
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ arch/arm64/boot/dts/qcom/apq8096-db820c.dtsi | 19 ++++++++++++++++++-
+ arch/arm64/boot/dts/qcom/msm8996.dtsi        |  2 ++
+ 2 files changed, 20 insertions(+), 1 deletion(-)
+
+diff --git a/arch/arm64/boot/dts/qcom/apq8096-db820c.dtsi b/arch/arm64/boot/dts/qcom/apq8096-db820c.dtsi
+index a85b85d85a5f..3c7c9b52623c 100644
+--- a/arch/arm64/boot/dts/qcom/apq8096-db820c.dtsi
++++ b/arch/arm64/boot/dts/qcom/apq8096-db820c.dtsi
+@@ -908,10 +908,27 @@
+ 	status = "okay";
+ };
+ 
++&q6asmdai {
++	dai@0 {
++		reg = <0>;
++	};
++
++	dai@1 {
++		reg = <1>;
++	};
++
++	dai@2 {
++		reg = <2>;
++	};
++};
++
+ &sound {
+ 	compatible = "qcom,apq8096-sndcard";
+ 	model = "DB820c";
+-	audio-routing =	"RX_BIAS", "MCLK";
++	audio-routing =	"RX_BIAS", "MCLK",
++		"MM_DL1",  "MultiMedia1 Playback",
++		"MM_DL2",  "MultiMedia2 Playback",
++		"MultiMedia3 Capture", "MM_UL3";
+ 
+ 	mm1-dai-link {
+ 		link-name = "MultiMedia1";
+diff --git a/arch/arm64/boot/dts/qcom/msm8996.dtsi b/arch/arm64/boot/dts/qcom/msm8996.dtsi
+index 7ae082ea14ea..f925a6c7d293 100644
+--- a/arch/arm64/boot/dts/qcom/msm8996.dtsi
++++ b/arch/arm64/boot/dts/qcom/msm8996.dtsi
+@@ -2053,6 +2053,8 @@
+ 						reg = <APR_SVC_ASM>;
+ 						q6asmdai: dais {
+ 							compatible = "qcom,q6asm-dais";
++							#address-cells = <1>;
++							#size-cells = <0>;
+ 							#sound-dai-cells = <1>;
+ 							iommus = <&lpass_q6_smmu 1>;
+ 						};
+-- 
+2.25.1
+
