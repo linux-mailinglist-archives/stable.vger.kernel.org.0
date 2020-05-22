@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C4C21DEB07
-	for <lists+stable@lfdr.de>; Fri, 22 May 2020 16:58:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0808C1DEB09
+	for <lists+stable@lfdr.de>; Fri, 22 May 2020 16:58:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730653AbgEVOuZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 May 2020 10:50:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51554 "EHLO mail.kernel.org"
+        id S1730676AbgEVOu2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 May 2020 10:50:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51596 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730618AbgEVOuY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 May 2020 10:50:24 -0400
+        id S1730663AbgEVOu0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 May 2020 10:50:26 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D3560221FF;
-        Fri, 22 May 2020 14:50:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EAAB22145D;
+        Fri, 22 May 2020 14:50:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590159024;
-        bh=wCEJW245dxBO726etQLlIpRtTbaTWQv+YPDCCDn2mbo=;
+        s=default; t=1590159025;
+        bh=uB/nrNTc33V1p9MjKZ2UT3WMBnL+IeRKZpIjZGkr7aQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WtaPLhSoputyahicOiKvlHr4VPFcR0uOr7H1LwxWerGtlCgseSxC2Q5LPGu5QAL+s
-         14P9o27HrgNKtm9dRUQcMNre8V2sLD7QgbbZgy6iuHgSuD7qbu0DposHdnDMVD1yZr
-         JXQZxd7s2BJNqIhS0br70oPXNYsUxrQWfKswdcl4=
+        b=K4Mx2Ui0UURwwV4IW/clbhLgK0q6SIMmlqQOqatwu1qmW5qSyoSAa3ZZvgGYCNR1A
+         dP0L2bAjScVrHIzSk29TXYK+sKabZ0EZm5pGBUAFqPfcDBe5alzVMaIU6TzBcVci9T
+         kQpl8pfBp+TOIJZ9MdKAOev/gOW9xaGj81qHbXcY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+Cc:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
         Felipe Balbi <balbi@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org,
-        linux-omap@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.6 22/41] usb: dwc3: pci: Enable extcon driver for Intel Merrifield
-Date:   Fri, 22 May 2020 10:49:39 -0400
-Message-Id: <20200522144959.434379-22-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.6 23/41] usb: phy: twl6030-usb: Fix a resource leak in an error handling path in 'twl6030_usb_probe()'
+Date:   Fri, 22 May 2020 10:49:40 -0400
+Message-Id: <20200522144959.434379-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200522144959.434379-1-sashal@kernel.org>
 References: <20200522144959.434379-1-sashal@kernel.org>
@@ -44,34 +44,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 066c09593454e89bc605ffdff1c9810061f9b1e1 ]
+[ Upstream commit f058764d19000d98aef72010468db1f69faf9fa0 ]
 
-Intel Merrifield provides a DR support via PMIC which has its own
-extcon driver.
+A call to 'regulator_get()' is hidden in 'twl6030_usb_ldo_init()'. A
+corresponding put must be performed in the error handling path, as
+already done in the remove function.
 
-Add a property string to link to that driver.
+While at it, also move a 'free_irq()' call in the error handling path in
+order to be consistent.
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 Signed-off-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc3/dwc3-pci.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/phy/phy-twl6030-usb.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/usb/dwc3/dwc3-pci.c b/drivers/usb/dwc3/dwc3-pci.c
-index 7051611229c9..b67372737dc9 100644
---- a/drivers/usb/dwc3/dwc3-pci.c
-+++ b/drivers/usb/dwc3/dwc3-pci.c
-@@ -114,6 +114,7 @@ static const struct property_entry dwc3_pci_intel_properties[] = {
+diff --git a/drivers/usb/phy/phy-twl6030-usb.c b/drivers/usb/phy/phy-twl6030-usb.c
+index bfebf1f2e991..9a7e655d5280 100644
+--- a/drivers/usb/phy/phy-twl6030-usb.c
++++ b/drivers/usb/phy/phy-twl6030-usb.c
+@@ -377,7 +377,7 @@ static int twl6030_usb_probe(struct platform_device *pdev)
+ 	if (status < 0) {
+ 		dev_err(&pdev->dev, "can't get IRQ %d, err %d\n",
+ 			twl->irq1, status);
+-		return status;
++		goto err_put_regulator;
+ 	}
  
- static const struct property_entry dwc3_pci_mrfld_properties[] = {
- 	PROPERTY_ENTRY_STRING("dr_mode", "otg"),
-+	PROPERTY_ENTRY_STRING("linux,extcon-name", "mrfld_bcove_pwrsrc"),
- 	PROPERTY_ENTRY_BOOL("linux,sysdev_is_parent"),
- 	{}
- };
+ 	status = request_threaded_irq(twl->irq2, NULL, twl6030_usb_irq,
+@@ -386,8 +386,7 @@ static int twl6030_usb_probe(struct platform_device *pdev)
+ 	if (status < 0) {
+ 		dev_err(&pdev->dev, "can't get IRQ %d, err %d\n",
+ 			twl->irq2, status);
+-		free_irq(twl->irq1, twl);
+-		return status;
++		goto err_free_irq1;
+ 	}
+ 
+ 	twl->asleep = 0;
+@@ -396,6 +395,13 @@ static int twl6030_usb_probe(struct platform_device *pdev)
+ 	dev_info(&pdev->dev, "Initialized TWL6030 USB module\n");
+ 
+ 	return 0;
++
++err_free_irq1:
++	free_irq(twl->irq1, twl);
++err_put_regulator:
++	regulator_put(twl->usb3v3);
++
++	return status;
+ }
+ 
+ static int twl6030_usb_remove(struct platform_device *pdev)
 -- 
 2.25.1
 
