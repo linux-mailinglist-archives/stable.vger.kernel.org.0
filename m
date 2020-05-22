@@ -2,251 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F2DF1DDB81
-	for <lists+stable@lfdr.de>; Fri, 22 May 2020 01:59:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B2C31DDB87
+	for <lists+stable@lfdr.de>; Fri, 22 May 2020 02:00:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730221AbgEUX6w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 21 May 2020 19:58:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59696 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730220AbgEUX6w (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 21 May 2020 19:58:52 -0400
-Received: from mail-qv1-xf49.google.com (mail-qv1-xf49.google.com [IPv6:2607:f8b0:4864:20::f49])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0825FC061A0E
-        for <stable@vger.kernel.org>; Thu, 21 May 2020 16:58:51 -0700 (PDT)
-Received: by mail-qv1-xf49.google.com with SMTP id z1so8871786qvd.23
-        for <stable@vger.kernel.org>; Thu, 21 May 2020 16:58:50 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:in-reply-to:message-id:mime-version:references:subject:from:to
-         :cc;
-        bh=ugzLe892SXPoBO8tP7FQU1e9aRzgn6EOtLNzYEx/YZc=;
-        b=KY4gYaipWN7W9zab1qEBG7sdp8ypwsYusxNSIhiQD6h7MFEf6ycipgyJSnHQ6CQUK5
-         246sU5+X1azWZRzkGqG8xE91ssyQc3ppyvwZYfDLviRZmj+OsdbAKWGNwNKG4AyRHqNB
-         paDVKfmDNUASJw0TCuqgI374vD2Vonxuqm0t94kgwF3H//1qugTzdN2PsrsvpOJcji4x
-         1SNgvWH0KMQIz/j55oFx0HV65LUkKght7AzuUxYdcMvfXZGULso4X9ha6PdovMsQXCAs
-         IikIWW/8XP1oR1TcgejA6SGLEB9hpn64Y/GjV8H2bPKCMtfhhXXub1FpYaNz6P9Yk3RC
-         5P7g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:in-reply-to:message-id:mime-version
-         :references:subject:from:to:cc;
-        bh=ugzLe892SXPoBO8tP7FQU1e9aRzgn6EOtLNzYEx/YZc=;
-        b=HBFwjG/qYkYOBA7gH7cstVoO3UzjqmSQ4E9MDsOzyIfsm6Zstp0nPOHeqHmETwS+7E
-         zFjNCl94LdgF+PSV1qSi7LegixX9BofkieoyC+u/gaawl4kP0+pdYOsxrp8zCVgVOGu0
-         CqOa7AIwRjoEIChAMdtyukiThk+3YuDeLmbQ0STqw5MOLnpKefKJNse+7oyV940IkNPf
-         sQsE2/SNxPnsj3sZm8uOsO4HT7jLbmoGexyrQSGFGJkFeP7TBCS76YudOUmvFfGbraVY
-         dVtZWM7m91A3Za5B8qqFlZVj/9FVacGYX5SYK8pzGXM/3SZ0kqWNShGJgLtHgedSmfxl
-         6G/w==
-X-Gm-Message-State: AOAM530tdGsx4+DlBHhunc5pwkhJQn9otZJsUbnViE7TaYCnls6MWwVp
-        re9VJ/EDMnv77FRnWdrQjo3Q8Hhlckn7sQ==
-X-Google-Smtp-Source: ABdhPJxC6s9APXuE4hS/YEN8UG7oF4GLfJ1pJPX2yY1EpVe1qbWCjtZFDeU/cGpYFklbgM0vCkb905x2shPQiw==
-X-Received: by 2002:a0c:8c4f:: with SMTP id o15mr1221790qvb.201.1590105530217;
- Thu, 21 May 2020 16:58:50 -0700 (PDT)
-Date:   Fri, 22 May 2020 00:57:40 +0100
-In-Reply-To: <20200521235740.191338-1-gprocida@google.com>
-Message-Id: <20200521235740.191338-28-gprocida@google.com>
-Mime-Version: 1.0
-References: <20200521235740.191338-1-gprocida@google.com>
-X-Mailer: git-send-email 2.27.0.rc0.183.gde8f92d652-goog
-Subject: [PATCH 27/27] l2tp: initialise PPP sessions before registering them
-From:   Giuliano Procida <gprocida@google.com>
-To:     greg@kroah.com
-Cc:     stable@vger.kernel.org, Guillaume Nault <g.nault@alphalink.fr>,
-        "David S . Miller" <davem@davemloft.net>,
-        Giuliano Procida <gprocida@google.com>
-Content-Type: text/plain; charset="UTF-8"
+        id S1730306AbgEVAAh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 21 May 2020 20:00:37 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:44298 "EHLO
+        shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1730105AbgEVAAg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 21 May 2020 20:00:36 -0400
+Received: from [192.168.4.242] (helo=deadeye)
+        by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.89)
+        (envelope-from <ben@decadent.org.uk>)
+        id 1jbv75-0000b1-1y; Fri, 22 May 2020 01:00:35 +0100
+Received: from ben by deadeye with local (Exim 4.93)
+        (envelope-from <ben@decadent.org.uk>)
+        id 1jbv74-007Lb0-Lt; Fri, 22 May 2020 01:00:34 +0100
+Message-ID: <f7eea57f1bab1b9f321e1c52d9bfc6103b9a45a5.camel@decadent.org.uk>
+Subject: Re: [PATCH 3.16 00/99] 3.16.84-rc1 review
+From:   Ben Hutchings <ben@decadent.org.uk>
+To:     Guenter Roeck <linux@roeck-us.net>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        Denis Kirjanov <kda@linux-powerpc.org>
+Date:   Fri, 22 May 2020 01:00:24 +0100
+In-Reply-To: <c170c353-9fe1-a849-d062-74e42f22661c@roeck-us.net>
+References: <lsq.1589984008.673931885@decadent.org.uk>
+         <68f801f8-ceb2-13cf-ad29-b6404e2f1142@roeck-us.net>
+         <c01feeb17ecceeca18c852008bf0227079fbb38a.camel@decadent.org.uk>
+         <c170c353-9fe1-a849-d062-74e42f22661c@roeck-us.net>
+Content-Type: multipart/signed; micalg="pgp-sha512";
+        protocol="application/pgp-signature"; boundary="=-5mtijeWolg70nhqPo19T"
+User-Agent: Evolution 3.36.2-1 
+MIME-Version: 1.0
+X-SA-Exim-Connect-IP: 192.168.4.242
+X-SA-Exim-Mail-From: ben@decadent.org.uk
+X-SA-Exim-Scanned: No (on shadbolt.decadent.org.uk); SAEximRunCond expanded to false
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guillaume Nault <g.nault@alphalink.fr>
 
-commit f98be6c6359e7e4a61aaefb9964c1db31cb9ec0c upstream.
+--=-5mtijeWolg70nhqPo19T
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-pppol2tp_connect() initialises L2TP sessions after they've been exposed
-to the rest of the system by l2tp_session_register(). This puts
-sessions into transient states that are the source of several races, in
-particular with session's deletion path.
+On Thu, 2020-05-21 at 15:37 -0700, Guenter Roeck wrote:
+> On 5/21/20 1:20 PM, Ben Hutchings wrote:
+> > On Wed, 2020-05-20 at 14:23 -0700, Guenter Roeck wrote:
+> > > On 5/20/20 7:13 AM, Ben Hutchings wrote:
+> > > > This is the start of the stable review cycle for the 3.16.84 releas=
+e.
+> > > > There are 99 patches in this series, which will be posted as respon=
+ses
+> > > > to this one.  If anyone has any issues with these being applied, pl=
+ease
+> > > > let me know.
+> > > >=20
+> > > > Responses should be made by Fri May 22 20:00:00 UTC 2020.
+> > > > Anything received after that time might be too late.
+> > > >=20
+> > > Build results:
+> > > 	total: 135 pass: 135 fail: 0
+> > > Qemu test results:
+> > > 	total: 230 pass: 227 fail: 3
+> > > Failed tests:
+> > > 	arm:cubieboard:multi_v7_defconfig:mem512:sun4i-a10-cubieboard:initrd
+> > > 	arm:cubieboard:multi_v7_defconfig:usb:mem512:sun4i-a10-cubieboard:ro=
+otfs
+> > > 	arm:cubieboard:multi_v7_defconfig:sata:mem512:sun4i-a10-cubieboard:r=
+ootfs
+> > >=20
+> > > The arm tests fail due to a compile error.
+> > >=20
+> > > drivers/clk/tegra/clk-tegra-periph.c:524:65: error: 'CLK_IS_CRITICAL'=
+ undeclared here (not in a function); did you mean 'CLK_IS_BASIC'?
+> >=20
+> > I already looked at your first test results and dropped the patch that
+> > uses CLK_IS_CRITICAL, so there's something else going wrong there...
+> >=20
+>=20
+> Ah yes. Sorry, I didn't notice that there was a rebuild.
+>=20
+> Images are fine; the three failing tests should not have been
+> tested in the first place (they never did, but I didn't update
+> the blacklist when I increased the qemu memory size to 512MB).
 
-This patch centralises the initialisation code into
-pppol2tp_session_init(), which is called before the registration phase.
-The only field that can't be set before session registration is the
-pppol2tp socket pointer, which has already been converted to RCU. So
-pppol2tp_connect() should now be race-free.
+OK, thanks for checking.
 
-The session's .session_close() callback is now set before registration.
-Therefore, it's always called when l2tp_core deletes the session, even
-if it was created by pppol2tp_session_create() and hasn't been plugged
-to a pppol2tp socket yet. That'd prevent session free because the extra
-reference taken by pppol2tp_session_close() wouldn't be dropped by the
-socket's ->sk_destruct() callback (pppol2tp_session_destruct()).
-We could set .session_close() only while connecting a session to its
-pppol2tp socket, or teach pppol2tp_session_close() to avoid grabbing a
-reference when the session isn't connected, but that'd require adding
-some form of synchronisation to be race free.
+Ben.
 
-Instead of that, we can just let the pppol2tp socket hold a reference
-on the session as soon as it starts depending on it (that is, in
-pppol2tp_connect()). Then we don't need to utilise
-pppol2tp_session_close() to hold a reference at the last moment to
-prevent l2tp_core from dropping it.
+--=20
+Ben Hutchings
+Logic doesn't apply to the real world. - Marvin Minsky
 
-When releasing the socket, pppol2tp_release() now deletes the session
-using the standard l2tp_session_delete() function, instead of merely
-removing it from hash tables. l2tp_session_delete() drops the reference
-the sessions holds on itself, but also makes sure it doesn't remove a
-session twice. So it can safely be called, even if l2tp_core already
-tried, or is concurrently trying, to remove the session.
-Finally, pppol2tp_session_destruct() drops the reference held by the
-socket.
 
-Fixes: fd558d186df2 ("l2tp: Split pppol2tp patch into separate l2tp and ppp parts")
-Signed-off-by: Guillaume Nault <g.nault@alphalink.fr>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Giuliano Procida <gprocida@google.com>
----
- net/l2tp/l2tp_ppp.c | 69 +++++++++++++++++++++++++--------------------
- 1 file changed, 38 insertions(+), 31 deletions(-)
 
-diff --git a/net/l2tp/l2tp_ppp.c b/net/l2tp/l2tp_ppp.c
-index 4ba4546051ed..8ff5352bb0e3 100644
---- a/net/l2tp/l2tp_ppp.c
-+++ b/net/l2tp/l2tp_ppp.c
-@@ -464,9 +464,6 @@ static void pppol2tp_session_close(struct l2tp_session *session)
- 			inet_shutdown(sk->sk_socket, SEND_SHUTDOWN);
- 		sock_put(sk);
- 	}
--
--	/* Don't let the session go away before our socket does */
--	l2tp_session_inc_refcount(session);
- }
- 
- /* Really kill the session socket. (Called from sock_put() if
-@@ -522,8 +519,7 @@ static int pppol2tp_release(struct socket *sock)
- 	if (session != NULL) {
- 		struct pppol2tp_session *ps;
- 
--		__l2tp_session_unhash(session);
--		l2tp_session_queue_purge(session);
-+		l2tp_session_delete(session);
- 
- 		ps = l2tp_session_priv(session);
- 		mutex_lock(&ps->sk_lock);
-@@ -615,6 +611,35 @@ static void pppol2tp_show(struct seq_file *m, void *arg)
- }
- #endif
- 
-+static void pppol2tp_session_init(struct l2tp_session *session)
-+{
-+	struct pppol2tp_session *ps;
-+	struct dst_entry *dst;
-+
-+	session->recv_skb = pppol2tp_recv;
-+	session->session_close = pppol2tp_session_close;
-+#if defined(CONFIG_L2TP_DEBUGFS) || defined(CONFIG_L2TP_DEBUGFS_MODULE)
-+	session->show = pppol2tp_show;
-+#endif
-+
-+	ps = l2tp_session_priv(session);
-+	mutex_init(&ps->sk_lock);
-+	ps->tunnel_sock = session->tunnel->sock;
-+	ps->owner = current->pid;
-+
-+	/* If PMTU discovery was enabled, use the MTU that was discovered */
-+	dst = sk_dst_get(session->tunnel->sock);
-+	if (dst) {
-+		u32 pmtu = dst_mtu(dst);
-+
-+		if (pmtu) {
-+			session->mtu = pmtu - PPPOL2TP_HEADER_OVERHEAD;
-+			session->mru = pmtu - PPPOL2TP_HEADER_OVERHEAD;
-+		}
-+		dst_release(dst);
-+	}
-+}
-+
- /* connect() handler. Attach a PPPoX socket to a tunnel UDP socket
-  */
- static int pppol2tp_connect(struct socket *sock, struct sockaddr *uservaddr,
-@@ -626,7 +651,6 @@ static int pppol2tp_connect(struct socket *sock, struct sockaddr *uservaddr,
- 	struct l2tp_session *session = NULL;
- 	struct l2tp_tunnel *tunnel;
- 	struct pppol2tp_session *ps;
--	struct dst_entry *dst;
- 	struct l2tp_session_cfg cfg = { 0, };
- 	int error = 0;
- 	u32 tunnel_id, peer_tunnel_id;
-@@ -775,8 +799,8 @@ static int pppol2tp_connect(struct socket *sock, struct sockaddr *uservaddr,
- 			goto end;
- 		}
- 
-+		pppol2tp_session_init(session);
- 		ps = l2tp_session_priv(session);
--		mutex_init(&ps->sk_lock);
- 		l2tp_session_inc_refcount(session);
- 
- 		mutex_lock(&ps->sk_lock);
-@@ -789,26 +813,6 @@ static int pppol2tp_connect(struct socket *sock, struct sockaddr *uservaddr,
- 		drop_refcnt = true;
- 	}
- 
--	ps->owner	     = current->pid;
--	ps->tunnel_sock = tunnel->sock;
--
--	session->recv_skb	= pppol2tp_recv;
--	session->session_close	= pppol2tp_session_close;
--#if defined(CONFIG_L2TP_DEBUGFS) || defined(CONFIG_L2TP_DEBUGFS_MODULE)
--	session->show		= pppol2tp_show;
--#endif
--
--	/* If PMTU discovery was enabled, use the MTU that was discovered */
--	dst = sk_dst_get(tunnel->sock);
--	if (dst != NULL) {
--		u32 pmtu = dst_mtu(dst);
--
--		if (pmtu != 0)
--			session->mtu = session->mru = pmtu -
--				PPPOL2TP_HEADER_OVERHEAD;
--		dst_release(dst);
--	}
--
- 	/* Special case: if source & dest session_id == 0x0000, this
- 	 * socket is being created to manage the tunnel. Just set up
- 	 * the internal context for use by ioctl() and sockopt()
-@@ -842,6 +846,12 @@ out_no_ppp:
- 	rcu_assign_pointer(ps->sk, sk);
- 	mutex_unlock(&ps->sk_lock);
- 
-+	/* Keep the reference we've grabbed on the session: sk doesn't expect
-+	 * the session to disappear. pppol2tp_session_destruct() is responsible
-+	 * for dropping it.
-+	 */
-+	drop_refcnt = false;
-+
- 	sk->sk_state = PPPOX_CONNECTED;
- 	l2tp_info(session, L2TP_MSG_CONTROL, "%s: created\n",
- 		  session->name);
-@@ -863,7 +873,6 @@ static int pppol2tp_session_create(struct net *net, struct l2tp_tunnel *tunnel,
- {
- 	int error;
- 	struct l2tp_session *session;
--	struct pppol2tp_session *ps;
- 
- 	/* Error if tunnel socket is not prepped */
- 	if (!tunnel->sock) {
-@@ -886,9 +895,7 @@ static int pppol2tp_session_create(struct net *net, struct l2tp_tunnel *tunnel,
- 		goto err;
- 	}
- 
--	ps = l2tp_session_priv(session);
--	mutex_init(&ps->sk_lock);
--	ps->tunnel_sock = tunnel->sock;
-+	pppol2tp_session_init(session);
- 
- 	error = l2tp_session_register(session, tunnel);
- 	if (error < 0)
--- 
-2.27.0.rc0.183.gde8f92d652-goog
+--=-5mtijeWolg70nhqPo19T
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
 
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAl7HFhkACgkQ57/I7JWG
+EQkNChAAjUcgcmENb90PVJ0bJsxKyHeJnxly8pVNVQAqGtJhn9nwQbV/MKM9jfQU
+9qOIDdTePFA8gcwqaogaBPcPsViJ/7FsT0Rx7nhMZlAmpibtl5TSTfBc6jWeU/8E
+/swZNgIdpGWi/j8b3IEJLuRjqSZPvYC0FaLmvSTLC5DbAPZkrv+RenQ/7hkLkVrp
+t8yuxtPL9RNb/E+e644EkwkgMpBiF5W8VoM4Sur330FIaM3CbpvH6OTWtqdOfroj
++Vig3xFwqzKosco1rSbd/aS7gyDjy02zmz9x8ZMgYa3+CzGbHghbSCbzfqPkbHcT
+aSnNEWWdyMd9uv8Yh5D4Ai673kW+lHYk6fcc+ncXW/A/ZiRvCsGSwkTEEq+M8xNy
+OVHdUWVMT5C+xEwG6g6HnCbc9ivcgTGmxDkMTlJzkZ5wsIA9A+r92U15KkR/xMZQ
+5ODnn9/qCNK0qH/1nc3U7ZvzrCWkXsOcY1GRNqXuxWi5O1qT5YLhykWwljTWA3qM
+ksoGXQBIgQgCelJWHhcf5/pVVVKDdlViD4K2WqsuEX4YKaC9zj8aiH0WRns5sVyh
+7WLI72JR+xl9xQw9gUMtw1gx1aWOWzTS4vx3BUthEUKGq2uS17C9Rq/WQPj1Mt88
+7JP/9Pw4i6tjDYXE1kQV2Fou3FB6oqWnTl97L0Zhslni+9Uskxg=
+=Cy5J
+-----END PGP SIGNATURE-----
+
+--=-5mtijeWolg70nhqPo19T--
