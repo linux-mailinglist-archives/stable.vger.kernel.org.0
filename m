@@ -2,88 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B1C61DDBEF
-	for <lists+stable@lfdr.de>; Fri, 22 May 2020 02:12:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7AB7E1DDC13
+	for <lists+stable@lfdr.de>; Fri, 22 May 2020 02:21:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730686AbgEVAMo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 21 May 2020 20:12:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58936 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730224AbgEVAMo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 21 May 2020 20:12:44 -0400
-Received: from localhost (unknown [137.135.114.1])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 43E43207D8;
-        Fri, 22 May 2020 00:12:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590106363;
-        bh=WOiqB0GpcVWMKmnet1Sc0/6IqMPI2nyLCQayz4Y0Ccw=;
-        h=Date:From:To:To:To:Cc:Cc:Cc:Subject:In-Reply-To:References:From;
-        b=Y0gHGNb+Hj+WhIJSg+bSCrOnUQqv6oQUfjsGtTGPIZojSHPOgDCVsjvDaF94+3hj4
-         r7pGrJotnx7NJoO6nczDANzpIV+doNIbGGm9rA7Z4v/cvffqmUkdKSr+2U2Xmz4jQI
-         zpuHczMIVL7oEbHKN94HNa7UyLOnLv0uQCoS3mi8=
-Date:   Fri, 22 May 2020 00:12:42 +0000
-From:   Sasha Levin <sashal@kernel.org>
-To:     Sasha Levin <sashal@kernel.org>
-To:     Miquel Raynal <miquel.raynal@bootlin.com>
-To:     <linux-mtd@lists.infradead.org>
-Cc:     Miquel Raynal <miquel.raynal@bootlin.com>, stable@vger.kernel.org
-Cc:     stable@vger.kernel.org
-Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH v2 48/62] mtd: rawnand: sharpsl: Fix the probe error path
-In-Reply-To: <20200519130035.1883-49-miquel.raynal@bootlin.com>
-References: <20200519130035.1883-49-miquel.raynal@bootlin.com>
-Message-Id: <20200522001243.43E43207D8@mail.kernel.org>
+        id S1726802AbgEVAVG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 21 May 2020 20:21:06 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:44566 "EHLO
+        shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726693AbgEVAVG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 21 May 2020 20:21:06 -0400
+Received: from [192.168.4.242] (helo=deadeye)
+        by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.89)
+        (envelope-from <ben@decadent.org.uk>)
+        id 1jbvQi-0001eH-1E; Fri, 22 May 2020 01:20:52 +0100
+Received: from ben by deadeye with local (Exim 4.93)
+        (envelope-from <ben@decadent.org.uk>)
+        id 1jbvQh-007Yy5-S0; Fri, 22 May 2020 01:20:51 +0100
+Message-ID: <452c787b78093a4705374e5f4b643105ffdde24c.camel@decadent.org.uk>
+Subject: Re: [stable-4.4 1/5] padata: set cpu_index of unused CPUs to -1
+From:   Ben Hutchings <ben@decadent.org.uk>
+To:     Daniel Jordan <daniel.m.jordan@oracle.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Cc:     Herbert Xu <herbert@gondor.apana.org.au>,
+        Mathias Krause <minipli@googlemail.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        stable@vger.kernel.org, linux-crypto@vger.kernel.org
+Date:   Fri, 22 May 2020 01:20:45 +0100
+In-Reply-To: <20200521205145.1953392-1-daniel.m.jordan@oracle.com>
+References: <20200521205145.1953392-1-daniel.m.jordan@oracle.com>
+Content-Type: multipart/signed; micalg="pgp-sha512";
+        protocol="application/pgp-signature"; boundary="=-B/2ViPqdyklqoChOzszE"
+User-Agent: Evolution 3.36.2-1 
+MIME-Version: 1.0
+X-SA-Exim-Connect-IP: 192.168.4.242
+X-SA-Exim-Mail-From: ben@decadent.org.uk
+X-SA-Exim-Scanned: No (on shadbolt.decadent.org.uk); SAEximRunCond expanded to false
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi
 
-[This is an automated email]
+--=-B/2ViPqdyklqoChOzszE
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-This commit has been processed because it contains a "Fixes:" tag
-fixing commit: d44154f969a4 ("mtd: nand: Provide nand_cleanup() function to free NAND related resources").
+On Thu, 2020-05-21 at 16:51 -0400, Daniel Jordan wrote:
+> From: Mathias Krause <minipli@googlemail.com>
+>=20
+> [ Upstream commit 1bd845bcb41d5b7f83745e0cb99273eb376f2ec5 ]
 
-The bot has tested the following trees: v5.6.13, v5.4.41, v4.19.123, v4.14.180, v4.9.223.
+Well spotted, I'll add this for 3.16 as well.
 
-v5.6.13: Build OK!
-v5.4.41: Build OK!
-v4.19.123: Failed to apply! Possible dependencies:
-    59ac276f2227 ("mtd: rawnand: Pass a nand_chip object to nand_release()")
+Ben.
 
-v4.14.180: Failed to apply! Possible dependencies:
-    02f26ecf8c77 ("mtd: nand: add reworked Marvell NAND controller driver")
-    256c4fc76a80 ("mtd: rawnand: add a way to pass an ID table with nand_scan()")
-    39b77c586e17 ("mtd: rawnand: fsl_elbc: fix probe function error path")
-    59ac276f2227 ("mtd: rawnand: Pass a nand_chip object to nand_release()")
-    63fa37f0c512 ("mtd: rawnand: Replace printk() with appropriate pr_*() macro")
-    97d90da8a886 ("mtd: nand: provide several helpers to do common NAND operations")
-    98732da1a08e ("mtd: rawnand: do not export nand_scan_[ident|tail]() anymore")
-    acfc33091f7a ("mtd: rawnand: fsl_ifc: fix probe function error path")
+> The parallel queue per-cpu data structure gets initialized only for CPUs
+> in the 'pcpu' CPU mask set. This is not sufficient as the reorder timer
+> may run on a different CPU and might wrongly decide it's the target CPU
+> for the next reorder item as per-cpu memory gets memset(0) and we might
+> be waiting for the first CPU in cpumask.pcpu, i.e. cpu_index 0.
+>=20
+> Make the '__this_cpu_read(pd->pqueue->cpu_index) =3D=3D next_queue->cpu_i=
+ndex'
+> compare in padata_get_next() fail in this case by initializing the
+> cpu_index member of all per-cpu parallel queues. Use -1 for unused ones.
+>=20
+> Signed-off-by: Mathias Krause <minipli@googlemail.com>
+> Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+> Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
+> ---
+>  kernel/padata.c | 8 +++++++-
+>  1 file changed, 7 insertions(+), 1 deletion(-)
+>=20
+> diff --git a/kernel/padata.c b/kernel/padata.c
+> index 8aef48c3267b..4f860043a8e5 100644
+> --- a/kernel/padata.c
+> +++ b/kernel/padata.c
+> @@ -461,8 +461,14 @@ static void padata_init_pqueues(struct parallel_data=
+ *pd)
+>  	struct padata_parallel_queue *pqueue;
+> =20
+>  	cpu_index =3D 0;
+> -	for_each_cpu(cpu, pd->cpumask.pcpu) {
+> +	for_each_possible_cpu(cpu) {
+>  		pqueue =3D per_cpu_ptr(pd->pqueue, cpu);
+> +
+> +		if (!cpumask_test_cpu(cpu, pd->cpumask.pcpu)) {
+> +			pqueue->cpu_index =3D -1;
+> +			continue;
+> +		}
+> +
+>  		pqueue->pd =3D pd;
+>  		pqueue->cpu_index =3D cpu_index;
+>  		cpu_index++;
+--=20
+Ben Hutchings
+Logic doesn't apply to the real world. - Marvin Minsky
 
-v4.9.223: Failed to apply! Possible dependencies:
-    24755a55b01f ("Documentation/00-index: update for new core-api folder")
-    4ad4b21b1b81 ("docs-rst: convert usb docbooks to ReST")
-    59ac276f2227 ("mtd: rawnand: Pass a nand_chip object to nand_release()")
-    609f212f6a12 ("docs-rst: convert mtdnand book to ReST")
-    66115335fbb4 ("docs: Fix build failure")
-    7ddedebb03b7 ("ALSA: doc: ReSTize writing-an-alsa-driver document")
-    8551914a5e19 ("ALSA: doc: ReSTize alsa-driver-api document")
-    90f9f118b75c ("docs-rst: convert filesystems book to ReST")
-    93dc3a112bf8 ("doc: Convert the debugobjects DocBook template to sphinx")
-    c441a4781ff1 ("crypto: doc - remove crypto API DocBook")
-    d6ba7a9c8b5a ("doc: Sphinxify the tracepoint docbook")
-    e7f08ffb1855 ("Documentation/workqueue.txt: convert to ReST markup")
-    f3fc83e55533 ("docs: Fix htmldocs build failure")
 
 
-NOTE: The patch will not be queued to stable trees until it is upstream.
+--=-B/2ViPqdyklqoChOzszE
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
 
-How should we proceed with this patch?
+-----BEGIN PGP SIGNATURE-----
 
--- 
-Thanks
-Sasha
+iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAl7HGt0ACgkQ57/I7JWG
+EQnYJg/8CUMVCpACrK3mulPMC+30AGGLzEuGyDzELzVU0kUbGFD63Kxk04yJfk0N
+855fPcGW4qZOxvgo/HHdzg5WiYvaveLitbK1QWPxkTvwldYMD7Wy8Tnfvf/q5vI2
+K/l+QBIKI4GJZSAUdeaV1navzJADAR/y2Bo1JnOOEmxZvw0cKAJl0nWnQ9h/fbc6
+3GaenhRkNM98rRHbqK/pDeWNwZ0HYoZEMC9pDegvbNZb8AJOU+YAz9ILLCGbRaGb
++Iohxu2/3nwEBpz4WJevfX8LuoO2hekx8MuDc0jhXHU+9n9NjxygLIdCGB35kJkD
+WU4+63EcmZtVIQu6sVpFEfvC3YIK+4rhRJgtnZqXRhlyxHk7TewVjR4xO0BYgUu3
+OZDBHU98cstdRYTiaVXZPGE2Tu9XcAI0H44KQMetdJAi5E7ldb87EZJdtnJ8kIai
+F4ixLsGU6bMvv2QMJQneWK0vfkInaMKTAxknPBC+w31ynq2r2Gid9GydGR+Vvr2D
+rWH6wWpWP5C326v8UEcjdz4ZtE6//Obllj98iUcJwf7MxvDxAI6VQ7OrEpe7Xttk
+LGqxqjxkRqqYG8GM4lyDRYhCHWdluyLThMEl11rZaF254bEqMcxL5MH8wgg9ZDkk
+G3nQqdu6Mq5P7g6/vMISTaX6ZIXQjyQicywhXAmhrewt5fpIGqg=
+=B0fu
+-----END PGP SIGNATURE-----
+
+--=-B/2ViPqdyklqoChOzszE--
