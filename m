@@ -2,77 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A00A1DEA17
-	for <lists+stable@lfdr.de>; Fri, 22 May 2020 16:52:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F9481DED14
+	for <lists+stable@lfdr.de>; Fri, 22 May 2020 18:19:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731223AbgEVOwO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 May 2020 10:52:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54782 "EHLO mail.kernel.org"
+        id S1730058AbgEVQT0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 May 2020 12:19:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46712 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730312AbgEVOwN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 May 2020 10:52:13 -0400
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        id S1729040AbgEVQT0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 May 2020 12:19:26 -0400
+Received: from e123331-lin.nice.arm.com (amontpellier-657-1-18-247.w109-210.abo.wanadoo.fr [109.210.65.247])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7625320756;
-        Fri, 22 May 2020 14:52:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9126220663;
+        Fri, 22 May 2020 16:19:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590159133;
-        bh=GXXj6hQz+sGwSms1JwSKF7z36WZ+ep/aZfuObAE5nbM=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SB/+8pWGLGFHhc+UrPdIZbJDz1T41O88voLp8zwpNnNBrfseS5Mfc5Umg7xiDTjJG
-         xCb8KTbMn8RA2EiYyB/XdEDRaf75vcXRHX46f+2AgbSo3LAqGjuDmgW4XtJUb41ZB9
-         EU68TOXtLnKyOtmbIZqFmVRe0fYDxK8KpD/Qa8Fk=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Steve French <stfrench@microsoft.com>,
-        Coverity <scan-admin@coverity.com>,
-        Shyam Prasad N <nspmangalore@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, linux-cifs@vger.kernel.org,
-        samba-technical@lists.samba.org
-Subject: [PATCH AUTOSEL 4.4 5/5] cifs: Fix null pointer check in cifs_read
-Date:   Fri, 22 May 2020 10:52:07 -0400
-Message-Id: <20200522145207.435314-5-sashal@kernel.org>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200522145207.435314-1-sashal@kernel.org>
-References: <20200522145207.435314-1-sashal@kernel.org>
+        s=default; t=1590164365;
+        bh=+QhC+C5n1cmuJNLlPAEMB7lBS29oU4DmZXpEwoEdz5o=;
+        h=From:To:Cc:Subject:Date:From;
+        b=XWqEaNUgIaqcFS5lKTE+5v4Rt4/x2ZDNlO3ixDxszJIPNgkx6qxIvDf68P3lqEGzM
+         4idGYKzPq286QKG6EPTryVBCGRXD8CbzskRSV4t8oBC6ZVdwDZAVAueo5Pdgr4+PZF
+         HyxWY8w/24pQCh69Jb1U5mtik2QeG4EdHXZSXsEQ=
+From:   Ard Biesheuvel <ardb@kernel.org>
+To:     linux-efi@vger.kernel.org
+Cc:     teroincn@gmail.com, Ard Biesheuvel <ardb@kernel.org>,
+        stable@vger.kernel.org
+Subject: [PATCH] efi/efivars: Add missing kobject_put() in sysfs entry creation error path
+Date:   Fri, 22 May 2020 18:19:20 +0200
+Message-Id: <20200522161920.367-1-ardb@kernel.org>
+X-Mailer: git-send-email 2.17.1
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve French <stfrench@microsoft.com>
+The documentation provided by kobject_init_and_add() clearly spells out
+the need to call kobject_put() on the kobject if an error is returned.
+Add this missing call to the error path.
 
-[ Upstream commit 9bd21d4b1a767c3abebec203342f3820dcb84662 ]
-
-Coverity scan noted a redundant null check
-
-Coverity-id: 728517
-Reported-by: Coverity <scan-admin@coverity.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Reviewed-by: Shyam Prasad N <nspmangalore@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: <stable@vger.kernel.org>
+Reported-by: 亿一 <teroincn@gmail.com>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
 ---
- fs/cifs/file.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/firmware/efi/efivars.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/fs/cifs/file.c b/fs/cifs/file.c
-index 2ffdaedca7e9..b5a05092f862 100644
---- a/fs/cifs/file.c
-+++ b/fs/cifs/file.c
-@@ -3230,7 +3230,7 @@ cifs_read(struct file *file, char *read_data, size_t read_size, loff_t *offset)
- 			 * than it negotiated since it will refuse the read
- 			 * then.
- 			 */
--			if ((tcon->ses) && !(tcon->ses->capabilities &
-+			if (!(tcon->ses->capabilities &
- 				tcon->ses->server->vals->cap_large_files)) {
- 				current_read_size = min_t(uint,
- 					current_read_size, CIFSMaxBufSize);
+diff --git a/drivers/firmware/efi/efivars.c b/drivers/firmware/efi/efivars.c
+index 78ad1ba8c987..26528a46d99e 100644
+--- a/drivers/firmware/efi/efivars.c
++++ b/drivers/firmware/efi/efivars.c
+@@ -522,8 +522,10 @@ efivar_create_sysfs_entry(struct efivar_entry *new_var)
+ 	ret = kobject_init_and_add(&new_var->kobj, &efivar_ktype,
+ 				   NULL, "%s", short_name);
+ 	kfree(short_name);
+-	if (ret)
++	if (ret) {
++		kobject_put(&new_var->kobj);
+ 		return ret;
++	}
+ 
+ 	kobject_uevent(&new_var->kobj, KOBJ_ADD);
+ 	if (efivar_entry_add(new_var, &efivar_sysfs_list)) {
 -- 
-2.25.1
+2.17.1
 
