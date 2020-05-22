@@ -2,98 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 31FA61DE55A
-	for <lists+stable@lfdr.de>; Fri, 22 May 2020 13:27:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED5761DE575
+	for <lists+stable@lfdr.de>; Fri, 22 May 2020 13:34:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729253AbgEVL1x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 May 2020 07:27:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40314 "EHLO mail.kernel.org"
+        id S1729420AbgEVLeH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 May 2020 07:34:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41970 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728281AbgEVL1w (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 May 2020 07:27:52 -0400
+        id S1728871AbgEVLeG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 May 2020 07:34:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BA09A206BE;
-        Fri, 22 May 2020 11:27:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 55E50206F6;
+        Fri, 22 May 2020 11:34:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590146871;
-        bh=STpKmfdYolBfupbwpDAqY4JB1JK4PcdG+xwdfcis508=;
-        h=Subject:To:From:Date:From;
-        b=uhrD2pIKl719tVngZvSoNNw0Z86Ykw9yLknAxbT6Gis7MvNvOF05XqlPigRj2agFf
-         13bnyvX6lHbIKIuP+puDUb/+5bIGGVf3cgoSyMy48A6UgdzIGKRK7KbvqgA/nt1osz
-         Luxn1DRKIzZHHA7tpzZvjUmmMej5MquKGPctp0Wg=
-Subject: patch "misc: rtsx: Add short delay after exit from ASPM" added to char-misc-linus
-To:     kdlnx@doth.eu, gregkh@linuxfoundation.org, stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 22 May 2020 13:27:49 +0200
-Message-ID: <159014686948249@kroah.com>
+        s=default; t=1590147245;
+        bh=+zFfJ51+67yTEbzNzUzHl+j9Z/wx3mQVNM6YmEbVlzM=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=0tIPSx+0XmzxfG4JbzCmWJcMorteu3lYMbvRnzqVYwvkFJb36I0J49M8zdTEme2e+
+         ZE/O6q8G/n/NkJ93VUr7gRT/ystIWeqGI4sxgiWu0myqUNM2RXlLFBgXRfxoTCd7rA
+         KcqcqNWT0N6rSJfMsDzV/6Q/k8vzQvbaA2uOVRrM=
+Date:   Fri, 22 May 2020 13:34:03 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Ben Hutchings <ben.hutchings@codethink.co.uk>
+Cc:     Sasha Levin <Alexander.Levin@microsoft.com>,
+        stable <stable@vger.kernel.org>
+Subject: Re: [stable] i2c: dev: Fix the race between the release of i2c_dev
+ and cdev
+Message-ID: <20200522113403.GA1397522@kroah.com>
+References: <0fa517f4672e45bbb11aeb57cfb2740b60f1f998.camel@codethink.co.uk>
+ <20200521055011.GA2330588@kroah.com>
+ <1d4004d71924fa2e4c422ae086166c280e5b43be.camel@codethink.co.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1d4004d71924fa2e4c422ae086166c280e5b43be.camel@codethink.co.uk>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Thu, May 21, 2020 at 09:58:57PM +0100, Ben Hutchings wrote:
+> On Thu, 2020-05-21 at 07:50 +0200, Greg Kroah-Hartman wrote:
+> > On Wed, May 20, 2020 at 08:45:15PM +0100, Ben Hutchings wrote:
+> > > Please pick this fix for all stable branches:
+> > > 
+> > > commit 1413ef638abae4ab5621901cf4d8ef08a4a48ba6
+> > > Author: Kevin Hao <haokexin@gmail.com>
+> > > Date:   Fri Oct 11 23:00:14 2019 +0800
+> > > 
+> > >     i2c: dev: Fix the race between the release of i2c_dev and cdev
+> > > 
+> > > I don't know whether it will apply cleanly to all of them; I can deal
+> > > with those where it doesn't.
+> > 
+> > I applied it to 4.14, 4.19, 5.4, and 5.6.  It does apply to 4.9 but as
+> > the patch it depends on is not there, I don't think it will help.
+> 
+> It was included in 4.9.224, so both this and the similar watchdog fix
+> should be applicable for 4.9.
 
-This is a note to let you know that I've just added the patch titled
+My fault, I hadn't updated my scripts, all is good here, sorry for the
+noise.
 
-    misc: rtsx: Add short delay after exit from ASPM
-
-to my char-misc git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
-in the char-misc-linus branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
-
-
-From 7a839dbab1be59f5ed3b3b046de29e166784c9b4 Mon Sep 17 00:00:00 2001
-From: Klaus Doth <kdlnx@doth.eu>
-Date: Fri, 22 May 2020 12:56:04 +0200
-Subject: misc: rtsx: Add short delay after exit from ASPM
-
-DMA transfers to and from the SD card stall for 10 seconds and run into
-timeout on RTS5260 card readers after ASPM was enabled.
-
-Adding a short msleep after disabling ASPM fixes the issue on several
-Dell Precision 7530/7540 systems I tested.
-
-This function is only called when waking up after the chip went into
-power-save after not transferring data for a few seconds. The added
-msleep does therefore not change anything in data transfer speed or
-induce any excessive waiting while data transfers are running, or the
-chip is sleeping. Only the transition from sleep to active is affected.
-
-Signed-off-by: Klaus Doth <kdlnx@doth.eu>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/4434eaa7-2ee3-a560-faee-6cee63ebd6d4@doth.eu
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/misc/cardreader/rtsx_pcr.c | 3 +++
- 1 file changed, 3 insertions(+)
-
-diff --git a/drivers/misc/cardreader/rtsx_pcr.c b/drivers/misc/cardreader/rtsx_pcr.c
-index 06038b325b02..55da6428ceb0 100644
---- a/drivers/misc/cardreader/rtsx_pcr.c
-+++ b/drivers/misc/cardreader/rtsx_pcr.c
-@@ -142,6 +142,9 @@ static void rtsx_comm_pm_full_on(struct rtsx_pcr *pcr)
- 
- 	rtsx_disable_aspm(pcr);
- 
-+	/* Fixes DMA transfer timout issue after disabling ASPM on RTS5260 */
-+	msleep(1);
-+
- 	if (option->ltr_enabled)
- 		rtsx_set_ltr_latency(pcr, option->ltr_active_latency);
- 
--- 
-2.26.2
-
-
+greg k-h
