@@ -2,114 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BC281DF24F
-	for <lists+stable@lfdr.de>; Sat, 23 May 2020 00:47:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 379271DF43F
+	for <lists+stable@lfdr.de>; Sat, 23 May 2020 04:51:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731233AbgEVWrn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 May 2020 18:47:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46626 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731223AbgEVWrn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 22 May 2020 18:47:43 -0400
-X-Greylist: delayed 14775 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 22 May 2020 15:47:42 PDT
-Received: from ssl.serverraum.org (ssl.serverraum.org [IPv6:2a01:4f8:151:8464::1:2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE7A1C061A0E;
-        Fri, 22 May 2020 15:47:42 -0700 (PDT)
-Received: from ssl.serverraum.org (web.serverraum.org [172.16.0.2])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ssl.serverraum.org (Postfix) with ESMTPSA id A09F323058;
-        Sat, 23 May 2020 00:47:39 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=walle.cc; s=mail2016061301;
-        t=1590187659;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=Ro0g+nfdSzpiSpOPcqJ5ROkYdHy3LEOX64jL+fQHoBg=;
-        b=eHp9O03JxajOaJl36Do3Si6ZSb7cH9m87Nzh0+KGeUhvnZM7bULl4v9fkGjzsu56tLmuxt
-        aHafxKZIWK2OoqJiIWyrkHL2nKlua+C7AvG+JrVM8YKKIR9ndOQurHUZgxhtaf8XY01rJ3
-        9D5bZRQSGTIrcZHP2HQb6k08Ww1OT3A=
+        id S2387592AbgEWCvc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 May 2020 22:51:32 -0400
+Received: from mga17.intel.com ([192.55.52.151]:37985 "EHLO mga17.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2387582AbgEWCvS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 May 2020 22:51:18 -0400
+IronPort-SDR: e+xQTlrkZOeuUJ8t8T47bOOj3TV6SJ2JsixUpaeZLIuAk16DOt1Uj7qI/nvtHXk8cue5cYfRV7
+ UfPYrbhoVRfA==
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga004.fm.intel.com ([10.253.24.48])
+  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 May 2020 19:51:14 -0700
+IronPort-SDR: 4/jJHhecE/3cyt5fjNtcUz7cE658vZ+LxnFK2/W+Dh8fvPf/o+AxpNtje9I63e1NTEe15ulcpU
+ C7Me90Ttd/Cw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.73,424,1583222400"; 
+   d="scan'208";a="290291129"
+Received: from jtkirshe-desk1.jf.intel.com ([134.134.177.86])
+  by fmsmga004.fm.intel.com with ESMTP; 22 May 2020 19:51:13 -0700
+From:   Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+To:     davem@davemloft.net
+Cc:     Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        netdev@vger.kernel.org, nhorman@redhat.com, sassmann@redhat.com,
+        stable <stable@vger.kernel.org>,
+        Alexander Duyck <alexander.duyck@gmail.com>,
+        Aaron Brown <aaron.f.brown@intel.com>,
+        Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+Subject: [net-next 14/17] igb: Report speed and duplex as unknown when device is runtime suspended
+Date:   Fri, 22 May 2020 19:51:06 -0700
+Message-Id: <20200523025109.3313635-15-jeffrey.t.kirsher@intel.com>
+X-Mailer: git-send-email 2.26.2
+In-Reply-To: <20200523025109.3313635-1-jeffrey.t.kirsher@intel.com>
+References: <20200523025109.3313635-1-jeffrey.t.kirsher@intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
-Date:   Sat, 23 May 2020 00:47:39 +0200
-From:   Michael Walle <michael@walle.cc>
-To:     Saravana Kannan <saravanak@google.com>
-Cc:     stable <stable@vger.kernel.org>,
-        Android Kernel Team <kernel-team@android.com>,
-        LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v3] driver core: Fix SYNC_STATE_ONLY device link
- implementation
-In-Reply-To: <CAGETcx85trw=rCM1+dmemMGKstFCq=Nn7HR2fyDyV0rTTQYtEQ@mail.gmail.com>
-References: <20200518080327.GA3126260@kroah.com>
- <20200519063000.128819-1-saravanak@google.com>
- <20200522204120.3b3c9ed6@apollo>
- <CAGETcx85trw=rCM1+dmemMGKstFCq=Nn7HR2fyDyV0rTTQYtEQ@mail.gmail.com>
-User-Agent: Roundcube Webmail/1.4.4
-Message-ID: <41760105c011f9382f4d5fdc9feed017@walle.cc>
-X-Sender: michael@walle.cc
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Am 2020-05-23 00:21, schrieb Saravana Kannan:
-> On Fri, May 22, 2020 at 11:41 AM Michael Walle <michael@walle.cc> 
-> wrote:
->> 
->> Am Mon, 18 May 2020 23:30:00 -0700
->> schrieb Saravana Kannan <saravanak@google.com>:
->> 
->> > When SYNC_STATE_ONLY support was added in commit 05ef983e0d65 ("driver
->> > core: Add device link support for SYNC_STATE_ONLY flag"),
->> > device_link_add() incorrectly skipped adding the new SYNC_STATE_ONLY
->> > device link to the supplier's and consumer's "device link" list.
->> >
->> > This causes multiple issues:
->> > - The device link is lost forever from driver core if the caller
->> >   didn't keep track of it (caller typically isn't expected to). This
->> > is a memory leak.
->> > - The device link is also never visible to any other code path after
->> >   device_link_add() returns.
->> >
->> > If we fix the "device link" list handling, that exposes a bunch of
->> > issues.
->> >
->> > 1. The device link "status" state management code rightfully doesn't
->> > handle the case where a DL_FLAG_MANAGED device link exists between a
->> > supplier and consumer, but the consumer manages to probe successfully
->> > before the supplier. The addition of DL_FLAG_SYNC_STATE_ONLY links
->> > break this assumption. This causes device_links_driver_bound() to
->> > throw a warning when this happens.
->> >
->> > Since DL_FLAG_SYNC_STATE_ONLY device links are mainly used for
->> > creating proxy device links for child device dependencies and aren't
->> > useful once the consumer device probes successfully, this patch just
->> > deletes DL_FLAG_SYNC_STATE_ONLY device links once its consumer device
->> > probes. This way, we avoid the warning, free up some memory and avoid
->> > complicating the device links "status" state management code.
->> >
->> > 2. Creating a DL_FLAG_STATELESS device link between two devices that
->> > already have a DL_FLAG_SYNC_STATE_ONLY device link will result in the
->> > DL_FLAG_STATELESS flag not getting set correctly. This patch also
->> > fixes this.
->> >
->> > Lastly, this patch also fixes minor whitespace issues.
->> 
->> My board triggers the
->>   WARN_ON(link->status != DL_STATE_CONSUMER_PROBE);
->> 
->> Full bootlog:
-[..]
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-> Thanks for the log and report. I haven't spent too much time thinking
-> about this, but can you give this a shot?
-> https://lore.kernel.org/lkml/20200520043626.181820-1-saravanak@google.com/
+igb device gets runtime suspended when there's no link partner. We can't
+get correct speed under that state:
+$ cat /sys/class/net/enp3s0/speed
+1000
 
-I've already tried that, as this is already in linux-next. Doesn't fix 
-it,
-though.
+In addition to that, an error can also be spotted in dmesg:
+[  385.991957] igb 0000:03:00.0 enp3s0: PCIe link lost
 
--michael
+Since device can only be runtime suspended when there's no link partner,
+we can skip reading register and let the following logic set speed and
+duplex with correct status.
+
+The more generic approach will be wrap get_link_ksettings() with begin()
+and complete() callbacks. However, for this particular issue, begin()
+calls igb_runtime_resume() , which tries to rtnl_lock() while the lock
+is already hold by upper ethtool layer.
+
+So let's take this approach until the igb_runtime_resume() no longer
+needs to hold rtnl_lock.
+
+CC: stable <stable@vger.kernel.org>
+Suggested-by: Alexander Duyck <alexander.duyck@gmail.com>
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Tested-by: Aaron Brown <aaron.f.brown@intel.com>
+Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+---
+ drivers/net/ethernet/intel/igb/igb_ethtool.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/net/ethernet/intel/igb/igb_ethtool.c b/drivers/net/ethernet/intel/igb/igb_ethtool.c
+index 39d3b76a6f5d..2cd003c5ad43 100644
+--- a/drivers/net/ethernet/intel/igb/igb_ethtool.c
++++ b/drivers/net/ethernet/intel/igb/igb_ethtool.c
+@@ -143,7 +143,8 @@ static int igb_get_link_ksettings(struct net_device *netdev,
+ 	u32 speed;
+ 	u32 supported, advertising;
+ 
+-	status = rd32(E1000_STATUS);
++	status = pm_runtime_suspended(&adapter->pdev->dev) ?
++		 0 : rd32(E1000_STATUS);
+ 	if (hw->phy.media_type == e1000_media_type_copper) {
+ 
+ 		supported = (SUPPORTED_10baseT_Half |
+-- 
+2.26.2
+
