@@ -2,228 +2,168 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 15FA71DF459
-	for <lists+stable@lfdr.de>; Sat, 23 May 2020 05:19:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CEE11DF4F2
+	for <lists+stable@lfdr.de>; Sat, 23 May 2020 07:22:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387492AbgEWDS6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 May 2020 23:18:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60480 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387490AbgEWDS5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 22 May 2020 23:18:57 -0400
-Received: from mail-pf1-x442.google.com (mail-pf1-x442.google.com [IPv6:2607:f8b0:4864:20::442])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B16D5C061A0E
-        for <stable@vger.kernel.org>; Fri, 22 May 2020 20:18:57 -0700 (PDT)
-Received: by mail-pf1-x442.google.com with SMTP id z64so1549549pfb.1
-        for <stable@vger.kernel.org>; Fri, 22 May 2020 20:18:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=OfxnsyjMD0LUeX/K2p126j6q9JL5CanOnRufSYlmhXc=;
-        b=brR4wD4XG5/bPdUFU14ITDLBLhjwKZBWZSsRRK4vWUi3h78Q0Dt6vLc2fHU5RtNY73
-         Wr7iGPy/inpFCUGD2nggrEMl/4ulMRMWEqai52zm9O6NrPMZH+UB9mfGKkc5Dmd0dczK
-         MTia3vC2CHwbWWNMD0Jbr+oo98/DvTICulZNNjC5nIQ4QcGsAuC5UO5PpogdyOdo/oOh
-         1yBswD7+XG4SIsXuPnTU/ogduZEg8r93lZMPLvV0TrCpFF14pWcwidxE6/BG+QQngEvP
-         LJmt/RKiMosJxkkNQ5ri7BgFlQpQwknWGvvMiobzgMz0eH7Z/BL7eLq91SvNXZLPjKg/
-         9fvg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
-         :in-reply-to:references:mime-version:content-transfer-encoding;
-        bh=OfxnsyjMD0LUeX/K2p126j6q9JL5CanOnRufSYlmhXc=;
-        b=oWYMulmBP4NwbNN2gLTFkcaKW4wS1gJ+XHzcrijewvUfKNXnH6IpfDePeY68OAtE0J
-         olkZi5jeYZ0j4dm/RgJDSN9RrGeYehHJVbXKodg/M6KilRrA0Nu3GuOC2MbRMHin7fDF
-         m3vlrWgf+lpFhvdSe8knsmMroKeaoMjMTgZW6FWQDxbzQsLVWxi+E3K22FlIp3EyY0lh
-         Uis8QGXdN9yepPOrI3mTsXJH9efVP/rQwz6PNgyH3WDhPGKWaMa1r7ZRteD+GC4VHK9I
-         ly80WOr9XUcHb5PwcxLDIdCtYjapD/g8VEUz23IFkdshN5sjV1IL8ebyS8ZGpfLMz3Fc
-         EhbQ==
-X-Gm-Message-State: AOAM530DDhHppzTmkcAooqgN3arb6Sl3fEnNBD1e5+aFMRdUOdf54xry
-        H8s8iKopDUBiOrHB7dyA+Zg=
-X-Google-Smtp-Source: ABdhPJx/7DyztHs4bvXXmStQGWckaRUSlrN4t4y/DndHZRumKvrwxgw/HU5lHNQz3tFDKjj6RLm+kQ==
-X-Received: by 2002:a63:4cc:: with SMTP id 195mr16503193pge.294.1590203936985;
-        Fri, 22 May 2020 20:18:56 -0700 (PDT)
-Received: from sultan-box.localdomain (static-198-54-129-68.cust.tzulo.com. [198.54.129.68])
-        by smtp.gmail.com with ESMTPSA id m14sm7204334pgt.6.2020.05.22.20.18.55
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 22 May 2020 20:18:56 -0700 (PDT)
-From:   Sultan Alsawaf <sultan@kerneltoast.com>
-X-Google-Original-From: Sultan Alsawaf
-To:     gregkh@linuxfoundation.org
-Cc:     colin.king@canonical.com, stable@vger.kernel.org, tytso@mit.edu,
-        Sultan Alsawaf <sultan@kerneltoast.com>
-Subject: [PATCH] ext4: lock the xattr block before checksuming it
-Date:   Fri, 22 May 2020 20:18:21 -0700
-Message-Id: <20200523031821.501455-1-sultan@kerneltoast.com>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <1490633793174140@kroah.com>
-References: <1490633793174140@kroah.com>
+        id S2387457AbgEWFWn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 23 May 2020 01:22:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55002 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2387426AbgEWFWn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 23 May 2020 01:22:43 -0400
+Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7A9CA2072C;
+        Sat, 23 May 2020 05:22:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1590211362;
+        bh=2yhhuYGGaY84kljBIC8q+s1fdhs2AOKMd8coz0sCrgA=;
+        h=Date:From:To:Subject:In-Reply-To:From;
+        b=EP993AziQhMOqBk3mc23BTS8FQ0LYUpetGgNNXPwwhr5oQj4XHT0TC0GUF+0IgNMq
+         cFWWRMSa73beP5ZO1RIDL+uhhI58nYyLcBh/dykrqCo+GS+d3EqootTdXGKZwMcTwg
+         2ejb5yWkmWsvmx3/lFVVX3OTmy8JXQftFijEmrbQ=
+Date:   Fri, 22 May 2020 22:22:42 -0700
+From:   Andrew Morton <akpm@linux-foundation.org>
+To:     akpm@linux-foundation.org, dan.j.williams@intel.com,
+        dave.jiang@intel.com, david@redhat.com, linux-mm@kvack.org,
+        mm-commits@vger.kernel.org, pasha.tatashin@soleen.com,
+        stable@vger.kernel.org, torvalds@linux-foundation.org,
+        vishal.l.verma@intel.com
+Subject:  [patch 01/11] device-dax: don't leak kernel memory to
+ user space after unloading kmem
+Message-ID: <20200523052242.zhORsI9Zg%akpm@linux-foundation.org>
+In-Reply-To: <20200522222217.ee14ad7eda7aab1e6697da6c@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Theodore Ts'o <tytso@mit.edu>
+=46rom: David Hildenbrand <david@redhat.com>
+Subject: device-dax: don't leak kernel memory to user space after unloading=
+ kmem
 
-commit dac7a4b4b1f664934e8b713f529b629f67db313c upstream.
+Assume we have kmem configured and loaded:
+  [root@localhost ~]# cat /proc/iomem
+  ...
+  140000000-33fffffff : Persistent Memory$
+    140000000-1481fffff : namespace0.0
+    150000000-33fffffff : dax0.0
+      150000000-33fffffff : System RAM
 
-We must lock the xattr block before calculating or verifying the
-checksum in order to avoid spurious checksum failures.
+Assume we try to unload kmem. This force-unloading will work, even if
+memory cannot get removed from the system.
+  [root@localhost ~]# rmmod kmem
+  [   86.380228] removing memory fails, because memory [0x0000000150000000-=
+0x0000000157ffffff] is onlined
+  ...
+  [   86.431225] kmem dax0.0: DAX region [mem 0x150000000-0x33fffffff] cann=
+ot be hotremoved until the next reboot
 
-https://bugzilla.kernel.org/show_bug.cgi?id=193661
+Now, we can reconfigure the namespace:
+  [root@localhost ~]# ndctl create-namespace --force --reconfig=3Dnamespace=
+0.0 --mode=3Ddevdax
+  [  131.409351] nd_pmem namespace0.0: could not reserve region [mem 0x1400=
+00000-0x33fffffff]dax
+  [  131.410147] nd_pmem: probe of namespace0.0 failed with error -16namesp=
+ace0.0 --mode=3Ddevdax
+  ...
 
-Reported-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@vger.kernel.org
-Signed-off-by: Sultan Alsawaf <sultan@kerneltoast.com>
+This fails as expected due to the busy memory resource, and the memory
+cannot be used. However, the dax0.0 device is removed, and along its name.
+
+The name of the memory resource now points at freed memory (name of the
+device).
+  [root@localhost ~]# cat /proc/iomem
+  ...
+  140000000-33fffffff : Persistent Memory
+    140000000-1481fffff : namespace0.0
+    150000000-33fffffff : =EF=BF=BD_=EF=BF=BD^7_=EF=BF=BD=EF=BF=BD/_=EF=BF=
+=BD=EF=BF=BDwR=EF=BF=BD=EF=BF=BDWQ=EF=BF=BD=EF=BF=BD=EF=BF=BD^=EF=BF=BD=EF=
+=BF=BD=EF=BF=BD ...
+    150000000-33fffffff : System RAM
+
+We have to make sure to duplicate the string.  While at it, remove the
+superfluous setting of the name and fixup a stale comment.
+
+Link: http://lkml.kernel.org/r/20200508084217.9160-2-david@redhat.com
+Fixes: 9f960da72b25 ("device-dax: "Hotremove" persistent memory that is use=
+d like normal RAM")
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: Vishal Verma <vishal.l.verma@intel.com>
+Cc: Dave Jiang <dave.jiang@intel.com>
+Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: <stable@vger.kernel.org>	[5.3]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
-Hi,
 
-I've been experiencing spurious ext4 checksum failures on 4.4 because
-this patch is missing (which is quite painful with panic-on-error
-enabled). This backport fixes the issue for me.
- fs/ext4/xattr.c | 66 ++++++++++++++++++++++++-------------------------
- 1 file changed, 32 insertions(+), 34 deletions(-)
+ drivers/dax/kmem.c |   14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
-diff --git a/fs/ext4/xattr.c b/fs/ext4/xattr.c
-index 53679716baca..18b9213ce0bd 100644
---- a/fs/ext4/xattr.c
-+++ b/fs/ext4/xattr.c
-@@ -139,31 +139,26 @@ static __le32 ext4_xattr_block_csum(struct inode *inode,
- }
- 
- static int ext4_xattr_block_csum_verify(struct inode *inode,
--					sector_t block_nr,
--					struct ext4_xattr_header *hdr)
-+					struct buffer_head *bh)
- {
--	if (ext4_has_metadata_csum(inode->i_sb) &&
--	    (hdr->h_checksum != ext4_xattr_block_csum(inode, block_nr, hdr)))
--		return 0;
--	return 1;
--}
--
--static void ext4_xattr_block_csum_set(struct inode *inode,
--				      sector_t block_nr,
--				      struct ext4_xattr_header *hdr)
--{
--	if (!ext4_has_metadata_csum(inode->i_sb))
--		return;
-+	struct ext4_xattr_header *hdr = BHDR(bh);
-+	int ret = 1;
- 
--	hdr->h_checksum = ext4_xattr_block_csum(inode, block_nr, hdr);
-+	if (ext4_has_metadata_csum(inode->i_sb)) {
-+		lock_buffer(bh);
-+		ret = (hdr->h_checksum == ext4_xattr_block_csum(inode,
-+							bh->b_blocknr, hdr));
-+		unlock_buffer(bh);
-+	}
-+	return ret;
- }
- 
--static inline int ext4_handle_dirty_xattr_block(handle_t *handle,
--						struct inode *inode,
--						struct buffer_head *bh)
-+static void ext4_xattr_block_csum_set(struct inode *inode,
-+				      struct buffer_head *bh)
- {
--	ext4_xattr_block_csum_set(inode, bh->b_blocknr, BHDR(bh));
--	return ext4_handle_dirty_metadata(handle, inode, bh);
-+	if (ext4_has_metadata_csum(inode->i_sb))
-+		BHDR(bh)->h_checksum = ext4_xattr_block_csum(inode,
-+						bh->b_blocknr, BHDR(bh));
- }
- 
- static inline const struct xattr_handler *
-@@ -226,7 +221,7 @@ ext4_xattr_check_block(struct inode *inode, struct buffer_head *bh)
- 	if (buffer_verified(bh))
- 		return 0;
- 
--	if (!ext4_xattr_block_csum_verify(inode, bh->b_blocknr, BHDR(bh)))
-+	if (!ext4_xattr_block_csum_verify(inode, bh))
- 		return -EFSBADCRC;
- 	error = ext4_xattr_check_names(BFIRST(bh), bh->b_data + bh->b_size,
- 				       bh->b_data);
-@@ -590,23 +585,23 @@ ext4_xattr_release_block(handle_t *handle, struct inode *inode,
- 		le32_add_cpu(&BHDR(bh)->h_refcount, -1);
- 		if (ce)
- 			mb_cache_entry_release(ce);
+--- a/drivers/dax/kmem.c~device-dax-dont-leak-kernel-memory-to-user-space-a=
+fter-unloading-kmem
++++ a/drivers/dax/kmem.c
+@@ -22,6 +22,7 @@ int dev_dax_kmem_probe(struct device *de
+ 	resource_size_t kmem_size;
+ 	resource_size_t kmem_end;
+ 	struct resource *new_res;
++	const char *new_res_name;
+ 	int numa_node;
+ 	int rc;
+=20
+@@ -48,11 +49,16 @@ int dev_dax_kmem_probe(struct device *de
+ 	kmem_size &=3D ~(memory_block_size_bytes() - 1);
+ 	kmem_end =3D kmem_start + kmem_size;
+=20
+-	/* Region is permanently reserved.  Hot-remove not yet implemented. */
+-	new_res =3D request_mem_region(kmem_start, kmem_size, dev_name(dev));
++	new_res_name =3D kstrdup(dev_name(dev), GFP_KERNEL);
++	if (!new_res_name)
++		return -ENOMEM;
 +
-+		ext4_xattr_block_csum_set(inode, bh);
- 		/*
- 		 * Beware of this ugliness: Releasing of xattr block references
- 		 * from different inodes can race and so we have to protect
- 		 * from a race where someone else frees the block (and releases
- 		 * its journal_head) before we are done dirtying the buffer. In
- 		 * nojournal mode this race is harmless and we actually cannot
--		 * call ext4_handle_dirty_xattr_block() with locked buffer as
-+		 * call ext4_handle_dirty_metadata() with locked buffer as
- 		 * that function can call sync_dirty_buffer() so for that case
- 		 * we handle the dirtying after unlocking the buffer.
- 		 */
- 		if (ext4_handle_valid(handle))
--			error = ext4_handle_dirty_xattr_block(handle, inode,
--							      bh);
-+			error = ext4_handle_dirty_metadata(handle, inode, bh);
- 		unlock_buffer(bh);
- 		if (!ext4_handle_valid(handle))
--			error = ext4_handle_dirty_xattr_block(handle, inode,
--							      bh);
-+			error = ext4_handle_dirty_metadata(handle, inode, bh);
- 		if (IS_SYNC(inode))
- 			ext4_handle_sync(handle);
- 		dquot_free_block(inode, EXT4_C2B(EXT4_SB(inode->i_sb), 1));
-@@ -837,13 +832,14 @@ ext4_xattr_block_set(handle_t *handle, struct inode *inode,
- 					ext4_xattr_rehash(header(s->base),
- 							  s->here);
- 			}
-+			ext4_xattr_block_csum_set(inode, bs->bh);
- 			unlock_buffer(bs->bh);
- 			if (error == -EFSCORRUPTED)
- 				goto bad_block;
- 			if (!error)
--				error = ext4_handle_dirty_xattr_block(handle,
--								      inode,
--								      bs->bh);
-+				error = ext4_handle_dirty_metadata(handle,
-+								   inode,
-+								   bs->bh);
- 			if (error)
- 				goto cleanup;
- 			goto inserted;
-@@ -912,10 +908,11 @@ inserted:
- 				le32_add_cpu(&BHDR(new_bh)->h_refcount, 1);
- 				ea_bdebug(new_bh, "reusing; refcount now=%d",
- 					le32_to_cpu(BHDR(new_bh)->h_refcount));
-+				ext4_xattr_block_csum_set(inode, new_bh);
- 				unlock_buffer(new_bh);
--				error = ext4_handle_dirty_xattr_block(handle,
--								      inode,
--								      new_bh);
-+				error = ext4_handle_dirty_metadata(handle,
-+								   inode,
-+								   new_bh);
- 				if (error)
- 					goto cleanup_dquot;
- 			}
-@@ -965,11 +962,12 @@ getblk_failed:
- 				goto getblk_failed;
- 			}
- 			memcpy(new_bh->b_data, s->base, new_bh->b_size);
-+			ext4_xattr_block_csum_set(inode, new_bh);
- 			set_buffer_uptodate(new_bh);
- 			unlock_buffer(new_bh);
- 			ext4_xattr_cache_insert(ext4_mb_cache, new_bh);
--			error = ext4_handle_dirty_xattr_block(handle,
--							      inode, new_bh);
-+			error = ext4_handle_dirty_metadata(handle, inode,
-+							   new_bh);
- 			if (error)
- 				goto cleanup;
- 		}
--- 
-2.26.2
-
++	/* Region is permanently reserved if hotremove fails. */
++	new_res =3D request_mem_region(kmem_start, kmem_size, new_res_name);
+ 	if (!new_res) {
+ 		dev_warn(dev, "could not reserve region [%pa-%pa]\n",
+ 			 &kmem_start, &kmem_end);
++		kfree(new_res_name);
+ 		return -EBUSY;
+ 	}
+=20
+@@ -63,12 +69,12 @@ int dev_dax_kmem_probe(struct device *de
+ 	 * unknown to us that will break add_memory() below.
+ 	 */
+ 	new_res->flags =3D IORESOURCE_SYSTEM_RAM;
+-	new_res->name =3D dev_name(dev);
+=20
+ 	rc =3D add_memory(numa_node, new_res->start, resource_size(new_res));
+ 	if (rc) {
+ 		release_resource(new_res);
+ 		kfree(new_res);
++		kfree(new_res_name);
+ 		return rc;
+ 	}
+ 	dev_dax->dax_kmem_res =3D new_res;
+@@ -83,6 +89,7 @@ static int dev_dax_kmem_remove(struct de
+ 	struct resource *res =3D dev_dax->dax_kmem_res;
+ 	resource_size_t kmem_start =3D res->start;
+ 	resource_size_t kmem_size =3D resource_size(res);
++	const char *res_name =3D res->name;
+ 	int rc;
+=20
+ 	/*
+@@ -102,6 +109,7 @@ static int dev_dax_kmem_remove(struct de
+ 	/* Release and free dax resources */
+ 	release_resource(res);
+ 	kfree(res);
++	kfree(res_name);
+ 	dev_dax->dax_kmem_res =3D NULL;
+=20
+ 	return 0;
+_
