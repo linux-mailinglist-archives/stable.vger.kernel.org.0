@@ -2,128 +2,150 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EA85B1DF61C
-	for <lists+stable@lfdr.de>; Sat, 23 May 2020 10:48:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 57D991DF630
+	for <lists+stable@lfdr.de>; Sat, 23 May 2020 11:09:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387627AbgEWIsC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 23 May 2020 04:48:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55556 "EHLO mail.kernel.org"
+        id S2387641AbgEWJJs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 23 May 2020 05:09:48 -0400
+Received: from mga09.intel.com ([134.134.136.24]:55626 "EHLO mga09.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387471AbgEWIsC (ORCPT <rfc822;Stable@vger.kernel.org>);
-        Sat, 23 May 2020 04:48:02 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D72DC206C3;
-        Sat, 23 May 2020 08:48:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590223681;
-        bh=TWTBBCK1KdoqW+54uzFoqWZjWWGnwaHjr88N5vVqYf4=;
-        h=Subject:To:From:Date:From;
-        b=baK1DD9oxd3jX9HjvTlKiaS/QIc6q3d8/S2QCkEq378Mb8gJ6r2aBNOrd4WFua3Av
-         YoYcTUcDTxdaQPn9lAWrCZTtq7+N9FiFFKrPMCImDysMyzzaMONvx6o5zDgnoSMDY7
-         UrA2CicsLfOxukQXmOItLTFsTk1CzeLoGuOkk1r0=
-Subject: patch "iio:chemical:pms7003: Fix timestamp alignment and prevent data leak." added to staging-testing
-To:     Jonathan.Cameron@huawei.com, Stable@vger.kernel.org,
-        lars@metafoo.de, tomasz.duszynski@octakon.com
-From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 23 May 2020 10:46:50 +0200
-Message-ID: <1590223610224132@kroah.com>
+        id S2387498AbgEWJJs (ORCPT <rfc822;Stable@vger.kernel.org>);
+        Sat, 23 May 2020 05:09:48 -0400
+IronPort-SDR: /r9XUnPmLDPn2oi3ixcluaFbuFL8g4mvImarTFfuAhmX9IKpmA7VfvKskfCm0GgitZ57gpLq10
+ 6Ihtt2/bmvjA==
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga005.fm.intel.com ([10.253.24.32])
+  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 May 2020 02:09:46 -0700
+IronPort-SDR: aJaaLrQ5tW18n/MyrFwL71eEqJgr683s9sxfyr6RhmFtCrX9vqtgj6KUo/N1dL93LgKmU/2ixg
+ Ca/79gnlWSRA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.73,425,1583222400"; 
+   d="scan'208";a="467435870"
+Received: from chenyu-office.sh.intel.com ([10.239.158.173])
+  by fmsmga005.fm.intel.com with ESMTP; 23 May 2020 02:09:43 -0700
+Date:   Sat, 23 May 2020 17:09:50 +0800
+From:   Chen Yu <yu.c.chen@intel.com>
+To:     Michal Kubecek <mkubecek@suse.cz>
+Cc:     netdev@vger.kernel.org, Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Auke Kok <auke-jan.h.kok@intel.com>,
+        Jeff Garzik <jeff@garzik.org>,
+        intel-wired-lan@lists.osuosl.org, linux-kernel@vger.kernel.org,
+        Len Brown <len.brown@intel.com>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        "Shevchenko, Andriy" <andriy.shevchenko@intel.com>,
+        "Neftin, Sasha" <sasha.neftin@intel.com>,
+        "Lifshits, Vitaly" <vitaly.lifshits@intel.com>,
+        Stable@vger.kernel.org
+Subject: Re: [PATCH 2/2] e1000e: Make WOL info in ethtool consistent with
+ device wake up ability
+Message-ID: <20200523090950.GA20370@chenyu-office.sh.intel.com>
+References: <cover.1590081982.git.yu.c.chen@intel.com>
+ <725bad2f3ce7f7b7f1667d53b6527dc059f9e419.1590081982.git.yu.c.chen@intel.com>
+ <20200521192342.GE8771@lion.mk-sys.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200521192342.GE8771@lion.mk-sys.cz>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi Michal,
+Thanks for reviewing,
+and sorry for late reply.
+On Thu, May 21, 2020 at 09:23:42PM +0200, Michal Kubecek wrote:
+> On Fri, May 22, 2020 at 01:59:13AM +0800, Chen Yu wrote:
+> > Currently the ethtool shows that WOL(Wake On Lan) is enabled
+> > even if the device wakeup ability has been disabled via sysfs:
+> >   cat /sys/devices/pci0000:00/0000:00:1f.6/power/wakeup
+> >    disabled
+> > 
+> >   ethtool eno1
+> >   ...
+> >   Wake-on: g
+> > 
+> > Fix this in ethtool to check if the user has explicitly disabled the
+> > wake up ability for this device.
+> 
+> Wouldn't this lead to rather unexpected and inconsistent behaviour when
+> the wakeup is disabled? As you don't touch the set_wol handler, I assume
+> it will still allow setting enabled modes as usual so that you get e.g.
+> 
+>   ethtool -s eth0 wol g   # no error or warning, returns 0
+>   ethtool eth0            # reports no modes enabled
+> 
+> The first command would set the enabled wol modes but that would be
+> hidden from user and even the netlink notification would claim something
+> different. Another exampe (with kernel and ethtool >= 5.6):
+> 
+>   ethtool -s eth0 wol g
+>   ethtool -s eth0 wol +m
+> 
+> resulting in "mg" if device wakeup is enabled but "m" when it's disabled
+> (but the latter would be hidden from user and only revealed when you
+> enable the device wakeup).
+> 
+I've tested ethtool v5.6 on top of kernel v5.7-rc6, it looks like
+the scenario you described will not happen as it will not allow
+the user to enable the wol options with device wakeup disabled,
+not sure if I missed something:
 
-This is a note to let you know that I've just added the patch titled
+/sys/devices/pci0000:00/0000:00:1f.6/power# echo disabled > wakeup
 
-    iio:chemical:pms7003: Fix timestamp alignment and prevent data leak.
+ethtool -s eno1 wol g
+netlink error: cannot enable unsupported WoL mode (offset 36)
+netlink error: Invalid argument
 
-to my staging git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
-in the staging-testing branch.
+I've not digged into the code too much, but according to
+ethhl_set_wol(), it will first get the current wol options
+via dev->ethtool_ops->get_wol(), and both the wolopts and
+wol.supported are 0 when device wake up are disabled. Then
+ethnl_update_bitset32 might manipulate on wolopts and
+make it non-zero each is controdict with the precondition that
+no opts should be enabled due to 0 wol.supported.
+> This is a general problem discussed recently for EEE and pause
+> autonegotiation: if setting A can be effectively used only when B is
+> enabled, should we hide actual setting of A from userspace when B is
+> disabled or even reset the value of A whenever B gets toggled or rather
+> allow setting A and B independently? AFAICS the consensus seemed to be
+> that A should be allowed to be set and queried independently of the
+> value of B.
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
+But then there would be an inconsistence between A and B. I was thinking
+if there's a way to align them in kernel space and  maintain the difference in user space?
 
-The patch will be merged to the staging-next branch sometime soon,
-after it passes testing, and the merge window is open.
-
-If you have any questions about this process, please let me know.
-
-
-From 13e945631c2ffb946c0af342812a3cd39227de6e Mon Sep 17 00:00:00 2001
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Date: Sun, 17 May 2020 18:30:00 +0100
-Subject: iio:chemical:pms7003: Fix timestamp alignment and prevent data leak.
-
-One of a class of bugs pointed out by Lars in a recent review.
-iio_push_to_buffers_with_timestamp assumes the buffer used is aligned
-to the size of the timestamp (8 bytes).  This is not guaranteed in
-this driver which uses an array of smaller elements on the stack.
-As Lars also noted this anti pattern can involve a leak of data to
-userspace and that indeed can happen here.  We close both issues by
-moving to a suitable structure in the iio_priv() data with alignment
-explicitly requested.  This data is allocated with kzalloc so no
-data can leak appart from previous readings.
-
-Fixes: a1d642266c14 ("iio: chemical: add support for Plantower PMS7003 sensor")
-Reported-by: Lars-Peter Clausen <lars@metafoo.de>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Cc: <Stable@vger.kernel.org>
-Acked-by: Tomasz Duszynski <tomasz.duszynski@octakon.com>
----
- drivers/iio/chemical/pms7003.c | 17 ++++++++++++-----
- 1 file changed, 12 insertions(+), 5 deletions(-)
-
-diff --git a/drivers/iio/chemical/pms7003.c b/drivers/iio/chemical/pms7003.c
-index 23c9ab252470..07bb90d72434 100644
---- a/drivers/iio/chemical/pms7003.c
-+++ b/drivers/iio/chemical/pms7003.c
-@@ -73,6 +73,11 @@ struct pms7003_state {
- 	struct pms7003_frame frame;
- 	struct completion frame_ready;
- 	struct mutex lock; /* must be held whenever state gets touched */
-+	/* Used to construct scan to push to the IIO buffer */
-+	struct {
-+		u16 data[3]; /* PM1, PM2P5, PM10 */
-+		s64 ts;
-+	} scan;
- };
- 
- static int pms7003_do_cmd(struct pms7003_state *state, enum pms7003_cmd cmd)
-@@ -104,7 +109,6 @@ static irqreturn_t pms7003_trigger_handler(int irq, void *p)
- 	struct iio_dev *indio_dev = pf->indio_dev;
- 	struct pms7003_state *state = iio_priv(indio_dev);
- 	struct pms7003_frame *frame = &state->frame;
--	u16 data[3 + 1 + 4]; /* PM1, PM2P5, PM10, padding, timestamp */
- 	int ret;
- 
- 	mutex_lock(&state->lock);
-@@ -114,12 +118,15 @@ static irqreturn_t pms7003_trigger_handler(int irq, void *p)
- 		goto err;
- 	}
- 
--	data[PM1] = pms7003_get_pm(frame->data + PMS7003_PM1_OFFSET);
--	data[PM2P5] = pms7003_get_pm(frame->data + PMS7003_PM2P5_OFFSET);
--	data[PM10] = pms7003_get_pm(frame->data + PMS7003_PM10_OFFSET);
-+	state->scan.data[PM1] =
-+		pms7003_get_pm(frame->data + PMS7003_PM1_OFFSET);
-+	state->scan.data[PM2P5] =
-+		pms7003_get_pm(frame->data + PMS7003_PM2P5_OFFSET);
-+	state->scan.data[PM10] =
-+		pms7003_get_pm(frame->data + PMS7003_PM10_OFFSET);
- 	mutex_unlock(&state->lock);
- 
--	iio_push_to_buffers_with_timestamp(indio_dev, data,
-+	iio_push_to_buffers_with_timestamp(indio_dev, &state->scan,
- 					   iio_get_time_ns(indio_dev));
- err:
- 	iio_trigger_notify_done(indio_dev->trig);
--- 
-2.26.2
-
-
+Thanks,
+Chenyu
+> 
+> Michal
+> 
+> > Fixes: 6ff68026f475 ("e1000e: Use device_set_wakeup_enable")
+> > Reported-by: Len Brown <len.brown@intel.com>
+> > Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> > Cc: <Stable@vger.kernel.org>
+> > Signed-off-by: Chen Yu <yu.c.chen@intel.com>
+> > ---
+> >  drivers/net/ethernet/intel/e1000e/ethtool.c | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> > 
+> > diff --git a/drivers/net/ethernet/intel/e1000e/ethtool.c b/drivers/net/ethernet/intel/e1000e/ethtool.c
+> > index 1d47e2503072..0cccd823ff24 100644
+> > --- a/drivers/net/ethernet/intel/e1000e/ethtool.c
+> > +++ b/drivers/net/ethernet/intel/e1000e/ethtool.c
+> > @@ -1891,7 +1891,7 @@ static void e1000_get_wol(struct net_device *netdev,
+> >  	wol->wolopts = 0;
+> >  
+> >  	if (!(adapter->flags & FLAG_HAS_WOL) ||
+> > -	    !device_can_wakeup(&adapter->pdev->dev))
+> > +	    !device_may_wakeup(&adapter->pdev->dev))
+> >  		return;
+> >  
+> >  	wol->supported = WAKE_UCAST | WAKE_MCAST |
+> > -- 
+> > 2.17.1
+> > 
