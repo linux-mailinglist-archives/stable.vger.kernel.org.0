@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DA321DF60C
-	for <lists+stable@lfdr.de>; Sat, 23 May 2020 10:42:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C9BB91DF60D
+	for <lists+stable@lfdr.de>; Sat, 23 May 2020 10:42:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387512AbgEWIms (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 23 May 2020 04:42:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54216 "EHLO mail.kernel.org"
+        id S2387686AbgEWImx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 23 May 2020 04:42:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54286 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387471AbgEWIms (ORCPT <rfc822;Stable@vger.kernel.org>);
-        Sat, 23 May 2020 04:42:48 -0400
+        id S2387666AbgEWImv (ORCPT <rfc822;Stable@vger.kernel.org>);
+        Sat, 23 May 2020 04:42:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AE46F206C3;
-        Sat, 23 May 2020 08:42:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 844EA207DA;
+        Sat, 23 May 2020 08:42:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590223367;
-        bh=wq+uPyOpMieZEQsK8qUKEzIBHtltueSIwPOvOgeJBnM=;
+        s=default; t=1590223371;
+        bh=nVrDvs6NwDgNmtOBjHAB4aCc2ZMc7ZXEIL7f6ct2wP0=;
         h=Subject:To:From:Date:From;
-        b=EFaF+5jC5Bj2aTByBYttvR+P7TPy4hQ2kzSx95477N7isROkVT8X/u0S3zJRmo5nm
-         eYcRImu2bUhKUm0NrUzgTIoFlBfjOef2hxGqeD9jQrMcizBG4o5xztidldm+ajwDJH
-         gwgAsB27JZ73zMtC5h9hXZiNitsrEJkKIplhjCwE=
-Subject: patch "iio: adc: stm32-adc: fix a wrong error message when probing" added to staging-next
-To:     fabrice.gasnier@st.com, Jonathan.Cameron@huawei.com,
-        Stable@vger.kernel.org
+        b=UQvTsU9bqmSMms3Qv6yVxlP6Rbs2WQUSpAkgsZ7CEspNQwlj2mm/iLPcENIWFWifr
+         EK1/xs4UE9w6QkI8Qb6sa2ss1zvpEAreEoxq/5BQ4VOvqt8LCM6WNBrBh8VmnhJAam
+         pX32Wk+lLHEMBnJDDAC6F3gzyc4s6vxf24jkqVBU=
+Subject: patch "iio:chemical:sps30: Fix timestamp alignment" added to staging-next
+To:     Jonathan.Cameron@huawei.com, Stable@vger.kernel.org,
+        lars@metafoo.de, tomasz.duszynski@octakon.com
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 23 May 2020 10:41:38 +0200
-Message-ID: <1590223298890@kroah.com>
+Date:   Sat, 23 May 2020 10:41:39 +0200
+Message-ID: <159022329924469@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +40,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    iio: adc: stm32-adc: fix a wrong error message when probing
+    iio:chemical:sps30: Fix timestamp alignment
 
 to my staging git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
@@ -55,127 +55,51 @@ during the merge window.
 If you have any questions about this process, please let me know.
 
 
-From 10134ec3f8cefa6a40fe84987f1795e9e0da9715 Mon Sep 17 00:00:00 2001
-From: Fabrice Gasnier <fabrice.gasnier@st.com>
-Date: Tue, 12 May 2020 15:27:05 +0200
-Subject: iio: adc: stm32-adc: fix a wrong error message when probing
- interrupts
+From a5bf6fdd19c327bcfd9073a8740fa19ca4525fd4 Mon Sep 17 00:00:00 2001
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Date: Sun, 17 May 2020 18:29:59 +0100
+Subject: iio:chemical:sps30: Fix timestamp alignment
 
-A wrong error message is printed out currently, like on STM32MP15:
-- stm32-adc-core 48003000.adc: IRQ index 2 not found.
+One of a class of bugs pointed out by Lars in a recent review.
+iio_push_to_buffers_with_timestamp assumes the buffer used is aligned
+to the size of the timestamp (8 bytes).  This is not guaranteed in
+this driver which uses an array of smaller elements on the stack.
 
-This is seen since commit 7723f4c5ecdb ("driver core: platform: Add an
-error message to platform_get_irq*()").
-The STM32 ADC core driver wrongly requests up to 3 interrupt lines. It
-should request only the necessary IRQs, based on the compatible:
-- stm32f4/h7 ADCs share a common interrupt
-- stm32mp1, has one interrupt line per ADC.
-So add the number of required interrupts to the compatible data.
-
-Fixes: d58c67d1d851 ("iio: adc: stm32-adc: add support for STM32MP1")
-Signed-off-by: Fabrice Gasnier <fabrice.gasnier@st.com>
-Cc: <Stable@vger.kernel.org>
+Fixes: 232e0f6ddeae ("iio: chemical: add support for Sensirion SPS30 sensor")
+Reported-by: Lars-Peter Clausen <lars@metafoo.de>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Cc: <Stable@vger.kernel.org>
+Acked-by: Tomasz Duszynski <tomasz.duszynski@octakon.com>
 ---
- drivers/iio/adc/stm32-adc-core.c | 34 +++++++++++++-------------------
- 1 file changed, 14 insertions(+), 20 deletions(-)
+ drivers/iio/chemical/sps30.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/iio/adc/stm32-adc-core.c b/drivers/iio/adc/stm32-adc-core.c
-index 2df88d2b880a..0e2068ec068b 100644
---- a/drivers/iio/adc/stm32-adc-core.c
-+++ b/drivers/iio/adc/stm32-adc-core.c
-@@ -65,12 +65,14 @@ struct stm32_adc_priv;
-  * @clk_sel:	clock selection routine
-  * @max_clk_rate_hz: maximum analog clock rate (Hz, from datasheet)
-  * @has_syscfg: SYSCFG capability flags
-+ * @num_irqs:	number of interrupt lines
-  */
- struct stm32_adc_priv_cfg {
- 	const struct stm32_adc_common_regs *regs;
- 	int (*clk_sel)(struct platform_device *, struct stm32_adc_priv *);
- 	u32 max_clk_rate_hz;
- 	unsigned int has_syscfg;
-+	unsigned int num_irqs;
- };
+diff --git a/drivers/iio/chemical/sps30.c b/drivers/iio/chemical/sps30.c
+index acb9f8ecbb3d..a88c1fb875a0 100644
+--- a/drivers/iio/chemical/sps30.c
++++ b/drivers/iio/chemical/sps30.c
+@@ -230,15 +230,18 @@ static irqreturn_t sps30_trigger_handler(int irq, void *p)
+ 	struct iio_dev *indio_dev = pf->indio_dev;
+ 	struct sps30_state *state = iio_priv(indio_dev);
+ 	int ret;
+-	s32 data[4 + 2]; /* PM1, PM2P5, PM4, PM10, timestamp */
++	struct {
++		s32 data[4]; /* PM1, PM2P5, PM4, PM10 */
++		s64 ts;
++	} scan;
  
- /**
-@@ -375,21 +377,15 @@ static int stm32_adc_irq_probe(struct platform_device *pdev,
- 	struct device_node *np = pdev->dev.of_node;
- 	unsigned int i;
+ 	mutex_lock(&state->lock);
+-	ret = sps30_do_meas(state, data, 4);
++	ret = sps30_do_meas(state, scan.data, ARRAY_SIZE(scan.data));
+ 	mutex_unlock(&state->lock);
+ 	if (ret)
+ 		goto err;
  
--	for (i = 0; i < STM32_ADC_MAX_ADCS; i++) {
-+	/*
-+	 * Interrupt(s) must be provided, depending on the compatible:
-+	 * - stm32f4/h7 shares a common interrupt line.
-+	 * - stm32mp1, has one line per ADC
-+	 */
-+	for (i = 0; i < priv->cfg->num_irqs; i++) {
- 		priv->irq[i] = platform_get_irq(pdev, i);
--		if (priv->irq[i] < 0) {
--			/*
--			 * At least one interrupt must be provided, make others
--			 * optional:
--			 * - stm32f4/h7 shares a common interrupt.
--			 * - stm32mp1, has one line per ADC (either for ADC1,
--			 *   ADC2 or both).
--			 */
--			if (i && priv->irq[i] == -ENXIO)
--				continue;
--
-+		if (priv->irq[i] < 0)
- 			return priv->irq[i];
--		}
- 	}
- 
- 	priv->domain = irq_domain_add_simple(np, STM32_ADC_MAX_ADCS, 0,
-@@ -400,9 +396,7 @@ static int stm32_adc_irq_probe(struct platform_device *pdev,
- 		return -ENOMEM;
- 	}
- 
--	for (i = 0; i < STM32_ADC_MAX_ADCS; i++) {
--		if (priv->irq[i] < 0)
--			continue;
-+	for (i = 0; i < priv->cfg->num_irqs; i++) {
- 		irq_set_chained_handler(priv->irq[i], stm32_adc_irq_handler);
- 		irq_set_handler_data(priv->irq[i], priv);
- 	}
-@@ -420,11 +414,8 @@ static void stm32_adc_irq_remove(struct platform_device *pdev,
- 		irq_dispose_mapping(irq_find_mapping(priv->domain, hwirq));
- 	irq_domain_remove(priv->domain);
- 
--	for (i = 0; i < STM32_ADC_MAX_ADCS; i++) {
--		if (priv->irq[i] < 0)
--			continue;
-+	for (i = 0; i < priv->cfg->num_irqs; i++)
- 		irq_set_chained_handler(priv->irq[i], NULL);
--	}
- }
- 
- static int stm32_adc_core_switches_supply_en(struct stm32_adc_priv *priv,
-@@ -817,6 +808,7 @@ static const struct stm32_adc_priv_cfg stm32f4_adc_priv_cfg = {
- 	.regs = &stm32f4_adc_common_regs,
- 	.clk_sel = stm32f4_adc_clk_sel,
- 	.max_clk_rate_hz = 36000000,
-+	.num_irqs = 1,
- };
- 
- static const struct stm32_adc_priv_cfg stm32h7_adc_priv_cfg = {
-@@ -824,6 +816,7 @@ static const struct stm32_adc_priv_cfg stm32h7_adc_priv_cfg = {
- 	.clk_sel = stm32h7_adc_clk_sel,
- 	.max_clk_rate_hz = 36000000,
- 	.has_syscfg = HAS_VBOOSTER,
-+	.num_irqs = 1,
- };
- 
- static const struct stm32_adc_priv_cfg stm32mp1_adc_priv_cfg = {
-@@ -831,6 +824,7 @@ static const struct stm32_adc_priv_cfg stm32mp1_adc_priv_cfg = {
- 	.clk_sel = stm32h7_adc_clk_sel,
- 	.max_clk_rate_hz = 40000000,
- 	.has_syscfg = HAS_VBOOSTER | HAS_ANASWVDD,
-+	.num_irqs = 2,
- };
- 
- static const struct of_device_id stm32_adc_of_match[] = {
+-	iio_push_to_buffers_with_timestamp(indio_dev, data,
++	iio_push_to_buffers_with_timestamp(indio_dev, &scan,
+ 					   iio_get_time_ns(indio_dev));
+ err:
+ 	iio_trigger_notify_done(indio_dev->trig);
 -- 
 2.26.2
 
