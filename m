@@ -2,168 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CEE11DF4F2
-	for <lists+stable@lfdr.de>; Sat, 23 May 2020 07:22:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 013521DF4F3
+	for <lists+stable@lfdr.de>; Sat, 23 May 2020 07:22:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387457AbgEWFWn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 23 May 2020 01:22:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55002 "EHLO mail.kernel.org"
+        id S2387582AbgEWFWy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 23 May 2020 01:22:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55176 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387426AbgEWFWn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 23 May 2020 01:22:43 -0400
+        id S2387517AbgEWFWv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 23 May 2020 01:22:51 -0400
 Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7A9CA2072C;
-        Sat, 23 May 2020 05:22:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 721B52072C;
+        Sat, 23 May 2020 05:22:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590211362;
-        bh=2yhhuYGGaY84kljBIC8q+s1fdhs2AOKMd8coz0sCrgA=;
+        s=default; t=1590211370;
+        bh=QQglbWmPgUr5vTOf+1zOUyAT8qRzcqCOLjnra1dJ/x4=;
         h=Date:From:To:Subject:In-Reply-To:From;
-        b=EP993AziQhMOqBk3mc23BTS8FQ0LYUpetGgNNXPwwhr5oQj4XHT0TC0GUF+0IgNMq
-         cFWWRMSa73beP5ZO1RIDL+uhhI58nYyLcBh/dykrqCo+GS+d3EqootTdXGKZwMcTwg
-         2ejb5yWkmWsvmx3/lFVVX3OTmy8JXQftFijEmrbQ=
-Date:   Fri, 22 May 2020 22:22:42 -0700
+        b=uBIitKjK7GPd1+GMyH4wt2eFo2jX+tIcSSS3lh7IKrMutl1JIIQMw8pvuTRIspYVo
+         m9jZOrMUPLnlQfzKwzGRoih+bhnXL1o2Mq31XRpWPCK+kPFTlzAmQbFFPibdTfGGLN
+         qTDSrr6YTBKZ1PBm4d/GPV0153AXa40z4/hmsDAc=
+Date:   Fri, 22 May 2020 22:22:48 -0700
 From:   Andrew Morton <akpm@linux-foundation.org>
-To:     akpm@linux-foundation.org, dan.j.williams@intel.com,
-        dave.jiang@intel.com, david@redhat.com, linux-mm@kvack.org,
-        mm-commits@vger.kernel.org, pasha.tatashin@soleen.com,
-        stable@vger.kernel.org, torvalds@linux-foundation.org,
-        vishal.l.verma@intel.com
-Subject:  [patch 01/11] device-dax: don't leak kernel memory to
- user space after unloading kmem
-Message-ID: <20200523052242.zhORsI9Zg%akpm@linux-foundation.org>
+To:     akpm@linux-foundation.org, alex.bou9@gmail.com,
+        dan.carpenter@oracle.com, jhubbard@nvidia.com, linux-mm@kvack.org,
+        mm-commits@vger.kernel.org, mporter@kernel.crashing.org,
+        stable@vger.kernel.org, sumit.semwal@linaro.org,
+        torvalds@linux-foundation.org
+Subject:  [patch 03/11] rapidio: fix an error in
+ get_user_pages_fast() error handling
+Message-ID: <20200523052248.tWpCIO_Wo%akpm@linux-foundation.org>
 In-Reply-To: <20200522222217.ee14ad7eda7aab1e6697da6c@linux-foundation.org>
 User-Agent: s-nail v14.8.16
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-=46rom: David Hildenbrand <david@redhat.com>
-Subject: device-dax: don't leak kernel memory to user space after unloading=
- kmem
+From: John Hubbard <jhubbard@nvidia.com>
+Subject: rapidio: fix an error in get_user_pages_fast() error handling
 
-Assume we have kmem configured and loaded:
-  [root@localhost ~]# cat /proc/iomem
-  ...
-  140000000-33fffffff : Persistent Memory$
-    140000000-1481fffff : namespace0.0
-    150000000-33fffffff : dax0.0
-      150000000-33fffffff : System RAM
+In the case of get_user_pages_fast() returning fewer pages than requested,
+rio_dma_transfer() does not quite do the right thing.  It attempts to
+release all the pages that were requested, rather than just the pages that
+were pinned.
 
-Assume we try to unload kmem. This force-unloading will work, even if
-memory cannot get removed from the system.
-  [root@localhost ~]# rmmod kmem
-  [   86.380228] removing memory fails, because memory [0x0000000150000000-=
-0x0000000157ffffff] is onlined
-  ...
-  [   86.431225] kmem dax0.0: DAX region [mem 0x150000000-0x33fffffff] cann=
-ot be hotremoved until the next reboot
+Fix the error handling so that only the pages that were successfully
+pinned are released.
 
-Now, we can reconfigure the namespace:
-  [root@localhost ~]# ndctl create-namespace --force --reconfig=3Dnamespace=
-0.0 --mode=3Ddevdax
-  [  131.409351] nd_pmem namespace0.0: could not reserve region [mem 0x1400=
-00000-0x33fffffff]dax
-  [  131.410147] nd_pmem: probe of namespace0.0 failed with error -16namesp=
-ace0.0 --mode=3Ddevdax
-  ...
-
-This fails as expected due to the busy memory resource, and the memory
-cannot be used. However, the dax0.0 device is removed, and along its name.
-
-The name of the memory resource now points at freed memory (name of the
-device).
-  [root@localhost ~]# cat /proc/iomem
-  ...
-  140000000-33fffffff : Persistent Memory
-    140000000-1481fffff : namespace0.0
-    150000000-33fffffff : =EF=BF=BD_=EF=BF=BD^7_=EF=BF=BD=EF=BF=BD/_=EF=BF=
-=BD=EF=BF=BDwR=EF=BF=BD=EF=BF=BDWQ=EF=BF=BD=EF=BF=BD=EF=BF=BD^=EF=BF=BD=EF=
-=BF=BD=EF=BF=BD ...
-    150000000-33fffffff : System RAM
-
-We have to make sure to duplicate the string.  While at it, remove the
-superfluous setting of the name and fixup a stale comment.
-
-Link: http://lkml.kernel.org/r/20200508084217.9160-2-david@redhat.com
-Fixes: 9f960da72b25 ("device-dax: "Hotremove" persistent memory that is use=
-d like normal RAM")
-Signed-off-by: David Hildenbrand <david@redhat.com>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Vishal Verma <vishal.l.verma@intel.com>
-Cc: Dave Jiang <dave.jiang@intel.com>
-Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: <stable@vger.kernel.org>	[5.3]
+Link: http://lkml.kernel.org/r/20200517235620.205225-2-jhubbard@nvidia.com
+Fixes: e8de370188d0 ("rapidio: add mport char device driver")
+Signed-off-by: John Hubbard <jhubbard@nvidia.com>
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Matt Porter <mporter@kernel.crashing.org>
+Cc: Alexandre Bounine <alex.bou9@gmail.com>
+Cc: Sumit Semwal <sumit.semwal@linaro.org>
+Cc: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- drivers/dax/kmem.c |   14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ drivers/rapidio/devices/rio_mport_cdev.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/drivers/dax/kmem.c~device-dax-dont-leak-kernel-memory-to-user-space-a=
-fter-unloading-kmem
-+++ a/drivers/dax/kmem.c
-@@ -22,6 +22,7 @@ int dev_dax_kmem_probe(struct device *de
- 	resource_size_t kmem_size;
- 	resource_size_t kmem_end;
- 	struct resource *new_res;
-+	const char *new_res_name;
- 	int numa_node;
- 	int rc;
-=20
-@@ -48,11 +49,16 @@ int dev_dax_kmem_probe(struct device *de
- 	kmem_size &=3D ~(memory_block_size_bytes() - 1);
- 	kmem_end =3D kmem_start + kmem_size;
-=20
--	/* Region is permanently reserved.  Hot-remove not yet implemented. */
--	new_res =3D request_mem_region(kmem_start, kmem_size, dev_name(dev));
-+	new_res_name =3D kstrdup(dev_name(dev), GFP_KERNEL);
-+	if (!new_res_name)
-+		return -ENOMEM;
-+
-+	/* Region is permanently reserved if hotremove fails. */
-+	new_res =3D request_mem_region(kmem_start, kmem_size, new_res_name);
- 	if (!new_res) {
- 		dev_warn(dev, "could not reserve region [%pa-%pa]\n",
- 			 &kmem_start, &kmem_end);
-+		kfree(new_res_name);
- 		return -EBUSY;
- 	}
-=20
-@@ -63,12 +69,12 @@ int dev_dax_kmem_probe(struct device *de
- 	 * unknown to us that will break add_memory() below.
- 	 */
- 	new_res->flags =3D IORESOURCE_SYSTEM_RAM;
--	new_res->name =3D dev_name(dev);
-=20
- 	rc =3D add_memory(numa_node, new_res->start, resource_size(new_res));
- 	if (rc) {
- 		release_resource(new_res);
- 		kfree(new_res);
-+		kfree(new_res_name);
- 		return rc;
- 	}
- 	dev_dax->dax_kmem_res =3D new_res;
-@@ -83,6 +89,7 @@ static int dev_dax_kmem_remove(struct de
- 	struct resource *res =3D dev_dax->dax_kmem_res;
- 	resource_size_t kmem_start =3D res->start;
- 	resource_size_t kmem_size =3D resource_size(res);
-+	const char *res_name =3D res->name;
- 	int rc;
-=20
- 	/*
-@@ -102,6 +109,7 @@ static int dev_dax_kmem_remove(struct de
- 	/* Release and free dax resources */
- 	release_resource(res);
- 	kfree(res);
-+	kfree(res_name);
- 	dev_dax->dax_kmem_res =3D NULL;
-=20
- 	return 0;
+--- a/drivers/rapidio/devices/rio_mport_cdev.c~rapidio-fix-an-error-in-get_user_pages_fast-error-handling
++++ a/drivers/rapidio/devices/rio_mport_cdev.c
+@@ -877,6 +877,11 @@ rio_dma_transfer(struct file *filp, u32
+ 				rmcd_error("pinned %ld out of %ld pages",
+ 					   pinned, nr_pages);
+ 			ret = -EFAULT;
++			/*
++			 * Set nr_pages up to mean "how many pages to unpin, in
++			 * the error handler:
++			 */
++			nr_pages = pinned;
+ 			goto err_pg;
+ 		}
+ 
 _
