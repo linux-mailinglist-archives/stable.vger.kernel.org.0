@@ -2,150 +2,181 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F15F1DF5FA
-	for <lists+stable@lfdr.de>; Sat, 23 May 2020 10:14:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DA321DF60C
+	for <lists+stable@lfdr.de>; Sat, 23 May 2020 10:42:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387512AbgEWIOD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 23 May 2020 04:14:03 -0400
-Received: from smtp1.de.adit-jv.com ([93.241.18.167]:46584 "EHLO
-        smtp1.de.adit-jv.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387471AbgEWIOD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 23 May 2020 04:14:03 -0400
-Received: from localhost (smtp1.de.adit-jv.com [127.0.0.1])
-        by smtp1.de.adit-jv.com (Postfix) with ESMTP id A3B733C04C1;
-        Sat, 23 May 2020 10:13:59 +0200 (CEST)
-Received: from smtp1.de.adit-jv.com ([127.0.0.1])
-        by localhost (smtp1.de.adit-jv.com [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id FXhyqC6y9xiR; Sat, 23 May 2020 10:13:53 +0200 (CEST)
-Received: from HI2EXCH01.adit-jv.com (hi2exch01.adit-jv.com [10.72.92.24])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-SHA384 (256/256 bits))
+        id S2387512AbgEWIms (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 23 May 2020 04:42:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54216 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2387471AbgEWIms (ORCPT <rfc822;Stable@vger.kernel.org>);
+        Sat, 23 May 2020 04:42:48 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by smtp1.de.adit-jv.com (Postfix) with ESMTPS id A96693C001F;
-        Sat, 23 May 2020 10:13:53 +0200 (CEST)
-Received: from lxhi-065.adit-jv.com (10.72.94.4) by HI2EXCH01.adit-jv.com
- (10.72.92.24) with Microsoft SMTP Server (TLS) id 14.3.487.0; Sat, 23 May
- 2020 10:13:53 +0200
-From:   Eugeniu Rosca <erosca@de.adit-jv.com>
-To:     Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
-CC:     Mauro Carvalho Chehab <mchehab@kernel.org>,
-        <linux-media@vger.kernel.org>, <linux-renesas-soc@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>,
-        Eugeniu Rosca <roscaeugeniu@gmail.com>,
-        Eugeniu Rosca <erosca@de.adit-jv.com>, <stable@vger.kernel.org>
-Subject: [PATCH] media: vsp1: dl: Fix NULL pointer dereference on unbind
-Date:   Sat, 23 May 2020 10:13:34 +0200
-Message-ID: <20200523081334.23531-1-erosca@de.adit-jv.com>
-X-Mailer: git-send-email 2.26.2
+        by mail.kernel.org (Postfix) with ESMTPSA id AE46F206C3;
+        Sat, 23 May 2020 08:42:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1590223367;
+        bh=wq+uPyOpMieZEQsK8qUKEzIBHtltueSIwPOvOgeJBnM=;
+        h=Subject:To:From:Date:From;
+        b=EFaF+5jC5Bj2aTByBYttvR+P7TPy4hQ2kzSx95477N7isROkVT8X/u0S3zJRmo5nm
+         eYcRImu2bUhKUm0NrUzgTIoFlBfjOef2hxGqeD9jQrMcizBG4o5xztidldm+ajwDJH
+         gwgAsB27JZ73zMtC5h9hXZiNitsrEJkKIplhjCwE=
+Subject: patch "iio: adc: stm32-adc: fix a wrong error message when probing" added to staging-next
+To:     fabrice.gasnier@st.com, Jonathan.Cameron@huawei.com,
+        Stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Sat, 23 May 2020 10:41:38 +0200
+Message-ID: <1590223298890@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [10.72.94.4]
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-v4.19 commit f3b98e3c4d2e16 ("media: vsp1: Provide support for extended
-command pools") introduced below issue [*], consistently reproduced.
 
-In order to fix it, inspire from the sibling/predecessor v4.18-rc1
-commit 5de0473982aab2 ("media: vsp1: Provide a body pool"), which saves
-the vsp1 instance address in vsp1_dl_body_pool_create().
+This is a note to let you know that I've just added the patch titled
 
-[*] h3ulcb-kf #>
-echo fea28000.vsp > /sys/bus/platform/devices/fea28000.vsp/driver/unbind
- Unable to handle kernel NULL pointer dereference at virtual address 0000000000000028
- Mem abort info:
-   ESR = 0x96000006
-   EC = 0x25: DABT (current EL), IL = 32 bits
-   SET = 0, FnV = 0
-   EA = 0, S1PTW = 0
- Data abort info:
-   ISV = 0, ISS = 0x00000006
-   CM = 0, WnR = 0
- user pgtable: 4k pages, 48-bit VAs, pgdp=00000007318be000
- [0000000000000028] pgd=00000007333a1003, pud=00000007333a6003, pmd=0000000000000000
- Internal error: Oops: 96000006 [#1] PREEMPT SMP
- Modules linked in:
- CPU: 1 PID: 486 Comm: sh Not tainted 5.7.0-rc6-arm64-renesas-00118-ge644645abf47 #185
- Hardware name: Renesas H3ULCB Kingfisher board based on r8a77951 (DT)
- pstate: 40000005 (nZcv daif -PAN -UAO)
- pc : vsp1_dlm_destroy+0xe4/0x11c
- lr : vsp1_dlm_destroy+0xc8/0x11c
- sp : ffff800012963b60
- x29: ffff800012963b60 x28: ffff0006f83fc440
- x27: 0000000000000000 x26: ffff0006f5e13e80
- x25: ffff0006f5e13ed0 x24: ffff0006f5e13ed0
- x23: ffff0006f5e13ed0 x22: dead000000000122
- x21: ffff0006f5e3a080 x20: ffff0006f5df2938
- x19: ffff0006f5df2980 x18: 0000000000000003
- x17: 0000000000000000 x16: 0000000000000016
- x15: 0000000000000003 x14: 00000000000393c0
- x13: ffff800011a5ec18 x12: ffff800011d8d000
- x11: ffff0006f83fcc68 x10: ffff800011a53d70
- x9 : ffff8000111f3000 x8 : 0000000000000000
- x7 : 0000000000210d00 x6 : 0000000000000000
- x5 : ffff800010872e60 x4 : 0000000000000004
- x3 : 0000000078068000 x2 : ffff800012781000
- x1 : 0000000000002c00 x0 : 0000000000000000
- Call trace:
-  vsp1_dlm_destroy+0xe4/0x11c
-  vsp1_wpf_destroy+0x10/0x20
-  vsp1_entity_destroy+0x24/0x4c
-  vsp1_destroy_entities+0x54/0x130
-  vsp1_remove+0x1c/0x40
-  platform_drv_remove+0x28/0x50
-  __device_release_driver+0x178/0x220
-  device_driver_detach+0x44/0xc0
-  unbind_store+0xe0/0x104
-  drv_attr_store+0x20/0x30
-  sysfs_kf_write+0x48/0x70
-  kernfs_fop_write+0x148/0x230
-  __vfs_write+0x18/0x40
-  vfs_write+0xdc/0x1c4
-  ksys_write+0x68/0xf0
-  __arm64_sys_write+0x18/0x20
-  el0_svc_common.constprop.0+0x70/0x170
-  do_el0_svc+0x20/0x80
-  el0_sync_handler+0x134/0x1b0
-  el0_sync+0x140/0x180
- Code: b40000c2 f9403a60 d2800084 a9400663 (f9401400)
- ---[ end trace 3875369841fb288a ]---
+    iio: adc: stm32-adc: fix a wrong error message when probing
 
-Fixes: f3b98e3c4d2e16 ("media: vsp1: Provide support for extended command pools")
-Cc: stable@vger.kernel.org # v4.19+
-Signed-off-by: Eugeniu Rosca <erosca@de.adit-jv.com>
+to my staging git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
+in the staging-next branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will also be merged in the next major kernel release
+during the merge window.
+
+If you have any questions about this process, please let me know.
+
+
+From 10134ec3f8cefa6a40fe84987f1795e9e0da9715 Mon Sep 17 00:00:00 2001
+From: Fabrice Gasnier <fabrice.gasnier@st.com>
+Date: Tue, 12 May 2020 15:27:05 +0200
+Subject: iio: adc: stm32-adc: fix a wrong error message when probing
+ interrupts
+
+A wrong error message is printed out currently, like on STM32MP15:
+- stm32-adc-core 48003000.adc: IRQ index 2 not found.
+
+This is seen since commit 7723f4c5ecdb ("driver core: platform: Add an
+error message to platform_get_irq*()").
+The STM32 ADC core driver wrongly requests up to 3 interrupt lines. It
+should request only the necessary IRQs, based on the compatible:
+- stm32f4/h7 ADCs share a common interrupt
+- stm32mp1, has one interrupt line per ADC.
+So add the number of required interrupts to the compatible data.
+
+Fixes: d58c67d1d851 ("iio: adc: stm32-adc: add support for STM32MP1")
+Signed-off-by: Fabrice Gasnier <fabrice.gasnier@st.com>
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 ---
+ drivers/iio/adc/stm32-adc-core.c | 34 +++++++++++++-------------------
+ 1 file changed, 14 insertions(+), 20 deletions(-)
 
-How about adding a new unit test perfoming unbind/rebind to
-http://git.ideasonboard.com/renesas/vsp-tests.git, to avoid
-such issues in future? 
-
-Locally, below command has been used to identify the problem:
-
-for f in $(find /sys/bus/platform/devices/ -name "*vsp*" -o -name "*fdp*"); do \
-     b=$(basename $f); \
-     echo $b > $f/driver/unbind; \
-done
-
----
- drivers/media/platform/vsp1/vsp1_dl.c | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/drivers/media/platform/vsp1/vsp1_dl.c b/drivers/media/platform/vsp1/vsp1_dl.c
-index d7b43037e500..e07b135613eb 100644
---- a/drivers/media/platform/vsp1/vsp1_dl.c
-+++ b/drivers/media/platform/vsp1/vsp1_dl.c
-@@ -431,6 +431,8 @@ vsp1_dl_cmd_pool_create(struct vsp1_device *vsp1, enum vsp1_extcmd_type type,
- 	if (!pool)
- 		return NULL;
+diff --git a/drivers/iio/adc/stm32-adc-core.c b/drivers/iio/adc/stm32-adc-core.c
+index 2df88d2b880a..0e2068ec068b 100644
+--- a/drivers/iio/adc/stm32-adc-core.c
++++ b/drivers/iio/adc/stm32-adc-core.c
+@@ -65,12 +65,14 @@ struct stm32_adc_priv;
+  * @clk_sel:	clock selection routine
+  * @max_clk_rate_hz: maximum analog clock rate (Hz, from datasheet)
+  * @has_syscfg: SYSCFG capability flags
++ * @num_irqs:	number of interrupt lines
+  */
+ struct stm32_adc_priv_cfg {
+ 	const struct stm32_adc_common_regs *regs;
+ 	int (*clk_sel)(struct platform_device *, struct stm32_adc_priv *);
+ 	u32 max_clk_rate_hz;
+ 	unsigned int has_syscfg;
++	unsigned int num_irqs;
+ };
  
-+	pool->vsp1 = vsp1;
-+
- 	spin_lock_init(&pool->lock);
- 	INIT_LIST_HEAD(&pool->free);
+ /**
+@@ -375,21 +377,15 @@ static int stm32_adc_irq_probe(struct platform_device *pdev,
+ 	struct device_node *np = pdev->dev.of_node;
+ 	unsigned int i;
  
+-	for (i = 0; i < STM32_ADC_MAX_ADCS; i++) {
++	/*
++	 * Interrupt(s) must be provided, depending on the compatible:
++	 * - stm32f4/h7 shares a common interrupt line.
++	 * - stm32mp1, has one line per ADC
++	 */
++	for (i = 0; i < priv->cfg->num_irqs; i++) {
+ 		priv->irq[i] = platform_get_irq(pdev, i);
+-		if (priv->irq[i] < 0) {
+-			/*
+-			 * At least one interrupt must be provided, make others
+-			 * optional:
+-			 * - stm32f4/h7 shares a common interrupt.
+-			 * - stm32mp1, has one line per ADC (either for ADC1,
+-			 *   ADC2 or both).
+-			 */
+-			if (i && priv->irq[i] == -ENXIO)
+-				continue;
+-
++		if (priv->irq[i] < 0)
+ 			return priv->irq[i];
+-		}
+ 	}
+ 
+ 	priv->domain = irq_domain_add_simple(np, STM32_ADC_MAX_ADCS, 0,
+@@ -400,9 +396,7 @@ static int stm32_adc_irq_probe(struct platform_device *pdev,
+ 		return -ENOMEM;
+ 	}
+ 
+-	for (i = 0; i < STM32_ADC_MAX_ADCS; i++) {
+-		if (priv->irq[i] < 0)
+-			continue;
++	for (i = 0; i < priv->cfg->num_irqs; i++) {
+ 		irq_set_chained_handler(priv->irq[i], stm32_adc_irq_handler);
+ 		irq_set_handler_data(priv->irq[i], priv);
+ 	}
+@@ -420,11 +414,8 @@ static void stm32_adc_irq_remove(struct platform_device *pdev,
+ 		irq_dispose_mapping(irq_find_mapping(priv->domain, hwirq));
+ 	irq_domain_remove(priv->domain);
+ 
+-	for (i = 0; i < STM32_ADC_MAX_ADCS; i++) {
+-		if (priv->irq[i] < 0)
+-			continue;
++	for (i = 0; i < priv->cfg->num_irqs; i++)
+ 		irq_set_chained_handler(priv->irq[i], NULL);
+-	}
+ }
+ 
+ static int stm32_adc_core_switches_supply_en(struct stm32_adc_priv *priv,
+@@ -817,6 +808,7 @@ static const struct stm32_adc_priv_cfg stm32f4_adc_priv_cfg = {
+ 	.regs = &stm32f4_adc_common_regs,
+ 	.clk_sel = stm32f4_adc_clk_sel,
+ 	.max_clk_rate_hz = 36000000,
++	.num_irqs = 1,
+ };
+ 
+ static const struct stm32_adc_priv_cfg stm32h7_adc_priv_cfg = {
+@@ -824,6 +816,7 @@ static const struct stm32_adc_priv_cfg stm32h7_adc_priv_cfg = {
+ 	.clk_sel = stm32h7_adc_clk_sel,
+ 	.max_clk_rate_hz = 36000000,
+ 	.has_syscfg = HAS_VBOOSTER,
++	.num_irqs = 1,
+ };
+ 
+ static const struct stm32_adc_priv_cfg stm32mp1_adc_priv_cfg = {
+@@ -831,6 +824,7 @@ static const struct stm32_adc_priv_cfg stm32mp1_adc_priv_cfg = {
+ 	.clk_sel = stm32h7_adc_clk_sel,
+ 	.max_clk_rate_hz = 40000000,
+ 	.has_syscfg = HAS_VBOOSTER | HAS_ANASWVDD,
++	.num_irqs = 2,
+ };
+ 
+ static const struct of_device_id stm32_adc_of_match[] = {
 -- 
 2.26.2
+
 
