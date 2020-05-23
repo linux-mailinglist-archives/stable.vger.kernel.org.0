@@ -2,313 +2,169 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A7201DF730
-	for <lists+stable@lfdr.de>; Sat, 23 May 2020 14:22:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 44D751DF746
+	for <lists+stable@lfdr.de>; Sat, 23 May 2020 14:40:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731298AbgEWMWs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 23 May 2020 08:22:48 -0400
-Received: from forward4-smtp.messagingengine.com ([66.111.4.238]:47955 "EHLO
-        forward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1731291AbgEWMWs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 23 May 2020 08:22:48 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 92D9919416B1;
-        Sat, 23 May 2020 08:22:46 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Sat, 23 May 2020 08:22:46 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=d6G713
-        yYgwfYrYouRL9zRWi11WwffORJqxJBMK4YzdU=; b=TcvOhqiu//6TVkEukoJeuE
-        cjArvwsb6AwQoljlCfOn78/kyWEPAxqh6PfXG5wpTQVpEMi1kkmQ0UOsRiKEQ0uX
-        FRQg9oGNdNWZNbE45u6MSNVOY/bO+X/2dRq8Fsp+/VcYxyCXdniyfWfD2R1Q2fPK
-        JtLAtQeN8MH9Ftl5h5TzNYgpmYP1exi3S2iLEHCv4wbARkM74x0/M/WBnn+oU5Wr
-        BefZVUjtNjRPAv942e6lo+4BYZw5+LXvuBn9/d72fe4PNqxCXVSibO7RLobwlpTR
-        pv2g0mFIBvCh0qEA5HYa6PQ9MyCL/8VeKr66U8gSxpVravAM3Cz/fmJcjSMAv18g
-        ==
-X-ME-Sender: <xms:lhXJXkKnfAN7oNE6GBb74BH9DSi4X_t9FaTFBmSHw-aC7kC8bjvd8w>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudduhedghedvucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepieffjeffudevvdeijeehgeeflefffeffvddvieevte
-    egjeegfeeuffevfffgtedvnecuffhomhgrihhnpehlihgrmhgurdgtohhmnecukfhppeek
-    fedrkeeirdekledruddtjeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
-    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:lhXJXkKfJi-Ym7JjMYmjLb7jcsR-zr8rfAylpOjgX_guiocVPEEofg>
-    <xmx:lhXJXktzv8qkXV1I19ouoDYAgWPQmN8CcX68Pw7Njl2yXXBPRVsc6g>
-    <xmx:lhXJXhblIO33kb1ieFU8WXoTVCSVTam0COdhdZk6oE_hhcFuFltvtQ>
-    <xmx:lhXJXiw9C-Hc0NO5a2MCGy9YXuTXtA1_xb12AggsxvFxz_RJWRxWlw>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 22EE130664B6;
-        Sat, 23 May 2020 08:22:46 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] drm/amd/display: Fix vblank and pageflip event handling for" failed to apply to 5.6-stable tree
-To:     nicholas.kazlauskas@amd.com, alexander.deucher@amd.com,
-        mario.kleiner.de@gmail.com, sunpeng.li@amd.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 23 May 2020 14:22:10 +0200
-Message-ID: <159023653076174@kroah.com>
+        id S1728969AbgEWMk2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 23 May 2020 08:40:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34038 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726671AbgEWMk2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 23 May 2020 08:40:28 -0400
+Received: from mail-pg1-x542.google.com (mail-pg1-x542.google.com [IPv6:2607:f8b0:4864:20::542])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D00B1C061A0E
+        for <stable@vger.kernel.org>; Sat, 23 May 2020 05:40:26 -0700 (PDT)
+Received: by mail-pg1-x542.google.com with SMTP id p30so6262787pgl.11
+        for <stable@vger.kernel.org>; Sat, 23 May 2020 05:40:26 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=zx4Dlu7gRhX3u8qAYGi71NDSpT8Jw3gx+TPCipL4bgM=;
+        b=KQZ2amMm4x+zsseHrVwImwyBWt+DQ32u5488kQ84YJ0iJfj+oUnDL8OPw80UQ5ADVL
+         ohu3n4yTemz5ypkv+DXCkDluRo6BF0hPV7CKHyQjrdwe7W/ZmKLLIJY4zH3J2jO4oyTT
+         k6pg5HGv4M0Du/z2WpUMxU8cQix1bHvoqgNOBi6cAzblR7BP1vxIm/RV0QXwFxd6w7C1
+         cqWpPq6Lz7+rBsYiADpt7UolRKsnCgy3PMMe5L8tYNkD7s189iiRbyhrcQWpO7rveEBD
+         JYQup5he2PYTsdeXATTatq9gSDVId5WFcdRnssbdhEXJaZHJ07S3M+ND8OVbQKhMiyes
+         14fA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=zx4Dlu7gRhX3u8qAYGi71NDSpT8Jw3gx+TPCipL4bgM=;
+        b=gyyczwjNi+RZeuPivgAXra5KzZ/rAqcO1YyVl08goPROtxYjnI5dzf9OPsIVJrWSWy
+         ZRD3B21huxnIkthCPJnRJEatX1hXaRji76DJld+JH7Ej8B7GRidxI8I3bbn60rsPNZ5w
+         T3LIJj0vIWrMDjANNTc1v4fBv2I69CWjoDP+i4g5hjMCvEKbdFef5ydue19Jqug8DBAG
+         4tbtOnCOdOLL+tUFU9wrYWrnGtmhW0ZXVtViSVxKaa3xC4Ke59NUa9KfKmpwrsUdN3ZU
+         is+ysDoHU82C6uh8c/amUiuSA5lVUwnsKM1FJ+c3fKZUk1F5X/uO4W9Hq05J/qNK35fG
+         PgWg==
+X-Gm-Message-State: AOAM530v/07uz5avNbj9YjcBWFNXDTCzX44j0QDy8esQeh0kSKvWgv9c
+        5UdjJoFPRXM5m2rWtR4n4dEgcZxWfOQ=
+X-Google-Smtp-Source: ABdhPJwYokdvCSBSjom7zW0IY+8l3aFIPtmkTKO8MPb0pP+IlNe+pSVXYh4HHhiq7+R9oDp7FK5DiA==
+X-Received: by 2002:a62:19cf:: with SMTP id 198mr8432554pfz.247.1590237626094;
+        Sat, 23 May 2020 05:40:26 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id a27sm8311463pgn.62.2020.05.23.05.40.24
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 23 May 2020 05:40:25 -0700 (PDT)
+Message-ID: <5ec919b9.1c69fb81.86a88.5e85@mx.google.com>
+Date:   Sat, 23 May 2020 05:40:25 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable
+X-Kernelci-Kernel: v3.16.84
+X-Kernelci-Report-Type: boot
+X-Kernelci-Branch: linux-3.16.y
+Subject: stable/linux-3.16.y boot: 35 boots: 31 failed,
+ 0 passed with 4 untried/unknown (v3.16.84)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+******************************************
+* WARNING: Boot tests are now deprecated *
+******************************************
 
-The patch below does not apply to the 5.6-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+As kernelci.org is expanding its functional testing capabilities, the conce=
+pt
+of boot testing is now deprecated.  Boot results are scheduled to be droppe=
+d on
+*5th June 2020*.  The full schedule for boot tests deprecation is available=
+ on
+this GitHub issue: https://github.com/kernelci/kernelci-backend/issues/238
 
-thanks,
+The new equivalent is the *baseline* test suite which also runs sanity chec=
+ks
+using dmesg and bootrr: https://github.com/kernelci/bootrr
 
-greg k-h
+See the *baseline results for this kernel revision* on this page:
+https://kernelci.org/test/job/stable/branch/linux-3.16.y/kernel/v3.16.84/pl=
+an/baseline/
 
------------------- original commit in Linus's tree ------------------
+---------------------------------------------------------------------------=
+----
 
-From 2346ef47e871536cf4e36b77859bfdeb39b49024 Mon Sep 17 00:00:00 2001
-From: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Date: Wed, 6 May 2020 15:47:54 -0400
-Subject: [PATCH] drm/amd/display: Fix vblank and pageflip event handling for
- FreeSync
+stable/linux-3.16.y boot: 35 boots: 31 failed, 0 passed with 4 untried/unkn=
+own (v3.16.84)
 
-[Why]
-We're sending the drm vblank event a frame too early in the case where
-the pageflip happens close to VUPDATE and ends up blocking the signal.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-3.=
+16.y/kernel/v3.16.84/
+Full Build Summary: https://kernelci.org/build/stable/branch/linux-3.16.y/k=
+ernel/v3.16.84/
 
-The implementation in DM was previously correct *before* we started
-sending vblank events from VSTARTUP unconditionally to handle cases
-where HUBP was off, OTG was ON and userspace was still requesting some
-DRM planes enabled. As part of that patch series we dropped VUPDATE
-since it was deemed close enough to VSTARTUP, but there's a key
-difference betweeen VSTARTUP and VUPDATE - the VUPDATE signal can be
-blocked if we're holding the pipe lock.
+Tree: stable
+Branch: linux-3.16.y
+Git Describe: v3.16.84
+Git Commit: babf7e4a11200d94219dcebd64f50e6304bbde2e
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e.git
+Tested: 18 unique boards, 6 SoC families, 11 builds out of 187
 
-There was a fix recently to revert the unconditional behavior for the
-DCN VSTARTUP vblank event since it was sending the pageflip event on
-the wrong frame - once again, due to blocking VUPDATE and having the
-address start scanning out two frames later.
+Boot Failures Detected:
 
-The problem with this fix is it didn't update the logic that calls
-drm_crtc_handle_vblank(), so the timestamps are totally bogus now.
+i386:
+    i386_defconfig:
+        gcc-8:
+            qemu_i386: 1 failed lab
 
-[How]
-Essentially reverts most of the original VSTARTUP series but retains
-the behavior to send back events when active planes == 0.
+x86_64:
+    x86_64_defconfig:
+        gcc-8:
+            minnowboard-turbot-E3826: 1 failed lab
+            qemu_x86_64: 1 failed lab
 
-Some refactoring/cleanup was done to not have duplicated code in both
-the handlers.
+arm:
+    imx_v4_v5_defconfig:
+        gcc-8:
+            imx27-phytec-phycard-s-rdk: 1 failed lab
 
-Fixes: 16f17eda8bad ("drm/amd/display: Send vblank and user events at vsartup for DCN")
-Fixes: 3a2ce8d66a4b ("drm/amd/display: Disable VUpdate interrupt for DCN hardware")
-Fixes: 2b5aed9ac3f7 ("drm/amd/display: Fix pageflip event race condition for DCN.")
+    tegra_defconfig:
+        gcc-8:
+            tegra124-jetson-tk1: 2 failed labs
 
-Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Reviewed-and-Tested-by: Mario Kleiner <mario.kleiner.de@gmail.com>
-Reviewed-by: Leo Li <sunpeng.li@amd.com>
-Acked-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org # 5.6.x
+    multi_v7_defconfig:
+        gcc-8:
+            imx27-phytec-phycard-s-rdk: 1 failed lab
+            imx53-qsrb: 1 failed lab
+            imx6dl-riotboard: 1 failed lab
+            imx6q-sabrelite: 2 failed labs
+            omap4-panda: 2 failed labs
+            qemu_arm-virt-gicv2: 1 failed lab
+            qemu_arm-virt-gicv3: 1 failed lab
+            sun4i-a10-olinuxino-lime: 1 failed lab
+            sun5i-a13-olinuxino-micro: 1 failed lab
+            sun7i-a20-cubieboard2: 1 failed lab
+            tegra124-jetson-tk1: 2 failed labs
 
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-index 9c83c1303f08..c3df6ef9f101 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -441,7 +441,7 @@ static void dm_vupdate_high_irq(void *interrupt_params)
- 
- /**
-  * dm_crtc_high_irq() - Handles CRTC interrupt
-- * @interrupt_params: ignored
-+ * @interrupt_params: used for determining the CRTC instance
-  *
-  * Handles the CRTC/VSYNC interrupt by notfying DRM's VBLANK
-  * event handler.
-@@ -455,70 +455,6 @@ static void dm_crtc_high_irq(void *interrupt_params)
- 	unsigned long flags;
- 
- 	acrtc = get_crtc_by_otg_inst(adev, irq_params->irq_src - IRQ_TYPE_VBLANK);
--
--	if (acrtc) {
--		acrtc_state = to_dm_crtc_state(acrtc->base.state);
--
--		DRM_DEBUG_VBL("crtc:%d, vupdate-vrr:%d\n",
--			      acrtc->crtc_id,
--			      amdgpu_dm_vrr_active(acrtc_state));
--
--		/* Core vblank handling at start of front-porch is only possible
--		 * in non-vrr mode, as only there vblank timestamping will give
--		 * valid results while done in front-porch. Otherwise defer it
--		 * to dm_vupdate_high_irq after end of front-porch.
--		 */
--		if (!amdgpu_dm_vrr_active(acrtc_state))
--			drm_crtc_handle_vblank(&acrtc->base);
--
--		/* Following stuff must happen at start of vblank, for crc
--		 * computation and below-the-range btr support in vrr mode.
--		 */
--		amdgpu_dm_crtc_handle_crc_irq(&acrtc->base);
--
--		if (acrtc_state->stream && adev->family >= AMDGPU_FAMILY_AI &&
--		    acrtc_state->vrr_params.supported &&
--		    acrtc_state->freesync_config.state == VRR_STATE_ACTIVE_VARIABLE) {
--			spin_lock_irqsave(&adev->ddev->event_lock, flags);
--			mod_freesync_handle_v_update(
--				adev->dm.freesync_module,
--				acrtc_state->stream,
--				&acrtc_state->vrr_params);
--
--			dc_stream_adjust_vmin_vmax(
--				adev->dm.dc,
--				acrtc_state->stream,
--				&acrtc_state->vrr_params.adjust);
--			spin_unlock_irqrestore(&adev->ddev->event_lock, flags);
--		}
--	}
--}
--
--#if defined(CONFIG_DRM_AMD_DC_DCN)
--/**
-- * dm_dcn_crtc_high_irq() - Handles VStartup interrupt for DCN generation ASICs
-- * @interrupt params - interrupt parameters
-- *
-- * Notify DRM's vblank event handler at VSTARTUP
-- *
-- * Unlike DCE hardware, we trigger the handler at VSTARTUP. at which:
-- * * We are close enough to VUPDATE - the point of no return for hw
-- * * We are in the fixed portion of variable front porch when vrr is enabled
-- * * We are before VUPDATE, where double-buffered vrr registers are swapped
-- *
-- * It is therefore the correct place to signal vblank, send user flip events,
-- * and update VRR.
-- */
--static void dm_dcn_crtc_high_irq(void *interrupt_params)
--{
--	struct common_irq_params *irq_params = interrupt_params;
--	struct amdgpu_device *adev = irq_params->adev;
--	struct amdgpu_crtc *acrtc;
--	struct dm_crtc_state *acrtc_state;
--	unsigned long flags;
--
--	acrtc = get_crtc_by_otg_inst(adev, irq_params->irq_src - IRQ_TYPE_VBLANK);
--
- 	if (!acrtc)
- 		return;
- 
-@@ -528,22 +464,35 @@ static void dm_dcn_crtc_high_irq(void *interrupt_params)
- 			 amdgpu_dm_vrr_active(acrtc_state),
- 			 acrtc_state->active_planes);
- 
-+	/**
-+	 * Core vblank handling at start of front-porch is only possible
-+	 * in non-vrr mode, as only there vblank timestamping will give
-+	 * valid results while done in front-porch. Otherwise defer it
-+	 * to dm_vupdate_high_irq after end of front-porch.
-+	 */
-+	if (!amdgpu_dm_vrr_active(acrtc_state))
-+		drm_crtc_handle_vblank(&acrtc->base);
-+
-+	/**
-+	 * Following stuff must happen at start of vblank, for crc
-+	 * computation and below-the-range btr support in vrr mode.
-+	 */
- 	amdgpu_dm_crtc_handle_crc_irq(&acrtc->base);
--	drm_crtc_handle_vblank(&acrtc->base);
-+
-+	/* BTR updates need to happen before VUPDATE on Vega and above. */
-+	if (adev->family < AMDGPU_FAMILY_AI)
-+		return;
- 
- 	spin_lock_irqsave(&adev->ddev->event_lock, flags);
- 
--	if (acrtc_state->vrr_params.supported &&
-+	if (acrtc_state->stream && acrtc_state->vrr_params.supported &&
- 	    acrtc_state->freesync_config.state == VRR_STATE_ACTIVE_VARIABLE) {
--		mod_freesync_handle_v_update(
--		adev->dm.freesync_module,
--		acrtc_state->stream,
--		&acrtc_state->vrr_params);
-+		mod_freesync_handle_v_update(adev->dm.freesync_module,
-+					     acrtc_state->stream,
-+					     &acrtc_state->vrr_params);
- 
--		dc_stream_adjust_vmin_vmax(
--			adev->dm.dc,
--			acrtc_state->stream,
--			&acrtc_state->vrr_params.adjust);
-+		dc_stream_adjust_vmin_vmax(adev->dm.dc, acrtc_state->stream,
-+					   &acrtc_state->vrr_params.adjust);
- 	}
- 
- 	/*
-@@ -556,7 +505,8 @@ static void dm_dcn_crtc_high_irq(void *interrupt_params)
- 	 * avoid race conditions between flip programming and completion,
- 	 * which could cause too early flip completion events.
- 	 */
--	if (acrtc->pflip_status == AMDGPU_FLIP_SUBMITTED &&
-+	if (adev->family >= AMDGPU_FAMILY_RV &&
-+	    acrtc->pflip_status == AMDGPU_FLIP_SUBMITTED &&
- 	    acrtc_state->active_planes == 0) {
- 		if (acrtc->event) {
- 			drm_crtc_send_vblank_event(&acrtc->base, acrtc->event);
-@@ -568,7 +518,6 @@ static void dm_dcn_crtc_high_irq(void *interrupt_params)
- 
- 	spin_unlock_irqrestore(&adev->ddev->event_lock, flags);
- }
--#endif
- 
- static int dm_set_clockgating_state(void *handle,
- 		  enum amd_clockgating_state state)
-@@ -2445,8 +2394,36 @@ static int dcn10_register_irq_handlers(struct amdgpu_device *adev)
- 		c_irq_params->adev = adev;
- 		c_irq_params->irq_src = int_params.irq_source;
- 
-+		amdgpu_dm_irq_register_interrupt(
-+			adev, &int_params, dm_crtc_high_irq, c_irq_params);
-+	}
-+
-+	/* Use VUPDATE_NO_LOCK interrupt on DCN, which seems to correspond to
-+	 * the regular VUPDATE interrupt on DCE. We want DC_IRQ_SOURCE_VUPDATEx
-+	 * to trigger at end of each vblank, regardless of state of the lock,
-+	 * matching DCE behaviour.
-+	 */
-+	for (i = DCN_1_0__SRCID__OTG0_IHC_V_UPDATE_NO_LOCK_INTERRUPT;
-+	     i <= DCN_1_0__SRCID__OTG0_IHC_V_UPDATE_NO_LOCK_INTERRUPT + adev->mode_info.num_crtc - 1;
-+	     i++) {
-+		r = amdgpu_irq_add_id(adev, SOC15_IH_CLIENTID_DCE, i, &adev->vupdate_irq);
-+
-+		if (r) {
-+			DRM_ERROR("Failed to add vupdate irq id!\n");
-+			return r;
-+		}
-+
-+		int_params.int_context = INTERRUPT_HIGH_IRQ_CONTEXT;
-+		int_params.irq_source =
-+			dc_interrupt_to_irq_source(dc, i, 0);
-+
-+		c_irq_params = &adev->dm.vupdate_params[int_params.irq_source - DC_IRQ_SOURCE_VUPDATE1];
-+
-+		c_irq_params->adev = adev;
-+		c_irq_params->irq_src = int_params.irq_source;
-+
- 		amdgpu_dm_irq_register_interrupt(adev, &int_params,
--				dm_dcn_crtc_high_irq, c_irq_params);
-+				dm_vupdate_high_irq, c_irq_params);
- 	}
- 
- 	/* Use GRPH_PFLIP interrupt */
-@@ -4453,10 +4430,6 @@ static inline int dm_set_vupdate_irq(struct drm_crtc *crtc, bool enable)
- 	struct amdgpu_device *adev = crtc->dev->dev_private;
- 	int rc;
- 
--	/* Do not set vupdate for DCN hardware */
--	if (adev->family > AMDGPU_FAMILY_AI)
--		return 0;
--
- 	irq_source = IRQ_TYPE_VUPDATE + acrtc->otg_inst;
- 
- 	rc = dc_interrupt_set(adev->dm.dc, irq_source, enable) ? 0 : -EBUSY;
+    sunxi_defconfig:
+        gcc-8:
+            sun5i-a13-olinuxino-micro: 1 failed lab
+            sun7i-a20-cubieboard2: 2 failed labs
 
+    omap2plus_defconfig:
+        gcc-8:
+            omap4-panda: 2 failed labs
+
+    imx_v6_v7_defconfig:
+        gcc-8:
+            imx27-phytec-phycard-s-rdk: 1 failed lab
+            imx53-qsrb: 1 failed lab
+            imx6dl-riotboard: 1 failed lab
+
+    multi_v5_defconfig:
+        gcc-8:
+            imx27-phytec-phycard-s-rdk: 1 failed lab
+
+arm64:
+    defconfig:
+        gcc-8:
+            qemu_arm64-virt-gicv2: 1 failed lab
+            qemu_arm64-virt-gicv3: 1 failed lab
+
+---
+For more info write to <info@kernelci.org>
