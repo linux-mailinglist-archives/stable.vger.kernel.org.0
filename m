@@ -2,168 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CFF461DF7F1
-	for <lists+stable@lfdr.de>; Sat, 23 May 2020 17:13:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 194A61DF9A3
+	for <lists+stable@lfdr.de>; Sat, 23 May 2020 19:33:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387883AbgEWPNJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 23 May 2020 11:13:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48952 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387867AbgEWPNJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 23 May 2020 11:13:09 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A71FB2071C;
-        Sat, 23 May 2020 15:13:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590246787;
-        bh=AzSatURo6hgJG9hfj5elmyoScqdGFmOA/nnPjlEkePk=;
-        h=Subject:To:From:Date:From;
-        b=NVSYhukFVUmhErpg/YtnsCC4tfZMUAkU+Ndg11Wfuyi7NncxrodA7fnBtX/GEoO4I
-         U7Vmlj05pDc8peUis7KURVfDbn/px6K/mJPU39B62By3axAWklPw02D1/sjogYeyk1
-         3KD6uUfCNZ4tSlpUof2mt0ESZ6eBQXcX07/Iz224=
-Subject: patch "Revert "kobject: Make sure the parent does not get released before" added to driver-core-linus
-To:     gregkh@linuxfoundation.org, brendanhiggins@google.com,
-        heikki.krogerus@linux.intel.com, linux@roeck-us.net,
-        naresh.kamboju@linaro.org, rafael@kernel.org,
-        rdunlap@infradead.org, rong.a.chen@intel.com,
+        id S2388123AbgEWRdN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 23 May 2020 13:33:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51490 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728044AbgEWRdM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 23 May 2020 13:33:12 -0400
+Received: from mo6-p01-ob.smtp.rzone.de (mo6-p01-ob.smtp.rzone.de [IPv6:2a01:238:20a:202:5301::4])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E74E1C061A0E;
+        Sat, 23 May 2020 10:33:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1590255189;
+        s=strato-dkim-0002; d=goldelico.com;
+        h=References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:
+        X-RZG-CLASS-ID:X-RZG-AUTH:From:Subject:Sender;
+        bh=YSIrxjOw32Ako2eh+MgWxJf5VvDsicctHOxFg58objU=;
+        b=Pc2G0Qrqpy0kr7QWSTzBLetDls162oCE6AbESF31m3ibrPm2aW6ZH8FYJBBF1bJRLj
+        /0FjCuvXlzOSzu86Kl8yM1Tu5quI9x3yBYL02VHWbySe0in2ObJIfWdG6Fe/SB6640u1
+        m38BJzeakYWnRVyHx055icQZ6pjbLvNXF4DK3ILsb6UNBq0kLp0vZRJ14svTGiW0AV19
+        yZDzIGC6UDE84X2PUlGd3S2uTEAP7EgqXcEOo1sj5CHixYr34sZ9sa26SgUbMMyDSrAR
+        3PVyTsuxo82UcK3FNRv8PdWASEHI+XeogUheKURcVfJKIex5sOpCaM/xEq0pvzp0i7GH
+        BFPA==
+X-RZG-AUTH: ":JGIXVUS7cutRB/49FwqZ7WcJeFKiMhflhwDubTJ9o19MtK65S+//9m1YB9g="
+X-RZG-CLASS-ID: mo00
+Received: from iMac.fritz.box
+        by smtp.strato.de (RZmta 46.7.0 AUTH)
+        with ESMTPSA id D0a7c0w4NHX0Fab
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256 bits))
+        (Client did not present a certificate);
+        Sat, 23 May 2020 19:33:00 +0200 (CEST)
+From:   "H. Nikolaus Schaller" <hns@goldelico.com>
+To:     Evgeniy Polyakov <zbr@ioremap.net>,
+        "H. Nikolaus Schaller" <hns@goldelico.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        YueHaibing <yuehaibing@huawei.com>,
+        Tony Lindgren <tony@atomide.com>
+Cc:     linux-kernel@vger.kernel.org, kernel@pyra-handheld.com,
+        letux-kernel@openphoenux.org, linux-omap@vger.kernel.org,
         stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 23 May 2020 17:13:04 +0200
-Message-ID: <159024678421391@kroah.com>
+Subject: [PATCH 1/4] w1: omap-hdq: cleanup to add missing newline for some dev_dbg
+Date:   Sat, 23 May 2020 19:32:54 +0200
+Message-Id: <cd0d55749a091214106575f6e1d363c6db56622f.1590255176.git.hns@goldelico.com>
+X-Mailer: git-send-email 2.26.2
+In-Reply-To: <cover.1590255176.git.hns@goldelico.com>
+References: <cover.1590255176.git.hns@goldelico.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Otherwise it will corrupt the console log during debugging.
 
-This is a note to let you know that I've just added the patch titled
-
-    Revert "kobject: Make sure the parent does not get released before
-
-to my driver-core git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/driver-core.git
-in the driver-core-linus branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
-
-
-From e6764aa0e5530066dd969eccea2a1a7d177859a8 Mon Sep 17 00:00:00 2001
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Date: Sat, 23 May 2020 17:11:11 +0200
-Subject: Revert "kobject: Make sure the parent does not get released before
- its children"
-
-This reverts commit 4ef12f7198023c09ad6d25b652bd8748c965c7fa.
-
-Guenter reports:
-
-	All my arm64be (arm64 big endian) boot tests crash with this
-	patch applied. Reverting it fixes the problem. Crash log and
-	bisect results (from pending-fixes branch) below.
-
-And also:
-	arm64 images don't crash but report lots of "poison overwritten"
-	backtraces like the one below. On arm, I see "refcount_t:
-	underflow", also attached.  I didn't bisect those, but given the
-	context I would suspect the same culprit.
-
-Reported-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/20200513151840.36400-1-heikki.krogerus@linux.intel.com
-Cc: Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc: kernel test robot <rong.a.chen@intel.com>
-Cc: "Rafael J. Wysocki" <rafael@kernel.org>
-Cc: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Cc: Brendan Higgins <brendanhiggins@google.com>
-Cc: Randy Dunlap <rdunlap@infradead.org>
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 7b5362a603a1 ("w1: omap_hdq: Fix some error/debug handling.")
+Cc: stable@vger.kernel.org
+Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
 ---
- lib/kobject.c | 30 ++++++++++--------------------
- 1 file changed, 10 insertions(+), 20 deletions(-)
+ drivers/w1/masters/omap_hdq.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/lib/kobject.c b/lib/kobject.c
-index 2bd631460e18..83198cb37d8d 100644
---- a/lib/kobject.c
-+++ b/lib/kobject.c
-@@ -599,7 +599,14 @@ int kobject_move(struct kobject *kobj, struct kobject *new_parent)
- }
- EXPORT_SYMBOL_GPL(kobject_move);
- 
--static void __kobject_del(struct kobject *kobj)
-+/**
-+ * kobject_del() - Unlink kobject from hierarchy.
-+ * @kobj: object.
-+ *
-+ * This is the function that should be called to delete an object
-+ * successfully added via kobject_add().
-+ */
-+void kobject_del(struct kobject *kobj)
- {
- 	struct kernfs_node *sd;
- 	const struct kobj_type *ktype;
-@@ -618,23 +625,9 @@ static void __kobject_del(struct kobject *kobj)
- 
- 	kobj->state_in_sysfs = 0;
- 	kobj_kset_leave(kobj);
-+	kobject_put(kobj->parent);
- 	kobj->parent = NULL;
- }
--
--/**
-- * kobject_del() - Unlink kobject from hierarchy.
-- * @kobj: object.
-- *
-- * This is the function that should be called to delete an object
-- * successfully added via kobject_add().
-- */
--void kobject_del(struct kobject *kobj)
--{
--	struct kobject *parent = kobj->parent;
--
--	__kobject_del(kobj);
--	kobject_put(parent);
--}
- EXPORT_SYMBOL(kobject_del);
- 
- /**
-@@ -670,7 +663,6 @@ EXPORT_SYMBOL(kobject_get_unless_zero);
-  */
- static void kobject_cleanup(struct kobject *kobj)
- {
--	struct kobject *parent = kobj->parent;
- 	struct kobj_type *t = get_ktype(kobj);
- 	const char *name = kobj->name;
- 
-@@ -692,7 +684,7 @@ static void kobject_cleanup(struct kobject *kobj)
- 	if (kobj->state_in_sysfs) {
- 		pr_debug("kobject: '%s' (%p): auto cleanup kobject_del\n",
- 			 kobject_name(kobj), kobj);
--		__kobject_del(kobj);
-+		kobject_del(kobj);
+diff --git a/drivers/w1/masters/omap_hdq.c b/drivers/w1/masters/omap_hdq.c
+index aa09f85277767a..d363e2a89fdfc4 100644
+--- a/drivers/w1/masters/omap_hdq.c
++++ b/drivers/w1/masters/omap_hdq.c
+@@ -155,7 +155,7 @@ static int hdq_write_byte(struct hdq_data *hdq_data, u8 val, u8 *status)
+ 	/* check irqstatus */
+ 	if (!(*status & OMAP_HDQ_INT_STATUS_TXCOMPLETE)) {
+ 		dev_dbg(hdq_data->dev, "timeout waiting for"
+-			" TXCOMPLETE/RXCOMPLETE, %x", *status);
++			" TXCOMPLETE/RXCOMPLETE, %x\n", *status);
+ 		ret = -ETIMEDOUT;
+ 		goto out;
+ 	}
+@@ -166,7 +166,7 @@ static int hdq_write_byte(struct hdq_data *hdq_data, u8 val, u8 *status)
+ 			OMAP_HDQ_FLAG_CLEAR, &tmp_status);
+ 	if (ret) {
+ 		dev_dbg(hdq_data->dev, "timeout waiting GO bit"
+-			" return to zero, %x", tmp_status);
++			" return to zero, %x\n", tmp_status);
  	}
  
- 	if (t && t->release) {
-@@ -706,8 +698,6 @@ static void kobject_cleanup(struct kobject *kobj)
- 		pr_debug("kobject: '%s': free name\n", name);
- 		kfree_const(name);
- 	}
--
--	kobject_put(parent);
- }
+ out:
+@@ -183,7 +183,7 @@ static irqreturn_t hdq_isr(int irq, void *_hdq)
+ 	spin_lock_irqsave(&hdq_data->hdq_spinlock, irqflags);
+ 	hdq_data->hdq_irqstatus = hdq_reg_in(hdq_data, OMAP_HDQ_INT_STATUS);
+ 	spin_unlock_irqrestore(&hdq_data->hdq_spinlock, irqflags);
+-	dev_dbg(hdq_data->dev, "hdq_isr: %x", hdq_data->hdq_irqstatus);
++	dev_dbg(hdq_data->dev, "hdq_isr: %x\n", hdq_data->hdq_irqstatus);
  
- #ifdef CONFIG_DEBUG_KOBJECT_RELEASE
+ 	if (hdq_data->hdq_irqstatus &
+ 		(OMAP_HDQ_INT_STATUS_TXCOMPLETE | OMAP_HDQ_INT_STATUS_RXCOMPLETE
+@@ -248,7 +248,7 @@ static int omap_hdq_break(struct hdq_data *hdq_data)
+ 	tmp_status = hdq_data->hdq_irqstatus;
+ 	/* check irqstatus */
+ 	if (!(tmp_status & OMAP_HDQ_INT_STATUS_TIMEOUT)) {
+-		dev_dbg(hdq_data->dev, "timeout waiting for TIMEOUT, %x",
++		dev_dbg(hdq_data->dev, "timeout waiting for TIMEOUT, %x\n",
+ 				tmp_status);
+ 		ret = -ETIMEDOUT;
+ 		goto out;
+@@ -275,7 +275,7 @@ static int omap_hdq_break(struct hdq_data *hdq_data)
+ 			&tmp_status);
+ 	if (ret)
+ 		dev_dbg(hdq_data->dev, "timeout waiting INIT&GO bits"
+-			" return to zero, %x", tmp_status);
++			" return to zero, %x\n", tmp_status);
+ 
+ out:
+ 	hdq_reset_irqstatus(hdq_data);
 -- 
 2.26.2
-
 
