@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D7BFB1DF610
-	for <lists+stable@lfdr.de>; Sat, 23 May 2020 10:42:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 593111DF61A
+	for <lists+stable@lfdr.de>; Sat, 23 May 2020 10:47:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387678AbgEWImz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 23 May 2020 04:42:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54324 "EHLO mail.kernel.org"
+        id S2387500AbgEWIr4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 23 May 2020 04:47:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55492 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387500AbgEWImy (ORCPT <rfc822;Stable@vger.kernel.org>);
-        Sat, 23 May 2020 04:42:54 -0400
+        id S2387471AbgEWIr4 (ORCPT <rfc822;Stable@vger.kernel.org>);
+        Sat, 23 May 2020 04:47:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 95493206C3;
-        Sat, 23 May 2020 08:42:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6352C206C3;
+        Sat, 23 May 2020 08:47:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590223374;
-        bh=jdX5E5+p6mdlBbiCVsUcfx3TAeXXpMH2L1PIfgl76xA=;
+        s=default; t=1590223674;
+        bh=N7WWC7BKkqlxBjmuRyoorLSIV5TfIRMHb1YMBKHuaFM=;
         h=Subject:To:From:Date:From;
-        b=xqqD/VANyyGRLQyarmBwKYLgTATjM+9IIwGMEnNbi53SlAQfB70rfKlfqXWe+9/kW
-         nW2ciR2vFwvhawapbfliJWkhUOdenR5BqIr0JbaoPB57/7Sgjj5w+P9FElFRXHG/3F
-         cuqmuAU5kVb9SgpgDp7lue5wUdxKFworZI3XfLK4=
-Subject: patch "iio:chemical:pms7003: Fix timestamp alignment and prevent data leak." added to staging-next
-To:     Jonathan.Cameron@huawei.com, Stable@vger.kernel.org,
-        lars@metafoo.de, tomasz.duszynski@octakon.com
+        b=h+6Hsig27jabCfbD8xX0kgF5BcEtrPdVEKBPdD1k/7tKKjJ6zFYWup8LNftGvqQXo
+         qjjMldSzyhgMWWVX4WUKvjVGCf8qeyx/FTY6/esPqc6BhFpomNLIslO7FRBE3xCQ+v
+         9UFc+gCgPccQdDcg71SA9YyEPRpXhdJxwdE1kSB4=
+Subject: patch "iio: adc: stm32-adc: fix a wrong error message when probing" added to staging-testing
+To:     fabrice.gasnier@st.com, Jonathan.Cameron@huawei.com,
+        Stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 23 May 2020 10:41:41 +0200
-Message-ID: <159022330124992@kroah.com>
+Date:   Sat, 23 May 2020 10:46:48 +0200
+Message-ID: <159022360835246@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,89 +40,142 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    iio:chemical:pms7003: Fix timestamp alignment and prevent data leak.
+    iio: adc: stm32-adc: fix a wrong error message when probing
 
 to my staging git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
-in the staging-next branch.
+in the staging-testing branch.
 
 The patch will show up in the next release of the linux-next tree
 (usually sometime within the next 24 hours during the week.)
 
-The patch will also be merged in the next major kernel release
-during the merge window.
+The patch will be merged to the staging-next branch sometime soon,
+after it passes testing, and the merge window is open.
 
 If you have any questions about this process, please let me know.
 
 
-From 13e945631c2ffb946c0af342812a3cd39227de6e Mon Sep 17 00:00:00 2001
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Date: Sun, 17 May 2020 18:30:00 +0100
-Subject: iio:chemical:pms7003: Fix timestamp alignment and prevent data leak.
+From 10134ec3f8cefa6a40fe84987f1795e9e0da9715 Mon Sep 17 00:00:00 2001
+From: Fabrice Gasnier <fabrice.gasnier@st.com>
+Date: Tue, 12 May 2020 15:27:05 +0200
+Subject: iio: adc: stm32-adc: fix a wrong error message when probing
+ interrupts
 
-One of a class of bugs pointed out by Lars in a recent review.
-iio_push_to_buffers_with_timestamp assumes the buffer used is aligned
-to the size of the timestamp (8 bytes).  This is not guaranteed in
-this driver which uses an array of smaller elements on the stack.
-As Lars also noted this anti pattern can involve a leak of data to
-userspace and that indeed can happen here.  We close both issues by
-moving to a suitable structure in the iio_priv() data with alignment
-explicitly requested.  This data is allocated with kzalloc so no
-data can leak appart from previous readings.
+A wrong error message is printed out currently, like on STM32MP15:
+- stm32-adc-core 48003000.adc: IRQ index 2 not found.
 
-Fixes: a1d642266c14 ("iio: chemical: add support for Plantower PMS7003 sensor")
-Reported-by: Lars-Peter Clausen <lars@metafoo.de>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+This is seen since commit 7723f4c5ecdb ("driver core: platform: Add an
+error message to platform_get_irq*()").
+The STM32 ADC core driver wrongly requests up to 3 interrupt lines. It
+should request only the necessary IRQs, based on the compatible:
+- stm32f4/h7 ADCs share a common interrupt
+- stm32mp1, has one interrupt line per ADC.
+So add the number of required interrupts to the compatible data.
+
+Fixes: d58c67d1d851 ("iio: adc: stm32-adc: add support for STM32MP1")
+Signed-off-by: Fabrice Gasnier <fabrice.gasnier@st.com>
 Cc: <Stable@vger.kernel.org>
-Acked-by: Tomasz Duszynski <tomasz.duszynski@octakon.com>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 ---
- drivers/iio/chemical/pms7003.c | 17 ++++++++++++-----
- 1 file changed, 12 insertions(+), 5 deletions(-)
+ drivers/iio/adc/stm32-adc-core.c | 34 +++++++++++++-------------------
+ 1 file changed, 14 insertions(+), 20 deletions(-)
 
-diff --git a/drivers/iio/chemical/pms7003.c b/drivers/iio/chemical/pms7003.c
-index 23c9ab252470..07bb90d72434 100644
---- a/drivers/iio/chemical/pms7003.c
-+++ b/drivers/iio/chemical/pms7003.c
-@@ -73,6 +73,11 @@ struct pms7003_state {
- 	struct pms7003_frame frame;
- 	struct completion frame_ready;
- 	struct mutex lock; /* must be held whenever state gets touched */
-+	/* Used to construct scan to push to the IIO buffer */
-+	struct {
-+		u16 data[3]; /* PM1, PM2P5, PM10 */
-+		s64 ts;
-+	} scan;
+diff --git a/drivers/iio/adc/stm32-adc-core.c b/drivers/iio/adc/stm32-adc-core.c
+index 2df88d2b880a..0e2068ec068b 100644
+--- a/drivers/iio/adc/stm32-adc-core.c
++++ b/drivers/iio/adc/stm32-adc-core.c
+@@ -65,12 +65,14 @@ struct stm32_adc_priv;
+  * @clk_sel:	clock selection routine
+  * @max_clk_rate_hz: maximum analog clock rate (Hz, from datasheet)
+  * @has_syscfg: SYSCFG capability flags
++ * @num_irqs:	number of interrupt lines
+  */
+ struct stm32_adc_priv_cfg {
+ 	const struct stm32_adc_common_regs *regs;
+ 	int (*clk_sel)(struct platform_device *, struct stm32_adc_priv *);
+ 	u32 max_clk_rate_hz;
+ 	unsigned int has_syscfg;
++	unsigned int num_irqs;
  };
  
- static int pms7003_do_cmd(struct pms7003_state *state, enum pms7003_cmd cmd)
-@@ -104,7 +109,6 @@ static irqreturn_t pms7003_trigger_handler(int irq, void *p)
- 	struct iio_dev *indio_dev = pf->indio_dev;
- 	struct pms7003_state *state = iio_priv(indio_dev);
- 	struct pms7003_frame *frame = &state->frame;
--	u16 data[3 + 1 + 4]; /* PM1, PM2P5, PM10, padding, timestamp */
- 	int ret;
+ /**
+@@ -375,21 +377,15 @@ static int stm32_adc_irq_probe(struct platform_device *pdev,
+ 	struct device_node *np = pdev->dev.of_node;
+ 	unsigned int i;
  
- 	mutex_lock(&state->lock);
-@@ -114,12 +118,15 @@ static irqreturn_t pms7003_trigger_handler(int irq, void *p)
- 		goto err;
+-	for (i = 0; i < STM32_ADC_MAX_ADCS; i++) {
++	/*
++	 * Interrupt(s) must be provided, depending on the compatible:
++	 * - stm32f4/h7 shares a common interrupt line.
++	 * - stm32mp1, has one line per ADC
++	 */
++	for (i = 0; i < priv->cfg->num_irqs; i++) {
+ 		priv->irq[i] = platform_get_irq(pdev, i);
+-		if (priv->irq[i] < 0) {
+-			/*
+-			 * At least one interrupt must be provided, make others
+-			 * optional:
+-			 * - stm32f4/h7 shares a common interrupt.
+-			 * - stm32mp1, has one line per ADC (either for ADC1,
+-			 *   ADC2 or both).
+-			 */
+-			if (i && priv->irq[i] == -ENXIO)
+-				continue;
+-
++		if (priv->irq[i] < 0)
+ 			return priv->irq[i];
+-		}
  	}
  
--	data[PM1] = pms7003_get_pm(frame->data + PMS7003_PM1_OFFSET);
--	data[PM2P5] = pms7003_get_pm(frame->data + PMS7003_PM2P5_OFFSET);
--	data[PM10] = pms7003_get_pm(frame->data + PMS7003_PM10_OFFSET);
-+	state->scan.data[PM1] =
-+		pms7003_get_pm(frame->data + PMS7003_PM1_OFFSET);
-+	state->scan.data[PM2P5] =
-+		pms7003_get_pm(frame->data + PMS7003_PM2P5_OFFSET);
-+	state->scan.data[PM10] =
-+		pms7003_get_pm(frame->data + PMS7003_PM10_OFFSET);
- 	mutex_unlock(&state->lock);
+ 	priv->domain = irq_domain_add_simple(np, STM32_ADC_MAX_ADCS, 0,
+@@ -400,9 +396,7 @@ static int stm32_adc_irq_probe(struct platform_device *pdev,
+ 		return -ENOMEM;
+ 	}
  
--	iio_push_to_buffers_with_timestamp(indio_dev, data,
-+	iio_push_to_buffers_with_timestamp(indio_dev, &state->scan,
- 					   iio_get_time_ns(indio_dev));
- err:
- 	iio_trigger_notify_done(indio_dev->trig);
+-	for (i = 0; i < STM32_ADC_MAX_ADCS; i++) {
+-		if (priv->irq[i] < 0)
+-			continue;
++	for (i = 0; i < priv->cfg->num_irqs; i++) {
+ 		irq_set_chained_handler(priv->irq[i], stm32_adc_irq_handler);
+ 		irq_set_handler_data(priv->irq[i], priv);
+ 	}
+@@ -420,11 +414,8 @@ static void stm32_adc_irq_remove(struct platform_device *pdev,
+ 		irq_dispose_mapping(irq_find_mapping(priv->domain, hwirq));
+ 	irq_domain_remove(priv->domain);
+ 
+-	for (i = 0; i < STM32_ADC_MAX_ADCS; i++) {
+-		if (priv->irq[i] < 0)
+-			continue;
++	for (i = 0; i < priv->cfg->num_irqs; i++)
+ 		irq_set_chained_handler(priv->irq[i], NULL);
+-	}
+ }
+ 
+ static int stm32_adc_core_switches_supply_en(struct stm32_adc_priv *priv,
+@@ -817,6 +808,7 @@ static const struct stm32_adc_priv_cfg stm32f4_adc_priv_cfg = {
+ 	.regs = &stm32f4_adc_common_regs,
+ 	.clk_sel = stm32f4_adc_clk_sel,
+ 	.max_clk_rate_hz = 36000000,
++	.num_irqs = 1,
+ };
+ 
+ static const struct stm32_adc_priv_cfg stm32h7_adc_priv_cfg = {
+@@ -824,6 +816,7 @@ static const struct stm32_adc_priv_cfg stm32h7_adc_priv_cfg = {
+ 	.clk_sel = stm32h7_adc_clk_sel,
+ 	.max_clk_rate_hz = 36000000,
+ 	.has_syscfg = HAS_VBOOSTER,
++	.num_irqs = 1,
+ };
+ 
+ static const struct stm32_adc_priv_cfg stm32mp1_adc_priv_cfg = {
+@@ -831,6 +824,7 @@ static const struct stm32_adc_priv_cfg stm32mp1_adc_priv_cfg = {
+ 	.clk_sel = stm32h7_adc_clk_sel,
+ 	.max_clk_rate_hz = 40000000,
+ 	.has_syscfg = HAS_VBOOSTER | HAS_ANASWVDD,
++	.num_irqs = 2,
+ };
+ 
+ static const struct of_device_id stm32_adc_of_match[] = {
 -- 
 2.26.2
 
