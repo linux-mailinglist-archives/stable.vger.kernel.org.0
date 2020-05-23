@@ -2,110 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 029271DF5C1
-	for <lists+stable@lfdr.de>; Sat, 23 May 2020 09:49:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 25E081DF5C7
+	for <lists+stable@lfdr.de>; Sat, 23 May 2020 09:56:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387717AbgEWHtR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 23 May 2020 03:49:17 -0400
-Received: from new4-smtp.messagingengine.com ([66.111.4.230]:49965 "EHLO
-        new4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2387500AbgEWHtR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 23 May 2020 03:49:17 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailnew.nyi.internal (Postfix) with ESMTP id 9E9535800E8;
-        Sat, 23 May 2020 03:49:15 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Sat, 23 May 2020 03:49:15 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm3; bh=HYzvmvyhCdDCgy2Up0L8kyIQNh0
-        GHJNZlq1iXsF1dWk=; b=naczRbjRRQYoLQwrtOlHT4O/toqGfVrcKqQ+mrDqEX1
-        A3bZsj6fd7/9bZH6tHoMVzUleCUxr4qAVQU994l+tHR2H7EqOrpBQog0Lkuk09pH
-        rxjGk5JLBLiA/ZXd6SVbzUNaF6OGHRltWaxoi4ayjKDvmhcnjOb6T6B79XDGD1Yp
-        c4KrQb/hBB6BXI+bmjegSmZf5+d/h92AFsQkX1o4Cwy+oVMvsg99XDHEaPLPGbKN
-        BcsFvHZ01RBalHLVxrCZlnFUGBjKHEuGYG1gOXm+eX4T+f/dGBA8EO4Keato214D
-        QYGxK92x1rGodA+OgEGkNeOQcK9e+X6slCK851PWgig==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=HYzvmv
-        yhCdDCgy2Up0L8kyIQNh0GHJNZlq1iXsF1dWk=; b=a1JDGcSIF60I70XD+vtvfN
-        M0XoiqqFIjOLkTIBpuwuiFOVtN3A66HN8vDd8LrYNGxj8Mp6CuPPudBPLnWz19hr
-        mCK+onEVk2UCfKYCGntHRrh5UZpOGuDWu+cyMKdaQCJHfzWdHmL6cqokfZeEKU5H
-        0C/S4BNR0hZHbMMTSDykfxW1TGVJ6aBAWKwwDtBAW2T0r3ioUImNBWA7VkaSJTB2
-        vO7RD3eHSKdn/FKiJ6MN+LOpOe9X3+u+lo/Z7OeTNzI1FzxwA+gWfe7Qr58yPWhN
-        B+2PIAURvIxaxu56bG8nJo7Cp4u5eap/iO+XHl1QFfDljozyNO6YIcZXM2juw/3Q
-        ==
-X-ME-Sender: <xms:dtXIXkkUQwLyf7bLgRPA2mYvGdXHW2muFPf7U0Lls3RoVj5YzanFoQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedruddugedguddvtdcutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
-    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
-    enucfjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghg
-    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepveeuhe
-    ejgfffgfeivddukedvkedtleelleeghfeljeeiueeggeevueduudekvdetnecukfhppeek
-    fedrkeeirdekledruddtjeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
-    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:dtXIXj1VC4RADb62e_BokGosqZPXVmkrpX1zHvEuf7K88SPn1-N08g>
-    <xmx:dtXIXipxBNnQQaoYtMTHHVIifjmYyu1_8hE7aMLU7AAZ_nuoCVHppA>
-    <xmx:dtXIXglXK2j5Nw8E2d2C9xcQ-o1N4uwgFY-APhmsr9UWQsNMDsjRfA>
-    <xmx:e9XIXvAhgaFwAyW2LMzLbyZzJdDDO6J7ctdmt5Np1E6vAH_sgxgFxA>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 9563B328005A;
-        Sat, 23 May 2020 03:49:09 -0400 (EDT)
-Date:   Sat, 23 May 2020 09:49:08 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Babu Moger <babu.moger@amd.com>
-Cc:     corbet@lwn.net, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
-        hpa@zytor.com, pbonzini@redhat.com,
-        sean.j.christopherson@intel.com, stable@vger.kernel.org,
-        x86@kernel.org, vkuznets@redhat.com, wanpengli@tencent.com,
-        jmattson@google.com, joro@8bytes.org, dave.hansen@linux.intel.com,
-        luto@kernel.org, peterz@infradead.org, mchehab+samsung@kernel.org,
-        changbin.du@intel.com, namit@vmware.com, bigeasy@linutronix.de,
-        yang.shi@linux.alibaba.com, asteinhauser@google.com,
-        anshuman.khandual@arm.com, jan.kiszka@siemens.com,
-        akpm@linux-foundation.org, steven.price@arm.com,
-        rppt@linux.vnet.ibm.com, peterx@redhat.com,
-        dan.j.williams@intel.com, arjunroy@google.com, logang@deltatee.com,
-        thellstrom@vmware.com, aarcange@redhat.com, justin.he@arm.com,
-        robin.murphy@arm.com, ira.weiny@intel.com, keescook@chromium.org,
-        jgross@suse.com, andrew.cooper3@citrix.com,
-        pawan.kumar.gupta@linux.intel.com, fenghua.yu@intel.com,
-        vineela.tummalapalli@intel.com, yamada.masahiro@socionext.com,
-        sam@ravnborg.org, acme@redhat.com, linux-doc@vger.kernel.org,
-        linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Subject: Re: [PATCH 5.4] KVM: x86: Fix pkru save/restore when guest
- CR4.PKE=0, move it to x86.c
-Message-ID: <20200523074908.GA3285051@kroah.com>
-References: <159016509437.3131.17229420966309596602.stgit@naples-babu.amd.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <159016509437.3131.17229420966309596602.stgit@naples-babu.amd.com>
+        id S2387689AbgEWH4i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 23 May 2020 03:56:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46578 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2387627AbgEWH4h (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 23 May 2020 03:56:37 -0400
+Received: from mail-pg1-x544.google.com (mail-pg1-x544.google.com [IPv6:2607:f8b0:4864:20::544])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C3DAC05BD43;
+        Sat, 23 May 2020 00:56:37 -0700 (PDT)
+Received: by mail-pg1-x544.google.com with SMTP id f21so3083446pgg.12;
+        Sat, 23 May 2020 00:56:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:from:to:cc:subject:date:message-id:in-reply-to:references;
+        bh=Qfp4yZyJhFbbwPcF+vBxspab423+TYrLon5VaFM6mOQ=;
+        b=qKt68FL6knNx22492KjI7dofR8nLWj1uFsCNtT9M+/7gH8jAfO4j90PM8e03Xne0Ug
+         dNGBaboyHUe7RTkxi+tkMyTbTZ5sGq/RMiY5xHfzfeVyWs+hOV6Ox7BhiVIczUpThKLI
+         fIKunyYzoK6AR1kqTvG+dlYXZL3SLbcprkvS7HXqQCy+94Fioj8wKTR0nMqXkdaaRO34
+         j27N5+v1d74RHX49D8j/51v9YxM5oD1pVUQtN0WLf9LDY9WydgA9FcOK48pn7M9oemeC
+         yLq8XoITOIFhL8U7aBcf7p03MRCMWem+t2G+O2whXLdrTJjoY7wwDfRkHipI6nSjESzS
+         D6/Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
+         :in-reply-to:references;
+        bh=Qfp4yZyJhFbbwPcF+vBxspab423+TYrLon5VaFM6mOQ=;
+        b=RVn5G9hUaYynwsqTHlAS1tgu2dSWEd/Zpz4EFpgISf9W0oZztjAKfIiwPJ7zJWUiOa
+         o5no2ieg8CMDgt+sr7P+tvsbkmLF9ROxeaO0LpdMoHHUipY/up3ES6SCmLajX1MQFMkd
+         wbUA206bmJAWU6v5nWF3VRN6gg7j9hHuKFNv/sBUGDfoqWOlOSZ2+pyS+ZwpTAfOabKV
+         YdIns60K5hEJWOxJArLi662Vyw/P0NiKbEFTWzshA4pQ/KcqrRzyry4CaECtYyDxyY1r
+         9D9K+03j4d8YDwii+Tnbx6YjQXqDrvNUhkXEqCbt7Wh1WZflWS4q8giCY3JxSGaUaiEi
+         9tEw==
+X-Gm-Message-State: AOAM532ssyViVb2Xmp38viL3tKo2KP/mD8j3ISEK/e9ZKh2Gn3FXLlS3
+        J0nM2znd4BV6qnaX3GcqmDg=
+X-Google-Smtp-Source: ABdhPJyNeZUAnuYrVDbTxjPNLgE78WW8noHorDS/yW0zaDqkSzMEvLMUwxZukXfB/c4DhEFNqmB+8A==
+X-Received: by 2002:a62:b402:: with SMTP id h2mr7806324pfn.221.1590220597128;
+        Sat, 23 May 2020 00:56:37 -0700 (PDT)
+Received: from software.domain.org (28.144.92.34.bc.googleusercontent.com. [34.92.144.28])
+        by smtp.gmail.com with ESMTPSA id w7sm678491pfu.117.2020.05.23.00.56.33
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Sat, 23 May 2020 00:56:36 -0700 (PDT)
+From:   Huacai Chen <chenhc@lemote.com>
+To:     Paolo Bonzini <pbonzini@redhat.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>
+Cc:     kvm@vger.kernel.org, linux-mips@vger.kernel.org,
+        Fuxin Zhang <zhangfx@lemote.com>,
+        Huacai Chen <chenhuacai@gmail.com>,
+        Jiaxun Yang <jiaxun.yang@flygoat.com>,
+        Xing Li <lixing@loongson.cn>,
+        "Stable #4 . 9+" <stable@vger.kernel.org>,
+        Huacai Chen <chenhc@lemote.com>
+Subject: [PATCH V7 01/15] KVM: MIPS: Define KVM_ENTRYHI_ASID to cpu_asid_mask(&boot_cpu_data)
+Date:   Sat, 23 May 2020 15:56:28 +0800
+Message-Id: <1590220602-3547-2-git-send-email-chenhc@lemote.com>
+X-Mailer: git-send-email 2.7.0
+In-Reply-To: <1590220602-3547-1-git-send-email-chenhc@lemote.com>
+References: <1590220602-3547-1-git-send-email-chenhc@lemote.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, May 22, 2020 at 11:32:49AM -0500, Babu Moger wrote:
-> [Backported upstream commit 37486135d3a7b03acc7755b63627a130437f066a]
-> 
-> Though rdpkru and wrpkru are contingent upon CR4.PKE, the PKRU
-> resource isn't. It can be read with XSAVE and written with XRSTOR.
-> So, if we don't set the guest PKRU value here(kvm_load_guest_xsave_state),
-> the guest can read the host value.
-> 
-> In case of kvm_load_host_xsave_state, guest with CR4.PKE clear could
-> potentially use XRSTOR to change the host PKRU value.
-> 
-> While at it, move pkru state save/restore to common code and the
-> host_pkru field to kvm_vcpu_arch.  This will let SVM support protection keys.
-> 
-> Cc: stable@vger.kernel.org
-> Reported-by: Jim Mattson <jmattson@google.com>
-> Signed-off-by: Babu Moger <babu.moger@amd.com>
-> Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+From: Xing Li <lixing@loongson.cn>
 
-Now applied, thanks.
+The code in decode_config4() of arch/mips/kernel/cpu-probe.c
 
-greg k-h
+        asid_mask = MIPS_ENTRYHI_ASID;
+        if (config4 & MIPS_CONF4_AE)
+                asid_mask |= MIPS_ENTRYHI_ASIDX;
+        set_cpu_asid_mask(c, asid_mask);
+
+set asid_mask to cpuinfo->asid_mask.
+
+So in order to support variable ASID_MASK, KVM_ENTRYHI_ASID should also
+be changed to cpu_asid_mask(&boot_cpu_data).
+
+Cc: Stable <stable@vger.kernel.org>  #4.9+
+Reviewed-by: Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>
+Signed-off-by: Xing Li <lixing@loongson.cn>
+[Huacai: Change current_cpu_data to boot_cpu_data for optimization]
+Signed-off-by: Huacai Chen <chenhc@lemote.com>
+---
+ arch/mips/include/asm/kvm_host.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/mips/include/asm/kvm_host.h b/arch/mips/include/asm/kvm_host.h
+index 2c343c3..a01cee9 100644
+--- a/arch/mips/include/asm/kvm_host.h
++++ b/arch/mips/include/asm/kvm_host.h
+@@ -275,7 +275,7 @@ enum emulation_result {
+ #define MIPS3_PG_FRAME		0x3fffffc0
+ 
+ #define VPN2_MASK		0xffffe000
+-#define KVM_ENTRYHI_ASID	MIPS_ENTRYHI_ASID
++#define KVM_ENTRYHI_ASID	cpu_asid_mask(&boot_cpu_data)
+ #define TLB_IS_GLOBAL(x)	((x).tlb_lo[0] & (x).tlb_lo[1] & ENTRYLO_G)
+ #define TLB_VPN2(x)		((x).tlb_hi & VPN2_MASK)
+ #define TLB_ASID(x)		((x).tlb_hi & KVM_ENTRYHI_ASID)
+-- 
+2.7.0
+
