@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C6671E01CA
-	for <lists+stable@lfdr.de>; Sun, 24 May 2020 21:10:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 923D51E01F1
+	for <lists+stable@lfdr.de>; Sun, 24 May 2020 21:17:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387992AbgEXTKY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 24 May 2020 15:10:24 -0400
-Received: from relay1-d.mail.gandi.net ([217.70.183.193]:36013 "EHLO
-        relay1-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387747AbgEXTKX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 24 May 2020 15:10:23 -0400
+        id S2388063AbgEXTRW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 24 May 2020 15:17:22 -0400
+Received: from relay9-d.mail.gandi.net ([217.70.183.199]:37323 "EHLO
+        relay9-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2387744AbgEXTRW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 24 May 2020 15:17:22 -0400
 X-Originating-IP: 91.224.148.103
 Received: from localhost.localdomain (unknown [91.224.148.103])
         (Authenticated sender: miquel.raynal@bootlin.com)
-        by relay1-d.mail.gandi.net (Postfix) with ESMTPSA id 74E9D240005;
-        Sun, 24 May 2020 19:10:21 +0000 (UTC)
+        by relay9-d.mail.gandi.net (Postfix) with ESMTPSA id EE6D1FF805;
+        Sun, 24 May 2020 19:17:18 +0000 (UTC)
 From:   Miquel Raynal <miquel.raynal@bootlin.com>
-To:     Boris Brezillon <boris.brezillon@collabora.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        linux-mtd@lists.infradead.org
-Cc:     Richard Weinberger <richard@nod.at>,
-        Vignesh Raghavendra <vigneshr@ti.com>, stable@vger.kernel.org,
-        Tudor Ambarus <tudor.ambarus@microchip.com>
-Subject: Re: [PATCH] mtd: rawnand: Fix nand_gpio_waitrdy()
-Date:   Sun, 24 May 2020 21:10:20 +0200
-Message-Id: <20200524191020.18380-1-miquel.raynal@bootlin.com>
+To:     =?utf-8?q?=C3=81lvaro_Fern=C3=A1ndez_Rojas?= <noltari@gmail.com>,
+        computersforpeace@gmail.com, kdasu.kdev@gmail.com,
+        miquel.raynal@bootlin.com, richard@nod.at, vigneshr@ti.com,
+        sumit.semwal@linaro.org, linux-mtd@lists.infradead.org,
+        bcm-kernel-feedback-list@broadcom.com,
+        linux-kernel@vger.kernel.org, linux-media@vger.kernel.org,
+        dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org
+Cc:     stable@vger.kernel.org
+Subject: Re: [PATCH v4 1/2] mtd: rawnand: brcmnand: fix hamming oob layout
+Date:   Sun, 24 May 2020 21:17:18 +0200
+Message-Id: <20200524191718.30030-1-miquel.raynal@bootlin.com>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200518155237.297549-1-boris.brezillon@collabora.com>
+In-Reply-To: <20200512075733.745374-2-noltari@gmail.com>
 References: 
 MIME-Version: 1.0
 X-linux-mtd-patch-notification: thanks
-X-linux-mtd-patch-commit: e45a4b652dbd2f8b5a3b8e97e89f602a58cb28aa
+X-linux-mtd-patch-commit: 130bbde4809b011faf64f99dddc14b4b01f440c3
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 2020-05-18 at 15:52:37 UTC, Boris Brezillon wrote:
-> Mimic what's done in nand_soft_waitrdy() and add one to the jiffies
-> timeout so we don't end up waiting less than actually required.
+On Tue, 2020-05-12 at 07:57:32 UTC, =?utf-8?q?=C3=81lvaro_Fern=C3=A1ndez_Rojas?= wrote:
+> First 2 bytes are used in large-page nand.
 > 
-> Reported-by: Tudor Ambarus <tudor.ambarus@microchip.com>
-> Fixes: b0e137ad24b6c ("mtd: rawnand: Provide helper for polling GPIO R/B pin")
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Boris Brezillon <boris.brezillon@collabora.com>
-> Reviewed-by: Tudor Ambarus <tudor.ambarus@microchip.com>
+> Fixes: ef5eeea6e911 ("mtd: nand: brcm: switch to mtd_ooblayout_ops")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Álvaro Fernández Rojas <noltari@gmail.com>
 
 Applied to https://git.kernel.org/pub/scm/linux/kernel/git/mtd/linux.git nand/next, thanks.
 
