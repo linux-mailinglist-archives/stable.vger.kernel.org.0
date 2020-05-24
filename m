@@ -2,62 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DCAB1DFC12
-	for <lists+stable@lfdr.de>; Sun, 24 May 2020 02:16:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D2A11DFC5A
+	for <lists+stable@lfdr.de>; Sun, 24 May 2020 04:09:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388196AbgEXAQQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 23 May 2020 20:16:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57728 "EHLO
+        id S2388205AbgEXCJX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 23 May 2020 22:09:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46754 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388106AbgEXAQQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 23 May 2020 20:16:16 -0400
-Received: from mail-lf1-x142.google.com (mail-lf1-x142.google.com [IPv6:2a00:1450:4864:20::142])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B3DEC08C5C0
-        for <stable@vger.kernel.org>; Sat, 23 May 2020 17:16:16 -0700 (PDT)
-Received: by mail-lf1-x142.google.com with SMTP id c12so8594690lfc.10
-        for <stable@vger.kernel.org>; Sat, 23 May 2020 17:16:16 -0700 (PDT)
+        with ESMTP id S2387611AbgEXCJW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 23 May 2020 22:09:22 -0400
+Received: from mail-pf1-x442.google.com (mail-pf1-x442.google.com [IPv6:2607:f8b0:4864:20::442])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB111C061A0E;
+        Sat, 23 May 2020 19:09:22 -0700 (PDT)
+Received: by mail-pf1-x442.google.com with SMTP id x13so7051474pfn.11;
+        Sat, 23 May 2020 19:09:22 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=3m68u6fbHtBqjSQv0cWxoIcDmwtDvgdO4LpfILQ1PZ0=;
-        b=PLeeVDbFE5lth9LtkCyvzFdT69i55fBsQGp6IC8S/ui3poDdGe7l/L1/kH8ez/ROCp
-         q6aHohnDM09vUJy9c47/QVG+JyQMj+okxn9lIFq+5JVZhrOvZRs9P2BRPCMImiJCyTdz
-         sD3DkwyRgbpKlMHvcWxq5Z3QPIVX/jmzjBSuc=
+        d=gmail.com; s=20161025;
+        h=sender:subject:to:cc:references:from:autocrypt:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=M8t92UHEG9xmX2x0+2zxvglG7xZzbvBYHiKbas5wX2g=;
+        b=Eh0Ffe4YOqhUHMOMy+kZXneDCldnbN1x73i1+Pnksv5Wm65E69uoN0l4qdqLYOqO4O
+         32JpM3+oyIatSUfC0CpmPHs2mvcXjNZtSVvRZ4isDoGcUNMWyu/qp1H3ODje5SVZ4DSJ
+         D1RO2zTdcFJMrC1BjsgXG10FX+MeYJgk94LVaO3pD1sNQV3SpEH+swCJOJB7vVRfpBMA
+         0PsdbiPvEWyiYuQje1yy+yPfUsi0K97xvwvb3iVgoJ2zeWCgp7bmOq5YU7U2VGU71Qpv
+         mClgEEm+6fDbZdond/kxIBPlmGYbXOSO1Ah9y3fnQBDY6btDTamFrVQXP4YxR1BdAqAe
+         T05w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=3m68u6fbHtBqjSQv0cWxoIcDmwtDvgdO4LpfILQ1PZ0=;
-        b=Zv5pJiu7sg7P+7fSBy/GMa3KXARL+OIznuHsMuTWV/a2LhWsZfq71ZlvJxYGNqnbv3
-         jRf6cXL08tNBdD5Tz9poslZYo06IXH4LNgAZ4K4L8Vgkhdnf4691JIqdvJV5p+D+I4/H
-         WAZAiDnRdTZZLq4JkKDBcR2/947VAzkcv++lLSfrfrnXjzG0Ee1NS9+N4u1+gEduDkxT
-         qtXXt2mt8pOPkvIQUAf111EYVXaBHNgJCeOXJRpvBnHGEtuhZVYRDrElJU1t9o9Ug1+X
-         dB8BIrEQrW5GP8KJT1M7xJCtQ1DIsYC3I7UMqdo8meYEWylyLSIQbpd6tRoIiT1r76+g
-         hCSA==
-X-Gm-Message-State: AOAM5319wSG28puN5opK8KU0NMqeBhIyYDKBbLPsv8E20UnjaX0AxCMq
-        wqsDl2zaajNUMIkFjluuArfrGADHCU0=
-X-Google-Smtp-Source: ABdhPJyP0ywTXmDfo71i+1BIRa9M9xcUWOilRCnlmkuFK07s9vQTrr41lyHZ2K9er0c64TYzV2z0lA==
-X-Received: by 2002:a19:4345:: with SMTP id m5mr3678989lfj.114.1590279373363;
-        Sat, 23 May 2020 17:16:13 -0700 (PDT)
-Received: from mail-lj1-f174.google.com (mail-lj1-f174.google.com. [209.85.208.174])
-        by smtp.gmail.com with ESMTPSA id r9sm3289611ljg.69.2020.05.23.17.16.11
-        for <stable@vger.kernel.org>
+        h=x-gm-message-state:sender:subject:to:cc:references:from:autocrypt
+         :message-id:date:user-agent:mime-version:in-reply-to
+         :content-language:content-transfer-encoding;
+        bh=M8t92UHEG9xmX2x0+2zxvglG7xZzbvBYHiKbas5wX2g=;
+        b=Hdfe6xce/v1hgbG+wbiDSngt9TImhDHaQtc0uwjUyBtsigZT6bPVelJQmKT0n9yy6M
+         /EjN6DmjCFq1AdRqpo/r3z760CaEwq8CG7nS5TSYBXBbDbOcac3bezjRU7RwkSkLdTTE
+         uoPUR4Fs9KXhiP5912oJKxu2jZjn2CiCDFuGoCAFw91fSKuP6+pplFzvo8PW4U/JAZB5
+         uWberXcHDe0olT1lybubUlMwThQToMXR1fnwF42tk3yNfOd+7QqdvSom50Ee0kuIUq8f
+         /a6ZZjq2z9fZKDZpOFpmp5E1v38ZIJiucBHeXz6yzR1zn4fljLFDoBpFckqO8kmKEqQO
+         kQJQ==
+X-Gm-Message-State: AOAM530d1piu/VkFwqT702JJ+A+UqGwKKk1h/ByNwW22+Em8+uWHCp/P
+        G/eq4VcQ5uldaJAE9/mB1Uq6DnVP
+X-Google-Smtp-Source: ABdhPJxMfiYYebn1lA5gJzgZy7wOXY6RNfKe0AyXL5g5hLa6iXb1zvvkU8Qj07bMOT1XlhLfxjr0dQ==
+X-Received: by 2002:a62:e801:: with SMTP id c1mr10861060pfi.217.1590286161707;
+        Sat, 23 May 2020 19:09:21 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id r2sm10140098pfq.194.2020.05.23.19.09.20
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 23 May 2020 17:16:12 -0700 (PDT)
-Received: by mail-lj1-f174.google.com with SMTP id z13so7300608ljn.7
-        for <stable@vger.kernel.org>; Sat, 23 May 2020 17:16:11 -0700 (PDT)
-X-Received: by 2002:a2e:7e0a:: with SMTP id z10mr8459409ljc.314.1590279371483;
- Sat, 23 May 2020 17:16:11 -0700 (PDT)
-MIME-Version: 1.0
-References: <20200523224732.GA243603@roeck-us.net>
-In-Reply-To: <20200523224732.GA243603@roeck-us.net>
-From:   Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Sat, 23 May 2020 17:15:55 -0700
-X-Gmail-Original-Message-ID: <CAHk-=wjnwsRfE_RJLAV8SX465uEmpOOJxyqjsLRwoX-UPH0kQg@mail.gmail.com>
-Message-ID: <CAHk-=wjnwsRfE_RJLAV8SX465uEmpOOJxyqjsLRwoX-UPH0kQg@mail.gmail.com>
-Subject: Re: [PATCH] sparc32: use PUD rather than PGD to get PMD in srmmu_nocache_init()
-To:     Guenter Roeck <linux@roeck-us.net>
+        Sat, 23 May 2020 19:09:21 -0700 (PDT)
+Subject: Re: [PATCH] sparc32: use PUD rather than PGD to get PMD in
+ srmmu_nocache_init()
+To:     Linus Torvalds <torvalds@linux-foundation.org>
 Cc:     Mike Rapoport <rppt@linux.ibm.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         "David S. Miller" <davem@davemloft.net>,
@@ -65,18 +59,77 @@ Cc:     Mike Rapoport <rppt@linux.ibm.com>,
         sparclinux@vger.kernel.org,
         Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
         stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+References: <20200523224732.GA243603@roeck-us.net>
+ <CAHk-=wjnwsRfE_RJLAV8SX465uEmpOOJxyqjsLRwoX-UPH0kQg@mail.gmail.com>
+From:   Guenter Roeck <linux@roeck-us.net>
+Autocrypt: addr=linux@roeck-us.net; keydata=
+ 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
+ mDW4+i+XlNFUPUYMrIKi9joBhu18ssf5i5Q=
+Message-ID: <3bc16457-55d1-3d1f-6a78-fc3e95a1855f@roeck-us.net>
+Date:   Sat, 23 May 2020 19:09:19 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
+MIME-Version: 1.0
+In-Reply-To: <CAHk-=wjnwsRfE_RJLAV8SX465uEmpOOJxyqjsLRwoX-UPH0kQg@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, May 23, 2020 at 3:47 PM Guenter Roeck <linux@roeck-us.net> wrote:
->
-> This quite innocent looking patch crashes all my sparc32 boot tests.
-> Crash log and bisect results below. Reverting it fixes the problem.
+On 5/23/20 5:15 PM, Linus Torvalds wrote:
+> On Sat, May 23, 2020 at 3:47 PM Guenter Roeck <linux@roeck-us.net> wrote:
+>>
+>> This quite innocent looking patch crashes all my sparc32 boot tests.
+>> Crash log and bisect results below. Reverting it fixes the problem.
+> 
+> It should also fixed by 0cfc8a8d70dc ("sparc32: fix page table
+> traversal in srmmu_nocache_init()"). No?
+> 
 
-It should also fixed by 0cfc8a8d70dc ("sparc32: fix page table
-traversal in srmmu_nocache_init()"). No?
+Yes, it is. Sorry for the noise. 0cfc8a8d70dc wasn't available
+when I started the bisect, and I didn't re-check afterwards.
 
-                 Linus
+Guenter
