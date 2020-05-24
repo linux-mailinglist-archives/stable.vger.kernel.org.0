@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 599C81E03DC
-	for <lists+stable@lfdr.de>; Mon, 25 May 2020 01:18:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FFC01E03DD
+	for <lists+stable@lfdr.de>; Mon, 25 May 2020 01:19:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388552AbgEXXSk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 24 May 2020 19:18:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54944 "EHLO mail.kernel.org"
+        id S2388202AbgEXXSn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 24 May 2020 19:18:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54982 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388202AbgEXXSk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 24 May 2020 19:18:40 -0400
+        id S2388556AbgEXXSn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 24 May 2020 19:18:43 -0400
 Received: from localhost.localdomain (c-71-198-47-131.hsd1.ca.comcast.net [71.198.47.131])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9190020787;
-        Sun, 24 May 2020 23:18:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8C1CD20823;
+        Sun, 24 May 2020 23:18:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590362319;
-        bh=oeGXlfEic6+p/ZhjHn0rSSIRETI98MNJwXh7+d9m+kg=;
+        s=default; t=1590362322;
+        bh=CyPt7ckiYwxykmgK2IldUXkeZ8xjFw8yDCL6rKwXKXo=;
         h=Date:From:To:Subject:From;
-        b=Ylsuz5uV7Vx8HXj04fZsRMdJDTn5aaIKYiLtuSaX6Zf4o1iu5ouAr0ht3Xy9brH28
-         kr1HevCVLf86CIM1WJ1ng3YCWmwq4vEXE420eDjlSnZDQjBjUfAaFoIJaoMi3+OASk
-         5GxTWKLdG60dsahfBEvUNLaUUoHrp7gIhN/RzRew=
-Date:   Sun, 24 May 2020 16:18:39 -0700
+        b=USgPQvTrbdwkXQxAVvwmNB8e9749pjicSckJuV5pqLSQ7s+wpkF1oTRXTOf6A3RRW
+         I7QgQCXvWkNR3KXO7eAIbIF8sCXs6jEtVz1jjoALu7VcZgzv0eiiO+J43P7lM+WGgO
+         vTXgrBID1VJRtMxt1zRMOVoe0WgGxNoKhm//nMR0=
+Date:   Sun, 24 May 2020 16:18:42 -0700
 From:   akpm@linux-foundation.org
-To:     davem@davemloft.net, lkp@intel.com, matorola@gmail.com,
-        mm-commits@vger.kernel.org, rppt@linux.ibm.com,
-        stable@vger.kernel.org
+To:     cai@lca.pw, mm-commits@vger.kernel.org, shentino@gmail.com,
+        stable@vger.kernel.org, uladzislau.rezki@sony.com,
+        vitaly.wool@konsulko.com
 Subject:  [merged]
- sparc32-use-pud-rather-than-pgd-to-get-pmd-in-srmmu_nocache_init.patch
- removed from -mm tree
-Message-ID: <20200524231839.gJ8sc9Bzt%akpm@linux-foundation.org>
+ z3fold-fix-use-after-free-when-freeing-handles.patch removed from -mm tree
+Message-ID: <20200524231842.2Tnk-ylQq%akpm@linux-foundation.org>
 User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -40,110 +39,98 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The patch titled
-     Subject: sparc32: use PUD rather than PGD to get PMD in srmmu_nocache_init()
+     Subject: z3fold: fix use-after-free when freeing handles
 has been removed from the -mm tree.  Its filename was
-     sparc32-use-pud-rather-than-pgd-to-get-pmd-in-srmmu_nocache_init.patch
+     z3fold-fix-use-after-free-when-freeing-handles.patch
 
 This patch was dropped because it was merged into mainline or a subsystem tree
 
 ------------------------------------------------------
-From: Mike Rapoport <rppt@linux.ibm.com>
-Subject: sparc32: use PUD rather than PGD to get PMD in srmmu_nocache_init()
+From: Uladzislau Rezki <uladzislau.rezki@sony.com>
+Subject: z3fold: fix use-after-free when freeing handles
 
-The kbuild test robot reported the following warning:
+free_handle() for a foreign handle may race with inter-page compaction,
+what can lead to memory corruption.  To avoid that, take write lock not
+read lock in free_handle to be synchronized with __release_z3fold_page().
 
-arch/sparc/mm/srmmu.c: In function 'srmmu_nocache_init':
->> arch/sparc/mm/srmmu.c:300:9: error: variable 'pud' set but not used
->> [-Werror=unused-but-set-variable]
-300 |  pud_t *pud;
+For example KASAN can detect it:
 
-This warning is caused by misprint in the page table traversal in
-srmmu_nocache_init() function which accessed a PMD entry using PGD rather
-than PUD.
+[   33.723357] ==================================================================
+[   33.723401] BUG: KASAN: use-after-free in LZ4_decompress_safe+0x2c4/0x3b8
+[   33.723418] Read of size 1 at addr ffffffc976695ca3 by task GoogleApiHandle/4121
+[   33.723428]
+[   33.723449] CPU: 0 PID: 4121 Comm: GoogleApiHandle Tainted: P S         OE     4.19.81-perf+ #162
+[   33.723461] Hardware name: Sony Mobile Communications. PDX-203(KONA) (DT)
+[   33.723473] Call trace:
+[   33.723495] dump_backtrace+0x0/0x288
+[   33.723512] show_stack+0x14/0x20
+[   33.723533] dump_stack+0xe4/0x124
+[   33.723551] print_address_description+0x80/0x2e0
+[   33.723566] kasan_report+0x268/0x2d0
+[   33.723584] __asan_load1+0x4c/0x58
+[   33.723601] LZ4_decompress_safe+0x2c4/0x3b8
+[   33.723619] lz4_decompress_crypto+0x3c/0x70
+[   33.723636] crypto_decompress+0x58/0x70
+[   33.723656] zcomp_decompress+0xd4/0x120
+...
 
-Since sparc32 has only 3 page table levels, the PGD and PUD are
-essentially the same and usage of __nocache_fix() removed the type
-checking.
+Apart from that, initialize zhdr->mapped_count in init_z3fold_page() and
+remove "newpage" variable because it is not used anywhere.
 
-Use PUD for the consistency and to silence the compiler warning.
-
-Link: http://lkml.kernel.org/r/20200520132005.GM1059226@linux.ibm.com
-Fixes: 7235db268a2777bc38 ("sparc32: use pgtable-nopud instead of 4level-fixup")
-Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
-Reported-by: kbuild test robot <lkp@intel.com>
-Cc: David S. Miller <davem@davemloft.net>
-Cc: Anatoly Pugachev <matorola@gmail.com>
+Link: http://lkml.kernel.org/r/20200520082100.28876-1-vitaly.wool@konsulko.com
+Signed-off-by: Uladzislau Rezki <uladzislau.rezki@sony.com>
+Signed-off-by: Vitaly Wool <vitaly.wool@konsulko.com>
+Cc: Qian Cai <cai@lca.pw>
+Cc: Raymond Jennings <shentino@gmail.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- arch/sparc/mm/srmmu.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ mm/z3fold.c |   11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
---- a/arch/sparc/mm/srmmu.c~sparc32-use-pud-rather-than-pgd-to-get-pmd-in-srmmu_nocache_init
-+++ a/arch/sparc/mm/srmmu.c
-@@ -333,7 +333,7 @@ static void __init srmmu_nocache_init(vo
- 		pgd = pgd_offset_k(vaddr);
- 		p4d = p4d_offset(__nocache_fix(pgd), vaddr);
- 		pud = pud_offset(__nocache_fix(p4d), vaddr);
--		pmd = pmd_offset(__nocache_fix(pgd), vaddr);
-+		pmd = pmd_offset(__nocache_fix(pud), vaddr);
- 		pte = pte_offset_kernel(__nocache_fix(pmd), vaddr);
+--- a/mm/z3fold.c~z3fold-fix-use-after-free-when-freeing-handles
++++ a/mm/z3fold.c
+@@ -318,16 +318,16 @@ static inline void free_handle(unsigned
+ 	slots = handle_to_slots(handle);
+ 	write_lock(&slots->lock);
+ 	*(unsigned long *)handle = 0;
+-	write_unlock(&slots->lock);
+-	if (zhdr->slots == slots)
++	if (zhdr->slots == slots) {
++		write_unlock(&slots->lock);
+ 		return; /* simple case, nothing else to do */
++	}
  
- 		pteval = ((paddr >> 4) | SRMMU_ET_PTE | SRMMU_PRIV);
+ 	/* we are freeing a foreign handle if we are here */
+ 	zhdr->foreign_handles--;
+ 	is_free = true;
+-	read_lock(&slots->lock);
+ 	if (!test_bit(HANDLES_ORPHANED, &slots->pool)) {
+-		read_unlock(&slots->lock);
++		write_unlock(&slots->lock);
+ 		return;
+ 	}
+ 	for (i = 0; i <= BUDDY_MASK; i++) {
+@@ -336,7 +336,7 @@ static inline void free_handle(unsigned
+ 			break;
+ 		}
+ 	}
+-	read_unlock(&slots->lock);
++	write_unlock(&slots->lock);
+ 
+ 	if (is_free) {
+ 		struct z3fold_pool *pool = slots_to_pool(slots);
+@@ -422,6 +422,7 @@ static struct z3fold_header *init_z3fold
+ 	zhdr->start_middle = 0;
+ 	zhdr->cpu = -1;
+ 	zhdr->foreign_handles = 0;
++	zhdr->mapped_count = 0;
+ 	zhdr->slots = slots;
+ 	zhdr->pool = pool;
+ 	INIT_LIST_HEAD(&zhdr->buddy);
 _
 
-Patches currently in -mm which might be from rppt@linux.ibm.com are
+Patches currently in -mm which might be from uladzislau.rezki@sony.com are
 
-mm-memblock-replace-dereferences-of-memblock_regionnid-with-api-calls.patch
-mm-make-early_pfn_to_nid-and-related-defintions-close-to-each-other.patch
-mm-remove-config_have_memblock_node_map-option.patch
-mm-free_area_init-use-maximal-zone-pfns-rather-than-zone-sizes.patch
-mm-use-free_area_init-instead-of-free_area_init_nodes.patch
-alpha-simplify-detection-of-memory-zone-boundaries.patch
-arm-simplify-detection-of-memory-zone-boundaries.patch
-arm64-simplify-detection-of-memory-zone-boundaries-for-uma-configs.patch
-csky-simplify-detection-of-memory-zone-boundaries.patch
-m68k-mm-simplify-detection-of-memory-zone-boundaries.patch
-parisc-simplify-detection-of-memory-zone-boundaries.patch
-sparc32-simplify-detection-of-memory-zone-boundaries.patch
-unicore32-simplify-detection-of-memory-zone-boundaries.patch
-xtensa-simplify-detection-of-memory-zone-boundaries.patch
-mm-remove-early_pfn_in_nid-and-config_nodes_span_other_nodes.patch
-mm-free_area_init-allow-defining-max_zone_pfn-in-descending-order.patch
-mm-free_area_init-allow-defining-max_zone_pfn-in-descending-order-fix-2.patch
-mm-rename-free_area_init_node-to-free_area_init_memoryless_node.patch
-mm-clean-up-free_area_init_node-and-its-helpers.patch
-mm-simplify-find_min_pfn_with_active_regions.patch
-docs-vm-update-memory-models-documentation.patch
-h8300-remove-usage-of-__arch_use_5level_hack.patch
-arm-add-support-for-folded-p4d-page-tables.patch
-arm-add-support-for-folded-p4d-page-tables-fix.patch
-arm64-add-support-for-folded-p4d-page-tables.patch
-hexagon-remove-__arch_use_5level_hack.patch
-ia64-add-support-for-folded-p4d-page-tables.patch
-nios2-add-support-for-folded-p4d-page-tables.patch
-openrisc-add-support-for-folded-p4d-page-tables.patch
-powerpc-add-support-for-folded-p4d-page-tables.patch
-powerpc-add-support-for-folded-p4d-page-tables-fix.patch
-powerpc-add-support-for-folded-p4d-page-tables-fix-2.patch
-sh-drop-__pxd_offset-macros-that-duplicate-pxd_index-ones.patch
-sh-add-support-for-folded-p4d-page-tables.patch
-unicore32-remove-__arch_use_5level_hack.patch
-asm-generic-remove-pgtable-nop4d-hackh.patch
-mm-remove-__arch_has_5level_hack-and-include-asm-generic-5level-fixuph.patch
-mm-dont-include-asm-pgtableh-if-linux-mmh-is-already-included.patch
-mm-introduce-include-linux-pgtableh.patch
-mm-reorder-includes-after-introduction-of-linux-pgtableh.patch
-csky-replace-definitions-of-__pxd_offset-with-pxd_index.patch
-m68k-mm-motorola-move-comment-about-page-table-allocation-funcitons.patch
-m68k-mm-move-cachenocahe_page-definitions-close-to-their-user.patch
-x86-mm-simplify-init_trampoline-and-surrounding-logic.patch
-mm-pgtable-add-shortcuts-for-accessing-kernel-pmd-and-pte.patch
-mm-pgtable-add-shortcuts-for-accessing-kernel-pmd-and-pte-fix.patch
-mm-pgtable-add-shortcuts-for-accessing-kernel-pmd-and-pte-fix-2.patch
-mm-consolidate-pte_index-and-pte_offset_-definitions.patch
-mm-consolidate-pmd_index-and-pmd_offset-definitions.patch
-mm-consolidate-pud_index-and-pud_offset-definitions.patch
-mm-consolidate-pgd_index-and-pgd_offset_k-definitions.patch
 
