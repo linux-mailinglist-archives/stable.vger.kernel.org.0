@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1965B1E01AD
-	for <lists+stable@lfdr.de>; Sun, 24 May 2020 21:05:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 958B11E01AE
+	for <lists+stable@lfdr.de>; Sun, 24 May 2020 21:05:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387747AbgEXTFS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 24 May 2020 15:05:18 -0400
-Received: from relay1-d.mail.gandi.net ([217.70.183.193]:27249 "EHLO
-        relay1-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387744AbgEXTFS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 24 May 2020 15:05:18 -0400
+        id S2387760AbgEXTFb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 24 May 2020 15:05:31 -0400
+Received: from relay9-d.mail.gandi.net ([217.70.183.199]:55873 "EHLO
+        relay9-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2387744AbgEXTFb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 24 May 2020 15:05:31 -0400
 X-Originating-IP: 91.224.148.103
 Received: from localhost.localdomain (unknown [91.224.148.103])
         (Authenticated sender: miquel.raynal@bootlin.com)
-        by relay1-d.mail.gandi.net (Postfix) with ESMTPSA id EC42C240002;
-        Sun, 24 May 2020 19:05:16 +0000 (UTC)
+        by relay9-d.mail.gandi.net (Postfix) with ESMTPSA id CB696FF803;
+        Sun, 24 May 2020 19:05:29 +0000 (UTC)
 From:   Miquel Raynal <miquel.raynal@bootlin.com>
 To:     Miquel Raynal <miquel.raynal@bootlin.com>,
         linux-mtd@lists.infradead.org
 Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH v2 42/62] mtd: rawnand: plat_nand: Fix the probe error path
-Date:   Sun, 24 May 2020 21:05:15 +0200
-Message-Id: <20200524190515.16746-1-miquel.raynal@bootlin.com>
+Subject: Re: [PATCH v2 40/62] mtd: rawnand: pasemi: Fix the probe error path
+Date:   Sun, 24 May 2020 21:05:28 +0200
+Message-Id: <20200524190528.19169-1-miquel.raynal@bootlin.com>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200519130035.1883-43-miquel.raynal@bootlin.com>
+In-Reply-To: <20200519130035.1883-41-miquel.raynal@bootlin.com>
 References: 
 MIME-Version: 1.0
 X-linux-mtd-patch-notification: thanks
-X-linux-mtd-patch-commit: 1b38cba858ea25ca0f90fe5887fa27b37ef5a261
+X-linux-mtd-patch-commit: 2e2b8a44d151675a7d0aaaaf5524c694f144cf36
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 2020-05-19 at 13:00:15 UTC, Miquel Raynal wrote:
-> nand_release() is supposed be called after MTD device registration.
-> Here, only nand_scan() happened, so use nand_cleanup() instead.
+On Tue, 2020-05-19 at 13:00:13 UTC, Miquel Raynal wrote:
+> nand_cleanup() is supposed to be called on error after a successful
+> call to nand_scan() to free all NAND resources.
 > 
 > There is no real Fixes tag applying here as the use of nand_release()
 > in this driver predates by far the introduction of nand_cleanup() in
