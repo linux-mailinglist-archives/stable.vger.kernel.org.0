@@ -2,89 +2,175 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 69C281E134A
-	for <lists+stable@lfdr.de>; Mon, 25 May 2020 19:09:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ECD5C1E135B
+	for <lists+stable@lfdr.de>; Mon, 25 May 2020 19:24:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389298AbgEYRJz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 May 2020 13:09:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43300 "EHLO
+        id S2389569AbgEYRY2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 May 2020 13:24:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45550 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388230AbgEYRJz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 25 May 2020 13:09:55 -0400
-Received: from mail-lj1-x242.google.com (mail-lj1-x242.google.com [IPv6:2a00:1450:4864:20::242])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3328C061A0E
-        for <stable@vger.kernel.org>; Mon, 25 May 2020 10:09:54 -0700 (PDT)
-Received: by mail-lj1-x242.google.com with SMTP id z13so11804531ljn.7
-        for <stable@vger.kernel.org>; Mon, 25 May 2020 10:09:54 -0700 (PDT)
+        with ESMTP id S2389428AbgEYRY1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 25 May 2020 13:24:27 -0400
+Received: from mail-wm1-x344.google.com (mail-wm1-x344.google.com [IPv6:2a00:1450:4864:20::344])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B116C061A0E
+        for <stable@vger.kernel.org>; Mon, 25 May 2020 10:24:27 -0700 (PDT)
+Received: by mail-wm1-x344.google.com with SMTP id h4so616104wmb.4
+        for <stable@vger.kernel.org>; Mon, 25 May 2020 10:24:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=WchuIv79nNvnK+tHmT8tL0p7oQxATu8anJ+BAbndLtw=;
-        b=hZUL5+Jz3+QyQL9RJOYqiGkhtIv/CKoNNdfFJRsocLzKDJPRB0XBFBvLK3+TGCDTM/
-         dGjrO20/LiZdean+0GunGHAYIhnYydiAiLxXi9D03woOJOxUoCNDo79iu+f7XNw3wB4j
-         rBF24qQALyBuWl0YiI71HezwfScnGU7CaLoexd5l6PBXjcgbbBLOMWiQDk7C/+0EQGYd
-         UP0Ntn3w85aGJUpSlPH0B7sz97yC9yOHJ1yYLF1RTkmyDJygjnqp0aKFx9dw0lhVDiub
-         lYUOerRAJ8oXgfa6sSocN2BJp1FtYdo68PIdMHKtpIuYpm3k5ou2xjTCgrjXFif03KWk
-         74bQ==
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to
+         :user-agent;
+        bh=IU0CqAfstg13dbE3unxIbquymTSekIEpyKSQDN7kLos=;
+        b=tToF5Thk2RmYfGKM26dmy+ubTsRhSAkSO32SC6GDKXC1WP1ms4U8LBOR/N8l7vRkSa
+         zrsDTeWorpfUWktYWh66dUwEPn6Q5pBS/vh+hhLILiD9C2iaPEKeOrUl9MrVzK66RVhp
+         Tm21+GM1N1+SycVKLOo2X2rcGnwHg//i+7fdZjgAjRZImaL8++o8zIQkcd8hrdYI8l1N
+         ghLTHAs17zKbuBhjeMLlRXrpRvb+DiGnJiKavMpjnmY4kEF1I5dG923X0MC600blXCMp
+         NpTuAtcbOKJ+wAZDHVX5RLCKy0AIjwrRjGdxWho/zFtFqZUTwRPteatfRpyI1Juzsjpq
+         j8sQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to:content-transfer-encoding;
-        bh=WchuIv79nNvnK+tHmT8tL0p7oQxATu8anJ+BAbndLtw=;
-        b=PpnCXFr2WjLK1uQ+6jtbkdpBnsne4k9QEzwsKbe+8RwtZJZrkqwJW12tKqjquUPhpG
-         cm2DhnfUJu1xrA1ayFUhAZKzJ81n4R4E96kRYz8z0W+/CNrPfxSBWBDF9GuuIfV/QG4J
-         mY9BboPUkgCgKX7vwcomD+75v3wPu9p913qi3Ap3vkN9moY+qtlVc7wYiKa+X/sAOxzx
-         bgfArOa/J2PbsL1f9yQ5vFRJdKzM66EA4mfDetmfEIIOxCvw80/2jWhAKc4IMnsGklBk
-         OeZ1yS7BJ4KHPruDjQl9nquj4NRNdG5cKefFxEGNxRDWtkEd+EebeQnoDvLrrl3r1g5B
-         5cRw==
-X-Gm-Message-State: AOAM531vi5z8E3lJjFZdnwDO4O4hGAw453iOOFAARmnLhgTo7WMNUFVt
-        /TJNh/oCv2tbesrsLrqOBIFD8N+8j7vHe3haQuk=
-X-Google-Smtp-Source: ABdhPJxDKGTgPUe7NAwxM2/ibZ1VWIHoyTxTNMVNtAxekdmHZW5TlIPf3A/b8OVTWCyU4IFAEvaPNqJweapl3LPdpKc=
-X-Received: by 2002:a2e:a49b:: with SMTP id h27mr12750440lji.299.1590426593272;
- Mon, 25 May 2020 10:09:53 -0700 (PDT)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to:user-agent;
+        bh=IU0CqAfstg13dbE3unxIbquymTSekIEpyKSQDN7kLos=;
+        b=ryRKXhvJm9nsmtx3TE6Sl/0ABJ9wT1mH1kSnIToMD1Xv3unq97MKbvPGptE3CbPe2S
+         fuCf7eKrw3Y/EWfBAYnPR0gupWhGcqhy64P7/iamV+Nh+FJZLBtwOm7oa54+8JYqAhR/
+         7YXZ4tuUG0QP898kYnuTfP+uWoybj1Q2GIW7pTUAAQRy1lSl+cB2OWOxasOiV1oBRaPl
+         rvMzSqH47DjFZ7Bxa/Zs46lVa/+N5t14j1n7bCyduyVQOEEzftX4QLRqYy1tRN7x0fq5
+         /kbLtqqZk+Jr/cnSsNjy7dzfaBd++hNwF9/1tqL4bi6qF+70p1+CuW6poUX+Png8jhRd
+         EaXg==
+X-Gm-Message-State: AOAM530/NOc/zTOiPa6HUA8h2do8eLr8qu0ceoKE1N+g+CyGs0GaLZZN
+        uAW42vDWbJZBusdp3PUkAfTE/Q==
+X-Google-Smtp-Source: ABdhPJxykK9NafgEBWbrdPMTvTYIkdMVdrc3mk1E4/g5gmAmYcKuPxs9DFyascz4JFzYuXlmV30H+A==
+X-Received: by 2002:a1c:62d6:: with SMTP id w205mr7166093wmb.97.1590427465724;
+        Mon, 25 May 2020 10:24:25 -0700 (PDT)
+Received: from vingu-book ([2a01:e0a:f:6020:4472:94ba:76c5:5d9f])
+        by smtp.gmail.com with ESMTPSA id c14sm7861604wme.8.2020.05.25.10.24.24
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Mon, 25 May 2020 10:24:24 -0700 (PDT)
+Date:   Mon, 25 May 2020 19:24:23 +0200
+From:   Vincent Guittot <vincent.guittot@linaro.org>
+To:     gregkh@linuxfoundation.org
+Cc:     bsegall@google.com, pauld@redhat.com, peterz@infradead.org,
+        zohooouoto@zoho.com.cn, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] sched/fair: Fix unthrottle_cfs_rq() for
+ leaf_cfs_rq list" failed to apply to 5.6-stable tree
+Message-ID: <20200525172423.GA7427@vingu-book>
+References: <159041776914106@kroah.com>
 MIME-Version: 1.0
-Received: by 2002:a2e:8714:0:0:0:0:0 with HTTP; Mon, 25 May 2020 10:09:52
- -0700 (PDT)
-Reply-To: alhouttta@gmail.com
-From:   Al Haji Idriss <moorehenry677@gmail.com>
-Date:   Mon, 25 May 2020 18:09:52 +0100
-Message-ID: <CAM2vv_QGfO7gccHmy_v8P8juOBa2Dbkk0=SxaRgoU9pg_D+jYw@mail.gmail.com>
-Subject: Eid Mubarak,
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <159041776914106@kroah.com>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Eid Mubarak,
+Le lundi 25 mai 2020 à 16:42:49 (+0200), gregkh@linuxfoundation.org a écrit :
+> 
+> The patch below does not apply to the 5.6-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
+> 
 
-I am an active banker,  I saw your email address while browsing
-through the bank DTC Screen in my office yesterday. now  I am in a
-better position to transfer about $8.3 million US Dollars into a
-foreign account. If you are willing and capable to work with me to
-receive this fund into a personal or company's account, I will give
-you the full detailed information. No risk is involved as it will pass
-through normal banking procedures.
+This patch needs  commit
+    b34cb07dde7c ("sched/fair: Fix enqueue_task_fair() warning some more")
+to be applied first. But then, it will not apply. The backport is :
 
-Hence, I am inviting you for a business deal where this money can be
-transfer to your account which we will shared between us in the ratio
-of 50% for me,50% for you and both of us will share any expenses that
-will come during the release/transfer from our bank, if you agree to
-my business proposal. Further details of this Fund release and
-transfer will be forwarded to you as soon as I receive your detail
-Mail.
 
-1)Your Full Names. (2)Your country. (3)Your Telephone
-(4)Your Occupation .(5)Your Age. (6) Your full Address.
-I will use these detail information=E2=80=99s to fill a release/transfer an=
-d
-arrange some documents on your behalf in our bank here as the
-beneficiary owner of this fund abandoned in our bank
+[ Upstream commit 39f23ce07b9355d05a64ae303ce20d1c4b92b957 upstream ]
 
-Please contact me through my private Email:alhouttta@gmail.com
+Although not exactly identical, unthrottle_cfs_rq() and enqueue_task_fair()
+are quite close and follow the same sequence for enqueuing an entity in the
+cfs hierarchy. Modify unthrottle_cfs_rq() to use the same pattern as
+enqueue_task_fair(). This fixes a problem already faced with the latter and
+add an optimization in the last for_each_sched_entity loop.
 
-Thanks
-Alh Idriss Akim Outta
+Fixes: fe61468b2cb (sched/fair: Fix enqueue_task_fair warning)
+Reported-by Tao Zhou <zohooouoto@zoho.com.cn>
+Signed-off-by: Vincent Guittot <vincent.guittot@linaro.org>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Phil Auld <pauld@redhat.com>
+Reviewed-by: Ben Segall <bsegall@google.com>
+Link: https://lkml.kernel.org/r/20200513135528.4742-1-vincent.guittot@linaro.org
+---
+ kernel/sched/fair.c | 36 ++++++++++++++++++++++++++++--------
+ 1 file changed, 28 insertions(+), 8 deletions(-)
+
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index 7cd86641b44b..b579546670e3 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -4590,7 +4590,6 @@ void unthrottle_cfs_rq(struct cfs_rq *cfs_rq)
+ 	struct rq *rq = rq_of(cfs_rq);
+ 	struct cfs_bandwidth *cfs_b = tg_cfs_bandwidth(cfs_rq->tg);
+ 	struct sched_entity *se;
+-	int enqueue = 1;
+ 	long task_delta, idle_task_delta;
+ 
+ 	se = cfs_rq->tg->se[cpu_of(rq)];
+@@ -4614,21 +4613,41 @@ void unthrottle_cfs_rq(struct cfs_rq *cfs_rq)
+ 	idle_task_delta = cfs_rq->idle_h_nr_running;
+ 	for_each_sched_entity(se) {
+ 		if (se->on_rq)
+-			enqueue = 0;
++			break;
++		cfs_rq = cfs_rq_of(se);
++		enqueue_entity(cfs_rq, se, ENQUEUE_WAKEUP);
++
++		cfs_rq->h_nr_running += task_delta;
++		cfs_rq->idle_h_nr_running += idle_task_delta;
+ 
++		/* end evaluation on encountering a throttled cfs_rq */
++		if (cfs_rq_throttled(cfs_rq))
++			goto unthrottle_throttle;
++	}
++
++	for_each_sched_entity(se) {
+ 		cfs_rq = cfs_rq_of(se);
+-		if (enqueue)
+-			enqueue_entity(cfs_rq, se, ENQUEUE_WAKEUP);
++
+ 		cfs_rq->h_nr_running += task_delta;
+ 		cfs_rq->idle_h_nr_running += idle_task_delta;
+ 
++
++		/* end evaluation on encountering a throttled cfs_rq */
+ 		if (cfs_rq_throttled(cfs_rq))
+-			break;
++			goto unthrottle_throttle;
++
++		/*
++		 * One parent has been throttled and cfs_rq removed from the
++		 * list. Add it back to not break the leaf list.
++		 */
++		if (throttled_hierarchy(cfs_rq))
++			list_add_leaf_cfs_rq(cfs_rq);
+ 	}
+ 
+-	if (!se)
+-		add_nr_running(rq, task_delta);
++	/* At this point se is NULL and we are at root level*/
++	add_nr_running(rq, task_delta);
+ 
++unthrottle_throttle:
+ 	/*
+ 	 * The cfs_rq_throttled() breaks in the above iteration can result in
+ 	 * incomplete leaf list maintenance, resulting in triggering the
+@@ -4637,7 +4656,8 @@ void unthrottle_cfs_rq(struct cfs_rq *cfs_rq)
+ 	for_each_sched_entity(se) {
+ 		cfs_rq = cfs_rq_of(se);
+ 
+-		list_add_leaf_cfs_rq(cfs_rq);
++		if (list_add_leaf_cfs_rq(cfs_rq))
++			break;
+ 	}
+ 
+ 	assert_list_leaf_cfs_rq(rq);
+-- 
+2.17.1
+
