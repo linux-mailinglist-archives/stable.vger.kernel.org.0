@@ -2,96 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 908C01E1225
-	for <lists+stable@lfdr.de>; Mon, 25 May 2020 17:55:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E187E1E1235
+	for <lists+stable@lfdr.de>; Mon, 25 May 2020 17:58:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391043AbgEYPzT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 May 2020 11:55:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59924 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2390998AbgEYPzS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 25 May 2020 11:55:18 -0400
-Received: from mail-lj1-x241.google.com (mail-lj1-x241.google.com [IPv6:2a00:1450:4864:20::241])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3909C061A0E
-        for <stable@vger.kernel.org>; Mon, 25 May 2020 08:55:16 -0700 (PDT)
-Received: by mail-lj1-x241.google.com with SMTP id z13so11574503ljn.7
-        for <stable@vger.kernel.org>; Mon, 25 May 2020 08:55:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=UZDddnpoOyP0FJJV23p5xrvVjha4lOwjGjPgJfs0qqE=;
-        b=LbVKXQY4Szafaa8jACbd1BbMyFcg6RDea59NKS4+hrKSrOEqj1VGPfv3qsn/orNcLJ
-         7vZVhkMk2sfDXn6b6xsPxhJmmq9zh3LTEq/YeRvgFUOnZzUF1Lssu2qTgh+5fPi+dUhy
-         d0N8KCm28bPRq8zADzch6d8QTY3iW4lx8o2OK/aY5X8eNx9HFgCm7TYBi6D7HcH7NeRm
-         ECPHGg9uwhc6o1D/YEGPScN8tKB0a83FhZ33pR6/K69sZvliGoVw8f/cRGz2U5FE0rTX
-         /IZ/A9yxCJkUEZdHieVyApjDEVtbwobL5n+KQfxK1nF6ceiZ399FXTteMw8TPvlNMfFH
-         zktA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=UZDddnpoOyP0FJJV23p5xrvVjha4lOwjGjPgJfs0qqE=;
-        b=j597RFC+K4l822F4vk/mWSkfZuiLcnEPPXEsJeufb1gmbFHTKmBeQeCDDKnI3guVUv
-         aDcEfOryzsFQxJF1/jA8EL6/QuGbNlGr9znPzip1pIqaurefSifTvkfUhLo2RH7UkpXo
-         LjocBgaIjLRlXIJ9CFwcPHo45oykY4k6JAdkUN8ivQdrhzhAvysNJzTkHuyToEwxyb8S
-         xrxVznMXo5ReULdUJbtbZkfeOaAr/HXB4GqgcdLtRFEcTDV/HvSm8D2C9uHsSvbFS/2b
-         ooa3Hv2b1b7gzJFsOVTUd1woHYdP3vylXDPS5aPODjPQN0Jc9NOsm2M9Q/SiNl5WO9WZ
-         ysew==
-X-Gm-Message-State: AOAM530xgiDUfxmlABap/x9S/2GVNgCUyZNULwGVfaGsq+osse8IgiRJ
-        1k5qsCx19Vj4ukebX3FNy/X9eCyqRxPhgyL9usi9WQ==
-X-Google-Smtp-Source: ABdhPJwPQ7DsCgjJXto61Xix+Y2DG5KnFtwN11HDCk8IQMcH9Jmub2ewqHXfws83RwjmrdqiX3ZYCC9q7NVhJ4+9Y/8=
-X-Received: by 2002:a2e:1f02:: with SMTP id f2mr13573214ljf.156.1590422115224;
- Mon, 25 May 2020 08:55:15 -0700 (PDT)
-MIME-Version: 1.0
-References: <1590417756152233@kroah.com> <CAKfTPtCdYVG3KbE4RixXYMEv=yQNu5zMutS7bTk4dAHqSxhs7A@mail.gmail.com>
- <20200525154918.GB1039448@kroah.com>
-In-Reply-To: <20200525154918.GB1039448@kroah.com>
-From:   Vincent Guittot <vincent.guittot@linaro.org>
-Date:   Mon, 25 May 2020 17:55:03 +0200
-Message-ID: <CAKfTPtCCegv884Rd03hB9doLM8_JSFY=tg7dFaWgOYsGLYjNEg@mail.gmail.com>
-Subject: Re: FAILED: patch "[PATCH] sched/fair: Fix enqueue_task_fair()
- warning some more" failed to apply to 5.6-stable tree
-To:     "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
-Cc:     Phil Auld <pauld@redhat.com>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        id S2404126AbgEYP6f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 May 2020 11:58:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56426 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2404076AbgEYP6e (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 May 2020 11:58:34 -0400
+Received: from kernel.org (unknown [87.70.212.59])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1635F2071A;
+        Mon, 25 May 2020 15:58:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1590422313;
+        bh=wiDKEyw484GXmzSpZVclCFGRQEPFTvq5irNs419nfE4=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=aJELzVEPKY+5KMeo8hwIzuqSdQOIGJRHj/t/iF3JINZEsAtYxfFOUSrWPkz21CKEb
+         B3vg9eQI7Das73bdaUmYck2p+l4ymM+jeed8WASz0bR5SGfs0HEDOf2iFB+RvIlCur
+         jJA4oOH7cASC0Bl1E46qbLND7ovDEJmEy0zytSs4=
+Date:   Mon, 25 May 2020 18:58:25 +0300
+From:   Mike Rapoport <rppt@kernel.org>
+To:     "Kirill A. Shutemov" <kirill@shutemov.name>
+Cc:     "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Andy Lutomirski <luto@kernel.org>,
         Peter Zijlstra <peterz@infradead.org>,
-        "# v4 . 16+" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Tony Luck <tony.luck@intel.com>, x86@kernel.org,
+        linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+        Dave Hansen <dave.hansen@intel.com>, stable@vger.kernel.org
+Subject: Re: [PATCH] x86/mm: Fix boot with some memory above MAXMEM
+Message-ID: <20200525155825.GB13247@kernel.org>
+References: <20200511191721.1416-1-kirill.shutemov@linux.intel.com>
+ <20200525044902.rsb46bxu5hdsqglt@box>
+ <20200525145943.GA13247@kernel.org>
+ <20200525150820.zljiamptpzi37ohx@box>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200525150820.zljiamptpzi37ohx@box>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 25 May 2020 at 17:49, gregkh@linuxfoundation.org
-<gregkh@linuxfoundation.org> wrote:
->
-> On Mon, May 25, 2020 at 05:41:36PM +0200, Vincent Guittot wrote:
-> > On Mon, 25 May 2020 at 16:42, <gregkh@linuxfoundation.org> wrote:
-> > >
-> > >
-> > > The patch below does not apply to the 5.6-stable tree.
-> > > If someone wants it applied there, or to any other stable or longterm
-> > > tree, then please email the backport, including the original git commit
-> > > id to <stable@vger.kernel.org>.
-> >
-> > This patch applies on top of
-> > commit 6d4d22468dae ("sched/fair: Reorder enqueue/dequeue_task_fair path")
->
-> That applies, but:
->
-> > commit 5ab297bab984 ("sched/fair: Fix reordering of
-> > enqueue/dequeue_task_fair()")
->
-> That one does not.
->
-> Can you make a backported patch series of these that I can apply easily?
+On Mon, May 25, 2020 at 06:08:20PM +0300, Kirill A. Shutemov wrote:
+> On Mon, May 25, 2020 at 05:59:43PM +0300, Mike Rapoport wrote:
+> > On Mon, May 25, 2020 at 07:49:02AM +0300, Kirill A. Shutemov wrote:
+> > > On Mon, May 11, 2020 at 10:17:21PM +0300, Kirill A. Shutemov wrote:
+> > > > A 5-level paging capable machine can have memory above 46-bit in the
+> > > > physical address space. This memory is only addressable in the 5-level
+> > > > paging mode: we don't have enough virtual address space to create direct
+> > > > mapping for such memory in the 4-level paging mode.
+> > > > 
+> > > > Currently, we fail boot completely: NULL pointer dereference in
+> > > > subsection_map_init().
+> > > > 
+> > > > Skip creating a memblock for such memory instead and notify user that
+> > > > some memory is not addressable.
+> > > > 
+> > > > Signed-off-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+> > > > Reviewed-by: Dave Hansen <dave.hansen@intel.com>
+> > > > Cc: stable@vger.kernel.org # v4.14
+> > > > ---
+> > > 
+> > > Gentle ping.
+> > > 
+> > > It's not urgent, but it's a bug fix. Please consider applying.
+> > > 
+> > > > Tested with a hacked QEMU: https://gist.github.com/kiryl/d45eb54110944ff95e544972d8bdac1d
+> > > > 
+> > > > ---
+> > > >  arch/x86/kernel/e820.c | 19 +++++++++++++++++--
+> > > >  1 file changed, 17 insertions(+), 2 deletions(-)
+> > > > 
+> > > > diff --git a/arch/x86/kernel/e820.c b/arch/x86/kernel/e820.c
+> > > > index c5399e80c59c..d320d37d0f95 100644
+> > > > --- a/arch/x86/kernel/e820.c
+> > > > +++ b/arch/x86/kernel/e820.c
+> > > > @@ -1280,8 +1280,8 @@ void __init e820__memory_setup(void)
+> > > >  
+> > > >  void __init e820__memblock_setup(void)
+> > > >  {
+> > > > +	u64 size, end, not_addressable = 0;
+> > > >  	int i;
+> > > > -	u64 end;
+> > > >  
+> > > >  	/*
+> > > >  	 * The bootstrap memblock region count maximum is 128 entries
+> > > > @@ -1307,7 +1307,22 @@ void __init e820__memblock_setup(void)
+> > > >  		if (entry->type != E820_TYPE_RAM && entry->type != E820_TYPE_RESERVED_KERN)
+> > > >  			continue;
+> > > >  
+> > > > -		memblock_add(entry->addr, entry->size);
+> > > > +		if (entry->addr >= MAXMEM) {
+> > > > +			not_addressable += entry->size;
+> > > > +			continue;
+> > > > +		}
+> > > > +
+> > > > +		end = min_t(u64, end, MAXMEM - 1);
+> > > > +		size = end - entry->addr;
+> > > > +		not_addressable += entry->size - size;
+> > > > +		memblock_add(entry->addr, size);
+> > > > +	}
+> > > > +
+> > > > +	if (not_addressable) {
+> > > > +		pr_err("%lldGB of physical memory is not addressable in the paging mode\n",
+> > > > +		       not_addressable >> 30);
+> > > > +		if (!pgtable_l5_enabled())
+> > > > +			pr_err("Consider enabling 5-level paging\n");
+> > 
+> > Could this happen at all when l5 is enabled?
+> > Does it mean we need kmap() for 64-bit?
+> 
+> It's future-profing. Who knows what paging modes we would have in the
+> future.
 
-I tested the cherry-pick of the 2 commits above on top of v5.6.14 and
-there were applying without error. Should I use another tag ?
+Than maybe
 
+	pr_err("%lldGB of physical memory is not addressable in %s the paging mode\n",
+               not_addressable >> 30, pgtable_l5_enabled() "5-level" ? "4-level");
 
->
-> thanks,
->
-> greg k-h
+"the paging mode" on its own sounds a bit awkward to me.
+
+> -- 
+>  Kirill A. Shutemov
+
+-- 
+Sincerely yours,
+Mike.
