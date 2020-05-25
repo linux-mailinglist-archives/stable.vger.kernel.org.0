@@ -2,149 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A56CB1E0F9A
-	for <lists+stable@lfdr.de>; Mon, 25 May 2020 15:35:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D7EBF1E0FDF
+	for <lists+stable@lfdr.de>; Mon, 25 May 2020 15:53:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403856AbgEYNf4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 May 2020 09:35:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37978 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2403855AbgEYNf4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 25 May 2020 09:35:56 -0400
-Received: from mail-pg1-x544.google.com (mail-pg1-x544.google.com [IPv6:2607:f8b0:4864:20::544])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2DA3C061A0E
-        for <stable@vger.kernel.org>; Mon, 25 May 2020 06:35:55 -0700 (PDT)
-Received: by mail-pg1-x544.google.com with SMTP id u5so8700825pgn.5
-        for <stable@vger.kernel.org>; Mon, 25 May 2020 06:35:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=koi3goIslcHVnM5wiFZYUR6u05saUiVdLz+rMXL5wiY=;
-        b=CUF4PuBi5nEFv1qKRMEWhbKTJBT03jIYDWJXEnf1h7+cf7oX0NxHN3olHSNIusnj+H
-         xbZ2VGXEHj0Dg6gYvgLjEXOf+8ffae9ws4ODIC0zVPvwZCmM96pLvQxR+bCPz1fh0F+M
-         G0rwhh3lDZk5DwQQlwLVhW1ekEXuAYW8IBKBAfpdbmd/8JuhDgeBbTffoTce9xjj/oSE
-         d1vTHtR1n9S44JUPBzgBI/uhnGGZFFHfziVQjyldwi4CFAVplE71J9K7KkYkc2eAHUza
-         CTnATdPa4utZLpJQU+Q2j6S1dfLxAfyJObkHECMaf1gu4ZqhuuBbyUDRFn/oulWxalfH
-         uSNA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=koi3goIslcHVnM5wiFZYUR6u05saUiVdLz+rMXL5wiY=;
-        b=RZHwGFCaxs1WZwyww1i6QpPk/vHI+Osi5ZcnocuJWOU8pDG37MO1nD8fMx3YSvwwUL
-         5pf8L8BB+Tcslo3SuJkOfop0DnbZ/dB5R/aI3D3T9elZs7RbB2nUj/ojylaSnMncbJZT
-         pVNUoPYseaYhe2AsW64zVCf2sv3WZvQfNd6dgSucInT58yDwn9dLcCjJTOvQPSv1pC0r
-         bW/ZJAV+0gVtYXD1DGGSUzsS2/DGWFfqcEGuQ0gVmk+5qliGXCQMf2s8vrXZ5FEa9w6U
-         5Uf5rirPfRLO13YkaqDJVMEy6cyZj1X7irq7jmRTaHymq1SUWTT1r3PcyOuK0oqH1VNB
-         UuqA==
-X-Gm-Message-State: AOAM5318yYTlHP8bwue3/IbK//9PEjp/JEP4vxwIi3jNOvgPdN4glfQ2
-        6gg+5UaqcADoOxq5kp6otrtHriI+D7E=
-X-Google-Smtp-Source: ABdhPJzxsU1SMAFLigvRS5NkH0Ga6TjhMhaQMlX6x+u+Gi+Tnw5rkk5EeNmeXfy4mff4nK751niLWg==
-X-Received: by 2002:a63:3546:: with SMTP id c67mr25630032pga.379.1590413755145;
-        Mon, 25 May 2020 06:35:55 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id v1sm11990738pgl.11.2020.05.25.06.35.53
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 25 May 2020 06:35:54 -0700 (PDT)
-Message-ID: <5ecbc9ba.1c69fb81.46ecb.cc71@mx.google.com>
-Date:   Mon, 25 May 2020 06:35:54 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S2403838AbgEYNxh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 May 2020 09:53:37 -0400
+Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:50029 "EHLO
+        forward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2403805AbgEYNxg (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Mon, 25 May 2020 09:53:36 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailforward.nyi.internal (Postfix) with ESMTP id A34901940959;
+        Mon, 25 May 2020 09:53:35 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Mon, 25 May 2020 09:53:35 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=SH3lsJ
+        ap6kEF5gV1xRSOvWO2oMe5TSd/h+6x9haI4BQ=; b=BSfwIKMpRG1gnPVwe6W6IY
+        RfuQddpOOoyXZmyHp3jeckzUaNjB19kQfSmaKSQT8cwZHNJyR2y6H+nGD6J3Pp8M
+        CK1vMvt4IUa7KKWfs5xmCwSxJQrFFqeugpupdZ2a5F4AbdH5epSgq2ly3zWG8efK
+        2b0+VxQhk0jPhyeeyo1ZCQJOBecbZmLUt8J9lGtc7+xAbb5V+5xBTmpprZdDFayu
+        EKmp2ivwmWWVfUA1mu0Xip9EcL+RN1FATXb/9OlEUUGrc1tN7tH07mkEkqprJcXW
+        qL3USiHP2GLXotin+ZfRNFiPQ842lUZe7X4s+vG9pO5xkVx/BS5mtoTCIzWc7SuA
+        ==
+X-ME-Sender: <xms:3s3LXsviRHw0kHykhy4yQ9RcHyeE_E-yWIKxkqqp5P1c7MRu3SfUPg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedruddvtddgieelucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
+    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushht
+    vghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
+    drtghomh
+X-ME-Proxy: <xmx:383LXpcOMTKO_lsPLLbVwS89eG9pxdFe5wfq_aw1O-zTuZw8ZYMCTw>
+    <xmx:383LXnw4k86a6gCGMOXdKNnQoAJACbAkrHZyrCVSKxSgy_92cFkpOA>
+    <xmx:383LXvPgoRhcH0k5coRC0BkhL-m10XLQgUhg91lP8m7VmgdEqMrBgw>
+    <xmx:383LXlLd-URPmg5Qm8bZwsMNmP1XRN3jxOWo_NLptOjPGUCFXPRtbQ>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id B1C36328005A;
+        Mon, 25 May 2020 09:53:34 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] iio: adc: stm32-adc: fix device used to request dma" failed to apply to 4.14-stable tree
+To:     fabrice.gasnier@st.com, Jonathan.Cameron@huawei.com,
+        Stable@vger.kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 25 May 2020 15:53:31 +0200
+Message-ID: <159041481114272@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.9.224
-X-Kernelci-Report-Type: boot
-X-Kernelci-Branch: linux-4.9.y
-Subject: stable-rc/linux-4.9.y boot: 97 boots: 1 failed,
- 88 passed with 5 offline, 3 untried/unknown (v4.9.224)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-******************************************
-* WARNING: Boot tests are now deprecated *
-******************************************
 
-As kernelci.org is expanding its functional testing capabilities, the conce=
-pt
-of boot testing is now deprecated.  Boot results are scheduled to be droppe=
-d on
-*5th June 2020*.  The full schedule for boot tests deprecation is available=
- on
-this GitHub issue: https://github.com/kernelci/kernelci-backend/issues/238
+The patch below does not apply to the 4.14-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-The new equivalent is the *baseline* test suite which also runs sanity chec=
-ks
-using dmesg and bootrr: https://github.com/kernelci/bootrr
+thanks,
 
-See the *baseline results for this kernel revision* on this page:
-https://kernelci.org/test/job/stable-rc/branch/linux-4.9.y/kernel/v4.9.224/=
-plan/baseline/
+greg k-h
 
----------------------------------------------------------------------------=
-----
+------------------ original commit in Linus's tree ------------------
 
-stable-rc/linux-4.9.y boot: 97 boots: 1 failed, 88 passed with 5 offline, 3=
- untried/unknown (v4.9.224)
+From 52cd91c27f3908b88e8b25aed4a4d20660abcc45 Mon Sep 17 00:00:00 2001
+From: Fabrice Gasnier <fabrice.gasnier@st.com>
+Date: Thu, 30 Apr 2020 11:28:45 +0200
+Subject: [PATCH] iio: adc: stm32-adc: fix device used to request dma
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.9.y/kernel/v4.9.224/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
-/kernel/v4.9.224/
+DMA channel request should use device struct from platform device struct.
+Currently it's using iio device struct. But at this stage when probing,
+device struct isn't yet registered (e.g. device_register is done in
+iio_device_register). Since commit 71723a96b8b1 ("dmaengine: Create
+symlinks between DMA channels and slaves"), a warning message is printed
+as the links in sysfs can't be created, due to device isn't yet registered:
+- Cannot create DMA slave symlink
+- Cannot create DMA dma:rx symlink
 
-Tree: stable-rc
-Branch: linux-4.9.y
-Git Describe: v4.9.224
-Git Commit: e4ebe4fae299b559e683eb31a2dc950507842bf7
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 56 unique boards, 19 SoC families, 19 builds out of 197
+Fix this by using device struct from platform device to request dma chan.
 
-Boot Regressions Detected:
+Fixes: 2763ea0585c99 ("iio: adc: stm32: add optional dma support")
 
-arm:
+Signed-off-by: Fabrice Gasnier <fabrice.gasnier@st.com>
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-    qcom_defconfig:
-        gcc-8:
-          qcom-apq8064-cm-qs600:
-              lab-baylibre-seattle: failing since 12 days (last pass: v4.9.=
-223 - first fail: v4.9.223-25-g6dfb25040a46)
+diff --git a/drivers/iio/adc/stm32-adc.c b/drivers/iio/adc/stm32-adc.c
+index ae622ee6d08c..dfc3a306c667 100644
+--- a/drivers/iio/adc/stm32-adc.c
++++ b/drivers/iio/adc/stm32-adc.c
+@@ -1812,18 +1812,18 @@ static int stm32_adc_chan_of_init(struct iio_dev *indio_dev)
+ 	return 0;
+ }
+ 
+-static int stm32_adc_dma_request(struct iio_dev *indio_dev)
++static int stm32_adc_dma_request(struct device *dev, struct iio_dev *indio_dev)
+ {
+ 	struct stm32_adc *adc = iio_priv(indio_dev);
+ 	struct dma_slave_config config;
+ 	int ret;
+ 
+-	adc->dma_chan = dma_request_chan(&indio_dev->dev, "rx");
++	adc->dma_chan = dma_request_chan(dev, "rx");
+ 	if (IS_ERR(adc->dma_chan)) {
+ 		ret = PTR_ERR(adc->dma_chan);
+ 		if (ret != -ENODEV) {
+ 			if (ret != -EPROBE_DEFER)
+-				dev_err(&indio_dev->dev,
++				dev_err(dev,
+ 					"DMA channel request failed with %d\n",
+ 					ret);
+ 			return ret;
+@@ -1930,7 +1930,7 @@ static int stm32_adc_probe(struct platform_device *pdev)
+ 	if (ret < 0)
+ 		return ret;
+ 
+-	ret = stm32_adc_dma_request(indio_dev);
++	ret = stm32_adc_dma_request(dev, indio_dev);
+ 	if (ret < 0)
+ 		return ret;
+ 
 
-    versatile_defconfig:
-        gcc-8:
-          versatile-pb:
-              lab-collabora: new failure (last pass: v4.9.223-91-g7cb03e23d=
-3f5)
-
-Boot Failure Detected:
-
-arm:
-    sama5_defconfig:
-        gcc-8:
-            at91-sama5d4_xplained: 1 failed lab
-
-Offline Platforms:
-
-arm:
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-            qcom-apq8064-cm-qs600: 1 offline lab
-            stih410-b2120: 1 offline lab
-
-    exynos_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-
----
-For more info write to <info@kernelci.org>
