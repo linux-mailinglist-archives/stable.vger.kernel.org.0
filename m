@@ -2,114 +2,147 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2300C1E04CE
-	for <lists+stable@lfdr.de>; Mon, 25 May 2020 04:44:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE6AF1E062F
+	for <lists+stable@lfdr.de>; Mon, 25 May 2020 06:49:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388422AbgEYCoi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 24 May 2020 22:44:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48856 "EHLO
+        id S1726515AbgEYEtE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 May 2020 00:49:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39826 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388409AbgEYCoi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 24 May 2020 22:44:38 -0400
-Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F0F4C061A0E;
-        Sun, 24 May 2020 19:44:38 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20170209; h=Content-Transfer-Encoding:
-        Content-Type:In-Reply-To:MIME-Version:Date:Message-ID:From:References:Cc:To:
-        Subject:Sender:Reply-To:Content-ID:Content-Description;
-        bh=ANukTnGf9qzAoLJoJyRWxzKKdZWe8nKT7t7/i4XYDHs=; b=Y5HnZg8QP8DTAs73j/nJCk8wlu
-        wiu8LaYgIfJac8zqjI0xHJgeZ/i7B4788vRf3XmhSqsa0TwgkMagM3TRUM7Kwz24yQV7uq/6wAL8f
-        pLZBKbXyaQnAtG8pCoqqMzG1eY8XAZLRRJ/ji6P4yr6LyhvlixgM0HDHZuxgPWdosFQG6L46ejkUX
-        RD4S3qgop3rBJVuOMvKLpkqE0yKwqiuGpGADLidqUHHqTcwRtOz9/rl2E2aH5mLNe5VvdTOsw7ikC
-        bmI6Fviwh+poEMANipihvbvVk5raZNASVV0nXwzHOIanyVOW8HLt1i6mkrW8+RMV14jT+0vWV+7Am
-        HCbGhKUQ==;
-Received: from [2601:1c0:6280:3f0::19c2]
-        by bombadil.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1jd36A-00004r-Bc; Mon, 25 May 2020 02:44:19 +0000
-Subject: Re: [PATCH 1/2] software node: implement software_node_unregister()
-To:     Guenter Roeck <linux@roeck-us.net>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     Naresh Kamboju <naresh.kamboju@linaro.org>,
-        kernel test robot <rong.a.chen@intel.com>,
-        stable <stable@vger.kernel.org>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Brendan Higgins <brendanhiggins@google.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Petr Mladek <pmladek@suse.com>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
-        Steven Rostedt <rostedt@goodmis.org>
-References: <20200524153041.2361-1-gregkh@linuxfoundation.org>
- <605c47b7-9199-85f1-89e0-bd768acd3d2d@roeck-us.net>
-From:   Randy Dunlap <rdunlap@infradead.org>
-Message-ID: <13de8a28-9ea9-bf44-c4e7-d5bfb63c81fd@infradead.org>
-Date:   Sun, 24 May 2020 19:44:16 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.8.0
+        with ESMTP id S1726007AbgEYEtE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 25 May 2020 00:49:04 -0400
+Received: from mail-lj1-x242.google.com (mail-lj1-x242.google.com [IPv6:2a00:1450:4864:20::242])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1EE8EC05BD43
+        for <stable@vger.kernel.org>; Sun, 24 May 2020 21:49:04 -0700 (PDT)
+Received: by mail-lj1-x242.google.com with SMTP id a25so7663088ljp.3
+        for <stable@vger.kernel.org>; Sun, 24 May 2020 21:49:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=shutemov-name.20150623.gappssmtp.com; s=20150623;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=iD84QEka0uyrBHdirOMsRVTHqCAdidnfL6x/KyVREOU=;
+        b=KP5o51H2NPFzZtn/+C17vSTj+PZnknpP0DQ3r+SdJ84uZ/doMQxhhVox7zKjyIPoTG
+         o8Xa8de+TlevcMyshRcbDfc6W0SZoqtj+jQEtJ9oVmJNxvWUnwgVHfdSAGmYaBtMV8dP
+         9lussDyiF3t8X9YA+gZxyW9uW5ZpzUm8SeqB8zjnoVTXt8Dy6I14avayjn1yliY+l+vw
+         y3Gt6+fPUHVxOJp2GLlQXxIiWPEp9/W98mkg5Yg5VmY9eDLO9AeBPYiTloJCsTSFmZ0V
+         b2iBS6JfrTJTmIIRYTPTXnPiba8i+vBxuo4d8VupCFqRSxxvvO19AjQYLA7AVooh8WnH
+         hXBA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=iD84QEka0uyrBHdirOMsRVTHqCAdidnfL6x/KyVREOU=;
+        b=qbJhiINNCQwhl2eOpEh8/4Yg8LqyERyn75NWOfSEsPD9g8EJugqtl3erCyX6CvUD7Y
+         LN3wZlqJVbKHlS2jTAiMo/apqlkwAsU+dDVWS7NlLjz5KDroDUPqLeZMML8puWS1HgR7
+         2e+Onwb+AA3GtFdQkSk+j8qhLiy/2MBXROP2cmKjAUg4dzU9ZAmrI9e4YEzI6/WX+Vhr
+         cXe8ZEE3IYCV6OeVUcOoeZfOJ50iDcohzNo71zzex1lXL27fHQnjv34/ZpUABzl86YUb
+         uirWEz2kFziwmNADCnh1rz066DkgPdHq+t7LS1v6am9H6t15xX0R5G+o+cKua1SLoP8k
+         hNOw==
+X-Gm-Message-State: AOAM532hO4v0R338KJ01lhZJka/Ti73y4mBXTpJAd6TGDraoFbEsDqPm
+        /KrxXjzIj2dQ0PECSJuJHin4XLMHoQQ=
+X-Google-Smtp-Source: ABdhPJzTFZ5URstTJ1gWnPM0fQHzkYgolDxlxFE03EUEm7VjgGPGn27S6do9PXWk6YnwrGKB+o4bxg==
+X-Received: by 2002:a2e:601:: with SMTP id 1mr12485657ljg.126.1590382142399;
+        Sun, 24 May 2020 21:49:02 -0700 (PDT)
+Received: from box.localdomain ([86.57.175.117])
+        by smtp.gmail.com with ESMTPSA id x69sm4457568lff.19.2020.05.24.21.49.01
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 24 May 2020 21:49:01 -0700 (PDT)
+Received: by box.localdomain (Postfix, from userid 1000)
+        id 942F31012E6; Mon, 25 May 2020 07:49:02 +0300 (+03)
+Date:   Mon, 25 May 2020 07:49:02 +0300
+From:   "Kirill A. Shutemov" <kirill@shutemov.name>
+To:     "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
+Cc:     Dave Hansen <dave.hansen@linux.intel.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Tony Luck <tony.luck@intel.com>, x86@kernel.org,
+        linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+        Dave Hansen <dave.hansen@intel.com>, stable@vger.kernel.org
+Subject: Re: [PATCH] x86/mm: Fix boot with some memory above MAXMEM
+Message-ID: <20200525044902.rsb46bxu5hdsqglt@box>
+References: <20200511191721.1416-1-kirill.shutemov@linux.intel.com>
 MIME-Version: 1.0
-In-Reply-To: <605c47b7-9199-85f1-89e0-bd768acd3d2d@roeck-us.net>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200511191721.1416-1-kirill.shutemov@linux.intel.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 5/24/20 9:43 AM, Guenter Roeck wrote:
-> On 5/24/20 8:30 AM, Greg Kroah-Hartman wrote:
->> Sometimes it is better to unregister individual nodes instead of trying
->> to do them all at once with software_node_unregister_nodes(), so create
->> software_node_unregister() so that you can unregister them one at a
->> time.
->>
->> This is especially important when creating nodes in a hierarchy, with
->> parent -> children representations.  Children always need to be removed
->> before a parent is, as the swnode logic assumes this is going to be the
->> case.
->>
->> Fix up the lib/test_printf.c fwnode_pointer() test which to use this new
->> function as it had the problem of tearing things down in the backwards
->> order.
->>
->> Fixes: f1ce39df508d ("lib/test_printf: Add tests for %pfw printk modifier")
->> Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
->> Reported-by: kernel test robot <rong.a.chen@intel.com>
->> Cc: stable <stable@vger.kernel.org>
->> Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
->> Cc: Brendan Higgins <brendanhiggins@google.com>
->> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
->> Cc: Heikki Krogerus <heikki.krogerus@linux.intel.com>
->> Cc: Petr Mladek <pmladek@suse.com>
->> Cc: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
->> Cc: Randy Dunlap <rdunlap@infradead.org>
->> Cc: Rasmus Villemoes <linux@rasmusvillemoes.dk>
->> Cc: Sakari Ailus <sakari.ailus@linux.intel.com>
->> Cc: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
->> Cc: Steven Rostedt <rostedt@goodmis.org>
->> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+On Mon, May 11, 2020 at 10:17:21PM +0300, Kirill A. Shutemov wrote:
+> A 5-level paging capable machine can have memory above 46-bit in the
+> physical address space. This memory is only addressable in the 5-level
+> paging mode: we don't have enough virtual address space to create direct
+> mapping for such memory in the 4-level paging mode.
 > 
-> Both patches pass my boot tests on arm64 and arm64be (I didn't test any others).
-> So, FWIW,
+> Currently, we fail boot completely: NULL pointer dereference in
+> subsection_map_init().
 > 
-> Tested-by: Guenter Roeck <linux@roeck-us.net>
+> Skip creating a memblock for such memory instead and notify user that
+> some memory is not addressable.
 > 
-> I wasn't sure it the two patches replace or fix commit 4ef12f719802 ("kobject:
-> Make sure the parent does not get released before its children"), so I tried
-> to re-apply 4ef12f719802 on top of the two patches. Unfortunately that still
-> results in crashes and UAF messages.
+> Signed-off-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+> Reviewed-by: Dave Hansen <dave.hansen@intel.com>
+> Cc: stable@vger.kernel.org # v4.14
+> ---
 
-Yes, that kobject patch has been reverted:
-https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=e6764aa0e5530066dd969eccea2a1a7d177859a8
+Gentle ping.
 
-and these 2 patches are to be used instead.
+It's not urgent, but it's a bug fix. Please consider applying.
 
-thanks.
+> Tested with a hacked QEMU: https://gist.github.com/kiryl/d45eb54110944ff95e544972d8bdac1d
+> 
+> ---
+>  arch/x86/kernel/e820.c | 19 +++++++++++++++++--
+>  1 file changed, 17 insertions(+), 2 deletions(-)
+> 
+> diff --git a/arch/x86/kernel/e820.c b/arch/x86/kernel/e820.c
+> index c5399e80c59c..d320d37d0f95 100644
+> --- a/arch/x86/kernel/e820.c
+> +++ b/arch/x86/kernel/e820.c
+> @@ -1280,8 +1280,8 @@ void __init e820__memory_setup(void)
+>  
+>  void __init e820__memblock_setup(void)
+>  {
+> +	u64 size, end, not_addressable = 0;
+>  	int i;
+> -	u64 end;
+>  
+>  	/*
+>  	 * The bootstrap memblock region count maximum is 128 entries
+> @@ -1307,7 +1307,22 @@ void __init e820__memblock_setup(void)
+>  		if (entry->type != E820_TYPE_RAM && entry->type != E820_TYPE_RESERVED_KERN)
+>  			continue;
+>  
+> -		memblock_add(entry->addr, entry->size);
+> +		if (entry->addr >= MAXMEM) {
+> +			not_addressable += entry->size;
+> +			continue;
+> +		}
+> +
+> +		end = min_t(u64, end, MAXMEM - 1);
+> +		size = end - entry->addr;
+> +		not_addressable += entry->size - size;
+> +		memblock_add(entry->addr, size);
+> +	}
+> +
+> +	if (not_addressable) {
+> +		pr_err("%lldGB of physical memory is not addressable in the paging mode\n",
+> +		       not_addressable >> 30);
+> +		if (!pgtable_l5_enabled())
+> +			pr_err("Consider enabling 5-level paging\n");
+>  	}
+>  
+>  	/* Throw away partial pages: */
+> -- 
+> 2.26.2
+> 
+> 
+
 -- 
-~Randy
-
+ Kirill A. Shutemov
