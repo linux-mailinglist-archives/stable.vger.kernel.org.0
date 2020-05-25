@@ -2,101 +2,156 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 95E301E1014
-	for <lists+stable@lfdr.de>; Mon, 25 May 2020 16:06:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AAC8E1E103A
+	for <lists+stable@lfdr.de>; Mon, 25 May 2020 16:16:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390794AbgEYOF5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 May 2020 10:05:57 -0400
-Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:39389 "EHLO
-        forward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2388862AbgEYOF4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 25 May 2020 10:05:56 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id C6D361940C73;
-        Mon, 25 May 2020 10:05:55 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Mon, 25 May 2020 10:05:55 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=uOAHtq
-        9psUVyfIx2OW6dQ60pzBXje+GmWlUWME5LPwk=; b=Jae9Kbr2jYrZ0ynkeKy8fB
-        BvmSuYb/F4OUGmBXYurrblr1zFwHYdNP369Knjk69oJ7FVjeDHsjM4MaFxsEPBmX
-        V4lwSgtvC6j+VumwElxnYTmgTyhLU7/TnBTa5Cb2/oFxz3OB62V94R8HmfMAmNc4
-        ouPRyzwW3MQzBfJJUih12CH2lU46QiwFYJxQTBsctRGOlo93WtSs2MnNxjLanN2o
-        AI4pam1NN2j9Mk05pY/DaimPD2Xo325CadJxaPAS0ZcgChxeGBjEhebfjl2BT35T
-        3Laj/UjRxNYk2o61k3kz3qkEKvys5k3yLscwlkZ0BbzDHmZrC8tBcUG0l1LN4mnQ
-        ==
-X-ME-Sender: <xms:w9DLXuEnBYwiovfF_vzqAyMj0ahBHWlUdd4kPSKfVvahaWPiNoXAlQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedruddvtddgjeduucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
-    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgepudenucfrrghrrghmpe
-    hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:w9DLXvU8aGns81zKfkDxVWmaC7im9cQ5cD_3KRefzVfhKMdq6QhFxQ>
-    <xmx:w9DLXoJqYiccyMKiZzfk3RetSwod6eq_UPUYAxPMOhvXyurmJrwsgg>
-    <xmx:w9DLXoGRU2EjXj9y1tobdxD1G2jXkiZzwMwWlXKouQPji_EiRVC-cw>
-    <xmx:w9DLXteV7X6qBX9dUKxtcFaZB8RERyHjwc032B7gQPVNj6UhSyLSQQ>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 659E9328005D;
-        Mon, 25 May 2020 10:05:55 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] iwlwifi: pcie: handle QuZ configs with killer NICs as well" failed to apply to 5.6-stable tree
-To:     luciano.coelho@intel.com, kvalo@codeaurora.org, vicamo@gmail.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 25 May 2020 16:05:45 +0200
-Message-ID: <15904155453239@kroah.com>
+        id S2390900AbgEYOQI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 May 2020 10:16:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44290 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2388714AbgEYOQI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 25 May 2020 10:16:08 -0400
+Received: from mail-pl1-x642.google.com (mail-pl1-x642.google.com [IPv6:2607:f8b0:4864:20::642])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B343C061A0E
+        for <stable@vger.kernel.org>; Mon, 25 May 2020 07:16:08 -0700 (PDT)
+Received: by mail-pl1-x642.google.com with SMTP id u22so7520803plq.12
+        for <stable@vger.kernel.org>; Mon, 25 May 2020 07:16:08 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=W1gMjZ/QyGvEEF3NB4k77f6dDoAdiBV8qWLcaql2+Vs=;
+        b=rgtgcIx4jkvcDXRjVhfyIrPQb9ZZI1TvYw+BfHm3MCMI4qyLP9UeSw3uBKqF9lSY4G
+         CZkA2tS2fEHgLvguxkrhrcYjZYzPbX/aSqKB/kIbz+Qn7NtxfRn55XA8z2GStljS4Gsf
+         S+1SIOpopJqHOp6CDjIF7YRkWvNm8DHKbLJ9Ds5E8/Zi555ONjmFUQqF1J06c6aomape
+         /lPm/9uJPNoAzNw92nvnfFxWyeW6CDDo9rzuYgpeNpwO0LjH3vHHWiBrSnJY4Owi+mod
+         /4oJsTmVOzcf1OtytuCut5bTRnwv3YFd+K7EHvnYlk8Gj2PYf+Rfadi4gzy2Nh/splWV
+         KRfQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=W1gMjZ/QyGvEEF3NB4k77f6dDoAdiBV8qWLcaql2+Vs=;
+        b=C59r2LFluSoAwUeh5GkCtzj8SXtYdVz8252tPM8A5cWGFHX58XgPByyDpvw6LG+3Ra
+         blHSfy0y+/cwaaPCOx1udCM29k8pRwMf/hQT5JG+2ObVo9Zbbf0jVK8VCQsYk3YLWrfp
+         tYCx+GWskL7LTm+e4ocExOtkLfLVibCSgu7FdeE3oDkL20gvsHPqnJN/RqRtiHV1f9An
+         i6VDRnI6+OZn1bdzcDJ2gI6vYhmOAB8tb7zrWu9c9hlG2uMciSvvlzD08vlPrsYWZZlK
+         PKzRiKO33+b1G1MsXJzNoxkGyn45DDkPWazXEY9e+GzHry7kadCOogukuMsQ0wGv33Yv
+         5zRA==
+X-Gm-Message-State: AOAM532U/Fn8MgszTjk+fhv0KJJP7uu/u2j8Kth5UV0WLqe2VhtjMHE/
+        QsuKMVxu1ws9HFtDfpt6GE7TiQe4B1U=
+X-Google-Smtp-Source: ABdhPJwd26C1yvRnEKTGH8bbapBOnHLBaN40yAgKzntzcuJXvrRej7S4G9RUgfChpN1OLSCeftjiTQ==
+X-Received: by 2002:a17:90b:1897:: with SMTP id mn23mr20862824pjb.84.1590416167528;
+        Mon, 25 May 2020 07:16:07 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id u20sm13267241pfn.144.2020.05.25.07.16.05
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 25 May 2020 07:16:06 -0700 (PDT)
+Message-ID: <5ecbd326.1c69fb81.3091c.4012@mx.google.com>
+Date:   Mon, 25 May 2020 07:16:06 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.4.224
+X-Kernelci-Report-Type: boot
+X-Kernelci-Branch: linux-4.4.y
+Subject: stable-rc/linux-4.4.y boot: 82 boots: 3 failed,
+ 73 passed with 4 offline, 2 untried/unknown (v4.4.224)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+******************************************
+* WARNING: Boot tests are now deprecated *
+******************************************
 
-The patch below does not apply to the 5.6-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+As kernelci.org is expanding its functional testing capabilities, the conce=
+pt
+of boot testing is now deprecated.  Boot results are scheduled to be droppe=
+d on
+*5th June 2020*.  The full schedule for boot tests deprecation is available=
+ on
+this GitHub issue: https://github.com/kernelci/kernelci-backend/issues/238
 
-thanks,
+The new equivalent is the *baseline* test suite which also runs sanity chec=
+ks
+using dmesg and bootrr: https://github.com/kernelci/bootrr
 
-greg k-h
+See the *baseline results for this kernel revision* on this page:
+https://kernelci.org/test/job/stable-rc/branch/linux-4.4.y/kernel/v4.4.224/=
+plan/baseline/
 
------------------- original commit in Linus's tree ------------------
+---------------------------------------------------------------------------=
+----
 
-From f92f26f2ed2c9f92c9270c705bca96310c3cdf5a Mon Sep 17 00:00:00 2001
-From: Luca Coelho <luciano.coelho@intel.com>
-Date: Fri, 24 Apr 2020 12:20:08 +0300
-Subject: [PATCH] iwlwifi: pcie: handle QuZ configs with killer NICs as well
+stable-rc/linux-4.4.y boot: 82 boots: 3 failed, 73 passed with 4 offline, 2=
+ untried/unknown (v4.4.224)
 
-The killer devices were left out of the checks that convert Qu-B0 to
-QuZ configurations.  Add them.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.4.y/kernel/v4.4.224/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
+/kernel/v4.4.224/
 
-Cc: stable@vger.kernel.org # v5.3+
-Fixes: 5a8c31aa6357 ("iwlwifi: pcie: fix recognition of QuZ devices")
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Tested-by: You-Sheng Yang <vicamo@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/iwlwifi.20200424121518.b715acfbe211.I273a098064a22577e4fca767910fd9cf0013f5cb@changeid
+Tree: stable-rc
+Branch: linux-4.4.y
+Git Describe: v4.4.224
+Git Commit: d72237c1e00f85e5df1c040280d50561c8a28329
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 47 unique boards, 18 SoC families, 17 builds out of 190
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/pcie/drv.c b/drivers/net/wireless/intel/iwlwifi/pcie/drv.c
-index 6744c0281ffb..29971c25dba4 100644
---- a/drivers/net/wireless/intel/iwlwifi/pcie/drv.c
-+++ b/drivers/net/wireless/intel/iwlwifi/pcie/drv.c
-@@ -1092,6 +1092,10 @@ static int iwl_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- 			iwl_trans->cfg = &iwl_ax101_cfg_quz_hr;
- 		else if (iwl_trans->cfg == &iwl_ax201_cfg_qu_hr)
- 			iwl_trans->cfg = &iwl_ax201_cfg_quz_hr;
-+		else if (iwl_trans->cfg == &killer1650s_2ax_cfg_qu_b0_hr_b0)
-+			iwl_trans->cfg = &iwl_ax1650s_cfg_quz_hr;
-+		else if (iwl_trans->cfg == &killer1650i_2ax_cfg_qu_b0_hr_b0)
-+			iwl_trans->cfg = &iwl_ax1650i_cfg_quz_hr;
- 	}
- 
- #endif
+Boot Regressions Detected:
 
+arm:
+
+    qcom_defconfig:
+        gcc-8:
+          qcom-apq8064-cm-qs600:
+              lab-baylibre-seattle: failing since 11 days (last pass: v4.4.=
+223 - first fail: v4.4.223-36-g32f5ec9b096d)
+
+    sama5_defconfig:
+        gcc-8:
+          at91-sama5d4_xplained:
+              lab-baylibre: failing since 60 days (last pass: v4.4.216-127-=
+g955137020949 - first fail: v4.4.217)
+
+Boot Failures Detected:
+
+arm:
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
+
+    imx_v4_v5_defconfig:
+        gcc-8:
+            imx27-phytec-phycard-s-rdk: 1 failed lab
+
+    multi_v5_defconfig:
+        gcc-8:
+            imx27-phytec-phycard-s-rdk: 1 failed lab
+
+Offline Platforms:
+
+arm:
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+    exynos_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
