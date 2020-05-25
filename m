@@ -2,156 +2,217 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AAC8E1E103A
-	for <lists+stable@lfdr.de>; Mon, 25 May 2020 16:16:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 951671E10A5
+	for <lists+stable@lfdr.de>; Mon, 25 May 2020 16:37:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390900AbgEYOQI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 May 2020 10:16:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44290 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388714AbgEYOQI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 25 May 2020 10:16:08 -0400
-Received: from mail-pl1-x642.google.com (mail-pl1-x642.google.com [IPv6:2607:f8b0:4864:20::642])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B343C061A0E
-        for <stable@vger.kernel.org>; Mon, 25 May 2020 07:16:08 -0700 (PDT)
-Received: by mail-pl1-x642.google.com with SMTP id u22so7520803plq.12
-        for <stable@vger.kernel.org>; Mon, 25 May 2020 07:16:08 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=W1gMjZ/QyGvEEF3NB4k77f6dDoAdiBV8qWLcaql2+Vs=;
-        b=rgtgcIx4jkvcDXRjVhfyIrPQb9ZZI1TvYw+BfHm3MCMI4qyLP9UeSw3uBKqF9lSY4G
-         CZkA2tS2fEHgLvguxkrhrcYjZYzPbX/aSqKB/kIbz+Qn7NtxfRn55XA8z2GStljS4Gsf
-         S+1SIOpopJqHOp6CDjIF7YRkWvNm8DHKbLJ9Ds5E8/Zi555ONjmFUQqF1J06c6aomape
-         /lPm/9uJPNoAzNw92nvnfFxWyeW6CDDo9rzuYgpeNpwO0LjH3vHHWiBrSnJY4Owi+mod
-         /4oJsTmVOzcf1OtytuCut5bTRnwv3YFd+K7EHvnYlk8Gj2PYf+Rfadi4gzy2Nh/splWV
-         KRfQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=W1gMjZ/QyGvEEF3NB4k77f6dDoAdiBV8qWLcaql2+Vs=;
-        b=C59r2LFluSoAwUeh5GkCtzj8SXtYdVz8252tPM8A5cWGFHX58XgPByyDpvw6LG+3Ra
-         blHSfy0y+/cwaaPCOx1udCM29k8pRwMf/hQT5JG+2ObVo9Zbbf0jVK8VCQsYk3YLWrfp
-         tYCx+GWskL7LTm+e4ocExOtkLfLVibCSgu7FdeE3oDkL20gvsHPqnJN/RqRtiHV1f9An
-         i6VDRnI6+OZn1bdzcDJ2gI6vYhmOAB8tb7zrWu9c9hlG2uMciSvvlzD08vlPrsYWZZlK
-         PKzRiKO33+b1G1MsXJzNoxkGyn45DDkPWazXEY9e+GzHry7kadCOogukuMsQ0wGv33Yv
-         5zRA==
-X-Gm-Message-State: AOAM532U/Fn8MgszTjk+fhv0KJJP7uu/u2j8Kth5UV0WLqe2VhtjMHE/
-        QsuKMVxu1ws9HFtDfpt6GE7TiQe4B1U=
-X-Google-Smtp-Source: ABdhPJwd26C1yvRnEKTGH8bbapBOnHLBaN40yAgKzntzcuJXvrRej7S4G9RUgfChpN1OLSCeftjiTQ==
-X-Received: by 2002:a17:90b:1897:: with SMTP id mn23mr20862824pjb.84.1590416167528;
-        Mon, 25 May 2020 07:16:07 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id u20sm13267241pfn.144.2020.05.25.07.16.05
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 25 May 2020 07:16:06 -0700 (PDT)
-Message-ID: <5ecbd326.1c69fb81.3091c.4012@mx.google.com>
-Date:   Mon, 25 May 2020 07:16:06 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1726579AbgEYOhj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 May 2020 10:37:39 -0400
+Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:50151 "EHLO
+        forward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725809AbgEYOhj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 25 May 2020 10:37:39 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 0986E19421BD;
+        Mon, 25 May 2020 10:37:38 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Mon, 25 May 2020 10:37:38 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=3xoxNH
+        topWUKyRHvHXanqy/uandxdAjzTzI12Zv2e2Y=; b=B0NRiUYATfEOK9dCLUHwnD
+        hoaONsmdw1vF88bNP0q8UI+HsJQ7X8v0AefmHI6Bs7R71jB6mr0qYdGbPfVDiAvS
+        u2R+8o+8HFxZT3CFKn5PjLndALAqO8bjcxNj6k3oNG95VDWa8Bsfni/tjXqAvAH4
+        pEKNz3HDXKhVAm3JJIUxBZePiTtUPLfygMONmfWsFjyZu8W7tdSh+yKMxOtEDlkA
+        q8N6iuX9KW40qQX7vZfrqkwyl0P8ZvO+6k6JWwZ0QQn2wRxUUZ/fS/NyNsN0+Ndb
+        1wbx4l7ek06H1+38vCJYkB/jGCfVZtahbLH6KOkAVQOwc7aryw16rXzmXi607ElA
+        ==
+X-ME-Sender: <xms:MdjLXpwqV0J_xiP4wAcWTUrgKqa5g2kJP-FGiIHKPb-9zvIj05Q_RQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedruddvtddgjeekucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
+    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushht
+    vghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
+    drtghomh
+X-ME-Proxy: <xmx:MdjLXpRoK2e8LD81jd3Hh_3P_z-ztiu9B_yJ6gPXh7hL0WWoRuTi3A>
+    <xmx:MdjLXjXXQKVn7q6K4d9au1kEzJSi9x5BPNnv_Z7bz100GJcQifqVCA>
+    <xmx:MdjLXrirtD3ySiS05eGYfmxNABXCFEq5ArhGzpdk7U60AfY8Hnd71w>
+    <xmx:MtjLXu-ZtLtkLMTYmuZYFl6B58UsUuMcsc7r7bVvX6XoJqpNpg_UWg>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 566C33280059;
+        Mon, 25 May 2020 10:37:37 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] rxrpc: Fix ack discard" failed to apply to 5.6-stable tree
+To:     dhowells@redhat.com, botsch@cnf.cornell.edu
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 25 May 2020 16:37:33 +0200
+Message-ID: <15904174535561@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.4.224
-X-Kernelci-Report-Type: boot
-X-Kernelci-Branch: linux-4.4.y
-Subject: stable-rc/linux-4.4.y boot: 82 boots: 3 failed,
- 73 passed with 4 offline, 2 untried/unknown (v4.4.224)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-******************************************
-* WARNING: Boot tests are now deprecated *
-******************************************
 
-As kernelci.org is expanding its functional testing capabilities, the conce=
-pt
-of boot testing is now deprecated.  Boot results are scheduled to be droppe=
-d on
-*5th June 2020*.  The full schedule for boot tests deprecation is available=
- on
-this GitHub issue: https://github.com/kernelci/kernelci-backend/issues/238
+The patch below does not apply to the 5.6-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-The new equivalent is the *baseline* test suite which also runs sanity chec=
-ks
-using dmesg and bootrr: https://github.com/kernelci/bootrr
+thanks,
 
-See the *baseline results for this kernel revision* on this page:
-https://kernelci.org/test/job/stable-rc/branch/linux-4.4.y/kernel/v4.4.224/=
-plan/baseline/
+greg k-h
 
----------------------------------------------------------------------------=
-----
+------------------ original commit in Linus's tree ------------------
 
-stable-rc/linux-4.4.y boot: 82 boots: 3 failed, 73 passed with 4 offline, 2=
- untried/unknown (v4.4.224)
+From 441fdee1eaf050ef0040bde0d7af075c1c6a6d8b Mon Sep 17 00:00:00 2001
+From: David Howells <dhowells@redhat.com>
+Date: Wed, 29 Apr 2020 23:48:43 +0100
+Subject: [PATCH] rxrpc: Fix ack discard
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.4.y/kernel/v4.4.224/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
-/kernel/v4.4.224/
+The Rx protocol has a "previousPacket" field in it that is not handled in
+the same way by all protocol implementations.  Sometimes it contains the
+serial number of the last DATA packet received, sometimes the sequence
+number of the last DATA packet received and sometimes the highest sequence
+number so far received.
 
-Tree: stable-rc
-Branch: linux-4.4.y
-Git Describe: v4.4.224
-Git Commit: d72237c1e00f85e5df1c040280d50561c8a28329
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 47 unique boards, 18 SoC families, 17 builds out of 190
+AF_RXRPC is using this to weed out ACKs that are out of date (it's possible
+for ACK packets to get reordered on the wire), but this does not work with
+OpenAFS which will just stick the sequence number of the last packet seen
+into previousPacket.
 
-Boot Regressions Detected:
+The issue being seen is that big AFS FS.StoreData RPC (eg. of ~256MiB) are
+timing out when partly sent.  A trace was captured, with an additional
+tracepoint to show ACKs being discarded in rxrpc_input_ack().  Here's an
+excerpt showing the problem.
 
-arm:
+ 52873.203230: rxrpc_tx_data: c=000004ae DATA ed1a3584:00000002 0002449c q=00024499 fl=09
 
-    qcom_defconfig:
-        gcc-8:
-          qcom-apq8064-cm-qs600:
-              lab-baylibre-seattle: failing since 11 days (last pass: v4.4.=
-223 - first fail: v4.4.223-36-g32f5ec9b096d)
+A DATA packet with sequence number 00024499 has been transmitted (the "q="
+field).
 
-    sama5_defconfig:
-        gcc-8:
-          at91-sama5d4_xplained:
-              lab-baylibre: failing since 60 days (last pass: v4.4.216-127-=
-g955137020949 - first fail: v4.4.217)
+ ...
+ 52873.243296: rxrpc_rx_ack: c=000004ae 00012a2b DLY r=00024499 f=00024497 p=00024496 n=0
+ 52873.243376: rxrpc_rx_ack: c=000004ae 00012a2c IDL r=0002449b f=00024499 p=00024498 n=0
+ 52873.243383: rxrpc_rx_ack: c=000004ae 00012a2d OOS r=0002449d f=00024499 p=0002449a n=2
 
-Boot Failures Detected:
+The Out-Of-Sequence ACK indicates that the server didn't see DATA sequence
+number 00024499, but did see seq 0002449a (previousPacket, shown as "p=",
+skipped the number, but firstPacket, "f=", which shows the bottom of the
+window is set at that point).
 
-arm:
-    sama5_defconfig:
-        gcc-8:
-            at91-sama5d4_xplained: 1 failed lab
+ 52873.252663: rxrpc_retransmit: c=000004ae q=24499 a=02 xp=14581537
+ 52873.252664: rxrpc_tx_data: c=000004ae DATA ed1a3584:00000002 000244bc q=00024499 fl=0b *RETRANS*
 
-    imx_v4_v5_defconfig:
-        gcc-8:
-            imx27-phytec-phycard-s-rdk: 1 failed lab
+The packet has been retransmitted.  Retransmission recurs until the peer
+says it got the packet.
 
-    multi_v5_defconfig:
-        gcc-8:
-            imx27-phytec-phycard-s-rdk: 1 failed lab
+ 52873.271013: rxrpc_rx_ack: c=000004ae 00012a31 OOS r=000244a1 f=00024499 p=0002449e n=6
 
-Offline Platforms:
+More OOS ACKs indicate that the other packets that are already in the
+transmission pipeline are being received.  The specific-ACK list is up to 6
+ACKs and NAKs.
 
-arm:
+ ...
+ 52873.284792: rxrpc_rx_ack: c=000004ae 00012a49 OOS r=000244b9 f=00024499 p=000244b6 n=30
+ 52873.284802: rxrpc_retransmit: c=000004ae q=24499 a=0a xp=63505500
+ 52873.284804: rxrpc_tx_data: c=000004ae DATA ed1a3584:00000002 000244c2 q=00024499 fl=0b *RETRANS*
+ 52873.287468: rxrpc_rx_ack: c=000004ae 00012a4a OOS r=000244ba f=00024499 p=000244b7 n=31
+ 52873.287478: rxrpc_rx_ack: c=000004ae 00012a4b OOS r=000244bb f=00024499 p=000244b8 n=32
 
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
+At this point, the server's receive window is full (n=32) with presumably 1
+NAK'd packet and 31 ACK'd packets.  We can't transmit any more packets.
 
-    multi_v7_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-            qcom-apq8064-cm-qs600: 1 offline lab
+ 52873.287488: rxrpc_retransmit: c=000004ae q=24499 a=0a xp=61327980
+ 52873.287489: rxrpc_tx_data: c=000004ae DATA ed1a3584:00000002 000244c3 q=00024499 fl=0b *RETRANS*
+ 52873.293850: rxrpc_rx_ack: c=000004ae 00012a4c DLY r=000244bc f=000244a0 p=00024499 n=25
 
-    exynos_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
+And now we've received an ACK indicating that a DATA retransmission was
+received.  7 packets have been processed (the occupied part of the window
+moved, as indicated by f= and n=).
 
----
-For more info write to <info@kernelci.org>
+ 52873.293853: rxrpc_rx_discard_ack: c=000004ae r=00012a4c 000244a0<00024499 00024499<000244b8
+
+However, the DLY ACK gets discarded because its previousPacket has gone
+backwards (from p=000244b8, in the ACK at 52873.287478 to p=00024499 in the
+ACK at 52873.293850).
+
+We then end up in a continuous cycle of retransmit/discard.  kafs fails to
+update its window because it's discarding the ACKs and can't transmit an
+extra packet that would clear the issue because the window is full.
+OpenAFS doesn't change the previousPacket value in the ACKs because no new
+DATA packets are received with a different previousPacket number.
+
+Fix this by altering the discard check to only discard an ACK based on
+previousPacket if there was no advance in the firstPacket.  This allows us
+to transmit a new packet which will cause previousPacket to advance in the
+next ACK.
+
+The check, however, needs to allow for the possibility that previousPacket
+may actually have had the serial number placed in it instead - in which
+case it will go outside the window and we should ignore it.
+
+Fixes: 1a2391c30c0b ("rxrpc: Fix detection of out of order acks")
+Reported-by: Dave Botsch <botsch@cnf.cornell.edu>
+Signed-off-by: David Howells <dhowells@redhat.com>
+
+diff --git a/net/rxrpc/input.c b/net/rxrpc/input.c
+index 2f22f082a66c..3be4177baf70 100644
+--- a/net/rxrpc/input.c
++++ b/net/rxrpc/input.c
+@@ -802,6 +802,30 @@ static void rxrpc_input_soft_acks(struct rxrpc_call *call, u8 *acks,
+ 	}
+ }
+ 
++/*
++ * Return true if the ACK is valid - ie. it doesn't appear to have regressed
++ * with respect to the ack state conveyed by preceding ACKs.
++ */
++static bool rxrpc_is_ack_valid(struct rxrpc_call *call,
++			       rxrpc_seq_t first_pkt, rxrpc_seq_t prev_pkt)
++{
++	rxrpc_seq_t base = READ_ONCE(call->ackr_first_seq);
++
++	if (after(first_pkt, base))
++		return true; /* The window advanced */
++
++	if (before(first_pkt, base))
++		return false; /* firstPacket regressed */
++
++	if (after_eq(prev_pkt, call->ackr_prev_seq))
++		return true; /* previousPacket hasn't regressed. */
++
++	/* Some rx implementations put a serial number in previousPacket. */
++	if (after_eq(prev_pkt, base + call->tx_winsize))
++		return false;
++	return true;
++}
++
+ /*
+  * Process an ACK packet.
+  *
+@@ -865,8 +889,7 @@ static void rxrpc_input_ack(struct rxrpc_call *call, struct sk_buff *skb)
+ 	}
+ 
+ 	/* Discard any out-of-order or duplicate ACKs (outside lock). */
+-	if (before(first_soft_ack, call->ackr_first_seq) ||
+-	    before(prev_pkt, call->ackr_prev_seq)) {
++	if (!rxrpc_is_ack_valid(call, first_soft_ack, prev_pkt)) {
+ 		trace_rxrpc_rx_discard_ack(call->debug_id, sp->hdr.serial,
+ 					   first_soft_ack, call->ackr_first_seq,
+ 					   prev_pkt, call->ackr_prev_seq);
+@@ -882,8 +905,7 @@ static void rxrpc_input_ack(struct rxrpc_call *call, struct sk_buff *skb)
+ 	spin_lock(&call->input_lock);
+ 
+ 	/* Discard any out-of-order or duplicate ACKs (inside lock). */
+-	if (before(first_soft_ack, call->ackr_first_seq) ||
+-	    before(prev_pkt, call->ackr_prev_seq)) {
++	if (!rxrpc_is_ack_valid(call, first_soft_ack, prev_pkt)) {
+ 		trace_rxrpc_rx_discard_ack(call->debug_id, sp->hdr.serial,
+ 					   first_soft_ack, call->ackr_first_seq,
+ 					   prev_pkt, call->ackr_prev_seq);
+
