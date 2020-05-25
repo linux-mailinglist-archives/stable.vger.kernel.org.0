@@ -2,79 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F1521E04CB
-	for <lists+stable@lfdr.de>; Mon, 25 May 2020 04:43:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2300C1E04CE
+	for <lists+stable@lfdr.de>; Mon, 25 May 2020 04:44:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388448AbgEYCnS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 24 May 2020 22:43:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36756 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388422AbgEYCnR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 24 May 2020 22:43:17 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 44DFF2073B;
-        Mon, 25 May 2020 02:43:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590374597;
-        bh=VclR7GFxTC/UtgQvzYGLGo7CewYsZfIIsrSHIKF3uuo=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Z8xG84yZ1aqk0pAhrP/4aLsBgfwq+myQ4uAGVVT3vx9PFDgLzQxjPuATTU1ybW7ma
-         ECFA73N65RfoAaOCSntojhQ3u/L7jrVMQKvdMpW9eVU5j6htehUcs8HLWri7c+33Fj
-         4ftxJzawhwWbEGdrBvzDnXHA3QYurMe2QZrOfre8=
-Date:   Sun, 24 May 2020 22:43:16 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Eric Biggers <ebiggers@google.com>
-Cc:     stable-commits@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: Patch "ppp: mppe: Revert "ppp: mppe: Add softdep to arc4"" has
- been added to the 4.4-stable tree
-Message-ID: <20200525024316.GY33628@sasha-vm>
-References: <20200524135255.8821820776@mail.kernel.org>
- <20200524171105.GA56504@google.com>
+        id S2388422AbgEYCoi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 24 May 2020 22:44:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48856 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2388409AbgEYCoi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 24 May 2020 22:44:38 -0400
+Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F0F4C061A0E;
+        Sun, 24 May 2020 19:44:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20170209; h=Content-Transfer-Encoding:
+        Content-Type:In-Reply-To:MIME-Version:Date:Message-ID:From:References:Cc:To:
+        Subject:Sender:Reply-To:Content-ID:Content-Description;
+        bh=ANukTnGf9qzAoLJoJyRWxzKKdZWe8nKT7t7/i4XYDHs=; b=Y5HnZg8QP8DTAs73j/nJCk8wlu
+        wiu8LaYgIfJac8zqjI0xHJgeZ/i7B4788vRf3XmhSqsa0TwgkMagM3TRUM7Kwz24yQV7uq/6wAL8f
+        pLZBKbXyaQnAtG8pCoqqMzG1eY8XAZLRRJ/ji6P4yr6LyhvlixgM0HDHZuxgPWdosFQG6L46ejkUX
+        RD4S3qgop3rBJVuOMvKLpkqE0yKwqiuGpGADLidqUHHqTcwRtOz9/rl2E2aH5mLNe5VvdTOsw7ikC
+        bmI6Fviwh+poEMANipihvbvVk5raZNASVV0nXwzHOIanyVOW8HLt1i6mkrW8+RMV14jT+0vWV+7Am
+        HCbGhKUQ==;
+Received: from [2601:1c0:6280:3f0::19c2]
+        by bombadil.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1jd36A-00004r-Bc; Mon, 25 May 2020 02:44:19 +0000
+Subject: Re: [PATCH 1/2] software node: implement software_node_unregister()
+To:     Guenter Roeck <linux@roeck-us.net>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     Naresh Kamboju <naresh.kamboju@linaro.org>,
+        kernel test robot <rong.a.chen@intel.com>,
+        stable <stable@vger.kernel.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Brendan Higgins <brendanhiggins@google.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Petr Mladek <pmladek@suse.com>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
+        Steven Rostedt <rostedt@goodmis.org>
+References: <20200524153041.2361-1-gregkh@linuxfoundation.org>
+ <605c47b7-9199-85f1-89e0-bd768acd3d2d@roeck-us.net>
+From:   Randy Dunlap <rdunlap@infradead.org>
+Message-ID: <13de8a28-9ea9-bf44-c4e7-d5bfb63c81fd@infradead.org>
+Date:   Sun, 24 May 2020 19:44:16 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.8.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <20200524171105.GA56504@google.com>
+In-Reply-To: <605c47b7-9199-85f1-89e0-bd768acd3d2d@roeck-us.net>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, May 24, 2020 at 10:11:05AM -0700, Eric Biggers wrote:
->On Sun, May 24, 2020 at 09:52:54AM -0400, Sasha Levin wrote:
->> This is a note to let you know that I've just added the patch titled
+On 5/24/20 9:43 AM, Guenter Roeck wrote:
+> On 5/24/20 8:30 AM, Greg Kroah-Hartman wrote:
+>> Sometimes it is better to unregister individual nodes instead of trying
+>> to do them all at once with software_node_unregister_nodes(), so create
+>> software_node_unregister() so that you can unregister them one at a
+>> time.
 >>
->>     ppp: mppe: Revert "ppp: mppe: Add softdep to arc4"
+>> This is especially important when creating nodes in a hierarchy, with
+>> parent -> children representations.  Children always need to be removed
+>> before a parent is, as the swnode logic assumes this is going to be the
+>> case.
 >>
->> to the 4.4-stable tree which can be found at:
->>     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
+>> Fix up the lib/test_printf.c fwnode_pointer() test which to use this new
+>> function as it had the problem of tearing things down in the backwards
+>> order.
 >>
->> The filename of the patch is:
->>      ppp-mppe-revert-ppp-mppe-add-softdep-to-arc4.patch
->> and it can be found in the queue-4.4 subdirectory.
->
->I already explained last time that this shouldn't be backported:
->https://lore.kernel.org/stable/20190905161642.GA5659@google.com/
->
->The commit message explains it too.
->
->Is there something I could have done last time around to properly prevent this
->from being backported, or do I have to continue to be ready to respond to these
->emails which can come at arbitrary times forever?
+>> Fixes: f1ce39df508d ("lib/test_printf: Add tests for %pfw printk modifier")
+>> Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
+>> Reported-by: kernel test robot <rong.a.chen@intel.com>
+>> Cc: stable <stable@vger.kernel.org>
+>> Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+>> Cc: Brendan Higgins <brendanhiggins@google.com>
+>> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+>> Cc: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+>> Cc: Petr Mladek <pmladek@suse.com>
+>> Cc: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+>> Cc: Randy Dunlap <rdunlap@infradead.org>
+>> Cc: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+>> Cc: Sakari Ailus <sakari.ailus@linux.intel.com>
+>> Cc: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+>> Cc: Steven Rostedt <rostedt@goodmis.org>
+>> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> 
+> Both patches pass my boot tests on arm64 and arm64be (I didn't test any others).
+> So, FWIW,
+> 
+> Tested-by: Guenter Roeck <linux@roeck-us.net>
+> 
+> I wasn't sure it the two patches replace or fix commit 4ef12f719802 ("kobject:
+> Make sure the parent does not get released before its children"), so I tried
+> to re-apply 4ef12f719802 on top of the two patches. Unfortunately that still
+> results in crashes and UAF messages.
 
-Appologies, I had to revert back to (older) backups for some of my data
-and sadly forgot it can cause this type of issues. I'll drop the patch.
+Yes, that kobject patch has been reverted:
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=e6764aa0e5530066dd969eccea2a1a7d177859a8
 
->> If you, or anyone else, feels it should not be added to the stable tree,
->> please let <stable@vger.kernel.org> know about it.
->
->Hard for "anyone else" to object to it when you didn't Cc any real mailing lists
->(stable-commits doesn't count) and just sent this to me.  Lucky I saw this.
+and these 2 patches are to be used instead.
 
-This is just the "added to the queue" mail, you would see another mail
-when this release goes to -rc1. No reason for too much spam...
-
+thanks.
 -- 
-Thanks,
-Sasha
+~Randy
+
