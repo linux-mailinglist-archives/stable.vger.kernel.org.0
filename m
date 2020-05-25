@@ -2,168 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 68D8D1E10D3
-	for <lists+stable@lfdr.de>; Mon, 25 May 2020 16:43:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B3111E1128
+	for <lists+stable@lfdr.de>; Mon, 25 May 2020 16:59:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404111AbgEYOnA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 May 2020 10:43:00 -0400
-Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:57437 "EHLO
-        forward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2404078AbgEYOnA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 25 May 2020 10:43:00 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 3D4211943B66;
-        Mon, 25 May 2020 10:42:59 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Mon, 25 May 2020 10:42:59 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=CNUj+W
-        9QgmAvC8AT+EcQVuzZdWRqaIJGO7HpGSFJj2o=; b=m+ViHJYK7+JGw0Dk3+G6lu
-        zP9WSSl8UDFPmj6oekbVkUyGlM6hrfsDnKQq/PfhJku1rkTfmgczYwDItjsWXsmI
-        0kiOc5I1t1gqiSByyJe6vIfnw9e58aexQR7X6hHcMANHnkmTKodlS8BDLEI6nmTg
-        bVbaaSRwMSCAvKNagsb6RSgLxQFQFfXVv8rhjOd6ONG/2Lj/usG1vrx5lCFhJQnF
-        ly/FSJ/R/UsXrkw2AxOQ8QCPNOaLwqRlvaXcbHHw80d9AWEOzpWGeOQRxtBRjblA
-        zJNdi3y6aEythE3HymmHOc3WXX+ntTV1jE0/cJvah6nor5Au+k8vHlayi69dx9Kw
-        ==
-X-ME-Sender: <xms:c9nLXnM9LgvTC_4SOjy8DVWeD4AEu_VVAaxgRwAGrvOQz9kOqnWzXA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedruddvtddgjeelucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
-    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgepfeenucfrrghrrghmpe
-    hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:c9nLXh-Y3_WJrdfecJjxHf1iydgT88tieu74YdE6XLJgxRiWqEVgEA>
-    <xmx:c9nLXmT306i_Ch-YGNIXPix4VLylsJ8QCyT1cE-_AT_IPthw9U-wUA>
-    <xmx:c9nLXruZl19KgmTNVSQW9FvViKOB0Ai-eT_D2wMDYz_-gxYOuVO9FQ>
-    <xmx:c9nLXgoQt47ATJuo7F-tR819PDzRP3_PxFmqOu0ddHlN_CrqHT7Y0w>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id C8ACF306656D;
-        Mon, 25 May 2020 10:42:58 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] sched/fair: Fix unthrottle_cfs_rq() for leaf_cfs_rq list" failed to apply to 5.6-stable tree
-To:     vincent.guittot@linaro.org, bsegall@google.com, pauld@redhat.com,
-        peterz@infradead.org, zohooouoto@zoho.com.cn
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 25 May 2020 16:42:49 +0200
-Message-ID: <159041776914106@kroah.com>
+        id S1728383AbgEYO7w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 May 2020 10:59:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44906 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728075AbgEYO7v (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 May 2020 10:59:51 -0400
+Received: from kernel.org (unknown [87.70.212.59])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5C4BB2089D;
+        Mon, 25 May 2020 14:59:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1590418791;
+        bh=za8M6SYG37f2r37jOzhfcSQ14wRR2UBQzu9O+z/iF3M=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=YVnarHtGSdY0+zxYOzF0lj+8bKzmEla+wxb3nHJ6RoFi7u4Aw2sZFXkYVFlRD6p1m
+         pZPPAgthmLLMn6YmtmQABLbY4y5ufNYAVyPuGnLWZYovXxnOf/4VryEYsIIpjxhlp9
+         ysUcOF/XEaQT7UcNqnqOLcFaX3JpRanryiU2IBXc=
+Date:   Mon, 25 May 2020 17:59:43 +0300
+From:   Mike Rapoport <rppt@kernel.org>
+To:     "Kirill A. Shutemov" <kirill@shutemov.name>
+Cc:     "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Tony Luck <tony.luck@intel.com>, x86@kernel.org,
+        linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+        Dave Hansen <dave.hansen@intel.com>, stable@vger.kernel.org
+Subject: Re: [PATCH] x86/mm: Fix boot with some memory above MAXMEM
+Message-ID: <20200525145943.GA13247@kernel.org>
+References: <20200511191721.1416-1-kirill.shutemov@linux.intel.com>
+ <20200525044902.rsb46bxu5hdsqglt@box>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200525044902.rsb46bxu5hdsqglt@box>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, May 25, 2020 at 07:49:02AM +0300, Kirill A. Shutemov wrote:
+> On Mon, May 11, 2020 at 10:17:21PM +0300, Kirill A. Shutemov wrote:
+> > A 5-level paging capable machine can have memory above 46-bit in the
+> > physical address space. This memory is only addressable in the 5-level
+> > paging mode: we don't have enough virtual address space to create direct
+> > mapping for such memory in the 4-level paging mode.
+> > 
+> > Currently, we fail boot completely: NULL pointer dereference in
+> > subsection_map_init().
+> > 
+> > Skip creating a memblock for such memory instead and notify user that
+> > some memory is not addressable.
+> > 
+> > Signed-off-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+> > Reviewed-by: Dave Hansen <dave.hansen@intel.com>
+> > Cc: stable@vger.kernel.org # v4.14
+> > ---
+> 
+> Gentle ping.
+> 
+> It's not urgent, but it's a bug fix. Please consider applying.
+> 
+> > Tested with a hacked QEMU: https://gist.github.com/kiryl/d45eb54110944ff95e544972d8bdac1d
+> > 
+> > ---
+> >  arch/x86/kernel/e820.c | 19 +++++++++++++++++--
+> >  1 file changed, 17 insertions(+), 2 deletions(-)
+> > 
+> > diff --git a/arch/x86/kernel/e820.c b/arch/x86/kernel/e820.c
+> > index c5399e80c59c..d320d37d0f95 100644
+> > --- a/arch/x86/kernel/e820.c
+> > +++ b/arch/x86/kernel/e820.c
+> > @@ -1280,8 +1280,8 @@ void __init e820__memory_setup(void)
+> >  
+> >  void __init e820__memblock_setup(void)
+> >  {
+> > +	u64 size, end, not_addressable = 0;
+> >  	int i;
+> > -	u64 end;
+> >  
+> >  	/*
+> >  	 * The bootstrap memblock region count maximum is 128 entries
+> > @@ -1307,7 +1307,22 @@ void __init e820__memblock_setup(void)
+> >  		if (entry->type != E820_TYPE_RAM && entry->type != E820_TYPE_RESERVED_KERN)
+> >  			continue;
+> >  
+> > -		memblock_add(entry->addr, entry->size);
+> > +		if (entry->addr >= MAXMEM) {
+> > +			not_addressable += entry->size;
+> > +			continue;
+> > +		}
+> > +
+> > +		end = min_t(u64, end, MAXMEM - 1);
+> > +		size = end - entry->addr;
+> > +		not_addressable += entry->size - size;
+> > +		memblock_add(entry->addr, size);
+> > +	}
+> > +
+> > +	if (not_addressable) {
+> > +		pr_err("%lldGB of physical memory is not addressable in the paging mode\n",
+> > +		       not_addressable >> 30);
+> > +		if (!pgtable_l5_enabled())
+> > +			pr_err("Consider enabling 5-level paging\n");
 
-The patch below does not apply to the 5.6-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Could this happen at all when l5 is enabled?
+Does it mean we need kmap() for 64-bit?
 
-thanks,
+> >  	}
+> >  
+> >  	/* Throw away partial pages: */
+> > -- 
+> > 2.26.2
+> > 
+> > 
+> 
+> -- 
+>  Kirill A. Shutemov
+> 
 
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 39f23ce07b9355d05a64ae303ce20d1c4b92b957 Mon Sep 17 00:00:00 2001
-From: Vincent Guittot <vincent.guittot@linaro.org>
-Date: Wed, 13 May 2020 15:55:28 +0200
-Subject: [PATCH] sched/fair: Fix unthrottle_cfs_rq() for leaf_cfs_rq list
-
-Although not exactly identical, unthrottle_cfs_rq() and enqueue_task_fair()
-are quite close and follow the same sequence for enqueuing an entity in the
-cfs hierarchy. Modify unthrottle_cfs_rq() to use the same pattern as
-enqueue_task_fair(). This fixes a problem already faced with the latter and
-add an optimization in the last for_each_sched_entity loop.
-
-Fixes: fe61468b2cb (sched/fair: Fix enqueue_task_fair warning)
-Reported-by Tao Zhou <zohooouoto@zoho.com.cn>
-Signed-off-by: Vincent Guittot <vincent.guittot@linaro.org>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Phil Auld <pauld@redhat.com>
-Reviewed-by: Ben Segall <bsegall@google.com>
-Link: https://lkml.kernel.org/r/20200513135528.4742-1-vincent.guittot@linaro.org
-
-diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index c6d57c334d51..538ba5d94e99 100644
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -4774,7 +4774,6 @@ void unthrottle_cfs_rq(struct cfs_rq *cfs_rq)
- 	struct rq *rq = rq_of(cfs_rq);
- 	struct cfs_bandwidth *cfs_b = tg_cfs_bandwidth(cfs_rq->tg);
- 	struct sched_entity *se;
--	int enqueue = 1;
- 	long task_delta, idle_task_delta;
- 
- 	se = cfs_rq->tg->se[cpu_of(rq)];
-@@ -4798,26 +4797,44 @@ void unthrottle_cfs_rq(struct cfs_rq *cfs_rq)
- 	idle_task_delta = cfs_rq->idle_h_nr_running;
- 	for_each_sched_entity(se) {
- 		if (se->on_rq)
--			enqueue = 0;
-+			break;
-+		cfs_rq = cfs_rq_of(se);
-+		enqueue_entity(cfs_rq, se, ENQUEUE_WAKEUP);
- 
-+		cfs_rq->h_nr_running += task_delta;
-+		cfs_rq->idle_h_nr_running += idle_task_delta;
-+
-+		/* end evaluation on encountering a throttled cfs_rq */
-+		if (cfs_rq_throttled(cfs_rq))
-+			goto unthrottle_throttle;
-+	}
-+
-+	for_each_sched_entity(se) {
- 		cfs_rq = cfs_rq_of(se);
--		if (enqueue) {
--			enqueue_entity(cfs_rq, se, ENQUEUE_WAKEUP);
--		} else {
--			update_load_avg(cfs_rq, se, 0);
--			se_update_runnable(se);
--		}
-+
-+		update_load_avg(cfs_rq, se, UPDATE_TG);
-+		se_update_runnable(se);
- 
- 		cfs_rq->h_nr_running += task_delta;
- 		cfs_rq->idle_h_nr_running += idle_task_delta;
- 
-+
-+		/* end evaluation on encountering a throttled cfs_rq */
- 		if (cfs_rq_throttled(cfs_rq))
--			break;
-+			goto unthrottle_throttle;
-+
-+		/*
-+		 * One parent has been throttled and cfs_rq removed from the
-+		 * list. Add it back to not break the leaf list.
-+		 */
-+		if (throttled_hierarchy(cfs_rq))
-+			list_add_leaf_cfs_rq(cfs_rq);
- 	}
- 
--	if (!se)
--		add_nr_running(rq, task_delta);
-+	/* At this point se is NULL and we are at root level*/
-+	add_nr_running(rq, task_delta);
- 
-+unthrottle_throttle:
- 	/*
- 	 * The cfs_rq_throttled() breaks in the above iteration can result in
- 	 * incomplete leaf list maintenance, resulting in triggering the
-@@ -4826,7 +4843,8 @@ void unthrottle_cfs_rq(struct cfs_rq *cfs_rq)
- 	for_each_sched_entity(se) {
- 		cfs_rq = cfs_rq_of(se);
- 
--		list_add_leaf_cfs_rq(cfs_rq);
-+		if (list_add_leaf_cfs_rq(cfs_rq))
-+			break;
- 	}
- 
- 	assert_list_leaf_cfs_rq(rq);
-
+-- 
+Sincerely yours,
+Mike.
