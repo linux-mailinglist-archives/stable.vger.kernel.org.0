@@ -2,63 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B445C1E11F8
-	for <lists+stable@lfdr.de>; Mon, 25 May 2020 17:42:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 67EDF1E11F9
+	for <lists+stable@lfdr.de>; Mon, 25 May 2020 17:42:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404040AbgEYPmi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 May 2020 11:42:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57944 "EHLO
+        id S2404076AbgEYPmr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 May 2020 11:42:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57972 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2404002AbgEYPmi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 25 May 2020 11:42:38 -0400
-Received: from mail-pg1-x542.google.com (mail-pg1-x542.google.com [IPv6:2607:f8b0:4864:20::542])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17443C061A0E
-        for <stable@vger.kernel.org>; Mon, 25 May 2020 08:42:38 -0700 (PDT)
-Received: by mail-pg1-x542.google.com with SMTP id s10so8815285pgm.0
-        for <stable@vger.kernel.org>; Mon, 25 May 2020 08:42:38 -0700 (PDT)
+        with ESMTP id S2404002AbgEYPmr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 25 May 2020 11:42:47 -0400
+Received: from mail-pf1-x444.google.com (mail-pf1-x444.google.com [IPv6:2607:f8b0:4864:20::444])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 115C1C061A0E
+        for <stable@vger.kernel.org>; Mon, 25 May 2020 08:42:47 -0700 (PDT)
+Received: by mail-pf1-x444.google.com with SMTP id 23so8949811pfy.8
+        for <stable@vger.kernel.org>; Mon, 25 May 2020 08:42:47 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20150623.gappssmtp.com; s=20150623;
         h=message-id:date:mime-version:content-transfer-encoding:subject:to
          :from;
-        bh=OGk5pozyHIefNgLNvb4uF33qKNNKxqWTxhU/7jjEiUw=;
-        b=bAti3pASVmWDsQkuBot/fl+ydzMKq1Ehdamdc3go3uwxMCZbW7RVV8S6muB+4tzu1U
-         1KOPcaz9lUxxcmA4650r1kv0y0uTb/Fdo56c466fGshM76eKxCn92bnZuLu9bw0azDvu
-         CIr7ngJNRYG8uiwu1ThNyERYrPh24iOftXrAXB4FFWc3NHPUbZFvpR8R4hMoNjPvjvc5
-         Fvd6jga0+4EKLfKE1Fj6OH102XoBvN1jBuI2mnSWVwr6ySo57RaddHHuRxC49hyuNmiN
-         RRMM4BJEbstFpZjIQfddRAiQVpCWkcKuOyHOXsEHpltWKrnHMLTycwri2KT8yMF0rWqo
-         ZwqA==
+        bh=hzEFY387OfpumVkRD4NehcA8w/3o+vXVgYtzr+VKInc=;
+        b=tXa7/MX3DL5ecTm305HvZnvW6dafc6+RxrTJaBh9miTsqbUG56oB1cNP388IRWovat
+         5ZVAnptOt8rQKIm7jI/liM0ZZfzWVr31V18x1lpOVmKPXsLYxjKhwJsJjB5DMUHWvQGc
+         r5JkU+fTpUN0pqPz3yqnOzgbP/aaerGNSyFliw0Ek86v6WYuF6bbCXF8gMrPkedrl6+e
+         K9BGOgrBveEdp4SzAkqZwHCp2kwYVOVceU1ga+4yv7qF1Ca1xcoJ/qPOXsDHjIGd6TcN
+         hyHVdpRCgqoXDOdXNki4pEr2TNok2WTVEVMcpWdmTGrOqm61Nr6qc+3t16M24f442160
+         0bww==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:message-id:date:mime-version
          :content-transfer-encoding:subject:to:from;
-        bh=OGk5pozyHIefNgLNvb4uF33qKNNKxqWTxhU/7jjEiUw=;
-        b=uYx7osS5kwnkTw1+lWRe01TWC9z5bvAUJRPfF7OqDgCgpr5PyWPAUn8dWw+Ka4wAUg
-         2ObE35+pAo0zmbHY3XfgZJYE4qhd7xliSGqaXkGqquG10XYzkd7lNyYy+9irb1gEVvBy
-         M0nlklC5C3FoCX+rw6NA5sUXbVLtAK6S17Y4x/Xbq903GGt/MO+2H5mJtTO0wUkXI2GY
-         KMjk7Snb1J7hVklZlq69UhBt08ZBG7VZ9QZ1+b+NPcU/6a6sVeqJwNlEv3/21Vc0CNtQ
-         HCTud0z+LWGi4xgZgJOnqE6XmGKH3GfmB2s14G1K7oZ+wsQ1S8wh3dDoKjnK4owXM2Fu
-         Zzug==
-X-Gm-Message-State: AOAM530abHS5sL7wZDJjClD/FkDJQhnSd4KJuf7xL83Wta2HrVYx++ut
-        s1NhPGgqWB78YmRaDUwr3K/yU1GATeY=
-X-Google-Smtp-Source: ABdhPJwqurlj/tfhQkf9G05itk24GW+Du9Sr7Q/pWXxevzbjXkb90J8Qefl2vUwuFwhax4XdWFMS3Q==
-X-Received: by 2002:a65:5285:: with SMTP id y5mr5326872pgp.271.1590421357213;
-        Mon, 25 May 2020 08:42:37 -0700 (PDT)
+        bh=hzEFY387OfpumVkRD4NehcA8w/3o+vXVgYtzr+VKInc=;
+        b=n7Sx8iAOE1YCGRyJe2/Z5Dcvs2oOFnROW0GVj5oVeYFE3EjsWIWAlWkdgD7HOZtHNB
+         SUr+o+fwkMKeV94IWL/Y49187CssAbp/259657eVwOLW1k66r+lcmd9nxazHXfzvkoPW
+         fyhu2GTxeTv91yfGZigXdRI7YgYiMobHwzMMUVxlb24ngHosNknXbi6XgSkLiJ11IYVJ
+         Tu9p8HEG59rpT5u4/N8D8l1MuS5CMjvygefdETbuOuhT1nZishbDQmIH0dTZDcC2dZIA
+         Fzf0ZoQltKJuJJdOy3xEVscG7/auqsuHdNiEmsgZuTa87X27DXw/Ye5GWhlZPRAdjGg/
+         D8pA==
+X-Gm-Message-State: AOAM530VdV2YE4p21xEMlY30ZywvuTCx9ARk6GFmNTCgbSatd8Bkb272
+        Zgg5NzkspiUO2bjOiDkjDRvd5pc3bI8=
+X-Google-Smtp-Source: ABdhPJxVduq+yaqcNXiJVQ/PfOrm2ZLicAslnAKW/x9ZgC1GI4kx/YZ93jqhjQq5TqT2bX/KeXYluQ==
+X-Received: by 2002:a63:a55c:: with SMTP id r28mr26576706pgu.108.1590421366314;
+        Mon, 25 May 2020 08:42:46 -0700 (PDT)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id u73sm13725561pfc.0.2020.05.25.08.42.36
+        by smtp.gmail.com with ESMTPSA id l67sm2702254pfl.81.2020.05.25.08.42.44
         for <stable@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 25 May 2020 08:42:36 -0700 (PDT)
-Message-ID: <5ecbe76c.1c69fb81.a2ca9.4c13@mx.google.com>
-Date:   Mon, 25 May 2020 08:42:36 -0700 (PDT)
+        Mon, 25 May 2020 08:42:45 -0700 (PDT)
+Message-ID: <5ecbe775.1c69fb81.4c484.039f@mx.google.com>
+Date:   Mon, 25 May 2020 08:42:45 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v3.16.84
+X-Kernelci-Kernel: v4.19.124
 X-Kernelci-Report-Type: boot
-X-Kernelci-Branch: linux-3.16.y
-Subject: stable-rc/linux-3.16.y boot: 59 boots: 53 failed,
- 0 passed with 3 offline, 3 untried/unknown (v3.16.84)
+X-Kernelci-Branch: linux-4.19.y
+Subject: stable-rc/linux-4.19.y boot: 129 boots: 1 failed,
+ 117 passed with 7 offline, 4 untried/unknown (v4.19.124)
 To:     stable@vger.kernel.org
 From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
@@ -83,169 +83,98 @@ ks
 using dmesg and bootrr: https://github.com/kernelci/bootrr
 
 See the *baseline results for this kernel revision* on this page:
-https://kernelci.org/test/job/stable-rc/branch/linux-3.16.y/kernel/v3.16.84=
-/plan/baseline/
+https://kernelci.org/test/job/stable-rc/branch/linux-4.19.y/kernel/v4.19.12=
+4/plan/baseline/
 
 ---------------------------------------------------------------------------=
 ----
 
-stable-rc/linux-3.16.y boot: 59 boots: 53 failed, 0 passed with 3 offline, =
-3 untried/unknown (v3.16.84)
+stable-rc/linux-4.19.y boot: 129 boots: 1 failed, 117 passed with 7 offline=
+, 4 untried/unknown (v4.19.124)
 
 Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--3.16.y/kernel/v3.16.84/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-3.16.=
-y/kernel/v3.16.84/
+-4.19.y/kernel/v4.19.124/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
+y/kernel/v4.19.124/
 
 Tree: stable-rc
-Branch: linux-3.16.y
-Git Describe: v3.16.84
-Git Commit: babf7e4a11200d94219dcebd64f50e6304bbde2e
+Branch: linux-4.19.y
+Git Describe: v4.19.124
+Git Commit: 1bab61d3e8cd96f2badf515dcb06e4e1029bc017
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
 e-rc.git
-Tested: 31 unique boards, 11 SoC families, 15 builds out of 187
+Tested: 79 unique boards, 23 SoC families, 20 builds out of 206
 
 Boot Regressions Detected:
 
 arm:
 
-    multi_v7_defconfig:
-        gcc-8:
-          armada-xp-openblocks-ax3-4:
-              lab-baylibre-seattle: failing since 25 days (last pass: v3.16=
-.82 - first fail: v3.16.83)
-          exynos5800-peach-pi:
-              lab-baylibre-seattle: failing since 25 days (last pass: v3.16=
-.82 - first fail: v3.16.83)
-          imx6dl-wandboard_dual:
-              lab-baylibre-seattle: failing since 25 days (last pass: v3.16=
-.82 - first fail: v3.16.83)
-          imx6dl-wandboard_solo:
-              lab-baylibre-seattle: failing since 25 days (last pass: v3.16=
-.82 - first fail: v3.16.83)
-          imx6q-wandboard:
-              lab-baylibre-seattle: failing since 25 days (last pass: v3.16=
-.82 - first fail: v3.16.83)
-          omap3-beagle:
-              lab-baylibre-seattle: failing since 25 days (last pass: v3.16=
-.82 - first fail: v3.16.83)
-          omap4-panda:
-              lab-baylibre-seattle: failing since 25 days (last pass: v3.16=
-.82 - first fail: v3.16.83)
-          sun4i-a10-cubieboard:
-              lab-baylibre-seattle: failing since 25 days (last pass: v3.16=
-.82 - first fail: v3.16.83)
-          tegra20-iris-512:
-              lab-baylibre-seattle: failing since 25 days (last pass: v3.16=
-.82 - first fail: v3.16.83)
-          tegra30-beaver:
-              lab-baylibre-seattle: failing since 25 days (last pass: v3.16=
-.82 - first fail: v3.16.83)
-          zynq-zc702:
-              lab-baylibre-seattle: failing since 25 days (last pass: v3.16=
-.82 - first fail: v3.16.83)
-
-Boot Failures Detected:
-
-i386:
-    i386_defconfig:
-        gcc-8:
-            qemu_i386: 1 failed lab
-
-x86_64:
-    x86_64_defconfig:
-        gcc-8:
-            minnowboard-turbot-E3826: 1 failed lab
-            qemu_x86_64: 1 failed lab
-
-arm:
-    imx_v4_v5_defconfig:
-        gcc-8:
-            imx27-phytec-phycard-s-rdk: 1 failed lab
-
-    tegra_defconfig:
-        gcc-8:
-            tegra124-jetson-tk1: 2 failed labs
-            tegra20-iris-512: 1 failed lab
-            tegra30-beaver: 1 failed lab
-
-    mvebu_v7_defconfig:
-        gcc-8:
-            armada-xp-openblocks-ax3-4: 1 failed lab
-
-    bcm2835_defconfig:
-        gcc-8:
-            bcm2835-rpi-b: 1 failed lab
-
     davinci_all_defconfig:
         gcc-8:
-            da850-evm: 1 failed lab
-            dm365evm,legacy: 1 failed lab
+          da850-evm:
+              lab-baylibre-seattle: new failure (last pass: v4.19.123-81-gf=
+f1170bc0ae9)
+          dm365evm,legacy:
+              lab-baylibre-seattle: new failure (last pass: v4.19.123-81-gf=
+f1170bc0ae9)
+
+    qcom_defconfig:
+        gcc-8:
+          qcom-apq8064-cm-qs600:
+              lab-baylibre-seattle: failing since 12 days (last pass: v4.19=
+.122 - first fail: v4.19.122-48-g92ba0b6b33ad)
+
+    sama5_defconfig:
+        gcc-8:
+          at91-sama5d4_xplained:
+              lab-baylibre: failing since 73 days (last pass: v4.19.108-87-=
+g624c124960e8 - first fail: v4.19.109)
 
     sunxi_defconfig:
         gcc-8:
-            sun4i-a10-cubieboard: 1 failed lab
-            sun4i-a10-olinuxino-lime: 1 failed lab
-            sun5i-a13-olinuxino-micro: 1 failed lab
-            sun7i-a20-cubieboard2: 2 failed labs
+          sun8i-h2-plus-orangepi-r1:
+              lab-baylibre: new failure (last pass: v4.19.123-81-gff1170bc0=
+ae9)
 
-    omap2plus_defconfig:
+    versatile_defconfig:
         gcc-8:
-            omap3-beagle: 1 failed lab
-            omap4-panda: 3 failed labs
-
-    multi_v7_defconfig:
-        gcc-8:
-            armada-xp-openblocks-ax3-4: 1 failed lab
-            imx27-phytec-phycard-s-rdk: 1 failed lab
-            imx53-qsrb: 1 failed lab
-            imx6dl-riotboard: 1 failed lab
-            imx6dl-wandboard_dual: 1 failed lab
-            imx6dl-wandboard_solo: 1 failed lab
-            imx6q-sabrelite: 2 failed labs
-            imx6q-wandboard: 1 failed lab
-            omap3-beagle: 1 failed lab
-            omap4-panda: 3 failed labs
-            qemu_arm-virt-gicv2: 1 failed lab
-            qemu_arm-virt-gicv3: 1 failed lab
-            sun4i-a10-cubieboard: 1 failed lab
-            sun4i-a10-olinuxino-lime: 1 failed lab
-            sun5i-a13-olinuxino-micro: 1 failed lab
-            sun7i-a20-cubieboard2: 2 failed labs
-            tegra124-jetson-tk1: 1 failed lab
-            tegra20-iris-512: 1 failed lab
-            tegra30-beaver: 1 failed lab
-            zynq-zc702: 1 failed lab
-
-    imx_v6_v7_defconfig:
-        gcc-8:
-            imx27-phytec-phycard-s-rdk: 1 failed lab
-            imx53-qsrb: 1 failed lab
-            imx6dl-riotboard: 1 failed lab
-            imx6dl-wandboard_dual: 1 failed lab
-            imx6dl-wandboard_solo: 1 failed lab
-
-    multi_v5_defconfig:
-        gcc-8:
-            imx27-phytec-phycard-s-rdk: 1 failed lab
+          versatile-pb:
+              lab-collabora: new failure (last pass: v4.19.123-81-gff1170bc=
+0ae9)
 
 arm64:
+
     defconfig:
         gcc-8:
-            qemu_arm64-virt-gicv2: 1 failed lab
-            qemu_arm64-virt-gicv3: 1 failed lab
+          sun50i-a64-pine64-plus:
+              lab-baylibre: new failure (last pass: v4.19.123-81-gff1170bc0=
+ae9)
+
+Boot Failure Detected:
+
+arm:
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
 
 Offline Platforms:
 
 arm:
 
-    imx_v6_v7_defconfig:
-        gcc-8
-            imx6q-wandboard: 1 offline lab
-
     multi_v7_defconfig:
         gcc-8
             exynos5800-peach-pi: 1 offline lab
+            qcom-apq8064-cm-qs600: 1 offline lab
+            stih410-b2120: 1 offline lab
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+    davinci_all_defconfig:
+        gcc-8
+            da850-evm: 1 offline lab
+            dm365evm,legacy: 1 offline lab
 
     exynos_defconfig:
         gcc-8
