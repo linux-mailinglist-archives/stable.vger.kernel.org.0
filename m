@@ -2,53 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 55EC41E10B1
-	for <lists+stable@lfdr.de>; Mon, 25 May 2020 16:39:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE7961E10D0
+	for <lists+stable@lfdr.de>; Mon, 25 May 2020 16:43:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390960AbgEYOjn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 May 2020 10:39:43 -0400
-Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:52413 "EHLO
+        id S2404087AbgEYOmj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 May 2020 10:42:39 -0400
+Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:60871 "EHLO
         forward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2390944AbgEYOjn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 25 May 2020 10:39:43 -0400
+        by vger.kernel.org with ESMTP id S2404110AbgEYOmj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 25 May 2020 10:42:39 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 19B961942B88;
-        Mon, 25 May 2020 10:39:42 -0400 (EDT)
+        by mailforward.nyi.internal (Postfix) with ESMTP id 5163A19439C2;
+        Mon, 25 May 2020 10:42:37 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Mon, 25 May 2020 10:39:42 -0400
+  by compute1.internal (MEProxy); Mon, 25 May 2020 10:42:37 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=MV2RBC
-        HiGs4cWy6bO2ArWxzc0RxpHLw2mZ+zz2GzqQI=; b=iKYLCQuDF6oPygOpwPhTjM
-        +Bbh3JwlJq8ZzkZDeiJXTSF0wEAlkWiSuua+s558eE9CQ5jBZl4azGWTD3viReYJ
-        3RMG2/H3fcGhL4jsfpxJ/c1x+pVa1h1lkZnczR0hdDq4FH2cDq4zh41HkIiSk6Fo
-        JGitLCkCW2m4pOxdM1qv+YBnU8Mdf06/ZiRmYov/BFQKS5iV61IbPqlbBgONAYqo
-        2H/lvaScyrK4Gm/UPfOVNViZ91xCuDvE2RF/vPuyvMwJOZ5Mnc6BUHBligG6BJI1
-        poQeGFNREtgDmdGml3XaMAGYIrv/sCH+5vz/kDT8sZmVxXmkSX6RXu4VO0W4E6Bg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=WAcQPP
+        +lKbeuA/iNO0pdEk59Plg1h3Kqx6GIe8+KHC8=; b=OFu+fvA6yIDUb2F/i6KQSn
+        gKvLRwX3r8+b8I8oIrX55CeoysaP7sDxqPr68CR1z/S75arXxL6xHP7ssKymDkEd
+        XSkCuChX6KqMZJsxAq0e1txIr3vf0SZg0R1AEPqM1T2JR9S+EVFMYoA4aBEMg2B1
+        zLmu8WPMbgMAglyrjYIMPc7tRGnjt+kzLu/Cir4ygaZRYHHjxRD/U2ZvIVlQNHSR
+        id8EaWmF57VUB7mRps6/AEUXWWI/5MI1UUWZRIKaBecKPUbaFfD6Z2D3/8qy+ns+
+        m6OHrof4MS2Td0L5gnYPZujPYZLyBd2CQQ7ugNjR6kiDtfjGeUKwDPBOCHiR+lYA
         ==
-X-ME-Sender: <xms:rdjLXpp5xklhi9R4OBF0jUUn787dx6a4_LRBbvbS_ak4BerLVAhjtg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedruddvtddgjeekucetufdoteggodetrfdotf
+X-ME-Sender: <xms:XNnLXhyOrud3jZ55eUH6D-uzNsE51XL9AIfji2FH7g6x_SghVx6EuQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedruddvtddgjeelucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgepudenucfrrghrrghmpe
+    keefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpe
     hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:rdjLXro-sKi1-FApuChK0VZ4dMZTFyxD7FmAZ7zTySwW3Sr5c8KYUg>
-    <xmx:rdjLXmMpPkK5x6kORU0R49gNL61VDf5pZI7lx5mvZBRR_SZErjvy8w>
-    <xmx:rdjLXk79zVNydFEwi6EU9cKFD-uD4TX6XKDub1lzZparN-h3-oh4tg>
-    <xmx:rtjLXtjvU8ZMdQ9FqDlugFQpkTrD4Xx44c9TGnQPR6xfvxkseouM3Q>
+X-ME-Proxy: <xmx:XNnLXhTGxQq8IYNIo5Yvgl_419pnVE9_teBHHUlR0QBCVkTshYbodA>
+    <xmx:XNnLXrWm-y9S5Lhrk7Lg76FvpPINVrV22VY8jFpAqQjaYhyiojFSlA>
+    <xmx:XNnLXjgFrG9dgE8b19edJIzpRGz8m_UxbltGBb1VpkF0L4f4KzKvBQ>
+    <xmx:XdnLXo5_2eBdTEvJU09DB7SmtUnET3X9G9WkxpKGKl5KJnQwX_hf3g>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id A6DE7306656D;
-        Mon, 25 May 2020 10:39:41 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] bpf: Prevent mmap()'ing read-only maps as writable" failed to apply to 5.6-stable tree
-To:     andriin@fb.com, ast@kernel.org, jannh@google.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id A6B3C3066568;
+        Mon, 25 May 2020 10:42:36 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] sched/fair: Fix enqueue_task_fair() warning some more" failed to apply to 5.4-stable tree
+To:     pauld@redhat.com, dietmar.eggemann@arm.com, peterz@infradead.org,
+        vincent.guittot@linaro.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 25 May 2020 16:39:40 +0200
-Message-ID: <15904175802874@kroah.com>
+Date:   Mon, 25 May 2020 16:42:35 +0200
+Message-ID: <15904177553090@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -58,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.6-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -69,103 +70,50 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From dfeb376dd4cb2c5004aeb625e2475f58a5ff2ea7 Mon Sep 17 00:00:00 2001
-From: Andrii Nakryiko <andriin@fb.com>
-Date: Mon, 18 May 2020 22:38:24 -0700
-Subject: [PATCH] bpf: Prevent mmap()'ing read-only maps as writable
+From b34cb07dde7c2346dec73d053ce926aeaa087303 Mon Sep 17 00:00:00 2001
+From: Phil Auld <pauld@redhat.com>
+Date: Tue, 12 May 2020 09:52:22 -0400
+Subject: [PATCH] sched/fair: Fix enqueue_task_fair() warning some more
 
-As discussed in [0], it's dangerous to allow mapping BPF map, that's meant to
-be frozen and is read-only on BPF program side, because that allows user-space
-to actually store a writable view to the page even after it is frozen. This is
-exacerbated by BPF verifier making a strong assumption that contents of such
-frozen map will remain unchanged. To prevent this, disallow mapping
-BPF_F_RDONLY_PROG mmap()'able BPF maps as writable, ever.
+sched/fair: Fix enqueue_task_fair warning some more
 
-  [0] https://lore.kernel.org/bpf/CAEf4BzYGWYhXdp6BJ7_=9OQPJxQpgug080MMjdSB72i9R+5c6g@mail.gmail.com/
+The recent patch, fe61468b2cb (sched/fair: Fix enqueue_task_fair warning)
+did not fully resolve the issues with the rq->tmp_alone_branch !=
+&rq->leaf_cfs_rq_list warning in enqueue_task_fair. There is a case where
+the first for_each_sched_entity loop exits due to on_rq, having incompletely
+updated the list.  In this case the second for_each_sched_entity loop can
+further modify se. The later code to fix up the list management fails to do
+what is needed because se does not point to the sched_entity which broke out
+of the first loop. The list is not fixed up because the throttled parent was
+already added back to the list by a task enqueue in a parallel child hierarchy.
 
-Fixes: fc9702273e2e ("bpf: Add mmap() support for BPF_MAP_TYPE_ARRAY")
-Suggested-by: Jann Horn <jannh@google.com>
-Signed-off-by: Andrii Nakryiko <andriin@fb.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Reviewed-by: Jann Horn <jannh@google.com>
-Link: https://lore.kernel.org/bpf/20200519053824.1089415-1-andriin@fb.com
+Address this by calling list_add_leaf_cfs_rq if there are throttled parents
+while doing the second for_each_sched_entity loop.
 
-diff --git a/kernel/bpf/syscall.c b/kernel/bpf/syscall.c
-index 2843bbba9ca1..4e6dee19a668 100644
---- a/kernel/bpf/syscall.c
-+++ b/kernel/bpf/syscall.c
-@@ -623,9 +623,20 @@ static int bpf_map_mmap(struct file *filp, struct vm_area_struct *vma)
- 
- 	mutex_lock(&map->freeze_mutex);
- 
--	if ((vma->vm_flags & VM_WRITE) && map->frozen) {
--		err = -EPERM;
--		goto out;
-+	if (vma->vm_flags & VM_WRITE) {
-+		if (map->frozen) {
-+			err = -EPERM;
-+			goto out;
-+		}
-+		/* map is meant to be read-only, so do not allow mapping as
-+		 * writable, because it's possible to leak a writable page
-+		 * reference and allows user-space to still modify it after
-+		 * freezing, while verifier will assume contents do not change
-+		 */
-+		if (map->map_flags & BPF_F_RDONLY_PROG) {
-+			err = -EACCES;
-+			goto out;
-+		}
+Fixes: fe61468b2cb ("sched/fair: Fix enqueue_task_fair warning")
+Suggested-by: Vincent Guittot <vincent.guittot@linaro.org>
+Signed-off-by: Phil Auld <pauld@redhat.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
+Reviewed-by: Vincent Guittot <vincent.guittot@linaro.org>
+Link: https://lkml.kernel.org/r/20200512135222.GC2201@lorien.usersys.redhat.com
+
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index 02f323b85b6d..c6d57c334d51 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -5479,6 +5479,13 @@ enqueue_task_fair(struct rq *rq, struct task_struct *p, int flags)
+ 		/* end evaluation on encountering a throttled cfs_rq */
+ 		if (cfs_rq_throttled(cfs_rq))
+ 			goto enqueue_throttle;
++
++               /*
++                * One parent has been throttled and cfs_rq removed from the
++                * list. Add it back to not break the leaf list.
++                */
++               if (throttled_hierarchy(cfs_rq))
++                       list_add_leaf_cfs_rq(cfs_rq);
  	}
  
- 	/* set default open/close callbacks */
-diff --git a/tools/testing/selftests/bpf/prog_tests/mmap.c b/tools/testing/selftests/bpf/prog_tests/mmap.c
-index 6b9dce431d41..43d0b5578f46 100644
---- a/tools/testing/selftests/bpf/prog_tests/mmap.c
-+++ b/tools/testing/selftests/bpf/prog_tests/mmap.c
-@@ -19,7 +19,7 @@ void test_mmap(void)
- 	const size_t map_sz = roundup_page(sizeof(struct map_data));
- 	const int zero = 0, one = 1, two = 2, far = 1500;
- 	const long page_size = sysconf(_SC_PAGE_SIZE);
--	int err, duration = 0, i, data_map_fd, data_map_id, tmp_fd;
-+	int err, duration = 0, i, data_map_fd, data_map_id, tmp_fd, rdmap_fd;
- 	struct bpf_map *data_map, *bss_map;
- 	void *bss_mmaped = NULL, *map_mmaped = NULL, *tmp1, *tmp2;
- 	struct test_mmap__bss *bss_data;
-@@ -37,6 +37,17 @@ void test_mmap(void)
- 	data_map = skel->maps.data_map;
- 	data_map_fd = bpf_map__fd(data_map);
- 
-+	rdmap_fd = bpf_map__fd(skel->maps.rdonly_map);
-+	tmp1 = mmap(NULL, 4096, PROT_READ | PROT_WRITE, MAP_SHARED, rdmap_fd, 0);
-+	if (CHECK(tmp1 != MAP_FAILED, "rdonly_write_mmap", "unexpected success\n")) {
-+		munmap(tmp1, 4096);
-+		goto cleanup;
-+	}
-+	/* now double-check if it's mmap()'able at all */
-+	tmp1 = mmap(NULL, 4096, PROT_READ, MAP_SHARED, rdmap_fd, 0);
-+	if (CHECK(tmp1 == MAP_FAILED, "rdonly_read_mmap", "failed: %d\n", errno))
-+		goto cleanup;
-+
- 	/* get map's ID */
- 	memset(&map_info, 0, map_info_sz);
- 	err = bpf_obj_get_info_by_fd(data_map_fd, &map_info, &map_info_sz);
-diff --git a/tools/testing/selftests/bpf/progs/test_mmap.c b/tools/testing/selftests/bpf/progs/test_mmap.c
-index 6239596cd14e..4eb42cff5fe9 100644
---- a/tools/testing/selftests/bpf/progs/test_mmap.c
-+++ b/tools/testing/selftests/bpf/progs/test_mmap.c
-@@ -7,6 +7,14 @@
- 
- char _license[] SEC("license") = "GPL";
- 
-+struct {
-+	__uint(type, BPF_MAP_TYPE_ARRAY);
-+	__uint(max_entries, 4096);
-+	__uint(map_flags, BPF_F_MMAPABLE | BPF_F_RDONLY_PROG);
-+	__type(key, __u32);
-+	__type(value, char);
-+} rdonly_map SEC(".maps");
-+
- struct {
- 	__uint(type, BPF_MAP_TYPE_ARRAY);
- 	__uint(max_entries, 512 * 4); /* at least 4 pages of data */
+ enqueue_throttle:
 
