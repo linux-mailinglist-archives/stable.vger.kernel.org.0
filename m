@@ -2,173 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D0621E1361
-	for <lists+stable@lfdr.de>; Mon, 25 May 2020 19:27:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 345911E137E
+	for <lists+stable@lfdr.de>; Mon, 25 May 2020 19:41:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391324AbgEYR1N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 May 2020 13:27:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45974 "EHLO
+        id S2388182AbgEYRlv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 May 2020 13:41:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48246 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2389605AbgEYR1N (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 25 May 2020 13:27:13 -0400
-Received: from mail-wr1-x441.google.com (mail-wr1-x441.google.com [IPv6:2a00:1450:4864:20::441])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D52E9C061A0E
-        for <stable@vger.kernel.org>; Mon, 25 May 2020 10:27:12 -0700 (PDT)
-Received: by mail-wr1-x441.google.com with SMTP id r7so1042329wro.1
-        for <stable@vger.kernel.org>; Mon, 25 May 2020 10:27:12 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to
-         :user-agent;
-        bh=x2S+x/if4e2yvxZGOayuIopWpnk7HnG2vcQFQEtId8Y=;
-        b=QLkIY+tc+iYyOSSjqZQQl8mg/01ecJnncgxpOkCeG90OKcZtkcCANO8LpCWkED6hNG
-         n3ojKeyBQmt8anSjzERV9vPpJrRPso+N8GeoYqEdlolfdoED66B6jaUSqyyArH8mP7yr
-         ebouQY6hnIwDnmc3Q2QegLEAYLX4cJO0PAMNfx8Qbre4kFLa2zbWVtJFpl+QTDphAAnL
-         NBi+Xr2871JWFTUH4OrSdV6QMGZF0zwoR17DQ7ls7+/uRcd3XMxJJKctZhcsGu92Y2+m
-         vz2hiksHYYEivwHAB6KxLmeDItiWixJ/rschh1jyTlZYPwZYJU0VJHoLEl8DKkAo2ovF
-         /RFw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to:user-agent;
-        bh=x2S+x/if4e2yvxZGOayuIopWpnk7HnG2vcQFQEtId8Y=;
-        b=f0Xucfw9KdLyZzBVkDEAmr7fLXpB6j3ZyE1pi9XVg7c3XthQKrN/kTiYPh+JY/pAkr
-         T55JZ2K7MZWDx7qXKmlSjzUd76JvuJ9quiVoY56ctQJjh7FW7e60B8RrTqZ1CSJniks7
-         oD7Cl8na3ugmBufg0bLO08rs2+aefntZvV2PJNTg6y21GjGLjiOtzd9B1gJ/0/rjALEW
-         ZBiQ0+e/KG6UhChLbLMpd7pIQFbtkwqT1rYyO7wXsiLeB18/Bh2OMCXPPxnsC4+r0+9K
-         aWtkJTl5TwBcCZRUPA4+6+JTVSAQrcwHfQ1HPZaWrn95sSS+Iy8AU17RKAZdTLi76DIh
-         Pu3Q==
-X-Gm-Message-State: AOAM531kvt0jckIJOvmwLYiXFSG2+njeX+2gNwKoG8Dn/KOqx/cfjKI5
-        48jvKHQA2yBkuKYRqaGV5k4bvA==
-X-Google-Smtp-Source: ABdhPJylqIoLdVhQbm2SuH2p1dYYQ0HqZllDuu6xkjIh4KestuGvhhZuEilRrgkazHaqY4PT/p2MEw==
-X-Received: by 2002:adf:fec3:: with SMTP id q3mr9994264wrs.123.1590427631510;
-        Mon, 25 May 2020 10:27:11 -0700 (PDT)
-Received: from vingu-book ([2a01:e0a:f:6020:4472:94ba:76c5:5d9f])
-        by smtp.gmail.com with ESMTPSA id z25sm5615567wmf.10.2020.05.25.10.27.10
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Mon, 25 May 2020 10:27:10 -0700 (PDT)
-Date:   Mon, 25 May 2020 19:27:09 +0200
-From:   Vincent Guittot <vincent.guittot@linaro.org>
-To:     gregkh@linuxfoundation.org
-Cc:     bsegall@google.com, pauld@redhat.com, peterz@infradead.org,
-        zohooouoto@zoho.com.cn, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] sched/fair: Fix unthrottle_cfs_rq() for
- leaf_cfs_rq list" failed to apply to 5.4-stable tree
-Message-ID: <20200525172709.GB7427@vingu-book>
-References: <159041776924279@kroah.com>
+        with ESMTP id S2389348AbgEYRlu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 25 May 2020 13:41:50 -0400
+Received: from Galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3FCBC061A0E;
+        Mon, 25 May 2020 10:41:50 -0700 (PDT)
+Received: from [5.158.153.53] (helo=tip-bot2.lab.linutronix.de)
+        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
+        (Exim 4.80)
+        (envelope-from <tip-bot2@linutronix.de>)
+        id 1jdH6h-0005rA-Gy; Mon, 25 May 2020 19:41:47 +0200
+Received: from [127.0.1.1] (localhost [IPv6:::1])
+        by tip-bot2.lab.linutronix.de (Postfix) with ESMTP id 02E8B1C0087;
+        Mon, 25 May 2020 19:41:47 +0200 (CEST)
+Date:   Mon, 25 May 2020 17:41:46 -0000
+From:   "tip-bot2 for Hill Ma" <tip-bot2@linutronix.de>
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: x86/misc] x86/reboot/quirks: Add MacBook6,1 reboot quirk
+Cc:     Hill Ma <maahiuzeon@gmail.com>, Borislav Petkov <bp@suse.de>,
+        stable@vger.kernel.org, x86 <x86@kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20200425200641.GA1554@cslab.localdomain>
+References: <20200425200641.GA1554@cslab.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <159041776924279@kroah.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+Message-ID: <159042850682.17951.11521556361108377524.tip-bot2@tip-bot2>
+X-Mailer: tip-git-log-daemon
+Robot-ID: <tip-bot2.linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Linutronix-Spam-Score: -1.0
+X-Linutronix-Spam-Level: -
+X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Le lundi 25 mai 2020 à 16:42:49 (+0200), gregkh@linuxfoundation.org a écrit :
-> 
-> The patch below does not apply to the 5.4-stable tree.
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git commit
-> id to <stable@vger.kernel.org>.
+The following commit has been merged into the x86/misc branch of tip:
 
-This patch needs  commit
-    b34cb07dde7c ("sched/fair: Fix enqueue_task_fair() warning some more")
-to be applied first. But then, it will not apply. The backport is :
+Commit-ID:     140fd4ac78d385e6c8e6a5757585f6c707085f87
+Gitweb:        https://git.kernel.org/tip/140fd4ac78d385e6c8e6a5757585f6c707085f87
+Author:        Hill Ma <maahiuzeon@gmail.com>
+AuthorDate:    Sat, 25 Apr 2020 13:06:41 -07:00
+Committer:     Borislav Petkov <bp@suse.de>
+CommitterDate: Mon, 25 May 2020 18:11:23 +02:00
 
-[ Upstream commit 39f23ce07b9355d05a64ae303ce20d1c4b92b957 upstream ]
+x86/reboot/quirks: Add MacBook6,1 reboot quirk
 
-Although not exactly identical, unthrottle_cfs_rq() and enqueue_task_fair()
-are quite close and follow the same sequence for enqueuing an entity in the
-cfs hierarchy. Modify unthrottle_cfs_rq() to use the same pattern as
-enqueue_task_fair(). This fixes a problem already faced with the latter and
-add an optimization in the last for_each_sched_entity loop.
+On MacBook6,1 reboot would hang unless parameter reboot=pci is added.
+Make it automatic.
 
-Fixes: fe61468b2cb (sched/fair: Fix enqueue_task_fair warning)
-Reported-by Tao Zhou <zohooouoto@zoho.com.cn>
-Signed-off-by: Vincent Guittot <vincent.guittot@linaro.org>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Phil Auld <pauld@redhat.com>
-Reviewed-by: Ben Segall <bsegall@google.com>
-Link: https://lkml.kernel.org/r/20200513135528.4742-1-vincent.guittot@linaro.org
+Signed-off-by: Hill Ma <maahiuzeon@gmail.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/20200425200641.GA1554@cslab.localdomain
 ---
- kernel/sched/fair.c | 36 ++++++++++++++++++++++++++++--------
- 1 file changed, 28 insertions(+), 8 deletions(-)
+ arch/x86/kernel/reboot.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index 193b6ab74d7f..36e3bb990845 100644
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -4560,7 +4560,6 @@ void unthrottle_cfs_rq(struct cfs_rq *cfs_rq)
- 	struct rq *rq = rq_of(cfs_rq);
- 	struct cfs_bandwidth *cfs_b = tg_cfs_bandwidth(cfs_rq->tg);
- 	struct sched_entity *se;
--	int enqueue = 1;
- 	long task_delta, idle_task_delta;
-
- 	se = cfs_rq->tg->se[cpu_of(rq)];
-@@ -4584,21 +4583,41 @@ void unthrottle_cfs_rq(struct cfs_rq *cfs_rq)
- 	idle_task_delta = cfs_rq->idle_h_nr_running;
- 	for_each_sched_entity(se) {
- 		if (se->on_rq)
--			enqueue = 0;
-+			break;
-+		cfs_rq = cfs_rq_of(se);
-+		enqueue_entity(cfs_rq, se, ENQUEUE_WAKEUP);
-+
-+		cfs_rq->h_nr_running += task_delta;
-+		cfs_rq->idle_h_nr_running += idle_task_delta;
-
-+		/* end evaluation on encountering a throttled cfs_rq */
-+		if (cfs_rq_throttled(cfs_rq))
-+			goto unthrottle_throttle;
-+	}
-+
-+	for_each_sched_entity(se) {
- 		cfs_rq = cfs_rq_of(se);
--		if (enqueue)
--			enqueue_entity(cfs_rq, se, ENQUEUE_WAKEUP);
-+
- 		cfs_rq->h_nr_running += task_delta;
- 		cfs_rq->idle_h_nr_running += idle_task_delta;
-
-+
-+		/* end evaluation on encountering a throttled cfs_rq */
- 		if (cfs_rq_throttled(cfs_rq))
--			break;
-+			goto unthrottle_throttle;
-+
-+		/*
-+		 * One parent has been throttled and cfs_rq removed from the
-+		 * list. Add it back to not break the leaf list.
-+		 */
-+		if (throttled_hierarchy(cfs_rq))
-+			list_add_leaf_cfs_rq(cfs_rq);
- 	}
-
--	if (!se)
--		add_nr_running(rq, task_delta);
-+	/* At this point se is NULL and we are at root level*/
-+	add_nr_running(rq, task_delta);
-
-+unthrottle_throttle:
- 	/*
- 	 * The cfs_rq_throttled() breaks in the above iteration can result in
- 	 * incomplete leaf list maintenance, resulting in triggering the
-@@ -4607,7 +4626,8 @@ void unthrottle_cfs_rq(struct cfs_rq *cfs_rq)
- 	for_each_sched_entity(se) {
- 		cfs_rq = cfs_rq_of(se);
-
--		list_add_leaf_cfs_rq(cfs_rq);
-+		if (list_add_leaf_cfs_rq(cfs_rq))
-+			break;
- 	}
-
- 	assert_list_leaf_cfs_rq(rq);
---
-2.17.1
- 
+diff --git a/arch/x86/kernel/reboot.c b/arch/x86/kernel/reboot.c
+index 3ca43be..8b8cebf 100644
+--- a/arch/x86/kernel/reboot.c
++++ b/arch/x86/kernel/reboot.c
+@@ -197,6 +197,14 @@ static const struct dmi_system_id reboot_dmi_table[] __initconst = {
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "MacBook5"),
+ 		},
+ 	},
++	{	/* Handle problems with rebooting on Apple MacBook6,1 */
++		.callback = set_pci_reboot,
++		.ident = "Apple MacBook6,1",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Apple Inc."),
++			DMI_MATCH(DMI_PRODUCT_NAME, "MacBook6,1"),
++		},
++	},
+ 	{	/* Handle problems with rebooting on Apple MacBookPro5 */
+ 		.callback = set_pci_reboot,
+ 		.ident = "Apple MacBookPro5",
