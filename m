@@ -2,152 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D12A11E11A0
-	for <lists+stable@lfdr.de>; Mon, 25 May 2020 17:23:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 19DBC1E11F3
+	for <lists+stable@lfdr.de>; Mon, 25 May 2020 17:41:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403999AbgEYPXw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 May 2020 11:23:52 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:43627 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S2403997AbgEYPXv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 25 May 2020 11:23:51 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1590420230;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=Hb6A5oEE/7flZ7kgFaC1rhHPEB8uJ59S8yMg9iSDYYw=;
-        b=cTm5k5nO1huxgu/J6chSB74SxDO06rlI9uh70S6wqINIUxZXE2N0wmb8Vmrg3vs0AfUicd
-        tbHTPFUrCdmdOFoC2h7hdltfcRFnpJEgmQy2VhQZ8uJS4UAO0LLYluo0i592oPAT6yOZcU
-        ahacsWGjrKvCgkD/rsSQVmG8d0ffXzU=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-302-T5i8NFYfN6WdsdkUvpjg6Q-1; Mon, 25 May 2020 11:23:48 -0400
-X-MC-Unique: T5i8NFYfN6WdsdkUvpjg6Q-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 67FA01005510
-        for <stable@vger.kernel.org>; Mon, 25 May 2020 15:23:47 +0000 (UTC)
-Received: from colo-mx.corp.redhat.com (colo-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.20])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 626856EDA5
-        for <stable@vger.kernel.org>; Mon, 25 May 2020 15:23:47 +0000 (UTC)
-Received: from zmail19.collab.prod.int.phx2.redhat.com (zmail19.collab.prod.int.phx2.redhat.com [10.5.83.22])
-        by colo-mx.corp.redhat.com (Postfix) with ESMTP id 5B8B41809542;
-        Mon, 25 May 2020 15:23:47 +0000 (UTC)
-Date:   Mon, 25 May 2020 11:23:47 -0400 (EDT)
-From:   Veronika Kabatova <vkabatov@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Cc:     CKI Project <cki-project@redhat.com>
-Message-ID: <1238663306.24257335.1590420227156.JavaMail.zimbra@redhat.com>
-In-Reply-To: <cki.09562F3C51.NRM7O0HL2X@redhat.com>
-References: <cki.09562F3C51.NRM7O0HL2X@redhat.com>
-Subject: =?utf-8?Q?Re:_=E2=9D=8C_FAIL:_Test_report_for_kernel?=
- =?utf-8?Q?_5.6.14-79935d9.cki_(stable-queue)?=
+        id S2404189AbgEYPlu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 May 2020 11:41:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57822 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2404002AbgEYPlt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 25 May 2020 11:41:49 -0400
+Received: from mail-lj1-x243.google.com (mail-lj1-x243.google.com [IPv6:2a00:1450:4864:20::243])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6603BC061A0E
+        for <stable@vger.kernel.org>; Mon, 25 May 2020 08:41:49 -0700 (PDT)
+Received: by mail-lj1-x243.google.com with SMTP id l15so20852276lje.9
+        for <stable@vger.kernel.org>; Mon, 25 May 2020 08:41:49 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=jxBcJ9+AnUHkNf5kBnInBEwkkB1cclUH2Vt26+wx2gA=;
+        b=tPIUHKSvOf/mHPwB1oZXlpgCba9YJ1SzG4kK15dZUz/ESIVfr87suz04ududRrgbTP
+         4olVQF5AUoaaqgbIn17LGSafuctORPDxweCIYuVhsrb6+iH5SrPnLUhy3Ihn9TTH5H/M
+         E0HyTxG5yQENUWa/NyK9m0YCebuCMfKlWMnxDJcfKlmhM/as7PIO6o6wDfXoq/3qf6P5
+         LWmahQ9/RnI7RJUlxDfE3+9+6MOuv5/Uut4cUT0gljLQ9HusgDHOSI2UuESAmo/o91/C
+         GvD2xnSfTanld1rTdWsB+ca14dI2rG3xC2PF9TlEyXtGviUn+OPNEd0m/u9ug2qwuGLL
+         df2g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=jxBcJ9+AnUHkNf5kBnInBEwkkB1cclUH2Vt26+wx2gA=;
+        b=rhZXBamXGnwd3EE62ze2UWF1lzYP7bWUKuHnCeKuXYZzRpCGdOdadAiwHl0tbyMeYs
+         XbFVP10IbVntfmURzsKxqi15yGMyDqsoyBke4cjrB4O9TcO1lYlqdt0aGx11mBuprsQp
+         XbSTW2bjeL+atOtU4NVDJveiCFuOmAivbrmuTnLdkHRmx8XqiaMhOUNgt4QeVjizWsm+
+         wEmh9EIzY2cXnIuHldMGijKLwq0N104EVsfcNpttArcO/serctSA4M20ZbJfc2frInz0
+         mJPz5jJ5jPKUj/6t/4hy7PbjGWQ4XfH+asIf66oxa7RA+Sb/mUSXie65MUpwXMeDwHD1
+         2kRw==
+X-Gm-Message-State: AOAM532Y7egnst4XCP73o/bZY1JoK4B6bFfwxyC3sLb/h7EbwKUpRxF8
+        kD9T++AKxwRHql7JdVYACVJZvFPPW6qjBMdJpJH5sg==
+X-Google-Smtp-Source: ABdhPJweNyGoUqcLWWdBYwxM2b3Um1K4qHMabTgrSODqGt/4r/Udg8cyHCAyb3t1gs+Pry37+gXumDoygQE66l0xdN4=
+X-Received: by 2002:a2e:9cc7:: with SMTP id g7mr12033030ljj.423.1590421307842;
+ Mon, 25 May 2020 08:41:47 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-X-Originating-IP: [10.40.195.224, 10.4.195.29]
-Thread-Topic: =?utf-8?B?4p2MIEZBSUw6?= Test report for kernel 5.6.14-79935d9.cki (stable-queue)
-Thread-Index: de24cRnY0YaKE6fCTFP86/mbOwxnBA==
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+References: <1590417756152233@kroah.com>
+In-Reply-To: <1590417756152233@kroah.com>
+From:   Vincent Guittot <vincent.guittot@linaro.org>
+Date:   Mon, 25 May 2020 17:41:36 +0200
+Message-ID: <CAKfTPtCdYVG3KbE4RixXYMEv=yQNu5zMutS7bTk4dAHqSxhs7A@mail.gmail.com>
+Subject: Re: FAILED: patch "[PATCH] sched/fair: Fix enqueue_task_fair()
+ warning some more" failed to apply to 5.6-stable tree
+To:     "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
+Cc:     Phil Auld <pauld@redhat.com>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        "# v4 . 16+" <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, 25 May 2020 at 16:42, <gregkh@linuxfoundation.org> wrote:
+>
+>
+> The patch below does not apply to the 5.6-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
+
+This patch applies on top of
+commit 6d4d22468dae ("sched/fair: Reorder enqueue/dequeue_task_fair path")
+commit 5ab297bab984 ("sched/fair: Fix reordering of
+enqueue/dequeue_task_fair()")
 
 
------ Original Message -----
-> From: "CKI Project" <cki-project@redhat.com>
-> To: "Linux Stable maillist" <stable@vger.kernel.org>
-> Sent: Monday, May 25, 2020 5:22:14 PM
-> Subject: =E2=9D=8C FAIL: Test report for kernel 5.6.14-79935d9.cki (stabl=
-e-queue)
->=20
->=20
-> Hello,
->=20
-> We ran automated tests on a recent commit from this kernel tree:
->=20
->        Kernel repo:
->        https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
->             Commit: 79935d99370b - x86/unwind/orc: Fix
->             unwind_get_return_address_ptr() for inactive tasks
->=20
-> The results of these automated tests are provided below.
->=20
->     Overall result: FAILED (see details below)
->              Merge: OK
->            Compile: FAILED
->=20
-> All kernel binaries, config files, and logs are available for download he=
-re:
->=20
->   https://cki-artifacts.s3.us-east-2.amazonaws.com/index.html?prefix=3Dda=
-tawarehouse/2020/05/25/580491
->=20
-> We attempted to compile the kernel for multiple architectures, but the
-> compile
-> failed on one or more architectures:
->=20
->            aarch64: FAILED (see build-aarch64.log.xz attachment)
->=20
 
-Hi,
-
-this looks like a bug in the revert.
-
-https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git/=
-commit/?h=3Dqueue/5.6&id=3D1d69ec1bac630983a00b62f155503c53559b3c14
-
-attempts to revert the following commit:
-
-https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git/=
-commit/?h=3Dqueue/5.6&id=3D5caf6102e32ead7ed5d21b5309c1a4a7d70e6a9f
-
-but the bus.c changes are not reverted, only bus.h.
-
-
-Veronika
-
-> We hope that these logs can help you find the problem quickly. For the fu=
-ll
-> detail on our testing procedures, please scroll to the bottom of this
-> message.
->=20
-> Please reply to this email if you have any questions about the tests that=
- we
-> ran or if you have any suggestions on how to make future tests more
-> effective.
->=20
->         ,-.   ,-.
->        ( C ) ( K )  Continuous
->         `-',-.`-'   Kernel
->           ( I )     Integration
->            `-'
-> _________________________________________________________________________=
-_____
->=20
-> Compile testing
-> ---------------
->=20
-> We compiled the kernel for 4 architectures:
->=20
->     aarch64:
->       make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
->=20
->     ppc64le:
->       make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
->=20
->     s390x:
->       make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
->=20
->     x86_64:
->       make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
->=20
->=20
->=20
-
+>
+> thanks,
+>
+> greg k-h
+>
+> ------------------ original commit in Linus's tree ------------------
+>
+> From b34cb07dde7c2346dec73d053ce926aeaa087303 Mon Sep 17 00:00:00 2001
+> From: Phil Auld <pauld@redhat.com>
+> Date: Tue, 12 May 2020 09:52:22 -0400
+> Subject: [PATCH] sched/fair: Fix enqueue_task_fair() warning some more
+>
+> sched/fair: Fix enqueue_task_fair warning some more
+>
+> The recent patch, fe61468b2cb (sched/fair: Fix enqueue_task_fair warning)
+> did not fully resolve the issues with the rq->tmp_alone_branch !=
+> &rq->leaf_cfs_rq_list warning in enqueue_task_fair. There is a case where
+> the first for_each_sched_entity loop exits due to on_rq, having incompletely
+> updated the list.  In this case the second for_each_sched_entity loop can
+> further modify se. The later code to fix up the list management fails to do
+> what is needed because se does not point to the sched_entity which broke out
+> of the first loop. The list is not fixed up because the throttled parent was
+> already added back to the list by a task enqueue in a parallel child hierarchy.
+>
+> Address this by calling list_add_leaf_cfs_rq if there are throttled parents
+> while doing the second for_each_sched_entity loop.
+>
+> Fixes: fe61468b2cb ("sched/fair: Fix enqueue_task_fair warning")
+> Suggested-by: Vincent Guittot <vincent.guittot@linaro.org>
+> Signed-off-by: Phil Auld <pauld@redhat.com>
+> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+> Reviewed-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
+> Reviewed-by: Vincent Guittot <vincent.guittot@linaro.org>
+> Link: https://lkml.kernel.org/r/20200512135222.GC2201@lorien.usersys.redhat.com
+>
+> diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+> index 02f323b85b6d..c6d57c334d51 100644
+> --- a/kernel/sched/fair.c
+> +++ b/kernel/sched/fair.c
+> @@ -5479,6 +5479,13 @@ enqueue_task_fair(struct rq *rq, struct task_struct *p, int flags)
+>                 /* end evaluation on encountering a throttled cfs_rq */
+>                 if (cfs_rq_throttled(cfs_rq))
+>                         goto enqueue_throttle;
+> +
+> +               /*
+> +                * One parent has been throttled and cfs_rq removed from the
+> +                * list. Add it back to not break the leaf list.
+> +                */
+> +               if (throttled_hierarchy(cfs_rq))
+> +                       list_add_leaf_cfs_rq(cfs_rq);
+>         }
+>
+>  enqueue_throttle:
+>
