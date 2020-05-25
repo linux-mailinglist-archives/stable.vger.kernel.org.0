@@ -2,132 +2,167 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A97C1E124D
-	for <lists+stable@lfdr.de>; Mon, 25 May 2020 18:03:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 51E481E1266
+	for <lists+stable@lfdr.de>; Mon, 25 May 2020 18:13:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389011AbgEYQD0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 May 2020 12:03:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32964 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388432AbgEYQDZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 25 May 2020 12:03:25 -0400
-Received: from mail-lj1-x241.google.com (mail-lj1-x241.google.com [IPv6:2a00:1450:4864:20::241])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E36ADC061A0E
-        for <stable@vger.kernel.org>; Mon, 25 May 2020 09:03:23 -0700 (PDT)
-Received: by mail-lj1-x241.google.com with SMTP id v16so21301270ljc.8
-        for <stable@vger.kernel.org>; Mon, 25 May 2020 09:03:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=xBLYi0YQHEVKyFqR5oe3zDmD/AbgLTVzJ2Yoz4/B2Vo=;
-        b=ZhbQylC4rasFSlRWjlE3b/V2zkhtawYAkZK3AglBahyzwraItg9e+wWdOvldH76+aV
-         +3JYcogLRmMX6xHEE1NeCLKqwVaOF6bfFX9fgLiPYjWkVjGlgR7yCQhQb1McAcjLEE0q
-         1eaPrAlxai2HyN8ATJmzpj8Wi4DcXTrQ39y+vnFhH/eZhnfMrf8JP++/mnFmql50FJ/d
-         hlBmY1nivvr1ALqz27Mba+aDkzczUYxzzH5I3gTnDXweWSwGovstuioJICnSnejYGOZ+
-         00r4w7h9pi8ZLOw2v1Aw/SPomeJ9SE/o2nPqMiqkn6jygW+s+HmLTvyjhU2yf2I6r+2C
-         2LmQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=xBLYi0YQHEVKyFqR5oe3zDmD/AbgLTVzJ2Yoz4/B2Vo=;
-        b=aWV7wggWsbGj+7Xil9H0QQ2mWMp43SU76pzunP9i5GVAdswEo9TRFcv+GoPy+mc8V0
-         0Ixd55BPzRcmpr38yLw4ifRRLlUmkG3mXlJ06Szl4HnGRQAXj6IWLZh+R0VX8BJfRP6n
-         /RaiGJGRYzhQnJR+tOHYGITBb1tPTVw0sAvJKzmi5+jPkO+mZ2J/P3LKTHGJP6bqWC4q
-         t4RFo4YStZoSAObsqQU5hilafoc0/CHZNtvAVAfwDX/TB6Q/Ejl2w0H9v0CInv/rTSUp
-         IPKWdQ8U8qI7ZIXsDDXN2XmfZu9/s5nKBn+sQPWinKAHUgD1Z6BU7nB5RtxA8LT8dlsY
-         3duw==
-X-Gm-Message-State: AOAM531uFaVdvVv+KI9lj/B44TigfMTuwtP650DJHTMhBw4opULe4yZ0
-        d7fuK3xRlDGf83jX3U7x1P24VNrXd0KKjrnshmR5zA==
-X-Google-Smtp-Source: ABdhPJxZmEfMcqa8ZWQaGWqpKQoxF8UlPhtYL6RhEGqFoERJAblOKn2LFk9wJGDbCnCVBVbHk1kL44gCQF25+TbRIbo=
-X-Received: by 2002:a2e:9957:: with SMTP id r23mr14849991ljj.226.1590422602403;
- Mon, 25 May 2020 09:03:22 -0700 (PDT)
+        id S1725969AbgEYQNA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 May 2020 12:13:00 -0400
+Received: from mga17.intel.com ([192.55.52.151]:60637 "EHLO mga17.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725809AbgEYQNA (ORCPT <rfc822;Stable@vger.kernel.org>);
+        Mon, 25 May 2020 12:13:00 -0400
+IronPort-SDR: 8i1G/01ed3LdbqoVY4b7+48KtLJ9qTAJD2aJm+vowXaC1wPHey3m0d2o87YRClRYKuq5UMFtCP
+ XTE675nBDjmg==
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga005.fm.intel.com ([10.253.24.32])
+  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 May 2020 09:12:59 -0700
+IronPort-SDR: 3dswd96Ser84qZ2sYs/5QFB/EM77NuV0hluSjw8FzZTMkWoOEdCSuPSo+JKu/wCSeZEphV7zZu
+ miS6mOZ/q27A==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.73,433,1583222400"; 
+   d="scan'208";a="468007850"
+Received: from chenyu-office.sh.intel.com ([10.239.158.173])
+  by fmsmga005.fm.intel.com with ESMTP; 25 May 2020 09:12:55 -0700
+Date:   Tue, 26 May 2020 00:12:41 +0800
+From:   Chen Yu <yu.c.chen@intel.com>
+To:     Michal Kubecek <mkubecek@suse.cz>
+Cc:     netdev@vger.kernel.org, Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Auke Kok <auke-jan.h.kok@intel.com>,
+        Jeff Garzik <jeff@garzik.org>,
+        intel-wired-lan@lists.osuosl.org, linux-kernel@vger.kernel.org,
+        Len Brown <len.brown@intel.com>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        "Shevchenko, Andriy" <andriy.shevchenko@intel.com>,
+        "Neftin, Sasha" <sasha.neftin@intel.com>,
+        "Lifshits, Vitaly" <vitaly.lifshits@intel.com>,
+        Stable@vger.kernel.org
+Subject: Re: [PATCH 2/2] e1000e: Make WOL info in ethtool consistent with
+ device wake up ability
+Message-ID: <20200525161241.GA4464@chenyu-office.sh.intel.com>
+References: <cover.1590081982.git.yu.c.chen@intel.com>
+ <725bad2f3ce7f7b7f1667d53b6527dc059f9e419.1590081982.git.yu.c.chen@intel.com>
+ <20200521192342.GE8771@lion.mk-sys.cz>
+ <20200523090950.GA20370@chenyu-office.sh.intel.com>
+ <20200524210653.2bzmotjbsknm6zhn@lion.mk-sys.cz>
 MIME-Version: 1.0
-References: <15904177553090@kroah.com>
-In-Reply-To: <15904177553090@kroah.com>
-From:   Vincent Guittot <vincent.guittot@linaro.org>
-Date:   Mon, 25 May 2020 18:03:11 +0200
-Message-ID: <CAKfTPtBPNrA0aPrbMSbqPbc7W00k+kqLWx9rX41M1=DH_ehsEw@mail.gmail.com>
-Subject: Re: FAILED: patch "[PATCH] sched/fair: Fix enqueue_task_fair()
- warning some more" failed to apply to 5.4-stable tree
-To:     "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
-Cc:     Phil Auld <pauld@redhat.com>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        "# v4 . 16+" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200524210653.2bzmotjbsknm6zhn@lion.mk-sys.cz>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 25 May 2020 at 16:42, <gregkh@linuxfoundation.org> wrote:
+On Sun, May 24, 2020 at 11:06:53PM +0200, Michal Kubecek wrote:
+> On Sat, May 23, 2020 at 05:09:50PM +0800, Chen Yu wrote:
+> > Hi Michal,
+> > Thanks for reviewing,
+> > and sorry for late reply.
+> > On Thu, May 21, 2020 at 09:23:42PM +0200, Michal Kubecek wrote:
+> > > On Fri, May 22, 2020 at 01:59:13AM +0800, Chen Yu wrote:
+> > > > Currently the ethtool shows that WOL(Wake On Lan) is enabled
+> > > > even if the device wakeup ability has been disabled via sysfs:
+> > > >   cat /sys/devices/pci0000:00/0000:00:1f.6/power/wakeup
+> > > >    disabled
+> > > > 
+> > > >   ethtool eno1
+> > > >   ...
+> > > >   Wake-on: g
+> > > > 
+> > > > Fix this in ethtool to check if the user has explicitly disabled the
+> > > > wake up ability for this device.
+> > > 
+> > > Wouldn't this lead to rather unexpected and inconsistent behaviour when
+> > > the wakeup is disabled? As you don't touch the set_wol handler, I assume
+> > > it will still allow setting enabled modes as usual so that you get e.g.
+> > > 
+> > >   ethtool -s eth0 wol g   # no error or warning, returns 0
+> > >   ethtool eth0            # reports no modes enabled
+> > > 
+> > > The first command would set the enabled wol modes but that would be
+> > > hidden from user and even the netlink notification would claim something
+> > > different. Another exampe (with kernel and ethtool >= 5.6):
+> > > 
+> > >   ethtool -s eth0 wol g
+> > >   ethtool -s eth0 wol +m
+> > > 
+> > > resulting in "mg" if device wakeup is enabled but "m" when it's disabled
+> > > (but the latter would be hidden from user and only revealed when you
+> > > enable the device wakeup).
+> > > 
+> > I've tested ethtool v5.6 on top of kernel v5.7-rc6, it looks like
+> > the scenario you described will not happen as it will not allow
+> > the user to enable the wol options with device wakeup disabled,
+> > not sure if I missed something:
+> > 
+> > /sys/devices/pci0000:00/0000:00:1f.6/power# echo disabled > wakeup
+> > 
+> > ethtool -s eno1 wol g
+> > netlink error: cannot enable unsupported WoL mode (offset 36)
+> > netlink error: Invalid argument
+> > 
+> > I've not digged into the code too much, but according to
+> > ethhl_set_wol(), it will first get the current wol options
+> > via dev->ethtool_ops->get_wol(), and both the wolopts and
+> > wol.supported are 0 when device wake up are disabled. Then
+> > ethnl_update_bitset32 might manipulate on wolopts and
+> > make it non-zero each is controdict with the precondition that
+> > no opts should be enabled due to 0 wol.supported.
+> 
+> You are right, I didn't realize that you report 0 even for supported WoL
+> modes. However, this feels even more wrong from my point of view as then
+> even the list of supported WoL modes would be hidden from user when the
+> sysfs switch is off.
+I see, the WOL modes should be exposed anyway no matter what wake up
+setting it is, as it is read-only.
+> 
+> Also, AFAICS "ethtool -s <dev> wol d" would be still allowed but the
+> behaviour would differ between ioctl and netlink code path: netlink
+> would identify the operation as no-op and do nothing. But ioctl does not
+> check new value against old one so that it would call your set_wol()
+> handler which would set the (hidden) set of enabled WoL modes to empty
+> which would mean WoL would stay disabled even after enabling the wakeup
+> via sysctl. In other words, you would allow disabling all WoL modes
+> (via ioctl) but not setting them to anything else.
+> 
+I see, then there would be inconsistence between netlink and ioctl mode as a
+sequence.
+> > > This is a general problem discussed recently for EEE and pause
+> > > autonegotiation: if setting A can be effectively used only when B is
+> > > enabled, should we hide actual setting of A from userspace when B is
+> > > disabled or even reset the value of A whenever B gets toggled or rather
+> > > allow setting A and B independently? AFAICS the consensus seemed to be
+> > > that A should be allowed to be set and queried independently of the
+> > > value of B.
+> > 
+> > But then there would be an inconsistence between A and B. I was
+> > thinking if there's a way to align them in kernel space and  maintain
+> > the difference in user space?
+> 
+> I'm not sure what exactly you mean by maintaining the difference in
+> userspace but there are many situations like this and we usually do not
+> block the ability to query or set A when the "main switch" is off.
+> For example, you can add IPv4/6 addresses to an interface when it is
+> down, even if you cannot receive or transmit packets with these
+> addresses. Or you can set up netlilter rules in FORWARDING chain
+> independently of the global ip_forward sysctl which can block all
+> IPv4 forwarding.
 >
->
-> The patch below does not apply to the 5.4-stable tree.
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git commit
-> id to <stable@vger.kernel.org>.
+This is a good point.
+> Moreover, if we really wanted to report no supported and enabled WoL
+> modes when device wakeup is disabled, it should be done for all network
+> devices, not only in one driver.
+> 
+I think the examples have persuaded me that we should
+leave the ethtool code as it is now that, it is okay to
+let ethtool be unaware of device wake up ability. Besides,
+it would be overkilled if we try to 'fix' it for all
+device drivers.
 
-Similarly to v5.6, this patch applies on top of
-commit 6d4d22468dae ("sched/fair: Reorder enqueue/dequeue_task_fair path")
-commit 5ab297bab984 ("sched/fair: Fix reordering of
-enqueue/dequeue_task_fair()")
-
-I have been able to cherry-pick the 3 patches without error on top of v5.4.42.
-
->
-> thanks,
->
-> greg k-h
->
-> ------------------ original commit in Linus's tree ------------------
->
-> From b34cb07dde7c2346dec73d053ce926aeaa087303 Mon Sep 17 00:00:00 2001
-> From: Phil Auld <pauld@redhat.com>
-> Date: Tue, 12 May 2020 09:52:22 -0400
-> Subject: [PATCH] sched/fair: Fix enqueue_task_fair() warning some more
->
-> sched/fair: Fix enqueue_task_fair warning some more
->
-> The recent patch, fe61468b2cb (sched/fair: Fix enqueue_task_fair warning)
-> did not fully resolve the issues with the rq->tmp_alone_branch !=
-> &rq->leaf_cfs_rq_list warning in enqueue_task_fair. There is a case where
-> the first for_each_sched_entity loop exits due to on_rq, having incompletely
-> updated the list.  In this case the second for_each_sched_entity loop can
-> further modify se. The later code to fix up the list management fails to do
-> what is needed because se does not point to the sched_entity which broke out
-> of the first loop. The list is not fixed up because the throttled parent was
-> already added back to the list by a task enqueue in a parallel child hierarchy.
->
-> Address this by calling list_add_leaf_cfs_rq if there are throttled parents
-> while doing the second for_each_sched_entity loop.
->
-> Fixes: fe61468b2cb ("sched/fair: Fix enqueue_task_fair warning")
-> Suggested-by: Vincent Guittot <vincent.guittot@linaro.org>
-> Signed-off-by: Phil Auld <pauld@redhat.com>
-> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-> Reviewed-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
-> Reviewed-by: Vincent Guittot <vincent.guittot@linaro.org>
-> Link: https://lkml.kernel.org/r/20200512135222.GC2201@lorien.usersys.redhat.com
->
-> diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-> index 02f323b85b6d..c6d57c334d51 100644
-> --- a/kernel/sched/fair.c
-> +++ b/kernel/sched/fair.c
-> @@ -5479,6 +5479,13 @@ enqueue_task_fair(struct rq *rq, struct task_struct *p, int flags)
->                 /* end evaluation on encountering a throttled cfs_rq */
->                 if (cfs_rq_throttled(cfs_rq))
->                         goto enqueue_throttle;
-> +
-> +               /*
-> +                * One parent has been throttled and cfs_rq removed from the
-> +                * list. Add it back to not break the leaf list.
-> +                */
-> +               if (throttled_hierarchy(cfs_rq))
-> +                       list_add_leaf_cfs_rq(cfs_rq);
->         }
->
->  enqueue_throttle:
->
+Thanks,
+Chenyu
+> Michal
