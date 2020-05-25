@@ -2,181 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EFF11E0CC1
-	for <lists+stable@lfdr.de>; Mon, 25 May 2020 13:24:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A40A1E0D3B
+	for <lists+stable@lfdr.de>; Mon, 25 May 2020 13:31:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390100AbgEYLYQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 May 2020 07:24:16 -0400
-Received: from mga06.intel.com ([134.134.136.31]:56855 "EHLO mga06.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389897AbgEYLYP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 25 May 2020 07:24:15 -0400
-IronPort-SDR: p9kcU0T3xNHo0KdbTel4/+N0dwKt0kjS890xUNniRU9OGnoMO4Dh4eLgNHHdjD0OvI1Ck006dp
- onrcCXulMJYw==
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 May 2020 04:24:15 -0700
-IronPort-SDR: SQzU8SMO4DVlsQEdL7JernjBzFrgFoakWQ+ufSXtU/D+i3RaC/pGLFQubeq2AeHeO5DpQ/EenL
- pBd1vtj9mOyQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.73,433,1583222400"; 
-   d="scan'208";a="375411545"
-Received: from kuha.fi.intel.com ([10.237.72.162])
-  by fmsmga001.fm.intel.com with SMTP; 25 May 2020 04:24:10 -0700
-Received: by kuha.fi.intel.com (sSMTP sendmail emulation); Mon, 25 May 2020 14:24:09 +0300
-Date:   Mon, 25 May 2020 14:24:09 +0300
-From:   Heikki Krogerus <heikki.krogerus@linux.intel.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, linux@roeck-us.net,
-        Naresh Kamboju <naresh.kamboju@linaro.org>,
-        kernel test robot <rong.a.chen@intel.com>,
-        stable <stable@vger.kernel.org>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Brendan Higgins <brendanhiggins@google.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Petr Mladek <pmladek@suse.com>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
-        Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: [PATCH 1/2] software node: implement software_node_unregister()
-Message-ID: <20200525112409.GA3208393@kuha.fi.intel.com>
-References: <20200524153041.2361-1-gregkh@linuxfoundation.org>
+        id S2390430AbgEYLbe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 May 2020 07:31:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46686 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2390403AbgEYLbd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 25 May 2020 07:31:33 -0400
+Received: from ssl.serverraum.org (ssl.serverraum.org [IPv6:2a01:4f8:151:8464::1:2])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3B54C061A0E;
+        Mon, 25 May 2020 04:31:32 -0700 (PDT)
+Received: from ssl.serverraum.org (web.serverraum.org [172.16.0.2])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ssl.serverraum.org (Postfix) with ESMTPSA id 0D11E22F2E;
+        Mon, 25 May 2020 13:31:28 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=walle.cc; s=mail2016061301;
+        t=1590406288;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=IToMoezhIhpgYFzpjQfOOqjYCwD60GwFtYCwHFXuQN4=;
+        b=j7eDX5yhMARViTRvUkgCk21Y7qUCEi5Gnt31reOZJ2yBF+rCX93vBB1nYVWlBeBOfwApli
+        j/ZfKEAuOFEFdQ6lR+dhx2uJ6XT+PGG4v7nx7we9oYi/w17oIhLhbLnkcLX+GFosMUJEdY
+        vuLg6ztcjYnnwp+VK0CDkn8L1TJsPXI=
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200524153041.2361-1-gregkh@linuxfoundation.org>
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Content-Transfer-Encoding: 7bit
+Date:   Mon, 25 May 2020 13:31:27 +0200
+From:   Michael Walle <michael@walle.cc>
+To:     Saravana Kannan <saravanak@google.com>
+Cc:     stable <stable@vger.kernel.org>,
+        Android Kernel Team <kernel-team@android.com>,
+        LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH v3] driver core: Fix SYNC_STATE_ONLY device link
+ implementation
+In-Reply-To: <41760105c011f9382f4d5fdc9feed017@walle.cc>
+References: <20200518080327.GA3126260@kroah.com>
+ <20200519063000.128819-1-saravanak@google.com>
+ <20200522204120.3b3c9ed6@apollo>
+ <CAGETcx85trw=rCM1+dmemMGKstFCq=Nn7HR2fyDyV0rTTQYtEQ@mail.gmail.com>
+ <41760105c011f9382f4d5fdc9feed017@walle.cc>
+User-Agent: Roundcube Webmail/1.4.4
+Message-ID: <86f3036b44941870d12e432948a7cbb6@walle.cc>
+X-Sender: michael@walle.cc
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, May 24, 2020 at 05:30:40PM +0200, Greg Kroah-Hartman wrote:
-> Sometimes it is better to unregister individual nodes instead of trying
-> to do them all at once with software_node_unregister_nodes(), so create
-> software_node_unregister() so that you can unregister them one at a
-> time.
+Am 2020-05-23 00:47, schrieb Michael Walle:
+> Am 2020-05-23 00:21, schrieb Saravana Kannan:
+>> On Fri, May 22, 2020 at 11:41 AM Michael Walle <michael@walle.cc> 
+>> wrote:
+>>> 
+>>> Am Mon, 18 May 2020 23:30:00 -0700
+>>> schrieb Saravana Kannan <saravanak@google.com>:
+>>> 
+>>> > When SYNC_STATE_ONLY support was added in commit 05ef983e0d65 ("driver
+>>> > core: Add device link support for SYNC_STATE_ONLY flag"),
+>>> > device_link_add() incorrectly skipped adding the new SYNC_STATE_ONLY
+>>> > device link to the supplier's and consumer's "device link" list.
+>>> >
+>>> > This causes multiple issues:
+>>> > - The device link is lost forever from driver core if the caller
+>>> >   didn't keep track of it (caller typically isn't expected to). This
+>>> > is a memory leak.
+>>> > - The device link is also never visible to any other code path after
+>>> >   device_link_add() returns.
+>>> >
+>>> > If we fix the "device link" list handling, that exposes a bunch of
+>>> > issues.
+>>> >
+>>> > 1. The device link "status" state management code rightfully doesn't
+>>> > handle the case where a DL_FLAG_MANAGED device link exists between a
+>>> > supplier and consumer, but the consumer manages to probe successfully
+>>> > before the supplier. The addition of DL_FLAG_SYNC_STATE_ONLY links
+>>> > break this assumption. This causes device_links_driver_bound() to
+>>> > throw a warning when this happens.
+>>> >
+>>> > Since DL_FLAG_SYNC_STATE_ONLY device links are mainly used for
+>>> > creating proxy device links for child device dependencies and aren't
+>>> > useful once the consumer device probes successfully, this patch just
+>>> > deletes DL_FLAG_SYNC_STATE_ONLY device links once its consumer device
+>>> > probes. This way, we avoid the warning, free up some memory and avoid
+>>> > complicating the device links "status" state management code.
+>>> >
+>>> > 2. Creating a DL_FLAG_STATELESS device link between two devices that
+>>> > already have a DL_FLAG_SYNC_STATE_ONLY device link will result in the
+>>> > DL_FLAG_STATELESS flag not getting set correctly. This patch also
+>>> > fixes this.
+>>> >
+>>> > Lastly, this patch also fixes minor whitespace issues.
+>>> 
+>>> My board triggers the
+>>>   WARN_ON(link->status != DL_STATE_CONSUMER_PROBE);
+>>> 
+>>> Full bootlog:
+> [..]
 > 
-> This is especially important when creating nodes in a hierarchy, with
-> parent -> children representations.  Children always need to be removed
-> before a parent is, as the swnode logic assumes this is going to be the
-> case.
+>> Thanks for the log and report. I haven't spent too much time thinking
+>> about this, but can you give this a shot?
+>> https://lore.kernel.org/lkml/20200520043626.181820-1-saravanak@google.com/
 > 
-> Fix up the lib/test_printf.c fwnode_pointer() test which to use this new
-> function as it had the problem of tearing things down in the backwards
-> order.
-> 
-> Fixes: f1ce39df508d ("lib/test_printf: Add tests for %pfw printk modifier")
-> Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
-> Reported-by: kernel test robot <rong.a.chen@intel.com>
-> Cc: stable <stable@vger.kernel.org>
-> Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> Cc: Brendan Higgins <brendanhiggins@google.com>
-> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Cc: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-> Cc: Petr Mladek <pmladek@suse.com>
-> Cc: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-> Cc: Randy Dunlap <rdunlap@infradead.org>
-> Cc: Rasmus Villemoes <linux@rasmusvillemoes.dk>
-> Cc: Sakari Ailus <sakari.ailus@linux.intel.com>
-> Cc: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
-> Cc: Steven Rostedt <rostedt@goodmis.org>
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> I've already tried that, as this is already in linux-next. Doesn't fix 
+> it,
+> though.
 
-FWIW:
+btw. this only happens on linux-next (tested with next-20200522), not on
+5.7-rc7 (which has the same two patches of yours)
 
-Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-
-> ---
->  drivers/base/swnode.c    | 27 +++++++++++++++++++++------
->  include/linux/property.h |  1 +
->  lib/test_printf.c        |  4 +++-
->  3 files changed, 25 insertions(+), 7 deletions(-)
-> 
-> diff --git a/drivers/base/swnode.c b/drivers/base/swnode.c
-> index de8d3543e8fe..770b1f47a625 100644
-> --- a/drivers/base/swnode.c
-> +++ b/drivers/base/swnode.c
-> @@ -712,17 +712,18 @@ EXPORT_SYMBOL_GPL(software_node_register_nodes);
->   * @nodes: Zero terminated array of software nodes to be unregistered
->   *
->   * Unregister multiple software nodes at once.
-> + *
-> + * NOTE: Be careful using this call if the nodes had parent pointers set up in
-> + * them before registering.  If so, it is wiser to remove the nodes
-> + * individually, in the correct order (child before parent) instead of relying
-> + * on the sequential order of the list of nodes in the array.
->   */
->  void software_node_unregister_nodes(const struct software_node *nodes)
->  {
-> -	struct swnode *swnode;
->  	int i;
->  
-> -	for (i = 0; nodes[i].name; i++) {
-> -		swnode = software_node_to_swnode(&nodes[i]);
-> -		if (swnode)
-> -			fwnode_remove_software_node(&swnode->fwnode);
-> -	}
-> +	for (i = 0; nodes[i].name; i++)
-> +		software_node_unregister(&nodes[i]);
->  }
->  EXPORT_SYMBOL_GPL(software_node_unregister_nodes);
->  
-> @@ -741,6 +742,20 @@ int software_node_register(const struct software_node *node)
->  }
->  EXPORT_SYMBOL_GPL(software_node_register);
->  
-> +/**
-> + * software_node_unregister - Unregister static software node
-> + * @node: The software node to be unregistered
-> + */
-> +void software_node_unregister(const struct software_node *node)
-> +{
-> +	struct swnode *swnode;
-> +
-> +	swnode = software_node_to_swnode(node);
-> +	if (swnode)
-> +		fwnode_remove_software_node(&swnode->fwnode);
-> +}
-> +EXPORT_SYMBOL_GPL(software_node_unregister);
-> +
->  struct fwnode_handle *
->  fwnode_create_software_node(const struct property_entry *properties,
->  			    const struct fwnode_handle *parent)
-> diff --git a/include/linux/property.h b/include/linux/property.h
-> index d86de017c689..0d4099b4ce1f 100644
-> --- a/include/linux/property.h
-> +++ b/include/linux/property.h
-> @@ -441,6 +441,7 @@ int software_node_register_nodes(const struct software_node *nodes);
->  void software_node_unregister_nodes(const struct software_node *nodes);
->  
->  int software_node_register(const struct software_node *node);
-> +void software_node_unregister(const struct software_node *node);
->  
->  int software_node_notify(struct device *dev, unsigned long action);
->  
-> diff --git a/lib/test_printf.c b/lib/test_printf.c
-> index 6b1622f4d7c2..fc63b8959d42 100644
-> --- a/lib/test_printf.c
-> +++ b/lib/test_printf.c
-> @@ -637,7 +637,9 @@ static void __init fwnode_pointer(void)
->  	test(second_name, "%pfwP", software_node_fwnode(&softnodes[1]));
->  	test(third_name, "%pfwP", software_node_fwnode(&softnodes[2]));
->  
-> -	software_node_unregister_nodes(softnodes);
-> +	software_node_unregister(&softnodes[2]);
-> +	software_node_unregister(&softnodes[1]);
-> +	software_node_unregister(&softnodes[0]);
->  }
->  
->  static void __init
-> -- 
-> 2.26.2
-
-thanks,
-
--- 
-heikki
+-michael
