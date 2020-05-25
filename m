@@ -2,67 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 82C0A1E072B
-	for <lists+stable@lfdr.de>; Mon, 25 May 2020 08:41:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 328291E0850
+	for <lists+stable@lfdr.de>; Mon, 25 May 2020 09:59:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388827AbgEYGlm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 May 2020 02:41:42 -0400
-Received: from mailgw01.mediatek.com ([210.61.82.183]:60899 "EHLO
-        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726393AbgEYGlm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 25 May 2020 02:41:42 -0400
-X-UUID: 3141a7b4d1dc49c0874af76805d7c1e3-20200525
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
-        h=Content-Transfer-Encoding:Content-Type:MIME-Version:Message-ID:Date:Subject:CC:To:From; bh=rPpVOTNMfIfxzbe8ETe1dm7/wf5N3sl6Al3g3yCdGBA=;
-        b=GLSosxCzgrZVU3EH3VE+cnZIpkCtJkNDv9/mYyryejePguRwrJwSZ+C5ImAAI2B93qX/O+JSL3Hsv1aXGMnmaiwV5sCc/faxC4mxlzFQlQxf6fVAIwOyFZZK8/Sk9BkT/AzAHeSYo01Mq0upww0AhzJAgdnY0OyFrdnT7emH45w=;
-X-UUID: 3141a7b4d1dc49c0874af76805d7c1e3-20200525
-Received: from mtkcas11.mediatek.inc [(172.21.101.40)] by mailgw01.mediatek.com
-        (envelope-from <weiyi.lu@mediatek.com>)
-        (Cellopoint E-mail Firewall v4.1.10 Build 0809 with TLS)
-        with ESMTP id 1933868565; Mon, 25 May 2020 14:41:39 +0800
-Received: from mtkcas07.mediatek.inc (172.21.101.84) by
- mtkmbs07n2.mediatek.inc (172.21.101.141) with Microsoft SMTP Server (TLS) id
- 15.0.1497.2; Mon, 25 May 2020 14:41:36 +0800
-Received: from mtksdccf07.mediatek.inc (172.21.84.99) by mtkcas07.mediatek.inc
- (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Mon, 25 May 2020 14:41:36 +0800
-From:   Weiyi Lu <weiyi.lu@mediatek.com>
-To:     Nicolas Boichat <drinkcat@chromium.org>,
-        Stephen Boyd <sboyd@kernel.org>
-CC:     James Liao <jamesjj.liao@mediatek.com>,
-        Fan Chen <fan.chen@mediatek.com>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>,
-        <linux-mediatek@lists.infradead.org>, <linux-clk@vger.kernel.org>,
-        <srv_heupstream@mediatek.com>, <stable@vger.kernel.org>,
-        Weiyi Lu <weiyi.lu@mediatek.com>,
-        Owen Chen <owen.chen@mediatek.com>
-Subject: [PATCH v1] clk: mediatek: assign the initial value to clk_init_data of mtk_mux
-Date:   Mon, 25 May 2020 14:41:29 +0800
-Message-ID: <1590388889-28382-1-git-send-email-weiyi.lu@mediatek.com>
-X-Mailer: git-send-email 1.8.1.1.dirty
+        id S1726575AbgEYH7m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 May 2020 03:59:42 -0400
+Received: from mx2.suse.de ([195.135.220.15]:43520 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725809AbgEYH7m (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 25 May 2020 03:59:42 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx2.suse.de (Postfix) with ESMTP id 86059B1B4;
+        Mon, 25 May 2020 07:59:42 +0000 (UTC)
+Date:   Mon, 25 May 2020 09:59:38 +0200
+From:   Petr Mladek <pmladek@suse.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, linux@roeck-us.net,
+        Naresh Kamboju <naresh.kamboju@linaro.org>,
+        kernel test robot <rong.a.chen@intel.com>,
+        stable <stable@vger.kernel.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Brendan Higgins <brendanhiggins@google.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
+        Steven Rostedt <rostedt@goodmis.org>
+Subject: Re: [PATCH 1/2] software node: implement software_node_unregister()
+Message-ID: <20200525075937.GA5300@linux-b0ei>
+References: <20200524153041.2361-1-gregkh@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-MTK:  N
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200524153041.2361-1-gregkh@linuxfoundation.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-SXQnZCBiZSBkYW5nZXJvdXMgd2hlbiBzdHJ1Y3QgY2xrX2NvcmUgaGF2ZSBuZXcgbWVtZWJlcnMu
-DQpBZGQgdGhlIG1pc3NpbmcgaW5pdGlhbCB2YWx1ZSB0byBjbGtfaW5pdF9kYXRhLg0KDQpGaXhl
-czogYTNhZTU0OTkxN2YxICgiY2xrOiBtZWRpYXRlazogQWRkIG5ldyBjbGttdXggcmVnaXN0ZXIg
-QVBJIikNCkNjOiA8c3RhYmxlQHZnZXIua2VybmVsLm9yZz4NClNpZ25lZC1vZmYtYnk6IFdlaXlp
-IEx1IDx3ZWl5aS5sdUBtZWRpYXRlay5jb20+DQotLS0NCiBkcml2ZXJzL2Nsay9tZWRpYXRlay9j
-bGstbXV4LmMgfCAyICstDQogMSBmaWxlIGNoYW5nZWQsIDEgaW5zZXJ0aW9uKCspLCAxIGRlbGV0
-aW9uKC0pDQoNCmRpZmYgLS1naXQgYS9kcml2ZXJzL2Nsay9tZWRpYXRlay9jbGstbXV4LmMgYi9k
-cml2ZXJzL2Nsay9tZWRpYXRlay9jbGstbXV4LmMNCmluZGV4IDc2ZjljZDAuLjE0ZTEyN2UgMTAw
-NjQ0DQotLS0gYS9kcml2ZXJzL2Nsay9tZWRpYXRlay9jbGstbXV4LmMNCisrKyBiL2RyaXZlcnMv
-Y2xrL21lZGlhdGVrL2Nsay1tdXguYw0KQEAgLTE2MCw3ICsxNjAsNyBAQCBzdHJ1Y3QgY2xrICpt
-dGtfY2xrX3JlZ2lzdGVyX211eChjb25zdCBzdHJ1Y3QgbXRrX211eCAqbXV4LA0KIAkJCQkgc3Bp
-bmxvY2tfdCAqbG9jaykNCiB7DQogCXN0cnVjdCBtdGtfY2xrX211eCAqY2xrX211eDsNCi0Jc3Ry
-dWN0IGNsa19pbml0X2RhdGEgaW5pdDsNCisJc3RydWN0IGNsa19pbml0X2RhdGEgaW5pdCA9IHt9
-Ow0KIAlzdHJ1Y3QgY2xrICpjbGs7DQogDQogCWNsa19tdXggPSBremFsbG9jKHNpemVvZigqY2xr
-X211eCksIEdGUF9LRVJORUwpOw0KLS0gDQoxLjguMS4xLmRpcnR5DQo=
+On Sun 2020-05-24 17:30:40, Greg Kroah-Hartman wrote:
+> Sometimes it is better to unregister individual nodes instead of trying
+> to do them all at once with software_node_unregister_nodes(), so create
+> software_node_unregister() so that you can unregister them one at a
+> time.
+> 
+> This is especially important when creating nodes in a hierarchy, with
+> parent -> children representations.  Children always need to be removed
+> before a parent is, as the swnode logic assumes this is going to be the
+> case.
+> 
+> Fix up the lib/test_printf.c fwnode_pointer() test which to use this new
+> function as it had the problem of tearing things down in the backwards
+> order.
+> 
+> Fixes: f1ce39df508d ("lib/test_printf: Add tests for %pfw printk modifier")
+> Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
+> Reported-by: kernel test robot <rong.a.chen@intel.com>
+> Cc: stable <stable@vger.kernel.org>
+> Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> Cc: Brendan Higgins <brendanhiggins@google.com>
+> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Cc: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+> Cc: Petr Mladek <pmladek@suse.com>
+> Cc: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+> Cc: Randy Dunlap <rdunlap@infradead.org>
+> Cc: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+> Cc: Sakari Ailus <sakari.ailus@linux.intel.com>
+> Cc: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+> Cc: Steven Rostedt <rostedt@goodmis.org>
+> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
+I could confirm that this fixed lib/test_printf.c. The patch looks reasonable.
+
+Tested-by: Petr Mladek <pmladek@suse.com>
+
+Best Regards,
+Petr
