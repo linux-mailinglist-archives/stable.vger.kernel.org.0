@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 091381E1012
-	for <lists+stable@lfdr.de>; Mon, 25 May 2020 16:05:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 95E301E1014
+	for <lists+stable@lfdr.de>; Mon, 25 May 2020 16:06:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390786AbgEYOFt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 May 2020 10:05:49 -0400
-Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:58939 "EHLO
+        id S2390794AbgEYOF5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 May 2020 10:05:57 -0400
+Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:39389 "EHLO
         forward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2388862AbgEYOFs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 25 May 2020 10:05:48 -0400
+        by vger.kernel.org with ESMTP id S2388862AbgEYOF4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 25 May 2020 10:05:56 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id C3C151940ABB;
-        Mon, 25 May 2020 10:05:47 -0400 (EDT)
+        by mailforward.nyi.internal (Postfix) with ESMTP id C6D361940C73;
+        Mon, 25 May 2020 10:05:55 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Mon, 25 May 2020 10:05:47 -0400
+  by compute1.internal (MEProxy); Mon, 25 May 2020 10:05:55 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=nNfp7O
-        LNxdK7RH/8y7K1M6v8lQ4VxnUbqzsS/6pDYno=; b=Ub8mjMVHUMFTWPkuRa0a9T
-        +J2KeSH8jqFSbpGEy4kJ2s/i2A9hzB6GPamkI/dNghfbHIrF+Dzg/rSH3d3xizM4
-        fcdwo5j6Sz46XuGtw5VPZdrS0nz6udHNbMf8aPUchNQletYw/kZeaWEB9D4ENTFh
-        sr+C/YaIuHgRJB2YqGEQuKY8dFLlmcKWZbHIA3zFkdnThrkwYFfrxJ2dApzSwhU9
-        mjhQTrM4LYSzpxWyLw+/32FU6Aa7GPPfNyrtMECajK6zQq2Hie0o2EpfXoJ1GcRv
-        g9LvrcUjknFfoGnot1JGCC16IEKcupbiulKsPH/qAsf7M8HYNWdkurCi60BMQRcQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=uOAHtq
+        9psUVyfIx2OW6dQ60pzBXje+GmWlUWME5LPwk=; b=Jae9Kbr2jYrZ0ynkeKy8fB
+        BvmSuYb/F4OUGmBXYurrblr1zFwHYdNP369Knjk69oJ7FVjeDHsjM4MaFxsEPBmX
+        V4lwSgtvC6j+VumwElxnYTmgTyhLU7/TnBTa5Cb2/oFxz3OB62V94R8HmfMAmNc4
+        ouPRyzwW3MQzBfJJUih12CH2lU46QiwFYJxQTBsctRGOlo93WtSs2MnNxjLanN2o
+        AI4pam1NN2j9Mk05pY/DaimPD2Xo325CadJxaPAS0ZcgChxeGBjEhebfjl2BT35T
+        3Laj/UjRxNYk2o61k3kz3qkEKvys5k3yLscwlkZ0BbzDHmZrC8tBcUG0l1LN4mnQ
         ==
-X-ME-Sender: <xms:u9DLXtLORW-8yYtuNCtl1t3WQDvjqKDOl6QZdk5vzcnTyxrPFN7ylg>
+X-ME-Sender: <xms:w9DLXuEnBYwiovfF_vzqAyMj0ahBHWlUdd4kPSKfVvahaWPiNoXAlQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedruddvtddgjeduucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpe
+    keefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgepudenucfrrghrrghmpe
     hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:u9DLXpLXFyaTenuDudW_Aevh7ng9q2r7zhHQfH2wAy87vGpB-o4H6g>
-    <xmx:u9DLXltNzPFH-m4T40Yj0io6G9ZUmNhq7VzX0cyVuV5SjTr4OI-L4g>
-    <xmx:u9DLXuYdRAArhAHbKHg2dxsoEapsMRDmlv4PyE4O_FWMe8tbHwf0ww>
-    <xmx:u9DLXtCa1epgyTX0ydE364F-NfuJ4DtbD7AoKFOybARuY9Q-TpaN8w>
+X-ME-Proxy: <xmx:w9DLXvU8aGns81zKfkDxVWmaC7im9cQ5cD_3KRefzVfhKMdq6QhFxQ>
+    <xmx:w9DLXoJqYiccyMKiZzfk3RetSwod6eq_UPUYAxPMOhvXyurmJrwsgg>
+    <xmx:w9DLXoGRU2EjXj9y1tobdxD1G2jXkiZzwMwWlXKouQPji_EiRVC-cw>
+    <xmx:w9DLXteV7X6qBX9dUKxtcFaZB8RERyHjwc032B7gQPVNj6UhSyLSQQ>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 14E573280064;
-        Mon, 25 May 2020 10:05:46 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] iwlwifi: pcie: handle QuZ configs with killer NICs as well" failed to apply to 5.4-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 659E9328005D;
+        Mon, 25 May 2020 10:05:55 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] iwlwifi: pcie: handle QuZ configs with killer NICs as well" failed to apply to 5.6-stable tree
 To:     luciano.coelho@intel.com, kvalo@codeaurora.org, vicamo@gmail.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 25 May 2020 16:05:45 +0200
-Message-ID: <159041554510231@kroah.com>
+Message-ID: <15904155453239@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -58,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.6-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
