@@ -2,44 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 92FCF1E2E9A
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:31:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E0DFF1E2EF0
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:32:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390475AbgEZS7Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 14:59:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53116 "EHLO mail.kernel.org"
+        id S2390003AbgEZS5C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 14:57:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50138 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389758AbgEZS7V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 14:59:21 -0400
+        id S2390001AbgEZS5B (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 14:57:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5F3F8208B8;
-        Tue, 26 May 2020 18:59:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 874C32084C;
+        Tue, 26 May 2020 18:57:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590519560;
-        bh=rFkVQNNujsiod5XRz3hEq0OSBNINfauOjQl86zhZ1L4=;
+        s=default; t=1590519421;
+        bh=bTdwv1vyZUg+549OUWqfF6B+jLil2PTqgnQIUtA4yM4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pErk6ewWfcM4pI8xAs7zHemX35HNb7n7oGymWC2fr5x5n6owIF1ldf9+H7+ASnAh1
-         L4zmplL+FxNc+ggqEVrHxHd3WApFIrGuZu/2Yu+0latdR5o9gHlIGygVpwHaTo2F4u
-         lYN3EpBkynPQPORDjzhbgi6tVRNyoKdX0d/7IEp0=
+        b=yI4IbcRutwznCKhL6XyfKPUfQbAGh3/WfkfjeLoouRXTL+E9n3eGHOT+FfwAceVtb
+         zM2NXxeW0+smVCqFcf59zKEY6/wvbbE2FLtNIsHEFQrGXax9GQs9Ow41nIC3oyW8y+
+         kEcAyHwF/jAhTZEEMeJwdSM/CwqTb32ygCbUE/rU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Borislav Petkov <bp@alien8.de>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>
-Subject: [PATCH 4.9 52/64] x86/uaccess, ubsan: Fix UBSAN vs. SMAP
-Date:   Tue, 26 May 2020 20:53:21 +0200
-Message-Id: <20200526183930.626243998@linuxfoundation.org>
+        =?UTF-8?q?=E4=BA=BF=E4=B8=80?= <teroincn@gmail.com>,
+        Alexander Usyskin <alexander.usyskin@intel.com>,
+        Tomas Winkler <tomas.winkler@intel.com>
+Subject: [PATCH 4.4 63/65] mei: release me_cl object reference
+Date:   Tue, 26 May 2020 20:53:22 +0200
+Message-Id: <20200526183928.818851812@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183913.064413230@linuxfoundation.org>
-References: <20200526183913.064413230@linuxfoundation.org>
+In-Reply-To: <20200526183905.988782958@linuxfoundation.org>
+References: <20200526183905.988782958@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,39 +45,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Alexander Usyskin <alexander.usyskin@intel.com>
 
-commit d08965a27e84ca090b504844d50c24fc98587b11 upstream.
+commit fc9c03ce30f79b71807961bfcb42be191af79873 upstream.
 
-UBSAN can insert extra code in random locations; including AC=1
-sections. Typically this code is not safe and needs wrapping.
+Allow me_cl object to be freed by releasing the reference
+that was acquired  by one of the search functions:
+__mei_me_cl_by_uuid_id() or __mei_me_cl_by_uuid()
 
-So far, only __ubsan_handle_type_mismatch* have been observed in AC=1
-sections and therefore only those are annotated.
-
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Cc: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-[stable backport: only take the lib/Makefile change to resolve gcc-10
- build issues]
+Cc: <stable@vger.kernel.org>
+Reported-by: 亿一 <teroincn@gmail.com>
+Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
+Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
+Link: https://lore.kernel.org/r/20200512223140.32186-1-tomas.winkler@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- lib/Makefile |    1 +
- 1 file changed, 1 insertion(+)
 
---- a/lib/Makefile
-+++ b/lib/Makefile
-@@ -230,5 +230,6 @@ obj-$(CONFIG_UCS2_STRING) += ucs2_string
- obj-$(CONFIG_UBSAN) += ubsan.o
+---
+ drivers/misc/mei/client.c |    2 ++
+ 1 file changed, 2 insertions(+)
+
+--- a/drivers/misc/mei/client.c
++++ b/drivers/misc/mei/client.c
+@@ -276,6 +276,7 @@ void mei_me_cl_rm_by_uuid(struct mei_dev
+ 	down_write(&dev->me_clients_rwsem);
+ 	me_cl = __mei_me_cl_by_uuid(dev, uuid);
+ 	__mei_me_cl_del(dev, me_cl);
++	mei_me_cl_put(me_cl);
+ 	up_write(&dev->me_clients_rwsem);
+ }
  
- UBSAN_SANITIZE_ubsan.o := n
-+CFLAGS_ubsan.o := $(call cc-option, -fno-conserve-stack -fno-stack-protector)
+@@ -297,6 +298,7 @@ void mei_me_cl_rm_by_uuid_id(struct mei_
+ 	down_write(&dev->me_clients_rwsem);
+ 	me_cl = __mei_me_cl_by_uuid_id(dev, uuid, id);
+ 	__mei_me_cl_del(dev, me_cl);
++	mei_me_cl_put(me_cl);
+ 	up_write(&dev->me_clients_rwsem);
+ }
  
- obj-$(CONFIG_SBITMAP) += sbitmap.o
 
 
