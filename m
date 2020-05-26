@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 123171E2E4C
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:28:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD3B11E2D2E
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:20:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390502AbgEZTDD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:03:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58152 "EHLO mail.kernel.org"
+        id S2392078AbgEZTM0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:12:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41920 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403849AbgEZTDC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:03:02 -0400
+        id S2392074AbgEZTMY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:12:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EED56208B3;
-        Tue, 26 May 2020 19:03:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7DEFD208A7;
+        Tue, 26 May 2020 19:12:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590519782;
-        bh=w4um4OIlPlxGJhPYBdDwetpmnmk1u1raqLo7/6dYxFk=;
+        s=default; t=1590520344;
+        bh=JaCI0EjPvxTb7zB7hY+YRwycZ6E2oVyJSR+v7NnznEY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ktl9biJbz2gVLuQtZ53xmFWVQ9wQq/Urvnq6BhI/yAXVMbVO1dSNBrAlUOBGD9deQ
-         vBz+d2wVRFHARu38UvL7/0FqVM9QOcpNLKTJ8f+qo6v0wuskVrzGitR+I/uqyBtHBH
-         uj8f95Juy8jbo2fAHbS7DnSLRqEG1xfeXIZoRrxk=
+        b=Xgwrx0aKJQZjQqyi96wbxJhQMFcfSxndgG9a7Z1NM0IemQZMTOaqc+7x9xbhh28eF
+         /Qtd3YN7hZwEtW8ymqs/bzbrvsU+vvPklBLPVcu+hDFew8leSdqI3VLAR5dxSJEvQQ
+         m4GeeQIkhgEU9ejYUxTctkwdPtrLyU+vSmFhv3e4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Krzysztof Struczynski <krzysztof.struczynski@huawei.com>,
-        Roberto Sassu <roberto.sassu@huawei.com>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 07/81] evm: Check also if *tfm is an error pointer in init_desc()
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 025/126] HID: multitouch: add eGalaxTouch P80H84 support
 Date:   Tue, 26 May 2020 20:52:42 +0200
-Message-Id: <20200526183925.481971516@linuxfoundation.org>
+Message-Id: <20200526183939.830939599@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183923.108515292@linuxfoundation.org>
-References: <20200526183923.108515292@linuxfoundation.org>
+In-Reply-To: <20200526183937.471379031@linuxfoundation.org>
+References: <20200526183937.471379031@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,47 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roberto Sassu <roberto.sassu@huawei.com>
+From: Sebastian Reichel <sebastian.reichel@collabora.com>
 
-[ Upstream commit 53de3b080d5eae31d0de219617155dcc34e7d698 ]
+[ Upstream commit f9e82295eec141a0569649d400d249333d74aa91 ]
 
-This patch avoids a kernel panic due to accessing an error pointer set by
-crypto_alloc_shash(). It occurs especially when there are many files that
-require an unsupported algorithm, as it would increase the likelihood of
-the following race condition:
+Add support for P80H84 touchscreen from eGalaxy:
 
-Task A: *tfm = crypto_alloc_shash() <= error pointer
-Task B: if (*tfm == NULL) <= *tfm is not NULL, use it
-Task B: rc = crypto_shash_init(desc) <= panic
-Task A: *tfm = NULL
+  idVendor           0x0eef D-WAV Scientific Co., Ltd
+  idProduct          0xc002
+  iManufacturer           1 eGalax Inc.
+  iProduct                2 eGalaxTouch P80H84 2019 vDIVA_1204_T01 k4.02.146
 
-This patch uses the IS_ERR_OR_NULL macro to determine whether or not a new
-crypto context must be created.
-
-Cc: stable@vger.kernel.org
-Fixes: d46eb3699502b ("evm: crypto hash replaced by shash")
-Co-developed-by: Krzysztof Struczynski <krzysztof.struczynski@huawei.com>
-Signed-off-by: Krzysztof Struczynski <krzysztof.struczynski@huawei.com>
-Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/integrity/evm/evm_crypto.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hid/hid-ids.h        | 1 +
+ drivers/hid/hid-multitouch.c | 3 +++
+ 2 files changed, 4 insertions(+)
 
-diff --git a/security/integrity/evm/evm_crypto.c b/security/integrity/evm/evm_crypto.c
-index 6a314fb0d480..f0878d81dcef 100644
---- a/security/integrity/evm/evm_crypto.c
-+++ b/security/integrity/evm/evm_crypto.c
-@@ -96,7 +96,7 @@ static struct shash_desc *init_desc(char type, uint8_t hash_algo)
- 		algo = hash_algo_name[hash_algo];
- 	}
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 9f2213426556..309510a72c5e 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -385,6 +385,7 @@
+ #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_7349	0x7349
+ #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_73F7	0x73f7
+ #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_A001	0xa001
++#define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_C002	0xc002
  
--	if (*tfm == NULL) {
-+	if (IS_ERR_OR_NULL(*tfm)) {
- 		mutex_lock(&mutex);
- 		if (*tfm)
- 			goto out;
+ #define USB_VENDOR_ID_ELAN		0x04f3
+ #define USB_DEVICE_ID_TOSHIBA_CLICK_L9W	0x0401
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 362805ddf377..03c720b47306 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -1922,6 +1922,9 @@ static const struct hid_device_id mt_devices[] = {
+ 	{ .driver_data = MT_CLS_EGALAX_SERIAL,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_DWAV,
+ 			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_A001) },
++	{ .driver_data = MT_CLS_EGALAX,
++		MT_USB_DEVICE(USB_VENDOR_ID_DWAV,
++			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_C002) },
+ 
+ 	/* Elitegroup panel */
+ 	{ .driver_data = MT_CLS_SERIAL,
 -- 
 2.25.1
 
