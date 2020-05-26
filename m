@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2EA751E2BE0
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:09:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CDF9A1E2E0F
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:26:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403774AbgEZTJl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:09:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38832 "EHLO mail.kernel.org"
+        id S2391566AbgEZT0a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:26:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33492 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391616AbgEZTJk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:09:40 -0400
+        id S2391500AbgEZTFb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:05:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 82D9A20776;
-        Tue, 26 May 2020 19:09:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AF1B6208B3;
+        Tue, 26 May 2020 19:05:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590520180;
-        bh=qUDz4qAL85YbM7F8rzXnTwRba3Uw72cw2LSvpHlwnNg=;
+        s=default; t=1590519931;
+        bh=DmrPKJdFBUauhwiCz6LXqWQZmO9spHTtVfvNF0ftHWw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=toXGwPldH50CWzSLIspPUQyA3IdUr3Cixvd5UjY7Md/BjH+WNNGzUcoerKPoMLjVg
-         jC62h9L1F2j8iA5XcMwcybGKpTw3ifwdYngltkCK3IkZ71KxqEI11VyrmQ1ufBQsFs
-         bXx1Ezl+JVx/o8p2TZSDCyiV7kx15vSPrgEdOa8c=
+        b=oFAF/TLXHYlteOhG9l0TenptNPFBFG6fdjuK7UzConQUjoFkX4xu5LKC4xvpeJ/SH
+         cw2NXOVslZ3OgXER4kmyd8m6aQKvwL6FLCBoE5heirfEOypa3/2w/7osXZWImquuRT
+         SHvkb5LE+s49YNFfKRGy7EnBeNl4X65vw4uomS7I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?=E4=BA=BF=E4=B8=80?= <teroincn@gmail.com>,
-        Alexander Usyskin <alexander.usyskin@intel.com>,
-        Tomas Winkler <tomas.winkler@intel.com>
-Subject: [PATCH 5.4 090/111] mei: release me_cl object reference
+        stable@vger.kernel.org, Qiushi Wu <wu000273@umn.edu>,
+        David Howells <dhowells@redhat.com>,
+        Markus Elfring <Markus.Elfring@web.de>
+Subject: [PATCH 4.19 73/81] rxrpc: Fix a memory leak in rxkad_verify_response()
 Date:   Tue, 26 May 2020 20:53:48 +0200
-Message-Id: <20200526183941.460154054@linuxfoundation.org>
+Message-Id: <20200526183935.161434550@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183932.245016380@linuxfoundation.org>
-References: <20200526183932.245016380@linuxfoundation.org>
+In-Reply-To: <20200526183923.108515292@linuxfoundation.org>
+References: <20200526183923.108515292@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,42 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Usyskin <alexander.usyskin@intel.com>
+From: Qiushi Wu <wu000273@umn.edu>
 
-commit fc9c03ce30f79b71807961bfcb42be191af79873 upstream.
+commit f45d01f4f30b53c3a0a1c6c1c154acb7ff74ab9f upstream.
 
-Allow me_cl object to be freed by releasing the reference
-that was acquired  by one of the search functions:
-__mei_me_cl_by_uuid_id() or __mei_me_cl_by_uuid()
+A ticket was not released after a call of the function
+"rxkad_decrypt_ticket" failed. Thus replace the jump target
+"temporary_error_free_resp" by "temporary_error_free_ticket".
 
-Cc: <stable@vger.kernel.org>
-Reported-by: 亿一 <teroincn@gmail.com>
-Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
-Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
-Link: https://lore.kernel.org/r/20200512223140.32186-1-tomas.winkler@intel.com
+Fixes: 8c2f826dc3631 ("rxrpc: Don't put crypto buffers on the stack")
+Signed-off-by: Qiushi Wu <wu000273@umn.edu>
+Signed-off-by: David Howells <dhowells@redhat.com>
+cc: Markus Elfring <Markus.Elfring@web.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/misc/mei/client.c |    2 ++
- 1 file changed, 2 insertions(+)
+ net/rxrpc/rxkad.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/misc/mei/client.c
-+++ b/drivers/misc/mei/client.c
-@@ -266,6 +266,7 @@ void mei_me_cl_rm_by_uuid(struct mei_dev
- 	down_write(&dev->me_clients_rwsem);
- 	me_cl = __mei_me_cl_by_uuid(dev, uuid);
- 	__mei_me_cl_del(dev, me_cl);
-+	mei_me_cl_put(me_cl);
- 	up_write(&dev->me_clients_rwsem);
- }
+--- a/net/rxrpc/rxkad.c
++++ b/net/rxrpc/rxkad.c
+@@ -1118,7 +1118,7 @@ static int rxkad_verify_response(struct
+ 	ret = rxkad_decrypt_ticket(conn, skb, ticket, ticket_len, &session_key,
+ 				   &expiry, _abort_code);
+ 	if (ret < 0)
+-		goto temporary_error_free_resp;
++		goto temporary_error_free_ticket;
  
-@@ -287,6 +288,7 @@ void mei_me_cl_rm_by_uuid_id(struct mei_
- 	down_write(&dev->me_clients_rwsem);
- 	me_cl = __mei_me_cl_by_uuid_id(dev, uuid, id);
- 	__mei_me_cl_del(dev, me_cl);
-+	mei_me_cl_put(me_cl);
- 	up_write(&dev->me_clients_rwsem);
- }
+ 	/* use the session key from inside the ticket to decrypt the
+ 	 * response */
+@@ -1200,7 +1200,6 @@ protocol_error:
  
+ temporary_error_free_ticket:
+ 	kfree(ticket);
+-temporary_error_free_resp:
+ 	kfree(response);
+ temporary_error:
+ 	/* Ignore the response packet if we got a temporary error such as
 
 
