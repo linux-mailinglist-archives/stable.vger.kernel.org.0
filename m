@@ -2,106 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C82D1E262F
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 17:59:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 542041E2641
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 18:00:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730213AbgEZP70 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 11:59:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60626 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729102AbgEZP70 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 May 2020 11:59:26 -0400
-Received: from mail-ot1-x341.google.com (mail-ot1-x341.google.com [IPv6:2607:f8b0:4864:20::341])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DA12C03E96D;
-        Tue, 26 May 2020 08:59:26 -0700 (PDT)
-Received: by mail-ot1-x341.google.com with SMTP id v17so16755015ote.0;
-        Tue, 26 May 2020 08:59:26 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=DQ8gVpgHVGfTCy/8d6M/EI7esdWmDQI9qAQ3EdUpOBg=;
-        b=on6ABHVzrIuk3ZU5P4ysqilGLLBUWmQHrtQ7fwQAwlb9Dqq5DyCl1LXOijRLennx/F
-         zpv1a0zKH96wNqfqWGUf5bRczKbdGPWJD/pTocGKrUfHAXGI7vvkpRP+s/IXgsu9Hx4e
-         ohN4KtNn+QjuyXu00JeZHRKNdQpfbuuFBVZIz+46Ysg5AgjOLB7qBZY4MZNl4EADwrcu
-         IZcRMamG2qZKKBweXZzKkAXBRtOjkhX56ZNDEbfy0DLwCi1YZo8pKUG0LZPQQVg9w4FX
-         QUjlSNbbk4jAXcsxyUDCtcrdGbR4+Z+VmwxbeqFRfZyQZn4GFkZzC11BkQ0PQQihIdu8
-         06aQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
-         :in-reply-to:references:mime-version:content-transfer-encoding;
-        bh=DQ8gVpgHVGfTCy/8d6M/EI7esdWmDQI9qAQ3EdUpOBg=;
-        b=gyJDd6HDHyGDNAes8QJSs8DwSCERBGS/WqIFlP0C6ZsS+NmRgXncR4oPQkqc0Hd8kt
-         KjcRS+YeemzRbAvju5nLQl4UjYS4u3w0S0lhBz5H83pYrays97hNooukl5F/9AI4XIwU
-         BNPSneO5Hdqguss3T+jIwa7qzhMjdolPR+W0K+4/QeCqfITPR3M2tz22/U5GeU44I9/B
-         QP1zbM6N5pEYUW54QyM7aqaqBKylJhv3v7Z51F4Dud/kYclRIN71p/mORT6aya/ecutJ
-         gJl5rs8h/p/8qPEe2uJfXoj8LfFTKI65qtVUm2XzNKNnFlwsG+fU/BP+d5SQth+kHrGX
-         joxQ==
-X-Gm-Message-State: AOAM531mCNK2P675NfI0gsK8jFfmja3Zxh3MQNKUWnaBas9wiZklZA+w
-        wp5aTQhppzm5CqzY6/sjXbU=
-X-Google-Smtp-Source: ABdhPJxD7OK1LeyHTXuiUgzqjpxZkYT4GVXsNxTVB/K1Pe/p3MScTeKm75knHvAc4kthp6ZxhRYmSw==
-X-Received: by 2002:a9d:621:: with SMTP id 30mr238739otn.47.1590508765792;
-        Tue, 26 May 2020 08:59:25 -0700 (PDT)
-Received: from localhost.localdomain (cpe-24-31-245-230.kc.res.rr.com. [24.31.245.230])
-        by smtp.gmail.com with ESMTPSA id k18sm36185otn.51.2020.05.26.08.59.24
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 26 May 2020 08:59:24 -0700 (PDT)
-From:   Larry Finger <Larry.Finger@lwfinger.net>
-To:     kvalo@codeaurora.org
-Cc:     linux-wireless@vger.kernel.org,
-        Larry Finger <Larry.Finger@lwfinger.net>,
-        Rui Salvaterra <rsalvaterra@gmail.com>,
-        Stable <stable@vger.kernel.org>
-Subject: [PATCH 2/2] b43_legacy: Fix connection problem with WPA3
-Date:   Tue, 26 May 2020 10:59:09 -0500
-Message-Id: <20200526155909.5807-3-Larry.Finger@lwfinger.net>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526155909.5807-1-Larry.Finger@lwfinger.net>
-References: <20200526155909.5807-1-Larry.Finger@lwfinger.net>
+        id S1731322AbgEZQAK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 12:00:10 -0400
+Received: from mga17.intel.com ([192.55.52.151]:41703 "EHLO mga17.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1731296AbgEZQAK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 12:00:10 -0400
+IronPort-SDR: kf4kJqg4q/pdrtEHTLeEioz0ugThh+Srp0H6c1a/VgTOmheeYSIdjumF0gYrsn5qogtyLW6uhn
+ zszC/okuic2A==
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga005.fm.intel.com ([10.253.24.32])
+  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 May 2020 09:00:10 -0700
+IronPort-SDR: /xMX7MeWVDBMfA1QwkUxAKPhUW4Ga/TkN/rB5Z3QhGAmfgwmGZC1GBz5yVcXqkgkx6l5mo4AsH
+ fvXeiBkLClPw==
+X-IronPort-AV: E=Sophos;i="5.73,437,1583222400"; 
+   d="scan'208";a="468349222"
+Received: from ggueta-mobl.ger.corp.intel.com (HELO [10.214.234.171]) ([10.214.234.171])
+  by fmsmga005-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 May 2020 09:00:08 -0700
+Subject: Re: [Intel-gfx] [PATCH 2/2] drm/i915/gt: Do not schedule normal
+ requests immediately along virtual
+To:     Chris Wilson <chris@chris-wilson.co.uk>,
+        intel-gfx@lists.freedesktop.org
+Cc:     stable@vger.kernel.org
+References: <20200526090753.11329-1-chris@chris-wilson.co.uk>
+ <20200526090753.11329-2-chris@chris-wilson.co.uk>
+From:   Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
+Organization: Intel Corporation UK Plc
+Message-ID: <6016e5c6-cd09-dd3f-b102-49e76fa28518@linux.intel.com>
+Date:   Tue, 26 May 2020 17:00:06 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200526090753.11329-2-chris@chris-wilson.co.uk>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Since the driver was first introduced into the kernel, it has only
-handled the ciphers associated with WEP, WPA, and WPA2. It fails with
-WPA3 even though mac80211 can handle those additional ciphers in software,
-b43legacy did not report that it could handle them. By setting MFP_CAPABLE using
-ieee80211_set_hw(), the problem is fixed.
 
-With this change, b43legacy will handle the ciohers it knows in hardare,
-and let mac80211 handle the others in software. It is not necessary to
-use the module parameter NOHWCRYPT to turn hardware encryption off.
-Although this change essentially eliminates that module parameter,
-I am choosing to keep it for cases where the hardware is broken,
-and software encryption is required for all ciphers.
+On 26/05/2020 10:07, Chris Wilson wrote:
+> When we push a virtual request onto the HW, we update the rq->engine to
+> point to the physical engine. A request that is then submitted by the
+> user that waits upon the virtual engine, but along the physical engine
+> in use, will then see that it is due to be submitted to the same engine
+> and take a shortcut (and be queued without waiting for the completion
+> fence). However, the virtual request may be preempted (either by higher
+> priority users, or by timeslicing) and removed from the physical engine
+> to be migrated over to one of its siblings. The dependent normal request
+> however is oblivious to the removal of the virtual request and remains
+> queued to execute on HW, believing that once it reaches the head of its
+> queue all of its predecessors will have completed executing!
+> 
+> v2: Beware restriction of signal->execution_mask prior to submission.
+> 
+> Fixes: 6d06779e8672 ("drm/i915: Load balancing across a virtual engine")
+> Testcase: igt/gem_exec_balancer/sliced
+> Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+> Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+> Cc: <stable@vger.kernel.org> # v5.3+
+> ---
+>   drivers/gpu/drm/i915/i915_request.c | 25 +++++++++++++++++++++----
+>   1 file changed, 21 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/i915/i915_request.c b/drivers/gpu/drm/i915/i915_request.c
+> index 33bbad623e02..0b07ccc7e9bc 100644
+> --- a/drivers/gpu/drm/i915/i915_request.c
+> +++ b/drivers/gpu/drm/i915/i915_request.c
+> @@ -1237,6 +1237,25 @@ i915_request_await_execution(struct i915_request *rq,
+>   	return 0;
+>   }
+>   
+> +static int
+> +await_request_submit(struct i915_request *to, struct i915_request *from)
+> +{
+> +	/*
+> +	 * If we are waiting on a virtual engine, then it may be
+> +	 * constrained to execute on a single engine *prior* to submission.
+> +	 * When it is submitted, it will be first submitted to the virtual
+> +	 * engine and then passed to the physical engine. We cannot allow
+> +	 * the waiter to be submitted immediately to the physical engine
+> +	 * as it may then bypass the virtual request.
+> +	 */
+> +	if (to->engine == READ_ONCE(from->engine))
+> +		return i915_sw_fence_await_sw_fence_gfp(&to->submit,
+> +							&from->submit,
+> +							I915_FENCE_GFP);
+> +	else
 
-This patch fixes a problem that has been in b43legacy since commit
-75388acd0cd8 ("[B43LEGACY]: add mac80211-based driver for legacy BCM43xx
-devices").
+When can engines be different and the mask test below brought us here?
 
-Fixes: 75388acd0cd8 ("[B43LEGACY]: add mac80211-based driver for legacy BCM43xx devices")
-Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
-Cc: Stable <stable@vger.kernel.org>
----
- drivers/net/wireless/broadcom/b43legacy/main.c | 1 +
- 1 file changed, 1 insertion(+)
+Regards,
 
-diff --git a/drivers/net/wireless/broadcom/b43legacy/main.c b/drivers/net/wireless/broadcom/b43legacy/main.c
-index 8b6b657c4b85..5208a39fd6f7 100644
---- a/drivers/net/wireless/broadcom/b43legacy/main.c
-+++ b/drivers/net/wireless/broadcom/b43legacy/main.c
-@@ -3801,6 +3801,7 @@ static int b43legacy_wireless_init(struct ssb_device *dev)
- 	/* fill hw info */
- 	ieee80211_hw_set(hw, RX_INCLUDES_FCS);
- 	ieee80211_hw_set(hw, SIGNAL_DBM);
-+	ieee80211_hw_set(hw, MFP_CAPABLE); /* Allow WPA3 in software */
- 
- 	hw->wiphy->interface_modes =
- 		BIT(NL80211_IFTYPE_AP) |
--- 
-2.26.2
+Tvrtko
 
+> +		return __i915_request_await_execution(to, from, NULL);
+> +}
+> +
+>   static int
+>   i915_request_await_request(struct i915_request *to, struct i915_request *from)
+>   {
+> @@ -1258,10 +1277,8 @@ i915_request_await_request(struct i915_request *to, struct i915_request *from)
+>   			return ret;
+>   	}
+>   
+> -	if (to->engine == READ_ONCE(from->engine))
+> -		ret = i915_sw_fence_await_sw_fence_gfp(&to->submit,
+> -						       &from->submit,
+> -						       I915_FENCE_GFP);
+> +	if (is_power_of_2(to->execution_mask | READ_ONCE(from->execution_mask)))
+> +		ret = await_request_submit(to, from);
+>   	else
+>   		ret = emit_semaphore_wait(to, from, I915_FENCE_GFP);
+>   	if (ret < 0)
+> 
