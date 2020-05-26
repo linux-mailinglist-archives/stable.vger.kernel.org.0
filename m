@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 00AE21E2EDC
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:32:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C13F1E2F09
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:34:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389593AbgEZTcW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:32:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50946 "EHLO mail.kernel.org"
+        id S2389474AbgEZSzY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 14:55:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47778 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390135AbgEZS5k (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 14:57:40 -0400
+        id S2389467AbgEZSzX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 14:55:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 53E982084C;
-        Tue, 26 May 2020 18:57:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 59BC320849;
+        Tue, 26 May 2020 18:55:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590519459;
-        bh=L/FpKjXSou7uk/badrKTLDSFf91QARNH996AHbIbPls=;
+        s=default; t=1590519322;
+        bh=Wwkq3HttPZDyE/FF5UyUIlAIhjy0c5qM67sxP1MaqhA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lzvwkZUmgUckUPZpiymkB12L1ersIZUrqkCmkpz7z6LfKOIIZOAzW8tyhjQ7J58d3
-         /rmYug4oXoY26Ikri9EHEMGM9Cm5fask66skBTxq6OkvbAyz4kS8BUn3nejGjcXBtx
-         VR9Up0OfeW0duC9wADNoXjuL94t2YeF5XdHntzjY=
+        b=e9AATBCVxAyYMMM7aHxFIa6gqR+LyuoX+GzYZQ4w7E0LSSy1xf5+dDirPIR5FFtXv
+         RGW8iHX6OkoG9waU0m3j9BNLMm20OzNsJGgkbrR9x9GeA2RO3F0cgaXMcOhRYTHv8p
+         7JOzYPGT8oxW0fadymkf7MlJfOjefvP7HiQvoick=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 12/64] HID: multitouch: add eGalaxTouch P80H84 support
-Date:   Tue, 26 May 2020 20:52:41 +0200
-Message-Id: <20200526183917.835608080@linuxfoundation.org>
+        stable@vger.kernel.org, Viresh Kumar <viresh.kumar@linaro.org>,
+        Jean Delvare <jdelvare@suse.de>,
+        Wolfram Sang <wsa@the-dreams.de>,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 23/65] i2c-dev: dont get i2c adapter via i2c_dev
+Date:   Tue, 26 May 2020 20:52:42 +0200
+Message-Id: <20200526183914.867893581@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183913.064413230@linuxfoundation.org>
-References: <20200526183913.064413230@linuxfoundation.org>
+In-Reply-To: <20200526183905.988782958@linuxfoundation.org>
+References: <20200526183905.988782958@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,51 +46,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Reichel <sebastian.reichel@collabora.com>
+From: viresh kumar <viresh.kumar@linaro.org>
 
-[ Upstream commit f9e82295eec141a0569649d400d249333d74aa91 ]
+commit 5136ed4fcb05cd4981cc6034a11e66370ed84789 upstream.
 
-Add support for P80H84 touchscreen from eGalaxy:
+There is no code protecting i2c_dev to be freed after it is returned
+from i2c_dev_get_by_minor() and using it to access the value which we
+already have (minor) isn't safe really.
 
-  idVendor           0x0eef D-WAV Scientific Co., Ltd
-  idProduct          0xc002
-  iManufacturer           1 eGalax Inc.
-  iProduct                2 eGalaxTouch P80H84 2019 vDIVA_1204_T01 k4.02.146
+Avoid using it and get the adapter directly from 'minor'.
 
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+Reviewed-by: Jean Delvare <jdelvare@suse.de>
+Tested-by: Jean Delvare <jdelvare@suse.de>
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-ids.h        | 1 +
- drivers/hid/hid-multitouch.c | 3 +++
- 2 files changed, 4 insertions(+)
+ drivers/i2c/i2c-dev.c | 7 +------
+ 1 file changed, 1 insertion(+), 6 deletions(-)
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 25c006338100..4630b58634d8 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -353,6 +353,7 @@
- #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_7349	0x7349
- #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_73F7	0x73f7
- #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_A001	0xa001
-+#define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_C002	0xc002
+diff --git a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
+index e5cd307ebfc9..5543b49e2e05 100644
+--- a/drivers/i2c/i2c-dev.c
++++ b/drivers/i2c/i2c-dev.c
+@@ -492,13 +492,8 @@ static int i2cdev_open(struct inode *inode, struct file *file)
+ 	unsigned int minor = iminor(inode);
+ 	struct i2c_client *client;
+ 	struct i2c_adapter *adap;
+-	struct i2c_dev *i2c_dev;
+-
+-	i2c_dev = i2c_dev_get_by_minor(minor);
+-	if (!i2c_dev)
+-		return -ENODEV;
  
- #define USB_VENDOR_ID_ELAN		0x04f3
+-	adap = i2c_get_adapter(i2c_dev->adap->nr);
++	adap = i2c_get_adapter(minor);
+ 	if (!adap)
+ 		return -ENODEV;
  
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index fba655d639af..1207102823de 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -1332,6 +1332,9 @@ static const struct hid_device_id mt_devices[] = {
- 	{ .driver_data = MT_CLS_EGALAX_SERIAL,
- 		MT_USB_DEVICE(USB_VENDOR_ID_DWAV,
- 			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_A001) },
-+	{ .driver_data = MT_CLS_EGALAX,
-+		MT_USB_DEVICE(USB_VENDOR_ID_DWAV,
-+			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_C002) },
- 
- 	/* Elitegroup panel */
- 	{ .driver_data = MT_CLS_SERIAL,
 -- 
 2.25.1
 
