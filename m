@@ -2,40 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BBAD1E2D7A
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:24:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD5BC1E2B32
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:03:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391955AbgEZTL1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:11:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40748 "EHLO mail.kernel.org"
+        id S2403833AbgEZTCv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:02:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57808 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404057AbgEZTLY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:11:24 -0400
+        id S2390512AbgEZTCu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:02:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 30F0E20776;
-        Tue, 26 May 2020 19:11:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D8DAD208B3;
+        Tue, 26 May 2020 19:02:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590520283;
-        bh=lAm2lEdjnD+8xOhLGJf5QyoQipYEWFhTNMRALZMd/cg=;
+        s=default; t=1590519769;
+        bh=k35D95v8qmSYVPExxFNvXGV1WmuOz8fXUT0Z2szsg3g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SKUqiJn1HlGtyXcXB2/N7b/ThcnOjEjvG77lQvj+BEj4t1rRLTy7R4qas+BMyQ4rv
-         6QFlIs9erLts0LhpFbKHvc1PfPtq7KxV9qpNq5K7wyIMRCWMOPOSf0iA++RXpZgW50
-         5zzbQVJBuAfR3bYyXJmoS+vHO+A7/ATg2+fxlDkI=
+        b=qfWnK8EM4PLgBxJalnwuVPHVte/tV4ktmB2ICDogyGGJKKYdxkscOO3oFgUi8tJhS
+         o+YW1J+naXRVUWM7za0IuxJOv95d5SIjbG62mpYvzL9UcQmt17JzbRCCtYTNBCunqp
+         jip/9eXagpkttS5rG+UHJhch34xd4o1f4VESIVVw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 019/126] afs: Dont unlock fetched data pages until the op completes successfully
-Date:   Tue, 26 May 2020 20:52:36 +0200
-Message-Id: <20200526183939.238916173@linuxfoundation.org>
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Andrey Ryabinin <aryabinin@virtuozzo.com>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Borislav Petkov <bp@alien8.de>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Matthew Wilcox <willy@infradead.org>,
+        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.19 02/81] ubsan: build ubsan.c more conservatively
+Date:   Tue, 26 May 2020 20:52:37 +0200
+Message-Id: <20200526183923.677631870@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183937.471379031@linuxfoundation.org>
-References: <20200526183937.471379031@linuxfoundation.org>
+In-Reply-To: <20200526183923.108515292@linuxfoundation.org>
+References: <20200526183923.108515292@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,128 +55,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 9d1be4f4dc5ff1c66c86acfd2c35765d9e3776b3 ]
+commit af700eaed0564d5d3963a7a51cb0843629d7fe3d upstream.
 
-Don't call req->page_done() on each page as we finish filling it with
-the data coming from the network.  Whilst this might speed up the
-application a bit, it's a problem if there's a network failure and the
-operation has to be reissued.
+objtool points out several conditions that it does not like, depending
+on the combination with other configuration options and compiler
+variants:
 
-If this happens, an oops occurs because afs_readpages_page_done() clears
-the pointer to each page it unlocks and when a retry happens, the
-pointers to the pages it wants to fill are now NULL (and the pages have
-been unlocked anyway).
+stack protector:
+  lib/ubsan.o: warning: objtool: __ubsan_handle_type_mismatch()+0xbf: call to __stack_chk_fail() with UACCESS enabled
+  lib/ubsan.o: warning: objtool: __ubsan_handle_type_mismatch_v1()+0xbe: call to __stack_chk_fail() with UACCESS enabled
 
-Instead, wait till the operation completes successfully and only then
-release all the pages after clearing any terminal gap (the server can
-give us less data than we requested as we're allowed to ask for more
-than is available).
+stackleak plugin:
+  lib/ubsan.o: warning: objtool: __ubsan_handle_type_mismatch()+0x4a: call to stackleak_track_stack() with UACCESS enabled
+  lib/ubsan.o: warning: objtool: __ubsan_handle_type_mismatch_v1()+0x4a: call to stackleak_track_stack() with UACCESS enabled
 
-KASAN produces a bug like the following, and even without KASAN, it can
-oops and panic.
+kasan:
+  lib/ubsan.o: warning: objtool: __ubsan_handle_type_mismatch()+0x25: call to memcpy() with UACCESS enabled
+  lib/ubsan.o: warning: objtool: __ubsan_handle_type_mismatch_v1()+0x25: call to memcpy() with UACCESS enabled
 
-    BUG: KASAN: wild-memory-access in _copy_to_iter+0x323/0x5f4
-    Write of size 1404 at addr 0005088000000000 by task md5sum/5235
+The stackleak and kasan options just need to be disabled for this file
+as we do for other files already.  For the stack protector, we already
+attempt to disable it, but this fails on clang because the check is
+mixed with the gcc specific -fno-conserve-stack option.  According to
+Andrey Ryabinin, that option is not even needed, dropping it here fixes
+the stackprotector issue.
 
-    CPU: 0 PID: 5235 Comm: md5sum Not tainted 5.7.0-rc3-fscache+ #250
-    Hardware name: ASUS All Series/H97-PLUS, BIOS 2306 10/09/2014
-    Call Trace:
-     memcpy+0x39/0x58
-     _copy_to_iter+0x323/0x5f4
-     __skb_datagram_iter+0x89/0x2a6
-     skb_copy_datagram_iter+0x129/0x135
-     rxrpc_recvmsg_data.isra.0+0x615/0xd42
-     rxrpc_kernel_recv_data+0x1e9/0x3ae
-     afs_extract_data+0x139/0x33a
-     yfs_deliver_fs_fetch_data64+0x47a/0x91b
-     afs_deliver_to_call+0x304/0x709
-     afs_wait_for_call_to_complete+0x1cc/0x4ad
-     yfs_fs_fetch_data+0x279/0x288
-     afs_fetch_data+0x1e1/0x38d
-     afs_readpages+0x593/0x72e
-     read_pages+0xf5/0x21e
-     __do_page_cache_readahead+0x128/0x23f
-     ondemand_readahead+0x36e/0x37f
-     generic_file_buffered_read+0x234/0x680
-     new_sync_read+0x109/0x17e
-     vfs_read+0xe6/0x138
-     ksys_read+0xd8/0x14d
-     do_syscall_64+0x6e/0x8a
-     entry_SYSCALL_64_after_hwframe+0x49/0xb3
-
-Fixes: 196ee9cd2d04 ("afs: Make afs_fs_fetch_data() take a list of pages")
-Fixes: 30062bd13e36 ("afs: Implement YFS support in the fs client")
-Signed-off-by: David Howells <dhowells@redhat.com>
-Reviewed-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Link: http://lkml.kernel.org/r/20190722125139.1335385-1-arnd@arndb.de
+Link: https://lore.kernel.org/lkml/20190617123109.667090-1-arnd@arndb.de/t/
+Link: https://lore.kernel.org/lkml/20190722091050.2188664-1-arnd@arndb.de/t/
+Fixes: d08965a27e84 ("x86/uaccess, ubsan: Fix UBSAN vs. SMAP")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Andrey Ryabinin <aryabinin@virtuozzo.com>
+Cc: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/afs/fsclient.c  | 8 ++++----
- fs/afs/yfsclient.c | 8 ++++----
- 2 files changed, 8 insertions(+), 8 deletions(-)
+ lib/Makefile |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/fs/afs/fsclient.c b/fs/afs/fsclient.c
-index 68fc46634346..d2b3798c1932 100644
---- a/fs/afs/fsclient.c
-+++ b/fs/afs/fsclient.c
-@@ -385,8 +385,6 @@ static int afs_deliver_fs_fetch_data(struct afs_call *call)
- 		ASSERTCMP(req->offset, <=, PAGE_SIZE);
- 		if (req->offset == PAGE_SIZE) {
- 			req->offset = 0;
--			if (req->page_done)
--				req->page_done(req);
- 			req->index++;
- 			if (req->remain > 0)
- 				goto begin_page;
-@@ -440,11 +438,13 @@ static int afs_deliver_fs_fetch_data(struct afs_call *call)
- 		if (req->offset < PAGE_SIZE)
- 			zero_user_segment(req->pages[req->index],
- 					  req->offset, PAGE_SIZE);
--		if (req->page_done)
--			req->page_done(req);
- 		req->offset = 0;
- 	}
+--- a/lib/Makefile
++++ b/lib/Makefile
+@@ -269,7 +269,8 @@ obj-$(CONFIG_UCS2_STRING) += ucs2_string
+ obj-$(CONFIG_UBSAN) += ubsan.o
  
-+	if (req->page_done)
-+		for (req->index = 0; req->index < req->nr_pages; req->index++)
-+			req->page_done(req);
-+
- 	_leave(" = 0 [done]");
- 	return 0;
- }
-diff --git a/fs/afs/yfsclient.c b/fs/afs/yfsclient.c
-index b5b45c57e1b1..fe413e7a5cf4 100644
---- a/fs/afs/yfsclient.c
-+++ b/fs/afs/yfsclient.c
-@@ -497,8 +497,6 @@ static int yfs_deliver_fs_fetch_data64(struct afs_call *call)
- 		ASSERTCMP(req->offset, <=, PAGE_SIZE);
- 		if (req->offset == PAGE_SIZE) {
- 			req->offset = 0;
--			if (req->page_done)
--				req->page_done(req);
- 			req->index++;
- 			if (req->remain > 0)
- 				goto begin_page;
-@@ -556,11 +554,13 @@ static int yfs_deliver_fs_fetch_data64(struct afs_call *call)
- 		if (req->offset < PAGE_SIZE)
- 			zero_user_segment(req->pages[req->index],
- 					  req->offset, PAGE_SIZE);
--		if (req->page_done)
--			req->page_done(req);
- 		req->offset = 0;
- 	}
+ UBSAN_SANITIZE_ubsan.o := n
+-CFLAGS_ubsan.o := $(call cc-option, -fno-conserve-stack -fno-stack-protector)
++KASAN_SANITIZE_ubsan.o := n
++CFLAGS_ubsan.o := $(call cc-option, -fno-stack-protector) $(DISABLE_STACKLEAK_PLUGIN)
  
-+	if (req->page_done)
-+		for (req->index = 0; req->index < req->nr_pages; req->index++)
-+			req->page_done(req);
-+
- 	_leave(" = 0 [done]");
- 	return 0;
- }
--- 
-2.25.1
-
+ obj-$(CONFIG_SBITMAP) += sbitmap.o
+ 
 
 
