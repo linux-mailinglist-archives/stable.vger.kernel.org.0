@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EACC1E2AF7
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:03:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AD9AA1E2BB1
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:07:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390760AbgEZTAe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:00:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54700 "EHLO mail.kernel.org"
+        id S2391716AbgEZTHm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:07:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36484 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390758AbgEZTAd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:00:33 -0400
+        id S2390824AbgEZTHl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:07:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 28EA620849;
-        Tue, 26 May 2020 19:00:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DAAA720776;
+        Tue, 26 May 2020 19:07:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590519633;
-        bh=sEH7FlcbtULD/jnI/XwLJzHyZ9OSJdBrQc3iYDd0vrY=;
+        s=default; t=1590520061;
+        bh=vVCIltNcz/8Jdr774CvbyozkDPjMp8YtsaGVK8ZabrA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OpNdns1dkuoV4ftudsmSA3u7kHIFXw6swCmtet0LkR1YAHnluNzbNXm0meAcNITYI
-         plMPnhtZbTAnDA4pDHgcKQ0ykobj3niR6QVh/1FIXVgBQI7+DB98C3H/226x4IgVky
-         mhc83LoOaHp4J41SwieHitbiRDM0rZMGTqV21L/g=
+        b=GXP1YY71utGVaHbg0bJcraWdmybeCV86LkQk640SPImMJBqR6KAeqkMuxMgBoxxNa
+         URR6fm8fWn4RViFE4geKyHSaxGi4Qc/Fv8U+0VMXTowlsSoL27camRRbwcQye7/xPE
+         NrjSxgqjXSCzx1odgzXXYbm1HKZqkr3mAxXA0qm4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
-        Xin Tan <tanxin.ctf@gmail.com>, Christoph Hellwig <hch@lst.de>,
+        stable@vger.kernel.org,
+        Aurabindo Pillai <aurabindo.pillai@amd.com>,
+        Harry Wentland <Harry.Wentland@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 16/59] configfs: fix config_item refcnt leak in configfs_rmdir()
-Date:   Tue, 26 May 2020 20:53:01 +0200
-Message-Id: <20200526183913.423965027@linuxfoundation.org>
+Subject: [PATCH 5.4 044/111] drm/amd/display: Prevent dpcd reads with passive dongles
+Date:   Tue, 26 May 2020 20:53:02 +0200
+Message-Id: <20200526183937.105105322@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183907.123822792@linuxfoundation.org>
-References: <20200526183907.123822792@linuxfoundation.org>
+In-Reply-To: <20200526183932.245016380@linuxfoundation.org>
+References: <20200526183932.245016380@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,45 +46,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+From: Aurabindo Pillai <aurabindo.pillai@amd.com>
 
-[ Upstream commit 8aebfffacfa379ba400da573a5bf9e49634e38cb ]
+[ Upstream commit e6142dd511425cb827b5db869f489eb81f5f994d ]
 
-configfs_rmdir() invokes configfs_get_config_item(), which returns a
-reference of the specified config_item object to "parent_item" with
-increased refcnt.
+[why]
+During hotplug, a DP port may be connected to the sink through
+passive adapter which does not support DPCD reads. Issuing reads
+without checking for this condition will result in errors
 
-When configfs_rmdir() returns, local variable "parent_item" becomes
-invalid, so the refcount should be decreased to keep refcount balanced.
+[how]
+Ensure the link is in aux_mode before initiating operation that result
+in a DPCD read.
 
-The reference counting issue happens in one exception handling path of
-configfs_rmdir(). When down_write_killable() fails, the function forgets
-to decrease the refcnt increased by configfs_get_config_item(), causing
-a refcnt leak.
-
-Fix this issue by calling config_item_put() when down_write_killable()
-fails.
-
-Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
-Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Aurabindo Pillai <aurabindo.pillai@amd.com>
+Reviewed-by: Harry Wentland <Harry.Wentland@amd.com>
+Acked-by: Aurabindo Pillai <aurabindo.pillai@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/configfs/dir.c | 1 +
- 1 file changed, 1 insertion(+)
+ .../gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c   | 17 +++++++++++------
+ 1 file changed, 11 insertions(+), 6 deletions(-)
 
-diff --git a/fs/configfs/dir.c b/fs/configfs/dir.c
-index c2ef617d2f97..c875f246cb0e 100644
---- a/fs/configfs/dir.c
-+++ b/fs/configfs/dir.c
-@@ -1537,6 +1537,7 @@ static int configfs_rmdir(struct inode *dir, struct dentry *dentry)
- 		spin_lock(&configfs_dirent_lock);
- 		configfs_detach_rollback(dentry);
- 		spin_unlock(&configfs_dirent_lock);
-+		config_item_put(parent_item);
- 		return -EINTR;
- 	}
- 	frag->frag_dead = true;
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+index 99906435dcf7..9f30343262f3 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -1422,17 +1422,22 @@ amdgpu_dm_update_connector_after_detect(struct amdgpu_dm_connector *aconnector)
+ 		dc_sink_retain(aconnector->dc_sink);
+ 		if (sink->dc_edid.length == 0) {
+ 			aconnector->edid = NULL;
+-			drm_dp_cec_unset_edid(&aconnector->dm_dp_aux.aux);
++			if (aconnector->dc_link->aux_mode) {
++				drm_dp_cec_unset_edid(
++					&aconnector->dm_dp_aux.aux);
++			}
+ 		} else {
+ 			aconnector->edid =
+-				(struct edid *) sink->dc_edid.raw_edid;
+-
++				(struct edid *)sink->dc_edid.raw_edid;
+ 
+ 			drm_connector_update_edid_property(connector,
+-					aconnector->edid);
+-			drm_dp_cec_set_edid(&aconnector->dm_dp_aux.aux,
+-					    aconnector->edid);
++							   aconnector->edid);
++
++			if (aconnector->dc_link->aux_mode)
++				drm_dp_cec_set_edid(&aconnector->dm_dp_aux.aux,
++						    aconnector->edid);
+ 		}
++
+ 		amdgpu_dm_update_freesync_caps(connector, aconnector->edid);
+ 
+ 	} else {
 -- 
 2.25.1
 
