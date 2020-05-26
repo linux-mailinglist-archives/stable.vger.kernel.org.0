@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E126C1E2DB9
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:25:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 913671E2E71
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:30:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403933AbgEZTXp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:23:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37724 "EHLO mail.kernel.org"
+        id S2403767AbgEZTBd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:01:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55882 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403917AbgEZTIn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:08:43 -0400
+        id S2390971AbgEZTBb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:01:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3C181208B3;
-        Tue, 26 May 2020 19:08:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D5DEC20849;
+        Tue, 26 May 2020 19:01:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590520122;
-        bh=85MRjDuphd+B7adNDduYkYSTVwOmbRTDqL773PNxNGM=;
+        s=default; t=1590519691;
+        bh=+Dvm2rdDVTfbgx2YcMhPo7v8qPnIq2C9eoViBsYKTEY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h7Nx3MbpX1ix4BLJ+N7Zi2fEaU3HGga2ly5zXpamR0V6mT1n0ppNuQzy0SwVRU3I9
-         D0F1qB9RTXipmJ0LjN8oIFDgSWZebC5ZzeWuQpuA2wj4EIn32dsrRpyDt8M5VHoLAD
-         pekjKoh5XPH/Pgq8D3vp7IGjmLBLHFr5aP9tWczM=
+        b=xNC2k7uLmcEBq9Hg93sg6JUyOGrQntHuJ9+tCbGm1Oz5D4j1XLQ6j4K1pDIzJCkYt
+         2RElwb3QAEvXQmYRf15FEIf9J+dFHvrCBI+PBRWM1+RdCYr0QrNaoy6FS/C1zFcSjh
+         fQcfJDLwFZJm2csnKFmtJ7V/VgKvReu3DkWZMj6k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Navid Emamdoost <navid.emamdoost@gmail.com>,
-        John Johansen <john.johansen@canonical.com>
-Subject: [PATCH 5.4 066/111] apparmor: Fix use-after-free in aa_audit_rule_init
+        stable@vger.kernel.org, Christophe Leroy <christophe.leroy@c-s.fr>,
+        Balbir Singh <bsingharora@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 39/59] powerpc: restore alphabetic order in Kconfig
 Date:   Tue, 26 May 2020 20:53:24 +0200
-Message-Id: <20200526183939.103196673@linuxfoundation.org>
+Message-Id: <20200526183919.859893348@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183932.245016380@linuxfoundation.org>
-References: <20200526183932.245016380@linuxfoundation.org>
+In-Reply-To: <20200526183907.123822792@linuxfoundation.org>
+References: <20200526183907.123822792@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,38 +45,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Navid Emamdoost <navid.emamdoost@gmail.com>
+From: Christophe Leroy <christophe.leroy@c-s.fr>
 
-commit c54d481d71c6849e044690d3960aaebc730224cc upstream.
+[ Upstream commit 4ec591e51a4b0aedb6c7f1a8cd722aa58d7f61ba ]
 
-In the implementation of aa_audit_rule_init(), when aa_label_parse()
-fails the allocated memory for rule is released using
-aa_audit_rule_free(). But after this release, the return statement
-tries to access the label field of the rule which results in
-use-after-free. Before releasing the rule, copy errNo and return it
-after release.
+This patch restores the alphabetic order which was broken by
+commit 1e0fc9d1eb2b0 ("powerpc/Kconfig: Enable STRICT_KERNEL_RWX
+for some configs")
 
-Fixes: 52e8c38001d8 ("apparmor: Fix memory leak of rule on error exit path")
-Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
-Signed-off-by: John Johansen <john.johansen@canonical.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 1e0fc9d1eb2b0 ("powerpc/Kconfig: Enable STRICT_KERNEL_RWX for some configs")
+Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
+Acked-by: Balbir Singh <bsingharora@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/apparmor/audit.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/powerpc/Kconfig | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/security/apparmor/audit.c
-+++ b/security/apparmor/audit.c
-@@ -197,8 +197,9 @@ int aa_audit_rule_init(u32 field, u32 op
- 	rule->label = aa_label_parse(&root_ns->unconfined->label, rulestr,
- 				     GFP_KERNEL, true, false);
- 	if (IS_ERR(rule->label)) {
-+		int err = PTR_ERR(rule->label);
- 		aa_audit_rule_free(rule);
--		return PTR_ERR(rule->label);
-+		return err;
- 	}
- 
- 	*vrule = rule;
+diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
+index 277e4ffb928b..6b73ef2bba2e 100644
+--- a/arch/powerpc/Kconfig
++++ b/arch/powerpc/Kconfig
+@@ -141,12 +141,14 @@ config PPC
+ 	select ARCH_HAS_GCOV_PROFILE_ALL
+ 	select ARCH_HAS_SCALED_CPUTIME		if VIRT_CPU_ACCOUNTING_NATIVE
+ 	select ARCH_HAS_SG_CHAIN
++	select ARCH_HAS_STRICT_KERNEL_RWX	if ((PPC_BOOK3S_64 || PPC32) && !RELOCATABLE && !HIBERNATION)
+ 	select ARCH_HAS_TICK_BROADCAST		if GENERIC_CLOCKEVENTS_BROADCAST
+ 	select ARCH_HAS_UBSAN_SANITIZE_ALL
+ 	select ARCH_HAS_ZONE_DEVICE		if PPC_BOOK3S_64
+ 	select ARCH_HAVE_NMI_SAFE_CMPXCHG
+ 	select ARCH_MIGHT_HAVE_PC_PARPORT
+ 	select ARCH_MIGHT_HAVE_PC_SERIO
++	select ARCH_OPTIONAL_KERNEL_RWX		if ARCH_HAS_STRICT_KERNEL_RWX
+ 	select ARCH_SUPPORTS_ATOMIC_RMW
+ 	select ARCH_SUPPORTS_DEFERRED_STRUCT_PAGE_INIT
+ 	select ARCH_USE_BUILTIN_BSWAP
+@@ -178,8 +180,6 @@ config PPC
+ 	select HAVE_ARCH_MMAP_RND_COMPAT_BITS	if COMPAT
+ 	select HAVE_ARCH_SECCOMP_FILTER
+ 	select HAVE_ARCH_TRACEHOOK
+-	select ARCH_HAS_STRICT_KERNEL_RWX	if ((PPC_BOOK3S_64 || PPC32) && !RELOCATABLE && !HIBERNATION)
+-	select ARCH_OPTIONAL_KERNEL_RWX		if ARCH_HAS_STRICT_KERNEL_RWX
+ 	select HAVE_CBPF_JIT			if !PPC64
+ 	select HAVE_CONTEXT_TRACKING		if PPC64
+ 	select HAVE_DEBUG_KMEMLEAK
+-- 
+2.25.1
+
 
 
