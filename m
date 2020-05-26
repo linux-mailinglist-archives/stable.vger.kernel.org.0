@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B19F41E2C44
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:13:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 05C7E1E2E4E
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:28:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404301AbgEZTNc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:13:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43694 "EHLO mail.kernel.org"
+        id S2392475AbgEZT20 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:28:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58314 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404298AbgEZTNc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:13:32 -0400
+        id S2390609AbgEZTDK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:03:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7F2B8208DB;
-        Tue, 26 May 2020 19:13:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 597752086A;
+        Tue, 26 May 2020 19:03:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590520412;
-        bh=Py3+27fq+KilaCdz5w6bUQlZKu+dOEQXm4a/GCeSecM=;
+        s=default; t=1590519789;
+        bh=2LUm7Ij2gIyRjTkio4BUtMbWDnxu6JhIsryrUp6uBq0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cwgU+lRtljrKTZxk/kM2skaYjVBEZZNMdTQPK3WwQ3x+G4feYMi7dZq3a5oLhjxJV
-         LbdZC8uPkiE5IWZriES2pva5+WUK3wrzsz06C9BPuM3RUcHDHJBn68iXHDgervxCCI
-         aqDsaBr4WlApyngY8bCBdfUMkr//VLr4Vbuh5huY=
+        b=yvqqdD7Drxa+iY23g2JsN7DNI+qsQBjxY2MqXpmfVAvM9VcSu8wSBdZNFXbYO3NhJ
+         sIH10v9IVJSm1XMPYol7zlWqlXZ3olHghT6kQ10RzRNvsXhP9qeIcLEWrXPLabidmq
+         lL9WblLGTfteVnCWN/S9+Bay0CjZWpUBW9nKUrJk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiaojian Cao <xiaojian.cao@cn.alps.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 028/126] HID: alps: ALPS_1657 is too specific; use U1_UNICORN_LEGACY instead
+        stable@vger.kernel.org,
+        Thiago Macieira <thiago.macieira@intel.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Sasha Levin <sashal@kernel.org>, stable@kernel.org
+Subject: [PATCH 4.19 10/81] fix multiplication overflow in copy_fdtable()
 Date:   Tue, 26 May 2020 20:52:45 +0200
-Message-Id: <20200526183940.110886734@linuxfoundation.org>
+Message-Id: <20200526183926.518841230@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183937.471379031@linuxfoundation.org>
-References: <20200526183937.471379031@linuxfoundation.org>
+In-Reply-To: <20200526183923.108515292@linuxfoundation.org>
+References: <20200526183923.108515292@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,53 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Kosina <jkosina@suse.cz>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-[ Upstream commit 185af3e775b693f773d9a4b5a8c3cda69fc8ca0f ]
+[ Upstream commit 4e89b7210403fa4a8acafe7c602b6212b7af6c3b ]
 
-HID_DEVICE_ID_ALPS_1657 PID is too specific, as there are many other
-ALPS hardware IDs using this particular touchpad.
+cpy and set really should be size_t; we won't get an overflow on that,
+since sysctl_nr_open can't be set above ~(size_t)0 / sizeof(void *),
+so nr that would've managed to overflow size_t on that multiplication
+won't get anywhere near copy_fdtable() - we'll fail with EMFILE
+before that.
 
-Rename the identifier to HID_DEVICE_ID_ALPS_U1_UNICORN_LEGACY in order
-to describe reality better.
-
-Fixes: 640e403b1fd24 ("HID: alps: Add AUI1657 device ID")
-Reported-by: Xiaojian Cao <xiaojian.cao@cn.alps.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Cc: stable@kernel.org # v2.6.25+
+Fixes: 9cfe015aa424 (get rid of NR_OPEN and introduce a sysctl_nr_open)
+Reported-by: Thiago Macieira <thiago.macieira@intel.com>
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-alps.c | 2 +-
- drivers/hid/hid-ids.h  | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ fs/file.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-alps.c b/drivers/hid/hid-alps.c
-index c2a2bd528890..b2ad319a74b9 100644
---- a/drivers/hid/hid-alps.c
-+++ b/drivers/hid/hid-alps.c
-@@ -802,7 +802,7 @@ static int alps_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 		break;
- 	case HID_DEVICE_ID_ALPS_U1_DUAL:
- 	case HID_DEVICE_ID_ALPS_U1:
--	case HID_DEVICE_ID_ALPS_1657:
-+	case HID_DEVICE_ID_ALPS_U1_UNICORN_LEGACY:
- 		data->dev_type = U1;
- 		break;
- 	default:
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 7d769ca864a7..b3cc26ca375f 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -79,9 +79,9 @@
- #define HID_DEVICE_ID_ALPS_U1_DUAL_PTP	0x121F
- #define HID_DEVICE_ID_ALPS_U1_DUAL_3BTN_PTP	0x1220
- #define HID_DEVICE_ID_ALPS_U1		0x1215
-+#define HID_DEVICE_ID_ALPS_U1_UNICORN_LEGACY         0x121E
- #define HID_DEVICE_ID_ALPS_T4_BTNLESS	0x120C
- #define HID_DEVICE_ID_ALPS_1222		0x1222
--#define HID_DEVICE_ID_ALPS_1657         0x121E
+diff --git a/fs/file.c b/fs/file.c
+index 780d29e58847..3762a3f136fd 100644
+--- a/fs/file.c
++++ b/fs/file.c
+@@ -70,7 +70,7 @@ static void copy_fd_bitmaps(struct fdtable *nfdt, struct fdtable *ofdt,
+  */
+ static void copy_fdtable(struct fdtable *nfdt, struct fdtable *ofdt)
+ {
+-	unsigned int cpy, set;
++	size_t cpy, set;
  
- #define USB_VENDOR_ID_AMI		0x046b
- #define USB_DEVICE_ID_AMI_VIRT_KEYBOARD_AND_MOUSE	0xff10
+ 	BUG_ON(nfdt->max_fds < ofdt->max_fds);
+ 
 -- 
 2.25.1
 
