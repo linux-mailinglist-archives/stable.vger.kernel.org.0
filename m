@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 373011E2C7D
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:15:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E18D1E2E0A
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:26:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404422AbgEZTPY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:15:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46984 "EHLO mail.kernel.org"
+        id S2391506AbgEZTFc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:05:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33438 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404112AbgEZTPX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:15:23 -0400
+        id S2391504AbgEZTF3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:05:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BDAFD2053B;
-        Tue, 26 May 2020 19:15:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4262A208A7;
+        Tue, 26 May 2020 19:05:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590520523;
-        bh=REz7Kk+v4Xq5M2/sBIog3pQekmC3KHv8xVU42CFKSc0=;
+        s=default; t=1590519928;
+        bh=zL1ncFwqIrkyxwUfDGOmJpigKvrIf1byzCxY4Qi79oU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WyH7eTeozeH5ADPsQ7D6xZdZgPjiHvRWmJ0SSP3NNKgEci3kx6OZFG+jz6G3k2Ri2
-         to3GagT4g2rtw/JKv/guWcYzinUj0YZaaQqfwLCgVZUUtceXHjRWFHmvAjyJgv5sRw
-         375VeGIEEOqWWxnvjvYRDjS1bd7bEHX9dFkqbWr8=
+        b=RlCrTlPP2F+cgpfEsHf75sRRccO36H5uYu8R4ZCgFogmJ7PvCrryf9tdw7fwPiweB
+         TgKlppTaR95HhFfgTf3B0CvzjXnP4BCoGeQIIuOfVyiFHgj4tYrxoxKZQiefxgjapH
+         kxad7qqVPUttyj2OLBUBG9jp7xOrxSPKUtq5fahE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Venkata Narendra Kumar Gutta <vnkgutta@codeaurora.org>,
-        Maulik Shah <mkshah@codeaurora.org>,
-        Douglas Anderson <dianders@chromium.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 5.6 073/126] pinctrl: qcom: Add affinity callbacks to msmgpio IRQ chip
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Lukas Wunner <lukas@wunner.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 55/81] thunderbolt: Drop duplicated get_switch_at_route()
 Date:   Tue, 26 May 2020 20:53:30 +0200
-Message-Id: <20200526183944.365007908@linuxfoundation.org>
+Message-Id: <20200526183933.179031466@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183937.471379031@linuxfoundation.org>
-References: <20200526183937.471379031@linuxfoundation.org>
+In-Reply-To: <20200526183923.108515292@linuxfoundation.org>
+References: <20200526183923.108515292@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,68 +44,138 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Venkata Narendra Kumar Gutta <vnkgutta@codeaurora.org>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
 
-commit dca4f40742e09ec5d908a7fc2862498e6cf9d911 upstream.
+[ Upstream commit 8f965efd215a09c20b0b5e5bb4e20009a954472e ]
 
-Wakeup capable GPIO IRQs routed via PDC are not being migrated when a CPU
-is hotplugged. Add affinity callbacks to msmgpio IRQ chip to update the
-affinity of wakeup capable IRQs.
+tb_switch_find_by_route() does the same already so use it instead and
+remove duplicated get_switch_at_route().
 
-Fixes: e35a6ae0eb3a ("pinctrl/msm: Setup GPIO chip in hierarchy")
-Signed-off-by: Venkata Narendra Kumar Gutta <vnkgutta@codeaurora.org>
-[mkshah: updated commit text and minor code fixes]
-Signed-off-by: Maulik Shah <mkshah@codeaurora.org>
-Tested-by: Douglas Anderson <dianders@chromium.org>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Link: https://lore.kernel.org/r/1588314617-4556-1-git-send-email-mkshah@codeaurora.org
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Reviewed-by: Lukas Wunner <lukas@wunner.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/qcom/pinctrl-msm.c |   25 +++++++++++++++++++++++++
- 1 file changed, 25 insertions(+)
+ drivers/thunderbolt/icm.c    | 12 ++++++++----
+ drivers/thunderbolt/switch.c | 18 ------------------
+ drivers/thunderbolt/tb.c     |  9 ++++++---
+ drivers/thunderbolt/tb.h     |  1 -
+ 4 files changed, 14 insertions(+), 26 deletions(-)
 
---- a/drivers/pinctrl/qcom/pinctrl-msm.c
-+++ b/drivers/pinctrl/qcom/pinctrl-msm.c
-@@ -1010,6 +1010,29 @@ static void msm_gpio_irq_relres(struct i
- 	module_put(gc->owner);
+diff --git a/drivers/thunderbolt/icm.c b/drivers/thunderbolt/icm.c
+index 8490a1b6b615..2b83d8b02f81 100644
+--- a/drivers/thunderbolt/icm.c
++++ b/drivers/thunderbolt/icm.c
+@@ -801,9 +801,11 @@ icm_fr_xdomain_connected(struct tb *tb, const struct icm_pkg_header *hdr)
+ 	 * connected another host to the same port, remove the switch
+ 	 * first.
+ 	 */
+-	sw = get_switch_at_route(tb->root_switch, route);
+-	if (sw)
++	sw = tb_switch_find_by_route(tb, route);
++	if (sw) {
+ 		remove_switch(sw);
++		tb_switch_put(sw);
++	}
+ 
+ 	sw = tb_switch_find_by_link_depth(tb, link, depth);
+ 	if (!sw) {
+@@ -1146,9 +1148,11 @@ icm_tr_xdomain_connected(struct tb *tb, const struct icm_pkg_header *hdr)
+ 	 * connected another host to the same port, remove the switch
+ 	 * first.
+ 	 */
+-	sw = get_switch_at_route(tb->root_switch, route);
+-	if (sw)
++	sw = tb_switch_find_by_route(tb, route);
++	if (sw) {
+ 		remove_switch(sw);
++		tb_switch_put(sw);
++	}
+ 
+ 	sw = tb_switch_find_by_route(tb, get_parent_route(route));
+ 	if (!sw) {
+diff --git a/drivers/thunderbolt/switch.c b/drivers/thunderbolt/switch.c
+index 42d90ceec279..010a50ac4881 100644
+--- a/drivers/thunderbolt/switch.c
++++ b/drivers/thunderbolt/switch.c
+@@ -664,24 +664,6 @@ int tb_switch_reset(struct tb *tb, u64 route)
+ 	return res.err;
  }
  
-+static int msm_gpio_irq_set_affinity(struct irq_data *d,
-+				const struct cpumask *dest, bool force)
-+{
-+	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
-+	struct msm_pinctrl *pctrl = gpiochip_get_data(gc);
-+
-+	if (d->parent_data && test_bit(d->hwirq, pctrl->skip_wake_irqs))
-+		return irq_chip_set_affinity_parent(d, dest, force);
-+
-+	return 0;
-+}
-+
-+static int msm_gpio_irq_set_vcpu_affinity(struct irq_data *d, void *vcpu_info)
-+{
-+	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
-+	struct msm_pinctrl *pctrl = gpiochip_get_data(gc);
-+
-+	if (d->parent_data && test_bit(d->hwirq, pctrl->skip_wake_irqs))
-+		return irq_chip_set_vcpu_affinity_parent(d, vcpu_info);
-+
-+	return 0;
-+}
-+
- static void msm_gpio_irq_handler(struct irq_desc *desc)
- {
- 	struct gpio_chip *gc = irq_desc_get_handler_data(desc);
-@@ -1108,6 +1131,8 @@ static int msm_gpio_init(struct msm_pinc
- 	pctrl->irq_chip.irq_set_wake = msm_gpio_irq_set_wake;
- 	pctrl->irq_chip.irq_request_resources = msm_gpio_irq_reqres;
- 	pctrl->irq_chip.irq_release_resources = msm_gpio_irq_relres;
-+	pctrl->irq_chip.irq_set_affinity = msm_gpio_irq_set_affinity;
-+	pctrl->irq_chip.irq_set_vcpu_affinity = msm_gpio_irq_set_vcpu_affinity;
+-struct tb_switch *get_switch_at_route(struct tb_switch *sw, u64 route)
+-{
+-	u8 next_port = route; /*
+-			       * Routes use a stride of 8 bits,
+-			       * eventhough a port index has 6 bits at most.
+-			       * */
+-	if (route == 0)
+-		return sw;
+-	if (next_port > sw->config.max_port_number)
+-		return NULL;
+-	if (tb_is_upstream_port(&sw->ports[next_port]))
+-		return NULL;
+-	if (!sw->ports[next_port].remote)
+-		return NULL;
+-	return get_switch_at_route(sw->ports[next_port].remote->sw,
+-				   route >> TB_ROUTE_SHIFT);
+-}
+-
+ /**
+  * tb_plug_events_active() - enable/disable plug events on a switch
+  *
+diff --git a/drivers/thunderbolt/tb.c b/drivers/thunderbolt/tb.c
+index 1424581fd9af..146f261bf2c3 100644
+--- a/drivers/thunderbolt/tb.c
++++ b/drivers/thunderbolt/tb.c
+@@ -258,7 +258,7 @@ static void tb_handle_hotplug(struct work_struct *work)
+ 	if (!tcm->hotplug_active)
+ 		goto out; /* during init, suspend or shutdown */
  
- 	np = of_parse_phandle(pctrl->dev->of_node, "wakeup-parent", 0);
- 	if (np) {
+-	sw = get_switch_at_route(tb->root_switch, ev->route);
++	sw = tb_switch_find_by_route(tb, ev->route);
+ 	if (!sw) {
+ 		tb_warn(tb,
+ 			"hotplug event from non existent switch %llx:%x (unplug: %d)\n",
+@@ -269,14 +269,14 @@ static void tb_handle_hotplug(struct work_struct *work)
+ 		tb_warn(tb,
+ 			"hotplug event from non existent port %llx:%x (unplug: %d)\n",
+ 			ev->route, ev->port, ev->unplug);
+-		goto out;
++		goto put_sw;
+ 	}
+ 	port = &sw->ports[ev->port];
+ 	if (tb_is_upstream_port(port)) {
+ 		tb_warn(tb,
+ 			"hotplug event for upstream port %llx:%x (unplug: %d)\n",
+ 			ev->route, ev->port, ev->unplug);
+-		goto out;
++		goto put_sw;
+ 	}
+ 	if (ev->unplug) {
+ 		if (port->remote) {
+@@ -306,6 +306,9 @@ static void tb_handle_hotplug(struct work_struct *work)
+ 			tb_activate_pcie_devices(tb);
+ 		}
+ 	}
++
++put_sw:
++	tb_switch_put(sw);
+ out:
+ 	mutex_unlock(&tb->lock);
+ 	kfree(ev);
+diff --git a/drivers/thunderbolt/tb.h b/drivers/thunderbolt/tb.h
+index 7a0ee9836a8a..d927cf7b14d2 100644
+--- a/drivers/thunderbolt/tb.h
++++ b/drivers/thunderbolt/tb.h
+@@ -397,7 +397,6 @@ void tb_switch_suspend(struct tb_switch *sw);
+ int tb_switch_resume(struct tb_switch *sw);
+ int tb_switch_reset(struct tb *tb, u64 route);
+ void tb_sw_set_unplugged(struct tb_switch *sw);
+-struct tb_switch *get_switch_at_route(struct tb_switch *sw, u64 route);
+ struct tb_switch *tb_switch_find_by_link_depth(struct tb *tb, u8 link,
+ 					       u8 depth);
+ struct tb_switch *tb_switch_find_by_uuid(struct tb *tb, const uuid_t *uuid);
+-- 
+2.25.1
+
 
 
