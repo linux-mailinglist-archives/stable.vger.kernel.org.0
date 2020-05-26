@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A3E711E2DCC
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:25:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C7DB01E2E8E
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:30:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392110AbgEZTY2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:24:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36588 "EHLO mail.kernel.org"
+        id S2390758AbgEZTAn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:00:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54868 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390824AbgEZTHq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:07:46 -0400
+        id S2390792AbgEZTAl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:00:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BCB8F20776;
-        Tue, 26 May 2020 19:07:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DCB7F20849;
+        Tue, 26 May 2020 19:00:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590520066;
-        bh=tp/HQEMAxy6eE4ZBdZZxf6X4ju8GZ6SIyB/TvQ0Vugc=;
+        s=default; t=1590519641;
+        bh=5aukwFJtbgV12PH0sdBUv7PRVT0Q7aRa7HrPvFzyJEY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZDPkKNv9yISIP8o+7WiKpaxLr42zHywnS/dnt2m2lLzUsPjSt/R+Q8NYre3U0zc80
-         R1m8UIoQYcAkXlROVWv8dieIDSkATSysDbOJccAzqexAr2ZAS1x2yxL4EP6lk7B+lB
-         x2OWdKCmpXE4qXUPXtMxV2PRo6XmG1k9b0pUU2Yg=
+        b=sytgax1VvFOHH8n7dnLyk/H3ePxhPFHJRS820X+LGwRhzIcI75Ql6D1PxoimVBhJb
+         3Z4Qtrd+gD4PJ+IHV9/5CJWcdUq7TxUgqDNSrrLzOKbd7CuAQLQTOmfVv0HvaV0SMI
+         cDGFnXgVawBu4QLXqfy1kQ7++1gVC7SMvHgi/E6E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>,
-        Thomas Gleixner <tglx@linutronix.de>,
+        stable@vger.kernel.org, Tyrel Datwyler <tyreld@linux.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 046/111] ARM: futex: Address build warning
+Subject: [PATCH 4.14 19/59] scsi: ibmvscsi: Fix WARN_ON during event pool release
 Date:   Tue, 26 May 2020 20:53:04 +0200
-Message-Id: <20200526183937.278552623@linuxfoundation.org>
+Message-Id: <20200526183914.528229791@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183932.245016380@linuxfoundation.org>
-References: <20200526183932.245016380@linuxfoundation.org>
+In-Reply-To: <20200526183907.123822792@linuxfoundation.org>
+References: <20200526183907.123822792@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,68 +44,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Tyrel Datwyler <tyreld@linux.ibm.com>
 
-[ Upstream commit 8101b5a1531f3390b3a69fa7934c70a8fd6566ad ]
+[ Upstream commit b36522150e5b85045f868768d46fbaaa034174b2 ]
 
-Stephen reported the following build warning on a ARM multi_v7_defconfig
-build with GCC 9.2.1:
+While removing an ibmvscsi client adapter a WARN_ON like the following is
+seen in the kernel log:
 
-kernel/futex.c: In function 'do_futex':
-kernel/futex.c:1676:17: warning: 'oldval' may be used uninitialized in this function [-Wmaybe-uninitialized]
- 1676 |   return oldval == cmparg;
-      |          ~~~~~~~^~~~~~~~~
-kernel/futex.c:1652:6: note: 'oldval' was declared here
- 1652 |  int oldval, ret;
-      |      ^~~~~~
+drmgr: drmgr: -r -c slot -s U9080.M9S.783AEC8-V11-C11 -w 5 -d 1
+WARNING: CPU: 9 PID: 24062 at ../kernel/dma/mapping.c:311 dma_free_attrs+0x78/0x110
+Supported: No, Unreleased kernel
+CPU: 9 PID: 24062 Comm: drmgr Kdump: loaded Tainted: G               X 5.3.18-12-default
+NIP:  c0000000001fa758 LR: c0000000001fa744 CTR: c0000000001fa6e0
+REGS: c0000002173375d0 TRAP: 0700   Tainted: G               X (5.3.18-12-default)
+MSR:  8000000000029033 <SF,EE,ME,IR,DR,RI,LE>  CR: 28088282  XER: 20000000
+CFAR: c0000000001fbf0c IRQMASK: 1
+GPR00: c0000000001fa744 c000000217337860 c00000000161ab00 0000000000000000
+GPR04: 0000000000000000 c000011e12250000 0000000018010000 0000000000000000
+GPR08: 0000000000000000 0000000000000001 0000000000000001 c0080000190f4fa8
+GPR12: c0000000001fa6e0 c000000007fc2a00 0000000000000000 0000000000000000
+GPR16: 0000000000000000 0000000000000000 0000000000000000 0000000000000000
+GPR20: 0000000000000000 0000000000000000 0000000000000000 0000000000000000
+GPR24: 000000011420e310 0000000000000000 0000000000000000 0000000018010000
+GPR28: c00000000159de50 c000011e12250000 0000000000006600 c000011e5c994848
+NIP [c0000000001fa758] dma_free_attrs+0x78/0x110
+LR [c0000000001fa744] dma_free_attrs+0x64/0x110
+Call Trace:
+[c000000217337860] [000000011420e310] 0x11420e310 (unreliable)
+[c0000002173378b0] [c0080000190f0280] release_event_pool+0xd8/0x120 [ibmvscsi]
+[c000000217337930] [c0080000190f3f74] ibmvscsi_remove+0x6c/0x160 [ibmvscsi]
+[c000000217337960] [c0000000000f3cac] vio_bus_remove+0x5c/0x100
+[c0000002173379a0] [c00000000087a0a4] device_release_driver_internal+0x154/0x280
+[c0000002173379e0] [c0000000008777cc] bus_remove_device+0x11c/0x220
+[c000000217337a60] [c000000000870fc4] device_del+0x1c4/0x470
+[c000000217337b10] [c0000000008712a0] device_unregister+0x30/0xa0
+[c000000217337b80] [c0000000000f39ec] vio_unregister_device+0x2c/0x60
+[c000000217337bb0] [c00800001a1d0964] dlpar_remove_slot+0x14c/0x250 [rpadlpar_io]
+[c000000217337c50] [c00800001a1d0bcc] remove_slot_store+0xa4/0x110 [rpadlpar_io]
+[c000000217337cd0] [c000000000c091a0] kobj_attr_store+0x30/0x50
+[c000000217337cf0] [c00000000057c934] sysfs_kf_write+0x64/0x90
+[c000000217337d10] [c00000000057be10] kernfs_fop_write+0x1b0/0x290
+[c000000217337d60] [c000000000488c4c] __vfs_write+0x3c/0x70
+[c000000217337d80] [c00000000048c648] vfs_write+0xd8/0x260
+[c000000217337dd0] [c00000000048ca8c] ksys_write+0xdc/0x130
+[c000000217337e20] [c00000000000b488] system_call+0x5c/0x70
+Instruction dump:
+7c840074 f8010010 f821ffb1 20840040 eb830218 7c8407b4 48002019 60000000
+2fa30000 409e003c 892d0988 792907e0 <0b090000> 2fbd0000 419e0028 2fbc0000
+---[ end trace 5955b3c0cc079942 ]---
+rpadlpar_io: slot U9080.M9S.783AEC8-V11-C11 removed
 
-introduced by commit a08971e9488d ("futex: arch_futex_atomic_op_inuser()
-calling conventions change").
+This is tripped as a result of irqs being disabled during the call to
+dma_free_coherent() by release_event_pool(). At this point in the code path
+we have quiesced the adapter and it is overly paranoid to be holding the
+host lock.
 
-While that change should not make any difference it confuses GCC which
-fails to work out that oldval is not referenced when the return value is
-not zero.
+[mkp: fixed build warning reported by sfr]
 
-GCC fails to properly analyze arch_futex_atomic_op_inuser(). It's not the
-early return, the issue is with the assembly macros. GCC fails to detect
-that those either set 'ret' to 0 and set oldval or set 'ret' to -EFAULT
-which makes oldval uninteresting. The store to the callsite supplied oldval
-pointer is conditional on ret == 0.
-
-The straight forward way to solve this is to make the store unconditional.
-
-Aside of addressing the build warning this makes sense anyway because it
-removes the conditional from the fastpath. In the error case the stored
-value is uninteresting and the extra store does not matter at all.
-
-Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lkml.kernel.org/r/87pncao2ph.fsf@nanos.tec.linutronix.de
+Link: https://lore.kernel.org/r/1588027793-17952-1-git-send-email-tyreld@linux.ibm.com
+Signed-off-by: Tyrel Datwyler <tyreld@linux.ibm.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/include/asm/futex.h | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/scsi/ibmvscsi/ibmvscsi.c | 4 ----
+ 1 file changed, 4 deletions(-)
 
-diff --git a/arch/arm/include/asm/futex.h b/arch/arm/include/asm/futex.h
-index 83c391b597d4..fdc4ae3e7378 100644
---- a/arch/arm/include/asm/futex.h
-+++ b/arch/arm/include/asm/futex.h
-@@ -164,8 +164,13 @@ arch_futex_atomic_op_inuser(int op, int oparg, int *oval, u32 __user *uaddr)
- 	preempt_enable();
- #endif
+diff --git a/drivers/scsi/ibmvscsi/ibmvscsi.c b/drivers/scsi/ibmvscsi/ibmvscsi.c
+index 07c23bbd968c..83645a1c6f82 100644
+--- a/drivers/scsi/ibmvscsi/ibmvscsi.c
++++ b/drivers/scsi/ibmvscsi/ibmvscsi.c
+@@ -2299,16 +2299,12 @@ static int ibmvscsi_probe(struct vio_dev *vdev, const struct vio_device_id *id)
+ static int ibmvscsi_remove(struct vio_dev *vdev)
+ {
+ 	struct ibmvscsi_host_data *hostdata = dev_get_drvdata(&vdev->dev);
+-	unsigned long flags;
  
--	if (!ret)
--		*oval = oldval;
-+	/*
-+	 * Store unconditionally. If ret != 0 the extra store is the least
-+	 * of the worries but GCC cannot figure out that __futex_atomic_op()
-+	 * is either setting ret to -EFAULT or storing the old value in
-+	 * oldval which results in a uninitialized warning at the call site.
-+	 */
-+	*oval = oldval;
+ 	srp_remove_host(hostdata->host);
+ 	scsi_remove_host(hostdata->host);
  
- 	return ret;
- }
+ 	purge_requests(hostdata, DID_ERROR);
+-
+-	spin_lock_irqsave(hostdata->host->host_lock, flags);
+ 	release_event_pool(&hostdata->pool, hostdata);
+-	spin_unlock_irqrestore(hostdata->host->host_lock, flags);
+ 
+ 	ibmvscsi_release_crq_queue(&hostdata->queue, hostdata,
+ 					max_events);
 -- 
 2.25.1
 
