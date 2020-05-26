@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8AF3C1E2D76
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:24:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F1AA1E2BA9
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:07:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392039AbgEZTLG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:11:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40318 "EHLO mail.kernel.org"
+        id S2389914AbgEZTHV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:07:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35964 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404032AbgEZTLA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:11:00 -0400
+        id S2391592AbgEZTHT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:07:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1F72C20776;
-        Tue, 26 May 2020 19:10:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3295B208C3;
+        Tue, 26 May 2020 19:07:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590520260;
-        bh=laFJJFYyv4B1e4mrKe19o3ReXIflnahoOiDPh8QGyZk=;
+        s=default; t=1590520038;
+        bh=2Tli62SHDhwS8tdWOatrxO8zwH2xSPs+kFNRaMlgpUg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lrEj9YQsojRNEBMIqD6q8y45VFiGSIu8BU7c4myoHur2eKr+L0pwTjot7sP6y6f0/
-         BdWtdd8ejHD259nksqkIW+LpnkbA/KKRbilLuy9YIAw4bywJLmE2EbRKCNTIdeWfnz
-         1vy08cg/YNhjK9lgiDfgVPGblbZx9D7ZFK1ToyAo=
+        b=CupP2sgvEPOSpAktoByJsa5hGwha1nUWlrdVCL3BBeEMpbJVGfwXhflrhnPFYiOu4
+         w+IMBVW1j8OL1p17cKI6mHtXOweG1U7njY921O3/dNhcideA+wPXhWC5KCpHTxqLt+
+         zoJc6RmpmRD36Az/EoYJbKHUue3cVJKpxaxVFbI8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,12 +30,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Thiago Macieira <thiago.macieira@intel.com>,
         Al Viro <viro@zeniv.linux.org.uk>,
         Sasha Levin <sashal@kernel.org>, stable@kernel.org
-Subject: [PATCH 5.6 010/126] fix multiplication overflow in copy_fdtable()
+Subject: [PATCH 5.4 009/111] fix multiplication overflow in copy_fdtable()
 Date:   Tue, 26 May 2020 20:52:27 +0200
-Message-Id: <20200526183938.402785050@linuxfoundation.org>
+Message-Id: <20200526183933.400536287@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183937.471379031@linuxfoundation.org>
-References: <20200526183937.471379031@linuxfoundation.org>
+In-Reply-To: <20200526183932.245016380@linuxfoundation.org>
+References: <20200526183932.245016380@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -65,7 +65,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/fs/file.c b/fs/file.c
-index c8a4e4c86e55..abb8b7081d7a 100644
+index 3da91a112bab..e5d328335f88 100644
 --- a/fs/file.c
 +++ b/fs/file.c
 @@ -70,7 +70,7 @@ static void copy_fd_bitmaps(struct fdtable *nfdt, struct fdtable *ofdt,
