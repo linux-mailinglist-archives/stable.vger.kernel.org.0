@@ -2,108 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 81CAC1E1C60
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 09:39:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CF3DA1E1C9E
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 09:57:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728364AbgEZHjF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 03:39:05 -0400
-Received: from szxga05-in.huawei.com ([45.249.212.191]:5283 "EHLO huawei.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726736AbgEZHjF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 03:39:05 -0400
-Received: from DGGEMS407-HUB.china.huawei.com (unknown [172.30.72.59])
-        by Forcepoint Email with ESMTP id 01741EAB2AD22967CF57;
-        Tue, 26 May 2020 15:39:02 +0800 (CST)
-Received: from [10.174.151.115] (10.174.151.115) by smtp.huawei.com
- (10.3.19.207) with Microsoft SMTP Server (TLS) id 14.3.487.0; Tue, 26 May
- 2020 15:38:53 +0800
-Subject: Re: [PATCH v2 2/2] crypto: virtio: Fix use-after-free in
- virtio_crypto_skcipher_finalize_req()
-To:     Markus Elfring <Markus.Elfring@web.de>,
-        <linux-crypto@vger.kernel.org>,
-        <virtualization@lists.linux-foundation.org>
-CC:     Corentin Labbe <clabbe@baylibre.com>,
-        Gonglei <arei.gonglei@huawei.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>
-References: <20200526031956.1897-1-longpeng2@huawei.com>
- <20200526031956.1897-3-longpeng2@huawei.com>
- <0248e0f6-7648-f08d-afa2-170ad2e724b7@web.de>
-From:   "Longpeng (Mike, Cloud Infrastructure Service Product Dept.)" 
-        <longpeng2@huawei.com>
-Message-ID: <03d3387f-c886-4fb9-e6f2-9ff8dc6bb80a@huawei.com>
-Date:   Tue, 26 May 2020 15:38:52 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
- Thunderbird/60.6.1
+        id S1731694AbgEZH5s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 03:57:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42278 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731406AbgEZH5s (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 May 2020 03:57:48 -0400
+Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6922CC08C5C0;
+        Tue, 26 May 2020 00:57:48 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20170209; h=In-Reply-To:Content-Type:MIME-Version
+        :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=R5qQvczynsAgfGpBqLmrdkhBv7EbYOge1iugVDT5SBA=; b=TE//yoNU7+3UOMY3O60qcivn8i
+        sZ3MnaWQtU9hZ2Qo3MhIJmOUtCiv6O3ZcG1Tsi8Hz1VMx9j1zQ0TxV/YT2FhskgmFKR2xjU6B9OdW
+        bpis4SfDnCWwt1BhW0SYlcgQnsrzPaaTVISdrJjCzTZkaKlZBkdUCBCa60+cDdl11SFiJavhylT1t
+        rjUm4J6lqpyylhU5qBeAt42mB6HNTXXyOcGp6iSDuQwpcIBSobd8LnuwvOzebFrrc04h8AkYOVZ2H
+        HfYk7eu/QFgf+v8NhYuLShFW9xsYjvitpuMY59+eqpNnj5ylqeiXH2WbSL/kuLwgcNzvLy+AWmzbi
+        RODjFOFg==;
+Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=noisy.programming.kicks-ass.net)
+        by bombadil.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1jdUSx-0008AQ-TD; Tue, 26 May 2020 07:57:40 +0000
+Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (Client did not present a certificate)
+        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 1000930280E;
+        Tue, 26 May 2020 09:57:37 +0200 (CEST)
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
+        id F277320BE0DF0; Tue, 26 May 2020 09:57:36 +0200 (CEST)
+Date:   Tue, 26 May 2020 09:57:36 +0200
+From:   Peter Zijlstra <peterz@infradead.org>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     Andi Kleen <andi@firstfloor.org>, x86@kernel.org,
+        keescook@chromium.org, linux-kernel@vger.kernel.org,
+        sashal@kernel.org, Andi Kleen <ak@linux.intel.com>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH v1] x86: Pin cr4 FSGSBASE
+Message-ID: <20200526075736.GH317569@hirez.programming.kicks-ass.net>
+References: <20200526052848.605423-1-andi@firstfloor.org>
+ <20200526065618.GC2580410@kroah.com>
 MIME-Version: 1.0
-In-Reply-To: <0248e0f6-7648-f08d-afa2-170ad2e724b7@web.de>
-Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-X-Originating-IP: [10.174.151.115]
-X-CFilter-Loop: Reflected
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200526065618.GC2580410@kroah.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Markus,
+On Tue, May 26, 2020 at 08:56:18AM +0200, Greg KH wrote:
+> On Mon, May 25, 2020 at 10:28:48PM -0700, Andi Kleen wrote:
+> > From: Andi Kleen <ak@linux.intel.com>
+> > 
+> > Since there seem to be kernel modules floating around that set
+> > FSGSBASE incorrectly, prevent this in the CR4 pinning. Currently
+> > CR4 pinning just checks that bits are set, this also checks
+> > that the FSGSBASE bit is not set, and if it is clears it again.
+> 
+> So we are trying to "protect" ourselves from broken out-of-tree kernel
+> modules now?  Why stop with this type of check, why not just forbid them
+> entirely if we don't trust them?  :)
 
-On 2020/5/26 15:19, Markus Elfring wrote:
->> The system'll crash when the users insmod crypto/tcrypto.ko with mode=155
->> ( testing "authenc(hmac(sha1),cbc(aes))" ). It's caused by reuse the memory
->> of request structure.
-> 
-> Wording adjustments:
-> * … system will crash …
-> * … It is caused by reusing the …
-> 
-> 
->> when these memory will be used again.
-> 
-> when this memory …
-> 
-OK.
+Oh, I have a bunch of patches pending for that :-)
 
-> 
->> … Thus release specific resources before
-> 
-> Is there a need to improve also this information another bit?
-> 
-You mean the last two paragraph is redundant ?
-'''
-When the virtio_crypto driver finish skcipher req, it'll call ->complete
-callback(in crypto_finalize_skcipher_request) and then free its
-resources whose pointers are recorded in 'skcipher parts'.
-
-However, the ->complete is 'crypto_authenc_encrypt_done' in this case,
-it will use the 'ahash part' of the request and change its content,
-so virtio_crypto driver will get the wrong pointer after ->complete
-finish and mistakenly free some other's memory. So the system will crash
-when these memory will be used again.
-
-The resources which need to be cleaned up are not used any more. But the
-pointers of these resources may be changed in the function
-"crypto_finalize_skcipher_request". Thus release specific resources before
-calling this function.
-'''
-
-How about:
-'''
-When the virtio_crypto driver finish the skcipher request, it will call the
-function "crypto_finalize_skcipher_request()" and then free the resources whose
-pointers are stored in the 'skcipher parts', but the pointers of these resources
- may be changed in that function. Thus fix it by releasing these resources
-befored calling the function "crypto_finalize_skcipher_request()".
-'''
-
-
-> Regards,
-> Markus
-> 
----
-Regards,
-Longpeng(Mike)
+It will basically decode the module text and refuse to load the module
+for most CPL0 instruction.
