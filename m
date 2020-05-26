@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C2BFF1E2AF0
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:03:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE5DB1E2BAB
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:07:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390649AbgEZTAW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:00:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54438 "EHLO mail.kernel.org"
+        id S2391551AbgEZTH2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:07:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36144 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390713AbgEZTAV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:00:21 -0400
+        id S2391595AbgEZTH0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:07:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C5D4D2084C;
-        Tue, 26 May 2020 19:00:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8B140208A7;
+        Tue, 26 May 2020 19:07:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590519621;
-        bh=1hhvVgdm9opQ+gaf4P/jU13te9UpgdJ3/KNQEmyx8cE=;
+        s=default; t=1590520046;
+        bh=p/kD97CnOeMeRL3Fn5Ilb8Pd8geHH2/wtSlHkM34lzs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZwQvWZQ0tZB7lZJqMwDbDlZCAatzhyVbj9P5LJqhH5tcjYu8bn3Uhq5iDWIXSAYfU
-         shC7hVb2n8NBDJUYvAUQbVI3DQRUDB/GlLKR21Dv9R/pXb272rRAvwiArgIAdlipoq
-         SSwNC7nGzOYgLz+gHBm+gloV7oe00MoI/yJ6fchs=
+        b=vamclqLnQjkUoHxtskVPq6oXzq6mIcC00kRIDoAnuc1zq3J9oa1/0PQZqjqm9lxCG
+         6TbQgHsHznuWxKmg12mGgyvmzeNjyQVp+QC/fzFdIz7Wzw271kQBbid4BXJDQ7UkKE
+         ZnhZ49Ri4WgJ3XN4TILXIXJxEz//nK2a/OEltYLk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 11/59] i2c: mux: demux-pinctrl: Fix an error handling path in i2c_demux_pinctrl_probe()
+        Mario Limonciello <mario.limonciello@dell.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 038/111] HID: quirks: Add HID_QUIRK_NO_INIT_REPORTS quirk for Dell K12A keyboard-dock
 Date:   Tue, 26 May 2020 20:52:56 +0200
-Message-Id: <20200526183911.757755672@linuxfoundation.org>
+Message-Id: <20200526183936.519942191@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183907.123822792@linuxfoundation.org>
-References: <20200526183907.123822792@linuxfoundation.org>
+In-Reply-To: <20200526183932.245016380@linuxfoundation.org>
+References: <20200526183932.245016380@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,33 +45,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit e9d1a0a41d4486955e96552293c1fcf1fce61602 ]
+[ Upstream commit 1e189f267015a098bdcb82cc652d13fbf2203fa0 ]
 
-A call to 'i2c_demux_deactivate_master()' is missing in the error handling
-path, as already done in the remove function.
+Add a HID_QUIRK_NO_INIT_REPORTS quirk for the Dell K12A keyboard-dock,
+which can be used with various Dell Venue 11 models.
 
-Fixes: 50a5ba876908 ("i2c: mux: demux-pinctrl: add driver")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Without this quirk the keyboard/touchpad combo works fine when connected
+at boot, but when hotplugged 9 out of 10 times it will not work properly.
+Adding the quirk fixes this.
+
+Cc: Mario Limonciello <mario.limonciello@dell.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/muxes/i2c-demux-pinctrl.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/hid/hid-ids.h    | 1 +
+ drivers/hid/hid-quirks.c | 1 +
+ 2 files changed, 2 insertions(+)
 
-diff --git a/drivers/i2c/muxes/i2c-demux-pinctrl.c b/drivers/i2c/muxes/i2c-demux-pinctrl.c
-index 33ce032cb701..0c637ae81404 100644
---- a/drivers/i2c/muxes/i2c-demux-pinctrl.c
-+++ b/drivers/i2c/muxes/i2c-demux-pinctrl.c
-@@ -270,6 +270,7 @@ static int i2c_demux_pinctrl_probe(struct platform_device *pdev)
- err_rollback_available:
- 	device_remove_file(&pdev->dev, &dev_attr_available_masters);
- err_rollback:
-+	i2c_demux_deactivate_master(priv);
- 	for (j = 0; j < i; j++) {
- 		of_node_put(priv->chan[j].parent_np);
- 		of_changeset_destroy(&priv->chan[j].chgset);
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 3341133df3a8..13b7222ef2c9 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -1106,6 +1106,7 @@
+ #define USB_DEVICE_ID_SYNAPTICS_LTS2	0x1d10
+ #define USB_DEVICE_ID_SYNAPTICS_HD	0x0ac3
+ #define USB_DEVICE_ID_SYNAPTICS_QUAD_HD	0x1ac3
++#define USB_DEVICE_ID_SYNAPTICS_DELL_K12A	0x2819
+ #define USB_DEVICE_ID_SYNAPTICS_ACER_SWITCH5_012	0x2968
+ #define USB_DEVICE_ID_SYNAPTICS_TP_V103	0x5710
+ #define USB_DEVICE_ID_SYNAPTICS_ACER_SWITCH5	0x81a7
+diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+index ae64a286a68f..90ec2390ef68 100644
+--- a/drivers/hid/hid-quirks.c
++++ b/drivers/hid/hid-quirks.c
+@@ -163,6 +163,7 @@ static const struct hid_device_id hid_quirks[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_LTS2), HID_QUIRK_NO_INIT_REPORTS },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_QUAD_HD), HID_QUIRK_NO_INIT_REPORTS },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_TP_V103), HID_QUIRK_NO_INIT_REPORTS },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_DELL_K12A), HID_QUIRK_NO_INIT_REPORTS },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_TOPMAX, USB_DEVICE_ID_TOPMAX_COBRAPAD), HID_QUIRK_BADPAD },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_TOUCHPACK, USB_DEVICE_ID_TOUCHPACK_RTS), HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_TPV, USB_DEVICE_ID_TPV_OPTICAL_TOUCHSCREEN_8882), HID_QUIRK_NOGET },
 -- 
 2.25.1
 
