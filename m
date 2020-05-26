@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 33DFD1E2D7E
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:24:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 33E8E1E2BA5
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:07:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404081AbgEZTLo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:11:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41192 "EHLO mail.kernel.org"
+        id S2391236AbgEZTHN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:07:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35774 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391865AbgEZTLo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:11:44 -0400
+        id S2391578AbgEZTHM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:07:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 366CF20888;
-        Tue, 26 May 2020 19:11:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DA619208A7;
+        Tue, 26 May 2020 19:07:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590520303;
-        bh=OSIyjFeWmXecL53OVI8UGmOLm+YGOusPJaisg9IFerw=;
+        s=default; t=1590520031;
+        bh=AOqm3Fgp/+ECFDkKYPL67fC7r9lGY6j3IklwCRudwTk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=srFI718p7D8riauaplmB8QzQA87A/BXSHicWxw7LVzNDnP3C8ZFZQKqftB5O8XkqH
-         gy4kQEwfdeRXEvZl9LLh8Ux87BL2BnS5UPwWqp4mQvDmAfLDf4e0YGYVX33mGYLC69
-         fQZhDqHSxlacX78KatejMS4zXQD1JEXBNYoYAVUg=
+        b=S2Z3qACHJuE8MPBrbk9KpGn69BWarcxeWJG6MRCnZ+JkEvua98nAWj5YIVdj006LV
+         094NdxGiaXYOCKc/GYtP5W/mUUTop1Hu0LM6+rG7DB3wGDg2pEHeNCgOrOgZhdM0DW
+         kyiJPnZFeU7nPtGLIPPTt2gFXQ5ZD+wSyYwxCA8M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Amir Goldstein <amir73il@gmail.com>,
-        Miklos Szeredi <mszeredi@redhat.com>,
+        stable@vger.kernel.org, Sascha Hauer <s.hauer@pengutronix.de>,
+        Eric Biggers <ebiggers@google.com>,
+        Richard Weinberger <richard@nod.at>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 006/126] ovl: potential crash in ovl_fid_to_fh()
-Date:   Tue, 26 May 2020 20:52:23 +0200
-Message-Id: <20200526183938.038330922@linuxfoundation.org>
+Subject: [PATCH 5.4 006/111] ubifs: fix wrong use of crypto_shash_descsize()
+Date:   Tue, 26 May 2020 20:52:24 +0200
+Message-Id: <20200526183933.076367163@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183937.471379031@linuxfoundation.org>
-References: <20200526183937.471379031@linuxfoundation.org>
+In-Reply-To: <20200526183932.245016380@linuxfoundation.org>
+References: <20200526183932.245016380@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,53 +45,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Eric Biggers <ebiggers@google.com>
 
-[ Upstream commit 9aafc1b0187322fa4fd4eb905d0903172237206c ]
+[ Upstream commit 3c3c32f85b6cc05e5db78693457deff03ac0f434 ]
 
-The "buflen" value comes from the user and there is a potential that it
-could be zero.  In do_handle_to_path() we know that "handle->handle_bytes"
-is non-zero and we do:
+crypto_shash_descsize() returns the size of the shash_desc context
+needed to compute the hash, not the size of the hash itself.
 
-	handle_dwords = handle->handle_bytes >> 2;
+crypto_shash_digestsize() would be correct, or alternatively using
+c->hash_len and c->hmac_desc_len which already store the correct values.
+But actually it's simpler to just use stack arrays, so do that instead.
 
-So values 1-3 become zero.  Then in ovl_fh_to_dentry() we do:
-
-	int len = fh_len << 2;
-
-So now len is in the "0,4-128" range and a multiple of 4.  But if
-"buflen" is zero it will try to copy negative bytes when we do the
-memcpy in ovl_fid_to_fh().
-
-	memcpy(&fh->fb, fid, buflen - OVL_FH_WIRE_OFFSET);
-
-And that will lead to a crash.  Thanks to Amir Goldstein for his help
-with this patch.
-
-Fixes: cbe7fba8edfc ("ovl: make sure that real fid is 32bit aligned in memory")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Amir Goldstein <amir73il@gmail.com>
-Cc: <stable@vger.kernel.org> # v5.5
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Fixes: 49525e5eecca ("ubifs: Add helper functions for authentication support")
+Fixes: da8ef65f9573 ("ubifs: Authenticate replayed journal")
+Cc: <stable@vger.kernel.org> # v4.20+
+Cc: Sascha Hauer <s.hauer@pengutronix.de>
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Acked-by: Sascha Hauer <s.hauer@pengutronix.de>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/overlayfs/export.c | 3 +++
- 1 file changed, 3 insertions(+)
+ fs/ubifs/auth.c   | 17 ++++-------------
+ fs/ubifs/replay.c | 13 ++-----------
+ 2 files changed, 6 insertions(+), 24 deletions(-)
 
-diff --git a/fs/overlayfs/export.c b/fs/overlayfs/export.c
-index 6f54d70cef27..e605017031ee 100644
---- a/fs/overlayfs/export.c
-+++ b/fs/overlayfs/export.c
-@@ -777,6 +777,9 @@ static struct ovl_fh *ovl_fid_to_fh(struct fid *fid, int buflen, int fh_type)
- 	if (fh_type != OVL_FILEID_V0)
- 		return ERR_PTR(-EINVAL);
+diff --git a/fs/ubifs/auth.c b/fs/ubifs/auth.c
+index 8cdbd53d780c..f985a3fbbb36 100644
+--- a/fs/ubifs/auth.c
++++ b/fs/ubifs/auth.c
+@@ -79,13 +79,9 @@ int ubifs_prepare_auth_node(struct ubifs_info *c, void *node,
+ 			     struct shash_desc *inhash)
+ {
+ 	struct ubifs_auth_node *auth = node;
+-	u8 *hash;
++	u8 hash[UBIFS_HASH_ARR_SZ];
+ 	int err;
  
-+	if (buflen <= OVL_FH_WIRE_OFFSET)
-+		return ERR_PTR(-EINVAL);
-+
- 	fh = kzalloc(buflen, GFP_KERNEL);
- 	if (!fh)
- 		return ERR_PTR(-ENOMEM);
+-	hash = kmalloc(crypto_shash_descsize(c->hash_tfm), GFP_NOFS);
+-	if (!hash)
+-		return -ENOMEM;
+-
+ 	{
+ 		SHASH_DESC_ON_STACK(hash_desc, c->hash_tfm);
+ 
+@@ -94,21 +90,16 @@ int ubifs_prepare_auth_node(struct ubifs_info *c, void *node,
+ 
+ 		err = crypto_shash_final(hash_desc, hash);
+ 		if (err)
+-			goto out;
++			return err;
+ 	}
+ 
+ 	err = ubifs_hash_calc_hmac(c, hash, auth->hmac);
+ 	if (err)
+-		goto out;
++		return err;
+ 
+ 	auth->ch.node_type = UBIFS_AUTH_NODE;
+ 	ubifs_prepare_node(c, auth, ubifs_auth_node_sz(c), 0);
+-
+-	err = 0;
+-out:
+-	kfree(hash);
+-
+-	return err;
++	return 0;
+ }
+ 
+ static struct shash_desc *ubifs_get_desc(const struct ubifs_info *c,
+diff --git a/fs/ubifs/replay.c b/fs/ubifs/replay.c
+index b28ac4dfb407..01fcf7975047 100644
+--- a/fs/ubifs/replay.c
++++ b/fs/ubifs/replay.c
+@@ -601,18 +601,12 @@ static int authenticate_sleb(struct ubifs_info *c, struct ubifs_scan_leb *sleb,
+ 	struct ubifs_scan_node *snod;
+ 	int n_nodes = 0;
+ 	int err;
+-	u8 *hash, *hmac;
++	u8 hash[UBIFS_HASH_ARR_SZ];
++	u8 hmac[UBIFS_HMAC_ARR_SZ];
+ 
+ 	if (!ubifs_authenticated(c))
+ 		return sleb->nodes_cnt;
+ 
+-	hash = kmalloc(crypto_shash_descsize(c->hash_tfm), GFP_NOFS);
+-	hmac = kmalloc(c->hmac_desc_len, GFP_NOFS);
+-	if (!hash || !hmac) {
+-		err = -ENOMEM;
+-		goto out;
+-	}
+-
+ 	list_for_each_entry(snod, &sleb->nodes, list) {
+ 
+ 		n_nodes++;
+@@ -662,9 +656,6 @@ static int authenticate_sleb(struct ubifs_info *c, struct ubifs_scan_leb *sleb,
+ 		err = 0;
+ 	}
+ out:
+-	kfree(hash);
+-	kfree(hmac);
+-
+ 	return err ? err : n_nodes - n_not_auth;
+ }
+ 
 -- 
 2.25.1
 
