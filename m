@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CEDA41E2AA5
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 20:58:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A8B91E2AA6
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 20:58:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389403AbgEZS5o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 14:57:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50982 "EHLO mail.kernel.org"
+        id S2390181AbgEZS5s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 14:57:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389371AbgEZS5m (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 14:57:42 -0400
+        id S2390178AbgEZS5r (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 14:57:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C9DB62084C;
-        Tue, 26 May 2020 18:57:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A96B7208B6;
+        Tue, 26 May 2020 18:57:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590519462;
-        bh=sEH7FlcbtULD/jnI/XwLJzHyZ9OSJdBrQc3iYDd0vrY=;
+        s=default; t=1590519467;
+        bh=xVPAJUL4QixcC19EI5mfeY1zN8jTKfRe8D0KerT+vcI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EwKDeeVLvpRUt+Ii2IvDzsN1tTZg+62mvOVA2ELekZFPtdKYafcXFfZBJFRzfkDrg
-         U9dtpZxi/LXm7qsuRbmyT3TtdWmDH9vEGNJ+pssgLp/8AL3aV5d29PqyISngwLv8DI
-         5BM5hYzG33G8OGmuGOd6ZxqVSN9LfxIHsOb5bfeo=
+        b=M56idmHYalBkOAsrFH0Po9EaRe1recr3EihJhg+L/AP0dMcdHRRupvMGx1CIZuA+5
+         PGVo4aNiPbRl1Jw93s00AM9phe2S4j8hwjO/xC0fLUZHVB8xXSJjUR4JQ4Rv5xdKAg
+         xAsgpzk0SfgRTmZ8oFHZgyf5de1JBPpj04TyuKJc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
-        Xin Tan <tanxin.ctf@gmail.com>, Christoph Hellwig <hch@lst.de>,
+        stable@vger.kernel.org,
+        Yoshiyuki Kurauchi <ahochauwaaaaa@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 13/64] configfs: fix config_item refcnt leak in configfs_rmdir()
-Date:   Tue, 26 May 2020 20:52:42 +0200
-Message-Id: <20200526183918.021605314@linuxfoundation.org>
+Subject: [PATCH 4.9 15/64] gtp: set NLM_F_MULTI flag in gtp_genl_dump_pdp()
+Date:   Tue, 26 May 2020 20:52:44 +0200
+Message-Id: <20200526183918.407241731@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200526183913.064413230@linuxfoundation.org>
 References: <20200526183913.064413230@linuxfoundation.org>
@@ -44,45 +45,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+From: Yoshiyuki Kurauchi <ahochauwaaaaa@gmail.com>
 
-[ Upstream commit 8aebfffacfa379ba400da573a5bf9e49634e38cb ]
+[ Upstream commit 846c68f7f1ac82c797a2f1db3344a2966c0fe2e1 ]
 
-configfs_rmdir() invokes configfs_get_config_item(), which returns a
-reference of the specified config_item object to "parent_item" with
-increased refcnt.
+In drivers/net/gtp.c, gtp_genl_dump_pdp() should set NLM_F_MULTI
+flag since it returns multipart message.
+This patch adds a new arg "flags" in gtp_genl_fill_info() so that
+flags can be set by the callers.
 
-When configfs_rmdir() returns, local variable "parent_item" becomes
-invalid, so the refcount should be decreased to keep refcount balanced.
-
-The reference counting issue happens in one exception handling path of
-configfs_rmdir(). When down_write_killable() fails, the function forgets
-to decrease the refcnt increased by configfs_get_config_item(), causing
-a refcnt leak.
-
-Fix this issue by calling config_item_put() when down_write_killable()
-fails.
-
-Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
-Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Yoshiyuki Kurauchi <ahochauwaaaaa@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/configfs/dir.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/gtp.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/fs/configfs/dir.c b/fs/configfs/dir.c
-index c2ef617d2f97..c875f246cb0e 100644
---- a/fs/configfs/dir.c
-+++ b/fs/configfs/dir.c
-@@ -1537,6 +1537,7 @@ static int configfs_rmdir(struct inode *dir, struct dentry *dentry)
- 		spin_lock(&configfs_dirent_lock);
- 		configfs_detach_rollback(dentry);
- 		spin_unlock(&configfs_dirent_lock);
-+		config_item_put(parent_item);
- 		return -EINTR;
+diff --git a/drivers/net/gtp.c b/drivers/net/gtp.c
+index a9e8a7356c41..fe844888e0ed 100644
+--- a/drivers/net/gtp.c
++++ b/drivers/net/gtp.c
+@@ -1108,11 +1108,11 @@ static struct genl_family gtp_genl_family = {
+ };
+ 
+ static int gtp_genl_fill_info(struct sk_buff *skb, u32 snd_portid, u32 snd_seq,
+-			      u32 type, struct pdp_ctx *pctx)
++			      int flags, u32 type, struct pdp_ctx *pctx)
+ {
+ 	void *genlh;
+ 
+-	genlh = genlmsg_put(skb, snd_portid, snd_seq, &gtp_genl_family, 0,
++	genlh = genlmsg_put(skb, snd_portid, snd_seq, &gtp_genl_family, flags,
+ 			    type);
+ 	if (genlh == NULL)
+ 		goto nlmsg_failure;
+@@ -1208,8 +1208,8 @@ static int gtp_genl_get_pdp(struct sk_buff *skb, struct genl_info *info)
+ 		goto err_unlock;
  	}
- 	frag->frag_dead = true;
+ 
+-	err = gtp_genl_fill_info(skb2, NETLINK_CB(skb).portid,
+-				 info->snd_seq, info->nlhdr->nlmsg_type, pctx);
++	err = gtp_genl_fill_info(skb2, NETLINK_CB(skb).portid, info->snd_seq,
++				 0, info->nlhdr->nlmsg_type, pctx);
+ 	if (err < 0)
+ 		goto err_unlock_free;
+ 
+@@ -1252,6 +1252,7 @@ static int gtp_genl_dump_pdp(struct sk_buff *skb,
+ 				    gtp_genl_fill_info(skb,
+ 					    NETLINK_CB(cb->skb).portid,
+ 					    cb->nlh->nlmsg_seq,
++					    NLM_F_MULTI,
+ 					    cb->nlh->nlmsg_type, pctx)) {
+ 					cb->args[0] = i;
+ 					cb->args[1] = j;
 -- 
 2.25.1
 
