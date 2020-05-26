@@ -2,40 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E0DFF1E2EF0
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:32:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DFF731E2EB2
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:31:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390003AbgEZS5C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 14:57:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50138 "EHLO mail.kernel.org"
+        id S2389452AbgEZTbL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:31:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53180 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390001AbgEZS5B (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 14:57:01 -0400
+        id S2389843AbgEZS7X (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 14:59:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 874C32084C;
-        Tue, 26 May 2020 18:57:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9CA9C2084C;
+        Tue, 26 May 2020 18:59:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590519421;
-        bh=bTdwv1vyZUg+549OUWqfF6B+jLil2PTqgnQIUtA4yM4=;
+        s=default; t=1590519563;
+        bh=6PeqxmiV1MiN/fs54FhFk/6krLO8JfdqfaCb9/lsmHU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yI4IbcRutwznCKhL6XyfKPUfQbAGh3/WfkfjeLoouRXTL+E9n3eGHOT+FfwAceVtb
-         zM2NXxeW0+smVCqFcf59zKEY6/wvbbE2FLtNIsHEFQrGXax9GQs9Ow41nIC3oyW8y+
-         kEcAyHwF/jAhTZEEMeJwdSM/CwqTb32ygCbUE/rU=
+        b=b8hfWdsHXZbiVl7scwZ6ukY6C5cIh6Scf31RzxDy4sUCoXJX909OyefGZx4Z6QQFs
+         n2blSnlOhgV7imGtKLZRiFaZLaPmHF05dLqXoRzHZRO3EdMHAsxTISdfYJwHiWieNV
+         itMbE1oWs9roezEfVlwhivMdxsoCodwxja9fcBfA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?=E4=BA=BF=E4=B8=80?= <teroincn@gmail.com>,
-        Alexander Usyskin <alexander.usyskin@intel.com>,
-        Tomas Winkler <tomas.winkler@intel.com>
-Subject: [PATCH 4.4 63/65] mei: release me_cl object reference
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Andrey Ryabinin <aryabinin@virtuozzo.com>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Borislav Petkov <bp@alien8.de>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Matthew Wilcox <willy@infradead.org>,
+        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.9 53/64] ubsan: build ubsan.c more conservatively
 Date:   Tue, 26 May 2020 20:53:22 +0200
-Message-Id: <20200526183928.818851812@linuxfoundation.org>
+Message-Id: <20200526183930.759269921@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183905.988782958@linuxfoundation.org>
-References: <20200526183905.988782958@linuxfoundation.org>
+In-Reply-To: <20200526183913.064413230@linuxfoundation.org>
+References: <20200526183913.064413230@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,42 +55,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Usyskin <alexander.usyskin@intel.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit fc9c03ce30f79b71807961bfcb42be191af79873 upstream.
+commit af700eaed0564d5d3963a7a51cb0843629d7fe3d upstream.
 
-Allow me_cl object to be freed by releasing the reference
-that was acquired  by one of the search functions:
-__mei_me_cl_by_uuid_id() or __mei_me_cl_by_uuid()
+objtool points out several conditions that it does not like, depending
+on the combination with other configuration options and compiler
+variants:
 
+stack protector:
+  lib/ubsan.o: warning: objtool: __ubsan_handle_type_mismatch()+0xbf: call to __stack_chk_fail() with UACCESS enabled
+  lib/ubsan.o: warning: objtool: __ubsan_handle_type_mismatch_v1()+0xbe: call to __stack_chk_fail() with UACCESS enabled
+
+stackleak plugin:
+  lib/ubsan.o: warning: objtool: __ubsan_handle_type_mismatch()+0x4a: call to stackleak_track_stack() with UACCESS enabled
+  lib/ubsan.o: warning: objtool: __ubsan_handle_type_mismatch_v1()+0x4a: call to stackleak_track_stack() with UACCESS enabled
+
+kasan:
+  lib/ubsan.o: warning: objtool: __ubsan_handle_type_mismatch()+0x25: call to memcpy() with UACCESS enabled
+  lib/ubsan.o: warning: objtool: __ubsan_handle_type_mismatch_v1()+0x25: call to memcpy() with UACCESS enabled
+
+The stackleak and kasan options just need to be disabled for this file
+as we do for other files already.  For the stack protector, we already
+attempt to disable it, but this fails on clang because the check is
+mixed with the gcc specific -fno-conserve-stack option.  According to
+Andrey Ryabinin, that option is not even needed, dropping it here fixes
+the stackprotector issue.
+
+Link: http://lkml.kernel.org/r/20190722125139.1335385-1-arnd@arndb.de
+Link: https://lore.kernel.org/lkml/20190617123109.667090-1-arnd@arndb.de/t/
+Link: https://lore.kernel.org/lkml/20190722091050.2188664-1-arnd@arndb.de/t/
+Fixes: d08965a27e84 ("x86/uaccess, ubsan: Fix UBSAN vs. SMAP")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Andrey Ryabinin <aryabinin@virtuozzo.com>
+Cc: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Cc: <stable@vger.kernel.org>
-Reported-by: 亿一 <teroincn@gmail.com>
-Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
-Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
-Link: https://lore.kernel.org/r/20200512223140.32186-1-tomas.winkler@intel.com
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/misc/mei/client.c |    2 ++
- 1 file changed, 2 insertions(+)
+ lib/Makefile |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/misc/mei/client.c
-+++ b/drivers/misc/mei/client.c
-@@ -276,6 +276,7 @@ void mei_me_cl_rm_by_uuid(struct mei_dev
- 	down_write(&dev->me_clients_rwsem);
- 	me_cl = __mei_me_cl_by_uuid(dev, uuid);
- 	__mei_me_cl_del(dev, me_cl);
-+	mei_me_cl_put(me_cl);
- 	up_write(&dev->me_clients_rwsem);
- }
+--- a/lib/Makefile
++++ b/lib/Makefile
+@@ -230,6 +230,7 @@ obj-$(CONFIG_UCS2_STRING) += ucs2_string
+ obj-$(CONFIG_UBSAN) += ubsan.o
  
-@@ -297,6 +298,7 @@ void mei_me_cl_rm_by_uuid_id(struct mei_
- 	down_write(&dev->me_clients_rwsem);
- 	me_cl = __mei_me_cl_by_uuid_id(dev, uuid, id);
- 	__mei_me_cl_del(dev, me_cl);
-+	mei_me_cl_put(me_cl);
- 	up_write(&dev->me_clients_rwsem);
- }
+ UBSAN_SANITIZE_ubsan.o := n
+-CFLAGS_ubsan.o := $(call cc-option, -fno-conserve-stack -fno-stack-protector)
++KASAN_SANITIZE_ubsan.o := n
++CFLAGS_ubsan.o := $(call cc-option, -fno-stack-protector) $(DISABLE_STACKLEAK_PLUGIN)
  
+ obj-$(CONFIG_SBITMAP) += sbitmap.o
 
 
