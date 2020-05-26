@@ -2,101 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D4681E25F1
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 17:48:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 46F7F1E262D
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 17:59:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727862AbgEZPsn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 11:48:43 -0400
-Received: from mga11.intel.com ([192.55.52.93]:27189 "EHLO mga11.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727061AbgEZPsn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 11:48:43 -0400
-IronPort-SDR: KRGgT9oQ9Der3d4hH0ZOEIRyfDJ/B0MadeUpkkdeFxVPFONYKYN4Rzy5k9BTQ2kcaM1Qy9NXlO
- 18i8V+SKrtoA==
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga008.fm.intel.com ([10.253.24.58])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 May 2020 08:48:36 -0700
-IronPort-SDR: 9r1wevZOJJL4X3ZpDu4uVOXS/LfIhzSY80MVMsGu9VilwjF0IoSxDNFLoHZusveuLa+8k+eaiu
- g5y9tOhzbybQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.73,437,1583222400"; 
-   d="scan'208";a="256491252"
-Received: from tassilo.jf.intel.com (HELO tassilo.localdomain) ([10.7.201.21])
-  by fmsmga008.fm.intel.com with ESMTP; 26 May 2020 08:48:36 -0700
-Received: by tassilo.localdomain (Postfix, from userid 1000)
-        id 06777301C5F; Tue, 26 May 2020 08:48:36 -0700 (PDT)
-Date:   Tue, 26 May 2020 08:48:35 -0700
-From:   Andi Kleen <ak@linux.intel.com>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     Andi Kleen <andi@firstfloor.org>, x86@kernel.org,
-        keescook@chromium.org, linux-kernel@vger.kernel.org,
-        sashal@kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH v1] x86: Pin cr4 FSGSBASE
-Message-ID: <20200526154835.GW499505@tassilo.jf.intel.com>
-References: <20200526052848.605423-1-andi@firstfloor.org>
- <20200526065618.GC2580410@kroah.com>
+        id S1729316AbgEZP7Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 11:59:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60620 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729102AbgEZP7Z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 May 2020 11:59:25 -0400
+Received: from mail-oi1-x244.google.com (mail-oi1-x244.google.com [IPv6:2607:f8b0:4864:20::244])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 004AEC03E96D;
+        Tue, 26 May 2020 08:59:24 -0700 (PDT)
+Received: by mail-oi1-x244.google.com with SMTP id z9so14220895oid.2;
+        Tue, 26 May 2020 08:59:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=dxBwsteWr6GHXVQjy1y6pzz/7l7a0qLRHpkn8Rfg8G4=;
+        b=cW3I+KQD25tEhgCkoU6XSv0HPuraF9YCe8JlMFA6FyTmBEWsHWnwuB2G/S354tjiBm
+         aAUkMA497GfYuWRxfp+vF8yj4ZViXrubcCKRk3ZcKHXtDOMJxMVoH0Zxt5z1mSprKQeo
+         NlAopNDPj+K4TrK+jp2BY0g0fmWRfpXgUtygXWWfb43kiYGrgfzlYNc5S7QrNXMlX0ar
+         fb3cGEGbz6RgmuD+AZDGgg6bhBqlFnf1yTdjg0iGrr3/YRu6ppf6Z8Yz5ZOUTaF+uHrF
+         igz6XUSkGh3T4l+FQsvuBcicIZa8K4ff43AjlDyx2RTLfYzrzD9tFzXlE+eVG+JJrUKP
+         vS6A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
+         :in-reply-to:references:mime-version:content-transfer-encoding;
+        bh=dxBwsteWr6GHXVQjy1y6pzz/7l7a0qLRHpkn8Rfg8G4=;
+        b=fveuMNqWCvd0/Lgx4gwnfF7NRPFHSIYUfKPvScaj6E9Ss9346Wp+zt8unIEZUE43Yt
+         V2izxRRdpLVBkoaTLjEatyC/k3PRCJoS1+/BtTo8FTQRMMpxWdowWU0xIVlCld5eU3Rn
+         URUKuR794AwWp/PPU1JBtGVXPEA3t8ezxn+RsAdsIiNO3g/zqupEzym6WyMEjnHKg1Tg
+         0d5izplpNqi1dnFvh4SxhtqFKkxsC5lCRg8/EM3Q2gdmQORpBGtnZEe1XNFlMkOFB3cK
+         3J+/rsLHoUurVPUAZVqGClzlSEZhcqCcSse/ipM3v+ngEvET9KI7j/WX033qeQDsQaYZ
+         aAuQ==
+X-Gm-Message-State: AOAM533nxzTRmrM955LkoQd/ef8aU38I9CWl2EQ+B7FM/YdRjvFZbdC4
+        gsfMeSTwOmyWRL+x1XPPAA8=
+X-Google-Smtp-Source: ABdhPJx4FKcPbYYaSfYdlhpVym3hwCv21kikEHRV+gzULIKSD/FxFjAcnSK6wKGtJPReMurH8QtLcA==
+X-Received: by 2002:aca:3746:: with SMTP id e67mr13978063oia.112.1590508764433;
+        Tue, 26 May 2020 08:59:24 -0700 (PDT)
+Received: from localhost.localdomain (cpe-24-31-245-230.kc.res.rr.com. [24.31.245.230])
+        by smtp.gmail.com with ESMTPSA id k18sm36185otn.51.2020.05.26.08.59.23
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 26 May 2020 08:59:24 -0700 (PDT)
+From:   Larry Finger <Larry.Finger@lwfinger.net>
+To:     kvalo@codeaurora.org
+Cc:     linux-wireless@vger.kernel.org,
+        Larry Finger <Larry.Finger@lwfinger.net>,
+        Rui Salvaterra <rsalvaterra@gmail.com>,
+        Stable <stable@vger.kernel.org>
+Subject: [PATCH 1/2] b43: Fix connection problem with WPA3
+Date:   Tue, 26 May 2020 10:59:08 -0500
+Message-Id: <20200526155909.5807-2-Larry.Finger@lwfinger.net>
+X-Mailer: git-send-email 2.26.2
+In-Reply-To: <20200526155909.5807-1-Larry.Finger@lwfinger.net>
+References: <20200526155909.5807-1-Larry.Finger@lwfinger.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200526065618.GC2580410@kroah.com>
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, May 26, 2020 at 08:56:18AM +0200, Greg KH wrote:
-> On Mon, May 25, 2020 at 10:28:48PM -0700, Andi Kleen wrote:
-> > From: Andi Kleen <ak@linux.intel.com>
-> > 
-> > Since there seem to be kernel modules floating around that set
-> > FSGSBASE incorrectly, prevent this in the CR4 pinning. Currently
-> > CR4 pinning just checks that bits are set, this also checks
-> > that the FSGSBASE bit is not set, and if it is clears it again.
-> 
-> So we are trying to "protect" ourselves from broken out-of-tree kernel
-> modules now?  
+Since the driver was first introduced into the kernel, it has only
+handled the ciphers associated with WEP, WPA, and WPA2. It fails with
+WPA3 even though mac80211 can handle those additional ciphers in software,
+b43 did not report that it could handle them. By setting MFP_CAPABLE using
+ieee80211_set_hw(), the problem is fixed.
 
-Well it's a specific case where we know they're opening a root hole
-unintentionally. This is just an pragmatic attempt to protect the users in the 
-short term.
+With this change, b43 will handle the ciohers it knows in hardare,
+and let mac80211 handle the others in software. It is not necessary to
+use the module parameter NOHWCRYPT to turn hardware encryption off.
+Although this change essentially eliminates that module parameter,
+I am choosing to keep it for cases where the hardware is broken,
+and software encryption is required for all ciphers.
 
-> Why stop with this type of check, why not just forbid them
-> entirely if we don't trust them?  :)
+This patch fixes a prooblem that has been in the driver since it was first
+merged with commit e4d6b7951812 ("[B43]: add mac80211-based driver for
+modern BCM43xx devices").
 
-Would be pointless -- lots of people rely on them, so such a rule
-wouldn't survive very long in production kernels.
+Fixes e4d6b7951812 ("[B43]: add mac80211-based driver for modern BCM43xx devices")
+Reported-and-tested-by: Rui Salvaterra <rsalvaterra@gmail.com>
+Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
+Cc: Stable <stable@vger.kernel.org>
+---
+ drivers/net/wireless/broadcom/b43/main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-> > diff --git a/arch/x86/kernel/cpu/common.c b/arch/x86/kernel/cpu/common.c
-> > index bed0cb83fe24..1f5b7871ae9a 100644
-> > --- a/arch/x86/kernel/cpu/common.c
-> > +++ b/arch/x86/kernel/cpu/common.c
-> > @@ -385,6 +385,11 @@ void native_write_cr4(unsigned long val)
-> >  		/* Warn after we've set the missing bits. */
-> >  		WARN_ONCE(bits_missing, "CR4 bits went missing: %lx!?\n",
-> >  			  bits_missing);
-> > +		if (val & X86_CR4_FSGSBASE) {
-> > +			WARN_ONCE(1, "CR4 unexpectedly set FSGSBASE!?\n");
-> 
-> Like this will actually be noticed by anyone who calls this?  What is a
-> user supposed to do about this?
+diff --git a/drivers/net/wireless/broadcom/b43/main.c b/drivers/net/wireless/broadcom/b43/main.c
+index 39da1a4c30ac..3ad94dad2d89 100644
+--- a/drivers/net/wireless/broadcom/b43/main.c
++++ b/drivers/net/wireless/broadcom/b43/main.c
+@@ -5569,7 +5569,7 @@ static struct b43_wl *b43_wireless_init(struct b43_bus_dev *dev)
+ 	/* fill hw info */
+ 	ieee80211_hw_set(hw, RX_INCLUDES_FCS);
+ 	ieee80211_hw_set(hw, SIGNAL_DBM);
+-
++	ieee80211_hw_set(hw, MFP_CAPABLE);
+ 	hw->wiphy->interface_modes =
+ 		BIT(NL80211_IFTYPE_AP) |
+ 		BIT(NL80211_IFTYPE_MESH_POINT) |
+-- 
+2.26.2
 
-In the long term they would need to apply the proper patches
-for FSGSBASE.
-
-> 
-> What about those systems that panic-on-warn?
-
-I assume they're ok with "panic on root hole"
-
-> 
-> > +			val &= ~X86_CR4_FSGSBASE;
-> 
-> So you just prevented them from setting this, thereby fixing up their
-> broken code that will never be fixed because you did this?  Why do this?
-
-If they rely on the functionality they will apply the proper patches
-then. Or at least they will be aware that they have a root hole,
-which they are currently not.
-
--Andi
