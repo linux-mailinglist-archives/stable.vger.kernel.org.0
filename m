@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E76521E2D26
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:20:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 60A981E2E80
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:30:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404158AbgEZTMz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:12:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40188 "EHLO mail.kernel.org"
+        id S2391135AbgEZT3C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:29:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56820 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389413AbgEZTKx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:10:53 -0400
+        id S2391040AbgEZTCJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:02:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 26EA4208A7;
-        Tue, 26 May 2020 19:10:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9714720849;
+        Tue, 26 May 2020 19:02:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590520252;
-        bh=9WfN8TrM9dUs8IFLzvFT0ojQuTob51q7V/MhlfmIgPM=;
+        s=default; t=1590519729;
+        bh=vGmwZHpig1AFU6Fxkz5cwv3Zkugjp1Au9Ze6oLu3msg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e1XkJ9vKUxs/y//L4ANLVdW9+13oaAN7GkIFWydDP/DmnJeDXAZ6xxXTBeKhScFGo
-         mubMl248wYJRoOM2I8M2c5mZWo/VLD7IzKTi4S6zjG/FE8Ia0u+9NOOwMvVzOIiH8/
-         mILDW5yXw/WORs7bxlrJvx8QwFtIJhaA2ri6iLGA=
+        b=PIA7xXq02xX3+PR1HI99Wd63ZeMH6uxs/jQSLgg3u3X7M1AxmqOVi0QTV15xCj7rM
+         6JM4bRPq1JXnPiJAphtdI/S2qDJioHZRsZ1+PVPcRijm9pi0CSC70s+wNrwoe33P0z
+         9xNAGS6rIjydWiun+CpbMduCRZF73kPNEAjnrcws=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bob Peterson <rpeterso@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 080/111] Revert "gfs2: Dont demote a glock until its revokes are written"
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 4.14 53/59] iio: dac: vf610: Fix an error handling path in vf610_dac_probe()
 Date:   Tue, 26 May 2020 20:53:38 +0200
-Message-Id: <20200526183940.474966795@linuxfoundation.org>
+Message-Id: <20200526183923.164645221@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183932.245016380@linuxfoundation.org>
-References: <20200526183932.245016380@linuxfoundation.org>
+In-Reply-To: <20200526183907.123822792@linuxfoundation.org>
+References: <20200526183907.123822792@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,48 +45,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bob Peterson <rpeterso@redhat.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit b14c94908b1b884276a6608dea3d0b1b510338b7 ]
+commit aad4742fbf0a560c25827adb58695a4497ffc204 upstream.
 
-This reverts commit df5db5f9ee112e76b5202fbc331f990a0fc316d6.
+A call to 'vf610_dac_exit()' is missing in an error handling path.
 
-This patch fixes a regression: patch df5db5f9ee112 allowed function
-run_queue() to bypass its call to do_xmote() if revokes were queued for
-the glock. That's wrong because its call to do_xmote() is what is
-responsible for calling the go_sync() glops functions to sync both
-the ail list and any revokes queued for it. By bypassing the call,
-gfs2 could get into a stand-off where the glock could not be demoted
-until its revokes are written back, but the revokes would not be
-written back because do_xmote() was never called.
+Fixes: 1b983bf42fad ("iio: dac: vf610_dac: Add IIO DAC driver for Vybrid SoC")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-It "sort of" works, however, because there are other mechanisms like
-the log flush daemon (logd) that can sync the ail items and revokes,
-if it deems it necessary. The problem is: without file system pressure,
-it might never deem it necessary.
-
-Signed-off-by: Bob Peterson <rpeterso@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/gfs2/glock.c | 3 ---
- 1 file changed, 3 deletions(-)
+ drivers/iio/dac/vf610_dac.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/gfs2/glock.c b/fs/gfs2/glock.c
-index 21820a5b388f..0290a22ebccf 100644
---- a/fs/gfs2/glock.c
-+++ b/fs/gfs2/glock.c
-@@ -639,9 +639,6 @@ __acquires(&gl->gl_lockref.lock)
- 			goto out_unlock;
- 		if (nonblock)
- 			goto out_sched;
--		smp_mb();
--		if (atomic_read(&gl->gl_revokes) != 0)
--			goto out_sched;
- 		set_bit(GLF_DEMOTE_IN_PROGRESS, &gl->gl_flags);
- 		GLOCK_BUG_ON(gl, gl->gl_demote_state == LM_ST_EXCLUSIVE);
- 		gl->gl_target = gl->gl_demote_state;
--- 
-2.25.1
-
+--- a/drivers/iio/dac/vf610_dac.c
++++ b/drivers/iio/dac/vf610_dac.c
+@@ -235,6 +235,7 @@ static int vf610_dac_probe(struct platfo
+ 	return 0;
+ 
+ error_iio_device_register:
++	vf610_dac_exit(info);
+ 	clk_disable_unprepare(info->clk);
+ 
+ 	return ret;
 
 
