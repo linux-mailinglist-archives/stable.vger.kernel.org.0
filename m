@@ -2,45 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7464B1E2D6D
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:24:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DCD31E2B9F
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:07:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391661AbgEZTKB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:10:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39106 "EHLO mail.kernel.org"
+        id S2391354AbgEZTGy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:06:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33866 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403989AbgEZTJ6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:09:58 -0400
+        id S2391534AbgEZTFt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:05:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DC5E720873;
-        Tue, 26 May 2020 19:09:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 384E620873;
+        Tue, 26 May 2020 19:05:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590520197;
-        bh=SbiT9tShyeJeTrafTHaX26vSwjPfBaUpDXmf1AKE84s=;
+        s=default; t=1590519948;
+        bh=OS1Kiatrj/tgiTCPLhW7gGCHz48IHUHi/IGd21CplEQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zfaUG+JjtHxf0EpzqiNj4ItmoMeNVDuY4/eaWbRdg5bI60D6M+pZ26rJMabtOQtdn
-         ywb6WypMK0jCQreOJqSJrYUrkVwcZzhLgxhUSfaExxl//qRcwQp3+oPIHjLTvyPDlp
-         wtD6/WFEHGMekYVr0wSZkWTK4ETbcmSCeNeVKMAs=
+        b=Xc3Ngfc8Ni82Ql89B3hrddEsel6BgXsKOjL88/7gZQW55TgeeBGCIGKzvfoKPPlD6
+         pAutqtK6/xKyxOt6w9VMtN6+kv6uusaeH9SpzrRqqCjHW0zpWvXvDXGxloDAIaaa4N
+         7fw5QZOIS5TeFGyNN8kJfRhTEUsbCziWViuTFp3g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <rong.a.chen@intel.com>,
-        Marco Elver <elver@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Andrey Konovalov <andreyknvl@google.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Alexander Potapenko <glider@google.com>,
-        Andrey Ryabinin <aryabinin@virtuozzo.com>,
-        Qian Cai <cai@lca.pw>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 096/111] kasan: disable branch tracing for core runtime
-Date:   Tue, 26 May 2020 20:53:54 +0200
-Message-Id: <20200526183942.024415645@linuxfoundation.org>
+        stable@vger.kernel.org, Dave Botsch <botsch@cnf.cornell.edu>,
+        David Howells <dhowells@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 80/81] rxrpc: Fix ack discard
+Date:   Tue, 26 May 2020 20:53:55 +0200
+Message-Id: <20200526183935.915210072@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183932.245016380@linuxfoundation.org>
-References: <20200526183932.245016380@linuxfoundation.org>
+In-Reply-To: <20200526183923.108515292@linuxfoundation.org>
+References: <20200526183923.108515292@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,80 +44,152 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marco Elver <elver@google.com>
+From: David Howells <dhowells@redhat.com>
 
-commit 33cd65e73abd693c00c4156cf23677c453b41b3b upstream.
+[ Upstream commit 441fdee1eaf050ef0040bde0d7af075c1c6a6d8b ]
 
-During early boot, while KASAN is not yet initialized, it is possible to
-enter reporting code-path and end up in kasan_report().
+The Rx protocol has a "previousPacket" field in it that is not handled in
+the same way by all protocol implementations.  Sometimes it contains the
+serial number of the last DATA packet received, sometimes the sequence
+number of the last DATA packet received and sometimes the highest sequence
+number so far received.
 
-While uninitialized, the branch there prevents generating any reports,
-however, under certain circumstances when branches are being traced
-(TRACE_BRANCH_PROFILING), we may recurse deep enough to cause kernel
-reboots without warning.
+AF_RXRPC is using this to weed out ACKs that are out of date (it's possible
+for ACK packets to get reordered on the wire), but this does not work with
+OpenAFS which will just stick the sequence number of the last packet seen
+into previousPacket.
 
-To prevent similar issues in future, we should disable branch tracing
-for the core runtime.
+The issue being seen is that big AFS FS.StoreData RPC (eg. of ~256MiB) are
+timing out when partly sent.  A trace was captured, with an additional
+tracepoint to show ACKs being discarded in rxrpc_input_ack().  Here's an
+excerpt showing the problem.
 
-[elver@google.com: remove duplicate DISABLE_BRANCH_PROFILING, per Qian Cai]
-  Link: https://lore.kernel.org/lkml/20200517011732.GE24705@shao2-debian/
-  Link: http://lkml.kernel.org/r/20200522075207.157349-1-elver@google.com
-Reported-by: kernel test robot <rong.a.chen@intel.com>
-Signed-off-by: Marco Elver <elver@google.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Andrey Konovalov <andreyknvl@google.com>
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Cc: Alexander Potapenko <glider@google.com>
-Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
-Cc: Qian Cai <cai@lca.pw>
-Cc: <stable@vger.kernel.org>
-Link: http://lkml.kernel.org/r//20200517011732.GE24705@shao2-debian/
-Link: http://lkml.kernel.org/r/20200519182459.87166-1-elver@google.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+ 52873.203230: rxrpc_tx_data: c=000004ae DATA ed1a3584:00000002 0002449c q=00024499 fl=09
 
+A DATA packet with sequence number 00024499 has been transmitted (the "q="
+field).
+
+ ...
+ 52873.243296: rxrpc_rx_ack: c=000004ae 00012a2b DLY r=00024499 f=00024497 p=00024496 n=0
+ 52873.243376: rxrpc_rx_ack: c=000004ae 00012a2c IDL r=0002449b f=00024499 p=00024498 n=0
+ 52873.243383: rxrpc_rx_ack: c=000004ae 00012a2d OOS r=0002449d f=00024499 p=0002449a n=2
+
+The Out-Of-Sequence ACK indicates that the server didn't see DATA sequence
+number 00024499, but did see seq 0002449a (previousPacket, shown as "p=",
+skipped the number, but firstPacket, "f=", which shows the bottom of the
+window is set at that point).
+
+ 52873.252663: rxrpc_retransmit: c=000004ae q=24499 a=02 xp=14581537
+ 52873.252664: rxrpc_tx_data: c=000004ae DATA ed1a3584:00000002 000244bc q=00024499 fl=0b *RETRANS*
+
+The packet has been retransmitted.  Retransmission recurs until the peer
+says it got the packet.
+
+ 52873.271013: rxrpc_rx_ack: c=000004ae 00012a31 OOS r=000244a1 f=00024499 p=0002449e n=6
+
+More OOS ACKs indicate that the other packets that are already in the
+transmission pipeline are being received.  The specific-ACK list is up to 6
+ACKs and NAKs.
+
+ ...
+ 52873.284792: rxrpc_rx_ack: c=000004ae 00012a49 OOS r=000244b9 f=00024499 p=000244b6 n=30
+ 52873.284802: rxrpc_retransmit: c=000004ae q=24499 a=0a xp=63505500
+ 52873.284804: rxrpc_tx_data: c=000004ae DATA ed1a3584:00000002 000244c2 q=00024499 fl=0b *RETRANS*
+ 52873.287468: rxrpc_rx_ack: c=000004ae 00012a4a OOS r=000244ba f=00024499 p=000244b7 n=31
+ 52873.287478: rxrpc_rx_ack: c=000004ae 00012a4b OOS r=000244bb f=00024499 p=000244b8 n=32
+
+At this point, the server's receive window is full (n=32) with presumably 1
+NAK'd packet and 31 ACK'd packets.  We can't transmit any more packets.
+
+ 52873.287488: rxrpc_retransmit: c=000004ae q=24499 a=0a xp=61327980
+ 52873.287489: rxrpc_tx_data: c=000004ae DATA ed1a3584:00000002 000244c3 q=00024499 fl=0b *RETRANS*
+ 52873.293850: rxrpc_rx_ack: c=000004ae 00012a4c DLY r=000244bc f=000244a0 p=00024499 n=25
+
+And now we've received an ACK indicating that a DATA retransmission was
+received.  7 packets have been processed (the occupied part of the window
+moved, as indicated by f= and n=).
+
+ 52873.293853: rxrpc_rx_discard_ack: c=000004ae r=00012a4c 000244a0<00024499 00024499<000244b8
+
+However, the DLY ACK gets discarded because its previousPacket has gone
+backwards (from p=000244b8, in the ACK at 52873.287478 to p=00024499 in the
+ACK at 52873.293850).
+
+We then end up in a continuous cycle of retransmit/discard.  kafs fails to
+update its window because it's discarding the ACKs and can't transmit an
+extra packet that would clear the issue because the window is full.
+OpenAFS doesn't change the previousPacket value in the ACKs because no new
+DATA packets are received with a different previousPacket number.
+
+Fix this by altering the discard check to only discard an ACK based on
+previousPacket if there was no advance in the firstPacket.  This allows us
+to transmit a new packet which will cause previousPacket to advance in the
+next ACK.
+
+The check, however, needs to allow for the possibility that previousPacket
+may actually have had the serial number placed in it instead - in which
+case it will go outside the window and we should ignore it.
+
+Fixes: 1a2391c30c0b ("rxrpc: Fix detection of out of order acks")
+Reported-by: Dave Botsch <botsch@cnf.cornell.edu>
+Signed-off-by: David Howells <dhowells@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/kasan/Makefile  |    8 ++++----
- mm/kasan/generic.c |    1 -
- mm/kasan/tags.c    |    1 -
- 3 files changed, 4 insertions(+), 6 deletions(-)
+ net/rxrpc/input.c |   30 ++++++++++++++++++++++++++----
+ 1 file changed, 26 insertions(+), 4 deletions(-)
 
---- a/mm/kasan/Makefile
-+++ b/mm/kasan/Makefile
-@@ -14,10 +14,10 @@ CFLAGS_REMOVE_tags.o = $(CC_FLAGS_FTRACE
- # Function splitter causes unnecessary splits in __asan_load1/__asan_store1
- # see: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=63533
+--- a/net/rxrpc/input.c
++++ b/net/rxrpc/input.c
+@@ -815,6 +815,30 @@ static void rxrpc_input_soft_acks(struct
+ }
  
--CFLAGS_common.o := $(call cc-option, -fno-conserve-stack -fno-stack-protector)
--CFLAGS_generic.o := $(call cc-option, -fno-conserve-stack -fno-stack-protector)
--CFLAGS_generic_report.o := $(call cc-option, -fno-conserve-stack -fno-stack-protector)
--CFLAGS_tags.o := $(call cc-option, -fno-conserve-stack -fno-stack-protector)
-+CFLAGS_common.o := $(call cc-option, -fno-conserve-stack -fno-stack-protector) -DDISABLE_BRANCH_PROFILING
-+CFLAGS_generic.o := $(call cc-option, -fno-conserve-stack -fno-stack-protector) -DDISABLE_BRANCH_PROFILING
-+CFLAGS_generic_report.o := $(call cc-option, -fno-conserve-stack -fno-stack-protector) -DDISABLE_BRANCH_PROFILING
-+CFLAGS_tags.o := $(call cc-option, -fno-conserve-stack -fno-stack-protector) -DDISABLE_BRANCH_PROFILING
+ /*
++ * Return true if the ACK is valid - ie. it doesn't appear to have regressed
++ * with respect to the ack state conveyed by preceding ACKs.
++ */
++static bool rxrpc_is_ack_valid(struct rxrpc_call *call,
++			       rxrpc_seq_t first_pkt, rxrpc_seq_t prev_pkt)
++{
++	rxrpc_seq_t base = READ_ONCE(call->ackr_first_seq);
++
++	if (after(first_pkt, base))
++		return true; /* The window advanced */
++
++	if (before(first_pkt, base))
++		return false; /* firstPacket regressed */
++
++	if (after_eq(prev_pkt, call->ackr_prev_seq))
++		return true; /* previousPacket hasn't regressed. */
++
++	/* Some rx implementations put a serial number in previousPacket. */
++	if (after_eq(prev_pkt, base + call->tx_winsize))
++		return false;
++	return true;
++}
++
++/*
+  * Process an ACK packet.
+  *
+  * ack.firstPacket is the sequence number of the first soft-ACK'd/NAK'd packet
+@@ -878,8 +902,7 @@ static void rxrpc_input_ack(struct rxrpc
+ 	}
  
- obj-$(CONFIG_KASAN) := common.o init.o report.o
- obj-$(CONFIG_KASAN_GENERIC) += generic.o generic_report.o quarantine.o
---- a/mm/kasan/generic.c
-+++ b/mm/kasan/generic.c
-@@ -15,7 +15,6 @@
-  */
+ 	/* Discard any out-of-order or duplicate ACKs (outside lock). */
+-	if (before(first_soft_ack, call->ackr_first_seq) ||
+-	    before(prev_pkt, call->ackr_prev_seq)) {
++	if (!rxrpc_is_ack_valid(call, first_soft_ack, prev_pkt)) {
+ 		trace_rxrpc_rx_discard_ack(call->debug_id, sp->hdr.serial,
+ 					   first_soft_ack, call->ackr_first_seq,
+ 					   prev_pkt, call->ackr_prev_seq);
+@@ -895,8 +918,7 @@ static void rxrpc_input_ack(struct rxrpc
+ 	spin_lock(&call->input_lock);
  
- #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
--#define DISABLE_BRANCH_PROFILING
- 
- #include <linux/export.h>
- #include <linux/interrupt.h>
---- a/mm/kasan/tags.c
-+++ b/mm/kasan/tags.c
-@@ -12,7 +12,6 @@
-  */
- 
- #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
--#define DISABLE_BRANCH_PROFILING
- 
- #include <linux/export.h>
- #include <linux/interrupt.h>
+ 	/* Discard any out-of-order or duplicate ACKs (inside lock). */
+-	if (before(first_soft_ack, call->ackr_first_seq) ||
+-	    before(prev_pkt, call->ackr_prev_seq)) {
++	if (!rxrpc_is_ack_valid(call, first_soft_ack, prev_pkt)) {
+ 		trace_rxrpc_rx_discard_ack(call->debug_id, sp->hdr.serial,
+ 					   first_soft_ack, call->ackr_first_seq,
+ 					   prev_pkt, call->ackr_prev_seq);
 
 
