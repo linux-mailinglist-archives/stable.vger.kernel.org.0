@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 790981E2E7E
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:30:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8524B1E2BFA
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:11:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391029AbgEZTCE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:02:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56660 "EHLO mail.kernel.org"
+        id S2391147AbgEZTKs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:10:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40046 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403815AbgEZTCC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:02:02 -0400
+        id S2404023AbgEZTKr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:10:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 40C5A2084C;
-        Tue, 26 May 2020 19:02:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5698620776;
+        Tue, 26 May 2020 19:10:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590519721;
-        bh=vD5WoP4lTdpRbN/IxdmcqV8p9UNc8KxGm1x8FKbUuus=;
+        s=default; t=1590520246;
+        bh=vhhw2Jdi95VXXXtnhoiGlwXjDgEAcBNldmfG9VokCCs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NAKF/OvSQ+ii/nDKEjCiYH2nrdsKqNxYG40mz5RgOX8Cq/aoGNcH2Ac6i0SmdXU1F
-         GGYqnQUlzXal5EcYtfFEO/cjO5EMubCpcqtOQa+kezpvQvFq2s5rdB72jkXSUfzQS7
-         4wTmst5TBc2uxr90HjMKuzGy7Zc/Iza427CPIveg=
+        b=jpAwZpta+kn3fIfQDhkFyhKnORoRLRIk9XnU/mm/B9cdl/svkRuGjo4/MTnbgC3Sn
+         /wrsZ5ZNB/Bv2T/v/Mb0b9usDI9nodj6mkGE+Un9gV1fLNNghZFYS+fWh0NccMRxnY
+         ppgwmPgtz8WMIYLOXkElb+IMFJ/OPdOpscHuzFLc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dragos Bogdan <dragos.bogdan@analog.com>,
-        Alexandru Ardelean <alexandru.ardelean@analog.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 4.14 50/59] staging: iio: ad2s1210: Fix SPI reading
-Date:   Tue, 26 May 2020 20:53:35 +0200
-Message-Id: <20200526183922.637497629@linuxfoundation.org>
+        stable@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 078/111] bpf: Avoid setting bpf insns pages read-only when prog is jited
+Date:   Tue, 26 May 2020 20:53:36 +0200
+Message-Id: <20200526183940.262459918@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183907.123822792@linuxfoundation.org>
-References: <20200526183907.123822792@linuxfoundation.org>
+In-Reply-To: <20200526183932.245016380@linuxfoundation.org>
+References: <20200526183932.245016380@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,63 +45,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dragos Bogdan <dragos.bogdan@analog.com>
+From: Daniel Borkmann <daniel@iogearbox.net>
 
-commit 5e4f99a6b788047b0b8a7496c2e0c8f372f6edf2 upstream.
+[ Upstream commit e1608f3fa857b600045b6df7f7dadc70eeaa4496 ]
 
-If the serial interface is used, the 8-bit address should be latched using
-the rising edge of the WR/FSYNC signal.
+For the case where the interpreter is compiled out or when the prog is jited
+it is completely unnecessary to set the BPF insn pages as read-only. In fact,
+on frequent churn of BPF programs, it could lead to performance degradation of
+the system over time since it would break the direct map down to 4k pages when
+calling set_memory_ro() for the insn buffer on x86-64 / arm64 and there is no
+reverse operation. Thus, avoid breaking up large pages for data maps, and only
+limit this to the module range used by the JIT where it is necessary to set
+the image read-only and executable.
 
-This basically means that a CS change is required between the first byte
-sent, and the second one.
-This change splits the single-transfer transfer of 2 bytes into 2 transfers
-with a single byte, and CS change in-between.
-
-Note fixes tag is not accurate, but reflects a point beyond which there
-are too many refactors to make backporting straight forward.
-
-Fixes: b19e9ad5e2cb ("staging:iio:resolver:ad2s1210 general driver cleanup.")
-Signed-off-by: Dragos Bogdan <dragos.bogdan@analog.com>
-Signed-off-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Suggested-by: Peter Zijlstra <peterz@infradead.org>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/bpf/20191129222911.3710-1-daniel@iogearbox.net
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/iio/resolver/ad2s1210.c |   17 ++++++++++++-----
- 1 file changed, 12 insertions(+), 5 deletions(-)
+ include/linux/filter.h | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/drivers/staging/iio/resolver/ad2s1210.c
-+++ b/drivers/staging/iio/resolver/ad2s1210.c
-@@ -126,17 +126,24 @@ static int ad2s1210_config_write(struct
- static int ad2s1210_config_read(struct ad2s1210_state *st,
- 				unsigned char address)
- {
--	struct spi_transfer xfer = {
--		.len = 2,
--		.rx_buf = st->rx,
--		.tx_buf = st->tx,
-+	struct spi_transfer xfers[] = {
-+		{
-+			.len = 1,
-+			.rx_buf = &st->rx[0],
-+			.tx_buf = &st->tx[0],
-+			.cs_change = 1,
-+		}, {
-+			.len = 1,
-+			.rx_buf = &st->rx[1],
-+			.tx_buf = &st->tx[1],
-+		},
- 	};
- 	int ret = 0;
+diff --git a/include/linux/filter.h b/include/linux/filter.h
+index 0367a75f873b..3bbc72dbc69e 100644
+--- a/include/linux/filter.h
++++ b/include/linux/filter.h
+@@ -770,8 +770,12 @@ bpf_ctx_narrow_access_offset(u32 off, u32 size, u32 size_default)
  
- 	ad2s1210_set_mode(MOD_CONFIG, st);
- 	st->tx[0] = address | AD2S1210_MSB_IS_HIGH;
- 	st->tx[1] = AD2S1210_REG_FAULT;
--	ret = spi_sync_transfer(st->sdev, &xfer, 1);
-+	ret = spi_sync_transfer(st->sdev, xfers, 2);
- 	if (ret < 0)
- 		return ret;
- 	st->old_data = true;
+ static inline void bpf_prog_lock_ro(struct bpf_prog *fp)
+ {
+-	set_vm_flush_reset_perms(fp);
+-	set_memory_ro((unsigned long)fp, fp->pages);
++#ifndef CONFIG_BPF_JIT_ALWAYS_ON
++	if (!fp->jited) {
++		set_vm_flush_reset_perms(fp);
++		set_memory_ro((unsigned long)fp, fp->pages);
++	}
++#endif
+ }
+ 
+ static inline void bpf_jit_binary_lock_ro(struct bpf_binary_header *hdr)
+-- 
+2.25.1
+
 
 
