@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8145D1E2BC7
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:08:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA76A1E2DBB
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:25:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403906AbgEZTIj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:08:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37640 "EHLO mail.kernel.org"
+        id S2404519AbgEZTXt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:23:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37662 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403842AbgEZTIh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:08:37 -0400
+        id S2390612AbgEZTIl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:08:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 08BB0208C3;
-        Tue, 26 May 2020 19:08:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9493520873;
+        Tue, 26 May 2020 19:08:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590520117;
-        bh=+CcGc1ePsAEy4vbCoNwEklXLyLYAmR7rlXdXCWM57Is=;
+        s=default; t=1590520120;
+        bh=dwPwdG0SK+kS1i7Rh+GeJcYZE0NSE+OYrDVqABO7+H4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SRIer6hdk5fTHXUiQnGtU/giZX3vndG7PfyafZ/vrPwmoma/HGtr2JtNQs4ei+ucV
-         HxJOyDGb54A4ILghJ3phSXdEyXBe5biok9L3tq3wiyGR87IJDtIgxCBbly/UYNtC5D
-         lfjljxySYrnW9fTawrgJyhyPLhCfTLD/CbfU4Jok=
+        b=yOHC1vWYajYDpy7cwOEmwlbDLub0Vfm9ovOywGboKbb7BSipU0qwLAT6NW0xEc1Hk
+         5f0VlO0/Kw1hXPVl4ynTSYAnS7UbJnozgvWKCdP8s9itfKKso9rypKsDFhoi8kRlnJ
+         GJb20WcqoWOLXrFTGYjZvfE0BCrQ3slLTdGKWdx0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Keno Fischer <keno@juliacomputing.com>,
-        Will Deacon <will@kernel.org>,
-        Sudeep Holla <sudeep.holla@arm.com>, Bin Lu <Bin.Lu@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>
-Subject: [PATCH 5.4 064/111] arm64: Fix PTRACE_SYSEMU semantics
-Date:   Tue, 26 May 2020 20:53:22 +0200
-Message-Id: <20200526183938.924435089@linuxfoundation.org>
+        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
+        Christian Gmeiner <christian.gmeiner@gmail.com>,
+        Lucas Stach <l.stach@pengutronix.de>
+Subject: [PATCH 5.4 065/111] drm/etnaviv: fix perfmon domain interation
+Date:   Tue, 26 May 2020 20:53:23 +0200
+Message-Id: <20200526183939.021178418@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200526183932.245016380@linuxfoundation.org>
 References: <20200526183932.245016380@linuxfoundation.org>
@@ -45,58 +44,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Keno Fischer <keno@juliacomputing.com>
+From: Christian Gmeiner <christian.gmeiner@gmail.com>
 
-commit 1cf6022bd9161081215028203919c33fcfa6debb upstream.
+commit 40b697e256ccdb88aaff424b44b4d300eb8460e8 upstream.
 
-Quoth the man page:
-```
-       If the tracee was restarted by PTRACE_SYSCALL or PTRACE_SYSEMU, the
-       tracee enters syscall-enter-stop just prior to entering any system
-       call (which will not be executed if the restart was using
-       PTRACE_SYSEMU, regardless of any change made to registers at this
-       point or how the tracee is restarted after this stop).
-```
+The GC860 has one GPU device which has a 2d and 3d core. In this case
+we want to expose perfmon information for both cores.
 
-The parenthetical comment is currently true on x86 and powerpc,
-but not currently true on arm64. arm64 re-checks the _TIF_SYSCALL_EMU
-flag after the syscall entry ptrace stop. However, at this point,
-it reflects which method was used to re-start the syscall
-at the entry stop, rather than the method that was used to reach it.
-Fix that by recording the original flag before performing the ptrace
-stop, bringing the behavior in line with documentation and x86/powerpc.
+The driver has one array which contains all possible perfmon domains
+with some meta data - doms_meta. Here we can see that for the GC860
+two elements of that array are relevant:
 
-Fixes: f086f67485c5 ("arm64: ptrace: add support for syscall emulation")
-Cc: <stable@vger.kernel.org> # 5.3.x-
-Signed-off-by: Keno Fischer <keno@juliacomputing.com>
-Acked-by: Will Deacon <will@kernel.org>
-Tested-by: Sudeep Holla <sudeep.holla@arm.com>
-Tested-by: Bin Lu <Bin.Lu@arm.com>
-[catalin.marinas@arm.com: moved 'flags' bit masking]
-[catalin.marinas@arm.com: changed 'flags' type to unsigned long]
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+  doms_3d: is at index 0 in the doms_meta array with 8 perfmon domains
+  doms_2d: is at index 1 in the doms_meta array with 1 perfmon domain
+
+The userspace driver wants to get a list of all perfmon domains and
+their perfmon signals. This is done by iterating over all domains and
+their signals. If the userspace driver wants to access the domain with
+id 8 the kernel driver fails and returns invalid data from doms_3d with
+and invalid offset.
+
+This results in:
+  Unable to handle kernel paging request at virtual address 00000000
+
+On such a device it is not possible to use the userspace driver at all.
+
+The fix for this off-by-one error is quite simple.
+
+Reported-by: Paul Cercueil <paul@crapouillou.net>
+Tested-by: Paul Cercueil <paul@crapouillou.net>
+Fixes: ed1dd899baa3 ("drm/etnaviv: rework perfmon query infrastructure")
+Cc: stable@vger.kernel.org
+Signed-off-by: Christian Gmeiner <christian.gmeiner@gmail.com>
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm64/kernel/ptrace.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/etnaviv/etnaviv_perfmon.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/arm64/kernel/ptrace.c
-+++ b/arch/arm64/kernel/ptrace.c
-@@ -1829,10 +1829,11 @@ static void tracehook_report_syscall(str
+--- a/drivers/gpu/drm/etnaviv/etnaviv_perfmon.c
++++ b/drivers/gpu/drm/etnaviv/etnaviv_perfmon.c
+@@ -453,7 +453,7 @@ static const struct etnaviv_pm_domain *p
+ 		if (!(gpu->identity.features & meta->feature))
+ 			continue;
  
- int syscall_trace_enter(struct pt_regs *regs)
- {
--	if (test_thread_flag(TIF_SYSCALL_TRACE) ||
--		test_thread_flag(TIF_SYSCALL_EMU)) {
-+	unsigned long flags = READ_ONCE(current_thread_info()->flags);
-+
-+	if (flags & (_TIF_SYSCALL_EMU | _TIF_SYSCALL_TRACE)) {
- 		tracehook_report_syscall(regs, PTRACE_SYSCALL_ENTER);
--		if (!in_syscall(regs) || test_thread_flag(TIF_SYSCALL_EMU))
-+		if (!in_syscall(regs) || (flags & _TIF_SYSCALL_EMU))
- 			return -1;
- 	}
- 
+-		if (meta->nr_domains < (index - offset)) {
++		if (index - offset >= meta->nr_domains) {
+ 			offset += meta->nr_domains;
+ 			continue;
+ 		}
 
 
