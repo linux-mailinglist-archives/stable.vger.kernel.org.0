@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 879BA1E2C15
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:11:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CD411E2BA7
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:07:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391585AbgEZTLx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:11:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41288 "EHLO mail.kernel.org"
+        id S2391580AbgEZTHR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:07:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35848 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391957AbgEZTLt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:11:49 -0400
+        id S2391565AbgEZTHO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:07:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 28DD820888;
-        Tue, 26 May 2020 19:11:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4DB8E208DB;
+        Tue, 26 May 2020 19:07:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590520308;
-        bh=SJF7ayHG0PlJwtnPszo7WXe63iqjWcrlf1YigLZSo0Q=;
+        s=default; t=1590520033;
+        bh=nRPM9PV4jpPC0mNS8K3Zc9qkLQPWhOLjwNbkPPAeyWs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BEdpteJKTNjCI/5rTL3hVeJI2/UukGp61nlrLcIRzOHbiqy+toTqtlYURAUpT0Qti
-         fcjNFg660LfcxYRd8tLCzfj5FqLtrGO3Ow6Lm5FoZVtsjeWQ3SFpTXvi1/Jr+7IwZB
-         6+auEYW322pVsRyUtCzjDxBKIKVY8tr972RV1xrk=
+        b=wpa6Mt+8e3/OiG1s4oZfNl7Uf22Nb7QVgHSij5R2eyUWR/HzE7rKZAtkxVzG7o9oH
+         Fe8QzDNlPpAsVWDsKlgIXdKFd96G1BDXSzAWcIOsLxhKcvrLUF59XQsI61Am0NZfSb
+         lH/BpBaa/xdsY5OKe4WiuVH9oVnuEHg4g1tj2srk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Chris Chiu <chiu@endlessm.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 008/126] ACPI: EC: PM: Avoid flushing EC work when EC GPE is inactive
+Subject: [PATCH 5.4 007/111] ACPI: EC: PM: Avoid flushing EC work when EC GPE is inactive
 Date:   Tue, 26 May 2020 20:52:25 +0200
-Message-Id: <20200526183938.213752295@linuxfoundation.org>
+Message-Id: <20200526183933.172093325@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183937.471379031@linuxfoundation.org>
-References: <20200526183937.471379031@linuxfoundation.org>
+In-Reply-To: <20200526183932.245016380@linuxfoundation.org>
+References: <20200526183932.245016380@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -72,10 +72,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  2 files changed, 9 insertions(+), 12 deletions(-)
 
 diff --git a/drivers/acpi/ec.c b/drivers/acpi/ec.c
-index 03b3067811c9..2713ddb3348c 100644
+index 5b53a66d403d..57eacdcbf820 100644
 --- a/drivers/acpi/ec.c
 +++ b/drivers/acpi/ec.c
-@@ -2064,9 +2064,13 @@ bool acpi_ec_dispatch_gpe(void)
+@@ -1984,9 +1984,13 @@ bool acpi_ec_dispatch_gpe(void)
  	 * to allow the caller to process events properly after that.
  	 */
  	ret = acpi_dispatch_gpe(NULL, first_ec->gpe);
@@ -91,10 +91,10 @@ index 03b3067811c9..2713ddb3348c 100644
  }
  #endif /* CONFIG_PM_SLEEP */
 diff --git a/drivers/acpi/sleep.c b/drivers/acpi/sleep.c
-index 3850704570c0..fd9d4e8318e9 100644
+index 85514c0f3aa5..d1b74179d217 100644
 --- a/drivers/acpi/sleep.c
 +++ b/drivers/acpi/sleep.c
-@@ -980,13 +980,6 @@ static int acpi_s2idle_prepare_late(void)
+@@ -977,13 +977,6 @@ static int acpi_s2idle_prepare_late(void)
  	return 0;
  }
  
@@ -108,7 +108,7 @@ index 3850704570c0..fd9d4e8318e9 100644
  static bool acpi_s2idle_wake(void)
  {
  	if (!acpi_sci_irq_valid())
-@@ -1018,7 +1011,7 @@ static bool acpi_s2idle_wake(void)
+@@ -1015,7 +1008,7 @@ static bool acpi_s2idle_wake(void)
  			return true;
  
  		/*
@@ -117,7 +117,7 @@ index 3850704570c0..fd9d4e8318e9 100644
  		 * there are any wakeup ones in there.
  		 *
  		 * Note that if any non-EC GPEs are active at this point, the
-@@ -1026,8 +1019,7 @@ static bool acpi_s2idle_wake(void)
+@@ -1023,8 +1016,7 @@ static bool acpi_s2idle_wake(void)
  		 * should be missed by canceling the wakeup here.
  		 */
  		pm_system_cancel_wakeup();
@@ -127,7 +127,7 @@ index 3850704570c0..fd9d4e8318e9 100644
  
  		/*
  		 * The SCI is in the "suspended" state now and it cannot produce
-@@ -1060,7 +1052,8 @@ static void acpi_s2idle_restore(void)
+@@ -1057,7 +1049,8 @@ static void acpi_s2idle_restore(void)
  	 * of GPEs.
  	 */
  	acpi_os_wait_events_complete(); /* synchronize GPE processing */
