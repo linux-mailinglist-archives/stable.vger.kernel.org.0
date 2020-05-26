@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CDF9A1E2E0F
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:26:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B4451E2D66
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:24:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391566AbgEZT0a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:26:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33492 "EHLO mail.kernel.org"
+        id S2389312AbgEZTJq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:09:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38924 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391500AbgEZTFb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:05:31 -0400
+        id S2391897AbgEZTJp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:09:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AF1B6208B3;
-        Tue, 26 May 2020 19:05:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6A24A208B3;
+        Tue, 26 May 2020 19:09:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590519931;
-        bh=DmrPKJdFBUauhwiCz6LXqWQZmO9spHTtVfvNF0ftHWw=;
+        s=default; t=1590520184;
+        bh=78N8hQGhGPFVLaXmK4KVhx2rUwxFGMkns25RJDOs+mU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oFAF/TLXHYlteOhG9l0TenptNPFBFG6fdjuK7UzConQUjoFkX4xu5LKC4xvpeJ/SH
-         cw2NXOVslZ3OgXER4kmyd8m6aQKvwL6FLCBoE5heirfEOypa3/2w/7osXZWImquuRT
-         SHvkb5LE+s49YNFfKRGy7EnBeNl4X65vw4uomS7I=
+        b=CyiNg+iJuWPlEBMf3tZ0rPBgFSuqhWuFfJ+PBiQa5QPNCTDjVyNwZ8hhCPR0Kfc53
+         wn1quKjU+lwd70NcPTBqQedZ17fqf/M3Tp7YsGD2/xOAogpwXBl8PyhjdIHVVS6WhO
+         +2+b+fjq+67ODusKcx4r+bmyafO62NzeWE8FfT04=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qiushi Wu <wu000273@umn.edu>,
-        David Howells <dhowells@redhat.com>,
-        Markus Elfring <Markus.Elfring@web.de>
-Subject: [PATCH 4.19 73/81] rxrpc: Fix a memory leak in rxkad_verify_response()
-Date:   Tue, 26 May 2020 20:53:48 +0200
-Message-Id: <20200526183935.161434550@linuxfoundation.org>
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wei Yongjun <weiyongjun1@huawei.com>,
+        Samuel Iglesias Gonsalvez <siglesias@igalia.com>
+Subject: [PATCH 5.4 091/111] ipack: tpci200: fix error return code in tpci200_register()
+Date:   Tue, 26 May 2020 20:53:49 +0200
+Message-Id: <20200526183941.551886747@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183923.108515292@linuxfoundation.org>
-References: <20200526183923.108515292@linuxfoundation.org>
+In-Reply-To: <20200526183932.245016380@linuxfoundation.org>
+References: <20200526183932.245016380@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,42 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiushi Wu <wu000273@umn.edu>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-commit f45d01f4f30b53c3a0a1c6c1c154acb7ff74ab9f upstream.
+commit 133317479f0324f6faaf797c4f5f3e9b1b36ce35 upstream.
 
-A ticket was not released after a call of the function
-"rxkad_decrypt_ticket" failed. Thus replace the jump target
-"temporary_error_free_resp" by "temporary_error_free_ticket".
+Fix to return negative error code -ENOMEM from the ioremap() error handling
+case instead of 0, as done elsewhere in this function.
 
-Fixes: 8c2f826dc3631 ("rxrpc: Don't put crypto buffers on the stack")
-Signed-off-by: Qiushi Wu <wu000273@umn.edu>
-Signed-off-by: David Howells <dhowells@redhat.com>
-cc: Markus Elfring <Markus.Elfring@web.de>
+Fixes: 43986798fd50 ("ipack: add error handling for ioremap_nocache")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Cc: stable <stable@vger.kernel.org>
+Acked-by: Samuel Iglesias Gonsalvez <siglesias@igalia.com>
+Link: https://lore.kernel.org/r/20200507094237.13599-1-weiyongjun1@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/rxrpc/rxkad.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/ipack/carriers/tpci200.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/net/rxrpc/rxkad.c
-+++ b/net/rxrpc/rxkad.c
-@@ -1118,7 +1118,7 @@ static int rxkad_verify_response(struct
- 	ret = rxkad_decrypt_ticket(conn, skb, ticket, ticket_len, &session_key,
- 				   &expiry, _abort_code);
- 	if (ret < 0)
--		goto temporary_error_free_resp;
-+		goto temporary_error_free_ticket;
+--- a/drivers/ipack/carriers/tpci200.c
++++ b/drivers/ipack/carriers/tpci200.c
+@@ -306,6 +306,7 @@ static int tpci200_register(struct tpci2
+ 			"(bn 0x%X, sn 0x%X) failed to map driver user space!",
+ 			tpci200->info->pdev->bus->number,
+ 			tpci200->info->pdev->devfn);
++		res = -ENOMEM;
+ 		goto out_release_mem8_space;
+ 	}
  
- 	/* use the session key from inside the ticket to decrypt the
- 	 * response */
-@@ -1200,7 +1200,6 @@ protocol_error:
- 
- temporary_error_free_ticket:
- 	kfree(ticket);
--temporary_error_free_resp:
- 	kfree(response);
- temporary_error:
- 	/* Ignore the response packet if we got a temporary error such as
 
 
