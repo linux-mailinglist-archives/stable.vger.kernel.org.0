@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BFA591E2A78
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 20:57:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 934011E2A7C
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 20:57:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389692AbgEZS4G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 14:56:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48796 "EHLO mail.kernel.org"
+        id S2389775AbgEZS4S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 14:56:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49004 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389722AbgEZS4F (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 14:56:05 -0400
+        id S2389769AbgEZS4Q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 14:56:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B53CD20870;
-        Tue, 26 May 2020 18:56:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E738A2086A;
+        Tue, 26 May 2020 18:56:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590519365;
-        bh=8N0lMZjdUztXUFEhxRkHAbX3oX83n7GZBY2Fq6FA18M=;
+        s=default; t=1590519375;
+        bh=o/jdbYgqxoIqWH8TuofPAQE8atoxvsnCieF1qOSh428=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jZoDM9m6Y9xxZmbk3nWsxXB90SnpK8MpHPVRxw9MHWavr048TmISyi4z/ZWOVI3c8
-         +Gw1q/kIIc8YO/AsJ6mW+TEzw55tx9Gcu9IHqGZViIf8ahso0nQXAYy2DmdgmZHzoE
-         Z7YEjb5mDsFA1CRR8LE25HW5BpoS4rcTolbdPiRI=
+        b=nuLCg0uqhDyY1bqyKxznjRjFET7urNcMwjAvewhq9C8WowgP7jyfbUaim9uJw4B7X
+         ZF7r2YF4xcpNN5a5P68QZUVvy5o4+G/0tuOGErpGdweGBXqezZ9gMBVSg8i2/RC/RL
+         NTtZOd/C96Y0jJxwtW8QOjIcLCVK0TxHeRWbbVlc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, greg@kroah.com
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Asbjoern Sloth Toennesen <asbjorn@asbjorn.st>,
+        stable@vger.kernel.org, "R. Parameswaran" <rparames@brocade.com>,
         "David S. Miller" <davem@davemloft.net>,
         Giuliano Procida <gprocida@google.com>
-Subject: [PATCH 4.4 39/65] net: l2tp: export debug flags to UAPI
-Date:   Tue, 26 May 2020 20:52:58 +0200
-Message-Id: <20200526183919.240142941@linuxfoundation.org>
+Subject: [PATCH 4.4 42/65] New kernel function to get IP overhead on a socket.
+Date:   Tue, 26 May 2020 20:53:01 +0200
+Message-Id: <20200526183920.541009923@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200526183905.988782958@linuxfoundation.org>
 References: <20200526183905.988782958@linuxfoundation.org>
@@ -45,73 +44,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Asbjørn Sloth Tønnesen <asbjorn@asbjorn.st>
+From: "R. Parameswaran" <parameswaran.r7@gmail.com>
 
-commit 41c43fbee68f4f9a2a9675d83bca91c77862d7f0 upstream.
+commit 113c3075931a334f899008f6c753abe70a3a9323 upstream.
 
-Move the L2TP_MSG_* definitions to UAPI, as it is part of
-the netlink API.
+A new function, kernel_sock_ip_overhead(), is provided
+to calculate the cumulative overhead imposed by the IP
+Header and IP options, if any, on a socket's payload.
+The new function returns an overhead of zero for sockets
+that do not belong to the IPv4 or IPv6 address families.
+This is used in the L2TP code path to compute the
+total outer IP overhead on the L2TP tunnel socket when
+calculating the default MTU for Ethernet pseudowires.
 
-Signed-off-by: Asbjoern Sloth Toennesen <asbjorn@asbjorn.st>
+Signed-off-by: R. Parameswaran <rparames@brocade.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Giuliano Procida <gprocida@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/uapi/linux/l2tp.h |   17 ++++++++++++++++-
- net/l2tp/l2tp_core.h      |   10 ----------
- 2 files changed, 16 insertions(+), 11 deletions(-)
+ include/linux/net.h |    3 +++
+ net/socket.c        |   46 ++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 49 insertions(+)
 
---- a/include/uapi/linux/l2tp.h
-+++ b/include/uapi/linux/l2tp.h
-@@ -108,7 +108,7 @@ enum {
- 	L2TP_ATTR_VLAN_ID,		/* u16 */
- 	L2TP_ATTR_COOKIE,		/* 0, 4 or 8 bytes */
- 	L2TP_ATTR_PEER_COOKIE,		/* 0, 4 or 8 bytes */
--	L2TP_ATTR_DEBUG,		/* u32 */
-+	L2TP_ATTR_DEBUG,		/* u32, enum l2tp_debug_flags */
- 	L2TP_ATTR_RECV_SEQ,		/* u8 */
- 	L2TP_ATTR_SEND_SEQ,		/* u8 */
- 	L2TP_ATTR_LNS_MODE,		/* u8 */
-@@ -173,6 +173,21 @@ enum l2tp_seqmode {
- 	L2TP_SEQ_ALL = 2,
- };
+--- a/include/linux/net.h
++++ b/include/linux/net.h
+@@ -291,6 +291,9 @@ int kernel_sendpage(struct socket *sock,
+ int kernel_sock_ioctl(struct socket *sock, int cmd, unsigned long arg);
+ int kernel_sock_shutdown(struct socket *sock, enum sock_shutdown_cmd how);
  
-+/**
-+ * enum l2tp_debug_flags - debug message categories for L2TP tunnels/sessions
-+ *
-+ * @L2TP_MSG_DEBUG: verbose debug (if compiled in)
-+ * @L2TP_MSG_CONTROL: userspace - kernel interface
-+ * @L2TP_MSG_SEQ: sequence numbers
-+ * @L2TP_MSG_DATA: data packets
-+ */
-+enum l2tp_debug_flags {
-+	L2TP_MSG_DEBUG		= (1 << 0),
-+	L2TP_MSG_CONTROL	= (1 << 1),
-+	L2TP_MSG_SEQ		= (1 << 2),
-+	L2TP_MSG_DATA		= (1 << 3),
-+};
++/* Following routine returns the IP overhead imposed by a socket.  */
++u32 kernel_sock_ip_overhead(struct sock *sk);
 +
- /*
-  * NETLINK_GENERIC related info
-  */
---- a/net/l2tp/l2tp_core.h
-+++ b/net/l2tp/l2tp_core.h
-@@ -23,16 +23,6 @@
- #define L2TP_HASH_BITS_2	8
- #define L2TP_HASH_SIZE_2	(1 << L2TP_HASH_BITS_2)
+ #define MODULE_ALIAS_NETPROTO(proto) \
+ 	MODULE_ALIAS("net-pf-" __stringify(proto))
  
--/* Debug message categories for the DEBUG socket option */
--enum {
--	L2TP_MSG_DEBUG		= (1 << 0),	/* verbose debug (if
--						 * compiled in) */
--	L2TP_MSG_CONTROL	= (1 << 1),	/* userspace - kernel
--						 * interface */
--	L2TP_MSG_SEQ		= (1 << 2),	/* sequence numbers */
--	L2TP_MSG_DATA		= (1 << 3),	/* data packets */
--};
--
- struct sk_buff;
- 
- struct l2tp_stats {
+--- a/net/socket.c
++++ b/net/socket.c
+@@ -3304,3 +3304,49 @@ int kernel_sock_shutdown(struct socket *
+ 	return sock->ops->shutdown(sock, how);
+ }
+ EXPORT_SYMBOL(kernel_sock_shutdown);
++
++/* This routine returns the IP overhead imposed by a socket i.e.
++ * the length of the underlying IP header, depending on whether
++ * this is an IPv4 or IPv6 socket and the length from IP options turned
++ * on at the socket.
++ */
++u32 kernel_sock_ip_overhead(struct sock *sk)
++{
++	struct inet_sock *inet;
++	struct ip_options_rcu *opt;
++	u32 overhead = 0;
++	bool owned_by_user;
++#if IS_ENABLED(CONFIG_IPV6)
++	struct ipv6_pinfo *np;
++	struct ipv6_txoptions *optv6 = NULL;
++#endif /* IS_ENABLED(CONFIG_IPV6) */
++
++	if (!sk)
++		return overhead;
++
++	owned_by_user = sock_owned_by_user(sk);
++	switch (sk->sk_family) {
++	case AF_INET:
++		inet = inet_sk(sk);
++		overhead += sizeof(struct iphdr);
++		opt = rcu_dereference_protected(inet->inet_opt,
++						owned_by_user);
++		if (opt)
++			overhead += opt->opt.optlen;
++		return overhead;
++#if IS_ENABLED(CONFIG_IPV6)
++	case AF_INET6:
++		np = inet6_sk(sk);
++		overhead += sizeof(struct ipv6hdr);
++		if (np)
++			optv6 = rcu_dereference_protected(np->opt,
++							  owned_by_user);
++		if (optv6)
++			overhead += (optv6->opt_flen + optv6->opt_nflen);
++		return overhead;
++#endif /* IS_ENABLED(CONFIG_IPV6) */
++	default: /* Returns 0 overhead if the socket is not ipv4 or ipv6 */
++		return overhead;
++	}
++}
++EXPORT_SYMBOL(kernel_sock_ip_overhead);
 
 
