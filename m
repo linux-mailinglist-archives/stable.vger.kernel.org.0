@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 191801E2B63
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:05:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 228B91E2B0E
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:03:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391383AbgEZTEi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:04:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60328 "EHLO mail.kernel.org"
+        id S2403773AbgEZTBh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:01:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55998 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390485AbgEZTEi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:04:38 -0400
+        id S2403769AbgEZTBh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:01:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 05A3A2086A;
-        Tue, 26 May 2020 19:04:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E31FB20849;
+        Tue, 26 May 2020 19:01:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590519877;
-        bh=C5RUA5PleN6pmherb3qSxADrS/EbTQI2T3y1YchV8eg=;
+        s=default; t=1590519696;
+        bh=il/4o51wW092OuGEyB1YyPj7Iaz57uDjzAjl7G8Mr48=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MZDzXkUY2ezRE/NARSdu56QRM9TbcF2jF8kDmNBgrtaqSvccYIQuMiNhgdvqSm9+5
-         9nuuuDh2oyZ47bcZbFq0PUuP0dZYYfyDtNcFnxK/JUI9DrUX56K5mn/lBvkhXoEzYO
-         1otTLrucc0Wtf+7EuseA9ix5aj92uXyT+cv3bm0k=
+        b=JXloKKSF3Ez7mLaD0jIvkq7VFzJQ2k0yFIoiyWtUgvkkPzG/W049SRA+YOeC9k6qU
+         ZQFEvq2scXMybfB6cPLOPgj7TPpe2xsGm4V+YmyFDihuqV08DfOwA/tnhMjX9gY2/c
+         1XpeeF6Kpjd0fCi3maJ/8S7derfyIIAnwL2nI+h0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 50/81] powerpc/64s: Disable STRICT_KERNEL_RWX
-Date:   Tue, 26 May 2020 20:53:25 +0200
-Message-Id: <20200526183932.737734715@linuxfoundation.org>
+Subject: [PATCH 4.14 41/59] powerpc/64s: Disable STRICT_KERNEL_RWX
+Date:   Tue, 26 May 2020 20:53:26 +0200
+Message-Id: <20200526183920.506643993@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183923.108515292@linuxfoundation.org>
-References: <20200526183923.108515292@linuxfoundation.org>
+In-Reply-To: <20200526183907.123822792@linuxfoundation.org>
+References: <20200526183907.123822792@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -73,18 +73,18 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
-index da48a2ca272e..f38d153d2586 100644
+index b74c3a68c0ad..679e1e3c1695 100644
 --- a/arch/powerpc/Kconfig
 +++ b/arch/powerpc/Kconfig
-@@ -139,7 +139,7 @@ config PPC
- 	select ARCH_HAS_MEMBARRIER_CALLBACKS
+@@ -141,7 +141,7 @@ config PPC
+ 	select ARCH_HAS_GCOV_PROFILE_ALL
  	select ARCH_HAS_SCALED_CPUTIME		if VIRT_CPU_ACCOUNTING_NATIVE
  	select ARCH_HAS_SG_CHAIN
 -	select ARCH_HAS_STRICT_KERNEL_RWX	if ((PPC_BOOK3S_64 || PPC32) && !HIBERNATION)
 +	select ARCH_HAS_STRICT_KERNEL_RWX	if (PPC32 && !HIBERNATION)
  	select ARCH_HAS_TICK_BROADCAST		if GENERIC_CLOCKEVENTS_BROADCAST
- 	select ARCH_HAS_UACCESS_FLUSHCACHE	if PPC64
  	select ARCH_HAS_UBSAN_SANITIZE_ALL
+ 	select ARCH_HAS_ZONE_DEVICE		if PPC_BOOK3S_64
 -- 
 2.25.1
 
