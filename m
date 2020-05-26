@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 56FE11E2CAC
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:16:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A8D01E2BFE
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:11:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392294AbgEZTQq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:16:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46926 "EHLO mail.kernel.org"
+        id S2392030AbgEZTK7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:10:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40218 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404393AbgEZTPV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:15:21 -0400
+        id S2391949AbgEZTKz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:10:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 50D72208B6;
-        Tue, 26 May 2020 19:15:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BA676208B3;
+        Tue, 26 May 2020 19:10:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590520520;
-        bh=dwPwdG0SK+kS1i7Rh+GeJcYZE0NSE+OYrDVqABO7+H4=;
+        s=default; t=1590520255;
+        bh=aGSkKgSOvYQfQlZ2A9zyiq/PE8Y9abBefhMktsu3diI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MUSmbcGbV2NXRP37B5eY8dtH9ODQShc8929s2EaroR5q5198bzMkO79L2duK/l1dr
-         F3m4fX2k8AnBWXQCzqEs2kdZDmjBmMmFM+DpSk+q/3E4VtVGnuHZXHCC+NBtqefvW7
-         zNpkuQmfPb75ucpFQToEcyIotdTZD4cf3RVRst24=
+        b=SM0EJboyb3wturfdTF+5urLfzlLs8yAFdYb5qZSalZO0MfKUSK8ibiOeOXKyde+z6
+         xCOcHms38VVzoZXLmb9Y8OEBR5wMSB4N1NtE0k+/Jpx3cVkkCLUTu/XCd2RxUoF2/f
+         AD+xdkw64IkNKWKsuiyCbiis+5+0jKjcasyIHGpk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
-        Christian Gmeiner <christian.gmeiner@gmail.com>,
-        Lucas Stach <l.stach@pengutronix.de>
-Subject: [PATCH 5.6 072/126] drm/etnaviv: fix perfmon domain interation
+        stable@vger.kernel.org, Dijil Mohan <Dijil.Mohan@arm.com>,
+        Vladimir Murzin <vladimir.murzin@arm.com>,
+        Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 5.4 071/111] dmaengine: dmatest: Restore default for channel
 Date:   Tue, 26 May 2020 20:53:29 +0200
-Message-Id: <20200526183944.293494261@linuxfoundation.org>
+Message-Id: <20200526183939.583066453@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183937.471379031@linuxfoundation.org>
-References: <20200526183937.471379031@linuxfoundation.org>
+In-Reply-To: <20200526183932.245016380@linuxfoundation.org>
+References: <20200526183932.245016380@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,55 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Gmeiner <christian.gmeiner@gmail.com>
+From: Vladimir Murzin <vladimir.murzin@arm.com>
 
-commit 40b697e256ccdb88aaff424b44b4d300eb8460e8 upstream.
+commit 6b41030fdc79086db5d673c5ed7169f3ee8c13b9 upstream.
 
-The GC860 has one GPU device which has a 2d and 3d core. In this case
-we want to expose perfmon information for both cores.
+In case of dmatest is built-in and no channel was configured test
+doesn't run with:
 
-The driver has one array which contains all possible perfmon domains
-with some meta data - doms_meta. Here we can see that for the GC860
-two elements of that array are relevant:
+dmatest: Could not start test, no channels configured
 
-  doms_3d: is at index 0 in the doms_meta array with 8 perfmon domains
-  doms_2d: is at index 1 in the doms_meta array with 1 perfmon domain
+Even though description to "channel" parameter claims that default is
+any.
 
-The userspace driver wants to get a list of all perfmon domains and
-their perfmon signals. This is done by iterating over all domains and
-their signals. If the userspace driver wants to access the domain with
-id 8 the kernel driver fails and returns invalid data from doms_3d with
-and invalid offset.
+Add default channel back as it used to be rather than reject test with
+no channel configuration.
 
-This results in:
-  Unable to handle kernel paging request at virtual address 00000000
-
-On such a device it is not possible to use the userspace driver at all.
-
-The fix for this off-by-one error is quite simple.
-
-Reported-by: Paul Cercueil <paul@crapouillou.net>
-Tested-by: Paul Cercueil <paul@crapouillou.net>
-Fixes: ed1dd899baa3 ("drm/etnaviv: rework perfmon query infrastructure")
-Cc: stable@vger.kernel.org
-Signed-off-by: Christian Gmeiner <christian.gmeiner@gmail.com>
-Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+Fixes: d53513d5dc285d9a95a534fc41c5c08af6b60eac ("dmaengine: dmatest: Add support for multi channel testing)
+Reported-by: Dijil Mohan <Dijil.Mohan@arm.com>
+Signed-off-by: Vladimir Murzin <vladimir.murzin@arm.com>
+Link: https://lore.kernel.org/r/20200429071522.58148-1-vladimir.murzin@arm.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/etnaviv/etnaviv_perfmon.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/dma/dmatest.c |    9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
---- a/drivers/gpu/drm/etnaviv/etnaviv_perfmon.c
-+++ b/drivers/gpu/drm/etnaviv/etnaviv_perfmon.c
-@@ -453,7 +453,7 @@ static const struct etnaviv_pm_domain *p
- 		if (!(gpu->identity.features & meta->feature))
- 			continue;
- 
--		if (meta->nr_domains < (index - offset)) {
-+		if (index - offset >= meta->nr_domains) {
- 			offset += meta->nr_domains;
- 			continue;
- 		}
+--- a/drivers/dma/dmatest.c
++++ b/drivers/dma/dmatest.c
+@@ -1166,10 +1166,11 @@ static int dmatest_run_set(const char *v
+ 		mutex_unlock(&info->lock);
+ 		return ret;
+ 	} else if (dmatest_run) {
+-		if (is_threaded_test_pending(info))
+-			start_threaded_tests(info);
+-		else
+-			pr_info("Could not start test, no channels configured\n");
++		if (!is_threaded_test_pending(info)) {
++			pr_info("No channels configured, continue with any\n");
++			add_threaded_test(info);
++		}
++		start_threaded_tests(info);
+ 	} else {
+ 		stop_threaded_test(info);
+ 	}
 
 
