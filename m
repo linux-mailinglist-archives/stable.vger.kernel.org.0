@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 268761E2DE8
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:25:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 112411E2B37
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:03:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391724AbgEZTZ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:25:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35288 "EHLO mail.kernel.org"
+        id S2390570AbgEZTDA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:03:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58084 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391210AbgEZTGw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:06:52 -0400
+        id S2390512AbgEZTDA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:03:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1F571208A7;
-        Tue, 26 May 2020 19:06:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 169E020849;
+        Tue, 26 May 2020 19:02:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590520011;
-        bh=tV5FkDlTgvVcHJ4BfkDP1OA9x5FbR4EGVr+DCmKwrgQ=;
+        s=default; t=1590519779;
+        bh=kxsdlBfX6zHwJ5lx6O1HQrN+V3050FVdkhRw/4p0zFA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NE4au4WOA4mxXL0DrFZp6Wtywg5UKeiTIk56d+hSJxSnQlkc94ZvmXnbcZA9AQxJE
-         GyswxsFbqGe8Q1vSGrc1Qm5GCJ4EuK9BPVY7iGnDh+hrC4lqi2WefTZ1geRlMUuiLO
-         UM28ATDoQBc3oBAmd1qshSUJCV3BveZL3bo4bOfY=
+        b=NeUhwg4exbmuz2cIIcmCHKkErwM1oa3gMWixKZv05krjByYfJWlNRqUvf0H7DuwQv
+         xfoQdf4KsakF6c7/Z4J6zG2EyX4noHLJLbS9KnI7SUhnrcizwGtFrcmsmF4+I1HYSw
+         StgST9WQEYgjDd+YP/w1SaosfkIzPESq3NWtcz6o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiaojian Cao <xiaojian.cao@cn.alps.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 023/111] HID: alps: ALPS_1657 is too specific; use U1_UNICORN_LEGACY instead
+        stable@vger.kernel.org, Roberto Sassu <roberto.sassu@huawei.com>,
+        Goldwyn Rodrigues <rgoldwyn@suse.com>,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 06/81] ima: Set file->f_mode instead of file->f_flags in ima_calc_file_hash()
 Date:   Tue, 26 May 2020 20:52:41 +0200
-Message-Id: <20200526183934.916096716@linuxfoundation.org>
+Message-Id: <20200526183924.827862563@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183932.245016380@linuxfoundation.org>
-References: <20200526183932.245016380@linuxfoundation.org>
+In-Reply-To: <20200526183923.108515292@linuxfoundation.org>
+References: <20200526183923.108515292@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,53 +45,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Kosina <jkosina@suse.cz>
+From: Roberto Sassu <roberto.sassu@huawei.com>
 
-[ Upstream commit 185af3e775b693f773d9a4b5a8c3cda69fc8ca0f ]
+[ Upstream commit 0014cc04e8ec077dc482f00c87dfd949cfe2b98f ]
 
-HID_DEVICE_ID_ALPS_1657 PID is too specific, as there are many other
-ALPS hardware IDs using this particular touchpad.
+Commit a408e4a86b36 ("ima: open a new file instance if no read
+permissions") tries to create a new file descriptor to calculate a file
+digest if the file has not been opened with O_RDONLY flag. However, if a
+new file descriptor cannot be obtained, it sets the FMODE_READ flag to
+file->f_flags instead of file->f_mode.
 
-Rename the identifier to HID_DEVICE_ID_ALPS_U1_UNICORN_LEGACY in order
-to describe reality better.
+This patch fixes this issue by replacing f_flags with f_mode as it was
+before that commit.
 
-Fixes: 640e403b1fd24 ("HID: alps: Add AUI1657 device ID")
-Reported-by: Xiaojian Cao <xiaojian.cao@cn.alps.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Cc: stable@vger.kernel.org # 4.20.x
+Fixes: a408e4a86b36 ("ima: open a new file instance if no read permissions")
+Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+Reviewed-by: Goldwyn Rodrigues <rgoldwyn@suse.com>
+Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-alps.c | 2 +-
- drivers/hid/hid-ids.h  | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ security/integrity/ima/ima_crypto.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/hid/hid-alps.c b/drivers/hid/hid-alps.c
-index c2a2bd528890..b2ad319a74b9 100644
---- a/drivers/hid/hid-alps.c
-+++ b/drivers/hid/hid-alps.c
-@@ -802,7 +802,7 @@ static int alps_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 		break;
- 	case HID_DEVICE_ID_ALPS_U1_DUAL:
- 	case HID_DEVICE_ID_ALPS_U1:
--	case HID_DEVICE_ID_ALPS_1657:
-+	case HID_DEVICE_ID_ALPS_U1_UNICORN_LEGACY:
- 		data->dev_type = U1;
- 		break;
- 	default:
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index cc2b6f497f53..48eba9c4f39a 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -79,9 +79,9 @@
- #define HID_DEVICE_ID_ALPS_U1_DUAL_PTP	0x121F
- #define HID_DEVICE_ID_ALPS_U1_DUAL_3BTN_PTP	0x1220
- #define HID_DEVICE_ID_ALPS_U1		0x1215
-+#define HID_DEVICE_ID_ALPS_U1_UNICORN_LEGACY         0x121E
- #define HID_DEVICE_ID_ALPS_T4_BTNLESS	0x120C
- #define HID_DEVICE_ID_ALPS_1222		0x1222
--#define HID_DEVICE_ID_ALPS_1657         0x121E
+diff --git a/security/integrity/ima/ima_crypto.c b/security/integrity/ima/ima_crypto.c
+index f63b4bd45d60..6a6d19ada66a 100644
+--- a/security/integrity/ima/ima_crypto.c
++++ b/security/integrity/ima/ima_crypto.c
+@@ -415,7 +415,7 @@ int ima_calc_file_hash(struct file *file, struct ima_digest_data *hash)
+ 	loff_t i_size;
+ 	int rc;
+ 	struct file *f = file;
+-	bool new_file_instance = false, modified_flags = false;
++	bool new_file_instance = false, modified_mode = false;
  
- #define USB_VENDOR_ID_AMI		0x046b
- #define USB_DEVICE_ID_AMI_VIRT_KEYBOARD_AND_MOUSE	0xff10
+ 	/*
+ 	 * For consistency, fail file's opened with the O_DIRECT flag on
+@@ -435,13 +435,13 @@ int ima_calc_file_hash(struct file *file, struct ima_digest_data *hash)
+ 		f = dentry_open(&file->f_path, flags, file->f_cred);
+ 		if (IS_ERR(f)) {
+ 			/*
+-			 * Cannot open the file again, lets modify f_flags
++			 * Cannot open the file again, lets modify f_mode
+ 			 * of original and continue
+ 			 */
+ 			pr_info_ratelimited("Unable to reopen file for reading.\n");
+ 			f = file;
+-			f->f_flags |= FMODE_READ;
+-			modified_flags = true;
++			f->f_mode |= FMODE_READ;
++			modified_mode = true;
+ 		} else {
+ 			new_file_instance = true;
+ 		}
+@@ -459,8 +459,8 @@ int ima_calc_file_hash(struct file *file, struct ima_digest_data *hash)
+ out:
+ 	if (new_file_instance)
+ 		fput(f);
+-	else if (modified_flags)
+-		f->f_flags &= ~FMODE_READ;
++	else if (modified_mode)
++		f->f_mode &= ~FMODE_READ;
+ 	return rc;
+ }
+ 
 -- 
 2.25.1
 
