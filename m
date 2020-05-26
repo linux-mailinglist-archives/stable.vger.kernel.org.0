@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B98AE1E2ABF
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 20:58:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B21D1E2AA0
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 20:58:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389160AbgEZS6j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 14:58:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52196 "EHLO mail.kernel.org"
+        id S2389312AbgEZS5d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 14:57:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50740 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389085AbgEZS6i (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 14:58:38 -0400
+        id S2389284AbgEZS5a (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 14:57:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 661442084C;
-        Tue, 26 May 2020 18:58:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A327420849;
+        Tue, 26 May 2020 18:57:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590519517;
-        bh=OM8PtUd8CjsHPtaeRHDUmfH4lV9YfCs4la5ZyoUDdKc=;
+        s=default; t=1590519449;
+        bh=E5gepei49UVhAh6Fb77bky09GX64a6eEvd/goBsZUV4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M6rTWj8Qq7CcPtMcvLp4p6gYIEhjh+XEz5E8uVqrCkHHpx3Bg9uySncQAIZ+p7uFP
-         uoYFZS2ZIemiDsbnGcZaZ9sXkapFtST1nLiwE6IAjKZ2+Vn7syh+Q482u7KxQHiOf1
-         7ddJJmozhMISMz/7wC6/yjlUqhoX5KSWKGKUm6tQ=
+        b=TaPqnscfH9joBP5uPjRlXOKCTN2ySoi9C21k2i7I90QBCwHAhxDtJg2kBGQZAgPci
+         jm8ghD3ofcq4h0tipp7TAdpAsV6aPDNelVDLPFXArB3y6LZYEiHgh6IVWvwvrpXsp+
+         TROHYMGz6zY1asCCY+d6TG5H3WhDKEpmI3QRuUJg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, greg@kroah.com
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Guillaume Nault <g.nault@alphalink.fr>,
         "David S. Miller" <davem@davemloft.net>,
         Giuliano Procida <gprocida@google.com>
-Subject: [PATCH 4.9 33/64] l2tp: remove l2tp_session_find()
-Date:   Tue, 26 May 2020 20:53:02 +0200
-Message-Id: <20200526183923.567881660@linuxfoundation.org>
+Subject: [PATCH 4.4 45/65] l2tp: remove l2tp_session_find()
+Date:   Tue, 26 May 2020 20:53:04 +0200
+Message-Id: <20200526183921.591461247@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183913.064413230@linuxfoundation.org>
-References: <20200526183913.064413230@linuxfoundation.org>
+In-Reply-To: <20200526183905.988782958@linuxfoundation.org>
+References: <20200526183905.988782958@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -128,7 +128,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  struct l2tp_session *l2tp_session_get(struct net *net,
 --- a/net/l2tp/l2tp_core.h
 +++ b/net/l2tp/l2tp_core.h
-@@ -234,9 +234,6 @@ out:
+@@ -237,9 +237,6 @@ out:
  struct l2tp_session *l2tp_session_get(struct net *net,
  				      struct l2tp_tunnel *tunnel,
  				      u32 session_id, bool do_ref);
