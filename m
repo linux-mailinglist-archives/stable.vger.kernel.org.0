@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 388501E2B86
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:06:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B4521E2D75
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:24:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403784AbgEZTGD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:06:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34082 "EHLO mail.kernel.org"
+        id S2391945AbgEZTKp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:10:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40014 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391639AbgEZTGB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:06:01 -0400
+        id S2390891AbgEZTKo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:10:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C587C20776;
-        Tue, 26 May 2020 19:06:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E1EA9208A7;
+        Tue, 26 May 2020 19:10:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590519961;
-        bh=1LLrEfPfAV+cGfCNECNu52XXltkAInRVKK30NZ1an0I=;
+        s=default; t=1590520244;
+        bh=uRYjAfcBLCDplyNwEKjmFODt4UceFio/YeWgljBxLy0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ugslCmFevgxOCDsWJq7V5LY1cw3QQS2ZfqZtkMXkHr1O2WpA1e5eVZuqvaG69gzl0
-         1Q2smdXGMJB70NBx5GjR56kHzXirGjHVYDMvM5d2lHdLl524nhJZjtuGVsJY7e5kOv
-         938IZ/lt/SGGp30mR8FoioBmBYEVaCck62TZn+m0=
+        b=mCJoYVeGR1snWkBBMYg2xi3/4Z8oweuxtrwATAeB1pYxETURmbRIRkuHvxCNJidNp
+         7VIOIif0qNh1zwuRz9NkvSUOxxPi6yQr34nEuvRuKFXsRWaiLK9s2FHOvykm8lKELd
+         4/d8drdKsEru+okSFyfuoQuZoEWoYKVFnYJEX6s4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Doug Berger <opendmb@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 59/81] net: bcmgenet: abort suspend on error
-Date:   Tue, 26 May 2020 20:53:34 +0200
-Message-Id: <20200526183933.620315588@linuxfoundation.org>
+Subject: [PATCH 5.4 077/111] powerpc/64s: Disable STRICT_KERNEL_RWX
+Date:   Tue, 26 May 2020 20:53:35 +0200
+Message-Id: <20200526183940.153290244@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183923.108515292@linuxfoundation.org>
-References: <20200526183923.108515292@linuxfoundation.org>
+In-Reply-To: <20200526183932.245016380@linuxfoundation.org>
+References: <20200526183932.245016380@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,58 +43,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Doug Berger <opendmb@gmail.com>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-[ Upstream commit c5a54bbcececa36852807c36157a86d808b62310 ]
+[ Upstream commit 8659a0e0efdd975c73355dbc033f79ba3b31e82c ]
 
-If an error occurs during suspension of the driver the driver should
-restore the hardware configuration and return an error to force the
-system to resume.
+Several strange crashes have been eventually traced back to
+STRICT_KERNEL_RWX and its interaction with code patching.
 
-Fixes: 0db55093b566 ("net: bcmgenet: return correct value 'ret' from bcmgenet_power_down")
-Signed-off-by: Doug Berger <opendmb@gmail.com>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Various paths in our ftrace, kprobes and other patching code need to
+be hardened against patching failures, otherwise we can end up running
+with partially/incorrectly patched ftrace paths, kprobes or jump
+labels, which can then cause strange crashes.
+
+Although fixes for those are in development, they're not -rc material.
+
+There also seem to be problems with the underlying strict RWX logic,
+which needs further debugging.
+
+So for now disable STRICT_KERNEL_RWX on 64-bit to prevent people from
+enabling the option and tripping over the bugs.
+
+Fixes: 1e0fc9d1eb2b ("powerpc/Kconfig: Enable STRICT_KERNEL_RWX for some configs")
+Cc: stable@vger.kernel.org # v4.13+
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200520133605.972649-1-mpe@ellerman.id.au
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/genet/bcmgenet.c     | 3 +++
- drivers/net/ethernet/broadcom/genet/bcmgenet_wol.c | 6 ++++++
- 2 files changed, 9 insertions(+)
+ arch/powerpc/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/broadcom/genet/bcmgenet.c b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-index 60abf9fab810..047fc0cf0263 100644
---- a/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-+++ b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-@@ -3722,6 +3722,9 @@ static int bcmgenet_suspend(struct device *d)
- 	/* Turn off the clocks */
- 	clk_disable_unprepare(priv->clk);
- 
-+	if (ret)
-+		bcmgenet_resume(d);
-+
- 	return ret;
- }
- #endif /* CONFIG_PM_SLEEP */
-diff --git a/drivers/net/ethernet/broadcom/genet/bcmgenet_wol.c b/drivers/net/ethernet/broadcom/genet/bcmgenet_wol.c
-index 2fbd027f0148..b3596e0ee47b 100644
---- a/drivers/net/ethernet/broadcom/genet/bcmgenet_wol.c
-+++ b/drivers/net/ethernet/broadcom/genet/bcmgenet_wol.c
-@@ -186,9 +186,15 @@ void bcmgenet_wol_power_up_cfg(struct bcmgenet_priv *priv,
- 	}
- 
- 	reg = bcmgenet_umac_readl(priv, UMAC_MPD_CTRL);
-+	if (!(reg & MPD_EN))
-+		return;	/* already powered up so skip the rest */
- 	reg &= ~MPD_EN;
- 	bcmgenet_umac_writel(priv, reg, UMAC_MPD_CTRL);
- 
-+	reg = bcmgenet_hfb_reg_readl(priv, HFB_CTRL);
-+	reg &= ~(RBUF_HFB_EN | RBUF_ACPI_EN);
-+	bcmgenet_hfb_reg_writel(priv, reg, HFB_CTRL);
-+
- 	/* Disable CRC Forward */
- 	reg = bcmgenet_umac_readl(priv, UMAC_CMD);
- 	reg &= ~CMD_CRC_FWD;
+diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
+index 198bbf42e398..3dc5aecdd853 100644
+--- a/arch/powerpc/Kconfig
++++ b/arch/powerpc/Kconfig
+@@ -133,7 +133,7 @@ config PPC
+ 	select ARCH_HAS_PTE_SPECIAL
+ 	select ARCH_HAS_MEMBARRIER_CALLBACKS
+ 	select ARCH_HAS_SCALED_CPUTIME		if VIRT_CPU_ACCOUNTING_NATIVE && PPC_BOOK3S_64
+-	select ARCH_HAS_STRICT_KERNEL_RWX	if ((PPC_BOOK3S_64 || PPC32) && !HIBERNATION)
++	select ARCH_HAS_STRICT_KERNEL_RWX	if (PPC32 && !HIBERNATION)
+ 	select ARCH_HAS_TICK_BROADCAST		if GENERIC_CLOCKEVENTS_BROADCAST
+ 	select ARCH_HAS_UACCESS_FLUSHCACHE
+ 	select ARCH_HAS_UACCESS_MCSAFE		if PPC64
 -- 
 2.25.1
 
