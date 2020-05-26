@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 248D81E2E86
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:30:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 140E51E2E17
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:27:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390040AbgEZT3s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:29:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55360 "EHLO mail.kernel.org"
+        id S2390968AbgEZTEs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:04:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60608 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390211AbgEZTBH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:01:07 -0400
+        id S2391410AbgEZTEs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:04:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4AA9D2086A;
-        Tue, 26 May 2020 19:01:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 26C9B20E65;
+        Tue, 26 May 2020 19:04:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590519666;
-        bh=8E0sLew2Jr0zphB0VSQglmqOBcvFzFjkzDJzRHNfIl0=;
+        s=default; t=1590519887;
+        bh=QUJlVGNioV1dIbnsMinW6SWdcfVxvx0IG1RhC0AISco=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ezpIp8Re3jvEOuDG3I0krEUOJdZRzZe5IBKh9jGyAst55Y/LPYMeE9ETmovfb6wqF
-         SuloPuCzrw/KjuqJhAhZJbYrCWXTo3Ft6t5nNBWZKMpXiFljGDECGuvw7gFbHIL168
-         jxeo6IELUIfKqOXDlp+/qU0+vZrVoJ+t319wddQ0=
+        b=RhuyXZBYCvTS5km36ddvoTp57d2mnhjukNxQHmDhYhitnEQZNniXUBozfMIC+vdtO
+         ANWWYnLrW7sEVPOirymfvDM2viOYGUZgZnobOGiWmc16X5H2CLTmdL1Fsxq39P/gAC
+         YIa8wTJ7GkbkK+w7q0iSs0ko2gIkuQODzDPN+ygA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mathias Krause <minipli@googlemail.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 4.14 04/59] padata: ensure the reorder timer callback runs on the correct CPU
-Date:   Tue, 26 May 2020 20:52:49 +0200
-Message-Id: <20200526183908.427562948@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Fr=C3=A9d=C3=A9ric=20Pierret=20 ?= 
+        <frederic.pierret@qubes-os.org>, Kees Cook <keescook@chromium.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 15/81] gcc-common.h: Update for GCC 10
+Date:   Tue, 26 May 2020 20:52:50 +0200
+Message-Id: <20200526183928.072339746@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183907.123822792@linuxfoundation.org>
-References: <20200526183907.123822792@linuxfoundation.org>
+In-Reply-To: <20200526183923.108515292@linuxfoundation.org>
+References: <20200526183923.108515292@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,110 +45,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathias Krause <minipli@googlemail.com>
+From: Frédéric Pierret (fepitre) <frederic.pierret@qubes-os.org>
 
-commit cf5868c8a22dc2854b96e9569064bb92365549ca upstream.
+[ Upstream commit c7527373fe28f97d8a196ab562db5589be0d34b9 ]
 
-The reorder timer function runs on the CPU where the timer interrupt was
-handled which is not necessarily one of the CPUs of the 'pcpu' CPU mask
-set.
+Remove "params.h" include, which has been dropped in GCC 10.
 
-Ensure the padata_reorder() callback runs on the correct CPU, which is
-one in the 'pcpu' CPU mask set and, preferrably, the next expected one.
-Do so by comparing the current CPU with the expected target CPU. If they
-match, call padata_reorder() right away. If they differ, schedule a work
-item on the target CPU that does the padata_reorder() call for us.
+Remove is_a_helper() macro, which is now defined in gimple.h, as seen
+when running './scripts/gcc-plugin.sh g++ g++ gcc':
 
-Signed-off-by: Mathias Krause <minipli@googlemail.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: Ben Hutchings <ben@decadent.org.uk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+In file included from <stdin>:1:
+./gcc-plugins/gcc-common.h:852:13: error: redefinition of ‘static bool is_a_helper<T>::test(U*) [with U = const gimple; T = const ggoto*]’
+  852 | inline bool is_a_helper<const ggoto *>::test(const_gimple gs)
+      |             ^~~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from ./gcc-plugins/gcc-common.h:125,
+                 from <stdin>:1:
+/usr/lib/gcc/x86_64-redhat-linux/10/plugin/include/gimple.h:1037:1: note: ‘static bool is_a_helper<T>::test(U*) [with U = const gimple; T = const ggoto*]’ previously declared here
+ 1037 | is_a_helper <const ggoto *>::test (const gimple *gs)
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+Add -Wno-format-diag to scripts/gcc-plugins/Makefile to avoid
+meaningless warnings from error() formats used by plugins:
+
+scripts/gcc-plugins/structleak_plugin.c: In function ‘int plugin_init(plugin_name_args*, plugin_gcc_version*)’:
+scripts/gcc-plugins/structleak_plugin.c:253:12: warning: unquoted sequence of 2 consecutive punctuation characters ‘'-’ in format [-Wformat-diag]
+  253 |   error(G_("unknown option '-fplugin-arg-%s-%s'"), plugin_name, argv[i].key);
+      |            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Signed-off-by: Frédéric Pierret (fepitre) <frederic.pierret@qubes-os.org>
+Link: https://lore.kernel.org/r/20200407113259.270172-1-frederic.pierret@qubes-os.org
+[kees: include -Wno-format-diag for plugin builds]
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/padata.h |    2 ++
- kernel/padata.c        |   43 ++++++++++++++++++++++++++++++++++++++++++-
- 2 files changed, 44 insertions(+), 1 deletion(-)
+ scripts/gcc-plugins/Makefile     | 1 +
+ scripts/gcc-plugins/gcc-common.h | 4 ++++
+ 2 files changed, 5 insertions(+)
 
---- a/include/linux/padata.h
-+++ b/include/linux/padata.h
-@@ -85,6 +85,7 @@ struct padata_serial_queue {
-  * @swork: work struct for serialization.
-  * @pd: Backpointer to the internal control structure.
-  * @work: work struct for parallelization.
-+ * @reorder_work: work struct for reordering.
-  * @num_obj: Number of objects that are processed by this cpu.
-  * @cpu_index: Index of the cpu.
-  */
-@@ -93,6 +94,7 @@ struct padata_parallel_queue {
-        struct padata_list    reorder;
-        struct parallel_data *pd;
-        struct work_struct    work;
-+       struct work_struct    reorder_work;
-        atomic_t              num_obj;
-        int                   cpu_index;
- };
---- a/kernel/padata.c
-+++ b/kernel/padata.c
-@@ -282,11 +282,51 @@ static void padata_reorder(struct parall
- 	return;
+diff --git a/scripts/gcc-plugins/Makefile b/scripts/gcc-plugins/Makefile
+index aa0d0ec6936d..9e95862f2788 100644
+--- a/scripts/gcc-plugins/Makefile
++++ b/scripts/gcc-plugins/Makefile
+@@ -11,6 +11,7 @@ else
+   HOST_EXTRACXXFLAGS += -I$(GCC_PLUGINS_DIR)/include -I$(src) -std=gnu++98 -fno-rtti
+   HOST_EXTRACXXFLAGS += -fno-exceptions -fasynchronous-unwind-tables -ggdb
+   HOST_EXTRACXXFLAGS += -Wno-narrowing -Wno-unused-variable
++  HOST_EXTRACXXFLAGS += -Wno-format-diag
+   export HOST_EXTRACXXFLAGS
+ endif
+ 
+diff --git a/scripts/gcc-plugins/gcc-common.h b/scripts/gcc-plugins/gcc-common.h
+index 17f06079a712..9ad76b7f3f10 100644
+--- a/scripts/gcc-plugins/gcc-common.h
++++ b/scripts/gcc-plugins/gcc-common.h
+@@ -35,7 +35,9 @@
+ #include "ggc.h"
+ #include "timevar.h"
+ 
++#if BUILDING_GCC_VERSION < 10000
+ #include "params.h"
++#endif
+ 
+ #if BUILDING_GCC_VERSION <= 4009
+ #include "pointer-set.h"
+@@ -847,6 +849,7 @@ static inline gimple gimple_build_assign_with_ops(enum tree_code subcode, tree l
+ 	return gimple_build_assign(lhs, subcode, op1, op2 PASS_MEM_STAT);
  }
  
-+static void invoke_padata_reorder(struct work_struct *work)
-+{
-+	struct padata_parallel_queue *pqueue;
-+	struct parallel_data *pd;
-+
-+	local_bh_disable();
-+	pqueue = container_of(work, struct padata_parallel_queue, reorder_work);
-+	pd = pqueue->pd;
-+	padata_reorder(pd);
-+	local_bh_enable();
-+}
-+
- static void padata_reorder_timer(unsigned long arg)
++#if BUILDING_GCC_VERSION < 10000
+ template <>
+ template <>
+ inline bool is_a_helper<const ggoto *>::test(const_gimple gs)
+@@ -860,6 +863,7 @@ inline bool is_a_helper<const greturn *>::test(const_gimple gs)
  {
- 	struct parallel_data *pd = (struct parallel_data *)arg;
-+	unsigned int weight;
-+	int target_cpu, cpu;
- 
--	padata_reorder(pd);
-+	cpu = get_cpu();
-+
-+	/* We don't lock pd here to not interfere with parallel processing
-+	 * padata_reorder() calls on other CPUs. We just need any CPU out of
-+	 * the cpumask.pcpu set. It would be nice if it's the right one but
-+	 * it doesn't matter if we're off to the next one by using an outdated
-+	 * pd->processed value.
-+	 */
-+	weight = cpumask_weight(pd->cpumask.pcpu);
-+	target_cpu = padata_index_to_cpu(pd, pd->processed % weight);
-+
-+	/* ensure to call the reorder callback on the correct CPU */
-+	if (cpu != target_cpu) {
-+		struct padata_parallel_queue *pqueue;
-+		struct padata_instance *pinst;
-+
-+		/* The timer function is serialized wrt itself -- no locking
-+		 * needed.
-+		 */
-+		pinst = pd->pinst;
-+		pqueue = per_cpu_ptr(pd->pqueue, target_cpu);
-+		queue_work_on(target_cpu, pinst->wq, &pqueue->reorder_work);
-+	} else {
-+		padata_reorder(pd);
-+	}
-+
-+	put_cpu();
+ 	return gs->code == GIMPLE_RETURN;
  }
++#endif
  
- static void padata_serial_worker(struct work_struct *serial_work)
-@@ -413,6 +453,7 @@ static void padata_init_pqueues(struct p
- 		__padata_list_init(&pqueue->reorder);
- 		__padata_list_init(&pqueue->parallel);
- 		INIT_WORK(&pqueue->work, padata_parallel_worker);
-+		INIT_WORK(&pqueue->reorder_work, invoke_padata_reorder);
- 		atomic_set(&pqueue->num_obj, 0);
- 	}
- }
+ static inline gasm *as_a_gasm(gimple stmt)
+ {
+-- 
+2.25.1
+
 
 
