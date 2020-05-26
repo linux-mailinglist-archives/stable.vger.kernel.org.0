@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 279EE1E2B35
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:03:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 54A1D1E2B9A
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:06:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390523AbgEZTC5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:02:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57954 "EHLO mail.kernel.org"
+        id S2391664AbgEZTGr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:06:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35204 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403842AbgEZTCz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:02:55 -0400
+        id S2391659AbgEZTGr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:06:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DD68D208A7;
-        Tue, 26 May 2020 19:02:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 400FE208B6;
+        Tue, 26 May 2020 19:06:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590519774;
-        bh=zLWuKfdOMv5Vm2wkPGbl40+ScNFyWiRzHsIAtytfIco=;
+        s=default; t=1590520006;
+        bh=5Jw2XWPyAflQbiow2IPI844NGJrnWr7R0NZIMUjNWrE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mlf5DkK9G/uIOPUCiI2kjx0jOOlzwCAtP1HTv3Rb1TbSAnZ368ieycgzZ1rXaDoEr
-         oGz+yaAdlUrjvuU2k/nF9GJqAhvubl0/dBE36bvQYslJ5+1GIMCy4nndQJB0yPurIR
-         mfo4TFJRC+jnPY1Eh2iK1s90EAxvZLyUl1Q6CUiU=
+        b=0dWgvCespcuoFqChA9HClFLCx8iZmGBrh2sDpWOYQDo2aSDeqS8s8s/tR4qPkmVvY
+         Y/oJHwhAOLbW+6EUDHmWU9S/0vDMkiASTv4p8ONiKsQkH4KcE2GKERYyfLnc8nLJvg
+         DblNQK6Ghdeuiqisk7HxCJfiEb1t0wm3CYTInvf4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liran Alon <liran.alon@oracle.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Miaohe Lin <linmiaohe@huawei.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>
-Subject: [PATCH 4.19 04/81] KVM: SVM: Fix potential memory leak in svm_cpu_init()
+        stable@vger.kernel.org,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 021/111] HID: multitouch: add eGalaxTouch P80H84 support
 Date:   Tue, 26 May 2020 20:52:39 +0200
-Message-Id: <20200526183924.272896961@linuxfoundation.org>
+Message-Id: <20200526183934.698397708@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183923.108515292@linuxfoundation.org>
-References: <20200526183923.108515292@linuxfoundation.org>
+In-Reply-To: <20200526183932.245016380@linuxfoundation.org>
+References: <20200526183932.245016380@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,66 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaohe Lin <linmiaohe@huawei.com>
+From: Sebastian Reichel <sebastian.reichel@collabora.com>
 
-commit d80b64ff297e40c2b6f7d7abc1b3eba70d22a068 upstream.
+[ Upstream commit f9e82295eec141a0569649d400d249333d74aa91 ]
 
-When kmalloc memory for sd->sev_vmcbs failed, we forget to free the page
-held by sd->save_area. Also get rid of the var r as '-ENOMEM' is actually
-the only possible outcome here.
+Add support for P80H84 touchscreen from eGalaxy:
 
-Reviewed-by: Liran Alon <liran.alon@oracle.com>
-Reviewed-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Ben Hutchings <ben.hutchings@codethink.co.uk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  idVendor           0x0eef D-WAV Scientific Co., Ltd
+  idProduct          0xc002
+  iManufacturer           1 eGalax Inc.
+  iProduct                2 eGalaxTouch P80H84 2019 vDIVA_1204_T01 k4.02.146
 
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/svm.c |   13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ drivers/hid/hid-ids.h        | 1 +
+ drivers/hid/hid-multitouch.c | 3 +++
+ 2 files changed, 4 insertions(+)
 
---- a/arch/x86/kvm/svm.c
-+++ b/arch/x86/kvm/svm.c
-@@ -998,33 +998,32 @@ static void svm_cpu_uninit(int cpu)
- static int svm_cpu_init(int cpu)
- {
- 	struct svm_cpu_data *sd;
--	int r;
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 646b98809ed3..ecb5ff8202ef 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -385,6 +385,7 @@
+ #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_7349	0x7349
+ #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_73F7	0x73f7
+ #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_A001	0xa001
++#define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_C002	0xc002
  
- 	sd = kzalloc(sizeof(struct svm_cpu_data), GFP_KERNEL);
- 	if (!sd)
- 		return -ENOMEM;
- 	sd->cpu = cpu;
--	r = -ENOMEM;
- 	sd->save_area = alloc_page(GFP_KERNEL);
- 	if (!sd->save_area)
--		goto err_1;
-+		goto free_cpu_data;
+ #define USB_VENDOR_ID_ELAN		0x04f3
+ #define USB_DEVICE_ID_TOSHIBA_CLICK_L9W	0x0401
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 362805ddf377..03c720b47306 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -1922,6 +1922,9 @@ static const struct hid_device_id mt_devices[] = {
+ 	{ .driver_data = MT_CLS_EGALAX_SERIAL,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_DWAV,
+ 			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_A001) },
++	{ .driver_data = MT_CLS_EGALAX,
++		MT_USB_DEVICE(USB_VENDOR_ID_DWAV,
++			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_C002) },
  
- 	if (svm_sev_enabled()) {
--		r = -ENOMEM;
- 		sd->sev_vmcbs = kmalloc_array(max_sev_asid + 1,
- 					      sizeof(void *),
- 					      GFP_KERNEL);
- 		if (!sd->sev_vmcbs)
--			goto err_1;
-+			goto free_save_area;
- 	}
- 
- 	per_cpu(svm_data, cpu) = sd;
- 
- 	return 0;
- 
--err_1:
-+free_save_area:
-+	__free_page(sd->save_area);
-+free_cpu_data:
- 	kfree(sd);
--	return r;
-+	return -ENOMEM;
- 
- }
- 
+ 	/* Elitegroup panel */
+ 	{ .driver_data = MT_CLS_SERIAL,
+-- 
+2.25.1
+
 
 
