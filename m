@@ -2,93 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CA9291E268B
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 18:10:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA5351E269E
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 18:15:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727973AbgEZQKB convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Tue, 26 May 2020 12:10:01 -0400
-Received: from mail.fireflyinternet.com ([109.228.58.192]:57025 "EHLO
-        fireflyinternet.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1727941AbgEZQKB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 May 2020 12:10:01 -0400
-X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
-Received: from localhost (unverified [78.156.65.138]) 
-        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP (TLS) id 21299591-1500050 
-        for multiple; Tue, 26 May 2020 17:09:56 +0100
-Content-Type: text/plain; charset="utf-8"
+        id S1728294AbgEZQPH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 12:15:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34838 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727941AbgEZQPH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 May 2020 12:15:07 -0400
+Received: from mail-pl1-x643.google.com (mail-pl1-x643.google.com [IPv6:2607:f8b0:4864:20::643])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45A6FC03E96D
+        for <stable@vger.kernel.org>; Tue, 26 May 2020 09:15:07 -0700 (PDT)
+Received: by mail-pl1-x643.google.com with SMTP id x11so7877288plv.9
+        for <stable@vger.kernel.org>; Tue, 26 May 2020 09:15:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=IdTmx5bvE+V1cAcFJI98GnDSoP0mb5MfVH5Axb1TejM=;
+        b=YNNvSaANvznznsq6NwzIsZWeDzc27QMCyU/RLQFt132rryBivrtEuaFvxLjynP9vOC
+         lrwK6MQNyNlvBZmT/WVxhaRyPcDs+pAsTRKf58LrEcBxV4nseo6f1t3PdSvmHFV4uf0H
+         g1OP43Bipju2hrlrFmsJXumIB96rviCx8CjEg=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=IdTmx5bvE+V1cAcFJI98GnDSoP0mb5MfVH5Axb1TejM=;
+        b=tZr9M4EMRXrK0mXiEjKSwhMdL/SZxK6aKam8udIBZZHsIdACng4nTHyXV06ywZ+6yj
+         cclTkWUtsg0e/x89lUoWftBApd/IDunAIjb6xtmdCE1jZyQwrouDBD0Ec03i3LxjULwP
+         fT8nPI0csmHqejjrMVDVjS5fmVwBfnX/sLXQwJz+goCm58+qGS34/pplwaMb97JeeNX/
+         l/uud1eD/VZHwcp6jtiFXxulcdLEcvfr0V24RJhwsYj3QVQcVukM8M471V4PgQ/assVL
+         2zckh0sFkFaAytNbj6S8Jy4cZBh/YmukdUW48Kz833zLbtOpiBpQ2wEwDokiL/3trqNc
+         z2RA==
+X-Gm-Message-State: AOAM532BLr2X7m6MXI+0VEeUR7/JoC9w9HD1DFscqas1CFYBirwW63pJ
+        QQUcIduvOcWjCi3ff5by6e8dGA==
+X-Google-Smtp-Source: ABdhPJzdYWXboruOLBkXnWjJPQ/weKAztCxQPCSyM3XiKpaGg2ZHsjoGl/AuQAdP804jyn88zCCNbg==
+X-Received: by 2002:a17:90a:2a8e:: with SMTP id j14mr21920pjd.136.1590509706847;
+        Tue, 26 May 2020 09:15:06 -0700 (PDT)
+Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
+        by smtp.gmail.com with ESMTPSA id g18sm33078pfq.146.2020.05.26.09.15.05
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 26 May 2020 09:15:06 -0700 (PDT)
+Date:   Tue, 26 May 2020 09:15:04 -0700
+From:   Kees Cook <keescook@chromium.org>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     Andi Kleen <andi@firstfloor.org>, x86@kernel.org,
+        linux-kernel@vger.kernel.org, sashal@kernel.org,
+        Andi Kleen <ak@linux.intel.com>, stable@vger.kernel.org
+Subject: Re: [PATCH v1] x86: Pin cr4 FSGSBASE
+Message-ID: <202005260912.8867B3AA@keescook>
+References: <20200526052848.605423-1-andi@firstfloor.org>
+ <20200526065618.GC2580410@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-In-Reply-To: <6016e5c6-cd09-dd3f-b102-49e76fa28518@linux.intel.com>
-References: <20200526090753.11329-1-chris@chris-wilson.co.uk> <20200526090753.11329-2-chris@chris-wilson.co.uk> <6016e5c6-cd09-dd3f-b102-49e76fa28518@linux.intel.com>
-From:   Chris Wilson <chris@chris-wilson.co.uk>
-To:     Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
-        intel-gfx@lists.freedesktop.org
-Cc:     stable@vger.kernel.org
-Subject: Re: [Intel-gfx] [PATCH 2/2] drm/i915/gt: Do not schedule normal requests immediately along virtual
-Message-ID: <159050939489.30979.11486479918711171319@build.alporthouse.com>
-User-Agent: alot/0.8.1
-Date:   Tue, 26 May 2020 17:09:54 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200526065618.GC2580410@kroah.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Quoting Tvrtko Ursulin (2020-05-26 17:00:06)
-> 
-> On 26/05/2020 10:07, Chris Wilson wrote:
-> > When we push a virtual request onto the HW, we update the rq->engine to
-> > point to the physical engine. A request that is then submitted by the
-> > user that waits upon the virtual engine, but along the physical engine
-> > in use, will then see that it is due to be submitted to the same engine
-> > and take a shortcut (and be queued without waiting for the completion
-> > fence). However, the virtual request may be preempted (either by higher
-> > priority users, or by timeslicing) and removed from the physical engine
-> > to be migrated over to one of its siblings. The dependent normal request
-> > however is oblivious to the removal of the virtual request and remains
-> > queued to execute on HW, believing that once it reaches the head of its
-> > queue all of its predecessors will have completed executing!
-> > 
-> > v2: Beware restriction of signal->execution_mask prior to submission.
-> > 
-> > Fixes: 6d06779e8672 ("drm/i915: Load balancing across a virtual engine")
-> > Testcase: igt/gem_exec_balancer/sliced
-> > Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-> > Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-> > Cc: <stable@vger.kernel.org> # v5.3+
-> > ---
-> >   drivers/gpu/drm/i915/i915_request.c | 25 +++++++++++++++++++++----
-> >   1 file changed, 21 insertions(+), 4 deletions(-)
-> > 
-> > diff --git a/drivers/gpu/drm/i915/i915_request.c b/drivers/gpu/drm/i915/i915_request.c
-> > index 33bbad623e02..0b07ccc7e9bc 100644
-> > --- a/drivers/gpu/drm/i915/i915_request.c
-> > +++ b/drivers/gpu/drm/i915/i915_request.c
-> > @@ -1237,6 +1237,25 @@ i915_request_await_execution(struct i915_request *rq,
-> >       return 0;
-> >   }
-> >   
-> > +static int
-> > +await_request_submit(struct i915_request *to, struct i915_request *from)
-> > +{
-> > +     /*
-> > +      * If we are waiting on a virtual engine, then it may be
-> > +      * constrained to execute on a single engine *prior* to submission.
-> > +      * When it is submitted, it will be first submitted to the virtual
-> > +      * engine and then passed to the physical engine. We cannot allow
-> > +      * the waiter to be submitted immediately to the physical engine
-> > +      * as it may then bypass the virtual request.
-> > +      */
-> > +     if (to->engine == READ_ONCE(from->engine))
-> > +             return i915_sw_fence_await_sw_fence_gfp(&to->submit,
-> > +                                                     &from->submit,
-> > +                                                     I915_FENCE_GFP);
-> > +     else
-> 
-> When can engines be different and the mask test below brought us here?
+On Tue, May 26, 2020 at 08:56:18AM +0200, Greg KH wrote:
+> What about those systems that panic-on-warn?
 
-We change the mask during evaluation of the bond, which is from the
-signaler's signaler's execute_cb before the signaler is submitted. So
-there will be a period where the from->execution_mask is constrained to
-a single engine, but it is still waiting to be queued. Once it is
-executed on HW, it will remain on that engine.
--Chris
+This is (modulo the general discussion about whether it's the right
+way to check) the correct use for WARN*(). It's an undesirable system
+state; people choosing panic-on-warn want this:
+https://www.kernel.org/doc/html/latest/process/deprecated.html#bug-and-bug-on
+
+-- 
+Kees Cook
