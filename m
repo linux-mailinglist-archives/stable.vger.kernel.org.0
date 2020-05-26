@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CD57C1E2DC8
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:25:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D4751E2C2A
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:12:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391328AbgEZTH7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:07:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36838 "EHLO mail.kernel.org"
+        id S2392112AbgEZTMq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:12:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42362 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403778AbgEZTH5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:07:57 -0400
+        id S2392120AbgEZTMo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:12:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1485320776;
-        Tue, 26 May 2020 19:07:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E1D2E20888;
+        Tue, 26 May 2020 19:12:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590520076;
-        bh=u2VeJ6WneGtXK1DRpVLdh0k3NgnIp1z1pi15bDGTiIw=;
+        s=default; t=1590520364;
+        bh=mRhGw7qR37r16r1P8tKnMThQNVCj3v9b08mSdxj9QVw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M3k3A03aXKFo7/meVY8rJh3CXPh2WriqXSiW+cMvDRguCDl0c7lDuYL8zt/YaubMc
-         xgfpDRmvu87mIJk4gxYqdJLVbjmWIzUbcsznGc3sQYyTiYE0s5QsiezHUlKAynuazI
-         0fxruFgd2teIMfEZ9UY6a0MSHTB3UGt5wKS33A4A=
+        b=VJsRYzAHsSAyv2RkEueQuJhihezuf0K/VUdhFwZp2G2fj71q0uOz3YmReskcMFzlf
+         lurQdBf3ldjlNzjIf2AzqbLLu28D7YeNKfeFF7qXx1Fz7XQ+W3iuuMQ/v80I2B8d2M
+         DFGMQTSwmJ7OQdL2TJsXXjM8JdHyglUjxFJ0m5Tc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 049/111] ALSA: hda: patch_realtek: fix empty macro usage in if block
+        stable@vger.kernel.org, Roman Li <roman.li@amd.com>,
+        Zhan Liu <Zhan.Liu@amd.com>,
+        Aurabindo Pillai <aurabindo.pillai@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 050/126] drm/amd/display: fix counter in wait_for_no_pipes_pending
 Date:   Tue, 26 May 2020 20:53:07 +0200
-Message-Id: <20200526183937.524385358@linuxfoundation.org>
+Message-Id: <20200526183942.236469362@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183932.245016380@linuxfoundation.org>
-References: <20200526183932.245016380@linuxfoundation.org>
+In-Reply-To: <20200526183937.471379031@linuxfoundation.org>
+References: <20200526183937.471379031@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,51 +46,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+From: Roman Li <roman.li@amd.com>
 
-[ Upstream commit 8a71821f12a010d7100f9cc1f7b218aff0313c4a ]
+[ Upstream commit 80797dd6f1a525d1160c463d6a9f9d29af182cbb ]
 
-GCC reports the following warning with W=1
+[Why]
+Wait counter is not being reset for each pipe.
 
-sound/pci/hda/patch_realtek.c: In function ‘alc269_suspend’:
-sound/pci/hda/patch_realtek.c:3616:29: warning: suggest braces around
-empty body in an ‘if’ statement [-Wempty-body]
- 3616 |   alc5505_dsp_suspend(codec);
-      |                             ^
+[How]
+Move counter reset into pipe loop scope.
 
-sound/pci/hda/patch_realtek.c: In function ‘alc269_resume’:
-sound/pci/hda/patch_realtek.c:3651:28: warning: suggest braces around empty body in an ‘if’ statement [-Wempty-body]
- 3651 |   alc5505_dsp_resume(codec);
-      |                            ^
-
-This is a classic macro problem and can indeed lead to bad program
-flows.
-
-Fix by using the usual "do { } while (0)" pattern
-
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20200111214736.3002-2-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Roman Li <roman.li@amd.com>
+Reviewed-by: Zhan Liu <Zhan.Liu@amd.com>
+Acked-by: Aurabindo Pillai <aurabindo.pillai@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_realtek.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/display/dc/core/dc.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
-index 151099b8c394..a0e7d711cbb5 100644
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -3719,8 +3719,8 @@ static void alc5505_dsp_init(struct hda_codec *codec)
- }
+diff --git a/drivers/gpu/drm/amd/display/dc/core/dc.c b/drivers/gpu/drm/amd/display/dc/core/dc.c
+index 188e51600070..b3987124183a 100644
+--- a/drivers/gpu/drm/amd/display/dc/core/dc.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc.c
+@@ -803,11 +803,10 @@ static void disable_dangling_plane(struct dc *dc, struct dc_state *context)
+ static void wait_for_no_pipes_pending(struct dc *dc, struct dc_state *context)
+ {
+ 	int i;
+-	int count = 0;
+-	struct pipe_ctx *pipe;
+ 	PERF_TRACE();
+ 	for (i = 0; i < MAX_PIPES; i++) {
+-		pipe = &context->res_ctx.pipe_ctx[i];
++		int count = 0;
++		struct pipe_ctx *pipe = &context->res_ctx.pipe_ctx[i];
  
- #ifdef HALT_REALTEK_ALC5505
--#define alc5505_dsp_suspend(codec)	/* NOP */
--#define alc5505_dsp_resume(codec)	/* NOP */
-+#define alc5505_dsp_suspend(codec)	do { } while (0) /* NOP */
-+#define alc5505_dsp_resume(codec)	do { } while (0) /* NOP */
- #else
- #define alc5505_dsp_suspend(codec)	alc5505_dsp_halt(codec)
- #define alc5505_dsp_resume(codec)	alc5505_dsp_back_from_halt(codec)
+ 		if (!pipe->plane_state)
+ 			continue;
 -- 
 2.25.1
 
