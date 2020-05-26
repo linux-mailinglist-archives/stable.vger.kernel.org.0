@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DBF01E2AF5
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:03:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9845D1E2DCE
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:25:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390752AbgEZTAc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:00:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54658 "EHLO mail.kernel.org"
+        id S2391705AbgEZTHg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:07:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36376 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389533AbgEZTAb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:00:31 -0400
+        id S2391703AbgEZTHg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:07:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 987F52084C;
-        Tue, 26 May 2020 19:00:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 71B2720873;
+        Tue, 26 May 2020 19:07:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590519631;
-        bh=2daPSeBpK2D69QgGS2J3i1uLMjBYRlOd3LEOgCryJ7c=;
+        s=default; t=1590520055;
+        bh=iwxMfXo9WDABrpDQWQ8rVLlMKFfN+bAWTFoLos0w2GI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dMHVJ9vCukVA6WRVVHkk/55KVQD3I0QC+sMfNSFdbPAMTCkBFFrdf3uY171ybg4Pm
-         16Eeit+9mn0JsZLTC1a/+gfteGia+B+2y8GDpmDSXsq87yPzRnABijYBtHeBj6nQhE
-         jnU4HixtL7wW/4J4f5RkVjNo4lPDKXV8ZGWLWDII=
+        b=K5BDGd1wRVxqlv/i3J5RpVlsKYS/Z+nFYy28talsIFRsq6oKO4t7k/dVYNzHW0XIh
+         8ko2HeFwniHlyBFGTHFB1yAxQSe52jAk/DUarcUQZ58yPkq9GmKtEAwhncN21bx7h/
+         MxNLGGbCSKeZAMVq83LDyPMfga2PQDIBj8M9F47Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Arun Easi <aeasi@marvell.com>,
-        Nilesh Javali <njavali@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 15/59] scsi: qla2xxx: Fix hang when issuing nvme disconnect-all in NPIV
+Subject: [PATCH 5.4 042/111] platform/x86: asus-nb-wmi: Do not load on Asus T100TA and T200TA
 Date:   Tue, 26 May 2020 20:53:00 +0200
-Message-Id: <20200526183913.080919425@linuxfoundation.org>
+Message-Id: <20200526183936.927147603@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183907.123822792@linuxfoundation.org>
-References: <20200526183907.123822792@linuxfoundation.org>
+In-Reply-To: <20200526183932.245016380@linuxfoundation.org>
+References: <20200526183932.245016380@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,40 +44,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arun Easi <aeasi@marvell.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 45a76264c26fd8cfd0c9746196892d9b7e2657ee ]
+[ Upstream commit 3bd12da7f50b8bc191fcb3bab1f55c582234df59 ]
 
-In NPIV environment, a NPIV host may use a queue pair created by base host
-or other NPIVs, so the check for a queue pair created by this NPIV is not
-correct, and can cause an abort to fail, which in turn means the NVME
-command not returned.  This leads to hang in nvme_fc layer in
-nvme_fc_delete_association() which waits for all I/Os to be returned, which
-is seen as hang in the application.
+asus-nb-wmi does not add any extra functionality on these Asus
+Transformer books. They have detachable keyboards, so the hotkeys are
+send through a HID device (and handled by the hid-asus driver) and also
+the rfkill functionality is not used on these devices.
 
-Link: https://lore.kernel.org/r/20200331104015.24868-3-njavali@marvell.com
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Arun Easi <aeasi@marvell.com>
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Besides not adding any extra functionality, initializing the WMI interface
+on these devices actually has a negative side-effect. For some reason
+the \_SB.ATKD.INIT() function which asus_wmi_platform_init() calls drives
+GPO2 (INT33FC:02) pin 8, which is connected to the front facing webcam LED,
+high and there is no (WMI or other) interface to drive this low again
+causing the LED to be permanently on, even during suspend.
+
+This commit adds a blacklist of DMI system_ids on which not to load the
+asus-nb-wmi and adds these Transformer books to this list. This fixes
+the webcam LED being permanently on under Linux.
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_mbx.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/platform/x86/asus-nb-wmi.c | 24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
 
-diff --git a/drivers/scsi/qla2xxx/qla_mbx.c b/drivers/scsi/qla2xxx/qla_mbx.c
-index 5e8ae510aef8..9d9737114dcf 100644
---- a/drivers/scsi/qla2xxx/qla_mbx.c
-+++ b/drivers/scsi/qla2xxx/qla_mbx.c
-@@ -2998,7 +2998,7 @@ qla24xx_abort_command(srb_t *sp)
- 	ql_dbg(ql_dbg_mbx + ql_dbg_verbose, vha, 0x108c,
- 	    "Entered %s.\n", __func__);
+diff --git a/drivers/platform/x86/asus-nb-wmi.c b/drivers/platform/x86/asus-nb-wmi.c
+index b361c73636a4..0d42477946f3 100644
+--- a/drivers/platform/x86/asus-nb-wmi.c
++++ b/drivers/platform/x86/asus-nb-wmi.c
+@@ -514,9 +514,33 @@ static struct asus_wmi_driver asus_nb_wmi_driver = {
+ 	.detect_quirks = asus_nb_wmi_quirks,
+ };
  
--	if (vha->flags.qpairs_available && sp->qpair)
-+	if (sp->qpair)
- 		req = sp->qpair->req;
++static const struct dmi_system_id asus_nb_wmi_blacklist[] __initconst = {
++	{
++		/*
++		 * asus-nb-wm adds no functionality. The T100TA has a detachable
++		 * USB kbd, so no hotkeys and it has no WMI rfkill; and loading
++		 * asus-nb-wm causes the camera LED to turn and _stay_ on.
++		 */
++		.matches = {
++			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
++			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "T100TA"),
++		},
++	},
++	{
++		/* The Asus T200TA has the same issue as the T100TA */
++		.matches = {
++			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
++			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "T200TA"),
++		},
++	},
++	{} /* Terminating entry */
++};
  
- 	if (ql2xasynctmfenable)
+ static int __init asus_nb_wmi_init(void)
+ {
++	if (dmi_check_system(asus_nb_wmi_blacklist))
++		return -ENODEV;
++
+ 	return asus_wmi_register_driver(&asus_nb_wmi_driver);
+ }
+ 
 -- 
 2.25.1
 
