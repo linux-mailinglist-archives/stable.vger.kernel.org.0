@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 409D71E2CD6
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:18:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 248D81E2E86
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:30:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391864AbgEZTNn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:13:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44078 "EHLO mail.kernel.org"
+        id S2390040AbgEZT3s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:29:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55360 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390066AbgEZTNm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:13:42 -0400
+        id S2390211AbgEZTBH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:01:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7AFE220888;
-        Tue, 26 May 2020 19:13:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4AA9D2086A;
+        Tue, 26 May 2020 19:01:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590520421;
-        bh=KIVtMWsZYjSeXPcrFP3pyIwtXZ4XUtv5qHuAvVcJRs8=;
+        s=default; t=1590519666;
+        bh=8E0sLew2Jr0zphB0VSQglmqOBcvFzFjkzDJzRHNfIl0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z44ONlvPMP/VkovVXUrjZiTgrtxVk43ByV8ejyuQ75buyuADv5PwaJrmUdKzta5Na
-         QPsR5UHs+cZys9WYUnlXjMcIaHxpOUuWLj+f9v09ZxuKqQaLFs+xISoDLQCkmZtiki
-         4kOwonbHc6ldOOWeEr4ZThnehcUJ7C13DrjEB694=
+        b=ezpIp8Re3jvEOuDG3I0krEUOJdZRzZe5IBKh9jGyAst55Y/LPYMeE9ETmovfb6wqF
+         SuloPuCzrw/KjuqJhAhZJbYrCWXTo3Ft6t5nNBWZKMpXiFljGDECGuvw7gFbHIL168
+         jxeo6IELUIfKqOXDlp+/qU0+vZrVoJ+t319wddQ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefano Garzarella <sgarzare@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 032/126] vhost/vsock: fix packet delivery order to monitoring devices
+        stable@vger.kernel.org, Mathias Krause <minipli@googlemail.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Ben Hutchings <ben@decadent.org.uk>
+Subject: [PATCH 4.14 04/59] padata: ensure the reorder timer callback runs on the correct CPU
 Date:   Tue, 26 May 2020 20:52:49 +0200
-Message-Id: <20200526183940.525116042@linuxfoundation.org>
+Message-Id: <20200526183908.427562948@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183937.471379031@linuxfoundation.org>
-References: <20200526183937.471379031@linuxfoundation.org>
+In-Reply-To: <20200526183907.123822792@linuxfoundation.org>
+References: <20200526183907.123822792@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,47 +44,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefano Garzarella <sgarzare@redhat.com>
+From: Mathias Krause <minipli@googlemail.com>
 
-[ Upstream commit 107bc0766b9feb5113074c753735a3f115c2141f ]
+commit cf5868c8a22dc2854b96e9569064bb92365549ca upstream.
 
-We want to deliver packets to monitoring devices before it is
-put in the virtqueue, to avoid that replies can appear in the
-packet capture before the transmitted packet.
+The reorder timer function runs on the CPU where the timer interrupt was
+handled which is not necessarily one of the CPUs of the 'pcpu' CPU mask
+set.
 
-Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Ensure the padata_reorder() callback runs on the correct CPU, which is
+one in the 'pcpu' CPU mask set and, preferrably, the next expected one.
+Do so by comparing the current CPU with the expected target CPU. If they
+match, call padata_reorder() right away. If they differ, schedule a work
+item on the target CPU that does the padata_reorder() call for us.
+
+Signed-off-by: Mathias Krause <minipli@googlemail.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: Ben Hutchings <ben@decadent.org.uk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/vhost/vsock.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ include/linux/padata.h |    2 ++
+ kernel/padata.c        |   43 ++++++++++++++++++++++++++++++++++++++++++-
+ 2 files changed, 44 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
-index bb3f63386b47..53294c2f8cff 100644
---- a/drivers/vhost/vsock.c
-+++ b/drivers/vhost/vsock.c
-@@ -181,14 +181,14 @@ vhost_transport_do_send_pkt(struct vhost_vsock *vsock,
- 			break;
- 		}
+--- a/include/linux/padata.h
++++ b/include/linux/padata.h
+@@ -85,6 +85,7 @@ struct padata_serial_queue {
+  * @swork: work struct for serialization.
+  * @pd: Backpointer to the internal control structure.
+  * @work: work struct for parallelization.
++ * @reorder_work: work struct for reordering.
+  * @num_obj: Number of objects that are processed by this cpu.
+  * @cpu_index: Index of the cpu.
+  */
+@@ -93,6 +94,7 @@ struct padata_parallel_queue {
+        struct padata_list    reorder;
+        struct parallel_data *pd;
+        struct work_struct    work;
++       struct work_struct    reorder_work;
+        atomic_t              num_obj;
+        int                   cpu_index;
+ };
+--- a/kernel/padata.c
++++ b/kernel/padata.c
+@@ -282,11 +282,51 @@ static void padata_reorder(struct parall
+ 	return;
+ }
  
--		vhost_add_used(vq, head, sizeof(pkt->hdr) + payload_len);
--		added = true;
--
--		/* Deliver to monitoring devices all correctly transmitted
--		 * packets.
-+		/* Deliver to monitoring devices all packets that we
-+		 * will transmit.
- 		 */
- 		virtio_transport_deliver_tap_pkt(pkt);
- 
-+		vhost_add_used(vq, head, sizeof(pkt->hdr) + payload_len);
-+		added = true;
++static void invoke_padata_reorder(struct work_struct *work)
++{
++	struct padata_parallel_queue *pqueue;
++	struct parallel_data *pd;
 +
- 		pkt->off += payload_len;
- 		total_len += payload_len;
++	local_bh_disable();
++	pqueue = container_of(work, struct padata_parallel_queue, reorder_work);
++	pd = pqueue->pd;
++	padata_reorder(pd);
++	local_bh_enable();
++}
++
+ static void padata_reorder_timer(unsigned long arg)
+ {
+ 	struct parallel_data *pd = (struct parallel_data *)arg;
++	unsigned int weight;
++	int target_cpu, cpu;
  
--- 
-2.25.1
-
+-	padata_reorder(pd);
++	cpu = get_cpu();
++
++	/* We don't lock pd here to not interfere with parallel processing
++	 * padata_reorder() calls on other CPUs. We just need any CPU out of
++	 * the cpumask.pcpu set. It would be nice if it's the right one but
++	 * it doesn't matter if we're off to the next one by using an outdated
++	 * pd->processed value.
++	 */
++	weight = cpumask_weight(pd->cpumask.pcpu);
++	target_cpu = padata_index_to_cpu(pd, pd->processed % weight);
++
++	/* ensure to call the reorder callback on the correct CPU */
++	if (cpu != target_cpu) {
++		struct padata_parallel_queue *pqueue;
++		struct padata_instance *pinst;
++
++		/* The timer function is serialized wrt itself -- no locking
++		 * needed.
++		 */
++		pinst = pd->pinst;
++		pqueue = per_cpu_ptr(pd->pqueue, target_cpu);
++		queue_work_on(target_cpu, pinst->wq, &pqueue->reorder_work);
++	} else {
++		padata_reorder(pd);
++	}
++
++	put_cpu();
+ }
+ 
+ static void padata_serial_worker(struct work_struct *serial_work)
+@@ -413,6 +453,7 @@ static void padata_init_pqueues(struct p
+ 		__padata_list_init(&pqueue->reorder);
+ 		__padata_list_init(&pqueue->parallel);
+ 		INIT_WORK(&pqueue->work, padata_parallel_worker);
++		INIT_WORK(&pqueue->reorder_work, invoke_padata_reorder);
+ 		atomic_set(&pqueue->num_obj, 0);
+ 	}
+ }
 
 
