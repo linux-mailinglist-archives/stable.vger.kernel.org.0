@@ -2,90 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 281121E1B96
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 08:56:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D18A81E1B9F
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 08:59:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728172AbgEZG4W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 02:56:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38464 "EHLO mail.kernel.org"
+        id S1727873AbgEZG7f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 02:59:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38816 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727873AbgEZG4V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 02:56:21 -0400
+        id S1726921AbgEZG7e (ORCPT <rfc822;Stable@vger.kernel.org>);
+        Tue, 26 May 2020 02:59:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 929EB20776;
-        Tue, 26 May 2020 06:56:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B933920776;
+        Tue, 26 May 2020 06:59:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590476181;
-        bh=nawe3MBL7YxVPoyFPa9J+pBh9x816z61tkOvrywTjF8=;
+        s=default; t=1590476374;
+        bh=mx2RsX+GiWP1tdIk5Q+o9Hj9Jgnspz9e6NQss4KWcp8=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=kirELv+kRS3LZp4kRekX2KxHQsvPM0Pg5Np/ECJASkjy5BEidyNh7gJQALZnn3FRE
-         h23lhEzkP4YB7Kuz/ylMuKEFGWl7PbWwxORDj4/R+QGOEhq07HNUYQKAcA/sczEE1Q
-         M0IjQada3t6JicUgfCLlFqyqrhpnC7LJgPUZq6ko=
-Date:   Tue, 26 May 2020 08:56:18 +0200
+        b=2S6GFWofN59X3wmEj27HQBWMHZD7jAj+mYJm9Fw87YhAEXClyshSfivrHAfa9go+V
+         Rg2J5pRALyhvX5Toiz3Qjs5qFjYYKAK+U0FfdEnK0FYoeMJHRy212JEyS4WtA75TVc
+         CqaE8cMGED82xAPhAc9i/HdKyCZKXyycVmXJvgEo=
+Date:   Tue, 26 May 2020 08:59:30 +0200
 From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Andi Kleen <andi@firstfloor.org>
-Cc:     x86@kernel.org, keescook@chromium.org,
-        linux-kernel@vger.kernel.org, sashal@kernel.org,
-        Andi Kleen <ak@linux.intel.com>, stable@vger.kernel.org
-Subject: Re: [PATCH v1] x86: Pin cr4 FSGSBASE
-Message-ID: <20200526065618.GC2580410@kroah.com>
-References: <20200526052848.605423-1-andi@firstfloor.org>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     fabrice.gasnier@st.com, Jonathan.Cameron@huawei.com,
+        Stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] iio: adc: stm32-adc: fix device used to
+ request dma" failed to apply to 5.4-stable tree
+Message-ID: <20200526065930.GA2624088@kroah.com>
+References: <15904148129183@kroah.com>
+ <20200525205201.GZ33628@sasha-vm>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200526052848.605423-1-andi@firstfloor.org>
+In-Reply-To: <20200525205201.GZ33628@sasha-vm>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, May 25, 2020 at 10:28:48PM -0700, Andi Kleen wrote:
-> From: Andi Kleen <ak@linux.intel.com>
+On Mon, May 25, 2020 at 04:52:01PM -0400, Sasha Levin wrote:
+> On Mon, May 25, 2020 at 03:53:32PM +0200, gregkh@linuxfoundation.org wrote:
+> > 
+> > The patch below does not apply to the 5.4-stable tree.
+> > If someone wants it applied there, or to any other stable or longterm
+> > tree, then please email the backport, including the original git commit
+> > id to <stable@vger.kernel.org>.
+> > 
+> > thanks,
+> > 
+> > greg k-h
+> > 
+> > ------------------ original commit in Linus's tree ------------------
+> > 
+> > > From 52cd91c27f3908b88e8b25aed4a4d20660abcc45 Mon Sep 17 00:00:00 2001
+> > From: Fabrice Gasnier <fabrice.gasnier@st.com>
+> > Date: Thu, 30 Apr 2020 11:28:45 +0200
+> > Subject: [PATCH] iio: adc: stm32-adc: fix device used to request dma
+> > 
+> > DMA channel request should use device struct from platform device struct.
+> > Currently it's using iio device struct. But at this stage when probing,
+> > device struct isn't yet registered (e.g. device_register is done in
+> > iio_device_register). Since commit 71723a96b8b1 ("dmaengine: Create
+> > symlinks between DMA channels and slaves"), a warning message is printed
+> > as the links in sysfs can't be created, due to device isn't yet registered:
+> > - Cannot create DMA slave symlink
+> > - Cannot create DMA dma:rx symlink
+> > 
+> > Fix this by using device struct from platform device to request dma chan.
+> > 
+> > Fixes: 2763ea0585c99 ("iio: adc: stm32: add optional dma support")
+> > 
+> > Signed-off-by: Fabrice Gasnier <fabrice.gasnier@st.com>
+> > Cc: <Stable@vger.kernel.org>
+> > Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 > 
-> Since there seem to be kernel modules floating around that set
-> FSGSBASE incorrectly, prevent this in the CR4 pinning. Currently
-> CR4 pinning just checks that bits are set, this also checks
-> that the FSGSBASE bit is not set, and if it is clears it again.
+> I've also grabbed 735404b846df ("iio: adc: stm32-adc: Use
+> dma_request_chan() instead dma_request_slave_channel()") and queued both
+> for 5.4, 4.19, and 4.14.
 
-So we are trying to "protect" ourselves from broken out-of-tree kernel
-modules now?  Why stop with this type of check, why not just forbid them
-entirely if we don't trust them?  :)
-
-> Note this patch will need to be undone when the full FSGSBASE
-> patches are merged. But it's a reasonable solution for v5.2+
-> stable at least. Sadly the older kernels don't have the necessary
-> infrastructure for this (although a simpler version of this
-> could be added there too)
-> 
-> Cc: stable@vger.kernel.org # v5.2+
-> Signed-off-by: Andi Kleen <ak@linux.intel.com>
-> ---
->  arch/x86/kernel/cpu/common.c | 5 +++++
->  1 file changed, 5 insertions(+)
-> 
-> diff --git a/arch/x86/kernel/cpu/common.c b/arch/x86/kernel/cpu/common.c
-> index bed0cb83fe24..1f5b7871ae9a 100644
-> --- a/arch/x86/kernel/cpu/common.c
-> +++ b/arch/x86/kernel/cpu/common.c
-> @@ -385,6 +385,11 @@ void native_write_cr4(unsigned long val)
->  		/* Warn after we've set the missing bits. */
->  		WARN_ONCE(bits_missing, "CR4 bits went missing: %lx!?\n",
->  			  bits_missing);
-> +		if (val & X86_CR4_FSGSBASE) {
-> +			WARN_ONCE(1, "CR4 unexpectedly set FSGSBASE!?\n");
-
-Like this will actually be noticed by anyone who calls this?  What is a
-user supposed to do about this?
-
-What about those systems that panic-on-warn?
-
-> +			val &= ~X86_CR4_FSGSBASE;
-
-So you just prevented them from setting this, thereby fixing up their
-broken code that will never be fixed because you did this?  Why do this?
-
-thanks,
+Thanks for this, and all of the other fixups you added to the queue.
 
 greg k-h
