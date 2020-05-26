@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B57831E2F15
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:34:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E1E51E2EBE
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:31:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389776AbgEZTdi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:33:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48868 "EHLO mail.kernel.org"
+        id S2390364AbgEZS6d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 14:58:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52074 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389732AbgEZS4I (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 14:56:08 -0400
+        id S2390361AbgEZS6d (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 14:58:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A7A802086A;
-        Tue, 26 May 2020 18:56:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ECEC9208B3;
+        Tue, 26 May 2020 18:58:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590519368;
-        bh=/y+QFQyJ/kREw8sHAXYswzLJNRZURqb3Y2G8HC42tgI=;
+        s=default; t=1590519512;
+        bh=gLO9TxPKPmQEBtghshP8SXnLozpdrF8yCro+cbXp6Ts=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k0rEQ30L/fapCAZHWNYeiHWeKrBJlkeYPoTkt03eObRtJtCgb4PLu+L0onpzQ4TV1
-         yr3pw637llNIJ5qOAIxgKWGaxIhVAfckWqpdfbUMGL5Ni0H645vwN+kHAJpbz21hW3
-         v0vesIHM/XvDqm1it3Dza2u00H4EUMHBH0fDBBQQ=
+        b=PBVjCgci6yaiWEL4RIt3y5KY0ximKvEY4G5oTrYhE/c82KhkhXmYXVAQy/k8FfMiQ
+         wInXwWJnPo87vw4v8aTfFm4GASYmKx4eegZZ8TCKGUz4OGyqmcApcvuOOmPOUlROqr
+         cqxmy4f59ly1wFgtIEp4MUtMZ95MkqJwTCPLhaIc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, greg@kroah.com
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Asbjoern Sloth Toennesen <asbjorn@asbjorn.st>,
+        stable@vger.kernel.org, "R. Parameswaran" <rparames@brocade.com>,
         "David S. Miller" <davem@davemloft.net>,
         Giuliano Procida <gprocida@google.com>
-Subject: [PATCH 4.4 40/65] net: l2tp: deprecate PPPOL2TP_MSG_* in favour of L2TP_MSG_*
-Date:   Tue, 26 May 2020 20:52:59 +0200
-Message-Id: <20200526183919.654519563@linuxfoundation.org>
+Subject: [PATCH 4.9 31/64] L2TP:Adjust intf MTU, add underlay L3, L2 hdrs.
+Date:   Tue, 26 May 2020 20:53:00 +0200
+Message-Id: <20200526183922.781834308@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183905.988782958@linuxfoundation.org>
-References: <20200526183905.988782958@linuxfoundation.org>
+In-Reply-To: <20200526183913.064413230@linuxfoundation.org>
+References: <20200526183913.064413230@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,69 +44,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Asbjørn Sloth Tønnesen <asbjorn@asbjorn.st>
+From: "R. Parameswaran" <parameswaran.r7@gmail.com>
 
-commit 47c3e7783be4e142b861d34b5c2e223330b05d8a upstream.
+commit b784e7ebfce8cfb16c6f95e14e8532d0768ab7ff upstream.
 
-PPPOL2TP_MSG_* and L2TP_MSG_* are duplicates, and are being used
-interchangeably in the kernel, so let's standardize on L2TP_MSG_*
-internally, and keep PPPOL2TP_MSG_* defined in UAPI for compatibility.
+Existing L2TP kernel code does not derive the optimal MTU for Ethernet
+pseudowires and instead leaves this to a userspace L2TP daemon or
+operator. If an MTU is not specified, the existing kernel code chooses
+an MTU that does not take account of all tunnel header overheads, which
+can lead to unwanted IP fragmentation. When L2TP is used without a
+control plane (userspace daemon), we would prefer that the kernel does a
+better job of choosing a default pseudowire MTU, taking account of all
+tunnel header overheads, including IP header options, if any. This patch
+addresses this.
 
-Signed-off-by: Asbjoern Sloth Toennesen <asbjorn@asbjorn.st>
+Change-set here uses the new kernel function, kernel_sock_ip_overhead(),
+to factor the outer IP overhead on the L2TP tunnel socket (including
+IP Options, if any) when calculating the default MTU for an Ethernet
+pseudowire, along with consideration of the inner Ethernet header.
+
+Signed-off-by: R. Parameswaran <rparames@brocade.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Giuliano Procida <gprocida@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/networking/l2tp.txt |    8 ++++----
- include/uapi/linux/if_pppol2tp.h  |   13 ++++++-------
- 2 files changed, 10 insertions(+), 11 deletions(-)
+ net/l2tp/l2tp_eth.c |   55 ++++++++++++++++++++++++++++++++++++++++++++++++----
+ 1 file changed, 51 insertions(+), 4 deletions(-)
 
---- a/Documentation/networking/l2tp.txt
-+++ b/Documentation/networking/l2tp.txt
-@@ -177,10 +177,10 @@ setsockopt on the PPPoX socket to set a
+--- a/net/l2tp/l2tp_eth.c
++++ b/net/l2tp/l2tp_eth.c
+@@ -30,6 +30,9 @@
+ #include <net/xfrm.h>
+ #include <net/net_namespace.h>
+ #include <net/netns/generic.h>
++#include <linux/ip.h>
++#include <linux/ipv6.h>
++#include <linux/udp.h>
  
- The following debug mask bits are available:
+ #include "l2tp_core.h"
  
--PPPOL2TP_MSG_DEBUG    verbose debug (if compiled in)
--PPPOL2TP_MSG_CONTROL  userspace - kernel interface
--PPPOL2TP_MSG_SEQ      sequence numbers handling
--PPPOL2TP_MSG_DATA     data packets
-+L2TP_MSG_DEBUG    verbose debug (if compiled in)
-+L2TP_MSG_CONTROL  userspace - kernel interface
-+L2TP_MSG_SEQ      sequence numbers handling
-+L2TP_MSG_DATA     data packets
+@@ -206,6 +209,53 @@ static void l2tp_eth_show(struct seq_fil
+ }
+ #endif
  
- If enabled, files under a l2tp debugfs directory can be used to dump
- kernel state about L2TP tunnels and sessions. To access it, the
---- a/include/uapi/linux/if_pppol2tp.h
-+++ b/include/uapi/linux/if_pppol2tp.h
-@@ -17,6 +17,7 @@
++static void l2tp_eth_adjust_mtu(struct l2tp_tunnel *tunnel,
++				struct l2tp_session *session,
++				struct net_device *dev)
++{
++	unsigned int overhead = 0;
++	struct dst_entry *dst;
++	u32 l3_overhead = 0;
++
++	/* if the encap is UDP, account for UDP header size */
++	if (tunnel->encap == L2TP_ENCAPTYPE_UDP) {
++		overhead += sizeof(struct udphdr);
++		dev->needed_headroom += sizeof(struct udphdr);
++	}
++	if (session->mtu != 0) {
++		dev->mtu = session->mtu;
++		dev->needed_headroom += session->hdr_len;
++		return;
++	}
++	l3_overhead = kernel_sock_ip_overhead(tunnel->sock);
++	if (l3_overhead == 0) {
++		/* L3 Overhead couldn't be identified, this could be
++		 * because tunnel->sock was NULL or the socket's
++		 * address family was not IPv4 or IPv6,
++		 * dev mtu stays at 1500.
++		 */
++		return;
++	}
++	/* Adjust MTU, factor overhead - underlay L3, overlay L2 hdr
++	 * UDP overhead, if any, was already factored in above.
++	 */
++	overhead += session->hdr_len + ETH_HLEN + l3_overhead;
++
++	/* If PMTU discovery was enabled, use discovered MTU on L2TP device */
++	dst = sk_dst_get(tunnel->sock);
++	if (dst) {
++		/* dst_mtu will use PMTU if found, else fallback to intf MTU */
++		u32 pmtu = dst_mtu(dst);
++
++		if (pmtu != 0)
++			dev->mtu = pmtu;
++		dst_release(dst);
++	}
++	session->mtu = dev->mtu - overhead;
++	dev->mtu = session->mtu;
++	dev->needed_headroom += session->hdr_len;
++}
++
+ static int l2tp_eth_create(struct net *net, u32 tunnel_id, u32 session_id, u32 peer_session_id, struct l2tp_session_cfg *cfg)
+ {
+ 	struct net_device *dev;
+@@ -249,10 +299,7 @@ static int l2tp_eth_create(struct net *n
+ 	}
  
- #include <linux/types.h>
+ 	dev_net_set(dev, net);
+-	if (session->mtu == 0)
+-		session->mtu = dev->mtu - session->hdr_len;
+-	dev->mtu = session->mtu;
+-	dev->needed_headroom += session->hdr_len;
++	l2tp_eth_adjust_mtu(tunnel, session, dev);
  
-+#include <linux/l2tp.h>
- 
- /* Structure used to connect() the socket to a particular tunnel UDP
-  * socket over IPv4.
-@@ -89,14 +90,12 @@ enum {
- 	PPPOL2TP_SO_REORDERTO	= 5,
- };
- 
--/* Debug message categories for the DEBUG socket option */
-+/* Debug message categories for the DEBUG socket option (deprecated) */
- enum {
--	PPPOL2TP_MSG_DEBUG	= (1 << 0),	/* verbose debug (if
--						 * compiled in) */
--	PPPOL2TP_MSG_CONTROL	= (1 << 1),	/* userspace - kernel
--						 * interface */
--	PPPOL2TP_MSG_SEQ	= (1 << 2),	/* sequence numbers */
--	PPPOL2TP_MSG_DATA	= (1 << 3),	/* data packets */
-+	PPPOL2TP_MSG_DEBUG	= L2TP_MSG_DEBUG,
-+	PPPOL2TP_MSG_CONTROL	= L2TP_MSG_CONTROL,
-+	PPPOL2TP_MSG_SEQ	= L2TP_MSG_SEQ,
-+	PPPOL2TP_MSG_DATA	= L2TP_MSG_DATA,
- };
- 
- 
+ 	priv = netdev_priv(dev);
+ 	priv->dev = dev;
 
 
