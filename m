@@ -2,89 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CFB531E1E55
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 11:22:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 876751E1E72
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 11:24:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388396AbgEZJWR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 05:22:17 -0400
-Received: from merlin.infradead.org ([205.233.59.134]:57308 "EHLO
-        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731622AbgEZJWP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 May 2020 05:22:15 -0400
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=merlin.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=fbzELRYcJjrFmOciA2lLMrUinuLmeRjLnUksXmy8vX4=; b=kgFUWgIlVIcg3f3/mKjq51a4XJ
-        hqjU/+PU3gfDPjGGAcNeN4Zc/NJjbP4OIR8DaOk5PgRZW9TMyjilPXvbCcj36bmRwmAWQG+Nj14Qb
-        78ZtfqFcNCkGRLrXA71CGttYLtaHmHF7Q+BWp7UOCWG+AzIZxCNEVKuoF/XQPWwkWavyNcdSqMkhy
-        Pxqi6rWbPxnlhz9s8TI4Lcxfj9JCqWOXUakuSL3Sg8k63nPf11s+vRbkjLkUM8nwGkUjXrezZ17ye
-        HRNg0iOjOoz9Kk3Si0IC4Jz7gXA5rZkv3VePI5WVYruVQh50VnSiU/8YZxWPev4Ai+msA16tIdxSY
-        t6cLGvLQ==;
-Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=noisy.programming.kicks-ass.net)
-        by merlin.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1jdViZ-0004up-CU; Tue, 26 May 2020 09:17:51 +0000
-Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (Client did not present a certificate)
-        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 7522330047A;
-        Tue, 26 May 2020 11:17:45 +0200 (CEST)
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
-        id 4DBD120BD4F39; Tue, 26 May 2020 11:17:45 +0200 (CEST)
-Date:   Tue, 26 May 2020 11:17:45 +0200
-From:   Peter Zijlstra <peterz@infradead.org>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     Andi Kleen <andi@firstfloor.org>, x86@kernel.org,
-        keescook@chromium.org, linux-kernel@vger.kernel.org,
-        sashal@kernel.org, Andi Kleen <ak@linux.intel.com>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v1] x86: Pin cr4 FSGSBASE
-Message-ID: <20200526091745.GC325280@hirez.programming.kicks-ass.net>
-References: <20200526052848.605423-1-andi@firstfloor.org>
- <20200526065618.GC2580410@kroah.com>
- <20200526075736.GH317569@hirez.programming.kicks-ass.net>
- <20200526081752.GA2650351@kroah.com>
+        id S1728768AbgEZJYO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 05:24:14 -0400
+Received: from szxga07-in.huawei.com ([45.249.212.35]:56052 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1728758AbgEZJYO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 05:24:14 -0400
+Received: from DGGEMS406-HUB.china.huawei.com (unknown [172.30.72.58])
+        by Forcepoint Email with ESMTP id 03A374E93101BAE2F0CA;
+        Tue, 26 May 2020 17:24:11 +0800 (CST)
+Received: from [10.174.151.115] (10.174.151.115) by smtp.huawei.com
+ (10.3.19.206) with Microsoft SMTP Server (TLS) id 14.3.487.0; Tue, 26 May
+ 2020 17:24:04 +0800
+Subject: Re: [v2 2/2] crypto: virtio: Fix use-after-free in
+ virtio_crypto_skcipher_finalize_req()
+To:     Markus Elfring <Markus.Elfring@web.de>,
+        <linux-crypto@vger.kernel.org>,
+        <virtualization@lists.linux-foundation.org>,
+        Gonglei <arei.gonglei@huawei.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+CC:     Corentin Labbe <clabbe@baylibre.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>
+References: <20200526031956.1897-1-longpeng2@huawei.com>
+ <20200526031956.1897-3-longpeng2@huawei.com>
+ <0248e0f6-7648-f08d-afa2-170ad2e724b7@web.de>
+ <03d3387f-c886-4fb9-e6f2-9ff8dc6bb80a@huawei.com>
+ <8aab4c6b-7d41-7767-4945-e8af1dec902b@web.de>
+From:   "Longpeng (Mike, Cloud Infrastructure Service Product Dept.)" 
+        <longpeng2@huawei.com>
+Message-ID: <321c79df-6397-bbf1-0047-b0b10e5af353@huawei.com>
+Date:   Tue, 26 May 2020 17:24:03 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
+ Thunderbird/60.6.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200526081752.GA2650351@kroah.com>
+In-Reply-To: <8aab4c6b-7d41-7767-4945-e8af1dec902b@web.de>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+X-Originating-IP: [10.174.151.115]
+X-CFilter-Loop: Reflected
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, May 26, 2020 at 10:17:52AM +0200, Greg KH wrote:
-> On Tue, May 26, 2020 at 09:57:36AM +0200, Peter Zijlstra wrote:
-> > On Tue, May 26, 2020 at 08:56:18AM +0200, Greg KH wrote:
-> > > On Mon, May 25, 2020 at 10:28:48PM -0700, Andi Kleen wrote:
-> > > > From: Andi Kleen <ak@linux.intel.com>
-> > > > 
-> > > > Since there seem to be kernel modules floating around that set
-> > > > FSGSBASE incorrectly, prevent this in the CR4 pinning. Currently
-> > > > CR4 pinning just checks that bits are set, this also checks
-> > > > that the FSGSBASE bit is not set, and if it is clears it again.
-> > > 
-> > > So we are trying to "protect" ourselves from broken out-of-tree kernel
-> > > modules now?  Why stop with this type of check, why not just forbid them
-> > > entirely if we don't trust them?  :)
-> > 
-> > Oh, I have a bunch of patches pending for that :-)
+
+
+On 2020/5/26 17:01, Markus Elfring wrote:
+>>>> … Thus release specific resources before
+>>>
+>>> Is there a need to improve also this information another bit?
+>>>
+>> You mean the last two paragraph is redundant ?
 > 
-> Ah, I thought I had seen something like that go by a while ago.
+> No.
 > 
-> It's sad that we have to write a "don't do stupid things" checker for
-> kernel modules now :(
-
-Because people... they get stuff from the interweb and run it :/ The
-days that admins actually knew what they're doing is long long gone.
-
-> > It will basically decode the module text and refuse to load the module
-> > for most CPL0 instruction.
+> I became curious if you would like to choose a more helpful information
+> according to the wording “specific resources”.
 > 
-> Ok, so why would Andi's patch even be needed then?  Andi, why post this?
+> Regards,
+> Markus
+> 
+Hi Markus,
 
-Andi's patch cures a particularly bad module that floats around that
-people use, probably without being aware that it's an insta-root hole.
+I respect your work, but please let us to focus on the code itself. I think
+experts in this area know what these patches want to solve after look at the code.
 
-My patches will be a while (too many things in the fire :/) and will
-certainly not be for stable.
+I hope experts in the thread could review the code when you free, thanks :)
+
+---
+Regards,
+Longpeng(Mike)
