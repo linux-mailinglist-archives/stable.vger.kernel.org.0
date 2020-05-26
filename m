@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B7EE1E2D5D
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:24:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D6E21E2E13
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:27:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391520AbgEZTIz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:08:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37956 "EHLO mail.kernel.org"
+        id S2391394AbgEZTEn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:04:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60448 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390068AbgEZTIy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:08:54 -0400
+        id S2390877AbgEZTEm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:04:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7AC7220776;
-        Tue, 26 May 2020 19:08:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 35DF720873;
+        Tue, 26 May 2020 19:04:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590520134;
-        bh=5DSkam4qSpPOCtTfMpJff906uNdwjLVc5YIigu8a1XM=;
+        s=default; t=1590519882;
+        bh=36qQNXW0vrV1cpauf0h8+fAq47FTsFqzhPggG0em0tY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N9M5CpSN+eQ2fk5tlztsY2B0krT4mhST2wve0SpGyKqqSaTu61xR3rmdATqrSb0sA
-         PIkmBzzc2Q3HFKIT2nXUhwieZh3VU8oLXZuR4fKyW418oPDUofaQOkTIMhJ5vl0Bx8
-         /8VHz8PsBlHNA5RA/UEf1+iMNS4JlLclBCFSEAPk=
+        b=qFjzTiwgzIZilijDB2bJwtBLk0Nx0gb+L0+O7FxOpkdfoMoH3Sg0/lW76gGrEfAeS
+         2/zFsNJVlCbofUB1ooaltPECsD2XB2eiaOd87Y8PWnm+xjiednG9Watn0YypdYteVI
+         K4VDVxfNnXQChgqHK+G96sIs7+NKmqz57NbtcrGA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Jon Hunter <jonathanh@nvidia.com>,
-        Thierry Reding <treding@nvidia.com>,
-        Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 5.4 069/111] dmaengine: tegra210-adma: Fix an error handling path in tegra_adma_probe()
+        stable@vger.kernel.org, Dan Williams <dan.j.williams@intel.com>,
+        Vishal Verma <vishal.l.verma@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 52/81] libnvdimm/btt: Remove unnecessary code in btt_freelist_init
 Date:   Tue, 26 May 2020 20:53:27 +0200
-Message-Id: <20200526183939.391299916@linuxfoundation.org>
+Message-Id: <20200526183932.900018493@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183932.245016380@linuxfoundation.org>
-References: <20200526183932.245016380@linuxfoundation.org>
+In-Reply-To: <20200526183923.108515292@linuxfoundation.org>
+References: <20200526183923.108515292@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,40 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Vishal Verma <vishal.l.verma@intel.com>
 
-commit 3a5fd0dbd87853f8bd2ea275a5b3b41d6686e761 upstream.
+[ Upstream commit 2f8c9011151337d0bc106693f272f9bddbccfab2 ]
 
-Commit b53611fb1ce9 ("dmaengine: tegra210-adma: Fix crash during probe")
-has moved some code in the probe function and reordered the error handling
-path accordingly.
-However, a goto has been missed.
+We call btt_log_read() twice, once to get the 'old' log entry, and again
+to get the 'new' entry. However, we have no use for the 'old' entry, so
+remove it.
 
-Fix it and goto the right label if 'dma_async_device_register()' fails, so
-that all resources are released.
-
-Fixes: b53611fb1ce9 ("dmaengine: tegra210-adma: Fix crash during probe")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Reviewed-by: Jon Hunter <jonathanh@nvidia.com>
-Acked-by: Thierry Reding <treding@nvidia.com>
-Link: https://lore.kernel.org/r/20200516214205.276266-1-christophe.jaillet@wanadoo.fr
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Cc: Dan Williams <dan.j.williams@intel.com>
+Signed-off-by: Vishal Verma <vishal.l.verma@intel.com>
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/tegra210-adma.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/nvdimm/btt.c | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
---- a/drivers/dma/tegra210-adma.c
-+++ b/drivers/dma/tegra210-adma.c
-@@ -900,7 +900,7 @@ static int tegra_adma_probe(struct platf
- 	ret = dma_async_device_register(&tdma->dma_dev);
- 	if (ret < 0) {
- 		dev_err(&pdev->dev, "ADMA registration failed: %d\n", ret);
--		goto irq_dispose;
-+		goto rpm_put;
- 	}
+diff --git a/drivers/nvdimm/btt.c b/drivers/nvdimm/btt.c
+index 75ae2c508a04..d78cfe82ad5c 100644
+--- a/drivers/nvdimm/btt.c
++++ b/drivers/nvdimm/btt.c
+@@ -541,9 +541,9 @@ static int arena_clear_freelist_error(struct arena_info *arena, u32 lane)
  
- 	ret = of_dma_controller_register(pdev->dev.of_node,
+ static int btt_freelist_init(struct arena_info *arena)
+ {
+-	int old, new, ret;
++	int new, ret;
+ 	u32 i, map_entry;
+-	struct log_entry log_new, log_old;
++	struct log_entry log_new;
+ 
+ 	arena->freelist = kcalloc(arena->nfree, sizeof(struct free_entry),
+ 					GFP_KERNEL);
+@@ -551,10 +551,6 @@ static int btt_freelist_init(struct arena_info *arena)
+ 		return -ENOMEM;
+ 
+ 	for (i = 0; i < arena->nfree; i++) {
+-		old = btt_log_read(arena, i, &log_old, LOG_OLD_ENT);
+-		if (old < 0)
+-			return old;
+-
+ 		new = btt_log_read(arena, i, &log_new, LOG_NEW_ENT);
+ 		if (new < 0)
+ 			return new;
+-- 
+2.25.1
+
 
 
