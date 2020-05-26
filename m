@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 918E11E2D08
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:20:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD34D1E2E21
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:27:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390285AbgEZTSx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:18:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43564 "EHLO mail.kernel.org"
+        id S2390567AbgEZT1H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:27:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60272 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404281AbgEZTNa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:13:30 -0400
+        id S2390273AbgEZTEf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:04:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1469220776;
-        Tue, 26 May 2020 19:13:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8F87920849;
+        Tue, 26 May 2020 19:04:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590520409;
-        bh=VNNTZ+tHJRLYRmbvvddtQu3W8kD7fUtrchDsBp/rkY0=;
+        s=default; t=1590519875;
+        bh=hrbJyOLEuxk36OPNi1fKCASFHtlHY4Zp1pnVLXNnWFQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PyLpTdRtdnhtBZcyLnSJ6xkAgPKUJSn3ZQot0h83wHC8J5LWovKpxSson9rSYkijM
-         JnwcrqTale83+oq7ZiDDTNACm06JMTZf1BOfq8e+Ef01vkdIlOu+M3pj5vnJVhpZzW
-         1n3vy/avx9Br3bwy2lxQ7/mxlqz50bc5gz8zQxs4=
+        b=z/3lB3vEz1sKEpO09avOvLf73ordnElXrDEl1HPHfiQqxcb1ZWlyRtOrH1cPll6dj
+         V8F+Oduhwx+fkEW4iIHb4SD6eK65fBGN4GpNryM0QKfSIy3VeBHT60LTWsrxZnSA8E
+         SepBQxqLIdPLCgzQ4zgtKVngoluAfrLYPCeOoN1M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christian Lachner <gladiac@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.6 066/126] ALSA: hda/realtek - Fix silent output on Gigabyte X570 Aorus Xtreme
-Date:   Tue, 26 May 2020 20:53:23 +0200
-Message-Id: <20200526183943.724702474@linuxfoundation.org>
+        stable@vger.kernel.org, Russell Currey <ruscur@russell.cc>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 49/81] powerpc: Remove STRICT_KERNEL_RWX incompatibility with RELOCATABLE
+Date:   Tue, 26 May 2020 20:53:24 +0200
+Message-Id: <20200526183932.664564063@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183937.471379031@linuxfoundation.org>
-References: <20200526183937.471379031@linuxfoundation.org>
+In-Reply-To: <20200526183923.108515292@linuxfoundation.org>
+References: <20200526183923.108515292@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,34 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Lachner <gladiac@gmail.com>
+From: Russell Currey <ruscur@russell.cc>
 
-commit d9e8fe0cffbfdd18de96fa68ee2a8b667a0b046e upstream.
+[ Upstream commit c55d7b5e64265fdca45c85b639013e770bde2d0e ]
 
-The Gigabyte X570 Aorus Xtreme motherboard with ALC1220 codec
-requires a similar workaround for Clevo laptops to enforce the
-DAC/mixer connection path. Set up a quirk entry for that.
+I have tested this with the Radix MMU and everything seems to work, and
+the previous patch for Hash seems to fix everything too.
+STRICT_KERNEL_RWX should still be disabled by default for now.
 
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=205275
-Signed-off-by: Christian Lachner <gladiac@gmail.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200518053844.42743-2-gladiac@gmail.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Please test STRICT_KERNEL_RWX + RELOCATABLE!
 
+Signed-off-by: Russell Currey <ruscur@russell.cc>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20191224064126.183670-2-ruscur@russell.cc
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_realtek.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/powerpc/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -2457,6 +2457,7 @@ static const struct snd_pci_quirk alc882
- 	SND_PCI_QUIRK(0x1458, 0xa002, "Gigabyte EP45-DS3/Z87X-UD3H", ALC889_FIXUP_FRONT_HP_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1458, 0xa0b8, "Gigabyte AZ370-Gaming", ALC1220_FIXUP_GB_DUAL_CODECS),
- 	SND_PCI_QUIRK(0x1458, 0xa0cd, "Gigabyte X570 Aorus Master", ALC1220_FIXUP_CLEVO_P950),
-+	SND_PCI_QUIRK(0x1458, 0xa0ce, "Gigabyte X570 Aorus Xtreme", ALC1220_FIXUP_CLEVO_P950),
- 	SND_PCI_QUIRK(0x1462, 0x1228, "MSI-GP63", ALC1220_FIXUP_CLEVO_P950),
- 	SND_PCI_QUIRK(0x1462, 0x1275, "MSI-GL63", ALC1220_FIXUP_CLEVO_P950),
- 	SND_PCI_QUIRK(0x1462, 0x1276, "MSI-GL73", ALC1220_FIXUP_CLEVO_P950),
+diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
+index 6f475dc5829b..da48a2ca272e 100644
+--- a/arch/powerpc/Kconfig
++++ b/arch/powerpc/Kconfig
+@@ -139,7 +139,7 @@ config PPC
+ 	select ARCH_HAS_MEMBARRIER_CALLBACKS
+ 	select ARCH_HAS_SCALED_CPUTIME		if VIRT_CPU_ACCOUNTING_NATIVE
+ 	select ARCH_HAS_SG_CHAIN
+-	select ARCH_HAS_STRICT_KERNEL_RWX	if ((PPC_BOOK3S_64 || PPC32) && !RELOCATABLE && !HIBERNATION)
++	select ARCH_HAS_STRICT_KERNEL_RWX	if ((PPC_BOOK3S_64 || PPC32) && !HIBERNATION)
+ 	select ARCH_HAS_TICK_BROADCAST		if GENERIC_CLOCKEVENTS_BROADCAST
+ 	select ARCH_HAS_UACCESS_FLUSHCACHE	if PPC64
+ 	select ARCH_HAS_UBSAN_SANITIZE_ALL
+-- 
+2.25.1
+
 
 
