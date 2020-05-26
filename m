@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 591D51E2E8D
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:30:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1755C1E2B03
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:03:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390792AbgEZTAq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:00:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54922 "EHLO mail.kernel.org"
+        id S2389771AbgEZTBI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:01:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55310 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390802AbgEZTAp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:00:45 -0400
+        id S2389748AbgEZTBF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:01:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DB1B420849;
-        Tue, 26 May 2020 19:00:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E742B20849;
+        Tue, 26 May 2020 19:01:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590519644;
-        bh=gwkqAzjGrhQwjEY4Kl61JQADH910vNWzOGnYmmZvHsM=;
+        s=default; t=1590519664;
+        bh=DYbEU+jB4jwmnUO9/Of5trDZJw+77WhI1JRxpwdEATQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mX8RZCykvll2uWTvvLOV7dPjt+MuPd3Ubf6K0/kdNeteHuukOv1PDYkr9v1bqiueU
-         W45QZsmukaqbitvNCn/PQo/FS7OUDPwJVSUR6YvKcGMJBhXhfdshMVzz7KEMh/4i5g
-         zv4t4iVtSPYhmJ4h+cCFNkiRE17peQdLG4kNaIkM=
+        b=y+SxL7dE2VORl1HRJvMQf93i7PA9Du3R/r5bi8veMWS83Oee+OC5HIFEXHIDDypNG
+         kZDmxQaxFefgEy0QrtmfCpJ/ZIGaTl2PgE2Wzrl+/XFaC9iLpw2KqxflcpaizdAuHu
+         /eS4ltH8he0wr8qEHFmBYn1fE410SSIOyy1+NkM0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Kevin Hao <haokexin@gmail.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Wolfram Sang <wsa@the-dreams.de>,
         Ben Hutchings <ben.hutchings@codethink.co.uk>
-Subject: [PATCH 4.14 02/59] watchdog: Fix the race between the release of watchdog_core_data and cdev
-Date:   Tue, 26 May 2020 20:52:47 +0200
-Message-Id: <20200526183907.854621404@linuxfoundation.org>
+Subject: [PATCH 4.14 03/59] i2c: dev: Fix the race between the release of i2c_dev and cdev
+Date:   Tue, 26 May 2020 20:52:48 +0200
+Message-Id: <20200526183908.133741191@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200526183907.123822792@linuxfoundation.org>
 References: <20200526183907.123822792@linuxfoundation.org>
@@ -47,275 +46,182 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Kevin Hao <haokexin@gmail.com>
 
-commit 72139dfa2464e43957d330266994740bb7be2535 upstream.
+commit 1413ef638abae4ab5621901cf4d8ef08a4a48ba6 upstream.
 
-The struct cdev is embedded in the struct watchdog_core_data. In the
-current code, we manage the watchdog_core_data with a kref, but the
-cdev is manged by a kobject. There is no any relationship between
-this kref and kobject. So it is possible that the watchdog_core_data is
-freed before the cdev is entirely released. We can easily get the
-following call trace with CONFIG_DEBUG_KOBJECT_RELEASE and
-CONFIG_DEBUG_OBJECTS_TIMERS enabled.
+The struct cdev is embedded in the struct i2c_dev. In the current code,
+we would free the i2c_dev struct directly in put_i2c_dev(), but the
+cdev is manged by a kobject, and the release of it is not predictable.
+So it is very possible that the i2c_dev is freed before the cdev is
+entirely released. We can easily get the following call trace with
+CONFIG_DEBUG_KOBJECT_RELEASE and CONFIG_DEBUG_OBJECTS_TIMERS enabled.
   ODEBUG: free active (active state 0) object type: timer_list hint: delayed_work_timer_fn+0x0/0x38
-  WARNING: CPU: 23 PID: 1028 at lib/debugobjects.c:481 debug_print_object+0xb0/0xf0
-  Modules linked in: softdog(-) deflate ctr twofish_generic twofish_common camellia_generic serpent_generic blowfish_generic blowfish_common cast5_generic cast_common cmac xcbc af_key sch_fq_codel openvswitch nsh nf_conncount nf_nat nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4
-  CPU: 23 PID: 1028 Comm: modprobe Not tainted 5.3.0-next-20190924-yoctodev-standard+ #180
+  WARNING: CPU: 19 PID: 1 at lib/debugobjects.c:325 debug_print_object+0xb0/0xf0
+  Modules linked in:
+  CPU: 19 PID: 1 Comm: swapper/0 Tainted: G        W         5.2.20-yocto-standard+ #120
   Hardware name: Marvell OcteonTX CN96XX board (DT)
-  pstate: 00400009 (nzcv daif +PAN -UAO)
+  pstate: 80c00089 (Nzcv daIf +PAN +UAO)
   pc : debug_print_object+0xb0/0xf0
   lr : debug_print_object+0xb0/0xf0
-  sp : ffff80001cbcfc70
-  x29: ffff80001cbcfc70 x28: ffff800010ea2128
-  x27: ffff800010bad000 x26: 0000000000000000
-  x25: ffff80001103c640 x24: ffff80001107b268
-  x23: ffff800010bad9e8 x22: ffff800010ea2128
-  x21: ffff000bc2c62af8 x20: ffff80001103c600
-  x19: ffff800010e867d8 x18: 0000000000000060
-  x17: 0000000000000000 x16: 0000000000000000
-  x15: ffff000bd7240470 x14: 6e6968207473696c
-  x13: 5f72656d6974203a x12: 6570797420746365
-  x11: 6a626f2029302065 x10: 7461747320657669
-  x9 : 7463612820657669 x8 : 3378302f3078302b
-  x7 : 0000000000001d7a x6 : ffff800010fd5889
-  x5 : 0000000000000000 x4 : 0000000000000000
-  x3 : 0000000000000000 x2 : ffff000bff948548
-  x1 : 276a1c9e1edc2300 x0 : 0000000000000000
+  sp : ffff00001292f7d0
+  x29: ffff00001292f7d0 x28: ffff800b82151788
+  x27: 0000000000000001 x26: ffff800b892c0000
+  x25: ffff0000124a2558 x24: 0000000000000000
+  x23: ffff00001107a1d8 x22: ffff0000116b5088
+  x21: ffff800bdc6afca8 x20: ffff000012471ae8
+  x19: ffff00001168f2c8 x18: 0000000000000010
+  x17: 00000000fd6f304b x16: 00000000ee79de43
+  x15: ffff800bc0e80568 x14: 79616c6564203a74
+  x13: 6e6968207473696c x12: 5f72656d6974203a
+  x11: ffff0000113f0018 x10: 0000000000000000
+  x9 : 000000000000001f x8 : 0000000000000000
+  x7 : ffff0000101294cc x6 : 0000000000000000
+  x5 : 0000000000000000 x4 : 0000000000000001
+  x3 : 00000000ffffffff x2 : 0000000000000000
+  x1 : 387fc15c8ec0f200 x0 : 0000000000000000
   Call trace:
    debug_print_object+0xb0/0xf0
-   debug_check_no_obj_freed+0x1e8/0x210
-   kfree+0x1b8/0x368
-   watchdog_cdev_unregister+0x88/0xc8
-   watchdog_dev_unregister+0x38/0x48
-   watchdog_unregister_device+0xa8/0x100
-   softdog_exit+0x18/0xfec4 [softdog]
-   __arm64_sys_delete_module+0x174/0x200
-   el0_svc_handler+0xd0/0x1c8
-   el0_svc+0x8/0xc
+   __debug_check_no_obj_freed+0x19c/0x228
+   debug_check_no_obj_freed+0x1c/0x28
+   kfree+0x250/0x440
+   put_i2c_dev+0x68/0x78
+   i2cdev_detach_adapter+0x60/0xc8
+   i2cdev_notifier_call+0x3c/0x70
+   notifier_call_chain+0x8c/0xe8
+   blocking_notifier_call_chain+0x64/0x88
+   device_del+0x74/0x380
+   device_unregister+0x54/0x78
+   i2c_del_adapter+0x278/0x2d0
+   unittest_i2c_bus_remove+0x3c/0x80
+   platform_drv_remove+0x30/0x50
+   device_release_driver_internal+0xf4/0x1c0
+   driver_detach+0x58/0xa0
+   bus_remove_driver+0x84/0xd8
+   driver_unregister+0x34/0x60
+   platform_driver_unregister+0x20/0x30
+   of_unittest_overlay+0x8d4/0xbe0
+   of_unittest+0xae8/0xb3c
+   do_one_initcall+0xac/0x450
+   do_initcall_level+0x208/0x224
+   kernel_init_freeable+0x2d8/0x36c
+   kernel_init+0x18/0x108
+   ret_from_fork+0x10/0x1c
+  irq event stamp: 3934661
+  hardirqs last  enabled at (3934661): [<ffff00001009fa04>] debug_exception_exit+0x4c/0x58
+  hardirqs last disabled at (3934660): [<ffff00001009fb14>] debug_exception_enter+0xa4/0xe0
+  softirqs last  enabled at (3934654): [<ffff000010081d94>] __do_softirq+0x46c/0x628
+  softirqs last disabled at (3934649): [<ffff0000100b4a1c>] irq_exit+0x104/0x118
 
 This is a common issue when using cdev embedded in a struct.
 Fortunately, we already have a mechanism to solve this kind of issue.
 Please see commit 233ed09d7fda ("chardev: add helper function to
 register char devs with a struct device") for more detail.
 
-In this patch, we choose to embed the struct device into the
-watchdog_core_data, and use the API provided by the commit 233ed09d7fda
-to make sure that the release of watchdog_core_data and cdev are
-in sequence.
+In this patch, we choose to embed the struct device into the i2c_dev,
+and use the API provided by the commit 233ed09d7fda to make sure that
+the release of i2c_dev and cdev are in sequence.
 
 Signed-off-by: Kevin Hao <haokexin@gmail.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/20191008112934.29669-1-haokexin@gmail.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
-[bwh: Backported to 4.14:
- - There's no reboot notifier here
- - Adjust context]
-Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+Cc: Ben Hutchings <ben.hutchings@codethink.co.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/watchdog/watchdog_dev.c |   67 +++++++++++++++++-----------------------
- 1 file changed, 30 insertions(+), 37 deletions(-)
 
---- a/drivers/watchdog/watchdog_dev.c
-+++ b/drivers/watchdog/watchdog_dev.c
-@@ -38,7 +38,6 @@
- #include <linux/init.h>		/* For __init/__exit/... */
- #include <linux/jiffies.h>	/* For timeout functions */
- #include <linux/kernel.h>	/* For printk/panic/... */
--#include <linux/kref.h>		/* For data references */
- #include <linux/miscdevice.h>	/* For handling misc devices */
- #include <linux/module.h>	/* For module stuff/... */
- #include <linux/mutex.h>	/* For mutexes */
-@@ -53,14 +52,14 @@
- 
- /*
-  * struct watchdog_core_data - watchdog core internal data
-- * @kref:	Reference count.
-+ * @dev:	The watchdog's internal device
-  * @cdev:	The watchdog's Character device.
-  * @wdd:	Pointer to watchdog device.
-  * @lock:	Lock for watchdog core.
-  * @status:	Watchdog core internal status bits.
-  */
- struct watchdog_core_data {
--	struct kref kref;
+---
+ drivers/i2c/i2c-dev.c |   48 ++++++++++++++++++++++++++----------------------
+ 1 file changed, 26 insertions(+), 22 deletions(-)
+
+--- a/drivers/i2c/i2c-dev.c
++++ b/drivers/i2c/i2c-dev.c
+@@ -47,7 +47,7 @@
+ struct i2c_dev {
+ 	struct list_head list;
+ 	struct i2c_adapter *adap;
+-	struct device *dev;
 +	struct device dev;
  	struct cdev cdev;
- 	struct watchdog_device *wdd;
- 	struct mutex lock;
-@@ -802,7 +801,7 @@ static int watchdog_open(struct inode *i
- 	file->private_data = wd_data;
- 
- 	if (!hw_running)
--		kref_get(&wd_data->kref);
-+		get_device(&wd_data->dev);
- 
- 	/* dev/watchdog is a virtual (and thus non-seekable) filesystem */
- 	return nonseekable_open(inode, file);
-@@ -814,11 +813,11 @@ out_clear:
- 	return err;
- }
- 
--static void watchdog_core_data_release(struct kref *kref)
-+static void watchdog_core_data_release(struct device *dev)
- {
- 	struct watchdog_core_data *wd_data;
- 
--	wd_data = container_of(kref, struct watchdog_core_data, kref);
-+	wd_data = container_of(dev, struct watchdog_core_data, dev);
- 
- 	kfree(wd_data);
- }
-@@ -878,7 +877,7 @@ done:
- 	 */
- 	if (!running) {
- 		module_put(wd_data->cdev.owner);
--		kref_put(&wd_data->kref, watchdog_core_data_release);
-+		put_device(&wd_data->dev);
- 	}
- 	return 0;
- }
-@@ -897,17 +896,22 @@ static struct miscdevice watchdog_miscde
- 	.fops		= &watchdog_fops,
  };
  
-+static struct class watchdog_class = {
-+	.name =		"watchdog",
-+	.owner =	THIS_MODULE,
-+	.dev_groups =	wdt_groups,
-+};
-+
- /*
-  *	watchdog_cdev_register: register watchdog character device
-  *	@wdd: watchdog device
-- *	@devno: character device number
-  *
-  *	Register a watchdog character device including handling the legacy
-  *	/dev/watchdog node. /dev/watchdog is actually a miscdevice and
-  *	thus we set it up like that.
-  */
- 
--static int watchdog_cdev_register(struct watchdog_device *wdd, dev_t devno)
-+static int watchdog_cdev_register(struct watchdog_device *wdd)
- {
- 	struct watchdog_core_data *wd_data;
- 	int err;
-@@ -915,7 +919,6 @@ static int watchdog_cdev_register(struct
- 	wd_data = kzalloc(sizeof(struct watchdog_core_data), GFP_KERNEL);
- 	if (!wd_data)
- 		return -ENOMEM;
--	kref_init(&wd_data->kref);
- 	mutex_init(&wd_data->lock);
- 
- 	wd_data->wdd = wdd;
-@@ -942,23 +945,33 @@ static int watchdog_cdev_register(struct
- 		}
- 	}
- 
-+	device_initialize(&wd_data->dev);
-+	wd_data->dev.devt = MKDEV(MAJOR(watchdog_devt), wdd->id);
-+	wd_data->dev.class = &watchdog_class;
-+	wd_data->dev.parent = wdd->parent;
-+	wd_data->dev.groups = wdd->groups;
-+	wd_data->dev.release = watchdog_core_data_release;
-+	dev_set_drvdata(&wd_data->dev, wdd);
-+	dev_set_name(&wd_data->dev, "watchdog%d", wdd->id);
-+
- 	/* Fill in the data structures */
- 	cdev_init(&wd_data->cdev, &watchdog_fops);
--	wd_data->cdev.owner = wdd->ops->owner;
- 
- 	/* Add the device */
--	err = cdev_add(&wd_data->cdev, devno, 1);
-+	err = cdev_device_add(&wd_data->cdev, &wd_data->dev);
- 	if (err) {
- 		pr_err("watchdog%d unable to add device %d:%d\n",
- 			wdd->id,  MAJOR(watchdog_devt), wdd->id);
- 		if (wdd->id == 0) {
- 			misc_deregister(&watchdog_miscdev);
- 			old_wd_data = NULL;
--			kref_put(&wd_data->kref, watchdog_core_data_release);
-+			put_device(&wd_data->dev);
- 		}
- 		return err;
- 	}
- 
-+	wd_data->cdev.owner = wdd->ops->owner;
-+
- 	/* Record time of most recent heartbeat as 'just before now'. */
- 	wd_data->last_hw_keepalive = jiffies - 1;
- 
-@@ -968,7 +981,7 @@ static int watchdog_cdev_register(struct
- 	 */
- 	if (watchdog_hw_running(wdd)) {
- 		__module_get(wdd->ops->owner);
--		kref_get(&wd_data->kref);
-+		get_device(&wd_data->dev);
- 		if (handle_boot_enabled)
- 			queue_delayed_work(watchdog_wq, &wd_data->work, 0);
- 		else
-@@ -991,7 +1004,7 @@ static void watchdog_cdev_unregister(str
- {
- 	struct watchdog_core_data *wd_data = wdd->wd_data;
- 
--	cdev_del(&wd_data->cdev);
-+	cdev_device_del(&wd_data->cdev, &wd_data->dev);
- 	if (wdd->id == 0) {
- 		misc_deregister(&watchdog_miscdev);
- 		old_wd_data = NULL;
-@@ -1009,15 +1022,9 @@ static void watchdog_cdev_unregister(str
- 
- 	cancel_delayed_work_sync(&wd_data->work);
- 
--	kref_put(&wd_data->kref, watchdog_core_data_release);
-+	put_device(&wd_data->dev);
+@@ -91,12 +91,14 @@ static struct i2c_dev *get_free_i2c_dev(
+ 	return i2c_dev;
  }
  
--static struct class watchdog_class = {
--	.name =		"watchdog",
--	.owner =	THIS_MODULE,
--	.dev_groups =	wdt_groups,
--};
--
- /*
-  *	watchdog_dev_register: register a watchdog device
-  *	@wdd: watchdog device
-@@ -1029,27 +1036,14 @@ static struct class watchdog_class = {
- 
- int watchdog_dev_register(struct watchdog_device *wdd)
+-static void put_i2c_dev(struct i2c_dev *i2c_dev)
++static void put_i2c_dev(struct i2c_dev *i2c_dev, bool del_cdev)
  {
--	struct device *dev;
--	dev_t devno;
- 	int ret;
- 
--	devno = MKDEV(MAJOR(watchdog_devt), wdd->id);
--
--	ret = watchdog_cdev_register(wdd, devno);
-+	ret = watchdog_cdev_register(wdd);
- 	if (ret)
- 		return ret;
- 
--	dev = device_create_with_groups(&watchdog_class, wdd->parent,
--					devno, wdd, wdd->groups,
--					"watchdog%d", wdd->id);
--	if (IS_ERR(dev)) {
--		watchdog_cdev_unregister(wdd);
--		return PTR_ERR(dev);
--	}
--
- 	ret = watchdog_register_pretimeout(wdd);
- 	if (ret) {
--		device_destroy(&watchdog_class, devno);
- 		watchdog_cdev_unregister(wdd);
- 	}
- 
-@@ -1067,7 +1061,6 @@ int watchdog_dev_register(struct watchdo
- void watchdog_dev_unregister(struct watchdog_device *wdd)
- {
- 	watchdog_unregister_pretimeout(wdd);
--	device_destroy(&watchdog_class, wdd->wd_data->cdev.dev);
- 	watchdog_cdev_unregister(wdd);
+ 	spin_lock(&i2c_dev_list_lock);
+ 	list_del(&i2c_dev->list);
+ 	spin_unlock(&i2c_dev_list_lock);
+-	kfree(i2c_dev);
++	if (del_cdev)
++		cdev_device_del(&i2c_dev->cdev, &i2c_dev->dev);
++	put_device(&i2c_dev->dev);
  }
  
+ static ssize_t name_show(struct device *dev,
+@@ -542,6 +544,14 @@ static const struct file_operations i2cd
+ 
+ static struct class *i2c_dev_class;
+ 
++static void i2cdev_dev_release(struct device *dev)
++{
++	struct i2c_dev *i2c_dev;
++
++	i2c_dev = container_of(dev, struct i2c_dev, dev);
++	kfree(i2c_dev);
++}
++
+ static int i2cdev_attach_adapter(struct device *dev, void *dummy)
+ {
+ 	struct i2c_adapter *adap;
+@@ -558,27 +568,23 @@ static int i2cdev_attach_adapter(struct
+ 
+ 	cdev_init(&i2c_dev->cdev, &i2cdev_fops);
+ 	i2c_dev->cdev.owner = THIS_MODULE;
+-	res = cdev_add(&i2c_dev->cdev, MKDEV(I2C_MAJOR, adap->nr), 1);
+-	if (res)
+-		goto error_cdev;
+-
+-	/* register this i2c device with the driver core */
+-	i2c_dev->dev = device_create(i2c_dev_class, &adap->dev,
+-				     MKDEV(I2C_MAJOR, adap->nr), NULL,
+-				     "i2c-%d", adap->nr);
+-	if (IS_ERR(i2c_dev->dev)) {
+-		res = PTR_ERR(i2c_dev->dev);
+-		goto error;
++
++	device_initialize(&i2c_dev->dev);
++	i2c_dev->dev.devt = MKDEV(I2C_MAJOR, adap->nr);
++	i2c_dev->dev.class = i2c_dev_class;
++	i2c_dev->dev.parent = &adap->dev;
++	i2c_dev->dev.release = i2cdev_dev_release;
++	dev_set_name(&i2c_dev->dev, "i2c-%d", adap->nr);
++
++	res = cdev_device_add(&i2c_dev->cdev, &i2c_dev->dev);
++	if (res) {
++		put_i2c_dev(i2c_dev, false);
++		return res;
+ 	}
+ 
+ 	pr_debug("i2c-dev: adapter [%s] registered as minor %d\n",
+ 		 adap->name, adap->nr);
+ 	return 0;
+-error:
+-	cdev_del(&i2c_dev->cdev);
+-error_cdev:
+-	put_i2c_dev(i2c_dev);
+-	return res;
+ }
+ 
+ static int i2cdev_detach_adapter(struct device *dev, void *dummy)
+@@ -594,9 +600,7 @@ static int i2cdev_detach_adapter(struct
+ 	if (!i2c_dev) /* attach_adapter must have failed */
+ 		return 0;
+ 
+-	cdev_del(&i2c_dev->cdev);
+-	put_i2c_dev(i2c_dev);
+-	device_destroy(i2c_dev_class, MKDEV(I2C_MAJOR, adap->nr));
++	put_i2c_dev(i2c_dev, true);
+ 
+ 	pr_debug("i2c-dev: adapter [%s] unregistered\n", adap->name);
+ 	return 0;
 
 
