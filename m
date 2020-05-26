@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AD9AA1E2BB1
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:07:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7EAD21E2B46
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:03:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391716AbgEZTHm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:07:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36484 "EHLO mail.kernel.org"
+        id S2391217AbgEZTDd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:03:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58846 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390824AbgEZTHl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:07:41 -0400
+        id S2389596AbgEZTDd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:03:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DAAA720776;
-        Tue, 26 May 2020 19:07:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 34D472086A;
+        Tue, 26 May 2020 19:03:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590520061;
-        bh=vVCIltNcz/8Jdr774CvbyozkDPjMp8YtsaGVK8ZabrA=;
+        s=default; t=1590519812;
+        bh=eRiha6VrvmJXBItURwfvP/4InVhWTc5gqjPh/aj1GdE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GXP1YY71utGVaHbg0bJcraWdmybeCV86LkQk640SPImMJBqR6KAeqkMuxMgBoxxNa
-         URR6fm8fWn4RViFE4geKyHSaxGi4Qc/Fv8U+0VMXTowlsSoL27camRRbwcQye7/xPE
-         NrjSxgqjXSCzx1odgzXXYbm1HKZqkr3mAxXA0qm4=
+        b=2Sr/SuJqusrLYlF4Qm4ja46MtPzQudZmIVop+sxXXfEXOGmXQbOJwbVGmiyI1BC5x
+         0oIgqBq7jB/z2CxHisq3t5E4Yd3MzgQ9Ljp7KY4B0xzDnM+t0Y574ebCX1EYKDkGzA
+         KwNSfbrZpedjiXlTeVk8t1ny2oUCjdxiUPEnSTEI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Aurabindo Pillai <aurabindo.pillai@amd.com>,
-        Harry Wentland <Harry.Wentland@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Leon Romanovsky <leon@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 044/111] drm/amd/display: Prevent dpcd reads with passive dongles
+Subject: [PATCH 4.19 27/81] x86/apic: Move TSC deadline timer debug printk
 Date:   Tue, 26 May 2020 20:53:02 +0200
-Message-Id: <20200526183937.105105322@linuxfoundation.org>
+Message-Id: <20200526183930.437543884@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183932.245016380@linuxfoundation.org>
-References: <20200526183932.245016380@linuxfoundation.org>
+In-Reply-To: <20200526183923.108515292@linuxfoundation.org>
+References: <20200526183923.108515292@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,61 +44,130 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aurabindo Pillai <aurabindo.pillai@amd.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-[ Upstream commit e6142dd511425cb827b5db869f489eb81f5f994d ]
+[ Upstream commit c84cb3735fd53c91101ccdb191f2e3331a9262cb ]
 
-[why]
-During hotplug, a DP port may be connected to the sink through
-passive adapter which does not support DPCD reads. Issuing reads
-without checking for this condition will result in errors
+Leon reported that the printk_once() in __setup_APIC_LVTT() triggers a
+lockdep splat due to a lock order violation between hrtimer_base::lock and
+console_sem, when the 'once' condition is reset via
+/sys/kernel/debug/clear_warn_once after boot.
 
-[how]
-Ensure the link is in aux_mode before initiating operation that result
-in a DPCD read.
+The initial printk cannot trigger this because that happens during boot
+when the local APIC timer is set up on the boot CPU.
 
-Signed-off-by: Aurabindo Pillai <aurabindo.pillai@amd.com>
-Reviewed-by: Harry Wentland <Harry.Wentland@amd.com>
-Acked-by: Aurabindo Pillai <aurabindo.pillai@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Prevent it by moving the printk to a place which is guaranteed to be only
+called once during boot.
+
+Mark the deadline timer check related functions and data __init while at
+it.
+
+Reported-by: Leon Romanovsky <leon@kernel.org>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lkml.kernel.org/r/87y2qhoshi.fsf@nanos.tec.linutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c   | 17 +++++++++++------
- 1 file changed, 11 insertions(+), 6 deletions(-)
+ arch/x86/kernel/apic/apic.c | 27 ++++++++++++++-------------
+ 1 file changed, 14 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-index 99906435dcf7..9f30343262f3 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -1422,17 +1422,22 @@ amdgpu_dm_update_connector_after_detect(struct amdgpu_dm_connector *aconnector)
- 		dc_sink_retain(aconnector->dc_sink);
- 		if (sink->dc_edid.length == 0) {
- 			aconnector->edid = NULL;
--			drm_dp_cec_unset_edid(&aconnector->dm_dp_aux.aux);
-+			if (aconnector->dc_link->aux_mode) {
-+				drm_dp_cec_unset_edid(
-+					&aconnector->dm_dp_aux.aux);
-+			}
- 		} else {
- 			aconnector->edid =
--				(struct edid *) sink->dc_edid.raw_edid;
+diff --git a/arch/x86/kernel/apic/apic.c b/arch/x86/kernel/apic/apic.c
+index 1ca76ca944ba..53dc8492f02f 100644
+--- a/arch/x86/kernel/apic/apic.c
++++ b/arch/x86/kernel/apic/apic.c
+@@ -345,8 +345,6 @@ static void __setup_APIC_LVTT(unsigned int clocks, int oneshot, int irqen)
+ 		 * According to Intel, MFENCE can do the serialization here.
+ 		 */
+ 		asm volatile("mfence" : : : "memory");
 -
-+				(struct edid *)sink->dc_edid.raw_edid;
+-		printk_once(KERN_DEBUG "TSC deadline timer enabled\n");
+ 		return;
+ 	}
  
- 			drm_connector_update_edid_property(connector,
--					aconnector->edid);
--			drm_dp_cec_set_edid(&aconnector->dm_dp_aux.aux,
--					    aconnector->edid);
-+							   aconnector->edid);
-+
-+			if (aconnector->dc_link->aux_mode)
-+				drm_dp_cec_set_edid(&aconnector->dm_dp_aux.aux,
-+						    aconnector->edid);
- 		}
-+
- 		amdgpu_dm_update_freesync_caps(connector, aconnector->edid);
+@@ -545,7 +543,7 @@ static DEFINE_PER_CPU(struct clock_event_device, lapic_events);
+ #define DEADLINE_MODEL_MATCH_REV(model, rev)	\
+ 	{ X86_VENDOR_INTEL, 6, model, X86_FEATURE_ANY, (unsigned long)rev }
  
- 	} else {
+-static u32 hsx_deadline_rev(void)
++static __init u32 hsx_deadline_rev(void)
+ {
+ 	switch (boot_cpu_data.x86_stepping) {
+ 	case 0x02: return 0x3a; /* EP */
+@@ -555,7 +553,7 @@ static u32 hsx_deadline_rev(void)
+ 	return ~0U;
+ }
+ 
+-static u32 bdx_deadline_rev(void)
++static __init u32 bdx_deadline_rev(void)
+ {
+ 	switch (boot_cpu_data.x86_stepping) {
+ 	case 0x02: return 0x00000011;
+@@ -567,7 +565,7 @@ static u32 bdx_deadline_rev(void)
+ 	return ~0U;
+ }
+ 
+-static u32 skx_deadline_rev(void)
++static __init u32 skx_deadline_rev(void)
+ {
+ 	switch (boot_cpu_data.x86_stepping) {
+ 	case 0x03: return 0x01000136;
+@@ -580,7 +578,7 @@ static u32 skx_deadline_rev(void)
+ 	return ~0U;
+ }
+ 
+-static const struct x86_cpu_id deadline_match[] = {
++static const struct x86_cpu_id deadline_match[] __initconst = {
+ 	DEADLINE_MODEL_MATCH_FUNC( INTEL_FAM6_HASWELL_X,	hsx_deadline_rev),
+ 	DEADLINE_MODEL_MATCH_REV ( INTEL_FAM6_BROADWELL_X,	0x0b000020),
+ 	DEADLINE_MODEL_MATCH_FUNC( INTEL_FAM6_BROADWELL_XEON_D,	bdx_deadline_rev),
+@@ -602,18 +600,19 @@ static const struct x86_cpu_id deadline_match[] = {
+ 	{},
+ };
+ 
+-static void apic_check_deadline_errata(void)
++static __init bool apic_validate_deadline_timer(void)
+ {
+ 	const struct x86_cpu_id *m;
+ 	u32 rev;
+ 
+-	if (!boot_cpu_has(X86_FEATURE_TSC_DEADLINE_TIMER) ||
+-	    boot_cpu_has(X86_FEATURE_HYPERVISOR))
+-		return;
++	if (!boot_cpu_has(X86_FEATURE_TSC_DEADLINE_TIMER))
++		return false;
++	if (boot_cpu_has(X86_FEATURE_HYPERVISOR))
++		return true;
+ 
+ 	m = x86_match_cpu(deadline_match);
+ 	if (!m)
+-		return;
++		return true;
+ 
+ 	/*
+ 	 * Function pointers will have the MSB set due to address layout,
+@@ -625,11 +624,12 @@ static void apic_check_deadline_errata(void)
+ 		rev = (u32)m->driver_data;
+ 
+ 	if (boot_cpu_data.microcode >= rev)
+-		return;
++		return true;
+ 
+ 	setup_clear_cpu_cap(X86_FEATURE_TSC_DEADLINE_TIMER);
+ 	pr_err(FW_BUG "TSC_DEADLINE disabled due to Errata; "
+ 	       "please update microcode to version: 0x%x (or later)\n", rev);
++	return false;
+ }
+ 
+ /*
+@@ -2023,7 +2023,8 @@ void __init init_apic_mappings(void)
+ {
+ 	unsigned int new_apicid;
+ 
+-	apic_check_deadline_errata();
++	if (apic_validate_deadline_timer())
++		pr_debug("TSC deadline timer available\n");
+ 
+ 	if (x2apic_mode) {
+ 		boot_cpu_physical_apicid = read_apic_id();
 -- 
 2.25.1
 
