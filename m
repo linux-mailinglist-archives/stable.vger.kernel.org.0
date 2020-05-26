@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AC3441E2E58
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:28:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A86811E2D06
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:20:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392503AbgEZT2n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:28:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57576 "EHLO mail.kernel.org"
+        id S2404271AbgEZTN1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:13:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43414 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391135AbgEZTCk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:02:40 -0400
+        id S2404264AbgEZTNZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:13:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4804720849;
-        Tue, 26 May 2020 19:02:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3A93120888;
+        Tue, 26 May 2020 19:13:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590519759;
-        bh=egsL6AH/ANsTTekNKP3t3n4xT4+RurSQuBnpdQfJb/c=;
+        s=default; t=1590520404;
+        bh=XvJDTNIF45o9UFGQKYua3tOzrBKSO1492EQJkze+mBE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mPovLgUOgIVMFD5jet8oYmakFYiyBxEoOwgcmbugFrilP4DG+qTh7A77C/X6dfJri
-         kVIsaU595UD37ofyFXFKbg95rW+Wjchjehh23w5mTv9+BKTF70+FH11Vb85BUtf6XT
-         7qIfGUQphpztuGUvkbI0n58LU1CjldJ8tQ/66Xg0=
+        b=XSfo6/N/jWFQguyr9yQzeamwDTmqm+3oF3Yq27pvCjUabQ4aTpju4mWmS34qqjZtp
+         KPi01VIUXZKU0joC/nrWQZWraRKdLJ1X/yq1WA4FDuU5bGtCy8TPPGoab64aVCQqR9
+         j22It7fWQ9gX59UA2O4jkhKzHuwzkFFyM5eLVTYE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Scott Bahling <sbahling@suse.com>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.14 35/59] ALSA: iec1712: Initialize STDSP24 properly when using the model=staudio option
-Date:   Tue, 26 May 2020 20:53:20 +0200
-Message-Id: <20200526183919.093179911@linuxfoundation.org>
+Subject: [PATCH 5.6 064/126] ALSA: iec1712: Initialize STDSP24 properly when using the model=staudio option
+Date:   Tue, 26 May 2020 20:53:21 +0200
+Message-Id: <20200526183943.534486974@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183907.123822792@linuxfoundation.org>
-References: <20200526183907.123822792@linuxfoundation.org>
+In-Reply-To: <20200526183937.471379031@linuxfoundation.org>
+References: <20200526183937.471379031@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -66,7 +66,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/sound/pci/ice1712/ice1712.c
 +++ b/sound/pci/ice1712/ice1712.c
-@@ -2377,7 +2377,8 @@ static int snd_ice1712_chip_init(struct
+@@ -2332,7 +2332,8 @@ static int snd_ice1712_chip_init(struct
  	pci_write_config_byte(ice->pci, 0x61, ice->eeprom.data[ICE_EEP1_ACLINK]);
  	pci_write_config_byte(ice->pci, 0x62, ice->eeprom.data[ICE_EEP1_I2SID]);
  	pci_write_config_byte(ice->pci, 0x63, ice->eeprom.data[ICE_EEP1_SPDIF]);
