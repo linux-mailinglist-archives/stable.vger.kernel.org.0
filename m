@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B59761E2CBE
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:17:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1935F1E2B10
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:03:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391485AbgEZTRV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:17:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45854 "EHLO mail.kernel.org"
+        id S2390971AbgEZTBj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:01:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56080 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392194AbgEZTOn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:14:43 -0400
+        id S2403780AbgEZTBj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:01:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 854DE208B6;
-        Tue, 26 May 2020 19:14:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5A5DF20849;
+        Tue, 26 May 2020 19:01:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590520483;
-        bh=+CcGc1ePsAEy4vbCoNwEklXLyLYAmR7rlXdXCWM57Is=;
+        s=default; t=1590519698;
+        bh=tZo9CF7CffjqZc5UBMpkQmJ8D24Jv1Xf2Q1uBYceyek=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=adaos+ajNlz0M/auPW+kLOxzpSf12qRFk1IWPowfesM3u+fR5NPiT487tJAxjiWsU
-         lTdoJWxf1T5pGoeJADIyv1k5dBsjvMWd94G3CcYF1hvmjhSDrg5bhI1SUMhOIwLUB0
-         8cBjAkXo+dRCH90QTjiez3nKc3q4z49ZXK3RZ7dg=
+        b=m0aB4jQEPQr4QkIQaE6fQ0+FtjzAqx+tzkChT6H9i5lB8VWtd/Ia7Tlt9dhKn5Dw/
+         wdiDUC71xLs7oTzKFvlSklgi5BEv0JGfyZSR7ppuX7Scx5AoaDjp2JLwouClIWHv+6
+         xn/3BuE7wdr7FL+79OBjDDEZhgfNne2cuLcr69OI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Keno Fischer <keno@juliacomputing.com>,
-        Will Deacon <will@kernel.org>,
-        Sudeep Holla <sudeep.holla@arm.com>, Bin Lu <Bin.Lu@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>
-Subject: [PATCH 5.6 070/126] arm64: Fix PTRACE_SYSEMU semantics
+        stable@vger.kernel.org,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Borislav Petkov <bp@alien8.de>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>
+Subject: [PATCH 4.14 42/59] x86/uaccess, ubsan: Fix UBSAN vs. SMAP
 Date:   Tue, 26 May 2020 20:53:27 +0200
-Message-Id: <20200526183944.066155821@linuxfoundation.org>
+Message-Id: <20200526183920.738279820@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183937.471379031@linuxfoundation.org>
-References: <20200526183937.471379031@linuxfoundation.org>
+In-Reply-To: <20200526183907.123822792@linuxfoundation.org>
+References: <20200526183907.123822792@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,58 +49,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Keno Fischer <keno@juliacomputing.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-commit 1cf6022bd9161081215028203919c33fcfa6debb upstream.
+commit d08965a27e84ca090b504844d50c24fc98587b11 upstream.
 
-Quoth the man page:
-```
-       If the tracee was restarted by PTRACE_SYSCALL or PTRACE_SYSEMU, the
-       tracee enters syscall-enter-stop just prior to entering any system
-       call (which will not be executed if the restart was using
-       PTRACE_SYSEMU, regardless of any change made to registers at this
-       point or how the tracee is restarted after this stop).
-```
+UBSAN can insert extra code in random locations; including AC=1
+sections. Typically this code is not safe and needs wrapping.
 
-The parenthetical comment is currently true on x86 and powerpc,
-but not currently true on arm64. arm64 re-checks the _TIF_SYSCALL_EMU
-flag after the syscall entry ptrace stop. However, at this point,
-it reflects which method was used to re-start the syscall
-at the entry stop, rather than the method that was used to reach it.
-Fix that by recording the original flag before performing the ptrace
-stop, bringing the behavior in line with documentation and x86/powerpc.
+So far, only __ubsan_handle_type_mismatch* have been observed in AC=1
+sections and therefore only those are annotated.
 
-Fixes: f086f67485c5 ("arm64: ptrace: add support for syscall emulation")
-Cc: <stable@vger.kernel.org> # 5.3.x-
-Signed-off-by: Keno Fischer <keno@juliacomputing.com>
-Acked-by: Will Deacon <will@kernel.org>
-Tested-by: Sudeep Holla <sudeep.holla@arm.com>
-Tested-by: Bin Lu <Bin.Lu@arm.com>
-[catalin.marinas@arm.com: moved 'flags' bit masking]
-[catalin.marinas@arm.com: changed 'flags' type to unsigned long]
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Cc: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+[stable backport: only take the lib/Makefile change to resolve gcc-10
+ build issues]
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- arch/arm64/kernel/ptrace.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ lib/Makefile |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/arm64/kernel/ptrace.c
-+++ b/arch/arm64/kernel/ptrace.c
-@@ -1829,10 +1829,11 @@ static void tracehook_report_syscall(str
+--- a/lib/Makefile
++++ b/lib/Makefile
+@@ -256,6 +256,7 @@ obj-$(CONFIG_UCS2_STRING) += ucs2_string
+ obj-$(CONFIG_UBSAN) += ubsan.o
  
- int syscall_trace_enter(struct pt_regs *regs)
- {
--	if (test_thread_flag(TIF_SYSCALL_TRACE) ||
--		test_thread_flag(TIF_SYSCALL_EMU)) {
-+	unsigned long flags = READ_ONCE(current_thread_info()->flags);
-+
-+	if (flags & (_TIF_SYSCALL_EMU | _TIF_SYSCALL_TRACE)) {
- 		tracehook_report_syscall(regs, PTRACE_SYSCALL_ENTER);
--		if (!in_syscall(regs) || test_thread_flag(TIF_SYSCALL_EMU))
-+		if (!in_syscall(regs) || (flags & _TIF_SYSCALL_EMU))
- 			return -1;
- 	}
+ UBSAN_SANITIZE_ubsan.o := n
++CFLAGS_ubsan.o := $(call cc-option, -fno-conserve-stack -fno-stack-protector)
+ 
+ obj-$(CONFIG_SBITMAP) += sbitmap.o
  
 
 
