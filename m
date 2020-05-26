@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 51C5B1E2ECE
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:32:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FBCE1E2F12
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:34:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390287AbgEZS6Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 14:58:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51638 "EHLO mail.kernel.org"
+        id S2389675AbgEZSzy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 14:55:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48382 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390266AbgEZS6K (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 14:58:10 -0400
+        id S2389671AbgEZSzx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 14:55:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0D37B208B6;
-        Tue, 26 May 2020 18:58:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 830232086A;
+        Tue, 26 May 2020 18:55:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590519489;
-        bh=mXIaFIsb6ojuU/QsDD0C6fHGfCbjjgZT0HXkmo6zXkU=;
+        s=default; t=1590519353;
+        bh=NOUY2cFAxW4NOpv/x7vgV6FUGdxcy+oqZ/7YtptmUIs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rhy0LOYFqFGkWc/06Vlv2TmnUttbQjDde9DC0FU6XBsTM7j329gI83OSKVTmNFacX
-         d1XpoZOiUkpJtT/CgzKLxI35gRvTy7hTY6dnapfAoreirUCsOOf80wdLbgh6kvPcxM
-         sKfKbYt+AZdQAQlfAhmhAOR9l5BbR1hiW5uSiuHI=
+        b=TL+EsfELdovadTz759QINdor245D5BTQ0UsNIvvO4L6bRMyzrhzEE3oBGbciiu2KQ
+         23GN93SvgsOjxv1s9Mrbwx9yCrnj7MWVxHthYwFlIZ9jrOXX17egzV+H6OohT1Vo+Z
+         A22r3kR2pWejRYWx3kQODCwW0lmoSFg/+HkBvN78=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, greg@kroah.com
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Jordan <daniel.m.jordan@oracle.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        linux-crypto@vger.kernel.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 23/64] padata: initialize pd->cpu with effective cpumask
-Date:   Tue, 26 May 2020 20:52:52 +0200
-Message-Id: <20200526183920.243276955@linuxfoundation.org>
+        stable@vger.kernel.org, Guillaume Nault <g.nault@alphalink.fr>,
+        "David S. Miller" <davem@davemloft.net>,
+        Giuliano Procida <gprocida@google.com>
+Subject: [PATCH 4.4 34/65] l2tp: lock socket before checking flags in connect()
+Date:   Tue, 26 May 2020 20:52:53 +0200
+Message-Id: <20200526183918.173764337@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183913.064413230@linuxfoundation.org>
-References: <20200526183913.064413230@linuxfoundation.org>
+In-Reply-To: <20200526183905.988782958@linuxfoundation.org>
+References: <20200526183905.988782958@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,76 +44,142 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Jordan <daniel.m.jordan@oracle.com>
+From: Guillaume Nault <g.nault@alphalink.fr>
 
-[ Upstream commit ec9c7d19336ee98ecba8de80128aa405c45feebb ]
+commit 0382a25af3c771a8e4d5e417d1834cbe28c2aaac upstream.
 
-Exercising CPU hotplug on a 5.2 kernel with recent padata fixes from
-cryptodev-2.6.git in an 8-CPU kvm guest...
+Socket flags aren't updated atomically, so the socket must be locked
+while reading the SOCK_ZAPPED flag.
 
-    # modprobe tcrypt alg="pcrypt(rfc4106(gcm(aes)))" type=3
-    # echo 0 > /sys/devices/system/cpu/cpu1/online
-    # echo c > /sys/kernel/pcrypt/pencrypt/parallel_cpumask
-    # modprobe tcrypt mode=215
+This issue exists for both l2tp_ip and l2tp_ip6. For IPv6, this patch
+also brings error handling for __ip6_datagram_connect() failures.
 
-...caused the following crash:
-
-    BUG: kernel NULL pointer dereference, address: 0000000000000000
-    #PF: supervisor read access in kernel mode
-    #PF: error_code(0x0000) - not-present page
-    PGD 0 P4D 0
-    Oops: 0000 [#1] SMP PTI
-    CPU: 2 PID: 134 Comm: kworker/2:2 Not tainted 5.2.0-padata-base+ #7
-    Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.12.0-<snip>
-    Workqueue: pencrypt padata_parallel_worker
-    RIP: 0010:padata_reorder+0xcb/0x180
-    ...
-    Call Trace:
-     padata_do_serial+0x57/0x60
-     pcrypt_aead_enc+0x3a/0x50 [pcrypt]
-     padata_parallel_worker+0x9b/0xe0
-     process_one_work+0x1b5/0x3f0
-     worker_thread+0x4a/0x3c0
-     ...
-
-In padata_alloc_pd, pd->cpu is set using the user-supplied cpumask
-instead of the effective cpumask, and in this case cpumask_first picked
-an offline CPU.
-
-The offline CPU's reorder->list.next is NULL in padata_reorder because
-the list wasn't initialized in padata_init_pqueues, which only operates
-on CPUs in the effective mask.
-
-Fix by using the effective mask in padata_alloc_pd.
-
-Fixes: 6fc4dbcf0276 ("padata: Replace delayed timer with immediate workqueue in padata_reorder")
-Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: Steffen Klassert <steffen.klassert@secunet.com>
-Cc: linux-crypto@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Guillaume Nault <g.nault@alphalink.fr>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Giuliano Procida <gprocida@google.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/padata.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/net/ipv6.h  |    2 ++
+ net/ipv6/datagram.c |    4 +++-
+ net/l2tp/l2tp_ip.c  |   19 ++++++++++++-------
+ net/l2tp/l2tp_ip6.c |   16 +++++++++++-----
+ 4 files changed, 28 insertions(+), 13 deletions(-)
 
-diff --git a/kernel/padata.c b/kernel/padata.c
-index 0b9c39730d6d..1030e6cfc08c 100644
---- a/kernel/padata.c
-+++ b/kernel/padata.c
-@@ -450,7 +450,7 @@ static struct parallel_data *padata_alloc_pd(struct padata_instance *pinst,
- 	atomic_set(&pd->refcnt, 1);
- 	pd->pinst = pinst;
- 	spin_lock_init(&pd->lock);
--	pd->cpu = cpumask_first(pcpumask);
-+	pd->cpu = cpumask_first(pd->cpumask.pcpu);
- 	INIT_WORK(&pd->reorder_work, invoke_padata_reorder);
+--- a/include/net/ipv6.h
++++ b/include/net/ipv6.h
+@@ -915,6 +915,8 @@ int compat_ipv6_setsockopt(struct sock *
+ int compat_ipv6_getsockopt(struct sock *sk, int level, int optname,
+ 			   char __user *optval, int __user *optlen);
  
- 	return pd;
--- 
-2.25.1
-
++int __ip6_datagram_connect(struct sock *sk, struct sockaddr *addr,
++			   int addr_len);
+ int ip6_datagram_connect(struct sock *sk, struct sockaddr *addr, int addr_len);
+ int ip6_datagram_connect_v6_only(struct sock *sk, struct sockaddr *addr,
+ 				 int addr_len);
+--- a/net/ipv6/datagram.c
++++ b/net/ipv6/datagram.c
+@@ -40,7 +40,8 @@ static bool ipv6_mapped_addr_any(const s
+ 	return ipv6_addr_v4mapped(a) && (a->s6_addr32[3] == 0);
+ }
+ 
+-static int __ip6_datagram_connect(struct sock *sk, struct sockaddr *uaddr, int addr_len)
++int __ip6_datagram_connect(struct sock *sk, struct sockaddr *uaddr,
++			   int addr_len)
+ {
+ 	struct sockaddr_in6	*usin = (struct sockaddr_in6 *) uaddr;
+ 	struct inet_sock	*inet = inet_sk(sk);
+@@ -213,6 +214,7 @@ out:
+ 	fl6_sock_release(flowlabel);
+ 	return err;
+ }
++EXPORT_SYMBOL_GPL(__ip6_datagram_connect);
+ 
+ int ip6_datagram_connect(struct sock *sk, struct sockaddr *uaddr, int addr_len)
+ {
+--- a/net/l2tp/l2tp_ip.c
++++ b/net/l2tp/l2tp_ip.c
+@@ -321,21 +321,24 @@ static int l2tp_ip_connect(struct sock *
+ 	struct sockaddr_l2tpip *lsa = (struct sockaddr_l2tpip *) uaddr;
+ 	int rc;
+ 
+-	if (sock_flag(sk, SOCK_ZAPPED)) /* Must bind first - autobinding does not work */
+-		return -EINVAL;
+-
+ 	if (addr_len < sizeof(*lsa))
+ 		return -EINVAL;
+ 
+ 	if (ipv4_is_multicast(lsa->l2tp_addr.s_addr))
+ 		return -EINVAL;
+ 
+-	rc = ip4_datagram_connect(sk, uaddr, addr_len);
+-	if (rc < 0)
+-		return rc;
+-
+ 	lock_sock(sk);
+ 
++	/* Must bind first - autobinding does not work */
++	if (sock_flag(sk, SOCK_ZAPPED)) {
++		rc = -EINVAL;
++		goto out_sk;
++	}
++
++	rc = __ip4_datagram_connect(sk, uaddr, addr_len);
++	if (rc < 0)
++		goto out_sk;
++
+ 	l2tp_ip_sk(sk)->peer_conn_id = lsa->l2tp_conn_id;
+ 
+ 	write_lock_bh(&l2tp_ip_lock);
+@@ -343,7 +346,9 @@ static int l2tp_ip_connect(struct sock *
+ 	sk_add_bind_node(sk, &l2tp_ip_bind_table);
+ 	write_unlock_bh(&l2tp_ip_lock);
+ 
++out_sk:
+ 	release_sock(sk);
++
+ 	return rc;
+ }
+ 
+--- a/net/l2tp/l2tp_ip6.c
++++ b/net/l2tp/l2tp_ip6.c
+@@ -383,9 +383,6 @@ static int l2tp_ip6_connect(struct sock
+ 	int	addr_type;
+ 	int rc;
+ 
+-	if (sock_flag(sk, SOCK_ZAPPED)) /* Must bind first - autobinding does not work */
+-		return -EINVAL;
+-
+ 	if (addr_len < sizeof(*lsa))
+ 		return -EINVAL;
+ 
+@@ -402,10 +399,18 @@ static int l2tp_ip6_connect(struct sock
+ 			return -EINVAL;
+ 	}
+ 
+-	rc = ip6_datagram_connect(sk, uaddr, addr_len);
+-
+ 	lock_sock(sk);
+ 
++	 /* Must bind first - autobinding does not work */
++	if (sock_flag(sk, SOCK_ZAPPED)) {
++		rc = -EINVAL;
++		goto out_sk;
++	}
++
++	rc = __ip6_datagram_connect(sk, uaddr, addr_len);
++	if (rc < 0)
++		goto out_sk;
++
+ 	l2tp_ip6_sk(sk)->peer_conn_id = lsa->l2tp_conn_id;
+ 
+ 	write_lock_bh(&l2tp_ip6_lock);
+@@ -413,6 +418,7 @@ static int l2tp_ip6_connect(struct sock
+ 	sk_add_bind_node(sk, &l2tp_ip6_bind_table);
+ 	write_unlock_bh(&l2tp_ip6_lock);
+ 
++out_sk:
+ 	release_sock(sk);
+ 
+ 	return rc;
 
 
