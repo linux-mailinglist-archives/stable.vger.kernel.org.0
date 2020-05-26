@@ -2,37 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F16861E2C78
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:15:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B18F1E2E73
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:30:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404187AbgEZTPL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:15:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46672 "EHLO mail.kernel.org"
+        id S2390984AbgEZTBs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:01:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56170 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404196AbgEZTPL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:15:11 -0400
+        id S2403797AbgEZTBm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:01:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 30ABD208B3;
-        Tue, 26 May 2020 19:15:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 34E5C2084C;
+        Tue, 26 May 2020 19:01:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590520510;
-        bh=zcyVS/NHVYgcarFW3W2ZpzEq8bYzC9EzovUz+I2DAyw=;
+        s=default; t=1590519701;
+        bh=exwDoKqglk05Dqmr7hl1WwibewZcm/lnYHdAHOBm8xw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TSZIA+gafZ33oeMDnYNIekdQHiYkWZG/SE0R7XCNo3GlJ/QDi/iA4nPtDekMB+9Is
-         qyyn78euZ7YRNsAppnPncBtHYvTs4H0ky3SKiklh163mg5bGE9GnlRyo/MYY1Zxz+l
-         NigwDByTjIokYRv+7V30awp/DLnjCe4zfUU300Ww=
+        b=AWFwlDUWDAUUX1JoPenvUzgGn/IHz9npMQlfzfaNgChkYRFAAPPUdAuMLWpidcNT0
+         auReHGYDP1rvb8WH0syv4lO0Ovdr72ZMeK3RJu9nzuJktK6e0YrzqbLs0OT5HiN9kn
+         dQLLLFYTCM3ivfyxZcnZJ9VCRghjNkfGB04l9Q8w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.6 071/126] powerpc/64s: Disable STRICT_KERNEL_RWX
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Andrey Ryabinin <aryabinin@virtuozzo.com>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Borislav Petkov <bp@alien8.de>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Matthew Wilcox <willy@infradead.org>,
+        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.14 43/59] ubsan: build ubsan.c more conservatively
 Date:   Tue, 26 May 2020 20:53:28 +0200
-Message-Id: <20200526183944.154484688@linuxfoundation.org>
+Message-Id: <20200526183921.075930036@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183937.471379031@linuxfoundation.org>
-References: <20200526183937.471379031@linuxfoundation.org>
+In-Reply-To: <20200526183907.123822792@linuxfoundation.org>
+References: <20200526183907.123822792@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,46 +55,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit 8659a0e0efdd975c73355dbc033f79ba3b31e82c upstream.
+commit af700eaed0564d5d3963a7a51cb0843629d7fe3d upstream.
 
-Several strange crashes have been eventually traced back to
-STRICT_KERNEL_RWX and its interaction with code patching.
+objtool points out several conditions that it does not like, depending
+on the combination with other configuration options and compiler
+variants:
 
-Various paths in our ftrace, kprobes and other patching code need to
-be hardened against patching failures, otherwise we can end up running
-with partially/incorrectly patched ftrace paths, kprobes or jump
-labels, which can then cause strange crashes.
+stack protector:
+  lib/ubsan.o: warning: objtool: __ubsan_handle_type_mismatch()+0xbf: call to __stack_chk_fail() with UACCESS enabled
+  lib/ubsan.o: warning: objtool: __ubsan_handle_type_mismatch_v1()+0xbe: call to __stack_chk_fail() with UACCESS enabled
 
-Although fixes for those are in development, they're not -rc material.
+stackleak plugin:
+  lib/ubsan.o: warning: objtool: __ubsan_handle_type_mismatch()+0x4a: call to stackleak_track_stack() with UACCESS enabled
+  lib/ubsan.o: warning: objtool: __ubsan_handle_type_mismatch_v1()+0x4a: call to stackleak_track_stack() with UACCESS enabled
 
-There also seem to be problems with the underlying strict RWX logic,
-which needs further debugging.
+kasan:
+  lib/ubsan.o: warning: objtool: __ubsan_handle_type_mismatch()+0x25: call to memcpy() with UACCESS enabled
+  lib/ubsan.o: warning: objtool: __ubsan_handle_type_mismatch_v1()+0x25: call to memcpy() with UACCESS enabled
 
-So for now disable STRICT_KERNEL_RWX on 64-bit to prevent people from
-enabling the option and tripping over the bugs.
+The stackleak and kasan options just need to be disabled for this file
+as we do for other files already.  For the stack protector, we already
+attempt to disable it, but this fails on clang because the check is
+mixed with the gcc specific -fno-conserve-stack option.  According to
+Andrey Ryabinin, that option is not even needed, dropping it here fixes
+the stackprotector issue.
 
-Fixes: 1e0fc9d1eb2b ("powerpc/Kconfig: Enable STRICT_KERNEL_RWX for some configs")
-Cc: stable@vger.kernel.org # v4.13+
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200520133605.972649-1-mpe@ellerman.id.au
+Link: http://lkml.kernel.org/r/20190722125139.1335385-1-arnd@arndb.de
+Link: https://lore.kernel.org/lkml/20190617123109.667090-1-arnd@arndb.de/t/
+Link: https://lore.kernel.org/lkml/20190722091050.2188664-1-arnd@arndb.de/t/
+Fixes: d08965a27e84 ("x86/uaccess, ubsan: Fix UBSAN vs. SMAP")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Andrey Ryabinin <aryabinin@virtuozzo.com>
+Cc: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- arch/powerpc/Kconfig |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ lib/Makefile |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/arch/powerpc/Kconfig
-+++ b/arch/powerpc/Kconfig
-@@ -129,7 +129,7 @@ config PPC
- 	select ARCH_HAS_PTE_SPECIAL
- 	select ARCH_HAS_MEMBARRIER_CALLBACKS
- 	select ARCH_HAS_SCALED_CPUTIME		if VIRT_CPU_ACCOUNTING_NATIVE && PPC_BOOK3S_64
--	select ARCH_HAS_STRICT_KERNEL_RWX	if ((PPC_BOOK3S_64 || PPC32) && !HIBERNATION)
-+	select ARCH_HAS_STRICT_KERNEL_RWX	if (PPC32 && !HIBERNATION)
- 	select ARCH_HAS_TICK_BROADCAST		if GENERIC_CLOCKEVENTS_BROADCAST
- 	select ARCH_HAS_UACCESS_FLUSHCACHE
- 	select ARCH_HAS_UACCESS_MCSAFE		if PPC64
+--- a/lib/Makefile
++++ b/lib/Makefile
+@@ -256,7 +256,8 @@ obj-$(CONFIG_UCS2_STRING) += ucs2_string
+ obj-$(CONFIG_UBSAN) += ubsan.o
+ 
+ UBSAN_SANITIZE_ubsan.o := n
+-CFLAGS_ubsan.o := $(call cc-option, -fno-conserve-stack -fno-stack-protector)
++KASAN_SANITIZE_ubsan.o := n
++CFLAGS_ubsan.o := $(call cc-option, -fno-stack-protector) $(DISABLE_STACKLEAK_PLUGIN)
+ 
+ obj-$(CONFIG_SBITMAP) += sbitmap.o
+ 
 
 
