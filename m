@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D92841E2B6B
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:05:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C20F51E2C37
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:13:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390537AbgEZTE6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:04:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60946 "EHLO mail.kernel.org"
+        id S2404234AbgEZTNU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:13:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43172 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391440AbgEZTE6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:04:58 -0400
+        id S2404202AbgEZTNT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:13:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7AE7920776;
-        Tue, 26 May 2020 19:04:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BEF44208B6;
+        Tue, 26 May 2020 19:13:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590519897;
-        bh=fQ0DWWGOqMI2LHCgElUKESIoUuz8FVVSSn09zsHcakU=;
+        s=default; t=1590520399;
+        bh=O0RPL3irJhWBZ5F2H3BdlvfzT93fhcXBDbqTToK9uYg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zby7Ct47lAZWYr028qjFEEMk+rLy4ADnOrxl7xZNTf2Byg1k/lgUOWfZc8AWEIofi
-         P+65YofK2Ls5fUpE+FVKZLvFvpFocPmRvbd0hunt8d8PaxlNaGKPq4cYLs2bEDZIwU
-         7X4v6X1F8QrH0yT5UCvKA08Ticts9tERDJkupeoM=
+        b=iREhB2WHabqupBHJTM4z6VnmcNH13fDlzCn9nftkYn2VBS1CvRymtKAbOmoSNvrzz
+         nmDp8mDUa14F7wiUzguCehej5jz27Y7pPkVhi/kaJzdlL77avX5AbsN/PvQhi3Hx3U
+         Qmmi27riace2Lb5x1ZCvcVG6zemX3GTpSwbhXfhs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miquel Raynal <miquel.raynal@bootlin.com>,
-        Boris Brezillon <boris.brezillon@collabora.com>,
-        Richard Weinberger <richard@nod.at>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 09/81] mtd: spinand: Propagate ECC information to the MTD structure
+        stable@vger.kernel.org, Artem Borisov <dedsa2002@gmail.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 027/126] HID: alps: Add AUI1657 device ID
 Date:   Tue, 26 May 2020 20:52:44 +0200
-Message-Id: <20200526183926.164686852@linuxfoundation.org>
+Message-Id: <20200526183940.032179250@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183923.108515292@linuxfoundation.org>
-References: <20200526183923.108515292@linuxfoundation.org>
+In-Reply-To: <20200526183937.471379031@linuxfoundation.org>
+References: <20200526183937.471379031@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,39 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miquel Raynal <miquel.raynal@bootlin.com>
+From: Artem Borisov <dedsa2002@gmail.com>
 
-[ Upstream commit 3507273d5a4d3c2e46f9d3f9ed9449805f5dff07 ]
+[ Upstream commit 640e403b1fd24e7f31ac6f29f0b6a21d285ed729 ]
 
-This is done by default in the raw NAND core (nand_base.c) but was
-missing in the SPI-NAND core. Without these two lines the ecc_strength
-and ecc_step_size values are not exported to the user through sysfs.
+This device is used on Lenovo V130-15IKB variants and uses
+the same registers as U1.
 
-Fixes: 7529df465248 ("mtd: nand: Add core infrastructure to support SPI NANDs")
-Cc: stable@vger.kernel.org
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Signed-off-by: Artem Borisov <dedsa2002@gmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/nand/spi/core.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/hid/hid-alps.c | 1 +
+ drivers/hid/hid-ids.h  | 2 +-
+ 2 files changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/mtd/nand/spi/core.c b/drivers/mtd/nand/spi/core.c
-index a2f38b3b9776..1d61ae7aaa66 100644
---- a/drivers/mtd/nand/spi/core.c
-+++ b/drivers/mtd/nand/spi/core.c
-@@ -1045,6 +1045,10 @@ static int spinand_init(struct spinand_device *spinand)
+diff --git a/drivers/hid/hid-alps.c b/drivers/hid/hid-alps.c
+index fa704153cb00..c2a2bd528890 100644
+--- a/drivers/hid/hid-alps.c
++++ b/drivers/hid/hid-alps.c
+@@ -802,6 +802,7 @@ static int alps_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 		break;
+ 	case HID_DEVICE_ID_ALPS_U1_DUAL:
+ 	case HID_DEVICE_ID_ALPS_U1:
++	case HID_DEVICE_ID_ALPS_1657:
+ 		data->dev_type = U1;
+ 		break;
+ 	default:
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 40697af0ca35..7d769ca864a7 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -81,7 +81,7 @@
+ #define HID_DEVICE_ID_ALPS_U1		0x1215
+ #define HID_DEVICE_ID_ALPS_T4_BTNLESS	0x120C
+ #define HID_DEVICE_ID_ALPS_1222		0x1222
+-
++#define HID_DEVICE_ID_ALPS_1657         0x121E
  
- 	mtd->oobavail = ret;
- 
-+	/* Propagate ECC information to mtd_info */
-+	mtd->ecc_strength = nand->eccreq.strength;
-+	mtd->ecc_step_size = nand->eccreq.step_size;
-+
- 	return 0;
- 
- err_cleanup_nanddev:
+ #define USB_VENDOR_ID_AMI		0x046b
+ #define USB_DEVICE_ID_AMI_VIRT_KEYBOARD_AND_MOUSE	0xff10
 -- 
 2.25.1
 
