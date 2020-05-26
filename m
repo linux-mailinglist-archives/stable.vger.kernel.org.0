@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9904A1E2D57
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:24:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2893E1E2E2E
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:27:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391782AbgEZTI0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:08:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37372 "EHLO mail.kernel.org"
+        id S2390184AbgEZTES (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:04:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59838 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391779AbgEZTI0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:08:26 -0400
+        id S2390809AbgEZTEP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:04:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BAF6E208A7;
-        Tue, 26 May 2020 19:08:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9C455208B6;
+        Tue, 26 May 2020 19:04:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590520105;
-        bh=gTpIT3L94OWBOpYapq2hTCugOTa1hc5f9AexSUrQFn4=;
+        s=default; t=1590519855;
+        bh=dwPwdG0SK+kS1i7Rh+GeJcYZE0NSE+OYrDVqABO7+H4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wbB0yQoP0/+lEoXk7KuUDHdZP2VFMGvYCCCRIVxuOTtztQ7VNwtT5cazs8le/NEq+
-         Y2ucRwEknR81fPLm/N9U2KCRNDUnCUESn+z0A9YxgsSywPeDP0uLROZ0AQArODTSZW
-         lqFnOcsCvdgnWZO1nwKy1gnc/LVrlK0oxpVHrrNA=
+        b=TWqUin4CW90wDU6jv2jo8cW0285CyrkCkWaHKJFTq5yfbo/g6VDKGrvnWMjivlo9J
+         774li7Gq3dDiHYHntDgEINACt2yBUJdyuvIB55LmveGlERFjOStL8t6UXKCFEmz8iC
+         xg83i1MUSSIKZiInIhbfCF2aVEKqc6wdxds6JbYQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brent Lu <brent.lu@intel.com>,
-        Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 059/111] ALSA: pcm: fix incorrect hw_base increase
+        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
+        Christian Gmeiner <christian.gmeiner@gmail.com>,
+        Lucas Stach <l.stach@pengutronix.de>
+Subject: [PATCH 4.19 42/81] drm/etnaviv: fix perfmon domain interation
 Date:   Tue, 26 May 2020 20:53:17 +0200
-Message-Id: <20200526183938.444995252@linuxfoundation.org>
+Message-Id: <20200526183931.808356135@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183932.245016380@linuxfoundation.org>
-References: <20200526183932.245016380@linuxfoundation.org>
+In-Reply-To: <20200526183923.108515292@linuxfoundation.org>
+References: <20200526183923.108515292@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,80 +44,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brent Lu <brent.lu@intel.com>
+From: Christian Gmeiner <christian.gmeiner@gmail.com>
 
-commit e7513c5786f8b33f0c107b3759e433bc6cbb2efa upstream.
+commit 40b697e256ccdb88aaff424b44b4d300eb8460e8 upstream.
 
-There is a corner case that ALSA keeps increasing the hw_ptr but DMA
-already stop working/updating the position for a long time.
+The GC860 has one GPU device which has a 2d and 3d core. In this case
+we want to expose perfmon information for both cores.
 
-In following log we can see the position returned from DMA driver does
-not move at all but the hw_ptr got increased at some point of time so
-snd_pcm_avail() will return a large number which seems to be a buffer
-underrun event from user space program point of view. The program
-thinks there is space in the buffer and fill more data.
+The driver has one array which contains all possible perfmon domains
+with some meta data - doms_meta. Here we can see that for the GC860
+two elements of that array are relevant:
 
-[  418.510086] sound pcmC0D5p: pos 96 hw_ptr 96 appl_ptr 4096 avail 12368
-[  418.510149] sound pcmC0D5p: pos 96 hw_ptr 96 appl_ptr 6910 avail 9554
-...
-[  418.681052] sound pcmC0D5p: pos 96 hw_ptr 96 appl_ptr 15102 avail 1362
-[  418.681130] sound pcmC0D5p: pos 96 hw_ptr 96 appl_ptr 16464 avail 0
-[  418.726515] sound pcmC0D5p: pos 96 hw_ptr 16464 appl_ptr 16464 avail 16368
+  doms_3d: is at index 0 in the doms_meta array with 8 perfmon domains
+  doms_2d: is at index 1 in the doms_meta array with 1 perfmon domain
 
-This is because the hw_base will be increased by runtime->buffer_size
-frames unconditionally if the hw_ptr is not updated for over half of
-buffer time. As the hw_base increases, so does the hw_ptr increased
-by the same number.
+The userspace driver wants to get a list of all perfmon domains and
+their perfmon signals. This is done by iterating over all domains and
+their signals. If the userspace driver wants to access the domain with
+id 8 the kernel driver fails and returns invalid data from doms_3d with
+and invalid offset.
 
-The avail value returned from snd_pcm_avail() could exceed the limit
-(buffer_size) easily becase the hw_ptr itself got increased by same
-buffer_size samples when the corner case happens. In following log,
-the buffer_size is 16368 samples but the avail is 21810 samples so
-CRAS server complains about it.
+This results in:
+  Unable to handle kernel paging request at virtual address 00000000
 
-[  418.851755] sound pcmC0D5p: pos 96 hw_ptr 16464 appl_ptr 27390 avail 5442
-[  418.926491] sound pcmC0D5p: pos 96 hw_ptr 32832 appl_ptr 27390 avail 21810
+On such a device it is not possible to use the userspace driver at all.
 
-cras_server[1907]: pcm_avail returned frames larger than buf_size:
-sof-glkda7219max: :0,5: 21810 > 16368
+The fix for this off-by-one error is quite simple.
 
-By updating runtime->hw_ptr_jiffies each time the HWSYNC is called,
-the hw_base will keep the same when buffer stall happens at long as
-the interval between each HWSYNC call is shorter than half of buffer
-time.
-
-Following is a log captured by a patched kernel. The hw_base/hw_ptr
-value is fixed in this corner case and user space program should be
-aware of the buffer stall and handle it.
-
-[  293.525543] sound pcmC0D5p: pos 96 hw_ptr 96 appl_ptr 4096 avail 12368
-[  293.525606] sound pcmC0D5p: pos 96 hw_ptr 96 appl_ptr 6880 avail 9584
-[  293.525975] sound pcmC0D5p: pos 96 hw_ptr 96 appl_ptr 10976 avail 5488
-[  293.611178] sound pcmC0D5p: pos 96 hw_ptr 96 appl_ptr 15072 avail 1392
-[  293.696429] sound pcmC0D5p: pos 96 hw_ptr 96 appl_ptr 16464 avail 0
-...
-[  381.139517] sound pcmC0D5p: pos 96 hw_ptr 96 appl_ptr 16464 avail 0
-
-Signed-off-by: Brent Lu <brent.lu@intel.com>
-Reviewed-by: Jaroslav Kysela <perex@perex.cz>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/1589776238-23877-1-git-send-email-brent.lu@intel.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Reported-by: Paul Cercueil <paul@crapouillou.net>
+Tested-by: Paul Cercueil <paul@crapouillou.net>
+Fixes: ed1dd899baa3 ("drm/etnaviv: rework perfmon query infrastructure")
+Cc: stable@vger.kernel.org
+Signed-off-by: Christian Gmeiner <christian.gmeiner@gmail.com>
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/core/pcm_lib.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/etnaviv/etnaviv_perfmon.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/core/pcm_lib.c
-+++ b/sound/core/pcm_lib.c
-@@ -423,6 +423,7 @@ static int snd_pcm_update_hw_ptr0(struct
+--- a/drivers/gpu/drm/etnaviv/etnaviv_perfmon.c
++++ b/drivers/gpu/drm/etnaviv/etnaviv_perfmon.c
+@@ -453,7 +453,7 @@ static const struct etnaviv_pm_domain *p
+ 		if (!(gpu->identity.features & meta->feature))
+ 			continue;
  
-  no_delta_check:
- 	if (runtime->status->hw_ptr == new_hw_ptr) {
-+		runtime->hw_ptr_jiffies = curr_jiffies;
- 		update_audio_tstamp(substream, &curr_tstamp, &audio_tstamp);
- 		return 0;
- 	}
+-		if (meta->nr_domains < (index - offset)) {
++		if (index - offset >= meta->nr_domains) {
+ 			offset += meta->nr_domains;
+ 			continue;
+ 		}
 
 
