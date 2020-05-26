@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C8241E2DE2
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:25:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6028B1E2D27
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:20:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391685AbgEZTHA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:07:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35472 "EHLO mail.kernel.org"
+        id S2403969AbgEZTMx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:12:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42514 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391083AbgEZTG5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:06:57 -0400
+        id S2392133AbgEZTMw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:12:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0301A208A7;
-        Tue, 26 May 2020 19:06:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B3B62208A7;
+        Tue, 26 May 2020 19:12:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590520016;
-        bh=1cQobtFSLgGvO79Pe8W90LfNb9Zpz2C60JGfDnCAzVE=;
+        s=default; t=1590520372;
+        bh=jfyz9oqs6eHVNMoOj+ndiLbYCz73HTyt7i3ncvxZRBI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sTfuoCsIuxKwohbRxLIrCZgwBTey8JNleBtAraHolUrdLzfhMXBbCfn3SKNUy8J5d
-         YlnLb84b40WzvGhM0ddKTzOTZhOcSAQMIz8dObpm7cHTqOiG5ykJyArJw7xyfDTjJq
-         BGzuVxOHhejL+wRpwTAknl4g+h9KG0BwXK0+bCZ0=
+        b=K8knQnHPPlx91aTgGBYuTouyZFgMwA44QQTBMceAWCeVA9CJEBgWtNrPHvWp5f1h3
+         rAM/qa8SZ7RtZhTrzY31kK6i3JtMpDSYXcZoq8RqKd9N47EDSuSQKDWi9qci6u/qhs
+         sZJyTAM3Q32L14/mps3M5DqURDEWDO+cWgUhR7hw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Quinn Tran <qutran@marvell.com>,
-        Nilesh Javali <njavali@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 025/111] scsi: qla2xxx: Delete all sessions before unregister local nvme port
+        Fabian Schindlatz <fabian.schindlatz@fau.de>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 026/126] HID: logitech: Add support for Logitech G11 extra keys
 Date:   Tue, 26 May 2020 20:52:43 +0200
-Message-Id: <20200526183935.120998955@linuxfoundation.org>
+Message-Id: <20200526183939.926776792@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183932.245016380@linuxfoundation.org>
-References: <20200526183932.245016380@linuxfoundation.org>
+In-Reply-To: <20200526183937.471379031@linuxfoundation.org>
+References: <20200526183937.471379031@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,64 +45,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quinn Tran <qutran@marvell.com>
+From: Fabian Schindlatz <fabian.schindlatz@fau.de>
 
-[ Upstream commit c48f849d3f7a4ec1025105f446e29d395c4dcc2f ]
+[ Upstream commit b1bd0f75288f60e8d142a1b3e979ed0192c04931 ]
 
-Delete all sessions before unregistering local nvme port.  This allows nvme
-layer to decrement all active rport count down to zero.  Once the count is
-down to zero, nvme would call qla to continue with the npiv port deletion.
+The Logitech G11 keyboard is a cheap variant of the G15 without the LCD
+screen. It uses the same layout for its extra and macro keys (G1 - G18,
+M1-M3, MR) and - from the input subsystem's perspective - behaves just
+like the G15, so we can treat it as such.
 
-PID: 27448  TASK: ffff9e34b777c1c0  CPU: 0   COMMAND: "qaucli"
- 0 [ffff9e25e84abbd8] __schedule at ffffffff977858ca
- 1 [ffff9e25e84abc68] schedule at ffffffff97785d79
- 2 [ffff9e25e84abc78] schedule_timeout at ffffffff97783881
- 3 [ffff9e25e84abd28] wait_for_completion at ffffffff9778612d
- 4 [ffff9e25e84abd88] qla_nvme_delete at ffffffffc0e3024e [qla2xxx]
- 5 [ffff9e25e84abda8] qla24xx_vport_delete at ffffffffc0e024b9 [qla2xxx]
- 6 [ffff9e25e84abdf0] fc_vport_terminate at ffffffffc011c247 [scsi_transport_fc]
- 7 [ffff9e25e84abe28] store_fc_host_vport_delete at ffffffffc011cd94 [scsi_transport_fc]
- 8 [ffff9e25e84abe70] dev_attr_store at ffffffff974b376b
- 9 [ffff9e25e84abe80] sysfs_kf_write at ffffffff972d9a92
-10 [ffff9e25e84abe90] kernfs_fop_write at ffffffff972d907b
-11 [ffff9e25e84abec8] vfs_write at ffffffff9724c790
-12 [ffff9e25e84abf08] sys_write at ffffffff9724d55f
-13 [ffff9e25e84abf50] system_call_fastpath at ffffffff97792ed2
-    RIP: 00007fc0bd81a6fd  RSP: 00007ffff78d9648  RFLAGS: 00010202
-    RAX: 0000000000000001  RBX: 0000000000000022  RCX: 00007ffff78d96e0
-    RDX: 0000000000000022  RSI: 00007ffff78d94e0  RDI: 0000000000000008
-    RBP: 00007ffff78d9440   R8: 0000000000000000   R9: 00007fc0bd48b2cd
-    R10: 0000000000000017  R11: 0000000000000293  R12: 0000000000000000
-    R13: 00005624e4dac840  R14: 00005624e4da9a10  R15: 0000000000000000
-    ORIG_RAX: 0000000000000001  CS: 0033  SS: 002b
+Tested it with my own keyboard.
 
-Link: https://lore.kernel.org/r/20200331104015.24868-4-njavali@marvell.com
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Quinn Tran <qutran@marvell.com>
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Fabian Schindlatz <fabian.schindlatz@fau.de>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_attr.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hid/hid-ids.h    | 1 +
+ drivers/hid/hid-lg-g15.c | 4 ++++
+ 2 files changed, 5 insertions(+)
 
-diff --git a/drivers/scsi/qla2xxx/qla_attr.c b/drivers/scsi/qla2xxx/qla_attr.c
-index 1fbc5c6c6c14..3aa343633250 100644
---- a/drivers/scsi/qla2xxx/qla_attr.c
-+++ b/drivers/scsi/qla2xxx/qla_attr.c
-@@ -2926,11 +2926,11 @@ qla24xx_vport_delete(struct fc_vport *fc_vport)
- 	    test_bit(FCPORT_UPDATE_NEEDED, &vha->dpc_flags))
- 		msleep(1000);
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 309510a72c5e..40697af0ca35 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -756,6 +756,7 @@
+ #define USB_DEVICE_ID_LOGITECH_RUMBLEPAD2	0xc218
+ #define USB_DEVICE_ID_LOGITECH_RUMBLEPAD2_2	0xc219
+ #define USB_DEVICE_ID_LOGITECH_G15_LCD		0xc222
++#define USB_DEVICE_ID_LOGITECH_G11		0xc225
+ #define USB_DEVICE_ID_LOGITECH_G15_V2_LCD	0xc227
+ #define USB_DEVICE_ID_LOGITECH_G510		0xc22d
+ #define USB_DEVICE_ID_LOGITECH_G510_USB_AUDIO	0xc22e
+diff --git a/drivers/hid/hid-lg-g15.c b/drivers/hid/hid-lg-g15.c
+index ad4b5412a9f4..ef0cbcd7540d 100644
+--- a/drivers/hid/hid-lg-g15.c
++++ b/drivers/hid/hid-lg-g15.c
+@@ -872,6 +872,10 @@ error_hw_stop:
+ }
  
--	qla_nvme_delete(vha);
- 
- 	qla24xx_disable_vp(vha);
- 	qla2x00_wait_for_sess_deletion(vha);
- 
-+	qla_nvme_delete(vha);
- 	vha->flags.delete_progress = 1;
- 
- 	qlt_remove_target(ha, vha);
+ static const struct hid_device_id lg_g15_devices[] = {
++	/* The G11 is a G15 without the LCD, treat it as a G15 */
++	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
++		USB_DEVICE_ID_LOGITECH_G11),
++		.driver_data = LG_G15 },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
+ 			 USB_DEVICE_ID_LOGITECH_G15_LCD),
+ 		.driver_data = LG_G15 },
 -- 
 2.25.1
 
