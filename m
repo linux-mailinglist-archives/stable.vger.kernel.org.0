@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EB40F1E2E95
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:30:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 132721E2DCF
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:25:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390725AbgEZTA1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:00:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54554 "EHLO mail.kernel.org"
+        id S2389584AbgEZTYf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:24:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36288 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390735AbgEZTA1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:00:27 -0400
+        id S2391289AbgEZTHe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:07:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AB8B520849;
-        Tue, 26 May 2020 19:00:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0E36820873;
+        Tue, 26 May 2020 19:07:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590519626;
-        bh=mDrZBD+hytFrgtujsLQeA7fVJW7W+PKEYS2rt3PjoIc=;
+        s=default; t=1590520053;
+        bh=L9dEFwmMPW+AV5IScBr/9bkG1sG4655gjTPtCJQfpNQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NfGw+B0Olxj/0Gssc8l/zXRDK4J0lFY0lq7rvYNXiM5KKp/ddfXZNziSs2QfGCu+t
-         eh9W3IsrSPeydY+DzXXavAeTDETIJehnyvVme3EjBhXYjAsJ8kKp+B0jNzenbG8KOL
-         ZF20vAsR8O9P6qtj5Ijr5YLHBOoC8RV+3vxLoxYU=
+        b=GewzSnvm4cWRP71bYyVWcDUhco1aFKoVtA4sHwX1yGL9Mkc+nzUyl4p51IbNL11MM
+         upCKfEL7N3+zWg3TDHtWOjlsRAzd7gyCkOxy4IyKOsfadA9m2C45d3txAPlcECkbS5
+         YgC76gqtxs/J50bOq6FVVeKvRmoyk3aKkzo4kwc4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Fr=C3=A9d=C3=A9ric=20Pierret=20 ?= 
-        <frederic.pierret@qubes-os.org>, Kees Cook <keescook@chromium.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 13/59] gcc-common.h: Update for GCC 10
-Date:   Tue, 26 May 2020 20:52:58 +0200
-Message-Id: <20200526183912.392359745@linuxfoundation.org>
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+db339689b2101f6f6071@syzkaller.appspotmail.com
+Subject: [PATCH 5.4 041/111] USB: core: Fix misleading driver bug report
+Date:   Tue, 26 May 2020 20:52:59 +0200
+Message-Id: <20200526183936.834497087@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183907.123822792@linuxfoundation.org>
-References: <20200526183907.123822792@linuxfoundation.org>
+In-Reply-To: <20200526183932.245016380@linuxfoundation.org>
+References: <20200526183932.245016380@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,85 +44,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frédéric Pierret (fepitre) <frederic.pierret@qubes-os.org>
+From: Alan Stern <stern@rowland.harvard.edu>
 
-[ Upstream commit c7527373fe28f97d8a196ab562db5589be0d34b9 ]
+[ Upstream commit ac854131d9844f79e2fdcef67a7707227538d78a ]
 
-Remove "params.h" include, which has been dropped in GCC 10.
+The syzbot fuzzer found a race between URB submission to endpoint 0
+and device reset.  Namely, during the reset we call usb_ep0_reinit()
+because the characteristics of ep0 may have changed (if the reset
+follows a firmware update, for example).  While usb_ep0_reinit() is
+running there is a brief period during which the pointers stored in
+udev->ep_in[0] and udev->ep_out[0] are set to NULL, and if an URB is
+submitted to ep0 during that period, usb_urb_ep_type_check() will
+report it as a driver bug.  In the absence of those pointers, the
+routine thinks that the endpoint doesn't exist.  The log message looks
+like this:
 
-Remove is_a_helper() macro, which is now defined in gimple.h, as seen
-when running './scripts/gcc-plugin.sh g++ g++ gcc':
+------------[ cut here ]------------
+usb 2-1: BOGUS urb xfer, pipe 2 != type 2
+WARNING: CPU: 0 PID: 9241 at drivers/usb/core/urb.c:478
+usb_submit_urb+0x1188/0x1460 drivers/usb/core/urb.c:478
 
-In file included from <stdin>:1:
-./gcc-plugins/gcc-common.h:852:13: error: redefinition of ‘static bool is_a_helper<T>::test(U*) [with U = const gimple; T = const ggoto*]’
-  852 | inline bool is_a_helper<const ggoto *>::test(const_gimple gs)
-      |             ^~~~~~~~~~~~~~~~~~~~~~~~~~
-In file included from ./gcc-plugins/gcc-common.h:125,
-                 from <stdin>:1:
-/usr/lib/gcc/x86_64-redhat-linux/10/plugin/include/gimple.h:1037:1: note: ‘static bool is_a_helper<T>::test(U*) [with U = const gimple; T = const ggoto*]’ previously declared here
- 1037 | is_a_helper <const ggoto *>::test (const gimple *gs)
-      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+Now, although submitting an URB while the device is being reset is a
+questionable thing to do, it shouldn't count as a driver bug as severe
+as submitting an URB for an endpoint that doesn't exist.  Indeed,
+endpoint 0 always exists, even while the device is in its unconfigured
+state.
 
-Add -Wno-format-diag to scripts/gcc-plugins/Makefile to avoid
-meaningless warnings from error() formats used by plugins:
+To prevent these misleading driver bug reports, this patch updates
+usb_disable_endpoint() to avoid clearing the ep_in[] and ep_out[]
+pointers when the endpoint being disabled is ep0.  There's no danger
+of leaving a stale pointer in place, because the usb_host_endpoint
+structure being pointed to is stored permanently in udev->ep0; it
+doesn't get deallocated until the entire usb_device structure does.
 
-scripts/gcc-plugins/structleak_plugin.c: In function ‘int plugin_init(plugin_name_args*, plugin_gcc_version*)’:
-scripts/gcc-plugins/structleak_plugin.c:253:12: warning: unquoted sequence of 2 consecutive punctuation characters ‘'-’ in format [-Wformat-diag]
-  253 |   error(G_("unknown option '-fplugin-arg-%s-%s'"), plugin_name, argv[i].key);
-      |            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Reported-and-tested-by: syzbot+db339689b2101f6f6071@syzkaller.appspotmail.com
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
 
-Signed-off-by: Frédéric Pierret (fepitre) <frederic.pierret@qubes-os.org>
-Link: https://lore.kernel.org/r/20200407113259.270172-1-frederic.pierret@qubes-os.org
-[kees: include -Wno-format-diag for plugin builds]
-Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/Pine.LNX.4.44L0.2005011558590.903-100000@netrider.rowland.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/gcc-plugins/Makefile     | 1 +
- scripts/gcc-plugins/gcc-common.h | 4 ++++
- 2 files changed, 5 insertions(+)
+ drivers/usb/core/message.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/scripts/gcc-plugins/Makefile b/scripts/gcc-plugins/Makefile
-index e2ff425f4c7e..c404d7628039 100644
---- a/scripts/gcc-plugins/Makefile
-+++ b/scripts/gcc-plugins/Makefile
-@@ -10,6 +10,7 @@ else
-   HOST_EXTRACXXFLAGS += -I$(GCC_PLUGINS_DIR)/include -I$(src) -std=gnu++98 -fno-rtti
-   HOST_EXTRACXXFLAGS += -fno-exceptions -fasynchronous-unwind-tables -ggdb
-   HOST_EXTRACXXFLAGS += -Wno-narrowing -Wno-unused-variable
-+  HOST_EXTRACXXFLAGS += -Wno-format-diag
-   export HOST_EXTRACXXFLAGS
- endif
+diff --git a/drivers/usb/core/message.c b/drivers/usb/core/message.c
+index 02eaac7e1e34..a1ac2f0723b0 100644
+--- a/drivers/usb/core/message.c
++++ b/drivers/usb/core/message.c
+@@ -1143,11 +1143,11 @@ void usb_disable_endpoint(struct usb_device *dev, unsigned int epaddr,
  
-diff --git a/scripts/gcc-plugins/gcc-common.h b/scripts/gcc-plugins/gcc-common.h
-index 797e3786b415..01312b1d6294 100644
---- a/scripts/gcc-plugins/gcc-common.h
-+++ b/scripts/gcc-plugins/gcc-common.h
-@@ -35,7 +35,9 @@
- #include "ggc.h"
- #include "timevar.h"
- 
-+#if BUILDING_GCC_VERSION < 10000
- #include "params.h"
-+#endif
- 
- #if BUILDING_GCC_VERSION <= 4009
- #include "pointer-set.h"
-@@ -841,6 +843,7 @@ static inline gimple gimple_build_assign_with_ops(enum tree_code subcode, tree l
- 	return gimple_build_assign(lhs, subcode, op1, op2 PASS_MEM_STAT);
- }
- 
-+#if BUILDING_GCC_VERSION < 10000
- template <>
- template <>
- inline bool is_a_helper<const ggoto *>::test(const_gimple gs)
-@@ -854,6 +857,7 @@ inline bool is_a_helper<const greturn *>::test(const_gimple gs)
- {
- 	return gs->code == GIMPLE_RETURN;
- }
-+#endif
- 
- static inline gasm *as_a_gasm(gimple stmt)
- {
+ 	if (usb_endpoint_out(epaddr)) {
+ 		ep = dev->ep_out[epnum];
+-		if (reset_hardware)
++		if (reset_hardware && epnum != 0)
+ 			dev->ep_out[epnum] = NULL;
+ 	} else {
+ 		ep = dev->ep_in[epnum];
+-		if (reset_hardware)
++		if (reset_hardware && epnum != 0)
+ 			dev->ep_in[epnum] = NULL;
+ 	}
+ 	if (ep) {
 -- 
 2.25.1
 
