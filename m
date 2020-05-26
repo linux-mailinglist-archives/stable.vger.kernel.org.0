@@ -2,137 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 932741E2235
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 14:45:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 708ED1E239A
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 16:04:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388824AbgEZMpu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 08:45:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58724 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388814AbgEZMpt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 May 2020 08:45:49 -0400
-Received: from mail-pl1-x642.google.com (mail-pl1-x642.google.com [IPv6:2607:f8b0:4864:20::642])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CF65C03E96D
-        for <stable@vger.kernel.org>; Tue, 26 May 2020 05:45:49 -0700 (PDT)
-Received: by mail-pl1-x642.google.com with SMTP id y11so361521plt.12
-        for <stable@vger.kernel.org>; Tue, 26 May 2020 05:45:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=f+E5l1c49uqWPfg3i/g729115p28q++wB0X2PdXG8oA=;
-        b=qOvtFvJYAt+xHU60t3Ogj+JV5U0hYGEH/X/5PIY77KvUrsTLyH6S7D1e3WyrPSrarP
-         Gu+EuTeQWFUXfvzhsdASvVY8/xpjybeDhq+67Ul9mFxg1XuKzBajsTUrNz9sIfd4Yj2W
-         32s8ilGSxC2cUe48qJSQ0NDyV1Pqg3G3Yr8Btm/+x7kskz3w+65Vh3NhyPvm+cmnAD3H
-         rWNi2Mtoxdh5IceqyJCsa++qpVKyMKc09zOE+uWTqCCz+vWIys79FOeNz6bHBGi2Q5o3
-         S2oAEKp3ImcnSq79wCQ4dVd4KS3Soqsf+HqfLiKqlDCq2Fe/rU6bnat3GrISw5Xbw4MN
-         pZjg==
+        id S1726618AbgEZOEY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 10:04:24 -0400
+Received: from mail-ot1-f67.google.com ([209.85.210.67]:41114 "EHLO
+        mail-ot1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726856AbgEZOEY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 May 2020 10:04:24 -0400
+Received: by mail-ot1-f67.google.com with SMTP id 63so16341701oto.8;
+        Tue, 26 May 2020 07:04:23 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=f+E5l1c49uqWPfg3i/g729115p28q++wB0X2PdXG8oA=;
-        b=hDmoLrG1cMRq3IyFb8CXlHhMR9LVTdHFdreX4GDCdvTLtnzmyYQ2yVkr+P9CsDnYXs
-         TuvlBF0i246lqHYNramqPJ9gtkofEvkX96/B9hapwrf1feUqmjmxt6YgB9AkkRLvU3df
-         iI/oLAS4Z67+ivq8bNIxPRkQPmHnkG4J7yR1QqgsNj3pSLHMvTGMH7XrI4CoxK2jIo9D
-         7H1/EfSIJfSHdE/1fOfnkvH6AqHkMA8r4Shy8Ms6sj52p3U/tSOlECKJ1z1i+EDzgOuU
-         z6mi/qMywmjoUbmDqW76OjRe84vaZ5VxmI/a95a7oybbHnIG+88C8atEwzto6qjnZWaM
-         zocA==
-X-Gm-Message-State: AOAM533rfrCkS8tPa7gd+ArdVRsLxO6DmDHXsrXlNcXTMgaMKgFhbmdh
-        DHSTLlHaiw+tEJmzCE7bPVlip2YNeZw=
-X-Google-Smtp-Source: ABdhPJyhNyZdIyDm+EYRbSzeHJLutd3f7qQn1FwVfScDiBKaQqhLOfxd9XGCAR6QjVG7lT+K+Ysg8w==
-X-Received: by 2002:a17:90a:21cf:: with SMTP id q73mr26322624pjc.230.1590497148483;
-        Tue, 26 May 2020 05:45:48 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id k29sm14147771pgf.77.2020.05.26.05.45.47
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 26 May 2020 05:45:47 -0700 (PDT)
-Message-ID: <5ecd0f7b.1c69fb81.e2ae4.5b62@mx.google.com>
-Date:   Tue, 26 May 2020 05:45:47 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=5Ierdu4jhjBArg4KAhxK2ET/zYux67GkijyWUlcmSlg=;
+        b=t8bBqFbmYQ/VnfvQ16TPgsta/UMd6BjOJxfiQrsjr3GJRIWknMTExOA/9FcNxwwyi2
+         dSFJdQUgRzyqK2hbe2Br6lXNql3X+ZUkGsQFv5SLN0yTRF6QOcK26If3t7JE9BQRuQSz
+         VbslbKXA6aNYer+m9wQmF+sygHMIt/y15Orl1RuNMMs8Jlr78evQq2bzJK73hNuQhlYr
+         oRc3KfFRowe2MPP1yAhy3QIRbRpyFnY+5E3AklSlfR6/cIHbQRU9KshMsOY8A7VufOVY
+         VPMRImQ8FelqfWBQDg2Flujq/+ro/9bHEA1rh9GS0c2jwfqvVuC+Odf41zb1waz59CO5
+         9Wlw==
+X-Gm-Message-State: AOAM5310RoIOchT3Ga7eOFlxXmV5vEkyyz4MMTVmZgeBwE+o11Kpmejc
+        k6tuYWBUDaWLkIks4areqxk44OHRjd6dMCbcnCU=
+X-Google-Smtp-Source: ABdhPJyUNtHDNcsWTXkodpXr8omxt8fKKmdXPMuKjXr10pz49QCMDOCfVptyEHRHzvYaFzWQrAougJhfu1ijiVuoj4E=
+X-Received: by 2002:a9d:6c0f:: with SMTP id f15mr934672otq.118.1590501863497;
+ Tue, 26 May 2020 07:04:23 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.6.14-121-g8f40203f4915
-X-Kernelci-Report-Type: boot
-X-Kernelci-Branch: linux-5.6.y
-Subject: stable-rc/linux-5.6.y boot: 131 boots: 1 failed,
- 122 passed with 6 offline, 2 untried/unknown (v5.6.14-121-g8f40203f4915)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+References: <20200515093613.18691-1-ardb@kernel.org> <CAJZ5v0guHdbZTsU5e7KDAHDy9Gnh67JwtSSCeDaK8mUwAk1d3g@mail.gmail.com>
+ <CAMj1kXFVYOoX=pe9uVY-j_o8YhhE_Fef6q6jc8S9nzBLYSBb=g@mail.gmail.com>
+In-Reply-To: <CAMj1kXFVYOoX=pe9uVY-j_o8YhhE_Fef6q6jc8S9nzBLYSBb=g@mail.gmail.com>
+From:   "Rafael J. Wysocki" <rafael@kernel.org>
+Date:   Tue, 26 May 2020 16:04:10 +0200
+Message-ID: <CAJZ5v0i0LbDjATGGN-+Xu_ztyrkCL5EXqwjdYDLwpnALiOoBtA@mail.gmail.com>
+Subject: Re: [PATCH] ACPI: GED: add support for _Exx / _Lxx handler methods
+To:     Ard Biesheuvel <ardb@kernel.org>
+Cc:     "Rafael J. Wysocki" <rafael@kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        Len Brown <lenb@kernel.org>,
+        ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
+        Stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-******************************************
-* WARNING: Boot tests are now deprecated *
-******************************************
+On Tue, May 26, 2020 at 1:12 PM Ard Biesheuvel <ardb@kernel.org> wrote:
+>
+> Hello Rafael,
+>
+> I spotted an issue with this patch. Please see below.
+>
+>
+> On Fri, 15 May 2020 at 18:32, Rafael J. Wysocki <rafael@kernel.org> wrote:
+> >
+> > On Fri, May 15, 2020 at 11:37 AM Ard Biesheuvel <ardb@kernel.org> wrote:
+> > >
+> > > Per the ACPI spec, interrupts in the range [0, 255] may be handled
+> > > in AML using individual methods whose naming is based on the format
+> > > _Exx or _Lxx, where xx is the hex representation of the interrupt
+> > > index.
+> > >
+> > > Add support for this missing feature to our ACPI GED driver.
+> > >
+> > > Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+> > > Cc: Len Brown <lenb@kernel.org>
+> > > Cc: linux-acpi@vger.kernel.org
+> > > Cc: <stable@vger.kernel.org> # v4.9+
+> > > Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+> > > ---
+> > >  drivers/acpi/evged.c | 22 +++++++++++++++++---
+> > >  1 file changed, 19 insertions(+), 3 deletions(-)
+> > >
+> > > diff --git a/drivers/acpi/evged.c b/drivers/acpi/evged.c
+> > > index aba0d0027586..6d7a522952bf 100644
+> > > --- a/drivers/acpi/evged.c
+> > > +++ b/drivers/acpi/evged.c
+> > > @@ -79,6 +79,8 @@ static acpi_status acpi_ged_request_interrupt(struct acpi_resource *ares,
+> > >         struct resource r;
+> > >         struct acpi_resource_irq *p = &ares->data.irq;
+> > >         struct acpi_resource_extended_irq *pext = &ares->data.extended_irq;
+> > > +       char ev_name[5];
+> > > +       u8 trigger;
+> > >
+> > >         if (ares->type == ACPI_RESOURCE_TYPE_END_TAG)
+> > >                 return AE_OK;
+> > > @@ -87,14 +89,28 @@ static acpi_status acpi_ged_request_interrupt(struct acpi_resource *ares,
+> > >                 dev_err(dev, "unable to parse IRQ resource\n");
+> > >                 return AE_ERROR;
+> > >         }
+> > > -       if (ares->type == ACPI_RESOURCE_TYPE_IRQ)
+> > > +       if (ares->type == ACPI_RESOURCE_TYPE_IRQ) {
+> > >                 gsi = p->interrupts[0];
+> > > -       else
+> > > +               trigger = p->triggering;
+> > > +       } else {
+> > >                 gsi = pext->interrupts[0];
+> > > +               trigger = p->triggering;
+>
+> This should be 'pext->triggering' instead.
+>
+> In practice, it doesn't matter, since p and pext point to the same
+> union, and the 'triggering' field happens to be at the same offset.
+> But it should still be fixed, of course.
+>
+> Would you prefer a followup patch? Or can you fix it locally?
 
-As kernelci.org is expanding its functional testing capabilities, the conce=
-pt
-of boot testing is now deprecated.  Boot results are scheduled to be droppe=
-d on
-*5th June 2020*.  The full schedule for boot tests deprecation is available=
- on
-this GitHub issue: https://github.com/kernelci/kernelci-backend/issues/238
-
-The new equivalent is the *baseline* test suite which also runs sanity chec=
-ks
-using dmesg and bootrr: https://github.com/kernelci/bootrr
-
-See the *baseline results for this kernel revision* on this page:
-https://kernelci.org/test/job/stable-rc/branch/linux-5.6.y/kernel/v5.6.14-1=
-21-g8f40203f4915/plan/baseline/
-
----------------------------------------------------------------------------=
-----
-
-stable-rc/linux-5.6.y boot: 131 boots: 1 failed, 122 passed with 6 offline,=
- 2 untried/unknown (v5.6.14-121-g8f40203f4915)
-
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--5.6.y/kernel/v5.6.14-121-g8f40203f4915/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.6.y=
-/kernel/v5.6.14-121-g8f40203f4915/
-
-Tree: stable-rc
-Branch: linux-5.6.y
-Git Describe: v5.6.14-121-g8f40203f4915
-Git Commit: 8f40203f49158f3292f524ed280268758f8c9f30
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 88 unique boards, 23 SoC families, 20 builds out of 200
-
-Boot Failure Detected:
-
-arm:
-    sama5_defconfig:
-        gcc-8:
-            at91-sama5d4_xplained: 1 failed lab
-
-Offline Platforms:
-
-arm:
-
-    multi_v7_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-            qcom-apq8064-cm-qs600: 1 offline lab
-            stih410-b2120: 1 offline lab
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-
-    davinci_all_defconfig:
-        gcc-8
-            da850-evm: 1 offline lab
-
-    exynos_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-
----
-For more info write to <info@kernelci.org>
+A followup, please.
