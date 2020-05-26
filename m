@@ -2,86 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B865D1E1F7C
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 12:16:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5ACAF1E1F95
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 12:25:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728872AbgEZKQm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 06:16:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47110 "EHLO mail.kernel.org"
+        id S1731859AbgEZKZr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 06:25:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48664 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726944AbgEZKQm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 06:16:42 -0400
+        id S1726944AbgEZKZq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 06:25:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8660E2071A;
-        Tue, 26 May 2020 10:16:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 475FC20776;
+        Tue, 26 May 2020 10:25:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590488202;
-        bh=BLF1aeSWrq0oAE8ttqy5E/lpdZVSxkVQ5hkjIbIvKV8=;
+        s=default; t=1590488744;
+        bh=FRo6WyVk4Pkdau+4M/ISA4WV0B0bW5RxwHZI5St8oGY=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=VqYSlz8VoIrC2jDUhxsAWfZHyHetd2E3NpQLlcQ0Mxkm3zXgZTrAAvfOfPUH3SN3a
-         3e2FRNqG5KrIGxaGD+ZntFqYuji1TZtgMJ/78yXHcobrTn++hN4THf7+Ik5pz8S+V+
-         JPIzAdJ0KK2X0FClI+P57pfziC8inf5dsw+6HSSE=
-Date:   Tue, 26 May 2020 12:16:39 +0200
+        b=2tXcCYFmSZ/wpWZZ3owHULhfaLoDG+BB0eNRoPDI5tTu8N2r0vpV9c6dmzqNUfH3h
+         tX9w9GNdTve5Zvr6SZP6yh7+29JvblLDUDYeYAPOekIUJng9+Oece19lxrvCBZ0Xqx
+         KjKPFq43XoZpCs0b2hR5qfDus2SyYcmTjMeaT8NM=
+Date:   Tue, 26 May 2020 12:25:42 +0200
 From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Peter Zijlstra <peterz@infradead.org>
-Cc:     Andi Kleen <andi@firstfloor.org>, x86@kernel.org,
-        keescook@chromium.org, linux-kernel@vger.kernel.org,
-        sashal@kernel.org, Andi Kleen <ak@linux.intel.com>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v1] x86: Pin cr4 FSGSBASE
-Message-ID: <20200526101639.GC2759907@kroah.com>
-References: <20200526052848.605423-1-andi@firstfloor.org>
- <20200526065618.GC2580410@kroah.com>
- <20200526075736.GH317569@hirez.programming.kicks-ass.net>
- <20200526081752.GA2650351@kroah.com>
- <20200526091745.GC325280@hirez.programming.kicks-ass.net>
+To:     Dakshaja Uppalapati <dakshaja@chelsio.com>
+Cc:     hch@lst.de, sagi@grimberg.me, stable@vger.kernel.org,
+        bharat@chelsio.com, nirranjan@chelsio.com
+Subject: Re: nvme blk_update_request IO error is seen on stable kernel 5.4.41.
+Message-ID: <20200526102542.GA2772976@kroah.com>
+References: <20200521140642.GA4724@chelsio.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20200526091745.GC325280@hirez.programming.kicks-ass.net>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200521140642.GA4724@chelsio.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, May 26, 2020 at 11:17:45AM +0200, Peter Zijlstra wrote:
-> On Tue, May 26, 2020 at 10:17:52AM +0200, Greg KH wrote:
-> > On Tue, May 26, 2020 at 09:57:36AM +0200, Peter Zijlstra wrote:
-> > > On Tue, May 26, 2020 at 08:56:18AM +0200, Greg KH wrote:
-> > > > On Mon, May 25, 2020 at 10:28:48PM -0700, Andi Kleen wrote:
-> > > > > From: Andi Kleen <ak@linux.intel.com>
-> > > > > 
-> > > > > Since there seem to be kernel modules floating around that set
-> > > > > FSGSBASE incorrectly, prevent this in the CR4 pinning. Currently
-> > > > > CR4 pinning just checks that bits are set, this also checks
-> > > > > that the FSGSBASE bit is not set, and if it is clears it again.
-> > > > 
-> > > > So we are trying to "protect" ourselves from broken out-of-tree kernel
-> > > > modules now?  Why stop with this type of check, why not just forbid them
-> > > > entirely if we don't trust them?  :)
-> > > 
-> > > Oh, I have a bunch of patches pending for that :-)
-> > 
-> > Ah, I thought I had seen something like that go by a while ago.
-> > 
-> > It's sad that we have to write a "don't do stupid things" checker for
-> > kernel modules now :(
+On Thu, May 21, 2020 at 07:36:43PM +0530, Dakshaja Uppalapati wrote:
+> Hi all,
 > 
-> Because people... they get stuff from the interweb and run it :/ The
-> days that admins actually knew what they're doing is long long gone.
+> Issue which is reported in https://lore.kernel.org/linux-nvme/CH2PR12MB40050ACF
+> 2C0DC7439355ED3FDD270@CH2PR12MB4005.namprd12.prod.outlook.com/T/#r8cfc80b26f0cd
+> 1cde41879a68fd6a71186e9594c is also seen on stable kernel 5.4.41. 
 
-{sigh}
+What issue is that?  Your url is wrapped and can not work here :(
 
-> > > It will basically decode the module text and refuse to load the module
-> > > for most CPL0 instruction.
-> > 
-> > Ok, so why would Andi's patch even be needed then?  Andi, why post this?
+> In upstream issue is fixed with commit b716e6889c95f64b.
+
+Is this a regression or support for something new that has never worked
+before?
+
+> For stable 5.4 kernel it doesn’t apply clean and needs pulling in the following
+> commits. 
 > 
-> Andi's patch cures a particularly bad module that floats around that
-> people use, probably without being aware that it's an insta-root hole.
+> commit 2cb6963a16e9e114486decf591af7cb2d69cb154
+> Author: Christoph Hellwig <hch@lst.de>
+> Date:   Wed Oct 23 10:35:41 2019 -0600
+> 
+> commit 6f86f2c9d94d55c4d3a6f1ffbc2e1115b5cb38a8
+> Author: Christoph Hellwig <hch@lst.de>
+> Date:   Wed Oct 23 10:35:42 2019 -0600
+> 
+> commit 59ef0eaa7741c3543f98220cc132c61bf0230bce
+> Author: Christoph Hellwig <hch@lst.de>
+> Date:   Wed Oct 23 10:35:43 2019 -0600
+> 
+> commit e9061c397839eea34207668bfedce0a6c18c5015
+> Author: Christoph Hellwig <hch@lst.de>
+> Date:   Wed Oct 23 10:35:44 2019 -0600
+> 
+> commit b716e6889c95f64ba32af492461f6cc9341f3f05
+> Author: Sagi Grimberg <sagi@grimberg.me>
+> Date:   Sun Jan 26 23:23:28 2020 -0800
+> 
+> I tried a patch by including only necessary parts of the commits e9061c397839, 
+> 59ef0eaa7741 and b716e6889c95. PFA.
+> 
+> With the attached patch, issue is not seen.
+> 
+> Please let me know on how to fix it in stable, can all above 5 changes be 
+> cleanly pushed  or if  attached shorter version can be pushed?
 
-Ok, fair enough, thanks for the context.
+Do all of the above patches apply cleanly?  Do they need to be
+backported?  Have you tested that?  Do you have such a series of patches
+so we can compare them?
+
+The patch below is not in any format that I can take it in.  ALso, 95%
+of the times we take a patch that is different from what is upstream
+will have bugs and problems over time because of that.  So I always want
+to take the original upstream patches instead if at all possible.
+
+So I need a lot more information here in order to try to determine this,
+sorry.
+
+thanks,
 
 greg k-h
