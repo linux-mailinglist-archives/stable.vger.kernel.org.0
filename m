@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 112411E2B37
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:03:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CD911E2DE6
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:25:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390570AbgEZTDA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:03:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58084 "EHLO mail.kernel.org"
+        id S2391044AbgEZTZV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:25:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35362 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390512AbgEZTDA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:03:00 -0400
+        id S2391679AbgEZTGy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:06:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 169E020849;
-        Tue, 26 May 2020 19:02:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 884B9208B6;
+        Tue, 26 May 2020 19:06:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590519779;
-        bh=kxsdlBfX6zHwJ5lx6O1HQrN+V3050FVdkhRw/4p0zFA=;
+        s=default; t=1590520014;
+        bh=nDTVYaIqHLJyc3NSS823UpCWM75ENhoLTpYp/70/aQ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NeUhwg4exbmuz2cIIcmCHKkErwM1oa3gMWixKZv05krjByYfJWlNRqUvf0H7DuwQv
-         xfoQdf4KsakF6c7/Z4J6zG2EyX4noHLJLbS9KnI7SUhnrcizwGtFrcmsmF4+I1HYSw
-         StgST9WQEYgjDd+YP/w1SaosfkIzPESq3NWtcz6o=
+        b=T/0Z0of0kqeO2MMN+Ql3okkVBJJ7l+C2Zby3n+DVBS4Ewgt7VWji8puUOoMzD14fF
+         8DPb0ez+ry57uBZ5tPSqPepU+bk/qGSunw8T1RNI4URvNuYzHmPz4wy7bKCXzgaZQo
+         4PnKHYiAOslNb6Yvu0CX2APi9VQ1UDFeqSwz1y2I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Roberto Sassu <roberto.sassu@huawei.com>,
-        Goldwyn Rodrigues <rgoldwyn@suse.com>,
-        Mimi Zohar <zohar@linux.ibm.com>,
+        stable@vger.kernel.org,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Arun Easi <aeasi@marvell.com>,
+        Nilesh Javali <njavali@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 06/81] ima: Set file->f_mode instead of file->f_flags in ima_calc_file_hash()
-Date:   Tue, 26 May 2020 20:52:41 +0200
-Message-Id: <20200526183924.827862563@linuxfoundation.org>
+Subject: [PATCH 5.4 024/111] scsi: qla2xxx: Fix hang when issuing nvme disconnect-all in NPIV
+Date:   Tue, 26 May 2020 20:52:42 +0200
+Message-Id: <20200526183935.024328652@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183923.108515292@linuxfoundation.org>
-References: <20200526183923.108515292@linuxfoundation.org>
+In-Reply-To: <20200526183932.245016380@linuxfoundation.org>
+References: <20200526183932.245016380@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,70 +47,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roberto Sassu <roberto.sassu@huawei.com>
+From: Arun Easi <aeasi@marvell.com>
 
-[ Upstream commit 0014cc04e8ec077dc482f00c87dfd949cfe2b98f ]
+[ Upstream commit 45a76264c26fd8cfd0c9746196892d9b7e2657ee ]
 
-Commit a408e4a86b36 ("ima: open a new file instance if no read
-permissions") tries to create a new file descriptor to calculate a file
-digest if the file has not been opened with O_RDONLY flag. However, if a
-new file descriptor cannot be obtained, it sets the FMODE_READ flag to
-file->f_flags instead of file->f_mode.
+In NPIV environment, a NPIV host may use a queue pair created by base host
+or other NPIVs, so the check for a queue pair created by this NPIV is not
+correct, and can cause an abort to fail, which in turn means the NVME
+command not returned.  This leads to hang in nvme_fc layer in
+nvme_fc_delete_association() which waits for all I/Os to be returned, which
+is seen as hang in the application.
 
-This patch fixes this issue by replacing f_flags with f_mode as it was
-before that commit.
-
-Cc: stable@vger.kernel.org # 4.20.x
-Fixes: a408e4a86b36 ("ima: open a new file instance if no read permissions")
-Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
-Reviewed-by: Goldwyn Rodrigues <rgoldwyn@suse.com>
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+Link: https://lore.kernel.org/r/20200331104015.24868-3-njavali@marvell.com
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Arun Easi <aeasi@marvell.com>
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/integrity/ima/ima_crypto.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/scsi/qla2xxx/qla_mbx.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/security/integrity/ima/ima_crypto.c b/security/integrity/ima/ima_crypto.c
-index f63b4bd45d60..6a6d19ada66a 100644
---- a/security/integrity/ima/ima_crypto.c
-+++ b/security/integrity/ima/ima_crypto.c
-@@ -415,7 +415,7 @@ int ima_calc_file_hash(struct file *file, struct ima_digest_data *hash)
- 	loff_t i_size;
- 	int rc;
- 	struct file *f = file;
--	bool new_file_instance = false, modified_flags = false;
-+	bool new_file_instance = false, modified_mode = false;
+diff --git a/drivers/scsi/qla2xxx/qla_mbx.c b/drivers/scsi/qla2xxx/qla_mbx.c
+index 1ef8907314e5..62a16463f025 100644
+--- a/drivers/scsi/qla2xxx/qla_mbx.c
++++ b/drivers/scsi/qla2xxx/qla_mbx.c
+@@ -3117,7 +3117,7 @@ qla24xx_abort_command(srb_t *sp)
+ 	ql_dbg(ql_dbg_mbx + ql_dbg_verbose, vha, 0x108c,
+ 	    "Entered %s.\n", __func__);
  
- 	/*
- 	 * For consistency, fail file's opened with the O_DIRECT flag on
-@@ -435,13 +435,13 @@ int ima_calc_file_hash(struct file *file, struct ima_digest_data *hash)
- 		f = dentry_open(&file->f_path, flags, file->f_cred);
- 		if (IS_ERR(f)) {
- 			/*
--			 * Cannot open the file again, lets modify f_flags
-+			 * Cannot open the file again, lets modify f_mode
- 			 * of original and continue
- 			 */
- 			pr_info_ratelimited("Unable to reopen file for reading.\n");
- 			f = file;
--			f->f_flags |= FMODE_READ;
--			modified_flags = true;
-+			f->f_mode |= FMODE_READ;
-+			modified_mode = true;
- 		} else {
- 			new_file_instance = true;
- 		}
-@@ -459,8 +459,8 @@ int ima_calc_file_hash(struct file *file, struct ima_digest_data *hash)
- out:
- 	if (new_file_instance)
- 		fput(f);
--	else if (modified_flags)
--		f->f_flags &= ~FMODE_READ;
-+	else if (modified_mode)
-+		f->f_mode &= ~FMODE_READ;
- 	return rc;
- }
- 
+-	if (vha->flags.qpairs_available && sp->qpair)
++	if (sp->qpair)
+ 		req = sp->qpair->req;
+ 	else
+ 		return QLA_FUNCTION_FAILED;
 -- 
 2.25.1
 
