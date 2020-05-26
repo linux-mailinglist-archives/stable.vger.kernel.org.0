@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A0A01E2E57
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:28:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B2E51E2D59
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:24:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391124AbgEZTCj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:02:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57508 "EHLO mail.kernel.org"
+        id S2391167AbgEZTIe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:08:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37500 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391115AbgEZTCi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:02:38 -0400
+        id S2391467AbgEZTId (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:08:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 659FE208C3;
-        Tue, 26 May 2020 19:02:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 20271208B3;
+        Tue, 26 May 2020 19:08:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590519756;
-        bh=icfMV+3Qw8xRr0W9Ef+XkW1RsearV5WsBG6CAr3JNew=;
+        s=default; t=1590520112;
+        bh=hNhJJ72biHjlOV8Ry/wGyzVaCZlDK8hJNpZZazDmRnM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RKRnTGZ7gXPMvNd1u9fTI8M2JqMyGS1+TxBBDLeL9RNNjAKLlAzX/FFTZ/BJA+1YE
-         bLeRZoVK+4We908Pk0d95koBylEbKqTB8EhLHUZYDG67L9hZ38oTTpp1wZTyhAvsXT
-         1oHg/pkZv5wRBsNyv6IS5civ4wdfdbnYIT39Hw00=
+        b=KURIh+rPQbNJg94tAkutfCrt1Q1tojC0F1wNyBRQhDcgDC6SOQyqGWyw6r0l5tnJQ
+         yk5q5e/D4lrpZpYQWLsuVZeQxD5pEcRQqdhMhsGsNUfuP8/EWJugsv7WHg79gocJX2
+         Y/bz6iVPofQvk4oijLaijC5F2gZX2FFzL5AZvIwk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guillaume Nault <g.nault@alphalink.fr>,
-        "David S. Miller" <davem@davemloft.net>,
-        Giuliano Procida <gprocida@google.com>
-Subject: [PATCH 4.14 34/59] l2tp: initialise PPP sessions before registering them
-Date:   Tue, 26 May 2020 20:53:19 +0200
-Message-Id: <20200526183918.894935065@linuxfoundation.org>
+        stable@vger.kernel.org, Lee Duncan <lduncan@suse.com>,
+        Laurence Oberman <loberman@redhat.com>,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        "Ewan D. Milne" <emilne@redhat.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.4 062/111] scsi: qla2xxx: Do not log message when reading port speed via sysfs
+Date:   Tue, 26 May 2020 20:53:20 +0200
+Message-Id: <20200526183938.719233478@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183907.123822792@linuxfoundation.org>
-References: <20200526183907.123822792@linuxfoundation.org>
+In-Reply-To: <20200526183932.245016380@linuxfoundation.org>
+References: <20200526183932.245016380@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,190 +46,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guillaume Nault <g.nault@alphalink.fr>
+From: Ewan D. Milne <emilne@redhat.com>
 
-commit f98be6c6359e7e4a61aaefb9964c1db31cb9ec0c upstream.
+commit fb9024b0646939e59d8a0b6799b317070619795a upstream.
 
-pppol2tp_connect() initialises L2TP sessions after they've been exposed
-to the rest of the system by l2tp_session_register(). This puts
-sessions into transient states that are the source of several races, in
-particular with session's deletion path.
+Calling ql_log() inside qla2x00_port_speed_show() is causing messages to be
+output to the console for no particularly good reason.  The sysfs read
+routine should just return the information to userspace.  The only reason
+to log a message is when the port speed actually changes, and this already
+occurs elsewhere.
 
-This patch centralises the initialisation code into
-pppol2tp_session_init(), which is called before the registration phase.
-The only field that can't be set before session registration is the
-pppol2tp socket pointer, which has already been converted to RCU. So
-pppol2tp_connect() should now be race-free.
-
-The session's .session_close() callback is now set before registration.
-Therefore, it's always called when l2tp_core deletes the session, even
-if it was created by pppol2tp_session_create() and hasn't been plugged
-to a pppol2tp socket yet. That'd prevent session free because the extra
-reference taken by pppol2tp_session_close() wouldn't be dropped by the
-socket's ->sk_destruct() callback (pppol2tp_session_destruct()).
-We could set .session_close() only while connecting a session to its
-pppol2tp socket, or teach pppol2tp_session_close() to avoid grabbing a
-reference when the session isn't connected, but that'd require adding
-some form of synchronisation to be race free.
-
-Instead of that, we can just let the pppol2tp socket hold a reference
-on the session as soon as it starts depending on it (that is, in
-pppol2tp_connect()). Then we don't need to utilise
-pppol2tp_session_close() to hold a reference at the last moment to
-prevent l2tp_core from dropping it.
-
-When releasing the socket, pppol2tp_release() now deletes the session
-using the standard l2tp_session_delete() function, instead of merely
-removing it from hash tables. l2tp_session_delete() drops the reference
-the sessions holds on itself, but also makes sure it doesn't remove a
-session twice. So it can safely be called, even if l2tp_core already
-tried, or is concurrently trying, to remove the session.
-Finally, pppol2tp_session_destruct() drops the reference held by the
-socket.
-
-Fixes: fd558d186df2 ("l2tp: Split pppol2tp patch into separate l2tp and ppp parts")
-Signed-off-by: Guillaume Nault <g.nault@alphalink.fr>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Giuliano Procida <gprocida@google.com>
+Link: https://lore.kernel.org/r/20200504175416.15417-1-emilne@redhat.com
+Fixes: 4910b524ac9e ("scsi: qla2xxx: Add support for setting port speed")
+Cc: <stable@vger.kernel.org> # v5.1+
+Reviewed-by: Lee Duncan <lduncan@suse.com>
+Reviewed-by: Laurence Oberman <loberman@redhat.com>
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Ewan D. Milne <emilne@redhat.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/l2tp/l2tp_ppp.c |   69 ++++++++++++++++++++++++++++------------------------
- 1 file changed, 38 insertions(+), 31 deletions(-)
 
---- a/net/l2tp/l2tp_ppp.c
-+++ b/net/l2tp/l2tp_ppp.c
-@@ -449,9 +449,6 @@ static void pppol2tp_session_close(struc
- 			inet_shutdown(sk->sk_socket, SEND_SHUTDOWN);
- 		sock_put(sk);
+---
+ drivers/scsi/qla2xxx/qla_attr.c |    3 ---
+ 1 file changed, 3 deletions(-)
+
+--- a/drivers/scsi/qla2xxx/qla_attr.c
++++ b/drivers/scsi/qla2xxx/qla_attr.c
+@@ -1775,9 +1775,6 @@ qla2x00_port_speed_show(struct device *d
+ 		return -EINVAL;
  	}
+ 
+-	ql_log(ql_log_info, vha, 0x70d6,
+-	    "port speed:%d\n", ha->link_data_rate);
 -
--	/* Don't let the session go away before our socket does */
--	l2tp_session_inc_refcount(session);
+ 	return scnprintf(buf, PAGE_SIZE, "%s\n", spd[ha->link_data_rate]);
  }
  
- /* Really kill the session socket. (Called from sock_put() if
-@@ -507,8 +504,7 @@ static int pppol2tp_release(struct socke
- 	if (session != NULL) {
- 		struct pppol2tp_session *ps;
- 
--		__l2tp_session_unhash(session);
--		l2tp_session_queue_purge(session);
-+		l2tp_session_delete(session);
- 
- 		ps = l2tp_session_priv(session);
- 		mutex_lock(&ps->sk_lock);
-@@ -600,6 +596,35 @@ static void pppol2tp_show(struct seq_fil
- }
- #endif
- 
-+static void pppol2tp_session_init(struct l2tp_session *session)
-+{
-+	struct pppol2tp_session *ps;
-+	struct dst_entry *dst;
-+
-+	session->recv_skb = pppol2tp_recv;
-+	session->session_close = pppol2tp_session_close;
-+#if IS_ENABLED(CONFIG_L2TP_DEBUGFS)
-+	session->show = pppol2tp_show;
-+#endif
-+
-+	ps = l2tp_session_priv(session);
-+	mutex_init(&ps->sk_lock);
-+	ps->tunnel_sock = session->tunnel->sock;
-+	ps->owner = current->pid;
-+
-+	/* If PMTU discovery was enabled, use the MTU that was discovered */
-+	dst = sk_dst_get(session->tunnel->sock);
-+	if (dst) {
-+		u32 pmtu = dst_mtu(dst);
-+
-+		if (pmtu) {
-+			session->mtu = pmtu - PPPOL2TP_HEADER_OVERHEAD;
-+			session->mru = pmtu - PPPOL2TP_HEADER_OVERHEAD;
-+		}
-+		dst_release(dst);
-+	}
-+}
-+
- /* connect() handler. Attach a PPPoX socket to a tunnel UDP socket
-  */
- static int pppol2tp_connect(struct socket *sock, struct sockaddr *uservaddr,
-@@ -611,7 +636,6 @@ static int pppol2tp_connect(struct socke
- 	struct l2tp_session *session = NULL;
- 	struct l2tp_tunnel *tunnel;
- 	struct pppol2tp_session *ps;
--	struct dst_entry *dst;
- 	struct l2tp_session_cfg cfg = { 0, };
- 	int error = 0;
- 	u32 tunnel_id, peer_tunnel_id;
-@@ -763,8 +787,8 @@ static int pppol2tp_connect(struct socke
- 			goto end;
- 		}
- 
-+		pppol2tp_session_init(session);
- 		ps = l2tp_session_priv(session);
--		mutex_init(&ps->sk_lock);
- 		l2tp_session_inc_refcount(session);
- 
- 		mutex_lock(&ps->sk_lock);
-@@ -777,26 +801,6 @@ static int pppol2tp_connect(struct socke
- 		drop_refcnt = true;
- 	}
- 
--	ps->owner	     = current->pid;
--	ps->tunnel_sock = tunnel->sock;
--
--	session->recv_skb	= pppol2tp_recv;
--	session->session_close	= pppol2tp_session_close;
--#if IS_ENABLED(CONFIG_L2TP_DEBUGFS)
--	session->show		= pppol2tp_show;
--#endif
--
--	/* If PMTU discovery was enabled, use the MTU that was discovered */
--	dst = sk_dst_get(tunnel->sock);
--	if (dst != NULL) {
--		u32 pmtu = dst_mtu(dst);
--
--		if (pmtu != 0)
--			session->mtu = session->mru = pmtu -
--				PPPOL2TP_HEADER_OVERHEAD;
--		dst_release(dst);
--	}
--
- 	/* Special case: if source & dest session_id == 0x0000, this
- 	 * socket is being created to manage the tunnel. Just set up
- 	 * the internal context for use by ioctl() and sockopt()
-@@ -830,6 +834,12 @@ out_no_ppp:
- 	rcu_assign_pointer(ps->sk, sk);
- 	mutex_unlock(&ps->sk_lock);
- 
-+	/* Keep the reference we've grabbed on the session: sk doesn't expect
-+	 * the session to disappear. pppol2tp_session_destruct() is responsible
-+	 * for dropping it.
-+	 */
-+	drop_refcnt = false;
-+
- 	sk->sk_state = PPPOX_CONNECTED;
- 	l2tp_info(session, L2TP_MSG_CONTROL, "%s: created\n",
- 		  session->name);
-@@ -853,7 +863,6 @@ static int pppol2tp_session_create(struc
- {
- 	int error;
- 	struct l2tp_session *session;
--	struct pppol2tp_session *ps;
- 
- 	/* Error if tunnel socket is not prepped */
- 	if (!tunnel->sock) {
-@@ -876,9 +885,7 @@ static int pppol2tp_session_create(struc
- 		goto err;
- 	}
- 
--	ps = l2tp_session_priv(session);
--	mutex_init(&ps->sk_lock);
--	ps->tunnel_sock = tunnel->sock;
-+	pppol2tp_session_init(session);
- 
- 	error = l2tp_session_register(session, tunnel);
- 	if (error < 0)
 
 
