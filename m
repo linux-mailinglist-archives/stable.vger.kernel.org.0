@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 60A981E2E80
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:30:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CEC01E2E1A
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:27:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391135AbgEZT3C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:29:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56820 "EHLO mail.kernel.org"
+        id S2389938AbgEZTFE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:05:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32854 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391040AbgEZTCJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:02:09 -0400
+        id S2391453AbgEZTFD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:05:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9714720849;
-        Tue, 26 May 2020 19:02:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F352820776;
+        Tue, 26 May 2020 19:05:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590519729;
-        bh=vGmwZHpig1AFU6Fxkz5cwv3Zkugjp1Au9Ze6oLu3msg=;
+        s=default; t=1590519903;
+        bh=R1Gt4SG3jPJ4a59LjXWWW9Stoq8z0WJPtFjuu69IuNE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PIA7xXq02xX3+PR1HI99Wd63ZeMH6uxs/jQSLgg3u3X7M1AxmqOVi0QTV15xCj7rM
-         6JM4bRPq1JXnPiJAphtdI/S2qDJioHZRsZ1+PVPcRijm9pi0CSC70s+wNrwoe33P0z
-         9xNAGS6rIjydWiun+CpbMduCRZF73kPNEAjnrcws=
+        b=o7jS+s+ZbEfgr2w12NTPTrG/DbcnY6UQXgkdvW8VKKkGr0M2aoZEzN6COUXCwyuaf
+         TCCaWB0WjjMPXWeQ0JgyF4gYOfVXKXWcn/QIEX7VkmG4ZKC6ZlhPWZwRx4PxmBqkqF
+         zFBxT9pmwEbadqYD7ahLg2dAbpTWvP/sE5EUTdHA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 4.14 53/59] iio: dac: vf610: Fix an error handling path in vf610_dac_probe()
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Matthias Kaehlcke <mka@chromium.org>,
+        Brian Norris <briannorris@chromium.org>,
+        Douglas Anderson <dianders@chromium.org>,
+        Guenter Roeck <linux@roeck-us.net>, franky.lin@broadcom.com,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 63/81] brcmfmac: abort and release host after error
 Date:   Tue, 26 May 2020 20:53:38 +0200
-Message-Id: <20200526183923.164645221@linuxfoundation.org>
+Message-Id: <20200526183934.053640655@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183907.123822792@linuxfoundation.org>
-References: <20200526183907.123822792@linuxfoundation.org>
+In-Reply-To: <20200526183923.108515292@linuxfoundation.org>
+References: <20200526183923.108515292@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,31 +48,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Guenter Roeck <linux@roeck-us.net>
 
-commit aad4742fbf0a560c25827adb58695a4497ffc204 upstream.
+[ Upstream commit 863844ee3bd38219c88e82966d1df36a77716f3e ]
 
-A call to 'vf610_dac_exit()' is missing in an error handling path.
+With commit 216b44000ada ("brcmfmac: Fix use after free in
+brcmf_sdio_readframes()") applied, we see locking timeouts in
+brcmf_sdio_watchdog_thread().
 
-Fixes: 1b983bf42fad ("iio: dac: vf610_dac: Add IIO DAC driver for Vybrid SoC")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+brcmfmac: brcmf_escan_timeout: timer expired
+INFO: task brcmf_wdog/mmc1:621 blocked for more than 120 seconds.
+Not tainted 4.19.94-07984-g24ff99a0f713 #1
+"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+brcmf_wdog/mmc1 D    0   621      2 0x00000000 last_sleep: 2440793077.  last_runnable: 2440766827
+[<c0aa1e60>] (__schedule) from [<c0aa2100>] (schedule+0x98/0xc4)
+[<c0aa2100>] (schedule) from [<c0853830>] (__mmc_claim_host+0x154/0x274)
+[<c0853830>] (__mmc_claim_host) from [<bf10c5b8>] (brcmf_sdio_watchdog_thread+0x1b0/0x1f8 [brcmfmac])
+[<bf10c5b8>] (brcmf_sdio_watchdog_thread [brcmfmac]) from [<c02570b8>] (kthread+0x178/0x180)
 
+In addition to restarting or exiting the loop, it is also necessary to
+abort the command and to release the host.
+
+Fixes: 216b44000ada ("brcmfmac: Fix use after free in brcmf_sdio_readframes()")
+Cc: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: Matthias Kaehlcke <mka@chromium.org>
+Cc: Brian Norris <briannorris@chromium.org>
+Cc: Douglas Anderson <dianders@chromium.org>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
+Acked-by: franky.lin@broadcom.com
+Acked-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/dac/vf610_dac.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/iio/dac/vf610_dac.c
-+++ b/drivers/iio/dac/vf610_dac.c
-@@ -235,6 +235,7 @@ static int vf610_dac_probe(struct platfo
- 	return 0;
- 
- error_iio_device_register:
-+	vf610_dac_exit(info);
- 	clk_disable_unprepare(info->clk);
- 
- 	return ret;
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
+index e0211321fe9e..96870d1b3b73 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
+@@ -1933,6 +1933,8 @@ static uint brcmf_sdio_readframes(struct brcmf_sdio *bus, uint maxframes)
+ 			if (brcmf_sdio_hdparse(bus, bus->rxhdr, &rd_new,
+ 					       BRCMF_SDIO_FT_NORMAL)) {
+ 				rd->len = 0;
++				brcmf_sdio_rxfail(bus, true, true);
++				sdio_release_host(bus->sdiodev->func1);
+ 				brcmu_pkt_buf_free_skb(pkt);
+ 				continue;
+ 			}
+-- 
+2.25.1
+
 
 
