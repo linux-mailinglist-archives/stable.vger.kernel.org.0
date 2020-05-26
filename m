@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D06E1E2B84
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:06:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 24CED1E2BF8
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:10:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391561AbgEZTGA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:06:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34030 "EHLO mail.kernel.org"
+        id S2403778AbgEZTKn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:10:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39962 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391092AbgEZTF7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:05:59 -0400
+        id S2391059AbgEZTKm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:10:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0B90F20776;
-        Tue, 26 May 2020 19:05:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7781E20888;
+        Tue, 26 May 2020 19:10:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590519958;
-        bh=mRxvmJxdQSgll9Gs2py6a241v8LCbk3tjj+w8cKD8rg=;
+        s=default; t=1590520241;
+        bh=GEzZKEFck/laAHvXNM4F0VHtJ/O2SrpRrI0SkmrRHbE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wl7Zbc8GKW06z3RUXeRFZgx9HB+RSwlxM3FShJlwBmgbihYhjI/3uAhfUZTHtwxZu
-         TuGoSBy5cLL7x9VIXLETzJG9SiR83Sg2o8sQtes91ysUczkn4iu/JQX9l/qck7VpFL
-         gdE9GhBt2VAacDbnbMUZ/GwwRL215Vy1FcYHjDCM=
+        b=bRJzS1svbeXBctFT1xLnHj+F1RlGkN3EY/9NJbOIOTk4sQdFbvEn9FqopPLcsADnj
+         +LWiKjvQ6PhQssSOwVSIFSsXKb8YDRxmSEGtGYJ6eCqBIbrfuNQZ38njCk7SmTOAP2
+         4z//u0ZES5HWHSUhC5/gugmN2ru4PV5VYLzh2T+U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Doug Berger <opendmb@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Russell Currey <ruscur@russell.cc>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 58/81] net: bcmgenet: code movement
-Date:   Tue, 26 May 2020 20:53:33 +0200
-Message-Id: <20200526183933.528845980@linuxfoundation.org>
+Subject: [PATCH 5.4 076/111] powerpc: Remove STRICT_KERNEL_RWX incompatibility with RELOCATABLE
+Date:   Tue, 26 May 2020 20:53:34 +0200
+Message-Id: <20200526183940.074511261@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183923.108515292@linuxfoundation.org>
-References: <20200526183923.108515292@linuxfoundation.org>
+In-Reply-To: <20200526183932.245016380@linuxfoundation.org>
+References: <20200526183932.245016380@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,100 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Doug Berger <opendmb@gmail.com>
+From: Russell Currey <ruscur@russell.cc>
 
-[ Upstream commit a94cbf03eb514d4d64d8c4f4caa0616b7ce5040a ]
+[ Upstream commit c55d7b5e64265fdca45c85b639013e770bde2d0e ]
 
-This commit switches the order of bcmgenet_suspend and bcmgenet_resume
-in the file to prevent the need for a forward declaration in the next
-commit and to make the review of that commit easier.
+I have tested this with the Radix MMU and everything seems to work, and
+the previous patch for Hash seems to fix everything too.
+STRICT_KERNEL_RWX should still be disabled by default for now.
 
-Signed-off-by: Doug Berger <opendmb@gmail.com>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Please test STRICT_KERNEL_RWX + RELOCATABLE!
+
+Signed-off-by: Russell Currey <ruscur@russell.cc>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20191224064126.183670-2-ruscur@russell.cc
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/broadcom/genet/bcmgenet.c    | 60 +++++++++----------
- 1 file changed, 30 insertions(+), 30 deletions(-)
+ arch/powerpc/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/broadcom/genet/bcmgenet.c b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-index 89cc146d2c5c..60abf9fab810 100644
---- a/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-+++ b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-@@ -3616,36 +3616,6 @@ static int bcmgenet_remove(struct platform_device *pdev)
- }
- 
- #ifdef CONFIG_PM_SLEEP
--static int bcmgenet_suspend(struct device *d)
--{
--	struct net_device *dev = dev_get_drvdata(d);
--	struct bcmgenet_priv *priv = netdev_priv(dev);
--	int ret = 0;
--
--	if (!netif_running(dev))
--		return 0;
--
--	netif_device_detach(dev);
--
--	bcmgenet_netif_stop(dev);
--
--	if (!device_may_wakeup(d))
--		phy_suspend(dev->phydev);
--
--	/* Prepare the device for Wake-on-LAN and switch to the slow clock */
--	if (device_may_wakeup(d) && priv->wolopts) {
--		ret = bcmgenet_power_down(priv, GENET_POWER_WOL_MAGIC);
--		clk_prepare_enable(priv->clk_wol);
--	} else if (priv->internal_phy) {
--		ret = bcmgenet_power_down(priv, GENET_POWER_PASSIVE);
--	}
--
--	/* Turn off the clocks */
--	clk_disable_unprepare(priv->clk);
--
--	return ret;
--}
--
- static int bcmgenet_resume(struct device *d)
- {
- 	struct net_device *dev = dev_get_drvdata(d);
-@@ -3724,6 +3694,36 @@ static int bcmgenet_resume(struct device *d)
- 	clk_disable_unprepare(priv->clk);
- 	return ret;
- }
-+
-+static int bcmgenet_suspend(struct device *d)
-+{
-+	struct net_device *dev = dev_get_drvdata(d);
-+	struct bcmgenet_priv *priv = netdev_priv(dev);
-+	int ret = 0;
-+
-+	if (!netif_running(dev))
-+		return 0;
-+
-+	netif_device_detach(dev);
-+
-+	bcmgenet_netif_stop(dev);
-+
-+	if (!device_may_wakeup(d))
-+		phy_suspend(dev->phydev);
-+
-+	/* Prepare the device for Wake-on-LAN and switch to the slow clock */
-+	if (device_may_wakeup(d) && priv->wolopts) {
-+		ret = bcmgenet_power_down(priv, GENET_POWER_WOL_MAGIC);
-+		clk_prepare_enable(priv->clk_wol);
-+	} else if (priv->internal_phy) {
-+		ret = bcmgenet_power_down(priv, GENET_POWER_PASSIVE);
-+	}
-+
-+	/* Turn off the clocks */
-+	clk_disable_unprepare(priv->clk);
-+
-+	return ret;
-+}
- #endif /* CONFIG_PM_SLEEP */
- 
- static SIMPLE_DEV_PM_OPS(bcmgenet_pm_ops, bcmgenet_suspend, bcmgenet_resume);
+diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
+index 2b1033f13210..198bbf42e398 100644
+--- a/arch/powerpc/Kconfig
++++ b/arch/powerpc/Kconfig
+@@ -133,7 +133,7 @@ config PPC
+ 	select ARCH_HAS_PTE_SPECIAL
+ 	select ARCH_HAS_MEMBARRIER_CALLBACKS
+ 	select ARCH_HAS_SCALED_CPUTIME		if VIRT_CPU_ACCOUNTING_NATIVE && PPC_BOOK3S_64
+-	select ARCH_HAS_STRICT_KERNEL_RWX	if ((PPC_BOOK3S_64 || PPC32) && !RELOCATABLE && !HIBERNATION)
++	select ARCH_HAS_STRICT_KERNEL_RWX	if ((PPC_BOOK3S_64 || PPC32) && !HIBERNATION)
+ 	select ARCH_HAS_TICK_BROADCAST		if GENERIC_CLOCKEVENTS_BROADCAST
+ 	select ARCH_HAS_UACCESS_FLUSHCACHE
+ 	select ARCH_HAS_UACCESS_MCSAFE		if PPC64
 -- 
 2.25.1
 
