@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 255B91E2E99
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:31:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 70E991E2EEF
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:32:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389846AbgEZS7X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 14:59:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53034 "EHLO mail.kernel.org"
+        id S2389969AbgEZS46 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 14:56:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50016 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389903AbgEZS7T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 14:59:19 -0400
+        id S2389982AbgEZS44 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 14:56:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E5D832086A;
-        Tue, 26 May 2020 18:59:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9DB4A20870;
+        Tue, 26 May 2020 18:56:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590519558;
-        bh=hJiJ03o0lZ1z/xkUa7Dz3X3U5LU6LHP3tzsv86V5xNg=;
+        s=default; t=1590519416;
+        bh=DYY57umynyFAZK/twDxMmZVr1Hq81x9GD9DqV30xJ0g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q2mYKCU9jlDEWdpeMjjxgH+Y/k+IvxuC8gE6GPkOw1AnJhXkTJoo5CNurlIwQi0cR
-         orZkfWR4GVuBnCCyLAtfjnG5EGsV4OMfLGGfyuWc5fz3irszj5gzWnprgL1ztvHeL1
-         iopSVo/uBd5WjNeUZutQzbQpGxCvVi4MbTCr95Uc=
+        b=K98ZDr4/O4fbhbBB9CNtMYtY8VCQPlMO8+BmhcRCLsnjvVXtusegq3y7km+FelGRI
+         v+emOVPGKocSxm5GLzi5cfqR+Rrx9YdfnL4Bjp2cQhoV2Q7/yJP8kK0FQXekuG35j1
+         K4k5rHdbLNCE4iw0iSZFZxJrW9VN5FzIwASZHxa4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guillaume Nault <g.nault@alphalink.fr>,
-        "R. Parameswaran" <rparames@brocade.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Giuliano Procida <gprocida@google.com>
-Subject: [PATCH 4.9 51/64] l2tp: device MTU setup, tunnel socket needs a lock
+        stable@vger.kernel.org, Bob Peterson <rpeterso@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 61/65] Revert "gfs2: Dont demote a glock until its revokes are written"
 Date:   Tue, 26 May 2020 20:53:20 +0200
-Message-Id: <20200526183930.465216226@linuxfoundation.org>
+Message-Id: <20200526183928.499403894@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183913.064413230@linuxfoundation.org>
-References: <20200526183913.064413230@linuxfoundation.org>
+In-Reply-To: <20200526183905.988782958@linuxfoundation.org>
+References: <20200526183905.988782958@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,62 +43,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: R. Parameswaran <parameswaran.r7@gmail.com>
+From: Bob Peterson <rpeterso@redhat.com>
 
-commit 57240d007816486131bee88cd474c2a71f0fe224 upstream.
+[ Upstream commit b14c94908b1b884276a6608dea3d0b1b510338b7 ]
 
-The MTU overhead calculation in L2TP device set-up
-merged via commit b784e7ebfce8cfb16c6f95e14e8532d0768ab7ff
-needs to be adjusted to lock the tunnel socket while
-referencing the sub-data structures to derive the
-socket's IP overhead.
+This reverts commit df5db5f9ee112e76b5202fbc331f990a0fc316d6.
 
-Reported-by: Guillaume Nault <g.nault@alphalink.fr>
-Tested-by: Guillaume Nault <g.nault@alphalink.fr>
-Signed-off-by: R. Parameswaran <rparames@brocade.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Cc: Giuliano Procida <gprocida@google.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This patch fixes a regression: patch df5db5f9ee112 allowed function
+run_queue() to bypass its call to do_xmote() if revokes were queued for
+the glock. That's wrong because its call to do_xmote() is what is
+responsible for calling the go_sync() glops functions to sync both
+the ail list and any revokes queued for it. By bypassing the call,
+gfs2 could get into a stand-off where the glock could not be demoted
+until its revokes are written back, but the revokes would not be
+written back because do_xmote() was never called.
 
+It "sort of" works, however, because there are other mechanisms like
+the log flush daemon (logd) that can sync the ail items and revokes,
+if it deems it necessary. The problem is: without file system pressure,
+it might never deem it necessary.
+
+Signed-off-by: Bob Peterson <rpeterso@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/net.h |    2 +-
- net/l2tp/l2tp_eth.c |    2 ++
- net/socket.c        |    2 +-
- 3 files changed, 4 insertions(+), 2 deletions(-)
+ fs/gfs2/glock.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
---- a/include/linux/net.h
-+++ b/include/linux/net.h
-@@ -298,7 +298,7 @@ int kernel_sendpage(struct socket *sock,
- int kernel_sock_ioctl(struct socket *sock, int cmd, unsigned long arg);
- int kernel_sock_shutdown(struct socket *sock, enum sock_shutdown_cmd how);
- 
--/* Following routine returns the IP overhead imposed by a socket.  */
-+/* Routine returns the IP overhead imposed by a (caller-protected) socket. */
- u32 kernel_sock_ip_overhead(struct sock *sk);
- 
- #define MODULE_ALIAS_NETPROTO(proto) \
---- a/net/l2tp/l2tp_eth.c
-+++ b/net/l2tp/l2tp_eth.c
-@@ -240,7 +240,9 @@ static void l2tp_eth_adjust_mtu(struct l
- 		dev->needed_headroom += session->hdr_len;
- 		return;
- 	}
-+	lock_sock(tunnel->sock);
- 	l3_overhead = kernel_sock_ip_overhead(tunnel->sock);
-+	release_sock(tunnel->sock);
- 	if (l3_overhead == 0) {
- 		/* L3 Overhead couldn't be identified, this could be
- 		 * because tunnel->sock was NULL or the socket's
---- a/net/socket.c
-+++ b/net/socket.c
-@@ -3325,7 +3325,7 @@ EXPORT_SYMBOL(kernel_sock_shutdown);
- /* This routine returns the IP overhead imposed by a socket i.e.
-  * the length of the underlying IP header, depending on whether
-  * this is an IPv4 or IPv6 socket and the length from IP options turned
-- * on at the socket.
-+ * on at the socket. Assumes that the caller has a lock on the socket.
-  */
- u32 kernel_sock_ip_overhead(struct sock *sk)
- {
+diff --git a/fs/gfs2/glock.c b/fs/gfs2/glock.c
+index f80ffccb0316..1eb737c466dd 100644
+--- a/fs/gfs2/glock.c
++++ b/fs/gfs2/glock.c
+@@ -541,9 +541,6 @@ __acquires(&gl->gl_lockref.lock)
+ 			goto out_unlock;
+ 		if (nonblock)
+ 			goto out_sched;
+-		smp_mb();
+-		if (atomic_read(&gl->gl_revokes) != 0)
+-			goto out_sched;
+ 		set_bit(GLF_DEMOTE_IN_PROGRESS, &gl->gl_flags);
+ 		GLOCK_BUG_ON(gl, gl->gl_demote_state == LM_ST_EXCLUSIVE);
+ 		gl->gl_target = gl->gl_demote_state;
+-- 
+2.25.1
+
 
 
