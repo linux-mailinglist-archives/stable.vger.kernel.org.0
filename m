@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B45931E2B87
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:06:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F2D911E2BE6
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:10:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390300AbgEZTF7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:05:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33910 "EHLO mail.kernel.org"
+        id S2391228AbgEZTKE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:10:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39206 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391542AbgEZTFw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:05:52 -0400
+        id S2403969AbgEZTKC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:10:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A1C6320776;
-        Tue, 26 May 2020 19:05:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E4F05208B6;
+        Tue, 26 May 2020 19:10:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590519951;
-        bh=PHb8uiGUuaopmLvAPELAmxO1WXO3/KVmXp4Yu4YIYDM=;
+        s=default; t=1590520202;
+        bh=EfmoUFDfEwH4Q5Ot/bnQSXjd/BZyqtVbIvDLawe1sL8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GgEPwmLqODzgQ8EYQEToCIVirVB0jhz3bZIy++c+7Y0Qx5qb7RLHf45ztt9H6sdKI
-         rAU8+SG+97VpNB03t+jpNN5a5nZQw8e0e7dz4LTalrQBl4/yUjrh4nHf727Dm3vSA4
-         s08H3ApSmMGrdILolPBjSUootJXA2SnmcXKhbykw=
+        b=u0AIlrwXSmFzzxtxmhKspwNzJCi1P1iLV752YcboyQyQCmon2wG3ye8IQ5y5qSrXH
+         VVqOr0Iy4M8YO+bGIQXvgrgTSZpjCrN0w2Zx8/DwQuvnTIVe4SwQpA+CeCzGCu4jDO
+         9GaDtAA8ykswgZmIkKVSebqCm4z3wPHfOWs1LWYk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Ashwin H <ashwinh@vmware.com>
-Subject: [PATCH 4.19 81/81] make user_access_begin() do access_ok()
+        stable@vger.kernel.org, Qiushi Wu <wu000273@umn.edu>,
+        David Howells <dhowells@redhat.com>,
+        Markus Elfring <Markus.Elfring@web.de>
+Subject: [PATCH 5.4 098/111] rxrpc: Fix a memory leak in rxkad_verify_response()
 Date:   Tue, 26 May 2020 20:53:56 +0200
-Message-Id: <20200526183936.018034220@linuxfoundation.org>
+Message-Id: <20200526183942.199358513@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183923.108515292@linuxfoundation.org>
-References: <20200526183923.108515292@linuxfoundation.org>
+In-Reply-To: <20200526183932.245016380@linuxfoundation.org>
+References: <20200526183932.245016380@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,191 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Qiushi Wu <wu000273@umn.edu>
 
-commit 594cc251fdd0d231d342d88b2fdff4bc42fb0690 upstream.
+commit f45d01f4f30b53c3a0a1c6c1c154acb7ff74ab9f upstream.
 
-Originally, the rule used to be that you'd have to do access_ok()
-separately, and then user_access_begin() before actually doing the
-direct (optimized) user access.
+A ticket was not released after a call of the function
+"rxkad_decrypt_ticket" failed. Thus replace the jump target
+"temporary_error_free_resp" by "temporary_error_free_ticket".
 
-But experience has shown that people then decide not to do access_ok()
-at all, and instead rely on it being implied by other operations or
-similar.  Which makes it very hard to verify that the access has
-actually been range-checked.
-
-If you use the unsafe direct user accesses, hardware features (either
-SMAP - Supervisor Mode Access Protection - on x86, or PAN - Privileged
-Access Never - on ARM) do force you to use user_access_begin().  But
-nothing really forces the range check.
-
-By putting the range check into user_access_begin(), we actually force
-people to do the right thing (tm), and the range check vill be visible
-near the actual accesses.  We have way too long a history of people
-trying to avoid them.
-
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Ashwin H <ashwinh@vmware.com>
+Fixes: 8c2f826dc3631 ("rxrpc: Don't put crypto buffers on the stack")
+Signed-off-by: Qiushi Wu <wu000273@umn.edu>
+Signed-off-by: David Howells <dhowells@redhat.com>
+cc: Markus Elfring <Markus.Elfring@web.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- arch/x86/include/asm/uaccess.h             |   11 ++++++++++-
- drivers/gpu/drm/i915/i915_gem_execbuffer.c |   15 +++++++++++++--
- include/linux/uaccess.h                    |    2 +-
- kernel/compat.c                            |    6 ++----
- kernel/exit.c                              |    6 ++----
- lib/strncpy_from_user.c                    |    9 +++++----
- lib/strnlen_user.c                         |    9 +++++----
- 7 files changed, 38 insertions(+), 20 deletions(-)
 
---- a/arch/x86/include/asm/uaccess.h
-+++ b/arch/x86/include/asm/uaccess.h
-@@ -711,7 +711,16 @@ extern struct movsl_mask {
-  * checking before using them, but you have to surround them with the
-  * user_access_begin/end() pair.
-  */
--#define user_access_begin()	__uaccess_begin()
-+static __must_check inline bool user_access_begin(const bool type,
-+                                                  const void __user *ptr,
-+                                                  size_t len)
-+{
-+	if (unlikely(!access_ok(type, ptr, len)))
-+		return 0;
-+	__uaccess_begin();
-+	return 1;
-+}
-+#define user_access_begin(t, a, b) user_access_begin(t, a, b)
- #define user_access_end()	__uaccess_end()
+---
+ net/rxrpc/rxkad.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+--- a/net/rxrpc/rxkad.c
++++ b/net/rxrpc/rxkad.c
+@@ -1148,7 +1148,7 @@ static int rxkad_verify_response(struct
+ 	ret = rxkad_decrypt_ticket(conn, skb, ticket, ticket_len, &session_key,
+ 				   &expiry, _abort_code);
+ 	if (ret < 0)
+-		goto temporary_error_free_resp;
++		goto temporary_error_free_ticket;
  
- #define unsafe_put_user(x, ptr, err_label)					\
---- a/drivers/gpu/drm/i915/i915_gem_execbuffer.c
-+++ b/drivers/gpu/drm/i915/i915_gem_execbuffer.c
-@@ -1604,7 +1604,9 @@ static int eb_copy_relocations(const str
- 		 * happened we would make the mistake of assuming that the
- 		 * relocations were valid.
- 		 */
--		user_access_begin();
-+		if (!user_access_begin(VERIFY_WRITE, urelocs, size))
-+			goto end_user;
-+
- 		for (copied = 0; copied < nreloc; copied++)
- 			unsafe_put_user(-1,
- 					&urelocs[copied].presumed_offset,
-@@ -2649,7 +2651,16 @@ i915_gem_execbuffer2_ioctl(struct drm_de
- 		unsigned int i;
+ 	/* use the session key from inside the ticket to decrypt the
+ 	 * response */
+@@ -1230,7 +1230,6 @@ protocol_error:
  
- 		/* Copy the new buffer offsets back to the user's exec list. */
--		user_access_begin();
-+		/*
-+		 * Note: count * sizeof(*user_exec_list) does not overflow,
-+		 * because we checked 'count' in check_buffer_count().
-+		 *
-+		 * And this range already got effectively checked earlier
-+		 * when we did the "copy_from_user()" above.
-+		 */
-+		if (!user_access_begin(VERIFY_WRITE, user_exec_list, count * sizeof(*user_exec_list)))
-+			goto end_user;
-+
- 		for (i = 0; i < args->buffer_count; i++) {
- 			if (!(exec2_list[i].offset & UPDATE))
- 				continue;
---- a/include/linux/uaccess.h
-+++ b/include/linux/uaccess.h
-@@ -267,7 +267,7 @@ extern long strncpy_from_unsafe(char *ds
- 	probe_kernel_read(&retval, addr, sizeof(retval))
- 
- #ifndef user_access_begin
--#define user_access_begin() do { } while (0)
-+#define user_access_begin(type, ptr, len) access_ok(type, ptr, len)
- #define user_access_end() do { } while (0)
- #define unsafe_get_user(x, ptr, err) do { if (unlikely(__get_user(x, ptr))) goto err; } while (0)
- #define unsafe_put_user(x, ptr, err) do { if (unlikely(__put_user(x, ptr))) goto err; } while (0)
---- a/kernel/compat.c
-+++ b/kernel/compat.c
-@@ -354,10 +354,9 @@ long compat_get_bitmap(unsigned long *ma
- 	bitmap_size = ALIGN(bitmap_size, BITS_PER_COMPAT_LONG);
- 	nr_compat_longs = BITS_TO_COMPAT_LONGS(bitmap_size);
- 
--	if (!access_ok(VERIFY_READ, umask, bitmap_size / 8))
-+	if (!user_access_begin(VERIFY_READ, umask, bitmap_size / 8))
- 		return -EFAULT;
- 
--	user_access_begin();
- 	while (nr_compat_longs > 1) {
- 		compat_ulong_t l1, l2;
- 		unsafe_get_user(l1, umask++, Efault);
-@@ -384,10 +383,9 @@ long compat_put_bitmap(compat_ulong_t __
- 	bitmap_size = ALIGN(bitmap_size, BITS_PER_COMPAT_LONG);
- 	nr_compat_longs = BITS_TO_COMPAT_LONGS(bitmap_size);
- 
--	if (!access_ok(VERIFY_WRITE, umask, bitmap_size / 8))
-+	if (!user_access_begin(VERIFY_WRITE, umask, bitmap_size / 8))
- 		return -EFAULT;
- 
--	user_access_begin();
- 	while (nr_compat_longs > 1) {
- 		unsigned long m = *mask++;
- 		unsafe_put_user((compat_ulong_t)m, umask++, Efault);
---- a/kernel/exit.c
-+++ b/kernel/exit.c
-@@ -1617,10 +1617,9 @@ SYSCALL_DEFINE5(waitid, int, which, pid_
- 	if (!infop)
- 		return err;
- 
--	if (!access_ok(VERIFY_WRITE, infop, sizeof(*infop)))
-+	if (!user_access_begin(VERIFY_WRITE, infop, sizeof(*infop)))
- 		return -EFAULT;
- 
--	user_access_begin();
- 	unsafe_put_user(signo, &infop->si_signo, Efault);
- 	unsafe_put_user(0, &infop->si_errno, Efault);
- 	unsafe_put_user(info.cause, &infop->si_code, Efault);
-@@ -1745,10 +1744,9 @@ COMPAT_SYSCALL_DEFINE5(waitid,
- 	if (!infop)
- 		return err;
- 
--	if (!access_ok(VERIFY_WRITE, infop, sizeof(*infop)))
-+	if (!user_access_begin(VERIFY_WRITE, infop, sizeof(*infop)))
- 		return -EFAULT;
- 
--	user_access_begin();
- 	unsafe_put_user(signo, &infop->si_signo, Efault);
- 	unsafe_put_user(0, &infop->si_errno, Efault);
- 	unsafe_put_user(info.cause, &infop->si_code, Efault);
---- a/lib/strncpy_from_user.c
-+++ b/lib/strncpy_from_user.c
-@@ -115,10 +115,11 @@ long strncpy_from_user(char *dst, const
- 
- 		kasan_check_write(dst, count);
- 		check_object_size(dst, count, false);
--		user_access_begin();
--		retval = do_strncpy_from_user(dst, src, count, max);
--		user_access_end();
--		return retval;
-+		if (user_access_begin(VERIFY_READ, src, max)) {
-+			retval = do_strncpy_from_user(dst, src, count, max);
-+			user_access_end();
-+			return retval;
-+		}
- 	}
- 	return -EFAULT;
- }
---- a/lib/strnlen_user.c
-+++ b/lib/strnlen_user.c
-@@ -114,10 +114,11 @@ long strnlen_user(const char __user *str
- 		unsigned long max = max_addr - src_addr;
- 		long retval;
- 
--		user_access_begin();
--		retval = do_strnlen_user(str, count, max);
--		user_access_end();
--		return retval;
-+		if (user_access_begin(VERIFY_READ, str, max)) {
-+			retval = do_strnlen_user(str, count, max);
-+			user_access_end();
-+			return retval;
-+		}
- 	}
- 	return 0;
- }
+ temporary_error_free_ticket:
+ 	kfree(ticket);
+-temporary_error_free_resp:
+ 	kfree(response);
+ temporary_error:
+ 	/* Ignore the response packet if we got a temporary error such as
 
 
