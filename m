@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 913671E2E71
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:30:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 008961E2CA2
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:16:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403767AbgEZTBd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:01:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55882 "EHLO mail.kernel.org"
+        id S2404448AbgEZTPf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:15:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47322 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390971AbgEZTBb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:01:31 -0400
+        id S2404265AbgEZTPd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:15:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D5DEC20849;
-        Tue, 26 May 2020 19:01:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1CF6B20776;
+        Tue, 26 May 2020 19:15:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590519691;
-        bh=+Dvm2rdDVTfbgx2YcMhPo7v8qPnIq2C9eoViBsYKTEY=;
+        s=default; t=1590520533;
+        bh=BqWOzCDmMrAFz2dz3SAGPUMEexLeAFZfpbfaMsSt4IU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xNC2k7uLmcEBq9Hg93sg6JUyOGrQntHuJ9+tCbGm1Oz5D4j1XLQ6j4K1pDIzJCkYt
-         2RElwb3QAEvXQmYRf15FEIf9J+dFHvrCBI+PBRWM1+RdCYr0QrNaoy6FS/C1zFcSjh
-         fQcfJDLwFZJm2csnKFmtJ7V/VgKvReu3DkWZMj6k=
+        b=ci6nwUiiS7JluaUHqmzEeDoZxqUEwpQfVqMzSJe+8GsT+PM+rM9g+zFM6nXns/5xb
+         c+tokrGsIRYrOf80g9/AGNPGPk7oGhN1rmIpsuo5mgh8K4kaRMlHEReiT10eD8UcTA
+         WyUy3ei/iwGX5ANpbhwDTUM8WTXfnQnysC7hIfHs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christophe Leroy <christophe.leroy@c-s.fr>,
-        Balbir Singh <bsingharora@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 39/59] powerpc: restore alphabetic order in Kconfig
+        stable@vger.kernel.org, PeiSen Hou <pshou@realtek.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.6 067/126] ALSA: hda/realtek - Add more fixup entries for Clevo machines
 Date:   Tue, 26 May 2020 20:53:24 +0200
-Message-Id: <20200526183919.859893348@linuxfoundation.org>
+Message-Id: <20200526183943.818281383@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183907.123822792@linuxfoundation.org>
-References: <20200526183907.123822792@linuxfoundation.org>
+In-Reply-To: <20200526183937.471379031@linuxfoundation.org>
+References: <20200526183937.471379031@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,53 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@c-s.fr>
+From: PeiSen Hou <pshou@realtek.com>
 
-[ Upstream commit 4ec591e51a4b0aedb6c7f1a8cd722aa58d7f61ba ]
+commit 259eb82475316672a5d682a94dc8bdd53cf8d8c3 upstream.
 
-This patch restores the alphabetic order which was broken by
-commit 1e0fc9d1eb2b0 ("powerpc/Kconfig: Enable STRICT_KERNEL_RWX
-for some configs")
+A few known Clevo machines (PC50, PC70, X170) with ALC1220 codec need
+the existing quirk for pins for PB51 and co.
 
-Fixes: 1e0fc9d1eb2b0 ("powerpc/Kconfig: Enable STRICT_KERNEL_RWX for some configs")
-Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
-Acked-by: Balbir Singh <bsingharora@gmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: PeiSen Hou <pshou@realtek.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200519065012.13119-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/powerpc/Kconfig | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/pci/hda/patch_realtek.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
-index 277e4ffb928b..6b73ef2bba2e 100644
---- a/arch/powerpc/Kconfig
-+++ b/arch/powerpc/Kconfig
-@@ -141,12 +141,14 @@ config PPC
- 	select ARCH_HAS_GCOV_PROFILE_ALL
- 	select ARCH_HAS_SCALED_CPUTIME		if VIRT_CPU_ACCOUNTING_NATIVE
- 	select ARCH_HAS_SG_CHAIN
-+	select ARCH_HAS_STRICT_KERNEL_RWX	if ((PPC_BOOK3S_64 || PPC32) && !RELOCATABLE && !HIBERNATION)
- 	select ARCH_HAS_TICK_BROADCAST		if GENERIC_CLOCKEVENTS_BROADCAST
- 	select ARCH_HAS_UBSAN_SANITIZE_ALL
- 	select ARCH_HAS_ZONE_DEVICE		if PPC_BOOK3S_64
- 	select ARCH_HAVE_NMI_SAFE_CMPXCHG
- 	select ARCH_MIGHT_HAVE_PC_PARPORT
- 	select ARCH_MIGHT_HAVE_PC_SERIO
-+	select ARCH_OPTIONAL_KERNEL_RWX		if ARCH_HAS_STRICT_KERNEL_RWX
- 	select ARCH_SUPPORTS_ATOMIC_RMW
- 	select ARCH_SUPPORTS_DEFERRED_STRUCT_PAGE_INIT
- 	select ARCH_USE_BUILTIN_BSWAP
-@@ -178,8 +180,6 @@ config PPC
- 	select HAVE_ARCH_MMAP_RND_COMPAT_BITS	if COMPAT
- 	select HAVE_ARCH_SECCOMP_FILTER
- 	select HAVE_ARCH_TRACEHOOK
--	select ARCH_HAS_STRICT_KERNEL_RWX	if ((PPC_BOOK3S_64 || PPC32) && !RELOCATABLE && !HIBERNATION)
--	select ARCH_OPTIONAL_KERNEL_RWX		if ARCH_HAS_STRICT_KERNEL_RWX
- 	select HAVE_CBPF_JIT			if !PPC64
- 	select HAVE_CONTEXT_TRACKING		if PPC64
- 	select HAVE_DEBUG_KMEMLEAK
--- 
-2.25.1
-
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -2473,6 +2473,9 @@ static const struct snd_pci_quirk alc882
+ 	SND_PCI_QUIRK(0x1558, 0x97e1, "Clevo P970[ER][CDFN]", ALC1220_FIXUP_CLEVO_P950),
+ 	SND_PCI_QUIRK(0x1558, 0x65d1, "Clevo PB51[ER][CDF]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
+ 	SND_PCI_QUIRK(0x1558, 0x67d1, "Clevo PB71[ER][CDF]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
++	SND_PCI_QUIRK(0x1558, 0x50d3, "Clevo PC50[ER][CDF]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
++	SND_PCI_QUIRK(0x1558, 0x70d1, "Clevo PC70[ER][CDF]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
++	SND_PCI_QUIRK(0x1558, 0x7714, "Clevo X170", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
+ 	SND_PCI_QUIRK_VENDOR(0x1558, "Clevo laptop", ALC882_FIXUP_EAPD),
+ 	SND_PCI_QUIRK(0x161f, 0x2054, "Medion laptop", ALC883_FIXUP_EAPD),
+ 	SND_PCI_QUIRK(0x17aa, 0x3a0d, "Lenovo Y530", ALC882_FIXUP_LENOVO_Y530),
 
 
