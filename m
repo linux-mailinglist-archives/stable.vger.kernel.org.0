@@ -2,98 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 497001E194B
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 04:19:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E89B1E199F
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 04:43:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388419AbgEZCTQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 May 2020 22:19:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46674 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388417AbgEZCTQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 25 May 2020 22:19:16 -0400
-Received: from mail-oi1-x242.google.com (mail-oi1-x242.google.com [IPv6:2607:f8b0:4864:20::242])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07E48C061A0E
-        for <stable@vger.kernel.org>; Mon, 25 May 2020 19:19:15 -0700 (PDT)
-Received: by mail-oi1-x242.google.com with SMTP id b3so17389972oib.13
-        for <stable@vger.kernel.org>; Mon, 25 May 2020 19:19:14 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=zdxUWMWXTEs/zs0LJh1bxLoOHpDg1k5nkLimqXptzik=;
-        b=FAE2QZOUkOOq7eaMyFBoZ6jzzy4cGuxxCzqYx1Insqm5QxOynqwQ8kTf0qmhmZ78ME
-         CU8D0MFgHVejSYBhu2EXxbHT7rAe9zSg5ohLA+9eRxVwESOl07bjfhbha53HtAjjlBeV
-         F0sfxfEfhmmVyZc8B8p4bfmaaEV/teGE26+OlTNTuj33rQuI0cGcsSPoWkOpvyEqKS8Q
-         OpMDtTzxSxeyUybVclifIOD5ozkMTuBBywgYA6zChfyk9Hye72LmnlyeERRqiUkvVNCB
-         a22jBlPCEgt4ulXoGoW7xIW5I89WRyNEhcDC15YR6JsphFhPaWBfYi5A/3PA3CnVRiJe
-         xEVQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to:content-transfer-encoding;
-        bh=zdxUWMWXTEs/zs0LJh1bxLoOHpDg1k5nkLimqXptzik=;
-        b=SwFLHCe6AkBXrH/HM7vn9hILDZXh9neoxuxr/0Z8CnC9QlmZ1Q8OH/uRjYGv11urOy
-         b6cAPrf7qL5kn1TOru4rcbWqZO53lsumBEJRC6r1epO2csoXQRAzoYciPXy0pSWNy1JK
-         56wCDTcrATw/RVBLBB7smBxMQ3uZmwY9lIXL48xRX5rE5gShUm6Ma1cNW3nCVdP5JjKu
-         3KW3iulU95oitLQiSJYGdGaP+uoIfAdXOibI6/++fX4MIFrdkHxhb19jyfqyIZna9h/i
-         QAuf120xZ5lS2Blszi4nDJAvmRN97Qw/fwJBTlQTOg4eOg+lxOhQANYVqHeq4tu4wljZ
-         x5Dg==
-X-Gm-Message-State: AOAM531DtUdmyRfcKfMwElL4fmEVZXUdJ/zASi+b7V+kI6oK9ZDtXx0p
-        XiNxYzvxkyX+mp3uwhHIR8p48y95lnbX8JdOcXQ=
-X-Google-Smtp-Source: ABdhPJzol6m3arUfclar5TF2P1M8Ur08vlGltSwtFavNVFtSO9k5Sjv0xBuHPgKLCalDzZLqtG4kOt3bsmNNxfcMvHI=
-X-Received: by 2002:aca:dc44:: with SMTP id t65mr12262259oig.41.1590459554010;
- Mon, 25 May 2020 19:19:14 -0700 (PDT)
-MIME-Version: 1.0
-Received: by 2002:a9d:744b:0:0:0:0:0 with HTTP; Mon, 25 May 2020 19:19:13
- -0700 (PDT)
-Reply-To: ayishagddafio@mail.ru
-From:   AISHA GADDAFI <yakissattajustin@gmail.com>
-Date:   Mon, 25 May 2020 19:19:13 -0700
-Message-ID: <CALn3PEwrXBYx5ksY5TA599gWxiL_+JfhQVDOeYms6e2ww3d=JA@mail.gmail.com>
-Subject: Lieber Freund (Assalamu Alaikum),?
-To:     undisclosed-recipients:;
+        id S2388459AbgEZCnK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 May 2020 22:43:10 -0400
+Received: from mailgw01.mediatek.com ([210.61.82.183]:63446 "EHLO
+        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S2388428AbgEZCnK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 25 May 2020 22:43:10 -0400
+X-UUID: 4a9a0bf8295c41558350d89cd6b0d0ec-20200526
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
+        h=Content-Transfer-Encoding:MIME-Version:Content-Type:References:In-Reply-To:Date:CC:To:From:Subject:Message-ID; bh=diGs7P/c4KSIhXYc7oj93Qp0T+jxxg9AoG2TnBsAgcc=;
+        b=jrwl5nQmSk9CjJiebW6NI+m7HX6Z/CkhYX75eqncInbLj+uu3ULF4PgQZrT4HmiPsohy2VUtzv0CoJ3sKRQEUU1d+4+OHss1CqFoIJKAlpjmWFAaojTFtUauOmKUwonHxraNNYw91ubXBD8QrMQhbQkZNovafXBsqlHGCPY2vv8=;
+X-UUID: 4a9a0bf8295c41558350d89cd6b0d0ec-20200526
+Received: from mtkexhb01.mediatek.inc [(172.21.101.102)] by mailgw01.mediatek.com
+        (envelope-from <weiyi.lu@mediatek.com>)
+        (Cellopoint E-mail Firewall v4.1.10 Build 0809 with TLS)
+        with ESMTP id 1215273139; Tue, 26 May 2020 10:43:06 +0800
+Received: from mtkcas08.mediatek.inc (172.21.101.126) by
+ mtkmbs02n2.mediatek.inc (172.21.101.101) with Microsoft SMTP Server (TLS) id
+ 15.0.1497.2; Tue, 26 May 2020 10:42:57 +0800
+Received: from [172.21.77.4] (172.21.77.4) by mtkcas08.mediatek.inc
+ (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
+ Transport; Tue, 26 May 2020 10:43:03 +0800
+Message-ID: <1590460982.28324.17.camel@mtksdaap41>
+Subject: Re: [PATCH v1] clk: mediatek: assign the initial value to
+ clk_init_data of mtk_mux
+From:   Weiyi Lu <weiyi.lu@mediatek.com>
+To:     Matthias Brugger <matthias.bgg@gmail.com>
+CC:     Nicolas Boichat <drinkcat@chromium.org>,
+        Stephen Boyd <sboyd@kernel.org>,
+        James Liao <jamesjj.liao@mediatek.com>,
+        <srv_heupstream@mediatek.com>, <linux-kernel@vger.kernel.org>,
+        <stable@vger.kernel.org>, Fan Chen <fan.chen@mediatek.com>,
+        <linux-mediatek@lists.infradead.org>,
+        Owen Chen <owen.chen@mediatek.com>,
+        <linux-clk@vger.kernel.org>, <linux-arm-kernel@lists.infradead.org>
+Date:   Tue, 26 May 2020 10:43:02 +0800
+In-Reply-To: <1abb3571-75ad-10d8-ff62-17be270b5b71@gmail.com>
+References: <1590388889-28382-1-git-send-email-weiyi.lu@mediatek.com>
+         <1abb3571-75ad-10d8-ff62-17be270b5b71@gmail.com>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-Mailer: Evolution 3.10.4-0ubuntu2 
+MIME-Version: 1.0
+X-TM-SNTS-SMTP: DDDB6C0F3A8AA9AC19A3F7982F4108E532DADCCD36F602FF9C91EF042C7AAF1B2000:8
+X-MTK:  N
+Content-Transfer-Encoding: base64
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---=20
-Lieber Freund (Assalamu Alaikum),
+T24gTW9uLCAyMDIwLTA1LTI1IGF0IDExOjA4ICswMjAwLCBNYXR0aGlhcyBCcnVnZ2VyIHdyb3Rl
+Og0KPiANCj4gT24gMjUvMDUvMjAyMCAwODo0MSwgV2VpeWkgTHUgd3JvdGU6DQo+ID4gSXQnZCBi
+ZSBkYW5nZXJvdXMgd2hlbiBzdHJ1Y3QgY2xrX2NvcmUgaGF2ZSBuZXcgbWVtZWJlcnMuDQo+ID4g
+QWRkIHRoZSBtaXNzaW5nIGluaXRpYWwgdmFsdWUgdG8gY2xrX2luaXRfZGF0YS4NCj4gPiANCj4g
+DQo+IFNvcnJ5IEkgZG9uJ3QgcmVhbGx5IHVuZGVyc3RhbmQgdGhpcyBjb21taXQgbWVzc2FnZSwg
+Y2FuIHBsZWFzZSBleHBsYWluLg0KPiBJbiBhbnkgY2FzZSBpZiB0aGlzIGlzIGEgcHJvYmxlbSwg
+dGhlbiB3ZSBwcm9iYWJseSB3ZSBzaG91bGQgZml4IGl0IGZvciBhbGwgZHJpdmVycy4NCj4gQXBh
+cnQgZnJvbSBkcml2ZXJzL2Nsay9tZWRpYXRlay9jbGstY3B1bXV4LmMNCj4gDQoNCkFjdHVhbGx5
+LCB3ZSB3ZXJlIGxvb2tpbmcgaW50byBhbiBhbmRyb2lkIGtlcm5lbCBwYXRjaCAiQU5EUk9JRDog
+R0tJOg0KY2xrOiBBZGQgc3VwcG9ydCBmb3Igdm9sdGFnZSB2b3RpbmciIFsxXQ0KDQpJbiB0aGlz
+IHBhdGNoLCB0aGVyZSBhZGRzIGEgbmV3IG1lbWJlciBzdHJ1Y3QgY2xrX3ZkZF9jbGFzcwkqdmRk
+X2NsYXNzOw0KaW4gc3RydWN0IGNsa19pbml0X2RhdGEgYW5kIHN0cnVjdCBjbGtfY29yZQ0KDQpB
+bmQgdGhlbiBpbiBjbGtfcmVnaXN0ZXIoLi4uKQ0KY29yZS0+dmRkX2NsYXNzID0gaHctPmluaXQt
+PnZkZF9jbGFzczsNCg0KSW4gbWFueSBjbG9jayBBUElzLCBpdCB3aWxsIGNoZWNrIHRoZSBjb3Jl
+LT52ZGRfY2xhc3MgdG8gc2VsZWN0IHRoZQ0KY29ycmVjdCBjb250cm9sIGZsb3cuDQpTbywgaWYg
+d2UgZG9uJ3QgYXNzaWduIGFuIGluaXRpYWwgdmFsdWUgdG8gY2xrX2luaXRfZGF0YSBvZiBtdGtf
+bXV4DQpjbG9jayB0eXBlLCBzb21ldGhpbmcgbWlnaHQgZ28gd3JvbmcuIEFuZCBhc3NpZ25pbmcg
+YW4gaW5pdGlhbCB2YWx1ZQ0KbWlnaHQgYmUgdGhlIGVhc2llc3QgYW5kIGdvb2Qgd2F5IHRvIGF2
+b2lkIHN1Y2ggcHJvYmxlbSBpZiBhbnkgbmV3IGNsb2NrDQpzdXBwb3J0IGFkZGVkIGluIHRoZSBm
+dXR1cmUuDQoNClsxXSBodHRwczovL2FuZHJvaWQtcmV2aWV3Lmdvb2dsZXNvdXJjZS5jb20vYy9r
+ZXJuZWwvY29tbW9uLysvMTI3ODA0Ng0KDQo+IEl0J3MgYSB3aWRlbHkgdXNlZCBwYXR0ZXJuOg0K
+PiAkIGdpdCBncmVwICJzdHJ1Y3QgY2xrX2luaXRfZGF0YSBpbml0OyJ8IHdjIC1sDQo+IDIzNQ0K
+PiANCj4gUmVnYXJkcywNCj4gTWF0dGhpYXMNCj4gDQo+ID4gRml4ZXM6IGEzYWU1NDk5MTdmMSAo
+ImNsazogbWVkaWF0ZWs6IEFkZCBuZXcgY2xrbXV4IHJlZ2lzdGVyIEFQSSIpDQo+ID4gQ2M6IDxz
+dGFibGVAdmdlci5rZXJuZWwub3JnPg0KPiA+IFNpZ25lZC1vZmYtYnk6IFdlaXlpIEx1IDx3ZWl5
+aS5sdUBtZWRpYXRlay5jb20+DQo+ID4gLS0tDQo+ID4gIGRyaXZlcnMvY2xrL21lZGlhdGVrL2Ns
+ay1tdXguYyB8IDIgKy0NCj4gPiAgMSBmaWxlIGNoYW5nZWQsIDEgaW5zZXJ0aW9uKCspLCAxIGRl
+bGV0aW9uKC0pDQo+ID4gDQo+ID4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvY2xrL21lZGlhdGVrL2Ns
+ay1tdXguYyBiL2RyaXZlcnMvY2xrL21lZGlhdGVrL2Nsay1tdXguYw0KPiA+IGluZGV4IDc2Zjlj
+ZDAuLjE0ZTEyN2UgMTAwNjQ0DQo+ID4gLS0tIGEvZHJpdmVycy9jbGsvbWVkaWF0ZWsvY2xrLW11
+eC5jDQo+ID4gKysrIGIvZHJpdmVycy9jbGsvbWVkaWF0ZWsvY2xrLW11eC5jDQo+ID4gQEAgLTE2
+MCw3ICsxNjAsNyBAQCBzdHJ1Y3QgY2xrICptdGtfY2xrX3JlZ2lzdGVyX211eChjb25zdCBzdHJ1
+Y3QgbXRrX211eCAqbXV4LA0KPiA+ICAJCQkJIHNwaW5sb2NrX3QgKmxvY2spDQo+ID4gIHsNCj4g
+PiAgCXN0cnVjdCBtdGtfY2xrX211eCAqY2xrX211eDsNCj4gPiAtCXN0cnVjdCBjbGtfaW5pdF9k
+YXRhIGluaXQ7DQo+ID4gKwlzdHJ1Y3QgY2xrX2luaXRfZGF0YSBpbml0ID0ge307DQo+ID4gIAlz
+dHJ1Y3QgY2xrICpjbGs7DQo+ID4gIA0KPiA+ICAJY2xrX211eCA9IGt6YWxsb2Moc2l6ZW9mKCpj
+bGtfbXV4KSwgR0ZQX0tFUk5FTCk7DQo+ID4gDQoNCg==
 
-Ich bin vor einer privaten Suche auf Ihren E-Mail-Kontakt gesto=C3=9Fen
-Ihre Hilfe. Mein Name ist Aisha Al-Qaddafi, eine alleinerziehende
-Mutter und eine Witwe
-mit drei Kindern. Ich bin die einzige leibliche Tochter des Sp=C3=A4tlibysc=
-hen
-Pr=C3=A4sident (verstorbener Oberst Muammar Gaddafi).
-
-Ich habe Investmentfonds im Wert von siebenundzwanzig Millionen
-f=C3=BCnfhunderttausend
-United State Dollar ($ 27.500.000.00) und ich brauche eine
-vertrauensw=C3=BCrdige Investition
-Manager / Partner aufgrund meines aktuellen Fl=C3=BCchtlingsstatus bin ich =
-jedoch
-M=C3=B6glicherweise interessieren Sie sich f=C3=BCr die Unterst=C3=BCtzung =
-von
-Investitionsprojekten in Ihrem Land
-Von dort aus k=C3=B6nnen wir in naher Zukunft Gesch=C3=A4ftsbeziehungen auf=
-bauen.
-
-Ich bin bereit, mit Ihnen =C3=BCber das Verh=C3=A4ltnis zwischen Investitio=
-n und
-Unternehmensgewinn zu verhandeln
-Basis f=C3=BCr die zuk=C3=BCnftige Investition Gewinne zu erzielen.
-
-Wenn Sie bereit sind, dieses Projekt in meinem Namen zu bearbeiten,
-antworten Sie bitte dringend
-Damit ich Ihnen mehr Informationen =C3=BCber die Investmentfonds geben kann=
-.
-
-Ihre dringende Antwort wird gesch=C3=A4tzt. schreibe mir an diese email adr=
-esse (
-ayishagddafio@mail.ru ) zur weiteren Diskussion.
-
-Freundliche Gr=C3=BC=C3=9Fe
-Frau Aisha Al-Qaddafi
