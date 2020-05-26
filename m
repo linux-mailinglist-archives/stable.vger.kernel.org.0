@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2534D1E2CDA
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:18:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C63C1E2B1B
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:03:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392355AbgEZTR7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:17:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44556 "EHLO mail.kernel.org"
+        id S2390043AbgEZTCI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:02:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56764 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392004AbgEZTN5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:13:57 -0400
+        id S2391036AbgEZTCH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:02:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 950E5208C3;
-        Tue, 26 May 2020 19:13:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2C4492086A;
+        Tue, 26 May 2020 19:02:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590520437;
-        bh=aE1R5VaeXY/7No8XOaYL5qSng5iIu55Y54sVmyyaUHE=;
+        s=default; t=1590519726;
+        bh=Ll3i88I6dH+M1vcXVswOh7ONTIPk/HSwLa9ixcVzbH0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UP2EUTK4B9XlJBT0JUfxvnE1SFU8npAcLciRhHZYraElh8gSQ/zjDkzUD9ReNzS3B
-         T7lU3QmRvva5zHDu6qSF+tgA8kCVwm6Oyzs5iH8jy78PcwI8vW/OBYKfgGt5Crazwj
-         vyrCXHzui19Y4byx+wsJbX6u37h8YHZ6Z/SJJQh8=
+        b=YQYWI2bBoseELmkKgvSXn/1a/a/KV71/BncWCt7Twx/mVgS00Yaz3jpkSYXYzD57t
+         7Q30iZaEh4Zuii65dad5IEGVq/WhWNhcV1CwRyclT5AVJ3uk/agyzmBEg0Ba2vlAy5
+         PacRVNNX3i5O/ff1KlK2n6iPVYX4X3XBrJ7U1fck=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sanjay Kumar <sanjay.k.kumar@intel.com>,
-        Dave Jiang <dave.jiang@intel.com>,
-        Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 5.6 080/126] dmaengine: idxd: fix interrupt completion after unmasking
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 4.14 52/59] iio: sca3000: Remove an erroneous get_device()
 Date:   Tue, 26 May 2020 20:53:37 +0200
-Message-Id: <20200526183944.843946067@linuxfoundation.org>
+Message-Id: <20200526183923.000245316@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183937.471379031@linuxfoundation.org>
-References: <20200526183937.471379031@linuxfoundation.org>
+In-Reply-To: <20200526183907.123822792@linuxfoundation.org>
+References: <20200526183907.123822792@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,106 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Jiang <dave.jiang@intel.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-commit 4f302642b70c1348773fe7e3ded9fc315fa92990 upstream.
+commit 928edefbc18cd8433f7df235c6e09a9306e7d580 upstream.
 
-The current implementation may miss completions after we unmask the
-interrupt. In order to make sure we process all competions, we need to:
-1. Do an MMIO read from the device as a barrier to ensure that all PCI
-   writes for completions have arrived.
-2. Check for any additional completions that we missed.
+This looks really unusual to have a 'get_device()' hidden in a 'dev_err()'
+call.
+Remove it.
 
-Fixes: 8f47d1a5e545 ("dmaengine: idxd: connect idxd to dmaengine subsystem")
+While at it add a missing \n at the end of the message.
 
-Reported-by: Sanjay Kumar <sanjay.k.kumar@intel.com>
-Signed-off-by: Dave Jiang <dave.jiang@intel.com>
-Link: https://lore.kernel.org/r/158834641769.35613.1341160109892008587.stgit@djiang5-desk3.ch.intel.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Fixes: 574fb258d636 ("Staging: IIO: VTI sca3000 series accelerometer driver (spi)")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/dma/idxd/device.c |    7 +++++++
- drivers/dma/idxd/irq.c    |   26 +++++++++++++++++++-------
- 2 files changed, 26 insertions(+), 7 deletions(-)
+ drivers/iio/accel/sca3000.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/dma/idxd/device.c
-+++ b/drivers/dma/idxd/device.c
-@@ -62,6 +62,13 @@ int idxd_unmask_msix_vector(struct idxd_
- 	perm.ignore = 0;
- 	iowrite32(perm.bits, idxd->reg_base + offset);
+--- a/drivers/iio/accel/sca3000.c
++++ b/drivers/iio/accel/sca3000.c
+@@ -982,7 +982,7 @@ static int sca3000_read_data(struct sca3
+ 	st->tx[0] = SCA3000_READ_REG(reg_address_high);
+ 	ret = spi_sync_transfer(st->us, xfer, ARRAY_SIZE(xfer));
+ 	if (ret) {
+-		dev_err(get_device(&st->us->dev), "problem reading register");
++		dev_err(&st->us->dev, "problem reading register\n");
+ 		return ret;
+ 	}
  
-+	/*
-+	 * A readback from the device ensures that any previously generated
-+	 * completion record writes are visible to software based on PCI
-+	 * ordering rules.
-+	 */
-+	perm.bits = ioread32(idxd->reg_base + offset);
-+
- 	return 0;
- }
- 
---- a/drivers/dma/idxd/irq.c
-+++ b/drivers/dma/idxd/irq.c
-@@ -173,6 +173,7 @@ static int irq_process_pending_llist(str
- 	struct llist_node *head;
- 	int queued = 0;
- 
-+	*processed = 0;
- 	head = llist_del_all(&irq_entry->pending_llist);
- 	if (!head)
- 		return 0;
-@@ -197,6 +198,7 @@ static int irq_process_work_list(struct
- 	struct list_head *node, *next;
- 	int queued = 0;
- 
-+	*processed = 0;
- 	if (list_empty(&irq_entry->work_list))
- 		return 0;
- 
-@@ -218,10 +220,9 @@ static int irq_process_work_list(struct
- 	return queued;
- }
- 
--irqreturn_t idxd_wq_thread(int irq, void *data)
-+static int idxd_desc_process(struct idxd_irq_entry *irq_entry)
- {
--	struct idxd_irq_entry *irq_entry = data;
--	int rc, processed = 0, retry = 0;
-+	int rc, processed, total = 0;
- 
- 	/*
- 	 * There are two lists we are processing. The pending_llist is where
-@@ -244,15 +245,26 @@ irqreturn_t idxd_wq_thread(int irq, void
- 	 */
- 	do {
- 		rc = irq_process_work_list(irq_entry, &processed);
--		if (rc != 0) {
--			retry++;
-+		total += processed;
-+		if (rc != 0)
- 			continue;
--		}
- 
- 		rc = irq_process_pending_llist(irq_entry, &processed);
--	} while (rc != 0 && retry != 10);
-+		total += processed;
-+	} while (rc != 0);
-+
-+	return total;
-+}
-+
-+irqreturn_t idxd_wq_thread(int irq, void *data)
-+{
-+	struct idxd_irq_entry *irq_entry = data;
-+	int processed;
- 
-+	processed = idxd_desc_process(irq_entry);
- 	idxd_unmask_msix_vector(irq_entry->idxd, irq_entry->id);
-+	/* catch anything unprocessed after unmasking */
-+	processed += idxd_desc_process(irq_entry);
- 
- 	if (processed == 0)
- 		return IRQ_NONE;
 
 
