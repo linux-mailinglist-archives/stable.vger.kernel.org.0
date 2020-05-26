@@ -2,56 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E2F6A1E1A23
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 06:01:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F28361E1A24
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 06:03:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725267AbgEZEBo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 00:01:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34200 "EHLO
+        id S1725294AbgEZEDs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 00:03:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34514 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725263AbgEZEBn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 May 2020 00:01:43 -0400
-Received: from mail-pg1-x52e.google.com (mail-pg1-x52e.google.com [IPv6:2607:f8b0:4864:20::52e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B59D6C061A0E
-        for <stable@vger.kernel.org>; Mon, 25 May 2020 21:01:43 -0700 (PDT)
-Received: by mail-pg1-x52e.google.com with SMTP id 124so3202969pgi.9
-        for <stable@vger.kernel.org>; Mon, 25 May 2020 21:01:43 -0700 (PDT)
+        with ESMTP id S1725271AbgEZEDr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 May 2020 00:03:47 -0400
+Received: from mail-pf1-x443.google.com (mail-pf1-x443.google.com [IPv6:2607:f8b0:4864:20::443])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A4C0C061A0E
+        for <stable@vger.kernel.org>; Mon, 25 May 2020 21:03:47 -0700 (PDT)
+Received: by mail-pf1-x443.google.com with SMTP id v63so9537102pfb.10
+        for <stable@vger.kernel.org>; Mon, 25 May 2020 21:03:47 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=sender:to:from:subject:autocrypt:message-id:date:user-agent
          :mime-version:content-language:content-transfer-encoding;
-        bh=uqKWPWK2xW6hXZ8yTO+kfpVoqDIl13o6y0wcD8v+UwU=;
-        b=sm7D2jqaqZCAlDnRedBOgkQ1GTvfmueq5nvUmdLAj56suGF60UgY+Zup8xclSZPnfQ
-         TpEvwjPZj6T+SA8SP4jhwjIP0cfZPP30Ht0M+55kl1PvquKOzmLuzqGzW1YHqrxKzRk9
-         t7fYL4yav+hdy3+HfGr1Q0AkuMS9SlPONe8KgcFx/xfcqkUaAzrsfYuoegF9eMeeZeHp
-         CmsqZklIaBh9K0j+7DHURTewR7YCyxnCxIgcZDsHqgnlN6rhBdZiMvnlFkH+Bib6O7B/
-         /eK7H2E6cQhWEZarxYOCUvV/w2PsYnG6ZxHcVGCoOoudUcvq/05hkq4+S0SEnMRue7CM
-         htZw==
+        bh=1/6WUfU/+A+9Axw+HagSvLo6hhS7F/NcSwqhNqSbxaM=;
+        b=E6+Y0D/7XNLljdypClpv3HMqMpH2t6yHgnTmtOy0g6CfPmqLQ59uAFmBFoLwqqeU2b
+         2CWzpwBRfnSMx3Xu6/LLdzN4IS89goaqHcN17AUxvIelCScWaB80ebn8DjNSeiRjzMK5
+         Gj86gMQ9foKJqonNc8kf8SEJQO9BxBMr8x1h9ZWoIEfwgmAK8aX2071ivuCBQSu4e3+5
+         n7PH0wzmy/pPTRyKVwdcalXvq0z5lHx8cdICaCAKIs9O05Pj9IbdyD0GKjKnxwQ/mS4L
+         TnQV5mjPpLAG0eWWo6MTBlaVXIHGJ0rGqe8n+TGzHR8IBTQ/2n1nqsGtiFP6Og4iYl8U
+         0S8Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:to:from:subject:autocrypt:message-id:date
          :user-agent:mime-version:content-language:content-transfer-encoding;
-        bh=uqKWPWK2xW6hXZ8yTO+kfpVoqDIl13o6y0wcD8v+UwU=;
-        b=QN7MJRd4ATmAdYIZFS+eKkWI0xfRh0oLnyK772MpBAC/tQFgJps46I2eSDVEPJIUKM
-         X1oiXVQZlI/ayOSLv281csAnOqXXuCGEkLnmwI0BrPIurDr7vqTIDw7F+aWEJelAFej0
-         eMqZPEVM0FYhQ1kL0WmpB4n8j1rxSJa74a9uvjv6WCWwbHZ7/OiZ/i7QsAk5tJqqC5a0
-         a9seqfQf3Xlii1mYhm8pcQJ9Y+FNBATLMAK97T8wCGP3/ukhItE65KwOk0bta1kN6ftC
-         4yq3OjG5PL5enPNJ169fxF4Ff8QbdrZAMDm3fxi++1qCDnMCg9GWZz9WE7E63QGAUaeu
-         US8Q==
-X-Gm-Message-State: AOAM530vCTymp+o/ui2oJB4D/VmJUqZUZ1X5n/mjyc2XloIgVh0KOjeX
-        0N8sVtIfsPemFl5zR24rce16J6yO
-X-Google-Smtp-Source: ABdhPJz63dB7NozdeMUe4S4jJy19ogXdcYy1n5Pp/JWwurPLxpdKV7z3Z+1YEXdsO94fjpIBec7cig==
-X-Received: by 2002:a05:6a00:1510:: with SMTP id q16mr19765746pfu.311.1590465702939;
-        Mon, 25 May 2020 21:01:42 -0700 (PDT)
+        bh=1/6WUfU/+A+9Axw+HagSvLo6hhS7F/NcSwqhNqSbxaM=;
+        b=OZW48O+83Sw/ftSYlkoKTgc68wCHDKHQ1p7C+K5iQPNwlv+lsX4+3raWdmBi1mttZr
+         i7x5pCGZEEwS4tf0J1hbjElzimxWw2xee/qi3sCNcOrLGuPpNDJ6sjgnxJ+imPnmdpQK
+         a9xtC+wM/lykOSc0+/9dc6diH+FErMVazNxLtEWmWKuBAk956fCrpaGRTTdXqsep89Hu
+         mliIDu0amw/ex+BJTK1d8BLXdkPGCUfUX8fGe878sATMGCX4/DXQEOT6favHuaW+pXG3
+         4AdL3zVttgNgtKQEJHi3M626JtaLLp4zJw+TZYromnnElShcEG2lIFhERk8uFZepS4IH
+         PPLQ==
+X-Gm-Message-State: AOAM531BZAWVJusJMU6TrX4levNqHa/OaZjcxy+f8ELBTcT9mJOvAqKK
+        GXxw6QnpTkcNH2+Qzo6KHZw=
+X-Google-Smtp-Source: ABdhPJy0ldLY4NYOEY3m2zGn+RkCnWaoQ2osse37VA7igTEm6MHBonMCg0nuwEDPjFlcyvO/I8yZ2Q==
+X-Received: by 2002:a65:4c4c:: with SMTP id l12mr29616445pgr.159.1590465826988;
+        Mon, 25 May 2020 21:03:46 -0700 (PDT)
 Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id 14sm14103356pjm.49.2020.05.25.21.01.41
+        by smtp.gmail.com with ESMTPSA id s94sm14497198pjb.20.2020.05.25.21.03.46
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 25 May 2020 21:01:42 -0700 (PDT)
+        Mon, 25 May 2020 21:03:46 -0700 (PDT)
 To:     stable <stable@vger.kernel.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
 From:   Guenter Roeck <linux@roeck-us.net>
-Subject: Build errors in v4.{4,9.14}.y.queue
+Subject: More build errors in v5.4.y.queue
 Autocrypt: addr=linux@roeck-us.net; keydata=
  xsFNBE6H1WcBEACu6jIcw5kZ5dGeJ7E7B2uweQR/4FGxH10/H1O1+ApmcQ9i87XdZQiB9cpN
  RYHA7RCEK2dh6dDccykQk3bC90xXMPg+O3R+C/SkwcnUak1UZaeK/SwQbq/t0tkMzYDRxfJ7
@@ -95,8 +95,8 @@ Autocrypt: addr=linux@roeck-us.net; keydata=
  WkRwrSuCn7UG+qVWZeKEsFKFOkynOs3pVbcbq1pxbhk3TRWCGRU5JolI4ohy/7JV1TVbjiDI
  HP/aVnm6NC8of26P40Pg8EdAhajZnHHjA7FrJXsy3cyIGqvg9os4rNkUWmrCfLLsZDHD8FnU
  mDW4+i+XlNFUPUYMrIKi9joBhu18ssf5i5Q=
-Message-ID: <7438c781-c359-9b4e-dc05-f321ea0f538e@roeck-us.net>
-Date:   Mon, 25 May 2020 21:01:41 -0700
+Message-ID: <e4eaebf9-3397-6157-887a-3f35ac3daeb1@roeck-us.net>
+Date:   Mon, 25 May 2020 21:03:45 -0700
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.7.0
 MIME-Version: 1.0
@@ -108,13 +108,14 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Building x86_64:allyesconfig ... failed
---------------
-Error log:
-drivers/edac/ghes_edac.c: In function 'get_dimm_smbios_index':
-drivers/edac/ghes_edac.c:79:29: error: 'ghes_pvt' undeclared (first use in this function)
-   79 |  struct mem_ctl_info *mci = ghes_pvt->mci;
-      |                             ^~~~~~~~
-drivers/edac/ghes_edac.c:79:29: note: each undeclared identifier is reported only once for each function it appears in
+Build reference: v5.4.42-105-g3cb79944b65a
+gcc version: sh4-linux-gcc (GCC) 9.3.0
+
+Building sh:defconfig ... failed
+
+net/socket.c: In function 'sock_ioctl':
+arch/sh/include/uapi/asm/sockios.h:16:41: error: invalid application of 'sizeof' to incomplete type 'struct __kernel_old_timespec'
+
+and various other similar errors.
 
 Guenter
