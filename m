@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CD34D1E2E21
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:27:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E126C1E2DB9
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:25:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390567AbgEZT1H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:27:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60272 "EHLO mail.kernel.org"
+        id S2403933AbgEZTXp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:23:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37724 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390273AbgEZTEf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:04:35 -0400
+        id S2403917AbgEZTIn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:08:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8F87920849;
-        Tue, 26 May 2020 19:04:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3C181208B3;
+        Tue, 26 May 2020 19:08:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590519875;
-        bh=hrbJyOLEuxk36OPNi1fKCASFHtlHY4Zp1pnVLXNnWFQ=;
+        s=default; t=1590520122;
+        bh=85MRjDuphd+B7adNDduYkYSTVwOmbRTDqL773PNxNGM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z/3lB3vEz1sKEpO09avOvLf73ordnElXrDEl1HPHfiQqxcb1ZWlyRtOrH1cPll6dj
-         V8F+Oduhwx+fkEW4iIHb4SD6eK65fBGN4GpNryM0QKfSIy3VeBHT60LTWsrxZnSA8E
-         SepBQxqLIdPLCgzQ4zgtKVngoluAfrLYPCeOoN1M=
+        b=h7Nx3MbpX1ix4BLJ+N7Zi2fEaU3HGga2ly5zXpamR0V6mT1n0ppNuQzy0SwVRU3I9
+         D0F1qB9RTXipmJ0LjN8oIFDgSWZebC5ZzeWuQpuA2wj4EIn32dsrRpyDt8M5VHoLAD
+         pekjKoh5XPH/Pgq8D3vp7IGjmLBLHFr5aP9tWczM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Russell Currey <ruscur@russell.cc>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 49/81] powerpc: Remove STRICT_KERNEL_RWX incompatibility with RELOCATABLE
+        stable@vger.kernel.org,
+        Navid Emamdoost <navid.emamdoost@gmail.com>,
+        John Johansen <john.johansen@canonical.com>
+Subject: [PATCH 5.4 066/111] apparmor: Fix use-after-free in aa_audit_rule_init
 Date:   Tue, 26 May 2020 20:53:24 +0200
-Message-Id: <20200526183932.664564063@linuxfoundation.org>
+Message-Id: <20200526183939.103196673@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183923.108515292@linuxfoundation.org>
-References: <20200526183923.108515292@linuxfoundation.org>
+In-Reply-To: <20200526183932.245016380@linuxfoundation.org>
+References: <20200526183932.245016380@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,39 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell Currey <ruscur@russell.cc>
+From: Navid Emamdoost <navid.emamdoost@gmail.com>
 
-[ Upstream commit c55d7b5e64265fdca45c85b639013e770bde2d0e ]
+commit c54d481d71c6849e044690d3960aaebc730224cc upstream.
 
-I have tested this with the Radix MMU and everything seems to work, and
-the previous patch for Hash seems to fix everything too.
-STRICT_KERNEL_RWX should still be disabled by default for now.
+In the implementation of aa_audit_rule_init(), when aa_label_parse()
+fails the allocated memory for rule is released using
+aa_audit_rule_free(). But after this release, the return statement
+tries to access the label field of the rule which results in
+use-after-free. Before releasing the rule, copy errNo and return it
+after release.
 
-Please test STRICT_KERNEL_RWX + RELOCATABLE!
+Fixes: 52e8c38001d8 ("apparmor: Fix memory leak of rule on error exit path")
+Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
+Signed-off-by: John Johansen <john.johansen@canonical.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Signed-off-by: Russell Currey <ruscur@russell.cc>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20191224064126.183670-2-ruscur@russell.cc
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ security/apparmor/audit.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
-index 6f475dc5829b..da48a2ca272e 100644
---- a/arch/powerpc/Kconfig
-+++ b/arch/powerpc/Kconfig
-@@ -139,7 +139,7 @@ config PPC
- 	select ARCH_HAS_MEMBARRIER_CALLBACKS
- 	select ARCH_HAS_SCALED_CPUTIME		if VIRT_CPU_ACCOUNTING_NATIVE
- 	select ARCH_HAS_SG_CHAIN
--	select ARCH_HAS_STRICT_KERNEL_RWX	if ((PPC_BOOK3S_64 || PPC32) && !RELOCATABLE && !HIBERNATION)
-+	select ARCH_HAS_STRICT_KERNEL_RWX	if ((PPC_BOOK3S_64 || PPC32) && !HIBERNATION)
- 	select ARCH_HAS_TICK_BROADCAST		if GENERIC_CLOCKEVENTS_BROADCAST
- 	select ARCH_HAS_UACCESS_FLUSHCACHE	if PPC64
- 	select ARCH_HAS_UBSAN_SANITIZE_ALL
--- 
-2.25.1
-
+--- a/security/apparmor/audit.c
++++ b/security/apparmor/audit.c
+@@ -197,8 +197,9 @@ int aa_audit_rule_init(u32 field, u32 op
+ 	rule->label = aa_label_parse(&root_ns->unconfined->label, rulestr,
+ 				     GFP_KERNEL, true, false);
+ 	if (IS_ERR(rule->label)) {
++		int err = PTR_ERR(rule->label);
+ 		aa_audit_rule_free(rule);
+-		return PTR_ERR(rule->label);
++		return err;
+ 	}
+ 
+ 	*vrule = rule;
 
 
