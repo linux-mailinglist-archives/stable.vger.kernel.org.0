@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B5DD1E2F19
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:34:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF8D21E2ECF
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:32:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389705AbgEZTdr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:33:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48488 "EHLO mail.kernel.org"
+        id S2390310AbgEZS6U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 14:58:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51810 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389678AbgEZSz4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 14:55:56 -0400
+        id S2390292AbgEZS6T (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 14:58:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0155D208B8;
-        Tue, 26 May 2020 18:55:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EC49C2084C;
+        Tue, 26 May 2020 18:58:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590519355;
-        bh=kBSF++gb6m4kTRiXsle1v76F4W+mwBGYsEFJVJcd0dA=;
+        s=default; t=1590519497;
+        bh=bPqYd4e57Viu1hPvvYuijDsua1yQEVhriXs9sYnPFaU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0H8tOPrnmvs964ksSHKXaiVwIeNELiOv/M+zj4F6imOu82b/pOJrMHJE3TPZSBnkz
-         jI6NcN7PSiIsV/vTeo0DyPI/BHJTbmaiNPXJ1nZBkObjpiLQ0un5PhYLe75qpizoEE
-         zo1KG10csjxunPIBPEPNfgvXsSKnYUPL6b4/kfq0=
+        b=PYQDPTubgDMX/FjqzMaprtMp9vEbrjd5jb5ZO/B5xEa8hRjRRu1Ueh7CIy41OlswA
+         em8BdbUtgLcX1YQL6spjboQ6iNes4C1x1avi4LgL0v2DsBHayIO+5AplmqNTTSmAO4
+         m4cDmXNALkJD7LKIraodjFYYQC8DCEcMjoSuPXMU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, greg@kroah.com
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guillaume Nault <g.nault@alphalink.fr>,
-        "David S. Miller" <davem@davemloft.net>,
-        Giuliano Procida <gprocida@google.com>
-Subject: [PATCH 4.4 35/65] l2tp: fix racy socket lookup in l2tp_ip and l2tp_ip6 bind()
-Date:   Tue, 26 May 2020 20:52:54 +0200
-Message-Id: <20200526183918.432782150@linuxfoundation.org>
+        stable@vger.kernel.org, Kevin Hao <haokexin@gmail.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>
+Subject: [PATCH 4.9 26/64] watchdog: Fix the race between the release of watchdog_core_data and cdev
+Date:   Tue, 26 May 2020 20:52:55 +0200
+Message-Id: <20200526183921.197954687@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183905.988782958@linuxfoundation.org>
-References: <20200526183905.988782958@linuxfoundation.org>
+In-Reply-To: <20200526183913.064413230@linuxfoundation.org>
+References: <20200526183913.064413230@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,201 +45,276 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guillaume Nault <g.nault@alphalink.fr>
+From: Kevin Hao <haokexin@gmail.com>
 
-commit d5e3a190937a1e386671266202c62565741f0f1a upstream.
+commit 72139dfa2464e43957d330266994740bb7be2535 upstream.
 
-It's not enough to check for sockets bound to same address at the
-beginning of l2tp_ip{,6}_bind(): even if no socket is found at that
-time, a socket with the same address could be bound before we take
-the l2tp lock again.
+The struct cdev is embedded in the struct watchdog_core_data. In the
+current code, we manage the watchdog_core_data with a kref, but the
+cdev is manged by a kobject. There is no any relationship between
+this kref and kobject. So it is possible that the watchdog_core_data is
+freed before the cdev is entirely released. We can easily get the
+following call trace with CONFIG_DEBUG_KOBJECT_RELEASE and
+CONFIG_DEBUG_OBJECTS_TIMERS enabled.
+  ODEBUG: free active (active state 0) object type: timer_list hint: delayed_work_timer_fn+0x0/0x38
+  WARNING: CPU: 23 PID: 1028 at lib/debugobjects.c:481 debug_print_object+0xb0/0xf0
+  Modules linked in: softdog(-) deflate ctr twofish_generic twofish_common camellia_generic serpent_generic blowfish_generic blowfish_common cast5_generic cast_common cmac xcbc af_key sch_fq_codel openvswitch nsh nf_conncount nf_nat nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4
+  CPU: 23 PID: 1028 Comm: modprobe Not tainted 5.3.0-next-20190924-yoctodev-standard+ #180
+  Hardware name: Marvell OcteonTX CN96XX board (DT)
+  pstate: 00400009 (nzcv daif +PAN -UAO)
+  pc : debug_print_object+0xb0/0xf0
+  lr : debug_print_object+0xb0/0xf0
+  sp : ffff80001cbcfc70
+  x29: ffff80001cbcfc70 x28: ffff800010ea2128
+  x27: ffff800010bad000 x26: 0000000000000000
+  x25: ffff80001103c640 x24: ffff80001107b268
+  x23: ffff800010bad9e8 x22: ffff800010ea2128
+  x21: ffff000bc2c62af8 x20: ffff80001103c600
+  x19: ffff800010e867d8 x18: 0000000000000060
+  x17: 0000000000000000 x16: 0000000000000000
+  x15: ffff000bd7240470 x14: 6e6968207473696c
+  x13: 5f72656d6974203a x12: 6570797420746365
+  x11: 6a626f2029302065 x10: 7461747320657669
+  x9 : 7463612820657669 x8 : 3378302f3078302b
+  x7 : 0000000000001d7a x6 : ffff800010fd5889
+  x5 : 0000000000000000 x4 : 0000000000000000
+  x3 : 0000000000000000 x2 : ffff000bff948548
+  x1 : 276a1c9e1edc2300 x0 : 0000000000000000
+  Call trace:
+   debug_print_object+0xb0/0xf0
+   debug_check_no_obj_freed+0x1e8/0x210
+   kfree+0x1b8/0x368
+   watchdog_cdev_unregister+0x88/0xc8
+   watchdog_dev_unregister+0x38/0x48
+   watchdog_unregister_device+0xa8/0x100
+   softdog_exit+0x18/0xfec4 [softdog]
+   __arm64_sys_delete_module+0x174/0x200
+   el0_svc_handler+0xd0/0x1c8
+   el0_svc+0x8/0xc
 
-This patch moves the lookup right before inserting the new socket, so
-that no change can ever happen to the list between address lookup and
-socket insertion.
+This is a common issue when using cdev embedded in a struct.
+Fortunately, we already have a mechanism to solve this kind of issue.
+Please see commit 233ed09d7fda ("chardev: add helper function to
+register char devs with a struct device") for more detail.
 
-Care is taken to avoid side effects on the socket in case of failure.
-That is, modifications of the socket are done after the lookup, when
-binding is guaranteed to succeed, and before releasing the l2tp lock,
-so that concurrent lookups will always see fully initialised sockets.
+In this patch, we choose to embed the struct device into the
+watchdog_core_data, and use the API provided by the commit 233ed09d7fda
+to make sure that the release of watchdog_core_data and cdev are
+in sequence.
 
-For l2tp_ip, 'ret' is set to -EINVAL before checking the SOCK_ZAPPED
-bit. Error code was mistakenly set to -EADDRINUSE on error by commit
-32c231164b76 ("l2tp: fix racy SOCK_ZAPPED flag check in l2tp_ip{,6}_bind()").
-Using -EINVAL restores original behaviour.
-
-For l2tp_ip6, the lookup is now always done with the correct bound
-device. Before this patch, when binding to a link-local address, the
-lookup was done with the original sk->sk_bound_dev_if, which was later
-overwritten with addr->l2tp_scope_id. Lookup is now performed with the
-final sk->sk_bound_dev_if value.
-
-Finally, the (addr_len >= sizeof(struct sockaddr_in6)) check has been
-dropped: addr is a sockaddr_l2tpip6 not sockaddr_in6 and addr_len has
-already been checked at this point (this part of the code seems to have
-been copy-pasted from net/ipv6/raw.c).
-
-Signed-off-by: Guillaume Nault <g.nault@alphalink.fr>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Giuliano Procida <gprocida@google.com>
+Signed-off-by: Kevin Hao <haokexin@gmail.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/20191008112934.29669-1-haokexin@gmail.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
+[bwh: Backported to 4.9:
+ - There's no reboot notifier here
+ - Adjust context]
+Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/l2tp/l2tp_ip.c  |   27 ++++++++++++---------------
- net/l2tp/l2tp_ip6.c |   43 ++++++++++++++++++++-----------------------
- 2 files changed, 32 insertions(+), 38 deletions(-)
+ drivers/watchdog/watchdog_dev.c |   67 +++++++++++++++++-----------------------
+ 1 file changed, 30 insertions(+), 37 deletions(-)
 
---- a/net/l2tp/l2tp_ip.c
-+++ b/net/l2tp/l2tp_ip.c
-@@ -269,15 +269,9 @@ static int l2tp_ip_bind(struct sock *sk,
- 	if (addr->l2tp_family != AF_INET)
- 		return -EINVAL;
+--- a/drivers/watchdog/watchdog_dev.c
++++ b/drivers/watchdog/watchdog_dev.c
+@@ -38,7 +38,6 @@
+ #include <linux/init.h>		/* For __init/__exit/... */
+ #include <linux/jiffies.h>	/* For timeout functions */
+ #include <linux/kernel.h>	/* For printk/panic/... */
+-#include <linux/kref.h>		/* For data references */
+ #include <linux/miscdevice.h>	/* For handling misc devices */
+ #include <linux/module.h>	/* For module stuff/... */
+ #include <linux/mutex.h>	/* For mutexes */
+@@ -53,14 +52,14 @@
  
--	ret = -EADDRINUSE;
--	read_lock_bh(&l2tp_ip_lock);
--	if (__l2tp_ip_bind_lookup(net, addr->l2tp_addr.s_addr,
--				  sk->sk_bound_dev_if, addr->l2tp_conn_id))
--		goto out_in_use;
--
--	read_unlock_bh(&l2tp_ip_lock);
--
- 	lock_sock(sk);
-+
-+	ret = -EINVAL;
- 	if (!sock_flag(sk, SOCK_ZAPPED))
- 		goto out;
+ /*
+  * struct watchdog_core_data - watchdog core internal data
+- * @kref:	Reference count.
++ * @dev:	The watchdog's internal device
+  * @cdev:	The watchdog's Character device.
+  * @wdd:	Pointer to watchdog device.
+  * @lock:	Lock for watchdog core.
+  * @status:	Watchdog core internal status bits.
+  */
+ struct watchdog_core_data {
+-	struct kref kref;
++	struct device dev;
+ 	struct cdev cdev;
+ 	struct watchdog_device *wdd;
+ 	struct mutex lock;
+@@ -794,7 +793,7 @@ static int watchdog_open(struct inode *i
+ 	file->private_data = wd_data;
  
-@@ -294,14 +288,22 @@ static int l2tp_ip_bind(struct sock *sk,
- 		inet->inet_rcv_saddr = inet->inet_saddr = addr->l2tp_addr.s_addr;
- 	if (chk_addr_ret == RTN_MULTICAST || chk_addr_ret == RTN_BROADCAST)
- 		inet->inet_saddr = 0;  /* Use device */
--	sk_dst_reset(sk);
+ 	if (!hw_running)
+-		kref_get(&wd_data->kref);
++		get_device(&wd_data->dev);
  
-+	write_lock_bh(&l2tp_ip_lock);
-+	if (__l2tp_ip_bind_lookup(net, addr->l2tp_addr.s_addr,
-+				  sk->sk_bound_dev_if, addr->l2tp_conn_id)) {
-+		write_unlock_bh(&l2tp_ip_lock);
-+		ret = -EADDRINUSE;
-+		goto out;
-+	}
-+
-+	sk_dst_reset(sk);
- 	l2tp_ip_sk(sk)->conn_id = addr->l2tp_conn_id;
- 
--	write_lock_bh(&l2tp_ip_lock);
- 	sk_add_bind_node(sk, &l2tp_ip_bind_table);
- 	sk_del_node_init(sk);
- 	write_unlock_bh(&l2tp_ip_lock);
-+
- 	ret = 0;
- 	sock_reset_flag(sk, SOCK_ZAPPED);
- 
-@@ -309,11 +311,6 @@ out:
- 	release_sock(sk);
- 
- 	return ret;
--
--out_in_use:
--	read_unlock_bh(&l2tp_ip_lock);
--
--	return ret;
+ 	/* dev/watchdog is a virtual (and thus non-seekable) filesystem */
+ 	return nonseekable_open(inode, file);
+@@ -806,11 +805,11 @@ out_clear:
+ 	return err;
  }
  
- static int l2tp_ip_connect(struct sock *sk, struct sockaddr *uaddr, int addr_len)
---- a/net/l2tp/l2tp_ip6.c
-+++ b/net/l2tp/l2tp_ip6.c
-@@ -278,6 +278,7 @@ static int l2tp_ip6_bind(struct sock *sk
- 	struct sockaddr_l2tpip6 *addr = (struct sockaddr_l2tpip6 *) uaddr;
- 	struct net *net = sock_net(sk);
- 	__be32 v4addr = 0;
-+	int bound_dev_if;
- 	int addr_type;
- 	int err;
+-static void watchdog_core_data_release(struct kref *kref)
++static void watchdog_core_data_release(struct device *dev)
+ {
+ 	struct watchdog_core_data *wd_data;
  
-@@ -296,13 +297,6 @@ static int l2tp_ip6_bind(struct sock *sk
- 	if (addr_type & IPV6_ADDR_MULTICAST)
- 		return -EADDRNOTAVAIL;
+-	wd_data = container_of(kref, struct watchdog_core_data, kref);
++	wd_data = container_of(dev, struct watchdog_core_data, dev);
  
--	err = -EADDRINUSE;
--	read_lock_bh(&l2tp_ip6_lock);
--	if (__l2tp_ip6_bind_lookup(net, &addr->l2tp_addr,
--				   sk->sk_bound_dev_if, addr->l2tp_conn_id))
--		goto out_in_use;
--	read_unlock_bh(&l2tp_ip6_lock);
--
- 	lock_sock(sk);
- 
- 	err = -EINVAL;
-@@ -312,28 +306,25 @@ static int l2tp_ip6_bind(struct sock *sk
- 	if (sk->sk_state != TCP_CLOSE)
- 		goto out_unlock;
- 
-+	bound_dev_if = sk->sk_bound_dev_if;
-+
- 	/* Check if the address belongs to the host. */
- 	rcu_read_lock();
- 	if (addr_type != IPV6_ADDR_ANY) {
- 		struct net_device *dev = NULL;
- 
- 		if (addr_type & IPV6_ADDR_LINKLOCAL) {
--			if (addr_len >= sizeof(struct sockaddr_in6) &&
--			    addr->l2tp_scope_id) {
--				/* Override any existing binding, if another
--				 * one is supplied by user.
--				 */
--				sk->sk_bound_dev_if = addr->l2tp_scope_id;
--			}
-+			if (addr->l2tp_scope_id)
-+				bound_dev_if = addr->l2tp_scope_id;
- 
- 			/* Binding to link-local address requires an
--			   interface */
--			if (!sk->sk_bound_dev_if)
-+			 * interface.
-+			 */
-+			if (!bound_dev_if)
- 				goto out_unlock_rcu;
- 
- 			err = -ENODEV;
--			dev = dev_get_by_index_rcu(sock_net(sk),
--						   sk->sk_bound_dev_if);
-+			dev = dev_get_by_index_rcu(sock_net(sk), bound_dev_if);
- 			if (!dev)
- 				goto out_unlock_rcu;
- 		}
-@@ -348,13 +339,22 @@ static int l2tp_ip6_bind(struct sock *sk
+ 	kfree(wd_data);
+ }
+@@ -870,7 +869,7 @@ done:
+ 	 */
+ 	if (!running) {
+ 		module_put(wd_data->cdev.owner);
+-		kref_put(&wd_data->kref, watchdog_core_data_release);
++		put_device(&wd_data->dev);
  	}
- 	rcu_read_unlock();
+ 	return 0;
+ }
+@@ -889,17 +888,22 @@ static struct miscdevice watchdog_miscde
+ 	.fops		= &watchdog_fops,
+ };
  
--	inet->inet_rcv_saddr = inet->inet_saddr = v4addr;
-+	write_lock_bh(&l2tp_ip6_lock);
-+	if (__l2tp_ip6_bind_lookup(net, &addr->l2tp_addr, bound_dev_if,
-+				   addr->l2tp_conn_id)) {
-+		write_unlock_bh(&l2tp_ip6_lock);
-+		err = -EADDRINUSE;
-+		goto out_unlock;
-+	}
++static struct class watchdog_class = {
++	.name =		"watchdog",
++	.owner =	THIS_MODULE,
++	.dev_groups =	wdt_groups,
++};
 +
-+	inet->inet_saddr = v4addr;
-+	inet->inet_rcv_saddr = v4addr;
-+	sk->sk_bound_dev_if = bound_dev_if;
- 	sk->sk_v6_rcv_saddr = addr->l2tp_addr;
- 	np->saddr = addr->l2tp_addr;
+ /*
+  *	watchdog_cdev_register: register watchdog character device
+  *	@wdd: watchdog device
+- *	@devno: character device number
+  *
+  *	Register a watchdog character device including handling the legacy
+  *	/dev/watchdog node. /dev/watchdog is actually a miscdevice and
+  *	thus we set it up like that.
+  */
  
- 	l2tp_ip6_sk(sk)->conn_id = addr->l2tp_conn_id;
+-static int watchdog_cdev_register(struct watchdog_device *wdd, dev_t devno)
++static int watchdog_cdev_register(struct watchdog_device *wdd)
+ {
+ 	struct watchdog_core_data *wd_data;
+ 	int err;
+@@ -907,7 +911,6 @@ static int watchdog_cdev_register(struct
+ 	wd_data = kzalloc(sizeof(struct watchdog_core_data), GFP_KERNEL);
+ 	if (!wd_data)
+ 		return -ENOMEM;
+-	kref_init(&wd_data->kref);
+ 	mutex_init(&wd_data->lock);
  
--	write_lock_bh(&l2tp_ip6_lock);
- 	sk_add_bind_node(sk, &l2tp_ip6_bind_table);
- 	sk_del_node_init(sk);
- 	write_unlock_bh(&l2tp_ip6_lock);
-@@ -367,10 +367,7 @@ out_unlock_rcu:
- 	rcu_read_unlock();
- out_unlock:
- 	release_sock(sk);
--	return err;
+ 	wd_data->wdd = wdd;
+@@ -934,23 +937,33 @@ static int watchdog_cdev_register(struct
+ 		}
+ 	}
  
--out_in_use:
--	read_unlock_bh(&l2tp_ip6_lock);
- 	return err;
++	device_initialize(&wd_data->dev);
++	wd_data->dev.devt = MKDEV(MAJOR(watchdog_devt), wdd->id);
++	wd_data->dev.class = &watchdog_class;
++	wd_data->dev.parent = wdd->parent;
++	wd_data->dev.groups = wdd->groups;
++	wd_data->dev.release = watchdog_core_data_release;
++	dev_set_drvdata(&wd_data->dev, wdd);
++	dev_set_name(&wd_data->dev, "watchdog%d", wdd->id);
++
+ 	/* Fill in the data structures */
+ 	cdev_init(&wd_data->cdev, &watchdog_fops);
+-	wd_data->cdev.owner = wdd->ops->owner;
+ 
+ 	/* Add the device */
+-	err = cdev_add(&wd_data->cdev, devno, 1);
++	err = cdev_device_add(&wd_data->cdev, &wd_data->dev);
+ 	if (err) {
+ 		pr_err("watchdog%d unable to add device %d:%d\n",
+ 			wdd->id,  MAJOR(watchdog_devt), wdd->id);
+ 		if (wdd->id == 0) {
+ 			misc_deregister(&watchdog_miscdev);
+ 			old_wd_data = NULL;
+-			kref_put(&wd_data->kref, watchdog_core_data_release);
++			put_device(&wd_data->dev);
+ 		}
+ 		return err;
+ 	}
+ 
++	wd_data->cdev.owner = wdd->ops->owner;
++
+ 	/* Record time of most recent heartbeat as 'just before now'. */
+ 	wd_data->last_hw_keepalive = jiffies - 1;
+ 
+@@ -960,7 +973,7 @@ static int watchdog_cdev_register(struct
+ 	 */
+ 	if (watchdog_hw_running(wdd)) {
+ 		__module_get(wdd->ops->owner);
+-		kref_get(&wd_data->kref);
++		get_device(&wd_data->dev);
+ 		queue_delayed_work(watchdog_wq, &wd_data->work, 0);
+ 	}
+ 
+@@ -979,7 +992,7 @@ static void watchdog_cdev_unregister(str
+ {
+ 	struct watchdog_core_data *wd_data = wdd->wd_data;
+ 
+-	cdev_del(&wd_data->cdev);
++	cdev_device_del(&wd_data->cdev, &wd_data->dev);
+ 	if (wdd->id == 0) {
+ 		misc_deregister(&watchdog_miscdev);
+ 		old_wd_data = NULL;
+@@ -992,15 +1005,9 @@ static void watchdog_cdev_unregister(str
+ 
+ 	cancel_delayed_work_sync(&wd_data->work);
+ 
+-	kref_put(&wd_data->kref, watchdog_core_data_release);
++	put_device(&wd_data->dev);
+ }
+ 
+-static struct class watchdog_class = {
+-	.name =		"watchdog",
+-	.owner =	THIS_MODULE,
+-	.dev_groups =	wdt_groups,
+-};
+-
+ /*
+  *	watchdog_dev_register: register a watchdog device
+  *	@wdd: watchdog device
+@@ -1012,27 +1019,14 @@ static struct class watchdog_class = {
+ 
+ int watchdog_dev_register(struct watchdog_device *wdd)
+ {
+-	struct device *dev;
+-	dev_t devno;
+ 	int ret;
+ 
+-	devno = MKDEV(MAJOR(watchdog_devt), wdd->id);
+-
+-	ret = watchdog_cdev_register(wdd, devno);
++	ret = watchdog_cdev_register(wdd);
+ 	if (ret)
+ 		return ret;
+ 
+-	dev = device_create_with_groups(&watchdog_class, wdd->parent,
+-					devno, wdd, wdd->groups,
+-					"watchdog%d", wdd->id);
+-	if (IS_ERR(dev)) {
+-		watchdog_cdev_unregister(wdd);
+-		return PTR_ERR(dev);
+-	}
+-
+ 	ret = watchdog_register_pretimeout(wdd);
+ 	if (ret) {
+-		device_destroy(&watchdog_class, devno);
+ 		watchdog_cdev_unregister(wdd);
+ 	}
+ 
+@@ -1050,7 +1044,6 @@ int watchdog_dev_register(struct watchdo
+ void watchdog_dev_unregister(struct watchdog_device *wdd)
+ {
+ 	watchdog_unregister_pretimeout(wdd);
+-	device_destroy(&watchdog_class, wdd->wd_data->cdev.dev);
+ 	watchdog_cdev_unregister(wdd);
  }
  
 
