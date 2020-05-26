@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E11A01E2B95
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:06:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BBAD1E2D7A
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:24:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389884AbgEZTGh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:06:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34916 "EHLO mail.kernel.org"
+        id S2391955AbgEZTL1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:11:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40748 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391653AbgEZTGh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:06:37 -0400
+        id S2404057AbgEZTLY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:11:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CA6EB20873;
-        Tue, 26 May 2020 19:06:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 30F0E20776;
+        Tue, 26 May 2020 19:11:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590519996;
-        bh=j4eEHVXuIUd0pRN0L2CoepN4/OVyE4wx9B5EwVoukPE=;
+        s=default; t=1590520283;
+        bh=lAm2lEdjnD+8xOhLGJf5QyoQipYEWFhTNMRALZMd/cg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rN7PxoPy9CGGlkv98t2B2GaWa5OI7I943V8Occ9HMjh6N2fUKHYjsn36GJ7gPNOOQ
-         nIxndSZ2CG/LyEsQT1iLvouAV4GelQsmBo+fYV0kdWaZEbEbMCwy3gG4K+maozHXyt
-         lB1rS9Ks+lwqJKwyyilHtdcW6MKjaKHRHSMmmZAQ=
+        b=SKUqiJn1HlGtyXcXB2/N7b/ThcnOjEjvG77lQvj+BEj4t1rRLTy7R4qas+BMyQ4rv
+         6QFlIs9erLts0LhpFbKHvc1PfPtq7KxV9qpNq5K7wyIMRCWMOPOSf0iA++RXpZgW50
+         5zzbQVJBuAfR3bYyXJmoS+vHO+A7/ATg2+fxlDkI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>,
-        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 018/111] kbuild: avoid concurrency issue in parallel building dtbs and dtbs_check
+        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 019/126] afs: Dont unlock fetched data pages until the op completes successfully
 Date:   Tue, 26 May 2020 20:52:36 +0200
-Message-Id: <20200526183934.390242504@linuxfoundation.org>
+Message-Id: <20200526183939.238916173@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183932.245016380@linuxfoundation.org>
-References: <20200526183932.245016380@linuxfoundation.org>
+In-Reply-To: <20200526183937.471379031@linuxfoundation.org>
+References: <20200526183937.471379031@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,84 +45,126 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <masahiroy@kernel.org>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit b5154bf63e5577faaaca1d942df274f7de91dd2a ]
+[ Upstream commit 9d1be4f4dc5ff1c66c86acfd2c35765d9e3776b3 ]
 
-'make dtbs_check' checks the shecma in addition to building *.dtb files,
-in other words, 'make dtbs_check' is a super-set of 'make dtbs'.
-So, you do not have to do 'make dtbs dtbs_check', but I want to keep
-the build system as robust as possible in any use.
+Don't call req->page_done() on each page as we finish filling it with
+the data coming from the network.  Whilst this might speed up the
+application a bit, it's a problem if there's a network failure and the
+operation has to be reissued.
 
-Currently, 'dtbs' and 'dtbs_check' are independent of each other.
-In parallel building, two threads descend into arch/*/boot/dts/,
-one for dtbs and the other for dtbs_check, then end up with building
-the same DTB simultaneously.
+If this happens, an oops occurs because afs_readpages_page_done() clears
+the pointer to each page it unlocks and when a retry happens, the
+pointers to the pages it wants to fill are now NULL (and the pages have
+been unlocked anyway).
 
-This commit fixes the concurrency issue. Otherwise, I see build errors
-like follows:
+Instead, wait till the operation completes successfully and only then
+release all the pages after clearing any terminal gap (the server can
+give us less data than we requested as we're allowed to ask for more
+than is available).
 
-$ make ARCH=arm64 defconfig
-$ make -j16 ARCH=arm64 DT_SCHEMA_FILES=Documentation/devicetree/bindings/arm/psci.yaml dtbs dtbs_check
-  <snip>
-  DTC     arch/arm64/boot/dts/qcom/sdm845-cheza-r2.dtb
-  DTC     arch/arm64/boot/dts/amlogic/meson-gxl-s905x-p212.dtb
-  DTC     arch/arm64/boot/dts/allwinner/sun50i-h6-orangepi-lite2.dtb
-  DTC     arch/arm64/boot/dts/allwinner/sun50i-h6-orangepi-lite2.dtb
-  DTC     arch/arm64/boot/dts/freescale/imx8mn-evk.dtb
-  DTC     arch/arm64/boot/dts/allwinner/sun50i-h6-orangepi-one-plus.dtb
-  DTC     arch/arm64/boot/dts/zte/zx296718-pcbox.dtb
-  DTC     arch/arm64/boot/dts/altera/socfpga_stratix10_socdk.dt.yaml
-  DTC     arch/arm64/boot/dts/amlogic/meson-gxl-s905d-p230.dtb
-  DTC     arch/arm64/boot/dts/xilinx/zynqmp-zc1254-revA.dtb
-  DTC     arch/arm64/boot/dts/allwinner/sun50i-h6-pine-h64.dtb
-  DTC     arch/arm64/boot/dts/rockchip/rk3399-gru-scarlet-inx.dtb
-  DTC     arch/arm64/boot/dts/allwinner/sun50i-h6-orangepi-one-plus.dtb
-  CHECK   arch/arm64/boot/dts/altera/socfpga_stratix10_socdk.dt.yaml
-fixdep: error opening file: arch/arm64/boot/dts/allwinner/.sun50i-h6-orangepi-lite2.dtb.d: No such file or directory
-make[2]: *** [scripts/Makefile.lib:296: arch/arm64/boot/dts/allwinner/sun50i-h6-orangepi-lite2.dtb] Error 2
-make[2]: *** Deleting file 'arch/arm64/boot/dts/allwinner/sun50i-h6-orangepi-lite2.dtb'
-make[2]: *** Waiting for unfinished jobs....
-  DTC     arch/arm64/boot/dts/rockchip/rk3399-gru-scarlet-kd.dtb
-  DTC     arch/arm64/boot/dts/amlogic/meson-gxl-s905d-p231.dtb
-  DTC     arch/arm64/boot/dts/xilinx/zynqmp-zc1275-revA.dtb
-  DTC     arch/arm64/boot/dts/freescale/imx8mn-ddr4-evk.dtb
-fixdep: parse error; no targets found
-make[2]: *** [scripts/Makefile.lib:296: arch/arm64/boot/dts/allwinner/sun50i-h6-orangepi-one-plus.dtb] Error 1
-make[2]: *** Deleting file 'arch/arm64/boot/dts/allwinner/sun50i-h6-orangepi-one-plus.dtb'
-make[1]: *** [scripts/Makefile.build:505: arch/arm64/boot/dts/allwinner] Error 2
-make[1]: *** Waiting for unfinished jobs....
-  DTC     arch/arm64/boot/dts/renesas/r8a77951-salvator-xs.dtb
+KASAN produces a bug like the following, and even without KASAN, it can
+oops and panic.
 
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Reviewed-by: Rob Herring <robh@kernel.org>
+    BUG: KASAN: wild-memory-access in _copy_to_iter+0x323/0x5f4
+    Write of size 1404 at addr 0005088000000000 by task md5sum/5235
+
+    CPU: 0 PID: 5235 Comm: md5sum Not tainted 5.7.0-rc3-fscache+ #250
+    Hardware name: ASUS All Series/H97-PLUS, BIOS 2306 10/09/2014
+    Call Trace:
+     memcpy+0x39/0x58
+     _copy_to_iter+0x323/0x5f4
+     __skb_datagram_iter+0x89/0x2a6
+     skb_copy_datagram_iter+0x129/0x135
+     rxrpc_recvmsg_data.isra.0+0x615/0xd42
+     rxrpc_kernel_recv_data+0x1e9/0x3ae
+     afs_extract_data+0x139/0x33a
+     yfs_deliver_fs_fetch_data64+0x47a/0x91b
+     afs_deliver_to_call+0x304/0x709
+     afs_wait_for_call_to_complete+0x1cc/0x4ad
+     yfs_fs_fetch_data+0x279/0x288
+     afs_fetch_data+0x1e1/0x38d
+     afs_readpages+0x593/0x72e
+     read_pages+0xf5/0x21e
+     __do_page_cache_readahead+0x128/0x23f
+     ondemand_readahead+0x36e/0x37f
+     generic_file_buffered_read+0x234/0x680
+     new_sync_read+0x109/0x17e
+     vfs_read+0xe6/0x138
+     ksys_read+0xd8/0x14d
+     do_syscall_64+0x6e/0x8a
+     entry_SYSCALL_64_after_hwframe+0x49/0xb3
+
+Fixes: 196ee9cd2d04 ("afs: Make afs_fs_fetch_data() take a list of pages")
+Fixes: 30062bd13e36 ("afs: Implement YFS support in the fs client")
+Signed-off-by: David Howells <dhowells@redhat.com>
+Reviewed-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Makefile | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ fs/afs/fsclient.c  | 8 ++++----
+ fs/afs/yfsclient.c | 8 ++++----
+ 2 files changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/Makefile b/Makefile
-index 1bd1b17cd207..ba154f92b203 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1246,11 +1246,15 @@ ifneq ($(dtstree),)
- 	$(Q)$(MAKE) $(build)=$(dtstree) $(dtstree)/$@
+diff --git a/fs/afs/fsclient.c b/fs/afs/fsclient.c
+index 68fc46634346..d2b3798c1932 100644
+--- a/fs/afs/fsclient.c
++++ b/fs/afs/fsclient.c
+@@ -385,8 +385,6 @@ static int afs_deliver_fs_fetch_data(struct afs_call *call)
+ 		ASSERTCMP(req->offset, <=, PAGE_SIZE);
+ 		if (req->offset == PAGE_SIZE) {
+ 			req->offset = 0;
+-			if (req->page_done)
+-				req->page_done(req);
+ 			req->index++;
+ 			if (req->remain > 0)
+ 				goto begin_page;
+@@ -440,11 +438,13 @@ static int afs_deliver_fs_fetch_data(struct afs_call *call)
+ 		if (req->offset < PAGE_SIZE)
+ 			zero_user_segment(req->pages[req->index],
+ 					  req->offset, PAGE_SIZE);
+-		if (req->page_done)
+-			req->page_done(req);
+ 		req->offset = 0;
+ 	}
  
- PHONY += dtbs dtbs_install dtbs_check
--dtbs dtbs_check: include/config/kernel.release scripts_dtc
-+dtbs: include/config/kernel.release scripts_dtc
- 	$(Q)$(MAKE) $(build)=$(dtstree)
- 
-+ifneq ($(filter dtbs_check, $(MAKECMDGOALS)),)
-+dtbs: dt_binding_check
-+endif
++	if (req->page_done)
++		for (req->index = 0; req->index < req->nr_pages; req->index++)
++			req->page_done(req);
 +
- dtbs_check: export CHECK_DTBS=1
--dtbs_check: dt_binding_check
-+dtbs_check: dtbs
+ 	_leave(" = 0 [done]");
+ 	return 0;
+ }
+diff --git a/fs/afs/yfsclient.c b/fs/afs/yfsclient.c
+index b5b45c57e1b1..fe413e7a5cf4 100644
+--- a/fs/afs/yfsclient.c
++++ b/fs/afs/yfsclient.c
+@@ -497,8 +497,6 @@ static int yfs_deliver_fs_fetch_data64(struct afs_call *call)
+ 		ASSERTCMP(req->offset, <=, PAGE_SIZE);
+ 		if (req->offset == PAGE_SIZE) {
+ 			req->offset = 0;
+-			if (req->page_done)
+-				req->page_done(req);
+ 			req->index++;
+ 			if (req->remain > 0)
+ 				goto begin_page;
+@@ -556,11 +554,13 @@ static int yfs_deliver_fs_fetch_data64(struct afs_call *call)
+ 		if (req->offset < PAGE_SIZE)
+ 			zero_user_segment(req->pages[req->index],
+ 					  req->offset, PAGE_SIZE);
+-		if (req->page_done)
+-			req->page_done(req);
+ 		req->offset = 0;
+ 	}
  
- dtbs_install:
- 	$(Q)$(MAKE) $(dtbinst)=$(dtstree)
++	if (req->page_done)
++		for (req->index = 0; req->index < req->nr_pages; req->index++)
++			req->page_done(req);
++
+ 	_leave(" = 0 [done]");
+ 	return 0;
+ }
 -- 
 2.25.1
 
