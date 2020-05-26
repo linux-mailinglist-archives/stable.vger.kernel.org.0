@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CAA261E2D70
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:24:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C28CC1E2BF3
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:10:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391249AbgEZTK2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:10:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39676 "EHLO mail.kernel.org"
+        id S2391943AbgEZTKb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:10:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39736 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391937AbgEZTK2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:10:28 -0400
+        id S2391452AbgEZTKa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:10:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D8BEC20888;
-        Tue, 26 May 2020 19:10:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4EE2D20776;
+        Tue, 26 May 2020 19:10:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590520227;
-        bh=RjmHMWWe8YXSrJwNZvIfEJBZB1lX6YjjRZ3JJxhnAPI=;
+        s=default; t=1590520229;
+        bh=kI50Vt5LmPdZbRTT7exeYGAl0PpuM4dm5q6l4ppcETE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PiPXuCGzO9vtQ5CucTWUc/pRj1zwtthfUihlA5H6vEuwwRsOM7aWUZciy6xc8ZgZR
-         DM++ykT3r4Yx4E6e0zrbh0/2ENU9wYW8MjbomuNpY/ifkABLIg+SWTEqPn0tOamcBC
-         jFlCoorpvW0BLeJ+ICk/VArRJO8PCEx6fFGO12xA=
+        b=QxkaqWEsnFqylBpOBzo2NgjMfTMNYKjNmdsBwtCNDH9rUWm98x6r8fHZYsFo9lTSl
+         ZV7P3Rouev5sorTiGfv+IJMaW21hDFtGP6ZxtFCir5AwuNUZiW/xXnW/qUMGIhiQnm
+         OJ/0Yr3UGBrD7LMob+YOcJ2TvF1hUNXATp6kPXzU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dave Botsch <botsch@cnf.cornell.edu>,
-        David Howells <dhowells@redhat.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Lo=C3=AFc=20Yhuel?= <loic.yhuel@gmail.com>,
+        Javier Martinez Canillas <javierm@redhat.com>,
+        Jerry Snitselaar <jsnitsel@redhat.com>,
+        Matthew Garrett <mjg59@google.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 107/111] rxrpc: Fix ack discard
-Date:   Tue, 26 May 2020 20:54:05 +0200
-Message-Id: <20200526183943.041764564@linuxfoundation.org>
+Subject: [PATCH 5.4 108/111] tpm: check event log version before reading final events
+Date:   Tue, 26 May 2020 20:54:06 +0200
+Message-Id: <20200526183943.147751650@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200526183932.245016380@linuxfoundation.org>
 References: <20200526183932.245016380@linuxfoundation.org>
@@ -44,155 +48,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Loïc Yhuel <loic.yhuel@gmail.com>
 
-[ Upstream commit 441fdee1eaf050ef0040bde0d7af075c1c6a6d8b ]
+[ Upstream commit b4f1874c62168159fdb419ced4afc77c1b51c475 ]
 
-The Rx protocol has a "previousPacket" field in it that is not handled in
-the same way by all protocol implementations.  Sometimes it contains the
-serial number of the last DATA packet received, sometimes the sequence
-number of the last DATA packet received and sometimes the highest sequence
-number so far received.
+This fixes the boot issues since 5.3 on several Dell models when the TPM
+is enabled. Depending on the exact grub binary, booting the kernel would
+freeze early, or just report an error parsing the final events log.
 
-AF_RXRPC is using this to weed out ACKs that are out of date (it's possible
-for ACK packets to get reordered on the wire), but this does not work with
-OpenAFS which will just stick the sequence number of the last packet seen
-into previousPacket.
+We get an event log in the SHA-1 format, which doesn't have a
+tcg_efi_specid_event_head in the first event, and there is a final events
+table which doesn't match the crypto agile format.
+__calc_tpm2_event_size reads bad "count" and "efispecid->num_algs", and
+either fails, or loops long enough for the machine to be appear frozen.
 
-The issue being seen is that big AFS FS.StoreData RPC (eg. of ~256MiB) are
-timing out when partly sent.  A trace was captured, with an additional
-tracepoint to show ACKs being discarded in rxrpc_input_ack().  Here's an
-excerpt showing the problem.
+So we now only parse the final events table, which is per the spec always
+supposed to be in the crypto agile format, when we got a event log in this
+format.
 
- 52873.203230: rxrpc_tx_data: c=000004ae DATA ed1a3584:00000002 0002449c q=00024499 fl=09
-
-A DATA packet with sequence number 00024499 has been transmitted (the "q="
-field).
-
- ...
- 52873.243296: rxrpc_rx_ack: c=000004ae 00012a2b DLY r=00024499 f=00024497 p=00024496 n=0
- 52873.243376: rxrpc_rx_ack: c=000004ae 00012a2c IDL r=0002449b f=00024499 p=00024498 n=0
- 52873.243383: rxrpc_rx_ack: c=000004ae 00012a2d OOS r=0002449d f=00024499 p=0002449a n=2
-
-The Out-Of-Sequence ACK indicates that the server didn't see DATA sequence
-number 00024499, but did see seq 0002449a (previousPacket, shown as "p=",
-skipped the number, but firstPacket, "f=", which shows the bottom of the
-window is set at that point).
-
- 52873.252663: rxrpc_retransmit: c=000004ae q=24499 a=02 xp=14581537
- 52873.252664: rxrpc_tx_data: c=000004ae DATA ed1a3584:00000002 000244bc q=00024499 fl=0b *RETRANS*
-
-The packet has been retransmitted.  Retransmission recurs until the peer
-says it got the packet.
-
- 52873.271013: rxrpc_rx_ack: c=000004ae 00012a31 OOS r=000244a1 f=00024499 p=0002449e n=6
-
-More OOS ACKs indicate that the other packets that are already in the
-transmission pipeline are being received.  The specific-ACK list is up to 6
-ACKs and NAKs.
-
- ...
- 52873.284792: rxrpc_rx_ack: c=000004ae 00012a49 OOS r=000244b9 f=00024499 p=000244b6 n=30
- 52873.284802: rxrpc_retransmit: c=000004ae q=24499 a=0a xp=63505500
- 52873.284804: rxrpc_tx_data: c=000004ae DATA ed1a3584:00000002 000244c2 q=00024499 fl=0b *RETRANS*
- 52873.287468: rxrpc_rx_ack: c=000004ae 00012a4a OOS r=000244ba f=00024499 p=000244b7 n=31
- 52873.287478: rxrpc_rx_ack: c=000004ae 00012a4b OOS r=000244bb f=00024499 p=000244b8 n=32
-
-At this point, the server's receive window is full (n=32) with presumably 1
-NAK'd packet and 31 ACK'd packets.  We can't transmit any more packets.
-
- 52873.287488: rxrpc_retransmit: c=000004ae q=24499 a=0a xp=61327980
- 52873.287489: rxrpc_tx_data: c=000004ae DATA ed1a3584:00000002 000244c3 q=00024499 fl=0b *RETRANS*
- 52873.293850: rxrpc_rx_ack: c=000004ae 00012a4c DLY r=000244bc f=000244a0 p=00024499 n=25
-
-And now we've received an ACK indicating that a DATA retransmission was
-received.  7 packets have been processed (the occupied part of the window
-moved, as indicated by f= and n=).
-
- 52873.293853: rxrpc_rx_discard_ack: c=000004ae r=00012a4c 000244a0<00024499 00024499<000244b8
-
-However, the DLY ACK gets discarded because its previousPacket has gone
-backwards (from p=000244b8, in the ACK at 52873.287478 to p=00024499 in the
-ACK at 52873.293850).
-
-We then end up in a continuous cycle of retransmit/discard.  kafs fails to
-update its window because it's discarding the ACKs and can't transmit an
-extra packet that would clear the issue because the window is full.
-OpenAFS doesn't change the previousPacket value in the ACKs because no new
-DATA packets are received with a different previousPacket number.
-
-Fix this by altering the discard check to only discard an ACK based on
-previousPacket if there was no advance in the firstPacket.  This allows us
-to transmit a new packet which will cause previousPacket to advance in the
-next ACK.
-
-The check, however, needs to allow for the possibility that previousPacket
-may actually have had the serial number placed in it instead - in which
-case it will go outside the window and we should ignore it.
-
-Fixes: 1a2391c30c0b ("rxrpc: Fix detection of out of order acks")
-Reported-by: Dave Botsch <botsch@cnf.cornell.edu>
-Signed-off-by: David Howells <dhowells@redhat.com>
+Fixes: c46f3405692de ("tpm: Reserve the TPM final events table")
+Fixes: 166a2809d65b2 ("tpm: Don't duplicate events from the final event log in the TCG2 log")
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1779611
+Signed-off-by: Loïc Yhuel <loic.yhuel@gmail.com>
+Link: https://lore.kernel.org/r/20200512040113.277768-1-loic.yhuel@gmail.com
+Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
+Reviewed-by: Jerry Snitselaar <jsnitsel@redhat.com>
+Reviewed-by: Matthew Garrett <mjg59@google.com>
+[ardb: warn when final events table is missing or in the wrong format]
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/rxrpc/input.c | 30 ++++++++++++++++++++++++++----
- 1 file changed, 26 insertions(+), 4 deletions(-)
+ drivers/firmware/efi/libstub/tpm.c | 5 +++--
+ drivers/firmware/efi/tpm.c         | 5 ++++-
+ 2 files changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/net/rxrpc/input.c b/net/rxrpc/input.c
-index 2f22f082a66c..3be4177baf70 100644
---- a/net/rxrpc/input.c
-+++ b/net/rxrpc/input.c
-@@ -802,6 +802,30 @@ static void rxrpc_input_soft_acks(struct rxrpc_call *call, u8 *acks,
- 	}
- }
+diff --git a/drivers/firmware/efi/libstub/tpm.c b/drivers/firmware/efi/libstub/tpm.c
+index eb9af83e4d59..aeeb1b2d8ede 100644
+--- a/drivers/firmware/efi/libstub/tpm.c
++++ b/drivers/firmware/efi/libstub/tpm.c
+@@ -64,7 +64,7 @@ void efi_retrieve_tpm2_eventlog(efi_system_table_t *sys_table_arg)
+ 	efi_status_t status;
+ 	efi_physical_addr_t log_location = 0, log_last_entry = 0;
+ 	struct linux_efi_tpm_eventlog *log_tbl = NULL;
+-	struct efi_tcg2_final_events_table *final_events_table;
++	struct efi_tcg2_final_events_table *final_events_table = NULL;
+ 	unsigned long first_entry_addr, last_entry_addr;
+ 	size_t log_size, last_entry_size;
+ 	efi_bool_t truncated;
+@@ -140,7 +140,8 @@ void efi_retrieve_tpm2_eventlog(efi_system_table_t *sys_table_arg)
+ 	 * Figure out whether any events have already been logged to the
+ 	 * final events structure, and if so how much space they take up
+ 	 */
+-	final_events_table = get_efi_config_table(sys_table_arg,
++	if (version == EFI_TCG2_EVENT_LOG_FORMAT_TCG_2)
++		final_events_table = get_efi_config_table(sys_table_arg,
+ 						LINUX_EFI_TPM_FINAL_LOG_GUID);
+ 	if (final_events_table && final_events_table->nr_events) {
+ 		struct tcg_pcr_event2_head *header;
+diff --git a/drivers/firmware/efi/tpm.c b/drivers/firmware/efi/tpm.c
+index 55b031d2c989..c1955d320fec 100644
+--- a/drivers/firmware/efi/tpm.c
++++ b/drivers/firmware/efi/tpm.c
+@@ -62,8 +62,11 @@ int __init efi_tpm_eventlog_init(void)
+ 	tbl_size = sizeof(*log_tbl) + log_tbl->size;
+ 	memblock_reserve(efi.tpm_log, tbl_size);
  
-+/*
-+ * Return true if the ACK is valid - ie. it doesn't appear to have regressed
-+ * with respect to the ack state conveyed by preceding ACKs.
-+ */
-+static bool rxrpc_is_ack_valid(struct rxrpc_call *call,
-+			       rxrpc_seq_t first_pkt, rxrpc_seq_t prev_pkt)
-+{
-+	rxrpc_seq_t base = READ_ONCE(call->ackr_first_seq);
-+
-+	if (after(first_pkt, base))
-+		return true; /* The window advanced */
-+
-+	if (before(first_pkt, base))
-+		return false; /* firstPacket regressed */
-+
-+	if (after_eq(prev_pkt, call->ackr_prev_seq))
-+		return true; /* previousPacket hasn't regressed. */
-+
-+	/* Some rx implementations put a serial number in previousPacket. */
-+	if (after_eq(prev_pkt, base + call->tx_winsize))
-+		return false;
-+	return true;
-+}
-+
- /*
-  * Process an ACK packet.
-  *
-@@ -865,8 +889,7 @@ static void rxrpc_input_ack(struct rxrpc_call *call, struct sk_buff *skb)
- 	}
+-	if (efi.tpm_final_log == EFI_INVALID_TABLE_ADDR)
++	if (efi.tpm_final_log == EFI_INVALID_TABLE_ADDR ||
++	    log_tbl->version != EFI_TCG2_EVENT_LOG_FORMAT_TCG_2) {
++		pr_warn(FW_BUG "TPM Final Events table missing or invalid\n");
+ 		goto out;
++	}
  
- 	/* Discard any out-of-order or duplicate ACKs (outside lock). */
--	if (before(first_soft_ack, call->ackr_first_seq) ||
--	    before(prev_pkt, call->ackr_prev_seq)) {
-+	if (!rxrpc_is_ack_valid(call, first_soft_ack, prev_pkt)) {
- 		trace_rxrpc_rx_discard_ack(call->debug_id, sp->hdr.serial,
- 					   first_soft_ack, call->ackr_first_seq,
- 					   prev_pkt, call->ackr_prev_seq);
-@@ -882,8 +905,7 @@ static void rxrpc_input_ack(struct rxrpc_call *call, struct sk_buff *skb)
- 	spin_lock(&call->input_lock);
+ 	final_tbl = early_memremap(efi.tpm_final_log, sizeof(*final_tbl));
  
- 	/* Discard any out-of-order or duplicate ACKs (inside lock). */
--	if (before(first_soft_ack, call->ackr_first_seq) ||
--	    before(prev_pkt, call->ackr_prev_seq)) {
-+	if (!rxrpc_is_ack_valid(call, first_soft_ack, prev_pkt)) {
- 		trace_rxrpc_rx_discard_ack(call->debug_id, sp->hdr.serial,
- 					   first_soft_ack, call->ackr_first_seq,
- 					   prev_pkt, call->ackr_prev_seq);
 -- 
 2.25.1
 
