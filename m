@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D92901E2B49
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:04:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7ACFB1E2DD6
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:25:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390066AbgEZTDi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:03:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58954 "EHLO mail.kernel.org"
+        id S2391769AbgEZTYp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:24:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36086 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391245AbgEZTDi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:03:38 -0400
+        id S2391601AbgEZTHX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:07:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0C6A220873;
-        Tue, 26 May 2020 19:03:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 21A34208A7;
+        Tue, 26 May 2020 19:07:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590519817;
-        bh=pk+RbUHryKklL3wHebCtBVLElvjUtmNrFWmuel0RygE=;
+        s=default; t=1590520043;
+        bh=XFxzq4P6z49YtyaR0tqdRHJYwkOdYoyVEmIvsv0RGxE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kW2o/nc/PR7IobC+QL57C3WLEd2NdMExm8CYbF9CXnviWY8290JUUQeCycmeQzO3A
-         rbAta6cVlcMnCYi9ZzFzGZ7pKqS8PVOEwahi6mrKGnPvZhyDwb5V8THl2Rs0LMsj7C
-         4mp/q4A7gyq9X6eQ2gBZrEgpa4TprLhM+oDPgBY0=
+        b=lO28p79K/Xou/nMN4DyQ2/dPTLmRKLgd7QE6Ltgw2rBb+oKPuxHFZOAt0MpvZ/YnJ
+         x/gln4TuCYR6lcBJBAVIfl34kWDp8SCrTNUJ0OeWG8FlNaN1wAPJrxdPOMlPB0t/a6
+         5WcWfOqXRt5C27Z6F4zKvtxj7PoFS8ZsMpoIYSDc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        Richard Weinberger <richard@nod.at>,
+        stable@vger.kernel.org, James Hilliard <james.hilliard1@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 11/81] ubifs: remove broken lazytime support
-Date:   Tue, 26 May 2020 20:52:46 +0200
-Message-Id: <20200526183927.127913799@linuxfoundation.org>
+Subject: [PATCH 5.4 029/111] component: Silence bind error on -EPROBE_DEFER
+Date:   Tue, 26 May 2020 20:52:47 +0200
+Message-Id: <20200526183935.555291617@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183923.108515292@linuxfoundation.org>
-References: <20200526183923.108515292@linuxfoundation.org>
+In-Reply-To: <20200526183932.245016380@linuxfoundation.org>
+References: <20200526183932.245016380@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,51 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: James Hilliard <james.hilliard1@gmail.com>
 
-[ Upstream commit ecf84096a526f2632ee85c32a3d05de3fa60ce80 ]
+[ Upstream commit 7706b0a76a9697021e2bf395f3f065c18f51043d ]
 
-When "ubifs: introduce UBIFS_ATIME_SUPPORT to ubifs" introduced atime
-support to ubifs, it also added lazytime support.  As far as I can tell
-the lazytime support is terminally broken, as it causes
-mark_inode_dirty_sync to be called from __writeback_single_inode, which
-will then trigger the locking assert in ubifs_dirty_inode.  Just remove
-the broken lazytime support for now, it can be added back later,
-especially as some infrastructure changes should make that easier soon.
+If a component fails to bind due to -EPROBE_DEFER we should not log an
+error as this is not a real failure.
 
-Fixes: 8c1c5f263833 ("ubifs: introduce UBIFS_ATIME_SUPPORT to ubifs")
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Fixes messages like:
+vc4-drm soc:gpu: failed to bind 3f902000.hdmi (ops vc4_hdmi_ops): -517
+vc4-drm soc:gpu: master bind failed: -517
+
+Signed-off-by: James Hilliard <james.hilliard1@gmail.com>
+Link: https://lore.kernel.org/r/20200411190241.89404-1-james.hilliard1@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ubifs/file.c | 6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ drivers/base/component.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/fs/ubifs/file.c b/fs/ubifs/file.c
-index 65b4f63349c7..d7d2fdda4bbd 100644
---- a/fs/ubifs/file.c
-+++ b/fs/ubifs/file.c
-@@ -1391,7 +1391,6 @@ int ubifs_update_time(struct inode *inode, struct timespec64 *time,
- 	struct ubifs_info *c = inode->i_sb->s_fs_info;
- 	struct ubifs_budget_req req = { .dirtied_ino = 1,
- 			.dirtied_ino_d = ALIGN(ui->data_len, 8) };
--	int iflags = I_DIRTY_TIME;
- 	int err, release;
+diff --git a/drivers/base/component.c b/drivers/base/component.c
+index 1fdbd6ff2058..b9f20ada68b0 100644
+--- a/drivers/base/component.c
++++ b/drivers/base/component.c
+@@ -257,7 +257,8 @@ static int try_to_bring_up_master(struct master *master,
+ 	ret = master->ops->bind(master->dev);
+ 	if (ret < 0) {
+ 		devres_release_group(master->dev, NULL);
+-		dev_info(master->dev, "master bind failed: %d\n", ret);
++		if (ret != -EPROBE_DEFER)
++			dev_info(master->dev, "master bind failed: %d\n", ret);
+ 		return ret;
+ 	}
  
- 	err = ubifs_budget_space(c, &req);
-@@ -1406,11 +1405,8 @@ int ubifs_update_time(struct inode *inode, struct timespec64 *time,
- 	if (flags & S_MTIME)
- 		inode->i_mtime = *time;
+@@ -611,8 +612,9 @@ static int component_bind(struct component *component, struct master *master,
+ 		devres_release_group(component->dev, NULL);
+ 		devres_release_group(master->dev, NULL);
  
--	if (!(inode->i_sb->s_flags & SB_LAZYTIME))
--		iflags |= I_DIRTY_SYNC;
--
- 	release = ui->dirty;
--	__mark_inode_dirty(inode, iflags);
-+	__mark_inode_dirty(inode, I_DIRTY_SYNC);
- 	mutex_unlock(&ui->ui_mutex);
- 	if (release)
- 		ubifs_release_budget(c, &req);
+-		dev_err(master->dev, "failed to bind %s (ops %ps): %d\n",
+-			dev_name(component->dev), component->ops, ret);
++		if (ret != -EPROBE_DEFER)
++			dev_err(master->dev, "failed to bind %s (ops %ps): %d\n",
++				dev_name(component->dev), component->ops, ret);
+ 	}
+ 
+ 	return ret;
 -- 
 2.25.1
 
