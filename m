@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8EBBE1E2C4C
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:14:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C6BD11E2B88
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:06:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391262AbgEZTNx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:13:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44430 "EHLO mail.kernel.org"
+        id S2403798AbgEZTGE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:06:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34148 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404338AbgEZTNw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:13:52 -0400
+        id S2390814AbgEZTGD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:06:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B504620E65;
-        Tue, 26 May 2020 19:13:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 17C4B20776;
+        Tue, 26 May 2020 19:06:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590520432;
-        bh=njKcPTjoQBNCYX4BTTtw03AqYv4zf24tEVwE3YxaWT0=;
+        s=default; t=1590519963;
+        bh=k1pYullWqpInfsxDo6wY0GeaN+fOQTMAQ/FTViw8IwM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hZA6a6bh644QlPU8OaOyQDCvvH2qFibq84mB7tTqi41AGVSkeP+jNSGPMcv2aEDxY
-         5MuX4bCVh47R3+nXV62dQnRqA3kLFByL9FnwZgr1DUmh2S4xzbUYgoLqlmAtDVc1Sx
-         3ZHbVlUhDgyNvvCrn072/ZXouEfvpzwwK7TC9eLs=
+        b=y1ltvxEViEe4ASyGoPwY2+LfymGHpE3mtSmw+GOKz0mzT0w9ci0BQ0HsR8y+wdLLA
+         9VdPjxdZE10kCgqBwU3jHT5KHFWNgkFKaJHbJw8h1S5xOn6tqzrt5A4X2n/tsTUg8y
+         nSv0aTeD38N6qGX9OG4gGdEP77WSQYipsBe3T3YM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Lucas Stach <l.stach@pengutronix.de>
-Subject: [PATCH 5.6 078/126] drm/etnaviv: Fix a leak in submit_pin_objects()
+        stable@vger.kernel.org, Arjun Vynipadath <arjun@chelsio.com>,
+        Ganesh Goudar <ganeshgr@chelsio.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 60/81] cxgb4: free mac_hlist properly
 Date:   Tue, 26 May 2020 20:53:35 +0200
-Message-Id: <20200526183944.710343541@linuxfoundation.org>
+Message-Id: <20200526183933.717662881@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183937.471379031@linuxfoundation.org>
-References: <20200526183937.471379031@linuxfoundation.org>
+In-Reply-To: <20200526183923.108515292@linuxfoundation.org>
+References: <20200526183923.108515292@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,35 +45,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Arjun Vynipadath <arjun@chelsio.com>
 
-commit ad99cb5e783bb03d512092db3387ead9504aad3d upstream.
+[ Upstream commit 2a8d84bf513823ba398f4b2dec41b8decf4041af ]
 
-If the mapping address is wrong then we have to release the reference to
-it before returning -EINVAL.
+The locally maintained list for tracking hash mac table was
+not freed during driver remove.
 
-Fixes: 088880ddc0b2 ("drm/etnaviv: implement softpin")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Arjun Vynipadath <arjun@chelsio.com>
+Signed-off-by: Ganesh Goudar <ganeshgr@chelsio.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/etnaviv/etnaviv_gem_submit.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/drivers/gpu/drm/etnaviv/etnaviv_gem_submit.c
-+++ b/drivers/gpu/drm/etnaviv/etnaviv_gem_submit.c
-@@ -238,8 +238,10 @@ static int submit_pin_objects(struct etn
- 		}
+diff --git a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c
+index c81d6c330548..c334b6206871 100644
+--- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c
++++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c
+@@ -2296,6 +2296,8 @@ static int cxgb_up(struct adapter *adap)
  
- 		if ((submit->flags & ETNA_SUBMIT_SOFTPIN) &&
--		     submit->bos[i].va != mapping->iova)
-+		     submit->bos[i].va != mapping->iova) {
-+			etnaviv_gem_mapping_unreference(mapping);
- 			return -EINVAL;
-+		}
+ static void cxgb_down(struct adapter *adapter)
+ {
++	struct hash_mac_addr *entry, *tmp;
++
+ 	cancel_work_sync(&adapter->tid_release_task);
+ 	cancel_work_sync(&adapter->db_full_task);
+ 	cancel_work_sync(&adapter->db_drop_task);
+@@ -2304,6 +2306,12 @@ static void cxgb_down(struct adapter *adapter)
  
- 		atomic_inc(&etnaviv_obj->gpu_active);
+ 	t4_sge_stop(adapter);
+ 	t4_free_sge_resources(adapter);
++
++	list_for_each_entry_safe(entry, tmp, &adapter->mac_hlist, list) {
++		list_del(&entry->list);
++		kfree(entry);
++	}
++
+ 	adapter->flags &= ~FULL_INIT_DONE;
+ }
  
+-- 
+2.25.1
+
 
 
