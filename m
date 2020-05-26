@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E18F41E2C97
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:16:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E5EA21E2CA4
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:16:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392283AbgEZTQP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:16:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48556 "EHLO mail.kernel.org"
+        id S2404580AbgEZTPw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:15:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47474 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392277AbgEZTQO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:16:14 -0400
+        id S2404265AbgEZTPj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:15:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7C4D620776;
-        Tue, 26 May 2020 19:16:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 835002053B;
+        Tue, 26 May 2020 19:15:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590520574;
-        bh=yLwlTBvyODr7QfsTZrWpi8MtZSOJe6d+ppkpOxpaDyc=;
+        s=default; t=1590520539;
+        bh=58sZryhHClRNOh5xFfcL9n0qtM8EcmENfS3L8UspiAE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pjmopDElBH7RjfFyj+/+XdAM7AQxkpEfyW+tsPg412VAqUJT8xofKNryovhMTvLWd
-         1IzX8EzjnJ0mPvoOGU3GyQzmb+49oo/aUEflL0JWFuamxRVWifX9oVvtc8Di/ixhv6
-         E4M62CRWn5tnFPw/eo9INGjpQ/l63yRx7Mjf744I=
+        b=pL1f3NVStKeFwVXPg29kPESrjJMx/egD8i8qvg6kz9BE4UKtfAQqJTQ4+D6etYMw3
+         UM8Qh4fbRyvLYiNGFInaY8F1dggD/pGUGRo1iGDEjaGjWDPs9ucNdlI+KnioRr5txb
+         GFWNmF36ns2hTO8OxEN2yoFdlGv2pwzOhEg+3Po8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakub Sitnicki <jakub@cloudflare.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Stanislav Fomichev <sdf@google.com>
-Subject: [PATCH 5.6 119/126] flow_dissector: Drop BPF flow dissector prog ref on netns cleanup
-Date:   Tue, 26 May 2020 20:54:16 +0200
-Message-Id: <20200526183947.404142438@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Subject: [PATCH 5.6 120/126] x86/unwind/orc: Fix unwind_get_return_address_ptr() for inactive tasks
+Date:   Tue, 26 May 2020 20:54:17 +0200
+Message-Id: <20200526183947.470231101@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200526183937.471379031@linuxfoundation.org>
 References: <20200526183937.471379031@linuxfoundation.org>
@@ -44,93 +45,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Sitnicki <jakub@cloudflare.com>
+From: Josh Poimboeuf <jpoimboe@redhat.com>
 
-commit 5cf65922bb15279402e1e19b5ee8c51d618fa51f upstream.
+commit 187b96db5ca79423618dfa29a05c438c34f9e1f0 upstream.
 
-When attaching a flow dissector program to a network namespace with
-bpf(BPF_PROG_ATTACH, ...) we grab a reference to bpf_prog.
+Normally, show_trace_log_lvl() scans the stack, looking for text
+addresses to print.  In parallel, it unwinds the stack with
+unwind_next_frame().  If the stack address matches the pointer returned
+by unwind_get_return_address_ptr() for the current frame, the text
+address is printed normally without a question mark.  Otherwise it's
+considered a breadcrumb (potentially from a previous call path) and it's
+printed with a question mark to indicate that the address is unreliable
+and typically can be ignored.
 
-If netns gets destroyed while a flow dissector is still attached, and there
-are no other references to the prog, we leak the reference and the program
-remains loaded.
+Since the following commit:
 
-Leak can be reproduced by running flow dissector tests from selftests/bpf:
+  f1d9a2abff66 ("x86/unwind/orc: Don't skip the first frame for inactive tasks")
 
-  # bpftool prog list
-  # ./test_flow_dissector.sh
-  ...
-  selftests: test_flow_dissector [PASS]
-  # bpftool prog list
-  4: flow_dissector  name _dissect  tag e314084d332a5338  gpl
-          loaded_at 2020-05-20T18:50:53+0200  uid 0
-          xlated 552B  jited 355B  memlock 4096B  map_ids 3,4
-          btf_id 4
-  #
+... for inactive tasks, show_trace_log_lvl() prints *only* unreliable
+addresses (prepended with '?').
 
-Fix it by detaching the flow dissector program when netns is going away.
+That happens because, for the first frame of an inactive task,
+unwind_get_return_address_ptr() returns the wrong return address
+pointer: one word *below* the task stack pointer.  show_trace_log_lvl()
+starts scanning at the stack pointer itself, so it never finds the first
+'reliable' address, causing only guesses to being printed.
 
-Fixes: d58e468b1112 ("flow_dissector: implements flow dissector BPF hook")
-Signed-off-by: Jakub Sitnicki <jakub@cloudflare.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Reviewed-by: Stanislav Fomichev <sdf@google.com>
-Link: https://lore.kernel.org/bpf/20200521083435.560256-1-jakub@cloudflare.com
+The first frame of an inactive task isn't a normal stack frame.  It's
+actually just an instance of 'struct inactive_task_frame' which is left
+behind by __switch_to_asm().  Now that this inactive frame is actually
+exposed to callers, fix unwind_get_return_address_ptr() to interpret it
+properly.
+
+Fixes: f1d9a2abff66 ("x86/unwind/orc: Don't skip the first frame for inactive tasks")
+Reported-by: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20200522135435.vbxs7umku5pyrdbk@treble
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/core/flow_dissector.c |   26 +++++++++++++++++++++-----
- 1 file changed, 21 insertions(+), 5 deletions(-)
+ arch/x86/kernel/unwind_orc.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/net/core/flow_dissector.c
-+++ b/net/core/flow_dissector.c
-@@ -160,12 +160,10 @@ out:
- 	return ret;
- }
+--- a/arch/x86/kernel/unwind_orc.c
++++ b/arch/x86/kernel/unwind_orc.c
+@@ -314,12 +314,19 @@ EXPORT_SYMBOL_GPL(unwind_get_return_addr
  
--int skb_flow_dissector_bpf_prog_detach(const union bpf_attr *attr)
-+static int flow_dissector_bpf_prog_detach(struct net *net)
+ unsigned long *unwind_get_return_address_ptr(struct unwind_state *state)
  {
- 	struct bpf_prog *attached;
--	struct net *net;
- 
--	net = current->nsproxy->net_ns;
- 	mutex_lock(&flow_dissector_mutex);
- 	attached = rcu_dereference_protected(net->flow_dissector_prog,
- 					     lockdep_is_held(&flow_dissector_mutex));
-@@ -179,6 +177,24 @@ int skb_flow_dissector_bpf_prog_detach(c
- 	return 0;
- }
- 
-+int skb_flow_dissector_bpf_prog_detach(const union bpf_attr *attr)
-+{
-+	return flow_dissector_bpf_prog_detach(current->nsproxy->net_ns);
-+}
++	struct task_struct *task = state->task;
 +
-+static void __net_exit flow_dissector_pernet_pre_exit(struct net *net)
-+{
-+	/* We're not racing with attach/detach because there are no
-+	 * references to netns left when pre_exit gets called.
-+	 */
-+	if (rcu_access_pointer(net->flow_dissector_prog))
-+		flow_dissector_bpf_prog_detach(net);
-+}
-+
-+static struct pernet_operations flow_dissector_pernet_ops __net_initdata = {
-+	.pre_exit = flow_dissector_pernet_pre_exit,
-+};
-+
- /**
-  * __skb_flow_get_ports - extract the upper layer ports and return them
-  * @skb: sk_buff to extract the ports from
-@@ -1838,7 +1854,7 @@ static int __init init_default_flow_diss
- 	skb_flow_dissector_init(&flow_keys_basic_dissector,
- 				flow_keys_basic_dissector_keys,
- 				ARRAY_SIZE(flow_keys_basic_dissector_keys));
--	return 0;
--}
+ 	if (unwind_done(state))
+ 		return NULL;
  
-+	return register_pernet_subsys(&flow_dissector_pernet_ops);
-+}
- core_initcall(init_default_flow_dissectors);
+ 	if (state->regs)
+ 		return &state->regs->ip;
+ 
++	if (task != current && state->sp == task->thread.sp) {
++		struct inactive_task_frame *frame = (void *)task->thread.sp;
++		return &frame->ret_addr;
++	}
++
+ 	if (state->sp)
+ 		return (unsigned long *)state->sp - 1;
+ 
 
 
