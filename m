@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 80B641E2CE9
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:18:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F3DD81E2E50
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:28:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392195AbgEZTS1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:18:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44164 "EHLO mail.kernel.org"
+        id S2391585AbgEZT2d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:28:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58034 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404009AbgEZTNo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:13:44 -0400
+        id S2390174AbgEZTC5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:02:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E8C63208A7;
-        Tue, 26 May 2020 19:13:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9FB5D2086A;
+        Tue, 26 May 2020 19:02:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590520424;
-        bh=r/ZhJS3TFnJvUkfTEaJFVxbdWUpnvSUCDvWHnEm187c=;
+        s=default; t=1590519777;
+        bh=2dV8kWIG71SiZs/1feT2OKCo8EG/g/GDwpQxqM/As9A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WXkVyfP7W2BGzkHNPelHtcGiF/uhkFNq4bfPII5L9N8oY95nBBB9OPJA+HGBDEHwe
-         7ghh+qv9Jm1OJXJBMZ8ykAXRUm5Gx9GjjOc+vTi0+eIov3cv5CGxaHOHXFb8267Sx/
-         nnwSngGblbSsSP5WHUZ47Cxb2itF5jdyUjg6kjOc=
+        b=ef54Y5gj0GfxdNhWAS3W/7FN8X4VYeRHJlWGsR5KQnpeZ9eiIui37DhIWwus2QC3y
+         DrHgVOt3pe48EO9mMdwmQVPJIi/zmZ6Xtg/T/8QsptFLMXEf9GTC0IZ0RitT1oY+K8
+         1rKlyatwTk7mdHmplw3JCx+3C98TsJqh+PBuQbMo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Neil Horman <nhorman@tuxdriver.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 023/126] net: drop_monitor: use IS_REACHABLE() to guard net_dm_hw_report()
+        stable@vger.kernel.org, Vincent Chen <vincent.chen@sifive.com>,
+        Anup Patel <anup@brainfault.org>,
+        Yash Shah <yash.shah@sifive.com>,
+        Palmer Dabbelt <palmerdabbelt@google.com>
+Subject: [PATCH 4.19 05/81] riscv: set max_pfn to the PFN of the last page
 Date:   Tue, 26 May 2020 20:52:40 +0200
-Message-Id: <20200526183939.637663293@linuxfoundation.org>
+Message-Id: <20200526183924.534086347@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183937.471379031@linuxfoundation.org>
-References: <20200526183937.471379031@linuxfoundation.org>
+In-Reply-To: <20200526183923.108515292@linuxfoundation.org>
+References: <20200526183923.108515292@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,43 +45,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <masahiroy@kernel.org>
+From: Vincent Chen <vincent.chen@sifive.com>
 
-[ Upstream commit 1cd9b3abf5332102d4d967555e7ed861a75094bf ]
+commit c749bb2d554825e007cbc43b791f54e124dadfce upstream.
 
-In net/Kconfig, NET_DEVLINK implies NET_DROP_MONITOR.
+The current max_pfn equals to zero. In this case, I found it caused users
+cannot get some page information through /proc such as kpagecount in v5.6
+kernel because of new sanity checks. The following message is displayed by
+stress-ng test suite with the command "stress-ng --verbose --physpage 1 -t
+1" on HiFive unleashed board.
 
-The original behavior of the 'imply' keyword prevents NET_DROP_MONITOR
-from being 'm' when NET_DEVLINK=y.
+ # stress-ng --verbose --physpage 1 -t 1
+ stress-ng: debug: [109] 4 processors online, 4 processors configured
+ stress-ng: info: [109] dispatching hogs: 1 physpage
+ stress-ng: debug: [109] cache allocate: reducing cache level from L3 (too high) to L0
+ stress-ng: debug: [109] get_cpu_cache: invalid cache_level: 0
+ stress-ng: info: [109] cache allocate: using built-in defaults as no suitable cache found
+ stress-ng: debug: [109] cache allocate: default cache size: 2048K
+ stress-ng: debug: [109] starting stressors
+ stress-ng: debug: [109] 1 stressor spawned
+ stress-ng: debug: [110] stress-ng-physpage: started [110] (instance 0)
+ stress-ng: error: [110] stress-ng-physpage: cannot read page count for address 0x3fd34de000 in /proc/kpagecount, errno=0 (Success)
+ stress-ng: error: [110] stress-ng-physpage: cannot read page count for address 0x3fd32db078 in /proc/kpagecount, errno=0 (Success)
+ ...
+ stress-ng: error: [110] stress-ng-physpage: cannot read page count for address 0x3fd32db078 in /proc/kpagecount, errno=0 (Success)
+ stress-ng: debug: [110] stress-ng-physpage: exited [110] (instance 0)
+ stress-ng: debug: [109] process [110] terminated
+ stress-ng: info: [109] successful run completed in 1.00s
+ #
 
-With the planned Kconfig change that relaxes the 'imply', the
-combination of NET_DEVLINK=y and NET_DROP_MONITOR=m would be allowed.
+After applying this patch, the kernel can pass the test.
 
-Use IS_REACHABLE() to avoid the vmlinux link error for this case.
+ # stress-ng --verbose --physpage 1 -t 1
+ stress-ng: debug: [104] 4 processors online, 4 processors configured stress-ng: info: [104] dispatching hogs: 1 physpage
+ stress-ng: info: [104] cache allocate: using defaults, can't determine cache details from sysfs
+ stress-ng: debug: [104] cache allocate: default cache size: 2048K
+ stress-ng: debug: [104] starting stressors
+ stress-ng: debug: [104] 1 stressor spawned
+ stress-ng: debug: [105] stress-ng-physpage: started [105] (instance 0) stress-ng: debug: [105] stress-ng-physpage: exited [105] (instance 0) stress-ng: debug: [104] process [105] terminated
+ stress-ng: info: [104] successful run completed in 1.01s
+ #
 
-Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Acked-by: Neil Horman <nhorman@tuxdriver.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Vincent Chen <vincent.chen@sifive.com>
+Reviewed-by: Anup Patel <anup@brainfault.org>
+Reviewed-by: Yash Shah <yash.shah@sifive.com>
+Tested-by: Yash Shah <yash.shah@sifive.com>
+Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
+[Palmer: back-ported to 4.19]
+Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- include/net/drop_monitor.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/riscv/kernel/setup.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/include/net/drop_monitor.h b/include/net/drop_monitor.h
-index 2ab668461463..f68bc373544a 100644
---- a/include/net/drop_monitor.h
-+++ b/include/net/drop_monitor.h
-@@ -19,7 +19,7 @@ struct net_dm_hw_metadata {
- 	struct net_device *input_dev;
- };
+--- a/arch/riscv/kernel/setup.c
++++ b/arch/riscv/kernel/setup.c
+@@ -19,6 +19,7 @@
+  * to the Free Software Foundation, Inc.,
+  */
  
--#if IS_ENABLED(CONFIG_NET_DROP_MONITOR)
-+#if IS_REACHABLE(CONFIG_NET_DROP_MONITOR)
- void net_dm_hw_report(struct sk_buff *skb,
- 		      const struct net_dm_hw_metadata *hw_metadata);
- #else
--- 
-2.25.1
-
++#include <linux/bootmem.h>
+ #include <linux/init.h>
+ #include <linux/mm.h>
+ #include <linux/memblock.h>
+@@ -187,6 +188,7 @@ static void __init setup_bootmem(void)
+ 
+ 	set_max_mapnr(PFN_DOWN(mem_size));
+ 	max_low_pfn = PFN_DOWN(memblock_end_of_DRAM());
++	max_pfn = max_low_pfn;
+ 
+ #ifdef CONFIG_BLK_DEV_INITRD
+ 	setup_initrd();
 
 
