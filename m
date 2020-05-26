@@ -2,38 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 589FB1E2BF0
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:10:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D4A51E2CB0
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:17:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391446AbgEZTK0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:10:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39608 "EHLO mail.kernel.org"
+        id S2391885AbgEZTPS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:15:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46780 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391436AbgEZTKZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:10:25 -0400
+        id S2404398AbgEZTPQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:15:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 66ACF20776;
-        Tue, 26 May 2020 19:10:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9221F2053B;
+        Tue, 26 May 2020 19:15:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590520224;
-        bh=Oqu2yOvrwuOCvuThZiTy/2R+0TTTq6zMYRIblVN+r5c=;
+        s=default; t=1590520516;
+        bh=k5vrMvpNFxsa0jCQv9KhTfdi1z81KtTwMF1gGpNRJ0U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bMJtdK6OnSJhL6XGWM3qVcTYesTGtfJyn+hEA98WbXYCtvPrLUldwCJZNu0uBDz8b
-         YKEMXpTSikwOot7B1z8V7nyv2lEZ9/ZPXJ2DZhllqtsqdTZQxGvCNt8Bo2m354dCB5
-         Wb5+avbQvrF+HqdVHvdhqP8m0tk7rTRtUWuduAM0=
+        b=RfIiz1NFLn4a9N3pbGtPkl+CaP6gXlOpuMADGhrO/xf9pdH4p3Y9hZYPJaM6Jsupa
+         PrkEZQokh2I+Wk/vNEfMpR7prByWZYi204qiFSSjknVf6oWsDbYklAjoATaSiXShp/
+         pFh1ryMBJpkvVuS3OE69/ZHRroB4eLb1y7vJr83Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 106/111] rxrpc: Trace discarded ACKs
-Date:   Tue, 26 May 2020 20:54:04 +0200
-Message-Id: <20200526183942.943064661@linuxfoundation.org>
+        stable@vger.kernel.org, John Hubbard <jhubbard@nvidia.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Matt Porter <mporter@kernel.crashing.org>,
+        Alexandre Bounine <alex.bou9@gmail.com>,
+        Sumit Semwal <sumit.semwal@linaro.org>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.6 108/126] rapidio: fix an error in get_user_pages_fast() error handling
+Date:   Tue, 26 May 2020 20:54:05 +0200
+Message-Id: <20200526183946.681701611@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183932.245016380@linuxfoundation.org>
-References: <20200526183932.245016380@linuxfoundation.org>
+In-Reply-To: <20200526183937.471379031@linuxfoundation.org>
+References: <20200526183937.471379031@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,100 +48,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: John Hubbard <jhubbard@nvidia.com>
 
-[ Upstream commit d1f129470e6cb79b8b97fecd12689f6eb49e27fe ]
+commit ffca476a0a8d26de767cc41d62b8ca7f540ecfdd upstream.
 
-Add a tracepoint to track received ACKs that are discarded due to being
-outside of the Tx window.
+In the case of get_user_pages_fast() returning fewer pages than
+requested, rio_dma_transfer() does not quite do the right thing.  It
+attempts to release all the pages that were requested, rather than just
+the pages that were pinned.
 
-Signed-off-by: David Howells <dhowells@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fix the error handling so that only the pages that were successfully
+pinned are released.
+
+Fixes: e8de370188d0 ("rapidio: add mport char device driver")
+Signed-off-by: John Hubbard <jhubbard@nvidia.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Matt Porter <mporter@kernel.crashing.org>
+Cc: Alexandre Bounine <alex.bou9@gmail.com>
+Cc: Sumit Semwal <sumit.semwal@linaro.org>
+Cc: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: <stable@vger.kernel.org>
+Link: http://lkml.kernel.org/r/20200517235620.205225-2-jhubbard@nvidia.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- include/trace/events/rxrpc.h | 35 +++++++++++++++++++++++++++++++++++
- net/rxrpc/input.c            | 12 ++++++++++--
- 2 files changed, 45 insertions(+), 2 deletions(-)
+ drivers/rapidio/devices/rio_mport_cdev.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/include/trace/events/rxrpc.h b/include/trace/events/rxrpc.h
-index ab75f261f04a..ba9efdc848f9 100644
---- a/include/trace/events/rxrpc.h
-+++ b/include/trace/events/rxrpc.h
-@@ -1541,6 +1541,41 @@ TRACE_EVENT(rxrpc_notify_socket,
- 		      __entry->serial)
- 	    );
+--- a/drivers/rapidio/devices/rio_mport_cdev.c
++++ b/drivers/rapidio/devices/rio_mport_cdev.c
+@@ -877,6 +877,11 @@ rio_dma_transfer(struct file *filp, u32
+ 				rmcd_error("pinned %ld out of %ld pages",
+ 					   pinned, nr_pages);
+ 			ret = -EFAULT;
++			/*
++			 * Set nr_pages up to mean "how many pages to unpin, in
++			 * the error handler:
++			 */
++			nr_pages = pinned;
+ 			goto err_pg;
+ 		}
  
-+TRACE_EVENT(rxrpc_rx_discard_ack,
-+	    TP_PROTO(unsigned int debug_id, rxrpc_serial_t serial,
-+		     rxrpc_seq_t first_soft_ack, rxrpc_seq_t call_ackr_first,
-+		     rxrpc_seq_t prev_pkt, rxrpc_seq_t call_ackr_prev),
-+
-+	    TP_ARGS(debug_id, serial, first_soft_ack, call_ackr_first,
-+		    prev_pkt, call_ackr_prev),
-+
-+	    TP_STRUCT__entry(
-+		    __field(unsigned int,	debug_id	)
-+		    __field(rxrpc_serial_t,	serial		)
-+		    __field(rxrpc_seq_t,	first_soft_ack)
-+		    __field(rxrpc_seq_t,	call_ackr_first)
-+		    __field(rxrpc_seq_t,	prev_pkt)
-+		    __field(rxrpc_seq_t,	call_ackr_prev)
-+			     ),
-+
-+	    TP_fast_assign(
-+		    __entry->debug_id		= debug_id;
-+		    __entry->serial		= serial;
-+		    __entry->first_soft_ack	= first_soft_ack;
-+		    __entry->call_ackr_first	= call_ackr_first;
-+		    __entry->prev_pkt		= prev_pkt;
-+		    __entry->call_ackr_prev	= call_ackr_prev;
-+			   ),
-+
-+	    TP_printk("c=%08x r=%08x %08x<%08x %08x<%08x",
-+		      __entry->debug_id,
-+		      __entry->serial,
-+		      __entry->first_soft_ack,
-+		      __entry->call_ackr_first,
-+		      __entry->prev_pkt,
-+		      __entry->call_ackr_prev)
-+	    );
-+
- #endif /* _TRACE_RXRPC_H */
- 
- /* This part must be outside protection */
-diff --git a/net/rxrpc/input.c b/net/rxrpc/input.c
-index e438bfd3fdf5..2f22f082a66c 100644
---- a/net/rxrpc/input.c
-+++ b/net/rxrpc/input.c
-@@ -866,8 +866,12 @@ static void rxrpc_input_ack(struct rxrpc_call *call, struct sk_buff *skb)
- 
- 	/* Discard any out-of-order or duplicate ACKs (outside lock). */
- 	if (before(first_soft_ack, call->ackr_first_seq) ||
--	    before(prev_pkt, call->ackr_prev_seq))
-+	    before(prev_pkt, call->ackr_prev_seq)) {
-+		trace_rxrpc_rx_discard_ack(call->debug_id, sp->hdr.serial,
-+					   first_soft_ack, call->ackr_first_seq,
-+					   prev_pkt, call->ackr_prev_seq);
- 		return;
-+	}
- 
- 	buf.info.rxMTU = 0;
- 	ioffset = offset + nr_acks + 3;
-@@ -879,8 +883,12 @@ static void rxrpc_input_ack(struct rxrpc_call *call, struct sk_buff *skb)
- 
- 	/* Discard any out-of-order or duplicate ACKs (inside lock). */
- 	if (before(first_soft_ack, call->ackr_first_seq) ||
--	    before(prev_pkt, call->ackr_prev_seq))
-+	    before(prev_pkt, call->ackr_prev_seq)) {
-+		trace_rxrpc_rx_discard_ack(call->debug_id, sp->hdr.serial,
-+					   first_soft_ack, call->ackr_first_seq,
-+					   prev_pkt, call->ackr_prev_seq);
- 		goto out;
-+	}
- 	call->acks_latest_ts = skb->tstamp;
- 
- 	call->ackr_first_seq = first_soft_ack;
--- 
-2.25.1
-
 
 
