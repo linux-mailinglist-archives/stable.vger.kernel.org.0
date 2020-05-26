@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A6B41E2D24
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:20:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C4101E2E66
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:30:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404415AbgEZTUD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:20:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42552 "EHLO mail.kernel.org"
+        id S2390885AbgEZTBA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:01:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55230 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404153AbgEZTMz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:12:55 -0400
+        id S2389748AbgEZTA7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:00:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 271B2208B3;
-        Tue, 26 May 2020 19:12:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B1386208C3;
+        Tue, 26 May 2020 19:00:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590520374;
-        bh=tp/HQEMAxy6eE4ZBdZZxf6X4ju8GZ6SIyB/TvQ0Vugc=;
+        s=default; t=1590519659;
+        bh=o6xEWP3l3NxJIyh56Zls/j+EDwwS16Hn5+vt1XvPQsE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RyJh5N8ynZxx+fTQuZk+ukl4O1Et5ybjy8cW1faw+W1f7rByVLOfEI4NB/Fmzbs+3
-         W603qRJ6WBRIbXyXbL1LSx2ZBFfUXjpL2jcTRVVDN/UjWoMvl/Bq/+pWz0h0cRMbJK
-         4Wn8cUxrJhVyIMFzWo0/M5iTOLL/JppQy2EBrOuU=
+        b=tJ5zDCDsaXZVKWh10z1VyXJ/8SkONRX9E6zfFwJcTKA4jdXqOgusrSPoqZY2Tct36
+         8WMgWk5Rb4sPKW11zUUiRD+ISF2WTqaP3a92Sq1qC9CyvPksVe1xcAXX00jQC78HO+
+         4D0DF7wTLtyX5xUD2Lbl2wt5LceX5obcGJuA+cEc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>,
         Thomas Gleixner <tglx@linutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 053/126] ARM: futex: Address build warning
+Subject: [PATCH 4.14 25/59] ARM: futex: Address build warning
 Date:   Tue, 26 May 2020 20:53:10 +0200
-Message-Id: <20200526183942.515211467@linuxfoundation.org>
+Message-Id: <20200526183916.587025373@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183937.471379031@linuxfoundation.org>
-References: <20200526183937.471379031@linuxfoundation.org>
+In-Reply-To: <20200526183907.123822792@linuxfoundation.org>
+References: <20200526183907.123822792@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -87,10 +87,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 7 insertions(+), 2 deletions(-)
 
 diff --git a/arch/arm/include/asm/futex.h b/arch/arm/include/asm/futex.h
-index 83c391b597d4..fdc4ae3e7378 100644
+index ffebe7b7a5b7..91ca80035fc4 100644
 --- a/arch/arm/include/asm/futex.h
 +++ b/arch/arm/include/asm/futex.h
-@@ -164,8 +164,13 @@ arch_futex_atomic_op_inuser(int op, int oparg, int *oval, u32 __user *uaddr)
+@@ -163,8 +163,13 @@ arch_futex_atomic_op_inuser(int op, int oparg, int *oval, u32 __user *uaddr)
  	preempt_enable();
  #endif
  
