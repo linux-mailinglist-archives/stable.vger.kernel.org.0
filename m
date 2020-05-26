@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D90681E2DD9
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:25:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BC551E2D80
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:24:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392517AbgEZTY4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:24:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35898 "EHLO mail.kernel.org"
+        id S2391976AbgEZTLy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:11:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41314 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390353AbgEZTHQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:07:16 -0400
+        id S2391316AbgEZTLv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:11:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DDB1620776;
-        Tue, 26 May 2020 19:07:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9216C20888;
+        Tue, 26 May 2020 19:11:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590520036;
+        s=default; t=1590520311;
         bh=5dYKczIvQ+iFI127IXOGGHsWU0/YsZaZeXftt1nV9sg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J8V+jnKV9OnOTqqXPql4HlBJC97u70uTZpFOef1lFcQT3iC8Adjh97JZRjqpxGuWA
-         jvM5gshMBhdBkRbtfbJJbmBIpTARsh2cAWhLQbHNTNubcoq5Bm6vFA/akzQMSrkXwy
-         h6r3DjpRSLEJGGgm0uhKDxEmtRCwyzTcu1dO1x6Q=
+        b=D39f1VCS3kTRdOqZnNWknwJlxU3aZY2aweunWm+EtVrUPWjWYB4yXDqNcwhr+RUtd
+         PUpb2Lfk+H1jID3LS2EfymYbbawEivkWCJ246aC0SyUPr4jugmEczO+afQ2bBd6kqN
+         onaUAmvk5mwskfStdKPxR2WRQ5BJITAL0eH/P7J0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,12 +30,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Boris Brezillon <boris.brezillon@collabora.com>,
         Richard Weinberger <richard@nod.at>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 008/111] mtd: spinand: Propagate ECC information to the MTD structure
+Subject: [PATCH 5.6 009/126] mtd: spinand: Propagate ECC information to the MTD structure
 Date:   Tue, 26 May 2020 20:52:26 +0200
-Message-Id: <20200526183933.304835227@linuxfoundation.org>
+Message-Id: <20200526183938.309643594@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183932.245016380@linuxfoundation.org>
-References: <20200526183932.245016380@linuxfoundation.org>
+In-Reply-To: <20200526183937.471379031@linuxfoundation.org>
+References: <20200526183937.471379031@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
