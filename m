@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E85DE1E2E74
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:30:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 56FE11E2CAC
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:16:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390983AbgEZTBs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:01:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56242 "EHLO mail.kernel.org"
+        id S2392294AbgEZTQq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:16:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46926 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390975AbgEZTBo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:01:44 -0400
+        id S2404393AbgEZTPV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:15:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9BB6B2086A;
-        Tue, 26 May 2020 19:01:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 50D72208B6;
+        Tue, 26 May 2020 19:15:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590519704;
-        bh=4c0Dilxy/m4zNS9uxSrxfs0CPMb4M2smHfnv6POAEWM=;
+        s=default; t=1590520520;
+        bh=dwPwdG0SK+kS1i7Rh+GeJcYZE0NSE+OYrDVqABO7+H4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PQ5gzDXr5P5IXtjdKrxEHxJ+3A73KASQDfKpTM0cmnI3GR2Yb4SBSRzwrfCgAgO8c
-         WhyC/eQscMRNkjaERd2WTvsXOKXIgel/qjJO0KLBn7+vpMaxXTnVl/0KU0xc0R62sS
-         vHMD1+iTrPIkREycrB8MCTMCiUJ7vMEH+C5WhLYI=
+        b=MUSmbcGbV2NXRP37B5eY8dtH9ODQShc8929s2EaroR5q5198bzMkO79L2duK/l1dr
+         F3m4fX2k8AnBWXQCzqEs2kdZDmjBmMmFM+DpSk+q/3E4VtVGnuHZXHCC+NBtqefvW7
+         zNpkuQmfPb75ucpFQToEcyIotdTZD4cf3RVRst24=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Williams <dan.j.williams@intel.com>,
-        Vishal Verma <vishal.l.verma@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 44/59] libnvdimm/btt: Remove unnecessary code in btt_freelist_init
+        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
+        Christian Gmeiner <christian.gmeiner@gmail.com>,
+        Lucas Stach <l.stach@pengutronix.de>
+Subject: [PATCH 5.6 072/126] drm/etnaviv: fix perfmon domain interation
 Date:   Tue, 26 May 2020 20:53:29 +0200
-Message-Id: <20200526183921.286541733@linuxfoundation.org>
+Message-Id: <20200526183944.293494261@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183907.123822792@linuxfoundation.org>
-References: <20200526183907.123822792@linuxfoundation.org>
+In-Reply-To: <20200526183937.471379031@linuxfoundation.org>
+References: <20200526183937.471379031@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,51 +44,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vishal Verma <vishal.l.verma@intel.com>
+From: Christian Gmeiner <christian.gmeiner@gmail.com>
 
-[ Upstream commit 2f8c9011151337d0bc106693f272f9bddbccfab2 ]
+commit 40b697e256ccdb88aaff424b44b4d300eb8460e8 upstream.
 
-We call btt_log_read() twice, once to get the 'old' log entry, and again
-to get the 'new' entry. However, we have no use for the 'old' entry, so
-remove it.
+The GC860 has one GPU device which has a 2d and 3d core. In this case
+we want to expose perfmon information for both cores.
 
-Cc: Dan Williams <dan.j.williams@intel.com>
-Signed-off-by: Vishal Verma <vishal.l.verma@intel.com>
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The driver has one array which contains all possible perfmon domains
+with some meta data - doms_meta. Here we can see that for the GC860
+two elements of that array are relevant:
+
+  doms_3d: is at index 0 in the doms_meta array with 8 perfmon domains
+  doms_2d: is at index 1 in the doms_meta array with 1 perfmon domain
+
+The userspace driver wants to get a list of all perfmon domains and
+their perfmon signals. This is done by iterating over all domains and
+their signals. If the userspace driver wants to access the domain with
+id 8 the kernel driver fails and returns invalid data from doms_3d with
+and invalid offset.
+
+This results in:
+  Unable to handle kernel paging request at virtual address 00000000
+
+On such a device it is not possible to use the userspace driver at all.
+
+The fix for this off-by-one error is quite simple.
+
+Reported-by: Paul Cercueil <paul@crapouillou.net>
+Tested-by: Paul Cercueil <paul@crapouillou.net>
+Fixes: ed1dd899baa3 ("drm/etnaviv: rework perfmon query infrastructure")
+Cc: stable@vger.kernel.org
+Signed-off-by: Christian Gmeiner <christian.gmeiner@gmail.com>
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/nvdimm/btt.c | 8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ drivers/gpu/drm/etnaviv/etnaviv_perfmon.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/nvdimm/btt.c b/drivers/nvdimm/btt.c
-index 471498469d0a..61e519f1d768 100644
---- a/drivers/nvdimm/btt.c
-+++ b/drivers/nvdimm/btt.c
-@@ -540,9 +540,9 @@ static int arena_clear_freelist_error(struct arena_info *arena, u32 lane)
+--- a/drivers/gpu/drm/etnaviv/etnaviv_perfmon.c
++++ b/drivers/gpu/drm/etnaviv/etnaviv_perfmon.c
+@@ -453,7 +453,7 @@ static const struct etnaviv_pm_domain *p
+ 		if (!(gpu->identity.features & meta->feature))
+ 			continue;
  
- static int btt_freelist_init(struct arena_info *arena)
- {
--	int old, new, ret;
-+	int new, ret;
- 	u32 i, map_entry;
--	struct log_entry log_new, log_old;
-+	struct log_entry log_new;
- 
- 	arena->freelist = kcalloc(arena->nfree, sizeof(struct free_entry),
- 					GFP_KERNEL);
-@@ -550,10 +550,6 @@ static int btt_freelist_init(struct arena_info *arena)
- 		return -ENOMEM;
- 
- 	for (i = 0; i < arena->nfree; i++) {
--		old = btt_log_read(arena, i, &log_old, LOG_OLD_ENT);
--		if (old < 0)
--			return old;
--
- 		new = btt_log_read(arena, i, &log_new, LOG_NEW_ENT);
- 		if (new < 0)
- 			return new;
--- 
-2.25.1
-
+-		if (meta->nr_domains < (index - offset)) {
++		if (index - offset >= meta->nr_domains) {
+ 			offset += meta->nr_domains;
+ 			continue;
+ 		}
 
 
