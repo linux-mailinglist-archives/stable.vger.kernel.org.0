@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 309BB1E2CC9
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:17:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1AB741E2DA6
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:24:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390187AbgEZTRh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:17:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45284 "EHLO mail.kernel.org"
+        id S2392476AbgEZTXA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:23:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38772 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404373AbgEZTOZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:14:25 -0400
+        id S2390783AbgEZTJh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:09:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6FFA620888;
-        Tue, 26 May 2020 19:14:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AD9F720873;
+        Tue, 26 May 2020 19:09:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590520464;
-        bh=QaKC/aax4G83a5/xHH+1SHXQu1XZhb2umndWLuaw1hI=;
+        s=default; t=1590520177;
+        bh=O9GuyrYBQ8P7jHWBTNTtQT6lMUojNgow4wxmzXQ9/G8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T7HYArj2GH5pLAW74XJPS17R03P/lxvgFm+m9rAMvMPE5rUhuJ/kqmD+rQGsFdK5Z
-         nYstvIgGkTIx6inulOz/i/I1SdSJhz+5RbRvLS7SQ6uwkl0EWQ/5zl/szhJRm0oS9w
-         S2u39/PyWIX5nt5KwpNyO/fSLEBXpJa8LMidH/DU=
+        b=DWP3GkxYE/jGz1iP6psNlkStUieO3h0J2c6XSU/yfzgoxscVv/PgzK3vVS1hLY7iG
+         RQbEMG4PSh2nzagSIezHTodZ1STL4Mcl/bvxHcf0SUpuO2eBXkhj0GyflR8DWaxNeO
+         zFImQo/KqjqJ+50OG8JMm7+wpFmj4xoFfkeqdXvw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dragos Bogdan <dragos.bogdan@analog.com>,
-        Alexandru Ardelean <alexandru.ardelean@analog.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.6 090/126] staging: iio: ad2s1210: Fix SPI reading
+        stable@vger.kernel.org, Atish Patra <Atish.Patra@wdc.com>,
+        Sagar Shrikant Kadam <sagar.kadam@sifive.com>,
+        Palmer Dabbelt <palmerdabbelt@google.com>
+Subject: [PATCH 5.4 089/111] tty: serial: add missing spin_lock_init for SiFive serial console
 Date:   Tue, 26 May 2020 20:53:47 +0200
-Message-Id: <20200526183945.504350839@linuxfoundation.org>
+Message-Id: <20200526183941.366715182@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183937.471379031@linuxfoundation.org>
-References: <20200526183937.471379031@linuxfoundation.org>
+In-Reply-To: <20200526183932.245016380@linuxfoundation.org>
+References: <20200526183932.245016380@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,63 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dragos Bogdan <dragos.bogdan@analog.com>
+From: Sagar Shrikant Kadam <sagar.kadam@sifive.com>
 
-commit 5e4f99a6b788047b0b8a7496c2e0c8f372f6edf2 upstream.
+commit 17b4efdf4e4867079012a48ca10d965fe9d68822 upstream.
 
-If the serial interface is used, the 8-bit address should be latched using
-the rising edge of the WR/FSYNC signal.
+An uninitialised spin lock for sifive serial console raises a bad
+magic spin_lock error as reported and discussed here [1].
+Initialising the spin lock resolves the issue.
 
-This basically means that a CS change is required between the first byte
-sent, and the second one.
-This change splits the single-transfer transfer of 2 bytes into 2 transfers
-with a single byte, and CS change in-between.
+The fix is tested on HiFive Unleashed A00 board with Linux 5.7-rc4
+and OpenSBI v0.7
 
-Note fixes tag is not accurate, but reflects a point beyond which there
-are too many refactors to make backporting straight forward.
+[1] https://lore.kernel.org/linux-riscv/b9fe49483a903f404e7acc15a6efbef756db28ae.camel@wdc.com
 
-Fixes: b19e9ad5e2cb ("staging:iio:resolver:ad2s1210 general driver cleanup.")
-Signed-off-by: Dragos Bogdan <dragos.bogdan@analog.com>
-Signed-off-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: 45c054d0815b ("tty: serial: add driver for the SiFive UART")
+Reported-by: Atish Patra <Atish.Patra@wdc.com>
+Signed-off-by: Sagar Shrikant Kadam <sagar.kadam@sifive.com>
+Reviewed-by: Palmer Dabbelt <palmerdabbelt@google.com>
+Acked-by: Palmer Dabbelt <palmerdabbelt@google.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/1589019852-21505-2-git-send-email-sagar.kadam@sifive.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/iio/resolver/ad2s1210.c |   17 ++++++++++++-----
- 1 file changed, 12 insertions(+), 5 deletions(-)
+ drivers/tty/serial/sifive.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/staging/iio/resolver/ad2s1210.c
-+++ b/drivers/staging/iio/resolver/ad2s1210.c
-@@ -130,17 +130,24 @@ static int ad2s1210_config_write(struct
- static int ad2s1210_config_read(struct ad2s1210_state *st,
- 				unsigned char address)
- {
--	struct spi_transfer xfer = {
--		.len = 2,
--		.rx_buf = st->rx,
--		.tx_buf = st->tx,
-+	struct spi_transfer xfers[] = {
-+		{
-+			.len = 1,
-+			.rx_buf = &st->rx[0],
-+			.tx_buf = &st->tx[0],
-+			.cs_change = 1,
-+		}, {
-+			.len = 1,
-+			.rx_buf = &st->rx[1],
-+			.tx_buf = &st->tx[1],
-+		},
- 	};
- 	int ret = 0;
+--- a/drivers/tty/serial/sifive.c
++++ b/drivers/tty/serial/sifive.c
+@@ -840,6 +840,7 @@ console_initcall(sifive_console_init);
  
- 	ad2s1210_set_mode(MOD_CONFIG, st);
- 	st->tx[0] = address | AD2S1210_MSB_IS_HIGH;
- 	st->tx[1] = AD2S1210_REG_FAULT;
--	ret = spi_sync_transfer(st->sdev, &xfer, 1);
-+	ret = spi_sync_transfer(st->sdev, xfers, 2);
- 	if (ret < 0)
- 		return ret;
+ static void __ssp_add_console_port(struct sifive_serial_port *ssp)
+ {
++	spin_lock_init(&ssp->port.lock);
+ 	sifive_serial_console_ports[ssp->port.line] = ssp;
+ }
  
 
 
