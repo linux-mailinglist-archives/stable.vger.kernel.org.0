@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C13F1E2F09
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:34:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F2D01E2EDA
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:32:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389474AbgEZSzY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 14:55:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47778 "EHLO mail.kernel.org"
+        id S2390168AbgEZS5p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 14:57:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51040 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389467AbgEZSzX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 14:55:23 -0400
+        id S2390160AbgEZS5p (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 14:57:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 59BC320849;
-        Tue, 26 May 2020 18:55:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 440E3208B6;
+        Tue, 26 May 2020 18:57:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590519322;
-        bh=Wwkq3HttPZDyE/FF5UyUIlAIhjy0c5qM67sxP1MaqhA=;
+        s=default; t=1590519464;
+        bh=nm1ATIczXGIiGta7zDSAVmr6SdgBJxCdqlek2HZTNcw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e9AATBCVxAyYMMM7aHxFIa6gqR+LyuoX+GzYZQ4w7E0LSSy1xf5+dDirPIR5FFtXv
-         RGW8iHX6OkoG9waU0m3j9BNLMm20OzNsJGgkbrR9x9GeA2RO3F0cgaXMcOhRYTHv8p
-         7JOzYPGT8oxW0fadymkf7MlJfOjefvP7HiQvoick=
+        b=Ncpl5o4ve1utfkUYOYKOFiqa/vsgjdIDvKYZtkoVQ9jWzlDFOCUcy8xJDAQl78L1I
+         7UgLmw6yJmR5s0W/ST5fjqPG4xScgFqAj/c5Z3dGV0xvB3gl8UyOwfagQjDzlBjSA5
+         naz95YjSlDpe/Wa4H33dyrhjJQkUBSgV/P8dv9uQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Viresh Kumar <viresh.kumar@linaro.org>,
-        Jean Delvare <jdelvare@suse.de>,
-        Wolfram Sang <wsa@the-dreams.de>,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        stable@vger.kernel.org, James Hilliard <james.hilliard1@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 23/65] i2c-dev: dont get i2c adapter via i2c_dev
-Date:   Tue, 26 May 2020 20:52:42 +0200
-Message-Id: <20200526183914.867893581@linuxfoundation.org>
+Subject: [PATCH 4.9 14/64] component: Silence bind error on -EPROBE_DEFER
+Date:   Tue, 26 May 2020 20:52:43 +0200
+Message-Id: <20200526183918.259474177@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183905.988782958@linuxfoundation.org>
-References: <20200526183905.988782958@linuxfoundation.org>
+In-Reply-To: <20200526183913.064413230@linuxfoundation.org>
+References: <20200526183913.064413230@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,45 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: viresh kumar <viresh.kumar@linaro.org>
+From: James Hilliard <james.hilliard1@gmail.com>
 
-commit 5136ed4fcb05cd4981cc6034a11e66370ed84789 upstream.
+[ Upstream commit 7706b0a76a9697021e2bf395f3f065c18f51043d ]
 
-There is no code protecting i2c_dev to be freed after it is returned
-from i2c_dev_get_by_minor() and using it to access the value which we
-already have (minor) isn't safe really.
+If a component fails to bind due to -EPROBE_DEFER we should not log an
+error as this is not a real failure.
 
-Avoid using it and get the adapter directly from 'minor'.
+Fixes messages like:
+vc4-drm soc:gpu: failed to bind 3f902000.hdmi (ops vc4_hdmi_ops): -517
+vc4-drm soc:gpu: master bind failed: -517
 
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
-Reviewed-by: Jean Delvare <jdelvare@suse.de>
-Tested-by: Jean Delvare <jdelvare@suse.de>
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
+Signed-off-by: James Hilliard <james.hilliard1@gmail.com>
+Link: https://lore.kernel.org/r/20200411190241.89404-1-james.hilliard1@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/i2c-dev.c | 7 +------
- 1 file changed, 1 insertion(+), 6 deletions(-)
+ drivers/base/component.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
-index e5cd307ebfc9..5543b49e2e05 100644
---- a/drivers/i2c/i2c-dev.c
-+++ b/drivers/i2c/i2c-dev.c
-@@ -492,13 +492,8 @@ static int i2cdev_open(struct inode *inode, struct file *file)
- 	unsigned int minor = iminor(inode);
- 	struct i2c_client *client;
- 	struct i2c_adapter *adap;
--	struct i2c_dev *i2c_dev;
--
--	i2c_dev = i2c_dev_get_by_minor(minor);
--	if (!i2c_dev)
--		return -ENODEV;
+diff --git a/drivers/base/component.c b/drivers/base/component.c
+index 08da6160e94d..55f0856bd9b5 100644
+--- a/drivers/base/component.c
++++ b/drivers/base/component.c
+@@ -162,7 +162,8 @@ static int try_to_bring_up_master(struct master *master,
+ 	ret = master->ops->bind(master->dev);
+ 	if (ret < 0) {
+ 		devres_release_group(master->dev, NULL);
+-		dev_info(master->dev, "master bind failed: %d\n", ret);
++		if (ret != -EPROBE_DEFER)
++			dev_info(master->dev, "master bind failed: %d\n", ret);
+ 		return ret;
+ 	}
  
--	adap = i2c_get_adapter(i2c_dev->adap->nr);
-+	adap = i2c_get_adapter(minor);
- 	if (!adap)
- 		return -ENODEV;
+@@ -431,8 +432,9 @@ static int component_bind(struct component *component, struct master *master,
+ 		devres_release_group(component->dev, NULL);
+ 		devres_release_group(master->dev, NULL);
  
+-		dev_err(master->dev, "failed to bind %s (ops %ps): %d\n",
+-			dev_name(component->dev), component->ops, ret);
++		if (ret != -EPROBE_DEFER)
++			dev_err(master->dev, "failed to bind %s (ops %ps): %d\n",
++				dev_name(component->dev), component->ops, ret);
+ 	}
+ 
+ 	return ret;
 -- 
 2.25.1
 
