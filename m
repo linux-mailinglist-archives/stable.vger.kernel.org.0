@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A73461E2BB3
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:07:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 28D5E1E2E91
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:30:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391347AbgEZTHr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:07:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36540 "EHLO mail.kernel.org"
+        id S2389616AbgEZTaL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:30:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54820 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391717AbgEZTHo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:07:44 -0400
+        id S2390789AbgEZTAj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:00:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4D2F320873;
-        Tue, 26 May 2020 19:07:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7687120849;
+        Tue, 26 May 2020 19:00:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590520063;
-        bh=GluYg6YNLbgPi1tsQ9ZyUD0io62+jfKVlka4WBOKCLE=;
+        s=default; t=1590519638;
+        bh=nm1ATIczXGIiGta7zDSAVmr6SdgBJxCdqlek2HZTNcw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AqQh26ZjWWGzI862mxhQWRRbTPRVmP7k26Z4x/isv5trl1FRYDm6oDO0Xvk6kvALk
-         KzIg2USs4Smox1b1lsjgtAXpQ9HSxn4qTSlOj54rCvoP6lfljZQhi8Rf3oDQw++23b
-         7Q7thORhPskcVzKgN2kqi3QTfzApmy3GIWbY4TYE=
+        b=hbi7E0Lpmmc3MMztNwIG7D+Nk8+/vAu7yvU+aS/T5UQWciejQdUJhhfLUB3SNbvaw
+         LTbd3QV0iMQttdQZbtL83kuxBz4HIhgvpK5YCmue0z84yaYWg5mBsJ6QXK1A8bkLk2
+         AXXO+RVvAkH873I7pKahotN9lBudrnNa6bGBSy5g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Peter Xu <peterx@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
+        stable@vger.kernel.org, James Hilliard <james.hilliard1@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 045/111] KVM: selftests: Fix build for evmcs.h
+Subject: [PATCH 4.14 18/59] component: Silence bind error on -EPROBE_DEFER
 Date:   Tue, 26 May 2020 20:53:03 +0200
-Message-Id: <20200526183937.193886055@linuxfoundation.org>
+Message-Id: <20200526183914.169556459@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183932.245016380@linuxfoundation.org>
-References: <20200526183932.245016380@linuxfoundation.org>
+In-Reply-To: <20200526183907.123822792@linuxfoundation.org>
+References: <20200526183907.123822792@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,58 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Xu <peterx@redhat.com>
+From: James Hilliard <james.hilliard1@gmail.com>
 
-[ Upstream commit 8ffdaf9155ebe517cdec5edbcca19ba6e7ee9c3c ]
+[ Upstream commit 7706b0a76a9697021e2bf395f3f065c18f51043d ]
 
-I got this error when building kvm selftests:
+If a component fails to bind due to -EPROBE_DEFER we should not log an
+error as this is not a real failure.
 
-/usr/bin/ld: /home/xz/git/linux/tools/testing/selftests/kvm/libkvm.a(vmx.o):/home/xz/git/linux/tools/testing/selftests/kvm/include/evmcs.h:222: multiple definition of `current_evmcs'; /tmp/cco1G48P.o:/home/xz/git/linux/tools/testing/selftests/kvm/include/evmcs.h:222: first defined here
-/usr/bin/ld: /home/xz/git/linux/tools/testing/selftests/kvm/libkvm.a(vmx.o):/home/xz/git/linux/tools/testing/selftests/kvm/include/evmcs.h:223: multiple definition of `current_vp_assist'; /tmp/cco1G48P.o:/home/xz/git/linux/tools/testing/selftests/kvm/include/evmcs.h:223: first defined here
+Fixes messages like:
+vc4-drm soc:gpu: failed to bind 3f902000.hdmi (ops vc4_hdmi_ops): -517
+vc4-drm soc:gpu: master bind failed: -517
 
-I think it's because evmcs.h is included both in a test file and a lib file so
-the structs have multiple declarations when linking.  After all it's not a good
-habit to declare structs in the header files.
-
-Cc: Vitaly Kuznetsov <vkuznets@redhat.com>
-Signed-off-by: Peter Xu <peterx@redhat.com>
-Message-Id: <20200504220607.99627-1-peterx@redhat.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: James Hilliard <james.hilliard1@gmail.com>
+Link: https://lore.kernel.org/r/20200411190241.89404-1-james.hilliard1@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/kvm/include/evmcs.h  | 4 ++--
- tools/testing/selftests/kvm/lib/x86_64/vmx.c | 3 +++
- 2 files changed, 5 insertions(+), 2 deletions(-)
+ drivers/base/component.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/tools/testing/selftests/kvm/include/evmcs.h b/tools/testing/selftests/kvm/include/evmcs.h
-index 4912d23844bc..e31ac9c5ead0 100644
---- a/tools/testing/selftests/kvm/include/evmcs.h
-+++ b/tools/testing/selftests/kvm/include/evmcs.h
-@@ -217,8 +217,8 @@ struct hv_enlightened_vmcs {
- #define HV_X64_MSR_VP_ASSIST_PAGE_ADDRESS_MASK	\
- 		(~((1ull << HV_X64_MSR_VP_ASSIST_PAGE_ADDRESS_SHIFT) - 1))
+diff --git a/drivers/base/component.c b/drivers/base/component.c
+index 08da6160e94d..55f0856bd9b5 100644
+--- a/drivers/base/component.c
++++ b/drivers/base/component.c
+@@ -162,7 +162,8 @@ static int try_to_bring_up_master(struct master *master,
+ 	ret = master->ops->bind(master->dev);
+ 	if (ret < 0) {
+ 		devres_release_group(master->dev, NULL);
+-		dev_info(master->dev, "master bind failed: %d\n", ret);
++		if (ret != -EPROBE_DEFER)
++			dev_info(master->dev, "master bind failed: %d\n", ret);
+ 		return ret;
+ 	}
  
--struct hv_enlightened_vmcs *current_evmcs;
--struct hv_vp_assist_page *current_vp_assist;
-+extern struct hv_enlightened_vmcs *current_evmcs;
-+extern struct hv_vp_assist_page *current_vp_assist;
+@@ -431,8 +432,9 @@ static int component_bind(struct component *component, struct master *master,
+ 		devres_release_group(component->dev, NULL);
+ 		devres_release_group(master->dev, NULL);
  
- int vcpu_enable_evmcs(struct kvm_vm *vm, int vcpu_id);
+-		dev_err(master->dev, "failed to bind %s (ops %ps): %d\n",
+-			dev_name(component->dev), component->ops, ret);
++		if (ret != -EPROBE_DEFER)
++			dev_err(master->dev, "failed to bind %s (ops %ps): %d\n",
++				dev_name(component->dev), component->ops, ret);
+ 	}
  
-diff --git a/tools/testing/selftests/kvm/lib/x86_64/vmx.c b/tools/testing/selftests/kvm/lib/x86_64/vmx.c
-index f6ec97b7eaef..8cc4a59ff369 100644
---- a/tools/testing/selftests/kvm/lib/x86_64/vmx.c
-+++ b/tools/testing/selftests/kvm/lib/x86_64/vmx.c
-@@ -17,6 +17,9 @@
- 
- bool enable_evmcs;
- 
-+struct hv_enlightened_vmcs *current_evmcs;
-+struct hv_vp_assist_page *current_vp_assist;
-+
- struct eptPageTableEntry {
- 	uint64_t readable:1;
- 	uint64_t writable:1;
+ 	return ret;
 -- 
 2.25.1
 
