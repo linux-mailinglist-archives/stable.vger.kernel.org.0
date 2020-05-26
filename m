@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D70E61E2CC2
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:17:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 979D01E2E14
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:27:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404133AbgEZTOQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:14:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44988 "EHLO mail.kernel.org"
+        id S2391391AbgEZTEn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:04:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60382 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404338AbgEZTOP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:14:15 -0400
+        id S2390485AbgEZTEl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:04:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AE297208B6;
-        Tue, 26 May 2020 19:14:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C40CB20849;
+        Tue, 26 May 2020 19:04:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590520455;
-        bh=hFig9hmtta8baLq9l4NUzE2/ChNeohb5Mi97YN1hjHw=;
+        s=default; t=1590519880;
+        bh=q52oCTslmfWu8UFWSgvt3snEHbJZpSrBNpItw+cgWkA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XIOXt7c95bmHbZ8819qMrR1361QYOLMjsZXHYEFDS9j/CDtnA+tOydgptCYLBn3mJ
-         a10XEk4VeD5qU05O6nz/SW8yWaHuZuKsyzIPntXQrgPLvfjYpX4XsM7vEbabyu0/wX
-         jwB78Ca+lQZHAYjP9zALYlVfKTUkv+rDMoWXV6ps=
+        b=LBKhqsS2y2hUOvAJCGaxF3sRfpl1uf+wpovO9SjY9Q52iZYpIi9Bn9Z6/0mmNIWGX
+         UQGxMvszU51ySP20vL4cM/qacmK9w+KpamUnnxn9NrJ12yYFGjoyanl1b2yPVgv3vW
+         2hFPIKKfU/lRbj0eshDfP+BF6tiOiZjswhmdy/Z0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Bryant G. Ly" <bryangly@gmail.com>,
-        Bart van Assche <bvanassche@acm.org>,
-        Bodo Stroesser <bstroesser@ts.fujitsu.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.6 069/126] scsi: target: Put lun_ref at end of tmr processing
+        stable@vger.kernel.org, Dexuan Cui <decui@microsoft.com>,
+        Michael Kelley <mikelley@microsoft.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 51/81] nfit: Add Hyper-V NVDIMM DSM command set to white list
 Date:   Tue, 26 May 2020 20:53:26 +0200
-Message-Id: <20200526183943.975359174@linuxfoundation.org>
+Message-Id: <20200526183932.809967880@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183937.471379031@linuxfoundation.org>
-References: <20200526183937.471379031@linuxfoundation.org>
+In-Reply-To: <20200526183923.108515292@linuxfoundation.org>
+References: <20200526183923.108515292@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,61 +45,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bodo Stroesser <bstroesser@ts.fujitsu.com>
+From: Dexuan Cui <decui@microsoft.com>
 
-commit f2e6b75f6ee82308ef7b00f29e71e5f1c6b3d52a upstream.
+[ Upstream commit 1194c4133195dfcb6c5fc0935d54bbed872a5285 ]
 
-Testing with Loopback I found that, after a Loopback LUN has executed a
-TMR, I can no longer unlink the LUN.  The rm command hangs in
-transport_clear_lun_ref() at wait_for_completion(&lun->lun_shutdown_comp)
-The reason is, that transport_lun_remove_cmd() is not called at the end of
-target_tmr_work().
+Add the Hyper-V _DSM command set to the white list of NVDIMM command
+sets.
 
-It seems, that in other fabrics this call happens implicitly when the
-fabric drivers call transport_generic_free_cmd() during their
-->queue_tm_rsp().
+This command set is documented at http://www.uefi.org/RFIC_LIST
+(see "Virtual NVDIMM 0x1901").
 
-Unfortunately Loopback seems to not comply to the common way
-of calling transport_generic_free_cmd() from ->queue_*().
-Instead it calls transport_generic_free_cmd() from its
-  ->check_stop_free() only.
-
-But the ->check_stop_free() is called by
-transport_cmd_check_stop_to_fabric() after it has reset the se_cmd->se_lun
-pointer.  Therefore the following transport_generic_free_cmd() skips the
-transport_lun_remove_cmd().
-
-So this patch re-adds the transport_lun_remove_cmd() at the end of
-target_tmr_work(), which was removed during commit 2c9fa49e100f ("scsi:
-target/core: Make ABORT and LUN RESET handling synchronous").
-
-For fabrics using transport_generic_free_cmd() in the usual way the double
-call to transport_lun_remove_cmd() doesn't harm, as
-transport_lun_remove_cmd() checks for this situation and does not release
-lun_ref twice.
-
-Link: https://lore.kernel.org/r/20200513153443.3554-1-bstroesser@ts.fujitsu.com
-Fixes: 2c9fa49e100f ("scsi: target/core: Make ABORT and LUN RESET handling synchronous")
-Cc: stable@vger.kernel.org
-Tested-by: Bryant G. Ly <bryangly@gmail.com>
-Reviewed-by: Bart van Assche <bvanassche@acm.org>
-Signed-off-by: Bodo Stroesser <bstroesser@ts.fujitsu.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Dexuan Cui <decui@microsoft.com>
+Reviewed-by: Michael Kelley <mikelley@microsoft.com>
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/target/target_core_transport.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/acpi/nfit/core.c   | 17 ++++++++++++++---
+ drivers/acpi/nfit/nfit.h   |  6 +++++-
+ include/uapi/linux/ndctl.h |  1 +
+ 3 files changed, 20 insertions(+), 4 deletions(-)
 
---- a/drivers/target/target_core_transport.c
-+++ b/drivers/target/target_core_transport.c
-@@ -3349,6 +3349,7 @@ static void target_tmr_work(struct work_
+diff --git a/drivers/acpi/nfit/core.c b/drivers/acpi/nfit/core.c
+index 8340c81b258b..dd4c7289610e 100644
+--- a/drivers/acpi/nfit/core.c
++++ b/drivers/acpi/nfit/core.c
+@@ -1773,9 +1773,17 @@ static int acpi_nfit_add_dimm(struct acpi_nfit_desc *acpi_desc,
+ 	dev_set_drvdata(&adev_dimm->dev, nfit_mem);
  
- 	cmd->se_tfo->queue_tm_rsp(cmd);
+ 	/*
+-	 * Until standardization materializes we need to consider 4
+-	 * different command sets.  Note, that checking for function0 (bit0)
+-	 * tells us if any commands are reachable through this GUID.
++	 * There are 4 "legacy" NVDIMM command sets
++	 * (NVDIMM_FAMILY_{INTEL,MSFT,HPE1,HPE2}) that were created before
++	 * an EFI working group was established to constrain this
++	 * proliferation. The nfit driver probes for the supported command
++	 * set by GUID. Note, if you're a platform developer looking to add
++	 * a new command set to this probe, consider using an existing set,
++	 * or otherwise seek approval to publish the command set at
++	 * http://www.uefi.org/RFIC_LIST.
++	 *
++	 * Note, that checking for function0 (bit0) tells us if any commands
++	 * are reachable through this GUID.
+ 	 */
+ 	for (i = 0; i <= NVDIMM_FAMILY_MAX; i++)
+ 		if (acpi_check_dsm(adev_dimm->handle, to_nfit_uuid(i), 1, 1))
+@@ -1798,6 +1806,8 @@ static int acpi_nfit_add_dimm(struct acpi_nfit_desc *acpi_desc,
+ 			dsm_mask &= ~(1 << 8);
+ 	} else if (nfit_mem->family == NVDIMM_FAMILY_MSFT) {
+ 		dsm_mask = 0xffffffff;
++	} else if (nfit_mem->family == NVDIMM_FAMILY_HYPERV) {
++		dsm_mask = 0x1f;
+ 	} else {
+ 		dev_dbg(dev, "unknown dimm command family\n");
+ 		nfit_mem->family = -1;
+@@ -3622,6 +3632,7 @@ static __init int nfit_init(void)
+ 	guid_parse(UUID_NFIT_DIMM_N_HPE1, &nfit_uuid[NFIT_DEV_DIMM_N_HPE1]);
+ 	guid_parse(UUID_NFIT_DIMM_N_HPE2, &nfit_uuid[NFIT_DEV_DIMM_N_HPE2]);
+ 	guid_parse(UUID_NFIT_DIMM_N_MSFT, &nfit_uuid[NFIT_DEV_DIMM_N_MSFT]);
++	guid_parse(UUID_NFIT_DIMM_N_HYPERV, &nfit_uuid[NFIT_DEV_DIMM_N_HYPERV]);
  
-+	transport_lun_remove_cmd(cmd);
- 	transport_cmd_check_stop_to_fabric(cmd);
- 	return;
+ 	nfit_wq = create_singlethread_workqueue("nfit");
+ 	if (!nfit_wq)
+diff --git a/drivers/acpi/nfit/nfit.h b/drivers/acpi/nfit/nfit.h
+index 68848fc4b7c9..cc2ec62951de 100644
+--- a/drivers/acpi/nfit/nfit.h
++++ b/drivers/acpi/nfit/nfit.h
+@@ -34,11 +34,14 @@
+ /* https://msdn.microsoft.com/library/windows/hardware/mt604741 */
+ #define UUID_NFIT_DIMM_N_MSFT "1ee68b36-d4bd-4a1a-9a16-4f8e53d46e05"
  
++/* http://www.uefi.org/RFIC_LIST (see "Virtual NVDIMM 0x1901") */
++#define UUID_NFIT_DIMM_N_HYPERV "5746c5f2-a9a2-4264-ad0e-e4ddc9e09e80"
++
+ #define ACPI_NFIT_MEM_FAILED_MASK (ACPI_NFIT_MEM_SAVE_FAILED \
+ 		| ACPI_NFIT_MEM_RESTORE_FAILED | ACPI_NFIT_MEM_FLUSH_FAILED \
+ 		| ACPI_NFIT_MEM_NOT_ARMED | ACPI_NFIT_MEM_MAP_FAILED)
+ 
+-#define NVDIMM_FAMILY_MAX NVDIMM_FAMILY_MSFT
++#define NVDIMM_FAMILY_MAX NVDIMM_FAMILY_HYPERV
+ 
+ #define NVDIMM_STANDARD_CMDMASK \
+ (1 << ND_CMD_SMART | 1 << ND_CMD_SMART_THRESHOLD | 1 << ND_CMD_DIMM_FLAGS \
+@@ -75,6 +78,7 @@ enum nfit_uuids {
+ 	NFIT_DEV_DIMM_N_HPE1 = NVDIMM_FAMILY_HPE1,
+ 	NFIT_DEV_DIMM_N_HPE2 = NVDIMM_FAMILY_HPE2,
+ 	NFIT_DEV_DIMM_N_MSFT = NVDIMM_FAMILY_MSFT,
++	NFIT_DEV_DIMM_N_HYPERV = NVDIMM_FAMILY_HYPERV,
+ 	NFIT_SPA_VOLATILE,
+ 	NFIT_SPA_PM,
+ 	NFIT_SPA_DCR,
+diff --git a/include/uapi/linux/ndctl.h b/include/uapi/linux/ndctl.h
+index 2f2c43d633c5..7b0189d6dfa9 100644
+--- a/include/uapi/linux/ndctl.h
++++ b/include/uapi/linux/ndctl.h
+@@ -247,6 +247,7 @@ struct nd_cmd_pkg {
+ #define NVDIMM_FAMILY_HPE1 1
+ #define NVDIMM_FAMILY_HPE2 2
+ #define NVDIMM_FAMILY_MSFT 3
++#define NVDIMM_FAMILY_HYPERV 4
+ 
+ #define ND_IOCTL_CALL			_IOWR(ND_IOCTL, ND_CMD_CALL,\
+ 					struct nd_cmd_pkg)
+-- 
+2.25.1
+
 
 
