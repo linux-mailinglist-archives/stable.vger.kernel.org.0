@@ -2,107 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E61C31E26B8
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 18:19:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BA37B1E26C6
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 18:20:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729673AbgEZQTM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 12:19:12 -0400
-Received: from foss.arm.com ([217.140.110.172]:53038 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728280AbgEZQTM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 12:19:12 -0400
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 6946330E;
-        Tue, 26 May 2020 09:19:11 -0700 (PDT)
-Received: from merodach.members.linode.com (unknown [172.31.20.19])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 6250A3F52E;
-        Tue, 26 May 2020 09:19:10 -0700 (PDT)
-From:   James Morse <james.morse@arm.com>
-To:     kvmarm@lists.cs.columbia.edu, linux-arm-kernel@lists.infradead.org
-Cc:     Marc Zyngier <maz@kernel.org>,
-        Julien Thierry <julien.thierry.kdev@gmail.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        James Morse <james.morse@arm.com>, stable@vger.kernel.org
-Subject: [PATCH 1/3] KVM: arm64: Stop writing aarch32's CSSELR into ACTLR
-Date:   Tue, 26 May 2020 16:18:32 +0000
-Message-Id: <20200526161834.29165-2-james.morse@arm.com>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200526161834.29165-1-james.morse@arm.com>
-References: <20200526161834.29165-1-james.morse@arm.com>
+        id S1727941AbgEZQUd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 12:20:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35686 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726282AbgEZQUd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 May 2020 12:20:33 -0400
+Received: from mail-pj1-x1044.google.com (mail-pj1-x1044.google.com [IPv6:2607:f8b0:4864:20::1044])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C9BDC03E96D
+        for <stable@vger.kernel.org>; Tue, 26 May 2020 09:20:33 -0700 (PDT)
+Received: by mail-pj1-x1044.google.com with SMTP id s69so39240pjb.4
+        for <stable@vger.kernel.org>; Tue, 26 May 2020 09:20:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=tLFWEc70kSJC3xDiyEWNVnyhuZzVWGIzcJ1Nk8rcOc0=;
+        b=lOvf70PKmmBPmGfNSvXTYx9cNld/SJ4GdwXQvxyEWWWH1t24w5+WMVVyi9NbSTFCuo
+         UK25Jfcc2kwV14PFFGZMUXnXGG/ZHoFAzR8a9RxeKmOFXG09X+v7nlHd/ZSRWUHPzodk
+         QJfCvytXjqlRnpksslKFGoPUsAsLRdnDs5BS4=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=tLFWEc70kSJC3xDiyEWNVnyhuZzVWGIzcJ1Nk8rcOc0=;
+        b=hmzwLBYOa7/bctPXBWbC+YM1Bcsqpc02DBwCVL3KqvSiso2iya69dnLnS9YzyDNElL
+         aL6Gt1ctLzy1ZcNrNim+kLXVBAXDxFlaJ4mdd/lz8nfm8n9Jqg4V5B+Fl7edPvQkYOHx
+         gqn+tbvWBh1my80UQtA3gLKhDrfa6UgkYsrrCIsWsH4CqpR/brCMMDtfgXVl1keFyPH5
+         qWNPEtH4/NuA3mdnw6ymiKqS8qPwS++XD6jDzR1r7GlDXp7xPJ2MlQDx5pKOMgMOoYRM
+         AV9bLS6rAaCwA4z0N1LRc2vnlK5RkXabsk7zRtJUy0bvdL8tzRNxJxEKuF6BAuZ24lrQ
+         Bqyw==
+X-Gm-Message-State: AOAM533FFUbcVlnAHP66FiFkGYM/HQVe3TQrkDdjH0/xTgVv3xFikqSi
+        lzBo9OIuPLwYVrhFP+9Zroy0Wg==
+X-Google-Smtp-Source: ABdhPJxEYTpmqGrCSWR6f1rzHdEg5LhA1BVPPbzcg+Vydop3DHCm/xEy4uzlTCOqImNwTjC3mqZ4Rg==
+X-Received: by 2002:a17:90a:fb96:: with SMTP id cp22mr27442990pjb.201.1590510033184;
+        Tue, 26 May 2020 09:20:33 -0700 (PDT)
+Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
+        by smtp.gmail.com with ESMTPSA id b63sm46799pfg.86.2020.05.26.09.20.32
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 26 May 2020 09:20:32 -0700 (PDT)
+Date:   Tue, 26 May 2020 09:20:31 -0700
+From:   Kees Cook <keescook@chromium.org>
+To:     Andi Kleen <ak@linux.intel.com>
+Cc:     Greg KH <gregkh@linuxfoundation.org>,
+        Andi Kleen <andi@firstfloor.org>, x86@kernel.org,
+        linux-kernel@vger.kernel.org, sashal@kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH v1] x86: Pin cr4 FSGSBASE
+Message-ID: <202005260918.72DE289@keescook>
+References: <20200526052848.605423-1-andi@firstfloor.org>
+ <20200526065618.GC2580410@kroah.com>
+ <20200526154835.GW499505@tassilo.jf.intel.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200526154835.GW499505@tassilo.jf.intel.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-aarch32 has pairs of registers to access the high and low parts of 64bit
-registers. KVM has a union of 64bit sys_regs[] and 32bit copro[]. The
-32bit accessors read the high or low part of the 64bit sys_reg[] value
-through the union.
+On Tue, May 26, 2020 at 08:48:35AM -0700, Andi Kleen wrote:
+> On Tue, May 26, 2020 at 08:56:18AM +0200, Greg KH wrote:
+> > On Mon, May 25, 2020 at 10:28:48PM -0700, Andi Kleen wrote:
+> > > +		if (val & X86_CR4_FSGSBASE) {
+> > > +			WARN_ONCE(1, "CR4 unexpectedly set FSGSBASE!?\n");
+> > 
+> > What about those systems that panic-on-warn?
+> 
+> I assume they're ok with "panic on root hole"
 
-Both sys_reg_descs[] and cp15_regs[] list access_csselr() as the accessor
-for CSSELR{,_EL1}. access_csselr() is only aware of the 64bit sys_regs[],
-and expects r->reg to be 'CSSELR_EL1' in the enum, index 2 of the 64bit
-array.
+Exactly. :) The pinning infrastructure is pretty small; will that just
+get backported? (Also, we can probably rework the pinning to avoid the
+special-casing and use a mask/value pair to notice a bit getting turned
+_on_ as well...)
 
-cp15_regs[] uses the 32bit copro[] alias of sys_regs[]. Here CSSELR is
-c0_CSSELR which is the same location in sys_reg[]. r->reg is 'c0_CSSELR',
-index 4 in the 32bit array.
-
-access_csselr() uses the 32bit r->reg value to access the 64bit array,
-so reads and write the wrong value. sys_regs[4], is ACTLR_EL1, which
-is subsequently save/restored when we enter the guest.
-
-ACTLR_EL1 is supposed to be read-only for the guest. This register
-only affects execution at EL1, and the host's value is restored before
-we return to host EL1.
-
-Rename access_csselr() to access_csselr_el1(), to indicate it expects
-the 64bit register index, and pass it CSSELR_EL1 from cp15_regs[].
-
-Cc: stable@vger.kernel.org
-Signed-off-by: James Morse <james.morse@arm.com>
-----
-Providing access_csselr_cp15() wouldn't work as with VHE CSSELR_EL1 is
-loaded on the CPU while this code runs. access_csselr_cp15() would have
-to map it back the 64bit resgister to use vcpu_write_sys_reg(). We may
-as well do it in the table.
-
- arch/arm64/kvm/sys_regs.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
-
-diff --git a/arch/arm64/kvm/sys_regs.c b/arch/arm64/kvm/sys_regs.c
-index 51db934702b6..2eda539f3281 100644
---- a/arch/arm64/kvm/sys_regs.c
-+++ b/arch/arm64/kvm/sys_regs.c
-@@ -1302,7 +1302,7 @@ static bool access_clidr(struct kvm_vcpu *vcpu, struct sys_reg_params *p,
- 	return true;
- }
- 
--static bool access_csselr(struct kvm_vcpu *vcpu, struct sys_reg_params *p,
-+static bool access_csselr_el1(struct kvm_vcpu *vcpu, struct sys_reg_params *p,
- 			  const struct sys_reg_desc *r)
- {
- 	if (p->is_write)
-@@ -1566,7 +1566,7 @@ static const struct sys_reg_desc sys_reg_descs[] = {
- 
- 	{ SYS_DESC(SYS_CCSIDR_EL1), access_ccsidr },
- 	{ SYS_DESC(SYS_CLIDR_EL1), access_clidr },
--	{ SYS_DESC(SYS_CSSELR_EL1), access_csselr, reset_unknown, CSSELR_EL1 },
-+	{ SYS_DESC(SYS_CSSELR_EL1), access_csselr_el1, reset_unknown, CSSELR_EL1 },
- 	{ SYS_DESC(SYS_CTR_EL0), access_ctr },
- 
- 	{ SYS_DESC(SYS_PMCR_EL0), access_pmcr, reset_pmcr, PMCR_EL0 },
-@@ -2060,7 +2060,7 @@ static const struct sys_reg_desc cp15_regs[] = {
- 
- 	{ Op1(1), CRn( 0), CRm( 0), Op2(0), access_ccsidr },
- 	{ Op1(1), CRn( 0), CRm( 0), Op2(1), access_clidr },
--	{ Op1(2), CRn( 0), CRm( 0), Op2(0), access_csselr, NULL, c0_CSSELR },
-+	{ Op1(2), CRn( 0), CRm( 0), Op2(0), access_csselr_el1, NULL, CSSELR_EL1 },
- };
- 
- static const struct sys_reg_desc cp15_64_regs[] = {
 -- 
-2.20.1
-
+Kees Cook
