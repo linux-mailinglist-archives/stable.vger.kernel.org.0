@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D1E1C1E2A85
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 20:57:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 022481E2AA1
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 20:58:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389873AbgEZS4f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 14:56:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49426 "EHLO mail.kernel.org"
+        id S2389330AbgEZS5d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 14:57:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50792 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389868AbgEZS4d (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 14:56:33 -0400
+        id S2389306AbgEZS5c (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 14:57:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D7C0521501;
-        Tue, 26 May 2020 18:56:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 15BA52086A;
+        Tue, 26 May 2020 18:57:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590519393;
-        bh=yxPt5RtTF67o4Bq8gMPe8OYSr0m+EJyUcIQGpD7elm4=;
+        s=default; t=1590519451;
+        bh=HdsLc+/2oQmiq9OsPK83xe8aK/rkwX/OMi3Atsgxbpw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uZECACFXyMpzGM+1eb06Xtzy6bB1NPb+oaPAohfFAVUsyUdm9IolS4qr1bCgikSEb
-         wTQJkUIWcGJ0ZLT9NK7SXeJPt6bjRiC9HYNDcwLdtuz1FnIPOlqEAJC529eSphvThG
-         y6pSczg2himKXOfvxFXi/+8VhaFeFy6Guo0Dkv3Q=
+        b=aM4Cm8gmwbSmpRv/UIHTh67p+d7g+xziRv2BuEmKLQMinPTBidLsqMPLr4qVIGxgg
+         BweXodbPM5q7UdlQ9NNmCjBDRtjsqD6GToa0HRTt0dXSd46Pkqy828+fJa8aRlRnTx
+         hxH1XlhZsQ4G6KwaStse1r7PB2NMkTdNMFmZMp5A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        Sasha Levin <sashal@kernel.org>,
-        syzbot+db339689b2101f6f6071@syzkaller.appspotmail.com
-Subject: [PATCH 4.4 10/65] USB: core: Fix misleading driver bug report
-Date:   Tue, 26 May 2020 20:52:29 +0200
-Message-Id: <20200526183910.004128091@linuxfoundation.org>
+        stable@vger.kernel.org, Cao jin <caoj.fnst@cn.fujitsu.com>,
+        Alexander Duyck <alexander.h.duyck@intel.com>,
+        Aaron Brown <aaron.f.brown@intel.com>,
+        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 4.9 01/64] igb: use igb_adapter->io_addr instead of e1000_hw->hw_addr
+Date:   Tue, 26 May 2020 20:52:30 +0200
+Message-Id: <20200526183913.559071071@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183905.988782958@linuxfoundation.org>
-References: <20200526183905.988782958@linuxfoundation.org>
+In-Reply-To: <20200526183913.064413230@linuxfoundation.org>
+References: <20200526183913.064413230@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -44,69 +48,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Stern <stern@rowland.harvard.edu>
+From: Cao jin <caoj.fnst@cn.fujitsu.com>
 
-[ Upstream commit ac854131d9844f79e2fdcef67a7707227538d78a ]
+commit 629823b872402451b42462414da08dddd0e2c93d upstream.
 
-The syzbot fuzzer found a race between URB submission to endpoint 0
-and device reset.  Namely, during the reset we call usb_ep0_reinit()
-because the characteristics of ep0 may have changed (if the reset
-follows a firmware update, for example).  While usb_ep0_reinit() is
-running there is a brief period during which the pointers stored in
-udev->ep_in[0] and udev->ep_out[0] are set to NULL, and if an URB is
-submitted to ep0 during that period, usb_urb_ep_type_check() will
-report it as a driver bug.  In the absence of those pointers, the
-routine thinks that the endpoint doesn't exist.  The log message looks
-like this:
+When running as guest, under certain condition, it will oops as following.
+writel() in igb_configure_tx_ring() results in oops, because hw->hw_addr
+is NULL. While other register access won't oops kernel because they use
+wr32/rd32 which have a defense against NULL pointer.
 
-------------[ cut here ]------------
-usb 2-1: BOGUS urb xfer, pipe 2 != type 2
-WARNING: CPU: 0 PID: 9241 at drivers/usb/core/urb.c:478
-usb_submit_urb+0x1188/0x1460 drivers/usb/core/urb.c:478
+    [  141.225449] pcieport 0000:00:1c.0: AER: Multiple Uncorrected (Fatal)
+    error received: id=0101
+    [  141.225523] igb 0000:01:00.1: PCIe Bus Error:
+    severity=Uncorrected (Fatal), type=Unaccessible,
+    id=0101(Unregistered Agent ID)
+    [  141.299442] igb 0000:01:00.1: broadcast error_detected message
+    [  141.300539] igb 0000:01:00.0 enp1s0f0: PCIe link lost, device now
+    detached
+    [  141.351019] igb 0000:01:00.1 enp1s0f1: PCIe link lost, device now
+    detached
+    [  143.465904] pcieport 0000:00:1c.0: Root Port link has been reset
+    [  143.465994] igb 0000:01:00.1: broadcast slot_reset message
+    [  143.466039] igb 0000:01:00.0: enabling device (0000 -> 0002)
+    [  144.389078] igb 0000:01:00.1: enabling device (0000 -> 0002)
+    [  145.312078] igb 0000:01:00.1: broadcast resume message
+    [  145.322211] BUG: unable to handle kernel paging request at
+    0000000000003818
+    [  145.361275] IP: [<ffffffffa02fd38d>]
+    igb_configure_tx_ring+0x14d/0x280 [igb]
+    [  145.400048] PGD 0
+    [  145.438007] Oops: 0002 [#1] SMP
 
-Now, although submitting an URB while the device is being reset is a
-questionable thing to do, it shouldn't count as a driver bug as severe
-as submitting an URB for an endpoint that doesn't exist.  Indeed,
-endpoint 0 always exists, even while the device is in its unconfigured
-state.
+A similar issue & solution could be found at:
+    http://patchwork.ozlabs.org/patch/689592/
 
-To prevent these misleading driver bug reports, this patch updates
-usb_disable_endpoint() to avoid clearing the ep_in[] and ep_out[]
-pointers when the endpoint being disabled is ep0.  There's no danger
-of leaving a stale pointer in place, because the usb_host_endpoint
-structure being pointed to is stored permanently in udev->ep0; it
-doesn't get deallocated until the entire usb_device structure does.
-
-Reported-and-tested-by: syzbot+db339689b2101f6f6071@syzkaller.appspotmail.com
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-
-Link: https://lore.kernel.org/r/Pine.LNX.4.44L0.2005011558590.903-100000@netrider.rowland.org
+Signed-off-by: Cao jin <caoj.fnst@cn.fujitsu.com>
+Acked-by: Alexander Duyck <alexander.h.duyck@intel.com>
+Tested-by: Aaron Brown <aaron.f.brown@intel.com>
+Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+Cc: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+
 ---
- drivers/usb/core/message.c | 4 ++--
+ drivers/net/ethernet/intel/igb/igb_main.c |    4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/usb/core/message.c b/drivers/usb/core/message.c
-index 747343c61398..f083ecfddd1b 100644
---- a/drivers/usb/core/message.c
-+++ b/drivers/usb/core/message.c
-@@ -1080,11 +1080,11 @@ void usb_disable_endpoint(struct usb_device *dev, unsigned int epaddr,
+--- a/drivers/net/ethernet/intel/igb/igb_main.c
++++ b/drivers/net/ethernet/intel/igb/igb_main.c
+@@ -3395,7 +3395,7 @@ void igb_configure_tx_ring(struct igb_ad
+ 	     tdba & 0x00000000ffffffffULL);
+ 	wr32(E1000_TDBAH(reg_idx), tdba >> 32);
  
- 	if (usb_endpoint_out(epaddr)) {
- 		ep = dev->ep_out[epnum];
--		if (reset_hardware)
-+		if (reset_hardware && epnum != 0)
- 			dev->ep_out[epnum] = NULL;
- 	} else {
- 		ep = dev->ep_in[epnum];
--		if (reset_hardware)
-+		if (reset_hardware && epnum != 0)
- 			dev->ep_in[epnum] = NULL;
- 	}
- 	if (ep) {
--- 
-2.25.1
-
+-	ring->tail = hw->hw_addr + E1000_TDT(reg_idx);
++	ring->tail = adapter->io_addr + E1000_TDT(reg_idx);
+ 	wr32(E1000_TDH(reg_idx), 0);
+ 	writel(0, ring->tail);
+ 
+@@ -3734,7 +3734,7 @@ void igb_configure_rx_ring(struct igb_ad
+ 	     ring->count * sizeof(union e1000_adv_rx_desc));
+ 
+ 	/* initialize head and tail */
+-	ring->tail = hw->hw_addr + E1000_RDT(reg_idx);
++	ring->tail = adapter->io_addr + E1000_RDT(reg_idx);
+ 	wr32(E1000_RDH(reg_idx), 0);
+ 	writel(0, ring->tail);
+ 
 
 
