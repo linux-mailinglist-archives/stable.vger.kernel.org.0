@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A44F1E2D8D
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:24:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 050A61E2E00
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:26:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404466AbgEZTVy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:21:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40404 "EHLO mail.kernel.org"
+        id S2390278AbgEZT0F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:26:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34526 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392034AbgEZTLG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:11:06 -0400
+        id S2391157AbgEZTGT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:06:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0A367208A7;
-        Tue, 26 May 2020 19:11:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 35D0F208A7;
+        Tue, 26 May 2020 19:06:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590520265;
-        bh=L0QoRAgWtQseVlwB82qHXXUrftjn7bHptGI3PhND3X4=;
+        s=default; t=1590519978;
+        bh=ImNrQVFyGcuFtsDbQJO2dtMOMD8uOcGpMlubp2ca/Mw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AlB5ZTOxHiD5FL7+6QVddGEz94eUhBZyo7WzpjMHR38Y5IAeT4h6EysNxtmMePSar
-         HzdmScxifGwB/eAeudyCubR1KfMXnY6l6EbY2H4jeUOTSxRS3n2P25h3va0Df/B50G
-         ahTBd16esq3gF+G0QwQbOZiiu7sX4WZcNaOxn+Tg=
+        b=CvlQ6wayo/+p1elzHHKmbHP2NZEVXbMZtTGmgvRFHlugwQr6Tt3UrxEbS5GspYT5U
+         4ozPOSktgqAaDcznGbDsnaRCdZzt6BjaJu8O6JxnC9+piJsAqTKaE03nmIY9Cri2Dz
+         yjFDUH9mGmBEj3K/QIcQb1G4AlM1/VFpbdj2Y1BA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        Richard Weinberger <richard@nod.at>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 012/126] ubifs: remove broken lazytime support
+        stable@vger.kernel.org, Alain Volmat <alain.volmat@st.com>,
+        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 011/111] i2c: fix missing pm_runtime_put_sync in i2c_device_probe
 Date:   Tue, 26 May 2020 20:52:29 +0200
-Message-Id: <20200526183938.597411064@linuxfoundation.org>
+Message-Id: <20200526183933.620974645@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183937.471379031@linuxfoundation.org>
-References: <20200526183937.471379031@linuxfoundation.org>
+In-Reply-To: <20200526183932.245016380@linuxfoundation.org>
+References: <20200526183932.245016380@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,51 +44,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Alain Volmat <alain.volmat@st.com>
 
-[ Upstream commit ecf84096a526f2632ee85c32a3d05de3fa60ce80 ]
+[ Upstream commit 3c3dd56f760da056e821ac177e3ad0de4209a435 ]
 
-When "ubifs: introduce UBIFS_ATIME_SUPPORT to ubifs" introduced atime
-support to ubifs, it also added lazytime support.  As far as I can tell
-the lazytime support is terminally broken, as it causes
-mark_inode_dirty_sync to be called from __writeback_single_inode, which
-will then trigger the locking assert in ubifs_dirty_inode.  Just remove
-the broken lazytime support for now, it can be added back later,
-especially as some infrastructure changes should make that easier soon.
+In case of the I2C client exposes the flag I2C_CLIENT_HOST_NOTIFY,
+pm_runtime_get_sync is called in order to always keep active the
+adapter. However later on, pm_runtime_put_sync is never called
+within the function in case of an error. This commit add this
+error handling.
 
-Fixes: 8c1c5f263833 ("ubifs: introduce UBIFS_ATIME_SUPPORT to ubifs")
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Fixes: 72bfcee11cf8 ("i2c: Prevent runtime suspend of adapter when Host Notify is required")
+Signed-off-by: Alain Volmat <alain.volmat@st.com>
+Reviewed-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ubifs/file.c | 6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ drivers/i2c/i2c-core-base.c | 22 ++++++++++++++++------
+ 1 file changed, 16 insertions(+), 6 deletions(-)
 
-diff --git a/fs/ubifs/file.c b/fs/ubifs/file.c
-index 743928efffc1..49fe062ce45e 100644
---- a/fs/ubifs/file.c
-+++ b/fs/ubifs/file.c
-@@ -1375,7 +1375,6 @@ int ubifs_update_time(struct inode *inode, struct timespec64 *time,
- 	struct ubifs_info *c = inode->i_sb->s_fs_info;
- 	struct ubifs_budget_req req = { .dirtied_ino = 1,
- 			.dirtied_ino_d = ALIGN(ui->data_len, 8) };
--	int iflags = I_DIRTY_TIME;
- 	int err, release;
+diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+index 810a942eaa8e..cc193f2ba5d3 100644
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -338,8 +338,10 @@ static int i2c_device_probe(struct device *dev)
+ 		} else if (ACPI_COMPANION(dev)) {
+ 			irq = i2c_acpi_get_irq(client);
+ 		}
+-		if (irq == -EPROBE_DEFER)
+-			return irq;
++		if (irq == -EPROBE_DEFER) {
++			status = irq;
++			goto put_sync_adapter;
++		}
  
- 	if (!IS_ENABLED(CONFIG_UBIFS_ATIME_SUPPORT))
-@@ -1393,11 +1392,8 @@ int ubifs_update_time(struct inode *inode, struct timespec64 *time,
- 	if (flags & S_MTIME)
- 		inode->i_mtime = *time;
+ 		if (irq < 0)
+ 			irq = 0;
+@@ -353,15 +355,19 @@ static int i2c_device_probe(struct device *dev)
+ 	 */
+ 	if (!driver->id_table &&
+ 	    !i2c_acpi_match_device(dev->driver->acpi_match_table, client) &&
+-	    !i2c_of_match_device(dev->driver->of_match_table, client))
+-		return -ENODEV;
++	    !i2c_of_match_device(dev->driver->of_match_table, client)) {
++		status = -ENODEV;
++		goto put_sync_adapter;
++	}
  
--	if (!(inode->i_sb->s_flags & SB_LAZYTIME))
--		iflags |= I_DIRTY_SYNC;
--
- 	release = ui->dirty;
--	__mark_inode_dirty(inode, iflags);
-+	__mark_inode_dirty(inode, I_DIRTY_SYNC);
- 	mutex_unlock(&ui->ui_mutex);
- 	if (release)
- 		ubifs_release_budget(c, &req);
+ 	if (client->flags & I2C_CLIENT_WAKE) {
+ 		int wakeirq;
+ 
+ 		wakeirq = of_irq_get_byname(dev->of_node, "wakeup");
+-		if (wakeirq == -EPROBE_DEFER)
+-			return wakeirq;
++		if (wakeirq == -EPROBE_DEFER) {
++			status = wakeirq;
++			goto put_sync_adapter;
++		}
+ 
+ 		device_init_wakeup(&client->dev, true);
+ 
+@@ -408,6 +414,10 @@ err_detach_pm_domain:
+ err_clear_wakeup_irq:
+ 	dev_pm_clear_wake_irq(&client->dev);
+ 	device_init_wakeup(&client->dev, false);
++put_sync_adapter:
++	if (client->flags & I2C_CLIENT_HOST_NOTIFY)
++		pm_runtime_put_sync(&client->adapter->dev);
++
+ 	return status;
+ }
+ 
 -- 
 2.25.1
 
