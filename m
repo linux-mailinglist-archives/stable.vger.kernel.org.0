@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 228B91E2B0E
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:03:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 88A821E2D5C
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:24:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403773AbgEZTBh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:01:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55998 "EHLO mail.kernel.org"
+        id S2390418AbgEZTIy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:08:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37902 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403769AbgEZTBh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:01:37 -0400
+        id S2388975AbgEZTIv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:08:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E31FB20849;
-        Tue, 26 May 2020 19:01:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 56B6120873;
+        Tue, 26 May 2020 19:08:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590519696;
-        bh=il/4o51wW092OuGEyB1YyPj7Iaz57uDjzAjl7G8Mr48=;
+        s=default; t=1590520130;
+        bh=sEoCjZlqKfa6vt6v2CMQeBLb5LvhqTwVsJNGIM7aBLU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JXloKKSF3Ez7mLaD0jIvkq7VFzJQ2k0yFIoiyWtUgvkkPzG/W049SRA+YOeC9k6qU
-         ZQFEvq2scXMybfB6cPLOPgj7TPpe2xsGm4V+YmyFDihuqV08DfOwA/tnhMjX9gY2/c
-         1XpeeF6Kpjd0fCi3maJ/8S7derfyIIAnwL2nI+h0=
+        b=KGFtiPuTbfOuBTTuHBWYOSe93b9A40cJkSqctmCMLOZ9fcbDZSKpPOZdFXbNvtKka
+         bmsqKsuSyzMXG2MnUMUBr1yaQkst59+OsMDGK6cgyeY1jtsgID/vjK/EVMsABK5Jdm
+         GCUcr5CV0vV5nPuwGZluW1fSZ7kM/PdXe7ueCOwA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 41/59] powerpc/64s: Disable STRICT_KERNEL_RWX
+        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
+        Xin Tan <tanxin.ctf@gmail.com>,
+        John Johansen <john.johansen@canonical.com>
+Subject: [PATCH 5.4 068/111] apparmor: Fix aa_label refcnt leak in policy_update
 Date:   Tue, 26 May 2020 20:53:26 +0200
-Message-Id: <20200526183920.506643993@linuxfoundation.org>
+Message-Id: <20200526183939.294250474@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183907.123822792@linuxfoundation.org>
-References: <20200526183907.123822792@linuxfoundation.org>
+In-Reply-To: <20200526183932.245016380@linuxfoundation.org>
+References: <20200526183932.245016380@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,50 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
 
-[ Upstream commit 8659a0e0efdd975c73355dbc033f79ba3b31e82c ]
+commit c6b39f070722ea9963ffe756bfe94e89218c5e63 upstream.
 
-Several strange crashes have been eventually traced back to
-STRICT_KERNEL_RWX and its interaction with code patching.
+policy_update() invokes begin_current_label_crit_section(), which
+returns a reference of the updated aa_label object to "label" with
+increased refcount.
 
-Various paths in our ftrace, kprobes and other patching code need to
-be hardened against patching failures, otherwise we can end up running
-with partially/incorrectly patched ftrace paths, kprobes or jump
-labels, which can then cause strange crashes.
+When policy_update() returns, "label" becomes invalid, so the refcount
+should be decreased to keep refcount balanced.
 
-Although fixes for those are in development, they're not -rc material.
+The reference counting issue happens in one exception handling path of
+policy_update(). When aa_may_manage_policy() returns not NULL, the
+refcnt increased by begin_current_label_crit_section() is not decreased,
+causing a refcnt leak.
 
-There also seem to be problems with the underlying strict RWX logic,
-which needs further debugging.
+Fix this issue by jumping to "end_section" label when
+aa_may_manage_policy() returns not NULL.
 
-So for now disable STRICT_KERNEL_RWX on 64-bit to prevent people from
-enabling the option and tripping over the bugs.
+Fixes: 5ac8c355ae00 ("apparmor: allow introspecting the loaded policy pre internal transform")
+Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
+Signed-off-by: John Johansen <john.johansen@canonical.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Fixes: 1e0fc9d1eb2b ("powerpc/Kconfig: Enable STRICT_KERNEL_RWX for some configs")
-Cc: stable@vger.kernel.org # v4.13+
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200520133605.972649-1-mpe@ellerman.id.au
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ security/apparmor/apparmorfs.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
-index b74c3a68c0ad..679e1e3c1695 100644
---- a/arch/powerpc/Kconfig
-+++ b/arch/powerpc/Kconfig
-@@ -141,7 +141,7 @@ config PPC
- 	select ARCH_HAS_GCOV_PROFILE_ALL
- 	select ARCH_HAS_SCALED_CPUTIME		if VIRT_CPU_ACCOUNTING_NATIVE
- 	select ARCH_HAS_SG_CHAIN
--	select ARCH_HAS_STRICT_KERNEL_RWX	if ((PPC_BOOK3S_64 || PPC32) && !HIBERNATION)
-+	select ARCH_HAS_STRICT_KERNEL_RWX	if (PPC32 && !HIBERNATION)
- 	select ARCH_HAS_TICK_BROADCAST		if GENERIC_CLOCKEVENTS_BROADCAST
- 	select ARCH_HAS_UBSAN_SANITIZE_ALL
- 	select ARCH_HAS_ZONE_DEVICE		if PPC_BOOK3S_64
--- 
-2.25.1
-
+--- a/security/apparmor/apparmorfs.c
++++ b/security/apparmor/apparmorfs.c
+@@ -424,7 +424,7 @@ static ssize_t policy_update(u32 mask, c
+ 	 */
+ 	error = aa_may_manage_policy(label, ns, mask);
+ 	if (error)
+-		return error;
++		goto end_section;
+ 
+ 	data = aa_simple_write_to_buffer(buf, size, size, pos);
+ 	error = PTR_ERR(data);
+@@ -432,6 +432,7 @@ static ssize_t policy_update(u32 mask, c
+ 		error = aa_replace_profiles(ns, label, mask, data);
+ 		aa_put_loaddata(data);
+ 	}
++end_section:
+ 	end_current_label_crit_section(label);
+ 
+ 	return error;
 
 
