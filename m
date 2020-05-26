@@ -2,38 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 70E991E2EEF
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:32:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 92FCF1E2E9A
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:31:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389969AbgEZS46 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 14:56:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50016 "EHLO mail.kernel.org"
+        id S2390475AbgEZS7Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 14:59:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53116 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389982AbgEZS44 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 14:56:56 -0400
+        id S2389758AbgEZS7V (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 14:59:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9DB4A20870;
-        Tue, 26 May 2020 18:56:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5F3F8208B8;
+        Tue, 26 May 2020 18:59:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590519416;
-        bh=DYY57umynyFAZK/twDxMmZVr1Hq81x9GD9DqV30xJ0g=;
+        s=default; t=1590519560;
+        bh=rFkVQNNujsiod5XRz3hEq0OSBNINfauOjQl86zhZ1L4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K98ZDr4/O4fbhbBB9CNtMYtY8VCQPlMO8+BmhcRCLsnjvVXtusegq3y7km+FelGRI
-         v+emOVPGKocSxm5GLzi5cfqR+Rrx9YdfnL4Bjp2cQhoV2Q7/yJP8kK0FQXekuG35j1
-         K4k5rHdbLNCE4iw0iSZFZxJrW9VN5FzIwASZHxa4=
+        b=pErk6ewWfcM4pI8xAs7zHemX35HNb7n7oGymWC2fr5x5n6owIF1ldf9+H7+ASnAh1
+         L4zmplL+FxNc+ggqEVrHxHd3WApFIrGuZu/2Yu+0latdR5o9gHlIGygVpwHaTo2F4u
+         lYN3EpBkynPQPORDjzhbgi6tVRNyoKdX0d/7IEp0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bob Peterson <rpeterso@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 61/65] Revert "gfs2: Dont demote a glock until its revokes are written"
-Date:   Tue, 26 May 2020 20:53:20 +0200
-Message-Id: <20200526183928.499403894@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Borislav Petkov <bp@alien8.de>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>
+Subject: [PATCH 4.9 52/64] x86/uaccess, ubsan: Fix UBSAN vs. SMAP
+Date:   Tue, 26 May 2020 20:53:21 +0200
+Message-Id: <20200526183930.626243998@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183905.988782958@linuxfoundation.org>
-References: <20200526183905.988782958@linuxfoundation.org>
+In-Reply-To: <20200526183913.064413230@linuxfoundation.org>
+References: <20200526183913.064413230@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,48 +49,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bob Peterson <rpeterso@redhat.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit b14c94908b1b884276a6608dea3d0b1b510338b7 ]
+commit d08965a27e84ca090b504844d50c24fc98587b11 upstream.
 
-This reverts commit df5db5f9ee112e76b5202fbc331f990a0fc316d6.
+UBSAN can insert extra code in random locations; including AC=1
+sections. Typically this code is not safe and needs wrapping.
 
-This patch fixes a regression: patch df5db5f9ee112 allowed function
-run_queue() to bypass its call to do_xmote() if revokes were queued for
-the glock. That's wrong because its call to do_xmote() is what is
-responsible for calling the go_sync() glops functions to sync both
-the ail list and any revokes queued for it. By bypassing the call,
-gfs2 could get into a stand-off where the glock could not be demoted
-until its revokes are written back, but the revokes would not be
-written back because do_xmote() was never called.
+So far, only __ubsan_handle_type_mismatch* have been observed in AC=1
+sections and therefore only those are annotated.
 
-It "sort of" works, however, because there are other mechanisms like
-the log flush daemon (logd) that can sync the ail items and revokes,
-if it deems it necessary. The problem is: without file system pressure,
-it might never deem it necessary.
-
-Signed-off-by: Bob Peterson <rpeterso@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Cc: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+[stable backport: only take the lib/Makefile change to resolve gcc-10
+ build issues]
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/gfs2/glock.c | 3 ---
- 1 file changed, 3 deletions(-)
+ lib/Makefile |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/gfs2/glock.c b/fs/gfs2/glock.c
-index f80ffccb0316..1eb737c466dd 100644
---- a/fs/gfs2/glock.c
-+++ b/fs/gfs2/glock.c
-@@ -541,9 +541,6 @@ __acquires(&gl->gl_lockref.lock)
- 			goto out_unlock;
- 		if (nonblock)
- 			goto out_sched;
--		smp_mb();
--		if (atomic_read(&gl->gl_revokes) != 0)
--			goto out_sched;
- 		set_bit(GLF_DEMOTE_IN_PROGRESS, &gl->gl_flags);
- 		GLOCK_BUG_ON(gl, gl->gl_demote_state == LM_ST_EXCLUSIVE);
- 		gl->gl_target = gl->gl_demote_state;
--- 
-2.25.1
-
+--- a/lib/Makefile
++++ b/lib/Makefile
+@@ -230,5 +230,6 @@ obj-$(CONFIG_UCS2_STRING) += ucs2_string
+ obj-$(CONFIG_UBSAN) += ubsan.o
+ 
+ UBSAN_SANITIZE_ubsan.o := n
++CFLAGS_ubsan.o := $(call cc-option, -fno-conserve-stack -fno-stack-protector)
+ 
+ obj-$(CONFIG_SBITMAP) += sbitmap.o
 
 
