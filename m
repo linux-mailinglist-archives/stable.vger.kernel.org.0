@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 194A31E2B54
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:04:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BBCC1E2DC1
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:25:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391315AbgEZTEE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:04:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59546 "EHLO mail.kernel.org"
+        id S2390612AbgEZTYJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:24:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37112 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391311AbgEZTED (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:04:03 -0400
+        id S2391397AbgEZTIL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:08:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 45E0A20849;
-        Tue, 26 May 2020 19:04:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CDD4B20873;
+        Tue, 26 May 2020 19:08:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590519842;
-        bh=egsL6AH/ANsTTekNKP3t3n4xT4+RurSQuBnpdQfJb/c=;
+        s=default; t=1590520091;
+        bh=SB5jHPeFIluOnbkkLK6pvKCzb2wh5g//zHFxtQfmHhs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qjfHb5fo+EuccdmIlnykeAX3PAeQMW82bL5yQE8kjBJTCIn89qjbtpAmGJ4BRTrYn
-         kDBiXnCob1EjUpecB17tmF/IYEHx2RCc614tUREds95aC9ENR5yJI5rccIFkOgwzlD
-         J7PNBfRg1SXxIRrqKj2+0bCPNdhP25OOO3hFy5v4=
+        b=wATGhBekq0zbVSJVoRGMEul50AozFENz8279FKpxNkUUs5lRM5ygU480imp58+sQY
+         82nhn5ZvLIrWRy9H7id5ZEIZOTlN2cKzoLSB4SalNTjlatTAh2MjHnsOYNfe28txAq
+         B6gc9rUc0hzDXLbfe1E7dB0oq0L3ol1WzvdViRgo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Scott Bahling <sbahling@suse.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 38/81] ALSA: iec1712: Initialize STDSP24 properly when using the model=staudio option
+        stable@vger.kernel.org, Jian-Hong Pan <jian-hong@endlessm.com>,
+        Daniel Drake <drake@endlessm.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 055/111] ALSA: hda/realtek - Enable headset mic of ASUS UX550GE with ALC295
 Date:   Tue, 26 May 2020 20:53:13 +0200
-Message-Id: <20200526183931.488199190@linuxfoundation.org>
+Message-Id: <20200526183938.051403696@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183923.108515292@linuxfoundation.org>
-References: <20200526183923.108515292@linuxfoundation.org>
+In-Reply-To: <20200526183932.245016380@linuxfoundation.org>
+References: <20200526183932.245016380@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,38 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Scott Bahling <sbahling@suse.com>
+From: Jian-Hong Pan <jian-hong@endlessm.com>
 
-commit b0cb099062b0c18246c3a20caaab4c0afc303255 upstream.
+[ Upstream commit ad97d667854c2fbce05a004e107f358ef4b04cf6 ]
 
-The ST Audio ADCIII is an STDSP24 card plus extension box. With commit
-e8a91ae18bdc ("ALSA: ice1712: Add support for STAudio ADCIII") we
-enabled the ADCIII ports using the model=staudio option but forgot
-this part to ensure the STDSP24 card is initialized properly.
+The ASUS laptop UX550GE with ALC295 can't detect the headset microphone
+until ALC295_FIXUP_ASUS_MIC_NO_PRESENCE quirk applied.
 
-Fixes: e8a91ae18bdc ("ALSA: ice1712: Add support for STAudio ADCIII")
-Signed-off-by: Scott Bahling <sbahling@suse.com>
-Cc: <stable@vger.kernel.org>
-BugLink: https://bugzilla.suse.com/show_bug.cgi?id=1048934
-Link: https://lore.kernel.org/r/20200518175728.28766-1-tiwai@suse.de
+Signed-off-by: Jian-Hong Pan <jian-hong@endlessm.com>
+Signed-off-by: Daniel Drake <drake@endlessm.com>
+Link: https://lore.kernel.org/r/20200512061525.133985-2-jian-hong@endlessm.com
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/ice1712/ice1712.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ sound/pci/hda/patch_realtek.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/sound/pci/ice1712/ice1712.c
-+++ b/sound/pci/ice1712/ice1712.c
-@@ -2377,7 +2377,8 @@ static int snd_ice1712_chip_init(struct
- 	pci_write_config_byte(ice->pci, 0x61, ice->eeprom.data[ICE_EEP1_ACLINK]);
- 	pci_write_config_byte(ice->pci, 0x62, ice->eeprom.data[ICE_EEP1_I2SID]);
- 	pci_write_config_byte(ice->pci, 0x63, ice->eeprom.data[ICE_EEP1_SPDIF]);
--	if (ice->eeprom.subvendor != ICE1712_SUBDEVICE_STDSP24) {
-+	if (ice->eeprom.subvendor != ICE1712_SUBDEVICE_STDSP24 &&
-+	    ice->eeprom.subvendor != ICE1712_SUBDEVICE_STAUDIO_ADCIII) {
- 		ice->gpio.write_mask = ice->eeprom.gpiomask;
- 		ice->gpio.direction = ice->eeprom.gpiodir;
- 		snd_ice1712_write(ice, ICE1712_IREG_GPIO_WRITE_MASK,
+diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
+index bc2352a3baba..1efaeb09ec3f 100644
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -8082,6 +8082,10 @@ static const struct snd_hda_pin_quirk alc269_pin_fixup_tbl[] = {
+ 		{0x12, 0x90a60130},
+ 		{0x17, 0x90170110},
+ 		{0x21, 0x03211020}),
++	SND_HDA_PIN_QUIRK(0x10ec0295, 0x1043, "ASUS", ALC295_FIXUP_ASUS_MIC_NO_PRESENCE,
++		{0x12, 0x90a60120},
++		{0x17, 0x90170110},
++		{0x21, 0x04211030}),
+ 	SND_HDA_PIN_QUIRK(0x10ec0295, 0x1043, "ASUS", ALC295_FIXUP_ASUS_MIC_NO_PRESENCE,
+ 		{0x12, 0x90a60130},
+ 		{0x17, 0x90170110},
+-- 
+2.25.1
+
 
 
