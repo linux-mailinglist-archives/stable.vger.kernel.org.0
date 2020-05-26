@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 29D991E2A6D
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 20:57:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E6471E2A7F
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 20:57:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389626AbgEZSzq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 14:55:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48174 "EHLO mail.kernel.org"
+        id S2389816AbgEZS4Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 14:56:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49200 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389614AbgEZSzn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 14:55:43 -0400
+        id S2389806AbgEZS4X (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 14:56:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E60DE20849;
-        Tue, 26 May 2020 18:55:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3F57D208B8;
+        Tue, 26 May 2020 18:56:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590519342;
-        bh=30hosN3XGqyhYAlpFUcyInwX7uz4bI0skliC9qihkSY=;
+        s=default; t=1590519382;
+        bh=V/sfiQpCncPkYxfnFXx1t4SCQlwZ//Kxz1si0PlRpq0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v+X5BY9kO0lcdQGndCJd80Jf7v/aWCA/nKhbdFT67yzJ/yyFqCY1EzdKVMhxKwY94
-         rEPtqMOlOSgxsEbBg7FocTsk2Gt7k9vW/WYhKBUTotPfdrfxO0XSj8mkUYRwYjXpsZ
-         6Z+NDJd7gVfCyVRGw5CGOk6BjnRGfyo/KuC7TDmA=
+        b=0kMsWE0XN0+jJ5OLsEY91PH0a4rrlML3qmGSEFZdPfPsg8N3afr5EErJ7hoOdFcz7
+         4ohowL2jE3guYVcf/SA/b0DEHd6SBFj8iUcToamU5jRcQE4J4tJSePNZ/nP+9T9MvF
+         l8CT7Z2CqdX40Nmfm7ljjQGmNR4GYd0Aa44TF470=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mathias Krause <minipli@googlemail.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 4.4 04/65] padata: ensure the reorder timer callback runs on the correct CPU
-Date:   Tue, 26 May 2020 20:52:23 +0200
-Message-Id: <20200526183907.883106465@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Krzysztof Struczynski <krzysztof.struczynski@huawei.com>,
+        Roberto Sassu <roberto.sassu@huawei.com>,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 06/65] evm: Check also if *tfm is an error pointer in init_desc()
+Date:   Tue, 26 May 2020 20:52:25 +0200
+Message-Id: <20200526183908.421289701@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200526183905.988782958@linuxfoundation.org>
 References: <20200526183905.988782958@linuxfoundation.org>
@@ -44,110 +46,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathias Krause <minipli@googlemail.com>
+From: Roberto Sassu <roberto.sassu@huawei.com>
 
-commit cf5868c8a22dc2854b96e9569064bb92365549ca upstream.
+[ Upstream commit 53de3b080d5eae31d0de219617155dcc34e7d698 ]
 
-The reorder timer function runs on the CPU where the timer interrupt was
-handled which is not necessarily one of the CPUs of the 'pcpu' CPU mask
-set.
+This patch avoids a kernel panic due to accessing an error pointer set by
+crypto_alloc_shash(). It occurs especially when there are many files that
+require an unsupported algorithm, as it would increase the likelihood of
+the following race condition:
 
-Ensure the padata_reorder() callback runs on the correct CPU, which is
-one in the 'pcpu' CPU mask set and, preferrably, the next expected one.
-Do so by comparing the current CPU with the expected target CPU. If they
-match, call padata_reorder() right away. If they differ, schedule a work
-item on the target CPU that does the padata_reorder() call for us.
+Task A: *tfm = crypto_alloc_shash() <= error pointer
+Task B: if (*tfm == NULL) <= *tfm is not NULL, use it
+Task B: rc = crypto_shash_init(desc) <= panic
+Task A: *tfm = NULL
 
-Signed-off-by: Mathias Krause <minipli@googlemail.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: Ben Hutchings <ben@decadent.org.uk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This patch uses the IS_ERR_OR_NULL macro to determine whether or not a new
+crypto context must be created.
 
+Cc: stable@vger.kernel.org
+Fixes: d46eb3699502b ("evm: crypto hash replaced by shash")
+Co-developed-by: Krzysztof Struczynski <krzysztof.struczynski@huawei.com>
+Signed-off-by: Krzysztof Struczynski <krzysztof.struczynski@huawei.com>
+Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/padata.h |    2 ++
- kernel/padata.c        |   43 ++++++++++++++++++++++++++++++++++++++++++-
- 2 files changed, 44 insertions(+), 1 deletion(-)
+ security/integrity/evm/evm_crypto.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/include/linux/padata.h
-+++ b/include/linux/padata.h
-@@ -85,6 +85,7 @@ struct padata_serial_queue {
-  * @swork: work struct for serialization.
-  * @pd: Backpointer to the internal control structure.
-  * @work: work struct for parallelization.
-+ * @reorder_work: work struct for reordering.
-  * @num_obj: Number of objects that are processed by this cpu.
-  * @cpu_index: Index of the cpu.
-  */
-@@ -93,6 +94,7 @@ struct padata_parallel_queue {
-        struct padata_list    reorder;
-        struct parallel_data *pd;
-        struct work_struct    work;
-+       struct work_struct    reorder_work;
-        atomic_t              num_obj;
-        int                   cpu_index;
- };
---- a/kernel/padata.c
-+++ b/kernel/padata.c
-@@ -281,11 +281,51 @@ static void padata_reorder(struct parall
- 	return;
- }
- 
-+static void invoke_padata_reorder(struct work_struct *work)
-+{
-+	struct padata_parallel_queue *pqueue;
-+	struct parallel_data *pd;
-+
-+	local_bh_disable();
-+	pqueue = container_of(work, struct padata_parallel_queue, reorder_work);
-+	pd = pqueue->pd;
-+	padata_reorder(pd);
-+	local_bh_enable();
-+}
-+
- static void padata_reorder_timer(unsigned long arg)
- {
- 	struct parallel_data *pd = (struct parallel_data *)arg;
-+	unsigned int weight;
-+	int target_cpu, cpu;
- 
--	padata_reorder(pd);
-+	cpu = get_cpu();
-+
-+	/* We don't lock pd here to not interfere with parallel processing
-+	 * padata_reorder() calls on other CPUs. We just need any CPU out of
-+	 * the cpumask.pcpu set. It would be nice if it's the right one but
-+	 * it doesn't matter if we're off to the next one by using an outdated
-+	 * pd->processed value.
-+	 */
-+	weight = cpumask_weight(pd->cpumask.pcpu);
-+	target_cpu = padata_index_to_cpu(pd, pd->processed % weight);
-+
-+	/* ensure to call the reorder callback on the correct CPU */
-+	if (cpu != target_cpu) {
-+		struct padata_parallel_queue *pqueue;
-+		struct padata_instance *pinst;
-+
-+		/* The timer function is serialized wrt itself -- no locking
-+		 * needed.
-+		 */
-+		pinst = pd->pinst;
-+		pqueue = per_cpu_ptr(pd->pqueue, target_cpu);
-+		queue_work_on(target_cpu, pinst->wq, &pqueue->reorder_work);
-+	} else {
-+		padata_reorder(pd);
-+	}
-+
-+	put_cpu();
- }
- 
- static void padata_serial_worker(struct work_struct *serial_work)
-@@ -412,6 +452,7 @@ static void padata_init_pqueues(struct p
- 		__padata_list_init(&pqueue->reorder);
- 		__padata_list_init(&pqueue->parallel);
- 		INIT_WORK(&pqueue->work, padata_parallel_worker);
-+		INIT_WORK(&pqueue->reorder_work, invoke_padata_reorder);
- 		atomic_set(&pqueue->num_obj, 0);
+diff --git a/security/integrity/evm/evm_crypto.c b/security/integrity/evm/evm_crypto.c
+index 461f8d891579..44352b0b7510 100644
+--- a/security/integrity/evm/evm_crypto.c
++++ b/security/integrity/evm/evm_crypto.c
+@@ -47,7 +47,7 @@ static struct shash_desc *init_desc(char type)
+ 		algo = evm_hash;
  	}
- }
+ 
+-	if (*tfm == NULL) {
++	if (IS_ERR_OR_NULL(*tfm)) {
+ 		mutex_lock(&mutex);
+ 		if (*tfm)
+ 			goto out;
+-- 
+2.25.1
+
 
 
