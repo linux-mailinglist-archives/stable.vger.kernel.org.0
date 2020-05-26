@@ -2,74 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BA1B01E1D11
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 10:17:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F0E71E1D1F
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 10:19:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728024AbgEZIRz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 04:17:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43052 "EHLO mail.kernel.org"
+        id S1731383AbgEZITm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 04:19:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44410 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726926AbgEZIRz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 04:17:55 -0400
+        id S1726926AbgEZITm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 04:19:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BF0B320776;
-        Tue, 26 May 2020 08:17:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3DAEF20776;
+        Tue, 26 May 2020 08:19:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590481075;
-        bh=FSwmFkxuSzNUR+zuH7Zn3DAi6cLT2fFo8dtMDocf8cM=;
+        s=default; t=1590481180;
+        bh=9d+CKjDsfeg/CrypEMkS3rgaZuL/VM/MlaKj981aylY=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=quWEouPkVJ9Znhpt/F+1qts9DS26VXpGDAS6hvdCF87TyIXFu3qLUDZ8st7rXVf8m
-         0JHpATuvZsGTQgfwvYLv7aCyoR8v8CV72nNPAq8RDa5zWut82u4sXHwLCZQyz2gscC
-         h87tfCpsU+JOXvXlDsVqkhIAaRZDuWNX3ZQCnjMI=
-Date:   Tue, 26 May 2020 10:17:52 +0200
+        b=ehTyc0Mo0RQrPUPZLEygUthcnOA0bH77l4UtfJvjHyslxLZbhDmqld471mOuacusL
+         514R2Q3ut5NU4YT+Xl/2s9x5MdpUXy3eOVGQ37mngQE6knu1AwmWVEy7yUn5oYNYki
+         9zDXFl6V9VoR7RDeUjOY9uiFX2J8K2MwqnmziOXc=
+Date:   Tue, 26 May 2020 10:19:38 +0200
 From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Peter Zijlstra <peterz@infradead.org>
-Cc:     Andi Kleen <andi@firstfloor.org>, x86@kernel.org,
-        keescook@chromium.org, linux-kernel@vger.kernel.org,
-        sashal@kernel.org, Andi Kleen <ak@linux.intel.com>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v1] x86: Pin cr4 FSGSBASE
-Message-ID: <20200526081752.GA2650351@kroah.com>
-References: <20200526052848.605423-1-andi@firstfloor.org>
- <20200526065618.GC2580410@kroah.com>
- <20200526075736.GH317569@hirez.programming.kicks-ass.net>
+To:     Dakshaja Uppalapati <dakshaja@chelsio.com>
+Cc:     hch@lst.de, sagi@grimberg.me, stable@vger.kernel.org,
+        nirranjan@chelsio.com, bharat@chelsio.com
+Subject: Re: nvme blk_update_request IO error is seen on stable kernel 5.4.41.
+Message-ID: <20200526081938.GB2650351@kroah.com>
+References: <20200521140642.GA4724@chelsio.com>
+ <20200526073500.GA8387@chelsio.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200526075736.GH317569@hirez.programming.kicks-ass.net>
+In-Reply-To: <20200526073500.GA8387@chelsio.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, May 26, 2020 at 09:57:36AM +0200, Peter Zijlstra wrote:
-> On Tue, May 26, 2020 at 08:56:18AM +0200, Greg KH wrote:
-> > On Mon, May 25, 2020 at 10:28:48PM -0700, Andi Kleen wrote:
-> > > From: Andi Kleen <ak@linux.intel.com>
-> > > 
-> > > Since there seem to be kernel modules floating around that set
-> > > FSGSBASE incorrectly, prevent this in the CR4 pinning. Currently
-> > > CR4 pinning just checks that bits are set, this also checks
-> > > that the FSGSBASE bit is not set, and if it is clears it again.
-> > 
-> > So we are trying to "protect" ourselves from broken out-of-tree kernel
-> > modules now?  Why stop with this type of check, why not just forbid them
-> > entirely if we don't trust them?  :)
+
+A: Because it messes up the order in which people normally read text.
+Q: Why is top-posting such a bad thing?
+A: Top-posting.
+Q: What is the most annoying thing in e-mail?
+
+A: No.
+Q: Should I include quotations after my reply?
+
+http://daringfireball.net/2007/07/on_top
+
+On Tue, May 26, 2020 at 01:05:04PM +0530, Dakshaja Uppalapati wrote:
+> Hi all,
 > 
-> Oh, I have a bunch of patches pending for that :-)
+> Gentle reminder.
 
-Ah, I thought I had seen something like that go by a while ago.
-
-It's sad that we have to write a "don't do stupid things" checker for
-kernel modules now :(
-
-> It will basically decode the module text and refuse to load the module
-> for most CPL0 instruction.
-
-Ok, so why would Andi's patch even be needed then?  Andi, why post this?
-
-thanks,
+From a patch you sent out 4 days ago?  Covering a long holiday weekend
+for most "western" countries?  odd...
 
 greg k-h
