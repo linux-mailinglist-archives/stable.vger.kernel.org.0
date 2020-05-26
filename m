@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B4451E2D66
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:24:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A5AE21E2E09
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:26:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389312AbgEZTJq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:09:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38924 "EHLO mail.kernel.org"
+        id S2391511AbgEZTFf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:05:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33522 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391897AbgEZTJp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:09:45 -0400
+        id S2391510AbgEZTFe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:05:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6A24A208B3;
-        Tue, 26 May 2020 19:09:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 27CFC20873;
+        Tue, 26 May 2020 19:05:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590520184;
-        bh=78N8hQGhGPFVLaXmK4KVhx2rUwxFGMkns25RJDOs+mU=;
+        s=default; t=1590519933;
+        bh=jx3K9gvlPa4X4mgLce8D9qbCcXHG4T5cLM5C7xiUHIQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CyiNg+iJuWPlEBMf3tZ0rPBgFSuqhWuFfJ+PBiQa5QPNCTDjVyNwZ8hhCPR0Kfc53
-         wn1quKjU+lwd70NcPTBqQedZ17fqf/M3Tp7YsGD2/xOAogpwXBl8PyhjdIHVVS6WhO
-         +2+b+fjq+67ODusKcx4r+bmyafO62NzeWE8FfT04=
+        b=WJohIplYg9VAMW/Y1MDA9rvd53a/PWkOTaqrL+x5cv5Aaknd9/FSI5W3l0QrYWx8Q
+         Tna6PtkJTkUYeyuV7T3aJzVuGYdslHFE7nYLAyx6G2c1UDQIrEAxY695Pcv7Z1CCyi
+         3jtzVkXPzOt+XxQg2K73FFUn382iotG0sS6KRLDI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Wei Yongjun <weiyongjun1@huawei.com>,
-        Samuel Iglesias Gonsalvez <siglesias@igalia.com>
-Subject: [PATCH 5.4 091/111] ipack: tpci200: fix error return code in tpci200_register()
+        stable@vger.kernel.org,
+        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Subject: [PATCH 4.19 74/81] x86/unwind/orc: Fix unwind_get_return_address_ptr() for inactive tasks
 Date:   Tue, 26 May 2020 20:53:49 +0200
-Message-Id: <20200526183941.551886747@linuxfoundation.org>
+Message-Id: <20200526183935.279225178@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183932.245016380@linuxfoundation.org>
-References: <20200526183932.245016380@linuxfoundation.org>
+In-Reply-To: <20200526183923.108515292@linuxfoundation.org>
+References: <20200526183923.108515292@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,34 +45,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Yongjun <weiyongjun1@huawei.com>
+From: Josh Poimboeuf <jpoimboe@redhat.com>
 
-commit 133317479f0324f6faaf797c4f5f3e9b1b36ce35 upstream.
+commit 187b96db5ca79423618dfa29a05c438c34f9e1f0 upstream.
 
-Fix to return negative error code -ENOMEM from the ioremap() error handling
-case instead of 0, as done elsewhere in this function.
+Normally, show_trace_log_lvl() scans the stack, looking for text
+addresses to print.  In parallel, it unwinds the stack with
+unwind_next_frame().  If the stack address matches the pointer returned
+by unwind_get_return_address_ptr() for the current frame, the text
+address is printed normally without a question mark.  Otherwise it's
+considered a breadcrumb (potentially from a previous call path) and it's
+printed with a question mark to indicate that the address is unreliable
+and typically can be ignored.
 
-Fixes: 43986798fd50 ("ipack: add error handling for ioremap_nocache")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-Cc: stable <stable@vger.kernel.org>
-Acked-by: Samuel Iglesias Gonsalvez <siglesias@igalia.com>
-Link: https://lore.kernel.org/r/20200507094237.13599-1-weiyongjun1@huawei.com
+Since the following commit:
+
+  f1d9a2abff66 ("x86/unwind/orc: Don't skip the first frame for inactive tasks")
+
+... for inactive tasks, show_trace_log_lvl() prints *only* unreliable
+addresses (prepended with '?').
+
+That happens because, for the first frame of an inactive task,
+unwind_get_return_address_ptr() returns the wrong return address
+pointer: one word *below* the task stack pointer.  show_trace_log_lvl()
+starts scanning at the stack pointer itself, so it never finds the first
+'reliable' address, causing only guesses to being printed.
+
+The first frame of an inactive task isn't a normal stack frame.  It's
+actually just an instance of 'struct inactive_task_frame' which is left
+behind by __switch_to_asm().  Now that this inactive frame is actually
+exposed to callers, fix unwind_get_return_address_ptr() to interpret it
+properly.
+
+Fixes: f1d9a2abff66 ("x86/unwind/orc: Don't skip the first frame for inactive tasks")
+Reported-by: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20200522135435.vbxs7umku5pyrdbk@treble
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/ipack/carriers/tpci200.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/x86/kernel/unwind_orc.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/drivers/ipack/carriers/tpci200.c
-+++ b/drivers/ipack/carriers/tpci200.c
-@@ -306,6 +306,7 @@ static int tpci200_register(struct tpci2
- 			"(bn 0x%X, sn 0x%X) failed to map driver user space!",
- 			tpci200->info->pdev->bus->number,
- 			tpci200->info->pdev->devfn);
-+		res = -ENOMEM;
- 		goto out_release_mem8_space;
- 	}
+--- a/arch/x86/kernel/unwind_orc.c
++++ b/arch/x86/kernel/unwind_orc.c
+@@ -300,12 +300,19 @@ EXPORT_SYMBOL_GPL(unwind_get_return_addr
+ 
+ unsigned long *unwind_get_return_address_ptr(struct unwind_state *state)
+ {
++	struct task_struct *task = state->task;
++
+ 	if (unwind_done(state))
+ 		return NULL;
+ 
+ 	if (state->regs)
+ 		return &state->regs->ip;
+ 
++	if (task != current && state->sp == task->thread.sp) {
++		struct inactive_task_frame *frame = (void *)task->thread.sp;
++		return &frame->ret_addr;
++	}
++
+ 	if (state->sp)
+ 		return (unsigned long *)state->sp - 1;
  
 
 
