@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CCBE1E2E72
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:30:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 191801E2B63
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:05:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390966AbgEZTBe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:01:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55936 "EHLO mail.kernel.org"
+        id S2391383AbgEZTEi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:04:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60328 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403766AbgEZTBd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:01:33 -0400
+        id S2390485AbgEZTEi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:04:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2A7F7208A7;
-        Tue, 26 May 2020 19:01:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 05A3A2086A;
+        Tue, 26 May 2020 19:04:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590519693;
-        bh=bPxqR0PLtI2XhTEKDMmR4d8gFqmhTzEniP59wxMePZ4=;
+        s=default; t=1590519877;
+        bh=C5RUA5PleN6pmherb3qSxADrS/EbTQI2T3y1YchV8eg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WG4qyIP6FZepDFN7HTnmH4QHrOolPXobIPGE2MUZnfrX2HPkj/1Gzorf8DDPPFHyk
-         /XDPzCK2aNDMK+0YB6h4ytbc7OwF3oXnhuffWFXbZB0J5PJ8Vr03igWGynTrrQZqik
-         z6lEQ6F4oEOzZrvuhv5qBcmQe1rbOLFF+9/VB93k=
+        b=MZDzXkUY2ezRE/NARSdu56QRM9TbcF2jF8kDmNBgrtaqSvccYIQuMiNhgdvqSm9+5
+         9nuuuDh2oyZ47bcZbFq0PUuP0dZYYfyDtNcFnxK/JUI9DrUX56K5mn/lBvkhXoEzYO
+         1otTLrucc0Wtf+7EuseA9ix5aj92uXyT+cv3bm0k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Russell Currey <ruscur@russell.cc>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 40/59] powerpc: Remove STRICT_KERNEL_RWX incompatibility with RELOCATABLE
+Subject: [PATCH 4.19 50/81] powerpc/64s: Disable STRICT_KERNEL_RWX
 Date:   Tue, 26 May 2020 20:53:25 +0200
-Message-Id: <20200526183920.239637537@linuxfoundation.org>
+Message-Id: <20200526183932.737734715@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183907.123822792@linuxfoundation.org>
-References: <20200526183907.123822792@linuxfoundation.org>
+In-Reply-To: <20200526183923.108515292@linuxfoundation.org>
+References: <20200526183923.108515292@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,37 +43,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell Currey <ruscur@russell.cc>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-[ Upstream commit c55d7b5e64265fdca45c85b639013e770bde2d0e ]
+[ Upstream commit 8659a0e0efdd975c73355dbc033f79ba3b31e82c ]
 
-I have tested this with the Radix MMU and everything seems to work, and
-the previous patch for Hash seems to fix everything too.
-STRICT_KERNEL_RWX should still be disabled by default for now.
+Several strange crashes have been eventually traced back to
+STRICT_KERNEL_RWX and its interaction with code patching.
 
-Please test STRICT_KERNEL_RWX + RELOCATABLE!
+Various paths in our ftrace, kprobes and other patching code need to
+be hardened against patching failures, otherwise we can end up running
+with partially/incorrectly patched ftrace paths, kprobes or jump
+labels, which can then cause strange crashes.
 
-Signed-off-by: Russell Currey <ruscur@russell.cc>
+Although fixes for those are in development, they're not -rc material.
+
+There also seem to be problems with the underlying strict RWX logic,
+which needs further debugging.
+
+So for now disable STRICT_KERNEL_RWX on 64-bit to prevent people from
+enabling the option and tripping over the bugs.
+
+Fixes: 1e0fc9d1eb2b ("powerpc/Kconfig: Enable STRICT_KERNEL_RWX for some configs")
+Cc: stable@vger.kernel.org # v4.13+
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20191224064126.183670-2-ruscur@russell.cc
+Link: https://lore.kernel.org/r/20200520133605.972649-1-mpe@ellerman.id.au
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
  arch/powerpc/Kconfig | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
-index 6b73ef2bba2e..b74c3a68c0ad 100644
+index da48a2ca272e..f38d153d2586 100644
 --- a/arch/powerpc/Kconfig
 +++ b/arch/powerpc/Kconfig
-@@ -141,7 +141,7 @@ config PPC
- 	select ARCH_HAS_GCOV_PROFILE_ALL
+@@ -139,7 +139,7 @@ config PPC
+ 	select ARCH_HAS_MEMBARRIER_CALLBACKS
  	select ARCH_HAS_SCALED_CPUTIME		if VIRT_CPU_ACCOUNTING_NATIVE
  	select ARCH_HAS_SG_CHAIN
--	select ARCH_HAS_STRICT_KERNEL_RWX	if ((PPC_BOOK3S_64 || PPC32) && !RELOCATABLE && !HIBERNATION)
-+	select ARCH_HAS_STRICT_KERNEL_RWX	if ((PPC_BOOK3S_64 || PPC32) && !HIBERNATION)
+-	select ARCH_HAS_STRICT_KERNEL_RWX	if ((PPC_BOOK3S_64 || PPC32) && !HIBERNATION)
++	select ARCH_HAS_STRICT_KERNEL_RWX	if (PPC32 && !HIBERNATION)
  	select ARCH_HAS_TICK_BROADCAST		if GENERIC_CLOCKEVENTS_BROADCAST
+ 	select ARCH_HAS_UACCESS_FLUSHCACHE	if PPC64
  	select ARCH_HAS_UBSAN_SANITIZE_ALL
- 	select ARCH_HAS_ZONE_DEVICE		if PPC_BOOK3S_64
 -- 
 2.25.1
 
