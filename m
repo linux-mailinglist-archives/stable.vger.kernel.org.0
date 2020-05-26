@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 979D01E2E14
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:27:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B7EE1E2D5D
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:24:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391391AbgEZTEn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:04:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60382 "EHLO mail.kernel.org"
+        id S2391520AbgEZTIz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:08:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37956 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390485AbgEZTEl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:04:41 -0400
+        id S2390068AbgEZTIy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:08:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C40CB20849;
-        Tue, 26 May 2020 19:04:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7AC7220776;
+        Tue, 26 May 2020 19:08:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590519880;
-        bh=q52oCTslmfWu8UFWSgvt3snEHbJZpSrBNpItw+cgWkA=;
+        s=default; t=1590520134;
+        bh=5DSkam4qSpPOCtTfMpJff906uNdwjLVc5YIigu8a1XM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LBKhqsS2y2hUOvAJCGaxF3sRfpl1uf+wpovO9SjY9Q52iZYpIi9Bn9Z6/0mmNIWGX
-         UQGxMvszU51ySP20vL4cM/qacmK9w+KpamUnnxn9NrJ12yYFGjoyanl1b2yPVgv3vW
-         2hFPIKKfU/lRbj0eshDfP+BF6tiOiZjswhmdy/Z0=
+        b=N9M5CpSN+eQ2fk5tlztsY2B0krT4mhST2wve0SpGyKqqSaTu61xR3rmdATqrSb0sA
+         PIkmBzzc2Q3HFKIT2nXUhwieZh3VU8oLXZuR4fKyW418oPDUofaQOkTIMhJ5vl0Bx8
+         /8VHz8PsBlHNA5RA/UEf1+iMNS4JlLclBCFSEAPk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dexuan Cui <decui@microsoft.com>,
-        Michael Kelley <mikelley@microsoft.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 51/81] nfit: Add Hyper-V NVDIMM DSM command set to white list
-Date:   Tue, 26 May 2020 20:53:26 +0200
-Message-Id: <20200526183932.809967880@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Jon Hunter <jonathanh@nvidia.com>,
+        Thierry Reding <treding@nvidia.com>,
+        Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 5.4 069/111] dmaengine: tegra210-adma: Fix an error handling path in tegra_adma_probe()
+Date:   Tue, 26 May 2020 20:53:27 +0200
+Message-Id: <20200526183939.391299916@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183923.108515292@linuxfoundation.org>
-References: <20200526183923.108515292@linuxfoundation.org>
+In-Reply-To: <20200526183932.245016380@linuxfoundation.org>
+References: <20200526183932.245016380@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,110 +46,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dexuan Cui <decui@microsoft.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 1194c4133195dfcb6c5fc0935d54bbed872a5285 ]
+commit 3a5fd0dbd87853f8bd2ea275a5b3b41d6686e761 upstream.
 
-Add the Hyper-V _DSM command set to the white list of NVDIMM command
-sets.
+Commit b53611fb1ce9 ("dmaengine: tegra210-adma: Fix crash during probe")
+has moved some code in the probe function and reordered the error handling
+path accordingly.
+However, a goto has been missed.
 
-This command set is documented at http://www.uefi.org/RFIC_LIST
-(see "Virtual NVDIMM 0x1901").
+Fix it and goto the right label if 'dma_async_device_register()' fails, so
+that all resources are released.
 
-Signed-off-by: Dexuan Cui <decui@microsoft.com>
-Reviewed-by: Michael Kelley <mikelley@microsoft.com>
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: b53611fb1ce9 ("dmaengine: tegra210-adma: Fix crash during probe")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Reviewed-by: Jon Hunter <jonathanh@nvidia.com>
+Acked-by: Thierry Reding <treding@nvidia.com>
+Link: https://lore.kernel.org/r/20200516214205.276266-1-christophe.jaillet@wanadoo.fr
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/acpi/nfit/core.c   | 17 ++++++++++++++---
- drivers/acpi/nfit/nfit.h   |  6 +++++-
- include/uapi/linux/ndctl.h |  1 +
- 3 files changed, 20 insertions(+), 4 deletions(-)
+ drivers/dma/tegra210-adma.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/acpi/nfit/core.c b/drivers/acpi/nfit/core.c
-index 8340c81b258b..dd4c7289610e 100644
---- a/drivers/acpi/nfit/core.c
-+++ b/drivers/acpi/nfit/core.c
-@@ -1773,9 +1773,17 @@ static int acpi_nfit_add_dimm(struct acpi_nfit_desc *acpi_desc,
- 	dev_set_drvdata(&adev_dimm->dev, nfit_mem);
+--- a/drivers/dma/tegra210-adma.c
++++ b/drivers/dma/tegra210-adma.c
+@@ -900,7 +900,7 @@ static int tegra_adma_probe(struct platf
+ 	ret = dma_async_device_register(&tdma->dma_dev);
+ 	if (ret < 0) {
+ 		dev_err(&pdev->dev, "ADMA registration failed: %d\n", ret);
+-		goto irq_dispose;
++		goto rpm_put;
+ 	}
  
- 	/*
--	 * Until standardization materializes we need to consider 4
--	 * different command sets.  Note, that checking for function0 (bit0)
--	 * tells us if any commands are reachable through this GUID.
-+	 * There are 4 "legacy" NVDIMM command sets
-+	 * (NVDIMM_FAMILY_{INTEL,MSFT,HPE1,HPE2}) that were created before
-+	 * an EFI working group was established to constrain this
-+	 * proliferation. The nfit driver probes for the supported command
-+	 * set by GUID. Note, if you're a platform developer looking to add
-+	 * a new command set to this probe, consider using an existing set,
-+	 * or otherwise seek approval to publish the command set at
-+	 * http://www.uefi.org/RFIC_LIST.
-+	 *
-+	 * Note, that checking for function0 (bit0) tells us if any commands
-+	 * are reachable through this GUID.
- 	 */
- 	for (i = 0; i <= NVDIMM_FAMILY_MAX; i++)
- 		if (acpi_check_dsm(adev_dimm->handle, to_nfit_uuid(i), 1, 1))
-@@ -1798,6 +1806,8 @@ static int acpi_nfit_add_dimm(struct acpi_nfit_desc *acpi_desc,
- 			dsm_mask &= ~(1 << 8);
- 	} else if (nfit_mem->family == NVDIMM_FAMILY_MSFT) {
- 		dsm_mask = 0xffffffff;
-+	} else if (nfit_mem->family == NVDIMM_FAMILY_HYPERV) {
-+		dsm_mask = 0x1f;
- 	} else {
- 		dev_dbg(dev, "unknown dimm command family\n");
- 		nfit_mem->family = -1;
-@@ -3622,6 +3632,7 @@ static __init int nfit_init(void)
- 	guid_parse(UUID_NFIT_DIMM_N_HPE1, &nfit_uuid[NFIT_DEV_DIMM_N_HPE1]);
- 	guid_parse(UUID_NFIT_DIMM_N_HPE2, &nfit_uuid[NFIT_DEV_DIMM_N_HPE2]);
- 	guid_parse(UUID_NFIT_DIMM_N_MSFT, &nfit_uuid[NFIT_DEV_DIMM_N_MSFT]);
-+	guid_parse(UUID_NFIT_DIMM_N_HYPERV, &nfit_uuid[NFIT_DEV_DIMM_N_HYPERV]);
- 
- 	nfit_wq = create_singlethread_workqueue("nfit");
- 	if (!nfit_wq)
-diff --git a/drivers/acpi/nfit/nfit.h b/drivers/acpi/nfit/nfit.h
-index 68848fc4b7c9..cc2ec62951de 100644
---- a/drivers/acpi/nfit/nfit.h
-+++ b/drivers/acpi/nfit/nfit.h
-@@ -34,11 +34,14 @@
- /* https://msdn.microsoft.com/library/windows/hardware/mt604741 */
- #define UUID_NFIT_DIMM_N_MSFT "1ee68b36-d4bd-4a1a-9a16-4f8e53d46e05"
- 
-+/* http://www.uefi.org/RFIC_LIST (see "Virtual NVDIMM 0x1901") */
-+#define UUID_NFIT_DIMM_N_HYPERV "5746c5f2-a9a2-4264-ad0e-e4ddc9e09e80"
-+
- #define ACPI_NFIT_MEM_FAILED_MASK (ACPI_NFIT_MEM_SAVE_FAILED \
- 		| ACPI_NFIT_MEM_RESTORE_FAILED | ACPI_NFIT_MEM_FLUSH_FAILED \
- 		| ACPI_NFIT_MEM_NOT_ARMED | ACPI_NFIT_MEM_MAP_FAILED)
- 
--#define NVDIMM_FAMILY_MAX NVDIMM_FAMILY_MSFT
-+#define NVDIMM_FAMILY_MAX NVDIMM_FAMILY_HYPERV
- 
- #define NVDIMM_STANDARD_CMDMASK \
- (1 << ND_CMD_SMART | 1 << ND_CMD_SMART_THRESHOLD | 1 << ND_CMD_DIMM_FLAGS \
-@@ -75,6 +78,7 @@ enum nfit_uuids {
- 	NFIT_DEV_DIMM_N_HPE1 = NVDIMM_FAMILY_HPE1,
- 	NFIT_DEV_DIMM_N_HPE2 = NVDIMM_FAMILY_HPE2,
- 	NFIT_DEV_DIMM_N_MSFT = NVDIMM_FAMILY_MSFT,
-+	NFIT_DEV_DIMM_N_HYPERV = NVDIMM_FAMILY_HYPERV,
- 	NFIT_SPA_VOLATILE,
- 	NFIT_SPA_PM,
- 	NFIT_SPA_DCR,
-diff --git a/include/uapi/linux/ndctl.h b/include/uapi/linux/ndctl.h
-index 2f2c43d633c5..7b0189d6dfa9 100644
---- a/include/uapi/linux/ndctl.h
-+++ b/include/uapi/linux/ndctl.h
-@@ -247,6 +247,7 @@ struct nd_cmd_pkg {
- #define NVDIMM_FAMILY_HPE1 1
- #define NVDIMM_FAMILY_HPE2 2
- #define NVDIMM_FAMILY_MSFT 3
-+#define NVDIMM_FAMILY_HYPERV 4
- 
- #define ND_IOCTL_CALL			_IOWR(ND_IOCTL, ND_CMD_CALL,\
- 					struct nd_cmd_pkg)
--- 
-2.25.1
-
+ 	ret = of_dma_controller_register(pdev->dev.of_node,
 
 
