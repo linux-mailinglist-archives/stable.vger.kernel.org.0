@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 957591E2DB4
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:25:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71CFC1E2E68
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:30:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404178AbgEZTXe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:23:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38092 "EHLO mail.kernel.org"
+        id S2390097AbgEZTBR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:01:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55500 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391818AbgEZTJC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:09:02 -0400
+        id S2389606AbgEZTBO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:01:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 33C8D20776;
-        Tue, 26 May 2020 19:09:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4501A20849;
+        Tue, 26 May 2020 19:01:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590520141;
-        bh=2zQbOFk7UokBnaJoU3QOA1uEDUj2qmeb2ZaGzIM4pvA=;
+        s=default; t=1590519673;
+        bh=2Wkf2sDeBwlGM90ugJjm6IKq3I5w/ZLDn2af8lthKGQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cZxOUDHsIs0pd1dXDqk7hWQjjHiEEh8+1HiPE79R4xnVdGiryDgPIhkLg7AF07/14
-         jPslJpCRm546M5ZUNk7VrkY/j5l3f3ottlEu7ZY+iigIb/+4VrfW84RFN07C5O1PyZ
-         sul8lTtYp3gbnbkZ/n8IJQpnveNeiaIDNBaJ0tBU=
+        b=agiULiORgsA1uwBE+Ceuny5wFL+BOBhkwrAo2lds4lTL4hq/kj08NaNTbtwGxcCUg
+         MzRC6a3uAfoVTPNwcKnu9wj1Ruwv9i+yaYF93yS+FQqd11VGFrwPfjXUroXVHOJFMe
+         7ryglR7o7KEX5yMFWsF6eC1uX87/3R3GuaYMx/Yw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juliet Kim <julietk@linux.vnet.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Krzysztof Struczynski <krzysztof.struczynski@huawei.com>,
+        Roberto Sassu <roberto.sassu@huawei.com>,
+        Mimi Zohar <zohar@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 034/111] ibmvnic: Skip fatal error reset after passive init
+Subject: [PATCH 4.14 07/59] evm: Check also if *tfm is an error pointer in init_desc()
 Date:   Tue, 26 May 2020 20:52:52 +0200
-Message-Id: <20200526183936.067512660@linuxfoundation.org>
+Message-Id: <20200526183909.739823448@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183932.245016380@linuxfoundation.org>
-References: <20200526183932.245016380@linuxfoundation.org>
+In-Reply-To: <20200526183907.123822792@linuxfoundation.org>
+References: <20200526183907.123822792@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,45 +46,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juliet Kim <julietk@linux.vnet.ibm.com>
+From: Roberto Sassu <roberto.sassu@huawei.com>
 
-[ Upstream commit f9c6cea0b38518741c8dcf26ac056d26ee2fd61d ]
+[ Upstream commit 53de3b080d5eae31d0de219617155dcc34e7d698 ]
 
-During MTU change, the following events may happen.
-Client-driven CRQ initialization fails due to partner’s CRQ closed,
-causing client to enqueue a reset task for FATAL_ERROR. Then passive
-(server-driven) CRQ initialization succeeds, causing client to
-release CRQ and enqueue a reset task for failover. If the passive
-CRQ initialization occurs before the FATAL reset task is processed,
-the FATAL error reset task would try to access a CRQ message queue
-that was freed, causing an oops. The problem may be most likely to
-occur during DLPAR add vNIC with a non-default MTU, because the DLPAR
-process will automatically issue a change MTU request.
+This patch avoids a kernel panic due to accessing an error pointer set by
+crypto_alloc_shash(). It occurs especially when there are many files that
+require an unsupported algorithm, as it would increase the likelihood of
+the following race condition:
 
-Fix this by not processing fatal error reset if CRQ is passively
-initialized after client-driven CRQ initialization fails.
+Task A: *tfm = crypto_alloc_shash() <= error pointer
+Task B: if (*tfm == NULL) <= *tfm is not NULL, use it
+Task B: rc = crypto_shash_init(desc) <= panic
+Task A: *tfm = NULL
 
-Signed-off-by: Juliet Kim <julietk@linux.vnet.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This patch uses the IS_ERR_OR_NULL macro to determine whether or not a new
+crypto context must be created.
+
+Cc: stable@vger.kernel.org
+Fixes: d46eb3699502b ("evm: crypto hash replaced by shash")
+Co-developed-by: Krzysztof Struczynski <krzysztof.struczynski@huawei.com>
+Signed-off-by: Krzysztof Struczynski <krzysztof.struczynski@huawei.com>
+Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/ibm/ibmvnic.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ security/integrity/evm/evm_crypto.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/ibm/ibmvnic.c b/drivers/net/ethernet/ibm/ibmvnic.c
-index e1ab2feeae53..aaa03ce5796f 100644
---- a/drivers/net/ethernet/ibm/ibmvnic.c
-+++ b/drivers/net/ethernet/ibm/ibmvnic.c
-@@ -2086,7 +2086,8 @@ static void __ibmvnic_reset(struct work_struct *work)
- 				rc = do_hard_reset(adapter, rwi, reset_state);
- 				rtnl_unlock();
- 			}
--		} else {
-+		} else if (!(rwi->reset_reason == VNIC_RESET_FATAL &&
-+				adapter->from_passive_init)) {
- 			rc = do_reset(adapter, rwi, reset_state);
- 		}
- 		kfree(rwi);
+diff --git a/security/integrity/evm/evm_crypto.c b/security/integrity/evm/evm_crypto.c
+index f1f030ae363b..73791d22ae07 100644
+--- a/security/integrity/evm/evm_crypto.c
++++ b/security/integrity/evm/evm_crypto.c
+@@ -90,7 +90,7 @@ static struct shash_desc *init_desc(char type)
+ 		algo = evm_hash;
+ 	}
+ 
+-	if (*tfm == NULL) {
++	if (IS_ERR_OR_NULL(*tfm)) {
+ 		mutex_lock(&mutex);
+ 		if (*tfm)
+ 			goto out;
 -- 
 2.25.1
 
