@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D3F2C1E2D3C
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:21:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 349111E2E84
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:30:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404110AbgEZTMK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:12:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41676 "EHLO mail.kernel.org"
+        id S2389847AbgEZT3i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:29:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55592 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403888AbgEZTMJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:12:09 -0400
+        id S2390915AbgEZTBT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:01:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9069320776;
-        Tue, 26 May 2020 19:12:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9EA4420849;
+        Tue, 26 May 2020 19:01:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590520329;
-        bh=0s4kw//tMF6/0U/1tQBmB3KpJtoo0PmRghH2t4jItlg=;
+        s=default; t=1590519679;
+        bh=F5paSIYVdD2MoZ325RjOQE/MBygWta+DFlE3KZfNlhw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vy1KLqWUgYUh1bUs+U6XHfYAFoPmQGR6LgPyWi/djNQYsgukWwFp9nIgL9R+gIWxP
-         pzkyocK9eohc49qQ5YWO/ZqSFUEC4ANETn4QFYrI38SfdoNK1uHM1z3o239CA7VYGC
-         8IBcJ/vkdSFgyD/tlym4D7iVgNSgq77oIdxH26Uw=
+        b=h/YTPx4qe9Q3uKlShf6ONG+BCXruWEZbIJy7WJ27TLzfVG7ia3/HhGTPfp6gfFlfM
+         9Ed87ScpHzz4qcahSdmpMnhqy7G5j6RTn5qLrjRmUe3qC8FDhHXlIQGYaxaf0bi/Rf
+         r8sFlPTyEEQ1/ZDJ3Oaz/jybUM5OwEB/YIc+nc8U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Daniel Playfair Cal <daniel.playfair.cal@gmail.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 037/126] HID: i2c-hid: reset Synaptics SYNA2393 on resume
+        Thiago Macieira <thiago.macieira@intel.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Sasha Levin <sashal@kernel.org>, stable@kernel.org
+Subject: [PATCH 4.14 09/59] fix multiplication overflow in copy_fdtable()
 Date:   Tue, 26 May 2020 20:52:54 +0200
-Message-Id: <20200526183941.025193206@linuxfoundation.org>
+Message-Id: <20200526183911.006430275@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183937.471379031@linuxfoundation.org>
-References: <20200526183937.471379031@linuxfoundation.org>
+In-Reply-To: <20200526183907.123822792@linuxfoundation.org>
+References: <20200526183907.123822792@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,53 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Playfair Cal <daniel.playfair.cal@gmail.com>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-[ Upstream commit 538f67407e2c0e5ed2a46e7d7ffa52f2e30c7ef8 ]
+[ Upstream commit 4e89b7210403fa4a8acafe7c602b6212b7af6c3b ]
 
-On the Dell XPS 9570, the Synaptics SYNA2393 touchpad generates spurious
-interrupts after resuming from suspend until it receives some input or
-is reset. Add it to the quirk I2C_HID_QUIRK_RESET_ON_RESUME so that it
-is reset when resuming from suspend.
+cpy and set really should be size_t; we won't get an overflow on that,
+since sysctl_nr_open can't be set above ~(size_t)0 / sizeof(void *),
+so nr that would've managed to overflow size_t on that multiplication
+won't get anywhere near copy_fdtable() - we'll fail with EMFILE
+before that.
 
-More information about the bug can be found in this mailing list
-discussion: https://www.spinics.net/lists/linux-input/msg59530.html
-
-Signed-off-by: Daniel Playfair Cal <daniel.playfair.cal@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Cc: stable@kernel.org # v2.6.25+
+Fixes: 9cfe015aa424 (get rid of NR_OPEN and introduce a sysctl_nr_open)
+Reported-by: Thiago Macieira <thiago.macieira@intel.com>
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-ids.h              | 3 +++
- drivers/hid/i2c-hid/i2c-hid-core.c | 2 ++
- 2 files changed, 5 insertions(+)
+ fs/file.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index b3cc26ca375f..55afc089cb25 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -1094,6 +1094,9 @@
- #define USB_DEVICE_ID_SYMBOL_SCANNER_2	0x1300
- #define USB_DEVICE_ID_SYMBOL_SCANNER_3	0x1200
+diff --git a/fs/file.c b/fs/file.c
+index 0c25b980affe..97c6f0df39da 100644
+--- a/fs/file.c
++++ b/fs/file.c
+@@ -75,7 +75,7 @@ static void copy_fd_bitmaps(struct fdtable *nfdt, struct fdtable *ofdt,
+  */
+ static void copy_fdtable(struct fdtable *nfdt, struct fdtable *ofdt)
+ {
+-	unsigned int cpy, set;
++	size_t cpy, set;
  
-+#define I2C_VENDOR_ID_SYNAPTICS     0x06cb
-+#define I2C_PRODUCT_ID_SYNAPTICS_SYNA2393   0x7a13
-+
- #define USB_VENDOR_ID_SYNAPTICS		0x06cb
- #define USB_DEVICE_ID_SYNAPTICS_TP	0x0001
- #define USB_DEVICE_ID_SYNAPTICS_INT_TP	0x0002
-diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
-index 009000c5d55c..294c84e136d7 100644
---- a/drivers/hid/i2c-hid/i2c-hid-core.c
-+++ b/drivers/hid/i2c-hid/i2c-hid-core.c
-@@ -177,6 +177,8 @@ static const struct i2c_hid_quirks {
- 		 I2C_HID_QUIRK_BOGUS_IRQ },
- 	{ USB_VENDOR_ID_ALPS_JP, HID_ANY_ID,
- 		 I2C_HID_QUIRK_RESET_ON_RESUME },
-+	{ I2C_VENDOR_ID_SYNAPTICS, I2C_PRODUCT_ID_SYNAPTICS_SYNA2393,
-+		 I2C_HID_QUIRK_RESET_ON_RESUME },
- 	{ USB_VENDOR_ID_ITE, I2C_DEVICE_ID_ITE_LENOVO_LEGION_Y720,
- 		I2C_HID_QUIRK_BAD_INPUT_SIZE },
- 	{ 0, 0 }
+ 	BUG_ON(nfdt->max_fds < ofdt->max_fds);
+ 
 -- 
 2.25.1
 
