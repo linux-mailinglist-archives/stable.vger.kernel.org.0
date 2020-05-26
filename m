@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 971841E2B1E
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:03:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 14E621E2B21
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:03:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391056AbgEZTCP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:02:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56928 "EHLO mail.kernel.org"
+        id S2391058AbgEZTCT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:02:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56986 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403815AbgEZTCO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:02:14 -0400
+        id S2391068AbgEZTCR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:02:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7547E20849;
-        Tue, 26 May 2020 19:02:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 505FF20849;
+        Tue, 26 May 2020 19:02:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590519733;
-        bh=c12BwEXWJ5Nu5rhjeaqvBJv87i+JvJvCDPFzsV+LjxY=;
+        s=default; t=1590519736;
+        bh=Cu0VYQZsfxVZA1WqJJmbBtZ+lFPCpOyAmwNLV/tSejI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Epfhh69VKjegnBUoBV2qJthu45KSQZo85lS4hzKTnYyDM4bhXizxDadCl1sGkXzJN
-         kat9T/xQNawu7hro3YOLCgmOYSjY9I1R53YBc2w2JP+DTFL26b4uvV+4J665CaqcIm
-         uXhoHq6nNvOi5J4MqVNoNe4TE4l7LE1QApaHh/7E=
+        b=EaTx20TdjzwtkBEKg58/me6oMr5RUZQQzY964EkVDyu+NGKETmkC/g1P9u+2dzOTZ
+         xfKQ4LUynzHdeidYV8ULNZvCl6eNAumFOKikT4Yg+sQjkGxbjKxxg7xAAloNC9ubgi
+         I51uADPkqaMEcWI7gypJPSXUd2Urvc+Nm0IhBNnk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Hubbard <jhubbard@nvidia.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Matt Porter <mporter@kernel.crashing.org>,
-        Alexandre Bounine <alex.bou9@gmail.com>,
-        Sumit Semwal <sumit.semwal@linaro.org>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 55/59] rapidio: fix an error in get_user_pages_fast() error handling
-Date:   Tue, 26 May 2020 20:53:40 +0200
-Message-Id: <20200526183923.849955495@linuxfoundation.org>
+        stable@vger.kernel.org, Qiushi Wu <wu000273@umn.edu>,
+        David Howells <dhowells@redhat.com>,
+        Markus Elfring <Markus.Elfring@web.de>
+Subject: [PATCH 4.14 56/59] rxrpc: Fix a memory leak in rxkad_verify_response()
+Date:   Tue, 26 May 2020 20:53:41 +0200
+Message-Id: <20200526183923.994507252@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200526183907.123822792@linuxfoundation.org>
 References: <20200526183907.123822792@linuxfoundation.org>
@@ -48,48 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Hubbard <jhubbard@nvidia.com>
+From: Qiushi Wu <wu000273@umn.edu>
 
-commit ffca476a0a8d26de767cc41d62b8ca7f540ecfdd upstream.
+commit f45d01f4f30b53c3a0a1c6c1c154acb7ff74ab9f upstream.
 
-In the case of get_user_pages_fast() returning fewer pages than
-requested, rio_dma_transfer() does not quite do the right thing.  It
-attempts to release all the pages that were requested, rather than just
-the pages that were pinned.
+A ticket was not released after a call of the function
+"rxkad_decrypt_ticket" failed. Thus replace the jump target
+"temporary_error_free_resp" by "temporary_error_free_ticket".
 
-Fix the error handling so that only the pages that were successfully
-pinned are released.
-
-Fixes: e8de370188d0 ("rapidio: add mport char device driver")
-Signed-off-by: John Hubbard <jhubbard@nvidia.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Matt Porter <mporter@kernel.crashing.org>
-Cc: Alexandre Bounine <alex.bou9@gmail.com>
-Cc: Sumit Semwal <sumit.semwal@linaro.org>
-Cc: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: <stable@vger.kernel.org>
-Link: http://lkml.kernel.org/r/20200517235620.205225-2-jhubbard@nvidia.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 8c2f826dc3631 ("rxrpc: Don't put crypto buffers on the stack")
+Signed-off-by: Qiushi Wu <wu000273@umn.edu>
+Signed-off-by: David Howells <dhowells@redhat.com>
+cc: Markus Elfring <Markus.Elfring@web.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/rapidio/devices/rio_mport_cdev.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ net/rxrpc/rxkad.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/rapidio/devices/rio_mport_cdev.c
-+++ b/drivers/rapidio/devices/rio_mport_cdev.c
-@@ -904,6 +904,11 @@ rio_dma_transfer(struct file *filp, u32
- 				rmcd_error("pinned %ld out of %ld pages",
- 					   pinned, nr_pages);
- 			ret = -EFAULT;
-+			/*
-+			 * Set nr_pages up to mean "how many pages to unpin, in
-+			 * the error handler:
-+			 */
-+			nr_pages = pinned;
- 			goto err_pg;
- 		}
+--- a/net/rxrpc/rxkad.c
++++ b/net/rxrpc/rxkad.c
+@@ -1111,7 +1111,7 @@ static int rxkad_verify_response(struct
+ 	ret = rxkad_decrypt_ticket(conn, skb, ticket, ticket_len, &session_key,
+ 				   &expiry, _abort_code);
+ 	if (ret < 0)
+-		goto temporary_error_free_resp;
++		goto temporary_error_free_ticket;
  
+ 	/* use the session key from inside the ticket to decrypt the
+ 	 * response */
+@@ -1193,7 +1193,6 @@ protocol_error:
+ 
+ temporary_error_free_ticket:
+ 	kfree(ticket);
+-temporary_error_free_resp:
+ 	kfree(response);
+ temporary_error:
+ 	/* Ignore the response packet if we got a temporary error such as
 
 
