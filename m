@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7608F1E2B24
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:03:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6474B1E2E0C
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:26:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391068AbgEZTCZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:02:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57188 "EHLO mail.kernel.org"
+        id S2391482AbgEZTFQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:05:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33198 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390269AbgEZTCZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:02:25 -0400
+        id S2391478AbgEZTFQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:05:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 275F420849;
-        Tue, 26 May 2020 19:02:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 26809208B8;
+        Tue, 26 May 2020 19:05:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590519744;
-        bh=H63YJtgJZbKb64vMUxzAPQwIpPLNoz1QOyiyGbsojyM=;
+        s=default; t=1590519915;
+        bh=iJEzzmF0Ft5H2GY7TTk0kkGMH07ZfnxhaYQX2yvZEUo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a3SpKxXT3UYhD1YAJO6bSCvnIcqqhsV9MG5E3FFRwXnC/TAQhd64QU2SZqIAk9goY
-         pRCZ2x7T54urCI2lvRWoReq5fV282BU4abc4Wc5PrJU5wxVz4Wy2DRuydkDbzBIBgy
-         rI9CT4fTRjOIglyM9Xb9R3gXjlTyhFAHeJJ4c36M=
+        b=CQ/eAYKyg37gZ4UI8EVocSaoNOsnAC3+5/SyB7qqr9xh8c0CcIvx/A0XpIqvVXnM9
+         7TNT4OnKUJLZRZ689Bn4oaab9k6K5DU7rADs9OkxeI4Wwyuk2rRCeRwB4YFC3b3b4c
+         OGuks/zYAGP/76la0prQ0CcubY6MoLWB6zckxd6w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Ujfalusi <peter.ujfalusi@ti.com>,
-        Fabrice Gasnier <fabrice.gasnier@st.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 58/59] iio: adc: stm32-adc: Use dma_request_chan() instead dma_request_slave_channel()
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 4.19 68/81] iio: dac: vf610: Fix an error handling path in vf610_dac_probe()
 Date:   Tue, 26 May 2020 20:53:43 +0200
-Message-Id: <20200526183924.580101506@linuxfoundation.org>
+Message-Id: <20200526183934.600440442@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183907.123822792@linuxfoundation.org>
-References: <20200526183907.123822792@linuxfoundation.org>
+In-Reply-To: <20200526183923.108515292@linuxfoundation.org>
+References: <20200526183923.108515292@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,54 +45,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Ujfalusi <peter.ujfalusi@ti.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 735404b846dffcb320264f62b76e6f70012214dd ]
+commit aad4742fbf0a560c25827adb58695a4497ffc204 upstream.
 
-dma_request_slave_channel() is a wrapper on top of dma_request_chan()
-eating up the error code.
+A call to 'vf610_dac_exit()' is missing in an error handling path.
 
-By using dma_request_chan() directly the driver can support deferred
-probing against DMA.
-
-Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
-Acked-by: Fabrice Gasnier <fabrice.gasnier@st.com>
+Fixes: 1b983bf42fad ("iio: dac: vf610_dac: Add IIO DAC driver for Vybrid SoC")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/iio/adc/stm32-adc.c | 16 ++++++++++++++--
- 1 file changed, 14 insertions(+), 2 deletions(-)
+ drivers/iio/dac/vf610_dac.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/iio/adc/stm32-adc.c b/drivers/iio/adc/stm32-adc.c
-index 3cfb2d4b2441..9a243f06389d 100644
---- a/drivers/iio/adc/stm32-adc.c
-+++ b/drivers/iio/adc/stm32-adc.c
-@@ -1633,9 +1633,21 @@ static int stm32_adc_dma_request(struct iio_dev *indio_dev)
- 	struct dma_slave_config config;
- 	int ret;
+--- a/drivers/iio/dac/vf610_dac.c
++++ b/drivers/iio/dac/vf610_dac.c
+@@ -234,6 +234,7 @@ static int vf610_dac_probe(struct platfo
+ 	return 0;
  
--	adc->dma_chan = dma_request_slave_channel(&indio_dev->dev, "rx");
--	if (!adc->dma_chan)
-+	adc->dma_chan = dma_request_chan(&indio_dev->dev, "rx");
-+	if (IS_ERR(adc->dma_chan)) {
-+		ret = PTR_ERR(adc->dma_chan);
-+		if (ret != -ENODEV) {
-+			if (ret != -EPROBE_DEFER)
-+				dev_err(&indio_dev->dev,
-+					"DMA channel request failed with %d\n",
-+					ret);
-+			return ret;
-+		}
-+
-+		/* DMA is optional: fall back to IRQ mode */
-+		adc->dma_chan = NULL;
- 		return 0;
-+	}
+ error_iio_device_register:
++	vf610_dac_exit(info);
+ 	clk_disable_unprepare(info->clk);
  
- 	adc->rx_buf = dma_alloc_coherent(adc->dma_chan->device->dev,
- 					 STM32_DMA_BUFFER_SIZE,
--- 
-2.25.1
-
+ 	return ret;
 
 
