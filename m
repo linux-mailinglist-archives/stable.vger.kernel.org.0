@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A9A2C1E2DF1
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:26:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CBA31E2D8B
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:24:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390566AbgEZTG0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:06:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34644 "EHLO mail.kernel.org"
+        id S2390092AbgEZTVt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:21:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40484 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391570AbgEZTGZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:06:25 -0400
+        id S2391427AbgEZTLL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:11:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 96A2220776;
-        Tue, 26 May 2020 19:06:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E1FF520888;
+        Tue, 26 May 2020 19:11:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590519984;
-        bh=BJ0tO64MAidki1KuaMNtI00MVaxBlWf8j4Gm2u/+cZo=;
+        s=default; t=1590520270;
+        bh=ECHHm1tjjPiVV5BIUfnlAx1LvvWnDMygf0UXIqwcJhQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nuZuJzeegK53xgmauThOMay2cBGrJ9P9LSOOUhvrLy9jdWOzuF2+0oWJi7qHmqCpO
-         xmgASUYZThxw6yWk4bY92MQSr/aaYmesHuF+BQeKMOpeQRn1H+ypvFe4qjkS+VrGGA
-         IJu6qF9IOF0wubk5k0ndVjDS/vxJQnJYGhpOEyyY=
+        b=2TZAVr4eSX95Ris7Vtv2FHOyiZz97dYZgt2LUinVpkQL9WL8FUhq37xy/JPeYkX4T
+         Yt7pItYTB826CIqj7yYOvXlWSqBRzEnAZ0CwVXDWLmz9jaS0du3SnBYN8b+Z/okP+W
+         n5fNgcruqVT7AB353aTAZP0KJL3XyCCb7XdapseY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Roberto Sassu <roberto.sassu@huawei.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Krzysztof Struczynski <krzysztof.struczynski@huawei.com>,
-        Mimi Zohar <zohar@linux.ibm.com>,
+        stable@vger.kernel.org, Alexander Monakov <amonakov@ispras.ru>,
+        Joerg Roedel <joro@8bytes.org>,
+        iommu@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 013/111] evm: Fix a small race in init_desc()
+Subject: [PATCH 5.6 014/126] iommu/amd: Fix over-read of ACPI UID from IVRS table
 Date:   Tue, 26 May 2020 20:52:31 +0200
-Message-Id: <20200526183933.818958199@linuxfoundation.org>
+Message-Id: <20200526183938.780946925@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183932.245016380@linuxfoundation.org>
-References: <20200526183932.245016380@linuxfoundation.org>
+In-Reply-To: <20200526183937.471379031@linuxfoundation.org>
+References: <20200526183937.471379031@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,96 +45,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Alexander Monakov <amonakov@ispras.ru>
 
-[ Upstream commit 8433856947217ebb5697a8ff9c4c9cad4639a2cf ]
+[ Upstream commit e461b8c991b9202b007ea2059d953e264240b0c9 ]
 
-The IS_ERR_OR_NULL() function has two conditions and if we got really
-unlucky we could hit a race where "ptr" started as an error pointer and
-then was set to NULL.  Both conditions would be false even though the
-pointer at the end was NULL.
+IVRS parsing code always tries to read 255 bytes from memory when
+retrieving ACPI device path, and makes an assumption that firmware
+provides a zero-terminated string. Both of those are bugs: the entry
+is likely to be shorter than 255 bytes, and zero-termination is not
+guaranteed.
 
-This patch fixes the problem by ensuring that "*tfm" can only be NULL
-or valid.  I have introduced a "tmp_tfm" variable to make that work.  I
-also reversed a condition and pulled the code in one tab.
+With Acer SF314-42 firmware these issues manifest visibly in dmesg:
 
-Reported-by: Roberto Sassu <roberto.sassu@huawei.com>
-Fixes: 53de3b080d5e ("evm: Check also if *tfm is an error pointer in init_desc()")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Acked-by: Roberto Sassu <roberto.sassu@huawei.com>
-Acked-by: Krzysztof Struczynski <krzysztof.struczynski@huawei.com>
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+AMD-Vi: ivrs, add hid:AMDI0020, uid:\_SB.FUR0\xf0\xa5, rdevid:160
+AMD-Vi: ivrs, add hid:AMDI0020, uid:\_SB.FUR1\xf0\xa5, rdevid:160
+AMD-Vi: ivrs, add hid:AMDI0020, uid:\_SB.FUR2\xf0\xa5, rdevid:160
+AMD-Vi: ivrs, add hid:AMDI0020, uid:\_SB.FUR3>\x83e\x8d\x9a\xd1...
+
+The first three lines show how the code over-reads adjacent table
+entries into the UID, and in the last line it even reads garbage data
+beyond the end of the IVRS table itself.
+
+Since each entry has the length of the UID (uidl member of ivhd_entry
+struct), use that for memcpy, and manually add a zero terminator.
+
+Avoid zero-filling hid and uid arrays up front, and instead ensure
+the uid array is always zero-terminated. No change needed for the hid
+array, as it was already properly zero-terminated.
+
+Fixes: 2a0cb4e2d423c ("iommu/amd: Add new map for storing IVHD dev entry type HID")
+
+Signed-off-by: Alexander Monakov <amonakov@ispras.ru>
+Cc: Joerg Roedel <joro@8bytes.org>
+Cc: iommu@lists.linux-foundation.org
+Link: https://lore.kernel.org/r/20200511102352.1831-1-amonakov@ispras.ru
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/integrity/evm/evm_crypto.c | 44 ++++++++++++++---------------
- 1 file changed, 22 insertions(+), 22 deletions(-)
+ drivers/iommu/amd_iommu_init.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/security/integrity/evm/evm_crypto.c b/security/integrity/evm/evm_crypto.c
-index 302adeb2d37b..cc826c2767a3 100644
---- a/security/integrity/evm/evm_crypto.c
-+++ b/security/integrity/evm/evm_crypto.c
-@@ -75,7 +75,7 @@ static struct shash_desc *init_desc(char type, uint8_t hash_algo)
- {
- 	long rc;
- 	const char *algo;
--	struct crypto_shash **tfm;
-+	struct crypto_shash **tfm, *tmp_tfm;
- 	struct shash_desc *desc;
- 
- 	if (type == EVM_XATTR_HMAC) {
-@@ -93,31 +93,31 @@ static struct shash_desc *init_desc(char type, uint8_t hash_algo)
- 		algo = hash_algo_name[hash_algo];
- 	}
- 
--	if (IS_ERR_OR_NULL(*tfm)) {
--		mutex_lock(&mutex);
--		if (*tfm)
--			goto out;
--		*tfm = crypto_alloc_shash(algo, 0, CRYPTO_NOLOAD);
--		if (IS_ERR(*tfm)) {
--			rc = PTR_ERR(*tfm);
--			pr_err("Can not allocate %s (reason: %ld)\n", algo, rc);
--			*tfm = NULL;
-+	if (*tfm)
-+		goto alloc;
-+	mutex_lock(&mutex);
-+	if (*tfm)
-+		goto unlock;
-+
-+	tmp_tfm = crypto_alloc_shash(algo, 0, CRYPTO_NOLOAD);
-+	if (IS_ERR(tmp_tfm)) {
-+		pr_err("Can not allocate %s (reason: %ld)\n", algo,
-+		       PTR_ERR(tmp_tfm));
-+		mutex_unlock(&mutex);
-+		return ERR_CAST(tmp_tfm);
-+	}
-+	if (type == EVM_XATTR_HMAC) {
-+		rc = crypto_shash_setkey(tmp_tfm, evmkey, evmkey_len);
-+		if (rc) {
-+			crypto_free_shash(tmp_tfm);
- 			mutex_unlock(&mutex);
- 			return ERR_PTR(rc);
+diff --git a/drivers/iommu/amd_iommu_init.c b/drivers/iommu/amd_iommu_init.c
+index 2b9a67ecc6ac..5b81fd16f5fa 100644
+--- a/drivers/iommu/amd_iommu_init.c
++++ b/drivers/iommu/amd_iommu_init.c
+@@ -1329,8 +1329,8 @@ static int __init init_iommu_from_acpi(struct amd_iommu *iommu,
  		}
--		if (type == EVM_XATTR_HMAC) {
--			rc = crypto_shash_setkey(*tfm, evmkey, evmkey_len);
--			if (rc) {
--				crypto_free_shash(*tfm);
--				*tfm = NULL;
--				mutex_unlock(&mutex);
--				return ERR_PTR(rc);
--			}
--		}
--out:
--		mutex_unlock(&mutex);
- 	}
--
-+	*tfm = tmp_tfm;
-+unlock:
-+	mutex_unlock(&mutex);
-+alloc:
- 	desc = kmalloc(sizeof(*desc) + crypto_shash_descsize(*tfm),
- 			GFP_KERNEL);
- 	if (!desc)
+ 		case IVHD_DEV_ACPI_HID: {
+ 			u16 devid;
+-			u8 hid[ACPIHID_HID_LEN] = {0};
+-			u8 uid[ACPIHID_UID_LEN] = {0};
++			u8 hid[ACPIHID_HID_LEN];
++			u8 uid[ACPIHID_UID_LEN];
+ 			int ret;
+ 
+ 			if (h->type != 0x40) {
+@@ -1347,6 +1347,7 @@ static int __init init_iommu_from_acpi(struct amd_iommu *iommu,
+ 				break;
+ 			}
+ 
++			uid[0] = '\0';
+ 			switch (e->uidf) {
+ 			case UID_NOT_PRESENT:
+ 
+@@ -1361,8 +1362,8 @@ static int __init init_iommu_from_acpi(struct amd_iommu *iommu,
+ 				break;
+ 			case UID_IS_CHARACTER:
+ 
+-				memcpy(uid, (u8 *)(&e->uid), ACPIHID_UID_LEN - 1);
+-				uid[ACPIHID_UID_LEN - 1] = '\0';
++				memcpy(uid, &e->uid, e->uidl);
++				uid[e->uidl] = '\0';
+ 
+ 				break;
+ 			default:
 -- 
 2.25.1
 
