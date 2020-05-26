@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 71B141E2B06
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:03:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F0F2D1E2D5F
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:24:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390241AbgEZTBN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:01:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55438 "EHLO mail.kernel.org"
+        id S2391824AbgEZTJA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:09:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38042 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390901AbgEZTBL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:01:11 -0400
+        id S2391819AbgEZTI7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:08:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F2C092086A;
-        Tue, 26 May 2020 19:01:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A4ED520776;
+        Tue, 26 May 2020 19:08:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590519671;
-        bh=Bh+4jULTa5d3rs6IKvG71GMmRZmRBPtpFh60phO/o4c=;
+        s=default; t=1590520139;
+        bh=8AJtd7XJLAdfUVy8MB+O0mDvZE4M9CTw6DQcKauIO0A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o+L1sIoY/hEA5y5pBWEj4jdriRM0bR9WlE727KQRFYb49Sfhggb7lXtTDSsTcbep3
-         unuDy1A91Q86PqMDFMOMUJNtAwdXcLfWS1EXQQk1Sfm2OojJNiN/ydGDqSVYv9gVCm
-         4yf9FSrlbWhR0HGIxoc9KiCzCxsHdj8JwBc0txv8=
+        b=pRe+mu3hMiWegLmKi/wDGhKHmJvzqZTc9HHNjJ/m4tEYuwj4DDLFfwz6ngeQr6y/3
+         VJC+8KBK3kGUnXTOZDXb1Bx5QSbfQHjoI84uu8+gyb9ob7EXycRJ7YEw9P4lkvvAgU
+         1Pw/lCt/9giUDMq+LbSejq09FOWxkJZjSU52lGUI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Roberto Sassu <roberto.sassu@huawei.com>,
-        Goldwyn Rodrigues <rgoldwyn@suse.com>,
-        Mimi Zohar <zohar@linux.ibm.com>,
+        stable@vger.kernel.org,
+        Rick Edgecombe <rick.p.edgecombe@intel.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 06/59] ima: Set file->f_mode instead of file->f_flags in ima_calc_file_hash()
+Subject: [PATCH 5.4 033/111] x86/mm/cpa: Flush direct map alias during cpa
 Date:   Tue, 26 May 2020 20:52:51 +0200
-Message-Id: <20200526183909.120611336@linuxfoundation.org>
+Message-Id: <20200526183935.966457158@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183907.123822792@linuxfoundation.org>
-References: <20200526183907.123822792@linuxfoundation.org>
+In-Reply-To: <20200526183932.245016380@linuxfoundation.org>
+References: <20200526183932.245016380@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,70 +45,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roberto Sassu <roberto.sassu@huawei.com>
+From: Rick Edgecombe <rick.p.edgecombe@intel.com>
 
-[ Upstream commit 0014cc04e8ec077dc482f00c87dfd949cfe2b98f ]
+[ Upstream commit ab5130186d7476dcee0d4e787d19a521ca552ce9 ]
 
-Commit a408e4a86b36 ("ima: open a new file instance if no read
-permissions") tries to create a new file descriptor to calculate a file
-digest if the file has not been opened with O_RDONLY flag. However, if a
-new file descriptor cannot be obtained, it sets the FMODE_READ flag to
-file->f_flags instead of file->f_mode.
+As an optimization, cpa_flush() was changed to optionally only flush
+the range in @cpa if it was small enough.  However, this range does
+not include any direct map aliases changed in cpa_process_alias(). So
+small set_memory_() calls that touch that alias don't get the direct
+map changes flushed. This situation can happen when the virtual
+address taking variants are passed an address in vmalloc or modules
+space.
 
-This patch fixes this issue by replacing f_flags with f_mode as it was
-before that commit.
+In these cases, force a full TLB flush.
 
-Cc: stable@vger.kernel.org # 4.20.x
-Fixes: a408e4a86b36 ("ima: open a new file instance if no read permissions")
-Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
-Reviewed-by: Goldwyn Rodrigues <rgoldwyn@suse.com>
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+Note this issue does not extend to cases where the set_memory_() calls are
+passed a direct map address, or page array, etc, as the primary target. In
+those cases the direct map would be flushed.
+
+Fixes: 935f5839827e ("x86/mm/cpa: Optimize cpa_flush_array() TLB invalidation")
+Signed-off-by: Rick Edgecombe <rick.p.edgecombe@intel.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20200424105343.GA20730@hirez.programming.kicks-ass.net
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/integrity/ima/ima_crypto.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ arch/x86/mm/pageattr.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/security/integrity/ima/ima_crypto.c b/security/integrity/ima/ima_crypto.c
-index 06b0ee75f34f..7b16e54f01c6 100644
---- a/security/integrity/ima/ima_crypto.c
-+++ b/security/integrity/ima/ima_crypto.c
-@@ -432,7 +432,7 @@ int ima_calc_file_hash(struct file *file, struct ima_digest_data *hash)
- 	loff_t i_size;
- 	int rc;
- 	struct file *f = file;
--	bool new_file_instance = false, modified_flags = false;
-+	bool new_file_instance = false, modified_mode = false;
+diff --git a/arch/x86/mm/pageattr.c b/arch/x86/mm/pageattr.c
+index a19a71b4d185..281e584cfe39 100644
+--- a/arch/x86/mm/pageattr.c
++++ b/arch/x86/mm/pageattr.c
+@@ -42,7 +42,8 @@ struct cpa_data {
+ 	unsigned long	pfn;
+ 	unsigned int	flags;
+ 	unsigned int	force_split		: 1,
+-			force_static_prot	: 1;
++			force_static_prot	: 1,
++			force_flush_all		: 1;
+ 	struct page	**pages;
+ };
  
- 	/*
- 	 * For consistency, fail file's opened with the O_DIRECT flag on
-@@ -452,13 +452,13 @@ int ima_calc_file_hash(struct file *file, struct ima_digest_data *hash)
- 		f = dentry_open(&file->f_path, flags, file->f_cred);
- 		if (IS_ERR(f)) {
- 			/*
--			 * Cannot open the file again, lets modify f_flags
-+			 * Cannot open the file again, lets modify f_mode
- 			 * of original and continue
- 			 */
- 			pr_info_ratelimited("Unable to reopen file for reading.\n");
- 			f = file;
--			f->f_flags |= FMODE_READ;
--			modified_flags = true;
-+			f->f_mode |= FMODE_READ;
-+			modified_mode = true;
- 		} else {
- 			new_file_instance = true;
- 		}
-@@ -476,8 +476,8 @@ int ima_calc_file_hash(struct file *file, struct ima_digest_data *hash)
- out:
- 	if (new_file_instance)
- 		fput(f);
--	else if (modified_flags)
--		f->f_flags &= ~FMODE_READ;
-+	else if (modified_mode)
-+		f->f_mode &= ~FMODE_READ;
- 	return rc;
- }
+@@ -352,10 +353,10 @@ static void cpa_flush(struct cpa_data *data, int cache)
+ 		return;
+ 	}
  
+-	if (cpa->numpages <= tlb_single_page_flush_ceiling)
+-		on_each_cpu(__cpa_flush_tlb, cpa, 1);
+-	else
++	if (cpa->force_flush_all || cpa->numpages > tlb_single_page_flush_ceiling)
+ 		flush_tlb_all();
++	else
++		on_each_cpu(__cpa_flush_tlb, cpa, 1);
+ 
+ 	if (!cache)
+ 		return;
+@@ -1584,6 +1585,8 @@ static int cpa_process_alias(struct cpa_data *cpa)
+ 		alias_cpa.flags &= ~(CPA_PAGES_ARRAY | CPA_ARRAY);
+ 		alias_cpa.curpage = 0;
+ 
++		cpa->force_flush_all = 1;
++
+ 		ret = __change_page_attr_set_clr(&alias_cpa, 0);
+ 		if (ret)
+ 			return ret;
+@@ -1604,6 +1607,7 @@ static int cpa_process_alias(struct cpa_data *cpa)
+ 		alias_cpa.flags &= ~(CPA_PAGES_ARRAY | CPA_ARRAY);
+ 		alias_cpa.curpage = 0;
+ 
++		cpa->force_flush_all = 1;
+ 		/*
+ 		 * The high mapping range is imprecise, so ignore the
+ 		 * return value.
 -- 
 2.25.1
 
