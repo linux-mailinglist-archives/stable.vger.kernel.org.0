@@ -2,94 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D7F21E2EAB
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:31:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B61251E2F42
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:46:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391419AbgEZTay (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:30:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53810 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390571AbgEZS7w (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 14:59:52 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        id S2389822AbgEZTqd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:46:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39688 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2389798AbgEZTqd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 May 2020 15:46:33 -0400
+Received: from mail.skyhub.de (mail.skyhub.de [IPv6:2a01:4f8:190:11c2::b:1457])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6A9AC03E96D;
+        Tue, 26 May 2020 12:46:32 -0700 (PDT)
+Received: from zn.tnic (p200300ec2f0f9100c45766fca55d94fe.dip0.t-ipconnect.de [IPv6:2003:ec:2f0f:9100:c457:66fc:a55d:94fe])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8018520849;
-        Tue, 26 May 2020 18:59:50 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590519591;
-        bh=5d5t+nP+N3uFasCIiJv9TMljTbF1AUjhVSa9D3tZzYY=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cjwJeC60QHbBPXGxChtZeYrYhbv9D0IS2NKZHsiYxc/d18wShz1iJUkrjSrN4KRCo
-         ULcgoZSpHuqpHEzIZA0ius1tZqHq0x7xTLaISc6O90PkgpAisbja8K89ksyLweEsnV
-         6n/2yNjzQEOWJCSNcfsFv+i6XKTAF5p4FW2T9ctE=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Hubbard <jhubbard@nvidia.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Matt Porter <mporter@kernel.crashing.org>,
-        Alexandre Bounine <alex.bou9@gmail.com>,
-        Sumit Semwal <sumit.semwal@linaro.org>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.9 63/64] rapidio: fix an error in get_user_pages_fast() error handling
-Date:   Tue, 26 May 2020 20:53:32 +0200
-Message-Id: <20200526183931.658765886@linuxfoundation.org>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183913.064413230@linuxfoundation.org>
-References: <20200526183913.064413230@linuxfoundation.org>
-User-Agent: quilt/0.66
+        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 2E2FC1EC0300;
+        Tue, 26 May 2020 21:46:31 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
+        t=1590522391;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
+        bh=UwvATQ6Di/6WhS3s7DR0p6YEsaemqMGEuZEXjR9YHqY=;
+        b=B1BB2ASrXS7lkgOCqmceLfGIj7A6UX84rUjvPGTBq+TqA+asHph26yRdF97LOjIO8mlvF+
+        bbys0sk/9zitA+DMuhKC3Yx+u40czSS56uabln/dxffytiuJqkqusv9Lov4wsVFPumgCW8
+        PjEXorTr+ILNIP7ysTrqhyQHlbhdkdQ=
+Date:   Tue, 26 May 2020 21:46:25 +0200
+From:   Borislav Petkov <bp@alien8.de>
+To:     Jue Wang <juew@google.com>
+Cc:     "Luck, Tony" <tony.luck@intel.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-tip-commits@vger.kernel.org" 
+        <linux-tip-commits@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        x86 <x86@kernel.org>
+Subject: Re: [tip: ras/core] x86/{mce,mm}: Change so poison pages are either
+ unmapped or marked uncacheable
+Message-ID: <20200526194624.GG28228@zn.tnic>
+References: <159040440370.17951.17560303737298768113.tip-bot2@tip-bot2>
+ <20200525204010.GB25598@zn.tnic>
+ <3908561D78D1C84285E8C5FCA982C28F7F64615F@ORSMSX115.amr.corp.intel.com>
+ <CAPcxDJ5arJojbY4pzOvYh=waSPd3X_JJb1_PSuzd+jQ0qbvFsA@mail.gmail.com>
+ <CAPcxDJ54EgX-SaDV=Lm+a2-43O68LhomyYfYdCDz38HGJCkh7g@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <CAPcxDJ54EgX-SaDV=Lm+a2-43O68LhomyYfYdCDz38HGJCkh7g@mail.gmail.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Hubbard <jhubbard@nvidia.com>
+On Tue, May 26, 2020 at 11:44:18AM -0700, Jue Wang wrote:
+> On Tue, May 26, 2020 at 11:03 AM Jue Wang <juew@google.com> wrote:
+> 
+> > I tried to test this but my guest image build setup was not able to build
+> > from kernel/git/bp/bp.git tip-ras-core branch. It appeared there was some
+> > bindeb-pkg issue.
+> >
+> The bindeb-pkg issue is resolved and I tested the following branch in KVM
+> guest and the injected MCE is recovered.
+> https://git.kernel.org/pub/scm/linux/kernel/git/bp/bp.git/log/?h=tip-ras-core
 
-commit ffca476a0a8d26de767cc41d62b8ca7f540ecfdd upstream.
+Thanks to both of you!
 
-In the case of get_user_pages_fast() returning fewer pages than
-requested, rio_dma_transfer() does not quite do the right thing.  It
-attempts to release all the pages that were requested, rather than just
-the pages that were pinned.
+-- 
+Regards/Gruss,
+    Boris.
 
-Fix the error handling so that only the pages that were successfully
-pinned are released.
-
-Fixes: e8de370188d0 ("rapidio: add mport char device driver")
-Signed-off-by: John Hubbard <jhubbard@nvidia.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Matt Porter <mporter@kernel.crashing.org>
-Cc: Alexandre Bounine <alex.bou9@gmail.com>
-Cc: Sumit Semwal <sumit.semwal@linaro.org>
-Cc: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: <stable@vger.kernel.org>
-Link: http://lkml.kernel.org/r/20200517235620.205225-2-jhubbard@nvidia.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
----
- drivers/rapidio/devices/rio_mport_cdev.c |    5 +++++
- 1 file changed, 5 insertions(+)
-
---- a/drivers/rapidio/devices/rio_mport_cdev.c
-+++ b/drivers/rapidio/devices/rio_mport_cdev.c
-@@ -905,6 +905,11 @@ rio_dma_transfer(struct file *filp, u32
- 				rmcd_error("pinned %ld out of %ld pages",
- 					   pinned, nr_pages);
- 			ret = -EFAULT;
-+			/*
-+			 * Set nr_pages up to mean "how many pages to unpin, in
-+			 * the error handler:
-+			 */
-+			nr_pages = pinned;
- 			goto err_pg;
- 		}
- 
-
-
+https://people.kernel.org/tglx/notes-about-netiquette
