@@ -2,154 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D596E1E1BFD
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 09:18:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B3FBF1E1C0B
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 09:19:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726638AbgEZHSv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 03:18:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36314 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726211AbgEZHSu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 May 2020 03:18:50 -0400
-Received: from mail-lj1-x244.google.com (mail-lj1-x244.google.com [IPv6:2a00:1450:4864:20::244])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78417C061A0E
-        for <stable@vger.kernel.org>; Tue, 26 May 2020 00:18:49 -0700 (PDT)
-Received: by mail-lj1-x244.google.com with SMTP id a25so11569295ljp.3
-        for <stable@vger.kernel.org>; Tue, 26 May 2020 00:18:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:from:date:message-id:subject:to:cc
-         :content-transfer-encoding;
-        bh=pNUvfoVpmOryrryg0nDeKSldBJ4ZhcXrVMayFySjZcw=;
-        b=N2tdRMCtsqCkZYyvLSIid2TOd5sj1YBrPudfQ33SHC4tIQsE/1IJi61FA1WeCoxKHP
-         qVw52ydxxFmPOwuKUg8bT1FHRwngq1IH3SQLWBcf5rd5KWDwtjRFLnrYlGEgV2VmPsms
-         ynZeC+pJ+IGHyQQ6yd83qR/TclpypkVhBKMsgaxD/jZ2kbXVTYP6khLyUsiE7iK2dRIY
-         JNjUA8HnEfq6ZnkfLbjFV/8HsHz61qceMrTXSuXPqqeiIFPMCNE1m82fY1tX7336d6sn
-         e+qGv/5D0WnGzSU3/IFWydhDPy2knHjen+YAy1GzQBSRY012wGoevquQ8wZnjIsnuPTM
-         snqA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc
-         :content-transfer-encoding;
-        bh=pNUvfoVpmOryrryg0nDeKSldBJ4ZhcXrVMayFySjZcw=;
-        b=miyQNXbscowH+iL00ZSB8DE9q29K8D/AZWlhahXPoLW5QKyWNX2+s+kCbsYtplvko0
-         g8RNW/g9q7HlBqn26mdn74XV01tBOxxhnsRUARSG8+8qwqw6HZW7Blbo5RusVSBv798T
-         PPJOJGAEibH+GqPc2zgEUd2w3sIlg62I5RuLEfPbJiJnEt2vu0svwy2sESDtkS6yjKAG
-         141zPkIj6EvguEeIwTpKu3j97wZ4jff1Zv/5siF+icu7zMKzYRWsEgF5FBnOkIJMej97
-         PIvyAaS4BP16H8eWq3i6dtl7oVFkLwymqqjoVqx3eUV5WT++EQEMDuuUwk0pIH+eh2wZ
-         Kghg==
-X-Gm-Message-State: AOAM531PI0hcguNcul/bQpYUk57Ug1dHAXHIftH/A6Ns0D8RkyljybNJ
-        Xf8WCOCv5ib6wqARPxaWKno0nPR56K9F3gXQS7jOE+y/wCmEhQ==
-X-Google-Smtp-Source: ABdhPJzeZ/k3ipCAzIVzyIa0dmhzUnGl4aVMgqompaLz+dnk9NDMFhYn81zhcr+Qqvz+pmfA6zCgdizWTVD9kNWtMso=
-X-Received: by 2002:a2e:574e:: with SMTP id r14mr14184242ljd.411.1590477527710;
- Tue, 26 May 2020 00:18:47 -0700 (PDT)
+        id S1731406AbgEZHT1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 03:19:27 -0400
+Received: from mail27.static.mailgun.info ([104.130.122.27]:12706 "EHLO
+        mail27.static.mailgun.info" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1731370AbgEZHTZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 May 2020 03:19:25 -0400
+DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
+ s=smtp; t=1590477564; h=Message-ID: References: In-Reply-To: Subject:
+ Cc: To: From: Date: Content-Transfer-Encoding: Content-Type:
+ MIME-Version: Sender; bh=t71fVS7j/WcPCfl6939ZO5sEbx5ADmDSJSpSKaYbIN4=;
+ b=Gq3NYLhphce7wh5Yl8Acbr5a03mR3LLarpnd5OfUxPlaP2JpakkkU0kEvWLuhAkIvB+brSfu
+ XGwW3v9anjvekAWLj5m7AF9IC3yjILHlCu63Vdi+BKxZalt5rnRRGacMQdbxmT2k9PrwXMWF
+ W2xu1T/4xkHo9/xNxl/JFAzrx+c=
+X-Mailgun-Sending-Ip: 104.130.122.27
+X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
+Received: from smtp.codeaurora.org
+ (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171]) by
+ smtp-out-n05.prod.us-east-1.postgun.com with SMTP id
+ 5eccc2ef3131442d9559e870 (version=TLS1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256); Tue, 26 May 2020 07:19:11
+ GMT
+Received: by smtp.codeaurora.org (Postfix, from userid 1001)
+        id 6DF66C43391; Tue, 26 May 2020 07:19:10 +0000 (UTC)
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+        aws-us-west-2-caf-mail-1.web.codeaurora.org
+X-Spam-Level: 
+X-Spam-Status: No, score=-1.0 required=2.0 tests=ALL_TRUSTED
+        autolearn=unavailable autolearn_force=no version=3.4.0
+Received: from mail.codeaurora.org (localhost.localdomain [127.0.0.1])
+        (using TLSv1 with cipher ECDHE-RSA-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        (Authenticated sender: guptap)
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id B5261C433C6;
+        Tue, 26 May 2020 07:19:09 +0000 (UTC)
 MIME-Version: 1.0
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 26 May 2020 12:48:35 +0530
-Message-ID: <CA+G9fYutnMLkJLcAT2Y_=Fqg31kc4eGBgzhH4Xi2YD1j=H+JkA@mail.gmail.com>
-Subject: stable-rc 5.4.42/1cdaf895c99d: no regressions found in project stable
- v5.4.y on OE
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux- stable <stable@vger.kernel.org>
-Cc:     lkft-triage@lists.linaro.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8;
+ format=flowed
+Content-Transfer-Encoding: 8bit
+Date:   Tue, 26 May 2020 12:49:09 +0530
+From:   guptap@codeaurora.org
+To:     Robin Murphy <robin.murphy@arm.com>
+Cc:     Andrew Morton <akpm@linux-foundation.org>, mhocko@suse.com,
+        joro@8bytes.org, linux-mm@kvack.org,
+        iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org,
+        owner-linux-mm@kvack.org, stable@vger.kernel.org
+Subject: Re: [PATCH] iommu/dma: limit iova free size to unmmaped iova
+In-Reply-To: <2d873ab9-ebb9-3c2d-f129-55a036ab47d0@arm.com>
+References: <20200521113004.12438-1-guptap@codeaurora.org>
+ <7aaa8dcc-6a47-f256-431d-2a1b034b4076@arm.com>
+ <90662ef3123dbf2e93f9718ee5cc14a7@codeaurora.org>
+ <2d873ab9-ebb9-3c2d-f129-55a036ab47d0@arm.com>
+Message-ID: <4ba082d3bb965524157704ea1ffb1ff4@codeaurora.org>
+X-Sender: guptap@codeaurora.org
+User-Agent: Roundcube Webmail/1.3.9
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+On 2020-05-22 14:54, Robin Murphy wrote:
+> On 2020-05-22 07:25, guptap@codeaurora.org wrote:
+>> On 2020-05-22 01:46, Robin Murphy wrote:
+>>> On 2020-05-21 12:30, Prakash Gupta wrote:
+>> I agree, we shouldn't be freeing the partial iova. Instead just making
+>> sure if unmap was successful should be sufficient before freeing iova. 
+>> So change
+>> can instead be something like this:
+>> 
+>> -    iommu_dma_free_iova(cookie, dma_addr, size);
+>> +    if (unmapped)
+>> +        iommu_dma_free_iova(cookie, dma_addr, size);
+>> 
+>>> TBH my gut feeling here is that you're really just trying to treat a
+>>> symptom of another bug elsewhere, namely some driver calling
+>>> dma_unmap_* or dma_free_* with the wrong address or size in the first
+>>> place.
+>>> 
+>> This condition would arise only if driver calling dma_unmap/free_* 
+>> with 0
+>> iova_pfn. This will be flagged with a warning during unmap but will 
+>> trigger
+>> panic later on while doing unrelated dma_map/unmap_*. If unmapped has 
+>> already
+>> failed for invalid iova, there is no reason we should consider this as 
+>> valid
+>> iova and free. This part should be fixed.
+> 
+> I disagree. In general, if drivers call the DMA API incorrectly it is
+> liable to lead to data loss, memory corruption, and various other
+> unpleasant misbehaviour - it is not the DMA layer's job to attempt to
+> paper over driver bugs.
+> 
+> There *is* an argument for downgrading the BUG_ON() in
+> iova_magazine_free_pfns() to a WARN_ON(), since frankly it isn't a
+> sufficiently serious condition to justify killing the whole machine
+> immediately, but NAK to bodging the iommu-dma mid-layer to "fix" that.
+> A serious bug already happened elsewhere, so trying to hide the
+> fallout really doesn't help anyone.
+> 
+Sorry for delayed response, it was a long weekend.
+I agree that invalid DMA API call can result in unexpected issues and 
+client
+should fix it, but then the present behavior makes it difficult to catch 
+cases
+when driver is making wrong DMA API calls. When invalid iova pfn is 
+passed it
+doesn't fail then and there, though DMA layer is aware of iova being 
+invalid. It
+fails much after that in the context of an valid map/unmap, with 
+BUG_ON().
 
-Summary
-------------------------------------------------------------------------
+Downgrading BUG_ON() to WARN_ON() in iova_magazine_free_pfns() will not 
+help
+much as invalid iova will cause NULL pointer dereference.
 
-kernel: 5.4.43-rc1
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-5.4.y
-git commit: 3cb79944b65a695eeefe570faadb81f64ecad390
-git describe: v5.4.42-105-g3cb79944b65a
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-5.4-oe/bui=
-ld/v5.4.42-105-g3cb79944b65a
+I see no reason why DMA layer wants to free an iova for which unmapped 
+failed.
+IMHO queuing an invalid iova (which already failed unmap) to rcache 
+which
+eventually going to crash the system looks like iommu-dma layer issue.
 
-No regressions (compared to build v5.4.42)
-
-No fixes (compared to build v5.4.42)
-
-Ran 33015 total tests in the following environments and test suites.
-
-Environments
---------------
-- dragonboard-410c
-- hi6220-hikey
-- i386
-- juno-r2
-- juno-r2-compat
-- juno-r2-kasan
-- nxp-ls2088
-- qemu_arm
-- qemu_arm64
-- qemu_i386
-- qemu_x86_64
-- x15
-- x86
-- x86-kasan
-
-Test Suites
------------
-* build
-* install-android-platform-tools-r2600
-* install-android-platform-tools-r2800
-* kselftest
-* kselftest/drivers
-* kselftest/filesystems
-* kselftest/net
-* kselftest/networking
-* libgpiod
-* libhugetlbfs
-* linux-log-parser
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fs-tests
-* ltp-io-tests
-* ltp-math-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* perf
-* v4l2-compliance
-* ltp-cap_bounds-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-ipc-tests
-* ltp-mm-tests
-* ltp-syscalls-tests
-* network-basic-tests
-* ltp-open-posix-tests
-* kvm-unit-tests
-* kselftest-vsyscall-mode-native
-* kselftest-vsyscall-mode-native/drivers
-* kselftest-vsyscall-mode-native/filesystems
-* kselftest-vsyscall-mode-native/net
-* kselftest-vsyscall-mode-native/networking
-* kselftest-vsyscall-mode-none
-* kselftest-vsyscall-mode-none/drivers
-* kselftest-vsyscall-mode-none/filesystems
-* kselftest-vsyscall-mode-none/net
-* kselftest-vsyscall-mode-none/networking
-
---=20
-Linaro LKFT
-https://lkft.linaro.org
+Thanks,
+Prakash
