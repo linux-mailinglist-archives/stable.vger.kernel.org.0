@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 667F41E2ADA
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 20:59:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B3801E2ADC
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 20:59:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389815AbgEZS7i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 14:59:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53494 "EHLO mail.kernel.org"
+        id S2390567AbgEZS7m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 14:59:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53558 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390551AbgEZS7g (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 14:59:36 -0400
+        id S2390555AbgEZS7i (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 14:59:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 48F81208E4;
-        Tue, 26 May 2020 18:59:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B7A6F208B6;
+        Tue, 26 May 2020 18:59:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590519575;
-        bh=Cq6DqGpgxHbjN1CfW9YOIrogXNSQ2AT//jJUfU5PfBw=;
+        s=default; t=1590519578;
+        bh=M9qRowqm/saiFkWC37zh2qKz39SS2qco/qONgG6lAWo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OPaSBXZLUnMNBY9zIJ7UZEOHHfQZ+0a0f+H1XWwF4+PBinpoWQqpjGHu12aFUE7r+
-         VCSyftrQfq+QUIxLeBz8OugniM6E/HxoHs36tQteZgElDt27ZzRpvGqMKMD752qdfa
-         V0Ws7jEFWKmACn8sNPo5KglxdHB0rdWBdKtII82U=
+        b=ElBJvdXw5YDI6E2/qJ/i1QxluHcymNJUBs27dfWcGm14qnMz22rVE/0XCKwpXTY30
+         AgwS1SNFK/vL9W6xoAhsiPqU4xgVQghSaP1og2zdUXqxksm/i/vdksmof0JE3V2Gsd
+         d7VjLWlE981C05CC1wlT50NN5rz2bhWqkeahIcJY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arjun Vynipadath <arjun@chelsio.com>,
-        Casey Leedom <leedom@chelsio.com>,
-        Ganesh Goudar <ganeshgr@chelsio.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Bob Peterson <rpeterso@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 57/64] cxgb4/cxgb4vf: Fix mac_hlist initialization and free
-Date:   Tue, 26 May 2020 20:53:26 +0200
-Message-Id: <20200526183931.124108686@linuxfoundation.org>
+Subject: [PATCH 4.9 58/64] Revert "gfs2: Dont demote a glock until its revokes are written"
+Date:   Tue, 26 May 2020 20:53:27 +0200
+Message-Id: <20200526183931.185221353@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200526183913.064413230@linuxfoundation.org>
 References: <20200526183913.064413230@linuxfoundation.org>
@@ -46,114 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arjun Vynipadath <arjun@chelsio.com>
+From: Bob Peterson <rpeterso@redhat.com>
 
-[ Upstream commit b539ea60f5043b9acd7562f04fa2117f18776cbb ]
+[ Upstream commit b14c94908b1b884276a6608dea3d0b1b510338b7 ]
 
-Null pointer dereference seen when cxgb4vf driver is unloaded
-without bringing up any interfaces, moving mac_hlist initialization
-to driver probe and free the mac_hlist in remove to fix the issue.
+This reverts commit df5db5f9ee112e76b5202fbc331f990a0fc316d6.
 
-Fixes: 24357e06ba51 ("cxgb4vf: fix memleak in mac_hlist initialization")
-Signed-off-by: Arjun Vynipadath <arjun@chelsio.com>
-Signed-off-by: Casey Leedom <leedom@chelsio.com>
-Signed-off-by: Ganesh Goudar <ganeshgr@chelsio.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This patch fixes a regression: patch df5db5f9ee112 allowed function
+run_queue() to bypass its call to do_xmote() if revokes were queued for
+the glock. That's wrong because its call to do_xmote() is what is
+responsible for calling the go_sync() glops functions to sync both
+the ail list and any revokes queued for it. By bypassing the call,
+gfs2 could get into a stand-off where the glock could not be demoted
+until its revokes are written back, but the revokes would not be
+written back because do_xmote() was never called.
+
+It "sort of" works, however, because there are other mechanisms like
+the log flush daemon (logd) that can sync the ail items and revokes,
+if it deems it necessary. The problem is: without file system pressure,
+it might never deem it necessary.
+
+Signed-off-by: Bob Peterson <rpeterso@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/chelsio/cxgb4/cxgb4_main.c   | 19 ++++++++++---------
- .../ethernet/chelsio/cxgb4vf/cxgb4vf_main.c   |  6 +++---
- 2 files changed, 13 insertions(+), 12 deletions(-)
+ fs/gfs2/glock.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c
-index 821f68baa55c..54b5f61c8ed9 100644
---- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c
-+++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c
-@@ -2236,8 +2236,6 @@ static int cxgb_up(struct adapter *adap)
- #if IS_ENABLED(CONFIG_IPV6)
- 	update_clip(adap);
- #endif
--	/* Initialize hash mac addr list*/
--	INIT_LIST_HEAD(&adap->mac_hlist);
- 	return err;
- 
-  irq_err:
-@@ -2251,8 +2249,6 @@ static int cxgb_up(struct adapter *adap)
- 
- static void cxgb_down(struct adapter *adapter)
- {
--	struct hash_mac_addr *entry, *tmp;
--
- 	cancel_work_sync(&adapter->tid_release_task);
- 	cancel_work_sync(&adapter->db_full_task);
- 	cancel_work_sync(&adapter->db_drop_task);
-@@ -2262,11 +2258,6 @@ static void cxgb_down(struct adapter *adapter)
- 	t4_sge_stop(adapter);
- 	t4_free_sge_resources(adapter);
- 
--	list_for_each_entry_safe(entry, tmp, &adapter->mac_hlist, list) {
--		list_del(&entry->list);
--		kfree(entry);
--	}
--
- 	adapter->flags &= ~FULL_INIT_DONE;
- }
- 
-@@ -4797,6 +4788,9 @@ static int init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
- 			     (is_t5(adapter->params.chip) ? STATMODE_V(0) :
- 			      T6_STATMODE_V(0)));
- 
-+	/* Initialize hash mac addr list */
-+	INIT_LIST_HEAD(&adapter->mac_hlist);
-+
- 	for_each_port(adapter, i) {
- 		netdev = alloc_etherdev_mq(sizeof(struct port_info),
- 					   MAX_ETH_QSETS);
-@@ -5075,6 +5069,7 @@ static int init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
- static void remove_one(struct pci_dev *pdev)
- {
- 	struct adapter *adapter = pci_get_drvdata(pdev);
-+	struct hash_mac_addr *entry, *tmp;
- 
- 	if (!adapter) {
- 		pci_release_regions(pdev);
-@@ -5113,6 +5108,12 @@ static void remove_one(struct pci_dev *pdev)
- 		if (adapter->num_uld || adapter->num_ofld_uld)
- 			t4_uld_mem_free(adapter);
- 		free_some_resources(adapter);
-+		list_for_each_entry_safe(entry, tmp, &adapter->mac_hlist,
-+					 list) {
-+			list_del(&entry->list);
-+			kfree(entry);
-+		}
-+
- #if IS_ENABLED(CONFIG_IPV6)
- 		t4_cleanup_clip_tbl(adapter);
- #endif
-diff --git a/drivers/net/ethernet/chelsio/cxgb4vf/cxgb4vf_main.c b/drivers/net/ethernet/chelsio/cxgb4vf/cxgb4vf_main.c
-index 9eb3071b69a4..17db5be9d2b7 100644
---- a/drivers/net/ethernet/chelsio/cxgb4vf/cxgb4vf_main.c
-+++ b/drivers/net/ethernet/chelsio/cxgb4vf/cxgb4vf_main.c
-@@ -719,9 +719,6 @@ static int adapter_up(struct adapter *adapter)
- 		if (adapter->flags & USING_MSIX)
- 			name_msix_vecs(adapter);
- 
--		/* Initialize hash mac addr list*/
--		INIT_LIST_HEAD(&adapter->mac_hlist);
--
- 		adapter->flags |= FULL_INIT_DONE;
- 	}
- 
-@@ -2902,6 +2899,9 @@ static int cxgb4vf_pci_probe(struct pci_dev *pdev,
- 	if (err)
- 		goto err_unmap_bar;
- 
-+	/* Initialize hash mac addr list */
-+	INIT_LIST_HEAD(&adapter->mac_hlist);
-+
- 	/*
- 	 * Allocate our "adapter ports" and stitch everything together.
- 	 */
+diff --git a/fs/gfs2/glock.c b/fs/gfs2/glock.c
+index adc1a97cfe96..efd44d5645d8 100644
+--- a/fs/gfs2/glock.c
++++ b/fs/gfs2/glock.c
+@@ -548,9 +548,6 @@ __acquires(&gl->gl_lockref.lock)
+ 			goto out_unlock;
+ 		if (nonblock)
+ 			goto out_sched;
+-		smp_mb();
+-		if (atomic_read(&gl->gl_revokes) != 0)
+-			goto out_sched;
+ 		set_bit(GLF_DEMOTE_IN_PROGRESS, &gl->gl_flags);
+ 		GLOCK_BUG_ON(gl, gl->gl_demote_state == LM_ST_EXCLUSIVE);
+ 		gl->gl_target = gl->gl_demote_state;
 -- 
 2.25.1
 
