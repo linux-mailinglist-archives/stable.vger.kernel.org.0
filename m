@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B2E51E2D59
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:24:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C61571E2D11
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:20:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391167AbgEZTIe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:08:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37500 "EHLO mail.kernel.org"
+        id S2392187AbgEZTTK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:19:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391467AbgEZTId (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:08:33 -0400
+        id S2404202AbgEZTNW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:13:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 20271208B3;
-        Tue, 26 May 2020 19:08:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2EACE208B3;
+        Tue, 26 May 2020 19:13:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590520112;
-        bh=hNhJJ72biHjlOV8Ry/wGyzVaCZlDK8hJNpZZazDmRnM=;
+        s=default; t=1590520401;
+        bh=RgtwO8P4ThNDooONmVCNihMiiHEBUmQW2apUetaPoEw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KURIh+rPQbNJg94tAkutfCrt1Q1tojC0F1wNyBRQhDcgDC6SOQyqGWyw6r0l5tnJQ
-         yk5q5e/D4lrpZpYQWLsuVZeQxD5pEcRQqdhMhsGsNUfuP8/EWJugsv7WHg79gocJX2
-         Y/bz6iVPofQvk4oijLaijC5F2gZX2FFzL5AZvIwk=
+        b=VkMzTTWWnBYENAit+Zv2Jf+Ut2C1UMnfbVnbl6VE19s7dscGlt+XYEOeIc1fwZjIl
+         XGgQNhPD/bqEX9DZUUJu5H9SxtKotOgTzvmcBDhs99524M7nfDOjI7hp5QgVlLOpXM
+         74aOxtSaO8pgWrWB71HiCjg2Vr/v4xnskcHicTeE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lee Duncan <lduncan@suse.com>,
-        Laurence Oberman <loberman@redhat.com>,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        "Ewan D. Milne" <emilne@redhat.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.4 062/111] scsi: qla2xxx: Do not log message when reading port speed via sysfs
+        stable@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
+        Alexei Starovoitov <ast@kernel.org>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Yonghong Song <yhs@fb.com>
+Subject: [PATCH 5.6 063/126] bpf: Add bpf_probe_read_{user, kernel}_str() to do_refine_retval_range
 Date:   Tue, 26 May 2020 20:53:20 +0200
-Message-Id: <20200526183938.719233478@linuxfoundation.org>
+Message-Id: <20200526183943.453926113@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183932.245016380@linuxfoundation.org>
-References: <20200526183932.245016380@linuxfoundation.org>
+In-Reply-To: <20200526183937.471379031@linuxfoundation.org>
+References: <20200526183937.471379031@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,41 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ewan D. Milne <emilne@redhat.com>
+From: Daniel Borkmann <daniel@iogearbox.net>
 
-commit fb9024b0646939e59d8a0b6799b317070619795a upstream.
+commit 47cc0ed574abcbbde0cf143ddb21a0baed1aa2df upstream.
 
-Calling ql_log() inside qla2x00_port_speed_show() is causing messages to be
-output to the console for no particularly good reason.  The sysfs read
-routine should just return the information to userspace.  The only reason
-to log a message is when the port speed actually changes, and this already
-occurs elsewhere.
+Given bpf_probe_read{,str}() BPF helpers are now only available under
+CONFIG_ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE, we need to add the drop-in
+replacements of bpf_probe_read_{kernel,user}_str() to do_refine_retval_range()
+as well to avoid hitting the same issue as in 849fa50662fbc ("bpf/verifier:
+refine retval R0 state for bpf_get_stack helper").
 
-Link: https://lore.kernel.org/r/20200504175416.15417-1-emilne@redhat.com
-Fixes: 4910b524ac9e ("scsi: qla2xxx: Add support for setting port speed")
-Cc: <stable@vger.kernel.org> # v5.1+
-Reviewed-by: Lee Duncan <lduncan@suse.com>
-Reviewed-by: Laurence Oberman <loberman@redhat.com>
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Ewan D. Milne <emilne@redhat.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Acked-by: John Fastabend <john.fastabend@gmail.com>
+Acked-by: Yonghong Song <yhs@fb.com>
+Link: https://lore.kernel.org/bpf/20200515101118.6508-3-daniel@iogearbox.net
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/scsi/qla2xxx/qla_attr.c |    3 ---
- 1 file changed, 3 deletions(-)
+ kernel/bpf/verifier.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/scsi/qla2xxx/qla_attr.c
-+++ b/drivers/scsi/qla2xxx/qla_attr.c
-@@ -1775,9 +1775,6 @@ qla2x00_port_speed_show(struct device *d
- 		return -EINVAL;
- 	}
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -4113,7 +4113,9 @@ static int do_refine_retval_range(struct
  
--	ql_log(ql_log_info, vha, 0x70d6,
--	    "port speed:%d\n", ha->link_data_rate);
--
- 	return scnprintf(buf, PAGE_SIZE, "%s\n", spd[ha->link_data_rate]);
- }
+ 	if (ret_type != RET_INTEGER ||
+ 	    (func_id != BPF_FUNC_get_stack &&
+-	     func_id != BPF_FUNC_probe_read_str))
++	     func_id != BPF_FUNC_probe_read_str &&
++	     func_id != BPF_FUNC_probe_read_kernel_str &&
++	     func_id != BPF_FUNC_probe_read_user_str))
+ 		return 0;
  
+ 	/* Error case where ret is in interval [S32MIN, -1]. */
 
 
