@@ -2,154 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AE2A71E1AFF
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 08:10:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 732D81E1B11
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 08:13:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726930AbgEZGKb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 02:10:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53964 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726207AbgEZGKa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 May 2020 02:10:30 -0400
-Received: from mail-lj1-x242.google.com (mail-lj1-x242.google.com [IPv6:2a00:1450:4864:20::242])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFF01C061A0E
-        for <stable@vger.kernel.org>; Mon, 25 May 2020 23:10:28 -0700 (PDT)
-Received: by mail-lj1-x242.google.com with SMTP id z6so22983144ljm.13
-        for <stable@vger.kernel.org>; Mon, 25 May 2020 23:10:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:from:date:message-id:subject:to:cc
-         :content-transfer-encoding;
-        bh=dUWhZBX3NM/G2CTzj9zjRqoBWSUnCMjAZucQocwyWzk=;
-        b=FsyNWIKtz0hmCYfI1UG6uUlofKqp6XbGaOeKeEILVpwvxfYW1KGlhqCfaUErpH8pnV
-         x3kG9SwjygHgRnM+hXv0f3Od0sItmNcqJtgIjltjXfQ8XItRGM74UAnSieH48xMHUiwN
-         zdSPwNK388S0AsL6ZKDGtQIYXAENTeXxE3CHzWc6Vt5fiohyc6sJQ2QwQtl+5vsGpPB4
-         aG9Ntwy+pi4IxGFNtdJSKbITFpU0OedLpqxai/5sbzr5KzebDXIaAIa55B338tyba33E
-         ttvD7TN3Wxg6doPz/+yjiBL/pbXtCunKgxRx+346rEIrJE+Ujs4Y7lYNm8hfWryGkj19
-         2XXA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc
-         :content-transfer-encoding;
-        bh=dUWhZBX3NM/G2CTzj9zjRqoBWSUnCMjAZucQocwyWzk=;
-        b=EkpCflogekdHCPrB1vhxtTYx3fwzNu6hynbLO7vgSqbxHQZRuOSj0Ryk3by5C9g136
-         y9evXN3RuWhS3v0S/THEvfzdDszff9zUyl8aIOjpsaz29T7DK/bzUnSQS6jSL128WCob
-         hQEg3uMeoW9zaJ2hpwpU5YMJAWnUN3atteE2CgMjdTuRu2MegI9pdMnxWTgzVW/CsEp8
-         3OSooD/kQH8pNRSvHLPPS697dhx6/pIOejT5gxWwpNASQLDKj4awIMG6G8yP9ctoFrpQ
-         +kQPDj0mPI+8+IURJKlHppXcAv+NHNAilueNiyrDdqTNtPN/uq406/GN0rKhjOdaic9q
-         WTjg==
-X-Gm-Message-State: AOAM533g7vBpgjC1VtLd7799mvsn/1EVnEfVumkNH62twikisavMyVmu
-        0NhYX9btJP50pFoIMkpJnZRiESY5dXKnELaue/TxiQ==
-X-Google-Smtp-Source: ABdhPJzygaYb2+VzR9dVEYiEZvDQoqhnByEjoeWByatwmP11LA6AEkok2MWbe7yvmxkDJ3dkGCVNVuWE6iw7zl59oZQ=
-X-Received: by 2002:a2e:9684:: with SMTP id q4mr13580229lji.431.1590473426985;
- Mon, 25 May 2020 23:10:26 -0700 (PDT)
+        id S1726746AbgEZGNn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 02:13:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60206 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726363AbgEZGNn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 02:13:43 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 15CA62087D;
+        Tue, 26 May 2020 06:13:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1590473622;
+        bh=Pb/wWqmGBhlfB8kqhJG3Bq0aPMUGokABvtW5MHGfY1E=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Qb7b9KVwj3XfsLK9w9NX+vHTgZSiYn5zeDa4dyV1D6N9aIiNtfSp/NkgivnpyY4jI
+         yy2T3BUT76WV48J/477bo2DyqtV+lCQ6neML4RhBWT5bL8+B/z9JaZ93looRFhqohy
+         ZwCwuDmRectw0MubePVxp4geDi4EpYrQ94HZ/Imw=
+Date:   Tue, 26 May 2020 08:13:40 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     kernel test robot <yidingx.liu@intel.com>
+Cc:     stable@vger.kernel.org, "Li, Philip" <philip.li@intel.com>
+Subject: Re: 2 kvm tests failed on v4.19 stable
+Message-ID: <20200526061340.GA2577681@kroah.com>
+References: <2de6a643-a6f5-8433-76c9-88e8fb0ab069@intel.com>
+ <04f35d3c-495d-aec4-7de6-ba4f2df6e1b4@intel.com>
 MIME-Version: 1.0
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 26 May 2020 11:40:14 +0530
-Message-ID: <CA+G9fYuPpgtmUwY4jVtVu=8BEZh5L=Pam7S3ELByA99_nW06aw@mail.gmail.com>
-Subject: stable-rc 5.6.15-rc1/8f40203f4915: no regressions found in project
- stable v5.6.y on OE
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux- stable <stable@vger.kernel.org>
-Cc:     lkft-triage@lists.linaro.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <04f35d3c-495d-aec4-7de6-ba4f2df6e1b4@intel.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+On Tue, May 26, 2020 at 08:16:46AM +0800, kernel test robot wrote:
+> 
+> On 5/25/20 10:14 AM, kernel test robot wrote:
+> > Hi, all.
+> > 
+> > We noticed that below 2 tests passed on linux/master v5.7-rc6 but failed
+> > on v4.19 stable.
+> > 
+> > Maybe we should do a backport. ;-)
 
-Summary
-------------------------------------------------------------------------
+Backport of what exactly?
 
-kernel: 5.6.15-rc1
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-5.6.y
-git commit: 8f40203f49158f3292f524ed280268758f8c9f30
-git describe: v5.6.14-121-g8f40203f4915
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-5.6-oe/bui=
-ld/v5.6.14-121-g8f40203f4915
+> > Test on v4.19.124
+> > 
+> > ```
+> > 
+> > selftests: kvm: platform_info_test
+> > ========================================
+> > ==== Test Assertion Failure ====
+> >   platform_info_test.c:58: run->exit_reason == KVM_EXIT_IO
+> >   pid=6803 tid=6803 - Success
+> >      1  0x000055698f76829a: ?? ??:0
+> >      2  0x00007fc894fb0e0a: ?? ??:0
+> >      3  0x000055698f768409: ?? ??:0
+> >   Exit_reason other than KVM_EXIT_IO: 8 (SHUTDOWN),
+> > 
+> > not ok 1..1 selftests: kvm: platform_info_test [FAIL]
+> > 
+> > selftests: kvm: sync_regs_test
+> > ========================================
+> > ==== Test Assertion Failure ====
+> >   sync_regs_test.c:138: run->exit_reason == KVM_EXIT_IO
+> >   pid=6828 tid=6828 - Invalid argument
+> >      1  0x000055f54209140d: ?? ??:0
+> >      2  0x00007fc4675fae0a: ?? ??:0
+> >      3  0x000055f5420918e9: ?? ??:0
+> >   Unexpected exit reason: 8 (SHUTDOWN),
+> > 
+> > not ok 1..3 selftests: kvm: sync_regs_test [FAIL]
+> > 
+> > ```
 
-No regressions (compared to build v5.6.14)
+Are these new features that the new tests are running for, or is this a
+regression from older 4.19.y releases?
 
-No fixes (compared to build v5.6.14)
+thanks,
 
-Ran 34934 total tests in the following environments and test suites.
-
-Environments
---------------
-- dragonboard-410c
-- hi6220-hikey
-- i386
-- juno-r2
-- juno-r2-compat
-- juno-r2-kasan
-- nxp-ls2088
-- qemu_arm
-- qemu_arm64
-- qemu_i386
-- qemu_x86_64
-- x15
-- x86
-- x86-kasan
-
-Test Suites
------------
-* build
-* install-android-platform-tools-r2600
-* install-android-platform-tools-r2800
-* kselftest
-* kselftest/drivers
-* kselftest/filesystems
-* libgpiod
-* libhugetlbfs
-* linux-log-parser
-* ltp-fs-tests
-* ltp-hugetlb-tests
-* ltp-ipc-tests
-* ltp-mm-tests
-* ltp-syscalls-tests
-* perf
-* v4l2-compliance
-* kselftest/net
-* kselftest/networking
-* ltp-dio-tests
-* ltp-io-tests
-* network-basic-tests
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-math-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* kvm-unit-tests
-* kselftest-vsyscall-mode-native
-* kselftest-vsyscall-mode-native/drivers
-* kselftest-vsyscall-mode-native/filesystems
-* kselftest-vsyscall-mode-native/net
-* kselftest-vsyscall-mode-native/networking
-* kselftest-vsyscall-mode-none
-* kselftest-vsyscall-mode-none/drivers
-* kselftest-vsyscall-mode-none/filesystems
-* kselftest-vsyscall-mode-none/net
-* kselftest-vsyscall-mode-none/networking
-
---=20
-Linaro LKFT
-https://lkft.linaro.org
+greg k-h
