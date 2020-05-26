@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E4121E2D39
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:20:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CDB1A1E2BAD
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:07:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391900AbgEZTMU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:12:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41858 "EHLO mail.kernel.org"
+        id S2391317AbgEZTHe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:07:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36236 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391420AbgEZTMT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:12:19 -0400
+        id S2391604AbgEZTHb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:07:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6392520888;
-        Tue, 26 May 2020 19:12:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6579A208A7;
+        Tue, 26 May 2020 19:07:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590520338;
-        bh=kvu8gkuaANniHdNAzUeEpmxkiBaA2Cxw0Kev4T4ncjk=;
+        s=default; t=1590520050;
+        bh=oD6QkaIiaB6T+NAYwiJNPKDUYhK9EsRqwVgi97qBXfM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RQ5x/ZylYqL2srioGDHojso+OClqSvOaySJz/DHe9kK+nuy8PYtWQXWFQMndTZ9w+
-         ay76kFs9QuTJT6kI8xjFKYLg5el4xrkCJieFZk2ZteQJLeiL8qjOCdHFRNNH1SWJOk
-         Dwc+Judi356QapZOre3Wgdo4YXgcUCBr6eVBPF0w=
+        b=Qb/o+04Dw7kGmgwvbeawwp7+5AcLoXWLAGQjUg2VKtJmyeEjEDyWnyj7RCHdYo0uS
+         N0nBE+0KAQHIjqXsGs3euU+9X+fPb0HE97UsykTl4Slks1P3RmL/6qurFlnWLRuNHp
+         w8JAvMzvHsI0z8rnWUxz0MFdXm33LfhqUzgeO760=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leon Romanovsky <leon@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
+        stable@vger.kernel.org, Maxim Petrov <mmrmaximuzz@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 041/126] x86/apic: Move TSC deadline timer debug printk
+Subject: [PATCH 5.4 040/111] stmmac: fix pointer check after utilization in stmmac_interrupt
 Date:   Tue, 26 May 2020 20:52:58 +0200
-Message-Id: <20200526183941.420289531@linuxfoundation.org>
+Message-Id: <20200526183936.724509476@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183937.471379031@linuxfoundation.org>
-References: <20200526183937.471379031@linuxfoundation.org>
+In-Reply-To: <20200526183932.245016380@linuxfoundation.org>
+References: <20200526183932.245016380@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,130 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Maxim Petrov <mmrmaximuzz@gmail.com>
 
-[ Upstream commit c84cb3735fd53c91101ccdb191f2e3331a9262cb ]
+[ Upstream commit f42234ffd531ca6b13d9da02faa60b72eccf8334 ]
 
-Leon reported that the printk_once() in __setup_APIC_LVTT() triggers a
-lockdep splat due to a lock order violation between hrtimer_base::lock and
-console_sem, when the 'once' condition is reset via
-/sys/kernel/debug/clear_warn_once after boot.
+The paranoidal pointer check in IRQ handler looks very strange - it
+really protects us only against bogus drivers which request IRQ line
+with null pointer dev_id. However, the code fragment is incorrect
+because the dev pointer is used before the actual check which leads
+to undefined behavior. Remove the check to avoid confusing people
+with incorrect code.
 
-The initial printk cannot trigger this because that happens during boot
-when the local APIC timer is set up on the boot CPU.
-
-Prevent it by moving the printk to a place which is guaranteed to be only
-called once during boot.
-
-Mark the deadline timer check related functions and data __init while at
-it.
-
-Reported-by: Leon Romanovsky <leon@kernel.org>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lkml.kernel.org/r/87y2qhoshi.fsf@nanos.tec.linutronix.de
+Signed-off-by: Maxim Petrov <mmrmaximuzz@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/apic/apic.c | 27 ++++++++++++++-------------
- 1 file changed, 14 insertions(+), 13 deletions(-)
+ drivers/net/ethernet/stmicro/stmmac/stmmac_main.c | 7 +------
+ 1 file changed, 1 insertion(+), 6 deletions(-)
 
-diff --git a/arch/x86/kernel/apic/apic.c b/arch/x86/kernel/apic/apic.c
-index 5f973fed3c9f..e289722b04f6 100644
---- a/arch/x86/kernel/apic/apic.c
-+++ b/arch/x86/kernel/apic/apic.c
-@@ -352,8 +352,6 @@ static void __setup_APIC_LVTT(unsigned int clocks, int oneshot, int irqen)
- 		 * According to Intel, MFENCE can do the serialization here.
- 		 */
- 		asm volatile("mfence" : : : "memory");
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+index 89a6ae2b17e3..1623516efb17 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+@@ -3832,7 +3832,7 @@ static int stmmac_set_features(struct net_device *netdev,
+ /**
+  *  stmmac_interrupt - main ISR
+  *  @irq: interrupt number.
+- *  @dev_id: to pass the net device pointer.
++ *  @dev_id: to pass the net device pointer (must be valid).
+  *  Description: this is the main driver interrupt service routine.
+  *  It can call:
+  *  o DMA service routine (to manage incoming frame reception and transmission
+@@ -3856,11 +3856,6 @@ static irqreturn_t stmmac_interrupt(int irq, void *dev_id)
+ 	if (priv->irq_wake)
+ 		pm_wakeup_event(priv->device, 0);
+ 
+-	if (unlikely(!dev)) {
+-		netdev_err(priv->dev, "%s: invalid dev pointer\n", __func__);
+-		return IRQ_NONE;
+-	}
 -
--		printk_once(KERN_DEBUG "TSC deadline timer enabled\n");
- 		return;
- 	}
- 
-@@ -552,7 +550,7 @@ static DEFINE_PER_CPU(struct clock_event_device, lapic_events);
- #define DEADLINE_MODEL_MATCH_REV(model, rev)	\
- 	{ X86_VENDOR_INTEL, 6, model, X86_FEATURE_ANY, (unsigned long)rev }
- 
--static u32 hsx_deadline_rev(void)
-+static __init u32 hsx_deadline_rev(void)
- {
- 	switch (boot_cpu_data.x86_stepping) {
- 	case 0x02: return 0x3a; /* EP */
-@@ -562,7 +560,7 @@ static u32 hsx_deadline_rev(void)
- 	return ~0U;
- }
- 
--static u32 bdx_deadline_rev(void)
-+static __init u32 bdx_deadline_rev(void)
- {
- 	switch (boot_cpu_data.x86_stepping) {
- 	case 0x02: return 0x00000011;
-@@ -574,7 +572,7 @@ static u32 bdx_deadline_rev(void)
- 	return ~0U;
- }
- 
--static u32 skx_deadline_rev(void)
-+static __init u32 skx_deadline_rev(void)
- {
- 	switch (boot_cpu_data.x86_stepping) {
- 	case 0x03: return 0x01000136;
-@@ -587,7 +585,7 @@ static u32 skx_deadline_rev(void)
- 	return ~0U;
- }
- 
--static const struct x86_cpu_id deadline_match[] = {
-+static const struct x86_cpu_id deadline_match[] __initconst = {
- 	DEADLINE_MODEL_MATCH_FUNC( INTEL_FAM6_HASWELL_X,	hsx_deadline_rev),
- 	DEADLINE_MODEL_MATCH_REV ( INTEL_FAM6_BROADWELL_X,	0x0b000020),
- 	DEADLINE_MODEL_MATCH_FUNC( INTEL_FAM6_BROADWELL_D,	bdx_deadline_rev),
-@@ -609,18 +607,19 @@ static const struct x86_cpu_id deadline_match[] = {
- 	{},
- };
- 
--static void apic_check_deadline_errata(void)
-+static __init bool apic_validate_deadline_timer(void)
- {
- 	const struct x86_cpu_id *m;
- 	u32 rev;
- 
--	if (!boot_cpu_has(X86_FEATURE_TSC_DEADLINE_TIMER) ||
--	    boot_cpu_has(X86_FEATURE_HYPERVISOR))
--		return;
-+	if (!boot_cpu_has(X86_FEATURE_TSC_DEADLINE_TIMER))
-+		return false;
-+	if (boot_cpu_has(X86_FEATURE_HYPERVISOR))
-+		return true;
- 
- 	m = x86_match_cpu(deadline_match);
- 	if (!m)
--		return;
-+		return true;
- 
- 	/*
- 	 * Function pointers will have the MSB set due to address layout,
-@@ -632,11 +631,12 @@ static void apic_check_deadline_errata(void)
- 		rev = (u32)m->driver_data;
- 
- 	if (boot_cpu_data.microcode >= rev)
--		return;
-+		return true;
- 
- 	setup_clear_cpu_cap(X86_FEATURE_TSC_DEADLINE_TIMER);
- 	pr_err(FW_BUG "TSC_DEADLINE disabled due to Errata; "
- 	       "please update microcode to version: 0x%x (or later)\n", rev);
-+	return false;
- }
- 
- /*
-@@ -2098,7 +2098,8 @@ void __init init_apic_mappings(void)
- {
- 	unsigned int new_apicid;
- 
--	apic_check_deadline_errata();
-+	if (apic_validate_deadline_timer())
-+		pr_debug("TSC deadline timer available\n");
- 
- 	if (x2apic_mode) {
- 		boot_cpu_physical_apicid = read_apic_id();
+ 	/* Check if adapter is up */
+ 	if (test_bit(STMMAC_DOWN, &priv->state))
+ 		return IRQ_HANDLED;
 -- 
 2.25.1
 
