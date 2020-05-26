@@ -2,47 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D06041E2B30
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:03:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E11A01E2B95
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:06:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390491AbgEZTCs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:02:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57744 "EHLO mail.kernel.org"
+        id S2389884AbgEZTGh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:06:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34916 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389288AbgEZTCr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:02:47 -0400
+        id S2391653AbgEZTGh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:06:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9B30A2086A;
-        Tue, 26 May 2020 19:02:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CA6EB20873;
+        Tue, 26 May 2020 19:06:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590519767;
-        bh=odgZ24q9g4vos3vg8i/Gtnh6evowZ/Hy6sJNJ0oEnO8=;
+        s=default; t=1590519996;
+        bh=j4eEHVXuIUd0pRN0L2CoepN4/OVyE4wx9B5EwVoukPE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0I36UtP2aj9LQxSkwiiuyTdUHnTovIw01o323j/SD7ay0DVYIebPA7gNJmZVQiKGQ
-         1Hki0armFFUjvNcgeAj9V0mEJhOVmuUfTw2R9u+y5ZNBzah7BAgQRO9qu/SSuMnWTz
-         mfuPPp6BNeYKz9aQOGaoEvP2mf1VgJksrGn7vtwE=
+        b=rN7PxoPy9CGGlkv98t2B2GaWa5OI7I943V8Occ9HMjh6N2fUKHYjsn36GJ7gPNOOQ
+         nIxndSZ2CG/LyEsQT1iLvouAV4GelQsmBo+fYV0kdWaZEbEbMCwy3gG4K+maozHXyt
+         lB1rS9Ks+lwqJKwyyilHtdcW6MKjaKHRHSMmmZAQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Borislav Petkov <bp@alien8.de>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>
-Subject: [PATCH 4.19 01/81] x86/uaccess, ubsan: Fix UBSAN vs. SMAP
+        stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>,
+        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 018/111] kbuild: avoid concurrency issue in parallel building dtbs and dtbs_check
 Date:   Tue, 26 May 2020 20:52:36 +0200
-Message-Id: <20200526183923.385828353@linuxfoundation.org>
+Message-Id: <20200526183934.390242504@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183923.108515292@linuxfoundation.org>
-References: <20200526183923.108515292@linuxfoundation.org>
+In-Reply-To: <20200526183932.245016380@linuxfoundation.org>
+References: <20200526183932.245016380@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -51,40 +43,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-commit d08965a27e84ca090b504844d50c24fc98587b11 upstream.
+[ Upstream commit b5154bf63e5577faaaca1d942df274f7de91dd2a ]
 
-UBSAN can insert extra code in random locations; including AC=1
-sections. Typically this code is not safe and needs wrapping.
+'make dtbs_check' checks the shecma in addition to building *.dtb files,
+in other words, 'make dtbs_check' is a super-set of 'make dtbs'.
+So, you do not have to do 'make dtbs dtbs_check', but I want to keep
+the build system as robust as possible in any use.
 
-So far, only __ubsan_handle_type_mismatch* have been observed in AC=1
-sections and therefore only those are annotated.
+Currently, 'dtbs' and 'dtbs_check' are independent of each other.
+In parallel building, two threads descend into arch/*/boot/dts/,
+one for dtbs and the other for dtbs_check, then end up with building
+the same DTB simultaneously.
 
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Cc: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-[stable backport: only take the lib/Makefile change to resolve gcc-10
- build issues]
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This commit fixes the concurrency issue. Otherwise, I see build errors
+like follows:
+
+$ make ARCH=arm64 defconfig
+$ make -j16 ARCH=arm64 DT_SCHEMA_FILES=Documentation/devicetree/bindings/arm/psci.yaml dtbs dtbs_check
+  <snip>
+  DTC     arch/arm64/boot/dts/qcom/sdm845-cheza-r2.dtb
+  DTC     arch/arm64/boot/dts/amlogic/meson-gxl-s905x-p212.dtb
+  DTC     arch/arm64/boot/dts/allwinner/sun50i-h6-orangepi-lite2.dtb
+  DTC     arch/arm64/boot/dts/allwinner/sun50i-h6-orangepi-lite2.dtb
+  DTC     arch/arm64/boot/dts/freescale/imx8mn-evk.dtb
+  DTC     arch/arm64/boot/dts/allwinner/sun50i-h6-orangepi-one-plus.dtb
+  DTC     arch/arm64/boot/dts/zte/zx296718-pcbox.dtb
+  DTC     arch/arm64/boot/dts/altera/socfpga_stratix10_socdk.dt.yaml
+  DTC     arch/arm64/boot/dts/amlogic/meson-gxl-s905d-p230.dtb
+  DTC     arch/arm64/boot/dts/xilinx/zynqmp-zc1254-revA.dtb
+  DTC     arch/arm64/boot/dts/allwinner/sun50i-h6-pine-h64.dtb
+  DTC     arch/arm64/boot/dts/rockchip/rk3399-gru-scarlet-inx.dtb
+  DTC     arch/arm64/boot/dts/allwinner/sun50i-h6-orangepi-one-plus.dtb
+  CHECK   arch/arm64/boot/dts/altera/socfpga_stratix10_socdk.dt.yaml
+fixdep: error opening file: arch/arm64/boot/dts/allwinner/.sun50i-h6-orangepi-lite2.dtb.d: No such file or directory
+make[2]: *** [scripts/Makefile.lib:296: arch/arm64/boot/dts/allwinner/sun50i-h6-orangepi-lite2.dtb] Error 2
+make[2]: *** Deleting file 'arch/arm64/boot/dts/allwinner/sun50i-h6-orangepi-lite2.dtb'
+make[2]: *** Waiting for unfinished jobs....
+  DTC     arch/arm64/boot/dts/rockchip/rk3399-gru-scarlet-kd.dtb
+  DTC     arch/arm64/boot/dts/amlogic/meson-gxl-s905d-p231.dtb
+  DTC     arch/arm64/boot/dts/xilinx/zynqmp-zc1275-revA.dtb
+  DTC     arch/arm64/boot/dts/freescale/imx8mn-ddr4-evk.dtb
+fixdep: parse error; no targets found
+make[2]: *** [scripts/Makefile.lib:296: arch/arm64/boot/dts/allwinner/sun50i-h6-orangepi-one-plus.dtb] Error 1
+make[2]: *** Deleting file 'arch/arm64/boot/dts/allwinner/sun50i-h6-orangepi-one-plus.dtb'
+make[1]: *** [scripts/Makefile.build:505: arch/arm64/boot/dts/allwinner] Error 2
+make[1]: *** Waiting for unfinished jobs....
+  DTC     arch/arm64/boot/dts/renesas/r8a77951-salvator-xs.dtb
+
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Reviewed-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/Makefile |    1 +
- 1 file changed, 1 insertion(+)
+ Makefile | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/lib/Makefile
-+++ b/lib/Makefile
-@@ -269,6 +269,7 @@ obj-$(CONFIG_UCS2_STRING) += ucs2_string
- obj-$(CONFIG_UBSAN) += ubsan.o
+diff --git a/Makefile b/Makefile
+index 1bd1b17cd207..ba154f92b203 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1246,11 +1246,15 @@ ifneq ($(dtstree),)
+ 	$(Q)$(MAKE) $(build)=$(dtstree) $(dtstree)/$@
  
- UBSAN_SANITIZE_ubsan.o := n
-+CFLAGS_ubsan.o := $(call cc-option, -fno-conserve-stack -fno-stack-protector)
+ PHONY += dtbs dtbs_install dtbs_check
+-dtbs dtbs_check: include/config/kernel.release scripts_dtc
++dtbs: include/config/kernel.release scripts_dtc
+ 	$(Q)$(MAKE) $(build)=$(dtstree)
  
- obj-$(CONFIG_SBITMAP) += sbitmap.o
++ifneq ($(filter dtbs_check, $(MAKECMDGOALS)),)
++dtbs: dt_binding_check
++endif
++
+ dtbs_check: export CHECK_DTBS=1
+-dtbs_check: dt_binding_check
++dtbs_check: dtbs
  
+ dtbs_install:
+ 	$(Q)$(MAKE) $(dtbinst)=$(dtstree)
+-- 
+2.25.1
+
 
 
