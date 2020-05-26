@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BC551E2D80
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:24:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AF3C1E2D76
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:24:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391976AbgEZTLy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:11:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41314 "EHLO mail.kernel.org"
+        id S2392039AbgEZTLG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:11:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40318 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391316AbgEZTLv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:11:51 -0400
+        id S2404032AbgEZTLA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:11:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9216C20888;
-        Tue, 26 May 2020 19:11:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1F72C20776;
+        Tue, 26 May 2020 19:10:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590520311;
-        bh=5dYKczIvQ+iFI127IXOGGHsWU0/YsZaZeXftt1nV9sg=;
+        s=default; t=1590520260;
+        bh=laFJJFYyv4B1e4mrKe19o3ReXIflnahoOiDPh8QGyZk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D39f1VCS3kTRdOqZnNWknwJlxU3aZY2aweunWm+EtVrUPWjWYB4yXDqNcwhr+RUtd
-         PUpb2Lfk+H1jID3LS2EfymYbbawEivkWCJ246aC0SyUPr4jugmEczO+afQ2bBd6kqN
-         onaUAmvk5mwskfStdKPxR2WRQ5BJITAL0eH/P7J0=
+        b=lrEj9YQsojRNEBMIqD6q8y45VFiGSIu8BU7c4myoHur2eKr+L0pwTjot7sP6y6f0/
+         BdWtdd8ejHD259nksqkIW+LpnkbA/KKRbilLuy9YIAw4bywJLmE2EbRKCNTIdeWfnz
+         1vy08cg/YNhjK9lgiDfgVPGblbZx9D7ZFK1ToyAo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miquel Raynal <miquel.raynal@bootlin.com>,
-        Boris Brezillon <boris.brezillon@collabora.com>,
-        Richard Weinberger <richard@nod.at>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 009/126] mtd: spinand: Propagate ECC information to the MTD structure
-Date:   Tue, 26 May 2020 20:52:26 +0200
-Message-Id: <20200526183938.309643594@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Thiago Macieira <thiago.macieira@intel.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Sasha Levin <sashal@kernel.org>, stable@kernel.org
+Subject: [PATCH 5.6 010/126] fix multiplication overflow in copy_fdtable()
+Date:   Tue, 26 May 2020 20:52:27 +0200
+Message-Id: <20200526183938.402785050@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200526183937.471379031@linuxfoundation.org>
 References: <20200526183937.471379031@linuxfoundation.org>
@@ -45,39 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miquel Raynal <miquel.raynal@bootlin.com>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-[ Upstream commit 3507273d5a4d3c2e46f9d3f9ed9449805f5dff07 ]
+[ Upstream commit 4e89b7210403fa4a8acafe7c602b6212b7af6c3b ]
 
-This is done by default in the raw NAND core (nand_base.c) but was
-missing in the SPI-NAND core. Without these two lines the ecc_strength
-and ecc_step_size values are not exported to the user through sysfs.
+cpy and set really should be size_t; we won't get an overflow on that,
+since sysctl_nr_open can't be set above ~(size_t)0 / sizeof(void *),
+so nr that would've managed to overflow size_t on that multiplication
+won't get anywhere near copy_fdtable() - we'll fail with EMFILE
+before that.
 
-Fixes: 7529df465248 ("mtd: nand: Add core infrastructure to support SPI NANDs")
-Cc: stable@vger.kernel.org
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Cc: stable@kernel.org # v2.6.25+
+Fixes: 9cfe015aa424 (get rid of NR_OPEN and introduce a sysctl_nr_open)
+Reported-by: Thiago Macieira <thiago.macieira@intel.com>
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/nand/spi/core.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ fs/file.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/mtd/nand/spi/core.c b/drivers/mtd/nand/spi/core.c
-index 8dda51bbdd11..0d21c68bfe24 100644
---- a/drivers/mtd/nand/spi/core.c
-+++ b/drivers/mtd/nand/spi/core.c
-@@ -1049,6 +1049,10 @@ static int spinand_init(struct spinand_device *spinand)
+diff --git a/fs/file.c b/fs/file.c
+index c8a4e4c86e55..abb8b7081d7a 100644
+--- a/fs/file.c
++++ b/fs/file.c
+@@ -70,7 +70,7 @@ static void copy_fd_bitmaps(struct fdtable *nfdt, struct fdtable *ofdt,
+  */
+ static void copy_fdtable(struct fdtable *nfdt, struct fdtable *ofdt)
+ {
+-	unsigned int cpy, set;
++	size_t cpy, set;
  
- 	mtd->oobavail = ret;
+ 	BUG_ON(nfdt->max_fds < ofdt->max_fds);
  
-+	/* Propagate ECC information to mtd_info */
-+	mtd->ecc_strength = nand->eccreq.strength;
-+	mtd->ecc_step_size = nand->eccreq.step_size;
-+
- 	return 0;
- 
- err_cleanup_nanddev:
 -- 
 2.25.1
 
