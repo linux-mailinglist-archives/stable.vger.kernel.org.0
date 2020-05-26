@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B3D41E2CE0
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:18:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E7F3B1E2E7F
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:30:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392353AbgEZTSG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:18:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44496 "EHLO mail.kernel.org"
+        id S2391038AbgEZTCI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:02:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56736 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391841AbgEZTNz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:13:55 -0400
+        id S2390363AbgEZTCE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:02:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 27730208B3;
-        Tue, 26 May 2020 19:13:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B953F20849;
+        Tue, 26 May 2020 19:02:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590520434;
-        bh=aGSkKgSOvYQfQlZ2A9zyiq/PE8Y9abBefhMktsu3diI=;
+        s=default; t=1590519724;
+        bh=2ZR9YJXhpD7td3fOOI0PfY8rcLlwdV+cAdxddc1WQTM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ehbzl3lfEkFYNLFXCDsPDq5PCaA3//ACx9DRC7pk6Xd7/cYOys6uly+SaMn06tZUH
-         OhM/2NEZttSNAWQ9chogrLysbv+gLFgyhT6Ojo7e8m3qG3JUnJ0rzQMfQTEVcyFdwS
-         YVxbjt8U3FFc+I3xtlKe0aFSNMNyij3FjOKGYhCg=
+        b=YLZiB3T/N1H+fUiJt2bCMoXE5pir/guxSJCowuwG25qxSOC8WeAUP0zURToyYkHPa
+         rtVEaRjDOewNsco7ALwBfDTQwSS9pnobsnRgpRlLC6LGTCLbi3ZGo4P89fLfC2w4Nq
+         Hn5Gt4klDIeUgzIFlGUxSwMVc8c4fl6xCirR7GDE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dijil Mohan <Dijil.Mohan@arm.com>,
-        Vladimir Murzin <vladimir.murzin@arm.com>,
-        Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 5.6 079/126] dmaengine: dmatest: Restore default for channel
+        stable@vger.kernel.org, Oscar Carter <oscar.carter@gmx.com>
+Subject: [PATCH 4.14 51/59] staging: greybus: Fix uninitialized scalar variable
 Date:   Tue, 26 May 2020 20:53:36 +0200
-Message-Id: <20200526183944.776994168@linuxfoundation.org>
+Message-Id: <20200526183922.834256456@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183937.471379031@linuxfoundation.org>
-References: <20200526183937.471379031@linuxfoundation.org>
+In-Reply-To: <20200526183907.123822792@linuxfoundation.org>
+References: <20200526183907.123822792@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,49 +42,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Murzin <vladimir.murzin@arm.com>
+From: Oscar Carter <oscar.carter@gmx.com>
 
-commit 6b41030fdc79086db5d673c5ed7169f3ee8c13b9 upstream.
+commit 34625c1931f8204c234c532b446b9f53c69f4b68 upstream.
 
-In case of dmatest is built-in and no channel was configured test
-doesn't run with:
+In the "gb_tty_set_termios" function the "newline" variable is declared
+but not initialized. So the "flow_control" member is not initialized and
+the OR / AND operations with itself results in an undefined value in
+this member.
 
-dmatest: Could not start test, no channels configured
+The purpose of the code is to set the flow control type, so remove the
+OR / AND self operator and set the value directly.
 
-Even though description to "channel" parameter claims that default is
-any.
-
-Add default channel back as it used to be rather than reject test with
-no channel configuration.
-
-Fixes: d53513d5dc285d9a95a534fc41c5c08af6b60eac ("dmaengine: dmatest: Add support for multi channel testing)
-Reported-by: Dijil Mohan <Dijil.Mohan@arm.com>
-Signed-off-by: Vladimir Murzin <vladimir.murzin@arm.com>
-Link: https://lore.kernel.org/r/20200429071522.58148-1-vladimir.murzin@arm.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Addresses-Coverity-ID: 1374016 ("Uninitialized scalar variable")
+Fixes: e55c25206d5c9 ("greybus: uart: Handle CRTSCTS flag in termios")
+Signed-off-by: Oscar Carter <oscar.carter@gmx.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200510101426.23631-1-oscar.carter@gmx.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/dma/dmatest.c |    9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/staging/greybus/uart.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/dma/dmatest.c
-+++ b/drivers/dma/dmatest.c
-@@ -1166,10 +1166,11 @@ static int dmatest_run_set(const char *v
- 		mutex_unlock(&info->lock);
- 		return ret;
- 	} else if (dmatest_run) {
--		if (is_threaded_test_pending(info))
--			start_threaded_tests(info);
--		else
--			pr_info("Could not start test, no channels configured\n");
-+		if (!is_threaded_test_pending(info)) {
-+			pr_info("No channels configured, continue with any\n");
-+			add_threaded_test(info);
-+		}
-+		start_threaded_tests(info);
- 	} else {
- 		stop_threaded_test(info);
+--- a/drivers/staging/greybus/uart.c
++++ b/drivers/staging/greybus/uart.c
+@@ -538,9 +538,9 @@ static void gb_tty_set_termios(struct tt
  	}
+ 
+ 	if (C_CRTSCTS(tty) && C_BAUD(tty) != B0)
+-		newline.flow_control |= GB_SERIAL_AUTO_RTSCTS_EN;
++		newline.flow_control = GB_SERIAL_AUTO_RTSCTS_EN;
+ 	else
+-		newline.flow_control &= ~GB_SERIAL_AUTO_RTSCTS_EN;
++		newline.flow_control = 0;
+ 
+ 	if (memcmp(&gb_tty->line_coding, &newline, sizeof(newline))) {
+ 		memcpy(&gb_tty->line_coding, &newline, sizeof(newline));
 
 
