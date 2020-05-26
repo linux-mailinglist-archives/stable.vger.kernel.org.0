@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C4FCE1E2D22
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:20:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A6A051E2E7A
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:30:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391354AbgEZTT5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:19:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42762 "EHLO mail.kernel.org"
+        id S2390975AbgEZTBw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:01:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56442 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389413AbgEZTNC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:13:02 -0400
+        id S2403807AbgEZTBw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:01:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 606C220B80;
-        Tue, 26 May 2020 19:13:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DE8992084C;
+        Tue, 26 May 2020 19:01:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590520381;
-        bh=Ej8mWoOChq7PjXcObSOQxnaN6N39Bk2hipAMIBDrJSI=;
+        s=default; t=1590519711;
+        bh=sBLqJNShOHXmDNNNqOoNbAAziCT3Qah9po5LF4SpzVA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s2dDWXkvGaTsSOp+iFklZJp/tG7v661GOvtE6wZvN8pGN2DOqZRSjoQIWgsSk8adA
-         d+YhP+K36bVIDVK0ywxFQ3M7UOuHHsFdpxwfjf4gvQs01W0SoqxT8AQFVnOIJkL7aZ
-         H0o5M2NGBSXcWiYGbPiApMjmt/FieglUGYb1HEhs=
+        b=kGyyZ0/6ssFOxkUFKVWvfUKoJwbOsRwRDizfCXK5GaUiTigseJYO4IvBDRIYy2k70
+         3km5mGxI8z86tHQaqFReRY3SkYuSMsjxoDSTOwqT4zAdHKz/W6WBRaeD2+xVWUPJWZ
+         DBIAwFE2Wcq1AvYx4CzRswiHGV71/aGhd5A8av7o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kailang Yang <kailang@realtek.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 056/126] ALSA: hda/realtek - Add supported new mute Led for HP
-Date:   Tue, 26 May 2020 20:53:13 +0200
-Message-Id: <20200526183942.781300237@linuxfoundation.org>
+        stable@vger.kernel.org, Daniel Jordan <daniel.m.jordan@oracle.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        linux-crypto@vger.kernel.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 29/59] padata: purge get_cpu and reorder_via_wq from padata_do_serial
+Date:   Tue, 26 May 2020 20:53:14 +0200
+Message-Id: <20200526183917.791170399@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183937.471379031@linuxfoundation.org>
-References: <20200526183937.471379031@linuxfoundation.org>
+In-Reply-To: <20200526183907.123822792@linuxfoundation.org>
+References: <20200526183907.123822792@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,147 +45,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kailang Yang <kailang@realtek.com>
+From: Daniel Jordan <daniel.m.jordan@oracle.com>
 
-[ Upstream commit 431e76c3edd76d84a0ed1eb81a286b2ddecc5ee4 ]
+[ Upstream commit 065cf577135a4977931c7a1e1edf442bfd9773dd ]
 
-HP Note Book supported new mute Led.
-Hardware PIN was not enough to meet old LED rule.
-JD2 to control playback mute led.
-GPO3 to control capture mute led.
-(ALC285 didn't control GPO3 via verb command)
-This two PIN just could control by COEF registers.
+With the removal of the padata timer, padata_do_serial no longer
+needs special CPU handling, so remove it.
 
-[ corrected typos by tiwai ]
-
-Signed-off-by: Kailang Yang <kailang@realtek.com>
-Link: https://lore.kernel.org/r/6741211598ba499687362ff2aa30626b@realtek.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: Steffen Klassert <steffen.klassert@secunet.com>
+Cc: linux-crypto@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_realtek.c | 81 +++++++++++++++++++++++++++++++++++
- 1 file changed, 81 insertions(+)
+ kernel/padata.c | 23 +++--------------------
+ 1 file changed, 3 insertions(+), 20 deletions(-)
 
-diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
-index d73c814358bf..44fbd5d2d89c 100644
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -86,6 +86,14 @@ struct alc_spec {
+diff --git a/kernel/padata.c b/kernel/padata.c
+index 6d0cdee9d321..f56ec63f60ba 100644
+--- a/kernel/padata.c
++++ b/kernel/padata.c
+@@ -323,24 +323,9 @@ static void padata_serial_worker(struct work_struct *serial_work)
+  */
+ void padata_do_serial(struct padata_priv *padata)
+ {
+-	int cpu;
+-	struct padata_parallel_queue *pqueue;
+-	struct parallel_data *pd;
+-	int reorder_via_wq = 0;
+-
+-	pd = padata->pd;
+-
+-	cpu = get_cpu();
+-
+-	/* We need to enqueue the padata object into the correct
+-	 * per-cpu queue.
+-	 */
+-	if (cpu != padata->cpu) {
+-		reorder_via_wq = 1;
+-		cpu = padata->cpu;
+-	}
+-
+-	pqueue = per_cpu_ptr(pd->pqueue, cpu);
++	struct parallel_data *pd = padata->pd;
++	struct padata_parallel_queue *pqueue = per_cpu_ptr(pd->pqueue,
++							   padata->cpu);
  
- 	unsigned int gpio_mute_led_mask;
- 	unsigned int gpio_mic_led_mask;
-+	unsigned int mute_led_coef_idx;
-+	unsigned int mute_led_coefbit_mask;
-+	unsigned int mute_led_coefbit_on;
-+	unsigned int mute_led_coefbit_off;
-+	unsigned int mic_led_coef_idx;
-+	unsigned int mic_led_coefbit_mask;
-+	unsigned int mic_led_coefbit_on;
-+	unsigned int mic_led_coefbit_off;
+ 	spin_lock(&pqueue->reorder.lock);
+ 	list_add_tail(&padata->list, &pqueue->reorder.list);
+@@ -354,8 +339,6 @@ void padata_do_serial(struct padata_priv *padata)
+ 	 */
+ 	smp_mb__after_atomic();
  
- 	hda_nid_t headset_mic_pin;
- 	hda_nid_t headphone_mic_pin;
-@@ -4182,6 +4190,73 @@ static void alc280_fixup_hp_gpio4(struct hda_codec *codec,
- 	}
+-	put_cpu();
+-
+ 	padata_reorder(pd);
  }
- 
-+/* update mute-LED according to the speaker mute state via COEF bit */
-+static void alc_fixup_mute_led_coefbit_hook(void *private_data, int enabled)
-+{
-+	struct hda_codec *codec = private_data;
-+	struct alc_spec *spec = codec->spec;
-+
-+	if (spec->mute_led_polarity)
-+		enabled = !enabled;
-+
-+	/* temporarily power up/down for setting COEF bit */
-+	enabled ? alc_update_coef_idx(codec, spec->mute_led_coef_idx,
-+		spec->mute_led_coefbit_mask, spec->mute_led_coefbit_off) :
-+		  alc_update_coef_idx(codec, spec->mute_led_coef_idx,
-+		spec->mute_led_coefbit_mask, spec->mute_led_coefbit_on);
-+}
-+
-+static void alc285_fixup_hp_mute_led_coefbit(struct hda_codec *codec,
-+					  const struct hda_fixup *fix,
-+					  int action)
-+{
-+	struct alc_spec *spec = codec->spec;
-+
-+	if (action == HDA_FIXUP_ACT_PRE_PROBE) {
-+		spec->mute_led_polarity = 0;
-+		spec->mute_led_coef_idx = 0x0b;
-+		spec->mute_led_coefbit_mask = 1<<3;
-+		spec->mute_led_coefbit_on = 1<<3;
-+		spec->mute_led_coefbit_off = 0;
-+		spec->gen.vmaster_mute.hook = alc_fixup_mute_led_coefbit_hook;
-+		spec->gen.vmaster_mute_enum = 1;
-+	}
-+}
-+
-+/* turn on/off mic-mute LED per capture hook by coef bit */
-+static void alc_hp_cap_micmute_update(struct hda_codec *codec)
-+{
-+	struct alc_spec *spec = codec->spec;
-+
-+	if (spec->gen.micmute_led.led_value)
-+		alc_update_coef_idx(codec, spec->mic_led_coef_idx,
-+			spec->mic_led_coefbit_mask, spec->mic_led_coefbit_on);
-+	else
-+		alc_update_coef_idx(codec, spec->mic_led_coef_idx,
-+			spec->mic_led_coefbit_mask, spec->mic_led_coefbit_off);
-+}
-+
-+static void alc285_fixup_hp_coef_micmute_led(struct hda_codec *codec,
-+				const struct hda_fixup *fix, int action)
-+{
-+	struct alc_spec *spec = codec->spec;
-+
-+	if (action == HDA_FIXUP_ACT_PRE_PROBE) {
-+		spec->mic_led_coef_idx = 0x19;
-+		spec->mic_led_coefbit_mask = 1<<13;
-+		spec->mic_led_coefbit_on = 1<<13;
-+		spec->mic_led_coefbit_off = 0;
-+		snd_hda_gen_add_micmute_led(codec, alc_hp_cap_micmute_update);
-+	}
-+}
-+
-+static void alc285_fixup_hp_mute_led(struct hda_codec *codec,
-+				const struct hda_fixup *fix, int action)
-+{
-+	alc285_fixup_hp_mute_led_coefbit(codec, fix, action);
-+	alc285_fixup_hp_coef_micmute_led(codec, fix, action);
-+}
-+
- #if IS_REACHABLE(CONFIG_INPUT)
- static void gpio2_mic_hotkey_event(struct hda_codec *codec,
- 				   struct hda_jack_callback *event)
-@@ -5980,6 +6055,7 @@ enum {
- 	ALC294_FIXUP_ASUS_HPE,
- 	ALC294_FIXUP_ASUS_COEF_1B,
- 	ALC285_FIXUP_HP_GPIO_LED,
-+	ALC285_FIXUP_HP_MUTE_LED,
- };
- 
- static const struct hda_fixup alc269_fixups[] = {
-@@ -7128,6 +7204,10 @@ static const struct hda_fixup alc269_fixups[] = {
- 		.type = HDA_FIXUP_FUNC,
- 		.v.func = alc285_fixup_hp_gpio_led,
- 	},
-+	[ALC285_FIXUP_HP_MUTE_LED] = {
-+		.type = HDA_FIXUP_FUNC,
-+		.v.func = alc285_fixup_hp_mute_led,
-+	},
- };
- 
- static const struct snd_pci_quirk alc269_fixup_tbl[] = {
-@@ -7273,6 +7353,7 @@ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
- 	SND_PCI_QUIRK(0x103c, 0x8497, "HP Envy x360", ALC269_FIXUP_HP_MUTE_LED_MIC3),
- 	SND_PCI_QUIRK(0x103c, 0x84e7, "HP Pavilion 15", ALC269_FIXUP_HP_MUTE_LED_MIC3),
- 	SND_PCI_QUIRK(0x103c, 0x8736, "HP", ALC285_FIXUP_HP_GPIO_LED),
-+	SND_PCI_QUIRK(0x103c, 0x877a, "HP", ALC285_FIXUP_HP_MUTE_LED),
- 	SND_PCI_QUIRK(0x1043, 0x103e, "ASUS X540SA", ALC256_FIXUP_ASUS_MIC),
- 	SND_PCI_QUIRK(0x1043, 0x103f, "ASUS TX300", ALC282_FIXUP_ASUS_TX300),
- 	SND_PCI_QUIRK(0x1043, 0x106d, "Asus K53BE", ALC269_FIXUP_LIMIT_INT_MIC_BOOST),
+ EXPORT_SYMBOL(padata_do_serial);
 -- 
 2.25.1
 
