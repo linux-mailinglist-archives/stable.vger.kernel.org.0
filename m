@@ -2,62 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B30331E2711
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 18:31:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 676991E2716
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 18:32:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388801AbgEZQbI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 12:31:08 -0400
-Received: from mail.asbjorn.biz ([185.38.24.25]:42920 "EHLO mail.asbjorn.biz"
+        id S2388654AbgEZQcj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 12:32:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54644 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388800AbgEZQbI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 12:31:08 -0400
-X-Greylist: delayed 840 seconds by postgrey-1.27 at vger.kernel.org; Tue, 26 May 2020 12:31:07 EDT
-Received: from x201s.roaming.asbjorn.biz (space.labitat.dk [185.38.175.0])
-        by mail.asbjorn.biz (Postfix) with ESMTPSA id 503311C29735;
-        Tue, 26 May 2020 16:17:05 +0000 (UTC)
-Received: from x201s.roaming.asbjorn.biz (localhost [127.0.0.1])
-        by x201s.roaming.asbjorn.biz (Postfix) with ESMTP id 9EB26205107;
-        Tue, 26 May 2020 16:17:01 +0000 (UTC)
-Subject: Re: [PATCH 07/27] net: l2tp: deprecate PPPOL2TP_MSG_* in favour of
- L2TP_MSG_*
-To:     Giuliano Procida <gprocida@google.com>
-Cc:     greg@kroah.com, stable@vger.kernel.org,
-        "David S . Miller" <davem@davemloft.net>,
-        "Dmitry V. Levin" <ldv@altlinux.org>
-References: <20200521235740.191338-1-gprocida@google.com>
- <20200521235740.191338-8-gprocida@google.com>
-From:   =?UTF-8?Q?Asbj=c3=b8rn_Sloth_T=c3=b8nnesen?= <asbjorn@asbjorn.st>
-Message-ID: <25373712-4390-5a7a-d3f9-97bd7f2d8a2a@asbjorn.st>
-Date:   Tue, 26 May 2020 16:17:01 +0000
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.8.0
+        id S2388061AbgEZQcj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 12:32:39 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 916502073B;
+        Tue, 26 May 2020 16:32:38 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1590510759;
+        bh=aH1fxzKkh8oPDxVH7mWTxxRoboBCqxnYW/72VwKzH5s=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=C8HUlHTjOdQmagDAuTUKqO201Qq3KYFEEwj2yfxa6nAttPsk8i8j6Y3EIyqsHG6Xf
+         uaoW31+bxcYnB7IUywcCG+uOyvURvdgqXbaB+EPJfnZzo1yMRWa3vjAj1zUw5KM7OR
+         D1IUnpfdN6H5zVXeFabr5gbl9cS53KDljOIVzRyE=
+Date:   Tue, 26 May 2020 18:32:35 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Andi Kleen <ak@linux.intel.com>
+Cc:     Andi Kleen <andi@firstfloor.org>, x86@kernel.org,
+        keescook@chromium.org, linux-kernel@vger.kernel.org,
+        sashal@kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH v1] x86: Pin cr4 FSGSBASE
+Message-ID: <20200526163235.GA42137@kroah.com>
+References: <20200526052848.605423-1-andi@firstfloor.org>
+ <20200526065618.GC2580410@kroah.com>
+ <20200526154835.GW499505@tassilo.jf.intel.com>
 MIME-Version: 1.0
-In-Reply-To: <20200521235740.191338-8-gprocida@google.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200526154835.GW499505@tassilo.jf.intel.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Giuliano,
-
-On 5/21/20 11:57 PM, Giuliano Procida wrote:
-> From: Asbjørn Sloth Tønnesen <asbjorn@asbjorn.st>
+On Tue, May 26, 2020 at 08:48:35AM -0700, Andi Kleen wrote:
+> On Tue, May 26, 2020 at 08:56:18AM +0200, Greg KH wrote:
+> > On Mon, May 25, 2020 at 10:28:48PM -0700, Andi Kleen wrote:
+> > > From: Andi Kleen <ak@linux.intel.com>
+> > > 
+> > > Since there seem to be kernel modules floating around that set
+> > > FSGSBASE incorrectly, prevent this in the CR4 pinning. Currently
+> > > CR4 pinning just checks that bits are set, this also checks
+> > > that the FSGSBASE bit is not set, and if it is clears it again.
+> > 
+> > So we are trying to "protect" ourselves from broken out-of-tree kernel
+> > modules now?  
 > 
-> commit 47c3e7783be4e142b861d34b5c2e223330b05d8a upstream.
-> 
-> PPPOL2TP_MSG_* and L2TP_MSG_* are duplicates, and are being used
-> interchangeably in the kernel, so let's standardize on L2TP_MSG_*
-> internally, and keep PPPOL2TP_MSG_* defined in UAPI for compatibility.
+> Well it's a specific case where we know they're opening a root hole
+> unintentionally. This is just an pragmatic attempt to protect the users in the 
+> short term.
 
-Sorry for not reacting earlier.
+Can't you just go and fix those out-of-tree kernel modules instead?
+What's keeping you all from just doing that instead of trying to force
+the kernel to play traffic cop?
 
-Have you checked if a725eb15db80 should also be applied to 4.4 and 4.9?
+thanks,
 
-https://lore.kernel.org/netdev/20170215022326.GA21493@altlinux.org/
-
--- 
-Best regards
-Asbjørn Sloth Tønnesen
+greg k-h
