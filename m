@@ -2,232 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 874081E2F91
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:57:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B6101E302C
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 22:43:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390380AbgEZT45 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:56:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41358 "EHLO
+        id S2389796AbgEZUnA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 16:43:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48426 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2390336AbgEZT45 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 May 2020 15:56:57 -0400
-Received: from Galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F6D0C03E96D;
-        Tue, 26 May 2020 12:56:57 -0700 (PDT)
-Received: from [5.158.153.53] (helo=tip-bot2.lab.linutronix.de)
-        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
-        (Exim 4.80)
-        (envelope-from <tip-bot2@linutronix.de>)
-        id 1jdfgv-0004E3-Rv; Tue, 26 May 2020 21:56:49 +0200
-Received: from [127.0.1.1] (localhost [IPv6:::1])
-        by tip-bot2.lab.linutronix.de (Postfix) with ESMTP id 3BD2B1C00FA;
-        Tue, 26 May 2020 21:56:49 +0200 (CEST)
-Date:   Tue, 26 May 2020 19:56:49 -0000
-From:   "tip-bot2 for Tony Luck" <tip-bot2@linutronix.de>
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: ras/core] x86/{mce,mm}: Unmap the entire page if the whole page
- is affected and poisoned
-Cc:     Jue Wang <juew@google.com>, Tony Luck <tony.luck@intel.com>,
-        Borislav Petkov <bp@suse.de>, <stable@vger.kernel.org>,
-        x86 <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20200520163546.GA7977@agluck-desk2.amr.corp.intel.com>
-References: <20200520163546.GA7977@agluck-desk2.amr.corp.intel.com>
+        with ESMTP id S2389486AbgEZUnA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 May 2020 16:43:00 -0400
+Received: from mail-ej1-x644.google.com (mail-ej1-x644.google.com [IPv6:2a00:1450:4864:20::644])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 162A0C061A0F
+        for <stable@vger.kernel.org>; Tue, 26 May 2020 13:43:00 -0700 (PDT)
+Received: by mail-ej1-x644.google.com with SMTP id x20so25254714ejb.11
+        for <stable@vger.kernel.org>; Tue, 26 May 2020 13:42:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=intel-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=z0+qB9PAs/0dIVTxt6TWQveY0BQoV0IqGxgJ1RJtPJ8=;
+        b=Mmipay1v52TsRSAxngafTq/GIafI4i5MGesqoQtqIdctmq2XigRTUluiaR0xV89H8W
+         yFzbwIKrBLUxF4eDbHG0as3sOfpOM83xGs601y887zEJjHAiHDF7VT6KQkB4JHQjB+na
+         TnG/+HHbvltKPGgCYphiAK/76TjA7NPgX/90rpvU+U/H03TfX3bVQeczDzuRzvsb3Urj
+         g9+bv6Z2MMCzThJPGN1avuSRTdBz98RNNdENoNfvHGiE7NT4k8XFpDXzQXR5lr0Aw2Cf
+         OWr9AK5ECVGOcCcBmi9DJ1IEHOE9haHRMJQeACqeeazF80DGfUucWYS/YVdlDlpVhS6j
+         aQUw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=z0+qB9PAs/0dIVTxt6TWQveY0BQoV0IqGxgJ1RJtPJ8=;
+        b=gVZ7n9YIEojrYZ+MTI7c52O1Fdq/Cy8c9zylJIndp2zbTEL/phOZioNrUERXSs+kQx
+         Rlx/tXLLwlB69JAxHy94kOL4ps2mRht8ifcl+KoriLiQsHJIN/AUiZSMWA7208rmiXtG
+         7y27MaVAI7AI1z9n0SLOxYlHPPqDy7evQBWgfg8XnGnEcAhcmWnmkpNxVrnnExPpCh9U
+         gXeL2rb9sYmxUVIz5+WKVLA8Ns2m48QFaK4MqqV8s34FtWIgxdwF7OCEkuLB/j2Tv0gX
+         SKXCNBw532vod7wUws5g1biku4v5S06VzMNij+N1uNb1l5vwzYICH8jjYskshLNEW1vp
+         JfyA==
+X-Gm-Message-State: AOAM5320GyXCzOJsT4DIOT/h+GJuTKNjzHuTLeyCZo0aQWMGeUVUivbl
+        RZAJI4sOmfOT29Avv673IVm9a2lLpID78nFC5kfOLQ==
+X-Google-Smtp-Source: ABdhPJyjICkIAYJoUWeh5IAj7h4qSUa1lPDgHsaGCVWa7SWsoVWAuaVyTS5T07gQoCLsNSWBDtrrXAQew17WRC/6Zf4=
+X-Received: by 2002:a17:906:3597:: with SMTP id o23mr2695842ejb.174.1590525775277;
+ Tue, 26 May 2020 13:42:55 -0700 (PDT)
 MIME-Version: 1.0
-Message-ID: <159052300906.17951.14977486527069637505.tip-bot2@tip-bot2>
-X-Mailer: tip-git-log-daemon
-Robot-ID: <tip-bot2.linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Linutronix-Spam-Score: -1.0
-X-Linutronix-Spam-Level: -
-X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
+References: <159010426294.1062454.8853083370975871627.stgit@dwillia2-desk3.amr.corp.intel.com>
+ <20200522115800.GA1451824@kroah.com> <20200522120009.GA1456052@kroah.com>
+In-Reply-To: <20200522120009.GA1456052@kroah.com>
+From:   Dan Williams <dan.j.williams@intel.com>
+Date:   Tue, 26 May 2020 13:42:44 -0700
+Message-ID: <CAPcyv4jW9P2FP2p6OiLoN+e_wzZY9-c8C-mMMoDqohuTekF7WQ@mail.gmail.com>
+Subject: Re: [5.4-stable PATCH 0/7] libnvdimm: Cross-arch compatible namespace alignment
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     stable <stable@vger.kernel.org>,
+        "Oliver O'Halloran" <oohall@gmail.com>,
+        Vishal Verma <vishal.l.verma@intel.com>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Paul Mackerras <paulus@samba.org>,
+        Christoph Hellwig <hch@lst.de>, Jeff Moyer <jmoyer@redhat.com>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        linux-nvdimm <linux-nvdimm@lists.01.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the ras/core branch of tip:
+On Fri, May 22, 2020 at 5:00 AM Greg KH <gregkh@linuxfoundation.org> wrote:
+>
+> On Fri, May 22, 2020 at 01:58:00PM +0200, Greg KH wrote:
+> > On Thu, May 21, 2020 at 04:37:43PM -0700, Dan Williams wrote:
+> > > Hello stable team,
+> > >
+> > > These patches have been shipping in mainline since v5.7-rc1 with no
+> > > reported issues. They address long standing problems in libnvdimm's
+> > > handling of namespace provisioning relative to alignment constraints
+> > > including crashes trying to even load the driver on some PowerPC
+> > > configurations.
+> > >
+> > > I did fold one build fix [1] into "libnvdimm/region: Introduce an 'align'
+> > > attribute" so as to not convey the bisection breakage to -stable.
+> > >
+> > > Please consider them for v5.4-stable. They do pass the latest
+> > > version of the ndctl unit tests.
+> >
+> > What about 5.6.y?  Any user upgrading from 5.4-stable to 5.6-stable
+> > would hit a regression, right?
+> >
+> > So can we get a series backported to 5.6.y as well?  I need that before
+> > I can take this series.
 
-Commit-ID:     be69f6c5cd38c457c22f6e718077f6524437369d
-Gitweb:        https://git.kernel.org/tip/be69f6c5cd38c457c22f6e718077f6524437369d
-Author:        Tony Luck <tony.luck@intel.com>
-AuthorDate:    Wed, 20 May 2020 09:35:46 -07:00
-Committer:     Borislav Petkov <bp@suse.de>
-CommitterDate: Mon, 25 May 2020 22:37:41 +02:00
+Yes, should be the exact same set, but I will run the regression suite
+to be sure.
 
-x86/{mce,mm}: Unmap the entire page if the whole page is affected and poisoned
+> Also, I really don't see the "bug" that this is fixing here.  If this
+> didn't work on PowerPC before, it can continue to just "not work" until
+> 5.7, right?
 
-An interesting thing happened when a guest Linux instance took a machine
-check. The VMM unmapped the bad page from guest physical space and
-passed the machine check to the guest.
+There's a mix of "never worked" and "used to work" in this set. The
+PowerPC case is indeed a "never worked", but I highlighted it as it
+was the simplest to understand.
 
-Linux took all the normal actions to offline the page from the process
-that was using it. But then guest Linux crashed because it said there
-was a second machine check inside the kernel with this stack trace:
+> What problems with 5.4.y and 5.6.y is this series fixing
+> that used to work before?
 
-do_memory_failure
-    set_mce_nospec
-         set_memory_uc
-              _set_memory_uc
-                   change_page_attr_set_clr
-                        cpa_flush
-                             clflush_cache_range_opt
+The "used to work" bug fixed by this set is the fact that the kernel
+used to force a 128MB (memory hotplug section size) alignment padding
+on all persistent memory namespaces to enable DAX operation. The
+support for sub-sections (2MB) dropped forced alignment padding, but
+unfortunately introduced a regression for the case of trying to create
+multiple unaligned namespaces. When that bug triggers namespace
+creation for the region is disabled, iirc, previously that lockout
+scenario was prevented.
 
-This was odd, because a CLFLUSH instruction shouldn't raise a machine
-check (it isn't consuming the data). Further investigation showed that
-the VMM had passed in another machine check because is appeared that the
-guest was accessing the bad page.
+Jeff, can you corroborate this?
 
-Fix is to check the scope of the poison by checking the MCi_MISC register.
-If the entire page is affected, then unmap the page. If only part of the
-page is affected, then mark the page as uncacheable.
-
-This assumes that VMMs will do the logical thing and pass in the "whole
-page scope" via the MCi_MISC register (since they unmapped the entire
-page).
-
-  [ bp: Adjust to x86/entry changes. ]
-
-Fixes: 284ce4011ba6 ("x86/memory_failure: Introduce {set, clear}_mce_nospec()")
-Reported-by: Jue Wang <juew@google.com>
-Signed-off-by: Tony Luck <tony.luck@intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Tested-by: Jue Wang <juew@google.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/20200520163546.GA7977@agluck-desk2.amr.corp.intel.com
----
- arch/x86/include/asm/set_memory.h | 19 +++++++++++++------
- arch/x86/kernel/cpu/mce/core.c    | 18 ++++++++++++++----
- include/linux/sched.h             |  4 +++-
- include/linux/set_memory.h        |  2 +-
- 4 files changed, 31 insertions(+), 12 deletions(-)
-
-diff --git a/arch/x86/include/asm/set_memory.h b/arch/x86/include/asm/set_memory.h
-index ec2c0a0..5948218 100644
---- a/arch/x86/include/asm/set_memory.h
-+++ b/arch/x86/include/asm/set_memory.h
-@@ -86,28 +86,35 @@ int set_direct_map_default_noflush(struct page *page);
- extern int kernel_set_to_readonly;
- 
- #ifdef CONFIG_X86_64
--static inline int set_mce_nospec(unsigned long pfn)
-+/*
-+ * Prevent speculative access to the page by either unmapping
-+ * it (if we do not require access to any part of the page) or
-+ * marking it uncacheable (if we want to try to retrieve data
-+ * from non-poisoned lines in the page).
-+ */
-+static inline int set_mce_nospec(unsigned long pfn, bool unmap)
- {
- 	unsigned long decoy_addr;
- 	int rc;
- 
- 	/*
--	 * Mark the linear address as UC to make sure we don't log more
--	 * errors because of speculative access to the page.
- 	 * We would like to just call:
--	 *      set_memory_uc((unsigned long)pfn_to_kaddr(pfn), 1);
-+	 *      set_memory_XX((unsigned long)pfn_to_kaddr(pfn), 1);
- 	 * but doing that would radically increase the odds of a
- 	 * speculative access to the poison page because we'd have
- 	 * the virtual address of the kernel 1:1 mapping sitting
- 	 * around in registers.
- 	 * Instead we get tricky.  We create a non-canonical address
- 	 * that looks just like the one we want, but has bit 63 flipped.
--	 * This relies on set_memory_uc() properly sanitizing any __pa()
-+	 * This relies on set_memory_XX() properly sanitizing any __pa()
- 	 * results with __PHYSICAL_MASK or PTE_PFN_MASK.
- 	 */
- 	decoy_addr = (pfn << PAGE_SHIFT) + (PAGE_OFFSET ^ BIT(63));
- 
--	rc = set_memory_uc(decoy_addr, 1);
-+	if (unmap)
-+		rc = set_memory_np(decoy_addr, 1);
-+	else
-+		rc = set_memory_uc(decoy_addr, 1);
- 	if (rc)
- 		pr_warn("Could not invalidate pfn=0x%lx from 1:1 map\n", pfn);
- 	return rc;
-diff --git a/arch/x86/kernel/cpu/mce/core.c b/arch/x86/kernel/cpu/mce/core.c
-index ffee8a2..753bc77 100644
---- a/arch/x86/kernel/cpu/mce/core.c
-+++ b/arch/x86/kernel/cpu/mce/core.c
-@@ -520,6 +520,14 @@ bool mce_is_memory_error(struct mce *m)
- }
- EXPORT_SYMBOL_GPL(mce_is_memory_error);
- 
-+static bool whole_page(struct mce *m)
-+{
-+	if (!mca_cfg.ser || !(m->status & MCI_STATUS_MISCV))
-+		return true;
-+
-+	return MCI_MISC_ADDR_LSB(m->misc) >= PAGE_SHIFT;
-+}
-+
- bool mce_is_correctable(struct mce *m)
- {
- 	if (m->cpuvendor == X86_VENDOR_AMD && m->status & MCI_STATUS_DEFERRED)
-@@ -573,7 +581,7 @@ static int uc_decode_notifier(struct notifier_block *nb, unsigned long val,
- 
- 	pfn = mce->addr >> PAGE_SHIFT;
- 	if (!memory_failure(pfn, 0)) {
--		set_mce_nospec(pfn);
-+		set_mce_nospec(pfn, whole_page(mce));
- 		mce->kflags |= MCE_HANDLED_UC;
- 	}
- 
-@@ -1173,11 +1181,12 @@ static void kill_me_maybe(struct callback_head *cb)
- 	int flags = MF_ACTION_REQUIRED;
- 
- 	pr_err("Uncorrected hardware memory error in user-access at %llx", p->mce_addr);
--	if (!(p->mce_status & MCG_STATUS_RIPV))
-+
-+	if (!p->mce_ripv)
- 		flags |= MF_MUST_KILL;
- 
- 	if (!memory_failure(p->mce_addr >> PAGE_SHIFT, flags)) {
--		set_mce_nospec(p->mce_addr >> PAGE_SHIFT);
-+		set_mce_nospec(p->mce_addr >> PAGE_SHIFT, p->mce_whole_page);
- 		return;
- 	}
- 
-@@ -1331,7 +1340,8 @@ void noinstr do_machine_check(struct pt_regs *regs)
- 		BUG_ON(!on_thread_stack() || !user_mode(regs));
- 
- 		current->mce_addr = m.addr;
--		current->mce_status = m.mcgstatus;
-+		current->mce_ripv = !!(m.mcgstatus & MCG_STATUS_RIPV);
-+		current->mce_whole_page = whole_page(&m);
- 		current->mce_kill_me.func = kill_me_maybe;
- 		if (kill_it)
- 			current->mce_kill_me.func = kill_me_now;
-diff --git a/include/linux/sched.h b/include/linux/sched.h
-index 1d68ee3..6293fc2 100644
---- a/include/linux/sched.h
-+++ b/include/linux/sched.h
-@@ -1304,7 +1304,9 @@ struct task_struct {
- 
- #ifdef CONFIG_X86_MCE
- 	u64				mce_addr;
--	u64				mce_status;
-+	__u64				mce_ripv : 1,
-+					mce_whole_page : 1,
-+					__mce_reserved : 62;
- 	struct callback_head		mce_kill_me;
- #endif
- 
-diff --git a/include/linux/set_memory.h b/include/linux/set_memory.h
-index 86281ac..860e0f8 100644
---- a/include/linux/set_memory.h
-+++ b/include/linux/set_memory.h
-@@ -26,7 +26,7 @@ static inline int set_direct_map_default_noflush(struct page *page)
- #endif
- 
- #ifndef set_mce_nospec
--static inline int set_mce_nospec(unsigned long pfn)
-+static inline int set_mce_nospec(unsigned long pfn, bool unmap)
- {
- 	return 0;
- }
+I otherwise agree, if the above never worked then this can all wait
+for v5.7 upgrades.
