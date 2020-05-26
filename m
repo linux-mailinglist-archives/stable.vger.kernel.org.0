@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 711E61E2AB2
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 20:58:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 06A121E2A71
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 20:57:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388967AbgEZS6H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 14:58:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51510 "EHLO mail.kernel.org"
+        id S2389600AbgEZSzy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 14:55:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48354 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390254AbgEZS6E (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 14:58:04 -0400
+        id S2389656AbgEZSzu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 14:55:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0DFE020870;
-        Tue, 26 May 2020 18:58:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1C5BB2086A;
+        Tue, 26 May 2020 18:55:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590519484;
-        bh=ztM3ucvyX1sZSQHueZcY8XRuo+V0Vih+cQQnNynMlGk=;
+        s=default; t=1590519350;
+        bh=n8JzTrgt8/GRTvq0YxeCtfXMInbGbWxSeb5qkncRORI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U6Xh0+VXLxk3qEI/BDr1m+2Dip18gnNJ35Ym7ziUyB3fnCUEkvEDonuZN4vAjssR9
-         72/pHcJBqIiAiSWsW+p1d7RSsOWhI6j5r+i93x4pomFiSv64FaJFA9zIsAXn1ksD+q
-         wxG3civHoBqN+LiCmxlafI4bSLfwBgYPpvWQokF4=
+        b=bwTWq3tatA17Ap5lbjuRcRSPb5UByjSEUGhObHAWojI+yYlSTCWSdy7lBVf38lZHW
+         CpYh3EsRvY6ruYd8nCQEjXAo8BT/NyoKtDMsJryRLauqL0dNLf1Jpx9Fb9MPMsHqLf
+         qD3tEeQcb7WcdsV8R3t1ldgJgE03tr3Eb6UtXd5Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mathias Krause <minipli@googlemail.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Daniel Jordan <daniel.m.jordan@oracle.com>,
+        stable@vger.kernel.org, Dan Williams <dan.j.williams@intel.com>,
+        Vishal Verma <vishal.l.verma@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 21/64] padata: set cpu_index of unused CPUs to -1
-Date:   Tue, 26 May 2020 20:52:50 +0200
-Message-Id: <20200526183919.699140377@linuxfoundation.org>
+Subject: [PATCH 4.4 33/65] libnvdimm/btt: Remove unnecessary code in btt_freelist_init
+Date:   Tue, 26 May 2020 20:52:52 +0200
+Message-Id: <20200526183917.991691326@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183913.064413230@linuxfoundation.org>
-References: <20200526183913.064413230@linuxfoundation.org>
+In-Reply-To: <20200526183905.988782958@linuxfoundation.org>
+References: <20200526183905.988782958@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,48 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathias Krause <minipli@googlemail.com>
+From: Vishal Verma <vishal.l.verma@intel.com>
 
-[ Upstream commit 1bd845bcb41d5b7f83745e0cb99273eb376f2ec5 ]
+[ Upstream commit 2f8c9011151337d0bc106693f272f9bddbccfab2 ]
 
-The parallel queue per-cpu data structure gets initialized only for CPUs
-in the 'pcpu' CPU mask set. This is not sufficient as the reorder timer
-may run on a different CPU and might wrongly decide it's the target CPU
-for the next reorder item as per-cpu memory gets memset(0) and we might
-be waiting for the first CPU in cpumask.pcpu, i.e. cpu_index 0.
+We call btt_log_read() twice, once to get the 'old' log entry, and again
+to get the 'new' entry. However, we have no use for the 'old' entry, so
+remove it.
 
-Make the '__this_cpu_read(pd->pqueue->cpu_index) == next_queue->cpu_index'
-compare in padata_get_next() fail in this case by initializing the
-cpu_index member of all per-cpu parallel queues. Use -1 for unused ones.
-
-Signed-off-by: Mathias Krause <minipli@googlemail.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Signed-off-by: Vishal Verma <vishal.l.verma@intel.com>
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/padata.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/nvdimm/btt.c | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
-diff --git a/kernel/padata.c b/kernel/padata.c
-index 693536efccf9..52a1d3fd13b5 100644
---- a/kernel/padata.c
-+++ b/kernel/padata.c
-@@ -462,8 +462,14 @@ static void padata_init_pqueues(struct parallel_data *pd)
- 	struct padata_parallel_queue *pqueue;
+diff --git a/drivers/nvdimm/btt.c b/drivers/nvdimm/btt.c
+index 957234272ef7..727eaf203463 100644
+--- a/drivers/nvdimm/btt.c
++++ b/drivers/nvdimm/btt.c
+@@ -443,9 +443,9 @@ static int btt_log_init(struct arena_info *arena)
  
- 	cpu_index = 0;
--	for_each_cpu(cpu, pd->cpumask.pcpu) {
-+	for_each_possible_cpu(cpu) {
- 		pqueue = per_cpu_ptr(pd->pqueue, cpu);
-+
-+		if (!cpumask_test_cpu(cpu, pd->cpumask.pcpu)) {
-+			pqueue->cpu_index = -1;
-+			continue;
-+		}
-+
- 		pqueue->pd = pd;
- 		pqueue->cpu_index = cpu_index;
- 		cpu_index++;
+ static int btt_freelist_init(struct arena_info *arena)
+ {
+-	int old, new, ret;
++	int new, ret;
+ 	u32 i, map_entry;
+-	struct log_entry log_new, log_old;
++	struct log_entry log_new;
+ 
+ 	arena->freelist = kcalloc(arena->nfree, sizeof(struct free_entry),
+ 					GFP_KERNEL);
+@@ -453,10 +453,6 @@ static int btt_freelist_init(struct arena_info *arena)
+ 		return -ENOMEM;
+ 
+ 	for (i = 0; i < arena->nfree; i++) {
+-		old = btt_log_read(arena, i, &log_old, LOG_OLD_ENT);
+-		if (old < 0)
+-			return old;
+-
+ 		new = btt_log_read(arena, i, &log_new, LOG_NEW_ENT);
+ 		if (new < 0)
+ 			return new;
 -- 
 2.25.1
 
