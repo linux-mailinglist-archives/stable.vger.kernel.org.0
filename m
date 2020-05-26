@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 88A871E2E9E
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:31:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D7F21E2EAB
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:31:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389909AbgEZS7v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 14:59:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53752 "EHLO mail.kernel.org"
+        id S2391419AbgEZTay (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:30:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53810 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389478AbgEZS7s (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 14:59:48 -0400
+        id S2390571AbgEZS7w (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 14:59:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 11F8320849;
-        Tue, 26 May 2020 18:59:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8018520849;
+        Tue, 26 May 2020 18:59:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590519588;
-        bh=bTdwv1vyZUg+549OUWqfF6B+jLil2PTqgnQIUtA4yM4=;
+        s=default; t=1590519591;
+        bh=5d5t+nP+N3uFasCIiJv9TMljTbF1AUjhVSa9D3tZzYY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m4Mq2OxfDUn9Gt7GvuyVA7fawxkg2rd/3mSlKWQVkLdcs1XAnsn+zzUAzWvvUYM9h
-         P8Fp50hRuscDNyzvRGROALMusvV3QfxtXO3dubfUOc4FtgKv+EuZBQ9ZkdiqqdCglF
-         fDh+iLvpH4meYIYyAF++bFP31/QGV91wsUC7riu0=
+        b=cjwJeC60QHbBPXGxChtZeYrYhbv9D0IS2NKZHsiYxc/d18wShz1iJUkrjSrN4KRCo
+         ULcgoZSpHuqpHEzIZA0ius1tZqHq0x7xTLaISc6O90PkgpAisbja8K89ksyLweEsnV
+         6n/2yNjzQEOWJCSNcfsFv+i6XKTAF5p4FW2T9ctE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?=E4=BA=BF=E4=B8=80?= <teroincn@gmail.com>,
-        Alexander Usyskin <alexander.usyskin@intel.com>,
-        Tomas Winkler <tomas.winkler@intel.com>
-Subject: [PATCH 4.9 62/64] mei: release me_cl object reference
-Date:   Tue, 26 May 2020 20:53:31 +0200
-Message-Id: <20200526183931.584298265@linuxfoundation.org>
+        stable@vger.kernel.org, John Hubbard <jhubbard@nvidia.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Matt Porter <mporter@kernel.crashing.org>,
+        Alexandre Bounine <alex.bou9@gmail.com>,
+        Sumit Semwal <sumit.semwal@linaro.org>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.9 63/64] rapidio: fix an error in get_user_pages_fast() error handling
+Date:   Tue, 26 May 2020 20:53:32 +0200
+Message-Id: <20200526183931.658765886@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200526183913.064413230@linuxfoundation.org>
 References: <20200526183913.064413230@linuxfoundation.org>
@@ -45,42 +48,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Usyskin <alexander.usyskin@intel.com>
+From: John Hubbard <jhubbard@nvidia.com>
 
-commit fc9c03ce30f79b71807961bfcb42be191af79873 upstream.
+commit ffca476a0a8d26de767cc41d62b8ca7f540ecfdd upstream.
 
-Allow me_cl object to be freed by releasing the reference
-that was acquired  by one of the search functions:
-__mei_me_cl_by_uuid_id() or __mei_me_cl_by_uuid()
+In the case of get_user_pages_fast() returning fewer pages than
+requested, rio_dma_transfer() does not quite do the right thing.  It
+attempts to release all the pages that were requested, rather than just
+the pages that were pinned.
 
+Fix the error handling so that only the pages that were successfully
+pinned are released.
+
+Fixes: e8de370188d0 ("rapidio: add mport char device driver")
+Signed-off-by: John Hubbard <jhubbard@nvidia.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Matt Porter <mporter@kernel.crashing.org>
+Cc: Alexandre Bounine <alex.bou9@gmail.com>
+Cc: Sumit Semwal <sumit.semwal@linaro.org>
+Cc: Dan Carpenter <dan.carpenter@oracle.com>
 Cc: <stable@vger.kernel.org>
-Reported-by: 亿一 <teroincn@gmail.com>
-Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
-Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
-Link: https://lore.kernel.org/r/20200512223140.32186-1-tomas.winkler@intel.com
+Link: http://lkml.kernel.org/r/20200517235620.205225-2-jhubbard@nvidia.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/misc/mei/client.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/rapidio/devices/rio_mport_cdev.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/drivers/misc/mei/client.c
-+++ b/drivers/misc/mei/client.c
-@@ -276,6 +276,7 @@ void mei_me_cl_rm_by_uuid(struct mei_dev
- 	down_write(&dev->me_clients_rwsem);
- 	me_cl = __mei_me_cl_by_uuid(dev, uuid);
- 	__mei_me_cl_del(dev, me_cl);
-+	mei_me_cl_put(me_cl);
- 	up_write(&dev->me_clients_rwsem);
- }
- 
-@@ -297,6 +298,7 @@ void mei_me_cl_rm_by_uuid_id(struct mei_
- 	down_write(&dev->me_clients_rwsem);
- 	me_cl = __mei_me_cl_by_uuid_id(dev, uuid, id);
- 	__mei_me_cl_del(dev, me_cl);
-+	mei_me_cl_put(me_cl);
- 	up_write(&dev->me_clients_rwsem);
- }
+--- a/drivers/rapidio/devices/rio_mport_cdev.c
++++ b/drivers/rapidio/devices/rio_mport_cdev.c
+@@ -905,6 +905,11 @@ rio_dma_transfer(struct file *filp, u32
+ 				rmcd_error("pinned %ld out of %ld pages",
+ 					   pinned, nr_pages);
+ 			ret = -EFAULT;
++			/*
++			 * Set nr_pages up to mean "how many pages to unpin, in
++			 * the error handler:
++			 */
++			nr_pages = pinned;
+ 			goto err_pg;
+ 		}
  
 
 
