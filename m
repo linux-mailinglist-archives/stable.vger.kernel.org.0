@@ -2,38 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7ACFB1E2DD6
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:25:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CB7A21E2CEE
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:18:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391769AbgEZTYp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:24:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36086 "EHLO mail.kernel.org"
+        id S2391846AbgEZTSi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:18:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43906 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391601AbgEZTHX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:07:23 -0400
+        id S2391970AbgEZTNh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:13:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 21A34208A7;
-        Tue, 26 May 2020 19:07:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6FDB2208B3;
+        Tue, 26 May 2020 19:13:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590520043;
-        bh=XFxzq4P6z49YtyaR0tqdRHJYwkOdYoyVEmIvsv0RGxE=;
+        s=default; t=1590520416;
+        bh=ONsYDddsZTVKtfoCed08ZnVV6GO76273vrFEOVSs5A8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lO28p79K/Xou/nMN4DyQ2/dPTLmRKLgd7QE6Ltgw2rBb+oKPuxHFZOAt0MpvZ/YnJ
-         x/gln4TuCYR6lcBJBAVIfl34kWDp8SCrTNUJ0OeWG8FlNaN1wAPJrxdPOMlPB0t/a6
-         5WcWfOqXRt5C27Z6F4zKvtxj7PoFS8ZsMpoIYSDc=
+        b=GRehLAe0vCwcgZZhg8JG2mlo9ZIFxGrnPZgecrPv9NI1q5hNgJY6pfb/jUAaVQFlB
+         knIV3X3Zp2uXBcQMtomhhhlJWwwpU6XhH/p6mLa/Y+kkpf3lOBLrU2zDwXzOcwp5/S
+         LKC5OpVSfNqwOuZw8GMfqcurH8Snmhf/XYSqbW44=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Hilliard <james.hilliard1@gmail.com>,
+        stable@vger.kernel.org,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Quinn Tran <qutran@marvell.com>,
+        Nilesh Javali <njavali@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 029/111] component: Silence bind error on -EPROBE_DEFER
+Subject: [PATCH 5.6 030/126] scsi: qla2xxx: Delete all sessions before unregister local nvme port
 Date:   Tue, 26 May 2020 20:52:47 +0200
-Message-Id: <20200526183935.555291617@linuxfoundation.org>
+Message-Id: <20200526183940.315220710@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183932.245016380@linuxfoundation.org>
-References: <20200526183932.245016380@linuxfoundation.org>
+In-Reply-To: <20200526183937.471379031@linuxfoundation.org>
+References: <20200526183937.471379031@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,51 +47,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Hilliard <james.hilliard1@gmail.com>
+From: Quinn Tran <qutran@marvell.com>
 
-[ Upstream commit 7706b0a76a9697021e2bf395f3f065c18f51043d ]
+[ Upstream commit c48f849d3f7a4ec1025105f446e29d395c4dcc2f ]
 
-If a component fails to bind due to -EPROBE_DEFER we should not log an
-error as this is not a real failure.
+Delete all sessions before unregistering local nvme port.  This allows nvme
+layer to decrement all active rport count down to zero.  Once the count is
+down to zero, nvme would call qla to continue with the npiv port deletion.
 
-Fixes messages like:
-vc4-drm soc:gpu: failed to bind 3f902000.hdmi (ops vc4_hdmi_ops): -517
-vc4-drm soc:gpu: master bind failed: -517
+PID: 27448  TASK: ffff9e34b777c1c0  CPU: 0   COMMAND: "qaucli"
+ 0 [ffff9e25e84abbd8] __schedule at ffffffff977858ca
+ 1 [ffff9e25e84abc68] schedule at ffffffff97785d79
+ 2 [ffff9e25e84abc78] schedule_timeout at ffffffff97783881
+ 3 [ffff9e25e84abd28] wait_for_completion at ffffffff9778612d
+ 4 [ffff9e25e84abd88] qla_nvme_delete at ffffffffc0e3024e [qla2xxx]
+ 5 [ffff9e25e84abda8] qla24xx_vport_delete at ffffffffc0e024b9 [qla2xxx]
+ 6 [ffff9e25e84abdf0] fc_vport_terminate at ffffffffc011c247 [scsi_transport_fc]
+ 7 [ffff9e25e84abe28] store_fc_host_vport_delete at ffffffffc011cd94 [scsi_transport_fc]
+ 8 [ffff9e25e84abe70] dev_attr_store at ffffffff974b376b
+ 9 [ffff9e25e84abe80] sysfs_kf_write at ffffffff972d9a92
+10 [ffff9e25e84abe90] kernfs_fop_write at ffffffff972d907b
+11 [ffff9e25e84abec8] vfs_write at ffffffff9724c790
+12 [ffff9e25e84abf08] sys_write at ffffffff9724d55f
+13 [ffff9e25e84abf50] system_call_fastpath at ffffffff97792ed2
+    RIP: 00007fc0bd81a6fd  RSP: 00007ffff78d9648  RFLAGS: 00010202
+    RAX: 0000000000000001  RBX: 0000000000000022  RCX: 00007ffff78d96e0
+    RDX: 0000000000000022  RSI: 00007ffff78d94e0  RDI: 0000000000000008
+    RBP: 00007ffff78d9440   R8: 0000000000000000   R9: 00007fc0bd48b2cd
+    R10: 0000000000000017  R11: 0000000000000293  R12: 0000000000000000
+    R13: 00005624e4dac840  R14: 00005624e4da9a10  R15: 0000000000000000
+    ORIG_RAX: 0000000000000001  CS: 0033  SS: 002b
 
-Signed-off-by: James Hilliard <james.hilliard1@gmail.com>
-Link: https://lore.kernel.org/r/20200411190241.89404-1-james.hilliard1@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20200331104015.24868-4-njavali@marvell.com
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Quinn Tran <qutran@marvell.com>
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/component.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/scsi/qla2xxx/qla_attr.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/base/component.c b/drivers/base/component.c
-index 1fdbd6ff2058..b9f20ada68b0 100644
---- a/drivers/base/component.c
-+++ b/drivers/base/component.c
-@@ -257,7 +257,8 @@ static int try_to_bring_up_master(struct master *master,
- 	ret = master->ops->bind(master->dev);
- 	if (ret < 0) {
- 		devres_release_group(master->dev, NULL);
--		dev_info(master->dev, "master bind failed: %d\n", ret);
-+		if (ret != -EPROBE_DEFER)
-+			dev_info(master->dev, "master bind failed: %d\n", ret);
- 		return ret;
- 	}
+diff --git a/drivers/scsi/qla2xxx/qla_attr.c b/drivers/scsi/qla2xxx/qla_attr.c
+index d7e7043f9eab..9556392652e3 100644
+--- a/drivers/scsi/qla2xxx/qla_attr.c
++++ b/drivers/scsi/qla2xxx/qla_attr.c
+@@ -2928,11 +2928,11 @@ qla24xx_vport_delete(struct fc_vport *fc_vport)
+ 	    test_bit(FCPORT_UPDATE_NEEDED, &vha->dpc_flags))
+ 		msleep(1000);
  
-@@ -611,8 +612,9 @@ static int component_bind(struct component *component, struct master *master,
- 		devres_release_group(component->dev, NULL);
- 		devres_release_group(master->dev, NULL);
+-	qla_nvme_delete(vha);
  
--		dev_err(master->dev, "failed to bind %s (ops %ps): %d\n",
--			dev_name(component->dev), component->ops, ret);
-+		if (ret != -EPROBE_DEFER)
-+			dev_err(master->dev, "failed to bind %s (ops %ps): %d\n",
-+				dev_name(component->dev), component->ops, ret);
- 	}
+ 	qla24xx_disable_vp(vha);
+ 	qla2x00_wait_for_sess_deletion(vha);
  
- 	return ret;
++	qla_nvme_delete(vha);
+ 	vha->flags.delete_progress = 1;
+ 
+ 	qlt_remove_target(ha, vha);
 -- 
 2.25.1
 
