@@ -2,43 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 76AED1E2C79
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:15:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 589FB1E2BF0
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:10:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404392AbgEZTPS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:15:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46738 "EHLO mail.kernel.org"
+        id S2391446AbgEZTK0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:10:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39608 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404393AbgEZTPO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:15:14 -0400
+        id S2391436AbgEZTKZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:10:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2826220776;
-        Tue, 26 May 2020 19:15:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 66ACF20776;
+        Tue, 26 May 2020 19:10:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590520513;
-        bh=7IACNEB+1M0tSKpRru+93NDuVZNrVl4F0ZbxYmbGCuc=;
+        s=default; t=1590520224;
+        bh=Oqu2yOvrwuOCvuThZiTy/2R+0TTTq6zMYRIblVN+r5c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=raaEr+J/QHz4yETjemd1r4Li+xQ3Irthp55VClsiZNjWrjsqM2z9EImdgePZE2Ydd
-         8hqXwqIzcz/eHPyr77kTp3QbAO/VqAeC1sZavjcKDt5wFLIEy5DsT9Vck9p2GltNVK
-         E4Jnk1iPOYhy/URvLGtwEspgargvuLKJl8k7p+eA=
+        b=bMJtdK6OnSJhL6XGWM3qVcTYesTGtfJyn+hEA98WbXYCtvPrLUldwCJZNu0uBDz8b
+         YKEMXpTSikwOot7B1z8V7nyv2lEZ9/ZPXJ2DZhllqtsqdTZQxGvCNt8Bo2m354dCB5
+         Wb5+avbQvrF+HqdVHvdhqP8m0tk7rTRtUWuduAM0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Hildenbrand <david@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Vishal Verma <vishal.l.verma@intel.com>,
-        Dave Jiang <dave.jiang@intel.com>,
-        Pavel Tatashin <pasha.tatashin@soleen.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.6 107/126] device-dax: dont leak kernel memory to user space after unloading kmem
+        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 106/111] rxrpc: Trace discarded ACKs
 Date:   Tue, 26 May 2020 20:54:04 +0200
-Message-Id: <20200526183946.613425167@linuxfoundation.org>
+Message-Id: <20200526183942.943064661@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183937.471379031@linuxfoundation.org>
-References: <20200526183937.471379031@linuxfoundation.org>
+In-Reply-To: <20200526183932.245016380@linuxfoundation.org>
+References: <20200526183932.245016380@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,126 +43,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Hildenbrand <david@redhat.com>
+From: David Howells <dhowells@redhat.com>
 
-commit 60858c00e5f018eda711a3aa84cf62214ef62d61 upstream.
+[ Upstream commit d1f129470e6cb79b8b97fecd12689f6eb49e27fe ]
 
-Assume we have kmem configured and loaded:
+Add a tracepoint to track received ACKs that are discarded due to being
+outside of the Tx window.
 
-  [root@localhost ~]# cat /proc/iomem
-  ...
-  140000000-33fffffff : Persistent Memory$
-    140000000-1481fffff : namespace0.0
-    150000000-33fffffff : dax0.0
-      150000000-33fffffff : System RAM
-
-Assume we try to unload kmem. This force-unloading will work, even if
-memory cannot get removed from the system.
-
-  [root@localhost ~]# rmmod kmem
-  [   86.380228] removing memory fails, because memory [0x0000000150000000-0x0000000157ffffff] is onlined
-  ...
-  [   86.431225] kmem dax0.0: DAX region [mem 0x150000000-0x33fffffff] cannot be hotremoved until the next reboot
-
-Now, we can reconfigure the namespace:
-
-  [root@localhost ~]# ndctl create-namespace --force --reconfig=namespace0.0 --mode=devdax
-  [  131.409351] nd_pmem namespace0.0: could not reserve region [mem 0x140000000-0x33fffffff]dax
-  [  131.410147] nd_pmem: probe of namespace0.0 failed with error -16namespace0.0 --mode=devdax
-  ...
-
-This fails as expected due to the busy memory resource, and the memory
-cannot be used.  However, the dax0.0 device is removed, and along its
-name.
-
-The name of the memory resource now points at freed memory (name of the
-device):
-
-  [root@localhost ~]# cat /proc/iomem
-  ...
-  140000000-33fffffff : Persistent Memory
-    140000000-1481fffff : namespace0.0
-    150000000-33fffffff : �_�^7_��/_��wR��WQ���^��� ...
-    150000000-33fffffff : System RAM
-
-We have to make sure to duplicate the string.  While at it, remove the
-superfluous setting of the name and fixup a stale comment.
-
-Fixes: 9f960da72b25 ("device-dax: "Hotremove" persistent memory that is used like normal RAM")
-Signed-off-by: David Hildenbrand <david@redhat.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Vishal Verma <vishal.l.verma@intel.com>
-Cc: Dave Jiang <dave.jiang@intel.com>
-Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: <stable@vger.kernel.org>	[5.3]
-Link: http://lkml.kernel.org/r/20200508084217.9160-2-david@redhat.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: David Howells <dhowells@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dax/kmem.c |   14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ include/trace/events/rxrpc.h | 35 +++++++++++++++++++++++++++++++++++
+ net/rxrpc/input.c            | 12 ++++++++++--
+ 2 files changed, 45 insertions(+), 2 deletions(-)
 
---- a/drivers/dax/kmem.c
-+++ b/drivers/dax/kmem.c
-@@ -22,6 +22,7 @@ int dev_dax_kmem_probe(struct device *de
- 	resource_size_t kmem_size;
- 	resource_size_t kmem_end;
- 	struct resource *new_res;
-+	const char *new_res_name;
- 	int numa_node;
- 	int rc;
+diff --git a/include/trace/events/rxrpc.h b/include/trace/events/rxrpc.h
+index ab75f261f04a..ba9efdc848f9 100644
+--- a/include/trace/events/rxrpc.h
++++ b/include/trace/events/rxrpc.h
+@@ -1541,6 +1541,41 @@ TRACE_EVENT(rxrpc_notify_socket,
+ 		      __entry->serial)
+ 	    );
  
-@@ -48,11 +49,16 @@ int dev_dax_kmem_probe(struct device *de
- 	kmem_size &= ~(memory_block_size_bytes() - 1);
- 	kmem_end = kmem_start + kmem_size;
- 
--	/* Region is permanently reserved.  Hot-remove not yet implemented. */
--	new_res = request_mem_region(kmem_start, kmem_size, dev_name(dev));
-+	new_res_name = kstrdup(dev_name(dev), GFP_KERNEL);
-+	if (!new_res_name)
-+		return -ENOMEM;
++TRACE_EVENT(rxrpc_rx_discard_ack,
++	    TP_PROTO(unsigned int debug_id, rxrpc_serial_t serial,
++		     rxrpc_seq_t first_soft_ack, rxrpc_seq_t call_ackr_first,
++		     rxrpc_seq_t prev_pkt, rxrpc_seq_t call_ackr_prev),
 +
-+	/* Region is permanently reserved if hotremove fails. */
-+	new_res = request_mem_region(kmem_start, kmem_size, new_res_name);
- 	if (!new_res) {
- 		dev_warn(dev, "could not reserve region [%pa-%pa]\n",
- 			 &kmem_start, &kmem_end);
-+		kfree(new_res_name);
- 		return -EBUSY;
- 	}
++	    TP_ARGS(debug_id, serial, first_soft_ack, call_ackr_first,
++		    prev_pkt, call_ackr_prev),
++
++	    TP_STRUCT__entry(
++		    __field(unsigned int,	debug_id	)
++		    __field(rxrpc_serial_t,	serial		)
++		    __field(rxrpc_seq_t,	first_soft_ack)
++		    __field(rxrpc_seq_t,	call_ackr_first)
++		    __field(rxrpc_seq_t,	prev_pkt)
++		    __field(rxrpc_seq_t,	call_ackr_prev)
++			     ),
++
++	    TP_fast_assign(
++		    __entry->debug_id		= debug_id;
++		    __entry->serial		= serial;
++		    __entry->first_soft_ack	= first_soft_ack;
++		    __entry->call_ackr_first	= call_ackr_first;
++		    __entry->prev_pkt		= prev_pkt;
++		    __entry->call_ackr_prev	= call_ackr_prev;
++			   ),
++
++	    TP_printk("c=%08x r=%08x %08x<%08x %08x<%08x",
++		      __entry->debug_id,
++		      __entry->serial,
++		      __entry->first_soft_ack,
++		      __entry->call_ackr_first,
++		      __entry->prev_pkt,
++		      __entry->call_ackr_prev)
++	    );
++
+ #endif /* _TRACE_RXRPC_H */
  
-@@ -63,12 +69,12 @@ int dev_dax_kmem_probe(struct device *de
- 	 * unknown to us that will break add_memory() below.
- 	 */
- 	new_res->flags = IORESOURCE_SYSTEM_RAM;
--	new_res->name = dev_name(dev);
+ /* This part must be outside protection */
+diff --git a/net/rxrpc/input.c b/net/rxrpc/input.c
+index e438bfd3fdf5..2f22f082a66c 100644
+--- a/net/rxrpc/input.c
++++ b/net/rxrpc/input.c
+@@ -866,8 +866,12 @@ static void rxrpc_input_ack(struct rxrpc_call *call, struct sk_buff *skb)
  
- 	rc = add_memory(numa_node, new_res->start, resource_size(new_res));
- 	if (rc) {
- 		release_resource(new_res);
- 		kfree(new_res);
-+		kfree(new_res_name);
- 		return rc;
- 	}
- 	dev_dax->dax_kmem_res = new_res;
-@@ -83,6 +89,7 @@ static int dev_dax_kmem_remove(struct de
- 	struct resource *res = dev_dax->dax_kmem_res;
- 	resource_size_t kmem_start = res->start;
- 	resource_size_t kmem_size = resource_size(res);
-+	const char *res_name = res->name;
- 	int rc;
+ 	/* Discard any out-of-order or duplicate ACKs (outside lock). */
+ 	if (before(first_soft_ack, call->ackr_first_seq) ||
+-	    before(prev_pkt, call->ackr_prev_seq))
++	    before(prev_pkt, call->ackr_prev_seq)) {
++		trace_rxrpc_rx_discard_ack(call->debug_id, sp->hdr.serial,
++					   first_soft_ack, call->ackr_first_seq,
++					   prev_pkt, call->ackr_prev_seq);
+ 		return;
++	}
  
- 	/*
-@@ -102,6 +109,7 @@ static int dev_dax_kmem_remove(struct de
- 	/* Release and free dax resources */
- 	release_resource(res);
- 	kfree(res);
-+	kfree(res_name);
- 	dev_dax->dax_kmem_res = NULL;
+ 	buf.info.rxMTU = 0;
+ 	ioffset = offset + nr_acks + 3;
+@@ -879,8 +883,12 @@ static void rxrpc_input_ack(struct rxrpc_call *call, struct sk_buff *skb)
  
- 	return 0;
+ 	/* Discard any out-of-order or duplicate ACKs (inside lock). */
+ 	if (before(first_soft_ack, call->ackr_first_seq) ||
+-	    before(prev_pkt, call->ackr_prev_seq))
++	    before(prev_pkt, call->ackr_prev_seq)) {
++		trace_rxrpc_rx_discard_ack(call->debug_id, sp->hdr.serial,
++					   first_soft_ack, call->ackr_first_seq,
++					   prev_pkt, call->ackr_prev_seq);
+ 		goto out;
++	}
+ 	call->acks_latest_ts = skb->tstamp;
+ 
+ 	call->ackr_first_seq = first_soft_ack;
+-- 
+2.25.1
+
 
 
