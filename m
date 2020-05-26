@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E3D6F1E2D61
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:24:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE50D1E2B73
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:05:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391863AbgEZTJ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:09:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38556 "EHLO mail.kernel.org"
+        id S2391475AbgEZTFO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:05:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33118 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391862AbgEZTJZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:09:25 -0400
+        id S2391473AbgEZTFN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:05:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 59102208A7;
-        Tue, 26 May 2020 19:09:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AE14A20849;
+        Tue, 26 May 2020 19:05:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590520164;
-        bh=GhCaJpooWSavZpBdhK6aphQyLv9d4skXugYJfXJu21A=;
+        s=default; t=1590519913;
+        bh=Ll3i88I6dH+M1vcXVswOh7ONTIPk/HSwLa9ixcVzbH0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tVBsWBxnQAfguqmq4rvtVKEF4LhCWddSWuo4dQRdh7fVUJI3xeilj5+FxT4I2IBt4
-         YVahPmvFodLA4ZiT5Vf4LzA5035HcC6RuhBmzgcW1h2bF50fxylJ9QXOKFC9PyJLl0
-         4BYSQgR+/YRsUtcakIYsRMkQUfpITnemZv/f3ei0=
+        b=JCCN8qb8zBMhDwJ8vdO6wjtSgiqwkkqykP/f5FsXz21c4z+M5P0yETJm4EC+435xY
+         +kbBneKf0hInsU2ANCEi6533WU2zm+9dUfoK3KnamjP2SyljGssKpiqs5NgBV/fYtK
+         1IHrzdBxxeZ0ixFEAo7QXDan+0jxJwZNTDcG9hrc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oscar Carter <oscar.carter@gmx.com>
-Subject: [PATCH 5.4 084/111] staging: greybus: Fix uninitialized scalar variable
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 4.19 67/81] iio: sca3000: Remove an erroneous get_device()
 Date:   Tue, 26 May 2020 20:53:42 +0200
-Message-Id: <20200526183940.881819668@linuxfoundation.org>
+Message-Id: <20200526183934.481786762@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183932.245016380@linuxfoundation.org>
-References: <20200526183932.245016380@linuxfoundation.org>
+In-Reply-To: <20200526183923.108515292@linuxfoundation.org>
+References: <20200526183923.108515292@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,42 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oscar Carter <oscar.carter@gmx.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-commit 34625c1931f8204c234c532b446b9f53c69f4b68 upstream.
+commit 928edefbc18cd8433f7df235c6e09a9306e7d580 upstream.
 
-In the "gb_tty_set_termios" function the "newline" variable is declared
-but not initialized. So the "flow_control" member is not initialized and
-the OR / AND operations with itself results in an undefined value in
-this member.
+This looks really unusual to have a 'get_device()' hidden in a 'dev_err()'
+call.
+Remove it.
 
-The purpose of the code is to set the flow control type, so remove the
-OR / AND self operator and set the value directly.
+While at it add a missing \n at the end of the message.
 
-Addresses-Coverity-ID: 1374016 ("Uninitialized scalar variable")
-Fixes: e55c25206d5c9 ("greybus: uart: Handle CRTSCTS flag in termios")
-Signed-off-by: Oscar Carter <oscar.carter@gmx.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200510101426.23631-1-oscar.carter@gmx.com
+Fixes: 574fb258d636 ("Staging: IIO: VTI sca3000 series accelerometer driver (spi)")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/greybus/uart.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/iio/accel/sca3000.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/staging/greybus/uart.c
-+++ b/drivers/staging/greybus/uart.c
-@@ -537,9 +537,9 @@ static void gb_tty_set_termios(struct tt
+--- a/drivers/iio/accel/sca3000.c
++++ b/drivers/iio/accel/sca3000.c
+@@ -982,7 +982,7 @@ static int sca3000_read_data(struct sca3
+ 	st->tx[0] = SCA3000_READ_REG(reg_address_high);
+ 	ret = spi_sync_transfer(st->us, xfer, ARRAY_SIZE(xfer));
+ 	if (ret) {
+-		dev_err(get_device(&st->us->dev), "problem reading register");
++		dev_err(&st->us->dev, "problem reading register\n");
+ 		return ret;
  	}
  
- 	if (C_CRTSCTS(tty) && C_BAUD(tty) != B0)
--		newline.flow_control |= GB_SERIAL_AUTO_RTSCTS_EN;
-+		newline.flow_control = GB_SERIAL_AUTO_RTSCTS_EN;
- 	else
--		newline.flow_control &= ~GB_SERIAL_AUTO_RTSCTS_EN;
-+		newline.flow_control = 0;
- 
- 	if (memcmp(&gb_tty->line_coding, &newline, sizeof(newline))) {
- 		memcpy(&gb_tty->line_coding, &newline, sizeof(newline));
 
 
