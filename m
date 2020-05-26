@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EDA131E2DE1
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:25:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D92841E2B6B
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:05:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391686AbgEZTHA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:07:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35516 "EHLO mail.kernel.org"
+        id S2390537AbgEZTE6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:04:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60946 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389901AbgEZTG7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:06:59 -0400
+        id S2391440AbgEZTE6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:04:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8A9C2208B3;
-        Tue, 26 May 2020 19:06:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7AE7920776;
+        Tue, 26 May 2020 19:04:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590520019;
-        bh=4VPdxXWjr16mx7dly3zIokwM4xa2s8mgnV64LSzfatA=;
+        s=default; t=1590519897;
+        bh=fQ0DWWGOqMI2LHCgElUKESIoUuz8FVVSSn09zsHcakU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=okNSGQKFxtfTd/7RoLv8Oc16G6PVNdKMNDCWbwCokQc6ZCxB9zHYxA6Pm1jrYW07O
-         gGSvJRazMQCJ0vj0all4ucGPGPVOM/WMQgVsIEiRZxORSVGLkZM0/qaYh48Kr84SuC
-         VLwKXIx5RrlpFCB+h4p0zDYeOlDBVFW1Fn7QQkzY=
+        b=zby7Ct47lAZWYr028qjFEEMk+rLy4ADnOrxl7xZNTf2Byg1k/lgUOWfZc8AWEIofi
+         P+65YofK2Ls5fUpE+FVKZLvFvpFocPmRvbd0hunt8d8PaxlNaGKPq4cYLs2bEDZIwU
+         7X4v6X1F8QrH0yT5UCvKA08Ticts9tERDJkupeoM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
-        Xin Tan <tanxin.ctf@gmail.com>, Christoph Hellwig <hch@lst.de>,
+        stable@vger.kernel.org, Miquel Raynal <miquel.raynal@bootlin.com>,
+        Boris Brezillon <boris.brezillon@collabora.com>,
+        Richard Weinberger <richard@nod.at>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 026/111] configfs: fix config_item refcnt leak in configfs_rmdir()
+Subject: [PATCH 4.19 09/81] mtd: spinand: Propagate ECC information to the MTD structure
 Date:   Tue, 26 May 2020 20:52:44 +0200
-Message-Id: <20200526183935.217763918@linuxfoundation.org>
+Message-Id: <20200526183926.164686852@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183932.245016380@linuxfoundation.org>
-References: <20200526183932.245016380@linuxfoundation.org>
+In-Reply-To: <20200526183923.108515292@linuxfoundation.org>
+References: <20200526183923.108515292@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,45 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+From: Miquel Raynal <miquel.raynal@bootlin.com>
 
-[ Upstream commit 8aebfffacfa379ba400da573a5bf9e49634e38cb ]
+[ Upstream commit 3507273d5a4d3c2e46f9d3f9ed9449805f5dff07 ]
 
-configfs_rmdir() invokes configfs_get_config_item(), which returns a
-reference of the specified config_item object to "parent_item" with
-increased refcnt.
+This is done by default in the raw NAND core (nand_base.c) but was
+missing in the SPI-NAND core. Without these two lines the ecc_strength
+and ecc_step_size values are not exported to the user through sysfs.
 
-When configfs_rmdir() returns, local variable "parent_item" becomes
-invalid, so the refcount should be decreased to keep refcount balanced.
-
-The reference counting issue happens in one exception handling path of
-configfs_rmdir(). When down_write_killable() fails, the function forgets
-to decrease the refcnt increased by configfs_get_config_item(), causing
-a refcnt leak.
-
-Fix this issue by calling config_item_put() when down_write_killable()
-fails.
-
-Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
-Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Fixes: 7529df465248 ("mtd: nand: Add core infrastructure to support SPI NANDs")
+Cc: stable@vger.kernel.org
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/configfs/dir.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/mtd/nand/spi/core.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/fs/configfs/dir.c b/fs/configfs/dir.c
-index cf7b7e1d5bd7..cb733652ecca 100644
---- a/fs/configfs/dir.c
-+++ b/fs/configfs/dir.c
-@@ -1519,6 +1519,7 @@ static int configfs_rmdir(struct inode *dir, struct dentry *dentry)
- 		spin_lock(&configfs_dirent_lock);
- 		configfs_detach_rollback(dentry);
- 		spin_unlock(&configfs_dirent_lock);
-+		config_item_put(parent_item);
- 		return -EINTR;
- 	}
- 	frag->frag_dead = true;
+diff --git a/drivers/mtd/nand/spi/core.c b/drivers/mtd/nand/spi/core.c
+index a2f38b3b9776..1d61ae7aaa66 100644
+--- a/drivers/mtd/nand/spi/core.c
++++ b/drivers/mtd/nand/spi/core.c
+@@ -1045,6 +1045,10 @@ static int spinand_init(struct spinand_device *spinand)
+ 
+ 	mtd->oobavail = ret;
+ 
++	/* Propagate ECC information to mtd_info */
++	mtd->ecc_strength = nand->eccreq.strength;
++	mtd->ecc_step_size = nand->eccreq.step_size;
++
+ 	return 0;
+ 
+ err_cleanup_nanddev:
 -- 
 2.25.1
 
