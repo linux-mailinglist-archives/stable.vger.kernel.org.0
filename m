@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 88A821E2D5C
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:24:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D70E61E2CC2
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:17:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390418AbgEZTIy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:08:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37902 "EHLO mail.kernel.org"
+        id S2404133AbgEZTOQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:14:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44988 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388975AbgEZTIv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:08:51 -0400
+        id S2404338AbgEZTOP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:14:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 56B6120873;
-        Tue, 26 May 2020 19:08:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AE297208B6;
+        Tue, 26 May 2020 19:14:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590520130;
-        bh=sEoCjZlqKfa6vt6v2CMQeBLb5LvhqTwVsJNGIM7aBLU=;
+        s=default; t=1590520455;
+        bh=hFig9hmtta8baLq9l4NUzE2/ChNeohb5Mi97YN1hjHw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KGFtiPuTbfOuBTTuHBWYOSe93b9A40cJkSqctmCMLOZ9fcbDZSKpPOZdFXbNvtKka
-         bmsqKsuSyzMXG2MnUMUBr1yaQkst59+OsMDGK6cgyeY1jtsgID/vjK/EVMsABK5Jdm
-         GCUcr5CV0vV5nPuwGZluW1fSZ7kM/PdXe7ueCOwA=
+        b=XIOXt7c95bmHbZ8819qMrR1361QYOLMjsZXHYEFDS9j/CDtnA+tOydgptCYLBn3mJ
+         a10XEk4VeD5qU05O6nz/SW8yWaHuZuKsyzIPntXQrgPLvfjYpX4XsM7vEbabyu0/wX
+         jwB78Ca+lQZHAYjP9zALYlVfKTUkv+rDMoWXV6ps=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
-        Xin Tan <tanxin.ctf@gmail.com>,
-        John Johansen <john.johansen@canonical.com>
-Subject: [PATCH 5.4 068/111] apparmor: Fix aa_label refcnt leak in policy_update
+        stable@vger.kernel.org, "Bryant G. Ly" <bryangly@gmail.com>,
+        Bart van Assche <bvanassche@acm.org>,
+        Bodo Stroesser <bstroesser@ts.fujitsu.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.6 069/126] scsi: target: Put lun_ref at end of tmr processing
 Date:   Tue, 26 May 2020 20:53:26 +0200
-Message-Id: <20200526183939.294250474@linuxfoundation.org>
+Message-Id: <20200526183943.975359174@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183932.245016380@linuxfoundation.org>
-References: <20200526183932.245016380@linuxfoundation.org>
+In-Reply-To: <20200526183937.471379031@linuxfoundation.org>
+References: <20200526183937.471379031@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,53 +45,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+From: Bodo Stroesser <bstroesser@ts.fujitsu.com>
 
-commit c6b39f070722ea9963ffe756bfe94e89218c5e63 upstream.
+commit f2e6b75f6ee82308ef7b00f29e71e5f1c6b3d52a upstream.
 
-policy_update() invokes begin_current_label_crit_section(), which
-returns a reference of the updated aa_label object to "label" with
-increased refcount.
+Testing with Loopback I found that, after a Loopback LUN has executed a
+TMR, I can no longer unlink the LUN.  The rm command hangs in
+transport_clear_lun_ref() at wait_for_completion(&lun->lun_shutdown_comp)
+The reason is, that transport_lun_remove_cmd() is not called at the end of
+target_tmr_work().
 
-When policy_update() returns, "label" becomes invalid, so the refcount
-should be decreased to keep refcount balanced.
+It seems, that in other fabrics this call happens implicitly when the
+fabric drivers call transport_generic_free_cmd() during their
+->queue_tm_rsp().
 
-The reference counting issue happens in one exception handling path of
-policy_update(). When aa_may_manage_policy() returns not NULL, the
-refcnt increased by begin_current_label_crit_section() is not decreased,
-causing a refcnt leak.
+Unfortunately Loopback seems to not comply to the common way
+of calling transport_generic_free_cmd() from ->queue_*().
+Instead it calls transport_generic_free_cmd() from its
+  ->check_stop_free() only.
 
-Fix this issue by jumping to "end_section" label when
-aa_may_manage_policy() returns not NULL.
+But the ->check_stop_free() is called by
+transport_cmd_check_stop_to_fabric() after it has reset the se_cmd->se_lun
+pointer.  Therefore the following transport_generic_free_cmd() skips the
+transport_lun_remove_cmd().
 
-Fixes: 5ac8c355ae00 ("apparmor: allow introspecting the loaded policy pre internal transform")
-Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
-Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
-Signed-off-by: John Johansen <john.johansen@canonical.com>
+So this patch re-adds the transport_lun_remove_cmd() at the end of
+target_tmr_work(), which was removed during commit 2c9fa49e100f ("scsi:
+target/core: Make ABORT and LUN RESET handling synchronous").
+
+For fabrics using transport_generic_free_cmd() in the usual way the double
+call to transport_lun_remove_cmd() doesn't harm, as
+transport_lun_remove_cmd() checks for this situation and does not release
+lun_ref twice.
+
+Link: https://lore.kernel.org/r/20200513153443.3554-1-bstroesser@ts.fujitsu.com
+Fixes: 2c9fa49e100f ("scsi: target/core: Make ABORT and LUN RESET handling synchronous")
+Cc: stable@vger.kernel.org
+Tested-by: Bryant G. Ly <bryangly@gmail.com>
+Reviewed-by: Bart van Assche <bvanassche@acm.org>
+Signed-off-by: Bodo Stroesser <bstroesser@ts.fujitsu.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- security/apparmor/apparmorfs.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/target/target_core_transport.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/security/apparmor/apparmorfs.c
-+++ b/security/apparmor/apparmorfs.c
-@@ -424,7 +424,7 @@ static ssize_t policy_update(u32 mask, c
- 	 */
- 	error = aa_may_manage_policy(label, ns, mask);
- 	if (error)
--		return error;
-+		goto end_section;
+--- a/drivers/target/target_core_transport.c
++++ b/drivers/target/target_core_transport.c
+@@ -3349,6 +3349,7 @@ static void target_tmr_work(struct work_
  
- 	data = aa_simple_write_to_buffer(buf, size, size, pos);
- 	error = PTR_ERR(data);
-@@ -432,6 +432,7 @@ static ssize_t policy_update(u32 mask, c
- 		error = aa_replace_profiles(ns, label, mask, data);
- 		aa_put_loaddata(data);
- 	}
-+end_section:
- 	end_current_label_crit_section(label);
+ 	cmd->se_tfo->queue_tm_rsp(cmd);
  
- 	return error;
++	transport_lun_remove_cmd(cmd);
+ 	transport_cmd_check_stop_to_fabric(cmd);
+ 	return;
+ 
 
 
