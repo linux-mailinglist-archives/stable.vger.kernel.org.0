@@ -2,40 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A8B91E2AA6
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 20:58:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B06A1E2A65
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 20:57:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390181AbgEZS5s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 14:57:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51076 "EHLO mail.kernel.org"
+        id S2389536AbgEZSzc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 14:55:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47922 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390178AbgEZS5r (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 14:57:47 -0400
+        id S2389529AbgEZSzb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 14:55:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A96B7208B6;
-        Tue, 26 May 2020 18:57:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C04432084C;
+        Tue, 26 May 2020 18:55:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590519467;
-        bh=xVPAJUL4QixcC19EI5mfeY1zN8jTKfRe8D0KerT+vcI=;
+        s=default; t=1590519330;
+        bh=3pSeskTFjO+0bbdeOLUtWgslWTMrbRVNNNRWN0jVovo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M56idmHYalBkOAsrFH0Po9EaRe1recr3EihJhg+L/AP0dMcdHRRupvMGx1CIZuA+5
-         PGVo4aNiPbRl1Jw93s00AM9phe2S4j8hwjO/xC0fLUZHVB8xXSJjUR4JQ4Rv5xdKAg
-         xAsgpzk0SfgRTmZ8oFHZgyf5de1JBPpj04TyuKJc=
+        b=FwSM5xgpTUImhI4viHXgNCFGTSCyRiRyt4bhB/lwx2XFM6nm+lDVPjHCVTCGxFP8U
+         Dlkz9KGryf8lumpl8KMTz9xyUSbn3YO9o8sMXpdDTCjp9L4HbSO2DE/jjtR4OQxJul
+         3r6eqPWe4Be9xKcI4aohSk5IeaVF7DnGfvgAHq5w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Yoshiyuki Kurauchi <ahochauwaaaaa@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Lauro Ramos Venancio <lvenanci@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Mike Galbraith <efault@gmx.de>, Rik van Riel <riel@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>, lwang@redhat.com,
+        Ingo Molnar <mingo@kernel.org>,
+        Daniel Jordan <daniel.m.jordan@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 15/64] gtp: set NLM_F_MULTI flag in gtp_genl_dump_pdp()
-Date:   Tue, 26 May 2020 20:52:44 +0200
-Message-Id: <20200526183918.407241731@linuxfoundation.org>
+Subject: [PATCH 4.4 26/65] sched/fair, cpumask: Export for_each_cpu_wrap()
+Date:   Tue, 26 May 2020 20:52:45 +0200
+Message-Id: <20200526183915.976645661@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183913.064413230@linuxfoundation.org>
-References: <20200526183913.064413230@linuxfoundation.org>
+In-Reply-To: <20200526183905.988782958@linuxfoundation.org>
+References: <20200526183905.988782958@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,59 +50,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yoshiyuki Kurauchi <ahochauwaaaaa@gmail.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit 846c68f7f1ac82c797a2f1db3344a2966c0fe2e1 ]
+[ Upstream commit c743f0a5c50f2fcbc628526279cfa24f3dabe182 ]
 
-In drivers/net/gtp.c, gtp_genl_dump_pdp() should set NLM_F_MULTI
-flag since it returns multipart message.
-This patch adds a new arg "flags" in gtp_genl_fill_info() so that
-flags can be set by the callers.
+More users for for_each_cpu_wrap() have appeared. Promote the construct
+to generic cpumask interface.
 
-Signed-off-by: Yoshiyuki Kurauchi <ahochauwaaaaa@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+The implementation is slightly modified to reduce arguments.
+
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Lauro Ramos Venancio <lvenanci@redhat.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Mike Galbraith <efault@gmx.de>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Rik van Riel <riel@redhat.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: lwang@redhat.com
+Link: http://lkml.kernel.org/r/20170414122005.o35me2h5nowqkxbv@hirez.programming.kicks-ass.net
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+[dj: include only what's added to the cpumask interface, 4.4 doesn't
+     have them in the scheduler]
+Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/gtp.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ include/linux/cpumask.h | 17 +++++++++++++++++
+ lib/cpumask.c           | 32 ++++++++++++++++++++++++++++++++
+ 2 files changed, 49 insertions(+)
 
-diff --git a/drivers/net/gtp.c b/drivers/net/gtp.c
-index a9e8a7356c41..fe844888e0ed 100644
---- a/drivers/net/gtp.c
-+++ b/drivers/net/gtp.c
-@@ -1108,11 +1108,11 @@ static struct genl_family gtp_genl_family = {
- };
+diff --git a/include/linux/cpumask.h b/include/linux/cpumask.h
+index bb3a4bb35183..1322883e7b46 100644
+--- a/include/linux/cpumask.h
++++ b/include/linux/cpumask.h
+@@ -232,6 +232,23 @@ unsigned int cpumask_local_spread(unsigned int i, int node);
+ 		(cpu) = cpumask_next_zero((cpu), (mask)),	\
+ 		(cpu) < nr_cpu_ids;)
  
- static int gtp_genl_fill_info(struct sk_buff *skb, u32 snd_portid, u32 snd_seq,
--			      u32 type, struct pdp_ctx *pctx)
-+			      int flags, u32 type, struct pdp_ctx *pctx)
- {
- 	void *genlh;
++extern int cpumask_next_wrap(int n, const struct cpumask *mask, int start, bool wrap);
++
++/**
++ * for_each_cpu_wrap - iterate over every cpu in a mask, starting at a specified location
++ * @cpu: the (optionally unsigned) integer iterator
++ * @mask: the cpumask poiter
++ * @start: the start location
++ *
++ * The implementation does not assume any bit in @mask is set (including @start).
++ *
++ * After the loop, cpu is >= nr_cpu_ids.
++ */
++#define for_each_cpu_wrap(cpu, mask, start)					\
++	for ((cpu) = cpumask_next_wrap((start)-1, (mask), (start), false);	\
++	     (cpu) < nr_cpumask_bits;						\
++	     (cpu) = cpumask_next_wrap((cpu), (mask), (start), true))
++
+ /**
+  * for_each_cpu_and - iterate over every cpu in both masks
+  * @cpu: the (optionally unsigned) integer iterator
+diff --git a/lib/cpumask.c b/lib/cpumask.c
+index 5a70f6196f57..24f06e7abf92 100644
+--- a/lib/cpumask.c
++++ b/lib/cpumask.c
+@@ -42,6 +42,38 @@ int cpumask_any_but(const struct cpumask *mask, unsigned int cpu)
+ 	return i;
+ }
  
--	genlh = genlmsg_put(skb, snd_portid, snd_seq, &gtp_genl_family, 0,
-+	genlh = genlmsg_put(skb, snd_portid, snd_seq, &gtp_genl_family, flags,
- 			    type);
- 	if (genlh == NULL)
- 		goto nlmsg_failure;
-@@ -1208,8 +1208,8 @@ static int gtp_genl_get_pdp(struct sk_buff *skb, struct genl_info *info)
- 		goto err_unlock;
- 	}
- 
--	err = gtp_genl_fill_info(skb2, NETLINK_CB(skb).portid,
--				 info->snd_seq, info->nlhdr->nlmsg_type, pctx);
-+	err = gtp_genl_fill_info(skb2, NETLINK_CB(skb).portid, info->snd_seq,
-+				 0, info->nlhdr->nlmsg_type, pctx);
- 	if (err < 0)
- 		goto err_unlock_free;
- 
-@@ -1252,6 +1252,7 @@ static int gtp_genl_dump_pdp(struct sk_buff *skb,
- 				    gtp_genl_fill_info(skb,
- 					    NETLINK_CB(cb->skb).portid,
- 					    cb->nlh->nlmsg_seq,
-+					    NLM_F_MULTI,
- 					    cb->nlh->nlmsg_type, pctx)) {
- 					cb->args[0] = i;
- 					cb->args[1] = j;
++/**
++ * cpumask_next_wrap - helper to implement for_each_cpu_wrap
++ * @n: the cpu prior to the place to search
++ * @mask: the cpumask pointer
++ * @start: the start point of the iteration
++ * @wrap: assume @n crossing @start terminates the iteration
++ *
++ * Returns >= nr_cpu_ids on completion
++ *
++ * Note: the @wrap argument is required for the start condition when
++ * we cannot assume @start is set in @mask.
++ */
++int cpumask_next_wrap(int n, const struct cpumask *mask, int start, bool wrap)
++{
++	int next;
++
++again:
++	next = cpumask_next(n, mask);
++
++	if (wrap && n < start && next >= start) {
++		return nr_cpumask_bits;
++
++	} else if (next >= nr_cpumask_bits) {
++		wrap = true;
++		n = -1;
++		goto again;
++	}
++
++	return next;
++}
++EXPORT_SYMBOL(cpumask_next_wrap);
++
+ /* These are not inline because of header tangles. */
+ #ifdef CONFIG_CPUMASK_OFFSTACK
+ /**
 -- 
 2.25.1
 
