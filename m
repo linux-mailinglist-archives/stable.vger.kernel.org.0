@@ -2,172 +2,169 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B82D1E2735
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 18:38:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E37491E2899
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 19:24:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726930AbgEZQiR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 12:38:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38528 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728339AbgEZQiR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 May 2020 12:38:17 -0400
-Received: from mail-pg1-x544.google.com (mail-pg1-x544.google.com [IPv6:2607:f8b0:4864:20::544])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F19E6C03E96E
-        for <stable@vger.kernel.org>; Tue, 26 May 2020 09:38:16 -0700 (PDT)
-Received: by mail-pg1-x544.google.com with SMTP id p30so10292770pgl.11
-        for <stable@vger.kernel.org>; Tue, 26 May 2020 09:38:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=Bhl2UOIY4OsE6svto3/aMcCQxQAAGmGUt7Z/dDdHwgQ=;
-        b=k8W8Gk5W79jL71x4Db6tC32LoN6tLeF2cWKPofBk6MQZHqZ+DVReHkEgXOdpD8U1+E
-         QishTLwEIZx4P48VIYZGEyBLnP0yv5X4BHP6VUSrP4q/ehBudtDacM2/DZiC7ZTU2F53
-         XkHk5ce+t2gaqjUfdUy1GC1bxmKV2jKmlRhiE=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=Bhl2UOIY4OsE6svto3/aMcCQxQAAGmGUt7Z/dDdHwgQ=;
-        b=IJlyphm88pdwEmLCdqkemJ8uO2JY9qIsZWY1UQrSRsUAWkCsXXZODZ3PjfXFMvvJfQ
-         jRoUaP7y4neX42m8ZDtmtnxRD4DBMeg9QtJIGQknesznlX3rfT8SVAqNuP7OvlYvcd2t
-         mn3CUQQPw7HTviL0+cuj/AX1dDbLZb/3bY1SZqzl+cJAwI6MEmiGHE3wYbrKXOrILia3
-         6MDR6TuxWjC1L40kQ5+wh64+5wS81EAm/23nefdpBHi6OPCtQbxjf2QXWM3yx/Ll6yYq
-         i2rPqT+8VMQjGUhwqjHKBocjNKtE6HAwrDmitGw9fYbmaPGnlQ2WdM8J6UZZT7VsaCfU
-         qgfw==
-X-Gm-Message-State: AOAM5302WZxOLu2OV2LSSL+JCQAoukdvfY/ZfFQLY8Anrcl+QQEJahvD
-        SRMa1QUTnMDS7f6+fnVgokuXKg==
-X-Google-Smtp-Source: ABdhPJySu98Q8YTkcdzj0kW5rhz9kbIzAe19Hvm2Y7yxT0uL5KHG5sOgIN5LUU2lavt8W2YvXm+n4w==
-X-Received: by 2002:a63:f703:: with SMTP id x3mr1867522pgh.11.1590511096425;
-        Tue, 26 May 2020 09:38:16 -0700 (PDT)
-Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
-        by smtp.gmail.com with ESMTPSA id w7sm66767pfu.117.2020.05.26.09.38.15
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 26 May 2020 09:38:15 -0700 (PDT)
-Date:   Tue, 26 May 2020 09:38:14 -0700
-From:   Kees Cook <keescook@chromium.org>
-To:     Andi Kleen <andi@firstfloor.org>
-Cc:     Peter Zijlstra <peterz@infradead.org>,
-        Greg KH <gregkh@linuxfoundation.org>, x86@kernel.org,
-        linux-kernel@vger.kernel.org, sashal@kernel.org,
-        Andi Kleen <ak@linux.intel.com>, stable@vger.kernel.org
+        id S2389107AbgEZRYP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 13:24:15 -0400
+Received: from wout3-smtp.messagingengine.com ([64.147.123.19]:54259 "EHLO
+        wout3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2388662AbgEZRYL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 May 2020 13:24:11 -0400
+Received: from compute7.internal (compute7.nyi.internal [10.202.2.47])
+        by mailout.west.internal (Postfix) with ESMTP id 048C510AB;
+        Tue, 26 May 2020 13:24:09 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute7.internal (MEProxy); Tue, 26 May 2020 13:24:10 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=N+2HgG
+        4kGwu+YjXYKXb+GfVj8egbu/mj++VICG8Oszo=; b=YIZRmfxqcVE3kvuGbPKBoq
+        aWnC2jlvWdbp2Lt+f/NVV4DkUFyQuSyGZMKzMgHuCEl3/s+OkYUb47jUx/u484wx
+        Z7qqK+0MIrCZ6Os/tkm6HspzXzxOf6Lt0kWLcphVkycKP+6iZ6DKCUscvaUbG/iX
+        zF1CLYq+6DK7dMscg9jL6u2f59/Y9WDLlQPlkTBUwqBhEdx8F72vo3QZJYqKrXOo
+        PzZV26QaY5sS+M+WQCC7Ru2RlthukPareVdqMxb5WiNZYOtwvPleQBu/pw05tQK/
+        Usz9d2rzzVzgFAKuegM6VUSe+e9HSZi3rLmQ/FgaVG2uwq3OW395VJyGQWixqCcA
+        ==
+X-ME-Sender: <xms:uFDNXoOKWlvBO4sOMkY-NgvlA80NCydWVcLBYHM9cQIZOZIckaphDw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedruddvvddgudduudcutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
+    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
+    enucfjughrpeffhffvuffkfhggtggujggfsehgtderredtredvnecuhfhrohhmpeghohhj
+    thgvkhcurfhorhgtiiihkhcuoeifohhjuhesihhnvhhishhisghlvghthhhinhhgshhlrg
+    gsrdgtohhmqeenucggtffrrghtthgvrhhnpedtudevvdffheejveekieetjeduueduffeg
+    heffffejgeeuteehtdegudetgeetteenucfkphepledurddugeehrdduieelrdeiheenuc
+    evlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpeifohhjuhes
+    ihhnvhhishhisghlvghthhhinhhgshhlrggsrdgtohhm
+X-ME-Proxy: <xmx:uFDNXu_HuNBaUwtbrVQMbyHId1nCU_d2i4qlTdMzZtV4PmyBkKsTrQ>
+    <xmx:uFDNXvQyAmwbSFm0SU5C80ugDB_oI_J4ZSrvvLET6WmkjoDviQuY-w>
+    <xmx:uFDNXgtWisxh10JbgC0YHmik5NZIgRAC41gJH1uCGOL72lkR-HfemQ>
+    <xmx:uVDNXo4AfRDmgMAtfuWyQkE0gRCE15mhx5uo1Bp9f5Mg0MKiIbEDKg>
+Received: from mail-itl.localdomain (91-145-169-65.internetia.net.pl [91.145.169.65])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 15AAF30665C7;
+        Tue, 26 May 2020 13:24:08 -0400 (EDT)
+Received: by mail-itl.localdomain (Postfix, from userid 1000)
+        id F1DA25CF91; Tue, 26 May 2020 19:24:03 +0200 (CEST)
+Date:   Tue, 26 May 2020 19:24:03 +0200
+From:   Wojtek Porczyk <woju@invisiblethingslab.com>
+To:     Greg KH <gregkh@linuxfoundation.org>,
+        Andi Kleen <ak@linux.intel.com>
+Cc:     Andi Kleen <andi@firstfloor.org>, x86@kernel.org,
+        keescook@chromium.org, linux-kernel@vger.kernel.org,
+        sashal@kernel.org, stable@vger.kernel.org
 Subject: Re: [PATCH v1] x86: Pin cr4 FSGSBASE
-Message-ID: <202005260935.EB11D3EB7@keescook>
+Message-ID: <20200526172403.GA14256@invisiblethingslab.com>
 References: <20200526052848.605423-1-andi@firstfloor.org>
+ <20200526065618.GC2580410@kroah.com>
+ <20200526154835.GW499505@tassilo.jf.intel.com>
+ <20200526163235.GA42137@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="azLHFNyN32YCQGCU"
 Content-Disposition: inline
-In-Reply-To: <20200526052848.605423-1-andi@firstfloor.org>
+In-Reply-To: <20200526163235.GA42137@kroah.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, May 25, 2020 at 10:28:48PM -0700, Andi Kleen wrote:
-> From: Andi Kleen <ak@linux.intel.com>
-> 
-> Since there seem to be kernel modules floating around that set
-> FSGSBASE incorrectly, prevent this in the CR4 pinning. Currently
-> CR4 pinning just checks that bits are set, this also checks
-> that the FSGSBASE bit is not set, and if it is clears it again.
-> 
-> Note this patch will need to be undone when the full FSGSBASE
-> patches are merged. But it's a reasonable solution for v5.2+
-> stable at least. Sadly the older kernels don't have the necessary
-> infrastructure for this (although a simpler version of this
-> could be added there too)
-> 
-> Cc: stable@vger.kernel.org # v5.2+
-> Signed-off-by: Andi Kleen <ak@linux.intel.com>
-> ---
->  arch/x86/kernel/cpu/common.c | 5 +++++
->  1 file changed, 5 insertions(+)
-> 
-> diff --git a/arch/x86/kernel/cpu/common.c b/arch/x86/kernel/cpu/common.c
-> index bed0cb83fe24..1f5b7871ae9a 100644
-> --- a/arch/x86/kernel/cpu/common.c
-> +++ b/arch/x86/kernel/cpu/common.c
-> @@ -385,6 +385,11 @@ void native_write_cr4(unsigned long val)
->  		/* Warn after we've set the missing bits. */
->  		WARN_ONCE(bits_missing, "CR4 bits went missing: %lx!?\n",
->  			  bits_missing);
-> +		if (val & X86_CR4_FSGSBASE) {
-> +			WARN_ONCE(1, "CR4 unexpectedly set FSGSBASE!?\n");
-> +			val &= ~X86_CR4_FSGSBASE;
-> +			goto set_register;
-> +		}
->  	}
->  }
->  EXPORT_SYMBOL(native_write_cr4);
-> -- 
-> 2.25.4
-> 
 
-And if this is going to be more permanent, we can separate the mask
-(untested):
+--azLHFNyN32YCQGCU
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Tue, May 26, 2020 at 06:32:35PM +0200, Greg KH wrote:
+> On Tue, May 26, 2020 at 08:48:35AM -0700, Andi Kleen wrote:
+> > On Tue, May 26, 2020 at 08:56:18AM +0200, Greg KH wrote:
+> > > On Mon, May 25, 2020 at 10:28:48PM -0700, Andi Kleen wrote:
+> > > > From: Andi Kleen <ak@linux.intel.com>
+> > > >=20
+> > > > Since there seem to be kernel modules floating around that set
+> > > > FSGSBASE incorrectly, prevent this in the CR4 pinning. Currently
+> > > > CR4 pinning just checks that bits are set, this also checks
+> > > > that the FSGSBASE bit is not set, and if it is clears it again.
+> > >=20
+> > > So we are trying to "protect" ourselves from broken out-of-tree kernel
+> > > modules now? =20
+> >=20
+> > Well it's a specific case where we know they're opening a root hole
+> > unintentionally. This is just an pragmatic attempt to protect the users=
+ in the=20
+> > short term.
+>=20
+> Can't you just go and fix those out-of-tree kernel modules instead?
+> What's keeping you all from just doing that instead of trying to force
+> the kernel to play traffic cop?
+
+We'd very much welcome any help really, but we're under impression that this
+couldn't be done correctly in a module, so this hack occured.
+
+This was written in 2015 as part of original (research) codebase for those
+reasons:
+- A module is easier to deploy by scientists, who are no kernel developers =
+and
+  no sysadmins either, so applying patchset and recompiling kernel is a big
+  ask.
+- It has no implications on security in SGX/Graphene threat model and in
+  expected deployment scenario.
+- This had no meaning to the actual research being done, so it wasn't cared
+  about.
+
+Let me expand the second point, because I understand both the module and the
+explanation looks wrong.
+
+Graphene is intended to be run in a cloud, where the CPU time is sold in
+a form of virtual machine, so the VM kernel, which would load this module, =
+is
+not trusted by hardware owner, so s/he don't care. But the owner of the
+enclave also doesn't care, because SGX' threat model assumes adversary who =
+is
+capable of arbitrary code execution in both kernel and userspace outside
+enclave. So the kernel immediately outside the enclave is a no-man's land,
+untrusted by both sides and forsaken, reduced to a compatibility layer
+between x86 and ELF.
+
+I acknowledge this is unusual threat model and certainly to mainline
+developers, who rarely encounter userspace that is more trusted than kernel.
+
+What we've failed at is to properly explain this, because if someone loads
+this module outside of this expected scenario, will certainly be exposed to
+a gaping root hole. Therefore we acknowledge this patch and as part of
+Graphene we'll probably maintain a patchset, until the support is upstream.
+Right now this will take us some time to change from our current kernel
+interfaces.
 
 
-diff --git a/arch/x86/kernel/cpu/common.c b/arch/x86/kernel/cpu/common.c
-index bed0cb83fe24..ead64f7420a5 100644
---- a/arch/x86/kernel/cpu/common.c
-+++ b/arch/x86/kernel/cpu/common.c
-@@ -347,6 +347,8 @@ static __always_inline void setup_umip(struct cpuinfo_x86 *c)
- 	cr4_clear_bits(X86_CR4_UMIP);
- }
- 
-+static const unsigned long cr4_pinned_mask =
-+	X86_CR4_SMEP | X86_CR4_SMAP | X86_CR4_UMIP | X86_CR4_FSGSBASE;
- static DEFINE_STATIC_KEY_FALSE_RO(cr_pinning);
- static unsigned long cr4_pinned_bits __ro_after_init;
- 
-@@ -371,20 +373,20 @@ EXPORT_SYMBOL(native_write_cr0);
- 
- void native_write_cr4(unsigned long val)
- {
--	unsigned long bits_missing = 0;
-+	unsigned long bits_changed = 0;
- 
- set_register:
- 	asm volatile("mov %0,%%cr4": "+r" (val), "+m" (cr4_pinned_bits));
- 
- 	if (static_branch_likely(&cr_pinning)) {
--		if (unlikely((val & cr4_pinned_bits) != cr4_pinned_bits)) {
--			bits_missing = ~val & cr4_pinned_bits;
--			val |= bits_missing;
-+		if (unlikely((val & cr4_pinned_mask) != cr4_pinned_bits)) {
-+			bits_changed = ~val & cr4_pinned_mask;
-+			val = (val & ~cr4_pinned_mask) | cr4_pinned_bits;
- 			goto set_register;
- 		}
- 		/* Warn after we've set the missing bits. */
--		WARN_ONCE(bits_missing, "CR4 bits went missing: %lx!?\n",
--			  bits_missing);
-+		WARN_ONCE(bits_changed, "pinned CR4 bits changed: %lx!?\n",
-+			  bits_changed);
- 	}
- }
- EXPORT_SYMBOL(native_write_cr4);
-@@ -396,7 +398,7 @@ void cr4_init(void)
- 	if (boot_cpu_has(X86_FEATURE_PCID))
- 		cr4 |= X86_CR4_PCIDE;
- 	if (static_branch_likely(&cr_pinning))
--		cr4 |= cr4_pinned_bits;
-+		cr4 = (cr4 & ~cr4_pinned_mask) | cr4_pinned_bits;
- 
- 	__write_cr4(cr4);
- 
-@@ -411,10 +413,7 @@ void cr4_init(void)
-  */
- static void __init setup_cr_pinning(void)
- {
--	unsigned long mask;
--
--	mask = (X86_CR4_SMEP | X86_CR4_SMAP | X86_CR4_UMIP);
--	cr4_pinned_bits = this_cpu_read(cpu_tlbstate.cr4) & mask;
-+	cr4_pinned_bits = this_cpu_read(cpu_tlbstate.cr4) & cr4_pinned_mask;
- 	static_key_enable(&cr_pinning.key);
- }
- 
+--=20
+pozdrawiam / best regards
+Wojtek Porczyk
+Graphene / Invisible Things Lab
+=20
+ I do not fear computers,
+ I fear lack of them.
+    -- Isaac Asimov
 
--- 
-Kees Cook
+--azLHFNyN32YCQGCU
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCgAdFiEEaO0VFfpr0tEF6hYkv2vZMhA6I1EFAl7NULMACgkQv2vZMhA6
+I1HeVhAAopSXwAHYY1jjElt533B4ztTXw4rQVCXIs+nC3wCUerQ0Qib79WmofOBZ
+lcl/BUsIF+qo+yL7FagLcqnxGg5AGBYxJ9KXiFb/iha3jpRYLZpFyxAEr/Y+LCh3
+zmChvR+UYmONCapQDDW6B3IVMyLqeTUPxZ26kHOt2MMQyb+aGhtSPfxnFLtN0MHg
+2ST5TqOWQ+izMVu4xTOuuGZBs131oodfkC1s58KOF/r6OIdBx9zGbNBQeFS1OwXA
+bYLOijvk0Q9lMPyqq7FKJuHN2dH2uP/liLOosN+OUCfjQRbz34KptMakOSZ/FJTf
+2mUWq59579kkKfW9J5nwfj27I7vUejutXDy/YFImga4HwxqGQGbXIFtlDOEdKZ7U
+aXKugpGmqfzQnyUFbeLBetdkb3Lq0H8qEOLUpHPQiHrriMm7m/7q9hEDtzplk+WJ
+Yj5gLQlIyDaMO63PRi+tR6K8s9p2E9JL/hCOUtjptEWGjzDVptoFDKWXeGe8M9ak
+caGjZRQihWkjyzvG2/f4s3/0zJ6aA1NE909X9W7hPKY6y60WJkUySXFCkSpsO/GN
+1C6s/O7nOmLeHd1IHclpNbDLMxxRtoFMb7KPjAXsFsC2Zx8Pz+1TM094TGyggWcI
+7DD8dQRMKd+IayyDmuMrmULLRLqoThIbHVKAn0OUtZDvqnHvk24=
+=OSfl
+-----END PGP SIGNATURE-----
+
+--azLHFNyN32YCQGCU--
