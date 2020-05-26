@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CFB931E2D45
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:21:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D44E1E2E18
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:27:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404320AbgEZTVN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:21:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41522 "EHLO mail.kernel.org"
+        id S2390954AbgEZTEx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:04:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60760 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391255AbgEZTMB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:12:01 -0400
+        id S2391425AbgEZTEu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:04:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8419920888;
-        Tue, 26 May 2020 19:12:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9EC7D20849;
+        Tue, 26 May 2020 19:04:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590520321;
-        bh=t8k+A26nle/JylAK0rDU4ayMbCakUSWlwZOpncrVqrs=;
+        s=default; t=1590519890;
+        bh=Ub87hYBSithHAOar1CQy77UO8pYDy8vZcFqeoAMQ33g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q2n+d2RwbvWrfb3mLb4vk8KeJHniK9PRqBeptFbLz4F20bht8z8EoJtOfmgEFxaby
-         I1ushbBoi9DMBjuNvptukq3nx3DGha9dx6MEVojCi5Jq/JADfaZWK0yCEu1DcffxC3
-         ZRuYzxFcIZvWEVardXIz5tnt2Nb7b5qg7RJQvX+0=
+        b=td4W/CsiSECV5iEQrKPlWvfATt9ONBDIY6oR/k2x2vTb0Q/MfH3tTTQWDotBJ0ZfY
+         CCD9rhemvWzQ0IbhNZ03qquv+SZfravflva7shoMwBRZhcF8uyhoAcJ/95zFGM3FH9
+         erWifWLlqNyMl7JqPYPo4ktggXdCyeQ+N+QD6YrI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Hilliard <james.hilliard1@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 034/126] component: Silence bind error on -EPROBE_DEFER
+        stable@vger.kernel.org,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 16/81] HID: multitouch: add eGalaxTouch P80H84 support
 Date:   Tue, 26 May 2020 20:52:51 +0200
-Message-Id: <20200526183940.715734254@linuxfoundation.org>
+Message-Id: <20200526183928.199695992@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183937.471379031@linuxfoundation.org>
-References: <20200526183937.471379031@linuxfoundation.org>
+In-Reply-To: <20200526183923.108515292@linuxfoundation.org>
+References: <20200526183923.108515292@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,51 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Hilliard <james.hilliard1@gmail.com>
+From: Sebastian Reichel <sebastian.reichel@collabora.com>
 
-[ Upstream commit 7706b0a76a9697021e2bf395f3f065c18f51043d ]
+[ Upstream commit f9e82295eec141a0569649d400d249333d74aa91 ]
 
-If a component fails to bind due to -EPROBE_DEFER we should not log an
-error as this is not a real failure.
+Add support for P80H84 touchscreen from eGalaxy:
 
-Fixes messages like:
-vc4-drm soc:gpu: failed to bind 3f902000.hdmi (ops vc4_hdmi_ops): -517
-vc4-drm soc:gpu: master bind failed: -517
+  idVendor           0x0eef D-WAV Scientific Co., Ltd
+  idProduct          0xc002
+  iManufacturer           1 eGalax Inc.
+  iProduct                2 eGalaxTouch P80H84 2019 vDIVA_1204_T01 k4.02.146
 
-Signed-off-by: James Hilliard <james.hilliard1@gmail.com>
-Link: https://lore.kernel.org/r/20200411190241.89404-1-james.hilliard1@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/component.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/hid/hid-ids.h        | 1 +
+ drivers/hid/hid-multitouch.c | 3 +++
+ 2 files changed, 4 insertions(+)
 
-diff --git a/drivers/base/component.c b/drivers/base/component.c
-index c7879f5ae2fb..53b19daca750 100644
---- a/drivers/base/component.c
-+++ b/drivers/base/component.c
-@@ -256,7 +256,8 @@ static int try_to_bring_up_master(struct master *master,
- 	ret = master->ops->bind(master->dev);
- 	if (ret < 0) {
- 		devres_release_group(master->dev, NULL);
--		dev_info(master->dev, "master bind failed: %d\n", ret);
-+		if (ret != -EPROBE_DEFER)
-+			dev_info(master->dev, "master bind failed: %d\n", ret);
- 		return ret;
- 	}
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index b2fff44c8109..ae145bdcd83d 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -378,6 +378,7 @@
+ #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_7349	0x7349
+ #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_73F7	0x73f7
+ #define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_A001	0xa001
++#define USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_C002	0xc002
  
-@@ -610,8 +611,9 @@ static int component_bind(struct component *component, struct master *master,
- 		devres_release_group(component->dev, NULL);
- 		devres_release_group(master->dev, NULL);
+ #define USB_VENDOR_ID_ELAN		0x04f3
+ #define USB_DEVICE_ID_TOSHIBA_CLICK_L9W	0x0401
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 19dfd8acd0da..8baf10beb1d5 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -1909,6 +1909,9 @@ static const struct hid_device_id mt_devices[] = {
+ 	{ .driver_data = MT_CLS_EGALAX_SERIAL,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_DWAV,
+ 			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_A001) },
++	{ .driver_data = MT_CLS_EGALAX,
++		MT_USB_DEVICE(USB_VENDOR_ID_DWAV,
++			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_C002) },
  
--		dev_err(master->dev, "failed to bind %s (ops %ps): %d\n",
--			dev_name(component->dev), component->ops, ret);
-+		if (ret != -EPROBE_DEFER)
-+			dev_err(master->dev, "failed to bind %s (ops %ps): %d\n",
-+				dev_name(component->dev), component->ops, ret);
- 	}
- 
- 	return ret;
+ 	/* Elitegroup panel */
+ 	{ .driver_data = MT_CLS_SERIAL,
 -- 
 2.25.1
 
