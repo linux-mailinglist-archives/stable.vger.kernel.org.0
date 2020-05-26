@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 34D1C1E2CCB
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:17:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 36C871E2B78
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:05:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392241AbgEZTRn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:17:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45140 "EHLO mail.kernel.org"
+        id S2391503AbgEZTFY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:05:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33328 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404352AbgEZTOU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:14:20 -0400
+        id S2391501AbgEZTFX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:05:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8A407208B6;
-        Tue, 26 May 2020 19:14:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CA76420776;
+        Tue, 26 May 2020 19:05:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590520460;
-        bh=6s0esmbuhORqW3ghCADkZDwb2rfkAM/yLBfDpUl9yg8=;
+        s=default; t=1590519923;
+        bh=BWfUhi6QYQqiecRQFU7Lv31BU1wSKaNQc+VwZW0cAFw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fBn0Ip0NzVdauRNE2j5JULxu1W+4bIWT+5ocTxfMOnzZW73u8aV2pVAdzLDfD2lMN
-         qDVarjyyP4c2MwL6koXeLX4EY5stjjoqvakL2Gf2DawgWWpfXmyHzXYnDA3uuLPws3
-         m/4j4e34pKYTZE9dTq45FuOxv41+1LHwXtLvrbWs=
+        b=qmp1CtZlDF7+QEe249B8zECTycbyCx4/d+sqPghBTZUYwk9BJFreny7Kjchqw55uo
+         DTg4hVKf2O3Lov7DOjalNtISByuqZIHssXbDeBc8keCjJ56I6hSb7KsZVK2uFqGt9c
+         6pYmKy2EkJqF2yYTPeKSEbWfkao2kMsdQ6usphGo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 088/126] tools/bootconfig: Fix apply_xbc() to return zero on success
-Date:   Tue, 26 May 2020 20:53:45 +0200
-Message-Id: <20200526183945.367638554@linuxfoundation.org>
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wei Yongjun <weiyongjun1@huawei.com>,
+        Samuel Iglesias Gonsalvez <siglesias@igalia.com>
+Subject: [PATCH 4.19 71/81] ipack: tpci200: fix error return code in tpci200_register()
+Date:   Tue, 26 May 2020 20:53:46 +0200
+Message-Id: <20200526183934.932044758@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183937.471379031@linuxfoundation.org>
-References: <20200526183937.471379031@linuxfoundation.org>
+In-Reply-To: <20200526183923.108515292@linuxfoundation.org>
+References: <20200526183923.108515292@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,39 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (VMware) <rostedt@goodmis.org>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-[ Upstream commit 9d82ccda2bc5c148060543d249d54f8703741bb4 ]
+commit 133317479f0324f6faaf797c4f5f3e9b1b36ce35 upstream.
 
-The return of apply_xbc() returns the result of the last write() call, which
-is not what is expected. It should only return zero on success.
+Fix to return negative error code -ENOMEM from the ioremap() error handling
+case instead of 0, as done elsewhere in this function.
 
-Link: https://lore.kernel.org/r/20200508093059.GF9365@kadam
+Fixes: 43986798fd50 ("ipack: add error handling for ioremap_nocache")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Cc: stable <stable@vger.kernel.org>
+Acked-by: Samuel Iglesias Gonsalvez <siglesias@igalia.com>
+Link: https://lore.kernel.org/r/20200507094237.13599-1-weiyongjun1@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Fixes: 8842604446d1 ("tools/bootconfig: Fix resource leak in apply_xbc()")
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
-Tested-by: Masami Hiramatsu <mhiramat@kernel.org>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/bootconfig/main.c | 1 +
+ drivers/ipack/carriers/tpci200.c |    1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/tools/bootconfig/main.c b/tools/bootconfig/main.c
-index 5dbe893cf00c..37fb2e85de12 100644
---- a/tools/bootconfig/main.c
-+++ b/tools/bootconfig/main.c
-@@ -310,6 +310,7 @@ int apply_xbc(const char *path, const char *xbc_path)
- 		pr_err("Failed to apply a boot config magic: %d\n", ret);
- 		goto out;
+--- a/drivers/ipack/carriers/tpci200.c
++++ b/drivers/ipack/carriers/tpci200.c
+@@ -309,6 +309,7 @@ static int tpci200_register(struct tpci2
+ 			"(bn 0x%X, sn 0x%X) failed to map driver user space!",
+ 			tpci200->info->pdev->bus->number,
+ 			tpci200->info->pdev->devfn);
++		res = -ENOMEM;
+ 		goto out_release_mem8_space;
  	}
-+	ret = 0;
- out:
- 	close(fd);
- 	free(data);
--- 
-2.25.1
-
+ 
 
 
