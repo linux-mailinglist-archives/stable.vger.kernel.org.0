@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A2C91E2D31
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:20:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E8411E2DCD
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:25:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404150AbgEZTMb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:12:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42076 "EHLO mail.kernel.org"
+        id S2391710AbgEZTHj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:07:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36430 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403919AbgEZTM3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:12:29 -0400
+        id S2391709AbgEZTHj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:07:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CFA7D20888;
-        Tue, 26 May 2020 19:12:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 68D3020873;
+        Tue, 26 May 2020 19:07:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590520349;
-        bh=XuGZ5Clj0CModmrpSHSGviwvKme1dPJp3GeVxRp3sBE=;
+        s=default; t=1590520058;
+        bh=dEoJRVIXdZx8Bpu5GvIroeoIICrvc6cdlbgsrV+vVzE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mbvTA4a9gnVKJTLHZN46MP+RdRxY27K67iXEv/Z/IDm+rgEw2yL/0aCvWQUUB1RnF
-         d6OgelJJ4Z3hhUdXBU9jkxR396i/hVob9bf73kPNNA/woBFhd4cfEWaY8tD/2l5K+R
-         YB+w05q5KzQevSMsXKdiKvDa+H4+MBDKKpe9xk+I=
+        b=0CiEnfjhPvOzCsE2S9v8KP/GuvkYFRurl839qcGjx2hp9cdGBn82z1eV0t9/7S+RD
+         EWNa2xgDbNeTfYl7Z3RmW0vNmVKhosHO7yexihIv0vnpY9I55DgV3/ZMkKHDP2g8WX
+         xCS1i75iJexmDcE6q6bXR4rHGedImwYhOkhDyG0Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wu Bo <wubo40@huawei.com>,
-        "Yan, Zheng" <zyan@redhat.com>, Ilya Dryomov <idryomov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 044/126] ceph: fix double unlock in handle_cap_export()
+        stable@vger.kernel.org, Joerg Roedel <jroedel@suse.de>,
+        Qian Cai <cai@lca.pw>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 043/111] iommu/amd: Call domain_flush_complete() in update_domain()
 Date:   Tue, 26 May 2020 20:53:01 +0200
-Message-Id: <20200526183941.683811049@linuxfoundation.org>
+Message-Id: <20200526183937.017341854@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183937.471379031@linuxfoundation.org>
-References: <20200526183937.471379031@linuxfoundation.org>
+In-Reply-To: <20200526183932.245016380@linuxfoundation.org>
+References: <20200526183932.245016380@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,35 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wu Bo <wubo40@huawei.com>
+From: Joerg Roedel <jroedel@suse.de>
 
-[ Upstream commit 4d8e28ff3106b093d98bfd2eceb9b430c70a8758 ]
+[ Upstream commit f44a4d7e4f1cdef73c90b1dc749c4d8a7372a8eb ]
 
-If the ceph_mdsc_open_export_target_session() return fails, it will
-do a "goto retry", but the session mutex has already been unlocked.
-Re-lock the mutex in that case to ensure that we don't unlock it
-twice.
+The update_domain() function is expected to also inform the hardware
+about domain changes. This needs a COMPLETION_WAIT command to be sent
+to all IOMMUs which use the domain.
 
-Signed-off-by: Wu Bo <wubo40@huawei.com>
-Reviewed-by: "Yan, Zheng" <zyan@redhat.com>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Tested-by: Qian Cai <cai@lca.pw>
+Link: https://lore.kernel.org/r/20200504125413.16798-4-joro@8bytes.org
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ceph/caps.c | 1 +
+ drivers/iommu/amd_iommu.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/fs/ceph/caps.c b/fs/ceph/caps.c
-index d050acc1fd5d..f50204380a65 100644
---- a/fs/ceph/caps.c
-+++ b/fs/ceph/caps.c
-@@ -3707,6 +3707,7 @@ retry:
- 		WARN_ON(1);
- 		tsession = NULL;
- 		target = -1;
-+		mutex_lock(&session->s_mutex);
- 	}
- 	goto retry;
+diff --git a/drivers/iommu/amd_iommu.c b/drivers/iommu/amd_iommu.c
+index bc7771498342..32de8e7bb8b4 100644
+--- a/drivers/iommu/amd_iommu.c
++++ b/drivers/iommu/amd_iommu.c
+@@ -2386,6 +2386,7 @@ static void update_domain(struct protection_domain *domain)
  
+ 	domain_flush_devices(domain);
+ 	domain_flush_tlb_pde(domain);
++	domain_flush_complete(domain);
+ }
+ 
+ static int dir2prot(enum dma_data_direction direction)
 -- 
 2.25.1
 
