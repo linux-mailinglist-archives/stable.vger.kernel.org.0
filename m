@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CED91E2B8E
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:06:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A44F1E2D8D
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:24:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391569AbgEZTGT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:06:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34470 "EHLO mail.kernel.org"
+        id S2404466AbgEZTVy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:21:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40404 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391546AbgEZTGQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:06:16 -0400
+        id S2392034AbgEZTLG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:11:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C28E520873;
-        Tue, 26 May 2020 19:06:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0A367208A7;
+        Tue, 26 May 2020 19:11:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590519976;
-        bh=OSHTNuMDYwiJAZ2wI7JZM9DIx5A514SQZ3uRMfD+rr8=;
+        s=default; t=1590520265;
+        bh=L0QoRAgWtQseVlwB82qHXXUrftjn7bHptGI3PhND3X4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vwlauxFD8TO26uN4yaZYHYBUp4PZz0VgR+hmUXqFDUl6i5KxS5vSl74qrMKuyFkPW
-         7QRfU6LaWGIqCmEX7yVoUI0Vt9twhLNsjitKkiNFEM7Mr+PzUYNn+vBwsqYnfGK8VU
-         7NGXaygt9/bNutEaQfSWIATVYbiVwYowCaghqprM=
+        b=AlB5ZTOxHiD5FL7+6QVddGEz94eUhBZyo7WzpjMHR38Y5IAeT4h6EysNxtmMePSar
+         HzdmScxifGwB/eAeudyCubR1KfMXnY6l6EbY2H4jeUOTSxRS3n2P25h3va0Df/B50G
+         ahTBd16esq3gF+G0QwQbOZiiu7sX4WZcNaOxn+Tg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
         Richard Weinberger <richard@nod.at>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 010/111] ubifs: remove broken lazytime support
-Date:   Tue, 26 May 2020 20:52:28 +0200
-Message-Id: <20200526183933.517031677@linuxfoundation.org>
+Subject: [PATCH 5.6 012/126] ubifs: remove broken lazytime support
+Date:   Tue, 26 May 2020 20:52:29 +0200
+Message-Id: <20200526183938.597411064@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183932.245016380@linuxfoundation.org>
-References: <20200526183932.245016380@linuxfoundation.org>
+In-Reply-To: <20200526183937.471379031@linuxfoundation.org>
+References: <20200526183937.471379031@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -65,7 +65,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+), 5 deletions(-)
 
 diff --git a/fs/ubifs/file.c b/fs/ubifs/file.c
-index a771273fba7e..8dada89bbe4d 100644
+index 743928efffc1..49fe062ce45e 100644
 --- a/fs/ubifs/file.c
 +++ b/fs/ubifs/file.c
 @@ -1375,7 +1375,6 @@ int ubifs_update_time(struct inode *inode, struct timespec64 *time,
