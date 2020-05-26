@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A5AE21E2E09
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:26:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D6BED1E2C60
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:14:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391511AbgEZTFf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:05:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33522 "EHLO mail.kernel.org"
+        id S2392170AbgEZTOb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:14:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45432 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391510AbgEZTFe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:05:34 -0400
+        id S2392165AbgEZTOa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:14:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 27CFC20873;
-        Tue, 26 May 2020 19:05:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C3C2E20776;
+        Tue, 26 May 2020 19:14:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590519933;
-        bh=jx3K9gvlPa4X4mgLce8D9qbCcXHG4T5cLM5C7xiUHIQ=;
+        s=default; t=1590520470;
+        bh=dw6to2wRQ3SmfWu7X9TKk6vCDa1Vn/DKpM9BwBWsZAc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WJohIplYg9VAMW/Y1MDA9rvd53a/PWkOTaqrL+x5cv5Aaknd9/FSI5W3l0QrYWx8Q
-         Tna6PtkJTkUYeyuV7T3aJzVuGYdslHFE7nYLAyx6G2c1UDQIrEAxY695Pcv7Z1CCyi
-         3jtzVkXPzOt+XxQg2K73FFUn382iotG0sS6KRLDI=
+        b=uR68SBQSt5qWhpjlFuijJ6XvO0HGyXqKP80f64pIJHtnSGfvhKTjKKO+vCTPHaS1D
+         J+c/Jnlc53nBvSAb0giYFjMB7wclRaVrGGi49uxgkacLBGcty+yM6Nj8TWTDmyTLm0
+         oaXAjk4nRHdJngYRwJeaNq3WlWsI/w/TqEJWRVLw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Subject: [PATCH 4.19 74/81] x86/unwind/orc: Fix unwind_get_return_address_ptr() for inactive tasks
+        stable@vger.kernel.org, Wei Yongjun <weiyongjun1@huawei.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>
+Subject: [PATCH 5.6 092/126] staging: kpc2000: fix error return code in kp2000_pcie_probe()
 Date:   Tue, 26 May 2020 20:53:49 +0200
-Message-Id: <20200526183935.279225178@linuxfoundation.org>
+Message-Id: <20200526183945.637923263@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183923.108515292@linuxfoundation.org>
-References: <20200526183923.108515292@linuxfoundation.org>
+In-Reply-To: <20200526183937.471379031@linuxfoundation.org>
+References: <20200526183937.471379031@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,70 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josh Poimboeuf <jpoimboe@redhat.com>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-commit 187b96db5ca79423618dfa29a05c438c34f9e1f0 upstream.
+commit b17884ccf29e127b16bba6aea1438c851c9f5af1 upstream.
 
-Normally, show_trace_log_lvl() scans the stack, looking for text
-addresses to print.  In parallel, it unwinds the stack with
-unwind_next_frame().  If the stack address matches the pointer returned
-by unwind_get_return_address_ptr() for the current frame, the text
-address is printed normally without a question mark.  Otherwise it's
-considered a breadcrumb (potentially from a previous call path) and it's
-printed with a question mark to indicate that the address is unreliable
-and typically can be ignored.
+Fix to return a negative error code from the error handling
+case instead of 0, as done elsewhere in this function. Also
+removed var 'rv' since we can use 'err' instead.
 
-Since the following commit:
-
-  f1d9a2abff66 ("x86/unwind/orc: Don't skip the first frame for inactive tasks")
-
-... for inactive tasks, show_trace_log_lvl() prints *only* unreliable
-addresses (prepended with '?').
-
-That happens because, for the first frame of an inactive task,
-unwind_get_return_address_ptr() returns the wrong return address
-pointer: one word *below* the task stack pointer.  show_trace_log_lvl()
-starts scanning at the stack pointer itself, so it never finds the first
-'reliable' address, causing only guesses to being printed.
-
-The first frame of an inactive task isn't a normal stack frame.  It's
-actually just an instance of 'struct inactive_task_frame' which is left
-behind by __switch_to_asm().  Now that this inactive frame is actually
-exposed to callers, fix unwind_get_return_address_ptr() to interpret it
-properly.
-
-Fixes: f1d9a2abff66 ("x86/unwind/orc: Don't skip the first frame for inactive tasks")
-Reported-by: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
-Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20200522135435.vbxs7umku5pyrdbk@treble
+Fixes: 7dc7967fc39a ("staging: kpc2000: add initial set of Daktronics drivers")
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Cc: stable <stable@vger.kernel.org>
+Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/20200506134735.102041-1-weiyongjun1@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kernel/unwind_orc.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/staging/kpc2000/kpc2000/core.c |    9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
---- a/arch/x86/kernel/unwind_orc.c
-+++ b/arch/x86/kernel/unwind_orc.c
-@@ -300,12 +300,19 @@ EXPORT_SYMBOL_GPL(unwind_get_return_addr
- 
- unsigned long *unwind_get_return_address_ptr(struct unwind_state *state)
+--- a/drivers/staging/kpc2000/kpc2000/core.c
++++ b/drivers/staging/kpc2000/kpc2000/core.c
+@@ -298,7 +298,6 @@ static int kp2000_pcie_probe(struct pci_
  {
-+	struct task_struct *task = state->task;
-+
- 	if (unwind_done(state))
- 		return NULL;
+ 	int err = 0;
+ 	struct kp2000_device *pcard;
+-	int rv;
+ 	unsigned long reg_bar_phys_addr;
+ 	unsigned long reg_bar_phys_len;
+ 	unsigned long dma_bar_phys_addr;
+@@ -445,11 +444,11 @@ static int kp2000_pcie_probe(struct pci_
+ 	if (err < 0)
+ 		goto err_release_dma;
  
- 	if (state->regs)
- 		return &state->regs->ip;
- 
-+	if (task != current && state->sp == task->thread.sp) {
-+		struct inactive_task_frame *frame = (void *)task->thread.sp;
-+		return &frame->ret_addr;
-+	}
-+
- 	if (state->sp)
- 		return (unsigned long *)state->sp - 1;
+-	rv = request_irq(pcard->pdev->irq, kp2000_irq_handler, IRQF_SHARED,
+-			 pcard->name, pcard);
+-	if (rv) {
++	err = request_irq(pcard->pdev->irq, kp2000_irq_handler, IRQF_SHARED,
++			  pcard->name, pcard);
++	if (err) {
+ 		dev_err(&pcard->pdev->dev,
+-			"%s: failed to request_irq: %d\n", __func__, rv);
++			"%s: failed to request_irq: %d\n", __func__, err);
+ 		goto err_disable_msi;
+ 	}
  
 
 
