@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C13D1E2F10
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:34:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C454B1E2ED9
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:32:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389595AbgEZSzi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 14:55:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48078 "EHLO mail.kernel.org"
+        id S2390222AbgEZS56 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 14:57:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51328 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389588AbgEZSzi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 14:55:38 -0400
+        id S2390216AbgEZS55 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 14:57:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 080BE2086A;
-        Tue, 26 May 2020 18:55:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B46F72084C;
+        Tue, 26 May 2020 18:57:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590519337;
-        bh=6m/IfFYaFt/e5IWF5yeM6upXhY42/0Q6gHupJx6rjpY=;
+        s=default; t=1590519477;
+        bh=qmmqje5lx1UrCsdVoet4XTvHST2272MfsIJhAwFmf58=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LzICOvwdhRwyxfxMe8P7QXvMMQL8WevHiwW+LUHqpsAZfjNXj28pCrCK8us3jXjBY
-         s0KtKVAFt1L5y5lCV8qTxFUOmk9idMmrOTQy5hLl6tM0eu4QXgZsp06uwGjEgOkO5d
-         7LkCAJ8SXnrDbflmuqgW3yfhM7nOtU5B983W3AwM=
+        b=1QfUJco7wmRsCmMYo9Q8UGswyMMGVem9rVtXg5QHW8NEK6nXFCdI9M7k0grDGaKj/
+         frWxXq81cFLFWVWTWIfZ4GNKazrE1iCx5PLtCzR/7JScRQWIKQX0JuT7uO964nZiEP
+         BWsYnVObnkaiu5PQqmD3WTCaYvWRHQw3f6kSy2EA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Jordan <daniel.m.jordan@oracle.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        linux-crypto@vger.kernel.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 29/65] padata: purge get_cpu and reorder_via_wq from padata_do_serial
+        stable@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 19/64] ARM: futex: Address build warning
 Date:   Tue, 26 May 2020 20:52:48 +0200
-Message-Id: <20200526183916.921551979@linuxfoundation.org>
+Message-Id: <20200526183919.222766362@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183905.988782958@linuxfoundation.org>
-References: <20200526183905.988782958@linuxfoundation.org>
+In-Reply-To: <20200526183913.064413230@linuxfoundation.org>
+References: <20200526183913.064413230@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,66 +44,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Jordan <daniel.m.jordan@oracle.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-[ Upstream commit 065cf577135a4977931c7a1e1edf442bfd9773dd]
+[ Upstream commit 8101b5a1531f3390b3a69fa7934c70a8fd6566ad ]
 
-With the removal of the padata timer, padata_do_serial no longer
-needs special CPU handling, so remove it.
+Stephen reported the following build warning on a ARM multi_v7_defconfig
+build with GCC 9.2.1:
 
-Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: Steffen Klassert <steffen.klassert@secunet.com>
-Cc: linux-crypto@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
+kernel/futex.c: In function 'do_futex':
+kernel/futex.c:1676:17: warning: 'oldval' may be used uninitialized in this function [-Wmaybe-uninitialized]
+ 1676 |   return oldval == cmparg;
+      |          ~~~~~~~^~~~~~~~~
+kernel/futex.c:1652:6: note: 'oldval' was declared here
+ 1652 |  int oldval, ret;
+      |      ^~~~~~
+
+introduced by commit a08971e9488d ("futex: arch_futex_atomic_op_inuser()
+calling conventions change").
+
+While that change should not make any difference it confuses GCC which
+fails to work out that oldval is not referenced when the return value is
+not zero.
+
+GCC fails to properly analyze arch_futex_atomic_op_inuser(). It's not the
+early return, the issue is with the assembly macros. GCC fails to detect
+that those either set 'ret' to 0 and set oldval or set 'ret' to -EFAULT
+which makes oldval uninteresting. The store to the callsite supplied oldval
+pointer is conditional on ret == 0.
+
+The straight forward way to solve this is to make the store unconditional.
+
+Aside of addressing the build warning this makes sense anyway because it
+removes the conditional from the fastpath. In the error case the stored
+value is uninteresting and the extra store does not matter at all.
+
+Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lkml.kernel.org/r/87pncao2ph.fsf@nanos.tec.linutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/padata.c | 23 +++--------------------
- 1 file changed, 3 insertions(+), 20 deletions(-)
+ arch/arm/include/asm/futex.h | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/padata.c b/kernel/padata.c
-index 43b72f5dfe07..c50975f43b34 100644
---- a/kernel/padata.c
-+++ b/kernel/padata.c
-@@ -322,24 +322,9 @@ static void padata_serial_worker(struct work_struct *serial_work)
-  */
- void padata_do_serial(struct padata_priv *padata)
- {
--	int cpu;
--	struct padata_parallel_queue *pqueue;
--	struct parallel_data *pd;
--	int reorder_via_wq = 0;
--
--	pd = padata->pd;
--
--	cpu = get_cpu();
--
--	/* We need to enqueue the padata object into the correct
--	 * per-cpu queue.
--	 */
--	if (cpu != padata->cpu) {
--		reorder_via_wq = 1;
--		cpu = padata->cpu;
--	}
--
--	pqueue = per_cpu_ptr(pd->pqueue, cpu);
-+	struct parallel_data *pd = padata->pd;
-+	struct padata_parallel_queue *pqueue = per_cpu_ptr(pd->pqueue,
-+							   padata->cpu);
+diff --git a/arch/arm/include/asm/futex.h b/arch/arm/include/asm/futex.h
+index cc414382dab4..561b2ba6bc28 100644
+--- a/arch/arm/include/asm/futex.h
++++ b/arch/arm/include/asm/futex.h
+@@ -162,8 +162,13 @@ arch_futex_atomic_op_inuser(int op, int oparg, int *oval, u32 __user *uaddr)
+ 	preempt_enable();
+ #endif
  
- 	spin_lock(&pqueue->reorder.lock);
- 	list_add_tail(&padata->list, &pqueue->reorder.list);
-@@ -353,8 +338,6 @@ void padata_do_serial(struct padata_priv *padata)
- 	 */
- 	smp_mb__after_atomic();
+-	if (!ret)
+-		*oval = oldval;
++	/*
++	 * Store unconditionally. If ret != 0 the extra store is the least
++	 * of the worries but GCC cannot figure out that __futex_atomic_op()
++	 * is either setting ret to -EFAULT or storing the old value in
++	 * oldval which results in a uninitialized warning at the call site.
++	 */
++	*oval = oldval;
  
--	put_cpu();
--
- 	padata_reorder(pd);
+ 	return ret;
  }
- EXPORT_SYMBOL(padata_do_serial);
 -- 
 2.25.1
 
