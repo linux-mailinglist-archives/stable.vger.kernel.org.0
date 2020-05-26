@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CCBF1E2A61
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 20:57:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CEDA41E2AA5
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 20:58:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389455AbgEZSzW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 14:55:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47710 "EHLO mail.kernel.org"
+        id S2389403AbgEZS5o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 14:57:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50982 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389451AbgEZSzU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 14:55:20 -0400
+        id S2389371AbgEZS5m (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 14:57:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DE341208C3;
-        Tue, 26 May 2020 18:55:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C9DB62084C;
+        Tue, 26 May 2020 18:57:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590519320;
-        bh=dVy0LRePgbkEtZhtYdBgh1mFB0WuQl4IXpOliByWPYE=;
+        s=default; t=1590519462;
+        bh=sEH7FlcbtULD/jnI/XwLJzHyZ9OSJdBrQc3iYDd0vrY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TPEp2+GsV24bx5CrEsTDFbkJh+hMWynfxGUb+hum8P/l80t9FD2IjTdpWFUkwFNre
-         ZEytKS15IfFV29arns3pgYpd4xs9EZsqTeFyXNRFDIgv6+E1DZ2f1HZZR7RReFbEA6
-         b617oGhBKRii6s1//+JHCCw9aOajSMoonRh38YVo=
+        b=EwKDeeVLvpRUt+Ii2IvDzsN1tTZg+62mvOVA2ELekZFPtdKYafcXFfZBJFRzfkDrg
+         U9dtpZxi/LXm7qsuRbmyT3TtdWmDH9vEGNJ+pssgLp/8AL3aV5d29PqyISngwLv8DI
+         5BM5hYzG33G8OGmuGOd6ZxqVSN9LfxIHsOb5bfeo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Wolfram Sang <wsa@the-dreams.de>,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
+        Xin Tan <tanxin.ctf@gmail.com>, Christoph Hellwig <hch@lst.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 22/65] i2c: dev: use after free in detach
-Date:   Tue, 26 May 2020 20:52:41 +0200
-Message-Id: <20200526183914.507467866@linuxfoundation.org>
+Subject: [PATCH 4.9 13/64] configfs: fix config_item refcnt leak in configfs_rmdir()
+Date:   Tue, 26 May 2020 20:52:42 +0200
+Message-Id: <20200526183918.021605314@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183905.988782958@linuxfoundation.org>
-References: <20200526183905.988782958@linuxfoundation.org>
+In-Reply-To: <20200526183913.064413230@linuxfoundation.org>
+References: <20200526183913.064413230@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,37 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
 
-commit e6be18f6d62c1d3b331ae020b76a29c2ccf6b0bf upstream.
+[ Upstream commit 8aebfffacfa379ba400da573a5bf9e49634e38cb ]
 
-The call to put_i2c_dev() frees "i2c_dev" so there is a use after
-free when we call cdev_del(&i2c_dev->cdev).
+configfs_rmdir() invokes configfs_get_config_item(), which returns a
+reference of the specified config_item object to "parent_item" with
+increased refcnt.
 
-Fixes: d6760b14d4a1 ('i2c: dev: switch from register_chrdev to cdev API')
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
+When configfs_rmdir() returns, local variable "parent_item" becomes
+invalid, so the refcount should be decreased to keep refcount balanced.
+
+The reference counting issue happens in one exception handling path of
+configfs_rmdir(). When down_write_killable() fails, the function forgets
+to decrease the refcnt increased by configfs_get_config_item(), causing
+a refcnt leak.
+
+Fix this issue by calling config_item_put() when down_write_killable()
+fails.
+
+Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/i2c-dev.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/configfs/dir.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
-index 382c66d5a470..e5cd307ebfc9 100644
---- a/drivers/i2c/i2c-dev.c
-+++ b/drivers/i2c/i2c-dev.c
-@@ -599,9 +599,9 @@ static int i2cdev_detach_adapter(struct device *dev, void *dummy)
- 	if (!i2c_dev) /* attach_adapter must have failed */
- 		return 0;
- 
-+	cdev_del(&i2c_dev->cdev);
- 	put_i2c_dev(i2c_dev);
- 	device_destroy(i2c_dev_class, MKDEV(I2C_MAJOR, adap->nr));
--	cdev_del(&i2c_dev->cdev);
- 
- 	pr_debug("i2c-dev: adapter [%s] unregistered\n", adap->name);
- 	return 0;
+diff --git a/fs/configfs/dir.c b/fs/configfs/dir.c
+index c2ef617d2f97..c875f246cb0e 100644
+--- a/fs/configfs/dir.c
++++ b/fs/configfs/dir.c
+@@ -1537,6 +1537,7 @@ static int configfs_rmdir(struct inode *dir, struct dentry *dentry)
+ 		spin_lock(&configfs_dirent_lock);
+ 		configfs_detach_rollback(dentry);
+ 		spin_unlock(&configfs_dirent_lock);
++		config_item_put(parent_item);
+ 		return -EINTR;
+ 	}
+ 	frag->frag_dead = true;
 -- 
 2.25.1
 
