@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 02C351E2E38
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:27:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE1D91E2C2D
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:12:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390825AbgEZT1s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:27:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59308 "EHLO mail.kernel.org"
+        id S2392131AbgEZTMv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:12:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42476 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391288AbgEZTDx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:03:53 -0400
+        id S2392126AbgEZTMu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:12:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4AE0D20849;
-        Tue, 26 May 2020 19:03:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4D37C20C56;
+        Tue, 26 May 2020 19:12:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590519832;
-        bh=o6xEWP3l3NxJIyh56Zls/j+EDwwS16Hn5+vt1XvPQsE=;
+        s=default; t=1590520369;
+        bh=vXYk7JUvoeakSGmPKmqeDoVsAFE/QUqU1NhtnvOHL0I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pX9EnXe0AU+26DftWl1+iXW0wmAZ8sUa65Z1WZe3SNkiKE8rL1QEMZz1g7uGJyaKK
-         WpY1gemp1Hapetu8VqVNVZZtp8LukXxMrVijIIJVnfWHzdJ00F8zQW0jjxS519dCab
-         u/TmhGE5XgN4oE6aj2CU3ks+H2K4NBPpfa+PsSG0=
+        b=WGtk8f0Ybhmygo7L3lFaO08K0az6Wg8sHG4uX53EnGpoG9CGBcYWgNDzAl4inLYSR
+         Y9/ahYPkV3waY0cqqsbHFy4vk3KppeYVRJzdRON7Zh1iRhLbMoMGvLTMQPWck0o0i3
+         v/U2Ja3r41U+MgKXdAaesBHaFoDKAVM/+kVoEggU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>,
-        Thomas Gleixner <tglx@linutronix.de>,
+        stable@vger.kernel.org, Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Peter Xu <peterx@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 34/81] ARM: futex: Address build warning
+Subject: [PATCH 5.6 052/126] KVM: selftests: Fix build for evmcs.h
 Date:   Tue, 26 May 2020 20:53:09 +0200
-Message-Id: <20200526183931.170337844@linuxfoundation.org>
+Message-Id: <20200526183942.429523625@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183923.108515292@linuxfoundation.org>
-References: <20200526183923.108515292@linuxfoundation.org>
+In-Reply-To: <20200526183937.471379031@linuxfoundation.org>
+References: <20200526183937.471379031@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,68 +45,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Peter Xu <peterx@redhat.com>
 
-[ Upstream commit 8101b5a1531f3390b3a69fa7934c70a8fd6566ad ]
+[ Upstream commit 8ffdaf9155ebe517cdec5edbcca19ba6e7ee9c3c ]
 
-Stephen reported the following build warning on a ARM multi_v7_defconfig
-build with GCC 9.2.1:
+I got this error when building kvm selftests:
 
-kernel/futex.c: In function 'do_futex':
-kernel/futex.c:1676:17: warning: 'oldval' may be used uninitialized in this function [-Wmaybe-uninitialized]
- 1676 |   return oldval == cmparg;
-      |          ~~~~~~~^~~~~~~~~
-kernel/futex.c:1652:6: note: 'oldval' was declared here
- 1652 |  int oldval, ret;
-      |      ^~~~~~
+/usr/bin/ld: /home/xz/git/linux/tools/testing/selftests/kvm/libkvm.a(vmx.o):/home/xz/git/linux/tools/testing/selftests/kvm/include/evmcs.h:222: multiple definition of `current_evmcs'; /tmp/cco1G48P.o:/home/xz/git/linux/tools/testing/selftests/kvm/include/evmcs.h:222: first defined here
+/usr/bin/ld: /home/xz/git/linux/tools/testing/selftests/kvm/libkvm.a(vmx.o):/home/xz/git/linux/tools/testing/selftests/kvm/include/evmcs.h:223: multiple definition of `current_vp_assist'; /tmp/cco1G48P.o:/home/xz/git/linux/tools/testing/selftests/kvm/include/evmcs.h:223: first defined here
 
-introduced by commit a08971e9488d ("futex: arch_futex_atomic_op_inuser()
-calling conventions change").
+I think it's because evmcs.h is included both in a test file and a lib file so
+the structs have multiple declarations when linking.  After all it's not a good
+habit to declare structs in the header files.
 
-While that change should not make any difference it confuses GCC which
-fails to work out that oldval is not referenced when the return value is
-not zero.
-
-GCC fails to properly analyze arch_futex_atomic_op_inuser(). It's not the
-early return, the issue is with the assembly macros. GCC fails to detect
-that those either set 'ret' to 0 and set oldval or set 'ret' to -EFAULT
-which makes oldval uninteresting. The store to the callsite supplied oldval
-pointer is conditional on ret == 0.
-
-The straight forward way to solve this is to make the store unconditional.
-
-Aside of addressing the build warning this makes sense anyway because it
-removes the conditional from the fastpath. In the error case the stored
-value is uninteresting and the extra store does not matter at all.
-
-Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lkml.kernel.org/r/87pncao2ph.fsf@nanos.tec.linutronix.de
+Cc: Vitaly Kuznetsov <vkuznets@redhat.com>
+Signed-off-by: Peter Xu <peterx@redhat.com>
+Message-Id: <20200504220607.99627-1-peterx@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/include/asm/futex.h | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ tools/testing/selftests/kvm/include/evmcs.h  | 4 ++--
+ tools/testing/selftests/kvm/lib/x86_64/vmx.c | 3 +++
+ 2 files changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/include/asm/futex.h b/arch/arm/include/asm/futex.h
-index ffebe7b7a5b7..91ca80035fc4 100644
---- a/arch/arm/include/asm/futex.h
-+++ b/arch/arm/include/asm/futex.h
-@@ -163,8 +163,13 @@ arch_futex_atomic_op_inuser(int op, int oparg, int *oval, u32 __user *uaddr)
- 	preempt_enable();
- #endif
+diff --git a/tools/testing/selftests/kvm/include/evmcs.h b/tools/testing/selftests/kvm/include/evmcs.h
+index 4912d23844bc..e31ac9c5ead0 100644
+--- a/tools/testing/selftests/kvm/include/evmcs.h
++++ b/tools/testing/selftests/kvm/include/evmcs.h
+@@ -217,8 +217,8 @@ struct hv_enlightened_vmcs {
+ #define HV_X64_MSR_VP_ASSIST_PAGE_ADDRESS_MASK	\
+ 		(~((1ull << HV_X64_MSR_VP_ASSIST_PAGE_ADDRESS_SHIFT) - 1))
  
--	if (!ret)
--		*oval = oldval;
-+	/*
-+	 * Store unconditionally. If ret != 0 the extra store is the least
-+	 * of the worries but GCC cannot figure out that __futex_atomic_op()
-+	 * is either setting ret to -EFAULT or storing the old value in
-+	 * oldval which results in a uninitialized warning at the call site.
-+	 */
-+	*oval = oldval;
+-struct hv_enlightened_vmcs *current_evmcs;
+-struct hv_vp_assist_page *current_vp_assist;
++extern struct hv_enlightened_vmcs *current_evmcs;
++extern struct hv_vp_assist_page *current_vp_assist;
  
- 	return ret;
- }
+ int vcpu_enable_evmcs(struct kvm_vm *vm, int vcpu_id);
+ 
+diff --git a/tools/testing/selftests/kvm/lib/x86_64/vmx.c b/tools/testing/selftests/kvm/lib/x86_64/vmx.c
+index 7aaa99ca4dbc..ce528f3cf093 100644
+--- a/tools/testing/selftests/kvm/lib/x86_64/vmx.c
++++ b/tools/testing/selftests/kvm/lib/x86_64/vmx.c
+@@ -17,6 +17,9 @@
+ 
+ bool enable_evmcs;
+ 
++struct hv_enlightened_vmcs *current_evmcs;
++struct hv_vp_assist_page *current_vp_assist;
++
+ struct eptPageTableEntry {
+ 	uint64_t readable:1;
+ 	uint64_t writable:1;
 -- 
 2.25.1
 
