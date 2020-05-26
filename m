@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 24CED1E2BF8
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:10:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 55D5F1E2CE2
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:18:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403778AbgEZTKn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:10:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39962 "EHLO mail.kernel.org"
+        id S2392367AbgEZTSL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:18:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44342 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391059AbgEZTKm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:10:42 -0400
+        id S2404331AbgEZTNu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:13:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7781E20888;
-        Tue, 26 May 2020 19:10:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 525A3208B3;
+        Tue, 26 May 2020 19:13:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590520241;
-        bh=GEzZKEFck/laAHvXNM4F0VHtJ/O2SrpRrI0SkmrRHbE=;
+        s=default; t=1590520429;
+        bh=5DSkam4qSpPOCtTfMpJff906uNdwjLVc5YIigu8a1XM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bRJzS1svbeXBctFT1xLnHj+F1RlGkN3EY/9NJbOIOTk4sQdFbvEn9FqopPLcsADnj
-         +LWiKjvQ6PhQssSOwVSIFSsXKb8YDRxmSEGtGYJ6eCqBIbrfuNQZ38njCk7SmTOAP2
-         4z//u0ZES5HWHSUhC5/gugmN2ru4PV5VYLzh2T+U=
+        b=BAb8UeVuDTNjrcMf5A1FH1DshI11jCj/PfJhhjkGDLnAY64OEZVuEqdVyyLANBDrE
+         Kp2F5syxm0HpehjQQC472efD/1JeFScGTJukOHc3uqm0n/DBZB/KhnCbWM/CQw23iv
+         F0/LQiYpSnqi3kpm9qkq4cevKc/buQJMgBYBmLnM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Russell Currey <ruscur@russell.cc>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 076/111] powerpc: Remove STRICT_KERNEL_RWX incompatibility with RELOCATABLE
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Jon Hunter <jonathanh@nvidia.com>,
+        Thierry Reding <treding@nvidia.com>,
+        Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 5.6 077/126] dmaengine: tegra210-adma: Fix an error handling path in tegra_adma_probe()
 Date:   Tue, 26 May 2020 20:53:34 +0200
-Message-Id: <20200526183940.074511261@linuxfoundation.org>
+Message-Id: <20200526183944.643969579@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183932.245016380@linuxfoundation.org>
-References: <20200526183932.245016380@linuxfoundation.org>
+In-Reply-To: <20200526183937.471379031@linuxfoundation.org>
+References: <20200526183937.471379031@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,39 +46,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell Currey <ruscur@russell.cc>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit c55d7b5e64265fdca45c85b639013e770bde2d0e ]
+commit 3a5fd0dbd87853f8bd2ea275a5b3b41d6686e761 upstream.
 
-I have tested this with the Radix MMU and everything seems to work, and
-the previous patch for Hash seems to fix everything too.
-STRICT_KERNEL_RWX should still be disabled by default for now.
+Commit b53611fb1ce9 ("dmaengine: tegra210-adma: Fix crash during probe")
+has moved some code in the probe function and reordered the error handling
+path accordingly.
+However, a goto has been missed.
 
-Please test STRICT_KERNEL_RWX + RELOCATABLE!
+Fix it and goto the right label if 'dma_async_device_register()' fails, so
+that all resources are released.
 
-Signed-off-by: Russell Currey <ruscur@russell.cc>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20191224064126.183670-2-ruscur@russell.cc
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: b53611fb1ce9 ("dmaengine: tegra210-adma: Fix crash during probe")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Reviewed-by: Jon Hunter <jonathanh@nvidia.com>
+Acked-by: Thierry Reding <treding@nvidia.com>
+Link: https://lore.kernel.org/r/20200516214205.276266-1-christophe.jaillet@wanadoo.fr
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/powerpc/Kconfig | 2 +-
+ drivers/dma/tegra210-adma.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
-index 2b1033f13210..198bbf42e398 100644
---- a/arch/powerpc/Kconfig
-+++ b/arch/powerpc/Kconfig
-@@ -133,7 +133,7 @@ config PPC
- 	select ARCH_HAS_PTE_SPECIAL
- 	select ARCH_HAS_MEMBARRIER_CALLBACKS
- 	select ARCH_HAS_SCALED_CPUTIME		if VIRT_CPU_ACCOUNTING_NATIVE && PPC_BOOK3S_64
--	select ARCH_HAS_STRICT_KERNEL_RWX	if ((PPC_BOOK3S_64 || PPC32) && !RELOCATABLE && !HIBERNATION)
-+	select ARCH_HAS_STRICT_KERNEL_RWX	if ((PPC_BOOK3S_64 || PPC32) && !HIBERNATION)
- 	select ARCH_HAS_TICK_BROADCAST		if GENERIC_CLOCKEVENTS_BROADCAST
- 	select ARCH_HAS_UACCESS_FLUSHCACHE
- 	select ARCH_HAS_UACCESS_MCSAFE		if PPC64
--- 
-2.25.1
-
+--- a/drivers/dma/tegra210-adma.c
++++ b/drivers/dma/tegra210-adma.c
+@@ -900,7 +900,7 @@ static int tegra_adma_probe(struct platf
+ 	ret = dma_async_device_register(&tdma->dma_dev);
+ 	if (ret < 0) {
+ 		dev_err(&pdev->dev, "ADMA registration failed: %d\n", ret);
+-		goto irq_dispose;
++		goto rpm_put;
+ 	}
+ 
+ 	ret = of_dma_controller_register(pdev->dev.of_node,
 
 
