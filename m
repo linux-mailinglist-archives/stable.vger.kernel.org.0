@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A7281E2D42
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:21:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2EEBE1E2B3D
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:03:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403833AbgEZTMI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:12:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41636 "EHLO mail.kernel.org"
+        id S2391180AbgEZTDN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:03:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58386 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392061AbgEZTMH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:12:07 -0400
+        id S2391175AbgEZTDM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:03:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 145FE20776;
-        Tue, 26 May 2020 19:12:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BBEC6208A7;
+        Tue, 26 May 2020 19:03:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590520326;
-        bh=1SXGO42ArmKLcBXx+m3RGId2KHzSNDSpEYoeyqJ7ot4=;
+        s=default; t=1590519792;
+        bh=bRyIiJyl6PAl049uunO0xQV9NabWDeMLdpaHZgKozhE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X8k8IBD7JfN5b1KVSDpnRoHhPRrjfMog9pR/wmmMTJJ90RayL0oZaF2cSR0lh3BQ0
-         y1dOiD9dUlngkrLVAiL7+l3wX+hslAVzHfofRHALUVicXeRvws7nU676mFwMSpdrje
-         Dfv9K+kIpdw8AJWBm8BbWXPCvy+n8wsA1Q/62Cvw=
+        b=CtGbnjjxOp5a55ey1KSUYb8U0IjhKBFd1rl33iywORSWyn6lpoyBCP31U9fTKCV1U
+         xEdJKNGdeXKD3UQm/Q7/vh6HSAkD0DSBXyV9Z4BT6i4nxf19ojGwRqBTaWJRgwRNb3
+         81ajeW0csIteQwXqGkCIYWqcz3ef1BeJwvKbpNTk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tyrel Datwyler <tyreld@linux.ibm.com>,
+        stable@vger.kernel.org,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Arun Easi <aeasi@marvell.com>,
+        Nilesh Javali <njavali@marvell.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 036/126] scsi: ibmvscsi: Fix WARN_ON during event pool release
-Date:   Tue, 26 May 2020 20:52:53 +0200
-Message-Id: <20200526183940.933329817@linuxfoundation.org>
+Subject: [PATCH 4.19 19/81] scsi: qla2xxx: Fix hang when issuing nvme disconnect-all in NPIV
+Date:   Tue, 26 May 2020 20:52:54 +0200
+Message-Id: <20200526183928.697330627@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183937.471379031@linuxfoundation.org>
-References: <20200526183937.471379031@linuxfoundation.org>
+In-Reply-To: <20200526183923.108515292@linuxfoundation.org>
+References: <20200526183923.108515292@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,92 +47,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tyrel Datwyler <tyreld@linux.ibm.com>
+From: Arun Easi <aeasi@marvell.com>
 
-[ Upstream commit b36522150e5b85045f868768d46fbaaa034174b2 ]
+[ Upstream commit 45a76264c26fd8cfd0c9746196892d9b7e2657ee ]
 
-While removing an ibmvscsi client adapter a WARN_ON like the following is
-seen in the kernel log:
+In NPIV environment, a NPIV host may use a queue pair created by base host
+or other NPIVs, so the check for a queue pair created by this NPIV is not
+correct, and can cause an abort to fail, which in turn means the NVME
+command not returned.  This leads to hang in nvme_fc layer in
+nvme_fc_delete_association() which waits for all I/Os to be returned, which
+is seen as hang in the application.
 
-drmgr: drmgr: -r -c slot -s U9080.M9S.783AEC8-V11-C11 -w 5 -d 1
-WARNING: CPU: 9 PID: 24062 at ../kernel/dma/mapping.c:311 dma_free_attrs+0x78/0x110
-Supported: No, Unreleased kernel
-CPU: 9 PID: 24062 Comm: drmgr Kdump: loaded Tainted: G               X 5.3.18-12-default
-NIP:  c0000000001fa758 LR: c0000000001fa744 CTR: c0000000001fa6e0
-REGS: c0000002173375d0 TRAP: 0700   Tainted: G               X (5.3.18-12-default)
-MSR:  8000000000029033 <SF,EE,ME,IR,DR,RI,LE>  CR: 28088282  XER: 20000000
-CFAR: c0000000001fbf0c IRQMASK: 1
-GPR00: c0000000001fa744 c000000217337860 c00000000161ab00 0000000000000000
-GPR04: 0000000000000000 c000011e12250000 0000000018010000 0000000000000000
-GPR08: 0000000000000000 0000000000000001 0000000000000001 c0080000190f4fa8
-GPR12: c0000000001fa6e0 c000000007fc2a00 0000000000000000 0000000000000000
-GPR16: 0000000000000000 0000000000000000 0000000000000000 0000000000000000
-GPR20: 0000000000000000 0000000000000000 0000000000000000 0000000000000000
-GPR24: 000000011420e310 0000000000000000 0000000000000000 0000000018010000
-GPR28: c00000000159de50 c000011e12250000 0000000000006600 c000011e5c994848
-NIP [c0000000001fa758] dma_free_attrs+0x78/0x110
-LR [c0000000001fa744] dma_free_attrs+0x64/0x110
-Call Trace:
-[c000000217337860] [000000011420e310] 0x11420e310 (unreliable)
-[c0000002173378b0] [c0080000190f0280] release_event_pool+0xd8/0x120 [ibmvscsi]
-[c000000217337930] [c0080000190f3f74] ibmvscsi_remove+0x6c/0x160 [ibmvscsi]
-[c000000217337960] [c0000000000f3cac] vio_bus_remove+0x5c/0x100
-[c0000002173379a0] [c00000000087a0a4] device_release_driver_internal+0x154/0x280
-[c0000002173379e0] [c0000000008777cc] bus_remove_device+0x11c/0x220
-[c000000217337a60] [c000000000870fc4] device_del+0x1c4/0x470
-[c000000217337b10] [c0000000008712a0] device_unregister+0x30/0xa0
-[c000000217337b80] [c0000000000f39ec] vio_unregister_device+0x2c/0x60
-[c000000217337bb0] [c00800001a1d0964] dlpar_remove_slot+0x14c/0x250 [rpadlpar_io]
-[c000000217337c50] [c00800001a1d0bcc] remove_slot_store+0xa4/0x110 [rpadlpar_io]
-[c000000217337cd0] [c000000000c091a0] kobj_attr_store+0x30/0x50
-[c000000217337cf0] [c00000000057c934] sysfs_kf_write+0x64/0x90
-[c000000217337d10] [c00000000057be10] kernfs_fop_write+0x1b0/0x290
-[c000000217337d60] [c000000000488c4c] __vfs_write+0x3c/0x70
-[c000000217337d80] [c00000000048c648] vfs_write+0xd8/0x260
-[c000000217337dd0] [c00000000048ca8c] ksys_write+0xdc/0x130
-[c000000217337e20] [c00000000000b488] system_call+0x5c/0x70
-Instruction dump:
-7c840074 f8010010 f821ffb1 20840040 eb830218 7c8407b4 48002019 60000000
-2fa30000 409e003c 892d0988 792907e0 <0b090000> 2fbd0000 419e0028 2fbc0000
----[ end trace 5955b3c0cc079942 ]---
-rpadlpar_io: slot U9080.M9S.783AEC8-V11-C11 removed
-
-This is tripped as a result of irqs being disabled during the call to
-dma_free_coherent() by release_event_pool(). At this point in the code path
-we have quiesced the adapter and it is overly paranoid to be holding the
-host lock.
-
-[mkp: fixed build warning reported by sfr]
-
-Link: https://lore.kernel.org/r/1588027793-17952-1-git-send-email-tyreld@linux.ibm.com
-Signed-off-by: Tyrel Datwyler <tyreld@linux.ibm.com>
+Link: https://lore.kernel.org/r/20200331104015.24868-3-njavali@marvell.com
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Arun Easi <aeasi@marvell.com>
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ibmvscsi/ibmvscsi.c | 4 ----
- 1 file changed, 4 deletions(-)
+ drivers/scsi/qla2xxx/qla_mbx.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/ibmvscsi/ibmvscsi.c b/drivers/scsi/ibmvscsi/ibmvscsi.c
-index 7f66a7783209..59f0f1030c54 100644
---- a/drivers/scsi/ibmvscsi/ibmvscsi.c
-+++ b/drivers/scsi/ibmvscsi/ibmvscsi.c
-@@ -2320,16 +2320,12 @@ static int ibmvscsi_probe(struct vio_dev *vdev, const struct vio_device_id *id)
- static int ibmvscsi_remove(struct vio_dev *vdev)
- {
- 	struct ibmvscsi_host_data *hostdata = dev_get_drvdata(&vdev->dev);
--	unsigned long flags;
+diff --git a/drivers/scsi/qla2xxx/qla_mbx.c b/drivers/scsi/qla2xxx/qla_mbx.c
+index bef9faea5eee..ac5d2d34aeea 100644
+--- a/drivers/scsi/qla2xxx/qla_mbx.c
++++ b/drivers/scsi/qla2xxx/qla_mbx.c
+@@ -3077,7 +3077,7 @@ qla24xx_abort_command(srb_t *sp)
+ 	ql_dbg(ql_dbg_mbx + ql_dbg_verbose, vha, 0x108c,
+ 	    "Entered %s.\n", __func__);
  
- 	srp_remove_host(hostdata->host);
- 	scsi_remove_host(hostdata->host);
+-	if (vha->flags.qpairs_available && sp->qpair)
++	if (sp->qpair)
+ 		req = sp->qpair->req;
  
- 	purge_requests(hostdata, DID_ERROR);
--
--	spin_lock_irqsave(hostdata->host->host_lock, flags);
- 	release_event_pool(&hostdata->pool, hostdata);
--	spin_unlock_irqrestore(hostdata->host->host_lock, flags);
- 
- 	ibmvscsi_release_crq_queue(&hostdata->queue, hostdata,
- 					max_events);
+ 	if (ql2xasynctmfenable)
 -- 
 2.25.1
 
