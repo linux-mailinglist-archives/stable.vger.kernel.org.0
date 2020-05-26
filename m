@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 155D41E2E15
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:27:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2AC2F1E2D56
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:24:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390877AbgEZTEq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:04:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60510 "EHLO mail.kernel.org"
+        id S2391129AbgEZTIV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:08:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37254 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390954AbgEZTEp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:04:45 -0400
+        id S2403900AbgEZTIU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:08:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A904C20849;
-        Tue, 26 May 2020 19:04:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3223B208A7;
+        Tue, 26 May 2020 19:08:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590519885;
-        bh=LD/o2ex+Rt0c8iOqqjBxp9ea9Wl/TTj5tKRfuQmvYvg=;
+        s=default; t=1590520099;
+        bh=1SXGO42ArmKLcBXx+m3RGId2KHzSNDSpEYoeyqJ7ot4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x0XwiO10VsfZkG7cGwdrVnVN0WIe6So1MuDx2+iLh+f4oYclnQSp9QL7ucWpjJ8qm
-         Cbi2Ef3+i7ZsnWkWmhByFJXIceExaZHU8Aj4npXc66/Ngi74HXCx0RM2GkWN7mG0Ai
-         7zKqlDDhi+02mtqBFLV/DanZwXKUBGo2pDWiyIYk=
+        b=K2jC8Ifsqw3Yo8EVDCxUGBNF+lomFsjWpvHl0+4vsSSV7rY+Lmh/EnJNuKmNeRW9F
+         XZA+3ohqZYi28xHMn5hhSOu16So/WiKo06WRVe0tuieTPAhypT9Ksc9lRrNtvZGCSg
+         BJJXotDrAA3yojQqtvdGtwDotII49Oj6kXNM2C2I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Richard Weinberger <richard@nod.at>,
+        stable@vger.kernel.org, Tyrel Datwyler <tyreld@linux.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 14/81] ubi: Fix seq_file usage in detailed_erase_block_info debugfs file
+Subject: [PATCH 5.4 031/111] scsi: ibmvscsi: Fix WARN_ON during event pool release
 Date:   Tue, 26 May 2020 20:52:49 +0200
-Message-Id: <20200526183927.892759145@linuxfoundation.org>
+Message-Id: <20200526183935.754585837@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183923.108515292@linuxfoundation.org>
-References: <20200526183923.108515292@linuxfoundation.org>
+In-Reply-To: <20200526183932.245016380@linuxfoundation.org>
+References: <20200526183932.245016380@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,58 +44,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Richard Weinberger <richard@nod.at>
+From: Tyrel Datwyler <tyreld@linux.ibm.com>
 
-[ Upstream commit 0e7572cffe442290c347e779bf8bd4306bb0aa7c ]
+[ Upstream commit b36522150e5b85045f868768d46fbaaa034174b2 ]
 
-3bfa7e141b0b ("fs/seq_file.c: seq_read(): add info message about buggy .next functions")
-showed that we don't use seq_file correctly.
-So make sure that our ->next function always updates the position.
+While removing an ibmvscsi client adapter a WARN_ON like the following is
+seen in the kernel log:
 
-Fixes: 7bccd12d27b7 ("ubi: Add debugfs file for tracking PEB state")
-Signed-off-by: Richard Weinberger <richard@nod.at>
+drmgr: drmgr: -r -c slot -s U9080.M9S.783AEC8-V11-C11 -w 5 -d 1
+WARNING: CPU: 9 PID: 24062 at ../kernel/dma/mapping.c:311 dma_free_attrs+0x78/0x110
+Supported: No, Unreleased kernel
+CPU: 9 PID: 24062 Comm: drmgr Kdump: loaded Tainted: G               X 5.3.18-12-default
+NIP:  c0000000001fa758 LR: c0000000001fa744 CTR: c0000000001fa6e0
+REGS: c0000002173375d0 TRAP: 0700   Tainted: G               X (5.3.18-12-default)
+MSR:  8000000000029033 <SF,EE,ME,IR,DR,RI,LE>  CR: 28088282  XER: 20000000
+CFAR: c0000000001fbf0c IRQMASK: 1
+GPR00: c0000000001fa744 c000000217337860 c00000000161ab00 0000000000000000
+GPR04: 0000000000000000 c000011e12250000 0000000018010000 0000000000000000
+GPR08: 0000000000000000 0000000000000001 0000000000000001 c0080000190f4fa8
+GPR12: c0000000001fa6e0 c000000007fc2a00 0000000000000000 0000000000000000
+GPR16: 0000000000000000 0000000000000000 0000000000000000 0000000000000000
+GPR20: 0000000000000000 0000000000000000 0000000000000000 0000000000000000
+GPR24: 000000011420e310 0000000000000000 0000000000000000 0000000018010000
+GPR28: c00000000159de50 c000011e12250000 0000000000006600 c000011e5c994848
+NIP [c0000000001fa758] dma_free_attrs+0x78/0x110
+LR [c0000000001fa744] dma_free_attrs+0x64/0x110
+Call Trace:
+[c000000217337860] [000000011420e310] 0x11420e310 (unreliable)
+[c0000002173378b0] [c0080000190f0280] release_event_pool+0xd8/0x120 [ibmvscsi]
+[c000000217337930] [c0080000190f3f74] ibmvscsi_remove+0x6c/0x160 [ibmvscsi]
+[c000000217337960] [c0000000000f3cac] vio_bus_remove+0x5c/0x100
+[c0000002173379a0] [c00000000087a0a4] device_release_driver_internal+0x154/0x280
+[c0000002173379e0] [c0000000008777cc] bus_remove_device+0x11c/0x220
+[c000000217337a60] [c000000000870fc4] device_del+0x1c4/0x470
+[c000000217337b10] [c0000000008712a0] device_unregister+0x30/0xa0
+[c000000217337b80] [c0000000000f39ec] vio_unregister_device+0x2c/0x60
+[c000000217337bb0] [c00800001a1d0964] dlpar_remove_slot+0x14c/0x250 [rpadlpar_io]
+[c000000217337c50] [c00800001a1d0bcc] remove_slot_store+0xa4/0x110 [rpadlpar_io]
+[c000000217337cd0] [c000000000c091a0] kobj_attr_store+0x30/0x50
+[c000000217337cf0] [c00000000057c934] sysfs_kf_write+0x64/0x90
+[c000000217337d10] [c00000000057be10] kernfs_fop_write+0x1b0/0x290
+[c000000217337d60] [c000000000488c4c] __vfs_write+0x3c/0x70
+[c000000217337d80] [c00000000048c648] vfs_write+0xd8/0x260
+[c000000217337dd0] [c00000000048ca8c] ksys_write+0xdc/0x130
+[c000000217337e20] [c00000000000b488] system_call+0x5c/0x70
+Instruction dump:
+7c840074 f8010010 f821ffb1 20840040 eb830218 7c8407b4 48002019 60000000
+2fa30000 409e003c 892d0988 792907e0 <0b090000> 2fbd0000 419e0028 2fbc0000
+---[ end trace 5955b3c0cc079942 ]---
+rpadlpar_io: slot U9080.M9S.783AEC8-V11-C11 removed
+
+This is tripped as a result of irqs being disabled during the call to
+dma_free_coherent() by release_event_pool(). At this point in the code path
+we have quiesced the adapter and it is overly paranoid to be holding the
+host lock.
+
+[mkp: fixed build warning reported by sfr]
+
+Link: https://lore.kernel.org/r/1588027793-17952-1-git-send-email-tyreld@linux.ibm.com
+Signed-off-by: Tyrel Datwyler <tyreld@linux.ibm.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/ubi/debug.c | 12 ++----------
- 1 file changed, 2 insertions(+), 10 deletions(-)
+ drivers/scsi/ibmvscsi/ibmvscsi.c | 4 ----
+ 1 file changed, 4 deletions(-)
 
-diff --git a/drivers/mtd/ubi/debug.c b/drivers/mtd/ubi/debug.c
-index 7bc96294ae4d..b108e1f04bf6 100644
---- a/drivers/mtd/ubi/debug.c
-+++ b/drivers/mtd/ubi/debug.c
-@@ -405,9 +405,6 @@ static void *eraseblk_count_seq_start(struct seq_file *s, loff_t *pos)
+diff --git a/drivers/scsi/ibmvscsi/ibmvscsi.c b/drivers/scsi/ibmvscsi/ibmvscsi.c
+index 7f66a7783209..59f0f1030c54 100644
+--- a/drivers/scsi/ibmvscsi/ibmvscsi.c
++++ b/drivers/scsi/ibmvscsi/ibmvscsi.c
+@@ -2320,16 +2320,12 @@ static int ibmvscsi_probe(struct vio_dev *vdev, const struct vio_device_id *id)
+ static int ibmvscsi_remove(struct vio_dev *vdev)
  {
- 	struct ubi_device *ubi = s->private;
+ 	struct ibmvscsi_host_data *hostdata = dev_get_drvdata(&vdev->dev);
+-	unsigned long flags;
  
--	if (*pos == 0)
--		return SEQ_START_TOKEN;
+ 	srp_remove_host(hostdata->host);
+ 	scsi_remove_host(hostdata->host);
+ 
+ 	purge_requests(hostdata, DID_ERROR);
 -
- 	if (*pos < ubi->peb_count)
- 		return pos;
+-	spin_lock_irqsave(hostdata->host->host_lock, flags);
+ 	release_event_pool(&hostdata->pool, hostdata);
+-	spin_unlock_irqrestore(hostdata->host->host_lock, flags);
  
-@@ -421,8 +418,6 @@ static void *eraseblk_count_seq_next(struct seq_file *s, void *v, loff_t *pos)
- {
- 	struct ubi_device *ubi = s->private;
- 
--	if (v == SEQ_START_TOKEN)
--		return pos;
- 	(*pos)++;
- 
- 	if (*pos < ubi->peb_count)
-@@ -444,11 +439,8 @@ static int eraseblk_count_seq_show(struct seq_file *s, void *iter)
- 	int err;
- 
- 	/* If this is the start, print a header */
--	if (iter == SEQ_START_TOKEN) {
--		seq_puts(s,
--			 "physical_block_number\terase_count\tblock_status\tread_status\n");
--		return 0;
--	}
-+	if (*block_number == 0)
-+		seq_puts(s, "physical_block_number\terase_count\n");
- 
- 	err = ubi_io_is_bad(ubi, *block_number);
- 	if (err)
+ 	ibmvscsi_release_crq_queue(&hostdata->queue, hostdata,
+ 					max_events);
 -- 
 2.25.1
 
