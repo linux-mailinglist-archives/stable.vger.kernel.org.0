@@ -2,38 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E72FC1E2B6F
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:05:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D7E21E2DAE
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:25:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391465AbgEZTFH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:05:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32916 "EHLO mail.kernel.org"
+        id S2391845AbgEZTXZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:23:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38402 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389967AbgEZTFG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:05:06 -0400
+        id S2391839AbgEZTJR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:09:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 661B820873;
-        Tue, 26 May 2020 19:05:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C752020776;
+        Tue, 26 May 2020 19:09:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590519905;
-        bh=KOOqmjkT3/NHkepUVqMyX89PGaVwj5+wi37xbhKpEEo=;
+        s=default; t=1590520157;
+        bh=QugstcFABO9RP4budpXl3RxOzu6yYgeWrzluexp1PQc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qJsz0WOWI7xhqXZX0E1aNWalmXkZ4sajY0+cBz2jvTGDpYE05SyPyeoHEbkautWTu
-         3BxIh4BN88Gy9rwbOdwGdPq/4fXHbnZYwwArc3Pd5QA7CeUKtb6n+C22V+dKmJP5Eu
-         PKEqIL48nj9Q+/xgA2wWcJjwgNtSqlTWod92O1gE=
+        b=BJ17AbRkcWsnnPAp9XPa65sSX+xvBz2T/TD+nwb/CRN53pAPJVw4ITzHZ4cgoZI3T
+         v6nsXeVp4ih9Jh/9eV56zGk6gbK+/qPC0IrX+O/+nsY/M2r1cEq/XZ49oYFUPxx/17
+         JqMzyBil6P4yWJqXqkdq8ZST/4CCY6oPMEOGpWck=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bob Peterson <rpeterso@redhat.com>,
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 64/81] Revert "gfs2: Dont demote a glock until its revokes are written"
+Subject: [PATCH 5.4 081/111] media: fdp1: Fix R-Car M3-N naming in debug message
 Date:   Tue, 26 May 2020 20:53:39 +0200
-Message-Id: <20200526183934.175831135@linuxfoundation.org>
+Message-Id: <20200526183940.584206407@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183923.108515292@linuxfoundation.org>
-References: <20200526183923.108515292@linuxfoundation.org>
+In-Reply-To: <20200526183932.245016380@linuxfoundation.org>
+References: <20200526183932.245016380@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,46 +47,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bob Peterson <rpeterso@redhat.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit b14c94908b1b884276a6608dea3d0b1b510338b7 ]
+[ Upstream commit c05b9d7b9f3ece2831e4e4829f10e904df296df8 ]
 
-This reverts commit df5db5f9ee112e76b5202fbc331f990a0fc316d6.
+The official name is "R-Car M3-N", not "R-Car M3N".
 
-This patch fixes a regression: patch df5db5f9ee112 allowed function
-run_queue() to bypass its call to do_xmote() if revokes were queued for
-the glock. That's wrong because its call to do_xmote() is what is
-responsible for calling the go_sync() glops functions to sync both
-the ail list and any revokes queued for it. By bypassing the call,
-gfs2 could get into a stand-off where the glock could not be demoted
-until its revokes are written back, but the revokes would not be
-written back because do_xmote() was never called.
-
-It "sort of" works, however, because there are other mechanisms like
-the log flush daemon (logd) that can sync the ail items and revokes,
-if it deems it necessary. The problem is: without file system pressure,
-it might never deem it necessary.
-
-Signed-off-by: Bob Peterson <rpeterso@redhat.com>
+Fixes: 4e8c120de9268fc2 ("media: fdp1: Support M3N and E3 platforms")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/gfs2/glock.c | 3 ---
- 1 file changed, 3 deletions(-)
+ drivers/media/platform/rcar_fdp1.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/gfs2/glock.c b/fs/gfs2/glock.c
-index f8a5eef3d014..ccdd8c821abd 100644
---- a/fs/gfs2/glock.c
-+++ b/fs/gfs2/glock.c
-@@ -636,9 +636,6 @@ __acquires(&gl->gl_lockref.lock)
- 			goto out_unlock;
- 		if (nonblock)
- 			goto out_sched;
--		smp_mb();
--		if (atomic_read(&gl->gl_revokes) != 0)
--			goto out_sched;
- 		set_bit(GLF_DEMOTE_IN_PROGRESS, &gl->gl_flags);
- 		GLOCK_BUG_ON(gl, gl->gl_demote_state == LM_ST_EXCLUSIVE);
- 		gl->gl_target = gl->gl_demote_state;
+diff --git a/drivers/media/platform/rcar_fdp1.c b/drivers/media/platform/rcar_fdp1.c
+index cb93a13e1777..97bed45360f0 100644
+--- a/drivers/media/platform/rcar_fdp1.c
++++ b/drivers/media/platform/rcar_fdp1.c
+@@ -2369,7 +2369,7 @@ static int fdp1_probe(struct platform_device *pdev)
+ 		dprintk(fdp1, "FDP1 Version R-Car H3\n");
+ 		break;
+ 	case FD1_IP_M3N:
+-		dprintk(fdp1, "FDP1 Version R-Car M3N\n");
++		dprintk(fdp1, "FDP1 Version R-Car M3-N\n");
+ 		break;
+ 	case FD1_IP_E3:
+ 		dprintk(fdp1, "FDP1 Version R-Car E3\n");
 -- 
 2.25.1
 
