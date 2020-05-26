@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 16C851E2E9B
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:31:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 117301E2E9D
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:31:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389926AbgEZS7m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 14:59:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53584 "EHLO mail.kernel.org"
+        id S2389957AbgEZS7v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 14:59:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53706 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389905AbgEZS7l (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 14:59:41 -0400
+        id S2390583AbgEZS7q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 14:59:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B3D402086A;
-        Tue, 26 May 2020 18:59:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9CD7C2084C;
+        Tue, 26 May 2020 18:59:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590519581;
-        bh=vD5WoP4lTdpRbN/IxdmcqV8p9UNc8KxGm1x8FKbUuus=;
+        s=default; t=1590519586;
+        bh=vGmwZHpig1AFU6Fxkz5cwv3Zkugjp1Au9Ze6oLu3msg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0u2L2fTIgZ7OY1XRyBsNP/U82EPifyLX7NzUcvHdRpDpsmGpZz6DIZj3HqSDRlkpA
-         W131cWsegFWblBqaA2HVLxpxWgJPuZkSwUtBhAnftmY2CE4oZYSmIFn7CpJ3gtsbfp
-         daTzfHEbmPTAVd64bRTY+sHvecWy7vZXtQ0R72lY=
+        b=rdowEOeQt4K3e91SczR4JznLL3QAEeLZJANM3NxMqT1QOFs+4WMnucESsPtOEugRv
+         yRuaEgfTgVEowKw9SznOaIWDvoa9/56YJYowXsQh8EhdNeSKJnaN1IVNKixKeZK5Pw
+         zvGhqju2GfPB28VKP+B5kBjl/aXKg3lyGr/261kA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dragos Bogdan <dragos.bogdan@analog.com>,
-        Alexandru Ardelean <alexandru.ardelean@analog.com>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
         Stable@vger.kernel.org,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 4.9 59/64] staging: iio: ad2s1210: Fix SPI reading
-Date:   Tue, 26 May 2020 20:53:28 +0200
-Message-Id: <20200526183931.358395909@linuxfoundation.org>
+Subject: [PATCH 4.9 61/64] iio: dac: vf610: Fix an error handling path in vf610_dac_probe()
+Date:   Tue, 26 May 2020 20:53:30 +0200
+Message-Id: <20200526183931.516954919@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200526183913.064413230@linuxfoundation.org>
 References: <20200526183913.064413230@linuxfoundation.org>
@@ -45,63 +45,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dragos Bogdan <dragos.bogdan@analog.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-commit 5e4f99a6b788047b0b8a7496c2e0c8f372f6edf2 upstream.
+commit aad4742fbf0a560c25827adb58695a4497ffc204 upstream.
 
-If the serial interface is used, the 8-bit address should be latched using
-the rising edge of the WR/FSYNC signal.
+A call to 'vf610_dac_exit()' is missing in an error handling path.
 
-This basically means that a CS change is required between the first byte
-sent, and the second one.
-This change splits the single-transfer transfer of 2 bytes into 2 transfers
-with a single byte, and CS change in-between.
-
-Note fixes tag is not accurate, but reflects a point beyond which there
-are too many refactors to make backporting straight forward.
-
-Fixes: b19e9ad5e2cb ("staging:iio:resolver:ad2s1210 general driver cleanup.")
-Signed-off-by: Dragos Bogdan <dragos.bogdan@analog.com>
-Signed-off-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
+Fixes: 1b983bf42fad ("iio: dac: vf610_dac: Add IIO DAC driver for Vybrid SoC")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/iio/resolver/ad2s1210.c |   17 ++++++++++++-----
- 1 file changed, 12 insertions(+), 5 deletions(-)
+ drivers/iio/dac/vf610_dac.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/staging/iio/resolver/ad2s1210.c
-+++ b/drivers/staging/iio/resolver/ad2s1210.c
-@@ -126,17 +126,24 @@ static int ad2s1210_config_write(struct
- static int ad2s1210_config_read(struct ad2s1210_state *st,
- 				unsigned char address)
- {
--	struct spi_transfer xfer = {
--		.len = 2,
--		.rx_buf = st->rx,
--		.tx_buf = st->tx,
-+	struct spi_transfer xfers[] = {
-+		{
-+			.len = 1,
-+			.rx_buf = &st->rx[0],
-+			.tx_buf = &st->tx[0],
-+			.cs_change = 1,
-+		}, {
-+			.len = 1,
-+			.rx_buf = &st->rx[1],
-+			.tx_buf = &st->tx[1],
-+		},
- 	};
- 	int ret = 0;
+--- a/drivers/iio/dac/vf610_dac.c
++++ b/drivers/iio/dac/vf610_dac.c
+@@ -235,6 +235,7 @@ static int vf610_dac_probe(struct platfo
+ 	return 0;
  
- 	ad2s1210_set_mode(MOD_CONFIG, st);
- 	st->tx[0] = address | AD2S1210_MSB_IS_HIGH;
- 	st->tx[1] = AD2S1210_REG_FAULT;
--	ret = spi_sync_transfer(st->sdev, &xfer, 1);
-+	ret = spi_sync_transfer(st->sdev, xfers, 2);
- 	if (ret < 0)
- 		return ret;
- 	st->old_data = true;
+ error_iio_device_register:
++	vf610_dac_exit(info);
+ 	clk_disable_unprepare(info->clk);
+ 
+ 	return ret;
 
 
