@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F2F2B1E2CFC
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:20:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CF791E2DF0
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:26:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404165AbgEZTM4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:12:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40246 "EHLO mail.kernel.org"
+        id S2391542AbgEZTGP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:06:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391996AbgEZTK6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:10:58 -0400
+        id S2391118AbgEZTGO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:06:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3788C208A7;
-        Tue, 26 May 2020 19:10:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5895920776;
+        Tue, 26 May 2020 19:06:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590520257;
+        s=default; t=1590519973;
         bh=aDrwgCU8ouEkJ6ABWOC/pRvB0wx0ZNVgq5yd+DrmsL8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ri/vA+HdC6Qk+F6grEbRfoPoT9vxFd/g9lu4NfdsQ2duWMIZiP14qPDgGb8EjJI3W
-         /NBvH6Q1UhtBLR3Fhf0O++w1D+J9MPEx5JFkCt9SQAI1s5+sDNdLouf/P9l6Px2A6t
-         Y+OTHTW/uaqTlbCZxf9MExhvRKttPO+d/PF+wW2M=
+        b=iUEm88Ioo+XRncUlxPbYYp4BZtLSs31ANapznd2EtBwg1TDeBLVdQutY5oHjtDsCs
+         hmWll0wv/MHfB5eESxxTVq/vVj5J3PcNq5V5Lslwi1/8n4D8jKS7VPRJX7RyXh2run
+         W32DizZgWck+v1VLWalAODQkL2zYC3AyKOw4Fps8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Kevin Hao <haokexin@gmail.com>,
         Wolfram Sang <wsa@the-dreams.de>,
         Ben Hutchings <ben.hutchings@codethink.co.uk>
-Subject: [PATCH 5.6 001/126] i2c: dev: Fix the race between the release of i2c_dev and cdev
-Date:   Tue, 26 May 2020 20:52:18 +0200
-Message-Id: <20200526183937.602930995@linuxfoundation.org>
+Subject: [PATCH 5.4 001/111] i2c: dev: Fix the race between the release of i2c_dev and cdev
+Date:   Tue, 26 May 2020 20:52:19 +0200
+Message-Id: <20200526183932.599055503@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183937.471379031@linuxfoundation.org>
-References: <20200526183937.471379031@linuxfoundation.org>
+In-Reply-To: <20200526183932.245016380@linuxfoundation.org>
+References: <20200526183932.245016380@linuxfoundation.org>
 User-Agent: quilt/0.66
 X-stable: review
 X-Patchwork-Hint: ignore
