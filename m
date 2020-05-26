@@ -2,43 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BDDD1E2D1B
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:20:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A0A01E2E57
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:28:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392096AbgEZTTh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:19:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43094 "EHLO mail.kernel.org"
+        id S2391124AbgEZTCj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:02:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57508 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391767AbgEZTNR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:13:17 -0400
+        id S2391115AbgEZTCi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:02:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 55DDE20776;
-        Tue, 26 May 2020 19:13:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 659FE208C3;
+        Tue, 26 May 2020 19:02:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590520396;
-        bh=yZ5/rhEe7WUsvfHlT+m3Cv1QiRqZebAQm7LCIRuiu1g=;
+        s=default; t=1590519756;
+        bh=icfMV+3Qw8xRr0W9Ef+XkW1RsearV5WsBG6CAr3JNew=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PmOM5XM5cG+aRiWudI4P4F98XHhKE8KbwmdeH+n4A9RdaBpy/+jo1J1ZQUfkwP9pK
-         Hon0KDV8lyELV77wOx0l3V5RNpcrBN8Bi6/bOqsfusYTN4JHfW0E4UPmqI42tByaq4
-         AZazhDeZpB1NyE+NedU+ba3XsvC52NWZZet5zst4=
+        b=RKRnTGZ7gXPMvNd1u9fTI8M2JqMyGS1+TxBBDLeL9RNNjAKLlAzX/FFTZ/BJA+1YE
+         bLeRZoVK+4We908Pk0d95koBylEbKqTB8EhLHUZYDG67L9hZ38oTTpp1wZTyhAvsXT
+         1oHg/pkZv5wRBsNyv6IS5civ4wdfdbnYIT39Hw00=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Brendan Gregg <brendan.d.gregg@gmail.com>,
-        Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 5.6 062/126] bpf: Restrict bpf_probe_read{, str}() only to archs where they work
+        stable@vger.kernel.org, Guillaume Nault <g.nault@alphalink.fr>,
+        "David S. Miller" <davem@davemloft.net>,
+        Giuliano Procida <gprocida@google.com>
+Subject: [PATCH 4.14 34/59] l2tp: initialise PPP sessions before registering them
 Date:   Tue, 26 May 2020 20:53:19 +0200
-Message-Id: <20200526183943.372135882@linuxfoundation.org>
+Message-Id: <20200526183918.894935065@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183937.471379031@linuxfoundation.org>
-References: <20200526183937.471379031@linuxfoundation.org>
+In-Reply-To: <20200526183907.123822792@linuxfoundation.org>
+References: <20200526183907.123822792@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,114 +44,190 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Borkmann <daniel@iogearbox.net>
+From: Guillaume Nault <g.nault@alphalink.fr>
 
-commit 0ebeea8ca8a4d1d453ad299aef0507dab04f6e8d upstream.
+commit f98be6c6359e7e4a61aaefb9964c1db31cb9ec0c upstream.
 
-Given the legacy bpf_probe_read{,str}() BPF helpers are broken on archs
-with overlapping address ranges, we should really take the next step to
-disable them from BPF use there.
+pppol2tp_connect() initialises L2TP sessions after they've been exposed
+to the rest of the system by l2tp_session_register(). This puts
+sessions into transient states that are the source of several races, in
+particular with session's deletion path.
 
-To generally fix the situation, we've recently added new helper variants
-bpf_probe_read_{user,kernel}() and bpf_probe_read_{user,kernel}_str().
-For details on them, see 6ae08ae3dea2 ("bpf: Add probe_read_{user, kernel}
-and probe_read_{user,kernel}_str helpers").
+This patch centralises the initialisation code into
+pppol2tp_session_init(), which is called before the registration phase.
+The only field that can't be set before session registration is the
+pppol2tp socket pointer, which has already been converted to RCU. So
+pppol2tp_connect() should now be race-free.
 
-Given bpf_probe_read{,str}() have been around for ~5 years by now, there
-are plenty of users at least on x86 still relying on them today, so we
-cannot remove them entirely w/o breaking the BPF tracing ecosystem.
+The session's .session_close() callback is now set before registration.
+Therefore, it's always called when l2tp_core deletes the session, even
+if it was created by pppol2tp_session_create() and hasn't been plugged
+to a pppol2tp socket yet. That'd prevent session free because the extra
+reference taken by pppol2tp_session_close() wouldn't be dropped by the
+socket's ->sk_destruct() callback (pppol2tp_session_destruct()).
+We could set .session_close() only while connecting a session to its
+pppol2tp socket, or teach pppol2tp_session_close() to avoid grabbing a
+reference when the session isn't connected, but that'd require adding
+some form of synchronisation to be race free.
 
-However, their use should be restricted to archs with non-overlapping
-address ranges where they are working in their current form. Therefore,
-move this behind a CONFIG_ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE and
-have x86, arm64, arm select it (other archs supporting it can follow-up
-on it as well).
+Instead of that, we can just let the pppol2tp socket hold a reference
+on the session as soon as it starts depending on it (that is, in
+pppol2tp_connect()). Then we don't need to utilise
+pppol2tp_session_close() to hold a reference at the last moment to
+prevent l2tp_core from dropping it.
 
-For the remaining archs, they can workaround easily by relying on the
-feature probe from bpftool which spills out defines that can be used out
-of BPF C code to implement the drop-in replacement for old/new kernels
-via: bpftool feature probe macro
+When releasing the socket, pppol2tp_release() now deletes the session
+using the standard l2tp_session_delete() function, instead of merely
+removing it from hash tables. l2tp_session_delete() drops the reference
+the sessions holds on itself, but also makes sure it doesn't remove a
+session twice. So it can safely be called, even if l2tp_core already
+tried, or is concurrently trying, to remove the session.
+Finally, pppol2tp_session_destruct() drops the reference held by the
+socket.
 
-Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Reviewed-by: Masami Hiramatsu <mhiramat@kernel.org>
-Acked-by: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Brendan Gregg <brendan.d.gregg@gmail.com>
-Cc: Christoph Hellwig <hch@lst.de>
-Link: https://lore.kernel.org/bpf/20200515101118.6508-2-daniel@iogearbox.net
+Fixes: fd558d186df2 ("l2tp: Split pppol2tp patch into separate l2tp and ppp parts")
+Signed-off-by: Guillaume Nault <g.nault@alphalink.fr>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Giuliano Procida <gprocida@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- arch/arm/Kconfig         |    1 +
- arch/arm64/Kconfig       |    1 +
- arch/x86/Kconfig         |    1 +
- init/Kconfig             |    3 +++
- kernel/trace/bpf_trace.c |    6 ++++--
- 5 files changed, 10 insertions(+), 2 deletions(-)
+ net/l2tp/l2tp_ppp.c |   69 ++++++++++++++++++++++++++++------------------------
+ 1 file changed, 38 insertions(+), 31 deletions(-)
 
---- a/arch/arm/Kconfig
-+++ b/arch/arm/Kconfig
-@@ -13,6 +13,7 @@ config ARM
- 	select ARCH_HAS_KEEPINITRD
- 	select ARCH_HAS_KCOV
- 	select ARCH_HAS_MEMBARRIER_SYNC_CORE
-+	select ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE
- 	select ARCH_HAS_PTE_SPECIAL if ARM_LPAE
- 	select ARCH_HAS_PHYS_TO_DMA
- 	select ARCH_HAS_SETUP_DMA_OPS
---- a/arch/arm64/Kconfig
-+++ b/arch/arm64/Kconfig
-@@ -21,6 +21,7 @@ config ARM64
- 	select ARCH_HAS_KCOV
- 	select ARCH_HAS_KEEPINITRD
- 	select ARCH_HAS_MEMBARRIER_SYNC_CORE
-+	select ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE
- 	select ARCH_HAS_PTE_DEVMAP
- 	select ARCH_HAS_PTE_SPECIAL
- 	select ARCH_HAS_SETUP_DMA_OPS
---- a/arch/x86/Kconfig
-+++ b/arch/x86/Kconfig
-@@ -70,6 +70,7 @@ config X86
- 	select ARCH_HAS_KCOV			if X86_64
- 	select ARCH_HAS_MEM_ENCRYPT
- 	select ARCH_HAS_MEMBARRIER_SYNC_CORE
-+	select ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE
- 	select ARCH_HAS_PMEM_API		if X86_64
- 	select ARCH_HAS_PTE_DEVMAP		if X86_64
- 	select ARCH_HAS_PTE_SPECIAL
---- a/init/Kconfig
-+++ b/init/Kconfig
-@@ -2223,6 +2223,9 @@ config ASN1
+--- a/net/l2tp/l2tp_ppp.c
++++ b/net/l2tp/l2tp_ppp.c
+@@ -449,9 +449,6 @@ static void pppol2tp_session_close(struc
+ 			inet_shutdown(sk->sk_socket, SEND_SHUTDOWN);
+ 		sock_put(sk);
+ 	}
+-
+-	/* Don't let the session go away before our socket does */
+-	l2tp_session_inc_refcount(session);
+ }
  
- source "kernel/Kconfig.locks"
+ /* Really kill the session socket. (Called from sock_put() if
+@@ -507,8 +504,7 @@ static int pppol2tp_release(struct socke
+ 	if (session != NULL) {
+ 		struct pppol2tp_session *ps;
  
-+config ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE
-+	bool
+-		__l2tp_session_unhash(session);
+-		l2tp_session_queue_purge(session);
++		l2tp_session_delete(session);
+ 
+ 		ps = l2tp_session_priv(session);
+ 		mutex_lock(&ps->sk_lock);
+@@ -600,6 +596,35 @@ static void pppol2tp_show(struct seq_fil
+ }
+ #endif
+ 
++static void pppol2tp_session_init(struct l2tp_session *session)
++{
++	struct pppol2tp_session *ps;
++	struct dst_entry *dst;
 +
- config ARCH_HAS_SYNC_CORE_BEFORE_USERMODE
- 	bool
- 
---- a/kernel/trace/bpf_trace.c
-+++ b/kernel/trace/bpf_trace.c
-@@ -857,14 +857,16 @@ tracing_func_proto(enum bpf_func_id func
- 		return &bpf_probe_read_user_proto;
- 	case BPF_FUNC_probe_read_kernel:
- 		return &bpf_probe_read_kernel_proto;
--	case BPF_FUNC_probe_read:
--		return &bpf_probe_read_compat_proto;
- 	case BPF_FUNC_probe_read_user_str:
- 		return &bpf_probe_read_user_str_proto;
- 	case BPF_FUNC_probe_read_kernel_str:
- 		return &bpf_probe_read_kernel_str_proto;
-+#ifdef CONFIG_ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE
-+	case BPF_FUNC_probe_read:
-+		return &bpf_probe_read_compat_proto;
- 	case BPF_FUNC_probe_read_str:
- 		return &bpf_probe_read_compat_str_proto;
++	session->recv_skb = pppol2tp_recv;
++	session->session_close = pppol2tp_session_close;
++#if IS_ENABLED(CONFIG_L2TP_DEBUGFS)
++	session->show = pppol2tp_show;
 +#endif
- #ifdef CONFIG_CGROUPS
- 	case BPF_FUNC_get_current_cgroup_id:
- 		return &bpf_get_current_cgroup_id_proto;
++
++	ps = l2tp_session_priv(session);
++	mutex_init(&ps->sk_lock);
++	ps->tunnel_sock = session->tunnel->sock;
++	ps->owner = current->pid;
++
++	/* If PMTU discovery was enabled, use the MTU that was discovered */
++	dst = sk_dst_get(session->tunnel->sock);
++	if (dst) {
++		u32 pmtu = dst_mtu(dst);
++
++		if (pmtu) {
++			session->mtu = pmtu - PPPOL2TP_HEADER_OVERHEAD;
++			session->mru = pmtu - PPPOL2TP_HEADER_OVERHEAD;
++		}
++		dst_release(dst);
++	}
++}
++
+ /* connect() handler. Attach a PPPoX socket to a tunnel UDP socket
+  */
+ static int pppol2tp_connect(struct socket *sock, struct sockaddr *uservaddr,
+@@ -611,7 +636,6 @@ static int pppol2tp_connect(struct socke
+ 	struct l2tp_session *session = NULL;
+ 	struct l2tp_tunnel *tunnel;
+ 	struct pppol2tp_session *ps;
+-	struct dst_entry *dst;
+ 	struct l2tp_session_cfg cfg = { 0, };
+ 	int error = 0;
+ 	u32 tunnel_id, peer_tunnel_id;
+@@ -763,8 +787,8 @@ static int pppol2tp_connect(struct socke
+ 			goto end;
+ 		}
+ 
++		pppol2tp_session_init(session);
+ 		ps = l2tp_session_priv(session);
+-		mutex_init(&ps->sk_lock);
+ 		l2tp_session_inc_refcount(session);
+ 
+ 		mutex_lock(&ps->sk_lock);
+@@ -777,26 +801,6 @@ static int pppol2tp_connect(struct socke
+ 		drop_refcnt = true;
+ 	}
+ 
+-	ps->owner	     = current->pid;
+-	ps->tunnel_sock = tunnel->sock;
+-
+-	session->recv_skb	= pppol2tp_recv;
+-	session->session_close	= pppol2tp_session_close;
+-#if IS_ENABLED(CONFIG_L2TP_DEBUGFS)
+-	session->show		= pppol2tp_show;
+-#endif
+-
+-	/* If PMTU discovery was enabled, use the MTU that was discovered */
+-	dst = sk_dst_get(tunnel->sock);
+-	if (dst != NULL) {
+-		u32 pmtu = dst_mtu(dst);
+-
+-		if (pmtu != 0)
+-			session->mtu = session->mru = pmtu -
+-				PPPOL2TP_HEADER_OVERHEAD;
+-		dst_release(dst);
+-	}
+-
+ 	/* Special case: if source & dest session_id == 0x0000, this
+ 	 * socket is being created to manage the tunnel. Just set up
+ 	 * the internal context for use by ioctl() and sockopt()
+@@ -830,6 +834,12 @@ out_no_ppp:
+ 	rcu_assign_pointer(ps->sk, sk);
+ 	mutex_unlock(&ps->sk_lock);
+ 
++	/* Keep the reference we've grabbed on the session: sk doesn't expect
++	 * the session to disappear. pppol2tp_session_destruct() is responsible
++	 * for dropping it.
++	 */
++	drop_refcnt = false;
++
+ 	sk->sk_state = PPPOX_CONNECTED;
+ 	l2tp_info(session, L2TP_MSG_CONTROL, "%s: created\n",
+ 		  session->name);
+@@ -853,7 +863,6 @@ static int pppol2tp_session_create(struc
+ {
+ 	int error;
+ 	struct l2tp_session *session;
+-	struct pppol2tp_session *ps;
+ 
+ 	/* Error if tunnel socket is not prepped */
+ 	if (!tunnel->sock) {
+@@ -876,9 +885,7 @@ static int pppol2tp_session_create(struc
+ 		goto err;
+ 	}
+ 
+-	ps = l2tp_session_priv(session);
+-	mutex_init(&ps->sk_lock);
+-	ps->tunnel_sock = tunnel->sock;
++	pppol2tp_session_init(session);
+ 
+ 	error = l2tp_session_register(session, tunnel);
+ 	if (error < 0)
 
 
