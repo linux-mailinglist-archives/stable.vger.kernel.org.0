@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B04C1E2A5D
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 20:57:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E17301E2AA3
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 20:58:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389393AbgEZSzP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 14:55:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47554 "EHLO mail.kernel.org"
+        id S2390097AbgEZS5j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 14:57:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50868 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389363AbgEZSzO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 14:55:14 -0400
+        id S2389371AbgEZS5i (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 14:57:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 92DF8208B3;
-        Tue, 26 May 2020 18:55:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9A0092084C;
+        Tue, 26 May 2020 18:57:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590519313;
-        bh=2M33O1g+B+9kR689BYVVVK/Fk67khvaJz+834sBuYn0=;
+        s=default; t=1590519457;
+        bh=i7GCNXEdmxAwxA1PHcz1D4sPvCWxebhh6uZbOn+hRMM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WtLzK9TFFBIanQH7Xy9enYFFmg0xwjDBjKPhYdJSindHe8qfbofPnwG5OAKYTn6ut
-         W40mNMj+T9H7UmGDjWxdS72jXTnL1qhs9m0UEgJlRHMVJ4LIy/z33yoKTkwqRnNKCe
-         UiVVCuEfX//J9OWC/pcYs8sjywAjjxyMbnuxgm6o=
+        b=xiZ2dm4E7YosVffBywWs+TTdjlLv8mRl2etbxUls5ai50vjO+RELt3mr7RhGCoaF4
+         tUt10LlGz0AgDOpGbEoeTRZdRZYI+IX/VvEnwmJ8gc3jGjoAqe0sFmeyPtftKL48YP
+         uARVSMO+Es73LSyd32bsWsfE4XDLojQsaDR4p5j0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Erico Nunes <erico.nunes@datacom.ind.br>,
-        Wolfram Sang <wsa@the-dreams.de>,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Fr=C3=A9d=C3=A9ric=20Pierret=20 ?= 
+        <frederic.pierret@qubes-os.org>, Kees Cook <keescook@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 20/65] i2c: dev: switch from register_chrdev to cdev API
-Date:   Tue, 26 May 2020 20:52:39 +0200
-Message-Id: <20200526183913.759270679@linuxfoundation.org>
+Subject: [PATCH 4.9 11/64] gcc-common.h: Update for GCC 10
+Date:   Tue, 26 May 2020 20:52:40 +0200
+Message-Id: <20200526183917.620630785@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183905.988782958@linuxfoundation.org>
-References: <20200526183905.988782958@linuxfoundation.org>
+In-Reply-To: <20200526183913.064413230@linuxfoundation.org>
+References: <20200526183913.064413230@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,122 +45,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Erico Nunes <erico.nunes@datacom.ind.br>
+From: Frédéric Pierret (fepitre) <frederic.pierret@qubes-os.org>
 
-commit d6760b14d4a1243f918d983bba1e35c5a5cd5a6d upstream.
+[ Upstream commit c7527373fe28f97d8a196ab562db5589be0d34b9 ]
 
-i2c-dev had never moved away from the older register_chrdev interface to
-implement its char device registration. The register_chrdev API has the
-limitation of enabling only up to 256 i2c-dev busses to exist.
+Remove "params.h" include, which has been dropped in GCC 10.
 
-Large platforms with lots of i2c devices (i.e. pluggable transceivers)
-with dedicated busses may have to exceed that limit.
-In particular, there are also platforms making use of the i2c bus
-multiplexing API, which instantiates a virtual bus for each possible
-multiplexed selection.
+Remove is_a_helper() macro, which is now defined in gimple.h, as seen
+when running './scripts/gcc-plugin.sh g++ g++ gcc':
 
-This patch removes the register_chrdev usage and replaces it with the
-less old cdev API, which takes away the 256 i2c-dev bus limitation.
-It should not have any other impact for i2c bus drivers or user space.
+In file included from <stdin>:1:
+./gcc-plugins/gcc-common.h:852:13: error: redefinition of ‘static bool is_a_helper<T>::test(U*) [with U = const gimple; T = const ggoto*]’
+  852 | inline bool is_a_helper<const ggoto *>::test(const_gimple gs)
+      |             ^~~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from ./gcc-plugins/gcc-common.h:125,
+                 from <stdin>:1:
+/usr/lib/gcc/x86_64-redhat-linux/10/plugin/include/gimple.h:1037:1: note: ‘static bool is_a_helper<T>::test(U*) [with U = const gimple; T = const ggoto*]’ previously declared here
+ 1037 | is_a_helper <const ggoto *>::test (const gimple *gs)
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-This patch has been tested on qemu x86 and qemu powerpc platforms with
-the aid of a module which adds and removes 5000 virtual i2c busses, as
-well as validated on an existing powerpc hardware platform which makes
-use of the i2c bus multiplexing API.
-i2c-dev busses with device minor numbers larger than 256 have also been
-validated to work with the existing i2c-tools.
+Add -Wno-format-diag to scripts/gcc-plugins/Makefile to avoid
+meaningless warnings from error() formats used by plugins:
 
-Signed-off-by: Erico Nunes <erico.nunes@datacom.ind.br>
-[wsa: kept includes sorted]
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-[bwh: Backported to 4.4: adjust context]
-Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
+scripts/gcc-plugins/structleak_plugin.c: In function ‘int plugin_init(plugin_name_args*, plugin_gcc_version*)’:
+scripts/gcc-plugins/structleak_plugin.c:253:12: warning: unquoted sequence of 2 consecutive punctuation characters ‘'-’ in format [-Wformat-diag]
+  253 |   error(G_("unknown option '-fplugin-arg-%s-%s'"), plugin_name, argv[i].key);
+      |            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Signed-off-by: Frédéric Pierret (fepitre) <frederic.pierret@qubes-os.org>
+Link: https://lore.kernel.org/r/20200407113259.270172-1-frederic.pierret@qubes-os.org
+[kees: include -Wno-format-diag for plugin builds]
+Signed-off-by: Kees Cook <keescook@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/i2c-dev.c | 19 +++++++++++++++----
- 1 file changed, 15 insertions(+), 4 deletions(-)
+ scripts/gcc-plugins/Makefile     | 1 +
+ scripts/gcc-plugins/gcc-common.h | 4 ++++
+ 2 files changed, 5 insertions(+)
 
-diff --git a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
-index e56b774e7cf9..5fecc1d9e0a1 100644
---- a/drivers/i2c/i2c-dev.c
-+++ b/drivers/i2c/i2c-dev.c
-@@ -22,6 +22,7 @@
+diff --git a/scripts/gcc-plugins/Makefile b/scripts/gcc-plugins/Makefile
+index 8b29dc17c73c..2cad963c4fb7 100644
+--- a/scripts/gcc-plugins/Makefile
++++ b/scripts/gcc-plugins/Makefile
+@@ -9,6 +9,7 @@ else
+   HOST_EXTRACXXFLAGS += -I$(GCC_PLUGINS_DIR)/include -I$(src) -std=gnu++98 -fno-rtti
+   HOST_EXTRACXXFLAGS += -fno-exceptions -fasynchronous-unwind-tables -ggdb
+   HOST_EXTRACXXFLAGS += -Wno-narrowing -Wno-unused-variable
++  HOST_EXTRACXXFLAGS += -Wno-format-diag
+   export HOST_EXTRACXXFLAGS
+ endif
  
- /* The I2C_RDWR ioctl code is written by Kolja Waschk <waschk@telos.de> */
+diff --git a/scripts/gcc-plugins/gcc-common.h b/scripts/gcc-plugins/gcc-common.h
+index 08fe09c28bd2..6792915f5174 100644
+--- a/scripts/gcc-plugins/gcc-common.h
++++ b/scripts/gcc-plugins/gcc-common.h
+@@ -31,7 +31,9 @@
+ #include "ggc.h"
+ #include "timevar.h"
  
-+#include <linux/cdev.h>
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/device.h>
-@@ -47,9 +48,10 @@ struct i2c_dev {
- 	struct list_head list;
- 	struct i2c_adapter *adap;
- 	struct device *dev;
-+	struct cdev cdev;
- };
++#if BUILDING_GCC_VERSION < 10000
+ #include "params.h"
++#endif
  
--#define I2C_MINORS	256
-+#define I2C_MINORS	MINORMASK
- static LIST_HEAD(i2c_dev_list);
- static DEFINE_SPINLOCK(i2c_dev_list_lock);
- 
-@@ -559,6 +561,12 @@ static int i2cdev_attach_adapter(struct device *dev, void *dummy)
- 	if (IS_ERR(i2c_dev))
- 		return PTR_ERR(i2c_dev);
- 
-+	cdev_init(&i2c_dev->cdev, &i2cdev_fops);
-+	i2c_dev->cdev.owner = THIS_MODULE;
-+	res = cdev_add(&i2c_dev->cdev, MKDEV(I2C_MAJOR, adap->nr), 1);
-+	if (res)
-+		goto error_cdev;
-+
- 	/* register this i2c device with the driver core */
- 	i2c_dev->dev = device_create(i2c_dev_class, &adap->dev,
- 				     MKDEV(I2C_MAJOR, adap->nr), NULL,
-@@ -572,6 +580,8 @@ static int i2cdev_attach_adapter(struct device *dev, void *dummy)
- 		 adap->name, adap->nr);
- 	return 0;
- error:
-+	cdev_del(&i2c_dev->cdev);
-+error_cdev:
- 	return_i2c_dev(i2c_dev);
- 	return res;
- }
-@@ -591,6 +601,7 @@ static int i2cdev_detach_adapter(struct device *dev, void *dummy)
- 
- 	return_i2c_dev(i2c_dev);
- 	device_destroy(i2c_dev_class, MKDEV(I2C_MAJOR, adap->nr));
-+	cdev_del(&i2c_dev->cdev);
- 
- 	pr_debug("i2c-dev: adapter [%s] unregistered\n", adap->name);
- 	return 0;
-@@ -627,7 +638,7 @@ static int __init i2c_dev_init(void)
- 
- 	printk(KERN_INFO "i2c /dev entries driver\n");
- 
--	res = register_chrdev(I2C_MAJOR, "i2c", &i2cdev_fops);
-+	res = register_chrdev_region(MKDEV(I2C_MAJOR, 0), I2C_MINORS, "i2c");
- 	if (res)
- 		goto out;
- 
-@@ -651,7 +662,7 @@ static int __init i2c_dev_init(void)
- out_unreg_class:
- 	class_destroy(i2c_dev_class);
- out_unreg_chrdev:
--	unregister_chrdev(I2C_MAJOR, "i2c");
-+	unregister_chrdev_region(MKDEV(I2C_MAJOR, 0), I2C_MINORS);
- out:
- 	printk(KERN_ERR "%s: Driver Initialisation failed\n", __FILE__);
- 	return res;
-@@ -662,7 +673,7 @@ static void __exit i2c_dev_exit(void)
- 	bus_unregister_notifier(&i2c_bus_type, &i2cdev_notifier);
- 	i2c_for_each_dev(NULL, i2cdev_detach_adapter);
- 	class_destroy(i2c_dev_class);
--	unregister_chrdev(I2C_MAJOR, "i2c");
-+	unregister_chrdev_region(MKDEV(I2C_MAJOR, 0), I2C_MINORS);
+ #if BUILDING_GCC_VERSION <= 4009
+ #include "pointer-set.h"
+@@ -796,6 +798,7 @@ static inline gimple gimple_build_assign_with_ops(enum tree_code subcode, tree l
+ 	return gimple_build_assign(lhs, subcode, op1, op2 PASS_MEM_STAT);
  }
  
- MODULE_AUTHOR("Frodo Looijaard <frodol@dds.nl> and "
++#if BUILDING_GCC_VERSION < 10000
+ template <>
+ template <>
+ inline bool is_a_helper<const ggoto *>::test(const_gimple gs)
+@@ -809,6 +812,7 @@ inline bool is_a_helper<const greturn *>::test(const_gimple gs)
+ {
+ 	return gs->code == GIMPLE_RETURN;
+ }
++#endif
+ 
+ static inline gasm *as_a_gasm(gimple stmt)
+ {
 -- 
 2.25.1
 
