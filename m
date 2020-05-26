@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AE0791E2ED1
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:32:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CDC111E2F13
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:34:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390322AbgEZS6W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 14:58:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51862 "EHLO mail.kernel.org"
+        id S2389702AbgEZS4C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 14:56:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48656 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390308AbgEZS6U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 14:58:20 -0400
+        id S2389692AbgEZS4B (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 14:56:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6B0AF2086A;
-        Tue, 26 May 2020 18:58:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D228921531;
+        Tue, 26 May 2020 18:55:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590519499;
-        bh=xE5aZIstMBB2VgftsNKnCNd85SFqZ0Fspg9GZnXYNk0=;
+        s=default; t=1590519360;
+        bh=Lq89cpTv3sSw1MwZI64gGmvNy5zeoDnw9d7XelhkLBo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vKSrmIvMIIEhq5vEIy1BpnvT4Ht0hNVSalKymmpVWctXrubWLnXZ+vY/sifXBgxXN
-         hF27eAY1fqpvjRu645bmKzXiLe0yZ/7LAuYzqVuvM/+LaA55mc7r7S0AdWpTUgJvgp
-         qBqEwunlJKf3lbZfvIdZonC0dGgtFDqN0hWZYqr8=
+        b=wMu+0FlbpB8eG1Qpmogq8M6r8BGgnvh9VuoXrx03fAfpOw566lmkNYiNa+1HkczkE
+         +YqoNaF3UUVw0NWBJCo3PqogdKne9+Xc2lXHP30rtN8WMWrvv6WqO4xk0crFHq+YdC
+         sIDQymVjwkq0Lan9BYFlu1Odd4axcJ/+X+Dmrw9o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, greg@kroah.com
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Asbjoern Sloth Toennesen <asbjorn@asbjorn.st>,
+        stable@vger.kernel.org, Guillaume Nault <g.nault@alphalink.fr>,
         "David S. Miller" <davem@davemloft.net>,
+        Amit Pundir <amit.pundir@linaro.org>,
         Giuliano Procida <gprocida@google.com>
-Subject: [PATCH 4.9 27/64] net: l2tp: export debug flags to UAPI
+Subject: [PATCH 4.4 37/65] l2tp: take a reference on sessions used in genetlink handlers
 Date:   Tue, 26 May 2020 20:52:56 +0200
-Message-Id: <20200526183921.452774132@linuxfoundation.org>
+Message-Id: <20200526183918.883341173@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183913.064413230@linuxfoundation.org>
-References: <20200526183913.064413230@linuxfoundation.org>
+In-Reply-To: <20200526183905.988782958@linuxfoundation.org>
+References: <20200526183905.988782958@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,73 +45,198 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Asbjørn Sloth Tønnesen <asbjorn@asbjorn.st>
+From: Guillaume Nault <g.nault@alphalink.fr>
 
-commit 41c43fbee68f4f9a2a9675d83bca91c77862d7f0 upstream.
+commit 2777e2ab5a9cf2b4524486c6db1517a6ded25261 upstream.
 
-Move the L2TP_MSG_* definitions to UAPI, as it is part of
-the netlink API.
+Callers of l2tp_nl_session_find() need to hold a reference on the
+returned session since there's no guarantee that it isn't going to
+disappear from under them.
 
-Signed-off-by: Asbjoern Sloth Toennesen <asbjorn@asbjorn.st>
+Relying on the fact that no l2tp netlink message may be processed
+concurrently isn't enough: sessions can be deleted by other means
+(e.g. by closing the PPPOL2TP socket of a ppp pseudowire).
+
+l2tp_nl_cmd_session_delete() is a bit special: it runs a callback
+function that may require a previous call to session->ref(). In
+particular, for ppp pseudowires, the callback is l2tp_session_delete(),
+which then calls pppol2tp_session_close() and dereferences the PPPOL2TP
+socket. The socket might already be gone at the moment
+l2tp_session_delete() calls session->ref(), so we need to take a
+reference during the session lookup. So we need to pass the do_ref
+variable down to l2tp_session_get() and l2tp_session_get_by_ifname().
+
+Since all callers have to be updated, l2tp_session_find_by_ifname() and
+l2tp_nl_session_find() are renamed to reflect their new behaviour.
+
+Fixes: 309795f4bec2 ("l2tp: Add netlink control API for L2TP")
+Signed-off-by: Guillaume Nault <g.nault@alphalink.fr>
 Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Amit Pundir <amit.pundir@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Giuliano Procida <gprocida@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/uapi/linux/l2tp.h |   17 ++++++++++++++++-
- net/l2tp/l2tp_core.h      |   10 ----------
- 2 files changed, 16 insertions(+), 11 deletions(-)
+ net/l2tp/l2tp_core.c    |    9 +++++++--
+ net/l2tp/l2tp_core.h    |    3 ++-
+ net/l2tp/l2tp_netlink.c |   39 ++++++++++++++++++++++++++-------------
+ 3 files changed, 35 insertions(+), 16 deletions(-)
 
---- a/include/uapi/linux/l2tp.h
-+++ b/include/uapi/linux/l2tp.h
-@@ -108,7 +108,7 @@ enum {
- 	L2TP_ATTR_VLAN_ID,		/* u16 */
- 	L2TP_ATTR_COOKIE,		/* 0, 4 or 8 bytes */
- 	L2TP_ATTR_PEER_COOKIE,		/* 0, 4 or 8 bytes */
--	L2TP_ATTR_DEBUG,		/* u32 */
-+	L2TP_ATTR_DEBUG,		/* u32, enum l2tp_debug_flags */
- 	L2TP_ATTR_RECV_SEQ,		/* u8 */
- 	L2TP_ATTR_SEND_SEQ,		/* u8 */
- 	L2TP_ATTR_LNS_MODE,		/* u8 */
-@@ -175,6 +175,21 @@ enum l2tp_seqmode {
- 	L2TP_SEQ_ALL = 2,
- };
- 
-+/**
-+ * enum l2tp_debug_flags - debug message categories for L2TP tunnels/sessions
-+ *
-+ * @L2TP_MSG_DEBUG: verbose debug (if compiled in)
-+ * @L2TP_MSG_CONTROL: userspace - kernel interface
-+ * @L2TP_MSG_SEQ: sequence numbers
-+ * @L2TP_MSG_DATA: data packets
-+ */
-+enum l2tp_debug_flags {
-+	L2TP_MSG_DEBUG		= (1 << 0),
-+	L2TP_MSG_CONTROL	= (1 << 1),
-+	L2TP_MSG_SEQ		= (1 << 2),
-+	L2TP_MSG_DATA		= (1 << 3),
-+};
-+
- /*
-  * NETLINK_GENERIC related info
+--- a/net/l2tp/l2tp_core.c
++++ b/net/l2tp/l2tp_core.c
+@@ -355,7 +355,8 @@ EXPORT_SYMBOL_GPL(l2tp_session_get_nth);
+ /* Lookup a session by interface name.
+  * This is very inefficient but is only used by management interfaces.
   */
+-struct l2tp_session *l2tp_session_find_by_ifname(struct net *net, char *ifname)
++struct l2tp_session *l2tp_session_get_by_ifname(struct net *net, char *ifname,
++						bool do_ref)
+ {
+ 	struct l2tp_net *pn = l2tp_pernet(net);
+ 	int hash;
+@@ -365,7 +366,11 @@ struct l2tp_session *l2tp_session_find_b
+ 	for (hash = 0; hash < L2TP_HASH_SIZE_2; hash++) {
+ 		hlist_for_each_entry_rcu(session, &pn->l2tp_session_hlist[hash], global_hlist) {
+ 			if (!strcmp(session->ifname, ifname)) {
++				l2tp_session_inc_refcount(session);
++				if (do_ref && session->ref)
++					session->ref(session);
+ 				rcu_read_unlock_bh();
++
+ 				return session;
+ 			}
+ 		}
+@@ -375,7 +380,7 @@ struct l2tp_session *l2tp_session_find_b
+ 
+ 	return NULL;
+ }
+-EXPORT_SYMBOL_GPL(l2tp_session_find_by_ifname);
++EXPORT_SYMBOL_GPL(l2tp_session_get_by_ifname);
+ 
+ static int l2tp_session_add_to_tunnel(struct l2tp_tunnel *tunnel,
+ 				      struct l2tp_session *session)
 --- a/net/l2tp/l2tp_core.h
 +++ b/net/l2tp/l2tp_core.h
-@@ -23,16 +23,6 @@
- #define L2TP_HASH_BITS_2	8
- #define L2TP_HASH_SIZE_2	(1 << L2TP_HASH_BITS_2)
+@@ -252,7 +252,8 @@ struct l2tp_session *l2tp_session_find(s
+ 				       u32 session_id);
+ struct l2tp_session *l2tp_session_get_nth(struct l2tp_tunnel *tunnel, int nth,
+ 					  bool do_ref);
+-struct l2tp_session *l2tp_session_find_by_ifname(struct net *net, char *ifname);
++struct l2tp_session *l2tp_session_get_by_ifname(struct net *net, char *ifname,
++						bool do_ref);
+ struct l2tp_tunnel *l2tp_tunnel_find(struct net *net, u32 tunnel_id);
+ struct l2tp_tunnel *l2tp_tunnel_find_nth(struct net *net, int nth);
  
--/* Debug message categories for the DEBUG socket option */
--enum {
--	L2TP_MSG_DEBUG		= (1 << 0),	/* verbose debug (if
--						 * compiled in) */
--	L2TP_MSG_CONTROL	= (1 << 1),	/* userspace - kernel
--						 * interface */
--	L2TP_MSG_SEQ		= (1 << 2),	/* sequence numbers */
--	L2TP_MSG_DATA		= (1 << 3),	/* data packets */
--};
--
- struct sk_buff;
+--- a/net/l2tp/l2tp_netlink.c
++++ b/net/l2tp/l2tp_netlink.c
+@@ -55,7 +55,8 @@ static int l2tp_nl_session_send(struct s
+ /* Accessed under genl lock */
+ static const struct l2tp_nl_cmd_ops *l2tp_nl_cmd_ops[__L2TP_PWTYPE_MAX];
  
- struct l2tp_stats {
+-static struct l2tp_session *l2tp_nl_session_find(struct genl_info *info)
++static struct l2tp_session *l2tp_nl_session_get(struct genl_info *info,
++						bool do_ref)
+ {
+ 	u32 tunnel_id;
+ 	u32 session_id;
+@@ -66,14 +67,15 @@ static struct l2tp_session *l2tp_nl_sess
+ 
+ 	if (info->attrs[L2TP_ATTR_IFNAME]) {
+ 		ifname = nla_data(info->attrs[L2TP_ATTR_IFNAME]);
+-		session = l2tp_session_find_by_ifname(net, ifname);
++		session = l2tp_session_get_by_ifname(net, ifname, do_ref);
+ 	} else if ((info->attrs[L2TP_ATTR_SESSION_ID]) &&
+ 		   (info->attrs[L2TP_ATTR_CONN_ID])) {
+ 		tunnel_id = nla_get_u32(info->attrs[L2TP_ATTR_CONN_ID]);
+ 		session_id = nla_get_u32(info->attrs[L2TP_ATTR_SESSION_ID]);
+ 		tunnel = l2tp_tunnel_find(net, tunnel_id);
+ 		if (tunnel)
+-			session = l2tp_session_find(net, tunnel, session_id);
++			session = l2tp_session_get(net, tunnel, session_id,
++						   do_ref);
+ 	}
+ 
+ 	return session;
+@@ -644,7 +646,7 @@ static int l2tp_nl_cmd_session_delete(st
+ 	struct l2tp_session *session;
+ 	u16 pw_type;
+ 
+-	session = l2tp_nl_session_find(info);
++	session = l2tp_nl_session_get(info, true);
+ 	if (session == NULL) {
+ 		ret = -ENODEV;
+ 		goto out;
+@@ -658,6 +660,10 @@ static int l2tp_nl_cmd_session_delete(st
+ 		if (l2tp_nl_cmd_ops[pw_type] && l2tp_nl_cmd_ops[pw_type]->session_delete)
+ 			ret = (*l2tp_nl_cmd_ops[pw_type]->session_delete)(session);
+ 
++	if (session->deref)
++		session->deref(session);
++	l2tp_session_dec_refcount(session);
++
+ out:
+ 	return ret;
+ }
+@@ -667,7 +673,7 @@ static int l2tp_nl_cmd_session_modify(st
+ 	int ret = 0;
+ 	struct l2tp_session *session;
+ 
+-	session = l2tp_nl_session_find(info);
++	session = l2tp_nl_session_get(info, false);
+ 	if (session == NULL) {
+ 		ret = -ENODEV;
+ 		goto out;
+@@ -702,6 +708,8 @@ static int l2tp_nl_cmd_session_modify(st
+ 	ret = l2tp_session_notify(&l2tp_nl_family, info,
+ 				  session, L2TP_CMD_SESSION_MODIFY);
+ 
++	l2tp_session_dec_refcount(session);
++
+ out:
+ 	return ret;
+ }
+@@ -788,29 +796,34 @@ static int l2tp_nl_cmd_session_get(struc
+ 	struct sk_buff *msg;
+ 	int ret;
+ 
+-	session = l2tp_nl_session_find(info);
++	session = l2tp_nl_session_get(info, false);
+ 	if (session == NULL) {
+ 		ret = -ENODEV;
+-		goto out;
++		goto err;
+ 	}
+ 
+ 	msg = nlmsg_new(NLMSG_DEFAULT_SIZE, GFP_KERNEL);
+ 	if (!msg) {
+ 		ret = -ENOMEM;
+-		goto out;
++		goto err_ref;
+ 	}
+ 
+ 	ret = l2tp_nl_session_send(msg, info->snd_portid, info->snd_seq,
+ 				   0, session, L2TP_CMD_SESSION_GET);
+ 	if (ret < 0)
+-		goto err_out;
++		goto err_ref_msg;
+ 
+-	return genlmsg_unicast(genl_info_net(info), msg, info->snd_portid);
++	ret = genlmsg_unicast(genl_info_net(info), msg, info->snd_portid);
+ 
+-err_out:
+-	nlmsg_free(msg);
++	l2tp_session_dec_refcount(session);
+ 
+-out:
++	return ret;
++
++err_ref_msg:
++	nlmsg_free(msg);
++err_ref:
++	l2tp_session_dec_refcount(session);
++err:
+ 	return ret;
+ }
+ 
 
 
