@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C49E81E2E5F
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:29:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E72FC1E2B6F
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:05:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391047AbgEZTCM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:02:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56868 "EHLO mail.kernel.org"
+        id S2391465AbgEZTFH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:05:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32916 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389115AbgEZTCL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:02:11 -0400
+        id S2389967AbgEZTFG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:05:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 12F562084C;
-        Tue, 26 May 2020 19:02:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 661B820873;
+        Tue, 26 May 2020 19:05:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590519731;
-        bh=bTdwv1vyZUg+549OUWqfF6B+jLil2PTqgnQIUtA4yM4=;
+        s=default; t=1590519905;
+        bh=KOOqmjkT3/NHkepUVqMyX89PGaVwj5+wi37xbhKpEEo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Nt06jzsiE5ZHU2OE53YfNHj/8QFGzwKFOA70hiJVp/B44X9rGby1ZjaUYkJSiI/Gx
-         FhJXztQjOTAC3bA+pvusMcJrLB98MS0MNDIh/T4K6U+XlpOnyC+krp9kjqgqDfCRvD
-         yfSsF7zcv7vZNsunzXVWAPW2u29VAmqX4aAJPG0Q=
+        b=qJsz0WOWI7xhqXZX0E1aNWalmXkZ4sajY0+cBz2jvTGDpYE05SyPyeoHEbkautWTu
+         3BxIh4BN88Gy9rwbOdwGdPq/4fXHbnZYwwArc3Pd5QA7CeUKtb6n+C22V+dKmJP5Eu
+         PKEqIL48nj9Q+/xgA2wWcJjwgNtSqlTWod92O1gE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?=E4=BA=BF=E4=B8=80?= <teroincn@gmail.com>,
-        Alexander Usyskin <alexander.usyskin@intel.com>,
-        Tomas Winkler <tomas.winkler@intel.com>
-Subject: [PATCH 4.14 54/59] mei: release me_cl object reference
+        stable@vger.kernel.org, Bob Peterson <rpeterso@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 64/81] Revert "gfs2: Dont demote a glock until its revokes are written"
 Date:   Tue, 26 May 2020 20:53:39 +0200
-Message-Id: <20200526183923.460766309@linuxfoundation.org>
+Message-Id: <20200526183934.175831135@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183907.123822792@linuxfoundation.org>
-References: <20200526183907.123822792@linuxfoundation.org>
+In-Reply-To: <20200526183923.108515292@linuxfoundation.org>
+References: <20200526183923.108515292@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,42 +43,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Usyskin <alexander.usyskin@intel.com>
+From: Bob Peterson <rpeterso@redhat.com>
 
-commit fc9c03ce30f79b71807961bfcb42be191af79873 upstream.
+[ Upstream commit b14c94908b1b884276a6608dea3d0b1b510338b7 ]
 
-Allow me_cl object to be freed by releasing the reference
-that was acquired  by one of the search functions:
-__mei_me_cl_by_uuid_id() or __mei_me_cl_by_uuid()
+This reverts commit df5db5f9ee112e76b5202fbc331f990a0fc316d6.
 
-Cc: <stable@vger.kernel.org>
-Reported-by: 亿一 <teroincn@gmail.com>
-Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
-Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
-Link: https://lore.kernel.org/r/20200512223140.32186-1-tomas.winkler@intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This patch fixes a regression: patch df5db5f9ee112 allowed function
+run_queue() to bypass its call to do_xmote() if revokes were queued for
+the glock. That's wrong because its call to do_xmote() is what is
+responsible for calling the go_sync() glops functions to sync both
+the ail list and any revokes queued for it. By bypassing the call,
+gfs2 could get into a stand-off where the glock could not be demoted
+until its revokes are written back, but the revokes would not be
+written back because do_xmote() was never called.
 
+It "sort of" works, however, because there are other mechanisms like
+the log flush daemon (logd) that can sync the ail items and revokes,
+if it deems it necessary. The problem is: without file system pressure,
+it might never deem it necessary.
+
+Signed-off-by: Bob Peterson <rpeterso@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/mei/client.c |    2 ++
- 1 file changed, 2 insertions(+)
+ fs/gfs2/glock.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
---- a/drivers/misc/mei/client.c
-+++ b/drivers/misc/mei/client.c
-@@ -276,6 +276,7 @@ void mei_me_cl_rm_by_uuid(struct mei_dev
- 	down_write(&dev->me_clients_rwsem);
- 	me_cl = __mei_me_cl_by_uuid(dev, uuid);
- 	__mei_me_cl_del(dev, me_cl);
-+	mei_me_cl_put(me_cl);
- 	up_write(&dev->me_clients_rwsem);
- }
- 
-@@ -297,6 +298,7 @@ void mei_me_cl_rm_by_uuid_id(struct mei_
- 	down_write(&dev->me_clients_rwsem);
- 	me_cl = __mei_me_cl_by_uuid_id(dev, uuid, id);
- 	__mei_me_cl_del(dev, me_cl);
-+	mei_me_cl_put(me_cl);
- 	up_write(&dev->me_clients_rwsem);
- }
- 
+diff --git a/fs/gfs2/glock.c b/fs/gfs2/glock.c
+index f8a5eef3d014..ccdd8c821abd 100644
+--- a/fs/gfs2/glock.c
++++ b/fs/gfs2/glock.c
+@@ -636,9 +636,6 @@ __acquires(&gl->gl_lockref.lock)
+ 			goto out_unlock;
+ 		if (nonblock)
+ 			goto out_sched;
+-		smp_mb();
+-		if (atomic_read(&gl->gl_revokes) != 0)
+-			goto out_sched;
+ 		set_bit(GLF_DEMOTE_IN_PROGRESS, &gl->gl_flags);
+ 		GLOCK_BUG_ON(gl, gl->gl_demote_state == LM_ST_EXCLUSIVE);
+ 		gl->gl_target = gl->gl_demote_state;
+-- 
+2.25.1
+
 
 
