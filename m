@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 33E771E2B5A
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:05:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 562171E2BC0
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:08:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390187AbgEZTEP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:04:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59788 "EHLO mail.kernel.org"
+        id S2390538AbgEZTIX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:08:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37312 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390536AbgEZTEN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:04:13 -0400
+        id S2391420AbgEZTIX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:08:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 395E020849;
-        Tue, 26 May 2020 19:04:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BA41020873;
+        Tue, 26 May 2020 19:08:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590519852;
-        bh=FTqZTHmh+vwYs+NxLBDPuGD3GJ1RyIIlInYzgm75bkM=;
+        s=default; t=1590520102;
+        bh=SwPBKPascMarW9xK6m+E0dQhiQ9eTDbvjwD5JhgRH/Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OF9hwIyKJ6pQaeao+t2WRKMWTYl2q7xKigaQO0ryG0PyWf3JikSoG46uh0UVn/5as
-         c1pSIep/3Gtw2pVDUl5gPksEVlZHvdDS9dHkbiHo1KDE82vUGagnE6Cy9rWKC3laCt
-         ce/zTNRyuFNczVhyH7fHbeYjTKZrVmTtGwAiWjX0=
+        b=m/T9gWjBaiC5/mTRg/ZCDG9TtW4Ms20UsyE1kAoS1KGaeIkYxUtDQIV7w8iiCmBl0
+         Sp9POmcg8DGIjdloonyn2xcmKQrNt2bzBaLf2DRazZpKgWni5zV/20Cq5KKPSmLsrA
+         ZHLW1HaZ92eKGQWhA0qOKpfjMPtm3a4vp/UQml30=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, PeiSen Hou <pshou@realtek.com>,
+        stable@vger.kernel.org, Scott Bahling <sbahling@suse.com>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 41/81] ALSA: hda/realtek - Add more fixup entries for Clevo machines
+Subject: [PATCH 5.4 058/111] ALSA: iec1712: Initialize STDSP24 properly when using the model=staudio option
 Date:   Tue, 26 May 2020 20:53:16 +0200
-Message-Id: <20200526183931.720906255@linuxfoundation.org>
+Message-Id: <20200526183938.349107603@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183923.108515292@linuxfoundation.org>
-References: <20200526183923.108515292@linuxfoundation.org>
+In-Reply-To: <20200526183932.245016380@linuxfoundation.org>
+References: <20200526183932.245016380@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,34 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: PeiSen Hou <pshou@realtek.com>
+From: Scott Bahling <sbahling@suse.com>
 
-commit 259eb82475316672a5d682a94dc8bdd53cf8d8c3 upstream.
+commit b0cb099062b0c18246c3a20caaab4c0afc303255 upstream.
 
-A few known Clevo machines (PC50, PC70, X170) with ALC1220 codec need
-the existing quirk for pins for PB51 and co.
+The ST Audio ADCIII is an STDSP24 card plus extension box. With commit
+e8a91ae18bdc ("ALSA: ice1712: Add support for STAudio ADCIII") we
+enabled the ADCIII ports using the model=staudio option but forgot
+this part to ensure the STDSP24 card is initialized properly.
 
-Signed-off-by: PeiSen Hou <pshou@realtek.com>
+Fixes: e8a91ae18bdc ("ALSA: ice1712: Add support for STAudio ADCIII")
+Signed-off-by: Scott Bahling <sbahling@suse.com>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200519065012.13119-1-tiwai@suse.de
+BugLink: https://bugzilla.suse.com/show_bug.cgi?id=1048934
+Link: https://lore.kernel.org/r/20200518175728.28766-1-tiwai@suse.de
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/pci/hda/patch_realtek.c |    3 +++
- 1 file changed, 3 insertions(+)
+ sound/pci/ice1712/ice1712.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -2459,6 +2459,9 @@ static const struct snd_pci_quirk alc882
- 	SND_PCI_QUIRK(0x1558, 0x97e1, "Clevo P970[ER][CDFN]", ALC1220_FIXUP_CLEVO_P950),
- 	SND_PCI_QUIRK(0x1558, 0x65d1, "Clevo PB51[ER][CDF]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
- 	SND_PCI_QUIRK(0x1558, 0x67d1, "Clevo PB71[ER][CDF]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
-+	SND_PCI_QUIRK(0x1558, 0x50d3, "Clevo PC50[ER][CDF]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
-+	SND_PCI_QUIRK(0x1558, 0x70d1, "Clevo PC70[ER][CDF]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
-+	SND_PCI_QUIRK(0x1558, 0x7714, "Clevo X170", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
- 	SND_PCI_QUIRK_VENDOR(0x1558, "Clevo laptop", ALC882_FIXUP_EAPD),
- 	SND_PCI_QUIRK(0x161f, 0x2054, "Medion laptop", ALC883_FIXUP_EAPD),
- 	SND_PCI_QUIRK(0x17aa, 0x3a0d, "Lenovo Y530", ALC882_FIXUP_LENOVO_Y530),
+--- a/sound/pci/ice1712/ice1712.c
++++ b/sound/pci/ice1712/ice1712.c
+@@ -2360,7 +2360,8 @@ static int snd_ice1712_chip_init(struct
+ 	pci_write_config_byte(ice->pci, 0x61, ice->eeprom.data[ICE_EEP1_ACLINK]);
+ 	pci_write_config_byte(ice->pci, 0x62, ice->eeprom.data[ICE_EEP1_I2SID]);
+ 	pci_write_config_byte(ice->pci, 0x63, ice->eeprom.data[ICE_EEP1_SPDIF]);
+-	if (ice->eeprom.subvendor != ICE1712_SUBDEVICE_STDSP24) {
++	if (ice->eeprom.subvendor != ICE1712_SUBDEVICE_STDSP24 &&
++	    ice->eeprom.subvendor != ICE1712_SUBDEVICE_STAUDIO_ADCIII) {
+ 		ice->gpio.write_mask = ice->eeprom.gpiomask;
+ 		ice->gpio.direction = ice->eeprom.gpiodir;
+ 		snd_ice1712_write(ice, ICE1712_IREG_GPIO_WRITE_MASK,
 
 
