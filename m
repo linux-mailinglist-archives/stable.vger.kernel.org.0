@@ -2,74 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B59331E2DBD
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:25:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CAA341E2F29
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:34:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404528AbgEZTXy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:23:54 -0400
-Received: from mout.gmx.net ([212.227.15.18]:36483 "EHLO mout.gmx.net"
+        id S2389153AbgEZSyw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 14:54:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46944 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404527AbgEZTXx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:23:53 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1590521031;
-        bh=Lci+jQawl8c8OvJkMVS3BSHSPIYtCtie4ClFMQvOiFc=;
-        h=X-UI-Sender-Class:To:From:Subject:Date;
-        b=NAsyf310YJ3pl4J9JtjFPE6e3bTxh9cs0I3bBA5h2XwrnMsO3KT31s0AgvpzjIRys
-         3YaPIT+BR0B61agsTopcc0T8yRujRSEv+6K2kued0XPTHrB/gSswan1LQNwcr8JVUd
-         iVCiofiCRGBpY6gPF45Py8BiPxM0y810RYcwC+l0=
-X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
-Received: from obelix.fritz.box ([46.142.6.196]) by mail.gmx.com (mrgmx005
- [212.227.17.190]) with ESMTPSA (Nemesis) id 1MWih0-1jWy8l2RGy-00X7Ro; Tue, 26
- May 2020 21:23:51 +0200
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-From:   Ronald Warsow <rwarsow@gmx.de>
-Subject: Re: [PATCH 5.6 000/126] 5.6.15-rc1 review
-Message-ID: <db05fccd-0221-2227-babe-64b1e16b4656@gmx.de>
-Date:   Tue, 26 May 2020 21:23:51 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.8.0
+        id S2387398AbgEZSyt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 14:54:49 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7CD9C207FB;
+        Tue, 26 May 2020 18:54:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1590519288;
+        bh=ndlsGo9CG4KB47l0cX6yHBs/uO2HRZHZPAYIShWTe5s=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=qhcA+pWnFNNDEX1LsncMvO6Prbl13HLTAyFMJ4qXnJd33GyhxuI/sg4UGhVm5J3+r
+         IG/nfTXewka3Q9uZe4r1LPZJlV3sB0X20oP4OMfsceSFb+C8QREQcDHYgupnHg+J+2
+         /BcwmqNCU4LbdyYfJIK6/4rwxChdkLAoBdUkaS34=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, Tobias Klauser <tklauser@distanz.ch>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Ben Hutchings <ben@decadent.org.uk>
+Subject: [PATCH 4.4 02/65] padata: Remove unused but set variables
+Date:   Tue, 26 May 2020 20:52:21 +0200
+Message-Id: <20200526183907.344060994@linuxfoundation.org>
+X-Mailer: git-send-email 2.26.2
+In-Reply-To: <20200526183905.988782958@linuxfoundation.org>
+References: <20200526183905.988782958@linuxfoundation.org>
+User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: de-DE
-Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:nd/r8N99KsO1y2QW5Sy2d53cc6FZx3PgiGxAw1X3hEkcRdB58Wh
- UCOaCtMXWB4+GsWlEc5/UUnWoPYRaXa8e/7N6rzqzKbg0M4n6nVIkZu5pNOPoDj0LvbNJ76
- LVjjKJm5Pc4QEdSB97b8nAf9nd1lTTxiYMOy7Y49+MRXQwmzYKkLHV4jGHAcvVIfBlN/EM6
- e/S9cPi4/9Vdc2QMYjwbw==
-X-Spam-Flag: NO
-X-UI-Out-Filterresults: notjunk:1;V03:K0:k4nX9Q9sCx4=:Due9qigGzlBS4yn0mAgAhm
- duSkQEBgc4DsEQuD/JarvAUoUMmAHwUOMDAxjlkmZjohn1JYB4rdczSw+MdZFd0YqhYFRDWUk
- VqPPDHdvWVwupABLGzVSEoPbCGths6xMrY9VHXwMQ/IwLHYZy0ecwmKdQTARMALMYX1SXT+v7
- i2WZcD8saTKafopSWruNRoxgeVW3nvMyXYt4KklpI7m/bYrDYgewV2IVHqOdytuUJNdeSSfBv
- Q7giuP3fPsD3jzym4r29vT/E0rGhwe3zn5hOcgKfKUH4GCpqHNEmptYBBtdujJyX21QDbSfA2
- cINqql2E3FXfsvr2b/ltOMj6Q9vUNZmsrE2G0drnvWSfG9rp/CdWhMJPwMGyq9otZ5eSpc+KQ
- yTPVoSDN3Rh2fIasX69Ms6mO2Su7VST5+K10YYIFb/4vY3h+PGHEaRKfpLGUsnj5JruA3lZhG
- SMt88ZEwDurwgZHCfrgr6Q96g7ujjFWGURZfExgciteIU80wrdmNEZTxfRNlckVcuy+hMXxPg
- hU8r6GTmvbuF1/bxngnYNxf7TBaJnBpnWs6cNKGUKhniW65eZG/rR1xZwEldbvvZ0U9TUahxa
- pqM2HaR72gXxt+NsLbQWExxbeX7FmRfyO9xXNVrs7IpuHvLePAFuYfXSSRSOfh8gKkpFwPcC3
- 8vOON7hdcLD4nkcs0DcPFL2qFZvNBT+PDlDM/ysAPIGcHGNal3HOwYDZAv4OhYvKl7NPiJoPF
- sTApteQ4hTcyBIkM2pT9tNP6mIO1Sf+y0+Vf+/3NONk/FORJ7yr4wdYHJUlaptLikNItYPpw+
- Vdmun6j4qBFJbhw2iki2vNmSM1aqCtH2G/CQpi0kaJOLcDYluju5FHN6FXi5AIHUmUeDDo54s
- +/vn6dltN+wgsdbx58KN9cuKyCHEqqnr2fXCD2ES6MFYmkWC9Dj2Z8F8VO5lK7Atxd+DsBbxi
- pBma1ZCujdLmMhF0vyxaTY4Qbt18KGkUP08s7FL+XVcLU7YeCKgIu6UwbBbhiKk9QxsrkM5Qt
- 5vcosdRDq5orxdR9l/5iLnB4D61Yx39v6PkHT7rovSXpwfi8iX6ZAM6aNYdPNWzqy6GvOsyas
- r0O1INCmul/n4cNY1E6EVDim1FIP6lzlf2+HJR4J0o9NZ4gFGXmDBtl5dlFC5n3QxYK3o5T+J
- PUhA2uy+9tiP9PoMLPABbfulZqxNa1jruscK6QTg8GlhWADVfLJIQXfMTWhuoZSlP9AqtdkfS
- pIaA6wTM2FPr3w1r1
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-hallo
+From: Tobias Klauser <tklauser@distanz.ch>
 
-5.6.15-rc1 compiles, boots and works without errors here on an
-Intel-i7-6700-box
+commit 119a0798dc42ed4c4f96d39b8b676efcea73aec6 upstream.
 
-Thanks !
+Remove the unused but set variable pinst in padata_parallel_worker to
+fix the following warning when building with 'W=1':
 
-=2D-
-regards
+  kernel/padata.c: In function ‘padata_parallel_worker’:
+  kernel/padata.c:68:26: warning: variable ‘pinst’ set but not used [-Wunused-but-set-variable]
 
-Ronald
+Also remove the now unused variable pd which is only used to set pinst.
+
+Signed-off-by: Tobias Klauser <tklauser@distanz.ch>
+Acked-by: Steffen Klassert <steffen.klassert@secunet.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: Ben Hutchings <ben@decadent.org.uk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ kernel/padata.c |    4 ----
+ 1 file changed, 4 deletions(-)
+
+--- a/kernel/padata.c
++++ b/kernel/padata.c
+@@ -65,15 +65,11 @@ static int padata_cpu_hash(struct parall
+ static void padata_parallel_worker(struct work_struct *parallel_work)
+ {
+ 	struct padata_parallel_queue *pqueue;
+-	struct parallel_data *pd;
+-	struct padata_instance *pinst;
+ 	LIST_HEAD(local_list);
+ 
+ 	local_bh_disable();
+ 	pqueue = container_of(parallel_work,
+ 			      struct padata_parallel_queue, work);
+-	pd = pqueue->pd;
+-	pinst = pd->pinst;
+ 
+ 	spin_lock(&pqueue->parallel.lock);
+ 	list_replace_init(&pqueue->parallel.list, &local_list);
+
+
