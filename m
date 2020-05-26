@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 99FA91E2B02
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:03:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 667651E2C30
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:13:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389764AbgEZTBG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:01:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55260 "EHLO mail.kernel.org"
+        id S2404177AbgEZTM6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:12:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42604 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390198AbgEZTBC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:01:02 -0400
+        id S2404170AbgEZTM5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:12:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 733AD2086A;
-        Tue, 26 May 2020 19:01:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 92525208DB;
+        Tue, 26 May 2020 19:12:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590519661;
-        bh=dZoW31aCil0B4MqJw6tHjj0+8uX4noOs8FInupAnexQ=;
+        s=default; t=1590520377;
+        bh=DjlhHUZDtsooc2pYbEF4q0noeXu2UUg4RSSjcFAuF0E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0+iSxQvFpcV6xjDKyzkS85qnhbqW+5Hb1Kew19jAaP9u9Ra6RDwh99A2DCvrl+YbE
-         OsmonUPmTvDYRezpacBUtnzeeUDPfc1X+itsf/h+r8scCh6sTDFhT57KR3PlKPwd5P
-         /CEAG9Xdb/fwsPg9wNhVwjLdNe2mlgk8vFlwrv2Q=
+        b=e8j2OA3dHegzwLXXz+/vMf1iaZUp0hbW/6l7xbSHdayok+UmO9NkuAxgzTrHP6SU9
+         B+yTSFyEunuCHlTimxBjT2uVIdrvJ8SjsrODwQySMQcIs3BVXNA79HNrMWTBy04xOs
+         loUSBF/SRDOr8Pk84v4EGRsdHeX0sLzDBHyi3Z1A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mathias Krause <minipli@googlemail.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Daniel Jordan <daniel.m.jordan@oracle.com>,
+        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
+        Yunfeng Ye <yeyunfeng@huawei.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 26/59] padata: set cpu_index of unused CPUs to -1
+Subject: [PATCH 5.6 054/126] tools/bootconfig: Fix resource leak in apply_xbc()
 Date:   Tue, 26 May 2020 20:53:11 +0200
-Message-Id: <20200526183916.899810226@linuxfoundation.org>
+Message-Id: <20200526183942.598735361@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183907.123822792@linuxfoundation.org>
-References: <20200526183907.123822792@linuxfoundation.org>
+In-Reply-To: <20200526183937.471379031@linuxfoundation.org>
+References: <20200526183937.471379031@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,48 +45,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathias Krause <minipli@googlemail.com>
+From: Yunfeng Ye <yeyunfeng@huawei.com>
 
-[ Upstream commit 1bd845bcb41d5b7f83745e0cb99273eb376f2ec5 ]
+[ Upstream commit 8842604446d1f005abcbf8c63c12eabdb5695094 ]
 
-The parallel queue per-cpu data structure gets initialized only for CPUs
-in the 'pcpu' CPU mask set. This is not sufficient as the reorder timer
-may run on a different CPU and might wrongly decide it's the target CPU
-for the next reorder item as per-cpu memory gets memset(0) and we might
-be waiting for the first CPU in cpumask.pcpu, i.e. cpu_index 0.
+Fix the @data and @fd allocations that are leaked in the error path of
+apply_xbc().
 
-Make the '__this_cpu_read(pd->pqueue->cpu_index) == next_queue->cpu_index'
-compare in padata_get_next() fail in this case by initializing the
-cpu_index member of all per-cpu parallel queues. Use -1 for unused ones.
+Link: http://lkml.kernel.org/r/583a49c9-c27a-931d-e6c2-6f63a4b18bea@huawei.com
 
-Signed-off-by: Mathias Krause <minipli@googlemail.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
+Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Yunfeng Ye <yeyunfeng@huawei.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/padata.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ tools/bootconfig/main.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/kernel/padata.c b/kernel/padata.c
-index 40a0ebb8ea51..858e82179744 100644
---- a/kernel/padata.c
-+++ b/kernel/padata.c
-@@ -462,8 +462,14 @@ static void padata_init_pqueues(struct parallel_data *pd)
- 	struct padata_parallel_queue *pqueue;
+diff --git a/tools/bootconfig/main.c b/tools/bootconfig/main.c
+index a9b97814d1a9..5dbe893cf00c 100644
+--- a/tools/bootconfig/main.c
++++ b/tools/bootconfig/main.c
+@@ -287,6 +287,7 @@ int apply_xbc(const char *path, const char *xbc_path)
+ 	ret = delete_xbc(path);
+ 	if (ret < 0) {
+ 		pr_err("Failed to delete previous boot config: %d\n", ret);
++		free(data);
+ 		return ret;
+ 	}
  
- 	cpu_index = 0;
--	for_each_cpu(cpu, pd->cpumask.pcpu) {
-+	for_each_possible_cpu(cpu) {
- 		pqueue = per_cpu_ptr(pd->pqueue, cpu);
-+
-+		if (!cpumask_test_cpu(cpu, pd->cpumask.pcpu)) {
-+			pqueue->cpu_index = -1;
-+			continue;
-+		}
-+
- 		pqueue->pd = pd;
- 		pqueue->cpu_index = cpu_index;
- 		cpu_index++;
+@@ -294,24 +295,26 @@ int apply_xbc(const char *path, const char *xbc_path)
+ 	fd = open(path, O_RDWR | O_APPEND);
+ 	if (fd < 0) {
+ 		pr_err("Failed to open %s: %d\n", path, fd);
++		free(data);
+ 		return fd;
+ 	}
+ 	/* TODO: Ensure the @path is initramfs/initrd image */
+ 	ret = write(fd, data, size + 8);
+ 	if (ret < 0) {
+ 		pr_err("Failed to apply a boot config: %d\n", ret);
+-		return ret;
++		goto out;
+ 	}
+ 	/* Write a magic word of the bootconfig */
+ 	ret = write(fd, BOOTCONFIG_MAGIC, BOOTCONFIG_MAGIC_LEN);
+ 	if (ret < 0) {
+ 		pr_err("Failed to apply a boot config magic: %d\n", ret);
+-		return ret;
++		goto out;
+ 	}
++out:
+ 	close(fd);
+ 	free(data);
+ 
+-	return 0;
++	return ret;
+ }
+ 
+ int usage(void)
 -- 
 2.25.1
 
