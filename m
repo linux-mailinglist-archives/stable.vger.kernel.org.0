@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A2DBC1E2D7F
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:24:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 879BA1E2C15
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:11:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391951AbgEZTLs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:11:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41238 "EHLO mail.kernel.org"
+        id S2391585AbgEZTLx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:11:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41288 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391754AbgEZTLr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:11:47 -0400
+        id S2391957AbgEZTLt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:11:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B7B61208A7;
-        Tue, 26 May 2020 19:11:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 28DD820888;
+        Tue, 26 May 2020 19:11:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590520306;
-        bh=AOqm3Fgp/+ECFDkKYPL67fC7r9lGY6j3IklwCRudwTk=;
+        s=default; t=1590520308;
+        bh=SJF7ayHG0PlJwtnPszo7WXe63iqjWcrlf1YigLZSo0Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s0CEQxn5aJZ9Q0zcsBdKHuRAXM1LRWqiULFq1MhT6P87qbMdbUt3Kga/0VhywFMbx
-         KRJzx4FKgU2KulAO7lFwG8rj5LggEVES608RcNafB+X0mrda97vSLhZ4DoMxaYDtUi
-         PphMU200f18SvYmJ0N4F8FV3H2AI+0KPQVFJRYjw=
+        b=BEdpteJKTNjCI/5rTL3hVeJI2/UukGp61nlrLcIRzOHbiqy+toTqtlYURAUpT0Qti
+         fcjNFg660LfcxYRd8tLCzfj5FqLtrGO3Ow6Lm5FoZVtsjeWQ3SFpTXvi1/Jr+7IwZB
+         6+auEYW322pVsRyUtCzjDxBKIKVY8tr972RV1xrk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sascha Hauer <s.hauer@pengutronix.de>,
-        Eric Biggers <ebiggers@google.com>,
-        Richard Weinberger <richard@nod.at>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 007/126] ubifs: fix wrong use of crypto_shash_descsize()
-Date:   Tue, 26 May 2020 20:52:24 +0200
-Message-Id: <20200526183938.126106501@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Chris Chiu <chiu@endlessm.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 008/126] ACPI: EC: PM: Avoid flushing EC work when EC GPE is inactive
+Date:   Tue, 26 May 2020 20:52:25 +0200
+Message-Id: <20200526183938.213752295@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200526183937.471379031@linuxfoundation.org>
 References: <20200526183937.471379031@linuxfoundation.org>
@@ -45,108 +44,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-[ Upstream commit 3c3c32f85b6cc05e5db78693457deff03ac0f434 ]
+[ Upstream commit 607b9df63057a56f6172d560d5366cca6a030c76 ]
 
-crypto_shash_descsize() returns the size of the shash_desc context
-needed to compute the hash, not the size of the hash itself.
+Flushing the EC work while suspended to idle when the EC GPE status
+is not set causes some EC wakeup events (notably power button and
+lid ones) to be missed after a series of spurious wakeups on the Dell
+XPS13 9360 in my office.
 
-crypto_shash_digestsize() would be correct, or alternatively using
-c->hash_len and c->hmac_desc_len which already store the correct values.
-But actually it's simpler to just use stack arrays, so do that instead.
+If that happens, the machine cannot be woken up from suspend-to-idle
+by the power button or lid status change and it needs to be woken up
+in some other way (eg. by a key press).
 
-Fixes: 49525e5eecca ("ubifs: Add helper functions for authentication support")
-Fixes: da8ef65f9573 ("ubifs: Authenticate replayed journal")
-Cc: <stable@vger.kernel.org> # v4.20+
-Cc: Sascha Hauer <s.hauer@pengutronix.de>
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Acked-by: Sascha Hauer <s.hauer@pengutronix.de>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Flushing the EC work only after successful dispatching the EC GPE,
+which means that its status has been set, avoids the issue, so change
+the code in question accordingly.
+
+Fixes: 7b301750f7f8 ("ACPI: EC: PM: Avoid premature returns from acpi_s2idle_wake()")
+Cc: 5.4+ <stable@vger.kernel.org> # 5.4+
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Tested-by: Chris Chiu <chiu@endlessm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ubifs/auth.c   | 17 ++++-------------
- fs/ubifs/replay.c | 13 ++-----------
- 2 files changed, 6 insertions(+), 24 deletions(-)
+ drivers/acpi/ec.c    |  6 +++++-
+ drivers/acpi/sleep.c | 15 ++++-----------
+ 2 files changed, 9 insertions(+), 12 deletions(-)
 
-diff --git a/fs/ubifs/auth.c b/fs/ubifs/auth.c
-index 8cdbd53d780c..f985a3fbbb36 100644
---- a/fs/ubifs/auth.c
-+++ b/fs/ubifs/auth.c
-@@ -79,13 +79,9 @@ int ubifs_prepare_auth_node(struct ubifs_info *c, void *node,
- 			     struct shash_desc *inhash)
+diff --git a/drivers/acpi/ec.c b/drivers/acpi/ec.c
+index 03b3067811c9..2713ddb3348c 100644
+--- a/drivers/acpi/ec.c
++++ b/drivers/acpi/ec.c
+@@ -2064,9 +2064,13 @@ bool acpi_ec_dispatch_gpe(void)
+ 	 * to allow the caller to process events properly after that.
+ 	 */
+ 	ret = acpi_dispatch_gpe(NULL, first_ec->gpe);
+-	if (ret == ACPI_INTERRUPT_HANDLED)
++	if (ret == ACPI_INTERRUPT_HANDLED) {
+ 		pm_pr_dbg("EC GPE dispatched\n");
+ 
++		/* Flush the event and query workqueues. */
++		acpi_ec_flush_work();
++	}
++
+ 	return false;
+ }
+ #endif /* CONFIG_PM_SLEEP */
+diff --git a/drivers/acpi/sleep.c b/drivers/acpi/sleep.c
+index 3850704570c0..fd9d4e8318e9 100644
+--- a/drivers/acpi/sleep.c
++++ b/drivers/acpi/sleep.c
+@@ -980,13 +980,6 @@ static int acpi_s2idle_prepare_late(void)
+ 	return 0;
+ }
+ 
+-static void acpi_s2idle_sync(void)
+-{
+-	/* The EC driver uses special workqueues that need to be flushed. */
+-	acpi_ec_flush_work();
+-	acpi_os_wait_events_complete(); /* synchronize Notify handling */
+-}
+-
+ static bool acpi_s2idle_wake(void)
  {
- 	struct ubifs_auth_node *auth = node;
--	u8 *hash;
-+	u8 hash[UBIFS_HASH_ARR_SZ];
- 	int err;
+ 	if (!acpi_sci_irq_valid())
+@@ -1018,7 +1011,7 @@ static bool acpi_s2idle_wake(void)
+ 			return true;
  
--	hash = kmalloc(crypto_shash_descsize(c->hash_tfm), GFP_NOFS);
--	if (!hash)
--		return -ENOMEM;
+ 		/*
+-		 * Cancel the wakeup and process all pending events in case
++		 * Cancel the SCI wakeup and process all pending events in case
+ 		 * there are any wakeup ones in there.
+ 		 *
+ 		 * Note that if any non-EC GPEs are active at this point, the
+@@ -1026,8 +1019,7 @@ static bool acpi_s2idle_wake(void)
+ 		 * should be missed by canceling the wakeup here.
+ 		 */
+ 		pm_system_cancel_wakeup();
 -
- 	{
- 		SHASH_DESC_ON_STACK(hash_desc, c->hash_tfm);
+-		acpi_s2idle_sync();
++		acpi_os_wait_events_complete();
  
-@@ -94,21 +90,16 @@ int ubifs_prepare_auth_node(struct ubifs_info *c, void *node,
+ 		/*
+ 		 * The SCI is in the "suspended" state now and it cannot produce
+@@ -1060,7 +1052,8 @@ static void acpi_s2idle_restore(void)
+ 	 * of GPEs.
+ 	 */
+ 	acpi_os_wait_events_complete(); /* synchronize GPE processing */
+-	acpi_s2idle_sync();
++	acpi_ec_flush_work(); /* flush the EC driver's workqueues */
++	acpi_os_wait_events_complete(); /* synchronize Notify handling */
  
- 		err = crypto_shash_final(hash_desc, hash);
- 		if (err)
--			goto out;
-+			return err;
- 	}
- 
- 	err = ubifs_hash_calc_hmac(c, hash, auth->hmac);
- 	if (err)
--		goto out;
-+		return err;
- 
- 	auth->ch.node_type = UBIFS_AUTH_NODE;
- 	ubifs_prepare_node(c, auth, ubifs_auth_node_sz(c), 0);
--
--	err = 0;
--out:
--	kfree(hash);
--
--	return err;
-+	return 0;
- }
- 
- static struct shash_desc *ubifs_get_desc(const struct ubifs_info *c,
-diff --git a/fs/ubifs/replay.c b/fs/ubifs/replay.c
-index b28ac4dfb407..01fcf7975047 100644
---- a/fs/ubifs/replay.c
-+++ b/fs/ubifs/replay.c
-@@ -601,18 +601,12 @@ static int authenticate_sleb(struct ubifs_info *c, struct ubifs_scan_leb *sleb,
- 	struct ubifs_scan_node *snod;
- 	int n_nodes = 0;
- 	int err;
--	u8 *hash, *hmac;
-+	u8 hash[UBIFS_HASH_ARR_SZ];
-+	u8 hmac[UBIFS_HMAC_ARR_SZ];
- 
- 	if (!ubifs_authenticated(c))
- 		return sleb->nodes_cnt;
- 
--	hash = kmalloc(crypto_shash_descsize(c->hash_tfm), GFP_NOFS);
--	hmac = kmalloc(c->hmac_desc_len, GFP_NOFS);
--	if (!hash || !hmac) {
--		err = -ENOMEM;
--		goto out;
--	}
--
- 	list_for_each_entry(snod, &sleb->nodes, list) {
- 
- 		n_nodes++;
-@@ -662,9 +656,6 @@ static int authenticate_sleb(struct ubifs_info *c, struct ubifs_scan_leb *sleb,
- 		err = 0;
- 	}
- out:
--	kfree(hash);
--	kfree(hmac);
--
- 	return err ? err : n_nodes - n_not_auth;
- }
+ 	s2idle_wakeup = false;
  
 -- 
 2.25.1
