@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D84651E2E05
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:26:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 55B221E2C64
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:14:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391523AbgEZTFm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:05:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33656 "EHLO mail.kernel.org"
+        id S2392065AbgEZTOh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:14:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45588 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391515AbgEZTFi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:05:38 -0400
+        id S2404383AbgEZTOg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:14:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 146A7208B3;
-        Tue, 26 May 2020 19:05:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 402F920888;
+        Tue, 26 May 2020 19:14:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590519938;
-        bh=Sh0vWyUgql9rAjGEr/FgZ4H8MfQq4g5C35lNdF+t0H8=;
+        s=default; t=1590520475;
+        bh=lweYTe6LKmpV+mCrP7HUm/q1uq9IlaV6ZTeIbPR7c+E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p49mqNoOpBZqwvx4GEsy8px4hyadzYPXyhEeo/JSYmd6PWmQmW0ZZPYHSM0onjhKf
-         bnV581lgieU7wXk8FcW7lCNLMKD/fspTAuni8EV0Kmp/Sm9sRneT10Jn090Jz+lMDM
-         6EZFPKacFO5RZA2WsZKYosx0Hc0m7Ac7bsHRo82k=
+        b=v6Mlt3EMMpBavMXnJOFGDPZhCpZd/tlwKw4e+SmWyeXtOL7LkpTlxXJs9X4wHILK/
+         Iq3VBqth9p/DdBE94n0AvpcUtRH4f+V+a+zAG1I9voiQ/P3OLvlbDbdhFaw27brPrr
+         zb4zwVURZ8Xn3LZDOEUZ/pyec6ynBC3mFTMNAi/A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Fabrice Gasnier <fabrice.gasnier@st.com>,
         Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 76/81] iio: adc: stm32-adc: fix device used to request dma
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.6 094/126] iio: adc: stm32-adc: fix device used to request dma
 Date:   Tue, 26 May 2020 20:53:51 +0200
-Message-Id: <20200526183935.502017260@linuxfoundation.org>
+Message-Id: <20200526183945.766707040@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183923.108515292@linuxfoundation.org>
-References: <20200526183923.108515292@linuxfoundation.org>
+In-Reply-To: <20200526183937.471379031@linuxfoundation.org>
+References: <20200526183937.471379031@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,7 +46,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Fabrice Gasnier <fabrice.gasnier@st.com>
 
-[ Upstream commit 52cd91c27f3908b88e8b25aed4a4d20660abcc45 ]
+commit 52cd91c27f3908b88e8b25aed4a4d20660abcc45 upstream.
 
 DMA channel request should use device struct from platform device struct.
 Currently it's using iio device struct. But at this stage when probing,
@@ -65,16 +64,15 @@ Fixes: 2763ea0585c99 ("iio: adc: stm32: add optional dma support")
 Signed-off-by: Fabrice Gasnier <fabrice.gasnier@st.com>
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/iio/adc/stm32-adc.c | 8 ++++----
+ drivers/iio/adc/stm32-adc.c |    8 ++++----
  1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/iio/adc/stm32-adc.c b/drivers/iio/adc/stm32-adc.c
-index d85caedda02e..59fd8b620c50 100644
 --- a/drivers/iio/adc/stm32-adc.c
 +++ b/drivers/iio/adc/stm32-adc.c
-@@ -1682,18 +1682,18 @@ static int stm32_adc_chan_of_init(struct iio_dev *indio_dev)
+@@ -1812,18 +1812,18 @@ static int stm32_adc_chan_of_init(struct
  	return 0;
  }
  
@@ -96,17 +94,14 @@ index d85caedda02e..59fd8b620c50 100644
  					"DMA channel request failed with %d\n",
  					ret);
  			return ret;
-@@ -1816,7 +1816,7 @@ static int stm32_adc_probe(struct platform_device *pdev)
+@@ -1930,7 +1930,7 @@ static int stm32_adc_probe(struct platfo
  	if (ret < 0)
- 		goto err_clk_disable;
+ 		return ret;
  
 -	ret = stm32_adc_dma_request(indio_dev);
 +	ret = stm32_adc_dma_request(dev, indio_dev);
  	if (ret < 0)
- 		goto err_clk_disable;
+ 		return ret;
  
--- 
-2.25.1
-
 
 
