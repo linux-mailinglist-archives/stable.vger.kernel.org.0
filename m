@@ -2,102 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A4E51E2CA5
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:16:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 348111E2DB0
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:25:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404590AbgEZTPz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:15:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47894 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404586AbgEZTPy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:15:54 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 96E972053B;
-        Tue, 26 May 2020 19:15:53 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590520554;
-        bh=kx3TrV2JbUKa+5KdldsNkanjDhdA6+qB50fP9MVXPMs=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0LCkiAIX3fgb96TCU9aVjxiybcfxRU97RkjJPiMjqPfr4gw7PydF2TxBCpMfJgdRT
-         m9kAbt/LDkK88SCvvJxHIkQk4e3R1vjvCM0TU3/6RbvKu1fkiTDjXWarIuzKGczO3N
-         p/DRFGbf+N0urO5emhLBVzBKAUBnWxDJby7WPX+0=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Phil Auld <pauld@redhat.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 126/126] sched/fair: Fix enqueue_task_fair() warning some more
-Date:   Tue, 26 May 2020 20:54:23 +0200
-Message-Id: <20200526183947.858661331@linuxfoundation.org>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183937.471379031@linuxfoundation.org>
-References: <20200526183937.471379031@linuxfoundation.org>
-User-Agent: quilt/0.66
+        id S2390656AbgEZTX3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:23:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33866 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2391528AbgEZTJM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 May 2020 15:09:12 -0400
+Received: from mail-pf1-x442.google.com (mail-pf1-x442.google.com [IPv6:2607:f8b0:4864:20::442])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9A59C03E96D
+        for <stable@vger.kernel.org>; Tue, 26 May 2020 12:09:11 -0700 (PDT)
+Received: by mail-pf1-x442.google.com with SMTP id 23so10575836pfy.8
+        for <stable@vger.kernel.org>; Tue, 26 May 2020 12:09:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=UodxcmBfs60/UJ4+u47LnpLdz/rsUv7B0ToHUyIES5s=;
+        b=mHgyeMhJypPRxZudBsh74WCqPTYBBTn7wUawKIavys/q85CbI555vuZfG41ykyC0pe
+         dw5CzcH9r1+kEdRWYCK1PGe+31hYKSm+DyTqpR/Ffpp1uoLGf1ROEEWuiGaxOuI7ty3Y
+         5CRkL6fVc+/MSZnJ4bSa79f/VNJj+QStPiUM6qPIxSpwyu3C7GLiyv666ioPniH+TfvN
+         m+daXerqSGcOHFw5sGuae7RXX6C+EHS9jHQa2+lp9RqLKbe1EUhJooQOEAlBMMNHAj1O
+         TPBWjiGNPdoSYiloR4Tk6WFIKypuXGlC/PloJNc3z0+1Xixdoc+DOT7HUSZe7dZmqwIW
+         haXw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=UodxcmBfs60/UJ4+u47LnpLdz/rsUv7B0ToHUyIES5s=;
+        b=MKEnu4F1/WUVdAtDcw6yK/28IRThPGFhrtAJKe+QkL3PVZNYijl3pKkGO6wum9EhKM
+         hmpNQikgKNjq2yHWVxb3rsdQ4fueDw7aG5cvq5C5QtQRT5FelTamyYSC1nkDR8C0Wws5
+         xQZpDJddxsYE1Pkf6WlDJumGzG/rHkEYMETUcISD6Es5N0V1unLXEiWgqHgdKKNQCkEK
+         sxPCB7iy4kkD0xmDAL0XtS4/EFQvgjBQHHQ0z2GusV7eCczAo73uJd6lqDecg7nSB/+w
+         nymfyj+TrDGlb3D0TQ5fpbgttpOcepzR53hhNi6+T+Iq53EDD+s2dIlJQou4afK/BnI1
+         X9LQ==
+X-Gm-Message-State: AOAM533XvRtuOmymTIkmIWhND94Sia/KTaUGe/F68U/iseWKes/ZpieE
+        VkN0V/CW0YW/+NKg12BXRj04Xw==
+X-Google-Smtp-Source: ABdhPJzNf2v+WYf0TWZ+/HizdUzn57c6ARUWaL65N3rFv8707Z/t7Wu6BVDU2qaPDO90RHlo7rKegA==
+X-Received: by 2002:a63:e04a:: with SMTP id n10mr330150pgj.157.1590520151233;
+        Tue, 26 May 2020 12:09:11 -0700 (PDT)
+Received: from google.com ([2620:15c:201:0:4e3a:fe5d:27e5:c203])
+        by smtp.gmail.com with ESMTPSA id bu7sm211425pjb.41.2020.05.26.12.09.10
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 26 May 2020 12:09:10 -0700 (PDT)
+Date:   Tue, 26 May 2020 12:09:04 -0700
+From:   Eric Biggers <ebiggers@google.com>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     stable-commits@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: Patch "ppp: mppe: Revert "ppp: mppe: Add softdep to arc4"" has
+ been added to the 4.4-stable tree
+Message-ID: <20200526190904.GA165275@google.com>
+References: <20200524135255.8821820776@mail.kernel.org>
+ <20200524171105.GA56504@google.com>
+ <20200525024316.GY33628@sasha-vm>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200525024316.GY33628@sasha-vm>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phil Auld <pauld@redhat.com>
+On Sun, May 24, 2020 at 10:43:16PM -0400, Sasha Levin wrote:
+> > 
+> > Hard for "anyone else" to object to it when you didn't Cc any real mailing lists
+> > (stable-commits doesn't count) and just sent this to me.  Lucky I saw this.
+> 
+> This is just the "added to the queue" mail, you would see another mail
+> when this release goes to -rc1. No reason for too much spam...
+> 
 
-[ Upstream commit b34cb07dde7c2346dec73d053ce926aeaa087303 ]
+So that second email would have gone to the real mailing lists that would need
+to review this patch (linux-crypto and netdev)?  I don't think that's what
+happens, hence my concern...
 
-sched/fair: Fix enqueue_task_fair warning some more
-
-The recent patch, fe61468b2cb (sched/fair: Fix enqueue_task_fair warning)
-did not fully resolve the issues with the rq->tmp_alone_branch !=
-&rq->leaf_cfs_rq_list warning in enqueue_task_fair. There is a case where
-the first for_each_sched_entity loop exits due to on_rq, having incompletely
-updated the list.  In this case the second for_each_sched_entity loop can
-further modify se. The later code to fix up the list management fails to do
-what is needed because se does not point to the sched_entity which broke out
-of the first loop. The list is not fixed up because the throttled parent was
-already added back to the list by a task enqueue in a parallel child hierarchy.
-
-Address this by calling list_add_leaf_cfs_rq if there are throttled parents
-while doing the second for_each_sched_entity loop.
-
-Fixes: fe61468b2cb ("sched/fair: Fix enqueue_task_fair warning")
-Suggested-by: Vincent Guittot <vincent.guittot@linaro.org>
-Signed-off-by: Phil Auld <pauld@redhat.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
-Reviewed-by: Vincent Guittot <vincent.guittot@linaro.org>
-Link: https://lkml.kernel.org/r/20200512135222.GC2201@lorien.usersys.redhat.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- kernel/sched/fair.c | 7 +++++++
- 1 file changed, 7 insertions(+)
-
-diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index 7cd86641b44b..603d3d3cbf77 100644
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -5298,6 +5298,13 @@ enqueue_task_fair(struct rq *rq, struct task_struct *p, int flags)
- 		/* end evaluation on encountering a throttled cfs_rq */
- 		if (cfs_rq_throttled(cfs_rq))
- 			goto enqueue_throttle;
-+
-+               /*
-+                * One parent has been throttled and cfs_rq removed from the
-+                * list. Add it back to not break the leaf list.
-+                */
-+               if (throttled_hierarchy(cfs_rq))
-+                       list_add_leaf_cfs_rq(cfs_rq);
- 	}
- 
- enqueue_throttle:
--- 
-2.25.1
-
-
-
+- Eric
