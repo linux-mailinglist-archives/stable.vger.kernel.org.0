@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E6471E2A7F
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 20:57:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E25E31E2A83
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 20:57:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389816AbgEZS4Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 14:56:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49200 "EHLO mail.kernel.org"
+        id S2389863AbgEZS4c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 14:56:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49364 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389806AbgEZS4X (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 14:56:23 -0400
+        id S2388211AbgEZS4b (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 14:56:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3F57D208B8;
-        Tue, 26 May 2020 18:56:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 73F5020849;
+        Tue, 26 May 2020 18:56:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590519382;
-        bh=V/sfiQpCncPkYxfnFXx1t4SCQlwZ//Kxz1si0PlRpq0=;
+        s=default; t=1590519390;
+        bh=HuOdOjWhh7v+oy4B89jHnnSfzG+CFqbTWXFEPAFgzas=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0kMsWE0XN0+jJ5OLsEY91PH0a4rrlML3qmGSEFZdPfPsg8N3afr5EErJ7hoOdFcz7
-         4ohowL2jE3guYVcf/SA/b0DEHd6SBFj8iUcToamU5jRcQE4J4tJSePNZ/nP+9T9MvF
-         l8CT7Z2CqdX40Nmfm7ljjQGmNR4GYd0Aa44TF470=
+        b=c0whXinoq+cCIXYA3UMHtcGYYyK2kgsPbYS2NnzkS+pJNrNBj2B7QHC8fL7CCpy40
+         3URXZ/hAIzRU/1RNHBEH3ZAPHpR7nsWSr17THvQl3T5A3gP/8yo6pYOduJXPSt43eX
+         iwYAII0VSDGSsmtfRDZjabdwNerrwTmN4Dq08Lbg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Krzysztof Struczynski <krzysztof.struczynski@huawei.com>,
-        Roberto Sassu <roberto.sassu@huawei.com>,
-        Mimi Zohar <zohar@linux.ibm.com>,
+        stable@vger.kernel.org, Wu Bo <wubo40@huawei.com>,
+        "Yan, Zheng" <zyan@redhat.com>, Ilya Dryomov <idryomov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 06/65] evm: Check also if *tfm is an error pointer in init_desc()
-Date:   Tue, 26 May 2020 20:52:25 +0200
-Message-Id: <20200526183908.421289701@linuxfoundation.org>
+Subject: [PATCH 4.4 09/65] ceph: fix double unlock in handle_cap_export()
+Date:   Tue, 26 May 2020 20:52:28 +0200
+Message-Id: <20200526183909.708689116@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200526183905.988782958@linuxfoundation.org>
 References: <20200526183905.988782958@linuxfoundation.org>
@@ -46,47 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roberto Sassu <roberto.sassu@huawei.com>
+From: Wu Bo <wubo40@huawei.com>
 
-[ Upstream commit 53de3b080d5eae31d0de219617155dcc34e7d698 ]
+[ Upstream commit 4d8e28ff3106b093d98bfd2eceb9b430c70a8758 ]
 
-This patch avoids a kernel panic due to accessing an error pointer set by
-crypto_alloc_shash(). It occurs especially when there are many files that
-require an unsupported algorithm, as it would increase the likelihood of
-the following race condition:
+If the ceph_mdsc_open_export_target_session() return fails, it will
+do a "goto retry", but the session mutex has already been unlocked.
+Re-lock the mutex in that case to ensure that we don't unlock it
+twice.
 
-Task A: *tfm = crypto_alloc_shash() <= error pointer
-Task B: if (*tfm == NULL) <= *tfm is not NULL, use it
-Task B: rc = crypto_shash_init(desc) <= panic
-Task A: *tfm = NULL
-
-This patch uses the IS_ERR_OR_NULL macro to determine whether or not a new
-crypto context must be created.
-
-Cc: stable@vger.kernel.org
-Fixes: d46eb3699502b ("evm: crypto hash replaced by shash")
-Co-developed-by: Krzysztof Struczynski <krzysztof.struczynski@huawei.com>
-Signed-off-by: Krzysztof Struczynski <krzysztof.struczynski@huawei.com>
-Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+Signed-off-by: Wu Bo <wubo40@huawei.com>
+Reviewed-by: "Yan, Zheng" <zyan@redhat.com>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/integrity/evm/evm_crypto.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/ceph/caps.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/security/integrity/evm/evm_crypto.c b/security/integrity/evm/evm_crypto.c
-index 461f8d891579..44352b0b7510 100644
---- a/security/integrity/evm/evm_crypto.c
-+++ b/security/integrity/evm/evm_crypto.c
-@@ -47,7 +47,7 @@ static struct shash_desc *init_desc(char type)
- 		algo = evm_hash;
+diff --git a/fs/ceph/caps.c b/fs/ceph/caps.c
+index efdf81ea3b5f..3d0497421e62 100644
+--- a/fs/ceph/caps.c
++++ b/fs/ceph/caps.c
+@@ -3293,6 +3293,7 @@ retry:
+ 		WARN_ON(1);
+ 		tsession = NULL;
+ 		target = -1;
++		mutex_lock(&session->s_mutex);
  	}
+ 	goto retry;
  
--	if (*tfm == NULL) {
-+	if (IS_ERR_OR_NULL(*tfm)) {
- 		mutex_lock(&mutex);
- 		if (*tfm)
- 			goto out;
 -- 
 2.25.1
 
