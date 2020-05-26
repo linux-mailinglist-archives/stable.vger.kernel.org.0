@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E67B1E2E7C
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:30:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF2B51E2C81
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:15:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391012AbgEZTBz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:01:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56478 "EHLO mail.kernel.org"
+        id S2404223AbgEZTPa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:15:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47166 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403815AbgEZTBy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:01:54 -0400
+        id S2404265AbgEZTP2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:15:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 798FD2086A;
-        Tue, 26 May 2020 19:01:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A333E20776;
+        Tue, 26 May 2020 19:15:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590519713;
-        bh=oeb9h+mRVHc937kL8iuwiC4mgKe3Vtv93O9lCFxirD4=;
+        s=default; t=1590520528;
+        bh=mjFcX86r91d1iZBtQKyPObyOrcy9aYox6OEArrqea7s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a1MddTAwcS64JhfWRyHWmfNwahFuPBDQlDxDkainzIxWt8SxMNHc2caNikxM9Nquc
-         2nM7eprQA69xkWS/10NMuiqPg2fMIz8TvQXD1rCqTrbNB8Tr5Ajb2BtvwsfixA1uh2
-         OwVGlESaWnRHDQqSYZbaBa+cYneQFAHp203ihOxU=
+        b=YrLiEuUUtlar+zMA/5GKJhpisvi4KFtdE9fXpqPVuP4jPOLP3s2lpiTXkF4pFPT4l
+         tZFlGkDndEzFVeHntyjRrMoh8cDeKusPv4oIISK8UKyubVHlho0JdgRr9PtgObAHVO
+         Wzcprwxauo35qQdYwF9XztDwIB1RL9fw+UtDrAcU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arjun Vynipadath <arjun@chelsio.com>,
-        Ganesh Goudar <ganeshgr@chelsio.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 47/59] cxgb4: free mac_hlist properly
+        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
+        Xin Tan <tanxin.ctf@gmail.com>,
+        John Johansen <john.johansen@canonical.com>
+Subject: [PATCH 5.6 075/126] apparmor: fix potential label refcnt leak in aa_change_profile
 Date:   Tue, 26 May 2020 20:53:32 +0200
-Message-Id: <20200526183921.945710265@linuxfoundation.org>
+Message-Id: <20200526183944.505936788@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183907.123822792@linuxfoundation.org>
-References: <20200526183907.123822792@linuxfoundation.org>
+In-Reply-To: <20200526183937.471379031@linuxfoundation.org>
+References: <20200526183937.471379031@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,49 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arjun Vynipadath <arjun@chelsio.com>
+From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
 
-[ Upstream commit 2a8d84bf513823ba398f4b2dec41b8decf4041af ]
+commit a0b845ffa0d91855532b50fc040aeb2d8338dca4 upstream.
 
-The locally maintained list for tracking hash mac table was
-not freed during driver remove.
+aa_change_profile() invokes aa_get_current_label(), which returns
+a reference of the current task's label.
 
-Signed-off-by: Arjun Vynipadath <arjun@chelsio.com>
-Signed-off-by: Ganesh Goudar <ganeshgr@chelsio.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+According to the comment of aa_get_current_label(), the returned
+reference must be put with aa_put_label().
+However, when the original object pointed by "label" becomes
+unreachable because aa_change_profile() returns or a new object
+is assigned to "label", reference count increased by
+aa_get_current_label() is not decreased, causing a refcnt leak.
+
+Fix this by calling aa_put_label() before aa_change_profile() return
+and dropping unnecessary aa_get_current_label().
+
+Fixes: 9fcf78cca198 ("apparmor: update domain transitions that are subsets of confinement at nnp")
+Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
+Signed-off-by: John Johansen <john.johansen@canonical.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ security/apparmor/domain.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c
-index 0e13989608f1..9d1438c3c3ca 100644
---- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c
-+++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c
-@@ -2256,6 +2256,8 @@ static int cxgb_up(struct adapter *adap)
+--- a/security/apparmor/domain.c
++++ b/security/apparmor/domain.c
+@@ -1328,6 +1328,7 @@ int aa_change_profile(const char *fqname
+ 		ctx->nnp = aa_get_label(label);
  
- static void cxgb_down(struct adapter *adapter)
- {
-+	struct hash_mac_addr *entry, *tmp;
-+
- 	cancel_work_sync(&adapter->tid_release_task);
- 	cancel_work_sync(&adapter->db_full_task);
- 	cancel_work_sync(&adapter->db_drop_task);
-@@ -2264,6 +2266,12 @@ static void cxgb_down(struct adapter *adapter)
+ 	if (!fqname || !*fqname) {
++		aa_put_label(label);
+ 		AA_DEBUG("no profile name");
+ 		return -EINVAL;
+ 	}
+@@ -1346,8 +1347,6 @@ int aa_change_profile(const char *fqname
+ 			op = OP_CHANGE_PROFILE;
+ 	}
  
- 	t4_sge_stop(adapter);
- 	t4_free_sge_resources(adapter);
-+
-+	list_for_each_entry_safe(entry, tmp, &adapter->mac_hlist, list) {
-+		list_del(&entry->list);
-+		kfree(entry);
-+	}
-+
- 	adapter->flags &= ~FULL_INIT_DONE;
- }
- 
--- 
-2.25.1
-
+-	label = aa_get_current_label();
+-
+ 	if (*fqname == '&') {
+ 		stack = true;
+ 		/* don't have label_parse() do stacking */
 
 
