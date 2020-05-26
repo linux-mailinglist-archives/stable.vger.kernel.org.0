@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E69EB1E2C7F
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:15:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 371581E2B82
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:06:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404429AbgEZTP1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:15:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47106 "EHLO mail.kernel.org"
+        id S2391633AbgEZTF6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:05:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33966 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404399AbgEZTP0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:15:26 -0400
+        id S2391553AbgEZTFx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:05:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 378B82053B;
-        Tue, 26 May 2020 19:15:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 213F4208A7;
+        Tue, 26 May 2020 19:05:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590520525;
-        bh=85MRjDuphd+B7adNDduYkYSTVwOmbRTDqL773PNxNGM=;
+        s=default; t=1590519953;
+        bh=RuLq6l8ghx9Awz92TTEnXKdInMZwwPpwZ5Rs6CRv5QM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H9Qzdf0gEuQ97AXzgVXM0487uUj02dMRIQuT6dPEDqXEavXA3yfWtdIHQRB5LAkEt
-         Jg0GKfXmdIu0R28gBBGlNZB0x/Ka/htSzfNqLYS/gyhByvdvbG+FeEuv/SGPCt+vvw
-         dWkYS0tm3M2YGU2tBwVGeI0XNRiP/p5ndx41DyTQ=
+        b=CnmV2ErpL6fWK3eDv2yX00Ue3P2PEh6f2nkmYqKbIu2KXt4K2G1OgNAxMCE5roCbv
+         vQFwog9MSCyWH05oInrwFouTIsTv0/3dkjSaiJ22byCc+8EEHt/7ySZZkjqHMorqUq
+         O1m1DvBlxXk65apZKdlZh+cUNEI8QCjI5iT0AkSA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Navid Emamdoost <navid.emamdoost@gmail.com>,
-        John Johansen <john.johansen@canonical.com>
-Subject: [PATCH 5.6 074/126] apparmor: Fix use-after-free in aa_audit_rule_init
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 56/81] media: fdp1: Fix R-Car M3-N naming in debug message
 Date:   Tue, 26 May 2020 20:53:31 +0200
-Message-Id: <20200526183944.435819124@linuxfoundation.org>
+Message-Id: <20200526183933.346588333@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183937.471379031@linuxfoundation.org>
-References: <20200526183937.471379031@linuxfoundation.org>
+In-Reply-To: <20200526183923.108515292@linuxfoundation.org>
+References: <20200526183923.108515292@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,38 +47,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Navid Emamdoost <navid.emamdoost@gmail.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-commit c54d481d71c6849e044690d3960aaebc730224cc upstream.
+[ Upstream commit c05b9d7b9f3ece2831e4e4829f10e904df296df8 ]
 
-In the implementation of aa_audit_rule_init(), when aa_label_parse()
-fails the allocated memory for rule is released using
-aa_audit_rule_free(). But after this release, the return statement
-tries to access the label field of the rule which results in
-use-after-free. Before releasing the rule, copy errNo and return it
-after release.
+The official name is "R-Car M3-N", not "R-Car M3N".
 
-Fixes: 52e8c38001d8 ("apparmor: Fix memory leak of rule on error exit path")
-Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
-Signed-off-by: John Johansen <john.johansen@canonical.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 4e8c120de9268fc2 ("media: fdp1: Support M3N and E3 platforms")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/apparmor/audit.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/media/platform/rcar_fdp1.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/security/apparmor/audit.c
-+++ b/security/apparmor/audit.c
-@@ -197,8 +197,9 @@ int aa_audit_rule_init(u32 field, u32 op
- 	rule->label = aa_label_parse(&root_ns->unconfined->label, rulestr,
- 				     GFP_KERNEL, true, false);
- 	if (IS_ERR(rule->label)) {
-+		int err = PTR_ERR(rule->label);
- 		aa_audit_rule_free(rule);
--		return PTR_ERR(rule->label);
-+		return err;
- 	}
- 
- 	*vrule = rule;
+--- a/drivers/media/platform/rcar_fdp1.c
++++ b/drivers/media/platform/rcar_fdp1.c
+@@ -2368,7 +2368,7 @@ static int fdp1_probe(struct platform_de
+ 		dprintk(fdp1, "FDP1 Version R-Car H3\n");
+ 		break;
+ 	case FD1_IP_M3N:
+-		dprintk(fdp1, "FDP1 Version R-Car M3N\n");
++		dprintk(fdp1, "FDP1 Version R-Car M3-N\n");
+ 		break;
+ 	case FD1_IP_E3:
+ 		dprintk(fdp1, "FDP1 Version R-Car E3\n");
 
 
