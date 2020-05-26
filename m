@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E18D1E2E0A
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:26:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 676861E2E75
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:30:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391506AbgEZTFc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:05:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33438 "EHLO mail.kernel.org"
+        id S2390367AbgEZTBs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:01:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56316 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391504AbgEZTF3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:05:29 -0400
+        id S2390347AbgEZTBr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:01:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4262A208A7;
-        Tue, 26 May 2020 19:05:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 08A022086A;
+        Tue, 26 May 2020 19:01:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590519928;
-        bh=zL1ncFwqIrkyxwUfDGOmJpigKvrIf1byzCxY4Qi79oU=;
+        s=default; t=1590519706;
+        bh=KypJwFIz/vzWZNXCRkyD48q9Lx03p7GF7t2fIGPVXEY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RlCrTlPP2F+cgpfEsHf75sRRccO36H5uYu8R4ZCgFogmJ7PvCrryf9tdw7fwPiweB
-         TgKlppTaR95HhFfgTf3B0CvzjXnP4BCoGeQIIuOfVyiFHgj4tYrxoxKZQiefxgjapH
-         kxad7qqVPUttyj2OLBUBG9jp7xOrxSPKUtq5fahE=
+        b=chb4HGiT9ivYtTKixwLWR36J4/YaWwj93kjJ9sP5EOtA2Ozjhf0RjnD/sIpZZiclh
+         hhwHm4d9PuzuMpkupNpIHYYu554B75pN5PzwWe+N0sZhmQlS8TBMCEYxjbgDp9AeMS
+         kawIIYjaljVL8MdnBjDdqfwl+jycP7RqaHMg9qc8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Lukas Wunner <lukas@wunner.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 55/81] thunderbolt: Drop duplicated get_switch_at_route()
+        stable@vger.kernel.org, Dan Williams <dan.j.williams@intel.com>,
+        Dexuan Cui <decui@microsoft.com>,
+        Pedro dAquino Filocre F S Barbuda 
+        <pbarbuda@microsoft.com>, Vishal Verma <vishal.l.verma@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 45/59] libnvdimm/btt: Fix LBA masking during free list population
 Date:   Tue, 26 May 2020 20:53:30 +0200
-Message-Id: <20200526183933.179031466@linuxfoundation.org>
+Message-Id: <20200526183921.484936862@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183923.108515292@linuxfoundation.org>
-References: <20200526183923.108515292@linuxfoundation.org>
+In-Reply-To: <20200526183907.123822792@linuxfoundation.org>
+References: <20200526183907.123822792@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,136 +46,151 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
+From: Vishal Verma <vishal.l.verma@intel.com>
 
-[ Upstream commit 8f965efd215a09c20b0b5e5bb4e20009a954472e ]
+[ Upstream commit 9dedc73a4658ebcc0c9b58c3cb84e9ac80122213 ]
 
-tb_switch_find_by_route() does the same already so use it instead and
-remove duplicated get_switch_at_route().
+The Linux BTT implementation assumes that log entries will never have
+the 'zero' flag set, and indeed it never sets that flag for log entries
+itself.
 
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Reviewed-by: Lukas Wunner <lukas@wunner.de>
+However, the UEFI spec is ambiguous on the exact format of the LBA field
+of a log entry, specifically as to whether it should include the
+additional flag bits or not. While a zero bit doesn't make sense in the
+context of a log entry, other BTT implementations might still have it set.
+
+If an implementation does happen to have it set, we would happily read
+it in as the next block to write to for writes. Since a high bit is set,
+it pushes the block number out of the range of an 'arena', and we fail
+such a write with an EIO.
+
+Follow the robustness principle, and tolerate such implementations by
+stripping out the zero flag when populating the free list during
+initialization. Additionally, use the same stripped out entries for
+detection of incomplete writes and map restoration that happens at this
+stage.
+
+Add a sysfs file 'log_zero_flags' that indicates the ability to accept
+such a layout to userspace applications. This enables 'ndctl
+check-namespace' to recognize whether the kernel is able to handle zero
+flags, or whether it should attempt a fix-up under the --repair option.
+
+Cc: Dan Williams <dan.j.williams@intel.com>
+Reported-by: Dexuan Cui <decui@microsoft.com>
+Reported-by: Pedro d'Aquino Filocre F S Barbuda <pbarbuda@microsoft.com>
+Tested-by: Dexuan Cui <decui@microsoft.com>
+Signed-off-by: Vishal Verma <vishal.l.verma@intel.com>
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thunderbolt/icm.c    | 12 ++++++++----
- drivers/thunderbolt/switch.c | 18 ------------------
- drivers/thunderbolt/tb.c     |  9 ++++++---
- drivers/thunderbolt/tb.h     |  1 -
- 4 files changed, 14 insertions(+), 26 deletions(-)
+ drivers/nvdimm/btt.c      | 25 +++++++++++++++++++------
+ drivers/nvdimm/btt.h      |  2 ++
+ drivers/nvdimm/btt_devs.c |  8 ++++++++
+ 3 files changed, 29 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/thunderbolt/icm.c b/drivers/thunderbolt/icm.c
-index 8490a1b6b615..2b83d8b02f81 100644
---- a/drivers/thunderbolt/icm.c
-+++ b/drivers/thunderbolt/icm.c
-@@ -801,9 +801,11 @@ icm_fr_xdomain_connected(struct tb *tb, const struct icm_pkg_header *hdr)
- 	 * connected another host to the same port, remove the switch
- 	 * first.
- 	 */
--	sw = get_switch_at_route(tb->root_switch, route);
--	if (sw)
-+	sw = tb_switch_find_by_route(tb, route);
-+	if (sw) {
- 		remove_switch(sw);
-+		tb_switch_put(sw);
-+	}
+diff --git a/drivers/nvdimm/btt.c b/drivers/nvdimm/btt.c
+index 61e519f1d768..c46b7e1b0132 100644
+--- a/drivers/nvdimm/btt.c
++++ b/drivers/nvdimm/btt.c
+@@ -541,8 +541,8 @@ static int arena_clear_freelist_error(struct arena_info *arena, u32 lane)
+ static int btt_freelist_init(struct arena_info *arena)
+ {
+ 	int new, ret;
+-	u32 i, map_entry;
+ 	struct log_entry log_new;
++	u32 i, map_entry, log_oldmap, log_newmap;
  
- 	sw = tb_switch_find_by_link_depth(tb, link, depth);
- 	if (!sw) {
-@@ -1146,9 +1148,11 @@ icm_tr_xdomain_connected(struct tb *tb, const struct icm_pkg_header *hdr)
- 	 * connected another host to the same port, remove the switch
- 	 * first.
- 	 */
--	sw = get_switch_at_route(tb->root_switch, route);
--	if (sw)
-+	sw = tb_switch_find_by_route(tb, route);
-+	if (sw) {
- 		remove_switch(sw);
-+		tb_switch_put(sw);
-+	}
+ 	arena->freelist = kcalloc(arena->nfree, sizeof(struct free_entry),
+ 					GFP_KERNEL);
+@@ -554,16 +554,22 @@ static int btt_freelist_init(struct arena_info *arena)
+ 		if (new < 0)
+ 			return new;
  
- 	sw = tb_switch_find_by_route(tb, get_parent_route(route));
- 	if (!sw) {
-diff --git a/drivers/thunderbolt/switch.c b/drivers/thunderbolt/switch.c
-index 42d90ceec279..010a50ac4881 100644
---- a/drivers/thunderbolt/switch.c
-+++ b/drivers/thunderbolt/switch.c
-@@ -664,24 +664,6 @@ int tb_switch_reset(struct tb *tb, u64 route)
- 	return res.err;
- }
- 
--struct tb_switch *get_switch_at_route(struct tb_switch *sw, u64 route)
--{
--	u8 next_port = route; /*
--			       * Routes use a stride of 8 bits,
--			       * eventhough a port index has 6 bits at most.
--			       * */
--	if (route == 0)
--		return sw;
--	if (next_port > sw->config.max_port_number)
--		return NULL;
--	if (tb_is_upstream_port(&sw->ports[next_port]))
--		return NULL;
--	if (!sw->ports[next_port].remote)
--		return NULL;
--	return get_switch_at_route(sw->ports[next_port].remote->sw,
--				   route >> TB_ROUTE_SHIFT);
--}
--
- /**
-  * tb_plug_events_active() - enable/disable plug events on a switch
-  *
-diff --git a/drivers/thunderbolt/tb.c b/drivers/thunderbolt/tb.c
-index 1424581fd9af..146f261bf2c3 100644
---- a/drivers/thunderbolt/tb.c
-+++ b/drivers/thunderbolt/tb.c
-@@ -258,7 +258,7 @@ static void tb_handle_hotplug(struct work_struct *work)
- 	if (!tcm->hotplug_active)
- 		goto out; /* during init, suspend or shutdown */
- 
--	sw = get_switch_at_route(tb->root_switch, ev->route);
-+	sw = tb_switch_find_by_route(tb, ev->route);
- 	if (!sw) {
- 		tb_warn(tb,
- 			"hotplug event from non existent switch %llx:%x (unplug: %d)\n",
-@@ -269,14 +269,14 @@ static void tb_handle_hotplug(struct work_struct *work)
- 		tb_warn(tb,
- 			"hotplug event from non existent port %llx:%x (unplug: %d)\n",
- 			ev->route, ev->port, ev->unplug);
--		goto out;
-+		goto put_sw;
- 	}
- 	port = &sw->ports[ev->port];
- 	if (tb_is_upstream_port(port)) {
- 		tb_warn(tb,
- 			"hotplug event for upstream port %llx:%x (unplug: %d)\n",
- 			ev->route, ev->port, ev->unplug);
--		goto out;
-+		goto put_sw;
- 	}
- 	if (ev->unplug) {
- 		if (port->remote) {
-@@ -306,6 +306,9 @@ static void tb_handle_hotplug(struct work_struct *work)
- 			tb_activate_pcie_devices(tb);
- 		}
- 	}
++		/* old and new map entries with any flags stripped out */
++		log_oldmap = ent_lba(le32_to_cpu(log_new.old_map));
++		log_newmap = ent_lba(le32_to_cpu(log_new.new_map));
 +
-+put_sw:
-+	tb_switch_put(sw);
- out:
- 	mutex_unlock(&tb->lock);
- 	kfree(ev);
-diff --git a/drivers/thunderbolt/tb.h b/drivers/thunderbolt/tb.h
-index 7a0ee9836a8a..d927cf7b14d2 100644
---- a/drivers/thunderbolt/tb.h
-+++ b/drivers/thunderbolt/tb.h
-@@ -397,7 +397,6 @@ void tb_switch_suspend(struct tb_switch *sw);
- int tb_switch_resume(struct tb_switch *sw);
- int tb_switch_reset(struct tb *tb, u64 route);
- void tb_sw_set_unplugged(struct tb_switch *sw);
--struct tb_switch *get_switch_at_route(struct tb_switch *sw, u64 route);
- struct tb_switch *tb_switch_find_by_link_depth(struct tb *tb, u8 link,
- 					       u8 depth);
- struct tb_switch *tb_switch_find_by_uuid(struct tb *tb, const uuid_t *uuid);
+ 		/* sub points to the next one to be overwritten */
+ 		arena->freelist[i].sub = 1 - new;
+ 		arena->freelist[i].seq = nd_inc_seq(le32_to_cpu(log_new.seq));
+-		arena->freelist[i].block = le32_to_cpu(log_new.old_map);
++		arena->freelist[i].block = log_oldmap;
+ 
+ 		/*
+ 		 * FIXME: if error clearing fails during init, we want to make
+ 		 * the BTT read-only
+ 		 */
+-		if (ent_e_flag(log_new.old_map)) {
++		if (ent_e_flag(log_new.old_map) &&
++				!ent_normal(log_new.old_map)) {
++			arena->freelist[i].has_err = 1;
+ 			ret = arena_clear_freelist_error(arena, i);
+ 			if (ret)
+ 				dev_err_ratelimited(to_dev(arena),
+@@ -571,7 +577,7 @@ static int btt_freelist_init(struct arena_info *arena)
+ 		}
+ 
+ 		/* This implies a newly created or untouched flog entry */
+-		if (log_new.old_map == log_new.new_map)
++		if (log_oldmap == log_newmap)
+ 			continue;
+ 
+ 		/* Check if map recovery is needed */
+@@ -579,8 +585,15 @@ static int btt_freelist_init(struct arena_info *arena)
+ 				NULL, NULL, 0);
+ 		if (ret)
+ 			return ret;
+-		if ((le32_to_cpu(log_new.new_map) != map_entry) &&
+-				(le32_to_cpu(log_new.old_map) == map_entry)) {
++
++		/*
++		 * The map_entry from btt_read_map is stripped of any flag bits,
++		 * so use the stripped out versions from the log as well for
++		 * testing whether recovery is needed. For restoration, use the
++		 * 'raw' version of the log entries as that captured what we
++		 * were going to write originally.
++		 */
++		if ((log_newmap != map_entry) && (log_oldmap == map_entry)) {
+ 			/*
+ 			 * Last transaction wrote the flog, but wasn't able
+ 			 * to complete the map write. So fix up the map.
+diff --git a/drivers/nvdimm/btt.h b/drivers/nvdimm/btt.h
+index 2609683c4167..c3e6a5da2ec7 100644
+--- a/drivers/nvdimm/btt.h
++++ b/drivers/nvdimm/btt.h
+@@ -44,6 +44,8 @@
+ #define ent_e_flag(ent) (!!(ent & MAP_ERR_MASK))
+ #define ent_z_flag(ent) (!!(ent & MAP_TRIM_MASK))
+ #define set_e_flag(ent) (ent |= MAP_ERR_MASK)
++/* 'normal' is both e and z flags set */
++#define ent_normal(ent) (ent_e_flag(ent) && ent_z_flag(ent))
+ 
+ enum btt_init_state {
+ 	INIT_UNCHECKED = 0,
+diff --git a/drivers/nvdimm/btt_devs.c b/drivers/nvdimm/btt_devs.c
+index e610dd890263..76a74e292fd7 100644
+--- a/drivers/nvdimm/btt_devs.c
++++ b/drivers/nvdimm/btt_devs.c
+@@ -159,11 +159,19 @@ static ssize_t size_show(struct device *dev,
+ }
+ static DEVICE_ATTR_RO(size);
+ 
++static ssize_t log_zero_flags_show(struct device *dev,
++		struct device_attribute *attr, char *buf)
++{
++	return sprintf(buf, "Y\n");
++}
++static DEVICE_ATTR_RO(log_zero_flags);
++
+ static struct attribute *nd_btt_attributes[] = {
+ 	&dev_attr_sector_size.attr,
+ 	&dev_attr_namespace.attr,
+ 	&dev_attr_uuid.attr,
+ 	&dev_attr_size.attr,
++	&dev_attr_log_zero_flags.attr,
+ 	NULL,
+ };
+ 
 -- 
 2.25.1
 
