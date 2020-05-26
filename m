@@ -2,37 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CFDE51E2E0D
-	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:26:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 51CF31E2CC3
+	for <lists+stable@lfdr.de>; Tue, 26 May 2020 21:17:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391489AbgEZTFT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 15:05:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33230 "EHLO mail.kernel.org"
+        id S2404349AbgEZTOT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 May 2020 15:14:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45058 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391486AbgEZTFS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 26 May 2020 15:05:18 -0400
+        id S2404345AbgEZTOS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 26 May 2020 15:14:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8DBBB20873;
-        Tue, 26 May 2020 19:05:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 223CB20776;
+        Tue, 26 May 2020 19:14:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590519918;
-        bh=4M5deWG5jIa6iI19py38thQWtE2UPrGfLPREoxU3En4=;
+        s=default; t=1590520457;
+        bh=ROkDuAVEAX5iprg27/OAqxRmFR4g+xJwM9tn3TX5o7U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ifZgnEfj8Ng08qNNqkyTkbFUEKrO2oefqwDdj6pPTQy734kneEzJTJmif4Okr9Zgv
-         h4z57bcfovPv97rpc9ECjyY1DISGZN6upBbyXNLorV4aNi7+fjG8AJb1iAAwRWeZR4
-         lES2XbKT0ko5NDe8H4ccFudo7+0cHbBUoZTQ0TAo=
+        b=Izso1PozQOLxXMT7JbzGCU8SlFIRfxz/EKQebsEaNcvVHO4iCoFgKNEr2sTwtZAnM
+         bpr1jb7fkAIhjLswOfRJnTK/Grq3hBIHGw71zzm61ACBYRmv46syk1GYscoMG1ayGY
+         DRrVrvK39xiLYQtfI6pNeU7jXmADDp8D8yi59VQk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Klaus Doth <kdlnx@doth.eu>
-Subject: [PATCH 4.19 69/81] misc: rtsx: Add short delay after exit from ASPM
+        stable@vger.kernel.org, Russell King <linux@armlinux.org.uk>,
+        Christoph Hellwig <hch@lst.de>,
+        Ludovic Barre <ludovic.barre@st.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 087/126] Revert "driver core: platform: Initialize dma_parms for platform devices"
 Date:   Tue, 26 May 2020 20:53:44 +0200
-Message-Id: <20200526183934.709077655@linuxfoundation.org>
+Message-Id: <20200526183945.302867078@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200526183923.108515292@linuxfoundation.org>
-References: <20200526183923.108515292@linuxfoundation.org>
+In-Reply-To: <20200526183937.471379031@linuxfoundation.org>
+References: <20200526183937.471379031@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,42 +48,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Klaus Doth <kdlnx@doth.eu>
+[ Upstream commit 1d2a14649ef5b5eb64ea5ce276d7df502bac4dbe ]
 
-commit 7a839dbab1be59f5ed3b3b046de29e166784c9b4 upstream.
+[ Upstream commit 885a64715fd81e6af6d94a038556e0b2e6deb19c ]
 
-DMA transfers to and from the SD card stall for 10 seconds and run into
-timeout on RTS5260 card readers after ASPM was enabled.
+This reverts commit 7c8978c0837d40c302f5e90d24c298d9ca9fc097, a new
+version will come in the next release cycle.
 
-Adding a short msleep after disabling ASPM fixes the issue on several
-Dell Precision 7530/7540 systems I tested.
-
-This function is only called when waking up after the chip went into
-power-save after not transferring data for a few seconds. The added
-msleep does therefore not change anything in data transfer speed or
-induce any excessive waiting while data transfers are running, or the
-chip is sleeping. Only the transition from sleep to active is affected.
-
-Signed-off-by: Klaus Doth <kdlnx@doth.eu>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/4434eaa7-2ee3-a560-faee-6cee63ebd6d4@doth.eu
+Cc: <stable@vger.kernel.org>
+Cc: Russell King <linux@armlinux.org.uk>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Ludovic Barre <ludovic.barre@st.com>
+Cc: Linus Walleij <linus.walleij@linaro.org>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/cardreader/rtsx_pcr.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/base/platform.c         | 2 --
+ include/linux/platform_device.h | 1 -
+ 2 files changed, 3 deletions(-)
 
---- a/drivers/misc/cardreader/rtsx_pcr.c
-+++ b/drivers/misc/cardreader/rtsx_pcr.c
-@@ -155,6 +155,9 @@ static void rtsx_comm_pm_full_on(struct
+diff --git a/drivers/base/platform.c b/drivers/base/platform.c
+index c81b68d5d66d..b5ce7b085795 100644
+--- a/drivers/base/platform.c
++++ b/drivers/base/platform.c
+@@ -361,8 +361,6 @@ struct platform_object {
+  */
+ static void setup_pdev_dma_masks(struct platform_device *pdev)
+ {
+-	pdev->dev.dma_parms = &pdev->dma_parms;
+-
+ 	if (!pdev->dev.coherent_dma_mask)
+ 		pdev->dev.coherent_dma_mask = DMA_BIT_MASK(32);
+ 	if (!pdev->dev.dma_mask) {
+diff --git a/include/linux/platform_device.h b/include/linux/platform_device.h
+index 81900b3cbe37..041bfa412aa0 100644
+--- a/include/linux/platform_device.h
++++ b/include/linux/platform_device.h
+@@ -25,7 +25,6 @@ struct platform_device {
+ 	bool		id_auto;
+ 	struct device	dev;
+ 	u64		platform_dma_mask;
+-	struct device_dma_parameters dma_parms;
+ 	u32		num_resources;
+ 	struct resource	*resource;
  
- 	rtsx_disable_aspm(pcr);
- 
-+	/* Fixes DMA transfer timout issue after disabling ASPM on RTS5260 */
-+	msleep(1);
-+
- 	if (option->ltr_enabled)
- 		rtsx_set_ltr_latency(pcr, option->ltr_active_latency);
- 
+-- 
+2.25.1
+
 
 
