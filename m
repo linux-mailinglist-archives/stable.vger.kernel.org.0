@@ -2,101 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E46EF1E41E9
-	for <lists+stable@lfdr.de>; Wed, 27 May 2020 14:20:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D81B41E425E
+	for <lists+stable@lfdr.de>; Wed, 27 May 2020 14:32:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727092AbgE0MU0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 May 2020 08:20:26 -0400
-Received: from alexa-out-blr-01.qualcomm.com ([103.229.18.197]:52008 "EHLO
-        alexa-out-blr-01.qualcomm.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726785AbgE0MU0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 May 2020 08:20:26 -0400
-Received: from ironmsg01-blr.qualcomm.com ([10.86.208.130])
-  by alexa-out-blr-01.qualcomm.com with ESMTP/TLS/AES256-SHA; 27 May 2020 17:49:42 +0530
-Received: from sartgarg-linux.qualcomm.com ([10.206.24.245])
-  by ironmsg01-blr.qualcomm.com with ESMTP; 27 May 2020 17:49:29 +0530
-Received: by sartgarg-linux.qualcomm.com (Postfix, from userid 2339771)
-        id 215AC17B2; Wed, 27 May 2020 17:49:28 +0530 (IST)
-From:   Sarthak Garg <sartgarg@codeaurora.org>
-To:     stable@vger.kernel.org
-Cc:     adrian.hunter@intel.com, ulf.hansson@linaro.org,
-        vbadigan@codeaurora.org, stummala@codeaurora.org,
-        linux-mmc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-arm-msm@vger.kernel.org
-Subject: [4.19.124 V1] mmc: core: Fix recursive locking issue in CQE recovery path
-Date:   Wed, 27 May 2020 17:49:02 +0530
-Message-Id: <1590581942-24283-1-git-send-email-sartgarg@codeaurora.org>
+        id S1728501AbgE0Mcn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 May 2020 08:32:43 -0400
+Received: from mga07.intel.com ([134.134.136.100]:20409 "EHLO mga07.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728337AbgE0Mcn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 May 2020 08:32:43 -0400
+IronPort-SDR: iNAQ9D7kTo/e+L8Bo9sbHyfc/RPtFSMS8/2zuhKtPd9aEyc48e3yQe3ebMOQ3LyXXqLXCaNG0a
+ kSA/Eqlw3EsA==
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga003.jf.intel.com ([10.7.209.27])
+  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 May 2020 05:32:43 -0700
+IronPort-SDR: bC8ATACVYor4iaQNqvOb/bXKkpaisVzz0DtscTTSsjjhrpijO3/yplCe9GLymE5Q/NJE39TbmP
+ 7qAl9KeFHxLw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.73,441,1583222400"; 
+   d="scan'208";a="266819405"
+Received: from otc-lr-04.jf.intel.com ([10.54.39.143])
+  by orsmga003.jf.intel.com with ESMTP; 27 May 2020 05:32:43 -0700
+From:   kan.liang@linux.intel.com
+To:     peterz@infradead.org, mingo@redhat.com,
+        linux-kernel@vger.kernel.org
+Cc:     ak@linux.intel.com, Kan Liang <kan.liang@linux.intel.com>,
+        stable@vger.kernel.org
+Subject: [PATCH] perf/x86/intel/uncore: Fix oops when counting IMC uncore events on some TGL
+Date:   Wed, 27 May 2020 05:30:47 -0700
+Message-Id: <1590582647-90675-1-git-send-email-kan.liang@linux.intel.com>
 X-Mailer: git-send-email 2.7.4
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 39a22f73744d5baee30b5f134ae2e30b668b66ed ]
+From: Kan Liang <kan.liang@linux.intel.com>
 
-Consider the following stack trace
+When counting IMC uncore events on some TGL machines, an oops will be
+triggered.
+  [ 393.101262] BUG: unable to handle page fault for address:
+  ffffb45200e15858
+  [ 393.101269] #PF: supervisor read access in kernel mode
+  [ 393.101271] #PF: error_code(0x0000) - not-present page
 
--001|raw_spin_lock_irqsave
--002|mmc_blk_cqe_complete_rq
--003|__blk_mq_complete_request(inline)
--003|blk_mq_complete_request(rq)
--004|mmc_cqe_timed_out(inline)
--004|mmc_mq_timed_out
+Current perf uncore driver still use the IMC MAP SIZE inherited from
+SNB, which is 0x6000.
+However, the offset of IMC uncore counters for some TGL machines is
+larger than 0x6000, e.g. 0xd8a0.
 
-mmc_mq_timed_out acquires the queue_lock for the first
-time. The mmc_blk_cqe_complete_rq function also tries to acquire
-the same queue lock resulting in recursive locking where the task
-is spinning for the same lock which it has already acquired leading
-to watchdog bark.
+Enlarge the IMC MAP SIZE for TGL to 0xe000.
 
-Fix this issue with the lock only for the required critical section.
-
-Cc: <stable@vger.kernel.org>
-Fixes: 1e8e55b67030 ("mmc: block: Add CQE support")
-Suggested-by: Sahitya Tummala <stummala@codeaurora.org>
-Signed-off-by: Sarthak Garg <sartgarg@codeaurora.org>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Link: https://lore.kernel.org/r/1588868135-31783-1-git-send-email-vbadigan@codeaurora.org
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Fixes: fdb64822443e ("perf/x86: Add Intel Tiger Lake uncore support")
+Reported-by: Ammy Yi <ammy.yi@intel.com>
+Tested-by: Ammy Yi <ammy.yi@intel.com>
+Tested-by: Chao Qin <chao.qin@intel.com>
+Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
+Cc: stable@vger.kernel.org
 ---
- drivers/mmc/core/queue.c | 13 ++++---------
- 1 file changed, 4 insertions(+), 9 deletions(-)
+ arch/x86/events/intel/uncore_snb.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/mmc/core/queue.c b/drivers/mmc/core/queue.c
-index 03f3d9c..2a78816 100644
---- a/drivers/mmc/core/queue.c
-+++ b/drivers/mmc/core/queue.c
-@@ -108,7 +108,7 @@ static enum blk_eh_timer_return mmc_cqe_timed_out(struct request *req)
- 	case MMC_ISSUE_DCMD:
- 		if (host->cqe_ops->cqe_timeout(host, mrq, &recovery_needed)) {
- 			if (recovery_needed)
--				__mmc_cqe_recovery_notifier(mq);
-+				mmc_cqe_recovery_notifier(mrq);
- 			return BLK_EH_RESET_TIMER;
- 		}
- 		/* The request has gone already */
-@@ -125,18 +125,13 @@ static enum blk_eh_timer_return mmc_mq_timed_out(struct request *req,
- 	struct request_queue *q = req->q;
- 	struct mmc_queue *mq = q->queuedata;
- 	unsigned long flags;
--	int ret;
-+	bool ignore_tout;
- 
- 	spin_lock_irqsave(q->queue_lock, flags);
--
--	if (mq->recovery_needed || !mq->use_cqe)
--		ret = BLK_EH_RESET_TIMER;
--	else
--		ret = mmc_cqe_timed_out(req);
--
-+	ignore_tout = mq->recovery_needed || !mq->use_cqe;
- 	spin_unlock_irqrestore(q->queue_lock, flags);
- 
--	return ret;
-+	return ignore_tout ? BLK_EH_RESET_TIMER : mmc_cqe_timed_out(req);
+diff --git a/arch/x86/events/intel/uncore_snb.c b/arch/x86/events/intel/uncore_snb.c
+index 3de1065..1038e9f 100644
+--- a/arch/x86/events/intel/uncore_snb.c
++++ b/arch/x86/events/intel/uncore_snb.c
+@@ -1085,6 +1085,7 @@ static struct pci_dev *tgl_uncore_get_mc_dev(void)
  }
  
- static void mmc_mq_recovery_handler(struct work_struct *work)
+ #define TGL_UNCORE_MMIO_IMC_MEM_OFFSET		0x10000
++#define TGL_UNCORE_PCI_IMC_MAP_SIZE		0xe000
+ 
+ static void tgl_uncore_imc_freerunning_init_box(struct intel_uncore_box *box)
+ {
+@@ -1112,7 +1113,7 @@ static void tgl_uncore_imc_freerunning_init_box(struct intel_uncore_box *box)
+ 	addr |= ((resource_size_t)mch_bar << 32);
+ #endif
+ 
+-	box->io_addr = ioremap(addr, SNB_UNCORE_PCI_IMC_MAP_SIZE);
++	box->io_addr = ioremap(addr, TGL_UNCORE_PCI_IMC_MAP_SIZE);
+ }
+ 
+ static struct intel_uncore_ops tgl_uncore_imc_freerunning_ops = {
 -- 
 2.7.4
 
