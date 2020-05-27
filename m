@@ -2,112 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 54CC01E3DC9
-	for <lists+stable@lfdr.de>; Wed, 27 May 2020 11:43:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 991AB1E3DCF
+	for <lists+stable@lfdr.de>; Wed, 27 May 2020 11:45:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726267AbgE0Jnt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 May 2020 05:43:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45228 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725320AbgE0Jnt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 May 2020 05:43:49 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 76C852075A;
-        Wed, 27 May 2020 09:43:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590572627;
-        bh=Y5MgGNxDObmd6lAXeY8zv/6P2Xc3MdEqJ8tL0llii3s=;
-        h=Subject:To:From:Date:From;
-        b=HP/UYty0UwESfpYeoM0D2vJrFgtS6z0+QWPL9XeFVJcaOMjjSKMtjl17892ARsFOU
-         F649EaFMQKjCyPLpbpPwRjzcBQD2dRX4JCH6JpXDiyoENPVuVW8fc+XIA0KsTxRicu
-         a6l+PORtR9lSfoTkU2ZNss2bGWIw115JHAravZVs=
-Subject: patch "nvmem: qfprom: remove incorrect write support" added to char-misc-testing
-To:     srinivas.kandagatla@linaro.org, dianders@chromium.org,
-        gregkh@linuxfoundation.org, stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 27 May 2020 11:43:45 +0200
-Message-ID: <15905726253770@kroah.com>
+        id S1726291AbgE0JpQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 May 2020 05:45:16 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:57540 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725939AbgE0JpP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 May 2020 05:45:15 -0400
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 04R9bQaj129880;
+        Wed, 27 May 2020 05:45:09 -0400
+Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 316ywnnbk1-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 27 May 2020 05:45:09 -0400
+Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
+        by ppma02fra.de.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 04R9ZnqM021290;
+        Wed, 27 May 2020 09:44:41 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma02fra.de.ibm.com with ESMTP id 316uf8u3fk-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 27 May 2020 09:44:40 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 04R9icZk48169074
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 27 May 2020 09:44:38 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 344CC11C050;
+        Wed, 27 May 2020 09:44:38 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 71D9D11C04C;
+        Wed, 27 May 2020 09:44:36 +0000 (GMT)
+Received: from hbathini.in.ibm.com (unknown [9.102.0.137])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed, 27 May 2020 09:44:36 +0000 (GMT)
+Subject: [PATCH] powerpc/fadump: account for memory_limit while reserving
+ memory
+From:   Hari Bathini <hbathini@linux.ibm.com>
+To:     Michael Ellerman <mpe@ellerman.id.au>,
+        linuxppc-dev <linuxppc-dev@ozlabs.org>
+Cc:     Sourabh Jain <sourabhjain@linux.ibm.com>,
+        Vasant Hegde <hegdevasant@linux.ibm.com>,
+        kbuild test robot <lkp@intel.com>, stable@vger.kernel.org,
+        Mahesh J Salgaonkar <mahesh@linux.ibm.com>
+Date:   Wed, 27 May 2020 15:14:35 +0530
+Message-ID: <159057266320.22331.6571453892066907320.stgit@hbathini.in.ibm.com>
+User-Agent: StGit/0.17.1-dirty
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.216,18.0.687
+ definitions=2020-05-27_03:2020-05-26,2020-05-27 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
+ mlxlogscore=999 phishscore=0 malwarescore=0 impostorscore=0 spamscore=0
+ bulkscore=0 lowpriorityscore=0 mlxscore=0 adultscore=0 clxscore=1011
+ priorityscore=1501 cotscore=-2147483648 classifier=spam adjust=0
+ reason=mlx scancount=1 engine=8.12.0-2004280000
+ definitions=main-2005270068
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+If the memory chunk found for reserving memory overshoots the memory
+limit imposed, do not proceed with reserving memory. Default behavior
+was this until commit 140777a3d8df ("powerpc/fadump: consider reserved
+ranges while reserving memory") changed it unwittingly.
 
-This is a note to let you know that I've just added the patch titled
-
-    nvmem: qfprom: remove incorrect write support
-
-to my char-misc git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
-in the char-misc-testing branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will be merged to the char-misc-next branch sometime soon,
-after it passes testing, and the merge window is open.
-
-If you have any questions about this process, please let me know.
-
-
-From 8d9eb0d6d59a5d7028c80a30831143d3e75515a7 Mon Sep 17 00:00:00 2001
-From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Date: Fri, 22 May 2020 12:33:41 +0100
-Subject: nvmem: qfprom: remove incorrect write support
-
-qfprom has different address spaces for read and write. Reads are
-always done from corrected address space, where as writes are done
-on raw address space.
-Writing to corrected address space is invalid and ignored, so it
-does not make sense to have this support in the driver which only
-supports corrected address space regions at the moment.
-
-Fixes: 4ab11996b489 ("nvmem: qfprom: Add Qualcomm QFPROM support.")
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200522113341.7728-1-srinivas.kandagatla@linaro.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: kbuild test robot <lkp@intel.com>
+Fixes: 140777a3d8df ("powerpc/fadump: consider reserved ranges while reserving memory")
+Cc: stable@vger.kernel.org
+Signed-off-by: Hari Bathini <hbathini@linux.ibm.com>
 ---
- drivers/nvmem/qfprom.c | 14 --------------
- 1 file changed, 14 deletions(-)
 
-diff --git a/drivers/nvmem/qfprom.c b/drivers/nvmem/qfprom.c
-index d057f1bfb2e9..8a91717600be 100644
---- a/drivers/nvmem/qfprom.c
-+++ b/drivers/nvmem/qfprom.c
-@@ -27,25 +27,11 @@ static int qfprom_reg_read(void *context,
- 	return 0;
- }
- 
--static int qfprom_reg_write(void *context,
--			 unsigned int reg, void *_val, size_t bytes)
--{
--	struct qfprom_priv *priv = context;
--	u8 *val = _val;
--	int i = 0, words = bytes;
--
--	while (words--)
--		writeb(*val++, priv->base + reg + i++);
--
--	return 0;
--}
--
- static struct nvmem_config econfig = {
- 	.name = "qfprom",
- 	.stride = 1,
- 	.word_size = 1,
- 	.reg_read = qfprom_reg_read,
--	.reg_write = qfprom_reg_write,
- };
- 
- static int qfprom_probe(struct platform_device *pdev)
--- 
-2.26.2
+For reference:
+- https://lists.ozlabs.org/pipermail/linuxppc-dev/2020-May/211136.html
 
+
+ arch/powerpc/kernel/fadump.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/powerpc/kernel/fadump.c b/arch/powerpc/kernel/fadump.c
+index 63aac8b..78ab9a6 100644
+--- a/arch/powerpc/kernel/fadump.c
++++ b/arch/powerpc/kernel/fadump.c
+@@ -603,7 +603,7 @@ int __init fadump_reserve_mem(void)
+ 		 */
+ 		base = fadump_locate_reserve_mem(base, size);
+ 
+-		if (!base) {
++		if (!base || (base + size > mem_boundary)) {
+ 			pr_err("Failed to find memory chunk for reservation!\n");
+ 			goto error_out;
+ 		}
 
