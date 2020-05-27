@@ -2,54 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DA3A1E3C96
-	for <lists+stable@lfdr.de>; Wed, 27 May 2020 10:49:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8273D1E3CAC
+	for <lists+stable@lfdr.de>; Wed, 27 May 2020 10:53:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388297AbgE0Iti (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 May 2020 04:49:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48182 "EHLO
+        id S2388249AbgE0IxH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 May 2020 04:53:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48730 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388113AbgE0Ith (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 May 2020 04:49:37 -0400
+        with ESMTP id S2388113AbgE0IxH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 May 2020 04:53:07 -0400
 Received: from mail-lj1-x241.google.com (mail-lj1-x241.google.com [IPv6:2a00:1450:4864:20::241])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1C0BC03E97C
-        for <stable@vger.kernel.org>; Wed, 27 May 2020 01:49:35 -0700 (PDT)
-Received: by mail-lj1-x241.google.com with SMTP id m12so25516047ljc.6
-        for <stable@vger.kernel.org>; Wed, 27 May 2020 01:49:35 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABB1CC061A0F
+        for <stable@vger.kernel.org>; Wed, 27 May 2020 01:53:06 -0700 (PDT)
+Received: by mail-lj1-x241.google.com with SMTP id z18so27900087lji.12
+        for <stable@vger.kernel.org>; Wed, 27 May 2020 01:53:06 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc:content-transfer-encoding;
-        bh=6esLd7lp43zEbTtvTec1bd3/AlFOraY5i1exF89Mlno=;
-        b=ONaHXwDokW3gMzPIntv8wF7r860aStv4oHwg88P4jPBk3VE9zjW66yGArwM9AMFolu
-         cfBa2ji46hO27uU7gaSsZDcfh2XUIWxA+AnLm2I9/sNLWYEg6Z4gtW7XM1ca6Wx+wrAS
-         62NDDGTLUURQZKfPCKNmAe6GkXcVxsaN/Z3yAkNjMFTMIPgYdb+ycVyr70HXj9YjJfDk
-         GPqz3HqEubVY7yfUgm68gBOU5Y7jB9YCRCUgQyvuUj7yytjzQQCzlKGsX1vlj+hk4HTH
-         Bah6PJX2N2PuF0WHz3Sf2JU18q0eTEr1XCqdZdvjxVOB2jOiQcauhlPPC1Ylib8gGlVO
-         0Etw==
+        bh=VMYivybFR3qZWswQd+4Hh00wgkOlInWhi0WpQgvu6k8=;
+        b=Zv10UTO9QZf5MGO5WdogeLLqk0XLrBiu9u3HsCrO64WQ+KezlTbigGnhN5oDs+qjv8
+         9gU8XZFaiD+ewGxHa2IeSCW+4JgleH/Ztvv8Et/TuEHn9zFsRwZP6CDej6JUHpxexaxs
+         dHCYEhboBG86Nk22CdHzEeKg3/piogfA6xLLLmmqzZ3Eois+AhP2xdvk3hHBMycrxUKZ
+         3qSsCgoroLKbhrhBJy6aZ3sHm47OnEC9/RYfycB7b9SDyW4lK2aEDsz2NfdqDfBSQ+nG
+         tofQWOjFsnuf6njdOHl//svyuApUdwWBu3UluN8b6dQw/CZ+wczbwIXt6m5Wl56upN4O
+         YheA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc:content-transfer-encoding;
-        bh=6esLd7lp43zEbTtvTec1bd3/AlFOraY5i1exF89Mlno=;
-        b=LmYdXxbMVIx+h4RheHViUUHi3ArhIMHvmKVb0BJKl29283IR/dqPcnPNmqRH/YsiBq
-         zeuKH3a38a+KlheI9NJlzRQyt2KiBkG4IU5idz0R8CloDChbdJm2bWn3m1Ta/3FOqfb0
-         XEXVOJzcG4XWRaGmI19v9EroZJofRm0DdksO4MUAVGWpVlI5v1zqakKVVeoq9+vou9gW
-         9BxD8DvCDF9sWA9wKt6HBlsJeUgJfYGzOk7yZHcfaz15tSOclbNorD2KXwV19+grrjWW
-         3TUD6xbYSzoiiDzFx4VNhzFzyNXLTiidIRHB710Fssd3PpH3uwV6CWJMvi4iahTu2UxQ
-         66lg==
-X-Gm-Message-State: AOAM532tj7nyLkuCw2tbS3hbTbYVOxeyVsp51ok7xQ6YejJ608l5p3Qw
-        5aKDC6P42z7qOoCaW6uXWJs5QT9ZWqfcGOqB6N43Bg==
-X-Google-Smtp-Source: ABdhPJzbmy1mlXsY4y9WFoe6kKvpUK3nRSEwZCtOU1yuiHIMN2c0HPpyDzsSaxeroW+9wQqD3ez18Gok8TI4iJxAbjk=
-X-Received: by 2002:a2e:89d9:: with SMTP id c25mr2747458ljk.366.1590569374271;
- Wed, 27 May 2020 01:49:34 -0700 (PDT)
+        bh=VMYivybFR3qZWswQd+4Hh00wgkOlInWhi0WpQgvu6k8=;
+        b=jQpnOERa4HrGG3oU+9iQDULPr973hYjYuUzgmeYDvjsNn3cJ1Iqw/GUJ3ytt05RAaK
+         bnvv+KU+DrmRVgQ8QaipZY/d/LrBqSLiXttleZ9Al0N/mLSq15NmPfWesDczkGZUINVk
+         WMNs+kqzGDK4cbfffhpwhPJ1+PsN8S5M6s9RXV0emys36CAQ5gCEXN9dh2MrlF7Q8tFO
+         mbWC707mbQRpPB+B6I/lmI0mDy/xepS1/PvFTm7gR0676kEnSOgnviU/ypqazckkz573
+         LIJISYWMnhZwiHgLTIpDrbuxCB+LouMQ7PO3yoFBqgZvoEa0YnTcIVeAs6U/QxhPPeaX
+         KsQw==
+X-Gm-Message-State: AOAM533DITH2Ecd2PhGtUlVzH71J/2OtHdkbgBL+JDm455Xvf59Sp+hJ
+        mhMxWNRXhIYYPaWfa35qp8XRSduhjSf0/ioKX6Q8xnB10YF4ig==
+X-Google-Smtp-Source: ABdhPJwwTJHa3rqeb8/G4wh2gtOFICQYxsYQiW2iM0wlhShazA9cZNim2OfJfYJQtgWFcSO0zM5ba/upU8fGpFSO1Pc=
+X-Received: by 2002:a2e:89d9:: with SMTP id c25mr2754030ljk.366.1590569585048;
+ Wed, 27 May 2020 01:53:05 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200526183913.064413230@linuxfoundation.org>
-In-Reply-To: <20200526183913.064413230@linuxfoundation.org>
+References: <20200526183905.988782958@linuxfoundation.org>
+In-Reply-To: <20200526183905.988782958@linuxfoundation.org>
 From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Wed, 27 May 2020 14:19:22 +0530
-Message-ID: <CA+G9fYuXKptEVL0mj_NKFxNtz43=KdpotC1EQ=WKDp2JvxuOeA@mail.gmail.com>
-Subject: Re: [PATCH 4.9 00/64] 4.9.225-rc1 review
+Date:   Wed, 27 May 2020 14:22:53 +0530
+Message-ID: <CA+G9fYtqoHXXWq9+jb6-nN5Jvj7x8dryYK6ehTC2+8TRxCWsag@mail.gmail.com>
+Subject: Re: [PATCH 4.4 00/65] 4.4.225-rc1 review
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     open list <linux-kernel@vger.kernel.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
@@ -66,11 +66,11 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 27 May 2020 at 00:29, Greg Kroah-Hartman
+On Wed, 27 May 2020 at 00:24, Greg Kroah-Hartman
 <gregkh@linuxfoundation.org> wrote:
 >
-> This is the start of the stable review cycle for the 4.9.225 release.
-> There are 64 patches in this series, all will be posted as a response
+> This is the start of the stable review cycle for the 4.4.225 release.
+> There are 65 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 >
@@ -79,16 +79,15 @@ On Wed, 27 May 2020 at 00:29, Greg Kroah-Hartman
 >
 > The whole patch series can be found in one patch at:
 >         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.9.225-rc1.gz
+4.4.225-rc1.gz
 > or in the git tree and branch at:
 >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.9.y
+-rc.git linux-4.4.y
 > and the diffstat can be found below.
 >
 > thanks,
 >
 > greg k-h
->
 
 Results from Linaro=E2=80=99s test farm.
 No regressions on arm64, arm, x86_64, and i386.
@@ -96,33 +95,27 @@ No regressions on arm64, arm, x86_64, and i386.
 Summary
 ------------------------------------------------------------------------
 
-kernel: 4.9.225-rc1
+kernel: 4.4.225-rc1
 git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
 le-rc.git
-git branch: linux-4.9.y
-git commit: 9b4a11d53bee477ce44d3c4b703db7f5d756ca79
-git describe: v4.9.224-65-g9b4a11d53bee
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.9-oe/bui=
-ld/v4.9.224-65-g9b4a11d53bee
+git branch: linux-4.4.y
+git commit: 147ece171c0dc02b417f35088182a61e6dac368a
+git describe: v4.4.224-66-g147ece171c0d
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.4-oe/bui=
+ld/v4.4.224-66-g147ece171c0d
 
-No regressions (compared to build v4.9.224)
+No regressions (compared to build v4.4.224)
 
-No fixes (compared to build v4.9.224)
+No fixes (compared to build v4.4.224)
 
-Ran 26523 total tests in the following environments and test suites.
+Ran 15012 total tests in the following environments and test suites.
 
 Environments
 --------------
-- dragonboard-410c - arm64
-- hi6220-hikey - arm64
 - i386
 - juno-r2 - arm64
 - juno-r2-compat
 - juno-r2-kasan
-- qemu_arm
-- qemu_arm64
-- qemu_i386
-- qemu_x86_64
 - x15 - arm
 - x86_64
 - x86-kasan
@@ -130,11 +123,18 @@ Environments
 Test Suites
 -----------
 * build
-* install-android-platform-tools-r2600
-* install-android-platform-tools-r2800
+* kselftest
+* kselftest/drivers
+* kselftest/filesystems
 * libhugetlbfs
 * linux-log-parser
+* ltp-cap_bounds-tests
 * ltp-commands-tests
+* ltp-containers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-dio-tests
 * ltp-fcntl-locktests-tests
 * ltp-filecaps-tests
 * ltp-fs-tests
@@ -142,31 +142,63 @@ Test Suites
 * ltp-fs_perms_simple-tests
 * ltp-fsx-tests
 * ltp-hugetlb-tests
+* ltp-io-tests
 * ltp-ipc-tests
 * ltp-math-tests
 * ltp-mm-tests
-* perf
-* ltp-cap_bounds-tests
-* ltp-containers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
 * ltp-nptl-tests
+* ltp-open-posix-tests
 * ltp-pty-tests
+* ltp-sched-tests
 * ltp-securebits-tests
 * ltp-syscalls-tests
 * network-basic-tests
-* kselftest
-* kselftest/drivers
-* kselftest/filesystems
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-io-tests
-* ltp-open-posix-tests
-* ltp-sched-tests
+* perf
 * v4l2-compliance
 * kvm-unit-tests
+* install-android-platform-tools-r2600
+* install-android-platform-tools-r2800
 * kselftest/net
-* kselftest/networking
+* kselftest-vsyscall-mode-native
+* kselftest-vsyscall-mode-native/drivers
+* kselftest-vsyscall-mode-native/filesystems
+
+Summary
+------------------------------------------------------------------------
+
+kernel: 4.4.225-rc1
+git repo: https://git.linaro.org/lkft/arm64-stable-rc.git
+git branch: 4.4.225-rc1-hikey-20200526-731
+git commit: f578d6e82f6756e9b9385131e4bef87a9fe5483f
+git describe: 4.4.225-rc1-hikey-20200526-731
+Test details: https://qa-reports.linaro.org/lkft/linaro-hikey-stable-rc-4.4=
+-oe/build/4.4.225-rc1-hikey-20200526-731
+
+No regressions (compared to build 4.4.225-rc1-hikey-20200525-730)
+
+No fixes (compared to build 4.4.225-rc1-hikey-20200525-730)
+
+Ran 305 total tests in the following environments and test suites.
+
+Environments
+--------------
+- hi6220-hikey - arm64
+
+Test Suites
+-----------
+* build
+* install-android-platform-tools-r2600
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-cpuhotplug-tests
+* ltp-cve-tests
+* ltp-fcntl-locktests-tests
+* ltp-ipc-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-securebits-tests
+* spectre-meltdown-checker-test
 
 --=20
 Linaro LKFT
