@@ -2,89 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D81B41E425E
-	for <lists+stable@lfdr.de>; Wed, 27 May 2020 14:32:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E37891E427F
+	for <lists+stable@lfdr.de>; Wed, 27 May 2020 14:38:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728501AbgE0Mcn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 May 2020 08:32:43 -0400
-Received: from mga07.intel.com ([134.134.136.100]:20409 "EHLO mga07.intel.com"
+        id S1730132AbgE0Mim (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 May 2020 08:38:42 -0400
+Received: from m43-7.mailgun.net ([69.72.43.7]:26866 "EHLO m43-7.mailgun.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728337AbgE0Mcn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 May 2020 08:32:43 -0400
-IronPort-SDR: iNAQ9D7kTo/e+L8Bo9sbHyfc/RPtFSMS8/2zuhKtPd9aEyc48e3yQe3ebMOQ3LyXXqLXCaNG0a
- kSA/Eqlw3EsA==
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga003.jf.intel.com ([10.7.209.27])
-  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 May 2020 05:32:43 -0700
-IronPort-SDR: bC8ATACVYor4iaQNqvOb/bXKkpaisVzz0DtscTTSsjjhrpijO3/yplCe9GLymE5Q/NJE39TbmP
- 7qAl9KeFHxLw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.73,441,1583222400"; 
-   d="scan'208";a="266819405"
-Received: from otc-lr-04.jf.intel.com ([10.54.39.143])
-  by orsmga003.jf.intel.com with ESMTP; 27 May 2020 05:32:43 -0700
-From:   kan.liang@linux.intel.com
-To:     peterz@infradead.org, mingo@redhat.com,
-        linux-kernel@vger.kernel.org
-Cc:     ak@linux.intel.com, Kan Liang <kan.liang@linux.intel.com>,
-        stable@vger.kernel.org
-Subject: [PATCH] perf/x86/intel/uncore: Fix oops when counting IMC uncore events on some TGL
-Date:   Wed, 27 May 2020 05:30:47 -0700
-Message-Id: <1590582647-90675-1-git-send-email-kan.liang@linux.intel.com>
-X-Mailer: git-send-email 2.7.4
+        id S1728964AbgE0Mim (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 May 2020 08:38:42 -0400
+DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
+ s=smtp; t=1590583121; h=Content-Type: MIME-Version: Message-ID:
+ In-Reply-To: Date: References: Subject: Cc: To: From: Sender;
+ bh=kremWLpwNVoshp5MuXTuJc1IhfiAX5UdwZNQOMJb8yA=; b=M/f1VVE1X7ltngUnsphVwWi7nF5RXpQ4Os7wnJ+rEHqQ5yG8isA2Fl7t+Lb4uZ0hiKpbVgGK
+ 10WwgFxipVrBijzkGTt41H36uAc2BjklnYl+X3Ij5Q8xRBzGJs8ySiFdqjgbyk0zQ0T6Ahde
+ 1smyHG2xMSK+s7o5ZsZvYLNhBgk=
+X-Mailgun-Sending-Ip: 69.72.43.7
+X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
+Received: from smtp.codeaurora.org
+ (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171]) by
+ smtp-out-n05.prod.us-east-1.postgun.com with SMTP id
+ 5ece5f4876fccbb4c8d33e94 (version=TLS1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256); Wed, 27 May 2020 12:38:32
+ GMT
+Received: by smtp.codeaurora.org (Postfix, from userid 1001)
+        id 848DBC433A1; Wed, 27 May 2020 12:38:31 +0000 (UTC)
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+        aws-us-west-2-caf-mail-1.web.codeaurora.org
+X-Spam-Level: 
+X-Spam-Status: No, score=-1.0 required=2.0 tests=ALL_TRUSTED,SPF_NONE
+        autolearn=ham autolearn_force=no version=3.4.0
+Received: from potku.adurom.net (88-114-240-156.elisa-laajakaista.fi [88.114.240.156])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        (Authenticated sender: kvalo)
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id 86DC6C433C6;
+        Wed, 27 May 2020 12:38:28 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org 86DC6C433C6
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=none smtp.mailfrom=kvalo@codeaurora.org
+From:   Kalle Valo <kvalo@codeaurora.org>
+To:     Larry Finger <Larry.Finger@lwfinger.net>
+Cc:     linux-wireless@vger.kernel.org,
+        Rui Salvaterra <rsalvaterra@gmail.com>,
+        Stable <stable@vger.kernel.org>
+Subject: Re: [PATCH 1/2] b43: Fix connection problem with WPA3
+References: <20200526155909.5807-1-Larry.Finger@lwfinger.net>
+        <20200526155909.5807-2-Larry.Finger@lwfinger.net>
+Date:   Wed, 27 May 2020 15:38:26 +0300
+In-Reply-To: <20200526155909.5807-2-Larry.Finger@lwfinger.net> (Larry Finger's
+        message of "Tue, 26 May 2020 10:59:08 -0500")
+Message-ID: <87eer5v9h9.fsf@codeaurora.org>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/24.5 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kan Liang <kan.liang@linux.intel.com>
+Larry Finger <Larry.Finger@lwfinger.net> writes:
 
-When counting IMC uncore events on some TGL machines, an oops will be
-triggered.
-  [ 393.101262] BUG: unable to handle page fault for address:
-  ffffb45200e15858
-  [ 393.101269] #PF: supervisor read access in kernel mode
-  [ 393.101271] #PF: error_code(0x0000) - not-present page
+> Since the driver was first introduced into the kernel, it has only
+> handled the ciphers associated with WEP, WPA, and WPA2. It fails with
+> WPA3 even though mac80211 can handle those additional ciphers in software,
+> b43 did not report that it could handle them. By setting MFP_CAPABLE using
+> ieee80211_set_hw(), the problem is fixed.
+>
+> With this change, b43 will handle the ciohers it knows in hardare,
 
-Current perf uncore driver still use the IMC MAP SIZE inherited from
-SNB, which is 0x6000.
-However, the offset of IMC uncore counters for some TGL machines is
-larger than 0x6000, e.g. 0xd8a0.
+I'll change this to:
 
-Enlarge the IMC MAP SIZE for TGL to 0xe000.
+"ciphers it knows in hardware"
 
-Fixes: fdb64822443e ("perf/x86: Add Intel Tiger Lake uncore support")
-Reported-by: Ammy Yi <ammy.yi@intel.com>
-Tested-by: Ammy Yi <ammy.yi@intel.com>
-Tested-by: Chao Qin <chao.qin@intel.com>
-Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
-Cc: stable@vger.kernel.org
----
- arch/x86/events/intel/uncore_snb.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+> and let mac80211 handle the others in software. It is not necessary to
+> use the module parameter NOHWCRYPT to turn hardware encryption off.
+> Although this change essentially eliminates that module parameter,
+> I am choosing to keep it for cases where the hardware is broken,
+> and software encryption is required for all ciphers.
+>
+> This patch fixes a prooblem that has been in the driver since it was first
+> merged with commit e4d6b7951812 ("[B43]: add mac80211-based driver for
+> modern BCM43xx devices").
+>
+> Fixes e4d6b7951812 ("[B43]: add mac80211-based driver for modern BCM43xx devices")
 
-diff --git a/arch/x86/events/intel/uncore_snb.c b/arch/x86/events/intel/uncore_snb.c
-index 3de1065..1038e9f 100644
---- a/arch/x86/events/intel/uncore_snb.c
-+++ b/arch/x86/events/intel/uncore_snb.c
-@@ -1085,6 +1085,7 @@ static struct pci_dev *tgl_uncore_get_mc_dev(void)
- }
- 
- #define TGL_UNCORE_MMIO_IMC_MEM_OFFSET		0x10000
-+#define TGL_UNCORE_PCI_IMC_MAP_SIZE		0xe000
- 
- static void tgl_uncore_imc_freerunning_init_box(struct intel_uncore_box *box)
- {
-@@ -1112,7 +1113,7 @@ static void tgl_uncore_imc_freerunning_init_box(struct intel_uncore_box *box)
- 	addr |= ((resource_size_t)mch_bar << 32);
- #endif
- 
--	box->io_addr = ioremap(addr, SNB_UNCORE_PCI_IMC_MAP_SIZE);
-+	box->io_addr = ioremap(addr, TGL_UNCORE_PCI_IMC_MAP_SIZE);
- }
- 
- static struct intel_uncore_ops tgl_uncore_imc_freerunning_ops = {
+I consider this as a new feature, not a bugfix. So I'll remove the Fixes
+line and the paragraph above it. Ok?
+
 -- 
-2.7.4
-
+https://wireless.wiki.kernel.org/en/developers/documentation/submittingpatches
