@@ -2,67 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 351861E45F0
-	for <lists+stable@lfdr.de>; Wed, 27 May 2020 16:32:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D57501E4653
+	for <lists+stable@lfdr.de>; Wed, 27 May 2020 16:45:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389033AbgE0OcE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 May 2020 10:32:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40318 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387732AbgE0OcE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 May 2020 10:32:04 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 293A92084C;
-        Wed, 27 May 2020 14:32:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590589922;
-        bh=anqSJZFvrQGArvjH/LKrfSg/PVPsQ+kEocrkm3XnP7A=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=2uhhEctTmIOv1tn9ojzu4Jxm2cef2z+VtSomvhui9hgNuCc0HgSim1K4aeboYPse/
-         ml2Fk5PR+BG+nE+St+/Kkyt28dQfs8MPWOwDvrspEQQEtE2tHHLQw+/GxvE2Xia2Hm
-         y+G17BTdASL8uyjhVF+ySTAO6CKxUIV3gujo5S14=
-Date:   Wed, 27 May 2020 16:32:00 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Pavel Machek <pavel@denx.de>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Russell Currey <ruscur@russell.cc>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 4.19 49/81] powerpc: Remove STRICT_KERNEL_RWX
- incompatibility with RELOCATABLE
-Message-ID: <20200527143200.GA497846@kroah.com>
-References: <20200526183923.108515292@linuxfoundation.org>
- <20200526183932.664564063@linuxfoundation.org>
- <20200527132831.GA11424@amd>
+        id S2389198AbgE0Opv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 May 2020 10:45:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47028 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2387942AbgE0Opu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 May 2020 10:45:50 -0400
+Received: from mail-qk1-x742.google.com (mail-qk1-x742.google.com [IPv6:2607:f8b0:4864:20::742])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A756CC05BD1E
+        for <stable@vger.kernel.org>; Wed, 27 May 2020 07:45:50 -0700 (PDT)
+Received: by mail-qk1-x742.google.com with SMTP id n11so19070099qkn.8
+        for <stable@vger.kernel.org>; Wed, 27 May 2020 07:45:50 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=9XwZWhnuaJjVvTRTCMXSBm/sh5rrb7YgeCiAhrUaq2M=;
+        b=rYlogd5TuTFVkJypDrBkM3zb4404qwk4efBYV6nY0cz+ietFoE1SYq1610jxdX7Lzj
+         rdkDAOh00lhDf0dxfb2Fl17pbD+3yXLPfSskakb4Va4sNDrZs44CBS3Hua3kiR1WTSg5
+         JQtBnz2PN3B/rfIN8FGR/W86ayyH4k6PqXUL0jKIFgm7wMkOn/cO80bvMqkYgUw+nFV7
+         2ygnbMbllS9rQfcEbg/AjMAAcYRtw03PxmDgeqTEaIhYBJc91wTex7BHAl6UjnYso94K
+         ywMaJZ4HdTLcrPM0lBY9hImlZSTJiwEQbz4y4egj2f+ywoAU4/Hz4Kdws/Eu5eSzyd9j
+         3dLA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=9XwZWhnuaJjVvTRTCMXSBm/sh5rrb7YgeCiAhrUaq2M=;
+        b=a7ZCEiY4qL8RAsnNc63c1BoMN525fueX3vVnZq4n0Mnf693LVQkap0PISYvBN1mbxY
+         83iAUU9aToLF+dCYo7tI7An5/pG3DB6ge3IDn7n2CF6BKFcDbrsJU5OxOS3dI5UItBKB
+         QiFdZ5M8Cq//ZQAbTTVOX0tLKHM544RX1BsE51htK8MVWHe/1F4OLMAdyhHZ5f3Pw6lV
+         C6pcmom/Lox4R4zC5XpoYvuWm49YsO3uP+XpytKTs4tC1X8WIMYUZobXylyRVAITQqsy
+         hSUyjKZqynloAkBQrUXPv+ZUleaJIH3DufA0VlxEwr6+SP9cBugC//210smNvViCRkUD
+         2WWA==
+X-Gm-Message-State: AOAM533Vt+QIsZzX0DfIxWvtVH5VKOSJSXXp+e/wL4PcXLQ0WKshBD60
+        lsTOZ+AO/U8G8D6oyqB7v8xMzI5jjv5cexD3xW4=
+X-Google-Smtp-Source: ABdhPJzxyKVLc31BCs7bbvPyOvLHfwVjSGtYlgxV/9BmQ1LAaARsxECSHjKg8xHSQ5mI0WK/FHFe5VqnKAPWAjDpzPs=
+X-Received: by 2002:a37:7105:: with SMTP id m5mr4595725qkc.370.1590590749933;
+ Wed, 27 May 2020 07:45:49 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200527132831.GA11424@amd>
+Received: by 2002:a0c:d78d:0:0:0:0:0 with HTTP; Wed, 27 May 2020 07:45:49
+ -0700 (PDT)
+Reply-To: begabriel6543@gmail.com
+From:   Gabriel Bertrand <boxmail538@gmail.com>
+Date:   Wed, 27 May 2020 07:45:49 -0700
+Message-ID: <CAH73ELPAmcFgWapPhRY0mR7MuzgyOA+LPPDkdsVk-oyk5rzOvQ@mail.gmail.com>
+Subject: hello
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, May 27, 2020 at 03:28:31PM +0200, Pavel Machek wrote:
-> On Tue 2020-05-26 20:53:24, Greg Kroah-Hartman wrote:
-> > From: Russell Currey <ruscur@russell.cc>
-> > 
-> > [ Upstream commit c55d7b5e64265fdca45c85b639013e770bde2d0e ]
-> > 
-> > I have tested this with the Radix MMU and everything seems to work, and
-> > the previous patch for Hash seems to fix everything too.
-> > STRICT_KERNEL_RWX should still be disabled by default for now.
-> > 
-> > Please test STRICT_KERNEL_RWX + RELOCATABLE!
-> 
-> I don't believe this is suitable for -stable. Yes, it is needed for
-> the next patch, but doing the merge is right solution this time.
+-- 
+ Hello
 
-Why?  It's always best to keep things as they are in Linus's tree if at
-all possible.
+hope you are doing great. my name is Gabriel. We can be friends
+I have important information I would like to share with you.
 
-thanks,
+Have a great day
 
-greg k-h
+Sincerely,
+Gabriel
