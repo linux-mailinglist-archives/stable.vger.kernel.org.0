@@ -2,71 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A8B5A1E4A67
-	for <lists+stable@lfdr.de>; Wed, 27 May 2020 18:38:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E7D71E4AC6
+	for <lists+stable@lfdr.de>; Wed, 27 May 2020 18:47:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391291AbgE0QiF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 May 2020 12:38:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39888 "EHLO mail.kernel.org"
+        id S2391551AbgE0Qql (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 May 2020 12:46:41 -0400
+Received: from muru.com ([72.249.23.125]:55860 "EHLO muru.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391292AbgE0QiF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 May 2020 12:38:05 -0400
-Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net [24.9.64.241])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D680320873;
-        Wed, 27 May 2020 16:38:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590597485;
-        bh=aVC1gC72vbq6l3Nw4NrnG53hJGrQYSlG5kTUK98UKfE=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=tesfssmnmg9kUyKSkC4wEmolvJDUsUe8RTyflILYzSC5tVha9tAVjXjsvX3DQ7EFo
-         YvjohCN1UrW0eDrAInFSdQ/t4DZqPVJCZHg8QBdOwVbJMRlFp/hYXnoeyl24NpB5RG
-         N9hASqS8DDHCR81+iM7t8OEoUFHbr8GlEA0iDT+U=
-Subject: Re: [PATCH 4.19 00/81] 4.19.125-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org, shuah <shuah@kernel.org>
-References: <20200526183923.108515292@linuxfoundation.org>
-From:   shuah <shuah@kernel.org>
-Message-ID: <beed521c-ac30-7de7-5a32-0b31edd3c8e4@kernel.org>
-Date:   Wed, 27 May 2020 10:38:04 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+        id S2389014AbgE0Qqh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 May 2020 12:46:37 -0400
+Received: from atomide.com (localhost [127.0.0.1])
+        by muru.com (Postfix) with ESMTPS id C200A80DB;
+        Wed, 27 May 2020 16:47:26 +0000 (UTC)
+Date:   Wed, 27 May 2020 09:46:33 -0700
+From:   Tony Lindgren <tony@atomide.com>
+To:     "H. Nikolaus Schaller" <hns@goldelico.com>
+Cc:     Evgeniy Polyakov <zbr@ioremap.net>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        YueHaibing <yuehaibing@huawei.com>, linux-kernel@vger.kernel.org,
+        kernel@pyra-handheld.com, letux-kernel@openphoenux.org,
+        linux-omap@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH 3/4] w1: omap-hdq: fix interrupt handling which did show
+ spurious timeouts
+Message-ID: <20200527164633.GJ37466@atomide.com>
+References: <cover.1590255176.git.hns@goldelico.com>
+ <68fc8623ae741878beef049273696d2377526165.1590255176.git.hns@goldelico.com>
 MIME-Version: 1.0
-In-Reply-To: <20200526183923.108515292@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <68fc8623ae741878beef049273696d2377526165.1590255176.git.hns@goldelico.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 5/26/20 12:52 PM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.19.125 release.
-> There are 81 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+* H. Nikolaus Schaller <hns@goldelico.com> [200523 17:34]:
+> Since
 > 
-> Responses should be made by Thu, 28 May 2020 18:36:22 +0000.
-> Anything received after that time might be too late.
+> commit 27d13da8782a ("w1: omap-hdq: Simplify driver with PM runtime autosuspend")
 > 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.125-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
-> and the diffstat can be found below.
+> was applied,
 > 
-> thanks,
+> I did see timeouts and wrong values when reading a bq27000 connected
+> to hdq of the omap3. This occurred mainly after boot but remained and
+> only sometimes settled down after several reads.
 > 
-> greg k-h
+> root@letux:~# time cat /sys/class/power_supply/bq27000-battery/uevent
+> POWER_SUPPLY_NAME=bq27000-battery
+> POWER_SUPPLY_STATUS=Discharging
+> POWER_SUPPLY_PRESENT=1
+> POWER_SUPPLY_VOLTAGE_NOW=0
+> POWER_SUPPLY_CURRENT_NOW=0
+> POWER_SUPPLY_CAPACITY=0
+> POWER_SUPPLY_CAPACITY_LEVEL=Normal
+> POWER_SUPPLY_TEMP=-2731
+> POWER_SUPPLY_TIME_TO_EMPTY_NOW=0
+> POWER_SUPPLY_TIME_TO_EMPTY_AVG=0
+> POWER_SUPPLY_TIME_TO_FULL_NOW=0
+> POWER_SUPPLY_TECHNOLOGY=Li-ion
+> POWER_SUPPLY_CHARGE_FULL=0
+> POWER_SUPPLY_CHARGE_NOW=0
+> POWER_SUPPLY_CHARGE_FULL_DESIGN=0
+> POWER_SUPPLY_CYCLE_COUNT=0
+> POWER_SUPPLY_ENERGY_NOW=0
+> POWER_SUPPLY_POWER_AVG=0
+> POWER_SUPPLY_HEALTH=Good
+> POWER_SUPPLY_MANUFACTURER=Texas Instruments
 > 
+> real    0m15.761s
+> user    0m0.001s
+> sys     0m0.025s
+> root@letux:~#
+> 
+> Sometimes the effect did disappear after accessing
+> the device multiple times, speed went up and results
+> became correct.
+> 
+> All this indicates that some interrupts from the hdq
+> controller are lost by the driver.
+> 
+> Enabling debugging revealed that there were spurious tx
+> and rx timeouts, i.e. the driver does not always recognise
+> interrupts. The main problem is that rx and tx interrupts
+> share a single variable which was sometimes reset to
+> 0 wiping out other interrupts. And it was overwritten
+> by a second interrupt, independent of whether the
+> previous interrupt was already processed or not.
+> 
+> This patch improves interrupt handling to avoid such
+> races and loss of interrupt flags.
 
-Compiled and booted on my test system. No dmesg regressions.
+Good to hear you got it figured out :) Looks OK to me:
 
-thanks,
--- Shuah
+Acked-by: Tony Lindgren <tony@atomide.com>
