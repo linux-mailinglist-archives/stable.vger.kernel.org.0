@@ -2,138 +2,261 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D1C131E4953
-	for <lists+stable@lfdr.de>; Wed, 27 May 2020 18:08:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ACCF01E4956
+	for <lists+stable@lfdr.de>; Wed, 27 May 2020 18:08:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727922AbgE0QID (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 May 2020 12:08:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59814 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725859AbgE0QID (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 May 2020 12:08:03 -0400
-Received: from mail-ua1-x941.google.com (mail-ua1-x941.google.com [IPv6:2607:f8b0:4864:20::941])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8219C05BD1E
-        for <stable@vger.kernel.org>; Wed, 27 May 2020 09:08:02 -0700 (PDT)
-Received: by mail-ua1-x941.google.com with SMTP id k4so8614911uaq.10
-        for <stable@vger.kernel.org>; Wed, 27 May 2020 09:08:02 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:in-reply-to:references:from:date:message-id
-         :subject:to:content-transfer-encoding;
-        bh=Bat+ff6qZg5YJ6LnCR1GpzoZakDSnoA+D4rFIDHSEaU=;
-        b=lJXPNVhXgV62VDV/br91za42qVtxWqnqhY5D/xn5SieqctArOnWD4ye1Kn6G3HikKF
-         TMkXCdjluZMSrXz6UwvljTUVDbc/PUGvOWUQr7lLfHj0CoE6b7AUielRGwoetO+SkA7V
-         PBKdWBZzvucNZtjK5wc5fDo48Rz1HPwBDlBWdTyROSQPCREkes/SDjMfdRrH/GSv1RAv
-         aMHXuqVB2i5VMk/EIhKpWpg7E5qX0beOrj1M/ktiQSYvy+gZCapwE4PydaTANpcQM0Ox
-         2WPgQfggO3AX6+9ysPiief03ZW52GbzQHhP0WLE9sJIehaqNeWVuqK/ORWU/WDUayG2T
-         LFcw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:in-reply-to:references
-         :from:date:message-id:subject:to:content-transfer-encoding;
-        bh=Bat+ff6qZg5YJ6LnCR1GpzoZakDSnoA+D4rFIDHSEaU=;
-        b=jSWO2tRCst38cNPw8heTjjhrv073rWcK1Xi4yWOt9W7p44EEkIR6kqktVH7c9gjGFm
-         avuz8gSYemcLDpfwZHverMFdUw1bCZWmIkDCZkhn5KkxbdcL1jHyWzbB15YhQDSDFtVb
-         eAm9px8ySrdMhw7GgF9vcTPtRucWVc6tkmsQImZXtXfffJk+HpL0hhUGhL5/Sz0z0TRx
-         NizF7NcLfBLaV659NQaOtnEWDjdzN3SgQVlnp6g6NFUFqUchZVb22w9nMdSa8rTfGJ8s
-         LwJg/9Deo3siaVEv6dyTlEiGdiO+5YJ8aTZMblvFVw2/Au9TlC04srVSOXtI1sYGc/29
-         ivlw==
-X-Gm-Message-State: AOAM532H3LFFzDCdcUOg+tKQz68mevQAlnyjzhg5uwBiqKRiCFYzzRLJ
-        xyceo7m+oI0/XnuRUCyzRssaw60rtcnuxUmlsw==
-X-Google-Smtp-Source: ABdhPJwkjVLqAErSPuoGLyBTJblCnLmlCPWRMMHUaFLDKnRx9+6KV1dBLvscSiCdOtNYpJJRfdLwnu++zNi97gvJQ8s=
-X-Received: by 2002:ab0:4165:: with SMTP id j92mr5257003uad.127.1590595681757;
- Wed, 27 May 2020 09:08:01 -0700 (PDT)
+        id S1727956AbgE0QIa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 May 2020 12:08:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48970 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725859AbgE0QI3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 May 2020 12:08:29 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 43002208DB;
+        Wed, 27 May 2020 16:08:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1590595708;
+        bh=OcKfsr+UugltE0adv6KBLFflpabcSDMBwXXnAC7Ayrw=;
+        h=From:To:Cc:Subject:Date:From;
+        b=tLkN/8QEJ8/VS+n91w/EKaOZQJnQRLuvGdwb0H2WK9H/OC50StBKvSVPkHAdwWwn+
+         H0wAvJmL7OUChI/cfw9/uJtUJIAj1AbkqXWmJX0jLt/1WVqTfv2YBwFcBL+XGRtF4i
+         OqHsCWFyr+3iyho4+cZFUGbJpMo8aKZgDcl0qrWk=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, stable@vger.kernel.org
+Cc:     lwn@lwn.net, jslaby@suse.cz,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Linux 4.14.182
+Date:   Wed, 27 May 2020 18:08:19 +0200
+Message-Id: <1590595698236215@kroah.com>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
-Received: by 2002:ab0:375b:0:0:0:0:0 with HTTP; Wed, 27 May 2020 09:08:01
- -0700 (PDT)
-Reply-To: Ministrylawoffice@gmail.com
-In-Reply-To: <CAJ2zHSuiePLpntsH8=BwWV35EK6jcDS8UdQDMXfd27n4Fx3PmA@mail.gmail.com>
-References: <CAJ2zHSuRfyLd0nFhiAh5UX6p++N+ykeX5rnQ6qEAPrw8T3ceKg@mail.gmail.com>
- <CAJ2zHSt2pqjzf1X=3e_vbo9Zk4vGtTZB=uP4eQ8ZOA6QSbA7PQ@mail.gmail.com> <CAJ2zHSuiePLpntsH8=BwWV35EK6jcDS8UdQDMXfd27n4Fx3PmA@mail.gmail.com>
-From:   mrchardtg5@gmail.com
-Date:   Wed, 27 May 2020 16:08:01 +0000
-Message-ID: <CAJ2zHSsESNyETQ34FfVhDpUJ07yk79g6spbj040hV-VNUYvMyw@mail.gmail.com>
-Subject: =?UTF-8?B?0KPQstCw0LbQsNC10LzRi9C5INCf0L7Qu9GD0YfQsNGC0LXQu9GMINGN0LvQtdC60YLRgA==?=
-        =?UTF-8?B?0L7QvdC90L7QuSDQv9C+0YfRgtGLLA==?=
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-0KPQstCw0LbQsNC10LzRi9C5INCf0L7Qu9GD0YfQsNGC0LXQu9GMINGN0LvQtdC60YLRgNC+0L3Q
-vdC+0Lkg0L/QvtGH0YLRiywNCg0K0K8g0L7RgtC/0YDQsNCy0LjQuyDQstCw0Lwg0Y3RgtC+INC/
-0LjRgdGM0LzQviDQvNC10YHRj9GGINC90LDQt9Cw0LQsINC90L4g0Y8g0L3QtSDRgdC70YvRiNCw
-0Lsg0L7RgiDQstCw0YEsINGPDQrQvdC1INGD0LLQtdGA0LXQvSwg0YfRgtC+INCy0Ysg0L/QvtC9
-0Y/Qu9C4LCDQuCDQuNC80LXQvdC90L4g0L/QvtGN0YLQvtC80YMg0Y8g0LPQvtCy0L7RgNGOINGN
-0YLQviDRgdC90L7QstCwDQrQnNGLINGB0L3QvtCy0LAg0YHQstGP0LbQtdC80YHRjyDRgSDQstCw
-0LzQuCDQuNC3INC80LjQvdC40YHRgtC10YDRgdGC0LLQsCDRjtGB0YLQuNGG0LjQuC4g0JTQu9GP
-INGC0LXQsdGPDQrQutC+0LzQv9C10L3RgdCw0YbQuNC+0L3QvdGL0Lkg0YTQvtC90LQgKDgwMCAw
-MDAsMDAg0LTQvtC70LsuINCh0KjQkCkgItCS0L7RgdC10LzRjNGB0L7RgiDRgtGL0YHRj9GHDQrQ
-s9C+0YHRg9C00LDRgNGB0YLQstC10L3QvdGL0LUg0LTQvtC70LvQsNGA0YssINC/0L7QttC10YDR
-gtCy0L7QstCw0L3QvdGL0LUg0L7RhNC40YHQvtC8INC80LjQvdC40YHRgtC10YDRgdGC0LLQsCBF
-Y293YXMsDQrQutC+0YLQvtGA0YvQuSDQtNC+0LvQttC10L0g0LHRi9C7DQrQvdC10LzQtdC00LvQ
-tdC90L3QviDRgdCy0Y/QttC40YLQtdGB0Ywg0YEg0LLQsNC80LguDQrQktGLINC90LUg0L/QvtC7
-0YPRh9C40LvQuCDQvdC40LrQsNC60L7QuSDQutC+0LzQv9C10L3RgdCw0YbQuNC4INC/0L7RgdC7
-0LUg0L3QsNGI0LXQs9C+INC/0LXRgNCy0L7QvdCw0YfQsNC70YzQvdC+0LPQviDQv9C40YHRjNC8
-0LAuDQrQnNGLLCDQn9GA0LDQstC70LXQvdC40LUsINCS0YHQtdC80LjRgNC90YvQuSDQsdCw0L3Q
-uiDQuCDQnNC10LbQtNGD0L3QsNGA0L7QtNC90YvQuSDQstCw0LvRjtGC0L3Ri9C5INGE0L7QvdC0
-ICjQnNCS0KQpDQrQktCw0YjQuNC90LPRgtC+0L0sINC+0LrRgNGD0LMg0JrQvtC70YPQvNCx0LjR
-jywg0YHQvtCy0LzQtdGB0YLQvdC+INGBINCa0LDQt9C90LDRh9C10LnRgdGC0LLQvtC8INCh0KjQ
-kCDQuCDQvdC10LrQvtGC0L7RgNGL0LzQuCDQtNGA0YPQs9C40LzQuA0K0YHQvtC+0YLQstC10YLR
-gdGC0LLRg9GO0YnQuNC1INGB0LvQtdC00YHRgtCy0LXQvdC90YvQtSDQvtGA0LPQsNC90Ysg0LfQ
-tNC10YHRjCwg0LIg0KHQvtC10LTQuNC90LXQvdC90YvRhSDQqNGC0LDRgtCw0YUuINC/0L7RgNGD
-0YfQuNC7DQrQvdCw0Ygg0L7RgtC00LXQuyDQv9C+INC40L3QvtGB0YLRgNCw0L3QvdGL0Lwg0L/Q
-u9Cw0YLQtdC20LDQvCDQntCx0YrQtdC00LjQvdC10L3QvdC+0LPQviDQsdCw0L3QutCwINCQ0YTR
-gNC40LrQuCDQm9C+0LzQtSDQotC+0LPQvg0K0LTQu9GPINCy0YvQtNCw0YfQuA0K0L/QvtC/0L7Q
-u9C90LjRgtGMINGB0YfQtdGCINC60LDRgNGC0L7QuSBWSVNBINC40LvQuCDRgdGH0LXRgtC+0Lws
-INC90LAg0LrQvtGC0L7RgNC+0Lwg0LHRg9C00YPRgiDQstCw0YjQuCA4MDAgMDAwINC00L7Qu9C7
-0LDRgNC+0LINCtGE0L7QvdC0INC30LDQs9GA0YPQttC10L0g0LTQu9GPINC00LDQu9GM0L3QtdC5
-0YjQtdCz0L4g0LLRi9Cy0L7QtNCwINCy0LDRiNC10LPQviDRhNC+0L3QtNCwLg0K0J7RgNCz0LDQ
-vdC40LfQsNGG0LjRjyDRhdC+0YfQtdGCINCy0L3QtdGB0YLQuCDQstCw0LwgODAwIDAwMCwwMCDQ
-tNC+0LvQu9Cw0YDQvtCyINCh0KjQkCDQu9C40LHQvg0KTW9uZXktR3JhbSDQvtC90LvQsNC50L0s
-INC80LXQttC00YPQvdCw0YDQvtC00L3QsNGPINC60LDRgdGB0LAsINCx0LDQvdC60L7QvNCw0YLQ
-vdCw0Y8g0LrQsNGA0YLQvtGH0LrQsCDQuNC70LgNCtC80LXQttC00YPQvdCw0YDQvtC00L3Ri9C5
-INCy0LDQu9GO0YLQvdGL0Lkg0YHRh9C10YIg0LTQu9GPINCx0YvRgdGC0YDQvtCz0L4g0LTQvtGB
-0YLRg9C/0LAg0Log0LLQsNGI0LjQvCDRgdGA0LXQtNGB0YLQstCw0LwuDQrQrdGC0L4g0LTQvtC7
-0LbQvdC+INC+0LfQvdCw0YfQsNGC0YwsINGH0YLQviDQstCw0YjQsCDRgdGD0LzQvNCwINCyIDgw
-MCAwMDAg0LTQvtC70LvQsNGA0L7QsiDQsdGD0LTQtdGCINCy0YvQv9C70LDRh9C10L3QsCDQstCw
-0LwNCtCxLCDQsdCw0L3QutC+0LzQsNGC0L3QsNGPINC60LDRgNGC0LAg4oCm4oCm4oCm4oCm4oCm
-IC4uDQrRgSwg0YHRh9C10YIg4oCm4oCm4oCm4oCm4oCm4oCmDQrQktGLINCx0YPQtNC10YLQtSDQ
-v9C+0LvRg9GH0LDRgtGMIDgwMCAwMDAg0LTQvtC70LvQsNGA0L7QsiDQsiDQtNC10L3RjCwg0L/Q
-vtC60LAg0L3QtSDQv9C+0LvRg9GH0LjRgtC1INCy0YHQtSDRgdCy0L7QuA0K0LTQtdC90YzQs9C4
-INC30LAgODAwIDAwMCDQtNC+0LvQu9Cw0YDQvtCyDQrQp9GC0L7QsdGLINC40LfQsdC10LbQsNGC
-0Ywg0L7RiNC40LHQvtC6INC/0YDQuCDQvtC/0LvQsNGC0LUsINCy0Ysg0LTQvtC70LbQvdGLINC/
-0YDQtdC00L7RgdGC0LDQstC40YLRjCDQvdC10L7QsdGF0L7QtNC40LzRg9GOINC40L3RhNC+0YDQ
-vNCw0YbQuNGOLA0K0LrQsNC6INC+0L/QuNGB0LDQvdC+INC90LjQttC1LCDQsiDQv9C10YDQstGL
-0Lkg0YDQsNC3LCDRh9GC0L7QsdGLINC/0LXRgNC10LLQtdGB0YLQuCDRgdCy0L7QuCDQv9C10YDQ
-stGL0LUgODAwIDAwMCDQtNC+0LvQu9Cw0YDQvtCyDQrQvtC/0LvQsNGC0LAuDQrQn9C+0LvQvdC+
-0LUg0LjQvNGPINC/0L7Qu9GD0YfQsNGC0LXQu9GPOiBfX19fX19fX19fX19fX18NCtCT0L7RgNC+
-0LQ6IF9fX19fX19fX19fX19fX18NCtCh0YLRgNCw0L3QsDogX19fX19fX19fX19fDQrQndC+0LzQ
-tdGAINGC0LXQu9C10YTQvtC90LA6IF9fX19fX19fX19fX18NCtCS0L7Qt9GA0LDRgdGCOiBfX19f
-X19fX19fX19fDQrQn9C+0Ls6IF9fX19fX19fX19fX18NCtCe0LrQutGD0L/QsNGG0LjRjzogX19f
-X19fX19fX19fXw0K0LfQsNCz0YDQsNC90LjRh9C90YvQuSDQv9Cw0YHRgdC/0L7RgNGCX19fX19f
-X19fX19fXw0K0JjQvNC10LnRgtC1INCyINCy0LjQtNGDLCDRh9GC0L4g0L7RgNCz0LDQvdC40LfQ
-sNGG0LjRjyDQstGL0L/QvtC70L3QuNC70LAg0LLRgdC1INC90LXQvtCx0YXQvtC00LjQvNC+0LUN
-CtGD0YHQu9C+0LLQuNGPINC+0L/Qu9Cw0YLRiyDQuCDQstCw0Ygg0L/QtdGA0LLRi9C5INC00LXQ
-v9C+0LfQuNGCINCyINGA0LDQt9C80LXRgNC1IDgwMCAwMDAg0LTQvtC70LvQsNGA0L7QsiDQodCo
-0JANCtCz0L7RgtC+0LIg0Log0L7RgtC/0YDQsNCy0LrQtSDQsiDQstC40LTQtQ0K0LrQsNC6INGC
-0L7Qu9GM0LrQviDQstGLINGB0LLRj9C20LXRgtC10YHRjCDRgSDQkdCw0YDRgNC+0Lwg0K3QvdC0
-0Lgg0KfRg9C60LLRgyDRgSDQuNC90YTQvtGA0LzQsNGG0LjQtdC5INCy0YvRiNC1INC4DQrQvtGC
-0L/RgNCw0LLQuNGC0Ywg0Y3RgtGDINC40L3RhNC+0YDQvNCw0YbQuNGOINGB0YDQvtGH0L3QviDQ
-siDRgdC/0LjRgdC60LUuINCX0LDQstC10YDRiNC40YLRjCwg0YfRgtC+0LHRiyDQvdC1INCx0YvQ
-u9C+DQrQsdGL0YLRjCDQvtGI0LjQsdC60L7QuSDQsiDigIvigIvQv9C10YDQtdC00LDRh9C1LiDQ
-odCy0Y/QttC40YLQtdGB0Ywg0YEg0Y3RgtC40Lwg0LDQtNGA0LXRgdC+0Lwg0YEg0LjQvdGE0L7R
-gNC80LDRhtC40LXQuQ0K0JrQvtC90YLQsNC60YLQvdC+0LUg0LvQuNGG0L46INCR0LDRgNGAINCt
-0L3QtNC4INCn0YPQutCy0YMuDQrQmtC+0L3RgtCw0LrRgtC90YvQuSDQsNC00YDQtdGBINGN0LvQ
-tdC60YLRgNC+0L3QvdC+0Lkg0L/QvtGH0YLRizogKE1pbmlzdHJ5bGF3b2ZmaWNlQGdtYWlsLmNv
-bSkNCtCS0L7RgiDQv9C+0YfQtdC80YMg0LLRiyDQtNC+0LvQttC90Ysg0LjQvNC10YLRjCDQstC+
-0LfQvNC+0LbQvdC+0YHRgtGMINC+0YLQv9GA0LDQstC40YLRjCDQvdC10L7QsdGF0L7QtNC40LzR
-g9GOINC40L3RhNC+0YDQvNCw0YbQuNGODQrQkdCw0YDRgCDQrdC90LTQuCDQp9GD0LrQstGDINC3
-0LDRgNCw0L3QtdC1LCDRh9GC0L7QsdGLINC/0L7Qu9GD0YfQuNGC0Ywg0L/Qu9Cw0YLQtdC2INCy
-INGA0LDQt9C80LXRgNC1IDgwMCAwMDAsMDAg0LTQvtC70LvQsNGA0L7Qsg0K0KHQv9Cw0YHQuNCx
-0L4NCtCf0J7Ql9CU0KDQkNCS0JvQldCd0JjQlQ0K0J7Qv9C10YDQsNGG0LjQvtC90L3Ri9C5INC+
-0YTQuNGBDQrQnNC40YHRgdC40YEg0KTQsNGG0LjQviDQntC80LXQs9CwDQrQn9C+0LTQv9C40YHR
-jC4NCg==
+I'm announcing the release of the 4.14.182 kernel.
+
+All users of the 4.14 kernel series must upgrade.
+
+The updated 4.14.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.14.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
+
+thanks,
+
+greg k-h
+
+------------
+
+ Makefile                                            |    2 
+ arch/arm/include/asm/futex.h                        |    9 
+ arch/arm64/kernel/machine_kexec.c                   |    3 
+ arch/powerpc/Kconfig                                |    4 
+ arch/x86/kernel/apic/apic.c                         |   27 +-
+ arch/x86/kernel/unwind_orc.c                        |    7 
+ drivers/base/component.c                            |    8 
+ drivers/dma/tegra210-adma.c                         |    2 
+ drivers/hid/hid-ids.h                               |    1 
+ drivers/hid/hid-multitouch.c                        |    3 
+ drivers/i2c/i2c-dev.c                               |   48 ++--
+ drivers/i2c/muxes/i2c-demux-pinctrl.c               |    1 
+ drivers/iio/accel/sca3000.c                         |    2 
+ drivers/iio/adc/stm32-adc.c                         |   20 +
+ drivers/iio/dac/vf610_dac.c                         |    1 
+ drivers/iommu/amd_iommu_init.c                      |    9 
+ drivers/media/platform/rcar_fdp1.c                  |    2 
+ drivers/misc/mei/client.c                           |    2 
+ drivers/mtd/ubi/debug.c                             |   12 -
+ drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c     |   13 -
+ drivers/net/ethernet/chelsio/cxgb4vf/cxgb4vf_main.c |    6 
+ drivers/net/gtp.c                                   |    9 
+ drivers/nvdimm/btt.c                                |   33 +-
+ drivers/nvdimm/btt.h                                |    2 
+ drivers/nvdimm/btt_devs.c                           |    8 
+ drivers/platform/x86/asus-nb-wmi.c                  |   24 ++
+ drivers/rapidio/devices/rio_mport_cdev.c            |    5 
+ drivers/scsi/ibmvscsi/ibmvscsi.c                    |    4 
+ drivers/scsi/qla2xxx/qla_mbx.c                      |    2 
+ drivers/staging/greybus/uart.c                      |    4 
+ drivers/staging/iio/resolver/ad2s1210.c             |   17 +
+ drivers/usb/core/message.c                          |    4 
+ drivers/vhost/vsock.c                               |   10 
+ drivers/watchdog/watchdog_dev.c                     |   67 ++---
+ fs/ceph/caps.c                                      |    1 
+ fs/configfs/dir.c                                   |    1 
+ fs/ext4/block_validity.c                            |    1 
+ fs/file.c                                           |    2 
+ fs/gfs2/glock.c                                     |    3 
+ include/linux/padata.h                              |   13 -
+ kernel/padata.c                                     |   71 ++---
+ lib/Makefile                                        |    2 
+ net/l2tp/l2tp_core.c                                |   21 -
+ net/l2tp/l2tp_core.h                                |    3 
+ net/l2tp/l2tp_eth.c                                 |   99 ++++++--
+ net/l2tp/l2tp_ppp.c                                 |  238 ++++++++++++--------
+ net/rxrpc/rxkad.c                                   |    3 
+ scripts/gcc-plugins/Makefile                        |    1 
+ scripts/gcc-plugins/gcc-common.h                    |    4 
+ security/apparmor/apparmorfs.c                      |    3 
+ security/integrity/evm/evm_crypto.c                 |    2 
+ security/integrity/ima/ima_crypto.c                 |   12 -
+ security/integrity/ima/ima_fs.c                     |    3 
+ sound/core/pcm_lib.c                                |    1 
+ sound/pci/ice1712/ice1712.c                         |    3 
+ 55 files changed, 528 insertions(+), 330 deletions(-)
+
+Al Viro (1):
+      fix multiplication overflow in copy_fdtable()
+
+Alan Stern (1):
+      USB: core: Fix misleading driver bug report
+
+Alexander Monakov (1):
+      iommu/amd: Fix over-read of ACPI UID from IVRS table
+
+Alexander Usyskin (1):
+      mei: release me_cl object reference
+
+Arjun Vynipadath (2):
+      cxgb4: free mac_hlist properly
+      cxgb4/cxgb4vf: Fix mac_hlist initialization and free
+
+Arnd Bergmann (1):
+      ubsan: build ubsan.c more conservatively
+
+Arun Easi (1):
+      scsi: qla2xxx: Fix hang when issuing nvme disconnect-all in NPIV
+
+Bob Peterson (1):
+      Revert "gfs2: Don't demote a glock until its revokes are written"
+
+Brent Lu (1):
+      ALSA: pcm: fix incorrect hw_base increase
+
+Christoph Hellwig (1):
+      arm64: fix the flush_icache_range arguments in machine_kexec
+
+Christophe JAILLET (4):
+      i2c: mux: demux-pinctrl: Fix an error handling path in 'i2c_demux_pinctrl_probe()'
+      dmaengine: tegra210-adma: Fix an error handling path in 'tegra_adma_probe()'
+      iio: sca3000: Remove an erroneous 'get_device()'
+      iio: dac: vf610: Fix an error handling path in 'vf610_dac_probe()'
+
+Christophe Leroy (1):
+      powerpc: restore alphabetic order in Kconfig
+
+Daniel Jordan (2):
+      padata: initialize pd->cpu with effective cpumask
+      padata: purge get_cpu and reorder_via_wq from padata_do_serial
+
+Dragos Bogdan (1):
+      staging: iio: ad2s1210: Fix SPI reading
+
+Fabrice Gasnier (1):
+      iio: adc: stm32-adc: fix device used to request dma
+
+Frédéric Pierret (fepitre) (1):
+      gcc-common.h: Update for GCC 10
+
+Geert Uytterhoeven (1):
+      media: fdp1: Fix R-Car M3-N naming in debug message
+
+Greg Kroah-Hartman (1):
+      Linux 4.14.182
+
+Guillaume Nault (4):
+      l2tp: don't register sessions in l2tp_session_create()
+      l2tp: initialise l2tp_eth sessions before registering them
+      l2tp: protect sock pointer of struct pppol2tp_session with RCU
+      l2tp: initialise PPP sessions before registering them
+
+Hans de Goede (1):
+      platform/x86: asus-nb-wmi: Do not load on Asus T100TA and T200TA
+
+Herbert Xu (1):
+      padata: Replace delayed timer with immediate workqueue in padata_reorder
+
+James Hilliard (1):
+      component: Silence bind error on -EPROBE_DEFER
+
+John Hubbard (1):
+      rapidio: fix an error in get_user_pages_fast() error handling
+
+Josh Poimboeuf (1):
+      x86/unwind/orc: Fix unwind_get_return_address_ptr() for inactive tasks
+
+Kevin Hao (2):
+      watchdog: Fix the race between the release of watchdog_core_data and cdev
+      i2c: dev: Fix the race between the release of i2c_dev and cdev
+
+Mathias Krause (3):
+      padata: ensure the reorder timer callback runs on the correct CPU
+      padata: ensure padata_do_serial() runs on the correct CPU
+      padata: set cpu_index of unused CPUs to -1
+
+Michael Ellerman (1):
+      powerpc/64s: Disable STRICT_KERNEL_RWX
+
+Oscar Carter (1):
+      staging: greybus: Fix uninitialized scalar variable
+
+Peter Ujfalusi (1):
+      iio: adc: stm32-adc: Use dma_request_chan() instead dma_request_slave_channel()
+
+Peter Zijlstra (1):
+      x86/uaccess, ubsan: Fix UBSAN vs. SMAP
+
+Qiushi Wu (1):
+      rxrpc: Fix a memory leak in rxkad_verify_response()
+
+Richard Weinberger (1):
+      ubi: Fix seq_file usage in detailed_erase_block_info debugfs file
+
+Roberto Sassu (3):
+      ima: Set file->f_mode instead of file->f_flags in ima_calc_file_hash()
+      evm: Check also if *tfm is an error pointer in init_desc()
+      ima: Fix return value of ima_write_policy()
+
+Russell Currey (1):
+      powerpc: Remove STRICT_KERNEL_RWX incompatibility with RELOCATABLE
+
+Scott Bahling (1):
+      ALSA: iec1712: Initialize STDSP24 properly when using the model=staudio option
+
+Sebastian Reichel (1):
+      HID: multitouch: add eGalaxTouch P80H84 support
+
+Shijie Luo (1):
+      ext4: add cond_resched() to ext4_protect_reserved_inode
+
+Stefano Garzarella (1):
+      vhost/vsock: fix packet delivery order to monitoring devices
+
+Thomas Gleixner (2):
+      x86/apic: Move TSC deadline timer debug printk
+      ARM: futex: Address build warning
+
+Tyrel Datwyler (1):
+      scsi: ibmvscsi: Fix WARN_ON during event pool release
+
+Vishal Verma (2):
+      libnvdimm/btt: Remove unnecessary code in btt_freelist_init
+      libnvdimm/btt: Fix LBA masking during 'free list' population
+
+Wu Bo (1):
+      ceph: fix double unlock in handle_cap_export()
+
+Xiyu Yang (2):
+      configfs: fix config_item refcnt leak in configfs_rmdir()
+      apparmor: Fix aa_label refcnt leak in policy_update
+
+Yoshiyuki Kurauchi (1):
+      gtp: set NLM_F_MULTI flag in gtp_genl_dump_pdp()
+
