@@ -2,57 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C58C71E4577
-	for <lists+stable@lfdr.de>; Wed, 27 May 2020 16:14:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A1C81E458E
+	for <lists+stable@lfdr.de>; Wed, 27 May 2020 16:17:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729015AbgE0OOw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 May 2020 10:14:52 -0400
-Received: from mout.kundenserver.de ([212.227.126.130]:47377 "EHLO
+        id S2388949AbgE0ORC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 May 2020 10:17:02 -0400
+Received: from mout.kundenserver.de ([212.227.126.134]:42241 "EHLO
         mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728911AbgE0OOw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 May 2020 10:14:52 -0400
+        with ESMTP id S2388141AbgE0ORC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 May 2020 10:17:02 -0400
 Received: from threadripper.lan ([149.172.98.151]) by mrelayeu.kundenserver.de
- (mreue011 [212.227.15.129]) with ESMTPA (Nemesis) id
- 1MPXxi-1jQ7At0vQY-00McXf; Wed, 27 May 2020 16:14:37 +0200
+ (mreue012 [212.227.15.129]) with ESMTPA (Nemesis) id
+ 1MPK73-1jNdyb1lNN-00PfUR; Wed, 27 May 2020 16:15:56 +0200
 From:   Arnd Bergmann <arnd@arndb.de>
-To:     Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>
+To:     Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        x86@kernel.org
 Cc:     Arnd Bergmann <arnd@arndb.de>, stable@vger.kernel.org,
-        Alexios Zavras <alexios.zavras@intel.com>,
-        Enrico Weigelt <info@metux.net>,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        "H. Peter Anvin" <hpa@zytor.com>, Jiri Slaby <jslaby@suse.cz>,
+        Juergen Gross <jgross@suse.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Tony Luck <tony.luck@intel.com>, linux-kernel@vger.kernel.org,
         clang-built-linux@googlegroups.com
-Subject: [PATCH] arm64: fix clang integrated assembler build
-Date:   Wed, 27 May 2020 16:14:03 +0200
-Message-Id: <20200527141435.1716510-1-arnd@arndb.de>
+Subject: [PATCH] x86: fix clang integrated assembler build
+Date:   Wed, 27 May 2020 16:15:39 +0200
+Message-Id: <20200527141553.1768675-1-arnd@arndb.de>
 X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Provags-ID: V03:K1:7D97oLdlne2qL09g2jgGMc+fbgxIgsEVGqtW3VCiQSLFiFZYW+g
- fn2jFC8fox4CvFLOjk636cGCNApIdf+wHKZhqEFujfdqm2RA4gYBX6NwhZyD2COJG9mMmWc
- hZsygdfgYo/BJ0Kpgn67wE5vUFZRUdL6nV85teYEDlb3akqK8j5BG/d4Xix3+ngCzx8f8Fk
- QtdTh5UFRdMZ4v9ZxpTRA==
+X-Provags-ID: V03:K1:Uosxpj6yvjMCuoWo+Rtov8UwzN5IwYem5nwdvTWLIAVID8yaP/W
+ x7ewGXWq/QM+I7P3RCxJYWFjpDQalR+YODvDhjI71RN1tJZP8geV47TJs5LVSF7p7vmPoXm
+ qImyMgJGjmDeyS2NV4hdWnbJNcpxvHX0/3b8jp2OkQ3phuf5uluN+BUE0FMfsSyprNtQvnL
+ fV00HYQaumDJaxj6QfpPg==
 X-Spam-Flag: NO
-X-UI-Out-Filterresults: notjunk:1;V03:K0:nopDGBtTCRY=:gmcT7aGMYwgi+osEwcoJQd
- M7Gi+selGs6VVEavYYgErF6uTZ6bBgfdli88sKgqNPoV0LvojDp5VmIyj+rdciv7gMGj0A7yG
- jsDiTtFH2SJfh7G9T0mVtBLKxjCxcwuRBA3IpHG0Ix0Mc69PlCAi/WhHLq+ulS4Lr2XGvHq+i
- eA+ZilQHHREFYpRTpuJ9UzLbt3crO7IIwk+rIZuIFadfFGdEIrYcveNcP/Mx8s+rISZu+U6fJ
- o966l0cWMOpV7uUKixyQJ0gMm+m68gva1gZofkGPUgIHSZaHr+APCqVB32JERs1Kxh694ljSD
- jfg4u9GwJhba3Gqq0v3ZuyVcZA+bjVgkmONZpObxYgc+EMWanX2BG0+mRqhOR2UsifUB3KzUm
- MAqbVfxh5u/+Yd/wIvs4YR0FaYOCZs2u7VqJhQk5GviOVbJwaxBNTBMUXaQQQVAIeu5e4+QGf
- t9Vunr7FO6GBeg8gS+jJWKY1gpNoyF7sf9FLmbvnzDd9Av8oCauSMuRkkhOgeObnSI++XiJEE
- qbNady/hj5hewA4LQ2EPTinkoYjYimoGhthiKhIWh7LA95VBplavcS1deQ7/kIXn+FDcxCQUK
- 9t9W8JPchCM0Q5Cq67VWkxasU2WZJ6OeyGeGtFRh3pICiDj75iXYPhK5rWPROhou2rwiDod/a
- AF5XVDZ6xPZOQcB3bPuIi1NpFtZVahogUzIPTLa7zYcHQYAuYyREDxOL+m1+FuPwuatMfZU8Y
- DDCAknP3KxiYVzUCmkp/UY9UPUCIqRb43sIcaParqPIxnSOG348OK23sPnh9lbzh5HCA7ky13
- hySQO9Htd477w1nEt4Lp3Ht6poAUlCheVhQ1ndjIPxQg+Cl5WU=
+X-UI-Out-Filterresults: notjunk:1;V03:K0:GWnMZ0bR6yk=:0Y1nTwmFteYTcoIjQ40K3U
+ cSlDlIO2MaEl7ZntvxtB1FiwS6sZj5h2Wg+YeSVHJJWLZhQIXpLujXfFgeCsDJdPdP4zf/tG+
+ z3vjludYoIj/dSsu1DCKX7HKRRlmKIYylGoLzlP+MuZ1sPFCoUCafKtwamLGglgNZGGinSGGq
+ L1vbbWJd6f1WpNSR9ORdxgFwNQHhK+uo6AllztWK76vGCAc/j8lXxkbtC3qKrPo2P1WpptWk5
+ jkygJhIWjdiF2fLcgxOlge0rwyvXcUz5tTe+FrKYGH6yCfJREI3SqSKE3wQEuiTszKc8+xfvv
+ MR6S28MzU+i5B7xWNneS8ed+VX4lLIaLNvTivoT5KkFO9oIed/dWF36QK6Mr/B18X0K7mXnCF
+ A8C7hWSLo719jVIGoCZ5nmx4JUnICaW0NSFhkF108Ehn5KD31jXfYJ31FYtY2bvjz/GGRA31N
+ rttY0nXn/FFJwP0pcT7RuYmHs4+WWv/3BqwURQa7ZNAoTvUtaXq0PcDwtxkLJVj3rnCsJQMAR
+ Kuu5E+fWt5jFkCon4fRjZdu3DtMEKsSA23jsUwCLQHMPsNY7/qJ80O05GoPp8Uf69m6BiPVVi
+ qggmvA7zKgPx6+pGVf2xZ4C+nsrulbKXXSdaycw9B56m9yssXSeKhVkx+np51y9bMD7jl+DAH
+ qMPVpL/RBQBiU8cg20vCC+dyI5xv3jEQbdBbFg6r5fCtjqawk1CF9NgDV1Mo3nzu+bxn9Wicf
+ LbA+0fiJ611f2RojqKBaHeqabSDVpZUeKPIF6dANGh7KANO3z2xyKj5HsQgPsLrk2VQi0rbrR
+ LNUvfiZ7HNzDzeYD4csCPzFo1Q0czax1TFof2QNccYY3Pxn0+Y=
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-clang and gas seem to interpret the symbols in memmove.S and
-memset.S differently, such that clang does not make them
+clang and gas seem to interpret the symbols in memmove_64.S and
+memset_64.S differently, such that clang does not make them
 'weak' as expected, which leads to a linker error, with both
 ld.bfd and ld.lld:
 
@@ -81,57 +83,40 @@ for a clang bug.
 Cc: stable@vger.kernel.org
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
----
- arch/arm64/lib/memcpy.S  | 3 +--
- arch/arm64/lib/memmove.S | 3 +--
- arch/arm64/lib/memset.S  | 3 +--
- 3 files changed, 3 insertions(+), 6 deletions(-)
+ arch/x86/lib/memmove_64.S | 4 ++--
+ arch/x86/lib/memset_64.S  | 4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm64/lib/memcpy.S b/arch/arm64/lib/memcpy.S
-index e0bf83d556f2..dc8d2a216a6e 100644
---- a/arch/arm64/lib/memcpy.S
-+++ b/arch/arm64/lib/memcpy.S
-@@ -56,9 +56,8 @@
- 	stp \reg1, \reg2, [\ptr], \val
- 	.endm
+diff --git a/arch/x86/lib/memmove_64.S b/arch/x86/lib/memmove_64.S
+index 7ff00ea64e4f..dcca01434be8 100644
+--- a/arch/x86/lib/memmove_64.S
++++ b/arch/x86/lib/memmove_64.S
+@@ -26,8 +26,8 @@
+  */
+ .weak memmove
  
--	.weak memcpy
- SYM_FUNC_START_ALIAS(__memcpy)
--SYM_FUNC_START_PI(memcpy)
-+SYM_FUNC_START_WEAK_PI(memcpy)
- #include "copy_template.S"
- 	ret
- SYM_FUNC_END_PI(memcpy)
-diff --git a/arch/arm64/lib/memmove.S b/arch/arm64/lib/memmove.S
-index 02cda2e33bde..1035dce4bdaf 100644
---- a/arch/arm64/lib/memmove.S
-+++ b/arch/arm64/lib/memmove.S
-@@ -45,9 +45,8 @@ C_h	.req	x12
- D_l	.req	x13
- D_h	.req	x14
+-SYM_FUNC_START_ALIAS(memmove)
+-SYM_FUNC_START(__memmove)
++SYM_FUNC_START_ALIAS(__memmove)
++SYM_FUNC_START_LOCAL(memmove)
  
--	.weak memmove
- SYM_FUNC_START_ALIAS(__memmove)
--SYM_FUNC_START_PI(memmove)
-+SYM_FUNC_START_WEAK_PI(memmove)
- 	cmp	dstin, src
- 	b.lo	__memcpy
- 	add	tmp1, src, count
-diff --git a/arch/arm64/lib/memset.S b/arch/arm64/lib/memset.S
-index 77c3c7ba0084..a9c1c9a01ea9 100644
---- a/arch/arm64/lib/memset.S
-+++ b/arch/arm64/lib/memset.S
-@@ -42,9 +42,8 @@ dst		.req	x8
- tmp3w		.req	w9
- tmp3		.req	x9
+ 	mov %rdi, %rax
  
--	.weak memset
- SYM_FUNC_START_ALIAS(__memset)
--SYM_FUNC_START_PI(memset)
-+SYM_FUNC_START_WEAK_PI(memset)
- 	mov	dst, dstin	/* Preserve return value.  */
- 	and	A_lw, val, #255
- 	orr	A_lw, A_lw, A_lw, lsl #8
+diff --git a/arch/x86/lib/memset_64.S b/arch/x86/lib/memset_64.S
+index 9ff15ee404a4..a97f2ea4e0b2 100644
+--- a/arch/x86/lib/memset_64.S
++++ b/arch/x86/lib/memset_64.S
+@@ -19,8 +19,8 @@
+  *
+  * rax   original destination
+  */
+-SYM_FUNC_START_ALIAS(memset)
+-SYM_FUNC_START(__memset)
++SYM_FUNC_START_ALIAS(__memset)
++SYM_FUNC_START_LOCAL(memset)
+ 	/*
+ 	 * Some CPUs support enhanced REP MOVSB/STOSB feature. It is recommended
+ 	 * to use it when possible. If not available, use fast string instructions.
 -- 
 2.26.2
 
