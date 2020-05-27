@@ -2,112 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FCFA1E4514
-	for <lists+stable@lfdr.de>; Wed, 27 May 2020 16:02:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 75F421E4521
+	for <lists+stable@lfdr.de>; Wed, 27 May 2020 16:04:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730284AbgE0OC2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 May 2020 10:02:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40222 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730223AbgE0OC1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 May 2020 10:02:27 -0400
-Received: from mail-pj1-x1041.google.com (mail-pj1-x1041.google.com [IPv6:2607:f8b0:4864:20::1041])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C23A1C08C5C1;
-        Wed, 27 May 2020 07:02:27 -0700 (PDT)
-Received: by mail-pj1-x1041.google.com with SMTP id l73so1131907pjb.1;
-        Wed, 27 May 2020 07:02:27 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=7uwEzD/HWCPds3dRM6BjnO0kf4LNMewfvGxCPu1qZms=;
-        b=jQ7o/CVPWMv45D5ntz5OrfDwxQ4ADwJoiKFZ4pXty989UbswPKAS+EC6zYjk/oeY7O
-         p0uKRTBJrGsusvVJG5JS/72k8iZOU7fsh4wrEssatYx7/drmJkOkBLfGgMEypqR5o0VU
-         vGhsAurVvV7FJ2jracv5fsurwmMbwPp40mLPsb2CiRjez03b4V8LYJYCQuaps3bfpMCm
-         nLbIA4QwUUpXL8ED9IRsJQ/GdDQ3n6NjN3UJRt63JTbWvQlxqYuiUaoNnTqqYIFvgc7M
-         wzgrPXx7TAaAwv607yAMO8WpzhR/GIURKyFfCdFq8mOarGZYmE0wJNjXlp0nqfN9fBkz
-         gwkw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=7uwEzD/HWCPds3dRM6BjnO0kf4LNMewfvGxCPu1qZms=;
-        b=HStfp2T3zSP0CCcIjhLDbgk45I7Otbbcetezwv/julusW3JW5HoFLnkwE+OMe/QTuL
-         qp6wJyD0VT6vFVVlpQdfLnMvgP7ixwo5P03zfbUveUQTGjOtLVqVuHPswCvt5fg6Zlvc
-         BbphI/uIV1ckS85cUFEdH4apaCnPf3aVZYyI1R8wYq5hL5zFSx45jky3jRAsDj+/4A+z
-         ExGa56IPNiz2iKZNvr1B1MN8wu1HuACy8SQYAh5188UtRnDPthRRFAB03YJ7Gxi0OdVR
-         F3BNpE8269J1/1gMG4RAl3/eWTOv1kGMXi0g9C4qnKmFLvfzOrmNL1ZiUDecJY0UCYW7
-         cRMQ==
-X-Gm-Message-State: AOAM5305Akdt62PBd1SdFKf0VnNvM4/qRTonyXo3kpslMaQlsWR9EhOo
-        hzu6CJPwxvDeBYubJimOV8k=
-X-Google-Smtp-Source: ABdhPJwrpunqhiqIubL3gDTU9v4epZDlGYzSMJFRk0p6+g/cb0ckrIZAayc1xxklodbCuIJLAMRdNg==
-X-Received: by 2002:a17:90a:6b08:: with SMTP id v8mr4969897pjj.151.1590588147261;
-        Wed, 27 May 2020 07:02:27 -0700 (PDT)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id gz19sm2488833pjb.33.2020.05.27.07.02.25
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Wed, 27 May 2020 07:02:26 -0700 (PDT)
-Date:   Wed, 27 May 2020 07:02:25 -0700
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 4.19 00/81] 4.19.125-rc1 review
-Message-ID: <20200527140225.GA214763@roeck-us.net>
-References: <20200526183923.108515292@linuxfoundation.org>
+        id S1730296AbgE0OES (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 May 2020 10:04:18 -0400
+Received: from userp2130.oracle.com ([156.151.31.86]:52786 "EHLO
+        userp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730245AbgE0OES (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 May 2020 10:04:18 -0400
+Received: from pps.filterd (userp2130.oracle.com [127.0.0.1])
+        by userp2130.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 04RDvb2N196415;
+        Wed, 27 May 2020 14:03:37 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=corp-2020-01-29;
+ bh=Z8LSjtyRdkQJDOv1CQQhH2cz7RTrtGNgrKwq0zh9eJg=;
+ b=F+jm7JYqK+JTri+qgXMbnuD5RBtxa4/C5Oz9C4Yz6EoaSBWJit0+eiOsxQBSSEeO8x9d
+ PGgI7su4bw2GT9hSdOWgsqDNCZ6WmypKBLZbxeTxZ9ZLQZ10TzPfu+qNId/0jSVUBDqw
+ KOHwQRHqVxvoBGNABhEENWuASChrB/HFeTC35QTaDN4XJPW+0ok4WD6oj4gbEZlEgtf+
+ 81kVUkrBe29mRQ8iKHqhglk4/FymiaPgcRQpSiI9zpkTvzriJv59Gq9zj0vv6VzHNBSp
+ 8BRp8CumKkeuvVpYhdl8PNSebv4TFb3OUfmanhTPU9uZ52spA053ITjLhCuE04b8PON8 pA== 
+Received: from aserp3020.oracle.com (aserp3020.oracle.com [141.146.126.70])
+        by userp2130.oracle.com with ESMTP id 316u8qymjy-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Wed, 27 May 2020 14:03:35 +0000
+Received: from pps.filterd (aserp3020.oracle.com [127.0.0.1])
+        by aserp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 04RE3ZUx174350;
+        Wed, 27 May 2020 14:03:35 GMT
+Received: from aserv0122.oracle.com (aserv0122.oracle.com [141.146.126.236])
+        by aserp3020.oracle.com with ESMTP id 317j5rxyj4-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 27 May 2020 14:03:21 +0000
+Received: from abhmp0017.oracle.com (abhmp0017.oracle.com [141.146.116.23])
+        by aserv0122.oracle.com (8.14.4/8.14.4) with ESMTP id 04RE3JDK007580;
+        Wed, 27 May 2020 14:03:19 GMT
+Received: from [192.168.1.68] (/98.229.125.203)
+        by default (Oracle Beehive Gateway v4.0)
+        with ESMTP ; Wed, 27 May 2020 07:03:18 -0700
+Subject: Re: [PATCH 4.4 26/65] sched/fair, cpumask: Export for_each_cpu_wrap()
+To:     Greg KH <gregkh@linuxfoundation.org>,
+        nobuhiro1.iwamatsu@toshiba.co.jp
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        peterz@infradead.org, lvenanci@redhat.com,
+        torvalds@linux-foundation.org, efault@gmx.de, riel@redhat.com,
+        tglx@linutronix.de, lwang@redhat.com, mingo@kernel.org,
+        sashal@kernel.org
+References: <20200526183905.988782958@linuxfoundation.org>
+ <20200526183915.976645661@linuxfoundation.org>
+ <OSBPR01MB29836310986EC6E2E132A02F92B10@OSBPR01MB2983.jpnprd01.prod.outlook.com>
+ <20200527080944.GB119903@kroah.com>
+From:   Daniel Jordan <daniel.m.jordan@oracle.com>
+Message-ID: <ee459439-7f33-162f-83de-5106d5125e63@oracle.com>
+Date:   Wed, 27 May 2020 10:03:16 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200526183923.108515292@linuxfoundation.org>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+In-Reply-To: <20200527080944.GB119903@kroah.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9633 signatures=668686
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 bulkscore=0 spamscore=0 suspectscore=2
+ mlxlogscore=999 mlxscore=0 adultscore=0 phishscore=0 malwarescore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2004280000
+ definitions=main-2005270107
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9633 signatures=668686
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 malwarescore=0 mlxscore=0
+ priorityscore=1501 spamscore=0 cotscore=-2147483648 suspectscore=2
+ phishscore=0 clxscore=1011 mlxlogscore=999 bulkscore=0 adultscore=0
+ lowpriorityscore=0 impostorscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2004280000 definitions=main-2005270106
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, May 26, 2020 at 08:52:35PM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.19.125 release.
-> There are 81 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On 5/27/20 4:09 AM, Greg KH wrote:
+> On Wed, May 27, 2020 at 07:50:56AM +0000, nobuhiro1.iwamatsu@toshiba.co.jp wrote:
+>>> Subject: [PATCH 4.4 26/65] sched/fair, cpumask: Export for_each_cpu_wrap()	
+...
+>>
+>> This commit also needs the following commits:
+>>
+>> commit d207af2eab3f8668b95ad02b21930481c42806fd
+>> Author: Michael Kelley <mhkelley@outlook.com>
+>> Date:   Wed Feb 14 02:54:03 2018 +0000
+>>
+>>     cpumask: Make for_each_cpu_wrap() available on UP as well
+>>     
+>>     for_each_cpu_wrap() was originally added in the #else half of a
+>>     large "#if NR_CPUS == 1" statement, but was omitted in the #if
+>>     half.  This patch adds the missing #if half to prevent compile
+>>     errors when NR_CPUS is 1.
+>>     
+>>     Reported-by: kbuild test robot <fengguang.wu@intel.com>
+>>     Signed-off-by: Michael Kelley <mhkelley@outlook.com>
+>>     Cc: Linus Torvalds <torvalds@linux-foundation.org>
+>>     Cc: Peter Zijlstra <peterz@infradead.org>
+>>     Cc: Thomas Gleixner <tglx@linutronix.de>
+>>     Cc: kys@microsoft.com
+>>     Cc: martin.petersen@oracle.com
+>>     Cc: mikelley@microsoft.com
+>>     Fixes: c743f0a5c50f ("sched/fair, cpumask: Export for_each_cpu_wrap()")
+>>     Link: http://lkml.kernel.org/r/SN6PR1901MB2045F087F59450507D4FCC17CBF50@SN6PR1901MB2045.namprd19.prod.outlook.com
+>>     Signed-off-by: Ingo Molnar <mingo@kernel.org>
+>>
+>> Please apply this commit.
 > 
-> Responses should be made by Thu, 28 May 2020 18:36:22 +0000.
-> Anything received after that time might be too late.
-> 
-Build results:
-	total: 155 pass: 155 fail: 0
-Qemu test results:
-	total: 421 pass: 390 fail: 31
-Failed tests:
-	<all alpha>
-	<all sh>
-	<all sheb>
+> Good catch, now queued up, thanks.
 
-Bisect log (for alpha) below. Reverting the offending patch fixes the
-problem. Note that the problematic patch is associated with several
-other patches in the upstream kernel. Not all of them have a Fixes: tag,
-and I am not sure if all of them reference the problematic patch.
+I left this commit out because the 4.4 kernel only uses
+cpumask_next_wrap in padata, which is only enabled for SMP kernels, but
+it's probably best to be safe.
 
-Guenter
-
----
-# bad: [59438eb2aa125985caa11179358001f38df0bc7e] Linux 4.19.125-rc1
-# good: [1bab61d3e8cd96f2badf515dcb06e4e1029bc017] Linux 4.19.124
-git bisect start 'HEAD' 'v4.19.124'
-# good: [cf97abff88a2d1b1f6ce1cbde6e17133812b40ea] ALSA: hda/realtek - Add more fixup entries for Clevo machines
-git bisect good cf97abff88a2d1b1f6ce1cbde6e17133812b40ea
-# good: [14179ae15e2fd47223a6c05d4580def2c60869ab] cxgb4/cxgb4vf: Fix mac_hlist initialization and free
-git bisect good 14179ae15e2fd47223a6c05d4580def2c60869ab
-# good: [d314b90fcd2704c1c9babb4c35c0dc835c711e2f] ipack: tpci200: fix error return code in tpci200_register()
-git bisect good d314b90fcd2704c1c9babb4c35c0dc835c711e2f
-# good: [76955a85caf40f3edf72a5f346083c14ae3bf843] iio: adc: stm32-adc: fix device used to request dma
-git bisect good 76955a85caf40f3edf72a5f346083c14ae3bf843
-# good: [ff4ab7bb44c4b4007898be3d3a8e1ad51b1981eb] rxrpc: Trace discarded ACKs
-git bisect good ff4ab7bb44c4b4007898be3d3a8e1ad51b1981eb
-# bad: [dd2e65505bbed0631d642b0f2539ee7894494a9b] make 'user_access_begin()' do 'access_ok()'
-git bisect bad dd2e65505bbed0631d642b0f2539ee7894494a9b
-# good: [d25981b4d48f68871daf41bc0ca7f89c160a4b7c] rxrpc: Fix ack discard
-git bisect good d25981b4d48f68871daf41bc0ca7f89c160a4b7c
-# first bad commit: [dd2e65505bbed0631d642b0f2539ee7894494a9b] make 'user_access_begin()' do 'access_ok()'
+Daniel
