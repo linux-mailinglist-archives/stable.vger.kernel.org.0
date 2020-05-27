@@ -2,68 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D57501E4653
-	for <lists+stable@lfdr.de>; Wed, 27 May 2020 16:45:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 505F11E4656
+	for <lists+stable@lfdr.de>; Wed, 27 May 2020 16:46:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389198AbgE0Opv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 May 2020 10:45:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47028 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387942AbgE0Opu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 May 2020 10:45:50 -0400
-Received: from mail-qk1-x742.google.com (mail-qk1-x742.google.com [IPv6:2607:f8b0:4864:20::742])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A756CC05BD1E
-        for <stable@vger.kernel.org>; Wed, 27 May 2020 07:45:50 -0700 (PDT)
-Received: by mail-qk1-x742.google.com with SMTP id n11so19070099qkn.8
-        for <stable@vger.kernel.org>; Wed, 27 May 2020 07:45:50 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=9XwZWhnuaJjVvTRTCMXSBm/sh5rrb7YgeCiAhrUaq2M=;
-        b=rYlogd5TuTFVkJypDrBkM3zb4404qwk4efBYV6nY0cz+ietFoE1SYq1610jxdX7Lzj
-         rdkDAOh00lhDf0dxfb2Fl17pbD+3yXLPfSskakb4Va4sNDrZs44CBS3Hua3kiR1WTSg5
-         JQtBnz2PN3B/rfIN8FGR/W86ayyH4k6PqXUL0jKIFgm7wMkOn/cO80bvMqkYgUw+nFV7
-         2ygnbMbllS9rQfcEbg/AjMAAcYRtw03PxmDgeqTEaIhYBJc91wTex7BHAl6UjnYso94K
-         ywMaJZ4HdTLcrPM0lBY9hImlZSTJiwEQbz4y4egj2f+ywoAU4/Hz4Kdws/Eu5eSzyd9j
-         3dLA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=9XwZWhnuaJjVvTRTCMXSBm/sh5rrb7YgeCiAhrUaq2M=;
-        b=a7ZCEiY4qL8RAsnNc63c1BoMN525fueX3vVnZq4n0Mnf693LVQkap0PISYvBN1mbxY
-         83iAUU9aToLF+dCYo7tI7An5/pG3DB6ge3IDn7n2CF6BKFcDbrsJU5OxOS3dI5UItBKB
-         QiFdZ5M8Cq//ZQAbTTVOX0tLKHM544RX1BsE51htK8MVWHe/1F4OLMAdyhHZ5f3Pw6lV
-         C6pcmom/Lox4R4zC5XpoYvuWm49YsO3uP+XpytKTs4tC1X8WIMYUZobXylyRVAITQqsy
-         hSUyjKZqynloAkBQrUXPv+ZUleaJIH3DufA0VlxEwr6+SP9cBugC//210smNvViCRkUD
-         2WWA==
-X-Gm-Message-State: AOAM533Vt+QIsZzX0DfIxWvtVH5VKOSJSXXp+e/wL4PcXLQ0WKshBD60
-        lsTOZ+AO/U8G8D6oyqB7v8xMzI5jjv5cexD3xW4=
-X-Google-Smtp-Source: ABdhPJzxyKVLc31BCs7bbvPyOvLHfwVjSGtYlgxV/9BmQ1LAaARsxECSHjKg8xHSQ5mI0WK/FHFe5VqnKAPWAjDpzPs=
-X-Received: by 2002:a37:7105:: with SMTP id m5mr4595725qkc.370.1590590749933;
- Wed, 27 May 2020 07:45:49 -0700 (PDT)
+        id S2388894AbgE0Oqm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 May 2020 10:46:42 -0400
+Received: from mga11.intel.com ([192.55.52.93]:55605 "EHLO mga11.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2388680AbgE0Oql (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 May 2020 10:46:41 -0400
+IronPort-SDR: 5JuA2gagmIckusVrjs2kRWPOMzaw+v0oBzdFvf593jUM2LW80LB4aLz1JR3RkVPJum0LLAuPv4
+ 2a+FfyIGCg6Q==
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga004.fm.intel.com ([10.253.24.48])
+  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 May 2020 07:46:41 -0700
+IronPort-SDR: UHRysOgJLUfbGaG/jv+qNoX5gdQI/PMPa7q/aQJP53gyQ2JVDwj58UzdTplKjM3N785n67w0x8
+ gyQMA/+GEdUw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.73,441,1583222400"; 
+   d="scan'208";a="291617786"
+Received: from linux.intel.com ([10.54.29.200])
+  by fmsmga004.fm.intel.com with ESMTP; 27 May 2020 07:46:41 -0700
+Received: from [10.251.8.26] (kliang2-mobl.ccr.corp.intel.com [10.251.8.26])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by linux.intel.com (Postfix) with ESMTPS id 819575805EF;
+        Wed, 27 May 2020 07:46:40 -0700 (PDT)
+Subject: Re: [PATCH] perf/x86/intel/uncore: Fix oops when counting IMC uncore
+ events on some TGL
+To:     David Laight <David.Laight@ACULAB.COM>,
+        "peterz@infradead.org" <peterz@infradead.org>,
+        "mingo@redhat.com" <mingo@redhat.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc:     "ak@linux.intel.com" <ak@linux.intel.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+References: <1590582647-90675-1-git-send-email-kan.liang@linux.intel.com>
+ <869fafc80da84d188678c1cbb0267a0b@AcuMS.aculab.com>
+From:   "Liang, Kan" <kan.liang@linux.intel.com>
+Message-ID: <ed3d86b7-2f75-cfe9-bc74-5f2c29ef2540@linux.intel.com>
+Date:   Wed, 27 May 2020 10:46:38 -0400
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
+ Thunderbird/68.8.1
 MIME-Version: 1.0
-Received: by 2002:a0c:d78d:0:0:0:0:0 with HTTP; Wed, 27 May 2020 07:45:49
- -0700 (PDT)
-Reply-To: begabriel6543@gmail.com
-From:   Gabriel Bertrand <boxmail538@gmail.com>
-Date:   Wed, 27 May 2020 07:45:49 -0700
-Message-ID: <CAH73ELPAmcFgWapPhRY0mR7MuzgyOA+LPPDkdsVk-oyk5rzOvQ@mail.gmail.com>
-Subject: hello
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <869fafc80da84d188678c1cbb0267a0b@AcuMS.aculab.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
--- 
- Hello
 
-hope you are doing great. my name is Gabriel. We can be friends
-I have important information I would like to share with you.
 
-Have a great day
+On 5/27/2020 8:59 AM, David Laight wrote:
+> From: kan.liang@linux.intel.com
+>> Sent: 27 May 2020 13:31
+>>
+>> From: Kan Liang <kan.liang@linux.intel.com>
+>>
+>> When counting IMC uncore events on some TGL machines, an oops will be
+>> triggered.
+>>    [ 393.101262] BUG: unable to handle page fault for address:
+>>    ffffb45200e15858
+>>    [ 393.101269] #PF: supervisor read access in kernel mode
+>>    [ 393.101271] #PF: error_code(0x0000) - not-present page
+>>
+>> Current perf uncore driver still use the IMC MAP SIZE inherited from
+>> SNB, which is 0x6000.
+>> However, the offset of IMC uncore counters for some TGL machines is
+>> larger than 0x6000, e.g. 0xd8a0.
+>>
+>> Enlarge the IMC MAP SIZE for TGL to 0xe000.
+> 
+> Replacing one 'random' constant with a different one
+> doesn't seem like a proper fix.
+> 
+> Surely the actual bounds of the 'memory' area are properly
+> defined somewhere.
+> Or at least should come from a table.
+> 
+> You also need to verify that the offsets are within the mapped area.
+> An unexpected offset shouldn't try to access an invalid address.
 
-Sincerely,
-Gabriel
+Thanks for the review.
+
+I agree that we should add a check before mapping the area to prevent 
+the issue happens again.
+
+I think the check should be a generic check for all platforms which try 
+to map an area, not just for TGL. I will submit a separate patch for the 
+check.
+
+Thanks,
+Kan
+
+> 
+> 	David
+> 
+> -
+> Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
+> Registration No: 1397386 (Wales)
+> 
