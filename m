@@ -2,100 +2,163 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D1AC1E4C87
-	for <lists+stable@lfdr.de>; Wed, 27 May 2020 19:59:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C9911E4CA6
+	for <lists+stable@lfdr.de>; Wed, 27 May 2020 20:03:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391798AbgE0R7Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 May 2020 13:59:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49088 "EHLO
+        id S1729380AbgE0SDj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 May 2020 14:03:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49772 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2391787AbgE0R7Y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 May 2020 13:59:24 -0400
-Received: from mail-qv1-xf41.google.com (mail-qv1-xf41.google.com [IPv6:2607:f8b0:4864:20::f41])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD8E9C03E97D
-        for <stable@vger.kernel.org>; Wed, 27 May 2020 10:59:23 -0700 (PDT)
-Received: by mail-qv1-xf41.google.com with SMTP id g7so1058315qvx.11
-        for <stable@vger.kernel.org>; Wed, 27 May 2020 10:59:23 -0700 (PDT)
+        with ESMTP id S1729082AbgE0SDh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 May 2020 14:03:37 -0400
+Received: from mail-pf1-x441.google.com (mail-pf1-x441.google.com [IPv6:2607:f8b0:4864:20::441])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F455C08C5C1
+        for <stable@vger.kernel.org>; Wed, 27 May 2020 11:03:36 -0700 (PDT)
+Received: by mail-pf1-x441.google.com with SMTP id 131so3787308pfv.13
+        for <stable@vger.kernel.org>; Wed, 27 May 2020 11:03:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:sender:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=NS4Juk1QOM+BTGTUn52v2Q16vSZkkg1WodSyzPGeE2E=;
-        b=tqD6Vaw2BC6xoyFH7j7snQRtkuK6WUnGtTYjURt8XAss9qBF2LMPuaAqkNpzvcF9rH
-         skPDeoyhPrRU66e5t5YVKUVGN8g7T2YkpBkDeWAl8LeBJg/i4xZJUbTTVA9EqcpdxJRR
-         ho5Rg5FJCqrigN/YHHzMyMnJEZNXLzuFtiZfa8nBQsQhnkJgLZCN+pkM0rVv58P4lX/R
-         tfhYebE6ThbgydyaFpO4kTwP9ZMnSXr6hi3szv/RdJKdl2kgh1CREXv8AD7Eqs+asyAU
-         RP4ToOMlWQG0Cr4JIV0IJAySbTe3HU1hlPRY8MMMdF4Zsp5RZAZAi2rn22oNS3XzN6vg
-         yFTw==
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=1i+2CYKnygDzk/GvSPMFnlsBZ+PDQAs0JHC2OCU8Rpg=;
+        b=Juuy34H7e5clylfdiyvSvG4F1wyq9c8Gaj8QNysrOlDgGCGB7A08vEUvk3NP/Wn1H6
+         Yog5pD+mXyHk+WVgoLhuHW3Omp5d+eepMRoD2hYNRRK5PkkUSlyxec51h45s6fdpYill
+         lA4WHf6wyk335XsVHjeAc4Q2RIQDLyeAIKwrzDBommB66eFrjgaTrHUKh+YskoAupwbq
+         eDWaNMQh5VN1aoa5wksCQ49WwMi1vHRhUDNMtMhCEclzc24PdY4Wv3QfxGMydNAOePYK
+         xdcnU39N8S3XzdUmTP21oRzd9CrtlFniuJBnOhhkPr0/09QMJdtokXOxrAby+3nxwfjm
+         aARA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
-         :to:content-transfer-encoding;
-        bh=NS4Juk1QOM+BTGTUn52v2Q16vSZkkg1WodSyzPGeE2E=;
-        b=EhbwEGpQzJtZgO2NI+B2igaWLK+LhCNh56alRK1XiM1bfMh0KC3dm31DGtPsiUXW3L
-         jnc3SOyeZf8F5yhAgITNDhz1A5dYAeMXbvssYb85yuhgj66kwEGRF+tjXw0/Ow+W6LQq
-         XY8YIQWvO4Lg93NNHuELzQ+p5FlcjeFvKf48r3CAR+q4RTWurbYBi6FOIx4dL5ch6rFp
-         UWl/YsS2ZgQDtUx+iGO0dT+D/kD3DyBz4JeP6lRyXU+j8btvj0dWom4IXLCxCKe+C12l
-         bnwBx5u+qjZ3gX3K7buVfW9LAJrGbHkbtKkL/6GPFzGzGQxwhE0P+WmxURH0wGYH27Wy
-         bKIg==
-X-Gm-Message-State: AOAM532b0f1I6C1/0SjbQNnppSQ82NA7dip7Z0f0xvVSu+3s6zKvcVys
-        cQ/Brl3HkU+j7pQD5tLjH+//LSrfNOeoQv1t2HE=
-X-Google-Smtp-Source: ABdhPJzKfSR56GDzlmwMjPczinmh00s1N55KWM9+btmtR6Ud7s2F/kdpGwuAGq9akfAOcfiFNdlQ8v8H+SuTq8FsgFQ=
-X-Received: by 2002:a0c:9c43:: with SMTP id w3mr9023548qve.38.1590602363001;
- Wed, 27 May 2020 10:59:23 -0700 (PDT)
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=1i+2CYKnygDzk/GvSPMFnlsBZ+PDQAs0JHC2OCU8Rpg=;
+        b=mEkbjYzE0MaSKhE+EKSvngSoDrBrUkdg1u1eLdruIJu98cGiU8f3+3CG3huFg9CQIH
+         M1oulM8pxzZJ34ruV1OHIyTtdCtXou/549dRoAkKW+MHI1osMOYsthdPaXWHJVws+Sxg
+         yiHyHSoNjGz/W9oXgON7MzcwQC+faD8Fn1ajTDTYJ+J4KkynhvGX0TzRXs/Yh6VIoJ3B
+         sLBsWOyhRS4Gwb982mSEqzMVhbLCrBbmrE0u3FjN25J03ETbReGKkhxtLwoKaaOJDLNr
+         0aIa0yH8+9LBa0OIc8M+Fz2xGb3bULF7z0tpo6twKreEIPpYsuMbUOmvoxaAcC8HG45y
+         NLaw==
+X-Gm-Message-State: AOAM532HHtVz6xBy/h27/E39S4dgGMvLy1uZ2ycURvXJqp9M/GJspe60
+        ms7wACwJ9QTtpvibs3lp/eQVNowWqStZVB16zmmpZg==
+X-Google-Smtp-Source: ABdhPJzzSTK199jYEXH1x++KGRbblCgHnTwlQdoA6pICLSVL6mQAiv7Qjw8mXRGdXDnysRpSmZq3n9RSuMqpypAtzOk=
+X-Received: by 2002:aa7:8c44:: with SMTP id e4mr5128942pfd.108.1590602615524;
+ Wed, 27 May 2020 11:03:35 -0700 (PDT)
 MIME-Version: 1.0
-Received: by 2002:aed:2343:0:0:0:0:0 with HTTP; Wed, 27 May 2020 10:59:22
- -0700 (PDT)
-From:   Donna Louise <dlouisemclnnes1@gmail.com>
-Date:   Wed, 27 May 2020 10:59:22 -0700
-X-Google-Sender-Auth: 9lIqCADnTRZQM0-NLsw-7yZ_k8A
-Message-ID: <CAAaL_j2dp5u9xdEgikefnNHgW6amzNndOKeG+4pGf1vNyPz0VQ@mail.gmail.com>
-Subject: I need your assistance,
-To:     undisclosed-recipients:;
+References: <20200527141435.1716510-1-arnd@arndb.de>
+In-Reply-To: <20200527141435.1716510-1-arnd@arndb.de>
+From:   Nick Desaulniers <ndesaulniers@google.com>
+Date:   Wed, 27 May 2020 11:03:24 -0700
+Message-ID: <CAKwvOdnNxj-MdKj3aWoefF2W9PPG-TSeNU4Ym-N8NODJB5Yw_w@mail.gmail.com>
+Subject: Re: [PATCH] arm64: fix clang integrated assembler build
+To:     Arnd Bergmann <arnd@arndb.de>
+Cc:     Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        "# 3.4.x" <stable@vger.kernel.org>,
+        Alexios Zavras <alexios.zavras@intel.com>,
+        Enrico Weigelt <info@metux.net>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        clang-built-linux <clang-built-linux@googlegroups.com>,
+        Bill Wendling <morbo@google.com>,
+        Jian Cai <jiancai@google.com>,
+        Fangrui Song <maskray@google.com>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello Dear Friend,
+On Wed, May 27, 2020 at 7:14 AM Arnd Bergmann <arnd@arndb.de> wrote:
+>
+> clang and gas seem to interpret the symbols in memmove.S and
+> memset.S differently, such that clang does not make them
+> 'weak' as expected, which leads to a linker error, with both
+> ld.bfd and ld.lld:
+>
+> ld.lld: error: duplicate symbol: memmove
+> >>> defined at common.c
+> >>>            kasan/common.o:(memmove) in archive mm/built-in.a
+> >>> defined at memmove.o:(__memmove) in archive arch/arm64/lib/lib.a
+>
+> ld.lld: error: duplicate symbol: memset
+> >>> defined at common.c
+> >>>            kasan/common.o:(memset) in archive mm/built-in.a
+> >>> defined at memset.o:(__memset) in archive arch/arm64/lib/lib.a
+>
+> Copy the exact way these are written in memcpy_64.S, which does
+> not have the same problem.
+>
+> I don't know why this makes a difference, and it would be good
+> to have someone with a better understanding of assembler internals
+> review it.
+>
+> It might be either a bug in the kernel or a bug in the assembler,
+> no idea which one. My patch makes it work with all versions of
+> clang and gcc, which is probably helpful even if it's a workaround
+> for a clang bug.
 
-May the peace of almighty God be with you and your family. I know it
-will be a great surprise to you reading this message from me today.
-But I want you to consider this as God divine intervention and
-opportunity which I believed that You and I can cooperate together in
-this humanitarian project for the glory and honor of God the merciful
-compassionate.
-My names are Mrs. Donna Louise, a widow and I=E2=80=99m diagnosed with brai=
-n
-tumor disease and this illness has gotten to a very bad stage, without
-any family members and no child. I hoped that you will not expose or
-betray this trust and confident that I am about to entrust on you for
-the mutual benefit of the orphans and the less privileges ones. I have
-some funds I inherited from my late husband, the sum of ($
-8.450.000.00 Eight Million Four Hundred and Fifty Thousand Dollars)
-deposited with the Bank. Haven=E2=80=99t   known my present health conditio=
-n,
-I decided to entrust this fund under your custody believing that you
-will utilize it the way i am going to instruct herein, for orphanages
-and gives justice and help to the poor, needy, elderly ones, disables
-and to promote the words of God and the effort that the house of God
-will be maintained.
-My dear, all I need and required from you is your sincerity and
-ability to carry out the transaction and fulfill my final wish in
-implementing the charitable project as it requires absolute trust and
-devotion without any failure and I will be glad to see that the bank
-has finally release and transfer the fund into your bank account in
-your country even before I die here in the hospital, because my
-present health condition is very critical at the moment everything
-need to be process rapidly as soon as possible.
-Meanwhile It will be my pleasure to compensate you as my Investment
-Manager/Partner with 30% percent of the total money for your effort in
-handling the transaction while 70% of the money will be Invested into
-the charity project there in your country. Meanwhile I am waiting for
-your prompt respond, if only you are interested for further details of
-the transaction
++ Bill, Fangrui, Jian
+I think we saw this bug or a very similar bug internally around the
+ordering of .weak to .global.
 
-May God Bless you.
-Truly yours beloved Sister in Christ Mrs. Donna Louise.
+>
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> ---
+> ---
+>  arch/arm64/lib/memcpy.S  | 3 +--
+>  arch/arm64/lib/memmove.S | 3 +--
+>  arch/arm64/lib/memset.S  | 3 +--
+>  3 files changed, 3 insertions(+), 6 deletions(-)
+>
+> diff --git a/arch/arm64/lib/memcpy.S b/arch/arm64/lib/memcpy.S
+> index e0bf83d556f2..dc8d2a216a6e 100644
+> --- a/arch/arm64/lib/memcpy.S
+> +++ b/arch/arm64/lib/memcpy.S
+> @@ -56,9 +56,8 @@
+>         stp \reg1, \reg2, [\ptr], \val
+>         .endm
+>
+> -       .weak memcpy
+>  SYM_FUNC_START_ALIAS(__memcpy)
+> -SYM_FUNC_START_PI(memcpy)
+> +SYM_FUNC_START_WEAK_PI(memcpy)
+>  #include "copy_template.S"
+>         ret
+>  SYM_FUNC_END_PI(memcpy)
+> diff --git a/arch/arm64/lib/memmove.S b/arch/arm64/lib/memmove.S
+> index 02cda2e33bde..1035dce4bdaf 100644
+> --- a/arch/arm64/lib/memmove.S
+> +++ b/arch/arm64/lib/memmove.S
+> @@ -45,9 +45,8 @@ C_h   .req    x12
+>  D_l    .req    x13
+>  D_h    .req    x14
+>
+> -       .weak memmove
+>  SYM_FUNC_START_ALIAS(__memmove)
+> -SYM_FUNC_START_PI(memmove)
+> +SYM_FUNC_START_WEAK_PI(memmove)
+>         cmp     dstin, src
+>         b.lo    __memcpy
+>         add     tmp1, src, count
+> diff --git a/arch/arm64/lib/memset.S b/arch/arm64/lib/memset.S
+> index 77c3c7ba0084..a9c1c9a01ea9 100644
+> --- a/arch/arm64/lib/memset.S
+> +++ b/arch/arm64/lib/memset.S
+> @@ -42,9 +42,8 @@ dst           .req    x8
+>  tmp3w          .req    w9
+>  tmp3           .req    x9
+>
+> -       .weak memset
+>  SYM_FUNC_START_ALIAS(__memset)
+> -SYM_FUNC_START_PI(memset)
+> +SYM_FUNC_START_WEAK_PI(memset)
+>         mov     dst, dstin      /* Preserve return value.  */
+>         and     A_lw, val, #255
+>         orr     A_lw, A_lw, A_lw, lsl #8
+> --
+> 2.26.2
+
+-- 
+Thanks,
+~Nick Desaulniers
