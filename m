@@ -2,69 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 714951E405C
-	for <lists+stable@lfdr.de>; Wed, 27 May 2020 13:48:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EDE71E4073
+	for <lists+stable@lfdr.de>; Wed, 27 May 2020 13:53:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726903AbgE0LsM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 May 2020 07:48:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41842 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726019AbgE0LsM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 May 2020 07:48:12 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A6B4220873;
-        Wed, 27 May 2020 11:48:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590580091;
-        bh=QV9YmA6SLCzz+5if2UqnhgkHN5mAKCnPWg4ZiKOEg/Q=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=zXCBCW6qIcmZ4Y2iFDXDiZF/+H9GK4B2LTJlVTupGlzKmpniLBXlP3UiSPNzkh6MG
-         aFdXQOL73lGYFhYcFUYvqhgdHCMJ6x9cdI6/bPLvzSOIEiMwuQ0UKldTe/9C824LgV
-         pkBX++0+HlwRf3kp988OaJ6czzajUPlAycy04V/Y=
-Date:   Wed, 27 May 2020 13:48:09 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Chris Paterson <Chris.Paterson2@renesas.com>
-Cc:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "torvalds@linux-foundation.org" <torvalds@linux-foundation.org>,
-        "akpm@linux-foundation.org" <akpm@linux-foundation.org>,
-        "linux@roeck-us.net" <linux@roeck-us.net>,
-        "shuah@kernel.org" <shuah@kernel.org>,
-        "patches@kernelci.org" <patches@kernelci.org>,
-        "ben.hutchings@codethink.co.uk" <ben.hutchings@codethink.co.uk>,
-        "lkft-triage@lists.linaro.org" <lkft-triage@lists.linaro.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [PATCH 4.19 00/81] 4.19.125-rc1 review
-Message-ID: <20200527114808.GA385991@kroah.com>
-References: <20200526183923.108515292@linuxfoundation.org>
- <OSAPR01MB238593B39F13AA0669A5CD11B7B10@OSAPR01MB2385.jpnprd01.prod.outlook.com>
+        id S1728365AbgE0Lw5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 May 2020 07:52:57 -0400
+Received: from outils.crapouillou.net ([89.234.176.41]:41026 "EHLO
+        crapouillou.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725747AbgE0Lw4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 May 2020 07:52:56 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=crapouillou.net;
+        s=mail; t=1590580367; h=from:from:sender:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=UvvvrXWRYDHu3UfDWTLrB6GvtVeps3r3Hz5jfYNCgNM=;
+        b=BETk0rSmUVWgGf8DbdbhV68+hbnghdRRuJiBQKcvnE4i0DS0ITfJ4neHWaddQH9wDILioS
+        ObkHGmYjJGKiBfDQM+thUHY3U2z/UlirrIJjJxJ8CMkag0ceYMKzskNoAO/cGJ4V9+xi7z
+        mT3BDxMc1I8lN/VVBS93fQuunVXTNuQ=
+From:   Paul Cercueil <paul@crapouillou.net>
+To:     Thierry Reding <thierry.reding@gmail.com>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>
+Cc:     od@zcrc.me, linux-pwm@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
+        stable@vger.kernel.org
+Subject: [PATCH v3 2/4] pwm: jz4740: Enhance precision in calculation of duty cycle
+Date:   Wed, 27 May 2020 13:52:23 +0200
+Message-Id: <20200527115225.10069-2-paul@crapouillou.net>
+In-Reply-To: <20200527115225.10069-1-paul@crapouillou.net>
+References: <20200527115225.10069-1-paul@crapouillou.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <OSAPR01MB238593B39F13AA0669A5CD11B7B10@OSAPR01MB2385.jpnprd01.prod.outlook.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, May 27, 2020 at 10:29:00AM +0000, Chris Paterson wrote:
-> Good morning Greg,
-> 
-> > From: stable-owner@vger.kernel.org <stable-owner@vger.kernel.org> On
-> > Behalf Of Greg Kroah-Hartman
-> > 
-> > This is the start of the stable review cycle for the 4.19.125 release.
-> > There are 81 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> 
-> No build/boot issues seen for CIP configs for Linux 4.19.125-rc1 (59438eb2aa12).
-> 
-> Build/test pipeline/logs: https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/pipelines/149870026
-> GitLab CI pipeline: https://gitlab.com/cip-project/cip-testing/linux-cip-pipelines/-/blob/master/trees/linux-4.19.y.yml
-> Relevant LAVA jobs: https://lava.ciplatform.org/scheduler/alljobs?length=25&search=59438e#table
+Calculating the hardware value for the duty from the hardware value of
+the period resulted in a precision loss versus calculating it from the
+clock rate directly.
 
-Great, thanks for testing two of these and letting me know.
+(Also remove a cast that doesn't really need to be here)
 
-greg k-h
+Fixes: f6b8a5700057 ("pwm: Add Ingenic JZ4740 support")
+Cc: <stable@vger.kernel.org>
+Suggested-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Reviewed-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+---
+
+Notes:
+    v2: New patch. I don't consider this a fix but an enhancement, since the old
+    	behaviour was in place since the driver was born in ~2010, so no Fixes tag.
+    v3: Add Fixes tag and Uwe's Reviewed-by
+
+ drivers/pwm/pwm-jz4740.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/pwm/pwm-jz4740.c b/drivers/pwm/pwm-jz4740.c
+index 3cd5c054ad9a..4fe9d99ac9a9 100644
+--- a/drivers/pwm/pwm-jz4740.c
++++ b/drivers/pwm/pwm-jz4740.c
+@@ -158,11 +158,11 @@ static int jz4740_pwm_apply(struct pwm_chip *chip, struct pwm_device *pwm,
+ 	/* Calculate period value */
+ 	tmp = (unsigned long long)rate * state->period;
+ 	do_div(tmp, NSEC_PER_SEC);
+-	period = (unsigned long)tmp;
++	period = tmp;
+ 
+ 	/* Calculate duty value */
+-	tmp = (unsigned long long)period * state->duty_cycle;
+-	do_div(tmp, state->period);
++	tmp = (unsigned long long)rate * state->duty_cycle;
++	do_div(tmp, NSEC_PER_SEC);
+ 	duty = period - tmp;
+ 
+ 	if (duty >= period)
+-- 
+2.26.2
+
