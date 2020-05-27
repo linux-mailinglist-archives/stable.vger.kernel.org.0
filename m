@@ -2,108 +2,183 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CF261E3BBF
-	for <lists+stable@lfdr.de>; Wed, 27 May 2020 10:17:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E57E11E3BCB
+	for <lists+stable@lfdr.de>; Wed, 27 May 2020 10:17:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387739AbgE0IRF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 May 2020 04:17:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34390 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387733AbgE0IRF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 May 2020 04:17:05 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A0D2B208B8;
-        Wed, 27 May 2020 08:17:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590567425;
-        bh=uxz/Lqg5icydr0a4c0wzZLNTTpE2jbUIKmpe+H4wOgs=;
-        h=Subject:To:From:Date:From;
-        b=DMfHVwA9nnufXwadvXIHqxMr1GY8hLv4NilWlgzAQZng2S33qeEvVBAax9cjIPB1w
-         nu6b7WT5t99wHbnGPhAsNvRl2+Bw/61g8G3ZmTCJT0xIHzvMHuo8ALkG7MRLS0pFea
-         JFlxAmFzUCaRgWBS5jJ81WgW/Gjp670YcPJyZqSI=
-Subject: patch "staging: rtl8712: Fix IEEE80211_ADDBA_PARAM_BUF_SIZE_MASK" added to staging-testing
-To:     pterjan@google.com, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 27 May 2020 10:16:54 +0200
-Message-ID: <159056741444181@kroah.com>
+        id S2387981AbgE0IRz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 May 2020 04:17:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43218 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2387705AbgE0IRz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 May 2020 04:17:55 -0400
+Received: from mail-lj1-x241.google.com (mail-lj1-x241.google.com [IPv6:2a00:1450:4864:20::241])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA1A6C03E97A
+        for <stable@vger.kernel.org>; Wed, 27 May 2020 01:17:54 -0700 (PDT)
+Received: by mail-lj1-x241.google.com with SMTP id l15so27466915lje.9
+        for <stable@vger.kernel.org>; Wed, 27 May 2020 01:17:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=ansn8GEOG8puOy4spTYf8Y5HTDgRcZKk82joxsuYhzg=;
+        b=y2F7kCk83loIuR9iQ9jfjKEChgmHWg6wgsSk5zHEQcJL0SXlc6sMmAd5i7Uz4eT8mA
+         7gFMx9H+uNIvQjtkS5iH42LO3JIT6sTa3dRNDQVQ4z4eSz7hICpzLSevJu5Kjf5OYPAx
+         NOOCDjMkWPsl/Gzm6vp0G2vOTs52xu6UTz3XUX8DvqjqPjki7au4DPykUzLH731RgqX0
+         wQO+G+XGcNYVW0JFrPBoWrVmFjCzYv98arne9P8DQZisHP2i8HuLbFxsN36dWxwP+0Nl
+         z0mF7nYoaf9iVfFWfY87rl9G8n2y75bpEbIIVu5X58VRwc8kuG2SVsJm0/eneukKdz8B
+         VbdA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=ansn8GEOG8puOy4spTYf8Y5HTDgRcZKk82joxsuYhzg=;
+        b=YPTT3M8aqvRX71Isvr5HTJyjJ/wBW3sd5AF8+veAXULc6ijjxUMygWB3Vldv0lqKC7
+         cefX2EyOgJcLmq9e6K9pcDV/ENQTpEJeSYAXw2xbqVW1TlroywopyVrGFS9UYn11Imia
+         w4/0pqUnVuowtdWKB38bvrfU7Vs9v7kFEK9v3BUUWM5+jq7I57MYsDSW2l6BftgAF2DL
+         2oocCTzcPCwzONEEjuLVB2aFzaUUjrKjn3V4QNhr1t7KWdbiFoBW8uiAq2CXBzrV79j7
+         OEZKqoUU00J4BDmzwIOcztcQgDKlDStb9/LHfxcuUeFeUhos4W8db1h/ZPnyjUsIPmLs
+         MbQw==
+X-Gm-Message-State: AOAM5305emakVUSaRB3zD6LUJLTqXjjOpq3EOJIg7OltqtBJiYe0LudV
+        QyfltUY4uHgKnh/Fd4dRNbVPislPTTuA/XtSra4e4A==
+X-Google-Smtp-Source: ABdhPJz3cphxLhaIGy7Afp/ix//jxjtXMqBGUNYDN5oAq5zOp+PWKLu6KUhfoHXW2LmOLUes6/vPEuQYMsHK/oP2f+4=
+X-Received: by 2002:a2e:9b4f:: with SMTP id o15mr2325240ljj.358.1590567473032;
+ Wed, 27 May 2020 01:17:53 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+References: <20200526183937.471379031@linuxfoundation.org>
+In-Reply-To: <20200526183937.471379031@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Wed, 27 May 2020 13:47:41 +0530
+Message-ID: <CA+G9fYtbi+qgdu9ZeHPxKZyqON18WUdK1i=f9YpFQ2t58JCO-g@mail.gmail.com>
+Subject: Re: [PATCH 5.6 000/126] 5.6.15-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        linux- stable <stable@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Wed, 27 May 2020 at 00:46, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 5.6.15 release.
+> There are 126 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Thu, 28 May 2020 18:36:22 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.6.15-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.6.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-This is a note to let you know that I've just added the patch titled
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-    staging: rtl8712: Fix IEEE80211_ADDBA_PARAM_BUF_SIZE_MASK
+Summary
+------------------------------------------------------------------------
 
-to my staging git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
-in the staging-testing branch.
+kernel: 5.6.15-rc1
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-5.6.y
+git commit: f60f4a436b9c3ef788935570112493266ec1f860
+git describe: v5.6.14-127-gf60f4a436b9c
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-5.6-oe/bui=
+ld/v5.6.14-127-gf60f4a436b9c
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
+No regressions (compared to build v5.6.14)
 
-The patch will be merged to the staging-next branch sometime soon,
-after it passes testing, and the merge window is open.
+No fixes (compared to build v5.6.14)
 
-If you have any questions about this process, please let me know.
+Ran 31138 total tests in the following environments and test suites.
 
+Environments
+--------------
+- dragonboard-410c
+- hi6220-hikey
+- i386
+- juno-r2
+- juno-r2-compat
+- juno-r2-kasan
+- nxp-ls2088
+- qemu_arm
+- qemu_arm64
+- qemu_i386
+- qemu_x86_64
+- x15
+- x86
+- x86-kasan
 
-From 15ea976a1f12b5fd76b1bd6ff3eb5132fd28047f Mon Sep 17 00:00:00 2001
-From: Pascal Terjan <pterjan@google.com>
-Date: Sat, 23 May 2020 22:12:47 +0100
-Subject: staging: rtl8712: Fix IEEE80211_ADDBA_PARAM_BUF_SIZE_MASK
+Test Suites
+-----------
+* build
+* install-android-platform-tools-r2600
+* install-android-platform-tools-r2800
+* kselftest
+* kselftest/drivers
+* kselftest/filesystems
+* libgpiod
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-math-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* v4l2-compliance
+* kselftest/net
+* kselftest/networking
+* libhugetlbfs
+* ltp-dio-tests
+* ltp-fs-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-mm-tests
+* ltp-open-posix-tests
+* ltp-syscalls-tests
+* network-basic-tests
+* perf
+* kvm-unit-tests
+* kselftest-vsyscall-mode-native
+* kselftest-vsyscall-mode-native/drivers
+* kselftest-vsyscall-mode-native/filesystems
+* kselftest-vsyscall-mode-native/net
+* kselftest-vsyscall-mode-native/networking
+* kselftest-vsyscall-mode-none
+* kselftest-vsyscall-mode-none/drivers
+* kselftest-vsyscall-mode-none/filesystems
+* kselftest-vsyscall-mode-none/net
+* kselftest-vsyscall-mode-none/networking
 
-The value in shared headers was fixed 9 years ago in commit 8d661f1e462d
-("ieee80211: correct IEEE80211_ADDBA_PARAM_BUF_SIZE_MASK macro") and
-while looking at using shared headers for other duplicated constants
-I noticed this driver uses the old value.
-
-The macros are also defined twice in this file so I am deleting the
-second definition.
-
-Signed-off-by: Pascal Terjan <pterjan@google.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200523211247.23262-1-pterjan@google.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/staging/rtl8712/wifi.h | 9 +--------
- 1 file changed, 1 insertion(+), 8 deletions(-)
-
-diff --git a/drivers/staging/rtl8712/wifi.h b/drivers/staging/rtl8712/wifi.h
-index be731f1a2209..91b65731fcaa 100644
---- a/drivers/staging/rtl8712/wifi.h
-+++ b/drivers/staging/rtl8712/wifi.h
-@@ -440,7 +440,7 @@ static inline unsigned char *get_hdr_bssid(unsigned char *pframe)
- /* block-ack parameters */
- #define IEEE80211_ADDBA_PARAM_POLICY_MASK 0x0002
- #define IEEE80211_ADDBA_PARAM_TID_MASK 0x003C
--#define IEEE80211_ADDBA_PARAM_BUF_SIZE_MASK 0xFFA0
-+#define IEEE80211_ADDBA_PARAM_BUF_SIZE_MASK 0xFFC0
- #define IEEE80211_DELBA_PARAM_TID_MASK 0xF000
- #define IEEE80211_DELBA_PARAM_INITIATOR_MASK 0x0800
- 
-@@ -532,13 +532,6 @@ struct ieee80211_ht_addt_info {
- #define IEEE80211_HT_IE_NON_GF_STA_PRSNT	0x0004
- #define IEEE80211_HT_IE_NON_HT_STA_PRSNT	0x0010
- 
--/* block-ack parameters */
--#define IEEE80211_ADDBA_PARAM_POLICY_MASK 0x0002
--#define IEEE80211_ADDBA_PARAM_TID_MASK 0x003C
--#define IEEE80211_ADDBA_PARAM_BUF_SIZE_MASK 0xFFA0
--#define IEEE80211_DELBA_PARAM_TID_MASK 0xF000
--#define IEEE80211_DELBA_PARAM_INITIATOR_MASK 0x0800
--
- /*
-  * A-PMDU buffer sizes
-  * According to IEEE802.11n spec size varies from 8K to 64K (in powers of 2)
--- 
-2.26.2
-
-
+--=20
+Linaro LKFT
+https://lkft.linaro.org
