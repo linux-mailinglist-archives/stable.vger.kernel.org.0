@@ -2,89 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 21A551E4288
-	for <lists+stable@lfdr.de>; Wed, 27 May 2020 14:39:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DBBB1E42D0
+	for <lists+stable@lfdr.de>; Wed, 27 May 2020 14:59:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728964AbgE0Mj0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 May 2020 08:39:26 -0400
-Received: from mail27.static.mailgun.info ([104.130.122.27]:43035 "EHLO
-        mail27.static.mailgun.info" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729919AbgE0MjZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 May 2020 08:39:25 -0400
-DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
- s=smtp; t=1590583165; h=Content-Type: MIME-Version: Message-ID:
- In-Reply-To: Date: References: Subject: Cc: To: From: Sender;
- bh=k+wLv6pKXT7nlyf+aOv3Skb3ZTtkuUFqJ25fOD4zXVQ=; b=E3FLi2G/dBg3UBVpxcqHAT9X6OPsyF4mBmfyhazjTsZSaYWDSABzrmcNs4cHhmceQOOW8+EW
- s9wS92F+Our0MWuZA7Qjr2Kz6/3q8Xic28fG7VU6jYQ1zJdIHIwv3ow6zcrDtDAESdAB4z3i
- t64Sm6qRxMPgLvpmCSHtObA0hyo=
-X-Mailgun-Sending-Ip: 104.130.122.27
-X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
-Received: from smtp.codeaurora.org
- (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171]) by
- smtp-out-n02.prod.us-east-1.postgun.com with SMTP id
- 5ece5f6d44a25e0052246b26 (version=TLS1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256); Wed, 27 May 2020 12:39:09
- GMT
-Received: by smtp.codeaurora.org (Postfix, from userid 1001)
-        id 8F20DC43387; Wed, 27 May 2020 12:39:08 +0000 (UTC)
-X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
-        aws-us-west-2-caf-mail-1.web.codeaurora.org
-X-Spam-Level: 
-X-Spam-Status: No, score=-1.0 required=2.0 tests=ALL_TRUSTED,SPF_NONE,
-        URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
-Received: from potku.adurom.net (88-114-240-156.elisa-laajakaista.fi [88.114.240.156])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        (Authenticated sender: kvalo)
-        by smtp.codeaurora.org (Postfix) with ESMTPSA id E1B89C433CA;
-        Wed, 27 May 2020 12:39:06 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org E1B89C433CA
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=none smtp.mailfrom=kvalo@codeaurora.org
-From:   Kalle Valo <kvalo@codeaurora.org>
-To:     Larry Finger <Larry.Finger@lwfinger.net>
-Cc:     linux-wireless@vger.kernel.org,
-        Rui Salvaterra <rsalvaterra@gmail.com>,
-        Stable <stable@vger.kernel.org>
-Subject: Re: [PATCH 2/2] b43_legacy: Fix connection problem with WPA3
-References: <20200526155909.5807-1-Larry.Finger@lwfinger.net>
-        <20200526155909.5807-3-Larry.Finger@lwfinger.net>
-Date:   Wed, 27 May 2020 15:39:05 +0300
-In-Reply-To: <20200526155909.5807-3-Larry.Finger@lwfinger.net> (Larry Finger's
-        message of "Tue, 26 May 2020 10:59:09 -0500")
-Message-ID: <87a71tv9g6.fsf@codeaurora.org>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/24.5 (gnu/linux)
+        id S1730170AbgE0M7j convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Wed, 27 May 2020 08:59:39 -0400
+Received: from eu-smtp-delivery-151.mimecast.com ([207.82.80.151]:45166 "EHLO
+        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1730055AbgE0M7j (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 May 2020 08:59:39 -0400
+Received: from AcuMS.aculab.com (156.67.243.126 [156.67.243.126]) (Using
+ TLS) by relay.mimecast.com with ESMTP id
+ uk-mta-198-qX9oc7T4N0KznTx0LSTJKg-1; Wed, 27 May 2020 13:59:35 +0100
+X-MC-Unique: qX9oc7T4N0KznTx0LSTJKg-1
+Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) by
+ AcuMS.aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) with Microsoft SMTP
+ Server (TLS) id 15.0.1347.2; Wed, 27 May 2020 13:59:35 +0100
+Received: from AcuMS.Aculab.com ([fe80::43c:695e:880f:8750]) by
+ AcuMS.aculab.com ([fe80::43c:695e:880f:8750%12]) with mapi id 15.00.1347.000;
+ Wed, 27 May 2020 13:59:35 +0100
+From:   David Laight <David.Laight@ACULAB.COM>
+To:     "'kan.liang@linux.intel.com'" <kan.liang@linux.intel.com>,
+        "peterz@infradead.org" <peterz@infradead.org>,
+        "mingo@redhat.com" <mingo@redhat.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+CC:     "ak@linux.intel.com" <ak@linux.intel.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: RE: [PATCH] perf/x86/intel/uncore: Fix oops when counting IMC uncore
+ events on some TGL
+Thread-Topic: [PATCH] perf/x86/intel/uncore: Fix oops when counting IMC uncore
+ events on some TGL
+Thread-Index: AQHWNCLukMKeXYb1T0G/ZA+cFsVVx6i75DXQ
+Date:   Wed, 27 May 2020 12:59:35 +0000
+Message-ID: <869fafc80da84d188678c1cbb0267a0b@AcuMS.aculab.com>
+References: <1590582647-90675-1-git-send-email-kan.liang@linux.intel.com>
+In-Reply-To: <1590582647-90675-1-git-send-email-kan.liang@linux.intel.com>
+Accept-Language: en-GB, en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.202.205.107]
 MIME-Version: 1.0
-Content-Type: text/plain
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: aculab.com
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Larry Finger <Larry.Finger@lwfinger.net> writes:
+From: kan.liang@linux.intel.com
+> Sent: 27 May 2020 13:31
+> 
+> From: Kan Liang <kan.liang@linux.intel.com>
+> 
+> When counting IMC uncore events on some TGL machines, an oops will be
+> triggered.
+>   [ 393.101262] BUG: unable to handle page fault for address:
+>   ffffb45200e15858
+>   [ 393.101269] #PF: supervisor read access in kernel mode
+>   [ 393.101271] #PF: error_code(0x0000) - not-present page
+> 
+> Current perf uncore driver still use the IMC MAP SIZE inherited from
+> SNB, which is 0x6000.
+> However, the offset of IMC uncore counters for some TGL machines is
+> larger than 0x6000, e.g. 0xd8a0.
+> 
+> Enlarge the IMC MAP SIZE for TGL to 0xe000.
 
-> Since the driver was first introduced into the kernel, it has only
-> handled the ciphers associated with WEP, WPA, and WPA2. It fails with
-> WPA3 even though mac80211 can handle those additional ciphers in software,
-> b43legacy did not report that it could handle them. By setting MFP_CAPABLE using
-> ieee80211_set_hw(), the problem is fixed.
->
-> With this change, b43legacy will handle the ciohers it knows in hardare,
-> and let mac80211 handle the others in software. It is not necessary to
-> use the module parameter NOHWCRYPT to turn hardware encryption off.
-> Although this change essentially eliminates that module parameter,
-> I am choosing to keep it for cases where the hardware is broken,
-> and software encryption is required for all ciphers.
->
-> This patch fixes a problem that has been in b43legacy since commit
-> 75388acd0cd8 ("[B43LEGACY]: add mac80211-based driver for legacy BCM43xx
-> devices").
->
-> Fixes: 75388acd0cd8 ("[B43LEGACY]: add mac80211-based driver for legacy BCM43xx devices")
-> Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
-> Cc: Stable <stable@vger.kernel.org>
+Replacing one 'random' constant with a different one
+doesn't seem like a proper fix.
 
-I'll do the same changes here as in patch 1.
+Surely the actual bounds of the 'memory' area are properly
+defined somewhere.
+Or at least should come from a table.
 
--- 
-https://wireless.wiki.kernel.org/en/developers/documentation/submittingpatches
+You also need to verify that the offsets are within the mapped area.
+An unexpected offset shouldn't try to access an invalid address.
+
+	David
+
+-
+Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
+Registration No: 1397386 (Wales)
+
