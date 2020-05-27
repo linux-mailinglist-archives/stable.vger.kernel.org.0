@@ -2,189 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 447931E3ACF
-	for <lists+stable@lfdr.de>; Wed, 27 May 2020 09:42:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 333061E3AD0
+	for <lists+stable@lfdr.de>; Wed, 27 May 2020 09:42:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387423AbgE0HmF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 May 2020 03:42:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50270 "EHLO mail.kernel.org"
+        id S2387587AbgE0Hm6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 May 2020 03:42:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50368 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387505AbgE0HmF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 May 2020 03:42:05 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        id S2387505AbgE0Hm6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 May 2020 03:42:58 -0400
+Received: from pali.im (pali.im [31.31.79.79])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4C36B207CB;
-        Wed, 27 May 2020 07:42:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 206BB207CB;
+        Wed, 27 May 2020 07:42:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590565324;
-        bh=aL2vR933+cld77HMXCNsxmZs7qd0ZS8s6tNnlrwIxA8=;
-        h=Subject:To:From:Date:From;
-        b=iFdu7UmDFt1OGohL9CpB9QAGDXRUFfxiQRN0zs1KTqb8R61c3IbWavTW1MlWGCiEJ
-         d3KA5SDWmCAxFpgSVW7++53UfeSaP+WCo/UxkFifHy7EBiHAGlhiTqLyFn4jYfTNLy
-         0xXWXkCYFWzXeF8vPGYr4X4eEGUhpjHzS9uFWKqs=
-Subject: patch "software node: implement software_node_unregister()" added to driver-core-next
-To:     gregkh@linuxfoundation.org, andriy.shevchenko@linux.intel.com,
-        brendanhiggins@google.com, dmitry.torokhov@gmail.com,
-        heikki.krogerus@linux.intel.com, linux@rasmusvillemoes.dk,
-        linux@roeck-us.net, naresh.kamboju@linaro.org, pmladek@suse.com,
-        rafael.j.wysocki@intel.com, rdunlap@infradead.org,
-        rong.a.chen@intel.com, rostedt@goodmis.org,
-        sakari.ailus@linux.intel.com, sergey.senozhatsky@gmail.com,
+        s=default; t=1590565377;
+        bh=y9jv0X6AJuMhRlgaHgmpRyxvEQ1kjbp4zfnCjc2GtLo=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=t+D/NwRI+txSmZugjz829nauDSQwiNIfYqiLI4Fq/oyuzNzRSXl3CrSBGAAI5NlX7
+         8wQEitRE7t+HJ+B8JKcWvjzzdSK/ZJ77QQAz8l3gy1dy3ZMCaihz8YTeVnQrbhnhvt
+         FQd84V9xOkiyKqe7p9uFCe+ZxIdWS/kco3AlYlsM=
+Received: by pali.im (Postfix)
+        id BAD19BF4; Wed, 27 May 2020 09:42:54 +0200 (CEST)
+Date:   Wed, 27 May 2020 09:42:54 +0200
+From:   Pali =?utf-8?B?Um9ow6Fy?= <pali@kernel.org>
+To:     "Andrew F. Davis" <afd@ti.com>
+Cc:     Ivaylo Dimitrov <ivo.g.dimitrov.75@gmail.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Sebastian Reichel <sre@kernel.org>,
+        Anton Vorontsov <cbouatmailru@gmail.com>,
+        linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org,
         stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 27 May 2020 09:42:02 +0200
-Message-ID: <1590565322183117@kroah.com>
+Subject: Re: [RFC] power: supply: bq27xxx_battery: Fix polling interval after
+ re-bind
+Message-ID: <20200527074254.vhyfntpolphj3eeq@pali>
+References: <20200525113220.369-1-krzk@kernel.org>
+ <65ccf383-85a3-3ccd-f38c-e92ddae8fe1e@ti.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <65ccf383-85a3-3ccd-f38c-e92ddae8fe1e@ti.com>
+User-Agent: NeoMutt/20180716
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Tuesday 26 May 2020 21:16:28 Andrew F. Davis wrote:
+> On 5/25/20 7:32 AM, Krzysztof Kozlowski wrote:
+> > This reverts commit 8cfaaa811894a3ae2d7360a15a6cfccff3ebc7db.
+> > 
+> > If device was unbound and bound, the polling interval would be set to 0.
+> > This is both unexpected and messes up with other bq27xxx devices (if
+> > more than one battery device is used).
+> > 
+> > This reset of polling interval was added in commit 8cfaaa811894
+> > ("bq27x00_battery: Fix OOPS caused by unregistring bq27x00 driver")
+> > stating that power_supply_unregister() calls get_property().  However in
+> > Linux kernel v3.1 and newer, such call trace does not exist.
+> > Unregistering power supply does not call get_property() on unregistered
+> > power supply.
+> > 
+> > Fixes: 8cfaaa811894 ("bq27x00_battery: Fix OOPS caused by unregistring bq27x00 driver")
+> > Cc: <stable@vger.kernel.org>
+> > Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+> > 
+> > ---
+> > 
+> > I really could not identify the issue being fixed in offending commit
+> > 8cfaaa811894 ("bq27x00_battery: Fix OOPS caused by unregistring bq27x00
+> > driver"), therefore maybe I missed here something important.
+> > 
+> > Please share your thoughts on this.
+> 
+> 
+> I'm having a hard time finding the OOPS also. Maybe there is a window
+> where the poll function is running or about to run where
+> cancel_delayed_work_sync() is called and cancels the work, only to have
+> an interrupt or late get_property call in to the poll function and
+> re-schedule it.
+> 
+> What we really need is to do is look at how we are handling the polling
+> function. It gets called from the workqueue, from a threaded interrupt
+> context, and from a power supply framework callback, possibly all at the
+> same time. Sometimes its protected by a lock, sometimes not. Updating
+> the device's cached data should always be locked.
+> 
+> What's more is the poll function is self-arming, so if we call
+> cancel_delayed_work_sync() (remove it from the work queue then then wait
+> for it to finish if running), are we sure it wont have just re-arm itself?
+> 
+> We should make the only way we call the poll function be through the
+> work queue, (plus make sure all accesses to the cache are locked).
+> 
+> Andrew
 
-This is a note to let you know that I've just added the patch titled
+I do not remember details too. It is long time ago.
 
-    software node: implement software_node_unregister()
+CCing Ivaylo Dimitrov as he may remember something...
 
-to my driver-core git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/driver-core.git
-in the driver-core-next branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will also be merged in the next major kernel release
-during the merge window.
-
-If you have any questions about this process, please let me know.
-
-
-From 46d26819a5056f4831649c5887ad5c71a16d86f7 Mon Sep 17 00:00:00 2001
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Date: Sun, 24 May 2020 17:30:40 +0200
-Subject: software node: implement software_node_unregister()
-
-Sometimes it is better to unregister individual nodes instead of trying
-to do them all at once with software_node_unregister_nodes(), so create
-software_node_unregister() so that you can unregister them one at a
-time.
-
-This is especially important when creating nodes in a hierarchy, with
-parent -> children representations.  Children always need to be removed
-before a parent is, as the swnode logic assumes this is going to be the
-case.
-
-Fix up the lib/test_printf.c fwnode_pointer() test which to use this new
-function as it had the problem of tearing things down in the backwards
-order.
-
-Fixes: f1ce39df508d ("lib/test_printf: Add tests for %pfw printk modifier")
-Cc: stable <stable@vger.kernel.org>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Brendan Higgins <brendanhiggins@google.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Petr Mladek <pmladek@suse.com>
-Cc: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Cc: Rasmus Villemoes <linux@rasmusvillemoes.dk>
-Cc: Sakari Ailus <sakari.ailus@linux.intel.com>
-Cc: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
-Cc: Steven Rostedt <rostedt@goodmis.org>
-Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
-Reported-by: kernel test robot <rong.a.chen@intel.com>
-Reported-by: Randy Dunlap <rdunlap@infradead.org>
-Tested-by: Petr Mladek <pmladek@suse.com>
-Tested-by: Randy Dunlap <rdunlap@infradead.org>
-Tested-by: Guenter Roeck <linux@roeck-us.net>
-Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Acked-by: Randy Dunlap <rdunlap@infradead.org>
-Link: https://lore.kernel.org/r/20200524153041.2361-1-gregkh@linuxfoundation.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/base/swnode.c    | 27 +++++++++++++++++++++------
- include/linux/property.h |  1 +
- lib/test_printf.c        |  4 +++-
- 3 files changed, 25 insertions(+), 7 deletions(-)
-
-diff --git a/drivers/base/swnode.c b/drivers/base/swnode.c
-index de8d3543e8fe..770b1f47a625 100644
---- a/drivers/base/swnode.c
-+++ b/drivers/base/swnode.c
-@@ -712,17 +712,18 @@ EXPORT_SYMBOL_GPL(software_node_register_nodes);
-  * @nodes: Zero terminated array of software nodes to be unregistered
-  *
-  * Unregister multiple software nodes at once.
-+ *
-+ * NOTE: Be careful using this call if the nodes had parent pointers set up in
-+ * them before registering.  If so, it is wiser to remove the nodes
-+ * individually, in the correct order (child before parent) instead of relying
-+ * on the sequential order of the list of nodes in the array.
-  */
- void software_node_unregister_nodes(const struct software_node *nodes)
- {
--	struct swnode *swnode;
- 	int i;
- 
--	for (i = 0; nodes[i].name; i++) {
--		swnode = software_node_to_swnode(&nodes[i]);
--		if (swnode)
--			fwnode_remove_software_node(&swnode->fwnode);
--	}
-+	for (i = 0; nodes[i].name; i++)
-+		software_node_unregister(&nodes[i]);
- }
- EXPORT_SYMBOL_GPL(software_node_unregister_nodes);
- 
-@@ -741,6 +742,20 @@ int software_node_register(const struct software_node *node)
- }
- EXPORT_SYMBOL_GPL(software_node_register);
- 
-+/**
-+ * software_node_unregister - Unregister static software node
-+ * @node: The software node to be unregistered
-+ */
-+void software_node_unregister(const struct software_node *node)
-+{
-+	struct swnode *swnode;
-+
-+	swnode = software_node_to_swnode(node);
-+	if (swnode)
-+		fwnode_remove_software_node(&swnode->fwnode);
-+}
-+EXPORT_SYMBOL_GPL(software_node_unregister);
-+
- struct fwnode_handle *
- fwnode_create_software_node(const struct property_entry *properties,
- 			    const struct fwnode_handle *parent)
-diff --git a/include/linux/property.h b/include/linux/property.h
-index d86de017c689..0d4099b4ce1f 100644
---- a/include/linux/property.h
-+++ b/include/linux/property.h
-@@ -441,6 +441,7 @@ int software_node_register_nodes(const struct software_node *nodes);
- void software_node_unregister_nodes(const struct software_node *nodes);
- 
- int software_node_register(const struct software_node *node);
-+void software_node_unregister(const struct software_node *node);
- 
- int software_node_notify(struct device *dev, unsigned long action);
- 
-diff --git a/lib/test_printf.c b/lib/test_printf.c
-index 6b1622f4d7c2..fc63b8959d42 100644
---- a/lib/test_printf.c
-+++ b/lib/test_printf.c
-@@ -637,7 +637,9 @@ static void __init fwnode_pointer(void)
- 	test(second_name, "%pfwP", software_node_fwnode(&softnodes[1]));
- 	test(third_name, "%pfwP", software_node_fwnode(&softnodes[2]));
- 
--	software_node_unregister_nodes(softnodes);
-+	software_node_unregister(&softnodes[2]);
-+	software_node_unregister(&softnodes[1]);
-+	software_node_unregister(&softnodes[0]);
- }
- 
- static void __init
--- 
-2.26.2
-
-
+> 
+> > ---
+> >  drivers/power/supply/bq27xxx_battery.c | 8 --------
+> >  1 file changed, 8 deletions(-)
+> > 
+> > diff --git a/drivers/power/supply/bq27xxx_battery.c b/drivers/power/supply/bq27xxx_battery.c
+> > index 942c92127b6d..4c94ee72de95 100644
+> > --- a/drivers/power/supply/bq27xxx_battery.c
+> > +++ b/drivers/power/supply/bq27xxx_battery.c
+> > @@ -1905,14 +1905,6 @@ EXPORT_SYMBOL_GPL(bq27xxx_battery_setup);
+> >  
+> >  void bq27xxx_battery_teardown(struct bq27xxx_device_info *di)
+> >  {
+> > -	/*
+> > -	 * power_supply_unregister call bq27xxx_battery_get_property which
+> > -	 * call bq27xxx_battery_poll.
+> > -	 * Make sure that bq27xxx_battery_poll will not call
+> > -	 * schedule_delayed_work again after unregister (which cause OOPS).
+> > -	 */
+> > -	poll_interval = 0;
+> > -
+> >  	cancel_delayed_work_sync(&di->work);
+> >  
+> >  	power_supply_unregister(di->bat);
+> > 
