@@ -2,120 +2,181 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 85BE31E3D29
-	for <lists+stable@lfdr.de>; Wed, 27 May 2020 11:06:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E94B11E3D76
+	for <lists+stable@lfdr.de>; Wed, 27 May 2020 11:22:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388364AbgE0JGW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 May 2020 05:06:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37790 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388268AbgE0JGW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 May 2020 05:06:22 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EEB5620787;
-        Wed, 27 May 2020 09:06:20 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590570381;
-        bh=FAvCknzoTGPImAY3eT0P2nnO/0J1mHHX86dLH7iV/1s=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=QDm8HrrC/9YB0B/oFjVIItGTyqhBTZraHt2UEFTqoRDF2OXZlnYtuMQ2/4Lj4PIVa
-         Drio0vQjl5sCV6qqPHsS8jdpUkMXkg51jL1Wzof8P5xUu6EDWLCuLDdR11NI5u0kNI
-         N4TmitUblhzBxyKwFqfpmdcTDDO0iyAPupBpvmS4=
-Date:   Wed, 27 May 2020 11:06:18 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Alexander Dahl <post@lespocky.de>
-Cc:     x86@kernel.org, iommu@lists.linux-foundation.org,
-        linux-kernel@vger.kernel.org,
-        Alan Jenkins <alan.christopher.jenkins@gmail.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        "H . Peter Anvin" <hpa@zytor.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Florian Wolters <florian@florian-wolters.de>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v3] dma: Fix max PFN arithmetic overflow on 32 bit systems
-Message-ID: <20200527090618.GF179718@kroah.com>
-References: <20200526175749.20742-1-post@lespocky.de>
+        id S1728231AbgE0JWv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 May 2020 05:22:51 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:39708 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1727089AbgE0JWu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 May 2020 05:22:50 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1590571368;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=gtpWYGapymqX1cLCel0T2CM/QOPIBgklOSRCA3fQyYw=;
+        b=Fk8IdrnsELfChJhLQikV3mamrsTFLDJBqCUgJV9M7FjK3ccSo+K8/B7hS3t1cJBO8QmWWi
+        uHl0AzfFKaAe/M4JosaeUni7GLpeaU8T2zhxAb/VdYnVVlqi1Ei5mAm35KxyCU5VtgZmD4
+        KqbCZ5fGP7PufYgosRuerZcKOiNGGx4=
+Received: from mail-qt1-f198.google.com (mail-qt1-f198.google.com
+ [209.85.160.198]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-358-DwwM4F_ZPR20EgMcYH-Ukw-1; Wed, 27 May 2020 05:22:46 -0400
+X-MC-Unique: DwwM4F_ZPR20EgMcYH-Ukw-1
+Received: by mail-qt1-f198.google.com with SMTP id t24so953632qtj.15
+        for <stable@vger.kernel.org>; Wed, 27 May 2020 02:22:46 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=gtpWYGapymqX1cLCel0T2CM/QOPIBgklOSRCA3fQyYw=;
+        b=jWBOKvvh/NxThliSUZRdxxXa0r2kXWVPYl2YcyNaN85xasMhOlJJuBqQCwM//+VqzQ
+         THCpJ+NGNfJVnEDfyumfOldcvZ9XCv90kf5dFm8/xBKhksfDTY/XNYSop54fthkH0APG
+         FD4jhVNGTDZD5AvEYEv1L2AN2vO6YKhnD83xJ6ddmWbj2wFVZcrXG+YVCAkoUmwS9IPl
+         AgOdQfhZ2PmY/RnEucg3iv/oyopfDfb7hYdudn4/l2spWNRXkhGB4UPKwuefmwNAHgcU
+         ZS+Crv0XwnYpV9BefonMn7lYf/1XVyDKJsOqfH1rowtrIjSmI4ItZnsh/evNF3b0ubM3
+         d7Rg==
+X-Gm-Message-State: AOAM53117wIdF7BWDYj3j1dCESIXxThBL9RxksnQe3LTmVQLuSNBXON8
+        mzmddkWlNizpbrI3Xh3SrP6XjWguU1Ta6pCNd3F3+IuZyX8LuuGqts8iFAC+NX1OxoQxbdkLybT
+        LZVrxtmOvUEnpEZ8MioC17GRKVqaibz+D
+X-Received: by 2002:a37:8a42:: with SMTP id m63mr2988362qkd.230.1590571366379;
+        Wed, 27 May 2020 02:22:46 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwUfPkiBpQjpm3OQeEk6R6GSpHYXXDld4v/VEXoTy5JxNWPOXH/KdWTRxajzsaxjuEiteo+rmNugvVdZzzvypQ=
+X-Received: by 2002:a37:8a42:: with SMTP id m63mr2988331qkd.230.1590571365799;
+ Wed, 27 May 2020 02:22:45 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20200526175749.20742-1-post@lespocky.de>
+References: <20200526150717.324783-1-benjamin.tissoires@redhat.com> <27B6F419-A68E-459D-AB6B-7BF2D935C6E0@canonical.com>
+In-Reply-To: <27B6F419-A68E-459D-AB6B-7BF2D935C6E0@canonical.com>
+From:   Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Date:   Wed, 27 May 2020 11:22:34 +0200
+Message-ID: <CAO-hwJLPF4pSHQqFp-ogZAxKu15nbuKULTRbudhD8L4RFv4w4g@mail.gmail.com>
+Subject: Re: [PATCH] HID: multitouch: enable multi-input as a quirk for some devices
+To:     Kai-Heng Feng <kai.heng.feng@canonical.com>
+Cc:     Jiri Kosina <jikos@kernel.org>,
+        "open list:INTEL INTEGRATED SENSOR HUB DRIVER" 
+        <linux-input@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        "3.8+" <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, May 26, 2020 at 07:57:49PM +0200, Alexander Dahl wrote:
-> The intermediate result of the old term (4UL * 1024 * 1024 * 1024) is
-> 4 294 967 296 or 0x100000000 which is no problem on 64 bit systems.  The
-> patch does not change the later overall result of 0x100000 for
-> MAX_DMA32_PFN.  The new calculation yields the same result, but does not
-> require 64 bit arithmetic.
-> 
-> On 32 bit systems the old calculation suffers from an arithmetic
-> overflow in that intermediate term in braces: 4UL aka unsigned long int
-> is 4 byte wide and an arithmetic overflow happens (the 0x100000000 does
-> not fit in 4 bytes), the in braces result is truncated to zero, the
-> following right shift does not alter that, so MAX_DMA32_PFN evaluates to
-> 0 on 32 bit systems.
-> 
-> That wrong value is a problem in a comparision against MAX_DMA32_PFN in
-> the init code for swiotlb in 'pci_swiotlb_detect_4gb()' to decide if
-> swiotlb should be active.  That comparison yields the opposite result,
-> when compiling on 32 bit systems.
-> 
-> This was not possible before 1b7e03ef7570 ("x86, NUMA: Enable emulation
-> on 32bit too") when that MAX_DMA32_PFN was first made visible to x86_32
-> (and which landed in v3.0).
-> 
-> In practice this wasn't a problem, unless you activated CONFIG_SWIOTLB
-> on x86 (32 bit).
-> 
-> However for ARCH=x86 (32 bit) and if you have set CONFIG_IOMMU_INTEL,
-> since c5a5dc4cbbf4 ("iommu/vt-d: Don't switch off swiotlb if bounce page
-> is used") there's a dependency on CONFIG_SWIOTLB, which was not
-> necessarily active before.  That landed in v5.4, where we noticed it in
-> the fli4l Linux distribution.  We have CONFIG_IOMMU_INTEL active on both
-> 32 and 64 bit kernel configs there (I could not find out why, so let's
-> just say historical reasons).
-> 
-> The effect is at boot time 64 MiB (default size) were allocated for
-> bounce buffers now, which is a noticeable amount of memory on small
-> systems like pcengines ALIX 2D3 with 256 MiB memory, which are still
-> frequently used as home routers.
-> 
-> We noticed this effect when migrating from kernel v4.19 (LTS) to v5.4
-> (LTS) in fli4l and got that kernel messages for example:
-> 
->   Linux version 5.4.22 (buildroot@buildroot) (gcc version 7.3.0 (Buildroot 2018.02.8)) #1 SMP Mon Nov 26 23:40:00 CET 2018
->   …
->   Memory: 183484K/261756K available (4594K kernel code, 393K rwdata, 1660K rodata, 536K init, 456K bss , 78272K reserved, 0K cma-reserved, 0K highmem)
->   …
->   PCI-DMA: Using software bounce buffering for IO (SWIOTLB)
->   software IO TLB: mapped [mem 0x0bb78000-0x0fb78000] (64MB)
-> 
-> The initial analysis and the suggested fix was done by user 'sourcejedi'
-> at stackoverflow and explicitly marked as GPLv2 for inclusion in the
-> Linux kernel:
-> 
->   https://unix.stackexchange.com/a/520525/50007
-> 
-> The new calculation, which does not suffer from that overflow, is the
-> same as for arch/mips now as suggested by Robin Murphy.
-> 
-> The fix was tested by fli4l users on round about two dozen different
-> systems, including both 32 and 64 bit archs, bare metal and virtualized
-> machines.
-> 
-> Fixes: 1b7e03ef7570 ("x86, NUMA: Enable emulation on 32bit too")
-> Fixes: https://web.nettworks.org/bugs/browse/FFL-2560
-> Fixes: https://unix.stackexchange.com/q/520065/50007
-> Reported-by: Alan Jenkins <alan.christopher.jenkins@gmail.com>
-> Suggested-by: Robin Murphy <robin.murphy@arm.com>
-> Signed-off-by: Alexander Dahl <post@lespocky.de>
-> Cc: stable@vger.kernel.org
+On Wed, May 27, 2020 at 8:18 AM Kai-Heng Feng
+<kai.heng.feng@canonical.com> wrote:
+>
+>
+>
+> > On May 26, 2020, at 23:07, Benjamin Tissoires <benjamin.tissoires@redhat.com> wrote:
+> >
+> > Two touchpad/trackstick combos are currently not behaving properly.
+> > They define a mouse emulation collection, as per Win8 requirements,
+> > but also define a separate mouse collection for the trackstick.
+> >
+> > The way the kernel currently treat the collections is that it
+> > merges both in one device. However, given that the first mouse
+> > collection already defines X,Y and left, right buttons, when
+> > mapping the events from the second mouse collection, hid-multitouch
+> > sees that these events are already mapped, and simply ignores them.
+> >
+> > To be able to report events from the tracktick, add a new quirked
+> > class for it, and manually add the 2 devices we know about.
+> >
+> > Link: https://bugzilla.kernel.org/show_bug.cgi?id=207235
+> > Cc: stable@vger.kernel.org
+> > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+>
+> Tested-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Thanks for the very fast testing :)
+
+Pushed to for-5.8/multitouch given that we already are at 5.7-rc7, we
+might as well postpone it for one week.
+
+Cheers,
+Benjamin
+
+>
+> > ---
+> > drivers/hid/hid-multitouch.c | 26 ++++++++++++++++++++++++++
+> > 1 file changed, 26 insertions(+)
+> >
+> > diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+> > index 03c720b47306..39e4da7468e1 100644
+> > --- a/drivers/hid/hid-multitouch.c
+> > +++ b/drivers/hid/hid-multitouch.c
+> > @@ -69,6 +69,7 @@ MODULE_LICENSE("GPL");
+> > #define MT_QUIRK_ASUS_CUSTOM_UP               BIT(17)
+> > #define MT_QUIRK_WIN8_PTP_BUTTONS     BIT(18)
+> > #define MT_QUIRK_SEPARATE_APP_REPORT  BIT(19)
+> > +#define MT_QUIRK_FORCE_MULTI_INPUT   BIT(20)
+> >
+> > #define MT_INPUTMODE_TOUCHSCREEN      0x02
+> > #define MT_INPUTMODE_TOUCHPAD         0x03
+> > @@ -189,6 +190,7 @@ static void mt_post_parse(struct mt_device *td, struct mt_application *app);
+> > #define MT_CLS_WIN_8                          0x0012
+> > #define MT_CLS_EXPORT_ALL_INPUTS              0x0013
+> > #define MT_CLS_WIN_8_DUAL                     0x0014
+> > +#define MT_CLS_WIN_8_FORCE_MULTI_INPUT               0x0015
+> >
+> > /* vendor specific classes */
+> > #define MT_CLS_3M                             0x0101
+> > @@ -279,6 +281,15 @@ static const struct mt_class mt_classes[] = {
+> >                       MT_QUIRK_CONTACT_CNT_ACCURATE |
+> >                       MT_QUIRK_WIN8_PTP_BUTTONS,
+> >               .export_all_inputs = true },
+> > +     { .name = MT_CLS_WIN_8_FORCE_MULTI_INPUT,
+> > +             .quirks = MT_QUIRK_ALWAYS_VALID |
+> > +                     MT_QUIRK_IGNORE_DUPLICATES |
+> > +                     MT_QUIRK_HOVERING |
+> > +                     MT_QUIRK_CONTACT_CNT_ACCURATE |
+> > +                     MT_QUIRK_STICKY_FINGERS |
+> > +                     MT_QUIRK_WIN8_PTP_BUTTONS |
+> > +                     MT_QUIRK_FORCE_MULTI_INPUT,
+> > +             .export_all_inputs = true },
+> >
+> >       /*
+> >        * vendor specific classes
+> > @@ -1714,6 +1725,11 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
+> >       if (id->group != HID_GROUP_MULTITOUCH_WIN_8)
+> >               hdev->quirks |= HID_QUIRK_MULTI_INPUT;
+> >
+> > +     if (mtclass->quirks & MT_QUIRK_FORCE_MULTI_INPUT) {
+> > +             hdev->quirks &= ~HID_QUIRK_INPUT_PER_APP;
+> > +             hdev->quirks |= HID_QUIRK_MULTI_INPUT;
+> > +     }
+> > +
+> >       timer_setup(&td->release_timer, mt_expired_timeout, 0);
+> >
+> >       ret = hid_parse(hdev);
+> > @@ -1926,6 +1942,11 @@ static const struct hid_device_id mt_devices[] = {
+> >               MT_USB_DEVICE(USB_VENDOR_ID_DWAV,
+> >                       USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_C002) },
+> >
+> > +     /* Elan devices */
+> > +     { .driver_data = MT_CLS_WIN_8_FORCE_MULTI_INPUT,
+> > +             HID_DEVICE(BUS_I2C, HID_GROUP_MULTITOUCH_WIN_8,
+> > +                     USB_VENDOR_ID_ELAN, 0x313a) },
+> > +
+> >       /* Elitegroup panel */
+> >       { .driver_data = MT_CLS_SERIAL,
+> >               MT_USB_DEVICE(USB_VENDOR_ID_ELITEGROUP,
+> > @@ -2056,6 +2077,11 @@ static const struct hid_device_id mt_devices[] = {
+> >               MT_USB_DEVICE(USB_VENDOR_ID_STANTUM_STM,
+> >                       USB_DEVICE_ID_MTP_STM)},
+> >
+> > +     /* Synaptics devices */
+> > +     { .driver_data = MT_CLS_WIN_8_FORCE_MULTI_INPUT,
+> > +             HID_DEVICE(BUS_I2C, HID_GROUP_MULTITOUCH_WIN_8,
+> > +                     USB_VENDOR_ID_SYNAPTICS, 0xce08) },
+> > +
+> >       /* TopSeed panels */
+> >       { .driver_data = MT_CLS_TOPSEED,
+> >               MT_USB_DEVICE(USB_VENDOR_ID_TOPSEED2,
+> > --
+> > 2.25.1
+> >
+>
+
