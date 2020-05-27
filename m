@@ -2,85 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EDE71E4073
-	for <lists+stable@lfdr.de>; Wed, 27 May 2020 13:53:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E46EF1E41E9
+	for <lists+stable@lfdr.de>; Wed, 27 May 2020 14:20:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728365AbgE0Lw5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 May 2020 07:52:57 -0400
-Received: from outils.crapouillou.net ([89.234.176.41]:41026 "EHLO
-        crapouillou.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725747AbgE0Lw4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 May 2020 07:52:56 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=crapouillou.net;
-        s=mail; t=1590580367; h=from:from:sender:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=UvvvrXWRYDHu3UfDWTLrB6GvtVeps3r3Hz5jfYNCgNM=;
-        b=BETk0rSmUVWgGf8DbdbhV68+hbnghdRRuJiBQKcvnE4i0DS0ITfJ4neHWaddQH9wDILioS
-        ObkHGmYjJGKiBfDQM+thUHY3U2z/UlirrIJjJxJ8CMkag0ceYMKzskNoAO/cGJ4V9+xi7z
-        mT3BDxMc1I8lN/VVBS93fQuunVXTNuQ=
-From:   Paul Cercueil <paul@crapouillou.net>
-To:     Thierry Reding <thierry.reding@gmail.com>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>
-Cc:     od@zcrc.me, linux-pwm@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
-        stable@vger.kernel.org
-Subject: [PATCH v3 2/4] pwm: jz4740: Enhance precision in calculation of duty cycle
-Date:   Wed, 27 May 2020 13:52:23 +0200
-Message-Id: <20200527115225.10069-2-paul@crapouillou.net>
-In-Reply-To: <20200527115225.10069-1-paul@crapouillou.net>
-References: <20200527115225.10069-1-paul@crapouillou.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+        id S1727092AbgE0MU0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 May 2020 08:20:26 -0400
+Received: from alexa-out-blr-01.qualcomm.com ([103.229.18.197]:52008 "EHLO
+        alexa-out-blr-01.qualcomm.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726785AbgE0MU0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 May 2020 08:20:26 -0400
+Received: from ironmsg01-blr.qualcomm.com ([10.86.208.130])
+  by alexa-out-blr-01.qualcomm.com with ESMTP/TLS/AES256-SHA; 27 May 2020 17:49:42 +0530
+Received: from sartgarg-linux.qualcomm.com ([10.206.24.245])
+  by ironmsg01-blr.qualcomm.com with ESMTP; 27 May 2020 17:49:29 +0530
+Received: by sartgarg-linux.qualcomm.com (Postfix, from userid 2339771)
+        id 215AC17B2; Wed, 27 May 2020 17:49:28 +0530 (IST)
+From:   Sarthak Garg <sartgarg@codeaurora.org>
+To:     stable@vger.kernel.org
+Cc:     adrian.hunter@intel.com, ulf.hansson@linaro.org,
+        vbadigan@codeaurora.org, stummala@codeaurora.org,
+        linux-mmc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-arm-msm@vger.kernel.org
+Subject: [4.19.124 V1] mmc: core: Fix recursive locking issue in CQE recovery path
+Date:   Wed, 27 May 2020 17:49:02 +0530
+Message-Id: <1590581942-24283-1-git-send-email-sartgarg@codeaurora.org>
+X-Mailer: git-send-email 2.7.4
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Calculating the hardware value for the duty from the hardware value of
-the period resulted in a precision loss versus calculating it from the
-clock rate directly.
+[ Upstream commit 39a22f73744d5baee30b5f134ae2e30b668b66ed ]
 
-(Also remove a cast that doesn't really need to be here)
+Consider the following stack trace
 
-Fixes: f6b8a5700057 ("pwm: Add Ingenic JZ4740 support")
+-001|raw_spin_lock_irqsave
+-002|mmc_blk_cqe_complete_rq
+-003|__blk_mq_complete_request(inline)
+-003|blk_mq_complete_request(rq)
+-004|mmc_cqe_timed_out(inline)
+-004|mmc_mq_timed_out
+
+mmc_mq_timed_out acquires the queue_lock for the first
+time. The mmc_blk_cqe_complete_rq function also tries to acquire
+the same queue lock resulting in recursive locking where the task
+is spinning for the same lock which it has already acquired leading
+to watchdog bark.
+
+Fix this issue with the lock only for the required critical section.
+
 Cc: <stable@vger.kernel.org>
-Suggested-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Reviewed-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+Fixes: 1e8e55b67030 ("mmc: block: Add CQE support")
+Suggested-by: Sahitya Tummala <stummala@codeaurora.org>
+Signed-off-by: Sarthak Garg <sartgarg@codeaurora.org>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Link: https://lore.kernel.org/r/1588868135-31783-1-git-send-email-vbadigan@codeaurora.org
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 ---
+ drivers/mmc/core/queue.c | 13 ++++---------
+ 1 file changed, 4 insertions(+), 9 deletions(-)
 
-Notes:
-    v2: New patch. I don't consider this a fix but an enhancement, since the old
-    	behaviour was in place since the driver was born in ~2010, so no Fixes tag.
-    v3: Add Fixes tag and Uwe's Reviewed-by
-
- drivers/pwm/pwm-jz4740.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/pwm/pwm-jz4740.c b/drivers/pwm/pwm-jz4740.c
-index 3cd5c054ad9a..4fe9d99ac9a9 100644
---- a/drivers/pwm/pwm-jz4740.c
-+++ b/drivers/pwm/pwm-jz4740.c
-@@ -158,11 +158,11 @@ static int jz4740_pwm_apply(struct pwm_chip *chip, struct pwm_device *pwm,
- 	/* Calculate period value */
- 	tmp = (unsigned long long)rate * state->period;
- 	do_div(tmp, NSEC_PER_SEC);
--	period = (unsigned long)tmp;
-+	period = tmp;
+diff --git a/drivers/mmc/core/queue.c b/drivers/mmc/core/queue.c
+index 03f3d9c..2a78816 100644
+--- a/drivers/mmc/core/queue.c
++++ b/drivers/mmc/core/queue.c
+@@ -108,7 +108,7 @@ static enum blk_eh_timer_return mmc_cqe_timed_out(struct request *req)
+ 	case MMC_ISSUE_DCMD:
+ 		if (host->cqe_ops->cqe_timeout(host, mrq, &recovery_needed)) {
+ 			if (recovery_needed)
+-				__mmc_cqe_recovery_notifier(mq);
++				mmc_cqe_recovery_notifier(mrq);
+ 			return BLK_EH_RESET_TIMER;
+ 		}
+ 		/* The request has gone already */
+@@ -125,18 +125,13 @@ static enum blk_eh_timer_return mmc_mq_timed_out(struct request *req,
+ 	struct request_queue *q = req->q;
+ 	struct mmc_queue *mq = q->queuedata;
+ 	unsigned long flags;
+-	int ret;
++	bool ignore_tout;
  
- 	/* Calculate duty value */
--	tmp = (unsigned long long)period * state->duty_cycle;
--	do_div(tmp, state->period);
-+	tmp = (unsigned long long)rate * state->duty_cycle;
-+	do_div(tmp, NSEC_PER_SEC);
- 	duty = period - tmp;
+ 	spin_lock_irqsave(q->queue_lock, flags);
+-
+-	if (mq->recovery_needed || !mq->use_cqe)
+-		ret = BLK_EH_RESET_TIMER;
+-	else
+-		ret = mmc_cqe_timed_out(req);
+-
++	ignore_tout = mq->recovery_needed || !mq->use_cqe;
+ 	spin_unlock_irqrestore(q->queue_lock, flags);
  
- 	if (duty >= period)
+-	return ret;
++	return ignore_tout ? BLK_EH_RESET_TIMER : mmc_cqe_timed_out(req);
+ }
+ 
+ static void mmc_mq_recovery_handler(struct work_struct *work)
 -- 
-2.26.2
+2.7.4
 
