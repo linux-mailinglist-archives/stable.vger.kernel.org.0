@@ -2,193 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C4B61E3DFC
-	for <lists+stable@lfdr.de>; Wed, 27 May 2020 11:50:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A65A81E3E4E
+	for <lists+stable@lfdr.de>; Wed, 27 May 2020 12:01:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727895AbgE0JuS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 May 2020 05:50:18 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:24863 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1728444AbgE0JuS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 May 2020 05:50:18 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1590573015;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=Wk7PTccOiB2D0BUxUJvJJDnS6DcmS8jIQiV2uW81594=;
-        b=hPsi0KEGTvt6KYe8B6sXlYUexZOnDlruIwXidx79nDaf9PnmJQEdUhpxlPl/RyuugFInuz
-        CTbRf4ZrH3ibUDx7XZH1Ax35BUzXLfnzslCq285vkuGi2Lld9NJVAJNp83jC6/5KF6VbhM
-        OSE/USt7SE98D1IYG/c7Qtp99MBhUu0=
-Received: from mail-qt1-f199.google.com (mail-qt1-f199.google.com
- [209.85.160.199]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-282-hEAkllaZOPynCLfF5viX2g-1; Wed, 27 May 2020 05:50:14 -0400
-X-MC-Unique: hEAkllaZOPynCLfF5viX2g-1
-Received: by mail-qt1-f199.google.com with SMTP id p31so25333889qte.1
-        for <stable@vger.kernel.org>; Wed, 27 May 2020 02:50:14 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=Wk7PTccOiB2D0BUxUJvJJDnS6DcmS8jIQiV2uW81594=;
-        b=DJi1lZqemz5YMyQr18tD0Xjkk4p4LncRx+fTICm47G7eMAeh+cQOWWY1GtpuonMXEh
-         4K2D/yuNYvO/8uK3MUWJSMuyM3fCb1RIMlPrJY5Lj10Z7Zif8Lc5AB1jTWTdmiAliIDX
-         QoCySBEPcCne3RG9Rkha3W5uG2UoVJNGAiVJCapeNQUy5N4CxAFTkD3rIA3Zh+Om5ztS
-         CQ8+aN39anMXfmEGW1xZML1q6kDyBKPZ1p9hyJyRTRPCVxbnzRHyjNbGc850l+ariAjK
-         3c5mtd6BvDNnuUg1C2XZR5EOHx0Dz7lPRrG4nh3gY68rzIS9nrSbKpRGxEMeViTtHoIF
-         YVIA==
-X-Gm-Message-State: AOAM530/FaDSFwrxBpuVEkBQYfB8U1mUL9rlSixd7dunkDr79em35Gcx
-        Lt0gyTPRvxLPaYft5NKxdfrE6ahwfLpuo5kjDOZbz+7SkfCpSfOrFPt+ywTxPTkU01/1NFnWhMo
-        w8aGy9t5YTjn8y1jH0zvjhWkZnH32oSIA
-X-Received: by 2002:a37:8a42:: with SMTP id m63mr3071569qkd.230.1590573013555;
-        Wed, 27 May 2020 02:50:13 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJx7RDV50fdD8q6d1cy2L1E3dJt81qR6UeDwFqEdUTY1cgMNDSGkK/Va8uOGegZ5bIh+cOKagjKwATfo9WDQI8g=
-X-Received: by 2002:a37:8a42:: with SMTP id m63mr3071544qkd.230.1590573013164;
- Wed, 27 May 2020 02:50:13 -0700 (PDT)
+        id S1729645AbgE0KA7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 May 2020 06:00:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51202 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728253AbgE0KA7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 May 2020 06:00:59 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 97A202084C;
+        Wed, 27 May 2020 10:00:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1590573659;
+        bh=Yg4do3QGiR/CHgycBhbn4KX2zuVwKpVFGhOD6UUqfeI=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=GGyW0GgfOsOdBoSDyPlJsal9a6oGDnIU+9qTn8AFs+YQcWcfbcUhshBK2rYsPcDBm
+         91QvCmPlA7F70PgeXYPBN1inZ0Z4/BiD58S90CQBpX3y5deoaGa68TtOfAwuBCcLg2
+         gnKfQLZ8B8eJLR/xCjiiDcIx0ERQFYNJdM0WWMKE=
+Date:   Wed, 27 May 2020 12:00:56 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Jon Hunter <jonathanh@nvidia.com>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, ben.hutchings@codethink.co.uk,
+        lkft-triage@lists.linaro.org, stable@vger.kernel.org,
+        linux-tegra <linux-tegra@vger.kernel.org>
+Subject: Re: [PATCH 5.6 000/126] 5.6.15-rc1 review
+Message-ID: <20200527100056.GB277684@kroah.com>
+References: <20200526183937.471379031@linuxfoundation.org>
+ <d5c1dffe-98d3-d60e-669b-90277bbb0a03@nvidia.com>
 MIME-Version: 1.0
-References: <20200526150717.324783-1-benjamin.tissoires@redhat.com>
- <27B6F419-A68E-459D-AB6B-7BF2D935C6E0@canonical.com> <CAO-hwJLPF4pSHQqFp-ogZAxKu15nbuKULTRbudhD8L4RFv4w4g@mail.gmail.com>
-In-Reply-To: <CAO-hwJLPF4pSHQqFp-ogZAxKu15nbuKULTRbudhD8L4RFv4w4g@mail.gmail.com>
-From:   Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Date:   Wed, 27 May 2020 11:50:02 +0200
-Message-ID: <CAO-hwJJE6_8j-XVjVskJwmHW=DM9i5aSZZ=35jLDfjf4E1spZQ@mail.gmail.com>
-Subject: Re: [PATCH] HID: multitouch: enable multi-input as a quirk for some devices
-To:     Kai-Heng Feng <kai.heng.feng@canonical.com>
-Cc:     Jiri Kosina <jikos@kernel.org>,
-        "open list:INTEL INTEGRATED SENSOR HUB DRIVER" 
-        <linux-input@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        "3.8+" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <d5c1dffe-98d3-d60e-669b-90277bbb0a03@nvidia.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, May 27, 2020 at 11:22 AM Benjamin Tissoires
-<benjamin.tissoires@redhat.com> wrote:
->
-> On Wed, May 27, 2020 at 8:18 AM Kai-Heng Feng
-> <kai.heng.feng@canonical.com> wrote:
-> >
-> >
-> >
-> > > On May 26, 2020, at 23:07, Benjamin Tissoires <benjamin.tissoires@redhat.com> wrote:
-> > >
-> > > Two touchpad/trackstick combos are currently not behaving properly.
-> > > They define a mouse emulation collection, as per Win8 requirements,
-> > > but also define a separate mouse collection for the trackstick.
-> > >
-> > > The way the kernel currently treat the collections is that it
-> > > merges both in one device. However, given that the first mouse
-> > > collection already defines X,Y and left, right buttons, when
-> > > mapping the events from the second mouse collection, hid-multitouch
-> > > sees that these events are already mapped, and simply ignores them.
-> > >
-> > > To be able to report events from the tracktick, add a new quirked
-> > > class for it, and manually add the 2 devices we know about.
-> > >
-> > > Link: https://bugzilla.kernel.org/show_bug.cgi?id=207235
-> > > Cc: stable@vger.kernel.org
-> > > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> >
-> > Tested-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
->
-> Thanks for the very fast testing :)
->
-> Pushed to for-5.8/multitouch given that we already are at 5.7-rc7, we
-> might as well postpone it for one week.
->
+On Wed, May 27, 2020 at 09:34:24AM +0100, Jon Hunter wrote:
+> 
+> On 26/05/2020 19:52, Greg Kroah-Hartman wrote:
+> > This is the start of the stable review cycle for the 5.6.15 release.
+> > There are 126 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> > 
+> > Responses should be made by Thu, 28 May 2020 18:36:22 +0000.
+> > Anything received after that time might be too late.
+> > 
+> > The whole patch series can be found in one patch at:
+> > 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.6.15-rc1.gz
+> > or in the git tree and branch at:
+> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.6.y
+> > and the diffstat can be found below.
+> > 
+> > thanks,
+> > 
+> > greg k-h
+> 
+> All tests are passing for Tegra ...
+> 
+> Test results for stable-v5.6:
+>     11 builds:	11 pass, 0 fail
+>     26 boots:	26 pass, 0 fail
+>     42 tests:	42 pass, 0 fail
+> 
+> Linux version:	5.6.15-rc1-g8f40203f4915
+> Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
+>                 tegra194-p2972-0000, tegra20-ventana,
+>                 tegra210-p2371-2180, tegra210-p3450-0000,
+>                 tegra30-cardhu-a04
 
-Apologies for the inconvenience, I hadn't noticed my master branch was
-not up to date with origin. I forced push the branch to have a better
-history.
+Wonderful, thanks for testing all of these and letting me know.
 
-Cheers,
-Benjamin
-
-> Cheers,
-> Benjamin
->
-> >
-> > > ---
-> > > drivers/hid/hid-multitouch.c | 26 ++++++++++++++++++++++++++
-> > > 1 file changed, 26 insertions(+)
-> > >
-> > > diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-> > > index 03c720b47306..39e4da7468e1 100644
-> > > --- a/drivers/hid/hid-multitouch.c
-> > > +++ b/drivers/hid/hid-multitouch.c
-> > > @@ -69,6 +69,7 @@ MODULE_LICENSE("GPL");
-> > > #define MT_QUIRK_ASUS_CUSTOM_UP               BIT(17)
-> > > #define MT_QUIRK_WIN8_PTP_BUTTONS     BIT(18)
-> > > #define MT_QUIRK_SEPARATE_APP_REPORT  BIT(19)
-> > > +#define MT_QUIRK_FORCE_MULTI_INPUT   BIT(20)
-> > >
-> > > #define MT_INPUTMODE_TOUCHSCREEN      0x02
-> > > #define MT_INPUTMODE_TOUCHPAD         0x03
-> > > @@ -189,6 +190,7 @@ static void mt_post_parse(struct mt_device *td, struct mt_application *app);
-> > > #define MT_CLS_WIN_8                          0x0012
-> > > #define MT_CLS_EXPORT_ALL_INPUTS              0x0013
-> > > #define MT_CLS_WIN_8_DUAL                     0x0014
-> > > +#define MT_CLS_WIN_8_FORCE_MULTI_INPUT               0x0015
-> > >
-> > > /* vendor specific classes */
-> > > #define MT_CLS_3M                             0x0101
-> > > @@ -279,6 +281,15 @@ static const struct mt_class mt_classes[] = {
-> > >                       MT_QUIRK_CONTACT_CNT_ACCURATE |
-> > >                       MT_QUIRK_WIN8_PTP_BUTTONS,
-> > >               .export_all_inputs = true },
-> > > +     { .name = MT_CLS_WIN_8_FORCE_MULTI_INPUT,
-> > > +             .quirks = MT_QUIRK_ALWAYS_VALID |
-> > > +                     MT_QUIRK_IGNORE_DUPLICATES |
-> > > +                     MT_QUIRK_HOVERING |
-> > > +                     MT_QUIRK_CONTACT_CNT_ACCURATE |
-> > > +                     MT_QUIRK_STICKY_FINGERS |
-> > > +                     MT_QUIRK_WIN8_PTP_BUTTONS |
-> > > +                     MT_QUIRK_FORCE_MULTI_INPUT,
-> > > +             .export_all_inputs = true },
-> > >
-> > >       /*
-> > >        * vendor specific classes
-> > > @@ -1714,6 +1725,11 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
-> > >       if (id->group != HID_GROUP_MULTITOUCH_WIN_8)
-> > >               hdev->quirks |= HID_QUIRK_MULTI_INPUT;
-> > >
-> > > +     if (mtclass->quirks & MT_QUIRK_FORCE_MULTI_INPUT) {
-> > > +             hdev->quirks &= ~HID_QUIRK_INPUT_PER_APP;
-> > > +             hdev->quirks |= HID_QUIRK_MULTI_INPUT;
-> > > +     }
-> > > +
-> > >       timer_setup(&td->release_timer, mt_expired_timeout, 0);
-> > >
-> > >       ret = hid_parse(hdev);
-> > > @@ -1926,6 +1942,11 @@ static const struct hid_device_id mt_devices[] = {
-> > >               MT_USB_DEVICE(USB_VENDOR_ID_DWAV,
-> > >                       USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_C002) },
-> > >
-> > > +     /* Elan devices */
-> > > +     { .driver_data = MT_CLS_WIN_8_FORCE_MULTI_INPUT,
-> > > +             HID_DEVICE(BUS_I2C, HID_GROUP_MULTITOUCH_WIN_8,
-> > > +                     USB_VENDOR_ID_ELAN, 0x313a) },
-> > > +
-> > >       /* Elitegroup panel */
-> > >       { .driver_data = MT_CLS_SERIAL,
-> > >               MT_USB_DEVICE(USB_VENDOR_ID_ELITEGROUP,
-> > > @@ -2056,6 +2077,11 @@ static const struct hid_device_id mt_devices[] = {
-> > >               MT_USB_DEVICE(USB_VENDOR_ID_STANTUM_STM,
-> > >                       USB_DEVICE_ID_MTP_STM)},
-> > >
-> > > +     /* Synaptics devices */
-> > > +     { .driver_data = MT_CLS_WIN_8_FORCE_MULTI_INPUT,
-> > > +             HID_DEVICE(BUS_I2C, HID_GROUP_MULTITOUCH_WIN_8,
-> > > +                     USB_VENDOR_ID_SYNAPTICS, 0xce08) },
-> > > +
-> > >       /* TopSeed panels */
-> > >       { .driver_data = MT_CLS_TOPSEED,
-> > >               MT_USB_DEVICE(USB_VENDOR_ID_TOPSEED2,
-> > > --
-> > > 2.25.1
-> > >
-> >
-
+greg k-h
