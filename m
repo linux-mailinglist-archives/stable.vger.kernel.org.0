@@ -2,67 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 75D851E468C
-	for <lists+stable@lfdr.de>; Wed, 27 May 2020 16:57:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4831A1E46B8
+	for <lists+stable@lfdr.de>; Wed, 27 May 2020 17:01:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388982AbgE0O5J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 May 2020 10:57:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48784 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388738AbgE0O5J (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 May 2020 10:57:09 -0400
-Received: from mail-oi1-x244.google.com (mail-oi1-x244.google.com [IPv6:2607:f8b0:4864:20::244])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C702C05BD1E;
-        Wed, 27 May 2020 07:57:09 -0700 (PDT)
-Received: by mail-oi1-x244.google.com with SMTP id l6so21945321oic.9;
-        Wed, 27 May 2020 07:57:09 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=FD3zOvZkpKIQsJ/+WeZ7mwKgRCBWCzByyJC1qop6De0=;
-        b=n9v9Cbu6S6tJoT+z12QI/h8gaO1V+5VQcHtR0D+Avm3OO9NeC69bHqwfyCb0KtHItE
-         Fi/xCM+AMKmhgvWUDBtM3egvQ0c7t4+lPgkMDnGZ62ZyFjJXyK1Cr1grD8S8Jd9J++FU
-         ja7bXJGYSLd4r5QSbUjbNp3MsoRblU2RMohSfAIi4xu+GbPIRQIbe3av/tZciJnaI4Ik
-         TfQUsUq9Dgr7lqa2/2qoEbuqSK+VjJLXdw2AHyToSV8uGk3CXYX4Gh3LhbegNQikcqTX
-         QY2y8wEtEPgDkKwSS9Rh5/JBzlBhB4LP69UvnUFBw+5lBeaUNnCU5yLXku2klHGvEC0t
-         Ukng==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
-         :date:user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=FD3zOvZkpKIQsJ/+WeZ7mwKgRCBWCzByyJC1qop6De0=;
-        b=VRXWcfBkJ7MJxfs5A+O9CFHWJ8gaKenvav3AUcXC6+GydwgyXWIAdwTCOAJNjFt1aL
-         7DY5vNnDCnxN/kmXA8TiRnMl9RP1XUpyTzcEgwxYL7zdYQPjXeTltESMqVD8rXW5ZLZ6
-         2yakZIeLeE/bUNrp2gjSTOSQN5IYK/2bGqf6ocGMgs/0VuCAdbiFItQNI5ioMlEwiDmt
-         +rMigzFiEAzf2iSHc+rajVb57E83+Z0XVODPTNFeWO2z01AGbYXOKprHjX8E37D89v8c
-         kQ5UewMgh2rMF2WZYcuS8bUQxBUGJlFQnN2BIiLwFtTSP5mnBi6c10EUmt0bB0vfNaqv
-         COMw==
-X-Gm-Message-State: AOAM531RX21BXz1Cqp3YP+DVULoIktVtLT125wXQqNlJAuLJDsjg/Daz
-        RnXuEwQu0jNtINscTpujFRbRzmC4
-X-Google-Smtp-Source: ABdhPJwnfjZU2gEKHY3PeXsfvDAPqAQkCTpR/fHX4lOzMp9zII3MM/9EBoxatUwGWqpaxa14jJ3azQ==
-X-Received: by 2002:aca:4e87:: with SMTP id c129mr3079868oib.9.1590591428265;
-        Wed, 27 May 2020 07:57:08 -0700 (PDT)
-Received: from localhost.localdomain (cpe-24-31-245-230.kc.res.rr.com. [24.31.245.230])
-        by smtp.gmail.com with ESMTPSA id d64sm879341oig.53.2020.05.27.07.57.07
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 27 May 2020 07:57:07 -0700 (PDT)
-Subject: Re: [PATCH 2/2] b43_legacy: Fix connection problem with WPA3
-To:     Kalle Valo <kvalo@codeaurora.org>
-Cc:     linux-wireless@vger.kernel.org,
-        Rui Salvaterra <rsalvaterra@gmail.com>,
-        Stable <stable@vger.kernel.org>
-References: <20200526155909.5807-1-Larry.Finger@lwfinger.net>
- <20200526155909.5807-3-Larry.Finger@lwfinger.net>
- <87a71tv9g6.fsf@codeaurora.org>
-From:   Larry Finger <Larry.Finger@lwfinger.net>
-Message-ID: <6375413e-88b2-effa-c972-63eb65a36d09@lwfinger.net>
-Date:   Wed, 27 May 2020 09:57:06 -0500
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.8.0
+        id S2389455AbgE0PBh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 May 2020 11:01:37 -0400
+Received: from mga05.intel.com ([192.55.52.43]:39575 "EHLO mga05.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2389419AbgE0PBh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 May 2020 11:01:37 -0400
+IronPort-SDR: VBMFms1icsPTldew0BTCObFkBZuuyDJtw609JqnJnSne7lwwLN5KjYRNOdyHivCbvsJ7CrLcc1
+ ysG9PdbzvCmQ==
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga002.jf.intel.com ([10.7.209.21])
+  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 May 2020 08:01:36 -0700
+IronPort-SDR: +t/xX0Z/yYqy4caKhAxF3sBUghHe7W8udi9gBSgGLfbZ3iEBtCgNCeNiJ+Lb9tECaWUzihktoA
+ N77ntZe8G30A==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.73,441,1583222400"; 
+   d="scan'208";a="284829491"
+Received: from linux.intel.com ([10.54.29.200])
+  by orsmga002.jf.intel.com with ESMTP; 27 May 2020 08:01:35 -0700
+Received: from [10.251.8.26] (kliang2-mobl.ccr.corp.intel.com [10.251.8.26])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by linux.intel.com (Postfix) with ESMTPS id B10FE5805EF;
+        Wed, 27 May 2020 08:01:34 -0700 (PDT)
+Subject: Re: [PATCH] perf/x86/intel/uncore: Fix oops when counting IMC uncore
+ events on some TGL
+To:     David Laight <David.Laight@ACULAB.COM>,
+        "peterz@infradead.org" <peterz@infradead.org>,
+        "mingo@redhat.com" <mingo@redhat.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc:     "ak@linux.intel.com" <ak@linux.intel.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+References: <1590582647-90675-1-git-send-email-kan.liang@linux.intel.com>
+ <869fafc80da84d188678c1cbb0267a0b@AcuMS.aculab.com>
+ <ed3d86b7-2f75-cfe9-bc74-5f2c29ef2540@linux.intel.com>
+ <d64c3c684ccd46daa5bb326dbbb277b0@AcuMS.aculab.com>
+From:   "Liang, Kan" <kan.liang@linux.intel.com>
+Message-ID: <9f0ed889-590e-6f7a-85bd-c4be43e993f3@linux.intel.com>
+Date:   Wed, 27 May 2020 11:01:22 -0400
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
+ Thunderbird/68.8.1
 MIME-Version: 1.0
-In-Reply-To: <87a71tv9g6.fsf@codeaurora.org>
+In-Reply-To: <d64c3c684ccd46daa5bb326dbbb277b0@AcuMS.aculab.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -71,34 +56,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 5/27/20 7:39 AM, Kalle Valo wrote:
-> Larry Finger <Larry.Finger@lwfinger.net> writes:
-> 
->> Since the driver was first introduced into the kernel, it has only
->> handled the ciphers associated with WEP, WPA, and WPA2. It fails with
->> WPA3 even though mac80211 can handle those additional ciphers in software,
->> b43legacy did not report that it could handle them. By setting MFP_CAPABLE using
->> ieee80211_set_hw(), the problem is fixed.
->>
->> With this change, b43legacy will handle the ciohers it knows in hardare,
->> and let mac80211 handle the others in software. It is not necessary to
->> use the module parameter NOHWCRYPT to turn hardware encryption off.
->> Although this change essentially eliminates that module parameter,
->> I am choosing to keep it for cases where the hardware is broken,
->> and software encryption is required for all ciphers.
->>
->> This patch fixes a problem that has been in b43legacy since commit
->> 75388acd0cd8 ("[B43LEGACY]: add mac80211-based driver for legacy BCM43xx
->> devices").
->>
->> Fixes: 75388acd0cd8 ("[B43LEGACY]: add mac80211-based driver for legacy BCM43xx devices")
->> Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
->> Cc: Stable <stable@vger.kernel.org>
-> 
-> I'll do the same changes here as in patch 1.
-> 
 
-Yes, both are OK.
 
-Larry
+On 5/27/2020 10:51 AM, David Laight wrote:
+> From: Liang, Kan
+>> Sent: 27 May 2020 15:47
+>> On 5/27/2020 8:59 AM, David Laight wrote:
+>>> From: kan.liang@linux.intel.com
+>>>> Sent: 27 May 2020 13:31
+>>>>
+>>>> From: Kan Liang <kan.liang@linux.intel.com>
+>>>>
+>>>> When counting IMC uncore events on some TGL machines, an oops will be
+>>>> triggered.
+>>>>     [ 393.101262] BUG: unable to handle page fault for address:
+>>>>     ffffb45200e15858
+>>>>     [ 393.101269] #PF: supervisor read access in kernel mode
+>>>>     [ 393.101271] #PF: error_code(0x0000) - not-present page
+>>>>
+>>>> Current perf uncore driver still use the IMC MAP SIZE inherited from
+>>>> SNB, which is 0x6000.
+>>>> However, the offset of IMC uncore counters for some TGL machines is
+>>>> larger than 0x6000, e.g. 0xd8a0.
+>>>>
+>>>> Enlarge the IMC MAP SIZE for TGL to 0xe000.
+>>>
+>>> Replacing one 'random' constant with a different one
+>>> doesn't seem like a proper fix.
+>>>
+>>> Surely the actual bounds of the 'memory' area are properly
+>>> defined somewhere.
+>>> Or at least should come from a table.
+>>>
+>>> You also need to verify that the offsets are within the mapped area.
+>>> An unexpected offset shouldn't try to access an invalid address.
+>>
+>> Thanks for the review.
+>>
+>> I agree that we should add a check before mapping the area to prevent
+>> the issue happens again.
+>>
+>> I think the check should be a generic check for all platforms which try
+>> to map an area, not just for TGL. I will submit a separate patch for the
+>> check.
+> 
+> You need a check that the actual access is withing the mapped area.
+> So instead of getting an OOPS you get a error.
+> 
+> This is after you've mapped it.
 
+Sure. Will add a WARN_ONCE() before the actual access.
+
+Thanks,
+Kan
+
+> 
+> 	David
+> 
+> -
+> Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
+> Registration No: 1397386 (Wales)
+> 
