@@ -2,127 +2,189 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CB33F1E3AA7
-	for <lists+stable@lfdr.de>; Wed, 27 May 2020 09:32:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 447931E3ACF
+	for <lists+stable@lfdr.de>; Wed, 27 May 2020 09:42:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387609AbgE0HcM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 May 2020 03:32:12 -0400
-Received: from mga14.intel.com ([192.55.52.115]:59880 "EHLO mga14.intel.com"
+        id S2387423AbgE0HmF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 May 2020 03:42:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50270 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387411AbgE0HcL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 May 2020 03:32:11 -0400
-IronPort-SDR: c98g8nlH7GSlxKk+ZN8gT6RvZLjn8pElpcsAP7voSZ2hK8QaIvWYnqK4E7FdadOBkIR7D3VPud
- TfEO5SfHjFOg==
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga004.fm.intel.com ([10.253.24.48])
-  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 May 2020 00:32:10 -0700
-IronPort-SDR: 53GYHuGRz59Pn9V8zx00Wu9IkCLySYyROk5R+V/rDWoA9TXFXY6li9sa1Oe2ZbyfxTsukoejDk
- arLhGiYLffEQ==
-X-IronPort-AV: E=Sophos;i="5.73,440,1583222400"; 
-   d="scan'208";a="291506260"
-Received: from gkazakev-mobl1.ger.corp.intel.com (HELO [10.214.254.180]) ([10.214.254.180])
-  by fmsmga004-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 May 2020 00:32:08 -0700
-Subject: Re: [Intel-gfx] [PATCH 2/2] drm/i915/gt: Do not schedule normal
- requests immediately along virtual
-To:     Chris Wilson <chris@chris-wilson.co.uk>,
-        intel-gfx@lists.freedesktop.org
-Cc:     stable@vger.kernel.org
-References: <20200526090753.11329-1-chris@chris-wilson.co.uk>
- <20200526090753.11329-2-chris@chris-wilson.co.uk>
- <2f6be936-043d-23f7-873f-6c2228f2abe5@linux.intel.com>
- <159056303478.21924.12941497462148590096@build.alporthouse.com>
-From:   Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
-Organization: Intel Corporation UK Plc
-Message-ID: <4447522d-704e-33b1-7d8a-fef095781200@linux.intel.com>
-Date:   Wed, 27 May 2020 08:32:05 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+        id S2387505AbgE0HmF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 May 2020 03:42:05 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4C36B207CB;
+        Wed, 27 May 2020 07:42:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1590565324;
+        bh=aL2vR933+cld77HMXCNsxmZs7qd0ZS8s6tNnlrwIxA8=;
+        h=Subject:To:From:Date:From;
+        b=iFdu7UmDFt1OGohL9CpB9QAGDXRUFfxiQRN0zs1KTqb8R61c3IbWavTW1MlWGCiEJ
+         d3KA5SDWmCAxFpgSVW7++53UfeSaP+WCo/UxkFifHy7EBiHAGlhiTqLyFn4jYfTNLy
+         0xXWXkCYFWzXeF8vPGYr4X4eEGUhpjHzS9uFWKqs=
+Subject: patch "software node: implement software_node_unregister()" added to driver-core-next
+To:     gregkh@linuxfoundation.org, andriy.shevchenko@linux.intel.com,
+        brendanhiggins@google.com, dmitry.torokhov@gmail.com,
+        heikki.krogerus@linux.intel.com, linux@rasmusvillemoes.dk,
+        linux@roeck-us.net, naresh.kamboju@linaro.org, pmladek@suse.com,
+        rafael.j.wysocki@intel.com, rdunlap@infradead.org,
+        rong.a.chen@intel.com, rostedt@goodmis.org,
+        sakari.ailus@linux.intel.com, sergey.senozhatsky@gmail.com,
+        stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Wed, 27 May 2020 09:42:02 +0200
+Message-ID: <1590565322183117@kroah.com>
 MIME-Version: 1.0
-In-Reply-To: <159056303478.21924.12941497462148590096@build.alporthouse.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-On 27/05/2020 08:03, Chris Wilson wrote:
-> Quoting Tvrtko Ursulin (2020-05-27 07:51:44)
->>
->> On 26/05/2020 10:07, Chris Wilson wrote:
->>> When we push a virtual request onto the HW, we update the rq->engine to
->>> point to the physical engine. A request that is then submitted by the
->>> user that waits upon the virtual engine, but along the physical engine
->>> in use, will then see that it is due to be submitted to the same engine
->>> and take a shortcut (and be queued without waiting for the completion
->>> fence). However, the virtual request may be preempted (either by higher
->>> priority users, or by timeslicing) and removed from the physical engine
->>> to be migrated over to one of its siblings. The dependent normal request
->>> however is oblivious to the removal of the virtual request and remains
->>> queued to execute on HW, believing that once it reaches the head of its
->>> queue all of its predecessors will have completed executing!
->>>
->>> v2: Beware restriction of signal->execution_mask prior to submission.
->>>
->>> Fixes: 6d06779e8672 ("drm/i915: Load balancing across a virtual engine")
->>> Testcase: igt/gem_exec_balancer/sliced
->>> Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
->>> Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
->>> Cc: <stable@vger.kernel.org> # v5.3+
->>> ---
->>>    drivers/gpu/drm/i915/i915_request.c | 25 +++++++++++++++++++++----
->>>    1 file changed, 21 insertions(+), 4 deletions(-)
->>>
->>> diff --git a/drivers/gpu/drm/i915/i915_request.c b/drivers/gpu/drm/i915/i915_request.c
->>> index 33bbad623e02..0b07ccc7e9bc 100644
->>> --- a/drivers/gpu/drm/i915/i915_request.c
->>> +++ b/drivers/gpu/drm/i915/i915_request.c
->>> @@ -1237,6 +1237,25 @@ i915_request_await_execution(struct i915_request *rq,
->>>        return 0;
->>>    }
->>>    
->>> +static int
->>> +await_request_submit(struct i915_request *to, struct i915_request *from)
->>> +{
->>> +     /*
->>> +      * If we are waiting on a virtual engine, then it may be
->>> +      * constrained to execute on a single engine *prior* to submission.
->>> +      * When it is submitted, it will be first submitted to the virtual
->>> +      * engine and then passed to the physical engine. We cannot allow
->>> +      * the waiter to be submitted immediately to the physical engine
->>> +      * as it may then bypass the virtual request.
->>> +      */
->>> +     if (to->engine == READ_ONCE(from->engine))
->>> +             return i915_sw_fence_await_sw_fence_gfp(&to->submit,
->>> +                                                     &from->submit,
->>> +                                                     I915_FENCE_GFP);
->>> +     else
->>> +             return __i915_request_await_execution(to, from, NULL);
->>
->> If I am following correctly this branch will be the virtual <-> physical
->> or virtual <-> virtual dependency on the same physical engine. Why is
->> await_execution sufficient in this case? Is there something preventing
->> timeslicing between the two (not wanted right!) once from start
->> execution (not finishes).
-> 
-> Timeslicing is only between independent requests. When we expire a
-> request, we also expire all of its waiters along the same engine, so
-> that the execution order remains intact.
+This is a note to let you know that I've just added the patch titled
 
-Via scheduler dependencies - they are enough?
+    software node: implement software_node_unregister()
 
-Regards,
+to my driver-core git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/driver-core.git
+in the driver-core-next branch.
 
-Tvrtko
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
 
-> 
-> await_execution is a more restrictive form of the
-> await_sw_fence(submit), in that 'to' can only be submitted once 'from'
-> reaches HW and not simply once 'from' reaches its engine submission
-> queue.
+The patch will also be merged in the next major kernel release
+during the merge window.
 
+If you have any questions about this process, please let me know.
+
+
+From 46d26819a5056f4831649c5887ad5c71a16d86f7 Mon Sep 17 00:00:00 2001
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Date: Sun, 24 May 2020 17:30:40 +0200
+Subject: software node: implement software_node_unregister()
+
+Sometimes it is better to unregister individual nodes instead of trying
+to do them all at once with software_node_unregister_nodes(), so create
+software_node_unregister() so that you can unregister them one at a
+time.
+
+This is especially important when creating nodes in a hierarchy, with
+parent -> children representations.  Children always need to be removed
+before a parent is, as the swnode logic assumes this is going to be the
+case.
+
+Fix up the lib/test_printf.c fwnode_pointer() test which to use this new
+function as it had the problem of tearing things down in the backwards
+order.
+
+Fixes: f1ce39df508d ("lib/test_printf: Add tests for %pfw printk modifier")
+Cc: stable <stable@vger.kernel.org>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Brendan Higgins <brendanhiggins@google.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Petr Mladek <pmladek@suse.com>
+Cc: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Cc: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Cc: Sakari Ailus <sakari.ailus@linux.intel.com>
+Cc: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+Cc: Steven Rostedt <rostedt@goodmis.org>
+Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
+Reported-by: kernel test robot <rong.a.chen@intel.com>
+Reported-by: Randy Dunlap <rdunlap@infradead.org>
+Tested-by: Petr Mladek <pmladek@suse.com>
+Tested-by: Randy Dunlap <rdunlap@infradead.org>
+Tested-by: Guenter Roeck <linux@roeck-us.net>
+Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Acked-by: Randy Dunlap <rdunlap@infradead.org>
+Link: https://lore.kernel.org/r/20200524153041.2361-1-gregkh@linuxfoundation.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/base/swnode.c    | 27 +++++++++++++++++++++------
+ include/linux/property.h |  1 +
+ lib/test_printf.c        |  4 +++-
+ 3 files changed, 25 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/base/swnode.c b/drivers/base/swnode.c
+index de8d3543e8fe..770b1f47a625 100644
+--- a/drivers/base/swnode.c
++++ b/drivers/base/swnode.c
+@@ -712,17 +712,18 @@ EXPORT_SYMBOL_GPL(software_node_register_nodes);
+  * @nodes: Zero terminated array of software nodes to be unregistered
+  *
+  * Unregister multiple software nodes at once.
++ *
++ * NOTE: Be careful using this call if the nodes had parent pointers set up in
++ * them before registering.  If so, it is wiser to remove the nodes
++ * individually, in the correct order (child before parent) instead of relying
++ * on the sequential order of the list of nodes in the array.
+  */
+ void software_node_unregister_nodes(const struct software_node *nodes)
+ {
+-	struct swnode *swnode;
+ 	int i;
+ 
+-	for (i = 0; nodes[i].name; i++) {
+-		swnode = software_node_to_swnode(&nodes[i]);
+-		if (swnode)
+-			fwnode_remove_software_node(&swnode->fwnode);
+-	}
++	for (i = 0; nodes[i].name; i++)
++		software_node_unregister(&nodes[i]);
+ }
+ EXPORT_SYMBOL_GPL(software_node_unregister_nodes);
+ 
+@@ -741,6 +742,20 @@ int software_node_register(const struct software_node *node)
+ }
+ EXPORT_SYMBOL_GPL(software_node_register);
+ 
++/**
++ * software_node_unregister - Unregister static software node
++ * @node: The software node to be unregistered
++ */
++void software_node_unregister(const struct software_node *node)
++{
++	struct swnode *swnode;
++
++	swnode = software_node_to_swnode(node);
++	if (swnode)
++		fwnode_remove_software_node(&swnode->fwnode);
++}
++EXPORT_SYMBOL_GPL(software_node_unregister);
++
+ struct fwnode_handle *
+ fwnode_create_software_node(const struct property_entry *properties,
+ 			    const struct fwnode_handle *parent)
+diff --git a/include/linux/property.h b/include/linux/property.h
+index d86de017c689..0d4099b4ce1f 100644
+--- a/include/linux/property.h
++++ b/include/linux/property.h
+@@ -441,6 +441,7 @@ int software_node_register_nodes(const struct software_node *nodes);
+ void software_node_unregister_nodes(const struct software_node *nodes);
+ 
+ int software_node_register(const struct software_node *node);
++void software_node_unregister(const struct software_node *node);
+ 
+ int software_node_notify(struct device *dev, unsigned long action);
+ 
+diff --git a/lib/test_printf.c b/lib/test_printf.c
+index 6b1622f4d7c2..fc63b8959d42 100644
+--- a/lib/test_printf.c
++++ b/lib/test_printf.c
+@@ -637,7 +637,9 @@ static void __init fwnode_pointer(void)
+ 	test(second_name, "%pfwP", software_node_fwnode(&softnodes[1]));
+ 	test(third_name, "%pfwP", software_node_fwnode(&softnodes[2]));
+ 
+-	software_node_unregister_nodes(softnodes);
++	software_node_unregister(&softnodes[2]);
++	software_node_unregister(&softnodes[1]);
++	software_node_unregister(&softnodes[0]);
+ }
+ 
+ static void __init
+-- 
+2.26.2
 
 
