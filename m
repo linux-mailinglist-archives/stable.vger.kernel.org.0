@@ -2,83 +2,155 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 630A31E35DD
-	for <lists+stable@lfdr.de>; Wed, 27 May 2020 04:49:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E8C7C1E36E3
+	for <lists+stable@lfdr.de>; Wed, 27 May 2020 06:10:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726477AbgE0Csg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 May 2020 22:48:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48910 "EHLO
+        id S1728627AbgE0EKk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 May 2020 00:10:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33300 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725948AbgE0Csf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 May 2020 22:48:35 -0400
-Received: from mail-io1-xd43.google.com (mail-io1-xd43.google.com [IPv6:2607:f8b0:4864:20::d43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BBD3BC061A0F
-        for <stable@vger.kernel.org>; Tue, 26 May 2020 19:48:35 -0700 (PDT)
-Received: by mail-io1-xd43.google.com with SMTP id p20so10926350iop.11
-        for <stable@vger.kernel.org>; Tue, 26 May 2020 19:48:35 -0700 (PDT)
+        with ESMTP id S1726907AbgE0EKj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 May 2020 00:10:39 -0400
+Received: from mail-pl1-x642.google.com (mail-pl1-x642.google.com [IPv6:2607:f8b0:4864:20::642])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F7BEC061A0F
+        for <stable@vger.kernel.org>; Tue, 26 May 2020 21:10:39 -0700 (PDT)
+Received: by mail-pl1-x642.google.com with SMTP id x10so9643799plr.4
+        for <stable@vger.kernel.org>; Tue, 26 May 2020 21:10:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:sender:from:date:message-id:subject:to;
-        bh=Xs1c6/A8GmpgdbMBrIroEWmoFbf3qfcFFbhS2ULR81Q=;
-        b=TVKXHicV2ORP4qxydYhpKy2c5IAJa2SKBTEuVKxh1C+AHkhiKKVnqlVHun/uf0V/Vm
-         8TzkUSpA3HLPe34WjVMQlhOCaYr9WnWu0EzunYynHGQY0byGuLesRzlaG8PwIV4xjXqd
-         iKrOD4cSe9jnsWZXyCUsfftrUdfoGb9a5gunJh3YjNa0BJobxwBznw5hzS3JUPQmophA
-         BYrwM3sBCQY0WwTMztbTnV9XJkrpHM1Ho/N6JKmMMHNakNiWm2IOyD23LJMCLh8m72Of
-         46AwPJODiswH2c966fLnau5DxaWsOhiCFGUXYC0g7rhK+gWMteIZEp+Vpdz2eqKsNmjQ
-         XU1A==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=7niiOiv3PrwdlgIJNjueuyqojdUyzCpsCuvJLhqOO5I=;
+        b=iYSWOfq3M3pt/bR186gVK5a74Mb/OL9gyO8hz2VQdlnARm2ZU08KWUBKgfy5HZe1h9
+         FJd5kXVbS6+gmvih2XTQRx8kVMEOQOc8yzvs5PAy5TsjolcSlwkOWVftFtu7G2107OUK
+         ccieqIsh/hbqS+kEUrFZqvUO53CRaYaBQU5ac54Svbr3JDwaln2iN1IEoRJ7Eix2K3Jt
+         ECN2CDwulBaRTwFe0kTY6z5YvgwvEghW75FdLdanCghpU57Yip1Bkwa1Cmrsz7PvvNn9
+         6T5zadATfKr+wE+pypRxg6vBinivM7M9z+H/Wg8zbElqKN5kfu+DIbaC1o8xThohF6ie
+         or3w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:sender:from:date
-         :message-id:subject:to;
-        bh=Xs1c6/A8GmpgdbMBrIroEWmoFbf3qfcFFbhS2ULR81Q=;
-        b=hgs7jzN50T7t692bwM0C8LQFgyx3QZ3BpnWx2Mc97JwEL23gj83Pi4CeJ9ZtHGhbzV
-         KboIzYj0wBxsyYFnlcyWFFflO6L6mRs/YJjg7BvCZ1ObnFMO+hI+Aas5vlOWWPdTZASU
-         4pDx1oAIi67v7O9pbHcBnDGz+U8jN6bZ4C0P2TQ6B8c7b2p128dOtx9AX/YP3EpK2ESb
-         IWBzXLEK9QhL7caTKVvjzFQgW3nTmsOY/iC7K/DLTNnkUkKaK7/6R/N6wna/pZGr2l02
-         s2Rzg/PyY/g/sJt61FI2fkdYXwb7dP+fS9ju/uQ56cHcMWUskCwfd7AnIDM9APR5VwQb
-         Qhrg==
-X-Gm-Message-State: AOAM532y8y3ilBe3a/fJCRm1VqDJ13Jn+Fr/vS2S+B/Zt7iBpw6XSOJz
-        wxnclGtt0FgZcrwkodcfixYSOwBp8WWKKvMrJpM=
-X-Google-Smtp-Source: ABdhPJwOwv1Wkjjkweq/SxbycM2vC6pyUKvecPF0lnWClor1o5g3tc3goV/cySgiX9ZT3/dklx+eN+Tk0i/9oRXdM9U=
-X-Received: by 2002:a02:1746:: with SMTP id 67mr3688787jah.103.1590547715128;
- Tue, 26 May 2020 19:48:35 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=7niiOiv3PrwdlgIJNjueuyqojdUyzCpsCuvJLhqOO5I=;
+        b=IYv4GBZSt4AgZuAl1zbhpFNfxll9+6RsoZOVaxVtnV/cIa1P0bFCGXTgyiiNgyGGjd
+         i9lD/77qZ6KZ3a/8+9HfERbKe7dANLF9u6k4nSvBVBaPSGwWKap6U7oRKUCvz6acr7BT
+         SgQCyTp88bIlG/VHZcP4fAHeFMbtkfncRN7K7csuIw205QxWhk3lgSsIQdqUrE/ynhqn
+         yJd0HZEhRQetZD1WPIHO5NDzstG1Tek5aO9sTgRSgDvy0RNGscXOzE0Kk3K53csh210h
+         BZiRrsbDObyiPaxYNdIDj4uRdbjNCD7qlaPi6bKo8LSg52gzda0ToqD5RtNiW4rQ1eel
+         On/Q==
+X-Gm-Message-State: AOAM5308IebFa6cOFLfa2YgbgkptpiHGkBgVQz8mww9yfZlgy6Ewocjr
+        Dc33aehYwQxoZo/i4t3Qa5q7fwQZoOQ=
+X-Google-Smtp-Source: ABdhPJwDQHgpK5KQD5qs1Xamw8gO2CIs2r2hy1fzhwJuX9Gv8SQSxiBizVsP0TvIB8fX5nW53UBpNA==
+X-Received: by 2002:a17:90b:3704:: with SMTP id mg4mr2771833pjb.84.1590552638730;
+        Tue, 26 May 2020 21:10:38 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id p5sm830224pju.7.2020.05.26.21.10.36
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 26 May 2020 21:10:37 -0700 (PDT)
+Message-ID: <5ecde83d.1c69fb81.3a15e.76ce@mx.google.com>
+Date:   Tue, 26 May 2020 21:10:37 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Reply-To: mrahmedmuzashah@gmail.com
-Received: by 2002:a05:6602:2f86:0:0:0:0 with HTTP; Tue, 26 May 2020 19:48:34
- -0700 (PDT)
-From:   "Mr.Ahmed Muzashah" <ahmedmuzashah@gmail.com>
-Date:   Wed, 27 May 2020 03:48:34 +0100
-X-Google-Sender-Auth: tpps8cEQgmWkSvIPR7hVV6JYPh8
-Message-ID: <CAHy3-cXUNhom5hF3S7AwdX-ZUnOCh1T9VOokW=VrYkvEtCu3pQ@mail.gmail.com>
-Subject: From: Mr.Ahmed Muzashah
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.4.224-66-g147ece171c0d
+X-Kernelci-Report-Type: boot
+X-Kernelci-Branch: linux-4.4.y
+Subject: stable-rc/linux-4.4.y boot: 60 boots: 3 failed,
+ 52 passed with 3 offline, 2 untried/unknown (v4.4.224-66-g147ece171c0d)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Good Day,
+******************************************
+* WARNING: Boot tests are now deprecated *
+******************************************
 
-Please accept my apologies for writing you a surprise letter.I am Mr.
-Ahmed Muzashah, account Manager with an investment bank here in
-Burkina Faso.I have a very important business I want to discuss with
-you.There is a draft account opened in my firm by a long-time client
-of our bank.I have the opportunity of transferring the left over fund
-(15.8 Million UsDollars)Fiftheen Million Eight Hundred Thousand United
-States of American Dollars of one of my Bank clients who died at the
-collapsing of the world trade center at the United States on September
-11th 2001.
+As kernelci.org is expanding its functional testing capabilities, the conce=
+pt
+of boot testing is now deprecated.  Boot results are scheduled to be droppe=
+d on
+*5th June 2020*.  The full schedule for boot tests deprecation is available=
+ on
+this GitHub issue: https://github.com/kernelci/kernelci-backend/issues/238
 
-I want to invest this funds and introduce you to our bank for this
-deal.All I require is your honest co-operation and I guarantee you
-that this will be executed under a legitimate arrangement that will
-protect us from any breach of the law.I agree that 40% of this money
-will be for you as my foreign partner,50% for me while 10% is for
-establishing of foundation for the less privilleges in your country.If
-you are really interested in my proposal further details of the
-Transfer will be forwarded unto you as soon as I receive your
-willingness mail for a successful transfer.
+The new equivalent is the *baseline* test suite which also runs sanity chec=
+ks
+using dmesg and bootrr: https://github.com/kernelci/bootrr
 
-Yours Sincerely,
-Mr.Ahmed Muzashah,
+See the *baseline results for this kernel revision* on this page:
+https://kernelci.org/test/job/stable-rc/branch/linux-4.4.y/kernel/v4.4.224-=
+66-g147ece171c0d/plan/baseline/
+
+---------------------------------------------------------------------------=
+----
+
+stable-rc/linux-4.4.y boot: 60 boots: 3 failed, 52 passed with 3 offline, 2=
+ untried/unknown (v4.4.224-66-g147ece171c0d)
+
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.4.y/kernel/v4.4.224-66-g147ece171c0d/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
+/kernel/v4.4.224-66-g147ece171c0d/
+
+Tree: stable-rc
+Branch: linux-4.4.y
+Git Describe: v4.4.224-66-g147ece171c0d
+Git Commit: 147ece171c0dc02b417f35088182a61e6dac368a
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 42 unique boards, 16 SoC families, 12 builds out of 159
+
+Boot Regressions Detected:
+
+arm:
+
+    qcom_defconfig:
+        gcc-8:
+          qcom-apq8064-cm-qs600:
+              lab-baylibre-seattle: failing since 13 days (last pass: v4.4.=
+223 - first fail: v4.4.223-36-g32f5ec9b096d)
+
+x86_64:
+
+    x86_64_defconfig:
+        gcc-8:
+          qemu_x86_64:
+              lab-baylibre: new failure (last pass: v4.4.224-38-g1f47601a42=
+96)
+
+Boot Failures Detected:
+
+x86_64:
+    x86_64_defconfig:
+        gcc-8:
+            qemu_x86_64: 1 failed lab
+
+arm:
+    imx_v4_v5_defconfig:
+        gcc-8:
+            imx27-phytec-phycard-s-rdk: 1 failed lab
+
+    multi_v5_defconfig:
+        gcc-8:
+            imx27-phytec-phycard-s-rdk: 1 failed lab
+
+Offline Platforms:
+
+arm:
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
