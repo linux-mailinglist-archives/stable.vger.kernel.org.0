@@ -2,116 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 75F421E4521
-	for <lists+stable@lfdr.de>; Wed, 27 May 2020 16:04:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D481D1E4543
+	for <lists+stable@lfdr.de>; Wed, 27 May 2020 16:10:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730296AbgE0OES (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 May 2020 10:04:18 -0400
-Received: from userp2130.oracle.com ([156.151.31.86]:52786 "EHLO
-        userp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730245AbgE0OES (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 May 2020 10:04:18 -0400
-Received: from pps.filterd (userp2130.oracle.com [127.0.0.1])
-        by userp2130.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 04RDvb2N196415;
-        Wed, 27 May 2020 14:03:37 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=corp-2020-01-29;
- bh=Z8LSjtyRdkQJDOv1CQQhH2cz7RTrtGNgrKwq0zh9eJg=;
- b=F+jm7JYqK+JTri+qgXMbnuD5RBtxa4/C5Oz9C4Yz6EoaSBWJit0+eiOsxQBSSEeO8x9d
- PGgI7su4bw2GT9hSdOWgsqDNCZ6WmypKBLZbxeTxZ9ZLQZ10TzPfu+qNId/0jSVUBDqw
- KOHwQRHqVxvoBGNABhEENWuASChrB/HFeTC35QTaDN4XJPW+0ok4WD6oj4gbEZlEgtf+
- 81kVUkrBe29mRQ8iKHqhglk4/FymiaPgcRQpSiI9zpkTvzriJv59Gq9zj0vv6VzHNBSp
- 8BRp8CumKkeuvVpYhdl8PNSebv4TFb3OUfmanhTPU9uZ52spA053ITjLhCuE04b8PON8 pA== 
-Received: from aserp3020.oracle.com (aserp3020.oracle.com [141.146.126.70])
-        by userp2130.oracle.com with ESMTP id 316u8qymjy-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
-        Wed, 27 May 2020 14:03:35 +0000
-Received: from pps.filterd (aserp3020.oracle.com [127.0.0.1])
-        by aserp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 04RE3ZUx174350;
-        Wed, 27 May 2020 14:03:35 GMT
-Received: from aserv0122.oracle.com (aserv0122.oracle.com [141.146.126.236])
-        by aserp3020.oracle.com with ESMTP id 317j5rxyj4-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 27 May 2020 14:03:21 +0000
-Received: from abhmp0017.oracle.com (abhmp0017.oracle.com [141.146.116.23])
-        by aserv0122.oracle.com (8.14.4/8.14.4) with ESMTP id 04RE3JDK007580;
-        Wed, 27 May 2020 14:03:19 GMT
-Received: from [192.168.1.68] (/98.229.125.203)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Wed, 27 May 2020 07:03:18 -0700
-Subject: Re: [PATCH 4.4 26/65] sched/fair, cpumask: Export for_each_cpu_wrap()
-To:     Greg KH <gregkh@linuxfoundation.org>,
-        nobuhiro1.iwamatsu@toshiba.co.jp
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        peterz@infradead.org, lvenanci@redhat.com,
-        torvalds@linux-foundation.org, efault@gmx.de, riel@redhat.com,
-        tglx@linutronix.de, lwang@redhat.com, mingo@kernel.org,
-        sashal@kernel.org
-References: <20200526183905.988782958@linuxfoundation.org>
- <20200526183915.976645661@linuxfoundation.org>
- <OSBPR01MB29836310986EC6E2E132A02F92B10@OSBPR01MB2983.jpnprd01.prod.outlook.com>
- <20200527080944.GB119903@kroah.com>
-From:   Daniel Jordan <daniel.m.jordan@oracle.com>
-Message-ID: <ee459439-7f33-162f-83de-5106d5125e63@oracle.com>
-Date:   Wed, 27 May 2020 10:03:16 -0400
+        id S1726019AbgE0OKD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 May 2020 10:10:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41402 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725775AbgE0OKC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 May 2020 10:10:02 -0400
+Received: from mail-lj1-x241.google.com (mail-lj1-x241.google.com [IPv6:2a00:1450:4864:20::241])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 637A1C08C5C1
+        for <stable@vger.kernel.org>; Wed, 27 May 2020 07:10:02 -0700 (PDT)
+Received: by mail-lj1-x241.google.com with SMTP id m18so29068236ljo.5
+        for <stable@vger.kernel.org>; Wed, 27 May 2020 07:10:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=U6Aq753fSWkcPpm1lYT5i7o7P3imqMnz5CDV1j1IMmA=;
+        b=pHlj7LdSVCwnTJDiLsVCpTqvxw+XGKbSW8iGWV1AK4K8cgOxM5G6b7b0NrbsFvMObq
+         Hr3LNEelIN4phEllVTITojvVKbbTFjJGAQ9ic96QOxXhxt+Di3jL+GlHWLDPX58wrggS
+         8vkN6IXZKc3I28hKyJziC/RKXBPeBSGP0hupcob4KQ3MKl69ePCMaWDOFuCpoGQxbrei
+         1FNBvC85Rmcfize5BKo7JwgTFzIj7xE1PvOmnsDeA/KAhsrNMwySO49Rg69V1gn+BccD
+         zLQKMm5XdrpVtkPu+soaEdnqI36zFB/Ezd38sTa7hunZzTsatO6/xmLn04nzebsErhd0
+         w7/g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=U6Aq753fSWkcPpm1lYT5i7o7P3imqMnz5CDV1j1IMmA=;
+        b=ULhY9dfr6vrJd83YQpSvw/oPkKqeTZturA7CV2UT5RcSVlbmCdfxzF9LzhD42Eo9wy
+         IrwdvYDLBrisUBWH/X0ypWah48JBfip3IKyAKeW+jnNE8Be9gXY3+RrgYwlr9F5+bMuF
+         MDgADocq/Kfc0K3hE7f/Xxil9jteQJfsHKY0v/inKftryd6caPSbuGkBkqBXeVSgvKoP
+         T1A5+QCq7fX8z3xvSs4vLTDLFl57GzfaKYQzuWTaEhhvBU7ylYNyd1DN5odHVtEa82VM
+         27lVBpBbrHA+tgB+UC86F1SDwDn/Ib9Pz7Ujob6YBIJqV8g0P8Owo8ZXFhImCeaJ7Uyt
+         Q3zw==
+X-Gm-Message-State: AOAM532yTwDvLQcseUyV4mPeg6MLykLNzKbMYfuhiBpgSFOAeXGXJ2be
+        ZP5fwK+SW8nWiQWhThgXcD1eWQ==
+X-Google-Smtp-Source: ABdhPJz0hJ46/D9Hi3/qtyf9Yhnt3YMVhSBHkDCyzA2c+urgaMwIPn+2to3o9n5ncmG6s13Ym/yzew==
+X-Received: by 2002:a2e:b524:: with SMTP id z4mr3305899ljm.48.1590588600757;
+        Wed, 27 May 2020 07:10:00 -0700 (PDT)
+Received: from localhost.localdomain (c-8cdb225c.014-348-6c756e10.bbcust.telenor.se. [92.34.219.140])
+        by smtp.gmail.com with ESMTPSA id w25sm833568lfn.42.2020.05.27.07.09.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 27 May 2020 07:10:00 -0700 (PDT)
+From:   Linus Walleij <linus.walleij@linaro.org>
+To:     linux-gpio@vger.kernel.org
+Cc:     Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Hans Verkuil <hverkuil@xs4all.nl>,
+        Russell King <linux@armlinux.org.uk>, stable@vger.kernel.org
+Subject: [PATCH] gpio: fix locking open drain IRQ lines
+Date:   Wed, 27 May 2020 16:07:58 +0200
+Message-Id: <20200527140758.162280-1-linus.walleij@linaro.org>
+X-Mailer: git-send-email 2.25.4
 MIME-Version: 1.0
-In-Reply-To: <20200527080944.GB119903@kroah.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9633 signatures=668686
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 bulkscore=0 spamscore=0 suspectscore=2
- mlxlogscore=999 mlxscore=0 adultscore=0 phishscore=0 malwarescore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2004280000
- definitions=main-2005270107
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9633 signatures=668686
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 malwarescore=0 mlxscore=0
- priorityscore=1501 spamscore=0 cotscore=-2147483648 suspectscore=2
- phishscore=0 clxscore=1011 mlxlogscore=999 bulkscore=0 adultscore=0
- lowpriorityscore=0 impostorscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2004280000 definitions=main-2005270106
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 5/27/20 4:09 AM, Greg KH wrote:
-> On Wed, May 27, 2020 at 07:50:56AM +0000, nobuhiro1.iwamatsu@toshiba.co.jp wrote:
->>> Subject: [PATCH 4.4 26/65] sched/fair, cpumask: Export for_each_cpu_wrap()	
-...
->>
->> This commit also needs the following commits:
->>
->> commit d207af2eab3f8668b95ad02b21930481c42806fd
->> Author: Michael Kelley <mhkelley@outlook.com>
->> Date:   Wed Feb 14 02:54:03 2018 +0000
->>
->>     cpumask: Make for_each_cpu_wrap() available on UP as well
->>     
->>     for_each_cpu_wrap() was originally added in the #else half of a
->>     large "#if NR_CPUS == 1" statement, but was omitted in the #if
->>     half.  This patch adds the missing #if half to prevent compile
->>     errors when NR_CPUS is 1.
->>     
->>     Reported-by: kbuild test robot <fengguang.wu@intel.com>
->>     Signed-off-by: Michael Kelley <mhkelley@outlook.com>
->>     Cc: Linus Torvalds <torvalds@linux-foundation.org>
->>     Cc: Peter Zijlstra <peterz@infradead.org>
->>     Cc: Thomas Gleixner <tglx@linutronix.de>
->>     Cc: kys@microsoft.com
->>     Cc: martin.petersen@oracle.com
->>     Cc: mikelley@microsoft.com
->>     Fixes: c743f0a5c50f ("sched/fair, cpumask: Export for_each_cpu_wrap()")
->>     Link: http://lkml.kernel.org/r/SN6PR1901MB2045F087F59450507D4FCC17CBF50@SN6PR1901MB2045.namprd19.prod.outlook.com
->>     Signed-off-by: Ingo Molnar <mingo@kernel.org>
->>
->> Please apply this commit.
-> 
-> Good catch, now queued up, thanks.
+We provided the right semantics on open drain lines being
+by definition output but incidentally the irq set up function
+would only allow IRQs on lines that were "not output".
 
-I left this commit out because the 4.4 kernel only uses
-cpumask_next_wrap in padata, which is only enabled for SMP kernels, but
-it's probably best to be safe.
+Fix the semantics to allow output open drain lines to be used
+for IRQs.
 
-Daniel
+Reported-by: Hans Verkuil <hverkuil@xs4all.nl>
+Cc: Russell King <linux@armlinux.org.uk>
+Cc: stable@vger.kernel.org
+Fixes: 256efaea1fdc ("gpiolib: fix up emulated open drain outputs")
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+---
+ drivers/gpio/gpiolib.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
+index b4b5792fe2ff..edd74ff31cea 100644
+--- a/drivers/gpio/gpiolib.c
++++ b/drivers/gpio/gpiolib.c
+@@ -4220,7 +4220,9 @@ int gpiochip_lock_as_irq(struct gpio_chip *gc, unsigned int offset)
+ 		}
+ 	}
+ 
+-	if (test_bit(FLAG_IS_OUT, &desc->flags)) {
++	/* To be valid for IRQ the line needs to be input or open drain */
++	if (test_bit(FLAG_IS_OUT, &desc->flags) &&
++	    !test_bit(FLAG_OPEN_DRAIN, &desc->flags)) {
+ 		chip_err(gc,
+ 			 "%s: tried to flag a GPIO set as output for IRQ\n",
+ 			 __func__);
+-- 
+2.25.4
+
