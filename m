@@ -2,118 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C6161E3B3A
-	for <lists+stable@lfdr.de>; Wed, 27 May 2020 10:09:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CF261E3BBF
+	for <lists+stable@lfdr.de>; Wed, 27 May 2020 10:17:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729344AbgE0IJs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 May 2020 04:09:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58476 "EHLO mail.kernel.org"
+        id S2387739AbgE0IRF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 May 2020 04:17:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34390 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729300AbgE0IJs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 May 2020 04:09:48 -0400
+        id S2387733AbgE0IRF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 May 2020 04:17:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1CBFD20FC3;
-        Wed, 27 May 2020 08:09:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A0D2B208B8;
+        Wed, 27 May 2020 08:17:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590566986;
-        bh=75qOp4dQIOYfaLlRNroM43f7CQ5NQA6BK7Z1FNB3fWk=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=q36g94b+zVXLZrH0uWcSYzYJlDbH8L9aPOmbwIyls5bsJVsKfl1HD2ek0r0oKABpg
-         xC6sAcqCDLSC6lplD/UDW94OZ7t1yR7Vh+T0+JCiBCnR1MyTR/5Dgm71WsDkCfFSH7
-         UU+p/B++1IEf5ly86njJAkEjs79l0v2dcIXHmwa0=
-Date:   Wed, 27 May 2020 10:09:44 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     nobuhiro1.iwamatsu@toshiba.co.jp
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        peterz@infradead.org, lvenanci@redhat.com,
-        torvalds@linux-foundation.org, efault@gmx.de, riel@redhat.com,
-        tglx@linutronix.de, lwang@redhat.com, mingo@kernel.org,
-        daniel.m.jordan@oracle.com, sashal@kernel.org
-Subject: Re: [PATCH 4.4 26/65] sched/fair, cpumask: Export for_each_cpu_wrap()
-Message-ID: <20200527080944.GB119903@kroah.com>
-References: <20200526183905.988782958@linuxfoundation.org>
- <20200526183915.976645661@linuxfoundation.org>
- <OSBPR01MB29836310986EC6E2E132A02F92B10@OSBPR01MB2983.jpnprd01.prod.outlook.com>
+        s=default; t=1590567425;
+        bh=uxz/Lqg5icydr0a4c0wzZLNTTpE2jbUIKmpe+H4wOgs=;
+        h=Subject:To:From:Date:From;
+        b=DMfHVwA9nnufXwadvXIHqxMr1GY8hLv4NilWlgzAQZng2S33qeEvVBAax9cjIPB1w
+         nu6b7WT5t99wHbnGPhAsNvRl2+Bw/61g8G3ZmTCJT0xIHzvMHuo8ALkG7MRLS0pFea
+         JFlxAmFzUCaRgWBS5jJ81WgW/Gjp670YcPJyZqSI=
+Subject: patch "staging: rtl8712: Fix IEEE80211_ADDBA_PARAM_BUF_SIZE_MASK" added to staging-testing
+To:     pterjan@google.com, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Wed, 27 May 2020 10:16:54 +0200
+Message-ID: <159056741444181@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <OSBPR01MB29836310986EC6E2E132A02F92B10@OSBPR01MB2983.jpnprd01.prod.outlook.com>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, May 27, 2020 at 07:50:56AM +0000, nobuhiro1.iwamatsu@toshiba.co.jp wrote:
-> Hi,
-> 
-> > -----Original Message-----
-> > From: stable-owner@vger.kernel.org [mailto:stable-owner@vger.kernel.org] On Behalf Of Greg Kroah-Hartman
-> > Sent: Wednesday, May 27, 2020 3:53 AM
-> > To: linux-kernel@vger.kernel.org
-> > Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>; stable@vger.kernel.org; Peter Zijlstra (Intel)
-> > <peterz@infradead.org>; Lauro Ramos Venancio <lvenanci@redhat.com>; Linus Torvalds <torvalds@linux-foundation.org>;
-> > Mike Galbraith <efault@gmx.de>; Rik van Riel <riel@redhat.com>; Thomas Gleixner <tglx@linutronix.de>;
-> > lwang@redhat.com; Ingo Molnar <mingo@kernel.org>; Daniel Jordan <daniel.m.jordan@oracle.com>; Sasha Levin
-> > <sashal@kernel.org>
-> > Subject: [PATCH 4.4 26/65] sched/fair, cpumask: Export for_each_cpu_wrap()	
-> > 
-> > From: Peter Zijlstra <peterz@infradead.org>
-> > 
-> > [ Upstream commit c743f0a5c50f2fcbc628526279cfa24f3dabe182 ]
-> > 
-> > More users for for_each_cpu_wrap() have appeared. Promote the construct
-> > to generic cpumask interface.
-> > 
-> > The implementation is slightly modified to reduce arguments.
-> > 
-> > Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-> > Cc: Lauro Ramos Venancio <lvenanci@redhat.com>
-> > Cc: Linus Torvalds <torvalds@linux-foundation.org>
-> > Cc: Mike Galbraith <efault@gmx.de>
-> > Cc: Peter Zijlstra <peterz@infradead.org>
-> > Cc: Rik van Riel <riel@redhat.com>
-> > Cc: Thomas Gleixner <tglx@linutronix.de>
-> > Cc: lwang@redhat.com
-> > Link: http://lkml.kernel.org/r/20170414122005.o35me2h5nowqkxbv@hirez.programming.kicks-ass.net
-> > Signed-off-by: Ingo Molnar <mingo@kernel.org>
-> > [dj: include only what's added to the cpumask interface, 4.4 doesn't
-> >      have them in the scheduler]
-> > Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
-> > Signed-off-by: Sasha Levin <sashal@kernel.org>
-> > ---
-> >  include/linux/cpumask.h | 17 +++++++++++++++++
-> >  lib/cpumask.c           | 32 ++++++++++++++++++++++++++++++++
-> >  2 files changed, 49 insertions(+)
-> 
-> This commit also needs the following commits:
-> 
-> commit d207af2eab3f8668b95ad02b21930481c42806fd
-> Author: Michael Kelley <mhkelley@outlook.com>
-> Date:   Wed Feb 14 02:54:03 2018 +0000
-> 
->     cpumask: Make for_each_cpu_wrap() available on UP as well
->     
->     for_each_cpu_wrap() was originally added in the #else half of a
->     large "#if NR_CPUS == 1" statement, but was omitted in the #if
->     half.  This patch adds the missing #if half to prevent compile
->     errors when NR_CPUS is 1.
->     
->     Reported-by: kbuild test robot <fengguang.wu@intel.com>
->     Signed-off-by: Michael Kelley <mhkelley@outlook.com>
->     Cc: Linus Torvalds <torvalds@linux-foundation.org>
->     Cc: Peter Zijlstra <peterz@infradead.org>
->     Cc: Thomas Gleixner <tglx@linutronix.de>
->     Cc: kys@microsoft.com
->     Cc: martin.petersen@oracle.com
->     Cc: mikelley@microsoft.com
->     Fixes: c743f0a5c50f ("sched/fair, cpumask: Export for_each_cpu_wrap()")
->     Link: http://lkml.kernel.org/r/SN6PR1901MB2045F087F59450507D4FCC17CBF50@SN6PR1901MB2045.namprd19.prod.outlook.com
->     Signed-off-by: Ingo Molnar <mingo@kernel.org>
-> 
-> Please apply this commit.
 
-Good catch, now queued up, thanks.
+This is a note to let you know that I've just added the patch titled
 
-greg k-h
+    staging: rtl8712: Fix IEEE80211_ADDBA_PARAM_BUF_SIZE_MASK
+
+to my staging git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
+in the staging-testing branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will be merged to the staging-next branch sometime soon,
+after it passes testing, and the merge window is open.
+
+If you have any questions about this process, please let me know.
+
+
+From 15ea976a1f12b5fd76b1bd6ff3eb5132fd28047f Mon Sep 17 00:00:00 2001
+From: Pascal Terjan <pterjan@google.com>
+Date: Sat, 23 May 2020 22:12:47 +0100
+Subject: staging: rtl8712: Fix IEEE80211_ADDBA_PARAM_BUF_SIZE_MASK
+
+The value in shared headers was fixed 9 years ago in commit 8d661f1e462d
+("ieee80211: correct IEEE80211_ADDBA_PARAM_BUF_SIZE_MASK macro") and
+while looking at using shared headers for other duplicated constants
+I noticed this driver uses the old value.
+
+The macros are also defined twice in this file so I am deleting the
+second definition.
+
+Signed-off-by: Pascal Terjan <pterjan@google.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200523211247.23262-1-pterjan@google.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/staging/rtl8712/wifi.h | 9 +--------
+ 1 file changed, 1 insertion(+), 8 deletions(-)
+
+diff --git a/drivers/staging/rtl8712/wifi.h b/drivers/staging/rtl8712/wifi.h
+index be731f1a2209..91b65731fcaa 100644
+--- a/drivers/staging/rtl8712/wifi.h
++++ b/drivers/staging/rtl8712/wifi.h
+@@ -440,7 +440,7 @@ static inline unsigned char *get_hdr_bssid(unsigned char *pframe)
+ /* block-ack parameters */
+ #define IEEE80211_ADDBA_PARAM_POLICY_MASK 0x0002
+ #define IEEE80211_ADDBA_PARAM_TID_MASK 0x003C
+-#define IEEE80211_ADDBA_PARAM_BUF_SIZE_MASK 0xFFA0
++#define IEEE80211_ADDBA_PARAM_BUF_SIZE_MASK 0xFFC0
+ #define IEEE80211_DELBA_PARAM_TID_MASK 0xF000
+ #define IEEE80211_DELBA_PARAM_INITIATOR_MASK 0x0800
+ 
+@@ -532,13 +532,6 @@ struct ieee80211_ht_addt_info {
+ #define IEEE80211_HT_IE_NON_GF_STA_PRSNT	0x0004
+ #define IEEE80211_HT_IE_NON_HT_STA_PRSNT	0x0010
+ 
+-/* block-ack parameters */
+-#define IEEE80211_ADDBA_PARAM_POLICY_MASK 0x0002
+-#define IEEE80211_ADDBA_PARAM_TID_MASK 0x003C
+-#define IEEE80211_ADDBA_PARAM_BUF_SIZE_MASK 0xFFA0
+-#define IEEE80211_DELBA_PARAM_TID_MASK 0xF000
+-#define IEEE80211_DELBA_PARAM_INITIATOR_MASK 0x0800
+-
+ /*
+  * A-PMDU buffer sizes
+  * According to IEEE802.11n spec size varies from 8K to 64K (in powers of 2)
+-- 
+2.26.2
+
+
