@@ -2,89 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BDE481E4666
-	for <lists+stable@lfdr.de>; Wed, 27 May 2020 16:51:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 75D851E468C
+	for <lists+stable@lfdr.de>; Wed, 27 May 2020 16:57:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389117AbgE0OvL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 May 2020 10:51:11 -0400
-Received: from eu-smtp-delivery-151.mimecast.com ([146.101.78.151]:26501 "EHLO
-        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2388931AbgE0OvK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 May 2020 10:51:10 -0400
-Received: from AcuMS.aculab.com (156.67.243.126 [156.67.243.126]) (Using
- TLS) by relay.mimecast.com with ESMTP id
- uk-mta-169-m1cHcyVVPiChFSzhadPXzw-1; Wed, 27 May 2020 15:51:06 +0100
-X-MC-Unique: m1cHcyVVPiChFSzhadPXzw-1
-Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) by
- AcuMS.aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) with Microsoft SMTP
- Server (TLS) id 15.0.1347.2; Wed, 27 May 2020 15:51:05 +0100
-Received: from AcuMS.Aculab.com ([fe80::43c:695e:880f:8750]) by
- AcuMS.aculab.com ([fe80::43c:695e:880f:8750%12]) with mapi id 15.00.1347.000;
- Wed, 27 May 2020 15:51:05 +0100
-From:   David Laight <David.Laight@ACULAB.COM>
-To:     "'Liang, Kan'" <kan.liang@linux.intel.com>,
-        "peterz@infradead.org" <peterz@infradead.org>,
-        "mingo@redhat.com" <mingo@redhat.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-CC:     "ak@linux.intel.com" <ak@linux.intel.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: RE: [PATCH] perf/x86/intel/uncore: Fix oops when counting IMC uncore
- events on some TGL
-Thread-Topic: [PATCH] perf/x86/intel/uncore: Fix oops when counting IMC uncore
- events on some TGL
-Thread-Index: AQHWNCLukMKeXYb1T0G/ZA+cFsVVx6i75DXQgAAOAgCAABGM4A==
-Date:   Wed, 27 May 2020 14:51:05 +0000
-Message-ID: <d64c3c684ccd46daa5bb326dbbb277b0@AcuMS.aculab.com>
-References: <1590582647-90675-1-git-send-email-kan.liang@linux.intel.com>
- <869fafc80da84d188678c1cbb0267a0b@AcuMS.aculab.com>
- <ed3d86b7-2f75-cfe9-bc74-5f2c29ef2540@linux.intel.com>
-In-Reply-To: <ed3d86b7-2f75-cfe9-bc74-5f2c29ef2540@linux.intel.com>
-Accept-Language: en-GB, en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [10.202.205.107]
+        id S2388982AbgE0O5J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 May 2020 10:57:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48784 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2388738AbgE0O5J (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 May 2020 10:57:09 -0400
+Received: from mail-oi1-x244.google.com (mail-oi1-x244.google.com [IPv6:2607:f8b0:4864:20::244])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C702C05BD1E;
+        Wed, 27 May 2020 07:57:09 -0700 (PDT)
+Received: by mail-oi1-x244.google.com with SMTP id l6so21945321oic.9;
+        Wed, 27 May 2020 07:57:09 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=FD3zOvZkpKIQsJ/+WeZ7mwKgRCBWCzByyJC1qop6De0=;
+        b=n9v9Cbu6S6tJoT+z12QI/h8gaO1V+5VQcHtR0D+Avm3OO9NeC69bHqwfyCb0KtHItE
+         Fi/xCM+AMKmhgvWUDBtM3egvQ0c7t4+lPgkMDnGZ62ZyFjJXyK1Cr1grD8S8Jd9J++FU
+         ja7bXJGYSLd4r5QSbUjbNp3MsoRblU2RMohSfAIi4xu+GbPIRQIbe3av/tZciJnaI4Ik
+         TfQUsUq9Dgr7lqa2/2qoEbuqSK+VjJLXdw2AHyToSV8uGk3CXYX4Gh3LhbegNQikcqTX
+         QY2y8wEtEPgDkKwSS9Rh5/JBzlBhB4LP69UvnUFBw+5lBeaUNnCU5yLXku2klHGvEC0t
+         Ukng==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
+         :date:user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=FD3zOvZkpKIQsJ/+WeZ7mwKgRCBWCzByyJC1qop6De0=;
+        b=VRXWcfBkJ7MJxfs5A+O9CFHWJ8gaKenvav3AUcXC6+GydwgyXWIAdwTCOAJNjFt1aL
+         7DY5vNnDCnxN/kmXA8TiRnMl9RP1XUpyTzcEgwxYL7zdYQPjXeTltESMqVD8rXW5ZLZ6
+         2yakZIeLeE/bUNrp2gjSTOSQN5IYK/2bGqf6ocGMgs/0VuCAdbiFItQNI5ioMlEwiDmt
+         +rMigzFiEAzf2iSHc+rajVb57E83+Z0XVODPTNFeWO2z01AGbYXOKprHjX8E37D89v8c
+         kQ5UewMgh2rMF2WZYcuS8bUQxBUGJlFQnN2BIiLwFtTSP5mnBi6c10EUmt0bB0vfNaqv
+         COMw==
+X-Gm-Message-State: AOAM531RX21BXz1Cqp3YP+DVULoIktVtLT125wXQqNlJAuLJDsjg/Daz
+        RnXuEwQu0jNtINscTpujFRbRzmC4
+X-Google-Smtp-Source: ABdhPJwnfjZU2gEKHY3PeXsfvDAPqAQkCTpR/fHX4lOzMp9zII3MM/9EBoxatUwGWqpaxa14jJ3azQ==
+X-Received: by 2002:aca:4e87:: with SMTP id c129mr3079868oib.9.1590591428265;
+        Wed, 27 May 2020 07:57:08 -0700 (PDT)
+Received: from localhost.localdomain (cpe-24-31-245-230.kc.res.rr.com. [24.31.245.230])
+        by smtp.gmail.com with ESMTPSA id d64sm879341oig.53.2020.05.27.07.57.07
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 27 May 2020 07:57:07 -0700 (PDT)
+Subject: Re: [PATCH 2/2] b43_legacy: Fix connection problem with WPA3
+To:     Kalle Valo <kvalo@codeaurora.org>
+Cc:     linux-wireless@vger.kernel.org,
+        Rui Salvaterra <rsalvaterra@gmail.com>,
+        Stable <stable@vger.kernel.org>
+References: <20200526155909.5807-1-Larry.Finger@lwfinger.net>
+ <20200526155909.5807-3-Larry.Finger@lwfinger.net>
+ <87a71tv9g6.fsf@codeaurora.org>
+From:   Larry Finger <Larry.Finger@lwfinger.net>
+Message-ID: <6375413e-88b2-effa-c972-63eb65a36d09@lwfinger.net>
+Date:   Wed, 27 May 2020 09:57:06 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.8.0
 MIME-Version: 1.0
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: aculab.com
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: base64
+In-Reply-To: <87a71tv9g6.fsf@codeaurora.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-RnJvbTogTGlhbmcsIEthbg0KPiBTZW50OiAyNyBNYXkgMjAyMCAxNTo0Nw0KPiBPbiA1LzI3LzIw
-MjAgODo1OSBBTSwgRGF2aWQgTGFpZ2h0IHdyb3RlOg0KPiA+IEZyb206IGthbi5saWFuZ0BsaW51
-eC5pbnRlbC5jb20NCj4gPj4gU2VudDogMjcgTWF5IDIwMjAgMTM6MzENCj4gPj4NCj4gPj4gRnJv
-bTogS2FuIExpYW5nIDxrYW4ubGlhbmdAbGludXguaW50ZWwuY29tPg0KPiA+Pg0KPiA+PiBXaGVu
-IGNvdW50aW5nIElNQyB1bmNvcmUgZXZlbnRzIG9uIHNvbWUgVEdMIG1hY2hpbmVzLCBhbiBvb3Bz
-IHdpbGwgYmUNCj4gPj4gdHJpZ2dlcmVkLg0KPiA+PiAgICBbIDM5My4xMDEyNjJdIEJVRzogdW5h
-YmxlIHRvIGhhbmRsZSBwYWdlIGZhdWx0IGZvciBhZGRyZXNzOg0KPiA+PiAgICBmZmZmYjQ1MjAw
-ZTE1ODU4DQo+ID4+ICAgIFsgMzkzLjEwMTI2OV0gI1BGOiBzdXBlcnZpc29yIHJlYWQgYWNjZXNz
-IGluIGtlcm5lbCBtb2RlDQo+ID4+ICAgIFsgMzkzLjEwMTI3MV0gI1BGOiBlcnJvcl9jb2RlKDB4
-MDAwMCkgLSBub3QtcHJlc2VudCBwYWdlDQo+ID4+DQo+ID4+IEN1cnJlbnQgcGVyZiB1bmNvcmUg
-ZHJpdmVyIHN0aWxsIHVzZSB0aGUgSU1DIE1BUCBTSVpFIGluaGVyaXRlZCBmcm9tDQo+ID4+IFNO
-Qiwgd2hpY2ggaXMgMHg2MDAwLg0KPiA+PiBIb3dldmVyLCB0aGUgb2Zmc2V0IG9mIElNQyB1bmNv
-cmUgY291bnRlcnMgZm9yIHNvbWUgVEdMIG1hY2hpbmVzIGlzDQo+ID4+IGxhcmdlciB0aGFuIDB4
-NjAwMCwgZS5nLiAweGQ4YTAuDQo+ID4+DQo+ID4+IEVubGFyZ2UgdGhlIElNQyBNQVAgU0laRSBm
-b3IgVEdMIHRvIDB4ZTAwMC4NCj4gPg0KPiA+IFJlcGxhY2luZyBvbmUgJ3JhbmRvbScgY29uc3Rh
-bnQgd2l0aCBhIGRpZmZlcmVudCBvbmUNCj4gPiBkb2Vzbid0IHNlZW0gbGlrZSBhIHByb3BlciBm
-aXguDQo+ID4NCj4gPiBTdXJlbHkgdGhlIGFjdHVhbCBib3VuZHMgb2YgdGhlICdtZW1vcnknIGFy
-ZWEgYXJlIHByb3Blcmx5DQo+ID4gZGVmaW5lZCBzb21ld2hlcmUuDQo+ID4gT3IgYXQgbGVhc3Qg
-c2hvdWxkIGNvbWUgZnJvbSBhIHRhYmxlLg0KPiA+DQo+ID4gWW91IGFsc28gbmVlZCB0byB2ZXJp
-ZnkgdGhhdCB0aGUgb2Zmc2V0cyBhcmUgd2l0aGluIHRoZSBtYXBwZWQgYXJlYS4NCj4gPiBBbiB1
-bmV4cGVjdGVkIG9mZnNldCBzaG91bGRuJ3QgdHJ5IHRvIGFjY2VzcyBhbiBpbnZhbGlkIGFkZHJl
-c3MuDQo+IA0KPiBUaGFua3MgZm9yIHRoZSByZXZpZXcuDQo+IA0KPiBJIGFncmVlIHRoYXQgd2Ug
-c2hvdWxkIGFkZCBhIGNoZWNrIGJlZm9yZSBtYXBwaW5nIHRoZSBhcmVhIHRvIHByZXZlbnQNCj4g
-dGhlIGlzc3VlIGhhcHBlbnMgYWdhaW4uDQo+IA0KPiBJIHRoaW5rIHRoZSBjaGVjayBzaG91bGQg
-YmUgYSBnZW5lcmljIGNoZWNrIGZvciBhbGwgcGxhdGZvcm1zIHdoaWNoIHRyeQ0KPiB0byBtYXAg
-YW4gYXJlYSwgbm90IGp1c3QgZm9yIFRHTC4gSSB3aWxsIHN1Ym1pdCBhIHNlcGFyYXRlIHBhdGNo
-IGZvciB0aGUNCj4gY2hlY2suDQoNCllvdSBuZWVkIGEgY2hlY2sgdGhhdCB0aGUgYWN0dWFsIGFj
-Y2VzcyBpcyB3aXRoaW5nIHRoZSBtYXBwZWQgYXJlYS4NClNvIGluc3RlYWQgb2YgZ2V0dGluZyBh
-biBPT1BTIHlvdSBnZXQgYSBlcnJvci4NCg0KVGhpcyBpcyBhZnRlciB5b3UndmUgbWFwcGVkIGl0
-Lg0KDQoJRGF2aWQNCg0KLQ0KUmVnaXN0ZXJlZCBBZGRyZXNzIExha2VzaWRlLCBCcmFtbGV5IFJv
-YWQsIE1vdW50IEZhcm0sIE1pbHRvbiBLZXluZXMsIE1LMSAxUFQsIFVLDQpSZWdpc3RyYXRpb24g
-Tm86IDEzOTczODYgKFdhbGVzKQ0K
+On 5/27/20 7:39 AM, Kalle Valo wrote:
+> Larry Finger <Larry.Finger@lwfinger.net> writes:
+> 
+>> Since the driver was first introduced into the kernel, it has only
+>> handled the ciphers associated with WEP, WPA, and WPA2. It fails with
+>> WPA3 even though mac80211 can handle those additional ciphers in software,
+>> b43legacy did not report that it could handle them. By setting MFP_CAPABLE using
+>> ieee80211_set_hw(), the problem is fixed.
+>>
+>> With this change, b43legacy will handle the ciohers it knows in hardare,
+>> and let mac80211 handle the others in software. It is not necessary to
+>> use the module parameter NOHWCRYPT to turn hardware encryption off.
+>> Although this change essentially eliminates that module parameter,
+>> I am choosing to keep it for cases where the hardware is broken,
+>> and software encryption is required for all ciphers.
+>>
+>> This patch fixes a problem that has been in b43legacy since commit
+>> 75388acd0cd8 ("[B43LEGACY]: add mac80211-based driver for legacy BCM43xx
+>> devices").
+>>
+>> Fixes: 75388acd0cd8 ("[B43LEGACY]: add mac80211-based driver for legacy BCM43xx devices")
+>> Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
+>> Cc: Stable <stable@vger.kernel.org>
+> 
+> I'll do the same changes here as in patch 1.
+> 
+
+Yes, both are OK.
+
+Larry
 
