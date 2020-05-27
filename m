@@ -2,159 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 347A31E3DA4
-	for <lists+stable@lfdr.de>; Wed, 27 May 2020 11:34:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 54CC01E3DC9
+	for <lists+stable@lfdr.de>; Wed, 27 May 2020 11:43:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726914AbgE0JeP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 May 2020 05:34:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55076 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728527AbgE0JeO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 May 2020 05:34:14 -0400
-Received: from mail-pf1-x441.google.com (mail-pf1-x441.google.com [IPv6:2607:f8b0:4864:20::441])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9BC7C061A0F
-        for <stable@vger.kernel.org>; Wed, 27 May 2020 02:34:13 -0700 (PDT)
-Received: by mail-pf1-x441.google.com with SMTP id g5so99699pfm.10
-        for <stable@vger.kernel.org>; Wed, 27 May 2020 02:34:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=3lhY/YZJaPdg6WyZccMVuDbNSmdFkUxy8fpVdIcc7jU=;
-        b=C4Td3937GaNYCaU/TbwAEEruw3qStp/HAf3wiCg26gnorjB33iDVCuhxtB3qt1QL/8
-         L9XoBhduGsQS1n8q3/a5JJ1WK9aQqryNhOQnjd8hGuPMRPPRauV6ZQaD4hn8W447zkIn
-         BJOF65++GBJBb7NhF2bffkYi6hl4xNA2uQB0XERlvtBY7O7RsBolisndTLwBgbOG+Di2
-         q+1HCajba990zp3MzHEIWr2OiezlE00wjoNq4MeUBGVVjEU6kA2d0ivmg1DaBTEbrOz7
-         eU+WZr+AG5RSYp1wC/TTN5m2VwI9KuaELKbI0Z7hLnafE+bYZ4CNt0ZkUuHAhOOlV6GT
-         xbow==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=3lhY/YZJaPdg6WyZccMVuDbNSmdFkUxy8fpVdIcc7jU=;
-        b=c0cnhi9SaYVXPYsgCWNuMCk74N1VJy3HYuxghGDBj47YhUJf8ln6dKULvg5Urqh/oZ
-         zsKc13OK6Nu/G7e4yJkWYWcKcObs6K4eNv8TrIR/7ToQPpo4LGH6UB7YU4Te6ktKRz6X
-         j/JTUaToc4MTcrthRLCnk1q0H0XlNU6AhKHsJzn/ZyYuj9RThpG1v/L5qtlov+RUo5L0
-         ll9NtQ+noYAGmoYDn0Yp94FZY63qTfSjxw6/8qIiXG3VXDX0myaGLEH3HK53ubAn3EHr
-         Atl7Ewk90vQUwuQYHbF2aE5ZkFlDlaPE+/NbGm4odwe7Ylhxr2JVio0kkdHUmJzTU0E4
-         AJeg==
-X-Gm-Message-State: AOAM531TMUeIfL8ZMdRAHjQH5zif2O2Al1i8b2HSJMDXD+ivGFtybGEQ
-        oKoi6QeGOmq4582RqfKGUNdde2K3QGQ=
-X-Google-Smtp-Source: ABdhPJwJfDyU2guILlrBgBY7ZAwZ4E8OPDUxfTnobhhZFgizcwvp5nqqIuNkmfMMZbwl2iPLPAJovw==
-X-Received: by 2002:a63:e454:: with SMTP id i20mr3151434pgk.440.1590572052910;
-        Wed, 27 May 2020 02:34:12 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id f29sm1734248pgf.63.2020.05.27.02.34.12
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 27 May 2020 02:34:12 -0700 (PDT)
-Message-ID: <5ece3414.1c69fb81.e4258.b41f@mx.google.com>
-Date:   Wed, 27 May 2020 02:34:12 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1726267AbgE0Jnt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 May 2020 05:43:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45228 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725320AbgE0Jnt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 May 2020 05:43:49 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 76C852075A;
+        Wed, 27 May 2020 09:43:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1590572627;
+        bh=Y5MgGNxDObmd6lAXeY8zv/6P2Xc3MdEqJ8tL0llii3s=;
+        h=Subject:To:From:Date:From;
+        b=HP/UYty0UwESfpYeoM0D2vJrFgtS6z0+QWPL9XeFVJcaOMjjSKMtjl17892ARsFOU
+         F649EaFMQKjCyPLpbpPwRjzcBQD2dRX4JCH6JpXDiyoENPVuVW8fc+XIA0KsTxRicu
+         a6l+PORtR9lSfoTkU2ZNss2bGWIw115JHAravZVs=
+Subject: patch "nvmem: qfprom: remove incorrect write support" added to char-misc-testing
+To:     srinivas.kandagatla@linaro.org, dianders@chromium.org,
+        gregkh@linuxfoundation.org, stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Wed, 27 May 2020 11:43:45 +0200
+Message-ID: <15905726253770@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-5.4.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v5.4.42-112-g00dd3347ad64
-Subject: stable-rc/linux-5.4.y boot: 151 boots: 2 failed,
- 139 passed with 5 offline, 5 untried/unknown (v5.4.42-112-g00dd3347ad64)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-******************************************
-* WARNING: Boot tests are now deprecated *
-******************************************
 
-As kernelci.org is expanding its functional testing capabilities, the conce=
-pt
-of boot testing is now deprecated.  Boot results are scheduled to be droppe=
-d on
-*5th June 2020*.  The full schedule for boot tests deprecation is available=
- on
-this GitHub issue: https://github.com/kernelci/kernelci-backend/issues/238
+This is a note to let you know that I've just added the patch titled
 
-The new equivalent is the *baseline* test suite which also runs sanity chec=
-ks
-using dmesg and bootrr: https://github.com/kernelci/bootrr
+    nvmem: qfprom: remove incorrect write support
 
-See the *baseline results for this kernel revision* on this page:
-https://kernelci.org/test/job/stable-rc/branch/linux-5.4.y/kernel/v5.4.42-1=
-12-g00dd3347ad64/plan/baseline/
+to my char-misc git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
+in the char-misc-testing branch.
 
----------------------------------------------------------------------------=
-----
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
 
-stable-rc/linux-5.4.y boot: 151 boots: 2 failed, 139 passed with 5 offline,=
- 5 untried/unknown (v5.4.42-112-g00dd3347ad64)
+The patch will be merged to the char-misc-next branch sometime soon,
+after it passes testing, and the merge window is open.
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--5.4.y/kernel/v5.4.42-112-g00dd3347ad64/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.4.y=
-/kernel/v5.4.42-112-g00dd3347ad64/
+If you have any questions about this process, please let me know.
 
-Tree: stable-rc
-Branch: linux-5.4.y
-Git Describe: v5.4.42-112-g00dd3347ad64
-Git Commit: 00dd3347ad64830e7d9a5a6bd3036b9537887208
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 94 unique boards, 25 SoC families, 19 builds out of 166
 
-Boot Regressions Detected:
+From 8d9eb0d6d59a5d7028c80a30831143d3e75515a7 Mon Sep 17 00:00:00 2001
+From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Date: Fri, 22 May 2020 12:33:41 +0100
+Subject: nvmem: qfprom: remove incorrect write support
 
-arm:
+qfprom has different address spaces for read and write. Reads are
+always done from corrected address space, where as writes are done
+on raw address space.
+Writing to corrected address space is invalid and ignored, so it
+does not make sense to have this support in the driver which only
+supports corrected address space regions at the moment.
 
-    multi_v7_defconfig:
-        gcc-8:
-          omap3-beagle-xm:
-              lab-baylibre: new failure (last pass: v5.4.42-105-g3cb79944b6=
-5a)
-
-    qcom_defconfig:
-        gcc-8:
-          qcom-apq8064-cm-qs600:
-              lab-baylibre-seattle: failing since 108 days (last pass: v5.4=
-.17-99-gbd0c6624a110 - first fail: v5.4.17-238-gbffcaa93483d)
-
-    sama5_defconfig:
-        gcc-8:
-          at91-sama5d4_xplained:
-              lab-baylibre: failing since 49 days (last pass: v5.4.30-37-g4=
-0da5db79b55 - first fail: v5.4.30-39-g23c04177b89f)
-
-Boot Failures Detected:
-
-arm:
-    sama5_defconfig:
-        gcc-8:
-            at91-sama5d4_xplained: 1 failed lab
-
-    multi_v7_defconfig:
-        gcc-8:
-            omap3-beagle-xm: 1 failed lab
-
-Offline Platforms:
-
-arm:
-
-    multi_v7_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-            qcom-apq8064-cm-qs600: 1 offline lab
-            stih410-b2120: 1 offline lab
-
-    exynos_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-
+Fixes: 4ab11996b489 ("nvmem: qfprom: Add Qualcomm QFPROM support.")
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200522113341.7728-1-srinivas.kandagatla@linaro.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
-For more info write to <info@kernelci.org>
+ drivers/nvmem/qfprom.c | 14 --------------
+ 1 file changed, 14 deletions(-)
+
+diff --git a/drivers/nvmem/qfprom.c b/drivers/nvmem/qfprom.c
+index d057f1bfb2e9..8a91717600be 100644
+--- a/drivers/nvmem/qfprom.c
++++ b/drivers/nvmem/qfprom.c
+@@ -27,25 +27,11 @@ static int qfprom_reg_read(void *context,
+ 	return 0;
+ }
+ 
+-static int qfprom_reg_write(void *context,
+-			 unsigned int reg, void *_val, size_t bytes)
+-{
+-	struct qfprom_priv *priv = context;
+-	u8 *val = _val;
+-	int i = 0, words = bytes;
+-
+-	while (words--)
+-		writeb(*val++, priv->base + reg + i++);
+-
+-	return 0;
+-}
+-
+ static struct nvmem_config econfig = {
+ 	.name = "qfprom",
+ 	.stride = 1,
+ 	.word_size = 1,
+ 	.reg_read = qfprom_reg_read,
+-	.reg_write = qfprom_reg_write,
+ };
+ 
+ static int qfprom_probe(struct platform_device *pdev)
+-- 
+2.26.2
+
+
