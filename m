@@ -2,77 +2,158 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AABE71E3E5D
-	for <lists+stable@lfdr.de>; Wed, 27 May 2020 12:01:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 058161E3EDF
+	for <lists+stable@lfdr.de>; Wed, 27 May 2020 12:22:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729743AbgE0KBX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 May 2020 06:01:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51752 "EHLO mail.kernel.org"
+        id S1729785AbgE0KWK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 May 2020 06:22:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58962 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725848AbgE0KBW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 May 2020 06:01:22 -0400
+        id S1726964AbgE0KWJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 May 2020 06:22:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 993F92084C;
-        Wed, 27 May 2020 10:01:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 67709207CB;
+        Wed, 27 May 2020 10:22:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590573682;
-        bh=9wa7osKVq8G8KRV4UBClAM7K0DIQxJQ1DAeZp+MGtP0=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=AzPzZQw0Lu6ffUH+LzQ8WlnVeUShSkRaMiu1fnr9uTH86FvrFNodRcI3Dhr3+ciO2
-         DENjVdi1xDG9fYfKb/kQT/m0GCr+lhy0HwjpIAnnDXb2R3xMUmW2kMklAOWesQVi/m
-         NGBFEYsV/dHVLTD5gK0Lo5tzzpoLZtacGCllZE90=
-Date:   Wed, 27 May 2020 12:01:19 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        linux- stable <stable@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [PATCH 5.6 000/126] 5.6.15-rc1 review
-Message-ID: <20200527100119.GC277684@kroah.com>
-References: <20200526183937.471379031@linuxfoundation.org>
- <CA+G9fYtbi+qgdu9ZeHPxKZyqON18WUdK1i=f9YpFQ2t58JCO-g@mail.gmail.com>
+        s=default; t=1590574928;
+        bh=CguVtyq/ukaZ/HtX1KVuGS0iDjhAiLuST98wbfIyDhQ=;
+        h=Subject:To:From:Date:From;
+        b=OZ+feVcE2Atkkj4vO4SgSjNPlpTjDHkyqg3HD8lLhdhv1soWPJBcBCS8+VxfmwrS0
+         c5a6XKo3qqE/tYFqcblWu736cY/jwqnhEQDjamgOfJ5XkzcKus4nTCawI1kvPAb4cz
+         fegWWI/BjSALn1UaJNsVLOA0orn4GMvDZD/oCUPQ=
+Subject: patch "vt: keyboard: avoid signed integer overflow in k_ascii" added to tty-testing
+To:     dmitry.torokhov@gmail.com, gregkh@linuxfoundation.org,
+        kt0755@gmail.com, stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Wed, 27 May 2020 12:22:06 +0200
+Message-ID: <1590574926244117@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <CA+G9fYtbi+qgdu9ZeHPxKZyqON18WUdK1i=f9YpFQ2t58JCO-g@mail.gmail.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, May 27, 2020 at 01:47:41PM +0530, Naresh Kamboju wrote:
-> On Wed, 27 May 2020 at 00:46, Greg Kroah-Hartman
-> <gregkh@linuxfoundation.org> wrote:
-> >
-> > This is the start of the stable review cycle for the 5.6.15 release.
-> > There are 126 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> >
-> > Responses should be made by Thu, 28 May 2020 18:36:22 +0000.
-> > Anything received after that time might be too late.
-> >
-> > The whole patch series can be found in one patch at:
-> >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.6.15-rc1.gz
-> > or in the git tree and branch at:
-> >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.6.y
-> > and the diffstat can be found below.
-> >
-> > thanks,
-> >
-> > greg k-h
-> 
-> Results from Linaro’s test farm.
-> No regressions on arm64, arm, x86_64, and i386.
 
-Great!  That was fast, thanks for testing them all and letting me know.
+This is a note to let you know that I've just added the patch titled
 
-greg k-h
+    vt: keyboard: avoid signed integer overflow in k_ascii
+
+to my tty git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/tty.git
+in the tty-testing branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will be merged to the tty-next branch sometime soon,
+after it passes testing, and the merge window is open.
+
+If you have any questions about this process, please let me know.
+
+
+From b86dab054059b970111b5516ae548efaae5b3aae Mon Sep 17 00:00:00 2001
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Date: Mon, 25 May 2020 16:27:40 -0700
+Subject: vt: keyboard: avoid signed integer overflow in k_ascii
+
+When k_ascii is invoked several times in a row there is a potential for
+signed integer overflow:
+
+UBSAN: Undefined behaviour in drivers/tty/vt/keyboard.c:888:19 signed integer overflow:
+10 * 1111111111 cannot be represented in type 'int'
+CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.6.11 #1
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS Bochs 01/01/2011
+Call Trace:
+ <IRQ>
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0xce/0x128 lib/dump_stack.c:118
+ ubsan_epilogue+0xe/0x30 lib/ubsan.c:154
+ handle_overflow+0xdc/0xf0 lib/ubsan.c:184
+ __ubsan_handle_mul_overflow+0x2a/0x40 lib/ubsan.c:205
+ k_ascii+0xbf/0xd0 drivers/tty/vt/keyboard.c:888
+ kbd_keycode drivers/tty/vt/keyboard.c:1477 [inline]
+ kbd_event+0x888/0x3be0 drivers/tty/vt/keyboard.c:1495
+
+While it can be worked around by using check_mul_overflow()/
+check_add_overflow(), it is better to introduce a separate flag to
+signal that number pad is being used to compose a symbol, and
+change type of the accumulator from signed to unsigned, thus
+avoiding undefined behavior when it overflows.
+
+Reported-by: Kyungtae Kim <kt0755@gmail.com>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200525232740.GA262061@dtor-ws
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/tty/vt/keyboard.c | 26 ++++++++++++++++----------
+ 1 file changed, 16 insertions(+), 10 deletions(-)
+
+diff --git a/drivers/tty/vt/keyboard.c b/drivers/tty/vt/keyboard.c
+index 15d33fa0c925..568b2171f335 100644
+--- a/drivers/tty/vt/keyboard.c
++++ b/drivers/tty/vt/keyboard.c
+@@ -127,7 +127,11 @@ static DEFINE_SPINLOCK(func_buf_lock); /* guard 'func_buf'  and friends */
+ static unsigned long key_down[BITS_TO_LONGS(KEY_CNT)];	/* keyboard key bitmap */
+ static unsigned char shift_down[NR_SHIFT];		/* shift state counters.. */
+ static bool dead_key_next;
+-static int npadch = -1;					/* -1 or number assembled on pad */
++
++/* Handles a number being assembled on the number pad */
++static bool npadch_active;
++static unsigned int npadch_value;
++
+ static unsigned int diacr;
+ static char rep;					/* flag telling character repeat */
+ 
+@@ -845,12 +849,12 @@ static void k_shift(struct vc_data *vc, unsigned char value, char up_flag)
+ 		shift_state &= ~(1 << value);
+ 
+ 	/* kludge */
+-	if (up_flag && shift_state != old_state && npadch != -1) {
++	if (up_flag && shift_state != old_state && npadch_active) {
+ 		if (kbd->kbdmode == VC_UNICODE)
+-			to_utf8(vc, npadch);
++			to_utf8(vc, npadch_value);
+ 		else
+-			put_queue(vc, npadch & 0xff);
+-		npadch = -1;
++			put_queue(vc, npadch_value & 0xff);
++		npadch_active = false;
+ 	}
+ }
+ 
+@@ -868,7 +872,7 @@ static void k_meta(struct vc_data *vc, unsigned char value, char up_flag)
+ 
+ static void k_ascii(struct vc_data *vc, unsigned char value, char up_flag)
+ {
+-	int base;
++	unsigned int base;
+ 
+ 	if (up_flag)
+ 		return;
+@@ -882,10 +886,12 @@ static void k_ascii(struct vc_data *vc, unsigned char value, char up_flag)
+ 		base = 16;
+ 	}
+ 
+-	if (npadch == -1)
+-		npadch = value;
+-	else
+-		npadch = npadch * base + value;
++	if (!npadch_active) {
++		npadch_value = 0;
++		npadch_active = true;
++	}
++
++	npadch_value = npadch_value * base + value;
+ }
+ 
+ static void k_lock(struct vc_data *vc, unsigned char value, char up_flag)
+-- 
+2.26.2
+
+
