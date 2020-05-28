@@ -2,127 +2,157 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 079811E5AA0
-	for <lists+stable@lfdr.de>; Thu, 28 May 2020 10:21:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A24621E5ADE
+	for <lists+stable@lfdr.de>; Thu, 28 May 2020 10:34:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726830AbgE1IVv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 28 May 2020 04:21:51 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:52806 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726533AbgE1IVu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 28 May 2020 04:21:50 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1590654108;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-        bh=28XwRKURWnZzobTHiXxPf0058GoHHCEM7vKk4EkRWcg=;
-        b=Uk1k+/DmMkKfBUqqVDkkRlB0Vg9jAG6IrrXVjZLzolCn4akWCQZ/YDd85WVwVgHbcxtLkA
-        RdCa7MLjvvk+w58G84lmxr8HwocVJvpfdU5PxomLzCxarrbmTY972934kP9ZxJrzPwVmDc
-        5IcSctqpDf40vKFztX6plsI8yaiT8M0=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-209-HvQqvjmRNcu0fwraVnRZbA-1; Thu, 28 May 2020 04:21:46 -0400
-X-MC-Unique: HvQqvjmRNcu0fwraVnRZbA-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S1727058AbgE1IeH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 28 May 2020 04:34:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44340 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726939AbgE1IeG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 28 May 2020 04:34:06 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id E3E55107ACCA;
-        Thu, 28 May 2020 08:21:44 +0000 (UTC)
-Received: from [10.36.114.114] (ovpn-114-114.ams2.redhat.com [10.36.114.114])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 4152F78900;
-        Thu, 28 May 2020 08:21:42 +0000 (UTC)
-Subject: Re: [PATCH 5.6 086/126] virtio-balloon: Revert "virtio-balloon:
- Switch back to OOM handler for VIRTIO_BALLOON_F_DEFLATE_ON_OOM"
-To:     Jiri Slaby <jslaby@suse.cz>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-References: <20200526183937.471379031@linuxfoundation.org>
- <20200526183945.237904570@linuxfoundation.org>
- <8f649042-bc3a-2809-0332-44a5d3202807@suse.cz>
-From:   David Hildenbrand <david@redhat.com>
-Autocrypt: addr=david@redhat.com; prefer-encrypt=mutual; keydata=
- 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
-Organization: Red Hat GmbH
-Message-ID: <c8253932-5e6b-51e1-fe0c-19514779c9be@redhat.com>
-Date:   Thu, 28 May 2020 10:21:41 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+        by mail.kernel.org (Postfix) with ESMTPSA id B75B82075F;
+        Thu, 28 May 2020 08:34:05 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1590654846;
+        bh=2n2KR8Qu1EwChVUjgq0Xj+qUwi/2wScHAgpKAH3rn+g=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=KNP5mJ8Q/ZstW1KtAQCmr1Ks2eHN6r4VZerMOZrbUHeBhszAPteGPC8NtBzYnGa4G
+         gU0/D082giDX+JPGE9ARw+uLZ7VLRvJFLPSg2u5XyHsnNqSSi4dvv175T/babveNVR
+         ln5yq7MPGpeleYdfZtf0WSReo29YPOLNHYKKYj2c=
+Date:   Thu, 28 May 2020 10:34:03 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Dakshaja Uppalapati <dakshaja@chelsio.com>
+Cc:     hch@lst.de, sagi@grimberg.me, stable@vger.kernel.org,
+        nirranjan@chelsio.com, bharat@chelsio.com
+Subject: Re: nvme blk_update_request IO error is seen on stable kernel 5.4.41.
+Message-ID: <20200528083403.GB2920930@kroah.com>
+References: <20200521140642.GA4724@chelsio.com>
+ <20200526102542.GA2772976@kroah.com>
+ <20200528074426.GA20353@chelsio.com>
 MIME-Version: 1.0
-In-Reply-To: <8f649042-bc3a-2809-0332-44a5d3202807@suse.cz>
 Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200528074426.GA20353@chelsio.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 28.05.20 07:51, Jiri Slaby wrote:
-> On 26. 05. 20, 20:53, Greg Kroah-Hartman wrote:
->> From: Michael S. Tsirkin <mst@redhat.com>
->>
->> [ Upstream commit 835a6a649d0dd1b1f46759eb60fff2f63ed253a7 ]
->>
->> This reverts commit 5a6b4cc5b7a1892a8d7f63d6cbac6e0ae2a9d031.
->>
->> It has been queued properly in the akpm tree, this version is just
->> creating conflicts.
+On Thu, May 28, 2020 at 01:14:31PM +0530, Dakshaja Uppalapati wrote:
+> On Tuesday, May 05/26/20, 2020 at 12:25:42 +0200, Greg KH wrote:
+> > On Thu, May 21, 2020 at 07:36:43PM +0530, Dakshaja Uppalapati wrote:
+> > > Hi all,
+> > > 
+> > > Issue which is reported in https://lore.kernel.org/linux-nvme/CH2PR12MB40050ACF
+> > > 2C0DC7439355ED3FDD270@CH2PR12MB4005.namprd12.prod.outlook.com/T/#r8cfc80b26f0cd
+> > > 1cde41879a68fd6a71186e9594c is also seen on stable kernel 5.4.41. 
+> > 
+> > What issue is that?  Your url is wrapped and can not work here :(
 > 
-> Should this be applied to stable trees at all?
+> Sorry for that, when I tried to format the disk discovered from target machine
+> the below error is seen in dmesg.
 > 
-> To me, it occurs to be a revert to avoid conflicts, not to fix something?
+> dmesg:
+> 	[ 1844.868480] blk_update_request: I/O error, dev nvme0c0n1, sector 0 
+> 	op 0x3:(DISCARD) flags 0x4000800 phys_seg 1 prio class 0
+> 
+> The above issue is seen from kernel-5.5-rc1 onwards.
+> 
+> > 
+> > > In upstream issue is fixed with commit b716e6889c95f64b.
+> > 
+> > Is this a regression or support for something new that has never worked
+> > before?
+> > 
+> 
+> This is a regression, bisects points to the commit 530436c4 and fixed with
+> commit b716e688 in upstream.
+> 
+> Now same issue is seen with stable kernel-5.4.41, 530436c4 is part of it.
 
-Agreed.
+So why don't we just revert 530436c45ef2 ("nvme: Discard workaround for
+non-conformant devices") from the stable trees?  Will that fix the issue
+for you instead of the much-larger set of backports you are proposing?
 
+Also, is this an issue for you in the 4.19 releases?  The above
+mentioned patch showed up in 4.19.92 and 5.4.7.
 
--- 
-Thanks,
+> > > For stable 5.4 kernel it doesn’t apply clean and needs pulling in the following
+> > > commits. 
+> > > 
+> > > commit 2cb6963a16e9e114486decf591af7cb2d69cb154
+> > > Author: Christoph Hellwig <hch@lst.de>
+> > > Date:   Wed Oct 23 10:35:41 2019 -0600
+> > > 
+> > > commit 6f86f2c9d94d55c4d3a6f1ffbc2e1115b5cb38a8
+> > > Author: Christoph Hellwig <hch@lst.de>
+> > > Date:   Wed Oct 23 10:35:42 2019 -0600
+> > > 
+> > > commit 59ef0eaa7741c3543f98220cc132c61bf0230bce
+> > > Author: Christoph Hellwig <hch@lst.de>
+> > > Date:   Wed Oct 23 10:35:43 2019 -0600
+> > > 
+> > > commit e9061c397839eea34207668bfedce0a6c18c5015
+> > > Author: Christoph Hellwig <hch@lst.de>
+> > > Date:   Wed Oct 23 10:35:44 2019 -0600
+> > > 
+> > > commit b716e6889c95f64ba32af492461f6cc9341f3f05
+> > > Author: Sagi Grimberg <sagi@grimberg.me>
+> > > Date:   Sun Jan 26 23:23:28 2020 -0800
+> > > 
+> > > I tried a patch by including only necessary parts of the commits e9061c397839, 
+> > > 59ef0eaa7741 and b716e6889c95. PFA.
+> > > 
+> > > With the attached patch, issue is not seen.
+> > > 
+> > > Please let me know on how to fix it in stable, can all above 5 changes be 
+> > > cleanly pushed  or if  attached shorter version can be pushed?
+> > 
+> > Do all of the above patches apply cleanly?  Do they need to be
+> > backported?  Have you tested that?  Do you have such a series of patches
+> > so we can compare them?
+> > 
+> 
+> Yes I have tested, all the patches applied cleanly and attached all the patches
+> for your reference. They all can be pulled into 5.4 stable without any issues.
+> 
+> 530436c4 -- culprit commit
+> 2cb6963a -- dependent commit
+> 6f86f2c9 -- dependent commit
+> 59ef0eaa -- dependent commit
+> e9061c39 -- dependent commit
+> be3f3114 -- dependent commit
+> b716e688 -- fix commit
+> 
+> > The patch below is not in any format that I can take it in.  ALso, 95%
+> > of the times we take a patch that is different from what is upstream
+> > will have bugs and problems over time because of that.  So I always want
+> > to take the original upstream patches instead if at all possible.
+> > 
+> > So I need a lot more information here in order to try to determine this,
+> > sorry.
+> > 
+> 
+> Thanks
+> Dakshaja
 
-David / dhildenb
+> diff --git a/drivers/nvme/target/admin-cmd.c b/drivers/nvme/target/admin-cmd.c
+> index 831a062d27cb..3665b45d6515 100644
+> --- a/drivers/nvme/target/admin-cmd.c
+> +++ b/drivers/nvme/target/admin-cmd.c
 
+<snip>
+
+I still don't understand what the patch here is, as you don't really
+provide any information about it in a format I am used to seeing.  Can
+you redo it in the documented style of submitting a normal patch to the
+kernel tree so that might help explain things?
+
+thanks,
+
+greg k-h
