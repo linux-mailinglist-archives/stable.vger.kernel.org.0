@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 361101E5ED1
-	for <lists+stable@lfdr.de>; Thu, 28 May 2020 13:56:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 913251E5ED7
+	for <lists+stable@lfdr.de>; Thu, 28 May 2020 13:56:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388728AbgE1L40 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 28 May 2020 07:56:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48420 "EHLO mail.kernel.org"
+        id S2388742AbgE1L43 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 28 May 2020 07:56:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48540 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388647AbgE1L4Y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 28 May 2020 07:56:24 -0400
+        id S2388735AbgE1L41 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 28 May 2020 07:56:27 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 49F4A20C56;
-        Thu, 28 May 2020 11:56:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6E7FD214F1;
+        Thu, 28 May 2020 11:56:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590666983;
-        bh=0S8H3cUhAiZf8diHXmSrml5+cVPZLK2++DqPF6FkBPw=;
+        s=default; t=1590666987;
+        bh=93U4NeV0j3o7YcuUCIuCRbRZcRPgqv//uz/oCsfli08=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yUE1T3iQL08lKohXY11bd+GqUw2UAIwaD90K+f/1MLpSHr6iZr5vU5HvJKzZ82loG
-         nJe5l3SWm+vzOQ7qy+rNCu0ik6eVuxnBUt6REKRmg0GIc23NmDFZjXDoc6boX67cRO
-         XmgbBMQms06cEVyqel4Pt1z5067trHbS/DlkU2v8=
+        b=GvjpE1QGtl7hKF86Eom+8YwiBPfRdHBvZ+y1xmvYni/pYYtrAwAjZB5e71NlOgQad
+         +/+8nUH63MaNbshiMtji6wAbOL05HpfJf179YyhFC5I9tFOFov5pjeJTFNFMc6BFc7
+         chVAupi5hUzqGgPMtQxFBmA1rtwlyJnQMNjyq5uc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        linux-fsdevel@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.6 20/47] io_uring: reset -EBUSY error when io sq thread is waken up
-Date:   Thu, 28 May 2020 07:55:33 -0400
-Message-Id: <20200528115600.1405808-20-sashal@kernel.org>
+Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, linux-api@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.6 23/47] wireguard: selftests: use newer iproute2 for gcc-10
+Date:   Thu, 28 May 2020 07:55:36 -0400
+Message-Id: <20200528115600.1405808-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200528115600.1405808-1-sashal@kernel.org>
 References: <20200528115600.1405808-1-sashal@kernel.org>
@@ -43,109 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-[ Upstream commit d4ae271dfaae2a5f41c015f2f20d62a1deeec734 ]
+[ Upstream commit ee3c1aa3f34b7842c1557cfe5d8c3f7b8c692de8 ]
 
-In io_sq_thread(), currently if we get an -EBUSY error and go to sleep,
-we will won't clear it again, which will result in io_sq_thread() will
-never have a chance to submit sqes again. Below test program test.c
-can reveal this bug:
+gcc-10 switched to defaulting to -fno-common, which broke iproute2-5.4.
+This was fixed in iproute-5.6, so switch to that. Because we're after a
+stable testing surface, we generally don't like to bump these
+unnecessarily, but in this case, being able to actually build is a basic
+necessity.
 
-int main(int argc, char *argv[])
-{
-        struct io_uring ring;
-        int i, fd, ret;
-        struct io_uring_sqe *sqe;
-        struct io_uring_cqe *cqe;
-        struct iovec *iovecs;
-        void *buf;
-        struct io_uring_params p;
-
-        if (argc < 2) {
-                printf("%s: file\n", argv[0]);
-                return 1;
-        }
-
-        memset(&p, 0, sizeof(p));
-        p.flags = IORING_SETUP_SQPOLL;
-        ret = io_uring_queue_init_params(4, &ring, &p);
-        if (ret < 0) {
-                fprintf(stderr, "queue_init: %s\n", strerror(-ret));
-                return 1;
-        }
-
-        fd = open(argv[1], O_RDONLY | O_DIRECT);
-        if (fd < 0) {
-                perror("open");
-                return 1;
-        }
-
-        iovecs = calloc(10, sizeof(struct iovec));
-        for (i = 0; i < 10; i++) {
-                if (posix_memalign(&buf, 4096, 4096))
-                        return 1;
-                iovecs[i].iov_base = buf;
-                iovecs[i].iov_len = 4096;
-        }
-
-        ret = io_uring_register_files(&ring, &fd, 1);
-        if (ret < 0) {
-                fprintf(stderr, "%s: register %d\n", __FUNCTION__, ret);
-                return ret;
-        }
-
-        for (i = 0; i < 10; i++) {
-                sqe = io_uring_get_sqe(&ring);
-                if (!sqe)
-                        break;
-
-                io_uring_prep_readv(sqe, 0, &iovecs[i], 1, 0);
-                sqe->flags |= IOSQE_FIXED_FILE;
-
-                ret = io_uring_submit(&ring);
-                sleep(1);
-                printf("submit %d\n", i);
-        }
-
-        for (i = 0; i < 10; i++) {
-                io_uring_wait_cqe(&ring, &cqe);
-                printf("receive: %d\n", i);
-                if (cqe->res != 4096) {
-                        fprintf(stderr, "ret=%d, wanted 4096\n", cqe->res);
-                        ret = 1;
-                }
-                io_uring_cqe_seen(&ring, cqe);
-        }
-
-        close(fd);
-        io_uring_queue_exit(&ring);
-        return 0;
-}
-sudo ./test testfile
-above command will hang on the tenth request, to fix this bug, when io
-sq_thread is waken up, we reset the variable 'ret' to be zero.
-
-Suggested-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c | 1 +
- 1 file changed, 1 insertion(+)
+ tools/testing/selftests/wireguard/qemu/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 504484dc33e4..c6e1f76a6ee0 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -5224,6 +5224,7 @@ static int io_sq_thread(void *data)
- 				finish_wait(&ctx->sqo_wait, &wait);
- 
- 				ctx->rings->sq_flags &= ~IORING_SQ_NEED_WAKEUP;
-+				ret = 0;
- 				continue;
- 			}
- 			finish_wait(&ctx->sqo_wait, &wait);
+diff --git a/tools/testing/selftests/wireguard/qemu/Makefile b/tools/testing/selftests/wireguard/qemu/Makefile
+index 90598a425c18..4bdd6c1a19d3 100644
+--- a/tools/testing/selftests/wireguard/qemu/Makefile
++++ b/tools/testing/selftests/wireguard/qemu/Makefile
+@@ -44,7 +44,7 @@ endef
+ $(eval $(call tar_download,MUSL,musl,1.2.0,.tar.gz,https://musl.libc.org/releases/,c6de7b191139142d3f9a7b5b702c9cae1b5ee6e7f57e582da9328629408fd4e8))
+ $(eval $(call tar_download,IPERF,iperf,3.7,.tar.gz,https://downloads.es.net/pub/iperf/,d846040224317caf2f75c843d309a950a7db23f9b44b94688ccbe557d6d1710c))
+ $(eval $(call tar_download,BASH,bash,5.0,.tar.gz,https://ftp.gnu.org/gnu/bash/,b4a80f2ac66170b2913efbfb9f2594f1f76c7b1afd11f799e22035d63077fb4d))
+-$(eval $(call tar_download,IPROUTE2,iproute2,5.4.0,.tar.xz,https://www.kernel.org/pub/linux/utils/net/iproute2/,fe97aa60a0d4c5ac830be18937e18dc3400ca713a33a89ad896ff1e3d46086ae))
++$(eval $(call tar_download,IPROUTE2,iproute2,5.6.0,.tar.xz,https://www.kernel.org/pub/linux/utils/net/iproute2/,1b5b0e25ce6e23da7526ea1da044e814ad85ba761b10dd29c2b027c056b04692))
+ $(eval $(call tar_download,IPTABLES,iptables,1.8.4,.tar.bz2,https://www.netfilter.org/projects/iptables/files/,993a3a5490a544c2cbf2ef15cf7e7ed21af1845baf228318d5c36ef8827e157c))
+ $(eval $(call tar_download,NMAP,nmap,7.80,.tar.bz2,https://nmap.org/dist/,fcfa5a0e42099e12e4bf7a68ebe6fde05553383a682e816a7ec9256ab4773faa))
+ $(eval $(call tar_download,IPUTILS,iputils,s20190709,.tar.gz,https://github.com/iputils/iputils/archive/s20190709.tar.gz/#,a15720dd741d7538dd2645f9f516d193636ae4300ff7dbc8bfca757bf166490a))
 -- 
 2.25.1
 
