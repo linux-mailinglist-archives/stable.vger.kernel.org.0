@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D4F6B1E5856
-	for <lists+stable@lfdr.de>; Thu, 28 May 2020 09:19:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 83F9F1E5858
+	for <lists+stable@lfdr.de>; Thu, 28 May 2020 09:19:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725811AbgE1HTT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 28 May 2020 03:19:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40254 "EHLO mail.kernel.org"
+        id S1725779AbgE1HTZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 28 May 2020 03:19:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40344 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725601AbgE1HTS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 28 May 2020 03:19:18 -0400
+        id S1725601AbgE1HTY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 28 May 2020 03:19:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D18E120899;
-        Thu, 28 May 2020 07:19:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2DA2A208E4;
+        Thu, 28 May 2020 07:19:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590650358;
-        bh=D7gcpPZHWbvOqyin3e7Zk+J7UaDkauetCbJN0w1Kvxo=;
+        s=default; t=1590650363;
+        bh=iNNI/ryWHst6RvUSNXqhWAsagM/bajk8D3RGKNNHGdU=;
         h=Subject:To:From:Date:From;
-        b=wvfAy8qHYjP8CNxCv1Lmy3NEu1o5MufFSfOTb9JzyUUB84R7AUqMzXROduwO4MLF5
-         pGDvf+xsBJepXyJEwCdUdDSEMqo1V3aJFW0m3tKvAGQEdEVNk1UhZ2IndtywFcHYxj
-         RaZp2LSUaj0JwtH+1cey6unnjQQIwwZeEd3JfT+E=
-Subject: patch "serial: 8250: Enable 16550A variants by default on non-x86" added to tty-next
-To:     josh@joshtriplett.org, fido_max@inbox.ru,
-        gregkh@linuxfoundation.org, stable@vger.kernel.org,
-        vladimir.oltean@nxp.com
+        b=Onhl9BS8llG5H6eJ17sUrltF5+1iIi4H4F18NcMkmxSJRIFyQwot9/YTnIRM0LSOl
+         gl0TT6gd/i4iRm7khnn50i1x4WEZl2KtVv2WVPmok4MoQogABJ8Oc3c3XWHF11vJwx
+         YT40KM0KyoEo0OduqBGitWIK3BhVnG8AUhMchrTM=
+Subject: patch "vt: keyboard: avoid signed integer overflow in k_ascii" added to tty-next
+To:     dmitry.torokhov@gmail.com, gregkh@linuxfoundation.org,
+        kt0755@gmail.com, stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 28 May 2020 09:19:08 +0200
-Message-ID: <1590650348184173@kroah.com>
+Date:   Thu, 28 May 2020 09:19:09 +0200
+Message-ID: <159065034979138@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -41,7 +40,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    serial: 8250: Enable 16550A variants by default on non-x86
+    vt: keyboard: avoid signed integer overflow in k_ascii
 
 to my tty git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/tty.git
@@ -56,38 +55,104 @@ during the merge window.
 If you have any questions about this process, please let me know.
 
 
-From 15a3f03d5ec0118f1e5db3fc1018686e72744e37 Mon Sep 17 00:00:00 2001
-From: Josh Triplett <josh@joshtriplett.org>
-Date: Tue, 26 May 2020 09:13:57 -0700
-Subject: serial: 8250: Enable 16550A variants by default on non-x86
+From b86dab054059b970111b5516ae548efaae5b3aae Mon Sep 17 00:00:00 2001
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Date: Mon, 25 May 2020 16:27:40 -0700
+Subject: vt: keyboard: avoid signed integer overflow in k_ascii
 
-Some embedded devices still use these serial ports; make sure they're
-still enabled by default on architectures more likely to have them, to
-avoid rendering someone's console unavailable.
+When k_ascii is invoked several times in a row there is a potential for
+signed integer overflow:
 
-Reported-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Reported-by: Maxim Kochetkov <fido_max@inbox.ru>
-Fixes: dc56ecb81a0a ("serial: 8250: Support disabling mdelay-filled probes of 16550A variants")
+UBSAN: Undefined behaviour in drivers/tty/vt/keyboard.c:888:19 signed integer overflow:
+10 * 1111111111 cannot be represented in type 'int'
+CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.6.11 #1
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS Bochs 01/01/2011
+Call Trace:
+ <IRQ>
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0xce/0x128 lib/dump_stack.c:118
+ ubsan_epilogue+0xe/0x30 lib/ubsan.c:154
+ handle_overflow+0xdc/0xf0 lib/ubsan.c:184
+ __ubsan_handle_mul_overflow+0x2a/0x40 lib/ubsan.c:205
+ k_ascii+0xbf/0xd0 drivers/tty/vt/keyboard.c:888
+ kbd_keycode drivers/tty/vt/keyboard.c:1477 [inline]
+ kbd_event+0x888/0x3be0 drivers/tty/vt/keyboard.c:1495
+
+While it can be worked around by using check_mul_overflow()/
+check_add_overflow(), it is better to introduce a separate flag to
+signal that number pad is being used to compose a symbol, and
+change type of the accumulator from signed to unsigned, thus
+avoiding undefined behavior when it overflows.
+
+Reported-by: Kyungtae Kim <kt0755@gmail.com>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Josh Triplett <josh@joshtriplett.org>
-Link: https://lore.kernel.org/r/a20b5fb7dd295cfb48160eecf4bdebd76332d67d.1590509426.git.josh@joshtriplett.org
+Link: https://lore.kernel.org/r/20200525232740.GA262061@dtor-ws
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/8250/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/tty/vt/keyboard.c | 26 ++++++++++++++++----------
+ 1 file changed, 16 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/tty/serial/8250/Kconfig b/drivers/tty/serial/8250/Kconfig
-index af0688156dd0..8195a31519ea 100644
---- a/drivers/tty/serial/8250/Kconfig
-+++ b/drivers/tty/serial/8250/Kconfig
-@@ -63,6 +63,7 @@ config SERIAL_8250_PNP
- config SERIAL_8250_16550A_VARIANTS
- 	bool "Support for variants of the 16550A serial port"
- 	depends on SERIAL_8250
-+	default !X86
- 	help
- 	  The 8250 driver can probe for many variants of the venerable 16550A
- 	  serial port. Doing so takes additional time at boot.
+diff --git a/drivers/tty/vt/keyboard.c b/drivers/tty/vt/keyboard.c
+index 15d33fa0c925..568b2171f335 100644
+--- a/drivers/tty/vt/keyboard.c
++++ b/drivers/tty/vt/keyboard.c
+@@ -127,7 +127,11 @@ static DEFINE_SPINLOCK(func_buf_lock); /* guard 'func_buf'  and friends */
+ static unsigned long key_down[BITS_TO_LONGS(KEY_CNT)];	/* keyboard key bitmap */
+ static unsigned char shift_down[NR_SHIFT];		/* shift state counters.. */
+ static bool dead_key_next;
+-static int npadch = -1;					/* -1 or number assembled on pad */
++
++/* Handles a number being assembled on the number pad */
++static bool npadch_active;
++static unsigned int npadch_value;
++
+ static unsigned int diacr;
+ static char rep;					/* flag telling character repeat */
+ 
+@@ -845,12 +849,12 @@ static void k_shift(struct vc_data *vc, unsigned char value, char up_flag)
+ 		shift_state &= ~(1 << value);
+ 
+ 	/* kludge */
+-	if (up_flag && shift_state != old_state && npadch != -1) {
++	if (up_flag && shift_state != old_state && npadch_active) {
+ 		if (kbd->kbdmode == VC_UNICODE)
+-			to_utf8(vc, npadch);
++			to_utf8(vc, npadch_value);
+ 		else
+-			put_queue(vc, npadch & 0xff);
+-		npadch = -1;
++			put_queue(vc, npadch_value & 0xff);
++		npadch_active = false;
+ 	}
+ }
+ 
+@@ -868,7 +872,7 @@ static void k_meta(struct vc_data *vc, unsigned char value, char up_flag)
+ 
+ static void k_ascii(struct vc_data *vc, unsigned char value, char up_flag)
+ {
+-	int base;
++	unsigned int base;
+ 
+ 	if (up_flag)
+ 		return;
+@@ -882,10 +886,12 @@ static void k_ascii(struct vc_data *vc, unsigned char value, char up_flag)
+ 		base = 16;
+ 	}
+ 
+-	if (npadch == -1)
+-		npadch = value;
+-	else
+-		npadch = npadch * base + value;
++	if (!npadch_active) {
++		npadch_value = 0;
++		npadch_active = true;
++	}
++
++	npadch_value = npadch_value * base + value;
+ }
+ 
+ static void k_lock(struct vc_data *vc, unsigned char value, char up_flag)
 -- 
 2.26.2
 
