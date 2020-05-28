@@ -2,134 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EDD361E5219
-	for <lists+stable@lfdr.de>; Thu, 28 May 2020 02:10:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C73D1E52BB
+	for <lists+stable@lfdr.de>; Thu, 28 May 2020 03:13:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725294AbgE1AK1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 May 2020 20:10:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50072 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725267AbgE1AK1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 27 May 2020 20:10:27 -0400
-Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DC7822071A;
-        Thu, 28 May 2020 00:10:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590624625;
-        bh=M/Rn5V6XPYOsafYf5kx0U54Pi0+pX4oF1Q33qRa075Q=;
-        h=Date:From:To:Subject:In-Reply-To:From;
-        b=b3fCRZDyZxDgLqPQu1maM9xsD0eQK9nunUjPusy63SGxz1WBB7zd9N0tGwWHJZrgg
-         343rKPbzQ9P+fXFQ+GlYqNme60MMa1poI6zswGc6C5sewKByzJwD9LwYNjYt9fmMYQ
-         aQc1cBys/Ee3YVfkLjIu4RZqssQ00H9mjVdyybD4=
-Date:   Wed, 27 May 2020 17:10:24 -0700
-From:   Andrew Morton <akpm@linux-foundation.org>
-To:     ajd@linux.ibm.com, akash.goel@intel.com, carnil@debian.org,
-        dja@axtens.net, linux@roeck-us.net, mm-commits@vger.kernel.org,
-        mpe@ellerman.id.au, rientjes@google.com, stable@vger.kernel.org
-Subject:  +
- relay-handle-alloc_percpu-returning-null-in-relay_open.patch added to -mm
- tree
-Message-ID: <20200528001024.1hGeX0ei-%akpm@linux-foundation.org>
-In-Reply-To: <20200522222217.ee14ad7eda7aab1e6697da6c@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S1726308AbgE1BNP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 May 2020 21:13:15 -0400
+Received: from mail.loongson.cn ([114.242.206.163]:41510 "EHLO loongson.cn"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1725850AbgE1BNO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 27 May 2020 21:13:14 -0400
+Received: from localhost.localdomain (unknown [114.242.249.80])
+        by mail.loongson.cn (Coremail) with SMTP id AQAAf9Axb+iSD89eyec5AA--.806S2;
+        Thu, 28 May 2020 09:10:50 +0800 (CST)
+From:   Lichao Liu <liulichao@loongson.cn>
+To:     Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Cc:     Paul Burton <paulburton@kernel.org>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Max Filippov <jcmvbkbc@gmail.com>,
+        Lichao Liu <liulichao@loongson.cn>, jiaxun.yang@flygoat.com,
+        yuanjunqing@loongson.cn, linux-mips@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: [PATCH] MIPS: CPU_LOONGSON2EF need software to maintain cache consistency
+Date:   Thu, 28 May 2020 09:10:31 +0800
+Message-Id: <20200528011031.30472-1-liulichao@loongson.cn>
+X-Mailer: git-send-email 2.17.1
+X-CM-TRANSID: AQAAf9Axb+iSD89eyec5AA--.806S2
+X-Coremail-Antispam: 1UD129KBjvdXoWrur1fCw43GF15Gr17Xw1kXwb_yoW3GFbEkr
+        srK34fWrs5ZFWUXFykJrs5GFyUXayDu347AF1DKF1YkFy5Zw4rGay7JFZ7Jr1UuFs09rWf
+        t3ZxXrWkCwn2qjkaLaAFLSUrUUUUUb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
+        9fnUUIcSsGvfJTRUUUbxkFF20E14v26r4j6ryUM7CY07I20VC2zVCF04k26cxKx2IYs7xG
+        6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8w
+        A2z4x0Y4vE2Ix0cI8IcVAFwI0_Gr0_Xr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Cr0_
+        Gr1UM28EF7xvwVC2z280aVAFwI0_Gr0_Cr1l84ACjcxK6I8E87Iv6xkF7I0E14v26r4UJV
+        WxJr1le2I262IYc4CY6c8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E
+        2Ix0cI8IcVAFwI0_Jr0_Jr4lYx0Ex4A2jsIE14v26r1j6r4UMcvjeVCFs4IE7xkEbVWUJV
+        W8JwACjcxG0xvY0x0EwIxGrwACjI8F5VA0II8E6IAqYI8I648v4I1lFIxGxcIEc7CjxVA2
+        Y2ka0xkIwI1l42xK82IYc2Ij64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4
+        xG67AKxVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r1q6r43
+        MIIYrxkI7VAKI48JMIIF0xvE2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I
+        0E14v26r1j6r4UMIIF0xvE42xK8VAvwI8IcIk0rVWrZr1j6s0DMIIF0xvEx4A2jsIE14v2
+        6r1j6r4UMIIF0xvEx4A2jsIEc7CjxVAFwI0_Jr0_GrUvcSsGvfC2KfnxnUUI43ZEXa7VUb
+        XdbUUUUUU==
+X-CM-SenderInfo: xolxzxpfkd0qxorr0wxvrqhubq/
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+CPU_LOONGSON2EF need software to maintain cache consistency,
+so modify the 'cpu_needs_post_dma_flush' function to return true
+when the cpu type is CPU_LOONGSON2EF.
 
-The patch titled
-     Subject: kernel/relay.c: handle alloc_percpu returning NULL in relay_open
-has been added to the -mm tree.  Its filename is
-     relay-handle-alloc_percpu-returning-null-in-relay_open.patch
-
-This patch should soon appear at
-    http://ozlabs.org/~akpm/mmots/broken-out/relay-handle-alloc_percpu-returning-null-in-relay_open.patch
-and later at
-    http://ozlabs.org/~akpm/mmotm/broken-out/relay-handle-alloc_percpu-returning-null-in-relay_open.patch
-
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
-
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
-
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
-
-------------------------------------------------------
-From: Daniel Axtens <dja@axtens.net>
-Subject: kernel/relay.c: handle alloc_percpu returning NULL in relay_open
-
-alloc_percpu() may return NULL, which means chan->buf may be set to NULL. 
-In that case, when we do *per_cpu_ptr(chan->buf, ...), we dereference an
-invalid pointer:
-
-BUG: Unable to handle kernel data access at 0x7dae0000
-Faulting instruction address: 0xc0000000003f3fec
-...
-NIP [c0000000003f3fec] relay_open+0x29c/0x600
-LR [c0000000003f3fc0] relay_open+0x270/0x600
-Call Trace:
-[c000000054353a70] [c0000000003f3fb4] relay_open+0x264/0x600 (unreliable)
-[c000000054353b00] [c000000000451764] __blk_trace_setup+0x254/0x600
-[c000000054353bb0] [c000000000451b78] blk_trace_setup+0x68/0xa0
-[c000000054353c10] [c0000000010da77c] sg_ioctl+0x7bc/0x2e80
-[c000000054353cd0] [c000000000758cbc] do_vfs_ioctl+0x13c/0x1300
-[c000000054353d90] [c000000000759f14] ksys_ioctl+0x94/0x130
-[c000000054353de0] [c000000000759ff8] sys_ioctl+0x48/0xb0
-[c000000054353e20] [c00000000000bcd0] system_call+0x5c/0x68
-
-Check if alloc_percpu returns NULL.
-
-This was found by syzkaller both on x86 and powerpc, and the reproducer it
-found on powerpc is capable of hitting the issue as an unprivileged user.
-
-Link: http://lkml.kernel.org/r/20191219121256.26480-1-dja@axtens.net
-Fixes: 017c59c042d0 ("relay: Use per CPU constructs for the relay channel buffer pointers")
-Signed-off-by: Daniel Axtens <dja@axtens.net>
-Reviewed-by: Michael Ellerman <mpe@ellerman.id.au>
-Reviewed-by: Andrew Donnellan <ajd@linux.ibm.com>
-Acked-by: David Rientjes <rientjes@google.com>
-Reported-by: syzbot+1e925b4b836afe85a1c6@syzkaller-ppc64.appspotmail.com
-Reported-by: syzbot+587b2421926808309d21@syzkaller-ppc64.appspotmail.com
-Reported-by: syzbot+58320b7171734bf79d26@syzkaller.appspotmail.com
-Reported-by: syzbot+d6074fb08bdb2e010520@syzkaller.appspotmail.com
-Cc: Akash Goel <akash.goel@intel.com>
-Cc: Andrew Donnellan <ajd@linux.ibm.com>
-Cc: Guenter Roeck <linux@roeck-us.net>
-Cc: Salvatore Bonaccorso <carnil@debian.org>
-Cc: <stable@vger.kernel.org>	[4.10+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Lichao Liu <liulichao@loongson.cn>
 ---
+ arch/mips/mm/dma-noncoherent.c | 1 +
+ 1 file changed, 1 insertion(+)
 
- kernel/relay.c |    5 +++++
- 1 file changed, 5 insertions(+)
-
---- a/kernel/relay.c~relay-handle-alloc_percpu-returning-null-in-relay_open
-+++ a/kernel/relay.c
-@@ -581,6 +581,11 @@ struct rchan *relay_open(const char *bas
- 		return NULL;
- 
- 	chan->buf = alloc_percpu(struct rchan_buf *);
-+	if (!chan->buf) {
-+		kfree(chan);
-+		return NULL;
-+	}
-+
- 	chan->version = RELAYFS_CHANNEL_VERSION;
- 	chan->n_subbufs = n_subbufs;
- 	chan->subbuf_size = subbuf_size;
-_
-
-Patches currently in -mm which might be from dja@axtens.net are
-
-kasan-stop-tests-being-eliminated-as-dead-code-with-fortify_source.patch
-kasan-stop-tests-being-eliminated-as-dead-code-with-fortify_source-v4.patch
-stringh-fix-incompatibility-between-fortify_source-and-kasan.patch
-relay-handle-alloc_percpu-returning-null-in-relay_open.patch
+diff --git a/arch/mips/mm/dma-noncoherent.c b/arch/mips/mm/dma-noncoherent.c
+index fcea92d95d86..563c2c0d0c81 100644
+--- a/arch/mips/mm/dma-noncoherent.c
++++ b/arch/mips/mm/dma-noncoherent.c
+@@ -33,6 +33,7 @@ static inline bool cpu_needs_post_dma_flush(void)
+ 	case CPU_R10000:
+ 	case CPU_R12000:
+ 	case CPU_BMIPS5000:
++	case CPU_LOONGSON2EF:
+ 		return true;
+ 	default:
+ 		/*
+-- 
+2.17.1
 
