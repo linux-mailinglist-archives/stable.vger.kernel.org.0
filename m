@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 29D131E5EE7
-	for <lists+stable@lfdr.de>; Thu, 28 May 2020 13:57:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E813E1E5EEB
+	for <lists+stable@lfdr.de>; Thu, 28 May 2020 13:57:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388960AbgE1L5P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 28 May 2020 07:57:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49672 "EHLO mail.kernel.org"
+        id S2389006AbgE1L5Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 28 May 2020 07:57:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49818 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388953AbgE1L5N (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 28 May 2020 07:57:13 -0400
+        id S2388847AbgE1L5W (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 28 May 2020 07:57:22 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 000452158C;
-        Thu, 28 May 2020 11:57:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 39C7521548;
+        Thu, 28 May 2020 11:57:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590667032;
-        bh=wa6/VyqRftc183tLN+IpPw5dqH9ERY51scjelX0jqUI=;
+        s=default; t=1590667041;
+        bh=bP1ZKI71IizBC9SAWIYUwECqsXwwyoX9crqlrmQ7N4o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IopbP2b/XI+YOg6zQTySNkUvhBJfO4q+v71vhAT+1ExjLA3wq5WaTQWQNm5+JUQiq
-         Kj1tt6Im7cs3yhKJKpmofqhDKDVMfyUvPAnQ8tYRPr4khh3wEkuDc9TO5rRaTnwUa7
-         hfA24gOKGrzCf8sQ4JtIonKEcJrByWICDUDNspL8=
+        b=Q/QipGCmXasBMkkDQQjW/jW+xUqALxaKFDL3ERIC8mPeHAlEPQzl6O8tk5nUl/3l4
+         uFjnrTO77qvFJAsFuD15qqcMOuleZCGAJ/OqljpkXPG8o0Nf/3Z4nWacxf+rGSZVvL
+         rvIXH4lvxq5MIMVdz7jwewOj07mAeqWiRYtFwg5s=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jonathan McDowell <noodles@earth.li>,
+Cc:     Grygorii Strashko <grygorii.strashko@ti.com>,
         "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 16/26] net: ethernet: stmmac: Enable interface clocks on probe for IPQ806x
-Date:   Thu, 28 May 2020 07:56:44 -0400
-Message-Id: <20200528115654.1406165-16-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 24/26] net: ethernet: ti: cpsw: fix ASSERT_RTNL() warning during suspend
+Date:   Thu, 28 May 2020 07:56:52 -0400
+Message-Id: <20200528115654.1406165-24-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200528115654.1406165-1-sashal@kernel.org>
 References: <20200528115654.1406165-1-sashal@kernel.org>
@@ -43,60 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan McDowell <noodles@earth.li>
+From: Grygorii Strashko <grygorii.strashko@ti.com>
 
-[ Upstream commit a96ac8a0045e3cbe3e5af6d1b3c78c6c2065dec5 ]
+[ Upstream commit 4c64b83d03f4aafcdf710caad994cbc855802e74 ]
 
-The ipq806x_gmac_probe() function enables the PTP clock but not the
-appropriate interface clocks. This means that if the bootloader hasn't
-done so attempting to bring up the interface will fail with an error
-like:
+vlan_for_each() are required to be called with rtnl_lock taken, otherwise
+ASSERT_RTNL() warning will be triggered - which happens now during System
+resume from suspend:
+  cpsw_suspend()
+  |- cpsw_ndo_stop()
+    |- __hw_addr_ref_unsync_dev()
+      |- cpsw_purge_all_mc()
+         |- vlan_for_each()
+            |- ASSERT_RTNL();
 
-[   59.028131] ipq806x-gmac-dwmac 37600000.ethernet: Failed to reset the dma
-[   59.028196] ipq806x-gmac-dwmac 37600000.ethernet eth1: stmmac_hw_setup: DMA engine initialization failed
-[   59.034056] ipq806x-gmac-dwmac 37600000.ethernet eth1: stmmac_open: Hw setup failed
+Hence, fix it by surrounding cpsw_ndo_stop() by rtnl_lock/unlock() calls.
 
-This patch, a slightly cleaned up version of one posted by Sergey
-Sergeev in:
-
-https://forum.openwrt.org/t/support-for-mikrotik-rb3011uias-rm/4064/257
-
-correctly enables the clock; we have already configured the source just
-before this.
-
-Tested on a MikroTik RB3011.
-
-Signed-off-by: Jonathan McDowell <noodles@earth.li>
+Fixes: 15180eca569b ("net: ethernet: ti: cpsw: fix vlan mcast")
+Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/dwmac-ipq806x.c | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ drivers/net/ethernet/ti/cpsw.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac-ipq806x.c b/drivers/net/ethernet/stmicro/stmmac/dwmac-ipq806x.c
-index 0d21082ceb93..4d75158c64b2 100644
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac-ipq806x.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-ipq806x.c
-@@ -318,6 +318,19 @@ static int ipq806x_gmac_probe(struct platform_device *pdev)
- 	/* Enable PTP clock */
- 	regmap_read(gmac->nss_common, NSS_COMMON_CLK_GATE, &val);
- 	val |= NSS_COMMON_CLK_GATE_PTP_EN(gmac->id);
-+	switch (gmac->phy_mode) {
-+	case PHY_INTERFACE_MODE_RGMII:
-+		val |= NSS_COMMON_CLK_GATE_RGMII_RX_EN(gmac->id) |
-+			NSS_COMMON_CLK_GATE_RGMII_TX_EN(gmac->id);
-+		break;
-+	case PHY_INTERFACE_MODE_SGMII:
-+		val |= NSS_COMMON_CLK_GATE_GMII_RX_EN(gmac->id) |
-+				NSS_COMMON_CLK_GATE_GMII_TX_EN(gmac->id);
-+		break;
-+	default:
-+		/* We don't get here; the switch above will have errored out */
-+		unreachable();
-+	}
- 	regmap_write(gmac->nss_common, NSS_COMMON_CLK_GATE, val);
+diff --git a/drivers/net/ethernet/ti/cpsw.c b/drivers/net/ethernet/ti/cpsw.c
+index d7a953c647b4..39df8c8feb6c 100644
+--- a/drivers/net/ethernet/ti/cpsw.c
++++ b/drivers/net/ethernet/ti/cpsw.c
+@@ -2999,11 +2999,15 @@ static int cpsw_suspend(struct device *dev)
+ 	struct cpsw_common *cpsw = dev_get_drvdata(dev);
+ 	int i;
  
- 	if (gmac->phy_mode == PHY_INTERFACE_MODE_SGMII) {
++	rtnl_lock();
++
+ 	for (i = 0; i < cpsw->data.slaves; i++)
+ 		if (cpsw->slaves[i].ndev)
+ 			if (netif_running(cpsw->slaves[i].ndev))
+ 				cpsw_ndo_stop(cpsw->slaves[i].ndev);
+ 
++	rtnl_unlock();
++
+ 	/* Select sleep pin state */
+ 	pinctrl_pm_select_sleep_state(dev);
+ 
 -- 
 2.25.1
 
