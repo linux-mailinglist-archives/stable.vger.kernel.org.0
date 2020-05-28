@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 529FD1E5F52
-	for <lists+stable@lfdr.de>; Thu, 28 May 2020 14:02:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 13B1C1E5F4D
+	for <lists+stable@lfdr.de>; Thu, 28 May 2020 14:02:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388689AbgE1MAt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 28 May 2020 08:00:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50844 "EHLO mail.kernel.org"
+        id S2388846AbgE1MAd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 28 May 2020 08:00:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50904 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389166AbgE1L6C (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 28 May 2020 07:58:02 -0400
+        id S2389169AbgE1L6E (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 28 May 2020 07:58:04 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7D8F421655;
-        Thu, 28 May 2020 11:58:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A968421835;
+        Thu, 28 May 2020 11:58:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590667082;
-        bh=EbX82Yzt8Q0VSvMLZGGbjmMR+0pvA1lN1B3Jn3//PhY=;
-        h=From:To:Cc:Subject:Date:From;
-        b=piGuzNpp6sdsn3O+7188R25mgF8wHRj0Yxy+oO9qLE+DvwtMn8kdT8a1C3ICEeZSv
-         YpJuBidT+18SdL0VX8rGADI7OMyI24ozR4/5Wh5t+8KRK0DJziHeu2h8HlmAZBL/tq
-         K7u8oqgfvmk3IWrIPMfGQXP09k2AyW3K2SV1iTfM=
+        s=default; t=1590667083;
+        bh=zM1Zm8b2hSV/VoXBRM9mzoPNFehB2Ub5wnjY+o+hkEo=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=za/iNmVsHZuM9r21ThwSD/SJ++0IA2JFK3hlwTySIvh5gfriZLziHMwYFSyjZBC8q
+         oNaD8zmBjf2J+czCdTGXbfodJrs5XiphHU11W9zsbgK8+KvDWcPNiaLovHZQh1g/oe
+         lDC4+MBC+2ayTeCCn5biGsdxy7IGJBttAvxMfXOk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>,
-        Paul Greco <pmgreco@us.ibm.com>,
-        Vineet Gupta <vgupta@synopsys.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-snps-arc@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.9 1/9] ARC: Fix ICCM & DCCM runtime size checks
-Date:   Thu, 28 May 2020 07:57:52 -0400
-Message-Id: <20200528115800.1406703-1-sashal@kernel.org>
+Cc:     Roman Mashak <mrv@mojatatu.com>,
+        Jamal Hadi Salim <jhs@mojatatu.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 2/9] net sched: fix reporting the first-time use timestamp
+Date:   Thu, 28 May 2020 07:57:53 -0400
+Message-Id: <20200528115800.1406703-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20200528115800.1406703-1-sashal@kernel.org>
+References: <20200528115800.1406703-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -43,51 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>
+From: Roman Mashak <mrv@mojatatu.com>
 
-[ Upstream commit 43900edf67d7ef3ac8909854d75b8a1fba2d570c ]
+[ Upstream commit b15e62631c5f19fea9895f7632dae9c1b27fe0cd ]
 
-As of today the ICCM and DCCM size checks are incorrectly using
-mismatched units (KiB checked against bytes). The CONFIG_ARC_DCCM_SZ
-and CONFIG_ARC_ICCM_SZ are in KiB, but the size calculated in
-runtime and stored in cpu->dccm.sz and cpu->iccm.sz is in bytes.
+When a new action is installed, firstuse field of 'tcf_t' is explicitly set
+to 0. Value of zero means "new action, not yet used"; as a packet hits the
+action, 'firstuse' is stamped with the current jiffies value.
 
-Fix that.
+tcf_tm_dump() should return 0 for firstuse if action has not yet been hit.
 
-Reported-by: Paul Greco <pmgreco@us.ibm.com>
-Signed-off-by: Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>
-Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
+Fixes: 48d8ee1694dd ("net sched actions: aggregate dumping of actions timeinfo")
+Cc: Jamal Hadi Salim <jhs@mojatatu.com>
+Signed-off-by: Roman Mashak <mrv@mojatatu.com>
+Acked-by: Jamal Hadi Salim <jhs@mojatatu.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arc/kernel/setup.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ include/net/act_api.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arc/kernel/setup.c b/arch/arc/kernel/setup.c
-index 9f96120eee6e..82464fae7772 100644
---- a/arch/arc/kernel/setup.c
-+++ b/arch/arc/kernel/setup.c
-@@ -12,6 +12,7 @@
- #include <linux/root_dev.h>
- #include <linux/console.h>
- #include <linux/module.h>
-+#include <linux/sizes.h>
- #include <linux/cpu.h>
- #include <linux/of_fdt.h>
- #include <linux/of.h>
-@@ -333,12 +334,12 @@ static void arc_chk_core_config(void)
- 	if ((unsigned int)__arc_dccm_base != cpu->dccm.base_addr)
- 		panic("Linux built with incorrect DCCM Base address\n");
- 
--	if (CONFIG_ARC_DCCM_SZ != cpu->dccm.sz)
-+	if (CONFIG_ARC_DCCM_SZ * SZ_1K != cpu->dccm.sz)
- 		panic("Linux built with incorrect DCCM Size\n");
- #endif
- 
- #ifdef CONFIG_ARC_HAS_ICCM
--	if (CONFIG_ARC_ICCM_SZ != cpu->iccm.sz)
-+	if (CONFIG_ARC_ICCM_SZ * SZ_1K != cpu->iccm.sz)
- 		panic("Linux built with incorrect ICCM Size\n");
- #endif
+diff --git a/include/net/act_api.h b/include/net/act_api.h
+index 82f3c912a5b1..051b90779708 100644
+--- a/include/net/act_api.h
++++ b/include/net/act_api.h
+@@ -94,7 +94,8 @@ static inline void tcf_tm_dump(struct tcf_t *dtm, const struct tcf_t *stm)
+ {
+ 	dtm->install = jiffies_to_clock_t(jiffies - stm->install);
+ 	dtm->lastuse = jiffies_to_clock_t(jiffies - stm->lastuse);
+-	dtm->firstuse = jiffies_to_clock_t(jiffies - stm->firstuse);
++	dtm->firstuse = stm->firstuse ?
++		jiffies_to_clock_t(jiffies - stm->firstuse) : 0;
+ 	dtm->expires = jiffies_to_clock_t(stm->expires);
+ }
  
 -- 
 2.25.1
