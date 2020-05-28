@@ -2,108 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A75B61E6447
-	for <lists+stable@lfdr.de>; Thu, 28 May 2020 16:43:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 42D931E64CB
+	for <lists+stable@lfdr.de>; Thu, 28 May 2020 16:54:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728499AbgE1Onr convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Thu, 28 May 2020 10:43:47 -0400
-Received: from skedge04.snt-world.com ([91.208.41.69]:44114 "EHLO
-        skedge04.snt-world.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728473AbgE1Onq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 28 May 2020 10:43:46 -0400
-Received: from sntmail12r.snt-is.com (unknown [10.203.32.182])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by skedge04.snt-world.com (Postfix) with ESMTPS id BA50A67A7D5;
-        Thu, 28 May 2020 16:43:43 +0200 (CEST)
-Received: from sntmail12r.snt-is.com (10.203.32.182) by sntmail12r.snt-is.com
- (10.203.32.182) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.1913.5; Thu, 28 May
- 2020 16:43:43 +0200
-Received: from sntmail12r.snt-is.com ([fe80::e551:8750:7bba:3305]) by
- sntmail12r.snt-is.com ([fe80::e551:8750:7bba:3305%3]) with mapi id
- 15.01.1913.007; Thu, 28 May 2020 16:43:43 +0200
-From:   Schrempf Frieder <frieder.schrempf@kontron.de>
-To:     Fabio Estevam <festevam@gmail.com>,
-        Schrempf Frieder <frieder.schrempf@kontron.de>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        "NXP Linux Team" <linux-imx@nxp.com>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Rob Herring <robh+dt@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Shawn Guo <shawnguo@kernel.org>
-CC:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Rob Herring <robh@kernel.org>
-Subject: [PATCH 2/2] ARM: dts: Change WDOG_ANY signal from push-pull to
- open-drain
-Thread-Topic: [PATCH 2/2] ARM: dts: Change WDOG_ANY signal from push-pull to
- open-drain
-Thread-Index: AQHWNP5ijHzvHqv1VUeZ8FZvaT2asA==
-Date:   Thu, 28 May 2020 14:43:43 +0000
-Message-ID: <20200528144312.25980-2-frieder.schrempf@kontron.de>
-References: <20200528144312.25980-1-frieder.schrempf@kontron.de>
-In-Reply-To: <20200528144312.25980-1-frieder.schrempf@kontron.de>
-Accept-Language: de-DE, en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-mailer: git-send-email 2.17.1
-x-originating-ip: [172.25.9.193]
-x-c2processedorg: 51b406b7-48a2-4d03-b652-521f56ac89f3
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+        id S2391230AbgE1Oyc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 28 May 2020 10:54:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45970 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2391384AbgE1Oyb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 28 May 2020 10:54:31 -0400
+Received: from mail-pj1-x1042.google.com (mail-pj1-x1042.google.com [IPv6:2607:f8b0:4864:20::1042])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15EDAC08C5C6
+        for <stable@vger.kernel.org>; Thu, 28 May 2020 07:54:31 -0700 (PDT)
+Received: by mail-pj1-x1042.google.com with SMTP id nu7so3290644pjb.0
+        for <stable@vger.kernel.org>; Thu, 28 May 2020 07:54:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=Cpgj4GM/JojnHJxRdlDDuaUAzMlsG2X/erTwW9OzT7A=;
+        b=LllbDg7PLKaU1VVWbp1y5zfv/lQzTq7x8tH2MEpzRwwKD+EKAh86pcNM0RLGxi+9Zy
+         6Y7LSK5Incl/yQvVIYs7Vc33KL5V3EPFI2qf7yG8VMU4t113mkcaWFF6Yu4nlBOpUAH8
+         aU+fgkOBd0G/2ZpYW+h8svFKK/ixS0xpohxWoz0JA8fYW3BKG3bAaKNkytRjL0oKqVP8
+         ik0fXayNAMggJOHCSpu/5sDzgWiP401H2cOFpRM70I8toM5TCLnfRKx5bSVP6rtszGaR
+         oT40ZeAQylqyuPVB9erbPQcKkSIUjD6koFyMo0XOZwvOk0CDS2R/8rTYOHxJyo1AYhe3
+         /DdA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=Cpgj4GM/JojnHJxRdlDDuaUAzMlsG2X/erTwW9OzT7A=;
+        b=hHlaR5ZFCxEzvz9k0npLVVky+SbtwLvCUmlSbWt89qAKU2pVcjFP9RxM9jLIoS0RBA
+         CxaidxlrpyljAACkwjlq0vI++dnV/AFaLP6KMx8m3t/ieukE9LVlmiDJAk3H96OeiDjg
+         hUXxUTMYmK5jcWgIBDXxcZ2JsuVQPX7fZOwTl8ZLeBIRwFq3lr5vLWZ65oZWcFk1RjU5
+         pdB+FaQPIgsC2CvULlpoOvpJDjocbUqQ/94gQYok/jFkiM6oKHdBHd1W14QuEhMq8+JY
+         NyJdsMM7z06I9Kx7FIZfGjyrNjnAeMI4cyyL+ShxNc4LA69Q3JEBwcSZu5AU+4uGBokh
+         onRg==
+X-Gm-Message-State: AOAM532VPUc4pou+BnfTP+N/zzpInGbAmYC0cl1SCySoWg/Pj7cY1QDB
+        086mB6vsMfjF4NuzmrFhJY5HE+mZhnU=
+X-Google-Smtp-Source: ABdhPJwfuFvasuMscw9RWFXB8mvY+lW5PAJCc4Za+IKZ3nvPjBfXvJZ551bek4pt5gWlxRWlTapisQ==
+X-Received: by 2002:a17:90a:c098:: with SMTP id o24mr2349862pjs.117.1590677670014;
+        Thu, 28 May 2020 07:54:30 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id m5sm4584423pga.3.2020.05.28.07.54.28
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 28 May 2020 07:54:29 -0700 (PDT)
+Message-ID: <5ecfd0a5.1c69fb81.ec46e.75e6@mx.google.com>
+Date:   Thu, 28 May 2020 07:54:29 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-X-SnT-MailScanner-Information: Please contact the ISP for more information
-X-SnT-MailScanner-ID: BA50A67A7D5.AF756
-X-SnT-MailScanner: Not scanned: please contact your Internet E-Mail Service Provider for details
-X-SnT-MailScanner-SpamCheck: 
-X-SnT-MailScanner-From: frieder.schrempf@kontron.de
-X-SnT-MailScanner-To: devicetree@vger.kernel.org, festevam@gmail.com,
-        kernel@pengutronix.de, krzk@kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-imx@nxp.com,
-        linux-kernel@vger.kernel.org, robh+dt@kernel.org, robh@kernel.org,
-        s.hauer@pengutronix.de, shawnguo@kernel.org, stable@vger.kernel.org
-X-Spam-Status: No
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.9.y
+X-Kernelci-Tree: stable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.9.225
+Subject: stable/linux-4.9.y boot: 60 boots: 1 failed,
+ 55 passed with 4 untried/unknown (v4.9.225)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frieder Schrempf <frieder.schrempf@kontron.de>
+******************************************
+* WARNING: Boot tests are now deprecated *
+******************************************
 
-The WDOG_ANY signal is connected to the RESET_IN signal of the SoM
-and baseboard. It is currently configured as push-pull, which means
-that if some external device like a programmer wants to assert the
-RESET_IN signal by pulling it to ground, it drives against the high
-level WDOG_ANY output of the SoC.
+As kernelci.org is expanding its functional testing capabilities, the conce=
+pt
+of boot testing is now deprecated.  Boot results are scheduled to be droppe=
+d on
+*5th June 2020*.  The full schedule for boot tests deprecation is available=
+ on
+this GitHub issue: https://github.com/kernelci/kernelci-backend/issues/238
 
-To fix this we set the WDOG_ANY signal to open-drain configuration.
-That way we make sure that the RESET_IN can be asserted by the
-watchdog as well as by external devices.
+The new equivalent is the *baseline* test suite which also runs sanity chec=
+ks
+using dmesg and bootrr: https://github.com/kernelci/bootrr
 
-Fixes: 1ea4b76cdfde ("ARM: dts: imx6ul-kontron-n6310: Add Kontron i.MX6UL N6310 SoM and boards")
-Cc: stable@vger.kernel.org
-Signed-off-by: Frieder Schrempf <frieder.schrempf@kontron.de>
+See the *baseline results for this kernel revision* on this page:
+https://kernelci.org/test/job/stable/branch/linux-4.9.y/kernel/v4.9.225/pla=
+n/baseline/
+
+---------------------------------------------------------------------------=
+----
+
+stable/linux-4.9.y boot: 60 boots: 1 failed, 55 passed with 4 untried/unkno=
+wn (v4.9.225)
+
+Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
+9.y/kernel/v4.9.225/
+Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.9.y/ke=
+rnel/v4.9.225/
+
+Tree: stable
+Branch: linux-4.9.y
+Git Describe: v4.9.225
+Git Commit: 82dddebfe7da9d2670977ab723da2fdac3eff5b0
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e.git
+Tested: 32 unique boards, 12 SoC families, 10 builds out of 156
+
+Boot Failure Detected:
+
+arm:
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
+
 ---
- arch/arm/boot/dts/imx6ul-kontron-n6x1x-som-common.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/arch/arm/boot/dts/imx6ul-kontron-n6x1x-som-common.dtsi b/arch/arm/boot/dts/imx6ul-kontron-n6x1x-som-common.dtsi
-index fc316408721d..61ba21a605a8 100644
---- a/arch/arm/boot/dts/imx6ul-kontron-n6x1x-som-common.dtsi
-+++ b/arch/arm/boot/dts/imx6ul-kontron-n6x1x-som-common.dtsi
-@@ -116,7 +116,7 @@
- 
- 	pinctrl_wdog: wdoggrp {
- 		fsl,pins = <
--			MX6UL_PAD_GPIO1_IO09__WDOG1_WDOG_ANY    0x30b0
-+			MX6UL_PAD_GPIO1_IO09__WDOG1_WDOG_ANY    0x18b0
- 		>;
- 	};
- };
--- 
-2.17.1
+For more info write to <info@kernelci.org>
