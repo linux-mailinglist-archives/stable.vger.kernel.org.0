@@ -2,83 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 203031E5F93
-	for <lists+stable@lfdr.de>; Thu, 28 May 2020 14:04:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71EE51E6071
+	for <lists+stable@lfdr.de>; Thu, 28 May 2020 14:12:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389525AbgE1MCs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 28 May 2020 08:02:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47398 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2389044AbgE1MCr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 28 May 2020 08:02:47 -0400
-Received: from mail-lj1-x22a.google.com (mail-lj1-x22a.google.com [IPv6:2a00:1450:4864:20::22a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C52E7C05BD1E;
-        Thu, 28 May 2020 05:02:46 -0700 (PDT)
-Received: by mail-lj1-x22a.google.com with SMTP id c11so30885044ljn.2;
-        Thu, 28 May 2020 05:02:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=tZAAtlUG9AhJ/Atr4cE+FEtEOyGU5vjMq1zxXLMbm/M=;
-        b=ZorZ4K4yDcy4gsjhpUw7Oun7inOYaU2WCjP9bqsic1m6WYUd5QevLW3/AXbdkm9PSu
-         AtB17UQLllBYLMI2by7yQ/c81HwSUzqR3UaR4eLOGejdMjdkEGu2DOZqq/PjvMNhV/WO
-         IgLAw0dNHgMGV1Gl1G2XsYG/ZqXTLaNLsalsaENaqueEf5htqY3JpIvAvzu21614JVsG
-         nxQ1j1MNmF3fl4n/1s5aXXsUOXwwfoq44wwDJMHhTqc6NlDEE3cY6dsyisuxJIpAWFp3
-         51r6WCC3chucPPhGUpM1BKRABx4bbGSCVPdYfplXOSQul4vdHxTnFqChe0DT59uJiTC7
-         8HVg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=tZAAtlUG9AhJ/Atr4cE+FEtEOyGU5vjMq1zxXLMbm/M=;
-        b=DfTLA3K1ote8Qt0/DEiiCGHmnhDUqdc7waqJsN4q1lZDs7UJYl0H71nxEgSSouohv9
-         fgROrl596WMRH7+YD2f072HSs+GRhJVeEC9iZZf4SEKK9n6TFsuBqk9HjqE7v8rTw6nc
-         4Uc3jM8N0gOYxuFQks2RtO5wxJPpF9wILFra+NdX/T1hC54YD38JJnF0kgzm8hzcqz5y
-         fZImjkvFniuPs2sBuhzpSKzHD7YzbPxhVlJGiKoi5yxbX9s1nO2o5RwWQGMRtpotiHVk
-         BUu4pDqVpYOCJJ4jNWIDZltQd2rgv02zWeBDnU5jgHL4xPVne3CbJyZ9OHBZO4nOWM/Y
-         OryA==
-X-Gm-Message-State: AOAM530LP4kbJ+cIE5te5hwKyRGi1RPnZKceoiaA4Vf5v/S1jZhpKHb/
-        bwKgYpAnf6FLyHi24Avfg13uwggbCnw4DCNNnX63LA==
-X-Google-Smtp-Source: ABdhPJwmCZRWpoHjgLbsA2QTPKomwsN+ITixXa7o67e3iIg1zmy/OAFe7ddh+2EQj5ThIgflVLMLH3fIhHSR6K+mtUg=
-X-Received: by 2002:a2e:9891:: with SMTP id b17mr1395244ljj.319.1590667363018;
- Thu, 28 May 2020 05:02:43 -0700 (PDT)
+        id S2388686AbgE1MK1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 28 May 2020 08:10:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33144 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2389705AbgE1MKZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 28 May 2020 08:10:25 -0400
+Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id A250C2063A;
+        Thu, 28 May 2020 12:10:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1590667824;
+        bh=d+BX6Yu8bblCkc+YNytpyy6IyNc3spMni5yB2tDpCBo=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=Ht9aeBKOOs2qT1O/Jvk9zPAOcwXArR2X6BqtFlTRNkhygdQL6r7LWzmyaWb1t3W8h
+         UqL6mOfc0/m5+zw2y/OBxfwIasqR7K5PEpKjOHGYp4+m2sY25Oc9jSCCDK8KjpZOvF
+         ib1gW6SFhgUu7PfBzWBFDbczaL8jB4B44mtPq0fU=
+Received: from disco-boy.misterjones.org ([51.254.78.96] helo=www.loen.fr)
+        by disco-boy.misterjones.org with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.92)
+        (envelope-from <maz@kernel.org>)
+        id 1jeHMd-00Fyr7-3o; Thu, 28 May 2020 13:10:23 +0100
 MIME-Version: 1.0
-References: <20200527165718.129307-1-briannorris@chromium.org>
-In-Reply-To: <20200527165718.129307-1-briannorris@chromium.org>
-From:   Julian Calaby <julian.calaby@gmail.com>
-Date:   Thu, 28 May 2020 22:02:31 +1000
-Message-ID: <CAGRGNgX5n=0OEi7hMrmgVZGD=orGpgvkyLrhmXVKSFYdBJ+eUw@mail.gmail.com>
-Subject: Re: [PATCH] Revert "ath: add support for special 0x0 regulatory domain"
-To:     Brian Norris <briannorris@chromium.org>
-Cc:     ath10k@lists.infradead.org, linux-wireless@vger.kernel.org,
-        LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org,
-        Wen Gong <wgong@codeaurora.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=UTF-8;
+ format=flowed
+Content-Transfer-Encoding: 8bit
+Date:   Thu, 28 May 2020 13:10:23 +0100
+From:   Marc Zyngier <maz@kernel.org>
+To:     James Morse <james.morse@arm.com>
+Cc:     kvmarm@lists.cs.columbia.edu, linux-arm-kernel@lists.infradead.org,
+        Julien Thierry <julien.thierry.kdev@gmail.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 1/3] KVM: arm64: Stop writing aarch32's CSSELR into ACTLR
+In-Reply-To: <09dca8e9-c548-43fd-a95b-747a77f19e02@arm.com>
+References: <20200526161834.29165-1-james.morse@arm.com>
+ <20200526161834.29165-2-james.morse@arm.com>
+ <4be0c0b654f7d7c1efe9f52efb856bd8@kernel.org>
+ <09dca8e9-c548-43fd-a95b-747a77f19e02@arm.com>
+User-Agent: Roundcube Webmail/1.4.4
+Message-ID: <705687e37c5d5339a6baafa9e31675cb@kernel.org>
+X-Sender: maz@kernel.org
+X-SA-Exim-Connect-IP: 51.254.78.96
+X-SA-Exim-Rcpt-To: james.morse@arm.com, kvmarm@lists.cs.columbia.edu, linux-arm-kernel@lists.infradead.org, julien.thierry.kdev@gmail.com, suzuki.poulose@arm.com, stable@vger.kernel.org
+X-SA-Exim-Mail-From: maz@kernel.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Brian,
+On 2020-05-28 12:59, James Morse wrote:
+> Hi Marc,
+> 
+> On 28/05/2020 09:57, Marc Zyngier wrote:
+>> On 2020-05-26 17:18, James Morse wrote:
+>>> access_csselr() uses the 32bit r->reg value to access the 64bit 
+>>> array,
+>>> so reads and write the wrong value. sys_regs[4], is ACTLR_EL1, which
+>>> is subsequently save/restored when we enter the guest.
+> 
+>>> diff --git a/arch/arm64/kvm/sys_regs.c b/arch/arm64/kvm/sys_regs.c
+>>> index 51db934702b6..2eda539f3281 100644
+>>> --- a/arch/arm64/kvm/sys_regs.c
+>>> +++ b/arch/arm64/kvm/sys_regs.c
+>>> @@ -2060,7 +2060,7 @@ static const struct sys_reg_desc cp15_regs[] = 
+>>> {
+>>> 
+>>>      { Op1(1), CRn( 0), CRm( 0), Op2(0), access_ccsidr },
+>>>      { Op1(1), CRn( 0), CRm( 0), Op2(1), access_clidr },
+>>> -    { Op1(2), CRn( 0), CRm( 0), Op2(0), access_csselr, NULL, 
+>>> c0_CSSELR },
+>>> +    { Op1(2), CRn( 0), CRm( 0), Op2(0), access_csselr_el1, NULL, 
+>>> CSSELR_EL1 },
+>>>  };
+> 
+>> This is a departure from the way we deal with 32bit CP15 registers.
+>> We deal with this exact issue in a very different way for other
+>> CP15 regs, by adjusting the index in the sys_regs array (see the
+>> way we handle the VM regs).
+>> 
+>> How about something like this (untested):
+> 
+> [like access_vm_reg() does]
+> 
+> Sure, I'll give that a test and re-post it.
 
-On Thu, May 28, 2020 at 5:18 AM Brian Norris <briannorris@chromium.org> wrote:
->
-> This reverts commit 2dc016599cfa9672a147528ca26d70c3654a5423.
->
-> Users are reporting regressions in regulatory domain detection and
-> channel availability.
->
-> The problem this was trying to resolve was fixed in firmware anyway:
+Thanks!
 
-Should we tell the user their firmware needs to be upgraded if it
-reports this regulatory domain instead of completely dropping support
-for it?
+> 
+> 
+>> Ideally, I'd like the core sys_reg code to deal with this sort
+>> of funnies, but I'm trying to keep the change minimal...
+> 
+> Roll this '/2' and upper/lower bits stuff into a vcpu_write_cp15_reg()
+> that calls
+> vcpu_write_sys_reg()? (/me hunts out the todo list)
 
-Thanks,
+I was thinking of hiding it differently: in emulate_cp, substitute the
+sys_reg_desc structure for a temporary one that represents the 64bit
+version, and make it completely transparent.
 
+I'm sure there is a couple of nits around that though...
+
+         M.
 -- 
-Julian Calaby
-
-Email: julian.calaby@gmail.com
-Profile: http://www.google.com/profiles/julian.calaby/
+Jazz is not dead. It just smells funny...
