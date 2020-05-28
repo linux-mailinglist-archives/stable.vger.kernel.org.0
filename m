@@ -2,159 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A1141E6941
-	for <lists+stable@lfdr.de>; Thu, 28 May 2020 20:25:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DBDB1E6981
+	for <lists+stable@lfdr.de>; Thu, 28 May 2020 20:37:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405782AbgE1SY6 convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Thu, 28 May 2020 14:24:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50538 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2405744AbgE1SY5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 28 May 2020 14:24:57 -0400
-Received: from Galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17447C08C5C6;
-        Thu, 28 May 2020 11:24:57 -0700 (PDT)
-Received: from [5.158.153.53] (helo=tip-bot2.lab.linutronix.de)
-        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
-        (Exim 4.80)
-        (envelope-from <tip-bot2@linutronix.de>)
-        id 1jeND0-0006Bd-A3; Thu, 28 May 2020 20:24:50 +0200
-Received: from [127.0.1.1] (localhost [IPv6:::1])
-        by tip-bot2.lab.linutronix.de (Postfix) with ESMTP id B8F091C0051;
-        Thu, 28 May 2020 20:24:49 +0200 (CEST)
-Date:   Thu, 28 May 2020 18:24:49 -0000
-From:   "tip-bot2 for Alexander Dahl" <tip-bot2@linutronix.de>
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: x86/urgent] x86/dma: Fix max PFN arithmetic overflow on 32 bit systems
-Cc:     Alan Jenkins <alan.christopher.jenkins@gmail.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Alexander Dahl <post@lespocky.de>,
-        Borislav Petkov <bp@suse.de>,
-        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, x86 <x86@kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20200526175749.20742-1-post@lespocky.de>
-References: <20200526175749.20742-1-post@lespocky.de>
+        id S2405792AbgE1Sgw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 28 May 2020 14:36:52 -0400
+Received: from mail.asbjorn.biz ([185.38.24.25]:36522 "EHLO mail.asbjorn.biz"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2405932AbgE1Sgp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 28 May 2020 14:36:45 -0400
+Received: from x201s.roaming.asbjorn.biz (space.labitat.dk [185.38.175.0])
+        by mail.asbjorn.biz (Postfix) with ESMTPSA id 54E411C29736;
+        Thu, 28 May 2020 18:31:27 +0000 (UTC)
+Received: by x201s.roaming.asbjorn.biz (Postfix, from userid 1000)
+        id 84198204CBA; Thu, 28 May 2020 18:30:58 +0000 (UTC)
+From:   Asbjoern Sloth Toennesen <asbjorn@asbjorn.st>
+To:     stable@vger.kernel.org
+Cc:     "David S . Miller" <davem@davemloft.net>,
+        "Dmitry V . Levin" <ldv@altlinux.org>,
+        Giuliano Procida <gprocida@google.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Asbjoern Sloth Toennesen <asbjorn@asbjorn.st>
+Subject: [PATCH 4.4] uapi: fix linux/if_pppol2tp.h userspace compilation errors
+Date:   Thu, 28 May 2020 18:30:40 +0000
+Message-Id: <20200528183040.14557-1-asbjorn@asbjorn.st>
+X-Mailer: git-send-email 2.27.0.rc2
 MIME-Version: 1.0
-Message-ID: <159069028956.17951.16863245734810894294.tip-bot2@tip-bot2>
-X-Mailer: tip-git-log-daemon
-Robot-ID: <tip-bot2.linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
-X-Linutronix-Spam-Score: -1.0
-X-Linutronix-Spam-Level: -
-X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the x86/urgent branch of tip:
+From: Dmitry V. Levin <ldv@altlinux.org>
 
-Commit-ID:     88743470668ef5eb6b7ba9e0f99888e5999bf172
-Gitweb:        https://git.kernel.org/tip/88743470668ef5eb6b7ba9e0f99888e5999bf172
-Author:        Alexander Dahl <post@lespocky.de>
-AuthorDate:    Tue, 26 May 2020 19:57:49 +02:00
-Committer:     Borislav Petkov <bp@suse.de>
-CommitterDate: Thu, 28 May 2020 20:21:32 +02:00
+commit a725eb15db80643a160310ed6bcfd6c5a6c907f2 upstream.
 
-x86/dma: Fix max PFN arithmetic overflow on 32 bit systems
+Because of <linux/libc-compat.h> interface limitations, <netinet/in.h>
+provided by libc cannot be included after <linux/in.h>, therefore any
+header that includes <netinet/in.h> cannot be included after <linux/in.h>.
 
-The intermediate result of the old term (4UL * 1024 * 1024 * 1024) is
-4 294 967 296 or 0x100000000 which is no problem on 64 bit systems.
-The patch does not change the later overall result of 0x100000 for
-MAX_DMA32_PFN (after it has been shifted by PAGE_SHIFT). The new
-calculation yields the same result, but does not require 64 bit
-arithmetic.
+Change uapi/linux/l2tp.h, the last uapi header that includes
+<netinet/in.h>, to include <linux/in.h> and <linux/in6.h> instead of
+<netinet/in.h> and use __SOCK_SIZE__ instead of sizeof(struct sockaddr)
+the same way as uapi/linux/in.h does, to fix linux/if_pppol2tp.h userspace
+compilation errors like this:
 
-On 32 bit systems the old calculation suffers from an arithmetic
-overflow in that intermediate term in braces: 4UL aka unsigned long int
-is 4 byte wide and an arithmetic overflow happens (the 0x100000000 does
-not fit in 4 bytes), the in braces result is truncated to zero, the
-following right shift does not alter that, so MAX_DMA32_PFN evaluates to
-0 on 32 bit systems.
+In file included from /usr/include/linux/l2tp.h:12:0,
+                 from /usr/include/linux/if_pppol2tp.h:21,
+/usr/include/netinet/in.h:31:8: error: redefinition of 'struct in_addr'
 
-That wrong value is a problem in a comparision against MAX_DMA32_PFN in
-the init code for swiotlb in pci_swiotlb_detect_4gb() to decide if
-swiotlb should be active.  That comparison yields the opposite result,
-when compiling on 32 bit systems.
-
-This was not possible before
-
-  1b7e03ef7570 ("x86, NUMA: Enable emulation on 32bit too")
-
-when that MAX_DMA32_PFN was first made visible to x86_32 (and which
-landed in v3.0).
-
-In practice this wasn't a problem, unless CONFIG_SWIOTLB is active on
-x86-32.
-
-However if one has set CONFIG_IOMMU_INTEL, since
-
-  c5a5dc4cbbf4 ("iommu/vt-d: Don't switch off swiotlb if bounce page is used")
-
-there's a dependency on CONFIG_SWIOTLB, which was not necessarily
-active before. That landed in v5.4, where we noticed it in the fli4l
-Linux distribution. We have CONFIG_IOMMU_INTEL active on both 32 and 64
-bit kernel configs there (I could not find out why, so let's just say
-historical reasons).
-
-The effect is at boot time 64 MiB (default size) were allocated for
-bounce buffers now, which is a noticeable amount of memory on small
-systems like pcengines ALIX 2D3 with 256 MiB memory, which are still
-frequently used as home routers.
-
-We noticed this effect when migrating from kernel v4.19 (LTS) to v5.4
-(LTS) in fli4l and got that kernel messages for example:
-
-  Linux version 5.4.22 (buildroot@buildroot) (gcc version 7.3.0 (Buildroot 2018.02.8)) #1 SMP Mon Nov 26 23:40:00 CET 2018
-  …
-  Memory: 183484K/261756K available (4594K kernel code, 393K rwdata, 1660K rodata, 536K init, 456K bss , 78272K reserved, 0K cma-reserved, 0K highmem)
-  …
-  PCI-DMA: Using software bounce buffering for IO (SWIOTLB)
-  software IO TLB: mapped [mem 0x0bb78000-0x0fb78000] (64MB)
-
-The initial analysis and the suggested fix was done by user 'sourcejedi'
-at stackoverflow and explicitly marked as GPLv2 for inclusion in the
-Linux kernel:
-
-  https://unix.stackexchange.com/a/520525/50007
-
-The new calculation, which does not suffer from that overflow, is the
-same as for arch/mips now as suggested by Robin Murphy.
-
-The fix was tested by fli4l users on round about two dozen different
-systems, including both 32 and 64 bit archs, bare metal and virtualized
-machines.
-
- [ bp: Massage commit message. ]
-
-Fixes: 1b7e03ef7570 ("x86, NUMA: Enable emulation on 32bit too")
-Reported-by: Alan Jenkins <alan.christopher.jenkins@gmail.com>
-Suggested-by: Robin Murphy <robin.murphy@arm.com>
-Signed-off-by: Alexander Dahl <post@lespocky.de>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: stable@vger.kernel.org
-Link: https://unix.stackexchange.com/q/520065/50007
-Link: https://web.nettworks.org/bugs/browse/FFL-2560
-Link: https://lkml.kernel.org/r/20200526175749.20742-1-post@lespocky.de
+Fixes: a471a623e780 ("net: l2tp: deprecate PPPOL2TP_MSG_* in favour of L2TP_MSG_*")
+Signed-off-by: Dmitry V. Levin <ldv@altlinux.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Asbjoern Sloth Toennesen <asbjorn@asbjorn.st>
 ---
- arch/x86/include/asm/dma.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/include/asm/dma.h b/arch/x86/include/asm/dma.h
-index 00f7cf4..8e95aa4 100644
---- a/arch/x86/include/asm/dma.h
-+++ b/arch/x86/include/asm/dma.h
-@@ -74,7 +74,7 @@
- #define MAX_DMA_PFN   ((16UL * 1024 * 1024) >> PAGE_SHIFT)
+Notes:
+    Sorry for not submitting this in the review cycle,
+    was waiting for a response to my initial mail,
+    when the cycle was cut short, had planned to
+    reply to the review if I hadn't got a reply half
+    way through it.
+    
+    https://lore.kernel.org/stable/25373712-4390-5a7a-d3f9-97bd7f2d8a2a@asbjorn.st/
+    
+    I was unsure which commit, to put in Fixes:,
+    ended up with the stable commit, and not the
+    one from mainline. I hope that's correct.
+    
+    Original patch thread:
+    https://lore.kernel.org/netdev/20170214103353.GA8394@altlinux.org/
+
+ include/uapi/linux/l2tp.h | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
+
+diff --git a/include/uapi/linux/l2tp.h b/include/uapi/linux/l2tp.h
+index dedfb2b1832a..c3a5c99f565b 100644
+--- a/include/uapi/linux/l2tp.h
++++ b/include/uapi/linux/l2tp.h
+@@ -9,9 +9,8 @@
  
- /* 4GB broken PCI/AGP hardware bus master zone */
--#define MAX_DMA32_PFN ((4UL * 1024 * 1024 * 1024) >> PAGE_SHIFT)
-+#define MAX_DMA32_PFN (1UL << (32 - PAGE_SHIFT))
+ #include <linux/types.h>
+ #include <linux/socket.h>
+-#ifndef __KERNEL__
+-#include <netinet/in.h>
+-#endif
++#include <linux/in.h>
++#include <linux/in6.h>
  
- #ifdef CONFIG_X86_32
- /* The maximum address that we can perform a DMA transfer to on this platform */
+ #define IPPROTO_L2TP		115
+ 
+@@ -31,7 +30,7 @@ struct sockaddr_l2tpip {
+ 	__u32		l2tp_conn_id;	/* Connection ID of tunnel */
+ 
+ 	/* Pad to size of `struct sockaddr'. */
+-	unsigned char	__pad[sizeof(struct sockaddr) -
++	unsigned char	__pad[__SOCK_SIZE__ -
+ 			      sizeof(__kernel_sa_family_t) -
+ 			      sizeof(__be16) - sizeof(struct in_addr) -
+ 			      sizeof(__u32)];
+-- 
+2.27.0.rc2
+
