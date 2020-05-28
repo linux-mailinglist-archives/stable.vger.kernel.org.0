@@ -2,133 +2,187 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F4461E664D
-	for <lists+stable@lfdr.de>; Thu, 28 May 2020 17:38:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 830881E6766
+	for <lists+stable@lfdr.de>; Thu, 28 May 2020 18:27:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404410AbgE1Pib (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 28 May 2020 11:38:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52896 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2404383AbgE1Pi1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 28 May 2020 11:38:27 -0400
-Received: from mail-pj1-x1042.google.com (mail-pj1-x1042.google.com [IPv6:2607:f8b0:4864:20::1042])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C389C08C5C6
-        for <stable@vger.kernel.org>; Thu, 28 May 2020 08:38:27 -0700 (PDT)
-Received: by mail-pj1-x1042.google.com with SMTP id s69so3327241pjb.4
-        for <stable@vger.kernel.org>; Thu, 28 May 2020 08:38:27 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=NeLbl/+8xKX6o3sZjRzYtVgt0IhtUUu09mrfbqcnSNI=;
-        b=EsMjsWD4es8LaQXZqqs4oGibdOW6H4kLJx507YDUUjnpiFVg1Ekq6eb1K7tygOAtsP
-         0keCim/iJiCcVzj4mphvrCYHCo3uYjhCzIms3qAdXftyV8Y4JU3vURdUziK1JeYeQfc1
-         MTTqnNIhamuPC/cWFrgiLMpPFciQ2CDYDPvJFXKO6tw6PLDCYd+4Qd01c8Rpf0OjXREV
-         +ZiDnMdGLjlK4BpgtyJFmHBxUKSJLCg1RER69crVdqlUxoswqBHaLO9sWuulhEiz78GI
-         u5zvIyKQMOGdypUCZArdFYHqca3IBv9ppZIjpN8zLo2s+Do5vwjqsbJ60LdqkH3+mJdh
-         IjHg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=NeLbl/+8xKX6o3sZjRzYtVgt0IhtUUu09mrfbqcnSNI=;
-        b=ZYQ8DNPoBGLb6IKSitbkizlPxXyVVt2+1Q1h+sjqRNflJVZWGK8JS3Iy8LeGjs/gn7
-         SoZffs+TwFYkwyQ2lXprChE5LWyaPz1e9rvhyZp5J6b50wHvXSdOX66DjbprPGdtxnYL
-         8pnNLGntg+P2Zdmq9Ugi0bnz+/2Q6KfSauzL6uFR/5HKLA9/j9ppnsd++oyb8h/v1EQT
-         ZxXLCuuHmJW1q30bxc7Qo3uW/Y/oHqFiCLssSUcwqItTZe6Io8podiUizppq8wDcPcly
-         SJNJmOBK/IkLqHbx7cx/d1xnY8GfwLPNgaIu37OW6gqPNOsZqxY/jotwdK0D5y9f5Cxh
-         Xb8g==
-X-Gm-Message-State: AOAM531SoUR5nbGWLWCkPDpbmH5wVDxRInFUV7/Vsgd9fx1cd/eM88/+
-        wqMZLOCxpHutVyRn1E59kMUzzA2L
-X-Google-Smtp-Source: ABdhPJyBwEK5FpnwQSojoT6yeCRXVFILQ+N4zvI9MIJComydLo31eGWfOj/Id+8AoKpcX/dpHp52ag==
-X-Received: by 2002:a17:90a:2a8e:: with SMTP id j14mr4389332pjd.136.1590680306664;
-        Thu, 28 May 2020 08:38:26 -0700 (PDT)
-Received: from P65xSA.lan ([128.199.164.101])
-        by smtp.gmail.com with ESMTPSA id y5sm6245122pjp.27.2020.05.28.08.38.23
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 28 May 2020 08:38:25 -0700 (PDT)
-From:   DENG Qingfang <dqfext@gmail.com>
-To:     stable@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4] net: dsa: mt7530: set CPU port to fallback mode
-Date:   Thu, 28 May 2020 23:38:14 +0800
-Message-Id: <20200528153814.4899-1-dqfext@gmail.com>
-X-Mailer: git-send-email 2.26.2
+        id S2405030AbgE1Q1p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 28 May 2020 12:27:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60982 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2404861AbgE1Q1o (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 28 May 2020 12:27:44 -0400
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3F7FF2071A;
+        Thu, 28 May 2020 16:27:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1590683263;
+        bh=FXsa1IXEmq7ZbXD2Zo5pJa9s7kSrnXd/niS/9cKFOC4=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=janskBC84adnDeuh2KYcHkGpI8syj80yP9dQC6fIdlr0YXxzOcwttV/ekw2/bGyiC
+         AjVzE07JuZUdKw2s5tjou4Y1nUke0Mt0Njn32qqSLyh2OklnM6/wL2wM9n42/7H+vr
+         cXoiL5LTvjxSKxfs7Yf26gFFtQEPXChoB67wfk/s=
+Date:   Thu, 28 May 2020 12:27:42 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Greg KH <greg@kroah.com>
+Cc:     Veronika Kabatova <vkabatov@redhat.com>,
+        Linux Stable maillist <stable@vger.kernel.org>,
+        CKI Project <cki-project@redhat.com>
+Subject: Re: =?utf-8?B?4p2MIEZBSUw=?= =?utf-8?Q?=3A?= Test report for kernel
+ 5.6.14-79935d9.cki (stable-queue)
+Message-ID: <20200528162742.GA1407771@sasha-vm>
+References: <cki.09562F3C51.NRM7O0HL2X@redhat.com>
+ <1238663306.24257335.1590420227156.JavaMail.zimbra@redhat.com>
+ <20200525154425.GB1016976@kroah.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200525154425.GB1016976@kroah.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 38152ea37d8bdaffa22603e0a5b5b86cfa8714c9 ]
+On Mon, May 25, 2020 at 05:44:25PM +0200, Greg KH wrote:
+>On Mon, May 25, 2020 at 11:23:47AM -0400, Veronika Kabatova wrote:
+>>
+>>
+>> ----- Original Message -----
+>> > From: "CKI Project" <cki-project@redhat.com>
+>> > To: "Linux Stable maillist" <stable@vger.kernel.org>
+>> > Sent: Monday, May 25, 2020 5:22:14 PM
+>> > Subject: ❌ FAIL: Test report for kernel 5.6.14-79935d9.cki (stable-queue)
+>> >
+>> >
+>> > Hello,
+>> >
+>> > We ran automated tests on a recent commit from this kernel tree:
+>> >
+>> >        Kernel repo:
+>> >        https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+>> >             Commit: 79935d99370b - x86/unwind/orc: Fix
+>> >             unwind_get_return_address_ptr() for inactive tasks
+>> >
+>> > The results of these automated tests are provided below.
+>> >
+>> >     Overall result: FAILED (see details below)
+>> >              Merge: OK
+>> >            Compile: FAILED
+>> >
+>> > All kernel binaries, config files, and logs are available for download here:
+>> >
+>> >   https://cki-artifacts.s3.us-east-2.amazonaws.com/index.html?prefix=datawarehouse/2020/05/25/580491
+>> >
+>> > We attempted to compile the kernel for multiple architectures, but the
+>> > compile
+>> > failed on one or more architectures:
+>> >
+>> >            aarch64: FAILED (see build-aarch64.log.xz attachment)
+>> >
+>>
+>> Hi,
+>>
+>> this looks like a bug in the revert.
+>>
+>> https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git/commit/?h=queue/5.6&id=1d69ec1bac630983a00b62f155503c53559b3c14
+>>
+>> attempts to revert the following commit:
+>>
+>> https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git/commit/?h=queue/5.6&id=5caf6102e32ead7ed5d21b5309c1a4a7d70e6a9f
+>>
+>> but the bus.c changes are not reverted, only bus.h.
+>
+>Yeah, that's not right, it should not be applied to the tree at that
+>point in time.  I'll go drop it now, thanks.
 
-Currently, setting a bridge's self PVID to other value and deleting
-the default VID 1 renders untagged ports of that VLAN unable to talk to
-the CPU port:
+I still can't explain this behavior:
 
-	bridge vlan add dev br0 vid 2 pvid untagged self
-	bridge vlan del dev br0 vid 1 self
-	bridge vlan add dev sw0p0 vid 2 pvid untagged
-	bridge vlan del dev sw0p0 vid 1
-	# br0 cannot send untagged frames out of sw0p0 anymore
+$ git show a9d68cbd4f8834d126ebdd3097a1dee1c5973fdf
+commit a9d68cbd4f8834d126ebdd3097a1dee1c5973fdf
+Author: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Date:   Wed Apr 1 08:03:28 2020 +0200
 
-That is because the CPU port is set to security mode and its PVID is
-still 1, and untagged frames are dropped due to VLAN member violation.
+     Revert "amba: Initialize dma_parms for amba devices"
+     
+     This reverts commit 5caf6102e32ead7ed5d21b5309c1a4a7d70e6a9f.  It still
+     needs some more work and that will happen for the next release cycle,
+     not this one.
+     
+     Cc: <stable@vger.kernel.org>
+     Cc: Russell King <linux@armlinux.org.uk>
+     Cc: Christoph Hellwig <hch@lst.de>
+     Cc: Ludovic Barre <ludovic.barre@st.com>
+     Cc: Linus Walleij <linus.walleij@linaro.org>
+     Cc: Arnd Bergmann <arnd@arndb.de>
+     Cc: Ulf Hansson <ulf.hansson@linaro.org>
+     Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Set the CPU port to fallback mode so untagged frames can pass through.
+diff --git a/drivers/amba/bus.c b/drivers/amba/bus.c
+index 5e61783ce92d..fe1523664816 100644
+--- a/drivers/amba/bus.c
++++ b/drivers/amba/bus.c
+@@ -374,8 +374,6 @@ static int amba_device_try_add(struct amba_device *dev, struct resource *parent)
+         WARN_ON(dev->irq[0] == (unsigned int)-1);
+         WARN_ON(dev->irq[1] == (unsigned int)-1);
+  
+-       dev->dev.dma_parms = &dev->dma_parms;
+-
+         ret = request_resource(parent, &dev->res);
+         if (ret)
+                 goto err_out;
+diff --git a/include/linux/amba/bus.h b/include/linux/amba/bus.h
+index 0bbfd647f5c6..26f0ecf401ea 100644
+--- a/include/linux/amba/bus.h
++++ b/include/linux/amba/bus.h
+@@ -65,7 +65,6 @@ struct amba_device {
+         struct device           dev;
+         struct resource         res;
+         struct clk              *pclk;
+-       struct device_dma_parameters dma_parms;
+         unsigned int            periphid;
+         unsigned int            cid;
+         struct amba_cs_uci_id   uci;
+$ git cherry-pick a9d68cbd4f8834d126ebdd3097a1dee1c5973fdf
+Auto-merging drivers/amba/bus.c
+[queue-5.6 f8d6a52860ef] Revert "amba: Initialize dma_parms for amba devices"
+  Author: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  Date: Wed Apr 1 08:03:28 2020 +0200
+  1 file changed, 1 deletion(-)
+$ git show
+commit f8d6a52860ef85fdf14a06cf5429aea145bfb62e (HEAD -> queue-5.6)
+Author: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Date:   Wed Apr 1 08:03:28 2020 +0200
 
-Fixes: 83163f7dca56 ("net: dsa: mediatek: add VLAN support for MT7530")
-Signed-off-by: DENG Qingfang <dqfext@gmail.com>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
----
- drivers/net/dsa/mt7530.c | 11 ++++++++---
- drivers/net/dsa/mt7530.h |  6 ++++++
- 2 files changed, 14 insertions(+), 3 deletions(-)
+     Revert "amba: Initialize dma_parms for amba devices"
+     
+     This reverts commit 5caf6102e32ead7ed5d21b5309c1a4a7d70e6a9f.  It still
+     needs some more work and that will happen for the next release cycle,
+     not this one.
+     
+     Cc: <stable@vger.kernel.org>
+     Cc: Russell King <linux@armlinux.org.uk>
+     Cc: Christoph Hellwig <hch@lst.de>
+     Cc: Ludovic Barre <ludovic.barre@st.com>
+     Cc: Linus Walleij <linus.walleij@linaro.org>
+     Cc: Arnd Bergmann <arnd@arndb.de>
+     Cc: Ulf Hansson <ulf.hansson@linaro.org>
+     Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-diff --git a/drivers/net/dsa/mt7530.c b/drivers/net/dsa/mt7530.c
-index cffaf4fdd772..7b81a39c15c1 100644
---- a/drivers/net/dsa/mt7530.c
-+++ b/drivers/net/dsa/mt7530.c
-@@ -821,10 +821,15 @@ mt7530_port_set_vlan_aware(struct dsa_switch *ds, int port)
- 		   PCR_MATRIX_MASK, PCR_MATRIX(MT7530_ALL_MEMBERS));
- 
- 	/* Trapped into security mode allows packet forwarding through VLAN
--	 * table lookup.
-+	 * table lookup. CPU port is set to fallback mode to let untagged
-+	 * frames pass through.
- 	 */
--	mt7530_rmw(priv, MT7530_PCR_P(port), PCR_PORT_VLAN_MASK,
--		   MT7530_PORT_SECURITY_MODE);
-+	if (dsa_is_cpu_port(ds, port))
-+		mt7530_rmw(priv, MT7530_PCR_P(port), PCR_PORT_VLAN_MASK,
-+			   MT7530_PORT_FALLBACK_MODE);
-+	else
-+		mt7530_rmw(priv, MT7530_PCR_P(port), PCR_PORT_VLAN_MASK,
-+			   MT7530_PORT_SECURITY_MODE);
- 
- 	/* Set the port as a user port which is to be able to recognize VID
- 	 * from incoming packets before fetching entry within the VLAN table.
-diff --git a/drivers/net/dsa/mt7530.h b/drivers/net/dsa/mt7530.h
-index 756140b7dfd5..f8d5e82ddab2 100644
---- a/drivers/net/dsa/mt7530.h
-+++ b/drivers/net/dsa/mt7530.h
-@@ -147,6 +147,12 @@ enum mt7530_port_mode {
- 	/* Port Matrix Mode: Frames are forwarded by the PCR_MATRIX members. */
- 	MT7530_PORT_MATRIX_MODE = PORT_VLAN(0),
- 
-+	/* Fallback Mode: Forward received frames with ingress ports that do
-+	 * not belong to the VLAN member. Frames whose VID is not listed on
-+	 * the VLAN table are forwarded by the PCR_MATRIX members.
-+	 */
-+	MT7530_PORT_FALLBACK_MODE = PORT_VLAN(1),
-+
- 	/* Security Mode: Discard any frame due to ingress membership
- 	 * violation or VID missed on the VLAN table.
- 	 */
+diff --git a/include/linux/amba/bus.h b/include/linux/amba/bus.h
+index 0bbfd647f5c6..26f0ecf401ea 100644
+--- a/include/linux/amba/bus.h
++++ b/include/linux/amba/bus.h
+@@ -65,7 +65,6 @@ struct amba_device {
+         struct device           dev;
+         struct resource         res;
+         struct clk              *pclk;
+-       struct device_dma_parameters dma_parms;
+         unsigned int            periphid;
+         unsigned int            cid;
+         struct amba_cs_uci_id   uci;
+
 -- 
-2.26.2
-
+Thanks,
+Sasha
