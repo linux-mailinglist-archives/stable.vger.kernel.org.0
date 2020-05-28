@@ -2,181 +2,163 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7AC201E5B48
-	for <lists+stable@lfdr.de>; Thu, 28 May 2020 10:57:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E15F1E5B92
+	for <lists+stable@lfdr.de>; Thu, 28 May 2020 11:14:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728069AbgE1I5W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 28 May 2020 04:57:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56660 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728054AbgE1I5V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 28 May 2020 04:57:21 -0400
-Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 002A820B80;
-        Thu, 28 May 2020 08:57:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590656241;
-        bh=FXN3K+B2SmCExaj+5+rU5K3IOASOMRXzf1ApNpbQMU4=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=SYiOzZs1gDTA/T2D57/wUksIGZCdTyDbDmeZkq6tk0eZ4MgdYb4xsYzV9B3x+cQqo
-         /muXvwo/rvMHcFD0lVdWNLY0GlCoUu87fa6edavgLnJOlVb4g0XoL19WYmjAHN54pH
-         PRhbYiVPaa9JZP3H2YdDPJ0qkELkSHL1BvWuJApA=
-Received: from disco-boy.misterjones.org ([51.254.78.96] helo=www.loen.fr)
-        by disco-boy.misterjones.org with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.92)
-        (envelope-from <maz@kernel.org>)
-        id 1jeELm-00Fw0L-Qz; Thu, 28 May 2020 09:57:19 +0100
+        id S1728138AbgE1JO4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 28 May 2020 05:14:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49572 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728062AbgE1JO4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 28 May 2020 05:14:56 -0400
+Received: from mail-ua1-x942.google.com (mail-ua1-x942.google.com [IPv6:2607:f8b0:4864:20::942])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1A46C08C5C5
+        for <stable@vger.kernel.org>; Thu, 28 May 2020 02:14:55 -0700 (PDT)
+Received: by mail-ua1-x942.google.com with SMTP id g14so3720721uaq.0
+        for <stable@vger.kernel.org>; Thu, 28 May 2020 02:14:55 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=/bUPBRUsoGA3duyrH2TeZMw5+oOeqgZqPYVv5N0Bp8E=;
+        b=Ne//iH640h/EEBEtqoCGfuf9pMzYa08gUSFPet3nUiWCMFf0CC/Gr2oVUm+Mf1G5pW
+         7I+c1si80x3o3epEQxzm7aObeVrftr8ivjyXsU0NJLnA6nlvfoZTIVtA94ZOOXhi8eY2
+         KaVs/FyPxbO3ByDFxkdYun2tB6/rHrXt7tlFKQzbSED4KznRDQMndxc/5jEe/eS9oibp
+         DphU8kmMLxd4jpPNExEYWjWzLiyT4OUBFwHyJj5kvH12rkSlaK7khY7SfOshYCYl61AT
+         yiPZjzm1mK5EqW9n3cipObQ28qNzKmCAS+U3Jml+uAqujflKxeH72CxxBdNIKtd0O2Bj
+         W7Xg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=/bUPBRUsoGA3duyrH2TeZMw5+oOeqgZqPYVv5N0Bp8E=;
+        b=Qt3JtcAmfrXv7eYGKf75ZO1tqzVgAKVLECb2RHiohY9M4YMqQvy8uiln8ZkdnrWOsk
+         Y+/rJKly9iZV8UKfq18VfLNGhv+KHW6ZyZphTj7uSqEUW7DOTkJ+L66MJe8NrW9nJZ4x
+         HcRSFvGL8TYP+nBRNR6EETxatvex3CvkKiDKLDGjZRdtMvjgVNU7glELU5SP3eCRnZZf
+         lnhHZcUzoEIgH2IezzBU9apYsyWRhhk8oH0WBfO4W1teZHdlMPx+Hpqb01dfFDwdkYGy
+         jfOtK0hpEhkM06T1jU4IRKV6Vt2z5nOdsEPi7CHDvADGUuYcSzs9qRCbHAVdTOmGs8XT
+         SosQ==
+X-Gm-Message-State: AOAM5310C2crTdSIweL6D231M/IpqP4ESQ3F88/vrqi8/5a72YgRaiUZ
+        iZXSu8jH6KixW2BIigKr/4S4TJT9g9FB4o8LZgdMQw==
+X-Google-Smtp-Source: ABdhPJyeBZDK+eRHDc8CWLgi/p/haWLcwq2ltlK4wv91Z0M2J35aG++4G2ilnQYUpjJaJ7F+JSrxGwE2JExC7SMR47U=
+X-Received: by 2002:ab0:13f2:: with SMTP id n47mr1188594uae.129.1590657294933;
+ Thu, 28 May 2020 02:14:54 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
-Date:   Thu, 28 May 2020 09:57:18 +0100
-From:   Marc Zyngier <maz@kernel.org>
-To:     James Morse <james.morse@arm.com>
-Cc:     kvmarm@lists.cs.columbia.edu, linux-arm-kernel@lists.infradead.org,
-        Julien Thierry <julien.thierry.kdev@gmail.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 1/3] KVM: arm64: Stop writing aarch32's CSSELR into ACTLR
-In-Reply-To: <20200526161834.29165-2-james.morse@arm.com>
-References: <20200526161834.29165-1-james.morse@arm.com>
- <20200526161834.29165-2-james.morse@arm.com>
-User-Agent: Roundcube Webmail/1.4.4
-Message-ID: <4be0c0b654f7d7c1efe9f52efb856bd8@kernel.org>
-X-Sender: maz@kernel.org
-X-SA-Exim-Connect-IP: 51.254.78.96
-X-SA-Exim-Rcpt-To: james.morse@arm.com, kvmarm@lists.cs.columbia.edu, linux-arm-kernel@lists.infradead.org, julien.thierry.kdev@gmail.com, suzuki.poulose@arm.com, stable@vger.kernel.org
-X-SA-Exim-Mail-From: maz@kernel.org
-X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
+References: <20200527082334.20774-1-tomi.valkeinen@ti.com>
+In-Reply-To: <20200527082334.20774-1-tomi.valkeinen@ti.com>
+From:   Ulf Hansson <ulf.hansson@linaro.org>
+Date:   Thu, 28 May 2020 11:14:18 +0200
+Message-ID: <CAPDyKFqRa81q9EYFKB52kr6+EPJBK5u+4_hC0+ZnxU_axbxAZQ@mail.gmail.com>
+Subject: Re: [PATCHv2] media: videobuf2-dma-contig: fix bad kfree in vb2_dma_contig_clear_max_seg_size
+To:     Tomi Valkeinen <tomi.valkeinen@ti.com>
+Cc:     Linux Media Mailing List <linux-media@vger.kernel.org>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        LKML <linux-kernel@vger.kernel.org>,
+        "# 4.0+" <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi James,
-
-On 2020-05-26 17:18, James Morse wrote:
-> aarch32 has pairs of registers to access the high and low parts of 
-> 64bit
-> registers. KVM has a union of 64bit sys_regs[] and 32bit copro[]. The
-> 32bit accessors read the high or low part of the 64bit sys_reg[] value
-> through the union.
-> 
-> Both sys_reg_descs[] and cp15_regs[] list access_csselr() as the 
-> accessor
-> for CSSELR{,_EL1}. access_csselr() is only aware of the 64bit 
-> sys_regs[],
-> and expects r->reg to be 'CSSELR_EL1' in the enum, index 2 of the 64bit
-> array.
-> 
-> cp15_regs[] uses the 32bit copro[] alias of sys_regs[]. Here CSSELR is
-> c0_CSSELR which is the same location in sys_reg[]. r->reg is 
-> 'c0_CSSELR',
-> index 4 in the 32bit array.
-> 
-> access_csselr() uses the 32bit r->reg value to access the 64bit array,
-> so reads and write the wrong value. sys_regs[4], is ACTLR_EL1, which
-> is subsequently save/restored when we enter the guest.
-
-Huhuh... Nice catch.
-
-> 
-> ACTLR_EL1 is supposed to be read-only for the guest. This register
-> only affects execution at EL1, and the host's value is restored before
-> we return to host EL1.
-> 
-> Rename access_csselr() to access_csselr_el1(), to indicate it expects
-> the 64bit register index, and pass it CSSELR_EL1 from cp15_regs[].
-> 
+On Wed, 27 May 2020 at 10:23, Tomi Valkeinen <tomi.valkeinen@ti.com> wrote:
+>
+> Commit 9495b7e92f716ab2bd6814fab5e97ab4a39adfdd ("driver core: platform:
+> Initialize dma_parms for platform devices") in v5.7-rc5 causes
+> vb2_dma_contig_clear_max_seg_size() to kfree memory that was not
+> allocated by vb2_dma_contig_set_max_seg_size().
+>
+> The assumption in vb2_dma_contig_set_max_seg_size() seems to be that
+> dev->dma_parms is always NULL when the driver is probed, and the case
+> where dev->dma_parms has bee initialized by someone else than the driver
+> (by calling vb2_dma_contig_set_max_seg_size) will cause a failure.
+>
+> All the current users of these functions are platform devices, which now
+> always have dma_parms set by the driver core. To fix the issue for v5.7,
+> make vb2_dma_contig_set_max_seg_size() return an error if dma_parms is
+> NULL to be on the safe side, and remove the kfree code from
+> vb2_dma_contig_clear_max_seg_size().
+>
+> For v5.8 we should remove the two functions and move the
+> dma_set_max_seg_size() calls into the drivers.
+>
+> Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+> Fixes: 9495b7e92f71 ("driver core: platform: Initialize dma_parms for platform devices")
 > Cc: stable@vger.kernel.org
-> Signed-off-by: James Morse <james.morse@arm.com>
-> ----
-> Providing access_csselr_cp15() wouldn't work as with VHE CSSELR_EL1 is
-> loaded on the CPU while this code runs. access_csselr_cp15() would have
-> to map it back the 64bit resgister to use vcpu_write_sys_reg(). We may
-> as well do it in the table.
-> 
->  arch/arm64/kvm/sys_regs.c | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
-> 
-> diff --git a/arch/arm64/kvm/sys_regs.c b/arch/arm64/kvm/sys_regs.c
-> index 51db934702b6..2eda539f3281 100644
-> --- a/arch/arm64/kvm/sys_regs.c
-> +++ b/arch/arm64/kvm/sys_regs.c
-> @@ -1302,7 +1302,7 @@ static bool access_clidr(struct kvm_vcpu *vcpu,
-> struct sys_reg_params *p,
->  	return true;
->  }
-> 
-> -static bool access_csselr(struct kvm_vcpu *vcpu, struct sys_reg_params 
-> *p,
-> +static bool access_csselr_el1(struct kvm_vcpu *vcpu, struct 
-> sys_reg_params *p,
->  			  const struct sys_reg_desc *r)
+
+Thanks for fixing this!
+
+However, as I tried to point out in v1, don't you need to care about
+drivers/media/platform/s5p-mfc/s5p_mfc.c, which allocates its own type
+of struct device (non-platform). No?
+
+Kind regards
+Uffe
+
+
+> ---
+>
+> Changes in v2:
+> * vb2_dma_contig_clear_max_seg_size to empty static inline
+> * Added cc: stable and fixes tag
+>
+>  .../common/videobuf2/videobuf2-dma-contig.c   | 20 ++-----------------
+>  include/media/videobuf2-dma-contig.h          |  2 +-
+>  2 files changed, 3 insertions(+), 19 deletions(-)
+>
+> diff --git a/drivers/media/common/videobuf2/videobuf2-dma-contig.c b/drivers/media/common/videobuf2/videobuf2-dma-contig.c
+> index d3a3ee5b597b..f4b4a7c135eb 100644
+> --- a/drivers/media/common/videobuf2/videobuf2-dma-contig.c
+> +++ b/drivers/media/common/videobuf2/videobuf2-dma-contig.c
+> @@ -726,9 +726,8 @@ EXPORT_SYMBOL_GPL(vb2_dma_contig_memops);
+>  int vb2_dma_contig_set_max_seg_size(struct device *dev, unsigned int size)
 >  {
->  	if (p->is_write)
-> @@ -1566,7 +1566,7 @@ static const struct sys_reg_desc sys_reg_descs[] 
-> = {
-> 
->  	{ SYS_DESC(SYS_CCSIDR_EL1), access_ccsidr },
->  	{ SYS_DESC(SYS_CLIDR_EL1), access_clidr },
-> -	{ SYS_DESC(SYS_CSSELR_EL1), access_csselr, reset_unknown, CSSELR_EL1 
-> },
-> +	{ SYS_DESC(SYS_CSSELR_EL1), access_csselr_el1, reset_unknown, 
-> CSSELR_EL1 },
->  	{ SYS_DESC(SYS_CTR_EL0), access_ctr },
-> 
->  	{ SYS_DESC(SYS_PMCR_EL0), access_pmcr, reset_pmcr, PMCR_EL0 },
-> @@ -2060,7 +2060,7 @@ static const struct sys_reg_desc cp15_regs[] = {
-> 
->  	{ Op1(1), CRn( 0), CRm( 0), Op2(0), access_ccsidr },
->  	{ Op1(1), CRn( 0), CRm( 0), Op2(1), access_clidr },
-> -	{ Op1(2), CRn( 0), CRm( 0), Op2(0), access_csselr, NULL, c0_CSSELR },
-> +	{ Op1(2), CRn( 0), CRm( 0), Op2(0), access_csselr_el1, NULL, 
-> CSSELR_EL1 },
->  };
-> 
->  static const struct sys_reg_desc cp15_64_regs[] = {
-
-This is a departure from the way we deal with 32bit CP15 registers.
-We deal with this exact issue in a very different way for other
-CP15 regs, by adjusting the index in the sys_regs array (see the
-way we handle the VM regs).
-
-How about something like this (untested):
-
-diff --git a/arch/arm64/kvm/sys_regs.c b/arch/arm64/kvm/sys_regs.c
-index 12d07e7ced82..515c0c11a668 100644
---- a/arch/arm64/kvm/sys_regs.c
-+++ b/arch/arm64/kvm/sys_regs.c
-@@ -1321,10 +1321,16 @@ static bool access_clidr(struct kvm_vcpu *vcpu, 
-struct sys_reg_params *p,
-  static bool access_csselr(struct kvm_vcpu *vcpu, struct sys_reg_params 
-*p,
-  			  const struct sys_reg_desc *r)
-  {
-+	int reg = r->reg;
-+
-+	/* See the 32bit mapping in kvm_host.h */
-+	if (p->is_aarch32)
-+		reg = r->reg / 2;
-+
-  	if (p->is_write)
--		vcpu_write_sys_reg(vcpu, p->regval, r->reg);
-+		vcpu_write_sys_reg(vcpu, p->regval, reg);
-  	else
--		p->regval = vcpu_read_sys_reg(vcpu, r->reg);
-+		p->regval = vcpu_read_sys_reg(vcpu, reg);
-  	return true;
-  }
-
-Ideally, I'd like the core sys_reg code to deal with this sort
-of funnies, but I'm trying to keep the change minimal...
-
-Thanks,
-
-          M.
--- 
-Jazz is not dead. It just smells funny...
+>         if (!dev->dma_parms) {
+> -               dev->dma_parms = kzalloc(sizeof(*dev->dma_parms), GFP_KERNEL);
+> -               if (!dev->dma_parms)
+> -                       return -ENOMEM;
+> +               dev_err(dev, "Failed to set max_seg_size: dma_parms is NULL\n");
+> +               return -ENODEV;
+>         }
+>         if (dma_get_max_seg_size(dev) < size)
+>                 return dma_set_max_seg_size(dev, size);
+> @@ -737,21 +736,6 @@ int vb2_dma_contig_set_max_seg_size(struct device *dev, unsigned int size)
+>  }
+>  EXPORT_SYMBOL_GPL(vb2_dma_contig_set_max_seg_size);
+>
+> -/*
+> - * vb2_dma_contig_clear_max_seg_size() - release resources for DMA parameters
+> - * @dev:       device for configuring DMA parameters
+> - *
+> - * This function releases resources allocated to configure DMA parameters
+> - * (see vb2_dma_contig_set_max_seg_size() function). It should be called from
+> - * device drivers on driver remove.
+> - */
+> -void vb2_dma_contig_clear_max_seg_size(struct device *dev)
+> -{
+> -       kfree(dev->dma_parms);
+> -       dev->dma_parms = NULL;
+> -}
+> -EXPORT_SYMBOL_GPL(vb2_dma_contig_clear_max_seg_size);
+> -
+>  MODULE_DESCRIPTION("DMA-contig memory handling routines for videobuf2");
+>  MODULE_AUTHOR("Pawel Osciak <pawel@osciak.com>");
+>  MODULE_LICENSE("GPL");
+> diff --git a/include/media/videobuf2-dma-contig.h b/include/media/videobuf2-dma-contig.h
+> index 5604818d137e..5be313cbf7d7 100644
+> --- a/include/media/videobuf2-dma-contig.h
+> +++ b/include/media/videobuf2-dma-contig.h
+> @@ -25,7 +25,7 @@ vb2_dma_contig_plane_dma_addr(struct vb2_buffer *vb, unsigned int plane_no)
+>  }
+>
+>  int vb2_dma_contig_set_max_seg_size(struct device *dev, unsigned int size);
+> -void vb2_dma_contig_clear_max_seg_size(struct device *dev);
+> +static inline void vb2_dma_contig_clear_max_seg_size(struct device *dev) { }
+>
+>  extern const struct vb2_mem_ops vb2_dma_contig_memops;
+>
+> --
+> Texas Instruments Finland Oy, Porkkalankatu 22, 00180 Helsinki.
+> Y-tunnus/Business ID: 0615521-4. Kotipaikka/Domicile: Helsinki
+>
