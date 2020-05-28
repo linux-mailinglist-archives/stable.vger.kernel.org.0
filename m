@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DC9151E5F8E
-	for <lists+stable@lfdr.de>; Thu, 28 May 2020 14:04:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 887A11E5F8A
+	for <lists+stable@lfdr.de>; Thu, 28 May 2020 14:04:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389493AbgE1MC2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 28 May 2020 08:02:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50098 "EHLO mail.kernel.org"
+        id S2389314AbgE1MC1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 28 May 2020 08:02:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50112 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389044AbgE1L5f (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 28 May 2020 07:57:35 -0400
+        id S2389046AbgE1L5g (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 28 May 2020 07:57:36 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E2086215A4;
-        Thu, 28 May 2020 11:57:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F2D23216C4;
+        Thu, 28 May 2020 11:57:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590667054;
-        bh=0uS1LdfPGFxBKJib0p5GRgBvtyj0Dw2HOX+/CXBwzZI=;
+        s=default; t=1590667055;
+        bh=MULI+Njyfm2wJqBQaQ0lcAG8tNbzME1uIFaWCPpfjBo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D3WV931mG7Oo5Dqk1uY1EKqyuDHcqXNrmm+bFRAJbO07H1GYHqaA6wDy7HDPXCw3r
-         8oeV1nvFQZsyOseH9C8/cqiFbazxA6J+1tFeHh68JvlH1d14nmaeLJLFyaxsFQrC9I
-         XY8g29UdHHsZENGlc8+67w4bw3nUej+VUBNT/PyA=
+        b=PIZsaxQTrd7zjexMAFSPKivImWVEJv1nzGIArAoojxO9IsSmOrMRzZXS2pqKSWpNH
+         l1RvfdcgzlqtSgdL53HWkdsItAtPHFtY/ZBfgfOAjqMr+0HEBYJeya1TFyJwgUxGxY
+         xBy5YKA33XPF/7MquljOdMkUjKehnRQcrFTQJgd8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Marc Payne <marc.payne@mdpsys.co.uk>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 08/17] r8152: support additional Microsoft Surface Ethernet Adapter variant
-Date:   Thu, 28 May 2020 07:57:15 -0400
-Message-Id: <20200528115724.1406376-8-sashal@kernel.org>
+Cc:     Jan Schmidt <jan@centricular.com>,
+        Dave Airlie <airlied@redhat.com>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 4.19 09/17] drm/edid: Add Oculus Rift S to non-desktop list
+Date:   Thu, 28 May 2020 07:57:16 -0400
+Message-Id: <20200528115724.1406376-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200528115724.1406376-1-sashal@kernel.org>
 References: <20200528115724.1406376-1-sashal@kernel.org>
@@ -44,65 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Payne <marc.payne@mdpsys.co.uk>
+From: Jan Schmidt <jan@centricular.com>
 
-[ Upstream commit c27a204383616efba5a4194075e90819961ff66a ]
+[ Upstream commit 5a3f610877e9d08968ea7237551049581f02b163 ]
 
-Device id 0927 is the RTL8153B-based component of the 'Surface USB-C to
-Ethernet and USB Adapter' and may be used as a component of other devices
-in future. Tested and working with the r8152 driver.
+Add a quirk for the Oculus Rift S OVR0012 display so
+it shows up as a non-desktop display.
 
-Update the cdc_ether blacklist due to the RTL8153 'network jam on suspend'
-issue which this device will cause (personally confirmed).
-
-Signed-off-by: Marc Payne <marc.payne@mdpsys.co.uk>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Jan Schmidt <jan@centricular.com>
+Signed-off-by: Dave Airlie <airlied@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200507180628.740936-1-jan@centricular.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/cdc_ether.c | 11 +++++++++--
- drivers/net/usb/r8152.c     |  1 +
- 2 files changed, 10 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/drm_edid.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/usb/cdc_ether.c b/drivers/net/usb/cdc_ether.c
-index c3cf9ae6d1df..1de97b69ce4e 100644
---- a/drivers/net/usb/cdc_ether.c
-+++ b/drivers/net/usb/cdc_ether.c
-@@ -821,14 +821,21 @@ static const struct usb_device_id	products[] = {
- 	.driver_info = 0,
- },
+diff --git a/drivers/gpu/drm/drm_edid.c b/drivers/gpu/drm/drm_edid.c
+index d5dcee7f1fc8..108f542176b8 100644
+--- a/drivers/gpu/drm/drm_edid.c
++++ b/drivers/gpu/drm/drm_edid.c
+@@ -198,10 +198,11 @@ static const struct edid_quirk {
+ 	{ "HVR", 0xaa01, EDID_QUIRK_NON_DESKTOP },
+ 	{ "HVR", 0xaa02, EDID_QUIRK_NON_DESKTOP },
  
--/* Microsoft Surface 3 dock (based on Realtek RTL8153) */
-+/* Microsoft Surface Ethernet Adapter (based on Realtek RTL8153) */
- {
- 	USB_DEVICE_AND_INTERFACE_INFO(MICROSOFT_VENDOR_ID, 0x07c6, USB_CLASS_COMM,
- 			USB_CDC_SUBCLASS_ETHERNET, USB_CDC_PROTO_NONE),
- 	.driver_info = 0,
- },
+-	/* Oculus Rift DK1, DK2, and CV1 VR Headsets */
++	/* Oculus Rift DK1, DK2, CV1 and Rift S VR Headsets */
+ 	{ "OVR", 0x0001, EDID_QUIRK_NON_DESKTOP },
+ 	{ "OVR", 0x0003, EDID_QUIRK_NON_DESKTOP },
+ 	{ "OVR", 0x0004, EDID_QUIRK_NON_DESKTOP },
++	{ "OVR", 0x0012, EDID_QUIRK_NON_DESKTOP },
  
--	/* TP-LINK UE300 USB 3.0 Ethernet Adapters (based on Realtek RTL8153) */
-+/* Microsoft Surface Ethernet Adapter (based on Realtek RTL8153B) */
-+{
-+	USB_DEVICE_AND_INTERFACE_INFO(MICROSOFT_VENDOR_ID, 0x0927, USB_CLASS_COMM,
-+			USB_CDC_SUBCLASS_ETHERNET, USB_CDC_PROTO_NONE),
-+	.driver_info = 0,
-+},
-+
-+/* TP-LINK UE300 USB 3.0 Ethernet Adapters (based on Realtek RTL8153) */
- {
- 	USB_DEVICE_AND_INTERFACE_INFO(TPLINK_VENDOR_ID, 0x0601, USB_CLASS_COMM,
- 			USB_CDC_SUBCLASS_ETHERNET, USB_CDC_PROTO_NONE),
-diff --git a/drivers/net/usb/r8152.c b/drivers/net/usb/r8152.c
-index 0639178cb009..1b1ec4197830 100644
---- a/drivers/net/usb/r8152.c
-+++ b/drivers/net/usb/r8152.c
-@@ -5344,6 +5344,7 @@ static const struct usb_device_id rtl8152_table[] = {
- 	{REALTEK_USB_DEVICE(VENDOR_ID_REALTEK, 0x8153)},
- 	{REALTEK_USB_DEVICE(VENDOR_ID_MICROSOFT, 0x07ab)},
- 	{REALTEK_USB_DEVICE(VENDOR_ID_MICROSOFT, 0x07c6)},
-+	{REALTEK_USB_DEVICE(VENDOR_ID_MICROSOFT, 0x0927)},
- 	{REALTEK_USB_DEVICE(VENDOR_ID_SAMSUNG, 0xa101)},
- 	{REALTEK_USB_DEVICE(VENDOR_ID_LENOVO,  0x304f)},
- 	{REALTEK_USB_DEVICE(VENDOR_ID_LENOVO,  0x3062)},
+ 	/* Windows Mixed Reality Headsets */
+ 	{ "ACR", 0x7fce, EDID_QUIRK_NON_DESKTOP },
 -- 
 2.25.1
 
