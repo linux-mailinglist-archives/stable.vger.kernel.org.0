@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A8E191E5F69
-	for <lists+stable@lfdr.de>; Thu, 28 May 2020 14:02:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E28B41E5F39
+	for <lists+stable@lfdr.de>; Thu, 28 May 2020 14:02:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389186AbgE1MCA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 28 May 2020 08:02:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50336 "EHLO mail.kernel.org"
+        id S2389098AbgE1L5t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 28 May 2020 07:57:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50418 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389074AbgE1L5o (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 28 May 2020 07:57:44 -0400
+        id S2389093AbgE1L5s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 28 May 2020 07:57:48 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7C3422177B;
-        Thu, 28 May 2020 11:57:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F13C4216C4;
+        Thu, 28 May 2020 11:57:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590667064;
-        bh=ZX1tnruJSvdsfDaH4vcNnaq0VG75PQYjQCUTI1CB0R4=;
+        s=default; t=1590667067;
+        bh=PLNJeXxTBPc66RzOoR4Z0fys6oMg6bP2vmEK7g3T1FI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jM3mMMqAjBPLf99KH+1Gxf+1lkU/NvXXBafvqj+QKllV9fvC48uEwlQPVKTCjzNoz
-         tIS0Vm/OT0SVLvTnGysl4eWkVY8yNTu5VdKpoGUJw372pW8H07bVHajF33225lzQUk
-         h54Q3ohtIG4ds1ACFyJkFGCb7pMza5ufbeM7wtog=
+        b=nIsZYTqXjMgwGr8CqJ/GAgShtF0Cns+kgEsiElK+pSglW+4es7SI8v8CSge0McTmk
+         ++FgMFezFd3H15kwPQpWqZ0Y7IcDnn8IV18onEr0cJ7mM3Wn13SsnyL1Qd/KqSwks9
+         443fMMjh121eNWGOzft2ptxbLrx/DTEB5IKQ3XC4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dinghao Liu <dinghao.liu@zju.edu.cn>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 17/17] net: smsc911x: Fix runtime PM imbalance on error
-Date:   Thu, 28 May 2020 07:57:24 -0400
-Message-Id: <20200528115724.1406376-17-sashal@kernel.org>
+Cc:     Vineet Gupta <vgupta@synopsys.com>,
+        kbuild test robot <lkp@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-snps-arc@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.14 02/13] ARC: [plat-eznps]: Restrict to CONFIG_ISA_ARCOMPACT
+Date:   Thu, 28 May 2020 07:57:33 -0400
+Message-Id: <20200528115744.1406533-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200528115724.1406376-1-sashal@kernel.org>
-References: <20200528115724.1406376-1-sashal@kernel.org>
+In-Reply-To: <20200528115744.1406533-1-sashal@kernel.org>
+References: <20200528115744.1406533-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -43,61 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinghao Liu <dinghao.liu@zju.edu.cn>
+From: Vineet Gupta <vgupta@synopsys.com>
 
-[ Upstream commit 539d39ad0c61b35f69565a037d7586deaf6d6166 ]
+[ Upstream commit 799587d5731db9dcdafaac4002463aa7d9cd6cf7 ]
 
-Remove runtime PM usage counter decrement when the
-increment function has not been called to keep the
-counter balanced.
+Elide invalid configuration EZNPS + ARCv2, triggered by a
+make allyesconfig build.
 
-Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Granted the root cause is in source code (asm/barrier.h) where we check
+for ARCv2 before PLAT_EZNPS, but it is better to avoid such combinations
+at onset rather then baking subtle nuances into code.
+
+Reported-by: kbuild test robot <lkp@intel.com>
+Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/smsc/smsc911x.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ arch/arc/plat-eznps/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/smsc/smsc911x.c b/drivers/net/ethernet/smsc/smsc911x.c
-index ce4bfecc26c7..ae80a223975d 100644
---- a/drivers/net/ethernet/smsc/smsc911x.c
-+++ b/drivers/net/ethernet/smsc/smsc911x.c
-@@ -2515,20 +2515,20 @@ static int smsc911x_drv_probe(struct platform_device *pdev)
+diff --git a/arch/arc/plat-eznps/Kconfig b/arch/arc/plat-eznps/Kconfig
+index ce908e2c5282..71378bfec8d0 100644
+--- a/arch/arc/plat-eznps/Kconfig
++++ b/arch/arc/plat-eznps/Kconfig
+@@ -6,6 +6,7 @@
  
- 	retval = smsc911x_init(dev);
- 	if (retval < 0)
--		goto out_disable_resources;
-+		goto out_init_fail;
- 
- 	netif_carrier_off(dev);
- 
- 	retval = smsc911x_mii_init(pdev, dev);
- 	if (retval) {
- 		SMSC_WARN(pdata, probe, "Error %i initialising mii", retval);
--		goto out_disable_resources;
-+		goto out_init_fail;
- 	}
- 
- 	retval = register_netdev(dev);
- 	if (retval) {
- 		SMSC_WARN(pdata, probe, "Error %i registering device", retval);
--		goto out_disable_resources;
-+		goto out_init_fail;
- 	} else {
- 		SMSC_TRACE(pdata, probe,
- 			   "Network interface: \"%s\"", dev->name);
-@@ -2569,9 +2569,10 @@ static int smsc911x_drv_probe(struct platform_device *pdev)
- 
- 	return 0;
- 
--out_disable_resources:
-+out_init_fail:
- 	pm_runtime_put(&pdev->dev);
- 	pm_runtime_disable(&pdev->dev);
-+out_disable_resources:
- 	(void)smsc911x_disable_resources(pdev);
- out_enable_resources_fail:
- 	smsc911x_free_resources(pdev);
+ menuconfig ARC_PLAT_EZNPS
+ 	bool "\"EZchip\" ARC dev platform"
++	depends on ISA_ARCOMPACT
+ 	select CPU_BIG_ENDIAN
+ 	select CLKSRC_NPS if !PHYS_ADDR_T_64BIT
+ 	select EZNPS_GIC
 -- 
 2.25.1
 
