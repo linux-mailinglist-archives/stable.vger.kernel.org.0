@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F41771E5F7E
-	for <lists+stable@lfdr.de>; Thu, 28 May 2020 14:04:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 53CDC1E5FBC
+	for <lists+stable@lfdr.de>; Thu, 28 May 2020 14:05:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388963AbgE1L5P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 28 May 2020 07:57:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49650 "EHLO mail.kernel.org"
+        id S2389357AbgE1MEb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 28 May 2020 08:04:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49684 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388802AbgE1L5M (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 28 May 2020 07:57:12 -0400
+        id S2388954AbgE1L5O (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 28 May 2020 07:57:14 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C06BF21582;
-        Thu, 28 May 2020 11:57:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 030D1215A4;
+        Thu, 28 May 2020 11:57:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590667031;
-        bh=eBo08nm/PDjGdcH7DqDvvbaUmTpnzTyrigqj4+vtVHQ=;
+        s=default; t=1590667033;
+        bh=gs9/lY+1QDQ5E52V460MMXznwqxNumfuWvVTDb9U+uo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J24SwH7VsRMqEWXmk/wb4bYDQBPOqXV8fjrEOIfSm50ygf9IMQfnVOjZmd9tOGV8H
-         FOgLXw0h7XeeC/XW+U57KkZKBP/wkU9MQM7cz2ZvnEsnfzOLS6iTbor/70CYM1ie9E
-         b0WDMEN09XY1C7pBOuN1HxnoFjvDAQuKmP/avt7w=
+        b=oFezxgOHRdv6SFiiALe9+yfN8Q2KDzVwq3Q35c2vAE68QWfbckrqtk/FckEl98ath
+         mLZK8UxCYMfQuStWTJkIeIT6lb6nnyF1lh/1sV0oJ1kcKazRuNGtpqsgHV4ktLqP1p
+         u8JIfRA6HvQXG1TNbjyp/S9JViQpokK+G/PhGKn8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Valentin Longchamp <valentin@longchamp.me>,
-        Matteo Ghidoni <matteo.ghidoni@ch.abb.com>,
+Cc:     Amit Cohen <amitc@mellanox.com>, Petr Machata <petrm@mellanox.com>,
+        Ido Schimmel <idosch@mellanox.com>,
         "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.4 15/26] net/ethernet/freescale: rework quiesce/activate for ucc_geth
-Date:   Thu, 28 May 2020 07:56:43 -0400
-Message-Id: <20200528115654.1406165-15-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-api@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 17/26] selftests: mlxsw: qos_mc_aware: Specify arping timeout as an integer
+Date:   Thu, 28 May 2020 07:56:45 -0400
+Message-Id: <20200528115654.1406165-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200528115654.1406165-1-sashal@kernel.org>
 References: <20200528115654.1406165-1-sashal@kernel.org>
@@ -45,76 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Valentin Longchamp <valentin@longchamp.me>
+From: Amit Cohen <amitc@mellanox.com>
 
-[ Upstream commit 79dde73cf9bcf1dd317a2667f78b758e9fe139ed ]
+[ Upstream commit 46ca11177ed593f39d534f8d2c74ec5344e90c11 ]
 
-ugeth_quiesce/activate are used to halt the controller when there is a
-link change that requires to reconfigure the mac.
+Starting from iputils s20190709 (used in Fedora 31), arping does not
+support timeout being specified as a decimal:
 
-The previous implementation called netif_device_detach(). This however
-causes the initial activation of the netdevice to fail precisely because
-it's detached. For details, see [1].
+$ arping -c 1 -I swp1 -b 192.0.2.66 -q -w 0.1
+arping: invalid argument: '0.1'
 
-A possible workaround was the revert of commit
-net: linkwatch: add check for netdevice being present to linkwatch_do_dev
-However, the check introduced in the above commit is correct and shall be
-kept.
+Previously, such timeouts were rounded to an integer.
 
-The netif_device_detach() is thus replaced with
-netif_tx_stop_all_queues() that prevents any tranmission. This allows to
-perform mac config change required by the link change, without detaching
-the corresponding netdevice and thus not preventing its initial
-activation.
+Fix this by specifying the timeout as an integer.
 
-[1] https://lists.openwall.net/netdev/2020/01/08/201
-
-Signed-off-by: Valentin Longchamp <valentin@longchamp.me>
-Acked-by: Matteo Ghidoni <matteo.ghidoni@ch.abb.com>
+Fixes: a5ee171d087e ("selftests: mlxsw: qos_mc_aware: Add a test for UC awareness")
+Signed-off-by: Amit Cohen <amitc@mellanox.com>
+Reviewed-by: Petr Machata <petrm@mellanox.com>
+Signed-off-by: Ido Schimmel <idosch@mellanox.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/freescale/ucc_geth.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ tools/testing/selftests/drivers/net/mlxsw/qos_mc_aware.sh | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/freescale/ucc_geth.c b/drivers/net/ethernet/freescale/ucc_geth.c
-index f839fa94ebdd..d3b8ce734c1b 100644
---- a/drivers/net/ethernet/freescale/ucc_geth.c
-+++ b/drivers/net/ethernet/freescale/ucc_geth.c
-@@ -42,6 +42,7 @@
- #include <soc/fsl/qe/ucc.h>
- #include <soc/fsl/qe/ucc_fast.h>
- #include <asm/machdep.h>
-+#include <net/sch_generic.h>
+diff --git a/tools/testing/selftests/drivers/net/mlxsw/qos_mc_aware.sh b/tools/testing/selftests/drivers/net/mlxsw/qos_mc_aware.sh
+index 24dd8ed48580..b025daea062d 100755
+--- a/tools/testing/selftests/drivers/net/mlxsw/qos_mc_aware.sh
++++ b/tools/testing/selftests/drivers/net/mlxsw/qos_mc_aware.sh
+@@ -300,7 +300,7 @@ test_uc_aware()
+ 	local i
  
- #include "ucc_geth.h"
+ 	for ((i = 0; i < attempts; ++i)); do
+-		if $ARPING -c 1 -I $h1 -b 192.0.2.66 -q -w 0.1; then
++		if $ARPING -c 1 -I $h1 -b 192.0.2.66 -q -w 1; then
+ 			((passes++))
+ 		fi
  
-@@ -1548,11 +1549,8 @@ static int ugeth_disable(struct ucc_geth_private *ugeth, enum comm_dir mode)
- 
- static void ugeth_quiesce(struct ucc_geth_private *ugeth)
- {
--	/* Prevent any further xmits, plus detach the device. */
--	netif_device_detach(ugeth->ndev);
--
--	/* Wait for any current xmits to finish. */
--	netif_tx_disable(ugeth->ndev);
-+	/* Prevent any further xmits */
-+	netif_tx_stop_all_queues(ugeth->ndev);
- 
- 	/* Disable the interrupt to avoid NAPI rescheduling. */
- 	disable_irq(ugeth->ug_info->uf_info.irq);
-@@ -1565,7 +1563,10 @@ static void ugeth_activate(struct ucc_geth_private *ugeth)
- {
- 	napi_enable(&ugeth->napi);
- 	enable_irq(ugeth->ug_info->uf_info.irq);
--	netif_device_attach(ugeth->ndev);
-+
-+	/* allow to xmit again  */
-+	netif_tx_wake_all_queues(ugeth->ndev);
-+	__netdev_watchdog_up(ugeth->ndev);
- }
- 
- /* Called every time the controller might need to be made
 -- 
 2.25.1
 
