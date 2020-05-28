@@ -2,123 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E9C21E6309
-	for <lists+stable@lfdr.de>; Thu, 28 May 2020 15:57:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B206B1E6319
+	for <lists+stable@lfdr.de>; Thu, 28 May 2020 15:58:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390611AbgE1Nzz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 28 May 2020 09:55:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36778 "EHLO
+        id S2390610AbgE1N6d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 28 May 2020 09:58:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37204 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2390608AbgE1Nzy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 28 May 2020 09:55:54 -0400
-Received: from mail-qv1-xf42.google.com (mail-qv1-xf42.google.com [IPv6:2607:f8b0:4864:20::f42])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A1EEC05BD1E
-        for <stable@vger.kernel.org>; Thu, 28 May 2020 06:55:54 -0700 (PDT)
-Received: by mail-qv1-xf42.google.com with SMTP id l17so2570105qvd.9
-        for <stable@vger.kernel.org>; Thu, 28 May 2020 06:55:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=joelfernandes.org; s=google;
-        h=date:from:to:cc:subject:message-id:mime-version:content-disposition
-         :content-transfer-encoding;
-        bh=hwB4H+90PXovf4SJvJe9+Rj3bMo+et+KhIqFvByMq6E=;
-        b=u6+8QPPPQ1evhnU+zHhuhm+H6IU6aanMcMS3N8hvXpt7mbcsnohnFQr8PfqOqRzsuo
-         sKSkl/Azd37Ky+PuLPfAPk1Q6hke/3fsvRg1YUS5wyyFnLnJWFKYU42bpZjHzRae8MJw
-         iAzXuxKIWvvjrwsScr1hxlJuUnCmcKdiRoRb4=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
-         :content-disposition:content-transfer-encoding;
-        bh=hwB4H+90PXovf4SJvJe9+Rj3bMo+et+KhIqFvByMq6E=;
-        b=GqVeFoD3dic4v681HyyoJCUT9aAf1PeERElSt/YrB2ged90MvL083UA6DRnWSiLmGi
-         Dszr2NfJjdpzq+3C9s+60Lbd5XdrcBkyBNYa9TtxEou4SwTL37Qm/s6R74W2jTIyp7pQ
-         AOrflu33mWKcv2RFZuj0fH+0XChqinceOhJxUTyUQvMnIU6bkfgxDSG6BmRDP0hPOv7W
-         LmM3FnbhSxUbFjNoZ8rBC7R8/zWpQpAiR8u+hh2GDgysE2RjKEm6/leRKCTP6eRfKw4a
-         UNZIWB2YwetuoWaXbyZVkRMHK4+iV3VnKJwRpi8LJU8dyU/dLYdcNT/xrWoOmYUEUX7w
-         pHaw==
-X-Gm-Message-State: AOAM5326J4Bv8lvq09SsdmSeInsFTzCtx5K7vFdu+gAT1irZN1J76jQm
-        dYQ08wEZ59wxr8V9A5Z9WGgCUw==
-X-Google-Smtp-Source: ABdhPJy70GFvArqMi2mgfoq2tY3XsrKET+a2LQC62Miw0p6xa4bHHnAdp9Xaq4fHExO9rI2jeHDbJA==
-X-Received: by 2002:ad4:404b:: with SMTP id r11mr3286859qvp.44.1590674153409;
-        Thu, 28 May 2020 06:55:53 -0700 (PDT)
-Received: from localhost ([2620:15c:6:12:9c46:e0da:efbf:69cc])
-        by smtp.gmail.com with ESMTPSA id e34sm5186424qtb.21.2020.05.28.06.55.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 28 May 2020 06:55:52 -0700 (PDT)
-Date:   Thu, 28 May 2020 09:55:52 -0400
-From:   "Joel Fernandes (Google)" <joel@joelfernandes.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     "Joel Fernandes (Google)" <joel@joelfernandes.org>,
-        matthewb@google.com, jsbarnes@google.com, vapier@google.com,
-        christian@brauner.io, vpillai@digitalocean.com,
-        vineethrp@gmail.com, peterz@infradead.org, stable@vger.kernel.org,
-        gregkh@linuxfoundation.org, torvalds@linux-foundation.org
-Subject: [PATCH] sched/headers: Fix sched_setattr userspace compilation
- breakage
-Message-ID: <20200528135552.GA87103@google.com>
+        with ESMTP id S2390569AbgE1N6c (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 28 May 2020 09:58:32 -0400
+Received: from pandora.armlinux.org.uk (pandora.armlinux.org.uk [IPv6:2001:4d48:ad52:3201:214:fdff:fe10:1be6])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53AD6C05BD1E;
+        Thu, 28 May 2020 06:58:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=armlinux.org.uk; s=pandora-2019; h=Sender:In-Reply-To:Content-Type:
+        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+         bh=FR6rpUTDy6YkCkRcXhb1NZpZMquu6OHks1/TSntn5g8=; b=0FISDt0iywTeivhDGysA/zkgE
+        nTZuqcGb0OeYxSpAkY8KjuTh+iYDw8FNu2qxnIPR1H0s5XuPX+TuV7ubJYjdTh5nfdmylkfihePRc
+        oHXIAaXsrGKymN14NAX3l4c+FFo76k4pktkmRpWeg9wa4Psy2EbWleD4SnMx9L7O1mRaENI/YI4G9
+        ZL2gjrYCRdNfgicuMARIrOwDAXMWXI6OE55kc1efIJ8y7metKX27qMoPbh8Pi82QjvScNVOwSZVBu
+        n17EM1j7xmIZUUDkt/T4e+LAABaL3klLcotDxI4jtgYxb3+KPWXqzdpyrGP3+B2jICVimdiLI9LhM
+        Kx8X+ic1g==;
+Received: from shell.armlinux.org.uk ([2001:4d48:ad52:3201:5054:ff:fe00:4ec]:46204)
+        by pandora.armlinux.org.uk with esmtpsa (TLSv1.2:ECDHE-RSA-AES256-GCM-SHA384:256)
+        (Exim 4.90_1)
+        (envelope-from <linux@armlinux.org.uk>)
+        id 1jeJ3C-0005VB-Kn; Thu, 28 May 2020 14:58:26 +0100
+Received: from linux by shell.armlinux.org.uk with local (Exim 4.92)
+        (envelope-from <linux@shell.armlinux.org.uk>)
+        id 1jeJ3B-0007Ww-I5; Thu, 28 May 2020 14:58:25 +0100
+Date:   Thu, 28 May 2020 14:58:25 +0100
+From:   Russell King - ARM Linux admin <linux@armlinux.org.uk>
+To:     Linus Walleij <linus.walleij@linaro.org>
+Cc:     "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Hans Verkuil <hverkuil@xs4all.nl>,
+        stable <stable@vger.kernel.org>
+Subject: Re: [PATCH] gpio: fix locking open drain IRQ lines
+Message-ID: <20200528135825.GV1551@shell.armlinux.org.uk>
+References: <20200527140758.162280-1-linus.walleij@linaro.org>
+ <20200527141807.GQ1551@shell.armlinux.org.uk>
+ <CACRpkdbnLS2G6UH3L5u71RvP-heDqoOk+k9cW=9_4pJ_u3w0zg@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-X-Mailer: git-send-email 2.26.2.761.g0e0b3e54be-goog
+In-Reply-To: <CACRpkdbnLS2G6UH3L5u71RvP-heDqoOk+k9cW=9_4pJ_u3w0zg@mail.gmail.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On a modern Linux distro, compiling the following program fails:
- #include<stdlib.h>
- #include<stdint.h>
- #include<pthread.h>
- #include<linux/sched/types.h>
+On Thu, May 28, 2020 at 03:46:04PM +0200, Linus Walleij wrote:
+> On Wed, May 27, 2020 at 4:18 PM Russell King - ARM Linux admin
+> <linux@armlinux.org.uk> wrote:
+> > On Wed, May 27, 2020 at 04:07:58PM +0200, Linus Walleij wrote:
+> 
+> > > We provided the right semantics on open drain lines being
+> > > by definition output but incidentally the irq set up function
+> > > would only allow IRQs on lines that were "not output".
+> > >
+> > > Fix the semantics to allow output open drain lines to be used
+> > > for IRQs.
+> > >
+> > > Reported-by: Hans Verkuil <hverkuil@xs4all.nl>
+> > > Cc: Russell King <linux@armlinux.org.uk>
+> > > Cc: stable@vger.kernel.org
+> > > Fixes: 256efaea1fdc ("gpiolib: fix up emulated open drain outputs")
+> >
+> > As I've pointed out in the reporting thread, I don't think it can be
+> > justified as a regression - it's a bug in its own right that has been
+> > discovered by unifying the gpiolib semantics, since the cec-gpio code
+> > will fail on hardware that can provide real open-drain outputs
+> > irrespective of that commit.
+> >
+> > So, you're really fixing a deeper problem that was never discovered
+> > until gpiolib's semantics were fixed to be more uniform.
+> 
+> You're right, I was thinking of Fixes: as more of a mechanical
+> instruction to the stable kernel maintainers administrative machinery.
+> 
+> I will use the other way to signal to stable where to apply this.
 
- void main() {
-         struct sched_attr sa;
+I think it makes sense to apply this patch to stable kernels prior to
+the commit mentioned in the Fixes tag - but how far back is a good
+question.  Certainly to the point that we ended up with code relying
+on this behaviour (so when cec-gpio was introduced?)
 
-         return;
- }
-
-with:
-/usr/include/linux/sched/types.h:8:8: \
-			error: redefinition of ‘struct sched_param’
-    8 | struct sched_param {
-      |        ^~~~~~~~~~~
-In file included from /usr/include/x86_64-linux-gnu/bits/sched.h:74,
-                 from /usr/include/sched.h:43,
-                 from /usr/include/pthread.h:23,
-                 from /tmp/s.c:4:
-/usr/include/x86_64-linux-gnu/bits/types/struct_sched_param.h:23:8:
-note: originally defined here
-   23 | struct sched_param
-      |        ^~~~~~~~~~~
-
-This also causes a problem with using sched_attr in Chrome. The issue is
-sched_param is already provided by glibc.
-
-Guard the kernel's UAPI definition of sched_param with __KERNEL__ so
-that userspace can compile.
-
-Fixes: e2d1e2aec572a ("sched/headers: Move various ABI definitions to <uapi/linux/sched/types.h>"
-Signed-off-by: Joel Fernandes (Google) <joel@joelfernandes.org>
----
- include/uapi/linux/sched/types.h | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/include/uapi/linux/sched/types.h b/include/uapi/linux/sched/types.h
-index c852153ddb0d3..1f10d935a63fe 100644
---- a/include/uapi/linux/sched/types.h
-+++ b/include/uapi/linux/sched/types.h
-@@ -4,9 +4,11 @@
- 
- #include <linux/types.h>
- 
-+#if defined(__KERNEL__)
- struct sched_param {
- 	int sched_priority;
- };
-+#endif
- 
- #define SCHED_ATTR_SIZE_VER0	48	/* sizeof first published struct */
- #define SCHED_ATTR_SIZE_VER1	56	/* add: util_{min,max} */
 -- 
-2.26.2.761.g0e0b3e54be-goog
-
+RMK's Patch system: https://www.armlinux.org.uk/developer/patches/
+FTTC for 0.8m (est. 1762m) line in suburbia: sync at 13.1Mbps down 424kbps up
