@@ -2,77 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 168C51E5F42
-	for <lists+stable@lfdr.de>; Thu, 28 May 2020 14:02:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 203031E5F93
+	for <lists+stable@lfdr.de>; Thu, 28 May 2020 14:04:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388910AbgE1MAJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 28 May 2020 08:00:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51038 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389185AbgE1L6K (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 28 May 2020 07:58:10 -0400
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6FD3C21655;
-        Thu, 28 May 2020 11:58:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590667090;
-        bh=GELtTFp9ruuM9aY2aXlJwocB5WM+c31I0FreOGmeJjo=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u2VKOXTF86B3FXIJkvTXLMZRYe6+1QdkI8HLYyxok2rKDh65zY+/CwJITKwaOqZzA
-         MU+8V5C/XayQWOc2VYJKRyIA1SOsXpU7frtDsxxQeRkBjMfVdnN8c2bM9ziEqUA3yW
-         L9I9Qg1fpgueZgK/NvwRAQeXdL8dwHqxtCxq6QWw=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Qiushi Wu <wu000273@umn.edu>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 8/9] net/mlx4_core: fix a memory leak bug.
-Date:   Thu, 28 May 2020 07:57:59 -0400
-Message-Id: <20200528115800.1406703-8-sashal@kernel.org>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200528115800.1406703-1-sashal@kernel.org>
-References: <20200528115800.1406703-1-sashal@kernel.org>
+        id S2389525AbgE1MCs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 28 May 2020 08:02:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47398 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2389044AbgE1MCr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 28 May 2020 08:02:47 -0400
+Received: from mail-lj1-x22a.google.com (mail-lj1-x22a.google.com [IPv6:2a00:1450:4864:20::22a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C52E7C05BD1E;
+        Thu, 28 May 2020 05:02:46 -0700 (PDT)
+Received: by mail-lj1-x22a.google.com with SMTP id c11so30885044ljn.2;
+        Thu, 28 May 2020 05:02:46 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=tZAAtlUG9AhJ/Atr4cE+FEtEOyGU5vjMq1zxXLMbm/M=;
+        b=ZorZ4K4yDcy4gsjhpUw7Oun7inOYaU2WCjP9bqsic1m6WYUd5QevLW3/AXbdkm9PSu
+         AtB17UQLllBYLMI2by7yQ/c81HwSUzqR3UaR4eLOGejdMjdkEGu2DOZqq/PjvMNhV/WO
+         IgLAw0dNHgMGV1Gl1G2XsYG/ZqXTLaNLsalsaENaqueEf5htqY3JpIvAvzu21614JVsG
+         nxQ1j1MNmF3fl4n/1s5aXXsUOXwwfoq44wwDJMHhTqc6NlDEE3cY6dsyisuxJIpAWFp3
+         51r6WCC3chucPPhGUpM1BKRABx4bbGSCVPdYfplXOSQul4vdHxTnFqChe0DT59uJiTC7
+         8HVg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=tZAAtlUG9AhJ/Atr4cE+FEtEOyGU5vjMq1zxXLMbm/M=;
+        b=DfTLA3K1ote8Qt0/DEiiCGHmnhDUqdc7waqJsN4q1lZDs7UJYl0H71nxEgSSouohv9
+         fgROrl596WMRH7+YD2f072HSs+GRhJVeEC9iZZf4SEKK9n6TFsuBqk9HjqE7v8rTw6nc
+         4Uc3jM8N0gOYxuFQks2RtO5wxJPpF9wILFra+NdX/T1hC54YD38JJnF0kgzm8hzcqz5y
+         fZImjkvFniuPs2sBuhzpSKzHD7YzbPxhVlJGiKoi5yxbX9s1nO2o5RwWQGMRtpotiHVk
+         BUu4pDqVpYOCJJ4jNWIDZltQd2rgv02zWeBDnU5jgHL4xPVne3CbJyZ9OHBZO4nOWM/Y
+         OryA==
+X-Gm-Message-State: AOAM530LP4kbJ+cIE5te5hwKyRGi1RPnZKceoiaA4Vf5v/S1jZhpKHb/
+        bwKgYpAnf6FLyHi24Avfg13uwggbCnw4DCNNnX63LA==
+X-Google-Smtp-Source: ABdhPJwmCZRWpoHjgLbsA2QTPKomwsN+ITixXa7o67e3iIg1zmy/OAFe7ddh+2EQj5ThIgflVLMLH3fIhHSR6K+mtUg=
+X-Received: by 2002:a2e:9891:: with SMTP id b17mr1395244ljj.319.1590667363018;
+ Thu, 28 May 2020 05:02:43 -0700 (PDT)
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+References: <20200527165718.129307-1-briannorris@chromium.org>
+In-Reply-To: <20200527165718.129307-1-briannorris@chromium.org>
+From:   Julian Calaby <julian.calaby@gmail.com>
+Date:   Thu, 28 May 2020 22:02:31 +1000
+Message-ID: <CAGRGNgX5n=0OEi7hMrmgVZGD=orGpgvkyLrhmXVKSFYdBJ+eUw@mail.gmail.com>
+Subject: Re: [PATCH] Revert "ath: add support for special 0x0 regulatory domain"
+To:     Brian Norris <briannorris@chromium.org>
+Cc:     ath10k@lists.infradead.org, linux-wireless@vger.kernel.org,
+        LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org,
+        Wen Gong <wgong@codeaurora.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiushi Wu <wu000273@umn.edu>
+Hi Brian,
 
-[ Upstream commit febfd9d3c7f74063e8e630b15413ca91b567f963 ]
+On Thu, May 28, 2020 at 5:18 AM Brian Norris <briannorris@chromium.org> wrote:
+>
+> This reverts commit 2dc016599cfa9672a147528ca26d70c3654a5423.
+>
+> Users are reporting regressions in regulatory domain detection and
+> channel availability.
+>
+> The problem this was trying to resolve was fixed in firmware anyway:
 
-In function mlx4_opreq_action(), pointer "mailbox" is not released,
-when mlx4_cmd_box() return and error, causing a memory leak bug.
-Fix this issue by going to "out" label, mlx4_free_cmd_mailbox() can
-free this pointer.
+Should we tell the user their firmware needs to be upgraded if it
+reports this regulatory domain instead of completely dropping support
+for it?
 
-Fixes: fe6f700d6cbb ("net/mlx4_core: Respond to operation request by firmware")
-Signed-off-by: Qiushi Wu <wu000273@umn.edu>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/net/ethernet/mellanox/mlx4/fw.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Thanks,
 
-diff --git a/drivers/net/ethernet/mellanox/mlx4/fw.c b/drivers/net/ethernet/mellanox/mlx4/fw.c
-index 9af0887c8a29..fe9dc1b3078c 100644
---- a/drivers/net/ethernet/mellanox/mlx4/fw.c
-+++ b/drivers/net/ethernet/mellanox/mlx4/fw.c
-@@ -2704,7 +2704,7 @@ void mlx4_opreq_action(struct work_struct *work)
- 		if (err) {
- 			mlx4_err(dev, "Failed to retrieve required operation: %d\n",
- 				 err);
--			return;
-+			goto out;
- 		}
- 		MLX4_GET(modifier, outbox, GET_OP_REQ_MODIFIER_OFFSET);
- 		MLX4_GET(token, outbox, GET_OP_REQ_TOKEN_OFFSET);
 -- 
-2.25.1
+Julian Calaby
 
+Email: julian.calaby@gmail.com
+Profile: http://www.google.com/profiles/julian.calaby/
