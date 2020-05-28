@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 670031E5F77
-	for <lists+stable@lfdr.de>; Thu, 28 May 2020 14:02:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8446A1E5F75
+	for <lists+stable@lfdr.de>; Thu, 28 May 2020 14:02:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389063AbgE1MC1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 28 May 2020 08:02:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50204 "EHLO mail.kernel.org"
+        id S2388721AbgE1MC0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 28 May 2020 08:02:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50214 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389050AbgE1L5i (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 28 May 2020 07:57:38 -0400
+        id S2389053AbgE1L5j (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 28 May 2020 07:57:39 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F0BB521534;
-        Thu, 28 May 2020 11:57:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E038C2177B;
+        Thu, 28 May 2020 11:57:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590667057;
-        bh=T8ilXLh6Wb48IuM9rx/Ah3w1do57P6skY1lGbkzJuf4=;
+        s=default; t=1590667058;
+        bh=kFj+SjSIbGOFJxaG38QX2KW45bxkUIIoObfSmZsIAV8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K3FuDz+8/PXgQKmrVaMeMoaWfs/McjHxH+5FT3kQh9FMzWXc16LZZPICddWCCwoSN
-         l5RpDLbKQNNGMhvD2BsQ0RSGD86dChk60W992y7B2YmKcGZmnzd/QtsWf3+Mh1L4mx
-         7VLRfrZoDHEgNOXeQY1XkxjHsUipAoqd6kTfIPys=
+        b=GKe537KLDvouZpjAmVCpwhqkble0fse3SX4YlOTi9pB2AJL8CPlrL5CxrgoC5H3bN
+         XCthiBqRkrOmRD8+v/YougZI/S3N0TPqTBY+BwoSAqHLAZ4bnK8HPgE9lsGpuyzfWT
+         fvj8XA/He+aZAf8NyN29KAAkNk1645IfUeqZWm08=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 11/17] null_blk: return error for invalid zone size
-Date:   Thu, 28 May 2020 07:57:18 -0400
-Message-Id: <20200528115724.1406376-11-sashal@kernel.org>
+Cc:     Valentin Longchamp <valentin@longchamp.me>,
+        Matteo Ghidoni <matteo.ghidoni@ch.abb.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 4.19 12/17] net/ethernet/freescale: rework quiesce/activate for ucc_geth
+Date:   Thu, 28 May 2020 07:57:19 -0400
+Message-Id: <20200528115724.1406376-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200528115724.1406376-1-sashal@kernel.org>
 References: <20200528115724.1406376-1-sashal@kernel.org>
@@ -42,63 +45,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
+From: Valentin Longchamp <valentin@longchamp.me>
 
-[ Upstream commit e274832590211c4b1b1e807ca66fad8b5bb8b328 ]
+[ Upstream commit 79dde73cf9bcf1dd317a2667f78b758e9fe139ed ]
 
-In null_init_zone_dev() check if the zone size is larger than device
-capacity, return error if needed.
+ugeth_quiesce/activate are used to halt the controller when there is a
+link change that requires to reconfigure the mac.
 
-This also fixes the following oops :-
+The previous implementation called netif_device_detach(). This however
+causes the initial activation of the netdevice to fail precisely because
+it's detached. For details, see [1].
 
-null_blk: changed the number of conventional zones to 4294967295
-BUG: kernel NULL pointer dereference, address: 0000000000000010
-PGD 7d76c5067 P4D 7d76c5067 PUD 7d240c067 PMD 0
-Oops: 0002 [#1] SMP NOPTI
-CPU: 4 PID: 5508 Comm: nullbtests.sh Tainted: G OE 5.7.0-rc4lblk-fnext0
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.0-59-gc9ba5276e4
-RIP: 0010:null_init_zoned_dev+0x17a/0x27f [null_blk]
-RSP: 0018:ffffc90007007e00 EFLAGS: 00010246
-RAX: 0000000000000020 RBX: ffff8887fb3f3c00 RCX: 0000000000000007
-RDX: 0000000000000000 RSI: ffff8887ca09d688 RDI: ffff888810fea510
-RBP: 0000000000000010 R08: ffff8887ca09d688 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000000 R12: ffff8887c26e8000
-R13: ffffffffa05e9390 R14: 0000000000000000 R15: 0000000000000001
-FS:  00007fcb5256f740(0000) GS:ffff888810e00000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000000000000010 CR3: 000000081e8fe000 CR4: 00000000003406e0
-Call Trace:
- null_add_dev+0x534/0x71b [null_blk]
- nullb_device_power_store.cold.41+0x8/0x2e [null_blk]
- configfs_write_file+0xe6/0x150
- vfs_write+0xba/0x1e0
- ksys_write+0x5f/0xe0
- do_syscall_64+0x60/0x250
- entry_SYSCALL_64_after_hwframe+0x49/0xb3
-RIP: 0033:0x7fcb51c71840
+A possible workaround was the revert of commit
+net: linkwatch: add check for netdevice being present to linkwatch_do_dev
+However, the check introduced in the above commit is correct and shall be
+kept.
 
-Signed-off-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+The netif_device_detach() is thus replaced with
+netif_tx_stop_all_queues() that prevents any tranmission. This allows to
+perform mac config change required by the link change, without detaching
+the corresponding netdevice and thus not preventing its initial
+activation.
+
+[1] https://lists.openwall.net/netdev/2020/01/08/201
+
+Signed-off-by: Valentin Longchamp <valentin@longchamp.me>
+Acked-by: Matteo Ghidoni <matteo.ghidoni@ch.abb.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/null_blk_zoned.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/net/ethernet/freescale/ucc_geth.c | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/block/null_blk_zoned.c b/drivers/block/null_blk_zoned.c
-index 7c6b86d98700..d1725ac636c0 100644
---- a/drivers/block/null_blk_zoned.c
-+++ b/drivers/block/null_blk_zoned.c
-@@ -20,6 +20,10 @@ int null_zone_init(struct nullb_device *dev)
- 		pr_err("null_blk: zone_size must be power-of-two\n");
- 		return -EINVAL;
- 	}
-+	if (dev->zone_size > dev->size) {
-+		pr_err("Zone size larger than device capacity\n");
-+		return -EINVAL;
-+	}
+diff --git a/drivers/net/ethernet/freescale/ucc_geth.c b/drivers/net/ethernet/freescale/ucc_geth.c
+index a5bf02ae4bc5..5de6f7c73c1f 100644
+--- a/drivers/net/ethernet/freescale/ucc_geth.c
++++ b/drivers/net/ethernet/freescale/ucc_geth.c
+@@ -45,6 +45,7 @@
+ #include <soc/fsl/qe/ucc.h>
+ #include <soc/fsl/qe/ucc_fast.h>
+ #include <asm/machdep.h>
++#include <net/sch_generic.h>
  
- 	dev->zone_size_sects = dev->zone_size << ZONE_SIZE_SHIFT;
- 	dev->nr_zones = dev_size >>
+ #include "ucc_geth.h"
+ 
+@@ -1551,11 +1552,8 @@ static int ugeth_disable(struct ucc_geth_private *ugeth, enum comm_dir mode)
+ 
+ static void ugeth_quiesce(struct ucc_geth_private *ugeth)
+ {
+-	/* Prevent any further xmits, plus detach the device. */
+-	netif_device_detach(ugeth->ndev);
+-
+-	/* Wait for any current xmits to finish. */
+-	netif_tx_disable(ugeth->ndev);
++	/* Prevent any further xmits */
++	netif_tx_stop_all_queues(ugeth->ndev);
+ 
+ 	/* Disable the interrupt to avoid NAPI rescheduling. */
+ 	disable_irq(ugeth->ug_info->uf_info.irq);
+@@ -1568,7 +1566,10 @@ static void ugeth_activate(struct ucc_geth_private *ugeth)
+ {
+ 	napi_enable(&ugeth->napi);
+ 	enable_irq(ugeth->ug_info->uf_info.irq);
+-	netif_device_attach(ugeth->ndev);
++
++	/* allow to xmit again  */
++	netif_tx_wake_all_queues(ugeth->ndev);
++	__netdev_watchdog_up(ugeth->ndev);
+ }
+ 
+ /* Called every time the controller might need to be made
 -- 
 2.25.1
 
