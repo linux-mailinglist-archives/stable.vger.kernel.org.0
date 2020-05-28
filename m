@@ -2,157 +2,181 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A24621E5ADE
-	for <lists+stable@lfdr.de>; Thu, 28 May 2020 10:34:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7AC201E5B48
+	for <lists+stable@lfdr.de>; Thu, 28 May 2020 10:57:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727058AbgE1IeH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 28 May 2020 04:34:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44340 "EHLO mail.kernel.org"
+        id S1728069AbgE1I5W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 28 May 2020 04:57:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56660 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726939AbgE1IeG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 28 May 2020 04:34:06 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        id S1728054AbgE1I5V (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 28 May 2020 04:57:21 -0400
+Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B75B82075F;
-        Thu, 28 May 2020 08:34:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 002A820B80;
+        Thu, 28 May 2020 08:57:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590654846;
-        bh=2n2KR8Qu1EwChVUjgq0Xj+qUwi/2wScHAgpKAH3rn+g=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=KNP5mJ8Q/ZstW1KtAQCmr1Ks2eHN6r4VZerMOZrbUHeBhszAPteGPC8NtBzYnGa4G
-         gU0/D082giDX+JPGE9ARw+uLZ7VLRvJFLPSg2u5XyHsnNqSSi4dvv175T/babveNVR
-         ln5yq7MPGpeleYdfZtf0WSReo29YPOLNHYKKYj2c=
-Date:   Thu, 28 May 2020 10:34:03 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Dakshaja Uppalapati <dakshaja@chelsio.com>
-Cc:     hch@lst.de, sagi@grimberg.me, stable@vger.kernel.org,
-        nirranjan@chelsio.com, bharat@chelsio.com
-Subject: Re: nvme blk_update_request IO error is seen on stable kernel 5.4.41.
-Message-ID: <20200528083403.GB2920930@kroah.com>
-References: <20200521140642.GA4724@chelsio.com>
- <20200526102542.GA2772976@kroah.com>
- <20200528074426.GA20353@chelsio.com>
+        s=default; t=1590656241;
+        bh=FXN3K+B2SmCExaj+5+rU5K3IOASOMRXzf1ApNpbQMU4=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=SYiOzZs1gDTA/T2D57/wUksIGZCdTyDbDmeZkq6tk0eZ4MgdYb4xsYzV9B3x+cQqo
+         /muXvwo/rvMHcFD0lVdWNLY0GlCoUu87fa6edavgLnJOlVb4g0XoL19WYmjAHN54pH
+         PRhbYiVPaa9JZP3H2YdDPJ0qkELkSHL1BvWuJApA=
+Received: from disco-boy.misterjones.org ([51.254.78.96] helo=www.loen.fr)
+        by disco-boy.misterjones.org with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.92)
+        (envelope-from <maz@kernel.org>)
+        id 1jeELm-00Fw0L-Qz; Thu, 28 May 2020 09:57:19 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20200528074426.GA20353@chelsio.com>
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Content-Transfer-Encoding: 7bit
+Date:   Thu, 28 May 2020 09:57:18 +0100
+From:   Marc Zyngier <maz@kernel.org>
+To:     James Morse <james.morse@arm.com>
+Cc:     kvmarm@lists.cs.columbia.edu, linux-arm-kernel@lists.infradead.org,
+        Julien Thierry <julien.thierry.kdev@gmail.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 1/3] KVM: arm64: Stop writing aarch32's CSSELR into ACTLR
+In-Reply-To: <20200526161834.29165-2-james.morse@arm.com>
+References: <20200526161834.29165-1-james.morse@arm.com>
+ <20200526161834.29165-2-james.morse@arm.com>
+User-Agent: Roundcube Webmail/1.4.4
+Message-ID: <4be0c0b654f7d7c1efe9f52efb856bd8@kernel.org>
+X-Sender: maz@kernel.org
+X-SA-Exim-Connect-IP: 51.254.78.96
+X-SA-Exim-Rcpt-To: james.morse@arm.com, kvmarm@lists.cs.columbia.edu, linux-arm-kernel@lists.infradead.org, julien.thierry.kdev@gmail.com, suzuki.poulose@arm.com, stable@vger.kernel.org
+X-SA-Exim-Mail-From: maz@kernel.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, May 28, 2020 at 01:14:31PM +0530, Dakshaja Uppalapati wrote:
-> On Tuesday, May 05/26/20, 2020 at 12:25:42 +0200, Greg KH wrote:
-> > On Thu, May 21, 2020 at 07:36:43PM +0530, Dakshaja Uppalapati wrote:
-> > > Hi all,
-> > > 
-> > > Issue which is reported in https://lore.kernel.org/linux-nvme/CH2PR12MB40050ACF
-> > > 2C0DC7439355ED3FDD270@CH2PR12MB4005.namprd12.prod.outlook.com/T/#r8cfc80b26f0cd
-> > > 1cde41879a68fd6a71186e9594c is also seen on stable kernel 5.4.41. 
-> > 
-> > What issue is that?  Your url is wrapped and can not work here :(
-> 
-> Sorry for that, when I tried to format the disk discovered from target machine
-> the below error is seen in dmesg.
-> 
-> dmesg:
-> 	[ 1844.868480] blk_update_request: I/O error, dev nvme0c0n1, sector 0 
-> 	op 0x3:(DISCARD) flags 0x4000800 phys_seg 1 prio class 0
-> 
-> The above issue is seen from kernel-5.5-rc1 onwards.
-> 
-> > 
-> > > In upstream issue is fixed with commit b716e6889c95f64b.
-> > 
-> > Is this a regression or support for something new that has never worked
-> > before?
-> > 
-> 
-> This is a regression, bisects points to the commit 530436c4 and fixed with
-> commit b716e688 in upstream.
-> 
-> Now same issue is seen with stable kernel-5.4.41, 530436c4 is part of it.
+Hi James,
 
-So why don't we just revert 530436c45ef2 ("nvme: Discard workaround for
-non-conformant devices") from the stable trees?  Will that fix the issue
-for you instead of the much-larger set of backports you are proposing?
-
-Also, is this an issue for you in the 4.19 releases?  The above
-mentioned patch showed up in 4.19.92 and 5.4.7.
-
-> > > For stable 5.4 kernel it doesn’t apply clean and needs pulling in the following
-> > > commits. 
-> > > 
-> > > commit 2cb6963a16e9e114486decf591af7cb2d69cb154
-> > > Author: Christoph Hellwig <hch@lst.de>
-> > > Date:   Wed Oct 23 10:35:41 2019 -0600
-> > > 
-> > > commit 6f86f2c9d94d55c4d3a6f1ffbc2e1115b5cb38a8
-> > > Author: Christoph Hellwig <hch@lst.de>
-> > > Date:   Wed Oct 23 10:35:42 2019 -0600
-> > > 
-> > > commit 59ef0eaa7741c3543f98220cc132c61bf0230bce
-> > > Author: Christoph Hellwig <hch@lst.de>
-> > > Date:   Wed Oct 23 10:35:43 2019 -0600
-> > > 
-> > > commit e9061c397839eea34207668bfedce0a6c18c5015
-> > > Author: Christoph Hellwig <hch@lst.de>
-> > > Date:   Wed Oct 23 10:35:44 2019 -0600
-> > > 
-> > > commit b716e6889c95f64ba32af492461f6cc9341f3f05
-> > > Author: Sagi Grimberg <sagi@grimberg.me>
-> > > Date:   Sun Jan 26 23:23:28 2020 -0800
-> > > 
-> > > I tried a patch by including only necessary parts of the commits e9061c397839, 
-> > > 59ef0eaa7741 and b716e6889c95. PFA.
-> > > 
-> > > With the attached patch, issue is not seen.
-> > > 
-> > > Please let me know on how to fix it in stable, can all above 5 changes be 
-> > > cleanly pushed  or if  attached shorter version can be pushed?
-> > 
-> > Do all of the above patches apply cleanly?  Do they need to be
-> > backported?  Have you tested that?  Do you have such a series of patches
-> > so we can compare them?
-> > 
+On 2020-05-26 17:18, James Morse wrote:
+> aarch32 has pairs of registers to access the high and low parts of 
+> 64bit
+> registers. KVM has a union of 64bit sys_regs[] and 32bit copro[]. The
+> 32bit accessors read the high or low part of the 64bit sys_reg[] value
+> through the union.
 > 
-> Yes I have tested, all the patches applied cleanly and attached all the patches
-> for your reference. They all can be pulled into 5.4 stable without any issues.
+> Both sys_reg_descs[] and cp15_regs[] list access_csselr() as the 
+> accessor
+> for CSSELR{,_EL1}. access_csselr() is only aware of the 64bit 
+> sys_regs[],
+> and expects r->reg to be 'CSSELR_EL1' in the enum, index 2 of the 64bit
+> array.
 > 
-> 530436c4 -- culprit commit
-> 2cb6963a -- dependent commit
-> 6f86f2c9 -- dependent commit
-> 59ef0eaa -- dependent commit
-> e9061c39 -- dependent commit
-> be3f3114 -- dependent commit
-> b716e688 -- fix commit
+> cp15_regs[] uses the 32bit copro[] alias of sys_regs[]. Here CSSELR is
+> c0_CSSELR which is the same location in sys_reg[]. r->reg is 
+> 'c0_CSSELR',
+> index 4 in the 32bit array.
 > 
-> > The patch below is not in any format that I can take it in.  ALso, 95%
-> > of the times we take a patch that is different from what is upstream
-> > will have bugs and problems over time because of that.  So I always want
-> > to take the original upstream patches instead if at all possible.
-> > 
-> > So I need a lot more information here in order to try to determine this,
-> > sorry.
-> > 
+> access_csselr() uses the 32bit r->reg value to access the 64bit array,
+> so reads and write the wrong value. sys_regs[4], is ACTLR_EL1, which
+> is subsequently save/restored when we enter the guest.
+
+Huhuh... Nice catch.
+
 > 
-> Thanks
-> Dakshaja
+> ACTLR_EL1 is supposed to be read-only for the guest. This register
+> only affects execution at EL1, and the host's value is restored before
+> we return to host EL1.
+> 
+> Rename access_csselr() to access_csselr_el1(), to indicate it expects
+> the 64bit register index, and pass it CSSELR_EL1 from cp15_regs[].
+> 
+> Cc: stable@vger.kernel.org
+> Signed-off-by: James Morse <james.morse@arm.com>
+> ----
+> Providing access_csselr_cp15() wouldn't work as with VHE CSSELR_EL1 is
+> loaded on the CPU while this code runs. access_csselr_cp15() would have
+> to map it back the 64bit resgister to use vcpu_write_sys_reg(). We may
+> as well do it in the table.
+> 
+>  arch/arm64/kvm/sys_regs.c | 6 +++---
+>  1 file changed, 3 insertions(+), 3 deletions(-)
+> 
+> diff --git a/arch/arm64/kvm/sys_regs.c b/arch/arm64/kvm/sys_regs.c
+> index 51db934702b6..2eda539f3281 100644
+> --- a/arch/arm64/kvm/sys_regs.c
+> +++ b/arch/arm64/kvm/sys_regs.c
+> @@ -1302,7 +1302,7 @@ static bool access_clidr(struct kvm_vcpu *vcpu,
+> struct sys_reg_params *p,
+>  	return true;
+>  }
+> 
+> -static bool access_csselr(struct kvm_vcpu *vcpu, struct sys_reg_params 
+> *p,
+> +static bool access_csselr_el1(struct kvm_vcpu *vcpu, struct 
+> sys_reg_params *p,
+>  			  const struct sys_reg_desc *r)
+>  {
+>  	if (p->is_write)
+> @@ -1566,7 +1566,7 @@ static const struct sys_reg_desc sys_reg_descs[] 
+> = {
+> 
+>  	{ SYS_DESC(SYS_CCSIDR_EL1), access_ccsidr },
+>  	{ SYS_DESC(SYS_CLIDR_EL1), access_clidr },
+> -	{ SYS_DESC(SYS_CSSELR_EL1), access_csselr, reset_unknown, CSSELR_EL1 
+> },
+> +	{ SYS_DESC(SYS_CSSELR_EL1), access_csselr_el1, reset_unknown, 
+> CSSELR_EL1 },
+>  	{ SYS_DESC(SYS_CTR_EL0), access_ctr },
+> 
+>  	{ SYS_DESC(SYS_PMCR_EL0), access_pmcr, reset_pmcr, PMCR_EL0 },
+> @@ -2060,7 +2060,7 @@ static const struct sys_reg_desc cp15_regs[] = {
+> 
+>  	{ Op1(1), CRn( 0), CRm( 0), Op2(0), access_ccsidr },
+>  	{ Op1(1), CRn( 0), CRm( 0), Op2(1), access_clidr },
+> -	{ Op1(2), CRn( 0), CRm( 0), Op2(0), access_csselr, NULL, c0_CSSELR },
+> +	{ Op1(2), CRn( 0), CRm( 0), Op2(0), access_csselr_el1, NULL, 
+> CSSELR_EL1 },
+>  };
+> 
+>  static const struct sys_reg_desc cp15_64_regs[] = {
 
-> diff --git a/drivers/nvme/target/admin-cmd.c b/drivers/nvme/target/admin-cmd.c
-> index 831a062d27cb..3665b45d6515 100644
-> --- a/drivers/nvme/target/admin-cmd.c
-> +++ b/drivers/nvme/target/admin-cmd.c
+This is a departure from the way we deal with 32bit CP15 registers.
+We deal with this exact issue in a very different way for other
+CP15 regs, by adjusting the index in the sys_regs array (see the
+way we handle the VM regs).
 
-<snip>
+How about something like this (untested):
 
-I still don't understand what the patch here is, as you don't really
-provide any information about it in a format I am used to seeing.  Can
-you redo it in the documented style of submitting a normal patch to the
-kernel tree so that might help explain things?
+diff --git a/arch/arm64/kvm/sys_regs.c b/arch/arm64/kvm/sys_regs.c
+index 12d07e7ced82..515c0c11a668 100644
+--- a/arch/arm64/kvm/sys_regs.c
++++ b/arch/arm64/kvm/sys_regs.c
+@@ -1321,10 +1321,16 @@ static bool access_clidr(struct kvm_vcpu *vcpu, 
+struct sys_reg_params *p,
+  static bool access_csselr(struct kvm_vcpu *vcpu, struct sys_reg_params 
+*p,
+  			  const struct sys_reg_desc *r)
+  {
++	int reg = r->reg;
++
++	/* See the 32bit mapping in kvm_host.h */
++	if (p->is_aarch32)
++		reg = r->reg / 2;
++
+  	if (p->is_write)
+-		vcpu_write_sys_reg(vcpu, p->regval, r->reg);
++		vcpu_write_sys_reg(vcpu, p->regval, reg);
+  	else
+-		p->regval = vcpu_read_sys_reg(vcpu, r->reg);
++		p->regval = vcpu_read_sys_reg(vcpu, reg);
+  	return true;
+  }
 
-thanks,
+Ideally, I'd like the core sys_reg code to deal with this sort
+of funnies, but I'm trying to keep the change minimal...
 
-greg k-h
+Thanks,
+
+          M.
+-- 
+Jazz is not dead. It just smells funny...
