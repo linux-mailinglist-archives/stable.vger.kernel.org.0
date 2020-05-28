@@ -2,20 +2,21 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DBDB1E6981
+	by mail.lfdr.de (Postfix) with ESMTP id DF5461E6982
 	for <lists+stable@lfdr.de>; Thu, 28 May 2020 20:37:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405792AbgE1Sgw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 28 May 2020 14:36:52 -0400
-Received: from mail.asbjorn.biz ([185.38.24.25]:36522 "EHLO mail.asbjorn.biz"
+        id S2405817AbgE1Sgz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 28 May 2020 14:36:55 -0400
+Received: from mail.asbjorn.biz ([185.38.24.25]:36290 "EHLO mail.asbjorn.biz"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405932AbgE1Sgp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 28 May 2020 14:36:45 -0400
+        id S2405846AbgE1Sgo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 28 May 2020 14:36:44 -0400
+X-Greylist: delayed 313 seconds by postgrey-1.27 at vger.kernel.org; Thu, 28 May 2020 14:36:43 EDT
 Received: from x201s.roaming.asbjorn.biz (space.labitat.dk [185.38.175.0])
-        by mail.asbjorn.biz (Postfix) with ESMTPSA id 54E411C29736;
+        by mail.asbjorn.biz (Postfix) with ESMTPSA id 4B1151C29735;
         Thu, 28 May 2020 18:31:27 +0000 (UTC)
 Received: by x201s.roaming.asbjorn.biz (Postfix, from userid 1000)
-        id 84198204CBA; Thu, 28 May 2020 18:30:58 +0000 (UTC)
+        id C0044205C09; Thu, 28 May 2020 18:31:05 +0000 (UTC)
 From:   Asbjoern Sloth Toennesen <asbjorn@asbjorn.st>
 To:     stable@vger.kernel.org
 Cc:     "David S . Miller" <davem@davemloft.net>,
@@ -23,9 +24,9 @@ Cc:     "David S . Miller" <davem@davemloft.net>,
         Giuliano Procida <gprocida@google.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Asbjoern Sloth Toennesen <asbjorn@asbjorn.st>
-Subject: [PATCH 4.4] uapi: fix linux/if_pppol2tp.h userspace compilation errors
-Date:   Thu, 28 May 2020 18:30:40 +0000
-Message-Id: <20200528183040.14557-1-asbjorn@asbjorn.st>
+Subject: [PATCH 4.9] uapi: fix linux/if_pppol2tp.h userspace compilation errors
+Date:   Thu, 28 May 2020 18:31:02 +0000
+Message-Id: <20200528183102.14614-1-asbjorn@asbjorn.st>
 X-Mailer: git-send-email 2.27.0.rc2
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -52,7 +53,7 @@ In file included from /usr/include/linux/l2tp.h:12:0,
                  from /usr/include/linux/if_pppol2tp.h:21,
 /usr/include/netinet/in.h:31:8: error: redefinition of 'struct in_addr'
 
-Fixes: a471a623e780 ("net: l2tp: deprecate PPPOL2TP_MSG_* in favour of L2TP_MSG_*")
+Fixes: cc84b4ddee15 ("net: l2tp: deprecate PPPOL2TP_MSG_* in favour of L2TP_MSG_*")
 Signed-off-by: Dmitry V. Levin <ldv@altlinux.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Asbjoern Sloth Toennesen <asbjorn@asbjorn.st>
@@ -78,7 +79,7 @@ Notes:
  1 file changed, 3 insertions(+), 4 deletions(-)
 
 diff --git a/include/uapi/linux/l2tp.h b/include/uapi/linux/l2tp.h
-index dedfb2b1832a..c3a5c99f565b 100644
+index bb2d62037037..80d85053fb06 100644
 --- a/include/uapi/linux/l2tp.h
 +++ b/include/uapi/linux/l2tp.h
 @@ -9,9 +9,8 @@
