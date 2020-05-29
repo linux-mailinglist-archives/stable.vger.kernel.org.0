@@ -2,152 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DF6611E7D19
-	for <lists+stable@lfdr.de>; Fri, 29 May 2020 14:24:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C5B71E7D89
+	for <lists+stable@lfdr.de>; Fri, 29 May 2020 14:47:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725865AbgE2MYx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 29 May 2020 08:24:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49306 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725306AbgE2MYw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 29 May 2020 08:24:52 -0400
-Received: from mail-lj1-x241.google.com (mail-lj1-x241.google.com [IPv6:2a00:1450:4864:20::241])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22D91C03E969
-        for <stable@vger.kernel.org>; Fri, 29 May 2020 05:24:51 -0700 (PDT)
-Received: by mail-lj1-x241.google.com with SMTP id o9so2359957ljj.6
-        for <stable@vger.kernel.org>; Fri, 29 May 2020 05:24:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=unikie-com.20150623.gappssmtp.com; s=20150623;
-        h=date:from:to:cc:subject:message-id:mime-version:content-disposition
-         :user-agent;
-        bh=MN+UUBISdsNTDDmehVe1cK2X238KUuSmmp/jBBjzJ3E=;
-        b=OsNK7LXwflk9du9iEfXHU7+wNNfBePZgb2MgJnh4ErszSsKgUyINHj8lylD5Z4ZAHx
-         1loJ1lLKSqKhA1Q2NHWpOZ+GFV+VLZ3eugiliM9O6gCRYy49pdZfPLN5iCud2xs6P0Nz
-         cGGnHSTDjGcOOElG/1fzJlZJLT0Yy/z+4ibxa7Fy4ak3kgqMymrxHCfUDMMKNsuZpZ9s
-         ZzHfwXK2Q29tMJj0OmTAPOUrkzeFJC4F9R9Zh52rAaNAYDKF2KLfqw0HjllILYD9YgvY
-         Aa/5tyoW2YXBNjfbkV6lqY5IVm/K+1koRLKN75QpLR8uyW3QUt6ns/O+pN9qM94sk+uj
-         5Mcw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
-         :content-disposition:user-agent;
-        bh=MN+UUBISdsNTDDmehVe1cK2X238KUuSmmp/jBBjzJ3E=;
-        b=GZH7en5neZmyH0O5nBJdfyJB3IzYb9uIn0uhayuzYshDaNSvZXTah4mRAKZ8UPDfxg
-         g13gf+4FHihHUQ5zZkbKIorQXwjQVKtuF/VPzJAa4POUCeTlCELEtcvWE+yHG5yRHCxx
-         Yj3++1/QelqMj9avXdQG5VXGXQMo6upLpSXONGHXAoTUcdPQJ0DM3+xaW5WX8ldhD20G
-         O6XLcdjDOnlEuDuMtr5mIFO+BCpYsjEGvU8khEg6Qne4ZjoPdNY/PmPH3PgKQCypL27O
-         7xS3+zK4jg/Sab7MARgxEqPpKXdnSWLsdE65lfjX5BoiImsllnKllfjewXqm9oFZ6ujA
-         O82w==
-X-Gm-Message-State: AOAM5330ktgLGKld8TMekw6K7B3/64irRXQ107819Cuwj8rGp0jTjsdN
-        gxZmtbhINkB0eacRN+weJ47jIX7kSsU=
-X-Google-Smtp-Source: ABdhPJzsau1itA6h14w53xS9D3BJ7i0RuVQMEMQpaN27PBudXW6YbsJXPGb8kmJoIGPYUz8zaRNN0g==
-X-Received: by 2002:a2e:b8c2:: with SMTP id s2mr4377215ljp.368.1590755089307;
-        Fri, 29 May 2020 05:24:49 -0700 (PDT)
-Received: from buimax ([109.204.208.150])
-        by smtp.gmail.com with ESMTPSA id i8sm2546186lfl.72.2020.05.29.05.24.48
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Fri, 29 May 2020 05:24:49 -0700 (PDT)
-Date:   Fri, 29 May 2020 15:24:47 +0300
-From:   Henri Rosten <henri.rosten@unikie.com>
-To:     stable@vger.kernel.org
-Cc:     lukas.bulwahn@gmail.com, gregkh@linuxfoundation.org
-Subject: Patches potentially missing from stable releases
-Message-ID: <20200529122445.GA32214@buimax>
+        id S1726974AbgE2Mq7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 29 May 2020 08:46:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42416 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726495AbgE2Mq6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 29 May 2020 08:46:58 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6EA7A206A4;
+        Fri, 29 May 2020 12:46:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1590756417;
+        bh=F3t2dxiHUIDt57araoXS9PDemIzudXNb/UjBh+gfY8c=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=tGvqt4x8b+DG+7jt4lS5H0IW5W1poYYfphvzYEWlFo6FDNbwOnmP4EJedmHnM5Fmd
+         px7YCOuppaSI3aGEy6M+EdeknhaEv1RLIJvFcuWMgwMaMXgPICkcMgkA4CjboLjCr9
+         8NlKf5nAEpoTbiy7PxmHBtpZ71ruBXfKwcUcLb5Q=
+Date:   Fri, 29 May 2020 14:46:55 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Henri Rosten <henri.rosten@unikie.com>
+Cc:     stable@vger.kernel.org, lukas.bulwahn@gmail.com
+Subject: Re: Patches potentially missing from stable releases
+Message-ID: <20200529124655.GA1714108@kroah.com>
+References: <20200529122445.GA32214@buimax>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.9.4 (2018-02-28)
+In-Reply-To: <20200529122445.GA32214@buimax>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-We did some work on analyzing patches potentially missing from stable 
-releases based on the Fixes: and Revert references in the commit 
-messages. Our script is based on similar idea as described by Guenter 
-Roeck in this earlier mail: 
-https://lore.kernel.org/stable/20190827171621.GA30360@roeck-us.net/.
+On Fri, May 29, 2020 at 03:24:47PM +0300, Henri Rosten wrote:
+> We did some work on analyzing patches potentially missing from stable 
+> releases based on the Fixes: and Revert references in the commit 
+> messages. Our script is based on similar idea as described by Guenter 
+> Roeck in this earlier mail: 
+> https://lore.kernel.org/stable/20190827171621.GA30360@roeck-us.net/.
+> 
+> Although the list is not comprehensive, we figured it makes sense to 
+> publish it in case the results are of interest to someone else also.
+> 
+> The below list of potentially missing commits is based on 4.19, but some 
+> of the commits might also apply to 5.4 and 5.6.
+> 
+> For each potentially missing commit flagged by the script, we read the 
+> commit message and had a short look at the change. We then added 
+> comments on our own judgement if it might be stable material or not. No 
+> comments simply means the potentially missing patch appears stable 
+> material. "Based on commit" is the mainline patch that has been 
+> backported to 4.19 and is referenced by the missing commit. We did not 
+> check if the patch applies without changes, nor did we build or execute 
+> any tests.
 
-Although the list is not comprehensive, we figured it makes sense to 
-publish it in case the results are of interest to someone else also.
+That last sentence should have been a huge red flag when writing it and
+sending out this email...
 
-The below list of potentially missing commits is based on 4.19, but some 
-of the commits might also apply to 5.4 and 5.6.
+> 6011002c1584    uio: make symbol 'uio_class_registered' static
+>     Based on commit: ae61cf5b9913
 
-For each potentially missing commit flagged by the script, we read the 
-commit message and had a short look at the change. We then added 
-comments on our own judgement if it might be stable material or not. No 
-comments simply means the potentially missing patch appears stable 
-material. "Based on commit" is the mainline patch that has been 
-backported to 4.19 and is referenced by the missing commit. We did not 
-check if the patch applies without changes, nor did we build or execute 
-any tests.
+You looked at this patch and thought it was relevant for backporting?
 
+Why?  It "obviously" does not fix anything, and is just a cleanup patch.
 
-6011002c1584    uio: make symbol 'uio_class_registered' static
-    Based on commit: ae61cf5b9913
+Why did it pass your criteria?
 
-968339fad422    powerpc/boot: Delete unneeded .globl _zimage_start
-    Based on commit: ee9d21b3b358
-    Comment: not stable material?
+> 968339fad422    powerpc/boot: Delete unneeded .globl _zimage_start
+>     Based on commit: ee9d21b3b358
+>     Comment: not stable material?
 
-ed4d81c4b3f2    net: aquantia: when cleaning hw cache it should be toggled
-    Based on commit: 7a1bb49461b1
-    Comment: this was backported to 5.3, but for some reason not to 
-    older stable releases
+Ok, I'm going to stop here.
 
-b27507bb59ed    net/ibmvnic: unlock rtnl_lock in reset so linkwatch_event can ru
-    Based on commit: a5681e20b541
+I appreciate sending lists of commits that you have determined should be
+applied, and will be glad to review them, but you don't have to give me
+a list of all potential patches and your comments on them, as that
+doesn't help much.
 
-61c347ba5511    afs: Clear AFS_VNODE_CB_PROMISED if we detect callback expiry
-    Based on commit: ae3b7361dc0e
-    Comment: likely requires manual backport
+I have scripts that can churn out the false-positive lists like these,
+that's relatively easy to create.  It's the curated lists that you have
+looked at and reviewed and determined, in your opinion, should be
+applied that are much more valuable and better to work with.
 
-1a49b2fd8f58    kbuild: strip whitespace in cmd_record_mcount findstring
-    Based on commit: 6977f95e63b9
-    Comment: not stable material?
+> 61c347ba5511    afs: Clear AFS_VNODE_CB_PROMISED if we detect callback expiry
+>     Based on commit: ae3b7361dc0e
+>     Comment: likely requires manual backport
 
-669e859b5ea7    btrfs: drop the lock on error in btrfs_dev_replace_cancel
-    Based on commit: d189dd70e255
-    Comment: earlier backport failed, this would likely require manual 
-    backport: https://lore.kernel.org/stable/15531096685894@kroah.com/
+At this point, I will need others to do backporting for older kernels
+like this, unless there is a good reason why you can't do it yourself.
+That shows you actually want the patch to be backported, as you have
+done the effort to do so and check that it builds properly.
 
-dddaf89e2fbc    netfilter: ipt_CLUSTERIP: make symbol 'cip_netdev_notifier' stat
-    Based on commit: 5a86d68bcf02
+Again, random lists aren't all that helpful, but curated ones are.
 
-01091c496f92    acpi/nfit: improve bounds checking for 'func'
-    Based on commit: 11189c1089da
-    Comment: the missing commit was picked by AUTOSEL to 5.4, 5.5, and 
-    5.6, but for some reason, it was not backported 4.19: 
-    https://lore.kernel.org/stable/?q=01091c496f92*
+> 2b74c878b0ea    IB/hfi1: Unreserve a flushed OPFN request
+>     Based on commit: ca95f802ef51
+>     Comment: earlier backport failed, this would likely require manual 
+>     backport: https://lore.kernel.org/stable/15649835016938@kroah.com/
 
-2b74c878b0ea    IB/hfi1: Unreserve a flushed OPFN request
-    Based on commit: ca95f802ef51
-    Comment: earlier backport failed, this would likely require manual 
-    backport: https://lore.kernel.org/stable/15649835016938@kroah.com/
+This was known not to work.  I asked for help, and just asking for help
+again isn't probably going to do much :(
 
-0b815023a1d4    bnxt_en: Fix ring checking logic on 57500 chips.
-    Based on commit: 36d65be9a880
-    Comment: likely requires manual backport
+> 0fbf21c3b36a    ALSA: hda/realtek - Enable micmute LED for Huawei laptops
+>     Based on commit: 8ac51bbc4cfe
+>     Comment: not stable material?
 
-6ae865615fc4    x86/uaccess: Dont leak the AC flag into __put_user() argument ev
-    Based on commit: 2a418cf3f5f1
-    Comment: commit 9b8bd476e78e which mentions complementing 
-    6ae865615fc4, has already been backported to 4.19
+It doesn't apply and needs manual backporting.  Why didn't you test
+that?
 
-70db5b04cbe1    f2fs: give some messages for inline_xattr_size
-    Based on commit: 500e0b28ecd3
-    Comment: not stable material?
+Again, curated ids, and backported patches are the best thing you can
+do to help out here.  See Guenter's email for an example of the first,
+and Ben's emails of backported patches for examples of the second.
 
-2a06b8982f8f    net: reorder 'struct net' fields to avoid false sharing
-    Based on commit: 355b98553789
-    Comment: this was backported to 5.3, but for some reason not to 
-    older stable releases
+thanks,
 
-0fbf21c3b36a    ALSA: hda/realtek - Enable micmute LED for Huawei laptops
-    Based on commit: 8ac51bbc4cfe
-    Comment: not stable material?
+greg k-h
 
-Thanks,
--- Henri
 
