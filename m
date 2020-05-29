@@ -2,125 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C5B71E7D89
-	for <lists+stable@lfdr.de>; Fri, 29 May 2020 14:47:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B69E1E7E88
+	for <lists+stable@lfdr.de>; Fri, 29 May 2020 15:21:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726974AbgE2Mq7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 29 May 2020 08:46:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42416 "EHLO mail.kernel.org"
+        id S1726579AbgE2NVZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 29 May 2020 09:21:25 -0400
+Received: from foss.arm.com ([217.140.110.172]:36514 "EHLO foss.arm.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726495AbgE2Mq6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 29 May 2020 08:46:58 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6EA7A206A4;
-        Fri, 29 May 2020 12:46:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590756417;
-        bh=F3t2dxiHUIDt57araoXS9PDemIzudXNb/UjBh+gfY8c=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=tGvqt4x8b+DG+7jt4lS5H0IW5W1poYYfphvzYEWlFo6FDNbwOnmP4EJedmHnM5Fmd
-         px7YCOuppaSI3aGEy6M+EdeknhaEv1RLIJvFcuWMgwMaMXgPICkcMgkA4CjboLjCr9
-         8NlKf5nAEpoTbiy7PxmHBtpZ71ruBXfKwcUcLb5Q=
-Date:   Fri, 29 May 2020 14:46:55 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Henri Rosten <henri.rosten@unikie.com>
-Cc:     stable@vger.kernel.org, lukas.bulwahn@gmail.com
-Subject: Re: Patches potentially missing from stable releases
-Message-ID: <20200529124655.GA1714108@kroah.com>
-References: <20200529122445.GA32214@buimax>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200529122445.GA32214@buimax>
+        id S1726816AbgE2NVW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 29 May 2020 09:21:22 -0400
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id B170C55D;
+        Fri, 29 May 2020 06:21:21 -0700 (PDT)
+Received: from localhost.localdomain (entos-thunderx2-02.shanghai.arm.com [10.169.138.74])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id 271A63F305;
+        Fri, 29 May 2020 06:21:19 -0700 (PDT)
+From:   Jia He <justin.he@arm.com>
+To:     linux-eng <linux-eng@arm.com>
+Cc:     Kaly Xin <Kaly.Xin@arm.com>, Jia He <justin.he@arm.com>,
+        stable@vger.kernel.org
+Subject: [PATCH] virtio_vsock: Fix race condition in virtio_transport_recv_pkt
+Date:   Fri, 29 May 2020 21:21:12 +0800
+Message-Id: <20200529132112.159604-1-justin.he@arm.com>
+X-Mailer: git-send-email 2.17.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, May 29, 2020 at 03:24:47PM +0300, Henri Rosten wrote:
-> We did some work on analyzing patches potentially missing from stable 
-> releases based on the Fixes: and Revert references in the commit 
-> messages. Our script is based on similar idea as described by Guenter 
-> Roeck in this earlier mail: 
-> https://lore.kernel.org/stable/20190827171621.GA30360@roeck-us.net/.
-> 
-> Although the list is not comprehensive, we figured it makes sense to 
-> publish it in case the results are of interest to someone else also.
-> 
-> The below list of potentially missing commits is based on 4.19, but some 
-> of the commits might also apply to 5.4 and 5.6.
-> 
-> For each potentially missing commit flagged by the script, we read the 
-> commit message and had a short look at the change. We then added 
-> comments on our own judgement if it might be stable material or not. No 
-> comments simply means the potentially missing patch appears stable 
-> material. "Based on commit" is the mainline patch that has been 
-> backported to 4.19 and is referenced by the missing commit. We did not 
-> check if the patch applies without changes, nor did we build or execute 
-> any tests.
+When client tries to connect(SOCK_STREAM) the server in the guest with NONBLOCK
+mode, there will be a panic on a ThunderX2 (armv8a server):
+[  463.718844][ T5040] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000000
+[  463.718848][ T5040] Mem abort info:
+[  463.718849][ T5040]   ESR = 0x96000044
+[  463.718852][ T5040]   EC = 0x25: DABT (current EL), IL = 32 bits
+[  463.718853][ T5040]   SET = 0, FnV = 0
+[  463.718854][ T5040]   EA = 0, S1PTW = 0
+[  463.718855][ T5040] Data abort info:
+[  463.718856][ T5040]   ISV = 0, ISS = 0x00000044
+[  463.718857][ T5040]   CM = 0, WnR = 1
+[  463.718859][ T5040] user pgtable: 4k pages, 48-bit VAs, pgdp=0000008f6f6e9000
+[  463.718861][ T5040] [0000000000000000] pgd=0000000000000000
+[  463.718866][ T5040] Internal error: Oops: 96000044 [#1] SMP
+[...]
+[  463.718977][ T5040] CPU: 213 PID: 5040 Comm: vhost-5032 Tainted: G           O      5.7.0-rc7+ #139
+[  463.718980][ T5040] Hardware name: GIGABYTE R281-T91-00/MT91-FS1-00, BIOS F06 09/25/2018
+[  463.718982][ T5040] pstate: 60400009 (nZCv daif +PAN -UAO)
+[  463.718995][ T5040] pc : virtio_transport_recv_pkt+0x4c8/0xd40 [vmw_vsock_virtio_transport_common]
+[  463.718999][ T5040] lr : virtio_transport_recv_pkt+0x1fc/0xd40 [vmw_vsock_virtio_transport_common]
+[  463.719000][ T5040] sp : ffff80002dbe3c40
+[...]
+[  463.719025][ T5040] Call trace:
+[  463.719030][ T5040]  virtio_transport_recv_pkt+0x4c8/0xd40 [vmw_vsock_virtio_transport_common]
+[  463.719034][ T5040]  vhost_vsock_handle_tx_kick+0x360/0x408 [vhost_vsock]
+[  463.719041][ T5040]  vhost_worker+0x100/0x1a0 [vhost]
+[  463.719048][ T5040]  kthread+0x128/0x130
+[  463.719052][ T5040]  ret_from_fork+0x10/0x18
 
-That last sentence should have been a huge red flag when writing it and
-sending out this email...
+The race condition as follows:
+Task1                            Task2
+=====                            =====
+__sock_release                   virtio_transport_recv_pkt
+  __vsock_release                  vsock_find_bound_socket (found)
+    lock_sock_nested
+    vsock_remove_sock
+    sock_orphan
+      sk_set_socket(sk, NULL)
+    ...
+    release_sock
+                                lock_sock
+                                   virtio_transport_recv_connecting
+                                     sk->sk_socket->state (panic)
 
-> 6011002c1584    uio: make symbol 'uio_class_registered' static
->     Based on commit: ae61cf5b9913
+This fixes it by checking vsk again whether it is in bound/connected table.
 
-You looked at this patch and thought it was relevant for backporting?
+Signed-off-by: Jia He <justin.he@arm.com>
+Cc: stable@vger.kernel.org
+---
+ net/vmw_vsock/virtio_transport_common.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-Why?  It "obviously" does not fix anything, and is just a cleanup patch.
-
-Why did it pass your criteria?
-
-> 968339fad422    powerpc/boot: Delete unneeded .globl _zimage_start
->     Based on commit: ee9d21b3b358
->     Comment: not stable material?
-
-Ok, I'm going to stop here.
-
-I appreciate sending lists of commits that you have determined should be
-applied, and will be glad to review them, but you don't have to give me
-a list of all potential patches and your comments on them, as that
-doesn't help much.
-
-I have scripts that can churn out the false-positive lists like these,
-that's relatively easy to create.  It's the curated lists that you have
-looked at and reviewed and determined, in your opinion, should be
-applied that are much more valuable and better to work with.
-
-> 61c347ba5511    afs: Clear AFS_VNODE_CB_PROMISED if we detect callback expiry
->     Based on commit: ae3b7361dc0e
->     Comment: likely requires manual backport
-
-At this point, I will need others to do backporting for older kernels
-like this, unless there is a good reason why you can't do it yourself.
-That shows you actually want the patch to be backported, as you have
-done the effort to do so and check that it builds properly.
-
-Again, random lists aren't all that helpful, but curated ones are.
-
-> 2b74c878b0ea    IB/hfi1: Unreserve a flushed OPFN request
->     Based on commit: ca95f802ef51
->     Comment: earlier backport failed, this would likely require manual 
->     backport: https://lore.kernel.org/stable/15649835016938@kroah.com/
-
-This was known not to work.  I asked for help, and just asking for help
-again isn't probably going to do much :(
-
-> 0fbf21c3b36a    ALSA: hda/realtek - Enable micmute LED for Huawei laptops
->     Based on commit: 8ac51bbc4cfe
->     Comment: not stable material?
-
-It doesn't apply and needs manual backporting.  Why didn't you test
-that?
-
-Again, curated ids, and backported patches are the best thing you can
-do to help out here.  See Guenter's email for an example of the first,
-and Ben's emails of backported patches for examples of the second.
-
-thanks,
-
-greg k-h
-
+diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+index 69efc891885f..464eae44ef1f 100644
+--- a/net/vmw_vsock/virtio_transport_common.c
++++ b/net/vmw_vsock/virtio_transport_common.c
+@@ -1132,6 +1132,14 @@ void virtio_transport_recv_pkt(struct virtio_transport *t,
+ 
+ 	lock_sock(sk);
+ 
++	/* Check it again if vsk is removed by vsock_remove_sock */
++	if (!__vsock_in_bound_table(vsk) && !__vsock_in_connected_table(vsk)) {
++		(void)virtio_transport_reset_no_sock(t, pkt);
++		release_sock(sk);
++		sock_put(sk);
++		goto free_pkt;
++	}
++
+ 	/* Update CID in case it has changed after a transport reset event */
+ 	vsk->local_addr.svm_cid = dst.svm_cid;
+ 
+-- 
+2.17.1
 
