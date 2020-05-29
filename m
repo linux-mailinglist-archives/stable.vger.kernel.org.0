@@ -2,93 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C8F61E88FE
-	for <lists+stable@lfdr.de>; Fri, 29 May 2020 22:37:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 516721E8BB7
+	for <lists+stable@lfdr.de>; Sat, 30 May 2020 01:06:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728213AbgE2Uhl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 29 May 2020 16:37:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41588 "EHLO
+        id S1728445AbgE2XGU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 29 May 2020 19:06:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36578 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727024AbgE2Uhk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 29 May 2020 16:37:40 -0400
-Received: from mail-wr1-x442.google.com (mail-wr1-x442.google.com [IPv6:2a00:1450:4864:20::442])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F3ACC08C5C8;
-        Fri, 29 May 2020 13:29:35 -0700 (PDT)
-Received: by mail-wr1-x442.google.com with SMTP id j10so5331839wrw.8;
-        Fri, 29 May 2020 13:29:35 -0700 (PDT)
+        with ESMTP id S1726943AbgE2XGU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 29 May 2020 19:06:20 -0400
+Received: from mail-qk1-x744.google.com (mail-qk1-x744.google.com [IPv6:2607:f8b0:4864:20::744])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5D68C03E969
+        for <stable@vger.kernel.org>; Fri, 29 May 2020 16:06:19 -0700 (PDT)
+Received: by mail-qk1-x744.google.com with SMTP id c14so2798186qka.11
+        for <stable@vger.kernel.org>; Fri, 29 May 2020 16:06:19 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=fB9V5yxTdl0Y/SF+tmGL/MfOvt9Ppi9fS3wB0UgNJoE=;
-        b=rCQNkS8yjDJzrS7pJTvKxijntbCHM+wtCfEaW70MRgTQZcE93bQjqXxUAMMZQTQ4dF
-         NJIVfw2kJXfifp2KRfeit0A/IkNuxYClReH9mDJJ9J2pWp9XRMHleFN7xDnQHC3PEaQa
-         L82TA1QkWnjGpApa5UgMKwcB6wP4An8jw87+R5ySqS0FGhD7zqcajk7AM8mRA+YBh19t
-         RchB++kI38hn9G1L9hqq1ogTRCN4HmmLpvQRyqhWwbDpQnv5YAY89Zh7vSYTLkWiSSr0
-         REhO/TgnrMN4QCbbiYHHovvCsTXXmQm6W3In5vCJlOweP09O8Oxmvl4eJADUhyLdg8xI
-         uwHg==
+        h=mime-version:reply-to:sender:from:date:message-id:subject:to;
+        bh=MXOCe9Z4TrVsFQK5uGEJzQgP7KEzjniqxDnSr/XGj5c=;
+        b=Gjc6Fo8SPu7KXNWtuHqLP2tbR7BVBAgcgLXq/ZLWdgjLG0cFHLrJj/WUDQOWR2rG4y
+         0LXuDIjHpDsCH6OcB7wOO0W9ks+b4jshhBX2GfA0Jn4bcZf1A3OkALNnRJku4IkevhBM
+         WpsX2Pblllc5qdqZyBtSvVy5B5umdM8v4d+dtNOehrMLxB8WcLCbVBpVPvlfYkz9ykHK
+         UGjE3rVbKukYsQRkbQU2uN0iRAXXvfO2IFtYDQJmaNEF/BB7pdoe1//7RpFidzopsZrB
+         WHnk0pwutlhOgYiL9nAaMLA1+G2mwIIKVupa38h2IT1y26Xfg7nlIJKwm1Aw2/qR0W2K
+         8+eQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=fB9V5yxTdl0Y/SF+tmGL/MfOvt9Ppi9fS3wB0UgNJoE=;
-        b=t2dxBHE4upIYKtEgBL5HuncOmFeaUM9eL5HIrkaU1h2d10tlhTqVxkJRrbMIYnR0Bx
-         drhxOZU3TqbZqMS82Ndf9aNOhQEsQbqbuz2d1n64qQWXF62dLuu/aBWA8bXgLJ/GLTqK
-         WGF+Cpho5WBH8WSVIyxOdmUpwzS5F4UPG2LCz4Z9tf3SSvPQinrMuKV7S1e1+UnWOC8G
-         poJfPYP3OyrbxVY4A3raK2vIZ92GUss1qHsjwW0jN6BnuOIpck/MovDT5CZ/H4rFs+pe
-         1D/JDZZSLtRZMPkqEFbzhoGGa9PtyaW5OIwVMIZJ6vDgU+NsaTeyLSHVxAGdpu369Hi3
-         Ia+Q==
-X-Gm-Message-State: AOAM5300cf0ba28lsTCgokr2q4YjEd1GJBX5AehSb2P12EG5sMf1cLuP
-        4G5f9ylIxgg34nXj2iS5j4kOL2eL+72XtiCpDcY=
-X-Google-Smtp-Source: ABdhPJwgvaCDlsEU6b6VHl1zt74QkOXIGbiWzt0svEVrnCthWkVj8mjupMJyZKpmiXt1gRk90beRtWHllU7oXod90Hk=
-X-Received: by 2002:adf:ef47:: with SMTP id c7mr11084863wrp.57.1590784174030;
- Fri, 29 May 2020 13:29:34 -0700 (PDT)
+        h=x-gm-message-state:mime-version:reply-to:sender:from:date
+         :message-id:subject:to;
+        bh=MXOCe9Z4TrVsFQK5uGEJzQgP7KEzjniqxDnSr/XGj5c=;
+        b=XsgoX2WpnR2HwyCIHr5jGUX9FaJ4gP+AhVWRokrzdLH+yEqHf9AXjgPo/BB6nOv14z
+         /Sxh+hDbMZgYx1iXX1r2SXrlGyeS3OjX+VmXYJq/xzVMPshVyJ+2LSU20EtRwnqa9ECJ
+         GkI11nO/NAc7jLTtrzS8Bee79sfqsVfamUq5nuloDgQwwo8X2AQpJqTuJ+SpBsg3NqZk
+         TQcwuwSCyPb+omCkLGGm3u2OYP4Vf16V79raP4rDpVFtUvULYgJhYt0+V0hPxuUk6IkT
+         RobwmTtpnQedk+r4xFZDhBJWsCRwoTavhmFl5Hy16gIyngle3l+zgXr8npcSOGXErzo7
+         TQQA==
+X-Gm-Message-State: AOAM533UC+yJoebUm04Q07kRHgxzMugjL5AJiu3+oOGVsIlqb4BNqBWn
+        LAViebq7pTxvxsMOt/LKB25tSOBdGpXSsZfZJVQ=
+X-Google-Smtp-Source: ABdhPJy+jesMTcmUfA5QFzKLczMVlznTMA4p9cspxHk1PgJ8eFJqqNzjeFdDQj/2/VdzMwWr6tnvvwlzT+VSvDfv+iQ=
+X-Received: by 2002:a37:607:: with SMTP id 7mr9285177qkg.385.1590793579060;
+ Fri, 29 May 2020 16:06:19 -0700 (PDT)
 MIME-Version: 1.0
-References: <1d3bae1b3048f5d6e19f7ef569dd77e9e160a026.1590753016.git.hminas@synopsys.com>
- <CAD=FV=W1x_HJNCYMUb11QNA8yGs0heEiZzHZdeMPzFaRHaTOsA@mail.gmail.com>
- <0f6b1580-41d8-b7e7-206b-64cda87abfd5@synopsys.com> <CAD=FV=UCMqyX92o9m7H40E3sHzAFieHSu3TUY953VqNb-vuPPg@mail.gmail.com>
- <CAJz5OpfDnHfGf=dLbc0hTtaz-CERsQyaBNeqDiRz7u4jMywNow@mail.gmail.com>
- <CAD=FV=URUeE55xyL3iB5GmS7BRoDG2ey3UE4qSwwc7XZHR0c-Q@mail.gmail.com>
- <CAJz5OpdMDumfdYC+aj0N20p4qVEkEkHhNY3uKest6RSpPtrDWQ@mail.gmail.com>
- <CAD=FV=XsLA3w2QPcNF3-mgZbZoGsz4kg_QvHcoZV=XTVDYhnSg@mail.gmail.com>
- <20200529190031.GA2271@rowland.harvard.edu> <CAD=FV=UUULUgw_fnpbv2b-m8=CrOJimOba+ewRJj_hMB7niK1A@mail.gmail.com>
- <52f936c5-7f3f-5da0-33b8-3e6d4a4008d1@synopsys.com> <CAJz5OpcP860ANLLZELB7GNSsGAY2SvataZVAMyQj_HG0udkOmg@mail.gmail.com>
- <CAD=FV=VuX6pAtU+3-uXAJ8sXecbuiRNDj6RP36Xkyp-_G85-VA@mail.gmail.com> <f68ce0c2-7014-64ff-73e3-94d93897e3b2@synopsys.com>
-In-Reply-To: <f68ce0c2-7014-64ff-73e3-94d93897e3b2@synopsys.com>
-From:   Frank Mori Hess <fmh6jj@gmail.com>
-Date:   Fri, 29 May 2020 16:29:22 -0400
-Message-ID: <CAJz5OpfBfFhDODB+kL+uAGVgtg6vMTS9NPuu78zV8kEpozR_dA@mail.gmail.com>
-Subject: Re: [PATCH] usb: dwc2: Fix shutdown callback in platform
-To:     Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
-Cc:     Doug Anderson <dianders@chromium.org>,
-        Alan Stern <stern@rowland.harvard.edu>,
-        John Youn <John.Youn@synopsys.com>,
-        Felipe Balbi <balbi@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>,
-        "# 4.0+" <stable@vger.kernel.org>
+Reply-To: mrsaishagaddafi28@gmail.com
+Received: by 2002:a0c:e005:0:0:0:0:0 with HTTP; Fri, 29 May 2020 16:06:18
+ -0700 (PDT)
+From:   Mrs Aisha Gaddafi <mrsaishagaddafi28@gmail.com>
+Date:   Sat, 30 May 2020 01:06:18 +0200
+X-Google-Sender-Auth: Gvj5pHIecCCUBfN4Dy5gRPfExPY
+Message-ID: <CAP=BE4csidWOkavq4J6thcQtK_4k2VUh9s0yxd0mKTadZH3gkg@mail.gmail.com>
+Subject: Please i need your help,
+To:     undisclosed-recipients:;
 Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Minas,
+My Dear Friend,
 
-On Fri, May 29, 2020 at 3:50 PM Minas Harutyunyan
-<Minas.Harutyunyan@synopsys.com> wrote:
->
-> Can you test it on your setup and confirm (to keep "Tested-by: Frank.."
-> tag).
->
+I came across your e-mail contact prior a private search while in need
+of your assistance. My name is Aisha Gaddafi a single Mother and a
+Widow with three Children. I am the only biological Daughter of late
+Libyan President (Late Colonel Muammar Gaddafi).Please Reply me in my
+box. (mrsaishagaddafi28@gmail.com)
 
-I just tested the
+I have an investment funds worth Twenty Seven Million Five Hundred
+Thousand United State Dollar ($27.500.000.00 ) and i need an
+investment Manager/Partner and because of the asylum status i will
+authorize you the ownership of the funds, however, I am interested in
+you for investment project assistance in your country, may be from
+there, we can build a business relationship in the near future.
 
-dwc2_disable_global_interrupts(hsotg);
-synchronize_irq(hsotg->irq);
+I am willing to negotiate investment/business profit sharing ratio
+with you base on the future investment earning profits.
 
-version of dwc2 shutdown, and booting a new kernel with kexec worked
-fine for me.
+If you are willing to handle this project kindly reply urgent to
+enable me provide you more information about the investment funds.
+Your Urgent Reply Will Be Appreciated Please Reply me in my box.
+(mrsaishagaddafi28@gmail.com)
 
--- 
-Frank
+Best Regards
+Mrs Aisha Gaddafi,
