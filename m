@@ -2,62 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 98FB51E713D
-	for <lists+stable@lfdr.de>; Fri, 29 May 2020 02:24:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B788C1E71C7
+	for <lists+stable@lfdr.de>; Fri, 29 May 2020 02:47:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2437668AbgE2AYM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 28 May 2020 20:24:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50310 "EHLO
+        id S2438168AbgE2ArN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 28 May 2020 20:47:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53878 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2437659AbgE2AYL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 28 May 2020 20:24:11 -0400
+        with ESMTP id S2438131AbgE2ArL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 28 May 2020 20:47:11 -0400
 Received: from mail-pj1-x1041.google.com (mail-pj1-x1041.google.com [IPv6:2607:f8b0:4864:20::1041])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FEB8C08C5C6
-        for <stable@vger.kernel.org>; Thu, 28 May 2020 17:24:11 -0700 (PDT)
-Received: by mail-pj1-x1041.google.com with SMTP id ci21so339875pjb.3
-        for <stable@vger.kernel.org>; Thu, 28 May 2020 17:24:11 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0120FC08C5C6
+        for <stable@vger.kernel.org>; Thu, 28 May 2020 17:47:09 -0700 (PDT)
+Received: by mail-pj1-x1041.google.com with SMTP id nu7so369820pjb.0
+        for <stable@vger.kernel.org>; Thu, 28 May 2020 17:47:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20150623.gappssmtp.com; s=20150623;
         h=message-id:date:mime-version:content-transfer-encoding:subject:to
          :from;
-        bh=NCRYOipOZOFRQZxkWR3WPl30ZiL0jGuOj0nOW6OT1rg=;
-        b=StAUGOFDaLwfBHvTe9CCVxLYk9K6pl2E60hEmIcdJXouHoO8irp/iYWn6KELwcj1w4
-         v44aMvufv+3raZE+aGp95TfvEqTvxS/DlQz0L3vnfI/JFcq1GxNyJC6xkmU+5rurJpSa
-         9hTdrpRfRHayWpo8XagoeuHQztKmU0DDIrOiScEnSNCB9hqEQ++EU2IoRUdPZTKznSsV
-         d6/IJwUX3vVlGBpj9W+YWFxI7rAg7eOqHD7LMDDpadg1pJ6dtZiBeboDq2qcczp9Hnae
-         27dKi2T84Mn/gHnDKYRF/MK0qL7fFaQx1w1dKgQ23CsYuAryLfy4QeDlKkJVALSud3oq
-         gliQ==
+        bh=2oTsCW/tMr6WehxRf7TN2Hw9nRy7MDaJnt9P4mb1l2A=;
+        b=elj8ooJ9cwngKJEN4nHADYUSUKqTu7V6tmT6zGCSgeRrhZNLdW0gnI8HIIzc8Jtmp7
+         HcfnJCraTKcqIOLswPt72si4xS/UuFCBaiwiBviGg2WImJ+4ekI4WVp5DCtsXXww8eEW
+         UNdQ/dLMpjTBN8pX/KQCFa8EL6rJTxP3XEVuDmICq80FMhhqHgNHTvXLJ4L5/DGQUN0r
+         9V9MzAWVlPZde8efzqNmDwkVbdjDJrcZM5ly2u1tsotcHZSabiT5/LASoMDfVKHiuAsj
+         W3WAQEaX6jEphRVnrHKcxlwZIT6S8Z9XQH0lHL12dyWENMAvDakH2gm6oLnBqdkk9PiX
+         ROVQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:message-id:date:mime-version
          :content-transfer-encoding:subject:to:from;
-        bh=NCRYOipOZOFRQZxkWR3WPl30ZiL0jGuOj0nOW6OT1rg=;
-        b=oEaTyKBq3rnPS/YZrhmTjRjjJX+CQhbg+D6uSjR9wrTQdR3y9W8+W8jJZ3GrNp97+J
-         bwChNiY0nU4MQp1bI3YnDyYSzDD77AHQC2NhqhjUmFXcsuD+L54+Fx2HL3jGNECnqKFK
-         PKGFS4bB4ANeDReoruaY4hR0sFqNlW4ZBKjg2A6tKU9Axfx9qotOZd9CSIURk72NBfAq
-         zuZVMFwD+3D3W4Px4bNhYMq6ytcGlyf6oBPcw+4ewKb8qO0cNinQdhmtRK2EMgKotITZ
-         AZyr7oN74DRqV7F1l4DYn2lCYkUUsOsusERUIowAOCCLfLhs8nzIZCG/8WLbwHRid423
-         wH4w==
-X-Gm-Message-State: AOAM533i4mr33PKVHjRUWJLTm3E/2XvrHgK4glD93t4n5+P+WT74hBpW
-        muN2SIaARVIMCEw4fmyIWtiuGIuGbrA=
-X-Google-Smtp-Source: ABdhPJycseW8tTaAK34ze7wHuCPNeJj4gFLeSUo0lQU/cnQn0xDImUwQI/9ExYzgbytbgo8YvmM2gQ==
-X-Received: by 2002:a17:902:fe06:: with SMTP id g6mr6110280plj.118.1590711850283;
-        Thu, 28 May 2020 17:24:10 -0700 (PDT)
+        bh=2oTsCW/tMr6WehxRf7TN2Hw9nRy7MDaJnt9P4mb1l2A=;
+        b=KyDiCv1LZ/OuVeewvpo/69ZN6H70huwz3xX/g8r4j57NY3cpaVjTx2cr5BMMb7hRz4
+         yELGI4pOtWO8Smd31QXigK9ptzsKcoJV60o/rRwG5y1CbtxQpAhlTQKgJN+j37wZqQWj
+         oW838aSD9vfMwbYsqYJCcUzSvOCLsy38kGj9QQMd7v60SBHjteK3A1Xp1lNnir+ffIFl
+         yUdINXONCF7BybuyfUgFM7V/QSSDNtMUyOhemoYpQuO+tqHRz9bQpXnogo3lutdnEvae
+         0huIhdm8xZQ6VXr6poMg2BQozk1HWv8nRo8kONC2rYfT3jw3e+n+aBvaZZCELDsEnESa
+         jHfQ==
+X-Gm-Message-State: AOAM531D6jluqX7bdpOZtLhhMW676k8gYLYGHHYzdMAL+oAmwrSJWYoJ
+        qTm6C+YzbRVzJo0J4G0BG8wcWFlHpRI=
+X-Google-Smtp-Source: ABdhPJw7FrD9kYJszRrdukNs+eT/U5fNZfT+HSQ8HEOl1V+K+axNQih5gM8EtcZabQY/2cG8k9gKwg==
+X-Received: by 2002:a17:90b:4c4b:: with SMTP id np11mr6743642pjb.58.1590713229024;
+        Thu, 28 May 2020 17:47:09 -0700 (PDT)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id a5sm5668711pfk.210.2020.05.28.17.24.09
+        by smtp.gmail.com with ESMTPSA id b63sm5686201pfg.86.2020.05.28.17.47.08
         for <stable@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 28 May 2020 17:24:09 -0700 (PDT)
-Message-ID: <5ed05629.1c69fb81.83c22.02af@mx.google.com>
-Date:   Thu, 28 May 2020 17:24:09 -0700 (PDT)
+        Thu, 28 May 2020 17:47:08 -0700 (PDT)
+Message-ID: <5ed05b8c.1c69fb81.4de96.27c8@mx.google.com>
+Date:   Thu, 28 May 2020 17:47:08 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.14.y
+X-Kernelci-Branch: linux-5.6.y
 X-Kernelci-Tree: stable
 X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v4.14.182
-Subject: stable/linux-4.14.y boot: 79 boots: 3 failed, 76 passed (v4.14.182)
+X-Kernelci-Kernel: v5.6.15
+Subject: stable/linux-5.6.y boot: 103 boots: 3 failed,
+ 97 passed with 3 untried/unknown (v5.6.15)
 To:     stable@vger.kernel.org
 From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
@@ -82,49 +83,62 @@ ks
 using dmesg and bootrr: https://github.com/kernelci/bootrr
 
 See the *baseline results for this kernel revision* on this page:
-https://kernelci.org/test/job/stable/branch/linux-4.14.y/kernel/v4.14.182/p=
-lan/baseline/
+https://kernelci.org/test/job/stable/branch/linux-5.6.y/kernel/v5.6.15/plan=
+/baseline/
 
 ---------------------------------------------------------------------------=
 ----
 
-stable/linux-4.14.y boot: 79 boots: 3 failed, 76 passed (v4.14.182)
+stable/linux-5.6.y boot: 103 boots: 3 failed, 97 passed with 3 untried/unkn=
+own (v5.6.15)
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
-14.y/kernel/v4.14.182/
-Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.14.y/k=
-ernel/v4.14.182/
+Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-5.=
+6.y/kernel/v5.6.15/
+Full Build Summary: https://kernelci.org/build/stable/branch/linux-5.6.y/ke=
+rnel/v5.6.15/
 
 Tree: stable
-Branch: linux-4.14.y
-Git Describe: v4.14.182
-Git Commit: 4f68020fef1c6cf1b680ffb6481ac41379283ea3
+Branch: linux-5.6.y
+Git Describe: v5.6.15
+Git Commit: 183673bef8533a3744ad27e32ca901de59e09307
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
 e.git
-Tested: 46 unique boards, 14 SoC families, 13 builds out of 161
+Tested: 66 unique boards, 18 SoC families, 15 builds out of 165
 
 Boot Regressions Detected:
 
-arm:
+arc:
 
-    sama5_defconfig:
+    hsdk_defconfig:
         gcc-8:
-          at91-sama5d4_xplained:
-              lab-baylibre: failing since 126 days (last pass: v4.14.166 - =
-first fail: v4.14.167)
+          hsdk:
+              lab-baylibre: failing since 8 days (last pass: v5.6.13 - firs=
+t fail: v5.6.14)
+
+arm64:
+
+    defconfig:
+        gcc-8:
+          meson-g12b-a311d-khadas-vim3:
+              lab-baylibre: new failure (last pass: v5.6.14)
+          meson-gxbb-p200:
+              lab-baylibre: new failure (last pass: v5.6.13)
 
 Boot Failures Detected:
 
 arm64:
     defconfig:
         gcc-8:
-            meson-gxbb-p200: 1 failed lab
-            meson-gxm-q200: 1 failed lab
+            meson-g12b-a311d-khadas-vim3: 1 failed lab
 
 arm:
     sama5_defconfig:
         gcc-8:
             at91-sama5d4_xplained: 1 failed lab
+
+    multi_v7_defconfig:
+        gcc-8:
+            bcm2836-rpi-2-b: 1 failed lab
 
 ---
 For more info write to <info@kernelci.org>
