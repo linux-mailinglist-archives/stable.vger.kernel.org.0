@@ -2,91 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F01E11E8587
-	for <lists+stable@lfdr.de>; Fri, 29 May 2020 19:45:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D1641E85CB
+	for <lists+stable@lfdr.de>; Fri, 29 May 2020 19:52:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727085AbgE2RpJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 29 May 2020 13:45:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42896 "EHLO
+        id S1726887AbgE2RwK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 29 May 2020 13:52:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43978 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727890AbgE2RpI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 29 May 2020 13:45:08 -0400
-Received: from mail-wr1-x441.google.com (mail-wr1-x441.google.com [IPv6:2a00:1450:4864:20::441])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87E1BC03E969;
-        Fri, 29 May 2020 10:45:08 -0700 (PDT)
-Received: by mail-wr1-x441.google.com with SMTP id l11so4766810wru.0;
-        Fri, 29 May 2020 10:45:08 -0700 (PDT)
+        with ESMTP id S1726549AbgE2RwJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 29 May 2020 13:52:09 -0400
+Received: from mail-lj1-x241.google.com (mail-lj1-x241.google.com [IPv6:2a00:1450:4864:20::241])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54A79C03E969
+        for <stable@vger.kernel.org>; Fri, 29 May 2020 10:52:06 -0700 (PDT)
+Received: by mail-lj1-x241.google.com with SMTP id z13so271313ljn.7
+        for <stable@vger.kernel.org>; Fri, 29 May 2020 10:52:06 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=qyilkDkEXs9eRR0aDai46RFr8RI6mIia71DbVroQLVU=;
-        b=QBaHbk14iG9YRTPIDgH26JV5us6Yd6RFPJILW7tz8taGcaqrr9mIlhsj9vJhGaDFq+
-         qfKEXRifzavH8I54c/tLxqSunkEkVlWh21Gt6sRPbc8lUhXDAr6nauuVZpyKjXkbKJmZ
-         MnD/rQk9TB3pUljpVQovYABH0pJYAH+KQWliJWDjjHebs4ff5hS56CY9bpi4WXiRf2iy
-         9FpvllK0UNz6bJBDjSsSU85k+WMBKGstzExCTPxy+JecIxbKAj6hhPL3ya+0JbonyKzx
-         UXz9VLTFO9bbHT1pbfZ+v4vDsxNKcHH1AGmWkRQKv+xKajqCFx7I9yQM1xb00YJBTDGl
-         UiaQ==
+        d=unikie-com.20150623.gappssmtp.com; s=20150623;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=ntdhQMUAy4DQOem5JgLjFT9DRzL5+1nnzO/JbHz+b/c=;
+        b=E8AeR5PS6lWIkd39SSGB2eLb23e0FPMuOFStst5rG5liqeT1IRh9ymwcAXnnji3BbL
+         pbcDbncbF0bK/cxe5BAnjIGv//oidDa7Uf6aNnki39WJKAnbHDSISUeZCE0crdqoC+CN
+         uQtEwT7OImFVsT9dwQmmaIeaBH1yDFC0JEALk+i14CGBbuVaU5F+AvWRvHp+L4BJ7lav
+         ZfMFn6ljH9XN7iDkDe0L6FU+63z2GMVHFte8i8JLr3molq0z1Xf8uxhU6UUukocRsCTO
+         GJDrmlE43gAKMkhJB4H3lkZQMKG7LXxfNL6JsOwfLy7elvrs+Uf5+txv1hPDpOuGVNLH
+         T83A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=qyilkDkEXs9eRR0aDai46RFr8RI6mIia71DbVroQLVU=;
-        b=l74uMM0DzF5ffY5ZHJum9NemSBkQtsdENhwbWmuuysqYht0Sw4ihgo1LScUOFFWWW4
-         fiHD1pgKWvkCrut2mi3QqSUPjXFZybpPmDeY8vHfkd1S1+iuJDi/Z5O7K9omqejtkqDT
-         IdsM+U9eZ9AVCyyln7usrPXss6BBjsTFULwMWuyYSTBHmeNWfub2CSz5H5/ZqSgrLWYu
-         ytUVB4OQKfff4DEN8u4gpwQD032b5LtSozstsviZoeqJZ8W4NpaNNokAjiigYS3u5+Qh
-         FV6mHZRrXJfpOHjvBubf7dQmiKLIPE8z9XmLSM2qstnhKMPpGSfoTJijwUOWL5q7BhQL
-         N1ow==
-X-Gm-Message-State: AOAM5324mOVMceaaNy4xAeXbTTPwiq0WR8wDniszR5rOxkbWbvcmE7Yv
-        bVCA1EIkiQQVTLjy27aSIR074V2cUyGlB2mL7zk=
-X-Google-Smtp-Source: ABdhPJwPloB0m/tm/NkncwwpHlp2HQrubDQbocpXuvAjz21ovS5umtEBdESPCcRDxA0c19JkEgtieM94rFX9YK9+O7c=
-X-Received: by 2002:adf:e3c4:: with SMTP id k4mr9620950wrm.262.1590774307312;
- Fri, 29 May 2020 10:45:07 -0700 (PDT)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=ntdhQMUAy4DQOem5JgLjFT9DRzL5+1nnzO/JbHz+b/c=;
+        b=Hy2QbTztoX0nKByvw5g4GPboRXvzwulbJ0THmwe/Ww7NvP932IpzO4jBpPAMN2ViVV
+         qheDE4VJOFPuaw0RU7O6YBBtyhaLORAvMbCugEettAU82m+On1nmjA+NYbif8qMstjpZ
+         2J5+qYZRgkrRIHUcac5DGIAcBVO41C5A+XUYk4gdOotXJY03XV3qJCFV+j82fLaVlEk9
+         PZO+w4tYqAivS9OOABoIWuPMcRsIuRqDqQLp47KgGUqIddKL1/vaEv+SiZZ1dw2anzAX
+         1eXzHvy3EQTMh5uE6rOJpiMmpCp7LQcemVMSFI1i5SswgcGU7Ve8l/leyInUHwVxeiEY
+         5EsA==
+X-Gm-Message-State: AOAM530HQd46T/jNfy2AUVQm75dICeLMB10tpM6gcFXpaFh1cK+iH4v4
+        YRMz1jeWY0qAcAiL1jeZzVS/5j1SDWk=
+X-Google-Smtp-Source: ABdhPJze4egkjbf1b9ks6m2pWKQfTrO2ftN7zeQv9oHkMv2t8ylAvrv1jsCr2RxOmSFHQAvIl2fkLw==
+X-Received: by 2002:a2e:b178:: with SMTP id a24mr4754778ljm.268.1590774724665;
+        Fri, 29 May 2020 10:52:04 -0700 (PDT)
+Received: from buimax ([109.204.208.150])
+        by smtp.gmail.com with ESMTPSA id 9sm2112400ljv.137.2020.05.29.10.52.04
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Fri, 29 May 2020 10:52:04 -0700 (PDT)
+Date:   Fri, 29 May 2020 20:52:02 +0300
+From:   Henri Rosten <henri.rosten@unikie.com>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, lukas.bulwahn@gmail.com
+Subject: Re: Patches potentially missing from stable releases
+Message-ID: <20200529175202.GA10030@buimax>
+References: <20200529122445.GA32214@buimax>
+ <20200529124655.GA1714108@kroah.com>
 MIME-Version: 1.0
-References: <1d3bae1b3048f5d6e19f7ef569dd77e9e160a026.1590753016.git.hminas@synopsys.com>
- <CAD=FV=W1x_HJNCYMUb11QNA8yGs0heEiZzHZdeMPzFaRHaTOsA@mail.gmail.com>
- <0f6b1580-41d8-b7e7-206b-64cda87abfd5@synopsys.com> <CAD=FV=UCMqyX92o9m7H40E3sHzAFieHSu3TUY953VqNb-vuPPg@mail.gmail.com>
-In-Reply-To: <CAD=FV=UCMqyX92o9m7H40E3sHzAFieHSu3TUY953VqNb-vuPPg@mail.gmail.com>
-From:   Frank Mori Hess <fmh6jj@gmail.com>
-Date:   Fri, 29 May 2020 13:44:56 -0400
-Message-ID: <CAJz5OpfDnHfGf=dLbc0hTtaz-CERsQyaBNeqDiRz7u4jMywNow@mail.gmail.com>
-Subject: Re: [PATCH] usb: dwc2: Fix shutdown callback in platform
-To:     Doug Anderson <dianders@chromium.org>
-Cc:     Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>,
-        John Youn <John.Youn@synopsys.com>,
-        Felipe Balbi <balbi@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>,
-        Felipe Balbi <balbi@ti.com>,
-        =?UTF-8?Q?Heiko_St=C3=BCbner?= <heiko.stuebner@collabora.com>,
-        "# 4.0+" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200529124655.GA1714108@kroah.com>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, May 29, 2020 at 12:37 PM Doug Anderson <dianders@chromium.org> wrote:
->
-> I'm not sure I understand.  Are you saying that you'll just add
-> shutdown callbacks to all the drivers using this IRQ and call
-> disable_irq() there?  That seems like the best solution to me.
+On Fri, May 29, 2020 at 02:46:55PM +0200, Greg KH wrote:
+> On Fri, May 29, 2020 at 03:24:47PM +0300, Henri Rosten wrote:
+> > We did some work on analyzing patches potentially missing from stable 
+> > releases based on the Fixes: and Revert references in the commit 
+> > messages. Our script is based on similar idea as described by Guenter 
+> > Roeck in this earlier mail: 
+> > https://lore.kernel.org/stable/20190827171621.GA30360@roeck-us.net/.
+> > 
+> > Although the list is not comprehensive, we figured it makes sense to 
+> > publish it in case the results are of interest to someone else also.
+> > 
+> > The below list of potentially missing commits is based on 4.19, but some 
+> > of the commits might also apply to 5.4 and 5.6.
+> > 
+> > For each potentially missing commit flagged by the script, we read the 
+> > commit message and had a short look at the change. We then added 
+> > comments on our own judgement if it might be stable material or not. No 
+> > comments simply means the potentially missing patch appears stable 
+> > material. "Based on commit" is the mainline patch that has been 
+> > backported to 4.19 and is referenced by the missing commit. We did not 
+> > check if the patch applies without changes, nor did we build or execute 
+> > any tests.
+> 
+> That last sentence should have been a huge red flag when writing it and
+> sending out this email...
 
-I don't get it.  A hypothetical machine could have literally anything
-sharing the IRQ line, right?  If it is important to call disable_irq
-during shutdown (I have no idea if it is) then shouldn't the kernel
-core just disable all irqs after calling all the driver shutdown
-callbacks?
+Thank you for your comments.
 
-Anyways, my screaming interrupt occurs after a a new kernel has been
-booted with kexec.  In this case, it doesn't matter if the old kernel
-called disable_irq or not.  As soon as the new kernel re-enables the
-interrupt line, the kernel immediately disables it again with a
-backtrace due to the unhandled screaming interrupt.  That's why the
-dwc2 hardware needs to have its interrupts turned off when the old
-kernel is shutdown.
+This list was a byproduct of other analysis we did, I did not intent to 
+ask these patches for inclusion into stable. We simply wanted to report 
+this list in case it includes some patches that might have dropped off 
+your radar. We are aware that such information without further work, 
+e.g. backporting and testing does not add much yet.
 
+Thanks,
+-- Henri
 
--- 
-Frank
