@@ -2,28 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B69E1E7E88
-	for <lists+stable@lfdr.de>; Fri, 29 May 2020 15:21:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 753B01E7ECA
+	for <lists+stable@lfdr.de>; Fri, 29 May 2020 15:32:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726579AbgE2NVZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 29 May 2020 09:21:25 -0400
-Received: from foss.arm.com ([217.140.110.172]:36514 "EHLO foss.arm.com"
+        id S1726955AbgE2NcZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 29 May 2020 09:32:25 -0400
+Received: from foss.arm.com ([217.140.110.172]:36640 "EHLO foss.arm.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726816AbgE2NVW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 29 May 2020 09:21:22 -0400
+        id S1726549AbgE2NcY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 29 May 2020 09:32:24 -0400
 Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id B170C55D;
-        Fri, 29 May 2020 06:21:21 -0700 (PDT)
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id C089A55D;
+        Fri, 29 May 2020 06:32:23 -0700 (PDT)
 Received: from localhost.localdomain (entos-thunderx2-02.shanghai.arm.com [10.169.138.74])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id 271A63F305;
-        Fri, 29 May 2020 06:21:19 -0700 (PDT)
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id 66E103F305;
+        Fri, 29 May 2020 06:32:20 -0700 (PDT)
 From:   Jia He <justin.he@arm.com>
-To:     linux-eng <linux-eng@arm.com>
-Cc:     Kaly Xin <Kaly.Xin@arm.com>, Jia He <justin.he@arm.com>,
-        stable@vger.kernel.org
+To:     Stefan Hajnoczi <stefanha@redhat.com>,
+        Stefano Garzarella <sgarzare@redhat.com>
+Cc:     "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>, kvm@vger.kernel.org,
+        virtualization@lists.linux-foundation.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Kaly Xin <Kaly.Xin@arm.com>,
+        Jia He <justin.he@arm.com>, stable@vger.kernel.org
 Subject: [PATCH] virtio_vsock: Fix race condition in virtio_transport_recv_pkt
-Date:   Fri, 29 May 2020 21:21:12 +0800
-Message-Id: <20200529132112.159604-1-justin.he@arm.com>
+Date:   Fri, 29 May 2020 21:31:23 +0800
+Message-Id: <20200529133123.195610-1-justin.he@arm.com>
 X-Mailer: git-send-email 2.17.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -79,24 +83,27 @@ This fixes it by checking vsk again whether it is in bound/connected table.
 Signed-off-by: Jia He <justin.he@arm.com>
 Cc: stable@vger.kernel.org
 ---
- net/vmw_vsock/virtio_transport_common.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ net/vmw_vsock/virtio_transport_common.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
 diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
-index 69efc891885f..464eae44ef1f 100644
+index 69efc891885f..0dbd6a45f0ed 100644
 --- a/net/vmw_vsock/virtio_transport_common.c
 +++ b/net/vmw_vsock/virtio_transport_common.c
-@@ -1132,6 +1132,14 @@ void virtio_transport_recv_pkt(struct virtio_transport *t,
+@@ -1132,6 +1132,17 @@ void virtio_transport_recv_pkt(struct virtio_transport *t,
  
  	lock_sock(sk);
  
 +	/* Check it again if vsk is removed by vsock_remove_sock */
++	spin_lock_bh(&vsock_table_lock);
 +	if (!__vsock_in_bound_table(vsk) && !__vsock_in_connected_table(vsk)) {
++		spin_unlock_bh(&vsock_table_lock);
 +		(void)virtio_transport_reset_no_sock(t, pkt);
 +		release_sock(sk);
 +		sock_put(sk);
 +		goto free_pkt;
 +	}
++	spin_unlock_bh(&vsock_table_lock);
 +
  	/* Update CID in case it has changed after a transport reset event */
  	vsk->local_addr.svm_cid = dst.svm_cid;
