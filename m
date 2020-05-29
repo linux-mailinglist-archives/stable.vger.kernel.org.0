@@ -2,80 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C0D961E7823
-	for <lists+stable@lfdr.de>; Fri, 29 May 2020 10:20:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ACD291E788B
+	for <lists+stable@lfdr.de>; Fri, 29 May 2020 10:43:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726629AbgE2IUr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 29 May 2020 04:20:47 -0400
-Received: from mga18.intel.com ([134.134.136.126]:10357 "EHLO mga18.intel.com"
+        id S1725562AbgE2InF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 29 May 2020 04:43:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49424 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725821AbgE2IUq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 29 May 2020 04:20:46 -0400
-IronPort-SDR: oFRBk+DZe0kK/UIP6GVs9UCbSBeNs1+piGw5Bb9/IoqaIa8dNcNJ4uawSNpN2IP9VX7XVD+LGk
- CYThV3ghS84Q==
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 May 2020 01:20:45 -0700
-IronPort-SDR: LP9Z8yniGVLvGJeBCZeBItNRkXoOs1dSdIlmFtDSKa7jA5Ml5eEQixaUB21QJVW8DSa1hHVgvh
- W1xhgMErP3bQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.73,447,1583222400"; 
-   d="scan'208";a="376641861"
-Received: from vtt.iind.intel.com ([10.145.162.194])
-  by fmsmga001.fm.intel.com with ESMTP; 29 May 2020 01:20:43 -0700
-From:   Prasad Nallani <prasad.nallani@intel.com>
-To:     gfx-internal-devel@eclists.intel.com
-Cc:     andi.shyti@intel.com, Chris Wilson <chris@chris-wilson.co.uk>,
-        Matthew Auld <matthew.william.auld@gmail.com>,
+        id S1725306AbgE2InF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 29 May 2020 04:43:05 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2B97F2072D;
+        Fri, 29 May 2020 08:43:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1590741784;
+        bh=2HujCkoDE49br79+rWGM1kcrzoWK+DG86BMuA16+EyQ=;
+        h=Subject:To:From:Date:From;
+        b=iiYRG3XVk1zIApddq1j1KWa4SpKSf5CPk/doFxJXRl4zLqSqjlNu118mU0xVp2QgV
+         5TwoN74hR7XfSWnm0i0cTCVN8I1HChyFmZD87E7y5L4kgGY7F5QmgMU1B49XFi43J1
+         JrfnOP9XkTJCdlyxl3HeDfyvqxzfcEjD1NEDMKqY=
+Subject: patch "gnss: sirf: fix error return code in sirf_probe()" added to char-misc-testing
+To:     weiyongjun1@huawei.com, hulkci@huawei.com, johan@kernel.org,
         stable@vger.kernel.org
-Subject: [PATCH 13/23] drm/i915/gem: Flush all the reloc_gpu batch
-Date:   Fri, 29 May 2020 13:48:00 +0530
-Message-Id: <20200529081810.10747-14-prasad.nallani@intel.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200529081810.10747-1-prasad.nallani@intel.com>
-References: <20200529081810.10747-1-prasad.nallani@intel.com>
+From:   <gregkh@linuxfoundation.org>
+Date:   Fri, 29 May 2020 10:43:01 +0200
+Message-ID: <1590741781230217@kroah.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Wilson <chris@chris-wilson.co.uk>
 
-__i915_gem_object_flush_map() takes a byte range, so feed it the written
-bytes and do not mistake the u32 index as bytes!
+This is a note to let you know that I've just added the patch titled
 
-Fixes: a679f58d0510 ("drm/i915: Flush pages on acquisition")
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Matthew Auld <matthew.william.auld@gmail.com>
-Cc: <stable@vger.kernel.org> # v5.2+
-Reviewed-by: Matthew Auld <matthew.william.auld@gmail.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200406114821.10949-1-chris@chris-wilson.co.uk
-(cherry picked from commit 30c88a47f1abd5744908d3681f54dcf823fe2a12)
+    gnss: sirf: fix error return code in sirf_probe()
+
+to my char-misc git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
+in the char-misc-testing branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will be merged to the char-misc-next branch sometime soon,
+after it passes testing, and the merge window is open.
+
+If you have any questions about this process, please let me know.
+
+
+From 43d7ce70ae43dd8523754b17f567417e0e75dbce Mon Sep 17 00:00:00 2001
+From: Wei Yongjun <weiyongjun1@huawei.com>
+Date: Thu, 7 May 2020 09:42:52 +0000
+Subject: gnss: sirf: fix error return code in sirf_probe()
+
+Fix to return a negative error code from the error handling
+case instead of 0, as done elsewhere in this function.
+
+This avoids a use-after-free in case the driver is later unbound.
+
+Fixes: d2efbbd18b1e ("gnss: add driver for sirfstar-based receivers")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+[ johan: amend commit message; mention potential use-after-free ]
+Cc: stable <stable@vger.kernel.org>	# 4.19
+Signed-off-by: Johan Hovold <johan@kernel.org>
 ---
- drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/gnss/sirf.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c b/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
-index 5c1fa7513a53..4de2a6b0b29d 100644
---- a/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
-+++ b/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
-@@ -915,11 +915,13 @@ static inline struct i915_ggtt *cache_to_ggtt(struct reloc_cache *cache)
+diff --git a/drivers/gnss/sirf.c b/drivers/gnss/sirf.c
+index effed3a8d398..2ecb1d3e8eeb 100644
+--- a/drivers/gnss/sirf.c
++++ b/drivers/gnss/sirf.c
+@@ -439,14 +439,18 @@ static int sirf_probe(struct serdev_device *serdev)
  
- static void reloc_gpu_flush(struct reloc_cache *cache)
- {
--	GEM_BUG_ON(cache->rq_size >= cache->rq->batch->obj->base.size / sizeof(u32));
-+	struct drm_i915_gem_object *obj = cache->rq->batch->obj;
-+
-+	GEM_BUG_ON(cache->rq_size >= obj->base.size / sizeof(u32));
- 	cache->rq_cmd[cache->rq_size] = MI_BATCH_BUFFER_END;
+ 	data->on_off = devm_gpiod_get_optional(dev, "sirf,onoff",
+ 			GPIOD_OUT_LOW);
+-	if (IS_ERR(data->on_off))
++	if (IS_ERR(data->on_off)) {
++		ret = PTR_ERR(data->on_off);
+ 		goto err_put_device;
++	}
  
--	__i915_gem_object_flush_map(cache->rq->batch->obj, 0, cache->rq_size);
--	i915_gem_object_unpin_map(cache->rq->batch->obj);
-+	__i915_gem_object_flush_map(obj, 0, sizeof(u32) * (cache->rq_size + 1));
-+	i915_gem_object_unpin_map(obj);
+ 	if (data->on_off) {
+ 		data->wakeup = devm_gpiod_get_optional(dev, "sirf,wakeup",
+ 				GPIOD_IN);
+-		if (IS_ERR(data->wakeup))
++		if (IS_ERR(data->wakeup)) {
++			ret = PTR_ERR(data->wakeup);
+ 			goto err_put_device;
++		}
  
- 	intel_gt_chipset_flush(cache->rq->engine->gt);
- 
+ 		ret = regulator_enable(data->vcc);
+ 		if (ret)
+-- 
+2.26.2
+
+
