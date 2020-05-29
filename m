@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 458A41E773C
-	for <lists+stable@lfdr.de>; Fri, 29 May 2020 09:42:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 814781E7740
+	for <lists+stable@lfdr.de>; Fri, 29 May 2020 09:42:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726701AbgE2Hlo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 29 May 2020 03:41:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52656 "EHLO mail.kernel.org"
+        id S1726115AbgE2HmM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 29 May 2020 03:42:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53180 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727000AbgE2Hln (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 29 May 2020 03:41:43 -0400
+        id S1725355AbgE2HmM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 29 May 2020 03:42:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A464E208A7;
-        Fri, 29 May 2020 07:41:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CD43220723;
+        Fri, 29 May 2020 07:42:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590738103;
-        bh=owQZ44lljtusplVpm8qJlWg5ULwsNfw+yCykx40B8kE=;
+        s=default; t=1590738131;
+        bh=8u6wnbEgstM19gdCJf6kFdzo46HNCAQB7KTwud9Ud6A=;
         h=Subject:To:From:Date:From;
-        b=Z8cJfaNe1Tf6NXFMeTFTL0V/OFWneh18qcaRdJtjYFsFtnWiiYoUiY4praC8LvJhe
-         V+hxRZ0/RF7UmwkqHWImDm8bYtO5SQk9ozng0knlw2Q+LOt9XrwDk+DC6HViHj9tq4
-         xdH87uOFgW7oUYFZquD8YZ7eIv2GFagY2k8dQ2Oo=
-Subject: patch "USB: serial: ch341: add basis for quirk detection" added to usb-testing
+        b=GeXnCo9mE6gc8nbF+X0dcZpA2M97FBNO8ZN//dvhnu/LRX2D0FZ1L31c1+8WDDd/G
+         z0Jvq+44quDmJ0+dx+e4ME0cGbCepwLyCHiI+OCBkOYbo1o/IyX6JObr6cFEEACVlT
+         1RrSQ/NpPYKHD1OJy3oQ+zvmqR15zayJupumv+rU=
+Subject: patch "USB: serial: ch341: add basis for quirk detection" added to usb-next
 To:     public@hansmi.ch, johan@kernel.org, stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 29 May 2020 09:41:28 +0200
-Message-ID: <1590738088239131@kroah.com>
+Date:   Fri, 29 May 2020 09:42:01 +0200
+Message-ID: <159073812113557@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -43,13 +43,13 @@ This is a note to let you know that I've just added the patch titled
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-testing branch.
+in the usb-next branch.
 
 The patch will show up in the next release of the linux-next tree
 (usually sometime within the next 24 hours during the week.)
 
-The patch will be merged to the usb-next branch sometime soon,
-after it passes testing, and the merge window is open.
+The patch will also be merged in the next major kernel release
+during the merge window.
 
 If you have any questions about this process, please let me know.
 
