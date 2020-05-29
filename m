@@ -2,125 +2,152 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 778501E7CF9
-	for <lists+stable@lfdr.de>; Fri, 29 May 2020 14:17:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF6611E7D19
+	for <lists+stable@lfdr.de>; Fri, 29 May 2020 14:24:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726052AbgE2MRe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 29 May 2020 08:17:34 -0400
-Received: from mail-eopbgr80128.outbound.protection.outlook.com ([40.107.8.128]:8286
-        "EHLO EUR04-VI1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1725306AbgE2MRd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 29 May 2020 08:17:33 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=L333geKGDQ6o4dqzfRjsoCBZEede3UZZMMh1SStezjz5T3wrLQKqgeP9FymbmGFJmqid3+dziltghYQwbY31mIbZ1/O4XiqE1XCBni2iKQ2B2B/AI0UOfxdXkddF/VpYi+CiRv7E6e0d4TR65aGnAKS8UlqGZ3NJ9aurI4M5T0Es3JDmKuhrjgefGGiDRnBvYfpMulY0U8wOEU5MZNNRRwIzvJNbVG3ZExxSGc+pDZ1MZ+m9kTlEVl2/M1xZ3Dky5QHPzLwNLqKO+FwM/lGyNLb2VWNDtPWv2PFFyj1APwz4vTmTDRYUj3TNecXSbshXvc5SXR20NCgFenrxupyBMw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=00hQXON5WaBG8O5ZKPii4pmn/B4oStQV/XCn1hsAeuc=;
- b=ajO0qeDczrVuHpbp5CqFVP4JrKIqB9YgRaSI6YvWAmvW+1lizr+8RX6Tw6E5x43wLaAwDG1H7SFA1ccMsKWqS+iFt3iAsY3zd1DzBWn7ahOhwrxu9gXQmUOlyTNjsjGqW+mGXTrh41OQ6cjOgsVlyP0bfHu3B6sh4uj9K+Eni37IpD7Ep1zOm7gtUhQxzJK7dbBGKs5HbRO/yOpK88Nt0LbTtP8i2Op2TT+YlupOEU6GG2HPPxB4ZUsP9gOwMeyN5ri8w/Su6XOcNTz5XRV+QkDxQ32sEw6YPD1hxe7KR7D8apY7tsQTqZ1erQYdThsZb0dUeFoHbHGVeYDerijzbQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nokia.com; dmarc=pass action=none header.from=nokia.com;
- dkim=pass header.d=nokia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nokia.onmicrosoft.com;
- s=selector1-nokia-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=00hQXON5WaBG8O5ZKPii4pmn/B4oStQV/XCn1hsAeuc=;
- b=odE4BPCZ7PPnwmx8Zs4yXNq1gxJktweM6H7bIOnkougzfWhrXo0Td8yuEjaMJlDnZHbzPe1QRA6WmHaG+jcJqXb0CfzglRy+FBAM/xR8tJNw2oYz51sXao1REim6ZnNQgEDAP1z9jScY5pxxeCrpgFygcT53UySD0Pbhi5YLIQ4=
-Authentication-Results: vger.kernel.org; dkim=none (message not signed)
- header.d=none;vger.kernel.org; dmarc=none action=none header.from=nokia.com;
-Received: from AM0PR07MB3937.eurprd07.prod.outlook.com (2603:10a6:208:4c::20)
- by AM0PR07MB6132.eurprd07.prod.outlook.com (2603:10a6:208:11a::19) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3045.13; Fri, 29 May
- 2020 12:17:29 +0000
-Received: from AM0PR07MB3937.eurprd07.prod.outlook.com
- ([fe80::55f1:90c6:a5ae:2c82]) by AM0PR07MB3937.eurprd07.prod.outlook.com
- ([fe80::55f1:90c6:a5ae:2c82%4]) with mapi id 15.20.3066.007; Fri, 29 May 2020
- 12:17:29 +0000
-From:   Alexander A Sverdlin <alexander.sverdlin@nokia.com>
-To:     netdev@vger.kernel.org
-Cc:     Alexander Sverdlin <alexander.sverdlin@nokia.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paul Burton <paulburton@kernel.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: [PATCH] net: octeon: mgmt: Repair filling of RX ring
-Date:   Fri, 29 May 2020 14:17:10 +0200
-Message-Id: <20200529121710.548394-1-alexander.sverdlin@nokia.com>
-X-Mailer: git-send-email 2.26.2
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: HE1PR08CA0064.eurprd08.prod.outlook.com
- (2603:10a6:7:2a::35) To AM0PR07MB3937.eurprd07.prod.outlook.com
- (2603:10a6:208:4c::20)
+        id S1725865AbgE2MYx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 29 May 2020 08:24:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49306 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725306AbgE2MYw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 29 May 2020 08:24:52 -0400
+Received: from mail-lj1-x241.google.com (mail-lj1-x241.google.com [IPv6:2a00:1450:4864:20::241])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22D91C03E969
+        for <stable@vger.kernel.org>; Fri, 29 May 2020 05:24:51 -0700 (PDT)
+Received: by mail-lj1-x241.google.com with SMTP id o9so2359957ljj.6
+        for <stable@vger.kernel.org>; Fri, 29 May 2020 05:24:51 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=unikie-com.20150623.gappssmtp.com; s=20150623;
+        h=date:from:to:cc:subject:message-id:mime-version:content-disposition
+         :user-agent;
+        bh=MN+UUBISdsNTDDmehVe1cK2X238KUuSmmp/jBBjzJ3E=;
+        b=OsNK7LXwflk9du9iEfXHU7+wNNfBePZgb2MgJnh4ErszSsKgUyINHj8lylD5Z4ZAHx
+         1loJ1lLKSqKhA1Q2NHWpOZ+GFV+VLZ3eugiliM9O6gCRYy49pdZfPLN5iCud2xs6P0Nz
+         cGGnHSTDjGcOOElG/1fzJlZJLT0Yy/z+4ibxa7Fy4ak3kgqMymrxHCfUDMMKNsuZpZ9s
+         ZzHfwXK2Q29tMJj0OmTAPOUrkzeFJC4F9R9Zh52rAaNAYDKF2KLfqw0HjllILYD9YgvY
+         Aa/5tyoW2YXBNjfbkV6lqY5IVm/K+1koRLKN75QpLR8uyW3QUt6ns/O+pN9qM94sk+uj
+         5Mcw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
+         :content-disposition:user-agent;
+        bh=MN+UUBISdsNTDDmehVe1cK2X238KUuSmmp/jBBjzJ3E=;
+        b=GZH7en5neZmyH0O5nBJdfyJB3IzYb9uIn0uhayuzYshDaNSvZXTah4mRAKZ8UPDfxg
+         g13gf+4FHihHUQ5zZkbKIorQXwjQVKtuF/VPzJAa4POUCeTlCELEtcvWE+yHG5yRHCxx
+         Yj3++1/QelqMj9avXdQG5VXGXQMo6upLpSXONGHXAoTUcdPQJ0DM3+xaW5WX8ldhD20G
+         O6XLcdjDOnlEuDuMtr5mIFO+BCpYsjEGvU8khEg6Qne4ZjoPdNY/PmPH3PgKQCypL27O
+         7xS3+zK4jg/Sab7MARgxEqPpKXdnSWLsdE65lfjX5BoiImsllnKllfjewXqm9oFZ6ujA
+         O82w==
+X-Gm-Message-State: AOAM5330ktgLGKld8TMekw6K7B3/64irRXQ107819Cuwj8rGp0jTjsdN
+        gxZmtbhINkB0eacRN+weJ47jIX7kSsU=
+X-Google-Smtp-Source: ABdhPJzsau1itA6h14w53xS9D3BJ7i0RuVQMEMQpaN27PBudXW6YbsJXPGb8kmJoIGPYUz8zaRNN0g==
+X-Received: by 2002:a2e:b8c2:: with SMTP id s2mr4377215ljp.368.1590755089307;
+        Fri, 29 May 2020 05:24:49 -0700 (PDT)
+Received: from buimax ([109.204.208.150])
+        by smtp.gmail.com with ESMTPSA id i8sm2546186lfl.72.2020.05.29.05.24.48
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Fri, 29 May 2020 05:24:49 -0700 (PDT)
+Date:   Fri, 29 May 2020 15:24:47 +0300
+From:   Henri Rosten <henri.rosten@unikie.com>
+To:     stable@vger.kernel.org
+Cc:     lukas.bulwahn@gmail.com, gregkh@linuxfoundation.org
+Subject: Patches potentially missing from stable releases
+Message-ID: <20200529122445.GA32214@buimax>
 MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from ulegcpsvhp1.emea.nsn-net.net (131.228.2.28) by HE1PR08CA0064.eurprd08.prod.outlook.com (2603:10a6:7:2a::35) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3045.17 via Frontend Transport; Fri, 29 May 2020 12:17:28 +0000
-X-Mailer: git-send-email 2.26.2
-X-Originating-IP: [131.228.2.28]
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-HT: Tenant
-X-MS-Office365-Filtering-Correlation-Id: bc4b714e-ec12-4e94-b7e7-08d803ca41d3
-X-MS-TrafficTypeDiagnostic: AM0PR07MB6132:
-X-MS-Exchange-Transport-Forked: True
-X-Microsoft-Antispam-PRVS: <AM0PR07MB6132A1E4E58F428DF90E1E73888F0@AM0PR07MB6132.eurprd07.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:8273;
-X-Forefront-PRVS: 04180B6720
-X-MS-Exchange-SenderADCheck: 1
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: LJVyeJoVgazbItgWQovp9AE7ycbHJdzVKmc6v1DIT8wYI2lg43jGounsJyCRntgHgh4oxBVHkBjrLS93mKYHuQOy5gkL6RdnSOUgEucquc8zCtggEudwpw+clpA4GEHWefvgJakXUJKS4vANYaNEAD79jgiXR2FYDzpTsllp8zXHCv9VtYOSreOBLRqkz6pFtf07YisBrzU7W01lZbjLMd/9Ac3NlDWPsCYJ+l8GNOmnVHefwNDraxL4x6q+t3YzcOIl/lYz/PEauVFddeW3sc06zg/ylDoPNkd4HjQmsFmSB4HA2IU0cM4Qdk+4wK13F88BjJ99M7FzioUPx/qB5g==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AM0PR07MB3937.eurprd07.prod.outlook.com;PTR:;CAT:NONE;SFTY:;SFS:(4636009)(346002)(39860400002)(376002)(366004)(396003)(136003)(6916009)(52116002)(2906002)(26005)(16526019)(186003)(66946007)(2616005)(4326008)(8936002)(36756003)(83380400001)(956004)(66476007)(8676002)(6512007)(316002)(66556008)(478600001)(5660300002)(86362001)(6666004)(54906003)(6486002)(1076003)(6506007);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData: ayGFACE5bBnF0z3T75JMVP5Sfoykl/ZJtuhFKgY28v8Lb7nXV1nSnV/GLfQcOlwbxvvnY8tn87GlLWYAPGkmJx1GXvPV6B88stOZLGj2kyEiHi3jZ2ofhPIQZpuJrmj3RQwoxiT/P9IiiVCKJSIDq9xN1IMa1zQ2PIK5fldDaCUBfkyKg+9DD6WcOJoHzoCAVAZewj1N4nTSc1LG2k39yWVUHvXx2SJwGHAmk+ECUlYTmTM7d1KziTupqewIlLUTkTtFt1PhKVPRDgQLM4nz5T8ljTrsvQeKKBby5+kDbn1e/B0JwsMKDOS2hdSMR89I59KynIGK0S9nkjBF8brzH2LH4GfbWFGaazX5+58gnHT/jF8zK3Leet1P1gH/aWPxavNwVeIgtKQJeyNu9Qf2LfPuF1sei75gJ7DL/pvZhtEYbWZjsV+KBt88QGAByq4dHrVxL/NsJDSEerHBfakcD83yEeZxm6Xk1Uvz+pF7HRg=
-X-OriginatorOrg: nokia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: bc4b714e-ec12-4e94-b7e7-08d803ca41d3
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 29 May 2020 12:17:29.7745
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 5d471751-9675-428d-917b-70f44f9630b0
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: lPvqt9MEnHXSGVGVHxKt5Qul4LwGbIfXEM/9HuA226JX6v0Kr8OMlkIIaHHwIajklsgqIdX8Cegm1yDRV8qy5/F4wX0upCGILfcs45vfVY8=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: AM0PR07MB6132
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Sverdlin <alexander.sverdlin@nokia.com>
+We did some work on analyzing patches potentially missing from stable 
+releases based on the Fixes: and Revert references in the commit 
+messages. Our script is based on similar idea as described by Guenter 
+Roeck in this earlier mail: 
+https://lore.kernel.org/stable/20190827171621.GA30360@roeck-us.net/.
 
-The removal of mips_swiotlb_ops exposed a problem in octeon_mgmt Ethernet
-driver. mips_swiotlb_ops had an mb() after most of the operations and the
-removal of the ops had broken the receive functionality of the driver.
-My code inspection has shown no other places except
-octeon_mgmt_rx_fill_ring() where an explicit barrier would be obviously
-missing. The latter function however has to make sure that "ringing the
-bell" doesn't happen before RX ring entry is really written.
+Although the list is not comprehensive, we figured it makes sense to 
+publish it in case the results are of interest to someone else also.
 
-The patch has been successfully tested on Octeon II.
+The below list of potentially missing commits is based on 4.19, but some 
+of the commits might also apply to 5.4 and 5.6.
 
-Fixes: a999933db9ed ("MIPS: remove mips_swiotlb_ops")
-Cc: stable@vger.kernel.org
-Signed-off-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
----
- drivers/net/ethernet/cavium/octeon/octeon_mgmt.c | 5 +++++
- 1 file changed, 5 insertions(+)
+For each potentially missing commit flagged by the script, we read the 
+commit message and had a short look at the change. We then added 
+comments on our own judgement if it might be stable material or not. No 
+comments simply means the potentially missing patch appears stable 
+material. "Based on commit" is the mainline patch that has been 
+backported to 4.19 and is referenced by the missing commit. We did not 
+check if the patch applies without changes, nor did we build or execute 
+any tests.
 
-diff --git a/drivers/net/ethernet/cavium/octeon/octeon_mgmt.c b/drivers/net/ethernet/cavium/octeon/octeon_mgmt.c
-index 07b960e..79c110a 100644
---- a/drivers/net/ethernet/cavium/octeon/octeon_mgmt.c
-+++ b/drivers/net/ethernet/cavium/octeon/octeon_mgmt.c
-@@ -235,6 +235,11 @@ static void octeon_mgmt_rx_fill_ring(struct net_device *netdev)
- 
- 		/* Put it in the ring.  */
- 		p->rx_ring[p->rx_next_fill] = re.d64;
-+		/* Make sure there is no reorder of filling the ring and ringing
-+		 * the bell
-+		 */
-+		wmb();
-+
- 		dma_sync_single_for_device(p->dev, p->rx_ring_handle,
- 					   ring_size_to_bytes(OCTEON_MGMT_RX_RING_SIZE),
- 					   DMA_BIDIRECTIONAL);
--- 
-2.10.2
+
+6011002c1584    uio: make symbol 'uio_class_registered' static
+    Based on commit: ae61cf5b9913
+
+968339fad422    powerpc/boot: Delete unneeded .globl _zimage_start
+    Based on commit: ee9d21b3b358
+    Comment: not stable material?
+
+ed4d81c4b3f2    net: aquantia: when cleaning hw cache it should be toggled
+    Based on commit: 7a1bb49461b1
+    Comment: this was backported to 5.3, but for some reason not to 
+    older stable releases
+
+b27507bb59ed    net/ibmvnic: unlock rtnl_lock in reset so linkwatch_event can ru
+    Based on commit: a5681e20b541
+
+61c347ba5511    afs: Clear AFS_VNODE_CB_PROMISED if we detect callback expiry
+    Based on commit: ae3b7361dc0e
+    Comment: likely requires manual backport
+
+1a49b2fd8f58    kbuild: strip whitespace in cmd_record_mcount findstring
+    Based on commit: 6977f95e63b9
+    Comment: not stable material?
+
+669e859b5ea7    btrfs: drop the lock on error in btrfs_dev_replace_cancel
+    Based on commit: d189dd70e255
+    Comment: earlier backport failed, this would likely require manual 
+    backport: https://lore.kernel.org/stable/15531096685894@kroah.com/
+
+dddaf89e2fbc    netfilter: ipt_CLUSTERIP: make symbol 'cip_netdev_notifier' stat
+    Based on commit: 5a86d68bcf02
+
+01091c496f92    acpi/nfit: improve bounds checking for 'func'
+    Based on commit: 11189c1089da
+    Comment: the missing commit was picked by AUTOSEL to 5.4, 5.5, and 
+    5.6, but for some reason, it was not backported 4.19: 
+    https://lore.kernel.org/stable/?q=01091c496f92*
+
+2b74c878b0ea    IB/hfi1: Unreserve a flushed OPFN request
+    Based on commit: ca95f802ef51
+    Comment: earlier backport failed, this would likely require manual 
+    backport: https://lore.kernel.org/stable/15649835016938@kroah.com/
+
+0b815023a1d4    bnxt_en: Fix ring checking logic on 57500 chips.
+    Based on commit: 36d65be9a880
+    Comment: likely requires manual backport
+
+6ae865615fc4    x86/uaccess: Dont leak the AC flag into __put_user() argument ev
+    Based on commit: 2a418cf3f5f1
+    Comment: commit 9b8bd476e78e which mentions complementing 
+    6ae865615fc4, has already been backported to 4.19
+
+70db5b04cbe1    f2fs: give some messages for inline_xattr_size
+    Based on commit: 500e0b28ecd3
+    Comment: not stable material?
+
+2a06b8982f8f    net: reorder 'struct net' fields to avoid false sharing
+    Based on commit: 355b98553789
+    Comment: this was backported to 5.3, but for some reason not to 
+    older stable releases
+
+0fbf21c3b36a    ALSA: hda/realtek - Enable micmute LED for Huawei laptops
+    Based on commit: 8ac51bbc4cfe
+    Comment: not stable material?
+
+Thanks,
+-- Henri
 
