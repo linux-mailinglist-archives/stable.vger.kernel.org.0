@@ -2,85 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 677701E8659
-	for <lists+stable@lfdr.de>; Fri, 29 May 2020 20:11:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 55F031E8684
+	for <lists+stable@lfdr.de>; Fri, 29 May 2020 20:21:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726549AbgE2SLz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 29 May 2020 14:11:55 -0400
-Received: from userp2120.oracle.com ([156.151.31.85]:39842 "EHLO
-        userp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725839AbgE2SLz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 29 May 2020 14:11:55 -0400
-Received: from pps.filterd (userp2120.oracle.com [127.0.0.1])
-        by userp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 04TI7rC7138010;
-        Fri, 29 May 2020 18:11:53 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=date : from : to : cc
- : subject : message-id : references : mime-version : content-type :
- in-reply-to; s=corp-2020-01-29;
- bh=/fyvsjFoPsbkA1GVuN/dI2b6nc/iceLQHQFPArQrilE=;
- b=LTPz570UgTigVYVLhdYR9nC/k/QfglpiCd6UsRBGQ3C7511Gfowvk80eL8Yo0eHBxhWR
- f1QZQC7R36ky3T0lMun9xEVViJxx0Volp2tX4Q604pvBFnuJSYotmvPrwKkVlxOI7JtL
- jfCUC6AW8qJhinhcoCS6nv+BTl/o3RXfkul4B/Z1ArTseOhI+VWHEZ6kAYR5Lt+0FkY0
- Q617M+sWzmo77gIkDXnF0RZaBZsPdjjwYTU+OI/URu7EQQtiFcuxIqE0BzKQyhVye9oK
- fGdJUvjaCKbkC6UWQEijuFuq0OUaAZXzq0KuXjSeKa8d1TjTXQMj1OB0+SzRB/B6kzLl Zg== 
-Received: from userp3030.oracle.com (userp3030.oracle.com [156.151.31.80])
-        by userp2120.oracle.com with ESMTP id 318xbkbu8j-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
-        Fri, 29 May 2020 18:11:52 +0000
-Received: from pps.filterd (userp3030.oracle.com [127.0.0.1])
-        by userp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 04TI91Yu080640;
-        Fri, 29 May 2020 18:11:52 GMT
-Received: from userv0122.oracle.com (userv0122.oracle.com [156.151.31.75])
-        by userp3030.oracle.com with ESMTP id 317ds4mu88-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 29 May 2020 18:11:52 +0000
-Received: from abhmp0007.oracle.com (abhmp0007.oracle.com [141.146.116.13])
-        by userv0122.oracle.com (8.14.4/8.14.4) with ESMTP id 04TIBpJk009285;
-        Fri, 29 May 2020 18:11:52 GMT
-Received: from revenge.us.oracle.com (/10.135.188.124)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Fri, 29 May 2020 11:11:51 -0700
-Date:   Fri, 29 May 2020 18:09:43 +0000
-From:   Tom Saeger <tom.saeger@oracle.com>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH 5.4] bcache: initialize 'sb_page' in register_bcache()
-Message-ID: <20200529180943.ifijafwdjudflw34@revenge.us.oracle.com>
-References: <041443374fde130be3bc864b6ac8ffba6640c2b0.1588184799.git.tom.saeger@oracle.com>
- <20200430064421.GF2377651@kroah.com>
- <20200501011318.pwcjic2jsvotxebd@revenge.us.oracle.com>
+        id S1726924AbgE2SVg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 29 May 2020 14:21:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48580 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726549AbgE2SVg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 29 May 2020 14:21:36 -0400
+Received: from mail-wr1-x444.google.com (mail-wr1-x444.google.com [IPv6:2a00:1450:4864:20::444])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3753C03E969;
+        Fri, 29 May 2020 11:21:35 -0700 (PDT)
+Received: by mail-wr1-x444.google.com with SMTP id q11so4904573wrp.3;
+        Fri, 29 May 2020 11:21:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=zLXiRl9cDcJQQ+j3BIvVxaRM9eyFQUW8oMYbC//hTWw=;
+        b=PIRjTM/zhFET505J1F3i/uxUINJAWq4DGpG+4MDw7UUdtGHRdWRjEcwI+wUmHNLTxS
+         TeJ57bVYgy7g7YWqz0QEqGLeOhy48OT+abnt80YRuB9NEh9hwLW4Oip4xnbft2jigjWg
+         H6Wbz5Z51JFFnwgpf37EHIOLMY9PIe8oRQXLZWnun4JajK/2AHp/9QXMNlaPci+lBMD/
+         xiQhKppYZS7t2k3+h1fgYhidRH8U2BcIDqRt4SnS6hmNv7HuuRgO4zGuf7ZayV+SsZNc
+         d7VuIlwWe729P0Gz2OrcrxiyQYicBlctjgKpveJrIQ/OaxrAsbn3QE00QCTANTbHxCsE
+         ixkA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=zLXiRl9cDcJQQ+j3BIvVxaRM9eyFQUW8oMYbC//hTWw=;
+        b=N/6+GYh7E2Fzc1Lf+PbQauhIxws6nXgV+IUPQHoG7ZOjOrj4gCXFJS//b6lh1b0NnY
+         +WNB84oT9vGPkq5njkZ2tQuMBVuVW+M4jxtk5QU0c7e3XD1CLKMM7rqyNHSKYjkKtly8
+         wEG8jgMS+Z9Sf8arEjp9LlPcQTw16d8B4bQay1SWRNB7dAK92TqxTJDVkgQPiUljOvva
+         0ARLTUukiD+IaGOD1gKzXBtlb8UzTmc6iD/6fsTCDERc8nJm8cEdhCzSJbNFZ8wEY/yG
+         xMlGfmbmNEqGkSCPFBlRMltRRPZSCG9TrzNpG6T2VyOyXRnFx1DfynLi1ngah1gVbk4O
+         2ZRw==
+X-Gm-Message-State: AOAM533OwSQRi7Q9ox6fEZLslLG2D4FtWpKDktEYQ9f1FzcCnn14lGIo
+        gMOsAzkVEXPn3kmoSPxRnTfG4mkHb2GDa8iKx5zFhoDp
+X-Google-Smtp-Source: ABdhPJzZfyp8e713uokhnlncAGKpGbSODS17oXrNKjcyEh7Rq/5hnnoiflVwEml34+J+6mfTf9ifb+Y1QFXG23w6V7k=
+X-Received: by 2002:adf:9f0b:: with SMTP id l11mr5759898wrf.66.1590776494740;
+ Fri, 29 May 2020 11:21:34 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200501011318.pwcjic2jsvotxebd@revenge.us.oracle.com>
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9636 signatures=668686
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 spamscore=0 phishscore=0 malwarescore=0
- mlxlogscore=999 adultscore=0 suspectscore=1 bulkscore=0 mlxscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2004280000
- definitions=main-2005290137
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9636 signatures=668686
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxlogscore=999 spamscore=0 mlxscore=0
- lowpriorityscore=0 priorityscore=1501 phishscore=0 cotscore=-2147483648
- suspectscore=1 bulkscore=0 clxscore=1015 impostorscore=0 malwarescore=0
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2004280000 definitions=main-2005290137
+References: <1d3bae1b3048f5d6e19f7ef569dd77e9e160a026.1590753016.git.hminas@synopsys.com>
+ <CAD=FV=W1x_HJNCYMUb11QNA8yGs0heEiZzHZdeMPzFaRHaTOsA@mail.gmail.com>
+ <0f6b1580-41d8-b7e7-206b-64cda87abfd5@synopsys.com> <CAD=FV=UCMqyX92o9m7H40E3sHzAFieHSu3TUY953VqNb-vuPPg@mail.gmail.com>
+ <CAJz5OpfDnHfGf=dLbc0hTtaz-CERsQyaBNeqDiRz7u4jMywNow@mail.gmail.com> <CAD=FV=URUeE55xyL3iB5GmS7BRoDG2ey3UE4qSwwc7XZHR0c-Q@mail.gmail.com>
+In-Reply-To: <CAD=FV=URUeE55xyL3iB5GmS7BRoDG2ey3UE4qSwwc7XZHR0c-Q@mail.gmail.com>
+From:   Frank Mori Hess <fmh6jj@gmail.com>
+Date:   Fri, 29 May 2020 14:21:23 -0400
+Message-ID: <CAJz5OpdMDumfdYC+aj0N20p4qVEkEkHhNY3uKest6RSpPtrDWQ@mail.gmail.com>
+Subject: Re: [PATCH] usb: dwc2: Fix shutdown callback in platform
+To:     Doug Anderson <dianders@chromium.org>
+Cc:     Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>,
+        John Youn <John.Youn@synopsys.com>,
+        Felipe Balbi <balbi@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>,
+        "# 4.0+" <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, May 01, 2020 at 01:13:19AM +0000, Tom Saeger wrote:
-> On Thu, Apr 30, 2020 at 08:44:21AM +0200, Greg KH wrote:
-> > On Wed, Apr 29, 2020 at 06:38:17PM +0000, Tom Saeger wrote:
-> > > commit 393b8509be33 (bcache: rework error unwinding in register_bcache)
-> > > 
-> > > introduced compile warning:
-> > > warning: 'sb_page' may be used uninitialized in this function [-Wmaybe-uninitialized]
-> > > 
+On Fri, May 29, 2020 at 1:53 PM Doug Anderson <dianders@chromium.org> wrote:
+> >
+> > I don't get it.  A hypothetical machine could have literally anything
+> > sharing the IRQ line, right?
+>
+> It's not a real physical line, though?  I don't think it's common to
+> have a shared interrupt between different IP blocks in a given SoC.
+> Even if it existed, all the drivers should disable their interrupts?
 
-FWIW - 8f6a84167e86 (Stop the ad-hoc games with -Wno-maybe-initialized)
+I don't know, it's a hypothetical machine so it can be whatever you
+want.  The driver requests shared irqs, if it doesn't actually support
+irq sharing, it shouldn't request them.
 
-successfully squelched the warning I previously reported.  Still shows up with W=2
-for me on FC31 (gcc9.3.1), but this is probably moot at this point.
+> > Anyways, my screaming interrupt occurs after a a new kernel has been
+> > booted with kexec.  In this case, it doesn't matter if the old kernel
+> > called disable_irq or not.  As soon as the new kernel re-enables the
+> > interrupt line, the kernel immediately disables it again with a
+> > backtrace due to the unhandled screaming interrupt.  That's why the
+> > dwc2 hardware needs to have its interrupts turned off when the old
+> > kernel is shutdown.
+>
+> Isn't that a bug with your new kernel?  I've seen plenty of bugs where
+> drivers enable their interrupt before their interrupt handler is set
+> to handle it.  You never know what state the bootloader (or previous
+> kernel) might have left things in and if an interrupt was pending it
+> shouldn't kill you.
 
---Tom
+It wouldn't hurt to add disabling of the dwc2 irq early in dwc2
+initialization, but why leave the irq screaming after shutdown?  If
+there is another device using the same irq, it will generate unhandled
+interrupt backtraces and get its irq disabled when the new kernel
+requests its irq, if the device's driver is loaded before the dwc2
+driver (assuming the new kernel even has a dwc2 driver).  The dwc2
+driver in its current state will generate unhandled interrupt
+backtraces by itself until it registers the right handler.
+
+-- 
+Frank
