@@ -2,112 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 17EF21E7743
-	for <lists+stable@lfdr.de>; Fri, 29 May 2020 09:42:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0730D1E7773
+	for <lists+stable@lfdr.de>; Fri, 29 May 2020 09:50:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725601AbgE2Hmb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 29 May 2020 03:42:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53394 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725355AbgE2Hmb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 29 May 2020 03:42:31 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6BE7520810;
-        Fri, 29 May 2020 07:42:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590738150;
-        bh=mjj9q7pa2yUgbr87di+eBWzpOQ+GjR6r/QIA5TVB6AI=;
-        h=Subject:To:From:Date:From;
-        b=SPBNuYkW/JhP83gLokcPRGN5C8hHvH1qRb0dz1XC4SuZJ+hBQwrvaSOfQ3wWCRdv3
-         6ecqOpHPyqkr0Z5NYVJ82vsu9kwVYwcGnA5QHOUdbivWp9ayFjmu7sh95jeZSw+TMX
-         3zfnnuiZaGFn60auH7KwUuJlYwxpK5PLH+6M8dmk=
-Subject: patch "nvmem: qfprom: remove incorrect write support" added to char-misc-next
-To:     srinivas.kandagatla@linaro.org, dianders@chromium.org,
-        gregkh@linuxfoundation.org, stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 29 May 2020 09:42:28 +0200
-Message-ID: <159073814820944@kroah.com>
+        id S1725562AbgE2Hu4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 29 May 2020 03:50:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34942 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725601AbgE2Huz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 29 May 2020 03:50:55 -0400
+Received: from mail-wm1-x344.google.com (mail-wm1-x344.google.com [IPv6:2a00:1450:4864:20::344])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43D7BC03E969
+        for <stable@vger.kernel.org>; Fri, 29 May 2020 00:50:55 -0700 (PDT)
+Received: by mail-wm1-x344.google.com with SMTP id f185so2209450wmf.3
+        for <stable@vger.kernel.org>; Fri, 29 May 2020 00:50:55 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:sender:from:date:message-id:subject:to;
+        bh=aq/XfMW8CzIHD0D8NNIVhrMDzrr/cgdu5HFrZO0XQbg=;
+        b=NeVcMz18c4AuIg4nZHANWwotjELR6gIGjBvGuBgVjGYrzRI8tr/wqgacrwNA/a+R8s
+         W/REnFMkJoWD6/ybf+ITminHsypEYVKMmptrjSryR50Fx/fTKvY3mWqGecFkoJrqnLUv
+         4VXcu07rry3l1WDHr554a3epwL1QXOrn0eY2utxX1yOvkd1npX25qECjLbIiNAQssZ+g
+         ZVpCMAYM2p4JTKILTr2TdC9lWPwJAQwDe/H23nd6eY4F75eF9DnraictUPbR5d4gsYa/
+         Rv8h0+f/Gm88IOTGX3dB9qtHgYNgR9F/gB2HUkGEgx1c8YYBv+UY4o3Z1vdularfFW6d
+         xk4A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
+         :to;
+        bh=aq/XfMW8CzIHD0D8NNIVhrMDzrr/cgdu5HFrZO0XQbg=;
+        b=XK8+JltQKDt/kRTXY1EAZfmPwdaQ08Kr1VifcbHhQ0avr/fL8ZwlYVEYEUryomUya3
+         OvDz/9CHkDAY2agDjxcUuNlL+Gc3oZVMSfKTy6U7llhnZvT4Feqfzizpp9W1GPHdmb3/
+         WSfONHjzf4b+GMWyYTU2RkWjQj0J/TSRMBylaRF6Y141pg2lvChYezPxU95HaRayZ3Mt
+         9Snnbs/wFpiClRL7afQRrMsC+S1ylcOyry0qwc0yhoBHvVW7RHwBKV0KDkfHDm2+acJA
+         UnC71lxeNtQMdlv6DoBQi2QuCu/W28QQggcOvVN7qFlZXSD8qC7sq47oVD8Y4J+En+hP
+         qmPQ==
+X-Gm-Message-State: AOAM531pJ7a9WUiP2/ManXMlxQdBBa8m3hZbpcOnw+T3KM/Fo9myx2d4
+        A290ySzWd7F+o/RJdHxXaUOlf6kRsd52hOV2vA==
+X-Google-Smtp-Source: ABdhPJxAzJceXLuIw4eMino/Ku4nTos8IsI2RsH8FRlHJ3r9IX8WP1jGV4exdhbr5j5PwdNnAxnh4o9eY/DETwVHFzs=
+X-Received: by 2002:a7b:c4cc:: with SMTP id g12mr7125781wmk.171.1590738653845;
+ Fri, 29 May 2020 00:50:53 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Received: by 2002:a5d:4952:0:0:0:0:0 with HTTP; Fri, 29 May 2020 00:50:53
+ -0700 (PDT)
+From:   Mr Michel Madi <frankgouli12@gmail.com>
+Date:   Fri, 29 May 2020 07:50:53 +0000
+X-Google-Sender-Auth: gSeOk11CNDhZFs9Xy-a7ogWmUOw
+Message-ID: <CAG6GeAq6A4q1tLQMZ7qFkaSLSN24xuiSmu7ZV-HE5pzdWsqu1Q@mail.gmail.com>
+Subject: Attention
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Dear Friend,
 
-This is a note to let you know that I've just added the patch titled
+Let me start by introducing myself, I am Mr Michel Madi Manager of
+Bank Of Africa Burkina Faso.
 
-    nvmem: qfprom: remove incorrect write support
+I am writing you this letter based on the latest development at my
+Department which I will like to bring to your personal edification.
+(7.5 million U.S Dollars transfer claims).
 
-to my char-misc git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
-in the char-misc-next branch.
+This is a legitimate transaction and I agreed to offer you 40% of this
+money as my foreign partner after confirmation of the fund in your
+bank account, if you are interested, get back to me with the following
+details below.
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
+(1)Your age........
 
-The patch will also be merged in the next major kernel release
-during the merge window.
+(2)Your occupation.....
 
-If you have any questions about this process, please let me know.
+(3)Your marital status.....
 
+(4)Your full residential address.......
 
-From 8d9eb0d6d59a5d7028c80a30831143d3e75515a7 Mon Sep 17 00:00:00 2001
-From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Date: Fri, 22 May 2020 12:33:41 +0100
-Subject: nvmem: qfprom: remove incorrect write support
+(5)Your private phone and fax number and your complete name.......
 
-qfprom has different address spaces for read and write. Reads are
-always done from corrected address space, where as writes are done
-on raw address space.
-Writing to corrected address space is invalid and ignored, so it
-does not make sense to have this support in the driver which only
-supports corrected address space regions at the moment.
-
-Fixes: 4ab11996b489 ("nvmem: qfprom: Add Qualcomm QFPROM support.")
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200522113341.7728-1-srinivas.kandagatla@linaro.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/nvmem/qfprom.c | 14 --------------
- 1 file changed, 14 deletions(-)
-
-diff --git a/drivers/nvmem/qfprom.c b/drivers/nvmem/qfprom.c
-index d057f1bfb2e9..8a91717600be 100644
---- a/drivers/nvmem/qfprom.c
-+++ b/drivers/nvmem/qfprom.c
-@@ -27,25 +27,11 @@ static int qfprom_reg_read(void *context,
- 	return 0;
- }
- 
--static int qfprom_reg_write(void *context,
--			 unsigned int reg, void *_val, size_t bytes)
--{
--	struct qfprom_priv *priv = context;
--	u8 *val = _val;
--	int i = 0, words = bytes;
--
--	while (words--)
--		writeb(*val++, priv->base + reg + i++);
--
--	return 0;
--}
--
- static struct nvmem_config econfig = {
- 	.name = "qfprom",
- 	.stride = 1,
- 	.word_size = 1,
- 	.reg_read = qfprom_reg_read,
--	.reg_write = qfprom_reg_write,
- };
- 
- static int qfprom_probe(struct platform_device *pdev)
--- 
-2.26.2
+As soon as I receive these data's, I will forward to you the
+application form which you will send to the bank, get back to me
+through this my private email address (michelmadi01@gmail.com)
 
 
+Best Regard
+Mr. Michel Madi
