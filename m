@@ -2,178 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E6FF61E7FC4
-	for <lists+stable@lfdr.de>; Fri, 29 May 2020 16:10:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 41F791E80D7
+	for <lists+stable@lfdr.de>; Fri, 29 May 2020 16:49:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726990AbgE2OKo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 29 May 2020 10:10:44 -0400
-Received: from us-smtp-1.mimecast.com ([207.211.31.81]:41487 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725901AbgE2OKm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 29 May 2020 10:10:42 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1590761440;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=TErd239L9m87GMKq1OnfAdElyOZMwB2hfVFAiSe/inE=;
-        b=FUcJBFb6H5jmQDMrGPSGlkkogGKfkS7OrqbcY0z3YTJEWbU1kg0rbonuFUWmLAzhdKNEFi
-        2yk7af+qvtamnxn6+q/k6D7arTcs29mSjq0OXBPZ2jLAtR3YCIJojc355emfbCyeTKAUH0
-        wJEEwO5Zb4GvjjLuYS5q6iqVzwPE7xo=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-481-GQPrRswZPdyjK9diDfv0Rg-1; Fri, 29 May 2020 10:10:39 -0400
-X-MC-Unique: GQPrRswZPdyjK9diDfv0Rg-1
-Received: by mail-wm1-f72.google.com with SMTP id b63so2609526wme.1
-        for <stable@vger.kernel.org>; Fri, 29 May 2020 07:10:38 -0700 (PDT)
+        id S1727027AbgE2Otl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 29 May 2020 10:49:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43588 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726838AbgE2Otk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 29 May 2020 10:49:40 -0400
+Received: from mail-vs1-xe43.google.com (mail-vs1-xe43.google.com [IPv6:2607:f8b0:4864:20::e43])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8AB5C08C5C6
+        for <stable@vger.kernel.org>; Fri, 29 May 2020 07:49:40 -0700 (PDT)
+Received: by mail-vs1-xe43.google.com with SMTP id y123so1637660vsb.6
+        for <stable@vger.kernel.org>; Fri, 29 May 2020 07:49:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=nPyJC3VeuXg+H4EiFhdOWQz8oRE+V996il06Y+eqzcw=;
+        b=TTNgrE0fEe/q3F/coMGbxfkgkX50UYx1VgY7fEF/oknOvyTTvhLP7jRbPpUO/oFeJm
+         3LbB3rTbTpYIQXlCjvlv4abFocWq80dQLWLfiD3DrvzXVGJiH14O9GyY2phHKt7CtrUi
+         6Rin5OH80b64AijExWRmKBFeEHebz2xmbWMt8=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=TErd239L9m87GMKq1OnfAdElyOZMwB2hfVFAiSe/inE=;
-        b=IFnptxg0Pz1BZ2clIjJuqxKlDE2o0qo5hSXwU6FtSl5jWXqw4fbGXPA5DGGAVxxnp1
-         EW5bPqU/GfMpgfy36fooy7saXM8gqc5UfLK778izy407iNzuaIO5pooyFAfuWTBed573
-         jxXGq4D8CZ/6Tmf+vxIv2+JN8wryuZQZmhZ+HkUFf2Ab4FGMgAGrefWBnlJJRsXsQXTR
-         qY+DyRnSX6W+YrXm4VSAH5HQfzlAcpfkdz61s3Xv3Kw9rY/5Tl8ygCYtlbgTPv8O0OFM
-         B+RVmZeQZ6sIozEqeyGfYHDg+NaJYv54knIwBNwyvEicXniTNk7TMF3ooKUMkuZijowE
-         UJtA==
-X-Gm-Message-State: AOAM5314xNaaX0QXKeTIH3ktDbiE1e0/CArqHAYzLOnQQhY0Si5XNDvr
-        CjqA8m6ALKW7Sm7LvIHFDQP54yYBpT5k4679hL8B9YUO8MoJfUJrabJert6Ak8v/yu+zdFXD+E8
-        W7KcMuuWuRgwYw74Z
-X-Received: by 2002:adf:9c84:: with SMTP id d4mr8354233wre.327.1590761437217;
-        Fri, 29 May 2020 07:10:37 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJyU77CJCETVAQ/MakEhpXlB82Ntk+mmoh9WlUWbgSUeZEVhUvd9NyaJdmipxrh62Yze6wV5Xg==
-X-Received: by 2002:adf:9c84:: with SMTP id d4mr8354212wre.327.1590761436822;
-        Fri, 29 May 2020 07:10:36 -0700 (PDT)
-Received: from steredhat ([79.49.207.108])
-        by smtp.gmail.com with ESMTPSA id u7sm10292389wrm.23.2020.05.29.07.10.35
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 29 May 2020 07:10:36 -0700 (PDT)
-Date:   Fri, 29 May 2020 16:10:33 +0200
-From:   Stefano Garzarella <sgarzare@redhat.com>
-To:     Jia He <justin.he@arm.com>
-Cc:     Stefan Hajnoczi <stefanha@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>, kvm@vger.kernel.org,
-        virtualization@lists.linux-foundation.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Kaly Xin <Kaly.Xin@arm.com>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] virtio_vsock: Fix race condition in
- virtio_transport_recv_pkt
-Message-ID: <20200529141033.iqtmu3giph6dekuj@steredhat>
-References: <20200529133123.195610-1-justin.he@arm.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=nPyJC3VeuXg+H4EiFhdOWQz8oRE+V996il06Y+eqzcw=;
+        b=qUfTDw+GQ0evNwrdGcHd8co1usS1Rc75M8TLE7ZsNHYD9XDmf60sS0hhHaNWKio7+W
+         IzPXm0PhfmIs0b3eSs+eVawdI1iboNe+OB84e3a1BbBXME8/VYOmcKRq+wFGVBnR9DsC
+         zhQL52pswq5hbCuzNTeQIJLTxLo0/6zT+OVuGdcdqcZwAqK7H6/iDHRmbyYUxhwy1bCR
+         0BxQAn1bNYvzXeJGL5zBa4OHVRXQpvBuBZ6I/FoFf0prjS442DCxuDs16Y9JU8gEVeGk
+         5dPa/ziWs2/taIyjknZyx91i0efVDaShX/xEsfWf1mU8N8JnVloLRCFYDidrpEmrsSsF
+         sPhQ==
+X-Gm-Message-State: AOAM530kBaiSLnff1zoEn32ZyA0iqsyrCj4vcDtCFKcnRKaJIQ0WVMOC
+        fBI90oKa8mMNijaKSEln5hQQ/tqTvqw=
+X-Google-Smtp-Source: ABdhPJxMJEDppTPflXM1UhI7a6PJJLlIajHyTacVFJckg4F28RDYmnxcLb3PVaOrejKtkvGy3qyxEg==
+X-Received: by 2002:a67:ef4a:: with SMTP id k10mr5692934vsr.20.1590763779614;
+        Fri, 29 May 2020 07:49:39 -0700 (PDT)
+Received: from mail-vk1-f176.google.com (mail-vk1-f176.google.com. [209.85.221.176])
+        by smtp.gmail.com with ESMTPSA id d184sm1213877vkf.37.2020.05.29.07.49.38
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 29 May 2020 07:49:38 -0700 (PDT)
+Received: by mail-vk1-f176.google.com with SMTP id r11so725125vkf.11
+        for <stable@vger.kernel.org>; Fri, 29 May 2020 07:49:38 -0700 (PDT)
+X-Received: by 2002:a1f:5cd0:: with SMTP id q199mr6343966vkb.34.1590763778261;
+ Fri, 29 May 2020 07:49:38 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200529133123.195610-1-justin.he@arm.com>
+References: <1d3bae1b3048f5d6e19f7ef569dd77e9e160a026.1590753016.git.hminas@synopsys.com>
+In-Reply-To: <1d3bae1b3048f5d6e19f7ef569dd77e9e160a026.1590753016.git.hminas@synopsys.com>
+From:   Doug Anderson <dianders@chromium.org>
+Date:   Fri, 29 May 2020 07:49:26 -0700
+X-Gmail-Original-Message-ID: <CAD=FV=W1x_HJNCYMUb11QNA8yGs0heEiZzHZdeMPzFaRHaTOsA@mail.gmail.com>
+Message-ID: <CAD=FV=W1x_HJNCYMUb11QNA8yGs0heEiZzHZdeMPzFaRHaTOsA@mail.gmail.com>
+Subject: Re: [PATCH] usb: dwc2: Fix shutdown callback in platform
+To:     Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
+Cc:     John Youn <John.Youn@synopsys.com>,
+        Felipe Balbi <balbi@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-usb@vger.kernel.org, Felipe Balbi <balbi@ti.com>,
+        =?UTF-8?Q?Heiko_St=C3=BCbner?= <heiko.stuebner@collabora.com>,
+        "# 4.0+" <stable@vger.kernel.org>,
+        Frank Mori Hess <fmh6jj@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Jia,
-thanks for the patch! I have some comments.
+Hi,
 
-On Fri, May 29, 2020 at 09:31:23PM +0800, Jia He wrote:
-> When client tries to connect(SOCK_STREAM) the server in the guest with NONBLOCK
-> mode, there will be a panic on a ThunderX2 (armv8a server):
-> [  463.718844][ T5040] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000000
-> [  463.718848][ T5040] Mem abort info:
-> [  463.718849][ T5040]   ESR = 0x96000044
-> [  463.718852][ T5040]   EC = 0x25: DABT (current EL), IL = 32 bits
-> [  463.718853][ T5040]   SET = 0, FnV = 0
-> [  463.718854][ T5040]   EA = 0, S1PTW = 0
-> [  463.718855][ T5040] Data abort info:
-> [  463.718856][ T5040]   ISV = 0, ISS = 0x00000044
-> [  463.718857][ T5040]   CM = 0, WnR = 1
-> [  463.718859][ T5040] user pgtable: 4k pages, 48-bit VAs, pgdp=0000008f6f6e9000
-> [  463.718861][ T5040] [0000000000000000] pgd=0000000000000000
-> [  463.718866][ T5040] Internal error: Oops: 96000044 [#1] SMP
-> [...]
-> [  463.718977][ T5040] CPU: 213 PID: 5040 Comm: vhost-5032 Tainted: G           O      5.7.0-rc7+ #139
-> [  463.718980][ T5040] Hardware name: GIGABYTE R281-T91-00/MT91-FS1-00, BIOS F06 09/25/2018
-> [  463.718982][ T5040] pstate: 60400009 (nZCv daif +PAN -UAO)
-> [  463.718995][ T5040] pc : virtio_transport_recv_pkt+0x4c8/0xd40 [vmw_vsock_virtio_transport_common]
-> [  463.718999][ T5040] lr : virtio_transport_recv_pkt+0x1fc/0xd40 [vmw_vsock_virtio_transport_common]
-> [  463.719000][ T5040] sp : ffff80002dbe3c40
-> [...]
-> [  463.719025][ T5040] Call trace:
-> [  463.719030][ T5040]  virtio_transport_recv_pkt+0x4c8/0xd40 [vmw_vsock_virtio_transport_common]
-> [  463.719034][ T5040]  vhost_vsock_handle_tx_kick+0x360/0x408 [vhost_vsock]
-> [  463.719041][ T5040]  vhost_worker+0x100/0x1a0 [vhost]
-> [  463.719048][ T5040]  kthread+0x128/0x130
-> [  463.719052][ T5040]  ret_from_fork+0x10/0x18
-> 
-> The race condition as follows:
-> Task1                            Task2
-> =====                            =====
-> __sock_release                   virtio_transport_recv_pkt
->   __vsock_release                  vsock_find_bound_socket (found)
->     lock_sock_nested
->     vsock_remove_sock
->     sock_orphan
->       sk_set_socket(sk, NULL)
->     ...
->     release_sock
->                                 lock_sock
->                                    virtio_transport_recv_connecting
->                                      sk->sk_socket->state (panic)
-> 
-> This fixes it by checking vsk again whether it is in bound/connected table.
-> 
-> Signed-off-by: Jia He <justin.he@arm.com>
+On Fri, May 29, 2020 at 4:51 AM Minas Harutyunyan
+<Minas.Harutyunyan@synopsys.com> wrote:
+>
+> To avoid lot of interrupts from dwc2 core, which can be asserted in
+> specific conditions need to disable interrupts on HW level instead of
+> disable IRQs on Kernel level, because of IRQ can be shared between
+> drivers.
+>
 > Cc: stable@vger.kernel.org
+> Fixes: a40a00318c7fc ("usb: dwc2: add shutdown callback to platform variant")
+> Tested-by: Frank Mori Hess <fmh6jj@gmail.com>
+> Signed-off-by: Minas Harutyunyan <hminas@synopsys.com>
 > ---
->  net/vmw_vsock/virtio_transport_common.c | 11 +++++++++++
->  1 file changed, 11 insertions(+)
-> 
-> diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
-> index 69efc891885f..0dbd6a45f0ed 100644
-> --- a/net/vmw_vsock/virtio_transport_common.c
-> +++ b/net/vmw_vsock/virtio_transport_common.c
-> @@ -1132,6 +1132,17 @@ void virtio_transport_recv_pkt(struct virtio_transport *t,
->  
->  	lock_sock(sk);
->  
-> +	/* Check it again if vsk is removed by vsock_remove_sock */
-> +	spin_lock_bh(&vsock_table_lock);
-> +	if (!__vsock_in_bound_table(vsk) && !__vsock_in_connected_table(vsk)) {
-> +		spin_unlock_bh(&vsock_table_lock);
-> +		(void)virtio_transport_reset_no_sock(t, pkt);
-> +		release_sock(sk);
-> +		sock_put(sk);
-> +		goto free_pkt;
-> +	}
-> +	spin_unlock_bh(&vsock_table_lock);
-> +
+>  drivers/usb/dwc2/platform.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/usb/dwc2/platform.c b/drivers/usb/dwc2/platform.c
+> index e571c8ae65ec..ada5b66b948e 100644
+> --- a/drivers/usb/dwc2/platform.c
+> +++ b/drivers/usb/dwc2/platform.c
+> @@ -342,7 +342,7 @@ static void dwc2_driver_shutdown(struct platform_device *dev)
+>  {
+>         struct dwc2_hsotg *hsotg = platform_get_drvdata(dev);
+>
+> -       disable_irq(hsotg->irq);
+> +       dwc2_disable_global_interrupts(hsotg);
+>  }
 
-As an a simpler alternative, can we check the sk_shutdown or the socket
-state without check again both bound and connected tables?
+I could be wrong, but I think it would be better to instead end up
+with both calls, like:
 
-This is a data path, so we should take it faster.
+dwc2_disable_global_interrupts(hsotg);
+disable_irq(hsotg->irq);
 
-I mean something like this:
+To some extent it's slightly overkill, but the disable_irq() function
+has the nice "and wait for completion" bit.  Your new call doesn't do
+this.
 
-	if (sk->sk_shutdown == SHUTDOWN_MASK) {
-		...
-	}
+That being said, though, you still won't wait for the completion of
+the IRQ handler for the "other drivers" you reference, right.  Maybe a
+better fix would be to add a shutdown callback for those other drivers
+and just keep relying on disable_irq()?
 
-or
 
-	if (sock_flag(sk, SOCK_DEAD)) {
-		...
-	}
-
-I prefer the first option, but I think also the second option should
-work.
-
-Thanks,
-Stefano
-
->  	/* Update CID in case it has changed after a transport reset event */
->  	vsk->local_addr.svm_cid = dst.svm_cid;
->  
-> -- 
-> 2.17.1
-> 
-
+-Doug
