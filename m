@@ -2,108 +2,178 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 34F701E7261
-	for <lists+stable@lfdr.de>; Fri, 29 May 2020 04:05:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 995EA1E7282
+	for <lists+stable@lfdr.de>; Fri, 29 May 2020 04:18:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404441AbgE2CF0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 28 May 2020 22:05:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37798 "EHLO
+        id S2404988AbgE2CSB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 28 May 2020 22:18:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39748 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2391555AbgE2CFZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 28 May 2020 22:05:25 -0400
-Received: from mail-pl1-x644.google.com (mail-pl1-x644.google.com [IPv6:2607:f8b0:4864:20::644])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 988FEC08C5C7
-        for <stable@vger.kernel.org>; Thu, 28 May 2020 19:05:25 -0700 (PDT)
-Received: by mail-pl1-x644.google.com with SMTP id bg4so392255plb.3
-        for <stable@vger.kernel.org>; Thu, 28 May 2020 19:05:25 -0700 (PDT)
+        with ESMTP id S2404786AbgE2CSB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 28 May 2020 22:18:01 -0400
+Received: from mail-lj1-x242.google.com (mail-lj1-x242.google.com [IPv6:2a00:1450:4864:20::242])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82361C08C5C7
+        for <stable@vger.kernel.org>; Thu, 28 May 2020 19:17:59 -0700 (PDT)
+Received: by mail-lj1-x242.google.com with SMTP id v16so638629ljc.8
+        for <stable@vger.kernel.org>; Thu, 28 May 2020 19:17:59 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=1WZNVSaadZVqMDwtVn0NnKD00+ypa94ERX/SU7Og7DQ=;
-        b=Ir0eju0S85+3e/NRJyZOrlWeXAujkfYRoPp6MgvFSeFuJgtKyusIcxxdPEmtqcZD56
-         R4oYYEiKZKYPPHKRvZKRAjn5WABt60uGmECYKE1cSv1q1zQzsucqF0dhr0Z9pv9kQtta
-         PpLMVRYIDpnt3OSsMyduNy9jP7Hg1pnnxb8gQBTdAH+phb/FQYbMKtBlHDiPnwfFOyau
-         Ak4HcZ2Ii4uYxJvKlgldL2YwdjJFW/qqRmiO3ErGvDhgUN1XxdZxMWzlafap+nGoQ72U
-         R/f+RKZCWymQnNrCqnVAzJAoSgLwduGeKfrqcblak3xzbeS1DpvSOQ9q0vMpwZJl8KdY
-         3txQ==
+        d=linux-foundation.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=vJ9gTWfjqaGlpCPsXTDGoSd7Y0WPXEnUn4OlpmNxO6I=;
+        b=c+VYr0ZVdU3iMPGuzHmmoxf6LEmKKBoJczjatsGoUG8CGFdTOy3VWdUN/y2iKgZF6J
+         /PTpay60je5Kj8cZtv20gACm1Qw1CVeZL+zjTZJpv7PmnbYnkLSn6/o3vpYedc/tbmB3
+         v3vhimV/M/mZn2nQBihFznTL5ciTjwDDfoGww=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=1WZNVSaadZVqMDwtVn0NnKD00+ypa94ERX/SU7Og7DQ=;
-        b=rpVVhvqWEOuvidOm/zIJg0SJuyUGyvt2AAfVWbD0G5qWS2ALQOyfzGG7jGTDaOvAeW
-         bTG5kEvkH9IWPhgmBeNJM9FENGUpAgZs4Y3tiONOtFUmGKxlDpNVmiefOsc3vH6IDmpw
-         C83QDRY9kwditl36v9D8I4r+wH2eyPdgUFZ/M+R6e0AFCcYprf4nA7eCIxRJVM8uARK3
-         M/Yfu/lZN4t+7LjxizhxLLYhpJRSAvmDks06k6/sScLIBjsgtzjUmzgYXbsv3RFGMzDn
-         JGHJb9A2smQ1xU4jxhKETec5lbCfbzfMYU84hZAHHiwamfOevXZe/E/am+yDTHbtxjuy
-         bslA==
-X-Gm-Message-State: AOAM5311y1l4NcYMbO4LTUAP6qNe0C6xCBYgUfKKo5003NrnJP0p89v/
-        yCoSaiWaaTX0n8q/URpYB7OaJ7pIHzw=
-X-Google-Smtp-Source: ABdhPJz5EPzbARpUJURc2topQwESVnnL1lb03H1XbkG8OcHHgEhxs9AYwukE9v0EBc3MVm84X67lCA==
-X-Received: by 2002:a17:90a:f994:: with SMTP id cq20mr7006126pjb.52.1590717924757;
-        Thu, 28 May 2020 19:05:24 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id iq13sm6744851pjb.48.2020.05.28.19.05.23
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=vJ9gTWfjqaGlpCPsXTDGoSd7Y0WPXEnUn4OlpmNxO6I=;
+        b=X6EuHbgPqS3Vd1vLSZl987Pl6SMDKJ/njJe4j1D/+jCrlYPQbeLNWyOS0eIP6A3IbW
+         jhOoR684ChPBHU68G8AHh71kHHy5u6RE2w2+y3RnSMri2L6GTFuRPcYYuKWo/+aoAV/7
+         LYyKkMWvndWsmMgh9diTXQfNa+LKnSEIelgtjjkRPg7/cylNC90O5Hg4IeaTR0UvwO2o
+         +Mn0qxPNtXm0PbTbunDMOb+TaRJYz2lOSjMbmURh/pz8VeV1pg78U2/zkWbWA7P6nxpp
+         gOHOdqxXMCrFsCObotZ5AO8gGCcczPRD9vVUXBCW91Vba7Se5aFaYN6ygvWFBbTYSkiv
+         INeQ==
+X-Gm-Message-State: AOAM533CAXjAWde/tRWLjO36JG5INrxIm4wSSddzxlx1EgF/vmdlbc/k
+        PMOertsV0e5nvydWbs1ddDCnmJeZdH0=
+X-Google-Smtp-Source: ABdhPJy+eg+UXcPVKpTftFgzlA/mPLAQ/Q0akEVGnJSfBGPyeMMHzZyonLqoZk7LaQh2dmLwKIlvSw==
+X-Received: by 2002:a2e:b4a5:: with SMTP id q5mr1332379ljm.186.1590718676140;
+        Thu, 28 May 2020 19:17:56 -0700 (PDT)
+Received: from mail-lj1-f175.google.com (mail-lj1-f175.google.com. [209.85.208.175])
+        by smtp.gmail.com with ESMTPSA id l15sm1737365ljc.73.2020.05.28.19.17.54
         for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 28 May 2020 19:05:24 -0700 (PDT)
-Message-ID: <5ed06de4.1c69fb81.e4db1.81cf@mx.google.com>
-Date:   Thu, 28 May 2020 19:05:24 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 28 May 2020 19:17:55 -0700 (PDT)
+Received: by mail-lj1-f175.google.com with SMTP id b6so682511ljj.1
+        for <stable@vger.kernel.org>; Thu, 28 May 2020 19:17:54 -0700 (PDT)
+X-Received: by 2002:a2e:9f43:: with SMTP id v3mr3141974ljk.285.1590718674086;
+ Thu, 28 May 2020 19:17:54 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.19.y
-X-Kernelci-Tree: stable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v4.19.125
-Subject: stable/linux-4.19.y boot: 48 boots: 0 failed,
- 46 passed with 2 untried/unknown (v4.19.125)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+References: <20200528135552.GA87103@google.com> <CAHk-=wjgtD6drydXP5h_r90v0sCSQe7BMk7AiYADhJ-x9HGgkg@mail.gmail.com>
+ <20200528230859.GB225299@google.com> <CAHk-=whf6b=OijDL=+PUTBsrhURzLZQ5xAq5tWDqOQpTmePFDA@mail.gmail.com>
+ <20200529014524.GA38759@google.com>
+In-Reply-To: <20200529014524.GA38759@google.com>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Thu, 28 May 2020 19:17:38 -0700
+X-Gmail-Original-Message-ID: <CAHk-=wgO86MS-=G2D=aDpOvZVYARD2kBZ43sofX6WwK0OAzmwg@mail.gmail.com>
+Message-ID: <CAHk-=wgO86MS-=G2D=aDpOvZVYARD2kBZ43sofX6WwK0OAzmwg@mail.gmail.com>
+Subject: Re: [PATCH] sched/headers: Fix sched_setattr userspace compilation breakage
+To:     Joel Fernandes <joel@joelfernandes.org>
+Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Matthew Blecker <matthewb@google.com>,
+        Jesse Barnes <jsbarnes@google.com>,
+        Mike Frysinger <vapier@google.com>,
+        Christian Brauner <christian@brauner.io>,
+        vpillai <vpillai@digitalocean.com>, vineethrp@gmail.com,
+        Peter Zijlstra <peterz@infradead.org>,
+        stable <stable@vger.kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Ingo Molnar <mingo@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-******************************************
-* WARNING: Boot tests are now deprecated *
-******************************************
+On Thu, May 28, 2020 at 6:45 PM Joel Fernandes <joel@joelfernandes.org> wrote:
+>
+>  glibc's <sched.h> already defines struct sched_param (which is a POSIX
+>  struct), so my inclusion of <linux/sched/types.h> above which is a UAPI
+>  header exported by the kernel, breaks because the following commit moved
+>  sched_param into the UAPI:
+>  e2d1e2aec572a ("sched/headers: Move various ABI definitions to <uapi/linux/sched/types.h>")
+>
+>  Simply reverting that part of the patch also fixes it, like below. Would
+>  that be an acceptable fix? Then I can go patch glibc to get struct
+>  sched_attr by including the UAPI's <linux/sched/types.h>. Otherwise, I
+>  suspect glibc will also break if it tried to include the UAPI header.
 
-As kernelci.org is expanding its functional testing capabilities, the conce=
-pt
-of boot testing is now deprecated.  Boot results are scheduled to be droppe=
-d on
-*5th June 2020*.  The full schedule for boot tests deprecation is available=
- on
-this GitHub issue: https://github.com/kernelci/kernelci-backend/issues/238
+Hmm.
 
-The new equivalent is the *baseline* test suite which also runs sanity chec=
-ks
-using dmesg and bootrr: https://github.com/kernelci/bootrr
+Reverting that commit makes some sense as a "it broke things", and
+yes, if this was some recent change that caused problems with user
+headers, that would be what we should do (at least to then think about
+it a bit more).
 
-See the *baseline results for this kernel revision* on this page:
-https://kernelci.org/test/job/stable/branch/linux-4.19.y/kernel/v4.19.125/p=
-lan/baseline/
+But that commit was done three years ago and you're the first person
+to report breakage.
 
----------------------------------------------------------------------------=
-----
+So for all I know, modern glibc source bases have already fixed
+themselves up, and take advantage of the new UAPI location. Or they
+just did that kernel header sync many years ago, and will fix it up
+the next time they do a header sync.
 
-stable/linux-4.19.y boot: 48 boots: 0 failed, 46 passed with 2 untried/unkn=
-own (v4.19.125)
+So then reverting things (or adding the __KERNEL__ guard) would only
+break _those_ cases instead and make for only more problems.
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
-19.y/kernel/v4.19.125/
-Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.19.y/k=
-ernel/v4.19.125/
+Basically, I think you should treat this as a glibc header bug, not a
+kernel header bug.
 
-Tree: stable
-Branch: linux-4.19.y
-Git Describe: v4.19.125
-Git Commit: 2d16cf4817bc6944a2adb5bf4db607c8258e87da
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e.git
-Tested: 44 unique boards, 11 SoC families, 12 builds out of 168
+And when you say
 
----
-For more info write to <info@kernelci.org>
+> The reason is, since <sched.h> did not provide struct sched_attr as the
+> manpage said, so I did the include of uapi's linux/sched/types.h myself:
+
+instead of starting to include the kernel uapi header files - that
+interact at a deep level with those system header files - you should
+just treat it as a glibc bug.
+
+And then you can either work around it locally, or make a glibc
+bug-report and hope it gets fixed that way.
+
+The "work around it locally" might be something like a
+"glibc-sched-h-fixup.h" header file that does
+
+  #ifndef SCHED_FIXUP_H
+  #define SCHED_FIXUP_H
+  #include <sched.h>
+
+  /* This is documented to come from <sched.h>, but doesn't */
+  struct sched_attr {
+        __u32 size;
+
+        __u32 sched_policy;
+        __u64 sched_flags;
+
+        /* SCHED_NORMAL, SCHED_BATCH */
+        __s32 sched_nice;
+
+        /* SCHED_FIFO, SCHED_RR */
+        __u32 sched_priority;
+
+        /* SCHED_DEADLINE */
+        __u64 sched_runtime;
+        __u64 sched_deadline;
+        __u64 sched_period;
+
+        /* Utilization hints */
+        __u32 sched_util_min;
+        __u32 sched_util_max;
+
+  };
+  #end /* SCHED_FIXUP_H */
+
+in your build environment (possibly with configure magic etc to find
+the need for this fixup, depending on how fancy you want to be).
+
+Because when we have a change that is three+ years old, we can't
+reasonably change the kernel back again without then likely just
+breaking some other case that depends on that uapi file that has been
+there for the last few years.
+
+glibc and the kernel aren't developed in sync, so glibc generally
+takes a snapshot of the kernel headers and then works with that. That
+allows glibc developers to work around any issues they have with our
+uapi headers (we've had lots of namespace issues, for example), but it
+also means that the system headers aren't using some "generic kernel
+UAPI headers". They are using a very _particular_ set of kernel uapi
+headers from (likely) several years ago, and quite possibly then
+further edited too.
+
+Which is why you can't then mix glibc system headers that are years
+old with kernel headers that are modern (or vice versa).
+
+Well, with extreme luck and/or care you can. But not in general.
+
+                Linus
