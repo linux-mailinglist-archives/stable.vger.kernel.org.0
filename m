@@ -2,117 +2,195 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F33D1E81AE
-	for <lists+stable@lfdr.de>; Fri, 29 May 2020 17:21:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E09F1E836C
+	for <lists+stable@lfdr.de>; Fri, 29 May 2020 18:17:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727900AbgE2PVp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 29 May 2020 11:21:45 -0400
-Received: from foss.arm.com ([217.140.110.172]:37916 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726882AbgE2PVp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 29 May 2020 11:21:45 -0400
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 04C941045;
-        Fri, 29 May 2020 08:21:45 -0700 (PDT)
-Received: from localhost.localdomain (entos-thunderx2-02.shanghai.arm.com [10.169.138.74])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id A0DC63F718;
-        Fri, 29 May 2020 08:21:41 -0700 (PDT)
-From:   Jia He <justin.he@arm.com>
-To:     Stefan Hajnoczi <stefanha@redhat.com>,
-        Stefano Garzarella <sgarzare@redhat.com>
-Cc:     "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>, kvm@vger.kernel.org,
-        virtualization@lists.linux-foundation.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Kaly Xin <Kaly.Xin@arm.com>,
-        Jia He <justin.he@arm.com>, stable@vger.kernel.org
-Subject: [PATCH v2] virtio_vsock: Fix race condition in virtio_transport_recv_pkt
-Date:   Fri, 29 May 2020 23:21:02 +0800
-Message-Id: <20200529152102.58397-1-justin.he@arm.com>
-X-Mailer: git-send-email 2.17.1
+        id S1727092AbgE2QRy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 29 May 2020 12:17:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57590 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725681AbgE2QRx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 29 May 2020 12:17:53 -0400
+Received: from mail-qk1-x744.google.com (mail-qk1-x744.google.com [IPv6:2607:f8b0:4864:20::744])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3670CC03E969
+        for <stable@vger.kernel.org>; Fri, 29 May 2020 09:17:52 -0700 (PDT)
+Received: by mail-qk1-x744.google.com with SMTP id c14so1662757qka.11
+        for <stable@vger.kernel.org>; Fri, 29 May 2020 09:17:52 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=joelfernandes.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=yXTV+TTsF92ztx+5DK/JVYDETlfO/g4OhWYxReRxajM=;
+        b=LBwBsmiTipPGKv83Lwc1wO/o5okKYKCM8Qwn+aPYZGtMmELM2EfGJj0o54LB5dBszv
+         UqXlxADnAsOgAkEp5o8cH3CzAROx0BcmO/RMzYqvy0NvLKyox1a705B2c2/ShuZO5Rb1
+         RU+V2akyMtgIDb0WzSJlXp3hBGDff5At4Sr/o=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=yXTV+TTsF92ztx+5DK/JVYDETlfO/g4OhWYxReRxajM=;
+        b=nzsZPW6gkGO4H3rw08EkRZZSB4mG1qltXtUENqL0FD0WeJ5UeD/Zd75JSIR/QXgA57
+         WpMKDUWm8b5riQNYDlISI1huasf8I8M/Bo0d/JxJhD941gve+PXX3uLTUuuFkn94szaS
+         4hcPMqDLPlyT3m8WYb8H2T79VzygYNh71RvK27vI1wcRMSkwKK9Ue79W8HMsBMSeay31
+         JSLHncFta867rdJk6bncYY4mc3R95i7GfYjTyjN34B/3zbwL7FP3FeEWZ5Dyiv0zsjbr
+         cfCKf0WlvHdJQXw4XflS36NWBaeOMqGSCLIh0gwSMG8z1s0mfC9A2i+CURYNVVdcnc04
+         hQBw==
+X-Gm-Message-State: AOAM532lm+YdVK4W3QXPODrbSnxyqjZ241YvYRSshdelxMRNDstkydG6
+        CCPciapTxJSPF/VBHs1vsY6JuQ==
+X-Google-Smtp-Source: ABdhPJxKEIUUHpXlIgFmAKpfph9pSR/7GKXbUtKzBf2eKyfwxM6ieBIpQSJ9XFwP+ISntLnX3hjjCw==
+X-Received: by 2002:a05:620a:64f:: with SMTP id a15mr8487717qka.10.1590769071261;
+        Fri, 29 May 2020 09:17:51 -0700 (PDT)
+Received: from localhost ([2620:15c:6:12:9c46:e0da:efbf:69cc])
+        by smtp.gmail.com with ESMTPSA id n123sm7677240qkf.23.2020.05.29.09.17.50
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 29 May 2020 09:17:50 -0700 (PDT)
+Date:   Fri, 29 May 2020 12:17:50 -0400
+From:   Joel Fernandes <joel@joelfernandes.org>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Matthew Blecker <matthewb@google.com>,
+        Jesse Barnes <jsbarnes@google.com>,
+        Mike Frysinger <vapier@google.com>,
+        Christian Brauner <christian@brauner.io>,
+        vpillai <vpillai@digitalocean.com>, vineethrp@gmail.com,
+        Peter Zijlstra <peterz@infradead.org>,
+        stable <stable@vger.kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Ingo Molnar <mingo@kernel.org>
+Subject: Re: [PATCH] sched/headers: Fix sched_setattr userspace compilation
+ breakage
+Message-ID: <20200529161750.GA196085@google.com>
+References: <20200528135552.GA87103@google.com>
+ <CAHk-=wjgtD6drydXP5h_r90v0sCSQe7BMk7AiYADhJ-x9HGgkg@mail.gmail.com>
+ <20200528230859.GB225299@google.com>
+ <CAHk-=whf6b=OijDL=+PUTBsrhURzLZQ5xAq5tWDqOQpTmePFDA@mail.gmail.com>
+ <20200529014524.GA38759@google.com>
+ <CAHk-=wgO86MS-=G2D=aDpOvZVYARD2kBZ43sofX6WwK0OAzmwg@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAHk-=wgO86MS-=G2D=aDpOvZVYARD2kBZ43sofX6WwK0OAzmwg@mail.gmail.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When client tries to connect(SOCK_STREAM) the server in the guest with
-NONBLOCK mode, there will be a panic on a ThunderX2 (armv8a server):
-[  463.718844][ T5040] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000000
-[  463.718848][ T5040] Mem abort info:
-[  463.718849][ T5040]   ESR = 0x96000044
-[  463.718852][ T5040]   EC = 0x25: DABT (current EL), IL = 32 bits
-[  463.718853][ T5040]   SET = 0, FnV = 0
-[  463.718854][ T5040]   EA = 0, S1PTW = 0
-[  463.718855][ T5040] Data abort info:
-[  463.718856][ T5040]   ISV = 0, ISS = 0x00000044
-[  463.718857][ T5040]   CM = 0, WnR = 1
-[  463.718859][ T5040] user pgtable: 4k pages, 48-bit VAs, pgdp=0000008f6f6e9000
-[  463.718861][ T5040] [0000000000000000] pgd=0000000000000000
-[  463.718866][ T5040] Internal error: Oops: 96000044 [#1] SMP
-[...]
-[  463.718977][ T5040] CPU: 213 PID: 5040 Comm: vhost-5032 Tainted: G           O      5.7.0-rc7+ #139
-[  463.718980][ T5040] Hardware name: GIGABYTE R281-T91-00/MT91-FS1-00, BIOS F06 09/25/2018
-[  463.718982][ T5040] pstate: 60400009 (nZCv daif +PAN -UAO)
-[  463.718995][ T5040] pc : virtio_transport_recv_pkt+0x4c8/0xd40 [vmw_vsock_virtio_transport_common]
-[  463.718999][ T5040] lr : virtio_transport_recv_pkt+0x1fc/0xd40 [vmw_vsock_virtio_transport_common]
-[  463.719000][ T5040] sp : ffff80002dbe3c40
-[...]
-[  463.719025][ T5040] Call trace:
-[  463.719030][ T5040]  virtio_transport_recv_pkt+0x4c8/0xd40 [vmw_vsock_virtio_transport_common]
-[  463.719034][ T5040]  vhost_vsock_handle_tx_kick+0x360/0x408 [vhost_vsock]
-[  463.719041][ T5040]  vhost_worker+0x100/0x1a0 [vhost]
-[  463.719048][ T5040]  kthread+0x128/0x130
-[  463.719052][ T5040]  ret_from_fork+0x10/0x18
+Hi Linus,
 
-The race condition as follows:
-Task1                            Task2
-=====                            =====
-__sock_release                   virtio_transport_recv_pkt
-  __vsock_release                  vsock_find_bound_socket (found)
-    lock_sock_nested
-    vsock_remove_sock
-    sock_orphan
-      sk_set_socket(sk, NULL)
-    ...
-    release_sock
-                                lock_sock
-                                   virtio_transport_recv_connecting
-                                     sk->sk_socket->state (panic)
+On Thu, May 28, 2020 at 07:17:38PM -0700, Linus Torvalds wrote:
+> On Thu, May 28, 2020 at 6:45 PM Joel Fernandes <joel@joelfernandes.org> wrote:
+> >
+> >  glibc's <sched.h> already defines struct sched_param (which is a POSIX
+> >  struct), so my inclusion of <linux/sched/types.h> above which is a UAPI
+> >  header exported by the kernel, breaks because the following commit moved
+> >  sched_param into the UAPI:
+> >  e2d1e2aec572a ("sched/headers: Move various ABI definitions to <uapi/linux/sched/types.h>")
+> >
+> >  Simply reverting that part of the patch also fixes it, like below. Would
+> >  that be an acceptable fix? Then I can go patch glibc to get struct
+> >  sched_attr by including the UAPI's <linux/sched/types.h>. Otherwise, I
+> >  suspect glibc will also break if it tried to include the UAPI header.
+> 
+> Hmm.
+> 
+> Reverting that commit makes some sense as a "it broke things", and
+> yes, if this was some recent change that caused problems with user
+> headers, that would be what we should do (at least to then think about
+> it a bit more).
+> 
+> But that commit was done three years ago and you're the first person
+> to report breakage.
+> 
+> So for all I know, modern glibc source bases have already fixed
+> themselves up, and take advantage of the new UAPI location. Or they
+> just did that kernel header sync many years ago, and will fix it up
+> the next time they do a header sync.
+> 
+> So then reverting things (or adding the __KERNEL__ guard) would only
+> break _those_ cases instead and make for only more problems.
+> 
+> Basically, I think you should treat this as a glibc header bug, not a
+> kernel header bug.
 
-The root cause is that vsock_find_bound_socket can't hold the lock_sock,
-so there is a small race window between vsock_find_bound_socket() and
-lock_sock(). If there is __vsock_release() in another task, sk->sk_socket
-will be set to NULL inadvertently.
+Got it, thanks.
 
-This fixes it by checking sk->sk_shutdown.
+> And when you say
 
-Signed-off-by: Jia He <justin.he@arm.com>
-Cc: stable@vger.kernel.org
-Cc: Stefano Garzarella <sgarzare@redhat.com>
----
-v2: use lightweight checking suggested by Stefano Garzarella
+> > The reason is, since <sched.h> did not provide struct sched_attr as the
+> > manpage said, so I did the include of uapi's linux/sched/types.h myself:
+> 
+> instead of starting to include the kernel uapi header files - that
+> interact at a deep level with those system header files - you should
+> just treat it as a glibc bug.
+> 
+> And then you can either work around it locally, or make a glibc
+> bug-report and hope it gets fixed that way.
+> 
+> The "work around it locally" might be something like a
+> "glibc-sched-h-fixup.h" header file that does
+> 
+>   #ifndef SCHED_FIXUP_H
+>   #define SCHED_FIXUP_H
+>   #include <sched.h>
+> 
+>   /* This is documented to come from <sched.h>, but doesn't */
+>   struct sched_attr {
+>         __u32 size;
+> 
+>         __u32 sched_policy;
+>         __u64 sched_flags;
+> 
+>         /* SCHED_NORMAL, SCHED_BATCH */
+>         __s32 sched_nice;
+> 
+>         /* SCHED_FIFO, SCHED_RR */
+>         __u32 sched_priority;
+> 
+>         /* SCHED_DEADLINE */
+>         __u64 sched_runtime;
+>         __u64 sched_deadline;
+>         __u64 sched_period;
+> 
+>         /* Utilization hints */
+>         __u32 sched_util_min;
+>         __u32 sched_util_max;
+> 
+>   };
+>   #end /* SCHED_FIXUP_H */
+> 
+> in your build environment (possibly with configure magic etc to find
+> the need for this fixup, depending on how fancy you want to be).
 
- net/vmw_vsock/virtio_transport_common.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+Got it, I will look into these options. Thanks.
 
-diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
-index 69efc891885f..0edda1edf988 100644
---- a/net/vmw_vsock/virtio_transport_common.c
-+++ b/net/vmw_vsock/virtio_transport_common.c
-@@ -1132,6 +1132,14 @@ void virtio_transport_recv_pkt(struct virtio_transport *t,
- 
- 	lock_sock(sk);
- 
-+	/* Check if sk has been released before lock_sock */
-+	if (sk->sk_shutdown == SHUTDOWN_MASK) {
-+		(void)virtio_transport_reset_no_sock(t, pkt);
-+		release_sock(sk);
-+		sock_put(sk);
-+		goto free_pkt;
-+	}
-+
- 	/* Update CID in case it has changed after a transport reset event */
- 	vsk->local_addr.svm_cid = dst.svm_cid;
- 
--- 
-2.17.1
+Turns out I hit the same/similar issue in 2018 but for a different reason. At
+the time I was working on Android and needed this struct. The bionic C
+library folks refused to add it because no other libc exposed it either (that
+was their reason to not have it, anyway). I suspect everyone was just doing
+their own fixups to use it and that was what I was asked to do.
+
+I think it would be better to just do the fixup you suggested above for now.
+
+> Because when we have a change that is three+ years old, we can't
+> reasonably change the kernel back again without then likely just
+> breaking some other case that depends on that uapi file that has been
+> there for the last few years.
+> 
+> glibc and the kernel aren't developed in sync, so glibc generally
+> takes a snapshot of the kernel headers and then works with that. That
+> allows glibc developers to work around any issues they have with our
+> uapi headers (we've had lots of namespace issues, for example), but it
+> also means that the system headers aren't using some "generic kernel
+> UAPI headers". They are using a very _particular_ set of kernel uapi
+> headers from (likely) several years ago, and quite possibly then
+> further edited too.
+> 
+> Which is why you can't then mix glibc system headers that are years
+> old with kernel headers that are modern (or vice versa).
+> 
+> Well, with extreme luck and/or care you can. But not in general.
+
+Got it, thank you Linus !!!
+
+ - Joel
 
