@@ -2,89 +2,184 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0730D1E7773
-	for <lists+stable@lfdr.de>; Fri, 29 May 2020 09:50:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6238B1E781A
+	for <lists+stable@lfdr.de>; Fri, 29 May 2020 10:20:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725562AbgE2Hu4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 29 May 2020 03:50:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34942 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725601AbgE2Huz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 29 May 2020 03:50:55 -0400
-Received: from mail-wm1-x344.google.com (mail-wm1-x344.google.com [IPv6:2a00:1450:4864:20::344])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43D7BC03E969
-        for <stable@vger.kernel.org>; Fri, 29 May 2020 00:50:55 -0700 (PDT)
-Received: by mail-wm1-x344.google.com with SMTP id f185so2209450wmf.3
-        for <stable@vger.kernel.org>; Fri, 29 May 2020 00:50:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:sender:from:date:message-id:subject:to;
-        bh=aq/XfMW8CzIHD0D8NNIVhrMDzrr/cgdu5HFrZO0XQbg=;
-        b=NeVcMz18c4AuIg4nZHANWwotjELR6gIGjBvGuBgVjGYrzRI8tr/wqgacrwNA/a+R8s
-         W/REnFMkJoWD6/ybf+ITminHsypEYVKMmptrjSryR50Fx/fTKvY3mWqGecFkoJrqnLUv
-         4VXcu07rry3l1WDHr554a3epwL1QXOrn0eY2utxX1yOvkd1npX25qECjLbIiNAQssZ+g
-         ZVpCMAYM2p4JTKILTr2TdC9lWPwJAQwDe/H23nd6eY4F75eF9DnraictUPbR5d4gsYa/
-         Rv8h0+f/Gm88IOTGX3dB9qtHgYNgR9F/gB2HUkGEgx1c8YYBv+UY4o3Z1vdularfFW6d
-         xk4A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
-         :to;
-        bh=aq/XfMW8CzIHD0D8NNIVhrMDzrr/cgdu5HFrZO0XQbg=;
-        b=XK8+JltQKDt/kRTXY1EAZfmPwdaQ08Kr1VifcbHhQ0avr/fL8ZwlYVEYEUryomUya3
-         OvDz/9CHkDAY2agDjxcUuNlL+Gc3oZVMSfKTy6U7llhnZvT4Feqfzizpp9W1GPHdmb3/
-         WSfONHjzf4b+GMWyYTU2RkWjQj0J/TSRMBylaRF6Y141pg2lvChYezPxU95HaRayZ3Mt
-         9Snnbs/wFpiClRL7afQRrMsC+S1ylcOyry0qwc0yhoBHvVW7RHwBKV0KDkfHDm2+acJA
-         UnC71lxeNtQMdlv6DoBQi2QuCu/W28QQggcOvVN7qFlZXSD8qC7sq47oVD8Y4J+En+hP
-         qmPQ==
-X-Gm-Message-State: AOAM531pJ7a9WUiP2/ManXMlxQdBBa8m3hZbpcOnw+T3KM/Fo9myx2d4
-        A290ySzWd7F+o/RJdHxXaUOlf6kRsd52hOV2vA==
-X-Google-Smtp-Source: ABdhPJxAzJceXLuIw4eMino/Ku4nTos8IsI2RsH8FRlHJ3r9IX8WP1jGV4exdhbr5j5PwdNnAxnh4o9eY/DETwVHFzs=
-X-Received: by 2002:a7b:c4cc:: with SMTP id g12mr7125781wmk.171.1590738653845;
- Fri, 29 May 2020 00:50:53 -0700 (PDT)
+        id S1725601AbgE2IUX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 29 May 2020 04:20:23 -0400
+Received: from mga18.intel.com ([134.134.136.126]:10357 "EHLO mga18.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725306AbgE2IUW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 29 May 2020 04:20:22 -0400
+IronPort-SDR: Bmspj7ontlywMHjoug7pYNsi52SRbB6L99GZkZ3y+VcsFgGsWyufa2uyqUAsdNZGno86xFVbxW
+ MJvXpovIm7/Q==
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 May 2020 01:20:20 -0700
+IronPort-SDR: am5vOOWJLw5WeuCbppVKERvGAF+pCda4HIH6lgC3gPF7QV8flxAytMWibvvcvDawKmHej0M6J3
+ WbH3Mq3TGWdg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.73,447,1583222400"; 
+   d="scan'208";a="376641764"
+Received: from vtt.iind.intel.com ([10.145.162.194])
+  by fmsmga001.fm.intel.com with ESMTP; 29 May 2020 01:20:17 -0700
+From:   Prasad Nallani <prasad.nallani@intel.com>
+To:     gfx-internal-devel@eclists.intel.com
+Cc:     andi.shyti@intel.com, Chris Wilson <chris@chris-wilson.co.uk>,
+        Mika Kuoppala <mika.kuoppala@linux.intel.com>,
+        stable@vger.kernel.org, Jani Nikula <jani.nikula@intel.com>
+Subject: [PATCH 04/23] drm/i915/execlists: Always force a context reload when rewinding RING_TAIL
+Date:   Fri, 29 May 2020 13:47:51 +0530
+Message-Id: <20200529081810.10747-5-prasad.nallani@intel.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20200529081810.10747-1-prasad.nallani@intel.com>
+References: <20200529081810.10747-1-prasad.nallani@intel.com>
 MIME-Version: 1.0
-Received: by 2002:a5d:4952:0:0:0:0:0 with HTTP; Fri, 29 May 2020 00:50:53
- -0700 (PDT)
-From:   Mr Michel Madi <frankgouli12@gmail.com>
-Date:   Fri, 29 May 2020 07:50:53 +0000
-X-Google-Sender-Auth: gSeOk11CNDhZFs9Xy-a7ogWmUOw
-Message-ID: <CAG6GeAq6A4q1tLQMZ7qFkaSLSN24xuiSmu7ZV-HE5pzdWsqu1Q@mail.gmail.com>
-Subject: Attention
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear Friend,
+From: Chris Wilson <chris@chris-wilson.co.uk>
 
-Let me start by introducing myself, I am Mr Michel Madi Manager of
-Bank Of Africa Burkina Faso.
+If we rewind the RING_TAIL on a context, due to a preemption event, we
+must force the context restore for the RING_TAIL update to be properly
+handled. Rather than note which preemption events may cause us to rewind
+the tail, compare the new request's tail with the previously submitted
+RING_TAIL, as it turns out that timeslicing was causing unexpected
+rewinds.
 
-I am writing you this letter based on the latest development at my
-Department which I will like to bring to your personal edification.
-(7.5 million U.S Dollars transfer claims).
+   <idle>-0       0d.s2 1280851190us : __execlists_submission_tasklet: 0000:00:02.0 rcs0: expired last=130:4698, prio=3, hint=3
+   <idle>-0       0d.s2 1280851192us : __i915_request_unsubmit: 0000:00:02.0 rcs0: fence 66:119966, current 119964
+   <idle>-0       0d.s2 1280851195us : __i915_request_unsubmit: 0000:00:02.0 rcs0: fence 130:4698, current 4695
+   <idle>-0       0d.s2 1280851198us : __i915_request_unsubmit: 0000:00:02.0 rcs0: fence 130:4696, current 4695
+^----  Note we unwind 2 requests from the same context
 
-This is a legitimate transaction and I agreed to offer you 40% of this
-money as my foreign partner after confirmation of the fund in your
-bank account, if you are interested, get back to me with the following
-details below.
+   <idle>-0       0d.s2 1280851208us : __i915_request_submit: 0000:00:02.0 rcs0: fence 130:4696, current 4695
+   <idle>-0       0d.s2 1280851213us : __i915_request_submit: 0000:00:02.0 rcs0: fence 134:1508, current 1506
+^---- But to apply the new timeslice, we have to replay the first request
+      before the new client can start -- the unexpected RING_TAIL rewind
 
-(1)Your age........
+   <idle>-0       0d.s2 1280851219us : trace_ports: 0000:00:02.0 rcs0: submit { 130:4696*, 134:1508 }
+ synmark2-5425    2..s. 1280851239us : process_csb: 0000:00:02.0 rcs0: cs-irq head=5, tail=0
+ synmark2-5425    2..s. 1280851240us : process_csb: 0000:00:02.0 rcs0: csb[0]: status=0x00008002:0x00000000
+^---- Preemption event for the ELSP update; note the lite-restore
 
-(2)Your occupation.....
+ synmark2-5425    2..s. 1280851243us : trace_ports: 0000:00:02.0 rcs0: preempted { 130:4698, 66:119966 }
+ synmark2-5425    2..s. 1280851246us : trace_ports: 0000:00:02.0 rcs0: promote { 130:4696*, 134:1508 }
+ synmark2-5425    2.... 1280851462us : __i915_request_commit: 0000:00:02.0 rcs0: fence 130:4700, current 4695
+ synmark2-5425    2.... 1280852111us : __i915_request_commit: 0000:00:02.0 rcs0: fence 130:4702, current 4695
+ synmark2-5425    2.Ns1 1280852296us : process_csb: 0000:00:02.0 rcs0: cs-irq head=0, tail=2
+ synmark2-5425    2.Ns1 1280852297us : process_csb: 0000:00:02.0 rcs0: csb[1]: status=0x00000814:0x00000000
+ synmark2-5425    2.Ns1 1280852299us : trace_ports: 0000:00:02.0 rcs0: completed { 130:4696!, 134:1508 }
+ synmark2-5425    2.Ns1 1280852301us : process_csb: 0000:00:02.0 rcs0: csb[2]: status=0x00000818:0x00000040
+ synmark2-5425    2.Ns1 1280852302us : trace_ports: 0000:00:02.0 rcs0: completed { 134:1508, 0:0 }
+ synmark2-5425    2.Ns1 1280852313us : process_csb: process_csb:2336 GEM_BUG_ON(!i915_request_completed(*execlists->active) && !reset_in_progress(execlists))
 
-(3)Your marital status.....
+Fixes: 8ee36e048c98 ("drm/i915/execlists: Minimalistic timeslicing")
+Referenecs: 82c69bf58650 ("drm/i915/gt: Detect if we miss WaIdleLiteRestore")
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Mika Kuoppala <mika.kuoppala@linux.intel.com>
+Reviewed-by: Mika Kuoppala <mika.kuoppala@linux.intel.com>
+Cc: <stable@vger.kernel.org> # v5.4+
+Link: https://patchwork.freedesktop.org/patch/msgid/20200207211452.2860634-1-chris@chris-wilson.co.uk
+(cherry picked from commit 5ba32c7be81e53ea8a27190b0f6be98e6c6779af)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+(cherry picked from commit b1339ecac661e1cf3e1dc78ac56bff3aeeaeb92c)
+---
+ drivers/gpu/drm/i915/gt/intel_lrc.c        | 18 ++++++++----------
+ drivers/gpu/drm/i915/gt/intel_ring.c       |  1 +
+ drivers/gpu/drm/i915/gt/intel_ring.h       |  8 ++++++++
+ drivers/gpu/drm/i915/gt/intel_ring_types.h |  1 +
+ 4 files changed, 18 insertions(+), 10 deletions(-)
 
-(4)Your full residential address.......
-
-(5)Your private phone and fax number and your complete name.......
-
-As soon as I receive these data's, I will forward to you the
-application form which you will send to the bank, get back to me
-through this my private email address (michelmadi01@gmail.com)
-
-
-Best Regard
-Mr. Michel Madi
+diff --git a/drivers/gpu/drm/i915/gt/intel_lrc.c b/drivers/gpu/drm/i915/gt/intel_lrc.c
+index 2a04c767121b..c50e5da842ca 100644
+--- a/drivers/gpu/drm/i915/gt/intel_lrc.c
++++ b/drivers/gpu/drm/i915/gt/intel_lrc.c
+@@ -1446,7 +1446,7 @@ static u64 execlists_update_context(struct i915_request *rq)
+ {
+ 	struct intel_context *ce = rq->context;
+ 	u64 desc = ce->lrc_desc;
+-	u32 tail;
++	u32 tail, prev;
+ 
+ 	/*
+ 	 * WaIdleLiteRestore:bdw,skl
+@@ -1459,9 +1459,15 @@ static u64 execlists_update_context(struct i915_request *rq)
+ 	 * subsequent resubmissions (for lite restore). Should that fail us,
+ 	 * and we try and submit the same tail again, force the context
+ 	 * reload.
++	 *
++	 * If we need to return to a preempted context, we need to skip the
++	 * lite-restore and force it to reload the RING_TAIL. Otherwise, the
++	 * HW has a tendency to ignore us rewinding the TAIL to the end of
++	 * an earlier request.
+ 	 */
+ 	tail = intel_ring_set_tail(rq->ring, rq->tail);
+-	if (unlikely(ce->lrc_reg_state[CTX_RING_TAIL] == tail))
++	prev = ce->lrc_reg_state[CTX_RING_TAIL];
++	if (unlikely(intel_ring_direction(rq->ring, tail, prev) <= 0))
+ 		desc |= CTX_DESC_FORCE_RESTORE;
+ 	ce->lrc_reg_state[CTX_RING_TAIL] = tail;
+ 	rq->tail = rq->wa_tail;
+@@ -1968,14 +1974,6 @@ static void execlists_dequeue(struct intel_engine_cs *engine)
+ 			 */
+ 			__unwind_incomplete_requests(engine);
+ 
+-			/*
+-			 * If we need to return to the preempted context, we
+-			 * need to skip the lite-restore and force it to
+-			 * reload the RING_TAIL. Otherwise, the HW has a
+-			 * tendency to ignore us rewinding the TAIL to the
+-			 * end of an earlier request.
+-			 */
+-			last->context->lrc_desc |= CTX_DESC_FORCE_RESTORE;
+ 			last = NULL;
+ 		} else if (need_timeslice(engine, last) &&
+ 			   timer_expired(&engine->execlists.timer)) {
+diff --git a/drivers/gpu/drm/i915/gt/intel_ring.c b/drivers/gpu/drm/i915/gt/intel_ring.c
+index 374b28f13ca0..6ff803f397c4 100644
+--- a/drivers/gpu/drm/i915/gt/intel_ring.c
++++ b/drivers/gpu/drm/i915/gt/intel_ring.c
+@@ -145,6 +145,7 @@ intel_engine_create_ring(struct intel_engine_cs *engine, int size)
+ 
+ 	kref_init(&ring->ref);
+ 	ring->size = size;
++	ring->wrap = BITS_PER_TYPE(ring->size) - ilog2(size);
+ 
+ 	/*
+ 	 * Workaround an erratum on the i830 which causes a hang if
+diff --git a/drivers/gpu/drm/i915/gt/intel_ring.h b/drivers/gpu/drm/i915/gt/intel_ring.h
+index ea2839d9e044..5bdce24994aa 100644
+--- a/drivers/gpu/drm/i915/gt/intel_ring.h
++++ b/drivers/gpu/drm/i915/gt/intel_ring.h
+@@ -56,6 +56,14 @@ static inline u32 intel_ring_wrap(const struct intel_ring *ring, u32 pos)
+ 	return pos & (ring->size - 1);
+ }
+ 
++static inline int intel_ring_direction(const struct intel_ring *ring,
++				       u32 next, u32 prev)
++{
++	typecheck(typeof(ring->size), next);
++	typecheck(typeof(ring->size), prev);
++	return (next - prev) << ring->wrap;
++}
++
+ static inline bool
+ intel_ring_offset_valid(const struct intel_ring *ring,
+ 			unsigned int pos)
+diff --git a/drivers/gpu/drm/i915/gt/intel_ring_types.h b/drivers/gpu/drm/i915/gt/intel_ring_types.h
+index d9f17f38e0cc..3cd7fec7fd8d 100644
+--- a/drivers/gpu/drm/i915/gt/intel_ring_types.h
++++ b/drivers/gpu/drm/i915/gt/intel_ring_types.h
+@@ -45,6 +45,7 @@ struct intel_ring {
+ 
+ 	u32 space;
+ 	u32 size;
++	u32 wrap;
+ 	u32 effective_size;
+ };
+ 
