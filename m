@@ -2,105 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ACD291E788B
-	for <lists+stable@lfdr.de>; Fri, 29 May 2020 10:43:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E1821E7A26
+	for <lists+stable@lfdr.de>; Fri, 29 May 2020 12:12:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725562AbgE2InF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 29 May 2020 04:43:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49424 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725306AbgE2InF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 29 May 2020 04:43:05 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1726788AbgE2KMT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 29 May 2020 06:12:19 -0400
+Received: from smtprelay-out1.synopsys.com ([149.117.73.133]:45860 "EHLO
+        smtprelay-out1.synopsys.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726629AbgE2KMS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 29 May 2020 06:12:18 -0400
+Received: from mailhost.synopsys.com (mdc-mailhost1.synopsys.com [10.225.0.209])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2B97F2072D;
-        Fri, 29 May 2020 08:43:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590741784;
-        bh=2HujCkoDE49br79+rWGM1kcrzoWK+DG86BMuA16+EyQ=;
-        h=Subject:To:From:Date:From;
-        b=iiYRG3XVk1zIApddq1j1KWa4SpKSf5CPk/doFxJXRl4zLqSqjlNu118mU0xVp2QgV
-         5TwoN74hR7XfSWnm0i0cTCVN8I1HChyFmZD87E7y5L4kgGY7F5QmgMU1B49XFi43J1
-         JrfnOP9XkTJCdlyxl3HeDfyvqxzfcEjD1NEDMKqY=
-Subject: patch "gnss: sirf: fix error return code in sirf_probe()" added to char-misc-testing
-To:     weiyongjun1@huawei.com, hulkci@huawei.com, johan@kernel.org,
-        stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 29 May 2020 10:43:01 +0200
-Message-ID: <1590741781230217@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+        by smtprelay-out1.synopsys.com (Postfix) with ESMTPS id 7A4CC40914;
+        Fri, 29 May 2020 10:12:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=synopsys.com; s=mail;
+        t=1590747138; bh=J1cOrJZusMLst7lsrpeM8Ti16IstZnIDLZV0EfLRdk4=;
+        h=Date:From:Subject:To:Cc:From;
+        b=DVoREkJihGPojAPCB1lSC6dXWgfZ4Q3Im8mCFLTRJvq6Ew1//poeGpOgtjEdZx0Ri
+         M/ZP9tQn12Z5ZaNxWCzaLBBKE6WMTfAhgyy1+7HLlTraguzMuICBuFtN2J+huYrTEC
+         dPujya3Che5W6L/PSgTZPz3DIYiTHhTIM8UQXS93d8FQfO0hExP36IkE1HH+KmUCdu
+         oeJGOPCtC15GEcpZ3zd0PabHvZk593aN/rjUmyRNy2zOY9fT68d9y70c77SIH5GkJ7
+         raLbQWS7hlyoARlZThm5Lhhv0ARmQ+HTxY+5KYrpmIfMuN9GpcSHcY4d1CABIp9OXK
+         7l+2IdcpgT5aw==
+Received: from hminas-z420 (hminas-z420.internal.synopsys.com [10.116.126.211])
+        (using TLSv1 with cipher AES128-SHA (128/128 bits))
+        (No client certificate requested)
+        by mailhost.synopsys.com (Postfix) with ESMTPSA id EC43CA005B;
+        Fri, 29 May 2020 10:12:12 +0000 (UTC)
+Received: by hminas-z420 (sSMTP sendmail emulation); Fri, 29 May 2020 14:12:11 +0400
+Date:   Fri, 29 May 2020 14:12:11 +0400
+Message-Id: <137e787bf7c7935bda3358c8f07230d3f4998fad.1590745119.git.hminas@synopsys.com>
+X-SNPS-Relay: synopsys.com
+From:   Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
+Subject: [PATCH] usb: dwc2: Postponed gadget registration to the udc class driver
+To:     Felipe Balbi <balbi@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>,
+        Paul Zimmerman <paulz@synopsys.com>, linux-usb@vger.kernel.org,
+        Felipe Balbi <balbi@ti.com>,
+        Dinh Nguyen <dinguyen@opensource.altera.com>
+Cc:     John Youn <John.Youn@synopsys.com>, stable@vger.kernel.org,
+        Marek Vasut <marex@denx.de>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+During dwc2 driver probe, after gadget registration to the udc class
+driver, if exist any builtin function driver it immediately bound to
+dwc2 and after init host side (dwc2_hcd_init()) stucked in host mode.
+Patch postpone gadget registration after host side initialization done.
 
-This is a note to let you know that I've just added the patch titled
+Cc: stable@vger.kernel.org
+Fixes: 117777b2c3bb9 ("usb: dwc2: Move gadget probe function into
+platform code")
+Tested-by: Marek Vasut <marex@denx.de>
 
-    gnss: sirf: fix error return code in sirf_probe()
-
-to my char-misc git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
-in the char-misc-testing branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will be merged to the char-misc-next branch sometime soon,
-after it passes testing, and the merge window is open.
-
-If you have any questions about this process, please let me know.
-
-
-From 43d7ce70ae43dd8523754b17f567417e0e75dbce Mon Sep 17 00:00:00 2001
-From: Wei Yongjun <weiyongjun1@huawei.com>
-Date: Thu, 7 May 2020 09:42:52 +0000
-Subject: gnss: sirf: fix error return code in sirf_probe()
-
-Fix to return a negative error code from the error handling
-case instead of 0, as done elsewhere in this function.
-
-This avoids a use-after-free in case the driver is later unbound.
-
-Fixes: d2efbbd18b1e ("gnss: add driver for sirfstar-based receivers")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-[ johan: amend commit message; mention potential use-after-free ]
-Cc: stable <stable@vger.kernel.org>	# 4.19
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Minas Harutyunyan <hminas@synopsys.com>
 ---
- drivers/gnss/sirf.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/usb/dwc2/gadget.c   | 6 ------
+ drivers/usb/dwc2/platform.c | 9 +++++++++
+ 2 files changed, 9 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/gnss/sirf.c b/drivers/gnss/sirf.c
-index effed3a8d398..2ecb1d3e8eeb 100644
---- a/drivers/gnss/sirf.c
-+++ b/drivers/gnss/sirf.c
-@@ -439,14 +439,18 @@ static int sirf_probe(struct serdev_device *serdev)
+diff --git a/drivers/usb/dwc2/gadget.c b/drivers/usb/dwc2/gadget.c
+index 12b98b466287..7faf5f8c056d 100644
+--- a/drivers/usb/dwc2/gadget.c
++++ b/drivers/usb/dwc2/gadget.c
+@@ -4920,12 +4920,6 @@ int dwc2_gadget_init(struct dwc2_hsotg *hsotg)
+ 					  epnum, 0);
+ 	}
  
- 	data->on_off = devm_gpiod_get_optional(dev, "sirf,onoff",
- 			GPIOD_OUT_LOW);
--	if (IS_ERR(data->on_off))
-+	if (IS_ERR(data->on_off)) {
-+		ret = PTR_ERR(data->on_off);
- 		goto err_put_device;
-+	}
+-	ret = usb_add_gadget_udc(dev, &hsotg->gadget);
+-	if (ret) {
+-		dwc2_hsotg_ep_free_request(&hsotg->eps_out[0]->ep,
+-					   hsotg->ctrl_req);
+-		return ret;
+-	}
+ 	dwc2_hsotg_dump(hsotg);
  
- 	if (data->on_off) {
- 		data->wakeup = devm_gpiod_get_optional(dev, "sirf,wakeup",
- 				GPIOD_IN);
--		if (IS_ERR(data->wakeup))
-+		if (IS_ERR(data->wakeup)) {
-+			ret = PTR_ERR(data->wakeup);
- 			goto err_put_device;
+ 	return 0;
+diff --git a/drivers/usb/dwc2/platform.c b/drivers/usb/dwc2/platform.c
+index e571c8ae65ec..6b4043117e97 100644
+--- a/drivers/usb/dwc2/platform.c
++++ b/drivers/usb/dwc2/platform.c
+@@ -575,6 +575,15 @@ static int dwc2_driver_probe(struct platform_device *dev)
+ 	if (hsotg->dr_mode == USB_DR_MODE_PERIPHERAL)
+ 		dwc2_lowlevel_hw_disable(hsotg);
+ 
++	/* Postponed adding a new gadget to the udc class driver list */
++	if (hsotg->gadget_enabled) {
++		retval = usb_add_gadget_udc(hsotg->dev, &hsotg->gadget);
++		if (retval) {
++			dwc2_hsotg_remove(hsotg);
++			goto error_init;
 +		}
++	}
++
+ 	return 0;
  
- 		ret = regulator_enable(data->vcc);
- 		if (ret)
+ error_init:
 -- 
-2.26.2
-
+2.11.0
 
