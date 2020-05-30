@@ -2,203 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 87F551E8D78
-	for <lists+stable@lfdr.de>; Sat, 30 May 2020 05:12:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 55E281E8E16
+	for <lists+stable@lfdr.de>; Sat, 30 May 2020 08:03:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728657AbgE3DMw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 29 May 2020 23:12:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46752 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728297AbgE3DMv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 29 May 2020 23:12:51 -0400
-Received: from mail-oi1-x244.google.com (mail-oi1-x244.google.com [IPv6:2607:f8b0:4864:20::244])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50A01C03E969
-        for <stable@vger.kernel.org>; Fri, 29 May 2020 20:12:51 -0700 (PDT)
-Received: by mail-oi1-x244.google.com with SMTP id a7so4080352oic.6
-        for <stable@vger.kernel.org>; Fri, 29 May 2020 20:12:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=ipLthOZhlWCjfCgGqhHP9akhLGhL02oIECUSzKnhdsU=;
-        b=S7XKQE9xLZyiTF+iYALazRiAg3tGbCm+5mZ9ye0MeN6WC26b8SXR+M3KR+12ONAvcE
-         lMlmU2IEAl6Lur03HqTrf9XB9SNHsSWe4ZBu/sa3BrscBjk4QHGbKf23aGkYJMaYEnYs
-         OnxK2VKEaLKuV7wrlxEqb+QTTOSqcf/qXFYuv/shYfDeNIc3+r2+p9Ms8wLz2Hs80Q0U
-         3anlOzsqg3th5Oy15g8WHurexv+as/wWOLhW59nXBpOXsuQjjxESoFdbGciE2KsVFUd7
-         Qf/5eU+4wXNNx8qb8+WwM5P79t7yhWuSUPlgLM6IsrPRITcZv7MBBeZX2srelGp6xxC6
-         Jebw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=ipLthOZhlWCjfCgGqhHP9akhLGhL02oIECUSzKnhdsU=;
-        b=hQmZVy9PbcCQ/BzsT+McQXzg/TwERQbB3/ves/HIC/08H6g7uXxpvZoqllr4Vut72W
-         A+5GCOtLLGDaerIzIHynJEg5RVufI2wxd9PPPP++HS5A9SH+1rvh2Ea1CC8rOIQsrVTV
-         QwmddF+RmjkZQBR1DvCQd6YrhqhA4zuD2gZYb2mBWTIVMuLyvngVWSSOfCCHqSkN27Sw
-         g/EfYwBMyA1Ik3lA5I7CUgYq/FkJ26Fn28Ll744ZtCTEBfoBW3bRPI8TezAZvctFCa8V
-         ZC2hNkAYP/IlKuUh0GM+9owHhbDuhb9AhG6X8BJ4vbUZnb+bGq5CNlY3KdZfvffACHiY
-         05rg==
-X-Gm-Message-State: AOAM533e8CXTUWsIcNCfwCno0gC8TOI59EHDyu/lrcXuMWzprec+ZQQ+
-        jXKev7pdHyaLAc+ml3h51yFKNz5XqxOpRx+XIL0a1A==
-X-Google-Smtp-Source: ABdhPJz+SEJ00DPsklbDuxrHtV/FnMK/YdJI+mB9trUlT4uu6rKRjddU446cJxURSUV9qCm3L5BonRiIupQuA6wJtP0=
-X-Received: by 2002:a05:6808:5d5:: with SMTP id d21mr8436249oij.30.1590808370499;
- Fri, 29 May 2020 20:12:50 -0700 (PDT)
+        id S1725889AbgE3GD5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 30 May 2020 02:03:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39532 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725814AbgE3GD5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 30 May 2020 02:03:57 -0400
+Received: from sol.hsd1.ca.comcast.net (c-107-3-166-239.hsd1.ca.comcast.net [107.3.166.239])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 433992074B;
+        Sat, 30 May 2020 06:03:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1590818636;
+        bh=ZjvXFGk6rT4s5wC0wE1lNel4D/QY9srvqLSKGJm/CMQ=;
+        h=From:To:Cc:Subject:Date:From;
+        b=lrrRsyP3m82WxwlvHO9HOUuF4RzTghWlEE3l0OFetv2TQkg7uhz4TVNe0Bk6xs2VI
+         4CMZL/fywTNgYXdJLGngqdLfOz88VTgM3TcUTvC6d2FVhertFysLnyOoMAIan8eqST
+         bmxOUtL38U5flFgxIvL1i8zsdpWJSVBHNcBujMjM=
+From:   Eric Biggers <ebiggers@kernel.org>
+To:     linux-ext4@vger.kernel.org
+Cc:     linux-fsdevel@vger.kernel.org,
+        linux-f2fs-devel@lists.sourceforge.net, stable@vger.kernel.org,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Daniel Rosenberg <drosen@google.com>,
+        Gabriel Krisman Bertazi <krisman@collabora.co.uk>
+Subject: [PATCH] ext4: avoid utf8_strncasecmp() with unstable name
+Date:   Fri, 29 May 2020 23:02:16 -0700
+Message-Id: <20200530060216.221456-1-ebiggers@kernel.org>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
-References: <159065032912689@kroah.com>
-In-Reply-To: <159065032912689@kroah.com>
-From:   Saravana Kannan <saravanak@google.com>
-Date:   Fri, 29 May 2020 20:12:14 -0700
-Message-ID: <CAGETcx8ZSBYznasT7MYgMCmmr5qTcvt2OjS_B8fiicONVXQDgw@mail.gmail.com>
-Subject: Re: patch "driver core: Update device link status correctly for
- SYNC_STATE_ONLY" added to driver-core-next
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable <stable@vger.kernel.org>
-Cc:     Michael Walle <michael@walle.cc>, rrafael.j.wysocki@intel.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, May 28, 2020 at 12:19 AM <gregkh@linuxfoundation.org> wrote:
->
->
-> This is a note to let you know that I've just added the patch titled
->
->     driver core: Update device link status correctly for SYNC_STATE_ONLY
->
-> to my driver-core git tree which can be found at
->     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/driver-core.git
-> in the driver-core-next branch.
->
-> The patch will show up in the next release of the linux-next tree
-> (usually sometime within the next 24 hours during the week.)
->
-> The patch will also be merged in the next major kernel release
-> during the merge window.
->
-> If you have any questions about this process, please let me know.
+From: Eric Biggers <ebiggers@google.com>
 
-Not sure if this is already/automatically queued, but this needs to go
-to stable@ too. Cc-ing the list to make sure it's picked up.
+If the dentry name passed to ->d_compare() fits in dentry::d_iname, then
+it may be concurrently modified by a rename.  This can cause undefined
+behavior (possibly out-of-bounds memory accesses or crashes) in
+utf8_strncasecmp(), since fs/unicode/ isn't written to handle strings
+that may be concurrently modified.
 
--Saravana
+Fix this by first copying the filename to a stack buffer if needed.
+This way we get a stable snapshot of the filename.
 
->
->
-> From 8c3e315d4296421cd26b3300ee0ac117f0877f20 Mon Sep 17 00:00:00 2001
-> From: Saravana Kannan <saravanak@google.com>
-> Date: Tue, 26 May 2020 15:09:27 -0700
-> Subject: driver core: Update device link status correctly for SYNC_STATE_ONLY
->  links
->
-> When SYNC_STATE_ONLY support was added in commit 05ef983e0d65 ("driver
-> core: Add device link support for SYNC_STATE_ONLY flag"),
-> SYNC_STATE_ONLY links were treated similar to STATELESS links in terms
-> of not blocking consumer probe if the supplier hasn't probed yet.
->
-> That caused a SYNC_STATE_ONLY device link's status to not get updated.
-> Since SYNC_STATE_ONLY device link is no longer useful once the
-> consumer probes, commit 21c27f06587d ("driver core: Fix
-> SYNC_STATE_ONLY device link implementation") addresses the status
-> update issue by deleting the SYNC_STATE_ONLY device link instead of
-> complicating the status update code.
->
-> However, there are still some cases where we need to update the status
-> of a SYNC_STATE_ONLY device link. This is because a SYNC_STATE_ONLY
-> device link can later get converted into a normal MANAGED device link
-> when a normal MANAGED device link is created between a supplier and
-> consumer that already have a SYNC_STATE_ONLY device link between them.
->
-> If a SYNC_STATE_ONLY device link's status isn't maintained correctly
-> till it's converted to a normal MANAGED device link, then the normal
-> MANAGED device link will end up with a wrong link status. This can cause
-> a warning stack trace[1] when the consumer device probes successfully.
->
-> This commit fixes the SYNC_STATE_ONLY device link status update issue
-> where it wouldn't transition correctly from DL_STATE_DORMANT or
-> DL_STATE_AVAILABLE to DL_STATE_CONSUMER_PROBE. It also resets the status
-> back to DL_STATE_DORMANT or DL_STATE_AVAILABLE if the consumer probe
-> fails.
->
-> [1] - https://lore.kernel.org/lkml/20200522204120.3b3c9ed6@apollo/
-> Fixes: 05ef983e0d65 ("driver core: Add device link support for SYNC_STATE_ONLY flag")
-> Fixes: 21c27f06587d ("driver core: Fix SYNC_STATE_ONLY device link implementation")
-> Reported-by: Michael Walle <michael@walle.cc>
-> Tested-by: Michael Walle <michael@walle.cc>
-> Signed-off-by: Saravana Kannan <saravanak@google.com>
-> Reviewed-by: Rafael J. Wysocki <rrafael.j.wysocki@intel.com>
-> Link: https://lore.kernel.org/r/20200526220928.49939-1-saravanak@google.com
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> ---
->  drivers/base/core.c | 34 ++++++++++++++++++++++++++--------
->  1 file changed, 26 insertions(+), 8 deletions(-)
->
-> diff --git a/drivers/base/core.c b/drivers/base/core.c
-> index 791b7530599f..9a76dd44cb37 100644
-> --- a/drivers/base/core.c
-> +++ b/drivers/base/core.c
-> @@ -646,9 +646,17 @@ static void device_links_missing_supplier(struct device *dev)
->  {
->         struct device_link *link;
->
-> -       list_for_each_entry(link, &dev->links.suppliers, c_node)
-> -               if (link->status == DL_STATE_CONSUMER_PROBE)
-> +       list_for_each_entry(link, &dev->links.suppliers, c_node) {
-> +               if (link->status != DL_STATE_CONSUMER_PROBE)
-> +                       continue;
-> +
-> +               if (link->supplier->links.status == DL_DEV_DRIVER_BOUND) {
->                         WRITE_ONCE(link->status, DL_STATE_AVAILABLE);
-> +               } else {
-> +                       WARN_ON(!(link->flags & DL_FLAG_SYNC_STATE_ONLY));
-> +                       WRITE_ONCE(link->status, DL_STATE_DORMANT);
-> +               }
-> +       }
->  }
->
->  /**
-> @@ -687,11 +695,11 @@ int device_links_check_suppliers(struct device *dev)
->         device_links_write_lock();
->
->         list_for_each_entry(link, &dev->links.suppliers, c_node) {
-> -               if (!(link->flags & DL_FLAG_MANAGED) ||
-> -                   link->flags & DL_FLAG_SYNC_STATE_ONLY)
-> +               if (!(link->flags & DL_FLAG_MANAGED))
->                         continue;
->
-> -               if (link->status != DL_STATE_AVAILABLE) {
-> +               if (link->status != DL_STATE_AVAILABLE &&
-> +                   !(link->flags & DL_FLAG_SYNC_STATE_ONLY)) {
->                         device_links_missing_supplier(dev);
->                         ret = -EPROBE_DEFER;
->                         break;
-> @@ -952,11 +960,21 @@ static void __device_links_no_driver(struct device *dev)
->                 if (!(link->flags & DL_FLAG_MANAGED))
->                         continue;
->
-> -               if (link->flags & DL_FLAG_AUTOREMOVE_CONSUMER)
-> +               if (link->flags & DL_FLAG_AUTOREMOVE_CONSUMER) {
->                         device_link_drop_managed(link);
-> -               else if (link->status == DL_STATE_CONSUMER_PROBE ||
-> -                        link->status == DL_STATE_ACTIVE)
-> +                       continue;
-> +               }
-> +
-> +               if (link->status != DL_STATE_CONSUMER_PROBE &&
-> +                   link->status != DL_STATE_ACTIVE)
-> +                       continue;
-> +
-> +               if (link->supplier->links.status == DL_DEV_DRIVER_BOUND) {
->                         WRITE_ONCE(link->status, DL_STATE_AVAILABLE);
-> +               } else {
-> +                       WARN_ON(!(link->flags & DL_FLAG_SYNC_STATE_ONLY));
-> +                       WRITE_ONCE(link->status, DL_STATE_DORMANT);
-> +               }
->         }
->
->         dev->links.status = DL_DEV_NO_DRIVER;
-> --
-> 2.26.2
->
->
+Fixes: b886ee3e778e ("ext4: Support case-insensitive file name lookups")
+Cc: <stable@vger.kernel.org> # v5.2+
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Daniel Rosenberg <drosen@google.com>
+Cc: Gabriel Krisman Bertazi <krisman@collabora.co.uk>
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+---
+ fs/ext4/dir.c | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
+
+diff --git a/fs/ext4/dir.c b/fs/ext4/dir.c
+index c654205f648dd..19aef8328bb18 100644
+--- a/fs/ext4/dir.c
++++ b/fs/ext4/dir.c
+@@ -675,6 +675,7 @@ static int ext4_d_compare(const struct dentry *dentry, unsigned int len,
+ 	struct qstr qstr = {.name = str, .len = len };
+ 	const struct dentry *parent = READ_ONCE(dentry->d_parent);
+ 	const struct inode *inode = READ_ONCE(parent->d_inode);
++	char strbuf[DNAME_INLINE_LEN];
+ 
+ 	if (!inode || !IS_CASEFOLDED(inode) ||
+ 	    !EXT4_SB(inode->i_sb)->s_encoding) {
+@@ -683,6 +684,22 @@ static int ext4_d_compare(const struct dentry *dentry, unsigned int len,
+ 		return memcmp(str, name->name, len);
+ 	}
+ 
++	/*
++	 * If the dentry name is stored in-line, then it may be concurrently
++	 * modified by a rename.  If this happens, the VFS will eventually retry
++	 * the lookup, so it doesn't matter what ->d_compare() returns.
++	 * However, it's unsafe to call utf8_strncasecmp() with an unstable
++	 * string.  Therefore, we have to copy the name into a temporary buffer.
++	 */
++	if (len <= DNAME_INLINE_LEN - 1) {
++		unsigned int i;
++
++		for (i = 0; i < len; i++)
++			strbuf[i] = READ_ONCE(str[i]);
++		strbuf[len] = 0;
++		qstr.name = strbuf;
++	}
++
+ 	return ext4_ci_compare(inode, name, &qstr, false);
+ }
+ 
+-- 
+2.26.2
+
