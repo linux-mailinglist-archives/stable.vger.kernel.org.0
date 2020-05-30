@@ -2,21 +2,21 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ED37D1E9132
-	for <lists+stable@lfdr.de>; Sat, 30 May 2020 14:32:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FD031E913B
+	for <lists+stable@lfdr.de>; Sat, 30 May 2020 14:39:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728875AbgE3McV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 30 May 2020 08:32:21 -0400
-Received: from foss.arm.com ([217.140.110.172]:45622 "EHLO foss.arm.com"
+        id S1728941AbgE3Mjt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 30 May 2020 08:39:49 -0400
+Received: from foss.arm.com ([217.140.110.172]:45654 "EHLO foss.arm.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726860AbgE3McV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 30 May 2020 08:32:21 -0400
+        id S1726860AbgE3Mjt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 30 May 2020 08:39:49 -0400
 Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id E6AA81042;
-        Sat, 30 May 2020 05:32:19 -0700 (PDT)
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 0943D1042;
+        Sat, 30 May 2020 05:39:48 -0700 (PDT)
 Received: from localhost.localdomain (entos-thunderx2-02.shanghai.arm.com [10.169.138.74])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id 0F68B3F6C4;
-        Sat, 30 May 2020 05:32:15 -0700 (PDT)
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id 29F653F6C4;
+        Sat, 30 May 2020 05:39:43 -0700 (PDT)
 From:   Jia He <justin.he@arm.com>
 To:     Stefan Hajnoczi <stefanha@redhat.com>,
         Stefano Garzarella <sgarzare@redhat.com>
@@ -27,13 +27,12 @@ Cc:     "David S. Miller" <davem@davemloft.net>,
         Markus Elfring <Markus.Elfring@web.de>,
         Jia He <justin.he@arm.com>, stable@vger.kernel.org,
         Asias He <asias@redhat.com>
-Subject: [PATCH] virtio_vsock: Fix race condition in virtio_transport_recv_pkt
-Date:   Sat, 30 May 2020 20:32:06 +0800
-Message-Id: <20200530123206.63335-1-justin.he@arm.com>
+Subject: [PATCH v5] virtio_vsock: Fix race condition in virtio_transport_recv_pkt
+Date:   Sat, 30 May 2020 20:39:36 +0800
+Message-Id: <20200530123936.63480-1-justin.he@arm.com>
 X-Mailer: git-send-email 2.17.1
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200530123206.63335-1-justin.he@arm.com>
+References: <20200530123206.63335-1-justin.he@arm.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -90,9 +89,9 @@ so there is a small race window between vsock_find_bound_socket() and
 lock_sock(). If __vsock_release() is running in another task,
 sk->sk_socket will be set to NULL inadvertently.
 
-Thus check the data structure member “sk_shutdown” (suggested by Stefano)
-after a call of the function “lock_sock” since this field is set to
-“SHUTDOWN_MASK” under the protection of “lock_sock_nested”.
+Thus check the data structure member "sk_shutdown" (suggested by Stefano)
+after a call of the function "lock_sock" since this field is set to
+"SHUTDOWN_MASK" under the protection of "lock_sock_nested".
 
 Fixes: 06a8fc78367d ("VSOCK: Introduce virtio_vsock_common.ko")
 Signed-off-by: Jia He <justin.he@arm.com>
@@ -100,7 +99,7 @@ Cc: stable@vger.kernel.org
 Cc: Asias He <asias@redhat.com>
 Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
 ---
-v4: refine the commit msg (from Markus)
+v5: sorry, MIME type in the previous commit message
 
  net/vmw_vsock/virtio_transport_common.c | 8 ++++++++
  1 file changed, 8 insertions(+)
