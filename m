@@ -2,69 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A184F1E8E15
-	for <lists+stable@lfdr.de>; Sat, 30 May 2020 08:02:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 225271E8E1C
+	for <lists+stable@lfdr.de>; Sat, 30 May 2020 08:04:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725851AbgE3GCb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 30 May 2020 02:02:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39382 "EHLO mail.kernel.org"
+        id S1728293AbgE3GEl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 30 May 2020 02:04:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39618 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725814AbgE3GCb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 30 May 2020 02:02:31 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1725814AbgE3GEk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 30 May 2020 02:04:40 -0400
+Received: from sol.hsd1.ca.comcast.net (c-107-3-166-239.hsd1.ca.comcast.net [107.3.166.239])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 594BC2074B;
-        Sat, 30 May 2020 06:02:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 19B042074B;
+        Sat, 30 May 2020 06:04:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1590818549;
-        bh=oz9ffgNa1Xsgz8Geg1zBzwDMczhFqg8QC5tCX0m31Js=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=K8IB6hgzKRHJdOSvHF749cuTzG5J1IGLRPlgkCFAjnAUgOSI5qdOkSFkCmIkrhAej
-         5wO0bMABioiMqdk+W3ieuwdY/xVlqjIsqSJNHq/LGl+ezt8PTOUf66UViMmGdbk2CJ
-         Fv1vuHjCI7EEYAysYSy3q63e3C0ZKitiB98ttcPI=
-Date:   Sat, 30 May 2020 08:02:26 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Saravana Kannan <saravanak@google.com>
-Cc:     stable <stable@vger.kernel.org>, Michael Walle <michael@walle.cc>,
-        rrafael.j.wysocki@intel.com
-Subject: Re: patch "driver core: Update device link status correctly for
- SYNC_STATE_ONLY" added to driver-core-next
-Message-ID: <20200530060226.GA3462734@kroah.com>
-References: <159065032912689@kroah.com>
- <CAGETcx8ZSBYznasT7MYgMCmmr5qTcvt2OjS_B8fiicONVXQDgw@mail.gmail.com>
+        s=default; t=1590818680;
+        bh=f42mP4uZFz68CGLoJzgxTIkgVm0ozHVg79XnQ76VYrw=;
+        h=From:To:Cc:Subject:Date:From;
+        b=hwAUZ/ckiy8+KY/KQA+ZB0NnCd4BzfTTXTIbUq75mFZmHL/ki9nixoGKsmDjoVexY
+         vLa3tIHIldvD1NjDbp0A8tfmInodKPkv53MjuwqJ3MUf7Qrd/u/szji1LMLgqEjWxx
+         wSzw1gkRdsj2itmgCti97l+5gm1703Q0bmgbo5NQ=
+From:   Eric Biggers <ebiggers@kernel.org>
+To:     linux-f2fs-devel@lists.sourceforge.net
+Cc:     linux-ext4@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
+        Daniel Rosenberg <drosen@google.com>,
+        Gabriel Krisman Bertazi <krisman@collabora.co.uk>
+Subject: [PATCH] f2fs: avoid utf8_strncasecmp() with unstable name
+Date:   Fri, 29 May 2020 23:04:18 -0700
+Message-Id: <20200530060418.221707-1-ebiggers@kernel.org>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAGETcx8ZSBYznasT7MYgMCmmr5qTcvt2OjS_B8fiicONVXQDgw@mail.gmail.com>
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, May 29, 2020 at 08:12:14PM -0700, Saravana Kannan wrote:
-> On Thu, May 28, 2020 at 12:19 AM <gregkh@linuxfoundation.org> wrote:
-> >
-> >
-> > This is a note to let you know that I've just added the patch titled
-> >
-> >     driver core: Update device link status correctly for SYNC_STATE_ONLY
-> >
-> > to my driver-core git tree which can be found at
-> >     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/driver-core.git
-> > in the driver-core-next branch.
-> >
-> > The patch will show up in the next release of the linux-next tree
-> > (usually sometime within the next 24 hours during the week.)
-> >
-> > The patch will also be merged in the next major kernel release
-> > during the merge window.
-> >
-> > If you have any questions about this process, please let me know.
-> 
-> Not sure if this is already/automatically queued, but this needs to go
-> to stable@ too. Cc-ing the list to make sure it's picked up.
+From: Eric Biggers <ebiggers@google.com>
 
-I will make sure it goes there too, thanks.
+If the dentry name passed to ->d_compare() fits in dentry::d_iname, then
+it may be concurrently modified by a rename.  This can cause undefined
+behavior (possibly out-of-bounds memory accesses or crashes) in
+utf8_strncasecmp(), since fs/unicode/ isn't written to handle strings
+that may be concurrently modified.
 
-greg k-h
+Fix this by first copying the filename to a stack buffer if needed.
+This way we get a stable snapshot of the filename.
+
+Fixes: 2c2eb7a300cd ("f2fs: Support case-insensitive file name lookups")
+Cc: <stable@vger.kernel.org> # v5.4+
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Daniel Rosenberg <drosen@google.com>
+Cc: Gabriel Krisman Bertazi <krisman@collabora.co.uk>
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+---
+ fs/f2fs/dir.c | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
+
+diff --git a/fs/f2fs/dir.c b/fs/f2fs/dir.c
+index 44bfc464df787..5c179b72eb8a8 100644
+--- a/fs/f2fs/dir.c
++++ b/fs/f2fs/dir.c
+@@ -1083,6 +1083,7 @@ static int f2fs_d_compare(const struct dentry *dentry, unsigned int len,
+ 	struct qstr qstr = {.name = str, .len = len };
+ 	const struct dentry *parent = READ_ONCE(dentry->d_parent);
+ 	const struct inode *inode = READ_ONCE(parent->d_inode);
++	char strbuf[DNAME_INLINE_LEN];
+ 
+ 	if (!inode || !IS_CASEFOLDED(inode)) {
+ 		if (len != name->len)
+@@ -1090,6 +1091,22 @@ static int f2fs_d_compare(const struct dentry *dentry, unsigned int len,
+ 		return memcmp(str, name->name, len);
+ 	}
+ 
++	/*
++	 * If the dentry name is stored in-line, then it may be concurrently
++	 * modified by a rename.  If this happens, the VFS will eventually retry
++	 * the lookup, so it doesn't matter what ->d_compare() returns.
++	 * However, it's unsafe to call utf8_strncasecmp() with an unstable
++	 * string.  Therefore, we have to copy the name into a temporary buffer.
++	 */
++	if (len <= DNAME_INLINE_LEN - 1) {
++		unsigned int i;
++
++		for (i = 0; i < len; i++)
++			strbuf[i] = READ_ONCE(str[i]);
++		strbuf[len] = 0;
++		qstr.name = strbuf;
++	}
++
+ 	return f2fs_ci_compare(inode, name, &qstr, false);
+ }
+ 
+-- 
+2.26.2
+
