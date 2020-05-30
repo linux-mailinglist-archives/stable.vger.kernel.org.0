@@ -2,127 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FD031E913B
-	for <lists+stable@lfdr.de>; Sat, 30 May 2020 14:39:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 417B71E915C
+	for <lists+stable@lfdr.de>; Sat, 30 May 2020 15:03:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728941AbgE3Mjt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 30 May 2020 08:39:49 -0400
-Received: from foss.arm.com ([217.140.110.172]:45654 "EHLO foss.arm.com"
+        id S1728433AbgE3NDu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 30 May 2020 09:03:50 -0400
+Received: from mout.web.de ([212.227.15.3]:38029 "EHLO mout.web.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726860AbgE3Mjt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 30 May 2020 08:39:49 -0400
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 0943D1042;
-        Sat, 30 May 2020 05:39:48 -0700 (PDT)
-Received: from localhost.localdomain (entos-thunderx2-02.shanghai.arm.com [10.169.138.74])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id 29F653F6C4;
-        Sat, 30 May 2020 05:39:43 -0700 (PDT)
-From:   Jia He <justin.he@arm.com>
-To:     Stefan Hajnoczi <stefanha@redhat.com>,
+        id S1727947AbgE3NDt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 30 May 2020 09:03:49 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=web.de;
+        s=dbaedf251592; t=1590843810;
+        bh=wapouwcxMosz61SFFitq+Qad2mwYl6vVb9jzMnZabcY=;
+        h=X-UI-Sender-Class:Subject:To:Cc:References:From:Date:In-Reply-To;
+        b=YYbNhnPDDQdp/TIycbs0htAsH1GIdowVfb0MKMmpwvMo+6BERg5LahIJ/zoeZmaAR
+         unpB1i5iPF9EEhCc7SMeB7KqdYP1eeT3MYTUOT4VcL3eEAbUzPiCNpQ5G8NCdXQDk0
+         d5mbWStu6y6TD7yWVJ2au/OnkNLwx5BBJEv+f9Cw=
+X-UI-Sender-Class: c548c8c5-30a9-4db5-a2e7-cb6cb037b8f9
+Received: from [192.168.1.2] ([93.133.149.250]) by smtp.web.de (mrweb004
+ [213.165.67.108]) with ESMTPSA (Nemesis) id 0MBp3P-1jogJZ1O3L-00Alxt; Sat, 30
+ May 2020 15:03:30 +0200
+Subject: Re: [PATCH v5] virtio_vsock: Fix race condition in
+ virtio_transport_recv_pkt()
+To:     Jia He <justin.he@arm.com>, kvm@vger.kernel.org,
+        virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
+Cc:     kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, Asias He <asias@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>, Kaly Xin <Kaly.Xin@arm.com>,
+        Stefan Hajnoczi <stefanha@redhat.com>,
         Stefano Garzarella <sgarzare@redhat.com>
-Cc:     "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>, kvm@vger.kernel.org,
-        virtualization@lists.linux-foundation.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Kaly Xin <Kaly.Xin@arm.com>,
-        Markus Elfring <Markus.Elfring@web.de>,
-        Jia He <justin.he@arm.com>, stable@vger.kernel.org,
-        Asias He <asias@redhat.com>
-Subject: [PATCH v5] virtio_vsock: Fix race condition in virtio_transport_recv_pkt
-Date:   Sat, 30 May 2020 20:39:36 +0800
-Message-Id: <20200530123936.63480-1-justin.he@arm.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20200530123206.63335-1-justin.he@arm.com>
 References: <20200530123206.63335-1-justin.he@arm.com>
+ <20200530123936.63480-1-justin.he@arm.com>
+From:   Markus Elfring <Markus.Elfring@web.de>
+Autocrypt: addr=Markus.Elfring@web.de; prefer-encrypt=mutual; keydata=
+ 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 FEE=
+Message-ID: <7972c279-19a7-3573-647c-749122c90b81@web.de>
+Date:   Sat, 30 May 2020 15:03:28 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.8.1
+MIME-Version: 1.0
+In-Reply-To: <20200530123936.63480-1-justin.he@arm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-GB
+Content-Transfer-Encoding: quoted-printable
+X-Provags-ID: V03:K1:NlxBKWTFVYuRgZpUwxUGFnLZ36v+rYc4eyjfgYGnEOLvORQHHZQ
+ Gpmc9kOlz6s5nmD9SJEJ7+8d88LE+6FnssfXhNR/Qj1EJRJk3cmdNI9LEtIGgwcABj2+2M2
+ pS5NHAyd6poffd7at9NY6V51dChewCsXIkZpDOUBWV9IzQj6bB0NscMt+FzICZ7r6daQmSi
+ KdQHuMRjV6pFEKh64OlcA==
+X-Spam-Flag: NO
+X-UI-Out-Filterresults: notjunk:1;V03:K0:+pmAXm5XTq0=:xjndtBSr+oay+6LA9zRNoE
+ MEOKUK89Lk9KP1n/awYyMrPuMrzIC1+sEkONFDG+I88bGPypot0+HtEocTH7e/pIZ7imEn5M2
+ 1YvTGBcoZD95cpHcebCAKxP/raElGUkrGLDOgLLCg791t2y2itpheXNQMPj3PSbPU7LEc36Jn
+ VcHPvbNrHq5lLV3bIkItZBjVhmP1sxD6iphPpRnKPhNKUapbijTPNJ4ZhQKOiebe7VN83ARf5
+ 3XGpXQRO8+0ERUa5wzqwb/8G1EHOKOxNoH7DqnsS/XD+QIb3/quRt+DS0vQud3pB3jOweg7gn
+ A+Ion2ZpB/m9NqyPlccdk8+oTfG87oWuqH7CdgO9pWzOHFZmjT64OYZtcCz+LoP89XE1z1nyG
+ syGia7g0JtZgVcvLVVy8IhcrOs5MyhyJMzBOtxU5uZD0CMoLWHnqJi1il8tLmE+bWeZjWM7pd
+ r7krdWlloiX/9kbE8Mk7TE4SObk7ib0IsOegpPRsDeGO5lQjzHokws28jRRKgPTU03PzSLqWL
+ KMq0ylbJPEgLPyfqUt9gZlZZJsj1O5kcj/mKQelfmOfIoMfK/ism0Cu+LyFsHvH/avi9nhsUI
+ O21JFR1cDoLorGnzYVJOhRrvKXu6C7ytuLIqbyNJlizeswXdiCAVfz6InZl7+y2xcLKvXy/EG
+ Pf9ohfU90TxICrd0kmwVJUUmt00aGJRfLDGhLqTUU1gllebB9A6+TXWiFWuuPvLXrPUr7okNF
+ OIBpQEecVc3EFlDOFJVTV3V46UeQDRoTProt9sGbr/YIGNXCvMenEMAyTseLXxXT3+jUFGxsg
+ ekfc+fhbBReAupyaNVaD9joLqZHqOltdvqCSyaCrA/9XhggvkkJf7pQolskaqIXVswW4u5FAW
+ B7jHESEKxj6GJWfW4tNbzOOgSEYuuGKFBDCKJ0dabfHatnxcu9AmFMMJIqet4UC23w+g1fDFU
+ 7wxixSjRZMSAxIupWuDyIgEBkjAAY31NzsMmvUv7OCV3jc6XSFD1qdT2r392xvFntienDcWka
+ 9YPhuIkLVxym2BKTQ0HJGjR2T0D0rcMpp5qJ2lb1PoSfIkpqLVDJ6GyDGDiTpyqzTY38mM/ZR
+ 6U/JN/lV/8xfq593RvfqBDL8cYWGOvu/RT6zJv+4v94sCKzzn18CqW+jXni5AuwdoHNXGudgG
+ Qg1tVFD6mTlFcXwbhpySz3+I+mc+Wt1tfXrnt9yqT48MJXIj5ce8aDMmFVBcs1iCXL23FRqb7
+ b3MIJDbL4PXu1UENE
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When client on the host tries to connect(SOCK_STREAM, O_NONBLOCK) to the
-server on the guest, there will be a panic on a ThunderX2 (armv8a server):
+> ---
+> v5: sorry, MIME type in the previous commit message
+>
+>  net/vmw_vsock/virtio_transport_common.c | 8 ++++++++
 
-[  463.718844] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000000
-[  463.718848] Mem abort info:
-[  463.718849]   ESR = 0x96000044
-[  463.718852]   EC = 0x25: DABT (current EL), IL = 32 bits
-[  463.718853]   SET = 0, FnV = 0
-[  463.718854]   EA = 0, S1PTW = 0
-[  463.718855] Data abort info:
-[  463.718856]   ISV = 0, ISS = 0x00000044
-[  463.718857]   CM = 0, WnR = 1
-[  463.718859] user pgtable: 4k pages, 48-bit VAs, pgdp=0000008f6f6e9000
-[  463.718861] [0000000000000000] pgd=0000000000000000
-[  463.718866] Internal error: Oops: 96000044 [#1] SMP
-[...]
-[  463.718977] CPU: 213 PID: 5040 Comm: vhost-5032 Tainted: G           O      5.7.0-rc7+ #139
-[  463.718980] Hardware name: GIGABYTE R281-T91-00/MT91-FS1-00, BIOS F06 09/25/2018
-[  463.718982] pstate: 60400009 (nZCv daif +PAN -UAO)
-[  463.718995] pc : virtio_transport_recv_pkt+0x4c8/0xd40 [vmw_vsock_virtio_transport_common]
-[  463.718999] lr : virtio_transport_recv_pkt+0x1fc/0xd40 [vmw_vsock_virtio_transport_common]
-[  463.719000] sp : ffff80002dbe3c40
-[...]
-[  463.719025] Call trace:
-[  463.719030]  virtio_transport_recv_pkt+0x4c8/0xd40 [vmw_vsock_virtio_transport_common]
-[  463.719034]  vhost_vsock_handle_tx_kick+0x360/0x408 [vhost_vsock]
-[  463.719041]  vhost_worker+0x100/0x1a0 [vhost]
-[  463.719048]  kthread+0x128/0x130
-[  463.719052]  ret_from_fork+0x10/0x18
+Is it helpful to keep the patch version information complete here?
+(Will another fine-tuning follow for the proposed change?)
 
-The race condition is as follows:
-Task1                                Task2
-=====                                =====
-__sock_release                       virtio_transport_recv_pkt
-  __vsock_release                      vsock_find_bound_socket (found sk)
-    lock_sock_nested
-    vsock_remove_sock
-    sock_orphan
-      sk_set_socket(sk, NULL)
-    sk->sk_shutdown = SHUTDOWN_MASK
-    ...
-    release_sock
-                                    lock_sock
-                                       virtio_transport_recv_connecting
-                                         sk->sk_socket->state (panic!)
-
-The root cause is that vsock_find_bound_socket can't hold the lock_sock,
-so there is a small race window between vsock_find_bound_socket() and
-lock_sock(). If __vsock_release() is running in another task,
-sk->sk_socket will be set to NULL inadvertently.
-
-Thus check the data structure member "sk_shutdown" (suggested by Stefano)
-after a call of the function "lock_sock" since this field is set to
-"SHUTDOWN_MASK" under the protection of "lock_sock_nested".
-
-Fixes: 06a8fc78367d ("VSOCK: Introduce virtio_vsock_common.ko")
-Signed-off-by: Jia He <justin.he@arm.com>
-Cc: stable@vger.kernel.org
-Cc: Asias He <asias@redhat.com>
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
----
-v5: sorry, MIME type in the previous commit message
-
- net/vmw_vsock/virtio_transport_common.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
-
-diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
-index 69efc891885f..0edda1edf988 100644
---- a/net/vmw_vsock/virtio_transport_common.c
-+++ b/net/vmw_vsock/virtio_transport_common.c
-@@ -1132,6 +1132,14 @@ void virtio_transport_recv_pkt(struct virtio_transport *t,
- 
- 	lock_sock(sk);
- 
-+	/* Check if sk has been released before lock_sock */
-+	if (sk->sk_shutdown == SHUTDOWN_MASK) {
-+		(void)virtio_transport_reset_no_sock(t, pkt);
-+		release_sock(sk);
-+		sock_put(sk);
-+		goto free_pkt;
-+	}
-+
- 	/* Update CID in case it has changed after a transport reset event */
- 	vsk->local_addr.svm_cid = dst.svm_cid;
- 
--- 
-2.17.1
-
+Regards,
+Markus
