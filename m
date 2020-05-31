@@ -2,57 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 598641E94EC
-	for <lists+stable@lfdr.de>; Sun, 31 May 2020 03:50:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD7C61E95C0
+	for <lists+stable@lfdr.de>; Sun, 31 May 2020 07:00:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729590AbgEaBua (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 30 May 2020 21:50:30 -0400
-Received: from mail-out.m-online.net ([212.18.0.9]:45536 "EHLO
-        mail-out.m-online.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729026AbgEaBua (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 30 May 2020 21:50:30 -0400
-Received: from frontend01.mail.m-online.net (unknown [192.168.8.182])
-        by mail-out.m-online.net (Postfix) with ESMTP id 49ZLq73rVxz1qrGG;
-        Sun, 31 May 2020 03:50:27 +0200 (CEST)
-Received: from localhost (dynscan1.mnet-online.de [192.168.6.70])
-        by mail.m-online.net (Postfix) with ESMTP id 49ZLq738d6z1r3kc;
-        Sun, 31 May 2020 03:50:27 +0200 (CEST)
-X-Virus-Scanned: amavisd-new at mnet-online.de
-Received: from mail.mnet-online.de ([192.168.8.182])
-        by localhost (dynscan1.mail.m-online.net [192.168.6.70]) (amavisd-new, port 10024)
-        with ESMTP id EySRwcSmJ6Xu; Sun, 31 May 2020 03:50:26 +0200 (CEST)
-X-Auth-Info: i4STmeJ99b+tOLd8wRjIFzgy2TUSN36tnwgx7+SYrH4=
-Received: from [IPv6:::1] (unknown [195.140.253.167])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.mnet-online.de (Postfix) with ESMTPSA;
-        Sun, 31 May 2020 03:50:26 +0200 (CEST)
-To:     changbin.du@gmail.com, linux-stable <stable@vger.kernel.org>
-Cc:     acme@kernel.org, jolsa@redhat.com, linux-kernel@vger.kernel.org,
-        mingo@redhat.com, peterz@infradead.org
-References: <20200128152938.31413-1-changbin.du@gmail.com>
-Subject: Re: [PATCH] perf: Make perf able to build with latest libbfd
-From:   Marek Vasut <marex@denx.de>
-Message-ID: <70322330-524c-14ab-aace-e460677e25e3@denx.de>
-Date:   Sun, 31 May 2020 03:50:25 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.8.0
-MIME-Version: 1.0
-In-Reply-To: <20200128152938.31413-1-changbin.du@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+        id S1725942AbgEaFAG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 31 May 2020 01:00:06 -0400
+Received: from mail-m964.mail.126.com ([123.126.96.4]:51830 "EHLO
+        mail-m964.mail.126.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725895AbgEaFAG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 31 May 2020 01:00:06 -0400
+X-Greylist: delayed 1805 seconds by postgrey-1.27 at vger.kernel.org; Sun, 31 May 2020 01:00:05 EDT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=126.com;
+        s=s110527; h=From:Subject:Date:Message-Id; bh=3aTYp+At4YUYmBmcKf
+        Jj9YLNBYbqxi0Yc5VNogOYKZk=; b=kHJIg/vil8k20ClBc9Lfw6q/+wtneCIGCA
+        SukvR+0RbpoJbI7utYt7096T1vIw1/sIPluVqN7WaVWTCsyZYOfRa2TRwPU5sh5I
+        iOeeRarmyW3kWKliJtk+SG0D4Gb091l7ur2rJwLoJbyzUs+sLcnVfMb5X0MUGcKG
+        jIgAR33oQ=
+Received: from localhost.localdomain (unknown [122.194.9.250])
+        by smtp9 (Coremail) with SMTP id NeRpCgBnypPFMtNeL+F_QA--.1465S3;
+        Sun, 31 May 2020 12:29:58 +0800 (CST)
+From:   chenxb_99091@126.com
+To:     stable@vger.kernel.org
+Cc:     linux-kernel@vger.kernel.org, chenxb_99091@126.com
+Subject: Stable backport request for linux-4.4.y
+Date:   Sun, 31 May 2020 12:29:55 +0800
+Message-Id: <1590899395-26674-1-git-send-email-chenxb_99091@126.com>
+X-Mailer: git-send-email 2.7.4
+X-CM-TRANSID: NeRpCgBnypPFMtNeL+F_QA--.1465S3
+X-Coremail-Antispam: 1Uf129KBjvdXoWrury3XFy7tr1kWF4rCw47twb_yoWxtFcEkr
+        47Wwn8GrW7Jr4Iq3WUtr4fZF1Fgw4rtrWrJrsYv39xWrykZr4fZw4akasavr1qv3W0yF1k
+        ur10qan5WrWftjkaLaAFLSUrUUUUUb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
+        9fnUUvcSsGvfC2KfnxnUUI43ZEXa7IU8LL0UUUUUU==
+X-Originating-IP: [122.194.9.250]
+X-CM-SenderInfo: hfkh05lebzmiizr6ij2wof0z/1tbiVwY1xVpEAXSp2wAAs4
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+From: Xuebing Chen <chenxb_99091@126.com>
 
-since commit
-0ada120c883d ("perf: Make perf able to build with latest libbfd")
-is in master, can it be backported to stable as well? I keep hitting
-this with too new binutils on Linux 5.4.y and I have to keep
-cherry-picking this commit to fix it.
+In linux-4.4.y,the <include/drm/drm_crtc.h> provides drm_for_each_plane_mask macro 
+and plane_mask is defined as bitmask of plane indices, such as
+1 << drm_plane_index(plane). There is an error setting of plane_mask
+in pan_display_atomic() function.
 
-Thanks
+Please backport the following patch to the 4.4.y kernel stable tree:
+commit 7118fd9bd975a9f3093239d4c0f4e15356b57fab 
+("drm/fb-helper: Use proper plane mask for fb cleanup")
+The above patch fixes error setting of plane_mask in pan_display_atomic() function.
+    
+Cc: stable@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Xuebing Chen <chenxb_99091@126.com>
+
+
+
+
+
+
+
+
+
