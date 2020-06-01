@@ -2,40 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6641D1EAA58
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:11:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C9771EA91C
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:01:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730548AbgFASHI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:07:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52912 "EHLO mail.kernel.org"
+        id S1728247AbgFAR6T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 13:58:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730545AbgFASHH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:07:07 -0400
+        id S1729156AbgFAR6S (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 13:58:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 831392068D;
-        Mon,  1 Jun 2020 18:07:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 34745206E2;
+        Mon,  1 Jun 2020 17:58:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034827;
-        bh=A0RLGSqTIiDaPfkMJEKBxw7Dn+ig3t1UvxxkBuVlf1I=;
+        s=default; t=1591034297;
+        bh=pXx2nQRRYIisgFvTzM9Z2xuVQCuuWS9hRnBOw/IVgOU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2REHGxm4BC+SkbaiU1qcrtWKKLCPZtKHVZWKCtEHW775/7U2FdBViks8E6krSWwt8
-         OEqCSn4rpV/Kfph+PA50iu3ZR+y4WiTXGd65wbdhan5ss1ISiA4jVdzW4p/74CbTIK
-         5uRSEfnBg2Srdlk4ros/AzQ+kyy++ARghdf9yGN8=
+        b=sqT1r6iesGfDdkiszZZndHmIen1tOr+VqUHspyl8K0T9xMd8TeJ7Y7TshC4aYcx1r
+         GtUg+O8IJfd8PX6hl1b005LeOsQqXwoX9U3MWnCJEr7jfyG68gxWYUuIs4L32cYvH6
+         /xQtOHT6StNh/sFl0+fx/YvdG2mKfW51TplYYJ0g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Danielle Ratson <danieller@mellanox.com>,
-        Jiri Pirko <jiri@mellanox.com>,
-        Ido Schimmel <idosch@mellanox.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 031/142] mlxsw: spectrum: Fix use-after-free of split/unsplit/type_set in case reload fails
-Date:   Mon,  1 Jun 2020 19:53:09 +0200
-Message-Id: <20200601174041.132753587@linuxfoundation.org>
+        stable@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
+        Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+        Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Jiri Pirko <jiri@resnulli.us>,
+        Arvind Sankar <nivedita@alum.mit.edu>,
+        Jiong Wang <jiongwang@huawei.com>,
+        Yuqi Jin <jinyuqi@huawei.com>,
+        Shaokun Zhang <zhangshaokun@hisilicon.com>
+Subject: [PATCH 4.9 03/61] net: revert "net: get rid of an signed integer overflow in ip_idents_reserve()"
+Date:   Mon,  1 Jun 2020 19:53:10 +0200
+Message-Id: <20200601174012.043632287@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174037.904070960@linuxfoundation.org>
-References: <20200601174037.904070960@linuxfoundation.org>
+In-Reply-To: <20200601174010.316778377@linuxfoundation.org>
+References: <20200601174010.316778377@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,108 +52,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Pirko <jiri@mellanox.com>
+From: Yuqi Jin <jinyuqi@huawei.com>
 
-commit 4340f42f207eacb81e7a6b6bb1e3b6afad9a2e26 upstream.
+[ Upstream commit a6211caa634da39d861a47437ffcda8b38ef421b ]
 
-In case of reload fail, the mlxsw_sp->ports contains a pointer to a
-freed memory (either by reload_down() or reload_up() error path).
-Fix this by initializing the pointer to NULL and checking it before
-dereferencing in split/unsplit/type_set callpaths.
+Commit adb03115f459 ("net: get rid of an signed integer overflow in ip_idents_reserve()")
+used atomic_cmpxchg to replace "atomic_add_return" inside the function
+"ip_idents_reserve". The reason was to avoid UBSAN warning.
+However, this change has caused performance degrade and in GCC-8,
+fno-strict-overflow is now mapped to -fwrapv -fwrapv-pointer
+and signed integer overflow is now undefined by default at all
+optimization levels[1]. Moreover, it was a bug in UBSAN vs -fwrapv
+/-fno-strict-overflow, so Let's revert it safely.
 
-Fixes: 24cc68ad6c46 ("mlxsw: core: Add support for reload")
-Reported-by: Danielle Ratson <danieller@mellanox.com>
-Signed-off-by: Jiri Pirko <jiri@mellanox.com>
-Signed-off-by: Ido Schimmel <idosch@mellanox.com>
+[1] https://gcc.gnu.org/gcc-8/changes.html
+
+Suggested-by: Peter Zijlstra <peterz@infradead.org>
+Suggested-by: Eric Dumazet <edumazet@google.com>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
+Cc: Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Cc: Jiri Pirko <jiri@resnulli.us>
+Cc: Arvind Sankar <nivedita@alum.mit.edu>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Eric Dumazet <edumazet@google.com>
+Cc: Jiong Wang <jiongwang@huawei.com>
+Signed-off-by: Yuqi Jin <jinyuqi@huawei.com>
+Signed-off-by: Shaokun Zhang <zhangshaokun@hisilicon.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/net/ethernet/mellanox/mlxsw/spectrum.c |   14 ++++++++++++--
- drivers/net/ethernet/mellanox/mlxsw/switchx2.c |    8 ++++++++
- 2 files changed, 20 insertions(+), 2 deletions(-)
+ net/ipv4/route.c |   14 ++++++--------
+ 1 file changed, 6 insertions(+), 8 deletions(-)
 
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
-@@ -3932,6 +3932,7 @@ static void mlxsw_sp_ports_remove(struct
- 	mlxsw_sp_cpu_port_remove(mlxsw_sp);
- 	kfree(mlxsw_sp->port_to_module);
- 	kfree(mlxsw_sp->ports);
-+	mlxsw_sp->ports = NULL;
+--- a/net/ipv4/route.c
++++ b/net/ipv4/route.c
+@@ -477,18 +477,16 @@ u32 ip_idents_reserve(u32 hash, int segs
+ 	atomic_t *p_id = ip_idents + hash % IP_IDENTS_SZ;
+ 	u32 old = ACCESS_ONCE(*p_tstamp);
+ 	u32 now = (u32)jiffies;
+-	u32 new, delta = 0;
++	u32 delta = 0;
+ 
+ 	if (old != now && cmpxchg(p_tstamp, old, now) == old)
+ 		delta = prandom_u32_max(now - old);
+ 
+-	/* Do not use atomic_add_return() as it makes UBSAN unhappy */
+-	do {
+-		old = (u32)atomic_read(p_id);
+-		new = old + delta + segs;
+-	} while (atomic_cmpxchg(p_id, old, new) != old);
+-
+-	return new - segs;
++	/* If UBSAN reports an error there, please make sure your compiler
++	 * supports -fno-strict-overflow before reporting it that was a bug
++	 * in UBSAN, and it has been fixed in GCC-8.
++	 */
++	return atomic_add_return(segs + delta, p_id) - segs;
  }
- 
- static int mlxsw_sp_ports_create(struct mlxsw_sp *mlxsw_sp)
-@@ -3986,6 +3987,7 @@ err_cpu_port_create:
- 	kfree(mlxsw_sp->port_to_module);
- err_port_to_module_alloc:
- 	kfree(mlxsw_sp->ports);
-+	mlxsw_sp->ports = NULL;
- 	return err;
- }
- 
-@@ -4040,6 +4042,14 @@ static void mlxsw_sp_port_unsplit_create
- 	}
- }
- 
-+static struct mlxsw_sp_port *
-+mlxsw_sp_port_get_by_local_port(struct mlxsw_sp *mlxsw_sp, u8 local_port)
-+{
-+	if (mlxsw_sp->ports && mlxsw_sp->ports[local_port])
-+		return mlxsw_sp->ports[local_port];
-+	return NULL;
-+}
-+
- static int mlxsw_sp_port_split(struct mlxsw_core *mlxsw_core, u8 local_port,
- 			       unsigned int count,
- 			       struct netlink_ext_ack *extack)
-@@ -4058,7 +4068,7 @@ static int mlxsw_sp_port_split(struct ml
- 	local_ports_in_1x = MLXSW_CORE_RES_GET(mlxsw_core, LOCAL_PORTS_IN_1X);
- 	local_ports_in_2x = MLXSW_CORE_RES_GET(mlxsw_core, LOCAL_PORTS_IN_2X);
- 
--	mlxsw_sp_port = mlxsw_sp->ports[local_port];
-+	mlxsw_sp_port = mlxsw_sp_port_get_by_local_port(mlxsw_sp, local_port);
- 	if (!mlxsw_sp_port) {
- 		dev_err(mlxsw_sp->bus_info->dev, "Port number \"%d\" does not exist\n",
- 			local_port);
-@@ -4136,7 +4146,7 @@ static int mlxsw_sp_port_unsplit(struct
- 	local_ports_in_1x = MLXSW_CORE_RES_GET(mlxsw_core, LOCAL_PORTS_IN_1X);
- 	local_ports_in_2x = MLXSW_CORE_RES_GET(mlxsw_core, LOCAL_PORTS_IN_2X);
- 
--	mlxsw_sp_port = mlxsw_sp->ports[local_port];
-+	mlxsw_sp_port = mlxsw_sp_port_get_by_local_port(mlxsw_sp, local_port);
- 	if (!mlxsw_sp_port) {
- 		dev_err(mlxsw_sp->bus_info->dev, "Port number \"%d\" does not exist\n",
- 			local_port);
---- a/drivers/net/ethernet/mellanox/mlxsw/switchx2.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/switchx2.c
-@@ -1258,6 +1258,7 @@ static void mlxsw_sx_ports_remove(struct
- 		if (mlxsw_sx_port_created(mlxsw_sx, i))
- 			mlxsw_sx_port_remove(mlxsw_sx, i);
- 	kfree(mlxsw_sx->ports);
-+	mlxsw_sx->ports = NULL;
- }
- 
- static int mlxsw_sx_ports_create(struct mlxsw_sx *mlxsw_sx)
-@@ -1292,6 +1293,7 @@ err_port_module_info_get:
- 		if (mlxsw_sx_port_created(mlxsw_sx, i))
- 			mlxsw_sx_port_remove(mlxsw_sx, i);
- 	kfree(mlxsw_sx->ports);
-+	mlxsw_sx->ports = NULL;
- 	return err;
- }
- 
-@@ -1375,6 +1377,12 @@ static int mlxsw_sx_port_type_set(struct
- 	u8 module, width;
- 	int err;
- 
-+	if (!mlxsw_sx->ports || !mlxsw_sx->ports[local_port]) {
-+		dev_err(mlxsw_sx->bus_info->dev, "Port number \"%d\" does not exist\n",
-+			local_port);
-+		return -EINVAL;
-+	}
-+
- 	if (new_type == DEVLINK_PORT_TYPE_AUTO)
- 		return -EOPNOTSUPP;
+ EXPORT_SYMBOL(ip_idents_reserve);
  
 
 
