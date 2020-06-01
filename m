@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 22F4A1EAE1A
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:51:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 044A31EADA5
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:48:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730563AbgFASvB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:51:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50230 "EHLO mail.kernel.org"
+        id S1729975AbgFASIQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:08:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54352 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729201AbgFASFM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:05:12 -0400
+        id S1730241AbgFASIP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:08:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 69D51207D0;
-        Mon,  1 Jun 2020 18:05:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2B3BA207D0;
+        Mon,  1 Jun 2020 18:08:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034711;
-        bh=rh/iTIyXUgQYbWqo2GeJdWBSVP/4pOsnGFMjLcnxaoE=;
+        s=default; t=1591034894;
+        bh=hu3+Cu1mobOMU0osGTqGMIyMafxT7FTy0kESiJ1M/lw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w9ZuBt/LtMubeOixWUwfYSzCfCW/BFudQEQLTFMn4VhN2NCzYlHvqu3b2iS/ZGLLS
-         9GYd8+ZqHY+AfbqvGS3dJRIN+JTzgPmQFqILxIAPnWg3VJ2LAYDtDi2jY4v5ou49W4
-         NLP42eB7yWAHL4huCgK1uxtDZOz4GtTbNehNDj40=
+        b=CHvPhv8LQc1JnRZdSmvCzPDFJsDhbZ6Tijf3cY7WrckPgyZUR+UcfubNoKUHziQZn
+         gypFLxwzJlR+5rkf8QMGj5ADRMELRy6y5ep8iupzKmrwGkpt0pKy1BL4Pm0wNM61Y+
+         Od3aBOBSu/4VwfvH7Dwc5jKBMCNw9+Tv6boUkI/E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Coverity <scan-admin@coverity.com>,
-        Steve French <stfrench@microsoft.com>,
-        Shyam Prasad N <nspmangalore@gmail.com>,
+        stable@vger.kernel.org, Amy Shih <amy.shih@advantech.com.tw>,
+        Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 35/95] cifs: Fix null pointer check in cifs_read
-Date:   Mon,  1 Jun 2020 19:53:35 +0200
-Message-Id: <20200601174026.412759141@linuxfoundation.org>
+Subject: [PATCH 5.4 058/142] hwmon: (nct7904) Fix incorrect range of temperature limit registers
+Date:   Mon,  1 Jun 2020 19:53:36 +0200
+Message-Id: <20200601174043.933164252@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174020.759151073@linuxfoundation.org>
-References: <20200601174020.759151073@linuxfoundation.org>
+In-Reply-To: <20200601174037.904070960@linuxfoundation.org>
+References: <20200601174037.904070960@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,34 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve French <stfrench@microsoft.com>
+From: Amy Shih <amy.shih@advantech.com.tw>
 
-[ Upstream commit 9bd21d4b1a767c3abebec203342f3820dcb84662 ]
+[ Upstream commit 7b2fd270af27edaf02acb41a7babe805a9441914 ]
 
-Coverity scan noted a redundant null check
+The format of temperature limitation registers are 8-bit 2's complement
+and the range is -128~127.
+Converts the reading value to signed char to fix the incorrect range
+of temperature limitation registers.
 
-Coverity-id: 728517
-Reported-by: Coverity <scan-admin@coverity.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Reviewed-by: Shyam Prasad N <nspmangalore@gmail.com>
+Signed-off-by: Amy Shih <amy.shih@advantech.com.tw>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/file.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hwmon/nct7904.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/fs/cifs/file.c b/fs/cifs/file.c
-index cfb0d91289ec..128cbd69911b 100644
---- a/fs/cifs/file.c
-+++ b/fs/cifs/file.c
-@@ -3532,7 +3532,7 @@ cifs_read(struct file *file, char *read_data, size_t read_size, loff_t *offset)
- 			 * than it negotiated since it will refuse the read
- 			 * then.
- 			 */
--			if ((tcon->ses) && !(tcon->ses->capabilities &
-+			if (!(tcon->ses->capabilities &
- 				tcon->ses->server->vals->cap_large_files)) {
- 				current_read_size = min_t(uint,
- 					current_read_size, CIFSMaxBufSize);
+diff --git a/drivers/hwmon/nct7904.c b/drivers/hwmon/nct7904.c
+index 281c81edabc6..dfb122b5e1b7 100644
+--- a/drivers/hwmon/nct7904.c
++++ b/drivers/hwmon/nct7904.c
+@@ -356,6 +356,7 @@ static int nct7904_read_temp(struct device *dev, u32 attr, int channel,
+ 	struct nct7904_data *data = dev_get_drvdata(dev);
+ 	int ret, temp;
+ 	unsigned int reg1, reg2, reg3;
++	s8 temps;
+ 
+ 	switch (attr) {
+ 	case hwmon_temp_input:
+@@ -461,7 +462,8 @@ static int nct7904_read_temp(struct device *dev, u32 attr, int channel,
+ 
+ 	if (ret < 0)
+ 		return ret;
+-	*val = ret * 1000;
++	temps = ret;
++	*val = temps * 1000;
+ 	return 0;
+ }
+ 
 -- 
 2.25.1
 
