@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C66441EAA07
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:05:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 368AF1EAA85
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:11:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729726AbgFASEX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:04:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48966 "EHLO mail.kernel.org"
+        id S1730777AbgFASIt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:08:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55010 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730197AbgFASEX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:04:23 -0400
+        id S1730770AbgFASIr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:08:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 147AC207D0;
-        Mon,  1 Jun 2020 18:04:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B3EF92068D;
+        Mon,  1 Jun 2020 18:08:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034662;
-        bh=xh++Q2c68oFOs5csXY6QWz3/3kKklg1Fea7GlH9mvXQ=;
+        s=default; t=1591034926;
+        bh=3mXHuIbUAn2ZlS3EHaOUlbTu8JdHRMn00oCcVfkK2NQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d1EgDuGSgUmgvEWafe/vKw2/rMYKpKYPsI1uw7R91zFjgbxMGQOUapnOBPhS7VJXW
-         ojedJDF9dki5yV3MnSmqEraqBFzRzGXhwuthqBKbKrcz0SAPspGZRgkBXp/oaq+6zu
-         yJ5XRlJRpWK5UN2AH99y5x7qP4lrTyTZrzFUeCKY=
+        b=VUdEAOhwG0sittEl/ivrRw3AVsjIx8WYnvx0ixPkTPEyKXAAtdk5o5o3sIlmMa46t
+         fFBxAAnS8lAJ0vQ80opl6mwIpXNC1HSvH/rfJZLvjFbJNnXdbJZs4+CvcE3u6tsBwY
+         eTSehGxah3IORDn0GGr0fVWyP0JAvuqtSkLHhGd8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Vincent=20Stehl=C3=A9?= <vincent.stehle@laposte.net>,
-        Stefan Wahren <stefan.wahren@i2se.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 53/95] ARM: dts: bcm2835-rpi-zero-w: Fix led polarity
+Subject: [PATCH 5.4 075/142] gpio: exar: Fix bad handling for ida_simple_get error path
 Date:   Mon,  1 Jun 2020 19:53:53 +0200
-Message-Id: <20200601174029.712170513@linuxfoundation.org>
+Message-Id: <20200601174045.626573803@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174020.759151073@linuxfoundation.org>
-References: <20200601174020.759151073@linuxfoundation.org>
+In-Reply-To: <20200601174037.904070960@linuxfoundation.org>
+References: <20200601174037.904070960@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,41 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Stehlé <vincent.stehle@laposte.net>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 58bb90ab415562eededb932455046924e65df342 ]
+[ Upstream commit 333830aa149a87cabeb5d30fbcf12eecc8040d2c ]
 
-The status "ACT" led on the Raspberry Pi Zero W is on when GPIO 47 is low.
+The commit 7ecced0934e5 ("gpio: exar: add a check for the return value
+of ida_simple_get fails") added a goto jump to the common error
+handler for ida_simple_get() error, but this is wrong in two ways:
+it doesn't set the proper return code and, more badly, it invokes
+ida_simple_remove() with a negative index that shall lead to a kernel
+panic via BUG_ON().
 
-This has been verified on a board and somewhat confirmed by both the GPIO
-name ("STATUS_LED_N") and the reduced schematics [1].
+This patch addresses those two issues.
 
-[1]: https://www.raspberrypi.org/documentation/hardware/raspberrypi/schematics/rpi_SCH_ZeroW_1p1_reduced.pdf
-
-Fixes: 2c7c040c73e9 ("ARM: dts: bcm2835: Add Raspberry Pi Zero W")
-Signed-off-by: Vincent Stehlé <vincent.stehle@laposte.net>
-Cc: Stefan Wahren <stefan.wahren@i2se.com>
-Cc: Florian Fainelli <f.fainelli@gmail.com>
-Tested-by: Stefan Wahren <stefan.wahren@i2se.com>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Fixes: 7ecced0934e5 ("gpio: exar: add a check for the return value of ida_simple_get fails")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/bcm2835-rpi-zero-w.dts | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpio/gpio-exar.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/bcm2835-rpi-zero-w.dts b/arch/arm/boot/dts/bcm2835-rpi-zero-w.dts
-index 5fcadb9cf992..9f7145b1cc5e 100644
---- a/arch/arm/boot/dts/bcm2835-rpi-zero-w.dts
-+++ b/arch/arm/boot/dts/bcm2835-rpi-zero-w.dts
-@@ -25,7 +25,7 @@
+diff --git a/drivers/gpio/gpio-exar.c b/drivers/gpio/gpio-exar.c
+index fae327d5b06e..6890d32d9f25 100644
+--- a/drivers/gpio/gpio-exar.c
++++ b/drivers/gpio/gpio-exar.c
+@@ -145,8 +145,10 @@ static int gpio_exar_probe(struct platform_device *pdev)
+ 	mutex_init(&exar_gpio->lock);
  
- 	leds {
- 		act {
--			gpios = <&gpio 47 GPIO_ACTIVE_HIGH>;
-+			gpios = <&gpio 47 GPIO_ACTIVE_LOW>;
- 		};
- 	};
+ 	index = ida_simple_get(&ida_index, 0, 0, GFP_KERNEL);
+-	if (index < 0)
+-		goto err_destroy;
++	if (index < 0) {
++		ret = index;
++		goto err_mutex_destroy;
++	}
  
+ 	sprintf(exar_gpio->name, "exar_gpio%d", index);
+ 	exar_gpio->gpio_chip.label = exar_gpio->name;
+@@ -173,6 +175,7 @@ static int gpio_exar_probe(struct platform_device *pdev)
+ 
+ err_destroy:
+ 	ida_simple_remove(&ida_index, index);
++err_mutex_destroy:
+ 	mutex_destroy(&exar_gpio->lock);
+ 	return ret;
+ }
 -- 
 2.25.1
 
