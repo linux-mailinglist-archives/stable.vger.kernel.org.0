@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B53FD1EAD3D
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:44:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 837E41EAC3A
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:37:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731117AbgFASLb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:11:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58680 "EHLO mail.kernel.org"
+        id S1731229AbgFASRP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:17:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38218 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728630AbgFASLb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:11:31 -0400
+        id S1730753AbgFASRN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:17:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E73C9206E2;
-        Mon,  1 Jun 2020 18:11:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8DFF8206E2;
+        Mon,  1 Jun 2020 18:17:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591035089;
-        bh=fOTc4rRY9+kFKu4cyMyH4WFp/bsFDDN9f1FKrscl3hc=;
+        s=default; t=1591035431;
+        bh=G7pXJ7gjYCbsGDybjXy2ttQC5CykFVlMMwk7hZpNo30=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pOa7u47ihNYlUtRJO4H2B+NVk2P2kTqWlIzjUOp+KSJiqKfmKcLHbn2mChI3a360O
-         rJZA5ACxZHmnQUFrb2nO2TX2aTFojWeyqkYrotrV+OirHzNt3rAeliomHywugEzNG7
-         C4msm2PgY2zTqG9ePfHnX4PhD7gdHKbMDOxf1dfo=
+        b=gTSzNvY7+2qxDN2toWJqvsWGEkl+a6rT/64lnw/bZeZOvoVit8aLhepj9jgn8S+jQ
+         mAN5fEt/CcvMd6JiKflEzd+OnuuufhavBaHTIqhzVACSUWSl8Zyy0E8+l5Gexy2Tdq
+         LpQLyngSbfxkcJkqzFT+bc6eTgs0NGvToJwHaC+8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Simon Wunderlich <sw@simonwunderlich.de>,
-        =?UTF-8?q?Linus=20L=C3=BCssing?= <ll@simonwunderlich.de>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.4 109/142] mac80211: mesh: fix discovery timer re-arming issue / crash
+        stable@vger.kernel.org,
+        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
+        Aric Cyr <Aric.Cyr@amd.com>,
+        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 129/177] drm/amd/display: Defer cursor lock until after VUPDATE
 Date:   Mon,  1 Jun 2020 19:54:27 +0200
-Message-Id: <20200601174049.230880843@linuxfoundation.org>
+Message-Id: <20200601174059.291380865@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174037.904070960@linuxfoundation.org>
-References: <20200601174037.904070960@linuxfoundation.org>
+In-Reply-To: <20200601174048.468952319@linuxfoundation.org>
+References: <20200601174048.468952319@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,162 +47,222 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Lüssing <ll@simonwunderlich.de>
+From: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
 
-commit e2d4a80f93fcfaf72e2e20daf6a28e39c3b90677 upstream.
+[ Upstream commit 31ecebee9c36d5e5e113a357a655d993fa916174 ]
 
-On a non-forwarding 802.11s link between two fairly busy
-neighboring nodes (iperf with -P 16 at ~850MBit/s TCP;
-1733.3 MBit/s VHT-MCS 9 80MHz short GI VHT-NSS 4), so with
-frequent PREQ retries, usually after around 30-40 seconds the
-following crash would occur:
+[Why]
+We dropped the delay after changed the cursor functions locking the
+entire pipe to locking just the CURSOR registers to fix page flip
+stuttering - this introduced cursor stuttering instead, and an underflow
+issue.
 
-[ 1110.822428] Unable to handle kernel read from unreadable memory at virtual address 00000000
-[ 1110.830786] Mem abort info:
-[ 1110.833573]   Exception class = IABT (current EL), IL = 32 bits
-[ 1110.839494]   SET = 0, FnV = 0
-[ 1110.842546]   EA = 0, S1PTW = 0
-[ 1110.845678] user pgtable: 4k pages, 48-bit VAs, pgd = ffff800076386000
-[ 1110.852204] [0000000000000000] *pgd=00000000f6322003, *pud=00000000f62de003, *pmd=0000000000000000
-[ 1110.861167] Internal error: Oops: 86000004 [#1] PREEMPT SMP
-[ 1110.866730] Modules linked in: pppoe ppp_async batman_adv ath10k_pci ath10k_core ath pppox ppp_generic nf_conntrack_ipv6 mac80211 iptable_nat ipt_REJECT ipt_MASQUERADE cfg80211 xt_time xt_tcpudp xt_state xt_nat xt_multiport xt_mark xt_mac xt_limit xt_conntrack xt_comment xt_TCPMSS xt_REDIRECT xt_LOG xt_FLOWOFFLOAD slhc nf_reject_ipv4 nf_nat_redirect nf_nat_masquerade_ipv4 nf_conntrack_ipv4 nf_nat_ipv4 nf_nat nf_log_ipv4 nf_flow_table_hw nf_flow_table nf_defrag_ipv6 nf_defrag_ipv4 nf_conntrack_rtcache nf_conntrack iptable_mangle iptable_filter ip_tables crc_ccitt compat nf_log_ipv6 nf_log_common ip6table_mangle ip6table_filter ip6_tables ip6t_REJECT x_tables nf_reject_ipv6 usb_storage xhci_plat_hcd xhci_pci xhci_hcd dwc3 usbcore usb_common
-[ 1110.932190] Process swapper/3 (pid: 0, stack limit = 0xffff0000090c8000)
-[ 1110.938884] CPU: 3 PID: 0 Comm: swapper/3 Not tainted 4.14.162 #0
-[ 1110.944965] Hardware name: LS1043A RGW Board (DT)
-[ 1110.949658] task: ffff8000787a81c0 task.stack: ffff0000090c8000
-[ 1110.955568] PC is at 0x0
-[ 1110.958097] LR is at call_timer_fn.isra.27+0x24/0x78
-[ 1110.963055] pc : [<0000000000000000>] lr : [<ffff0000080ff29c>] pstate: 00400145
-[ 1110.970440] sp : ffff00000801be10
-[ 1110.973744] x29: ffff00000801be10 x28: ffff000008bf7018
-[ 1110.979047] x27: ffff000008bf87c8 x26: ffff000008c160c0
-[ 1110.984352] x25: 0000000000000000 x24: 0000000000000000
-[ 1110.989657] x23: dead000000000200 x22: 0000000000000000
-[ 1110.994959] x21: 0000000000000000 x20: 0000000000000101
-[ 1111.000262] x19: ffff8000787a81c0 x18: 0000000000000000
-[ 1111.005565] x17: ffff0000089167b0 x16: 0000000000000058
-[ 1111.010868] x15: ffff0000089167b0 x14: 0000000000000000
-[ 1111.016172] x13: ffff000008916788 x12: 0000000000000040
-[ 1111.021475] x11: ffff80007fda9af0 x10: 0000000000000001
-[ 1111.026777] x9 : ffff00000801bea0 x8 : 0000000000000004
-[ 1111.032080] x7 : 0000000000000000 x6 : ffff80007fda9aa8
-[ 1111.037383] x5 : ffff00000801bea0 x4 : 0000000000000010
-[ 1111.042685] x3 : ffff00000801be98 x2 : 0000000000000614
-[ 1111.047988] x1 : 0000000000000000 x0 : 0000000000000000
-[ 1111.053290] Call trace:
-[ 1111.055728] Exception stack(0xffff00000801bcd0 to 0xffff00000801be10)
-[ 1111.062158] bcc0:                                   0000000000000000 0000000000000000
-[ 1111.069978] bce0: 0000000000000614 ffff00000801be98 0000000000000010 ffff00000801bea0
-[ 1111.077798] bd00: ffff80007fda9aa8 0000000000000000 0000000000000004 ffff00000801bea0
-[ 1111.085618] bd20: 0000000000000001 ffff80007fda9af0 0000000000000040 ffff000008916788
-[ 1111.093437] bd40: 0000000000000000 ffff0000089167b0 0000000000000058 ffff0000089167b0
-[ 1111.101256] bd60: 0000000000000000 ffff8000787a81c0 0000000000000101 0000000000000000
-[ 1111.109075] bd80: 0000000000000000 dead000000000200 0000000000000000 0000000000000000
-[ 1111.116895] bda0: ffff000008c160c0 ffff000008bf87c8 ffff000008bf7018 ffff00000801be10
-[ 1111.124715] bdc0: ffff0000080ff29c ffff00000801be10 0000000000000000 0000000000400145
-[ 1111.132534] bde0: ffff8000787a81c0 ffff00000801bde8 0000ffffffffffff 000001029eb19be8
-[ 1111.140353] be00: ffff00000801be10 0000000000000000
-[ 1111.145220] [<          (null)>]           (null)
-[ 1111.149917] [<ffff0000080ff77c>] run_timer_softirq+0x184/0x398
-[ 1111.155741] [<ffff000008081938>] __do_softirq+0x100/0x1fc
-[ 1111.161130] [<ffff0000080a2e28>] irq_exit+0x80/0xd8
-[ 1111.166002] [<ffff0000080ea708>] __handle_domain_irq+0x88/0xb0
-[ 1111.171825] [<ffff000008081678>] gic_handle_irq+0x68/0xb0
-[ 1111.177213] Exception stack(0xffff0000090cbe30 to 0xffff0000090cbf70)
-[ 1111.183642] be20:                                   0000000000000020 0000000000000000
-[ 1111.191461] be40: 0000000000000001 0000000000000000 00008000771af000 0000000000000000
-[ 1111.199281] be60: ffff000008c95180 0000000000000000 ffff000008c19360 ffff0000090cbef0
-[ 1111.207101] be80: 0000000000000810 0000000000000400 0000000000000098 ffff000000000000
-[ 1111.214920] bea0: 0000000000000001 ffff0000089167b0 0000000000000000 ffff0000089167b0
-[ 1111.222740] bec0: 0000000000000000 ffff000008c198e8 ffff000008bf7018 ffff000008c19000
-[ 1111.230559] bee0: 0000000000000000 0000000000000000 ffff8000787a81c0 ffff000008018000
-[ 1111.238380] bf00: ffff00000801c000 ffff00000913ba34 ffff8000787a81c0 ffff0000090cbf70
-[ 1111.246199] bf20: ffff0000080857cc ffff0000090cbf70 ffff0000080857d0 0000000000400145
-[ 1111.254020] bf40: ffff000008018000 ffff00000801c000 ffffffffffffffff ffff0000080fa574
-[ 1111.261838] bf60: ffff0000090cbf70 ffff0000080857d0
-[ 1111.266706] [<ffff0000080832e8>] el1_irq+0xe8/0x18c
-[ 1111.271576] [<ffff0000080857d0>] arch_cpu_idle+0x10/0x18
-[ 1111.276880] [<ffff0000080d7de4>] do_idle+0xec/0x1b8
-[ 1111.281748] [<ffff0000080d8020>] cpu_startup_entry+0x20/0x28
-[ 1111.287399] [<ffff00000808f81c>] secondary_start_kernel+0x104/0x110
-[ 1111.293662] Code: bad PC value
-[ 1111.296710] ---[ end trace 555b6ca4363c3edd ]---
-[ 1111.301318] Kernel panic - not syncing: Fatal exception in interrupt
-[ 1111.307661] SMP: stopping secondary CPUs
-[ 1111.311574] Kernel Offset: disabled
-[ 1111.315053] CPU features: 0x0002000
-[ 1111.318530] Memory Limit: none
-[ 1111.321575] Rebooting in 3 seconds..
+The cursor update can be delayed indefinitely if the cursor update
+repeatedly happens right around VUPDATE.
 
-With some added debug output / delays we were able to push the crash from
-the timer callback runner into the callback function and by that shedding
-some light on which object holding the timer gets corrupted:
+The underflow issue can happen if we do a viewport update on a pipe
+on the same frame where a cursor update happens around VUPDATE - the
+old cursor registers are retained which can be in an invalid position.
 
-[  401.720899] Unable to handle kernel read from unreadable memory at virtual address 00000868
-[...]
-[  402.335836] [<ffff0000088fafa4>] _raw_spin_lock_bh+0x14/0x48
-[  402.341548] [<ffff000000dbe684>] mesh_path_timer+0x10c/0x248 [mac80211]
-[  402.348154] [<ffff0000080ff29c>] call_timer_fn.isra.27+0x24/0x78
-[  402.354150] [<ffff0000080ff77c>] run_timer_softirq+0x184/0x398
-[  402.359974] [<ffff000008081938>] __do_softirq+0x100/0x1fc
-[  402.365362] [<ffff0000080a2e28>] irq_exit+0x80/0xd8
-[  402.370231] [<ffff0000080ea708>] __handle_domain_irq+0x88/0xb0
-[  402.376053] [<ffff000008081678>] gic_handle_irq+0x68/0xb0
+This can cause a pipe hang and indefinite underflow.
 
-The issue happens due to the following sequence of events:
+[How]
+The complex, ideal solution to the problem would be a software
+triple buffering mechanism from the DM layer to program only one cursor
+update per frame just before VUPDATE.
 
-1) mesh_path_start_discovery():
--> spin_unlock_bh(&mpath->state_lock) before mesh_path_sel_frame_tx()
+The simple workaround until we have that infrastructure in place is
+this change - bring back the delay until VUPDATE before locking, but
+with some corrections to the calculations.
 
-2) mesh_path_free_rcu()
--> del_timer_sync(&mpath->timer)
-   [...]
--> kfree_rcu(mpath)
+This didn't work for all timings before because the calculation for
+VUPDATE was wrong - it was using the offset from VSTARTUP instead and
+didn't correctly handle the case where VUPDATE could be in the back
+porch.
 
-3) mesh_path_start_discovery():
--> mod_timer(&mpath->timer, ...)
-   [...]
--> rcu_read_unlock()
+Add a new hardware sequencer function to use the existing helper to
+calculate the real VUPDATE start and VUPDATE end - VUPDATE can last
+multiple lines after all.
 
-4) mesh_path_free_rcu()'s kfree_rcu():
--> kfree(mpath)
+Change the udelay to incorporate the width of VUPDATE as well.
 
-5) mesh_path_timer() starts after timeout, using freed mpath object
-
-So a use-after-free issue due to a timer re-arming bug caused by an
-early spin-unlocking.
-
-This patch fixes this issue by re-checking if mpath is about to be
-free'd and if so bails out of re-arming the timer.
-
-Cc: stable@vger.kernel.org
-Fixes: 050ac52cbe1f ("mac80211: code for on-demand Hybrid Wireless Mesh Protocol")
-Cc: Simon Wunderlich <sw@simonwunderlich.de>
-Signed-off-by: Linus Lüssing <ll@simonwunderlich.de>
-Link: https://lore.kernel.org/r/20200522170413.14973-1-linus.luessing@c0d3.blue
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+Reviewed-by: Aric Cyr <Aric.Cyr@amd.com>
+Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/mesh_hwmp.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ .../amd/display/dc/dcn10/dcn10_hw_sequencer.c | 69 ++++++++++++++++++-
+ .../amd/display/dc/dcn10/dcn10_hw_sequencer.h |  5 ++
+ .../gpu/drm/amd/display/dc/dcn10/dcn10_init.c |  1 +
+ .../gpu/drm/amd/display/dc/dcn20/dcn20_init.c |  1 +
+ .../gpu/drm/amd/display/dc/dcn21/dcn21_init.c |  1 +
+ .../gpu/drm/amd/display/dc/inc/hw_sequencer.h |  5 ++
+ 6 files changed, 81 insertions(+), 1 deletion(-)
 
---- a/net/mac80211/mesh_hwmp.c
-+++ b/net/mac80211/mesh_hwmp.c
-@@ -1103,7 +1103,14 @@ void mesh_path_start_discovery(struct ie
- 	mesh_path_sel_frame_tx(MPATH_PREQ, 0, sdata->vif.addr, ifmsh->sn,
- 			       target_flags, mpath->dst, mpath->sn, da, 0,
- 			       ttl, lifetime, 0, ifmsh->preq_id++, sdata);
-+
-+	spin_lock_bh(&mpath->state_lock);
-+	if (mpath->flags & MESH_PATH_DELETED) {
-+		spin_unlock_bh(&mpath->state_lock);
-+		goto enddiscovery;
-+	}
- 	mod_timer(&mpath->timer, jiffies + mpath->discovery_timeout);
-+	spin_unlock_bh(&mpath->state_lock);
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
+index 97a820b90541..60cea910759b 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
+@@ -1592,12 +1592,79 @@ void dcn10_pipe_control_lock(
+ 		hws->funcs.verify_allow_pstate_change_high(dc);
+ }
  
- enddiscovery:
- 	rcu_read_unlock();
++/**
++ * delay_cursor_until_vupdate() - Delay cursor update if too close to VUPDATE.
++ *
++ * Software keepout workaround to prevent cursor update locking from stalling
++ * out cursor updates indefinitely or from old values from being retained in
++ * the case where the viewport changes in the same frame as the cursor.
++ *
++ * The idea is to calculate the remaining time from VPOS to VUPDATE. If it's
++ * too close to VUPDATE, then stall out until VUPDATE finishes.
++ *
++ * TODO: Optimize cursor programming to be once per frame before VUPDATE
++ *       to avoid the need for this workaround.
++ */
++static void delay_cursor_until_vupdate(struct dc *dc, struct pipe_ctx *pipe_ctx)
++{
++	struct dc_stream_state *stream = pipe_ctx->stream;
++	struct crtc_position position;
++	uint32_t vupdate_start, vupdate_end;
++	unsigned int lines_to_vupdate, us_to_vupdate, vpos;
++	unsigned int us_per_line, us_vupdate;
++
++	if (!dc->hwss.calc_vupdate_position || !dc->hwss.get_position)
++		return;
++
++	if (!pipe_ctx->stream_res.stream_enc || !pipe_ctx->stream_res.tg)
++		return;
++
++	dc->hwss.calc_vupdate_position(dc, pipe_ctx, &vupdate_start,
++				       &vupdate_end);
++
++	dc->hwss.get_position(&pipe_ctx, 1, &position);
++	vpos = position.vertical_count;
++
++	/* Avoid wraparound calculation issues */
++	vupdate_start += stream->timing.v_total;
++	vupdate_end += stream->timing.v_total;
++	vpos += stream->timing.v_total;
++
++	if (vpos <= vupdate_start) {
++		/* VPOS is in VACTIVE or back porch. */
++		lines_to_vupdate = vupdate_start - vpos;
++	} else if (vpos > vupdate_end) {
++		/* VPOS is in the front porch. */
++		return;
++	} else {
++		/* VPOS is in VUPDATE. */
++		lines_to_vupdate = 0;
++	}
++
++	/* Calculate time until VUPDATE in microseconds. */
++	us_per_line =
++		stream->timing.h_total * 10000u / stream->timing.pix_clk_100hz;
++	us_to_vupdate = lines_to_vupdate * us_per_line;
++
++	/* 70 us is a conservative estimate of cursor update time*/
++	if (us_to_vupdate > 70)
++		return;
++
++	/* Stall out until the cursor update completes. */
++	us_vupdate = (vupdate_end - vupdate_start + 1) * us_per_line;
++	udelay(us_to_vupdate + us_vupdate);
++}
++
+ void dcn10_cursor_lock(struct dc *dc, struct pipe_ctx *pipe, bool lock)
+ {
+ 	/* cursor lock is per MPCC tree, so only need to lock one pipe per stream */
+ 	if (!pipe || pipe->top_pipe)
+ 		return;
+ 
++	/* Prevent cursor lock from stalling out cursor updates. */
++	if (lock)
++		delay_cursor_until_vupdate(dc, pipe);
++
+ 	dc->res_pool->mpc->funcs->cursor_lock(dc->res_pool->mpc,
+ 			pipe->stream_res.opp->inst, lock);
+ }
+@@ -3142,7 +3209,7 @@ int dcn10_get_vupdate_offset_from_vsync(struct pipe_ctx *pipe_ctx)
+ 	return vertical_line_start;
+ }
+ 
+-static void dcn10_calc_vupdate_position(
++void dcn10_calc_vupdate_position(
+ 		struct dc *dc,
+ 		struct pipe_ctx *pipe_ctx,
+ 		uint32_t *start_line,
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.h b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.h
+index af51424315d5..42b6e016d71e 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.h
++++ b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.h
+@@ -34,6 +34,11 @@ struct dc;
+ void dcn10_hw_sequencer_construct(struct dc *dc);
+ 
+ int dcn10_get_vupdate_offset_from_vsync(struct pipe_ctx *pipe_ctx);
++void dcn10_calc_vupdate_position(
++		struct dc *dc,
++		struct pipe_ctx *pipe_ctx,
++		uint32_t *start_line,
++		uint32_t *end_line);
+ void dcn10_setup_vupdate_interrupt(struct dc *dc, struct pipe_ctx *pipe_ctx);
+ enum dc_status dcn10_enable_stream_timing(
+ 		struct pipe_ctx *pipe_ctx,
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_init.c b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_init.c
+index 4a8e4b797bea..0900c861204f 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_init.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_init.c
+@@ -72,6 +72,7 @@ static const struct hw_sequencer_funcs dcn10_funcs = {
+ 	.set_clock = dcn10_set_clock,
+ 	.get_clock = dcn10_get_clock,
+ 	.get_vupdate_offset_from_vsync = dcn10_get_vupdate_offset_from_vsync,
++	.calc_vupdate_position = dcn10_calc_vupdate_position,
+ };
+ 
+ static const struct hwseq_private_funcs dcn10_private_funcs = {
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_init.c b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_init.c
+index 0cae0c2f84c4..71bfde2cf646 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_init.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_init.c
+@@ -83,6 +83,7 @@ static const struct hw_sequencer_funcs dcn20_funcs = {
+ 	.init_vm_ctx = dcn20_init_vm_ctx,
+ 	.set_flip_control_gsl = dcn20_set_flip_control_gsl,
+ 	.get_vupdate_offset_from_vsync = dcn10_get_vupdate_offset_from_vsync,
++	.calc_vupdate_position = dcn10_calc_vupdate_position,
+ };
+ 
+ static const struct hwseq_private_funcs dcn20_private_funcs = {
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_init.c b/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_init.c
+index 8fe8ec7c0882..7f53bf724fce 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_init.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_init.c
+@@ -86,6 +86,7 @@ static const struct hw_sequencer_funcs dcn21_funcs = {
+ 	.optimize_pwr_state = dcn21_optimize_pwr_state,
+ 	.exit_optimized_pwr_state = dcn21_exit_optimized_pwr_state,
+ 	.get_vupdate_offset_from_vsync = dcn10_get_vupdate_offset_from_vsync,
++	.calc_vupdate_position = dcn10_calc_vupdate_position,
+ 	.set_cursor_position = dcn10_set_cursor_position,
+ 	.set_cursor_attribute = dcn10_set_cursor_attribute,
+ 	.set_cursor_sdr_white_level = dcn10_set_cursor_sdr_white_level,
+diff --git a/drivers/gpu/drm/amd/display/dc/inc/hw_sequencer.h b/drivers/gpu/drm/amd/display/dc/inc/hw_sequencer.h
+index e57467d99d66..08307f3796e3 100644
+--- a/drivers/gpu/drm/amd/display/dc/inc/hw_sequencer.h
++++ b/drivers/gpu/drm/amd/display/dc/inc/hw_sequencer.h
+@@ -92,6 +92,11 @@ struct hw_sequencer_funcs {
+ 	void (*get_position)(struct pipe_ctx **pipe_ctx, int num_pipes,
+ 			struct crtc_position *position);
+ 	int (*get_vupdate_offset_from_vsync)(struct pipe_ctx *pipe_ctx);
++	void (*calc_vupdate_position)(
++			struct dc *dc,
++			struct pipe_ctx *pipe_ctx,
++			uint32_t *start_line,
++			uint32_t *end_line);
+ 	void (*enable_per_frame_crtc_position_reset)(struct dc *dc,
+ 			int group_size, struct pipe_ctx *grouped_pipes[]);
+ 	void (*enable_timing_synchronization)(struct dc *dc,
+-- 
+2.25.1
+
 
 
