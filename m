@@ -2,207 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B8D21EB1F8
-	for <lists+stable@lfdr.de>; Tue,  2 Jun 2020 01:00:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 09D771EB211
+	for <lists+stable@lfdr.de>; Tue,  2 Jun 2020 01:18:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725800AbgFAXAW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 19:00:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56302 "EHLO
+        id S1726007AbgFAXST (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 19:18:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59052 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725766AbgFAXAV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Jun 2020 19:00:21 -0400
-Received: from mail-ej1-x643.google.com (mail-ej1-x643.google.com [IPv6:2a00:1450:4864:20::643])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AE7EC05BD43;
-        Mon,  1 Jun 2020 16:00:20 -0700 (PDT)
-Received: by mail-ej1-x643.google.com with SMTP id gl26so10802080ejb.11;
-        Mon, 01 Jun 2020 16:00:20 -0700 (PDT)
+        with ESMTP id S1725802AbgFAXSS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Jun 2020 19:18:18 -0400
+Received: from mail-yb1-xb4a.google.com (mail-yb1-xb4a.google.com [IPv6:2607:f8b0:4864:20::b4a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8305AC03E96B
+        for <stable@vger.kernel.org>; Mon,  1 Jun 2020 16:18:18 -0700 (PDT)
+Received: by mail-yb1-xb4a.google.com with SMTP id c3so4737290ybp.8
+        for <stable@vger.kernel.org>; Mon, 01 Jun 2020 16:18:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+        d=google.com; s=20161025;
+        h=date:in-reply-to:message-id:mime-version:references:subject:from:to
          :cc;
-        bh=RXVWrJM0qErwoZtOlN6QuMQ8iwvgbXwoJOqbVdWAFHY=;
-        b=Xbisw2gFUJ2KuoD5GrY5EdEz3hKD2LSX+FXSyf19uB3hWSqL2cyCBBdVSJDzm24eZA
-         yRitsX00wWVhri4dWL84YRH/5TPgHP3Or58GNWyhiRsXH4TDc/wnSXC/EfSrc+cQ9uPY
-         kmwJr99NcWpT18FIVNRJoylvm9IGChTJIsh7qn8UBxaya6e4j4Pwr/r9CVbhZbZa9ZAg
-         jB1b5g4PtmBw+KdloZ4sU05ggtCAKh9Ra2xSDynQSEqQ8IUSTr2usZBUjODc4bw/tCIB
-         UzGCGUybJ9iQEN5fa/Pv75q77zFAyuCUpgamDrFOLp2m/m80kfa0XboA4qYvItBNIC5B
-         wz9w==
+        bh=m13wCjxvuAss7NYvH083DUgqdGzlzjUJaqo6EGXo6l8=;
+        b=hGSPlVHMPFqP8l1gdyaycFTDNYeJq+dmve4OcRx0o+NeFXjZUheZXksaQ3egykT3/V
+         y3TrMe5GShycYHLIG9qR1qiVRi7FAG/jm43g8+Ud2xrrKhyEfB4RKkxmvPirR5YEKEDZ
+         ZETulQIHcmg24tf9rxwGMM7FbhCEyAx78T7pYUbp+woYvGe0RFIl3qSPbmvVSpXfKVCc
+         Tghecr2RnKGgHCBnF88MYyD2bMpevoM/xqi5YP+CqERPdo96+ROU7B14cSkX/GKFXAC/
+         06Xdutj2ar9pRf2+dnMQTRlul7bsHDMZ7dWvbohS19s78wWY/19IxeUhRQTS4s5V5a2s
+         pn7Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=RXVWrJM0qErwoZtOlN6QuMQ8iwvgbXwoJOqbVdWAFHY=;
-        b=e6V5aBVH7R7BVHp0woFsB3c9FeFwc+CmsLz9WY+KiFlFn4h4AkKvsZecZ4yTeGbd1k
-         FpxdkmfViPrsllgIMGjOmcVD0PY5C46VvnnzoIj6zPdstQrPqZTwo22z1iZAT5OAvNKp
-         TZ27hHas6BmUvGCvdtgEPTxFYrqA+CTgMrjcHO5wTz+7j16jd5lEWAZnKqRLn4fHRJru
-         vCglAgYWGvRFSllE0uUih0kPGra3oVSAdFKVxvYDjBG8Vd9j4oBz3COyE7XIgNJcS8x7
-         FWxjcIGWuAX7qbRcK19ZoTupXI1M9nkokMek+W/grBMV/oLg6ad2GnxMW6m3a5T2RhLl
-         /oZg==
-X-Gm-Message-State: AOAM531bmLa6VcAS0VSDoMQYsZyU9nEhAyBqJhqvpJ84PiEelVWHzoxZ
-        MpwzdljGCaTR2e/LruySXxjIzf/d6ZXGOal9XjY=
-X-Google-Smtp-Source: ABdhPJx71vSqtqi5aHP1BnaPIdrc7rF0WI6Cb4Hk3hNYRuJ+fBfDfxvh0/qTsskaqLy1c/pfzyBqrGbANg415hraRcs=
-X-Received: by 2002:a17:906:ae85:: with SMTP id md5mr15533786ejb.213.1591052418869;
- Mon, 01 Jun 2020 16:00:18 -0700 (PDT)
-MIME-Version: 1.0
-References: <20200601032204.124624-1-gthelen@google.com>
-In-Reply-To: <20200601032204.124624-1-gthelen@google.com>
-From:   Yang Shi <shy828301@gmail.com>
-Date:   Mon, 1 Jun 2020 15:59:56 -0700
-Message-ID: <CAHbLzkq84qtOqfvP5SmPoAyL+Pyffd9K3108AOYk5yKF03jBmw@mail.gmail.com>
-Subject: Re: [PATCH] shmem, memcg: enable memcg aware shrinker
-To:     Greg Thelen <gthelen@google.com>
-Cc:     Hugh Dickins <hughd@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Kirill Tkhai <ktkhai@virtuozzo.com>,
-        Linux MM <linux-mm@kvack.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        stable@vger.kernel.org
+        h=x-gm-message-state:date:in-reply-to:message-id:mime-version
+         :references:subject:from:to:cc;
+        bh=m13wCjxvuAss7NYvH083DUgqdGzlzjUJaqo6EGXo6l8=;
+        b=AANaA26h2bBS11+ua/D0Rha8NVqOfJimp9QIFnnbLx3Jb3Yo0Y60fWS+KRlF1YbZ86
+         NO9zY0GaSOrvCibQG+M//NEFpOriCDOlVUMUut3JXZjCKQYNdtMsbENJ8jstq6PRP8D2
+         5Yp9PJgHO5qeFzp/p9bScCfbtEqW9K3y4dE/dRKXakjqF7IW+edxRD5eJYim3wkNz4un
+         PeoLZLX6ju6uGEXYuZr5d+kT0ohQ68uNd+NsJ1fTB28QPz6Jzabng6zf+AeFoaj4ZNw+
+         PuuflEgki5wGY0pT59R1rutN0Oa3dEd7amd8spu1RZOP26bTGIVAJ2eg1AEefFVv+vE5
+         49yA==
+X-Gm-Message-State: AOAM532iAgacJJ53ZTXPRjilrNP+1yVdEJnz/6NDbLYQvJseNnXY1GPv
+        xWJyGyBUGvorAuBl2XHs1CZHGy9SBlhB3r80MQI=
+X-Google-Smtp-Source: ABdhPJwdKP/WIyb9zDhrdkpb/1aIfGh8Qv+dbXIL0nNPDlwjoNFg5jPiVanp/p5l0pHmiW9OMy1EYfxKlHO/6B0TWDI=
+X-Received: by 2002:a25:d28d:: with SMTP id j135mr34423503ybg.208.1591053497544;
+ Mon, 01 Jun 2020 16:18:17 -0700 (PDT)
+Date:   Mon,  1 Jun 2020 16:18:05 -0700
+In-Reply-To: <CAMj1kXErFuvOoG=DB6sz5HBvDuHDiKwWD8uOyLuxaX-u8-+dbA@mail.gmail.com>
+Message-Id: <20200601231805.207441-1-ndesaulniers@google.com>
+Mime-Version: 1.0
+References: <CAMj1kXErFuvOoG=DB6sz5HBvDuHDiKwWD8uOyLuxaX-u8-+dbA@mail.gmail.com>
+X-Mailer: git-send-email 2.27.0.rc2.251.g90737beb825-goog
+Subject: [PATCH] ACPICA: fix UBSAN warning using __builtin_offsetof
+From:   Nick Desaulniers <ndesaulniers@google.com>
+To:     Robert Moore <robert.moore@intel.com>,
+        Erik Kaneda <erik.kaneda@intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Len Brown <lenb@kernel.org>
+Cc:     Ard Biesheuvel <ardb@kernel.org>, dvyukov@google.com,
+        glider@google.com, guohanjun@huawei.com,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        lorenzo.pieralisi@arm.com, mark.rutland@arm.com,
+        ndesaulniers@google.com, pcc@google.com, rjw@rjwysocki.net,
+        will@kernel.org, stable@vger.kernel.org,
+        linux-acpi@vger.kernel.org, devel@acpica.org
 Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, May 31, 2020 at 8:22 PM Greg Thelen <gthelen@google.com> wrote:
->
-> Since v4.19 commit b0dedc49a2da ("mm/vmscan.c: iterate only over charged
-> shrinkers during memcg shrink_slab()") a memcg aware shrinker is only
-> called when the per-memcg per-node shrinker_map indicates that the
-> shrinker may have objects to release to the memcg and node.
->
-> shmem_unused_huge_count and shmem_unused_huge_scan support the per-tmpfs
-> shrinker which advertises per memcg and numa awareness.  The shmem
-> shrinker releases memory by splitting hugepages that extend beyond
-> i_size.
->
-> Shmem does not currently set bits in shrinker_map.  So, starting with
-> b0dedc49a2da, memcg reclaim avoids calling the shmem shrinker under
-> pressure.  This leads to undeserved memcg OOM kills.
-> Example that reliably sees memcg OOM kill in unpatched kernel:
->   FS=/tmp/fs
->   CONTAINER=/cgroup/memory/tmpfs_shrinker
->   mkdir -p $FS
->   mount -t tmpfs -o huge=always nodev $FS
->   # Create 1000 MB container, which shouldn't suffer OOM.
->   mkdir $CONTAINER
->   echo 1000M > $CONTAINER/memory.limit_in_bytes
->   echo $BASHPID >> $CONTAINER/cgroup.procs
->   # Create 4000 files.  Ideally each file uses 4k data page + a little
->   # metadata.  Assume 8k total per-file, 32MB (4000*8k) should easily
->   # fit within container's 1000 MB.  But if data pages use 2MB
->   # hugepages (due to aggressive huge=always) then files consume 8GB,
->   # which hits memcg 1000 MB limit.
->   for i in {1..4000}; do
->     echo . > $FS/$i
->   done
+Will reported UBSAN warnings:
+UBSAN: null-ptr-deref in drivers/acpi/acpica/tbfadt.c:459:37
+UBSAN: null-ptr-deref in arch/arm64/kernel/smp.c:596:6
 
-It looks all the inodes which have tail THP beyond i_size are on one
-single list, then the shrinker actually just splits the first
-nr_to_scan inodes. But since the list is not memcg aware, so it seems
-it may split the THPs which are not charged to the victim memcg and
-the victim memcg still may suffer from pre-mature oom, right?
+Looks like the emulated offsetof macro ACPI_OFFSET is causing these. We
+can avoid this by using the compiler builtin, __builtin_offsetof.
 
->
-> v5.4 commit 87eaceb3faa5 ("mm: thp: make deferred split shrinker memcg
-> aware") maintains the per-node per-memcg shrinker bitmap for THP
-> shrinker.  But there's no such logic in shmem.  Make shmem set the
-> per-memcg per-node shrinker bits when it modifies inodes to have
-> shrinkable pages.
->
-> Fixes: b0dedc49a2da ("mm/vmscan.c: iterate only over charged shrinkers during memcg shrink_slab()")
-> Cc: <stable@vger.kernel.org> # 4.19+
-> Signed-off-by: Greg Thelen <gthelen@google.com>
-> ---
->  mm/shmem.c | 61 +++++++++++++++++++++++++++++++-----------------------
->  1 file changed, 35 insertions(+), 26 deletions(-)
->
-> diff --git a/mm/shmem.c b/mm/shmem.c
-> index bd8840082c94..e11090f78cb5 100644
-> --- a/mm/shmem.c
-> +++ b/mm/shmem.c
-> @@ -1002,6 +1002,33 @@ static int shmem_getattr(const struct path *path, struct kstat *stat,
->         return 0;
->  }
->
-> +/*
-> + * Expose inode and optional page to shrinker as having a possibly splittable
-> + * hugepage that reaches beyond i_size.
-> + */
-> +static void shmem_shrinker_add(struct shmem_sb_info *sbinfo,
-> +                              struct inode *inode, struct page *page)
-> +{
-> +       struct shmem_inode_info *info = SHMEM_I(inode);
-> +
-> +       spin_lock(&sbinfo->shrinklist_lock);
-> +       /*
-> +        * _careful to defend against unlocked access to ->shrink_list in
-> +        * shmem_unused_huge_shrink()
-> +        */
-> +       if (list_empty_careful(&info->shrinklist)) {
-> +               list_add_tail(&info->shrinklist, &sbinfo->shrinklist);
-> +               sbinfo->shrinklist_len++;
-> +       }
-> +       spin_unlock(&sbinfo->shrinklist_lock);
-> +
-> +#ifdef CONFIG_MEMCG
-> +       if (page && PageTransHuge(page))
-> +               memcg_set_shrinker_bit(page->mem_cgroup, page_to_nid(page),
-> +                                      inode->i_sb->s_shrink.id);
-> +#endif
-> +}
-> +
->  static int shmem_setattr(struct dentry *dentry, struct iattr *attr)
->  {
->         struct inode *inode = d_inode(dentry);
-> @@ -1048,17 +1075,13 @@ static int shmem_setattr(struct dentry *dentry, struct iattr *attr)
->                          * to shrink under memory pressure.
->                          */
->                         if (IS_ENABLED(CONFIG_TRANSPARENT_HUGEPAGE)) {
-> -                               spin_lock(&sbinfo->shrinklist_lock);
-> -                               /*
-> -                                * _careful to defend against unlocked access to
-> -                                * ->shrink_list in shmem_unused_huge_shrink()
-> -                                */
-> -                               if (list_empty_careful(&info->shrinklist)) {
-> -                                       list_add_tail(&info->shrinklist,
-> -                                                       &sbinfo->shrinklist);
-> -                                       sbinfo->shrinklist_len++;
-> -                               }
-> -                               spin_unlock(&sbinfo->shrinklist_lock);
-> +                               struct page *page;
-> +
-> +                               page = find_get_page(inode->i_mapping,
-> +                                       (newsize & HPAGE_PMD_MASK) >> PAGE_SHIFT);
-> +                               shmem_shrinker_add(sbinfo, inode, page);
-> +                               if (page)
-> +                                       put_page(page);
->                         }
->                 }
->         }
-> @@ -1889,21 +1912,7 @@ static int shmem_getpage_gfp(struct inode *inode, pgoff_t index,
->         if (PageTransHuge(page) &&
->             DIV_ROUND_UP(i_size_read(inode), PAGE_SIZE) <
->                         hindex + HPAGE_PMD_NR - 1) {
-> -               /*
-> -                * Part of the huge page is beyond i_size: subject
-> -                * to shrink under memory pressure.
-> -                */
-> -               spin_lock(&sbinfo->shrinklist_lock);
-> -               /*
-> -                * _careful to defend against unlocked access to
-> -                * ->shrink_list in shmem_unused_huge_shrink()
-> -                */
-> -               if (list_empty_careful(&info->shrinklist)) {
-> -                       list_add_tail(&info->shrinklist,
-> -                                     &sbinfo->shrinklist);
-> -                       sbinfo->shrinklist_len++;
-> -               }
-> -               spin_unlock(&sbinfo->shrinklist_lock);
-> +               shmem_shrinker_add(sbinfo, inode, page);
->         }
->
->         /*
-> --
-> 2.27.0.rc0.183.gde8f92d652-goog
->
->
+The non-kernel runtime of UBSAN would print:
+runtime error: member access within null pointer of type
+for this macro.
+
+Link: https://lore.kernel.org/lkml/20200521100952.GA5360@willie-the-truck/
+Cc: stable@vger.kernel.org
+Reported-by: Will Deacon <will@kernel.org>
+Suggested-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+---
+ include/acpi/actypes.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/include/acpi/actypes.h b/include/acpi/actypes.h
+index 4defed58ea33..04359c70b198 100644
+--- a/include/acpi/actypes.h
++++ b/include/acpi/actypes.h
+@@ -508,7 +508,7 @@ typedef u64 acpi_integer;
+ 
+ #define ACPI_TO_POINTER(i)              ACPI_CAST_PTR (void, (acpi_size) (i))
+ #define ACPI_TO_INTEGER(p)              ACPI_PTR_DIFF (p, (void *) 0)
+-#define ACPI_OFFSET(d, f)               ACPI_PTR_DIFF (&(((d *) 0)->f), (void *) 0)
++#define ACPI_OFFSET(d, f)               __builtin_offsetof(d, f)
+ #define ACPI_PHYSADDR_TO_PTR(i)         ACPI_TO_POINTER(i)
+ #define ACPI_PTR_TO_PHYSADDR(i)         ACPI_TO_INTEGER(i)
+ 
+-- 
+2.27.0.rc2.251.g90737beb825-goog
+
