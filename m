@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 579B51EAF2B
+	by mail.lfdr.de (Postfix) with ESMTP id C4AD71EAF2C
 	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 21:01:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728582AbgFAR4V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 13:56:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36746 "EHLO mail.kernel.org"
+        id S1728356AbgFAR4Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 13:56:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36782 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728576AbgFAR4U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 13:56:20 -0400
+        id S1728590AbgFAR4X (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 13:56:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D70F92076B;
-        Mon,  1 Jun 2020 17:56:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 214442077D;
+        Mon,  1 Jun 2020 17:56:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034180;
-        bh=zJ0jXzsufwpVdl/701EtTcgJlQ+FB3kNEcZGbeLScFU=;
+        s=default; t=1591034182;
+        bh=dE8j1yJkX/AxjhYQraJkA6rcQeqYJlW5trdGYpf1Lzg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TweNmDEQCtr4IdyXOyBmUyTJumjekaOblAFj4cld/2AHP2tfDpZy5ZnLtqGF/Mnqt
-         km0wADqxtWQ9CkUW6walZFmaYNVDuYpy1hAYRCg5bs4xfFsclyEa59rO6T0//jeSm4
-         gHnzOV5E7abovPbHLalVAOUkYQ5CHt+S/Ezp1d2k=
+        b=NptLYBjOriCinr/5RrS8pmN5esTQfyun9oNq9vPny4Gyqy87PEWx24jwcbosPstHT
+         AhTH2A6F8NPxvwGV3ucDrfmCRCOEkQjdDY4zK11OQHEo2G3PuUL5/TBMYpMN6erUCY
+         aozPNplciLYmAd65D1G2B/X6cqDD2reGJ0Tx+nbo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xin Long <lucien.xin@gmail.com>,
+        stable@vger.kernel.org, Xiumei Mu <xmu@redhat.com>,
+        Xin Long <lucien.xin@gmail.com>,
         Steffen Klassert <steffen.klassert@secunet.com>
-Subject: [PATCH 4.4 27/48] xfrm: allow to accept packets with ipv6 NEXTHDR_HOP in xfrm_input
-Date:   Mon,  1 Jun 2020 19:53:37 +0200
-Message-Id: <20200601174000.072801043@linuxfoundation.org>
+Subject: [PATCH 4.4 28/48] xfrm: fix a warning in xfrm_policy_insert_list
+Date:   Mon,  1 Jun 2020 19:53:38 +0200
+Message-Id: <20200601174000.717333640@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200601173952.175939894@linuxfoundation.org>
 References: <20200601173952.175939894@linuxfoundation.org>
@@ -45,43 +46,74 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Xin Long <lucien.xin@gmail.com>
 
-commit afcaf61be9d1dbdee5ec186d1dcc67b6b692180f upstream.
+commit ed17b8d377eaf6b4a01d46942b4c647378a79bdd upstream.
 
-For beet mode, when it's ipv6 inner address with nexthdrs set,
-the packet format might be:
+This waring can be triggered simply by:
 
-    ----------------------------------------------------
-    | outer  |     | dest |     |      |  ESP    | ESP |
-    | IP hdr | ESP | opts.| TCP | Data | Trailer | ICV |
-    ----------------------------------------------------
+  # ip xfrm policy update src 192.168.1.1/24 dst 192.168.1.2/24 dir in \
+    priority 1 mark 0 mask 0x10  #[1]
+  # ip xfrm policy update src 192.168.1.1/24 dst 192.168.1.2/24 dir in \
+    priority 2 mark 0 mask 0x1   #[2]
+  # ip xfrm policy update src 192.168.1.1/24 dst 192.168.1.2/24 dir in \
+    priority 2 mark 0 mask 0x10  #[3]
 
-The nexthdr from ESP could be NEXTHDR_HOP(0), so it should
-continue processing the packet when nexthdr returns 0 in
-xfrm_input(). Otherwise, when ipv6 nexthdr is set, the
-packet will be dropped.
+Then dmesg shows:
 
-I don't see any error cases that nexthdr may return 0. So
-fix it by removing the check for nexthdr == 0.
+  [ ] WARNING: CPU: 1 PID: 7265 at net/xfrm/xfrm_policy.c:1548
+  [ ] RIP: 0010:xfrm_policy_insert_list+0x2f2/0x1030
+  [ ] Call Trace:
+  [ ]  xfrm_policy_inexact_insert+0x85/0xe50
+  [ ]  xfrm_policy_insert+0x4ba/0x680
+  [ ]  xfrm_add_policy+0x246/0x4d0
+  [ ]  xfrm_user_rcv_msg+0x331/0x5c0
+  [ ]  netlink_rcv_skb+0x121/0x350
+  [ ]  xfrm_netlink_rcv+0x66/0x80
+  [ ]  netlink_unicast+0x439/0x630
+  [ ]  netlink_sendmsg+0x714/0xbf0
+  [ ]  sock_sendmsg+0xe2/0x110
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+The issue was introduced by Commit 7cb8a93968e3 ("xfrm: Allow inserting
+policies with matching mark and different priorities"). After that, the
+policies [1] and [2] would be able to be added with different priorities.
+
+However, policy [3] will actually match both [1] and [2]. Policy [1]
+was matched due to the 1st 'return true' in xfrm_policy_mark_match(),
+and policy [2] was matched due to the 2nd 'return true' in there. It
+caused WARN_ON() in xfrm_policy_insert_list().
+
+This patch is to fix it by only (the same value and priority) as the
+same policy in xfrm_policy_mark_match().
+
+Thanks to Yuehaibing, we could make this fix better.
+
+v1->v2:
+  - check policy->mark.v == pol->mark.v only without mask.
+
+Fixes: 7cb8a93968e3 ("xfrm: Allow inserting policies with matching mark and different priorities")
+Reported-by: Xiumei Mu <xmu@redhat.com>
 Signed-off-by: Xin Long <lucien.xin@gmail.com>
 Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/xfrm/xfrm_input.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/xfrm/xfrm_policy.c |    7 +------
+ 1 file changed, 1 insertion(+), 6 deletions(-)
 
---- a/net/xfrm/xfrm_input.c
-+++ b/net/xfrm/xfrm_input.c
-@@ -302,7 +302,7 @@ resume:
- 		dev_put(skb->dev);
+--- a/net/xfrm/xfrm_policy.c
++++ b/net/xfrm/xfrm_policy.c
+@@ -740,12 +740,7 @@ static void xfrm_policy_requeue(struct x
+ static bool xfrm_policy_mark_match(struct xfrm_policy *policy,
+ 				   struct xfrm_policy *pol)
+ {
+-	u32 mark = policy->mark.v & policy->mark.m;
+-
+-	if (policy->mark.v == pol->mark.v && policy->mark.m == pol->mark.m)
+-		return true;
+-
+-	if ((mark & pol->mark.m) == pol->mark.v &&
++	if (policy->mark.v == pol->mark.v &&
+ 	    policy->priority == pol->priority)
+ 		return true;
  
- 		spin_lock(&x->lock);
--		if (nexthdr <= 0) {
-+		if (nexthdr < 0) {
- 			if (nexthdr == -EBADMSG) {
- 				xfrm_audit_state_icvfail(x, skb,
- 							 x->type->proto);
 
 
