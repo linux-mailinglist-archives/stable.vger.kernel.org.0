@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EF53F1EAB14
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:17:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C73B41EA919
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:01:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731442AbgFASOK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:14:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33838 "EHLO mail.kernel.org"
+        id S1729141AbgFAR6O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 13:58:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39882 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730688AbgFASOJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:14:09 -0400
+        id S1728162AbgFAR6J (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 13:58:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D0EB92068D;
-        Mon,  1 Jun 2020 18:14:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 41CCE20878;
+        Mon,  1 Jun 2020 17:58:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591035249;
-        bh=dFnDNSHS2+OAHO0LGMtY8LKC5e1OPYAD0D0Dw5/i9t8=;
+        s=default; t=1591034288;
+        bh=2sZJSMSMdb3TgYm1BGiyhujYNlA7g9fPsqxBzDM1vLg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2lXi9rUYlId7cMtbgRT9vL6C/ne8rvgIt3EmlYGEDCiXG9eReWJgAK8fewV9e3qck
-         LhuCb2SrS4in4TPrMm8R7tim1LhHdajT2elQfHnx6KteLb0bqWQLoj+bU1yX01pcA3
-         Lex869doj+fbFppcwgpm2MzyiADVdtpZc478n2Wg=
+        b=HY3Onh9xBOMTx208EcPiq4t9ePaCdQ+XLUWNnUd34bhijbawgJqPoC3OKPP/ZvIsS
+         rN0zMc9typnEz+6dDz4CRHZ1Dc/ejJsIjQL0bfV3lq1oq5nOxSFY/2PTOVPHfczdra
+         BLzUIEXu2b4W59p/gWe35M/x7np9T2zljf2mzZJU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liu Yibin <jiulong@linux.alibaba.com>,
-        Guo Ren <guoren@linux.alibaba.com>,
+        stable@vger.kernel.org, Stefan Agner <stefan@agner.ch>,
+        Nicolas Pitre <nico@linaro.org>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 074/177] csky: Fixup msa highest 3 bits mask
-Date:   Mon,  1 Jun 2020 19:53:32 +0200
-Message-Id: <20200601174055.064441442@linuxfoundation.org>
+Subject: [PATCH 4.9 26/61] ARM: 8843/1: use unified assembler in headers
+Date:   Mon,  1 Jun 2020 19:53:33 +0200
+Message-Id: <20200601174016.742512478@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174048.468952319@linuxfoundation.org>
-References: <20200601174048.468952319@linuxfoundation.org>
+In-Reply-To: <20200601174010.316778377@linuxfoundation.org>
+References: <20200601174010.316778377@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,56 +45,146 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liu Yibin <jiulong@linux.alibaba.com>
+From: Stefan Agner <stefan@agner.ch>
 
-[ Upstream commit 165f2d2858013253042809df082b8df7e34e86d7 ]
+[ Upstream commit c001899a5d6c2d7a0f3b75b2307ddef137fb46a6 ]
 
-Just as comment mentioned, the msa format:
+Use unified assembler syntax (UAL) in headers. Divided syntax is
+considered deprecated. This will also allow to build the kernel
+using LLVM's integrated assembler.
 
- cr<30/31, 15> MSA register format:
- 31 - 29 | 28 - 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0
-   BA     Reserved  SH  WA  B   SO SEC  C   D   V
-
-So we should shift 29 bits not 28 bits for mask
-
-Signed-off-by: Liu Yibin <jiulong@linux.alibaba.com>
-Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+Signed-off-by: Stefan Agner <stefan@agner.ch>
+Acked-by: Nicolas Pitre <nico@linaro.org>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/csky/abiv1/inc/abi/entry.h | 4 ++--
- arch/csky/abiv2/inc/abi/entry.h | 4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ arch/arm/include/asm/assembler.h | 12 ++++++------
+ arch/arm/include/asm/vfpmacros.h |  8 ++++----
+ arch/arm/lib/bitops.h            |  8 ++++----
+ 3 files changed, 14 insertions(+), 14 deletions(-)
 
-diff --git a/arch/csky/abiv1/inc/abi/entry.h b/arch/csky/abiv1/inc/abi/entry.h
-index 5056ebb902d1..61d94ec7dd16 100644
---- a/arch/csky/abiv1/inc/abi/entry.h
-+++ b/arch/csky/abiv1/inc/abi/entry.h
-@@ -167,8 +167,8 @@
- 	 *   BA     Reserved  C   D   V
- 	 */
- 	cprcr	r6, cpcr30
--	lsri	r6, 28
--	lsli	r6, 28
-+	lsri	r6, 29
-+	lsli	r6, 29
- 	addi	r6, 0xe
- 	cpwcr	r6, cpcr30
- 
-diff --git a/arch/csky/abiv2/inc/abi/entry.h b/arch/csky/abiv2/inc/abi/entry.h
-index 111973c6c713..9023828ede97 100644
---- a/arch/csky/abiv2/inc/abi/entry.h
-+++ b/arch/csky/abiv2/inc/abi/entry.h
-@@ -225,8 +225,8 @@
- 	 */
- 	mfcr	r6, cr<30, 15> /* Get MSA0 */
- 2:
--	lsri	r6, 28
--	lsli	r6, 28
-+	lsri	r6, 29
-+	lsli	r6, 29
- 	addi	r6, 0x1ce
- 	mtcr	r6, cr<30, 15> /* Set MSA0 */
- 
+diff --git a/arch/arm/include/asm/assembler.h b/arch/arm/include/asm/assembler.h
+index 7d727506096f..c9ed0b0e0737 100644
+--- a/arch/arm/include/asm/assembler.h
++++ b/arch/arm/include/asm/assembler.h
+@@ -372,9 +372,9 @@ THUMB(	orr	\reg , \reg , #PSR_T_BIT	)
+ 	.macro	usraccoff, instr, reg, ptr, inc, off, cond, abort, t=TUSER()
+ 9999:
+ 	.if	\inc == 1
+-	\instr\cond\()b\()\t\().w \reg, [\ptr, #\off]
++	\instr\()b\t\cond\().w \reg, [\ptr, #\off]
+ 	.elseif	\inc == 4
+-	\instr\cond\()\t\().w \reg, [\ptr, #\off]
++	\instr\t\cond\().w \reg, [\ptr, #\off]
+ 	.else
+ 	.error	"Unsupported inc macro argument"
+ 	.endif
+@@ -413,9 +413,9 @@ THUMB(	orr	\reg , \reg , #PSR_T_BIT	)
+ 	.rept	\rept
+ 9999:
+ 	.if	\inc == 1
+-	\instr\cond\()b\()\t \reg, [\ptr], #\inc
++	\instr\()b\t\cond \reg, [\ptr], #\inc
+ 	.elseif	\inc == 4
+-	\instr\cond\()\t \reg, [\ptr], #\inc
++	\instr\t\cond \reg, [\ptr], #\inc
+ 	.else
+ 	.error	"Unsupported inc macro argument"
+ 	.endif
+@@ -456,7 +456,7 @@ THUMB(	orr	\reg , \reg , #PSR_T_BIT	)
+ 	.macro check_uaccess, addr:req, size:req, limit:req, tmp:req, bad:req
+ #ifndef CONFIG_CPU_USE_DOMAINS
+ 	adds	\tmp, \addr, #\size - 1
+-	sbcccs	\tmp, \tmp, \limit
++	sbcscc	\tmp, \tmp, \limit
+ 	bcs	\bad
+ #ifdef CONFIG_CPU_SPECTRE
+ 	movcs	\addr, #0
+@@ -470,7 +470,7 @@ THUMB(	orr	\reg , \reg , #PSR_T_BIT	)
+ 	sub	\tmp, \limit, #1
+ 	subs	\tmp, \tmp, \addr	@ tmp = limit - 1 - addr
+ 	addhs	\tmp, \tmp, #1		@ if (tmp >= 0) {
+-	subhss	\tmp, \tmp, \size	@ tmp = limit - (addr + size) }
++	subshs	\tmp, \tmp, \size	@ tmp = limit - (addr + size) }
+ 	movlo	\addr, #0		@ if (tmp < 0) addr = NULL
+ 	csdb
+ #endif
+diff --git a/arch/arm/include/asm/vfpmacros.h b/arch/arm/include/asm/vfpmacros.h
+index 301c1db3e99b..66748c04aed2 100644
+--- a/arch/arm/include/asm/vfpmacros.h
++++ b/arch/arm/include/asm/vfpmacros.h
+@@ -28,13 +28,13 @@
+ 	ldr	\tmp, =elf_hwcap		    @ may not have MVFR regs
+ 	ldr	\tmp, [\tmp, #0]
+ 	tst	\tmp, #HWCAP_VFPD32
+-	ldcnel	p11, cr0, [\base],#32*4		    @ FLDMIAD \base!, {d16-d31}
++	ldclne	p11, cr0, [\base],#32*4		    @ FLDMIAD \base!, {d16-d31}
+ 	addeq	\base, \base, #32*4		    @ step over unused register space
+ #else
+ 	VFPFMRX	\tmp, MVFR0			    @ Media and VFP Feature Register 0
+ 	and	\tmp, \tmp, #MVFR0_A_SIMD_MASK	    @ A_SIMD field
+ 	cmp	\tmp, #2			    @ 32 x 64bit registers?
+-	ldceql	p11, cr0, [\base],#32*4		    @ FLDMIAD \base!, {d16-d31}
++	ldcleq	p11, cr0, [\base],#32*4		    @ FLDMIAD \base!, {d16-d31}
+ 	addne	\base, \base, #32*4		    @ step over unused register space
+ #endif
+ #endif
+@@ -52,13 +52,13 @@
+ 	ldr	\tmp, =elf_hwcap		    @ may not have MVFR regs
+ 	ldr	\tmp, [\tmp, #0]
+ 	tst	\tmp, #HWCAP_VFPD32
+-	stcnel	p11, cr0, [\base],#32*4		    @ FSTMIAD \base!, {d16-d31}
++	stclne	p11, cr0, [\base],#32*4		    @ FSTMIAD \base!, {d16-d31}
+ 	addeq	\base, \base, #32*4		    @ step over unused register space
+ #else
+ 	VFPFMRX	\tmp, MVFR0			    @ Media and VFP Feature Register 0
+ 	and	\tmp, \tmp, #MVFR0_A_SIMD_MASK	    @ A_SIMD field
+ 	cmp	\tmp, #2			    @ 32 x 64bit registers?
+-	stceql	p11, cr0, [\base],#32*4		    @ FSTMIAD \base!, {d16-d31}
++	stcleq	p11, cr0, [\base],#32*4		    @ FSTMIAD \base!, {d16-d31}
+ 	addne	\base, \base, #32*4		    @ step over unused register space
+ #endif
+ #endif
+diff --git a/arch/arm/lib/bitops.h b/arch/arm/lib/bitops.h
+index 7d807cfd8ef5..d9c32b822eda 100644
+--- a/arch/arm/lib/bitops.h
++++ b/arch/arm/lib/bitops.h
+@@ -6,7 +6,7 @@
+ ENTRY(	\name		)
+ UNWIND(	.fnstart	)
+ 	ands	ip, r1, #3
+-	strneb	r1, [ip]		@ assert word-aligned
++	strbne	r1, [ip]		@ assert word-aligned
+ 	mov	r2, #1
+ 	and	r3, r0, #31		@ Get bit offset
+ 	mov	r0, r0, lsr #5
+@@ -31,7 +31,7 @@ ENDPROC(\name		)
+ ENTRY(	\name		)
+ UNWIND(	.fnstart	)
+ 	ands	ip, r1, #3
+-	strneb	r1, [ip]		@ assert word-aligned
++	strbne	r1, [ip]		@ assert word-aligned
+ 	mov	r2, #1
+ 	and	r3, r0, #31		@ Get bit offset
+ 	mov	r0, r0, lsr #5
+@@ -61,7 +61,7 @@ ENDPROC(\name		)
+ ENTRY(	\name		)
+ UNWIND(	.fnstart	)
+ 	ands	ip, r1, #3
+-	strneb	r1, [ip]		@ assert word-aligned
++	strbne	r1, [ip]		@ assert word-aligned
+ 	and	r2, r0, #31
+ 	mov	r0, r0, lsr #5
+ 	mov	r3, #1
+@@ -88,7 +88,7 @@ ENDPROC(\name		)
+ ENTRY(	\name		)
+ UNWIND(	.fnstart	)
+ 	ands	ip, r1, #3
+-	strneb	r1, [ip]		@ assert word-aligned
++	strbne	r1, [ip]		@ assert word-aligned
+ 	and	r3, r0, #31
+ 	mov	r0, r0, lsr #5
+ 	save_and_disable_irqs ip
 -- 
 2.25.1
 
