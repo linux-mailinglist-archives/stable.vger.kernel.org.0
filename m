@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 77D031EAB75
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:17:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 57B171EAA2A
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:05:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731597AbgFASRh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:17:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38830 "EHLO mail.kernel.org"
+        id S1730357AbgFASFm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:05:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50878 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731839AbgFASRg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:17:36 -0400
+        id S1730351AbgFASFm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:05:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 276D8207DF;
-        Mon,  1 Jun 2020 18:17:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9D6752068D;
+        Mon,  1 Jun 2020 18:05:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591035455;
-        bh=oiJD1lvlGpAMOl4+JyAb/XV8vol2tJ+m0TEGWwrbjG4=;
+        s=default; t=1591034741;
+        bh=hr+aE4vMyCm2J9i/HYfT1scmVwkjoweSmSyJiGUBJ00=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tik1PayvXSP84nMQLO1l3Ej2B8dEBA8e2WAP7Sa1VglXPaeixGRDucYGOY67I1O03
-         rQu5FNolygtG/tFT4BamV0NQFrUi/hiLYR+E/NX2ddz5EbZYi5HGFYWNiIwPtbwJki
-         wSppkCR7yY7uXrHdW4DczO9qK06zHU8kD1jCzsNs=
+        b=d7jI2olt2d1nEn24HmbQerIt28JviB1G0O5DhcNe4LGOIgn1PInkKGdAKCKqeYyJO
+         tE1TPylVbQJd1OPWweuAnx2q1FJfVEyL7epe9IwAy+svlxCzrVhbL2aWXjrFCV8gLN
+         vgWlLfKbUD0RL4IWjW2wYQ8AGrzldm6ioKh0z2GI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aric Cyr <aric.cyr@amd.com>,
-        Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>,
-        Qingqing Zhuo <qingqing.zhuo@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 130/177] drm/amd/display: Fix potential integer wraparound resulting in a hang
-Date:   Mon,  1 Jun 2020 19:54:28 +0200
-Message-Id: <20200601174059.362346545@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Minh=20B=C3=B9i=20Quang?= <minhquangbui99@gmail.com>,
+        =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn.topel@intel.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Jonathan Lemon <jonathan.lemon@gmail.com>
+Subject: [PATCH 4.19 89/95] xsk: Add overflow check for u64 division, stored into u32
+Date:   Mon,  1 Jun 2020 19:54:29 +0200
+Message-Id: <20200601174034.017831101@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174048.468952319@linuxfoundation.org>
-References: <20200601174048.468952319@linuxfoundation.org>
+In-Reply-To: <20200601174020.759151073@linuxfoundation.org>
+References: <20200601174020.759151073@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,42 +46,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aric Cyr <aric.cyr@amd.com>
+From: Björn Töpel <bjorn.topel@intel.com>
 
-[ Upstream commit 4e5183200d9b66695c754ef214933402056e7b95 ]
+commit b16a87d0aef7a6be766f6618976dc5ff2c689291 upstream.
 
-[Why]
-If VUPDATE_END is before VUPDATE_START the delay calculated can become
-very large, causing a soft hang.
+The npgs member of struct xdp_umem is an u32 entity, and stores the
+number of pages the UMEM consumes. The calculation of npgs
 
-[How]
-Take the absolute value of the difference between START and END.
+  npgs = size / PAGE_SIZE
 
-Signed-off-by: Aric Cyr <aric.cyr@amd.com>
-Reviewed-by: Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>
-Acked-by: Qingqing Zhuo <qingqing.zhuo@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+can overflow.
+
+To avoid overflow scenarios, the division is now first stored in a
+u64, and the result is verified to fit into 32b.
+
+An alternative would be storing the npgs as a u64, however, this
+wastes memory and is an unrealisticly large packet area.
+
+Fixes: c0c77d8fb787 ("xsk: add user memory registration support sockopt")
+Reported-by: "Minh Bùi Quang" <minhquangbui99@gmail.com>
+Signed-off-by: Björn Töpel <bjorn.topel@intel.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Jonathan Lemon <jonathan.lemon@gmail.com>
+Link: https://lore.kernel.org/bpf/CACtPs=GGvV-_Yj6rbpzTVnopgi5nhMoCcTkSkYrJHGQHJWFZMQ@mail.gmail.com/
+Link: https://lore.kernel.org/bpf/20200525080400.13195-1-bjorn.topel@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c | 2 ++
- 1 file changed, 2 insertions(+)
+ net/xdp/xdp_umem.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
-index 60cea910759b..0c987b5d68e2 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
-@@ -1651,6 +1651,8 @@ static void delay_cursor_until_vupdate(struct dc *dc, struct pipe_ctx *pipe_ctx)
- 		return;
+--- a/net/xdp/xdp_umem.c
++++ b/net/xdp/xdp_umem.c
+@@ -258,8 +258,8 @@ static int xdp_umem_account_pages(struct
+ static int xdp_umem_reg(struct xdp_umem *umem, struct xdp_umem_reg *mr)
+ {
+ 	u32 chunk_size = mr->chunk_size, headroom = mr->headroom;
++	u64 npgs, addr = mr->addr, size = mr->len;
+ 	unsigned int chunks, chunks_per_page;
+-	u64 addr = mr->addr, size = mr->len;
+ 	int err, i;
  
- 	/* Stall out until the cursor update completes. */
-+	if (vupdate_end < vupdate_start)
-+		vupdate_end += stream->timing.v_total;
- 	us_vupdate = (vupdate_end - vupdate_start + 1) * us_per_line;
- 	udelay(us_to_vupdate + us_vupdate);
- }
--- 
-2.25.1
-
+ 	if (chunk_size < XDP_UMEM_MIN_CHUNK_SIZE || chunk_size > PAGE_SIZE) {
+@@ -285,6 +285,10 @@ static int xdp_umem_reg(struct xdp_umem
+ 	if ((addr + size) < addr)
+ 		return -EINVAL;
+ 
++	npgs = div_u64(size, PAGE_SIZE);
++	if (npgs > U32_MAX)
++		return -EINVAL;
++
+ 	chunks = (unsigned int)div_u64(size, chunk_size);
+ 	if (chunks == 0)
+ 		return -EINVAL;
+@@ -303,7 +307,7 @@ static int xdp_umem_reg(struct xdp_umem
+ 	umem->props.size = size;
+ 	umem->headroom = headroom;
+ 	umem->chunk_size_nohr = chunk_size - headroom;
+-	umem->npgs = size / PAGE_SIZE;
++	umem->npgs = (u32)npgs;
+ 	umem->pgs = NULL;
+ 	umem->user = NULL;
+ 	INIT_LIST_HEAD(&umem->xsk_list);
 
 
