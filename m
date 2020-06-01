@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 518751EAD15
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:43:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6575A1EAD13
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:43:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730710AbgFASm1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:42:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58952 "EHLO mail.kernel.org"
+        id S1728306AbgFASmV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:42:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59052 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730416AbgFASLo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:11:44 -0400
+        id S1730738AbgFASLs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:11:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 92A2120825;
-        Mon,  1 Jun 2020 18:11:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0BD08206E2;
+        Mon,  1 Jun 2020 18:11:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591035103;
-        bh=zyOJLdQKVxJwVgLPFoUQkQN8r+16PCU3njpaITBRIc0=;
+        s=default; t=1591035107;
+        bh=s64/yOrqjRryiLLEvBWLFthv1pG3lwad//oPhq1Qs7g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qso2lNN5H9VqjP0Uj4RCMJfpO8FaIPsXRbwjQnAbVQd3LgUCfDgK5ZAXntbqSi56k
-         XaaIXNzFCAYmx+ET8IX8QOyC3HL2zMyNXcHD5UiCs292Be+dIyXVbjt3IAeTETu5hE
-         qNrcHkXm54RRjQHXXxCb6mPJeySFHtsTDQZgE0W4=
+        b=OwCDzMnlmTvg/64QXDcEGyjqQv3TLG8/8omaNxdN8ope2aCKoTHqXmZMzf0hM2sMw
+         JHbdiF0K5hhd392Kr8wVe1V75nbNOFhW1Br01vZPgI+F9Tz1YFtc+MBuihomn+su+8
+         HSBKpbkikH1INmCQfcN/4glh0AnseaCpynP5kAQg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Moshe Shemesh <moshe@mellanox.com>,
-        Eran Ben Elisha <eranbe@mellanox.com>,
-        Saeed Mahameed <saeedm@mellanox.com>
-Subject: [PATCH 5.6 011/177] net/mlx5: Add command entry handling completion
-Date:   Mon,  1 Jun 2020 19:52:29 +0200
-Message-Id: <20200601174049.569200776@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Stephen Worley <sworley@cumulusnetworks.com>,
+        David Ahern <dsahern@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.6 013/177] net: nlmsg_cancel() if put fails for nhmsg
+Date:   Mon,  1 Jun 2020 19:52:31 +0200
+Message-Id: <20200601174049.745534865@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200601174048.468952319@linuxfoundation.org>
 References: <20200601174048.468952319@linuxfoundation.org>
@@ -44,96 +45,195 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Moshe Shemesh <moshe@mellanox.com>
+From: Stephen Worley <sworley@cumulusnetworks.com>
 
-[ Upstream commit 17d00e839d3b592da9659c1977d45f85b77f986a ]
+[ Upstream commit d69100b8eee27c2d60ee52df76e0b80a8d492d34 ]
 
-When FW response to commands is very slow and all command entries in
-use are waiting for completion we can have a race where commands can get
-timeout before they get out of the queue and handled. Timeout
-completion on uninitialized command will cause releasing command's
-buffers before accessing it for initialization and then we will get NULL
-pointer exception while trying access it. It may also cause releasing
-buffers of another command since we may have timeout completion before
-even allocating entry index for this command.
-Add entry handling completion to avoid this race.
+Fixes data remnant seen when we fail to reserve space for a
+nexthop group during a larger dump.
 
-Fixes: e126ba97dba9 ("mlx5: Add driver for Mellanox Connect-IB adapters")
-Signed-off-by: Moshe Shemesh <moshe@mellanox.com>
-Signed-off-by: Eran Ben Elisha <eranbe@mellanox.com>
-Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
+If we fail the reservation, we goto nla_put_failure and
+cancel the message.
+
+Reproduce with the following iproute2 commands:
+=====================
+ip link add dummy1 type dummy
+ip link add dummy2 type dummy
+ip link add dummy3 type dummy
+ip link add dummy4 type dummy
+ip link add dummy5 type dummy
+ip link add dummy6 type dummy
+ip link add dummy7 type dummy
+ip link add dummy8 type dummy
+ip link add dummy9 type dummy
+ip link add dummy10 type dummy
+ip link add dummy11 type dummy
+ip link add dummy12 type dummy
+ip link add dummy13 type dummy
+ip link add dummy14 type dummy
+ip link add dummy15 type dummy
+ip link add dummy16 type dummy
+ip link add dummy17 type dummy
+ip link add dummy18 type dummy
+ip link add dummy19 type dummy
+ip link add dummy20 type dummy
+ip link add dummy21 type dummy
+ip link add dummy22 type dummy
+ip link add dummy23 type dummy
+ip link add dummy24 type dummy
+ip link add dummy25 type dummy
+ip link add dummy26 type dummy
+ip link add dummy27 type dummy
+ip link add dummy28 type dummy
+ip link add dummy29 type dummy
+ip link add dummy30 type dummy
+ip link add dummy31 type dummy
+ip link add dummy32 type dummy
+
+ip link set dummy1 up
+ip link set dummy2 up
+ip link set dummy3 up
+ip link set dummy4 up
+ip link set dummy5 up
+ip link set dummy6 up
+ip link set dummy7 up
+ip link set dummy8 up
+ip link set dummy9 up
+ip link set dummy10 up
+ip link set dummy11 up
+ip link set dummy12 up
+ip link set dummy13 up
+ip link set dummy14 up
+ip link set dummy15 up
+ip link set dummy16 up
+ip link set dummy17 up
+ip link set dummy18 up
+ip link set dummy19 up
+ip link set dummy20 up
+ip link set dummy21 up
+ip link set dummy22 up
+ip link set dummy23 up
+ip link set dummy24 up
+ip link set dummy25 up
+ip link set dummy26 up
+ip link set dummy27 up
+ip link set dummy28 up
+ip link set dummy29 up
+ip link set dummy30 up
+ip link set dummy31 up
+ip link set dummy32 up
+
+ip link set dummy33 up
+ip link set dummy34 up
+
+ip link set vrf-red up
+ip link set vrf-blue up
+
+ip link set dummyVRFred up
+ip link set dummyVRFblue up
+
+ip ro add 1.1.1.1/32 dev dummy1
+ip ro add 1.1.1.2/32 dev dummy2
+ip ro add 1.1.1.3/32 dev dummy3
+ip ro add 1.1.1.4/32 dev dummy4
+ip ro add 1.1.1.5/32 dev dummy5
+ip ro add 1.1.1.6/32 dev dummy6
+ip ro add 1.1.1.7/32 dev dummy7
+ip ro add 1.1.1.8/32 dev dummy8
+ip ro add 1.1.1.9/32 dev dummy9
+ip ro add 1.1.1.10/32 dev dummy10
+ip ro add 1.1.1.11/32 dev dummy11
+ip ro add 1.1.1.12/32 dev dummy12
+ip ro add 1.1.1.13/32 dev dummy13
+ip ro add 1.1.1.14/32 dev dummy14
+ip ro add 1.1.1.15/32 dev dummy15
+ip ro add 1.1.1.16/32 dev dummy16
+ip ro add 1.1.1.17/32 dev dummy17
+ip ro add 1.1.1.18/32 dev dummy18
+ip ro add 1.1.1.19/32 dev dummy19
+ip ro add 1.1.1.20/32 dev dummy20
+ip ro add 1.1.1.21/32 dev dummy21
+ip ro add 1.1.1.22/32 dev dummy22
+ip ro add 1.1.1.23/32 dev dummy23
+ip ro add 1.1.1.24/32 dev dummy24
+ip ro add 1.1.1.25/32 dev dummy25
+ip ro add 1.1.1.26/32 dev dummy26
+ip ro add 1.1.1.27/32 dev dummy27
+ip ro add 1.1.1.28/32 dev dummy28
+ip ro add 1.1.1.29/32 dev dummy29
+ip ro add 1.1.1.30/32 dev dummy30
+ip ro add 1.1.1.31/32 dev dummy31
+ip ro add 1.1.1.32/32 dev dummy32
+
+ip next add id 1 via 1.1.1.1 dev dummy1
+ip next add id 2 via 1.1.1.2 dev dummy2
+ip next add id 3 via 1.1.1.3 dev dummy3
+ip next add id 4 via 1.1.1.4 dev dummy4
+ip next add id 5 via 1.1.1.5 dev dummy5
+ip next add id 6 via 1.1.1.6 dev dummy6
+ip next add id 7 via 1.1.1.7 dev dummy7
+ip next add id 8 via 1.1.1.8 dev dummy8
+ip next add id 9 via 1.1.1.9 dev dummy9
+ip next add id 10 via 1.1.1.10 dev dummy10
+ip next add id 11 via 1.1.1.11 dev dummy11
+ip next add id 12 via 1.1.1.12 dev dummy12
+ip next add id 13 via 1.1.1.13 dev dummy13
+ip next add id 14 via 1.1.1.14 dev dummy14
+ip next add id 15 via 1.1.1.15 dev dummy15
+ip next add id 16 via 1.1.1.16 dev dummy16
+ip next add id 17 via 1.1.1.17 dev dummy17
+ip next add id 18 via 1.1.1.18 dev dummy18
+ip next add id 19 via 1.1.1.19 dev dummy19
+ip next add id 20 via 1.1.1.20 dev dummy20
+ip next add id 21 via 1.1.1.21 dev dummy21
+ip next add id 22 via 1.1.1.22 dev dummy22
+ip next add id 23 via 1.1.1.23 dev dummy23
+ip next add id 24 via 1.1.1.24 dev dummy24
+ip next add id 25 via 1.1.1.25 dev dummy25
+ip next add id 26 via 1.1.1.26 dev dummy26
+ip next add id 27 via 1.1.1.27 dev dummy27
+ip next add id 28 via 1.1.1.28 dev dummy28
+ip next add id 29 via 1.1.1.29 dev dummy29
+ip next add id 30 via 1.1.1.30 dev dummy30
+ip next add id 31 via 1.1.1.31 dev dummy31
+ip next add id 32 via 1.1.1.32 dev dummy32
+
+i=100
+
+while [ $i -le 200 ]
+do
+ip next add id $i group 1/2/3/4/5/6/7/8/9/10/11/12/13/14/15/16/17/18/19
+
+	echo $i
+
+	((i++))
+
+done
+
+ip next add id 999 group 1/2/3/4/5/6
+
+ip next ls
+
+========================
+
+Fixes: ab84be7e54fc ("net: Initial nexthop code")
+Signed-off-by: Stephen Worley <sworley@cumulusnetworks.com>
+Reviewed-by: David Ahern <dsahern@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/cmd.c |   14 ++++++++++++++
- include/linux/mlx5/driver.h                   |    1 +
- 2 files changed, 15 insertions(+)
+ net/ipv4/nexthop.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
-@@ -861,6 +861,7 @@ static void cmd_work_handler(struct work
- 	int alloc_ret;
- 	int cmd_mode;
+--- a/net/ipv4/nexthop.c
++++ b/net/ipv4/nexthop.c
+@@ -276,6 +276,7 @@ out:
+ 	return 0;
  
-+	complete(&ent->handling);
- 	sem = ent->page_queue ? &cmd->pages_sem : &cmd->sem;
- 	down(sem);
- 	if (!ent->page_queue) {
-@@ -978,6 +979,11 @@ static int wait_func(struct mlx5_core_de
- 	struct mlx5_cmd *cmd = &dev->cmd;
- 	int err;
+ nla_put_failure:
++	nlmsg_cancel(skb, nlh);
+ 	return -EMSGSIZE;
+ }
  
-+	if (!wait_for_completion_timeout(&ent->handling, timeout) &&
-+	    cancel_work_sync(&ent->work)) {
-+		ent->ret = -ECANCELED;
-+		goto out_err;
-+	}
- 	if (cmd->mode == CMD_MODE_POLLING || ent->polling) {
- 		wait_for_completion(&ent->done);
- 	} else if (!wait_for_completion_timeout(&ent->done, timeout)) {
-@@ -985,12 +991,17 @@ static int wait_func(struct mlx5_core_de
- 		mlx5_cmd_comp_handler(dev, 1UL << ent->idx, true);
- 	}
- 
-+out_err:
- 	err = ent->ret;
- 
- 	if (err == -ETIMEDOUT) {
- 		mlx5_core_warn(dev, "%s(0x%x) timeout. Will cause a leak of a command resource\n",
- 			       mlx5_command_str(msg_to_opcode(ent->in)),
- 			       msg_to_opcode(ent->in));
-+	} else if (err == -ECANCELED) {
-+		mlx5_core_warn(dev, "%s(0x%x) canceled on out of queue timeout.\n",
-+			       mlx5_command_str(msg_to_opcode(ent->in)),
-+			       msg_to_opcode(ent->in));
- 	}
- 	mlx5_core_dbg(dev, "err %d, delivery status %s(%d)\n",
- 		      err, deliv_status_to_str(ent->status), ent->status);
-@@ -1026,6 +1037,7 @@ static int mlx5_cmd_invoke(struct mlx5_c
- 	ent->token = token;
- 	ent->polling = force_polling;
- 
-+	init_completion(&ent->handling);
- 	if (!callback)
- 		init_completion(&ent->done);
- 
-@@ -1045,6 +1057,8 @@ static int mlx5_cmd_invoke(struct mlx5_c
- 	err = wait_func(dev, ent);
- 	if (err == -ETIMEDOUT)
- 		goto out;
-+	if (err == -ECANCELED)
-+		goto out_free;
- 
- 	ds = ent->ts2 - ent->ts1;
- 	op = MLX5_GET(mbox_in, in->first.data, opcode);
---- a/include/linux/mlx5/driver.h
-+++ b/include/linux/mlx5/driver.h
-@@ -761,6 +761,7 @@ struct mlx5_cmd_work_ent {
- 	struct delayed_work	cb_timeout_work;
- 	void		       *context;
- 	int			idx;
-+	struct completion	handling;
- 	struct completion	done;
- 	struct mlx5_cmd        *cmd;
- 	struct work_struct	work;
 
 
