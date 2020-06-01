@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4584F1EAB00
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:17:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7737B1EA92E
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:01:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731339AbgFASN1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:13:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32966 "EHLO mail.kernel.org"
+        id S1728896AbgFAR7A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 13:59:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41258 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730984AbgFASN1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:13:27 -0400
+        id S1728860AbgFAR67 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 13:58:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1B00C2068D;
-        Mon,  1 Jun 2020 18:13:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A75BC2073B;
+        Mon,  1 Jun 2020 17:58:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591035206;
-        bh=PwGEB/vLSvl2vUNqv3qWtWIltm08uq5RJYrsOTA1Xek=;
+        s=default; t=1591034338;
+        bh=74+IIIRpJHMgoiPC+c9xybwgJsFk9/HAPtNXW8pzjf4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HM0bcWE8EfcBxPofBY2V/zsZQh1YSDtEUCd5+D06LW3VBoHkXKdcqxw0Ucdy0dMQW
-         HRGi2oIhnhFeTB3SyC0RqbqudoPZwlfIEhPvVGY5PJ8gHy4q0hCv9yvPvVdsoYVW/i
-         kvAiKyeirENpS3e/wVIqVnTapB4Lpv7hJYJuTj1U=
+        b=X5KMcetY5naBldcO4EqrofUstmyPOwAA9XQmdJMvnUxvfUn1yw1wHxizxeA8PPeiY
+         KOoMNHD7uAMxDsXQuaBaZ/zn+eNi78trp9V9PE49pvKxEHjP1rKMFF63cMZ9vVYdzW
+         YiAwGiX0Vp2HptmcZg/rk40aViYWJ0UshvH0gZCA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bob Peterson <rpeterso@redhat.com>,
-        Andreas Gruenbacher <agruenba@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 057/177] gfs2: move privileged user check to gfs2_quota_lock_check
+        stable@vger.kernel.org, Moshe Shemesh <moshe@mellanox.com>,
+        Eran Ben Elisha <eranbe@mellanox.com>,
+        Saeed Mahameed <saeedm@mellanox.com>
+Subject: [PATCH 4.9 08/61] net/mlx5: Add command entry handling completion
 Date:   Mon,  1 Jun 2020 19:53:15 +0200
-Message-Id: <20200601174053.747201649@linuxfoundation.org>
+Message-Id: <20200601174013.333784428@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174048.468952319@linuxfoundation.org>
-References: <20200601174048.468952319@linuxfoundation.org>
+In-Reply-To: <20200601174010.316778377@linuxfoundation.org>
+References: <20200601174010.316778377@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,57 +44,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bob Peterson <rpeterso@redhat.com>
+From: Moshe Shemesh <moshe@mellanox.com>
 
-[ Upstream commit 4ed0c30811cb4d30ef89850b787a53a84d5d2bcb ]
+[ Upstream commit 17d00e839d3b592da9659c1977d45f85b77f986a ]
 
-Before this patch, function gfs2_quota_lock checked if it was called
-from a privileged user, and if so, it bypassed the quota check:
-superuser can operate outside the quotas.
-That's the wrong place for the check because the lock/unlock functions
-are separate from the lock_check function, and you can do lock and
-unlock without actually checking the quotas.
+When FW response to commands is very slow and all command entries in
+use are waiting for completion we can have a race where commands can get
+timeout before they get out of the queue and handled. Timeout
+completion on uninitialized command will cause releasing command's
+buffers before accessing it for initialization and then we will get NULL
+pointer exception while trying access it. It may also cause releasing
+buffers of another command since we may have timeout completion before
+even allocating entry index for this command.
+Add entry handling completion to avoid this race.
 
-This patch moves the check to gfs2_quota_lock_check.
-
-Signed-off-by: Bob Peterson <rpeterso@redhat.com>
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: e126ba97dba9 ("mlx5: Add driver for Mellanox Connect-IB adapters")
+Signed-off-by: Moshe Shemesh <moshe@mellanox.com>
+Signed-off-by: Eran Ben Elisha <eranbe@mellanox.com>
+Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/gfs2/quota.c | 3 +--
- fs/gfs2/quota.h | 3 ++-
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/cmd.c |   15 +++++++++++++++
+ include/linux/mlx5/driver.h                   |    1 +
+ 2 files changed, 16 insertions(+)
 
-diff --git a/fs/gfs2/quota.c b/fs/gfs2/quota.c
-index e9f93045eb01..832d44782f74 100644
---- a/fs/gfs2/quota.c
-+++ b/fs/gfs2/quota.c
-@@ -1040,8 +1040,7 @@ int gfs2_quota_lock(struct gfs2_inode *ip, kuid_t uid, kgid_t gid)
- 	u32 x;
- 	int error = 0;
+--- a/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
+@@ -786,6 +786,7 @@ static void cmd_work_handler(struct work
+ 	int alloc_ret;
+ 	int cmd_mode;
  
--	if (capable(CAP_SYS_RESOURCE) ||
--	    sdp->sd_args.ar_quota != GFS2_QUOTA_ON)
-+	if (sdp->sd_args.ar_quota != GFS2_QUOTA_ON)
- 		return 0;
++	complete(&ent->handling);
+ 	sem = ent->page_queue ? &cmd->pages_sem : &cmd->sem;
+ 	down(sem);
+ 	if (!ent->page_queue) {
+@@ -904,6 +905,12 @@ static int wait_func(struct mlx5_core_de
+ 	struct mlx5_cmd *cmd = &dev->cmd;
+ 	int err;
  
- 	error = gfs2_quota_hold(ip, uid, gid);
-diff --git a/fs/gfs2/quota.h b/fs/gfs2/quota.h
-index 765627d9a91e..fe68a91dc16f 100644
---- a/fs/gfs2/quota.h
-+++ b/fs/gfs2/quota.h
-@@ -44,7 +44,8 @@ static inline int gfs2_quota_lock_check(struct gfs2_inode *ip,
- 	int ret;
++	if (!wait_for_completion_timeout(&ent->handling, timeout) &&
++	    cancel_work_sync(&ent->work)) {
++		ent->ret = -ECANCELED;
++		goto out_err;
++	}
++
+ 	if (cmd->mode == CMD_MODE_POLLING) {
+ 		wait_for_completion(&ent->done);
+ 	} else if (!wait_for_completion_timeout(&ent->done, timeout)) {
+@@ -911,12 +918,17 @@ static int wait_func(struct mlx5_core_de
+ 		mlx5_cmd_comp_handler(dev, 1UL << ent->idx, true);
+ 	}
  
- 	ap->allowed = UINT_MAX; /* Assume we are permitted a whole lot */
--	if (sdp->sd_args.ar_quota == GFS2_QUOTA_OFF)
-+	if (capable(CAP_SYS_RESOURCE) ||
-+	    sdp->sd_args.ar_quota == GFS2_QUOTA_OFF)
- 		return 0;
- 	ret = gfs2_quota_lock(ip, NO_UID_QUOTA_CHANGE, NO_GID_QUOTA_CHANGE);
- 	if (ret)
--- 
-2.25.1
-
++out_err:
+ 	err = ent->ret;
+ 
+ 	if (err == -ETIMEDOUT) {
+ 		mlx5_core_warn(dev, "%s(0x%x) timeout. Will cause a leak of a command resource\n",
+ 			       mlx5_command_str(msg_to_opcode(ent->in)),
+ 			       msg_to_opcode(ent->in));
++	} else if (err == -ECANCELED) {
++		mlx5_core_warn(dev, "%s(0x%x) canceled on out of queue timeout.\n",
++			       mlx5_command_str(msg_to_opcode(ent->in)),
++			       msg_to_opcode(ent->in));
+ 	}
+ 	mlx5_core_dbg(dev, "err %d, delivery status %s(%d)\n",
+ 		      err, deliv_status_to_str(ent->status), ent->status);
+@@ -951,6 +963,7 @@ static int mlx5_cmd_invoke(struct mlx5_c
+ 
+ 	ent->token = token;
+ 
++	init_completion(&ent->handling);
+ 	if (!callback)
+ 		init_completion(&ent->done);
+ 
+@@ -970,6 +983,8 @@ static int mlx5_cmd_invoke(struct mlx5_c
+ 	err = wait_func(dev, ent);
+ 	if (err == -ETIMEDOUT)
+ 		goto out;
++	if (err == -ECANCELED)
++		goto out_free;
+ 
+ 	ds = ent->ts2 - ent->ts1;
+ 	op = MLX5_GET(mbox_in, in->first.data, opcode);
+--- a/include/linux/mlx5/driver.h
++++ b/include/linux/mlx5/driver.h
+@@ -656,6 +656,7 @@ struct mlx5_cmd_work_ent {
+ 	struct delayed_work	cb_timeout_work;
+ 	void		       *context;
+ 	int			idx;
++	struct completion	handling;
+ 	struct completion	done;
+ 	struct mlx5_cmd        *cmd;
+ 	struct work_struct	work;
 
 
