@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B43351EAD39
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:44:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 73FA81EAD47
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:44:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731052AbgFASLB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:11:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58072 "EHLO mail.kernel.org"
+        id S1728294AbgFASn6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:43:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58160 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731055AbgFASLB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:11:01 -0400
+        id S1730477AbgFASLF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:11:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AA0572065C;
-        Mon,  1 Jun 2020 18:10:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2F61F206E2;
+        Mon,  1 Jun 2020 18:11:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591035060;
-        bh=W43aGQ00dTwqe1H56y9e1QDiJiLZoILO1W7ABeFmDmY=;
+        s=default; t=1591035064;
+        bh=Ku7SeBRPKctbDs9kFxC9F7jkNt5OLICrrA9kqwMBLac=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FzdvdqVLqSw4SOufgL/qh6aSBQoaE5GL6X2aw6w4pzbizLQLmWZgFy0Ou16XZPtfn
-         EnI9m4K5LleqMmKzzOvI1V10hVOFdQoTJYgRRcK5cwsYucq8WYRT2o66O8hr/FV0kN
-         ICsQut4EBEIvqDQxrzJRFVMPiJaB1wFaaaAyjf/0=
+        b=M5JRm0jMySJ50SLCZlsO4Z1qe9RS7USPREx9o2a99orurZvMc7EJTpeHjn+qvwdMQ
+         PZiWyp2JkbBU5E7OSAR/uYtITCTL1CKTt+Lklggd1YTz2HJ+xnzayQl04bk45yI4bw
+         LpsbJthSoHrYLm980AkjFPCWdsZunCjB888dnSOs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
+        stable@vger.kernel.org, David Ahern <dsahern@gmail.com>,
         Nikolay Aleksandrov <nikolay@cumulusnetworks.com>,
-        David Ahern <dsahern@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 133/142] nexthops: dont modify published nexthop groups
-Date:   Mon,  1 Jun 2020 19:54:51 +0200
-Message-Id: <20200601174051.520155690@linuxfoundation.org>
+Subject: [PATCH 5.4 135/142] ipv4: nexthop version of fib_info_nh_uses_dev
+Date:   Mon,  1 Jun 2020 19:54:53 +0200
+Message-Id: <20200601174051.690845158@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200601174037.904070960@linuxfoundation.org>
 References: <20200601174037.904070960@linuxfoundation.org>
@@ -45,200 +44,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+From: David Ahern <dsahern@gmail.com>
 
-commit 90f33bffa382598a32cc82abfeb20adc92d041b6 upstream.
+commit 1fd1c768f3624a5e66766e7b4ddb9b607cd834a5 upstream.
 
-We must avoid modifying published nexthop groups while they might be
-in use, otherwise we might see NULL ptr dereferences. In order to do
-that we allocate 2 nexthoup group structures upon nexthop creation
-and swap between them when we have to delete an entry. The reason is
-that we can't fail nexthop group removal, so we can't handle allocation
-failure thus we move the extra allocation on creation where we can
-safely fail and return ENOMEM.
+Similar to the last path, need to fix fib_info_nh_uses_dev for
+external nexthops to avoid referencing multiple nh_grp structs.
+Move the device check in fib_info_nh_uses_dev to a helper and
+create a nexthop version that is called if the fib_info uses an
+external nexthop.
 
 Fixes: 430a049190de ("nexthop: Add support for nexthop groups")
-Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 Signed-off-by: David Ahern <dsahern@gmail.com>
+Acked-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/net/nexthop.h |    1 
- net/ipv4/nexthop.c    |   91 +++++++++++++++++++++++++++++++-------------------
- 2 files changed, 59 insertions(+), 33 deletions(-)
+ include/net/ip_fib.h    |   10 ++++++++++
+ include/net/nexthop.h   |   25 +++++++++++++++++++++++++
+ net/ipv4/fib_frontend.c |   19 ++++++++++---------
+ 3 files changed, 45 insertions(+), 9 deletions(-)
 
+--- a/include/net/ip_fib.h
++++ b/include/net/ip_fib.h
+@@ -422,6 +422,16 @@ static inline int fib_num_tclassid_users
+ #endif
+ int fib_unmerge(struct net *net);
+ 
++static inline bool nhc_l3mdev_matches_dev(const struct fib_nh_common *nhc,
++const struct net_device *dev)
++{
++	if (nhc->nhc_dev == dev ||
++	    l3mdev_master_ifindex_rcu(nhc->nhc_dev) == dev->ifindex)
++		return true;
++
++	return false;
++}
++
+ /* Exported by fib_semantics.c */
+ int ip_fib_check_default(__be32 gw, struct net_device *dev);
+ int fib_sync_down_dev(struct net_device *dev, unsigned long event, bool force);
 --- a/include/net/nexthop.h
 +++ b/include/net/nexthop.h
-@@ -70,6 +70,7 @@ struct nh_grp_entry {
- };
- 
- struct nh_group {
-+	struct nh_group		*spare; /* spare group for removals */
- 	u16			num_nh;
- 	bool			mpath;
- 	bool			has_v4;
---- a/net/ipv4/nexthop.c
-+++ b/net/ipv4/nexthop.c
-@@ -64,9 +64,16 @@ static void nexthop_free_mpath(struct ne
- 	int i;
- 
- 	nhg = rcu_dereference_raw(nh->nh_grp);
--	for (i = 0; i < nhg->num_nh; ++i)
--		WARN_ON(nhg->nh_entries[i].nh);
-+	for (i = 0; i < nhg->num_nh; ++i) {
-+		struct nh_grp_entry *nhge = &nhg->nh_entries[i];
- 
-+		WARN_ON(!list_empty(&nhge->nh_list));
-+		nexthop_put(nhge->nh);
-+	}
-+
-+	WARN_ON(nhg->spare == nhg);
-+
-+	kfree(nhg->spare);
- 	kfree(nhg);
+@@ -233,6 +233,31 @@ struct fib_nh_common *nexthop_fib_nhc(st
+ 	return &nhi->fib_nhc;
  }
  
-@@ -698,46 +705,53 @@ static void nh_group_rebalance(struct nh
- static void remove_nh_grp_entry(struct net *net, struct nh_grp_entry *nhge,
- 				struct nl_info *nlinfo)
- {
-+	struct nh_grp_entry *nhges, *new_nhges;
- 	struct nexthop *nhp = nhge->nh_parent;
- 	struct nexthop *nh = nhge->nh;
--	struct nh_grp_entry *nhges;
--	struct nh_group *nhg;
--	bool found = false;
--	int i;
-+	struct nh_group *nhg, *newg;
-+	int i, j;
- 
- 	WARN_ON(!nh);
- 
--	list_del(&nhge->nh_list);
--
- 	nhg = rtnl_dereference(nhp->nh_grp);
--	nhges = nhg->nh_entries;
--	for (i = 0; i < nhg->num_nh; ++i) {
--		if (found) {
--			nhges[i-1].nh = nhges[i].nh;
--			nhges[i-1].weight = nhges[i].weight;
--			list_del(&nhges[i].nh_list);
--			list_add(&nhges[i-1].nh_list, &nhges[i-1].nh->grp_list);
--		} else if (nhg->nh_entries[i].nh == nh) {
--			found = true;
--		}
--	}
-+	newg = nhg->spare;
- 
--	if (WARN_ON(!found))
-+	/* last entry, keep it visible and remove the parent */
-+	if (nhg->num_nh == 1) {
-+		remove_nexthop(net, nhp, nlinfo);
- 		return;
-+	}
- 
--	nhg->num_nh--;
--	nhg->nh_entries[nhg->num_nh].nh = NULL;
-+	newg->has_v4 = nhg->has_v4;
-+	newg->mpath = nhg->mpath;
-+	newg->num_nh = nhg->num_nh;
- 
--	nh_group_rebalance(nhg);
-+	/* copy old entries to new except the one getting removed */
-+	nhges = nhg->nh_entries;
-+	new_nhges = newg->nh_entries;
-+	for (i = 0, j = 0; i < nhg->num_nh; ++i) {
-+		/* current nexthop getting removed */
-+		if (nhg->nh_entries[i].nh == nh) {
-+			newg->num_nh--;
-+			continue;
++static inline bool nexthop_uses_dev(const struct nexthop *nh,
++				    const struct net_device *dev)
++{
++	struct nh_info *nhi;
++
++	if (nh->is_group) {
++		struct nh_group *nhg = rcu_dereference(nh->nh_grp);
++		int i;
++
++		for (i = 0; i < nhg->num_nh; i++) {
++			struct nexthop *nhe = nhg->nh_entries[i].nh;
++
++			nhi = rcu_dereference(nhe->nh_info);
++			if (nhc_l3mdev_matches_dev(&nhi->fib_nhc, dev))
++				return true;
 +		}
- 
--	nexthop_put(nh);
-+		list_del(&nhges[i].nh_list);
-+		new_nhges[j].nh_parent = nhges[i].nh_parent;
-+		new_nhges[j].nh = nhges[i].nh;
-+		new_nhges[j].weight = nhges[i].weight;
-+		list_add(&new_nhges[j].nh_list, &new_nhges[j].nh->grp_list);
-+		j++;
++	} else {
++		nhi = rcu_dereference(nh->nh_info);
++		if (nhc_l3mdev_matches_dev(&nhi->fib_nhc, dev))
++			return true;
 +	}
 +
-+	nh_group_rebalance(newg);
-+	rcu_assign_pointer(nhp->nh_grp, newg);
++	return false;
++}
 +
-+	list_del(&nhge->nh_list);
-+	nexthop_put(nhge->nh);
- 
- 	if (nlinfo)
- 		nexthop_notify(RTM_NEWNEXTHOP, nhp, nlinfo);
--
--	/* if this group has no more entries then remove it */
--	if (!nhg->num_nh)
--		remove_nexthop(net, nhp, nlinfo);
- }
- 
- static void remove_nexthop_from_groups(struct net *net, struct nexthop *nh,
-@@ -747,6 +761,9 @@ static void remove_nexthop_from_groups(s
- 
- 	list_for_each_entry_safe(nhge, tmp, &nh->grp_list, nh_list)
- 		remove_nh_grp_entry(net, nhge, nlinfo);
-+
-+	/* make sure all see the newly published array before releasing rtnl */
-+	synchronize_rcu();
- }
- 
- static void remove_nexthop_group(struct nexthop *nh, struct nl_info *nlinfo)
-@@ -760,10 +777,7 @@ static void remove_nexthop_group(struct
- 		if (WARN_ON(!nhge->nh))
- 			continue;
- 
--		list_del(&nhge->nh_list);
--		nexthop_put(nhge->nh);
--		nhge->nh = NULL;
--		nhg->num_nh--;
-+		list_del_init(&nhge->nh_list);
- 	}
- }
- 
-@@ -1086,6 +1100,7 @@ static struct nexthop *nexthop_create_gr
+ static inline unsigned int fib_info_num_path(const struct fib_info *fi)
  {
- 	struct nlattr *grps_attr = cfg->nh_grp;
- 	struct nexthop_grp *entry = nla_data(grps_attr);
-+	u16 num_nh = nla_len(grps_attr) / sizeof(*entry);
- 	struct nh_group *nhg;
- 	struct nexthop *nh;
- 	int i;
-@@ -1096,12 +1111,21 @@ static struct nexthop *nexthop_create_gr
+ 	if (unlikely(fi->nh))
+--- a/net/ipv4/fib_frontend.c
++++ b/net/ipv4/fib_frontend.c
+@@ -319,17 +319,18 @@ bool fib_info_nh_uses_dev(struct fib_inf
+ {
+ 	bool dev_match = false;
+ #ifdef CONFIG_IP_ROUTE_MULTIPATH
+-	int ret;
++	if (unlikely(fi->nh)) {
++		dev_match = nexthop_uses_dev(fi->nh, dev);
++	} else {
++		int ret;
  
- 	nh->is_group = 1;
+-	for (ret = 0; ret < fib_info_num_path(fi); ret++) {
+-		const struct fib_nh_common *nhc = fib_info_nhc(fi, ret);
++		for (ret = 0; ret < fib_info_num_path(fi); ret++) {
++			const struct fib_nh_common *nhc = fib_info_nhc(fi, ret);
  
--	nhg = nexthop_grp_alloc(nla_len(grps_attr) / sizeof(*entry));
-+	nhg = nexthop_grp_alloc(num_nh);
- 	if (!nhg) {
- 		kfree(nh);
- 		return ERR_PTR(-ENOMEM);
+-		if (nhc->nhc_dev == dev) {
+-			dev_match = true;
+-			break;
+-		} else if (l3mdev_master_ifindex_rcu(nhc->nhc_dev) == dev->ifindex) {
+-			dev_match = true;
+-			break;
++			if (nhc_l3mdev_matches_dev(nhc, dev)) {
++				dev_match = true;
++				break;
++			}
+ 		}
  	}
- 
-+	/* spare group used for removals */
-+	nhg->spare = nexthop_grp_alloc(num_nh);
-+	if (!nhg) {
-+		kfree(nhg);
-+		kfree(nh);
-+		return NULL;
-+	}
-+	nhg->spare->spare = nhg;
-+
- 	for (i = 0; i < nhg->num_nh; ++i) {
- 		struct nexthop *nhe;
- 		struct nh_info *nhi;
-@@ -1133,6 +1157,7 @@ out_no_nh:
- 	for (; i >= 0; --i)
- 		nexthop_put(nhg->nh_entries[i].nh);
- 
-+	kfree(nhg->spare);
- 	kfree(nhg);
- 	kfree(nh);
- 
+ #else
 
 
