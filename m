@@ -2,106 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B8E251EA26F
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 13:11:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 86FE11EA297
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 13:22:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726067AbgFALLK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 07:11:10 -0400
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:35513 "EHLO
-        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725946AbgFALLK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Jun 2020 07:11:10 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.nyi.internal (Postfix) with ESMTP id 07C1D5C0035;
-        Mon,  1 Jun 2020 07:11:08 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Mon, 01 Jun 2020 07:11:08 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm3; bh=3XvqIZoNbkcvmPOyxJdZmpK2ijZ
-        lRphPyOlcJMHTT+Q=; b=JJ/TQUxpepzueCA1KYXlq6WDfiutndE/JCfQXK3I72O
-        5/VL95WRTtP49v7SVoadRP8EA2QkgJKxSubKRa2AAGrBZJudSLK9Tz5Dgy3Xe3yi
-        JkP01TXJAfsvEkjMa67DyvZS4n/uv90E1itX404wsSTGISZhJJQa/7GCcIPDwtxO
-        yefM1FNBrs0+dkXzQHPoAg1DyBXb7HBMEXJYW94P/4CaQpE0XIMQxhkE83ljKCaK
-        E8Ah8TwwvBDFgD9kF/ajuyl0oe8Dn8Ly2SuqfkGF1CcQtbMuXHNvpv2mVYKWRSBs
-        IRtJXOGDTQORxQFKRcZ/VWor/HvnOEm2U2gTzPm8/ig==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=3XvqIZ
-        oNbkcvmPOyxJdZmpK2ijZlRphPyOlcJMHTT+Q=; b=yhrpZBt6qEtxPMSUBwZAuU
-        05+EAmZxIVtvDR/dIdynQb5GNs6PEBFb3PPKAnofj4iZSU69xXCsqBhQkz9rFPXc
-        Pc33zztT34lbQpQVHz1Y7PZ0RWddOfdBYX50KDzAFXPMAuxcpnSPmaJibGeDTHSs
-        AW+DjUa1/LPYIGAxzE1GbDMmImB3H5luelfIG6ba0+s+7VwhvgqjtlIDUMdZ56xZ
-        ZGxbl76b/8WeyWNKd4nrOHMYjEZAYpCxd+jByWgDpXToDpCewoh9kH2sTzi3fjdQ
-        m31yOWvfU4hpKjcLHOsjd1Z4rI/Y6m3q+aKjGz9OjzKp0yRuFFpWf0Se7FkmjjRA
-        ==
-X-ME-Sender: <xms:S-LUXgTq3hMiiDPpyldzfyqdHzkFBSrL3UOftoV114FgSJMxama64A>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudefhedgfedtucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeeuleeltd
-    ehkeeltefhleduuddvhfffuedvffduveegheekgeeiffevheegfeetgfenucffohhmrghi
-    nhepkhgvrhhnvghlrdhorhhgnecukfhppeekfedrkeeirdekledruddtjeenucevlhhush
-    htvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgr
-    hhdrtghomh
-X-ME-Proxy: <xmx:S-LUXtxXzzebuxxWcVLqwmkqKjqR3ausMtPdxaLdzklf3NSISk5nbQ>
-    <xmx:S-LUXt1oaMrWUFlOVCHW8v9gQ2JG9xIEavF9RembbNvwMgcAceTZ1w>
-    <xmx:S-LUXkCgSpPOaD3v9WjBoi6cOUc0cOzLLASUeNp4R86aa1UtnDfsww>
-    <xmx:TOLUXnYdFNvio5rOs8Dy0_sZ9XczUptnQ28w6Z30zKv7epBkA-lBLQ>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 2BA463060F09;
-        Mon,  1 Jun 2020 07:11:07 -0400 (EDT)
-Date:   Mon, 1 Jun 2020 13:11:05 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Sarthak Garg <sartgarg@codeaurora.org>
-Cc:     stable@vger.kernel.org, adrian.hunter@intel.com,
-        ulf.hansson@linaro.org, vbadigan@codeaurora.org,
-        stummala@codeaurora.org, linux-mmc@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org
-Subject: Re: [4.19.124 V1] mmc: core: Fix recursive locking issue in CQE
- recovery path
-Message-ID: <20200601111105.GC124421@kroah.com>
-References: <1590581942-24283-1-git-send-email-sartgarg@codeaurora.org>
+        id S1725838AbgFALWy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 07:22:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58496 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725788AbgFALWy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Jun 2020 07:22:54 -0400
+Received: from mail-pj1-x1042.google.com (mail-pj1-x1042.google.com [IPv6:2607:f8b0:4864:20::1042])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08AF0C061A0E
+        for <stable@vger.kernel.org>; Mon,  1 Jun 2020 04:22:54 -0700 (PDT)
+Received: by mail-pj1-x1042.google.com with SMTP id d6so111931pjs.3
+        for <stable@vger.kernel.org>; Mon, 01 Jun 2020 04:22:53 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=;
+        b=qtDWGf61BkYn0rf7nuasMYebJPjzmC1Cp1FevqBC1TL0r6GUyYDQ723icQf8IfG1qO
+         7z0OGHJJTg/s1eMnNQkQQfulLFFJyPqnwHO97diOnppJXecdxVzFu2skPw9+1rfJmwR5
+         zHWuN537ZcLQV1fPrPDJznpUtYrIYOrL1mHrIh1gmI77O8SBLOTYcvvU0TXDJj+r+qCf
+         yu3y4egpbbh8DXhLoY/Nh3/lFqPOE+UNoOo9rMT5jWI82A5A5D0gTAC9FDGIP/EhK0l9
+         oZiCIXUMFrxgY/x/7NuFUU80H0Uuzo6xpkQguiL5JJiRUiY5hiMzHl2jUT7i+xvSfkmU
+         J6Yg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=;
+        b=ueux+cNgPJMPKzLDVj/54SdGO0PK7cylFSNlpmLPxcLmFVzE4VDZOUBlH1yS5f6kvF
+         rx8PVSPpyEuNKkQ/9O/2PW3BPo2dXXBhTlCR+QNqUYECyd4yex83g+9cBJ2wsMysQMZ5
+         b3fw3TDC7pfJ7a9zjWg0lcF9HMBioF9Gv+LD6yFE/bbAJyYdDINwH+AyjyNH6c/8dtxj
+         g3RktNpb/ycRT4EVJU+lbGDXoRgT2fFMl2oGJ68ke+OQt9jEPmeE0ly7whxDfLJHAqUi
+         tUyanobZ3s1rlnhX+4u66MP7IJgua4j+F4PGFAiwu46o1yGR4e0/KcSURrkk1MirG0aK
+         C87w==
+X-Gm-Message-State: AOAM5318NwSulJl51RDEHWqDKiNWv7BFsrcGYpYFllLwc1qT9IN2ae4t
+        GvKRLH6RR1K8tZBHOkfQ9NCqvqb15UHMFo/R2M8=
+X-Google-Smtp-Source: ABdhPJwDQ9xm/vzcRXrkqENna+ZNC90cfOCupShXbH7w9BKrC14jr3C5onPLwBphvcBfCAYjNyGmls9rg9em0YVoeXg=
+X-Received: by 2002:a17:902:b710:: with SMTP id d16mr19926433pls.28.1591010573245;
+ Mon, 01 Jun 2020 04:22:53 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1590581942-24283-1-git-send-email-sartgarg@codeaurora.org>
+Received: by 2002:a17:90a:16c2:0:0:0:0 with HTTP; Mon, 1 Jun 2020 04:22:52
+ -0700 (PDT)
+Reply-To: robertandersonhappy1@gmail.com
+From:   robert <ehfoukoh1023@gmail.com>
+Date:   Mon, 1 Jun 2020 04:22:52 -0700
+Message-ID: <CADxjG6mrmPKFDjdRVBVeeE5SwpwitKc68DT9XxGMAmO4=XHnnQ@mail.gmail.com>
+Subject: =?UTF-8?B?0JTQvtGA0L7Qs9C+0Lkg0LTRgNGD0LMsINCc0LXQvdGPINC30L7QstGD0YIg0JHQsNGA?=
+        =?UTF-8?B?0YDQvtCx0LXRgNGCINCQ0L3QtNC10YDRgdC+0L0uINCvINCw0LTQstC+0LrQsNGCINC4INGH0LDRgdGC?=
+        =?UTF-8?B?0L3Ri9C5INC80LXQvdC10LTQttC10YAg0L/QviDRgNCw0LHQvtGC0LUg0YEg0LrQu9C40LXQvdGC0LA=?=
+        =?UTF-8?B?0LzQuCDQv9C+0LrQvtC50L3QvtC80YMg0LrQu9C40LXQvdGC0YMuINCSIDIwMTUg0LPQvtC00YMg0Lw=?=
+        =?UTF-8?B?0L7QuSDQutC70LjQtdC90YIg0L/QviDQuNC80LXQvdC4INCc0LjRgdGC0LXRgCDQmtCw0YDQu9C+0YEs?=
+        =?UTF-8?B?INGB0LrQvtC90YfQsNC70YHRjywg0L/RgNC40YfQuNC90LAsINC/0L4g0LrQvtGC0L7RgNC+0Lkg0Y8g?=
+        =?UTF-8?B?0YHQstGP0LfQsNC70YHRjyDRgSDQstCw0LzQuCwg0L/QvtGC0L7QvNGDINGH0YLQviDQstGLINC90L4=?=
+        =?UTF-8?B?0YHQuNGC0LUg0YLRgyDQttC1INGE0LDQvNC40LvQuNGOINGBINGD0LzQtdGA0YjQuNC8LCDQuCDRjyA=?=
+        =?UTF-8?B?0LzQvtCz0YMg0L/RgNC10LTRgdGC0LDQstC40YLRjCDQstCw0YEg0LrQsNC6INCx0LXQvdC10YTQuNGG?=
+        =?UTF-8?B?0LjQsNGA0LAg0Lgg0LHQu9C40LbQsNC50YjQuNGFINGA0L7QtNGB0YLQstC10L3QvdC40LrQvtCyINCy?=
+        =?UTF-8?B?INC80L7QuCDRgdGA0LXQtNGB0YLQstCwINC/0L7QutC+0LnQvdC+0LPQviDQutC70LjQtdC90YLQsCwg?=
+        =?UTF-8?B?0YLQviDQstGLINCx0YPQtNC10YLQtSDRgdGC0L7Rj9GC0Ywg0LrQsNC6INC10LPQviDQsdC70LjQttCw?=
+        =?UTF-8?B?0LnRiNC40LUg0YDQvtC00YHRgtCy0LXQvdC90LjQutC4INC4INGC0YDQtdCx0L7QstCw0YLRjCDRgdGA?=
+        =?UTF-8?B?0LXQtNGB0YLQstCwLiDQvtGB0YLQsNCy0LjQsiDQtNC10L3RjNCz0Lgg0L3QsNGB0LvQtdC00YHRgtCy?=
+        =?UTF-8?B?0L4g0YHQtdC80Lgg0LzQuNC70LvQuNC+0L3QvtCyINC/0Y/RgtC40YHQvtGCINGC0YvRgdGP0Ycg0LQ=?=
+        =?UTF-8?B?0L7Qu9C70LDRgNC+0LIg0KHQqNCQINCU0L7Qu9C70LDRgNGLICg3LDUwMCwwMDAsMDAg0LTQvtC70Ls=?=
+        =?UTF-8?B?0LDRgNC+0LIg0KHQqNCQKS4g0JzQvtC5INC/0L7QutC+0LnQvdGL0Lkg0LrQu9C40LXQve+/vQ==?=
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, May 27, 2020 at 05:49:02PM +0530, Sarthak Garg wrote:
-> [ Upstream commit 39a22f73744d5baee30b5f134ae2e30b668b66ed ]
-> 
-> Consider the following stack trace
-> 
-> -001|raw_spin_lock_irqsave
-> -002|mmc_blk_cqe_complete_rq
-> -003|__blk_mq_complete_request(inline)
-> -003|blk_mq_complete_request(rq)
-> -004|mmc_cqe_timed_out(inline)
-> -004|mmc_mq_timed_out
-> 
-> mmc_mq_timed_out acquires the queue_lock for the first
-> time. The mmc_blk_cqe_complete_rq function also tries to acquire
-> the same queue lock resulting in recursive locking where the task
-> is spinning for the same lock which it has already acquired leading
-> to watchdog bark.
-> 
-> Fix this issue with the lock only for the required critical section.
-> 
-> Cc: <stable@vger.kernel.org>
-> Fixes: 1e8e55b67030 ("mmc: block: Add CQE support")
-> Suggested-by: Sahitya Tummala <stummala@codeaurora.org>
-> Signed-off-by: Sarthak Garg <sartgarg@codeaurora.org>
-> Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-> Link: https://lore.kernel.org/r/1588868135-31783-1-git-send-email-vbadigan@codeaurora.org
-> Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-> ---
 
-Thanks for the backport, now queued up.
-
-greg k-h
