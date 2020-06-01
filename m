@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DFE321EA95F
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:01:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 48E651EA93C
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:01:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729765AbgFASBT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:01:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44176 "EHLO mail.kernel.org"
+        id S1728672AbgFAR72 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 13:59:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41886 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728638AbgFASBR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:01:17 -0400
+        id S1729341AbgFAR71 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 13:59:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3CF452065C;
-        Mon,  1 Jun 2020 18:01:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 949D620776;
+        Mon,  1 Jun 2020 17:59:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034476;
-        bh=rbcTU3Yo7zIMTC9JrcwkjCahHKebrwlrLcVz0uZRW9I=;
+        s=default; t=1591034367;
+        bh=zJ0jXzsufwpVdl/701EtTcgJlQ+FB3kNEcZGbeLScFU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UkQbFFw5wPM20fG6CGGz+ny0o4dCPsxzjXC5dBR5DFwLvBixx/aeftC5LLXWF3FzO
-         7fUWEmlbOlmiArnHu7smq7GleBa7sywjjJ8UC9+omJRKAb4deBXvxFXO9/+yRH95Pp
-         NzThBgOQEu5oFTG5MnIuiIUcje20Bp7sUdsO8bzg=
+        b=UyEvSQO5/MMjFh/bS4Ja+bMDmws1Xj0RJuIS5ZpZIeTCHq+dLyRdm2FTYErfbOS9H
+         04I8llz8E1OBxVUCKHmBogdhk2lE4lTAuZfKI46cfxrzpTihPPwhTeO9TqBXI9P6HW
+         Hg2xvwb0uHdZBSIRYAoxriuB7RBnX6cC6U0ApAIU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jerry Lee <leisurelysw24@gmail.com>,
-        Ilya Dryomov <idryomov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 47/77] libceph: ignore pool overlay and cache logic on redirects
+        stable@vger.kernel.org, Xin Long <lucien.xin@gmail.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>
+Subject: [PATCH 4.9 45/61] xfrm: allow to accept packets with ipv6 NEXTHDR_HOP in xfrm_input
 Date:   Mon,  1 Jun 2020 19:53:52 +0200
-Message-Id: <20200601174024.770934336@linuxfoundation.org>
+Message-Id: <20200601174019.893085605@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174016.396817032@linuxfoundation.org>
-References: <20200601174016.396817032@linuxfoundation.org>
+In-Reply-To: <20200601174010.316778377@linuxfoundation.org>
+References: <20200601174010.316778377@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,49 +43,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jerry Lee <leisurelysw24@gmail.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-[ Upstream commit 890bd0f8997ae6ac0a367dd5146154a3963306dd ]
+commit afcaf61be9d1dbdee5ec186d1dcc67b6b692180f upstream.
 
-OSD client should ignore cache/overlay flag if got redirect reply.
-Otherwise, the client hangs when the cache tier is in forward mode.
+For beet mode, when it's ipv6 inner address with nexthdrs set,
+the packet format might be:
 
-[ idryomov: Redirects are effectively deprecated and no longer
-  used or tested.  The original tiering modes based on redirects
-  are inherently flawed because redirects can race and reorder,
-  potentially resulting in data corruption.  The new proxy and
-  readproxy tiering modes should be used instead of forward and
-  readforward.  Still marking for stable as obviously correct,
-  though. ]
+    ----------------------------------------------------
+    | outer  |     | dest |     |      |  ESP    | ESP |
+    | IP hdr | ESP | opts.| TCP | Data | Trailer | ICV |
+    ----------------------------------------------------
 
-Cc: stable@vger.kernel.org
-URL: https://tracker.ceph.com/issues/23296
-URL: https://tracker.ceph.com/issues/36406
-Signed-off-by: Jerry Lee <leisurelysw24@gmail.com>
-Reviewed-by: Ilya Dryomov <idryomov@gmail.com>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The nexthdr from ESP could be NEXTHDR_HOP(0), so it should
+continue processing the packet when nexthdr returns 0 in
+xfrm_input(). Otherwise, when ipv6 nexthdr is set, the
+packet will be dropped.
+
+I don't see any error cases that nexthdr may return 0. So
+fix it by removing the check for nexthdr == 0.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- net/ceph/osd_client.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ net/xfrm/xfrm_input.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/ceph/osd_client.c b/net/ceph/osd_client.c
-index 92b2641ab93b..753cbfd32dab 100644
---- a/net/ceph/osd_client.c
-+++ b/net/ceph/osd_client.c
-@@ -3444,7 +3444,9 @@ static void handle_reply(struct ceph_osd *osd, struct ceph_msg *msg)
- 		 * supported.
- 		 */
- 		req->r_t.target_oloc.pool = m.redirect.oloc.pool;
--		req->r_flags |= CEPH_OSD_FLAG_REDIRECTED;
-+		req->r_flags |= CEPH_OSD_FLAG_REDIRECTED |
-+				CEPH_OSD_FLAG_IGNORE_OVERLAY |
-+				CEPH_OSD_FLAG_IGNORE_CACHE;
- 		req->r_tid = 0;
- 		__submit_request(req, false);
- 		goto out_unlock_osdc;
--- 
-2.25.1
-
+--- a/net/xfrm/xfrm_input.c
++++ b/net/xfrm/xfrm_input.c
+@@ -302,7 +302,7 @@ resume:
+ 		dev_put(skb->dev);
+ 
+ 		spin_lock(&x->lock);
+-		if (nexthdr <= 0) {
++		if (nexthdr < 0) {
+ 			if (nexthdr == -EBADMSG) {
+ 				xfrm_audit_state_icvfail(x, skb,
+ 							 x->type->proto);
 
 
