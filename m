@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F1B131EAEF3
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:58:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A0591EAD8E
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:46:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729215AbgFAS61 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:58:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40958 "EHLO mail.kernel.org"
+        id S1729123AbgFASIk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:08:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54810 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728552AbgFAR6t (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 13:58:49 -0400
+        id S1730755AbgFASIh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:08:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B78242073B;
-        Mon,  1 Jun 2020 17:58:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B54372068D;
+        Mon,  1 Jun 2020 18:08:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034329;
-        bh=SGiAv6shdVOKpwPOvW00N1lm9ZHiO/y4bOuCN+rRr/A=;
+        s=default; t=1591034917;
+        bh=QxLNTLoFkVAQRZFL6FP0AaYyx28XvLeBWZ3LvlBhJ8E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pj6XKEyMob0BtvsRozDMl7SXBry83mIdCcq8k2RzQkbl9x9Bpcl8eShwQWZt3QL9r
-         6x0Edmv6KCTzIv15BhnPUq16SDpdinwSaq8OvtHy6NCbkanaLNuA5JVBU6pXe0U6XF
-         ZvLpYhXHUNrkJOx2PXXMNwA5LIV/GJkUQgYISvwA=
+        b=qO8MVkz5v6Ukh4NZYlXSKiFLLflmUWcSlNg9kW6zrWuvstvKRlfmH23C8wS/Vdgjp
+         U5e4ikUcwBtp8iZDegmaiIm0Lf36KpIqDk3saXCnGEk2uWYG8s7kYNL6u/p6gX+ZNd
+         //a+nR7JWM+3yPRqNOhvMnLrMDm9YL+h2SEKnXSU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Helge Deller <deller@gmx.de>
-Subject: [PATCH 4.9 42/61] parisc: Fix kernel panic in mem_init()
+        stable@vger.kernel.org,
+        =?UTF-8?q?=C5=81ukasz=20Stelmach?= <l.stelmach@samsung.com>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 071/142] ARM: 8970/1: decompressor: increase tag size
 Date:   Mon,  1 Jun 2020 19:53:49 +0200
-Message-Id: <20200601174019.401534628@linuxfoundation.org>
+Message-Id: <20200601174045.181137601@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174010.316778377@linuxfoundation.org>
-References: <20200601174010.316778377@linuxfoundation.org>
+In-Reply-To: <20200601174037.904070960@linuxfoundation.org>
+References: <20200601174037.904070960@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,49 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Łukasz Stelmach <l.stelmach@samsung.com>
 
-commit bf71bc16e02162388808949b179d59d0b571b965 upstream.
+[ Upstream commit 2c962369d72f286659e6446919f88d69b943cb4d ]
 
-The Debian kernel v5.6 triggers this kernel panic:
+The size field of the tag header structure is supposed to be set to the
+size of a tag structure including the header.
 
- Kernel panic - not syncing: Bad Address (null pointer deref?)
- Bad Address (null pointer deref?): Code=26 (Data memory access rights trap) at addr 0000000000000000
- CPU: 0 PID: 0 Comm: swapper Not tainted 5.6.0-2-parisc64 #1 Debian 5.6.14-1
-  IAOQ[0]: mem_init+0xb0/0x150
-  IAOQ[1]: mem_init+0xb4/0x150
-  RP(r2): start_kernel+0x6c8/0x1190
- Backtrace:
-  [<0000000040101ab4>] start_kernel+0x6c8/0x1190
-  [<0000000040108574>] start_parisc+0x158/0x1b8
-
-on a HP-PARISC rp3440 machine with this memory layout:
- Memory Ranges:
-  0) Start 0x0000000000000000 End 0x000000003fffffff Size   1024 MB
-  1) Start 0x0000004040000000 End 0x00000040ffdfffff Size   3070 MB
-
-Fix the crash by avoiding virt_to_page() and similar functions in
-mem_init() until the memory zones have been fully set up.
-
-Signed-off-by: Helge Deller <deller@gmx.de>
-Cc: stable@vger.kernel.org # v5.0+
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
-
+Fixes: c772568788b5f0 ("ARM: add additional table to compressed kernel")
+Signed-off-by: Łukasz Stelmach <l.stelmach@samsung.com>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/parisc/mm/init.c |    2 +-
+ arch/arm/boot/compressed/vmlinux.lds.S | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/parisc/mm/init.c
-+++ b/arch/parisc/mm/init.c
-@@ -604,7 +604,7 @@ void __init mem_init(void)
- 			> BITS_PER_LONG);
- 
- 	high_memory = __va((max_pfn << PAGE_SHIFT));
--	set_max_mapnr(page_to_pfn(virt_to_page(high_memory - 1)) + 1);
-+	set_max_mapnr(max_low_pfn);
- 	free_all_bootmem();
- 
- #ifdef CONFIG_PA11
+diff --git a/arch/arm/boot/compressed/vmlinux.lds.S b/arch/arm/boot/compressed/vmlinux.lds.S
+index fc7ed03d8b93..51b078604978 100644
+--- a/arch/arm/boot/compressed/vmlinux.lds.S
++++ b/arch/arm/boot/compressed/vmlinux.lds.S
+@@ -43,7 +43,7 @@ SECTIONS
+   }
+   .table : ALIGN(4) {
+     _table_start = .;
+-    LONG(ZIMAGE_MAGIC(2))
++    LONG(ZIMAGE_MAGIC(4))
+     LONG(ZIMAGE_MAGIC(0x5a534c4b))
+     LONG(ZIMAGE_MAGIC(__piggy_size_addr - _start))
+     LONG(ZIMAGE_MAGIC(_kernel_bss_size))
+-- 
+2.25.1
+
 
 
