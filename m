@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8485C1EACE5
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:41:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BFF61EACE3
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:41:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728720AbgFASlQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:41:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60260 "EHLO mail.kernel.org"
+        id S1729899AbgFASlM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:41:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60302 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731281AbgFASMv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:12:51 -0400
+        id S1731285AbgFASMy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:12:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1041A2073B;
-        Mon,  1 Jun 2020 18:12:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 56C592065C;
+        Mon,  1 Jun 2020 18:12:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591035170;
-        bh=dDWJWOpncPPX2szTDuVaKkhggkjwjJqWcD1lFGGyD/U=;
+        s=default; t=1591035172;
+        bh=pw2Wug4AHtwV4Ddu6HDpLZC76ZaYgk6hgsBtBlctMtM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gtwnV5Pnaqrb4KEYYdhPj8tvKOryAuu7B+CCTg6Qb+f9GjfV4Dwm2snXiBZxU7L9+
-         NyjXpF4mINsl7HhDSYzEwlAwVaB9IuVMXQwHbxBt0fPkyiRhqzpedJFre5ZU2/FguD
-         mHS4bbla7iRtt1t5ymC8olQWHd+ImaQ70ExwmAfY=
+        b=w8bwzsSIU3FryfDvdoF7pyKJxSwDTOg8fhQ6xprmVbKiTzoGzMtCxtnAOXUuiXXSa
+         URLg4k0885t09aFshVCKkuehFLlApSHKK2Z5uB45XJb8RiJx3tsxoro63jokvE54cU
+         umir7cTlwofBA3yiXgKRYXvj3kN4EkJe8QFRN/QQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Claudiu Manoil <claudiu.manoil@nxp.com>,
-        Vladimir Oltean <vladimir.oltean@nxp.com>,
+        stable@vger.kernel.org, Sabrina Dubroca <sd@queasysnail.net>,
+        David Ahern <dsahern@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.6 004/177] felix: Fix initialization of ioremap resources
-Date:   Mon,  1 Jun 2020 19:52:22 +0200
-Message-Id: <20200601174048.912011455@linuxfoundation.org>
+Subject: [PATCH 5.6 005/177] net: dont return invalid table id error when we fall back to PF_UNSPEC
+Date:   Mon,  1 Jun 2020 19:52:23 +0200
+Message-Id: <20200601174049.008480943@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200601174048.468952319@linuxfoundation.org>
 References: <20200601174048.468952319@linuxfoundation.org>
@@ -44,168 +44,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Claudiu Manoil <claudiu.manoil@nxp.com>
+From: Sabrina Dubroca <sd@queasysnail.net>
 
-[ Upstream commit b4024c9e5c57902155d3b5e7de482e245f492bff ]
+[ Upstream commit 41b4bd986f86331efc599b9a3f5fb86ad92e9af9 ]
 
-The caller of devm_ioremap_resource(), either accidentally
-or by wrong assumption, is writing back derived resource data
-to global static resource initialization tables that should
-have been constant.  Meaning that after it computes the final
-physical start address it saves the address for no reason
-in the static tables.  This doesn't affect the first driver
-probing after reboot, but it breaks consecutive driver reloads
-(i.e. driver unbind & bind) because the initialization tables
-no longer have the correct initial values.  So the next probe()
-will map the device registers to wrong physical addresses,
-causing ARM SError async exceptions.
-This patch fixes all of the above.
+In case we can't find a ->dumpit callback for the requested
+(family,type) pair, we fall back to (PF_UNSPEC,type). In effect, we're
+in the same situation as if userspace had requested a PF_UNSPEC
+dump. For RTM_GETROUTE, that handler is rtnl_dump_all, which calls all
+the registered RTM_GETROUTE handlers.
 
-Fixes: 56051948773e ("net: dsa: ocelot: add driver for Felix switch family")
-Signed-off-by: Claudiu Manoil <claudiu.manoil@nxp.com>
-Reviewed-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Tested-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+The requested table id may or may not exist for all of those
+families. commit ae677bbb4441 ("net: Don't return invalid table id
+error when dumping all families") fixed the problem when userspace
+explicitly requests a PF_UNSPEC dump, but missed the fallback case.
+
+For example, when we pass ipv6.disable=1 to a kernel with
+CONFIG_IP_MROUTE=y and CONFIG_IP_MROUTE_MULTIPLE_TABLES=y,
+the (PF_INET6, RTM_GETROUTE) handler isn't registered, so we end up in
+rtnl_dump_all, and listing IPv6 routes will unexpectedly print:
+
+  # ip -6 r
+  Error: ipv4: MR table does not exist.
+  Dump terminated
+
+commit ae677bbb4441 introduced the dump_all_families variable, which
+gets set when userspace requests a PF_UNSPEC dump. However, we can't
+simply set the family to PF_UNSPEC in rtnetlink_rcv_msg in the
+fallback case to get dump_all_families == true, because some messages
+types (for example RTM_GETRULE and RTM_GETNEIGH) only register the
+PF_UNSPEC handler and use the family to filter in the kernel what is
+dumped to userspace. We would then export more entries, that userspace
+would have to filter. iproute does that, but other programs may not.
+
+Instead, this patch removes dump_all_families and updates the
+RTM_GETROUTE handlers to check if the family that is being dumped is
+their own. When it's not, which covers both the intentional PF_UNSPEC
+dumps (as dump_all_families did) and the fallback case, ignore the
+missing table id error.
+
+Fixes: cb167893f41e ("net: Plumb support for filtering ipv4 and ipv6 multicast route dumps")
+Signed-off-by: Sabrina Dubroca <sd@queasysnail.net>
+Reviewed-by: David Ahern <dsahern@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/dsa/ocelot/felix.c         |   23 +++++++++++------------
- drivers/net/dsa/ocelot/felix.h         |    6 +++---
- drivers/net/dsa/ocelot/felix_vsc9959.c |   22 ++++++++++------------
- 3 files changed, 24 insertions(+), 27 deletions(-)
+ include/net/ip_fib.h    |    1 -
+ net/ipv4/fib_frontend.c |    3 +--
+ net/ipv4/ipmr.c         |    2 +-
+ net/ipv6/ip6_fib.c      |    2 +-
+ net/ipv6/ip6mr.c        |    2 +-
+ 5 files changed, 4 insertions(+), 6 deletions(-)
 
---- a/drivers/net/dsa/ocelot/felix.c
-+++ b/drivers/net/dsa/ocelot/felix.c
-@@ -385,6 +385,7 @@ static int felix_init_structs(struct fel
- 	struct ocelot *ocelot = &felix->ocelot;
- 	phy_interface_t *port_phy_modes;
- 	resource_size_t switch_base;
-+	struct resource res;
- 	int port, i, err;
+--- a/include/net/ip_fib.h
++++ b/include/net/ip_fib.h
+@@ -257,7 +257,6 @@ struct fib_dump_filter {
+ 	u32			table_id;
+ 	/* filter_set is an optimization that an entry is set */
+ 	bool			filter_set;
+-	bool			dump_all_families;
+ 	bool			dump_routes;
+ 	bool			dump_exceptions;
+ 	unsigned char		protocol;
+--- a/net/ipv4/fib_frontend.c
++++ b/net/ipv4/fib_frontend.c
+@@ -918,7 +918,6 @@ int ip_valid_fib_dump_req(struct net *ne
+ 	else
+ 		filter->dump_exceptions = false;
  
- 	ocelot->num_phys_ports = num_phys_ports;
-@@ -416,17 +417,16 @@ static int felix_init_structs(struct fel
+-	filter->dump_all_families = (rtm->rtm_family == AF_UNSPEC);
+ 	filter->flags    = rtm->rtm_flags;
+ 	filter->protocol = rtm->rtm_protocol;
+ 	filter->rt_type  = rtm->rtm_type;
+@@ -990,7 +989,7 @@ static int inet_dump_fib(struct sk_buff
+ 	if (filter.table_id) {
+ 		tb = fib_get_table(net, filter.table_id);
+ 		if (!tb) {
+-			if (filter.dump_all_families)
++			if (rtnl_msg_family(cb->nlh) != PF_INET)
+ 				return skb->len;
  
- 	for (i = 0; i < TARGET_MAX; i++) {
- 		struct regmap *target;
--		struct resource *res;
+ 			NL_SET_ERR_MSG(cb->extack, "ipv4: FIB table does not exist");
+--- a/net/ipv4/ipmr.c
++++ b/net/ipv4/ipmr.c
+@@ -2611,7 +2611,7 @@ static int ipmr_rtm_dumproute(struct sk_
  
- 		if (!felix->info->target_io_res[i].name)
- 			continue;
+ 		mrt = ipmr_get_table(sock_net(skb->sk), filter.table_id);
+ 		if (!mrt) {
+-			if (filter.dump_all_families)
++			if (rtnl_msg_family(cb->nlh) != RTNL_FAMILY_IPMR)
+ 				return skb->len;
  
--		res = &felix->info->target_io_res[i];
--		res->flags = IORESOURCE_MEM;
--		res->start += switch_base;
--		res->end += switch_base;
-+		memcpy(&res, &felix->info->target_io_res[i], sizeof(res));
-+		res.flags = IORESOURCE_MEM;
-+		res.start += switch_base;
-+		res.end += switch_base;
+ 			NL_SET_ERR_MSG(cb->extack, "ipv4: MR table does not exist");
+--- a/net/ipv6/ip6_fib.c
++++ b/net/ipv6/ip6_fib.c
+@@ -664,7 +664,7 @@ static int inet6_dump_fib(struct sk_buff
+ 	if (arg.filter.table_id) {
+ 		tb = fib6_get_table(net, arg.filter.table_id);
+ 		if (!tb) {
+-			if (arg.filter.dump_all_families)
++			if (rtnl_msg_family(cb->nlh) != PF_INET6)
+ 				goto out;
  
--		target = ocelot_regmap_init(ocelot, res);
-+		target = ocelot_regmap_init(ocelot, &res);
- 		if (IS_ERR(target)) {
- 			dev_err(ocelot->dev,
- 				"Failed to map device memory space\n");
-@@ -447,7 +447,6 @@ static int felix_init_structs(struct fel
- 	for (port = 0; port < num_phys_ports; port++) {
- 		struct ocelot_port *ocelot_port;
- 		void __iomem *port_regs;
--		struct resource *res;
+ 			NL_SET_ERR_MSG_MOD(cb->extack, "FIB table does not exist");
+--- a/net/ipv6/ip6mr.c
++++ b/net/ipv6/ip6mr.c
+@@ -2501,7 +2501,7 @@ static int ip6mr_rtm_dumproute(struct sk
  
- 		ocelot_port = devm_kzalloc(ocelot->dev,
- 					   sizeof(struct ocelot_port),
-@@ -459,12 +458,12 @@ static int felix_init_structs(struct fel
- 			return -ENOMEM;
- 		}
+ 		mrt = ip6mr_get_table(sock_net(skb->sk), filter.table_id);
+ 		if (!mrt) {
+-			if (filter.dump_all_families)
++			if (rtnl_msg_family(cb->nlh) != RTNL_FAMILY_IP6MR)
+ 				return skb->len;
  
--		res = &felix->info->port_io_res[port];
--		res->flags = IORESOURCE_MEM;
--		res->start += switch_base;
--		res->end += switch_base;
-+		memcpy(&res, &felix->info->port_io_res[port], sizeof(res));
-+		res.flags = IORESOURCE_MEM;
-+		res.start += switch_base;
-+		res.end += switch_base;
- 
--		port_regs = devm_ioremap_resource(ocelot->dev, res);
-+		port_regs = devm_ioremap_resource(ocelot->dev, &res);
- 		if (IS_ERR(port_regs)) {
- 			dev_err(ocelot->dev,
- 				"failed to map registers for port %d\n", port);
---- a/drivers/net/dsa/ocelot/felix.h
-+++ b/drivers/net/dsa/ocelot/felix.h
-@@ -8,9 +8,9 @@
- 
- /* Platform-specific information */
- struct felix_info {
--	struct resource			*target_io_res;
--	struct resource			*port_io_res;
--	struct resource			*imdio_res;
-+	const struct resource		*target_io_res;
-+	const struct resource		*port_io_res;
-+	const struct resource		*imdio_res;
- 	const struct reg_field		*regfields;
- 	const u32 *const		*map;
- 	const struct ocelot_ops		*ops;
---- a/drivers/net/dsa/ocelot/felix_vsc9959.c
-+++ b/drivers/net/dsa/ocelot/felix_vsc9959.c
-@@ -328,10 +328,8 @@ static const u32 *vsc9959_regmap[] = {
- 	[GCB]	= vsc9959_gcb_regmap,
- };
- 
--/* Addresses are relative to the PCI device's base address and
-- * will be fixed up at ioremap time.
-- */
--static struct resource vsc9959_target_io_res[] = {
-+/* Addresses are relative to the PCI device's base address */
-+static const struct resource vsc9959_target_io_res[] = {
- 	[ANA] = {
- 		.start	= 0x0280000,
- 		.end	= 0x028ffff,
-@@ -374,7 +372,7 @@ static struct resource vsc9959_target_io
- 	},
- };
- 
--static struct resource vsc9959_port_io_res[] = {
-+static const struct resource vsc9959_port_io_res[] = {
- 	{
- 		.start	= 0x0100000,
- 		.end	= 0x010ffff,
-@@ -410,7 +408,7 @@ static struct resource vsc9959_port_io_r
- /* Port MAC 0 Internal MDIO bus through which the SerDes acting as an
-  * SGMII/QSGMII MAC PCS can be found.
-  */
--static struct resource vsc9959_imdio_res = {
-+static const struct resource vsc9959_imdio_res = {
- 	.start		= 0x8030,
- 	.end		= 0x8040,
- 	.name		= "imdio",
-@@ -984,7 +982,7 @@ static int vsc9959_mdio_bus_alloc(struct
- 	struct device *dev = ocelot->dev;
- 	resource_size_t imdio_base;
- 	void __iomem *imdio_regs;
--	struct resource *res;
-+	struct resource res;
- 	struct enetc_hw *hw;
- 	struct mii_bus *bus;
- 	int port;
-@@ -1001,12 +999,12 @@ static int vsc9959_mdio_bus_alloc(struct
- 	imdio_base = pci_resource_start(felix->pdev,
- 					felix->info->imdio_pci_bar);
- 
--	res = felix->info->imdio_res;
--	res->flags = IORESOURCE_MEM;
--	res->start += imdio_base;
--	res->end += imdio_base;
-+	memcpy(&res, felix->info->imdio_res, sizeof(res));
-+	res.flags = IORESOURCE_MEM;
-+	res.start += imdio_base;
-+	res.end += imdio_base;
- 
--	imdio_regs = devm_ioremap_resource(dev, res);
-+	imdio_regs = devm_ioremap_resource(dev, &res);
- 	if (IS_ERR(imdio_regs)) {
- 		dev_err(dev, "failed to map internal MDIO registers\n");
- 		return PTR_ERR(imdio_regs);
+ 			NL_SET_ERR_MSG_MOD(cb->extack, "MR table does not exist");
 
 
