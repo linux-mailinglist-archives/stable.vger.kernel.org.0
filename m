@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 68DF21EAB48
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:17:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 66BE71EAACD
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:12:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731356AbgFASP4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:15:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36454 "EHLO mail.kernel.org"
+        id S1730713AbgFASLh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:11:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58812 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731635AbgFASPz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:15:55 -0400
+        id S1730097AbgFASLg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:11:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7C938206E2;
-        Mon,  1 Jun 2020 18:15:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BF64E2077D;
+        Mon,  1 Jun 2020 18:11:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591035354;
-        bh=sn8Keq0WlrH2oMOMaqzuef1suUNEu90hJWl2+RdW0To=;
+        s=default; t=1591035096;
+        bh=bZkjbWgUmSFP5X92+1FaRvbwsvKGCYrXN+2UYnKxVJk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mTjoy2soXhs24kMTj/aihA8KisFATFip3VdM45JQdYSkbVExVuwcjLEM7nGrWrQf7
-         G4TM1ITMblGszYgOXyaJ/pVXhURzvU0vM+pA6FeY8V96FKT4lIDc0wZxvcwLbA3jtZ
-         iPWpUv/reJZbKpMdAozLCBF8YGz81pqAQTjYAhLk=
+        b=ufLZaANAfAKRwBxEFCg4xlZVC9USOj7M1GneJ6qvKaaHxZuBPxEpQ2+VMLRpW+9ws
+         fKcoQtkRO2CV2RYGOaouIsLuV5p6yIEWi6yevMBs2XryPozDH7kumI8bD0yhP20TFY
+         vat2MFL1hciHFVuuJd+exouOShK+Yb+n9M8Mvd1U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jerry Lee <leisurelysw24@gmail.com>,
-        Ilya Dryomov <idryomov@gmail.com>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 121/177] libceph: ignore pool overlay and cache logic on redirects
-Date:   Mon,  1 Jun 2020 19:54:19 +0200
-Message-Id: <20200601174058.667370971@linuxfoundation.org>
+Subject: [PATCH 5.4 102/142] include/asm-generic/topology.h: guard cpumask_of_node() macro argument
+Date:   Mon,  1 Jun 2020 19:54:20 +0200
+Message-Id: <20200601174048.547837342@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174048.468952319@linuxfoundation.org>
-References: <20200601174048.468952319@linuxfoundation.org>
+In-Reply-To: <20200601174037.904070960@linuxfoundation.org>
+References: <20200601174037.904070960@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,47 +46,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jerry Lee <leisurelysw24@gmail.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 890bd0f8997ae6ac0a367dd5146154a3963306dd ]
+[ Upstream commit 4377748c7b5187c3342a60fa2ceb60c8a57a8488 ]
 
-OSD client should ignore cache/overlay flag if got redirect reply.
-Otherwise, the client hangs when the cache tier is in forward mode.
+drivers/hwmon/amd_energy.c:195:15: error: invalid operands to binary expression ('void' and 'int')
+                                        (channel - data->nr_cpus));
+                                        ~~~~~~~~~^~~~~~~~~~~~~~~~~
+include/asm-generic/topology.h:51:42: note: expanded from macro 'cpumask_of_node'
+    #define cpumask_of_node(node)       ((void)node, cpu_online_mask)
+                                               ^~~~
+include/linux/cpumask.h:618:72: note: expanded from macro 'cpumask_first_and'
+ #define cpumask_first_and(src1p, src2p) cpumask_next_and(-1, (src1p), (src2p))
+                                                                       ^~~~~
 
-[ idryomov: Redirects are effectively deprecated and no longer
-  used or tested.  The original tiering modes based on redirects
-  are inherently flawed because redirects can race and reorder,
-  potentially resulting in data corruption.  The new proxy and
-  readproxy tiering modes should be used instead of forward and
-  readforward.  Still marking for stable as obviously correct,
-  though. ]
-
-Cc: stable@vger.kernel.org
-URL: https://tracker.ceph.com/issues/23296
-URL: https://tracker.ceph.com/issues/36406
-Signed-off-by: Jerry Lee <leisurelysw24@gmail.com>
-Reviewed-by: Ilya Dryomov <idryomov@gmail.com>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+Fixes: f0b848ce6fe9 ("cpumask: Introduce cpumask_of_{node,pcibus} to replace {node,pcibus}_to_cpumask")
+Fixes: 8abee9566b7e ("hwmon: Add amd_energy driver to report energy counters")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Acked-by: Guenter Roeck <linux@roeck-us.net>
+Link: http://lkml.kernel.org/r/20200527134623.930247-1-arnd@arndb.de
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ceph/osd_client.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ include/asm-generic/topology.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/ceph/osd_client.c b/net/ceph/osd_client.c
-index af868d3923b9..834019dbc6b1 100644
---- a/net/ceph/osd_client.c
-+++ b/net/ceph/osd_client.c
-@@ -3652,7 +3652,9 @@ static void handle_reply(struct ceph_osd *osd, struct ceph_msg *msg)
- 		 * supported.
- 		 */
- 		req->r_t.target_oloc.pool = m.redirect.oloc.pool;
--		req->r_flags |= CEPH_OSD_FLAG_REDIRECTED;
-+		req->r_flags |= CEPH_OSD_FLAG_REDIRECTED |
-+				CEPH_OSD_FLAG_IGNORE_OVERLAY |
-+				CEPH_OSD_FLAG_IGNORE_CACHE;
- 		req->r_tid = 0;
- 		__submit_request(req, false);
- 		goto out_unlock_osdc;
+diff --git a/include/asm-generic/topology.h b/include/asm-generic/topology.h
+index 238873739550..5aa8705df87e 100644
+--- a/include/asm-generic/topology.h
++++ b/include/asm-generic/topology.h
+@@ -48,7 +48,7 @@
+   #ifdef CONFIG_NEED_MULTIPLE_NODES
+     #define cpumask_of_node(node)	((node) == 0 ? cpu_online_mask : cpu_none_mask)
+   #else
+-    #define cpumask_of_node(node)	((void)node, cpu_online_mask)
++    #define cpumask_of_node(node)	((void)(node), cpu_online_mask)
+   #endif
+ #endif
+ #ifndef pcibus_to_node
 -- 
 2.25.1
 
