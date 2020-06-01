@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E7A291EACBF
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:41:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BDC8A1EAF0E
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:59:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729003AbgFASjW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:39:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34338 "EHLO mail.kernel.org"
+        id S1728922AbgFAR52 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 13:57:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38628 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730458AbgFASO3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:14:29 -0400
+        id S1728917AbgFAR50 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 13:57:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DE529206E2;
-        Mon,  1 Jun 2020 18:14:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2BB2C206E2;
+        Mon,  1 Jun 2020 17:57:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591035269;
-        bh=MbeZa4VffzmxWAR8MGy0BeRxIsWisBaIT8gBRIYAzuI=;
+        s=default; t=1591034245;
+        bh=phD9nR7Z3XgGAWj/NsEdRQXSY43SKrYgTBx9FL2Qpcw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YKC7BND22lYQVuiuR4mm2MNvZ3Qs+cvtW1x5bKiFCdDoR3jZW3sJdA1v0Y+WIe++d
-         mAWm7UhZ/E+LofJ+FTBKYbsDGmB691u/sEOTGgZdDColr0pHgntfpQLo2HoIOLJ84C
-         vwccGxn7InTqMPmAd3vHaJO8qWt1EZ/jpwqqLSxo=
+        b=PdmjLKy3ifmMfAxpUdKNBbcF5Lf6E/6NIS5dZhPRwB0hh0dMB1C7EjWW4llIwo5oi
+         5yaijOijU0CAgQjCy/wmdd6VuRcAl+/8v+2IdmyeQXYM7LkVUPPfVzfG8NWrdiJ5YU
+         zbCrfsjfs5AHLnAWtiNFQuzoA7uoCSPul1FmoQ0Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matteo Croce <mcroce@redhat.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Yonghong Song <yhs@fb.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 082/177] samples: bpf: Fix build error
+        stable@vger.kernel.org, Jeremy Sowden <jeremy@azazel.net>,
+        Steffen Klassert <steffen.klassert@secunet.com>
+Subject: [PATCH 4.4 30/48] vti4: eliminated some duplicate code.
 Date:   Mon,  1 Jun 2020 19:53:40 +0200
-Message-Id: <20200601174055.730002653@linuxfoundation.org>
+Message-Id: <20200601174001.619310966@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174048.468952319@linuxfoundation.org>
-References: <20200601174048.468952319@linuxfoundation.org>
+In-Reply-To: <20200601173952.175939894@linuxfoundation.org>
+References: <20200601173952.175939894@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,42 +43,141 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matteo Croce <mcroce@redhat.com>
+From: Jeremy Sowden <jeremy@azazel.net>
 
-[ Upstream commit 23ad04669f81f958e9a4121b0266228d2eb3c357 ]
+commit f981c57ffd2d7cf2dd4b6d6f8fcb3965df42f54c upstream.
 
-GCC 10 is very strict about symbol clash, and lwt_len_hist_user contains
-a symbol which clashes with libbpf:
+The ipip tunnel introduced in commit dd9ee3444014 ("vti4: Fix a ipip
+packet processing bug in 'IPCOMP' virtual tunnel") largely duplicated
+the existing vti_input and vti_recv functions.  Refactored to
+deduplicate the common code.
 
-/usr/bin/ld: samples/bpf/lwt_len_hist_user.o:(.bss+0x0): multiple definition of `bpf_log_buf'; samples/bpf/bpf_load.o:(.bss+0x8c0): first defined here
-collect2: error: ld returned 1 exit status
+Signed-off-by: Jeremy Sowden <jeremy@azazel.net>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-bpf_log_buf here seems to be a leftover, so removing it.
-
-Signed-off-by: Matteo Croce <mcroce@redhat.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Acked-by: Yonghong Song <yhs@fb.com>
-Link: https://lore.kernel.org/bpf/20200511113234.80722-1-mcroce@redhat.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- samples/bpf/lwt_len_hist_user.c | 2 --
- 1 file changed, 2 deletions(-)
+ net/ipv4/ip_vti.c |   60 +++++++++++++++++++-----------------------------------
+ 1 file changed, 22 insertions(+), 38 deletions(-)
 
-diff --git a/samples/bpf/lwt_len_hist_user.c b/samples/bpf/lwt_len_hist_user.c
-index 587b68b1f8dd..430a4b7e353e 100644
---- a/samples/bpf/lwt_len_hist_user.c
-+++ b/samples/bpf/lwt_len_hist_user.c
-@@ -15,8 +15,6 @@
- #define MAX_INDEX 64
- #define MAX_STARS 38
+--- a/net/ipv4/ip_vti.c
++++ b/net/ipv4/ip_vti.c
+@@ -51,7 +51,7 @@ static int vti_net_id __read_mostly;
+ static int vti_tunnel_init(struct net_device *dev);
  
--char bpf_log_buf[BPF_LOG_BUF_SIZE];
--
- static void stars(char *str, long val, long max, int width)
+ static int vti_input(struct sk_buff *skb, int nexthdr, __be32 spi,
+-		     int encap_type)
++		     int encap_type, bool update_skb_dev)
  {
- 	int i;
--- 
-2.25.1
-
+ 	struct ip_tunnel *tunnel;
+ 	const struct iphdr *iph = ip_hdr(skb);
+@@ -66,6 +66,9 @@ static int vti_input(struct sk_buff *skb
+ 
+ 		XFRM_TUNNEL_SKB_CB(skb)->tunnel.ip4 = tunnel;
+ 
++		if (update_skb_dev)
++			skb->dev = tunnel->dev;
++
+ 		return xfrm_input(skb, nexthdr, spi, encap_type);
+ 	}
+ 
+@@ -75,47 +78,28 @@ drop:
+ 	return 0;
+ }
+ 
+-static int vti_input_ipip(struct sk_buff *skb, int nexthdr, __be32 spi,
+-		     int encap_type)
++static int vti_input_proto(struct sk_buff *skb, int nexthdr, __be32 spi,
++			   int encap_type)
+ {
+-	struct ip_tunnel *tunnel;
+-	const struct iphdr *iph = ip_hdr(skb);
+-	struct net *net = dev_net(skb->dev);
+-	struct ip_tunnel_net *itn = net_generic(net, vti_net_id);
+-
+-	tunnel = ip_tunnel_lookup(itn, skb->dev->ifindex, TUNNEL_NO_KEY,
+-				  iph->saddr, iph->daddr, 0);
+-	if (tunnel) {
+-		if (!xfrm4_policy_check(NULL, XFRM_POLICY_IN, skb))
+-			goto drop;
+-
+-		XFRM_TUNNEL_SKB_CB(skb)->tunnel.ip4 = tunnel;
+-
+-		skb->dev = tunnel->dev;
+-
+-		return xfrm_input(skb, nexthdr, spi, encap_type);
+-	}
+-
+-	return -EINVAL;
+-drop:
+-	kfree_skb(skb);
+-	return 0;
++	return vti_input(skb, nexthdr, spi, encap_type, false);
+ }
+ 
+-static int vti_rcv(struct sk_buff *skb)
++static int vti_rcv(struct sk_buff *skb, __be32 spi, bool update_skb_dev)
+ {
+ 	XFRM_SPI_SKB_CB(skb)->family = AF_INET;
+ 	XFRM_SPI_SKB_CB(skb)->daddroff = offsetof(struct iphdr, daddr);
+ 
+-	return vti_input(skb, ip_hdr(skb)->protocol, 0, 0);
++	return vti_input(skb, ip_hdr(skb)->protocol, spi, 0, update_skb_dev);
+ }
+ 
+-static int vti_rcv_ipip(struct sk_buff *skb)
++static int vti_rcv_proto(struct sk_buff *skb)
+ {
+-	XFRM_SPI_SKB_CB(skb)->family = AF_INET;
+-	XFRM_SPI_SKB_CB(skb)->daddroff = offsetof(struct iphdr, daddr);
++	return vti_rcv(skb, 0, false);
++}
+ 
+-	return vti_input_ipip(skb, ip_hdr(skb)->protocol, ip_hdr(skb)->saddr, 0);
++static int vti_rcv_tunnel(struct sk_buff *skb)
++{
++	return vti_rcv(skb, ip_hdr(skb)->saddr, true);
+ }
+ 
+ static int vti_rcv_cb(struct sk_buff *skb, int err)
+@@ -452,31 +436,31 @@ static void __net_init vti_fb_tunnel_ini
+ }
+ 
+ static struct xfrm4_protocol vti_esp4_protocol __read_mostly = {
+-	.handler	=	vti_rcv,
+-	.input_handler	=	vti_input,
++	.handler	=	vti_rcv_proto,
++	.input_handler	=	vti_input_proto,
+ 	.cb_handler	=	vti_rcv_cb,
+ 	.err_handler	=	vti4_err,
+ 	.priority	=	100,
+ };
+ 
+ static struct xfrm4_protocol vti_ah4_protocol __read_mostly = {
+-	.handler	=	vti_rcv,
+-	.input_handler	=	vti_input,
++	.handler	=	vti_rcv_proto,
++	.input_handler	=	vti_input_proto,
+ 	.cb_handler	=	vti_rcv_cb,
+ 	.err_handler	=	vti4_err,
+ 	.priority	=	100,
+ };
+ 
+ static struct xfrm4_protocol vti_ipcomp4_protocol __read_mostly = {
+-	.handler	=	vti_rcv,
+-	.input_handler	=	vti_input,
++	.handler	=	vti_rcv_proto,
++	.input_handler	=	vti_input_proto,
+ 	.cb_handler	=	vti_rcv_cb,
+ 	.err_handler	=	vti4_err,
+ 	.priority	=	100,
+ };
+ 
+ static struct xfrm_tunnel ipip_handler __read_mostly = {
+-	.handler	=	vti_rcv_ipip,
++	.handler	=	vti_rcv_tunnel,
+ 	.err_handler	=	vti4_err,
+ 	.priority	=	0,
+ };
 
 
