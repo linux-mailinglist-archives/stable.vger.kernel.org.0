@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BC051EAE87
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:54:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F70B1EADB8
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:48:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728636AbgFASyv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:54:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44868 "EHLO mail.kernel.org"
+        id S1729343AbgFASrz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:47:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53936 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728688AbgFASBu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:01:50 -0400
+        id S1730652AbgFASH5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:07:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 98A752065C;
-        Mon,  1 Jun 2020 18:01:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 34B85206E2;
+        Mon,  1 Jun 2020 18:07:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034510;
-        bh=aW1gOOs4HbyBdM6yTnX+lhvxry2Uif7eLZDEZKmV2NQ=;
+        s=default; t=1591034876;
+        bh=tirxYBNn+X1HyFht4y1bGde11FRf1xyzvDbSwH9iKUQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g06DTov0Ud8ToNmasrv0+omGipAPYauPXsejOuALWgbQZoRggGEJK7u5WOwIEkkz/
-         MznzhchxRgrpBxsxCrSmR9md3pgE+4FS4hrn6v9ShhtWOltRABIjBQi9IzdYYD2JcF
-         7yd9lVSh3jAamYgasZafra94rSUYxxFSk4981/x8=
+        b=gepH6kouOa9SJk0I0V38dPm0f/1eZMjeIOiZinHj75rACLeDgnt5WFMByaAz3KCj8
+         HToeVBGzHSuFGiT2E56YIr/eHFLTcU9VcQPUGDGOxrPzwnia3QsBqqk9zyyc1ddQ8o
+         tK0iMgjSxgpZZXFtNy2XaNxQ0q9MMzKK3TlK4M2E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Hilliard <james.hilliard1@gmail.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 24/77] Input: usbtouchscreen - add support for BonXeon TP
+Subject: [PATCH 5.4 051/142] net: freescale: select CONFIG_FIXED_PHY where needed
 Date:   Mon,  1 Jun 2020 19:53:29 +0200
-Message-Id: <20200601174020.748589900@linuxfoundation.org>
+Message-Id: <20200601174043.092040249@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174016.396817032@linuxfoundation.org>
-References: <20200601174016.396817032@linuxfoundation.org>
+In-Reply-To: <20200601174037.904070960@linuxfoundation.org>
+References: <20200601174037.904070960@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,35 +45,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Hilliard <james.hilliard1@gmail.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit e3b4f94ef52ae1592cbe199bd38dbdc0d58b2217 ]
+[ Upstream commit 99352c79af3e5f2e4724abf37fa5a2a3299b1c81 ]
 
-Based on available information this uses the singletouch irtouch
-protocol. This is tested and confirmed to be fully functional on
-the BonXeon TP hardware I have.
+I ran into a randconfig build failure with CONFIG_FIXED_PHY=m
+and CONFIG_GIANFAR=y:
 
-Signed-off-by: James Hilliard <james.hilliard1@gmail.com>
-Link: https://lore.kernel.org/r/20200413184217.55700-1-james.hilliard1@gmail.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+x86_64-linux-ld: drivers/net/ethernet/freescale/gianfar.o:(.rodata+0x418): undefined reference to `fixed_phy_change_carrier'
+
+It seems the same thing can happen with dpaa and ucc_geth, so change
+all three to do an explicit 'select FIXED_PHY'.
+
+The fixed-phy driver actually has an alternative stub function that
+theoretically allows building network drivers when fixed-phy is
+disabled, but I don't see how that would help here, as the drivers
+presumably would not work then.
+
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/touchscreen/usbtouchscreen.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/freescale/Kconfig      | 2 ++
+ drivers/net/ethernet/freescale/dpaa/Kconfig | 1 +
+ 2 files changed, 3 insertions(+)
 
-diff --git a/drivers/input/touchscreen/usbtouchscreen.c b/drivers/input/touchscreen/usbtouchscreen.c
-index 2c41107240de..499402a975b3 100644
---- a/drivers/input/touchscreen/usbtouchscreen.c
-+++ b/drivers/input/touchscreen/usbtouchscreen.c
-@@ -197,6 +197,7 @@ static const struct usb_device_id usbtouch_devices[] = {
- #endif
- 
- #ifdef CONFIG_TOUCHSCREEN_USB_IRTOUCH
-+	{USB_DEVICE(0x255e, 0x0001), .driver_info = DEVTYPE_IRTOUCH},
- 	{USB_DEVICE(0x595a, 0x0001), .driver_info = DEVTYPE_IRTOUCH},
- 	{USB_DEVICE(0x6615, 0x0001), .driver_info = DEVTYPE_IRTOUCH},
- 	{USB_DEVICE(0x6615, 0x0012), .driver_info = DEVTYPE_IRTOUCH_HIRES},
+diff --git a/drivers/net/ethernet/freescale/Kconfig b/drivers/net/ethernet/freescale/Kconfig
+index 6a7e8993119f..941c7e667afc 100644
+--- a/drivers/net/ethernet/freescale/Kconfig
++++ b/drivers/net/ethernet/freescale/Kconfig
+@@ -77,6 +77,7 @@ config UCC_GETH
+ 	depends on QUICC_ENGINE
+ 	select FSL_PQ_MDIO
+ 	select PHYLIB
++	select FIXED_PHY
+ 	---help---
+ 	  This driver supports the Gigabit Ethernet mode of the QUICC Engine,
+ 	  which is available on some Freescale SOCs.
+@@ -90,6 +91,7 @@ config GIANFAR
+ 	depends on HAS_DMA
+ 	select FSL_PQ_MDIO
+ 	select PHYLIB
++	select FIXED_PHY
+ 	select CRC32
+ 	---help---
+ 	  This driver supports the Gigabit TSEC on the MPC83xx, MPC85xx,
+diff --git a/drivers/net/ethernet/freescale/dpaa/Kconfig b/drivers/net/ethernet/freescale/dpaa/Kconfig
+index 3b325733a4f8..0a54c7e0e4ae 100644
+--- a/drivers/net/ethernet/freescale/dpaa/Kconfig
++++ b/drivers/net/ethernet/freescale/dpaa/Kconfig
+@@ -3,6 +3,7 @@ menuconfig FSL_DPAA_ETH
+ 	tristate "DPAA Ethernet"
+ 	depends on FSL_DPAA && FSL_FMAN
+ 	select PHYLIB
++	select FIXED_PHY
+ 	select FSL_FMAN_MAC
+ 	---help---
+ 	  Data Path Acceleration Architecture Ethernet driver,
 -- 
 2.25.1
 
