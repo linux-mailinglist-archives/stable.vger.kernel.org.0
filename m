@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 083FA1EAEBC
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:56:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 428FF1EADB2
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:48:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728214AbgFAS4j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:56:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43230 "EHLO mail.kernel.org"
+        id S1728869AbgFASrg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:47:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54226 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729646AbgFASAc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:00:32 -0400
+        id S1730687AbgFASIK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:08:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8C8C7206E2;
-        Mon,  1 Jun 2020 18:00:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A0487206E2;
+        Mon,  1 Jun 2020 18:08:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034432;
-        bh=fdjg3WSVYtxBn3QT4as0cSFEN35TCejYjnX3bfS/FLU=;
+        s=default; t=1591034890;
+        bh=y+OpidB/SxRmVMvmFkNAKPuLpPMPNyxElUHB7xdoPvY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x+z9bGKUN7JVmTtLmoMs3B77CCRVkulFcjo36maPte9h9FANUXgdpVfxd9x5icPd4
-         UINiy3pHsagHXJc9YReJxGMjmLmDfZ74zUL+GFMaxpdv4+q8IO1iRwy9okTcqa+r/I
-         vEH9t+tx7qCFgPUbHO+mwVzPVe9+pDd61YqDU/sg=
+        b=En2dE9HU0IssPSrHtHi3fx4GSCebmzh8A+gX6zrD+Xo1HY9GTOJmvDPUyZQk4qH0R
+         4oVLHRDPmFHghbzh2ABQu2XTlf100EBHMl7lYHDSSr/GRaqwHxC5l/fp3TX74lT4dA
+         kcm1BL++lSDcGGgz3aP/hYm9kNpxDfjRuPzgtf2g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kevin Locke <kevin@kevinlocke.name>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        stable@vger.kernel.org, Mao Han <han_mao@linux.alibaba.com>,
+        Guo Ren <guoren@linux.alibaba.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 29/77] Input: i8042 - add ThinkPad S230u to i8042 reset list
+Subject: [PATCH 5.4 056/142] csky: Fixup perf callchain unwind
 Date:   Mon,  1 Jun 2020 19:53:34 +0200
-Message-Id: <20200601174021.837550551@linuxfoundation.org>
+Message-Id: <20200601174043.785813180@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174016.396817032@linuxfoundation.org>
-References: <20200601174016.396817032@linuxfoundation.org>
+In-Reply-To: <20200601174037.904070960@linuxfoundation.org>
+References: <20200601174037.904070960@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,57 +44,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kevin Locke <kevin@kevinlocke.name>
+From: Mao Han <han_mao@linux.alibaba.com>
 
-[ Upstream commit 2712c91a54a1058d55c284152b4d93c979b67be6 ]
+[ Upstream commit 229a0ddee1108a3f82a873e6cbbe35c92c540444 ]
 
-On the Lenovo ThinkPad Twist S230u (3347-4HU) with BIOS version
-"GDETC1WW (1.81 ) 06/27/2019", the keyboard, Synaptics TouchPad, and
-TrackPoint either do not function or stop functioning a few minutes
-after boot.  This problem has been noted before, perhaps only occurring
-with BIOS 1.57 and later.[1][2][3][4][5]
+ [ 5221.974084] Unable to handle kernel paging request at virtual address 0xfffff000, pc: 0x8002c18e
+ [ 5221.985929] Oops: 00000000
+ [ 5221.989488]
+ [ 5221.989488] CURRENT PROCESS:
+ [ 5221.989488]
+ [ 5221.992877] COMM=callchain_test PID=11962
+ [ 5221.995213] TEXT=00008000-000087e0 DATA=00009f1c-0000a018 BSS=0000a018-0000b000
+ [ 5221.999037] USER-STACK=7fc18e20  KERNEL-STACK=be204680
+ [ 5221.999037]
+ [ 5222.003292] PC: 0x8002c18e (perf_callchain_kernel+0x3e/0xd4)
+ [ 5222.007957] LR: 0x8002c198 (perf_callchain_kernel+0x48/0xd4)
+ [ 5222.074873] Call Trace:
+ [ 5222.074873] [<800a248e>] get_perf_callchain+0x20a/0x29c
+ [ 5222.074873] [<8009d964>] perf_callchain+0x64/0x80
+ [ 5222.074873] [<8009dc1c>] perf_prepare_sample+0x29c/0x4b8
+ [ 5222.074873] [<8009de6e>] perf_event_output_forward+0x36/0x98
+ [ 5222.074873] [<800497e0>] search_exception_tables+0x20/0x44
+ [ 5222.074873] [<8002cbb6>] do_page_fault+0x92/0x378
+ [ 5222.074873] [<80098608>] __perf_event_overflow+0x54/0xdc
+ [ 5222.074873] [<80098778>] perf_swevent_hrtimer+0xe8/0x164
+ [ 5222.074873] [<8002ddd0>] update_mmu_cache+0x0/0xd8
+ [ 5222.074873] [<8002c014>] user_backtrace+0x58/0xc4
+ [ 5222.074873] [<8002c0b4>] perf_callchain_user+0x34/0xd0
+ [ 5222.074873] [<800a2442>] get_perf_callchain+0x1be/0x29c
+ [ 5222.074873] [<8009d964>] perf_callchain+0x64/0x80
+ [ 5222.074873] [<8009d834>] perf_output_sample+0x78c/0x858
+ [ 5222.074873] [<8009dc1c>] perf_prepare_sample+0x29c/0x4b8
+ [ 5222.074873] [<8009de94>] perf_event_output_forward+0x5c/0x98
+ [ 5222.097846]
+ [ 5222.097846] [<800a0300>] perf_event_exit_task+0x58/0x43c
+ [ 5222.097846] [<8006c874>] hrtimer_interrupt+0x104/0x2ec
+ [ 5222.097846] [<800a0300>] perf_event_exit_task+0x58/0x43c
+ [ 5222.097846] [<80437bb6>] dw_apb_clockevent_irq+0x2a/0x4c
+ [ 5222.097846] [<8006c770>] hrtimer_interrupt+0x0/0x2ec
+ [ 5222.097846] [<8005f2e4>] __handle_irq_event_percpu+0xac/0x19c
+ [ 5222.097846] [<80437bb6>] dw_apb_clockevent_irq+0x2a/0x4c
+ [ 5222.097846] [<8005f408>] handle_irq_event_percpu+0x34/0x88
+ [ 5222.097846] [<8005f480>] handle_irq_event+0x24/0x64
+ [ 5222.097846] [<8006218c>] handle_level_irq+0x68/0xdc
+ [ 5222.097846] [<8005ec76>] __handle_domain_irq+0x56/0xa8
+ [ 5222.097846] [<80450e90>] ck_irq_handler+0xac/0xe4
+ [ 5222.097846] [<80029012>] csky_do_IRQ+0x12/0x24
+ [ 5222.097846] [<8002a3a0>] csky_irq+0x70/0x80
+ [ 5222.097846] [<800ca612>] alloc_set_pte+0xd2/0x238
+ [ 5222.097846] [<8002ddd0>] update_mmu_cache+0x0/0xd8
+ [ 5222.097846] [<800a0340>] perf_event_exit_task+0x98/0x43c
 
-Odds of a BIOS fix appear to be low: 1.57 was released over 6 years ago
-and although the [BIOS changelog] notes "Fixed an issue of UEFI
-touchpad/trackpoint/keyboard/touchscreen" in 1.58, it appears to be
-insufficient.
+The original fp check doesn't base on the real kernal stack region.
+Invalid fp address may cause kernel panic.
 
-Setting i8042.reset=1 or adding 33474HU to the reset list avoids the
-issue on my system from either warm or cold boot.
-
-[1]: https://bugs.launchpad.net/bugs/1210748
-[2]: https://bbs.archlinux.org/viewtopic.php?pid=1360425
-[3]: https://forums.linuxmint.com/viewtopic.php?f=46&t=41200
-[4]: https://forums.linuxmint.com/viewtopic.php?f=49&t=157115
-[5]: https://forums.lenovo.com/topic/findpost/27/1337119
-[BIOS changelog]: https://download.lenovo.com/pccbbs/mobiles/gduj33uc.txt
-
-Signed-off-by: Kevin Locke <kevin@kevinlocke.name>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/94f384b0f75f90f71425d7dce7ac82c59ddb87a8.1587702636.git.kevin@kevinlocke.name
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Mao Han <han_mao@linux.alibaba.com>
+Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/serio/i8042-x86ia64io.h | 7 +++++++
- 1 file changed, 7 insertions(+)
+ arch/csky/kernel/perf_callchain.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
-index 8bf38eded1ef..ad357f79c7d6 100644
---- a/drivers/input/serio/i8042-x86ia64io.h
-+++ b/drivers/input/serio/i8042-x86ia64io.h
-@@ -673,6 +673,13 @@ static const struct dmi_system_id __initconst i8042_dmi_reset_table[] = {
- 			DMI_MATCH(DMI_PRODUCT_NAME, "P65xRP"),
- 		},
- 	},
-+	{
-+		/* Lenovo ThinkPad Twist S230u */
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "33474HU"),
-+		},
-+	},
- 	{ }
- };
+diff --git a/arch/csky/kernel/perf_callchain.c b/arch/csky/kernel/perf_callchain.c
+index e68ff375c8f8..ab55e98ee8f6 100644
+--- a/arch/csky/kernel/perf_callchain.c
++++ b/arch/csky/kernel/perf_callchain.c
+@@ -12,12 +12,17 @@ struct stackframe {
+ 
+ static int unwind_frame_kernel(struct stackframe *frame)
+ {
+-	if (kstack_end((void *)frame->fp))
++	unsigned long low = (unsigned long)task_stack_page(current);
++	unsigned long high = low + THREAD_SIZE;
++
++	if (unlikely(frame->fp < low || frame->fp > high))
+ 		return -EPERM;
+-	if (frame->fp & 0x3 || frame->fp < TASK_SIZE)
++
++	if (kstack_end((void *)frame->fp) || frame->fp & 0x3)
+ 		return -EPERM;
+ 
+ 	*frame = *(struct stackframe *)frame->fp;
++
+ 	if (__kernel_text_address(frame->lr)) {
+ 		int graph = 0;
  
 -- 
 2.25.1
