@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 55BE81EA9CB
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:05:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 867E11EAA24
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:05:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728874AbgFASCT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:02:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45396 "EHLO mail.kernel.org"
+        id S1730332AbgFASF3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:05:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50602 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728760AbgFASCR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:02:17 -0400
+        id S1730298AbgFASF2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:05:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A173520776;
-        Mon,  1 Jun 2020 18:02:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 19DF62074B;
+        Mon,  1 Jun 2020 18:05:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034537;
-        bh=R6DMhYBD4L29JjBJc9HRN3G2rhzvtNzRlF29p+QU+ek=;
+        s=default; t=1591034727;
+        bh=cYxn46v7Fp+VUDknXWc2HELPE8i0Sn7JqZLgXwySOm0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Sjd8Fuz352/QTcuuu703tvak2IX4F8wE3nHG6+M1+6cXtIBjveVMLCws0zh2mdCK9
-         E02GVTnzKRQfhgmyzfZiW0C1hEBpDvqphMMb6g0ZERGULYOzSjfwTZCe2jojA1b0xX
-         Kwy3lF+N7qPUttnyA3Cb2OUP7HX51zBeEXaIpwmg=
+        b=H0oYUNqP7s7rzZXHVjq92t/8Fp4YLpbtlQBomCfAQerTDASFTfBJ387lfT9R9Qfr1
+         zN2Z40hkDb9NylUayH5gA8c6++6WE4lY0N8ARbV0lWzthWMNB/OSBZPZyXDFE0QLBt
+         /42cJ2E6MFDGZTOibl+jFKyYbE0WiDS89ItnZIXk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Mukesh Ojha <mojha@codeaurora.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 4.14 76/77] net: hns: fix unsigned comparison to less than zero
-Date:   Mon,  1 Jun 2020 19:54:21 +0200
-Message-Id: <20200601174029.578918387@linuxfoundation.org>
+        stable@vger.kernel.org, Michael Braun <michael-dev@fami-braun.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 4.19 83/95] netfilter: nft_reject_bridge: enable reject with bridge vlan
+Date:   Mon,  1 Jun 2020 19:54:23 +0200
+Message-Id: <20200601174033.163558907@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174016.396817032@linuxfoundation.org>
-References: <20200601174016.396817032@linuxfoundation.org>
+In-Reply-To: <20200601174020.759151073@linuxfoundation.org>
+References: <20200601174020.759151073@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,36 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Michael Braun <michael-dev@fami-braun.de>
 
-commit ea401685a20b5d631957f024bda86e1f6118eb20 upstream.
+commit e9c284ec4b41c827f4369973d2792992849e4fa5 upstream.
 
-Currently mskid is unsigned and hence comparisons with negative
-error return values are always false. Fix this by making mskid an
-int.
+Currently, using the bridge reject target with tagged packets
+results in untagged packets being sent back.
 
-Fixes: f058e46855dc ("net: hns: fix ICMP6 neighbor solicitation messages discard problem")
-Addresses-Coverity: ("Operands don't affect result")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Reviewed-by: Mukesh Ojha <mojha@codeaurora.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Cc: Guenter Roeck <linux@roeck-us.net>
+Fix this by mirroring the vlan id as well.
+
+Fixes: 85f5b3086a04 ("netfilter: bridge: add reject support")
+Signed-off-by: Michael Braun <michael-dev@fami-braun.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/ethernet/hisilicon/hns/hns_dsaf_main.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/bridge/netfilter/nft_reject_bridge.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/net/ethernet/hisilicon/hns/hns_dsaf_main.c
-+++ b/drivers/net/ethernet/hisilicon/hns/hns_dsaf_main.c
-@@ -2770,7 +2770,7 @@ static void set_promisc_tcam_enable(stru
- 	struct hns_mac_cb *mac_cb;
- 	u8 addr[ETH_ALEN] = {0};
- 	u8 port_num;
--	u16 mskid;
-+	int mskid;
+--- a/net/bridge/netfilter/nft_reject_bridge.c
++++ b/net/bridge/netfilter/nft_reject_bridge.c
+@@ -34,6 +34,12 @@ static void nft_reject_br_push_etherhdr(
+ 	ether_addr_copy(eth->h_dest, eth_hdr(oldskb)->h_source);
+ 	eth->h_proto = eth_hdr(oldskb)->h_proto;
+ 	skb_pull(nskb, ETH_HLEN);
++
++	if (skb_vlan_tag_present(oldskb)) {
++		u16 vid = skb_vlan_tag_get(oldskb);
++
++		__vlan_hwaccel_put_tag(nskb, oldskb->vlan_proto, vid);
++	}
+ }
  
- 	/* promisc use vague table match with vlanid = 0 & macaddr = 0 */
- 	hns_dsaf_set_mac_key(dsaf_dev, &mac_key, 0x00, port, addr);
+ static int nft_bridge_iphdr_validate(struct sk_buff *skb)
 
 
