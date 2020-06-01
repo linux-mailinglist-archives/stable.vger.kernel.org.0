@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 808F01EACD4
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:41:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B7451EADB4
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:48:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728726AbgFASkm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:40:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60668 "EHLO mail.kernel.org"
+        id S1730337AbgFASrm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:47:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54180 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730943AbgFASNG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:13:06 -0400
+        id S1730678AbgFASII (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:08:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0611C2065C;
-        Mon,  1 Jun 2020 18:13:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6A501207D0;
+        Mon,  1 Jun 2020 18:08:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591035186;
-        bh=OWscbb58LV3wYU2t0kpPZcQFKkJCIC9E+3xuGSvNeqg=;
+        s=default; t=1591034887;
+        bh=kVn8x1kydNngyAysBZ+UdkS1JAW1XNUyRrmBJQGKbEo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VSTgGjkulQwgb5nO3cHDPZQ9q8yCTP5eTn8q/AT9eWfSLrB3m2ODW0Con3Y+0Uctl
-         eQwaQ3SmlBFID87jlGC2VLZqncAL2ksmgPGse4jFmBzDgdEQthB+II1q4tmZP/OWQ5
-         NAi3G10LNVJRQibZW5gqIo2XIW5el53KxXyvuyxg=
+        b=pqdU91VxbxLlbAgQsFaGsy2HYncNfw6NtGWuxbIB8ftDmEGyuD8E5kygJQBca26WM
+         Goxvv8Ie1YY5lMF8sGnf+0uI+PYPpQkhsp/qgWC9lxONWKsKhWIfqo4DvU6szE6Ddk
+         WW+PGlzh2ZHvWj/SjZv7HtLkoxD8lhphWiwFhnzM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qiushi Wu <wu000273@umn.edu>,
+        stable@vger.kernel.org, Xin Long <lucien.xin@gmail.com>,
+        Jon Maloy <jon.maloy@ericsson.com>,
+        Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.6 040/177] net/mlx4_core: fix a memory leak bug.
+Subject: [PATCH 5.4 020/142] tipc: block BH before using dst_cache
 Date:   Mon,  1 Jun 2020 19:52:58 +0200
-Message-Id: <20200601174052.335240907@linuxfoundation.org>
+Message-Id: <20200601174039.942780034@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174048.468952319@linuxfoundation.org>
-References: <20200601174048.468952319@linuxfoundation.org>
+In-Reply-To: <20200601174037.904070960@linuxfoundation.org>
+References: <20200601174037.904070960@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,34 +46,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiushi Wu <wu000273@umn.edu>
+From: Eric Dumazet <edumazet@google.com>
 
-commit febfd9d3c7f74063e8e630b15413ca91b567f963 upstream.
+[ Upstream commit 1378817486d6860f6a927f573491afe65287abf1 ]
 
-In function mlx4_opreq_action(), pointer "mailbox" is not released,
-when mlx4_cmd_box() return and error, causing a memory leak bug.
-Fix this issue by going to "out" label, mlx4_free_cmd_mailbox() can
-free this pointer.
+dst_cache_get() documents it must be used with BH disabled.
 
-Fixes: fe6f700d6cbb ("net/mlx4_core: Respond to operation request by firmware")
-Signed-off-by: Qiushi Wu <wu000273@umn.edu>
+sysbot reported :
+
+BUG: using smp_processor_id() in preemptible [00000000] code: /21697
+caller is dst_cache_get+0x3a/0xb0 net/core/dst_cache.c:68
+CPU: 0 PID: 21697 Comm:  Not tainted 5.7.0-rc6-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Call Trace:
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0x188/0x20d lib/dump_stack.c:118
+ check_preemption_disabled lib/smp_processor_id.c:47 [inline]
+ debug_smp_processor_id.cold+0x88/0x9b lib/smp_processor_id.c:57
+ dst_cache_get+0x3a/0xb0 net/core/dst_cache.c:68
+ tipc_udp_xmit.isra.0+0xb9/0xad0 net/tipc/udp_media.c:164
+ tipc_udp_send_msg+0x3e6/0x490 net/tipc/udp_media.c:244
+ tipc_bearer_xmit_skb+0x1de/0x3f0 net/tipc/bearer.c:526
+ tipc_enable_bearer+0xb2f/0xd60 net/tipc/bearer.c:331
+ __tipc_nl_bearer_enable+0x2bf/0x390 net/tipc/bearer.c:995
+ tipc_nl_bearer_enable+0x1e/0x30 net/tipc/bearer.c:1003
+ genl_family_rcv_msg_doit net/netlink/genetlink.c:673 [inline]
+ genl_family_rcv_msg net/netlink/genetlink.c:718 [inline]
+ genl_rcv_msg+0x627/0xdf0 net/netlink/genetlink.c:735
+ netlink_rcv_skb+0x15a/0x410 net/netlink/af_netlink.c:2469
+ genl_rcv+0x24/0x40 net/netlink/genetlink.c:746
+ netlink_unicast_kernel net/netlink/af_netlink.c:1303 [inline]
+ netlink_unicast+0x537/0x740 net/netlink/af_netlink.c:1329
+ netlink_sendmsg+0x882/0xe10 net/netlink/af_netlink.c:1918
+ sock_sendmsg_nosec net/socket.c:652 [inline]
+ sock_sendmsg+0xcf/0x120 net/socket.c:672
+ ____sys_sendmsg+0x6bf/0x7e0 net/socket.c:2362
+ ___sys_sendmsg+0x100/0x170 net/socket.c:2416
+ __sys_sendmsg+0xec/0x1b0 net/socket.c:2449
+ do_syscall_64+0xf6/0x7d0 arch/x86/entry/common.c:295
+ entry_SYSCALL_64_after_hwframe+0x49/0xb3
+RIP: 0033:0x45ca29
+
+Fixes: e9c1a793210f ("tipc: add dst_cache support for udp media")
+Cc: Xin Long <lucien.xin@gmail.com>
+Cc: Jon Maloy <jon.maloy@ericsson.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/net/ethernet/mellanox/mlx4/fw.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/tipc/udp_media.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/mellanox/mlx4/fw.c
-+++ b/drivers/net/ethernet/mellanox/mlx4/fw.c
-@@ -2734,7 +2734,7 @@ void mlx4_opreq_action(struct work_struc
- 		if (err) {
- 			mlx4_err(dev, "Failed to retrieve required operation: %d\n",
- 				 err);
--			return;
-+			goto out;
- 		}
- 		MLX4_GET(modifier, outbox, GET_OP_REQ_MODIFIER_OFFSET);
- 		MLX4_GET(token, outbox, GET_OP_REQ_TOKEN_OFFSET);
+--- a/net/tipc/udp_media.c
++++ b/net/tipc/udp_media.c
+@@ -161,9 +161,11 @@ static int tipc_udp_xmit(struct net *net
+ 			 struct udp_bearer *ub, struct udp_media_addr *src,
+ 			 struct udp_media_addr *dst, struct dst_cache *cache)
+ {
+-	struct dst_entry *ndst = dst_cache_get(cache);
++	struct dst_entry *ndst;
+ 	int ttl, err = 0;
+ 
++	local_bh_disable();
++	ndst = dst_cache_get(cache);
+ 	if (dst->proto == htons(ETH_P_IP)) {
+ 		struct rtable *rt = (struct rtable *)ndst;
+ 
+@@ -210,9 +212,11 @@ static int tipc_udp_xmit(struct net *net
+ 					   src->port, dst->port, false);
+ #endif
+ 	}
++	local_bh_enable();
+ 	return err;
+ 
+ tx_error:
++	local_bh_enable();
+ 	kfree_skb(skb);
+ 	return err;
+ }
 
 
