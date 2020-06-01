@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A32411EAAD6
+	by mail.lfdr.de (Postfix) with ESMTP id 35A8C1EAAD5
 	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:12:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731166AbgFASL4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:11:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59088 "EHLO mail.kernel.org"
+        id S1731155AbgFASLz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:11:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59210 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730462AbgFASLu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:11:50 -0400
+        id S1730263AbgFASLy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:11:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4EDE92065C;
-        Mon,  1 Jun 2020 18:11:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B2A532065C;
+        Mon,  1 Jun 2020 18:11:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591035109;
-        bh=KlkWwm/tiwxWsauXuo/bW/oTU/cQu4F2ZLTFnbeJcxk=;
+        s=default; t=1591035114;
+        bh=oc9000K0Njl65rxCNw3uZQ0DDNTTXplezompeOn/yzQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YSheTNOaO2fh9IkDDQaP8lqMH6tP4c+BHbUarjXlrPIAeqSEpXep0QFF0VsNnJsYl
-         BshnslC3Eq5byS0MpCGFpN5C68oxDccqMJt1SOeAkWZwUtL8yX3cKN/3Ijd+FaCai9
-         h22XYFZektMlJsyy8nlONbFJPOEPeR2ZQ8fQrdfY=
+        b=1dlvAFteBtNMPmfe+31vXUXCLhddKCfluBAhpretJEBJSvfkQIQIsnI1yQe8q8p3q
+         2BYlPOT8jyZh3iWv+Pww7vJmssDONrPYEWJQ2MwH6j1buNVgPL0O/MMQHzXRgrHuXT
+         ts3opHGuHVs+RmrwsMSgmP3u2ZYeqX89jZzjuo+g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
-        Julia Lawall <julia.lawall@lip6.fr>,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org, Jamal Hadi Salim <jhs@mojatatu.com>,
+        Roman Mashak <mrv@mojatatu.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.6 014/177] net: qrtr: Fix passing invalid reference to qrtr_local_enqueue()
-Date:   Mon,  1 Jun 2020 19:52:32 +0200
-Message-Id: <20200601174049.840281466@linuxfoundation.org>
+Subject: [PATCH 5.6 016/177] net sched: fix reporting the first-time use timestamp
+Date:   Mon,  1 Jun 2020 19:52:34 +0200
+Message-Id: <20200601174050.034990035@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200601174048.468952319@linuxfoundation.org>
 References: <20200601174048.468952319@linuxfoundation.org>
@@ -46,38 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+From: Roman Mashak <mrv@mojatatu.com>
 
-[ Upstream commit d28ea1fbbf437054ef339afec241019f2c4e2bb6 ]
+[ Upstream commit b15e62631c5f19fea9895f7632dae9c1b27fe0cd ]
 
-Once the traversal of the list is completed with list_for_each_entry(),
-the iterator (node) will point to an invalid object. So passing this to
-qrtr_local_enqueue() which is outside of the iterator block is erroneous
-eventhough the object is not used.
+When a new action is installed, firstuse field of 'tcf_t' is explicitly set
+to 0. Value of zero means "new action, not yet used"; as a packet hits the
+action, 'firstuse' is stamped with the current jiffies value.
 
-So fix this by passing NULL to qrtr_local_enqueue().
+tcf_tm_dump() should return 0 for firstuse if action has not yet been hit.
 
-Fixes: bdabad3e363d ("net: Add Qualcomm IPC router")
-Reported-by: kbuild test robot <lkp@intel.com>
-Reported-by: Julia Lawall <julia.lawall@lip6.fr>
-Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Fixes: 48d8ee1694dd ("net sched actions: aggregate dumping of actions timeinfo")
+Cc: Jamal Hadi Salim <jhs@mojatatu.com>
+Signed-off-by: Roman Mashak <mrv@mojatatu.com>
+Acked-by: Jamal Hadi Salim <jhs@mojatatu.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/qrtr/qrtr.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/net/act_api.h |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/net/qrtr/qrtr.c
-+++ b/net/qrtr/qrtr.c
-@@ -855,7 +855,7 @@ static int qrtr_bcast_enqueue(struct qrt
- 	}
- 	mutex_unlock(&qrtr_node_lock);
- 
--	qrtr_local_enqueue(node, skb, type, from, to);
-+	qrtr_local_enqueue(NULL, skb, type, from, to);
- 
- 	return 0;
+--- a/include/net/act_api.h
++++ b/include/net/act_api.h
+@@ -69,7 +69,8 @@ static inline void tcf_tm_dump(struct tc
+ {
+ 	dtm->install = jiffies_to_clock_t(jiffies - stm->install);
+ 	dtm->lastuse = jiffies_to_clock_t(jiffies - stm->lastuse);
+-	dtm->firstuse = jiffies_to_clock_t(jiffies - stm->firstuse);
++	dtm->firstuse = stm->firstuse ?
++		jiffies_to_clock_t(jiffies - stm->firstuse) : 0;
+ 	dtm->expires = jiffies_to_clock_t(stm->expires);
  }
+ 
 
 
