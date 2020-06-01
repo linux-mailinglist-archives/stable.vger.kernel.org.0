@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DE4AB1EAAFD
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:16:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 416541EA9DC
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:05:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731332AbgFASNX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:13:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32852 "EHLO mail.kernel.org"
+        id S1729998AbgFASCw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:02:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46138 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731329AbgFASNW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:13:22 -0400
+        id S1729990AbgFASCv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:02:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B22482068D;
-        Mon,  1 Jun 2020 18:13:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 241432065C;
+        Mon,  1 Jun 2020 18:02:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591035202;
-        bh=JOvf7Z0unFZPa0R3IIQFYG1Wc1kvGB+pDnGn35Q+6iY=;
+        s=default; t=1591034570;
+        bh=O73O6S6qOVS2JIbuuOEQjpAjk2e+6PhdeVNPmkNtvVY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ED+jprWkWqQ0kXisqIZnKnMP97joxIQ6tHf0OFp6N/DhHriNNbWwYvs1euDe7Qy4X
-         UoO9Kvzs1VAAACwYk47h6/7U8p2JAwKi0eu9SmM+1VP63D3AmznD+dBLki6XK7nSwL
-         6oUIjAGl6Gz/qc7K1saFgylvKQ9JuZPCFaI86PWs=
+        b=TGS+gvpW8EwJJNNt32kT5EhTz8adCe5DqBK9h43cTHOTIm+/+Oel+OdkN6DT1/4nZ
+         rt2DHd/qBdKfKR4cS16I1sRoYCcu9bA7yrIeZdupEdAPksO3WaZVzD9EBvLrLqBgDo
+         rNC97s6uhgd03viXqNdx/sp4SfsFUvYicCjJvTz0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chuhong Yuan <hslester96@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 055/177] net: microchip: encx24j600: add missed kthread_stop
+        stable@vger.kernel.org,
+        =?UTF-8?q?Jere=20Lepp=C3=A4nen?= <jere.leppanen@nokia.com>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 13/95] sctp: Start shutdown on association restart if in SHUTDOWN-SENT state and socket is closed
 Date:   Mon,  1 Jun 2020 19:53:13 +0200
-Message-Id: <20200601174053.607328934@linuxfoundation.org>
+Message-Id: <20200601174022.984293668@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174048.468952319@linuxfoundation.org>
-References: <20200601174048.468952319@linuxfoundation.org>
+In-Reply-To: <20200601174020.759151073@linuxfoundation.org>
+References: <20200601174020.759151073@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,53 +45,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuhong Yuan <hslester96@gmail.com>
+From: "Jere Lepp‰nen" <jere.leppanen@nokia.com>
 
-[ Upstream commit ff8ce319e9c25e920d994cc35236f0bb32dfc8f3 ]
+[ Upstream commit d3e8e4c11870413789f029a71e72ae6e971fe678 ]
 
-This driver calls kthread_run() in probe, but forgets to call
-kthread_stop() in probe failure and remove.
-Add the missed kthread_stop() to fix it.
+Commit bdf6fa52f01b ("sctp: handle association restarts when the
+socket is closed.") starts shutdown when an association is restarted,
+if in SHUTDOWN-PENDING state and the socket is closed. However, the
+rationale stated in that commit applies also when in SHUTDOWN-SENT
+state - we don't want to move an association to ESTABLISHED state when
+the socket has been closed, because that results in an association
+that is unreachable from user space.
 
-Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
+The problem scenario:
+
+1.  Client crashes and/or restarts.
+
+2.  Server (using one-to-one socket) calls close(). SHUTDOWN is lost.
+
+3.  Client reconnects using the same addresses and ports.
+
+4.  Server's association is restarted. The association and the socket
+    move to ESTABLISHED state, even though the server process has
+    closed its descriptor.
+
+Also, after step 4 when the server process exits, some resources are
+leaked in an attempt to release the underlying inet sock structure in
+ESTABLISHED state:
+
+    IPv4: Attempt to release TCP socket in state 1 00000000377288c7
+
+Fix by acting the same way as in SHUTDOWN-PENDING state. That is, if
+an association is restarted in SHUTDOWN-SENT state and the socket is
+closed, then start shutdown and don't move the association or the
+socket to ESTABLISHED state.
+
+Fixes: bdf6fa52f01b ("sctp: handle association restarts when the socket is closed.")
+Signed-off-by: Jere Lepp√§nen <jere.leppanen@nokia.com>
+Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/microchip/encx24j600.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ net/sctp/sm_statefuns.c |    9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/microchip/encx24j600.c b/drivers/net/ethernet/microchip/encx24j600.c
-index 39925e4bf2ec..b25a13da900a 100644
---- a/drivers/net/ethernet/microchip/encx24j600.c
-+++ b/drivers/net/ethernet/microchip/encx24j600.c
-@@ -1070,7 +1070,7 @@ static int encx24j600_spi_probe(struct spi_device *spi)
- 	if (unlikely(ret)) {
- 		netif_err(priv, probe, ndev, "Error %d initializing card encx24j600 card\n",
- 			  ret);
--		goto out_free;
-+		goto out_stop;
- 	}
- 
- 	eidled = encx24j600_read_reg(priv, EIDLED);
-@@ -1088,6 +1088,8 @@ static int encx24j600_spi_probe(struct spi_device *spi)
- 
- out_unregister:
- 	unregister_netdev(priv->ndev);
-+out_stop:
-+	kthread_stop(priv->kworker_task);
- out_free:
- 	free_netdev(ndev);
- 
-@@ -1100,6 +1102,7 @@ static int encx24j600_spi_remove(struct spi_device *spi)
- 	struct encx24j600_priv *priv = dev_get_drvdata(&spi->dev);
- 
- 	unregister_netdev(priv->ndev);
-+	kthread_stop(priv->kworker_task);
- 
- 	free_netdev(priv->ndev);
- 
--- 
-2.25.1
-
+--- a/net/sctp/sm_statefuns.c
++++ b/net/sctp/sm_statefuns.c
+@@ -1871,12 +1871,13 @@ static enum sctp_disposition sctp_sf_do_
+ 	/* Update the content of current association. */
+ 	sctp_add_cmd_sf(commands, SCTP_CMD_UPDATE_ASSOC, SCTP_ASOC(new_asoc));
+ 	sctp_add_cmd_sf(commands, SCTP_CMD_EVENT_ULP, SCTP_ULPEVENT(ev));
+-	if (sctp_state(asoc, SHUTDOWN_PENDING) &&
++	if ((sctp_state(asoc, SHUTDOWN_PENDING) ||
++	     sctp_state(asoc, SHUTDOWN_SENT)) &&
+ 	    (sctp_sstate(asoc->base.sk, CLOSING) ||
+ 	     sock_flag(asoc->base.sk, SOCK_DEAD))) {
+-		/* if were currently in SHUTDOWN_PENDING, but the socket
+-		 * has been closed by user, don't transition to ESTABLISHED.
+-		 * Instead trigger SHUTDOWN bundled with COOKIE_ACK.
++		/* If the socket has been closed by user, don't
++		 * transition to ESTABLISHED. Instead trigger SHUTDOWN
++		 * bundled with COOKIE_ACK.
+ 		 */
+ 		sctp_add_cmd_sf(commands, SCTP_CMD_REPLY, SCTP_CHUNK(repl));
+ 		return sctp_sf_do_9_2_start_shutdown(net, ep, asoc,
 
 
