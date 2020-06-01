@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 611351EA936
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:01:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0745F1EA968
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:02:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729308AbgFAR7Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 13:59:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41576 "EHLO mail.kernel.org"
+        id S1729826AbgFASBp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:01:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44754 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729304AbgFAR7P (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 13:59:15 -0400
+        id S1729821AbgFASBn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:01:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3E4FD2073B;
-        Mon,  1 Jun 2020 17:59:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DDD052073B;
+        Mon,  1 Jun 2020 18:01:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034353;
-        bh=6fU6roTFzC+TA+Ol0XxJWSS2BpufeCtqNSOpSiz+trk=;
+        s=default; t=1591034503;
+        bh=IcpnxHIxGuV4/d90h6QEyv3BV8vod2o5wUpxt9Rtmf4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1eRdaAbVR676/88QTKFbiWBUtJv/Mkon48augKocrPzYd++rOgvjcUXulpIqDAIv+
-         596QW9HH4ePY5FgQMBtuuJKVYcNu89PVfEAslIcfPovATjjiq9j/aX7OEfICcR4k7R
-         Jja3JVLFzuWO1bsvJmu/mOYxljgLc8COzfD88zEs=
+        b=VomXsRWdOlsIwiMMYd9heJKCd9PCCHPZi2st0E+hD4n5nRso8nqc/pqmUpBta1tEt
+         LtBMQ+ub6KxGAVXPIxUxlPoW5UVAkEuZn60NaZeU1BE3l7Y9U2fCnCoKq66k18SkM2
+         g65ZXGZrhgmttKfNuDhMAVvI7XqxRtk9htjPJrwk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 4.9 56/61] netfilter: nf_conntrack_pptp: fix compilation warning with W=1 build
+        stable@vger.kernel.org, Xiumei Mu <xmu@redhat.com>,
+        Xin Long <lucien.xin@gmail.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>
+Subject: [PATCH 4.14 58/77] xfrm: fix a warning in xfrm_policy_insert_list
 Date:   Mon,  1 Jun 2020 19:54:03 +0200
-Message-Id: <20200601174021.915757425@linuxfoundation.org>
+Message-Id: <20200601174026.512034194@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174010.316778377@linuxfoundation.org>
-References: <20200601174010.316778377@linuxfoundation.org>
+In-Reply-To: <20200601174016.396817032@linuxfoundation.org>
+References: <20200601174016.396817032@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,45 +44,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Xin Long <lucien.xin@gmail.com>
 
-commit 4946ea5c1237036155c3b3a24f049fd5f849f8f6 upstream.
+commit ed17b8d377eaf6b4a01d46942b4c647378a79bdd upstream.
 
->> include/linux/netfilter/nf_conntrack_pptp.h:13:20: warning: 'const' type qualifier on return type has no effect [-Wignored-qualifiers]
-extern const char *const pptp_msg_name(u_int16_t msg);
-^~~~~~
+This waring can be triggered simply by:
 
-Reported-by: kbuild test robot <lkp@intel.com>
-Fixes: 4c559f15efcc ("netfilter: nf_conntrack_pptp: prevent buffer overflows in debug code")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+  # ip xfrm policy update src 192.168.1.1/24 dst 192.168.1.2/24 dir in \
+    priority 1 mark 0 mask 0x10  #[1]
+  # ip xfrm policy update src 192.168.1.1/24 dst 192.168.1.2/24 dir in \
+    priority 2 mark 0 mask 0x1   #[2]
+  # ip xfrm policy update src 192.168.1.1/24 dst 192.168.1.2/24 dir in \
+    priority 2 mark 0 mask 0x10  #[3]
+
+Then dmesg shows:
+
+  [ ] WARNING: CPU: 1 PID: 7265 at net/xfrm/xfrm_policy.c:1548
+  [ ] RIP: 0010:xfrm_policy_insert_list+0x2f2/0x1030
+  [ ] Call Trace:
+  [ ]  xfrm_policy_inexact_insert+0x85/0xe50
+  [ ]  xfrm_policy_insert+0x4ba/0x680
+  [ ]  xfrm_add_policy+0x246/0x4d0
+  [ ]  xfrm_user_rcv_msg+0x331/0x5c0
+  [ ]  netlink_rcv_skb+0x121/0x350
+  [ ]  xfrm_netlink_rcv+0x66/0x80
+  [ ]  netlink_unicast+0x439/0x630
+  [ ]  netlink_sendmsg+0x714/0xbf0
+  [ ]  sock_sendmsg+0xe2/0x110
+
+The issue was introduced by Commit 7cb8a93968e3 ("xfrm: Allow inserting
+policies with matching mark and different priorities"). After that, the
+policies [1] and [2] would be able to be added with different priorities.
+
+However, policy [3] will actually match both [1] and [2]. Policy [1]
+was matched due to the 1st 'return true' in xfrm_policy_mark_match(),
+and policy [2] was matched due to the 2nd 'return true' in there. It
+caused WARN_ON() in xfrm_policy_insert_list().
+
+This patch is to fix it by only (the same value and priority) as the
+same policy in xfrm_policy_mark_match().
+
+Thanks to Yuehaibing, we could make this fix better.
+
+v1->v2:
+  - check policy->mark.v == pol->mark.v only without mask.
+
+Fixes: 7cb8a93968e3 ("xfrm: Allow inserting policies with matching mark and different priorities")
+Reported-by: Xiumei Mu <xmu@redhat.com>
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/linux/netfilter/nf_conntrack_pptp.h |    2 +-
- net/netfilter/nf_conntrack_pptp.c           |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ net/xfrm/xfrm_policy.c |    7 +------
+ 1 file changed, 1 insertion(+), 6 deletions(-)
 
---- a/include/linux/netfilter/nf_conntrack_pptp.h
-+++ b/include/linux/netfilter/nf_conntrack_pptp.h
-@@ -4,7 +4,7 @@
- 
- #include <linux/netfilter/nf_conntrack_common.h>
- 
--extern const char *const pptp_msg_name(u_int16_t msg);
-+const char *pptp_msg_name(u_int16_t msg);
- 
- /* state of the control session */
- enum pptp_ctrlsess_state {
---- a/net/netfilter/nf_conntrack_pptp.c
-+++ b/net/netfilter/nf_conntrack_pptp.c
-@@ -90,7 +90,7 @@ static const char *const pptp_msg_name_a
- 	[PPTP_SET_LINK_INFO]		= "SET_LINK_INFO"
- };
- 
--const char *const pptp_msg_name(u_int16_t msg)
-+const char *pptp_msg_name(u_int16_t msg)
+--- a/net/xfrm/xfrm_policy.c
++++ b/net/xfrm/xfrm_policy.c
+@@ -722,12 +722,7 @@ static void xfrm_policy_requeue(struct x
+ static bool xfrm_policy_mark_match(struct xfrm_policy *policy,
+ 				   struct xfrm_policy *pol)
  {
- 	if (msg > PPTP_MSG_MAX)
- 		return pptp_msg_name_array[0];
+-	u32 mark = policy->mark.v & policy->mark.m;
+-
+-	if (policy->mark.v == pol->mark.v && policy->mark.m == pol->mark.m)
+-		return true;
+-
+-	if ((mark & pol->mark.m) == pol->mark.v &&
++	if (policy->mark.v == pol->mark.v &&
+ 	    policy->priority == pol->priority)
+ 		return true;
+ 
 
 
