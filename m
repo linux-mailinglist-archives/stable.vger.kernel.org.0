@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 428FF1EADB2
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:48:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E6F81EAF02
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:59:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728869AbgFASrg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:47:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54226 "EHLO mail.kernel.org"
+        id S1729130AbgFAR6N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 13:58:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39934 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730687AbgFASIK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:08:10 -0400
+        id S1728247AbgFAR6L (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 13:58:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A0487206E2;
-        Mon,  1 Jun 2020 18:08:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 82784206E2;
+        Mon,  1 Jun 2020 17:58:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034890;
-        bh=y+OpidB/SxRmVMvmFkNAKPuLpPMPNyxElUHB7xdoPvY=;
+        s=default; t=1591034291;
+        bh=GkUxA68F6L+uQlg0eH/R3a4vyXA938LD41iQOgVsjp8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=En2dE9HU0IssPSrHtHi3fx4GSCebmzh8A+gX6zrD+Xo1HY9GTOJmvDPUyZQk4qH0R
-         4oVLHRDPmFHghbzh2ABQu2XTlf100EBHMl7lYHDSSr/GRaqwHxC5l/fp3TX74lT4dA
-         kcm1BL++lSDcGGgz3aP/hYm9kNpxDfjRuPzgtf2g=
+        b=cxscBJecbLLQv2AN3uyvIcGAf9b9mrHbATHsGDHX9Ae1vJEEoh9LM872dm5kzscqR
+         ioSn/jD5yDGMqcwPDzaxtsO+tgBDJBY1fGB4nPyESacjaREZ6++ouLnYgZ+cIjiF6U
+         f/G78CIOThkELIJvir5usXvCeXyOvtN+XEVZkFPI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mao Han <han_mao@linux.alibaba.com>,
-        Guo Ren <guoren@linux.alibaba.com>,
+        stable@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 056/142] csky: Fixup perf callchain unwind
+Subject: [PATCH 4.9 27/61] ARM: uaccess: consolidate uaccess asm to asm/uaccess-asm.h
 Date:   Mon,  1 Jun 2020 19:53:34 +0200
-Message-Id: <20200601174043.785813180@linuxfoundation.org>
+Message-Id: <20200601174016.904271256@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174037.904070960@linuxfoundation.org>
-References: <20200601174037.904070960@linuxfoundation.org>
+In-Reply-To: <20200601174010.316778377@linuxfoundation.org>
+References: <20200601174010.316778377@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,91 +43,300 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mao Han <han_mao@linux.alibaba.com>
+From: Russell King <rmk+kernel@armlinux.org.uk>
 
-[ Upstream commit 229a0ddee1108a3f82a873e6cbbe35c92c540444 ]
+[ Upstream commit 747ffc2fcf969eff9309d7f2d1d61cb8b9e1bb40 ]
 
- [ 5221.974084] Unable to handle kernel paging request at virtual address 0xfffff000, pc: 0x8002c18e
- [ 5221.985929] Oops: 00000000
- [ 5221.989488]
- [ 5221.989488] CURRENT PROCESS:
- [ 5221.989488]
- [ 5221.992877] COMM=callchain_test PID=11962
- [ 5221.995213] TEXT=00008000-000087e0 DATA=00009f1c-0000a018 BSS=0000a018-0000b000
- [ 5221.999037] USER-STACK=7fc18e20  KERNEL-STACK=be204680
- [ 5221.999037]
- [ 5222.003292] PC: 0x8002c18e (perf_callchain_kernel+0x3e/0xd4)
- [ 5222.007957] LR: 0x8002c198 (perf_callchain_kernel+0x48/0xd4)
- [ 5222.074873] Call Trace:
- [ 5222.074873] [<800a248e>] get_perf_callchain+0x20a/0x29c
- [ 5222.074873] [<8009d964>] perf_callchain+0x64/0x80
- [ 5222.074873] [<8009dc1c>] perf_prepare_sample+0x29c/0x4b8
- [ 5222.074873] [<8009de6e>] perf_event_output_forward+0x36/0x98
- [ 5222.074873] [<800497e0>] search_exception_tables+0x20/0x44
- [ 5222.074873] [<8002cbb6>] do_page_fault+0x92/0x378
- [ 5222.074873] [<80098608>] __perf_event_overflow+0x54/0xdc
- [ 5222.074873] [<80098778>] perf_swevent_hrtimer+0xe8/0x164
- [ 5222.074873] [<8002ddd0>] update_mmu_cache+0x0/0xd8
- [ 5222.074873] [<8002c014>] user_backtrace+0x58/0xc4
- [ 5222.074873] [<8002c0b4>] perf_callchain_user+0x34/0xd0
- [ 5222.074873] [<800a2442>] get_perf_callchain+0x1be/0x29c
- [ 5222.074873] [<8009d964>] perf_callchain+0x64/0x80
- [ 5222.074873] [<8009d834>] perf_output_sample+0x78c/0x858
- [ 5222.074873] [<8009dc1c>] perf_prepare_sample+0x29c/0x4b8
- [ 5222.074873] [<8009de94>] perf_event_output_forward+0x5c/0x98
- [ 5222.097846]
- [ 5222.097846] [<800a0300>] perf_event_exit_task+0x58/0x43c
- [ 5222.097846] [<8006c874>] hrtimer_interrupt+0x104/0x2ec
- [ 5222.097846] [<800a0300>] perf_event_exit_task+0x58/0x43c
- [ 5222.097846] [<80437bb6>] dw_apb_clockevent_irq+0x2a/0x4c
- [ 5222.097846] [<8006c770>] hrtimer_interrupt+0x0/0x2ec
- [ 5222.097846] [<8005f2e4>] __handle_irq_event_percpu+0xac/0x19c
- [ 5222.097846] [<80437bb6>] dw_apb_clockevent_irq+0x2a/0x4c
- [ 5222.097846] [<8005f408>] handle_irq_event_percpu+0x34/0x88
- [ 5222.097846] [<8005f480>] handle_irq_event+0x24/0x64
- [ 5222.097846] [<8006218c>] handle_level_irq+0x68/0xdc
- [ 5222.097846] [<8005ec76>] __handle_domain_irq+0x56/0xa8
- [ 5222.097846] [<80450e90>] ck_irq_handler+0xac/0xe4
- [ 5222.097846] [<80029012>] csky_do_IRQ+0x12/0x24
- [ 5222.097846] [<8002a3a0>] csky_irq+0x70/0x80
- [ 5222.097846] [<800ca612>] alloc_set_pte+0xd2/0x238
- [ 5222.097846] [<8002ddd0>] update_mmu_cache+0x0/0xd8
- [ 5222.097846] [<800a0340>] perf_event_exit_task+0x98/0x43c
+Consolidate the user access assembly code to asm/uaccess-asm.h.  This
+moves the csdb, check_uaccess, uaccess_mask_range_ptr, uaccess_enable,
+uaccess_disable, uaccess_save, uaccess_restore macros, and creates two
+new ones for exception entry and exit - uaccess_entry and uaccess_exit.
 
-The original fp check doesn't base on the real kernal stack region.
-Invalid fp address may cause kernel panic.
+This makes the uaccess_save and uaccess_restore macros private to
+asm/uaccess-asm.h.
 
-Signed-off-by: Mao Han <han_mao@linux.alibaba.com>
-Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/csky/kernel/perf_callchain.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ arch/arm/include/asm/assembler.h   |  75 +-------------------
+ arch/arm/include/asm/uaccess-asm.h | 106 +++++++++++++++++++++++++++++
+ arch/arm/kernel/entry-armv.S       |  11 +--
+ arch/arm/kernel/entry-header.S     |   9 +--
+ 4 files changed, 112 insertions(+), 89 deletions(-)
+ create mode 100644 arch/arm/include/asm/uaccess-asm.h
 
-diff --git a/arch/csky/kernel/perf_callchain.c b/arch/csky/kernel/perf_callchain.c
-index e68ff375c8f8..ab55e98ee8f6 100644
---- a/arch/csky/kernel/perf_callchain.c
-+++ b/arch/csky/kernel/perf_callchain.c
-@@ -12,12 +12,17 @@ struct stackframe {
+diff --git a/arch/arm/include/asm/assembler.h b/arch/arm/include/asm/assembler.h
+index c9ed0b0e0737..1cd39b1229eb 100644
+--- a/arch/arm/include/asm/assembler.h
++++ b/arch/arm/include/asm/assembler.h
+@@ -21,11 +21,11 @@
+ #endif
  
- static int unwind_frame_kernel(struct stackframe *frame)
- {
--	if (kstack_end((void *)frame->fp))
-+	unsigned long low = (unsigned long)task_stack_page(current);
-+	unsigned long high = low + THREAD_SIZE;
-+
-+	if (unlikely(frame->fp < low || frame->fp > high))
- 		return -EPERM;
--	if (frame->fp & 0x3 || frame->fp < TASK_SIZE)
-+
-+	if (kstack_end((void *)frame->fp) || frame->fp & 0x3)
- 		return -EPERM;
+ #include <asm/ptrace.h>
+-#include <asm/domain.h>
+ #include <asm/opcodes-virt.h>
+ #include <asm/asm-offsets.h>
+ #include <asm/page.h>
+ #include <asm/thread_info.h>
++#include <asm/uaccess-asm.h>
  
- 	*frame = *(struct stackframe *)frame->fp;
-+
- 	if (__kernel_text_address(frame->lr)) {
- 		int graph = 0;
+ #define IOMEM(x)	(x)
  
+@@ -445,79 +445,6 @@ THUMB(	orr	\reg , \reg , #PSR_T_BIT	)
+ 	.size \name , . - \name
+ 	.endm
+ 
+-	.macro	csdb
+-#ifdef CONFIG_THUMB2_KERNEL
+-	.inst.w	0xf3af8014
+-#else
+-	.inst	0xe320f014
+-#endif
+-	.endm
+-
+-	.macro check_uaccess, addr:req, size:req, limit:req, tmp:req, bad:req
+-#ifndef CONFIG_CPU_USE_DOMAINS
+-	adds	\tmp, \addr, #\size - 1
+-	sbcscc	\tmp, \tmp, \limit
+-	bcs	\bad
+-#ifdef CONFIG_CPU_SPECTRE
+-	movcs	\addr, #0
+-	csdb
+-#endif
+-#endif
+-	.endm
+-
+-	.macro uaccess_mask_range_ptr, addr:req, size:req, limit:req, tmp:req
+-#ifdef CONFIG_CPU_SPECTRE
+-	sub	\tmp, \limit, #1
+-	subs	\tmp, \tmp, \addr	@ tmp = limit - 1 - addr
+-	addhs	\tmp, \tmp, #1		@ if (tmp >= 0) {
+-	subshs	\tmp, \tmp, \size	@ tmp = limit - (addr + size) }
+-	movlo	\addr, #0		@ if (tmp < 0) addr = NULL
+-	csdb
+-#endif
+-	.endm
+-
+-	.macro	uaccess_disable, tmp, isb=1
+-#ifdef CONFIG_CPU_SW_DOMAIN_PAN
+-	/*
+-	 * Whenever we re-enter userspace, the domains should always be
+-	 * set appropriately.
+-	 */
+-	mov	\tmp, #DACR_UACCESS_DISABLE
+-	mcr	p15, 0, \tmp, c3, c0, 0		@ Set domain register
+-	.if	\isb
+-	instr_sync
+-	.endif
+-#endif
+-	.endm
+-
+-	.macro	uaccess_enable, tmp, isb=1
+-#ifdef CONFIG_CPU_SW_DOMAIN_PAN
+-	/*
+-	 * Whenever we re-enter userspace, the domains should always be
+-	 * set appropriately.
+-	 */
+-	mov	\tmp, #DACR_UACCESS_ENABLE
+-	mcr	p15, 0, \tmp, c3, c0, 0
+-	.if	\isb
+-	instr_sync
+-	.endif
+-#endif
+-	.endm
+-
+-	.macro	uaccess_save, tmp
+-#ifdef CONFIG_CPU_SW_DOMAIN_PAN
+-	mrc	p15, 0, \tmp, c3, c0, 0
+-	str	\tmp, [sp, #SVC_DACR]
+-#endif
+-	.endm
+-
+-	.macro	uaccess_restore
+-#ifdef CONFIG_CPU_SW_DOMAIN_PAN
+-	ldr	r0, [sp, #SVC_DACR]
+-	mcr	p15, 0, r0, c3, c0, 0
+-#endif
+-	.endm
+-
+ 	.irp	c,,eq,ne,cs,cc,mi,pl,vs,vc,hi,ls,ge,lt,gt,le,hs,lo
+ 	.macro	ret\c, reg
+ #if __LINUX_ARM_ARCH__ < 6
+diff --git a/arch/arm/include/asm/uaccess-asm.h b/arch/arm/include/asm/uaccess-asm.h
+new file mode 100644
+index 000000000000..d475e3e8145d
+--- /dev/null
++++ b/arch/arm/include/asm/uaccess-asm.h
+@@ -0,0 +1,106 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
++
++#ifndef __ASM_UACCESS_ASM_H__
++#define __ASM_UACCESS_ASM_H__
++
++#include <asm/asm-offsets.h>
++#include <asm/domain.h>
++#include <asm/memory.h>
++#include <asm/thread_info.h>
++
++	.macro	csdb
++#ifdef CONFIG_THUMB2_KERNEL
++	.inst.w	0xf3af8014
++#else
++	.inst	0xe320f014
++#endif
++	.endm
++
++	.macro check_uaccess, addr:req, size:req, limit:req, tmp:req, bad:req
++#ifndef CONFIG_CPU_USE_DOMAINS
++	adds	\tmp, \addr, #\size - 1
++	sbcscc	\tmp, \tmp, \limit
++	bcs	\bad
++#ifdef CONFIG_CPU_SPECTRE
++	movcs	\addr, #0
++	csdb
++#endif
++#endif
++	.endm
++
++	.macro uaccess_mask_range_ptr, addr:req, size:req, limit:req, tmp:req
++#ifdef CONFIG_CPU_SPECTRE
++	sub	\tmp, \limit, #1
++	subs	\tmp, \tmp, \addr	@ tmp = limit - 1 - addr
++	addhs	\tmp, \tmp, #1		@ if (tmp >= 0) {
++	subshs	\tmp, \tmp, \size	@ tmp = limit - (addr + size) }
++	movlo	\addr, #0		@ if (tmp < 0) addr = NULL
++	csdb
++#endif
++	.endm
++
++	.macro	uaccess_disable, tmp, isb=1
++#ifdef CONFIG_CPU_SW_DOMAIN_PAN
++	/*
++	 * Whenever we re-enter userspace, the domains should always be
++	 * set appropriately.
++	 */
++	mov	\tmp, #DACR_UACCESS_DISABLE
++	mcr	p15, 0, \tmp, c3, c0, 0		@ Set domain register
++	.if	\isb
++	instr_sync
++	.endif
++#endif
++	.endm
++
++	.macro	uaccess_enable, tmp, isb=1
++#ifdef CONFIG_CPU_SW_DOMAIN_PAN
++	/*
++	 * Whenever we re-enter userspace, the domains should always be
++	 * set appropriately.
++	 */
++	mov	\tmp, #DACR_UACCESS_ENABLE
++	mcr	p15, 0, \tmp, c3, c0, 0
++	.if	\isb
++	instr_sync
++	.endif
++#endif
++	.endm
++
++	.macro	uaccess_save, tmp
++#ifdef CONFIG_CPU_SW_DOMAIN_PAN
++	mrc	p15, 0, \tmp, c3, c0, 0
++	str	\tmp, [sp, #SVC_DACR]
++#endif
++	.endm
++
++	.macro	uaccess_restore
++#ifdef CONFIG_CPU_SW_DOMAIN_PAN
++	ldr	r0, [sp, #SVC_DACR]
++	mcr	p15, 0, r0, c3, c0, 0
++#endif
++	.endm
++
++	/*
++	 * Save the address limit on entry to a privileged exception and
++	 * if using PAN, save and disable usermode access.
++	 */
++	.macro	uaccess_entry, tsk, tmp0, tmp1, tmp2, disable
++	ldr	\tmp0, [\tsk, #TI_ADDR_LIMIT]
++	mov	\tmp1, #TASK_SIZE
++	str	\tmp1, [\tsk, #TI_ADDR_LIMIT]
++	str	\tmp0, [sp, #SVC_ADDR_LIMIT]
++	uaccess_save \tmp0
++	.if \disable
++	uaccess_disable \tmp0
++	.endif
++	.endm
++
++	/* Restore the user access state previously saved by uaccess_entry */
++	.macro	uaccess_exit, tsk, tmp0, tmp1
++	ldr	\tmp1, [sp, #SVC_ADDR_LIMIT]
++	uaccess_restore
++	str	\tmp1, [\tsk, #TI_ADDR_LIMIT]
++	.endm
++
++#endif /* __ASM_UACCESS_ASM_H__ */
+diff --git a/arch/arm/kernel/entry-armv.S b/arch/arm/kernel/entry-armv.S
+index 9f157e7c51e7..efffca3c66e7 100644
+--- a/arch/arm/kernel/entry-armv.S
++++ b/arch/arm/kernel/entry-armv.S
+@@ -30,6 +30,7 @@
+ #include <asm/unistd.h>
+ #include <asm/tls.h>
+ #include <asm/system_info.h>
++#include <asm/uaccess-asm.h>
+ 
+ #include "entry-header.S"
+ #include <asm/entry-macro-multi.S>
+@@ -186,15 +187,7 @@ ENDPROC(__und_invalid)
+ 	stmia	r7, {r2 - r6}
+ 
+ 	get_thread_info tsk
+-	ldr	r0, [tsk, #TI_ADDR_LIMIT]
+-	mov	r1, #TASK_SIZE
+-	str	r1, [tsk, #TI_ADDR_LIMIT]
+-	str	r0, [sp, #SVC_ADDR_LIMIT]
+-
+-	uaccess_save r0
+-	.if \uaccess
+-	uaccess_disable r0
+-	.endif
++	uaccess_entry tsk, r0, r1, r2, \uaccess
+ 
+ 	.if \trace
+ #ifdef CONFIG_TRACE_IRQFLAGS
+diff --git a/arch/arm/kernel/entry-header.S b/arch/arm/kernel/entry-header.S
+index fa7c6e5c17e7..f9287e65722e 100644
+--- a/arch/arm/kernel/entry-header.S
++++ b/arch/arm/kernel/entry-header.S
+@@ -5,6 +5,7 @@
+ #include <asm/asm-offsets.h>
+ #include <asm/errno.h>
+ #include <asm/thread_info.h>
++#include <asm/uaccess-asm.h>
+ #include <asm/v7m.h>
+ 
+ @ Bad Abort numbers
+@@ -215,9 +216,7 @@
+ 	blne	trace_hardirqs_off
+ #endif
+ 	.endif
+-	ldr	r1, [sp, #SVC_ADDR_LIMIT]
+-	uaccess_restore
+-	str	r1, [tsk, #TI_ADDR_LIMIT]
++	uaccess_exit tsk, r0, r1
+ 
+ #ifndef CONFIG_THUMB2_KERNEL
+ 	@ ARM mode SVC restore
+@@ -261,9 +260,7 @@
+ 	@ on the stack remains correct).
+ 	@
+ 	.macro  svc_exit_via_fiq
+-	ldr	r1, [sp, #SVC_ADDR_LIMIT]
+-	uaccess_restore
+-	str	r1, [tsk, #TI_ADDR_LIMIT]
++	uaccess_exit tsk, r0, r1
+ #ifndef CONFIG_THUMB2_KERNEL
+ 	@ ARM mode restore
+ 	mov	r0, sp
 -- 
 2.25.1
 
