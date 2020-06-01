@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E966E1EAED7
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:57:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3797E1EAE5F
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:53:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730040AbgFAS5b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:57:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42358 "EHLO mail.kernel.org"
+        id S1730019AbgFASC6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:02:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46316 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728945AbgFAR7u (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 13:59:50 -0400
+        id S1730014AbgFASC5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:02:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2B96A206E2;
-        Mon,  1 Jun 2020 17:59:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D7EE6208A7;
+        Mon,  1 Jun 2020 18:02:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034389;
-        bh=GMm8AhcPV7EpAvt+2CkU1zcExdXX+lpur4UqttDrAts=;
+        s=default; t=1591034577;
+        bh=d6n1lfALiOuqf6hD6qY0ykkceo3UeXoajd4//MCBJ98=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P8qnURZenDz8TV4AVJ30YAEPzAJ5cLsIRS/X7Ixumrb9qBZr7knD6JCtQmTKtu1bc
-         ICaSNgwBwMC/69HmZMlTp89vYwk8m0cKwBSLUEgMraXOfd2IJb+buKwKAbz/AqjQLd
-         Lg3lq/YJ8PwigTOCMMyInnV0obW6HwMm/kPNjrMo=
+        b=I6sG4itobfsO4lWbOU7cWo+FDFhWO2qDAJw1obGEQTs8e4Kz1C9/VJBvY7iowgx7T
+         6pfmpCR5vUIwYy6izrnQBOjqChrAcqmw0GvMKZe5+TohiinQO+EAa331RGp7I9fWOx
+         PTg29tzxMwPCGdIuhXtPTCW+NCeN5xyL4NjFIM6U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Qiushi Wu <wu000273@umn.edu>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 10/77] net: sun: fix missing release regions in cas_init_one().
-Date:   Mon,  1 Jun 2020 19:53:15 +0200
-Message-Id: <20200601174018.286787049@linuxfoundation.org>
+Subject: [PATCH 4.19 16/95] net: sun: fix missing release regions in cas_init_one().
+Date:   Mon,  1 Jun 2020 19:53:16 +0200
+Message-Id: <20200601174023.444074465@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174016.396817032@linuxfoundation.org>
-References: <20200601174016.396817032@linuxfoundation.org>
+In-Reply-To: <20200601174020.759151073@linuxfoundation.org>
+References: <20200601174020.759151073@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -63,7 +63,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/net/ethernet/sun/cassini.c
 +++ b/drivers/net/ethernet/sun/cassini.c
-@@ -4983,7 +4983,7 @@ static int cas_init_one(struct pci_dev *
+@@ -4971,7 +4971,7 @@ static int cas_init_one(struct pci_dev *
  					  cas_cacheline_size)) {
  			dev_err(&pdev->dev, "Could not set PCI cache "
  			       "line size\n");
@@ -72,7 +72,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		}
  	}
  #endif
-@@ -5158,7 +5158,6 @@ err_out_iounmap:
+@@ -5144,7 +5144,6 @@ err_out_iounmap:
  err_out_free_res:
  	pci_release_regions(pdev);
  
