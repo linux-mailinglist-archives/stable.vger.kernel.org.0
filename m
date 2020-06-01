@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 76A631EA969
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:02:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A492F1EAB0F
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:17:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729829AbgFASBt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:01:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44836 "EHLO mail.kernel.org"
+        id S1731430AbgFASOB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:14:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33636 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729832AbgFASBs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:01:48 -0400
+        id S1731426AbgFASOB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:14:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5DAF120776;
-        Mon,  1 Jun 2020 18:01:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E3DEA2065C;
+        Mon,  1 Jun 2020 18:13:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034507;
-        bh=q1doY0AB3P8r/4C1MDCRprR7AsXw8tUvmzIu15oKs60=;
+        s=default; t=1591035240;
+        bh=tVHUbJrmSj5WwA+U33l2RkVyEQK1iFhc957Equ35Qzc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aAcMDXoH5TjHbH3ejFUQCPoYXQL84QO3JJl9JS6oQeweBsQjdAlRIbmAD3xGup0ru
-         o7c3BzdRSR6OWBZaOOo4QLKSmUcEkUlkMAq7Z7JZZAjUCzRy+VyE+8uOMe/asQGgjG
-         CQzKvDxefzmJNXRL+rzeSp15OGO1jxj43oY+gdnc=
+        b=sXr1Ib1Lc7QpJ6mPFMUy7KEB2L08+Zh2NPOsA4/TWgP9blEm6uWzmUENma2M7EpW6
+         Z5+v25T9VrIzW4Lg6/++2/BNL5Cgq3oed/+PwbuXoeQ5SRCdkXd+mqY4SdsbJHveJo
+         GL8FOYnAKX8gtOUGN1E7MDHC9PIlR5ZarEFR/P2Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matteo Croce <mcroce@redhat.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Yonghong Song <yhs@fb.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 23/77] samples: bpf: Fix build error
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Kefeng Wang <wangkefeng.wang@huawei.com>,
+        Palmer Dabbelt <palmerdabbelt@google.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 070/177] riscv: Fix unmet direct dependencies built based on SOC_VIRT
 Date:   Mon,  1 Jun 2020 19:53:28 +0200
-Message-Id: <20200601174020.581088545@linuxfoundation.org>
+Message-Id: <20200601174054.751640954@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174016.396817032@linuxfoundation.org>
-References: <20200601174016.396817032@linuxfoundation.org>
+In-Reply-To: <20200601174048.468952319@linuxfoundation.org>
+References: <20200601174048.468952319@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,40 +45,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matteo Croce <mcroce@redhat.com>
+From: Kefeng Wang <wangkefeng.wang@huawei.com>
 
-[ Upstream commit 23ad04669f81f958e9a4121b0266228d2eb3c357 ]
+[ Upstream commit ab7fbad0c7d7a4f9b320a059a171a92a34b6d409 ]
 
-GCC 10 is very strict about symbol clash, and lwt_len_hist_user contains
-a symbol which clashes with libbpf:
+Fix unmet direct dependencies Warning and fix Kconfig indent.
 
-/usr/bin/ld: samples/bpf/lwt_len_hist_user.o:(.bss+0x0): multiple definition of `bpf_log_buf'; samples/bpf/bpf_load.o:(.bss+0x8c0): first defined here
-collect2: error: ld returned 1 exit status
+WARNING: unmet direct dependencies detected for POWER_RESET_SYSCON
+  Depends on [n]: POWER_RESET [=n] && OF [=y] && HAS_IOMEM [=y]
+  Selected by [y]:
+  - SOC_VIRT [=y]
 
-bpf_log_buf here seems to be a leftover, so removing it.
+WARNING: unmet direct dependencies detected for POWER_RESET_SYSCON_POWEROFF
+  Depends on [n]: POWER_RESET [=n] && OF [=y] && HAS_IOMEM [=y]
+  Selected by [y]:
+  - SOC_VIRT [=y]
 
-Signed-off-by: Matteo Croce <mcroce@redhat.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Acked-by: Yonghong Song <yhs@fb.com>
-Link: https://lore.kernel.org/bpf/20200511113234.80722-1-mcroce@redhat.com
+WARNING: unmet direct dependencies detected for RTC_DRV_GOLDFISH
+  Depends on [n]: RTC_CLASS [=n] && OF [=y] && HAS_IOMEM [=y] && (GOLDFISH [=y] || COMPILE_TEST [=n])
+  Selected by [y]:
+  - SOC_VIRT [=y]
+
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- samples/bpf/lwt_len_hist_user.c | 2 --
- 1 file changed, 2 deletions(-)
+ arch/riscv/Kconfig.socs | 17 +++++++++--------
+ 1 file changed, 9 insertions(+), 8 deletions(-)
 
-diff --git a/samples/bpf/lwt_len_hist_user.c b/samples/bpf/lwt_len_hist_user.c
-index 7fcb94c09112..965108527a4f 100644
---- a/samples/bpf/lwt_len_hist_user.c
-+++ b/samples/bpf/lwt_len_hist_user.c
-@@ -15,8 +15,6 @@
- #define MAX_INDEX 64
- #define MAX_STARS 38
+diff --git a/arch/riscv/Kconfig.socs b/arch/riscv/Kconfig.socs
+index a131174a0a77..f310ad8ffcf7 100644
+--- a/arch/riscv/Kconfig.socs
++++ b/arch/riscv/Kconfig.socs
+@@ -11,13 +11,14 @@ config SOC_SIFIVE
+ 	  This enables support for SiFive SoC platform hardware.
  
--char bpf_log_buf[BPF_LOG_BUF_SIZE];
--
- static void stars(char *str, long val, long max, int width)
- {
- 	int i;
+ config SOC_VIRT
+-       bool "QEMU Virt Machine"
+-       select POWER_RESET_SYSCON
+-       select POWER_RESET_SYSCON_POWEROFF
+-       select GOLDFISH
+-       select RTC_DRV_GOLDFISH
+-       select SIFIVE_PLIC
+-       help
+-         This enables support for QEMU Virt Machine.
++	bool "QEMU Virt Machine"
++	select POWER_RESET
++	select POWER_RESET_SYSCON
++	select POWER_RESET_SYSCON_POWEROFF
++	select GOLDFISH
++	select RTC_DRV_GOLDFISH if RTC_CLASS
++	select SIFIVE_PLIC
++	help
++	  This enables support for QEMU Virt Machine.
+ 
+ endmenu
 -- 
 2.25.1
 
