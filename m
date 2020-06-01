@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 34FB41EAF1E
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:59:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DBA071EAEE4
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:58:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728796AbgFAR47 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 13:56:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37876 "EHLO mail.kernel.org"
+        id S1729334AbgFAS55 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:57:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42046 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728791AbgFAR46 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 13:56:58 -0400
+        id S1728422AbgFAR7g (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 13:59:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0D84F207DA;
-        Mon,  1 Jun 2020 17:56:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8E6592073B;
+        Mon,  1 Jun 2020 17:59:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034218;
-        bh=Tny3VTVURpEgeM+9w0M0n1RNAkfCIp6+8DfMnH6Z1FY=;
+        s=default; t=1591034376;
+        bh=nDPx907IiAgKo62mVevumnODl8p64fK6WNMF6tym8/I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HUljWw7akgkmxwALXjPSpy9WoN0pLTj9l7TCww2O7ufO3VR5wOQphLWDVaFU9jcFc
-         YLfYeSUZ5cFimVCfTZXHrl3LwbbNkgp88a+6jUFtfwf3VZN/gIyRTVLhspgZicREIu
-         Z06X5xN1Zl/5rzjuDVM7QQV6xY72v2T4hoTMIeOo=
+        b=hRxlzo7P/ZdbJSJCjoGKkMrABAnZZSgI6CbsuDqdRByJEV8w08OwXE4Y5wQJzlnvo
+         59uQ9n6UwilMHlgaQ16GS7LDEQKQsZLhdS/uD4WiwauOC9oAQLQCR6O3f0sOzH9/n3
+         ffhW7eEq6LIGkcJwhZ9IX8XKb1dpJSy6oecXYEkg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liviu Dudau <liviu@dudau.co.uk>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Chintan Pandya <cpandya@codeaurora.org>,
-        Andrey Ryabinin <aryabinin@virtuozzo.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 4.4 45/48] mm/vmalloc.c: dont dereference possible NULL pointer in __vunmap()
-Date:   Mon,  1 Jun 2020 19:53:55 +0200
-Message-Id: <20200601174004.957880557@linuxfoundation.org>
+        stable@vger.kernel.org, Xiumei Mu <xmu@redhat.com>,
+        Xin Long <lucien.xin@gmail.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>
+Subject: [PATCH 4.9 49/61] ip_vti: receive ipip packet by calling ip_tunnel_rcv
+Date:   Mon,  1 Jun 2020 19:53:56 +0200
+Message-Id: <20200601174020.554744373@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601173952.175939894@linuxfoundation.org>
-References: <20200601173952.175939894@linuxfoundation.org>
+In-Reply-To: <20200601174010.316778377@linuxfoundation.org>
+References: <20200601174010.316778377@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,40 +44,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liviu Dudau <liviu@dudau.co.uk>
+From: Xin Long <lucien.xin@gmail.com>
 
-commit 6ade20327dbb808882888ed8ccded71e93067cf9 upstream.
+commit 976eba8ab596bab94b9714cd46d38d5c6a2c660d upstream.
 
-find_vmap_area() can return a NULL pointer and we're going to
-dereference it without checking it first.  Use the existing
-find_vm_area() function which does exactly what we want and checks for
-the NULL pointer.
+In Commit dd9ee3444014 ("vti4: Fix a ipip packet processing bug in
+'IPCOMP' virtual tunnel"), it tries to receive IPIP packets in vti
+by calling xfrm_input(). This case happens when a small packet or
+frag sent by peer is too small to get compressed.
 
-Link: http://lkml.kernel.org/r/20181228171009.22269-1-liviu@dudau.co.uk
-Fixes: f3c01d2f3ade ("mm: vmalloc: avoid racy handling of debugobjects in vunmap")
-Signed-off-by: Liviu Dudau <liviu@dudau.co.uk>
-Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Chintan Pandya <cpandya@codeaurora.org>
-Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Guenter Roeck <linux@roeck-us.net>
+However, xfrm_input() will still get to the IPCOMP path where skb
+sec_path is set, but never dropped while it should have been done
+in vti_ipcomp4_protocol.cb_handler(vti_rcv_cb), as it's not an
+ipcomp4 packet. This will cause that the packet can never pass
+xfrm4_policy_check() in the upper protocol rcv functions.
+
+So this patch is to call ip_tunnel_rcv() to process IPIP packets
+instead.
+
+Fixes: dd9ee3444014 ("vti4: Fix a ipip packet processing bug in 'IPCOMP' virtual tunnel")
+Reported-by: Xiumei Mu <xmu@redhat.com>
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/vmalloc.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ipv4/ip_vti.c |   23 ++++++++++++++++++++++-
+ 1 file changed, 22 insertions(+), 1 deletion(-)
 
---- a/mm/vmalloc.c
-+++ b/mm/vmalloc.c
-@@ -1464,7 +1464,7 @@ static void __vunmap(const void *addr, i
- 			addr))
- 		return;
+--- a/net/ipv4/ip_vti.c
++++ b/net/ipv4/ip_vti.c
+@@ -98,7 +98,28 @@ static int vti_rcv_proto(struct sk_buff
  
--	area = find_vmap_area((unsigned long)addr)->vm;
-+	area = find_vm_area(addr);
- 	if (unlikely(!area)) {
- 		WARN(1, KERN_ERR "Trying to vfree() nonexistent vm area (%p)\n",
- 				addr);
+ static int vti_rcv_tunnel(struct sk_buff *skb)
+ {
+-	return vti_rcv(skb, ip_hdr(skb)->saddr, true);
++	struct ip_tunnel_net *itn = net_generic(dev_net(skb->dev), vti_net_id);
++	const struct iphdr *iph = ip_hdr(skb);
++	struct ip_tunnel *tunnel;
++
++	tunnel = ip_tunnel_lookup(itn, skb->dev->ifindex, TUNNEL_NO_KEY,
++				  iph->saddr, iph->daddr, 0);
++	if (tunnel) {
++		struct tnl_ptk_info tpi = {
++			.proto = htons(ETH_P_IP),
++		};
++
++		if (!xfrm4_policy_check(NULL, XFRM_POLICY_IN, skb))
++			goto drop;
++		if (iptunnel_pull_header(skb, 0, tpi.proto, false))
++			goto drop;
++		return ip_tunnel_rcv(tunnel, skb, &tpi, NULL, false);
++	}
++
++	return -EINVAL;
++drop:
++	kfree_skb(skb);
++	return 0;
+ }
+ 
+ static int vti_rcv_cb(struct sk_buff *skb, int err)
 
 
