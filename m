@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A5131EADBC
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:48:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EEE81EAE8D
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:55:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730087AbgFASsG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:48:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53844 "EHLO mail.kernel.org"
+        id S1728688AbgFASy6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:54:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44782 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730638AbgFASHw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:07:52 -0400
+        id S1729163AbgFASBp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:01:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AEB34206E2;
-        Mon,  1 Jun 2020 18:07:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 21D642065C;
+        Mon,  1 Jun 2020 18:01:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034872;
-        bh=uB/nrNTc33V1p9MjKZ2UT3WMBnL+IeRKZpIjZGkr7aQ=;
+        s=default; t=1591034505;
+        bh=bHFNpJmKmHKprftzIGOaRHADYjg7o8+IY4OvdCrstTs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jugvma84d9hBxTQmNUa9msUuXw9WWFWA0Bc/K4Pp/xCaED8aIHgXAjJyWIuPU6xwj
-         A2PiwUBS9pwZcY5KMhKOSSBszhGg9bIkk0CqwzrBwH3MbiGMEX6Uyk0wEyZttCNJ76
-         mt5/WF3N/GuaGAOqjMs7GKuUBmVzeafWoKiNsjhE=
+        b=fiK0A6pg0bna6z8UxG3q1wPUDFDS1cooWsQZCEmw5DrUuhrrvnOVXnqfg4dV3FusC
+         i94Tm1MY+/J59hMXmE2Nn3fgrEtEGVvo/NhbEY/HFQUTZN1UwXKxUrf44etmIO5O81
+         ikgys2oBeWW3RXXMJ01M1rqtk6tG7rxnQq1mtws4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Felipe Balbi <balbi@kernel.org>,
+        stable@vger.kernel.org, Coverity <scan-admin@coverity.com>,
+        Steve French <stfrench@microsoft.com>,
+        Shyam Prasad N <nspmangalore@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 049/142] usb: phy: twl6030-usb: Fix a resource leak in an error handling path in twl6030_usb_probe()
+Subject: [PATCH 4.14 22/77] cifs: Fix null pointer check in cifs_read
 Date:   Mon,  1 Jun 2020 19:53:27 +0200
-Message-Id: <20200601174042.900048690@linuxfoundation.org>
+Message-Id: <20200601174020.389413239@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174037.904070960@linuxfoundation.org>
-References: <20200601174037.904070960@linuxfoundation.org>
+In-Reply-To: <20200601174016.396817032@linuxfoundation.org>
+References: <20200601174016.396817032@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,62 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Steve French <stfrench@microsoft.com>
 
-[ Upstream commit f058764d19000d98aef72010468db1f69faf9fa0 ]
+[ Upstream commit 9bd21d4b1a767c3abebec203342f3820dcb84662 ]
 
-A call to 'regulator_get()' is hidden in 'twl6030_usb_ldo_init()'. A
-corresponding put must be performed in the error handling path, as
-already done in the remove function.
+Coverity scan noted a redundant null check
 
-While at it, also move a 'free_irq()' call in the error handling path in
-order to be consistent.
-
-Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Coverity-id: 728517
+Reported-by: Coverity <scan-admin@coverity.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Reviewed-by: Shyam Prasad N <nspmangalore@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/phy/phy-twl6030-usb.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ fs/cifs/file.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/phy/phy-twl6030-usb.c b/drivers/usb/phy/phy-twl6030-usb.c
-index bfebf1f2e991..9a7e655d5280 100644
---- a/drivers/usb/phy/phy-twl6030-usb.c
-+++ b/drivers/usb/phy/phy-twl6030-usb.c
-@@ -377,7 +377,7 @@ static int twl6030_usb_probe(struct platform_device *pdev)
- 	if (status < 0) {
- 		dev_err(&pdev->dev, "can't get IRQ %d, err %d\n",
- 			twl->irq1, status);
--		return status;
-+		goto err_put_regulator;
- 	}
- 
- 	status = request_threaded_irq(twl->irq2, NULL, twl6030_usb_irq,
-@@ -386,8 +386,7 @@ static int twl6030_usb_probe(struct platform_device *pdev)
- 	if (status < 0) {
- 		dev_err(&pdev->dev, "can't get IRQ %d, err %d\n",
- 			twl->irq2, status);
--		free_irq(twl->irq1, twl);
--		return status;
-+		goto err_free_irq1;
- 	}
- 
- 	twl->asleep = 0;
-@@ -396,6 +395,13 @@ static int twl6030_usb_probe(struct platform_device *pdev)
- 	dev_info(&pdev->dev, "Initialized TWL6030 USB module\n");
- 
- 	return 0;
-+
-+err_free_irq1:
-+	free_irq(twl->irq1, twl);
-+err_put_regulator:
-+	regulator_put(twl->usb3v3);
-+
-+	return status;
- }
- 
- static int twl6030_usb_remove(struct platform_device *pdev)
+diff --git a/fs/cifs/file.c b/fs/cifs/file.c
+index 662977b8d6ae..72e7cbfb325a 100644
+--- a/fs/cifs/file.c
++++ b/fs/cifs/file.c
+@@ -3496,7 +3496,7 @@ cifs_read(struct file *file, char *read_data, size_t read_size, loff_t *offset)
+ 			 * than it negotiated since it will refuse the read
+ 			 * then.
+ 			 */
+-			if ((tcon->ses) && !(tcon->ses->capabilities &
++			if (!(tcon->ses->capabilities &
+ 				tcon->ses->server->vals->cap_large_files)) {
+ 				current_read_size = min_t(uint,
+ 					current_read_size, CIFSMaxBufSize);
 -- 
 2.25.1
 
