@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C8741EAF45
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 21:01:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C1EC1EAF43
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 21:01:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728452AbgFATAv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 15:00:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36522 "EHLO mail.kernel.org"
+        id S1728604AbgFATAr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 15:00:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36626 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728541AbgFAR4O (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 13:56:14 -0400
+        id S1728452AbgFAR4Q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 13:56:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3309820842;
-        Mon,  1 Jun 2020 17:56:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 648B0207D0;
+        Mon,  1 Jun 2020 17:56:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034173;
-        bh=xofEsJup/P0PZFhp+zmnLQl7R5l1RWxKJM++vXMjJFM=;
+        s=default; t=1591034175;
+        bh=SGiAv6shdVOKpwPOvW00N1lm9ZHiO/y4bOuCN+rRr/A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PDGdPrAbjLxfhcatzJrOHCA5raSmevoUwp0PwwJBAJATMACxuH8SMjhhkgzBJiIxa
-         5sHqVlezdpDMEqMty4esCtHVHwPy9bC3Uu0K1q87uscBLH9hCOBll4kxA9WY28mdIA
-         /LHl0R2iPGkGu1MABebBCV0RTKs/4Zhjp41UtKM8=
+        b=t1fQVDb5fRKf7vcDXnWfFnsbApM74xzoCwlLUoNZ0M/JAzZre8YYotR2IFKkFAC2v
+         IAa1+thHy2YsNY4gyYxp4ioQo7NA0fZzNBuo5OuMRkvJNFNXVQZMgRI6KFmG4gfvKY
+         rjyTIguBDH90Wej8bHQGWAADrVzLSv9Xi0piQ4Ro=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qiushi Wu <wu000273@umn.edu>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 24/48] iommu: Fix reference count leak in iommu_group_alloc.
-Date:   Mon,  1 Jun 2020 19:53:34 +0200
-Message-Id: <20200601173959.379801531@linuxfoundation.org>
+        stable@vger.kernel.org, Helge Deller <deller@gmx.de>
+Subject: [PATCH 4.4 25/48] parisc: Fix kernel panic in mem_init()
+Date:   Mon,  1 Jun 2020 19:53:35 +0200
+Message-Id: <20200601173959.647106448@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200601173952.175939894@linuxfoundation.org>
 References: <20200601173952.175939894@linuxfoundation.org>
@@ -43,33 +42,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiushi Wu <wu000273@umn.edu>
+From: Helge Deller <deller@gmx.de>
 
-[ Upstream commit 7cc31613734c4870ae32f5265d576ef296621343 ]
+commit bf71bc16e02162388808949b179d59d0b571b965 upstream.
 
-kobject_init_and_add() takes reference even when it fails.
-Thus, when kobject_init_and_add() returns an error,
-kobject_put() must be called to properly clean up the kobject.
+The Debian kernel v5.6 triggers this kernel panic:
 
-Fixes: d72e31c93746 ("iommu: IOMMU Groups")
-Signed-off-by: Qiushi Wu <wu000273@umn.edu>
-Link: https://lore.kernel.org/r/20200527210020.6522-1-wu000273@umn.edu
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+ Kernel panic - not syncing: Bad Address (null pointer deref?)
+ Bad Address (null pointer deref?): Code=26 (Data memory access rights trap) at addr 0000000000000000
+ CPU: 0 PID: 0 Comm: swapper Not tainted 5.6.0-2-parisc64 #1 Debian 5.6.14-1
+  IAOQ[0]: mem_init+0xb0/0x150
+  IAOQ[1]: mem_init+0xb4/0x150
+  RP(r2): start_kernel+0x6c8/0x1190
+ Backtrace:
+  [<0000000040101ab4>] start_kernel+0x6c8/0x1190
+  [<0000000040108574>] start_parisc+0x158/0x1b8
+
+on a HP-PARISC rp3440 machine with this memory layout:
+ Memory Ranges:
+  0) Start 0x0000000000000000 End 0x000000003fffffff Size   1024 MB
+  1) Start 0x0000004040000000 End 0x00000040ffdfffff Size   3070 MB
+
+Fix the crash by avoiding virt_to_page() and similar functions in
+mem_init() until the memory zones have been fully set up.
+
+Signed-off-by: Helge Deller <deller@gmx.de>
+Cc: stable@vger.kernel.org # v5.0+
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+
 ---
- drivers/iommu/iommu.c |    2 +-
+ arch/parisc/mm/init.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/iommu/iommu.c
-+++ b/drivers/iommu/iommu.c
-@@ -206,7 +206,7 @@ again:
- 		mutex_lock(&iommu_group_mutex);
- 		ida_remove(&iommu_group_ida, group->id);
- 		mutex_unlock(&iommu_group_mutex);
--		kfree(group);
-+		kobject_put(&group->kobj);
- 		return ERR_PTR(ret);
- 	}
+--- a/arch/parisc/mm/init.c
++++ b/arch/parisc/mm/init.c
+@@ -604,7 +604,7 @@ void __init mem_init(void)
+ 			> BITS_PER_LONG);
  
+ 	high_memory = __va((max_pfn << PAGE_SHIFT));
+-	set_max_mapnr(page_to_pfn(virt_to_page(high_memory - 1)) + 1);
++	set_max_mapnr(max_low_pfn);
+ 	free_all_bootmem();
+ 
+ #ifdef CONFIG_PA11
 
 
