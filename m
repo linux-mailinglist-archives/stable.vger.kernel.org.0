@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 980351EA91F
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:01:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E846C1EA954
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:01:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728386AbgFAR6X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 13:58:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40230 "EHLO mail.kernel.org"
+        id S1729691AbgFASAo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:00:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43470 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728576AbgFAR6W (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 13:58:22 -0400
+        id S1729690AbgFASAn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:00:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B002420776;
-        Mon,  1 Jun 2020 17:58:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C4A4F2065C;
+        Mon,  1 Jun 2020 18:00:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034302;
-        bh=sndQWg3R5DaAv3cGcLylgkaOjHQwf9bj1vLnR95t198=;
+        s=default; t=1591034443;
+        bh=4MGp3GhSPRW69gWgo1kGqYevai5ODOUvvSzkzf6cRa4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fh5ArfV0/zvRZz897FPy/B1KzsBWFlcOjvGlJ8NeHwP1zPgAwV+ok/w9xrAPUx+xv
-         m8xZwnHLLgvB46/10gfYbsV/8Ghv5WOcVzrfizqDKvQJhCHIuDoudlB05P3S2nF9sm
-         FWOXWSkUethufbXrfZQmAVFZcIsmLYEffPi4tqE0=
+        b=fY86HWTcibmDwhtPekMCt6RFx+DoZ1TK50zrwQtOfM8azz05nHUddtR5JS3T/Wn8g
+         6obxWi0zMWAjFYhMoPTHx4lGisXPG+8bXO8Otr2gdYLtNQ3ypjTZeYmqpY/S+LLSGE
+         aaFoieHhHYy9ZKM/SWnJSbGZts1WnwMLudEG2ZCk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Martyn Welch <martyn.welch@collabora.co.uk>,
-        Romain Perier <romain.perier@collabora.com>,
-        Fabio Estevam <fabio.estevam@nxp.com>,
-        Shawn Guo <shawnguo@kernel.org>,
+        stable@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 31/61] ARM: dts: imx: Correct B850v3 clock assignment
-Date:   Mon,  1 Jun 2020 19:53:38 +0200
-Message-Id: <20200601174017.555295599@linuxfoundation.org>
+Subject: [PATCH 4.14 34/77] ARM: uaccess: integrate uaccess_save and uaccess_restore
+Date:   Mon,  1 Jun 2020 19:53:39 +0200
+Message-Id: <20200601174022.668016202@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174010.316778377@linuxfoundation.org>
-References: <20200601174010.316778377@linuxfoundation.org>
+In-Reply-To: <20200601174016.396817032@linuxfoundation.org>
+References: <20200601174016.396817032@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,41 +43,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martyn Welch <martyn.welch@collabora.co.uk>
+From: Russell King <rmk+kernel@armlinux.org.uk>
 
-[ Upstream commit 1d0c7bb20c083a6e810d2142545b5606f8131080 ]
+[ Upstream commit 8ede890b0bcebe8c760aacfe20e934d98c3dc6aa ]
 
-The IPU that drives HDMI must have its pre_sel set to pll2_pfd_396m
-to avoid stepping on the LVDS output's toes, as the PLL can't be clocked
-to the pixel clock and to the LVDS serial clock (3.5*pixel clock) at the
-same time.
+Integrate uaccess_save / uaccess_restore macros into the new
+uaccess_entry / uaccess_exit macros respectively.
 
-As we are using ipu1_di0 and ipu2_di0, ensure both are switched to
-to pll2_pfd2_396m to avoid issues. The LDB driver will switch the
-required IPU to ldb_di1 when it uses it to drive LVDS.
-
-Signed-off-by: Martyn Welch <martyn.welch@collabora.co.uk>
-Signed-off-by: Romain Perier <romain.perier@collabora.com>
-Reviewed-by: Fabio Estevam <fabio.estevam@nxp.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/imx6q-b850v3.dts | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/include/asm/uaccess-asm.h | 30 +++++++++++++-----------------
+ 1 file changed, 13 insertions(+), 17 deletions(-)
 
-diff --git a/arch/arm/boot/dts/imx6q-b850v3.dts b/arch/arm/boot/dts/imx6q-b850v3.dts
-index 167f7446722a..e5e9a16155d9 100644
---- a/arch/arm/boot/dts/imx6q-b850v3.dts
-+++ b/arch/arm/boot/dts/imx6q-b850v3.dts
-@@ -57,7 +57,7 @@
- 	assigned-clocks = <&clks IMX6QDL_CLK_LDB_DI0_SEL>,
- 			  <&clks IMX6QDL_CLK_LDB_DI1_SEL>,
- 			  <&clks IMX6QDL_CLK_IPU1_DI0_PRE_SEL>,
--			  <&clks IMX6QDL_CLK_IPU1_DI1_PRE_SEL>;
-+			  <&clks IMX6QDL_CLK_IPU2_DI0_PRE_SEL>;
- 	assigned-clock-parents = <&clks IMX6QDL_CLK_PLL5_VIDEO_DIV>,
- 				 <&clks IMX6QDL_CLK_PLL5_VIDEO_DIV>,
- 				 <&clks IMX6QDL_CLK_PLL2_PFD2_396M>,
+diff --git a/arch/arm/include/asm/uaccess-asm.h b/arch/arm/include/asm/uaccess-asm.h
+index d475e3e8145d..e46468b91eaa 100644
+--- a/arch/arm/include/asm/uaccess-asm.h
++++ b/arch/arm/include/asm/uaccess-asm.h
+@@ -67,30 +67,23 @@
+ #endif
+ 	.endm
+ 
+-	.macro	uaccess_save, tmp
+ #ifdef CONFIG_CPU_SW_DOMAIN_PAN
+-	mrc	p15, 0, \tmp, c3, c0, 0
+-	str	\tmp, [sp, #SVC_DACR]
+-#endif
+-	.endm
+-
+-	.macro	uaccess_restore
+-#ifdef CONFIG_CPU_SW_DOMAIN_PAN
+-	ldr	r0, [sp, #SVC_DACR]
+-	mcr	p15, 0, r0, c3, c0, 0
++#define DACR(x...)	x
++#else
++#define DACR(x...)
+ #endif
+-	.endm
+ 
+ 	/*
+ 	 * Save the address limit on entry to a privileged exception and
+ 	 * if using PAN, save and disable usermode access.
+ 	 */
+ 	.macro	uaccess_entry, tsk, tmp0, tmp1, tmp2, disable
+-	ldr	\tmp0, [\tsk, #TI_ADDR_LIMIT]
+-	mov	\tmp1, #TASK_SIZE
+-	str	\tmp1, [\tsk, #TI_ADDR_LIMIT]
+-	str	\tmp0, [sp, #SVC_ADDR_LIMIT]
+-	uaccess_save \tmp0
++	ldr	\tmp1, [\tsk, #TI_ADDR_LIMIT]
++	mov	\tmp2, #TASK_SIZE
++	str	\tmp2, [\tsk, #TI_ADDR_LIMIT]
++ DACR(	mrc	p15, 0, \tmp0, c3, c0, 0)
++ DACR(	str	\tmp0, [sp, #SVC_DACR])
++	str	\tmp1, [sp, #SVC_ADDR_LIMIT]
+ 	.if \disable
+ 	uaccess_disable \tmp0
+ 	.endif
+@@ -99,8 +92,11 @@
+ 	/* Restore the user access state previously saved by uaccess_entry */
+ 	.macro	uaccess_exit, tsk, tmp0, tmp1
+ 	ldr	\tmp1, [sp, #SVC_ADDR_LIMIT]
+-	uaccess_restore
++ DACR(	ldr	\tmp0, [sp, #SVC_DACR])
+ 	str	\tmp1, [\tsk, #TI_ADDR_LIMIT]
++ DACR(	mcr	p15, 0, \tmp0, c3, c0, 0)
+ 	.endm
+ 
++#undef DACR
++
+ #endif /* __ASM_UACCESS_ASM_H__ */
 -- 
 2.25.1
 
