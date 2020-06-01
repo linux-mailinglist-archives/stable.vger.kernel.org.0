@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E8D41EAD53
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:44:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 38A0E1EAE18
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:51:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728887AbgFASoc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:44:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57414 "EHLO mail.kernel.org"
+        id S1728896AbgFASuz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:50:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50508 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730997AbgFASKb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:10:31 -0400
+        id S1730324AbgFASF0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:05:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7E3082068D;
-        Mon,  1 Jun 2020 18:10:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CE889206E2;
+        Mon,  1 Jun 2020 18:05:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591035030;
-        bh=6s+RsgL4xCdQ+h6Wu8W/hQMwwgmM8A5E+6SPxAFengk=;
+        s=default; t=1591034725;
+        bh=nDPx907IiAgKo62mVevumnODl8p64fK6WNMF6tym8/I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HEXE8C1bPisQ9rMMDlOHTrNzK3AFPP7RUxpUeLkNcFW8bnJSpgwwQ0LxxX0Zg132N
-         A7G7wsEuICvfv3hJLhELhqV7zQ3aJjPUq0bdHfzmWmI/+9TglNkSk9bx+OsWt3xS4C
-         GLQ8caP1/YzobcYdTLJ2YAeKLx/1dKQfJF+QrzBo=
+        b=srIBiIqTfgc+/CJEAIBwG/C2fRHYtYvbBEXBcZHKv+kSmkG1imtnSCwRyM6IHzomT
+         b2Pw4b78fwKg0v4L7UGwhvVmcKYKeVVFQf8Gop8/4rENpk7qAzBt2/8FYMrjfeq6P1
+         4ZyJC5qFNeMdhb8sG+/3qV6oeNLfDY5HXYsXmYJw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans Verkuil <hverkuil@xs4all.nl>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Russell King <linux@armlinux.org.uk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 104/142] gpio: fix locking open drain IRQ lines
+        stable@vger.kernel.org, Xiumei Mu <xmu@redhat.com>,
+        Xin Long <lucien.xin@gmail.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>
+Subject: [PATCH 4.19 82/95] ip_vti: receive ipip packet by calling ip_tunnel_rcv
 Date:   Mon,  1 Jun 2020 19:54:22 +0200
-Message-Id: <20200601174048.752157963@linuxfoundation.org>
+Message-Id: <20200601174033.068987049@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174037.904070960@linuxfoundation.org>
-References: <20200601174037.904070960@linuxfoundation.org>
+In-Reply-To: <20200601174020.759151073@linuxfoundation.org>
+References: <20200601174020.759151073@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,61 +44,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Walleij <linus.walleij@linaro.org>
+From: Xin Long <lucien.xin@gmail.com>
 
-[ Upstream commit e9bdf7e655b9ee81ee912fae1d59df48ce7311b6 ]
+commit 976eba8ab596bab94b9714cd46d38d5c6a2c660d upstream.
 
-We provided the right semantics on open drain lines being
-by definition output but incidentally the irq set up function
-would only allow IRQs on lines that were "not output".
+In Commit dd9ee3444014 ("vti4: Fix a ipip packet processing bug in
+'IPCOMP' virtual tunnel"), it tries to receive IPIP packets in vti
+by calling xfrm_input(). This case happens when a small packet or
+frag sent by peer is too small to get compressed.
 
-Fix the semantics to allow output open drain lines to be used
-for IRQs.
+However, xfrm_input() will still get to the IPCOMP path where skb
+sec_path is set, but never dropped while it should have been done
+in vti_ipcomp4_protocol.cb_handler(vti_rcv_cb), as it's not an
+ipcomp4 packet. This will cause that the packet can never pass
+xfrm4_policy_check() in the upper protocol rcv functions.
 
-Reported-by: Hans Verkuil <hverkuil@xs4all.nl>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Hans Verkuil <hverkuil@xs4all.nl>
-Tested-by: Hans Verkuil <hverkuil@xs4all.nl>
-Cc: Russell King <linux@armlinux.org.uk>
-Cc: stable@vger.kernel.org # v5.3+
-Link: https://lore.kernel.org/r/20200527140758.162280-1-linus.walleij@linaro.org
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+So this patch is to call ip_tunnel_rcv() to process IPIP packets
+instead.
+
+Fixes: dd9ee3444014 ("vti4: Fix a ipip packet processing bug in 'IPCOMP' virtual tunnel")
+Reported-by: Xiumei Mu <xmu@redhat.com>
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/gpio/gpiolib.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ net/ipv4/ip_vti.c |   23 ++++++++++++++++++++++-
+ 1 file changed, 22 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
-index a8cf55eb54d8..abdf448b11a3 100644
---- a/drivers/gpio/gpiolib.c
-+++ b/drivers/gpio/gpiolib.c
-@@ -3894,7 +3894,9 @@ int gpiochip_lock_as_irq(struct gpio_chip *chip, unsigned int offset)
- 		}
- 	}
+--- a/net/ipv4/ip_vti.c
++++ b/net/ipv4/ip_vti.c
+@@ -98,7 +98,28 @@ static int vti_rcv_proto(struct sk_buff
  
--	if (test_bit(FLAG_IS_OUT, &desc->flags)) {
-+	/* To be valid for IRQ the line needs to be input or open drain */
-+	if (test_bit(FLAG_IS_OUT, &desc->flags) &&
-+	    !test_bit(FLAG_OPEN_DRAIN, &desc->flags)) {
- 		chip_err(chip,
- 			 "%s: tried to flag a GPIO set as output for IRQ\n",
- 			 __func__);
-@@ -3957,7 +3959,12 @@ void gpiochip_enable_irq(struct gpio_chip *chip, unsigned int offset)
- 
- 	if (!IS_ERR(desc) &&
- 	    !WARN_ON(!test_bit(FLAG_USED_AS_IRQ, &desc->flags))) {
--		WARN_ON(test_bit(FLAG_IS_OUT, &desc->flags));
-+		/*
-+		 * We must not be output when using IRQ UNLESS we are
-+		 * open drain.
-+		 */
-+		WARN_ON(test_bit(FLAG_IS_OUT, &desc->flags) &&
-+			!test_bit(FLAG_OPEN_DRAIN, &desc->flags));
- 		set_bit(FLAG_IRQ_IS_ENABLED, &desc->flags);
- 	}
+ static int vti_rcv_tunnel(struct sk_buff *skb)
+ {
+-	return vti_rcv(skb, ip_hdr(skb)->saddr, true);
++	struct ip_tunnel_net *itn = net_generic(dev_net(skb->dev), vti_net_id);
++	const struct iphdr *iph = ip_hdr(skb);
++	struct ip_tunnel *tunnel;
++
++	tunnel = ip_tunnel_lookup(itn, skb->dev->ifindex, TUNNEL_NO_KEY,
++				  iph->saddr, iph->daddr, 0);
++	if (tunnel) {
++		struct tnl_ptk_info tpi = {
++			.proto = htons(ETH_P_IP),
++		};
++
++		if (!xfrm4_policy_check(NULL, XFRM_POLICY_IN, skb))
++			goto drop;
++		if (iptunnel_pull_header(skb, 0, tpi.proto, false))
++			goto drop;
++		return ip_tunnel_rcv(tunnel, skb, &tpi, NULL, false);
++	}
++
++	return -EINVAL;
++drop:
++	kfree_skb(skb);
++	return 0;
  }
--- 
-2.25.1
-
+ 
+ static int vti_rcv_cb(struct sk_buff *skb, int err)
 
 
