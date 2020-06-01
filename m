@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E21111EAEBF
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:57:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE69C1EAE5C
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:53:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729622AbgFASAV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:00:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42874 "EHLO mail.kernel.org"
+        id S1728059AbgFASCp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:02:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45976 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728837AbgFASAM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:00:12 -0400
+        id S1729965AbgFASCo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:02:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7DE71207DA;
-        Mon,  1 Jun 2020 18:00:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7084B2065C;
+        Mon,  1 Jun 2020 18:02:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034412;
-        bh=oc9000K0Njl65rxCNw3uZQ0DDNTTXplezompeOn/yzQ=;
+        s=default; t=1591034563;
+        bh=ohgHCoXnqjkR1LxSbvAxL5/wdzT6FIc09ykVLQTK/wM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EysgoO2TkjIDFPP8CaoOb31z1Tr0iOznVl7P+h33MM0dYj7b2rQiEBnrN8ropmDp0
-         qVj4UK4+SSYZODSO4+yJ5KYocdFwasJieYJyGLtJ441d0ZoECSYHwurYUFS8AxTmF2
-         2KW6ODRTeE95BJACQHxjVFsRCcMXJWKo5dGxKOsg=
+        b=H8Lfc3oVXTTY46MPU2Dk7xIhtS7AKxXy8rT+vTXlRgT9UZDCEdMKRQ9+cOfJHOHI9
+         RYQUsSKeaeOLPm0edZBZsqvSYqQiaVmumZS3dJGT0Ka3kkAaVS//AS3YzXBfiAsgnx
+         xv6FJiT7/mN+/X95awO853t9c/pevL9YrTBTaozk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Jamal Hadi Salim <jhs@mojatatu.com>,
         Roman Mashak <mrv@mojatatu.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 05/77] net sched: fix reporting the first-time use timestamp
+Subject: [PATCH 4.19 10/95] net sched: fix reporting the first-time use timestamp
 Date:   Mon,  1 Jun 2020 19:53:10 +0200
-Message-Id: <20200601174017.398306482@linuxfoundation.org>
+Message-Id: <20200601174022.499707903@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174016.396817032@linuxfoundation.org>
-References: <20200601174016.396817032@linuxfoundation.org>
+In-Reply-To: <20200601174020.759151073@linuxfoundation.org>
+References: <20200601174020.759151073@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -66,7 +66,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/include/net/act_api.h
 +++ b/include/net/act_api.h
-@@ -69,7 +69,8 @@ static inline void tcf_tm_dump(struct tc
+@@ -67,7 +67,8 @@ static inline void tcf_tm_dump(struct tc
  {
  	dtm->install = jiffies_to_clock_t(jiffies - stm->install);
  	dtm->lastuse = jiffies_to_clock_t(jiffies - stm->lastuse);
