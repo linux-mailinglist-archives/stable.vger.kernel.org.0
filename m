@@ -2,84 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B5D0E1EA7F5
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 18:47:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C9BD21EA7FD
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 18:52:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726149AbgFAQrc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 12:47:32 -0400
-Received: from out4-smtp.messagingengine.com ([66.111.4.28]:60905 "EHLO
-        out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726125AbgFAQrc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Jun 2020 12:47:32 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.nyi.internal (Postfix) with ESMTP id E18705C0089;
-        Mon,  1 Jun 2020 12:47:30 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Mon, 01 Jun 2020 12:47:30 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm3; bh=m0bDCjJMb2mSrUryHZnpstY5uuw
-        3/YciXAeS1fk9yTU=; b=dprHmVphVMlRqrkYXrHwWIlSaFdFhZII7dVcZiY/AU2
-        G4+luvItOpHM744dnCpR0b9H1QobRA1pRUt5d62HuxjXstQ0nos0hpfgncT5Ya1l
-        bs/Pt7RpAyy/k32WvuuDZpPEY7cCOa+3e4gp+Aw0TSp0b5/Y76l1SqsbTOU2mB03
-        iUvEAo1RMf0j/rDG1mlFkr86kuBu66rOMseDgJHLgn5ygIGkdTpUTOVdsktLoS6s
-        BBbPlpIq0BS+cmiyvjmSTGKEATlrSy/fR1p8vpo8p6Q6fsLZsOg88uwDKwc7QOd3
-        b2CERHlcfRE0CLKRSEQ0hTh6kHmPcyCRtHSFHBdpkFQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=m0bDCj
-        JMb2mSrUryHZnpstY5uuw3/YciXAeS1fk9yTU=; b=FvORIxVp751hgMaq3aE3Wz
-        i7+jVdQl9sc/s5xYVIbivkCg0msOraYnc51kNpKuF19nheYEFDHSyI9JQGb7y96z
-        1hMHVo2IW426Q4suAA9XWSJML9uNWLyad/7nl/xE6SrwpboHtDBG1p9adi9LuRTK
-        Jw4KG/KEO+fWPkWTyoc+fLAmtgkD9jyI5Of6lvWgekuvZL4RJEswjDKaQrZ0KqYZ
-        Z9w0OdZKl4NSMJcMX/U50CbbHLr6cieiHs2ap8UH2Go+SpEzp4I/bvZV8C3rkhK5
-        kirLwjIauhENqvc0LEZF4r3DfTR5gZlR4ymskAsMIixx1fJ3j8a/kZxAr737Pbmw
-        ==
-X-ME-Sender: <xms:IjHVXuVeHxaTVl0e6ODi7c2-l7JyNbo82ZujmECA3nBT_YUl7G_4_Q>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudefhedgleeiucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeevueehje
-    fgfffgiedvudekvdektdelleelgefhleejieeugeegveeuuddukedvteenucfkphepkeef
-    rdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrg
-    hilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:IjHVXqlBr_ODPkID2sqYroHK-6DE9MSc02VpAEZoDD1z8pbi1Nmd6w>
-    <xmx:IjHVXiYjyUPeWI22FhGT-OBRY00Phw9O8IX2o7HT8OH3qEbJOyJjzw>
-    <xmx:IjHVXlWHIzLWlxQvm-NhaW8o5xTV2zjxWNlCFOFzFGOzD4CZL2Uvyg>
-    <xmx:IjHVXpAJYT5EUuUhiNNJLGvFaQLx13TfwzpISLX1_Td6dlmEMXbWDg>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 1572D3280066;
-        Mon,  1 Jun 2020 12:47:29 -0400 (EDT)
-Date:   Mon, 1 Jun 2020 18:47:27 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Marek Vasut <marex@denx.de>
-Cc:     changbin.du@gmail.com, linux-stable <stable@vger.kernel.org>,
-        acme@kernel.org, jolsa@redhat.com, linux-kernel@vger.kernel.org,
-        mingo@redhat.com, peterz@infradead.org
-Subject: Re: [PATCH] perf: Make perf able to build with latest libbfd
-Message-ID: <20200601164727.GB1037203@kroah.com>
-References: <20200128152938.31413-1-changbin.du@gmail.com>
- <70322330-524c-14ab-aace-e460677e25e3@denx.de>
+        id S1726110AbgFAQw5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 12:52:57 -0400
+Received: from stargate.chelsio.com ([12.32.117.8]:2755 "EHLO
+        stargate.chelsio.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726067AbgFAQw5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Jun 2020 12:52:57 -0400
+Received: from localhost (moto.blr.asicdesigners.com [10.193.184.79] (may be forged))
+        by stargate.chelsio.com (8.13.8/8.13.8) with ESMTP id 051GqjAu032016;
+        Mon, 1 Jun 2020 09:52:46 -0700
+Date:   Mon, 1 Jun 2020 22:22:45 +0530
+From:   Dakshaja Uppalapati <dakshaja@chelsio.com>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     hch@lst.de, sagi@grimberg.me, stable@vger.kernel.org,
+        nirranjan@chelsio.com, bharat@chelsio.com
+Subject: Re: nvme blk_update_request IO error is seen on stable kernel 5.4.41.
+Message-ID: <20200601165244.GA2809@chelsio.com>
+References: <20200521140642.GA4724@chelsio.com>
+ <20200526102542.GA2772976@kroah.com>
+ <20200528074426.GA20353@chelsio.com>
+ <20200528083403.GB2920930@kroah.com>
+ <20200601162143.GA917@chelsio.com>
+ <20200601162750.GA887723@kroah.com>
+ <20200601164520.GA29339@chelsio.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <70322330-524c-14ab-aace-e460677e25e3@denx.de>
+In-Reply-To: <20200601164520.GA29339@chelsio.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, May 31, 2020 at 03:50:25AM +0200, Marek Vasut wrote:
-> Hi,
+On Monday, June 06/01/20, 2020 at 22:15:20 +0530, Dakshaja Uppalapati wrote:
+> On Monday, June 06/01/20, 2020 at 18:27:50 +0200, Greg KH wrote:
+> > On Mon, Jun 01, 2020 at 09:51:44PM +0530, Dakshaja Uppalapati wrote:
+> > > On Thursday, May 05/28/20, 2020 at 10:34:03 +0200, Greg KH wrote:
+> > > > On Thu, May 28, 2020 at 01:14:31PM +0530, Dakshaja Uppalapati wrote:
+> > > > > On Tuesday, May 05/26/20, 2020 at 12:25:42 +0200, Greg KH wrote:
+> > > > > > On Thu, May 21, 2020 at 07:36:43PM +0530, Dakshaja Uppalapati wrote:
+> > > > > > > Hi all,
+> > > > > > > 
+> > > > > > > Issue which is reported in https://lore.kernel.org/linux-nvme/CH2PR12MB40050ACF
+> > > > > > > 2C0DC7439355ED3FDD270@CH2PR12MB4005.namprd12.prod.outlook.com/T/#r8cfc80b26f0cd
+> > > > > > > 1cde41879a68fd6a71186e9594c is also seen on stable kernel 5.4.41. 
+> > > > > > 
+> > > > > > What issue is that?  Your url is wrapped and can not work here :(
+> > > > > 
+> > > > > Sorry for that, when I tried to format the disk discovered from target machine
+> > > > > the below error is seen in dmesg.
+> > > > > 
+> > > > > dmesg:
+> > > > > 	[ 1844.868480] blk_update_request: I/O error, dev nvme0c0n1, sector 0 
+> > > > > 	op 0x3:(DISCARD) flags 0x4000800 phys_seg 1 prio class 0
+> > > > > 
+> > > > > The above issue is seen from kernel-5.5-rc1 onwards.
+> > > > > 
+> > > > > > 
+> > > > > > > In upstream issue is fixed with commit b716e6889c95f64b.
+> > > > > > 
+> > > > > > Is this a regression or support for something new that has never worked
+> > > > > > before?
+> > > > > > 
+> > > > > 
+> > > > > This is a regression, bisects points to the commit 530436c4 and fixed with
+> > > > > commit b716e688 in upstream.
+> > > > > 
+> > > > > Now same issue is seen with stable kernel-5.4.41, 530436c4 is part of it.
+> > > > 
+> > > > So why don't we just revert 530436c45ef2 ("nvme: Discard workaround for
+> > > > non-conformant devices") from the stable trees?  Will that fix the issue
+> > > > for you instead of the much-larger set of backports you are proposing?
+> > > > 
+> > > > Also, is this an issue for you in the 4.19 releases?  The above
+> > > > mentioned patch showed up in 4.19.92 and 5.4.7.
+> > > > 
+> > > 
+> > > Yes, on 4.19 stable kernel too issue is seen. By reverting 530436c45ef2 issue
+> > > is not seen on both 4.19 and 5.4 stable kernels. Do you want me to send the
+> > > reverted patch?
+> > 
+> > Yes please.
 > 
-> since commit
-> 0ada120c883d ("perf: Make perf able to build with latest libbfd")
-> is in master, can it be backported to stable as well? I keep hitting
-> this with too new binutils on Linux 5.4.y and I have to keep
-> cherry-picking this commit to fix it.
+> Attached the reverted patch.PFA.
 
-Now applied, thanks.
+Sorry, was hurry in replying. will send out as a kernel patch.
 
-greg k-h
+Thanks,
+Dakshaja
