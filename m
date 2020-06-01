@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 473F01EAEB1
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:56:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 778881EACC4
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:41:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729716AbgFAS4O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:56:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43436 "EHLO mail.kernel.org"
+        id S1729082AbgFASjf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:39:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34200 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729132AbgFASAm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:00:42 -0400
+        id S1730703AbgFASOZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:14:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8919D206E2;
-        Mon,  1 Jun 2020 18:00:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6BDBA2065C;
+        Mon,  1 Jun 2020 18:14:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034441;
-        bh=xNeS8TVXqXh2Mu7PD7dOA2qaBsYDWvrgVNyI3N5Ts8o=;
+        s=default; t=1591035264;
+        bh=XTK4PTgbowt2TP7bgKTHwyjcQMJPwmm0A2xMP+LiFEU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cmjOjxsqB2uqLZkcQ4kZ7ER7rwMGfWDtTFOyVmD/iHk2RngMel5ChNimlhHtxpxUC
-         M44o8xloiR09YUCq1c4J8ulzjoLFUetgg4lp+7CKRe/3OaknpNch+LLC2LwIAN4vmH
-         MBbtVCtL8hKhcL4ff/y6WM0P68e99MUV5mxdqgBw=
+        b=J59cptPBgxvD3wLtKd0kh9GeLAK6h0z9F5//OJnveDq7hZLgKzLeJhmfk97BWHcPf
+         V/bl2dWMGW9hF8UeDVojk77MbX/8/koLQ6dLwSNAfCIRSUI06vL2QVsvmGbwv0y1yN
+         P5cuh2MRpZie+JqfCfUYvwdkpSL5BMbsAN40QAkE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>,
+        stable@vger.kernel.org, Coverity <scan-admin@coverity.com>,
+        Steve French <stfrench@microsoft.com>,
+        Shyam Prasad N <nspmangalore@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 33/77] ARM: uaccess: consolidate uaccess asm to asm/uaccess-asm.h
+Subject: [PATCH 5.6 080/177] cifs: Fix null pointer check in cifs_read
 Date:   Mon,  1 Jun 2020 19:53:38 +0200
-Message-Id: <20200601174022.507416591@linuxfoundation.org>
+Message-Id: <20200601174055.576690176@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174016.396817032@linuxfoundation.org>
-References: <20200601174016.396817032@linuxfoundation.org>
+In-Reply-To: <20200601174048.468952319@linuxfoundation.org>
+References: <20200601174048.468952319@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,300 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King <rmk+kernel@armlinux.org.uk>
+From: Steve French <stfrench@microsoft.com>
 
-[ Upstream commit 747ffc2fcf969eff9309d7f2d1d61cb8b9e1bb40 ]
+[ Upstream commit 9bd21d4b1a767c3abebec203342f3820dcb84662 ]
 
-Consolidate the user access assembly code to asm/uaccess-asm.h.  This
-moves the csdb, check_uaccess, uaccess_mask_range_ptr, uaccess_enable,
-uaccess_disable, uaccess_save, uaccess_restore macros, and creates two
-new ones for exception entry and exit - uaccess_entry and uaccess_exit.
+Coverity scan noted a redundant null check
 
-This makes the uaccess_save and uaccess_restore macros private to
-asm/uaccess-asm.h.
-
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Coverity-id: 728517
+Reported-by: Coverity <scan-admin@coverity.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Reviewed-by: Shyam Prasad N <nspmangalore@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/include/asm/assembler.h   |  75 +-------------------
- arch/arm/include/asm/uaccess-asm.h | 106 +++++++++++++++++++++++++++++
- arch/arm/kernel/entry-armv.S       |  11 +--
- arch/arm/kernel/entry-header.S     |   9 +--
- 4 files changed, 112 insertions(+), 89 deletions(-)
- create mode 100644 arch/arm/include/asm/uaccess-asm.h
+ fs/cifs/file.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/include/asm/assembler.h b/arch/arm/include/asm/assembler.h
-index 965224d14e6c..1935b580f0e8 100644
---- a/arch/arm/include/asm/assembler.h
-+++ b/arch/arm/include/asm/assembler.h
-@@ -21,11 +21,11 @@
- #endif
- 
- #include <asm/ptrace.h>
--#include <asm/domain.h>
- #include <asm/opcodes-virt.h>
- #include <asm/asm-offsets.h>
- #include <asm/page.h>
- #include <asm/thread_info.h>
-+#include <asm/uaccess-asm.h>
- 
- #define IOMEM(x)	(x)
- 
-@@ -447,79 +447,6 @@ THUMB(	orr	\reg , \reg , #PSR_T_BIT	)
- 	.size \name , . - \name
- 	.endm
- 
--	.macro	csdb
--#ifdef CONFIG_THUMB2_KERNEL
--	.inst.w	0xf3af8014
--#else
--	.inst	0xe320f014
--#endif
--	.endm
--
--	.macro check_uaccess, addr:req, size:req, limit:req, tmp:req, bad:req
--#ifndef CONFIG_CPU_USE_DOMAINS
--	adds	\tmp, \addr, #\size - 1
--	sbcscc	\tmp, \tmp, \limit
--	bcs	\bad
--#ifdef CONFIG_CPU_SPECTRE
--	movcs	\addr, #0
--	csdb
--#endif
--#endif
--	.endm
--
--	.macro uaccess_mask_range_ptr, addr:req, size:req, limit:req, tmp:req
--#ifdef CONFIG_CPU_SPECTRE
--	sub	\tmp, \limit, #1
--	subs	\tmp, \tmp, \addr	@ tmp = limit - 1 - addr
--	addhs	\tmp, \tmp, #1		@ if (tmp >= 0) {
--	subshs	\tmp, \tmp, \size	@ tmp = limit - (addr + size) }
--	movlo	\addr, #0		@ if (tmp < 0) addr = NULL
--	csdb
--#endif
--	.endm
--
--	.macro	uaccess_disable, tmp, isb=1
--#ifdef CONFIG_CPU_SW_DOMAIN_PAN
--	/*
--	 * Whenever we re-enter userspace, the domains should always be
--	 * set appropriately.
--	 */
--	mov	\tmp, #DACR_UACCESS_DISABLE
--	mcr	p15, 0, \tmp, c3, c0, 0		@ Set domain register
--	.if	\isb
--	instr_sync
--	.endif
--#endif
--	.endm
--
--	.macro	uaccess_enable, tmp, isb=1
--#ifdef CONFIG_CPU_SW_DOMAIN_PAN
--	/*
--	 * Whenever we re-enter userspace, the domains should always be
--	 * set appropriately.
--	 */
--	mov	\tmp, #DACR_UACCESS_ENABLE
--	mcr	p15, 0, \tmp, c3, c0, 0
--	.if	\isb
--	instr_sync
--	.endif
--#endif
--	.endm
--
--	.macro	uaccess_save, tmp
--#ifdef CONFIG_CPU_SW_DOMAIN_PAN
--	mrc	p15, 0, \tmp, c3, c0, 0
--	str	\tmp, [sp, #SVC_DACR]
--#endif
--	.endm
--
--	.macro	uaccess_restore
--#ifdef CONFIG_CPU_SW_DOMAIN_PAN
--	ldr	r0, [sp, #SVC_DACR]
--	mcr	p15, 0, r0, c3, c0, 0
--#endif
--	.endm
--
- 	.irp	c,,eq,ne,cs,cc,mi,pl,vs,vc,hi,ls,ge,lt,gt,le,hs,lo
- 	.macro	ret\c, reg
- #if __LINUX_ARM_ARCH__ < 6
-diff --git a/arch/arm/include/asm/uaccess-asm.h b/arch/arm/include/asm/uaccess-asm.h
-new file mode 100644
-index 000000000000..d475e3e8145d
---- /dev/null
-+++ b/arch/arm/include/asm/uaccess-asm.h
-@@ -0,0 +1,106 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+
-+#ifndef __ASM_UACCESS_ASM_H__
-+#define __ASM_UACCESS_ASM_H__
-+
-+#include <asm/asm-offsets.h>
-+#include <asm/domain.h>
-+#include <asm/memory.h>
-+#include <asm/thread_info.h>
-+
-+	.macro	csdb
-+#ifdef CONFIG_THUMB2_KERNEL
-+	.inst.w	0xf3af8014
-+#else
-+	.inst	0xe320f014
-+#endif
-+	.endm
-+
-+	.macro check_uaccess, addr:req, size:req, limit:req, tmp:req, bad:req
-+#ifndef CONFIG_CPU_USE_DOMAINS
-+	adds	\tmp, \addr, #\size - 1
-+	sbcscc	\tmp, \tmp, \limit
-+	bcs	\bad
-+#ifdef CONFIG_CPU_SPECTRE
-+	movcs	\addr, #0
-+	csdb
-+#endif
-+#endif
-+	.endm
-+
-+	.macro uaccess_mask_range_ptr, addr:req, size:req, limit:req, tmp:req
-+#ifdef CONFIG_CPU_SPECTRE
-+	sub	\tmp, \limit, #1
-+	subs	\tmp, \tmp, \addr	@ tmp = limit - 1 - addr
-+	addhs	\tmp, \tmp, #1		@ if (tmp >= 0) {
-+	subshs	\tmp, \tmp, \size	@ tmp = limit - (addr + size) }
-+	movlo	\addr, #0		@ if (tmp < 0) addr = NULL
-+	csdb
-+#endif
-+	.endm
-+
-+	.macro	uaccess_disable, tmp, isb=1
-+#ifdef CONFIG_CPU_SW_DOMAIN_PAN
-+	/*
-+	 * Whenever we re-enter userspace, the domains should always be
-+	 * set appropriately.
-+	 */
-+	mov	\tmp, #DACR_UACCESS_DISABLE
-+	mcr	p15, 0, \tmp, c3, c0, 0		@ Set domain register
-+	.if	\isb
-+	instr_sync
-+	.endif
-+#endif
-+	.endm
-+
-+	.macro	uaccess_enable, tmp, isb=1
-+#ifdef CONFIG_CPU_SW_DOMAIN_PAN
-+	/*
-+	 * Whenever we re-enter userspace, the domains should always be
-+	 * set appropriately.
-+	 */
-+	mov	\tmp, #DACR_UACCESS_ENABLE
-+	mcr	p15, 0, \tmp, c3, c0, 0
-+	.if	\isb
-+	instr_sync
-+	.endif
-+#endif
-+	.endm
-+
-+	.macro	uaccess_save, tmp
-+#ifdef CONFIG_CPU_SW_DOMAIN_PAN
-+	mrc	p15, 0, \tmp, c3, c0, 0
-+	str	\tmp, [sp, #SVC_DACR]
-+#endif
-+	.endm
-+
-+	.macro	uaccess_restore
-+#ifdef CONFIG_CPU_SW_DOMAIN_PAN
-+	ldr	r0, [sp, #SVC_DACR]
-+	mcr	p15, 0, r0, c3, c0, 0
-+#endif
-+	.endm
-+
-+	/*
-+	 * Save the address limit on entry to a privileged exception and
-+	 * if using PAN, save and disable usermode access.
-+	 */
-+	.macro	uaccess_entry, tsk, tmp0, tmp1, tmp2, disable
-+	ldr	\tmp0, [\tsk, #TI_ADDR_LIMIT]
-+	mov	\tmp1, #TASK_SIZE
-+	str	\tmp1, [\tsk, #TI_ADDR_LIMIT]
-+	str	\tmp0, [sp, #SVC_ADDR_LIMIT]
-+	uaccess_save \tmp0
-+	.if \disable
-+	uaccess_disable \tmp0
-+	.endif
-+	.endm
-+
-+	/* Restore the user access state previously saved by uaccess_entry */
-+	.macro	uaccess_exit, tsk, tmp0, tmp1
-+	ldr	\tmp1, [sp, #SVC_ADDR_LIMIT]
-+	uaccess_restore
-+	str	\tmp1, [\tsk, #TI_ADDR_LIMIT]
-+	.endm
-+
-+#endif /* __ASM_UACCESS_ASM_H__ */
-diff --git a/arch/arm/kernel/entry-armv.S b/arch/arm/kernel/entry-armv.S
-index fbc707626b3e..f3de76f7ad43 100644
---- a/arch/arm/kernel/entry-armv.S
-+++ b/arch/arm/kernel/entry-armv.S
-@@ -30,6 +30,7 @@
- #include <asm/unistd.h>
- #include <asm/tls.h>
- #include <asm/system_info.h>
-+#include <asm/uaccess-asm.h>
- 
- #include "entry-header.S"
- #include <asm/entry-macro-multi.S>
-@@ -186,15 +187,7 @@ ENDPROC(__und_invalid)
- 	stmia	r7, {r2 - r6}
- 
- 	get_thread_info tsk
--	ldr	r0, [tsk, #TI_ADDR_LIMIT]
--	mov	r1, #TASK_SIZE
--	str	r1, [tsk, #TI_ADDR_LIMIT]
--	str	r0, [sp, #SVC_ADDR_LIMIT]
--
--	uaccess_save r0
--	.if \uaccess
--	uaccess_disable r0
--	.endif
-+	uaccess_entry tsk, r0, r1, r2, \uaccess
- 
- 	.if \trace
- #ifdef CONFIG_TRACE_IRQFLAGS
-diff --git a/arch/arm/kernel/entry-header.S b/arch/arm/kernel/entry-header.S
-index 62db1c9746cb..7b595f2d4a28 100644
---- a/arch/arm/kernel/entry-header.S
-+++ b/arch/arm/kernel/entry-header.S
-@@ -6,6 +6,7 @@
- #include <asm/asm-offsets.h>
- #include <asm/errno.h>
- #include <asm/thread_info.h>
-+#include <asm/uaccess-asm.h>
- #include <asm/v7m.h>
- 
- @ Bad Abort numbers
-@@ -217,9 +218,7 @@
- 	blne	trace_hardirqs_off
- #endif
- 	.endif
--	ldr	r1, [sp, #SVC_ADDR_LIMIT]
--	uaccess_restore
--	str	r1, [tsk, #TI_ADDR_LIMIT]
-+	uaccess_exit tsk, r0, r1
- 
- #ifndef CONFIG_THUMB2_KERNEL
- 	@ ARM mode SVC restore
-@@ -263,9 +262,7 @@
- 	@ on the stack remains correct).
- 	@
- 	.macro  svc_exit_via_fiq
--	ldr	r1, [sp, #SVC_ADDR_LIMIT]
--	uaccess_restore
--	str	r1, [tsk, #TI_ADDR_LIMIT]
-+	uaccess_exit tsk, r0, r1
- #ifndef CONFIG_THUMB2_KERNEL
- 	@ ARM mode restore
- 	mov	r0, sp
+diff --git a/fs/cifs/file.c b/fs/cifs/file.c
+index 5920820bfbd0..b30b03747dd6 100644
+--- a/fs/cifs/file.c
++++ b/fs/cifs/file.c
+@@ -4060,7 +4060,7 @@ cifs_read(struct file *file, char *read_data, size_t read_size, loff_t *offset)
+ 			 * than it negotiated since it will refuse the read
+ 			 * then.
+ 			 */
+-			if ((tcon->ses) && !(tcon->ses->capabilities &
++			if (!(tcon->ses->capabilities &
+ 				tcon->ses->server->vals->cap_large_files)) {
+ 				current_read_size = min_t(uint,
+ 					current_read_size, CIFSMaxBufSize);
 -- 
 2.25.1
 
