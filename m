@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DE141EAB3D
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:17:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 76A6C1EAA97
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:11:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731594AbgFASPb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:15:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35834 "EHLO mail.kernel.org"
+        id S1729654AbgFASJ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:09:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55864 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730497AbgFASPa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:15:30 -0400
+        id S1730865AbgFASJ1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:09:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A872F2068D;
-        Mon,  1 Jun 2020 18:15:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 399DA206E2;
+        Mon,  1 Jun 2020 18:09:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591035330;
-        bh=fbp5eN4Hnuv3+bR/hO5F+wm3gfMFLymjiWDBZD1oZEU=;
+        s=default; t=1591034966;
+        bh=Y/PQsvmcP7ojJNDQ/LzfHMFXOeqcGVLKs741dczTlTk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ELI+eDlvB+oBZetjBl1RI9/HvA6ij2ejP2aRsL/CqFeQ0MdYKIYcgW//vf2TEwyXS
-         viit+sOYd08U8odtmjMyWz8HZ1PLmpFXpNAA1n3qu/BOIXjGP80GbrGU752Iwp81Kn
-         NZeZWuWKo+G8lbkUTnH8DXyx8LXFDiAq1xQOC6t0=
+        b=WFvP/qYLRz0hT5nrOmDBAlG6SAwmwo5jyXdTysRvHlvCaPI3vgYvW3ezKD1Uph0my
+         Rm1ysLK5YdLYl0ooZAqPrUpC0iVntXMpjpRlw/pXWxpVI+kXofJ7s3ZvzTv1q6RYS2
+         lIk+f9zl/Rmo55V9xVKynUAAGNp5f/WPZppFZZtk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tiezhu Yang <yangtiezhu@loongson.cn>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        stable@vger.kernel.org, Jonathan Marek <jonathan@marek.ca>,
+        Vinod Koul <vkoul@kernel.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 111/177] gpio: pxa: Fix return value of pxa_gpio_probe()
+Subject: [PATCH 5.4 091/142] clk: qcom: gcc: Fix parent for gpll0_out_even
 Date:   Mon,  1 Jun 2020 19:54:09 +0200
-Message-Id: <20200601174057.876910842@linuxfoundation.org>
+Message-Id: <20200601174047.385970800@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174048.468952319@linuxfoundation.org>
-References: <20200601174048.468952319@linuxfoundation.org>
+In-Reply-To: <20200601174037.904070960@linuxfoundation.org>
+References: <20200601174037.904070960@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,36 +46,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tiezhu Yang <yangtiezhu@loongson.cn>
+From: Vinod Koul <vkoul@kernel.org>
 
-[ Upstream commit 558ab2e8155e5f42ca0a6407957cd4173dc166cc ]
+[ Upstream commit a76f274182f054481182c81cd62bb8794a5450a6 ]
 
-When call function devm_platform_ioremap_resource(), we should use IS_ERR()
-to check the return value and return PTR_ERR() if failed.
+Documentation says that gpll0 is parent of gpll0_out_even, somehow
+driver coded that as bi_tcxo, so fix it
 
-Fixes: 542c25b7a209 ("drivers: gpio: pxa: use devm_platform_ioremap_resource()")
-Signed-off-by: Tiezhu Yang <yangtiezhu@loongson.cn>
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Fixes: 2a1d7eb854bb ("clk: qcom: gcc: Add global clock controller driver for SM8150")
+Reported-by: Jonathan Marek <jonathan@marek.ca>
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Link: https://lkml.kernel.org/r/20200521052728.2141377-1-vkoul@kernel.org
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpio-pxa.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/clk/qcom/gcc-sm8150.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/gpio/gpio-pxa.c b/drivers/gpio/gpio-pxa.c
-index 9888b62f37af..432c487f77b4 100644
---- a/drivers/gpio/gpio-pxa.c
-+++ b/drivers/gpio/gpio-pxa.c
-@@ -663,8 +663,8 @@ static int pxa_gpio_probe(struct platform_device *pdev)
- 	pchip->irq1 = irq1;
- 
- 	gpio_reg_base = devm_platform_ioremap_resource(pdev, 0);
--	if (!gpio_reg_base)
--		return -EINVAL;
-+	if (IS_ERR(gpio_reg_base))
-+		return PTR_ERR(gpio_reg_base);
- 
- 	clk = clk_get(&pdev->dev, NULL);
- 	if (IS_ERR(clk)) {
+diff --git a/drivers/clk/qcom/gcc-sm8150.c b/drivers/clk/qcom/gcc-sm8150.c
+index 20877214acff..e3959ff5cb55 100644
+--- a/drivers/clk/qcom/gcc-sm8150.c
++++ b/drivers/clk/qcom/gcc-sm8150.c
+@@ -75,8 +75,7 @@ static struct clk_alpha_pll_postdiv gpll0_out_even = {
+ 	.clkr.hw.init = &(struct clk_init_data){
+ 		.name = "gpll0_out_even",
+ 		.parent_data = &(const struct clk_parent_data){
+-			.fw_name = "bi_tcxo",
+-			.name = "bi_tcxo",
++			.hw = &gpll0.clkr.hw,
+ 		},
+ 		.num_parents = 1,
+ 		.ops = &clk_trion_pll_postdiv_ops,
 -- 
 2.25.1
 
