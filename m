@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ECE0C1EAA57
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:11:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED18C1EAAF9
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:16:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730532AbgFASHD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:07:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52832 "EHLO mail.kernel.org"
+        id S1729058AbgFASNM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:13:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60780 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730533AbgFASHC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:07:02 -0400
+        id S1731311AbgFASNL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:13:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 01BF2206E2;
-        Mon,  1 Jun 2020 18:07:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7D43C2065C;
+        Mon,  1 Jun 2020 18:13:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034822;
-        bh=d6n1lfALiOuqf6hD6qY0ykkceo3UeXoajd4//MCBJ98=;
+        s=default; t=1591035191;
+        bh=PShjP4JqEu7VciJj/G3J2Xnl9GwcIQlCD+Du0aKEP3E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B4dSwDDgwL3l2nt78msaX17Zo3T7ntT120EgkYm7kZaGSc5E/xCiv6+ZMaofFK2EE
-         vy0EopfXNqHaHrKOcgOY/WWDSnjtOKwYQpT1772ETaJXAP6y/styr3iDUIKx6oCQrE
-         TA8e3q0zGr889vwR+ntfPgP0iWIdajrx2TCx7G5g=
+        b=Fxuuq2sbO0giFVd0GBJkJokAnbaJaV2igQaScZo1mMplTNnnJW5i8IUqBWaxdDqhA
+         bw6YNIBzmbkC2cQlV6CaZjauEjHN//QinWEgRqygsAODJMFUtUe5qGZjDGl5El/Fhk
+         g15SBcQ7OnVbTlnAGpObNW/XG8JQ+Hh7PcWfLy1I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qiushi Wu <wu000273@umn.edu>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 029/142] net: sun: fix missing release regions in cas_init_one().
-Date:   Mon,  1 Jun 2020 19:53:07 +0200
-Message-Id: <20200601174040.917626256@linuxfoundation.org>
+        stable@vger.kernel.org, Johan Jonker <jbx6244@gmail.com>,
+        Heiko Stuebner <heiko@sntech.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 050/177] ARM: dts: rockchip: fix pinctrl sub nodename for spi in rk322x.dtsi
+Date:   Mon,  1 Jun 2020 19:53:08 +0200
+Message-Id: <20200601174053.210648022@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174037.904070960@linuxfoundation.org>
-References: <20200601174037.904070960@linuxfoundation.org>
+In-Reply-To: <20200601174048.468952319@linuxfoundation.org>
+References: <20200601174048.468952319@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,42 +44,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiushi Wu <wu000273@umn.edu>
+From: Johan Jonker <jbx6244@gmail.com>
 
-commit 5a730153984dd13f82ffae93d7170d76eba204e9 upstream.
+[ Upstream commit 855bdca1781c79eb661f89c8944c4a719ce720e8 ]
 
-In cas_init_one(), "pdev" is requested by "pci_request_regions", but it
-was not released after a call of the function “pci_write_config_byte”
-failed. Thus replace the jump target “err_write_cacheline” by
-"err_out_free_res".
+A test with the command below gives these errors:
 
-Fixes: 1f26dac32057 ("[NET]: Add Sun Cassini driver.")
-Signed-off-by: Qiushi Wu <wu000273@umn.edu>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+arch/arm/boot/dts/rk3229-evb.dt.yaml: spi-0:
+'#address-cells' is a required property
+arch/arm/boot/dts/rk3229-evb.dt.yaml: spi-1:
+'#address-cells' is a required property
+arch/arm/boot/dts/rk3229-xms6.dt.yaml: spi-0:
+'#address-cells' is a required property
+arch/arm/boot/dts/rk3229-xms6.dt.yaml: spi-1:
+'#address-cells' is a required property
 
+The $nodename pattern for spi nodes is
+"^spi(@.*|-[0-9a-f])*$". To prevent warnings rename
+'spi-0' and 'spi-1' pinctrl sub nodenames to
+'spi0' and 'spi1' in 'rk322x.dtsi'.
+
+make ARCH=arm dtbs_check
+DT_SCHEMA_FILES=Documentation/devicetree/bindings/spi/spi-controller.yaml
+
+Signed-off-by: Johan Jonker <jbx6244@gmail.com>
+Link: https://lore.kernel.org/r/20200424123923.8192-1-jbx6244@gmail.com
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/sun/cassini.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ arch/arm/boot/dts/rk322x.dtsi | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/sun/cassini.c
-+++ b/drivers/net/ethernet/sun/cassini.c
-@@ -4971,7 +4971,7 @@ static int cas_init_one(struct pci_dev *
- 					  cas_cacheline_size)) {
- 			dev_err(&pdev->dev, "Could not set PCI cache "
- 			       "line size\n");
--			goto err_write_cacheline;
-+			goto err_out_free_res;
- 		}
- 	}
- #endif
-@@ -5144,7 +5144,6 @@ err_out_iounmap:
- err_out_free_res:
- 	pci_release_regions(pdev);
+diff --git a/arch/arm/boot/dts/rk322x.dtsi b/arch/arm/boot/dts/rk322x.dtsi
+index 729119952c68..a83f65486ad4 100644
+--- a/arch/arm/boot/dts/rk322x.dtsi
++++ b/arch/arm/boot/dts/rk322x.dtsi
+@@ -1033,7 +1033,7 @@
+ 			};
+ 		};
  
--err_write_cacheline:
- 	/* Try to restore it in case the error occurred after we
- 	 * set it.
- 	 */
+-		spi-0 {
++		spi0 {
+ 			spi0_clk: spi0-clk {
+ 				rockchip,pins = <0 RK_PB1 2 &pcfg_pull_up>;
+ 			};
+@@ -1051,7 +1051,7 @@
+ 			};
+ 		};
+ 
+-		spi-1 {
++		spi1 {
+ 			spi1_clk: spi1-clk {
+ 				rockchip,pins = <0 RK_PC7 2 &pcfg_pull_up>;
+ 			};
+-- 
+2.25.1
+
 
 
