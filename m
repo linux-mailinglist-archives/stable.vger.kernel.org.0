@@ -2,133 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 678171EC47E
-	for <lists+stable@lfdr.de>; Tue,  2 Jun 2020 23:45:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C0A561EC4C7
+	for <lists+stable@lfdr.de>; Wed,  3 Jun 2020 00:08:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726420AbgFBVo7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Jun 2020 17:44:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42112 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726130AbgFBVo7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 2 Jun 2020 17:44:59 -0400
-Received: from mail-pf1-x442.google.com (mail-pf1-x442.google.com [IPv6:2607:f8b0:4864:20::442])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C3ECC08C5C0
-        for <stable@vger.kernel.org>; Tue,  2 Jun 2020 14:44:59 -0700 (PDT)
-Received: by mail-pf1-x442.google.com with SMTP id a4so82681pfo.4
-        for <stable@vger.kernel.org>; Tue, 02 Jun 2020 14:44:59 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=KodSx0XniRgUbVvwPJOZ7iPpDmMK1qlxlcCqkUZRZ8Q=;
-        b=bT8mvA2hYRkxPxwpomQvn3GbZkNr3Bt96OsRB/UuM08nwKlN/yhKnohi0DbcL/vDwE
-         Oj//JAFR0T6/LyJyO2OZnHXSUJMwSYEek2oCEZN5vtC/H338S0fKr1kIVBXvowg4dhrq
-         BjifPsEBOcn9GDd7mWoXqpcBYRgjuXa8O8GXniCfd4W3+Pry1X1wsOrigNb/wu+dM+pe
-         Kea2VagPLfW/n0XxJDNfZ7nnkH/UukwPdU0kVaQtjAyzOrWJxZ0R7sJ368HBfumy1rUx
-         7Vd/aTJBBHeOrXod5XfW3EzDRGLFhFquzYYQkZtUotPUZD4VvctpbB+J/FUSOnXCXdm1
-         cYDw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=KodSx0XniRgUbVvwPJOZ7iPpDmMK1qlxlcCqkUZRZ8Q=;
-        b=XwPhS7aGUt2VoMf9T0mMV7cbvcKf6B20xEmh9ml9IN4IsOb7/3qxSVtnmtgo8ZVDBk
-         8tyVZHmcMDbhJ1p3TrGS9N/kijME1NkQpkoeI2TasuTB5MweEd+vcw7HV2d0CzcykhYW
-         t7gaYriW3RHIH19SBU2gDW73aA0uzx5PAqcmfNoLDAEEOxmHRUSEM2w6cP9GuesjJFOe
-         qms3GhBX0+Ex4RmNLUb57v9hYFnlwfzQGQIauqw90Ig5pp4r7PTAq/7FOWrkPvRA0wTG
-         pbpcUgFtMOG83ibABDZ5IwZQxgG7a/+ev9JviN5Q1jAV3AMr1UdjamxCt0t45Szba+hY
-         +u9Q==
-X-Gm-Message-State: AOAM531lDQ5ksEdggDpMwq6IHl2uDAHIOg1Ct8ugWCpdKIDeUH0BBU/u
-        ffRfax2rWjX26Izs+yfxKsX7ZPDcs7E=
-X-Google-Smtp-Source: ABdhPJzgvlheZaQ9ZLmFiC4LgiH2RHe9459dh8OhUEjKAWueKPX1PfWHbuBoIQ6K33jaaJVXyXiYtg==
-X-Received: by 2002:a17:90b:28d:: with SMTP id az13mr1437458pjb.67.1591134298306;
-        Tue, 02 Jun 2020 14:44:58 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id s8sm1150pjz.44.2020.06.02.14.44.56
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 02 Jun 2020 14:44:57 -0700 (PDT)
-Message-ID: <5ed6c859.1c69fb81.dc0c4.0019@mx.google.com>
-Date:   Tue, 02 Jun 2020 14:44:57 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.4.43-140-gf5694d7c427e
-X-Kernelci-Report-Type: boot
-X-Kernelci-Branch: linux-5.4.y
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-5.4.y boot: 66 boots: 1 failed,
- 62 passed with 3 untried/unknown (v5.4.43-140-gf5694d7c427e)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+        id S1726130AbgFBWIR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Jun 2020 18:08:17 -0400
+Received: from [41.223.232.113] ([41.223.232.113]:33200 "EHLO mail.insd.bf"
+        rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726112AbgFBWIQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Jun 2020 18:08:16 -0400
+X-Greylist: delayed 8417 seconds by postgrey-1.27 at vger.kernel.org; Tue, 02 Jun 2020 18:08:15 EDT
+Received: from localhost (localhost.localdomain [127.0.0.1])
+        by mail.insd.bf (Postfix) with ESMTP id C9AF52FC3FD;
+        Mon,  1 Jun 2020 20:43:11 +0000 (GMT)
+Received: from mail.insd.bf ([127.0.0.1])
+        by localhost (mail.insd.bf [127.0.0.1]) (amavisd-new, port 10032)
+        with ESMTP id cRM2iHWHehF4; Mon,  1 Jun 2020 20:43:11 +0000 (GMT)
+Received: from localhost (localhost.localdomain [127.0.0.1])
+        by mail.insd.bf (Postfix) with ESMTP id 8461920DF1;
+        Mon,  1 Jun 2020 20:43:11 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.10.3 mail.insd.bf 8461920DF1
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=insd.bf;
+        s=1F74184E-1EED-11E9-B01C-1B0367AE98CA; t=1591044191;
+        bh=z9Bw4k1DAJBZgnlZe0FDTUzmi3RKzo8eeKl4eXZ+iRs=;
+        h=From:To:Date:Message-Id;
+        b=xVC0QM6/aQ/pkhNPdvJyAAY9Tg96O+/XDLQWmnfPUv+AwdQHXf85cV8qxomas8FM/
+         lugKJTf/zWHKyA0S0Tsh92OI4mesyhWnvaRHa7QdPRecf8qP4llhbNPtWqomh7Z8T1
+         WjDvTnQgtLlVCf/TO/42rnKV3tTUa3cs4cF5m4Mw9rJgZw9tvD5QGF7T811nierOHD
+         XuPBtw9E/uOxQ17w8l+Jx0KY5RlWZlizCUktFt7eW7XUncnwArtmRp12yb2GNM9F18
+         RbCZzCnaxvqsW4PIvnmKplPbiFGgX6NO+XB6C+DVr4IaSPsvFf1pzJ1E1Us0luQim2
+         zV7NQZULsncCQ==
+X-Virus-Scanned: amavisd-new at insd.bf
+Received: from mail.insd.bf ([127.0.0.1])
+        by localhost (mail.insd.bf [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id WwkLiyInOYjZ; Mon,  1 Jun 2020 20:43:11 +0000 (GMT)
+Received: from mail.insd.bf (unknown [41.223.232.113])
+        by mail.insd.bf (Postfix) with ESMTP id 5D71B21BD9;
+        Mon,  1 Jun 2020 20:43:09 +0000 (GMT)
+From:   "BOOM DE VENDAS" <eipuypjs@insd.bf>
+Subject: Divulgue para =?ISO-8859-1?Q?at=E9?= 200 =?ISO-8859-1?Q?MILH=D5ES?=
+ DE EMAILS - Boom de vendas
+To:     stabilito@hotmail.com
+Reply-To: contactardados@gmail.com
+Date:   Mon, 1 Jun 2020 22:41:30 +0200
+Message-Id: <20200601204309.5D71B21BD9@mail.insd.bf>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-******************************************
-* WARNING: Boot tests are now deprecated *
-******************************************
 
-As kernelci.org is expanding its functional testing capabilities, the conce=
-pt
-of boot testing is now deprecated.  Boot results are scheduled to be droppe=
-d on
-*5th June 2020*.  The full schedule for boot tests deprecation is available=
- on
-this GitHub issue: https://github.com/kernelci/kernelci-backend/issues/238
+Divulgue para até 200 MILHÕES DE EMAILS COM PREÇO DE CUSTO! BOOM DE VENDAS imediato!
 
-The new equivalent is the *baseline* test suite which also runs sanity chec=
-ks
-using dmesg and bootrr: https://github.com/kernelci/bootrr
+FALE COM A GENTE no WhatsApp: 22-99788-1694
 
-See the *baseline results for this kernel revision* on this page:
-https://kernelci.org/test/job/stable-rc/branch/linux-5.4.y/kernel/v5.4.43-1=
-40-gf5694d7c427e/plan/baseline/
+Você pode divulgar para todo o Brasil, ou você pode escolher as regiões e áreas de interesse que você deseja priorizar.
+A maior divulgação de todo o Brasil, com acompanhamento ONLINE dos resultados em tempo real, com Painel Online Exclusivo !
 
----------------------------------------------------------------------------=
-----
+Veja os detalhes:
 
-stable-rc/linux-5.4.y boot: 66 boots: 1 failed, 62 passed with 3 untried/un=
-known (v5.4.43-140-gf5694d7c427e)
+- Nós fazemos todo o trabalho para você.
+- Nós enviamos seu anúncio para até 200 milhões de emails.
+- Você pode escolher as áreas de seu maior interesse para prioridade nos envios.
+- Você acompanha online o andamento de todos os envios.
+- Se você não tiver o texto do anúncio, faremos para você sem custo adicional.
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--5.4.y/kernel/v5.4.43-140-gf5694d7c427e/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.4.y=
-/kernel/v5.4.43-140-gf5694d7c427e/
+Para fazer a campanha BOOM de vendas, responda esse email com os dados abaixo:
 
-Tree: stable-rc
-Branch: linux-5.4.y
-Git Describe: v5.4.43-140-gf5694d7c427e
-Git Commit: f5694d7c427e7134b05b816e56fc41c191c4782b
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 62 unique boards, 12 SoC families, 11 builds out of 162
+----------------------------------------------------
+Nome:
+Email:
+Telefone:
+WhatsApp:
+Opção desejada:
 
-Boot Regressions Detected:
+(  ) R$ 199 - Divulgação para 1 MILHÂO DE EMAILS
+(  ) R$ 299 - Divulgação para 5 MILHÕES DE EMAILS
+(  ) R$ 399 - Divulgação para 25 MILHÕES DE EMAILS
+(  ) R$ 599 - Divulgação para 50 MILHÕES DE EMAILS
+(  ) R$ 999 - Divulgação para 100 MILHÕES DE EMAILS
+(  ) R$ 1500 - Divulgação para 200 MILHÕES DE EMAILS
+-----------------------------------------------------
 
-arm:
+Ou fale com a gente. Seguem abaixo nossos contatos:
 
-    sama5_defconfig:
-        gcc-8:
-          at91-sama5d4_xplained:
-              lab-baylibre: failing since 55 days (last pass: v5.4.30-37-g4=
-0da5db79b55 - first fail: v5.4.30-39-g23c04177b89f)
+Por WhatsApp:
+22-99788-1694
 
-arm64:
+Por Skype:
+corbettsoftware
 
-    defconfig:
-        gcc-8:
-          meson-gxl-s805x-libretech-ac:
-              lab-baylibre: new failure (last pass: v5.4.43-143-g1fd4226c4f=
-e1)
+----------------------------------------------------------------------------------
 
-Boot Failure Detected:
+Abraços dos amigos da
 
-arm:
-    sama5_defconfig:
-        gcc-8:
-            at91-sama5d4_xplained: 1 failed lab
+Divulgarantia
 
----
-For more info write to <info@kernelci.org>
+C O R B E T T
+ D E S D E 1 9 9 8
+
+WhatsApp:
+22-99788-1694
+
+Skype:
+corbettsoftware
