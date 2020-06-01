@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 97A3C1EAEF5
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:58:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 375271EACA8
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:40:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729197AbgFAR6d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 13:58:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40492 "EHLO mail.kernel.org"
+        id S1731153AbgFASOq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:14:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34664 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729189AbgFAR6b (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 13:58:31 -0400
+        id S1731509AbgFASOp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:14:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A32C32076B;
-        Mon,  1 Jun 2020 17:58:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AED8B2068D;
+        Mon,  1 Jun 2020 18:14:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034311;
-        bh=cChF2ARnFROjgWHvgMtMTnu9IVOOALLdq4gw/5/d9GY=;
+        s=default; t=1591035285;
+        bh=PWB2t7f58OTgQdOQWXKpGzdge1XV4v+1OvpmDWYEvUA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e5JTFwShQyrKocWYrNceErygGgJmEvbIwC9mi0RZ4WSvFPg5gImMB+X9pUb7VCfVO
-         lXeVgF82ptD39ITPVaJq/hIcqev3Np+TMuEmHpU25zZAPL+4Xp087uLMMdbO2JNmY/
-         ztEm0iG3kUcPciUw+yavhe6P8g8dJcFIlKrVmAmU=
+        b=A9FjA9DILYbLNDHpn/ieV+HaIUE3o9cnLPSLG3iLM7Q+GMcaI0DYi6N8gPnUrcj9x
+         EH0mlMrRhDYp+AuQI2Qh1JuXRG2ZOUtx9QswCCPZ7aeKolGBZzDeA8koa/OtQvupuY
+         3Rl+ChtMuA9niXn4XJcPtdxoYs90epIbmK/lJiLA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Chiu <chiu@endlessm.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 35/61] ALSA: usb-audio: mixer: volume quirk for ESS Technology Asus USB DAC
+        stable@vger.kernel.org, James Hilliard <james.hilliard1@gmail.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 084/177] Input: usbtouchscreen - add support for BonXeon TP
 Date:   Mon,  1 Jun 2020 19:53:42 +0200
-Message-Id: <20200601174018.213700943@linuxfoundation.org>
+Message-Id: <20200601174055.905339501@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174010.316778377@linuxfoundation.org>
-References: <20200601174010.316778377@linuxfoundation.org>
+In-Reply-To: <20200601174048.468952319@linuxfoundation.org>
+References: <20200601174048.468952319@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,50 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Chiu <chiu@endlessm.com>
+From: James Hilliard <james.hilliard1@gmail.com>
 
-[ Upstream commit 4020d1ccbe55bdf67b31d718d2400506eaf4b43f ]
+[ Upstream commit e3b4f94ef52ae1592cbe199bd38dbdc0d58b2217 ]
 
-The Asus USB DAC is a USB type-C audio dongle for connecting to
-the headset and headphone. The volume minimum value -23040 which
-is 0xa600 in hexadecimal with the resolution value 1 indicates
-this should be endianness issue caused by the firmware bug. Add
-a volume quirk to fix the volume control problem.
+Based on available information this uses the singletouch irtouch
+protocol. This is tested and confirmed to be fully functional on
+the BonXeon TP hardware I have.
 
-Also fixes this warning:
-  Warning! Unlikely big volume range (=23040), cval->res is probably wrong.
-  [5] FU [Headset Capture Volume] ch = 1, val = -23040/0/1
-  Warning! Unlikely big volume range (=23040), cval->res is probably wrong.
-  [7] FU [Headset Playback Volume] ch = 1, val = -23040/0/1
-
-Signed-off-by: Chris Chiu <chiu@endlessm.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200526062613.55401-1-chiu@endlessm.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: James Hilliard <james.hilliard1@gmail.com>
+Link: https://lore.kernel.org/r/20200413184217.55700-1-james.hilliard1@gmail.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/mixer.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/input/touchscreen/usbtouchscreen.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/sound/usb/mixer.c b/sound/usb/mixer.c
-index e2f62362a0b0..024864ce3f76 100644
---- a/sound/usb/mixer.c
-+++ b/sound/usb/mixer.c
-@@ -980,6 +980,14 @@ static void volume_control_quirks(struct usb_mixer_elem_info *cval,
- 			cval->res = 384;
- 		}
- 		break;
-+	case USB_ID(0x0495, 0x3042): /* ESS Technology Asus USB DAC */
-+		if ((strstr(kctl->id.name, "Playback Volume") != NULL) ||
-+			strstr(kctl->id.name, "Capture Volume") != NULL) {
-+			cval->min >>= 8;
-+			cval->max = 0;
-+			cval->res = 1;
-+		}
-+		break;
- 	}
- }
+diff --git a/drivers/input/touchscreen/usbtouchscreen.c b/drivers/input/touchscreen/usbtouchscreen.c
+index 16d70201de4a..397cb1d3f481 100644
+--- a/drivers/input/touchscreen/usbtouchscreen.c
++++ b/drivers/input/touchscreen/usbtouchscreen.c
+@@ -182,6 +182,7 @@ static const struct usb_device_id usbtouch_devices[] = {
+ #endif
  
+ #ifdef CONFIG_TOUCHSCREEN_USB_IRTOUCH
++	{USB_DEVICE(0x255e, 0x0001), .driver_info = DEVTYPE_IRTOUCH},
+ 	{USB_DEVICE(0x595a, 0x0001), .driver_info = DEVTYPE_IRTOUCH},
+ 	{USB_DEVICE(0x6615, 0x0001), .driver_info = DEVTYPE_IRTOUCH},
+ 	{USB_DEVICE(0x6615, 0x0012), .driver_info = DEVTYPE_IRTOUCH_HIRES},
 -- 
 2.25.1
 
