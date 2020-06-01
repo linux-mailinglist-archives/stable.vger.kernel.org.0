@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C14491EAEA4
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:56:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 146661EAEFD
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:58:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729644AbgFASAu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:00:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43560 "EHLO mail.kernel.org"
+        id S1729166AbgFAS6n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:58:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40454 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729704AbgFASAs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:00:48 -0400
+        id S1729178AbgFAR63 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 13:58:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3CCCD2065C;
-        Mon,  1 Jun 2020 18:00:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 602F32074B;
+        Mon,  1 Jun 2020 17:58:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034447;
-        bh=WBCdEH8GKHz5nCd+RlGwF13pOXtU5+lvt/v8NAxJiKA=;
+        s=default; t=1591034308;
+        bh=vrLs+xDMQUVAbWyqFt4x9YHsfhR9mx60FazFXQuCg90=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yxqj3K/tAhTokUjES7rbUs4jaMoKWfIwzDxfeHkQ8as057hc0vNIqIPhGIj5oYlks
-         9K7sq6F3RexjDofGGL1VR+dHdRKi6jj/ELrNwuAc89mTOYOcNzX+gfRo6jTFzrTDja
-         tRAQp4t8EmjlQnrAZ7k77UsnhORDhm8edKrpaWmE=
+        b=r6Gk9fIaaJGIXpnxM8Un4r18bKUEBGvKk6GpOkvXgbAncHrBFJ1Yv+QflJ8u8wx78
+         maVJ5c9T/a95c8nxHxCwioIZbYGECFsBWNowciJyH2lAeo20AbaGgwhEgH5chiIizO
+         djJDoYqebd3T8ubDkCbNX5boektoGEPKsfcRud5A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 36/77] gpio: exar: Fix bad handling for ida_simple_get error path
+        stable@vger.kernel.org,
+        Changming Liu <liu.changm@northeastern.edu>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 34/61] ALSA: hwdep: fix a left shifting 1 by 31 UB bug
 Date:   Mon,  1 Jun 2020 19:53:41 +0200
-Message-Id: <20200601174023.003429263@linuxfoundation.org>
+Message-Id: <20200601174018.049748064@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174016.396817032@linuxfoundation.org>
-References: <20200601174016.396817032@linuxfoundation.org>
+In-Reply-To: <20200601174010.316778377@linuxfoundation.org>
+References: <20200601174010.316778377@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,53 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Changming Liu <liu.changm@northeastern.edu>
 
-[ Upstream commit 333830aa149a87cabeb5d30fbcf12eecc8040d2c ]
+[ Upstream commit fb8cd6481ffd126f35e9e146a0dcf0c4e8899f2e ]
 
-The commit 7ecced0934e5 ("gpio: exar: add a check for the return value
-of ida_simple_get fails") added a goto jump to the common error
-handler for ida_simple_get() error, but this is wrong in two ways:
-it doesn't set the proper return code and, more badly, it invokes
-ida_simple_remove() with a negative index that shall lead to a kernel
-panic via BUG_ON().
+The "info.index" variable can be 31 in "1 << info.index".
+This might trigger an undefined behavior since 1 is signed.
 
-This patch addresses those two issues.
+Fix this by casting 1 to 1u just to be sure "1u << 31" is defined.
 
-Fixes: 7ecced0934e5 ("gpio: exar: add a check for the return value of ida_simple_get fails")
+Signed-off-by: Changming Liu <liu.changm@northeastern.edu>
 Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/BL0PR06MB4548170B842CB055C9AF695DE5B00@BL0PR06MB4548.namprd06.prod.outlook.com
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpio-exar.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ sound/core/hwdep.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpio/gpio-exar.c b/drivers/gpio/gpio-exar.c
-index a09d2f9ebacc..695c19901eff 100644
---- a/drivers/gpio/gpio-exar.c
-+++ b/drivers/gpio/gpio-exar.c
-@@ -148,8 +148,10 @@ static int gpio_exar_probe(struct platform_device *pdev)
- 	mutex_init(&exar_gpio->lock);
- 
- 	index = ida_simple_get(&ida_index, 0, 0, GFP_KERNEL);
--	if (index < 0)
--		goto err_destroy;
-+	if (index < 0) {
-+		ret = index;
-+		goto err_mutex_destroy;
-+	}
- 
- 	sprintf(exar_gpio->name, "exar_gpio%d", index);
- 	exar_gpio->gpio_chip.label = exar_gpio->name;
-@@ -176,6 +178,7 @@ static int gpio_exar_probe(struct platform_device *pdev)
- 
- err_destroy:
- 	ida_simple_remove(&ida_index, index);
-+err_mutex_destroy:
- 	mutex_destroy(&exar_gpio->lock);
- 	return ret;
+diff --git a/sound/core/hwdep.c b/sound/core/hwdep.c
+index 36d2416f90d9..96b737adf4d2 100644
+--- a/sound/core/hwdep.c
++++ b/sound/core/hwdep.c
+@@ -228,14 +228,14 @@ static int snd_hwdep_dsp_load(struct snd_hwdep *hw,
+ 	if (copy_from_user(&info, _info, sizeof(info)))
+ 		return -EFAULT;
+ 	/* check whether the dsp was already loaded */
+-	if (hw->dsp_loaded & (1 << info.index))
++	if (hw->dsp_loaded & (1u << info.index))
+ 		return -EBUSY;
+ 	if (!access_ok(VERIFY_READ, info.image, info.length))
+ 		return -EFAULT;
+ 	err = hw->ops.dsp_load(hw, &info);
+ 	if (err < 0)
+ 		return err;
+-	hw->dsp_loaded |= (1 << info.index);
++	hw->dsp_loaded |= (1u << info.index);
+ 	return 0;
  }
+ 
 -- 
 2.25.1
 
