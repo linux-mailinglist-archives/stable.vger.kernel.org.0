@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 31C9B1EAE77
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:54:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DD0D1EAE02
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:50:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728839AbgFASyT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:54:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45130 "EHLO mail.kernel.org"
+        id S1730390AbgFASGA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:06:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51310 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729859AbgFASCD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:02:03 -0400
+        id S1728917AbgFASF7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:05:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 16DE22073B;
-        Mon,  1 Jun 2020 18:02:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A394B2068D;
+        Mon,  1 Jun 2020 18:05:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034523;
-        bh=xe0N+7sYbFtwojUydJ8S15eOlZCR8+wuTi/LeGmYtAE=;
+        s=default; t=1591034759;
+        bh=ZfqJp4gyR15/mAdUfYhrfTdhy2Q5mz4t1torbO/J/fE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CjysNHPzD1od84g/BjFGnbnl6fsLDkLSuz9R5P3sKlO7rfcG7z4DQPQi19juzCULc
-         q96BO7zUwsuyjL9kd1AKcgOVPpyvGLrVNnqjcCjmZMu6y5SaY2YbuC/A4H6/aLp1Sb
-         cvcIFZJ9s58SgzLuiwU4IwfxDLOdZuW5YdfiSBCU=
+        b=OkVwMu9YTLT+W+exdKNYtUoKJ6Cs/5L2DkV/g6oBsINTpRdRaFrR+SxcFJSMZlRUz
+         fRWi7AiEcAdfFS0BQDgeCUq6J3qIQ5pwy35wG5YF/rvcLhf8l5uHRTFgsegMnKVlHW
+         HQ9ghyGb1Ojcq9hIKANlwOi9qVGaFEOtwCPaUOQU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org
-Subject: [PATCH 4.14 70/77] Revert "Input: i8042 - add ThinkPad S230u to i8042 nomux list"
+        stable@vger.kernel.org, Xin Long <lucien.xin@gmail.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>
+Subject: [PATCH 4.19 75/95] xfrm: allow to accept packets with ipv6 NEXTHDR_HOP in xfrm_input
 Date:   Mon,  1 Jun 2020 19:54:15 +0200
-Message-Id: <20200601174028.390129668@linuxfoundation.org>
+Message-Id: <20200601174032.371107737@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174016.396817032@linuxfoundation.org>
-References: <20200601174016.396817032@linuxfoundation.org>
+In-Reply-To: <20200601174020.759151073@linuxfoundation.org>
+References: <20200601174020.759151073@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,41 +43,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-commit f4dec2d6160976b14e54be9c3950ce0f52385741 upstream.
+commit afcaf61be9d1dbdee5ec186d1dcc67b6b692180f upstream.
 
-This reverts commit 18931506465a762ffd3f4803d36a18d336a67da9. From Kevin
-Locke:
+For beet mode, when it's ipv6 inner address with nexthdrs set,
+the packet format might be:
 
-"... nomux only appeared to fix the issue because the controller
-continued working after warm reboots. After more thorough testing from
-both warm and cold start, I now believe the entry should be added to
-i8042_dmi_reset_table rather than i8042_dmi_nomux_table as i8042.reset=1
-alone is sufficient to avoid the issue from both states while
-i8042.nomux is not."
+    ----------------------------------------------------
+    | outer  |     | dest |     |      |  ESP    | ESP |
+    | IP hdr | ESP | opts.| TCP | Data | Trailer | ICV |
+    ----------------------------------------------------
 
+The nexthdr from ESP could be NEXTHDR_HOP(0), so it should
+continue processing the packet when nexthdr returns 0 in
+xfrm_input(). Otherwise, when ipv6 nexthdr is set, the
+packet will be dropped.
+
+I don't see any error cases that nexthdr may return 0. So
+fix it by removing the check for nexthdr == 0.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/input/serio/i8042-x86ia64io.h |    7 -------
- 1 file changed, 7 deletions(-)
+ net/xfrm/xfrm_input.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/input/serio/i8042-x86ia64io.h
-+++ b/drivers/input/serio/i8042-x86ia64io.h
-@@ -545,13 +545,6 @@ static const struct dmi_system_id __init
- 			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire 5738"),
- 		},
- 	},
--	{
--		/* Lenovo ThinkPad Twist S230u */
--		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "33474HU"),
--		},
--	},
- 	{ }
- };
+--- a/net/xfrm/xfrm_input.c
++++ b/net/xfrm/xfrm_input.c
+@@ -407,7 +407,7 @@ resume:
+ 		dev_put(skb->dev);
  
+ 		spin_lock(&x->lock);
+-		if (nexthdr <= 0) {
++		if (nexthdr < 0) {
+ 			if (nexthdr == -EBADMSG) {
+ 				xfrm_audit_state_icvfail(x, skb,
+ 							 x->type->proto);
 
 
