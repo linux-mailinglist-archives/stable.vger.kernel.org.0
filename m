@@ -2,75 +2,211 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 86FE11EA297
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 13:22:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EA351EA2B7
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 13:34:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725838AbgFALWy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 07:22:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58496 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725788AbgFALWy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Jun 2020 07:22:54 -0400
-Received: from mail-pj1-x1042.google.com (mail-pj1-x1042.google.com [IPv6:2607:f8b0:4864:20::1042])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08AF0C061A0E
-        for <stable@vger.kernel.org>; Mon,  1 Jun 2020 04:22:54 -0700 (PDT)
-Received: by mail-pj1-x1042.google.com with SMTP id d6so111931pjs.3
-        for <stable@vger.kernel.org>; Mon, 01 Jun 2020 04:22:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=;
-        b=qtDWGf61BkYn0rf7nuasMYebJPjzmC1Cp1FevqBC1TL0r6GUyYDQ723icQf8IfG1qO
-         7z0OGHJJTg/s1eMnNQkQQfulLFFJyPqnwHO97diOnppJXecdxVzFu2skPw9+1rfJmwR5
-         zHWuN537ZcLQV1fPrPDJznpUtYrIYOrL1mHrIh1gmI77O8SBLOTYcvvU0TXDJj+r+qCf
-         yu3y4egpbbh8DXhLoY/Nh3/lFqPOE+UNoOo9rMT5jWI82A5A5D0gTAC9FDGIP/EhK0l9
-         oZiCIXUMFrxgY/x/7NuFUU80H0Uuzo6xpkQguiL5JJiRUiY5hiMzHl2jUT7i+xvSfkmU
-         J6Yg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=;
-        b=ueux+cNgPJMPKzLDVj/54SdGO0PK7cylFSNlpmLPxcLmFVzE4VDZOUBlH1yS5f6kvF
-         rx8PVSPpyEuNKkQ/9O/2PW3BPo2dXXBhTlCR+QNqUYECyd4yex83g+9cBJ2wsMysQMZ5
-         b3fw3TDC7pfJ7a9zjWg0lcF9HMBioF9Gv+LD6yFE/bbAJyYdDINwH+AyjyNH6c/8dtxj
-         g3RktNpb/ycRT4EVJU+lbGDXoRgT2fFMl2oGJ68ke+OQt9jEPmeE0ly7whxDfLJHAqUi
-         tUyanobZ3s1rlnhX+4u66MP7IJgua4j+F4PGFAiwu46o1yGR4e0/KcSURrkk1MirG0aK
-         C87w==
-X-Gm-Message-State: AOAM5318NwSulJl51RDEHWqDKiNWv7BFsrcGYpYFllLwc1qT9IN2ae4t
-        GvKRLH6RR1K8tZBHOkfQ9NCqvqb15UHMFo/R2M8=
-X-Google-Smtp-Source: ABdhPJwDQ9xm/vzcRXrkqENna+ZNC90cfOCupShXbH7w9BKrC14jr3C5onPLwBphvcBfCAYjNyGmls9rg9em0YVoeXg=
-X-Received: by 2002:a17:902:b710:: with SMTP id d16mr19926433pls.28.1591010573245;
- Mon, 01 Jun 2020 04:22:53 -0700 (PDT)
+        id S1725972AbgFALeQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 07:34:16 -0400
+Received: from forward4-smtp.messagingengine.com ([66.111.4.238]:48085 "EHLO
+        forward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725925AbgFALeP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Jun 2020 07:34:15 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 42E4E1940359;
+        Mon,  1 Jun 2020 07:34:14 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Mon, 01 Jun 2020 07:34:14 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=uyl8Dg
+        1qrNVBIcQ/Oq6RYFkOfUPgbE6tWu6dL0OtpUA=; b=4fq5Lj4fjVFXQbw3QXJpdR
+        jt9H01meEdpsZoI/pu2qnH3pyORsRitTdo0s4vYli1bnYMiVt/lO34GAMGmL8HDK
+        BCtSrmQpeBcZgaAukW15FQ4do1qsGW4YAH6YFjHjq/nfULWwkogm2/40W2pNRvX1
+        tgv/XMmGm7amLJV7093lWyCQO/105uviK/LPvk5fTxMTspHeKT4e2nw8EbCY5Apo
+        2WidP4ISsR0p/jHFAjDtZUcoK73Xv9955BnrTUJ2GTP8mQODPByBI4l/+5y/+WNU
+        mnakd+iZfdg3+vSWMTplT8xlxh2isz4k5QLifBWJlWA/rUFwO755DB50WK2mdGhw
+        ==
+X-ME-Sender: <xms:tefUXuXNLAVXY6UGNGYKupHcTiv0kCHg6mOyuCv2zmHllfu6FwuT8A>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudefhedgfeehucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
+    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushht
+    vghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
+    drtghomh
+X-ME-Proxy: <xmx:tefUXqmEISL2RwNCYVsdVGgKAVnNHcOQxr-ZjFA9ZdY50C67qepG8A>
+    <xmx:tefUXiaqoXamPt53K42AZJPZf_1Djd2y97FITanxEtGGG19RtGu2bQ>
+    <xmx:tefUXlUCn9VHtX62-a-G4YNGW0l5Sth6noQwKNn4iKFaLsVSNZ7MyQ>
+    <xmx:tufUXvulTw2w7SsQOnHbljL3Y7kmz99In9iuA7Xe5rY4eB5EssM4Bg>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 8BE65328005E;
+        Mon,  1 Jun 2020 07:34:13 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] copy_xstate_to_kernel(): don't leave parts of destination" failed to apply to 4.4-stable tree
+To:     viro@zeniv.linux.org.uk, bp@suse.de, glider@google.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 01 Jun 2020 13:34:11 +0200
+Message-ID: <1591011251230102@kroah.com>
 MIME-Version: 1.0
-Received: by 2002:a17:90a:16c2:0:0:0:0 with HTTP; Mon, 1 Jun 2020 04:22:52
- -0700 (PDT)
-Reply-To: robertandersonhappy1@gmail.com
-From:   robert <ehfoukoh1023@gmail.com>
-Date:   Mon, 1 Jun 2020 04:22:52 -0700
-Message-ID: <CADxjG6mrmPKFDjdRVBVeeE5SwpwitKc68DT9XxGMAmO4=XHnnQ@mail.gmail.com>
-Subject: =?UTF-8?B?0JTQvtGA0L7Qs9C+0Lkg0LTRgNGD0LMsINCc0LXQvdGPINC30L7QstGD0YIg0JHQsNGA?=
-        =?UTF-8?B?0YDQvtCx0LXRgNGCINCQ0L3QtNC10YDRgdC+0L0uINCvINCw0LTQstC+0LrQsNGCINC4INGH0LDRgdGC?=
-        =?UTF-8?B?0L3Ri9C5INC80LXQvdC10LTQttC10YAg0L/QviDRgNCw0LHQvtGC0LUg0YEg0LrQu9C40LXQvdGC0LA=?=
-        =?UTF-8?B?0LzQuCDQv9C+0LrQvtC50L3QvtC80YMg0LrQu9C40LXQvdGC0YMuINCSIDIwMTUg0LPQvtC00YMg0Lw=?=
-        =?UTF-8?B?0L7QuSDQutC70LjQtdC90YIg0L/QviDQuNC80LXQvdC4INCc0LjRgdGC0LXRgCDQmtCw0YDQu9C+0YEs?=
-        =?UTF-8?B?INGB0LrQvtC90YfQsNC70YHRjywg0L/RgNC40YfQuNC90LAsINC/0L4g0LrQvtGC0L7RgNC+0Lkg0Y8g?=
-        =?UTF-8?B?0YHQstGP0LfQsNC70YHRjyDRgSDQstCw0LzQuCwg0L/QvtGC0L7QvNGDINGH0YLQviDQstGLINC90L4=?=
-        =?UTF-8?B?0YHQuNGC0LUg0YLRgyDQttC1INGE0LDQvNC40LvQuNGOINGBINGD0LzQtdGA0YjQuNC8LCDQuCDRjyA=?=
-        =?UTF-8?B?0LzQvtCz0YMg0L/RgNC10LTRgdGC0LDQstC40YLRjCDQstCw0YEg0LrQsNC6INCx0LXQvdC10YTQuNGG?=
-        =?UTF-8?B?0LjQsNGA0LAg0Lgg0LHQu9C40LbQsNC50YjQuNGFINGA0L7QtNGB0YLQstC10L3QvdC40LrQvtCyINCy?=
-        =?UTF-8?B?INC80L7QuCDRgdGA0LXQtNGB0YLQstCwINC/0L7QutC+0LnQvdC+0LPQviDQutC70LjQtdC90YLQsCwg?=
-        =?UTF-8?B?0YLQviDQstGLINCx0YPQtNC10YLQtSDRgdGC0L7Rj9GC0Ywg0LrQsNC6INC10LPQviDQsdC70LjQttCw?=
-        =?UTF-8?B?0LnRiNC40LUg0YDQvtC00YHRgtCy0LXQvdC90LjQutC4INC4INGC0YDQtdCx0L7QstCw0YLRjCDRgdGA?=
-        =?UTF-8?B?0LXQtNGB0YLQstCwLiDQvtGB0YLQsNCy0LjQsiDQtNC10L3RjNCz0Lgg0L3QsNGB0LvQtdC00YHRgtCy?=
-        =?UTF-8?B?0L4g0YHQtdC80Lgg0LzQuNC70LvQuNC+0L3QvtCyINC/0Y/RgtC40YHQvtGCINGC0YvRgdGP0Ycg0LQ=?=
-        =?UTF-8?B?0L7Qu9C70LDRgNC+0LIg0KHQqNCQINCU0L7Qu9C70LDRgNGLICg3LDUwMCwwMDAsMDAg0LTQvtC70Ls=?=
-        =?UTF-8?B?0LDRgNC+0LIg0KHQqNCQKS4g0JzQvtC5INC/0L7QutC+0LnQvdGL0Lkg0LrQu9C40LXQve+/vQ==?=
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+
+The patch below does not apply to the 4.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
+
+thanks,
+
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 9e4636545933131de15e1ecd06733538ae939b2f Mon Sep 17 00:00:00 2001
+From: Al Viro <viro@zeniv.linux.org.uk>
+Date: Tue, 26 May 2020 18:39:49 -0400
+Subject: [PATCH] copy_xstate_to_kernel(): don't leave parts of destination
+ uninitialized
+
+copy the corresponding pieces of init_fpstate into the gaps instead.
+
+Cc: stable@kernel.org
+Tested-by: Alexander Potapenko <glider@google.com>
+Acked-by: Borislav Petkov <bp@suse.de>
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+
+diff --git a/arch/x86/kernel/fpu/xstate.c b/arch/x86/kernel/fpu/xstate.c
+index 32b153d38748..6a54e83d5589 100644
+--- a/arch/x86/kernel/fpu/xstate.c
++++ b/arch/x86/kernel/fpu/xstate.c
+@@ -957,18 +957,31 @@ static inline bool xfeatures_mxcsr_quirk(u64 xfeatures)
+ 	return true;
+ }
+ 
+-/*
+- * This is similar to user_regset_copyout(), but will not add offset to
+- * the source data pointer or increment pos, count, kbuf, and ubuf.
+- */
+-static inline void
+-__copy_xstate_to_kernel(void *kbuf, const void *data,
+-			unsigned int offset, unsigned int size, unsigned int size_total)
++static void fill_gap(unsigned to, void **kbuf, unsigned *pos, unsigned *count)
+ {
+-	if (offset < size_total) {
+-		unsigned int copy = min(size, size_total - offset);
++	if (*pos < to) {
++		unsigned size = to - *pos;
++
++		if (size > *count)
++			size = *count;
++		memcpy(*kbuf, (void *)&init_fpstate.xsave + *pos, size);
++		*kbuf += size;
++		*pos += size;
++		*count -= size;
++	}
++}
+ 
+-		memcpy(kbuf + offset, data, copy);
++static void copy_part(unsigned offset, unsigned size, void *from,
++			void **kbuf, unsigned *pos, unsigned *count)
++{
++	fill_gap(offset, kbuf, pos, count);
++	if (size > *count)
++		size = *count;
++	if (size) {
++		memcpy(*kbuf, from, size);
++		*kbuf += size;
++		*pos += size;
++		*count -= size;
+ 	}
+ }
+ 
+@@ -981,8 +994,9 @@ __copy_xstate_to_kernel(void *kbuf, const void *data,
+  */
+ int copy_xstate_to_kernel(void *kbuf, struct xregs_state *xsave, unsigned int offset_start, unsigned int size_total)
+ {
+-	unsigned int offset, size;
+ 	struct xstate_header header;
++	const unsigned off_mxcsr = offsetof(struct fxregs_state, mxcsr);
++	unsigned count = size_total;
+ 	int i;
+ 
+ 	/*
+@@ -998,46 +1012,42 @@ int copy_xstate_to_kernel(void *kbuf, struct xregs_state *xsave, unsigned int of
+ 	header.xfeatures = xsave->header.xfeatures;
+ 	header.xfeatures &= ~XFEATURE_MASK_SUPERVISOR;
+ 
++	if (header.xfeatures & XFEATURE_MASK_FP)
++		copy_part(0, off_mxcsr,
++			  &xsave->i387, &kbuf, &offset_start, &count);
++	if (header.xfeatures & (XFEATURE_MASK_SSE | XFEATURE_MASK_YMM))
++		copy_part(off_mxcsr, MXCSR_AND_FLAGS_SIZE,
++			  &xsave->i387.mxcsr, &kbuf, &offset_start, &count);
++	if (header.xfeatures & XFEATURE_MASK_FP)
++		copy_part(offsetof(struct fxregs_state, st_space), 128,
++			  &xsave->i387.st_space, &kbuf, &offset_start, &count);
++	if (header.xfeatures & XFEATURE_MASK_SSE)
++		copy_part(xstate_offsets[XFEATURE_MASK_SSE], 256,
++			  &xsave->i387.xmm_space, &kbuf, &offset_start, &count);
++	/*
++	 * Fill xsave->i387.sw_reserved value for ptrace frame:
++	 */
++	copy_part(offsetof(struct fxregs_state, sw_reserved), 48,
++		  xstate_fx_sw_bytes, &kbuf, &offset_start, &count);
+ 	/*
+ 	 * Copy xregs_state->header:
+ 	 */
+-	offset = offsetof(struct xregs_state, header);
+-	size = sizeof(header);
+-
+-	__copy_xstate_to_kernel(kbuf, &header, offset, size, size_total);
++	copy_part(offsetof(struct xregs_state, header), sizeof(header),
++		  &header, &kbuf, &offset_start, &count);
+ 
+-	for (i = 0; i < XFEATURE_MAX; i++) {
++	for (i = FIRST_EXTENDED_XFEATURE; i < XFEATURE_MAX; i++) {
+ 		/*
+ 		 * Copy only in-use xstates:
+ 		 */
+ 		if ((header.xfeatures >> i) & 1) {
+ 			void *src = __raw_xsave_addr(xsave, i);
+ 
+-			offset = xstate_offsets[i];
+-			size = xstate_sizes[i];
+-
+-			/* The next component has to fit fully into the output buffer: */
+-			if (offset + size > size_total)
+-				break;
+-
+-			__copy_xstate_to_kernel(kbuf, src, offset, size, size_total);
++			copy_part(xstate_offsets[i], xstate_sizes[i],
++				  src, &kbuf, &offset_start, &count);
+ 		}
+ 
+ 	}
+-
+-	if (xfeatures_mxcsr_quirk(header.xfeatures)) {
+-		offset = offsetof(struct fxregs_state, mxcsr);
+-		size = MXCSR_AND_FLAGS_SIZE;
+-		__copy_xstate_to_kernel(kbuf, &xsave->i387.mxcsr, offset, size, size_total);
+-	}
+-
+-	/*
+-	 * Fill xsave->i387.sw_reserved value for ptrace frame:
+-	 */
+-	offset = offsetof(struct fxregs_state, sw_reserved);
+-	size = sizeof(xstate_fx_sw_bytes);
+-
+-	__copy_xstate_to_kernel(kbuf, xstate_fx_sw_bytes, offset, size, size_total);
++	fill_gap(size_total, &kbuf, &offset_start, &count);
+ 
+ 	return 0;
+ }
 
