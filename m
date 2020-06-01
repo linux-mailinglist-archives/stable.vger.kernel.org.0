@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 52B731EACB3
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:41:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB4D91EADFF
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:50:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731450AbgFASih (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:38:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49448 "EHLO mail.kernel.org"
+        id S1730358AbgFASGL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:06:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51548 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729439AbgFASig (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:38:36 -0400
+        id S1729949AbgFASGK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:06:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0758F20776;
-        Mon,  1 Jun 2020 18:33:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F170C2068D;
+        Mon,  1 Jun 2020 18:06:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591036421;
-        bh=g2lKDiPLDujWPW0RzLGJ93VyCybYHzEJD2bPGoE6DsU=;
+        s=default; t=1591034770;
+        bh=rcGXyxVBSk7HlozhEm2slr0mzTvuHZEvCmq80wwX4hc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XuRusajlYp4JDLnAPfUc2aR3sp1+xPM2j/e0pVkCGKkl75Tr7D0SENIoZ/6062N/b
-         nygdMF7M0JfovUlwHvceVboHTDJmQmgUaZIlHbaLKZA63iv7aUlNaoGegHwDRVHuJF
-         KsvhU1cw7IJu/GbBSvlQUGSW0aP8TInKrHAEh5mA=
+        b=oJ79tTEUSMwTOpELaHYFiDWbGPBHF0Y2ytqHog/jCDdv4t9klAqQ7tXRo2XfmHjDF
+         lsAHsUwYwxZ83LVIsF/yDB1jmXWWtZ+7lMKIphULLkc+UHwNNXE9bWW11IHlhViaZk
+         lVICeHhg1ZOCfiJWjgbXl4F/QkD048sgzaG6iYyw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Yan, Zheng" <zyan@redhat.com>,
-        Jeff Layton <jlayton@kernel.org>,
-        Ilya Dryomov <idryomov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>,
-        =?UTF-8?q?Andrej=20Filip=C4=8Di=C4=8D?= <andrej.filipcic@ijs.si>
-Subject: [PATCH 5.6 122/177] ceph: flush release queue when handling caps for unknown inode
+        stable@vger.kernel.org, Antony Antony <antony@phenome.org>,
+        Steffen Klassert <steffen.klassert@secunet.com>
+Subject: [PATCH 4.19 80/95] xfrm: fix error in comment
 Date:   Mon,  1 Jun 2020 19:54:20 +0200
-Message-Id: <20200601174058.743301144@linuxfoundation.org>
+Message-Id: <20200601174032.854365511@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174048.468952319@linuxfoundation.org>
-References: <20200601174048.468952319@linuxfoundation.org>
+In-Reply-To: <20200601174020.759151073@linuxfoundation.org>
+References: <20200601174020.759151073@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,45 +43,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeff Layton <jlayton@kernel.org>
+From: Antony Antony <antony@phenome.org>
 
-[ Upstream commit fb33c114d3ed5bdac230716f5b0a93b56b92a90d ]
+commit 29e4276667e24ee6b91d9f91064d8fda9a210ea1 upstream.
 
-It's possible for the VFS to completely forget about an inode, but for
-it to still be sitting on the cap release queue. If the MDS sends the
-client a cap message for such an inode, it just ignores it today, which
-can lead to a stall of up to 5s until the cap release queue is flushed.
+s/xfrm_state_offload/xfrm_user_offload/
 
-If we get a cap message for an inode that can't be located, then go
-ahead and flush the cap release queue.
+Fixes: d77e38e612a ("xfrm: Add an IPsec hardware offloading API")
+Signed-off-by: Antony Antony <antony@phenome.org>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Cc: stable@vger.kernel.org
-URL: https://tracker.ceph.com/issues/45532
-Fixes: 1e9c2eb6811e ("ceph: delete stale dentry when last reference is dropped")
-Reported-and-Tested-by: Andrej Filipčič <andrej.filipcic@ijs.si>
-Suggested-by: Yan, Zheng <zyan@redhat.com>
-Signed-off-by: Jeff Layton <jlayton@kernel.org>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ceph/caps.c | 2 +-
+ include/uapi/linux/xfrm.h |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/ceph/caps.c b/fs/ceph/caps.c
-index f50204380a65..3ae88ca03ccd 100644
---- a/fs/ceph/caps.c
-+++ b/fs/ceph/caps.c
-@@ -3952,7 +3952,7 @@ void ceph_handle_caps(struct ceph_mds_session *session,
- 			__ceph_queue_cap_release(session, cap);
- 			spin_unlock(&session->s_cap_lock);
- 		}
--		goto done;
-+		goto flush_cap_releases;
- 	}
- 
- 	/* these will work even if we don't have a cap yet */
--- 
-2.25.1
-
+--- a/include/uapi/linux/xfrm.h
++++ b/include/uapi/linux/xfrm.h
+@@ -304,7 +304,7 @@ enum xfrm_attr_type_t {
+ 	XFRMA_PROTO,		/* __u8 */
+ 	XFRMA_ADDRESS_FILTER,	/* struct xfrm_address_filter */
+ 	XFRMA_PAD,
+-	XFRMA_OFFLOAD_DEV,	/* struct xfrm_state_offload */
++	XFRMA_OFFLOAD_DEV,	/* struct xfrm_user_offload */
+ 	XFRMA_SET_MARK,		/* __u32 */
+ 	XFRMA_SET_MARK_MASK,	/* __u32 */
+ 	XFRMA_IF_ID,		/* __u32 */
 
 
