@@ -2,93 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6193C1EA592
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 16:11:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 647D71EA59D
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 16:15:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726094AbgFAOLg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 10:11:36 -0400
-Received: from mga14.intel.com ([192.55.52.115]:37435 "EHLO mga14.intel.com"
+        id S1726962AbgFAOPZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 10:15:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60916 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726067AbgFAOLg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 10:11:36 -0400
-IronPort-SDR: C3KCmkQQVLMNn3dPubVkm3aPPGIbNYkvICoIRIHY0OCYg+oihDQoAekxc4pKNruXAnQ/wge5TY
- nACq392ksyGw==
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga006.jf.intel.com ([10.7.209.51])
-  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Jun 2020 07:11:35 -0700
-IronPort-SDR: v7m78UPn8DEChwiItaInx6x52ZTOhZuNnhwCmsDPZ+ru71aSYuSWp+GbKDAzPXJInfdukqOQHs
- wZPaXUNQY+Vg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.73,461,1583222400"; 
-   d="scan'208";a="272009343"
-Received: from stinkbox.fi.intel.com (HELO stinkbox) ([10.237.72.174])
-  by orsmga006.jf.intel.com with SMTP; 01 Jun 2020 07:11:32 -0700
-Received: by stinkbox (sSMTP sendmail emulation); Mon, 01 Jun 2020 17:11:32 +0300
-Date:   Mon, 1 Jun 2020 17:11:32 +0300
-From:   Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
-To:     Anshuman Gupta <anshuman.gupta@intel.com>
-Cc:     intel-gfx@lists.freedesktop.org, stable@vger.kernel.org,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Subject: Re: [RFC] drm/i915: lpsp with hdmi/dp outputs
-Message-ID: <20200601141132.GK6112@intel.com>
-References: <20200601101516.21018-1-anshuman.gupta@intel.com>
+        id S1726073AbgFAOPZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 10:15:25 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 570A020738;
+        Mon,  1 Jun 2020 14:15:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1591020924;
+        bh=f2T43K/j3ni+yibd5X+YwhRNtuSBeHyltsA7XSmqFgw=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=tIpO2wr2TfuuAyZdShkSMsj47vvnuRFBfaCdPvHre+/oJ+FrPT3OMTAy54WmdGvhT
+         bUJhzlQGMMfv+n8F59CCO4UUeLNxfjZJsfEGLxb6k5DGZ3VWSS5U6J9JGzybo2avuX
+         P/MxnS3oM3Vh29B4URBDFA34aNj75YSthk5tIY+I=
+Date:   Mon, 1 Jun 2020 16:15:22 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
+Cc:     Yalin.Wang@sonymobile.com, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, stable@vger.kernel.org,
+        Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
+Subject: Re: FAILED: patch "[PATCH] mm: add VM_BUG_ON_PAGE() to
+ page_mapcount()" failed to apply to 4.4-stable tree
+Message-ID: <20200601141522.GA722623@kroah.com>
+References: <159100964424864@kroah.com>
+ <20200601140519.rm5lthhe6cf45567@black.fi.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20200601101516.21018-1-anshuman.gupta@intel.com>
-X-Patchwork-Hint: comment
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20200601140519.rm5lthhe6cf45567@black.fi.intel.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jun 01, 2020 at 03:45:16PM +0530, Anshuman Gupta wrote:
-> Gen12 hw are failing to enable lpsp configuration due to PG3 was left on
-> due to valid usgae count of POWER_DOMAIN_AUDIO.
-> It is not required to get POWER_DOMAIN_AUDIO ref-count when enabling
-> a crtc, it should be always i915_audio_component request to get/put
-> AUDIO_POWER_DOMAIN.
+On Mon, Jun 01, 2020 at 05:05:19PM +0300, Kirill A. Shutemov wrote:
+> On Mon, Jun 01, 2020 at 01:07:24PM +0200, gregkh@linuxfoundation.org wrote:
+> > 
+> > The patch below does not apply to the 4.4-stable tree.
+> > If someone wants it applied there, or to any other stable or longterm
+> > tree, then please email the backport, including the original git commit
+> > id to <stable@vger.kernel.org>.
 > 
-> Cc: stable@vger.kernel.org
-> Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
-> Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-> Signed-off-by: Anshuman Gupta <anshuman.gupta@intel.com>
-> ---
->  drivers/gpu/drm/i915/display/intel_display.c | 6 +++++-
->  1 file changed, 5 insertions(+), 1 deletion(-)
+> Please don't.
 > 
-> diff --git a/drivers/gpu/drm/i915/display/intel_display.c b/drivers/gpu/drm/i915/display/intel_display.c
-> index 6c3b11de2daf..f31a579d7a52 100644
-> --- a/drivers/gpu/drm/i915/display/intel_display.c
-> +++ b/drivers/gpu/drm/i915/display/intel_display.c
-> @@ -7356,7 +7356,11 @@ static u64 get_crtc_power_domains(struct intel_crtc_state *crtc_state)
->  		mask |= BIT_ULL(intel_encoder->power_domain);
->  	}
->  
-> -	if (HAS_DDI(dev_priv) && crtc_state->has_audio)
-> +	/*
-> +	 * Gen12 can drive lpsp on hdmi/dp outpus, it doesn't require to
-> +	 * enable AUDIO power in order to enable a crtc
+> The patch known to cause trouble and going to be effectively reverted:
+> 
+> https://lore.kernel.org/r/159032779896.957378.7852761411265662220.stgit@buzz
 
-Nothing requires audio power to enable a crtc. What this is saying is
-that if we want audio then we must enable the audio power. If you
-didn't want audio then you wouldn't have .has_audio set.
+Oops, I ment to say that 6988f31d558a ("mm: remove VM_BUG_ON(PageSlab())
+from page_mapcount()") did not apply to the 4.4 tree and needs a working
+backport.
 
-That said, looks like audio is moving into the always on well, but not
-yet in tgl.
+I put in the wrong id as that is the commit that 6988f31d558a fixes.
 
-.
-> +	 */
-> +	if (INTEL_GEN(dev_priv) < 12 && HAS_DDI(dev_priv) && crtc_state->has_audio)
->  		mask |= BIT_ULL(POWER_DOMAIN_AUDIO);
->  
->  	if (crtc_state->shared_dpll)
-> -- 
-> 2.26.2
+So, if you could provide a working backport, that would be wonderful.
 
--- 
-Ville Syrjälä
-Intel
+thanks,
+
+greg k-h
