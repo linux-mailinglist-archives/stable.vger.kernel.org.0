@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B686B1EAE35
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:53:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 582A21EADE0
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:49:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730098AbgFASDl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:03:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47700 "EHLO mail.kernel.org"
+        id S1730538AbgFASHG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:07:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52882 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730112AbgFASDk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:03:40 -0400
+        id S1729801AbgFASHF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:07:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 625172077D;
-        Mon,  1 Jun 2020 18:03:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3FC6D2068D;
+        Mon,  1 Jun 2020 18:07:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034619;
-        bh=IXAB/ugYIs1Tg1t4omVyrfXiW4pxa2jvUd3vyyQBZXI=;
+        s=default; t=1591034824;
+        bh=OWscbb58LV3wYU2t0kpPZcQFKkJCIC9E+3xuGSvNeqg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CtolpuvMlEMTM/U7a7XDbFv53aiNg7NQvyKKRT7yweueS/q/yFF1DRC8Pis9S7xry
-         yfa2vv+QQsAXd5r9L098FPXHSNd7d8w+nEjEmF8kBVU7VnbZG62AeRi8XA/ag82j4k
-         /ulZIxxsOmjqKKLkswinPOcm4zj8+NB++hKjDJGg=
+        b=GLdWq50xnqdNmGMPcXMzHSlTvYWz8D8+/Gp8ttVE+2cTLL8laczVrMW8mHJ7IUVgW
+         SmY7SftryYBYtPc74E9ELlpjd8wiDTGQiYqnZuuBXSujdCDeLpmyX/Ul3eypBqirs6
+         4FZaemNAFh5RHuDhwap/ji4ZvOzgsOFAbeTM9ILI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
-        Julia Lawall <julia.lawall@lip6.fr>,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org, Qiushi Wu <wu000273@umn.edu>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 08/95] net: qrtr: Fix passing invalid reference to qrtr_local_enqueue()
+Subject: [PATCH 5.4 030/142] net/mlx4_core: fix a memory leak bug.
 Date:   Mon,  1 Jun 2020 19:53:08 +0200
-Message-Id: <20200601174022.201744015@linuxfoundation.org>
+Message-Id: <20200601174041.020658881@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174020.759151073@linuxfoundation.org>
-References: <20200601174020.759151073@linuxfoundation.org>
+In-Reply-To: <20200601174037.904070960@linuxfoundation.org>
+References: <20200601174037.904070960@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,38 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+From: Qiushi Wu <wu000273@umn.edu>
 
-[ Upstream commit d28ea1fbbf437054ef339afec241019f2c4e2bb6 ]
+commit febfd9d3c7f74063e8e630b15413ca91b567f963 upstream.
 
-Once the traversal of the list is completed with list_for_each_entry(),
-the iterator (node) will point to an invalid object. So passing this to
-qrtr_local_enqueue() which is outside of the iterator block is erroneous
-eventhough the object is not used.
+In function mlx4_opreq_action(), pointer "mailbox" is not released,
+when mlx4_cmd_box() return and error, causing a memory leak bug.
+Fix this issue by going to "out" label, mlx4_free_cmd_mailbox() can
+free this pointer.
 
-So fix this by passing NULL to qrtr_local_enqueue().
-
-Fixes: bdabad3e363d ("net: Add Qualcomm IPC router")
-Reported-by: kbuild test robot <lkp@intel.com>
-Reported-by: Julia Lawall <julia.lawall@lip6.fr>
-Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Fixes: fe6f700d6cbb ("net/mlx4_core: Respond to operation request by firmware")
+Signed-off-by: Qiushi Wu <wu000273@umn.edu>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- net/qrtr/qrtr.c |    2 +-
+ drivers/net/ethernet/mellanox/mlx4/fw.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/qrtr/qrtr.c
-+++ b/net/qrtr/qrtr.c
-@@ -718,7 +718,7 @@ static int qrtr_bcast_enqueue(struct qrt
- 	}
- 	mutex_unlock(&qrtr_node_lock);
- 
--	qrtr_local_enqueue(node, skb, type, from, to);
-+	qrtr_local_enqueue(NULL, skb, type, from, to);
- 
- 	return 0;
- }
+--- a/drivers/net/ethernet/mellanox/mlx4/fw.c
++++ b/drivers/net/ethernet/mellanox/mlx4/fw.c
+@@ -2734,7 +2734,7 @@ void mlx4_opreq_action(struct work_struc
+ 		if (err) {
+ 			mlx4_err(dev, "Failed to retrieve required operation: %d\n",
+ 				 err);
+-			return;
++			goto out;
+ 		}
+ 		MLX4_GET(modifier, outbox, GET_OP_REQ_MODIFIER_OFFSET);
+ 		MLX4_GET(token, outbox, GET_OP_REQ_TOKEN_OFFSET);
 
 
