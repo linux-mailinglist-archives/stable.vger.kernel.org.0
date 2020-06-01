@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 35ED21EAE73
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:54:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E3D81EAD7B
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:45:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728202AbgFASyD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:54:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45482 "EHLO mail.kernel.org"
+        id S1730861AbgFASJT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:09:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55662 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728814AbgFASCW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:02:22 -0400
+        id S1730344AbgFASJS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:09:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 20F39207DF;
-        Mon,  1 Jun 2020 18:02:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 324832068D;
+        Mon,  1 Jun 2020 18:09:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034541;
-        bh=Tdpp/+dYbiO4vm7xdnj/GaOsTl9Eltxb1StFT0s7nHo=;
+        s=default; t=1591034957;
+        bh=R7kL94VI8Tkpahhk2BgW3LuYBB5R/iSbsjwnD+sxvLE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZJK8UltiZQwzqYXy4LvmIVzv2MwmdqBztWyZRqpoyJ8Y7RxkeIiG65F8Trr9nAhor
-         nIf0g0ZUEvOf3GJ3FbOnapmpaap1gFzp53DYqnXhCC36JbywoNvcVqDOvbFfv1eDFz
-         isyVQzoL4YbNcfwdda+Iv2zCxpslRB8FBU/wl1+I=
+        b=DEykqKR/gkgiHEh3vVfW/JqrXO3JHoxz8b7kYJPOaRS/K6OPJJxTBHM+NUIOwoXtM
+         ap09AoL/jUnEz1Gj/ZtMrm5XQvVDH2nKfPsND6OMfM7xnWu8WVvFxCX+JgZEhVNkN4
+         bwkydKtydGd0WN29aah+Mey/tCFToG7rKqmIENW0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeremy Sowden <jeremy@azazel.net>,
-        Steffen Klassert <steffen.klassert@secunet.com>
-Subject: [PATCH 4.14 61/77] vti4: eliminated some duplicate code.
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 088/142] ALSA: hda/realtek - Add a model for Thinkpad T570 without DAC workaround
 Date:   Mon,  1 Jun 2020 19:54:06 +0200
-Message-Id: <20200601174026.969332041@linuxfoundation.org>
+Message-Id: <20200601174047.019942891@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174016.396817032@linuxfoundation.org>
-References: <20200601174016.396817032@linuxfoundation.org>
+In-Reply-To: <20200601174037.904070960@linuxfoundation.org>
+References: <20200601174037.904070960@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,141 +43,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeremy Sowden <jeremy@azazel.net>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit f981c57ffd2d7cf2dd4b6d6f8fcb3965df42f54c upstream.
+[ Upstream commit 399c01aa49e548c82d40f8161915a5941dd3c60e ]
 
-The ipip tunnel introduced in commit dd9ee3444014 ("vti4: Fix a ipip
-packet processing bug in 'IPCOMP' virtual tunnel") largely duplicated
-the existing vti_input and vti_recv functions.  Refactored to
-deduplicate the common code.
+We fixed the regression of the speaker volume for some Thinkpad models
+(e.g. T570) by the commit 54947cd64c1b ("ALSA: hda/realtek - Fix
+speaker output regression on Thinkpad T570").  Essentially it fixes
+the DAC / pin pairing by a static table.  It was confirmed and merged
+to stable kernel later.
 
-Signed-off-by: Jeremy Sowden <jeremy@azazel.net>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Now, interestingly, we got another regression report for the very same
+model (T570) about the similar problem, and the commit above was the
+culprit.  That is, by some reason, there are devices that prefer the
+DAC1, and another device DAC2!
 
+Unfortunately those have the same ID and we have no idea what can
+differentiate, in this patch, a new fixup model "tpt470-dock-fix" is
+provided, so that users with such a machine can apply it manually.
+When model=tpt470-dock-fix option is passed to snd-hda-intel module,
+it avoids the fixed DAC pairing and the DAC1 is assigned to the
+speaker like the earlier versions.
+
+Fixes: 54947cd64c1b ("ALSA: hda/realtek - Fix speaker output regression on Thinkpad T570")
+BugLink: https://apibugzilla.suse.com/show_bug.cgi?id=1172017
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200526062406.9799-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/ip_vti.c |   60 +++++++++++++++++++-----------------------------------
- 1 file changed, 22 insertions(+), 38 deletions(-)
+ sound/pci/hda/patch_realtek.c | 36 +++++++++++++++++++++++++----------
+ 1 file changed, 26 insertions(+), 10 deletions(-)
 
---- a/net/ipv4/ip_vti.c
-+++ b/net/ipv4/ip_vti.c
-@@ -50,7 +50,7 @@ static unsigned int vti_net_id __read_mo
- static int vti_tunnel_init(struct net_device *dev);
+diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
+index c5bec191e003..743e2dcccb8b 100644
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -5484,18 +5484,9 @@ static void alc_fixup_tpt470_dock(struct hda_codec *codec,
+ 		{ 0x19, 0x21a11010 }, /* dock mic */
+ 		{ }
+ 	};
+-	/* Assure the speaker pin to be coupled with DAC NID 0x03; otherwise
+-	 * the speaker output becomes too low by some reason on Thinkpads with
+-	 * ALC298 codec
+-	 */
+-	static const hda_nid_t preferred_pairs[] = {
+-		0x14, 0x03, 0x17, 0x02, 0x21, 0x02,
+-		0
+-	};
+ 	struct alc_spec *spec = codec->spec;
  
- static int vti_input(struct sk_buff *skb, int nexthdr, __be32 spi,
--		     int encap_type)
-+		     int encap_type, bool update_skb_dev)
- {
- 	struct ip_tunnel *tunnel;
- 	const struct iphdr *iph = ip_hdr(skb);
-@@ -65,6 +65,9 @@ static int vti_input(struct sk_buff *skb
- 
- 		XFRM_TUNNEL_SKB_CB(skb)->tunnel.ip4 = tunnel;
- 
-+		if (update_skb_dev)
-+			skb->dev = tunnel->dev;
-+
- 		return xfrm_input(skb, nexthdr, spi, encap_type);
+ 	if (action == HDA_FIXUP_ACT_PRE_PROBE) {
+-		spec->gen.preferred_dacs = preferred_pairs;
+ 		spec->parse_flags = HDA_PINCFG_NO_HP_FIXUP;
+ 		snd_hda_apply_pincfgs(codec, pincfgs);
+ 	} else if (action == HDA_FIXUP_ACT_INIT) {
+@@ -5508,6 +5499,23 @@ static void alc_fixup_tpt470_dock(struct hda_codec *codec,
  	}
- 
-@@ -74,47 +77,28 @@ drop:
- 	return 0;
  }
  
--static int vti_input_ipip(struct sk_buff *skb, int nexthdr, __be32 spi,
--		     int encap_type)
-+static int vti_input_proto(struct sk_buff *skb, int nexthdr, __be32 spi,
-+			   int encap_type)
- {
--	struct ip_tunnel *tunnel;
--	const struct iphdr *iph = ip_hdr(skb);
--	struct net *net = dev_net(skb->dev);
--	struct ip_tunnel_net *itn = net_generic(net, vti_net_id);
--
--	tunnel = ip_tunnel_lookup(itn, skb->dev->ifindex, TUNNEL_NO_KEY,
--				  iph->saddr, iph->daddr, 0);
--	if (tunnel) {
--		if (!xfrm4_policy_check(NULL, XFRM_POLICY_IN, skb))
--			goto drop;
--
--		XFRM_TUNNEL_SKB_CB(skb)->tunnel.ip4 = tunnel;
--
--		skb->dev = tunnel->dev;
--
--		return xfrm_input(skb, nexthdr, spi, encap_type);
--	}
--
--	return -EINVAL;
--drop:
--	kfree_skb(skb);
--	return 0;
-+	return vti_input(skb, nexthdr, spi, encap_type, false);
- }
- 
--static int vti_rcv(struct sk_buff *skb)
-+static int vti_rcv(struct sk_buff *skb, __be32 spi, bool update_skb_dev)
- {
- 	XFRM_SPI_SKB_CB(skb)->family = AF_INET;
- 	XFRM_SPI_SKB_CB(skb)->daddroff = offsetof(struct iphdr, daddr);
- 
--	return vti_input(skb, ip_hdr(skb)->protocol, 0, 0);
-+	return vti_input(skb, ip_hdr(skb)->protocol, spi, 0, update_skb_dev);
- }
- 
--static int vti_rcv_ipip(struct sk_buff *skb)
-+static int vti_rcv_proto(struct sk_buff *skb)
- {
--	XFRM_SPI_SKB_CB(skb)->family = AF_INET;
--	XFRM_SPI_SKB_CB(skb)->daddroff = offsetof(struct iphdr, daddr);
-+	return vti_rcv(skb, 0, false);
-+}
- 
--	return vti_input_ipip(skb, ip_hdr(skb)->protocol, ip_hdr(skb)->saddr, 0);
-+static int vti_rcv_tunnel(struct sk_buff *skb)
++static void alc_fixup_tpt470_dacs(struct hda_codec *codec,
++				  const struct hda_fixup *fix, int action)
 +{
-+	return vti_rcv(skb, ip_hdr(skb)->saddr, true);
- }
- 
- static int vti_rcv_cb(struct sk_buff *skb, int err)
-@@ -482,31 +466,31 @@ static void __net_init vti_fb_tunnel_ini
- }
- 
- static struct xfrm4_protocol vti_esp4_protocol __read_mostly = {
--	.handler	=	vti_rcv,
--	.input_handler	=	vti_input,
-+	.handler	=	vti_rcv_proto,
-+	.input_handler	=	vti_input_proto,
- 	.cb_handler	=	vti_rcv_cb,
- 	.err_handler	=	vti4_err,
- 	.priority	=	100,
- };
- 
- static struct xfrm4_protocol vti_ah4_protocol __read_mostly = {
--	.handler	=	vti_rcv,
--	.input_handler	=	vti_input,
-+	.handler	=	vti_rcv_proto,
-+	.input_handler	=	vti_input_proto,
- 	.cb_handler	=	vti_rcv_cb,
- 	.err_handler	=	vti4_err,
- 	.priority	=	100,
- };
- 
- static struct xfrm4_protocol vti_ipcomp4_protocol __read_mostly = {
--	.handler	=	vti_rcv,
--	.input_handler	=	vti_input,
-+	.handler	=	vti_rcv_proto,
-+	.input_handler	=	vti_input_proto,
- 	.cb_handler	=	vti_rcv_cb,
- 	.err_handler	=	vti4_err,
- 	.priority	=	100,
- };
- 
- static struct xfrm_tunnel ipip_handler __read_mostly = {
--	.handler	=	vti_rcv_ipip,
-+	.handler	=	vti_rcv_tunnel,
- 	.err_handler	=	vti4_err,
- 	.priority	=	0,
- };
++	/* Assure the speaker pin to be coupled with DAC NID 0x03; otherwise
++	 * the speaker output becomes too low by some reason on Thinkpads with
++	 * ALC298 codec
++	 */
++	static const hda_nid_t preferred_pairs[] = {
++		0x14, 0x03, 0x17, 0x02, 0x21, 0x02,
++		0
++	};
++	struct alc_spec *spec = codec->spec;
++
++	if (action == HDA_FIXUP_ACT_PRE_PROBE)
++		spec->gen.preferred_dacs = preferred_pairs;
++}
++
+ static void alc_shutup_dell_xps13(struct hda_codec *codec)
+ {
+ 	struct alc_spec *spec = codec->spec;
+@@ -6063,6 +6071,7 @@ enum {
+ 	ALC700_FIXUP_INTEL_REFERENCE,
+ 	ALC274_FIXUP_DELL_BIND_DACS,
+ 	ALC274_FIXUP_DELL_AIO_LINEOUT_VERB,
++	ALC298_FIXUP_TPT470_DOCK_FIX,
+ 	ALC298_FIXUP_TPT470_DOCK,
+ 	ALC255_FIXUP_DUMMY_LINEOUT_VERB,
+ 	ALC255_FIXUP_DELL_HEADSET_MIC,
+@@ -6994,12 +7003,18 @@ static const struct hda_fixup alc269_fixups[] = {
+ 		.chained = true,
+ 		.chain_id = ALC274_FIXUP_DELL_BIND_DACS
+ 	},
+-	[ALC298_FIXUP_TPT470_DOCK] = {
++	[ALC298_FIXUP_TPT470_DOCK_FIX] = {
+ 		.type = HDA_FIXUP_FUNC,
+ 		.v.func = alc_fixup_tpt470_dock,
+ 		.chained = true,
+ 		.chain_id = ALC293_FIXUP_LENOVO_SPK_NOISE
+ 	},
++	[ALC298_FIXUP_TPT470_DOCK] = {
++		.type = HDA_FIXUP_FUNC,
++		.v.func = alc_fixup_tpt470_dacs,
++		.chained = true,
++		.chain_id = ALC298_FIXUP_TPT470_DOCK_FIX
++	},
+ 	[ALC255_FIXUP_DUMMY_LINEOUT_VERB] = {
+ 		.type = HDA_FIXUP_PINS,
+ 		.v.pins = (const struct hda_pintbl[]) {
+@@ -7638,6 +7653,7 @@ static const struct hda_model_fixup alc269_fixup_models[] = {
+ 	{.id = ALC292_FIXUP_TPT440_DOCK, .name = "tpt440-dock"},
+ 	{.id = ALC292_FIXUP_TPT440, .name = "tpt440"},
+ 	{.id = ALC292_FIXUP_TPT460, .name = "tpt460"},
++	{.id = ALC298_FIXUP_TPT470_DOCK_FIX, .name = "tpt470-dock-fix"},
+ 	{.id = ALC298_FIXUP_TPT470_DOCK, .name = "tpt470-dock"},
+ 	{.id = ALC233_FIXUP_LENOVO_MULTI_CODECS, .name = "dual-codecs"},
+ 	{.id = ALC700_FIXUP_INTEL_REFERENCE, .name = "alc700-ref"},
+-- 
+2.25.1
+
 
 
