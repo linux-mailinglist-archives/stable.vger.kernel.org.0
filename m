@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B7451EADB4
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:48:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 63C3C1EADAE
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:48:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730337AbgFASrm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:47:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54180 "EHLO mail.kernel.org"
+        id S1729875AbgFASrS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:47:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54384 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730678AbgFASII (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:08:08 -0400
+        id S1730704AbgFASIR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:08:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6A501207D0;
-        Mon,  1 Jun 2020 18:08:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 633772068D;
+        Mon,  1 Jun 2020 18:08:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034887;
-        bh=kVn8x1kydNngyAysBZ+UdkS1JAW1XNUyRrmBJQGKbEo=;
+        s=default; t=1591034896;
+        bh=zsnNwinp/DE+F74R59YrcglBgXtqUtkXfpuHn77ZXQA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pqdU91VxbxLlbAgQsFaGsy2HYncNfw6NtGWuxbIB8ftDmEGyuD8E5kygJQBca26WM
-         Goxvv8Ie1YY5lMF8sGnf+0uI+PYPpQkhsp/qgWC9lxONWKsKhWIfqo4DvU6szE6Ddk
-         WW+PGlzh2ZHvWj/SjZv7HtLkoxD8lhphWiwFhnzM=
+        b=tyB0Ky+ZjbcReJrKJiLDYMchoIyfRnljRep/Sb8UsK4QfxrUJIGmDNkzBhZ1WF7up
+         qbU2c4lYkNqb8uWKDSlSsqKjLnBak61lrSKcQah+YZ8tuB7BQE2s7LMQKDyutOMhPJ
+         oySQcc1gOq2s0Z3UKNV1X5ZYODo9g0fRjdr9muGY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xin Long <lucien.xin@gmail.com>,
-        Jon Maloy <jon.maloy@ericsson.com>,
-        Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 020/142] tipc: block BH before using dst_cache
-Date:   Mon,  1 Jun 2020 19:52:58 +0200
-Message-Id: <20200601174039.942780034@linuxfoundation.org>
+        stable@vger.kernel.org, Tariq Toukan <tariqt@mellanox.com>,
+        Boris Pismenny <borisp@mellanox.com>,
+        Saeed Mahameed <saeedm@mellanox.com>
+Subject: [PATCH 5.4 021/142] net/mlx5e: kTLS, Destroy key object after destroying the TIS
+Date:   Mon,  1 Jun 2020 19:52:59 +0200
+Message-Id: <20200601174040.038365916@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200601174037.904070960@linuxfoundation.org>
 References: <20200601174037.904070960@linuxfoundation.org>
@@ -46,84 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Tariq Toukan <tariqt@mellanox.com>
 
-[ Upstream commit 1378817486d6860f6a927f573491afe65287abf1 ]
+[ Upstream commit 16736e11f43b80a38f98f6add54fab3b8c297df3 ]
 
-dst_cache_get() documents it must be used with BH disabled.
+The TLS TIS object contains the dek/key ID.
+By destroying the key first, the TIS would contain an invalid
+non-existing key ID.
+Reverse the destroy order, this also acheives the desired assymetry
+between the destroy and the create flows.
 
-sysbot reported :
-
-BUG: using smp_processor_id() in preemptible [00000000] code: /21697
-caller is dst_cache_get+0x3a/0xb0 net/core/dst_cache.c:68
-CPU: 0 PID: 21697 Comm:  Not tainted 5.7.0-rc6-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Call Trace:
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0x188/0x20d lib/dump_stack.c:118
- check_preemption_disabled lib/smp_processor_id.c:47 [inline]
- debug_smp_processor_id.cold+0x88/0x9b lib/smp_processor_id.c:57
- dst_cache_get+0x3a/0xb0 net/core/dst_cache.c:68
- tipc_udp_xmit.isra.0+0xb9/0xad0 net/tipc/udp_media.c:164
- tipc_udp_send_msg+0x3e6/0x490 net/tipc/udp_media.c:244
- tipc_bearer_xmit_skb+0x1de/0x3f0 net/tipc/bearer.c:526
- tipc_enable_bearer+0xb2f/0xd60 net/tipc/bearer.c:331
- __tipc_nl_bearer_enable+0x2bf/0x390 net/tipc/bearer.c:995
- tipc_nl_bearer_enable+0x1e/0x30 net/tipc/bearer.c:1003
- genl_family_rcv_msg_doit net/netlink/genetlink.c:673 [inline]
- genl_family_rcv_msg net/netlink/genetlink.c:718 [inline]
- genl_rcv_msg+0x627/0xdf0 net/netlink/genetlink.c:735
- netlink_rcv_skb+0x15a/0x410 net/netlink/af_netlink.c:2469
- genl_rcv+0x24/0x40 net/netlink/genetlink.c:746
- netlink_unicast_kernel net/netlink/af_netlink.c:1303 [inline]
- netlink_unicast+0x537/0x740 net/netlink/af_netlink.c:1329
- netlink_sendmsg+0x882/0xe10 net/netlink/af_netlink.c:1918
- sock_sendmsg_nosec net/socket.c:652 [inline]
- sock_sendmsg+0xcf/0x120 net/socket.c:672
- ____sys_sendmsg+0x6bf/0x7e0 net/socket.c:2362
- ___sys_sendmsg+0x100/0x170 net/socket.c:2416
- __sys_sendmsg+0xec/0x1b0 net/socket.c:2449
- do_syscall_64+0xf6/0x7d0 arch/x86/entry/common.c:295
- entry_SYSCALL_64_after_hwframe+0x49/0xb3
-RIP: 0033:0x45ca29
-
-Fixes: e9c1a793210f ("tipc: add dst_cache support for udp media")
-Cc: Xin Long <lucien.xin@gmail.com>
-Cc: Jon Maloy <jon.maloy@ericsson.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: d2ead1f360e8 ("net/mlx5e: Add kTLS TX HW offload support")
+Signed-off-by: Tariq Toukan <tariqt@mellanox.com>
+Reviewed-by: Boris Pismenny <borisp@mellanox.com>
+Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/tipc/udp_media.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en_accel/ktls.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/tipc/udp_media.c
-+++ b/net/tipc/udp_media.c
-@@ -161,9 +161,11 @@ static int tipc_udp_xmit(struct net *net
- 			 struct udp_bearer *ub, struct udp_media_addr *src,
- 			 struct udp_media_addr *dst, struct dst_cache *cache)
- {
--	struct dst_entry *ndst = dst_cache_get(cache);
-+	struct dst_entry *ndst;
- 	int ttl, err = 0;
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_accel/ktls.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_accel/ktls.c
+@@ -69,8 +69,8 @@ static void mlx5e_ktls_del(struct net_de
+ 	struct mlx5e_ktls_offload_context_tx *tx_priv =
+ 		mlx5e_get_ktls_tx_priv_ctx(tls_ctx);
  
-+	local_bh_disable();
-+	ndst = dst_cache_get(cache);
- 	if (dst->proto == htons(ETH_P_IP)) {
- 		struct rtable *rt = (struct rtable *)ndst;
- 
-@@ -210,9 +212,11 @@ static int tipc_udp_xmit(struct net *net
- 					   src->port, dst->port, false);
- #endif
- 	}
-+	local_bh_enable();
- 	return err;
- 
- tx_error:
-+	local_bh_enable();
- 	kfree_skb(skb);
- 	return err;
+-	mlx5_ktls_destroy_key(priv->mdev, tx_priv->key_id);
+ 	mlx5e_destroy_tis(priv->mdev, tx_priv->tisn);
++	mlx5_ktls_destroy_key(priv->mdev, tx_priv->key_id);
+ 	kvfree(tx_priv);
  }
+ 
 
 
