@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AEC431EAAF3
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:16:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E19311EAAD0
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:12:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730888AbgFASM6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:12:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60400 "EHLO mail.kernel.org"
+        id S1730729AbgFASLm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:11:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58900 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731289AbgFASM5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:12:57 -0400
+        id S1731135AbgFASLl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:11:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D1B272065C;
-        Mon,  1 Jun 2020 18:12:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 55C6B207BB;
+        Mon,  1 Jun 2020 18:11:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591035177;
-        bh=RSAkl/Gbqg263gmGhygdvLWNJJd3t04fVa8TLbsyjjU=;
+        s=default; t=1591035100;
+        bh=E822T5QpBT7X0I1eitipKvMkQ76AZqAMHHLjv+LBFk0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xj0YMrV9xwIb68C+m/ZC2VyYirRz+NAmWFY90MjRaAuO/8RrL3oOEOvyo06nzjdtA
-         VuMSGqDDCKYAn7j/PQxATAbyeutsgmF+4jDlpTDmbxM+zNrjofDeDaRVARDSblPWdf
-         hyhXpVgUajvM0KlpCTDK+bKtKrkmlmUhFfVqe6Eo=
+        b=leZF0c/EycSLhCB+G5a8U+AK5AEKXAyXF1SilJdRf0/IJ+Q4G3xRVD7LlHHGuoDcx
+         RurMsF/F3QXA2no2ypye8YklorbT5GO6Q44h8D39c182hiUyEota0LwOErEnuYWBi3
+         IUcxe5He5RpLuZxpeDqQcza3VC4VLXDrPl+6Dki0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Grygorii Strashko <grygorii.strashko@ti.com>,
+        stable@vger.kernel.org, Vadim Fedorenko <vfedorenko@novek.ru>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.6 007/177] net: ethernet: ti: cpsw: fix ASSERT_RTNL() warning during suspend
-Date:   Mon,  1 Jun 2020 19:52:25 +0200
-Message-Id: <20200601174049.192949405@linuxfoundation.org>
+Subject: [PATCH 5.6 010/177] net: ipip: fix wrong address family in init error path
+Date:   Mon,  1 Jun 2020 19:52:28 +0200
+Message-Id: <20200601174049.470774113@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200601174048.468952319@linuxfoundation.org>
 References: <20200601174048.468952319@linuxfoundation.org>
@@ -44,47 +43,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Grygorii Strashko <grygorii.strashko@ti.com>
+From: Vadim Fedorenko <vfedorenko@novek.ru>
 
-[ Upstream commit 4c64b83d03f4aafcdf710caad994cbc855802e74 ]
+[ Upstream commit 57ebc8f08504f176eb0f25b3e0fde517dec61a4f ]
 
-vlan_for_each() are required to be called with rtnl_lock taken, otherwise
-ASSERT_RTNL() warning will be triggered - which happens now during System
-resume from suspend:
-  cpsw_suspend()
-  |- cpsw_ndo_stop()
-    |- __hw_addr_ref_unsync_dev()
-      |- cpsw_purge_all_mc()
-         |- vlan_for_each()
-            |- ASSERT_RTNL();
+In case of error with MPLS support the code is misusing AF_INET
+instead of AF_MPLS.
 
-Hence, fix it by surrounding cpsw_ndo_stop() by rtnl_lock/unlock() calls.
-
-Fixes: 15180eca569b ("net: ethernet: ti: cpsw: fix vlan mcast")
-Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
+Fixes: 1b69e7e6c4da ("ipip: support MPLS over IPv4")
+Signed-off-by: Vadim Fedorenko <vfedorenko@novek.ru>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/ti/cpsw.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ net/ipv4/ipip.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/ti/cpsw.c
-+++ b/drivers/net/ethernet/ti/cpsw.c
-@@ -1752,11 +1752,15 @@ static int cpsw_suspend(struct device *d
- 	struct cpsw_common *cpsw = dev_get_drvdata(dev);
- 	int i;
+--- a/net/ipv4/ipip.c
++++ b/net/ipv4/ipip.c
+@@ -698,7 +698,7 @@ out:
  
-+	rtnl_lock();
-+
- 	for (i = 0; i < cpsw->data.slaves; i++)
- 		if (cpsw->slaves[i].ndev)
- 			if (netif_running(cpsw->slaves[i].ndev))
- 				cpsw_ndo_stop(cpsw->slaves[i].ndev);
+ rtnl_link_failed:
+ #if IS_ENABLED(CONFIG_MPLS)
+-	xfrm4_tunnel_deregister(&mplsip_handler, AF_INET);
++	xfrm4_tunnel_deregister(&mplsip_handler, AF_MPLS);
+ xfrm_tunnel_mplsip_failed:
  
-+	rtnl_unlock();
-+
- 	/* Select sleep pin state */
- 	pinctrl_pm_select_sleep_state(dev);
- 
+ #endif
 
 
