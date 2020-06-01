@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CE491EAF41
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 21:01:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 038B51EAF33
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 21:01:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729930AbgFATAh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 15:00:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36824 "EHLO mail.kernel.org"
+        id S1726555AbgFAR4q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 13:56:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37422 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728604AbgFAR4Z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 13:56:25 -0400
+        id S1728710AbgFAR4p (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 13:56:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5482D2073B;
-        Mon,  1 Jun 2020 17:56:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AD523206E2;
+        Mon,  1 Jun 2020 17:56:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034184;
-        bh=G4vunYqrKK7lfoC64pimrWpN6qp8VXiDtAvvurEGmQ4=;
+        s=default; t=1591034205;
+        bh=TN8/J+KS8OaAxt0HQk59vONqZA/Y2/WNw/CL3FuuG00=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Nhd3/EEl1FowvlUBskJujk8V6yFn2JXwgZq6274wXA0wT9VhfRJ44dNNJmifXFlEC
-         u+z8qklorYRuMSKZhxFpqBmwJYe20HQHofWVs26uuGwUS+4QcgGFqZ1AwZNJIngcUB
-         grJEiYG6TnW/nKZSxzr7OCYQRJVATbkJa39LdU0Q=
+        b=Qx0ZRXsOIFNHXYqsLOsUeoTiScMWhHBlXHtgJREcFiTcR/OEgPw0rsTtQh3dMYx0H
+         CbHwh4uDPoSxtxtbrVIaeHbSUMlXexQFMZi6qwyfwAJrKjD+1nBnHmw8w8rPvU2nMn
+         EuN3mDpIjXTZN6/kSYaILRyUCXf4ucRDLX4lkdLw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Xiumei Mu <xmu@redhat.com>,
         Xin Long <lucien.xin@gmail.com>,
         Steffen Klassert <steffen.klassert@secunet.com>
-Subject: [PATCH 4.4 29/48] xfrm: fix a NULL-ptr deref in xfrm_local_error
-Date:   Mon,  1 Jun 2020 19:53:39 +0200
-Message-Id: <20200601174000.973079180@linuxfoundation.org>
+Subject: [PATCH 4.4 31/48] ip_vti: receive ipip packet by calling ip_tunnel_rcv
+Date:   Mon,  1 Jun 2020 19:53:41 +0200
+Message-Id: <20200601174001.696274292@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200601173952.175939894@linuxfoundation.org>
 References: <20200601173952.175939894@linuxfoundation.org>
@@ -46,63 +46,63 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Xin Long <lucien.xin@gmail.com>
 
-commit f6a23d85d078c2ffde79c66ca81d0a1dde451649 upstream.
+commit 976eba8ab596bab94b9714cd46d38d5c6a2c660d upstream.
 
-This patch is to fix a crash:
+In Commit dd9ee3444014 ("vti4: Fix a ipip packet processing bug in
+'IPCOMP' virtual tunnel"), it tries to receive IPIP packets in vti
+by calling xfrm_input(). This case happens when a small packet or
+frag sent by peer is too small to get compressed.
 
-  [ ] kasan: GPF could be caused by NULL-ptr deref or user memory access
-  [ ] general protection fault: 0000 [#1] SMP KASAN PTI
-  [ ] RIP: 0010:ipv6_local_error+0xac/0x7a0
-  [ ] Call Trace:
-  [ ]  xfrm6_local_error+0x1eb/0x300
-  [ ]  xfrm_local_error+0x95/0x130
-  [ ]  __xfrm6_output+0x65f/0xb50
-  [ ]  xfrm6_output+0x106/0x46f
-  [ ]  udp_tunnel6_xmit_skb+0x618/0xbf0 [ip6_udp_tunnel]
-  [ ]  vxlan_xmit_one+0xbc6/0x2c60 [vxlan]
-  [ ]  vxlan_xmit+0x6a0/0x4276 [vxlan]
-  [ ]  dev_hard_start_xmit+0x165/0x820
-  [ ]  __dev_queue_xmit+0x1ff0/0x2b90
-  [ ]  ip_finish_output2+0xd3e/0x1480
-  [ ]  ip_do_fragment+0x182d/0x2210
-  [ ]  ip_output+0x1d0/0x510
-  [ ]  ip_send_skb+0x37/0xa0
-  [ ]  raw_sendmsg+0x1b4c/0x2b80
-  [ ]  sock_sendmsg+0xc0/0x110
+However, xfrm_input() will still get to the IPCOMP path where skb
+sec_path is set, but never dropped while it should have been done
+in vti_ipcomp4_protocol.cb_handler(vti_rcv_cb), as it's not an
+ipcomp4 packet. This will cause that the packet can never pass
+xfrm4_policy_check() in the upper protocol rcv functions.
 
-This occurred when sending a v4 skb over vxlan6 over ipsec, in which case
-skb->protocol == htons(ETH_P_IPV6) while skb->sk->sk_family == AF_INET in
-xfrm_local_error(). Then it will go to xfrm6_local_error() where it tries
-to get ipv6 info from a ipv4 sk.
+So this patch is to call ip_tunnel_rcv() to process IPIP packets
+instead.
 
-This issue was actually fixed by Commit 628e341f319f ("xfrm: make local
-error reporting more robust"), but brought back by Commit 844d48746e4b
-("xfrm: choose protocol family by skb protocol").
-
-So to fix it, we should call xfrm6_local_error() only when skb->protocol
-is htons(ETH_P_IPV6) and skb->sk->sk_family is AF_INET6.
-
-Fixes: 844d48746e4b ("xfrm: choose protocol family by skb protocol")
+Fixes: dd9ee3444014 ("vti4: Fix a ipip packet processing bug in 'IPCOMP' virtual tunnel")
 Reported-by: Xiumei Mu <xmu@redhat.com>
 Signed-off-by: Xin Long <lucien.xin@gmail.com>
 Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/xfrm/xfrm_output.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/ipv4/ip_vti.c |   23 ++++++++++++++++++++++-
+ 1 file changed, 22 insertions(+), 1 deletion(-)
 
---- a/net/xfrm/xfrm_output.c
-+++ b/net/xfrm/xfrm_output.c
-@@ -237,7 +237,8 @@ void xfrm_local_error(struct sk_buff *sk
+--- a/net/ipv4/ip_vti.c
++++ b/net/ipv4/ip_vti.c
+@@ -99,7 +99,28 @@ static int vti_rcv_proto(struct sk_buff
  
- 	if (skb->protocol == htons(ETH_P_IP))
- 		proto = AF_INET;
--	else if (skb->protocol == htons(ETH_P_IPV6))
-+	else if (skb->protocol == htons(ETH_P_IPV6) &&
-+		 skb->sk->sk_family == AF_INET6)
- 		proto = AF_INET6;
- 	else
- 		return;
+ static int vti_rcv_tunnel(struct sk_buff *skb)
+ {
+-	return vti_rcv(skb, ip_hdr(skb)->saddr, true);
++	struct ip_tunnel_net *itn = net_generic(dev_net(skb->dev), vti_net_id);
++	const struct iphdr *iph = ip_hdr(skb);
++	struct ip_tunnel *tunnel;
++
++	tunnel = ip_tunnel_lookup(itn, skb->dev->ifindex, TUNNEL_NO_KEY,
++				  iph->saddr, iph->daddr, 0);
++	if (tunnel) {
++		struct tnl_ptk_info tpi = {
++			.proto = htons(ETH_P_IP),
++		};
++
++		if (!xfrm4_policy_check(NULL, XFRM_POLICY_IN, skb))
++			goto drop;
++		if (iptunnel_pull_header(skb, 0, tpi.proto))
++			goto drop;
++		return ip_tunnel_rcv(tunnel, skb, &tpi, NULL, false);
++	}
++
++	return -EINVAL;
++drop:
++	kfree_skb(skb);
++	return 0;
+ }
+ 
+ static int vti_rcv_cb(struct sk_buff *skb, int err)
 
 
