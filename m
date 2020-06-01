@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 30BF51EAAB9
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:11:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A0C101EAB64
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:17:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731025AbgFASKu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:10:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57810 "EHLO mail.kernel.org"
+        id S1731481AbgFASRC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:17:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37946 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730433AbgFASKt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:10:49 -0400
+        id S1731186AbgFASRA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:17:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6F4242065C;
-        Mon,  1 Jun 2020 18:10:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5DACB2065C;
+        Mon,  1 Jun 2020 18:16:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591035048;
-        bh=C00bN90PjpBO4q+GdjxIB4G5xBPgxVOJh/nEb06aWCg=;
+        s=default; t=1591035419;
+        bh=xr+cNPrIdf1C12cNTU1/aKdibL4caOdZ0UILFHZY4a0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MBOlo66Br9e0Z/6WRdwU8YDYh39pBTOtauL+dgquqkHIM8Bf6Avur2rEpU9M/SoLj
-         0MO9xC7/SFG9oGRVrfCfrhfiMEfAckkalV5dU6YVZ3AOBw87nR0jFX5rH4F7iHsUaK
-         O1MwqIKdETFYWa+pk9htvS1z5IeREbzY1yrbpGuQ=
+        b=kk2wXM7xFtkyG2nObhCTe5qhbhKp+1J63uoYMjHLgPOc9XMO7zk/txLE0u4J4w73/
+         iuI8ldppJpoPbNr7f4M/Psw1//v5OtPXd8gvAuVmEapxER7n36DHpCk9LrRx+/PD/2
+         n5UOwZVXQeBN6eaKULvyjpXsewM0xE90eCKXPCWg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Minh=20B=C3=B9i=20Quang?= <minhquangbui99@gmail.com>,
-        =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn.topel@intel.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Jonathan Lemon <jonathan.lemon@gmail.com>
-Subject: [PATCH 5.4 129/142] xsk: Add overflow check for u64 division, stored into u32
-Date:   Mon,  1 Jun 2020 19:54:47 +0200
-Message-Id: <20200601174051.143315495@linuxfoundation.org>
+        stable@vger.kernel.org, Xiumei Mu <xmu@redhat.com>,
+        Xin Long <lucien.xin@gmail.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>
+Subject: [PATCH 5.6 151/177] xfrm: fix a NULL-ptr deref in xfrm_local_error
+Date:   Mon,  1 Jun 2020 19:54:49 +0200
+Message-Id: <20200601174100.997886917@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174037.904070960@linuxfoundation.org>
-References: <20200601174037.904070960@linuxfoundation.org>
+In-Reply-To: <20200601174048.468952319@linuxfoundation.org>
+References: <20200601174048.468952319@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,67 +44,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Björn Töpel <bjorn.topel@intel.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-commit b16a87d0aef7a6be766f6618976dc5ff2c689291 upstream.
+commit f6a23d85d078c2ffde79c66ca81d0a1dde451649 upstream.
 
-The npgs member of struct xdp_umem is an u32 entity, and stores the
-number of pages the UMEM consumes. The calculation of npgs
+This patch is to fix a crash:
 
-  npgs = size / PAGE_SIZE
+  [ ] kasan: GPF could be caused by NULL-ptr deref or user memory access
+  [ ] general protection fault: 0000 [#1] SMP KASAN PTI
+  [ ] RIP: 0010:ipv6_local_error+0xac/0x7a0
+  [ ] Call Trace:
+  [ ]  xfrm6_local_error+0x1eb/0x300
+  [ ]  xfrm_local_error+0x95/0x130
+  [ ]  __xfrm6_output+0x65f/0xb50
+  [ ]  xfrm6_output+0x106/0x46f
+  [ ]  udp_tunnel6_xmit_skb+0x618/0xbf0 [ip6_udp_tunnel]
+  [ ]  vxlan_xmit_one+0xbc6/0x2c60 [vxlan]
+  [ ]  vxlan_xmit+0x6a0/0x4276 [vxlan]
+  [ ]  dev_hard_start_xmit+0x165/0x820
+  [ ]  __dev_queue_xmit+0x1ff0/0x2b90
+  [ ]  ip_finish_output2+0xd3e/0x1480
+  [ ]  ip_do_fragment+0x182d/0x2210
+  [ ]  ip_output+0x1d0/0x510
+  [ ]  ip_send_skb+0x37/0xa0
+  [ ]  raw_sendmsg+0x1b4c/0x2b80
+  [ ]  sock_sendmsg+0xc0/0x110
 
-can overflow.
+This occurred when sending a v4 skb over vxlan6 over ipsec, in which case
+skb->protocol == htons(ETH_P_IPV6) while skb->sk->sk_family == AF_INET in
+xfrm_local_error(). Then it will go to xfrm6_local_error() where it tries
+to get ipv6 info from a ipv4 sk.
 
-To avoid overflow scenarios, the division is now first stored in a
-u64, and the result is verified to fit into 32b.
+This issue was actually fixed by Commit 628e341f319f ("xfrm: make local
+error reporting more robust"), but brought back by Commit 844d48746e4b
+("xfrm: choose protocol family by skb protocol").
 
-An alternative would be storing the npgs as a u64, however, this
-wastes memory and is an unrealisticly large packet area.
+So to fix it, we should call xfrm6_local_error() only when skb->protocol
+is htons(ETH_P_IPV6) and skb->sk->sk_family is AF_INET6.
 
-Fixes: c0c77d8fb787 ("xsk: add user memory registration support sockopt")
-Reported-by: "Minh Bùi Quang" <minhquangbui99@gmail.com>
-Signed-off-by: Björn Töpel <bjorn.topel@intel.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Jonathan Lemon <jonathan.lemon@gmail.com>
-Link: https://lore.kernel.org/bpf/CACtPs=GGvV-_Yj6rbpzTVnopgi5nhMoCcTkSkYrJHGQHJWFZMQ@mail.gmail.com/
-Link: https://lore.kernel.org/bpf/20200525080400.13195-1-bjorn.topel@gmail.com
+Fixes: 844d48746e4b ("xfrm: choose protocol family by skb protocol")
+Reported-by: Xiumei Mu <xmu@redhat.com>
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/xdp/xdp_umem.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ net/xfrm/xfrm_output.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/net/xdp/xdp_umem.c
-+++ b/net/xdp/xdp_umem.c
-@@ -341,8 +341,8 @@ static int xdp_umem_reg(struct xdp_umem
- {
- 	bool unaligned_chunks = mr->flags & XDP_UMEM_UNALIGNED_CHUNK_FLAG;
- 	u32 chunk_size = mr->chunk_size, headroom = mr->headroom;
-+	u64 npgs, addr = mr->addr, size = mr->len;
- 	unsigned int chunks, chunks_per_page;
--	u64 addr = mr->addr, size = mr->len;
- 	int err;
+--- a/net/xfrm/xfrm_output.c
++++ b/net/xfrm/xfrm_output.c
+@@ -642,7 +642,8 @@ void xfrm_local_error(struct sk_buff *sk
  
- 	if (chunk_size < XDP_UMEM_MIN_CHUNK_SIZE || chunk_size > PAGE_SIZE) {
-@@ -372,6 +372,10 @@ static int xdp_umem_reg(struct xdp_umem
- 	if ((addr + size) < addr)
- 		return -EINVAL;
- 
-+	npgs = div_u64(size, PAGE_SIZE);
-+	if (npgs > U32_MAX)
-+		return -EINVAL;
-+
- 	chunks = (unsigned int)div_u64(size, chunk_size);
- 	if (chunks == 0)
- 		return -EINVAL;
-@@ -391,7 +395,7 @@ static int xdp_umem_reg(struct xdp_umem
- 	umem->size = size;
- 	umem->headroom = headroom;
- 	umem->chunk_size_nohr = chunk_size - headroom;
--	umem->npgs = size / PAGE_SIZE;
-+	umem->npgs = (u32)npgs;
- 	umem->pgs = NULL;
- 	umem->user = NULL;
- 	umem->flags = mr->flags;
+ 	if (skb->protocol == htons(ETH_P_IP))
+ 		proto = AF_INET;
+-	else if (skb->protocol == htons(ETH_P_IPV6))
++	else if (skb->protocol == htons(ETH_P_IPV6) &&
++		 skb->sk->sk_family == AF_INET6)
+ 		proto = AF_INET6;
+ 	else
+ 		return;
 
 
