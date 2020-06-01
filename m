@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 06DD21EA933
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:01:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 596701EAA13
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:05:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728944AbgFAR7M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 13:59:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41480 "EHLO mail.kernel.org"
+        id S1730240AbgFASEp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:04:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49524 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728503AbgFAR7J (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 13:59:09 -0400
+        id S1730235AbgFASEo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:04:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BF2AC2074B;
-        Mon,  1 Jun 2020 17:59:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 44988206E2;
+        Mon,  1 Jun 2020 18:04:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034349;
-        bh=xC9hJYuRSl5pnTM9TMOSwz7SgPWF7neADVLAEPjyJ74=;
+        s=default; t=1591034682;
+        bh=qrwYDyN1gZxYgoTK11al2qCRlRwHyEHCs51f1VxQSl0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yz/bcbfskZANeqYhjYtEL92ee6jG2hyLp4YMBCcTv6Tc6WAOvibXxlgR04p6lsCgu
-         93UPm+0C8meGsivWvjFJ7h0uEhbakiQfKxqj30UtwuRbSgShe/uKW/9M1yNsW+/GTq
-         DoQWYOMvhMIj2qBFz+odj/n1psTfhMqSj1vD+4So=
+        b=hLAiyh9gqoVaTuCCfJ3lJ6YLY6iNakAIedZYsavEvu+Y6c0y1V80/TL1GlGQqFnEZ
+         m6JbGlDNKgpJXt2VfUlLv61ZJ7HTGwwJUdfdIOrplnhONEiVK+loRhbq6GXFueTVis
+         /dslkdQlHGaI4PO1yy/NJ98a2SIXU23XhHl4B6ss=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qiushi Wu <wu000273@umn.edu>,
-        Jay Vosburgh <jay.vosburgh@canonical.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 54/61] bonding: Fix reference count leak in bond_sysfs_slave_add.
+        stable@vger.kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 61/95] ALSA: usb-audio: Quirks for Gigabyte TRX40 Aorus Master onboard audio
 Date:   Mon,  1 Jun 2020 19:54:01 +0200
-Message-Id: <20200601174021.571162466@linuxfoundation.org>
+Message-Id: <20200601174030.768861130@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174010.316778377@linuxfoundation.org>
-References: <20200601174010.316778377@linuxfoundation.org>
+In-Reply-To: <20200601174020.759151073@linuxfoundation.org>
+References: <20200601174020.759151073@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,38 +44,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiushi Wu <wu000273@umn.edu>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit a068aab42258e25094bc2c159948d263ed7d7a77 upstream.
+[ Upstream commit 7f5ad9c9003425175f46c94df380e8c9e558cfb5 ]
 
-kobject_init_and_add() takes reference even when it fails.
-If this function returns an error, kobject_put() must be called to
-properly clean up the memory associated with the object. Previous
-commit "b8eb718348b8" fixed a similar problem.
+Gigabyte TRX40 Aorus Master is equipped with two USB-audio devices,
+a Realtek ALC1220-VB codec (USB ID 0414:a001) and an ESS SABRE9218 DAC
+(USB ID 0414:a000).  The latter serves solely for the headphone output
+on the front panel while the former serves for the rest I/Os (mostly
+for the I/Os in the rear panel but also including the front mic).
 
-Fixes: 07699f9a7c8d ("bonding: add sysfs /slave dir for bond slave devices.")
-Signed-off-by: Qiushi Wu <wu000273@umn.edu>
-Acked-by: Jay Vosburgh <jay.vosburgh@canonical.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Both chips do work more or less with the unmodified USB-audio driver,
+but there are a few glitches.  The ALC1220-VB returns an error for an
+inquiry to some jacks, as already seen on other TRX40-based mobos.
+However this machine has a slightly incompatible configuration, hence
+the existing mapping cannot be used as is.
 
+Meanwhile the ESS chip seems working without any quirk.  But since
+both audio devices don't provide any specific names, both cards appear
+as "USB-Audio", and it's quite confusing for users.
+
+This patch is an attempt to overcome those issues:
+
+- The specific mapping table for ALC1220-VB is provided, reducing the
+  non-working nodes and renaming the badly chosen controls.
+  The connector map isn't needed here unlike other TRX40 quirks.
+
+- For both USB IDs (0414:a000 and 0414:a001), provide specific card
+  name strings, so that user-space can identify more easily; and more
+  importantly, UCM profile can be applied to each.
+
+Reported-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200526082810.29506-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/bonding/bond_sysfs_slave.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ sound/usb/mixer_maps.c   | 19 +++++++++++++++++++
+ sound/usb/quirks-table.h | 25 +++++++++++++++++++++++++
+ 2 files changed, 44 insertions(+)
 
---- a/drivers/net/bonding/bond_sysfs_slave.c
-+++ b/drivers/net/bonding/bond_sysfs_slave.c
-@@ -153,8 +153,10 @@ int bond_sysfs_slave_add(struct slave *s
+diff --git a/sound/usb/mixer_maps.c b/sound/usb/mixer_maps.c
+index d7a8b23b335b..10323e6f7f97 100644
+--- a/sound/usb/mixer_maps.c
++++ b/sound/usb/mixer_maps.c
+@@ -401,6 +401,21 @@ static const struct usbmix_connector_map trx40_mobo_connector_map[] = {
+ 	{}
+ };
  
- 	err = kobject_init_and_add(&slave->kobj, &slave_ktype,
- 				   &(slave->dev->dev.kobj), "bonding_slave");
--	if (err)
-+	if (err) {
-+		kobject_put(&slave->kobj);
- 		return err;
++/* Rear panel + front mic on Gigabyte TRX40 Aorus Master with ALC1220-VB */
++static const struct usbmix_name_map aorus_master_alc1220vb_map[] = {
++	{ 17, NULL },			/* OT, IEC958?, disabled */
++	{ 19, NULL, 12 }, /* FU, Input Gain Pad - broken response, disabled */
++	{ 16, "Line Out" },		/* OT */
++	{ 22, "Line Out Playback" },	/* FU */
++	{ 7, "Line" },			/* IT */
++	{ 19, "Line Capture" },		/* FU */
++	{ 8, "Mic" },			/* IT */
++	{ 20, "Mic Capture" },		/* FU */
++	{ 9, "Front Mic" },		/* IT */
++	{ 21, "Front Mic Capture" },	/* FU */
++	{}
++};
++
+ /*
+  * Control map entries
+  */
+@@ -520,6 +535,10 @@ static struct usbmix_ctl_map usbmix_ctl_maps[] = {
+ 		.id = USB_ID(0x05a7, 0x1020),
+ 		.map = bose_companion5_map,
+ 	},
++	{	/* Gigabyte TRX40 Aorus Master (rear panel + front mic) */
++		.id = USB_ID(0x0414, 0xa001),
++		.map = aorus_master_alc1220vb_map,
++	},
+ 	{	/* Gigabyte TRX40 Aorus Pro WiFi */
+ 		.id = USB_ID(0x0414, 0xa002),
+ 		.map = trx40_mobo_map,
+diff --git a/sound/usb/quirks-table.h b/sound/usb/quirks-table.h
+index 4f8a2b98e090..b798eae0a785 100644
+--- a/sound/usb/quirks-table.h
++++ b/sound/usb/quirks-table.h
+@@ -3415,4 +3415,29 @@ ALC1220_VB_DESKTOP(0x0db0, 0x543d), /* MSI TRX40 */
+ ALC1220_VB_DESKTOP(0x26ce, 0x0a01), /* Asrock TRX40 Creator */
+ #undef ALC1220_VB_DESKTOP
+ 
++/* Two entries for Gigabyte TRX40 Aorus Master:
++ * TRX40 Aorus Master has two USB-audio devices, one for the front headphone
++ * with ESS SABRE9218 DAC chip, while another for the rest I/O (the rear
++ * panel and the front mic) with Realtek ALC1220-VB.
++ * Here we provide two distinct names for making UCM profiles easier.
++ */
++{
++	USB_DEVICE(0x0414, 0xa000),
++	.driver_info = (unsigned long) & (const struct snd_usb_audio_quirk) {
++		.vendor_name = "Gigabyte",
++		.product_name = "Aorus Master Front Headphone",
++		.profile_name = "Gigabyte-Aorus-Master-Front-Headphone",
++		.ifnum = QUIRK_NO_INTERFACE
 +	}
- 
- 	for (a = slave_attrs; *a; ++a) {
- 		err = sysfs_create_file(&slave->kobj, &((*a)->attr));
++},
++{
++	USB_DEVICE(0x0414, 0xa001),
++	.driver_info = (unsigned long) & (const struct snd_usb_audio_quirk) {
++		.vendor_name = "Gigabyte",
++		.product_name = "Aorus Master Main Audio",
++		.profile_name = "Gigabyte-Aorus-Master-Main-Audio",
++		.ifnum = QUIRK_NO_INTERFACE
++	}
++},
++
+ #undef USB_DEVICE_VENDOR_SPEC
+-- 
+2.25.1
+
 
 
