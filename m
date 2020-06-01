@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 52B551EAAA5
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:11:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE9031EAA20
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:05:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730957AbgFASKG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:10:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56654 "EHLO mail.kernel.org"
+        id S1728322AbgFASFW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:05:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50370 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730937AbgFASKE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:10:04 -0400
+        id S1729862AbgFASFU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:05:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C5E192077D;
-        Mon,  1 Jun 2020 18:10:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1DBCC206E2;
+        Mon,  1 Jun 2020 18:05:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591035004;
-        bh=l+56c4VIyg+Wlb4RtIt7WDh2QN2wMhTtXg7rIZ4wxf4=;
+        s=default; t=1591034718;
+        bh=UF3nzlyOfmDMR7p9mVsviExlSwnPBfkq9XMpJS5aL04=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mnw1Ymh3WexvP90HD848Sey05CMDjZzFUv/ay6YkXYdNzLnDZ8tQ1UhxXuBcViCbN
-         Q/IcRTK1KJbxj9omKvI657N2dlphqR7zGtgFr7I6Kp6zz0RG4p1Fk7FeWg6b2MQsMB
-         0ceAxCK0QIAx+uhWY/fYvVYn3ISWwkQkQULowr60=
+        b=ApsWBImnihebyLBwEHmVDWvquf2OMo1iWhOVgWKtNSHeEPxqVVH9nRlLo7KuF/GiN
+         DHapzK3PyUUoT0YNKcbDPmAi6r+kwqsmYZ6nBaK3q3lrjr272PjqZXARtMbBYzTNdF
+         OP4zslvEHOofk4kcX7UVh0EryBhV+9Zc5apJSDWY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Coverity <scan-admin@coverity.com>,
-        Steve French <stfrench@microsoft.com>,
-        Shyam Prasad N <nspmangalore@gmail.com>,
+        stable@vger.kernel.org, Kevin Locke <kevin@kevinlocke.name>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 059/142] cifs: Fix null pointer check in cifs_read
-Date:   Mon,  1 Jun 2020 19:53:37 +0200
-Message-Id: <20200601174044.042757329@linuxfoundation.org>
+Subject: [PATCH 4.19 38/95] Input: i8042 - add ThinkPad S230u to i8042 nomux list
+Date:   Mon,  1 Jun 2020 19:53:38 +0200
+Message-Id: <20200601174026.880387783@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174037.904070960@linuxfoundation.org>
-References: <20200601174037.904070960@linuxfoundation.org>
+In-Reply-To: <20200601174020.759151073@linuxfoundation.org>
+References: <20200601174020.759151073@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,34 +44,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve French <stfrench@microsoft.com>
+From: Kevin Locke <kevin@kevinlocke.name>
 
-[ Upstream commit 9bd21d4b1a767c3abebec203342f3820dcb84662 ]
+[ Upstream commit 18931506465a762ffd3f4803d36a18d336a67da9 ]
 
-Coverity scan noted a redundant null check
+On the Lenovo ThinkPad Twist S230u (3347-4HU) with BIOS version
+"GDETC1WW (1.81 ) 06/27/2019", whether booted in UEFI or Legacy/CSM mode
+the keyboard, Synaptics TouchPad, and TrackPoint either do not function
+or stop functioning a few minutes after boot.  This problem has been
+noted before, perhaps only occurring on BIOS 1.57 and
+later.[1][2][3][4][5]
 
-Coverity-id: 728517
-Reported-by: Coverity <scan-admin@coverity.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Reviewed-by: Shyam Prasad N <nspmangalore@gmail.com>
+This model does not have an external PS/2 port, so mux does not appear
+to be useful.
+
+Odds of a BIOS fix appear to be low: 1.57 was released over 6 years ago
+and although the [BIOS changelog] notes "Fixed an issue of UEFI
+touchpad/trackpoint/keyboard/touchscreen" in 1.58, it appears to be
+insufficient.
+
+Adding 33474HU to the nomux list avoids the issue on my system.
+
+[1]: https://bugs.launchpad.net/bugs/1210748
+[2]: https://bbs.archlinux.org/viewtopic.php?pid=1360425
+[3]: https://forums.linuxmint.com/viewtopic.php?f=46&t=41200
+[4]: https://forums.linuxmint.com/viewtopic.php?f=49&t=157115
+[5]: https://forums.lenovo.com/topic/findpost/27/1337119
+[BIOS changelog]: https://download.lenovo.com/pccbbs/mobiles/gduj33uc.txt
+
+Signed-off-by: Kevin Locke <kevin@kevinlocke.name>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/feb8a8339a67025dab3850e6377eb6f3a0e782ba.1587400635.git.kevin@kevinlocke.name
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/file.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/input/serio/i8042-x86ia64io.h | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/fs/cifs/file.c b/fs/cifs/file.c
-index b095094c0842..4959dbe740f7 100644
---- a/fs/cifs/file.c
-+++ b/fs/cifs/file.c
-@@ -3997,7 +3997,7 @@ cifs_read(struct file *file, char *read_data, size_t read_size, loff_t *offset)
- 			 * than it negotiated since it will refuse the read
- 			 * then.
- 			 */
--			if ((tcon->ses) && !(tcon->ses->capabilities &
-+			if (!(tcon->ses->capabilities &
- 				tcon->ses->server->vals->cap_large_files)) {
- 				current_read_size = min_t(uint,
- 					current_read_size, CIFSMaxBufSize);
+diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
+index 0d0f977a2f39..8bf38eded1ef 100644
+--- a/drivers/input/serio/i8042-x86ia64io.h
++++ b/drivers/input/serio/i8042-x86ia64io.h
+@@ -545,6 +545,13 @@ static const struct dmi_system_id __initconst i8042_dmi_nomux_table[] = {
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire 5738"),
+ 		},
+ 	},
++	{
++		/* Lenovo ThinkPad Twist S230u */
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "33474HU"),
++		},
++	},
+ 	{ }
+ };
+ 
 -- 
 2.25.1
 
