@@ -2,37 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6575A1EAD13
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:43:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE32C1EACF6
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:43:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728306AbgFASmV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:42:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59052 "EHLO mail.kernel.org"
+        id S1731164AbgFASL4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:11:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59132 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730738AbgFASLs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:11:48 -0400
+        id S1731160AbgFASLw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:11:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0BD08206E2;
-        Mon,  1 Jun 2020 18:11:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6B2B2207D0;
+        Mon,  1 Jun 2020 18:11:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591035107;
-        bh=s64/yOrqjRryiLLEvBWLFthv1pG3lwad//oPhq1Qs7g=;
+        s=default; t=1591035111;
+        bh=INyIoLZR38S87I4PhecHV7SKIoJ1l7kF2k1fHiJg7wQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OwCDzMnlmTvg/64QXDcEGyjqQv3TLG8/8omaNxdN8ope2aCKoTHqXmZMzf0hM2sMw
-         JHbdiF0K5hhd392Kr8wVe1V75nbNOFhW1Br01vZPgI+F9Tz1YFtc+MBuihomn+su+8
-         HSBKpbkikH1INmCQfcN/4glh0AnseaCpynP5kAQg=
+        b=b6A0Cmbcy902Rv5X2zw9sORIdnGbaZmd3Pv629RMcn4nBz/iwNX7pkLhnSNS+PLgr
+         2ttObMBbWc7XiLyHsnKtKRq+gRrg4BV7I7QIqiK+LrUL2FVT5AKEbX75adoWOvoyu7
+         q6FeVHaT8X2UL3N6j05KjuEACjYzkcGh/xgy6r7g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Stephen Worley <sworley@cumulusnetworks.com>,
-        David Ahern <dsahern@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.6 013/177] net: nlmsg_cancel() if put fails for nhmsg
-Date:   Mon,  1 Jun 2020 19:52:31 +0200
-Message-Id: <20200601174049.745534865@linuxfoundation.org>
+        stable@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
+        Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+        Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Jiri Pirko <jiri@resnulli.us>,
+        Arvind Sankar <nivedita@alum.mit.edu>,
+        Jiong Wang <jiongwang@huawei.com>,
+        Yuqi Jin <jinyuqi@huawei.com>,
+        Shaokun Zhang <zhangshaokun@hisilicon.com>
+Subject: [PATCH 5.6 015/177] net: revert "net: get rid of an signed integer overflow in ip_idents_reserve()"
+Date:   Mon,  1 Jun 2020 19:52:33 +0200
+Message-Id: <20200601174049.938201802@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200601174048.468952319@linuxfoundation.org>
 References: <20200601174048.468952319@linuxfoundation.org>
@@ -45,195 +52,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Worley <sworley@cumulusnetworks.com>
+From: Yuqi Jin <jinyuqi@huawei.com>
 
-[ Upstream commit d69100b8eee27c2d60ee52df76e0b80a8d492d34 ]
+[ Upstream commit a6211caa634da39d861a47437ffcda8b38ef421b ]
 
-Fixes data remnant seen when we fail to reserve space for a
-nexthop group during a larger dump.
+Commit adb03115f459 ("net: get rid of an signed integer overflow in ip_idents_reserve()")
+used atomic_cmpxchg to replace "atomic_add_return" inside the function
+"ip_idents_reserve". The reason was to avoid UBSAN warning.
+However, this change has caused performance degrade and in GCC-8,
+fno-strict-overflow is now mapped to -fwrapv -fwrapv-pointer
+and signed integer overflow is now undefined by default at all
+optimization levels[1]. Moreover, it was a bug in UBSAN vs -fwrapv
+/-fno-strict-overflow, so Let's revert it safely.
 
-If we fail the reservation, we goto nla_put_failure and
-cancel the message.
+[1] https://gcc.gnu.org/gcc-8/changes.html
 
-Reproduce with the following iproute2 commands:
-=====================
-ip link add dummy1 type dummy
-ip link add dummy2 type dummy
-ip link add dummy3 type dummy
-ip link add dummy4 type dummy
-ip link add dummy5 type dummy
-ip link add dummy6 type dummy
-ip link add dummy7 type dummy
-ip link add dummy8 type dummy
-ip link add dummy9 type dummy
-ip link add dummy10 type dummy
-ip link add dummy11 type dummy
-ip link add dummy12 type dummy
-ip link add dummy13 type dummy
-ip link add dummy14 type dummy
-ip link add dummy15 type dummy
-ip link add dummy16 type dummy
-ip link add dummy17 type dummy
-ip link add dummy18 type dummy
-ip link add dummy19 type dummy
-ip link add dummy20 type dummy
-ip link add dummy21 type dummy
-ip link add dummy22 type dummy
-ip link add dummy23 type dummy
-ip link add dummy24 type dummy
-ip link add dummy25 type dummy
-ip link add dummy26 type dummy
-ip link add dummy27 type dummy
-ip link add dummy28 type dummy
-ip link add dummy29 type dummy
-ip link add dummy30 type dummy
-ip link add dummy31 type dummy
-ip link add dummy32 type dummy
-
-ip link set dummy1 up
-ip link set dummy2 up
-ip link set dummy3 up
-ip link set dummy4 up
-ip link set dummy5 up
-ip link set dummy6 up
-ip link set dummy7 up
-ip link set dummy8 up
-ip link set dummy9 up
-ip link set dummy10 up
-ip link set dummy11 up
-ip link set dummy12 up
-ip link set dummy13 up
-ip link set dummy14 up
-ip link set dummy15 up
-ip link set dummy16 up
-ip link set dummy17 up
-ip link set dummy18 up
-ip link set dummy19 up
-ip link set dummy20 up
-ip link set dummy21 up
-ip link set dummy22 up
-ip link set dummy23 up
-ip link set dummy24 up
-ip link set dummy25 up
-ip link set dummy26 up
-ip link set dummy27 up
-ip link set dummy28 up
-ip link set dummy29 up
-ip link set dummy30 up
-ip link set dummy31 up
-ip link set dummy32 up
-
-ip link set dummy33 up
-ip link set dummy34 up
-
-ip link set vrf-red up
-ip link set vrf-blue up
-
-ip link set dummyVRFred up
-ip link set dummyVRFblue up
-
-ip ro add 1.1.1.1/32 dev dummy1
-ip ro add 1.1.1.2/32 dev dummy2
-ip ro add 1.1.1.3/32 dev dummy3
-ip ro add 1.1.1.4/32 dev dummy4
-ip ro add 1.1.1.5/32 dev dummy5
-ip ro add 1.1.1.6/32 dev dummy6
-ip ro add 1.1.1.7/32 dev dummy7
-ip ro add 1.1.1.8/32 dev dummy8
-ip ro add 1.1.1.9/32 dev dummy9
-ip ro add 1.1.1.10/32 dev dummy10
-ip ro add 1.1.1.11/32 dev dummy11
-ip ro add 1.1.1.12/32 dev dummy12
-ip ro add 1.1.1.13/32 dev dummy13
-ip ro add 1.1.1.14/32 dev dummy14
-ip ro add 1.1.1.15/32 dev dummy15
-ip ro add 1.1.1.16/32 dev dummy16
-ip ro add 1.1.1.17/32 dev dummy17
-ip ro add 1.1.1.18/32 dev dummy18
-ip ro add 1.1.1.19/32 dev dummy19
-ip ro add 1.1.1.20/32 dev dummy20
-ip ro add 1.1.1.21/32 dev dummy21
-ip ro add 1.1.1.22/32 dev dummy22
-ip ro add 1.1.1.23/32 dev dummy23
-ip ro add 1.1.1.24/32 dev dummy24
-ip ro add 1.1.1.25/32 dev dummy25
-ip ro add 1.1.1.26/32 dev dummy26
-ip ro add 1.1.1.27/32 dev dummy27
-ip ro add 1.1.1.28/32 dev dummy28
-ip ro add 1.1.1.29/32 dev dummy29
-ip ro add 1.1.1.30/32 dev dummy30
-ip ro add 1.1.1.31/32 dev dummy31
-ip ro add 1.1.1.32/32 dev dummy32
-
-ip next add id 1 via 1.1.1.1 dev dummy1
-ip next add id 2 via 1.1.1.2 dev dummy2
-ip next add id 3 via 1.1.1.3 dev dummy3
-ip next add id 4 via 1.1.1.4 dev dummy4
-ip next add id 5 via 1.1.1.5 dev dummy5
-ip next add id 6 via 1.1.1.6 dev dummy6
-ip next add id 7 via 1.1.1.7 dev dummy7
-ip next add id 8 via 1.1.1.8 dev dummy8
-ip next add id 9 via 1.1.1.9 dev dummy9
-ip next add id 10 via 1.1.1.10 dev dummy10
-ip next add id 11 via 1.1.1.11 dev dummy11
-ip next add id 12 via 1.1.1.12 dev dummy12
-ip next add id 13 via 1.1.1.13 dev dummy13
-ip next add id 14 via 1.1.1.14 dev dummy14
-ip next add id 15 via 1.1.1.15 dev dummy15
-ip next add id 16 via 1.1.1.16 dev dummy16
-ip next add id 17 via 1.1.1.17 dev dummy17
-ip next add id 18 via 1.1.1.18 dev dummy18
-ip next add id 19 via 1.1.1.19 dev dummy19
-ip next add id 20 via 1.1.1.20 dev dummy20
-ip next add id 21 via 1.1.1.21 dev dummy21
-ip next add id 22 via 1.1.1.22 dev dummy22
-ip next add id 23 via 1.1.1.23 dev dummy23
-ip next add id 24 via 1.1.1.24 dev dummy24
-ip next add id 25 via 1.1.1.25 dev dummy25
-ip next add id 26 via 1.1.1.26 dev dummy26
-ip next add id 27 via 1.1.1.27 dev dummy27
-ip next add id 28 via 1.1.1.28 dev dummy28
-ip next add id 29 via 1.1.1.29 dev dummy29
-ip next add id 30 via 1.1.1.30 dev dummy30
-ip next add id 31 via 1.1.1.31 dev dummy31
-ip next add id 32 via 1.1.1.32 dev dummy32
-
-i=100
-
-while [ $i -le 200 ]
-do
-ip next add id $i group 1/2/3/4/5/6/7/8/9/10/11/12/13/14/15/16/17/18/19
-
-	echo $i
-
-	((i++))
-
-done
-
-ip next add id 999 group 1/2/3/4/5/6
-
-ip next ls
-
-========================
-
-Fixes: ab84be7e54fc ("net: Initial nexthop code")
-Signed-off-by: Stephen Worley <sworley@cumulusnetworks.com>
-Reviewed-by: David Ahern <dsahern@gmail.com>
+Suggested-by: Peter Zijlstra <peterz@infradead.org>
+Suggested-by: Eric Dumazet <edumazet@google.com>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
+Cc: Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Cc: Jiri Pirko <jiri@resnulli.us>
+Cc: Arvind Sankar <nivedita@alum.mit.edu>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Eric Dumazet <edumazet@google.com>
+Cc: Jiong Wang <jiongwang@huawei.com>
+Signed-off-by: Yuqi Jin <jinyuqi@huawei.com>
+Signed-off-by: Shaokun Zhang <zhangshaokun@hisilicon.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/nexthop.c |    1 +
- 1 file changed, 1 insertion(+)
+ net/ipv4/route.c |   14 ++++++--------
+ 1 file changed, 6 insertions(+), 8 deletions(-)
 
---- a/net/ipv4/nexthop.c
-+++ b/net/ipv4/nexthop.c
-@@ -276,6 +276,7 @@ out:
- 	return 0;
+--- a/net/ipv4/route.c
++++ b/net/ipv4/route.c
+@@ -491,18 +491,16 @@ u32 ip_idents_reserve(u32 hash, int segs
+ 	atomic_t *p_id = ip_idents + hash % IP_IDENTS_SZ;
+ 	u32 old = READ_ONCE(*p_tstamp);
+ 	u32 now = (u32)jiffies;
+-	u32 new, delta = 0;
++	u32 delta = 0;
  
- nla_put_failure:
-+	nlmsg_cancel(skb, nlh);
- 	return -EMSGSIZE;
+ 	if (old != now && cmpxchg(p_tstamp, old, now) == old)
+ 		delta = prandom_u32_max(now - old);
+ 
+-	/* Do not use atomic_add_return() as it makes UBSAN unhappy */
+-	do {
+-		old = (u32)atomic_read(p_id);
+-		new = old + delta + segs;
+-	} while (atomic_cmpxchg(p_id, old, new) != old);
+-
+-	return new - segs;
++	/* If UBSAN reports an error there, please make sure your compiler
++	 * supports -fno-strict-overflow before reporting it that was a bug
++	 * in UBSAN, and it has been fixed in GCC-8.
++	 */
++	return atomic_add_return(segs + delta, p_id) - segs;
  }
+ EXPORT_SYMBOL(ip_idents_reserve);
  
 
 
