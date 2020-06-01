@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C73B41EA919
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:01:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 55B1A1EAB17
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:17:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729141AbgFAR6O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 13:58:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39882 "EHLO mail.kernel.org"
+        id S1731458AbgFASOP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:14:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33912 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728162AbgFAR6J (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 13:58:09 -0400
+        id S1731449AbgFASOM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:14:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 41CCE20878;
-        Mon,  1 Jun 2020 17:58:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 14B922065C;
+        Mon,  1 Jun 2020 18:14:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034288;
-        bh=2sZJSMSMdb3TgYm1BGiyhujYNlA7g9fPsqxBzDM1vLg=;
+        s=default; t=1591035251;
+        bh=y+OpidB/SxRmVMvmFkNAKPuLpPMPNyxElUHB7xdoPvY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HY3Onh9xBOMTx208EcPiq4t9ePaCdQ+XLUWNnUd34bhijbawgJqPoC3OKPP/ZvIsS
-         rN0zMc9typnEz+6dDz4CRHZ1Dc/ejJsIjQL0bfV3lq1oq5nOxSFY/2PTOVPHfczdra
-         BLzUIEXu2b4W59p/gWe35M/x7np9T2zljf2mzZJU=
+        b=g/ntJJnL5gjYAMh3pxycfMQSdq0zOm2lwA13M2ZpGrj2MJFXH1k3Z6ttLQ98PswbE
+         NdCaCATA8AYBDHJLwRAv5HryXPG96g6HtIsT6P2F1ponybyr3Be7ZpprZGJZJeMZgq
+         3cey0vfsBXHv4ACJQj9AvMp2ccz0mI/s8CMJj2RA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Agner <stefan@agner.ch>,
-        Nicolas Pitre <nico@linaro.org>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
+        stable@vger.kernel.org, Mao Han <han_mao@linux.alibaba.com>,
+        Guo Ren <guoren@linux.alibaba.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 26/61] ARM: 8843/1: use unified assembler in headers
+Subject: [PATCH 5.6 075/177] csky: Fixup perf callchain unwind
 Date:   Mon,  1 Jun 2020 19:53:33 +0200
-Message-Id: <20200601174016.742512478@linuxfoundation.org>
+Message-Id: <20200601174055.154107016@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174010.316778377@linuxfoundation.org>
-References: <20200601174010.316778377@linuxfoundation.org>
+In-Reply-To: <20200601174048.468952319@linuxfoundation.org>
+References: <20200601174048.468952319@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,146 +44,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Agner <stefan@agner.ch>
+From: Mao Han <han_mao@linux.alibaba.com>
 
-[ Upstream commit c001899a5d6c2d7a0f3b75b2307ddef137fb46a6 ]
+[ Upstream commit 229a0ddee1108a3f82a873e6cbbe35c92c540444 ]
 
-Use unified assembler syntax (UAL) in headers. Divided syntax is
-considered deprecated. This will also allow to build the kernel
-using LLVM's integrated assembler.
+ [ 5221.974084] Unable to handle kernel paging request at virtual address 0xfffff000, pc: 0x8002c18e
+ [ 5221.985929] Oops: 00000000
+ [ 5221.989488]
+ [ 5221.989488] CURRENT PROCESS:
+ [ 5221.989488]
+ [ 5221.992877] COMM=callchain_test PID=11962
+ [ 5221.995213] TEXT=00008000-000087e0 DATA=00009f1c-0000a018 BSS=0000a018-0000b000
+ [ 5221.999037] USER-STACK=7fc18e20  KERNEL-STACK=be204680
+ [ 5221.999037]
+ [ 5222.003292] PC: 0x8002c18e (perf_callchain_kernel+0x3e/0xd4)
+ [ 5222.007957] LR: 0x8002c198 (perf_callchain_kernel+0x48/0xd4)
+ [ 5222.074873] Call Trace:
+ [ 5222.074873] [<800a248e>] get_perf_callchain+0x20a/0x29c
+ [ 5222.074873] [<8009d964>] perf_callchain+0x64/0x80
+ [ 5222.074873] [<8009dc1c>] perf_prepare_sample+0x29c/0x4b8
+ [ 5222.074873] [<8009de6e>] perf_event_output_forward+0x36/0x98
+ [ 5222.074873] [<800497e0>] search_exception_tables+0x20/0x44
+ [ 5222.074873] [<8002cbb6>] do_page_fault+0x92/0x378
+ [ 5222.074873] [<80098608>] __perf_event_overflow+0x54/0xdc
+ [ 5222.074873] [<80098778>] perf_swevent_hrtimer+0xe8/0x164
+ [ 5222.074873] [<8002ddd0>] update_mmu_cache+0x0/0xd8
+ [ 5222.074873] [<8002c014>] user_backtrace+0x58/0xc4
+ [ 5222.074873] [<8002c0b4>] perf_callchain_user+0x34/0xd0
+ [ 5222.074873] [<800a2442>] get_perf_callchain+0x1be/0x29c
+ [ 5222.074873] [<8009d964>] perf_callchain+0x64/0x80
+ [ 5222.074873] [<8009d834>] perf_output_sample+0x78c/0x858
+ [ 5222.074873] [<8009dc1c>] perf_prepare_sample+0x29c/0x4b8
+ [ 5222.074873] [<8009de94>] perf_event_output_forward+0x5c/0x98
+ [ 5222.097846]
+ [ 5222.097846] [<800a0300>] perf_event_exit_task+0x58/0x43c
+ [ 5222.097846] [<8006c874>] hrtimer_interrupt+0x104/0x2ec
+ [ 5222.097846] [<800a0300>] perf_event_exit_task+0x58/0x43c
+ [ 5222.097846] [<80437bb6>] dw_apb_clockevent_irq+0x2a/0x4c
+ [ 5222.097846] [<8006c770>] hrtimer_interrupt+0x0/0x2ec
+ [ 5222.097846] [<8005f2e4>] __handle_irq_event_percpu+0xac/0x19c
+ [ 5222.097846] [<80437bb6>] dw_apb_clockevent_irq+0x2a/0x4c
+ [ 5222.097846] [<8005f408>] handle_irq_event_percpu+0x34/0x88
+ [ 5222.097846] [<8005f480>] handle_irq_event+0x24/0x64
+ [ 5222.097846] [<8006218c>] handle_level_irq+0x68/0xdc
+ [ 5222.097846] [<8005ec76>] __handle_domain_irq+0x56/0xa8
+ [ 5222.097846] [<80450e90>] ck_irq_handler+0xac/0xe4
+ [ 5222.097846] [<80029012>] csky_do_IRQ+0x12/0x24
+ [ 5222.097846] [<8002a3a0>] csky_irq+0x70/0x80
+ [ 5222.097846] [<800ca612>] alloc_set_pte+0xd2/0x238
+ [ 5222.097846] [<8002ddd0>] update_mmu_cache+0x0/0xd8
+ [ 5222.097846] [<800a0340>] perf_event_exit_task+0x98/0x43c
 
-Signed-off-by: Stefan Agner <stefan@agner.ch>
-Acked-by: Nicolas Pitre <nico@linaro.org>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+The original fp check doesn't base on the real kernal stack region.
+Invalid fp address may cause kernel panic.
+
+Signed-off-by: Mao Han <han_mao@linux.alibaba.com>
+Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/include/asm/assembler.h | 12 ++++++------
- arch/arm/include/asm/vfpmacros.h |  8 ++++----
- arch/arm/lib/bitops.h            |  8 ++++----
- 3 files changed, 14 insertions(+), 14 deletions(-)
+ arch/csky/kernel/perf_callchain.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/include/asm/assembler.h b/arch/arm/include/asm/assembler.h
-index 7d727506096f..c9ed0b0e0737 100644
---- a/arch/arm/include/asm/assembler.h
-+++ b/arch/arm/include/asm/assembler.h
-@@ -372,9 +372,9 @@ THUMB(	orr	\reg , \reg , #PSR_T_BIT	)
- 	.macro	usraccoff, instr, reg, ptr, inc, off, cond, abort, t=TUSER()
- 9999:
- 	.if	\inc == 1
--	\instr\cond\()b\()\t\().w \reg, [\ptr, #\off]
-+	\instr\()b\t\cond\().w \reg, [\ptr, #\off]
- 	.elseif	\inc == 4
--	\instr\cond\()\t\().w \reg, [\ptr, #\off]
-+	\instr\t\cond\().w \reg, [\ptr, #\off]
- 	.else
- 	.error	"Unsupported inc macro argument"
- 	.endif
-@@ -413,9 +413,9 @@ THUMB(	orr	\reg , \reg , #PSR_T_BIT	)
- 	.rept	\rept
- 9999:
- 	.if	\inc == 1
--	\instr\cond\()b\()\t \reg, [\ptr], #\inc
-+	\instr\()b\t\cond \reg, [\ptr], #\inc
- 	.elseif	\inc == 4
--	\instr\cond\()\t \reg, [\ptr], #\inc
-+	\instr\t\cond \reg, [\ptr], #\inc
- 	.else
- 	.error	"Unsupported inc macro argument"
- 	.endif
-@@ -456,7 +456,7 @@ THUMB(	orr	\reg , \reg , #PSR_T_BIT	)
- 	.macro check_uaccess, addr:req, size:req, limit:req, tmp:req, bad:req
- #ifndef CONFIG_CPU_USE_DOMAINS
- 	adds	\tmp, \addr, #\size - 1
--	sbcccs	\tmp, \tmp, \limit
-+	sbcscc	\tmp, \tmp, \limit
- 	bcs	\bad
- #ifdef CONFIG_CPU_SPECTRE
- 	movcs	\addr, #0
-@@ -470,7 +470,7 @@ THUMB(	orr	\reg , \reg , #PSR_T_BIT	)
- 	sub	\tmp, \limit, #1
- 	subs	\tmp, \tmp, \addr	@ tmp = limit - 1 - addr
- 	addhs	\tmp, \tmp, #1		@ if (tmp >= 0) {
--	subhss	\tmp, \tmp, \size	@ tmp = limit - (addr + size) }
-+	subshs	\tmp, \tmp, \size	@ tmp = limit - (addr + size) }
- 	movlo	\addr, #0		@ if (tmp < 0) addr = NULL
- 	csdb
- #endif
-diff --git a/arch/arm/include/asm/vfpmacros.h b/arch/arm/include/asm/vfpmacros.h
-index 301c1db3e99b..66748c04aed2 100644
---- a/arch/arm/include/asm/vfpmacros.h
-+++ b/arch/arm/include/asm/vfpmacros.h
-@@ -28,13 +28,13 @@
- 	ldr	\tmp, =elf_hwcap		    @ may not have MVFR regs
- 	ldr	\tmp, [\tmp, #0]
- 	tst	\tmp, #HWCAP_VFPD32
--	ldcnel	p11, cr0, [\base],#32*4		    @ FLDMIAD \base!, {d16-d31}
-+	ldclne	p11, cr0, [\base],#32*4		    @ FLDMIAD \base!, {d16-d31}
- 	addeq	\base, \base, #32*4		    @ step over unused register space
- #else
- 	VFPFMRX	\tmp, MVFR0			    @ Media and VFP Feature Register 0
- 	and	\tmp, \tmp, #MVFR0_A_SIMD_MASK	    @ A_SIMD field
- 	cmp	\tmp, #2			    @ 32 x 64bit registers?
--	ldceql	p11, cr0, [\base],#32*4		    @ FLDMIAD \base!, {d16-d31}
-+	ldcleq	p11, cr0, [\base],#32*4		    @ FLDMIAD \base!, {d16-d31}
- 	addne	\base, \base, #32*4		    @ step over unused register space
- #endif
- #endif
-@@ -52,13 +52,13 @@
- 	ldr	\tmp, =elf_hwcap		    @ may not have MVFR regs
- 	ldr	\tmp, [\tmp, #0]
- 	tst	\tmp, #HWCAP_VFPD32
--	stcnel	p11, cr0, [\base],#32*4		    @ FSTMIAD \base!, {d16-d31}
-+	stclne	p11, cr0, [\base],#32*4		    @ FSTMIAD \base!, {d16-d31}
- 	addeq	\base, \base, #32*4		    @ step over unused register space
- #else
- 	VFPFMRX	\tmp, MVFR0			    @ Media and VFP Feature Register 0
- 	and	\tmp, \tmp, #MVFR0_A_SIMD_MASK	    @ A_SIMD field
- 	cmp	\tmp, #2			    @ 32 x 64bit registers?
--	stceql	p11, cr0, [\base],#32*4		    @ FSTMIAD \base!, {d16-d31}
-+	stcleq	p11, cr0, [\base],#32*4		    @ FSTMIAD \base!, {d16-d31}
- 	addne	\base, \base, #32*4		    @ step over unused register space
- #endif
- #endif
-diff --git a/arch/arm/lib/bitops.h b/arch/arm/lib/bitops.h
-index 7d807cfd8ef5..d9c32b822eda 100644
---- a/arch/arm/lib/bitops.h
-+++ b/arch/arm/lib/bitops.h
-@@ -6,7 +6,7 @@
- ENTRY(	\name		)
- UNWIND(	.fnstart	)
- 	ands	ip, r1, #3
--	strneb	r1, [ip]		@ assert word-aligned
-+	strbne	r1, [ip]		@ assert word-aligned
- 	mov	r2, #1
- 	and	r3, r0, #31		@ Get bit offset
- 	mov	r0, r0, lsr #5
-@@ -31,7 +31,7 @@ ENDPROC(\name		)
- ENTRY(	\name		)
- UNWIND(	.fnstart	)
- 	ands	ip, r1, #3
--	strneb	r1, [ip]		@ assert word-aligned
-+	strbne	r1, [ip]		@ assert word-aligned
- 	mov	r2, #1
- 	and	r3, r0, #31		@ Get bit offset
- 	mov	r0, r0, lsr #5
-@@ -61,7 +61,7 @@ ENDPROC(\name		)
- ENTRY(	\name		)
- UNWIND(	.fnstart	)
- 	ands	ip, r1, #3
--	strneb	r1, [ip]		@ assert word-aligned
-+	strbne	r1, [ip]		@ assert word-aligned
- 	and	r2, r0, #31
- 	mov	r0, r0, lsr #5
- 	mov	r3, #1
-@@ -88,7 +88,7 @@ ENDPROC(\name		)
- ENTRY(	\name		)
- UNWIND(	.fnstart	)
- 	ands	ip, r1, #3
--	strneb	r1, [ip]		@ assert word-aligned
-+	strbne	r1, [ip]		@ assert word-aligned
- 	and	r3, r0, #31
- 	mov	r0, r0, lsr #5
- 	save_and_disable_irqs ip
+diff --git a/arch/csky/kernel/perf_callchain.c b/arch/csky/kernel/perf_callchain.c
+index e68ff375c8f8..ab55e98ee8f6 100644
+--- a/arch/csky/kernel/perf_callchain.c
++++ b/arch/csky/kernel/perf_callchain.c
+@@ -12,12 +12,17 @@ struct stackframe {
+ 
+ static int unwind_frame_kernel(struct stackframe *frame)
+ {
+-	if (kstack_end((void *)frame->fp))
++	unsigned long low = (unsigned long)task_stack_page(current);
++	unsigned long high = low + THREAD_SIZE;
++
++	if (unlikely(frame->fp < low || frame->fp > high))
+ 		return -EPERM;
+-	if (frame->fp & 0x3 || frame->fp < TASK_SIZE)
++
++	if (kstack_end((void *)frame->fp) || frame->fp & 0x3)
+ 		return -EPERM;
+ 
+ 	*frame = *(struct stackframe *)frame->fp;
++
+ 	if (__kernel_text_address(frame->lr)) {
+ 		int graph = 0;
+ 
 -- 
 2.25.1
 
