@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 132241EAA44
+	by mail.lfdr.de (Postfix) with ESMTP id F15341EAA46
 	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:11:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730452AbgFASGX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:06:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51908 "EHLO mail.kernel.org"
+        id S1729717AbgFASG1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:06:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51982 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730375AbgFASGW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:06:22 -0400
+        id S1730455AbgFASGY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:06:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 40A172068D;
-        Mon,  1 Jun 2020 18:06:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7B8F52068D;
+        Mon,  1 Jun 2020 18:06:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034781;
-        bh=WAsG+IIqP7u/cqze4JqjHv7AUTAdOv9GCNnX9aDnj1o=;
+        s=default; t=1591034783;
+        bh=C/vHkEeZS1FOzuTQz/0tUmDTh6yIWmzBzLmT+UcVceY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cz1AOCh7uLz/RfMj7GK3kM/7+BM1PidW+gBlKqxS7092dap8DAwK85eRv0+tZ5Joe
-         O+z1AxMofWPD27WBVrTe8vtUdysv37/DNrzY2Axlb3iM2RLl0HdWTEu3O87tRTkzvh
-         n9v0+WcMVYFGzDlJ2882r/N6LCRwH4at2OXk3ny0=
+        b=dSslXKC3xNrqqf1NM/GvjBRXft5mgQJcUa/3H7wDW6hSM9qivd424xcLftmKmZp1s
+         bxgyKa9wCzygL3XaFU4tjekLqeTIy8RXDiER4K9vKbnllaE1gQO/sJ5dUeBDtKExQw
+         XnoipscdTE9x+kyH5VoV9fmfC7A849WBixoJXY3o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Stephen Worley <sworley@cumulusnetworks.com>,
-        David Ahern <dsahern@gmail.com>,
+        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
+        Julia Lawall <julia.lawall@lip6.fr>,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 011/142] net: nlmsg_cancel() if put fails for nhmsg
-Date:   Mon,  1 Jun 2020 19:52:49 +0200
-Message-Id: <20200601174039.149209956@linuxfoundation.org>
+Subject: [PATCH 5.4 012/142] net: qrtr: Fix passing invalid reference to qrtr_local_enqueue()
+Date:   Mon,  1 Jun 2020 19:52:50 +0200
+Message-Id: <20200601174039.230722484@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200601174037.904070960@linuxfoundation.org>
 References: <20200601174037.904070960@linuxfoundation.org>
@@ -45,195 +46,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Worley <sworley@cumulusnetworks.com>
+From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
 
-[ Upstream commit d69100b8eee27c2d60ee52df76e0b80a8d492d34 ]
+[ Upstream commit d28ea1fbbf437054ef339afec241019f2c4e2bb6 ]
 
-Fixes data remnant seen when we fail to reserve space for a
-nexthop group during a larger dump.
+Once the traversal of the list is completed with list_for_each_entry(),
+the iterator (node) will point to an invalid object. So passing this to
+qrtr_local_enqueue() which is outside of the iterator block is erroneous
+eventhough the object is not used.
 
-If we fail the reservation, we goto nla_put_failure and
-cancel the message.
+So fix this by passing NULL to qrtr_local_enqueue().
 
-Reproduce with the following iproute2 commands:
-=====================
-ip link add dummy1 type dummy
-ip link add dummy2 type dummy
-ip link add dummy3 type dummy
-ip link add dummy4 type dummy
-ip link add dummy5 type dummy
-ip link add dummy6 type dummy
-ip link add dummy7 type dummy
-ip link add dummy8 type dummy
-ip link add dummy9 type dummy
-ip link add dummy10 type dummy
-ip link add dummy11 type dummy
-ip link add dummy12 type dummy
-ip link add dummy13 type dummy
-ip link add dummy14 type dummy
-ip link add dummy15 type dummy
-ip link add dummy16 type dummy
-ip link add dummy17 type dummy
-ip link add dummy18 type dummy
-ip link add dummy19 type dummy
-ip link add dummy20 type dummy
-ip link add dummy21 type dummy
-ip link add dummy22 type dummy
-ip link add dummy23 type dummy
-ip link add dummy24 type dummy
-ip link add dummy25 type dummy
-ip link add dummy26 type dummy
-ip link add dummy27 type dummy
-ip link add dummy28 type dummy
-ip link add dummy29 type dummy
-ip link add dummy30 type dummy
-ip link add dummy31 type dummy
-ip link add dummy32 type dummy
-
-ip link set dummy1 up
-ip link set dummy2 up
-ip link set dummy3 up
-ip link set dummy4 up
-ip link set dummy5 up
-ip link set dummy6 up
-ip link set dummy7 up
-ip link set dummy8 up
-ip link set dummy9 up
-ip link set dummy10 up
-ip link set dummy11 up
-ip link set dummy12 up
-ip link set dummy13 up
-ip link set dummy14 up
-ip link set dummy15 up
-ip link set dummy16 up
-ip link set dummy17 up
-ip link set dummy18 up
-ip link set dummy19 up
-ip link set dummy20 up
-ip link set dummy21 up
-ip link set dummy22 up
-ip link set dummy23 up
-ip link set dummy24 up
-ip link set dummy25 up
-ip link set dummy26 up
-ip link set dummy27 up
-ip link set dummy28 up
-ip link set dummy29 up
-ip link set dummy30 up
-ip link set dummy31 up
-ip link set dummy32 up
-
-ip link set dummy33 up
-ip link set dummy34 up
-
-ip link set vrf-red up
-ip link set vrf-blue up
-
-ip link set dummyVRFred up
-ip link set dummyVRFblue up
-
-ip ro add 1.1.1.1/32 dev dummy1
-ip ro add 1.1.1.2/32 dev dummy2
-ip ro add 1.1.1.3/32 dev dummy3
-ip ro add 1.1.1.4/32 dev dummy4
-ip ro add 1.1.1.5/32 dev dummy5
-ip ro add 1.1.1.6/32 dev dummy6
-ip ro add 1.1.1.7/32 dev dummy7
-ip ro add 1.1.1.8/32 dev dummy8
-ip ro add 1.1.1.9/32 dev dummy9
-ip ro add 1.1.1.10/32 dev dummy10
-ip ro add 1.1.1.11/32 dev dummy11
-ip ro add 1.1.1.12/32 dev dummy12
-ip ro add 1.1.1.13/32 dev dummy13
-ip ro add 1.1.1.14/32 dev dummy14
-ip ro add 1.1.1.15/32 dev dummy15
-ip ro add 1.1.1.16/32 dev dummy16
-ip ro add 1.1.1.17/32 dev dummy17
-ip ro add 1.1.1.18/32 dev dummy18
-ip ro add 1.1.1.19/32 dev dummy19
-ip ro add 1.1.1.20/32 dev dummy20
-ip ro add 1.1.1.21/32 dev dummy21
-ip ro add 1.1.1.22/32 dev dummy22
-ip ro add 1.1.1.23/32 dev dummy23
-ip ro add 1.1.1.24/32 dev dummy24
-ip ro add 1.1.1.25/32 dev dummy25
-ip ro add 1.1.1.26/32 dev dummy26
-ip ro add 1.1.1.27/32 dev dummy27
-ip ro add 1.1.1.28/32 dev dummy28
-ip ro add 1.1.1.29/32 dev dummy29
-ip ro add 1.1.1.30/32 dev dummy30
-ip ro add 1.1.1.31/32 dev dummy31
-ip ro add 1.1.1.32/32 dev dummy32
-
-ip next add id 1 via 1.1.1.1 dev dummy1
-ip next add id 2 via 1.1.1.2 dev dummy2
-ip next add id 3 via 1.1.1.3 dev dummy3
-ip next add id 4 via 1.1.1.4 dev dummy4
-ip next add id 5 via 1.1.1.5 dev dummy5
-ip next add id 6 via 1.1.1.6 dev dummy6
-ip next add id 7 via 1.1.1.7 dev dummy7
-ip next add id 8 via 1.1.1.8 dev dummy8
-ip next add id 9 via 1.1.1.9 dev dummy9
-ip next add id 10 via 1.1.1.10 dev dummy10
-ip next add id 11 via 1.1.1.11 dev dummy11
-ip next add id 12 via 1.1.1.12 dev dummy12
-ip next add id 13 via 1.1.1.13 dev dummy13
-ip next add id 14 via 1.1.1.14 dev dummy14
-ip next add id 15 via 1.1.1.15 dev dummy15
-ip next add id 16 via 1.1.1.16 dev dummy16
-ip next add id 17 via 1.1.1.17 dev dummy17
-ip next add id 18 via 1.1.1.18 dev dummy18
-ip next add id 19 via 1.1.1.19 dev dummy19
-ip next add id 20 via 1.1.1.20 dev dummy20
-ip next add id 21 via 1.1.1.21 dev dummy21
-ip next add id 22 via 1.1.1.22 dev dummy22
-ip next add id 23 via 1.1.1.23 dev dummy23
-ip next add id 24 via 1.1.1.24 dev dummy24
-ip next add id 25 via 1.1.1.25 dev dummy25
-ip next add id 26 via 1.1.1.26 dev dummy26
-ip next add id 27 via 1.1.1.27 dev dummy27
-ip next add id 28 via 1.1.1.28 dev dummy28
-ip next add id 29 via 1.1.1.29 dev dummy29
-ip next add id 30 via 1.1.1.30 dev dummy30
-ip next add id 31 via 1.1.1.31 dev dummy31
-ip next add id 32 via 1.1.1.32 dev dummy32
-
-i=100
-
-while [ $i -le 200 ]
-do
-ip next add id $i group 1/2/3/4/5/6/7/8/9/10/11/12/13/14/15/16/17/18/19
-
-	echo $i
-
-	((i++))
-
-done
-
-ip next add id 999 group 1/2/3/4/5/6
-
-ip next ls
-
-========================
-
-Fixes: ab84be7e54fc ("net: Initial nexthop code")
-Signed-off-by: Stephen Worley <sworley@cumulusnetworks.com>
-Reviewed-by: David Ahern <dsahern@gmail.com>
+Fixes: bdabad3e363d ("net: Add Qualcomm IPC router")
+Reported-by: kbuild test robot <lkp@intel.com>
+Reported-by: Julia Lawall <julia.lawall@lip6.fr>
+Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/nexthop.c |    1 +
- 1 file changed, 1 insertion(+)
+ net/qrtr/qrtr.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/ipv4/nexthop.c
-+++ b/net/ipv4/nexthop.c
-@@ -277,6 +277,7 @@ out:
+--- a/net/qrtr/qrtr.c
++++ b/net/qrtr/qrtr.c
+@@ -711,7 +711,7 @@ static int qrtr_bcast_enqueue(struct qrt
+ 	}
+ 	mutex_unlock(&qrtr_node_lock);
+ 
+-	qrtr_local_enqueue(node, skb, type, from, to);
++	qrtr_local_enqueue(NULL, skb, type, from, to);
+ 
  	return 0;
- 
- nla_put_failure:
-+	nlmsg_cancel(skb, nlh);
- 	return -EMSGSIZE;
  }
- 
 
 
