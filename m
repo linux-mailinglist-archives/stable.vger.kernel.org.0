@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CEB4D1EA926
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:01:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A2031EAA5C
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:11:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728341AbgFAR6n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 13:58:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40802 "EHLO mail.kernel.org"
+        id S1728546AbgFASHO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:07:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53080 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728202AbgFAR6m (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 13:58:42 -0400
+        id S1730558AbgFASHO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:07:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E28DA2076B;
-        Mon,  1 Jun 2020 17:58:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 55B9E206E2;
+        Mon,  1 Jun 2020 18:07:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034322;
-        bh=/5kicnZVDq8sN3yiXqwn4vjSktVMba+QyaOXUAnja/E=;
+        s=default; t=1591034833;
+        bh=rqrGl13jobhYXcTJKyrzebOW90O43LvkFl6zGUpmsIc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aNh3ZF32IbI2hN9VOcApCPbn2yRC4aavX3zzN7cR5BnnXjthWSSvNo9PKLb1gybjx
-         y6OAkqB1VP7ql9I7TEaWep6widGO3rDo+rDON8rKmzD9LABAH5gXxmFs1t4aeJpTt0
-         xN59TTxZLc5m1nVyoJ30Xbx3tFaWnvwFQqcptODc=
+        b=vGnR0HSevNf8i9V9Iurk+XMl2HL6gBpsU/G9wUB19im04SakT/m9CggN3jBre6BnC
+         xmyUlVQPEOFixu+T1c3JpV4oASp2ebBhhpulsdxkUakOhp5mDLNhsVGcux4Zz+44Rt
+         D1Ce3uT8c2vaBa4Me8KQUq5+5U5Bs7ZCoRORdpg0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jamal Hadi Salim <jhs@mojatatu.com>,
-        Roman Mashak <mrv@mojatatu.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 04/61] net sched: fix reporting the first-time use timestamp
-Date:   Mon,  1 Jun 2020 19:53:11 +0200
-Message-Id: <20200601174012.179925644@linuxfoundation.org>
+        stable@vger.kernel.org, Johan Jonker <jbx6244@gmail.com>,
+        Heiko Stuebner <heiko@sntech.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 034/142] arm64: dts: rockchip: fix status for &gmac2phy in rk3328-evb.dts
+Date:   Mon,  1 Jun 2020 19:53:12 +0200
+Message-Id: <20200601174041.498168784@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174010.316778377@linuxfoundation.org>
-References: <20200601174010.316778377@linuxfoundation.org>
+In-Reply-To: <20200601174037.904070960@linuxfoundation.org>
+References: <20200601174037.904070960@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,37 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roman Mashak <mrv@mojatatu.com>
+From: Johan Jonker <jbx6244@gmail.com>
 
-[ Upstream commit b15e62631c5f19fea9895f7632dae9c1b27fe0cd ]
+[ Upstream commit c617ed88502d0b05149e7f32f3b3fd8a0663f7e2 ]
 
-When a new action is installed, firstuse field of 'tcf_t' is explicitly set
-to 0. Value of zero means "new action, not yet used"; as a packet hits the
-action, 'firstuse' is stamped with the current jiffies value.
+The status was removed of the '&gmac2phy' node with the apply
+of a patch long time ago, so fix status for '&gmac2phy'
+in 'rk3328-evb.dts'.
 
-tcf_tm_dump() should return 0 for firstuse if action has not yet been hit.
-
-Fixes: 48d8ee1694dd ("net sched actions: aggregate dumping of actions timeinfo")
-Cc: Jamal Hadi Salim <jhs@mojatatu.com>
-Signed-off-by: Roman Mashak <mrv@mojatatu.com>
-Acked-by: Jamal Hadi Salim <jhs@mojatatu.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Johan Jonker <jbx6244@gmail.com>
+Link: https://lore.kernel.org/r/20200425122345.12902-2-jbx6244@gmail.com
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/act_api.h |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/arm64/boot/dts/rockchip/rk3328-evb.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/include/net/act_api.h
-+++ b/include/net/act_api.h
-@@ -94,7 +94,8 @@ static inline void tcf_tm_dump(struct tc
- {
- 	dtm->install = jiffies_to_clock_t(jiffies - stm->install);
- 	dtm->lastuse = jiffies_to_clock_t(jiffies - stm->lastuse);
--	dtm->firstuse = jiffies_to_clock_t(jiffies - stm->firstuse);
-+	dtm->firstuse = stm->firstuse ?
-+		jiffies_to_clock_t(jiffies - stm->firstuse) : 0;
- 	dtm->expires = jiffies_to_clock_t(stm->expires);
- }
+diff --git a/arch/arm64/boot/dts/rockchip/rk3328-evb.dts b/arch/arm64/boot/dts/rockchip/rk3328-evb.dts
+index 6abc6f4a86cf..05265b38cc02 100644
+--- a/arch/arm64/boot/dts/rockchip/rk3328-evb.dts
++++ b/arch/arm64/boot/dts/rockchip/rk3328-evb.dts
+@@ -86,7 +86,7 @@
+ 	assigned-clock-rate = <50000000>;
+ 	assigned-clocks = <&cru SCLK_MAC2PHY>;
+ 	assigned-clock-parents = <&cru SCLK_MAC2PHY_SRC>;
+-
++	status = "okay";
+ };
  
+ &i2c1 {
+-- 
+2.25.1
+
 
 
