@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 57F761EAECA
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:57:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C0D41EACD0
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:41:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730627AbgFAS46 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:56:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42966 "EHLO mail.kernel.org"
+        id S1727998AbgFASka (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:40:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32778 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728842AbgFASAR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:00:17 -0400
+        id S1729949AbgFASNU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:13:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 098F62065C;
-        Mon,  1 Jun 2020 18:00:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 767F520776;
+        Mon,  1 Jun 2020 18:13:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034416;
-        bh=/EpD5WaKRoQTYb0JABgSmq92iThqgn8wT6UDnzvYomE=;
+        s=default; t=1591035199;
+        bh=BYyPzYkx4ERUweSk9BWxGWyjc7yozBVun6QzBUsgIKA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vDD3hNJS5pVfYTbwOPd9aMd01HT9bqMNdE8Ws35ZifsEliWEM11fPxuvIHj9lBLEj
-         hNjkDQ6nB23lpDklDPk29iVTWhQwij60r4etUEYok0uqTetiIB8s7WatcTQ72Kf/be
-         z/xuBRBq43pzKxOTi+mCouMW7zu29AMdy793bdJ0=
+        b=muAWTP9uCQfwCfp3WhvryRTpkhEm4pM64cpMuuPjTyJiJDhn2c4ZKNtUUjT0cVFok
+         btM+mJCBJGGRxnSSL4e+lU3hSNHr4sszoguPyeFN6hxG5wXdTMFivWrL7mDEWv2+f9
+         PymN6m8PRHywL/2HF1kBtXbTy+n6y+iYLHuG+A7o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Jere=20Lepp=C3=A4nen?= <jere.leppanen@nokia.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 07/77] sctp: Start shutdown on association restart if in SHUTDOWN-SENT state and socket is closed
+        stable@vger.kernel.org, maemo-leste@lists.dyne.org,
+        Merlijn Wajer <merlijn@wizzup.org>,
+        Pavel Machek <pavel@ucw.cz>,
+        Sebastian Reichel <sre@kernel.org>,
+        Tony Lindgren <tony@atomide.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 054/177] ARM: dts: omap4-droid4: Fix occasional lost wakeirq for uart1
 Date:   Mon,  1 Jun 2020 19:53:12 +0200
-Message-Id: <20200601174017.737955047@linuxfoundation.org>
+Message-Id: <20200601174053.535982357@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174016.396817032@linuxfoundation.org>
-References: <20200601174016.396817032@linuxfoundation.org>
+In-Reply-To: <20200601174048.468952319@linuxfoundation.org>
+References: <20200601174048.468952319@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,69 +47,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Jere Lepp‰nen" <jere.leppanen@nokia.com>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit d3e8e4c11870413789f029a71e72ae6e971fe678 ]
+[ Upstream commit 738b150ecefbffb6e55cfa8a3b66a844f777d8fb ]
 
-Commit bdf6fa52f01b ("sctp: handle association restarts when the
-socket is closed.") starts shutdown when an association is restarted,
-if in SHUTDOWN-PENDING state and the socket is closed. However, the
-rationale stated in that commit applies also when in SHUTDOWN-SENT
-state - we don't want to move an association to ESTABLISHED state when
-the socket has been closed, because that results in an association
-that is unreachable from user space.
+Looks like using the UART CTS pin does not always trigger for a wake-up
+when the SoC is idle.
 
-The problem scenario:
+This is probably because the modem first uses gpio_149 to signal the SoC
+that data will be sent, and the CTS will only get used later when the
+data transfer is starting.
 
-1.  Client crashes and/or restarts.
+Let's fix the issue by configuring the gpio_149 pad as the wakeirq for
+UART. We have gpio_149 managed by the USB PHY for powering up the right
+USB mode, and after that, the gpio gets recycled as the modem wake-up
+pin. If needeed, the USB PHY can also later on be configured to use
+gpio_149 pad as the wakeirq as a shared irq.
 
-2.  Server (using one-to-one socket) calls close(). SHUTDOWN is lost.
+Let's also configure the missing properties for uart-has-rtscts and
+current-speed for the modem port while at it. We already configure the
+hardware flow control pins with uart1_pins pinctrl setting.
 
-3.  Client reconnects using the same addresses and ports.
-
-4.  Server's association is restarted. The association and the socket
-    move to ESTABLISHED state, even though the server process has
-    closed its descriptor.
-
-Also, after step 4 when the server process exits, some resources are
-leaked in an attempt to release the underlying inet sock structure in
-ESTABLISHED state:
-
-    IPv4: Attempt to release TCP socket in state 1 00000000377288c7
-
-Fix by acting the same way as in SHUTDOWN-PENDING state. That is, if
-an association is restarted in SHUTDOWN-SENT state and the socket is
-closed, then start shutdown and don't move the association or the
-socket to ESTABLISHED state.
-
-Fixes: bdf6fa52f01b ("sctp: handle association restarts when the socket is closed.")
-Signed-off-by: Jere Lepp√§nen <jere.leppanen@nokia.com>
-Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: maemo-leste@lists.dyne.org
+Cc: Merlijn Wajer <merlijn@wizzup.org>
+Cc: Pavel Machek <pavel@ucw.cz>
+Cc: Sebastian Reichel <sre@kernel.org>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sctp/sm_statefuns.c |    9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ arch/arm/boot/dts/motorola-mapphone-common.dtsi | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
---- a/net/sctp/sm_statefuns.c
-+++ b/net/sctp/sm_statefuns.c
-@@ -1829,12 +1829,13 @@ static enum sctp_disposition sctp_sf_do_
- 	/* Update the content of current association. */
- 	sctp_add_cmd_sf(commands, SCTP_CMD_UPDATE_ASSOC, SCTP_ASOC(new_asoc));
- 	sctp_add_cmd_sf(commands, SCTP_CMD_EVENT_ULP, SCTP_ULPEVENT(ev));
--	if (sctp_state(asoc, SHUTDOWN_PENDING) &&
-+	if ((sctp_state(asoc, SHUTDOWN_PENDING) ||
-+	     sctp_state(asoc, SHUTDOWN_SENT)) &&
- 	    (sctp_sstate(asoc->base.sk, CLOSING) ||
- 	     sock_flag(asoc->base.sk, SOCK_DEAD))) {
--		/* if were currently in SHUTDOWN_PENDING, but the socket
--		 * has been closed by user, don't transition to ESTABLISHED.
--		 * Instead trigger SHUTDOWN bundled with COOKIE_ACK.
-+		/* If the socket has been closed by user, don't
-+		 * transition to ESTABLISHED. Instead trigger SHUTDOWN
-+		 * bundled with COOKIE_ACK.
- 		 */
- 		sctp_add_cmd_sf(commands, SCTP_CMD_REPLY, SCTP_CHUNK(repl));
- 		return sctp_sf_do_9_2_start_shutdown(net, ep, asoc,
+diff --git a/arch/arm/boot/dts/motorola-mapphone-common.dtsi b/arch/arm/boot/dts/motorola-mapphone-common.dtsi
+index 01ea9a1e2c86..06fbffa81636 100644
+--- a/arch/arm/boot/dts/motorola-mapphone-common.dtsi
++++ b/arch/arm/boot/dts/motorola-mapphone-common.dtsi
+@@ -723,14 +723,18 @@
+ };
+ 
+ /*
+- * As uart1 is wired to mdm6600 with rts and cts, we can use the cts pin for
+- * uart1 wakeirq.
++ * The uart1 port is wired to mdm6600 with rts and cts. The modem uses gpio_149
++ * for wake-up events for both the USB PHY and the UART. We can use gpio_149
++ * pad as the shared wakeirq for the UART rather than the RX or CTS pad as we
++ * have gpio_149 trigger before the UART transfer starts.
+  */
+ &uart1 {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&uart1_pins>;
+ 	interrupts-extended = <&wakeupgen GIC_SPI 72 IRQ_TYPE_LEVEL_HIGH
+-			       &omap4_pmx_core 0xfc>;
++			       &omap4_pmx_core 0x110>;
++	uart-has-rtscts;
++	current-speed = <115200>;
+ };
+ 
+ &uart3 {
+-- 
+2.25.1
+
 
 
