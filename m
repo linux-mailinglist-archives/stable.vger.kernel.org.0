@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BD3341EAC27
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:37:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 82B391EAE66
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:54:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731605AbgFASPk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:15:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36052 "EHLO mail.kernel.org"
+        id S1729620AbgFASxu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:53:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45746 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731603AbgFASPj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:15:39 -0400
+        id S1728153AbgFASCf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:02:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A6F0F2073B;
-        Mon,  1 Jun 2020 18:15:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8583B2065C;
+        Mon,  1 Jun 2020 18:02:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591035339;
-        bh=O84gu8JATb2e8SHlXObL3eCI/z49fjPGgXDZ+gNoxq8=;
+        s=default; t=1591034555;
+        bh=gVlM85lAfJZ6wDZrOwqCY+DymGscbAQxro//HxDRrkY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Sk+jOlYYNyu8ytvRMkOMjkekoX9mgYEvpruH/7ApRvgqp5wUqntlloLw6wuAG67K+
-         KuO95J+t3eN4di02URukvzzqUq/+5N60sYFxQWrGK/3nwxoTgXkTO8698JhSUm2Jn1
-         o6TXC2J0akYRALEvgr/zSQwlyQUZ5mmJ4YUBZXB8=
+        b=JkFPnGN0Jkv6mui7old0UXfKNNu6nEJSvCeTt07hx/qMyxSR5zrsd5JXGsGuHKREy
+         qpT2QD2GsLdic9U4T4sXWEN7Tx/FRBkbf4zhbgU23QVCcsvF8J/jLFWSIp3ylu/WVn
+         bCyAhFQ6gdEwpFl5DJe4oBsBVqRkhUZ6GMJBd6c4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Changming Liu <liu.changm@northeastern.edu>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 114/177] ALSA: hwdep: fix a left shifting 1 by 31 UB bug
+        stable@vger.kernel.org, Xin Long <lucien.xin@gmail.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>
+Subject: [PATCH 4.14 67/77] esp6: get the right proto for transport mode in esp6_gso_encap
 Date:   Mon,  1 Jun 2020 19:54:12 +0200
-Message-Id: <20200601174058.133282954@linuxfoundation.org>
+Message-Id: <20200601174027.900174373@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174048.468952319@linuxfoundation.org>
-References: <20200601174048.468952319@linuxfoundation.org>
+In-Reply-To: <20200601174016.396817032@linuxfoundation.org>
+References: <20200601174016.396817032@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,45 +43,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Changming Liu <liu.changm@northeastern.edu>
+From: Xin Long <lucien.xin@gmail.com>
 
-[ Upstream commit fb8cd6481ffd126f35e9e146a0dcf0c4e8899f2e ]
+commit 3c96ec56828922e3fe5477f75eb3fc02f98f98b5 upstream.
 
-The "info.index" variable can be 31 in "1 << info.index".
-This might trigger an undefined behavior since 1 is signed.
+For transport mode, when ipv6 nexthdr is set, the packet format might
+be like:
 
-Fix this by casting 1 to 1u just to be sure "1u << 31" is defined.
+    ----------------------------------------------------
+    |        | dest |     |     |      |  ESP    | ESP |
+    | IP6 hdr| opts.| ESP | TCP | Data | Trailer | ICV |
+    ----------------------------------------------------
 
-Signed-off-by: Changming Liu <liu.changm@northeastern.edu>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/BL0PR06MB4548170B842CB055C9AF695DE5B00@BL0PR06MB4548.namprd06.prod.outlook.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+What it wants to get for x-proto in esp6_gso_encap() is the proto that
+will be set in ESP nexthdr. So it should skip all ipv6 nexthdrs and
+get the real transport protocol. Othersize, the wrong proto number
+will be set into ESP nexthdr.
+
+This patch is to skip all ipv6 nexthdrs by calling ipv6_skip_exthdr()
+in esp6_gso_encap().
+
+Fixes: 7862b4058b9f ("esp: Add gso handlers for esp4 and esp6")
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- sound/core/hwdep.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/ipv6/esp6_offload.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/sound/core/hwdep.c b/sound/core/hwdep.c
-index b412d3b3d5ff..21edb8ac95eb 100644
---- a/sound/core/hwdep.c
-+++ b/sound/core/hwdep.c
-@@ -216,12 +216,12 @@ static int snd_hwdep_dsp_load(struct snd_hwdep *hw,
- 	if (info.index >= 32)
- 		return -EINVAL;
- 	/* check whether the dsp was already loaded */
--	if (hw->dsp_loaded & (1 << info.index))
-+	if (hw->dsp_loaded & (1u << info.index))
- 		return -EBUSY;
- 	err = hw->ops.dsp_load(hw, &info);
- 	if (err < 0)
- 		return err;
--	hw->dsp_loaded |= (1 << info.index);
-+	hw->dsp_loaded |= (1u << info.index);
- 	return 0;
- }
+--- a/net/ipv6/esp6_offload.c
++++ b/net/ipv6/esp6_offload.c
+@@ -121,9 +121,16 @@ static void esp6_gso_encap(struct xfrm_s
+ 	struct ip_esp_hdr *esph;
+ 	struct ipv6hdr *iph = ipv6_hdr(skb);
+ 	struct xfrm_offload *xo = xfrm_offload(skb);
+-	int proto = iph->nexthdr;
++	u8 proto = iph->nexthdr;
  
--- 
-2.25.1
-
+ 	skb_push(skb, -skb_network_offset(skb));
++
++	if (x->outer_mode->encap == XFRM_MODE_TRANSPORT) {
++		__be16 frag;
++
++		ipv6_skip_exthdr(skb, sizeof(struct ipv6hdr), &proto, &frag);
++	}
++
+ 	esph = ip_esp_hdr(skb);
+ 	*skb_mac_header(skb) = IPPROTO_ESP;
+ 
 
 
