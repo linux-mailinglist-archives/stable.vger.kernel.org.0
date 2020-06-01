@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 41B2F1EACB5
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:41:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 99F541EAE05
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:50:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731759AbgFASii (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:38:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49450 "EHLO mail.kernel.org"
+        id S1730369AbgFASFt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:05:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51048 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731586AbgFASih (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:38:37 -0400
+        id S1729168AbgFASFs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:05:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C4F582074B;
-        Mon,  1 Jun 2020 18:33:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6D2BC207D0;
+        Mon,  1 Jun 2020 18:05:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591036419;
-        bh=qqYvGaidwfg4zvFMt8jOwZD5KqkfullPtDDFDko273A=;
+        s=default; t=1591034747;
+        bh=zSDmvYYRnv1+LlKvRo10Y1i8mPchkOobWDngou8BWwQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qVJKIijzyzGRpGzCLLAUITptTuR+bjLvtTz+VO6ijadSfOqU/fdTLC1LchMO19OyV
-         B/4U29h3XSdjBwIflvuLxS6wU6RbadyFVJWAapKz9879yF2Ez9biVqZwfIm1JRJAcM
-         6y8aCwInHu++XA4IO/y1SznegAB7M2Rct41DyIPw=
+        b=f9/suV0u8Yn0tLXoA2NjhiedhsLTPFwtYRrX5HPpN+m0sBG+/kWpckQQ5M1TJie4U
+         SeE3U24k5CaRAJ1pSkv4koS4C811+obocswEFW7uhkddZh2bi+POz0cIw+0PYoWttA
+         1F8H3caFjfv2NU39RtVPMNWozuMFZ++/J6eDU8b8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Yan, Zheng" <zyan@redhat.com>,
-        Jeff Layton <jlayton@kernel.org>,
-        Ilya Dryomov <idryomov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>,
-        =?UTF-8?q?Andrej=20Filip=C4=8Di=C4=8D?= <andrej.filipcic@ijs.si>
-Subject: [PATCH 5.4 095/142] ceph: flush release queue when handling caps for unknown inode
-Date:   Mon,  1 Jun 2020 19:54:13 +0200
-Message-Id: <20200601174047.815799572@linuxfoundation.org>
+        stable@vger.kernel.org, stable@kernel.org,
+        Alexander Potapenko <glider@google.com>,
+        Borislav Petkov <bp@suse.de>, Al Viro <viro@zeniv.linux.org.uk>
+Subject: [PATCH 4.19 74/95] copy_xstate_to_kernel(): dont leave parts of destination uninitialized
+Date:   Mon,  1 Jun 2020 19:54:14 +0200
+Message-Id: <20200601174032.285524276@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174037.904070960@linuxfoundation.org>
-References: <20200601174037.904070960@linuxfoundation.org>
+In-Reply-To: <20200601174020.759151073@linuxfoundation.org>
+References: <20200601174020.759151073@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,45 +44,146 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeff Layton <jlayton@kernel.org>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-[ Upstream commit fb33c114d3ed5bdac230716f5b0a93b56b92a90d ]
+commit 9e4636545933131de15e1ecd06733538ae939b2f upstream.
 
-It's possible for the VFS to completely forget about an inode, but for
-it to still be sitting on the cap release queue. If the MDS sends the
-client a cap message for such an inode, it just ignores it today, which
-can lead to a stall of up to 5s until the cap release queue is flushed.
+copy the corresponding pieces of init_fpstate into the gaps instead.
 
-If we get a cap message for an inode that can't be located, then go
-ahead and flush the cap release queue.
+Cc: stable@kernel.org
+Tested-by: Alexander Potapenko <glider@google.com>
+Acked-by: Borislav Petkov <bp@suse.de>
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Cc: stable@vger.kernel.org
-URL: https://tracker.ceph.com/issues/45532
-Fixes: 1e9c2eb6811e ("ceph: delete stale dentry when last reference is dropped")
-Reported-and-Tested-by: Andrej Filipčič <andrej.filipcic@ijs.si>
-Suggested-by: Yan, Zheng <zyan@redhat.com>
-Signed-off-by: Jeff Layton <jlayton@kernel.org>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ceph/caps.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kernel/fpu/xstate.c |   86 ++++++++++++++++++++++++-------------------
+ 1 file changed, 48 insertions(+), 38 deletions(-)
 
-diff --git a/fs/ceph/caps.c b/fs/ceph/caps.c
-index 2d602c2b0ff6..b2695919435e 100644
---- a/fs/ceph/caps.c
-+++ b/fs/ceph/caps.c
-@@ -3938,7 +3938,7 @@ void ceph_handle_caps(struct ceph_mds_session *session,
- 			__ceph_queue_cap_release(session, cap);
- 			spin_unlock(&session->s_cap_lock);
- 		}
--		goto done;
-+		goto flush_cap_releases;
- 	}
+--- a/arch/x86/kernel/fpu/xstate.c
++++ b/arch/x86/kernel/fpu/xstate.c
+@@ -964,18 +964,31 @@ static inline bool xfeatures_mxcsr_quirk
+ 	return true;
+ }
  
- 	/* these will work even if we don't have a cap yet */
--- 
-2.25.1
-
+-/*
+- * This is similar to user_regset_copyout(), but will not add offset to
+- * the source data pointer or increment pos, count, kbuf, and ubuf.
+- */
+-static inline void
+-__copy_xstate_to_kernel(void *kbuf, const void *data,
+-			unsigned int offset, unsigned int size, unsigned int size_total)
++static void fill_gap(unsigned to, void **kbuf, unsigned *pos, unsigned *count)
+ {
+-	if (offset < size_total) {
+-		unsigned int copy = min(size, size_total - offset);
++	if (*pos < to) {
++		unsigned size = to - *pos;
++
++		if (size > *count)
++			size = *count;
++		memcpy(*kbuf, (void *)&init_fpstate.xsave + *pos, size);
++		*kbuf += size;
++		*pos += size;
++		*count -= size;
++	}
++}
+ 
+-		memcpy(kbuf + offset, data, copy);
++static void copy_part(unsigned offset, unsigned size, void *from,
++			void **kbuf, unsigned *pos, unsigned *count)
++{
++	fill_gap(offset, kbuf, pos, count);
++	if (size > *count)
++		size = *count;
++	if (size) {
++		memcpy(*kbuf, from, size);
++		*kbuf += size;
++		*pos += size;
++		*count -= size;
+ 	}
+ }
+ 
+@@ -988,8 +1001,9 @@ __copy_xstate_to_kernel(void *kbuf, cons
+  */
+ int copy_xstate_to_kernel(void *kbuf, struct xregs_state *xsave, unsigned int offset_start, unsigned int size_total)
+ {
+-	unsigned int offset, size;
+ 	struct xstate_header header;
++	const unsigned off_mxcsr = offsetof(struct fxregs_state, mxcsr);
++	unsigned count = size_total;
+ 	int i;
+ 
+ 	/*
+@@ -1005,46 +1019,42 @@ int copy_xstate_to_kernel(void *kbuf, st
+ 	header.xfeatures = xsave->header.xfeatures;
+ 	header.xfeatures &= ~XFEATURE_MASK_SUPERVISOR;
+ 
++	if (header.xfeatures & XFEATURE_MASK_FP)
++		copy_part(0, off_mxcsr,
++			  &xsave->i387, &kbuf, &offset_start, &count);
++	if (header.xfeatures & (XFEATURE_MASK_SSE | XFEATURE_MASK_YMM))
++		copy_part(off_mxcsr, MXCSR_AND_FLAGS_SIZE,
++			  &xsave->i387.mxcsr, &kbuf, &offset_start, &count);
++	if (header.xfeatures & XFEATURE_MASK_FP)
++		copy_part(offsetof(struct fxregs_state, st_space), 128,
++			  &xsave->i387.st_space, &kbuf, &offset_start, &count);
++	if (header.xfeatures & XFEATURE_MASK_SSE)
++		copy_part(xstate_offsets[XFEATURE_MASK_SSE], 256,
++			  &xsave->i387.xmm_space, &kbuf, &offset_start, &count);
++	/*
++	 * Fill xsave->i387.sw_reserved value for ptrace frame:
++	 */
++	copy_part(offsetof(struct fxregs_state, sw_reserved), 48,
++		  xstate_fx_sw_bytes, &kbuf, &offset_start, &count);
+ 	/*
+ 	 * Copy xregs_state->header:
+ 	 */
+-	offset = offsetof(struct xregs_state, header);
+-	size = sizeof(header);
+-
+-	__copy_xstate_to_kernel(kbuf, &header, offset, size, size_total);
++	copy_part(offsetof(struct xregs_state, header), sizeof(header),
++		  &header, &kbuf, &offset_start, &count);
+ 
+-	for (i = 0; i < XFEATURE_MAX; i++) {
++	for (i = FIRST_EXTENDED_XFEATURE; i < XFEATURE_MAX; i++) {
+ 		/*
+ 		 * Copy only in-use xstates:
+ 		 */
+ 		if ((header.xfeatures >> i) & 1) {
+ 			void *src = __raw_xsave_addr(xsave, 1 << i);
+ 
+-			offset = xstate_offsets[i];
+-			size = xstate_sizes[i];
+-
+-			/* The next component has to fit fully into the output buffer: */
+-			if (offset + size > size_total)
+-				break;
+-
+-			__copy_xstate_to_kernel(kbuf, src, offset, size, size_total);
++			copy_part(xstate_offsets[i], xstate_sizes[i],
++				  src, &kbuf, &offset_start, &count);
+ 		}
+ 
+ 	}
+-
+-	if (xfeatures_mxcsr_quirk(header.xfeatures)) {
+-		offset = offsetof(struct fxregs_state, mxcsr);
+-		size = MXCSR_AND_FLAGS_SIZE;
+-		__copy_xstate_to_kernel(kbuf, &xsave->i387.mxcsr, offset, size, size_total);
+-	}
+-
+-	/*
+-	 * Fill xsave->i387.sw_reserved value for ptrace frame:
+-	 */
+-	offset = offsetof(struct fxregs_state, sw_reserved);
+-	size = sizeof(xstate_fx_sw_bytes);
+-
+-	__copy_xstate_to_kernel(kbuf, xstate_fx_sw_bytes, offset, size, size_total);
++	fill_gap(size_total, &kbuf, &offset_start, &count);
+ 
+ 	return 0;
+ }
 
 
