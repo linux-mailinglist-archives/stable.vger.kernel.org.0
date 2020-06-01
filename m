@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EA0841EAEDE
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:57:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 611181EACB1
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:41:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728945AbgFAS5q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:57:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42156 "EHLO mail.kernel.org"
+        id S1728175AbgFASie (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:38:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35198 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729417AbgFAR7l (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 13:59:41 -0400
+        id S1731528AbgFASPF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:15:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 21912206E2;
-        Mon,  1 Jun 2020 17:59:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EDE2F2065C;
+        Mon,  1 Jun 2020 18:15:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034380;
-        bh=IUwtny+/JWT/oUv6BjzT1fZrlqINPZfCEVin8clKFn0=;
+        s=default; t=1591035305;
+        bh=LpxpxJ35oFWhuM87IgD9IRxSyxS+069w7P+E9CDeK6M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zxI05sLSzyPs8MzG4ZHSFU0juAgSNC3lM827rbmFXfcu8YEOEaXk6MNXRgyx2MkUJ
-         oUwfzhB3oYY/4p3HR8pCZhre/l1Zee//m629LmL6POfWuwRaHowhcs1LUDB1EZeob4
-         jzPOzepLxm8Z+hCc5V9m87PSlHB3z2yorbbxxfGU=
+        b=q+VJsHdZIsB02dBfau4rjmcRyTETkkzCU093VuBIqeetZJsQLxDnxZJw/PYenVRjn
+         dmauhDLtxdkkxJ40FjpkHu1/afGvGHC7D12at/BH+hV02MDra/AZbkfXLR+1CdlzxF
+         SeNAa8BNVEv5CiG21Rev/AvR0kRWhIc89yrwBu1o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Phil Sutter <phil@nwl.cc>,
-        Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 4.9 51/61] netfilter: ipset: Fix subcounter update skip
-Date:   Mon,  1 Jun 2020 19:53:58 +0200
-Message-Id: <20200601174020.897949902@linuxfoundation.org>
+        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
+        Sam Ravnborg <sam@ravnborg.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 101/177] gpu/drm: Ingenic: Fix opaque pointer casted to wrong type
+Date:   Mon,  1 Jun 2020 19:53:59 +0200
+Message-Id: <20200601174057.082666324@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174010.316778377@linuxfoundation.org>
-References: <20200601174010.316778377@linuxfoundation.org>
+In-Reply-To: <20200601174048.468952319@linuxfoundation.org>
+References: <20200601174048.468952319@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,33 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phil Sutter <phil@nwl.cc>
+From: Paul Cercueil <paul@crapouillou.net>
 
-commit a164b95ad6055c50612795882f35e0efda1f1390 upstream.
+[ Upstream commit abf56fadf0e208abfb13ad1ac0094416058da0ad ]
 
-If IPSET_FLAG_SKIP_SUBCOUNTER_UPDATE is set, user requested to not
-update counters in sub sets. Therefore IPSET_FLAG_SKIP_COUNTER_UPDATE
-must be set, not unset.
+The opaque pointer passed to the IRQ handler is a pointer to the
+drm_device, not a pointer to our ingenic_drm structure.
 
-Fixes: 6e01781d1c80e ("netfilter: ipset: set match: add support to match the counters")
-Signed-off-by: Phil Sutter <phil@nwl.cc>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+It still worked, because our ingenic_drm structure contains the
+drm_device as its first field, so the pointer received had the same
+value, but this was not semantically correct.
 
+Cc: stable@vger.kernel.org # v5.3
+Fixes: 90b86fcc47b4 ("DRM: Add KMS driver for the Ingenic JZ47xx SoCs")
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200516215057.392609-5-paul@crapouillou.net
+Acked-by: Sam Ravnborg <sam@ravnborg.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/ipset/ip_set_list_set.c |    2 +-
+ drivers/gpu/drm/ingenic/ingenic-drm.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/netfilter/ipset/ip_set_list_set.c
-+++ b/net/netfilter/ipset/ip_set_list_set.c
-@@ -61,7 +61,7 @@ list_set_ktest(struct ip_set *set, const
- 	/* Don't lookup sub-counters at all */
- 	opt->cmdflags &= ~IPSET_FLAG_MATCH_COUNTERS;
- 	if (opt->cmdflags & IPSET_FLAG_SKIP_SUBCOUNTER_UPDATE)
--		opt->cmdflags &= ~IPSET_FLAG_SKIP_COUNTER_UPDATE;
-+		opt->cmdflags |= IPSET_FLAG_SKIP_COUNTER_UPDATE;
- 	list_for_each_entry_rcu(e, &map->members, list) {
- 		if (SET_WITH_TIMEOUT(set) &&
- 		    ip_set_timeout_expired(ext_timeout(e, set)))
+diff --git a/drivers/gpu/drm/ingenic/ingenic-drm.c b/drivers/gpu/drm/ingenic/ingenic-drm.c
+index 8f5077370a52..e9900e078d51 100644
+--- a/drivers/gpu/drm/ingenic/ingenic-drm.c
++++ b/drivers/gpu/drm/ingenic/ingenic-drm.c
+@@ -474,7 +474,7 @@ static int ingenic_drm_encoder_atomic_check(struct drm_encoder *encoder,
+ 
+ static irqreturn_t ingenic_drm_irq_handler(int irq, void *arg)
+ {
+-	struct ingenic_drm *priv = arg;
++	struct ingenic_drm *priv = drm_device_get_priv(arg);
+ 	unsigned int state;
+ 
+ 	regmap_read(priv->map, JZ_REG_LCD_STATE, &state);
+-- 
+2.25.1
+
 
 
