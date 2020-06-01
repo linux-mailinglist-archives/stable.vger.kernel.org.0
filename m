@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A9CED1EAAB3
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:11:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B46081EAB5C
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:17:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731006AbgFASKe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:10:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57494 "EHLO mail.kernel.org"
+        id S1731736AbgFASQn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:16:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37426 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731002AbgFASKd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:10:33 -0400
+        id S1731435AbgFASQk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:16:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BD0602065C;
-        Mon,  1 Jun 2020 18:10:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2B45E2065C;
+        Mon,  1 Jun 2020 18:16:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591035033;
-        bh=50HIzBlE5cgtkzhTklOb2NH4NEGz76WiwXFCARxAil4=;
+        s=default; t=1591035399;
+        bh=M/GyZDi75XTHFOTfuE/ICuBlO8kYGFUTPIdZNh5sC20=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X0/zXVC0yL/NDJfKas4Tc8WU4PyPkJawxuT1NFn25kugV/BasF9B923Pqkep/xV8A
-         f7tuD7mPdlZaOvOLG3XZWHp0vrTtBQWGylvE+0LYmANhH+sYZFedq6i/CT9+fJD+lo
-         IVkP7rXTE1x8s6iJ/c2coVFUU0qcMnaBQDSdSsN4=
+        b=BzFt8f+ugWNYXrbrBAVgS4HA+8gSBCgv6Nx0KfJi4jI8Rb/euZe6nRmdhZdV1ZWs7
+         SY1sYOv3cbr/k4rNVIg6xaUE2izSZET1BOYUBZ0ng249yjKf4H0jC3MIEU5q4rAUlG
+         lr/OLSSqI8PxvdTgmFRCOmKtpN2pAtUrQQqk0ncU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Phil Sutter <phil@nwl.cc>,
-        Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 5.4 122/142] netfilter: ipset: Fix subcounter update skip
-Date:   Mon,  1 Jun 2020 19:54:40 +0200
-Message-Id: <20200601174050.437373572@linuxfoundation.org>
+        stable@vger.kernel.org, stable@kernel.org,
+        Alexander Potapenko <glider@google.com>,
+        Borislav Petkov <bp@suse.de>, Al Viro <viro@zeniv.linux.org.uk>
+Subject: [PATCH 5.6 143/177] copy_xstate_to_kernel(): dont leave parts of destination uninitialized
+Date:   Mon,  1 Jun 2020 19:54:41 +0200
+Message-Id: <20200601174100.416504238@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174037.904070960@linuxfoundation.org>
-References: <20200601174037.904070960@linuxfoundation.org>
+In-Reply-To: <20200601174048.468952319@linuxfoundation.org>
+References: <20200601174048.468952319@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,33 +44,146 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phil Sutter <phil@nwl.cc>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-commit a164b95ad6055c50612795882f35e0efda1f1390 upstream.
+commit 9e4636545933131de15e1ecd06733538ae939b2f upstream.
 
-If IPSET_FLAG_SKIP_SUBCOUNTER_UPDATE is set, user requested to not
-update counters in sub sets. Therefore IPSET_FLAG_SKIP_COUNTER_UPDATE
-must be set, not unset.
+copy the corresponding pieces of init_fpstate into the gaps instead.
 
-Fixes: 6e01781d1c80e ("netfilter: ipset: set match: add support to match the counters")
-Signed-off-by: Phil Sutter <phil@nwl.cc>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Cc: stable@kernel.org
+Tested-by: Alexander Potapenko <glider@google.com>
+Acked-by: Borislav Petkov <bp@suse.de>
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/netfilter/ipset/ip_set_list_set.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kernel/fpu/xstate.c |   86 ++++++++++++++++++++++++-------------------
+ 1 file changed, 48 insertions(+), 38 deletions(-)
 
---- a/net/netfilter/ipset/ip_set_list_set.c
-+++ b/net/netfilter/ipset/ip_set_list_set.c
-@@ -59,7 +59,7 @@ list_set_ktest(struct ip_set *set, const
- 	/* Don't lookup sub-counters at all */
- 	opt->cmdflags &= ~IPSET_FLAG_MATCH_COUNTERS;
- 	if (opt->cmdflags & IPSET_FLAG_SKIP_SUBCOUNTER_UPDATE)
--		opt->cmdflags &= ~IPSET_FLAG_SKIP_COUNTER_UPDATE;
-+		opt->cmdflags |= IPSET_FLAG_SKIP_COUNTER_UPDATE;
- 	list_for_each_entry_rcu(e, &map->members, list) {
- 		ret = ip_set_test(e->id, skb, par, opt);
- 		if (ret <= 0)
+--- a/arch/x86/kernel/fpu/xstate.c
++++ b/arch/x86/kernel/fpu/xstate.c
+@@ -954,18 +954,31 @@ static inline bool xfeatures_mxcsr_quirk
+ 	return true;
+ }
+ 
+-/*
+- * This is similar to user_regset_copyout(), but will not add offset to
+- * the source data pointer or increment pos, count, kbuf, and ubuf.
+- */
+-static inline void
+-__copy_xstate_to_kernel(void *kbuf, const void *data,
+-			unsigned int offset, unsigned int size, unsigned int size_total)
++static void fill_gap(unsigned to, void **kbuf, unsigned *pos, unsigned *count)
+ {
+-	if (offset < size_total) {
+-		unsigned int copy = min(size, size_total - offset);
++	if (*pos < to) {
++		unsigned size = to - *pos;
++
++		if (size > *count)
++			size = *count;
++		memcpy(*kbuf, (void *)&init_fpstate.xsave + *pos, size);
++		*kbuf += size;
++		*pos += size;
++		*count -= size;
++	}
++}
+ 
+-		memcpy(kbuf + offset, data, copy);
++static void copy_part(unsigned offset, unsigned size, void *from,
++			void **kbuf, unsigned *pos, unsigned *count)
++{
++	fill_gap(offset, kbuf, pos, count);
++	if (size > *count)
++		size = *count;
++	if (size) {
++		memcpy(*kbuf, from, size);
++		*kbuf += size;
++		*pos += size;
++		*count -= size;
+ 	}
+ }
+ 
+@@ -978,8 +991,9 @@ __copy_xstate_to_kernel(void *kbuf, cons
+  */
+ int copy_xstate_to_kernel(void *kbuf, struct xregs_state *xsave, unsigned int offset_start, unsigned int size_total)
+ {
+-	unsigned int offset, size;
+ 	struct xstate_header header;
++	const unsigned off_mxcsr = offsetof(struct fxregs_state, mxcsr);
++	unsigned count = size_total;
+ 	int i;
+ 
+ 	/*
+@@ -995,46 +1009,42 @@ int copy_xstate_to_kernel(void *kbuf, st
+ 	header.xfeatures = xsave->header.xfeatures;
+ 	header.xfeatures &= ~XFEATURE_MASK_SUPERVISOR;
+ 
++	if (header.xfeatures & XFEATURE_MASK_FP)
++		copy_part(0, off_mxcsr,
++			  &xsave->i387, &kbuf, &offset_start, &count);
++	if (header.xfeatures & (XFEATURE_MASK_SSE | XFEATURE_MASK_YMM))
++		copy_part(off_mxcsr, MXCSR_AND_FLAGS_SIZE,
++			  &xsave->i387.mxcsr, &kbuf, &offset_start, &count);
++	if (header.xfeatures & XFEATURE_MASK_FP)
++		copy_part(offsetof(struct fxregs_state, st_space), 128,
++			  &xsave->i387.st_space, &kbuf, &offset_start, &count);
++	if (header.xfeatures & XFEATURE_MASK_SSE)
++		copy_part(xstate_offsets[XFEATURE_MASK_SSE], 256,
++			  &xsave->i387.xmm_space, &kbuf, &offset_start, &count);
++	/*
++	 * Fill xsave->i387.sw_reserved value for ptrace frame:
++	 */
++	copy_part(offsetof(struct fxregs_state, sw_reserved), 48,
++		  xstate_fx_sw_bytes, &kbuf, &offset_start, &count);
+ 	/*
+ 	 * Copy xregs_state->header:
+ 	 */
+-	offset = offsetof(struct xregs_state, header);
+-	size = sizeof(header);
+-
+-	__copy_xstate_to_kernel(kbuf, &header, offset, size, size_total);
++	copy_part(offsetof(struct xregs_state, header), sizeof(header),
++		  &header, &kbuf, &offset_start, &count);
+ 
+-	for (i = 0; i < XFEATURE_MAX; i++) {
++	for (i = FIRST_EXTENDED_XFEATURE; i < XFEATURE_MAX; i++) {
+ 		/*
+ 		 * Copy only in-use xstates:
+ 		 */
+ 		if ((header.xfeatures >> i) & 1) {
+ 			void *src = __raw_xsave_addr(xsave, i);
+ 
+-			offset = xstate_offsets[i];
+-			size = xstate_sizes[i];
+-
+-			/* The next component has to fit fully into the output buffer: */
+-			if (offset + size > size_total)
+-				break;
+-
+-			__copy_xstate_to_kernel(kbuf, src, offset, size, size_total);
++			copy_part(xstate_offsets[i], xstate_sizes[i],
++				  src, &kbuf, &offset_start, &count);
+ 		}
+ 
+ 	}
+-
+-	if (xfeatures_mxcsr_quirk(header.xfeatures)) {
+-		offset = offsetof(struct fxregs_state, mxcsr);
+-		size = MXCSR_AND_FLAGS_SIZE;
+-		__copy_xstate_to_kernel(kbuf, &xsave->i387.mxcsr, offset, size, size_total);
+-	}
+-
+-	/*
+-	 * Fill xsave->i387.sw_reserved value for ptrace frame:
+-	 */
+-	offset = offsetof(struct fxregs_state, sw_reserved);
+-	size = sizeof(xstate_fx_sw_bytes);
+-
+-	__copy_xstate_to_kernel(kbuf, xstate_fx_sw_bytes, offset, size, size_total);
++	fill_gap(size_total, &kbuf, &offset_start, &count);
+ 
+ 	return 0;
+ }
 
 
