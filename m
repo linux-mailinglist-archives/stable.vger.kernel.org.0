@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1AB061EAF31
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 21:01:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B38B1EAF30
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 21:01:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728686AbgFAR4m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 13:56:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37208 "EHLO mail.kernel.org"
+        id S1728680AbgFAR4l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 13:56:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37286 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728670AbgFAR4j (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 13:56:39 -0400
+        id S1728097AbgFAR4l (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 13:56:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DDADB2074B;
-        Mon,  1 Jun 2020 17:56:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2BAE5206E2;
+        Mon,  1 Jun 2020 17:56:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034198;
-        bh=jJlvg5Icn2RSmfrA3Oj+7GiZzqZOSE+7heMsTdczNG4=;
+        s=default; t=1591034200;
+        bh=3XN0dCs4ELVpk+KvkOC2xhVH8DurHvnfoxL0UtPiEI0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yLMjDxX5TzqeFSc8TQ2a0SVItUGfzKUKRUXz6nGDCGPu1KxM+yVaViO79tasAjp58
-         Q3+6/D1FhdPqd/b4XN3iF9rWdC5xxVq9q3WyVmHG6UKqIefud1/ekPmgBABy4LqICM
-         YiXlYLzwIXvZDsvqydQV8I3Ip6dLyYp3x8xizRq8=
+        b=DlRneOVurlUwxOfrm355sT7/bCLbPGApf+onh7pR62zkjwd9lAm4H21NCoOj8w2mM
+         +Rsn3ogOXXaGuA9bZhh9lbDj/Thiq+NC0Z4LUbzBX7a6oTTcs68GqSVT1O14xUiPp5
+         ds5VTYLjsi7WOxH6ZOmOjB0ExdimLXx4HRq+a7KI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Michal Kalderon <Michal.Kalderon@cavium.com>,
-        Ariel Elior <Ariel.Elior@cavium.com>,
-        Doug Ledford <dledford@redhat.com>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 4.4 08/48] IB/cma: Fix reference count leak when no ipv4 addresses are set
-Date:   Mon,  1 Jun 2020 19:53:18 +0200
-Message-Id: <20200601173954.755172639@linuxfoundation.org>
+        stable@vger.kernel.org, Bob Peterson <rpeterso@redhat.com>,
+        Andreas Gruenbacher <agruenba@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 09/48] gfs2: dont call quota_unhold if quotas are not locked
+Date:   Mon,  1 Jun 2020 19:53:19 +0200
+Message-Id: <20200601173954.907703774@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200601173952.175939894@linuxfoundation.org>
 References: <20200601173952.175939894@linuxfoundation.org>
@@ -46,47 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kalderon, Michal <Michal.Kalderon@cavium.com>
+From: Bob Peterson <rpeterso@redhat.com>
 
-commit 963916fdb3e5ad4af57ac959b5a03bf23f7568ca upstream.
+[ Upstream commit c9cb9e381985bbbe8acd2695bbe6bd24bf06b81c ]
 
-Once in_dev_get is called to receive in_device pointer, the
-in_device reference counter is increased, but if there are
-no ipv4 addresses configured on the net-device the ifa_list
-will be null, resulting in a flow that doesn't call in_dev_put
-to decrease the ref_cnt.
-This was exposed when running RoCE over ipv6 without any ipv4
-addresses configured
+Before this patch, function gfs2_quota_unlock checked if quotas are
+turned off, and if so, it branched to label out, which called
+gfs2_quota_unhold. With the new system of gfs2_qa_get and put, we
+no longer want to call gfs2_quota_unhold or we won't balance our
+gets and puts.
 
-Fixes: commit 8e3867310c90 ("IB/cma: Fix a race condition in iboe_addr_get_sgid()")
-
-Signed-off-by: Michal Kalderon <Michal.Kalderon@cavium.com>
-Signed-off-by: Ariel Elior <Ariel.Elior@cavium.com>
-Signed-off-by: Doug Ledford <dledford@redhat.com>
-Cc: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Bob Peterson <rpeterso@redhat.com>
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/rdma/ib_addr.h |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ fs/gfs2/quota.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/include/rdma/ib_addr.h
-+++ b/include/rdma/ib_addr.h
-@@ -200,11 +200,13 @@ static inline void iboe_addr_get_sgid(st
- 	dev = dev_get_by_index(&init_net, dev_addr->bound_dev_if);
- 	if (dev) {
- 		ip4 = in_dev_get(dev);
--		if (ip4 && ip4->ifa_list && ip4->ifa_list->ifa_address) {
-+		if (ip4 && ip4->ifa_list && ip4->ifa_list->ifa_address)
- 			ipv6_addr_set_v4mapped(ip4->ifa_list->ifa_address,
- 					       (struct in6_addr *)gid);
-+
-+		if (ip4)
- 			in_dev_put(ip4);
--		}
-+
- 		dev_put(dev);
+diff --git a/fs/gfs2/quota.c b/fs/gfs2/quota.c
+index 3a31226531ea..4af00ed4960a 100644
+--- a/fs/gfs2/quota.c
++++ b/fs/gfs2/quota.c
+@@ -1080,7 +1080,7 @@ void gfs2_quota_unlock(struct gfs2_inode *ip)
+ 	int found;
+ 
+ 	if (!test_and_clear_bit(GIF_QD_LOCKED, &ip->i_flags))
+-		goto out;
++		return;
+ 
+ 	for (x = 0; x < ip->i_res->rs_qa_qd_num; x++) {
+ 		struct gfs2_quota_data *qd;
+@@ -1117,7 +1117,6 @@ void gfs2_quota_unlock(struct gfs2_inode *ip)
+ 			qd_unlock(qda[x]);
  	}
+ 
+-out:
+ 	gfs2_quota_unhold(ip);
  }
+ 
+-- 
+2.25.1
+
 
 
