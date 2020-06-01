@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A79C1EAB29
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:17:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 410911EAA08
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:05:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728862AbgFASO4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:14:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34862 "EHLO mail.kernel.org"
+        id S1729731AbgFASE0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:04:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49042 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731198AbgFASOz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:14:55 -0400
+        id S1730202AbgFASEZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:04:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A45992068D;
-        Mon,  1 Jun 2020 18:14:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4C07B206E2;
+        Mon,  1 Jun 2020 18:04:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591035294;
-        bh=2ZPjej86uWTbLn4JuUOXaDIYjHQwrcYDh8zvLp7nqxA=;
+        s=default; t=1591034664;
+        bh=tYmwVOSA6P8UA7Rl8tWN9Wd0c22hBbEuWZ33UxNLNhc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=brtVkQKZb+5I1p9zhRJy17Bo/OxBXOd3IJpd3vvgSraNtjvsmQEGoDPCffPtXGV3B
-         F/osSgriaPdmJeo8pW7A64vk2iR3K/cFo/3Np8kI+Bkv4G7vWdEEd3wWs2CzojHpnx
-         8sq8Rnv1Am4yeh/IvOUaHvPaRYtv+v5oGFiht0RQ=
+        b=yL9O4JfiC5VlgcjjPtx31G6ujenYflPOBGqycY4YD/v5zTwI0UNErl9IX9fOXySh5
+         6Cqsmam5W2Uw1O5pKVXf40uMiW6db/79OAQy/UUCDs69F3TmcU88+yxPpmWC/ON9NL
+         joZKAIM6wmaqXILJaZWEoNdH2zseLoeAV0ZnwiZ8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tomas Paukrt <tomas.paukrt@advantech.cz>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
+        stable@vger.kernel.org,
+        Hamish Martin <hamish.martin@alliedtelesis.co.nz>,
+        Florian Fainelli <f.fainelli@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 096/177] ARM: uaccess: fix DACR mismatch with nested exceptions
+Subject: [PATCH 4.19 54/95] ARM: dts: bcm: HR2: Fix PPI interrupt types
 Date:   Mon,  1 Jun 2020 19:53:54 +0200
-Message-Id: <20200601174056.754457272@linuxfoundation.org>
+Message-Id: <20200601174029.846154458@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174048.468952319@linuxfoundation.org>
-References: <20200601174048.468952319@linuxfoundation.org>
+In-Reply-To: <20200601174020.759151073@linuxfoundation.org>
+References: <20200601174020.759151073@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,117 +45,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King <rmk+kernel@armlinux.org.uk>
+From: Hamish Martin <hamish.martin@alliedtelesis.co.nz>
 
-[ Upstream commit 71f8af1110101facfad68989ff91f88f8e2c3e22 ]
+[ Upstream commit be0ec060b54f0481fb95d59086c1484a949c903c ]
 
-Tomas Paukrt reports that his SAM9X60 based system (ARM926, ARMv5TJ)
-fails to fix up alignment faults, eventually resulting in a kernel
-oops.
+These error messages are output when booting on a BCM HR2 system:
+    GIC: PPI11 is secure or misconfigured
+    GIC: PPI13 is secure or misconfigured
 
-The problem occurs when using CONFIG_CPU_USE_DOMAINS with commit
-e6978e4bf181 ("ARM: save and reset the address limit when entering an
-exception").  This is because the address limit is set back to
-TASK_SIZE on exception entry, and, although it is restored on exception
-exit, the domain register is not.
+Per ARM documentation these interrupts are triggered on a rising edge.
+See ARM Cortex A-9 MPCore Technical Reference Manual, Revision r4p1,
+Section 3.3.8 Interrupt Configuration Registers.
 
-Hence, this sequence can occur:
+The same issue was resolved for NSP systems in commit 5f1aa51c7a1e
+("ARM: dts: NSP: Fix PPI interrupt types").
 
-  interrupt
-    pt_regs->addr_limit = addr_limit		// USER_DS
-    addr_limit = USER_DS
-    alignment exception
-    __probe_kernel_read()
-      old_fs = get_fs()				// USER_DS
-      set_fs(KERNEL_DS)
-        addr_limit = KERNEL_DS
-        dacr.kernel = DOMAIN_MANAGER
-        interrupt
-          pt_regs->addr_limit = addr_limit	// KERNEL_DS
-          addr_limit = USER_DS
-          alignment exception
-          __probe_kernel_read()
-            old_fs = get_fs()			// USER_DS
-            set_fs(KERNEL_DS)
-              addr_limit = KERNEL_DS
-              dacr.kernel = DOMAIN_MANAGER
-            ...
-            set_fs(old_fs)
-              addr_limit = USER_DS
-              dacr.kernel = DOMAIN_CLIENT
-          ...
-          addr_limit = pt_regs->addr_limit	// KERNEL_DS
-        interrupt returns
-
-At this point, addr_limit is correctly restored to KERNEL_DS for
-__probe_kernel_read() to continue execution, but dacr.kernel is not,
-it has been reset by the set_fs(old_fs) to DOMAIN_CLIENT.
-
-This would not have happened prior to the mentioned commit, because
-addr_limit would remain KERNEL_DS, so get_fs() would have returned
-KERNEL_DS, and so would correctly nest.
-
-This commit fixes the problem by also saving the DACR on exception
-entry if either CONFIG_CPU_SW_DOMAIN_PAN or CONFIG_CPU_USE_DOMAINS are
-enabled, and resetting the DACR appropriately on exception entry to
-match addr_limit and PAN settings.
-
-Fixes: e6978e4bf181 ("ARM: save and reset the address limit when entering an exception")
-Reported-by: Tomas Paukrt <tomas.paukrt@advantech.cz>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Fixes: b9099ec754b5 ("ARM: dts: Add Broadcom Hurricane 2 DTS include file")
+Signed-off-by: Hamish Martin <hamish.martin@alliedtelesis.co.nz>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/include/asm/uaccess-asm.h | 25 ++++++++++++++++++++-----
- 1 file changed, 20 insertions(+), 5 deletions(-)
+ arch/arm/boot/dts/bcm-hr2.dtsi | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm/include/asm/uaccess-asm.h b/arch/arm/include/asm/uaccess-asm.h
-index e46468b91eaa..907571fd05c6 100644
---- a/arch/arm/include/asm/uaccess-asm.h
-+++ b/arch/arm/include/asm/uaccess-asm.h
-@@ -67,15 +67,21 @@
- #endif
- 	.endm
+diff --git a/arch/arm/boot/dts/bcm-hr2.dtsi b/arch/arm/boot/dts/bcm-hr2.dtsi
+index e4d49731287f..e35398cc60a0 100644
+--- a/arch/arm/boot/dts/bcm-hr2.dtsi
++++ b/arch/arm/boot/dts/bcm-hr2.dtsi
+@@ -75,7 +75,7 @@
+ 		timer@20200 {
+ 			compatible = "arm,cortex-a9-global-timer";
+ 			reg = <0x20200 0x100>;
+-			interrupts = <GIC_PPI 11 IRQ_TYPE_LEVEL_HIGH>;
++			interrupts = <GIC_PPI 11 IRQ_TYPE_EDGE_RISING>;
+ 			clocks = <&periph_clk>;
+ 		};
  
--#ifdef CONFIG_CPU_SW_DOMAIN_PAN
-+#if defined(CONFIG_CPU_SW_DOMAIN_PAN) || defined(CONFIG_CPU_USE_DOMAINS)
- #define DACR(x...)	x
- #else
- #define DACR(x...)
- #endif
+@@ -83,7 +83,7 @@
+ 			compatible = "arm,cortex-a9-twd-timer";
+ 			reg = <0x20600 0x20>;
+ 			interrupts = <GIC_PPI 13 (GIC_CPU_MASK_SIMPLE(1) |
+-						  IRQ_TYPE_LEVEL_HIGH)>;
++						  IRQ_TYPE_EDGE_RISING)>;
+ 			clocks = <&periph_clk>;
+ 		};
  
- 	/*
--	 * Save the address limit on entry to a privileged exception and
--	 * if using PAN, save and disable usermode access.
-+	 * Save the address limit on entry to a privileged exception.
-+	 *
-+	 * If we are using the DACR for kernel access by the user accessors
-+	 * (CONFIG_CPU_USE_DOMAINS=y), always reset the DACR kernel domain
-+	 * back to client mode, whether or not \disable is set.
-+	 *
-+	 * If we are using SW PAN, set the DACR user domain to no access
-+	 * if \disable is set.
- 	 */
- 	.macro	uaccess_entry, tsk, tmp0, tmp1, tmp2, disable
- 	ldr	\tmp1, [\tsk, #TI_ADDR_LIMIT]
-@@ -84,8 +90,17 @@
-  DACR(	mrc	p15, 0, \tmp0, c3, c0, 0)
-  DACR(	str	\tmp0, [sp, #SVC_DACR])
- 	str	\tmp1, [sp, #SVC_ADDR_LIMIT]
--	.if \disable
--	uaccess_disable \tmp0
-+	.if \disable && IS_ENABLED(CONFIG_CPU_SW_DOMAIN_PAN)
-+	/* kernel=client, user=no access */
-+	mov	\tmp2, #DACR_UACCESS_DISABLE
-+	mcr	p15, 0, \tmp2, c3, c0, 0
-+	instr_sync
-+	.elseif IS_ENABLED(CONFIG_CPU_USE_DOMAINS)
-+	/* kernel=client */
-+	bic	\tmp2, \tmp0, #domain_mask(DOMAIN_KERNEL)
-+	orr	\tmp2, \tmp2, #domain_val(DOMAIN_KERNEL, DOMAIN_CLIENT)
-+	mcr	p15, 0, \tmp2, c3, c0, 0
-+	instr_sync
- 	.endif
- 	.endm
+@@ -91,7 +91,7 @@
+ 			compatible = "arm,cortex-a9-twd-wdt";
+ 			reg = <0x20620 0x20>;
+ 			interrupts = <GIC_PPI 14 (GIC_CPU_MASK_SIMPLE(1) |
+-						  IRQ_TYPE_LEVEL_HIGH)>;
++						  IRQ_TYPE_EDGE_RISING)>;
+ 			clocks = <&periph_clk>;
+ 		};
  
 -- 
 2.25.1
