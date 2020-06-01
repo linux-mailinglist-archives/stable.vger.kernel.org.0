@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AF12C1EAE37
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:53:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AB7A71EAD87
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:46:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729568AbgFASDt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:03:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48010 "EHLO mail.kernel.org"
+        id S1728747AbgFASqF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:46:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55194 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729040AbgFASDt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:03:49 -0400
+        id S1730796AbgFASIz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:08:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7093520897;
-        Mon,  1 Jun 2020 18:03:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A4D422068D;
+        Mon,  1 Jun 2020 18:08:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034628;
-        bh=zFa6GkYmXM4CHHgQtGZK9mDNqIX0K8SKoOfxbDEi1RQ=;
+        s=default; t=1591034935;
+        bh=MbeZa4VffzmxWAR8MGy0BeRxIsWisBaIT8gBRIYAzuI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yLSQh9b6ndJiVRdBGPVNkSiktNyf4qgFXGaIox7KgvtGLIUFFIW31MyGBOX/yJ67d
-         EfLfVUXZr0Et46+rLH5s+T1lxaMtUN7mI1zodL96lXKxkR8SY5xw0+Sy3BN/arnI3D
-         CLCWtHR7wnqxOK3DuIcThW2YOS3hz9/rjer1LrDc=
+        b=WOIgVf3T3y2oOIrVRWHULYOxiZ/RpmVZ7x/TUPdpxC3tAT37p5uM+ijD1WJK0oRZl
+         ZK1+u0xzyKTM2X9FglzxCCoWufVA1D8Azr2P8/jD0qNSue4lzsblFH7zrCvVkOyDlM
+         SsFYY+QlILkxcgYb7Ecku1f8jPpRgxLZOaNU2Vmo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mathieu Maret <mathieu.maret@gmail.com>,
-        Brendan Shanks <bshanks@codeweavers.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 39/95] Input: evdev - call input_flush_device() on release(), not flush()
+        stable@vger.kernel.org, Matteo Croce <mcroce@redhat.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Yonghong Song <yhs@fb.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 061/142] samples: bpf: Fix build error
 Date:   Mon,  1 Jun 2020 19:53:39 +0200
-Message-Id: <20200601174027.033147265@linuxfoundation.org>
+Message-Id: <20200601174044.263469330@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174020.759151073@linuxfoundation.org>
-References: <20200601174020.759151073@linuxfoundation.org>
+In-Reply-To: <20200601174037.904070960@linuxfoundation.org>
+References: <20200601174037.904070960@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,73 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brendan Shanks <bshanks@codeweavers.com>
+From: Matteo Croce <mcroce@redhat.com>
 
-[ Upstream commit 09264098ff153f60866039d60b31d39b66f55a31 ]
+[ Upstream commit 23ad04669f81f958e9a4121b0266228d2eb3c357 ]
 
-input_flush_device() should only be called once the struct file is being
-released and no open descriptors remain, but evdev_flush() was calling
-it whenever a file descriptor was closed.
+GCC 10 is very strict about symbol clash, and lwt_len_hist_user contains
+a symbol which clashes with libbpf:
 
-This caused uploaded force-feedback effects to be erased when a process
-did a dup()/close() on the event FD, called system(), etc.
+/usr/bin/ld: samples/bpf/lwt_len_hist_user.o:(.bss+0x0): multiple definition of `bpf_log_buf'; samples/bpf/bpf_load.o:(.bss+0x8c0): first defined here
+collect2: error: ld returned 1 exit status
 
-Call input_flush_device() from evdev_release() instead.
+bpf_log_buf here seems to be a leftover, so removing it.
 
-Reported-by: Mathieu Maret <mathieu.maret@gmail.com>
-Signed-off-by: Brendan Shanks <bshanks@codeweavers.com>
-Link: https://lore.kernel.org/r/20200421231003.7935-1-bshanks@codeweavers.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Matteo Croce <mcroce@redhat.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Acked-by: Yonghong Song <yhs@fb.com>
+Link: https://lore.kernel.org/bpf/20200511113234.80722-1-mcroce@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/evdev.c | 19 ++++---------------
- 1 file changed, 4 insertions(+), 15 deletions(-)
+ samples/bpf/lwt_len_hist_user.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-index 4263e905cafb..3362dcb3ec0e 100644
---- a/drivers/input/evdev.c
-+++ b/drivers/input/evdev.c
-@@ -348,20 +348,6 @@ static int evdev_fasync(int fd, struct file *file, int on)
- 	return fasync_helper(fd, file, on, &client->fasync);
- }
+diff --git a/samples/bpf/lwt_len_hist_user.c b/samples/bpf/lwt_len_hist_user.c
+index 587b68b1f8dd..430a4b7e353e 100644
+--- a/samples/bpf/lwt_len_hist_user.c
++++ b/samples/bpf/lwt_len_hist_user.c
+@@ -15,8 +15,6 @@
+ #define MAX_INDEX 64
+ #define MAX_STARS 38
  
--static int evdev_flush(struct file *file, fl_owner_t id)
--{
--	struct evdev_client *client = file->private_data;
--	struct evdev *evdev = client->evdev;
+-char bpf_log_buf[BPF_LOG_BUF_SIZE];
 -
--	mutex_lock(&evdev->mutex);
--
--	if (evdev->exist && !client->revoked)
--		input_flush_device(&evdev->handle, file);
--
--	mutex_unlock(&evdev->mutex);
--	return 0;
--}
--
- static void evdev_free(struct device *dev)
+ static void stars(char *str, long val, long max, int width)
  {
- 	struct evdev *evdev = container_of(dev, struct evdev, dev);
-@@ -475,6 +461,10 @@ static int evdev_release(struct inode *inode, struct file *file)
- 	unsigned int i;
- 
- 	mutex_lock(&evdev->mutex);
-+
-+	if (evdev->exist && !client->revoked)
-+		input_flush_device(&evdev->handle, file);
-+
- 	evdev_ungrab(evdev, client);
- 	mutex_unlock(&evdev->mutex);
- 
-@@ -1336,7 +1326,6 @@ static const struct file_operations evdev_fops = {
- 	.compat_ioctl	= evdev_ioctl_compat,
- #endif
- 	.fasync		= evdev_fasync,
--	.flush		= evdev_flush,
- 	.llseek		= no_llseek,
- };
- 
+ 	int i;
 -- 
 2.25.1
 
