@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 79B5E1EADFE
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:50:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D5871EAE71
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:54:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730413AbgFASGJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:06:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51456 "EHLO mail.kernel.org"
+        id S1729903AbgFASCO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:02:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45280 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730406AbgFASGG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:06:06 -0400
+        id S1729896AbgFASCK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:02:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 728262077D;
-        Mon,  1 Jun 2020 18:06:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DA2652065C;
+        Mon,  1 Jun 2020 18:02:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034765;
-        bh=vYJ88IOr9lCJ7TOKGhDRbgzmqwaPfFpnB+z7vlTJgaA=;
+        s=default; t=1591034530;
+        bh=u9RbMJt+W+v9l+9TcgBJ9HuUlcKo4R+C/yU5x9oNlvs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JlvuEwre7XK2S3yVoG5W+6rrduktuIT4XfAERNHDnkUHc6G+0rdqd7SIJEg4BH33h
-         4cR1rgPagGJc12WgxQfksYMuXctPF4soYLPhFNQEsPP3OmKT/2NSGAF4JhnXVroJJu
-         fXfmlpDqNBn3IzEI1sr72PzAv6a7o9AYnJTT2cKc=
+        b=zN2FRVIDiFYYvVqm/Bh/qEgVoB3nWq3ZXfmSlPSSR0XswRcmmTcBAdW5XJRPIT8Xc
+         VlrqNqcInhF55eQjRflctkWjA9PkLViRpS5KJtbL/3PP5v3Pc3B4zMMxEPaT8LYwOS
+         D1vCRKN9z0d9dnVij5SgL6zyC8M8u0jbJNNgDSkM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiumei Mu <xmu@redhat.com>,
-        Xin Long <lucien.xin@gmail.com>,
-        Steffen Klassert <steffen.klassert@secunet.com>
-Subject: [PATCH 4.19 78/95] xfrm: fix a warning in xfrm_policy_insert_list
+        stable@vger.kernel.org, Guoqing Jiang <gqjiang@suse.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 4.14 73/77] sc16is7xx: move label err_spi to correct section
 Date:   Mon,  1 Jun 2020 19:54:18 +0200
-Message-Id: <20200601174032.649451988@linuxfoundation.org>
+Message-Id: <20200601174028.801093489@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174020.759151073@linuxfoundation.org>
-References: <20200601174020.759151073@linuxfoundation.org>
+In-Reply-To: <20200601174016.396817032@linuxfoundation.org>
+References: <20200601174016.396817032@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,76 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Guoqing Jiang <gqjiang@suse.com>
 
-commit ed17b8d377eaf6b4a01d46942b4c647378a79bdd upstream.
+commit e00164a0f000de893944981f41a568c981aca658 upstream.
 
-This waring can be triggered simply by:
+err_spi is used when SERIAL_SC16IS7XX_SPI is enabled, so make
+the label only available under SERIAL_SC16IS7XX_SPI option.
+Otherwise, the below warning appears.
 
-  # ip xfrm policy update src 192.168.1.1/24 dst 192.168.1.2/24 dir in \
-    priority 1 mark 0 mask 0x10  #[1]
-  # ip xfrm policy update src 192.168.1.1/24 dst 192.168.1.2/24 dir in \
-    priority 2 mark 0 mask 0x1   #[2]
-  # ip xfrm policy update src 192.168.1.1/24 dst 192.168.1.2/24 dir in \
-    priority 2 mark 0 mask 0x10  #[3]
+drivers/tty/serial/sc16is7xx.c:1523:1: warning: label ‘err_spi’ defined but not used [-Wunused-label]
+ err_spi:
+  ^~~~~~~
 
-Then dmesg shows:
-
-  [ ] WARNING: CPU: 1 PID: 7265 at net/xfrm/xfrm_policy.c:1548
-  [ ] RIP: 0010:xfrm_policy_insert_list+0x2f2/0x1030
-  [ ] Call Trace:
-  [ ]  xfrm_policy_inexact_insert+0x85/0xe50
-  [ ]  xfrm_policy_insert+0x4ba/0x680
-  [ ]  xfrm_add_policy+0x246/0x4d0
-  [ ]  xfrm_user_rcv_msg+0x331/0x5c0
-  [ ]  netlink_rcv_skb+0x121/0x350
-  [ ]  xfrm_netlink_rcv+0x66/0x80
-  [ ]  netlink_unicast+0x439/0x630
-  [ ]  netlink_sendmsg+0x714/0xbf0
-  [ ]  sock_sendmsg+0xe2/0x110
-
-The issue was introduced by Commit 7cb8a93968e3 ("xfrm: Allow inserting
-policies with matching mark and different priorities"). After that, the
-policies [1] and [2] would be able to be added with different priorities.
-
-However, policy [3] will actually match both [1] and [2]. Policy [1]
-was matched due to the 1st 'return true' in xfrm_policy_mark_match(),
-and policy [2] was matched due to the 2nd 'return true' in there. It
-caused WARN_ON() in xfrm_policy_insert_list().
-
-This patch is to fix it by only (the same value and priority) as the
-same policy in xfrm_policy_mark_match().
-
-Thanks to Yuehaibing, we could make this fix better.
-
-v1->v2:
-  - check policy->mark.v == pol->mark.v only without mask.
-
-Fixes: 7cb8a93968e3 ("xfrm: Allow inserting policies with matching mark and different priorities")
-Reported-by: Xiumei Mu <xmu@redhat.com>
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Signed-off-by: Guoqing Jiang <gqjiang@suse.com>
+Fixes: ac0cdb3d9901 ("sc16is7xx: missing unregister/delete driver on error in sc16is7xx_init()")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Cc: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/xfrm/xfrm_policy.c |    7 +------
- 1 file changed, 1 insertion(+), 6 deletions(-)
+ drivers/tty/serial/sc16is7xx.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/net/xfrm/xfrm_policy.c
-+++ b/net/xfrm/xfrm_policy.c
-@@ -730,12 +730,7 @@ static void xfrm_policy_requeue(struct x
- static bool xfrm_policy_mark_match(struct xfrm_policy *policy,
- 				   struct xfrm_policy *pol)
- {
--	u32 mark = policy->mark.v & policy->mark.m;
--
--	if (policy->mark.v == pol->mark.v && policy->mark.m == pol->mark.m)
--		return true;
--
--	if ((mark & pol->mark.m) == pol->mark.v &&
-+	if (policy->mark.v == pol->mark.v &&
- 	    policy->priority == pol->priority)
- 		return true;
+--- a/drivers/tty/serial/sc16is7xx.c
++++ b/drivers/tty/serial/sc16is7xx.c
+@@ -1524,10 +1524,12 @@ static int __init sc16is7xx_init(void)
+ #endif
+ 	return ret;
  
++#ifdef CONFIG_SERIAL_SC16IS7XX_SPI
+ err_spi:
+ #ifdef CONFIG_SERIAL_SC16IS7XX_I2C
+ 	i2c_del_driver(&sc16is7xx_i2c_uart_driver);
+ #endif
++#endif
+ err_i2c:
+ 	uart_unregister_driver(&sc16is7xx_uart);
+ 	return ret;
 
 
