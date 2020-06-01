@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 611181EACB1
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:41:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A682B1EAD85
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:46:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728175AbgFASie (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:38:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35198 "EHLO mail.kernel.org"
+        id S1729666AbgFASp5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:45:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55340 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731528AbgFASPF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:15:05 -0400
+        id S1730816AbgFASJC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:09:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EDE2F2065C;
-        Mon,  1 Jun 2020 18:15:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 78D122068D;
+        Mon,  1 Jun 2020 18:09:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591035305;
-        bh=LpxpxJ35oFWhuM87IgD9IRxSyxS+069w7P+E9CDeK6M=;
+        s=default; t=1591034941;
+        bh=gqu03fH8g89anh/WMKH7IiocPYeUfj7QTFSKO32mq9Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q+VJsHdZIsB02dBfau4rjmcRyTETkkzCU093VuBIqeetZJsQLxDnxZJw/PYenVRjn
-         dmauhDLtxdkkxJ40FjpkHu1/afGvGHC7D12at/BH+hV02MDra/AZbkfXLR+1CdlzxF
-         SeNAa8BNVEv5CiG21Rev/AvR0kRWhIc89yrwBu1o=
+        b=f1mffN/x9J+0Jw39PRjtVXkXFI6Eiy6O+g5fBdFl7JhM79XnOIaaqhVT9AQVml040
+         kGYLRDMlz2cWWix0YFzVcvdrPZht9uSoRDtW8qJRkazhKTuCR8zqtwky4Bp4GDAax3
+         WJCx+u/+SFTzfa0/bkAQt0EjS4YICZd0pImD06ic=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
-        Sam Ravnborg <sam@ravnborg.org>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Vincent=20Stehl=C3=A9?= <vincent.stehle@laposte.net>,
+        Stefan Wahren <stefan.wahren@i2se.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 101/177] gpu/drm: Ingenic: Fix opaque pointer casted to wrong type
+Subject: [PATCH 5.4 081/142] ARM: dts: bcm2835-rpi-zero-w: Fix led polarity
 Date:   Mon,  1 Jun 2020 19:53:59 +0200
-Message-Id: <20200601174057.082666324@linuxfoundation.org>
+Message-Id: <20200601174046.369166728@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174048.468952319@linuxfoundation.org>
-References: <20200601174048.468952319@linuxfoundation.org>
+In-Reply-To: <20200601174037.904070960@linuxfoundation.org>
+References: <20200601174037.904070960@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,40 +46,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Cercueil <paul@crapouillou.net>
+From: Vincent Stehlé <vincent.stehle@laposte.net>
 
-[ Upstream commit abf56fadf0e208abfb13ad1ac0094416058da0ad ]
+[ Upstream commit 58bb90ab415562eededb932455046924e65df342 ]
 
-The opaque pointer passed to the IRQ handler is a pointer to the
-drm_device, not a pointer to our ingenic_drm structure.
+The status "ACT" led on the Raspberry Pi Zero W is on when GPIO 47 is low.
 
-It still worked, because our ingenic_drm structure contains the
-drm_device as its first field, so the pointer received had the same
-value, but this was not semantically correct.
+This has been verified on a board and somewhat confirmed by both the GPIO
+name ("STATUS_LED_N") and the reduced schematics [1].
 
-Cc: stable@vger.kernel.org # v5.3
-Fixes: 90b86fcc47b4 ("DRM: Add KMS driver for the Ingenic JZ47xx SoCs")
-Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200516215057.392609-5-paul@crapouillou.net
-Acked-by: Sam Ravnborg <sam@ravnborg.org>
+[1]: https://www.raspberrypi.org/documentation/hardware/raspberrypi/schematics/rpi_SCH_ZeroW_1p1_reduced.pdf
+
+Fixes: 2c7c040c73e9 ("ARM: dts: bcm2835: Add Raspberry Pi Zero W")
+Signed-off-by: Vincent Stehlé <vincent.stehle@laposte.net>
+Cc: Stefan Wahren <stefan.wahren@i2se.com>
+Cc: Florian Fainelli <f.fainelli@gmail.com>
+Tested-by: Stefan Wahren <stefan.wahren@i2se.com>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/ingenic/ingenic-drm.c | 2 +-
+ arch/arm/boot/dts/bcm2835-rpi-zero-w.dts | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/ingenic/ingenic-drm.c b/drivers/gpu/drm/ingenic/ingenic-drm.c
-index 8f5077370a52..e9900e078d51 100644
---- a/drivers/gpu/drm/ingenic/ingenic-drm.c
-+++ b/drivers/gpu/drm/ingenic/ingenic-drm.c
-@@ -474,7 +474,7 @@ static int ingenic_drm_encoder_atomic_check(struct drm_encoder *encoder,
+diff --git a/arch/arm/boot/dts/bcm2835-rpi-zero-w.dts b/arch/arm/boot/dts/bcm2835-rpi-zero-w.dts
+index 4c3f606e5b8d..f65448c01e31 100644
+--- a/arch/arm/boot/dts/bcm2835-rpi-zero-w.dts
++++ b/arch/arm/boot/dts/bcm2835-rpi-zero-w.dts
+@@ -24,7 +24,7 @@
  
- static irqreturn_t ingenic_drm_irq_handler(int irq, void *arg)
- {
--	struct ingenic_drm *priv = arg;
-+	struct ingenic_drm *priv = drm_device_get_priv(arg);
- 	unsigned int state;
+ 	leds {
+ 		act {
+-			gpios = <&gpio 47 GPIO_ACTIVE_HIGH>;
++			gpios = <&gpio 47 GPIO_ACTIVE_LOW>;
+ 		};
+ 	};
  
- 	regmap_read(priv->map, JZ_REG_LCD_STATE, &state);
 -- 
 2.25.1
 
