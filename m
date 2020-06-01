@@ -2,41 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C81D41EAB4B
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:17:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7AB931EA923
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:01:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731642AbgFASQA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:16:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36558 "EHLO mail.kernel.org"
+        id S1728458AbgFAR6j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 13:58:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40696 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731058AbgFASP7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:15:59 -0400
+        id S1729215AbgFAR6i (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 13:58:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 78DC92068D;
-        Mon,  1 Jun 2020 18:15:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6FBC72076B;
+        Mon,  1 Jun 2020 17:58:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591035358;
-        bh=YJG+QxHdfvDN+V1qYF4g92kefyTXuZGoqW+2ecbTQKo=;
+        s=default; t=1591034317;
+        bh=hTc5StCoTsWrEq2VXmWQuAp2PNJxWYeixSkxoRBz6FA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=texcz72evjmsJHFuGCWGEbGbxFcbVD3cbAiIk7lX/yKVn7RF0MuoDwNC/cxmX+LcB
-         UHv7JBEzyo1ewSCbZx8k7/H395TjykTFI6OGazjSYrVlIhCLqfCZlxfJgrrYI6FX08
-         Ahup41XAKabNorOtlxPiIml4qAEDc/5xO1xhp3pI=
+        b=gV0rMVSZBHhIaL1t5kb5H82bzP1vdpEOsaUCeLsoMquO4AqbuXME25SazjcSuKpsr
+         eSWJLR0EnOCXLRctFpZ+gBSXOO5iCWfSvJRgjJRm6w+zafeQLnvCv/gKYHh2UkTxHx
+         TXCE9mf2HijWemp2lrdLBttzcw0Z2uMXEgzaTUk0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?=C5=81ukasz=20Patron?= <priv.luk@gmail.com>,
-        Cameron Gutman <aicommander@gmail.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Konstantin Khlebnikov <khlebnikov@yandex-team.ru>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Hugh Dickins <hughd@google.com>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        David Rientjes <rientjes@google.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 087/177] Input: xpad - add custom init packet for Xbox One S controllers
+Subject: [PATCH 4.9 38/61] mm: remove VM_BUG_ON(PageSlab()) from page_mapcount()
 Date:   Mon,  1 Jun 2020 19:53:45 +0200
-Message-Id: <20200601174056.135427563@linuxfoundation.org>
+Message-Id: <20200601174018.784749172@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174048.468952319@linuxfoundation.org>
-References: <20200601174048.468952319@linuxfoundation.org>
+In-Reply-To: <20200601174010.316778377@linuxfoundation.org>
+References: <20200601174010.316778377@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,54 +50,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Łukasz Patron <priv.luk@gmail.com>
+From: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
 
-[ Upstream commit 764f7f911bf72450c51eb74cbb262ad9933741d8 ]
+[ Upstream commit 6988f31d558aa8c744464a7f6d91d34ada48ad12 ]
 
-Sending [ 0x05, 0x20, 0x00, 0x0f, 0x06 ] packet for Xbox One S controllers
-fixes an issue where controller is stuck in Bluetooth mode and not sending
-any inputs.
+Replace superfluous VM_BUG_ON() with comment about correct usage.
 
-Signed-off-by: Łukasz Patron <priv.luk@gmail.com>
-Reviewed-by: Cameron Gutman <aicommander@gmail.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20200422075206.18229-1-priv.luk@gmail.com
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Technically reverts commit 1d148e218a0d ("mm: add VM_BUG_ON_PAGE() to
+page_mapcount()"), but context lines have changed.
+
+Function isolate_migratepages_block() runs some checks out of lru_lock
+when choose pages for migration.  After checking PageLRU() it checks
+extra page references by comparing page_count() and page_mapcount().
+Between these two checks page could be removed from lru, freed and taken
+by slab.
+
+As a result this race triggers VM_BUG_ON(PageSlab()) in page_mapcount().
+Race window is tiny.  For certain workload this happens around once a
+year.
+
+    page:ffffea0105ca9380 count:1 mapcount:0 mapping:ffff88ff7712c180 index:0x0 compound_mapcount: 0
+    flags: 0x500000000008100(slab|head)
+    raw: 0500000000008100 dead000000000100 dead000000000200 ffff88ff7712c180
+    raw: 0000000000000000 0000000080200020 00000001ffffffff 0000000000000000
+    page dumped because: VM_BUG_ON_PAGE(PageSlab(page))
+    ------------[ cut here ]------------
+    kernel BUG at ./include/linux/mm.h:628!
+    invalid opcode: 0000 [#1] SMP NOPTI
+    CPU: 77 PID: 504 Comm: kcompactd1 Tainted: G        W         4.19.109-27 #1
+    Hardware name: Yandex T175-N41-Y3N/MY81-EX0-Y3N, BIOS R05 06/20/2019
+    RIP: 0010:isolate_migratepages_block+0x986/0x9b0
+
+The code in isolate_migratepages_block() was added in commit
+119d6d59dcc0 ("mm, compaction: avoid isolating pinned pages") before
+adding VM_BUG_ON into page_mapcount().
+
+This race has been predicted in 2015 by Vlastimil Babka (see link
+below).
+
+[akpm@linux-foundation.org: comment tweaks, per Hugh]
+Fixes: 1d148e218a0d ("mm: add VM_BUG_ON_PAGE() to page_mapcount()")
+Signed-off-by: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Acked-by: Hugh Dickins <hughd@google.com>
+Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Acked-by: Vlastimil Babka <vbabka@suse.cz>
+Cc: David Rientjes <rientjes@google.com>
+Cc: <stable@vger.kernel.org>
+Link: http://lkml.kernel.org/r/159032779896.957378.7852761411265662220.stgit@buzz
+Link: https://lore.kernel.org/lkml/557710E1.6060103@suse.cz/
+Link: https://lore.kernel.org/linux-mm/158937872515.474360.5066096871639561424.stgit@buzz/T/ (v1)
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/joystick/xpad.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ include/linux/mm.h | 15 +++++++++++++--
+ 1 file changed, 13 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index 6b40a1c68f9f..c77cdb3b62b5 100644
---- a/drivers/input/joystick/xpad.c
-+++ b/drivers/input/joystick/xpad.c
-@@ -458,6 +458,16 @@ static const u8 xboxone_fw2015_init[] = {
- 	0x05, 0x20, 0x00, 0x01, 0x00
- };
+diff --git a/include/linux/mm.h b/include/linux/mm.h
+index ca6f213fa4f0..7a4c035b187f 100644
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -504,6 +504,11 @@ static inline int is_vmalloc_or_module_addr(const void *x)
+ 
+ extern void kvfree(const void *addr);
  
 +/*
-+ * This packet is required for Xbox One S (0x045e:0x02ea)
-+ * and Xbox One Elite Series 2 (0x045e:0x0b00) pads to
-+ * initialize the controller that was previously used in
-+ * Bluetooth mode.
++ * Mapcount of compound page as a whole, does not include mapped sub-pages.
++ *
++ * Must be called only for compound pages or any their tail sub-pages.
 + */
-+static const u8 xboxone_s_init[] = {
-+	0x05, 0x20, 0x00, 0x0f, 0x06
-+};
-+
- /*
-  * This packet is required for the Titanfall 2 Xbox One pads
-  * (0x0e6f:0x0165) to finish initialization and for Hori pads
-@@ -516,6 +526,8 @@ static const struct xboxone_init_packet xboxone_init_packets[] = {
- 	XBOXONE_INIT_PKT(0x0e6f, 0x0165, xboxone_hori_init),
- 	XBOXONE_INIT_PKT(0x0f0d, 0x0067, xboxone_hori_init),
- 	XBOXONE_INIT_PKT(0x0000, 0x0000, xboxone_fw2015_init),
-+	XBOXONE_INIT_PKT(0x045e, 0x02ea, xboxone_s_init),
-+	XBOXONE_INIT_PKT(0x045e, 0x0b00, xboxone_s_init),
- 	XBOXONE_INIT_PKT(0x0e6f, 0x0000, xboxone_pdp_init1),
- 	XBOXONE_INIT_PKT(0x0e6f, 0x0000, xboxone_pdp_init2),
- 	XBOXONE_INIT_PKT(0x24c6, 0x541a, xboxone_rumblebegin_init),
+ static inline int compound_mapcount(struct page *page)
+ {
+ 	VM_BUG_ON_PAGE(!PageCompound(page), page);
+@@ -523,10 +528,16 @@ static inline void page_mapcount_reset(struct page *page)
+ 
+ int __page_mapcount(struct page *page);
+ 
++/*
++ * Mapcount of 0-order page; when compound sub-page, includes
++ * compound_mapcount().
++ *
++ * Result is undefined for pages which cannot be mapped into userspace.
++ * For example SLAB or special types of pages. See function page_has_type().
++ * They use this place in struct page differently.
++ */
+ static inline int page_mapcount(struct page *page)
+ {
+-	VM_BUG_ON_PAGE(PageSlab(page), page);
+-
+ 	if (unlikely(PageCompound(page)))
+ 		return __page_mapcount(page);
+ 	return atomic_read(&page->_mapcount) + 1;
 -- 
 2.25.1
 
