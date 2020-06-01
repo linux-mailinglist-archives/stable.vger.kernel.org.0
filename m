@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A2BD1EAB0C
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:17:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EFAF51EA95D
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:01:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731399AbgFASNw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:13:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33480 "EHLO mail.kernel.org"
+        id S1728630AbgFASBQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:01:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44118 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731394AbgFASNv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:13:51 -0400
+        id S1729759AbgFASBP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:01:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B2DE72065C;
-        Mon,  1 Jun 2020 18:13:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0397E206E2;
+        Mon,  1 Jun 2020 18:01:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591035231;
-        bh=pqPXEdtzPBPf0WWCLi1AJBRZpqfhU60G1WugGDK/wGU=;
+        s=default; t=1591034474;
+        bh=CuBTDqU7i9gT/BrbieKiGX7Ca/D8uLOthjeVO9EfLPY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OzuXQDDalc7lvnyDgvNpRDggv0j0R9fHf4F9ZYxdwHNRnId9XzRHkQggE3GzLNmEq
-         eeV7JQx9dGVn8DQ5JHEdzCCgP0UBLsDIvkfgf/MM0WLdPyj/up9uWy5sPx7O9Uxxrc
-         BKnswLD7WErspXgqQsSSDjZrOlbqyMABk9/l8YRA=
+        b=TzvSCgrvLhpGYLMWL4TcgxvQqVcJjfZ7cagvnVT7f/Xvhu1mXF3rD//+i2JLlsdg4
+         JCNBiJnuyAc09pNjFZhMDmwpSrjIUaCK6LdbHL0yU35gLz3Y8juwNth4DHdJ3i46pu
+         xL96iLVrDUgOiZycVza73IxoTbfcxE/H7+icMclQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        kbuild test robot <lkp@intel.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Felipe Balbi <balbi@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 067/177] net: freescale: select CONFIG_FIXED_PHY where needed
+Subject: [PATCH 4.14 20/77] usb: gadget: legacy: fix redundant initialization warnings
 Date:   Mon,  1 Jun 2020 19:53:25 +0200
-Message-Id: <20200601174054.503032826@linuxfoundation.org>
+Message-Id: <20200601174020.054553107@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174048.468952319@linuxfoundation.org>
-References: <20200601174048.468952319@linuxfoundation.org>
+In-Reply-To: <20200601174016.396817032@linuxfoundation.org>
+References: <20200601174016.396817032@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,64 +46,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-[ Upstream commit 99352c79af3e5f2e4724abf37fa5a2a3299b1c81 ]
+[ Upstream commit d13cce757954fa663c69845611957396843ed87a ]
 
-I ran into a randconfig build failure with CONFIG_FIXED_PHY=m
-and CONFIG_GIANFAR=y:
+Fix the following cppcheck warnings:
 
-x86_64-linux-ld: drivers/net/ethernet/freescale/gianfar.o:(.rodata+0x418): undefined reference to `fixed_phy_change_carrier'
+drivers/usb/gadget/legacy/inode.c:1364:8: style: Redundant initialization for 'value'. The initialized value is overwritten$
+ value = -EOPNOTSUPP;
+       ^
+drivers/usb/gadget/legacy/inode.c:1331:15: note: value is initialized
+ int    value = -EOPNOTSUPP;
+              ^
+drivers/usb/gadget/legacy/inode.c:1364:8: note: value is overwritten
+ value = -EOPNOTSUPP;
+       ^
+drivers/usb/gadget/legacy/inode.c:1817:8: style: Redundant initialization for 'value'. The initialized value is overwritten$
+ value = -EINVAL;
+       ^
+drivers/usb/gadget/legacy/inode.c:1787:18: note: value is initialized
+ ssize_t   value = len, length = len;
+                 ^
+drivers/usb/gadget/legacy/inode.c:1817:8: note: value is overwritten
+ value = -EINVAL;
+       ^
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Reported-by: kbuild test robot <lkp@intel.com>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
 
-It seems the same thing can happen with dpaa and ucc_geth, so change
-all three to do an explicit 'select FIXED_PHY'.
-
-The fixed-phy driver actually has an alternative stub function that
-theoretically allows building network drivers when fixed-phy is
-disabled, but I don't see how that would help here, as the drivers
-presumably would not work then.
-
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/freescale/Kconfig      | 2 ++
- drivers/net/ethernet/freescale/dpaa/Kconfig | 1 +
- 2 files changed, 3 insertions(+)
+ drivers/usb/gadget/legacy/inode.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/freescale/Kconfig b/drivers/net/ethernet/freescale/Kconfig
-index 2bd7ace0a953..bfc6bfe94d0a 100644
---- a/drivers/net/ethernet/freescale/Kconfig
-+++ b/drivers/net/ethernet/freescale/Kconfig
-@@ -77,6 +77,7 @@ config UCC_GETH
- 	depends on QUICC_ENGINE && PPC32
- 	select FSL_PQ_MDIO
- 	select PHYLIB
-+	select FIXED_PHY
- 	---help---
- 	  This driver supports the Gigabit Ethernet mode of the QUICC Engine,
- 	  which is available on some Freescale SOCs.
-@@ -90,6 +91,7 @@ config GIANFAR
- 	depends on HAS_DMA
- 	select FSL_PQ_MDIO
- 	select PHYLIB
-+	select FIXED_PHY
- 	select CRC32
- 	---help---
- 	  This driver supports the Gigabit TSEC on the MPC83xx, MPC85xx,
-diff --git a/drivers/net/ethernet/freescale/dpaa/Kconfig b/drivers/net/ethernet/freescale/dpaa/Kconfig
-index 3b325733a4f8..0a54c7e0e4ae 100644
---- a/drivers/net/ethernet/freescale/dpaa/Kconfig
-+++ b/drivers/net/ethernet/freescale/dpaa/Kconfig
-@@ -3,6 +3,7 @@ menuconfig FSL_DPAA_ETH
- 	tristate "DPAA Ethernet"
- 	depends on FSL_DPAA && FSL_FMAN
- 	select PHYLIB
-+	select FIXED_PHY
- 	select FSL_FMAN_MAC
- 	---help---
- 	  Data Path Acceleration Architecture Ethernet driver,
+diff --git a/drivers/usb/gadget/legacy/inode.c b/drivers/usb/gadget/legacy/inode.c
+index 5c28bee327e1..e431a8bc3a9d 100644
+--- a/drivers/usb/gadget/legacy/inode.c
++++ b/drivers/usb/gadget/legacy/inode.c
+@@ -1364,7 +1364,6 @@ gadgetfs_setup (struct usb_gadget *gadget, const struct usb_ctrlrequest *ctrl)
+ 
+ 	req->buf = dev->rbuf;
+ 	req->context = NULL;
+-	value = -EOPNOTSUPP;
+ 	switch (ctrl->bRequest) {
+ 
+ 	case USB_REQ_GET_DESCRIPTOR:
+@@ -1788,7 +1787,7 @@ static ssize_t
+ dev_config (struct file *fd, const char __user *buf, size_t len, loff_t *ptr)
+ {
+ 	struct dev_data		*dev = fd->private_data;
+-	ssize_t			value = len, length = len;
++	ssize_t			value, length = len;
+ 	unsigned		total;
+ 	u32			tag;
+ 	char			*kbuf;
 -- 
 2.25.1
 
