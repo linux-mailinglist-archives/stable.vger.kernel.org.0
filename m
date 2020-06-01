@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2EB8B1EAD0C
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:43:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9796A1EADF2
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:50:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729187AbgFASl4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:41:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59560 "EHLO mail.kernel.org"
+        id S1730039AbgFASGi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:06:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52256 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730787AbgFASMM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:12:12 -0400
+        id S1730033AbgFASGg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:06:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B15BC2068D;
-        Mon,  1 Jun 2020 18:12:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C60B92068D;
+        Mon,  1 Jun 2020 18:06:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591035132;
-        bh=zsnNwinp/DE+F74R59YrcglBgXtqUtkXfpuHn77ZXQA=;
+        s=default; t=1591034795;
+        bh=20+5iZ1H51nyEgXnKUFVmNC29bl/C0FVNrLzX9WCgsE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y02iWMD9f+gqU24A2okRQTzxQwq0OZrsGTIaHP+Xj2NOTBCamL1TLbzLL/pwmnMyY
-         IV9H/AxnyZjWB2DECl8U6BK5eTSwYXY7vOBRx9uSKK7uB4Iki/SHhaD+FWHX+2TscN
-         BAXhAuCwyUGkf4jk24rdk2+1FLiIAGSBzLFXt7sA=
+        b=Rf/UVkv+G2vrSlCSOD2NI5xhPuBL65u07Qg0Yzbodm6g2jCbc2d3n9CgutNbNyDbO
+         DyASqP46d1+KUdBGnuCqWQXLzpLag6OtMcPK/VqI0Nq+CgramABwq4BzJwEB3IH7pq
+         ghDZOuh0CaoPVhFtoMUemkyNz59nxbJ30m9x8OmA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tariq Toukan <tariqt@mellanox.com>,
-        Boris Pismenny <borisp@mellanox.com>,
-        Saeed Mahameed <saeedm@mellanox.com>
-Subject: [PATCH 5.6 023/177] net/mlx5e: kTLS, Destroy key object after destroying the TIS
+        stable@vger.kernel.org, Sabrina Dubroca <sd@queasysnail.net>,
+        David Ahern <dsahern@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 003/142] net: dont return invalid table id error when we fall back to PF_UNSPEC
 Date:   Mon,  1 Jun 2020 19:52:41 +0200
-Message-Id: <20200601174050.694478525@linuxfoundation.org>
+Message-Id: <20200601174038.389570989@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174048.468952319@linuxfoundation.org>
-References: <20200601174048.468952319@linuxfoundation.org>
+In-Reply-To: <20200601174037.904070960@linuxfoundation.org>
+References: <20200601174037.904070960@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,36 +44,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tariq Toukan <tariqt@mellanox.com>
+From: Sabrina Dubroca <sd@queasysnail.net>
 
-[ Upstream commit 16736e11f43b80a38f98f6add54fab3b8c297df3 ]
+[ Upstream commit 41b4bd986f86331efc599b9a3f5fb86ad92e9af9 ]
 
-The TLS TIS object contains the dek/key ID.
-By destroying the key first, the TIS would contain an invalid
-non-existing key ID.
-Reverse the destroy order, this also acheives the desired assymetry
-between the destroy and the create flows.
+In case we can't find a ->dumpit callback for the requested
+(family,type) pair, we fall back to (PF_UNSPEC,type). In effect, we're
+in the same situation as if userspace had requested a PF_UNSPEC
+dump. For RTM_GETROUTE, that handler is rtnl_dump_all, which calls all
+the registered RTM_GETROUTE handlers.
 
-Fixes: d2ead1f360e8 ("net/mlx5e: Add kTLS TX HW offload support")
-Signed-off-by: Tariq Toukan <tariqt@mellanox.com>
-Reviewed-by: Boris Pismenny <borisp@mellanox.com>
-Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
+The requested table id may or may not exist for all of those
+families. commit ae677bbb4441 ("net: Don't return invalid table id
+error when dumping all families") fixed the problem when userspace
+explicitly requests a PF_UNSPEC dump, but missed the fallback case.
+
+For example, when we pass ipv6.disable=1 to a kernel with
+CONFIG_IP_MROUTE=y and CONFIG_IP_MROUTE_MULTIPLE_TABLES=y,
+the (PF_INET6, RTM_GETROUTE) handler isn't registered, so we end up in
+rtnl_dump_all, and listing IPv6 routes will unexpectedly print:
+
+  # ip -6 r
+  Error: ipv4: MR table does not exist.
+  Dump terminated
+
+commit ae677bbb4441 introduced the dump_all_families variable, which
+gets set when userspace requests a PF_UNSPEC dump. However, we can't
+simply set the family to PF_UNSPEC in rtnetlink_rcv_msg in the
+fallback case to get dump_all_families == true, because some messages
+types (for example RTM_GETRULE and RTM_GETNEIGH) only register the
+PF_UNSPEC handler and use the family to filter in the kernel what is
+dumped to userspace. We would then export more entries, that userspace
+would have to filter. iproute does that, but other programs may not.
+
+Instead, this patch removes dump_all_families and updates the
+RTM_GETROUTE handlers to check if the family that is being dumped is
+their own. When it's not, which covers both the intentional PF_UNSPEC
+dumps (as dump_all_families did) and the fallback case, ignore the
+missing table id error.
+
+Fixes: cb167893f41e ("net: Plumb support for filtering ipv4 and ipv6 multicast route dumps")
+Signed-off-by: Sabrina Dubroca <sd@queasysnail.net>
+Reviewed-by: David Ahern <dsahern@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_accel/ktls.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/net/ip_fib.h    |    1 -
+ net/ipv4/fib_frontend.c |    3 +--
+ net/ipv4/ipmr.c         |    2 +-
+ net/ipv6/ip6_fib.c      |    2 +-
+ net/ipv6/ip6mr.c        |    2 +-
+ 5 files changed, 4 insertions(+), 6 deletions(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_accel/ktls.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_accel/ktls.c
-@@ -69,8 +69,8 @@ static void mlx5e_ktls_del(struct net_de
- 	struct mlx5e_ktls_offload_context_tx *tx_priv =
- 		mlx5e_get_ktls_tx_priv_ctx(tls_ctx);
+--- a/include/net/ip_fib.h
++++ b/include/net/ip_fib.h
+@@ -244,7 +244,6 @@ struct fib_dump_filter {
+ 	u32			table_id;
+ 	/* filter_set is an optimization that an entry is set */
+ 	bool			filter_set;
+-	bool			dump_all_families;
+ 	bool			dump_routes;
+ 	bool			dump_exceptions;
+ 	unsigned char		protocol;
+--- a/net/ipv4/fib_frontend.c
++++ b/net/ipv4/fib_frontend.c
+@@ -928,7 +928,6 @@ int ip_valid_fib_dump_req(struct net *ne
+ 	else
+ 		filter->dump_exceptions = false;
  
--	mlx5_ktls_destroy_key(priv->mdev, tx_priv->key_id);
- 	mlx5e_destroy_tis(priv->mdev, tx_priv->tisn);
-+	mlx5_ktls_destroy_key(priv->mdev, tx_priv->key_id);
- 	kvfree(tx_priv);
- }
+-	filter->dump_all_families = (rtm->rtm_family == AF_UNSPEC);
+ 	filter->flags    = rtm->rtm_flags;
+ 	filter->protocol = rtm->rtm_protocol;
+ 	filter->rt_type  = rtm->rtm_type;
+@@ -1000,7 +999,7 @@ static int inet_dump_fib(struct sk_buff
+ 	if (filter.table_id) {
+ 		tb = fib_get_table(net, filter.table_id);
+ 		if (!tb) {
+-			if (filter.dump_all_families)
++			if (rtnl_msg_family(cb->nlh) != PF_INET)
+ 				return skb->len;
  
+ 			NL_SET_ERR_MSG(cb->extack, "ipv4: FIB table does not exist");
+--- a/net/ipv4/ipmr.c
++++ b/net/ipv4/ipmr.c
+@@ -2609,7 +2609,7 @@ static int ipmr_rtm_dumproute(struct sk_
+ 
+ 		mrt = ipmr_get_table(sock_net(skb->sk), filter.table_id);
+ 		if (!mrt) {
+-			if (filter.dump_all_families)
++			if (rtnl_msg_family(cb->nlh) != RTNL_FAMILY_IPMR)
+ 				return skb->len;
+ 
+ 			NL_SET_ERR_MSG(cb->extack, "ipv4: MR table does not exist");
+--- a/net/ipv6/ip6_fib.c
++++ b/net/ipv6/ip6_fib.c
+@@ -613,7 +613,7 @@ static int inet6_dump_fib(struct sk_buff
+ 	if (arg.filter.table_id) {
+ 		tb = fib6_get_table(net, arg.filter.table_id);
+ 		if (!tb) {
+-			if (arg.filter.dump_all_families)
++			if (rtnl_msg_family(cb->nlh) != PF_INET6)
+ 				goto out;
+ 
+ 			NL_SET_ERR_MSG_MOD(cb->extack, "FIB table does not exist");
+--- a/net/ipv6/ip6mr.c
++++ b/net/ipv6/ip6mr.c
+@@ -2498,7 +2498,7 @@ static int ip6mr_rtm_dumproute(struct sk
+ 
+ 		mrt = ip6mr_get_table(sock_net(skb->sk), filter.table_id);
+ 		if (!mrt) {
+-			if (filter.dump_all_families)
++			if (rtnl_msg_family(cb->nlh) != RTNL_FAMILY_IP6MR)
+ 				return skb->len;
+ 
+ 			NL_SET_ERR_MSG_MOD(cb->extack, "MR table does not exist");
 
 
