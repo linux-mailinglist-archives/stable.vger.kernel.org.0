@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D19F51EAA82
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:11:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB36E1EAA05
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:05:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730768AbgFASIo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:08:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54956 "EHLO mail.kernel.org"
+        id S1730193AbgFASEW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:04:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48894 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730764AbgFASIo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:08:44 -0400
+        id S1728869AbgFASEV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:04:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 75581207D0;
-        Mon,  1 Jun 2020 18:08:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D35C1206E2;
+        Mon,  1 Jun 2020 18:04:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034923;
-        bh=2ZPjej86uWTbLn4JuUOXaDIYjHQwrcYDh8zvLp7nqxA=;
+        s=default; t=1591034660;
+        bh=3jPdlcInTFh+EvDJW8n9OfnWGq4Fb6IVg+4HS2nVxB8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A3Y//RJ0zsqcugpTacUP6yvsXxnn5ZNLruvMSIF1lojkc0qZJzqiZlNv773deffp6
-         FhMpTYNTPx9KbcVzhlWx1e1aHEa1Ws1eUxZ06XOLenWgd4z9avDnkx6TvLi930jiGJ
-         7G7RFj2iTXk16G6g6inyONoWnscc273CuuSB4HRI=
+        b=lbjUa0HuFDazbCAYsYeslyvPKr/eCr4aCUoW+znSgcjZAimZV99aBRMnXddQwZI99
+         DdG88Vd0dzyWwVtkhrLRNOz5aROacmRkMBhCSxd4U2U/9cEE0FT5m1+XOwe1sDTVnc
+         Hp5ZilCbfOeB4BFvlf5hLQBMCZEsFW22+3sXLu5I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tomas Paukrt <tomas.paukrt@advantech.cz>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
+        stable@vger.kernel.org, Robert Beckett <bob.beckett@collabora.com>,
+        Ian Ray <ian.ray@ge.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 074/142] ARM: uaccess: fix DACR mismatch with nested exceptions
+Subject: [PATCH 4.19 52/95] ARM: dts/imx6q-bx50v3: Set display interface clock parents
 Date:   Mon,  1 Jun 2020 19:53:52 +0200
-Message-Id: <20200601174045.466421674@linuxfoundation.org>
+Message-Id: <20200601174029.499300512@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174037.904070960@linuxfoundation.org>
-References: <20200601174037.904070960@linuxfoundation.org>
+In-Reply-To: <20200601174020.759151073@linuxfoundation.org>
+References: <20200601174020.759151073@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,118 +46,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King <rmk+kernel@armlinux.org.uk>
+From: Robert Beckett <bob.beckett@collabora.com>
 
-[ Upstream commit 71f8af1110101facfad68989ff91f88f8e2c3e22 ]
+[ Upstream commit 665e7c73a7724a393b4ec92d1ae1e029925ef2b7 ]
 
-Tomas Paukrt reports that his SAM9X60 based system (ARM926, ARMv5TJ)
-fails to fix up alignment faults, eventually resulting in a kernel
-oops.
+Avoid LDB and IPU DI clocks both using the same parent. LDB requires
+pasthrough clock to avoid breaking timing while IPU DI does not.
 
-The problem occurs when using CONFIG_CPU_USE_DOMAINS with commit
-e6978e4bf181 ("ARM: save and reset the address limit when entering an
-exception").  This is because the address limit is set back to
-TASK_SIZE on exception entry, and, although it is restored on exception
-exit, the domain register is not.
+Force IPU DI clocks to use IMX6QDL_CLK_PLL2_PFD0_352M as parent
+and LDB to use IMX6QDL_CLK_PLL5_VIDEO_DIV.
 
-Hence, this sequence can occur:
+This fixes an issue where attempting atomic modeset while using
+HDMI and display port at the same time causes LDB clock programming
+to destroy the programming of HDMI that was done during the same
+modeset.
 
-  interrupt
-    pt_regs->addr_limit = addr_limit		// USER_DS
-    addr_limit = USER_DS
-    alignment exception
-    __probe_kernel_read()
-      old_fs = get_fs()				// USER_DS
-      set_fs(KERNEL_DS)
-        addr_limit = KERNEL_DS
-        dacr.kernel = DOMAIN_MANAGER
-        interrupt
-          pt_regs->addr_limit = addr_limit	// KERNEL_DS
-          addr_limit = USER_DS
-          alignment exception
-          __probe_kernel_read()
-            old_fs = get_fs()			// USER_DS
-            set_fs(KERNEL_DS)
-              addr_limit = KERNEL_DS
-              dacr.kernel = DOMAIN_MANAGER
-            ...
-            set_fs(old_fs)
-              addr_limit = USER_DS
-              dacr.kernel = DOMAIN_CLIENT
-          ...
-          addr_limit = pt_regs->addr_limit	// KERNEL_DS
-        interrupt returns
-
-At this point, addr_limit is correctly restored to KERNEL_DS for
-__probe_kernel_read() to continue execution, but dacr.kernel is not,
-it has been reset by the set_fs(old_fs) to DOMAIN_CLIENT.
-
-This would not have happened prior to the mentioned commit, because
-addr_limit would remain KERNEL_DS, so get_fs() would have returned
-KERNEL_DS, and so would correctly nest.
-
-This commit fixes the problem by also saving the DACR on exception
-entry if either CONFIG_CPU_SW_DOMAIN_PAN or CONFIG_CPU_USE_DOMAINS are
-enabled, and resetting the DACR appropriately on exception entry to
-match addr_limit and PAN settings.
-
-Fixes: e6978e4bf181 ("ARM: save and reset the address limit when entering an exception")
-Reported-by: Tomas Paukrt <tomas.paukrt@advantech.cz>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Cc: stable@vger.kernel.org
+Signed-off-by: Robert Beckett <bob.beckett@collabora.com>
+[Use IMX6QDL_CLK_PLL2_PFD0_352M instead of IMX6QDL_CLK_PLL2_PFD2_396M
+ originally chosen by Robert Beckett to avoid affecting eMMC clock
+ by DRM atomic updates]
+Signed-off-by: Ian Ray <ian.ray@ge.com>
+[Squash Robert's and Ian's commits for bisectability, update patch
+ description and add stable tag]
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/include/asm/uaccess-asm.h | 25 ++++++++++++++++++++-----
- 1 file changed, 20 insertions(+), 5 deletions(-)
+ arch/arm/boot/dts/imx6q-b450v3.dts  |  7 -------
+ arch/arm/boot/dts/imx6q-b650v3.dts  |  7 -------
+ arch/arm/boot/dts/imx6q-b850v3.dts  | 11 -----------
+ arch/arm/boot/dts/imx6q-bx50v3.dtsi | 15 +++++++++++++++
+ 4 files changed, 15 insertions(+), 25 deletions(-)
 
-diff --git a/arch/arm/include/asm/uaccess-asm.h b/arch/arm/include/asm/uaccess-asm.h
-index e46468b91eaa..907571fd05c6 100644
---- a/arch/arm/include/asm/uaccess-asm.h
-+++ b/arch/arm/include/asm/uaccess-asm.h
-@@ -67,15 +67,21 @@
- #endif
- 	.endm
+diff --git a/arch/arm/boot/dts/imx6q-b450v3.dts b/arch/arm/boot/dts/imx6q-b450v3.dts
+index 3ec58500e9c2..25bf45659737 100644
+--- a/arch/arm/boot/dts/imx6q-b450v3.dts
++++ b/arch/arm/boot/dts/imx6q-b450v3.dts
+@@ -65,13 +65,6 @@
+ 	};
+ };
  
--#ifdef CONFIG_CPU_SW_DOMAIN_PAN
-+#if defined(CONFIG_CPU_SW_DOMAIN_PAN) || defined(CONFIG_CPU_USE_DOMAINS)
- #define DACR(x...)	x
- #else
- #define DACR(x...)
- #endif
+-&clks {
+-	assigned-clocks = <&clks IMX6QDL_CLK_LDB_DI0_SEL>,
+-			  <&clks IMX6QDL_CLK_LDB_DI1_SEL>;
+-	assigned-clock-parents = <&clks IMX6QDL_CLK_PLL3_USB_OTG>,
+-				 <&clks IMX6QDL_CLK_PLL3_USB_OTG>;
+-};
+-
+ &ldb {
+ 	status = "okay";
  
- 	/*
--	 * Save the address limit on entry to a privileged exception and
--	 * if using PAN, save and disable usermode access.
-+	 * Save the address limit on entry to a privileged exception.
-+	 *
-+	 * If we are using the DACR for kernel access by the user accessors
-+	 * (CONFIG_CPU_USE_DOMAINS=y), always reset the DACR kernel domain
-+	 * back to client mode, whether or not \disable is set.
-+	 *
-+	 * If we are using SW PAN, set the DACR user domain to no access
-+	 * if \disable is set.
- 	 */
- 	.macro	uaccess_entry, tsk, tmp0, tmp1, tmp2, disable
- 	ldr	\tmp1, [\tsk, #TI_ADDR_LIMIT]
-@@ -84,8 +90,17 @@
-  DACR(	mrc	p15, 0, \tmp0, c3, c0, 0)
-  DACR(	str	\tmp0, [sp, #SVC_DACR])
- 	str	\tmp1, [sp, #SVC_ADDR_LIMIT]
--	.if \disable
--	uaccess_disable \tmp0
-+	.if \disable && IS_ENABLED(CONFIG_CPU_SW_DOMAIN_PAN)
-+	/* kernel=client, user=no access */
-+	mov	\tmp2, #DACR_UACCESS_DISABLE
-+	mcr	p15, 0, \tmp2, c3, c0, 0
-+	instr_sync
-+	.elseif IS_ENABLED(CONFIG_CPU_USE_DOMAINS)
-+	/* kernel=client */
-+	bic	\tmp2, \tmp0, #domain_mask(DOMAIN_KERNEL)
-+	orr	\tmp2, \tmp2, #domain_val(DOMAIN_KERNEL, DOMAIN_CLIENT)
-+	mcr	p15, 0, \tmp2, c3, c0, 0
-+	instr_sync
- 	.endif
- 	.endm
+diff --git a/arch/arm/boot/dts/imx6q-b650v3.dts b/arch/arm/boot/dts/imx6q-b650v3.dts
+index 5650a9b11091..0326711a8700 100644
+--- a/arch/arm/boot/dts/imx6q-b650v3.dts
++++ b/arch/arm/boot/dts/imx6q-b650v3.dts
+@@ -65,13 +65,6 @@
+ 	};
+ };
  
+-&clks {
+-	assigned-clocks = <&clks IMX6QDL_CLK_LDB_DI0_SEL>,
+-			  <&clks IMX6QDL_CLK_LDB_DI1_SEL>;
+-	assigned-clock-parents = <&clks IMX6QDL_CLK_PLL3_USB_OTG>,
+-				 <&clks IMX6QDL_CLK_PLL3_USB_OTG>;
+-};
+-
+ &ldb {
+ 	status = "okay";
+ 
+diff --git a/arch/arm/boot/dts/imx6q-b850v3.dts b/arch/arm/boot/dts/imx6q-b850v3.dts
+index 044a5bebe1c5..612f782ddaaa 100644
+--- a/arch/arm/boot/dts/imx6q-b850v3.dts
++++ b/arch/arm/boot/dts/imx6q-b850v3.dts
+@@ -53,17 +53,6 @@
+ 	};
+ };
+ 
+-&clks {
+-	assigned-clocks = <&clks IMX6QDL_CLK_LDB_DI0_SEL>,
+-			  <&clks IMX6QDL_CLK_LDB_DI1_SEL>,
+-			  <&clks IMX6QDL_CLK_IPU1_DI0_PRE_SEL>,
+-			  <&clks IMX6QDL_CLK_IPU2_DI0_PRE_SEL>;
+-	assigned-clock-parents = <&clks IMX6QDL_CLK_PLL5_VIDEO_DIV>,
+-				 <&clks IMX6QDL_CLK_PLL5_VIDEO_DIV>,
+-				 <&clks IMX6QDL_CLK_PLL2_PFD2_396M>,
+-				 <&clks IMX6QDL_CLK_PLL2_PFD2_396M>;
+-};
+-
+ &ldb {
+ 	fsl,dual-channel;
+ 	status = "okay";
+diff --git a/arch/arm/boot/dts/imx6q-bx50v3.dtsi b/arch/arm/boot/dts/imx6q-bx50v3.dtsi
+index d3cba09be0cb..c1f554348187 100644
+--- a/arch/arm/boot/dts/imx6q-bx50v3.dtsi
++++ b/arch/arm/boot/dts/imx6q-bx50v3.dtsi
+@@ -391,3 +391,18 @@
+ 		#interrupt-cells = <1>;
+ 	};
+ };
++
++&clks {
++	assigned-clocks = <&clks IMX6QDL_CLK_LDB_DI0_SEL>,
++			  <&clks IMX6QDL_CLK_LDB_DI1_SEL>,
++			  <&clks IMX6QDL_CLK_IPU1_DI0_PRE_SEL>,
++			  <&clks IMX6QDL_CLK_IPU1_DI1_PRE_SEL>,
++			  <&clks IMX6QDL_CLK_IPU2_DI0_PRE_SEL>,
++			  <&clks IMX6QDL_CLK_IPU2_DI1_PRE_SEL>;
++	assigned-clock-parents = <&clks IMX6QDL_CLK_PLL5_VIDEO_DIV>,
++				 <&clks IMX6QDL_CLK_PLL5_VIDEO_DIV>,
++				 <&clks IMX6QDL_CLK_PLL2_PFD0_352M>,
++				 <&clks IMX6QDL_CLK_PLL2_PFD0_352M>,
++				 <&clks IMX6QDL_CLK_PLL2_PFD0_352M>,
++				 <&clks IMX6QDL_CLK_PLL2_PFD0_352M>;
++};
 -- 
 2.25.1
 
