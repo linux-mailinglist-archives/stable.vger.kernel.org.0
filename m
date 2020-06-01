@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AFB251EAE3B
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:53:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 48F1B1EAF1C
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:59:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729116AbgFASv4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:51:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49240 "EHLO mail.kernel.org"
+        id S1729565AbgFAS7p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:59:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38000 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729735AbgFASEb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:04:31 -0400
+        id S1728818AbgFAR5D (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 13:57:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 04DF7206E2;
-        Mon,  1 Jun 2020 18:04:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A063E2073B;
+        Mon,  1 Jun 2020 17:57:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034671;
-        bh=G//XOzUJ0Xz0SRGApteYh963dc2gtUMjNDCmrwGsjoU=;
+        s=default; t=1591034223;
+        bh=gTD9ZJmmQfukiKb2cBKcYkeLRNsmSehEVufbEHZPuM0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JwjQqk0oeyp08+gQYndAiAYF+0RJKeMZk9FrEE7p0lNTZ7toIY5IDHuU15U+QNmIH
-         iUdjQJkMurbUuf2bBDgZTtKU9Xfy368maKNGLCrtdvoLuoQoMsHzsZXGC0h6B8n+Y5
-         xKwcW1ivr5wiBaU7zhPcb8p0LAPIHRnyO4rqNV8E=
+        b=ITBvb+5PfzUjF5ByDmPdZHTx6s0BfP8wNZqJvcicdgdQ6HT+/SGE91HYKzSZ6rAmU
+         2FWX7iX5J//0kotM7AHbzsYC3tfeQauFqL2VJwupP1cFrhmEuo3QiO24WBeKnNG8Lv
+         Xu6oAhjKFM4vHogrve3XqLPT7y23T9zvjyduSPHc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Changming Liu <liu.changm@northeastern.edu>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 57/95] ALSA: hwdep: fix a left shifting 1 by 31 UB bug
+        stable@vger.kernel.org, Guoqing Jiang <gqjiang@suse.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 4.4 47/48] sc16is7xx: move label err_spi to correct section
 Date:   Mon,  1 Jun 2020 19:53:57 +0200
-Message-Id: <20200601174030.222878432@linuxfoundation.org>
+Message-Id: <20200601174005.550471883@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174020.759151073@linuxfoundation.org>
-References: <20200601174020.759151073@linuxfoundation.org>
+In-Reply-To: <20200601173952.175939894@linuxfoundation.org>
+References: <20200601173952.175939894@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,45 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Changming Liu <liu.changm@northeastern.edu>
+From: Guoqing Jiang <gqjiang@suse.com>
 
-[ Upstream commit fb8cd6481ffd126f35e9e146a0dcf0c4e8899f2e ]
+commit e00164a0f000de893944981f41a568c981aca658 upstream.
 
-The "info.index" variable can be 31 in "1 << info.index".
-This might trigger an undefined behavior since 1 is signed.
+err_spi is used when SERIAL_SC16IS7XX_SPI is enabled, so make
+the label only available under SERIAL_SC16IS7XX_SPI option.
+Otherwise, the below warning appears.
 
-Fix this by casting 1 to 1u just to be sure "1u << 31" is defined.
+drivers/tty/serial/sc16is7xx.c:1523:1: warning: label ‘err_spi’ defined but not used [-Wunused-label]
+ err_spi:
+  ^~~~~~~
 
-Signed-off-by: Changming Liu <liu.changm@northeastern.edu>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/BL0PR06MB4548170B842CB055C9AF695DE5B00@BL0PR06MB4548.namprd06.prod.outlook.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Guoqing Jiang <gqjiang@suse.com>
+Fixes: ac0cdb3d9901 ("sc16is7xx: missing unregister/delete driver on error in sc16is7xx_init()")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Cc: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- sound/core/hwdep.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/tty/serial/sc16is7xx.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/sound/core/hwdep.c b/sound/core/hwdep.c
-index 26e71cf05f1e..600ab2eb1b50 100644
---- a/sound/core/hwdep.c
-+++ b/sound/core/hwdep.c
-@@ -231,12 +231,12 @@ static int snd_hwdep_dsp_load(struct snd_hwdep *hw,
- 	if (info.index >= 32)
- 		return -EINVAL;
- 	/* check whether the dsp was already loaded */
--	if (hw->dsp_loaded & (1 << info.index))
-+	if (hw->dsp_loaded & (1u << info.index))
- 		return -EBUSY;
- 	err = hw->ops.dsp_load(hw, &info);
- 	if (err < 0)
- 		return err;
--	hw->dsp_loaded |= (1 << info.index);
-+	hw->dsp_loaded |= (1u << info.index);
- 	return 0;
- }
+--- a/drivers/tty/serial/sc16is7xx.c
++++ b/drivers/tty/serial/sc16is7xx.c
+@@ -1489,10 +1489,12 @@ static int __init sc16is7xx_init(void)
+ #endif
+ 	return ret;
  
--- 
-2.25.1
-
++#ifdef CONFIG_SERIAL_SC16IS7XX_SPI
+ err_spi:
+ #ifdef CONFIG_SERIAL_SC16IS7XX_I2C
+ 	i2c_del_driver(&sc16is7xx_i2c_uart_driver);
+ #endif
++#endif
+ err_i2c:
+ 	uart_unregister_driver(&sc16is7xx_uart);
+ 	return ret;
 
 
