@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E38BB1EACA1
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:40:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A5131EADBC
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:48:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730992AbgFASN7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:13:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33584 "EHLO mail.kernel.org"
+        id S1730087AbgFASsG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:48:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53844 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731422AbgFASN6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:13:58 -0400
+        id S1730638AbgFASHw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:07:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 90F47206E2;
-        Mon,  1 Jun 2020 18:13:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AEB34206E2;
+        Mon,  1 Jun 2020 18:07:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591035238;
-        bh=9CPp8V+eZ6Csjo4tRNqpv87UsRmauoaZnEVgT4kIz08=;
+        s=default; t=1591034872;
+        bh=uB/nrNTc33V1p9MjKZ2UT3WMBnL+IeRKZpIjZGkr7aQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MTsk9Ox37TXXmp95IRCZyF4h8Kxp4wLjS0OtIzro7y3PvPW4J896ZQYR14E6x3oG3
-         XFtV3UQjo3RtietqzTTnnHPdibgdzqHTT5FWa7nLBsjc0GwidCjRNu6ABdoc+OVgHn
-         0fKO5T0KdsQJ2Xcoaekn+nfmDA7UnkJ0QKCbG0Kc=
+        b=Jugvma84d9hBxTQmNUa9msUuXw9WWFWA0Bc/K4Pp/xCaED8aIHgXAjJyWIuPU6xwj
+         A2PiwUBS9pwZcY5KMhKOSSBszhGg9bIkk0CqwzrBwH3MbiGMEX6Uyk0wEyZttCNJ76
+         mt5/WF3N/GuaGAOqjMs7GKuUBmVzeafWoKiNsjhE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Denis V. Lunev" <den@openvz.org>,
-        Shiraz Saleem <shiraz.saleem@intel.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Felipe Balbi <balbi@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 069/177] IB/i40iw: Remove bogus call to netdev_master_upper_dev_get()
+Subject: [PATCH 5.4 049/142] usb: phy: twl6030-usb: Fix a resource leak in an error handling path in twl6030_usb_probe()
 Date:   Mon,  1 Jun 2020 19:53:27 +0200
-Message-Id: <20200601174054.678305798@linuxfoundation.org>
+Message-Id: <20200601174042.900048690@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174048.468952319@linuxfoundation.org>
-References: <20200601174048.468952319@linuxfoundation.org>
+In-Reply-To: <20200601174037.904070960@linuxfoundation.org>
+References: <20200601174037.904070960@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,90 +45,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Denis V. Lunev <den@openvz.org>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 856ec7f64688387b100b7083cdf480ce3ac41227 ]
+[ Upstream commit f058764d19000d98aef72010468db1f69faf9fa0 ]
 
-Local variable netdev is not used in these calls.
+A call to 'regulator_get()' is hidden in 'twl6030_usb_ldo_init()'. A
+corresponding put must be performed in the error handling path, as
+already done in the remove function.
 
-It should be noted, that this change is required to work in bonded mode.
-Otherwise we would get the following assert:
+While at it, also move a 'free_irq()' call in the error handling path in
+order to be consistent.
 
- "RTNL: assertion failed at net/core/dev.c (5665)"
-
-With the calltrace as follows:
-	dump_stack+0x19/0x1b
-	netdev_master_upper_dev_get+0x61/0x70
-	i40iw_addr_resolve_neigh+0x1e8/0x220
-	i40iw_make_cm_node+0x296/0x700
-	? i40iw_find_listener.isra.10+0xcc/0x110
-	i40iw_receive_ilq+0x3d4/0x810
-	i40iw_puda_poll_completion+0x341/0x420
-	i40iw_process_ceq+0xa5/0x280
-	i40iw_ceq_dpc+0x1e/0x40
-	tasklet_action+0x83/0x140
-	__do_softirq+0x125/0x2bb
-	call_softirq+0x1c/0x30
-	do_softirq+0x65/0xa0
-	irq_exit+0x105/0x110
-	do_IRQ+0x56/0xf0
-	common_interrupt+0x16a/0x16a
-	? cpuidle_enter_state+0x57/0xd0
-	cpuidle_idle_call+0xde/0x230
-	arch_cpu_idle+0xe/0xc0
-	cpu_startup_entry+0x14a/0x1e0
-	start_secondary+0x1f7/0x270
-	start_cpu+0x5/0x14
-
-Link: https://lore.kernel.org/r/20200428131511.11049-1-den@openvz.org
-Signed-off-by: Denis V. Lunev <den@openvz.org>
-Acked-by: Shiraz Saleem <shiraz.saleem@intel.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/i40iw/i40iw_cm.c | 8 --------
- 1 file changed, 8 deletions(-)
+ drivers/usb/phy/phy-twl6030-usb.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/infiniband/hw/i40iw/i40iw_cm.c b/drivers/infiniband/hw/i40iw/i40iw_cm.c
-index bb78d3280acc..fa7a5ff498c7 100644
---- a/drivers/infiniband/hw/i40iw/i40iw_cm.c
-+++ b/drivers/infiniband/hw/i40iw/i40iw_cm.c
-@@ -1987,7 +1987,6 @@ static int i40iw_addr_resolve_neigh(struct i40iw_device *iwdev,
- 	struct rtable *rt;
- 	struct neighbour *neigh;
- 	int rc = arpindex;
--	struct net_device *netdev = iwdev->netdev;
- 	__be32 dst_ipaddr = htonl(dst_ip);
- 	__be32 src_ipaddr = htonl(src_ip);
- 
-@@ -1997,9 +1996,6 @@ static int i40iw_addr_resolve_neigh(struct i40iw_device *iwdev,
- 		return rc;
+diff --git a/drivers/usb/phy/phy-twl6030-usb.c b/drivers/usb/phy/phy-twl6030-usb.c
+index bfebf1f2e991..9a7e655d5280 100644
+--- a/drivers/usb/phy/phy-twl6030-usb.c
++++ b/drivers/usb/phy/phy-twl6030-usb.c
+@@ -377,7 +377,7 @@ static int twl6030_usb_probe(struct platform_device *pdev)
+ 	if (status < 0) {
+ 		dev_err(&pdev->dev, "can't get IRQ %d, err %d\n",
+ 			twl->irq1, status);
+-		return status;
++		goto err_put_regulator;
  	}
  
--	if (netif_is_bond_slave(netdev))
--		netdev = netdev_master_upper_dev_get(netdev);
--
- 	neigh = dst_neigh_lookup(&rt->dst, &dst_ipaddr);
- 
- 	rcu_read_lock();
-@@ -2065,7 +2061,6 @@ static int i40iw_addr_resolve_neigh_ipv6(struct i40iw_device *iwdev,
- {
- 	struct neighbour *neigh;
- 	int rc = arpindex;
--	struct net_device *netdev = iwdev->netdev;
- 	struct dst_entry *dst;
- 	struct sockaddr_in6 dst_addr;
- 	struct sockaddr_in6 src_addr;
-@@ -2086,9 +2081,6 @@ static int i40iw_addr_resolve_neigh_ipv6(struct i40iw_device *iwdev,
- 		return rc;
+ 	status = request_threaded_irq(twl->irq2, NULL, twl6030_usb_irq,
+@@ -386,8 +386,7 @@ static int twl6030_usb_probe(struct platform_device *pdev)
+ 	if (status < 0) {
+ 		dev_err(&pdev->dev, "can't get IRQ %d, err %d\n",
+ 			twl->irq2, status);
+-		free_irq(twl->irq1, twl);
+-		return status;
++		goto err_free_irq1;
  	}
  
--	if (netif_is_bond_slave(netdev))
--		netdev = netdev_master_upper_dev_get(netdev);
--
- 	neigh = dst_neigh_lookup(dst, dst_addr.sin6_addr.in6_u.u6_addr32);
+ 	twl->asleep = 0;
+@@ -396,6 +395,13 @@ static int twl6030_usb_probe(struct platform_device *pdev)
+ 	dev_info(&pdev->dev, "Initialized TWL6030 USB module\n");
  
- 	rcu_read_lock();
+ 	return 0;
++
++err_free_irq1:
++	free_irq(twl->irq1, twl);
++err_put_regulator:
++	regulator_put(twl->usb3v3);
++
++	return status;
+ }
+ 
+ static int twl6030_usb_remove(struct platform_device *pdev)
 -- 
 2.25.1
 
