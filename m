@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 378111EAF62
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 21:01:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB4AD1EAF61
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 21:01:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728275AbgFARzs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 13:55:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35778 "EHLO mail.kernel.org"
+        id S1728194AbgFARzv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 13:55:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35832 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728194AbgFARzs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 13:55:48 -0400
+        id S1728314AbgFARzt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 13:55:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 73895206E2;
-        Mon,  1 Jun 2020 17:55:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A8909206E2;
+        Mon,  1 Jun 2020 17:55:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034146;
-        bh=aW1gOOs4HbyBdM6yTnX+lhvxry2Uif7eLZDEZKmV2NQ=;
+        s=default; t=1591034149;
+        bh=wdV/IuvII1riB0RS77i6n9DRIo5lDhGG/ZJgulUt8/w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ViJUkXgtVfIOl7c0UTJmZ+uspd+HnLvRby2Wfc3F/Tas5C+cu8K5FQrQM3eO7vUmC
-         pUbvG8zEuLrg3rVCnQb7jmO6168bXBunpVk0M8dLNcrlDOo9L7PhttISMdsEQpQLtK
-         /txGCkzYd84HxLanbj7F761j5QyIK2ep2O6Gpr80=
+        b=cLnvDv/UpSwH+9kcHAUEuISkAbqDXicgDbgfMGPpqu5brzwll75Zx2zXvx6gLnM4H
+         d9ogKzswb+FuJ6upTF8x/mrcC1Rb1s8b+X6CVeFrCKwjK+aY4T4TXWLxLFh7E/Hedh
+         zCeQWwvCYWSzEeK6FFONIGHT1m+TiUGqUvFZaexM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Hilliard <james.hilliard1@gmail.com>,
+        stable@vger.kernel.org, Kevin Locke <kevin@kevinlocke.name>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 13/48] Input: usbtouchscreen - add support for BonXeon TP
-Date:   Mon,  1 Jun 2020 19:53:23 +0200
-Message-Id: <20200601173956.075852789@linuxfoundation.org>
+Subject: [PATCH 4.4 14/48] Input: i8042 - add ThinkPad S230u to i8042 nomux list
+Date:   Mon,  1 Jun 2020 19:53:24 +0200
+Message-Id: <20200601173956.488658003@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200601173952.175939894@linuxfoundation.org>
 References: <20200601173952.175939894@linuxfoundation.org>
@@ -44,35 +44,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Hilliard <james.hilliard1@gmail.com>
+From: Kevin Locke <kevin@kevinlocke.name>
 
-[ Upstream commit e3b4f94ef52ae1592cbe199bd38dbdc0d58b2217 ]
+[ Upstream commit 18931506465a762ffd3f4803d36a18d336a67da9 ]
 
-Based on available information this uses the singletouch irtouch
-protocol. This is tested and confirmed to be fully functional on
-the BonXeon TP hardware I have.
+On the Lenovo ThinkPad Twist S230u (3347-4HU) with BIOS version
+"GDETC1WW (1.81 ) 06/27/2019", whether booted in UEFI or Legacy/CSM mode
+the keyboard, Synaptics TouchPad, and TrackPoint either do not function
+or stop functioning a few minutes after boot.  This problem has been
+noted before, perhaps only occurring on BIOS 1.57 and
+later.[1][2][3][4][5]
 
-Signed-off-by: James Hilliard <james.hilliard1@gmail.com>
-Link: https://lore.kernel.org/r/20200413184217.55700-1-james.hilliard1@gmail.com
+This model does not have an external PS/2 port, so mux does not appear
+to be useful.
+
+Odds of a BIOS fix appear to be low: 1.57 was released over 6 years ago
+and although the [BIOS changelog] notes "Fixed an issue of UEFI
+touchpad/trackpoint/keyboard/touchscreen" in 1.58, it appears to be
+insufficient.
+
+Adding 33474HU to the nomux list avoids the issue on my system.
+
+[1]: https://bugs.launchpad.net/bugs/1210748
+[2]: https://bbs.archlinux.org/viewtopic.php?pid=1360425
+[3]: https://forums.linuxmint.com/viewtopic.php?f=46&t=41200
+[4]: https://forums.linuxmint.com/viewtopic.php?f=49&t=157115
+[5]: https://forums.lenovo.com/topic/findpost/27/1337119
+[BIOS changelog]: https://download.lenovo.com/pccbbs/mobiles/gduj33uc.txt
+
+Signed-off-by: Kevin Locke <kevin@kevinlocke.name>
 Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/feb8a8339a67025dab3850e6377eb6f3a0e782ba.1587400635.git.kevin@kevinlocke.name
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/touchscreen/usbtouchscreen.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/input/serio/i8042-x86ia64io.h | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/input/touchscreen/usbtouchscreen.c b/drivers/input/touchscreen/usbtouchscreen.c
-index 2c41107240de..499402a975b3 100644
---- a/drivers/input/touchscreen/usbtouchscreen.c
-+++ b/drivers/input/touchscreen/usbtouchscreen.c
-@@ -197,6 +197,7 @@ static const struct usb_device_id usbtouch_devices[] = {
- #endif
+diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
+index a4e76084a2af..42330024da2f 100644
+--- a/drivers/input/serio/i8042-x86ia64io.h
++++ b/drivers/input/serio/i8042-x86ia64io.h
+@@ -545,6 +545,13 @@ static const struct dmi_system_id __initconst i8042_dmi_nomux_table[] = {
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire 5738"),
+ 		},
+ 	},
++	{
++		/* Lenovo ThinkPad Twist S230u */
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "33474HU"),
++		},
++	},
+ 	{ }
+ };
  
- #ifdef CONFIG_TOUCHSCREEN_USB_IRTOUCH
-+	{USB_DEVICE(0x255e, 0x0001), .driver_info = DEVTYPE_IRTOUCH},
- 	{USB_DEVICE(0x595a, 0x0001), .driver_info = DEVTYPE_IRTOUCH},
- 	{USB_DEVICE(0x6615, 0x0001), .driver_info = DEVTYPE_IRTOUCH},
- 	{USB_DEVICE(0x6615, 0x0012), .driver_info = DEVTYPE_IRTOUCH_HIRES},
 -- 
 2.25.1
 
