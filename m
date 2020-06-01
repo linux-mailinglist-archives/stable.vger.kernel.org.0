@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E3F01EAE09
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:50:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 07F121EAC31
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:37:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730383AbgFASFx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:05:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51186 "EHLO mail.kernel.org"
+        id S1731706AbgFASQ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:16:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37122 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730379AbgFASFw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:05:52 -0400
+        id S1731704AbgFASQ0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:16:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E4C7D20872;
-        Mon,  1 Jun 2020 18:05:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A7D302068D;
+        Mon,  1 Jun 2020 18:16:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034752;
-        bh=xe0N+7sYbFtwojUydJ8S15eOlZCR8+wuTi/LeGmYtAE=;
+        s=default; t=1591035386;
+        bh=bKvLcGlPaU0uNAT8Pe7nY3yv7COxHuhA9Juf7mgh1Qg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FMGV9K/7r0kkOAzTv4V32CUCyw3/bH1th1gkub4QHSIaaNlznqN2iJiNrnngF4IzI
-         Duu5Si13sOKSBEUp3vyrf46MXYHFvbHDVMaP599Hjboo3ioiGXpOwP1Cj1Vf+uQ+cD
-         bBOxJyzMDFsZw5nZXsPT+fD/1w5CymLj0r5Qr9MA=
+        b=MLke+rRmNXd/l4Afgamc9k4bg7kRB0WDIdAW8TEwLH8uMfBhVhlvvna0uYiiiufl/
+         LnHzeH62eK0huRSCgHNWAqAZ2C0080NRcDea5mcYDIldpBvtymjcYl06efTDVY0zeZ
+         qkogTO0FBKtdo0RjJflcflu3HlMkewnFCdIVcOCk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org
-Subject: [PATCH 4.19 93/95] Revert "Input: i8042 - add ThinkPad S230u to i8042 nomux list"
-Date:   Mon,  1 Jun 2020 19:54:33 +0200
-Message-Id: <20200601174034.556745974@linuxfoundation.org>
+        stable@vger.kernel.org, Hans Verkuil <hverkuil@xs4all.nl>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Russell King <linux@armlinux.org.uk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 137/177] gpio: fix locking open drain IRQ lines
+Date:   Mon,  1 Jun 2020 19:54:35 +0200
+Message-Id: <20200601174059.839010895@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174020.759151073@linuxfoundation.org>
-References: <20200601174020.759151073@linuxfoundation.org>
+In-Reply-To: <20200601174048.468952319@linuxfoundation.org>
+References: <20200601174048.468952319@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,41 +45,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Linus Walleij <linus.walleij@linaro.org>
 
-commit f4dec2d6160976b14e54be9c3950ce0f52385741 upstream.
+[ Upstream commit e9bdf7e655b9ee81ee912fae1d59df48ce7311b6 ]
 
-This reverts commit 18931506465a762ffd3f4803d36a18d336a67da9. From Kevin
-Locke:
+We provided the right semantics on open drain lines being
+by definition output but incidentally the irq set up function
+would only allow IRQs on lines that were "not output".
 
-"... nomux only appeared to fix the issue because the controller
-continued working after warm reboots. After more thorough testing from
-both warm and cold start, I now believe the entry should be added to
-i8042_dmi_reset_table rather than i8042_dmi_nomux_table as i8042.reset=1
-alone is sufficient to avoid the issue from both states while
-i8042.nomux is not."
+Fix the semantics to allow output open drain lines to be used
+for IRQs.
 
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Reported-by: Hans Verkuil <hverkuil@xs4all.nl>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Hans Verkuil <hverkuil@xs4all.nl>
+Tested-by: Hans Verkuil <hverkuil@xs4all.nl>
+Cc: Russell King <linux@armlinux.org.uk>
+Cc: stable@vger.kernel.org # v5.3+
+Link: https://lore.kernel.org/r/20200527140758.162280-1-linus.walleij@linaro.org
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/serio/i8042-x86ia64io.h |    7 -------
- 1 file changed, 7 deletions(-)
+ drivers/gpio/gpiolib.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
---- a/drivers/input/serio/i8042-x86ia64io.h
-+++ b/drivers/input/serio/i8042-x86ia64io.h
-@@ -545,13 +545,6 @@ static const struct dmi_system_id __init
- 			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire 5738"),
- 		},
- 	},
--	{
--		/* Lenovo ThinkPad Twist S230u */
--		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "33474HU"),
--		},
--	},
- 	{ }
- };
+diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
+index 00fb91feba70..2f350e3df965 100644
+--- a/drivers/gpio/gpiolib.c
++++ b/drivers/gpio/gpiolib.c
+@@ -4025,7 +4025,9 @@ int gpiochip_lock_as_irq(struct gpio_chip *chip, unsigned int offset)
+ 		}
+ 	}
  
+-	if (test_bit(FLAG_IS_OUT, &desc->flags)) {
++	/* To be valid for IRQ the line needs to be input or open drain */
++	if (test_bit(FLAG_IS_OUT, &desc->flags) &&
++	    !test_bit(FLAG_OPEN_DRAIN, &desc->flags)) {
+ 		chip_err(chip,
+ 			 "%s: tried to flag a GPIO set as output for IRQ\n",
+ 			 __func__);
+@@ -4088,7 +4090,12 @@ void gpiochip_enable_irq(struct gpio_chip *chip, unsigned int offset)
+ 
+ 	if (!IS_ERR(desc) &&
+ 	    !WARN_ON(!test_bit(FLAG_USED_AS_IRQ, &desc->flags))) {
+-		WARN_ON(test_bit(FLAG_IS_OUT, &desc->flags));
++		/*
++		 * We must not be output when using IRQ UNLESS we are
++		 * open drain.
++		 */
++		WARN_ON(test_bit(FLAG_IS_OUT, &desc->flags) &&
++			!test_bit(FLAG_OPEN_DRAIN, &desc->flags));
+ 		set_bit(FLAG_IRQ_IS_ENABLED, &desc->flags);
+ 	}
+ }
+-- 
+2.25.1
+
 
 
