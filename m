@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 955BE1EAE08
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:50:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D22851EAC5A
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:37:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730378AbgFASFw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:05:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51100 "EHLO mail.kernel.org"
+        id S1730750AbgFASSq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:18:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39252 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730375AbgFASFu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:05:50 -0400
+        id S1731623AbgFASRv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:17:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A60C9206E2;
-        Mon,  1 Jun 2020 18:05:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E59222065C;
+        Mon,  1 Jun 2020 18:17:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034750;
-        bh=xC9hJYuRSl5pnTM9TMOSwz7SgPWF7neADVLAEPjyJ74=;
+        s=default; t=1591035471;
+        bh=bZkjbWgUmSFP5X92+1FaRvbwsvKGCYrXN+2UYnKxVJk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d5fwikvGu05p/i6uH2tpb1kpntRxUtp3J+xuKOR53ksWK/TMjc3BD4rbP2C+5PJrd
-         Jk+PVabquPLlJizEFg3DyLHv9TtOThxljkvtxKG8ypelWtr6hHcxbcRjbkVCrkHcge
-         e1vziWo6Yk6+8+MwfyPDSsoFc5L8hnZlYxxAXjTo=
+        b=JpFDNGX6mEHsGTC6FI1Yy8453dYxNdGbkQzrK0VK2IU8YPgU5zk9yOAV2l7sP/50D
+         OlYo/EZ7aVId6/xif2gYASUqY576k3clawKxZvD/G01JwICxDaZjXjPrRAMxBqozAA
+         ySmNNaxTpXIWE/Xui2Mpj/dCWth5PL/+5FkycUKs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qiushi Wu <wu000273@umn.edu>,
-        Jay Vosburgh <jay.vosburgh@canonical.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 92/95] bonding: Fix reference count leak in bond_sysfs_slave_add.
-Date:   Mon,  1 Jun 2020 19:54:32 +0200
-Message-Id: <20200601174034.410158487@linuxfoundation.org>
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 135/177] include/asm-generic/topology.h: guard cpumask_of_node() macro argument
+Date:   Mon,  1 Jun 2020 19:54:33 +0200
+Message-Id: <20200601174059.704256544@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174020.759151073@linuxfoundation.org>
-References: <20200601174020.759151073@linuxfoundation.org>
+In-Reply-To: <20200601174048.468952319@linuxfoundation.org>
+References: <20200601174048.468952319@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,38 +46,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiushi Wu <wu000273@umn.edu>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit a068aab42258e25094bc2c159948d263ed7d7a77 upstream.
+[ Upstream commit 4377748c7b5187c3342a60fa2ceb60c8a57a8488 ]
 
-kobject_init_and_add() takes reference even when it fails.
-If this function returns an error, kobject_put() must be called to
-properly clean up the memory associated with the object. Previous
-commit "b8eb718348b8" fixed a similar problem.
+drivers/hwmon/amd_energy.c:195:15: error: invalid operands to binary expression ('void' and 'int')
+                                        (channel - data->nr_cpus));
+                                        ~~~~~~~~~^~~~~~~~~~~~~~~~~
+include/asm-generic/topology.h:51:42: note: expanded from macro 'cpumask_of_node'
+    #define cpumask_of_node(node)       ((void)node, cpu_online_mask)
+                                               ^~~~
+include/linux/cpumask.h:618:72: note: expanded from macro 'cpumask_first_and'
+ #define cpumask_first_and(src1p, src2p) cpumask_next_and(-1, (src1p), (src2p))
+                                                                       ^~~~~
 
-Fixes: 07699f9a7c8d ("bonding: add sysfs /slave dir for bond slave devices.")
-Signed-off-by: Qiushi Wu <wu000273@umn.edu>
-Acked-by: Jay Vosburgh <jay.vosburgh@canonical.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: f0b848ce6fe9 ("cpumask: Introduce cpumask_of_{node,pcibus} to replace {node,pcibus}_to_cpumask")
+Fixes: 8abee9566b7e ("hwmon: Add amd_energy driver to report energy counters")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Acked-by: Guenter Roeck <linux@roeck-us.net>
+Link: http://lkml.kernel.org/r/20200527134623.930247-1-arnd@arndb.de
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/bonding/bond_sysfs_slave.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ include/asm-generic/topology.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/bonding/bond_sysfs_slave.c
-+++ b/drivers/net/bonding/bond_sysfs_slave.c
-@@ -153,8 +153,10 @@ int bond_sysfs_slave_add(struct slave *s
- 
- 	err = kobject_init_and_add(&slave->kobj, &slave_ktype,
- 				   &(slave->dev->dev.kobj), "bonding_slave");
--	if (err)
-+	if (err) {
-+		kobject_put(&slave->kobj);
- 		return err;
-+	}
- 
- 	for (a = slave_attrs; *a; ++a) {
- 		err = sysfs_create_file(&slave->kobj, &((*a)->attr));
+diff --git a/include/asm-generic/topology.h b/include/asm-generic/topology.h
+index 238873739550..5aa8705df87e 100644
+--- a/include/asm-generic/topology.h
++++ b/include/asm-generic/topology.h
+@@ -48,7 +48,7 @@
+   #ifdef CONFIG_NEED_MULTIPLE_NODES
+     #define cpumask_of_node(node)	((node) == 0 ? cpu_online_mask : cpu_none_mask)
+   #else
+-    #define cpumask_of_node(node)	((void)node, cpu_online_mask)
++    #define cpumask_of_node(node)	((void)(node), cpu_online_mask)
+   #endif
+ #endif
+ #ifndef pcibus_to_node
+-- 
+2.25.1
+
 
 
