@@ -2,44 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D8D81EAF0D
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:59:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C0171EAC2E
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:37:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728884AbgFAR5Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 13:57:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38574 "EHLO mail.kernel.org"
+        id S1730457AbgFASQQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:16:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36884 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728903AbgFAR5Y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 13:57:24 -0400
+        id S1731670AbgFASQP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:16:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E5B662073B;
-        Mon,  1 Jun 2020 17:57:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4E1932068D;
+        Mon,  1 Jun 2020 18:16:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034243;
-        bh=YYkXeT0qG5PVYrGeJGIoToGBNE1ZhrA2NGX8vI6bL6I=;
+        s=default; t=1591035374;
+        bh=9/zpqtvcvi/aDsfbxPRxBceob0fFvjcGLgPlCn/Du6Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pWmGAjDB9UV7ybE3yoLIsFAcyAjhP8Z7jUUpxfu+EaRg4zwqvUrJuQZCO9HSKx2Hj
-         1PYdRWiMJKmGgdGR/2W0R30BYccd2i8TypnJXZ4JxlpJewuVZgzdHRvOsOXOwhvb98
-         dDRPtlMy+p3R8fg0fqiUFWOBNKW9VOcxK6M9BKmY=
+        b=hI2Oz0NhTMLwHO0yP7irIWEhKetLKsS/xVW20qZxK0Qh2sadovzg7m6ZuH39oiRMX
+         kixJz0MJ7G9Z/aflwTPQCP1tAS5VVxDtPmJTwty2+3LMAxeHby7w2Bm7feC7UrDmri
+         okOzJx7igyks91M/pkNLa/oCeXE4y3kor+iLLuUs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Konstantin Khlebnikov <khlebnikov@yandex-team.ru>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Hugh Dickins <hughd@google.com>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        David Rientjes <rientjes@google.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.4 39/48] mm: remove VM_BUG_ON(PageSlab()) from page_mapcount()
+        stable@vger.kernel.org, Evan Green <evgreen@chromium.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 091/177] Input: synaptics-rmi4 - really fix attn_data use-after-free
 Date:   Mon,  1 Jun 2020 19:53:49 +0200
-Message-Id: <20200601174003.327414437@linuxfoundation.org>
+Message-Id: <20200601174056.417289155@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601173952.175939894@linuxfoundation.org>
-References: <20200601173952.175939894@linuxfoundation.org>
+In-Reply-To: <20200601174048.468952319@linuxfoundation.org>
+References: <20200601174048.468952319@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,72 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
+From: Evan Green <evgreen@chromium.org>
 
-commit 6988f31d558aa8c744464a7f6d91d34ada48ad12 upstream.
+[ Upstream commit d5a5e5b5fa7b86c05bf073acc0ba98fa280174ec ]
 
-Replace superfluous VM_BUG_ON() with comment about correct usage.
+Fix a use-after-free noticed by running with KASAN enabled. If
+rmi_irq_fn() is run twice in a row, then rmi_f11_attention() (among
+others) will end up reading from drvdata->attn_data.data, which was
+freed and left dangling in rmi_irq_fn().
 
-Technically reverts commit 1d148e218a0d ("mm: add VM_BUG_ON_PAGE() to
-page_mapcount()"), but context lines have changed.
+Commit 55edde9fff1a ("Input: synaptics-rmi4 - prevent UAF reported by
+KASAN") correctly identified and analyzed this bug. However the attempted
+fix only NULLed out a local variable, missing the fact that
+drvdata->attn_data is a struct, not a pointer.
 
-Function isolate_migratepages_block() runs some checks out of lru_lock
-when choose pages for migration.  After checking PageLRU() it checks
-extra page references by comparing page_count() and page_mapcount().
-Between these two checks page could be removed from lru, freed and taken
-by slab.
+NULL out the correct pointer in the driver data to prevent the attention
+functions from copying from it.
 
-As a result this race triggers VM_BUG_ON(PageSlab()) in page_mapcount().
-Race window is tiny.  For certain workload this happens around once a
-year.
-
-    page:ffffea0105ca9380 count:1 mapcount:0 mapping:ffff88ff7712c180 index:0x0 compound_mapcount: 0
-    flags: 0x500000000008100(slab|head)
-    raw: 0500000000008100 dead000000000100 dead000000000200 ffff88ff7712c180
-    raw: 0000000000000000 0000000080200020 00000001ffffffff 0000000000000000
-    page dumped because: VM_BUG_ON_PAGE(PageSlab(page))
-    ------------[ cut here ]------------
-    kernel BUG at ./include/linux/mm.h:628!
-    invalid opcode: 0000 [#1] SMP NOPTI
-    CPU: 77 PID: 504 Comm: kcompactd1 Tainted: G        W         4.19.109-27 #1
-    Hardware name: Yandex T175-N41-Y3N/MY81-EX0-Y3N, BIOS R05 06/20/2019
-    RIP: 0010:isolate_migratepages_block+0x986/0x9b0
-
-The code in isolate_migratepages_block() was added in commit
-119d6d59dcc0 ("mm, compaction: avoid isolating pinned pages") before
-adding VM_BUG_ON into page_mapcount().
-
-This race has been predicted in 2015 by Vlastimil Babka (see link
-below).
-
-[akpm@linux-foundation.org: comment tweaks, per Hugh]
-Fixes: 1d148e218a0d ("mm: add VM_BUG_ON_PAGE() to page_mapcount()")
-Signed-off-by: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Acked-by: Hugh Dickins <hughd@google.com>
-Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Acked-by: Vlastimil Babka <vbabka@suse.cz>
-Cc: David Rientjes <rientjes@google.com>
-Cc: <stable@vger.kernel.org>
-Link: http://lkml.kernel.org/r/159032779896.957378.7852761411265662220.stgit@buzz
-Link: https://lore.kernel.org/lkml/557710E1.6060103@suse.cz/
-Link: https://lore.kernel.org/linux-mm/158937872515.474360.5066096871639561424.stgit@buzz/T/ (v1)
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 55edde9fff1a ("Input: synaptics-rmi4 - prevent UAF reported by KASAN")
+Fixes: b908d3cd812a ("Input: synaptics-rmi4 - allow to add attention data")
+Signed-off-by: Evan Green <evgreen@chromium.org>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20200427145537.1.Ic8f898e0147beeee2c005ee7b20f1aebdef1e7eb@changeid
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/mm.h |    1 -
- 1 file changed, 1 deletion(-)
+ drivers/input/rmi4/rmi_driver.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -446,7 +446,6 @@ static inline void page_mapcount_reset(s
+diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
+index 190b9974526b..c18e1a25bca6 100644
+--- a/drivers/input/rmi4/rmi_driver.c
++++ b/drivers/input/rmi4/rmi_driver.c
+@@ -205,7 +205,7 @@ static irqreturn_t rmi_irq_fn(int irq, void *dev_id)
  
- static inline int page_mapcount(struct page *page)
- {
--	VM_BUG_ON_PAGE(PageSlab(page), page);
- 	return atomic_read(&page->_mapcount) + 1;
- }
+ 	if (count) {
+ 		kfree(attn_data.data);
+-		attn_data.data = NULL;
++		drvdata->attn_data.data = NULL;
+ 	}
  
+ 	if (!kfifo_is_empty(&drvdata->attn_fifo))
+-- 
+2.25.1
+
 
 
