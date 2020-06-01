@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 385BF1EAC63
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:37:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B43351EAD39
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:44:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730174AbgFASTZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:19:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38048 "EHLO mail.kernel.org"
+        id S1731052AbgFASLB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:11:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58072 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731781AbgFASRF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:17:05 -0400
+        id S1731055AbgFASLB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:11:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D74D72065C;
-        Mon,  1 Jun 2020 18:17:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AA0572065C;
+        Mon,  1 Jun 2020 18:10:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591035424;
-        bh=NO1fE9qbQO897QXTH+eDr2xuCe1LhEei9ZR1cr4pqYw=;
+        s=default; t=1591035060;
+        bh=W43aGQ00dTwqe1H56y9e1QDiJiLZoILO1W7ABeFmDmY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PEgN6Vrg5MmAp9TQtFJEbqKgBiPY6RnoC4IS/hk/ybB7yORG9WnZleOg55UMhChHD
-         pTealFdvusTYRMLKFOnAmij4hP82MWO3yLRF0rxaNiEFij/lMmK7a5buo1+cORy5e6
-         RWht1knP8ibjORyrLXeXPY6f6UqJT6uwurk+/p7c=
+        b=FzdvdqVLqSw4SOufgL/qh6aSBQoaE5GL6X2aw6w4pzbizLQLmWZgFy0Ou16XZPtfn
+         EnI9m4K5LleqMmKzzOvI1V10hVOFdQoTJYgRRcK5cwsYucq8WYRT2o66O8hr/FV0kN
+         ICsQut4EBEIvqDQxrzJRFVMPiJaB1wFaaaAyjf/0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiumei Mu <xmu@redhat.com>,
-        Xin Long <lucien.xin@gmail.com>,
-        Steffen Klassert <steffen.klassert@secunet.com>
-Subject: [PATCH 5.6 153/177] ip_vti: receive ipip packet by calling ip_tunnel_rcv
+        stable@vger.kernel.org,
+        Nikolay Aleksandrov <nikolay@cumulusnetworks.com>,
+        David Ahern <dsahern@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 133/142] nexthops: dont modify published nexthop groups
 Date:   Mon,  1 Jun 2020 19:54:51 +0200
-Message-Id: <20200601174101.143944855@linuxfoundation.org>
+Message-Id: <20200601174051.520155690@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174048.468952319@linuxfoundation.org>
-References: <20200601174048.468952319@linuxfoundation.org>
+In-Reply-To: <20200601174037.904070960@linuxfoundation.org>
+References: <20200601174037.904070960@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,65 +45,200 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 
-commit 976eba8ab596bab94b9714cd46d38d5c6a2c660d upstream.
+commit 90f33bffa382598a32cc82abfeb20adc92d041b6 upstream.
 
-In Commit dd9ee3444014 ("vti4: Fix a ipip packet processing bug in
-'IPCOMP' virtual tunnel"), it tries to receive IPIP packets in vti
-by calling xfrm_input(). This case happens when a small packet or
-frag sent by peer is too small to get compressed.
+We must avoid modifying published nexthop groups while they might be
+in use, otherwise we might see NULL ptr dereferences. In order to do
+that we allocate 2 nexthoup group structures upon nexthop creation
+and swap between them when we have to delete an entry. The reason is
+that we can't fail nexthop group removal, so we can't handle allocation
+failure thus we move the extra allocation on creation where we can
+safely fail and return ENOMEM.
 
-However, xfrm_input() will still get to the IPCOMP path where skb
-sec_path is set, but never dropped while it should have been done
-in vti_ipcomp4_protocol.cb_handler(vti_rcv_cb), as it's not an
-ipcomp4 packet. This will cause that the packet can never pass
-xfrm4_policy_check() in the upper protocol rcv functions.
-
-So this patch is to call ip_tunnel_rcv() to process IPIP packets
-instead.
-
-Fixes: dd9ee3444014 ("vti4: Fix a ipip packet processing bug in 'IPCOMP' virtual tunnel")
-Reported-by: Xiumei Mu <xmu@redhat.com>
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Fixes: 430a049190de ("nexthop: Add support for nexthop groups")
+Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Signed-off-by: David Ahern <dsahern@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/ipv4/ip_vti.c |   23 ++++++++++++++++++++++-
- 1 file changed, 22 insertions(+), 1 deletion(-)
+ include/net/nexthop.h |    1 
+ net/ipv4/nexthop.c    |   91 +++++++++++++++++++++++++++++++-------------------
+ 2 files changed, 59 insertions(+), 33 deletions(-)
 
---- a/net/ipv4/ip_vti.c
-+++ b/net/ipv4/ip_vti.c
-@@ -93,7 +93,28 @@ static int vti_rcv_proto(struct sk_buff
+--- a/include/net/nexthop.h
++++ b/include/net/nexthop.h
+@@ -70,6 +70,7 @@ struct nh_grp_entry {
+ };
  
- static int vti_rcv_tunnel(struct sk_buff *skb)
- {
--	return vti_rcv(skb, ip_hdr(skb)->saddr, true);
-+	struct ip_tunnel_net *itn = net_generic(dev_net(skb->dev), vti_net_id);
-+	const struct iphdr *iph = ip_hdr(skb);
-+	struct ip_tunnel *tunnel;
-+
-+	tunnel = ip_tunnel_lookup(itn, skb->dev->ifindex, TUNNEL_NO_KEY,
-+				  iph->saddr, iph->daddr, 0);
-+	if (tunnel) {
-+		struct tnl_ptk_info tpi = {
-+			.proto = htons(ETH_P_IP),
-+		};
-+
-+		if (!xfrm4_policy_check(NULL, XFRM_POLICY_IN, skb))
-+			goto drop;
-+		if (iptunnel_pull_header(skb, 0, tpi.proto, false))
-+			goto drop;
-+		return ip_tunnel_rcv(tunnel, skb, &tpi, NULL, false);
+ struct nh_group {
++	struct nh_group		*spare; /* spare group for removals */
+ 	u16			num_nh;
+ 	bool			mpath;
+ 	bool			has_v4;
+--- a/net/ipv4/nexthop.c
++++ b/net/ipv4/nexthop.c
+@@ -64,9 +64,16 @@ static void nexthop_free_mpath(struct ne
+ 	int i;
+ 
+ 	nhg = rcu_dereference_raw(nh->nh_grp);
+-	for (i = 0; i < nhg->num_nh; ++i)
+-		WARN_ON(nhg->nh_entries[i].nh);
++	for (i = 0; i < nhg->num_nh; ++i) {
++		struct nh_grp_entry *nhge = &nhg->nh_entries[i];
+ 
++		WARN_ON(!list_empty(&nhge->nh_list));
++		nexthop_put(nhge->nh);
 +	}
 +
-+	return -EINVAL;
-+drop:
-+	kfree_skb(skb);
-+	return 0;
++	WARN_ON(nhg->spare == nhg);
++
++	kfree(nhg->spare);
+ 	kfree(nhg);
  }
  
- static int vti_rcv_cb(struct sk_buff *skb, int err)
+@@ -698,46 +705,53 @@ static void nh_group_rebalance(struct nh
+ static void remove_nh_grp_entry(struct net *net, struct nh_grp_entry *nhge,
+ 				struct nl_info *nlinfo)
+ {
++	struct nh_grp_entry *nhges, *new_nhges;
+ 	struct nexthop *nhp = nhge->nh_parent;
+ 	struct nexthop *nh = nhge->nh;
+-	struct nh_grp_entry *nhges;
+-	struct nh_group *nhg;
+-	bool found = false;
+-	int i;
++	struct nh_group *nhg, *newg;
++	int i, j;
+ 
+ 	WARN_ON(!nh);
+ 
+-	list_del(&nhge->nh_list);
+-
+ 	nhg = rtnl_dereference(nhp->nh_grp);
+-	nhges = nhg->nh_entries;
+-	for (i = 0; i < nhg->num_nh; ++i) {
+-		if (found) {
+-			nhges[i-1].nh = nhges[i].nh;
+-			nhges[i-1].weight = nhges[i].weight;
+-			list_del(&nhges[i].nh_list);
+-			list_add(&nhges[i-1].nh_list, &nhges[i-1].nh->grp_list);
+-		} else if (nhg->nh_entries[i].nh == nh) {
+-			found = true;
+-		}
+-	}
++	newg = nhg->spare;
+ 
+-	if (WARN_ON(!found))
++	/* last entry, keep it visible and remove the parent */
++	if (nhg->num_nh == 1) {
++		remove_nexthop(net, nhp, nlinfo);
+ 		return;
++	}
+ 
+-	nhg->num_nh--;
+-	nhg->nh_entries[nhg->num_nh].nh = NULL;
++	newg->has_v4 = nhg->has_v4;
++	newg->mpath = nhg->mpath;
++	newg->num_nh = nhg->num_nh;
+ 
+-	nh_group_rebalance(nhg);
++	/* copy old entries to new except the one getting removed */
++	nhges = nhg->nh_entries;
++	new_nhges = newg->nh_entries;
++	for (i = 0, j = 0; i < nhg->num_nh; ++i) {
++		/* current nexthop getting removed */
++		if (nhg->nh_entries[i].nh == nh) {
++			newg->num_nh--;
++			continue;
++		}
+ 
+-	nexthop_put(nh);
++		list_del(&nhges[i].nh_list);
++		new_nhges[j].nh_parent = nhges[i].nh_parent;
++		new_nhges[j].nh = nhges[i].nh;
++		new_nhges[j].weight = nhges[i].weight;
++		list_add(&new_nhges[j].nh_list, &new_nhges[j].nh->grp_list);
++		j++;
++	}
++
++	nh_group_rebalance(newg);
++	rcu_assign_pointer(nhp->nh_grp, newg);
++
++	list_del(&nhge->nh_list);
++	nexthop_put(nhge->nh);
+ 
+ 	if (nlinfo)
+ 		nexthop_notify(RTM_NEWNEXTHOP, nhp, nlinfo);
+-
+-	/* if this group has no more entries then remove it */
+-	if (!nhg->num_nh)
+-		remove_nexthop(net, nhp, nlinfo);
+ }
+ 
+ static void remove_nexthop_from_groups(struct net *net, struct nexthop *nh,
+@@ -747,6 +761,9 @@ static void remove_nexthop_from_groups(s
+ 
+ 	list_for_each_entry_safe(nhge, tmp, &nh->grp_list, nh_list)
+ 		remove_nh_grp_entry(net, nhge, nlinfo);
++
++	/* make sure all see the newly published array before releasing rtnl */
++	synchronize_rcu();
+ }
+ 
+ static void remove_nexthop_group(struct nexthop *nh, struct nl_info *nlinfo)
+@@ -760,10 +777,7 @@ static void remove_nexthop_group(struct
+ 		if (WARN_ON(!nhge->nh))
+ 			continue;
+ 
+-		list_del(&nhge->nh_list);
+-		nexthop_put(nhge->nh);
+-		nhge->nh = NULL;
+-		nhg->num_nh--;
++		list_del_init(&nhge->nh_list);
+ 	}
+ }
+ 
+@@ -1086,6 +1100,7 @@ static struct nexthop *nexthop_create_gr
+ {
+ 	struct nlattr *grps_attr = cfg->nh_grp;
+ 	struct nexthop_grp *entry = nla_data(grps_attr);
++	u16 num_nh = nla_len(grps_attr) / sizeof(*entry);
+ 	struct nh_group *nhg;
+ 	struct nexthop *nh;
+ 	int i;
+@@ -1096,12 +1111,21 @@ static struct nexthop *nexthop_create_gr
+ 
+ 	nh->is_group = 1;
+ 
+-	nhg = nexthop_grp_alloc(nla_len(grps_attr) / sizeof(*entry));
++	nhg = nexthop_grp_alloc(num_nh);
+ 	if (!nhg) {
+ 		kfree(nh);
+ 		return ERR_PTR(-ENOMEM);
+ 	}
+ 
++	/* spare group used for removals */
++	nhg->spare = nexthop_grp_alloc(num_nh);
++	if (!nhg) {
++		kfree(nhg);
++		kfree(nh);
++		return NULL;
++	}
++	nhg->spare->spare = nhg;
++
+ 	for (i = 0; i < nhg->num_nh; ++i) {
+ 		struct nexthop *nhe;
+ 		struct nh_info *nhi;
+@@ -1133,6 +1157,7 @@ out_no_nh:
+ 	for (; i >= 0; --i)
+ 		nexthop_put(nhg->nh_entries[i].nh);
+ 
++	kfree(nhg->spare);
+ 	kfree(nhg);
+ 	kfree(nh);
+ 
 
 
