@@ -2,149 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 657A71EB21A
-	for <lists+stable@lfdr.de>; Tue,  2 Jun 2020 01:20:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C06931EB249
+	for <lists+stable@lfdr.de>; Tue,  2 Jun 2020 01:38:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728628AbgFAXUJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 19:20:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59412 "EHLO
+        id S1728709AbgFAXh6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 19:37:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33974 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726181AbgFAXUJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Jun 2020 19:20:09 -0400
-Received: from mail-pj1-x1041.google.com (mail-pj1-x1041.google.com [IPv6:2607:f8b0:4864:20::1041])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2C72C05BD43
-        for <stable@vger.kernel.org>; Mon,  1 Jun 2020 16:20:08 -0700 (PDT)
-Received: by mail-pj1-x1041.google.com with SMTP id q24so526433pjd.1
-        for <stable@vger.kernel.org>; Mon, 01 Jun 2020 16:20:08 -0700 (PDT)
+        with ESMTP id S1725802AbgFAXh5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Jun 2020 19:37:57 -0400
+Received: from mail-vs1-xe43.google.com (mail-vs1-xe43.google.com [IPv6:2607:f8b0:4864:20::e43])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 614F8C05BD43
+        for <stable@vger.kernel.org>; Mon,  1 Jun 2020 16:37:57 -0700 (PDT)
+Received: by mail-vs1-xe43.google.com with SMTP id r11so986826vsj.5
+        for <stable@vger.kernel.org>; Mon, 01 Jun 2020 16:37:57 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=pTU7FtkjGbvPN1jT8GofnUWWwY0IIip3SSNuM+pV2+I=;
-        b=rb3SZZN+ZXMEiENzdBnugh8EOJBYmMtNVy1euYqS9thiHMxaaTIOVFmYdJ8LH8gJah
-         blhMWCgl3GJoYN+1zgFrZPH8/iTy3BGjPb/lzDREJkLXJRpx/dsKb0osBVJxnC//rNWU
-         qPC6FTu0C0Ri0Kq7JXzN3dHGMy8wGQ8L5j0bfxuKYFH2sr7NcsUS4x08RVzxl/QodyPL
-         ZrpERq2jMn+RUr17ip6+TcG0kbav9f6pV6jnrQsShReeZamqt1JKw3f/7V7htzJ25F48
-         QQXUR3ybHv1LtI5+VWwR60blFzIEwwU1mJRzSf3R0EQeTEeMoamzbXJ5XZCfE058ALHz
-         Kalw==
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=h8sFjChvsOnugroGpTaalX2UTFDmVFNgsXBxH4Psjpo=;
+        b=gy5WnoYjwVwT+AdnTnVAcMO6xsUKQ3HV+niGGFpzvpJ71eeOdaiZZSd7kfAobSbMVB
+         XOrGkvuWpDYrUOFUBsilWffiTomQfNPW7uKYsoyR5y2XD36uCo2cUMgt6nHkaWzaO123
+         T/6WbGm0oG6415mxA7zL7ifNyV53xlL8haCkWgNxo3DqkVlGD6vVClPWynqWqBMIFxOG
+         CKMngEVfHsCMjzEGuOCRn2tiWiHx9PpwmVZzhCGVvXXb9ZRuJmjy4V3WDGb/sf8PFy6t
+         YX4uEKTDgj/YpyQo0UeuDPOfsqKmCY+dYqlnG3yA7r72gF+ohPsap55WdgXcuBtl8nrm
+         7LHg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=pTU7FtkjGbvPN1jT8GofnUWWwY0IIip3SSNuM+pV2+I=;
-        b=edlt2MLHVvXfq+7vWoW7ZBd/k88RGMYetXocbfATtDSMlIteXQB4ALn37I0oAzTt63
-         iPK+KuGWCPGtSqkZH0PHuN8T0ZOHrd23Hu8BkUwejIEDdfzTWaccPDBBDVANcwaGIOGw
-         JDkKZ57jxqeZzLmnv2WRkr2Ob6Js6qHOu5xjdrEXSYmAZV8PZHd2jXmVSkWuKELjEhzo
-         xUX9CxHo+sNIfLXZrK/QLrhIoxpC1bloZOiGMq0m3vipEL66Ouc11Jw53eA+7EXzmVOP
-         RHAhii2yQ8b8bVskztaMSdr5MuIpkbO3NgPEvnRnhjlHKOuznYbhIkb80f6/PSM6JeKi
-         9q8g==
-X-Gm-Message-State: AOAM530UOocF7Y0HZ2C+f8gTBA+/EAP/h3haFxOayy56WOh6LnIALsE5
-        9VIdx4br1ktJCmSJLuUqTPavRJlhdsU=
-X-Google-Smtp-Source: ABdhPJwjhD8AAQVWNxoj1Xrnm+NB60JBUXV7oeEpvkaS3lpOQVCoZ6N+jtkSlILGEEJV60xFo1uRJg==
-X-Received: by 2002:a17:90a:5d06:: with SMTP id s6mr2128931pji.88.1591053607992;
-        Mon, 01 Jun 2020 16:20:07 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id z8sm451292pgc.80.2020.06.01.16.20.06
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 01 Jun 2020 16:20:06 -0700 (PDT)
-Message-ID: <5ed58d26.1c69fb81.27d9b.1c3b@mx.google.com>
-Date:   Mon, 01 Jun 2020 16:20:06 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=h8sFjChvsOnugroGpTaalX2UTFDmVFNgsXBxH4Psjpo=;
+        b=l+IAZMJuy224MmX97/f/oZWrigH8duY3OEq4KLxUmZCU3BcR+POmnffjgury3SeqFD
+         kW1xNvU+zoPJ2ZTJ1SB68g+CKSlsVyYbcHtuZDLUgNJllWiA2KDycgPt140xGnpVgSAe
+         EfjkfaWpOoFTNFs2SqcoKncZddHROmrXFVsy0R1GTfpAZ/F6l99ZJmP/KDVQSJhCOxjR
+         QNhaWC5EFRKVK9g6au7B6WeLslbbtrBl4woXLXX937eA002EQM0f/Q9T/K+cVQQWpxLs
+         WlRRX+vqetaqM0bTOlC5gB0K+1RAzZ+iJ+kVYEqeQWulu8nAXeF2Gm+17JJbZ2caAYPF
+         sMxQ==
+X-Gm-Message-State: AOAM532XC4yvjLMkvSen898cle/7FEBmOxqXVtXNaTd6cPEEDu/I/ADU
+        55Mrm1KCzV0yX+lUUCrwf5heQMOJbcnEFJE193ioHA==
+X-Google-Smtp-Source: ABdhPJzg702J1EkAo7ZILGUxg4+n2COylsnsv/n0Xy8wNQfF/OkYz+Zf11gC56/0p8tSEx58JooMPRVb9HRwD7H3vnE=
+X-Received: by 2002:a67:ce86:: with SMTP id c6mr16538165vse.51.1591054676310;
+ Mon, 01 Jun 2020 16:37:56 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.19.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v4.19.125-96-g47f49ba00628
-Subject: stable-rc/linux-4.19.y boot: 140 boots: 1 failed,
- 130 passed with 5 offline, 4 untried/unknown (v4.19.125-96-g47f49ba00628)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+References: <CAMj1kXErFuvOoG=DB6sz5HBvDuHDiKwWD8uOyLuxaX-u8-+dbA@mail.gmail.com>
+ <20200601231805.207441-1-ndesaulniers@google.com>
+In-Reply-To: <20200601231805.207441-1-ndesaulniers@google.com>
+From:   Peter Collingbourne <pcc@google.com>
+Date:   Mon, 1 Jun 2020 16:37:45 -0700
+Message-ID: <CAMn1gO7MrbgpEzaAYZ3vNnbWPdSsHhMkDNXq9rZajur+sqtBsw@mail.gmail.com>
+Subject: Re: [PATCH] ACPICA: fix UBSAN warning using __builtin_offsetof
+To:     Nick Desaulniers <ndesaulniers@google.com>
+Cc:     Robert Moore <robert.moore@intel.com>,
+        Erik Kaneda <erik.kaneda@intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Len Brown <lenb@kernel.org>, Ard Biesheuvel <ardb@kernel.org>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Alexander Potapenko <glider@google.com>, guohanjun@huawei.com,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        lorenzo.pieralisi@arm.com, Mark Rutland <mark.rutland@arm.com>,
+        rjw@rjwysocki.net, Will Deacon <will@kernel.org>,
+        stable@vger.kernel.org, linux-acpi@vger.kernel.org,
+        devel@acpica.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-******************************************
-* WARNING: Boot tests are now deprecated *
-******************************************
+On Mon, Jun 1, 2020 at 4:18 PM Nick Desaulniers <ndesaulniers@google.com> wrote:
+>
+> Will reported UBSAN warnings:
+> UBSAN: null-ptr-deref in drivers/acpi/acpica/tbfadt.c:459:37
+> UBSAN: null-ptr-deref in arch/arm64/kernel/smp.c:596:6
+>
+> Looks like the emulated offsetof macro ACPI_OFFSET is causing these. We
+> can avoid this by using the compiler builtin, __builtin_offsetof.
 
-As kernelci.org is expanding its functional testing capabilities, the conce=
-pt
-of boot testing is now deprecated.  Boot results are scheduled to be droppe=
-d on
-*5th June 2020*.  The full schedule for boot tests deprecation is available=
- on
-this GitHub issue: https://github.com/kernelci/kernelci-backend/issues/238
+Would it be better to s/ACPI_OFFSET/offsetof/g the existing users of
+this macro and remove it? It looks like offsetof is already being used
+pervasively in the kernel, and its definition comes from
+<linux/stddef.h>.
 
-The new equivalent is the *baseline* test suite which also runs sanity chec=
-ks
-using dmesg and bootrr: https://github.com/kernelci/bootrr
+Peter
 
-See the *baseline results for this kernel revision* on this page:
-https://kernelci.org/test/job/stable-rc/branch/linux-4.19.y/kernel/v4.19.12=
-5-96-g47f49ba00628/plan/baseline/
 
----------------------------------------------------------------------------=
-----
+Peter
 
-stable-rc/linux-4.19.y boot: 140 boots: 1 failed, 130 passed with 5 offline=
-, 4 untried/unknown (v4.19.125-96-g47f49ba00628)
-
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.19.y/kernel/v4.19.125-96-g47f49ba00628/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
-y/kernel/v4.19.125-96-g47f49ba00628/
-
-Tree: stable-rc
-Branch: linux-4.19.y
-Git Describe: v4.19.125-96-g47f49ba00628
-Git Commit: 47f49ba00628e7ce16eda75304e947f7ddb149d1
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 82 unique boards, 21 SoC families, 19 builds out of 161
-
-Boot Regressions Detected:
-
-arm:
-
-    qcom_defconfig:
-        gcc-8:
-          qcom-apq8064-cm-qs600:
-              lab-baylibre-seattle: failing since 19 days (last pass: v4.19=
-.122 - first fail: v4.19.122-48-g92ba0b6b33ad)
-
-    sama5_defconfig:
-        gcc-8:
-          at91-sama5d4_xplained:
-              lab-baylibre: failing since 80 days (last pass: v4.19.108-87-=
-g624c124960e8 - first fail: v4.19.109)
-
-Boot Failure Detected:
-
-arm:
-    sama5_defconfig:
-        gcc-8:
-            at91-sama5d4_xplained: 1 failed lab
-
-Offline Platforms:
-
-arm:
-
-    multi_v7_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-            qcom-apq8064-cm-qs600: 1 offline lab
-            stih410-b2120: 1 offline lab
-
-    exynos_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-
----
-For more info write to <info@kernelci.org>
+> The non-kernel runtime of UBSAN would print:
+> runtime error: member access within null pointer of type
+> for this macro.
+>
+> Link: https://lore.kernel.org/lkml/20200521100952.GA5360@willie-the-truck/
+> Cc: stable@vger.kernel.org
+> Reported-by: Will Deacon <will@kernel.org>
+> Suggested-by: Ard Biesheuvel <ardb@kernel.org>
+> Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+> ---
+>  include/acpi/actypes.h | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/include/acpi/actypes.h b/include/acpi/actypes.h
+> index 4defed58ea33..04359c70b198 100644
+> --- a/include/acpi/actypes.h
+> +++ b/include/acpi/actypes.h
+> @@ -508,7 +508,7 @@ typedef u64 acpi_integer;
+>
+>  #define ACPI_TO_POINTER(i)              ACPI_CAST_PTR (void, (acpi_size) (i))
+>  #define ACPI_TO_INTEGER(p)              ACPI_PTR_DIFF (p, (void *) 0)
+> -#define ACPI_OFFSET(d, f)               ACPI_PTR_DIFF (&(((d *) 0)->f), (void *) 0)
+> +#define ACPI_OFFSET(d, f)               __builtin_offsetof(d, f)
+>  #define ACPI_PHYSADDR_TO_PTR(i)         ACPI_TO_POINTER(i)
+>  #define ACPI_PTR_TO_PHYSADDR(i)         ACPI_TO_INTEGER(i)
+>
+> --
+> 2.27.0.rc2.251.g90737beb825-goog
+>
