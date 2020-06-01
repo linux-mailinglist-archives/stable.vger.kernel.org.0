@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EA3F61EAE2D
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:51:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 62B961EAEC2
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:57:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726667AbgFASvw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:51:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49336 "EHLO mail.kernel.org"
+        id S1729641AbgFASA3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:00:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43156 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730216AbgFASEg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:04:36 -0400
+        id S1729627AbgFASA2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:00:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7C555206E2;
-        Mon,  1 Jun 2020 18:04:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3E955206E2;
+        Mon,  1 Jun 2020 18:00:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034676;
-        bh=dcISaO5ZIf/Q0SbY++gUBhKTdgN9apg2neVbPtJy5wo=;
+        s=default; t=1591034427;
+        bh=cefI0ZFCKQibzgsWiyF43o4I/K11S3pa1wEiuKrRIpY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wBTNxFucRKHb80Bcoy2wHzzyiJlROJLaYjw/IHSR7HIvvIqdKKY32QPRunlx1Pwn/
-         maSuyIsNv6DatkC0CoeYN/UEQ1PIE6sdHGOMon3PkXnAbJmxKrK+2JgU2IQOLtYR64
-         00KgFWi1TkNs07N+Wof6uau8WKKIjMk+QeD0w1fQ=
+        b=vPOcO+wFlS+/4CBlXSlh1wb0ffjWbQYVuyuN0jgijH1fRwh+693veBb05kaKDK8GD
+         kv2qkxp6r82ihAicjCMTkBiy83z+YS66duIOO6/y2U5Rvx69XjA/rDHRJsTCOUGjdk
+         KDvCW06vsrSyuIk4vXy/4eVyOPYsTUcEuotspnKQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?=C5=81ukasz=20Patron?= <priv.luk@gmail.com>,
+        Cameron Gutman <aicommander@gmail.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 32/95] net: freescale: select CONFIG_FIXED_PHY where needed
+Subject: [PATCH 4.14 27/77] Input: xpad - add custom init packet for Xbox One S controllers
 Date:   Mon,  1 Jun 2020 19:53:32 +0200
-Message-Id: <20200601174025.867837444@linuxfoundation.org>
+Message-Id: <20200601174021.295953283@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174020.759151073@linuxfoundation.org>
-References: <20200601174020.759151073@linuxfoundation.org>
+In-Reply-To: <20200601174016.396817032@linuxfoundation.org>
+References: <20200601174016.396817032@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,64 +46,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Łukasz Patron <priv.luk@gmail.com>
 
-[ Upstream commit 99352c79af3e5f2e4724abf37fa5a2a3299b1c81 ]
+[ Upstream commit 764f7f911bf72450c51eb74cbb262ad9933741d8 ]
 
-I ran into a randconfig build failure with CONFIG_FIXED_PHY=m
-and CONFIG_GIANFAR=y:
+Sending [ 0x05, 0x20, 0x00, 0x0f, 0x06 ] packet for Xbox One S controllers
+fixes an issue where controller is stuck in Bluetooth mode and not sending
+any inputs.
 
-x86_64-linux-ld: drivers/net/ethernet/freescale/gianfar.o:(.rodata+0x418): undefined reference to `fixed_phy_change_carrier'
-
-It seems the same thing can happen with dpaa and ucc_geth, so change
-all three to do an explicit 'select FIXED_PHY'.
-
-The fixed-phy driver actually has an alternative stub function that
-theoretically allows building network drivers when fixed-phy is
-disabled, but I don't see how that would help here, as the drivers
-presumably would not work then.
-
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Łukasz Patron <priv.luk@gmail.com>
+Reviewed-by: Cameron Gutman <aicommander@gmail.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20200422075206.18229-1-priv.luk@gmail.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/freescale/Kconfig      | 2 ++
- drivers/net/ethernet/freescale/dpaa/Kconfig | 1 +
- 2 files changed, 3 insertions(+)
+ drivers/input/joystick/xpad.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/drivers/net/ethernet/freescale/Kconfig b/drivers/net/ethernet/freescale/Kconfig
-index a580a3dcbe59..e9f4326a0afa 100644
---- a/drivers/net/ethernet/freescale/Kconfig
-+++ b/drivers/net/ethernet/freescale/Kconfig
-@@ -76,6 +76,7 @@ config UCC_GETH
- 	depends on QUICC_ENGINE
- 	select FSL_PQ_MDIO
- 	select PHYLIB
-+	select FIXED_PHY
- 	---help---
- 	  This driver supports the Gigabit Ethernet mode of the QUICC Engine,
- 	  which is available on some Freescale SOCs.
-@@ -89,6 +90,7 @@ config GIANFAR
- 	depends on HAS_DMA
- 	select FSL_PQ_MDIO
- 	select PHYLIB
-+	select FIXED_PHY
- 	select CRC32
- 	---help---
- 	  This driver supports the Gigabit TSEC on the MPC83xx, MPC85xx,
-diff --git a/drivers/net/ethernet/freescale/dpaa/Kconfig b/drivers/net/ethernet/freescale/dpaa/Kconfig
-index a654736237a9..8fec41e57178 100644
---- a/drivers/net/ethernet/freescale/dpaa/Kconfig
-+++ b/drivers/net/ethernet/freescale/dpaa/Kconfig
-@@ -2,6 +2,7 @@ menuconfig FSL_DPAA_ETH
- 	tristate "DPAA Ethernet"
- 	depends on FSL_DPAA && FSL_FMAN
- 	select PHYLIB
-+	select FIXED_PHY
- 	select FSL_FMAN_MAC
- 	---help---
- 	  Data Path Acceleration Architecture Ethernet driver,
+diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+index 26476a64e663..54a6691d7d87 100644
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -475,6 +475,16 @@ static const u8 xboxone_fw2015_init[] = {
+ 	0x05, 0x20, 0x00, 0x01, 0x00
+ };
+ 
++/*
++ * This packet is required for Xbox One S (0x045e:0x02ea)
++ * and Xbox One Elite Series 2 (0x045e:0x0b00) pads to
++ * initialize the controller that was previously used in
++ * Bluetooth mode.
++ */
++static const u8 xboxone_s_init[] = {
++	0x05, 0x20, 0x00, 0x0f, 0x06
++};
++
+ /*
+  * This packet is required for the Titanfall 2 Xbox One pads
+  * (0x0e6f:0x0165) to finish initialization and for Hori pads
+@@ -533,6 +543,8 @@ static const struct xboxone_init_packet xboxone_init_packets[] = {
+ 	XBOXONE_INIT_PKT(0x0e6f, 0x0165, xboxone_hori_init),
+ 	XBOXONE_INIT_PKT(0x0f0d, 0x0067, xboxone_hori_init),
+ 	XBOXONE_INIT_PKT(0x0000, 0x0000, xboxone_fw2015_init),
++	XBOXONE_INIT_PKT(0x045e, 0x02ea, xboxone_s_init),
++	XBOXONE_INIT_PKT(0x045e, 0x0b00, xboxone_s_init),
+ 	XBOXONE_INIT_PKT(0x0e6f, 0x0000, xboxone_pdp_init1),
+ 	XBOXONE_INIT_PKT(0x0e6f, 0x0000, xboxone_pdp_init2),
+ 	XBOXONE_INIT_PKT(0x24c6, 0x541a, xboxone_rumblebegin_init),
 -- 
 2.25.1
 
