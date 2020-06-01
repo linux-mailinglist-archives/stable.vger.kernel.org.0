@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 364EF1EAB7B
+	by mail.lfdr.de (Postfix) with ESMTP id A49F01EAB7C
 	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:17:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731863AbgFASRq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:17:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39070 "EHLO mail.kernel.org"
+        id S1731303AbgFASRs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:17:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39132 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731611AbgFASRp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:17:45 -0400
+        id S1731866AbgFASRr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:17:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2A5852068D;
-        Mon,  1 Jun 2020 18:17:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 684DB2065C;
+        Mon,  1 Jun 2020 18:17:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591035464;
-        bh=GZhhrHGz8Ys3XjEkj3lsFSGFyE1jA+X30Q4yoTtdXjo=;
+        s=default; t=1591035466;
+        bh=0BF0Lk+H1PXCCe5Cg0aXgjRhQYNfh7boNZDK32hbnHw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=04Fm+2rpQxX/RRws0amOsjQDBkMOcCArIT4rNBu8L6nbgexFZmtfa63YBc/d2Nqc+
-         fAHacQtMdNvdSkaZVSWONipf8BH2F7vy17nD8jxPC+MVaiBgmftEqofpUKCeHsmJxd
-         vxYiHlD7tdmir0+QfeszvuZn+SXRucV7SUDInI0s=
+        b=ht2DuS2a6g4Na+GOrS4tiC2tWYef1CF3FUWAe9LAAPV0I54ESwmnPkEPec2Yq/XEO
+         5XG2I25PT0UTA/jf9qUEUSsfeD3T1OZLqpYWTf9wpjwnS9+URiPgipZE0fANptNtKR
+         TKRz/rZ/lQC4J2G1307iechhdu7g66c0dqK8NlUc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hugh Dickins <hughd@google.com>,
+        stable@vger.kernel.org,
+        Konstantin Khlebnikov <khlebnikov@yandex-team.ru>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Song Liu <songliubraving@fb.com>,
+        Hugh Dickins <hughd@google.com>,
         "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Rik van Riel <riel@surriel.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        David Rientjes <rientjes@google.com>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 132/177] mm,thp: stop leaking unreleased file pages
-Date:   Mon,  1 Jun 2020 19:54:30 +0200
-Message-Id: <20200601174059.501360844@linuxfoundation.org>
+Subject: [PATCH 5.6 133/177] mm: remove VM_BUG_ON(PageSlab()) from page_mapcount()
+Date:   Mon,  1 Jun 2020 19:54:31 +0200
+Message-Id: <20200601174059.569234607@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200601174048.468952319@linuxfoundation.org>
 References: <20200601174048.468952319@linuxfoundation.org>
@@ -49,42 +50,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hugh Dickins <hughd@google.com>
+From: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
 
-[ Upstream commit 2f33a706027c94cd4f70fcd3e3f4a17c1ce4ea4b ]
+[ Upstream commit 6988f31d558aa8c744464a7f6d91d34ada48ad12 ]
 
-When collapse_file() calls try_to_release_page(), it has already isolated
-the page: so if releasing buffers happens to fail (as it sometimes does),
-remember to putback_lru_page(): otherwise that page is left unreclaimable
-and unfreeable, and the file extent uncollapsible.
+Replace superfluous VM_BUG_ON() with comment about correct usage.
 
-Fixes: 99cb0dbd47a1 ("mm,thp: add read-only THP support for (non-shmem) FS")
-Signed-off-by: Hugh Dickins <hughd@google.com>
+Technically reverts commit 1d148e218a0d ("mm: add VM_BUG_ON_PAGE() to
+page_mapcount()"), but context lines have changed.
+
+Function isolate_migratepages_block() runs some checks out of lru_lock
+when choose pages for migration.  After checking PageLRU() it checks
+extra page references by comparing page_count() and page_mapcount().
+Between these two checks page could be removed from lru, freed and taken
+by slab.
+
+As a result this race triggers VM_BUG_ON(PageSlab()) in page_mapcount().
+Race window is tiny.  For certain workload this happens around once a
+year.
+
+    page:ffffea0105ca9380 count:1 mapcount:0 mapping:ffff88ff7712c180 index:0x0 compound_mapcount: 0
+    flags: 0x500000000008100(slab|head)
+    raw: 0500000000008100 dead000000000100 dead000000000200 ffff88ff7712c180
+    raw: 0000000000000000 0000000080200020 00000001ffffffff 0000000000000000
+    page dumped because: VM_BUG_ON_PAGE(PageSlab(page))
+    ------------[ cut here ]------------
+    kernel BUG at ./include/linux/mm.h:628!
+    invalid opcode: 0000 [#1] SMP NOPTI
+    CPU: 77 PID: 504 Comm: kcompactd1 Tainted: G        W         4.19.109-27 #1
+    Hardware name: Yandex T175-N41-Y3N/MY81-EX0-Y3N, BIOS R05 06/20/2019
+    RIP: 0010:isolate_migratepages_block+0x986/0x9b0
+
+The code in isolate_migratepages_block() was added in commit
+119d6d59dcc0 ("mm, compaction: avoid isolating pinned pages") before
+adding VM_BUG_ON into page_mapcount().
+
+This race has been predicted in 2015 by Vlastimil Babka (see link
+below).
+
+[akpm@linux-foundation.org: comment tweaks, per Hugh]
+Fixes: 1d148e218a0d ("mm: add VM_BUG_ON_PAGE() to page_mapcount()")
+Signed-off-by: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Acked-by: Song Liu <songliubraving@fb.com>
+Acked-by: Hugh Dickins <hughd@google.com>
 Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Acked-by: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Rik van Riel <riel@surriel.com>
-Cc: <stable@vger.kernel.org>	[5.4+]
-Link: http://lkml.kernel.org/r/alpine.LSU.2.11.2005231837500.1766@eggly.anvils
+Acked-by: Vlastimil Babka <vbabka@suse.cz>
+Cc: David Rientjes <rientjes@google.com>
+Cc: <stable@vger.kernel.org>
+Link: http://lkml.kernel.org/r/159032779896.957378.7852761411265662220.stgit@buzz
+Link: https://lore.kernel.org/lkml/557710E1.6060103@suse.cz/
+Link: https://lore.kernel.org/linux-mm/158937872515.474360.5066096871639561424.stgit@buzz/T/ (v1)
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/khugepaged.c | 1 +
- 1 file changed, 1 insertion(+)
+ include/linux/mm.h | 15 +++++++++++++--
+ 1 file changed, 13 insertions(+), 2 deletions(-)
 
-diff --git a/mm/khugepaged.c b/mm/khugepaged.c
-index b679908743cb..ba059e68cf50 100644
---- a/mm/khugepaged.c
-+++ b/mm/khugepaged.c
-@@ -1673,6 +1673,7 @@ static void collapse_file(struct mm_struct *mm,
- 		if (page_has_private(page) &&
- 		    !try_to_release_page(page, GFP_KERNEL)) {
- 			result = SCAN_PAGE_HAS_PRIVATE;
-+			putback_lru_page(page);
- 			goto out_unlock;
- 		}
+diff --git a/include/linux/mm.h b/include/linux/mm.h
+index c54fb96cb1e6..96deeecd9179 100644
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -670,6 +670,11 @@ static inline void *kvcalloc(size_t n, size_t size, gfp_t flags)
  
+ extern void kvfree(const void *addr);
+ 
++/*
++ * Mapcount of compound page as a whole, does not include mapped sub-pages.
++ *
++ * Must be called only for compound pages or any their tail sub-pages.
++ */
+ static inline int compound_mapcount(struct page *page)
+ {
+ 	VM_BUG_ON_PAGE(!PageCompound(page), page);
+@@ -689,10 +694,16 @@ static inline void page_mapcount_reset(struct page *page)
+ 
+ int __page_mapcount(struct page *page);
+ 
++/*
++ * Mapcount of 0-order page; when compound sub-page, includes
++ * compound_mapcount().
++ *
++ * Result is undefined for pages which cannot be mapped into userspace.
++ * For example SLAB or special types of pages. See function page_has_type().
++ * They use this place in struct page differently.
++ */
+ static inline int page_mapcount(struct page *page)
+ {
+-	VM_BUG_ON_PAGE(PageSlab(page), page);
+-
+ 	if (unlikely(PageCompound(page)))
+ 		return __page_mapcount(page);
+ 	return atomic_read(&page->_mapcount) + 1;
 -- 
 2.25.1
 
