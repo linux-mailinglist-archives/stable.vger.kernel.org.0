@@ -2,97 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 594721EA479
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 15:12:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D9D971EA535
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 15:41:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728080AbgFANMD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 09:12:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48290 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728071AbgFANMC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Jun 2020 09:12:02 -0400
-Received: from Galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BA68C061A0E;
-        Mon,  1 Jun 2020 06:12:02 -0700 (PDT)
-Received: from [5.158.153.53] (helo=tip-bot2.lab.linutronix.de)
-        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
-        (Exim 4.80)
-        (envelope-from <tip-bot2@linutronix.de>)
-        id 1jfkEM-000793-6s; Mon, 01 Jun 2020 15:11:54 +0200
-Received: from [127.0.1.1] (localhost [IPv6:::1])
-        by tip-bot2.lab.linutronix.de (Postfix) with ESMTP id B182D1C04DD;
-        Mon,  1 Jun 2020 15:11:48 +0200 (CEST)
-Date:   Mon, 01 Jun 2020 13:11:48 -0000
-From:   "tip-bot2 for Michael Ellerman" <tip-bot2@linutronix.de>
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: timers/core] clocksource/drivers/timer-microchip-pit64b: Select
- CONFIG_TIMER_OF
-Cc:     stable@vger.kernel.org, #@tip-bot2.tec.linutronix.de,
-        v5.6+@tip-bot2.tec.linutronix.de,
-        kbuild test robot <lkp@intel.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        x86 <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20200426124356.3929682-1-mpe@ellerman.id.au>
-References: <20200426124356.3929682-1-mpe@ellerman.id.au>
+        id S1727953AbgFANk4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 09:40:56 -0400
+Received: from mail-lj1-f196.google.com ([209.85.208.196]:41172 "EHLO
+        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725977AbgFANk1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Jun 2020 09:40:27 -0400
+Received: by mail-lj1-f196.google.com with SMTP id 9so6713421ljc.8;
+        Mon, 01 Jun 2020 06:40:25 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=p8HfJKXte+/vUD+uOPGuKLv8QTkTUqBjgyWkHyXWfLc=;
+        b=Xdd4cr4pvHjRiM1VbDNRVb67sotqLDE2RIo/cA9HW+y+dOx8kC1V5pyVD4qfBNFrOz
+         eecKxT9XzuQshkUMKNNmwPVf6AJ9xyPLIRFc7YXblPORprsaPag84lc7QBXce2hudA52
+         QouacqOV25Mdseyl2gmgWYNGTg7Anv8O58+cx0nb9YW7+5WNiTJCoPyS5aWmAjvB5xag
+         aOojP28otSxTS5BEuDGC0I3UrxAPcJkH+qNpyQwDkGo/hM0PIlm8u1/bXTAt80/SdDXC
+         P/CO5COX2eWUDSvlG3FK8Lp0xmzZ3jeMaWvzgq9Z0eZosTGQO2AK41XN1k6WyY202nkE
+         4Lmw==
+X-Gm-Message-State: AOAM530A59SUUW585EEa231XKl+al3an+2HtOZa/ivol8AX/vo2all2a
+        1aX6uKGqqUKXEWylFOyEDxM=
+X-Google-Smtp-Source: ABdhPJypzFNCi9I9ZNF5CUH9dJi8WirZXzmy1CKrwunn6Q0sC7/+JBDI6bu7vShJW/hX3Wjsaepw5Q==
+X-Received: by 2002:a2e:b0f9:: with SMTP id h25mr11127603ljl.18.1591018824848;
+        Mon, 01 Jun 2020 06:40:24 -0700 (PDT)
+Received: from xi.terra (c-beaee455.07-184-6d6c6d4.bbcust.telenor.se. [85.228.174.190])
+        by smtp.gmail.com with ESMTPSA id t4sm4818597ljo.36.2020.06.01.06.40.23
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 01 Jun 2020 06:40:23 -0700 (PDT)
+Received: from johan by xi.terra with local (Exim 4.93.0.4)
+        (envelope-from <johan@xi.terra>)
+        id 1jfkfp-0003Ff-1K; Mon, 01 Jun 2020 15:40:17 +0200
+From:   Johan Hovold <johan@kernel.org>
+To:     Jacek Anaszewski <jacek.anaszewski@gmail.com>,
+        Pavel Machek <pavel@ucw.cz>
+Cc:     Dan Murphy <dmurphy@ti.com>,
+        Amitoj Kaur Chawla <amitoj1606@gmail.com>,
+        linux-leds@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Johan Hovold <johan@kernel.org>,
+        stable <stable@vger.kernel.org>
+Subject: [PATCH 1/6] leds: 88pm860x: fix use-after-free on unbind
+Date:   Mon,  1 Jun 2020 15:39:45 +0200
+Message-Id: <20200601133950.12420-2-johan@kernel.org>
+X-Mailer: git-send-email 2.26.2
+In-Reply-To: <20200601133950.12420-1-johan@kernel.org>
+References: <20200601133950.12420-1-johan@kernel.org>
 MIME-Version: 1.0
-Message-ID: <159101710857.17951.10091411980553462232.tip-bot2@tip-bot2>
-X-Mailer: tip-git-log-daemon
-Robot-ID: <tip-bot2.linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Linutronix-Spam-Score: -1.0
-X-Linutronix-Spam-Level: -
-X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the timers/core branch of tip:
+Several MFD child drivers register their class devices directly under
+the parent device. This means you cannot blindly do devres conversions
+so that deregistration ends up being tied to the parent device,
+something which leads to use-after-free on driver unbind when the class
+device is released while still being registered.
 
-Commit-ID:     25259f7a5de2de9d67793dc584b15c83a3134c93
-Gitweb:        https://git.kernel.org/tip/25259f7a5de2de9d67793dc584b15c83a3134c93
-Author:        Michael Ellerman <mpe@ellerman.id.au>
-AuthorDate:    Sun, 26 Apr 2020 22:43:56 +10:00
-Committer:     Daniel Lezcano <daniel.lezcano@linaro.org>
-CommitterDate: Mon, 27 Apr 2020 08:59:50 +02:00
-
-clocksource/drivers/timer-microchip-pit64b: Select CONFIG_TIMER_OF
-
-This driver is an OF driver, it depends on OF, and uses
-TIMER_OF_DECLARE, so it should select CONFIG_TIMER_OF.
-
-Without CONFIG_TIMER_OF enabled this can lead to warnings such as:
-
-  powerpc-linux-ld: warning: orphan section `__timer_of_table' from
-  `drivers/clocksource/timer-microchip-pit64b.o' being placed in
-  section `__timer_of_table'.
-
-Because TIMER_OF_TABLES in vmlinux.lds.h doesn't emit anything into
-the linker script when CONFIG_TIMER_OF is not enabled.
-
-Fixes: 625022a5f160 ("clocksource/drivers/timer-microchip-pit64b: Add Microchip PIT64B support")
-Cc: stable@vger.kernel.org # v5.6+
-Reported-by: kbuild test robot <lkp@intel.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/r/20200426124356.3929682-1-mpe@ellerman.id.au
+Fixes: 375446df95ee ("leds: 88pm860x: Use devm_led_classdev_register")
+Cc: stable <stable@vger.kernel.org>     # 4.6
+Cc: Amitoj Kaur Chawla <amitoj1606@gmail.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 ---
- drivers/clocksource/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/leds/leds-88pm860x.c | 14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/clocksource/Kconfig b/drivers/clocksource/Kconfig
-index f2142e6..f225c27 100644
---- a/drivers/clocksource/Kconfig
-+++ b/drivers/clocksource/Kconfig
-@@ -709,6 +709,7 @@ config MICROCHIP_PIT64B
- 	bool "Microchip PIT64B support"
- 	depends on OF || COMPILE_TEST
- 	select CLKSRC_MMIO
-+	select TIMER_OF
- 	help
- 	  This option enables Microchip PIT64B timer for Atmel
- 	  based system. It supports the oneshot, the periodic
+diff --git a/drivers/leds/leds-88pm860x.c b/drivers/leds/leds-88pm860x.c
+index b3044c9a8120..465c3755cf2e 100644
+--- a/drivers/leds/leds-88pm860x.c
++++ b/drivers/leds/leds-88pm860x.c
+@@ -203,21 +203,33 @@ static int pm860x_led_probe(struct platform_device *pdev)
+ 	data->cdev.brightness_set_blocking = pm860x_led_set;
+ 	mutex_init(&data->lock);
+ 
+-	ret = devm_led_classdev_register(chip->dev, &data->cdev);
++	ret = led_classdev_register(chip->dev, &data->cdev);
+ 	if (ret < 0) {
+ 		dev_err(&pdev->dev, "Failed to register LED: %d\n", ret);
+ 		return ret;
+ 	}
+ 	pm860x_led_set(&data->cdev, 0);
++
++	platform_set_drvdata(pdev, data);
++
+ 	return 0;
+ }
+ 
++static int pm860x_led_remove(struct platform_device *pdev)
++{
++	struct pm860x_led *data = platform_get_drvdata(pdev);
++
++	led_classdev_unregister(&data->cdev);
++
++	return 0;
++}
+ 
+ static struct platform_driver pm860x_led_driver = {
+ 	.driver	= {
+ 		.name	= "88pm860x-led",
+ 	},
+ 	.probe	= pm860x_led_probe,
++	.remove	= pm860x_led_remove,
+ };
+ 
+ module_platform_driver(pm860x_led_driver);
+-- 
+2.26.2
+
