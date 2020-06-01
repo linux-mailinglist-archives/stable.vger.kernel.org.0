@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 62B961EAEC2
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:57:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1982F1EADB6
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:48:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729641AbgFASA3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:00:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43156 "EHLO mail.kernel.org"
+        id S1729696AbgFASru (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:47:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54066 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729627AbgFASA2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:00:28 -0400
+        id S1729793AbgFASIE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:08:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3E955206E2;
-        Mon,  1 Jun 2020 18:00:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E66432077D;
+        Mon,  1 Jun 2020 18:08:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034427;
-        bh=cefI0ZFCKQibzgsWiyF43o4I/K11S3pa1wEiuKrRIpY=;
+        s=default; t=1591034883;
+        bh=J2jIe6HbveuMkncJ1bisbe9ib21+twXrpFHhdmfVG6s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vPOcO+wFlS+/4CBlXSlh1wb0ffjWbQYVuyuN0jgijH1fRwh+693veBb05kaKDK8GD
-         kv2qkxp6r82ihAicjCMTkBiy83z+YS66duIOO6/y2U5Rvx69XjA/rDHRJsTCOUGjdk
-         KDvCW06vsrSyuIk4vXy/4eVyOPYsTUcEuotspnKQ=
+        b=OfuMWwCXvD7qBRdPl9eOsyGeebrI+f+uZEMPuYJfmL+eR3FXy0Smkr3cdAAGiTRHi
+         Ho8dAB0GNhia2H1R3BNwiYeOrvM11bN1syty0oAq72LFfdhgQWgFRoV0PjSKpq37Pm
+         JYQTiEwJ5K+zv3YFPowxe86D4VxnK1/dSjB6dFOk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?=C5=81ukasz=20Patron?= <priv.luk@gmail.com>,
-        Cameron Gutman <aicommander@gmail.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        stable@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
+        Tero Kristo <t-kristo@ti.com>, Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 27/77] Input: xpad - add custom init packet for Xbox One S controllers
+Subject: [PATCH 5.4 054/142] clk: ti: am33xx: fix RTC clock parent
 Date:   Mon,  1 Jun 2020 19:53:32 +0200
-Message-Id: <20200601174021.295953283@linuxfoundation.org>
+Message-Id: <20200601174043.395331588@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174016.396817032@linuxfoundation.org>
-References: <20200601174016.396817032@linuxfoundation.org>
+In-Reply-To: <20200601174037.904070960@linuxfoundation.org>
+References: <20200601174037.904070960@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,54 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Łukasz Patron <priv.luk@gmail.com>
+From: Tero Kristo <t-kristo@ti.com>
 
-[ Upstream commit 764f7f911bf72450c51eb74cbb262ad9933741d8 ]
+[ Upstream commit dc6dbd51009fc412729c307161f442c0a08618f4 ]
 
-Sending [ 0x05, 0x20, 0x00, 0x0f, 0x06 ] packet for Xbox One S controllers
-fixes an issue where controller is stuck in Bluetooth mode and not sending
-any inputs.
+Right now, trying to use RTC purely with the ti-sysc / clkctrl framework
+fails to enable the RTC module properly. Based on experimentation, this
+appears to be because RTC is sourced from the clkdiv32k optional clock.
+TRM is not very clear on this topic, but fix the RTC to use the proper
+source clock nevertheless.
 
-Signed-off-by: Łukasz Patron <priv.luk@gmail.com>
-Reviewed-by: Cameron Gutman <aicommander@gmail.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20200422075206.18229-1-priv.luk@gmail.com
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reported-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Tero Kristo <t-kristo@ti.com>
+Link: https://lkml.kernel.org/r/20200424152301.4018-1-t-kristo@ti.com
+Acked-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/joystick/xpad.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/clk/ti/clk-33xx.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index 26476a64e663..54a6691d7d87 100644
---- a/drivers/input/joystick/xpad.c
-+++ b/drivers/input/joystick/xpad.c
-@@ -475,6 +475,16 @@ static const u8 xboxone_fw2015_init[] = {
- 	0x05, 0x20, 0x00, 0x01, 0x00
+diff --git a/drivers/clk/ti/clk-33xx.c b/drivers/clk/ti/clk-33xx.c
+index a360d3109555..73f567d8022f 100644
+--- a/drivers/clk/ti/clk-33xx.c
++++ b/drivers/clk/ti/clk-33xx.c
+@@ -212,7 +212,7 @@ static const struct omap_clkctrl_reg_data am3_mpu_clkctrl_regs[] __initconst = {
  };
  
-+/*
-+ * This packet is required for Xbox One S (0x045e:0x02ea)
-+ * and Xbox One Elite Series 2 (0x045e:0x0b00) pads to
-+ * initialize the controller that was previously used in
-+ * Bluetooth mode.
-+ */
-+static const u8 xboxone_s_init[] = {
-+	0x05, 0x20, 0x00, 0x0f, 0x06
-+};
-+
- /*
-  * This packet is required for the Titanfall 2 Xbox One pads
-  * (0x0e6f:0x0165) to finish initialization and for Hori pads
-@@ -533,6 +543,8 @@ static const struct xboxone_init_packet xboxone_init_packets[] = {
- 	XBOXONE_INIT_PKT(0x0e6f, 0x0165, xboxone_hori_init),
- 	XBOXONE_INIT_PKT(0x0f0d, 0x0067, xboxone_hori_init),
- 	XBOXONE_INIT_PKT(0x0000, 0x0000, xboxone_fw2015_init),
-+	XBOXONE_INIT_PKT(0x045e, 0x02ea, xboxone_s_init),
-+	XBOXONE_INIT_PKT(0x045e, 0x0b00, xboxone_s_init),
- 	XBOXONE_INIT_PKT(0x0e6f, 0x0000, xboxone_pdp_init1),
- 	XBOXONE_INIT_PKT(0x0e6f, 0x0000, xboxone_pdp_init2),
- 	XBOXONE_INIT_PKT(0x24c6, 0x541a, xboxone_rumblebegin_init),
+ static const struct omap_clkctrl_reg_data am3_l4_rtc_clkctrl_regs[] __initconst = {
+-	{ AM3_L4_RTC_RTC_CLKCTRL, NULL, CLKF_SW_SUP, "clk_32768_ck" },
++	{ AM3_L4_RTC_RTC_CLKCTRL, NULL, CLKF_SW_SUP, "clk-24mhz-clkctrl:0000:0" },
+ 	{ 0 },
+ };
+ 
 -- 
 2.25.1
 
