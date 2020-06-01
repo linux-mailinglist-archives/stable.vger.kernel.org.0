@@ -2,36 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F29C21EAF26
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 21:01:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 633251EAF29
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 21:01:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728495AbgFAR4I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 13:56:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36292 "EHLO mail.kernel.org"
+        id S1728510AbgFAR4K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 13:56:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36332 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728480AbgFAR4H (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 13:56:07 -0400
+        id S1728504AbgFAR4J (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 13:56:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 65AAC2073B;
-        Mon,  1 Jun 2020 17:56:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9B1732076B;
+        Mon,  1 Jun 2020 17:56:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034166;
-        bh=v5U3mBbn3YdGBHEeSmql6qdA7BvIvIIiq7B/D57Y0Qk=;
+        s=default; t=1591034169;
+        bh=8rLRduYBr4uj8gPkqhFl1/b3CdN/SHvNXzbfGXSTM0w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0ve9FbZnY8lJhPm+KuyCmj9rQzfJjVVAmLvkscZX1SuIJnX4miQiaT0BvxIacO53H
-         vDxAy01NFgKhLRxFGAbKS6wLdwznePsw6z7Lu0ddgQ7lDdkuDBojCDo8iPiNUa9Dia
-         mUtmJJscbIB+J+uLXUo05U3W29tFIt3E4AMtfkJc=
+        b=zO6HngxsgBYXQiCt8PEIxmcMYAuH2i5+/t4I7eQgusaXXmNpbpe+KGFQOjZXIiZsg
+         MHA3qRI5GY3Sg7NlyUB/32e4g7jgRXJ5KVxGLqRSkhMODTjhXaV1xJTUSsQGUrHYeb
+         Zjy0vgyQovIxtimmzhik6Pd1lAwsH2YfxjSv5qQo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andy Lutomirski <luto@kernel.org>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
+        stable@vger.kernel.org, sam <sunhaoyl@outlook.com>,
+        Alexander Potapenko <glider@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Kees Cook <keescook@chromium.org>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Alexey Dobriyan <adobriyan@gmail.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 21/48] exec: Always set cap_ambient in cap_bprm_set_creds
-Date:   Mon,  1 Jun 2020 19:53:31 +0200
-Message-Id: <20200601173958.705938704@linuxfoundation.org>
+Subject: [PATCH 4.4 22/48] fs/binfmt_elf.c: allocate initialized memory in fill_thread_core_info()
+Date:   Mon,  1 Jun 2020 19:53:32 +0200
+Message-Id: <20200601173959.002445559@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200601173952.175939894@linuxfoundation.org>
 References: <20200601173952.175939894@linuxfoundation.org>
@@ -44,50 +49,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric W. Biederman <ebiederm@xmission.com>
+From: Alexander Potapenko <glider@google.com>
 
-[ Upstream commit a4ae32c71fe90794127b32d26d7ad795813b502e ]
+[ Upstream commit 1d605416fb7175e1adf094251466caa52093b413 ]
 
-An invariant of cap_bprm_set_creds is that every field in the new cred
-structure that cap_bprm_set_creds might set, needs to be set every
-time to ensure the fields does not get a stale value.
+KMSAN reported uninitialized data being written to disk when dumping
+core.  As a result, several kilobytes of kmalloc memory may be written
+to the core file and then read by a non-privileged user.
 
-The field cap_ambient is not set every time cap_bprm_set_creds is
-called, which means that if there is a suid or sgid script with an
-interpreter that has neither the suid nor the sgid bits set the
-interpreter should be able to accept ambient credentials.
-Unfortuantely because cap_ambient is not reset to it's original value
-the interpreter can not accept ambient credentials.
-
-Given that the ambient capability set is expected to be controlled by
-the caller, I don't think this is particularly serious.  But it is
-definitely worth fixing so the code works correctly.
-
-I have tested to verify my reading of the code is correct and the
-interpreter of a sgid can receive ambient capabilities with this
-change and cannot receive ambient capabilities without this change.
-
-Cc: stable@vger.kernel.org
-Cc: Andy Lutomirski <luto@kernel.org>
-Fixes: 58319057b784 ("capabilities: ambient capabilities")
-Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
+Reported-by: sam <sunhaoyl@outlook.com>
+Signed-off-by: Alexander Potapenko <glider@google.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Acked-by: Kees Cook <keescook@chromium.org>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: <stable@vger.kernel.org>
+Link: http://lkml.kernel.org/r/20200419100848.63472-1-glider@google.com
+Link: https://github.com/google/kmsan/issues/76
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/commoncap.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/binfmt_elf.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/security/commoncap.c b/security/commoncap.c
-index 48071ed7c445..b62f97d83fd8 100644
---- a/security/commoncap.c
-+++ b/security/commoncap.c
-@@ -494,6 +494,7 @@ int cap_bprm_set_creds(struct linux_binprm *bprm)
- 	int ret;
- 	kuid_t root_uid;
- 
-+	new->cap_ambient = old->cap_ambient;
- 	if (WARN_ON(!cap_ambient_invariant_ok(old)))
- 		return -EPERM;
- 
+diff --git a/fs/binfmt_elf.c b/fs/binfmt_elf.c
+index 164e5fedd7b6..eddf5746cf51 100644
+--- a/fs/binfmt_elf.c
++++ b/fs/binfmt_elf.c
+@@ -1726,7 +1726,7 @@ static int fill_thread_core_info(struct elf_thread_core_info *t,
+ 		    (!regset->active || regset->active(t->task, regset) > 0)) {
+ 			int ret;
+ 			size_t size = regset->n * regset->size;
+-			void *data = kmalloc(size, GFP_KERNEL);
++			void *data = kzalloc(size, GFP_KERNEL);
+ 			if (unlikely(!data))
+ 				return 0;
+ 			ret = regset->get(t->task, regset,
 -- 
 2.25.1
 
