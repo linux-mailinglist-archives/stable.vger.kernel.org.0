@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 054231EAB3A
+	by mail.lfdr.de (Postfix) with ESMTP id E37921EAB3C
 	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:17:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731125AbgFASP1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:15:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35678 "EHLO mail.kernel.org"
+        id S1731590AbgFASPb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:15:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35794 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730497AbgFASPX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:15:23 -0400
+        id S1731585AbgFASP2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:15:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E6AC82073B;
-        Mon,  1 Jun 2020 18:15:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6A0FD2065C;
+        Mon,  1 Jun 2020 18:15:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591035323;
-        bh=SqG4whJ1VEAEkNByq572cqCP5htHqrxHUkMAtyTWFuc=;
+        s=default; t=1591035327;
+        bh=BDvc6Ul4JpUEu0xyaXOuBkOI3neeAE1ZCxh7AFG5C6I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ik69irgXtgwVWR89oDnRi2sBTKPY7POU/+qPmGQHKx+TDPkhaaX7Z6LQUcoNKSvJr
-         bbR0HgpFj2xxnBpohlDf/qx1UOsUIS+vw6WwRNFMrnt/LtK6weq7hNhCu3WvOGomd6
-         KEE8pEDINq3f7HDL7CbRgOTi18qZji6k1RiHDSK8=
+        b=kvJcVCpwdTDJ5Phv+zFNqlwfG3A1OGqT0KXaDZC2PaqztkpalUwDZBfyA7dszQMQG
+         NTq6ASZF6PlhNIozXZoB1lYbpVRlR27zPX2+NJzswTJxJysR8tFRIHkN52X5eaofNc
+         6SsjxYoQ/xZRasOoVpv6uJU9EjPm6NB6RMmC5c6U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lubomir Rintel <lkundrak@v3.sk>,
-        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 108/177] ARM: dts: mmp3: Drop usb-nop-xceiv from HSIC phy
-Date:   Mon,  1 Jun 2020 19:54:06 +0200
-Message-Id: <20200601174057.607240412@linuxfoundation.org>
+        stable@vger.kernel.org, Peng Hao <richard.peng@oppo.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 110/177] mmc: block: Fix use-after-free issue for rpmb
+Date:   Mon,  1 Jun 2020 19:54:08 +0200
+Message-Id: <20200601174057.793784262@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200601174048.468952319@linuxfoundation.org>
 References: <20200601174048.468952319@linuxfoundation.org>
@@ -43,49 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lubomir Rintel <lkundrak@v3.sk>
+From: Peng Hao <richard.peng@oppo.com>
 
-[ Upstream commit 24cf6eef79a7e85cfd2ef9dea52f769c9192fc6e ]
+[ Upstream commit 202500d21654874aa03243e91f96de153ec61860 ]
 
-"usb-nop-xceiv" is good enough if we don't lose the configuration done
-by the firmware, but we'd really prefer a real driver.
+The data structure member “rpmb->md” was passed to a call of the function
+“mmc_blk_put” after a call of the function “put_device”. Reorder these
+function calls to keep the data accesses consistent.
 
-Unfortunately, the PHY core is odd in that when the node is compatible
-with "usb-nop-xceiv", it ignores the other compatible strings. Let's
-just remove it.
-
-Signed-off-by: Lubomir Rintel <lkundrak@v3.sk>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Fixes: 1c87f7357849 ("mmc: block: Fix bug when removing RPMB chardev ")
+Signed-off-by: Peng Hao <richard.peng@oppo.com>
+Cc: stable@vger.kernel.org
+[Uffe: Fixed up mangled patch and updated commit message]
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/mmp3.dtsi | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/mmc/core/block.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/mmp3.dtsi b/arch/arm/boot/dts/mmp3.dtsi
-index 3e28f0dc9df4..1e25bf998ab5 100644
---- a/arch/arm/boot/dts/mmp3.dtsi
-+++ b/arch/arm/boot/dts/mmp3.dtsi
-@@ -202,8 +202,7 @@
- 			};
+diff --git a/drivers/mmc/core/block.c b/drivers/mmc/core/block.c
+index 32db16f6debc..2d19291ebc84 100644
+--- a/drivers/mmc/core/block.c
++++ b/drivers/mmc/core/block.c
+@@ -2475,8 +2475,8 @@ static int mmc_rpmb_chrdev_release(struct inode *inode, struct file *filp)
+ 	struct mmc_rpmb_data *rpmb = container_of(inode->i_cdev,
+ 						  struct mmc_rpmb_data, chrdev);
  
- 			hsic_phy0: hsic-phy@f0001800 {
--				compatible = "marvell,mmp3-hsic-phy",
--					     "usb-nop-xceiv";
-+				compatible = "marvell,mmp3-hsic-phy";
- 				reg = <0xf0001800 0x40>;
- 				#phy-cells = <0>;
- 				status = "disabled";
-@@ -224,8 +223,7 @@
- 			};
+-	put_device(&rpmb->dev);
+ 	mmc_blk_put(rpmb->md);
++	put_device(&rpmb->dev);
  
- 			hsic_phy1: hsic-phy@f0002800 {
--				compatible = "marvell,mmp3-hsic-phy",
--					     "usb-nop-xceiv";
-+				compatible = "marvell,mmp3-hsic-phy";
- 				reg = <0xf0002800 0x40>;
- 				#phy-cells = <0>;
- 				status = "disabled";
+ 	return 0;
+ }
 -- 
 2.25.1
 
