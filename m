@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C1DA61EAE70
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:54:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EEEB81EADFD
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:50:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729901AbgFASCO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:02:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45318 "EHLO mail.kernel.org"
+        id S1730415AbgFASGJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:06:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51482 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729900AbgFASCN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:02:13 -0400
+        id S1730351AbgFASGI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:06:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 286D32073B;
-        Mon,  1 Jun 2020 18:02:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ABB242074B;
+        Mon,  1 Jun 2020 18:06:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034532;
-        bh=CF/6RAc/H1vUJ3Q0XZsd6asmMAfIVyfNxYNu0uUyfrg=;
+        s=default; t=1591034768;
+        bh=kwbaj8Qi+qmhHgm4T2/RcM9Vi7W0UHPhorRqUD7VQZY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mxq0QpMMFoHxw8ajjBfdsLwEZEfnkin+MJ04ha2eUam+LoxeiBldYbODmh9qDQZTw
-         nEdRZTVJ3mqv87dgG+Z1XJMDX1e1QnVxTKuVOO/gsuzRRET2yhGsOJHmlaCSkO2lIv
-         RtnzBg53wu0z44Tbec8JQvjYv+G0cC3KGDgRtsm8=
+        b=2e+9b7KdMfWx0EB5JqH7Z+oePSOQe6US4RPk4ZIq1KahzvEpSzxx6TTBjEw8Py4wd
+         M0oibsWYpk8z1ofhkXhKr4dwQG61fx8Nh9nZAKMdcx4rHec9W5mbiMGBfkNuHAfm9H
+         DCHqorxuVAwJagc3K3rpCFioDfrmNtFdaQO1y1Ts=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 4.14 74/77] rxrpc: Fix transport sockopts to get IPv4 errors on an IPv6 socket
+        stable@vger.kernel.org, Xiumei Mu <xmu@redhat.com>,
+        Xin Long <lucien.xin@gmail.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>
+Subject: [PATCH 4.19 79/95] xfrm: fix a NULL-ptr deref in xfrm_local_error
 Date:   Mon,  1 Jun 2020 19:54:19 +0200
-Message-Id: <20200601174029.015066757@linuxfoundation.org>
+Message-Id: <20200601174032.759655310@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174016.396817032@linuxfoundation.org>
-References: <20200601174016.396817032@linuxfoundation.org>
+In-Reply-To: <20200601174020.759151073@linuxfoundation.org>
+References: <20200601174020.759151073@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,81 +44,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-commit 37a675e768d7606fe8a53e0c459c9b53e121ac20 upstream.
+commit f6a23d85d078c2ffde79c66ca81d0a1dde451649 upstream.
 
-It seems that enabling IPV6_RECVERR on an IPv6 socket doesn't also turn on
-IP_RECVERR, so neither local errors nor ICMP-transported remote errors from
-IPv4 peer addresses are returned to the AF_RXRPC protocol.
+This patch is to fix a crash:
 
-Make the sockopt setting code in rxrpc_open_socket() fall through from the
-AF_INET6 case to the AF_INET case to turn on all the AF_INET options too in
-the AF_INET6 case.
+  [ ] kasan: GPF could be caused by NULL-ptr deref or user memory access
+  [ ] general protection fault: 0000 [#1] SMP KASAN PTI
+  [ ] RIP: 0010:ipv6_local_error+0xac/0x7a0
+  [ ] Call Trace:
+  [ ]  xfrm6_local_error+0x1eb/0x300
+  [ ]  xfrm_local_error+0x95/0x130
+  [ ]  __xfrm6_output+0x65f/0xb50
+  [ ]  xfrm6_output+0x106/0x46f
+  [ ]  udp_tunnel6_xmit_skb+0x618/0xbf0 [ip6_udp_tunnel]
+  [ ]  vxlan_xmit_one+0xbc6/0x2c60 [vxlan]
+  [ ]  vxlan_xmit+0x6a0/0x4276 [vxlan]
+  [ ]  dev_hard_start_xmit+0x165/0x820
+  [ ]  __dev_queue_xmit+0x1ff0/0x2b90
+  [ ]  ip_finish_output2+0xd3e/0x1480
+  [ ]  ip_do_fragment+0x182d/0x2210
+  [ ]  ip_output+0x1d0/0x510
+  [ ]  ip_send_skb+0x37/0xa0
+  [ ]  raw_sendmsg+0x1b4c/0x2b80
+  [ ]  sock_sendmsg+0xc0/0x110
 
-Fixes: f2aeed3a591f ("rxrpc: Fix error reception on AF_INET6 sockets")
-Signed-off-by: David Howells <dhowells@redhat.com>
-Cc: Guenter Roeck <linux@roeck-us.net>
+This occurred when sending a v4 skb over vxlan6 over ipsec, in which case
+skb->protocol == htons(ETH_P_IPV6) while skb->sk->sk_family == AF_INET in
+xfrm_local_error(). Then it will go to xfrm6_local_error() where it tries
+to get ipv6 info from a ipv4 sk.
+
+This issue was actually fixed by Commit 628e341f319f ("xfrm: make local
+error reporting more robust"), but brought back by Commit 844d48746e4b
+("xfrm: choose protocol family by skb protocol").
+
+So to fix it, we should call xfrm6_local_error() only when skb->protocol
+is htons(ETH_P_IPV6) and skb->sk->sk_family is AF_INET6.
+
+Fixes: 844d48746e4b ("xfrm: choose protocol family by skb protocol")
+Reported-by: Xiumei Mu <xmu@redhat.com>
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/rxrpc/local_object.c |   23 +++++++++++++----------
- 1 file changed, 13 insertions(+), 10 deletions(-)
+ net/xfrm/xfrm_output.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/net/rxrpc/local_object.c
-+++ b/net/rxrpc/local_object.c
-@@ -134,10 +134,10 @@ static int rxrpc_open_socket(struct rxrp
- 	}
+--- a/net/xfrm/xfrm_output.c
++++ b/net/xfrm/xfrm_output.c
+@@ -285,7 +285,8 @@ void xfrm_local_error(struct sk_buff *sk
  
- 	switch (local->srx.transport.family) {
--	case AF_INET:
--		/* we want to receive ICMP errors */
-+	case AF_INET6:
-+		/* we want to receive ICMPv6 errors */
- 		opt = 1;
--		ret = kernel_setsockopt(local->socket, SOL_IP, IP_RECVERR,
-+		ret = kernel_setsockopt(local->socket, SOL_IPV6, IPV6_RECVERR,
- 					(char *) &opt, sizeof(opt));
- 		if (ret < 0) {
- 			_debug("setsockopt failed");
-@@ -145,19 +145,22 @@ static int rxrpc_open_socket(struct rxrp
- 		}
- 
- 		/* we want to set the don't fragment bit */
--		opt = IP_PMTUDISC_DO;
--		ret = kernel_setsockopt(local->socket, SOL_IP, IP_MTU_DISCOVER,
-+		opt = IPV6_PMTUDISC_DO;
-+		ret = kernel_setsockopt(local->socket, SOL_IPV6, IPV6_MTU_DISCOVER,
- 					(char *) &opt, sizeof(opt));
- 		if (ret < 0) {
- 			_debug("setsockopt failed");
- 			goto error;
- 		}
--		break;
- 
--	case AF_INET6:
-+		/* Fall through and set IPv4 options too otherwise we don't get
-+		 * errors from IPv4 packets sent through the IPv6 socket.
-+		 */
-+
-+	case AF_INET:
- 		/* we want to receive ICMP errors */
- 		opt = 1;
--		ret = kernel_setsockopt(local->socket, SOL_IPV6, IPV6_RECVERR,
-+		ret = kernel_setsockopt(local->socket, SOL_IP, IP_RECVERR,
- 					(char *) &opt, sizeof(opt));
- 		if (ret < 0) {
- 			_debug("setsockopt failed");
-@@ -165,8 +168,8 @@ static int rxrpc_open_socket(struct rxrp
- 		}
- 
- 		/* we want to set the don't fragment bit */
--		opt = IPV6_PMTUDISC_DO;
--		ret = kernel_setsockopt(local->socket, SOL_IPV6, IPV6_MTU_DISCOVER,
-+		opt = IP_PMTUDISC_DO;
-+		ret = kernel_setsockopt(local->socket, SOL_IP, IP_MTU_DISCOVER,
- 					(char *) &opt, sizeof(opt));
- 		if (ret < 0) {
- 			_debug("setsockopt failed");
+ 	if (skb->protocol == htons(ETH_P_IP))
+ 		proto = AF_INET;
+-	else if (skb->protocol == htons(ETH_P_IPV6))
++	else if (skb->protocol == htons(ETH_P_IPV6) &&
++		 skb->sk->sk_family == AF_INET6)
+ 		proto = AF_INET6;
+ 	else
+ 		return;
 
 
