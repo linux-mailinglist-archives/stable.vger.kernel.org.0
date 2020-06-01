@@ -2,40 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CFEAF1EACEA
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:41:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FB8E1EADF0
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:50:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731231AbgFASMl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:12:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59992 "EHLO mail.kernel.org"
+        id S1729737AbgFASG2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:06:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52042 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729813AbgFASMh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:12:37 -0400
+        id S1728341AbgFASG1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:06:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 831772068D;
-        Mon,  1 Jun 2020 18:12:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 901A0206E2;
+        Mon,  1 Jun 2020 18:06:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591035157;
-        bh=xgKESQlh4hz1jNDka1iAVIYlIrRIxpsYwYTMx43M5r8=;
+        s=default; t=1591034786;
+        bh=BMMTl+sNuaXB9CYUAAtkJRcZnBytjPQsqOZudBCwMIg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s8VMIQrRa3VHFuGSsAVxmus8l6fxAuGK9U6e3TXw80hWFEVcv3/nWUITqHm1I+w59
-         I37tBMxLmdA+9Plu8zAc43Sz4kzx+YdyIsYzOh4NoEaYT2n5YuCfZcS34xq/1pJQQR
-         eqcG/8AccIwC6cb2sis9j3F816xGeQLIqva3FxAU=
+        b=nr+WeYC1LPGOtEJXXTPK62gNAW0ANwp3ipavA0GoTn/IjDzJNYFfdETj3pLFrTCvu
+         SXq0zRG5+hnAQebrLIYd6R/+7n/F4yo003RNxfTnCg0UYgyf8yIt02eDT7U88ui+X2
+         0z3f9O8O4ESQILsTR/piBp4XA/4QiXg7uvEsZ+H8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Roi Dayan <roid@mellanox.com>,
-        Mark Bloch <markb@mellanox.com>,
-        Paul Blakey <paulb@mellanox.com>,
-        Saeed Mahameed <saeedm@mellanox.com>
-Subject: [PATCH 5.6 033/177] net/mlx5: Fix cleaning unmanaged flow tables
+        stable@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
+        Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+        Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Jiri Pirko <jiri@resnulli.us>,
+        Arvind Sankar <nivedita@alum.mit.edu>,
+        Jiong Wang <jiongwang@huawei.com>,
+        Yuqi Jin <jinyuqi@huawei.com>,
+        Shaokun Zhang <zhangshaokun@hisilicon.com>
+Subject: [PATCH 5.4 013/142] net: revert "net: get rid of an signed integer overflow in ip_idents_reserve()"
 Date:   Mon,  1 Jun 2020 19:52:51 +0200
-Message-Id: <20200601174051.649274000@linuxfoundation.org>
+Message-Id: <20200601174039.322822381@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174048.468952319@linuxfoundation.org>
-References: <20200601174048.468952319@linuxfoundation.org>
+In-Reply-To: <20200601174037.904070960@linuxfoundation.org>
+References: <20200601174037.904070960@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,54 +52,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roi Dayan <roid@mellanox.com>
+From: Yuqi Jin <jinyuqi@huawei.com>
 
-[ Upstream commit aee37f3d940ca732df71c3df49347bccaafc0b24 ]
+[ Upstream commit a6211caa634da39d861a47437ffcda8b38ef421b ]
 
-Unmanaged flow tables doesn't have a parent and tree_put_node()
-assume there is always a parent if cleaning is needed. fix that.
+Commit adb03115f459 ("net: get rid of an signed integer overflow in ip_idents_reserve()")
+used atomic_cmpxchg to replace "atomic_add_return" inside the function
+"ip_idents_reserve". The reason was to avoid UBSAN warning.
+However, this change has caused performance degrade and in GCC-8,
+fno-strict-overflow is now mapped to -fwrapv -fwrapv-pointer
+and signed integer overflow is now undefined by default at all
+optimization levels[1]. Moreover, it was a bug in UBSAN vs -fwrapv
+/-fno-strict-overflow, so Let's revert it safely.
 
-Fixes: 5281a0c90919 ("net/mlx5: fs_core: Introduce unmanaged flow tables")
-Signed-off-by: Roi Dayan <roid@mellanox.com>
-Reviewed-by: Mark Bloch <markb@mellanox.com>
-Reviewed-by: Paul Blakey <paulb@mellanox.com>
-Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
+[1] https://gcc.gnu.org/gcc-8/changes.html
+
+Suggested-by: Peter Zijlstra <peterz@infradead.org>
+Suggested-by: Eric Dumazet <edumazet@google.com>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
+Cc: Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Cc: Jiri Pirko <jiri@resnulli.us>
+Cc: Arvind Sankar <nivedita@alum.mit.edu>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Eric Dumazet <edumazet@google.com>
+Cc: Jiong Wang <jiongwang@huawei.com>
+Signed-off-by: Yuqi Jin <jinyuqi@huawei.com>
+Signed-off-by: Shaokun Zhang <zhangshaokun@hisilicon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/fs_core.c |   11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ net/ipv4/route.c |   14 ++++++--------
+ 1 file changed, 6 insertions(+), 8 deletions(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/fs_core.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/fs_core.c
-@@ -323,14 +323,13 @@ static void tree_put_node(struct fs_node
- 		if (node->del_hw_func)
- 			node->del_hw_func(node);
- 		if (parent_node) {
--			/* Only root namespace doesn't have parent and we just
--			 * need to free its node.
--			 */
- 			down_write_ref_node(parent_node, locked);
- 			list_del_init(&node->list);
- 			if (node->del_sw_func)
- 				node->del_sw_func(node);
- 			up_write_ref_node(parent_node, locked);
-+		} else if (node->del_sw_func) {
-+			node->del_sw_func(node);
- 		} else {
- 			kfree(node);
- 		}
-@@ -447,8 +446,10 @@ static void del_sw_flow_table(struct fs_
- 	fs_get_obj(ft, node);
+--- a/net/ipv4/route.c
++++ b/net/ipv4/route.c
+@@ -490,18 +490,16 @@ u32 ip_idents_reserve(u32 hash, int segs
+ 	atomic_t *p_id = ip_idents + hash % IP_IDENTS_SZ;
+ 	u32 old = READ_ONCE(*p_tstamp);
+ 	u32 now = (u32)jiffies;
+-	u32 new, delta = 0;
++	u32 delta = 0;
  
- 	rhltable_destroy(&ft->fgs_hash);
--	fs_get_obj(prio, ft->node.parent);
--	prio->num_ft--;
-+	if (ft->node.parent) {
-+		fs_get_obj(prio, ft->node.parent);
-+		prio->num_ft--;
-+	}
- 	kfree(ft);
+ 	if (old != now && cmpxchg(p_tstamp, old, now) == old)
+ 		delta = prandom_u32_max(now - old);
+ 
+-	/* Do not use atomic_add_return() as it makes UBSAN unhappy */
+-	do {
+-		old = (u32)atomic_read(p_id);
+-		new = old + delta + segs;
+-	} while (atomic_cmpxchg(p_id, old, new) != old);
+-
+-	return new - segs;
++	/* If UBSAN reports an error there, please make sure your compiler
++	 * supports -fno-strict-overflow before reporting it that was a bug
++	 * in UBSAN, and it has been fixed in GCC-8.
++	 */
++	return atomic_add_return(segs + delta, p_id) - segs;
  }
+ EXPORT_SYMBOL(ip_idents_reserve);
  
 
 
