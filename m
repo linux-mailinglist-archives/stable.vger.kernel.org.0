@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7177B1EAC6E
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:37:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D9FC51EAE6D
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:54:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728037AbgFASgb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:36:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36584 "EHLO mail.kernel.org"
+        id S1729917AbgFASCU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:02:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45450 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731368AbgFASQC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:16:02 -0400
+        id S1729915AbgFASCT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:02:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B980B2068D;
-        Mon,  1 Jun 2020 18:16:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E031E207DA;
+        Mon,  1 Jun 2020 18:02:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591035361;
-        bh=gS+ITyncI+2CVGcZehbzZOHbOogfLFM1ova1qvsnAU8=;
+        s=default; t=1591034539;
+        bh=34OV/T33rjUYauDRA5grfF8VnK8diJYzM6GiXKWCvOQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r5PeBKWry2tXqPHrqp5M1vKo/+XMbyiO7R2WmVAX3EKB4Dw5wAjpax0vD9CvK1AXr
-         lCfqqds0NeChBUdaKhwKPCrBj55xIKl4BfpKQRcj4aEGYV0Y2sCJB3QtUUzWKzPRy1
-         pDapVP27Fbj4rRIvTQW8r1IrFgJ9PETyFc0RoKr0=
+        b=ttRv9EyUtWSoahMU1gdnRqQ7vs9Jw/Qaj9djfQgQmsNYlUTPTWk7FDbiExf1Rf1Dn
+         DWEDjV6dKsjHPsEdKKQghppMWitquLB4MPYZkUwNQWzra+sBHtsSnKCQy7y8rIfpIG
+         S9k1xBX8/BhTRvBSSE+xYqSjwUQfwdMaL/XiuSIQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maor Gottlieb <maorg@mellanox.com>,
-        Leon Romanovsky <leonro@mellanox.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 123/177] RDMA/core: Fix double destruction of uobject
-Date:   Mon,  1 Jun 2020 19:54:21 +0200
-Message-Id: <20200601174058.821431517@linuxfoundation.org>
+        stable@vger.kernel.org, John Garry <john.garry@huawei.com>,
+        Salil Mehta <salil.mehta@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 77/77] net: hns: Fixes the missing put_device in positive leg for roce reset
+Date:   Mon,  1 Jun 2020 19:54:22 +0200
+Message-Id: <20200601174029.792461483@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174048.468952319@linuxfoundation.org>
-References: <20200601174048.468952319@linuxfoundation.org>
+In-Reply-To: <20200601174016.396817032@linuxfoundation.org>
+References: <20200601174016.396817032@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,148 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Gunthorpe <jgg@mellanox.com>
+From: Salil Mehta <salil.mehta@huawei.com>
 
-[ Upstream commit c85f4abe66bea0b5db8d28d55da760c4fe0a0301 ]
+commit 4d96e13ee9cd1f7f801e8c7f4b12f09d1da4a5d8 upstream.
 
-Fix use after free when user user space request uobject concurrently for
-the same object, within the RCU grace period.
+This patch fixes the missing device reference release-after-use in
+the positive leg of the roce reset API of the HNS DSAF.
 
-In that case, remove_handle_idr_uobject() is called twice and we will have
-an extra put on the uobject which cause use after free.  Fix it by leaving
-the uobject write locked after it was removed from the idr.
+Fixes: c969c6e7ab8c ("net: hns: Fix object reference leaks in hns_dsaf_roce_reset()")
+Reported-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Salil Mehta <salil.mehta@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Call to rdma_lookup_put_uobject with UVERBS_LOOKUP_DESTROY instead of
-UVERBS_LOOKUP_WRITE will do the work.
-
-  refcount_t: underflow; use-after-free.
-  WARNING: CPU: 0 PID: 1381 at lib/refcount.c:28 refcount_warn_saturate+0xfe/0x1a0
-  Kernel panic - not syncing: panic_on_warn set ...
-  CPU: 0 PID: 1381 Comm: syz-executor.0 Not tainted 5.5.0-rc3 #8
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.1-0-ga5cab58e9a3f-prebuilt.qemu.org 04/01/2014
-  Call Trace:
-   dump_stack+0x94/0xce
-   panic+0x234/0x56f
-   __warn+0x1cc/0x1e1
-   report_bug+0x200/0x310
-   fixup_bug.part.11+0x32/0x80
-   do_error_trap+0xd3/0x100
-   do_invalid_op+0x31/0x40
-   invalid_op+0x1e/0x30
-  RIP: 0010:refcount_warn_saturate+0xfe/0x1a0
-  Code: 0f 0b eb 9b e8 23 f6 6d ff 80 3d 6c d4 19 03 00 75 8d e8 15 f6 6d ff 48 c7 c7 c0 02 55 bd c6 05 57 d4 19 03 01 e8 a2 58 49 ff <0f> 0b e9 6e ff ff ff e8 f6 f5 6d ff 80 3d 42 d4 19 03 00 0f 85 5c
-  RSP: 0018:ffffc90002df7b98 EFLAGS: 00010282
-  RAX: 0000000000000000 RBX: ffff88810f6a193c RCX: ffffffffba649009
-  RDX: 0000000000000000 RSI: 0000000000000008 RDI: ffff88811b0283cc
-  RBP: 0000000000000003 R08: ffffed10236060e3 R09: ffffed10236060e3
-  R10: 0000000000000001 R11: ffffed10236060e2 R12: ffff88810f6a193c
-  R13: ffffc90002df7d60 R14: 0000000000000000 R15: ffff888116ae6a08
-   uverbs_uobject_put+0xfd/0x140
-   __uobj_perform_destroy+0x3d/0x60
-   ib_uverbs_close_xrcd+0x148/0x170
-   ib_uverbs_write+0xaa5/0xdf0
-   __vfs_write+0x7c/0x100
-   vfs_write+0x168/0x4a0
-   ksys_write+0xc8/0x200
-   do_syscall_64+0x9c/0x390
-   entry_SYSCALL_64_after_hwframe+0x44/0xa9
-  RIP: 0033:0x465b49
-  Code: f7 d8 64 89 02 b8 ff ff ff ff c3 66 0f 1f 44 00 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 bc ff ff ff f7 d8 64 89 01 48
-  RSP: 002b:00007f759d122c58 EFLAGS: 00000246 ORIG_RAX: 0000000000000001
-  RAX: ffffffffffffffda RBX: 000000000073bfa8 RCX: 0000000000465b49
-  RDX: 000000000000000c RSI: 0000000020000080 RDI: 0000000000000003
-  RBP: 0000000000000003 R08: 0000000000000000 R09: 0000000000000000
-  R10: 0000000000000000 R11: 0000000000000246 R12: 00007f759d1236bc
-  R13: 00000000004ca27c R14: 000000000070de40 R15: 00000000ffffffff
-  Dumping ftrace buffer:
-     (ftrace buffer empty)
-  Kernel Offset: 0x39400000 from 0xffffffff81000000 (relocation range: 0xffffffff80000000-0xffffffffbfffffff)
-
-Fixes: 7452a3c745a2 ("IB/uverbs: Allow RDMA_REMOVE_DESTROY to work concurrently with disassociate")
-Link: https://lore.kernel.org/r/20200527135534.482279-1-leon@kernel.org
-Signed-off-by: Maor Gottlieb <maorg@mellanox.com>
-Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/rdma_core.c | 20 +++++++++++++-------
- include/rdma/uverbs_std_types.h     |  2 +-
- 2 files changed, 14 insertions(+), 8 deletions(-)
+ drivers/net/ethernet/hisilicon/hns/hns_dsaf_main.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/infiniband/core/rdma_core.c b/drivers/infiniband/core/rdma_core.c
-index bf8e149d3191..e0a5e897e4b1 100644
---- a/drivers/infiniband/core/rdma_core.c
-+++ b/drivers/infiniband/core/rdma_core.c
-@@ -153,9 +153,9 @@ static int uverbs_destroy_uobject(struct ib_uobject *uobj,
- 	uobj->context = NULL;
- 
- 	/*
--	 * For DESTROY the usecnt is held write locked, the caller is expected
--	 * to put it unlock and put the object when done with it. Only DESTROY
--	 * can remove the IDR handle.
-+	 * For DESTROY the usecnt is not changed, the caller is expected to
-+	 * manage it via uobj_put_destroy(). Only DESTROY can remove the IDR
-+	 * handle.
- 	 */
- 	if (reason != RDMA_REMOVE_DESTROY)
- 		atomic_set(&uobj->usecnt, 0);
-@@ -187,7 +187,7 @@ static int uverbs_destroy_uobject(struct ib_uobject *uobj,
- /*
-  * This calls uverbs_destroy_uobject() using the RDMA_REMOVE_DESTROY
-  * sequence. It should only be used from command callbacks. On success the
-- * caller must pair this with rdma_lookup_put_uobject(LOOKUP_WRITE). This
-+ * caller must pair this with uobj_put_destroy(). This
-  * version requires the caller to have already obtained an
-  * LOOKUP_DESTROY uobject kref.
-  */
-@@ -198,6 +198,13 @@ int uobj_destroy(struct ib_uobject *uobj, struct uverbs_attr_bundle *attrs)
- 
- 	down_read(&ufile->hw_destroy_rwsem);
- 
-+	/*
-+	 * Once the uobject is destroyed by RDMA_REMOVE_DESTROY then it is left
-+	 * write locked as the callers put it back with UVERBS_LOOKUP_DESTROY.
-+	 * This is because any other concurrent thread can still see the object
-+	 * in the xarray due to RCU. Leaving it locked ensures nothing else will
-+	 * touch it.
-+	 */
- 	ret = uverbs_try_lock_object(uobj, UVERBS_LOOKUP_WRITE);
- 	if (ret)
- 		goto out_unlock;
-@@ -216,7 +223,7 @@ out_unlock:
- /*
-  * uobj_get_destroy destroys the HW object and returns a handle to the uobj
-  * with a NULL object pointer. The caller must pair this with
-- * uverbs_put_destroy.
-+ * uobj_put_destroy().
-  */
- struct ib_uobject *__uobj_get_destroy(const struct uverbs_api_object *obj,
- 				      u32 id, struct uverbs_attr_bundle *attrs)
-@@ -250,8 +257,7 @@ int __uobj_perform_destroy(const struct uverbs_api_object *obj, u32 id,
- 	uobj = __uobj_get_destroy(obj, id, attrs);
- 	if (IS_ERR(uobj))
- 		return PTR_ERR(uobj);
--
--	rdma_lookup_put_uobject(uobj, UVERBS_LOOKUP_WRITE);
-+	uobj_put_destroy(uobj);
+--- a/drivers/net/ethernet/hisilicon/hns/hns_dsaf_main.c
++++ b/drivers/net/ethernet/hisilicon/hns/hns_dsaf_main.c
+@@ -3142,6 +3142,9 @@ int hns_dsaf_roce_reset(struct fwnode_ha
+ 		dsaf_set_bit(credit, DSAF_SBM_ROCEE_CFG_CRD_EN_B, 1);
+ 		dsaf_write_dev(dsaf_dev, DSAF_SBM_ROCEE_CFG_REG_REG, credit);
+ 	}
++
++	put_device(&pdev->dev);
++
  	return 0;
  }
- 
-diff --git a/include/rdma/uverbs_std_types.h b/include/rdma/uverbs_std_types.h
-index 1b28ce1aba07..325fdaa3bb66 100644
---- a/include/rdma/uverbs_std_types.h
-+++ b/include/rdma/uverbs_std_types.h
-@@ -88,7 +88,7 @@ struct ib_uobject *__uobj_get_destroy(const struct uverbs_api_object *obj,
- 
- static inline void uobj_put_destroy(struct ib_uobject *uobj)
- {
--	rdma_lookup_put_uobject(uobj, UVERBS_LOOKUP_WRITE);
-+	rdma_lookup_put_uobject(uobj, UVERBS_LOOKUP_DESTROY);
- }
- 
- static inline void uobj_put_read(struct ib_uobject *uobj)
--- 
-2.25.1
-
+ EXPORT_SYMBOL(hns_dsaf_roce_reset);
 
 
