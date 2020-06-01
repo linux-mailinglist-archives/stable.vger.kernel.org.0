@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EF0C21EAE6B
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:54:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C57A31EAD72
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:45:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729924AbgFASCZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:02:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45522 "EHLO mail.kernel.org"
+        id S1730344AbgFASJX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:09:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55772 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728598AbgFASCY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:02:24 -0400
+        id S1730865AbgFASJW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:09:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5D53D207DA;
-        Mon,  1 Jun 2020 18:02:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AB1EE206E2;
+        Mon,  1 Jun 2020 18:09:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034543;
-        bh=nDPx907IiAgKo62mVevumnODl8p64fK6WNMF6tym8/I=;
+        s=default; t=1591034962;
+        bh=+6bZ9Mkw1jQO3JY54rRwoY2tSTxwuSwPISEmZT38gt0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YyhTygTPt0q2JqpkrE/3yurSDteOSBgD9xWwqaqRXj6yS3YnzKBakbzleTLkoyYhs
-         rPmwpKhXa9bMoTd2R4jadZxKbVkxAORVX9PMF/tc2IIPHngiaKc0v9BPCHwvGq/KRb
-         leDDFeUo3J+4h6u8ydQnW4d8VgV/S4XQWzffvZNE=
+        b=nQ462uzKLXx/atVPXtQB/21SdoKwQEI686DydUNjUjJk+rs0mm7d10/j359tqMfsQ
+         rEaNGDeRztA1Os7r6wVLiH9flaMfWmaENjo5sRqJb92rinS9Om5rnjRRY83mJu9e79
+         EYdYZcSybTvQNe+YgxWXzWB25K2QcwNIiGqizpH0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiumei Mu <xmu@redhat.com>,
-        Xin Long <lucien.xin@gmail.com>,
-        Steffen Klassert <steffen.klassert@secunet.com>
-Subject: [PATCH 4.14 62/77] ip_vti: receive ipip packet by calling ip_tunnel_rcv
+        stable@vger.kernel.org, Chris Chiu <chiu@endlessm.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 089/142] ALSA: usb-audio: mixer: volume quirk for ESS Technology Asus USB DAC
 Date:   Mon,  1 Jun 2020 19:54:07 +0200
-Message-Id: <20200601174027.104407992@linuxfoundation.org>
+Message-Id: <20200601174047.147346516@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174016.396817032@linuxfoundation.org>
-References: <20200601174016.396817032@linuxfoundation.org>
+In-Reply-To: <20200601174037.904070960@linuxfoundation.org>
+References: <20200601174037.904070960@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,65 +43,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Chris Chiu <chiu@endlessm.com>
 
-commit 976eba8ab596bab94b9714cd46d38d5c6a2c660d upstream.
+[ Upstream commit 4020d1ccbe55bdf67b31d718d2400506eaf4b43f ]
 
-In Commit dd9ee3444014 ("vti4: Fix a ipip packet processing bug in
-'IPCOMP' virtual tunnel"), it tries to receive IPIP packets in vti
-by calling xfrm_input(). This case happens when a small packet or
-frag sent by peer is too small to get compressed.
+The Asus USB DAC is a USB type-C audio dongle for connecting to
+the headset and headphone. The volume minimum value -23040 which
+is 0xa600 in hexadecimal with the resolution value 1 indicates
+this should be endianness issue caused by the firmware bug. Add
+a volume quirk to fix the volume control problem.
 
-However, xfrm_input() will still get to the IPCOMP path where skb
-sec_path is set, but never dropped while it should have been done
-in vti_ipcomp4_protocol.cb_handler(vti_rcv_cb), as it's not an
-ipcomp4 packet. This will cause that the packet can never pass
-xfrm4_policy_check() in the upper protocol rcv functions.
+Also fixes this warning:
+  Warning! Unlikely big volume range (=23040), cval->res is probably wrong.
+  [5] FU [Headset Capture Volume] ch = 1, val = -23040/0/1
+  Warning! Unlikely big volume range (=23040), cval->res is probably wrong.
+  [7] FU [Headset Playback Volume] ch = 1, val = -23040/0/1
 
-So this patch is to call ip_tunnel_rcv() to process IPIP packets
-instead.
-
-Fixes: dd9ee3444014 ("vti4: Fix a ipip packet processing bug in 'IPCOMP' virtual tunnel")
-Reported-by: Xiumei Mu <xmu@redhat.com>
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Chris Chiu <chiu@endlessm.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200526062613.55401-1-chiu@endlessm.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/ip_vti.c |   23 ++++++++++++++++++++++-
- 1 file changed, 22 insertions(+), 1 deletion(-)
+ sound/usb/mixer.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/net/ipv4/ip_vti.c
-+++ b/net/ipv4/ip_vti.c
-@@ -98,7 +98,28 @@ static int vti_rcv_proto(struct sk_buff
- 
- static int vti_rcv_tunnel(struct sk_buff *skb)
- {
--	return vti_rcv(skb, ip_hdr(skb)->saddr, true);
-+	struct ip_tunnel_net *itn = net_generic(dev_net(skb->dev), vti_net_id);
-+	const struct iphdr *iph = ip_hdr(skb);
-+	struct ip_tunnel *tunnel;
-+
-+	tunnel = ip_tunnel_lookup(itn, skb->dev->ifindex, TUNNEL_NO_KEY,
-+				  iph->saddr, iph->daddr, 0);
-+	if (tunnel) {
-+		struct tnl_ptk_info tpi = {
-+			.proto = htons(ETH_P_IP),
-+		};
-+
-+		if (!xfrm4_policy_check(NULL, XFRM_POLICY_IN, skb))
-+			goto drop;
-+		if (iptunnel_pull_header(skb, 0, tpi.proto, false))
-+			goto drop;
-+		return ip_tunnel_rcv(tunnel, skb, &tpi, NULL, false);
-+	}
-+
-+	return -EINVAL;
-+drop:
-+	kfree_skb(skb);
-+	return 0;
+diff --git a/sound/usb/mixer.c b/sound/usb/mixer.c
+index 583edacc9fe8..f55afe3a98e3 100644
+--- a/sound/usb/mixer.c
++++ b/sound/usb/mixer.c
+@@ -1171,6 +1171,14 @@ static void volume_control_quirks(struct usb_mixer_elem_info *cval,
+ 			cval->res = 384;
+ 		}
+ 		break;
++	case USB_ID(0x0495, 0x3042): /* ESS Technology Asus USB DAC */
++		if ((strstr(kctl->id.name, "Playback Volume") != NULL) ||
++			strstr(kctl->id.name, "Capture Volume") != NULL) {
++			cval->min >>= 8;
++			cval->max = 0;
++			cval->res = 1;
++		}
++		break;
+ 	}
  }
  
- static int vti_rcv_cb(struct sk_buff *skb, int err)
+-- 
+2.25.1
+
 
 
