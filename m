@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D5B8C1EAF19
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:59:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 155E81EAEF6
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:58:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728746AbgFAS7h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:59:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38202 "EHLO mail.kernel.org"
+        id S1729212AbgFAR6h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 13:58:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40638 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728861AbgFAR5M (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 13:57:12 -0400
+        id S1728576AbgFAR6g (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 13:58:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B214A206E2;
-        Mon,  1 Jun 2020 17:57:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2F6012077D;
+        Mon,  1 Jun 2020 17:58:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034232;
-        bh=ru+pvfRNkcRro2tT1hG+yGfIL3EmNtJfHDStCSXK02A=;
+        s=default; t=1591034315;
+        bh=DqGTROlF+JGpGO0Wg0primTgD15YHMdxdYCdxQV2pJ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vv1R9rtkBStK6PuPxeHN/FSTamwQ9owKfw3cGfmWJ9BzZSxiJ+FG1eJEU0+P2m8Uu
-         7XNBeeLWWGbyLS1CfhTb8bQTSAVso3pmJl5vcPm3ngDMeioaOHhKthV8skKS6hr2/x
-         zfcyezL/QFVkeFJLFeTmpyhmltoqI6jRIZy6gmZM=
+        b=cqRh9O3CuenJpyhKn+trjPEQ0g5lHnDdSkjkPBgyTnJN957Vv5OGc+AaC99QyBm9n
+         lwMikcozlTQXRqLMmKFrLPGfi5zuCUDbjIs4vxE+CCTBawPoNkGBGw4Zsh8nfVIQty
+         3vfijYppkCPPdIJ6uF6h6Zd2anQjLI4Qa6vqhons=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 4.4 34/48] netfilter: nf_conntrack_pptp: prevent buffer overflows in debug code
+        stable@vger.kernel.org, Jerry Lee <leisurelysw24@gmail.com>,
+        Ilya Dryomov <idryomov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 37/61] libceph: ignore pool overlay and cache logic on redirects
 Date:   Mon,  1 Jun 2020 19:53:44 +0200
-Message-Id: <20200601174002.511218187@linuxfoundation.org>
+Message-Id: <20200601174018.662057915@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601173952.175939894@linuxfoundation.org>
-References: <20200601173952.175939894@linuxfoundation.org>
+In-Reply-To: <20200601174010.316778377@linuxfoundation.org>
+References: <20200601174010.316778377@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,201 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Jerry Lee <leisurelysw24@gmail.com>
 
-commit 4c559f15efcc43b996f4da528cd7f9483aaca36d upstream.
+[ Upstream commit 890bd0f8997ae6ac0a367dd5146154a3963306dd ]
 
-Dan Carpenter says: "Smatch complains that the value for "cmd" comes
-from the network and can't be trusted."
+OSD client should ignore cache/overlay flag if got redirect reply.
+Otherwise, the client hangs when the cache tier is in forward mode.
 
-Add pptp_msg_name() helper function that checks for the array boundary.
+[ idryomov: Redirects are effectively deprecated and no longer
+  used or tested.  The original tiering modes based on redirects
+  are inherently flawed because redirects can race and reorder,
+  potentially resulting in data corruption.  The new proxy and
+  readproxy tiering modes should be used instead of forward and
+  readforward.  Still marking for stable as obviously correct,
+  though. ]
 
-Fixes: f09943fefe6b ("[NETFILTER]: nf_conntrack/nf_nat: add PPTP helper port")
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Cc: stable@vger.kernel.org
+URL: https://tracker.ceph.com/issues/23296
+URL: https://tracker.ceph.com/issues/36406
+Signed-off-by: Jerry Lee <leisurelysw24@gmail.com>
+Reviewed-by: Ilya Dryomov <idryomov@gmail.com>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/netfilter/nf_conntrack_pptp.h |    2 
- net/ipv4/netfilter/nf_nat_pptp.c            |    7 ---
- net/netfilter/nf_conntrack_pptp.c           |   62 +++++++++++++++-------------
- 3 files changed, 38 insertions(+), 33 deletions(-)
+ net/ceph/osd_client.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/include/linux/netfilter/nf_conntrack_pptp.h
-+++ b/include/linux/netfilter/nf_conntrack_pptp.h
-@@ -4,7 +4,7 @@
- 
- #include <linux/netfilter/nf_conntrack_common.h>
- 
--extern const char *const pptp_msg_name[];
-+extern const char *const pptp_msg_name(u_int16_t msg);
- 
- /* state of the control session */
- enum pptp_ctrlsess_state {
---- a/net/ipv4/netfilter/nf_nat_pptp.c
-+++ b/net/ipv4/netfilter/nf_nat_pptp.c
-@@ -156,8 +156,7 @@ pptp_outbound_pkt(struct sk_buff *skb,
- 		break;
- 	default:
- 		pr_debug("unknown outbound packet 0x%04x:%s\n", msg,
--			 msg <= PPTP_MSG_MAX ? pptp_msg_name[msg] :
--					       pptp_msg_name[0]);
-+			 pptp_msg_name(msg));
- 		/* fall through */
- 	case PPTP_SET_LINK_INFO:
- 		/* only need to NAT in case PAC is behind NAT box */
-@@ -250,9 +249,7 @@ pptp_inbound_pkt(struct sk_buff *skb,
- 		pcid_off = offsetof(union pptp_ctrl_union, setlink.peersCallID);
- 		break;
- 	default:
--		pr_debug("unknown inbound packet %s\n",
--			 msg <= PPTP_MSG_MAX ? pptp_msg_name[msg] :
--					       pptp_msg_name[0]);
-+		pr_debug("unknown inbound packet %s\n", pptp_msg_name(msg));
- 		/* fall through */
- 	case PPTP_START_SESSION_REQUEST:
- 	case PPTP_START_SESSION_REPLY:
---- a/net/netfilter/nf_conntrack_pptp.c
-+++ b/net/netfilter/nf_conntrack_pptp.c
-@@ -71,24 +71,32 @@ EXPORT_SYMBOL_GPL(nf_nat_pptp_hook_expec
- 
- #if defined(DEBUG) || defined(CONFIG_DYNAMIC_DEBUG)
- /* PptpControlMessageType names */
--const char *const pptp_msg_name[] = {
--	"UNKNOWN_MESSAGE",
--	"START_SESSION_REQUEST",
--	"START_SESSION_REPLY",
--	"STOP_SESSION_REQUEST",
--	"STOP_SESSION_REPLY",
--	"ECHO_REQUEST",
--	"ECHO_REPLY",
--	"OUT_CALL_REQUEST",
--	"OUT_CALL_REPLY",
--	"IN_CALL_REQUEST",
--	"IN_CALL_REPLY",
--	"IN_CALL_CONNECT",
--	"CALL_CLEAR_REQUEST",
--	"CALL_DISCONNECT_NOTIFY",
--	"WAN_ERROR_NOTIFY",
--	"SET_LINK_INFO"
-+static const char *const pptp_msg_name_array[PPTP_MSG_MAX + 1] = {
-+	[0]				= "UNKNOWN_MESSAGE",
-+	[PPTP_START_SESSION_REQUEST]	= "START_SESSION_REQUEST",
-+	[PPTP_START_SESSION_REPLY]	= "START_SESSION_REPLY",
-+	[PPTP_STOP_SESSION_REQUEST]	= "STOP_SESSION_REQUEST",
-+	[PPTP_STOP_SESSION_REPLY]	= "STOP_SESSION_REPLY",
-+	[PPTP_ECHO_REQUEST]		= "ECHO_REQUEST",
-+	[PPTP_ECHO_REPLY]		= "ECHO_REPLY",
-+	[PPTP_OUT_CALL_REQUEST]		= "OUT_CALL_REQUEST",
-+	[PPTP_OUT_CALL_REPLY]		= "OUT_CALL_REPLY",
-+	[PPTP_IN_CALL_REQUEST]		= "IN_CALL_REQUEST",
-+	[PPTP_IN_CALL_REPLY]		= "IN_CALL_REPLY",
-+	[PPTP_IN_CALL_CONNECT]		= "IN_CALL_CONNECT",
-+	[PPTP_CALL_CLEAR_REQUEST]	= "CALL_CLEAR_REQUEST",
-+	[PPTP_CALL_DISCONNECT_NOTIFY]	= "CALL_DISCONNECT_NOTIFY",
-+	[PPTP_WAN_ERROR_NOTIFY]		= "WAN_ERROR_NOTIFY",
-+	[PPTP_SET_LINK_INFO]		= "SET_LINK_INFO"
- };
-+
-+const char *const pptp_msg_name(u_int16_t msg)
-+{
-+	if (msg > PPTP_MSG_MAX)
-+		return pptp_msg_name_array[0];
-+
-+	return pptp_msg_name_array[msg];
-+}
- EXPORT_SYMBOL(pptp_msg_name);
- #endif
- 
-@@ -278,7 +286,7 @@ pptp_inbound_pkt(struct sk_buff *skb, un
- 	typeof(nf_nat_pptp_hook_inbound) nf_nat_pptp_inbound;
- 
- 	msg = ntohs(ctlh->messageType);
--	pr_debug("inbound control message %s\n", pptp_msg_name[msg]);
-+	pr_debug("inbound control message %s\n", pptp_msg_name(msg));
- 
- 	switch (msg) {
- 	case PPTP_START_SESSION_REPLY:
-@@ -313,7 +321,7 @@ pptp_inbound_pkt(struct sk_buff *skb, un
- 		pcid = pptpReq->ocack.peersCallID;
- 		if (info->pns_call_id != pcid)
- 			goto invalid;
--		pr_debug("%s, CID=%X, PCID=%X\n", pptp_msg_name[msg],
-+		pr_debug("%s, CID=%X, PCID=%X\n", pptp_msg_name(msg),
- 			 ntohs(cid), ntohs(pcid));
- 
- 		if (pptpReq->ocack.resultCode == PPTP_OUTCALL_CONNECT) {
-@@ -330,7 +338,7 @@ pptp_inbound_pkt(struct sk_buff *skb, un
- 			goto invalid;
- 
- 		cid = pptpReq->icreq.callID;
--		pr_debug("%s, CID=%X\n", pptp_msg_name[msg], ntohs(cid));
-+		pr_debug("%s, CID=%X\n", pptp_msg_name(msg), ntohs(cid));
- 		info->cstate = PPTP_CALL_IN_REQ;
- 		info->pac_call_id = cid;
- 		break;
-@@ -349,7 +357,7 @@ pptp_inbound_pkt(struct sk_buff *skb, un
- 		if (info->pns_call_id != pcid)
- 			goto invalid;
- 
--		pr_debug("%s, PCID=%X\n", pptp_msg_name[msg], ntohs(pcid));
-+		pr_debug("%s, PCID=%X\n", pptp_msg_name(msg), ntohs(pcid));
- 		info->cstate = PPTP_CALL_IN_CONF;
- 
- 		/* we expect a GRE connection from PAC to PNS */
-@@ -359,7 +367,7 @@ pptp_inbound_pkt(struct sk_buff *skb, un
- 	case PPTP_CALL_DISCONNECT_NOTIFY:
- 		/* server confirms disconnect */
- 		cid = pptpReq->disc.callID;
--		pr_debug("%s, CID=%X\n", pptp_msg_name[msg], ntohs(cid));
-+		pr_debug("%s, CID=%X\n", pptp_msg_name(msg), ntohs(cid));
- 		info->cstate = PPTP_CALL_NONE;
- 
- 		/* untrack this call id, unexpect GRE packets */
-@@ -386,7 +394,7 @@ pptp_inbound_pkt(struct sk_buff *skb, un
- invalid:
- 	pr_debug("invalid %s: type=%d cid=%u pcid=%u "
- 		 "cstate=%d sstate=%d pns_cid=%u pac_cid=%u\n",
--		 msg <= PPTP_MSG_MAX ? pptp_msg_name[msg] : pptp_msg_name[0],
-+		 pptp_msg_name(msg),
- 		 msg, ntohs(cid), ntohs(pcid),  info->cstate, info->sstate,
- 		 ntohs(info->pns_call_id), ntohs(info->pac_call_id));
- 	return NF_ACCEPT;
-@@ -406,7 +414,7 @@ pptp_outbound_pkt(struct sk_buff *skb, u
- 	typeof(nf_nat_pptp_hook_outbound) nf_nat_pptp_outbound;
- 
- 	msg = ntohs(ctlh->messageType);
--	pr_debug("outbound control message %s\n", pptp_msg_name[msg]);
-+	pr_debug("outbound control message %s\n", pptp_msg_name(msg));
- 
- 	switch (msg) {
- 	case PPTP_START_SESSION_REQUEST:
-@@ -428,7 +436,7 @@ pptp_outbound_pkt(struct sk_buff *skb, u
- 		info->cstate = PPTP_CALL_OUT_REQ;
- 		/* track PNS call id */
- 		cid = pptpReq->ocreq.callID;
--		pr_debug("%s, CID=%X\n", pptp_msg_name[msg], ntohs(cid));
-+		pr_debug("%s, CID=%X\n", pptp_msg_name(msg), ntohs(cid));
- 		info->pns_call_id = cid;
- 		break;
- 
-@@ -442,7 +450,7 @@ pptp_outbound_pkt(struct sk_buff *skb, u
- 		pcid = pptpReq->icack.peersCallID;
- 		if (info->pac_call_id != pcid)
- 			goto invalid;
--		pr_debug("%s, CID=%X PCID=%X\n", pptp_msg_name[msg],
-+		pr_debug("%s, CID=%X PCID=%X\n", pptp_msg_name(msg),
- 			 ntohs(cid), ntohs(pcid));
- 
- 		if (pptpReq->icack.resultCode == PPTP_INCALL_ACCEPT) {
-@@ -482,7 +490,7 @@ pptp_outbound_pkt(struct sk_buff *skb, u
- invalid:
- 	pr_debug("invalid %s: type=%d cid=%u pcid=%u "
- 		 "cstate=%d sstate=%d pns_cid=%u pac_cid=%u\n",
--		 msg <= PPTP_MSG_MAX ? pptp_msg_name[msg] : pptp_msg_name[0],
-+		 pptp_msg_name(msg),
- 		 msg, ntohs(cid), ntohs(pcid),  info->cstate, info->sstate,
- 		 ntohs(info->pns_call_id), ntohs(info->pac_call_id));
- 	return NF_ACCEPT;
+diff --git a/net/ceph/osd_client.c b/net/ceph/osd_client.c
+index 70ccb0716fc5..4fd679b30b19 100644
+--- a/net/ceph/osd_client.c
++++ b/net/ceph/osd_client.c
+@@ -2879,7 +2879,9 @@ static void handle_reply(struct ceph_osd *osd, struct ceph_msg *msg)
+ 		 * supported.
+ 		 */
+ 		req->r_t.target_oloc.pool = m.redirect.oloc.pool;
+-		req->r_flags |= CEPH_OSD_FLAG_REDIRECTED;
++		req->r_flags |= CEPH_OSD_FLAG_REDIRECTED |
++				CEPH_OSD_FLAG_IGNORE_OVERLAY |
++				CEPH_OSD_FLAG_IGNORE_CACHE;
+ 		req->r_tid = 0;
+ 		__submit_request(req, false);
+ 		goto out_unlock_osdc;
+-- 
+2.25.1
+
 
 
