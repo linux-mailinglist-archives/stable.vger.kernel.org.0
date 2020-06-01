@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 746F01EA934
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:01:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 471271EAA15
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:05:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728637AbgFAR7N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 13:59:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41554 "EHLO mail.kernel.org"
+        id S1730249AbgFASEs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:04:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49670 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728616AbgFAR7L (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 13:59:11 -0400
+        id S1730246AbgFASEs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:04:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 05C862073B;
-        Mon,  1 Jun 2020 17:59:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D72EF2077D;
+        Mon,  1 Jun 2020 18:04:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034351;
-        bh=xe0N+7sYbFtwojUydJ8S15eOlZCR8+wuTi/LeGmYtAE=;
+        s=default; t=1591034687;
+        bh=815sd3/N/OJXu0yntgcFczQk9XkEatPIzA9X8Rd9R/Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nqmIbwNsxzvRy4C9ZXu+ggoLFqmxb5WnkraBWCxf3nGFNU7Eo84HQMcAx/UP1Z1AJ
-         Kro7A0cIx4js4g9dpJbLQ/RjhDU1/CHqu86oLUJHNJWYH8dUbmYL2iWtT0xOqk7OQ2
-         CDDCIHUnXoD+FQah89Bgi4447ytE5r6PTBXwNLWE=
+        b=1157LnbtOx6HGDHB1GbV8luTA+PVnAiDMymW9IRQmIETPUBVyTU6/PFd2TTpIXwMh
+         TXe4B91q67zhmo60DmTIekRpnvvrbo52yfwAxAymHMD9I1ZwCwjS9dhTabAxRCNCaq
+         OyorgZAvhvroqDtHEXtl2Ior8P05ypxPzh7AMk9w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org
-Subject: [PATCH 4.9 55/61] Revert "Input: i8042 - add ThinkPad S230u to i8042 nomux list"
-Date:   Mon,  1 Jun 2020 19:54:02 +0200
-Message-Id: <20200601174021.781700955@linuxfoundation.org>
+        stable@vger.kernel.org, Jerry Lee <leisurelysw24@gmail.com>,
+        Ilya Dryomov <idryomov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 63/95] libceph: ignore pool overlay and cache logic on redirects
+Date:   Mon,  1 Jun 2020 19:54:03 +0200
+Message-Id: <20200601174031.022840356@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174010.316778377@linuxfoundation.org>
-References: <20200601174010.316778377@linuxfoundation.org>
+In-Reply-To: <20200601174020.759151073@linuxfoundation.org>
+References: <20200601174020.759151073@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,41 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Jerry Lee <leisurelysw24@gmail.com>
 
-commit f4dec2d6160976b14e54be9c3950ce0f52385741 upstream.
+[ Upstream commit 890bd0f8997ae6ac0a367dd5146154a3963306dd ]
 
-This reverts commit 18931506465a762ffd3f4803d36a18d336a67da9. From Kevin
-Locke:
+OSD client should ignore cache/overlay flag if got redirect reply.
+Otherwise, the client hangs when the cache tier is in forward mode.
 
-"... nomux only appeared to fix the issue because the controller
-continued working after warm reboots. After more thorough testing from
-both warm and cold start, I now believe the entry should be added to
-i8042_dmi_reset_table rather than i8042_dmi_nomux_table as i8042.reset=1
-alone is sufficient to avoid the issue from both states while
-i8042.nomux is not."
+[ idryomov: Redirects are effectively deprecated and no longer
+  used or tested.  The original tiering modes based on redirects
+  are inherently flawed because redirects can race and reorder,
+  potentially resulting in data corruption.  The new proxy and
+  readproxy tiering modes should be used instead of forward and
+  readforward.  Still marking for stable as obviously correct,
+  though. ]
 
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Cc: stable@vger.kernel.org
+URL: https://tracker.ceph.com/issues/23296
+URL: https://tracker.ceph.com/issues/36406
+Signed-off-by: Jerry Lee <leisurelysw24@gmail.com>
+Reviewed-by: Ilya Dryomov <idryomov@gmail.com>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/serio/i8042-x86ia64io.h |    7 -------
- 1 file changed, 7 deletions(-)
+ net/ceph/osd_client.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/input/serio/i8042-x86ia64io.h
-+++ b/drivers/input/serio/i8042-x86ia64io.h
-@@ -545,13 +545,6 @@ static const struct dmi_system_id __init
- 			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire 5738"),
- 		},
- 	},
--	{
--		/* Lenovo ThinkPad Twist S230u */
--		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "33474HU"),
--		},
--	},
- 	{ }
- };
- 
+diff --git a/net/ceph/osd_client.c b/net/ceph/osd_client.c
+index 76c41a84550e..b8c4aea42917 100644
+--- a/net/ceph/osd_client.c
++++ b/net/ceph/osd_client.c
+@@ -3540,7 +3540,9 @@ static void handle_reply(struct ceph_osd *osd, struct ceph_msg *msg)
+ 		 * supported.
+ 		 */
+ 		req->r_t.target_oloc.pool = m.redirect.oloc.pool;
+-		req->r_flags |= CEPH_OSD_FLAG_REDIRECTED;
++		req->r_flags |= CEPH_OSD_FLAG_REDIRECTED |
++				CEPH_OSD_FLAG_IGNORE_OVERLAY |
++				CEPH_OSD_FLAG_IGNORE_CACHE;
+ 		req->r_tid = 0;
+ 		__submit_request(req, false);
+ 		goto out_unlock_osdc;
+-- 
+2.25.1
+
 
 
