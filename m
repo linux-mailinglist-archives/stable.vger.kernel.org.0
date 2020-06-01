@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9796A1EADF2
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:50:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DF241EAD0A
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:43:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730039AbgFASGi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:06:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52256 "EHLO mail.kernel.org"
+        id S1729373AbgFASlv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:41:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59594 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730033AbgFASGg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:06:36 -0400
+        id S1731194AbgFASMP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:12:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C60B92068D;
-        Mon,  1 Jun 2020 18:06:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 03AAB20776;
+        Mon,  1 Jun 2020 18:12:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034795;
-        bh=20+5iZ1H51nyEgXnKUFVmNC29bl/C0FVNrLzX9WCgsE=;
+        s=default; t=1591035134;
+        bh=3MbiH+TIC0GESv7kxOSLQu21rOjeujlQsTSbHoaWDCY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rf/UVkv+G2vrSlCSOD2NI5xhPuBL65u07Qg0Yzbodm6g2jCbc2d3n9CgutNbNyDbO
-         DyASqP46d1+KUdBGnuCqWQXLzpLag6OtMcPK/VqI0Nq+CgramABwq4BzJwEB3IH7pq
-         ghDZOuh0CaoPVhFtoMUemkyNz59nxbJ30m9x8OmA=
+        b=ScouxhaYMyn5IYVvNooAe8rg+xxAUQTOufjQdYLi1IpzoKTRPy5bXHodR4min348B
+         lFufya9y2GjNWPj8pDHBC5NPHn/V0aKy0WxbKGQDmIRz2jWGI5+Cp4GWM0PiGwU445
+         q8xAazP9TfwSxLs8UyWWzCLEak/SLcBC6wlsjWPo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sabrina Dubroca <sd@queasysnail.net>,
-        David Ahern <dsahern@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 003/142] net: dont return invalid table id error when we fall back to PF_UNSPEC
-Date:   Mon,  1 Jun 2020 19:52:41 +0200
-Message-Id: <20200601174038.389570989@linuxfoundation.org>
+        stable@vger.kernel.org, Roi Dayan <roid@mellanox.com>,
+        Vlad Buslov <vladbu@mellanox.com>,
+        Saeed Mahameed <saeedm@mellanox.com>
+Subject: [PATCH 5.6 024/177] net/mlx5e: Fix inner tirs handling
+Date:   Mon,  1 Jun 2020 19:52:42 +0200
+Message-Id: <20200601174050.795075645@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174037.904070960@linuxfoundation.org>
-References: <20200601174037.904070960@linuxfoundation.org>
+In-Reply-To: <20200601174048.468952319@linuxfoundation.org>
+References: <20200601174048.468952319@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,119 +44,129 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sabrina Dubroca <sd@queasysnail.net>
+From: Roi Dayan <roid@mellanox.com>
 
-[ Upstream commit 41b4bd986f86331efc599b9a3f5fb86ad92e9af9 ]
+[ Upstream commit a16b8e0dcf7043bee46174bed0553cc9e36b63a5 ]
 
-In case we can't find a ->dumpit callback for the requested
-(family,type) pair, we fall back to (PF_UNSPEC,type). In effect, we're
-in the same situation as if userspace had requested a PF_UNSPEC
-dump. For RTM_GETROUTE, that handler is rtnl_dump_all, which calls all
-the registered RTM_GETROUTE handlers.
+In the cited commit inner_tirs argument was added to create and destroy
+inner tirs, and no indication was added to mlx5e_modify_tirs_hash()
+function. In order to have a consistent handling, use
+inner_indir_tir[0].tirn in tirs destroy/modify function as an indication
+to whether inner tirs are created.
+Inner tirs are not created for representors and before this commit,
+a call to mlx5e_modify_tirs_hash() was sending HW commands to
+modify non-existent inner tirs.
 
-The requested table id may or may not exist for all of those
-families. commit ae677bbb4441 ("net: Don't return invalid table id
-error when dumping all families") fixed the problem when userspace
-explicitly requests a PF_UNSPEC dump, but missed the fallback case.
-
-For example, when we pass ipv6.disable=1 to a kernel with
-CONFIG_IP_MROUTE=y and CONFIG_IP_MROUTE_MULTIPLE_TABLES=y,
-the (PF_INET6, RTM_GETROUTE) handler isn't registered, so we end up in
-rtnl_dump_all, and listing IPv6 routes will unexpectedly print:
-
-  # ip -6 r
-  Error: ipv4: MR table does not exist.
-  Dump terminated
-
-commit ae677bbb4441 introduced the dump_all_families variable, which
-gets set when userspace requests a PF_UNSPEC dump. However, we can't
-simply set the family to PF_UNSPEC in rtnetlink_rcv_msg in the
-fallback case to get dump_all_families == true, because some messages
-types (for example RTM_GETRULE and RTM_GETNEIGH) only register the
-PF_UNSPEC handler and use the family to filter in the kernel what is
-dumped to userspace. We would then export more entries, that userspace
-would have to filter. iproute does that, but other programs may not.
-
-Instead, this patch removes dump_all_families and updates the
-RTM_GETROUTE handlers to check if the family that is being dumped is
-their own. When it's not, which covers both the intentional PF_UNSPEC
-dumps (as dump_all_families did) and the fallback case, ignore the
-missing table id error.
-
-Fixes: cb167893f41e ("net: Plumb support for filtering ipv4 and ipv6 multicast route dumps")
-Signed-off-by: Sabrina Dubroca <sd@queasysnail.net>
-Reviewed-by: David Ahern <dsahern@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 46dc933cee82 ("net/mlx5e: Provide explicit directive if to create inner indirect tirs")
+Signed-off-by: Roi Dayan <roid@mellanox.com>
+Reviewed-by: Vlad Buslov <vladbu@mellanox.com>
+Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/ip_fib.h    |    1 -
- net/ipv4/fib_frontend.c |    3 +--
- net/ipv4/ipmr.c         |    2 +-
- net/ipv6/ip6_fib.c      |    2 +-
- net/ipv6/ip6mr.c        |    2 +-
- 5 files changed, 4 insertions(+), 6 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en.h          |    2 +-
+ drivers/net/ethernet/mellanox/mlx5/core/en_main.c     |   12 +++++++-----
+ drivers/net/ethernet/mellanox/mlx5/core/en_rep.c      |    4 ++--
+ drivers/net/ethernet/mellanox/mlx5/core/ipoib/ipoib.c |    4 ++--
+ 4 files changed, 12 insertions(+), 10 deletions(-)
 
---- a/include/net/ip_fib.h
-+++ b/include/net/ip_fib.h
-@@ -244,7 +244,6 @@ struct fib_dump_filter {
- 	u32			table_id;
- 	/* filter_set is an optimization that an entry is set */
- 	bool			filter_set;
--	bool			dump_all_families;
- 	bool			dump_routes;
- 	bool			dump_exceptions;
- 	unsigned char		protocol;
---- a/net/ipv4/fib_frontend.c
-+++ b/net/ipv4/fib_frontend.c
-@@ -928,7 +928,6 @@ int ip_valid_fib_dump_req(struct net *ne
- 	else
- 		filter->dump_exceptions = false;
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en.h
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en.h
+@@ -1104,7 +1104,7 @@ void mlx5e_close_drop_rq(struct mlx5e_rq
+ int mlx5e_create_indirect_rqt(struct mlx5e_priv *priv);
  
--	filter->dump_all_families = (rtm->rtm_family == AF_UNSPEC);
- 	filter->flags    = rtm->rtm_flags;
- 	filter->protocol = rtm->rtm_protocol;
- 	filter->rt_type  = rtm->rtm_type;
-@@ -1000,7 +999,7 @@ static int inet_dump_fib(struct sk_buff
- 	if (filter.table_id) {
- 		tb = fib_get_table(net, filter.table_id);
- 		if (!tb) {
--			if (filter.dump_all_families)
-+			if (rtnl_msg_family(cb->nlh) != PF_INET)
- 				return skb->len;
+ int mlx5e_create_indirect_tirs(struct mlx5e_priv *priv, bool inner_ttc);
+-void mlx5e_destroy_indirect_tirs(struct mlx5e_priv *priv, bool inner_ttc);
++void mlx5e_destroy_indirect_tirs(struct mlx5e_priv *priv);
  
- 			NL_SET_ERR_MSG(cb->extack, "ipv4: FIB table does not exist");
---- a/net/ipv4/ipmr.c
-+++ b/net/ipv4/ipmr.c
-@@ -2609,7 +2609,7 @@ static int ipmr_rtm_dumproute(struct sk_
+ int mlx5e_create_direct_rqts(struct mlx5e_priv *priv, struct mlx5e_tir *tirs);
+ void mlx5e_destroy_direct_rqts(struct mlx5e_priv *priv, struct mlx5e_tir *tirs);
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+@@ -2747,7 +2747,8 @@ void mlx5e_modify_tirs_hash(struct mlx5e
+ 		mlx5_core_modify_tir(mdev, priv->indir_tir[tt].tirn, in, inlen);
+ 	}
  
- 		mrt = ipmr_get_table(sock_net(skb->sk), filter.table_id);
- 		if (!mrt) {
--			if (filter.dump_all_families)
-+			if (rtnl_msg_family(cb->nlh) != RTNL_FAMILY_IPMR)
- 				return skb->len;
+-	if (!mlx5e_tunnel_inner_ft_supported(priv->mdev))
++	/* Verify inner tirs resources allocated */
++	if (!priv->inner_indir_tir[0].tirn)
+ 		return;
  
- 			NL_SET_ERR_MSG(cb->extack, "ipv4: MR table does not exist");
---- a/net/ipv6/ip6_fib.c
-+++ b/net/ipv6/ip6_fib.c
-@@ -613,7 +613,7 @@ static int inet6_dump_fib(struct sk_buff
- 	if (arg.filter.table_id) {
- 		tb = fib6_get_table(net, arg.filter.table_id);
- 		if (!tb) {
--			if (arg.filter.dump_all_families)
-+			if (rtnl_msg_family(cb->nlh) != PF_INET6)
- 				goto out;
+ 	for (tt = 0; tt < MLX5E_NUM_INDIR_TIRS; tt++) {
+@@ -3394,14 +3395,15 @@ out:
+ 	return err;
+ }
  
- 			NL_SET_ERR_MSG_MOD(cb->extack, "FIB table does not exist");
---- a/net/ipv6/ip6mr.c
-+++ b/net/ipv6/ip6mr.c
-@@ -2498,7 +2498,7 @@ static int ip6mr_rtm_dumproute(struct sk
+-void mlx5e_destroy_indirect_tirs(struct mlx5e_priv *priv, bool inner_ttc)
++void mlx5e_destroy_indirect_tirs(struct mlx5e_priv *priv)
+ {
+ 	int i;
  
- 		mrt = ip6mr_get_table(sock_net(skb->sk), filter.table_id);
- 		if (!mrt) {
--			if (filter.dump_all_families)
-+			if (rtnl_msg_family(cb->nlh) != RTNL_FAMILY_IP6MR)
- 				return skb->len;
+ 	for (i = 0; i < MLX5E_NUM_INDIR_TIRS; i++)
+ 		mlx5e_destroy_tir(priv->mdev, &priv->indir_tir[i]);
  
- 			NL_SET_ERR_MSG_MOD(cb->extack, "MR table does not exist");
+-	if (!inner_ttc || !mlx5e_tunnel_inner_ft_supported(priv->mdev))
++	/* Verify inner tirs resources allocated */
++	if (!priv->inner_indir_tir[0].tirn)
+ 		return;
+ 
+ 	for (i = 0; i < MLX5E_NUM_INDIR_TIRS; i++)
+@@ -5107,7 +5109,7 @@ err_destroy_xsk_rqts:
+ err_destroy_direct_tirs:
+ 	mlx5e_destroy_direct_tirs(priv, priv->direct_tir);
+ err_destroy_indirect_tirs:
+-	mlx5e_destroy_indirect_tirs(priv, true);
++	mlx5e_destroy_indirect_tirs(priv);
+ err_destroy_direct_rqts:
+ 	mlx5e_destroy_direct_rqts(priv, priv->direct_tir);
+ err_destroy_indirect_rqts:
+@@ -5126,7 +5128,7 @@ static void mlx5e_cleanup_nic_rx(struct
+ 	mlx5e_destroy_direct_tirs(priv, priv->xsk_tir);
+ 	mlx5e_destroy_direct_rqts(priv, priv->xsk_tir);
+ 	mlx5e_destroy_direct_tirs(priv, priv->direct_tir);
+-	mlx5e_destroy_indirect_tirs(priv, true);
++	mlx5e_destroy_indirect_tirs(priv);
+ 	mlx5e_destroy_direct_rqts(priv, priv->direct_tir);
+ 	mlx5e_destroy_rqt(priv, &priv->indir_rqt);
+ 	mlx5e_close_drop_rq(&priv->drop_rq);
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_rep.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_rep.c
+@@ -1667,7 +1667,7 @@ err_destroy_ttc_table:
+ err_destroy_direct_tirs:
+ 	mlx5e_destroy_direct_tirs(priv, priv->direct_tir);
+ err_destroy_indirect_tirs:
+-	mlx5e_destroy_indirect_tirs(priv, false);
++	mlx5e_destroy_indirect_tirs(priv);
+ err_destroy_direct_rqts:
+ 	mlx5e_destroy_direct_rqts(priv, priv->direct_tir);
+ err_destroy_indirect_rqts:
+@@ -1684,7 +1684,7 @@ static void mlx5e_cleanup_rep_rx(struct
+ 	mlx5_del_flow_rules(rpriv->vport_rx_rule);
+ 	mlx5e_destroy_ttc_table(priv, &priv->fs.ttc);
+ 	mlx5e_destroy_direct_tirs(priv, priv->direct_tir);
+-	mlx5e_destroy_indirect_tirs(priv, false);
++	mlx5e_destroy_indirect_tirs(priv);
+ 	mlx5e_destroy_direct_rqts(priv, priv->direct_tir);
+ 	mlx5e_destroy_rqt(priv, &priv->indir_rqt);
+ 	mlx5e_close_drop_rq(&priv->drop_rq);
+--- a/drivers/net/ethernet/mellanox/mlx5/core/ipoib/ipoib.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/ipoib/ipoib.c
+@@ -396,7 +396,7 @@ static int mlx5i_init_rx(struct mlx5e_pr
+ err_destroy_direct_tirs:
+ 	mlx5e_destroy_direct_tirs(priv, priv->direct_tir);
+ err_destroy_indirect_tirs:
+-	mlx5e_destroy_indirect_tirs(priv, true);
++	mlx5e_destroy_indirect_tirs(priv);
+ err_destroy_direct_rqts:
+ 	mlx5e_destroy_direct_rqts(priv, priv->direct_tir);
+ err_destroy_indirect_rqts:
+@@ -412,7 +412,7 @@ static void mlx5i_cleanup_rx(struct mlx5
+ {
+ 	mlx5i_destroy_flow_steering(priv);
+ 	mlx5e_destroy_direct_tirs(priv, priv->direct_tir);
+-	mlx5e_destroy_indirect_tirs(priv, true);
++	mlx5e_destroy_indirect_tirs(priv);
+ 	mlx5e_destroy_direct_rqts(priv, priv->direct_tir);
+ 	mlx5e_destroy_rqt(priv, &priv->indir_rqt);
+ 	mlx5e_close_drop_rq(&priv->drop_rq);
 
 
