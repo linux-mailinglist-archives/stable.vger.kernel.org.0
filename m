@@ -2,43 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CF761EAA04
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:05:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D19F51EAA82
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:11:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730192AbgFASEV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:04:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48854 "EHLO mail.kernel.org"
+        id S1730768AbgFASIo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:08:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54956 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730186AbgFASET (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:04:19 -0400
+        id S1730764AbgFASIo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:08:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9ABDC2077D;
-        Mon,  1 Jun 2020 18:04:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 75581207D0;
+        Mon,  1 Jun 2020 18:08:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034658;
-        bh=0fwH1kl3TnLGLnKNcAtcv7dUqXFLkD4bHPfFezszlEA=;
+        s=default; t=1591034923;
+        bh=2ZPjej86uWTbLn4JuUOXaDIYjHQwrcYDh8zvLp7nqxA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=esTUxYAWtUfRwo2RMXdHJJF7rmpDurLH6WmFGDoAWK1j0OB3Ef6JPkmEx2upFMd4H
-         PGoe/gCqyblhKvti7kvFbh/W0D9zj8Wbznv9XrEjO76V5xwwQTkN5o0FPIB9zBoecj
-         tXxsbX6SEWWvthEghpbevZWr9Bttfxu/EGh+lcRc=
+        b=A3Y//RJ0zsqcugpTacUP6yvsXxnn5ZNLruvMSIF1lojkc0qZJzqiZlNv773deffp6
+         FhMpTYNTPx9KbcVzhlWx1e1aHEa1Ws1eUxZ06XOLenWgd4z9avDnkx6TvLi930jiGJ
+         7G7RFj2iTXk16G6g6inyONoWnscc273CuuSB4HRI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lin Yi <teroincn@gmail.com>,
-        Mike Marciniszyn <mike.marciniszyn@intel.com>,
-        Kaike Wan <kaike.wan@intel.com>,
-        Dennis Dalessandro <dennis.dalessandro@intel.com>,
-        Leon Romanovsky <leonro@mellanox.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
+        stable@vger.kernel.org, Tomas Paukrt <tomas.paukrt@advantech.cz>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 51/95] IB/qib: Call kobject_put() when kobject_init_and_add() fails
-Date:   Mon,  1 Jun 2020 19:53:51 +0200
-Message-Id: <20200601174029.363185212@linuxfoundation.org>
+Subject: [PATCH 5.4 074/142] ARM: uaccess: fix DACR mismatch with nested exceptions
+Date:   Mon,  1 Jun 2020 19:53:52 +0200
+Message-Id: <20200601174045.466421674@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174020.759151073@linuxfoundation.org>
-References: <20200601174020.759151073@linuxfoundation.org>
+In-Reply-To: <20200601174037.904070960@linuxfoundation.org>
+References: <20200601174037.904070960@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,80 +44,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kaike Wan <kaike.wan@intel.com>
+From: Russell King <rmk+kernel@armlinux.org.uk>
 
-[ Upstream commit a35cd6447effd5c239b564c80fa109d05ff3d114 ]
+[ Upstream commit 71f8af1110101facfad68989ff91f88f8e2c3e22 ]
 
-When kobject_init_and_add() returns an error in the function
-qib_create_port_files(), the function kobject_put() is not called for the
-corresponding kobject, which potentially leads to memory leak.
+Tomas Paukrt reports that his SAM9X60 based system (ARM926, ARMv5TJ)
+fails to fix up alignment faults, eventually resulting in a kernel
+oops.
 
-This patch fixes the issue by calling kobject_put() even if
-kobject_init_and_add() fails. In addition, the ppd->diagc_kobj is released
-along with other kobjects when the sysfs is unregistered.
+The problem occurs when using CONFIG_CPU_USE_DOMAINS with commit
+e6978e4bf181 ("ARM: save and reset the address limit when entering an
+exception").  This is because the address limit is set back to
+TASK_SIZE on exception entry, and, although it is restored on exception
+exit, the domain register is not.
 
-Fixes: f931551bafe1 ("IB/qib: Add new qib driver for QLogic PCIe InfiniBand adapters")
-Link: https://lore.kernel.org/r/20200512031328.189865.48627.stgit@awfm-01.aw.intel.com
-Cc: <stable@vger.kernel.org>
-Suggested-by: Lin Yi <teroincn@gmail.com>
-Reviewed-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
-Signed-off-by: Kaike Wan <kaike.wan@intel.com>
-Signed-off-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
-Reviewed-by: Leon Romanovsky <leonro@mellanox.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Hence, this sequence can occur:
+
+  interrupt
+    pt_regs->addr_limit = addr_limit		// USER_DS
+    addr_limit = USER_DS
+    alignment exception
+    __probe_kernel_read()
+      old_fs = get_fs()				// USER_DS
+      set_fs(KERNEL_DS)
+        addr_limit = KERNEL_DS
+        dacr.kernel = DOMAIN_MANAGER
+        interrupt
+          pt_regs->addr_limit = addr_limit	// KERNEL_DS
+          addr_limit = USER_DS
+          alignment exception
+          __probe_kernel_read()
+            old_fs = get_fs()			// USER_DS
+            set_fs(KERNEL_DS)
+              addr_limit = KERNEL_DS
+              dacr.kernel = DOMAIN_MANAGER
+            ...
+            set_fs(old_fs)
+              addr_limit = USER_DS
+              dacr.kernel = DOMAIN_CLIENT
+          ...
+          addr_limit = pt_regs->addr_limit	// KERNEL_DS
+        interrupt returns
+
+At this point, addr_limit is correctly restored to KERNEL_DS for
+__probe_kernel_read() to continue execution, but dacr.kernel is not,
+it has been reset by the set_fs(old_fs) to DOMAIN_CLIENT.
+
+This would not have happened prior to the mentioned commit, because
+addr_limit would remain KERNEL_DS, so get_fs() would have returned
+KERNEL_DS, and so would correctly nest.
+
+This commit fixes the problem by also saving the DACR on exception
+entry if either CONFIG_CPU_SW_DOMAIN_PAN or CONFIG_CPU_USE_DOMAINS are
+enabled, and resetting the DACR appropriately on exception entry to
+match addr_limit and PAN settings.
+
+Fixes: e6978e4bf181 ("ARM: save and reset the address limit when entering an exception")
+Reported-by: Tomas Paukrt <tomas.paukrt@advantech.cz>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/qib/qib_sysfs.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ arch/arm/include/asm/uaccess-asm.h | 25 ++++++++++++++++++++-----
+ 1 file changed, 20 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/infiniband/hw/qib/qib_sysfs.c b/drivers/infiniband/hw/qib/qib_sysfs.c
-index d831f3e61ae8..2626205780ee 100644
---- a/drivers/infiniband/hw/qib/qib_sysfs.c
-+++ b/drivers/infiniband/hw/qib/qib_sysfs.c
-@@ -756,7 +756,7 @@ int qib_create_port_files(struct ib_device *ibdev, u8 port_num,
- 		qib_dev_err(dd,
- 			"Skipping linkcontrol sysfs info, (err %d) port %u\n",
- 			ret, port_num);
--		goto bail;
-+		goto bail_link;
- 	}
- 	kobject_uevent(&ppd->pport_kobj, KOBJ_ADD);
+diff --git a/arch/arm/include/asm/uaccess-asm.h b/arch/arm/include/asm/uaccess-asm.h
+index e46468b91eaa..907571fd05c6 100644
+--- a/arch/arm/include/asm/uaccess-asm.h
++++ b/arch/arm/include/asm/uaccess-asm.h
+@@ -67,15 +67,21 @@
+ #endif
+ 	.endm
  
-@@ -766,7 +766,7 @@ int qib_create_port_files(struct ib_device *ibdev, u8 port_num,
- 		qib_dev_err(dd,
- 			"Skipping sl2vl sysfs info, (err %d) port %u\n",
- 			ret, port_num);
--		goto bail_link;
-+		goto bail_sl;
- 	}
- 	kobject_uevent(&ppd->sl2vl_kobj, KOBJ_ADD);
+-#ifdef CONFIG_CPU_SW_DOMAIN_PAN
++#if defined(CONFIG_CPU_SW_DOMAIN_PAN) || defined(CONFIG_CPU_USE_DOMAINS)
+ #define DACR(x...)	x
+ #else
+ #define DACR(x...)
+ #endif
  
-@@ -776,7 +776,7 @@ int qib_create_port_files(struct ib_device *ibdev, u8 port_num,
- 		qib_dev_err(dd,
- 			"Skipping diag_counters sysfs info, (err %d) port %u\n",
- 			ret, port_num);
--		goto bail_sl;
-+		goto bail_diagc;
- 	}
- 	kobject_uevent(&ppd->diagc_kobj, KOBJ_ADD);
+ 	/*
+-	 * Save the address limit on entry to a privileged exception and
+-	 * if using PAN, save and disable usermode access.
++	 * Save the address limit on entry to a privileged exception.
++	 *
++	 * If we are using the DACR for kernel access by the user accessors
++	 * (CONFIG_CPU_USE_DOMAINS=y), always reset the DACR kernel domain
++	 * back to client mode, whether or not \disable is set.
++	 *
++	 * If we are using SW PAN, set the DACR user domain to no access
++	 * if \disable is set.
+ 	 */
+ 	.macro	uaccess_entry, tsk, tmp0, tmp1, tmp2, disable
+ 	ldr	\tmp1, [\tsk, #TI_ADDR_LIMIT]
+@@ -84,8 +90,17 @@
+  DACR(	mrc	p15, 0, \tmp0, c3, c0, 0)
+  DACR(	str	\tmp0, [sp, #SVC_DACR])
+ 	str	\tmp1, [sp, #SVC_ADDR_LIMIT]
+-	.if \disable
+-	uaccess_disable \tmp0
++	.if \disable && IS_ENABLED(CONFIG_CPU_SW_DOMAIN_PAN)
++	/* kernel=client, user=no access */
++	mov	\tmp2, #DACR_UACCESS_DISABLE
++	mcr	p15, 0, \tmp2, c3, c0, 0
++	instr_sync
++	.elseif IS_ENABLED(CONFIG_CPU_USE_DOMAINS)
++	/* kernel=client */
++	bic	\tmp2, \tmp0, #domain_mask(DOMAIN_KERNEL)
++	orr	\tmp2, \tmp2, #domain_val(DOMAIN_KERNEL, DOMAIN_CLIENT)
++	mcr	p15, 0, \tmp2, c3, c0, 0
++	instr_sync
+ 	.endif
+ 	.endm
  
-@@ -789,7 +789,7 @@ int qib_create_port_files(struct ib_device *ibdev, u8 port_num,
- 		qib_dev_err(dd,
- 		 "Skipping Congestion Control sysfs info, (err %d) port %u\n",
- 		 ret, port_num);
--		goto bail_diagc;
-+		goto bail_cc;
- 	}
- 
- 	kobject_uevent(&ppd->pport_cc_kobj, KOBJ_ADD);
-@@ -871,6 +871,7 @@ void qib_verbs_unregister_sysfs(struct qib_devdata *dd)
- 				&cc_table_bin_attr);
- 			kobject_put(&ppd->pport_cc_kobj);
- 		}
-+		kobject_put(&ppd->diagc_kobj);
- 		kobject_put(&ppd->sl2vl_kobj);
- 		kobject_put(&ppd->pport_kobj);
- 	}
 -- 
 2.25.1
 
