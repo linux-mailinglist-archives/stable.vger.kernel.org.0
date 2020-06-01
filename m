@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F61C1EA962
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:01:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 29D291EAA0A
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:05:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729783AbgFASBY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:01:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44344 "EHLO mail.kernel.org"
+        id S1730207AbgFASE2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:04:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49106 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729779AbgFASBX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:01:23 -0400
+        id S1730177AbgFASE1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:04:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D9CC52065C;
-        Mon,  1 Jun 2020 18:01:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 805B9207D0;
+        Mon,  1 Jun 2020 18:04:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034483;
-        bh=HFNk47jELaw7uwMh7fkT5nlGQFTfz2GICQHMXpjGHI4=;
+        s=default; t=1591034667;
+        bh=M1Fe7yGsnThBEbaLs1mNNRD4/sdQ9gHFLRjOaS6lX5o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p49JAdnEKIuUYphNS2Ru6FPP4rUBx/5KbOIOq48yWqgr+cG4fDdiNnG85uCiUbsh5
-         loioLgqPO8/93xINegOBjr+pg4eX9ZlCdRXTNFFi2l7gSpeOEZ8Tx1pFAF5O8KhYgd
-         2tZFJFWxPoHTlz0wGRzT1nJZut8mPGqzdE7H1y6s=
+        b=F4pG9Aqq8SvGnFn5fiqch5XLN6ToltUl+pFZNefHGGaKBSRgow+jRsSRL3dDeG1mB
+         TXr1ZNBhlp9dJK+8B64Q8HF5XAkSOGCb6Gj2PYCNDEkhtubS1Ny/OnosJHNPTICzHT
+         ilSmUTtq/K5Djv2LyyQ2r4q94TAQ9IvCHw/3Oa9U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Peng Hao <richard.peng@oppo.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 50/77] include/asm-generic/topology.h: guard cpumask_of_node() macro argument
+Subject: [PATCH 4.19 55/95] mmc: block: Fix use-after-free issue for rpmb
 Date:   Mon,  1 Jun 2020 19:53:55 +0200
-Message-Id: <20200601174025.236191511@linuxfoundation.org>
+Message-Id: <20200601174029.980447276@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174016.396817032@linuxfoundation.org>
-References: <20200601174016.396817032@linuxfoundation.org>
+In-Reply-To: <20200601174020.759151073@linuxfoundation.org>
+References: <20200601174020.759151073@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,45 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Peng Hao <richard.peng@oppo.com>
 
-[ Upstream commit 4377748c7b5187c3342a60fa2ceb60c8a57a8488 ]
+[ Upstream commit 202500d21654874aa03243e91f96de153ec61860 ]
 
-drivers/hwmon/amd_energy.c:195:15: error: invalid operands to binary expression ('void' and 'int')
-                                        (channel - data->nr_cpus));
-                                        ~~~~~~~~~^~~~~~~~~~~~~~~~~
-include/asm-generic/topology.h:51:42: note: expanded from macro 'cpumask_of_node'
-    #define cpumask_of_node(node)       ((void)node, cpu_online_mask)
-                                               ^~~~
-include/linux/cpumask.h:618:72: note: expanded from macro 'cpumask_first_and'
- #define cpumask_first_and(src1p, src2p) cpumask_next_and(-1, (src1p), (src2p))
-                                                                       ^~~~~
+The data structure member “rpmb->md” was passed to a call of the function
+“mmc_blk_put” after a call of the function “put_device”. Reorder these
+function calls to keep the data accesses consistent.
 
-Fixes: f0b848ce6fe9 ("cpumask: Introduce cpumask_of_{node,pcibus} to replace {node,pcibus}_to_cpumask")
-Fixes: 8abee9566b7e ("hwmon: Add amd_energy driver to report energy counters")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Acked-by: Guenter Roeck <linux@roeck-us.net>
-Link: http://lkml.kernel.org/r/20200527134623.930247-1-arnd@arndb.de
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 1c87f7357849 ("mmc: block: Fix bug when removing RPMB chardev ")
+Signed-off-by: Peng Hao <richard.peng@oppo.com>
+Cc: stable@vger.kernel.org
+[Uffe: Fixed up mangled patch and updated commit message]
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/asm-generic/topology.h | 2 +-
+ drivers/mmc/core/block.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/asm-generic/topology.h b/include/asm-generic/topology.h
-index 5d2add1a6c96..864fcfa1df41 100644
---- a/include/asm-generic/topology.h
-+++ b/include/asm-generic/topology.h
-@@ -51,7 +51,7 @@
-   #ifdef CONFIG_NEED_MULTIPLE_NODES
-     #define cpumask_of_node(node)	((node) == 0 ? cpu_online_mask : cpu_none_mask)
-   #else
--    #define cpumask_of_node(node)	((void)node, cpu_online_mask)
-+    #define cpumask_of_node(node)	((void)(node), cpu_online_mask)
-   #endif
- #endif
- #ifndef pcibus_to_node
+diff --git a/drivers/mmc/core/block.c b/drivers/mmc/core/block.c
+index 23bcdbba0cab..c723a1e54b18 100644
+--- a/drivers/mmc/core/block.c
++++ b/drivers/mmc/core/block.c
+@@ -2485,8 +2485,8 @@ static int mmc_rpmb_chrdev_release(struct inode *inode, struct file *filp)
+ 	struct mmc_rpmb_data *rpmb = container_of(inode->i_cdev,
+ 						  struct mmc_rpmb_data, chrdev);
+ 
+-	put_device(&rpmb->dev);
+ 	mmc_blk_put(rpmb->md);
++	put_device(&rpmb->dev);
+ 
+ 	return 0;
+ }
 -- 
 2.25.1
 
