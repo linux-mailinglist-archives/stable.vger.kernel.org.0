@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1AC011EAB65
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:17:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2531C1EAABF
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:12:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731775AbgFASRD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:17:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37996 "EHLO mail.kernel.org"
+        id S1731066AbgFASLE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:11:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58112 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729783AbgFASRC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:17:02 -0400
+        id S1730157AbgFASLD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:11:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 99A342068D;
-        Mon,  1 Jun 2020 18:17:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F01872065C;
+        Mon,  1 Jun 2020 18:11:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591035422;
-        bh=rcGXyxVBSk7HlozhEm2slr0mzTvuHZEvCmq80wwX4hc=;
+        s=default; t=1591035062;
+        bh=/ueERacqKCvBCeDX7uFQVBAHO7WaNeHHjAAedKNnKy0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vxG2SuVebm74tlG6D6TXXzz5Imx7XHQLk9igQfEIIYbewoLqHl9d9iaNg1IfXDpDX
-         cugeHva4zKrMEqV20L2tET5UTaRGTiPdacC97E0MhVxXIQX1T0aV1ncZAy+hyVg3+B
-         6l/k3ii0EtoBCg+6IF9IboMfQ1TwGpfzVRQTyJ9E=
+        b=NHfp623QL68eCP9ZvpVcRmERESZnIj+En0Z/SmfaLme8udD8q9+tq4s1EqsdN1qS0
+         ENSklH2IdBw1LUoe7eNP9xnNr3ycS0Ca7PWp7ixHpwB20j3Ig3lCvrBky9hy3icBIn
+         nmaCBtuyVqzxqyuUXlxgiubF9XtGaxbWkx9rBMTc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Antony Antony <antony@phenome.org>,
-        Steffen Klassert <steffen.klassert@secunet.com>
-Subject: [PATCH 5.6 152/177] xfrm: fix error in comment
-Date:   Mon,  1 Jun 2020 19:54:50 +0200
-Message-Id: <20200601174101.073042657@linuxfoundation.org>
+        stable@vger.kernel.org, David Ahern <dsahern@gmail.com>,
+        Nikolay Aleksandrov <nikolay@cumulusnetworks.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 134/142] nexthop: Expand nexthop_is_multipath in a few places
+Date:   Mon,  1 Jun 2020 19:54:52 +0200
+Message-Id: <20200601174051.606199324@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174048.468952319@linuxfoundation.org>
-References: <20200601174048.468952319@linuxfoundation.org>
+In-Reply-To: <20200601174037.904070960@linuxfoundation.org>
+References: <20200601174037.904070960@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,31 +44,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Antony Antony <antony@phenome.org>
+From: David Ahern <dsahern@gmail.com>
 
-commit 29e4276667e24ee6b91d9f91064d8fda9a210ea1 upstream.
+commit 0b5e2e39739e861fa5fc84ab27a35dbe62a15330 upstream.
 
-s/xfrm_state_offload/xfrm_user_offload/
+I got too fancy consolidating checks on multipath type. The result
+is that path lookups can access 2 different nh_grp structs as exposed
+by Nik's torture tests. Expand nexthop_is_multipath within nexthop.h to
+avoid multiple, nh_grp dereferences and make decisions based on the
+consistent struct.
 
-Fixes: d77e38e612a ("xfrm: Add an IPsec hardware offloading API")
-Signed-off-by: Antony Antony <antony@phenome.org>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Only 2 places left using nexthop_is_multipath are within IPv6, both
+only check that the nexthop is a multipath for a branching decision
+which are acceptable.
+
+Fixes: 430a049190de ("nexthop: Add support for nexthop groups")
+Signed-off-by: David Ahern <dsahern@gmail.com>
+Acked-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/uapi/linux/xfrm.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/net/nexthop.h |   41 +++++++++++++++++++++++++----------------
+ 1 file changed, 25 insertions(+), 16 deletions(-)
 
---- a/include/uapi/linux/xfrm.h
-+++ b/include/uapi/linux/xfrm.h
-@@ -304,7 +304,7 @@ enum xfrm_attr_type_t {
- 	XFRMA_PROTO,		/* __u8 */
- 	XFRMA_ADDRESS_FILTER,	/* struct xfrm_address_filter */
- 	XFRMA_PAD,
--	XFRMA_OFFLOAD_DEV,	/* struct xfrm_state_offload */
-+	XFRMA_OFFLOAD_DEV,	/* struct xfrm_user_offload */
- 	XFRMA_SET_MARK,		/* __u32 */
- 	XFRMA_SET_MARK_MASK,	/* __u32 */
- 	XFRMA_IF_ID,		/* __u32 */
+--- a/include/net/nexthop.h
++++ b/include/net/nexthop.h
+@@ -137,21 +137,20 @@ static inline unsigned int nexthop_num_p
+ {
+ 	unsigned int rc = 1;
+ 
+-	if (nexthop_is_multipath(nh)) {
++	if (nh->is_group) {
+ 		struct nh_group *nh_grp;
+ 
+ 		nh_grp = rcu_dereference_rtnl(nh->nh_grp);
+-		rc = nh_grp->num_nh;
++		if (nh_grp->mpath)
++			rc = nh_grp->num_nh;
+ 	}
+ 
+ 	return rc;
+ }
+ 
+ static inline
+-struct nexthop *nexthop_mpath_select(const struct nexthop *nh, int nhsel)
++struct nexthop *nexthop_mpath_select(const struct nh_group *nhg, int nhsel)
+ {
+-	const struct nh_group *nhg = rcu_dereference_rtnl(nh->nh_grp);
+-
+ 	/* for_nexthops macros in fib_semantics.c grabs a pointer to
+ 	 * the nexthop before checking nhsel
+ 	 */
+@@ -186,12 +185,14 @@ static inline bool nexthop_is_blackhole(
+ {
+ 	const struct nh_info *nhi;
+ 
+-	if (nexthop_is_multipath(nh)) {
+-		if (nexthop_num_path(nh) > 1)
+-			return false;
+-		nh = nexthop_mpath_select(nh, 0);
+-		if (!nh)
++	if (nh->is_group) {
++		struct nh_group *nh_grp;
++
++		nh_grp = rcu_dereference_rtnl(nh->nh_grp);
++		if (nh_grp->num_nh > 1)
+ 			return false;
++
++		nh = nh_grp->nh_entries[0].nh;
+ 	}
+ 
+ 	nhi = rcu_dereference_rtnl(nh->nh_info);
+@@ -217,10 +218,15 @@ struct fib_nh_common *nexthop_fib_nhc(st
+ 	BUILD_BUG_ON(offsetof(struct fib_nh, nh_common) != 0);
+ 	BUILD_BUG_ON(offsetof(struct fib6_nh, nh_common) != 0);
+ 
+-	if (nexthop_is_multipath(nh)) {
+-		nh = nexthop_mpath_select(nh, nhsel);
+-		if (!nh)
+-			return NULL;
++	if (nh->is_group) {
++		struct nh_group *nh_grp;
++
++		nh_grp = rcu_dereference_rtnl(nh->nh_grp);
++		if (nh_grp->mpath) {
++			nh = nexthop_mpath_select(nh_grp, nhsel);
++			if (!nh)
++				return NULL;
++		}
+ 	}
+ 
+ 	nhi = rcu_dereference_rtnl(nh->nh_info);
+@@ -264,8 +270,11 @@ static inline struct fib6_nh *nexthop_fi
+ {
+ 	struct nh_info *nhi;
+ 
+-	if (nexthop_is_multipath(nh)) {
+-		nh = nexthop_mpath_select(nh, 0);
++	if (nh->is_group) {
++		struct nh_group *nh_grp;
++
++		nh_grp = rcu_dereference_rtnl(nh->nh_grp);
++		nh = nexthop_mpath_select(nh_grp, 0);
+ 		if (!nh)
+ 			return NULL;
+ 	}
 
 
