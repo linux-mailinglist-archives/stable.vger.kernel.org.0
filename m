@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6BDE21EAC34
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:37:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CB1FE1EAD58
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:45:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731718AbgFASQf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:16:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37240 "EHLO mail.kernel.org"
+        id S1729691AbgFASoo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:44:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57234 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731435AbgFASQb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:16:31 -0400
+        id S1729730AbgFASKY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:10:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 337D32065C;
-        Mon,  1 Jun 2020 18:16:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C77AA2065C;
+        Mon,  1 Jun 2020 18:10:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591035390;
-        bh=ql1s1rFt1jSoZR7TJO52leYHluhHEVDvF8PNzmGWNRs=;
+        s=default; t=1591035024;
+        bh=rcGXyxVBSk7HlozhEm2slr0mzTvuHZEvCmq80wwX4hc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1IeMbX25cBGQVpRTI/Tx2ad+oXsfsZHkA+4fEVf5Fbxxg82CFzM3ZuVt+CPel3JXB
-         cdjMWtE8y7n3ec6+1PKoEANpcatdAkF47R6vQSAcLNn0BbSLD9xQiZ5qnUt3ci3pxm
-         JOS+uUcO5NFOuhkH8y39jtpTIt0v5gUUzfuVzlHA=
+        b=LX2iilVGQlHRXGv5q7/Usjfzv081/ibTK39zCnk+wbH4UfrpAcUFldigGpcIHUVGm
+         /dEeMeHhVvMH9RREHoj/tmQXJopdl7KzsHiktU64As8Jcx7gQhDh4f+3sdQM/G7jsG
+         Bl0bKkTdaCa8JjNB5b3QHcIvRM3Ckn35CZpYEoW4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Helge Deller <deller@gmx.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 139/177] parisc: Fix kernel panic in mem_init()
+        stable@vger.kernel.org, Antony Antony <antony@phenome.org>,
+        Steffen Klassert <steffen.klassert@secunet.com>
+Subject: [PATCH 5.4 119/142] xfrm: fix error in comment
 Date:   Mon,  1 Jun 2020 19:54:37 +0200
-Message-Id: <20200601174059.973087668@linuxfoundation.org>
+Message-Id: <20200601174050.163798394@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174048.468952319@linuxfoundation.org>
-References: <20200601174048.468952319@linuxfoundation.org>
+In-Reply-To: <20200601174037.904070960@linuxfoundation.org>
+References: <20200601174037.904070960@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,52 +43,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Antony Antony <antony@phenome.org>
 
-[ Upstream commit bf71bc16e02162388808949b179d59d0b571b965 ]
+commit 29e4276667e24ee6b91d9f91064d8fda9a210ea1 upstream.
 
-The Debian kernel v5.6 triggers this kernel panic:
+s/xfrm_state_offload/xfrm_user_offload/
 
- Kernel panic - not syncing: Bad Address (null pointer deref?)
- Bad Address (null pointer deref?): Code=26 (Data memory access rights trap) at addr 0000000000000000
- CPU: 0 PID: 0 Comm: swapper Not tainted 5.6.0-2-parisc64 #1 Debian 5.6.14-1
-  IAOQ[0]: mem_init+0xb0/0x150
-  IAOQ[1]: mem_init+0xb4/0x150
-  RP(r2): start_kernel+0x6c8/0x1190
- Backtrace:
-  [<0000000040101ab4>] start_kernel+0x6c8/0x1190
-  [<0000000040108574>] start_parisc+0x158/0x1b8
+Fixes: d77e38e612a ("xfrm: Add an IPsec hardware offloading API")
+Signed-off-by: Antony Antony <antony@phenome.org>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-on a HP-PARISC rp3440 machine with this memory layout:
- Memory Ranges:
-  0) Start 0x0000000000000000 End 0x000000003fffffff Size   1024 MB
-  1) Start 0x0000004040000000 End 0x00000040ffdfffff Size   3070 MB
-
-Fix the crash by avoiding virt_to_page() and similar functions in
-mem_init() until the memory zones have been fully set up.
-
-Signed-off-by: Helge Deller <deller@gmx.de>
-Cc: stable@vger.kernel.org # v5.0+
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/parisc/mm/init.c | 2 +-
+ include/uapi/linux/xfrm.h |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/parisc/mm/init.c b/arch/parisc/mm/init.c
-index 5224fb38d766..01d7071b23f7 100644
---- a/arch/parisc/mm/init.c
-+++ b/arch/parisc/mm/init.c
-@@ -562,7 +562,7 @@ void __init mem_init(void)
- 			> BITS_PER_LONG);
- 
- 	high_memory = __va((max_pfn << PAGE_SHIFT));
--	set_max_mapnr(page_to_pfn(virt_to_page(high_memory - 1)) + 1);
-+	set_max_mapnr(max_low_pfn);
- 	memblock_free_all();
- 
- #ifdef CONFIG_PA11
--- 
-2.25.1
-
+--- a/include/uapi/linux/xfrm.h
++++ b/include/uapi/linux/xfrm.h
+@@ -304,7 +304,7 @@ enum xfrm_attr_type_t {
+ 	XFRMA_PROTO,		/* __u8 */
+ 	XFRMA_ADDRESS_FILTER,	/* struct xfrm_address_filter */
+ 	XFRMA_PAD,
+-	XFRMA_OFFLOAD_DEV,	/* struct xfrm_state_offload */
++	XFRMA_OFFLOAD_DEV,	/* struct xfrm_user_offload */
+ 	XFRMA_SET_MARK,		/* __u32 */
+ 	XFRMA_SET_MARK_MASK,	/* __u32 */
+ 	XFRMA_IF_ID,		/* __u32 */
 
 
