@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CE1E1EAE81
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:54:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD5091EAF03
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:59:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730284AbgFASyh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:54:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44970 "EHLO mail.kernel.org"
+        id S1729119AbgFAR6F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 13:58:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39750 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729848AbgFASBz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:01:55 -0400
+        id S1729115AbgFAR6E (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 13:58:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 19C66206E2;
-        Mon,  1 Jun 2020 18:01:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ABBE22073B;
+        Mon,  1 Jun 2020 17:58:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034514;
-        bh=vm7kTXpPIK1kbmpMniFBh+WsEPqC5IjnMdgczS7nkzY=;
+        s=default; t=1591034284;
+        bh=09YqrVPRrABEq7REe5UqOCDei7Su3HzEdO6ElVdZj6c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f3ZyJ70r3hzAXT04NG+poEdxvXp09Biftxu1FsS8dCUd54K48AYZWJzAPRuzlnCk5
-         W9N7IKcZ4br4VTDV2MX6p+aB/GngzCu5XM8sFPFCyUSDX2YvFuPBzkXNeuUif2lb+z
-         EuJNVYTX8+aJzQ3mgrxzWIfSvZ5Wlrxd8hf0Ui3k=
+        b=rnwqCdNZpNbcQ7+1d+tfM/WZg4BNiIfV3Y6iDokAMS/35CD4f12YjtISTVRU90jl4
+         aIU40biB3EHQhLuIqfys8dLJtyXEyyGD7vq/WLvxww8oJjcqzH+9IZfUunYw3i0BOq
+         H8x6IQfsCe9WiQc+iZb4yEsRJD092B0zTrtTqcYY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mathieu Maret <mathieu.maret@gmail.com>,
-        Brendan Shanks <bshanks@codeweavers.com>,
+        stable@vger.kernel.org, Kevin Locke <kevin@kevinlocke.name>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 26/77] Input: evdev - call input_flush_device() on release(), not flush()
+Subject: [PATCH 4.9 24/61] Input: i8042 - add ThinkPad S230u to i8042 reset list
 Date:   Mon,  1 Jun 2020 19:53:31 +0200
-Message-Id: <20200601174021.132584191@linuxfoundation.org>
+Message-Id: <20200601174016.327408605@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174016.396817032@linuxfoundation.org>
-References: <20200601174016.396817032@linuxfoundation.org>
+In-Reply-To: <20200601174010.316778377@linuxfoundation.org>
+References: <20200601174010.316778377@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,71 +44,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brendan Shanks <bshanks@codeweavers.com>
+From: Kevin Locke <kevin@kevinlocke.name>
 
-[ Upstream commit 09264098ff153f60866039d60b31d39b66f55a31 ]
+[ Upstream commit 2712c91a54a1058d55c284152b4d93c979b67be6 ]
 
-input_flush_device() should only be called once the struct file is being
-released and no open descriptors remain, but evdev_flush() was calling
-it whenever a file descriptor was closed.
+On the Lenovo ThinkPad Twist S230u (3347-4HU) with BIOS version
+"GDETC1WW (1.81 ) 06/27/2019", the keyboard, Synaptics TouchPad, and
+TrackPoint either do not function or stop functioning a few minutes
+after boot.  This problem has been noted before, perhaps only occurring
+with BIOS 1.57 and later.[1][2][3][4][5]
 
-This caused uploaded force-feedback effects to be erased when a process
-did a dup()/close() on the event FD, called system(), etc.
+Odds of a BIOS fix appear to be low: 1.57 was released over 6 years ago
+and although the [BIOS changelog] notes "Fixed an issue of UEFI
+touchpad/trackpoint/keyboard/touchscreen" in 1.58, it appears to be
+insufficient.
 
-Call input_flush_device() from evdev_release() instead.
+Setting i8042.reset=1 or adding 33474HU to the reset list avoids the
+issue on my system from either warm or cold boot.
 
-Reported-by: Mathieu Maret <mathieu.maret@gmail.com>
-Signed-off-by: Brendan Shanks <bshanks@codeweavers.com>
-Link: https://lore.kernel.org/r/20200421231003.7935-1-bshanks@codeweavers.com
+[1]: https://bugs.launchpad.net/bugs/1210748
+[2]: https://bbs.archlinux.org/viewtopic.php?pid=1360425
+[3]: https://forums.linuxmint.com/viewtopic.php?f=46&t=41200
+[4]: https://forums.linuxmint.com/viewtopic.php?f=49&t=157115
+[5]: https://forums.lenovo.com/topic/findpost/27/1337119
+[BIOS changelog]: https://download.lenovo.com/pccbbs/mobiles/gduj33uc.txt
+
+Signed-off-by: Kevin Locke <kevin@kevinlocke.name>
 Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/94f384b0f75f90f71425d7dce7ac82c59ddb87a8.1587702636.git.kevin@kevinlocke.name
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/evdev.c | 19 ++++---------------
- 1 file changed, 4 insertions(+), 15 deletions(-)
+ drivers/input/serio/i8042-x86ia64io.h | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-index 925571475005..2463d02e3f99 100644
---- a/drivers/input/evdev.c
-+++ b/drivers/input/evdev.c
-@@ -342,20 +342,6 @@ static int evdev_fasync(int fd, struct file *file, int on)
- 	return fasync_helper(fd, file, on, &client->fasync);
- }
- 
--static int evdev_flush(struct file *file, fl_owner_t id)
--{
--	struct evdev_client *client = file->private_data;
--	struct evdev *evdev = client->evdev;
--
--	mutex_lock(&evdev->mutex);
--
--	if (evdev->exist && !client->revoked)
--		input_flush_device(&evdev->handle, file);
--
--	mutex_unlock(&evdev->mutex);
--	return 0;
--}
--
- static void evdev_free(struct device *dev)
- {
- 	struct evdev *evdev = container_of(dev, struct evdev, dev);
-@@ -469,6 +455,10 @@ static int evdev_release(struct inode *inode, struct file *file)
- 	unsigned int i;
- 
- 	mutex_lock(&evdev->mutex);
-+
-+	if (evdev->exist && !client->revoked)
-+		input_flush_device(&evdev->handle, file);
-+
- 	evdev_ungrab(evdev, client);
- 	mutex_unlock(&evdev->mutex);
- 
-@@ -1331,7 +1321,6 @@ static const struct file_operations evdev_fops = {
- 	.compat_ioctl	= evdev_ioctl_compat,
- #endif
- 	.fasync		= evdev_fasync,
--	.flush		= evdev_flush,
- 	.llseek		= no_llseek,
+diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
+index 42330024da2f..d15fd73dbd80 100644
+--- a/drivers/input/serio/i8042-x86ia64io.h
++++ b/drivers/input/serio/i8042-x86ia64io.h
+@@ -745,6 +745,13 @@ static const struct dmi_system_id __initconst i8042_dmi_reset_table[] = {
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "P65xRP"),
+ 		},
+ 	},
++	{
++		/* Lenovo ThinkPad Twist S230u */
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "33474HU"),
++		},
++	},
+ 	{ }
  };
  
 -- 
