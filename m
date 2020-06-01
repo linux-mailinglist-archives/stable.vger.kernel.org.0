@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D7B231EAA59
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:11:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A2BE1EA9D8
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:05:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730553AbgFASHK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:07:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52966 "EHLO mail.kernel.org"
+        id S1729978AbgFASCr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:02:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46032 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729134AbgFASHJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:07:09 -0400
+        id S1729973AbgFASCq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:02:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C8793206E2;
-        Mon,  1 Jun 2020 18:07:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A9CD52065C;
+        Mon,  1 Jun 2020 18:02:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034829;
-        bh=rgoYLS+WMEIn3HQPScbZElKfuAs0VrEeOrN4VJIZ2TQ=;
+        s=default; t=1591034566;
+        bh=f0dcE6W115T5VxT/KN7MkC4LUM/7jojD1bWJ0yqovdc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s9ZYvn25oiMdDpZIT6wm2IFe7egb2BxayQ14IESK5FHGFUuwhtLL2DfRwsVcLgKQn
-         YEEyj4dY1bz4GUO6345Y+f5sadyufe/qYzl3EGgbKiGUtFJCbtZij8lnu8CBVxYPeX
-         wjzvnSyaskhak+QZqT2bdWluI8MrutgQWDbjSiyg=
+        b=2t0UgWvln2t8UzJJazTffGyqXAFI9FnkSskFxNNqwH7tJlrPig9KzZbgrd9i4TDWj
+         4dy4bpEs9XqxYrux3pNEJgow6dE2QI5A7C32MCs2Q/KHrbbSZGIvHdsRhga0eEXPxI
+         UUEWXx8c8w+Wkc8XXecViEOkVu/HfJR0RBDLGyVg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Jonker <jbx6244@gmail.com>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 032/142] ARM: dts: rockchip: fix phy nodename for rk3228-evb
-Date:   Mon,  1 Jun 2020 19:53:10 +0200
-Message-Id: <20200601174041.256780482@linuxfoundation.org>
+        stable@vger.kernel.org, Marc Payne <marc.payne@mdpsys.co.uk>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 11/95] r8152: support additional Microsoft Surface Ethernet Adapter variant
+Date:   Mon,  1 Jun 2020 19:53:11 +0200
+Message-Id: <20200601174022.649608320@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174037.904070960@linuxfoundation.org>
-References: <20200601174037.904070960@linuxfoundation.org>
+In-Reply-To: <20200601174020.759151073@linuxfoundation.org>
+References: <20200601174020.759151073@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,49 +43,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Jonker <jbx6244@gmail.com>
+From: Marc Payne <marc.payne@mdpsys.co.uk>
 
-[ Upstream commit 287e0d538fcec2f6e8eb1e565bf0749f3b90186d ]
+[ Upstream commit c27a204383616efba5a4194075e90819961ff66a ]
 
-A test with the command below gives for example this error:
+Device id 0927 is the RTL8153B-based component of the 'Surface USB-C to
+Ethernet and USB Adapter' and may be used as a component of other devices
+in future. Tested and working with the r8152 driver.
 
-arch/arm/boot/dts/rk3228-evb.dt.yaml: phy@0:
-'#phy-cells' is a required property
+Update the cdc_ether blacklist due to the RTL8153 'network jam on suspend'
+issue which this device will cause (personally confirmed).
 
-The phy nodename is normally used by a phy-handle.
-This node is however compatible with
-"ethernet-phy-id1234.d400", "ethernet-phy-ieee802.3-c22"
-which is just been added to 'ethernet-phy.yaml'.
-So change nodename to 'ethernet-phy' for which '#phy-cells'
-is not a required property
-
-make ARCH=arm dtbs_check
-DT_SCHEMA_FILES=~/.local/lib/python3.5/site-packages/dtschema/schemas/
-phy/phy-provider.yaml
-
-Signed-off-by: Johan Jonker <jbx6244@gmail.com>
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
-Link: https://lore.kernel.org/r/20200416170321.4216-1-jbx6244@gmail.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Marc Payne <marc.payne@mdpsys.co.uk>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/rk3228-evb.dts | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/usb/cdc_ether.c |   11 +++++++++--
+ drivers/net/usb/r8152.c     |    1 +
+ 2 files changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/rk3228-evb.dts b/arch/arm/boot/dts/rk3228-evb.dts
-index 5670b33fd1bd..aed879db6c15 100644
---- a/arch/arm/boot/dts/rk3228-evb.dts
-+++ b/arch/arm/boot/dts/rk3228-evb.dts
-@@ -46,7 +46,7 @@
- 		#address-cells = <1>;
- 		#size-cells = <0>;
+--- a/drivers/net/usb/cdc_ether.c
++++ b/drivers/net/usb/cdc_ether.c
+@@ -821,14 +821,21 @@ static const struct usb_device_id	produc
+ 	.driver_info = 0,
+ },
  
--		phy: phy@0 {
-+		phy: ethernet-phy@0 {
- 			compatible = "ethernet-phy-id1234.d400", "ethernet-phy-ieee802.3-c22";
- 			reg = <0>;
- 			clocks = <&cru SCLK_MAC_PHY>;
--- 
-2.25.1
-
+-/* Microsoft Surface 3 dock (based on Realtek RTL8153) */
++/* Microsoft Surface Ethernet Adapter (based on Realtek RTL8153) */
+ {
+ 	USB_DEVICE_AND_INTERFACE_INFO(MICROSOFT_VENDOR_ID, 0x07c6, USB_CLASS_COMM,
+ 			USB_CDC_SUBCLASS_ETHERNET, USB_CDC_PROTO_NONE),
+ 	.driver_info = 0,
+ },
+ 
+-	/* TP-LINK UE300 USB 3.0 Ethernet Adapters (based on Realtek RTL8153) */
++/* Microsoft Surface Ethernet Adapter (based on Realtek RTL8153B) */
++{
++	USB_DEVICE_AND_INTERFACE_INFO(MICROSOFT_VENDOR_ID, 0x0927, USB_CLASS_COMM,
++			USB_CDC_SUBCLASS_ETHERNET, USB_CDC_PROTO_NONE),
++	.driver_info = 0,
++},
++
++/* TP-LINK UE300 USB 3.0 Ethernet Adapters (based on Realtek RTL8153) */
+ {
+ 	USB_DEVICE_AND_INTERFACE_INFO(TPLINK_VENDOR_ID, 0x0601, USB_CLASS_COMM,
+ 			USB_CDC_SUBCLASS_ETHERNET, USB_CDC_PROTO_NONE),
+--- a/drivers/net/usb/r8152.c
++++ b/drivers/net/usb/r8152.c
+@@ -5344,6 +5344,7 @@ static const struct usb_device_id rtl815
+ 	{REALTEK_USB_DEVICE(VENDOR_ID_REALTEK, 0x8153)},
+ 	{REALTEK_USB_DEVICE(VENDOR_ID_MICROSOFT, 0x07ab)},
+ 	{REALTEK_USB_DEVICE(VENDOR_ID_MICROSOFT, 0x07c6)},
++	{REALTEK_USB_DEVICE(VENDOR_ID_MICROSOFT, 0x0927)},
+ 	{REALTEK_USB_DEVICE(VENDOR_ID_SAMSUNG, 0xa101)},
+ 	{REALTEK_USB_DEVICE(VENDOR_ID_LENOVO,  0x304f)},
+ 	{REALTEK_USB_DEVICE(VENDOR_ID_LENOVO,  0x3062)},
 
 
