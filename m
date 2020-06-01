@@ -2,95 +2,149 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C9BD21EA7FD
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 18:52:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 23DF91EA813
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 19:02:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726110AbgFAQw5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 12:52:57 -0400
-Received: from stargate.chelsio.com ([12.32.117.8]:2755 "EHLO
-        stargate.chelsio.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726067AbgFAQw5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Jun 2020 12:52:57 -0400
-Received: from localhost (moto.blr.asicdesigners.com [10.193.184.79] (may be forged))
-        by stargate.chelsio.com (8.13.8/8.13.8) with ESMTP id 051GqjAu032016;
-        Mon, 1 Jun 2020 09:52:46 -0700
-Date:   Mon, 1 Jun 2020 22:22:45 +0530
-From:   Dakshaja Uppalapati <dakshaja@chelsio.com>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     hch@lst.de, sagi@grimberg.me, stable@vger.kernel.org,
-        nirranjan@chelsio.com, bharat@chelsio.com
-Subject: Re: nvme blk_update_request IO error is seen on stable kernel 5.4.41.
-Message-ID: <20200601165244.GA2809@chelsio.com>
-References: <20200521140642.GA4724@chelsio.com>
- <20200526102542.GA2772976@kroah.com>
- <20200528074426.GA20353@chelsio.com>
- <20200528083403.GB2920930@kroah.com>
- <20200601162143.GA917@chelsio.com>
- <20200601162750.GA887723@kroah.com>
- <20200601164520.GA29339@chelsio.com>
+        id S1726110AbgFARCv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 13:02:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48584 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726067AbgFARCv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 13:02:51 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 057D22074B;
+        Mon,  1 Jun 2020 17:02:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1591030970;
+        bh=MnZaH4VryQ5aGxRZuCTxrcG5TdtBptDA6JmyUoM0b2Q=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=fC+Vm4Fz2L3i5RSK0LWK8DGn3WM0jRZwx3kuRz2yXGYsbB1OOM0Sb32Nt5fyKed52
+         z+cdyZJDKwRKGMByb2VjvEbwxF+34wUYvJk+eLXFe3jqSNbn4TfblHtzIJvq3VAQeH
+         ZOfKdsq1g7M922ooo6RziLy9snLMtV425ADSq2BU=
+Date:   Mon, 1 Jun 2020 19:02:48 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Naresh Kamboju <naresh.kamboju@linaro.org>
+Cc:     Sasha Levin <sashal@kernel.org>,
+        linux- stable <stable@vger.kernel.org>,
+        lkft-triage@lists.linaro.org, rmk+kernel@armlinux.org.uk
+Subject: Re: stable-rc 4.9: arm: arch/arm/vfp/vfphw.S:158: Error: bad
+ instruction `ldcleq p11,cr0,[r10],#32*4'
+Message-ID: <20200601170248.GA1105493@kroah.com>
+References: <CA+G9fYuwMbm2NUmSLohbUs+KzKcyY9rC0dc4kh9AD9hJi6+ePw@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200601164520.GA29339@chelsio.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <CA+G9fYuwMbm2NUmSLohbUs+KzKcyY9rC0dc4kh9AD9hJi6+ePw@mail.gmail.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Monday, June 06/01/20, 2020 at 22:15:20 +0530, Dakshaja Uppalapati wrote:
-> On Monday, June 06/01/20, 2020 at 18:27:50 +0200, Greg KH wrote:
-> > On Mon, Jun 01, 2020 at 09:51:44PM +0530, Dakshaja Uppalapati wrote:
-> > > On Thursday, May 05/28/20, 2020 at 10:34:03 +0200, Greg KH wrote:
-> > > > On Thu, May 28, 2020 at 01:14:31PM +0530, Dakshaja Uppalapati wrote:
-> > > > > On Tuesday, May 05/26/20, 2020 at 12:25:42 +0200, Greg KH wrote:
-> > > > > > On Thu, May 21, 2020 at 07:36:43PM +0530, Dakshaja Uppalapati wrote:
-> > > > > > > Hi all,
-> > > > > > > 
-> > > > > > > Issue which is reported in https://lore.kernel.org/linux-nvme/CH2PR12MB40050ACF
-> > > > > > > 2C0DC7439355ED3FDD270@CH2PR12MB4005.namprd12.prod.outlook.com/T/#r8cfc80b26f0cd
-> > > > > > > 1cde41879a68fd6a71186e9594c is also seen on stable kernel 5.4.41. 
-> > > > > > 
-> > > > > > What issue is that?  Your url is wrapped and can not work here :(
-> > > > > 
-> > > > > Sorry for that, when I tried to format the disk discovered from target machine
-> > > > > the below error is seen in dmesg.
-> > > > > 
-> > > > > dmesg:
-> > > > > 	[ 1844.868480] blk_update_request: I/O error, dev nvme0c0n1, sector 0 
-> > > > > 	op 0x3:(DISCARD) flags 0x4000800 phys_seg 1 prio class 0
-> > > > > 
-> > > > > The above issue is seen from kernel-5.5-rc1 onwards.
-> > > > > 
-> > > > > > 
-> > > > > > > In upstream issue is fixed with commit b716e6889c95f64b.
-> > > > > > 
-> > > > > > Is this a regression or support for something new that has never worked
-> > > > > > before?
-> > > > > > 
-> > > > > 
-> > > > > This is a regression, bisects points to the commit 530436c4 and fixed with
-> > > > > commit b716e688 in upstream.
-> > > > > 
-> > > > > Now same issue is seen with stable kernel-5.4.41, 530436c4 is part of it.
-> > > > 
-> > > > So why don't we just revert 530436c45ef2 ("nvme: Discard workaround for
-> > > > non-conformant devices") from the stable trees?  Will that fix the issue
-> > > > for you instead of the much-larger set of backports you are proposing?
-> > > > 
-> > > > Also, is this an issue for you in the 4.19 releases?  The above
-> > > > mentioned patch showed up in 4.19.92 and 5.4.7.
-> > > > 
-> > > 
-> > > Yes, on 4.19 stable kernel too issue is seen. By reverting 530436c45ef2 issue
-> > > is not seen on both 4.19 and 5.4 stable kernels. Do you want me to send the
-> > > reverted patch?
-> > 
-> > Yes please.
+On Mon, Jun 01, 2020 at 09:18:34PM +0530, Naresh Kamboju wrote:
+> stable-rc 4.9 arm architecture build failed due to
+> following errors,
 > 
-> Attached the reverted patch.PFA.
+> # make -sk KBUILD_BUILD_USER=TuxBuild -C/linux -j16 ARCH=arm
+> CROSS_COMPILE=arm-linux-gnueabihf- HOSTCC=gcc CC="sccache
+> arm-linux-gnueabihf-gcc" O=build zImage
+> #
+> ../arch/arm/vfp/vfphw.S: Assembler messages:
+> ../arch/arm/vfp/vfphw.S:158: Error: bad instruction `ldcleq p11,cr0,[r10],#32*4'
+> ../arch/arm/vfp/vfphw.S:233: Error: bad instruction `stcleq p11,cr0,[r0],#32*4'
+> make[2]: *** [../scripts/Makefile.build:404: arch/arm/vfp/vfphw.o] Error 1
+> make[2]: Target '__build' not remade because of errors.
+> make[1]: *** [/linux/Makefile:1040: arch/arm/vfp] Error 2
+> ../arch/arm/lib/changebit.S: Assembler messages:
+> ../arch/arm/lib/changebit.S:15: Error: bad instruction `strbne r1,[ip]'
+> make[2]: *** [../scripts/Makefile.build:404: arch/arm/lib/changebit.o] Error 1
+> ../arch/arm/lib/clear_user.S: Assembler messages:
+> ../arch/arm/lib/clear_user.S:33: Error: bad instruction `strbal r2,[r0],#1'
+> ../arch/arm/lib/clear_user.S:34: Error: bad instruction `strble r2,[r0],#1'
+> ../arch/arm/lib/clear_user.S:35: Error: bad instruction `strblt r2,[r0],#1'
+> ../arch/arm/lib/clear_user.S:44: Error: bad instruction `strbne r2,[r0],#1'
+> ../arch/arm/lib/clear_user.S:44: Error: bad instruction `strbne r2,[r0],#1'
+> make[2]: *** [../scripts/Makefile.build:404: arch/arm/lib/clear_user.o] Error 1
+> ../arch/arm/lib/clearbit.S: Assembler messages:
+> ../arch/arm/lib/clearbit.S:15: Error: bad instruction `strbne r1,[ip]'
+> make[2]: *** [../scripts/Makefile.build:404: arch/arm/lib/clearbit.o] Error 1
+> ../arch/arm/lib/copy_from_user.S: Assembler messages:
+> ../arch/arm/lib/copy_from_user.S:96: Error: bad instruction `subshs ip,ip,r2'
+> ../arch/arm/lib/copy_template.S:168: Error: bad instruction `ldrbne r3,[r1],#1'
+> ../arch/arm/lib/copy_template.S:169: Error: bad instruction `ldrbcs r4,[r1],#1'
+> ../arch/arm/lib/copy_template.S:170: Error: bad instruction `ldrbcs ip,[r1],#1'
+> ../arch/arm/lib/copy_template.S:179: Error: bad instruction `ldrbgt r3,[r1],#1'
+> ../arch/arm/lib/copy_template.S:180: Error: bad instruction `ldrbge r4,[r1],#1'
+> ../arch/arm/lib/copy_template.S:181: Error: bad instruction `ldrbal lr,[r1],#1'
+> make[2]: *** [../scripts/Makefile.build:404:
+> arch/arm/lib/copy_from_user.o] Error 1
+> ../arch/arm/lib/copy_to_user.S: Assembler messages:
+> ../arch/arm/lib/copy_to_user.S:100: Error: bad instruction `subshs ip,ip,r2'
+> ../arch/arm/lib/copy_template.S:171: Error: bad instruction `strbne r3,[r0],#1'
+> ../arch/arm/lib/copy_template.S:172: Error: bad instruction `strbcs r4,[r0],#1'
+> ../arch/arm/lib/copy_template.S:173: Error: bad instruction `strbcs ip,[r0],#1'
+> ../arch/arm/lib/copy_template.S:182: Error: bad instruction `strbgt r3,[r0],#1'
+> ../arch/arm/lib/copy_template.S:183: Error: bad instruction `strbge r4,[r0],#1'
+> ../arch/arm/lib/copy_template.S:185: Error: bad instruction `strbal lr,[r0],#1'
+> make[2]: *** [../scripts/Makefile.build:404:
+> arch/arm/lib/copy_to_user.o] Error 1
+> ../arch/arm/lib/csumpartialcopygeneric.S: Assembler messages:
+> ../arch/arm/lib/csumpartialcopygeneric.S:39: Error: bad instruction
+> `ldrbal ip,[r0],#1'
+> ../arch/arm/lib/csumpartialcopygeneric.S:46: Error: bad instruction
+> `ldrbal r8,[r0],#1'
+> ../arch/arm/lib/csumpartialcopygeneric.S:46: Error: bad instruction
+> `ldrbal ip,[r0],#1'
+> ../arch/arm/lib/csumpartialcopygeneric.S:66: Error: bad instruction
+> `ldrbal ip,[r0],#1'
+> ../arch/arm/lib/csumpartialcopygeneric.S:73: Error: bad instruction
+> `ldrbal r8,[r0],#1'
+> ../arch/arm/lib/csumpartialcopygeneric.S:73: Error: bad instruction
+> `ldrbal ip,[r0],#1'
+> ../arch/arm/lib/csumpartialcopygeneric.S:85: Error: bad instruction
+> `ldrbal r8,[r0],#1'
+> ../arch/arm/lib/csumpartialcopygeneric.S:277: Error: bad instruction
+> `ldrbal r5,[r0],#1'
+> make[2]: *** [../scripts/Makefile.build:404:
+> arch/arm/lib/csumpartialcopyuser.o] Error 1
+> ../arch/arm/lib/getuser.S: Assembler messages:
+> ../arch/arm/lib/getuser.S:36: Error: bad instruction `sbcscc r2,r2,r1'
+> ../arch/arm/lib/getuser.S:44: Error: bad instruction `sbcscc r2,r2,r1'
+> ../arch/arm/lib/getuser.S:74: Error: bad instruction `sbcscc r2,r2,r1'
+> ../arch/arm/lib/getuser.S:82: Error: bad instruction `sbcscc r2,r2,r1'
+> make[2]: *** [../scripts/Makefile.build:404: arch/arm/lib/getuser.o] Error 1
+> ../arch/arm/lib/putuser.S: Assembler messages:
+> ../arch/arm/lib/putuser.S:36: Error: bad instruction `sbcscc ip,ip,r1'
+> ../arch/arm/lib/putuser.S:43: Error: bad instruction `sbcscc ip,ip,r1'
+> ../arch/arm/lib/putuser.S:65: Error: bad instruction `sbcscc ip,ip,r1'
+> ../arch/arm/lib/putuser.S:72: Error: bad instruction `sbcscc ip,ip,r1'
+> make[2]: *** [../scripts/Makefile.build:404: arch/arm/lib/putuser.o] Error 1
+> ../arch/arm/lib/setbit.S: Assembler messages:
+> ../arch/arm/lib/setbit.S:15: Error: bad instruction `strbne r1,[ip]'
+> make[2]: *** [../scripts/Makefile.build:404: arch/arm/lib/setbit.o] Error 1
+> ../arch/arm/lib/testchangebit.S: Assembler messages:
+> ../arch/arm/lib/testchangebit.S:15: Error: bad instruction `strbne r1,[ip]'
+> make[2]: *** [../scripts/Makefile.build:404:
+> arch/arm/lib/testchangebit.o] Error 1
+> ../arch/arm/lib/testclearbit.S: Assembler messages:
+> ../arch/arm/lib/testclearbit.S:15: Error: bad instruction `strbne r1,[ip]'
+> make[2]: *** [../scripts/Makefile.build:404:
+> arch/arm/lib/testclearbit.o] Error 1
+> ../arch/arm/lib/testsetbit.S: Assembler messages:
+> ../arch/arm/lib/testsetbit.S:15: Error: bad instruction `strbne r1,[ip]'
+> make[2]: *** [../scripts/Makefile.build:404: arch/arm/lib/testsetbit.o] Error 1
+> make[2]: Target '__build' not remade because of errors.
+> make[1]: *** [/linux/Makefile:1040: arch/arm/lib] Error 2
+> make[1]: Target 'zImage' not remade because of errors.
+> make: *** [Makefile:152: sub-make] Error 2
+> make: Target 'zImage' not remade because of errors.
 
-Sorry, was hurry in replying. will send out as a kernel patch.
+Caused by c001899a5d6c ("ARM: 8843/1: use unified assembler in headers")
 
-Thanks,
-Dakshaja
+Odd, I'll drop it from 4.9, but it's also in the 4.14 and 4.19 queues as
+well, is it causing issues there too?
+
+thanks,
+
+greg k-h
