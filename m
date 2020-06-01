@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3797E1EAE5F
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:53:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CAE111EACCD
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:41:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730019AbgFASC6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:02:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46316 "EHLO mail.kernel.org"
+        id S1728363AbgFASkO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:40:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33034 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730014AbgFASC5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:02:57 -0400
+        id S1731344AbgFASNa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:13:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D7EE6208A7;
-        Mon,  1 Jun 2020 18:02:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5C80B20776;
+        Mon,  1 Jun 2020 18:13:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034577;
-        bh=d6n1lfALiOuqf6hD6qY0ykkceo3UeXoajd4//MCBJ98=;
+        s=default; t=1591035208;
+        bh=/DgzylOsyp9DnIpSDwr09rBAEMLqWYmSe5+ItFRSM0k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I6sG4itobfsO4lWbOU7cWo+FDFhWO2qDAJw1obGEQTs8e4Kz1C9/VJBvY7iowgx7T
-         6pfmpCR5vUIwYy6izrnQBOjqChrAcqmw0GvMKZe5+TohiinQO+EAa331RGp7I9fWOx
-         PTg29tzxMwPCGdIuhXtPTCW+NCeN5xyL4NjFIM6U=
+        b=vkDp+RYuiRgsqtnzcoJ0byxy0aLkxKx9npCqZRo1XqB6A+5ychs1ih0/ML7DAXuos
+         H/pbEIFBeLAgcYkikFdv+GHvrzY6oSn9kqYQFP1TByOexGhrNxO+0/tmtjfDgIt8mC
+         FAVcWcZpxtfdgMPq3b2N97Nt5ReEwZ8wZLgGRYbQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qiushi Wu <wu000273@umn.edu>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 16/95] net: sun: fix missing release regions in cas_init_one().
+        stable@vger.kernel.org, Bob Peterson <rpeterso@redhat.com>,
+        Andreas Gruenbacher <agruenba@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 058/177] gfs2: dont call quota_unhold if quotas are not locked
 Date:   Mon,  1 Jun 2020 19:53:16 +0200
-Message-Id: <20200601174023.444074465@linuxfoundation.org>
+Message-Id: <20200601174053.817405407@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174020.759151073@linuxfoundation.org>
-References: <20200601174020.759151073@linuxfoundation.org>
+In-Reply-To: <20200601174048.468952319@linuxfoundation.org>
+References: <20200601174048.468952319@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,42 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiushi Wu <wu000273@umn.edu>
+From: Bob Peterson <rpeterso@redhat.com>
 
-commit 5a730153984dd13f82ffae93d7170d76eba204e9 upstream.
+[ Upstream commit c9cb9e381985bbbe8acd2695bbe6bd24bf06b81c ]
 
-In cas_init_one(), "pdev" is requested by "pci_request_regions", but it
-was not released after a call of the function “pci_write_config_byte”
-failed. Thus replace the jump target “err_write_cacheline” by
-"err_out_free_res".
+Before this patch, function gfs2_quota_unlock checked if quotas are
+turned off, and if so, it branched to label out, which called
+gfs2_quota_unhold. With the new system of gfs2_qa_get and put, we
+no longer want to call gfs2_quota_unhold or we won't balance our
+gets and puts.
 
-Fixes: 1f26dac32057 ("[NET]: Add Sun Cassini driver.")
-Signed-off-by: Qiushi Wu <wu000273@umn.edu>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Bob Peterson <rpeterso@redhat.com>
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/sun/cassini.c |    3 +--
+ fs/gfs2/quota.c | 3 +--
  1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/sun/cassini.c
-+++ b/drivers/net/ethernet/sun/cassini.c
-@@ -4971,7 +4971,7 @@ static int cas_init_one(struct pci_dev *
- 					  cas_cacheline_size)) {
- 			dev_err(&pdev->dev, "Could not set PCI cache "
- 			       "line size\n");
--			goto err_write_cacheline;
-+			goto err_out_free_res;
- 		}
- 	}
- #endif
-@@ -5144,7 +5144,6 @@ err_out_iounmap:
- err_out_free_res:
- 	pci_release_regions(pdev);
+diff --git a/fs/gfs2/quota.c b/fs/gfs2/quota.c
+index 832d44782f74..a80b638b582e 100644
+--- a/fs/gfs2/quota.c
++++ b/fs/gfs2/quota.c
+@@ -1113,7 +1113,7 @@ void gfs2_quota_unlock(struct gfs2_inode *ip)
+ 	int found;
  
--err_write_cacheline:
- 	/* Try to restore it in case the error occurred after we
- 	 * set it.
- 	 */
+ 	if (!test_and_clear_bit(GIF_QD_LOCKED, &ip->i_flags))
+-		goto out;
++		return;
+ 
+ 	for (x = 0; x < ip->i_qadata->qa_qd_num; x++) {
+ 		struct gfs2_quota_data *qd;
+@@ -1150,7 +1150,6 @@ void gfs2_quota_unlock(struct gfs2_inode *ip)
+ 			qd_unlock(qda[x]);
+ 	}
+ 
+-out:
+ 	gfs2_quota_unhold(ip);
+ }
+ 
+-- 
+2.25.1
+
 
 
