@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A2BE1EA9D8
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:05:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C20321EA94D
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:01:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729978AbgFASCr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:02:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46032 "EHLO mail.kernel.org"
+        id S1728862AbgFASAU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:00:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42918 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729973AbgFASCq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:02:46 -0400
+        id S1729606AbgFASAO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:00:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A9CD52065C;
-        Mon,  1 Jun 2020 18:02:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B7CF3206E2;
+        Mon,  1 Jun 2020 18:00:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034566;
-        bh=f0dcE6W115T5VxT/KN7MkC4LUM/7jojD1bWJ0yqovdc=;
+        s=default; t=1591034414;
+        bh=lEs7O1rZBUCuzb/jSCMrxt3jnkduhVK1kGNYfbO8NQY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2t0UgWvln2t8UzJJazTffGyqXAFI9FnkSskFxNNqwH7tJlrPig9KzZbgrd9i4TDWj
-         4dy4bpEs9XqxYrux3pNEJgow6dE2QI5A7C32MCs2Q/KHrbbSZGIvHdsRhga0eEXPxI
-         UUEWXx8c8w+Wkc8XXecViEOkVu/HfJR0RBDLGyVg=
+        b=ayWs9azZVJejB2X7ASSvKqHHR2dpB3V2buTe7Rg3IL7400lNB2sk/DluBAebi6Rsx
+         JKDJL34oOBWjsAHK3VOThjayHX1RZqkApuvbarDf426zp+4LjLzlO0D2nyOIrw8jdD
+         2n5+kf1j8yNOysaMZKtzPXSEa9cUGORZfyUJxgmA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Marc Payne <marc.payne@mdpsys.co.uk>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 11/95] r8152: support additional Microsoft Surface Ethernet Adapter variant
+Subject: [PATCH 4.14 06/77] r8152: support additional Microsoft Surface Ethernet Adapter variant
 Date:   Mon,  1 Jun 2020 19:53:11 +0200
-Message-Id: <20200601174022.649608320@linuxfoundation.org>
+Message-Id: <20200601174017.556921943@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174020.759151073@linuxfoundation.org>
-References: <20200601174020.759151073@linuxfoundation.org>
+In-Reply-To: <20200601174016.396817032@linuxfoundation.org>
+References: <20200601174016.396817032@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -90,7 +90,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  			USB_CDC_SUBCLASS_ETHERNET, USB_CDC_PROTO_NONE),
 --- a/drivers/net/usb/r8152.c
 +++ b/drivers/net/usb/r8152.c
-@@ -5344,6 +5344,7 @@ static const struct usb_device_id rtl815
+@@ -5329,6 +5329,7 @@ static const struct usb_device_id rtl815
  	{REALTEK_USB_DEVICE(VENDOR_ID_REALTEK, 0x8153)},
  	{REALTEK_USB_DEVICE(VENDOR_ID_MICROSOFT, 0x07ab)},
  	{REALTEK_USB_DEVICE(VENDOR_ID_MICROSOFT, 0x07c6)},
