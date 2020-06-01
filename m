@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AE9031EAA20
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:05:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 980351EA91F
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:01:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728322AbgFASFW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:05:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50370 "EHLO mail.kernel.org"
+        id S1728386AbgFAR6X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 13:58:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40230 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729862AbgFASFU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:05:20 -0400
+        id S1728576AbgFAR6W (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 13:58:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1DBCC206E2;
-        Mon,  1 Jun 2020 18:05:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B002420776;
+        Mon,  1 Jun 2020 17:58:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034718;
-        bh=UF3nzlyOfmDMR7p9mVsviExlSwnPBfkq9XMpJS5aL04=;
+        s=default; t=1591034302;
+        bh=sndQWg3R5DaAv3cGcLylgkaOjHQwf9bj1vLnR95t198=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ApsWBImnihebyLBwEHmVDWvquf2OMo1iWhOVgWKtNSHeEPxqVVH9nRlLo7KuF/GiN
-         DHapzK3PyUUoT0YNKcbDPmAi6r+kwqsmYZ6nBaK3q3lrjr272PjqZXARtMbBYzTNdF
-         OP4zslvEHOofk4kcX7UVh0EryBhV+9Zc5apJSDWY=
+        b=Fh5ArfV0/zvRZz897FPy/B1KzsBWFlcOjvGlJ8NeHwP1zPgAwV+ok/w9xrAPUx+xv
+         m8xZwnHLLgvB46/10gfYbsV/8Ghv5WOcVzrfizqDKvQJhCHIuDoudlB05P3S2nF9sm
+         FWOXWSkUethufbXrfZQmAVFZcIsmLYEffPi4tqE0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kevin Locke <kevin@kevinlocke.name>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        stable@vger.kernel.org,
+        Martyn Welch <martyn.welch@collabora.co.uk>,
+        Romain Perier <romain.perier@collabora.com>,
+        Fabio Estevam <fabio.estevam@nxp.com>,
+        Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 38/95] Input: i8042 - add ThinkPad S230u to i8042 nomux list
+Subject: [PATCH 4.9 31/61] ARM: dts: imx: Correct B850v3 clock assignment
 Date:   Mon,  1 Jun 2020 19:53:38 +0200
-Message-Id: <20200601174026.880387783@linuxfoundation.org>
+Message-Id: <20200601174017.555295599@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174020.759151073@linuxfoundation.org>
-References: <20200601174020.759151073@linuxfoundation.org>
+In-Reply-To: <20200601174010.316778377@linuxfoundation.org>
+References: <20200601174010.316778377@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,61 +47,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kevin Locke <kevin@kevinlocke.name>
+From: Martyn Welch <martyn.welch@collabora.co.uk>
 
-[ Upstream commit 18931506465a762ffd3f4803d36a18d336a67da9 ]
+[ Upstream commit 1d0c7bb20c083a6e810d2142545b5606f8131080 ]
 
-On the Lenovo ThinkPad Twist S230u (3347-4HU) with BIOS version
-"GDETC1WW (1.81 ) 06/27/2019", whether booted in UEFI or Legacy/CSM mode
-the keyboard, Synaptics TouchPad, and TrackPoint either do not function
-or stop functioning a few minutes after boot.  This problem has been
-noted before, perhaps only occurring on BIOS 1.57 and
-later.[1][2][3][4][5]
+The IPU that drives HDMI must have its pre_sel set to pll2_pfd_396m
+to avoid stepping on the LVDS output's toes, as the PLL can't be clocked
+to the pixel clock and to the LVDS serial clock (3.5*pixel clock) at the
+same time.
 
-This model does not have an external PS/2 port, so mux does not appear
-to be useful.
+As we are using ipu1_di0 and ipu2_di0, ensure both are switched to
+to pll2_pfd2_396m to avoid issues. The LDB driver will switch the
+required IPU to ldb_di1 when it uses it to drive LVDS.
 
-Odds of a BIOS fix appear to be low: 1.57 was released over 6 years ago
-and although the [BIOS changelog] notes "Fixed an issue of UEFI
-touchpad/trackpoint/keyboard/touchscreen" in 1.58, it appears to be
-insufficient.
-
-Adding 33474HU to the nomux list avoids the issue on my system.
-
-[1]: https://bugs.launchpad.net/bugs/1210748
-[2]: https://bbs.archlinux.org/viewtopic.php?pid=1360425
-[3]: https://forums.linuxmint.com/viewtopic.php?f=46&t=41200
-[4]: https://forums.linuxmint.com/viewtopic.php?f=49&t=157115
-[5]: https://forums.lenovo.com/topic/findpost/27/1337119
-[BIOS changelog]: https://download.lenovo.com/pccbbs/mobiles/gduj33uc.txt
-
-Signed-off-by: Kevin Locke <kevin@kevinlocke.name>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/feb8a8339a67025dab3850e6377eb6f3a0e782ba.1587400635.git.kevin@kevinlocke.name
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Martyn Welch <martyn.welch@collabora.co.uk>
+Signed-off-by: Romain Perier <romain.perier@collabora.com>
+Reviewed-by: Fabio Estevam <fabio.estevam@nxp.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/serio/i8042-x86ia64io.h | 7 +++++++
- 1 file changed, 7 insertions(+)
+ arch/arm/boot/dts/imx6q-b850v3.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
-index 0d0f977a2f39..8bf38eded1ef 100644
---- a/drivers/input/serio/i8042-x86ia64io.h
-+++ b/drivers/input/serio/i8042-x86ia64io.h
-@@ -545,6 +545,13 @@ static const struct dmi_system_id __initconst i8042_dmi_nomux_table[] = {
- 			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire 5738"),
- 		},
- 	},
-+	{
-+		/* Lenovo ThinkPad Twist S230u */
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "33474HU"),
-+		},
-+	},
- 	{ }
- };
- 
+diff --git a/arch/arm/boot/dts/imx6q-b850v3.dts b/arch/arm/boot/dts/imx6q-b850v3.dts
+index 167f7446722a..e5e9a16155d9 100644
+--- a/arch/arm/boot/dts/imx6q-b850v3.dts
++++ b/arch/arm/boot/dts/imx6q-b850v3.dts
+@@ -57,7 +57,7 @@
+ 	assigned-clocks = <&clks IMX6QDL_CLK_LDB_DI0_SEL>,
+ 			  <&clks IMX6QDL_CLK_LDB_DI1_SEL>,
+ 			  <&clks IMX6QDL_CLK_IPU1_DI0_PRE_SEL>,
+-			  <&clks IMX6QDL_CLK_IPU1_DI1_PRE_SEL>;
++			  <&clks IMX6QDL_CLK_IPU2_DI0_PRE_SEL>;
+ 	assigned-clock-parents = <&clks IMX6QDL_CLK_PLL5_VIDEO_DIV>,
+ 				 <&clks IMX6QDL_CLK_PLL5_VIDEO_DIV>,
+ 				 <&clks IMX6QDL_CLK_PLL2_PFD2_396M>,
 -- 
 2.25.1
 
