@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E0F41EA967
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:01:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CAF2D1EAA14
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:05:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729823AbgFASBn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:01:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44696 "EHLO mail.kernel.org"
+        id S1730243AbgFASEq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:04:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49602 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728369AbgFASBm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:01:42 -0400
+        id S1729100AbgFASEp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:04:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A18BF2065C;
-        Mon,  1 Jun 2020 18:01:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 92ED520872;
+        Mon,  1 Jun 2020 18:04:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034501;
-        bh=YPYcDMnw4j/RYGH/xC9DxTYgb2x7HZqcUJnTpea8X38=;
+        s=default; t=1591034685;
+        bh=x0hlXFmg6Wp3yDXIZw18ArQWevAcBwdk6vX7FKgCuko=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1cV3kBVVyQ9WdsyC3zB7ycA6zSx5ZrKLtRxaheLFSHMl1y1t/WCzmjETt3My/rBps
-         E80uBkjkfaaJ7gN8/Qn3Fmn3cOm0kUlcbnHQeiM68U+hpHjxkfVXtIeIVWaVKz5qHb
-         kW8tynj9RQGnxIvSso6sW7HgqF0Q+Bhp6yCS3A2w=
+        b=beWN3r5DZuKvyR7PcOb/K6b0hvNmTtiiaJmuImKw1/HibSV3cicQZEJPaUE9NFyBn
+         PxCOie9vmXX5Br2+Ciepca85JpH5SofWw3wT4/amRNhJ7i/sexBYgoLrmQ7fIqQbU/
+         vnxnsS883VajlA4gSqxyqd6XMcQjPHlv+Bx486HM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiumei Mu <xmu@redhat.com>,
-        Xin Long <lucien.xin@gmail.com>,
-        Steffen Klassert <steffen.klassert@secunet.com>
-Subject: [PATCH 4.14 57/77] xfrm: call xfrm_output_gso when inner_protocol is set in xfrm_output
+        stable@vger.kernel.org, Kailang Yang <kailang@realtek.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 62/95] ALSA: hda/realtek - Add new codec supported for ALC287
 Date:   Mon,  1 Jun 2020 19:54:02 +0200
-Message-Id: <20200601174026.334314756@linuxfoundation.org>
+Message-Id: <20200601174030.894866009@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174016.396817032@linuxfoundation.org>
-References: <20200601174016.396817032@linuxfoundation.org>
+In-Reply-To: <20200601174020.759151073@linuxfoundation.org>
+References: <20200601174020.759151073@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,97 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Kailang Yang <kailang@realtek.com>
 
-commit a204aef9fd77dce1efd9066ca4e44eede99cd858 upstream.
+[ Upstream commit 630e36126e420e1756378b3427b42711ce0b9ddd ]
 
-An use-after-free crash can be triggered when sending big packets over
-vxlan over esp with esp offload enabled:
+Enable new codec supported for ALC287.
 
-  [] BUG: KASAN: use-after-free in ipv6_gso_pull_exthdrs.part.8+0x32c/0x4e0
-  [] Call Trace:
-  []  dump_stack+0x75/0xa0
-  []  kasan_report+0x37/0x50
-  []  ipv6_gso_pull_exthdrs.part.8+0x32c/0x4e0
-  []  ipv6_gso_segment+0x2c8/0x13c0
-  []  skb_mac_gso_segment+0x1cb/0x420
-  []  skb_udp_tunnel_segment+0x6b5/0x1c90
-  []  inet_gso_segment+0x440/0x1380
-  []  skb_mac_gso_segment+0x1cb/0x420
-  []  esp4_gso_segment+0xae8/0x1709 [esp4_offload]
-  []  inet_gso_segment+0x440/0x1380
-  []  skb_mac_gso_segment+0x1cb/0x420
-  []  __skb_gso_segment+0x2d7/0x5f0
-  []  validate_xmit_skb+0x527/0xb10
-  []  __dev_queue_xmit+0x10f8/0x2320 <---
-  []  ip_finish_output2+0xa2e/0x1b50
-  []  ip_output+0x1a8/0x2f0
-  []  xfrm_output_resume+0x110e/0x15f0
-  []  __xfrm4_output+0xe1/0x1b0
-  []  xfrm4_output+0xa0/0x200
-  []  iptunnel_xmit+0x5a7/0x920
-  []  vxlan_xmit_one+0x1658/0x37a0 [vxlan]
-  []  vxlan_xmit+0x5e4/0x3ec8 [vxlan]
-  []  dev_hard_start_xmit+0x125/0x540
-  []  __dev_queue_xmit+0x17bd/0x2320  <---
-  []  ip6_finish_output2+0xb20/0x1b80
-  []  ip6_output+0x1b3/0x390
-  []  ip6_xmit+0xb82/0x17e0
-  []  inet6_csk_xmit+0x225/0x3d0
-  []  __tcp_transmit_skb+0x1763/0x3520
-  []  tcp_write_xmit+0xd64/0x5fe0
-  []  __tcp_push_pending_frames+0x8c/0x320
-  []  tcp_sendmsg_locked+0x2245/0x3500
-  []  tcp_sendmsg+0x27/0x40
-
-As on the tx path of vxlan over esp, skb->inner_network_header would be
-set on vxlan_xmit() and xfrm4_tunnel_encap_add(), and the later one can
-overwrite the former one. It causes skb_udp_tunnel_segment() to use a
-wrong skb->inner_network_header, then the issue occurs.
-
-This patch is to fix it by calling xfrm_output_gso() instead when the
-inner_protocol is set, in which gso_segment of inner_protocol will be
-done first.
-
-While at it, also improve some code around.
-
-Fixes: 7862b4058b9f ("esp: Add gso handlers for esp4 and esp6")
-Reported-by: Xiumei Mu <xmu@redhat.com>
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Kailang Yang <kailang@realtek.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/dcf5ce5507104d0589a917cbb71dc3c6@realtek.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/xfrm/xfrm_output.c |   12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ sound/pci/hda/patch_realtek.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/net/xfrm/xfrm_output.c
-+++ b/net/xfrm/xfrm_output.c
-@@ -236,18 +236,20 @@ int xfrm_output(struct sock *sk, struct
- 		xfrm_state_hold(x);
- 
- 		if (skb_is_gso(skb)) {
--			skb_shinfo(skb)->gso_type |= SKB_GSO_ESP;
-+			if (skb->inner_protocol)
-+				return xfrm_output_gso(net, sk, skb);
- 
--			return xfrm_output2(net, sk, skb);
-+			skb_shinfo(skb)->gso_type |= SKB_GSO_ESP;
-+			goto out;
- 		}
- 
- 		if (x->xso.dev && x->xso.dev->features & NETIF_F_HW_ESP_TX_CSUM)
- 			goto out;
-+	} else {
-+		if (skb_is_gso(skb))
-+			return xfrm_output_gso(net, sk, skb);
- 	}
- 
--	if (skb_is_gso(skb))
--		return xfrm_output_gso(net, sk, skb);
--
- 	if (skb->ip_summed == CHECKSUM_PARTIAL) {
- 		err = skb_checksum_help(skb);
- 		if (err) {
+diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
+index 34cda0accbd8..b06f7d52faad 100644
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -387,6 +387,7 @@ static void alc_fill_eapd_coef(struct hda_codec *codec)
+ 	case 0x10ec0282:
+ 	case 0x10ec0283:
+ 	case 0x10ec0286:
++	case 0x10ec0287:
+ 	case 0x10ec0288:
+ 	case 0x10ec0285:
+ 	case 0x10ec0298:
+@@ -7840,6 +7841,7 @@ static int patch_alc269(struct hda_codec *codec)
+ 	case 0x10ec0215:
+ 	case 0x10ec0245:
+ 	case 0x10ec0285:
++	case 0x10ec0287:
+ 	case 0x10ec0289:
+ 		spec->codec_variant = ALC269_TYPE_ALC215;
+ 		spec->shutup = alc225_shutup;
+@@ -8978,6 +8980,7 @@ static const struct hda_device_id snd_hda_id_realtek[] = {
+ 	HDA_CODEC_ENTRY(0x10ec0284, "ALC284", patch_alc269),
+ 	HDA_CODEC_ENTRY(0x10ec0285, "ALC285", patch_alc269),
+ 	HDA_CODEC_ENTRY(0x10ec0286, "ALC286", patch_alc269),
++	HDA_CODEC_ENTRY(0x10ec0287, "ALC287", patch_alc269),
+ 	HDA_CODEC_ENTRY(0x10ec0288, "ALC288", patch_alc269),
+ 	HDA_CODEC_ENTRY(0x10ec0289, "ALC289", patch_alc269),
+ 	HDA_CODEC_ENTRY(0x10ec0290, "ALC290", patch_alc269),
+-- 
+2.25.1
+
 
 
