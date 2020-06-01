@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9AF9A1EAA9F
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:11:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD0A91EA9F5
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:05:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730448AbgFASJq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:09:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56222 "EHLO mail.kernel.org"
+        id S1730145AbgFASDz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:03:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48140 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729780AbgFASJo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:09:44 -0400
+        id S1730141AbgFASDx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:03:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9330021531;
-        Mon,  1 Jun 2020 18:09:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 061E8206E2;
+        Mon,  1 Jun 2020 18:03:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034984;
-        bh=PWB2t7f58OTgQdOQWXKpGzdge1XV4v+1OvpmDWYEvUA=;
+        s=default; t=1591034633;
+        bh=PkdW5MIE/xVsJ3P/RLDQdhXyZozb/Kq6uznN5go3Yag=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PDDx2wMgRN8GqE9yrJDrgtMosj+o/UNvUpPhmnLZxOHTpvxhgx89MRvD+j1mkOCwu
-         wxwFqlC4zE+op0IA7duWJInT1kgWRRED6rMQ06PGLtOvGggvPV2YHdqtDuu/ozuu0i
-         +jy79dsVIejOyRFZkrTLxZmU6vxOdMvGoD9x/NN4=
+        b=eKcOLpSmUBEFag8mmLQyconNmfDwZ2fS52TB/i3agfE3WkjEpM4pLU26fXJFwEubB
+         tF7HsPOjy0HxplCQXY9OTF6cmCIhTn5gXIt3Ne8Cds5tXOOC7DRLkTUvkIb9ExxrMM
+         wNLHNAdJePs4gyJzkmotIaYVf8JGWafW4zVjkFgA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Hilliard <james.hilliard1@gmail.com>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 063/142] Input: usbtouchscreen - add support for BonXeon TP
+Subject: [PATCH 4.19 41/95] Input: dlink-dir685-touchkeys - fix a typo in driver name
 Date:   Mon,  1 Jun 2020 19:53:41 +0200
-Message-Id: <20200601174044.436273485@linuxfoundation.org>
+Message-Id: <20200601174027.333085863@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174037.904070960@linuxfoundation.org>
-References: <20200601174037.904070960@linuxfoundation.org>
+In-Reply-To: <20200601174020.759151073@linuxfoundation.org>
+References: <20200601174020.759151073@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,35 +46,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Hilliard <james.hilliard1@gmail.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit e3b4f94ef52ae1592cbe199bd38dbdc0d58b2217 ]
+[ Upstream commit 38347374ae3f1ec4df56dd688bd603a64e79a0ed ]
 
-Based on available information this uses the singletouch irtouch
-protocol. This is tested and confirmed to be fully functional on
-the BonXeon TP hardware I have.
+According to the file name and Kconfig, a 'k' is missing in this driver
+name. It should be "dlink-dir685-touchkeys".
 
-Signed-off-by: James Hilliard <james.hilliard1@gmail.com>
-Link: https://lore.kernel.org/r/20200413184217.55700-1-james.hilliard1@gmail.com
-Cc: stable@vger.kernel.org
+Fixes: 131b3de7016b ("Input: add D-Link DIR-685 touchkeys driver")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://lore.kernel.org/r/20200412213937.5287-1-christophe.jaillet@wanadoo.fr
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/touchscreen/usbtouchscreen.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/input/keyboard/dlink-dir685-touchkeys.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/input/touchscreen/usbtouchscreen.c b/drivers/input/touchscreen/usbtouchscreen.c
-index 16d70201de4a..397cb1d3f481 100644
---- a/drivers/input/touchscreen/usbtouchscreen.c
-+++ b/drivers/input/touchscreen/usbtouchscreen.c
-@@ -182,6 +182,7 @@ static const struct usb_device_id usbtouch_devices[] = {
- #endif
+diff --git a/drivers/input/keyboard/dlink-dir685-touchkeys.c b/drivers/input/keyboard/dlink-dir685-touchkeys.c
+index 88e321b76397..6fe4062e3ac2 100644
+--- a/drivers/input/keyboard/dlink-dir685-touchkeys.c
++++ b/drivers/input/keyboard/dlink-dir685-touchkeys.c
+@@ -142,7 +142,7 @@ MODULE_DEVICE_TABLE(of, dir685_tk_of_match);
  
- #ifdef CONFIG_TOUCHSCREEN_USB_IRTOUCH
-+	{USB_DEVICE(0x255e, 0x0001), .driver_info = DEVTYPE_IRTOUCH},
- 	{USB_DEVICE(0x595a, 0x0001), .driver_info = DEVTYPE_IRTOUCH},
- 	{USB_DEVICE(0x6615, 0x0001), .driver_info = DEVTYPE_IRTOUCH},
- 	{USB_DEVICE(0x6615, 0x0012), .driver_info = DEVTYPE_IRTOUCH_HIRES},
+ static struct i2c_driver dir685_tk_i2c_driver = {
+ 	.driver = {
+-		.name	= "dlin-dir685-touchkeys",
++		.name	= "dlink-dir685-touchkeys",
+ 		.of_match_table = of_match_ptr(dir685_tk_of_match),
+ 	},
+ 	.probe		= dir685_tk_probe,
 -- 
 2.25.1
 
