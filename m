@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 155E81EAEF6
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:58:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CB9751EAF0C
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:59:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729212AbgFAR6h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 13:58:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40638 "EHLO mail.kernel.org"
+        id S1728871AbgFAR5P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 13:57:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38282 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728576AbgFAR6g (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 13:58:36 -0400
+        id S1728870AbgFAR5O (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 13:57:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2F6012077D;
-        Mon,  1 Jun 2020 17:58:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EC0572076B;
+        Mon,  1 Jun 2020 17:57:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034315;
-        bh=DqGTROlF+JGpGO0Wg0primTgD15YHMdxdYCdxQV2pJ0=;
+        s=default; t=1591034234;
+        bh=0Tf9gZU8elkBmQcO3vpeBGJUqA/s3nLg87n8qhYqdpg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cqRh9O3CuenJpyhKn+trjPEQ0g5lHnDdSkjkPBgyTnJN957Vv5OGc+AaC99QyBm9n
-         lwMikcozlTQXRqLMmKFrLPGfi5zuCUDbjIs4vxE+CCTBawPoNkGBGw4Zsh8nfVIQty
-         3vfijYppkCPPdIJ6uF6h6Zd2anQjLI4Qa6vqhons=
+        b=FoRgRH/Bmx9zltllnOR+kVilpUklFxE/bn7o+D6WObpLVwgMnQqu6fWu5X3FAoBRC
+         SG9Kut0PIn7V+FLknNTJo0DgSasXjvtbUTrN6MixIR/OTZlT1OTl+70r96LFIFJ8zd
+         8Li7KIqFov0b0yEEepJURfjesGHc6HwCT8Lf6gjw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jerry Lee <leisurelysw24@gmail.com>,
-        Ilya Dryomov <idryomov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 37/61] libceph: ignore pool overlay and cache logic on redirects
-Date:   Mon,  1 Jun 2020 19:53:44 +0200
-Message-Id: <20200601174018.662057915@linuxfoundation.org>
+        stable@vger.kernel.org, Qiushi Wu <wu000273@umn.edu>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.4 35/48] qlcnic: fix missing release in qlcnic_83xx_interrupt_test.
+Date:   Mon,  1 Jun 2020 19:53:45 +0200
+Message-Id: <20200601174002.639552088@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174010.316778377@linuxfoundation.org>
-References: <20200601174010.316778377@linuxfoundation.org>
+In-Reply-To: <20200601173952.175939894@linuxfoundation.org>
+References: <20200601173952.175939894@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,49 +43,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jerry Lee <leisurelysw24@gmail.com>
+From: Qiushi Wu <wu000273@umn.edu>
 
-[ Upstream commit 890bd0f8997ae6ac0a367dd5146154a3963306dd ]
+commit 15c973858903009e995b2037683de29dfe968621 upstream.
 
-OSD client should ignore cache/overlay flag if got redirect reply.
-Otherwise, the client hangs when the cache tier is in forward mode.
+In function qlcnic_83xx_interrupt_test(), function
+qlcnic_83xx_diag_alloc_res() is not handled by function
+qlcnic_83xx_diag_free_res() after a call of the function
+qlcnic_alloc_mbx_args() failed. Fix this issue by adding
+a jump target "fail_mbx_args", and jump to this new target
+when qlcnic_alloc_mbx_args() failed.
 
-[ idryomov: Redirects are effectively deprecated and no longer
-  used or tested.  The original tiering modes based on redirects
-  are inherently flawed because redirects can race and reorder,
-  potentially resulting in data corruption.  The new proxy and
-  readproxy tiering modes should be used instead of forward and
-  readforward.  Still marking for stable as obviously correct,
-  though. ]
+Fixes: b6b4316c8b2f ("qlcnic: Handle qlcnic_alloc_mbx_args() failure")
+Signed-off-by: Qiushi Wu <wu000273@umn.edu>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Cc: stable@vger.kernel.org
-URL: https://tracker.ceph.com/issues/23296
-URL: https://tracker.ceph.com/issues/36406
-Signed-off-by: Jerry Lee <leisurelysw24@gmail.com>
-Reviewed-by: Ilya Dryomov <idryomov@gmail.com>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ceph/osd_client.c | 4 +++-
+ drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_hw.c |    4 +++-
  1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/net/ceph/osd_client.c b/net/ceph/osd_client.c
-index 70ccb0716fc5..4fd679b30b19 100644
---- a/net/ceph/osd_client.c
-+++ b/net/ceph/osd_client.c
-@@ -2879,7 +2879,9 @@ static void handle_reply(struct ceph_osd *osd, struct ceph_msg *msg)
- 		 * supported.
- 		 */
- 		req->r_t.target_oloc.pool = m.redirect.oloc.pool;
--		req->r_flags |= CEPH_OSD_FLAG_REDIRECTED;
-+		req->r_flags |= CEPH_OSD_FLAG_REDIRECTED |
-+				CEPH_OSD_FLAG_IGNORE_OVERLAY |
-+				CEPH_OSD_FLAG_IGNORE_CACHE;
- 		req->r_tid = 0;
- 		__submit_request(req, false);
- 		goto out_unlock_osdc;
--- 
-2.25.1
-
+--- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_hw.c
++++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_83xx_hw.c
+@@ -3609,7 +3609,7 @@ int qlcnic_83xx_interrupt_test(struct ne
+ 	ahw->diag_cnt = 0;
+ 	ret = qlcnic_alloc_mbx_args(&cmd, adapter, QLCNIC_CMD_INTRPT_TEST);
+ 	if (ret)
+-		goto fail_diag_irq;
++		goto fail_mbx_args;
+ 
+ 	if (adapter->flags & QLCNIC_MSIX_ENABLED)
+ 		intrpt_id = ahw->intr_tbl[0].id;
+@@ -3639,6 +3639,8 @@ int qlcnic_83xx_interrupt_test(struct ne
+ 
+ done:
+ 	qlcnic_free_mbx_args(&cmd);
++
++fail_mbx_args:
+ 	qlcnic_83xx_diag_free_res(netdev, drv_sds_rings);
+ 
+ fail_diag_irq:
 
 
