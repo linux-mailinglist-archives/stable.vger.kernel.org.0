@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 827591EAD4F
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:44:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 141431EAC69
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:37:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729305AbgFASoV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:44:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57648 "EHLO mail.kernel.org"
+        id S1730244AbgFASTo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:19:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37558 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729784AbgFASKk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:10:40 -0400
+        id S1731740AbgFASQp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:16:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 73E542068D;
-        Mon,  1 Jun 2020 18:10:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A73C22068D;
+        Mon,  1 Jun 2020 18:16:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591035039;
-        bh=p9mgQPRfyqYbnCnnbEX16xQy+tQEDM8VkugbbjCuN+U=;
+        s=default; t=1591035404;
+        bh=UKca6Vmt0hmdfqCKi6/7uixcWxyqVdBAMMZHI2WyIZY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EelJObQ/87lVHB6s5LzIGN2iGRvou9drC40i2qCCMauZb5Wt9rRRnq6dklDZWGwV/
-         arOmQYH179yP6k3CoR496gmUuXWAZGzF2GqJ3OLwj4jMPLpFEYHVu2ehlLGpMKvfOc
-         eLN/If+Rp2DNMhBoPT1/yxE8kuQ8j7HdnhIk36Iw=
+        b=h9Mt2+f9I5ZzcCW59oOHf+dGqxQH67nDdOrHhREEMI6b+QJGLRlfMQDbKMEKThSUM
+         Q6YmQCnfObjTL72HbHtCxH2WKesO65DkNweNEEpnUNPAg9qgjAyRsMQ/jxsD38r0eX
+         UBJGVdp5Fk9yqzx0U7DaNSiBUfgDf0xNKt+a16Dc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 5.4 125/142] netfilter: nf_conntrack_pptp: prevent buffer overflows in debug code
+        stable@vger.kernel.org, Xin Long <lucien.xin@gmail.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>
+Subject: [PATCH 5.6 145/177] xfrm: do pskb_pull properly in __xfrm_transport_prep
 Date:   Mon,  1 Jun 2020 19:54:43 +0200
-Message-Id: <20200601174050.746293040@linuxfoundation.org>
+Message-Id: <20200601174100.537402774@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174037.904070960@linuxfoundation.org>
-References: <20200601174037.904070960@linuxfoundation.org>
+In-Reply-To: <20200601174048.468952319@linuxfoundation.org>
+References: <20200601174048.468952319@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,201 +43,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Xin Long <lucien.xin@gmail.com>
 
-commit 4c559f15efcc43b996f4da528cd7f9483aaca36d upstream.
+commit 06a0afcfe2f551ff755849ea2549b0d8409fd9a0 upstream.
 
-Dan Carpenter says: "Smatch complains that the value for "cmd" comes
-from the network and can't be trusted."
+For transport mode, when ipv6 nexthdr is set, the packet format might
+be like:
 
-Add pptp_msg_name() helper function that checks for the array boundary.
+    ----------------------------------------------------
+    |        | dest |     |     |      |  ESP    | ESP |
+    | IP6 hdr| opts.| ESP | TCP | Data | Trailer | ICV |
+    ----------------------------------------------------
 
-Fixes: f09943fefe6b ("[NETFILTER]: nf_conntrack/nf_nat: add PPTP helper port")
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+and in __xfrm_transport_prep():
+
+  pskb_pull(skb, skb->mac_len + sizeof(ip6hdr) + x->props.header_len);
+
+it will pull the data pointer to the wrong position, as it missed the
+nexthdrs/dest opts.
+
+This patch is to fix it by using:
+
+  pskb_pull(skb, skb_transport_offset(skb) + x->props.header_len);
+
+as we can be sure transport_header points to ESP header at that moment.
+
+It also fixes a panic when packets with ipv6 nexthdr are sent over
+esp6 transport mode:
+
+  [  100.473845] kernel BUG at net/core/skbuff.c:4325!
+  [  100.478517] RIP: 0010:__skb_to_sgvec+0x252/0x260
+  [  100.494355] Call Trace:
+  [  100.494829]  skb_to_sgvec+0x11/0x40
+  [  100.495492]  esp6_output_tail+0x12e/0x550 [esp6]
+  [  100.496358]  esp6_xmit+0x1d5/0x260 [esp6_offload]
+  [  100.498029]  validate_xmit_xfrm+0x22f/0x2e0
+  [  100.499604]  __dev_queue_xmit+0x589/0x910
+  [  100.502928]  ip6_finish_output2+0x2a5/0x5a0
+  [  100.503718]  ip6_output+0x6c/0x120
+  [  100.505198]  xfrm_output_resume+0x4bf/0x530
+  [  100.508683]  xfrm6_output+0x3a/0xc0
+  [  100.513446]  inet6_csk_xmit+0xa1/0xf0
+  [  100.517335]  tcp_sendmsg+0x27/0x40
+  [  100.517977]  sock_sendmsg+0x3e/0x60
+  [  100.518648]  __sys_sendto+0xee/0x160
+
+Fixes: c35fe4106b92 ("xfrm: Add mode handlers for IPsec on layer 2")
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/linux/netfilter/nf_conntrack_pptp.h |    2 
- net/ipv4/netfilter/nf_nat_pptp.c            |    7 ---
- net/netfilter/nf_conntrack_pptp.c           |   62 +++++++++++++++-------------
- 3 files changed, 38 insertions(+), 33 deletions(-)
+ net/xfrm/xfrm_device.c |    8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
---- a/include/linux/netfilter/nf_conntrack_pptp.h
-+++ b/include/linux/netfilter/nf_conntrack_pptp.h
-@@ -10,7 +10,7 @@
- #include <net/netfilter/nf_conntrack_expect.h>
- #include <uapi/linux/netfilter/nf_conntrack_tuple_common.h>
+--- a/net/xfrm/xfrm_device.c
++++ b/net/xfrm/xfrm_device.c
+@@ -25,12 +25,10 @@ static void __xfrm_transport_prep(struct
+ 	struct xfrm_offload *xo = xfrm_offload(skb);
  
--extern const char *const pptp_msg_name[];
-+extern const char *const pptp_msg_name(u_int16_t msg);
- 
- /* state of the control session */
- enum pptp_ctrlsess_state {
---- a/net/ipv4/netfilter/nf_nat_pptp.c
-+++ b/net/ipv4/netfilter/nf_nat_pptp.c
-@@ -166,8 +166,7 @@ pptp_outbound_pkt(struct sk_buff *skb,
- 		break;
- 	default:
- 		pr_debug("unknown outbound packet 0x%04x:%s\n", msg,
--			 msg <= PPTP_MSG_MAX ? pptp_msg_name[msg] :
--					       pptp_msg_name[0]);
-+			 pptp_msg_name(msg));
- 		/* fall through */
- 	case PPTP_SET_LINK_INFO:
- 		/* only need to NAT in case PAC is behind NAT box */
-@@ -268,9 +267,7 @@ pptp_inbound_pkt(struct sk_buff *skb,
- 		pcid_off = offsetof(union pptp_ctrl_union, setlink.peersCallID);
- 		break;
- 	default:
--		pr_debug("unknown inbound packet %s\n",
--			 msg <= PPTP_MSG_MAX ? pptp_msg_name[msg] :
--					       pptp_msg_name[0]);
-+		pr_debug("unknown inbound packet %s\n", pptp_msg_name(msg));
- 		/* fall through */
- 	case PPTP_START_SESSION_REQUEST:
- 	case PPTP_START_SESSION_REPLY:
---- a/net/netfilter/nf_conntrack_pptp.c
-+++ b/net/netfilter/nf_conntrack_pptp.c
-@@ -72,24 +72,32 @@ EXPORT_SYMBOL_GPL(nf_nat_pptp_hook_expec
- 
- #if defined(DEBUG) || defined(CONFIG_DYNAMIC_DEBUG)
- /* PptpControlMessageType names */
--const char *const pptp_msg_name[] = {
--	"UNKNOWN_MESSAGE",
--	"START_SESSION_REQUEST",
--	"START_SESSION_REPLY",
--	"STOP_SESSION_REQUEST",
--	"STOP_SESSION_REPLY",
--	"ECHO_REQUEST",
--	"ECHO_REPLY",
--	"OUT_CALL_REQUEST",
--	"OUT_CALL_REPLY",
--	"IN_CALL_REQUEST",
--	"IN_CALL_REPLY",
--	"IN_CALL_CONNECT",
--	"CALL_CLEAR_REQUEST",
--	"CALL_DISCONNECT_NOTIFY",
--	"WAN_ERROR_NOTIFY",
--	"SET_LINK_INFO"
-+static const char *const pptp_msg_name_array[PPTP_MSG_MAX + 1] = {
-+	[0]				= "UNKNOWN_MESSAGE",
-+	[PPTP_START_SESSION_REQUEST]	= "START_SESSION_REQUEST",
-+	[PPTP_START_SESSION_REPLY]	= "START_SESSION_REPLY",
-+	[PPTP_STOP_SESSION_REQUEST]	= "STOP_SESSION_REQUEST",
-+	[PPTP_STOP_SESSION_REPLY]	= "STOP_SESSION_REPLY",
-+	[PPTP_ECHO_REQUEST]		= "ECHO_REQUEST",
-+	[PPTP_ECHO_REPLY]		= "ECHO_REPLY",
-+	[PPTP_OUT_CALL_REQUEST]		= "OUT_CALL_REQUEST",
-+	[PPTP_OUT_CALL_REPLY]		= "OUT_CALL_REPLY",
-+	[PPTP_IN_CALL_REQUEST]		= "IN_CALL_REQUEST",
-+	[PPTP_IN_CALL_REPLY]		= "IN_CALL_REPLY",
-+	[PPTP_IN_CALL_CONNECT]		= "IN_CALL_CONNECT",
-+	[PPTP_CALL_CLEAR_REQUEST]	= "CALL_CLEAR_REQUEST",
-+	[PPTP_CALL_DISCONNECT_NOTIFY]	= "CALL_DISCONNECT_NOTIFY",
-+	[PPTP_WAN_ERROR_NOTIFY]		= "WAN_ERROR_NOTIFY",
-+	[PPTP_SET_LINK_INFO]		= "SET_LINK_INFO"
- };
+ 	skb_reset_mac_len(skb);
+-	pskb_pull(skb, skb->mac_len + hsize + x->props.header_len);
+-
+-	if (xo->flags & XFRM_GSO_SEGMENT) {
+-		skb_reset_transport_header(skb);
++	if (xo->flags & XFRM_GSO_SEGMENT)
+ 		skb->transport_header -= x->props.header_len;
+-	}
 +
-+const char *const pptp_msg_name(u_int16_t msg)
-+{
-+	if (msg > PPTP_MSG_MAX)
-+		return pptp_msg_name_array[0];
-+
-+	return pptp_msg_name_array[msg];
-+}
- EXPORT_SYMBOL(pptp_msg_name);
- #endif
++	pskb_pull(skb, skb_transport_offset(skb) + x->props.header_len);
+ }
  
-@@ -276,7 +284,7 @@ pptp_inbound_pkt(struct sk_buff *skb, un
- 	typeof(nf_nat_pptp_hook_inbound) nf_nat_pptp_inbound;
- 
- 	msg = ntohs(ctlh->messageType);
--	pr_debug("inbound control message %s\n", pptp_msg_name[msg]);
-+	pr_debug("inbound control message %s\n", pptp_msg_name(msg));
- 
- 	switch (msg) {
- 	case PPTP_START_SESSION_REPLY:
-@@ -311,7 +319,7 @@ pptp_inbound_pkt(struct sk_buff *skb, un
- 		pcid = pptpReq->ocack.peersCallID;
- 		if (info->pns_call_id != pcid)
- 			goto invalid;
--		pr_debug("%s, CID=%X, PCID=%X\n", pptp_msg_name[msg],
-+		pr_debug("%s, CID=%X, PCID=%X\n", pptp_msg_name(msg),
- 			 ntohs(cid), ntohs(pcid));
- 
- 		if (pptpReq->ocack.resultCode == PPTP_OUTCALL_CONNECT) {
-@@ -328,7 +336,7 @@ pptp_inbound_pkt(struct sk_buff *skb, un
- 			goto invalid;
- 
- 		cid = pptpReq->icreq.callID;
--		pr_debug("%s, CID=%X\n", pptp_msg_name[msg], ntohs(cid));
-+		pr_debug("%s, CID=%X\n", pptp_msg_name(msg), ntohs(cid));
- 		info->cstate = PPTP_CALL_IN_REQ;
- 		info->pac_call_id = cid;
- 		break;
-@@ -347,7 +355,7 @@ pptp_inbound_pkt(struct sk_buff *skb, un
- 		if (info->pns_call_id != pcid)
- 			goto invalid;
- 
--		pr_debug("%s, PCID=%X\n", pptp_msg_name[msg], ntohs(pcid));
-+		pr_debug("%s, PCID=%X\n", pptp_msg_name(msg), ntohs(pcid));
- 		info->cstate = PPTP_CALL_IN_CONF;
- 
- 		/* we expect a GRE connection from PAC to PNS */
-@@ -357,7 +365,7 @@ pptp_inbound_pkt(struct sk_buff *skb, un
- 	case PPTP_CALL_DISCONNECT_NOTIFY:
- 		/* server confirms disconnect */
- 		cid = pptpReq->disc.callID;
--		pr_debug("%s, CID=%X\n", pptp_msg_name[msg], ntohs(cid));
-+		pr_debug("%s, CID=%X\n", pptp_msg_name(msg), ntohs(cid));
- 		info->cstate = PPTP_CALL_NONE;
- 
- 		/* untrack this call id, unexpect GRE packets */
-@@ -384,7 +392,7 @@ pptp_inbound_pkt(struct sk_buff *skb, un
- invalid:
- 	pr_debug("invalid %s: type=%d cid=%u pcid=%u "
- 		 "cstate=%d sstate=%d pns_cid=%u pac_cid=%u\n",
--		 msg <= PPTP_MSG_MAX ? pptp_msg_name[msg] : pptp_msg_name[0],
-+		 pptp_msg_name(msg),
- 		 msg, ntohs(cid), ntohs(pcid),  info->cstate, info->sstate,
- 		 ntohs(info->pns_call_id), ntohs(info->pac_call_id));
- 	return NF_ACCEPT;
-@@ -404,7 +412,7 @@ pptp_outbound_pkt(struct sk_buff *skb, u
- 	typeof(nf_nat_pptp_hook_outbound) nf_nat_pptp_outbound;
- 
- 	msg = ntohs(ctlh->messageType);
--	pr_debug("outbound control message %s\n", pptp_msg_name[msg]);
-+	pr_debug("outbound control message %s\n", pptp_msg_name(msg));
- 
- 	switch (msg) {
- 	case PPTP_START_SESSION_REQUEST:
-@@ -426,7 +434,7 @@ pptp_outbound_pkt(struct sk_buff *skb, u
- 		info->cstate = PPTP_CALL_OUT_REQ;
- 		/* track PNS call id */
- 		cid = pptpReq->ocreq.callID;
--		pr_debug("%s, CID=%X\n", pptp_msg_name[msg], ntohs(cid));
-+		pr_debug("%s, CID=%X\n", pptp_msg_name(msg), ntohs(cid));
- 		info->pns_call_id = cid;
- 		break;
- 
-@@ -440,7 +448,7 @@ pptp_outbound_pkt(struct sk_buff *skb, u
- 		pcid = pptpReq->icack.peersCallID;
- 		if (info->pac_call_id != pcid)
- 			goto invalid;
--		pr_debug("%s, CID=%X PCID=%X\n", pptp_msg_name[msg],
-+		pr_debug("%s, CID=%X PCID=%X\n", pptp_msg_name(msg),
- 			 ntohs(cid), ntohs(pcid));
- 
- 		if (pptpReq->icack.resultCode == PPTP_INCALL_ACCEPT) {
-@@ -480,7 +488,7 @@ pptp_outbound_pkt(struct sk_buff *skb, u
- invalid:
- 	pr_debug("invalid %s: type=%d cid=%u pcid=%u "
- 		 "cstate=%d sstate=%d pns_cid=%u pac_cid=%u\n",
--		 msg <= PPTP_MSG_MAX ? pptp_msg_name[msg] : pptp_msg_name[0],
-+		 pptp_msg_name(msg),
- 		 msg, ntohs(cid), ntohs(pcid),  info->cstate, info->sstate,
- 		 ntohs(info->pns_call_id), ntohs(info->pac_call_id));
- 	return NF_ACCEPT;
+ static void __xfrm_mode_tunnel_prep(struct xfrm_state *x, struct sk_buff *skb,
 
 
