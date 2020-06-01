@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E3B21EAF4B
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 21:01:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F29C21EAF26
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 21:01:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728461AbgFATBJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 15:01:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36208 "EHLO mail.kernel.org"
+        id S1728495AbgFAR4I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 13:56:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36292 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728467AbgFAR4F (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 13:56:05 -0400
+        id S1728480AbgFAR4H (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 13:56:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2C139207BB;
-        Mon,  1 Jun 2020 17:56:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 65AAC2073B;
+        Mon,  1 Jun 2020 17:56:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034164;
-        bh=gTOUMFkpdm0Z/lU3SAmaaDcHe9k6MTlfvEDDxfKc/j8=;
+        s=default; t=1591034166;
+        bh=v5U3mBbn3YdGBHEeSmql6qdA7BvIvIIiq7B/D57Y0Qk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1IKEXtuGoKxp1lprTP6CR1AFElryjx/fN3uyPoiQw8yyapRJ3PC6un5Aq9Wpa2jx4
-         aPGTVyOTK35CdvYjbR4O428RqmZCAs0r776r5t0LoRKGXzufhPwmB4T5NhauMba6Xf
-         pzA7sTdsBIZtsyYjqBOqjgS2a/aBJvxEGyXyM/Ms=
+        b=0ve9FbZnY8lJhPm+KuyCmj9rQzfJjVVAmLvkscZX1SuIJnX4miQiaT0BvxIacO53H
+         vDxAy01NFgKhLRxFGAbKS6wLdwznePsw6z7Lu0ddgQ7lDdkuDBojCDo8iPiNUa9Dia
+         mUtmJJscbIB+J+uLXUo05U3W29tFIt3E4AMtfkJc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Chiu <chiu@endlessm.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 20/48] ALSA: usb-audio: mixer: volume quirk for ESS Technology Asus USB DAC
-Date:   Mon,  1 Jun 2020 19:53:30 +0200
-Message-Id: <20200601173958.447364995@linuxfoundation.org>
+        stable@vger.kernel.org, Andy Lutomirski <luto@kernel.org>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 21/48] exec: Always set cap_ambient in cap_bprm_set_creds
+Date:   Mon,  1 Jun 2020 19:53:31 +0200
+Message-Id: <20200601173958.705938704@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200601173952.175939894@linuxfoundation.org>
 References: <20200601173952.175939894@linuxfoundation.org>
@@ -43,49 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Chiu <chiu@endlessm.com>
+From: Eric W. Biederman <ebiederm@xmission.com>
 
-[ Upstream commit 4020d1ccbe55bdf67b31d718d2400506eaf4b43f ]
+[ Upstream commit a4ae32c71fe90794127b32d26d7ad795813b502e ]
 
-The Asus USB DAC is a USB type-C audio dongle for connecting to
-the headset and headphone. The volume minimum value -23040 which
-is 0xa600 in hexadecimal with the resolution value 1 indicates
-this should be endianness issue caused by the firmware bug. Add
-a volume quirk to fix the volume control problem.
+An invariant of cap_bprm_set_creds is that every field in the new cred
+structure that cap_bprm_set_creds might set, needs to be set every
+time to ensure the fields does not get a stale value.
 
-Also fixes this warning:
-  Warning! Unlikely big volume range (=23040), cval->res is probably wrong.
-  [5] FU [Headset Capture Volume] ch = 1, val = -23040/0/1
-  Warning! Unlikely big volume range (=23040), cval->res is probably wrong.
-  [7] FU [Headset Playback Volume] ch = 1, val = -23040/0/1
+The field cap_ambient is not set every time cap_bprm_set_creds is
+called, which means that if there is a suid or sgid script with an
+interpreter that has neither the suid nor the sgid bits set the
+interpreter should be able to accept ambient credentials.
+Unfortuantely because cap_ambient is not reset to it's original value
+the interpreter can not accept ambient credentials.
 
-Signed-off-by: Chris Chiu <chiu@endlessm.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200526062613.55401-1-chiu@endlessm.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Given that the ambient capability set is expected to be controlled by
+the caller, I don't think this is particularly serious.  But it is
+definitely worth fixing so the code works correctly.
+
+I have tested to verify my reading of the code is correct and the
+interpreter of a sgid can receive ambient capabilities with this
+change and cannot receive ambient capabilities without this change.
+
+Cc: stable@vger.kernel.org
+Cc: Andy Lutomirski <luto@kernel.org>
+Fixes: 58319057b784 ("capabilities: ambient capabilities")
+Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/mixer.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ security/commoncap.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/sound/usb/mixer.c b/sound/usb/mixer.c
-index f191f4a3cf3b..9bbe84ce7d07 100644
---- a/sound/usb/mixer.c
-+++ b/sound/usb/mixer.c
-@@ -979,6 +979,14 @@ static void volume_control_quirks(struct usb_mixer_elem_info *cval,
- 			cval->res = 384;
- 		}
- 		break;
-+	case USB_ID(0x0495, 0x3042): /* ESS Technology Asus USB DAC */
-+		if ((strstr(kctl->id.name, "Playback Volume") != NULL) ||
-+			strstr(kctl->id.name, "Capture Volume") != NULL) {
-+			cval->min >>= 8;
-+			cval->max = 0;
-+			cval->res = 1;
-+		}
-+		break;
- 	}
- }
+diff --git a/security/commoncap.c b/security/commoncap.c
+index 48071ed7c445..b62f97d83fd8 100644
+--- a/security/commoncap.c
++++ b/security/commoncap.c
+@@ -494,6 +494,7 @@ int cap_bprm_set_creds(struct linux_binprm *bprm)
+ 	int ret;
+ 	kuid_t root_uid;
+ 
++	new->cap_ambient = old->cap_ambient;
+ 	if (WARN_ON(!cap_ambient_invariant_ok(old)))
+ 		return -EPERM;
  
 -- 
 2.25.1
