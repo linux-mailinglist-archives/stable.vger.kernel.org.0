@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CC33A1EAB6B
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:17:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB1C81EAAC3
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:12:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731787AbgFASRO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:17:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38266 "EHLO mail.kernel.org"
+        id S1731087AbgFASLO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:11:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58348 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730590AbgFASRN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:17:13 -0400
+        id S1731083AbgFASLO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:11:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C5E0B2065C;
-        Mon,  1 Jun 2020 18:17:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2A4192065C;
+        Mon,  1 Jun 2020 18:11:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591035433;
-        bh=sZZbkn4E+N2Dc4AfsH7MpASgJIO0PRmnyl1Y7PTnAUU=;
+        s=default; t=1591035073;
+        bh=E7aDakkuZGWWh4pMJFm3LJZ8+eRDuhH2vX43lxxfKk8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jg72LHg5wUtuoE3zdqDFEpd7+eNvDkFh8bwr0GNTtiwWLprJxD0ujSCYv3UVphwJL
-         MQ9ymEQjrCS6nwWZmogCGn45HCXJr5lxxMUgXhpxdyEt/0vIAxzcRf2zrR43PjyWd9
-         lDGGUk0ua5/xP2HPt0BxDbe9dhbPvLcOWcNK5wo4=
+        b=ZQX60g8GEgdYpNzt+p4hKY0hYGBBsc5DA3FTOqUHwKbIxQiprRmTDPp8MZfan6TC1
+         kiLqRovoDTJjvs8SFXl+7TZvlAWutzDU9ol2PWTFJ3H4xIWYv18nmCFR+F8E/LFkT4
+         12oQ7NWJl07cvnskb26hi6e2uU9pQG0JRJrb9yf4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
         Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 5.6 156/177] netfilter: conntrack: make conntrack userspace helpers work again
-Date:   Mon,  1 Jun 2020 19:54:54 +0200
-Message-Id: <20200601174101.348908263@linuxfoundation.org>
+Subject: [PATCH 5.4 139/142] netfilter: conntrack: comparison of unsigned in cthelper confirmation
+Date:   Mon,  1 Jun 2020 19:54:57 +0200
+Message-Id: <20200601174052.099624774@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174048.468952319@linuxfoundation.org>
-References: <20200601174048.468952319@linuxfoundation.org>
+In-Reply-To: <20200601174037.904070960@linuxfoundation.org>
+References: <20200601174037.904070960@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,143 +45,34 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-commit ee04805ff54a63ffd90bc6749ebfe73473734ddb upstream.
+commit 94945ad2b330207cded0fd8d4abebde43a776dfb upstream.
 
-Florian Westphal says:
+net/netfilter/nf_conntrack_core.c: In function nf_confirm_cthelper:
+net/netfilter/nf_conntrack_core.c:2117:15: warning: comparison of unsigned expression in < 0 is always false [-Wtype-limits]
+ 2117 |   if (protoff < 0 || (frag_off & htons(~0x7)) != 0)
+      |               ^
 
-"Problem is that after the helper hook was merged back into the confirm
-one, the queueing itself occurs from the confirm hook, i.e. we queue
-from the last netfilter callback in the hook-list.
+ipv6_skip_exthdr() returns a signed integer.
 
-Therefore, on return, the packet bypasses the confirm action and the
-connection is never committed to the main conntrack table.
-
-To fix this there are several ways:
-1. revert the 'Fixes' commit and have a extra helper hook again.
-   Works, but has the drawback of adding another indirect call for
-   everyone.
-
-2. Special case this: split the hooks only when userspace helper
-   gets added, so queueing occurs at a lower priority again,
-   and normal enqueue reinject would eventually call the last hook.
-
-3. Extend the existing nf_queue ct update hook to allow a forced
-   confirmation (plus run the seqadj code).
-
-This goes for 3)."
-
-Fixes: 827318feb69cb ("netfilter: conntrack: remove helper hook again")
-Reviewed-by: Florian Westphal <fw@strlen.de>
+Reported-by: Colin Ian King <colin.king@canonical.com>
+Fixes: 703acd70f249 ("netfilter: nfnetlink_cthelper: unbreak userspace helper support")
 Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/netfilter/nf_conntrack_core.c |   78 +++++++++++++++++++++++++++++++++++---
- 1 file changed, 72 insertions(+), 6 deletions(-)
+ net/netfilter/nf_conntrack_core.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 --- a/net/netfilter/nf_conntrack_core.c
 +++ b/net/netfilter/nf_conntrack_core.c
-@@ -2014,22 +2014,18 @@ static void nf_conntrack_attach(struct s
- 	nf_conntrack_get(skb_nfct(nskb));
- }
- 
--static int nf_conntrack_update(struct net *net, struct sk_buff *skb)
-+static int __nf_conntrack_update(struct net *net, struct sk_buff *skb,
-+				 struct nf_conn *ct)
+@@ -1955,7 +1955,7 @@ static int nf_confirm_cthelper(struct sk
  {
- 	struct nf_conntrack_tuple_hash *h;
- 	struct nf_conntrack_tuple tuple;
- 	enum ip_conntrack_info ctinfo;
- 	struct nf_nat_hook *nat_hook;
- 	unsigned int status;
--	struct nf_conn *ct;
- 	int dataoff;
- 	u16 l3num;
- 	u8 l4num;
+ 	const struct nf_conntrack_helper *helper;
+ 	const struct nf_conn_help *help;
+-	unsigned int protoff;
++	int protoff;
  
--	ct = nf_ct_get(skb, &ctinfo);
--	if (!ct || nf_ct_is_confirmed(ct))
--		return 0;
--
- 	l3num = nf_ct_l3num(ct);
- 
- 	dataoff = get_l4proto(skb, skb_network_offset(skb), l3num, &l4num);
-@@ -2086,6 +2082,76 @@ static int nf_conntrack_update(struct ne
- 	return 0;
- }
- 
-+/* This packet is coming from userspace via nf_queue, complete the packet
-+ * processing after the helper invocation in nf_confirm().
-+ */
-+static int nf_confirm_cthelper(struct sk_buff *skb, struct nf_conn *ct,
-+			       enum ip_conntrack_info ctinfo)
-+{
-+	const struct nf_conntrack_helper *helper;
-+	const struct nf_conn_help *help;
-+	unsigned int protoff;
-+
-+	help = nfct_help(ct);
-+	if (!help)
-+		return 0;
-+
-+	helper = rcu_dereference(help->helper);
-+	if (!(helper->flags & NF_CT_HELPER_F_USERSPACE))
-+		return 0;
-+
-+	switch (nf_ct_l3num(ct)) {
-+	case NFPROTO_IPV4:
-+		protoff = skb_network_offset(skb) + ip_hdrlen(skb);
-+		break;
-+#if IS_ENABLED(CONFIG_IPV6)
-+	case NFPROTO_IPV6: {
-+		__be16 frag_off;
-+		u8 pnum;
-+
-+		pnum = ipv6_hdr(skb)->nexthdr;
-+		protoff = ipv6_skip_exthdr(skb, sizeof(struct ipv6hdr), &pnum,
-+					   &frag_off);
-+		if (protoff < 0 || (frag_off & htons(~0x7)) != 0)
-+			return 0;
-+		break;
-+	}
-+#endif
-+	default:
-+		return 0;
-+	}
-+
-+	if (test_bit(IPS_SEQ_ADJUST_BIT, &ct->status) &&
-+	    !nf_is_loopback_packet(skb)) {
-+		if (!nf_ct_seq_adjust(skb, ct, ctinfo, protoff)) {
-+			NF_CT_STAT_INC_ATOMIC(nf_ct_net(ct), drop);
-+			return -1;
-+		}
-+	}
-+
-+	/* We've seen it coming out the other side: confirm it */
-+	return nf_conntrack_confirm(skb) == NF_DROP ? - 1 : 0;
-+}
-+
-+static int nf_conntrack_update(struct net *net, struct sk_buff *skb)
-+{
-+	enum ip_conntrack_info ctinfo;
-+	struct nf_conn *ct;
-+	int err;
-+
-+	ct = nf_ct_get(skb, &ctinfo);
-+	if (!ct)
-+		return 0;
-+
-+	if (!nf_ct_is_confirmed(ct)) {
-+		err = __nf_conntrack_update(net, skb, ct);
-+		if (err < 0)
-+			return err;
-+	}
-+
-+	return nf_confirm_cthelper(skb, ct, ctinfo);
-+}
-+
- static bool nf_conntrack_get_tuple_skb(struct nf_conntrack_tuple *dst_tuple,
- 				       const struct sk_buff *skb)
- {
+ 	help = nfct_help(ct);
+ 	if (!help)
 
 
