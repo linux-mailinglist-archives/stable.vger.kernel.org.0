@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 66AC11EA241
+	by mail.lfdr.de (Postfix) with ESMTP id D3B561EA242
 	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 12:51:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726901AbgFAKtw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 06:49:52 -0400
-Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:33359 "EHLO
+        id S1725788AbgFAKuG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 06:50:06 -0400
+Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:36573 "EHLO
         forward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726151AbgFAKtt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Jun 2020 06:49:49 -0400
+        by vger.kernel.org with ESMTP id S1725972AbgFAKuB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Jun 2020 06:50:01 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 726271940A6E;
-        Mon,  1 Jun 2020 06:49:48 -0400 (EDT)
+        by mailforward.nyi.internal (Postfix) with ESMTP id 0E5DF19407F8;
+        Mon,  1 Jun 2020 06:49:55 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Mon, 01 Jun 2020 06:49:48 -0400
+  by compute1.internal (MEProxy); Mon, 01 Jun 2020 06:49:55 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=gXN/OZ
-        ZwXdpM2R+iyMNGAdTTsTwndGw9eq7SP89UaI0=; b=o0G7SFBLt6put1NarOAOTj
-        JNHiG8ZeBtZbJG8G1OVVGp0MTgOyZNKcds5VWoJOLNHHS8RUenqWQccLEYKPK1ux
-        31/6T+CetNVrYf9OTDoAUBSPOyghSKVhnYyzVH/v835V4Mpkd/osvIGNpkF2dmJy
-        IOhkuyA1XQSf1hs8cnA13Oa4FJtVWvpbPjP9EaKX+BfsH1EULL4xrBCiI7b3zOHO
-        V51vaeqhKEKPbeVpR5GouRN6l2R1n2DAAGHOwSPtiKS/iusuW8hUjPNDxOF6JW+F
-        Luxe1ZNM+PvvOox6165IH620XeyD7xQP70XCyaxXpnHN4Goh8iVZTcLACc9Lw+wA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=5hoOHP
+        Gve7fD7SuL8KdhkCcpezLuVxaeN9DfkXJmY/s=; b=tlOywLhPTtkCugX3emO2r3
+        Ow+YK3FT7PDfQeVuMRORqrf2T2ZPbWaDIhaS6KwvxC6Pa9yucSA2k3U/EW/W96bx
+        HsdPZzUvcV2Vn8v9t169kXoSgEbu/ivtmoSYh11UTXENJanevJN2H6uw7RmG81Bb
+        XEW54CbQev4xhzUVvWnTGM+5arH/2dhvuvXG/oW8mpKfnYuzhJfuqQDWT3erxwWO
+        t7Kare0QYwsyjZwjEoCgJi77SBqiFthTrnaLzFbObUCoVlRf0wAnO4MSW20vtiOD
+        xDN6caztClAJF3FNfJqemON0q8xbQulqkgW7XaN+CWX3CkDTzuAmSrz7usq7jApA
         ==
-X-ME-Sender: <xms:TN3UXl6175muzApMH6FP1LKw5iGANCJmcgK9pPTkCm_S9hh_9OL7-g>
+X-ME-Sender: <xms:Ut3UXnuIEmDzANZ8m0-mPb-2XL2cNz-QMlS5kvXST3CVP0l5RtHaeA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudefhedgvdeiucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
@@ -35,20 +35,20 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudefhedgvdeiucetufdoteggod
     gheqnecuggftrfgrthhtvghrnhepgfettefhleehvdegteeuudfghfeftddvgedvudefhe
     efhffgteekveelieehkefgnecuffhomhgrihhnpehsuhhsvgdrtghomhdpkhgvrhhnvghl
     rdhorhhgnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushhtvghrufhiiigvpe
-    dtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:TN3UXi7JoOY5FOMTN_za2RZn58U26Fpj9uAi5YUDYI3dyLnV91NTgg>
-    <xmx:TN3UXsdU_fim0kWe8-Qts02xo8-l6ahzTxfb3bdGoPivOGXZJ3M0OQ>
-    <xmx:TN3UXuJOX5ztLxs2_L2xnlDji6XsG6S_d6qmdPskM8bLmSkJBREByg>
-    <xmx:TN3UXuUtct4t5ihnRxOuS7uCAfliKE_l5kao4DVZu5_9YAaVw9SP_Q>
+    dunecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:Ut3UXoe63FHBo6SHD5-xVyR2Gn9s824IDryq1GsKMx0__UM_NLQavw>
+    <xmx:Ut3UXqwNZShwBygGMovRl3O3VRjq9JEde64SHSkSSRQR0RQ9ui274g>
+    <xmx:Ut3UXmPGwgRWSCIjT3OSRMWVQvkIhv68gUR6dggirQuK31pTo_LHoQ>
+    <xmx:U93UXqJnP5BIAJ61IYPdBqdNGD5xgONS4MXmLVH32wt19Bt2SbITrQ>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id D017C328005A;
-        Mon,  1 Jun 2020 06:49:47 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] ALSA: hda/realtek - Add a model for Thinkpad T570 without DAC" failed to apply to 4.9-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id A2C0A328005D;
+        Mon,  1 Jun 2020 06:49:54 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] ALSA: hda/realtek - Add a model for Thinkpad T570 without DAC" failed to apply to 4.14-stable tree
 To:     tiwai@suse.de, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 01 Jun 2020 12:49:44 +0200
-Message-ID: <159100858427231@kroah.com>
+Date:   Mon, 01 Jun 2020 12:49:45 +0200
+Message-ID: <1591008585200237@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -58,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
