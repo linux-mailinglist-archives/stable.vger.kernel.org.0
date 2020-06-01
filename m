@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E94C71EAF17
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:59:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EDF0C1EADAB
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:48:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728097AbgFAS7a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:59:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38508 "EHLO mail.kernel.org"
+        id S1729742AbgFASrB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:47:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54750 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728358AbgFAR5V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 13:57:21 -0400
+        id S1730743AbgFASIf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:08:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AC4CD206E2;
-        Mon,  1 Jun 2020 17:57:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6EE74207D0;
+        Mon,  1 Jun 2020 18:08:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034241;
-        bh=6fU6roTFzC+TA+Ol0XxJWSS2BpufeCtqNSOpSiz+trk=;
+        s=default; t=1591034914;
+        bh=kMZ8z483ON/zTTVEyFoP7XJhnrafJFQO56c/L6OUIsY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TLrTJ8U/ZVn0J7wsM8hHSxBtTUtndeWYwqPBpf/vye7FsfdqpKTdEZZJk/0Wpn+RQ
-         RehXDlkCtoch2obZSM2c118XILB90riNszmUQM6vcclB/psbFoYQstsHeeAqMRVbue
-         sJbdB3Nc5P2pNLpLDZrOAxqNMNQSoPWlfDY14hYI=
+        b=nGpVh3ZrHDk5HNFjAYqpj+Fc2Osvmn4Jax7XNCScxuwvgQsaPsFIH9TP2D5kNpfkx
+         Rf8UDxDsmJ4Sh+q+LwZnRjhUMlY09gw+N6WaNn3uP4PCgCdkeBoD9o+O+y/k2vLR4D
+         CKO9Nd7rmmBq8CRNqw1VYMqhg09C8gF4lOZBRryk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 4.4 38/48] netfilter: nf_conntrack_pptp: fix compilation warning with W=1 build
+        stable@vger.kernel.org, Wei Yongjun <weiyongjun1@huawei.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 070/142] Input: synaptics-rmi4 - fix error return code in rmi_driver_probe()
 Date:   Mon,  1 Jun 2020 19:53:48 +0200
-Message-Id: <20200601174003.198014582@linuxfoundation.org>
+Message-Id: <20200601174045.073010822@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601173952.175939894@linuxfoundation.org>
-References: <20200601173952.175939894@linuxfoundation.org>
+In-Reply-To: <20200601174037.904070960@linuxfoundation.org>
+References: <20200601174037.904070960@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,45 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-commit 4946ea5c1237036155c3b3a24f049fd5f849f8f6 upstream.
+[ Upstream commit 5caab2da63207d6d631007f592f5219459e3454d ]
 
->> include/linux/netfilter/nf_conntrack_pptp.h:13:20: warning: 'const' type qualifier on return type has no effect [-Wignored-qualifiers]
-extern const char *const pptp_msg_name(u_int16_t msg);
-^~~~~~
+Fix to return a negative error code from the input_register_device()
+error handling case instead of 0, as done elsewhere in this function.
 
-Reported-by: kbuild test robot <lkp@intel.com>
-Fixes: 4c559f15efcc ("netfilter: nf_conntrack_pptp: prevent buffer overflows in debug code")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Link: https://lore.kernel.org/r/20200428134948.78343-1-weiyongjun1@huawei.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/netfilter/nf_conntrack_pptp.h |    2 +-
- net/netfilter/nf_conntrack_pptp.c           |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/input/rmi4/rmi_driver.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/include/linux/netfilter/nf_conntrack_pptp.h
-+++ b/include/linux/netfilter/nf_conntrack_pptp.h
-@@ -4,7 +4,7 @@
- 
- #include <linux/netfilter/nf_conntrack_common.h>
- 
--extern const char *const pptp_msg_name(u_int16_t msg);
-+const char *pptp_msg_name(u_int16_t msg);
- 
- /* state of the control session */
- enum pptp_ctrlsess_state {
---- a/net/netfilter/nf_conntrack_pptp.c
-+++ b/net/netfilter/nf_conntrack_pptp.c
-@@ -90,7 +90,7 @@ static const char *const pptp_msg_name_a
- 	[PPTP_SET_LINK_INFO]		= "SET_LINK_INFO"
- };
- 
--const char *const pptp_msg_name(u_int16_t msg)
-+const char *pptp_msg_name(u_int16_t msg)
- {
- 	if (msg > PPTP_MSG_MAX)
- 		return pptp_msg_name_array[0];
+diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
+index c18e1a25bca6..258d5fe3d395 100644
+--- a/drivers/input/rmi4/rmi_driver.c
++++ b/drivers/input/rmi4/rmi_driver.c
+@@ -1210,7 +1210,8 @@ static int rmi_driver_probe(struct device *dev)
+ 	if (data->input) {
+ 		rmi_driver_set_input_name(rmi_dev, data->input);
+ 		if (!rmi_dev->xport->input) {
+-			if (input_register_device(data->input)) {
++			retval = input_register_device(data->input);
++			if (retval) {
+ 				dev_err(dev, "%s: Failed to register input device.\n",
+ 					__func__);
+ 				goto err_destroy_functions;
+-- 
+2.25.1
+
 
 
