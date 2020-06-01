@@ -2,238 +2,388 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4019A1EA0D4
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 11:19:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 23DA01EA117
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 11:41:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727891AbgFAJTJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 05:19:09 -0400
-Received: from mx2.suse.de ([195.135.220.15]:38734 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726383AbgFAJTJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 05:19:09 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx2.suse.de (Postfix) with ESMTP id 430E2AFBB;
-        Mon,  1 Jun 2020 09:19:07 +0000 (UTC)
-Received: by quack2.suse.cz (Postfix, from userid 1000)
-        id DBD061E0508; Mon,  1 Jun 2020 11:19:04 +0200 (CEST)
-From:   Jan Kara <jack@suse.cz>
-To:     <linux-fsdevel@vger.kernel.org>
-Cc:     Ted Tso <tytso@mit.edu>, Martijn Coenen <maco@android.com>,
-        tj@kernel.org, Jan Kara <jack@suse.cz>, stable@vger.kernel.org
-Subject: [PATCH 1/3] writeback: Avoid skipping inode writeback
-Date:   Mon,  1 Jun 2020 11:18:55 +0200
-Message-Id: <20200601091904.4786-1-jack@suse.cz>
-X-Mailer: git-send-email 2.16.4
-In-Reply-To: <20200601091202.31302-1-jack@suse.cz>
-References: <20200601091202.31302-1-jack@suse.cz>
+        id S1725974AbgFAJlP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 05:41:15 -0400
+Received: from us-smtp-2.mimecast.com ([205.139.110.61]:30229 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725831AbgFAJlP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Jun 2020 05:41:15 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1591004472;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=0V7T5lJpw7G7v+AC8Grqj1o/YpqVaAoBnSvX4KOqeC0=;
+        b=hV2RFY+zz6VChwwfhbauGzAm3NDu070UD3Yo1IdrdTDOn1ddcnyoD710PigQZNmKgX9PFR
+        HyCOFNIY9XF+10K4e9fMurc8Il+lcwSs8PWnTXySJINeW3c3dgRLiC611VXP074kILa28T
+        YqMpiq633Fgb5NHieJYsReo5MLTXQPY=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-180-HFEQI8TVNaqEBj1Pmn4Ftw-1; Mon, 01 Jun 2020 05:41:09 -0400
+X-MC-Unique: HFEQI8TVNaqEBj1Pmn4Ftw-1
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 3C2EA91199
+        for <stable@vger.kernel.org>; Mon,  1 Jun 2020 09:41:08 +0000 (UTC)
+Received: from [172.54.105.133] (cpt-1041.paas.prod.upshift.rdu2.redhat.com [10.0.19.38])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 73FBB10013D6;
+        Mon,  1 Jun 2020 09:41:02 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 5.6.15-48bb9b5.cki
+ (stable-queue)
+Date:   Mon, 01 Jun 2020 09:41:02 -0000
+CC:     Ondrej Moris <omoris@redhat.com>,
+        Ondrej Mosnacek <omosnace@redhat.com>,
+        Memory Management <mm-qe@redhat.com>,
+        David Arcari <darcari@redhat.com>
+Message-ID: <cki.1A1912A845.KVOSEBXO9G@redhat.com>
+X-Gitlab-Pipeline-ID: 589346
+X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com/
+X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/589346
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Inode's i_io_list list head is used to attach inode to several different
-lists - wb->{b_dirty, b_dirty_time, b_io, b_more_io}. When flush worker
-prepares a list of inodes to writeback e.g. for sync(2), it moves inodes
-to b_io list. Thus it is critical for sync(2) data integrity guarantees
-that inode is not requeued to any other writeback list when inode is
-queued for processing by flush worker. That's the reason why
-writeback_single_inode() does not touch i_io_list (unless the inode is
-completely clean) and why __mark_inode_dirty() does not touch i_io_list
-if I_SYNC flag is set.
 
-However there are two flaws in the current logic:
+Hello,
 
-1) When inode has only I_DIRTY_TIME set but it is already queued in b_io
-list due to sync(2), concurrent __mark_inode_dirty(inode, I_DIRTY_SYNC)
-can still move inode back to b_dirty list resulting in skipping
-writeback of inode time stamps during sync(2).
+We ran automated tests on a recent commit from this kernel tree:
 
-2) When inode is on b_dirty_time list and writeback_single_inode() races
-with __mark_inode_dirty() like:
+       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/li=
+nux-stable-rc.git
+            Commit: 48bb9b5eed6c - parisc: Fix kernel panic in mem_init()
 
-writeback_single_inode()		__mark_inode_dirty(inode, I_DIRTY_PAGES)
-  inode->i_state |= I_SYNC
-  __writeback_single_inode()
-					  inode->i_state |= I_DIRTY_PAGES;
-					  if (inode->i_state & I_SYNC)
-					    bail
-  if (!(inode->i_state & I_DIRTY_ALL))
-  - not true so nothing done
+The results of these automated tests are provided below.
 
-We end up with I_DIRTY_PAGES inode on b_dirty_time list and thus
-standard background writeback will not writeback this inode leading to
-possible dirty throttling stalls etc. (thanks to Martijn Coenen for this
-analysis).
+    Overall result: PASSED
+             Merge: OK
+           Compile: OK
+             Tests: OK
 
-Fix these problems by tracking whether inode is queued in b_io or
-b_more_io lists in a new I_SYNC_QUEUED flag. When this flag is set, we
-know flush worker has queued inode and we should not touch i_io_list.
-On the other hand we also know that once flush worker is done with the
-inode it will requeue the inode to appropriate dirty list. When
-I_SYNC_QUEUED is not set, __mark_inode_dirty() can (and must) move inode
-to appropriate dirty list.
+All kernel binaries, config files, and logs are available for download here:
 
-Reported-by: Martijn Coenen <maco@android.com>
-Fixes: 0ae45f63d4ef ("vfs: add support for a lazytime mount option")
-CC: stable@vger.kernel.org
-Signed-off-by: Jan Kara <jack@suse.cz>
----
- fs/fs-writeback.c  | 39 +++++++++++++++++++++++++++++----------
- include/linux/fs.h |  8 ++++++--
- 2 files changed, 35 insertions(+), 12 deletions(-)
+  https://cki-artifacts.s3.us-east-2.amazonaws.com/index.html?prefix=3Ddatawa=
+rehouse/2020/06/01/589346
 
-diff --git a/fs/fs-writeback.c b/fs/fs-writeback.c
-index 76ac9c7d32ec..855c6611710a 100644
---- a/fs/fs-writeback.c
-+++ b/fs/fs-writeback.c
-@@ -144,7 +144,9 @@ static void inode_io_list_del_locked(struct inode *inode,
- 				     struct bdi_writeback *wb)
- {
- 	assert_spin_locked(&wb->list_lock);
-+	assert_spin_locked(&inode->i_lock);
- 
-+	inode->i_state &= ~I_SYNC_QUEUED;
- 	list_del_init(&inode->i_io_list);
- 	wb_io_lists_depopulated(wb);
- }
-@@ -1123,7 +1125,9 @@ void inode_io_list_del(struct inode *inode)
- 	struct bdi_writeback *wb;
- 
- 	wb = inode_to_wb_and_lock_list(inode);
-+	spin_lock(&inode->i_lock);
- 	inode_io_list_del_locked(inode, wb);
-+	spin_unlock(&inode->i_lock);
- 	spin_unlock(&wb->list_lock);
- }
- 
-@@ -1172,8 +1176,9 @@ void sb_clear_inode_writeback(struct inode *inode)
-  * the case then the inode must have been redirtied while it was being written
-  * out and we don't reset its dirtied_when.
-  */
--static void redirty_tail(struct inode *inode, struct bdi_writeback *wb)
-+static void __redirty_tail(struct inode *inode, struct bdi_writeback *wb)
- {
-+	assert_spin_locked(&inode->i_lock);
- 	if (!list_empty(&wb->b_dirty)) {
- 		struct inode *tail;
- 
-@@ -1182,6 +1187,14 @@ static void redirty_tail(struct inode *inode, struct bdi_writeback *wb)
- 			inode->dirtied_when = jiffies;
- 	}
- 	inode_io_list_move_locked(inode, wb, &wb->b_dirty);
-+	inode->i_state &= ~I_SYNC_QUEUED;
-+}
-+
-+static void redirty_tail(struct inode *inode, struct bdi_writeback *wb)
-+{
-+	spin_lock(&inode->i_lock);
-+	__redirty_tail(inode, wb);
-+	spin_unlock(&inode->i_lock);
- }
- 
- /*
-@@ -1250,8 +1263,11 @@ static int move_expired_inodes(struct list_head *delaying_queue,
- 			break;
- 		list_move(&inode->i_io_list, &tmp);
- 		moved++;
-+		spin_lock(&inode->i_lock);
- 		if (flags & EXPIRE_DIRTY_ATIME)
--			set_bit(__I_DIRTY_TIME_EXPIRED, &inode->i_state);
-+			inode->i_state |= I_DIRTY_TIME_EXPIRED;
-+		inode->i_state |= I_SYNC_QUEUED;
-+		spin_unlock(&inode->i_lock);
- 		if (sb_is_blkdev_sb(inode->i_sb))
- 			continue;
- 		if (sb && sb != inode->i_sb)
-@@ -1394,7 +1410,7 @@ static void requeue_inode(struct inode *inode, struct bdi_writeback *wb,
- 		 * writeback is not making progress due to locked
- 		 * buffers. Skip this inode for now.
- 		 */
--		redirty_tail(inode, wb);
-+		__redirty_tail(inode, wb);
- 		return;
- 	}
- 
-@@ -1414,7 +1430,7 @@ static void requeue_inode(struct inode *inode, struct bdi_writeback *wb,
- 			 * retrying writeback of the dirty page/inode
- 			 * that cannot be performed immediately.
- 			 */
--			redirty_tail(inode, wb);
-+			__redirty_tail(inode, wb);
- 		}
- 	} else if (inode->i_state & I_DIRTY) {
- 		/*
-@@ -1422,10 +1438,11 @@ static void requeue_inode(struct inode *inode, struct bdi_writeback *wb,
- 		 * such as delayed allocation during submission or metadata
- 		 * updates after data IO completion.
- 		 */
--		redirty_tail(inode, wb);
-+		__redirty_tail(inode, wb);
- 	} else if (inode->i_state & I_DIRTY_TIME) {
- 		inode->dirtied_when = jiffies;
- 		inode_io_list_move_locked(inode, wb, &wb->b_dirty_time);
-+		inode->i_state &= ~I_SYNC_QUEUED;
- 	} else {
- 		/* The inode is clean. Remove from writeback lists. */
- 		inode_io_list_del_locked(inode, wb);
-@@ -1669,8 +1686,9 @@ static long writeback_sb_inodes(struct super_block *sb,
- 		 */
- 		spin_lock(&inode->i_lock);
- 		if (inode->i_state & (I_NEW | I_FREEING | I_WILL_FREE)) {
-+			inode->i_state &= ~I_SYNC_QUEUED;
-+			__redirty_tail(inode, wb);
- 			spin_unlock(&inode->i_lock);
--			redirty_tail(inode, wb);
- 			continue;
- 		}
- 		if ((inode->i_state & I_SYNC) && wbc.sync_mode != WB_SYNC_ALL) {
-@@ -2289,11 +2307,12 @@ void __mark_inode_dirty(struct inode *inode, int flags)
- 		inode->i_state |= flags;
- 
- 		/*
--		 * If the inode is being synced, just update its dirty state.
--		 * The unlocker will place the inode on the appropriate
--		 * superblock list, based upon its state.
-+		 * If the inode is queued for writeback by flush worker, just
-+		 * update its dirty state. Once the flush worker is done with
-+		 * the inode it will place it on the appropriate superblock
-+		 * list, based upon its state.
- 		 */
--		if (inode->i_state & I_SYNC)
-+		if (inode->i_state & I_SYNC_QUEUED)
- 			goto out_unlock_inode;
- 
- 		/*
-diff --git a/include/linux/fs.h b/include/linux/fs.h
-index 45cc10cdf6dd..b02290d19edd 100644
---- a/include/linux/fs.h
-+++ b/include/linux/fs.h
-@@ -2156,6 +2156,10 @@ static inline void kiocb_clone(struct kiocb *kiocb, struct kiocb *kiocb_src,
-  *
-  * I_CREATING		New object's inode in the middle of setting up.
-  *
-+ * I_SYNC_QUEUED	Inode is queued in b_io or b_more_io writeback lists.
-+ *			Used to detect that mark_inode_dirty() should not move
-+ * 			inode between dirty lists.
-+ *
-  * Q: What is the difference between I_WILL_FREE and I_FREEING?
-  */
- #define I_DIRTY_SYNC		(1 << 0)
-@@ -2173,11 +2177,11 @@ static inline void kiocb_clone(struct kiocb *kiocb, struct kiocb *kiocb_src,
- #define I_DIO_WAKEUP		(1 << __I_DIO_WAKEUP)
- #define I_LINKABLE		(1 << 10)
- #define I_DIRTY_TIME		(1 << 11)
--#define __I_DIRTY_TIME_EXPIRED	12
--#define I_DIRTY_TIME_EXPIRED	(1 << __I_DIRTY_TIME_EXPIRED)
-+#define I_DIRTY_TIME_EXPIRED	(1 << 12)
- #define I_WB_SWITCH		(1 << 13)
- #define I_OVL_INUSE		(1 << 14)
- #define I_CREATING		(1 << 15)
-+#define I_SYNC_QUEUED		(1 << 16)
- 
- #define I_DIRTY_INODE (I_DIRTY_SYNC | I_DIRTY_DATASYNC)
- #define I_DIRTY (I_DIRTY_INODE | I_DIRTY_PAGES)
--- 
-2.16.4
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
+
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
+
+Compile testing
+---------------
+
+We compiled the kernel for 4 architectures:
+
+    aarch64:
+      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+    ppc64le:
+      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+    s390x:
+      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+    x86_64:
+      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+
+
+Hardware testing
+----------------
+We booted each kernel and ran the following tests:
+
+  aarch64:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Podman system integration test - as root
+       =E2=9C=85 Podman system integration test - as user
+       =E2=9C=85 LTP
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking: igmp conformance test
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func - local
+       =E2=9C=85 Networking route_func - forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns - transport
+       =E2=9C=85 Networking ipsec: basic netns - tunnel
+       =E2=9C=85 Libkcapi AF_ALG test
+       =E2=9C=85 pciutils: update pci ids test
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 storage: SCSI VPD
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9C=85 jvm - DaCapo Benchmark Suite
+       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
+       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9C=85 Networking firewall: basic netfilter test
+       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
+       =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9C=85 kdump - kexec_boot
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 xfstests - ext4
+       =E2=9C=85 xfstests - xfs
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 storage: software RAID testing
+       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
+       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+
+  ppc64le:
+    Host 1:
+
+       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
+marked
+       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+       This is not the fault of the kernel that was tested.
+
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Boot test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 xfstests - ext4
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 xfstests - xfs
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 selinux-policy: serge-testsuite
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: software RAID testing
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMI driver test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMItool loop stress test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage blktests
+
+    Host 2:
+
+       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
+marked
+       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+       This is not the fault of the kernel that was tested.
+
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Boot test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Podman system integration test - as root
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Podman system integration test - as user
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Loopdev Sanity
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory function: memfd_create
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 AMTU (Abstract Machine Test Utility)
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking bridge: sanity
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Ethernet drivers sanity
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking socket: fuzz
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route: pmtu
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route_func - local
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route_func - forward
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking TCP: keepalive test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking UDP: socket
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: geneve basic test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: gre basic
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 L2TP basic test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: vxlan basic
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking ipsec: basic netns - tunnel
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Libkcapi AF_ALG test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 pciutils: update pci ids test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 ALSA PCM loopback test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 ALSA Control (mixer) Userspace Element test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 jvm - DaCapo Benchmark Suite
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 jvm - jcstress tests
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking firewall: basic ne=
+tfilter test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 audit: audit testsuite test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 trace: ftrace/tracer
+
+    Host 3:
+       =E2=9C=85 Boot test
+       =F0=9F=9A=A7 =E2=9C=85 kdump - sysrq-c
+
+    Host 4:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Podman system integration test - as root
+       =E2=9C=85 Podman system integration test - as user
+       =E2=9C=85 LTP
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func - local
+       =E2=9C=85 Networking route_func - forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns - tunnel
+       =E2=9C=85 Libkcapi AF_ALG test
+       =E2=9C=85 pciutils: update pci ids test
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9C=85 jvm - DaCapo Benchmark Suite
+       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
+       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9C=85 Networking firewall: basic netfilter test
+       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
+       =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
+
+    Host 5:
+       =E2=9C=85 Boot test
+       =E2=9C=85 xfstests - ext4
+       =E2=9C=85 xfstests - xfs
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 storage: software RAID testing
+       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
+       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+
+  s390x:
+    Host 1:
+       =E2=9C=85 Boot test
+       =F0=9F=9A=A7 =E2=9C=85 kdump - sysrq-c
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 stress: stress-ng
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+
+    Host 3:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Podman system integration test - as root
+       =E2=9C=85 Podman system integration test - as user
+       =E2=9C=85 LTP
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func - local
+       =E2=9C=85 Networking route_func - forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns - transport
+       =E2=9C=85 Networking ipsec: basic netns - tunnel
+       =E2=9C=85 Libkcapi AF_ALG test
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9C=85 jvm - DaCapo Benchmark Suite
+       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
+       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9C=85 Networking firewall: basic netfilter test
+       =F0=9F=9A=A7 =E2=9D=8C audit: audit testsuite test
+       =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9C=85 kdump - kexec_boot
+
+  x86_64:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Podman system integration test - as root
+       =E2=9C=85 Podman system integration test - as user
+       =E2=9C=85 LTP
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking: igmp conformance test
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func - local
+       =E2=9C=85 Networking route_func - forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns - transport
+       =E2=9C=85 Networking ipsec: basic netns - tunnel
+       =E2=9C=85 Libkcapi AF_ALG test
+       =E2=9C=85 pciutils: sanity smoke test
+       =E2=9C=85 pciutils: update pci ids test
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 storage: SCSI VPD
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9C=85 jvm - DaCapo Benchmark Suite
+       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
+       =F0=9F=9A=A7 =E2=9D=8C Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9C=85 Networking firewall: basic netfilter test
+       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
+       =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9C=85 kdump - kexec_boot
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 xfstests - ext4
+       =E2=9C=85 xfstests - xfs
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 storage: software RAID testing
+       =E2=9C=85 stress: stress-ng
+       =F0=9F=9A=A7 =E2=9D=8C CPU: Frequency Driver Test
+       =F0=9F=9A=A7 =E2=9C=85 CPU: Idle Test
+       =F0=9F=9A=A7 =E2=9C=85 IOMMU boot test
+       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
+       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+
+    Host 3:
+       =E2=9C=85 Boot test
+       =F0=9F=9A=A7 =E2=9C=85 kdump - sysrq-c
+
+  Test sources: https://github.com/CKI-project/tests-beaker
+    =F0=9F=92=9A Pull requests are welcome for new tests or improvements to e=
+xisting tests!
+
+Aborted tests
+-------------
+Tests that didn't complete running successfully are marked with =E2=9A=A1=E2=
+=9A=A1=E2=9A=A1.
+If this was caused by an infrastructure issue, we try to mark that
+explicitly in the report.
+
+Waived tests
+------------
+If the test run included waived tests, they are marked with =F0=9F=9A=A7. Suc=
+h tests are
+executed but their results are not taken into account. Tests are waived when
+their results are not reliable enough, e.g. when they're just introduced or a=
+re
+being fixed.
+
+Testing timeout
+---------------
+We aim to provide a report within reasonable timeframe. Tests that haven't
+finished running yet are marked with =E2=8F=B1.
 
