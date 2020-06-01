@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 29D291EAA0A
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:05:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F9D21EAA87
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:11:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730207AbgFASE2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:04:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49106 "EHLO mail.kernel.org"
+        id S1729577AbgFASIy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:08:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55106 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730177AbgFASE1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:04:27 -0400
+        id S1730785AbgFASIv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:08:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 805B9207D0;
-        Mon,  1 Jun 2020 18:04:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 258AB2068D;
+        Mon,  1 Jun 2020 18:08:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034667;
-        bh=M1Fe7yGsnThBEbaLs1mNNRD4/sdQ9gHFLRjOaS6lX5o=;
+        s=default; t=1591034930;
+        bh=gM9YRzn3kuFgPVGpApvzadERLBeSrMqro91MQy0ovP8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F4pG9Aqq8SvGnFn5fiqch5XLN6ToltUl+pFZNefHGGaKBSRgow+jRsSRL3dDeG1mB
-         TXr1ZNBhlp9dJK+8B64Q8HF5XAkSOGCb6Gj2PYCNDEkhtubS1Ny/OnosJHNPTICzHT
-         ilSmUTtq/K5Djv2LyyQ2r4q94TAQ9IvCHw/3Oa9U=
+        b=PPdWigsVNB1gOQzXmk0yxrFbuC4fNV3KaNLbMQ/h7eJeZxFGFPfx1GZP3YFQH2SnF
+         JE3wR6W90i/FVf4MHG7lJU7BheBgQTDaa5GS75X3O5f0cBZ99MrT65x42se4l5aXZe
+         HBSYoKvX4EL3nt911NkgsrGFX0PuI/eZ6XeYumXI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peng Hao <richard.peng@oppo.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
+        stable@vger.kernel.org,
+        Dennis YC Hsieh <dennis-yc.hsieh@mediatek.com>,
+        CK Hu <ck.hu@mediatek.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 55/95] mmc: block: Fix use-after-free issue for rpmb
+Subject: [PATCH 5.4 077/142] soc: mediatek: cmdq: return send msg error code
 Date:   Mon,  1 Jun 2020 19:53:55 +0200
-Message-Id: <20200601174029.980447276@linuxfoundation.org>
+Message-Id: <20200601174046.007180577@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174020.759151073@linuxfoundation.org>
-References: <20200601174020.759151073@linuxfoundation.org>
+In-Reply-To: <20200601174037.904070960@linuxfoundation.org>
+References: <20200601174037.904070960@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,38 +46,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peng Hao <richard.peng@oppo.com>
+From: Dennis YC Hsieh <dennis-yc.hsieh@mediatek.com>
 
-[ Upstream commit 202500d21654874aa03243e91f96de153ec61860 ]
+[ Upstream commit 34c4e4072603ff5c174df73b973896abb76cbb51 ]
 
-The data structure member “rpmb->md” was passed to a call of the function
-“mmc_blk_put” after a call of the function “put_device”. Reorder these
-function calls to keep the data accesses consistent.
+Return error code to client if send message fail,
+so that client has chance to error handling.
 
-Fixes: 1c87f7357849 ("mmc: block: Fix bug when removing RPMB chardev ")
-Signed-off-by: Peng Hao <richard.peng@oppo.com>
-Cc: stable@vger.kernel.org
-[Uffe: Fixed up mangled patch and updated commit message]
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Fixes: 576f1b4bc802 ("soc: mediatek: Add Mediatek CMDQ helper")
+Signed-off-by: Dennis YC Hsieh <dennis-yc.hsieh@mediatek.com>
+Reviewed-by: CK Hu <ck.hu@mediatek.com>
+Link: https://lore.kernel.org/r/1583664775-19382-6-git-send-email-dennis-yc.hsieh@mediatek.com
+Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/core/block.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/soc/mediatek/mtk-cmdq-helper.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/mmc/core/block.c b/drivers/mmc/core/block.c
-index 23bcdbba0cab..c723a1e54b18 100644
---- a/drivers/mmc/core/block.c
-+++ b/drivers/mmc/core/block.c
-@@ -2485,8 +2485,8 @@ static int mmc_rpmb_chrdev_release(struct inode *inode, struct file *filp)
- 	struct mmc_rpmb_data *rpmb = container_of(inode->i_cdev,
- 						  struct mmc_rpmb_data, chrdev);
+diff --git a/drivers/soc/mediatek/mtk-cmdq-helper.c b/drivers/soc/mediatek/mtk-cmdq-helper.c
+index 73a852b2f417..34eec26b0c1f 100644
+--- a/drivers/soc/mediatek/mtk-cmdq-helper.c
++++ b/drivers/soc/mediatek/mtk-cmdq-helper.c
+@@ -258,7 +258,9 @@ int cmdq_pkt_flush_async(struct cmdq_pkt *pkt, cmdq_async_flush_cb cb,
+ 		spin_unlock_irqrestore(&client->lock, flags);
+ 	}
  
--	put_device(&rpmb->dev);
- 	mmc_blk_put(rpmb->md);
-+	put_device(&rpmb->dev);
+-	mbox_send_message(client->chan, pkt);
++	err = mbox_send_message(client->chan, pkt);
++	if (err < 0)
++		return err;
+ 	/* We can send next packet immediately, so just call txdone. */
+ 	mbox_client_txdone(client->chan, 0);
  
- 	return 0;
- }
 -- 
 2.25.1
 
