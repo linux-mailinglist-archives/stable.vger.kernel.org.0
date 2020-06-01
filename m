@@ -2,125 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 91F161E9F3A
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 09:28:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 123C41E9FA9
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 09:59:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726076AbgFAH2a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 03:28:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50462 "EHLO
+        id S1726056AbgFAH7A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 03:59:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55170 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726011AbgFAH2a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Jun 2020 03:28:30 -0400
-Received: from mail-lj1-x244.google.com (mail-lj1-x244.google.com [IPv6:2a00:1450:4864:20::244])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCCDFC061A0E;
-        Mon,  1 Jun 2020 00:28:29 -0700 (PDT)
-Received: by mail-lj1-x244.google.com with SMTP id u10so5620941ljj.9;
-        Mon, 01 Jun 2020 00:28:29 -0700 (PDT)
+        with ESMTP id S1725935AbgFAH67 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Jun 2020 03:58:59 -0400
+Received: from mail-oi1-x243.google.com (mail-oi1-x243.google.com [IPv6:2607:f8b0:4864:20::243])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F34AC061A0E
+        for <stable@vger.kernel.org>; Mon,  1 Jun 2020 00:58:59 -0700 (PDT)
+Received: by mail-oi1-x243.google.com with SMTP id c194so3436639oig.5
+        for <stable@vger.kernel.org>; Mon, 01 Jun 2020 00:58:59 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=BBe6T/3LS4JSLNfgPLNajhJmTJr3qtIpazZpi3iyWb8=;
-        b=pG3QomC1RJfQ4wefhmHFJsR2DcluF0w7NrqzmzjFCBDjyhbn8Bm1Qs/nKW+yV4fVWP
-         viOmsoUUjECk+au/UtbO5RFs4fAW7HQZclRm+WoeMHy9ZdOT1Uq3hy91yiI0ZkuN+9Lv
-         Jvaq0NU4BPSCTHtV4gwJujfEDH4xqB/8HpX7VWKwFLGH0THyIxagWgNhUWeqCyWWo4Ic
-         d0mWuoFUkFTmOZ4aEpN9f3p2M+844ry9YeNfcBFm13Q0ncT7hBeAcoZgrSD4j+myALgk
-         BL6Ci/Fw1qIU67pAHk/S0APvRXW5AyyrXkYbu0qrHUt/tDbK66iRdi1WjdaMn/UiH1Wd
-         PUUg==
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=ei08Ycr6GZSiNr+9n84zqRdcJKJVbR7GNLwaBYR1QrQ=;
+        b=Gtp6wrq0yp8ygMQW9hSi3lVaiPJr2WSZ43DQhtQpe7My8sstn0yG4m4pk6Qdcg9tGp
+         siH5lmopy2xZgjfAZv+niR+V7fMJUp1OcFA/jy1wlbEiqPvwcr5ft9u/XKjdl8+UtC6e
+         DjeHAoVblyO1lEZpITaNZ/F3vPteUMXDUpZ46E0aOdzsilpwzQZIK5RiTlQ4HUSCvi3N
+         v3GoAMVCpU1aiOPTzDycnsdELxRe2gg392Db1bIt66X+Fvgl0nimkeNQScEokDsP43kZ
+         /oj+Yw2Z6SRYSqn4ycvksplUaI+NCXjtB4Uuar7yneScoQbhIBBlrkSJljef4a/xIeJ8
+         3MnQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=BBe6T/3LS4JSLNfgPLNajhJmTJr3qtIpazZpi3iyWb8=;
-        b=j4uxxPXbWQfnNK5KhvwyModlqSdv8h8WLIsU8Z+hNKBDpQFsIEkGDI8OslFMFMpmfR
-         ueFs2s1W+k8MvKo0/Ut+XMeyc1CwX3zm9H0p76UaAX7ZwqSXB64Iq3doWJqRvNqWVtyt
-         UK/DzKI3FREEi++58DgbSj4KoVszGKGxDlOxcPzT0tJhoWzh4fkoXRmt8fDb17x+DHYI
-         8zZTFjrQWbV2dxR2OR7z2HX2t4juh1N1rQc8jyJX/Vsq/K5RwotikB5nlbgz0UbcpZuR
-         Vs2wWiI1UVfR+szN5thO1uWg1FcTzdfRCc+WDjmP/IPYgg5oVWjdF/uUH2niNxErgAgF
-         TgdQ==
-X-Gm-Message-State: AOAM532aOsaeQGv+ZwcQA1z/yXDvOXnBwl2MaMiOvtHaxOTyww+Fyyw/
-        Ui0SoDcMLuf04abFyXX5G0gpGOIEFOiDIfD06kpOwhsL
-X-Google-Smtp-Source: ABdhPJxHuJXB6Vn99Phe2TsgG6tcoUL6B/cEvgbi4CzCvlGLlZSYpicDYyOy/nYAXwxOdZuspbFik0jB6Fzn4xxehFY=
-X-Received: by 2002:a2e:581a:: with SMTP id m26mr787094ljb.0.1590996508261;
- Mon, 01 Jun 2020 00:28:28 -0700 (PDT)
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=ei08Ycr6GZSiNr+9n84zqRdcJKJVbR7GNLwaBYR1QrQ=;
+        b=rDeHCkrmq7y4ArPXM/IYyriRXP4vVnTD06RLKap91EfIBUbx2VWjP435LEGMg/zZIc
+         GvHTUvzcH48XMH8Pb0PUItSbb+bkZKtjjjE3g3T/8DR53g/ZdXlL8nwP8A88Hk/cqGd0
+         6bHAvWm9PZMx8xqhUNrY8E4g1T6XjqyWb6JEw1P4u1ElCPWtZM42pJT1JonClMsGtvOW
+         gMCqbW864M/tzHiqL85yZU62FZbWxDYCOHzSOQIrb4RPPEWeizTXr+FbZ+9r1HypZmFl
+         ff2VK+dkrdqwcNLgCXXfdHK3sFR4a09J8dPi7iKWEFAErmy5lupAniInz4qCiBDsz6FO
+         O0dw==
+X-Gm-Message-State: AOAM531PQ4nnc/pdpDFHNFX1m9TK6OthCFwYEEJGEwLwu2SzPaz/ZZ/X
+        dodUdKKPdB/j6vLsKB+apMSnqnNUW6xh+pXlmB4=
+X-Google-Smtp-Source: ABdhPJz19U3wojBYf5REjxnbrN4c2wMxE9zBKbk+zA8olLBjpnMxwOA8IxQrUOroWaZPIxsFljPDWoqf4j8ZvFsCy0k=
+X-Received: by 2002:aca:d510:: with SMTP id m16mr5212956oig.13.1590998339069;
+ Mon, 01 Jun 2020 00:58:59 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200601050656.826296-1-anup.patel@wdc.com>
-In-Reply-To: <20200601050656.826296-1-anup.patel@wdc.com>
-From:   Zong Li <zongbox@gmail.com>
-Date:   Mon, 1 Jun 2020 15:28:19 +0800
-Message-ID: <CA+ZOyaixYnRkYGz8LpPdgx7P6s=ZxcXvJh=EUwq9BoY2zxO_=g@mail.gmail.com>
-Subject: Re: [PATCH v2] RISC-V: Don't mark init section as non-executable
-To:     Anup Patel <anup.patel@wdc.com>
-Cc:     Palmer Dabbelt <palmer@dabbelt.com>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Anup Patel <anup@brainfault.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        stable@vger.kernel.org, Atish Patra <atish.patra@wdc.com>,
-        Alistair Francis <Alistair.Francis@wdc.com>,
-        linux-riscv <linux-riscv@lists.infradead.org>
+Received: by 2002:a05:6830:1ad0:0:0:0:0 with HTTP; Mon, 1 Jun 2020 00:58:58
+ -0700 (PDT)
+Reply-To: nelsonbile6@gmail.com
+From:   Nelson Bile <shayelynnehaver4@gmail.com>
+Date:   Mon, 1 Jun 2020 15:58:58 +0800
+Message-ID: <CABBr5WDgdavYBYWxfcR_9QKy4CvbB6M1y+ae4X2Tzi1VnzDTwg@mail.gmail.com>
+Subject: 
+To:     undisclosed-recipients:;
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Anup Patel <anup.patel@wdc.com> =E6=96=BC 2020=E5=B9=B46=E6=9C=881=E6=97=A5=
- =E9=80=B1=E4=B8=80 =E4=B8=8B=E5=8D=881:07=E5=AF=AB=E9=81=93=EF=BC=9A
->
-> The head text section (i.e. _start, secondary_start_sbi, etc) and the
-> init section fall under same page table level-1 mapping.
->
-> Currently, the runtime CPU hotplug is broken because we are marking
-> init section as non-executable which in-turn marks head text section
-> as non-executable.
->
-> Further investigating other architectures, it seems marking the init
-> section as non-executable is redundant because the init section pages
-> are anyway poisoned and freed.
->
-> To fix broken runtime CPU hotplug, we simply remove the code marking
-> the init section as non-executable.
->
-> Fixes: d27c3c90817e ("riscv: add STRICT_KERNEL_RWX support")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Anup Patel <anup.patel@wdc.com>
-> ---
-> Changes since v1:
->  - Updated free_initmem() is same as generic free_initmem() defined in
->    init/main.c so we completely remove free_initmem() from arch/riscv
-> ---
->  arch/riscv/mm/init.c | 11 -----------
->  1 file changed, 11 deletions(-)
->
-> diff --git a/arch/riscv/mm/init.c b/arch/riscv/mm/init.c
-> index 736de6c8739f..fdc772f57edc 100644
-> --- a/arch/riscv/mm/init.c
-> +++ b/arch/riscv/mm/init.c
-> @@ -479,17 +479,6 @@ static void __init setup_vm_final(void)
->         csr_write(CSR_SATP, PFN_DOWN(__pa_symbol(swapper_pg_dir)) | SATP_=
-MODE);
->         local_flush_tlb_all();
->  }
-> -
-> -void free_initmem(void)
-> -{
-> -       unsigned long init_begin =3D (unsigned long)__init_begin;
-> -       unsigned long init_end =3D (unsigned long)__init_end;
-> -
-> -       /* Make the region as non-execuatble. */
-> -       set_memory_nx(init_begin, (init_end - init_begin) >> PAGE_SHIFT);
-> -       free_initmem_default(POISON_FREE_INITMEM);
-> -}
-> -
->  #else
->  asmlinkage void __init setup_vm(uintptr_t dtb_pa)
->  {
-> --
-> 2.25.1
->
->
-
-It looks good to me.
-Reviewed-by: Zong Li <zong.li@sifive.com>
+Greetings my dear i sent you an email few days ago,did you receive my
+message? urgent response please.
