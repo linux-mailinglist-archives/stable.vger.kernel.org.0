@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C1551EADB0
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:48:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 96A2D1EAEB5
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:56:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729910AbgFASr2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:47:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54284 "EHLO mail.kernel.org"
+        id S1729604AbgFASAf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:00:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43302 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730693AbgFASIM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:08:12 -0400
+        id S1729118AbgFASAf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:00:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E47EB2077D;
-        Mon,  1 Jun 2020 18:08:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C609B2065C;
+        Mon,  1 Jun 2020 18:00:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034892;
-        bh=gMXF4fl4Dkfvmlk//jveDXjQXmPi/EG1P1zpQCrRKb4=;
+        s=default; t=1591034434;
+        bh=fBZvDbLjHpbUJL2gKLdLwRD4VPHSZY8vhp3Jox947ek=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=masTlWTpVAAIP7fNw0JIOry7/Dq2Uf5hEXDgWtr/nbyC8ZjAhnKpkCQSQeqe0K+Sm
-         chaKKbAnHjTqASfWHZ7tXqeEsA/w+v23FyH88pRdv80CAUcaB3bFYzVBwLYhyHvfjk
-         zqKf8sRkFiJHISzvGLwG8JplG7xvGfQkL8ZWiTQE=
+        b=txeKoefR3HBvGZfXS/xjSn/S1jlIeAjA34pWUcX0+yOR1z6HAW4VZOlc6j2Q1+bB9
+         Jf80Jj1eC3XCmR71cEGOuMU7wqlp36okopjORffULK951Do2um3JweVSZdS+PZeZVd
+         Z7GptCi9rug3SeJfVfxzlYuPLFKuXZEKCm6JFbxM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liu Yibin <jiulong@linux.alibaba.com>,
-        Guo Ren <guoren@linux.alibaba.com>,
+        stable@vger.kernel.org, Evan Green <evgreen@chromium.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 057/142] csky: Fixup remove duplicate irq_disable
+Subject: [PATCH 4.14 30/77] Input: synaptics-rmi4 - really fix attn_data use-after-free
 Date:   Mon,  1 Jun 2020 19:53:35 +0200
-Message-Id: <20200601174043.854249061@linuxfoundation.org>
+Message-Id: <20200601174022.046583793@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174037.904070960@linuxfoundation.org>
-References: <20200601174037.904070960@linuxfoundation.org>
+In-Reply-To: <20200601174016.396817032@linuxfoundation.org>
+References: <20200601174016.396817032@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,34 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liu Yibin <jiulong@linux.alibaba.com>
+From: Evan Green <evgreen@chromium.org>
 
-[ Upstream commit 6633a5aa8eb6bda70eb3a9837efd28a67ccc6e0a ]
+[ Upstream commit d5a5e5b5fa7b86c05bf073acc0ba98fa280174ec ]
 
-Interrupt has been disabled in __schedule() with local_irq_disable()
-and enabled in finish_task_switch->finish_lock_switch() with
-local_irq_enabled(), So needn't to disable irq here.
+Fix a use-after-free noticed by running with KASAN enabled. If
+rmi_irq_fn() is run twice in a row, then rmi_f11_attention() (among
+others) will end up reading from drvdata->attn_data.data, which was
+freed and left dangling in rmi_irq_fn().
 
-Signed-off-by: Liu Yibin <jiulong@linux.alibaba.com>
-Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+Commit 55edde9fff1a ("Input: synaptics-rmi4 - prevent UAF reported by
+KASAN") correctly identified and analyzed this bug. However the attempted
+fix only NULLed out a local variable, missing the fact that
+drvdata->attn_data is a struct, not a pointer.
+
+NULL out the correct pointer in the driver data to prevent the attention
+functions from copying from it.
+
+Fixes: 55edde9fff1a ("Input: synaptics-rmi4 - prevent UAF reported by KASAN")
+Fixes: b908d3cd812a ("Input: synaptics-rmi4 - allow to add attention data")
+Signed-off-by: Evan Green <evgreen@chromium.org>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20200427145537.1.Ic8f898e0147beeee2c005ee7b20f1aebdef1e7eb@changeid
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/csky/kernel/entry.S | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/input/rmi4/rmi_driver.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/csky/kernel/entry.S b/arch/csky/kernel/entry.S
-index a7a5b67df898..65c55f22532a 100644
---- a/arch/csky/kernel/entry.S
-+++ b/arch/csky/kernel/entry.S
-@@ -318,8 +318,6 @@ ENTRY(__switch_to)
+diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
+index 997ccae7ee05..633fd0d660c1 100644
+--- a/drivers/input/rmi4/rmi_driver.c
++++ b/drivers/input/rmi4/rmi_driver.c
+@@ -232,7 +232,7 @@ static irqreturn_t rmi_irq_fn(int irq, void *dev_id)
  
- 	mfcr	a2, psr			/* Save PSR value */
- 	stw	a2, (a3, THREAD_SR)	/* Save PSR in task struct */
--	bclri	a2, 6			/* Disable interrupts */
--	mtcr	a2, psr
+ 	if (count) {
+ 		kfree(attn_data.data);
+-		attn_data.data = NULL;
++		drvdata->attn_data.data = NULL;
+ 	}
  
- 	SAVE_SWITCH_STACK
- 
+ 	if (!kfifo_is_empty(&drvdata->attn_fifo))
 -- 
 2.25.1
 
