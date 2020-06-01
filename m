@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C030A1EAAA6
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:11:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 09B8A1EAA7E
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:11:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730000AbgFASKJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:10:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56612 "EHLO mail.kernel.org"
+        id S1730742AbgFASIf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:08:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54716 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728991AbgFASKC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:10:02 -0400
+        id S1729123AbgFASId (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:08:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8890C2068D;
-        Mon,  1 Jun 2020 18:10:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 32DED2068D;
+        Mon,  1 Jun 2020 18:08:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591035002;
-        bh=+HWOD6oJo8RJaqpjSPos9B12MMF2A7CC0NCmDCWJuE0=;
+        s=default; t=1591034912;
+        bh=9/zpqtvcvi/aDsfbxPRxBceob0fFvjcGLgPlCn/Du6Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nx62PiVBqTlvLo2qpA1xYvRfMX3gQA/gNvBBcmostL4QIYIjpIN1Z2urAcw1mDVFp
-         mW+lunSoow+nl7mNv4nGOtI4GYEWXihozmshhzrKUykpHuLSpNcs2tw7WNXSWivedR
-         jTMoTiYkNWGsHLXiH7UU0/zX9ggPcMVIhkpb2JxQ=
+        b=wvBbhTa09a2V8w/cAgE63CFw8OZP9cUrPMn698A48kt2Ylg8cleNStfbdv8uyyGSj
+         Povifxa2Wpvp7EMpSSPQGm0FzBlzbBJy+mv8X4AHNT4opdofPahCg0CKK6nY6UfsQ4
+         9vqDNyNyxX5uB0JUQpC2fMRVe9TW2LBoR8M8p/sg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kevin Locke <kevin@kevinlocke.name>,
+        stable@vger.kernel.org, Evan Green <evgreen@chromium.org>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 068/142] Input: i8042 - add ThinkPad S230u to i8042 reset list
-Date:   Mon,  1 Jun 2020 19:53:46 +0200
-Message-Id: <20200601174044.878619529@linuxfoundation.org>
+Subject: [PATCH 5.4 069/142] Input: synaptics-rmi4 - really fix attn_data use-after-free
+Date:   Mon,  1 Jun 2020 19:53:47 +0200
+Message-Id: <20200601174044.968778830@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200601174037.904070960@linuxfoundation.org>
 References: <20200601174037.904070960@linuxfoundation.org>
@@ -44,58 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kevin Locke <kevin@kevinlocke.name>
+From: Evan Green <evgreen@chromium.org>
 
-[ Upstream commit 2712c91a54a1058d55c284152b4d93c979b67be6 ]
+[ Upstream commit d5a5e5b5fa7b86c05bf073acc0ba98fa280174ec ]
 
-On the Lenovo ThinkPad Twist S230u (3347-4HU) with BIOS version
-"GDETC1WW (1.81 ) 06/27/2019", the keyboard, Synaptics TouchPad, and
-TrackPoint either do not function or stop functioning a few minutes
-after boot.  This problem has been noted before, perhaps only occurring
-with BIOS 1.57 and later.[1][2][3][4][5]
+Fix a use-after-free noticed by running with KASAN enabled. If
+rmi_irq_fn() is run twice in a row, then rmi_f11_attention() (among
+others) will end up reading from drvdata->attn_data.data, which was
+freed and left dangling in rmi_irq_fn().
 
-Odds of a BIOS fix appear to be low: 1.57 was released over 6 years ago
-and although the [BIOS changelog] notes "Fixed an issue of UEFI
-touchpad/trackpoint/keyboard/touchscreen" in 1.58, it appears to be
-insufficient.
+Commit 55edde9fff1a ("Input: synaptics-rmi4 - prevent UAF reported by
+KASAN") correctly identified and analyzed this bug. However the attempted
+fix only NULLed out a local variable, missing the fact that
+drvdata->attn_data is a struct, not a pointer.
 
-Setting i8042.reset=1 or adding 33474HU to the reset list avoids the
-issue on my system from either warm or cold boot.
+NULL out the correct pointer in the driver data to prevent the attention
+functions from copying from it.
 
-[1]: https://bugs.launchpad.net/bugs/1210748
-[2]: https://bbs.archlinux.org/viewtopic.php?pid=1360425
-[3]: https://forums.linuxmint.com/viewtopic.php?f=46&t=41200
-[4]: https://forums.linuxmint.com/viewtopic.php?f=49&t=157115
-[5]: https://forums.lenovo.com/topic/findpost/27/1337119
-[BIOS changelog]: https://download.lenovo.com/pccbbs/mobiles/gduj33uc.txt
-
-Signed-off-by: Kevin Locke <kevin@kevinlocke.name>
+Fixes: 55edde9fff1a ("Input: synaptics-rmi4 - prevent UAF reported by KASAN")
+Fixes: b908d3cd812a ("Input: synaptics-rmi4 - allow to add attention data")
+Signed-off-by: Evan Green <evgreen@chromium.org>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/94f384b0f75f90f71425d7dce7ac82c59ddb87a8.1587702636.git.kevin@kevinlocke.name
+Link: https://lore.kernel.org/r/20200427145537.1.Ic8f898e0147beeee2c005ee7b20f1aebdef1e7eb@changeid
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/serio/i8042-x86ia64io.h | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/input/rmi4/rmi_driver.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
-index 5bbc9152731d..c47800176534 100644
---- a/drivers/input/serio/i8042-x86ia64io.h
-+++ b/drivers/input/serio/i8042-x86ia64io.h
-@@ -669,6 +669,13 @@ static const struct dmi_system_id __initconst i8042_dmi_reset_table[] = {
- 			DMI_MATCH(DMI_PRODUCT_NAME, "P65xRP"),
- 		},
- 	},
-+	{
-+		/* Lenovo ThinkPad Twist S230u */
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "33474HU"),
-+		},
-+	},
- 	{ }
- };
+diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
+index 190b9974526b..c18e1a25bca6 100644
+--- a/drivers/input/rmi4/rmi_driver.c
++++ b/drivers/input/rmi4/rmi_driver.c
+@@ -205,7 +205,7 @@ static irqreturn_t rmi_irq_fn(int irq, void *dev_id)
  
+ 	if (count) {
+ 		kfree(attn_data.data);
+-		attn_data.data = NULL;
++		drvdata->attn_data.data = NULL;
+ 	}
+ 
+ 	if (!kfifo_is_empty(&drvdata->attn_fifo))
 -- 
 2.25.1
 
