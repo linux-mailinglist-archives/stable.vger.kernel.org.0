@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BEA21EA8EB
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 19:57:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71BC91EA8EF
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 19:58:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728825AbgFAR5K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 13:57:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38080 "EHLO mail.kernel.org"
+        id S1728882AbgFAR5T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 13:57:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38386 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728841AbgFAR5I (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 13:57:08 -0400
+        id S1728878AbgFAR5R (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 13:57:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3603A2076B;
-        Mon,  1 Jun 2020 17:57:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 312312074B;
+        Mon,  1 Jun 2020 17:57:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034227;
-        bh=ehOoFKpAgqAUWFOKBYLRoV4KD26jKHw9qA5kmd73qLs=;
+        s=default; t=1591034236;
+        bh=xC9hJYuRSl5pnTM9TMOSwz7SgPWF7neADVLAEPjyJ74=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0Un4upDz/zXwkd3/k0gWutBD26xiOF0QPcpcXvzUztA1Vc0owe6u75z52BOZTD36L
-         cpfhPl4jPK0zvGuMdB92vJk5fYKID3zWq0on2Bk6+iFsrxOV6bha+0MMKZQppW5UtC
-         NLitvWiyPRPaWWHDOMq07o28CxsKv0iJhJCY3mJ0=
+        b=2bG2XFOg6h8VrS8wkhsvI3KYiMvxWE8REdev2r3cv50fGHX3MwjhNaGqFGa9zen9i
+         nUIOUaEBL4qTyItX5FLDJEHK66bc7DNStTP7ADYFr+246VN9Oa/pDp84PdicQd1Ez5
+         5m5d7I7JuscZjJPbuiOCbdz1Tdh75olT2wiJdADk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Braun <michael-dev@fami-braun.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 4.4 32/48] netfilter: nft_reject_bridge: enable reject with bridge vlan
-Date:   Mon,  1 Jun 2020 19:53:42 +0200
-Message-Id: <20200601174002.056829859@linuxfoundation.org>
+        stable@vger.kernel.org, Qiushi Wu <wu000273@umn.edu>,
+        Jay Vosburgh <jay.vosburgh@canonical.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.4 36/48] bonding: Fix reference count leak in bond_sysfs_slave_add.
+Date:   Mon,  1 Jun 2020 19:53:46 +0200
+Message-Id: <20200601174002.860442296@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200601173952.175939894@linuxfoundation.org>
 References: <20200601173952.175939894@linuxfoundation.org>
@@ -43,38 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Braun <michael-dev@fami-braun.de>
+From: Qiushi Wu <wu000273@umn.edu>
 
-commit e9c284ec4b41c827f4369973d2792992849e4fa5 upstream.
+commit a068aab42258e25094bc2c159948d263ed7d7a77 upstream.
 
-Currently, using the bridge reject target with tagged packets
-results in untagged packets being sent back.
+kobject_init_and_add() takes reference even when it fails.
+If this function returns an error, kobject_put() must be called to
+properly clean up the memory associated with the object. Previous
+commit "b8eb718348b8" fixed a similar problem.
 
-Fix this by mirroring the vlan id as well.
-
-Fixes: 85f5b3086a04 ("netfilter: bridge: add reject support")
-Signed-off-by: Michael Braun <michael-dev@fami-braun.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: 07699f9a7c8d ("bonding: add sysfs /slave dir for bond slave devices.")
+Signed-off-by: Qiushi Wu <wu000273@umn.edu>
+Acked-by: Jay Vosburgh <jay.vosburgh@canonical.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/bridge/netfilter/nft_reject_bridge.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/net/bonding/bond_sysfs_slave.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/net/bridge/netfilter/nft_reject_bridge.c
-+++ b/net/bridge/netfilter/nft_reject_bridge.c
-@@ -35,6 +35,12 @@ static void nft_reject_br_push_etherhdr(
- 	ether_addr_copy(eth->h_dest, eth_hdr(oldskb)->h_source);
- 	eth->h_proto = eth_hdr(oldskb)->h_proto;
- 	skb_pull(nskb, ETH_HLEN);
-+
-+	if (skb_vlan_tag_present(oldskb)) {
-+		u16 vid = skb_vlan_tag_get(oldskb);
-+
-+		__vlan_hwaccel_put_tag(nskb, oldskb->vlan_proto, vid);
-+	}
- }
+--- a/drivers/net/bonding/bond_sysfs_slave.c
++++ b/drivers/net/bonding/bond_sysfs_slave.c
+@@ -153,8 +153,10 @@ int bond_sysfs_slave_add(struct slave *s
  
- /* We cannot use oldskb->dev, it can be either bridge device (NF_BRIDGE INPUT)
+ 	err = kobject_init_and_add(&slave->kobj, &slave_ktype,
+ 				   &(slave->dev->dev.kobj), "bonding_slave");
+-	if (err)
++	if (err) {
++		kobject_put(&slave->kobj);
+ 		return err;
++	}
+ 
+ 	for (a = slave_attrs; *a; ++a) {
+ 		err = sysfs_create_file(&slave->kobj, &((*a)->attr));
 
 
