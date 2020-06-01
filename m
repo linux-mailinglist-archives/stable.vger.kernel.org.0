@@ -2,34 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 59C371EA8F1
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 19:58:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1727B1EA8E1
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 19:57:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728889AbgFAR5U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 13:57:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38456 "EHLO mail.kernel.org"
+        id S1728720AbgFAR4s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 13:56:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37516 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728884AbgFAR5T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 13:57:19 -0400
+        id S1728718AbgFAR4s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 13:56:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6DB552076B;
-        Mon,  1 Jun 2020 17:57:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E8C4220776;
+        Mon,  1 Jun 2020 17:56:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034238;
-        bh=xe0N+7sYbFtwojUydJ8S15eOlZCR8+wuTi/LeGmYtAE=;
+        s=default; t=1591034207;
+        bh=dc9czzCLAvBGNJXwWXxQ6EERhg0N39WPZaP1WBZlugQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=unJLlDDNnGzFa2VeegPjbLDhx0hn+tPatmHwOTTtPmua8aW4I94UjCbu/cIhB3UDg
-         PY06q6BCCvL7QTbsISi+8bhkKApt3ZedPvoFN8ecYQfT+DcVCgvdcs6TGtMerekjqT
-         cHw/kMdB5Jc00HfwOJRVHX8z4VSl245MG7XOq5EU=
+        b=Sx0aZs0Fsx+MyWASjB1g/i7m5HKiq98jCI4SSxjAvWxnOQvNGLdy0vZuwiB09Dtss
+         MHKon7qotHht8u0cWwYRcUnYvsv6Roh9Wc2h+dwvw6R84XVmECjly+ismlneSIkJsX
+         psv+wiRV6VwHzD0FrrW9b6q7L6/Ogw4yFtmAQ560=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org
-Subject: [PATCH 4.4 37/48] Revert "Input: i8042 - add ThinkPad S230u to i8042 nomux list"
-Date:   Mon,  1 Jun 2020 19:53:47 +0200
-Message-Id: <20200601174002.998935723@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Matt Roper <matthew.d.roper@intel.com>,
+        Xuebing Chen <chenxb_99091@126.com>
+Subject: [PATCH 4.4 40/48] drm/fb-helper: Use proper plane mask for fb cleanup
+Date:   Mon,  1 Jun 2020 19:53:50 +0200
+Message-Id: <20200601174003.543518078@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200601173952.175939894@linuxfoundation.org>
 References: <20200601173952.175939894@linuxfoundation.org>
@@ -42,41 +46,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Matt Roper <matthew.d.roper@intel.com>
 
-commit f4dec2d6160976b14e54be9c3950ce0f52385741 upstream.
+commit 7118fd9bd975a9f3093239d4c0f4e15356b57fab upstream.
 
-This reverts commit 18931506465a762ffd3f4803d36a18d336a67da9. From Kevin
-Locke:
+pan_display_atomic() calls drm_atomic_clean_old_fb() to sanitize the
+legacy FB fields (plane->fb and plane->old_fb).  However it was building
+the plane mask to pass to this function incorrectly (the bitwise OR was
+using plane indices rather than plane masks).  The end result was that
+sometimes the legacy pointers would become out of sync with the atomic
+pointers.  If another operation tried to re-set the same FB onto the
+plane, we might end up with the pointers back in sync, but improper
+reference counts, which would eventually lead to system crashes when we
+accessed a pointer to a prematurely-destroyed FB.
 
-"... nomux only appeared to fix the issue because the controller
-continued working after warm reboots. After more thorough testing from
-both warm and cold start, I now believe the entry should be added to
-i8042_dmi_reset_table rather than i8042_dmi_nomux_table as i8042.reset=1
-alone is sufficient to avoid the issue from both states while
-i8042.nomux is not."
+The cause here was a very subtle bug introduced in commit:
 
+        commit 07d3bad6c1210bd21e85d084807ef4ee4ac43a78
+        Author: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+        Date:   Wed Nov 11 11:29:11 2015 +0100
+
+            drm/core: Fix old_fb handling in pan_display_atomic.
+
+I found the crashes were most easily reproduced (on i915 at least) by
+starting X and then VT switching to a VT that wasn't running a console
+instance...the sequence of vt/fbcon entries that happen in that case
+trigger a reference count mismatch and crash the system.
+
+Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=93313
+Signed-off-by: Matt Roper <matthew.d.roper@intel.com>
+Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Signed-off-by: Xuebing Chen <chenxb_99091@126.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/input/serio/i8042-x86ia64io.h |    7 -------
- 1 file changed, 7 deletions(-)
+ drivers/gpu/drm/drm_fb_helper.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/input/serio/i8042-x86ia64io.h
-+++ b/drivers/input/serio/i8042-x86ia64io.h
-@@ -545,13 +545,6 @@ static const struct dmi_system_id __init
- 			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire 5738"),
- 		},
- 	},
--	{
--		/* Lenovo ThinkPad Twist S230u */
--		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "33474HU"),
--		},
--	},
- 	{ }
- };
+--- a/drivers/gpu/drm/drm_fb_helper.c
++++ b/drivers/gpu/drm/drm_fb_helper.c
+@@ -1256,7 +1256,7 @@ retry:
+ 			goto fail;
+ 
+ 		plane = mode_set->crtc->primary;
+-		plane_mask |= drm_plane_index(plane);
++		plane_mask |= (1 << drm_plane_index(plane));
+ 		plane->old_fb = plane->fb;
+ 	}
  
 
 
