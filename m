@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 76A6C1EAA97
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:11:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 50D101EA9CF
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:05:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729654AbgFASJ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:09:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55864 "EHLO mail.kernel.org"
+        id S1729945AbgFASCc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:02:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45648 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730865AbgFASJ1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:09:27 -0400
+        id S1729941AbgFASCb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:02:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 399DA206E2;
-        Mon,  1 Jun 2020 18:09:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 15CAE206E2;
+        Mon,  1 Jun 2020 18:02:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034966;
-        bh=Y/PQsvmcP7ojJNDQ/LzfHMFXOeqcGVLKs741dczTlTk=;
+        s=default; t=1591034550;
+        bh=5aO1MkiPsoZHL3Mh8v38hTldgDEBiyOrhHeqKbC4kKI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WFvP/qYLRz0hT5nrOmDBAlG6SAwmwo5jyXdTysRvHlvCaPI3vgYvW3ezKD1Uph0my
-         Rm1ysLK5YdLYl0ooZAqPrUpC0iVntXMpjpRlw/pXWxpVI+kXofJ7s3ZvzTv1q6RYS2
-         lIk+f9zl/Rmo55V9xVKynUAAGNp5f/WPZppFZZtk=
+        b=o4sc1TBDkzEijOqgXQxM7pZr8zY1MZjU1DrHB6Xhpn7LYsC1uwhoVtKfnRAnB+cU1
+         VBDuOPppVVDCcA+OS9x6NUnR8jAcWP8cyG/jI8hejCZ1gYtrRU9HUr+XE7jJHBaKt2
+         3mDS7/IrUZwiX4vqUIViYG38kz6F55BEwHx107vU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jonathan Marek <jonathan@marek.ca>,
-        Vinod Koul <vkoul@kernel.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 091/142] clk: qcom: gcc: Fix parent for gpll0_out_even
-Date:   Mon,  1 Jun 2020 19:54:09 +0200
-Message-Id: <20200601174047.385970800@linuxfoundation.org>
+        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 4.14 65/77] netfilter: nfnetlink_cthelper: unbreak userspace helper support
+Date:   Mon,  1 Jun 2020 19:54:10 +0200
+Message-Id: <20200601174027.589761257@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174037.904070960@linuxfoundation.org>
-References: <20200601174037.904070960@linuxfoundation.org>
+In-Reply-To: <20200601174016.396817032@linuxfoundation.org>
+References: <20200601174016.396817032@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,40 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vinod Koul <vkoul@kernel.org>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit a76f274182f054481182c81cd62bb8794a5450a6 ]
+commit 703acd70f2496537457186211c2f03e792409e68 upstream.
 
-Documentation says that gpll0 is parent of gpll0_out_even, somehow
-driver coded that as bi_tcxo, so fix it
+Restore helper data size initialization and fix memcopy of the helper
+data size.
 
-Fixes: 2a1d7eb854bb ("clk: qcom: gcc: Add global clock controller driver for SM8150")
-Reported-by: Jonathan Marek <jonathan@marek.ca>
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Link: https://lkml.kernel.org/r/20200521052728.2141377-1-vkoul@kernel.org
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 157ffffeb5dc ("netfilter: nfnetlink_cthelper: reject too large userspace allocation requests")
+Reviewed-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/clk/qcom/gcc-sm8150.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ net/netfilter/nfnetlink_cthelper.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/clk/qcom/gcc-sm8150.c b/drivers/clk/qcom/gcc-sm8150.c
-index 20877214acff..e3959ff5cb55 100644
---- a/drivers/clk/qcom/gcc-sm8150.c
-+++ b/drivers/clk/qcom/gcc-sm8150.c
-@@ -75,8 +75,7 @@ static struct clk_alpha_pll_postdiv gpll0_out_even = {
- 	.clkr.hw.init = &(struct clk_init_data){
- 		.name = "gpll0_out_even",
- 		.parent_data = &(const struct clk_parent_data){
--			.fw_name = "bi_tcxo",
--			.name = "bi_tcxo",
-+			.hw = &gpll0.clkr.hw,
- 		},
- 		.num_parents = 1,
- 		.ops = &clk_trion_pll_postdiv_ops,
--- 
-2.25.1
-
+--- a/net/netfilter/nfnetlink_cthelper.c
++++ b/net/netfilter/nfnetlink_cthelper.c
+@@ -106,7 +106,7 @@ nfnl_cthelper_from_nlattr(struct nlattr
+ 	if (help->helper->data_len == 0)
+ 		return -EINVAL;
+ 
+-	nla_memcpy(help->data, nla_data(attr), sizeof(help->data));
++	nla_memcpy(help->data, attr, sizeof(help->data));
+ 	return 0;
+ }
+ 
+@@ -240,6 +240,7 @@ nfnl_cthelper_create(const struct nlattr
+ 		ret = -ENOMEM;
+ 		goto err2;
+ 	}
++	helper->data_len = size;
+ 
+ 	helper->flags |= NF_CT_HELPER_F_USERSPACE;
+ 	memcpy(&helper->tuple, tuple, sizeof(struct nf_conntrack_tuple));
 
 
