@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E0B41EAAC7
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:12:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 055241EAA25
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:05:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731084AbgFASLW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:11:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58492 "EHLO mail.kernel.org"
+        id S1730337AbgFASFb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:05:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50654 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729098AbgFASLV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:11:21 -0400
+        id S1730334AbgFASFa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:05:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E3C392077D;
-        Mon,  1 Jun 2020 18:11:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 591B5206E2;
+        Mon,  1 Jun 2020 18:05:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591035080;
-        bh=qMbni6eAjeuG2+cWkNxEQwzV+JWizX32l1JotJgiewA=;
+        s=default; t=1591034729;
+        bh=Of3fqiecESA3nrJWs136IKqMDHI6y6z4dDM7k8vLphw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RyBGr0C4e7jt3DS7tlZP38/G8xIEoTa3GqpUtRHO+2lGxcHu6QsTHxOmxkeCtkujw
-         uMJ9wWU4NVbKR4zEYBcZmLSunJSoR+I+Bd0emZ65TYqlS2a6ybGaTPnW2RImqmr8ki
-         kAJqUwUVnC7Kt5gte7556IaBqNML2SWEsNO6ioC8=
+        b=c8+/qxxG8Np8MNzzYK/v6jexRgaAwrBG0YNVaDpWhQNeMB0GiJvJ7yqrxhb85dt2M
+         PSHJqxLUvndZfxCorCtEJPenEVm+qVLrIuKEoIZrDPjDTX92QF7aYoP19tpZ4JsPmB
+         5owRrZNNeRgnVjiaMyYcuL3VNNmPXRzCfzUx3ssw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Helge Deller <deller@gmx.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 106/142] parisc: Fix kernel panic in mem_init()
+        stable@vger.kernel.org, Phil Sutter <phil@nwl.cc>,
+        Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 4.19 84/95] netfilter: ipset: Fix subcounter update skip
 Date:   Mon,  1 Jun 2020 19:54:24 +0200
-Message-Id: <20200601174048.945137274@linuxfoundation.org>
+Message-Id: <20200601174033.274817487@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174037.904070960@linuxfoundation.org>
-References: <20200601174037.904070960@linuxfoundation.org>
+In-Reply-To: <20200601174020.759151073@linuxfoundation.org>
+References: <20200601174020.759151073@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,52 +43,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Phil Sutter <phil@nwl.cc>
 
-[ Upstream commit bf71bc16e02162388808949b179d59d0b571b965 ]
+commit a164b95ad6055c50612795882f35e0efda1f1390 upstream.
 
-The Debian kernel v5.6 triggers this kernel panic:
+If IPSET_FLAG_SKIP_SUBCOUNTER_UPDATE is set, user requested to not
+update counters in sub sets. Therefore IPSET_FLAG_SKIP_COUNTER_UPDATE
+must be set, not unset.
 
- Kernel panic - not syncing: Bad Address (null pointer deref?)
- Bad Address (null pointer deref?): Code=26 (Data memory access rights trap) at addr 0000000000000000
- CPU: 0 PID: 0 Comm: swapper Not tainted 5.6.0-2-parisc64 #1 Debian 5.6.14-1
-  IAOQ[0]: mem_init+0xb0/0x150
-  IAOQ[1]: mem_init+0xb4/0x150
-  RP(r2): start_kernel+0x6c8/0x1190
- Backtrace:
-  [<0000000040101ab4>] start_kernel+0x6c8/0x1190
-  [<0000000040108574>] start_parisc+0x158/0x1b8
+Fixes: 6e01781d1c80e ("netfilter: ipset: set match: add support to match the counters")
+Signed-off-by: Phil Sutter <phil@nwl.cc>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-on a HP-PARISC rp3440 machine with this memory layout:
- Memory Ranges:
-  0) Start 0x0000000000000000 End 0x000000003fffffff Size   1024 MB
-  1) Start 0x0000004040000000 End 0x00000040ffdfffff Size   3070 MB
-
-Fix the crash by avoiding virt_to_page() and similar functions in
-mem_init() until the memory zones have been fully set up.
-
-Signed-off-by: Helge Deller <deller@gmx.de>
-Cc: stable@vger.kernel.org # v5.0+
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/parisc/mm/init.c | 2 +-
+ net/netfilter/ipset/ip_set_list_set.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/parisc/mm/init.c b/arch/parisc/mm/init.c
-index ddca8287d43b..3e54484797f6 100644
---- a/arch/parisc/mm/init.c
-+++ b/arch/parisc/mm/init.c
-@@ -588,7 +588,7 @@ void __init mem_init(void)
- 			> BITS_PER_LONG);
- 
- 	high_memory = __va((max_pfn << PAGE_SHIFT));
--	set_max_mapnr(page_to_pfn(virt_to_page(high_memory - 1)) + 1);
-+	set_max_mapnr(max_low_pfn);
- 	memblock_free_all();
- 
- #ifdef CONFIG_PA11
--- 
-2.25.1
-
+--- a/net/netfilter/ipset/ip_set_list_set.c
++++ b/net/netfilter/ipset/ip_set_list_set.c
+@@ -63,7 +63,7 @@ list_set_ktest(struct ip_set *set, const
+ 	/* Don't lookup sub-counters at all */
+ 	opt->cmdflags &= ~IPSET_FLAG_MATCH_COUNTERS;
+ 	if (opt->cmdflags & IPSET_FLAG_SKIP_SUBCOUNTER_UPDATE)
+-		opt->cmdflags &= ~IPSET_FLAG_SKIP_COUNTER_UPDATE;
++		opt->cmdflags |= IPSET_FLAG_SKIP_COUNTER_UPDATE;
+ 	list_for_each_entry_rcu(e, &map->members, list) {
+ 		ret = ip_set_test(e->id, skb, par, opt);
+ 		if (ret <= 0)
 
 
