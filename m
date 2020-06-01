@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE18D1EAD54
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:45:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 955BE1EAE08
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:50:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730962AbgFASKQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:10:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56898 "EHLO mail.kernel.org"
+        id S1730378AbgFASFw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:05:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51100 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730966AbgFASKN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:10:13 -0400
+        id S1730375AbgFASFu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:05:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C800A2077D;
-        Mon,  1 Jun 2020 18:10:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A60C9206E2;
+        Mon,  1 Jun 2020 18:05:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591035013;
-        bh=jMoiX+JGTBCMU7QJU91KJpkrlSuZHrgN8R4EYldhycg=;
+        s=default; t=1591034750;
+        bh=xC9hJYuRSl5pnTM9TMOSwz7SgPWF7neADVLAEPjyJ74=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RIJGtJ8A0xhUzNsiwKPGMfZtGY1+MoJfcjRjCtK13Bg8YsL6lw0uBaIjzQvTb9BwL
-         /G0bLdaqNFoJagFKamzEoyLTBiVxHj7tMS2AzKEWul+oHGe58UtN0QjlHrEBs98Twp
-         8+v5R8fqLS17cKGWG0/HMPQHYuQU2N1oLO9IxQfs=
+        b=d5fwikvGu05p/i6uH2tpb1kpntRxUtp3J+xuKOR53ksWK/TMjc3BD4rbP2C+5PJrd
+         Jk+PVabquPLlJizEFg3DyLHv9TtOThxljkvtxKG8ypelWtr6hHcxbcRjbkVCrkHcge
+         e1vziWo6Yk6+8+MwfyPDSsoFc5L8hnZlYxxAXjTo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xin Long <lucien.xin@gmail.com>,
-        Steffen Klassert <steffen.klassert@secunet.com>
-Subject: [PATCH 5.4 114/142] xfrm: remove the xfrm_state_put call becofe going to out_reset
+        stable@vger.kernel.org, Qiushi Wu <wu000273@umn.edu>,
+        Jay Vosburgh <jay.vosburgh@canonical.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 92/95] bonding: Fix reference count leak in bond_sysfs_slave_add.
 Date:   Mon,  1 Jun 2020 19:54:32 +0200
-Message-Id: <20200601174049.692855504@linuxfoundation.org>
+Message-Id: <20200601174034.410158487@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174037.904070960@linuxfoundation.org>
-References: <20200601174037.904070960@linuxfoundation.org>
+In-Reply-To: <20200601174020.759151073@linuxfoundation.org>
+References: <20200601174020.759151073@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,53 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Qiushi Wu <wu000273@umn.edu>
 
-commit db87668ad1e4917cfe04e217307ba6ed9390716e upstream.
+commit a068aab42258e25094bc2c159948d263ed7d7a77 upstream.
 
-This xfrm_state_put call in esp4/6_gro_receive() will cause
-double put for state, as in out_reset path secpath_reset()
-will put all states set in skb sec_path.
+kobject_init_and_add() takes reference even when it fails.
+If this function returns an error, kobject_put() must be called to
+properly clean up the memory associated with the object. Previous
+commit "b8eb718348b8" fixed a similar problem.
 
-So fix it by simply remove the xfrm_state_put call.
-
-Fixes: 6ed69184ed9c ("xfrm: Reset secpath in xfrm failure")
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Fixes: 07699f9a7c8d ("bonding: add sysfs /slave dir for bond slave devices.")
+Signed-off-by: Qiushi Wu <wu000273@umn.edu>
+Acked-by: Jay Vosburgh <jay.vosburgh@canonical.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/ipv4/esp4_offload.c |    4 +---
- net/ipv6/esp6_offload.c |    4 +---
- 2 files changed, 2 insertions(+), 6 deletions(-)
+ drivers/net/bonding/bond_sysfs_slave.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/net/ipv4/esp4_offload.c
-+++ b/net/ipv4/esp4_offload.c
-@@ -63,10 +63,8 @@ static struct sk_buff *esp4_gro_receive(
- 		sp->olen++;
+--- a/drivers/net/bonding/bond_sysfs_slave.c
++++ b/drivers/net/bonding/bond_sysfs_slave.c
+@@ -153,8 +153,10 @@ int bond_sysfs_slave_add(struct slave *s
  
- 		xo = xfrm_offload(skb);
--		if (!xo) {
--			xfrm_state_put(x);
-+		if (!xo)
- 			goto out_reset;
--		}
- 	}
+ 	err = kobject_init_and_add(&slave->kobj, &slave_ktype,
+ 				   &(slave->dev->dev.kobj), "bonding_slave");
+-	if (err)
++	if (err) {
++		kobject_put(&slave->kobj);
+ 		return err;
++	}
  
- 	xo->flags |= XFRM_GRO;
---- a/net/ipv6/esp6_offload.c
-+++ b/net/ipv6/esp6_offload.c
-@@ -85,10 +85,8 @@ static struct sk_buff *esp6_gro_receive(
- 		sp->olen++;
- 
- 		xo = xfrm_offload(skb);
--		if (!xo) {
--			xfrm_state_put(x);
-+		if (!xo)
- 			goto out_reset;
--		}
- 	}
- 
- 	xo->flags |= XFRM_GRO;
+ 	for (a = slave_attrs; *a; ++a) {
+ 		err = sysfs_create_file(&slave->kobj, &((*a)->attr));
 
 
