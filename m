@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D07131EA9FA
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:05:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C030A1EAAA6
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:11:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730162AbgFASEH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:04:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48436 "EHLO mail.kernel.org"
+        id S1730000AbgFASKJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:10:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56612 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727879AbgFASEF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:04:05 -0400
+        id S1728991AbgFASKC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:10:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 46CF3206E2;
-        Mon,  1 Jun 2020 18:04:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8890C2068D;
+        Mon,  1 Jun 2020 18:10:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034644;
-        bh=Uu427Pif+dmGwUKTeKrRVMNQQRMF0AAQYGAbly+3Wr4=;
+        s=default; t=1591035002;
+        bh=+HWOD6oJo8RJaqpjSPos9B12MMF2A7CC0NCmDCWJuE0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xfVZe4EGeMj52gdYL0x/7jiIkvu/giuoB8uGpJ/rRqAVyyrgjuX9B4Fb65F+szO8+
-         Fb2/G3iPIAR+ZUL9qd8ZAGIE9dAfSaO3moh7hj/kvKYF4ZhGqwrCkadQ8ZglDry/h3
-         LKxErGnZvJVR54g4n4sX06xZf89Ao4tYDIVu6Gw0=
+        b=nx62PiVBqTlvLo2qpA1xYvRfMX3gQA/gNvBBcmostL4QIYIjpIN1Z2urAcw1mDVFp
+         mW+lunSoow+nl7mNv4nGOtI4GYEWXihozmshhzrKUykpHuLSpNcs2tw7WNXSWivedR
+         jTMoTiYkNWGsHLXiH7UU0/zX9ggPcMVIhkpb2JxQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Agner <stefan@agner.ch>,
-        Nicolas Pitre <nico@linaro.org>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
+        stable@vger.kernel.org, Kevin Locke <kevin@kevinlocke.name>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 46/95] ARM: 8843/1: use unified assembler in headers
+Subject: [PATCH 5.4 068/142] Input: i8042 - add ThinkPad S230u to i8042 reset list
 Date:   Mon,  1 Jun 2020 19:53:46 +0200
-Message-Id: <20200601174028.067252539@linuxfoundation.org>
+Message-Id: <20200601174044.878619529@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174020.759151073@linuxfoundation.org>
-References: <20200601174020.759151073@linuxfoundation.org>
+In-Reply-To: <20200601174037.904070960@linuxfoundation.org>
+References: <20200601174037.904070960@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,146 +44,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Agner <stefan@agner.ch>
+From: Kevin Locke <kevin@kevinlocke.name>
 
-[ Upstream commit c001899a5d6c2d7a0f3b75b2307ddef137fb46a6 ]
+[ Upstream commit 2712c91a54a1058d55c284152b4d93c979b67be6 ]
 
-Use unified assembler syntax (UAL) in headers. Divided syntax is
-considered deprecated. This will also allow to build the kernel
-using LLVM's integrated assembler.
+On the Lenovo ThinkPad Twist S230u (3347-4HU) with BIOS version
+"GDETC1WW (1.81 ) 06/27/2019", the keyboard, Synaptics TouchPad, and
+TrackPoint either do not function or stop functioning a few minutes
+after boot.  This problem has been noted before, perhaps only occurring
+with BIOS 1.57 and later.[1][2][3][4][5]
 
-Signed-off-by: Stefan Agner <stefan@agner.ch>
-Acked-by: Nicolas Pitre <nico@linaro.org>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Odds of a BIOS fix appear to be low: 1.57 was released over 6 years ago
+and although the [BIOS changelog] notes "Fixed an issue of UEFI
+touchpad/trackpoint/keyboard/touchscreen" in 1.58, it appears to be
+insufficient.
+
+Setting i8042.reset=1 or adding 33474HU to the reset list avoids the
+issue on my system from either warm or cold boot.
+
+[1]: https://bugs.launchpad.net/bugs/1210748
+[2]: https://bbs.archlinux.org/viewtopic.php?pid=1360425
+[3]: https://forums.linuxmint.com/viewtopic.php?f=46&t=41200
+[4]: https://forums.linuxmint.com/viewtopic.php?f=49&t=157115
+[5]: https://forums.lenovo.com/topic/findpost/27/1337119
+[BIOS changelog]: https://download.lenovo.com/pccbbs/mobiles/gduj33uc.txt
+
+Signed-off-by: Kevin Locke <kevin@kevinlocke.name>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/94f384b0f75f90f71425d7dce7ac82c59ddb87a8.1587702636.git.kevin@kevinlocke.name
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/include/asm/assembler.h | 12 ++++++------
- arch/arm/include/asm/vfpmacros.h |  8 ++++----
- arch/arm/lib/bitops.h            |  8 ++++----
- 3 files changed, 14 insertions(+), 14 deletions(-)
+ drivers/input/serio/i8042-x86ia64io.h | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/arch/arm/include/asm/assembler.h b/arch/arm/include/asm/assembler.h
-index 88286dd483ff..965224d14e6c 100644
---- a/arch/arm/include/asm/assembler.h
-+++ b/arch/arm/include/asm/assembler.h
-@@ -374,9 +374,9 @@ THUMB(	orr	\reg , \reg , #PSR_T_BIT	)
- 	.macro	usraccoff, instr, reg, ptr, inc, off, cond, abort, t=TUSER()
- 9999:
- 	.if	\inc == 1
--	\instr\cond\()b\()\t\().w \reg, [\ptr, #\off]
-+	\instr\()b\t\cond\().w \reg, [\ptr, #\off]
- 	.elseif	\inc == 4
--	\instr\cond\()\t\().w \reg, [\ptr, #\off]
-+	\instr\t\cond\().w \reg, [\ptr, #\off]
- 	.else
- 	.error	"Unsupported inc macro argument"
- 	.endif
-@@ -415,9 +415,9 @@ THUMB(	orr	\reg , \reg , #PSR_T_BIT	)
- 	.rept	\rept
- 9999:
- 	.if	\inc == 1
--	\instr\cond\()b\()\t \reg, [\ptr], #\inc
-+	\instr\()b\t\cond \reg, [\ptr], #\inc
- 	.elseif	\inc == 4
--	\instr\cond\()\t \reg, [\ptr], #\inc
-+	\instr\t\cond \reg, [\ptr], #\inc
- 	.else
- 	.error	"Unsupported inc macro argument"
- 	.endif
-@@ -458,7 +458,7 @@ THUMB(	orr	\reg , \reg , #PSR_T_BIT	)
- 	.macro check_uaccess, addr:req, size:req, limit:req, tmp:req, bad:req
- #ifndef CONFIG_CPU_USE_DOMAINS
- 	adds	\tmp, \addr, #\size - 1
--	sbcccs	\tmp, \tmp, \limit
-+	sbcscc	\tmp, \tmp, \limit
- 	bcs	\bad
- #ifdef CONFIG_CPU_SPECTRE
- 	movcs	\addr, #0
-@@ -472,7 +472,7 @@ THUMB(	orr	\reg , \reg , #PSR_T_BIT	)
- 	sub	\tmp, \limit, #1
- 	subs	\tmp, \tmp, \addr	@ tmp = limit - 1 - addr
- 	addhs	\tmp, \tmp, #1		@ if (tmp >= 0) {
--	subhss	\tmp, \tmp, \size	@ tmp = limit - (addr + size) }
-+	subshs	\tmp, \tmp, \size	@ tmp = limit - (addr + size) }
- 	movlo	\addr, #0		@ if (tmp < 0) addr = NULL
- 	csdb
- #endif
-diff --git a/arch/arm/include/asm/vfpmacros.h b/arch/arm/include/asm/vfpmacros.h
-index ef5dfedacd8d..628c336e8e3b 100644
---- a/arch/arm/include/asm/vfpmacros.h
-+++ b/arch/arm/include/asm/vfpmacros.h
-@@ -29,13 +29,13 @@
- 	ldr	\tmp, =elf_hwcap		    @ may not have MVFR regs
- 	ldr	\tmp, [\tmp, #0]
- 	tst	\tmp, #HWCAP_VFPD32
--	ldcnel	p11, cr0, [\base],#32*4		    @ FLDMIAD \base!, {d16-d31}
-+	ldclne	p11, cr0, [\base],#32*4		    @ FLDMIAD \base!, {d16-d31}
- 	addeq	\base, \base, #32*4		    @ step over unused register space
- #else
- 	VFPFMRX	\tmp, MVFR0			    @ Media and VFP Feature Register 0
- 	and	\tmp, \tmp, #MVFR0_A_SIMD_MASK	    @ A_SIMD field
- 	cmp	\tmp, #2			    @ 32 x 64bit registers?
--	ldceql	p11, cr0, [\base],#32*4		    @ FLDMIAD \base!, {d16-d31}
-+	ldcleq	p11, cr0, [\base],#32*4		    @ FLDMIAD \base!, {d16-d31}
- 	addne	\base, \base, #32*4		    @ step over unused register space
- #endif
- #endif
-@@ -53,13 +53,13 @@
- 	ldr	\tmp, =elf_hwcap		    @ may not have MVFR regs
- 	ldr	\tmp, [\tmp, #0]
- 	tst	\tmp, #HWCAP_VFPD32
--	stcnel	p11, cr0, [\base],#32*4		    @ FSTMIAD \base!, {d16-d31}
-+	stclne	p11, cr0, [\base],#32*4		    @ FSTMIAD \base!, {d16-d31}
- 	addeq	\base, \base, #32*4		    @ step over unused register space
- #else
- 	VFPFMRX	\tmp, MVFR0			    @ Media and VFP Feature Register 0
- 	and	\tmp, \tmp, #MVFR0_A_SIMD_MASK	    @ A_SIMD field
- 	cmp	\tmp, #2			    @ 32 x 64bit registers?
--	stceql	p11, cr0, [\base],#32*4		    @ FSTMIAD \base!, {d16-d31}
-+	stcleq	p11, cr0, [\base],#32*4		    @ FSTMIAD \base!, {d16-d31}
- 	addne	\base, \base, #32*4		    @ step over unused register space
- #endif
- #endif
-diff --git a/arch/arm/lib/bitops.h b/arch/arm/lib/bitops.h
-index 93cddab73072..95bd35991288 100644
---- a/arch/arm/lib/bitops.h
-+++ b/arch/arm/lib/bitops.h
-@@ -7,7 +7,7 @@
- ENTRY(	\name		)
- UNWIND(	.fnstart	)
- 	ands	ip, r1, #3
--	strneb	r1, [ip]		@ assert word-aligned
-+	strbne	r1, [ip]		@ assert word-aligned
- 	mov	r2, #1
- 	and	r3, r0, #31		@ Get bit offset
- 	mov	r0, r0, lsr #5
-@@ -32,7 +32,7 @@ ENDPROC(\name		)
- ENTRY(	\name		)
- UNWIND(	.fnstart	)
- 	ands	ip, r1, #3
--	strneb	r1, [ip]		@ assert word-aligned
-+	strbne	r1, [ip]		@ assert word-aligned
- 	mov	r2, #1
- 	and	r3, r0, #31		@ Get bit offset
- 	mov	r0, r0, lsr #5
-@@ -62,7 +62,7 @@ ENDPROC(\name		)
- ENTRY(	\name		)
- UNWIND(	.fnstart	)
- 	ands	ip, r1, #3
--	strneb	r1, [ip]		@ assert word-aligned
-+	strbne	r1, [ip]		@ assert word-aligned
- 	and	r2, r0, #31
- 	mov	r0, r0, lsr #5
- 	mov	r3, #1
-@@ -89,7 +89,7 @@ ENDPROC(\name		)
- ENTRY(	\name		)
- UNWIND(	.fnstart	)
- 	ands	ip, r1, #3
--	strneb	r1, [ip]		@ assert word-aligned
-+	strbne	r1, [ip]		@ assert word-aligned
- 	and	r3, r0, #31
- 	mov	r0, r0, lsr #5
- 	save_and_disable_irqs ip
+diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
+index 5bbc9152731d..c47800176534 100644
+--- a/drivers/input/serio/i8042-x86ia64io.h
++++ b/drivers/input/serio/i8042-x86ia64io.h
+@@ -669,6 +669,13 @@ static const struct dmi_system_id __initconst i8042_dmi_reset_table[] = {
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "P65xRP"),
+ 		},
+ 	},
++	{
++		/* Lenovo ThinkPad Twist S230u */
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "33474HU"),
++		},
++	},
+ 	{ }
+ };
+ 
 -- 
 2.25.1
 
