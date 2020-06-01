@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1677D1EAC95
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:40:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C4E271EAECF
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:57:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730961AbgFASNS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:13:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60710 "EHLO mail.kernel.org"
+        id S1729348AbgFAS5N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:57:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42710 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731305AbgFASNJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:13:09 -0400
+        id S1729597AbgFASAF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:00:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3FB332068D;
-        Mon,  1 Jun 2020 18:13:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EA0862073B;
+        Mon,  1 Jun 2020 18:00:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591035188;
-        bh=ANJLV3hUN0eVoqgiZj7BF9PIdjzd9Cn33TUSH8PQwo4=;
+        s=default; t=1591034405;
+        bh=Uk2NQ6pJxx7STTg4V23cmfZP3VK2GGpnmgxbNTFcWxo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WI8C1Qx/oJnS572uKg8/K/VBlvUqDHaU2wGEFn0naIGyURdFnkfsk57IS0AY2i4BK
-         CrehjE6FibNKmt9iGqw/qsDHIkBtaPK0HE8hWb+ZzWbyrRzZmy3Dj6JxWd8BWZJhWW
-         juWrcb1+CRIiZgxjx/TIS9Ctwezrc2/uLE8kd0OI=
+        b=t3J9/gtmWat+vafMOy2h1/GPIkvcLccQLNqYOdrqob/C0LOpml0vLvMjctTbn+Bm8
+         ZLQTxK43PpbqSenYZS4t0/O4RgvjxrOlYQnySKo6WA7C81vXBr79YTewC7TAqV3nMg
+         NH+ucr+8cGtmxgp1HXx7/OahhqbPYAv6oyQi4dGs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Jonker <jbx6244@gmail.com>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 049/177] ARM: dts: rockchip: swap clock-names of gpu nodes
+        stable@vger.kernel.org, Vadim Fedorenko <vfedorenko@novek.ru>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 02/77] net: ipip: fix wrong address family in init error path
 Date:   Mon,  1 Jun 2020 19:53:07 +0200
-Message-Id: <20200601174053.130677414@linuxfoundation.org>
+Message-Id: <20200601174016.919153810@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174048.468952319@linuxfoundation.org>
-References: <20200601174048.468952319@linuxfoundation.org>
+In-Reply-To: <20200601174016.396817032@linuxfoundation.org>
+References: <20200601174016.396817032@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,67 +43,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Jonker <jbx6244@gmail.com>
+From: Vadim Fedorenko <vfedorenko@novek.ru>
 
-[ Upstream commit b14f3898d2c25a9b47a61fb879d0b1f3af92c59b ]
+[ Upstream commit 57ebc8f08504f176eb0f25b3e0fde517dec61a4f ]
 
-Dts files with Rockchip 'gpu' nodes were manually verified.
-In order to automate this process arm,mali-utgard.txt
-has been converted to yaml. In the new setup dtbs_check with
-arm,mali-utgard.yaml expects clock-names values
-in the same order, so fix that.
+In case of error with MPLS support the code is misusing AF_INET
+instead of AF_MPLS.
 
-Signed-off-by: Johan Jonker <jbx6244@gmail.com>
-Link: https://lore.kernel.org/r/20200425192500.1808-1-jbx6244@gmail.com
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 1b69e7e6c4da ("ipip: support MPLS over IPv4")
+Signed-off-by: Vadim Fedorenko <vfedorenko@novek.ru>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/rk3036.dtsi | 2 +-
- arch/arm/boot/dts/rk322x.dtsi | 2 +-
- arch/arm/boot/dts/rk3xxx.dtsi | 2 +-
- 3 files changed, 3 insertions(+), 3 deletions(-)
+ net/ipv4/ipip.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/rk3036.dtsi b/arch/arm/boot/dts/rk3036.dtsi
-index cf36e25195b4..8c4b8f56c9e0 100644
---- a/arch/arm/boot/dts/rk3036.dtsi
-+++ b/arch/arm/boot/dts/rk3036.dtsi
-@@ -128,7 +128,7 @@
- 		assigned-clocks = <&cru SCLK_GPU>;
- 		assigned-clock-rates = <100000000>;
- 		clocks = <&cru SCLK_GPU>, <&cru SCLK_GPU>;
--		clock-names = "core", "bus";
-+		clock-names = "bus", "core";
- 		resets = <&cru SRST_GPU>;
- 		status = "disabled";
- 	};
-diff --git a/arch/arm/boot/dts/rk322x.dtsi b/arch/arm/boot/dts/rk322x.dtsi
-index 4e90efdc9630..729119952c68 100644
---- a/arch/arm/boot/dts/rk322x.dtsi
-+++ b/arch/arm/boot/dts/rk322x.dtsi
-@@ -561,7 +561,7 @@
- 				  "pp1",
- 				  "ppmmu1";
- 		clocks = <&cru ACLK_GPU>, <&cru ACLK_GPU>;
--		clock-names = "core", "bus";
-+		clock-names = "bus", "core";
- 		resets = <&cru SRST_GPU_A>;
- 		status = "disabled";
- 	};
-diff --git a/arch/arm/boot/dts/rk3xxx.dtsi b/arch/arm/boot/dts/rk3xxx.dtsi
-index 241f43e29c77..bb5ff10b9110 100644
---- a/arch/arm/boot/dts/rk3xxx.dtsi
-+++ b/arch/arm/boot/dts/rk3xxx.dtsi
-@@ -84,7 +84,7 @@
- 		compatible = "arm,mali-400";
- 		reg = <0x10090000 0x10000>;
- 		clocks = <&cru ACLK_GPU>, <&cru ACLK_GPU>;
--		clock-names = "core", "bus";
-+		clock-names = "bus", "core";
- 		assigned-clocks = <&cru ACLK_GPU>;
- 		assigned-clock-rates = <100000000>;
- 		resets = <&cru SRST_GPU>;
--- 
-2.25.1
-
+--- a/net/ipv4/ipip.c
++++ b/net/ipv4/ipip.c
+@@ -702,7 +702,7 @@ out:
+ 
+ rtnl_link_failed:
+ #if IS_ENABLED(CONFIG_MPLS)
+-	xfrm4_tunnel_deregister(&mplsip_handler, AF_INET);
++	xfrm4_tunnel_deregister(&mplsip_handler, AF_MPLS);
+ xfrm_tunnel_mplsip_failed:
+ 
+ #endif
 
 
