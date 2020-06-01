@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B26B01EA8F9
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 19:58:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 989B51EA8FE
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 19:58:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727996AbgFAR5k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 13:57:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38912 "EHLO mail.kernel.org"
+        id S1727924AbgFAR5p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 13:57:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39114 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728948AbgFAR5h (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 13:57:37 -0400
+        id S1728986AbgFAR5o (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 13:57:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6EB21206E2;
-        Mon,  1 Jun 2020 17:57:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 35DD2206E2;
+        Mon,  1 Jun 2020 17:57:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034256;
-        bh=QCGs2VJ3mgj3c/lTVvzLSLDvK8wWgrR4q8YaSeox8lI=;
+        s=default; t=1591034263;
+        bh=WFV9FyCjkInEb5OHKvtcQ60D6GXHMa7bdHtkAceNB6o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0RNiOSFduxMQmm7isYL1kHG1FEVGnIxqK6mVrKaIDSiSlJamCv9qNQk3Stp90a/mc
-         JWUdHZNF10hOgFgic/a0kFKHFFxViHUMW+jPIEvuxmPOC73o+qVRg2GVMewDNSnfz8
-         w5QHRlLTR7uiIC3yWUP1EIzPx3S4pT/bqzgJLsSw=
+        b=rkzy4MfqQUmizvhHrAHxX/hOcwrPcyREO2Af7Vi00AMisDM3ijbvvh22RLLl5IH9X
+         Hnx45WOGRFG6YO/mAmMF7L6/aH2ZO4krebCbw7WZDfbn7ugwgscaVkp3mn9fv1HXB5
+         l2nJkhCiwl9dJut3/76N68EIS0R8zKSupIGJYDhA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephen Warren <swarren@nvidia.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org, Bob Peterson <rpeterso@redhat.com>,
+        Andreas Gruenbacher <agruenba@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 13/61] gpio: tegra: mask GPIO IRQs during IRQ shutdown
-Date:   Mon,  1 Jun 2020 19:53:20 +0200
-Message-Id: <20200601174014.292355017@linuxfoundation.org>
+Subject: [PATCH 4.9 16/61] gfs2: dont call quota_unhold if quotas are not locked
+Date:   Mon,  1 Jun 2020 19:53:23 +0200
+Message-Id: <20200601174014.832657179@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200601174010.316778377@linuxfoundation.org>
 References: <20200601174010.316778377@linuxfoundation.org>
@@ -44,35 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Warren <swarren@nvidia.com>
+From: Bob Peterson <rpeterso@redhat.com>
 
-[ Upstream commit 0cf253eed5d2bdf7bb3152457b38f39b012955f7 ]
+[ Upstream commit c9cb9e381985bbbe8acd2695bbe6bd24bf06b81c ]
 
-The driver currently leaves GPIO IRQs unmasked even when the GPIO IRQ
-client has released the GPIO IRQ. This allows the HW to raise IRQs, and
-SW to process them, after shutdown. Fix this by masking the IRQ when it's
-shut down. This is usually taken care of by the irqchip core, but since
-this driver has a custom irq_shutdown implementation, it must do this
-explicitly itself.
+Before this patch, function gfs2_quota_unlock checked if quotas are
+turned off, and if so, it branched to label out, which called
+gfs2_quota_unhold. With the new system of gfs2_qa_get and put, we
+no longer want to call gfs2_quota_unhold or we won't balance our
+gets and puts.
 
-Signed-off-by: Stephen Warren <swarren@nvidia.com>
-Link: https://lore.kernel.org/r/20200427232605.11608-1-swarren@wwwdotorg.org
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Bob Peterson <rpeterso@redhat.com>
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpio-tegra.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/gfs2/quota.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/gpio/gpio-tegra.c b/drivers/gpio/gpio-tegra.c
-index 05d3241ad20b..9d763557a105 100644
---- a/drivers/gpio/gpio-tegra.c
-+++ b/drivers/gpio/gpio-tegra.c
-@@ -341,6 +341,7 @@ static void tegra_gpio_irq_shutdown(struct irq_data *d)
- 	struct tegra_gpio_info *tgi = bank->tgi;
- 	int gpio = d->hwirq;
+diff --git a/fs/gfs2/quota.c b/fs/gfs2/quota.c
+index fb9b1d702351..fb2e0ad945bf 100644
+--- a/fs/gfs2/quota.c
++++ b/fs/gfs2/quota.c
+@@ -1112,7 +1112,7 @@ void gfs2_quota_unlock(struct gfs2_inode *ip)
+ 	int found;
  
-+	tegra_gpio_irq_mask(d);
- 	gpiochip_unlock_as_irq(&tgi->gc, gpio);
+ 	if (!test_and_clear_bit(GIF_QD_LOCKED, &ip->i_flags))
+-		goto out;
++		return;
+ 
+ 	for (x = 0; x < ip->i_qadata->qa_qd_num; x++) {
+ 		struct gfs2_quota_data *qd;
+@@ -1149,7 +1149,6 @@ void gfs2_quota_unlock(struct gfs2_inode *ip)
+ 			qd_unlock(qda[x]);
+ 	}
+ 
+-out:
+ 	gfs2_quota_unhold(ip);
  }
  
 -- 
