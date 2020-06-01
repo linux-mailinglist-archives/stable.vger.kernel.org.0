@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D9EC1EAD41
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:44:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AD5091EAD3F
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:44:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729941AbgFASno (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:43:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58446 "EHLO mail.kernel.org"
+        id S1728091AbgFASnj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:43:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58548 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730077AbgFASLS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:11:18 -0400
+        id S1730206AbgFASLX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:11:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A0D1F2065C;
-        Mon,  1 Jun 2020 18:11:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2AA9620825;
+        Mon,  1 Jun 2020 18:11:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591035078;
-        bh=RZgud379woqQfPViLyVEe4pZrasNvkKO0kuSoSCnJQg=;
+        s=default; t=1591035082;
+        bh=a19FcwfSSh7wnaWKjzuYFYpJ5AhDmsleEPaVskEFUOM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K5ZFyJ0HsLuNME727chRH3Nsxvtys8d47+Gi7eicCc7AjTD3YbMorfqc5hayEEXSA
-         1OL3ThBEzIrSHQhTAw4oaJu9IzFS+giePi7O0cOy7tre5T5NfypbyHRCduVNsEdTyN
-         5eus4KPxv3cuDNOGkQscOEWO1vIZhc4aHGrhnqXk=
+        b=FipTByDp3AlL/vTbU1YI4vYweAobcQd/E5JWrzAWJRpmz73egcTD0+Ujod9NEx42q
+         0vEsxzLTq8k/w7z+hJazyB1PR/cfm5EP0lz889Tlp2AMqDRpiSaqqx55AfZPUycWIM
+         F6YXr9tPuMvZRoNG1lkr3agQ/bS3x8W5uY5+v1mE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 5.4 141/142] netfilter: nf_conntrack_pptp: fix compilation warning with W=1 build
-Date:   Mon,  1 Jun 2020 19:54:59 +0200
-Message-Id: <20200601174052.294153462@linuxfoundation.org>
+        stable@vger.kernel.org, Changbin Du <changbin.du@gmail.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Marek Vasut <marex@denx.de>
+Subject: [PATCH 5.4 142/142] perf: Make perf able to build with latest libbfd
+Date:   Mon,  1 Jun 2020 19:55:00 +0200
+Message-Id: <20200601174052.394180342@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200601174037.904070960@linuxfoundation.org>
 References: <20200601174037.904070960@linuxfoundation.org>
@@ -43,45 +46,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Changbin Du <changbin.du@gmail.com>
 
-commit 4946ea5c1237036155c3b3a24f049fd5f849f8f6 upstream.
+commit 0ada120c883d4f1f6aafd01cf0fbb10d8bbba015 upstream.
 
->> include/linux/netfilter/nf_conntrack_pptp.h:13:20: warning: 'const' type qualifier on return type has no effect [-Wignored-qualifiers]
-extern const char *const pptp_msg_name(u_int16_t msg);
-^~~~~~
+libbfd has changed the bfd_section_* macros to inline functions
+bfd_section_<field> since 2019-09-18. See below two commits:
+  o http://www.sourceware.org/ml/gdb-cvs/2019-09/msg00064.html
+  o https://www.sourceware.org/ml/gdb-cvs/2019-09/msg00072.html
 
-Reported-by: kbuild test robot <lkp@intel.com>
-Fixes: 4c559f15efcc ("netfilter: nf_conntrack_pptp: prevent buffer overflows in debug code")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+This fix make perf able to build with both old and new libbfd.
+
+Signed-off-by: Changbin Du <changbin.du@gmail.com>
+Acked-by: Jiri Olsa <jolsa@redhat.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: http://lore.kernel.org/lkml/20200128152938.31413-1-changbin.du@gmail.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Marek Vasut <marex@denx.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- include/linux/netfilter/nf_conntrack_pptp.h |    2 +-
- net/netfilter/nf_conntrack_pptp.c           |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ tools/perf/util/srcline.c |   16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
 
---- a/include/linux/netfilter/nf_conntrack_pptp.h
-+++ b/include/linux/netfilter/nf_conntrack_pptp.h
-@@ -10,7 +10,7 @@
- #include <net/netfilter/nf_conntrack_expect.h>
- #include <uapi/linux/netfilter/nf_conntrack_tuple_common.h>
+--- a/tools/perf/util/srcline.c
++++ b/tools/perf/util/srcline.c
+@@ -193,16 +193,30 @@ static void find_address_in_section(bfd
+ 	bfd_vma pc, vma;
+ 	bfd_size_type size;
+ 	struct a2l_data *a2l = data;
++	flagword flags;
  
--extern const char *const pptp_msg_name(u_int16_t msg);
-+const char *pptp_msg_name(u_int16_t msg);
+ 	if (a2l->found)
+ 		return;
  
- /* state of the control session */
- enum pptp_ctrlsess_state {
---- a/net/netfilter/nf_conntrack_pptp.c
-+++ b/net/netfilter/nf_conntrack_pptp.c
-@@ -91,7 +91,7 @@ static const char *const pptp_msg_name_a
- 	[PPTP_SET_LINK_INFO]		= "SET_LINK_INFO"
- };
+-	if ((bfd_get_section_flags(abfd, section) & SEC_ALLOC) == 0)
++#ifdef bfd_get_section_flags
++	flags = bfd_get_section_flags(abfd, section);
++#else
++	flags = bfd_section_flags(section);
++#endif
++	if ((flags & SEC_ALLOC) == 0)
+ 		return;
  
--const char *const pptp_msg_name(u_int16_t msg)
-+const char *pptp_msg_name(u_int16_t msg)
- {
- 	if (msg > PPTP_MSG_MAX)
- 		return pptp_msg_name_array[0];
+ 	pc = a2l->addr;
++#ifdef bfd_get_section_vma
+ 	vma = bfd_get_section_vma(abfd, section);
++#else
++	vma = bfd_section_vma(section);
++#endif
++#ifdef bfd_get_section_size
+ 	size = bfd_get_section_size(section);
++#else
++	size = bfd_section_size(section);
++#endif
+ 
+ 	if (pc < vma || pc >= vma + size)
+ 		return;
 
 
