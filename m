@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C7311EAB57
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:17:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D8D0C1EAAAF
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:11:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731717AbgFASQe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:16:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37276 "EHLO mail.kernel.org"
+        id S1729141AbgFASK2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:10:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57276 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731712AbgFASQd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:16:33 -0400
+        id S1730972AbgFASK1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:10:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6C6232068D;
-        Mon,  1 Jun 2020 18:16:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 086CC2068D;
+        Mon,  1 Jun 2020 18:10:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591035392;
-        bh=DTZXf56xoqkdM1pDwpE3oN8ES3/B1f9WROuREZ/xyew=;
+        s=default; t=1591035026;
+        bh=NO1fE9qbQO897QXTH+eDr2xuCe1LhEei9ZR1cr4pqYw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FS8PEp23eKTSr+aCV19zfRnp3AcpQ0EbIodSdw60y7q8ipEh1wOKzan/WH7F7T3Os
-         AqggVpQK5ol0I06MtT15SGW8qh95LJAAsCee7zx9cF1qjOY/Snpn2pYcWWwqyfB4G3
-         DJ3FBJPPVc81Btne1M8aueOGwTFEzDA70GiUs/qg=
+        b=d3zaM4ZE0ckoNsn52H++ce1URs858uVtFCZbI+uMEd/cA7N/0wyIBa3jZ2wNpK4fF
+         tnk4o6VEE+kCbHMqqAzaHwj+R459Nz2sRlQ8rrbBuvFcFh+GGFfCy8gnh06dV5/9e9
+         Makw+9AU6yl+3pJnGJIug33Z9LsoBaQBgFSh3raM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+fd5332e429401bf42d18@syzkaller.appspotmail.com,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.6 140/177] cfg80211: fix debugfs rename crash
+        stable@vger.kernel.org, Xiumei Mu <xmu@redhat.com>,
+        Xin Long <lucien.xin@gmail.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>
+Subject: [PATCH 5.4 120/142] ip_vti: receive ipip packet by calling ip_tunnel_rcv
 Date:   Mon,  1 Jun 2020 19:54:38 +0200
-Message-Id: <20200601174100.213877366@linuxfoundation.org>
+Message-Id: <20200601174050.248686867@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174048.468952319@linuxfoundation.org>
-References: <20200601174048.468952319@linuxfoundation.org>
+In-Reply-To: <20200601174037.904070960@linuxfoundation.org>
+References: <20200601174037.904070960@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,40 +44,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-commit 0bbab5f0301587cad4e923ccc49bb910db86162c upstream.
+commit 976eba8ab596bab94b9714cd46d38d5c6a2c660d upstream.
 
-Removing the "if (IS_ERR(dir)) dir = NULL;" check only works
-if we adjust the remaining code to not rely on it being NULL.
-Check IS_ERR_OR_NULL() before attempting to dereference it.
+In Commit dd9ee3444014 ("vti4: Fix a ipip packet processing bug in
+'IPCOMP' virtual tunnel"), it tries to receive IPIP packets in vti
+by calling xfrm_input(). This case happens when a small packet or
+frag sent by peer is too small to get compressed.
 
-I'm not actually entirely sure this fixes the syzbot crash as
-the kernel config indicates that they do have DEBUG_FS in the
-kernel, but this is what I found when looking there.
+However, xfrm_input() will still get to the IPCOMP path where skb
+sec_path is set, but never dropped while it should have been done
+in vti_ipcomp4_protocol.cb_handler(vti_rcv_cb), as it's not an
+ipcomp4 packet. This will cause that the packet can never pass
+xfrm4_policy_check() in the upper protocol rcv functions.
 
-Cc: stable@vger.kernel.org
-Fixes: d82574a8e5a4 ("cfg80211: no need to check return value of debugfs_create functions")
-Reported-by: syzbot+fd5332e429401bf42d18@syzkaller.appspotmail.com
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Link: https://lore.kernel.org/r/20200525113816.fc4da3ec3d4b.Ica63a110679819eaa9fb3bc1b7437d96b1fd187d@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+So this patch is to call ip_tunnel_rcv() to process IPIP packets
+instead.
+
+Fixes: dd9ee3444014 ("vti4: Fix a ipip packet processing bug in 'IPCOMP' virtual tunnel")
+Reported-by: Xiumei Mu <xmu@redhat.com>
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/wireless/core.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ipv4/ip_vti.c |   23 ++++++++++++++++++++++-
+ 1 file changed, 22 insertions(+), 1 deletion(-)
 
---- a/net/wireless/core.c
-+++ b/net/wireless/core.c
-@@ -142,7 +142,7 @@ int cfg80211_dev_rename(struct cfg80211_
- 	if (result)
- 		return result;
+--- a/net/ipv4/ip_vti.c
++++ b/net/ipv4/ip_vti.c
+@@ -93,7 +93,28 @@ static int vti_rcv_proto(struct sk_buff
  
--	if (rdev->wiphy.debugfsdir)
-+	if (!IS_ERR_OR_NULL(rdev->wiphy.debugfsdir))
- 		debugfs_rename(rdev->wiphy.debugfsdir->d_parent,
- 			       rdev->wiphy.debugfsdir,
- 			       rdev->wiphy.debugfsdir->d_parent, newname);
+ static int vti_rcv_tunnel(struct sk_buff *skb)
+ {
+-	return vti_rcv(skb, ip_hdr(skb)->saddr, true);
++	struct ip_tunnel_net *itn = net_generic(dev_net(skb->dev), vti_net_id);
++	const struct iphdr *iph = ip_hdr(skb);
++	struct ip_tunnel *tunnel;
++
++	tunnel = ip_tunnel_lookup(itn, skb->dev->ifindex, TUNNEL_NO_KEY,
++				  iph->saddr, iph->daddr, 0);
++	if (tunnel) {
++		struct tnl_ptk_info tpi = {
++			.proto = htons(ETH_P_IP),
++		};
++
++		if (!xfrm4_policy_check(NULL, XFRM_POLICY_IN, skb))
++			goto drop;
++		if (iptunnel_pull_header(skb, 0, tpi.proto, false))
++			goto drop;
++		return ip_tunnel_rcv(tunnel, skb, &tpi, NULL, false);
++	}
++
++	return -EINVAL;
++drop:
++	kfree_skb(skb);
++	return 0;
+ }
+ 
+ static int vti_rcv_cb(struct sk_buff *skb, int err)
 
 
