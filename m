@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E7831EADF5
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:50:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7052A1EACE7
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:41:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729957AbgFASuB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:50:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52164 "EHLO mail.kernel.org"
+        id S1731272AbgFASMr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:12:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60158 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730470AbgFASGd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:06:33 -0400
+        id S1731269AbgFASMq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:12:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 44A3D2068D;
-        Mon,  1 Jun 2020 18:06:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7EF792065C;
+        Mon,  1 Jun 2020 18:12:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034790;
-        bh=CdjpLSxhOy0T2GO/bKHD8333VdT7Rwpn/h9YDR5VHgo=;
+        s=default; t=1591035166;
+        bh=riI0q0s+shorWdUH/0kPggQ54F7P5D5VhDVxIlf0IvU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YEpnBLiETd/eSiXGrn99j3UqV1ce8fFo+lisazpZnqVV5P64XUmjbDACYjUqS3nUj
-         yIFTV17vGFNNQsaU1ANALfnon3D6YfkomtOwtSdj23IBzgw+i/dcm4gldBvOVDkXBW
-         9jL4B1z/XaT9p+fwNV1EC522GB7ELUrg+Xf2Kl4Q=
+        b=CeJ/iwLZLXHs4b3pvrg3nSZiZNm76h8Df6k58vH2ZFj7em/dJ4gm8oB/eJRCglN1b
+         AfTcW7vmpoqW92l1N3PFXrr04UY6qjjIv8h4Xbi7uAH8JX2zZu2wAIs7dMlU9AKQ1t
+         NmPPZjeBJvb3qZMb9ZATSwbTYwQclh16WtseAcqk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vinay Kumar Yadav <vinay.yadav@chelsio.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Vadim Fedorenko <vfedorenko@novek.ru>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 015/142] net/tls: fix race condition causing kernel panic
-Date:   Mon,  1 Jun 2020 19:52:53 +0200
-Message-Id: <20200601174039.492406918@linuxfoundation.org>
+Subject: [PATCH 5.6 037/177] net/tls: fix encryption error checking
+Date:   Mon,  1 Jun 2020 19:52:55 +0200
+Message-Id: <20200601174052.044096015@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174037.904070960@linuxfoundation.org>
-References: <20200601174037.904070960@linuxfoundation.org>
+In-Reply-To: <20200601174048.468952319@linuxfoundation.org>
+References: <20200601174048.468952319@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,182 +43,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vinay Kumar Yadav <vinay.yadav@chelsio.com>
+From: Vadim Fedorenko <vfedorenko@novek.ru>
 
-[ Upstream commit 0cada33241d9de205522e3858b18e506ca5cce2c ]
+commit a7bff11f6f9afa87c25711db8050c9b5324db0e2 upstream.
 
-tls_sw_recvmsg() and tls_decrypt_done() can be run concurrently.
-// tls_sw_recvmsg()
-	if (atomic_read(&ctx->decrypt_pending))
-		crypto_wait_req(-EINPROGRESS, &ctx->async_wait);
-	else
-		reinit_completion(&ctx->async_wait.completion);
+bpf_exec_tx_verdict() can return negative value for copied
+variable. In that case this value will be pushed back to caller
+and the real error code will be lost. Fix it using signed type and
+checking for positive value.
 
-//tls_decrypt_done()
-  	pending = atomic_dec_return(&ctx->decrypt_pending);
-
-  	if (!pending && READ_ONCE(ctx->async_notify))
-  		complete(&ctx->async_wait.completion);
-
-Consider the scenario tls_decrypt_done() is about to run complete()
-
-	if (!pending && READ_ONCE(ctx->async_notify))
-
-and tls_sw_recvmsg() reads decrypt_pending == 0, does reinit_completion(),
-then tls_decrypt_done() runs complete(). This sequence of execution
-results in wrong completion. Consequently, for next decrypt request,
-it will not wait for completion, eventually on connection close, crypto
-resources freed, there is no way to handle pending decrypt response.
-
-This race condition can be avoided by having atomic_read() mutually
-exclusive with atomic_dec_return(),complete().Intoduced spin lock to
-ensure the mutual exclution.
-
-Addressed similar problem in tx direction.
-
-v1->v2:
-- More readable commit message.
-- Corrected the lock to fix new race scenario.
-- Removed barrier which is not needed now.
-
-Fixes: a42055e8d2c3 ("net/tls: Add support for async encryption of records for performance")
-Signed-off-by: Vinay Kumar Yadav <vinay.yadav@chelsio.com>
-Reviewed-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: d10523d0b3d7 ("net/tls: free the record on encryption error")
+Fixes: d3b18ad31f93 ("tls: add bpf support to sk_msg handling")
+Signed-off-by: Vadim Fedorenko <vfedorenko@novek.ru>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- include/net/tls.h |    4 ++++
- net/tls/tls_sw.c  |   33 +++++++++++++++++++++++++++------
- 2 files changed, 31 insertions(+), 6 deletions(-)
 
---- a/include/net/tls.h
-+++ b/include/net/tls.h
-@@ -157,6 +157,8 @@ struct tls_sw_context_tx {
- 	struct tls_rec *open_rec;
- 	struct list_head tx_list;
- 	atomic_t encrypt_pending;
-+	/* protect crypto_wait with encrypt_pending */
-+	spinlock_t encrypt_compl_lock;
- 	int async_notify;
- 	int async_capable;
- 
-@@ -177,6 +179,8 @@ struct tls_sw_context_rx {
- 	int async_capable;
- 	bool decrypted;
- 	atomic_t decrypt_pending;
-+	/* protect crypto_wait with decrypt_pending*/
-+	spinlock_t decrypt_compl_lock;
- 	bool async_notify;
- };
- 
+---
+ net/tls/tls_sw.c |   11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
+
 --- a/net/tls/tls_sw.c
 +++ b/net/tls/tls_sw.c
-@@ -203,10 +203,12 @@ static void tls_decrypt_done(struct cryp
+@@ -784,7 +784,7 @@ static int tls_push_record(struct sock *
  
- 	kfree(aead_req);
+ static int bpf_exec_tx_verdict(struct sk_msg *msg, struct sock *sk,
+ 			       bool full_record, u8 record_type,
+-			       size_t *copied, int flags)
++			       ssize_t *copied, int flags)
+ {
+ 	struct tls_context *tls_ctx = tls_get_ctx(sk);
+ 	struct tls_sw_context_tx *ctx = tls_sw_ctx_tx(tls_ctx);
+@@ -920,7 +920,8 @@ int tls_sw_sendmsg(struct sock *sk, stru
+ 	unsigned char record_type = TLS_RECORD_TYPE_DATA;
+ 	bool is_kvec = iov_iter_is_kvec(&msg->msg_iter);
+ 	bool eor = !(msg->msg_flags & MSG_MORE);
+-	size_t try_to_copy, copied = 0;
++	size_t try_to_copy;
++	ssize_t copied = 0;
+ 	struct sk_msg *msg_pl, *msg_en;
+ 	struct tls_rec *rec;
+ 	int required_size;
+@@ -1129,7 +1130,7 @@ send_end:
  
-+	spin_lock_bh(&ctx->decrypt_compl_lock);
- 	pending = atomic_dec_return(&ctx->decrypt_pending);
- 
--	if (!pending && READ_ONCE(ctx->async_notify))
-+	if (!pending && ctx->async_notify)
- 		complete(&ctx->async_wait.completion);
-+	spin_unlock_bh(&ctx->decrypt_compl_lock);
+ 	release_sock(sk);
+ 	mutex_unlock(&tls_ctx->tx_lock);
+-	return copied ? copied : ret;
++	return copied > 0 ? copied : ret;
  }
  
- static int tls_do_decryption(struct sock *sk,
-@@ -464,10 +466,12 @@ static void tls_encrypt_done(struct cryp
- 			ready = true;
- 	}
- 
-+	spin_lock_bh(&ctx->encrypt_compl_lock);
- 	pending = atomic_dec_return(&ctx->encrypt_pending);
- 
--	if (!pending && READ_ONCE(ctx->async_notify))
-+	if (!pending && ctx->async_notify)
- 		complete(&ctx->async_wait.completion);
-+	spin_unlock_bh(&ctx->encrypt_compl_lock);
- 
- 	if (!ready)
- 		return;
-@@ -923,6 +927,7 @@ int tls_sw_sendmsg(struct sock *sk, stru
- 	int num_zc = 0;
- 	int orig_size;
- 	int ret = 0;
-+	int pending;
- 
- 	if (msg->msg_flags & ~(MSG_MORE | MSG_DONTWAIT | MSG_NOSIGNAL))
- 		return -EOPNOTSUPP;
-@@ -1089,13 +1094,19 @@ trim_sgl:
- 		goto send_end;
- 	} else if (num_zc) {
- 		/* Wait for pending encryptions to get completed */
--		smp_store_mb(ctx->async_notify, true);
-+		spin_lock_bh(&ctx->encrypt_compl_lock);
-+		ctx->async_notify = true;
- 
--		if (atomic_read(&ctx->encrypt_pending))
-+		pending = atomic_read(&ctx->encrypt_pending);
-+		spin_unlock_bh(&ctx->encrypt_compl_lock);
-+		if (pending)
- 			crypto_wait_req(-EINPROGRESS, &ctx->async_wait);
- 		else
- 			reinit_completion(&ctx->async_wait.completion);
- 
-+		/* There can be no concurrent accesses, since we have no
-+		 * pending encrypt operations
-+		 */
- 		WRITE_ONCE(ctx->async_notify, false);
- 
- 		if (ctx->async_wait.err) {
-@@ -1724,6 +1735,7 @@ int tls_sw_recvmsg(struct sock *sk,
- 	bool is_kvec = iov_iter_is_kvec(&msg->msg_iter);
- 	bool is_peek = flags & MSG_PEEK;
+ static int tls_sw_do_sendpage(struct sock *sk, struct page *page,
+@@ -1143,7 +1144,7 @@ static int tls_sw_do_sendpage(struct soc
+ 	struct sk_msg *msg_pl;
+ 	struct tls_rec *rec;
  	int num_async = 0;
-+	int pending;
+-	size_t copied = 0;
++	ssize_t copied = 0;
+ 	bool full_record;
+ 	int record_room;
+ 	int ret = 0;
+@@ -1245,7 +1246,7 @@ wait_for_memory:
+ 	}
+ sendpage_end:
+ 	ret = sk_stream_error(sk, flags, ret);
+-	return copied ? copied : ret;
++	return copied > 0 ? copied : ret;
+ }
  
- 	flags |= nonblock;
- 
-@@ -1886,8 +1898,11 @@ pick_next_record:
- recv_end:
- 	if (num_async) {
- 		/* Wait for all previously submitted records to be decrypted */
--		smp_store_mb(ctx->async_notify, true);
--		if (atomic_read(&ctx->decrypt_pending)) {
-+		spin_lock_bh(&ctx->decrypt_compl_lock);
-+		ctx->async_notify = true;
-+		pending = atomic_read(&ctx->decrypt_pending);
-+		spin_unlock_bh(&ctx->decrypt_compl_lock);
-+		if (pending) {
- 			err = crypto_wait_req(-EINPROGRESS, &ctx->async_wait);
- 			if (err) {
- 				/* one of async decrypt failed */
-@@ -1899,6 +1914,10 @@ recv_end:
- 		} else {
- 			reinit_completion(&ctx->async_wait.completion);
- 		}
-+
-+		/* There can be no concurrent accesses, since we have no
-+		 * pending decrypt operations
-+		 */
- 		WRITE_ONCE(ctx->async_notify, false);
- 
- 		/* Drain records from the rx_list & copy if required */
-@@ -2285,6 +2304,7 @@ int tls_set_sw_offload(struct sock *sk,
- 
- 	if (tx) {
- 		crypto_init_wait(&sw_ctx_tx->async_wait);
-+		spin_lock_init(&sw_ctx_tx->encrypt_compl_lock);
- 		crypto_info = &ctx->crypto_send.info;
- 		cctx = &ctx->tx;
- 		aead = &sw_ctx_tx->aead_send;
-@@ -2293,6 +2313,7 @@ int tls_set_sw_offload(struct sock *sk,
- 		sw_ctx_tx->tx_work.sk = sk;
- 	} else {
- 		crypto_init_wait(&sw_ctx_rx->async_wait);
-+		spin_lock_init(&sw_ctx_rx->decrypt_compl_lock);
- 		crypto_info = &ctx->crypto_recv.info;
- 		cctx = &ctx->rx;
- 		skb_queue_head_init(&sw_ctx_rx->rx_list);
+ int tls_sw_sendpage_locked(struct sock *sk, struct page *page,
 
 
