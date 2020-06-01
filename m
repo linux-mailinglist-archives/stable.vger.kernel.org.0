@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D5871EAE71
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:54:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C2C341EAC29
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:37:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729903AbgFASCO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:02:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45280 "EHLO mail.kernel.org"
+        id S1731631AbgFASPx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:15:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36378 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729896AbgFASCK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:02:10 -0400
+        id S1731626AbgFASPx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:15:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DA2652065C;
-        Mon,  1 Jun 2020 18:02:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 478282068D;
+        Mon,  1 Jun 2020 18:15:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034530;
-        bh=u9RbMJt+W+v9l+9TcgBJ9HuUlcKo4R+C/yU5x9oNlvs=;
+        s=default; t=1591035352;
+        bh=yelJ21b3v0Rc7rYz3Zzu5h2wxtT86ub0XQvVeh7D2zE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zN2FRVIDiFYYvVqm/Bh/qEgVoB3nWq3ZXfmSlPSSR0XswRcmmTcBAdW5XJRPIT8Xc
-         VlrqNqcInhF55eQjRflctkWjA9PkLViRpS5KJtbL/3PP5v3Pc3B4zMMxEPaT8LYwOS
-         D1vCRKN9z0d9dnVij5SgL6zyC8M8u0jbJNNgDSkM=
+        b=1qzNMHLh2yjz48RH6vDpURu5s4riXiev68v+LVzlGM1FgnYaqSwoGDEn+E+tyLUfp
+         ZLEwPUd0Lj/hWfnrMruhHTRSdYwAz66f1NY4JJRka2fOCtr+M1rrYE+AP/7oMPYgxd
+         GyvBX/WAYLWj8ROfQl71R7aHyAjyojV1AeDC4DHM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guoqing Jiang <gqjiang@suse.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 4.14 73/77] sc16is7xx: move label err_spi to correct section
+        stable@vger.kernel.org, Kailang Yang <kailang@realtek.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 120/177] ALSA: hda/realtek - Add new codec supported for ALC287
 Date:   Mon,  1 Jun 2020 19:54:18 +0200
-Message-Id: <20200601174028.801093489@linuxfoundation.org>
+Message-Id: <20200601174058.592719111@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174016.396817032@linuxfoundation.org>
-References: <20200601174016.396817032@linuxfoundation.org>
+In-Reply-To: <20200601174048.468952319@linuxfoundation.org>
+References: <20200601174048.468952319@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,42 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guoqing Jiang <gqjiang@suse.com>
+From: Kailang Yang <kailang@realtek.com>
 
-commit e00164a0f000de893944981f41a568c981aca658 upstream.
+[ Upstream commit 630e36126e420e1756378b3427b42711ce0b9ddd ]
 
-err_spi is used when SERIAL_SC16IS7XX_SPI is enabled, so make
-the label only available under SERIAL_SC16IS7XX_SPI option.
-Otherwise, the below warning appears.
+Enable new codec supported for ALC287.
 
-drivers/tty/serial/sc16is7xx.c:1523:1: warning: label ‘err_spi’ defined but not used [-Wunused-label]
- err_spi:
-  ^~~~~~~
-
-Signed-off-by: Guoqing Jiang <gqjiang@suse.com>
-Fixes: ac0cdb3d9901 ("sc16is7xx: missing unregister/delete driver on error in sc16is7xx_init()")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Cc: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Kailang Yang <kailang@realtek.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/dcf5ce5507104d0589a917cbb71dc3c6@realtek.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/sc16is7xx.c |    2 ++
- 1 file changed, 2 insertions(+)
+ sound/pci/hda/patch_realtek.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/tty/serial/sc16is7xx.c
-+++ b/drivers/tty/serial/sc16is7xx.c
-@@ -1524,10 +1524,12 @@ static int __init sc16is7xx_init(void)
- #endif
- 	return ret;
- 
-+#ifdef CONFIG_SERIAL_SC16IS7XX_SPI
- err_spi:
- #ifdef CONFIG_SERIAL_SC16IS7XX_I2C
- 	i2c_del_driver(&sc16is7xx_i2c_uart_driver);
- #endif
-+#endif
- err_i2c:
- 	uart_unregister_driver(&sc16is7xx_uart);
- 	return ret;
+diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
+index 92c6e58c3862..e62d58872b6e 100644
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -384,6 +384,7 @@ static void alc_fill_eapd_coef(struct hda_codec *codec)
+ 	case 0x10ec0282:
+ 	case 0x10ec0283:
+ 	case 0x10ec0286:
++	case 0x10ec0287:
+ 	case 0x10ec0288:
+ 	case 0x10ec0285:
+ 	case 0x10ec0298:
+@@ -8292,6 +8293,7 @@ static int patch_alc269(struct hda_codec *codec)
+ 	case 0x10ec0215:
+ 	case 0x10ec0245:
+ 	case 0x10ec0285:
++	case 0x10ec0287:
+ 	case 0x10ec0289:
+ 		spec->codec_variant = ALC269_TYPE_ALC215;
+ 		spec->shutup = alc225_shutup;
+@@ -9570,6 +9572,7 @@ static const struct hda_device_id snd_hda_id_realtek[] = {
+ 	HDA_CODEC_ENTRY(0x10ec0284, "ALC284", patch_alc269),
+ 	HDA_CODEC_ENTRY(0x10ec0285, "ALC285", patch_alc269),
+ 	HDA_CODEC_ENTRY(0x10ec0286, "ALC286", patch_alc269),
++	HDA_CODEC_ENTRY(0x10ec0287, "ALC287", patch_alc269),
+ 	HDA_CODEC_ENTRY(0x10ec0288, "ALC288", patch_alc269),
+ 	HDA_CODEC_ENTRY(0x10ec0289, "ALC289", patch_alc269),
+ 	HDA_CODEC_ENTRY(0x10ec0290, "ALC290", patch_alc269),
+-- 
+2.25.1
+
 
 
