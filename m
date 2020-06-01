@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EE6B1EAB10
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:17:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EFC51EA9F2
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:05:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731439AbgFASOD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:14:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33678 "EHLO mail.kernel.org"
+        id S1730116AbgFASDu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:03:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47960 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731435AbgFASOD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:14:03 -0400
+        id S1730105AbgFASDs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:03:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2F72A2068D;
-        Mon,  1 Jun 2020 18:14:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 286E8206E2;
+        Mon,  1 Jun 2020 18:03:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591035242;
-        bh=SSr626oosF3ax4S4mvuIs1Z3CkLSI8JeRhlwsAREDNo=;
+        s=default; t=1591034626;
+        bh=cqq9J3dfNq+Ie1BItPFqWY/z22jFqRMxoInw3wpatS0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1kF+BFH+CLBT5M7txS7x6ROkjeV++8JjXYSEQDyghypXZJhBIit4lKgiGZ6UPNNIm
-         BAdnW7Ip8XWD0psEpZFqh/gBTZubxkiBL/Xx238FU69yk3AcZLRYFu0O/axJTQ/r3N
-         7gnWwPgxnTujC6k8kTjSXrwron071mLS6+S9yKJQ=
+        b=Khl7L+gdkCQNKxTl/RbEfhLuSm5OTmBbIhX2fps85GRbplrfd7hfRUluaDfTAvXde
+         oIyVsO2fAmkYThhTXuGFvzNdwFlaIF4JpkuC8wBb4fjVkEMP5FG7A075xOJJ6BFfY+
+         x5DUhIz8YGlZnjB78icO7nLKBzhx/U+1QS+Zb1/U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Kefeng Wang <wangkefeng.wang@huawei.com>,
-        Palmer Dabbelt <palmerdabbelt@google.com>,
+        stable@vger.kernel.org,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Felipe Balbi <balbi@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 071/177] riscv: stacktrace: Fix undefined reference to `walk_stackframe
-Date:   Mon,  1 Jun 2020 19:53:29 +0200
-Message-Id: <20200601174054.823777292@linuxfoundation.org>
+Subject: [PATCH 4.19 30/95] usb: dwc3: pci: Enable extcon driver for Intel Merrifield
+Date:   Mon,  1 Jun 2020 19:53:30 +0200
+Message-Id: <20200601174025.564443221@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174048.468952319@linuxfoundation.org>
-References: <20200601174048.468952319@linuxfoundation.org>
+In-Reply-To: <20200601174020.759151073@linuxfoundation.org>
+References: <20200601174020.759151073@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,35 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kefeng Wang <wangkefeng.wang@huawei.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit 0502bee37cdef755d63eee60236562e5605e2480 ]
+[ Upstream commit 066c09593454e89bc605ffdff1c9810061f9b1e1 ]
 
-Drop static declaration to fix following build error if FRAME_POINTER disabled,
-  riscv64-linux-ld: arch/riscv/kernel/perf_callchain.o: in function `.L0':
-  perf_callchain.c:(.text+0x2b8): undefined reference to `walk_stackframe'
+Intel Merrifield provides a DR support via PMIC which has its own
+extcon driver.
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
+Add a property string to link to that driver.
+
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/kernel/stacktrace.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/dwc3/dwc3-pci.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/riscv/kernel/stacktrace.c b/arch/riscv/kernel/stacktrace.c
-index 0940681d2f68..19e46f4160cc 100644
---- a/arch/riscv/kernel/stacktrace.c
-+++ b/arch/riscv/kernel/stacktrace.c
-@@ -63,7 +63,7 @@ void notrace walk_stackframe(struct task_struct *task, struct pt_regs *regs,
+diff --git a/drivers/usb/dwc3/dwc3-pci.c b/drivers/usb/dwc3/dwc3-pci.c
+index edf7984707b7..b2fd505938a0 100644
+--- a/drivers/usb/dwc3/dwc3-pci.c
++++ b/drivers/usb/dwc3/dwc3-pci.c
+@@ -112,6 +112,7 @@ static const struct property_entry dwc3_pci_intel_properties[] = {
  
- #else /* !CONFIG_FRAME_POINTER */
- 
--static void notrace walk_stackframe(struct task_struct *task,
-+void notrace walk_stackframe(struct task_struct *task,
- 	struct pt_regs *regs, bool (*fn)(unsigned long, void *), void *arg)
- {
- 	unsigned long sp, pc;
+ static const struct property_entry dwc3_pci_mrfld_properties[] = {
+ 	PROPERTY_ENTRY_STRING("dr_mode", "otg"),
++	PROPERTY_ENTRY_STRING("linux,extcon-name", "mrfld_bcove_pwrsrc"),
+ 	PROPERTY_ENTRY_BOOL("linux,sysdev_is_parent"),
+ 	{}
+ };
 -- 
 2.25.1
 
