@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CDCAB1EAAD2
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:12:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A32411EAAD6
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:12:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729769AbgFASLq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:11:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58992 "EHLO mail.kernel.org"
+        id S1731166AbgFASL4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:11:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59088 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730263AbgFASLq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:11:46 -0400
+        id S1730462AbgFASLu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:11:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D12202065C;
-        Mon,  1 Jun 2020 18:11:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4EDE92065C;
+        Mon,  1 Jun 2020 18:11:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591035105;
-        bh=gfwq4jtvjfPPrMtp1kE8x+i6cf+MPMHd+vZlmkqtiJM=;
+        s=default; t=1591035109;
+        bh=KlkWwm/tiwxWsauXuo/bW/oTU/cQu4F2ZLTFnbeJcxk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M3WticiL9d5boCJms95Rc9yJ424CwrPP+qAd1bIID27AkWSyRzarHP2KpFdc7PMjB
-         64A63dB9uKvZ90DKXh4Lx+rM46R78ONiq/2sR9RMvkuUyxfRtaULaFNX534aS+OMKm
-         GTD9/E1WYpDAWJBX0L4iyY3AYje9KH4HxpjYcFq8=
+        b=YSheTNOaO2fh9IkDDQaP8lqMH6tP4c+BHbUarjXlrPIAeqSEpXep0QFF0VsNnJsYl
+         BshnslC3Eq5byS0MpCGFpN5C68oxDccqMJt1SOeAkWZwUtL8yX3cKN/3Ijd+FaCai9
+         h22XYFZektMlJsyy8nlONbFJPOEPeR2ZQ8fQrdfY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matteo Croce <mcroce@redhat.com>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
+        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
+        Julia Lawall <julia.lawall@lip6.fr>,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.6 012/177] net: mvpp2: fix RX hashing for non-10G ports
-Date:   Mon,  1 Jun 2020 19:52:30 +0200
-Message-Id: <20200601174049.661858972@linuxfoundation.org>
+Subject: [PATCH 5.6 014/177] net: qrtr: Fix passing invalid reference to qrtr_local_enqueue()
+Date:   Mon,  1 Jun 2020 19:52:32 +0200
+Message-Id: <20200601174049.840281466@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200601174048.468952319@linuxfoundation.org>
 References: <20200601174048.468952319@linuxfoundation.org>
@@ -44,187 +46,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King <rmk+kernel@armlinux.org.uk>
+From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
 
-[ Upstream commit 3138a07ce219acde4c0d7ea0b6d54ba64153328b ]
+[ Upstream commit d28ea1fbbf437054ef339afec241019f2c4e2bb6 ]
 
-When rxhash is enabled on any ethernet port except the first in each CP
-block, traffic flow is prevented.  The analysis is below:
+Once the traversal of the list is completed with list_for_each_entry(),
+the iterator (node) will point to an invalid object. So passing this to
+qrtr_local_enqueue() which is outside of the iterator block is erroneous
+eventhough the object is not used.
 
-I've been investigating this afternoon, and what I've found, comparing
-a kernel without 895586d5dc32 and with 895586d5dc32 applied is:
+So fix this by passing NULL to qrtr_local_enqueue().
 
-- The table programmed into the hardware via mvpp22_rss_fill_table()
-  appears to be identical with or without the commit.
-
-- When rxhash is enabled on eth2, mvpp2_rss_port_c2_enable() reports
-  that c2.attr[0] and c2.attr[2] are written back containing:
-
-   - with 895586d5dc32, failing:    00200000 40000000
-   - without 895586d5dc32, working: 04000000 40000000
-
-- When disabling rxhash, c2.attr[0] and c2.attr[2] are written back as:
-
-   04000000 00000000
-
-The second value represents the MVPP22_CLS_C2_ATTR2_RSS_EN bit, the
-first value is the queue number, which comprises two fields. The high
-5 bits are 24:29 and the low three are 21:23 inclusive. This comes
-from:
-
-       c2.attr[0] = MVPP22_CLS_C2_ATTR0_QHIGH(qh) |
-                     MVPP22_CLS_C2_ATTR0_QLOW(ql);
-
-So, the working case gives eth2 a queue id of 4.0, or 32 as per
-port->first_rxq, and the non-working case a queue id of 0.1, or 1.
-The allocation of queue IDs seems to be in mvpp2_port_probe():
-
-        if (priv->hw_version == MVPP21)
-                port->first_rxq = port->id * port->nrxqs;
-        else
-                port->first_rxq = port->id * priv->max_port_rxqs;
-
-Where:
-
-        if (priv->hw_version == MVPP21)
-                priv->max_port_rxqs = 8;
-        else
-                priv->max_port_rxqs = 32;
-
-Making the port 0 (eth0 / eth1) have port->first_rxq = 0, and port 1
-(eth2) be 32. It seems the idea is that the first 32 queues belong to
-port 0, the second 32 queues belong to port 1, etc.
-
-mvpp2_rss_port_c2_enable() gets the queue number from it's parameter,
-'ctx', which comes from mvpp22_rss_ctx(port, 0). This returns
-port->rss_ctx[0].
-
-mvpp22_rss_context_create() is responsible for allocating that, which
-it does by looking for an unallocated priv->rss_tables[] pointer. This
-table is shared amongst all ports on the CP silicon.
-
-When we write the tables in mvpp22_rss_fill_table(), the RSS table
-entry is defined by:
-
-                u32 sel = MVPP22_RSS_INDEX_TABLE(rss_ctx) |
-                          MVPP22_RSS_INDEX_TABLE_ENTRY(i);
-
-where rss_ctx is the context ID (queue number) and i is the index in
-the table.
-
-If we look at what is written:
-
-- The first table to be written has "sel" values of 00000000..0000001f,
-  containing values 0..3. This appears to be for eth1. This is table 0,
-  RX queue number 0.
-- The second table has "sel" values of 00000100..0000011f, and appears
-  to be for eth2.  These contain values 0x20..0x23. This is table 1,
-  RX queue number 0.
-- The third table has "sel" values of 00000200..0000021f, and appears
-  to be for eth3.  These contain values 0x40..0x43. This is table 2,
-  RX queue number 0.
-
-How do queue numbers translate to the RSS table?  There is another
-table - the RXQ2RSS table, indexed by the MVPP22_RSS_INDEX_QUEUE field
-of MVPP22_RSS_INDEX and accessed through the MVPP22_RXQ2RSS_TABLE
-register. Before 895586d5dc32, it was:
-
-       mvpp2_write(priv, MVPP22_RSS_INDEX,
-                   MVPP22_RSS_INDEX_QUEUE(port->first_rxq));
-       mvpp2_write(priv, MVPP22_RXQ2RSS_TABLE,
-                   MVPP22_RSS_TABLE_POINTER(port->id));
-
-and after:
-
-       mvpp2_write(priv, MVPP22_RSS_INDEX, MVPP22_RSS_INDEX_QUEUE(ctx));
-       mvpp2_write(priv, MVPP22_RXQ2RSS_TABLE, MVPP22_RSS_TABLE_POINTER(ctx));
-
-Before the commit, for eth2, that would've contained '32' for the
-index and '1' for the table pointer - mapping queue 32 to table 1.
-Remember that this is queue-high.queue-low of 4.0.
-
-After the commit, we appear to map queue 1 to table 1. That again
-looks fine on the face of it.
-
-Section 9.3.1 of the A8040 manual seems indicate the reason that the
-queue number is separated. queue-low seems to always come from the
-classifier, whereas queue-high can be from the ingress physical port
-number or the classifier depending on the MVPP2_CLS_SWFWD_PCTRL_REG.
-
-We set the port bit in MVPP2_CLS_SWFWD_PCTRL_REG, meaning that queue-high
-comes from the MVPP2_CLS_SWFWD_P2HQ_REG() register... and this seems to
-be where our bug comes from.
-
-mvpp2_cls_oversize_rxq_set() sets this up as:
-
-        mvpp2_write(port->priv, MVPP2_CLS_SWFWD_P2HQ_REG(port->id),
-                    (port->first_rxq >> MVPP2_CLS_OVERSIZE_RXQ_LOW_BITS));
-
-        val = mvpp2_read(port->priv, MVPP2_CLS_SWFWD_PCTRL_REG);
-        val |= MVPP2_CLS_SWFWD_PCTRL_MASK(port->id);
-        mvpp2_write(port->priv, MVPP2_CLS_SWFWD_PCTRL_REG, val);
-
-Setting the MVPP2_CLS_SWFWD_PCTRL_MASK bit means that the queue-high
-for eth2 is _always_ 4, so only queues 32 through 39 inclusive are
-available to eth2. Yet, we're trying to tell the classifier to set
-queue-high, which will be ignored, to zero. Hence, the queue-high
-field (MVPP22_CLS_C2_ATTR0_QHIGH()) from the classifier will be
-ignored.
-
-This means we end up directing traffic from eth2 not to queue 1, but
-to queue 33, and then we tell it to look up queue 33 in the RSS table.
-However, RSS table has not been programmed for queue 33, and so it ends
-up (presumably) dropping the packets.
-
-It seems that mvpp22_rss_context_create() doesn't take account of the
-fact that the upper 5 bits of the queue ID can't actually be changed
-due to the settings in mvpp2_cls_oversize_rxq_set(), _or_ it seems that
-mvpp2_cls_oversize_rxq_set() has been missed in this commit. Either
-way, these two functions mutually disagree with what queue number
-should be used.
-
-Looking deeper into what mvpp2_cls_oversize_rxq_set() and the MTU
-validation is doing, it seems that MVPP2_CLS_SWFWD_P2HQ_REG() is used
-for over-sized packets attempting to egress through this port. With
-the classifier having had RSS enabled and directing eth2 traffic to
-queue 1, we may still have packets appearing on queue 32 for this port.
-
-However, the only way we may end up with over-sized packets attempting
-to egress through eth2 - is if the A8040 forwards frames between its
-ports. From what I can see, we don't support that feature, and the
-kernel restricts the egress packet size to the MTU. In any case, if we
-were to attempt to transmit an oversized packet, we have no support in
-the kernel to deal with that appearing in the port's receive queue.
-
-So, this patch attempts to solve the issue by clearing the
-MVPP2_CLS_SWFWD_PCTRL_MASK() bit, allowing MVPP22_CLS_C2_ATTR0_QHIGH()
-from the classifier to define the queue-high field of the queue number.
-
-My testing seems to confirm my findings above - clearing this bit
-means that if I enable rxhash on eth2, the interface can then pass
-traffic, as we are now directing traffic to RX queue 1 rather than
-queue 33. Traffic still seems to work with rxhash off as well.
-
-Reported-by: Matteo Croce <mcroce@redhat.com>
-Tested-by: Matteo Croce <mcroce@redhat.com>
-Fixes: 895586d5dc32 ("net: mvpp2: cls: Use RSS contexts to handle RSS tables")
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Fixes: bdabad3e363d ("net: Add Qualcomm IPC router")
+Reported-by: kbuild test robot <lkp@intel.com>
+Reported-by: Julia Lawall <julia.lawall@lip6.fr>
+Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/marvell/mvpp2/mvpp2_cls.c |    2 +-
+ net/qrtr/qrtr.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/marvell/mvpp2/mvpp2_cls.c
-+++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2_cls.c
-@@ -1070,7 +1070,7 @@ void mvpp2_cls_oversize_rxq_set(struct m
- 		    (port->first_rxq >> MVPP2_CLS_OVERSIZE_RXQ_LOW_BITS));
+--- a/net/qrtr/qrtr.c
++++ b/net/qrtr/qrtr.c
+@@ -855,7 +855,7 @@ static int qrtr_bcast_enqueue(struct qrt
+ 	}
+ 	mutex_unlock(&qrtr_node_lock);
  
- 	val = mvpp2_read(port->priv, MVPP2_CLS_SWFWD_PCTRL_REG);
--	val |= MVPP2_CLS_SWFWD_PCTRL_MASK(port->id);
-+	val &= ~MVPP2_CLS_SWFWD_PCTRL_MASK(port->id);
- 	mvpp2_write(port->priv, MVPP2_CLS_SWFWD_PCTRL_REG, val);
+-	qrtr_local_enqueue(node, skb, type, from, to);
++	qrtr_local_enqueue(NULL, skb, type, from, to);
+ 
+ 	return 0;
  }
- 
 
 
