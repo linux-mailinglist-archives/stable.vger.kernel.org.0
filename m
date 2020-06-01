@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E4EFA1EADEB
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:49:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1358B1EACFD
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:43:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730492AbgFAStr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:49:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52394 "EHLO mail.kernel.org"
+        id S1731209AbgFASMU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:12:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59666 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730482AbgFASGm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:06:42 -0400
+        id S1731205AbgFASMT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:12:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 90DD2207D0;
-        Mon,  1 Jun 2020 18:06:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 73975207D0;
+        Mon,  1 Jun 2020 18:12:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034802;
-        bh=5PdVzUgIIVWPSy0wNPz7EaDxgWyXOWdWg0/IFX5111o=;
+        s=default; t=1591035138;
+        bh=0P0f2uWiBY7wYHUj9mF4lF2+aflS/pEr08cxh52VTUc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1zNkROCe+a4zSe/57DkmTbmdrbtCqBoL4VoIy0Ez9IzKu4m87Hy8FE/Yp0izUklCq
-         Vyxvsh2YkXZRFBm+k60kXPMoNMRx7yfeUl2fQqmovZHsWnHnmRvVodrCI1LgeGo7NP
-         iEal9Yh53eL/Aq7NMXZ/EJa6/UrXSA7IlByTdPX0=
+        b=rMHrOXsY0wj1T+DZMvLX9KvFzumOTIF4GFNrAwUHisExoAZs5P6YHvzl8nAo5ZYBs
+         4u2B3RX8WUPXdlK3GOUu0MLlD0aJjUN8pF9Zh0BDA0lSlVkuRqcVy5tnAyigvwLqI5
+         LmmDVuTCYWRGEUj/VDqo2rCprpbF9vWMtpZSE2bA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Boris Sukholitko <boris.sukholitko@broadcom.com>,
-        Edward Cree <ecree@solarflare.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 006/142] __netif_receive_skb_core: pass skb by reference
+        stable@vger.kernel.org, Moshe Shemesh <moshe@mellanox.com>,
+        Tariq Toukan <tariqt@mellanox.com>,
+        Saeed Mahameed <saeedm@mellanox.com>
+Subject: [PATCH 5.6 026/177] net/mlx5e: Update netdev txq on completions during closure
 Date:   Mon,  1 Jun 2020 19:52:44 +0200
-Message-Id: <20200601174038.705010673@linuxfoundation.org>
+Message-Id: <20200601174051.013234568@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174037.904070960@linuxfoundation.org>
-References: <20200601174037.904070960@linuxfoundation.org>
+In-Reply-To: <20200601174048.468952319@linuxfoundation.org>
+References: <20200601174048.468952319@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,91 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Boris Sukholitko <boris.sukholitko@broadcom.com>
+From: Moshe Shemesh <moshe@mellanox.com>
 
-[ Upstream commit c0bbbdc32febd4f034ecbf3ea17865785b2c0652 ]
+[ Upstream commit 5e911e2c06bd8c17df29147a5e2d4b17fafda024 ]
 
-__netif_receive_skb_core may change the skb pointer passed into it (e.g.
-in rx_handler). The original skb may be freed as a result of this
-operation.
+On sq closure when we free its descriptors, we should also update netdev
+txq on completions which would not arrive. Otherwise if we reopen sqs
+and attach them back, for example on fw fatal recovery flow, we may get
+tx timeout.
 
-The callers of __netif_receive_skb_core may further process original skb
-by using pt_prev pointer returned by __netif_receive_skb_core thus
-leading to unpleasant effects.
-
-The solution is to pass skb by reference into __netif_receive_skb_core.
-
-v2: Added Fixes tag and comment regarding ppt_prev and skb invariant.
-
-Fixes: 88eb1944e18c ("net: core: propagate SKB lists through packet_type lookup")
-Signed-off-by: Boris Sukholitko <boris.sukholitko@broadcom.com>
-Acked-by: Edward Cree <ecree@solarflare.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 29429f3300a3 ("net/mlx5e: Timeout if SQ doesn't flush during close")
+Signed-off-by: Moshe Shemesh <moshe@mellanox.com>
+Reviewed-by: Tariq Toukan <tariqt@mellanox.com>
+Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/dev.c |   20 +++++++++++++++-----
- 1 file changed, 15 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en_tx.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -4713,11 +4713,12 @@ static inline int nf_ingress(struct sk_b
- 	return 0;
- }
- 
--static int __netif_receive_skb_core(struct sk_buff *skb, bool pfmemalloc,
-+static int __netif_receive_skb_core(struct sk_buff **pskb, bool pfmemalloc,
- 				    struct packet_type **ppt_prev)
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_tx.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_tx.c
+@@ -538,10 +538,9 @@ bool mlx5e_poll_tx_cq(struct mlx5e_cq *c
+ void mlx5e_free_txqsq_descs(struct mlx5e_txqsq *sq)
  {
- 	struct packet_type *ptype, *pt_prev;
- 	rx_handler_func_t *rx_handler;
-+	struct sk_buff *skb = *pskb;
- 	struct net_device *orig_dev;
- 	bool deliver_exact = false;
- 	int ret = NET_RX_DROP;
-@@ -4748,8 +4749,10 @@ another_round:
- 		ret2 = do_xdp_generic(rcu_dereference(skb->dev->xdp_prog), skb);
- 		preempt_enable();
+ 	struct mlx5e_tx_wqe_info *wi;
++	u32 dma_fifo_cc, nbytes = 0;
++	u16 ci, sqcc, npkts = 0;
+ 	struct sk_buff *skb;
+-	u32 dma_fifo_cc;
+-	u16 sqcc;
+-	u16 ci;
+ 	int i;
  
--		if (ret2 != XDP_PASS)
--			return NET_RX_DROP;
-+		if (ret2 != XDP_PASS) {
-+			ret = NET_RX_DROP;
-+			goto out;
-+		}
- 		skb_reset_mac_len(skb);
+ 	sqcc = sq->cc;
+@@ -566,11 +565,15 @@ void mlx5e_free_txqsq_descs(struct mlx5e
+ 		}
+ 
+ 		dev_kfree_skb_any(skb);
++		npkts++;
++		nbytes += wi->num_bytes;
+ 		sqcc += wi->num_wqebbs;
  	}
  
-@@ -4899,6 +4902,13 @@ drop:
- 	}
- 
- out:
-+	/* The invariant here is that if *ppt_prev is not NULL
-+	 * then skb should also be non-NULL.
-+	 *
-+	 * Apparently *ppt_prev assignment above holds this invariant due to
-+	 * skb dereferencing near it.
-+	 */
-+	*pskb = skb;
- 	return ret;
+ 	sq->dma_fifo_cc = dma_fifo_cc;
+ 	sq->cc = sqcc;
++
++	netdev_tx_completed_queue(sq->txq, npkts, nbytes);
  }
  
-@@ -4908,7 +4918,7 @@ static int __netif_receive_skb_one_core(
- 	struct packet_type *pt_prev = NULL;
- 	int ret;
- 
--	ret = __netif_receive_skb_core(skb, pfmemalloc, &pt_prev);
-+	ret = __netif_receive_skb_core(&skb, pfmemalloc, &pt_prev);
- 	if (pt_prev)
- 		ret = INDIRECT_CALL_INET(pt_prev->func, ipv6_rcv, ip_rcv, skb,
- 					 skb->dev, pt_prev, orig_dev);
-@@ -4986,7 +4996,7 @@ static void __netif_receive_skb_list_cor
- 		struct packet_type *pt_prev = NULL;
- 
- 		skb_list_del_init(skb);
--		__netif_receive_skb_core(skb, pfmemalloc, &pt_prev);
-+		__netif_receive_skb_core(&skb, pfmemalloc, &pt_prev);
- 		if (!pt_prev)
- 			continue;
- 		if (pt_curr != pt_prev || od_curr != orig_dev) {
+ #ifdef CONFIG_MLX5_CORE_IPOIB
 
 
