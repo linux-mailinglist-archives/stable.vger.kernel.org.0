@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0067C1EA901
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 19:58:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 652D01EA8CB
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 19:57:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729021AbgFAR5t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 13:57:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39234 "EHLO mail.kernel.org"
+        id S1728382AbgFARzz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 13:55:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35966 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729018AbgFAR5s (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 13:57:48 -0400
+        id S1728314AbgFARzy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 13:55:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BE058206E2;
-        Mon,  1 Jun 2020 17:57:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 350182076B;
+        Mon,  1 Jun 2020 17:55:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034268;
-        bh=w7DJnZMmhCocz2csBVNNPUMzJF7l7UZPIEyYgpL5EQY=;
+        s=default; t=1591034153;
+        bh=cefI0ZFCKQibzgsWiyF43o4I/K11S3pa1wEiuKrRIpY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oSoDgPWeBef4fArJ7DylQcmyVNyqM2OoX7Lo636NuAfTeRiwYpFfu+CjeSSy+aUWW
-         sAgeHyBt5OYdMjRrPMhBoChe3Wi4DHaqLYZggMlzoDsbtk5dPUcMetd6P1zm3f6yCg
-         Y1TEhuhc4nX5rhEiNWfshpKrMmBvV4a7nU2F2gCI=
+        b=hxtIOUJTxyLTeCbQYlSyZuf5hnEhroqZhyyB+PsGCAnsi3BW5jnpT5xyaWPw7M1Qm
+         GXtoNqOn/28xQTFK+JcUI8/s04CuywiqZWvyxzvPO0vta64Zn5LxJGfK05bzOIgEAK
+         S6vkPgCJuHBTkjQnUSf7kMqOkXRZDREZl7uDmgmo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        kbuild test robot <lkp@intel.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Felipe Balbi <balbi@kernel.org>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?=C5=81ukasz=20Patron?= <priv.luk@gmail.com>,
+        Cameron Gutman <aicommander@gmail.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 18/61] usb: gadget: legacy: fix redundant initialization warnings
-Date:   Mon,  1 Jun 2020 19:53:25 +0200
-Message-Id: <20200601174015.089331120@linuxfoundation.org>
+Subject: [PATCH 4.4 16/48] Input: xpad - add custom init packet for Xbox One S controllers
+Date:   Mon,  1 Jun 2020 19:53:26 +0200
+Message-Id: <20200601173957.119892052@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174010.316778377@linuxfoundation.org>
-References: <20200601174010.316778377@linuxfoundation.org>
+In-Reply-To: <20200601173952.175939894@linuxfoundation.org>
+References: <20200601173952.175939894@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,61 +46,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <masahiroy@kernel.org>
+From: Łukasz Patron <priv.luk@gmail.com>
 
-[ Upstream commit d13cce757954fa663c69845611957396843ed87a ]
+[ Upstream commit 764f7f911bf72450c51eb74cbb262ad9933741d8 ]
 
-Fix the following cppcheck warnings:
+Sending [ 0x05, 0x20, 0x00, 0x0f, 0x06 ] packet for Xbox One S controllers
+fixes an issue where controller is stuck in Bluetooth mode and not sending
+any inputs.
 
-drivers/usb/gadget/legacy/inode.c:1364:8: style: Redundant initialization for 'value'. The initialized value is overwritten$
- value = -EOPNOTSUPP;
-       ^
-drivers/usb/gadget/legacy/inode.c:1331:15: note: value is initialized
- int    value = -EOPNOTSUPP;
-              ^
-drivers/usb/gadget/legacy/inode.c:1364:8: note: value is overwritten
- value = -EOPNOTSUPP;
-       ^
-drivers/usb/gadget/legacy/inode.c:1817:8: style: Redundant initialization for 'value'. The initialized value is overwritten$
- value = -EINVAL;
-       ^
-drivers/usb/gadget/legacy/inode.c:1787:18: note: value is initialized
- ssize_t   value = len, length = len;
-                 ^
-drivers/usb/gadget/legacy/inode.c:1817:8: note: value is overwritten
- value = -EINVAL;
-       ^
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Reported-by: kbuild test robot <lkp@intel.com>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
-
+Signed-off-by: Łukasz Patron <priv.luk@gmail.com>
+Reviewed-by: Cameron Gutman <aicommander@gmail.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20200422075206.18229-1-priv.luk@gmail.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/legacy/inode.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/input/joystick/xpad.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/drivers/usb/gadget/legacy/inode.c b/drivers/usb/gadget/legacy/inode.c
-index b8534d3f8bb0..cb02e9ecd8e7 100644
---- a/drivers/usb/gadget/legacy/inode.c
-+++ b/drivers/usb/gadget/legacy/inode.c
-@@ -1364,7 +1364,6 @@ gadgetfs_setup (struct usb_gadget *gadget, const struct usb_ctrlrequest *ctrl)
+diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+index 26476a64e663..54a6691d7d87 100644
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -475,6 +475,16 @@ static const u8 xboxone_fw2015_init[] = {
+ 	0x05, 0x20, 0x00, 0x01, 0x00
+ };
  
- 	req->buf = dev->rbuf;
- 	req->context = NULL;
--	value = -EOPNOTSUPP;
- 	switch (ctrl->bRequest) {
- 
- 	case USB_REQ_GET_DESCRIPTOR:
-@@ -1788,7 +1787,7 @@ static ssize_t
- dev_config (struct file *fd, const char __user *buf, size_t len, loff_t *ptr)
- {
- 	struct dev_data		*dev = fd->private_data;
--	ssize_t			value = len, length = len;
-+	ssize_t			value, length = len;
- 	unsigned		total;
- 	u32			tag;
- 	char			*kbuf;
++/*
++ * This packet is required for Xbox One S (0x045e:0x02ea)
++ * and Xbox One Elite Series 2 (0x045e:0x0b00) pads to
++ * initialize the controller that was previously used in
++ * Bluetooth mode.
++ */
++static const u8 xboxone_s_init[] = {
++	0x05, 0x20, 0x00, 0x0f, 0x06
++};
++
+ /*
+  * This packet is required for the Titanfall 2 Xbox One pads
+  * (0x0e6f:0x0165) to finish initialization and for Hori pads
+@@ -533,6 +543,8 @@ static const struct xboxone_init_packet xboxone_init_packets[] = {
+ 	XBOXONE_INIT_PKT(0x0e6f, 0x0165, xboxone_hori_init),
+ 	XBOXONE_INIT_PKT(0x0f0d, 0x0067, xboxone_hori_init),
+ 	XBOXONE_INIT_PKT(0x0000, 0x0000, xboxone_fw2015_init),
++	XBOXONE_INIT_PKT(0x045e, 0x02ea, xboxone_s_init),
++	XBOXONE_INIT_PKT(0x045e, 0x0b00, xboxone_s_init),
+ 	XBOXONE_INIT_PKT(0x0e6f, 0x0000, xboxone_pdp_init1),
+ 	XBOXONE_INIT_PKT(0x0e6f, 0x0000, xboxone_pdp_init2),
+ 	XBOXONE_INIT_PKT(0x24c6, 0x541a, xboxone_rumblebegin_init),
 -- 
 2.25.1
 
