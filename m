@@ -2,104 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F59D1EA437
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 14:49:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 594721EA479
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 15:12:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725847AbgFAMtt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 08:49:49 -0400
-Received: from mga05.intel.com ([192.55.52.43]:25395 "EHLO mga05.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725838AbgFAMtt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 08:49:49 -0400
-IronPort-SDR: hch8NvS//qG21d6Ig3Nqr5Fhxwq4xB+d48ceNubpUak/WwTxJ7/fcC66GlibO63L7qaRWH7d6j
- ePv/3NhMeWUA==
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga004.fm.intel.com ([10.253.24.48])
-  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Jun 2020 05:49:48 -0700
-IronPort-SDR: K3y4zi83dtSyVMV6ygjQ3P3cdGILxAzIlvqBz/aNhvIYx2KaIxoOR2CxJQcjQ14cPv6eAFHzTi
- KF6KdR/w8r4g==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.73,460,1583222400"; 
-   d="scan'208";a="293180025"
-Received: from fmsmsx106.amr.corp.intel.com ([10.18.124.204])
-  by fmsmga004.fm.intel.com with ESMTP; 01 Jun 2020 05:49:48 -0700
-Received: from FMSMSX109.amr.corp.intel.com (10.18.116.9) by
- FMSMSX106.amr.corp.intel.com (10.18.124.204) with Microsoft SMTP Server (TLS)
- id 14.3.439.0; Mon, 1 Jun 2020 05:49:48 -0700
-Received: from bgsmsx101.gar.corp.intel.com (10.223.4.170) by
- fmsmsx109.amr.corp.intel.com (10.18.116.9) with Microsoft SMTP Server (TLS)
- id 14.3.439.0; Mon, 1 Jun 2020 05:49:47 -0700
-Received: from bgsmsx104.gar.corp.intel.com ([169.254.5.115]) by
- BGSMSX101.gar.corp.intel.com ([169.254.1.23]) with mapi id 14.03.0439.000;
- Mon, 1 Jun 2020 18:19:45 +0530
-From:   "Shankar, Uma" <uma.shankar@intel.com>
-To:     "Gupta, Anshuman" <anshuman.gupta@intel.com>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>
-CC:     "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: RE: [Intel-gfx] [RFC] drm/i915: lpsp with hdmi/dp outputs
-Thread-Topic: [Intel-gfx] [RFC] drm/i915: lpsp with hdmi/dp outputs
-Thread-Index: AQHWN/+DXwK47U+O70e74aNiXdDPH6jDtRGg
-Date:   Mon, 1 Jun 2020 12:49:44 +0000
-Message-ID: <E7C9878FBA1C6D42A1CA3F62AEB6945F82516D51@BGSMSX104.gar.corp.intel.com>
-References: <20200601101516.21018-1-anshuman.gupta@intel.com>
-In-Reply-To: <20200601101516.21018-1-anshuman.gupta@intel.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-dlp-product: dlpe-windows
-dlp-version: 11.2.0.6
-dlp-reaction: no-action
-x-originating-ip: [10.223.10.10]
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+        id S1728080AbgFANMD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 09:12:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48290 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728071AbgFANMC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Jun 2020 09:12:02 -0400
+Received: from Galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BA68C061A0E;
+        Mon,  1 Jun 2020 06:12:02 -0700 (PDT)
+Received: from [5.158.153.53] (helo=tip-bot2.lab.linutronix.de)
+        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
+        (Exim 4.80)
+        (envelope-from <tip-bot2@linutronix.de>)
+        id 1jfkEM-000793-6s; Mon, 01 Jun 2020 15:11:54 +0200
+Received: from [127.0.1.1] (localhost [IPv6:::1])
+        by tip-bot2.lab.linutronix.de (Postfix) with ESMTP id B182D1C04DD;
+        Mon,  1 Jun 2020 15:11:48 +0200 (CEST)
+Date:   Mon, 01 Jun 2020 13:11:48 -0000
+From:   "tip-bot2 for Michael Ellerman" <tip-bot2@linutronix.de>
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: timers/core] clocksource/drivers/timer-microchip-pit64b: Select
+ CONFIG_TIMER_OF
+Cc:     stable@vger.kernel.org, #@tip-bot2.tec.linutronix.de,
+        v5.6+@tip-bot2.tec.linutronix.de,
+        kbuild test robot <lkp@intel.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        x86 <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20200426124356.3929682-1-mpe@ellerman.id.au>
+References: <20200426124356.3929682-1-mpe@ellerman.id.au>
 MIME-Version: 1.0
+Message-ID: <159101710857.17951.10091411980553462232.tip-bot2@tip-bot2>
+X-Mailer: tip-git-log-daemon
+Robot-ID: <tip-bot2.linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Linutronix-Spam-Score: -1.0
+X-Linutronix-Spam-Level: -
+X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogSW50ZWwtZ2Z4IDxpbnRl
-bC1nZngtYm91bmNlc0BsaXN0cy5mcmVlZGVza3RvcC5vcmc+IE9uIEJlaGFsZiBPZg0KPiBBbnNo
-dW1hbiBHdXB0YQ0KPiBTZW50OiBNb25kYXksIEp1bmUgMSwgMjAyMCAzOjQ1IFBNDQo+IFRvOiBp
-bnRlbC1nZnhAbGlzdHMuZnJlZWRlc2t0b3Aub3JnDQo+IENjOiBzdGFibGVAdmdlci5rZXJuZWwu
-b3JnDQo+IFN1YmplY3Q6IFtJbnRlbC1nZnhdIFtSRkNdIGRybS9pOTE1OiBscHNwIHdpdGggaGRt
-aS9kcCBvdXRwdXRzDQo+IA0KPiBHZW4xMiBodyBhcmUgZmFpbGluZyB0byBlbmFibGUgbHBzcCBj
-b25maWd1cmF0aW9uIGR1ZSB0byBQRzMgd2FzIGxlZnQgb24gZHVlIHRvDQo+IHZhbGlkIHVzZ2Fl
-IGNvdW50IG9mIFBPV0VSX0RPTUFJTl9BVURJTy4NCj4gSXQgaXMgbm90IHJlcXVpcmVkIHRvIGdl
-dCBQT1dFUl9ET01BSU5fQVVESU8gcmVmLWNvdW50IHdoZW4gZW5hYmxpbmcgYSBjcnRjLA0KPiBp
-dCBzaG91bGQgYmUgYWx3YXlzIGk5MTVfYXVkaW9fY29tcG9uZW50IHJlcXVlc3QgdG8gZ2V0L3B1
-dA0KPiBBVURJT19QT1dFUl9ET01BSU4uDQo+IA0KPiBDYzogc3RhYmxlQHZnZXIua2VybmVsLm9y
-Zw0KPiBDYzogVmlsbGUgU3lyasOkbMOkIDx2aWxsZS5zeXJqYWxhQGxpbnV4LmludGVsLmNvbT4N
-Cj4gQ2M6IE1hYXJ0ZW4gTGFua2hvcnN0IDxtYWFydGVuLmxhbmtob3JzdEBsaW51eC5pbnRlbC5j
-b20+DQo+IFNpZ25lZC1vZmYtYnk6IEFuc2h1bWFuIEd1cHRhIDxhbnNodW1hbi5ndXB0YUBpbnRl
-bC5jb20+DQo+IC0tLQ0KPiAgZHJpdmVycy9ncHUvZHJtL2k5MTUvZGlzcGxheS9pbnRlbF9kaXNw
-bGF5LmMgfCA2ICsrKysrLQ0KPiAgMSBmaWxlIGNoYW5nZWQsIDUgaW5zZXJ0aW9ucygrKSwgMSBk
-ZWxldGlvbigtKQ0KPiANCj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvZ3B1L2RybS9pOTE1L2Rpc3Bs
-YXkvaW50ZWxfZGlzcGxheS5jDQo+IGIvZHJpdmVycy9ncHUvZHJtL2k5MTUvZGlzcGxheS9pbnRl
-bF9kaXNwbGF5LmMNCj4gaW5kZXggNmMzYjExZGUyZGFmLi5mMzFhNTc5ZDdhNTIgMTAwNjQ0DQo+
-IC0tLSBhL2RyaXZlcnMvZ3B1L2RybS9pOTE1L2Rpc3BsYXkvaW50ZWxfZGlzcGxheS5jDQo+ICsr
-KyBiL2RyaXZlcnMvZ3B1L2RybS9pOTE1L2Rpc3BsYXkvaW50ZWxfZGlzcGxheS5jDQo+IEBAIC03
-MzU2LDcgKzczNTYsMTEgQEAgc3RhdGljIHU2NCBnZXRfY3J0Y19wb3dlcl9kb21haW5zKHN0cnVj
-dA0KPiBpbnRlbF9jcnRjX3N0YXRlICpjcnRjX3N0YXRlKQ0KPiAgCQltYXNrIHw9IEJJVF9VTEwo
-aW50ZWxfZW5jb2Rlci0+cG93ZXJfZG9tYWluKTsNCj4gIAl9DQo+IA0KPiAtCWlmIChIQVNfRERJ
-KGRldl9wcml2KSAmJiBjcnRjX3N0YXRlLT5oYXNfYXVkaW8pDQo+ICsJLyoNCj4gKwkgKiBHZW4x
-MiBjYW4gZHJpdmUgbHBzcCBvbiBoZG1pL2RwIG91dHB1cywgaXQgZG9lc24ndCByZXF1aXJlIHRv
-DQo+ICsJICogZW5hYmxlIEFVRElPIHBvd2VyIGluIG9yZGVyIHRvIGVuYWJsZSBhIGNydGMuDQo+
-ICsJICovDQo+ICsJaWYgKElOVEVMX0dFTihkZXZfcHJpdikgPCAxMiAmJiBIQVNfRERJKGRldl9w
-cml2KSAmJg0KPiArY3J0Y19zdGF0ZS0+aGFzX2F1ZGlvKQ0KPiAgCQltYXNrIHw9IEJJVF9VTEwo
-UE9XRVJfRE9NQUlOX0FVRElPKTsNCg0KQXMgcGFydCBvZiBkZGlfZ2V0X2NvbmZpZyB3ZSBkZXRl
-cm1pbmUgaGFzX2F1ZGlvIHVzaW5nIHBvd2VyIHdlbGwgZW5hYmxlZDoNCnBpcGVfY29uZmlnLT5o
-YXNfYXVkaW8gPQ0KICAgICAgICAgICAgICAgIGludGVsX2RkaV9pc19hdWRpb19lbmFibGVkKGRl
-dl9wcml2LCBjcHVfdHJhbnNjb2Rlcik7DQoNCklmIGF1ZGlvIHBvd2VyIGRvbWFpbiBpcyBub3Qg
-ZW5hYmxlZCwgd2UgbWF5IGVuZCB1cCB3aXRoIHRoaXMgYXMgZmFsc2UuDQpMYXRlciB0aGlzIG1h
-eSBnZXQgY2hlY2tlZCBpbiBpbnRlbF9lbmFibGVfZGRpX2hkbWkgdG8gY2FsbCBhdWRpbyBjb2Rl
-YyBlbmFibGUNCg0KaWYgKGNydGNfc3RhdGUtPmhhc19hdWRpbykNCiAgICAgICAgICAgICAgICBp
-bnRlbF9hdWRpb19jb2RlY19lbmFibGUoZW5jb2RlciwgY3J0Y19zdGF0ZSwgY29ubl9zdGF0ZSk7
-DQoNClRoaXMgbWF5IGNhdXNlIGRldGVjdGlvbiB0byBmYWlsLiBQbGVhc2UgdmVyaWZ5IHRoaXMg
-dXNlY2FzZSBvbmNlIGFuZCBjb25maXJtLg0KDQpSZWdhcmRzLA0KVW1hIFNoYW5rYXINCg0KPiAg
-CWlmIChjcnRjX3N0YXRlLT5zaGFyZWRfZHBsbCkNCj4gLS0NCj4gMi4yNi4yDQo+IA0KPiBfX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXw0KPiBJbnRlbC1nZngg
-bWFpbGluZyBsaXN0DQo+IEludGVsLWdmeEBsaXN0cy5mcmVlZGVza3RvcC5vcmcNCj4gaHR0cHM6
-Ly9saXN0cy5mcmVlZGVza3RvcC5vcmcvbWFpbG1hbi9saXN0aW5mby9pbnRlbC1nZngNCg==
+The following commit has been merged into the timers/core branch of tip:
+
+Commit-ID:     25259f7a5de2de9d67793dc584b15c83a3134c93
+Gitweb:        https://git.kernel.org/tip/25259f7a5de2de9d67793dc584b15c83a3134c93
+Author:        Michael Ellerman <mpe@ellerman.id.au>
+AuthorDate:    Sun, 26 Apr 2020 22:43:56 +10:00
+Committer:     Daniel Lezcano <daniel.lezcano@linaro.org>
+CommitterDate: Mon, 27 Apr 2020 08:59:50 +02:00
+
+clocksource/drivers/timer-microchip-pit64b: Select CONFIG_TIMER_OF
+
+This driver is an OF driver, it depends on OF, and uses
+TIMER_OF_DECLARE, so it should select CONFIG_TIMER_OF.
+
+Without CONFIG_TIMER_OF enabled this can lead to warnings such as:
+
+  powerpc-linux-ld: warning: orphan section `__timer_of_table' from
+  `drivers/clocksource/timer-microchip-pit64b.o' being placed in
+  section `__timer_of_table'.
+
+Because TIMER_OF_TABLES in vmlinux.lds.h doesn't emit anything into
+the linker script when CONFIG_TIMER_OF is not enabled.
+
+Fixes: 625022a5f160 ("clocksource/drivers/timer-microchip-pit64b: Add Microchip PIT64B support")
+Cc: stable@vger.kernel.org # v5.6+
+Reported-by: kbuild test robot <lkp@intel.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Link: https://lore.kernel.org/r/20200426124356.3929682-1-mpe@ellerman.id.au
+---
+ drivers/clocksource/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/clocksource/Kconfig b/drivers/clocksource/Kconfig
+index f2142e6..f225c27 100644
+--- a/drivers/clocksource/Kconfig
++++ b/drivers/clocksource/Kconfig
+@@ -709,6 +709,7 @@ config MICROCHIP_PIT64B
+ 	bool "Microchip PIT64B support"
+ 	depends on OF || COMPILE_TEST
+ 	select CLKSRC_MMIO
++	select TIMER_OF
+ 	help
+ 	  This option enables Microchip PIT64B timer for Atmel
+ 	  based system. It supports the oneshot, the periodic
