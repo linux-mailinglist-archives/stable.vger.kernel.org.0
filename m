@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 22C4C1EAA53
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:11:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 652991EAB22
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:17:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730513AbgFASG5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:06:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52692 "EHLO mail.kernel.org"
+        id S1731492AbgFASOj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:14:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34512 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730510AbgFASG4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:06:56 -0400
+        id S1731490AbgFASOj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:14:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 69135206E2;
-        Mon,  1 Jun 2020 18:06:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EF53C2065C;
+        Mon,  1 Jun 2020 18:14:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034815;
-        bh=MMdtZY4dDGS+q5r4/lE6k9tI4CTwHjBv5J5brzUIVxU=;
+        s=default; t=1591035278;
+        bh=rqrGl13jobhYXcTJKyrzebOW90O43LvkFl6zGUpmsIc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OiNfJJ31B8n2MeYgMEAhUHr6lokA+pxTKmUxnSb7K0b8dUvZ93YhWVJxXM8UTQXIS
-         szvK7YfwHxdEDi6Fctstx4ZCE490dzfvv/oTzyuvxZDST3fMhRPpM3R4fUq2ZqwFJV
-         yBfX1ONdql8QkLHSnuuK52f2Z6X6eItd0C5va4yo=
+        b=FEfGvCMPm4F1hoe/ZBxZ8gJ04389gXUMtXJJLrPCEt0PiL/TTtkclPxctBA4F1925
+         Bb37fMj6Ms2tkZ0O1V6oO3jtghWKrNmwvYnxGYJBNQGVAxEW+GBfkMEqLsNaQ5Q90r
+         ypeRpt/ZEFZ5Ech3oO6VkofFzVfHCJAVMhGc+q54=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Roi Dayan <roid@mellanox.com>,
-        Mark Bloch <markb@mellanox.com>,
-        Saeed Mahameed <saeedm@mellanox.com>
-Subject: [PATCH 5.4 026/142] net/mlx5: Annotate mutex destroy for root ns
-Date:   Mon,  1 Jun 2020 19:53:04 +0200
-Message-Id: <20200601174040.562903164@linuxfoundation.org>
+        stable@vger.kernel.org, Johan Jonker <jbx6244@gmail.com>,
+        Heiko Stuebner <heiko@sntech.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 047/177] arm64: dts: rockchip: fix status for &gmac2phy in rk3328-evb.dts
+Date:   Mon,  1 Jun 2020 19:53:05 +0200
+Message-Id: <20200601174052.963037618@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174037.904070960@linuxfoundation.org>
-References: <20200601174037.904070960@linuxfoundation.org>
+In-Reply-To: <20200601174048.468952319@linuxfoundation.org>
+References: <20200601174048.468952319@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,36 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roi Dayan <roid@mellanox.com>
+From: Johan Jonker <jbx6244@gmail.com>
 
-commit 9ca415399dae133b00273a4283ef31d003a6818d upstream.
+[ Upstream commit c617ed88502d0b05149e7f32f3b3fd8a0663f7e2 ]
 
-Invoke mutex_destroy() to catch any errors.
+The status was removed of the '&gmac2phy' node with the apply
+of a patch long time ago, so fix status for '&gmac2phy'
+in 'rk3328-evb.dts'.
 
-Fixes: 2cc43b494a6c ("net/mlx5_core: Managing root flow table")
-Signed-off-by: Roi Dayan <roid@mellanox.com>
-Reviewed-by: Mark Bloch <markb@mellanox.com>
-Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Johan Jonker <jbx6244@gmail.com>
+Link: https://lore.kernel.org/r/20200425122345.12902-2-jbx6244@gmail.com
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/fs_core.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ arch/arm64/boot/dts/rockchip/rk3328-evb.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/fs_core.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/fs_core.c
-@@ -417,6 +417,12 @@ static void del_sw_ns(struct fs_node *no
+diff --git a/arch/arm64/boot/dts/rockchip/rk3328-evb.dts b/arch/arm64/boot/dts/rockchip/rk3328-evb.dts
+index 6abc6f4a86cf..05265b38cc02 100644
+--- a/arch/arm64/boot/dts/rockchip/rk3328-evb.dts
++++ b/arch/arm64/boot/dts/rockchip/rk3328-evb.dts
+@@ -86,7 +86,7 @@
+ 	assigned-clock-rate = <50000000>;
+ 	assigned-clocks = <&cru SCLK_MAC2PHY>;
+ 	assigned-clock-parents = <&cru SCLK_MAC2PHY_SRC>;
+-
++	status = "okay";
+ };
  
- static void del_sw_prio(struct fs_node *node)
- {
-+	struct mlx5_flow_root_namespace *root_ns;
-+	struct mlx5_flow_namespace *ns;
-+
-+	fs_get_obj(ns, node);
-+	root_ns = container_of(ns, struct mlx5_flow_root_namespace, ns);
-+	mutex_destroy(&root_ns->chain_lock);
- 	kfree(node);
- }
- 
+ &i2c1 {
+-- 
+2.25.1
+
 
 
