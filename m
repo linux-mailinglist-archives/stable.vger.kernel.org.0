@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 64A221EACC6
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:41:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CE1E1EAE81
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:54:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731680AbgFASjl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:39:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33766 "EHLO mail.kernel.org"
+        id S1730284AbgFASyh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:54:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44970 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729047AbgFASOH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:14:07 -0400
+        id S1729848AbgFASBz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:01:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 94A742065C;
-        Mon,  1 Jun 2020 18:14:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 19C66206E2;
+        Mon,  1 Jun 2020 18:01:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591035247;
-        bh=otPiUuOD4KPszx0jfuOEfJp3SN2g/6T5J0y2DSIW3mY=;
+        s=default; t=1591034514;
+        bh=vm7kTXpPIK1kbmpMniFBh+WsEPqC5IjnMdgczS7nkzY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LEBFHBNEjWTkvwLDPUuMtpgjX95muiIOdKqYMcIXcbsJeFpO8iEsw9D7swmxuWBm9
-         KxDJVeJ17GeQWR7bT1znaTb5y2kayADZoQn1LfGDnRezQ9R71vJD2Kk/1q7JVN76C+
-         S3du5JAmoz8LDlmba9HT3xliejalC8b5GEIVX5JU=
+        b=f3ZyJ70r3hzAXT04NG+poEdxvXp09Biftxu1FsS8dCUd54K48AYZWJzAPRuzlnCk5
+         W9N7IKcZ4br4VTDV2MX6p+aB/GngzCu5XM8sFPFCyUSDX2YvFuPBzkXNeuUif2lb+z
+         EuJNVYTX8+aJzQ3mgrxzWIfSvZ5Wlrxd8hf0Ui3k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
-        Tero Kristo <t-kristo@ti.com>, Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, Mathieu Maret <mathieu.maret@gmail.com>,
+        Brendan Shanks <bshanks@codeweavers.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 073/177] clk: ti: am33xx: fix RTC clock parent
+Subject: [PATCH 4.14 26/77] Input: evdev - call input_flush_device() on release(), not flush()
 Date:   Mon,  1 Jun 2020 19:53:31 +0200
-Message-Id: <20200601174054.987120428@linuxfoundation.org>
+Message-Id: <20200601174021.132584191@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174048.468952319@linuxfoundation.org>
-References: <20200601174048.468952319@linuxfoundation.org>
+In-Reply-To: <20200601174016.396817032@linuxfoundation.org>
+References: <20200601174016.396817032@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,37 +45,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tero Kristo <t-kristo@ti.com>
+From: Brendan Shanks <bshanks@codeweavers.com>
 
-[ Upstream commit dc6dbd51009fc412729c307161f442c0a08618f4 ]
+[ Upstream commit 09264098ff153f60866039d60b31d39b66f55a31 ]
 
-Right now, trying to use RTC purely with the ti-sysc / clkctrl framework
-fails to enable the RTC module properly. Based on experimentation, this
-appears to be because RTC is sourced from the clkdiv32k optional clock.
-TRM is not very clear on this topic, but fix the RTC to use the proper
-source clock nevertheless.
+input_flush_device() should only be called once the struct file is being
+released and no open descriptors remain, but evdev_flush() was calling
+it whenever a file descriptor was closed.
 
-Reported-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Tero Kristo <t-kristo@ti.com>
-Link: https://lkml.kernel.org/r/20200424152301.4018-1-t-kristo@ti.com
-Acked-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+This caused uploaded force-feedback effects to be erased when a process
+did a dup()/close() on the event FD, called system(), etc.
+
+Call input_flush_device() from evdev_release() instead.
+
+Reported-by: Mathieu Maret <mathieu.maret@gmail.com>
+Signed-off-by: Brendan Shanks <bshanks@codeweavers.com>
+Link: https://lore.kernel.org/r/20200421231003.7935-1-bshanks@codeweavers.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/ti/clk-33xx.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/input/evdev.c | 19 ++++---------------
+ 1 file changed, 4 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/clk/ti/clk-33xx.c b/drivers/clk/ti/clk-33xx.c
-index e001b9bcb6bf..7dc30dd6c8d5 100644
---- a/drivers/clk/ti/clk-33xx.c
-+++ b/drivers/clk/ti/clk-33xx.c
-@@ -212,7 +212,7 @@ static const struct omap_clkctrl_reg_data am3_mpu_clkctrl_regs[] __initconst = {
- };
+diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+index 925571475005..2463d02e3f99 100644
+--- a/drivers/input/evdev.c
++++ b/drivers/input/evdev.c
+@@ -342,20 +342,6 @@ static int evdev_fasync(int fd, struct file *file, int on)
+ 	return fasync_helper(fd, file, on, &client->fasync);
+ }
  
- static const struct omap_clkctrl_reg_data am3_l4_rtc_clkctrl_regs[] __initconst = {
--	{ AM3_L4_RTC_RTC_CLKCTRL, NULL, CLKF_SW_SUP, "clk_32768_ck" },
-+	{ AM3_L4_RTC_RTC_CLKCTRL, NULL, CLKF_SW_SUP, "clk-24mhz-clkctrl:0000:0" },
- 	{ 0 },
+-static int evdev_flush(struct file *file, fl_owner_t id)
+-{
+-	struct evdev_client *client = file->private_data;
+-	struct evdev *evdev = client->evdev;
+-
+-	mutex_lock(&evdev->mutex);
+-
+-	if (evdev->exist && !client->revoked)
+-		input_flush_device(&evdev->handle, file);
+-
+-	mutex_unlock(&evdev->mutex);
+-	return 0;
+-}
+-
+ static void evdev_free(struct device *dev)
+ {
+ 	struct evdev *evdev = container_of(dev, struct evdev, dev);
+@@ -469,6 +455,10 @@ static int evdev_release(struct inode *inode, struct file *file)
+ 	unsigned int i;
+ 
+ 	mutex_lock(&evdev->mutex);
++
++	if (evdev->exist && !client->revoked)
++		input_flush_device(&evdev->handle, file);
++
+ 	evdev_ungrab(evdev, client);
+ 	mutex_unlock(&evdev->mutex);
+ 
+@@ -1331,7 +1321,6 @@ static const struct file_operations evdev_fops = {
+ 	.compat_ioctl	= evdev_ioctl_compat,
+ #endif
+ 	.fasync		= evdev_fasync,
+-	.flush		= evdev_flush,
+ 	.llseek		= no_llseek,
  };
  
 -- 
