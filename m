@@ -2,90 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 537E71EB04F
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 22:37:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F9981EB07C
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 22:54:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728205AbgFAUhV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 16:37:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33426 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727099AbgFAUhV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Jun 2020 16:37:21 -0400
-Received: from pandora.armlinux.org.uk (pandora.armlinux.org.uk [IPv6:2001:4d48:ad52:3201:214:fdff:fe10:1be6])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1479C061A0E
-        for <stable@vger.kernel.org>; Mon,  1 Jun 2020 13:37:20 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=armlinux.org.uk; s=pandora-2019; h=Sender:In-Reply-To:Content-Type:
-        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=9b86reDtsyQfJbc8abxJNaCGsMZ5GOatje1r07Y+ONM=; b=vKgR0NOlB9cZgrUqV528W8oAX
-        sxKQq9tqfLAANKRcNXXOC2MS/XR+R/WcPthGDuGkpOcFkRQQCIRFk5HCcQT+mMYIHNlrIOBsRcMpR
-        PgQeoa9keq8HPYPvFCh6WuqfJJmslUhhM3FXmFdq5PK91O7Ts+jOWTIY9VQnWm11N/87pblspN42l
-        hyDrvMxY8Zmf1z/ksjiBbh6vHS6aZ7uEUQqJXXN8kfnzx2olOMNEbWpCsN5Tt6kvQ6vESW0XYi8qV
-        PuFvuFNM8/M6+Jody4bDW+atHM9rZ0253juNrw4ZPTNLW9mnxTJjPayDBf9Ml4rwBdM7BahtO5saO
-        eM34qYmUA==;
-Received: from shell.armlinux.org.uk ([2001:4d48:ad52:3201:5054:ff:fe00:4ec]:48160)
-        by pandora.armlinux.org.uk with esmtpsa (TLSv1.2:ECDHE-RSA-AES256-GCM-SHA384:256)
-        (Exim 4.90_1)
-        (envelope-from <linux@armlinux.org.uk>)
-        id 1jfrBI-0001ED-Ts; Mon, 01 Jun 2020 21:37:13 +0100
-Received: from linux by shell.armlinux.org.uk with local (Exim 4.92)
-        (envelope-from <linux@shell.armlinux.org.uk>)
-        id 1jfrBH-0003cv-4o; Mon, 01 Jun 2020 21:37:11 +0100
-Date:   Mon, 1 Jun 2020 21:37:11 +0100
-From:   Russell King - ARM Linux admin <linux@armlinux.org.uk>
-To:     Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux- stable <stable@vger.kernel.org>,
-        lkft-triage@lists.linaro.org
-Subject: Re: stable-rc 4.9: arm: arch/arm/vfp/vfphw.S:158: Error: bad
- instruction `ldcleq p11,cr0,[r10],#32*4'
-Message-ID: <20200601203710.GR1551@shell.armlinux.org.uk>
-References: <CA+G9fYuwMbm2NUmSLohbUs+KzKcyY9rC0dc4kh9AD9hJi6+ePw@mail.gmail.com>
- <20200601170248.GA1105493@kroah.com>
- <20200601170751.GO1551@shell.armlinux.org.uk>
- <CA+G9fYsHPjXW5BWbAgURhxnrSHamGPMAGtpjikbkUd79_ojFbw@mail.gmail.com>
- <20200601182922.GQ1551@shell.armlinux.org.uk>
- <CA+G9fYvNxYTgO=vtFWnDibMQiSW1+mX8t=Kr73oqNH5wF8wK-A@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CA+G9fYvNxYTgO=vtFWnDibMQiSW1+mX8t=Kr73oqNH5wF8wK-A@mail.gmail.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+        id S1727096AbgFAUx4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 16:53:56 -0400
+Received: from o1.relay.mx-secure.com ([167.89.85.54]:35292 "EHLO
+        o1.relay.mx-secure.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726124AbgFAUx4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Jun 2020 16:53:56 -0400
+X-Greylist: delayed 310 seconds by postgrey-1.27 at vger.kernel.org; Mon, 01 Jun 2020 16:53:56 EDT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; 
+        d=cmpclients.com; h=from:subject:to:reply-to; s=s1; 
+        bh=z9Bw4k1DAJBZgnlZe0FDTUzmi3RKzo8eeKl4eXZ+iRs=; b=anaO3N8v4vX86
+        qiUS7hl8OL42Mu4KfWHjYa0YsyXwg9NhW7rs19RsHV3YtKINWVvsjPlveBo16WIB
+        5Qfty9/LIjO74Ej2xQf2u+bl9mD2b4MvdVx+Qz8bKHqTfGc97Y6YYTtM+nBPtVfW
+        w+WKr6V0gtoxh/PXQWuIpEv2KtD4pQ=
+Received: by filter0945p1las1.sendgrid.net with SMTP id filter0945p1las1-540-5ED569AC-1A
+        2020-06-01 20:48:44.461035071 +0000 UTC m=+274932.379321912
+Received: from mail.runcentral.com (unknown)
+        by ismtpd0039p1iad1.sendgrid.net (SG) with ESMTP id hPOuuTFoTg2MOqdmlRgW3Q
+        Mon, 01 Jun 2020 20:48:44.278 +0000 (UTC)
+Received: from mail.cmpclients.com (172-245-92-122-host.colocrossing.com [172.245.92.122]) by mail.runcentral.com with SMTP;
+   Mon, 1 Jun 2020 16:48:32 -0400
+From:   "BOOM DE VENDAS" <qzgsuzw@cmpclients.com>
+Subject: Divulgue para =?ISO-8859-1?Q?at=E9?= 200 =?ISO-8859-1?Q?MILH=D5ES?=
+ DE EMAILS - Boom de vendas
+To:     stabille@uol.com.br
+Reply-To: contactardados@gmail.com
+Date:   Mon, 01 Jun 2020 20:48:44 +0000 (UTC)
+Message-ID: <hPOuuTFoTg2MOqdmlRgW3Q@ismtpd0039p1iad1.sendgrid.net>
+X-SG-EID: CGtAtjf4Go6FDPc8ef3PWsOov9FWDSRj47sg/PtefHBcZIyL0ZdS+rcK2roCXJXWyVt5RbIBbjZfXT
+ DgUGZ/f5v5dwh7CAdAIZaMuYpGlqqIVdGuEDD2oTezVZ8t685yWIdfrwSRbZ2dt6sX5EJ6jyUso+JX
+ cPs7UYkkjbXPUZP44EODa1KKeeWPphkXOqdKBtJbYD7kYuRDedF/zRJAk+hNwLyA+kLhS5mOvNX71r
+ s=
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jun 02, 2020 at 01:15:26AM +0530, Naresh Kamboju wrote:
-> On Mon, 1 Jun 2020 at 23:59, Russell King - ARM Linux admin
-> <linux@armlinux.org.uk> wrote:
-> >
-> > On Mon, Jun 01, 2020 at 11:01:19PM +0530, Naresh Kamboju wrote:
-> > > On Mon, 1 Jun 2020 at 22:37, Russell King - ARM Linux admin
-> > > <linux@armlinux.org.uk> wrote:
-> > > > It looks like Naresh's toolchain doesn't like the new format
-> > > > instructions.  Which toolchain (and versions of the individual
-> > > > tools) are you (Naresh) using?
-> > >
-> > >   toolchain version is gcc-9
-> >
-> > gcc 9 is just one part of the toolchain - that's the compiler, and
-> > actually irrelevent for the errors being reported.
-> >
-> > It's binutils, specifically the assembler that is choking, so that's
-> > the version we really need.  Something like:
-> >
-> >   arm-linux-gnueabihf-as --version
-> 
-> GNU assembler (GNU Binutils for Debian) 2.34
 
-That should be recent enough, I guess it must be down to the missing
-patches gregkh identified.
+Divulgue para até 200 MILHÕES DE EMAILS COM PREÇO DE CUSTO! BOOM DE VENDAS imediato!
 
--- 
-RMK's Patch system: https://www.armlinux.org.uk/developer/patches/
-FTTC for 0.8m (est. 1762m) line in suburbia: sync at 13.1Mbps down 424kbps up
+FALE COM A GENTE no WhatsApp: 22-99788-1694
+
+Você pode divulgar para todo o Brasil, ou você pode escolher as regiões e áreas de interesse que você deseja priorizar.
+A maior divulgação de todo o Brasil, com acompanhamento ONLINE dos resultados em tempo real, com Painel Online Exclusivo !
+
+Veja os detalhes:
+
+- Nós fazemos todo o trabalho para você.
+- Nós enviamos seu anúncio para até 200 milhões de emails.
+- Você pode escolher as áreas de seu maior interesse para prioridade nos envios.
+- Você acompanha online o andamento de todos os envios.
+- Se você não tiver o texto do anúncio, faremos para você sem custo adicional.
+
+Para fazer a campanha BOOM de vendas, responda esse email com os dados abaixo:
+
+----------------------------------------------------
+Nome:
+Email:
+Telefone:
+WhatsApp:
+Opção desejada:
+
+(  ) R$ 199 - Divulgação para 1 MILHÂO DE EMAILS
+(  ) R$ 299 - Divulgação para 5 MILHÕES DE EMAILS
+(  ) R$ 399 - Divulgação para 25 MILHÕES DE EMAILS
+(  ) R$ 599 - Divulgação para 50 MILHÕES DE EMAILS
+(  ) R$ 999 - Divulgação para 100 MILHÕES DE EMAILS
+(  ) R$ 1500 - Divulgação para 200 MILHÕES DE EMAILS
+-----------------------------------------------------
+
+Ou fale com a gente. Seguem abaixo nossos contatos:
+
+Por WhatsApp:
+22-99788-1694
+
+Por Skype:
+corbettsoftware
+
+----------------------------------------------------------------------------------
+
+Abraços dos amigos da
+
+Divulgarantia
+
+C O R B E T T
+ D E S D E 1 9 9 8
+
+WhatsApp:
+22-99788-1694
+
+Skype:
+corbettsoftware
+
