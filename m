@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D87391EAA48
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:11:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD8F71EAAED
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:16:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730465AbgFASG3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:06:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52100 "EHLO mail.kernel.org"
+        id S1730878AbgFASMp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:12:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60106 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730461AbgFASG3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:06:29 -0400
+        id S1729813AbgFASMo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:12:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EFFB42158C;
-        Mon,  1 Jun 2020 18:06:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4127E2068D;
+        Mon,  1 Jun 2020 18:12:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034788;
-        bh=oc9000K0Njl65rxCNw3uZQ0DDNTTXplezompeOn/yzQ=;
+        s=default; t=1591035163;
+        bh=ZJo7ImFdaxzShG0yRFkqeTe7Vk+/5dwJQ/zGcxn47cg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jESo6LRE1LTjgDuQUt+y7/MSGMn2/PSBY2E5KSMP/iMAtBefLDPKFvKzMXYTeyDVY
-         Z/GODZdZTBMTG1v9xV8lHtjbzw5f2OmqFIbr0UAij1n5G6sSOvGT7j5JZAEhzhqaNM
-         qwFqSU5wuN+8eM0x8cyuyBAWFBCn37KAwWaRJJwM=
+        b=eH+BcmQadnWlSnJE3YPS7nNU07jEpCUeROVFokK/YKsr9OBSr/00tB9pMsXNJn5aH
+         aM5Xt+j0z6xF1vSPa9cX37mIdI81zSn5No+MX9EbfjRPW9GKyrehU21e1ZRq47yFhT
+         CUbaGs/QYDll0qmb6qGxa1eVk+6CdAno6/QIkPmg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jamal Hadi Salim <jhs@mojatatu.com>,
-        Roman Mashak <mrv@mojatatu.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 014/142] net sched: fix reporting the first-time use timestamp
-Date:   Mon,  1 Jun 2020 19:52:52 +0200
-Message-Id: <20200601174039.414720241@linuxfoundation.org>
+        stable@vger.kernel.org, Roi Dayan <roid@mellanox.com>,
+        Mark Bloch <markb@mellanox.com>,
+        Saeed Mahameed <saeedm@mellanox.com>
+Subject: [PATCH 5.6 036/177] net/mlx5: Annotate mutex destroy for root ns
+Date:   Mon,  1 Jun 2020 19:52:54 +0200
+Message-Id: <20200601174051.946831038@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174037.904070960@linuxfoundation.org>
-References: <20200601174037.904070960@linuxfoundation.org>
+In-Reply-To: <20200601174048.468952319@linuxfoundation.org>
+References: <20200601174048.468952319@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,36 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roman Mashak <mrv@mojatatu.com>
+From: Roi Dayan <roid@mellanox.com>
 
-[ Upstream commit b15e62631c5f19fea9895f7632dae9c1b27fe0cd ]
+commit 9ca415399dae133b00273a4283ef31d003a6818d upstream.
 
-When a new action is installed, firstuse field of 'tcf_t' is explicitly set
-to 0. Value of zero means "new action, not yet used"; as a packet hits the
-action, 'firstuse' is stamped with the current jiffies value.
+Invoke mutex_destroy() to catch any errors.
 
-tcf_tm_dump() should return 0 for firstuse if action has not yet been hit.
-
-Fixes: 48d8ee1694dd ("net sched actions: aggregate dumping of actions timeinfo")
-Cc: Jamal Hadi Salim <jhs@mojatatu.com>
-Signed-off-by: Roman Mashak <mrv@mojatatu.com>
-Acked-by: Jamal Hadi Salim <jhs@mojatatu.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 2cc43b494a6c ("net/mlx5_core: Managing root flow table")
+Signed-off-by: Roi Dayan <roid@mellanox.com>
+Reviewed-by: Mark Bloch <markb@mellanox.com>
+Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- include/net/act_api.h |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/include/net/act_api.h
-+++ b/include/net/act_api.h
-@@ -69,7 +69,8 @@ static inline void tcf_tm_dump(struct tc
+---
+ drivers/net/ethernet/mellanox/mlx5/core/fs_core.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
+
+--- a/drivers/net/ethernet/mellanox/mlx5/core/fs_core.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/fs_core.c
+@@ -416,6 +416,12 @@ static void del_sw_ns(struct fs_node *no
+ 
+ static void del_sw_prio(struct fs_node *node)
  {
- 	dtm->install = jiffies_to_clock_t(jiffies - stm->install);
- 	dtm->lastuse = jiffies_to_clock_t(jiffies - stm->lastuse);
--	dtm->firstuse = jiffies_to_clock_t(jiffies - stm->firstuse);
-+	dtm->firstuse = stm->firstuse ?
-+		jiffies_to_clock_t(jiffies - stm->firstuse) : 0;
- 	dtm->expires = jiffies_to_clock_t(stm->expires);
++	struct mlx5_flow_root_namespace *root_ns;
++	struct mlx5_flow_namespace *ns;
++
++	fs_get_obj(ns, node);
++	root_ns = container_of(ns, struct mlx5_flow_root_namespace, ns);
++	mutex_destroy(&root_ns->chain_lock);
+ 	kfree(node);
  }
  
 
