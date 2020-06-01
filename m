@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DBA071EAEE4
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:58:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2037E1EAE9A
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:55:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729334AbgFAS55 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:57:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42046 "EHLO mail.kernel.org"
+        id S1729792AbgFASza (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:55:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44384 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728422AbgFAR7g (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 13:59:36 -0400
+        id S1729785AbgFASB0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:01:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8E6592073B;
-        Mon,  1 Jun 2020 17:59:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1D40620776;
+        Mon,  1 Jun 2020 18:01:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034376;
-        bh=nDPx907IiAgKo62mVevumnODl8p64fK6WNMF6tym8/I=;
+        s=default; t=1591034485;
+        bh=Mvfv2+LDVLuaAE1w+GSOU7T1whIkDcVbpt5nCCZrk9Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hRxlzo7P/ZdbJSJCjoGKkMrABAnZZSgI6CbsuDqdRByJEV8w08OwXE4Y5wQJzlnvo
-         59uQ9n6UwilMHlgaQ16GS7LDEQKQsZLhdS/uD4WiwauOC9oAQLQCR6O3f0sOzH9/n3
-         ffhW7eEq6LIGkcJwhZ9IX8XKb1dpJSy6oecXYEkg=
+        b=lWZLICT+e0oC7POFNqY/+e/utqK2uGl7gARR/W29SHmDYCrBCxGzzfNyyUyn0sh1X
+         VwzvKJ2HvZxUdohOldvFFBvs+vbHVIXpPRuzzTd4ZLJpJg7g3qRhpaVyg2NIVKemSz
+         1teecKDX8CuHOqLrm8Lv9QXLMFO/qqePLqkl8AqU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiumei Mu <xmu@redhat.com>,
-        Xin Long <lucien.xin@gmail.com>,
-        Steffen Klassert <steffen.klassert@secunet.com>
-Subject: [PATCH 4.9 49/61] ip_vti: receive ipip packet by calling ip_tunnel_rcv
+        stable@vger.kernel.org, Qiushi Wu <wu000273@umn.edu>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 51/77] iommu: Fix reference count leak in iommu_group_alloc.
 Date:   Mon,  1 Jun 2020 19:53:56 +0200
-Message-Id: <20200601174020.554744373@linuxfoundation.org>
+Message-Id: <20200601174025.379297364@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174010.316778377@linuxfoundation.org>
-References: <20200601174010.316778377@linuxfoundation.org>
+In-Reply-To: <20200601174016.396817032@linuxfoundation.org>
+References: <20200601174016.396817032@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,65 +43,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Qiushi Wu <wu000273@umn.edu>
 
-commit 976eba8ab596bab94b9714cd46d38d5c6a2c660d upstream.
+[ Upstream commit 7cc31613734c4870ae32f5265d576ef296621343 ]
 
-In Commit dd9ee3444014 ("vti4: Fix a ipip packet processing bug in
-'IPCOMP' virtual tunnel"), it tries to receive IPIP packets in vti
-by calling xfrm_input(). This case happens when a small packet or
-frag sent by peer is too small to get compressed.
+kobject_init_and_add() takes reference even when it fails.
+Thus, when kobject_init_and_add() returns an error,
+kobject_put() must be called to properly clean up the kobject.
 
-However, xfrm_input() will still get to the IPCOMP path where skb
-sec_path is set, but never dropped while it should have been done
-in vti_ipcomp4_protocol.cb_handler(vti_rcv_cb), as it's not an
-ipcomp4 packet. This will cause that the packet can never pass
-xfrm4_policy_check() in the upper protocol rcv functions.
-
-So this patch is to call ip_tunnel_rcv() to process IPIP packets
-instead.
-
-Fixes: dd9ee3444014 ("vti4: Fix a ipip packet processing bug in 'IPCOMP' virtual tunnel")
-Reported-by: Xiumei Mu <xmu@redhat.com>
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: d72e31c93746 ("iommu: IOMMU Groups")
+Signed-off-by: Qiushi Wu <wu000273@umn.edu>
+Link: https://lore.kernel.org/r/20200527210020.6522-1-wu000273@umn.edu
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/ip_vti.c |   23 ++++++++++++++++++++++-
- 1 file changed, 22 insertions(+), 1 deletion(-)
+ drivers/iommu/iommu.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/ipv4/ip_vti.c
-+++ b/net/ipv4/ip_vti.c
-@@ -98,7 +98,28 @@ static int vti_rcv_proto(struct sk_buff
+--- a/drivers/iommu/iommu.c
++++ b/drivers/iommu/iommu.c
+@@ -359,7 +359,7 @@ struct iommu_group *iommu_group_alloc(vo
+ 				   NULL, "%d", group->id);
+ 	if (ret) {
+ 		ida_simple_remove(&iommu_group_ida, group->id);
+-		kfree(group);
++		kobject_put(&group->kobj);
+ 		return ERR_PTR(ret);
+ 	}
  
- static int vti_rcv_tunnel(struct sk_buff *skb)
- {
--	return vti_rcv(skb, ip_hdr(skb)->saddr, true);
-+	struct ip_tunnel_net *itn = net_generic(dev_net(skb->dev), vti_net_id);
-+	const struct iphdr *iph = ip_hdr(skb);
-+	struct ip_tunnel *tunnel;
-+
-+	tunnel = ip_tunnel_lookup(itn, skb->dev->ifindex, TUNNEL_NO_KEY,
-+				  iph->saddr, iph->daddr, 0);
-+	if (tunnel) {
-+		struct tnl_ptk_info tpi = {
-+			.proto = htons(ETH_P_IP),
-+		};
-+
-+		if (!xfrm4_policy_check(NULL, XFRM_POLICY_IN, skb))
-+			goto drop;
-+		if (iptunnel_pull_header(skb, 0, tpi.proto, false))
-+			goto drop;
-+		return ip_tunnel_rcv(tunnel, skb, &tpi, NULL, false);
-+	}
-+
-+	return -EINVAL;
-+drop:
-+	kfree_skb(skb);
-+	return 0;
- }
- 
- static int vti_rcv_cb(struct sk_buff *skb, int err)
 
 
