@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6012C1EAC53
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:37:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 264581EAC48
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:37:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729750AbgFASSb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:18:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39644 "EHLO mail.kernel.org"
+        id S1731372AbgFASSJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:18:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39690 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731894AbgFASSF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:18:05 -0400
+        id S1731902AbgFASSH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:18:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6A5562068D;
-        Mon,  1 Jun 2020 18:18:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AFC5B206E2;
+        Mon,  1 Jun 2020 18:18:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591035484;
-        bh=Ns5X64qYx6T9/KIhZSJGX28kOwogjGNMcAh17sqAU/k=;
+        s=default; t=1591035487;
+        bh=MWL1sEHK2jPMKUmfRd6hIeDXg5zzx+400shcTXcX7Ms=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qtU7uWa/HVL2NF0ZYgneleNqkP3lESa1OKyize0q11c3OTRw5vV4jtgdryi/7toyD
-         E/AwfH5A9NGTxUFN8sH8NzK97xoMz+7f092OQ4VZZh+TeF9UPvO1A2sejU1xHrzNhy
-         PQMcsywDqNQE8RddPQ9UMffadNvkOnGYwr+0ztu0=
+        b=V2oiuvLA4TShEEodApBMFVkl53PpYAaO4lo9iKXDffC0diiTjElIr71D5ZlFe0etQ
+         eYW0dIBda2ClKN+c815RVXEKfbA5R1jUqzAbxJNuzNg1irtrSzJevGURr+NJysp5OG
+         NK1rF/COY/M7EneN6Jjywn6mYbWcnldh8a13UNxY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Petr Mladek <pmladek@suse.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.6 173/177] powerpc/bpf: Enable bpf_probe_read{, str}() on powerpc again
-Date:   Mon,  1 Jun 2020 19:55:11 +0200
-Message-Id: <20200601174102.468155104@linuxfoundation.org>
+        stable@vger.kernel.org
+Subject: [PATCH 5.6 174/177] Revert "Input: i8042 - add ThinkPad S230u to i8042 nomux list"
+Date:   Mon,  1 Jun 2020 19:55:12 +0200
+Message-Id: <20200601174102.533641080@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200601174048.468952319@linuxfoundation.org>
 References: <20200601174048.468952319@linuxfoundation.org>
@@ -44,44 +42,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Petr Mladek <pmladek@suse.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-commit d195b1d1d1196681ac4775e0361e9cca70f740c2 upstream.
+commit f4dec2d6160976b14e54be9c3950ce0f52385741 upstream.
 
-The commit 0ebeea8ca8a4d1d453a ("bpf: Restrict bpf_probe_read{, str}() only
-to archs where they work") caused that bpf_probe_read{, str}() functions
-were not longer available on architectures where the same logical address
-might have different content in kernel and user memory mapping. These
-architectures should use probe_read_{user,kernel}_str helpers.
+This reverts commit 18931506465a762ffd3f4803d36a18d336a67da9. From Kevin
+Locke:
 
-For backward compatibility, the problematic functions are still available
-on architectures where the user and kernel address spaces are not
-overlapping. This is defined CONFIG_ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE.
+"... nomux only appeared to fix the issue because the controller
+continued working after warm reboots. After more thorough testing from
+both warm and cold start, I now believe the entry should be added to
+i8042_dmi_reset_table rather than i8042_dmi_nomux_table as i8042.reset=1
+alone is sufficient to avoid the issue from both states while
+i8042.nomux is not."
 
-At the moment, these backward compatible functions are enabled only on x86_64,
-arm, and arm64. Let's do it also on powerpc that has the non overlapping
-address space as well.
-
-Fixes: 0ebeea8ca8a4 ("bpf: Restrict bpf_probe_read{, str}() only to archs where they work")
-Signed-off-by: Petr Mladek <pmladek@suse.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/lkml/20200527122844.19524-1-pmladek@suse.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/Kconfig |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/input/serio/i8042-x86ia64io.h |    7 -------
+ 1 file changed, 7 deletions(-)
 
---- a/arch/powerpc/Kconfig
-+++ b/arch/powerpc/Kconfig
-@@ -125,6 +125,7 @@ config PPC
- 	select ARCH_HAS_MMIOWB			if PPC64
- 	select ARCH_HAS_PHYS_TO_DMA
- 	select ARCH_HAS_PMEM_API
-+	select ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE
- 	select ARCH_HAS_PTE_DEVMAP		if PPC_BOOK3S_64
- 	select ARCH_HAS_PTE_SPECIAL
- 	select ARCH_HAS_MEMBARRIER_CALLBACKS
+--- a/drivers/input/serio/i8042-x86ia64io.h
++++ b/drivers/input/serio/i8042-x86ia64io.h
+@@ -541,13 +541,6 @@ static const struct dmi_system_id __init
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire 5738"),
+ 		},
+ 	},
+-	{
+-		/* Lenovo ThinkPad Twist S230u */
+-		.matches = {
+-			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
+-			DMI_MATCH(DMI_PRODUCT_NAME, "33474HU"),
+-		},
+-	},
+ 	{ }
+ };
+ 
 
 
