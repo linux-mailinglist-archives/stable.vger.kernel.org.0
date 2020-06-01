@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F7EB1EACEB
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:41:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E1621EACE9
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:41:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731242AbgFASMd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:12:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59914 "EHLO mail.kernel.org"
+        id S1731262AbgFASMm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:12:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59936 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731231AbgFASMd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:12:33 -0400
+        id S1731254AbgFASMf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:12:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EEDED2065C;
-        Mon,  1 Jun 2020 18:12:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 450C02065C;
+        Mon,  1 Jun 2020 18:12:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591035152;
-        bh=5ohnT+53OhofnfzhkpfOKq3gy1ljv3XtLhTw5zwu6js=;
+        s=default; t=1591035154;
+        bh=n7ggVRg8Ev4nEuVBzNVX2QT3/uwX3CFNNKuRVWnICb8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QFQ5yZW3xMbMSvDm7fcuLfRIrmikaffGO26x6RRzlFU2Yr9A2bsO7FHvlKf6i4EHp
-         +awGArvJyc/ScsJdA7/EkOmDwvsGt2lHiep7v+UrEYJM1WLFSvF1PrsmrOhCU6IsgL
-         aHWS9pg2GAXQ5rKXA1zaGO0ffsP2Gailk6TnhY+g=
+        b=Kra9kvgEOnWtZ1PuydDekr9D3s83NFi9Eo0wJ/tWqaogQAdNm1OX6CU4LJRwTFQDd
+         OliOpQaOacPj+jmOL2cGxc83XoRbpFESebjwRRIDzlOoiHWqKZ7/S2c/VpAY5Zm9af
+         KJc1Alr8e7ef7AF6u6UZ1i2bc8QTWR323tWvlMHg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiner Kallweit <hkallweit1@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.6 031/177] r8169: fix OCP access on RTL8117
-Date:   Mon,  1 Jun 2020 19:52:49 +0200
-Message-Id: <20200601174051.463573340@linuxfoundation.org>
+        stable@vger.kernel.org, Eran Ben Elisha <eranbe@mellanox.com>,
+        Moshe Shemesh <moshe@mellanox.com>,
+        Saeed Mahameed <saeedm@mellanox.com>
+Subject: [PATCH 5.6 032/177] net/mlx5: Fix a race when moving command interface to events mode
+Date:   Mon,  1 Jun 2020 19:52:50 +0200
+Message-Id: <20200601174051.566087378@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200601174048.468952319@linuxfoundation.org>
 References: <20200601174048.468952319@linuxfoundation.org>
@@ -43,63 +44,164 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiner Kallweit <hkallweit1@gmail.com>
+From: Eran Ben Elisha <eranbe@mellanox.com>
 
-[ Upstream commit 561535b0f23961ced071b82575d5e83e6351a814 ]
+[ Upstream commit d43b7007dbd1195a5b6b83213e49b1516aaf6f5e ]
 
-According to r8168 vendor driver DASHv3 chips like RTL8168fp/RTL8117
-need a special addressing for OCP access.
-Fix is compile-tested only due to missing test hardware.
+After driver creates (via FW command) an EQ for commands, the driver will
+be informed on new commands completion by EQE. However, due to a race in
+driver's internal command mode metadata update, some new commands will
+still be miss-handled by driver as if we are in polling mode. Such commands
+can get two non forced completion, leading to already freed command entry
+access.
 
-Fixes: 1287723aa139 ("r8169: add support for RTL8117")
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+CREATE_EQ command, that maps EQ to the command queue must be posted to the
+command queue while it is empty and no other command should be posted.
+
+Add SW mechanism that once the CREATE_EQ command is about to be executed,
+all other commands will return error without being sent to the FW. Allow
+sending other commands only after successfully changing the driver's
+internal command mode metadata.
+We can safely return error to all other commands while creating the command
+EQ, as all other commands might be sent from the user/application during
+driver load. Application can rerun them later after driver's load was
+finished.
+
+Fixes: e126ba97dba9 ("mlx5: Add driver for Mellanox Connect-IB adapters")
+Signed-off-by: Eran Ben Elisha <eranbe@mellanox.com>
+Signed-off-by: Moshe Shemesh <moshe@mellanox.com>
+Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/realtek/r8169_main.c |   17 +++++++++++++++--
- 1 file changed, 15 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/cmd.c |   35 +++++++++++++++++++++++---
+ drivers/net/ethernet/mellanox/mlx5/core/eq.c  |    3 ++
+ include/linux/mlx5/driver.h                   |    6 ++++
+ 3 files changed, 40 insertions(+), 4 deletions(-)
 
---- a/drivers/net/ethernet/realtek/r8169_main.c
-+++ b/drivers/net/ethernet/realtek/r8169_main.c
-@@ -1044,6 +1044,13 @@ static u16 rtl_ephy_read(struct rtl8169_
- 		RTL_R32(tp, EPHYAR) & EPHYAR_DATA_MASK : ~0;
- }
+--- a/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
+@@ -848,6 +848,14 @@ static void free_msg(struct mlx5_core_de
+ static void mlx5_free_cmd_msg(struct mlx5_core_dev *dev,
+ 			      struct mlx5_cmd_msg *msg);
  
-+static void r8168fp_adjust_ocp_cmd(struct rtl8169_private *tp, u32 *cmd, int type)
++static bool opcode_allowed(struct mlx5_cmd *cmd, u16 opcode)
 +{
-+	/* based on RTL8168FP_OOBMAC_BASE in vendor driver */
-+	if (tp->mac_version == RTL_GIGA_MAC_VER_52 && type == ERIAR_OOB)
-+		*cmd |= 0x7f0 << 18;
++	if (cmd->allowed_opcode == CMD_ALLOWED_OPCODE_ALL)
++		return true;
++
++	return cmd->allowed_opcode == opcode;
 +}
 +
- DECLARE_RTL_COND(rtl_eriar_cond)
+ static void cmd_work_handler(struct work_struct *work)
  {
- 	return RTL_R32(tp, ERIAR) & ERIAR_FLAG;
-@@ -1052,9 +1059,12 @@ DECLARE_RTL_COND(rtl_eriar_cond)
- static void _rtl_eri_write(struct rtl8169_private *tp, int addr, u32 mask,
- 			   u32 val, int type)
- {
-+	u32 cmd = ERIAR_WRITE_CMD | type | mask | addr;
-+
- 	BUG_ON((addr & 3) || (mask == 0));
- 	RTL_W32(tp, ERIDR, val);
--	RTL_W32(tp, ERIAR, ERIAR_WRITE_CMD | type | mask | addr);
-+	r8168fp_adjust_ocp_cmd(tp, &cmd, type);
-+	RTL_W32(tp, ERIAR, cmd);
+ 	struct mlx5_cmd_work_ent *ent = container_of(work, struct mlx5_cmd_work_ent, work);
+@@ -914,7 +922,8 @@ static void cmd_work_handler(struct work
  
- 	rtl_udelay_loop_wait_low(tp, &rtl_eriar_cond, 100, 100);
+ 	/* Skip sending command to fw if internal error */
+ 	if (pci_channel_offline(dev->pdev) ||
+-	    dev->state == MLX5_DEVICE_STATE_INTERNAL_ERROR) {
++	    dev->state == MLX5_DEVICE_STATE_INTERNAL_ERROR ||
++	    !opcode_allowed(&dev->cmd, ent->op)) {
+ 		u8 status = 0;
+ 		u32 drv_synd;
+ 
+@@ -1405,6 +1414,22 @@ static void create_debugfs_files(struct
+ 	mlx5_cmdif_debugfs_init(dev);
  }
-@@ -1067,7 +1077,10 @@ static void rtl_eri_write(struct rtl8169
  
- static u32 _rtl_eri_read(struct rtl8169_private *tp, int addr, int type)
- {
--	RTL_W32(tp, ERIAR, ERIAR_READ_CMD | type | ERIAR_MASK_1111 | addr);
-+	u32 cmd = ERIAR_READ_CMD | type | ERIAR_MASK_1111 | addr;
++void mlx5_cmd_allowed_opcode(struct mlx5_core_dev *dev, u16 opcode)
++{
++	struct mlx5_cmd *cmd = &dev->cmd;
++	int i;
 +
-+	r8168fp_adjust_ocp_cmd(tp, &cmd, type);
-+	RTL_W32(tp, ERIAR, cmd);
++	for (i = 0; i < cmd->max_reg_cmds; i++)
++		down(&cmd->sem);
++	down(&cmd->pages_sem);
++
++	cmd->allowed_opcode = opcode;
++
++	up(&cmd->pages_sem);
++	for (i = 0; i < cmd->max_reg_cmds; i++)
++		up(&cmd->sem);
++}
++
+ static void mlx5_cmd_change_mod(struct mlx5_core_dev *dev, int mode)
+ {
+ 	struct mlx5_cmd *cmd = &dev->cmd;
+@@ -1681,12 +1706,13 @@ static int cmd_exec(struct mlx5_core_dev
+ 	int err;
+ 	u8 status = 0;
+ 	u32 drv_synd;
++	u16 opcode;
+ 	u8 token;
  
- 	return rtl_udelay_loop_wait_high(tp, &rtl_eriar_cond, 100, 100) ?
- 		RTL_R32(tp, ERIDR) : ~0;
++	opcode = MLX5_GET(mbox_in, in, opcode);
+ 	if (pci_channel_offline(dev->pdev) ||
+-	    dev->state == MLX5_DEVICE_STATE_INTERNAL_ERROR) {
+-		u16 opcode = MLX5_GET(mbox_in, in, opcode);
+-
++	    dev->state == MLX5_DEVICE_STATE_INTERNAL_ERROR ||
++	    !opcode_allowed(&dev->cmd, opcode)) {
+ 		err = mlx5_internal_err_ret_value(dev, opcode, &drv_synd, &status);
+ 		MLX5_SET(mbox_out, out, status, status);
+ 		MLX5_SET(mbox_out, out, syndrome, drv_synd);
+@@ -1988,6 +2014,7 @@ int mlx5_cmd_init(struct mlx5_core_dev *
+ 	mlx5_core_dbg(dev, "descriptor at dma 0x%llx\n", (unsigned long long)(cmd->dma));
+ 
+ 	cmd->mode = CMD_MODE_POLLING;
++	cmd->allowed_opcode = CMD_ALLOWED_OPCODE_ALL;
+ 
+ 	create_msg_cache(dev);
+ 
+--- a/drivers/net/ethernet/mellanox/mlx5/core/eq.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/eq.c
+@@ -611,11 +611,13 @@ static int create_async_eqs(struct mlx5_
+ 		.nent = MLX5_NUM_CMD_EQE,
+ 		.mask[0] = 1ull << MLX5_EVENT_TYPE_CMD,
+ 	};
++	mlx5_cmd_allowed_opcode(dev, MLX5_CMD_OP_CREATE_EQ);
+ 	err = setup_async_eq(dev, &table->cmd_eq, &param, "cmd");
+ 	if (err)
+ 		goto err1;
+ 
+ 	mlx5_cmd_use_events(dev);
++	mlx5_cmd_allowed_opcode(dev, CMD_ALLOWED_OPCODE_ALL);
+ 
+ 	param = (struct mlx5_eq_param) {
+ 		.irq_index = 0,
+@@ -645,6 +647,7 @@ err2:
+ 	mlx5_cmd_use_polling(dev);
+ 	cleanup_async_eq(dev, &table->cmd_eq, "cmd");
+ err1:
++	mlx5_cmd_allowed_opcode(dev, CMD_ALLOWED_OPCODE_ALL);
+ 	mlx5_eq_notifier_unregister(dev, &table->cq_err_nb);
+ 	return err;
+ }
+--- a/include/linux/mlx5/driver.h
++++ b/include/linux/mlx5/driver.h
+@@ -301,6 +301,7 @@ struct mlx5_cmd {
+ 	struct semaphore sem;
+ 	struct semaphore pages_sem;
+ 	int	mode;
++	u16     allowed_opcode;
+ 	struct mlx5_cmd_work_ent *ent_arr[MLX5_MAX_COMMANDS];
+ 	struct dma_pool *pool;
+ 	struct mlx5_cmd_debug dbg;
+@@ -893,10 +894,15 @@ mlx5_frag_buf_get_idx_last_contig_stride
+ 	return min_t(u32, last_frag_stride_idx - fbc->strides_offset, fbc->sz_m1);
+ }
+ 
++enum {
++	CMD_ALLOWED_OPCODE_ALL,
++};
++
+ int mlx5_cmd_init(struct mlx5_core_dev *dev);
+ void mlx5_cmd_cleanup(struct mlx5_core_dev *dev);
+ void mlx5_cmd_use_events(struct mlx5_core_dev *dev);
+ void mlx5_cmd_use_polling(struct mlx5_core_dev *dev);
++void mlx5_cmd_allowed_opcode(struct mlx5_core_dev *dev, u16 opcode);
+ 
+ struct mlx5_async_ctx {
+ 	struct mlx5_core_dev *dev;
 
 
