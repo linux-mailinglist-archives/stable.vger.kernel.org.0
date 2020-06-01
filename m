@@ -2,133 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F5161EA7ED
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 18:45:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C3D81EA7EE
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 18:45:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726110AbgFAQpd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 12:45:33 -0400
-Received: from stargate.chelsio.com ([12.32.117.8]:60567 "EHLO
-        stargate.chelsio.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726017AbgFAQpd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Jun 2020 12:45:33 -0400
-Received: from localhost (moto.blr.asicdesigners.com [10.193.184.79] (may be forged))
-        by stargate.chelsio.com (8.13.8/8.13.8) with ESMTP id 051GjLBT032001;
-        Mon, 1 Jun 2020 09:45:22 -0700
-Date:   Mon, 1 Jun 2020 22:15:21 +0530
-From:   Dakshaja Uppalapati <dakshaja@chelsio.com>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     hch@lst.de, sagi@grimberg.me, stable@vger.kernel.org,
-        nirranjan@chelsio.com, bharat@chelsio.com
-Subject: Re: nvme blk_update_request IO error is seen on stable kernel 5.4.41.
-Message-ID: <20200601164520.GA29339@chelsio.com>
-References: <20200521140642.GA4724@chelsio.com>
- <20200526102542.GA2772976@kroah.com>
- <20200528074426.GA20353@chelsio.com>
- <20200528083403.GB2920930@kroah.com>
- <20200601162143.GA917@chelsio.com>
- <20200601162750.GA887723@kroah.com>
+        id S1726073AbgFAQpm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 12:45:42 -0400
+Received: from mail-lf1-f66.google.com ([209.85.167.66]:45496 "EHLO
+        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726017AbgFAQpm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Jun 2020 12:45:42 -0400
+Received: by mail-lf1-f66.google.com with SMTP id d7so4289590lfi.12;
+        Mon, 01 Jun 2020 09:45:40 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=L4x8df+FWwhO9CVIfOrtORCmIfKK22E1tDxPOTpXN5A=;
+        b=jMYlF33eeg9WmJ+6Vi/Uu2VVNPTMBe5oCe/clmgJOkHaGrZwVXhjdb+XBHalXjXqAa
+         hxB9rWx6MqmQHD6oFwFaMVoEhg5+45kVb3aDiFexPgLnB2nNIF2MdsG+CPuBJ4w/PGcc
+         DXH+GzKp9TWm3enMrSDnCvKNrGxWtc/lnLSpZ6r01yRVAx/xvcSZEm+Gq96Cod+Ute3e
+         s2bSUL639xBP0njFEph6bpB8sAgDDKbtYdjQhQlFDqWtCd01P2dL1KLM4RMa1MQg2sho
+         83GEKkgq8R5/OZSgfDzyBxLvYLb+qDzp0mMAzcGoA1vra7WuXAOSf/EpzCAgcENNze53
+         qeVg==
+X-Gm-Message-State: AOAM530femQKKB+0ThsKBHXYVGmWtNxSFOpkssnCyTB8kw3kcmrcLvMB
+        oovJlxfddAXsfv/vCX3kOuY=
+X-Google-Smtp-Source: ABdhPJze/gK70GwzModVzszP+ciOscUjhqgAb3Eeh1HMv7Nyf+c7n9VafFTWzUM0c3z3gPpxUDmLhQ==
+X-Received: by 2002:a19:d57:: with SMTP id 84mr11809132lfn.112.1591029939553;
+        Mon, 01 Jun 2020 09:45:39 -0700 (PDT)
+Received: from localhost.localdomain (broadband-37-110-38-130.ip.moscow.rt.ru. [37.110.38.130])
+        by smtp.googlemail.com with ESMTPSA id 4sm11062ljq.34.2020.06.01.09.45.38
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 01 Jun 2020 09:45:38 -0700 (PDT)
+From:   Denis Efremov <efremov@linux.com>
+To:     "David S. Miller" <davem@davemloft.net>,
+        Saeed Mahameed <saeedm@mellanox.com>,
+        Leon Romanovsky <leon@kernel.org>,
+        Alex Vesker <valex@mellanox.com>
+Cc:     Denis Efremov <efremov@linux.com>, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: [PATCH] net/mlx5: DR, Fix freeing in dr_create_rc_qp()
+Date:   Mon,  1 Jun 2020 19:45:26 +0300
+Message-Id: <20200601164526.19430-1-efremov@linux.com>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="9amGYk9869ThD9tj"
-Content-Disposition: inline
-In-Reply-To: <20200601162750.GA887723@kroah.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Variable "in" in dr_create_rc_qp() is allocated with kvzalloc() and
+should be freed with kvfree().
 
---9amGYk9869ThD9tj
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Fixes: 297cccebdc5a ("net/mlx5: DR, Expose an internal API to issue RDMA operations")
+Cc: stable@vger.kernel.org
+Signed-off-by: Denis Efremov <efremov@linux.com>
+---
+ drivers/net/ethernet/mellanox/mlx5/core/steering/dr_send.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-On Monday, June 06/01/20, 2020 at 18:27:50 +0200, Greg KH wrote:
-> On Mon, Jun 01, 2020 at 09:51:44PM +0530, Dakshaja Uppalapati wrote:
-> > On Thursday, May 05/28/20, 2020 at 10:34:03 +0200, Greg KH wrote:
-> > > On Thu, May 28, 2020 at 01:14:31PM +0530, Dakshaja Uppalapati wrote:
-> > > > On Tuesday, May 05/26/20, 2020 at 12:25:42 +0200, Greg KH wrote:
-> > > > > On Thu, May 21, 2020 at 07:36:43PM +0530, Dakshaja Uppalapati wrote:
-> > > > > > Hi all,
-> > > > > > 
-> > > > > > Issue which is reported in https://lore.kernel.org/linux-nvme/CH2PR12MB40050ACF
-> > > > > > 2C0DC7439355ED3FDD270@CH2PR12MB4005.namprd12.prod.outlook.com/T/#r8cfc80b26f0cd
-> > > > > > 1cde41879a68fd6a71186e9594c is also seen on stable kernel 5.4.41. 
-> > > > > 
-> > > > > What issue is that?  Your url is wrapped and can not work here :(
-> > > > 
-> > > > Sorry for that, when I tried to format the disk discovered from target machine
-> > > > the below error is seen in dmesg.
-> > > > 
-> > > > dmesg:
-> > > > 	[ 1844.868480] blk_update_request: I/O error, dev nvme0c0n1, sector 0 
-> > > > 	op 0x3:(DISCARD) flags 0x4000800 phys_seg 1 prio class 0
-> > > > 
-> > > > The above issue is seen from kernel-5.5-rc1 onwards.
-> > > > 
-> > > > > 
-> > > > > > In upstream issue is fixed with commit b716e6889c95f64b.
-> > > > > 
-> > > > > Is this a regression or support for something new that has never worked
-> > > > > before?
-> > > > > 
-> > > > 
-> > > > This is a regression, bisects points to the commit 530436c4 and fixed with
-> > > > commit b716e688 in upstream.
-> > > > 
-> > > > Now same issue is seen with stable kernel-5.4.41, 530436c4 is part of it.
-> > > 
-> > > So why don't we just revert 530436c45ef2 ("nvme: Discard workaround for
-> > > non-conformant devices") from the stable trees?  Will that fix the issue
-> > > for you instead of the much-larger set of backports you are proposing?
-> > > 
-> > > Also, is this an issue for you in the 4.19 releases?  The above
-> > > mentioned patch showed up in 4.19.92 and 5.4.7.
-> > > 
-> > 
-> > Yes, on 4.19 stable kernel too issue is seen. By reverting 530436c45ef2 issue
-> > is not seen on both 4.19 and 5.4 stable kernels. Do you want me to send the
-> > reverted patch?
-> 
-> Yes please.
-
-Attached the reverted patch.PFA.
-
-Thanks,
-Dakshaja
-
---9amGYk9869ThD9tj
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="revert_530436c4.patch"
-
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index f0e0af3aa..d658c5093 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -612,14 +612,8 @@ static blk_status_t nvme_setup_discard(struct nvme_ns *ns, struct request *req,
- 	struct nvme_dsm_range *range;
- 	struct bio *bio;
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_send.c b/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_send.c
+index 18719acb7e54..eff8bb64899d 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_send.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_send.c
+@@ -181,7 +181,7 @@ static struct mlx5dr_qp *dr_create_rc_qp(struct mlx5_core_dev *mdev,
+ 							 in, pas));
  
--	/*
--	 * Some devices do not consider the DSM 'Number of Ranges' field when
--	 * determining how much data to DMA. Always allocate memory for maximum
--	 * number of segments to prevent device reading beyond end of buffer.
--	 */
--	static const size_t alloc_size = sizeof(*range) * NVME_DSM_MAX_RANGES;
--
--	range = kzalloc(alloc_size, GFP_ATOMIC | __GFP_NOWARN);
-+	range = kmalloc_array(segments, sizeof(*range),
-+				GFP_ATOMIC | __GFP_NOWARN);
- 	if (!range) {
- 		/*
- 		 * If we fail allocation our range, fallback to the controller
-@@ -659,7 +653,7 @@ static blk_status_t nvme_setup_discard(struct nvme_ns *ns, struct request *req,
+ 	err = mlx5_core_create_qp(mdev, &dr_qp->mqp, in, inlen);
+-	kfree(in);
++	kvfree(in);
  
- 	req->special_vec.bv_page = virt_to_page(range);
- 	req->special_vec.bv_offset = offset_in_page(range);
--	req->special_vec.bv_len = alloc_size;
-+	req->special_vec.bv_len = sizeof(*range) * segments;
- 	req->rq_flags |= RQF_SPECIAL_PAYLOAD;
- 
- 	return BLK_STS_OK;
+ 	if (err) {
+ 		mlx5_core_warn(mdev, " Can't create QP\n");
+-- 
+2.26.2
 
---9amGYk9869ThD9tj--
