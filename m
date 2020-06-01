@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DF1A91EAD68
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:45:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 50E641EAC7A
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:38:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730379AbgFASJ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:09:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56486 "EHLO mail.kernel.org"
+        id S1728490AbgFAShO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:37:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35950 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730945AbgFASJ4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:09:56 -0400
+        id S1728363AbgFASPf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:15:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CBEC720872;
-        Mon,  1 Jun 2020 18:09:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3345C2073B;
+        Mon,  1 Jun 2020 18:15:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034995;
+        s=default; t=1591035334;
         bh=eh0C+0x9mVrpmssuTcn3nRjVa4S+T2umUEJ6R35Nwt4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TkRS+VKrcq54r6POyT5IfRVcLUIbe8apYsMs5Y0GDRNn2dYYRObAYWa9VVZpwo8je
-         70IlTjH/cz80PsPlw/quJGZJQO3BsGaLxqwZT38aZf5U/yK1OL37Cs+atZnIG4zIxC
-         FwmeMorbQ5h9P2fSEGFmqhjrUMsALqPaPDf3+FS0=
+        b=px7o/DI4SGL/U8h1xGbJQ9UIIMtBTANjXOCMcRKAvk+Zg6UovrcBkqjaxspQo0mBP
+         qCTZLiIUOomj4i5LK+uhBSLSw/2bnzmFObOr/8r0MOsr068kF1JngM3xmaLtF9sDhD
+         A8gKNa9WyjivBMKvSyZiQbNSVebdFN8eR8a3PdVs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,12 +30,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Brendan Shanks <bshanks@codeweavers.com>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 065/142] Input: evdev - call input_flush_device() on release(), not flush()
-Date:   Mon,  1 Jun 2020 19:53:43 +0200
-Message-Id: <20200601174044.622686044@linuxfoundation.org>
+Subject: [PATCH 5.6 086/177] Input: evdev - call input_flush_device() on release(), not flush()
+Date:   Mon,  1 Jun 2020 19:53:44 +0200
+Message-Id: <20200601174056.060328291@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174037.904070960@linuxfoundation.org>
-References: <20200601174037.904070960@linuxfoundation.org>
+In-Reply-To: <20200601174048.468952319@linuxfoundation.org>
+References: <20200601174048.468952319@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
