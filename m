@@ -2,86 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B1871EAC4D
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:37:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E9F21EAD22
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:43:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731323AbgFASSP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:18:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39836 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731911AbgFASSO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:18:14 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 74B84206E2;
-        Mon,  1 Jun 2020 18:18:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591035493;
-        bh=RZgud379woqQfPViLyVEe4pZrasNvkKO0kuSoSCnJQg=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pBlsG/NLHjpxS4lKWCm45RqL1YmBxJtzHi49TOPsu2Pv3XTM3lfP3s74cP9fd+a6A
-         ofVasokhBUlgGKYyLJWKxDyu9ymYwHNQWCc2rbj+zPmpGcGnrC9QAvcoLX/Q5yicau
-         A7R23lDl3MUTMdwFHZMg96W3oJ1opR2RperBJFFk=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 5.6 177/177] netfilter: nf_conntrack_pptp: fix compilation warning with W=1 build
-Date:   Mon,  1 Jun 2020 19:55:15 +0200
-Message-Id: <20200601174102.757163853@linuxfoundation.org>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174048.468952319@linuxfoundation.org>
-References: <20200601174048.468952319@linuxfoundation.org>
-User-Agent: quilt/0.66
+        id S1728410AbgFASm5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:42:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43180 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731504AbgFASmn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Jun 2020 14:42:43 -0400
+Received: from mail-wr1-x442.google.com (mail-wr1-x442.google.com [IPv6:2a00:1450:4864:20::442])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CB23C08C5C9
+        for <stable@vger.kernel.org>; Mon,  1 Jun 2020 11:23:24 -0700 (PDT)
+Received: by mail-wr1-x442.google.com with SMTP id c3so757481wru.12
+        for <stable@vger.kernel.org>; Mon, 01 Jun 2020 11:23:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=atishpatra.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=7ORKuPDr81ZTRpp39aYW+4mCM6zzq+FYt0tOhd8RtB8=;
+        b=V03H8YHXT0J3zKfEHNyuFSM+8VZyYqjgKZmFQoD7IoWAdl5ue3WkPABR4A2m1qnxIv
+         TEi0T0Bs71krCQoC2Hz1kmVhqKEsfEYxAaUXego6pB3dMnsl4fgP28IxSqNy3yfo1KY6
+         JtB21X3S69XND6s4AR5BKc65vUpNJV77q9Ptw=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=7ORKuPDr81ZTRpp39aYW+4mCM6zzq+FYt0tOhd8RtB8=;
+        b=TzLdgOZO+Ce0DgL/0Q1uAumyiId28kEVRGRsFKLLBlO0G8eu/x1LgP4QVSQaqPA2l5
+         nuB31aRfQqNUmRwPPNlY5Cv0MRHrwUeAwwjxwufYv/HVYMwecQwpHjP6bdFLRnPPoFW2
+         JsVaiWk9KTLuM8hIq2dNRtpP8YAK4dPxHV7PgijJ8pEF0Gv+vZ4HY/t9hqzCXImY2HMy
+         csAyJq7RC7n7mZkBquTZR0swp5xvt3EKC1NNStCPyPOWammll6H98LZqodsPobJXBAVv
+         7MfuuQ7VjmtZK6c/0yfzaWEloPWv7KmuUssRE3+oOj0yECErZpEyMw3pW1HOIeqSBbas
+         DLTQ==
+X-Gm-Message-State: AOAM531almWduNuZp0pmwDX4l8KROFLtO7M/AmL7fYV+VIlt6Eic9LiS
+        qoFOTNxDIwjuAazpd13ObRhCrFZYjWyK7iSjYXae
+X-Google-Smtp-Source: ABdhPJzUqjNllZMEEg1nn6d/J5AuzWmQPqp4dOddQX+lLHvzFb+TTwXYz/WenpZhHpRJLxBXZKmb6pusTzpc3hUhqhk=
+X-Received: by 2002:adf:edc8:: with SMTP id v8mr22011928wro.176.1591035802832;
+ Mon, 01 Jun 2020 11:23:22 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+References: <20200601050656.826296-1-anup.patel@wdc.com>
+In-Reply-To: <20200601050656.826296-1-anup.patel@wdc.com>
+From:   Atish Patra <atishp@atishpatra.org>
+Date:   Mon, 1 Jun 2020 11:23:11 -0700
+Message-ID: <CAOnJCUKT_DT-F9g21q5kvYfYgHC3PQ9dJLrqbQ4z87ULpBiyBQ@mail.gmail.com>
+Subject: Re: [PATCH v2] RISC-V: Don't mark init section as non-executable
+To:     Anup Patel <anup.patel@wdc.com>
+Cc:     Palmer Dabbelt <palmer@dabbelt.com>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Anup Patel <anup@brainfault.org>,
+        "linux-kernel@vger.kernel.org List" <linux-kernel@vger.kernel.org>,
+        stable@vger.kernel.org, Atish Patra <atish.patra@wdc.com>,
+        Alistair Francis <Alistair.Francis@wdc.com>,
+        linux-riscv <linux-riscv@lists.infradead.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+On Sun, May 31, 2020 at 10:07 PM Anup Patel <anup.patel@wdc.com> wrote:
+>
+> The head text section (i.e. _start, secondary_start_sbi, etc) and the
+> init section fall under same page table level-1 mapping.
+>
+> Currently, the runtime CPU hotplug is broken because we are marking
+> init section as non-executable which in-turn marks head text section
+> as non-executable.
+>
+> Further investigating other architectures, it seems marking the init
+> section as non-executable is redundant because the init section pages
+> are anyway poisoned and freed.
+>
+> To fix broken runtime CPU hotplug, we simply remove the code marking
+> the init section as non-executable.
+>
+> Fixes: d27c3c90817e ("riscv: add STRICT_KERNEL_RWX support")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Anup Patel <anup.patel@wdc.com>
+> ---
+> Changes since v1:
+>  - Updated free_initmem() is same as generic free_initmem() defined in
+>    init/main.c so we completely remove free_initmem() from arch/riscv
+> ---
+>  arch/riscv/mm/init.c | 11 -----------
+>  1 file changed, 11 deletions(-)
+>
+> diff --git a/arch/riscv/mm/init.c b/arch/riscv/mm/init.c
+> index 736de6c8739f..fdc772f57edc 100644
+> --- a/arch/riscv/mm/init.c
+> +++ b/arch/riscv/mm/init.c
+> @@ -479,17 +479,6 @@ static void __init setup_vm_final(void)
+>         csr_write(CSR_SATP, PFN_DOWN(__pa_symbol(swapper_pg_dir)) | SATP_MODE);
+>         local_flush_tlb_all();
+>  }
+> -
+> -void free_initmem(void)
+> -{
+> -       unsigned long init_begin = (unsigned long)__init_begin;
+> -       unsigned long init_end = (unsigned long)__init_end;
+> -
+> -       /* Make the region as non-execuatble. */
+> -       set_memory_nx(init_begin, (init_end - init_begin) >> PAGE_SHIFT);
+> -       free_initmem_default(POISON_FREE_INITMEM);
+> -}
+> -
+>  #else
+>  asmlinkage void __init setup_vm(uintptr_t dtb_pa)
+>  {
+> --
+> 2.25.1
+>
+>
 
-commit 4946ea5c1237036155c3b3a24f049fd5f849f8f6 upstream.
-
->> include/linux/netfilter/nf_conntrack_pptp.h:13:20: warning: 'const' type qualifier on return type has no effect [-Wignored-qualifiers]
-extern const char *const pptp_msg_name(u_int16_t msg);
-^~~~~~
-
-Reported-by: kbuild test robot <lkp@intel.com>
-Fixes: 4c559f15efcc ("netfilter: nf_conntrack_pptp: prevent buffer overflows in debug code")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
----
- include/linux/netfilter/nf_conntrack_pptp.h |    2 +-
- net/netfilter/nf_conntrack_pptp.c           |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
-
---- a/include/linux/netfilter/nf_conntrack_pptp.h
-+++ b/include/linux/netfilter/nf_conntrack_pptp.h
-@@ -10,7 +10,7 @@
- #include <net/netfilter/nf_conntrack_expect.h>
- #include <uapi/linux/netfilter/nf_conntrack_tuple_common.h>
- 
--extern const char *const pptp_msg_name(u_int16_t msg);
-+const char *pptp_msg_name(u_int16_t msg);
- 
- /* state of the control session */
- enum pptp_ctrlsess_state {
---- a/net/netfilter/nf_conntrack_pptp.c
-+++ b/net/netfilter/nf_conntrack_pptp.c
-@@ -91,7 +91,7 @@ static const char *const pptp_msg_name_a
- 	[PPTP_SET_LINK_INFO]		= "SET_LINK_INFO"
- };
- 
--const char *const pptp_msg_name(u_int16_t msg)
-+const char *pptp_msg_name(u_int16_t msg)
- {
- 	if (msg > PPTP_MSG_MAX)
- 		return pptp_msg_name_array[0];
-
-
+Reviewed-by: Atish Patra <atish.patra@wdc.com>
+-- 
+Regards,
+Atish
