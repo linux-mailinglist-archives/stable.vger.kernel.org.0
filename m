@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EFC51EA9F2
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:05:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C7A11EAB12
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:17:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730116AbgFASDu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:03:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47960 "EHLO mail.kernel.org"
+        id S1730398AbgFASOH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:14:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33732 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730105AbgFASDs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:03:48 -0400
+        id S1731442AbgFASOF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:14:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 286E8206E2;
-        Mon,  1 Jun 2020 18:03:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 76327206E2;
+        Mon,  1 Jun 2020 18:14:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034626;
-        bh=cqq9J3dfNq+Ie1BItPFqWY/z22jFqRMxoInw3wpatS0=;
+        s=default; t=1591035244;
+        bh=6N2uRjlh/wR1nNEdVNdwFs6zFXOV8xD1YmT4D8/8yAo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Khl7L+gdkCQNKxTl/RbEfhLuSm5OTmBbIhX2fps85GRbplrfd7hfRUluaDfTAvXde
-         oIyVsO2fAmkYThhTXuGFvzNdwFlaIF4JpkuC8wBb4fjVkEMP5FG7A075xOJJ6BFfY+
-         x5DUhIz8YGlZnjB78icO7nLKBzhx/U+1QS+Zb1/U=
+        b=JCwnLSbkTRU4Vdg1b+VWnG1Latjdr+olCJe0neqkzwzu7WxF9A5oK5GeSXlj8AFu/
+         oM7BN9PgTvisdLTCh0qQNTikF1NMKEpK+K8E/emXrMBj6wa2ZYOn7p2uvF/5QN5gvc
+         sZy9sSzBgMQOze3OdrwRj8RYLOol5J07vHpFqbP0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Felipe Balbi <balbi@kernel.org>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Kefeng Wang <wangkefeng.wang@huawei.com>,
+        Palmer Dabbelt <palmerdabbelt@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 30/95] usb: dwc3: pci: Enable extcon driver for Intel Merrifield
+Subject: [PATCH 5.6 072/177] riscv: Add pgprot_writecombine/device and PAGE_SHARED defination if NOMMU
 Date:   Mon,  1 Jun 2020 19:53:30 +0200
-Message-Id: <20200601174025.564443221@linuxfoundation.org>
+Message-Id: <20200601174054.896139585@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174020.759151073@linuxfoundation.org>
-References: <20200601174020.759151073@linuxfoundation.org>
+In-Reply-To: <20200601174048.468952319@linuxfoundation.org>
+References: <20200601174048.468952319@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,34 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Kefeng Wang <wangkefeng.wang@huawei.com>
 
-[ Upstream commit 066c09593454e89bc605ffdff1c9810061f9b1e1 ]
+[ Upstream commit fa8174aa225fe3d53b37552e5066e6f0301dbabd ]
 
-Intel Merrifield provides a DR support via PMIC which has its own
-extcon driver.
+Some drivers use PAGE_SHARED, pgprot_writecombine()/pgprot_device(),
+add the defination to fix build error if NOMMU.
 
-Add a property string to link to that driver.
-
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc3/dwc3-pci.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/riscv/include/asm/mmio.h    | 2 ++
+ arch/riscv/include/asm/pgtable.h | 1 +
+ 2 files changed, 3 insertions(+)
 
-diff --git a/drivers/usb/dwc3/dwc3-pci.c b/drivers/usb/dwc3/dwc3-pci.c
-index edf7984707b7..b2fd505938a0 100644
---- a/drivers/usb/dwc3/dwc3-pci.c
-+++ b/drivers/usb/dwc3/dwc3-pci.c
-@@ -112,6 +112,7 @@ static const struct property_entry dwc3_pci_intel_properties[] = {
+diff --git a/arch/riscv/include/asm/mmio.h b/arch/riscv/include/asm/mmio.h
+index a2c809df2733..56053c9838b2 100644
+--- a/arch/riscv/include/asm/mmio.h
++++ b/arch/riscv/include/asm/mmio.h
+@@ -16,6 +16,8 @@
  
- static const struct property_entry dwc3_pci_mrfld_properties[] = {
- 	PROPERTY_ENTRY_STRING("dr_mode", "otg"),
-+	PROPERTY_ENTRY_STRING("linux,extcon-name", "mrfld_bcove_pwrsrc"),
- 	PROPERTY_ENTRY_BOOL("linux,sysdev_is_parent"),
- 	{}
- };
+ #ifndef CONFIG_MMU
+ #define pgprot_noncached(x)	(x)
++#define pgprot_writecombine(x)	(x)
++#define pgprot_device(x)	(x)
+ #endif /* CONFIG_MMU */
+ 
+ /* Generic IO read/write.  These perform native-endian accesses. */
+diff --git a/arch/riscv/include/asm/pgtable.h b/arch/riscv/include/asm/pgtable.h
+index 393f2014dfee..05b92987f500 100644
+--- a/arch/riscv/include/asm/pgtable.h
++++ b/arch/riscv/include/asm/pgtable.h
+@@ -460,6 +460,7 @@ static inline int ptep_clear_flush_young(struct vm_area_struct *vma,
+ 
+ #else /* CONFIG_MMU */
+ 
++#define PAGE_SHARED		__pgprot(0)
+ #define PAGE_KERNEL		__pgprot(0)
+ #define swapper_pg_dir		NULL
+ #define VMALLOC_START		0
 -- 
 2.25.1
 
