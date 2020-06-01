@@ -2,78 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C3D81EA7EE
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 18:45:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 663251EA7F1
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 18:47:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726073AbgFAQpm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 12:45:42 -0400
-Received: from mail-lf1-f66.google.com ([209.85.167.66]:45496 "EHLO
-        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726017AbgFAQpm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Jun 2020 12:45:42 -0400
-Received: by mail-lf1-f66.google.com with SMTP id d7so4289590lfi.12;
-        Mon, 01 Jun 2020 09:45:40 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=L4x8df+FWwhO9CVIfOrtORCmIfKK22E1tDxPOTpXN5A=;
-        b=jMYlF33eeg9WmJ+6Vi/Uu2VVNPTMBe5oCe/clmgJOkHaGrZwVXhjdb+XBHalXjXqAa
-         hxB9rWx6MqmQHD6oFwFaMVoEhg5+45kVb3aDiFexPgLnB2nNIF2MdsG+CPuBJ4w/PGcc
-         DXH+GzKp9TWm3enMrSDnCvKNrGxWtc/lnLSpZ6r01yRVAx/xvcSZEm+Gq96Cod+Ute3e
-         s2bSUL639xBP0njFEph6bpB8sAgDDKbtYdjQhQlFDqWtCd01P2dL1KLM4RMa1MQg2sho
-         83GEKkgq8R5/OZSgfDzyBxLvYLb+qDzp0mMAzcGoA1vra7WuXAOSf/EpzCAgcENNze53
-         qeVg==
-X-Gm-Message-State: AOAM530femQKKB+0ThsKBHXYVGmWtNxSFOpkssnCyTB8kw3kcmrcLvMB
-        oovJlxfddAXsfv/vCX3kOuY=
-X-Google-Smtp-Source: ABdhPJze/gK70GwzModVzszP+ciOscUjhqgAb3Eeh1HMv7Nyf+c7n9VafFTWzUM0c3z3gPpxUDmLhQ==
-X-Received: by 2002:a19:d57:: with SMTP id 84mr11809132lfn.112.1591029939553;
-        Mon, 01 Jun 2020 09:45:39 -0700 (PDT)
-Received: from localhost.localdomain (broadband-37-110-38-130.ip.moscow.rt.ru. [37.110.38.130])
-        by smtp.googlemail.com with ESMTPSA id 4sm11062ljq.34.2020.06.01.09.45.38
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 01 Jun 2020 09:45:38 -0700 (PDT)
-From:   Denis Efremov <efremov@linux.com>
-To:     "David S. Miller" <davem@davemloft.net>,
-        Saeed Mahameed <saeedm@mellanox.com>,
-        Leon Romanovsky <leon@kernel.org>,
-        Alex Vesker <valex@mellanox.com>
-Cc:     Denis Efremov <efremov@linux.com>, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: [PATCH] net/mlx5: DR, Fix freeing in dr_create_rc_qp()
-Date:   Mon,  1 Jun 2020 19:45:26 +0300
-Message-Id: <20200601164526.19430-1-efremov@linux.com>
-X-Mailer: git-send-email 2.26.2
+        id S1726287AbgFAQrC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 12:47:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41592 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726017AbgFAQrC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 12:47:02 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3971520663;
+        Mon,  1 Jun 2020 16:47:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1591030021;
+        bh=OmZS0q6ai/19xPePlhpmNJv2tcaYZ8gwlTeuYc0ffk4=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=SSznFSPfdaR3E5eB93eS/bUDKY5yQ5HSa482yObUTxCakvQ0dY9gHaFYaXnFoOZhn
+         yowRGYlBVenzScyIFVHTS84R9CHPuDo1BCaF4/p54JRi57M5xxGkPIpdUqyAYBBlpG
+         MMgYrFGRSXmOY3QkxG/yaHgRZG9pzIWok68kO5kM=
+Date:   Mon, 1 Jun 2020 18:46:59 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     chenxb_99091@126.com
+Cc:     stable@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Stable backport request for linux-4.4.y
+Message-ID: <20200601164659.GA1037203@kroah.com>
+References: <1590899395-26674-1-git-send-email-chenxb_99091@126.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1590899395-26674-1-git-send-email-chenxb_99091@126.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Variable "in" in dr_create_rc_qp() is allocated with kvzalloc() and
-should be freed with kvfree().
+On Sun, May 31, 2020 at 12:29:55PM +0800, chenxb_99091@126.com wrote:
+> From: Xuebing Chen <chenxb_99091@126.com>
+> 
+> In linux-4.4.y,the <include/drm/drm_crtc.h> provides drm_for_each_plane_mask macro 
+> and plane_mask is defined as bitmask of plane indices, such as
+> 1 << drm_plane_index(plane). There is an error setting of plane_mask
+> in pan_display_atomic() function.
+> 
+> Please backport the following patch to the 4.4.y kernel stable tree:
+> commit 7118fd9bd975a9f3093239d4c0f4e15356b57fab 
+> ("drm/fb-helper: Use proper plane mask for fb cleanup")
+> The above patch fixes error setting of plane_mask in pan_display_atomic() function.
+>     
+> Cc: stable@vger.kernel.org
+> Cc: linux-kernel@vger.kernel.org
+> Signed-off-by: Xuebing Chen <chenxb_99091@126.com>
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
 
-Fixes: 297cccebdc5a ("net/mlx5: DR, Expose an internal API to issue RDMA operations")
-Cc: stable@vger.kernel.org
-Signed-off-by: Denis Efremov <efremov@linux.com>
----
- drivers/net/ethernet/mellanox/mlx5/core/steering/dr_send.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Now queued up, thanks.
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_send.c b/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_send.c
-index 18719acb7e54..eff8bb64899d 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_send.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_send.c
-@@ -181,7 +181,7 @@ static struct mlx5dr_qp *dr_create_rc_qp(struct mlx5_core_dev *mdev,
- 							 in, pas));
- 
- 	err = mlx5_core_create_qp(mdev, &dr_qp->mqp, in, inlen);
--	kfree(in);
-+	kvfree(in);
- 
- 	if (err) {
- 		mlx5_core_warn(mdev, " Can't create QP\n");
--- 
-2.26.2
-
+greg k-h
