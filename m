@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6052C1EAC78
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:38:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D6571EAD6B
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:45:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728031AbgFAShF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:37:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36182 "EHLO mail.kernel.org"
+        id S1730905AbgFASJk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:09:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56140 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731030AbgFASPq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:15:46 -0400
+        id S1729780AbgFASJk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:09:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6D45C2065C;
-        Mon,  1 Jun 2020 18:15:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 42D9E20878;
+        Mon,  1 Jun 2020 18:09:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591035345;
-        bh=aYhFCPraAuuhSNT615HvbyUmvG8NskDq5ppqHhOLMQY=;
+        s=default; t=1591034979;
+        bh=XcJCaocnbcFzg/CZToSt2mcfEKngfheOLdLfr44sCOc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0GidEXhKmH8QgkrtO4pA88a+zDmgJQRMaHUfKN4NRqJexfqfkDUAVCDIhw5sfFP60
-         kq1FGD5Vd+mA665uUIGhUCpbcIeoW/4gcKDV3yF6SPRhyMb3fmg24XaAQwYM2Wkqea
-         njMmCFQ9mBa3lmHv0RJLjWDaD4HnSUnDC+lGcPWc=
+        b=JEmLb8CE+VQGhtQyf4j7Pws76b6Vxo79cVE5iFdub1hrh470vx648bnk4H57wJjYD
+         UcDelFYqXSe/ghi474PTTcXcxkqV7OqnuLmjJaO+NurVPccDyWxkTIvG6XbF/Vbap/
+         iY8eUZIoMK28ly1FIli8YMpb/WHoFSjqwJOkHkCg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andy Lutomirski <luto@kernel.org>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
+        stable@vger.kernel.org, Simon Ser <contact@emersion.fr>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 117/177] exec: Always set cap_ambient in cap_bprm_set_creds
+Subject: [PATCH 5.4 097/142] drm/amd/display: drop cursor position check in atomic test
 Date:   Mon,  1 Jun 2020 19:54:15 +0200
-Message-Id: <20200601174058.367455771@linuxfoundation.org>
+Message-Id: <20200601174048.021929909@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174048.468952319@linuxfoundation.org>
-References: <20200601174048.468952319@linuxfoundation.org>
+In-Reply-To: <20200601174037.904070960@linuxfoundation.org>
+References: <20200601174037.904070960@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,49 +45,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric W. Biederman <ebiederm@xmission.com>
+From: Simon Ser <contact@emersion.fr>
 
-[ Upstream commit a4ae32c71fe90794127b32d26d7ad795813b502e ]
+[ Upstream commit f7d5991b92ff824798693ddf231cf814c9d5a88b ]
 
-An invariant of cap_bprm_set_creds is that every field in the new cred
-structure that cap_bprm_set_creds might set, needs to be set every
-time to ensure the fields does not get a stale value.
+get_cursor_position already handles the case where the cursor has
+negative off-screen coordinates by not setting
+dc_cursor_position.enabled.
 
-The field cap_ambient is not set every time cap_bprm_set_creds is
-called, which means that if there is a suid or sgid script with an
-interpreter that has neither the suid nor the sgid bits set the
-interpreter should be able to accept ambient credentials.
-Unfortuantely because cap_ambient is not reset to it's original value
-the interpreter can not accept ambient credentials.
-
-Given that the ambient capability set is expected to be controlled by
-the caller, I don't think this is particularly serious.  But it is
-definitely worth fixing so the code works correctly.
-
-I have tested to verify my reading of the code is correct and the
-interpreter of a sgid can receive ambient capabilities with this
-change and cannot receive ambient capabilities without this change.
-
+Signed-off-by: Simon Ser <contact@emersion.fr>
+Fixes: 626bf90fe03f ("drm/amd/display: add basic atomic check for cursor plane")
+Cc: Alex Deucher <alexander.deucher@amd.com>
+Cc: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Cc: stable@vger.kernel.org
-Cc: Andy Lutomirski <luto@kernel.org>
-Fixes: 58319057b784 ("capabilities: ambient capabilities")
-Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/commoncap.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 7 -------
+ 1 file changed, 7 deletions(-)
 
-diff --git a/security/commoncap.c b/security/commoncap.c
-index f4ee0ae106b2..0ca31c8bc0b1 100644
---- a/security/commoncap.c
-+++ b/security/commoncap.c
-@@ -812,6 +812,7 @@ int cap_bprm_set_creds(struct linux_binprm *bprm)
- 	int ret;
- 	kuid_t root_uid;
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+index 9f30343262f3..9fd12e108a70 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -6951,13 +6951,6 @@ static int dm_update_plane_state(struct dc *dc,
+ 			return -EINVAL;
+ 		}
  
-+	new->cap_ambient = old->cap_ambient;
- 	if (WARN_ON(!cap_ambient_invariant_ok(old)))
- 		return -EPERM;
+-		if (new_plane_state->crtc_x <= -new_acrtc->max_cursor_width ||
+-			new_plane_state->crtc_y <= -new_acrtc->max_cursor_height) {
+-			DRM_DEBUG_ATOMIC("Bad cursor position %d, %d\n",
+-							 new_plane_state->crtc_x, new_plane_state->crtc_y);
+-			return -EINVAL;
+-		}
+-
+ 		return 0;
+ 	}
  
 -- 
 2.25.1
