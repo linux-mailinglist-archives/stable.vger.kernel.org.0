@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BCBC1EAB24
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:17:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DE5C1EAB04
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:17:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731148AbgFASOo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:14:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34608 "EHLO mail.kernel.org"
+        id S1731358AbgFASNc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:13:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33070 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731502AbgFASOn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:14:43 -0400
+        id S1731355AbgFASNc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:13:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6F7F72065C;
-        Mon,  1 Jun 2020 18:14:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 95BA82065C;
+        Mon,  1 Jun 2020 18:13:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591035282;
-        bh=d6n1lfALiOuqf6hD6qY0ykkceo3UeXoajd4//MCBJ98=;
+        s=default; t=1591035211;
+        bh=8mKFo4m2KfwjD/OA2OEZB0dylCL7xLNhx9szY9d4FiI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M3MiFfrp1EJnR56gjz+cjQhHwNkbfKbCxUluP6fmZEzHDbLzTrbtonNADWX9RGffX
-         RpguuB7fi6fLuR1w+ruXL0rgAw2O7yYdbB5hwJ97nB2zaLRQig67DJBJUCv2Ti6dir
-         /6hsvPh/OAUTXjCOLa3xZUxP+RDn+QO2s9AQHLyk=
+        b=skf4BTxetjhrCLst7fX6fOeWgTAJKVyx0vhIOJwBes9ACuN3G876+kbUx1ugrhDaE
+         iL2NKX7I4zLoYQ3QLigJaDcuvXpO4ChM/ymgtlZeNujoGTxEzGS2RTH9uB/JC+WSV7
+         vrq25B37DQfjM1wlJKHU1kg0fmUufz7jlFJyY4r8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qiushi Wu <wu000273@umn.edu>,
+        stable@vger.kernel.org,
+        Zhang Shengju <zhangshengju@cmss.chinamobile.com>,
+        Tang Bin <tangbin@cmss.chinamobile.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.6 039/177] net: sun: fix missing release regions in cas_init_one().
-Date:   Mon,  1 Jun 2020 19:52:57 +0200
-Message-Id: <20200601174052.241276206@linuxfoundation.org>
+Subject: [PATCH 5.6 041/177] net: sgi: ioc3-eth: Fix return value check in ioc3eth_probe()
+Date:   Mon,  1 Jun 2020 19:52:59 +0200
+Message-Id: <20200601174052.432605014@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200601174048.468952319@linuxfoundation.org>
 References: <20200601174048.468952319@linuxfoundation.org>
@@ -43,42 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiushi Wu <wu000273@umn.edu>
+From: Tang Bin <tangbin@cmss.chinamobile.com>
 
-commit 5a730153984dd13f82ffae93d7170d76eba204e9 upstream.
+commit a7654211d0ffeaa8eb0545ea00f8445242cbce05 upstream.
 
-In cas_init_one(), "pdev" is requested by "pci_request_regions", but it
-was not released after a call of the function “pci_write_config_byte”
-failed. Thus replace the jump target “err_write_cacheline” by
-"err_out_free_res".
+In the function devm_platform_ioremap_resource(), if get resource
+failed, the return value is ERR_PTR() not NULL. Thus it must be
+replaced by IS_ERR(), or else it may result in crashes if a critical
+error path is encountered.
 
-Fixes: 1f26dac32057 ("[NET]: Add Sun Cassini driver.")
-Signed-off-by: Qiushi Wu <wu000273@umn.edu>
+Fixes: 0ce5ebd24d25 ("mfd: ioc3: Add driver for SGI IOC3 chip")
+Signed-off-by: Zhang Shengju <zhangshengju@cmss.chinamobile.com>
+Signed-off-by: Tang Bin <tangbin@cmss.chinamobile.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/ethernet/sun/cassini.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/net/ethernet/sgi/ioc3-eth.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/net/ethernet/sun/cassini.c
-+++ b/drivers/net/ethernet/sun/cassini.c
-@@ -4971,7 +4971,7 @@ static int cas_init_one(struct pci_dev *
- 					  cas_cacheline_size)) {
- 			dev_err(&pdev->dev, "Could not set PCI cache "
- 			       "line size\n");
--			goto err_write_cacheline;
-+			goto err_out_free_res;
- 		}
+--- a/drivers/net/ethernet/sgi/ioc3-eth.c
++++ b/drivers/net/ethernet/sgi/ioc3-eth.c
+@@ -865,14 +865,14 @@ static int ioc3eth_probe(struct platform
+ 	ip = netdev_priv(dev);
+ 	ip->dma_dev = pdev->dev.parent;
+ 	ip->regs = devm_platform_ioremap_resource(pdev, 0);
+-	if (!ip->regs) {
+-		err = -ENOMEM;
++	if (IS_ERR(ip->regs)) {
++		err = PTR_ERR(ip->regs);
+ 		goto out_free;
  	}
- #endif
-@@ -5144,7 +5144,6 @@ err_out_iounmap:
- err_out_free_res:
- 	pci_release_regions(pdev);
  
--err_write_cacheline:
- 	/* Try to restore it in case the error occurred after we
- 	 * set it.
- 	 */
+ 	ip->ssram = devm_platform_ioremap_resource(pdev, 1);
+-	if (!ip->ssram) {
+-		err = -ENOMEM;
++	if (IS_ERR(ip->ssram)) {
++		err = PTR_ERR(ip->ssram);
+ 		goto out_free;
+ 	}
+ 
 
 
