@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DD8F71EAAED
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:16:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2250C1EAA7C
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:11:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730878AbgFASMp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:12:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60106 "EHLO mail.kernel.org"
+        id S1729778AbgFASI3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:08:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54608 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729813AbgFASMo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:12:44 -0400
+        id S1730742AbgFASI2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:08:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4127E2068D;
-        Mon,  1 Jun 2020 18:12:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AD7122068D;
+        Mon,  1 Jun 2020 18:08:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591035163;
-        bh=ZJo7ImFdaxzShG0yRFkqeTe7Vk+/5dwJQ/zGcxn47cg=;
+        s=default; t=1591034908;
+        bh=rarwAHqrjgn7Om4YPhznCvWP4IzKyrx4sWUE+jY6K7E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eH+BcmQadnWlSnJE3YPS7nNU07jEpCUeROVFokK/YKsr9OBSr/00tB9pMsXNJn5aH
-         aM5Xt+j0z6xF1vSPa9cX37mIdI81zSn5No+MX9EbfjRPW9GKyrehU21e1ZRq47yFhT
-         CUbaGs/QYDll0qmb6qGxa1eVk+6CdAno6/QIkPmg=
+        b=RkB4jEWeSg/PR5uA5N2DXVcQqx+1PjS5N6New1ijvVyEWv7Uer5cZRDMb7KeyJC1p
+         c9d1Ad6oTD0i1jd4cSA8GRdDsQO76Bp2/WVqujKHF6aULteTbVIiPHvIrP4wp537DF
+         I6QTIk3rORK8u0s52w1UAIkjZotZaX4w2vyzq/QI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Roi Dayan <roid@mellanox.com>,
-        Mark Bloch <markb@mellanox.com>,
-        Saeed Mahameed <saeedm@mellanox.com>
-Subject: [PATCH 5.6 036/177] net/mlx5: Annotate mutex destroy for root ns
+        stable@vger.kernel.org, ASSOGBA Emery <assogba.emery@gmail.com>,
+        David Ahern <dsahern@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 016/142] nexthop: Fix attribute checking for groups
 Date:   Mon,  1 Jun 2020 19:52:54 +0200
-Message-Id: <20200601174051.946831038@linuxfoundation.org>
+Message-Id: <20200601174039.581323711@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174048.468952319@linuxfoundation.org>
-References: <20200601174048.468952319@linuxfoundation.org>
+In-Reply-To: <20200601174037.904070960@linuxfoundation.org>
+References: <20200601174037.904070960@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,36 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roi Dayan <roid@mellanox.com>
+From: David Ahern <dsahern@gmail.com>
 
-commit 9ca415399dae133b00273a4283ef31d003a6818d upstream.
+[ Upstream commit 84be69b869a5a496a6cfde9b3c29509207a1f1fa ]
 
-Invoke mutex_destroy() to catch any errors.
+For nexthop groups, attributes after NHA_GROUP_TYPE are invalid, but
+nh_check_attr_group starts checking at NHA_GROUP. The group type defaults
+to multipath and the NHA_GROUP_TYPE is currently optional so this has
+slipped through so far. Fix the attribute checking to handle support of
+new group types.
 
-Fixes: 2cc43b494a6c ("net/mlx5_core: Managing root flow table")
-Signed-off-by: Roi Dayan <roid@mellanox.com>
-Reviewed-by: Mark Bloch <markb@mellanox.com>
-Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
+Fixes: 430a049190de ("nexthop: Add support for nexthop groups")
+Signed-off-by: ASSOGBA Emery <assogba.emery@gmail.com>
+Signed-off-by: David Ahern <dsahern@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/net/ethernet/mellanox/mlx5/core/fs_core.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ net/ipv4/nexthop.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/fs_core.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/fs_core.c
-@@ -416,6 +416,12 @@ static void del_sw_ns(struct fs_node *no
- 
- static void del_sw_prio(struct fs_node *node)
- {
-+	struct mlx5_flow_root_namespace *root_ns;
-+	struct mlx5_flow_namespace *ns;
-+
-+	fs_get_obj(ns, node);
-+	root_ns = container_of(ns, struct mlx5_flow_root_namespace, ns);
-+	mutex_destroy(&root_ns->chain_lock);
- 	kfree(node);
- }
+--- a/net/ipv4/nexthop.c
++++ b/net/ipv4/nexthop.c
+@@ -435,7 +435,7 @@ static int nh_check_attr_group(struct ne
+ 		if (!valid_group_nh(nh, len, extack))
+ 			return -EINVAL;
+ 	}
+-	for (i = NHA_GROUP + 1; i < __NHA_MAX; ++i) {
++	for (i = NHA_GROUP_TYPE + 1; i < __NHA_MAX; ++i) {
+ 		if (!tb[i])
+ 			continue;
  
 
 
