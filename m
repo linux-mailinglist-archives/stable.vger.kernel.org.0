@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BAB8B1EA9EB
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:05:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 76A631EA969
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:02:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729126AbgFASD0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:03:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47168 "EHLO mail.kernel.org"
+        id S1729829AbgFASBt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:01:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44836 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730074AbgFASDW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:03:22 -0400
+        id S1729832AbgFASBs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:01:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 692D02077D;
-        Mon,  1 Jun 2020 18:03:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5DAF120776;
+        Mon,  1 Jun 2020 18:01:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034601;
-        bh=TG+9HF2alshZxc1Ns252ZMmuUWyXitjY2aWNEIsHztk=;
+        s=default; t=1591034507;
+        bh=q1doY0AB3P8r/4C1MDCRprR7AsXw8tUvmzIu15oKs60=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EEUCW80m1t+CJ4h3Rp5jpeAQArxSpnp35yvoFjzLlD0ORC7N/BKzIg5eXlw5IasNY
-         i6+wWW8WE3oUBLKtzXrNoH15uX+JbzfiQPiUCFKoW30OfitLBbJVVzKurrIsRXiSCw
-         hFNt7pR1jnpU31X326ArVD6m2y2n1YXuTdGjtzvE=
+        b=aAcMDXoH5TjHbH3ejFUQCPoYXQL84QO3JJl9JS6oQeweBsQjdAlRIbmAD3xGup0ru
+         o7c3BzdRSR6OWBZaOOo4QLKSmUcEkUlkMAq7Z7JZZAjUCzRy+VyE+8uOMe/asQGgjG
+         CQzKvDxefzmJNXRL+rzeSp15OGO1jxj43oY+gdnc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chuhong Yuan <hslester96@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 26/95] net: microchip: encx24j600: add missed kthread_stop
-Date:   Mon,  1 Jun 2020 19:53:26 +0200
-Message-Id: <20200601174025.043920185@linuxfoundation.org>
+        stable@vger.kernel.org, Matteo Croce <mcroce@redhat.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Yonghong Song <yhs@fb.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 23/77] samples: bpf: Fix build error
+Date:   Mon,  1 Jun 2020 19:53:28 +0200
+Message-Id: <20200601174020.581088545@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174020.759151073@linuxfoundation.org>
-References: <20200601174020.759151073@linuxfoundation.org>
+In-Reply-To: <20200601174016.396817032@linuxfoundation.org>
+References: <20200601174016.396817032@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,51 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuhong Yuan <hslester96@gmail.com>
+From: Matteo Croce <mcroce@redhat.com>
 
-[ Upstream commit ff8ce319e9c25e920d994cc35236f0bb32dfc8f3 ]
+[ Upstream commit 23ad04669f81f958e9a4121b0266228d2eb3c357 ]
 
-This driver calls kthread_run() in probe, but forgets to call
-kthread_stop() in probe failure and remove.
-Add the missed kthread_stop() to fix it.
+GCC 10 is very strict about symbol clash, and lwt_len_hist_user contains
+a symbol which clashes with libbpf:
 
-Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+/usr/bin/ld: samples/bpf/lwt_len_hist_user.o:(.bss+0x0): multiple definition of `bpf_log_buf'; samples/bpf/bpf_load.o:(.bss+0x8c0): first defined here
+collect2: error: ld returned 1 exit status
+
+bpf_log_buf here seems to be a leftover, so removing it.
+
+Signed-off-by: Matteo Croce <mcroce@redhat.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Acked-by: Yonghong Song <yhs@fb.com>
+Link: https://lore.kernel.org/bpf/20200511113234.80722-1-mcroce@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/microchip/encx24j600.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ samples/bpf/lwt_len_hist_user.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/microchip/encx24j600.c b/drivers/net/ethernet/microchip/encx24j600.c
-index f831238d9793..84b6ad76f5bc 100644
---- a/drivers/net/ethernet/microchip/encx24j600.c
-+++ b/drivers/net/ethernet/microchip/encx24j600.c
-@@ -1075,7 +1075,7 @@ static int encx24j600_spi_probe(struct spi_device *spi)
- 	if (unlikely(ret)) {
- 		netif_err(priv, probe, ndev, "Error %d initializing card encx24j600 card\n",
- 			  ret);
--		goto out_free;
-+		goto out_stop;
- 	}
+diff --git a/samples/bpf/lwt_len_hist_user.c b/samples/bpf/lwt_len_hist_user.c
+index 7fcb94c09112..965108527a4f 100644
+--- a/samples/bpf/lwt_len_hist_user.c
++++ b/samples/bpf/lwt_len_hist_user.c
+@@ -15,8 +15,6 @@
+ #define MAX_INDEX 64
+ #define MAX_STARS 38
  
- 	eidled = encx24j600_read_reg(priv, EIDLED);
-@@ -1093,6 +1093,8 @@ static int encx24j600_spi_probe(struct spi_device *spi)
- 
- out_unregister:
- 	unregister_netdev(priv->ndev);
-+out_stop:
-+	kthread_stop(priv->kworker_task);
- out_free:
- 	free_netdev(ndev);
- 
-@@ -1105,6 +1107,7 @@ static int encx24j600_spi_remove(struct spi_device *spi)
- 	struct encx24j600_priv *priv = dev_get_drvdata(&spi->dev);
- 
- 	unregister_netdev(priv->ndev);
-+	kthread_stop(priv->kworker_task);
- 
- 	free_netdev(priv->ndev);
- 
+-char bpf_log_buf[BPF_LOG_BUF_SIZE];
+-
+ static void stars(char *str, long val, long max, int width)
+ {
+ 	int i;
 -- 
 2.25.1
 
