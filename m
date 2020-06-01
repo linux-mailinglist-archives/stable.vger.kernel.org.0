@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A2031EAA5C
-	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:11:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C5CB01EA9DB
+	for <lists+stable@lfdr.de>; Mon,  1 Jun 2020 20:05:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728546AbgFASHO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 14:07:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53080 "EHLO mail.kernel.org"
+        id S1729991AbgFASCv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 14:02:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46074 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730558AbgFASHO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Jun 2020 14:07:14 -0400
+        id S1729981AbgFASCt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 14:02:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 55B9E206E2;
-        Mon,  1 Jun 2020 18:07:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E1CC3206E2;
+        Mon,  1 Jun 2020 18:02:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591034833;
-        bh=rqrGl13jobhYXcTJKyrzebOW90O43LvkFl6zGUpmsIc=;
+        s=default; t=1591034568;
+        bh=0L32+1uIV4NXwp2BU7QjlrINyxRBtIPCuodI8AO0FAY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vGnR0HSevNf8i9V9Iurk+XMl2HL6gBpsU/G9wUB19im04SakT/m9CggN3jBre6BnC
-         xmyUlVQPEOFixu+T1c3JpV4oASp2ebBhhpulsdxkUakOhp5mDLNhsVGcux4Zz+44Rt
-         D1Ce3uT8c2vaBa4Me8KQUq5+5U5Bs7ZCoRORdpg0=
+        b=pp0jeLXBth4qtwfFcUXY88r53aaNPTkM0M+bczIEkf6A9RLyoPHHQzt0in11hiy9r
+         MzMKcfwlMnSmZekflORur+2ZwJL5JI0LP6V0pbtrXV95jjfwqj+duvGhh3G1rtJUfw
+         XVLBGD72BDATOd3qID/tuagDwwBoh/nitK0mxf2c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Jonker <jbx6244@gmail.com>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 034/142] arm64: dts: rockchip: fix status for &gmac2phy in rk3328-evb.dts
+        stable@vger.kernel.org, Neil Horman <nhorman@tuxdriver.com>,
+        Vlad Yasevich <vyasevich@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>, jere.leppanen@nokia.com,
+        marcelo.leitner@gmail.com, netdev@vger.kernel.org
+Subject: [PATCH 4.19 12/95] sctp: Dont add the shutdown timer if its already been added
 Date:   Mon,  1 Jun 2020 19:53:12 +0200
-Message-Id: <20200601174041.498168784@linuxfoundation.org>
+Message-Id: <20200601174022.821314482@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200601174037.904070960@linuxfoundation.org>
-References: <20200601174037.904070960@linuxfoundation.org>
+In-Reply-To: <20200601174020.759151073@linuxfoundation.org>
+References: <20200601174020.759151073@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,37 +45,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Jonker <jbx6244@gmail.com>
+From: Neil Horman <nhorman@tuxdriver.com>
 
-[ Upstream commit c617ed88502d0b05149e7f32f3b3fd8a0663f7e2 ]
+[ Upstream commit 20a785aa52c82246055a089e55df9dac47d67da1 ]
 
-The status was removed of the '&gmac2phy' node with the apply
-of a patch long time ago, so fix status for '&gmac2phy'
-in 'rk3328-evb.dts'.
+This BUG halt was reported a while back, but the patch somehow got
+missed:
 
-Signed-off-by: Johan Jonker <jbx6244@gmail.com>
-Link: https://lore.kernel.org/r/20200425122345.12902-2-jbx6244@gmail.com
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+PID: 2879   TASK: c16adaa0  CPU: 1   COMMAND: "sctpn"
+ #0 [f418dd28] crash_kexec at c04a7d8c
+ #1 [f418dd7c] oops_end at c0863e02
+ #2 [f418dd90] do_invalid_op at c040aaca
+ #3 [f418de28] error_code (via invalid_op) at c08631a5
+    EAX: f34baac0  EBX: 00000090  ECX: f418deb0  EDX: f5542950  EBP: 00000000
+    DS:  007b      ESI: f34ba800  ES:  007b      EDI: f418dea0  GS:  00e0
+    CS:  0060      EIP: c046fa5e  ERR: ffffffff  EFLAGS: 00010286
+ #4 [f418de5c] add_timer at c046fa5e
+ #5 [f418de68] sctp_do_sm at f8db8c77 [sctp]
+ #6 [f418df30] sctp_primitive_SHUTDOWN at f8dcc1b5 [sctp]
+ #7 [f418df48] inet_shutdown at c080baf9
+ #8 [f418df5c] sys_shutdown at c079eedf
+ #9 [f418df70] sys_socketcall at c079fe88
+    EAX: ffffffda  EBX: 0000000d  ECX: bfceea90  EDX: 0937af98
+    DS:  007b      ESI: 0000000c  ES:  007b      EDI: b7150ae4
+    SS:  007b      ESP: bfceea7c  EBP: bfceeaa8  GS:  0033
+    CS:  0073      EIP: b775c424  ERR: 00000066  EFLAGS: 00000282
+
+It appears that the side effect that starts the shutdown timer was processed
+multiple times, which can happen as multiple paths can trigger it.  This of
+course leads to the BUG halt in add_timer getting called.
+
+Fix seems pretty straightforward, just check before the timer is added if its
+already been started.  If it has mod the timer instead to min(current
+expiration, new expiration)
+
+Its been tested but not confirmed to fix the problem, as the issue has only
+occured in production environments where test kernels are enjoined from being
+installed.  It appears to be a sane fix to me though.  Also, recentely,
+Jere found a reproducer posted on list to confirm that this resolves the
+issues
+
+Signed-off-by: Neil Horman <nhorman@tuxdriver.com>
+CC: Vlad Yasevich <vyasevich@gmail.com>
+CC: "David S. Miller" <davem@davemloft.net>
+CC: jere.leppanen@nokia.com
+CC: marcelo.leitner@gmail.com
+CC: netdev@vger.kernel.org
+Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/boot/dts/rockchip/rk3328-evb.dts | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/sctp/sm_sideeffect.c |   14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/rockchip/rk3328-evb.dts b/arch/arm64/boot/dts/rockchip/rk3328-evb.dts
-index 6abc6f4a86cf..05265b38cc02 100644
---- a/arch/arm64/boot/dts/rockchip/rk3328-evb.dts
-+++ b/arch/arm64/boot/dts/rockchip/rk3328-evb.dts
-@@ -86,7 +86,7 @@
- 	assigned-clock-rate = <50000000>;
- 	assigned-clocks = <&cru SCLK_MAC2PHY>;
- 	assigned-clock-parents = <&cru SCLK_MAC2PHY_SRC>;
--
-+	status = "okay";
- };
+--- a/net/sctp/sm_sideeffect.c
++++ b/net/sctp/sm_sideeffect.c
+@@ -1537,9 +1537,17 @@ static int sctp_cmd_interpreter(enum sct
+ 			timeout = asoc->timeouts[cmd->obj.to];
+ 			BUG_ON(!timeout);
  
- &i2c1 {
--- 
-2.25.1
-
+-			timer->expires = jiffies + timeout;
+-			sctp_association_hold(asoc);
+-			add_timer(timer);
++			/*
++			 * SCTP has a hard time with timer starts.  Because we process
++			 * timer starts as side effects, it can be hard to tell if we
++			 * have already started a timer or not, which leads to BUG
++			 * halts when we call add_timer. So here, instead of just starting
++			 * a timer, if the timer is already started, and just mod
++			 * the timer with the shorter of the two expiration times
++			 */
++			if (!timer_pending(timer))
++				sctp_association_hold(asoc);
++			timer_reduce(timer, jiffies + timeout);
+ 			break;
+ 
+ 		case SCTP_CMD_TIMER_RESTART:
 
 
