@@ -2,139 +2,136 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DA6D1EBBE1
-	for <lists+stable@lfdr.de>; Tue,  2 Jun 2020 14:40:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A34D51EBC4D
+	for <lists+stable@lfdr.de>; Tue,  2 Jun 2020 15:03:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726217AbgFBMkt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Jun 2020 08:40:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42284 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725940AbgFBMkt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 2 Jun 2020 08:40:49 -0400
-Received: from mail-ej1-x642.google.com (mail-ej1-x642.google.com [IPv6:2a00:1450:4864:20::642])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00308C061A0E;
-        Tue,  2 Jun 2020 05:40:48 -0700 (PDT)
-Received: by mail-ej1-x642.google.com with SMTP id x1so12572357ejd.8;
-        Tue, 02 Jun 2020 05:40:48 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=niT9jOzFuN2NCfZ/IUmRYMI3ZZ7HW1svqTzOyKem/GY=;
-        b=Sa6V5cmom+EpKHaXLrGQ3G9oDNXjY7kjwghMmGcidLLrX9Nlei2ZPspqTL3y6DRlRd
-         //STw6jNoNcLyfU7V+pU7jFL70EMOqltF7ZB4WBZ+39UgExPcCjkaLUdlPff8dQA4JlK
-         +PMexbmuiaGMRobAI0fbErMxQJ9izCV7rymAtQhnBEsPjSweK4z/NkfJqlfPzrYRdAxn
-         RZHFqWH82+Dh1GfMs1cXGlsLOb1O+cFGD6nUv1bsKnkbfRkinwNsnMUTxHBdNEBpTG0K
-         fANURxqU3KYa2tF+artQcL47ZXH//f3wn9NJFqdt+wGfQTS/WbEDIfTBr/FvoJmvwi+C
-         JLGw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=niT9jOzFuN2NCfZ/IUmRYMI3ZZ7HW1svqTzOyKem/GY=;
-        b=uEgpNBqs+E5Ouz6Pue+5cWn4V/0BuKNa36fIBUICpRE+XZcz5oJFFMCvcXfnX+9YCY
-         i7x+a/Edn61JXeJMfjTwSxrz3910sei5ZvmSczHqJv4JhmQEeMZ/whPpiBycI3s9EgUf
-         uNkjKRaBv0ztOHIvVTUh7EQ566Bd+WH1BR5HIYHHAPkeeCQ5YqNK56a6b8oCxykQuvQ/
-         zp0uk4dbSJwGgXdwkVQHL9smouhwXUAstT/vWGMfVLCiggkadaBmgwZKre3RjOJ36SZU
-         nxN5L25Q5pEE1jXcau8HEgoA4MFjfrxXf5Y2lfa1K7U9HE/feX/PyUu06dx8B3fTkZtL
-         3Ylg==
-X-Gm-Message-State: AOAM532U79gu3v2NUabJ734nbXaew24qZUd1U2nzWIgBk4Bk94MPOXWt
-        6D5BoXJuZEbWyGMsHJ2FYrg=
-X-Google-Smtp-Source: ABdhPJzBbhcNiGzmplFsbJ8iJ8Dkkme6+Cro2wO3XrtzvMNtp+XeDCtwuUl8d2UMk4gI27laekECAQ==
-X-Received: by 2002:a17:906:7746:: with SMTP id o6mr9012036ejn.75.1591101647750;
-        Tue, 02 Jun 2020 05:40:47 -0700 (PDT)
-Received: from localhost (pd9e51079.dip0.t-ipconnect.de. [217.229.16.121])
-        by smtp.gmail.com with ESMTPSA id ch14sm1499331edb.33.2020.06.02.05.40.46
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 02 Jun 2020 05:40:46 -0700 (PDT)
-Date:   Tue, 2 Jun 2020 14:40:45 +0200
-From:   Thierry Reding <thierry.reding@gmail.com>
-To:     Hans de Goede <hdegoede@redhat.com>
-Cc:     Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        linux-pwm@vger.kernel.org, linux-acpi@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] pwm: lpss: Fix get_state runtime-pm reference handling
-Message-ID: <20200602124045.GC3360525@ulmo>
-References: <20200512110044.95984-1-hdegoede@redhat.com>
+        id S1726977AbgFBNDH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Jun 2020 09:03:07 -0400
+Received: from mga01.intel.com ([192.55.52.88]:8216 "EHLO mga01.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725919AbgFBNDG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Jun 2020 09:03:06 -0400
+IronPort-SDR: NPfjh5mIihstQz1EmSvvITbBJuLtivfeOBMkw8N9r/tAfrGgmBWsOOlJHn8GINRt9RxBueImLm
+ jcnWxtHJU4QQ==
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga006.jf.intel.com ([10.7.209.51])
+  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Jun 2020 06:02:48 -0700
+IronPort-SDR: ro1/VJeZ4ZM7/+42X0SkF+y5MJyVVHnn84OD9XqwKiqhzlZ/e2zLarquygWvV7qbQyBZS1KTri
+ xqNtMyxX2GfQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.73,464,1583222400"; 
+   d="scan'208";a="272355564"
+Received: from fmsmsx107.amr.corp.intel.com ([10.18.124.205])
+  by orsmga006.jf.intel.com with ESMTP; 02 Jun 2020 06:02:48 -0700
+Received: from fmsmsx609.amr.corp.intel.com (10.18.126.89) by
+ fmsmsx107.amr.corp.intel.com (10.18.124.205) with Microsoft SMTP Server (TLS)
+ id 14.3.439.0; Tue, 2 Jun 2020 06:02:48 -0700
+Received: from fmsmsx609.amr.corp.intel.com (10.18.126.89) by
+ fmsmsx609.amr.corp.intel.com (10.18.126.89) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.1713.5; Tue, 2 Jun 2020 06:02:47 -0700
+Received: from bgsmsx103.gar.corp.intel.com (10.223.4.130) by
+ fmsmsx609.amr.corp.intel.com (10.18.126.89) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id 15.1.1713.5
+ via Frontend Transport; Tue, 2 Jun 2020 06:02:47 -0700
+Received: from bgsmsx104.gar.corp.intel.com ([169.254.5.115]) by
+ BGSMSX103.gar.corp.intel.com ([169.254.4.125]) with mapi id 14.03.0439.000;
+ Tue, 2 Jun 2020 18:32:45 +0530
+From:   "Shankar, Uma" <uma.shankar@intel.com>
+To:     "Gupta, Anshuman" <anshuman.gupta@intel.com>
+CC:     "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: RE: [Intel-gfx] [RFC] drm/i915: lpsp with hdmi/dp outputs
+Thread-Topic: [Intel-gfx] [RFC] drm/i915: lpsp with hdmi/dp outputs
+Thread-Index: AQHWN/+DXwK47U+O70e74aNiXdDPH6jDtRGggAErQQCAAGqz8A==
+Date:   Tue, 2 Jun 2020 13:02:44 +0000
+Message-ID: <E7C9878FBA1C6D42A1CA3F62AEB6945F82517BF6@BGSMSX104.gar.corp.intel.com>
+References: <20200601101516.21018-1-anshuman.gupta@intel.com>
+ <E7C9878FBA1C6D42A1CA3F62AEB6945F82516D51@BGSMSX104.gar.corp.intel.com>
+ <20200602120633.GM4452@intel.com>
+In-Reply-To: <20200602120633.GM4452@intel.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+dlp-product: dlpe-windows
+dlp-version: 11.2.0.6
+dlp-reaction: no-action
+x-originating-ip: [10.223.10.10]
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="WplhKdTI2c8ulnbP"
-Content-Disposition: inline
-In-Reply-To: <20200512110044.95984-1-hdegoede@redhat.com>
-User-Agent: Mutt/1.13.1 (2019-12-14)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
---WplhKdTI2c8ulnbP
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Tue, May 12, 2020 at 01:00:44PM +0200, Hans de Goede wrote:
-> Before commit cfc4c189bc70 ("pwm: Read initial hardware state at request
-> time"), a driver's get_state callback would get called once per PWM from
-> pwmchip_add().
->=20
-> pwm-lpss' runtime-pm code was relying on this, getting a runtime-pm ref f=
-or
-> PWMs which are enabled at probe time from within its get_state callback,
-> before enabling runtime-pm.
->=20
-> The change to calling get_state at request time causes a number of
-> problems:
->=20
-> 1. PWMs enabled at probe time may get runtime suspended before they are
-> requested, causing e.g. a LCD backlight controlled by the PWM to turn off.
->=20
-> 2. When the request happens when the PWM has been runtime suspended, the
-> ctrl register will read all 1 / 0xffffffff, causing get_state to store
-> bogus values in the pwm_state.
->=20
-> 3. get_state was using an async pm_runtime_get() call, because it assumed
-> that runtime-pm has not been enabled yet. If shortly after the request an
-> apply call is made, then the pwm_lpss_is_updating() check may trigger
-> because the resume triggered by the pm_runtime_get() call is not complete
-> yet, so the ctrl register still reads all 1 / 0xffffffff.
->=20
-> This commit fixes these issues by moving the initial pm_runtime_get() call
-> for PWMs which are enabled at probe time to the pwm_lpss_probe() function;
-> and by making get_state take a runtime-pm ref before reading the ctrl reg.
->=20
-> BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=3D1828927
-> Fixes: cfc4c189bc70 ("pwm: Read initial hardware state at request time")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-> ---
->  drivers/pwm/pwm-lpss.c | 15 +++++++++++----
->  1 file changed, 11 insertions(+), 4 deletions(-)
-
-Applied, thanks.
-
-Thierry
-
---WplhKdTI2c8ulnbP
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAl7WSM0ACgkQ3SOs138+
-s6FhRRAAuvaWzzTcka9pbQE9E0+InpTkaaM4jW+gV5eJAwbFAH/ggDepZsNJpRRy
-H1c3PubRZFR3XPJFMcrJKDOvCAZC2pkChaeTqjtwBBForNIt+AoRhF3hgmr3bhMZ
-Q7S3rahk9eDABzTNXWemesQfoyoNjnYAKqqRvPHG+rDIewOVBc6zY8lnQ3SS6Dy/
-HY1oQopujNaub1T2aKfufdLGlPzCzIG/ZxuMmx5i2hG7SMVnS/Z//tKNhLrIPxt4
-6fOun1F+2GgScUyjRz6tNIflHJ0B9emCZH6sc8J5vWtnXNtQ3XHft0YT7EQRpu7n
-h6A9434xaPSblA/FLXTGxdW2qwPvrxFQ4ZAA43CdGYka9Ibd8A7T3jQMYdQs6vr0
-r7z1s6dSVTQ+ai2+jds7GwU6v6TfQvlFb21nXz2cAbJBh0ZM9WrpFdaiXG//odXt
-HNGNn6O3XcsSThigBk+j+RmJ2MSeGsUiTVD9w3TBknyrpPOdaMikeVtDjaD6dnbA
-De9cIubENvTmEdsOp1MN2meImbPx9IrKYr/dPo+PSx01L6U550PiYg7L05rsulB1
-15qEC0FRjtxypAjDXKcu1ovYM8749OnXskMmW4Ybq1aEvJROwYXfQiiBbU6RrwWZ
-FBf5LQdD9ELqscfR70bcE/S0hrEgQ+jLAEdsr3OtpIXqrJuxN1s=
-=oZB2
------END PGP SIGNATURE-----
-
---WplhKdTI2c8ulnbP--
+DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogR3VwdGEsIEFuc2h1bWFu
+IDxhbnNodW1hbi5ndXB0YUBpbnRlbC5jb20+DQo+IFNlbnQ6IFR1ZXNkYXksIEp1bmUgMiwgMjAy
+MCA1OjM3IFBNDQo+IFRvOiBTaGFua2FyLCBVbWEgPHVtYS5zaGFua2FyQGludGVsLmNvbT4NCj4g
+Q2M6IGludGVsLWdmeEBsaXN0cy5mcmVlZGVza3RvcC5vcmc7IHN0YWJsZUB2Z2VyLmtlcm5lbC5v
+cmcNCj4gU3ViamVjdDogUmU6IFtJbnRlbC1nZnhdIFtSRkNdIGRybS9pOTE1OiBscHNwIHdpdGgg
+aGRtaS9kcCBvdXRwdXRzDQo+IA0KPiBPbiAyMDIwLTA2LTAxIGF0IDE4OjE5OjQ0ICswNTMwLCBT
+aGFua2FyLCBVbWEgd3JvdGU6DQo+ID4NCj4gPg0KPiA+ID4gLS0tLS1PcmlnaW5hbCBNZXNzYWdl
+LS0tLS0NCj4gPiA+IEZyb206IEludGVsLWdmeCA8aW50ZWwtZ2Z4LWJvdW5jZXNAbGlzdHMuZnJl
+ZWRlc2t0b3Aub3JnPiBPbiBCZWhhbGYNCj4gPiA+IE9mIEFuc2h1bWFuIEd1cHRhDQo+ID4gPiBT
+ZW50OiBNb25kYXksIEp1bmUgMSwgMjAyMCAzOjQ1IFBNDQo+ID4gPiBUbzogaW50ZWwtZ2Z4QGxp
+c3RzLmZyZWVkZXNrdG9wLm9yZw0KPiA+ID4gQ2M6IHN0YWJsZUB2Z2VyLmtlcm5lbC5vcmcNCj4g
+PiA+IFN1YmplY3Q6IFtJbnRlbC1nZnhdIFtSRkNdIGRybS9pOTE1OiBscHNwIHdpdGggaGRtaS9k
+cCBvdXRwdXRzDQo+ID4gPg0KPiA+ID4gR2VuMTIgaHcgYXJlIGZhaWxpbmcgdG8gZW5hYmxlIGxw
+c3AgY29uZmlndXJhdGlvbiBkdWUgdG8gUEczIHdhcw0KPiA+ID4gbGVmdCBvbiBkdWUgdG8gdmFs
+aWQgdXNnYWUgY291bnQgb2YgUE9XRVJfRE9NQUlOX0FVRElPLg0KPiA+ID4gSXQgaXMgbm90IHJl
+cXVpcmVkIHRvIGdldCBQT1dFUl9ET01BSU5fQVVESU8gcmVmLWNvdW50IHdoZW4gZW5hYmxpbmcN
+Cj4gPiA+IGEgY3J0YywgaXQgc2hvdWxkIGJlIGFsd2F5cyBpOTE1X2F1ZGlvX2NvbXBvbmVudCBy
+ZXF1ZXN0IHRvIGdldC9wdXQNCj4gPiA+IEFVRElPX1BPV0VSX0RPTUFJTi4NCj4gPiA+DQo+ID4g
+PiBDYzogc3RhYmxlQHZnZXIua2VybmVsLm9yZw0KPiA+ID4gQ2M6IFZpbGxlIFN5cmrDpGzDpCA8
+dmlsbGUuc3lyamFsYUBsaW51eC5pbnRlbC5jb20+DQo+ID4gPiBDYzogTWFhcnRlbiBMYW5raG9y
+c3QgPG1hYXJ0ZW4ubGFua2hvcnN0QGxpbnV4LmludGVsLmNvbT4NCj4gPiA+IFNpZ25lZC1vZmYt
+Ynk6IEFuc2h1bWFuIEd1cHRhIDxhbnNodW1hbi5ndXB0YUBpbnRlbC5jb20+DQo+ID4gPiAtLS0N
+Cj4gPiA+ICBkcml2ZXJzL2dwdS9kcm0vaTkxNS9kaXNwbGF5L2ludGVsX2Rpc3BsYXkuYyB8IDYg
+KysrKystDQo+ID4gPiAgMSBmaWxlIGNoYW5nZWQsIDUgaW5zZXJ0aW9ucygrKSwgMSBkZWxldGlv
+bigtKQ0KPiA+ID4NCj4gPiA+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2dwdS9kcm0vaTkxNS9kaXNw
+bGF5L2ludGVsX2Rpc3BsYXkuYw0KPiA+ID4gYi9kcml2ZXJzL2dwdS9kcm0vaTkxNS9kaXNwbGF5
+L2ludGVsX2Rpc3BsYXkuYw0KPiA+ID4gaW5kZXggNmMzYjExZGUyZGFmLi5mMzFhNTc5ZDdhNTIg
+MTAwNjQ0DQo+ID4gPiAtLS0gYS9kcml2ZXJzL2dwdS9kcm0vaTkxNS9kaXNwbGF5L2ludGVsX2Rp
+c3BsYXkuYw0KPiA+ID4gKysrIGIvZHJpdmVycy9ncHUvZHJtL2k5MTUvZGlzcGxheS9pbnRlbF9k
+aXNwbGF5LmMNCj4gPiA+IEBAIC03MzU2LDcgKzczNTYsMTEgQEAgc3RhdGljIHU2NCBnZXRfY3J0
+Y19wb3dlcl9kb21haW5zKHN0cnVjdA0KPiA+ID4gaW50ZWxfY3J0Y19zdGF0ZSAqY3J0Y19zdGF0
+ZSkNCj4gPiA+ICAJCW1hc2sgfD0gQklUX1VMTChpbnRlbF9lbmNvZGVyLT5wb3dlcl9kb21haW4p
+Ow0KPiA+ID4gIAl9DQo+ID4gPg0KPiA+ID4gLQlpZiAoSEFTX0RESShkZXZfcHJpdikgJiYgY3J0
+Y19zdGF0ZS0+aGFzX2F1ZGlvKQ0KPiA+ID4gKwkvKg0KPiA+ID4gKwkgKiBHZW4xMiBjYW4gZHJp
+dmUgbHBzcCBvbiBoZG1pL2RwIG91dHB1cywgaXQgZG9lc24ndCByZXF1aXJlIHRvDQo+ID4gPiAr
+CSAqIGVuYWJsZSBBVURJTyBwb3dlciBpbiBvcmRlciB0byBlbmFibGUgYSBjcnRjLg0KPiA+ID4g
+KwkgKi8NCj4gPiA+ICsJaWYgKElOVEVMX0dFTihkZXZfcHJpdikgPCAxMiAmJiBIQVNfRERJKGRl
+dl9wcml2KSAmJg0KPiA+ID4gK2NydGNfc3RhdGUtPmhhc19hdWRpbykNCj4gPiA+ICAJCW1hc2sg
+fD0gQklUX1VMTChQT1dFUl9ET01BSU5fQVVESU8pOw0KPiA+DQo+ID4gQXMgcGFydCBvZiBkZGlf
+Z2V0X2NvbmZpZyB3ZSBkZXRlcm1pbmUgaGFzX2F1ZGlvIHVzaW5nIHBvd2VyIHdlbGwgZW5hYmxl
+ZDoNCj4gPiBwaXBlX2NvbmZpZy0+aGFzX2F1ZGlvID0NCj4gPiAgICAgICAgICAgICAgICAgaW50
+ZWxfZGRpX2lzX2F1ZGlvX2VuYWJsZWQoZGV2X3ByaXYsIGNwdV90cmFuc2NvZGVyKTsNCj4gSU1P
+IEFVRElPIHBvd2VyIHdpbGwgYWxzbyBiZSByZXF1ZXN0ZWQgYnkgaTkxNV9hdWRpb19jb21wb25l
+bnQgZ2V0IHJlcXVlc3QsDQo+IHdlIGNhbiBhbHdheXMgdXNlIEhETUkgZGlzcGxheSB3aXRob3V0
+IGF1ZGlvIHBsYXliYWNrLCBBVURJTyBwb3dlciBzaG91bGQNCj4gYmUgZW5hYmxlZCB3aGVuIGF1
+ZGlvIGRyaXZlciByZXF1ZXN0IGZvciBpdC4NCj4gaWYgd2UgZ2V0IEFVRElPX1BPV0VSX0RPTUFJ
+TiB3aGlsZSBlbmFibGluZyBjcnRjIFBHMyB3aWxsIGFsd2F5cyBrZXB0IG9uIHRpbGwNCj4gQ1JU
+QyBpcyBkaXNhYmxlZCwgdGhhdCBpcyB0aGUgaXNzdWUgcmVxdWlyZWQgdG8gYmUgYWRkcmVzc2Vk
+IGhlcmUuDQoNClllcyBIRE1JIGNhbiBiZSBlbmFibGVkIHdpdGhvdXQgYXVkaW8sIGJ1dCBpZiB3
+ZSB3YW50IGF1ZGlvIHdlIHdpbGwgbmVlZCB0byBub3RpZnkNCmF1ZGlvIGRyaXZlciB0aHJvdWdo
+IEhTV19BVURfUElOX0VMRF9DUF9WTEQgYW5kIGFsc28gcHJlcGFyZSBhbmQgd3JpdGUgRUxEIGRh
+dGENCmluIGhhcmR3YXJlIHJlZ2lzdGVyLiBJZiBJIHVuZGVyc3RhbmQgY29ycmVjdGx5IHRoaXMg
+d2lsbCBuZWVkIHBvd2VyIGFuZCBieSB0aGlzIHRpbWUgYXVkaW8NCmRyaXZlciB3b3VsZCBub3Qg
+aGF2ZSByZXF1ZXN0ZWQgZm9yIGl0LiBIZW5jZSB0aGlzIHdpbGwgZmFpbCBhdWRpbyBkZXRlY3Rp
+b24uDQoNCj4gVGhpcyBpcyBqdXN0IFJGQyB0byBpbml0aWF0ZSBhIGRpc2N1c3Npb24gYXJvdW5k
+IGl0Lg0KPiBUaGFua3MsDQo+IEFuc2h1bWFuIEd1cHRhLg0KPiA+DQo+ID4gSWYgYXVkaW8gcG93
+ZXIgZG9tYWluIGlzIG5vdCBlbmFibGVkLCB3ZSBtYXkgZW5kIHVwIHdpdGggdGhpcyBhcyBmYWxz
+ZS4NCj4gPiBMYXRlciB0aGlzIG1heSBnZXQgY2hlY2tlZCBpbiBpbnRlbF9lbmFibGVfZGRpX2hk
+bWkgdG8gY2FsbCBhdWRpbw0KPiA+IGNvZGVjIGVuYWJsZQ0KPiA+DQo+ID4gaWYgKGNydGNfc3Rh
+dGUtPmhhc19hdWRpbykNCj4gPiAgICAgICAgICAgICAgICAgaW50ZWxfYXVkaW9fY29kZWNfZW5h
+YmxlKGVuY29kZXIsIGNydGNfc3RhdGUsDQo+ID4gY29ubl9zdGF0ZSk7DQo+ID4NCj4gPiBUaGlz
+IG1heSBjYXVzZSBkZXRlY3Rpb24gdG8gZmFpbC4gUGxlYXNlIHZlcmlmeSB0aGlzIHVzZWNhc2Ug
+b25jZSBhbmQgY29uZmlybS4NCj4gPg0KPiA+IFJlZ2FyZHMsDQo+ID4gVW1hIFNoYW5rYXINCj4g
+Pg0KPiA+ID4gIAlpZiAoY3J0Y19zdGF0ZS0+c2hhcmVkX2RwbGwpDQo+ID4gPiAtLQ0KPiA+ID4g
+Mi4yNi4yDQo+ID4gPg0KPiA+ID4gX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX18NCj4gPiA+IEludGVsLWdmeCBtYWlsaW5nIGxpc3QNCj4gPiA+IEludGVsLWdm
+eEBsaXN0cy5mcmVlZGVza3RvcC5vcmcNCj4gPiA+IGh0dHBzOi8vbGlzdHMuZnJlZWRlc2t0b3Au
+b3JnL21haWxtYW4vbGlzdGluZm8vaW50ZWwtZ2Z4DQo=
