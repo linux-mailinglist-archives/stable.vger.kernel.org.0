@@ -2,134 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0AA101EB41E
-	for <lists+stable@lfdr.de>; Tue,  2 Jun 2020 06:12:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 957121EB4A7
+	for <lists+stable@lfdr.de>; Tue,  2 Jun 2020 06:41:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725835AbgFBEMO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Jun 2020 00:12:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47680 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725781AbgFBEMO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Jun 2020 00:12:14 -0400
-Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3E42E206F1;
-        Tue,  2 Jun 2020 04:12:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591071133;
-        bh=mxIoVF3sTQF9NVKU/tfRSKf4rPkmmjQXHz733zPLmTA=;
-        h=Date:From:To:Subject:From;
-        b=xJBhBA0LjAz174p+ZYZp50A8CKv5kyT0h5hmTO2+q09sa0ZKzW04O1v408gS/s4lc
-         Df5zCEDEOHtUu6WBvnhgSnG9tgki9Zm6MjQiF4yfKAQfyH1BKA1SjdgVW7bsJVg0XV
-         8biipsvYuCmDWCtxlGkUMEricA0kBT3eYnkG8R+w=
-Date:   Mon, 01 Jun 2020 21:12:12 -0700
-From:   akpm@linux-foundation.org
-To:     khlebnikov@yandex-team.ru, mgorman@techsingularity.net,
-        minchan@kernel.org, mm-commits@vger.kernel.org,
-        rientjes@google.com, stable@vger.kernel.org, vbabka@suse.cz
-Subject:  [obsolete]
- mm-compaction-avoid-vm_bug_onpageslab-in-page_mapcount.patch removed from
- -mm tree
-Message-ID: <20200602041212.WhSqEMJZs%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S1725921AbgFBElQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Jun 2020 00:41:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52832 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725616AbgFBElQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 2 Jun 2020 00:41:16 -0400
+Received: from mail-pj1-x1043.google.com (mail-pj1-x1043.google.com [IPv6:2607:f8b0:4864:20::1043])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDE87C061A0E
+        for <stable@vger.kernel.org>; Mon,  1 Jun 2020 21:41:14 -0700 (PDT)
+Received: by mail-pj1-x1043.google.com with SMTP id ga6so791142pjb.1
+        for <stable@vger.kernel.org>; Mon, 01 Jun 2020 21:41:14 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=P7L06egcKUjx/Dr6gIZtYnRvf+NvrKsKZn4ntVhbOxM=;
+        b=dkOy/HArFmJoSTV7oOSdz6XFJmBhZSYr4NKEucs9Y/533PO65IhDsBqbnAn8xo25bh
+         lO3H0m1x6ew0lmh89jDZgASGxBk78s/XRrIjTgFoOK752RcX3yN36B/TxzCqWJ4/6LmR
+         2QrFeXzn2TXkKNYOef51en354KlHDStrJEYcGf7fexV3/ocRy7yhNz8P77skaUVpHiPC
+         tb+2vabDHopP+tvbM9OFETKOaGEL9Vflg6RpaIodRjQIzJywQH3bwoSAVP+k+zqWM5is
+         jzji7XB+jm+rAmkqZAeOgD6I7JFNWFP3TKWL78z3vn4MqWPuWiZXZNTyCBi2nXIcBmkV
+         1cMg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=P7L06egcKUjx/Dr6gIZtYnRvf+NvrKsKZn4ntVhbOxM=;
+        b=AKXZUu1iNkFXLs14EWVKG4L+HdaUkNV+bOhPhSh69H7oYf2OU/Hjmb+0vUZeEAptEG
+         USZ0S1F8V4D5g7raqGsW2iWd+2bphHR3FQLKzUCB6ZtybDYXSRbUfPArsAclkG8WYnnC
+         esIhaPidXFQ8EC4w0RptdcCOW5wcnlk/p0nIo6lwaHGlajjVoXeNDHBDYWif/s6pzU8h
+         siANn2XIMynRS3mDkvx/1jQcTe4VvZgw54staId1dO1wCVLodSDuYXo33xv4Gv3jX/c7
+         HTDZAkQapyM+qovrMeRE/Y2rbtQoJMucwkzuoLNettJaMuWsmOSj73IcXZwsBTnIYrPN
+         Ec/Q==
+X-Gm-Message-State: AOAM530QYjU+t+IW3lJyFv/tS6R3PssaRRPX89dSl+4kRn0rqTr/D8X5
+        uAUAXa04jUNvSTRawPY8cKPW5X4JxSM=
+X-Google-Smtp-Source: ABdhPJyg4VqYrNgnH49kVUuKXbyNV/6h5kzhXe7KVAyHBaX8+0stRP56QMFfLcedGV9TYpbfQq3qQg==
+X-Received: by 2002:a17:902:26f:: with SMTP id 102mr21339507plc.209.1591072873792;
+        Mon, 01 Jun 2020 21:41:13 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id q18sm879319pgt.74.2020.06.01.21.41.12
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 01 Jun 2020 21:41:12 -0700 (PDT)
+Message-ID: <5ed5d868.1c69fb81.53f33.3f93@mx.google.com>
+Date:   Mon, 01 Jun 2020 21:41:12 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.9.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.9.225-62-gf7c3cc559c2e
+Subject: stable-rc/linux-4.9.y boot: 5 boots: 0 failed,
+ 5 passed (v4.9.225-62-gf7c3cc559c2e)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+******************************************
+* WARNING: Boot tests are now deprecated *
+******************************************
 
-The patch titled
-     Subject: mm/compaction: avoid VM_BUG_ON(PageSlab()) in page_mapcount()
-has been removed from the -mm tree.  Its filename was
-     mm-compaction-avoid-vm_bug_onpageslab-in-page_mapcount.patch
+As kernelci.org is expanding its functional testing capabilities, the conce=
+pt
+of boot testing is now deprecated.  Boot results are scheduled to be droppe=
+d on
+*5th June 2020*.  The full schedule for boot tests deprecation is available=
+ on
+this GitHub issue: https://github.com/kernelci/kernelci-backend/issues/238
 
-This patch was dropped because it is obsolete
+The new equivalent is the *baseline* test suite which also runs sanity chec=
+ks
+using dmesg and bootrr: https://github.com/kernelci/bootrr
 
-------------------------------------------------------
-From: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
-Subject: mm/compaction: avoid VM_BUG_ON(PageSlab()) in page_mapcount()
+See the *baseline results for this kernel revision* on this page:
+https://kernelci.org/test/job/stable-rc/branch/linux-4.9.y/kernel/v4.9.225-=
+62-gf7c3cc559c2e/plan/baseline/
 
-isolate_migratepages_block() runs some checks out of lru_lock when
-choosing pages for migration.  After checking PageLRU() it checks extra
-page references by comparing page_count() and page_mapcount().  Between
-these two checks page could be removed from lru, freed and taken by slab.
+---------------------------------------------------------------------------=
+----
 
-As a result this race triggers VM_BUG_ON(PageSlab()) in page_mapcount(). 
-Race window is tiny.  For certain workload this happens around once a
-year.
+stable-rc/linux-4.9.y boot: 5 boots: 0 failed, 5 passed (v4.9.225-62-gf7c3c=
+c559c2e)
 
- page:ffffea0105ca9380 count:1 mapcount:0 mapping:ffff88ff7712c180 index:0x0 compound_mapcount: 0
- flags: 0x500000000008100(slab|head)
- raw: 0500000000008100 dead000000000100 dead000000000200 ffff88ff7712c180
- raw: 0000000000000000 0000000080200020 00000001ffffffff 0000000000000000
- page dumped because: VM_BUG_ON_PAGE(PageSlab(page))
- ------------[ cut here ]------------
- kernel BUG at ./include/linux/mm.h:628!
- invalid opcode: 0000 [#1] SMP NOPTI
- CPU: 77 PID: 504 Comm: kcompactd1 Tainted: G        W         4.19.109-27 #1
- Hardware name: Yandex T175-N41-Y3N/MY81-EX0-Y3N, BIOS R05 06/20/2019
- RIP: 0010:isolate_migratepages_block+0x986/0x9b0
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.9.y/kernel/v4.9.225-62-gf7c3cc559c2e/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
+/kernel/v4.9.225-62-gf7c3cc559c2e/
 
-To fix just opencode page_mapcount() in racy check for 0-order case and
-recheck carefully under lru_lock when page cannot escape from lru.
+Tree: stable-rc
+Branch: linux-4.9.y
+Git Describe: v4.9.225-62-gf7c3cc559c2e
+Git Commit: f7c3cc559c2e60aedae9799208fc8dd85211b971
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 5 unique boards, 3 SoC families, 2 builds out of 163
 
-Also add checking extra references for file pages and swap cache.
-
-Link: http://lkml.kernel.org/r/158937872515.474360.5066096871639561424.stgit@buzz
-Fixes: 119d6d59dcc0 ("mm, compaction: avoid isolating pinned pages")
-Fixes: 1d148e218a0d ("mm: add VM_BUG_ON_PAGE() to page_mapcount()")
-Signed-off-by: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
-Cc: Minchan Kim <minchan@kernel.org>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: David Rientjes <rientjes@google.com>
-Cc: Mel Gorman <mgorman@techsingularity.net>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
-
- mm/compaction.c |   17 +++++++++++++----
- 1 file changed, 13 insertions(+), 4 deletions(-)
-
---- a/mm/compaction.c~mm-compaction-avoid-vm_bug_onpageslab-in-page_mapcount
-+++ a/mm/compaction.c
-@@ -935,12 +935,16 @@ isolate_migratepages_block(struct compac
- 		}
- 
- 		/*
--		 * Migration will fail if an anonymous page is pinned in memory,
-+		 * Migration will fail if an page is pinned in memory,
- 		 * so avoid taking lru_lock and isolating it unnecessarily in an
--		 * admittedly racy check.
-+		 * admittedly racy check simplest case for 0-order pages.
-+		 *
-+		 * Open code page_mapcount() to avoid VM_BUG_ON(PageSlab(page)).
-+		 * Page could have extra reference from mapping or swap cache.
- 		 */
--		if (!page_mapping(page) &&
--		    page_count(page) > page_mapcount(page))
-+		if (!PageCompound(page) &&
-+		    page_count(page) > atomic_read(&page->_mapcount) + 1 +
-+				(!PageAnon(page) || PageSwapCache(page)))
- 			goto isolate_fail;
- 
- 		/*
-@@ -975,6 +979,11 @@ isolate_migratepages_block(struct compac
- 				low_pfn += compound_nr(page) - 1;
- 				goto isolate_fail;
- 			}
-+
-+			/* Recheck page extra references under lock */
-+			if (page_count(page) > page_mapcount(page) +
-+				    (!PageAnon(page) || PageSwapCache(page)))
-+				goto isolate_fail;
- 		}
- 
- 		lruvec = mem_cgroup_page_lruvec(page, pgdat);
-_
-
-Patches currently in -mm which might be from khlebnikov@yandex-team.ru are
-
-kernel-watchdog-flush-all-printk-nmi-buffers-when-hardlockup-detected.patch
-doc-cgroup-update-note-about-conditions-when-oom-killer-is-invoked.patch
-
+For more info write to <info@kernelci.org>
