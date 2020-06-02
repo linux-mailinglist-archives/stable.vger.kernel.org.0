@@ -2,121 +2,222 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CCE61EB6DE
-	for <lists+stable@lfdr.de>; Tue,  2 Jun 2020 09:57:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 60BEF1EB75B
+	for <lists+stable@lfdr.de>; Tue,  2 Jun 2020 10:29:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726110AbgFBH5O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Jun 2020 03:57:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54798 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725819AbgFBH5N (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 2 Jun 2020 03:57:13 -0400
-Received: from mail-lj1-x241.google.com (mail-lj1-x241.google.com [IPv6:2a00:1450:4864:20::241])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F32F6C061A0E
-        for <stable@vger.kernel.org>; Tue,  2 Jun 2020 00:57:12 -0700 (PDT)
-Received: by mail-lj1-x241.google.com with SMTP id s1so11428453ljo.0
-        for <stable@vger.kernel.org>; Tue, 02 Jun 2020 00:57:12 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=+/0HjvXJQhHrFj/Fiz8o08ubUJJ+R28a04ZllXWsT0U=;
-        b=jVN4lopW308xhPmff5yvcrxseXnmvYJjpItF41dOF3nYqS6J1XKiBcGbpa6dN66Ugd
-         kMji5XYTWmnTGC7eYd78tCLY1+bw8JUpra0M00Py6KwnW5g134e4C7SkZYarCBYiE/uC
-         B1387xfTSxJry08j74tkRsLBK2LdFUyL1mpC+KBi/7l7FkPO5TJouGEPGACgu7XAX7lW
-         hnYZ2Cswe82XUMwGy8LUBQzcqGKGLH2Q1wJRg0w2MgBNt8G/5XBtwyFRWmHwLUykf4n4
-         xDKD4UlEewMghkuekxlV1N57GFsFo2jZTEiAOsW2NgcnciImoyxCyRV/mqxwcCzKHtR0
-         g6eg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to:content-transfer-encoding;
-        bh=+/0HjvXJQhHrFj/Fiz8o08ubUJJ+R28a04ZllXWsT0U=;
-        b=BUIvnxKUYl+uby3G2Xm8/vNgcZmCW5zsK9D/aCRm+Sv2oWCEBrYACYCQUo0kInoUPo
-         vHr+muU4wjf1kk4gcfPGiK2MKuf++Zo6KC9FvI3IbjF62ljwd2Zf8Fkbd67F76TjJID+
-         PzIvny01p1tJOGP7GC6LctSqwarEWT9s9gUn2ztmyRMk8v3QRuHlyfj+7LeZL7lCmec3
-         s5yK066FW7WG8fgByACkoFjHiyO5aF2Lu2LnUSGL/C3iu1KfBBfvha8YMkFDlRC7n1Ay
-         rII+T3P3sj+jQZBMpr3pgVa2bd9ZsRekJFrwfpcVfpSAJoAqevCBG/yufc3pMfoF1cmH
-         pKkg==
-X-Gm-Message-State: AOAM530Z4tuMQouEujntxtY8i2RYQYyo4huQws68S2/1LTS9wW/WMDbl
-        beF4cFIVzlEuxIeWEb3M6e+nvybXXZ2cZhz7mqg=
-X-Google-Smtp-Source: ABdhPJx7cuqhXdSO/89Rkn8RYF3SZ4K0+B7MBM6dAXK5rxmVIeOpIiuuv9YYVvc1UcWyJ397aq48qjA2ErPeHPFpFAw=
-X-Received: by 2002:a2e:45d6:: with SMTP id s205mr13510722lja.101.1591084631401;
- Tue, 02 Jun 2020 00:57:11 -0700 (PDT)
+        id S1725921AbgFBI24 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Jun 2020 04:28:56 -0400
+Received: from relay.sw.ru ([185.231.240.75]:52076 "EHLO relay3.sw.ru"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1725897AbgFBI24 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Jun 2020 04:28:56 -0400
+Received: from [192.168.15.86]
+        by relay3.sw.ru with esmtp (Exim 4.93)
+        (envelope-from <ktkhai@virtuozzo.com>)
+        id 1jg2Ho-0000Xn-4B; Tue, 02 Jun 2020 11:28:40 +0300
+Subject: Re: [PATCH] shmem, memcg: enable memcg aware shrinker
+To:     Greg Thelen <gthelen@google.com>, Hugh Dickins <hughd@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        "Kirill A. Shutemov" <kirill@shutemov.name>
+Cc:     linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+References: <20200601032204.124624-1-gthelen@google.com>
+ <ffdff0be-f2b6-c7c0-debc-9c5e8a33ae4e@virtuozzo.com>
+ <xr93d06i4fus.fsf@gthelen.svl.corp.google.com>
+From:   Kirill Tkhai <ktkhai@virtuozzo.com>
+Message-ID: <5da3cdac-cf05-456f-867f-f09d5a6a2621@virtuozzo.com>
+Date:   Tue, 2 Jun 2020 11:28:49 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.8.1
 MIME-Version: 1.0
-Received: by 2002:ab3:4882:0:0:0:0:0 with HTTP; Tue, 2 Jun 2020 00:57:10 -0700 (PDT)
-Reply-To: michellericharrd@outlook.com
-From:   "Mrs. Michelle Richard" <paulj9311@gmail.com>
-Date:   Tue, 2 Jun 2020 00:57:10 -0700
-Message-ID: <CANaYuu7gJ1L7w9cyLcd7qGOCNwYBcuy4SjDuroN+6QUmj6g++A@mail.gmail.com>
-Subject: Kannst du mir helfen?
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <xr93d06i4fus.fsf@gthelen.svl.corp.google.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Lieber geliebter,
+On 02.06.2020 00:48, Greg Thelen wrote:
+> Kirill Tkhai <ktkhai@virtuozzo.com> wrote:
+> 
+>> Hi, Greg,
+>>
+>> good finding. See comments below.
+>>
+>> On 01.06.2020 06:22, Greg Thelen wrote:
+>>> Since v4.19 commit b0dedc49a2da ("mm/vmscan.c: iterate only over charged
+>>> shrinkers during memcg shrink_slab()") a memcg aware shrinker is only
+>>> called when the per-memcg per-node shrinker_map indicates that the
+>>> shrinker may have objects to release to the memcg and node.
+>>>
+>>> shmem_unused_huge_count and shmem_unused_huge_scan support the per-tmpfs
+>>> shrinker which advertises per memcg and numa awareness.  The shmem
+>>> shrinker releases memory by splitting hugepages that extend beyond
+>>> i_size.
+>>>
+>>> Shmem does not currently set bits in shrinker_map.  So, starting with
+>>> b0dedc49a2da, memcg reclaim avoids calling the shmem shrinker under
+>>> pressure.  This leads to undeserved memcg OOM kills.
+>>> Example that reliably sees memcg OOM kill in unpatched kernel:
+>>>   FS=/tmp/fs
+>>>   CONTAINER=/cgroup/memory/tmpfs_shrinker
+>>>   mkdir -p $FS
+>>>   mount -t tmpfs -o huge=always nodev $FS
+>>>   # Create 1000 MB container, which shouldn't suffer OOM.
+>>>   mkdir $CONTAINER
+>>>   echo 1000M > $CONTAINER/memory.limit_in_bytes
+>>>   echo $BASHPID >> $CONTAINER/cgroup.procs
+>>>   # Create 4000 files.  Ideally each file uses 4k data page + a little
+>>>   # metadata.  Assume 8k total per-file, 32MB (4000*8k) should easily
+>>>   # fit within container's 1000 MB.  But if data pages use 2MB
+>>>   # hugepages (due to aggressive huge=always) then files consume 8GB,
+>>>   # which hits memcg 1000 MB limit.
+>>>   for i in {1..4000}; do
+>>>     echo . > $FS/$i
+>>>   done
+>>>
+>>> v5.4 commit 87eaceb3faa5 ("mm: thp: make deferred split shrinker memcg
+>>> aware") maintains the per-node per-memcg shrinker bitmap for THP
+>>> shrinker.  But there's no such logic in shmem.  Make shmem set the
+>>> per-memcg per-node shrinker bits when it modifies inodes to have
+>>> shrinkable pages.
+>>>
+>>> Fixes: b0dedc49a2da ("mm/vmscan.c: iterate only over charged shrinkers during memcg shrink_slab()")
+>>> Cc: <stable@vger.kernel.org> # 4.19+
+>>> Signed-off-by: Greg Thelen <gthelen@google.com>
+>>> ---
+>>>  mm/shmem.c | 61 +++++++++++++++++++++++++++++++-----------------------
+>>>  1 file changed, 35 insertions(+), 26 deletions(-)
+>>>
+>>> diff --git a/mm/shmem.c b/mm/shmem.c
+>>> index bd8840082c94..e11090f78cb5 100644
+>>> --- a/mm/shmem.c
+>>> +++ b/mm/shmem.c
+>>> @@ -1002,6 +1002,33 @@ static int shmem_getattr(const struct path *path, struct kstat *stat,
+>>>  	return 0;
+>>>  }
+>>>  
+>>> +/*
+>>> + * Expose inode and optional page to shrinker as having a possibly splittable
+>>> + * hugepage that reaches beyond i_size.
+>>> + */
+>>> +static void shmem_shrinker_add(struct shmem_sb_info *sbinfo,
+>>> +			       struct inode *inode, struct page *page)
+>>> +{
+>>> +	struct shmem_inode_info *info = SHMEM_I(inode);
+>>> +
+>>> +	spin_lock(&sbinfo->shrinklist_lock);
+>>> +	/*
+>>> +	 * _careful to defend against unlocked access to ->shrink_list in
+>>> +	 * shmem_unused_huge_shrink()
+>>> +	 */
+>>> +	if (list_empty_careful(&info->shrinklist)) {
+>>> +		list_add_tail(&info->shrinklist, &sbinfo->shrinklist);
+>>> +		sbinfo->shrinklist_len++;
+>>> +	}
+>>> +	spin_unlock(&sbinfo->shrinklist_lock);
+>>> +
+>>> +#ifdef CONFIG_MEMCG
+>>> +	if (page && PageTransHuge(page))
+>>> +		memcg_set_shrinker_bit(page->mem_cgroup, page_to_nid(page),
+>>> +				       inode->i_sb->s_shrink.id);
+>>> +#endif
+>>> +}
+>>> +
+>>>  static int shmem_setattr(struct dentry *dentry, struct iattr *attr)
+>>>  {
+>>>  	struct inode *inode = d_inode(dentry);
+>>> @@ -1048,17 +1075,13 @@ static int shmem_setattr(struct dentry *dentry, struct iattr *attr)
+>>>  			 * to shrink under memory pressure.
+>>>  			 */
+>>>  			if (IS_ENABLED(CONFIG_TRANSPARENT_HUGEPAGE)) {
+>>> -				spin_lock(&sbinfo->shrinklist_lock);
+>>> -				/*
+>>> -				 * _careful to defend against unlocked access to
+>>> -				 * ->shrink_list in shmem_unused_huge_shrink()
+>>> -				 */
+>>> -				if (list_empty_careful(&info->shrinklist)) {
+>>> -					list_add_tail(&info->shrinklist,
+>>> -							&sbinfo->shrinklist);
+>>> -					sbinfo->shrinklist_len++;
+>>> -				}
+>>> -				spin_unlock(&sbinfo->shrinklist_lock);
+>>> +				struct page *page;
+>>> +
+>>> +				page = find_get_page(inode->i_mapping,
+>>> +					(newsize & HPAGE_PMD_MASK) >> PAGE_SHIFT);
+>>> +				shmem_shrinker_add(sbinfo, inode, page);
+>>> +				if (page)
+>>> +					put_page(page);
+>>
+>> 1)I'd move PageTransHuge() check from shmem_shrinker_add() to here. In case of page is not trans huge,
+>>   it looks strange and completely useless to add inode to shrinklist and then to avoid memcg_set_shrinker_bit().
+>>   Nothing should be added to the shrinklist in this case.
+> 
+> Ack,  I'll take a look at this.
+> 
+>> 2)In general I think this "last inode page spliter" does not fit SHINKER_MEMCG_AWARE conception, and
+>>   shmem_unused_huge_shrink() should be reworked as a new separate !memcg-aware shrinker instead of
+>>   .nr_cached_objects callback of generic fs shrinker.
+>>
+>> CC: Kirill Shutemov
+>>
+>> Kirill, are there any fundamental reasons to keep this shrinking logic in the generic fs shrinker?
+>> Are there any no-go to for conversion this as a separate !memcg-aware shrinker?
+> 
+> Making the shmem shrinker !memcg-aware seems like it would require tail
+> pages beyond i_size not be charged to memcg.  Otherwise memcg pressure
+> (which only calls memcg aware shrinkers) won't uncharge them.  Currently
+> the entire compound page is charged.
 
-Bitte lesen Sie dies langsam und sorgf=C3=A4ltig durch, da es
-m=C3=B6glicherweise eine der wichtigsten E-Mails ist, die Sie jemals
-erhalten. Ich bin Frau Michelle Richard, ich war mit dem verstorbenen
-Robert Richard verheiratet. Er arbeitete fr=C3=BCher bei der Shell
-Petroleum Development Company in London und war auch eine Er starb am
-Montag, 31. Juli 2003 in Paris. Wir waren sieben Jahre ohne Kind
-verheiratet.
+Shrinker is not about charging, shrinker is about uncharging ;) The pages will remain be charged
+like they used to be and where they used to be.
 
-W=C3=A4hrend Sie dies lesen, m=C3=B6chte ich nicht, dass Sie Mitleid mit mi=
-r
-haben, denn ich glaube, dass jeder eines Tages sterben wird. Bei mir
-wurde Speiser=C3=B6hrenkrebs diagnostiziert und mein Arzt sagte mir, dass
-ich aufgrund meiner komplizierten Gesundheitsprobleme nicht lange
-durchhalten w=C3=BCrde.
+The thing is we have single shrinklist for a superblock. An inode with pending tail page splitting
+is added to this list. Later, shmem_unused_huge_scan() iterates over the list. It splits the tail
+page for every inode in case of the inode size is still unaligned by huge page.
 
-Ich m=C3=B6chte, dass Gott mir gn=C3=A4dig ist und meine Seele akzeptiert.
-Deshalb habe ich beschlossen, Wohlt=C3=A4tigkeitsorganisationen / Kirchen /
-Moscheen / mutterlosen Babys / Tempeln / weniger privilegierten Witwen
-Almosen zu geben, da ich m=C3=B6chte, dass dies eine der letzten guten
-Taten ist, die ich tue Mach es auf Erden, bevor ich sterbe. Bisher
-habe ich Geld an einige Wohlt=C3=A4tigkeitsorganisationen in Wales,
-Kroatien, Polen und den Niederlanden verteilt. Jetzt, wo sich mein
-Gesundheitszustand so stark verschlechtert hat, kann ich das nicht
-mehr selbst tun.
+We do not care about memcg here. Tail pages for two inodes may be related to different memcg. But
+shmem_unused_huge_scan() shrink all of them, it does not care about memcg in sc->memcg. Even more:
+nobody in mm/shmem.c cares about memcg.
 
-Ich habe einmal Mitglieder meiner Familie gebeten, eines meiner Konten
-zu schlie=C3=9Fen und das Geld, das ich dort habe, an
-Wohlt=C3=A4tigkeitsorganisationen in =C3=96sterreich, der Schweiz, Deutschl=
-and,
-Luxemburg und Italien zu verteilen. Sie haben es abgelehnt und das
-Geld f=C3=BCr sich behalten. Daher vertraue ich nicht sie nicht mehr, da
-sie nicht mit dem zu k=C3=A4mpfen scheinen, was ich ihnen hinterlassen
-habe. Das letzte Geld, von dem niemand etwas wei=C3=9F, ist die riesige
-Bareinzahlung von 6 Millionen US-Dollar in H=C3=B6he von 6.000.000,00 USD,
-die ich bei einer Bank in Thailand habe, bei der ich den Fonds
-eingezahlt habe. Ich m=C3=B6chte, dass Sie diesen Fonds f=C3=BCr
-Wohlt=C3=A4tigkeitsprogramme verwenden und die Menschheit in Ihrem Land
-unterst=C3=BCtzen, wenn Sie nur aufrichtig sind.
+In traditional memcg-aware shrinkers we maintain separate lists for every existing memcg. Object,
+which is charged to a memcg, is added to a specific shrinker list related to the memcg. So, shrinker
+is able to iterate only that objects, which are charged to the memcg.
 
-Ich habe diese Entscheidung getroffen, weil ich kein Kind habe, das
-dieses Geld erben wird. Ich habe keine Angst vor dem Tod, daher wei=C3=9F
-ich, wohin ich gehe. Ich wei=C3=9F, dass ich im Busen des Herrn sein werde.
-Sobald ich Ihre Antwort erhalten habe, werde ich Ihnen den Kontakt der
-Bank geben und Ihnen ein Genehmigungsschreiben ausstellen, das Sie als
-urspr=C3=BCnglichen Beg=C3=BCnstigten dieses Fonds erm=C3=A4chtigt, dieses
-Wohlt=C3=A4tigkeitsprogramm sofort in Ihrem Land zu starten.
+In case of shmem we have single list for that objects (shrinklist). Even more, we have shrinklist
+not for charged objects, we link inodes there. Imagine a situation: file was shrinked and inode
+became linked to shrinklist. Tail page is unaligned and it is related to memcg1. Then file became
+shrinked one more time. New tail page is also unaligned and it related to another memcg2. So, shmem
+shrinker doesn't introduce lists for every memcg (i.e. list_lru), since inode's tail page relation
+to a memcg is not constant. So, as shmem shrinker splits any memcg pages (despite its sc->memcg),
+it can't be called memcg-aware.
 
-Ich m=C3=B6chte, dass Sie immer f=C3=BCr mich beten. Jede Verz=C3=B6gerung =
-Ihrer
-Antwort gibt mir Raum f=C3=BCr die Beschaffung einer anderen Person f=C3=BC=
-r
-denselben Zweck. Wenn Sie nicht interessiert sind, entschuldigen Sie
-bitte, dass ich Sie kontaktiert habe. Sie k=C3=B6nnen mich erreichen oder
-mir unter meiner privaten E-Mail-Adresse antworten:
-(miichellerichard@outlook.com).
+Revisiting this once again today, I think we should make shrinklist a list_lru type. Every time,
+when inode is considered to be added to a shrinklist, we should move it to appropriate memcg list.
+In case of it's already linked and memcg is changed, we should move it to another memcg list. I.e.,
+every place like:
 
-Vielen Dank,
-Dein,
-Frau Michelle Richard
-Email; miichellerichard@outlook.com
+	if (list_empty(&info->shrinklist)) {
+		list_add_tail(&info->shrinklist, &sbinfo->shrinklist); 
+		sbinfo->shrinklist_len++;
+	}
+
+Convert into:
+
+	if (list_empty(&info->shrinklist)) {
+		list_lru_add(&sbinfo->shrinklist, &info->shrinklist);
+		info->memcg_id = memcg->id;
+	} else if (memcg_changed(info)) {
+		/* Remove from old memcg list */
+		list_lru_del(&info->shrinklist);
+		/* Link to new memcg list */
+		list_lru_add(&sbinfo->shrinklist, &info->shrinklist);
+	}
+
+We may cache memcg->id into info, so memcg_changed() we be able to compare cached memcg
+and current, and we will avoid del/add in case of tail page memcg remain the same.
+
+Kirill
