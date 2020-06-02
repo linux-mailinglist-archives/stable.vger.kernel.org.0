@@ -2,162 +2,222 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 307731EC353
-	for <lists+stable@lfdr.de>; Tue,  2 Jun 2020 22:01:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 67A6B1EC38A
+	for <lists+stable@lfdr.de>; Tue,  2 Jun 2020 22:14:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726420AbgFBUB5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Jun 2020 16:01:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54418 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726139AbgFBUB5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 2 Jun 2020 16:01:57 -0400
-Received: from mail-pg1-x541.google.com (mail-pg1-x541.google.com [IPv6:2607:f8b0:4864:20::541])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA5BBC08C5C0
-        for <stable@vger.kernel.org>; Tue,  2 Jun 2020 13:01:56 -0700 (PDT)
-Received: by mail-pg1-x541.google.com with SMTP id s10so57265pgm.0
-        for <stable@vger.kernel.org>; Tue, 02 Jun 2020 13:01:56 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=h1hIwGXD7X8v7wYYk9rkp8kVpGA0a/zd5+DnEahiwv4=;
-        b=KTmwAOm/3ffsGZUu3ras4plS3XYvSHp0xVebhkOCMaQKyGPh6IUD7Mks4rs+IuEH3x
-         75dnQM5pupvr0KfKTqf2RRLuLVnEV9SJIVfKg6fLRDEDWaWAdakd5ly+DMMJUFIw5wXP
-         PDS7r47EU755XaBKsaj8KW8DudQAzGMQhXifkIa6F5zx7Xwe/1OiqGnY0MsG6Qp5Dgsp
-         kD1kAX+vcGVIw5WhQZcJ63QKtHMm43Gl2dCCbT24FdUISfn6Wfyy+LYX75Q7Tt99K/UW
-         m+h3/CV6HAJVUgn4RAv+1siQN68te8LJV5x1Tju/1cL2hz96kKA5OipFGx5ZDdzli3yk
-         i5vw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=h1hIwGXD7X8v7wYYk9rkp8kVpGA0a/zd5+DnEahiwv4=;
-        b=OnVJmdPRO73+CAKCV4+lINEV9vCXn2qD5CShIefBtoGBcNnMugllWwmgjMpEHHuTaH
-         r488Z/1B88L8I+C7bZxkKRNduHJjzjqf9w1sjiy7ZhaAlWXODPWNNa9ww43kEfE0Gaqe
-         OSFotM6WP0XdAScySu9qiOHpSOYLNCbT5dboB5FxtNWp4vxzFk/r6bWoSIQYKXQOhhEF
-         duCiigBWmU05gnEaCok9pMwbAEmPHuVscu1/g2eKzOr8wSc/17kRf9uBUNXcir5K8dJE
-         518dgHEeZ5lv7nKxUqREreKDHH7WCBnhYJpkHuUO2lZ6xnwXOaUlcEPixrLZgpx/2Apc
-         2mSw==
-X-Gm-Message-State: AOAM530AagKfyQPbl8M0OiQtgVc7Wg/3JWLC614wq/kIT7BCJ3f0z5NI
-        W00e+pbEtu/59TU4WtUg8m5H6mLgnq0=
-X-Google-Smtp-Source: ABdhPJx1EVQn1GRGaW3c7QWBib+a4/8jkboORiH9oyHjds+H2As61Xk0gapj7/futRBLRfF7dyctgA==
-X-Received: by 2002:a17:90b:3691:: with SMTP id mj17mr848797pjb.152.1591128116071;
-        Tue, 02 Jun 2020 13:01:56 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id n2sm1532346pgv.65.2020.06.02.13.01.54
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 02 Jun 2020 13:01:55 -0700 (PDT)
-Message-ID: <5ed6b033.1c69fb81.3af13.810f@mx.google.com>
-Date:   Tue, 02 Jun 2020 13:01:55 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.19.125-93-g80718197a8a3
-X-Kernelci-Report-Type: boot
-X-Kernelci-Branch: linux-4.19.y
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-4.19.y boot: 133 boots: 1 failed,
- 121 passed with 4 offline, 5 untried/unknown,
- 2 conflicts (v4.19.125-93-g80718197a8a3)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+        id S1727011AbgFBUOx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Jun 2020 16:14:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58908 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726112AbgFBUOx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Jun 2020 16:14:53 -0400
+Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 901992074B;
+        Tue,  2 Jun 2020 20:14:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1591128891;
+        bh=cF8mFnJNnFXH6gyVB4dngiasBsWMui9K/xSBX3ycG4w=;
+        h=Date:From:To:Subject:In-Reply-To:From;
+        b=kQ+ZyU+ojGEqaZ5UnSI2bgAkt70Is/uL4Ci69wkf1+qbSFCUvPOpkfiQhHYHnlxxP
+         0pZj0kU3fgp1TrsoXQpXx6Vu7EoRcWEIAqAcr7IccXeUOdjG1jLTABJKSzbMXwAzzD
+         H8oDj/pG9URpuUYk4PiiCJ5MRGM9hscpmrzEEwvw=
+Date:   Tue, 02 Jun 2020 13:14:50 -0700
+From:   Andrew Morton <akpm@linux-foundation.org>
+To:     akpm@linux-foundation.org, bp@alien8.de, cai@lca.pw,
+        dave.hansen@linux.intel.com, jbeulich@suse.com, linux-mm@kvack.org,
+        luto@kernel.org, mingo@redhat.com, mm-commits@vger.kernel.org,
+        peterz@infradead.org, stable@vger.kernel.org, steven.price@arm.com,
+        tglx@linutronix.de, torvalds@linux-foundation.org
+Subject:  [patch 084/128] x86: mm: ptdump: calculate effective
+ permissions correctly
+Message-ID: <20200602201450.m1GN-oYrN%akpm@linux-foundation.org>
+In-Reply-To: <20200602130930.8e8f10fa6f19e3766e70921f@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-******************************************
-* WARNING: Boot tests are now deprecated *
-******************************************
+From: Steven Price <steven.price@arm.com>
+Subject: x86: mm: ptdump: calculate effective permissions correctly
 
-As kernelci.org is expanding its functional testing capabilities, the conce=
-pt
-of boot testing is now deprecated.  Boot results are scheduled to be droppe=
-d on
-*5th June 2020*.  The full schedule for boot tests deprecation is available=
- on
-this GitHub issue: https://github.com/kernelci/kernelci-backend/issues/238
+Patch series "Fix W+X debug feature on x86"
 
-The new equivalent is the *baseline* test suite which also runs sanity chec=
-ks
-using dmesg and bootrr: https://github.com/kernelci/bootrr
+Jan alerted me[1] that the W+X detection debug feature was broken in x86
+by my change[2] to switch x86 to use the generic ptdump infrastructure.
 
-See the *baseline results for this kernel revision* on this page:
-https://kernelci.org/test/job/stable-rc/branch/linux-4.19.y/kernel/v4.19.12=
-5-93-g80718197a8a3/plan/baseline/
+Fundamentally the approach of trying to move the calculation of effective
+permissions into note_page() was broken because note_page() is only called
+for 'leaf' entries and the effective permissions are passed down via the
+internal nodes of the page tree.  The solution I've taken here is to
+create a new (optional) callback which is called for all nodes of the page
+tree and therefore can calculate the effective permissions.
 
----------------------------------------------------------------------------=
-----
+Secondly on some configurations (32 bit with PAE) "unsigned long" is not
+large enough to store the table entries.  The fix here is simple - let's
+just use a u64.
 
-stable-rc/linux-4.19.y boot: 133 boots: 1 failed, 121 passed with 4 offline=
-, 5 untried/unknown, 2 conflicts (v4.19.125-93-g80718197a8a3)
+[1] https://lore.kernel.org/lkml/d573dc7e-e742-84de-473d-f971142fa319@suse.com/
+[2] 2ae27137b2db ("x86: mm: convert dump_pagetables to use walk_page_range")
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.19.y/kernel/v4.19.125-93-g80718197a8a3/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
-y/kernel/v4.19.125-93-g80718197a8a3/
 
-Tree: stable-rc
-Branch: linux-4.19.y
-Git Describe: v4.19.125-93-g80718197a8a3
-Git Commit: 80718197a8a3f9c3b222375e5d1de8adf5422000
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 79 unique boards, 21 SoC families, 17 builds out of 164
+This patch (of 2):
 
-Boot Regressions Detected:
+By switching the x86 page table dump code to use the generic code the
+effective permissions are no longer calculated correctly because the
+note_page() function is only called for *leaf* entries.  To calculate the
+actual effective permissions it is necessary to observe the full hierarchy
+of the page tree.
 
-arc:
+Introduce a new callback for ptdump which is called for every entry and
+can therefore update the prot_levels array correctly.  note_page() can
+then simply access the appropriate element in the array.
 
-    hsdk_defconfig:
-        gcc-8:
-          hsdk:
-              lab-baylibre: new failure (last pass: v4.19.124)
-
-arm:
-
-    sama5_defconfig:
-        gcc-8:
-          at91-sama5d4_xplained:
-              lab-baylibre: failing since 81 days (last pass: v4.19.108-87-=
-g624c124960e8 - first fail: v4.19.109)
-
-Boot Failure Detected:
-
-arm:
-    sama5_defconfig:
-        gcc-8:
-            at91-sama5d4_xplained: 1 failed lab
-
-Offline Platforms:
-
-arm:
-
-    exynos_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-            qcom-apq8064-cm-qs600: 1 offline lab
-            stih410-b2120: 1 offline lab
-
-Conflicting Boot Failures Detected: (These likely are not failures as other=
- labs are reporting PASS. Needs review.)
-
-x86_64:
-    x86_64_defconfig:
-        qemu_x86_64:
-            lab-collabora: FAIL (gcc-8)
-            lab-baylibre: PASS (gcc-8)
-
-i386:
-    i386_defconfig:
-        qemu_i386:
-            lab-collabora: FAIL (gcc-8)
-            lab-baylibre: PASS (gcc-8)
-
+[steven.price@arm.com: make the assignment conditional on val != 0]
+  Link: http://lkml.kernel.org/r/430c8ab4-e7cd-6933-dde6-087fac6db872@arm.com
+Link: http://lkml.kernel.org/r/20200521152308.33096-1-steven.price@arm.com
+Link: http://lkml.kernel.org/r/20200521152308.33096-2-steven.price@arm.com
+Fixes: 2ae27137b2db ("x86: mm: convert dump_pagetables to use walk_page_range")
+Signed-off-by: Steven Price <steven.price@arm.com>
+Reported-by: Jan Beulich <jbeulich@suse.com>
+Cc: Qian Cai <cai@lca.pw>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
-For more info write to <info@kernelci.org>
+
+ arch/x86/mm/dump_pagetables.c |   33 +++++++++++++++++++-------------
+ include/linux/ptdump.h        |    1 
+ mm/ptdump.c                   |   17 +++++++++++++++-
+ 3 files changed, 37 insertions(+), 14 deletions(-)
+
+--- a/arch/x86/mm/dump_pagetables.c~x86-mm-ptdump-calculate-effective-permissions-correctly
++++ a/arch/x86/mm/dump_pagetables.c
+@@ -249,10 +249,22 @@ static void note_wx(struct pg_state *st,
+ 		  (void *)st->start_address);
+ }
+ 
+-static inline pgprotval_t effective_prot(pgprotval_t prot1, pgprotval_t prot2)
++static void effective_prot(struct ptdump_state *pt_st, int level, u64 val)
+ {
+-	return (prot1 & prot2 & (_PAGE_USER | _PAGE_RW)) |
+-	       ((prot1 | prot2) & _PAGE_NX);
++	struct pg_state *st = container_of(pt_st, struct pg_state, ptdump);
++	pgprotval_t prot = val & PTE_FLAGS_MASK;
++	pgprotval_t effective;
++
++	if (level > 0) {
++		pgprotval_t higher_prot = st->prot_levels[level - 1];
++
++		effective = (higher_prot & prot & (_PAGE_USER | _PAGE_RW)) |
++			    ((higher_prot | prot) & _PAGE_NX);
++	} else {
++		effective = prot;
++	}
++
++	st->prot_levels[level] = effective;
+ }
+ 
+ /*
+@@ -270,16 +282,10 @@ static void note_page(struct ptdump_stat
+ 	struct seq_file *m = st->seq;
+ 
+ 	new_prot = val & PTE_FLAGS_MASK;
+-
+-	if (level > 0) {
+-		new_eff = effective_prot(st->prot_levels[level - 1],
+-					 new_prot);
+-	} else {
+-		new_eff = new_prot;
+-	}
+-
+-	if (level >= 0)
+-		st->prot_levels[level] = new_eff;
++	if (!val)
++		new_eff = 0;
++	else
++		new_eff = st->prot_levels[level];
+ 
+ 	/*
+ 	 * If we have a "break" in the series, we need to flush the state that
+@@ -374,6 +380,7 @@ static void ptdump_walk_pgd_level_core(s
+ 	struct pg_state st = {
+ 		.ptdump = {
+ 			.note_page	= note_page,
++			.effective_prot = effective_prot,
+ 			.range		= ptdump_ranges
+ 		},
+ 		.level = -1,
+--- a/include/linux/ptdump.h~x86-mm-ptdump-calculate-effective-permissions-correctly
++++ a/include/linux/ptdump.h
+@@ -14,6 +14,7 @@ struct ptdump_state {
+ 	/* level is 0:PGD to 4:PTE, or -1 if unknown */
+ 	void (*note_page)(struct ptdump_state *st, unsigned long addr,
+ 			  int level, unsigned long val);
++	void (*effective_prot)(struct ptdump_state *st, int level, u64 val);
+ 	const struct ptdump_range *range;
+ };
+ 
+--- a/mm/ptdump.c~x86-mm-ptdump-calculate-effective-permissions-correctly
++++ a/mm/ptdump.c
+@@ -36,6 +36,9 @@ static int ptdump_pgd_entry(pgd_t *pgd,
+ 		return note_kasan_page_table(walk, addr);
+ #endif
+ 
++	if (st->effective_prot)
++		st->effective_prot(st, 0, pgd_val(val));
++
+ 	if (pgd_leaf(val))
+ 		st->note_page(st, addr, 0, pgd_val(val));
+ 
+@@ -53,6 +56,9 @@ static int ptdump_p4d_entry(p4d_t *p4d,
+ 		return note_kasan_page_table(walk, addr);
+ #endif
+ 
++	if (st->effective_prot)
++		st->effective_prot(st, 1, p4d_val(val));
++
+ 	if (p4d_leaf(val))
+ 		st->note_page(st, addr, 1, p4d_val(val));
+ 
+@@ -70,6 +76,9 @@ static int ptdump_pud_entry(pud_t *pud,
+ 		return note_kasan_page_table(walk, addr);
+ #endif
+ 
++	if (st->effective_prot)
++		st->effective_prot(st, 2, pud_val(val));
++
+ 	if (pud_leaf(val))
+ 		st->note_page(st, addr, 2, pud_val(val));
+ 
+@@ -87,6 +96,8 @@ static int ptdump_pmd_entry(pmd_t *pmd,
+ 		return note_kasan_page_table(walk, addr);
+ #endif
+ 
++	if (st->effective_prot)
++		st->effective_prot(st, 3, pmd_val(val));
+ 	if (pmd_leaf(val))
+ 		st->note_page(st, addr, 3, pmd_val(val));
+ 
+@@ -97,8 +108,12 @@ static int ptdump_pte_entry(pte_t *pte,
+ 			    unsigned long next, struct mm_walk *walk)
+ {
+ 	struct ptdump_state *st = walk->private;
++	pte_t val = READ_ONCE(*pte);
++
++	if (st->effective_prot)
++		st->effective_prot(st, 4, pte_val(val));
+ 
+-	st->note_page(st, addr, 4, pte_val(READ_ONCE(*pte)));
++	st->note_page(st, addr, 4, pte_val(val));
+ 
+ 	return 0;
+ }
+_
