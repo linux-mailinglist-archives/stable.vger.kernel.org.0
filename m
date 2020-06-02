@@ -2,209 +2,147 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0593B1EC2C2
-	for <lists+stable@lfdr.de>; Tue,  2 Jun 2020 21:31:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CB8E71EC32D
+	for <lists+stable@lfdr.de>; Tue,  2 Jun 2020 21:52:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726817AbgFBTbW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Jun 2020 15:31:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49596 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726139AbgFBTbV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 2 Jun 2020 15:31:21 -0400
-Received: from mail-yb1-xb4a.google.com (mail-yb1-xb4a.google.com [IPv6:2607:f8b0:4864:20::b4a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6031AC08C5C0
-        for <stable@vger.kernel.org>; Tue,  2 Jun 2020 12:31:21 -0700 (PDT)
-Received: by mail-yb1-xb4a.google.com with SMTP id f130so39510yba.9
-        for <stable@vger.kernel.org>; Tue, 02 Jun 2020 12:31:21 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:in-reply-to:message-id:mime-version:references:subject:from:to
-         :cc;
-        bh=rclZP01j1InoS/3XtOg/bC1dGPlx80uQ6aMTFnGzZ2w=;
-        b=lKTcFEgWzsBAVwkz4pKNgMxfzTA/rGF9JodhNthDiBoH7YkwDBV0kuC35tGrGmUPa7
-         vigobAbCfGHSoCDBNiiNxGCo7ry+l11xNDbwclXy4FRbvLdz1Yv3eqb8rD4o311vIRV6
-         NpmILM/4g7+ijufcHgNkg4AdMRRfwaUT1X0pS7DCnceJFn8bDOjsoNsZDYC6xv9nOuWg
-         oBIKuuzUNJbFU0/tAlZtsBNYOjUnDAbe8I0Qxs1y2Ikzs3uN0bccFj+Iby/ZIT//ZKjR
-         fgN+4PcwfA4n6RA2eU1K9QyQilXZEkUcXZqwz2AYKNfI6kQB0S/S7OhaqcgDbolreiHl
-         ZAjw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:in-reply-to:message-id:mime-version
-         :references:subject:from:to:cc;
-        bh=rclZP01j1InoS/3XtOg/bC1dGPlx80uQ6aMTFnGzZ2w=;
-        b=La84728nnTyJd6x8STbgHRCCv6qllLe2iOCIWikSMeTX+jIUAINUFTIVrysmHr0G7c
-         /0mSDUH5rrQMdteqqMXPFidbnPXQf9OXL779zBgtDiC5cD1Zl00EOUVfFrQch2QSbTQN
-         nj8U9MMbDVqJ5MHaINtuav4Fo+r5WNL5bQinsv1NUxr9sS1PWqeAqnGCmFd3AB7CWxDS
-         Mo5ajOdWoPORiwW3xSHxi+Jr4STAI+TkwaxvXUchi9pZuayl1CUDrT73k3uLHM5ecU4o
-         ow0caPtFTWUt9D4FxmmnorffLG0rF+7vOyxn9fvmYevu1cGDOlAaEao8uQ800gtsf0mp
-         K73g==
-X-Gm-Message-State: AOAM530Fr3dOtX5PRDijMZmQkNbzYlKwbpMTG1I3COHiKLWiFIj/fidp
-        Xl5PLbVA5BwAZFuz+BqIxrSaHgn9uKbkdpQ=
-X-Google-Smtp-Source: ABdhPJwx0Lnv0amOjqwgyGjnGBXNYRxRwJOaVB5GXUgExCVr3FTb91vVxXmRJ+HznOHa2zVWvNFKsvqcVfjrfhU=
-X-Received: by 2002:a25:c186:: with SMTP id r128mr46983177ybf.92.1591126280496;
- Tue, 02 Jun 2020 12:31:20 -0700 (PDT)
-Date:   Tue,  2 Jun 2020 12:30:59 -0700
-In-Reply-To: <20200602132702.y3tjwvqdbww7oy5i@treble>
-Message-Id: <20200602193100.229287-1-inglorion@google.com>
-Mime-Version: 1.0
-References: <20200602132702.y3tjwvqdbww7oy5i@treble>
-X-Mailer: git-send-email 2.27.0.rc2.251.g90737beb825-goog
-Subject: [PATCH v2] x86_64: fix jiffies ODR violation
-From:   Bob Haarman <inglorion@google.com>
-To:     Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Josh Poimboeuf <jpoimboe@redhat.com>
-Cc:     Bob Haarman <inglorion@google.com>, stable@vger.kernel.org,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Alistair Delva <adelva@google.com>,
-        Fangrui Song <maskray@google.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        Andi Kleen <ak@linux.intel.com>, x86@kernel.org,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        afzal mohammed <afzal.mohd.ma@gmail.com>,
-        Kyung Min Park <kyung.min.park@intel.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Kees Cook <keescook@chromium.org>,
-        Heiko Carstens <heiko.carstens@de.ibm.com>,
-        Baoquan He <bhe@redhat.com>,
-        Thomas Lendacky <Thomas.Lendacky@amd.com>,
-        "H.J. Lu" <hjl.tools@gmail.com>,
-        Ross Zwisler <zwisler@chromium.org>,
-        Arvind Sankar <nivedita@alum.mit.edu>,
-        Dmitry Safonov <0x7f454c46@gmail.com>,
-        linux-kernel@vger.kernel.org, clang-built-linux@googlegroups.com
-Content-Type: text/plain; charset="UTF-8"
+        id S1728615AbgFBTwK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Jun 2020 15:52:10 -0400
+Received: from smtp1.de.adit-jv.com ([93.241.18.167]:53741 "EHLO
+        smtp1.de.adit-jv.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728275AbgFBTvD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 2 Jun 2020 15:51:03 -0400
+Received: from localhost (smtp1.de.adit-jv.com [127.0.0.1])
+        by smtp1.de.adit-jv.com (Postfix) with ESMTP id 3FF913C04C1;
+        Tue,  2 Jun 2020 21:50:59 +0200 (CEST)
+Received: from smtp1.de.adit-jv.com ([127.0.0.1])
+        by localhost (smtp1.de.adit-jv.com [127.0.0.1]) (amavisd-new, port 10024)
+        with ESMTP id sQ2OMu6SAg4D; Tue,  2 Jun 2020 21:50:53 +0200 (CEST)
+Received: from HI2EXCH01.adit-jv.com (hi2exch01.adit-jv.com [10.72.92.24])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by smtp1.de.adit-jv.com (Postfix) with ESMTPS id 80A043C00B5;
+        Tue,  2 Jun 2020 21:50:53 +0200 (CEST)
+Received: from lxhi-065.adit-jv.com (10.72.94.11) by HI2EXCH01.adit-jv.com
+ (10.72.92.24) with Microsoft SMTP Server (TLS) id 14.3.487.0; Tue, 2 Jun 2020
+ 21:50:53 +0200
+From:   Eugeniu Rosca <erosca@de.adit-jv.com>
+To:     Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+CC:     Mauro Carvalho Chehab <mchehab@kernel.org>,
+        <linux-media@vger.kernel.org>, <linux-renesas-soc@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>,
+        Eugeniu Rosca <roscaeugeniu@gmail.com>,
+        Eugeniu Rosca <erosca@de.adit-jv.com>, <stable@vger.kernel.org>
+Subject: [PATCH v2] media: vsp1: dl: Fix NULL pointer dereference on unbind
+Date:   Tue, 2 Jun 2020 21:50:16 +0200
+Message-ID: <20200602195016.803-1-erosca@de.adit-jv.com>
+X-Mailer: git-send-email 2.26.2
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-Originating-IP: [10.72.94.11]
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-'jiffies' and 'jiffies_64' are meant to alias (two different symbols
-that share the same address).  Most architectures make the symbols alias
-to the same address via linker script assignment in their
-arch/<arch>/kernel/vmlinux.lds.S:
+In commit f3b98e3c4d2e16 ("media: vsp1: Provide support for extended
+command pools"), the vsp pointer used for referencing the VSP1 device
+structure from a command pool during vsp1_dl_ext_cmd_pool_destroy() was
+not populated.
 
-jiffies = jiffies_64;
+Correctly assign the pointer to prevent the following
+null-pointer-dereference when removing the device:
 
-which is effectively a definition of jiffies.
+[*] h3ulcb-kf #>
+echo fea28000.vsp > /sys/bus/platform/devices/fea28000.vsp/driver/unbind
+ Unable to handle kernel NULL pointer dereference at virtual address 0000000000000028
+ Mem abort info:
+   ESR = 0x96000006
+   EC = 0x25: DABT (current EL), IL = 32 bits
+   SET = 0, FnV = 0
+   EA = 0, S1PTW = 0
+ Data abort info:
+   ISV = 0, ISS = 0x00000006
+   CM = 0, WnR = 0
+ user pgtable: 4k pages, 48-bit VAs, pgdp=00000007318be000
+ [0000000000000028] pgd=00000007333a1003, pud=00000007333a6003, pmd=0000000000000000
+ Internal error: Oops: 96000006 [#1] PREEMPT SMP
+ Modules linked in:
+ CPU: 1 PID: 486 Comm: sh Not tainted 5.7.0-rc6-arm64-renesas-00118-ge644645abf47 #185
+ Hardware name: Renesas H3ULCB Kingfisher board based on r8a77951 (DT)
+ pstate: 40000005 (nZcv daif -PAN -UAO)
+ pc : vsp1_dlm_destroy+0xe4/0x11c
+ lr : vsp1_dlm_destroy+0xc8/0x11c
+ sp : ffff800012963b60
+ x29: ffff800012963b60 x28: ffff0006f83fc440
+ x27: 0000000000000000 x26: ffff0006f5e13e80
+ x25: ffff0006f5e13ed0 x24: ffff0006f5e13ed0
+ x23: ffff0006f5e13ed0 x22: dead000000000122
+ x21: ffff0006f5e3a080 x20: ffff0006f5df2938
+ x19: ffff0006f5df2980 x18: 0000000000000003
+ x17: 0000000000000000 x16: 0000000000000016
+ x15: 0000000000000003 x14: 00000000000393c0
+ x13: ffff800011a5ec18 x12: ffff800011d8d000
+ x11: ffff0006f83fcc68 x10: ffff800011a53d70
+ x9 : ffff8000111f3000 x8 : 0000000000000000
+ x7 : 0000000000210d00 x6 : 0000000000000000
+ x5 : ffff800010872e60 x4 : 0000000000000004
+ x3 : 0000000078068000 x2 : ffff800012781000
+ x1 : 0000000000002c00 x0 : 0000000000000000
+ Call trace:
+  vsp1_dlm_destroy+0xe4/0x11c
+  vsp1_wpf_destroy+0x10/0x20
+  vsp1_entity_destroy+0x24/0x4c
+  vsp1_destroy_entities+0x54/0x130
+  vsp1_remove+0x1c/0x40
+  platform_drv_remove+0x28/0x50
+  __device_release_driver+0x178/0x220
+  device_driver_detach+0x44/0xc0
+  unbind_store+0xe0/0x104
+  drv_attr_store+0x20/0x30
+  sysfs_kf_write+0x48/0x70
+  kernfs_fop_write+0x148/0x230
+  __vfs_write+0x18/0x40
+  vfs_write+0xdc/0x1c4
+  ksys_write+0x68/0xf0
+  __arm64_sys_write+0x18/0x20
+  el0_svc_common.constprop.0+0x70/0x170
+  do_el0_svc+0x20/0x80
+  el0_sync_handler+0x134/0x1b0
+  el0_sync+0x140/0x180
+ Code: b40000c2 f9403a60 d2800084 a9400663 (f9401400)
+ ---[ end trace 3875369841fb288a ]---
 
-jiffies and jiffies_64 are both forward declared for all arch's in:
-include/linux/jiffies.h.
-
-jiffies_64 is defined in kernel/time/timer.c for all arch's.
-
-x86_64 was peculiar in that it wasn't doing the above linker script
-assignment, but rather was:
-1. defining jiffies in arch/x86/kernel/time.c instead via linker script.
-2. overriding the symbol jiffies_64 from kernel/time/timer.c in
-arch/x86/kernel/vmlinux.lds.s via 'jiffies_64 = jiffies;'.
-
-As Fangrui notes:
-
-  In LLD, symbol assignments in linker scripts override definitions in
-  object files. GNU ld appears to have the same behavior. It would
-  probably make sense for LLD to error "duplicate symbol" but GNU ld
-  is unlikely to adopt for compatibility reasons.
-
-So we have an ODR violation (UB), which we seem to have gotten away
-with thus far. Where it becomes harmful is when we:
-
-1. Use -fno-semantic-interposition.
-
-As Fangrui notes:
-
-  Clang after LLVM commit 5b22bcc2b70d
-  ("[X86][ELF] Prefer to lower MC_GlobalAddress operands to .Lfoo$local")
-  defaults to -fno-semantic-interposition similar semantics which help
-  -fpic/-fPIC code avoid GOT/PLT when the referenced symbol is defined
-  within the same translation unit. Unlike GCC
-  -fno-semantic-interposition, Clang emits such relocations referencing
-  local symbols for non-pic code as well.
-
-This causes references to jiffies to refer to '.Ljiffies$local' when
-jiffies is defined in the same translation unit. Likewise, references
-to jiffies_64 become references to '.Ljiffies_64$local' in translation
-units that define jiffies_64.  Because these differ from the names
-used in the linker script, they will not be rewritten to alias one
-another.
-
-Combined with ...
-
-2. Full LTO effectively treats all source files as one translation
-unit, causing these local references to be produced everywhere.  When
-the linker processes the linker script, there are no longer any
-references to jiffies_64' anywhere to replace with 'jiffies'.  And
-thus '.Ljiffies$local' and '.Ljiffies_64$local' no longer alias
-at all.
-
-In the process of porting patches enabling Full LTO from arm64 to
-x86_64, we observe spooky bugs where the kernel appeared to boot, but
-init doesn't get scheduled.
-
-Instead, we can avoid the ODR violation by matching other arch's by
-defining jiffies only by linker script.  For -fno-semantic-interposition
-+ Full LTO, there is no longer a global definition of jiffies for the
-compiler to produce a local symbol which the linker script won't ensure
-aliases to jiffies_64.
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/852
-Fixes: 40747ffa5aa8 ("asmlinkage: Make jiffies visible")
-Cc: stable@vger.kernel.org
-Reported-by: Nathan Chancellor <natechancellor@gmail.com>
-Reported-by: Alistair Delva <adelva@google.com>
-Suggested-by: Fangrui Song <maskray@google.com>
-Debugged-by: Nick Desaulniers <ndesaulniers@google.com>
-Debugged-by: Sami Tolvanen <samitolvanen@google.com>
-Signed-off-by: Bob Haarman <inglorion@google.com>
-Reviewed-by: Andi Kleen <ak@linux.intel.com>
-Reviewed-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Fixes: f3b98e3c4d2e16 ("media: vsp1: Provide support for extended command pools")
+Cc: stable@vger.kernel.org # v4.19+
+Signed-off-by: Eugeniu Rosca <erosca@de.adit-jv.com>
+Reviewed-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
+Tested-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
 ---
-v2:
-* Changed commit message as requested by Josh Poimboeuf
-  (no code change)
+
+Changes in v2:
+ - Rephrased the description based on Kieran's proposal
+ - Added the Reviewed-by/Tested-by signatures
+ - No change in the contents
 
 ---
- arch/x86/kernel/time.c        | 4 ----
- arch/x86/kernel/vmlinux.lds.S | 4 ++--
- 2 files changed, 2 insertions(+), 6 deletions(-)
+ drivers/media/platform/vsp1/vsp1_dl.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/x86/kernel/time.c b/arch/x86/kernel/time.c
-index 371a6b348e44..e42faa792c07 100644
---- a/arch/x86/kernel/time.c
-+++ b/arch/x86/kernel/time.c
-@@ -25,10 +25,6 @@
- #include <asm/hpet.h>
- #include <asm/time.h>
+diff --git a/drivers/media/platform/vsp1/vsp1_dl.c b/drivers/media/platform/vsp1/vsp1_dl.c
+index d7b43037e500..e07b135613eb 100644
+--- a/drivers/media/platform/vsp1/vsp1_dl.c
++++ b/drivers/media/platform/vsp1/vsp1_dl.c
+@@ -431,6 +431,8 @@ vsp1_dl_cmd_pool_create(struct vsp1_device *vsp1, enum vsp1_extcmd_type type,
+ 	if (!pool)
+ 		return NULL;
  
--#ifdef CONFIG_X86_64
--__visible volatile unsigned long jiffies __cacheline_aligned_in_smp = INITIAL_JIFFIES;
--#endif
--
- unsigned long profile_pc(struct pt_regs *regs)
- {
- 	unsigned long pc = instruction_pointer(regs);
-diff --git a/arch/x86/kernel/vmlinux.lds.S b/arch/x86/kernel/vmlinux.lds.S
-index 1bf7e312361f..7c35556c7827 100644
---- a/arch/x86/kernel/vmlinux.lds.S
-+++ b/arch/x86/kernel/vmlinux.lds.S
-@@ -40,13 +40,13 @@ OUTPUT_FORMAT(CONFIG_OUTPUT_FORMAT)
- #ifdef CONFIG_X86_32
- OUTPUT_ARCH(i386)
- ENTRY(phys_startup_32)
--jiffies = jiffies_64;
- #else
- OUTPUT_ARCH(i386:x86-64)
- ENTRY(phys_startup_64)
--jiffies_64 = jiffies;
- #endif
- 
-+jiffies = jiffies_64;
++	pool->vsp1 = vsp1;
 +
- #if defined(CONFIG_X86_64)
- /*
-  * On 64-bit, align RODATA to 2MB so we retain large page mappings for
+ 	spin_lock_init(&pool->lock);
+ 	INIT_LIST_HEAD(&pool->free);
+ 
 -- 
-2.27.0.rc2.251.g90737beb825-goog
+2.26.2
 
