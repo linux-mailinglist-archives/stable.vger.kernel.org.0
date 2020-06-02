@@ -2,222 +2,161 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 60BEF1EB75B
-	for <lists+stable@lfdr.de>; Tue,  2 Jun 2020 10:29:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F1421EB7E4
+	for <lists+stable@lfdr.de>; Tue,  2 Jun 2020 11:07:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725921AbgFBI24 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Jun 2020 04:28:56 -0400
-Received: from relay.sw.ru ([185.231.240.75]:52076 "EHLO relay3.sw.ru"
+        id S1726380AbgFBJHV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Jun 2020 05:07:21 -0400
+Received: from mail-eopbgr1410137.outbound.protection.outlook.com ([40.107.141.137]:9440
+        "EHLO JPN01-OS2-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1725897AbgFBI24 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Jun 2020 04:28:56 -0400
-Received: from [192.168.15.86]
-        by relay3.sw.ru with esmtp (Exim 4.93)
-        (envelope-from <ktkhai@virtuozzo.com>)
-        id 1jg2Ho-0000Xn-4B; Tue, 02 Jun 2020 11:28:40 +0300
-Subject: Re: [PATCH] shmem, memcg: enable memcg aware shrinker
-To:     Greg Thelen <gthelen@google.com>, Hugh Dickins <hughd@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        "Kirill A. Shutemov" <kirill@shutemov.name>
-Cc:     linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-References: <20200601032204.124624-1-gthelen@google.com>
- <ffdff0be-f2b6-c7c0-debc-9c5e8a33ae4e@virtuozzo.com>
- <xr93d06i4fus.fsf@gthelen.svl.corp.google.com>
-From:   Kirill Tkhai <ktkhai@virtuozzo.com>
-Message-ID: <5da3cdac-cf05-456f-867f-f09d5a6a2621@virtuozzo.com>
-Date:   Tue, 2 Jun 2020 11:28:49 +0300
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.8.1
-MIME-Version: 1.0
-In-Reply-To: <xr93d06i4fus.fsf@gthelen.svl.corp.google.com>
-Content-Type: text/plain; charset=utf-8
+        id S1726311AbgFBJHU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Jun 2020 05:07:20 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=KwoM9x9rYN/Rbzl9hZYP71j6jTOXZHTJV6OefrUbYarSsMUawvygh+8uzT9H0frxYPrzIrivzMOHrQLd0j+swOPAQ//f4RHr/Jul9X13y8SvwPadluhQUNHzyVBSK2nNudkZ//IX6L/KF+vGMkawygDshxFvaV0VkVIBB6v+MTXc+mco1FXbi2AxVfp1M8z+t1gub2gJZlbbv/PWGzvq6t3f8qdtsCnRzrPnlyfmsCarMbVWAF9b2LJ/6f4gwa4VbxdYcYozxHAKwhyL8PYg9BfpK2WHsGSpWSACM8l6SQSjsiG6xAGZXOAP73SYlRhSjYY6+us4rJvB/FVstC3IUg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=AX6/p9SoNQGtsFzGs/40isfbplQwU4ymyIQZ8X6wDF4=;
+ b=cEJQRrVq/oVhtdSaCZh5t62wDyHlS5nMPRBS0sR1JnuusgzmiFgT3a1vIivsRC3HM0V8KTIaV1ycjaNPlbIuxzVfXX80yjiIOIRMip3fWyjuOljEw5EWG3w9P//B0oooqVKJyPgHl+CQ7oZk2FwQSqOnkfrF34OBc5uubhC+4SbWdHMHct9TFgCCfAPJmPB3HMO1thrftX5JHku+/FHA6aTZCaRxMxhrD5cO+XWjnwT7ebpnnGZoXcUqqYrPf2krgcBsxKp4CBe7Sl5PPqTHClRbzrA1j0rR+H6aQBiJn1FaX3y0RdueRABIBpsR5Hc3PLoD5ZILNIh4cV5lJfyJpA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=renesas.com; dmarc=pass action=none header.from=renesas.com;
+ dkim=pass header.d=renesas.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=renesasgroup.onmicrosoft.com; s=selector2-renesasgroup-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=AX6/p9SoNQGtsFzGs/40isfbplQwU4ymyIQZ8X6wDF4=;
+ b=pBzsdEqboNGXHNwFRvNZc88tPQm6RSos6tMzSE7MJKpumr29l1oJrWWdwMBtqN5ShqRM77Fz2I05tAfYsCL0tvxwhhGJHhwBuNQpPcU4mln2w04JzHXTuLAC3kJbtmbrJPoivGQ/rjSmw1YzEO19bm6TUaXWP8jbrTgl/qHGhtA=
+Received: from OSAPR01MB2385.jpnprd01.prod.outlook.com (2603:1096:603:37::20)
+ by OSAPR01MB2177.jpnprd01.prod.outlook.com (2603:1096:603:18::16) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3045.25; Tue, 2 Jun
+ 2020 09:07:16 +0000
+Received: from OSAPR01MB2385.jpnprd01.prod.outlook.com
+ ([fe80::c44c:5473:6b95:d9fd]) by OSAPR01MB2385.jpnprd01.prod.outlook.com
+ ([fe80::c44c:5473:6b95:d9fd%6]) with mapi id 15.20.3045.024; Tue, 2 Jun 2020
+ 09:07:15 +0000
+From:   Chris Paterson <Chris.Paterson2@renesas.com>
+To:     Sasha Levin <sashal@kernel.org>
+CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "torvalds@linux-foundation.org" <torvalds@linux-foundation.org>,
+        "akpm@linux-foundation.org" <akpm@linux-foundation.org>,
+        "linux@roeck-us.net" <linux@roeck-us.net>,
+        "shuah@kernel.org" <shuah@kernel.org>,
+        "patches@kernelci.org" <patches@kernelci.org>,
+        "ben.hutchings@codethink.co.uk" <ben.hutchings@codethink.co.uk>,
+        "lkft-triage@lists.linaro.org" <lkft-triage@lists.linaro.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: RE: [PATCH 4.4 00/48] 4.4.226-rc1 review
+Thread-Topic: [PATCH 4.4 00/48] 4.4.226-rc1 review
+Thread-Index: AQHWOEblTp/wW69zwEmAlBmsCs3iiajEQ4lwgABQ3oCAAHTo4A==
+Date:   Tue, 2 Jun 2020 09:07:15 +0000
+Message-ID: <OSAPR01MB2385A58EDAF34A14A3756230B78B0@OSAPR01MB2385.jpnprd01.prod.outlook.com>
+References: <20200601173952.175939894@linuxfoundation.org>
+ <OSAPR01MB23858265B59669B78394A94CB78A0@OSAPR01MB2385.jpnprd01.prod.outlook.com>
+ <20200602020651.GM1407771@sasha-vm>
+In-Reply-To: <20200602020651.GM1407771@sasha-vm>
+Accept-Language: en-GB, en-US
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: kernel.org; dkim=none (message not signed)
+ header.d=none;kernel.org; dmarc=none action=none header.from=renesas.com;
+x-originating-ip: [193.141.220.21]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-ht: Tenant
+x-ms-office365-filtering-correlation-id: 15404bcb-fe4e-4a1b-93de-08d806d45838
+x-ms-traffictypediagnostic: OSAPR01MB2177:
+x-microsoft-antispam-prvs: <OSAPR01MB2177D9D8C63E37696949E2ADB78B0@OSAPR01MB2177.jpnprd01.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:10000;
+x-forefront-prvs: 0422860ED4
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: aa2dXi7ddlBBScsueMkKF9uH7hkEFca/sqgwN2Vsv+absf7KDlHZ9+4sRuZPXfPefdAHxD23p6GMdCGO0tpJajtJSgGezRadJIvLXnUwoJ5Pr4KCgyPtXyVhnVhZE1Qav29RCGtNKblN7brz/yFQYqXRokGZEIOcsBAh1tGvt3jYs8WOp0BlTeLmGX1RazocgaHnvEW1RkksjMYMu8j5TAsbO/FEVQBuw2jAHTgVI40NbHOoOuE0oTcHVZrAwZ0vfDlLeKsBgadvWcOSBxBOM7n7+4w+HlllTnGu6aq9Px9uLmIlLZgAIYOosPhLhRn5dCYrbN/irpJOziVJzZxNKc0+qONmYxxbAzX0FrQTnfdNcfLZ7MFxIAEYI+Vrsfjg94OCx19QuUwzS8XYMrVWxg==
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:OSAPR01MB2385.jpnprd01.prod.outlook.com;PTR:;CAT:NONE;SFTY:;SFS:(4636009)(136003)(376002)(366004)(39860400002)(396003)(346002)(8676002)(316002)(478600001)(7696005)(966005)(33656002)(54906003)(186003)(26005)(6506007)(9686003)(4326008)(8936002)(55016002)(66946007)(66476007)(66556008)(64756008)(66446008)(86362001)(83380400001)(76116006)(6916009)(2906002)(7416002)(52536014)(71200400001)(5660300002);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata: uMwFoNXJ9PbK9Q5VMfgYrIr4rWypzjSMPF1vKFx+5JIGZCHYqV9FHFJD+7j1H1QtCSJpdsbVp1j/sa6Q8ad6NpAtv1+J/el13Vm1LrGNdYq3yjxqX31OlnYQWySEdV/9F8FfiukDMyMr/v1vqqbP+iDAbaZcKXYsOhadLpLRqNt8najcC+xVBfDcqqrJQRD7n0xb9aawQBmeB4fA5WzNobji3qqlWmprCmPFJ5qfV3B/v8CVXXy1jYbY9M6ZhjQFVbZjH4fgqzWvBX4bxjulN+lhAI25NIf8Da3CHUbu0pf5D8ZZbBdNVFtHoLAzPj4Ciop9536XfGualYyE4rkDJOFH/Vj8bkKZyX5g21JeqGqUi6nXGrd1OmFQCo7SvTSN5d+26KwKgZR0GoeQmXZ5LsmrMyd4txj9/Js82DqohpHdpgeZTXxEYX/Jqg1lvAkQk/nueJzfym8e0QKrk5DVDXUqYYJlJhbhkPB1Db7IszmUlX4Mhs2sFoYy/NDdqPWU
+x-ms-exchange-transport-forked: True
+Content-Type: text/plain; charset="Windows-1252"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+X-OriginatorOrg: renesas.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 15404bcb-fe4e-4a1b-93de-08d806d45838
+X-MS-Exchange-CrossTenant-originalarrivaltime: 02 Jun 2020 09:07:15.3942
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 53d82571-da19-47e4-9cb4-625a166a4a2a
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: YuMaozuaZcXfyN7R4WoU90gkIkbUhu1qFSefQ58g1uD2DOYa4dyfc/W8eBKGjMv9ACAaNdGFi5B6LtfMR5D0GX8k5rOlfxxnE9a8txhtILU=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: OSAPR01MB2177
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 02.06.2020 00:48, Greg Thelen wrote:
-> Kirill Tkhai <ktkhai@virtuozzo.com> wrote:
-> 
->> Hi, Greg,
->>
->> good finding. See comments below.
->>
->> On 01.06.2020 06:22, Greg Thelen wrote:
->>> Since v4.19 commit b0dedc49a2da ("mm/vmscan.c: iterate only over charged
->>> shrinkers during memcg shrink_slab()") a memcg aware shrinker is only
->>> called when the per-memcg per-node shrinker_map indicates that the
->>> shrinker may have objects to release to the memcg and node.
->>>
->>> shmem_unused_huge_count and shmem_unused_huge_scan support the per-tmpfs
->>> shrinker which advertises per memcg and numa awareness.  The shmem
->>> shrinker releases memory by splitting hugepages that extend beyond
->>> i_size.
->>>
->>> Shmem does not currently set bits in shrinker_map.  So, starting with
->>> b0dedc49a2da, memcg reclaim avoids calling the shmem shrinker under
->>> pressure.  This leads to undeserved memcg OOM kills.
->>> Example that reliably sees memcg OOM kill in unpatched kernel:
->>>   FS=/tmp/fs
->>>   CONTAINER=/cgroup/memory/tmpfs_shrinker
->>>   mkdir -p $FS
->>>   mount -t tmpfs -o huge=always nodev $FS
->>>   # Create 1000 MB container, which shouldn't suffer OOM.
->>>   mkdir $CONTAINER
->>>   echo 1000M > $CONTAINER/memory.limit_in_bytes
->>>   echo $BASHPID >> $CONTAINER/cgroup.procs
->>>   # Create 4000 files.  Ideally each file uses 4k data page + a little
->>>   # metadata.  Assume 8k total per-file, 32MB (4000*8k) should easily
->>>   # fit within container's 1000 MB.  But if data pages use 2MB
->>>   # hugepages (due to aggressive huge=always) then files consume 8GB,
->>>   # which hits memcg 1000 MB limit.
->>>   for i in {1..4000}; do
->>>     echo . > $FS/$i
->>>   done
->>>
->>> v5.4 commit 87eaceb3faa5 ("mm: thp: make deferred split shrinker memcg
->>> aware") maintains the per-node per-memcg shrinker bitmap for THP
->>> shrinker.  But there's no such logic in shmem.  Make shmem set the
->>> per-memcg per-node shrinker bits when it modifies inodes to have
->>> shrinkable pages.
->>>
->>> Fixes: b0dedc49a2da ("mm/vmscan.c: iterate only over charged shrinkers during memcg shrink_slab()")
->>> Cc: <stable@vger.kernel.org> # 4.19+
->>> Signed-off-by: Greg Thelen <gthelen@google.com>
->>> ---
->>>  mm/shmem.c | 61 +++++++++++++++++++++++++++++++-----------------------
->>>  1 file changed, 35 insertions(+), 26 deletions(-)
->>>
->>> diff --git a/mm/shmem.c b/mm/shmem.c
->>> index bd8840082c94..e11090f78cb5 100644
->>> --- a/mm/shmem.c
->>> +++ b/mm/shmem.c
->>> @@ -1002,6 +1002,33 @@ static int shmem_getattr(const struct path *path, struct kstat *stat,
->>>  	return 0;
->>>  }
->>>  
->>> +/*
->>> + * Expose inode and optional page to shrinker as having a possibly splittable
->>> + * hugepage that reaches beyond i_size.
->>> + */
->>> +static void shmem_shrinker_add(struct shmem_sb_info *sbinfo,
->>> +			       struct inode *inode, struct page *page)
->>> +{
->>> +	struct shmem_inode_info *info = SHMEM_I(inode);
->>> +
->>> +	spin_lock(&sbinfo->shrinklist_lock);
->>> +	/*
->>> +	 * _careful to defend against unlocked access to ->shrink_list in
->>> +	 * shmem_unused_huge_shrink()
->>> +	 */
->>> +	if (list_empty_careful(&info->shrinklist)) {
->>> +		list_add_tail(&info->shrinklist, &sbinfo->shrinklist);
->>> +		sbinfo->shrinklist_len++;
->>> +	}
->>> +	spin_unlock(&sbinfo->shrinklist_lock);
->>> +
->>> +#ifdef CONFIG_MEMCG
->>> +	if (page && PageTransHuge(page))
->>> +		memcg_set_shrinker_bit(page->mem_cgroup, page_to_nid(page),
->>> +				       inode->i_sb->s_shrink.id);
->>> +#endif
->>> +}
->>> +
->>>  static int shmem_setattr(struct dentry *dentry, struct iattr *attr)
->>>  {
->>>  	struct inode *inode = d_inode(dentry);
->>> @@ -1048,17 +1075,13 @@ static int shmem_setattr(struct dentry *dentry, struct iattr *attr)
->>>  			 * to shrink under memory pressure.
->>>  			 */
->>>  			if (IS_ENABLED(CONFIG_TRANSPARENT_HUGEPAGE)) {
->>> -				spin_lock(&sbinfo->shrinklist_lock);
->>> -				/*
->>> -				 * _careful to defend against unlocked access to
->>> -				 * ->shrink_list in shmem_unused_huge_shrink()
->>> -				 */
->>> -				if (list_empty_careful(&info->shrinklist)) {
->>> -					list_add_tail(&info->shrinklist,
->>> -							&sbinfo->shrinklist);
->>> -					sbinfo->shrinklist_len++;
->>> -				}
->>> -				spin_unlock(&sbinfo->shrinklist_lock);
->>> +				struct page *page;
->>> +
->>> +				page = find_get_page(inode->i_mapping,
->>> +					(newsize & HPAGE_PMD_MASK) >> PAGE_SHIFT);
->>> +				shmem_shrinker_add(sbinfo, inode, page);
->>> +				if (page)
->>> +					put_page(page);
->>
->> 1)I'd move PageTransHuge() check from shmem_shrinker_add() to here. In case of page is not trans huge,
->>   it looks strange and completely useless to add inode to shrinklist and then to avoid memcg_set_shrinker_bit().
->>   Nothing should be added to the shrinklist in this case.
-> 
-> Ack,  I'll take a look at this.
-> 
->> 2)In general I think this "last inode page spliter" does not fit SHINKER_MEMCG_AWARE conception, and
->>   shmem_unused_huge_shrink() should be reworked as a new separate !memcg-aware shrinker instead of
->>   .nr_cached_objects callback of generic fs shrinker.
->>
->> CC: Kirill Shutemov
->>
->> Kirill, are there any fundamental reasons to keep this shrinking logic in the generic fs shrinker?
->> Are there any no-go to for conversion this as a separate !memcg-aware shrinker?
-> 
-> Making the shmem shrinker !memcg-aware seems like it would require tail
-> pages beyond i_size not be charged to memcg.  Otherwise memcg pressure
-> (which only calls memcg aware shrinkers) won't uncharge them.  Currently
-> the entire compound page is charged.
+Hello Sasha,
 
-Shrinker is not about charging, shrinker is about uncharging ;) The pages will remain be charged
-like they used to be and where they used to be.
+> From: stable-owner@vger.kernel.org <stable-owner@vger.kernel.org> On
+> Behalf Of Sasha Levin
+> Sent: 02 June 2020 03:07
+>=20
+> On Mon, Jun 01, 2020 at 10:14:20PM +0000, Chris Paterson wrote:
+> >Hi Greg,
+> >
+> >> From: stable-owner@vger.kernel.org <stable-owner@vger.kernel.org> On
+> >> Behalf Of Greg Kroah-Hartman
+> >> Sent: 01 June 2020 18:53
+> >>
+> >> This is the start of the stable review cycle for the 4.4.226 release.
+> >> There are 48 patches in this series, all will be posted as a response
+> >> to this one.  If anyone has any issues with these being applied, pleas=
+e
+> >> let me know.
+> >
+> >I'm seeing some issues with Linux 4.4.226-rc1 (dc230329b026).
+> >
+> >We have 4 configurations that fail, 2x Armv7 and 2x x86, whilst building=
+ the
+> modules.
+> >
+> >Error message:
+> >  ERROR: "pptp_msg_name" [net/netfilter/nf_conntrack_pptp.ko] undefined!
+> >  ERROR: "pptp_msg_name" [net/ipv4/netfilter/nf_nat_pptp.ko] undefined!
+> >
+> >Relevant patches are:
+> >  69969e0f7e37 ("netfilter: nf_conntrack_pptp: prevent buffer overflows =
+in
+> debug code")
+> >  3441cc75e4d1 ("netfilter: nf_conntrack_pptp: fix compilation warning w=
+ith
+> W=3D1 build")
+> >
+> >I haven't had a chance to dig deeper yet but will do in the morning.
+> >
+> >Build/test pipeline/logs: https://gitlab.com/cip-project/cip-testing/lin=
+ux-stable-
+> rc-ci/pipelines/151700917
+> >GitLab CI pipeline: https://gitlab.com/cip-project/cip-testing/linux-cip=
+-
+> pipelines/-/blob/master/trees/linux-4.4.y.yml
+> >Relevant LAVA jobs:
+> https://lava.ciplatform.org/scheduler/alljobs?length=3D25&search=3Ddc2303=
+#table
+>=20
+> Thats and interesting one... I've queued fe22cd9b7c98 ("printk: help
+> pr_debug and pr_devel to optimize out arguments") for 4.4 to address
+> this.
 
-The thing is we have single shrinklist for a superblock. An inode with pending tail page splitting
-is added to this list. Later, shmem_unused_huge_scan() iterates over the list. It splits the tail
-page for every inode in case of the inode size is still unaligned by huge page.
+This patch resolves the issue for me.
 
-We do not care about memcg here. Tail pages for two inodes may be related to different memcg. But
-shmem_unused_huge_scan() shrink all of them, it does not care about memcg in sc->memcg. Even more:
-nobody in mm/shmem.c cares about memcg.
+Test pipeline: https://gitlab.com/cip-project/cip-kernel/linux-cip/pipeline=
+s/151885545
 
-In traditional memcg-aware shrinkers we maintain separate lists for every existing memcg. Object,
-which is charged to a memcg, is added to a specific shrinker list related to the memcg. So, shrinker
-is able to iterate only that objects, which are charged to the memcg.
+Thanks, Chris
 
-In case of shmem we have single list for that objects (shrinklist). Even more, we have shrinklist
-not for charged objects, we link inodes there. Imagine a situation: file was shrinked and inode
-became linked to shrinklist. Tail page is unaligned and it is related to memcg1. Then file became
-shrinked one more time. New tail page is also unaligned and it related to another memcg2. So, shmem
-shrinker doesn't introduce lists for every memcg (i.e. list_lru), since inode's tail page relation
-to a memcg is not constant. So, as shmem shrinker splits any memcg pages (despite its sc->memcg),
-it can't be called memcg-aware.
-
-Revisiting this once again today, I think we should make shrinklist a list_lru type. Every time,
-when inode is considered to be added to a shrinklist, we should move it to appropriate memcg list.
-In case of it's already linked and memcg is changed, we should move it to another memcg list. I.e.,
-every place like:
-
-	if (list_empty(&info->shrinklist)) {
-		list_add_tail(&info->shrinklist, &sbinfo->shrinklist); 
-		sbinfo->shrinklist_len++;
-	}
-
-Convert into:
-
-	if (list_empty(&info->shrinklist)) {
-		list_lru_add(&sbinfo->shrinklist, &info->shrinklist);
-		info->memcg_id = memcg->id;
-	} else if (memcg_changed(info)) {
-		/* Remove from old memcg list */
-		list_lru_del(&info->shrinklist);
-		/* Link to new memcg list */
-		list_lru_add(&sbinfo->shrinklist, &info->shrinklist);
-	}
-
-We may cache memcg->id into info, so memcg_changed() we be able to compare cached memcg
-and current, and we will avoid del/add in case of tail page memcg remain the same.
-
-Kirill
+>=20
+> Thanks for the report Chris!
+>=20
+> --
+> Thanks,
+> Sasha
