@@ -2,135 +2,274 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4540B1EB8AB
-	for <lists+stable@lfdr.de>; Tue,  2 Jun 2020 11:39:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1074C1EB962
+	for <lists+stable@lfdr.de>; Tue,  2 Jun 2020 12:18:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726110AbgFBJje (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Jun 2020 05:39:34 -0400
-Received: from mail27.static.mailgun.info ([104.130.122.27]:17643 "EHLO
-        mail27.static.mailgun.info" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726217AbgFBJjc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 2 Jun 2020 05:39:32 -0400
-DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
- s=smtp; t=1591090771; h=Message-ID: References: In-Reply-To: Subject:
- Cc: To: From: Date: Content-Transfer-Encoding: Content-Type:
- MIME-Version: Sender; bh=IekPtOjoRZDjZaNDXgKSitUXOmu6PIOrWvgVXoQjNic=;
- b=cfvpd22XQIWhXj+m1JAN/8oRqUckduoHsGT1da1sxjO7ppoaYRTEPtcX3e2D9dRkkMnt4yM+
- cZfu3vx0hhx2gWIQkTJ6Wf5ZH3eTnACo5I0RoGhEk+qOVWua/Gw3jUddBWP7D1ysfBg6aGc8
- GEWH25WheB1p4NNheKa5LXRrW5c=
-X-Mailgun-Sending-Ip: 104.130.122.27
-X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
-Received: from smtp.codeaurora.org
- (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171]) by
- smtp-out-n02.prod.us-west-2.postgun.com with SMTP id
- 5ed61e5246d39fc0a2cc1a82 (version=TLS1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256); Tue, 02 Jun 2020 09:39:30
- GMT
-Received: by smtp.codeaurora.org (Postfix, from userid 1001)
-        id EB705C433A0; Tue,  2 Jun 2020 09:39:29 +0000 (UTC)
-X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
-        aws-us-west-2-caf-mail-1.web.codeaurora.org
-X-Spam-Level: 
-X-Spam-Status: No, score=-1.0 required=2.0 tests=ALL_TRUSTED
-        autolearn=unavailable autolearn_force=no version=3.4.0
-Received: from mail.codeaurora.org (localhost.localdomain [127.0.0.1])
-        (using TLSv1 with cipher ECDHE-RSA-AES256-SHA (256/256 bits))
+        id S1728024AbgFBKQR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Jun 2020 06:16:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59594 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727977AbgFBKQM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Jun 2020 06:16:12 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        (Authenticated sender: guptap)
-        by smtp.codeaurora.org (Postfix) with ESMTPSA id 22DF2C433CA;
-        Tue,  2 Jun 2020 09:39:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1F48F206A4;
+        Tue,  2 Jun 2020 10:16:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1591092970;
+        bh=/ICJOi2Jk5AGm6n4Em1+cXiPwNbB4uPwZ51SPTTbijU=;
+        h=From:To:Cc:Subject:Date:From;
+        b=bCX1jkZ7s7VbGqIvuKUWD7vM3oyuh2NCkQu2KkkFX9H8poEFQ+yM1Y9QkgT01NUg4
+         If3aJZiNnnchibh46iP8Kn2QAqRhSeuK8i7osMOKNUCLHCfm7WUqk3PfjWkF057Fgn
+         Z4V1X8PBtZXV5hZaUb5aXe2amwQ+6BPmCs7C3CkY=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+Subject: [PATCH 4.4 00/47] 4.4.226-rc2 review
+Date:   Tue,  2 Jun 2020 12:16:07 +0200
+Message-Id: <20200602100034.001608787@linuxfoundation.org>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8;
- format=flowed
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.226-rc2.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-4.4.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 4.4.226-rc2
+X-KernelTest-Deadline: 2020-06-04T10:00+00:00
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-Date:   Tue, 02 Jun 2020 15:09:29 +0530
-From:   guptap@codeaurora.org
-To:     Robin Murphy <robin.murphy@arm.com>
-Cc:     Andrew Morton <akpm@linux-foundation.org>, mhocko@suse.com,
-        joro@8bytes.org, linux-mm@kvack.org,
-        iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org,
-        owner-linux-mm@kvack.org, stable@vger.kernel.org
-Subject: Re: [PATCH] iommu/dma: limit iova free size to unmmaped iova
-In-Reply-To: <4ba082d3bb965524157704ea1ffb1ff4@codeaurora.org>
-References: <20200521113004.12438-1-guptap@codeaurora.org>
- <7aaa8dcc-6a47-f256-431d-2a1b034b4076@arm.com>
- <90662ef3123dbf2e93f9718ee5cc14a7@codeaurora.org>
- <2d873ab9-ebb9-3c2d-f129-55a036ab47d0@arm.com>
- <4ba082d3bb965524157704ea1ffb1ff4@codeaurora.org>
-Message-ID: <2bfb4ce3a2dfeb2d585f0308a9002feb@codeaurora.org>
-X-Sender: guptap@codeaurora.org
-User-Agent: Roundcube Webmail/1.3.9
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2020-05-26 12:49, guptap@codeaurora.org wrote:
-> On 2020-05-22 14:54, Robin Murphy wrote:
->> On 2020-05-22 07:25, guptap@codeaurora.org wrote:
->>> On 2020-05-22 01:46, Robin Murphy wrote:
->>>> On 2020-05-21 12:30, Prakash Gupta wrote:
->>> I agree, we shouldn't be freeing the partial iova. Instead just 
->>> making
->>> sure if unmap was successful should be sufficient before freeing 
->>> iova. So change
->>> can instead be something like this:
->>> 
->>> -    iommu_dma_free_iova(cookie, dma_addr, size);
->>> +    if (unmapped)
->>> +        iommu_dma_free_iova(cookie, dma_addr, size);
->>> 
->>>> TBH my gut feeling here is that you're really just trying to treat a
->>>> symptom of another bug elsewhere, namely some driver calling
->>>> dma_unmap_* or dma_free_* with the wrong address or size in the 
->>>> first
->>>> place.
->>>> 
->>> This condition would arise only if driver calling dma_unmap/free_* 
->>> with 0
->>> iova_pfn. This will be flagged with a warning during unmap but will 
->>> trigger
->>> panic later on while doing unrelated dma_map/unmap_*. If unmapped has 
->>> already
->>> failed for invalid iova, there is no reason we should consider this 
->>> as valid
->>> iova and free. This part should be fixed.
->> 
->> I disagree. In general, if drivers call the DMA API incorrectly it is
->> liable to lead to data loss, memory corruption, and various other
->> unpleasant misbehaviour - it is not the DMA layer's job to attempt to
->> paper over driver bugs.
->> 
->> There *is* an argument for downgrading the BUG_ON() in
->> iova_magazine_free_pfns() to a WARN_ON(), since frankly it isn't a
->> sufficiently serious condition to justify killing the whole machine
->> immediately, but NAK to bodging the iommu-dma mid-layer to "fix" that.
->> A serious bug already happened elsewhere, so trying to hide the
->> fallout really doesn't help anyone.
->> 
-> Sorry for delayed response, it was a long weekend.
-> I agree that invalid DMA API call can result in unexpected issues and 
-> client
-> should fix it, but then the present behavior makes it difficult to 
-> catch cases
-> when driver is making wrong DMA API calls. When invalid iova pfn is 
-> passed it
-> doesn't fail then and there, though DMA layer is aware of iova being 
-> invalid. It
-> fails much after that in the context of an valid map/unmap, with 
-> BUG_ON().
-> 
-> Downgrading BUG_ON() to WARN_ON() in iova_magazine_free_pfns() will not 
-> help
-> much as invalid iova will cause NULL pointer dereference.
-> 
-> I see no reason why DMA layer wants to free an iova for which unmapped 
-> failed.
-> IMHO queuing an invalid iova (which already failed unmap) to rcache 
-> which
-> eventually going to crash the system looks like iommu-dma layer issue.
-> 
-> Thanks,
-> Prakash
+This is the start of the stable review cycle for the 4.4.226 release.
+There are 47 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-ping?
+Responses should be made by Thu, 04 Jun 2020 09:57:12 +0000.
+Anything received after that time might be too late.
+
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.226-rc2.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.4.y
+and the diffstat can be found below.
+
+thanks,
+
+greg k-h
+
+-------------
+Pseudo-Shortlog of commits:
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 4.4.226-rc2
+
+Benjamin Block <bblock@linux.ibm.com>
+    scsi: zfcp: fix request object use-after-free in send path causing wrong traces
+
+Aaron Conole <aconole@redhat.com>
+    printk: help pr_debug and pr_devel to optimize out arguments
+
+Ben Hutchings <ben.hutchings@codethink.co.uk>
+    drm/msm: Fix possible null dereference on failure of get_pages()
+
+Guoqing Jiang <gqjiang@suse.com>
+    sc16is7xx: move label 'err_spi' to correct section
+
+Michal Marek <mmarek@suse.com>
+    asm-prototypes: Clear any CPP defines before declaring the functions
+
+Liviu Dudau <liviu@dudau.co.uk>
+    mm/vmalloc.c: don't dereference possible NULL pointer in __vunmap()
+
+Roopa Prabhu <roopa@cumulusnetworks.com>
+    net: rtnl_configure_link: fix dev flags changes arg to __dev_notify_flags
+
+Sudip Mukherjee <sudip@vectorindia.org>
+    mac80211: fix memory leak
+
+Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+    usb: renesas_usbhs: gadget: fix spin_lock_init() for &uep->lock
+
+Thomas Gleixner <tglx@linutronix.de>
+    genirq/generic_pending: Do not lose pending affinity update
+
+Matt Roper <matthew.d.roper@intel.com>
+    drm/fb-helper: Use proper plane mask for fb cleanup
+
+Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
+    mm: remove VM_BUG_ON(PageSlab()) from page_mapcount()
+
+Pablo Neira Ayuso <pablo@netfilter.org>
+    netfilter: nf_conntrack_pptp: fix compilation warning with W=1 build
+
+Qiushi Wu <wu000273@umn.edu>
+    bonding: Fix reference count leak in bond_sysfs_slave_add.
+
+Qiushi Wu <wu000273@umn.edu>
+    qlcnic: fix missing release in qlcnic_83xx_interrupt_test.
+
+Pablo Neira Ayuso <pablo@netfilter.org>
+    netfilter: nf_conntrack_pptp: prevent buffer overflows in debug code
+
+Phil Sutter <phil@nwl.cc>
+    netfilter: ipset: Fix subcounter update skip
+
+Michael Braun <michael-dev@fami-braun.de>
+    netfilter: nft_reject_bridge: enable reject with bridge vlan
+
+Xin Long <lucien.xin@gmail.com>
+    ip_vti: receive ipip packet by calling ip_tunnel_rcv
+
+Jeremy Sowden <jeremy@azazel.net>
+    vti4: eliminated some duplicate code.
+
+Xin Long <lucien.xin@gmail.com>
+    xfrm: fix a NULL-ptr deref in xfrm_local_error
+
+Xin Long <lucien.xin@gmail.com>
+    xfrm: fix a warning in xfrm_policy_insert_list
+
+Xin Long <lucien.xin@gmail.com>
+    xfrm: allow to accept packets with ipv6 NEXTHDR_HOP in xfrm_input
+
+Alexander Dahl <post@lespocky.de>
+    x86/dma: Fix max PFN arithmetic overflow on 32 bit systems
+
+Helge Deller <deller@gmx.de>
+    parisc: Fix kernel panic in mem_init()
+
+Qiushi Wu <wu000273@umn.edu>
+    iommu: Fix reference count leak in iommu_group_alloc.
+
+Arnd Bergmann <arnd@arndb.de>
+    include/asm-generic/topology.h: guard cpumask_of_node() macro argument
+
+Alexander Potapenko <glider@google.com>
+    fs/binfmt_elf.c: allocate initialized memory in fill_thread_core_info()
+
+Eric W. Biederman <ebiederm@xmission.com>
+    exec: Always set cap_ambient in cap_bprm_set_creds
+
+Chris Chiu <chiu@endlessm.com>
+    ALSA: usb-audio: mixer: volume quirk for ESS Technology Asus USB DAC
+
+Changming Liu <liu.changm@northeastern.edu>
+    ALSA: hwdep: fix a left shifting 1 by 31 UB bug
+
+Kaike Wan <kaike.wan@intel.com>
+    IB/qib: Call kobject_put() when kobject_init_and_add() fails
+
+Kevin Locke <kevin@kevinlocke.name>
+    Input: i8042 - add ThinkPad S230u to i8042 reset list
+
+Łukasz Patron <priv.luk@gmail.com>
+    Input: xpad - add custom init packet for Xbox One S controllers
+
+Brendan Shanks <bshanks@codeweavers.com>
+    Input: evdev - call input_flush_device() on release(), not flush()
+
+James Hilliard <james.hilliard1@gmail.com>
+    Input: usbtouchscreen - add support for BonXeon TP
+
+Steve French <stfrench@microsoft.com>
+    cifs: Fix null pointer check in cifs_read
+
+Masahiro Yamada <masahiroy@kernel.org>
+    usb: gadget: legacy: fix redundant initialization warnings
+
+Lei Xue <carmark.dlut@gmail.com>
+    cachefiles: Fix race between read_waiter and read_copier involving op->to_do
+
+Kalderon, Michal <Michal.Kalderon@cavium.com>
+    IB/cma: Fix reference count leak when no ipv4 addresses are set
+
+Dmitry V. Levin <ldv@altlinux.org>
+    uapi: fix linux/if_pppol2tp.h userspace compilation errors
+
+Qiushi Wu <wu000273@umn.edu>
+    net/mlx4_core: fix a memory leak bug.
+
+Qiushi Wu <wu000273@umn.edu>
+    net: sun: fix missing release regions in cas_init_one().
+
+Moshe Shemesh <moshe@mellanox.com>
+    net/mlx5: Add command entry handling completion
+
+Jere Leppänen <jere.leppanen@nokia.com>
+    sctp: Start shutdown on association restart if in SHUTDOWN-SENT state and socket is closed
+
+Yuqi Jin <jinyuqi@huawei.com>
+    net: revert "net: get rid of an signed integer overflow in ip_idents_reserve()"
+
+Eric Dumazet <edumazet@google.com>
+    ax25: fix setsockopt(SO_BINDTODEVICE)
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                           |  4 +-
+ arch/parisc/mm/init.c                              |  2 +-
+ arch/x86/include/asm/dma.h                         |  2 +-
+ drivers/gpu/drm/drm_fb_helper.c                    |  2 +-
+ drivers/gpu/drm/msm/msm_gem.c                      | 20 +++---
+ drivers/infiniband/hw/qib/qib_sysfs.c              |  9 +--
+ drivers/input/evdev.c                              | 19 ++----
+ drivers/input/joystick/xpad.c                      | 12 ++++
+ drivers/input/serio/i8042-x86ia64io.h              |  7 ++
+ drivers/input/touchscreen/usbtouchscreen.c         |  1 +
+ drivers/iommu/iommu.c                              |  2 +-
+ drivers/net/bonding/bond_sysfs_slave.c             |  4 +-
+ drivers/net/ethernet/mellanox/mlx4/fw.c            |  2 +-
+ drivers/net/ethernet/mellanox/mlx5/core/cmd.c      | 15 +++++
+ .../net/ethernet/qlogic/qlcnic/qlcnic_83xx_hw.c    |  4 +-
+ drivers/net/ethernet/sun/cassini.c                 |  3 +-
+ drivers/s390/scsi/zfcp_fsf.c                       | 10 ++-
+ drivers/tty/serial/sc16is7xx.c                     |  2 +
+ drivers/usb/gadget/legacy/inode.c                  |  3 +-
+ drivers/usb/renesas_usbhs/mod_gadget.c             |  2 +-
+ fs/binfmt_elf.c                                    |  2 +-
+ fs/cachefiles/rdwr.c                               |  2 +-
+ fs/cifs/file.c                                     |  2 +-
+ include/asm-generic/asm-prototypes.h               |  6 ++
+ include/asm-generic/topology.h                     |  2 +-
+ include/linux/mlx5/driver.h                        |  1 +
+ include/linux/mm.h                                 |  1 -
+ include/linux/netfilter/nf_conntrack_pptp.h        |  2 +-
+ include/linux/printk.h                             | 12 ++--
+ include/rdma/ib_addr.h                             |  6 +-
+ include/uapi/linux/l2tp.h                          |  7 +-
+ kernel/irq/migration.c                             | 26 ++++++--
+ mm/vmalloc.c                                       |  2 +-
+ net/ax25/af_ax25.c                                 |  6 +-
+ net/bridge/netfilter/nft_reject_bridge.c           |  6 ++
+ net/core/rtnetlink.c                               |  2 +-
+ net/ipv4/ip_vti.c                                  | 75 ++++++++++++----------
+ net/ipv4/netfilter/nf_nat_pptp.c                   |  7 +-
+ net/ipv4/route.c                                   | 14 ++--
+ net/mac80211/sta_info.c                            |  1 +
+ net/netfilter/ipset/ip_set_list_set.c              |  2 +-
+ net/netfilter/nf_conntrack_pptp.c                  | 62 ++++++++++--------
+ net/sctp/sm_statefuns.c                            |  9 +--
+ net/xfrm/xfrm_input.c                              |  2 +-
+ net/xfrm/xfrm_output.c                             |  3 +-
+ net/xfrm/xfrm_policy.c                             |  7 +-
+ security/commoncap.c                               |  1 +
+ sound/core/hwdep.c                                 |  4 +-
+ sound/usb/mixer.c                                  |  8 +++
+ 49 files changed, 242 insertions(+), 163 deletions(-)
+
+
