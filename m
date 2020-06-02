@@ -2,116 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B2F411EC38B
-	for <lists+stable@lfdr.de>; Tue,  2 Jun 2020 22:14:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 591E21EC3B0
+	for <lists+stable@lfdr.de>; Tue,  2 Jun 2020 22:29:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726589AbgFBUO4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Jun 2020 16:14:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59006 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726112AbgFBUO4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Jun 2020 16:14:56 -0400
-Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 100FD206E2;
-        Tue,  2 Jun 2020 20:14:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591128895;
-        bh=IinCsIc9qs+jjHPlvxkh6tIZlarGVeDwCaigQWaaxWI=;
-        h=Date:From:To:Subject:In-Reply-To:From;
-        b=taRbihb+2c3LzA3P8aijXCOXrV+eRL/YI/ichg+N7PNoBvXWDTnrN1ik61S6wXhmZ
-         GVmgxwdK4p04u2SI+q98pMqsARZdziAS61awdaW4KeLqyBJ8hqp9frqYXrwHqptrM8
-         3spFQwEZHKVof6Sk7WUrd5l9TpMWRYqnEQATYW/4=
-Date:   Tue, 02 Jun 2020 13:14:53 -0700
-From:   Andrew Morton <akpm@linux-foundation.org>
-To:     akpm@linux-foundation.org, bp@alien8.de,
-        dave.hansen@linux.intel.com, jbeulich@suse.com, linux-mm@kvack.org,
-        luto@kernel.org, mingo@redhat.com, mm-commits@vger.kernel.org,
-        peterz@infradead.org, stable@vger.kernel.org, steven.price@arm.com,
-        tglx@linutronix.de, torvalds@linux-foundation.org
-Subject:  [patch 085/128] mm: ptdump: expand type of 'val' in
- note_page()
-Message-ID: <20200602201453.DJS4vc_kh%akpm@linux-foundation.org>
-In-Reply-To: <20200602130930.8e8f10fa6f19e3766e70921f@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S1726373AbgFBU3s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Jun 2020 16:29:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58746 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726267AbgFBU3s (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 2 Jun 2020 16:29:48 -0400
+Received: from mail-pg1-x52f.google.com (mail-pg1-x52f.google.com [IPv6:2607:f8b0:4864:20::52f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9066C08C5C0
+        for <stable@vger.kernel.org>; Tue,  2 Jun 2020 13:29:47 -0700 (PDT)
+Received: by mail-pg1-x52f.google.com with SMTP id o8so54503pgm.7
+        for <stable@vger.kernel.org>; Tue, 02 Jun 2020 13:29:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=2y1O9fNRd6TunpLhiMBwJcnqLO1Pv9ggwi0BgYvDus0=;
+        b=Ynk+M6g4+lfsesQAKPMSIK/3Bn9f2bS/6KXysda+MWPCAYKpYd71MLzyoLPLmB6N6K
+         rRq8gtUvyS8rgMsvh3R4DnTn7lSHKkcRC2sUBV8FbWHHu1cbo/SS/MBa3pUcO98gE0Cy
+         W1Ioknm6v5hMPPvhp2w/KdiiKZUPqVen8gOPmul1CM0XAjnWYr9wkRy2AFHnRNghto1O
+         jXc/AUlDNCR/9TIgGzUbrvTKKTVbHLNLiykHaBEv8gAkeu55TJwlbpAAQICpowMWbbzD
+         kdfuCRCANP6haSKVtoc9vTwa3FDFEZWzG9xODqPtcSWzE3+ehhrg9ncU+q3+4jUFD8rc
+         7kEQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=2y1O9fNRd6TunpLhiMBwJcnqLO1Pv9ggwi0BgYvDus0=;
+        b=RL7vXEZYQxTX6nI2Kp2siPJF+xZddnGrqdl8A0SA4Eu6ev0C9A4DGBqWCwI5sUdk0u
+         MvsDKWDbQ4vXAYMXyPjQ7vd14DZ+rAvpKxO+qrXMCFz0PkkCO/9Izt0biOZcQmU6SmwT
+         /thV9cyGcxGz9xC8dqUbo4b7B17KPP+q2t38MaQbryzlCtYghFlQ0FGJLTrkYDY/1IDe
+         FRhrZLJPRYj6uyqAvfE8W3pJKXH5hXJrmhMmXNjLVLsDTpadyTg1l6m0cPgF7BJRhhU1
+         K/U/dNdcjUomsDPECNjbIpZJjy7fxbRpDnT9VwJzcb+ZXYgXqJTMHqQatghADxvdDPHc
+         mtrw==
+X-Gm-Message-State: AOAM532vWD2kAiwgQFKLtsedZ1FIB238ApcxbHsFF9hsgK+WXQ6duC3A
+        9ex+AK6020AWSaLPAqcOuV/m/WIrY+M=
+X-Google-Smtp-Source: ABdhPJwZgy3RQpT5xI9Xm434uY7KUns2t3jbMZ/mqPiXjFNb1PsNd85/eaWhLMCrFo6EPIt8/2opyA==
+X-Received: by 2002:a17:90a:a107:: with SMTP id s7mr1048932pjp.199.1591129786828;
+        Tue, 02 Jun 2020 13:29:46 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id w6sm3078908pjy.15.2020.06.02.13.29.45
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 02 Jun 2020 13:29:45 -0700 (PDT)
+Message-ID: <5ed6b6b9.1c69fb81.3bbbe.f829@mx.google.com>
+Date:   Tue, 02 Jun 2020 13:29:45 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.9.225-60-g6915714f12d0
+X-Kernelci-Report-Type: boot
+X-Kernelci-Branch: linux-4.9.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-4.9.y boot: 10 boots: 0 failed,
+ 10 passed (v4.9.225-60-g6915714f12d0)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Price <steven.price@arm.com>
-Subject: mm: ptdump: expand type of 'val' in note_page()
+******************************************
+* WARNING: Boot tests are now deprecated *
+******************************************
 
-The page table entry is passed in the 'val' argument to note_page(),
-however this was previously an "unsigned long" which is fine on 64-bit
-platforms.  But for 32 bit x86 it is not always big enough to contain a
-page table entry which may be 64 bits.
+As kernelci.org is expanding its functional testing capabilities, the conce=
+pt
+of boot testing is now deprecated.  Boot results are scheduled to be droppe=
+d on
+*5th June 2020*.  The full schedule for boot tests deprecation is available=
+ on
+this GitHub issue: https://github.com/kernelci/kernelci-backend/issues/238
 
-Change the type to u64 to ensure that it is always big enough.
+The new equivalent is the *baseline* test suite which also runs sanity chec=
+ks
+using dmesg and bootrr: https://github.com/kernelci/bootrr
 
-[akpm@linux-foundation.org: fix riscv]
-Link: http://lkml.kernel.org/r/20200521152308.33096-3-steven.price@arm.com
-Signed-off-by: Steven Price <steven.price@arm.com>
-Reported-by: Jan Beulich <jbeulich@suse.com>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+See the *baseline results for this kernel revision* on this page:
+https://kernelci.org/test/job/stable-rc/branch/linux-4.9.y/kernel/v4.9.225-=
+60-g6915714f12d0/plan/baseline/
+
+---------------------------------------------------------------------------=
+----
+
+stable-rc/linux-4.9.y boot: 10 boots: 0 failed, 10 passed (v4.9.225-60-g691=
+5714f12d0)
+
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.9.y/kernel/v4.9.225-60-g6915714f12d0/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
+/kernel/v4.9.225-60-g6915714f12d0/
+
+Tree: stable-rc
+Branch: linux-4.9.y
+Git Describe: v4.9.225-60-g6915714f12d0
+Git Commit: 6915714f12d07947cc3e82cf34852597ff239b17
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 6 unique boards, 3 SoC families, 3 builds out of 168
+
 ---
-
- arch/arm64/mm/dump.c          |    2 +-
- arch/riscv/mm/ptdump.c        |    2 +-
- arch/x86/mm/dump_pagetables.c |    2 +-
- include/linux/ptdump.h        |    2 +-
- 4 files changed, 4 insertions(+), 4 deletions(-)
-
---- a/arch/arm64/mm/dump.c~mm-ptdump-expand-type-of-val-in-note_page
-+++ a/arch/arm64/mm/dump.c
-@@ -252,7 +252,7 @@ static void note_prot_wx(struct pg_state
- }
- 
- static void note_page(struct ptdump_state *pt_st, unsigned long addr, int level,
--		      unsigned long val)
-+		      u64 val)
- {
- 	struct pg_state *st = container_of(pt_st, struct pg_state, ptdump);
- 	static const char units[] = "KMGTPE";
---- a/arch/riscv/mm/ptdump.c~mm-ptdump-expand-type-of-val-in-note_page
-+++ a/arch/riscv/mm/ptdump.c
-@@ -204,7 +204,7 @@ static void note_prot_wx(struct pg_state
- }
- 
- static void note_page(struct ptdump_state *pt_st, unsigned long addr,
--		      int level, unsigned long val)
-+		      int level, u64 val)
- {
- 	struct pg_state *st = container_of(pt_st, struct pg_state, ptdump);
- 	u64 pa = PFN_PHYS(pte_pfn(__pte(val)));
---- a/arch/x86/mm/dump_pagetables.c~mm-ptdump-expand-type-of-val-in-note_page
-+++ a/arch/x86/mm/dump_pagetables.c
-@@ -273,7 +273,7 @@ static void effective_prot(struct ptdump
-  * print what we collected so far.
-  */
- static void note_page(struct ptdump_state *pt_st, unsigned long addr, int level,
--		      unsigned long val)
-+		      u64 val)
- {
- 	struct pg_state *st = container_of(pt_st, struct pg_state, ptdump);
- 	pgprotval_t new_prot, new_eff;
---- a/include/linux/ptdump.h~mm-ptdump-expand-type-of-val-in-note_page
-+++ a/include/linux/ptdump.h
-@@ -13,7 +13,7 @@ struct ptdump_range {
- struct ptdump_state {
- 	/* level is 0:PGD to 4:PTE, or -1 if unknown */
- 	void (*note_page)(struct ptdump_state *st, unsigned long addr,
--			  int level, unsigned long val);
-+			  int level, u64 val);
- 	void (*effective_prot)(struct ptdump_state *st, int level, u64 val);
- 	const struct ptdump_range *range;
- };
-_
+For more info write to <info@kernelci.org>
