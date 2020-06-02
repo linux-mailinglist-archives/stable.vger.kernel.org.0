@@ -2,330 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 775801EB3F8
-	for <lists+stable@lfdr.de>; Tue,  2 Jun 2020 05:54:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A13171EB3F9
+	for <lists+stable@lfdr.de>; Tue,  2 Jun 2020 05:54:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725921AbgFBDyJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 23:54:09 -0400
-Received: from us-smtp-2.mimecast.com ([207.211.31.81]:46856 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725793AbgFBDyI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Jun 2020 23:54:08 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1591070045;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=A2OppYzqQHlbmExq3OxoeQ6FPrk1hGU74vTTBEWLbXM=;
-        b=hrmeEGTMDvW3fGld0c0uvSlmjaSRuMrfJSdfSCU1WKC2//D7VFKfHQrRXxNtTgnQr1poEt
-        XAnh/cPJsRt/jnyel3wHyGy2SuBZMFUQkvaH8xC5Eth3UEeQE+8xLNCRfSbJDSJo2d7uKT
-        olnm59xy2BK9Gyx+oNL5yNvLVZnP2og=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-99-fDLHvI0pMWyYe6Pe2O6bng-1; Mon, 01 Jun 2020 23:54:02 -0400
-X-MC-Unique: fDLHvI0pMWyYe6Pe2O6bng-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 3CE32107ACF2
-        for <stable@vger.kernel.org>; Tue,  2 Jun 2020 03:54:01 +0000 (UTC)
-Received: from [172.54.105.133] (cpt-1041.paas.prod.upshift.rdu2.redhat.com [10.0.19.38])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 582D22DE75;
-        Tue,  2 Jun 2020 03:53:58 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+        id S1725872AbgFBDyR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 23:54:17 -0400
+Received: from szxga06-in.huawei.com ([45.249.212.32]:46658 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1725793AbgFBDyR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Jun 2020 23:54:17 -0400
+Received: from DGGEMS402-HUB.china.huawei.com (unknown [172.30.72.58])
+        by Forcepoint Email with ESMTP id 639A4D5D1D8B26E95453;
+        Tue,  2 Jun 2020 11:54:15 +0800 (CST)
+Received: from [10.174.151.115] (10.174.151.115) by smtp.huawei.com
+ (10.3.19.202) with Microsoft SMTP Server (TLS) id 14.3.487.0; Tue, 2 Jun 2020
+ 11:54:05 +0800
+Subject: Re: [PATCH v2 2/2] crypto: virtio: Fix use-after-free in
+ virtio_crypto_skcipher_finalize_req()
+To:     "Michael S. Tsirkin" <mst@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+CC:     <linux-crypto@vger.kernel.org>, Gonglei <arei.gonglei@huawei.com>,
+        "Herbert Xu" <herbert@gondor.apana.org.au>,
+        Jason Wang <jasowang@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Markus Elfring <Markus.Elfring@web.de>,
+        <virtualization@lists.linux-foundation.org>,
+        <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>
+References: <20200526031956.1897-3-longpeng2@huawei.com>
+ <20200526141138.8410D207FB@mail.kernel.org>
+ <20200531052126-mutt-send-email-mst@kernel.org>
+From:   "Longpeng (Mike, Cloud Infrastructure Service Product Dept.)" 
+        <longpeng2@huawei.com>
+Message-ID: <a0701427-92e2-5695-1b84-88d356253a76@huawei.com>
+Date:   Tue, 2 Jun 2020 11:54:04 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
+ Thunderbird/60.6.1
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 5.6.16-rc1-c72fcbc.cki
- (stable)
-Date:   Tue, 02 Jun 2020 03:53:58 -0000
-CC:     Ondrej Moris <omoris@redhat.com>,
-        Ondrej Mosnacek <omosnace@redhat.com>
-Message-ID: <cki.9AAB77BAAD.6PPIW9N843@redhat.com>
-X-Gitlab-Pipeline-ID: 590155
-X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com/
-X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/590155
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+In-Reply-To: <20200531052126-mutt-send-email-mst@kernel.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.174.151.115]
+X-CFilter-Loop: Reflected
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-Hello,
 
-We ran automated tests on a recent commit from this kernel tree:
+On 2020/5/31 17:21, Michael S. Tsirkin wrote:
+> On Tue, May 26, 2020 at 02:11:37PM +0000, Sasha Levin wrote:
+>> <20200123101000.GB24255@Red>
+>> References: <20200526031956.1897-3-longpeng2@huawei.com>
+>> <20200123101000.GB24255@Red>
+>>
+>> Hi
+>>
+>> [This is an automated email]
+>>
+>> This commit has been processed because it contains a "Fixes:" tag
+>> fixing commit: dbaf0624ffa5 ("crypto: add virtio-crypto driver").
+>>
+>> The bot has tested the following trees: v5.6.14, v5.4.42, v4.19.124, v4.14.181.
+>>
+>> v5.6.14: Build OK!
+>> v5.4.42: Failed to apply! Possible dependencies:
+>>     eee1d6fca0a0 ("crypto: virtio - switch to skcipher API")
+>>
+>> v4.19.124: Failed to apply! Possible dependencies:
+>>     eee1d6fca0a0 ("crypto: virtio - switch to skcipher API")
+>>
+>> v4.14.181: Failed to apply! Possible dependencies:
+>>     500e6807ce93 ("crypto: virtio - implement missing support for output IVs")
+>>     67189375bb3a ("crypto: virtio - convert to new crypto engine API")
+>>     d0d859bb87ac ("crypto: virtio - Register an algo only if it's supported")
+>>     e02b8b43f55a ("crypto: virtio - pr_err() strings should end with newlines")
+>>     eee1d6fca0a0 ("crypto: virtio - switch to skcipher API")
+>>
+>>
+>> NOTE: The patch will not be queued to stable trees until it is upstream.
+>>
+>> How should we proceed with this patch?
+> 
+> Mike could you comment on backporting?
+> 
+Hi Michael,
 
-       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/li=
-nux-stable-rc.git
-            Commit: c72fcbc7d224 - Linux 5.6.16-rc1
+I will send V3, so I will resolve these conflicts later. :)
 
-The results of these automated tests are provided below.
-
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
-
-All kernel binaries, config files, and logs are available for download here:
-
-  https://cki-artifacts.s3.us-east-2.amazonaws.com/index.html?prefix=3Ddatawa=
-rehouse/2020/06/01/590155
-
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
-
-Compile testing
----------------
-
-We compiled the kernel for 4 architectures:
-
-    aarch64:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    ppc64le:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    s390x:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    x86_64:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-
-
-Hardware testing
-----------------
-We booted each kernel and ran the following tests:
-
-  aarch64:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 xfstests - ext4
-       =E2=9C=85 xfstests - xfs
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 storage: software RAID testing
-       =E2=9C=85 stress: stress-ng
-       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
-       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test - as root
-       =E2=9C=85 Podman system integration test - as user
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking: igmp conformance test
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func - local
-       =E2=9C=85 Networking route_func - forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns - transport
-       =E2=9C=85 Networking ipsec: basic netns - tunnel
-       =E2=9C=85 Libkcapi AF_ALG test
-       =E2=9C=85 pciutils: update pci ids test
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =E2=9C=85 storage: SCSI VPD
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 jvm - DaCapo Benchmark Suite
-       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
-       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9C=85 Networking firewall: basic netfilter test
-       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
-       =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9C=85 kdump - kexec_boot
-
-  ppc64le:
-    Host 1:
-       =E2=9C=85 Boot test
-       =F0=9F=9A=A7 =E2=9C=85 kdump - sysrq-c
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test - as root
-       =E2=9C=85 Podman system integration test - as user
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func - local
-       =E2=9C=85 Networking route_func - forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns - tunnel
-       =E2=9C=85 Libkcapi AF_ALG test
-       =E2=9C=85 pciutils: update pci ids test
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 jvm - DaCapo Benchmark Suite
-       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
-       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9C=85 Networking firewall: basic netfilter test
-       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
-       =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
-
-    Host 3:
-       =E2=9C=85 Boot test
-       =E2=9C=85 xfstests - ext4
-       =E2=9C=85 xfstests - xfs
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 storage: software RAID testing
-       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
-       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-
-  s390x:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test - as root
-       =E2=9C=85 Podman system integration test - as user
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func - local
-       =E2=9C=85 Networking route_func - forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns - transport
-       =E2=9C=85 Networking ipsec: basic netns - tunnel
-       =E2=9C=85 Libkcapi AF_ALG test
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 jvm - DaCapo Benchmark Suite
-       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
-       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9C=85 Networking firewall: basic netfilter test
-       =F0=9F=9A=A7 =E2=9D=8C audit: audit testsuite test
-       =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9C=85 kdump - kexec_boot
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 stress: stress-ng
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-
-    Host 3:
-       =E2=9C=85 Boot test
-       =F0=9F=9A=A7 =E2=9C=85 kdump - sysrq-c
-
-  x86_64:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 xfstests - ext4
-       =E2=9C=85 xfstests - xfs
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 storage: software RAID testing
-       =E2=9C=85 stress: stress-ng
-       =F0=9F=9A=A7 =E2=9C=85 CPU: Frequency Driver Test
-       =F0=9F=9A=A7 =E2=9C=85 CPU: Idle Test
-       =F0=9F=9A=A7 =E2=9C=85 IOMMU boot test
-       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
-       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =F0=9F=9A=A7 =E2=9C=85 kdump - sysrq-c
-
-    Host 3:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test - as root
-       =E2=9C=85 Podman system integration test - as user
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking: igmp conformance test
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func - local
-       =E2=9C=85 Networking route_func - forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns - transport
-       =E2=9C=85 Networking ipsec: basic netns - tunnel
-       =E2=9C=85 Libkcapi AF_ALG test
-       =E2=9C=85 pciutils: sanity smoke test
-       =E2=9C=85 pciutils: update pci ids test
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =E2=9C=85 storage: SCSI VPD
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 jvm - DaCapo Benchmark Suite
-       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
-       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9C=85 Networking firewall: basic netfilter test
-       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
-       =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9C=85 kdump - kexec_boot
-
-  Test sources: https://github.com/CKI-project/tests-beaker
-    =F0=9F=92=9A Pull requests are welcome for new tests or improvements to e=
-xisting tests!
-
-Aborted tests
--------------
-Tests that didn't complete running successfully are marked with =E2=9A=A1=E2=
-=9A=A1=E2=9A=A1.
-If this was caused by an infrastructure issue, we try to mark that
-explicitly in the report.
-
-Waived tests
-------------
-If the test run included waived tests, they are marked with =F0=9F=9A=A7. Suc=
-h tests are
-executed but their results are not taken into account. Tests are waived when
-their results are not reliable enough, e.g. when they're just introduced or a=
-re
-being fixed.
-
-Testing timeout
----------------
-We aim to provide a report within reasonable timeframe. Tests that haven't
-finished running yet are marked with =E2=8F=B1.
-
+>> -- 
+>> Thanks
+>> Sasha
+> 
+> .
+> 
+---
+Regards,
+Longpeng(Mike)
