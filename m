@@ -2,120 +2,178 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6BE691EBB6B
-	for <lists+stable@lfdr.de>; Tue,  2 Jun 2020 14:17:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D3501EBB84
+	for <lists+stable@lfdr.de>; Tue,  2 Jun 2020 14:21:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725940AbgFBMRq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Jun 2020 08:17:46 -0400
-Received: from mga01.intel.com ([192.55.52.88]:4838 "EHLO mga01.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725958AbgFBMRq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Jun 2020 08:17:46 -0400
-IronPort-SDR: r5MqEknFE+1D5ozB3gE8ZIUcM3+30wgcm4QE5DEKy1M3Y/FDPrqzXbmvqpXeaBMHp8z7/IE4xg
- hE52h19KceLg==
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga003.fm.intel.com ([10.253.24.29])
-  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Jun 2020 05:17:31 -0700
-IronPort-SDR: /YCIvY6Q6bFBD48Ibm2cIdNeW7MWeUPdvDvdG3CAFb0EFrehnrYkF24T96v3dO2XnR47Ddb53g
- 7QOooRC+JW/w==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.73,464,1583222400"; 
-   d="scan'208";a="312268285"
-Received: from unknown (HELO intel.com) ([10.223.74.178])
-  by FMSMGA003.fm.intel.com with ESMTP; 02 Jun 2020 05:17:29 -0700
-Date:   Tue, 2 Jun 2020 17:36:34 +0530
-From:   Anshuman Gupta <anshuman.gupta@intel.com>
-To:     "Shankar, Uma" <uma.shankar@intel.com>
-Cc:     "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [Intel-gfx] [RFC] drm/i915: lpsp with hdmi/dp outputs
-Message-ID: <20200602120633.GM4452@intel.com>
-References: <20200601101516.21018-1-anshuman.gupta@intel.com>
- <E7C9878FBA1C6D42A1CA3F62AEB6945F82516D51@BGSMSX104.gar.corp.intel.com>
+        id S1725940AbgFBMVl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Jun 2020 08:21:41 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:20962 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726139AbgFBMVk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 2 Jun 2020 08:21:40 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1591100499;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=dP3Z215jKRkD2MMCLmT1lRDppPme6bQ1QPgE98zN7XU=;
+        b=fUA0ui6dJLI3pvXj9lQawBsPZM5lwZXIyuIjTrlp6CcqvDL+k/+WhzmdP0g0USy9UEH4J7
+        o7suNxtl7xyqm1omw3AZCLKsGcTx4xPl5hZLJUo9YDEnmMdHW3dVECKPZQbW7bAlWVvs08
+        aV30Mh8Jx/M1f+Tgy06iCkpnGcNNp2g=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-121-aD_OFs4HNyCrcnMJkfrXng-1; Tue, 02 Jun 2020 08:21:36 -0400
+X-MC-Unique: aD_OFs4HNyCrcnMJkfrXng-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id A9768A0C0B;
+        Tue,  2 Jun 2020 12:21:34 +0000 (UTC)
+Received: from x1.localdomain.com (ovpn-114-90.ams2.redhat.com [10.36.114.90])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 3A2D32E026;
+        Tue,  2 Jun 2020 12:21:32 +0000 (UTC)
+From:   Hans de Goede <hdegoede@redhat.com>
+To:     Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Linus Walleij <linus.walleij@linaro.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        intel-gfx <intel-gfx@lists.freedesktop.org>,
+        linux-gpio@vger.kernel.org, stable@vger.kernel.org
+Subject: [PATCH] pinctrl: baytrail: Fix pin being driven low for a while on gpiod_get(..., GPIOD_OUT_HIGH)
+Date:   Tue,  2 Jun 2020 14:21:30 +0200
+Message-Id: <20200602122130.45630-1-hdegoede@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <E7C9878FBA1C6D42A1CA3F62AEB6945F82516D51@BGSMSX104.gar.corp.intel.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2020-06-01 at 18:19:44 +0530, Shankar, Uma wrote:
-> 
-> 
-> > -----Original Message-----
-> > From: Intel-gfx <intel-gfx-bounces@lists.freedesktop.org> On Behalf Of
-> > Anshuman Gupta
-> > Sent: Monday, June 1, 2020 3:45 PM
-> > To: intel-gfx@lists.freedesktop.org
-> > Cc: stable@vger.kernel.org
-> > Subject: [Intel-gfx] [RFC] drm/i915: lpsp with hdmi/dp outputs
-> > 
-> > Gen12 hw are failing to enable lpsp configuration due to PG3 was left on due to
-> > valid usgae count of POWER_DOMAIN_AUDIO.
-> > It is not required to get POWER_DOMAIN_AUDIO ref-count when enabling a crtc,
-> > it should be always i915_audio_component request to get/put
-> > AUDIO_POWER_DOMAIN.
-> > 
-> > Cc: stable@vger.kernel.org
-> > Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
-> > Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-> > Signed-off-by: Anshuman Gupta <anshuman.gupta@intel.com>
-> > ---
-> >  drivers/gpu/drm/i915/display/intel_display.c | 6 +++++-
-> >  1 file changed, 5 insertions(+), 1 deletion(-)
-> > 
-> > diff --git a/drivers/gpu/drm/i915/display/intel_display.c
-> > b/drivers/gpu/drm/i915/display/intel_display.c
-> > index 6c3b11de2daf..f31a579d7a52 100644
-> > --- a/drivers/gpu/drm/i915/display/intel_display.c
-> > +++ b/drivers/gpu/drm/i915/display/intel_display.c
-> > @@ -7356,7 +7356,11 @@ static u64 get_crtc_power_domains(struct
-> > intel_crtc_state *crtc_state)
-> >  		mask |= BIT_ULL(intel_encoder->power_domain);
-> >  	}
-> > 
-> > -	if (HAS_DDI(dev_priv) && crtc_state->has_audio)
-> > +	/*
-> > +	 * Gen12 can drive lpsp on hdmi/dp outpus, it doesn't require to
-> > +	 * enable AUDIO power in order to enable a crtc.
-> > +	 */
-> > +	if (INTEL_GEN(dev_priv) < 12 && HAS_DDI(dev_priv) &&
-> > +crtc_state->has_audio)
-> >  		mask |= BIT_ULL(POWER_DOMAIN_AUDIO);
-> 
-> As part of ddi_get_config we determine has_audio using power well enabled:
-> pipe_config->has_audio =
->                 intel_ddi_is_audio_enabled(dev_priv, cpu_transcoder);
-IMO AUDIO power will also be requested by i915_audio_component get request, 
-we can always use HDMI display without audio playback, AUDIO power should be 
-enabled when audio driver request for it. 
-if we get AUDIO_POWER_DOMAIN while enabling crtc PG3 will always kept on till CRTC is disabled,
-that is the issue required to be addressed here.
-This is just RFC to initiate a discussion around it.
-Thanks,
-Anshuman Gupta.
-> 
-> If audio power domain is not enabled, we may end up with this as false.
-> Later this may get checked in intel_enable_ddi_hdmi to call audio codec enable
-> 
-> if (crtc_state->has_audio)
->                 intel_audio_codec_enable(encoder, crtc_state, conn_state);
-> 
-> This may cause detection to fail. Please verify this usecase once and confirm.
-> 
-> Regards,
-> Uma Shankar
-> 
-> >  	if (crtc_state->shared_dpll)
-> > --
-> > 2.26.2
-> > 
-> > _______________________________________________
-> > Intel-gfx mailing list
-> > Intel-gfx@lists.freedesktop.org
-> > https://lists.freedesktop.org/mailman/listinfo/intel-gfx
+The pins on the Bay Trail SoC have separate input-buffer and output-buffer
+enable bits and a read of the level bit of the value register will always
+return the value from the input-buffer.
+
+The BIOS of a device may configure a pin in output-only mode, only enabling
+the output buffer, and write 1 to the level bit to drive the pin high.
+This 1 written to the level bit will be stored inside the data-latch of the
+output buffer.
+
+But a subsequent read of the value register will return 0 for the level bit
+because the input-buffer is disabled. This causes a read-modify-write as
+done by byt_gpio_set_direction() to write 0 to the level bit, driving the
+pin low!
+
+Before this commit byt_gpio_direction_output() relied on
+pinctrl_gpio_direction_output() to set the direction, followed by a call
+to byt_gpio_set() to apply the selected value. This causes the pin to
+go low between the pinctrl_gpio_direction_output() and byt_gpio_set()
+calls.
+
+Change byt_gpio_direction_output() to directly make the register
+modifications itself instead. Replacing the 2 subsequent writes to the
+value register with a single write.
+
+Note that the pinctrl code does not keep track internally of the direction,
+so not going through pinctrl_gpio_direction_output() is not an issue.
+
+This issue was noticed on a Trekstor SurfTab Twin 10.1. When the panel is
+already on at boot (no external monitor connected), then the i915 driver
+does a gpiod_get(..., GPIOD_OUT_HIGH) for the panel-enable GPIO. The
+temporarily going low of that GPIO was causing the panel to reset itself
+after which it would not show an image until it was turned off and back on
+again (until a full modeset was done on it). This commit fixes this.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+Note the factoring out of the direct IRQ mode warning is deliberately not
+split into a separate patch to make backporting this easier.
+---
+ drivers/pinctrl/intel/pinctrl-baytrail.c | 46 +++++++++++++++++-------
+ 1 file changed, 33 insertions(+), 13 deletions(-)
+
+diff --git a/drivers/pinctrl/intel/pinctrl-baytrail.c b/drivers/pinctrl/intel/pinctrl-baytrail.c
+index 9b821c9cbd16..83be13b83eb5 100644
+--- a/drivers/pinctrl/intel/pinctrl-baytrail.c
++++ b/drivers/pinctrl/intel/pinctrl-baytrail.c
+@@ -800,6 +800,21 @@ static void byt_gpio_disable_free(struct pinctrl_dev *pctl_dev,
+ 	pm_runtime_put(vg->dev);
+ }
+ 
++static void byt_gpio_direct_irq_check(struct intel_pinctrl *vg,
++				      unsigned int offset)
++{
++	void __iomem *conf_reg = byt_gpio_reg(vg, offset, BYT_CONF0_REG);
++
++	/*
++	 * Before making any direction modifications, do a check if gpio is set
++	 * for direct IRQ.  On baytrail, setting GPIO to output does not make
++	 * sense, so let's at least inform the caller before they shoot
++	 * themselves in the foot.
++	 */
++	if (readl(conf_reg) & BYT_DIRECT_IRQ_EN)
++		dev_info_once(vg->dev, "Potential Error: Setting GPIO with direct_irq_en to output");
++}
++
+ static int byt_gpio_set_direction(struct pinctrl_dev *pctl_dev,
+ 				  struct pinctrl_gpio_range *range,
+ 				  unsigned int offset,
+@@ -807,7 +822,6 @@ static int byt_gpio_set_direction(struct pinctrl_dev *pctl_dev,
+ {
+ 	struct intel_pinctrl *vg = pinctrl_dev_get_drvdata(pctl_dev);
+ 	void __iomem *val_reg = byt_gpio_reg(vg, offset, BYT_VAL_REG);
+-	void __iomem *conf_reg = byt_gpio_reg(vg, offset, BYT_CONF0_REG);
+ 	unsigned long flags;
+ 	u32 value;
+ 
+@@ -817,14 +831,8 @@ static int byt_gpio_set_direction(struct pinctrl_dev *pctl_dev,
+ 	value &= ~BYT_DIR_MASK;
+ 	if (input)
+ 		value |= BYT_OUTPUT_EN;
+-	else if (readl(conf_reg) & BYT_DIRECT_IRQ_EN)
+-		/*
+-		 * Before making any direction modifications, do a check if gpio
+-		 * is set for direct IRQ.  On baytrail, setting GPIO to output
+-		 * does not make sense, so let's at least inform the caller before
+-		 * they shoot themselves in the foot.
+-		 */
+-		dev_info_once(vg->dev, "Potential Error: Setting GPIO with direct_irq_en to output");
++	else
++		byt_gpio_direct_irq_check(vg, offset);
+ 
+ 	writel(value, val_reg);
+ 
+@@ -1171,13 +1179,25 @@ static int byt_gpio_direction_input(struct gpio_chip *chip, unsigned int offset)
+ static int byt_gpio_direction_output(struct gpio_chip *chip,
+ 				     unsigned int offset, int value)
+ {
+-	int ret = pinctrl_gpio_direction_output(chip->base + offset);
++	struct intel_pinctrl *vg = gpiochip_get_data(chip);
++	void __iomem *val_reg = byt_gpio_reg(vg, offset, BYT_VAL_REG);
++	unsigned long flags;
++	u32 reg;
+ 
+-	if (ret)
+-		return ret;
++	raw_spin_lock_irqsave(&byt_lock, flags);
+ 
+-	byt_gpio_set(chip, offset, value);
++	byt_gpio_direct_irq_check(vg, offset);
+ 
++	reg = readl(val_reg);
++	reg &= ~BYT_DIR_MASK;
++	if (value)
++		reg |= BYT_LEVEL;
++	else
++		reg &= ~BYT_LEVEL;
++
++	writel(reg, val_reg);
++
++	raw_spin_unlock_irqrestore(&byt_lock, flags);
+ 	return 0;
+ }
+ 
+-- 
+2.26.2
+
