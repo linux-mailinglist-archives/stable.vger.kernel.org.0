@@ -2,147 +2,162 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CB8E71EC32D
-	for <lists+stable@lfdr.de>; Tue,  2 Jun 2020 21:52:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 307731EC353
+	for <lists+stable@lfdr.de>; Tue,  2 Jun 2020 22:01:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728615AbgFBTwK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Jun 2020 15:52:10 -0400
-Received: from smtp1.de.adit-jv.com ([93.241.18.167]:53741 "EHLO
-        smtp1.de.adit-jv.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728275AbgFBTvD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 2 Jun 2020 15:51:03 -0400
-Received: from localhost (smtp1.de.adit-jv.com [127.0.0.1])
-        by smtp1.de.adit-jv.com (Postfix) with ESMTP id 3FF913C04C1;
-        Tue,  2 Jun 2020 21:50:59 +0200 (CEST)
-Received: from smtp1.de.adit-jv.com ([127.0.0.1])
-        by localhost (smtp1.de.adit-jv.com [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id sQ2OMu6SAg4D; Tue,  2 Jun 2020 21:50:53 +0200 (CEST)
-Received: from HI2EXCH01.adit-jv.com (hi2exch01.adit-jv.com [10.72.92.24])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by smtp1.de.adit-jv.com (Postfix) with ESMTPS id 80A043C00B5;
-        Tue,  2 Jun 2020 21:50:53 +0200 (CEST)
-Received: from lxhi-065.adit-jv.com (10.72.94.11) by HI2EXCH01.adit-jv.com
- (10.72.92.24) with Microsoft SMTP Server (TLS) id 14.3.487.0; Tue, 2 Jun 2020
- 21:50:53 +0200
-From:   Eugeniu Rosca <erosca@de.adit-jv.com>
-To:     Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-CC:     Mauro Carvalho Chehab <mchehab@kernel.org>,
-        <linux-media@vger.kernel.org>, <linux-renesas-soc@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>,
-        Eugeniu Rosca <roscaeugeniu@gmail.com>,
-        Eugeniu Rosca <erosca@de.adit-jv.com>, <stable@vger.kernel.org>
-Subject: [PATCH v2] media: vsp1: dl: Fix NULL pointer dereference on unbind
-Date:   Tue, 2 Jun 2020 21:50:16 +0200
-Message-ID: <20200602195016.803-1-erosca@de.adit-jv.com>
-X-Mailer: git-send-email 2.26.2
+        id S1726420AbgFBUB5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Jun 2020 16:01:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54418 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726139AbgFBUB5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 2 Jun 2020 16:01:57 -0400
+Received: from mail-pg1-x541.google.com (mail-pg1-x541.google.com [IPv6:2607:f8b0:4864:20::541])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA5BBC08C5C0
+        for <stable@vger.kernel.org>; Tue,  2 Jun 2020 13:01:56 -0700 (PDT)
+Received: by mail-pg1-x541.google.com with SMTP id s10so57265pgm.0
+        for <stable@vger.kernel.org>; Tue, 02 Jun 2020 13:01:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=h1hIwGXD7X8v7wYYk9rkp8kVpGA0a/zd5+DnEahiwv4=;
+        b=KTmwAOm/3ffsGZUu3ras4plS3XYvSHp0xVebhkOCMaQKyGPh6IUD7Mks4rs+IuEH3x
+         75dnQM5pupvr0KfKTqf2RRLuLVnEV9SJIVfKg6fLRDEDWaWAdakd5ly+DMMJUFIw5wXP
+         PDS7r47EU755XaBKsaj8KW8DudQAzGMQhXifkIa6F5zx7Xwe/1OiqGnY0MsG6Qp5Dgsp
+         kD1kAX+vcGVIw5WhQZcJ63QKtHMm43Gl2dCCbT24FdUISfn6Wfyy+LYX75Q7Tt99K/UW
+         m+h3/CV6HAJVUgn4RAv+1siQN68te8LJV5x1Tju/1cL2hz96kKA5OipFGx5ZDdzli3yk
+         i5vw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=h1hIwGXD7X8v7wYYk9rkp8kVpGA0a/zd5+DnEahiwv4=;
+        b=OnVJmdPRO73+CAKCV4+lINEV9vCXn2qD5CShIefBtoGBcNnMugllWwmgjMpEHHuTaH
+         r488Z/1B88L8I+C7bZxkKRNduHJjzjqf9w1sjiy7ZhaAlWXODPWNNa9ww43kEfE0Gaqe
+         OSFotM6WP0XdAScySu9qiOHpSOYLNCbT5dboB5FxtNWp4vxzFk/r6bWoSIQYKXQOhhEF
+         duCiigBWmU05gnEaCok9pMwbAEmPHuVscu1/g2eKzOr8wSc/17kRf9uBUNXcir5K8dJE
+         518dgHEeZ5lv7nKxUqREreKDHH7WCBnhYJpkHuUO2lZ6xnwXOaUlcEPixrLZgpx/2Apc
+         2mSw==
+X-Gm-Message-State: AOAM530AagKfyQPbl8M0OiQtgVc7Wg/3JWLC614wq/kIT7BCJ3f0z5NI
+        W00e+pbEtu/59TU4WtUg8m5H6mLgnq0=
+X-Google-Smtp-Source: ABdhPJx1EVQn1GRGaW3c7QWBib+a4/8jkboORiH9oyHjds+H2As61Xk0gapj7/futRBLRfF7dyctgA==
+X-Received: by 2002:a17:90b:3691:: with SMTP id mj17mr848797pjb.152.1591128116071;
+        Tue, 02 Jun 2020 13:01:56 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id n2sm1532346pgv.65.2020.06.02.13.01.54
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 02 Jun 2020 13:01:55 -0700 (PDT)
+Message-ID: <5ed6b033.1c69fb81.3af13.810f@mx.google.com>
+Date:   Tue, 02 Jun 2020 13:01:55 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [10.72.94.11]
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.19.125-93-g80718197a8a3
+X-Kernelci-Report-Type: boot
+X-Kernelci-Branch: linux-4.19.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-4.19.y boot: 133 boots: 1 failed,
+ 121 passed with 4 offline, 5 untried/unknown,
+ 2 conflicts (v4.19.125-93-g80718197a8a3)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-In commit f3b98e3c4d2e16 ("media: vsp1: Provide support for extended
-command pools"), the vsp pointer used for referencing the VSP1 device
-structure from a command pool during vsp1_dl_ext_cmd_pool_destroy() was
-not populated.
+******************************************
+* WARNING: Boot tests are now deprecated *
+******************************************
 
-Correctly assign the pointer to prevent the following
-null-pointer-dereference when removing the device:
+As kernelci.org is expanding its functional testing capabilities, the conce=
+pt
+of boot testing is now deprecated.  Boot results are scheduled to be droppe=
+d on
+*5th June 2020*.  The full schedule for boot tests deprecation is available=
+ on
+this GitHub issue: https://github.com/kernelci/kernelci-backend/issues/238
 
-[*] h3ulcb-kf #>
-echo fea28000.vsp > /sys/bus/platform/devices/fea28000.vsp/driver/unbind
- Unable to handle kernel NULL pointer dereference at virtual address 0000000000000028
- Mem abort info:
-   ESR = 0x96000006
-   EC = 0x25: DABT (current EL), IL = 32 bits
-   SET = 0, FnV = 0
-   EA = 0, S1PTW = 0
- Data abort info:
-   ISV = 0, ISS = 0x00000006
-   CM = 0, WnR = 0
- user pgtable: 4k pages, 48-bit VAs, pgdp=00000007318be000
- [0000000000000028] pgd=00000007333a1003, pud=00000007333a6003, pmd=0000000000000000
- Internal error: Oops: 96000006 [#1] PREEMPT SMP
- Modules linked in:
- CPU: 1 PID: 486 Comm: sh Not tainted 5.7.0-rc6-arm64-renesas-00118-ge644645abf47 #185
- Hardware name: Renesas H3ULCB Kingfisher board based on r8a77951 (DT)
- pstate: 40000005 (nZcv daif -PAN -UAO)
- pc : vsp1_dlm_destroy+0xe4/0x11c
- lr : vsp1_dlm_destroy+0xc8/0x11c
- sp : ffff800012963b60
- x29: ffff800012963b60 x28: ffff0006f83fc440
- x27: 0000000000000000 x26: ffff0006f5e13e80
- x25: ffff0006f5e13ed0 x24: ffff0006f5e13ed0
- x23: ffff0006f5e13ed0 x22: dead000000000122
- x21: ffff0006f5e3a080 x20: ffff0006f5df2938
- x19: ffff0006f5df2980 x18: 0000000000000003
- x17: 0000000000000000 x16: 0000000000000016
- x15: 0000000000000003 x14: 00000000000393c0
- x13: ffff800011a5ec18 x12: ffff800011d8d000
- x11: ffff0006f83fcc68 x10: ffff800011a53d70
- x9 : ffff8000111f3000 x8 : 0000000000000000
- x7 : 0000000000210d00 x6 : 0000000000000000
- x5 : ffff800010872e60 x4 : 0000000000000004
- x3 : 0000000078068000 x2 : ffff800012781000
- x1 : 0000000000002c00 x0 : 0000000000000000
- Call trace:
-  vsp1_dlm_destroy+0xe4/0x11c
-  vsp1_wpf_destroy+0x10/0x20
-  vsp1_entity_destroy+0x24/0x4c
-  vsp1_destroy_entities+0x54/0x130
-  vsp1_remove+0x1c/0x40
-  platform_drv_remove+0x28/0x50
-  __device_release_driver+0x178/0x220
-  device_driver_detach+0x44/0xc0
-  unbind_store+0xe0/0x104
-  drv_attr_store+0x20/0x30
-  sysfs_kf_write+0x48/0x70
-  kernfs_fop_write+0x148/0x230
-  __vfs_write+0x18/0x40
-  vfs_write+0xdc/0x1c4
-  ksys_write+0x68/0xf0
-  __arm64_sys_write+0x18/0x20
-  el0_svc_common.constprop.0+0x70/0x170
-  do_el0_svc+0x20/0x80
-  el0_sync_handler+0x134/0x1b0
-  el0_sync+0x140/0x180
- Code: b40000c2 f9403a60 d2800084 a9400663 (f9401400)
- ---[ end trace 3875369841fb288a ]---
+The new equivalent is the *baseline* test suite which also runs sanity chec=
+ks
+using dmesg and bootrr: https://github.com/kernelci/bootrr
 
-Fixes: f3b98e3c4d2e16 ("media: vsp1: Provide support for extended command pools")
-Cc: stable@vger.kernel.org # v4.19+
-Signed-off-by: Eugeniu Rosca <erosca@de.adit-jv.com>
-Reviewed-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
-Tested-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
+See the *baseline results for this kernel revision* on this page:
+https://kernelci.org/test/job/stable-rc/branch/linux-4.19.y/kernel/v4.19.12=
+5-93-g80718197a8a3/plan/baseline/
+
+---------------------------------------------------------------------------=
+----
+
+stable-rc/linux-4.19.y boot: 133 boots: 1 failed, 121 passed with 4 offline=
+, 5 untried/unknown, 2 conflicts (v4.19.125-93-g80718197a8a3)
+
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.19.y/kernel/v4.19.125-93-g80718197a8a3/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
+y/kernel/v4.19.125-93-g80718197a8a3/
+
+Tree: stable-rc
+Branch: linux-4.19.y
+Git Describe: v4.19.125-93-g80718197a8a3
+Git Commit: 80718197a8a3f9c3b222375e5d1de8adf5422000
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 79 unique boards, 21 SoC families, 17 builds out of 164
+
+Boot Regressions Detected:
+
+arc:
+
+    hsdk_defconfig:
+        gcc-8:
+          hsdk:
+              lab-baylibre: new failure (last pass: v4.19.124)
+
+arm:
+
+    sama5_defconfig:
+        gcc-8:
+          at91-sama5d4_xplained:
+              lab-baylibre: failing since 81 days (last pass: v4.19.108-87-=
+g624c124960e8 - first fail: v4.19.109)
+
+Boot Failure Detected:
+
+arm:
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
+
+Offline Platforms:
+
+arm:
+
+    exynos_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+            qcom-apq8064-cm-qs600: 1 offline lab
+            stih410-b2120: 1 offline lab
+
+Conflicting Boot Failures Detected: (These likely are not failures as other=
+ labs are reporting PASS. Needs review.)
+
+x86_64:
+    x86_64_defconfig:
+        qemu_x86_64:
+            lab-collabora: FAIL (gcc-8)
+            lab-baylibre: PASS (gcc-8)
+
+i386:
+    i386_defconfig:
+        qemu_i386:
+            lab-collabora: FAIL (gcc-8)
+            lab-baylibre: PASS (gcc-8)
+
 ---
-
-Changes in v2:
- - Rephrased the description based on Kieran's proposal
- - Added the Reviewed-by/Tested-by signatures
- - No change in the contents
-
----
- drivers/media/platform/vsp1/vsp1_dl.c | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/drivers/media/platform/vsp1/vsp1_dl.c b/drivers/media/platform/vsp1/vsp1_dl.c
-index d7b43037e500..e07b135613eb 100644
---- a/drivers/media/platform/vsp1/vsp1_dl.c
-+++ b/drivers/media/platform/vsp1/vsp1_dl.c
-@@ -431,6 +431,8 @@ vsp1_dl_cmd_pool_create(struct vsp1_device *vsp1, enum vsp1_extcmd_type type,
- 	if (!pool)
- 		return NULL;
- 
-+	pool->vsp1 = vsp1;
-+
- 	spin_lock_init(&pool->lock);
- 	INIT_LIST_HEAD(&pool->free);
- 
--- 
-2.26.2
-
+For more info write to <info@kernelci.org>
