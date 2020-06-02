@@ -2,61 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DC9551EB35C
-	for <lists+stable@lfdr.de>; Tue,  2 Jun 2020 04:34:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A6A5E1EB3DF
+	for <lists+stable@lfdr.de>; Tue,  2 Jun 2020 05:45:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726110AbgFBCe2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Jun 2020 22:34:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33214 "EHLO
+        id S1725850AbgFBDpX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Jun 2020 23:45:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44178 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725850AbgFBCe2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Jun 2020 22:34:28 -0400
-Received: from mail-pg1-x541.google.com (mail-pg1-x541.google.com [IPv6:2607:f8b0:4864:20::541])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00483C061A0E;
-        Mon,  1 Jun 2020 19:34:26 -0700 (PDT)
-Received: by mail-pg1-x541.google.com with SMTP id p30so4375320pgl.11;
-        Mon, 01 Jun 2020 19:34:26 -0700 (PDT)
+        with ESMTP id S1725793AbgFBDpX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Jun 2020 23:45:23 -0400
+Received: from mail-pj1-x1041.google.com (mail-pj1-x1041.google.com [IPv6:2607:f8b0:4864:20::1041])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BE51C061A0E
+        for <stable@vger.kernel.org>; Mon,  1 Jun 2020 20:45:22 -0700 (PDT)
+Received: by mail-pj1-x1041.google.com with SMTP id d6so790253pjs.3
+        for <stable@vger.kernel.org>; Mon, 01 Jun 2020 20:45:22 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=sender:subject:to:cc:references:from:autocrypt:message-id:date
          :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=s4UEYuJB3XBli5yd0KidgvrjcjkYTAO/sinQI+U9kL0=;
-        b=SVr9E3h+qDW24ehI3GnKXPBVnMq8IOQHh3vUnxsbkgQ/R92qU3yIMfqHv8AE2MTHzU
-         tByJKQrO2K+FRFPiMoDi846/wjV1c8gSzrkKa2XoOeV7jCWOi4G9gd5wRSAMaxJHLcT8
-         hEJpXMFml7Du5yOYVVwJ9I2arHd0PDnbemrOP/46uDIGztreWe5nZOTO7t5cg0khrhwE
-         8tRI3k35w9ISTgsGdVMQeSTLBWsvQXupB2D/t9zCNTYI62XyifwUzqxG+AJ3/FvDkjxx
-         g0qvg+5THyCC4OrABeDSCsz3HYPiYkk8tiCka/lDQG+NOuNGfWnao4R99oWJUorNIjT1
-         ZEAA==
+        bh=zPngmtXiMgnCeGZF8JqJgdDKHatVoKPuWqPaLZTCre4=;
+        b=oUbImO9WO1tYq7aYfU/Hxuidn6t7kt+u/5XKrU7KH0M84kFkRnrDE/BNPsMvXXl67M
+         PmWvvJgh7oxzga2yrXi/xR2ZLE3KfQfm+1m315yLtVUiiFVrm0zyfPJssaxVtVeFj+vz
+         Jdd0HxHYoI6TFsdeYsdOOqOvAkOM8lqKqQhSFEDfi8+Bm8L2+lI7MZeMDi4ar42sO+5A
+         JVD+ELyLaLjBt5ZuHX2iGgaIVZ8FK31/aVqlQ0aMocupAwjT8qu84fJ1OFIHf/iEKYiz
+         BlyC/pYS7wbdTrTCZzfEzTwrgeHhylVIVtQ1TWXm1+6QTyegGY7aq3nZAIuxTd7Or49y
+         QXlg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:sender:subject:to:cc:references:from:autocrypt
          :message-id:date:user-agent:mime-version:in-reply-to
          :content-language:content-transfer-encoding;
-        bh=s4UEYuJB3XBli5yd0KidgvrjcjkYTAO/sinQI+U9kL0=;
-        b=bb6GRCYCtaL3nlGnHmXF8FIArZ+7dExvVJ9mHCtkjRz6FCt9GROouNpO5uoIIfKufd
-         g7S1OdVkozVprjGdyBP6lPnm2xJ3k6TcXiWo1i19qE8c+H8wXesoJYsrP6pXcm6CPqba
-         y8LQzKU4cDVa3iQled3nOpvncnOznVo9xilL79cOqpsq5p0v1spiikhUhttN6QDHuNqA
-         UfFPwyKgsBEjw1Z5o/KfQ37z+pV9v7WklNZsTVyjzpRPK/TgwTjKIZKMjmm5NiBSxEPf
-         rYKSYcRmKjJn3yrTWg0W2QbrCAJtUpcPJT4vdUBbrvIeembREDNUPbgJZLgbMtKekIqc
-         OMjw==
-X-Gm-Message-State: AOAM532ZQtbCuaflTQWe7WJO9GcY63fm1mCZ+ACLILQtxpMC+UvHaysl
-        9ed4pVwnaglXkDpalWVRLYSQ9To0
-X-Google-Smtp-Source: ABdhPJy1JQHar4xcTo+hi1ELp8K09Nm+ftNlxYIU7PtXLGPkjhqHQu5VLWGu5FDKiAYozqWC7Swlog==
-X-Received: by 2002:a63:5105:: with SMTP id f5mr6587737pgb.261.1591065266227;
-        Mon, 01 Jun 2020 19:34:26 -0700 (PDT)
+        bh=zPngmtXiMgnCeGZF8JqJgdDKHatVoKPuWqPaLZTCre4=;
+        b=qOeIdUGdV2YuJlvicotLjgQCjVISqH+8rmreQETgTwSL9NzIuKLyFpAJ38U4uUFM2I
+         LxU+rkziL+wj1LjFRjkSRIh3aDxFRq20cukLyzw4eUaJoqoxTgrJAENTuGWQ/4xsCAIQ
+         UfzmTIw8Z1GiXmzWCRSSfbJ7D2rxulxVlXZMdB54HK2qfI+ekzWJBYSlAjKrLtNWEvXg
+         KrIlN6TG8OEqx7OztTT3cJmcfQxmcaXar18Z/jUMOMIuBZcitpJHsCrEuALOeuU1Vywq
+         gvBaB1LeYN5rh2cIWN/vAmaD67euTDs7+rrRUgPbaJKOd5dczA0QXbkmuE2xJESU7Iiv
+         yFaw==
+X-Gm-Message-State: AOAM532nnMIUwptvSXUWRC2lCojdaHuA2v4Lfu1lkcBo9UuJv1r1EonD
+        7tNA+J/0LdGUh18whbH1ngOZ/MVQ
+X-Google-Smtp-Source: ABdhPJxbnZ9RFR5qTRdyfLmLfdCNfEE3sh6qYiH3MAbtfYszK8CHLCclyWkPX0bWI6vtTy+eHOTcVw==
+X-Received: by 2002:a17:90a:aa8d:: with SMTP id l13mr3162597pjq.92.1591069521668;
+        Mon, 01 Jun 2020 20:45:21 -0700 (PDT)
 Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id v129sm660001pfv.18.2020.06.01.19.34.23
+        by smtp.gmail.com with ESMTPSA id 4sm738670pfn.205.2020.06.01.20.45.19
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 01 Jun 2020 19:34:25 -0700 (PDT)
-Subject: Re: [PATCH 4.9 00/61] 4.9.226-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-References: <20200601174010.316778377@linuxfoundation.org>
+        Mon, 01 Jun 2020 20:45:20 -0700 (PDT)
+Subject: Re: List of patches to apply to stable releases (5/26)
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable <stable@vger.kernel.org>
+References: <20200527045828.GA2874@roeck-us.net>
+ <20200601165835.GC1037203@kroah.com> <20200601192254.GA31870@roeck-us.net>
+ <20200602033032.GO1407771@sasha-vm>
 From:   Guenter Roeck <linux@roeck-us.net>
 Autocrypt: addr=linux@roeck-us.net; keydata=
  xsFNBE6H1WcBEACu6jIcw5kZ5dGeJ7E7B2uweQR/4FGxH10/H1O1+ApmcQ9i87XdZQiB9cpN
@@ -101,60 +100,86 @@ Autocrypt: addr=linux@roeck-us.net; keydata=
  WkRwrSuCn7UG+qVWZeKEsFKFOkynOs3pVbcbq1pxbhk3TRWCGRU5JolI4ohy/7JV1TVbjiDI
  HP/aVnm6NC8of26P40Pg8EdAhajZnHHjA7FrJXsy3cyIGqvg9os4rNkUWmrCfLLsZDHD8FnU
  mDW4+i+XlNFUPUYMrIKi9joBhu18ssf5i5Q=
-Message-ID: <2b4126ce-487e-91ed-e471-1af5b61b2fef@roeck-us.net>
-Date:   Mon, 1 Jun 2020 19:34:23 -0700
+Message-ID: <2177ee1f-2603-d570-e80c-902fcab5e989@roeck-us.net>
+Date:   Mon, 1 Jun 2020 20:45:19 -0700
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.7.0
 MIME-Version: 1.0
-In-Reply-To: <20200601174010.316778377@linuxfoundation.org>
+In-Reply-To: <20200602033032.GO1407771@sasha-vm>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 6/1/20 10:53 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.9.226 release.
-> There are 61 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On 6/1/20 8:30 PM, Sasha Levin wrote:
+> On Mon, Jun 01, 2020 at 12:22:54PM -0700, Guenter Roeck wrote:
+>> Hi Greg,
+>>
+>> On Mon, Jun 01, 2020 at 06:58:35PM +0200, Greg Kroah-Hartman wrote:
+>>> On Tue, May 26, 2020 at 09:58:28PM -0700, Guenter Roeck wrote:
+>>> > Upstream commit 106d45f350c7 ("scsi: zfcp: fix request object use-after-free in send path causing wrong traces")
+>>> >   upstream: v5.3-rc1
+>>> >     Fixes: d27a7cb91960 ("zfcp: trace on request for open and close of WKA port")
+>>> >       in linux-4.4.y: b5752b0db014
+>>> >       upstream: v4.9-rc1
+>>> >     Affected branches:
+>>> >       linux-4.4.y
+>>> >       linux-4.9.y
+>>> >       linux-4.14.y
+>>> >       linux-4.19.y (already applied)
+>>>
+>>> This patch does not apply on those older branches, do you have a working
+>>> backport?
+>>
+>> I am a bit at loss. Right now my script still tells me:
+>>
+>> Upstream commit 106d45f350c7 ("scsi: zfcp: fix request object use-after-free in send path causing wrong traces")
+>>  upstream: v5.3-rc1
+>>    Fixes: d27a7cb91960 ("zfcp: trace on request for open and close of WKA port")
+>>      in linux-4.4.y: b5752b0db014
+>>      upstream: v4.9-rc1
+>>    Affected branches:
+>>      linux-4.4.y
+>>      linux-4.9.y
+>>      linux-4.14.y
+>>      linux-4.19.y (already applied)
+>>
+>> It only does that if the patch cherry-picks cleanly; otherwise it would
+>> report conflicts. I checked and made sure that the patch was indeed applied
+>> to my test branches for linux-{4.4,4.9,4.14}.y. I re-applied it, just to be
+>> sure, with no problems. I also extracted it with git format-patch and
+>> applied it with "git am", without issue.
 > 
-> Responses should be made by Wed, 03 Jun 2020 17:38:19 +0000.
-> Anything received after that time might be too late.
+> Same here, so I've queued it up.
+> 
+>> What do you use to apply patches ?
+> 
+> *snicker*
+> 
+> https://i.pinimg.com/originals/ab/8f/f8/ab8ff8a51f1c2a9014cd9cc71c6def0a.png
+> 
+>> Anyway, my script also tells me:
+>>
+>> Upstream commit a33a5d2d16cb ("genirq/generic_pending: Do not lose pending affinity update")
+>>  upstream: v4.18-rc1
+>>    Fixes: 98229aa36caa ("x86/irq: Plug vector cleanup race")
+>>      in linux-4.4.y: 996c591227d9
+>>      upstream: v4.5-rc2
+>>    Affected branches:
+>>      linux-4.4.y (queued)
+>>      linux-4.9.y (queued)
+>>      linux-4.14.y
+>>
+>> and, indeed, it looks like a33a5d2d16cb is missing in v4.14.y-queue.
+> 
+> I think that Greg's script didn't like a33a5d2d16cb pointing to the
+> wrong "fixes:" commit - 996c591227d9 rather than 98229aa36caa.
 > 
 
-Lots of errors along the line of
-
-arch/arm/lib/clear_user.S: Assembler messages:
-arch/arm/lib/clear_user.S:33: Error: bad instruction `strbtal r2,[r0],#1'
-arch/arm/lib/clear_user.S:34: Error: bad instruction `strbtle r2,[r0],#1'
-arch/arm/lib/clear_user.S:35: Error: bad instruction `strbtlt r2,[r0],#1'
-arch/arm/lib/clear_user.S:39: Error: bad instruction `strtpl r2,[r0],#4'
-arch/arm/lib/clear_user.S:39: Error: bad instruction `strtpl r2,[r0],#4'
-arch/arm/lib/clear_user.S:42: Error: bad instruction `strtpl r2,[r0],#4'
-arch/arm/lib/clear_user.S:44: Error: bad instruction `strbtne r2,[r0],#1'
-arch/arm/lib/clear_user.S:44: Error: bad instruction `strbtne r2,[r0],#1'
-
-Bisect log below.
+Interesting. Makes me wonder how my script found the correct reference.
+But then why did his script pick it up for 4.4.y and 4.9.y ?
 
 Guenter
-
----
-# bad: [f7c3cc559c2e60aedae9799208fc8dd85211b971] Linux 4.9.226-rc1
-# good: [82dddebfe7da9d2670977ab723da2fdac3eff5b0] Linux 4.9.225
-git bisect start 'HEAD' 'v4.9.225'
-# bad: [d1560c566028eb1ce2b446ef1ce8e36cb85f58e5] ARM: dts: imx: Correct B850v3 clock assignment
-git bisect bad d1560c566028eb1ce2b446ef1ce8e36cb85f58e5
-# good: [3a416993574184aefe8abe230bfcfae7464f438e] gfs2: move privileged user check to gfs2_quota_lock_check
-git bisect good 3a416993574184aefe8abe230bfcfae7464f438e
-# good: [1b96153fc668b0ba6fcc8c05729898773c5bf9cf] Input: xpad - add custom init packet for Xbox One S controllers
-git bisect good 1b96153fc668b0ba6fcc8c05729898773c5bf9cf
-# bad: [b6eb3d378d94ebcfd35ebc881310b6dc684ca7a6] ARM: uaccess: consolidate uaccess asm to asm/uaccess-asm.h
-git bisect bad b6eb3d378d94ebcfd35ebc881310b6dc684ca7a6
-# good: [a4174aaf3c0998c50023fabf48f4107286fe30e6] Input: synaptics-rmi4 - fix error return code in rmi_driver_probe()
-git bisect good a4174aaf3c0998c50023fabf48f4107286fe30e6
-# bad: [db2e66e6d39b037c9538edc5b85094b70fff97ab] ARM: 8843/1: use unified assembler in headers
-git bisect bad db2e66e6d39b037c9538edc5b85094b70fff97ab
-# first bad commit: [db2e66e6d39b037c9538edc5b85094b70fff97ab] ARM: 8843/1: use unified assembler in headers
