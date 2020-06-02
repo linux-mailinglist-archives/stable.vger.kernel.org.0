@@ -2,119 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F5661EC1E7
-	for <lists+stable@lfdr.de>; Tue,  2 Jun 2020 20:36:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EA411EC214
+	for <lists+stable@lfdr.de>; Tue,  2 Jun 2020 20:46:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727872AbgFBSgE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Jun 2020 14:36:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40974 "EHLO
+        id S1727946AbgFBSqo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Jun 2020 14:46:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42656 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726267AbgFBSgB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 2 Jun 2020 14:36:01 -0400
-Received: from mail-lj1-x242.google.com (mail-lj1-x242.google.com [IPv6:2a00:1450:4864:20::242])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 590ECC08C5C0
-        for <stable@vger.kernel.org>; Tue,  2 Jun 2020 11:36:00 -0700 (PDT)
-Received: by mail-lj1-x242.google.com with SMTP id e4so13849354ljn.4
-        for <stable@vger.kernel.org>; Tue, 02 Jun 2020 11:36:00 -0700 (PDT)
+        with ESMTP id S1726139AbgFBSqo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 2 Jun 2020 14:46:44 -0400
+Received: from mail-pj1-x1044.google.com (mail-pj1-x1044.google.com [IPv6:2607:f8b0:4864:20::1044])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE53CC08C5C0
+        for <stable@vger.kernel.org>; Tue,  2 Jun 2020 11:46:43 -0700 (PDT)
+Received: by mail-pj1-x1044.google.com with SMTP id ga6so1863802pjb.1
+        for <stable@vger.kernel.org>; Tue, 02 Jun 2020 11:46:43 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
+        d=google.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=ijFpZRjwoX99ihI6aAs0JBxKZ+/9IGA5AcjqDRRxjVE=;
-        b=ErEmBwVZMzkC+6G17Sf/f4on+HIvZSZ8AKzHtw2WN/e8HA2YTsmF9nWW8KKw3DJLKe
-         me5TqmdmNjfI5P78MUGsnW7a7Dii5HwIzqYhuYskjDyatp9sbSa71pmV8MU+CKmoKMWS
-         kqSzc5ZAe9uDm/UNtKVFJjB4LyNBB/Ms7PbzE=
+        bh=d4Fn6K9sSJmLeIDx+5ZYAe4QSbvn6y+nwpagCeGiUag=;
+        b=eKdiwwUZgObjzDiAaWXu1fITlLXmWFNVxyer43d44+MrNvL++Xiz3qSBGvd3qGRHjI
+         Tttx99hIYk/PtTW7oaCImk873psV+O0OzGhBXZ/uP9j5e0HmzUb/zO/QWkfmFl2vI2Kx
+         PJB9AzlQsUHdGfyk1Q1wimhqFQbpxBSBHlBtOPR+Jsot0TQVv/8KFMZ0z76tCvV50LQW
+         DWjAQ0Dr3AHCr/t/5eDi1u7XwiAkTtGOa01iij+qy8b+nONExiTZz0fOchK5yF/tO5zp
+         hVKs02MSt1EtfZRUA3Qu/ce5Dk2Z/2sDkv60pJ4ehO06t140xSTjfjem19mVvbE+RZte
+         VtDw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=ijFpZRjwoX99ihI6aAs0JBxKZ+/9IGA5AcjqDRRxjVE=;
-        b=aSTlbJVJnrZXwtJJhRKVELg/M+FsokGPiS2G/PrFzLRGBRUuswnKjIBN6kfIWmwZ1y
-         cDsWR6jGkOZGtuL0FPw3rv7gDJ3bVxnvB/u0csjhpgElVlrB2q92Ujq/eCvAHW75WCmS
-         6vLgkLyDZzdORzi0tqPcuvVG52xl0Kw7AWbJb+jaopEMzC/SaZA9XTqRCUvBi5NeQ4GI
-         iwkFl9vlOwB/CbXgT8adbBBny63QirttF6Rj5kKucx+wTHCqjSEruSgvBmDcVKk2rS8T
-         ectKSZsd9qCPPuvy47kC+37hg3dkiCdjYbyVkVD0HMqx11egJBKZ5m5DQfuGE6wg7uYY
-         Uhxw==
-X-Gm-Message-State: AOAM533INe1WhS1sjAf/KtdYWntg9vrdedmBrfYO44VMx36zsplY/VIt
-        ooGpSJ0q6qastFRXCBtV7WgNs2Mv8dI=
-X-Google-Smtp-Source: ABdhPJxjK5sih8W+iMg2jFdl2y12XfLOELa5ItgpsWLopC2GDltsQ+lIPAeB8hjjJlTakoOLpEWsww==
-X-Received: by 2002:a2e:a201:: with SMTP id h1mr229438ljm.294.1591122957986;
-        Tue, 02 Jun 2020 11:35:57 -0700 (PDT)
-Received: from mail-lf1-f45.google.com (mail-lf1-f45.google.com. [209.85.167.45])
-        by smtp.gmail.com with ESMTPSA id m15sm78261lfk.65.2020.06.02.11.35.56
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 02 Jun 2020 11:35:56 -0700 (PDT)
-Received: by mail-lf1-f45.google.com with SMTP id e125so6813519lfd.1
-        for <stable@vger.kernel.org>; Tue, 02 Jun 2020 11:35:56 -0700 (PDT)
-X-Received: by 2002:a19:4acf:: with SMTP id x198mr353040lfa.129.1591122955826;
- Tue, 02 Jun 2020 11:35:55 -0700 (PDT)
+        bh=d4Fn6K9sSJmLeIDx+5ZYAe4QSbvn6y+nwpagCeGiUag=;
+        b=CXkSkx/rBQvtPJ88mkmwCIpQDuxHP4c/GS8t30GVocELGLfWiWsQc6iyNeJfQ4vfNF
+         yl3+g0ENcFIbQA46sX2kChJLwoF4rddjldaUqTkkrq22KKW6+ySqqvEm+t2VkMjMQrlz
+         UD+3/vqmZM7j4j1jlGTOjyQkYkJGStz3zNwWq4aTtgzgaxUXlLJW0sjJ8pxAe3imWFlf
+         2nKGD0DxkSZSfG8fvz3wnhW7IHWOyAWENs8T1sb40feJ6yam0BPtXC0rbf9jAYd8//IO
+         cKaD/F8HsAaVVomXK2y6yNYwq7aCZnwqb9N12ljDVxpArd0Acn/PlFpr1Azll7M1n8/l
+         XAgA==
+X-Gm-Message-State: AOAM530LtfaQ67G/M0dAwlm36qll0GIxbG8rbXwPxqQ8bizu2P7R3O+n
+        9ET9IiXfUuHoXJPOiUlrVHk+1qSOQ3TRN/7E8zys2w==
+X-Google-Smtp-Source: ABdhPJxnlzDD9LjX8NOXuBt0jcdY2ooVkC2hieTEZiEeTaqVi66E5hIZf0OS4CPzGdPPb39vpov2an7eKEIF2KO3vvA=
+X-Received: by 2002:a17:902:341:: with SMTP id 59mr24917643pld.119.1591123603136;
+ Tue, 02 Jun 2020 11:46:43 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200527165718.129307-1-briannorris@chromium.org>
- <CAGRGNgX5n=0OEi7hMrmgVZGD=orGpgvkyLrhmXVKSFYdBJ+eUw@mail.gmail.com> <CAJ-Vmomx0UFEa1w2HsGMQsZb+K8hyK=Zz9cKSo7tHv5GiMc1yw@mail.gmail.com>
-In-Reply-To: <CAJ-Vmomx0UFEa1w2HsGMQsZb+K8hyK=Zz9cKSo7tHv5GiMc1yw@mail.gmail.com>
-From:   Brian Norris <briannorris@chromium.org>
-Date:   Tue, 2 Jun 2020 11:35:43 -0700
-X-Gmail-Original-Message-ID: <CA+ASDXNicJmAKvkjD5mGFVQ+bmz8nHT_A1oqtjoS=spRSFP70A@mail.gmail.com>
-Message-ID: <CA+ASDXNicJmAKvkjD5mGFVQ+bmz8nHT_A1oqtjoS=spRSFP70A@mail.gmail.com>
-Subject: Re: [PATCH] Revert "ath: add support for special 0x0 regulatory domain"
-To:     Adrian Chadd <adrian@freebsd.org>
-Cc:     Julian Calaby <julian.calaby@gmail.com>,
-        ath10k <ath10k@lists.infradead.org>,
-        linux-wireless <linux-wireless@vger.kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>, Wen Gong <wgong@codeaurora.org>
+References: <CAMj1kXErFuvOoG=DB6sz5HBvDuHDiKwWD8uOyLuxaX-u8-+dbA@mail.gmail.com>
+ <20200601231805.207441-1-ndesaulniers@google.com> <BYAPR11MB30969737340044437013BF44F08B0@BYAPR11MB3096.namprd11.prod.outlook.com>
+In-Reply-To: <BYAPR11MB30969737340044437013BF44F08B0@BYAPR11MB3096.namprd11.prod.outlook.com>
+From:   Nick Desaulniers <ndesaulniers@google.com>
+Date:   Tue, 2 Jun 2020 11:46:31 -0700
+Message-ID: <CAKwvOdmsCmPFiDOq7AYUyEx=60B=qo8u9yhnJDQ6nd6Ew7xDkQ@mail.gmail.com>
+Subject: Re: [PATCH] ACPICA: fix UBSAN warning using __builtin_offsetof
+To:     "Kaneda, Erik" <erik.kaneda@intel.com>
+Cc:     "Moore, Robert" <robert.moore@intel.com>,
+        "Wysocki, Rafael J" <rafael.j.wysocki@intel.com>,
+        Len Brown <lenb@kernel.org>, Ard Biesheuvel <ardb@kernel.org>,
+        "dvyukov@google.com" <dvyukov@google.com>,
+        "glider@google.com" <glider@google.com>,
+        "guohanjun@huawei.com" <guohanjun@huawei.com>,
+        "linux-arm-kernel@lists.infradead.org" 
+        <linux-arm-kernel@lists.infradead.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "lorenzo.pieralisi@arm.com" <lorenzo.pieralisi@arm.com>,
+        "mark.rutland@arm.com" <mark.rutland@arm.com>,
+        "pcc@google.com" <pcc@google.com>,
+        "rjw@rjwysocki.net" <rjw@rjwysocki.net>,
+        "will@kernel.org" <will@kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>,
+        "devel@acpica.org" <devel@acpica.org>
 Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, May 28, 2020 at 8:42 AM Adrian Chadd <adrian@freebsd.org> wrote:
-> On Thu, 28 May 2020 at 05:02, Julian Calaby <julian.calaby@gmail.com> wrote:
-> > On Thu, May 28, 2020 at 5:18 AM Brian Norris <briannorris@chromium.org> wrote:
-> > >
-> > > This reverts commit 2dc016599cfa9672a147528ca26d70c3654a5423.
-> > >
-> > > Users are reporting regressions in regulatory domain detection and
-> > > channel availability.
-> > >
-> > > The problem this was trying to resolve was fixed in firmware anyway:
+On Mon, Jun 1, 2020 at 5:03 PM Kaneda, Erik <erik.kaneda@intel.com> wrote:
+>
+>
+> Hi,
+>
+> > Will reported UBSAN warnings:
+> > UBSAN: null-ptr-deref in drivers/acpi/acpica/tbfadt.c:459:37
+> > UBSAN: null-ptr-deref in arch/arm64/kernel/smp.c:596:6
 > >
-> > Should we tell the user their firmware needs to be upgraded if it
-> > reports this regulatory domain instead of completely dropping support
-> > for it?
+> > Looks like the emulated offsetof macro ACPI_OFFSET is causing these. We
+> > can avoid this by using the compiler builtin, __builtin_offsetof.
+>
+> I'll take a look at this tomorrow
+> >
+> > The non-kernel runtime of UBSAN would print:
+> > runtime error: member access within null pointer of type for this macro.
+>
+> actypes.h is owned by ACPICA so we typically do not allow compiler-specific
+> extensions because the code is intended to be compiled using the C99 standard
+> without compiler extensions. We could allow this sort of thing in a Linux-specific
+> header file like include/acpi/platform/aclinux.h but I'll take a look at the error as well..
 
-I'm not really sure how to do that properly in general, and I don't
-plan to do so. I'm simply reverting a change that caused people
-problems, and noting at the same time that the original problem was
-resolved differently.
+If I'm not allowed to touch that header, it looks like I can include
+<linux/stddef.h> (rather than my host's <stddef.h>) to get a
+definition of `offsetof` thats implemented in terms of
+`__builtin_offsetof`.  I should be able to use that to replace uses of
+ACPI_OFFSET.  Are any of these off limits?
 
-I don't really have a stake in this patch, because everything I care
-about works correctly either way. (And AFAICT, any hardware that is
-affected by this patch is somewhat broken.) I'm only posting the
-revert as a community service, because Wen couldn't be bothered to do
-it himself.
+$ grep -rn ACPI_OFFSET
+arch/arm64/include/asm/acpi.h:34:#define ACPI_MADT_GICC_MIN_LENGTH
+ACPI_OFFSET(  \
+arch/arm64/include/asm/acpi.h:41:#define ACPI_MADT_GICC_SPE
+(ACPI_OFFSET(struct acpi_madt_generic_interrupt, \
+include/acpi/actbl.h:376:#define ACPI_FADT_OFFSET(f)             (u16)
+ACPI_OFFSET (struct acpi_table_fadt, f)
+drivers/acpi/acpica/acresrc.h:84:#define ACPI_RS_OFFSET(f)
+  (u8) ACPI_OFFSET (struct acpi_resource,f)
+drivers/acpi/acpica/acresrc.h:85:#define AML_OFFSET(f)
+  (u8) ACPI_OFFSET (union aml_resource,f)
+drivers/acpi/acpica/acinterp.h:17:#define ACPI_EXD_OFFSET(f)
+(u8) ACPI_OFFSET (union acpi_operand_object,f)
+drivers/acpi/acpica/acinterp.h:18:#define ACPI_EXD_NSOFFSET(f)
+(u8) ACPI_OFFSET (struct acpi_namespace_node,f)
+drivers/acpi/acpica/rsdumpinfo.c:16:#define ACPI_RSD_OFFSET(f)
+ (u8) ACPI_OFFSET (union acpi_resource_data,f)
+drivers/acpi/acpica/rsdumpinfo.c:17:#define ACPI_PRT_OFFSET(f)
+ (u8) ACPI_OFFSET (struct acpi_pci_routing_table,f)
 
-> Also that commit mentioned a 6174 firmware, but what about all the other older chips with a regulatory domain of 0x0 ?
-
-My understanding was that no QCA modules *should* be shipped with a
-value of 0 in this field. The instance I'm aware of was more or less a
-manufacturing error I think, and we got Qualcomm to patch it over in
-software. I don't think people expected anybody else to have shipped
-modules with a 0 value, but apparently they did. I don't know what to
-do with those, other than just leave well enough alone (i.e., $subject
-revert).
-
-> As a side note, I'd /really appreciate/ if ath10k changes were tested on a variety of ath10k hardware and firmware revisions, rather than just either the Rome or embedded radios, rather than also including peregrine, cascade, besra, etc.
-
-Wouldn't we all love it if everybody else tested appropriately. But
-Qualcomm folks can't be coordinated (trust me, I've tried), and apart
-from things like KernelCI (which so far has no WiFi tests, IIUC),
-there's no community testing efforts that don't involve
-"${RANDOM_PERSON} boots ${PERSONAL_BOX} and see if it blows up."
-
-This also might not be the best place to admit it, but I'll be up
-front: I have no idea what peregrine, cascade, or besra are.
-
-Brian
+-- 
+Thanks,
+~Nick Desaulniers
