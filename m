@@ -2,104 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 355931EBDBE
-	for <lists+stable@lfdr.de>; Tue,  2 Jun 2020 16:14:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 677321EBE70
+	for <lists+stable@lfdr.de>; Tue,  2 Jun 2020 16:48:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726069AbgFBOOd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Jun 2020 10:14:33 -0400
-Received: from youngberry.canonical.com ([91.189.89.112]:38785 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726000AbgFBOOc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 2 Jun 2020 10:14:32 -0400
-Received: from 112-104-28-97.adsl.dynamic.seed.net.tw ([112.104.28.97] helo=canonical.com)
-        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.86_2)
-        (envelope-from <ivan.hu@canonical.com>)
-        id 1jg7gU-00047O-3O; Tue, 02 Jun 2020 14:14:30 +0000
-From:   Ivan Hu <ivan.hu@canonical.com>
-To:     kernel-team@lists.ubuntu.com
-Cc:     James Bottomley <James.Bottomley@HansenPartnership.com>,
-        stable@vger.kernel.org, Ivan Hu <ivan.hu@canonical.com>
-Subject: [PATCH 1/1][SRU][F][OEM-5.6] UBUNTU: SAUCE: tpm: fix TIS locality timeout problems
-Date:   Tue,  2 Jun 2020 22:13:25 +0800
-Message-Id: <20200602141325.21074-3-ivan.hu@canonical.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20200602141325.21074-1-ivan.hu@canonical.com>
-References: <20200602141325.21074-1-ivan.hu@canonical.com>
+        id S1726217AbgFBOsm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Jun 2020 10:48:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33936 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726073AbgFBOsm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 2 Jun 2020 10:48:42 -0400
+Received: from mail-pf1-x443.google.com (mail-pf1-x443.google.com [IPv6:2607:f8b0:4864:20::443])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3ED12C08C5C0;
+        Tue,  2 Jun 2020 07:48:41 -0700 (PDT)
+Received: by mail-pf1-x443.google.com with SMTP id h185so4147127pfg.2;
+        Tue, 02 Jun 2020 07:48:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=M/pQ6/V+iIwxJgJX2XQUS9GZhFyupAHE1/NbSCr2rNA=;
+        b=UGYI0vDbfA2lLdAecfHXB6CsdyXOhyZGzBnrvjQQLMRxG9OTlewAjJ3OBimlkOu0e0
+         yb2hMRxrBmY9zZvmY9JphcOHZG/URyrAqOzwj20zlOg7ljEHkcuUkHAtypxZc4Wqclyn
+         zuddNyrhXbutdSvrAg4q2YYfQ8iTgobPVb0xoZ60ZNbcboT8/F/VOKMpFmG7JajS7pKg
+         qB4fHZr0SWwvTf4VD7mKKCWEFTHJhO4QfkzdER4U4nb37cRiqpeujdlapg2a9meKAa9a
+         n5kfaghXZLybcCKp3QGGcE6UqSv1dEGQ6A5rq70zw/v5zK7ZwNn8FTPxyE7dMx5G1sGC
+         hdKQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=M/pQ6/V+iIwxJgJX2XQUS9GZhFyupAHE1/NbSCr2rNA=;
+        b=DtDZ87+yxsb3w8vOTVk5M81qrjIz47niMqGS0WDoAr1+n5KAzm3fdluWvyftEjucOi
+         xLBFXlsajbuGA+joLX5tXmQIDfVjbHjjY5hsySflavdQZaRiRSCcOdsg0FftH9fNpyVD
+         DApy7D8jOJeg4RHT9QHrmW0VyNs426DpDz9H+7RtwuMXOPWoh3DdR2hxUqQh0aCmcqnE
+         URj6X5kzvhu4A3AKZWLuAe2FEJdH9V20W8fofLPJnx1Y3R+Iv0Zj/HBocWr83VUwoluV
+         oi/+mgrY570cRnsfUxDNE0drjS/u8My5ATlbyybau0BiT39Thj/cNO1aro0e+YxG2f9b
+         XoxQ==
+X-Gm-Message-State: AOAM533mBmmK6OR6yJpjMZWGk47qDr9qpxR8zCYBwzwqCEe+XAafaE8G
+        Qf9cXznOqX/uyHvOeJrfJ4F08pDXxYomuwUN2wI=
+X-Google-Smtp-Source: ABdhPJxyrRgrMBYC2nBmyIsXSR3S/B7csWevLL534lz2naW6/7vfXOMm7ZBhbW4ZMJezZvzG3Cka9xuailmbdxkZu0I=
+X-Received: by 2002:a63:ff52:: with SMTP id s18mr8270132pgk.203.1591109320582;
+ Tue, 02 Jun 2020 07:48:40 -0700 (PDT)
+MIME-Version: 1.0
+References: <20200602140058.3656-1-johan@kernel.org> <20200602140058.3656-3-johan@kernel.org>
+In-Reply-To: <20200602140058.3656-3-johan@kernel.org>
+From:   Andy Shevchenko <andy.shevchenko@gmail.com>
+Date:   Tue, 2 Jun 2020 17:48:29 +0300
+Message-ID: <CAHp75VeXYn46wQ5EXkk_MOQ49ybtyTeoQS6BS1X9DkC6hbeF-w@mail.gmail.com>
+Subject: Re: [PATCH 2/4] serial: core: fix broken sysrq port unlock
+To:     Johan Hovold <johan@kernel.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jiri Slaby <jslaby@suse.com>,
+        Dmitry Safonov <0x7f454c46@gmail.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        "open list:SERIAL DRIVERS" <linux-serial@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Bottomley <James.Bottomley@HansenPartnership.com>
+On Tue, Jun 2, 2020 at 5:03 PM Johan Hovold <johan@kernel.org> wrote:
+>
+> Commit d6e1935819db ("serial: core: Allow processing sysrq at port
+> unlock time") worked around a circular locking dependency by adding
+> helpers used to defer sysrq processing to when the port lock was
+> released.
+>
+> A later commit unfortunately converted these inline helpers to exported
+> functions despite the fact that the unlock helper was restoring irq
+> flags, something which needs to be done in the same function that saved
+> them (e.g. on SPARC).
 
-BugLink: https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1881710
+I'm not familiar with sparc, can you elaborate a bit what is ABI /
+architecture lock implementation background?
 
-It has been reported that some TIS based TPMs are giving unexpected
-errors when using the O_NONBLOCK path of the TPM device. The problem
-is that some TPMs don't like it when you get and then relinquish a
-locality (as the tpm_try_get_ops()/tpm_put_ops() pair does) without
-sending a command.  This currently happens all the time in the
-O_NONBLOCK write path. Fix this by moving the tpm_try_get_ops()
-further down the code to after the O_NONBLOCK determination is made.
-This is safe because the priv->buffer_mutex still protects the priv
-state being modified.
-
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=206275
-Fixes: d23d12484307 ("tpm: fix invalid locking in NONBLOCKING mode")
-Reported-by: Mario Limonciello <Mario.Limonciello@dell.com>
-Tested-by: Alex Guzman <alex@guzman.io>
-Cc: stable@vger.kernel.org
-Reviewed-by: Jerry Snitselaar <jsnitsel@redhat.com>
-Signed-off-by: James Bottomley <James.Bottomley@HansenPartnership.com>
-Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-(cherry picked from https://patchwork.kernel.org/patch/11576453/)
-Signed-off-by: Ivan Hu <ivan.hu@canonical.com>
----
- drivers/char/tpm/tpm-dev-common.c | 19 +++++++++----------
- 1 file changed, 9 insertions(+), 10 deletions(-)
-
-diff --git a/drivers/char/tpm/tpm-dev-common.c b/drivers/char/tpm/tpm-dev-common.c
-index 87f449340202..1784530b8387 100644
---- a/drivers/char/tpm/tpm-dev-common.c
-+++ b/drivers/char/tpm/tpm-dev-common.c
-@@ -189,15 +189,6 @@ ssize_t tpm_common_write(struct file *file, const char __user *buf,
- 		goto out;
- 	}
- 
--	/* atomic tpm command send and result receive. We only hold the ops
--	 * lock during this period so that the tpm can be unregistered even if
--	 * the char dev is held open.
--	 */
--	if (tpm_try_get_ops(priv->chip)) {
--		ret = -EPIPE;
--		goto out;
--	}
--
- 	priv->response_length = 0;
- 	priv->response_read = false;
- 	*off = 0;
-@@ -211,11 +202,19 @@ ssize_t tpm_common_write(struct file *file, const char __user *buf,
- 	if (file->f_flags & O_NONBLOCK) {
- 		priv->command_enqueued = true;
- 		queue_work(tpm_dev_wq, &priv->async_work);
--		tpm_put_ops(priv->chip);
- 		mutex_unlock(&priv->buffer_mutex);
- 		return size;
- 	}
- 
-+	/* atomic tpm command send and result receive. We only hold the ops
-+	 * lock during this period so that the tpm can be unregistered even if
-+	 * the char dev is held open.
-+	 */
-+	if (tpm_try_get_ops(priv->chip)) {
-+		ret = -EPIPE;
-+		goto out;
-+	}
-+
- 	ret = tpm_dev_transmit(priv->chip, priv->space, priv->data_buffer,
- 			       sizeof(priv->data_buffer));
- 	tpm_put_ops(priv->chip);
 -- 
-2.17.1
-
+With Best Regards,
+Andy Shevchenko
