@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E60991EB994
-	for <lists+stable@lfdr.de>; Tue,  2 Jun 2020 12:27:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E30201EB983
+	for <lists+stable@lfdr.de>; Tue,  2 Jun 2020 12:25:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726461AbgFBKXn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Jun 2020 06:23:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34480 "EHLO mail.kernel.org"
+        id S1726110AbgFBKYI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Jun 2020 06:24:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34626 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726408AbgFBKXh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Jun 2020 06:23:37 -0400
+        id S1726814AbgFBKXy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Jun 2020 06:23:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 029C0206C3;
-        Tue,  2 Jun 2020 10:23:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ADA55207D0;
+        Tue,  2 Jun 2020 10:23:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591093415;
-        bh=lKiH7S48FxDTtLfVVsKa9Hj5gL6OQmcmqjf6yqAgSaw=;
+        s=default; t=1591093432;
+        bh=t6u9yQI05FbJS5rJ7Y1GY1YGvjjVckBgATlpSdSLaFA=;
         h=From:To:Cc:Subject:Date:From;
-        b=v7ecEtacJGi269y1AaspPdn+JDqkROkI6FDkA682zvQqAGtZCXmMkWX/oZQCtSana
-         vpK9vMTZ5z3d3qj3IlqwArCsT3/w/nKBFoNJj/godJaentmpkulDXZE+k8cwy/cr5F
-         03VtYu9ow1LK6rB83RjYPAX/wn0kdsU+cfwd0RkE=
+        b=MuP0TC1oGEd+rpHeXzqb2UMSD87bs8tlHlOSQlaFwhcsMFBTUMg0a2PqHEeAHMNVJ
+         zfzPWqcHrwpP+QH1ZXb4iNyDZX+5Izk64igOTWyS0AqorpxQMIzQ6wNEcLghLUN9Ln
+         sNe+I16QgVsdZS/HM87vsjyF54hKLmkQYH3DI/6g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,19 +30,19 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
         ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
         stable@vger.kernel.org
-Subject: [PATCH 4.14 00/76] 4.14.183-rc2 review
-Date:   Tue,  2 Jun 2020 12:23:33 +0200
-Message-Id: <20200602101857.556161353@linuxfoundation.org>
+Subject: [PATCH 4.19 00/92] 4.19.126-rc2 review
+Date:   Tue,  2 Jun 2020 12:23:49 +0200
+Message-Id: <20200602101901.374486405@linuxfoundation.org>
 X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
 User-Agent: quilt/0.66
 X-stable: review
 X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.183-rc2.gz
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.126-rc2.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.14.y
+X-KernelTest-Branch: linux-4.19.y
 X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.14.183-rc2
+X-KernelTest-Version: 4.19.126-rc2
 X-KernelTest-Deadline: 2020-06-04T10:19+00:00
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -51,8 +51,8 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 4.14.183 release.
-There are 76 patches in this series, all will be posted as a response
+This is the start of the stable review cycle for the 4.19.126 release.
+There are 92 patches in this series, all will be posted as a response
 to this one.  If anyone has any issues with these being applied, please
 let me know.
 
@@ -60,9 +60,9 @@ Responses should be made by Thu, 04 Jun 2020 10:16:52 +0000.
 Anything received after that time might be too late.
 
 The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.183-rc2.gz
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.126-rc2.gz
 or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
 and the diffstat can be found below.
 
 thanks,
@@ -73,28 +73,7 @@ greg k-h
 Pseudo-Shortlog of commits:
 
 Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 4.14.183-rc2
-
-Benjamin Block <bblock@linux.ibm.com>
-    scsi: zfcp: fix request object use-after-free in send path causing wrong traces
-
-Thomas Gleixner <tglx@linutronix.de>
-    genirq/generic_pending: Do not lose pending affinity update
-
-Salil Mehta <salil.mehta@huawei.com>
-    net: hns: Fixes the missing put_device in positive leg for roce reset
-
-Colin Ian King <colin.king@canonical.com>
-    net: hns: fix unsigned comparison to less than zero
-
-Sean Christopherson <sean.j.christopherson@intel.com>
-    KVM: VMX: check for existence of secondary exec controls before accessing
-
-David Howells <dhowells@redhat.com>
-    rxrpc: Fix transport sockopts to get IPv4 errors on an IPv6 socket
-
-Guoqing Jiang <gqjiang@suse.com>
-    sc16is7xx: move label 'err_spi' to correct section
+    Linux 4.19.126-rc2
 
 Liviu Dudau <liviu@dudau.co.uk>
     mm/vmalloc.c: don't dereference possible NULL pointer in __vunmap()
@@ -105,8 +84,17 @@ Pablo Neira Ayuso <pablo@netfilter.org>
 Qiushi Wu <wu000273@umn.edu>
     bonding: Fix reference count leak in bond_sysfs_slave_add.
 
+Eric Dumazet <edumazet@google.com>
+    crypto: chelsio/chtls: properly set tp->lsndtime
+
 Qiushi Wu <wu000273@umn.edu>
     qlcnic: fix missing release in qlcnic_83xx_interrupt_test.
+
+Björn Töpel <bjorn.topel@intel.com>
+    xsk: Add overflow check for u64 division, stored into u32
+
+Michael Chan <michael.chan@broadcom.com>
+    bnxt_en: Fix accumulation of bp->net_stats_prev.
 
 Xin Long <lucien.xin@gmail.com>
     esp6: get the right proto for transport mode in esp6_gso_encap
@@ -138,6 +126,9 @@ Xin Long <lucien.xin@gmail.com>
 Xin Long <lucien.xin@gmail.com>
     xfrm: fix a warning in xfrm_policy_insert_list
 
+Nicolas Dichtel <nicolas.dichtel@6wind.com>
+    xfrm interface: fix oops when deleting a x-netns interface
+
 Xin Long <lucien.xin@gmail.com>
     xfrm: call xfrm_output_gso when inner_protocol is set in xfrm_output
 
@@ -152,6 +143,12 @@ Alexander Dahl <post@lespocky.de>
 
 Linus Lüssing <ll@simonwunderlich.de>
     mac80211: mesh: fix discovery timer re-arming issue / crash
+
+Jason Gunthorpe <jgg@ziepe.ca>
+    RDMA/core: Fix double destruction of uobject
+
+Sarthak Garg <sartgarg@codeaurora.org>
+    mmc: core: Fix recursive locking issue in CQE recovery path
 
 Helge Deller <deller@gmx.de>
     parisc: Fix kernel panic in mem_init()
@@ -168,17 +165,26 @@ Alexander Potapenko <glider@google.com>
 Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
     mm: remove VM_BUG_ON(PageSlab()) from page_mapcount()
 
+Valentine Fatiev <valentinef@mellanox.com>
+    IB/ipoib: Fix double free of skb in case of multicast traffic in CM mode
+
 Jerry Lee <leisurelysw24@gmail.com>
     libceph: ignore pool overlay and cache logic on redirects
 
 Kailang Yang <kailang@realtek.com>
     ALSA: hda/realtek - Add new codec supported for ALC287
 
+Takashi Iwai <tiwai@suse.de>
+    ALSA: usb-audio: Quirks for Gigabyte TRX40 Aorus Master onboard audio
+
 Eric W. Biederman <ebiederm@xmission.com>
     exec: Always set cap_ambient in cap_bprm_set_creds
 
 Chris Chiu <chiu@endlessm.com>
     ALSA: usb-audio: mixer: volume quirk for ESS Technology Asus USB DAC
+
+Takashi Iwai <tiwai@suse.de>
+    ALSA: hda/realtek - Add a model for Thinkpad T570 without DAC workaround
 
 Changming Liu <liu.changm@northeastern.edu>
     ALSA: hwdep: fix a left shifting 1 by 31 UB bug
@@ -189,14 +195,14 @@ Qiushi Wu <wu000273@umn.edu>
 Peng Hao <richard.peng@oppo.com>
     mmc: block: Fix use-after-free issue for rpmb
 
+Hamish Martin <hamish.martin@alliedtelesis.co.nz>
+    ARM: dts: bcm: HR2: Fix PPI interrupt types
+
 Vincent Stehlé <vincent.stehle@laposte.net>
     ARM: dts: bcm2835-rpi-zero-w: Fix led polarity
 
 Robert Beckett <bob.beckett@collabora.com>
     ARM: dts/imx6q-bx50v3: Set display interface clock parents
-
-Sebastian Reichel <sre@kernel.org>
-    ARM: dts: imx6q-bx50v3: Add internal switch
 
 Kaike Wan <kaike.wan@intel.com>
     IB/qib: Call kobject_put() when kobject_init_and_add() fails
@@ -215,6 +221,9 @@ Russell King <rmk+kernel@armlinux.org.uk>
 
 Stefan Agner <stefan@agner.ch>
     ARM: 8843/1: use unified assembler in headers
+
+Łukasz Stelmach <l.stelmach@samsung.com>
+    ARM: 8970/1: decompressor: increase tag size
 
 Wei Yongjun <weiyongjun1@huawei.com>
     Input: synaptics-rmi4 - fix error return code in rmi_driver_probe()
@@ -243,11 +252,20 @@ Matteo Croce <mcroce@redhat.com>
 Steve French <stfrench@microsoft.com>
     cifs: Fix null pointer check in cifs_read
 
+Kefeng Wang <wangkefeng.wang@huawei.com>
+    riscv: stacktrace: Fix undefined reference to `walk_stackframe'
+
+Denis V. Lunev <den@openvz.org>
+    IB/i40iw: Remove bogus call to netdev_master_upper_dev_get()
+
 Arnd Bergmann <arnd@arndb.de>
     net: freescale: select CONFIG_FIXED_PHY where needed
 
 Masahiro Yamada <masahiroy@kernel.org>
     usb: gadget: legacy: fix redundant initialization warnings
+
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+    usb: dwc3: pci: Enable extcon driver for Intel Merrifield
 
 Lei Xue <carmark.dlut@gmail.com>
     cachefiles: Fix race between read_waiter and read_copier involving op->to_do
@@ -258,6 +276,9 @@ Bob Peterson <rpeterso@redhat.com>
 Chuhong Yuan <hslester96@gmail.com>
     net: microchip: encx24j600: add missed kthread_stop
 
+Andrew Oakley <andrew@adoakley.name>
+    ALSA: usb-audio: add mapping for ASRock TRX40 Creator
+
 Stephen Warren <swarren@nvidia.com>
     gpio: tegra: mask GPIO IRQs during IRQ shutdown
 
@@ -265,10 +286,19 @@ Johan Jonker <jbx6244@gmail.com>
     ARM: dts: rockchip: fix pinctrl sub nodename for spi in rk322x.dtsi
 
 Johan Jonker <jbx6244@gmail.com>
+    ARM: dts: rockchip: swap clock-names of gpu nodes
+
+Johan Jonker <jbx6244@gmail.com>
     arm64: dts: rockchip: swap interrupts interrupt-names rk3399 gpu node
 
 Johan Jonker <jbx6244@gmail.com>
+    arm64: dts: rockchip: fix status for &gmac2phy in rk3328-evb.dts
+
+Johan Jonker <jbx6244@gmail.com>
     ARM: dts: rockchip: fix phy nodename for rk3228-evb
+
+Jiri Pirko <jiri@mellanox.com>
+    mlxsw: spectrum: Fix use-after-free of split/unsplit/type_set in case reload fails
 
 Qiushi Wu <wu000273@umn.edu>
     net/mlx4_core: fix a memory leak bug.
@@ -276,14 +306,17 @@ Qiushi Wu <wu000273@umn.edu>
 Qiushi Wu <wu000273@umn.edu>
     net: sun: fix missing release regions in cas_init_one().
 
-Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-    net: qrtr: Fix passing invalid reference to qrtr_local_enqueue()
+Roi Dayan <roid@mellanox.com>
+    net/mlx5: Annotate mutex destroy for root ns
 
 Moshe Shemesh <moshe@mellanox.com>
     net/mlx5e: Update netdev txq on completions during closure
 
 Jere Leppänen <jere.leppanen@nokia.com>
     sctp: Start shutdown on association restart if in SHUTDOWN-SENT state and socket is closed
+
+Neil Horman <nhorman@tuxdriver.com>
+    sctp: Don't add the shutdown timer if its already been added
 
 Marc Payne <marc.payne@mdpsys.co.uk>
     r8152: support additional Microsoft Surface Ethernet Adapter variant
@@ -294,11 +327,26 @@ Roman Mashak <mrv@mojatatu.com>
 Yuqi Jin <jinyuqi@huawei.com>
     net: revert "net: get rid of an signed integer overflow in ip_idents_reserve()"
 
+Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+    net: qrtr: Fix passing invalid reference to qrtr_local_enqueue()
+
 Moshe Shemesh <moshe@mellanox.com>
     net/mlx5: Add command entry handling completion
 
 Vadim Fedorenko <vfedorenko@novek.ru>
     net: ipip: fix wrong address family in init error path
+
+Martin KaFai Lau <kafai@fb.com>
+    net: inet_csk: Fix so_reuseport bind-address cache in tb->fast*
+
+Boris Sukholitko <boris.sukholitko@broadcom.com>
+    __netif_receive_skb_core: pass skb by reference
+
+DENG Qingfang <dqfext@gmail.com>
+    net: dsa: mt7530: fix roaming from DSA user ports
+
+Vladimir Oltean <vladimir.oltean@nxp.com>
+    dpaa_eth: fix usage as DSA master, try 3
 
 Eric Dumazet <edumazet@google.com>
     ax25: fix setsockopt(SO_BINDTODEVICE)
@@ -309,28 +357,40 @@ Eric Dumazet <edumazet@google.com>
 Diffstat:
 
  Makefile                                           |   4 +-
+ arch/arm/boot/compressed/vmlinux.lds.S             |   2 +-
+ arch/arm/boot/dts/bcm-hr2.dtsi                     |   6 +-
  arch/arm/boot/dts/bcm2835-rpi-zero-w.dts           |   2 +-
  arch/arm/boot/dts/imx6q-b450v3.dts                 |   7 --
  arch/arm/boot/dts/imx6q-b650v3.dts                 |   7 --
  arch/arm/boot/dts/imx6q-b850v3.dts                 |  11 --
- arch/arm/boot/dts/imx6q-bx50v3.dtsi                |  77 ++++++++++++++
+ arch/arm/boot/dts/imx6q-bx50v3.dtsi                |  15 +++
+ arch/arm/boot/dts/rk3036.dtsi                      |   2 +-
  arch/arm/boot/dts/rk3228-evb.dts                   |   2 +-
- arch/arm/boot/dts/rk322x.dtsi                      |   4 +-
+ arch/arm/boot/dts/rk322x.dtsi                      |   6 +-
+ arch/arm/boot/dts/rk3xxx.dtsi                      |   2 +-
  arch/arm/include/asm/assembler.h                   |  83 +--------------
  arch/arm/include/asm/uaccess-asm.h                 | 117 +++++++++++++++++++++
  arch/arm/include/asm/vfpmacros.h                   |   8 +-
  arch/arm/kernel/entry-armv.S                       |  11 +-
  arch/arm/kernel/entry-header.S                     |   9 +-
  arch/arm/lib/bitops.h                              |   8 +-
+ arch/arm64/boot/dts/rockchip/rk3328-evb.dts        |   2 +-
  arch/arm64/boot/dts/rockchip/rk3399.dtsi           |   8 +-
  arch/parisc/mm/init.c                              |   2 +-
+ arch/riscv/kernel/stacktrace.c                     |   2 +-
  arch/x86/include/asm/dma.h                         |   2 +-
  arch/x86/kernel/fpu/xstate.c                       |  86 ++++++++-------
- arch/x86/kvm/vmx.c                                 |   7 +-
+ drivers/crypto/chelsio/chtls/chtls_io.c            |   2 +-
  drivers/gpio/gpio-exar.c                           |   7 +-
  drivers/gpio/gpio-tegra.c                          |   1 +
+ drivers/infiniband/core/rdma_core.c                |  19 ++--
+ drivers/infiniband/hw/i40iw/i40iw_cm.c             |   8 --
  drivers/infiniband/hw/qib/qib_sysfs.c              |   9 +-
  drivers/infiniband/hw/vmw_pvrdma/pvrdma_main.c     |   2 +-
+ drivers/infiniband/ulp/ipoib/ipoib.h               |   4 +
+ drivers/infiniband/ulp/ipoib/ipoib_cm.c            |  15 +--
+ drivers/infiniband/ulp/ipoib/ipoib_ib.c            |   9 +-
+ drivers/infiniband/ulp/ipoib/ipoib_main.c          |  10 +-
  drivers/input/evdev.c                              |  19 +---
  drivers/input/joystick/xpad.c                      |  12 +++
  drivers/input/keyboard/dlink-dir685-touchkeys.c    |   2 +-
@@ -339,20 +399,26 @@ Diffstat:
  drivers/input/touchscreen/usbtouchscreen.c         |   1 +
  drivers/iommu/iommu.c                              |   2 +-
  drivers/mmc/core/block.c                           |   2 +-
+ drivers/mmc/core/queue.c                           |  13 +--
  drivers/net/bonding/bond_sysfs_slave.c             |   4 +-
+ drivers/net/dsa/mt7530.c                           |   9 +-
+ drivers/net/dsa/mt7530.h                           |   1 +
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c          |   2 +-
  drivers/net/ethernet/freescale/Kconfig             |   2 +
  drivers/net/ethernet/freescale/dpaa/Kconfig        |   1 +
- drivers/net/ethernet/hisilicon/hns/hns_dsaf_main.c |   5 +-
+ drivers/net/ethernet/freescale/dpaa/dpaa_eth.c     |   2 +-
  drivers/net/ethernet/mellanox/mlx4/fw.c            |   2 +-
  drivers/net/ethernet/mellanox/mlx5/core/cmd.c      |  14 +++
  drivers/net/ethernet/mellanox/mlx5/core/en_tx.c    |   6 +-
+ drivers/net/ethernet/mellanox/mlx5/core/fs_core.c  |   6 ++
+ drivers/net/ethernet/mellanox/mlxsw/spectrum.c     |  14 ++-
+ drivers/net/ethernet/mellanox/mlxsw/switchx2.c     |   8 ++
  drivers/net/ethernet/microchip/encx24j600.c        |   5 +-
  .../net/ethernet/qlogic/qlcnic/qlcnic_83xx_hw.c    |   4 +-
  drivers/net/ethernet/sun/cassini.c                 |   3 +-
  drivers/net/usb/cdc_ether.c                        |  11 +-
  drivers/net/usb/r8152.c                            |   1 +
- drivers/s390/scsi/zfcp_fsf.c                       |  10 +-
- drivers/tty/serial/sc16is7xx.c                     |   2 +
+ drivers/usb/dwc3/dwc3-pci.c                        |   1 +
  drivers/usb/gadget/legacy/inode.c                  |   3 +-
  fs/binfmt_elf.c                                    |   2 +-
  fs/cachefiles/rdwr.c                               |   2 +-
@@ -364,12 +430,15 @@ Diffstat:
  include/linux/mm.h                                 |  15 ++-
  include/linux/netfilter/nf_conntrack_pptp.h        |   2 +-
  include/net/act_api.h                              |   3 +-
+ include/rdma/uverbs_std_types.h                    |   2 +-
  include/uapi/linux/xfrm.h                          |   2 +-
- kernel/irq/migration.c                             |  26 +++--
  mm/vmalloc.c                                       |   2 +-
  net/ax25/af_ax25.c                                 |   6 +-
  net/bridge/netfilter/nft_reject_bridge.c           |   6 ++
  net/ceph/osd_client.c                              |   4 +-
+ net/core/dev.c                                     |  20 +++-
+ net/dsa/tag_mtk.c                                  |  15 +++
+ net/ipv4/inet_connection_sock.c                    |  43 ++++----
  net/ipv4/ip_vti.c                                  |  75 +++++++------
  net/ipv4/ipip.c                                    |   2 +-
  net/ipv4/netfilter/nf_nat_pptp.c                   |   7 +-
@@ -380,16 +449,20 @@ Diffstat:
  net/netfilter/nf_conntrack_pptp.c                  |  62 ++++++-----
  net/netfilter/nfnetlink_cthelper.c                 |   3 +-
  net/qrtr/qrtr.c                                    |   2 +-
- net/rxrpc/local_object.c                           |  23 ++--
+ net/sctp/sm_sideeffect.c                           |  14 ++-
  net/sctp/sm_statefuns.c                            |   9 +-
+ net/xdp/xdp_umem.c                                 |   8 +-
  net/xfrm/xfrm_input.c                              |   2 +-
+ net/xfrm/xfrm_interface.c                          |  21 ++++
  net/xfrm/xfrm_output.c                             |  15 +--
  net/xfrm/xfrm_policy.c                             |   7 +-
  samples/bpf/lwt_len_hist_user.c                    |   2 -
  security/commoncap.c                               |   1 +
  sound/core/hwdep.c                                 |   4 +-
- sound/pci/hda/patch_realtek.c                      |   3 +
+ sound/pci/hda/patch_realtek.c                      |  39 +++++--
  sound/usb/mixer.c                                  |   8 ++
- 82 files changed, 581 insertions(+), 354 deletions(-)
+ sound/usb/mixer_maps.c                             |  24 +++++
+ sound/usb/quirks-table.h                           |  26 +++++
+ 107 files changed, 723 insertions(+), 427 deletions(-)
 
 
