@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C5C991EBDBD
-	for <lists+stable@lfdr.de>; Tue,  2 Jun 2020 16:14:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 355931EBDBE
+	for <lists+stable@lfdr.de>; Tue,  2 Jun 2020 16:14:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726019AbgFBOOZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Jun 2020 10:14:25 -0400
-Received: from youngberry.canonical.com ([91.189.89.112]:38775 "EHLO
+        id S1726069AbgFBOOd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Jun 2020 10:14:33 -0400
+Received: from youngberry.canonical.com ([91.189.89.112]:38785 "EHLO
         youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726000AbgFBOOY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 2 Jun 2020 10:14:24 -0400
+        with ESMTP id S1726000AbgFBOOc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 2 Jun 2020 10:14:32 -0400
 Received: from 112-104-28-97.adsl.dynamic.seed.net.tw ([112.104.28.97] helo=canonical.com)
         by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
         (Exim 4.86_2)
         (envelope-from <ivan.hu@canonical.com>)
-        id 1jg7gM-000473-Hq; Tue, 02 Jun 2020 14:14:23 +0000
+        id 1jg7gU-00047O-3O; Tue, 02 Jun 2020 14:14:30 +0000
 From:   Ivan Hu <ivan.hu@canonical.com>
 To:     kernel-team@lists.ubuntu.com
 Cc:     James Bottomley <James.Bottomley@HansenPartnership.com>,
         stable@vger.kernel.org, Ivan Hu <ivan.hu@canonical.com>
-Subject: [PATCH 1/1][SRU][OEM-OSP1-B] UBUNTU: SAUCE: tpm: fix TIS locality timeout problems
-Date:   Tue,  2 Jun 2020 22:13:24 +0800
-Message-Id: <20200602141325.21074-2-ivan.hu@canonical.com>
+Subject: [PATCH 1/1][SRU][F][OEM-5.6] UBUNTU: SAUCE: tpm: fix TIS locality timeout problems
+Date:   Tue,  2 Jun 2020 22:13:25 +0800
+Message-Id: <20200602141325.21074-3-ivan.hu@canonical.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20200602141325.21074-1-ivan.hu@canonical.com>
 References: <20200602141325.21074-1-ivan.hu@canonical.com>
@@ -53,17 +53,17 @@ Cc: stable@vger.kernel.org
 Reviewed-by: Jerry Snitselaar <jsnitsel@redhat.com>
 Signed-off-by: James Bottomley <James.Bottomley@HansenPartnership.com>
 Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-(backported from https://patchwork.kernel.org/patch/11576453/)
+(cherry picked from https://patchwork.kernel.org/patch/11576453/)
 Signed-off-by: Ivan Hu <ivan.hu@canonical.com>
 ---
  drivers/char/tpm/tpm-dev-common.c | 19 +++++++++----------
  1 file changed, 9 insertions(+), 10 deletions(-)
 
 diff --git a/drivers/char/tpm/tpm-dev-common.c b/drivers/char/tpm/tpm-dev-common.c
-index 10b9f63701e6..de55205d3a11 100644
+index 87f449340202..1784530b8387 100644
 --- a/drivers/char/tpm/tpm-dev-common.c
 +++ b/drivers/char/tpm/tpm-dev-common.c
-@@ -164,15 +164,6 @@ ssize_t tpm_common_write(struct file *file, const char __user *buf,
+@@ -189,15 +189,6 @@ ssize_t tpm_common_write(struct file *file, const char __user *buf,
  		goto out;
  	}
  
@@ -79,7 +79,7 @@ index 10b9f63701e6..de55205d3a11 100644
  	priv->response_length = 0;
  	priv->response_read = false;
  	*off = 0;
-@@ -186,11 +177,19 @@ ssize_t tpm_common_write(struct file *file, const char __user *buf,
+@@ -211,11 +202,19 @@ ssize_t tpm_common_write(struct file *file, const char __user *buf,
  	if (file->f_flags & O_NONBLOCK) {
  		priv->command_enqueued = true;
  		queue_work(tpm_dev_wq, &priv->async_work);
@@ -97,8 +97,8 @@ index 10b9f63701e6..de55205d3a11 100644
 +		goto out;
 +	}
 +
- 	ret = tpm_transmit(priv->chip, priv->space, priv->data_buffer,
- 			   sizeof(priv->data_buffer), 0);
+ 	ret = tpm_dev_transmit(priv->chip, priv->space, priv->data_buffer,
+ 			       sizeof(priv->data_buffer));
  	tpm_put_ops(priv->chip);
 -- 
 2.17.1
