@@ -2,142 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F4771EBD8C
-	for <lists+stable@lfdr.de>; Tue,  2 Jun 2020 16:01:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C5C991EBDBD
+	for <lists+stable@lfdr.de>; Tue,  2 Jun 2020 16:14:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725841AbgFBOB3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Jun 2020 10:01:29 -0400
-Received: from mail-lf1-f67.google.com ([209.85.167.67]:41445 "EHLO
-        mail-lf1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726000AbgFBOB3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 2 Jun 2020 10:01:29 -0400
-Received: by mail-lf1-f67.google.com with SMTP id u16so6239239lfl.8;
-        Tue, 02 Jun 2020 07:01:27 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=7TsTVRy6VoIywIRL97JtwPjdmIS2xffzmjhoZrIa1AA=;
-        b=eOsGiqaPePBg9gD9SVka1Kwq1CpL2OBOyyPJrYxi5m2hYmtOJ/v7bu83HfKBdkLZWc
-         oj6mSbMP9vdotQC3eXB6t3hrE0VFnA6P//g1hV3p+uiWHy0Y3KoeFX1aITko7+eUlgWq
-         sQSVqU0B/DSxw4QSn1mGUFCRGBHKzxIW0xaUfpnvH7rx3eTMO1tIqDOHi2BYVPlI19jT
-         cr9C4gqu2gWSyPjibVvqIXrXbKzhM5rBDrGTp2Pc1Y8YnlMR444FUbSgmiaDK66jVtka
-         ImfiBBofIpz4ws2gLKmOnyMvXmKMeIkPV6lMH97mLwdUU6XESQ2ycJX2VteAEFV0qvhc
-         s7Og==
-X-Gm-Message-State: AOAM5332KyAMv1YJFYfNqibUZfQUJ+OvZbEoFt+fRMNExqTNZe05uzKh
-        1vB1yivc31atZcVGCGxU0TM=
-X-Google-Smtp-Source: ABdhPJyua9OTdM+nCysSu614tZnmPjAqAmTU6yC4euXIi+HEamZNG2cLy12oe+as8rRKEabuEdEN8g==
-X-Received: by 2002:ac2:485a:: with SMTP id 26mr13899122lfy.57.1591106486401;
-        Tue, 02 Jun 2020 07:01:26 -0700 (PDT)
-Received: from xi.terra (c-beaee455.07-184-6d6c6d4.bbcust.telenor.se. [85.228.174.190])
-        by smtp.gmail.com with ESMTPSA id s13sm825849lfp.81.2020.06.02.07.01.25
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 02 Jun 2020 07:01:25 -0700 (PDT)
-Received: from johan by xi.terra with local (Exim 4.93.0.4)
-        (envelope-from <johan@xi.terra>)
-        id 1jg7Ti-0000xz-RD; Tue, 02 Jun 2020 16:01:18 +0200
-From:   Johan Hovold <johan@kernel.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Jiri Slaby <jslaby@suse.com>,
-        Dmitry Safonov <0x7f454c46@gmail.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        linux-serial@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Johan Hovold <johan@kernel.org>,
-        stable <stable@vger.kernel.org>
-Subject: [PATCH 2/4] serial: core: fix broken sysrq port unlock
-Date:   Tue,  2 Jun 2020 16:00:56 +0200
-Message-Id: <20200602140058.3656-3-johan@kernel.org>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200602140058.3656-1-johan@kernel.org>
-References: <20200602140058.3656-1-johan@kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        id S1726019AbgFBOOZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Jun 2020 10:14:25 -0400
+Received: from youngberry.canonical.com ([91.189.89.112]:38775 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726000AbgFBOOY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 2 Jun 2020 10:14:24 -0400
+Received: from 112-104-28-97.adsl.dynamic.seed.net.tw ([112.104.28.97] helo=canonical.com)
+        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.86_2)
+        (envelope-from <ivan.hu@canonical.com>)
+        id 1jg7gM-000473-Hq; Tue, 02 Jun 2020 14:14:23 +0000
+From:   Ivan Hu <ivan.hu@canonical.com>
+To:     kernel-team@lists.ubuntu.com
+Cc:     James Bottomley <James.Bottomley@HansenPartnership.com>,
+        stable@vger.kernel.org, Ivan Hu <ivan.hu@canonical.com>
+Subject: [PATCH 1/1][SRU][OEM-OSP1-B] UBUNTU: SAUCE: tpm: fix TIS locality timeout problems
+Date:   Tue,  2 Jun 2020 22:13:24 +0800
+Message-Id: <20200602141325.21074-2-ivan.hu@canonical.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20200602141325.21074-1-ivan.hu@canonical.com>
+References: <20200602141325.21074-1-ivan.hu@canonical.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Commit d6e1935819db ("serial: core: Allow processing sysrq at port
-unlock time") worked around a circular locking dependency by adding
-helpers used to defer sysrq processing to when the port lock was
-released.
+From: James Bottomley <James.Bottomley@HansenPartnership.com>
 
-A later commit unfortunately converted these inline helpers to exported
-functions despite the fact that the unlock helper was restoring irq
-flags, something which needs to be done in the same function that saved
-them (e.g. on SPARC).
+BugLink: https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1881710
 
-Fixes: 8e20fc391711 ("serial_core: Move sysrq functions from header file")
-Cc: stable <stable@vger.kernel.org>     # 5.6
-Cc: Dmitry Safonov <0x7f454c46@gmail.com>
-Signed-off-by: Johan Hovold <johan@kernel.org>
+It has been reported that some TIS based TPMs are giving unexpected
+errors when using the O_NONBLOCK path of the TPM device. The problem
+is that some TPMs don't like it when you get and then relinquish a
+locality (as the tpm_try_get_ops()/tpm_put_ops() pair does) without
+sending a command.  This currently happens all the time in the
+O_NONBLOCK write path. Fix this by moving the tpm_try_get_ops()
+further down the code to after the O_NONBLOCK determination is made.
+This is safe because the priv->buffer_mutex still protects the priv
+state being modified.
+
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=206275
+Fixes: d23d12484307 ("tpm: fix invalid locking in NONBLOCKING mode")
+Reported-by: Mario Limonciello <Mario.Limonciello@dell.com>
+Tested-by: Alex Guzman <alex@guzman.io>
+Cc: stable@vger.kernel.org
+Reviewed-by: Jerry Snitselaar <jsnitsel@redhat.com>
+Signed-off-by: James Bottomley <James.Bottomley@HansenPartnership.com>
+Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+(backported from https://patchwork.kernel.org/patch/11576453/)
+Signed-off-by: Ivan Hu <ivan.hu@canonical.com>
 ---
- drivers/tty/serial/serial_core.c | 19 -------------------
- include/linux/serial_core.h      | 21 +++++++++++++++++++--
- 2 files changed, 19 insertions(+), 21 deletions(-)
+ drivers/char/tpm/tpm-dev-common.c | 19 +++++++++----------
+ 1 file changed, 9 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/tty/serial/serial_core.c b/drivers/tty/serial/serial_core.c
-index edfb7bc14bbf..f6cf9cc4ce69 100644
---- a/drivers/tty/serial/serial_core.c
-+++ b/drivers/tty/serial/serial_core.c
-@@ -3239,25 +3239,6 @@ int uart_prepare_sysrq_char(struct uart_port *port, unsigned int ch)
- }
- EXPORT_SYMBOL_GPL(uart_prepare_sysrq_char);
+diff --git a/drivers/char/tpm/tpm-dev-common.c b/drivers/char/tpm/tpm-dev-common.c
+index 10b9f63701e6..de55205d3a11 100644
+--- a/drivers/char/tpm/tpm-dev-common.c
++++ b/drivers/char/tpm/tpm-dev-common.c
+@@ -164,15 +164,6 @@ ssize_t tpm_common_write(struct file *file, const char __user *buf,
+ 		goto out;
+ 	}
  
--void uart_unlock_and_check_sysrq(struct uart_port *port, unsigned long irqflags)
--{
--	int sysrq_ch;
--
--	if (!port->has_sysrq) {
--		spin_unlock_irqrestore(&port->lock, irqflags);
--		return;
+-	/* atomic tpm command send and result receive. We only hold the ops
+-	 * lock during this period so that the tpm can be unregistered even if
+-	 * the char dev is held open.
+-	 */
+-	if (tpm_try_get_ops(priv->chip)) {
+-		ret = -EPIPE;
+-		goto out;
 -	}
 -
--	sysrq_ch = port->sysrq_ch;
--	port->sysrq_ch = 0;
--
--	spin_unlock_irqrestore(&port->lock, irqflags);
--
--	if (sysrq_ch)
--		handle_sysrq(sysrq_ch);
--}
--EXPORT_SYMBOL_GPL(uart_unlock_and_check_sysrq);
--
- /*
-  * We do the SysRQ and SAK checking like this...
-  */
-diff --git a/include/linux/serial_core.h b/include/linux/serial_core.h
-index 1f4443db5474..858c5dd926ad 100644
---- a/include/linux/serial_core.h
-+++ b/include/linux/serial_core.h
-@@ -462,8 +462,25 @@ extern void uart_insert_char(struct uart_port *port, unsigned int status,
+ 	priv->response_length = 0;
+ 	priv->response_read = false;
+ 	*off = 0;
+@@ -186,11 +177,19 @@ ssize_t tpm_common_write(struct file *file, const char __user *buf,
+ 	if (file->f_flags & O_NONBLOCK) {
+ 		priv->command_enqueued = true;
+ 		queue_work(tpm_dev_wq, &priv->async_work);
+-		tpm_put_ops(priv->chip);
+ 		mutex_unlock(&priv->buffer_mutex);
+ 		return size;
+ 	}
  
- extern int uart_handle_sysrq_char(struct uart_port *port, unsigned int ch);
- extern int uart_prepare_sysrq_char(struct uart_port *port, unsigned int ch);
--extern void uart_unlock_and_check_sysrq(struct uart_port *port,
--					unsigned long irqflags);
-+
-+static inline void uart_unlock_and_check_sysrq(struct uart_port *port, unsigned long irqflags)
-+{
-+	int sysrq_ch;
-+
-+	if (!port->has_sysrq) {
-+		spin_unlock_irqrestore(&port->lock, irqflags);
-+		return;
++	/* atomic tpm command send and result receive. We only hold the ops
++	 * lock during this period so that the tpm can be unregistered even if
++	 * the char dev is held open.
++	 */
++	if (tpm_try_get_ops(priv->chip)) {
++		ret = -EPIPE;
++		goto out;
 +	}
 +
-+	sysrq_ch = port->sysrq_ch;
-+	port->sysrq_ch = 0;
-+
-+	spin_unlock_irqrestore(&port->lock, irqflags);
-+
-+	if (sysrq_ch)
-+		handle_sysrq(sysrq_ch);
-+}
-+
- extern int uart_handle_break(struct uart_port *port);
- 
- /*
+ 	ret = tpm_transmit(priv->chip, priv->space, priv->data_buffer,
+ 			   sizeof(priv->data_buffer), 0);
+ 	tpm_put_ops(priv->chip);
 -- 
-2.26.2
+2.17.1
 
