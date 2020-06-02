@@ -2,83 +2,150 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ADC4D1EC27B
-	for <lists+stable@lfdr.de>; Tue,  2 Jun 2020 21:13:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F54C1EC27F
+	for <lists+stable@lfdr.de>; Tue,  2 Jun 2020 21:14:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728024AbgFBTN6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Jun 2020 15:13:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46906 "EHLO
+        id S1726320AbgFBTOy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Jun 2020 15:14:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47048 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726139AbgFBTN6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 2 Jun 2020 15:13:58 -0400
-Received: from mail-pf1-x442.google.com (mail-pf1-x442.google.com [IPv6:2607:f8b0:4864:20::442])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4830DC08C5C0;
-        Tue,  2 Jun 2020 12:13:58 -0700 (PDT)
-Received: by mail-pf1-x442.google.com with SMTP id x207so3661034pfc.5;
-        Tue, 02 Jun 2020 12:13:58 -0700 (PDT)
+        with ESMTP id S1726139AbgFBTOy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 2 Jun 2020 15:14:54 -0400
+Received: from mail-pl1-x641.google.com (mail-pl1-x641.google.com [IPv6:2607:f8b0:4864:20::641])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB011C08C5C0
+        for <stable@vger.kernel.org>; Tue,  2 Jun 2020 12:14:53 -0700 (PDT)
+Received: by mail-pl1-x641.google.com with SMTP id bh7so1767327plb.11
+        for <stable@vger.kernel.org>; Tue, 02 Jun 2020 12:14:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=3LG42b/Qu7S4z1FTwve/Hp1RSuRTRvu7/8DqPfI5B60=;
-        b=Ojh8bW7DZRAgKIWWzp6pGQ2QV6jjh+JjNMLOzetekGch+0a0KWph8S19BObPX5hYMz
-         LYATTGS2kD1i1kT5hTLz2kq9zsy+JD13JjGDDB2n9pXsQLBz85wG4QeE03W8GpZG/F2i
-         Cll/JJEpgTrM6a3eevP/qZ44gNynEH5ezV09i/ie06JP2jKd6l70qTdD6/7CpVuvD3Og
-         Db9EvfPmSygjN52eagN65C5WO+j05T9dk87OSkWkRhnlKYJ19hH90M0NUNBGyZKNW0MS
-         /19N+ix4Y+DzviRnfldHPYvJ6BS98Igosc5m/Kutl80QIHD8T3cvx4t4gM3Zo0Dbyr94
-         XHtA==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=BTVdFcewQ8/ApKsSBz4bGTGE2/wobJsk4baQbOspjuQ=;
+        b=Lo8R+D0qKLT823Sg8BC7Tl1nKCPWU+jwN8xEymubFp+gdFmigdrCMAuffFIamfuxS1
+         8F264EOcBeW3YudYzO629h+fQC52h34+G4i/a7FQdyCrIXQJMbcIsq8upZsxpdyIEK3b
+         TUEREsYDHlACu27TH0pjrEM7nfZDXJ9NAnYUTcQOjPFkBZzQbvFYOwUsIWiz5aKq+ILB
+         X40iCk1zTT/5MQullE7GvWGQ82QJd+qBmqtxM3jI4ILKnmrNu6RxTWKdX0+BJuZMLVt6
+         KbTCEJ9g8vdnUY+gMYqCxamPRsz+GwnNQIW3raAz8MbmNhWGiJ3ztz58KJgfP89DBTRP
+         EbKA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=3LG42b/Qu7S4z1FTwve/Hp1RSuRTRvu7/8DqPfI5B60=;
-        b=lTCd8sPVnbdRbL3+Rl6GOVdwJsBpg3ZjeIsF3z7YRJhAOQlMPE3xlv/Yjxxsmj5OAN
-         nhoPIy4hHD/YnAyop3E5AhJorGG+JAWyAcDEj+29sRMwTPilBPIxC5PbjanhfPcnRpdX
-         UUmHsVDGCz4fFoE9bXklgygOTJ6jtR22qeT/DEJrM2pUpTz/b2+WQdIbbtAltQmaDLLp
-         EeC2ehDwSV4/+GW5vRUmsNp/KUFID5rBBvhfWUgsUafZRVnAfE6IIZtEGCRTidGyB2aB
-         zKVPggrM+xsthhfMPXGQnsn5OvF8GrvGfn2f6wWSqOm121vepE5KHmlvKByJV/2k8ycV
-         U/PQ==
-X-Gm-Message-State: AOAM531TBkAU5d2NSJjGL8xHxEM860XWolhn24UhA6SY/JTpeRmtipTH
-        aGWEhliy1fp1/rFvNztJVgCOwsEH
-X-Google-Smtp-Source: ABdhPJzjc0YkOuAjdjSpCaLB1BrVqwiSGMRgNR2TPUCVL9x9KJkiE5Z2KKbTTXbNOHXTPgMZ5I3Ltg==
-X-Received: by 2002:a63:40a:: with SMTP id 10mr26009775pge.310.1591125237939;
-        Tue, 02 Jun 2020 12:13:57 -0700 (PDT)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id m14sm2693076pgn.83.2020.06.02.12.13.57
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Tue, 02 Jun 2020 12:13:57 -0700 (PDT)
-Date:   Tue, 2 Jun 2020 12:13:56 -0700
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 5.6 000/174] 5.6.16-rc2 review
-Message-ID: <20200602191356.GE203031@roeck-us.net>
-References: <20200602101934.141130356@linuxfoundation.org>
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=BTVdFcewQ8/ApKsSBz4bGTGE2/wobJsk4baQbOspjuQ=;
+        b=Y4zhwNCQfafSzjkJHveEk2/RR+6UeimB0R6tVtiQehNKjYquwWRQi7K6I9JSD9OHtj
+         hEThaOtG/OMuJgfUlBNB8MKofu0rxU9GAGekuwim6I8Csfvb/pBl6+WC9XiD8fiLr4+W
+         r9XXHOE935XUqix9oJ0vS3V7NBy1hbOisx8JTZTdp/G9cruznUREeJiEwP4gtJEDvrRe
+         AYa8//QBvRMqePi7FZRA1ZuPsrEYKR6HkFPYWKwjoMT3qzXTkCqK9WZpeNvnxkiDA9yO
+         zCpZ5UuUIY0lO+fwHWrmG58rZJ7OXOZWIvS8Yn34dpFwvYMQrHTHB0YdoclTVB/6rg3S
+         2KAg==
+X-Gm-Message-State: AOAM532/ttgE3FOsxFnkSHF0nRieFNSR384Xm6XDMrlhQOAXlQIQJ8md
+        IpBpN8zbvj1Ma6R5EWIUz6pbFqDGZfU=
+X-Google-Smtp-Source: ABdhPJxZRP0ZFOemWGSf88XGyhNYPsgvVCiQVcxpuFBeLbuQh+8z58lXSLpi4jysJV6TMxn9K6CXUw==
+X-Received: by 2002:a17:902:9f93:: with SMTP id g19mr984576plq.314.1591125292925;
+        Tue, 02 Jun 2020 12:14:52 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id p4sm2886196pff.159.2020.06.02.12.14.51
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 02 Jun 2020 12:14:51 -0700 (PDT)
+Message-ID: <5ed6a52b.1c69fb81.57c8e.d7bb@mx.google.com>
+Date:   Tue, 02 Jun 2020 12:14:51 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200602101934.141130356@linuxfoundation.org>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.4.225-48-gd147737ac3ba
+X-Kernelci-Report-Type: boot
+X-Kernelci-Branch: linux-4.4.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-4.4.y boot: 63 boots: 4 failed,
+ 54 passed with 3 offline, 2 untried/unknown (v4.4.225-48-gd147737ac3ba)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jun 02, 2020 at 12:24:19PM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.6.16 release.
-> There are 174 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Thu, 04 Jun 2020 10:16:52 +0000.
-> Anything received after that time might be too late.
-> 
-Build results:
-	total: 155 pass: 155 fail: 0
-Qemu test results:
-	total: 429 pass: 429 fail: 0
+******************************************
+* WARNING: Boot tests are now deprecated *
+******************************************
 
-Guenter
+As kernelci.org is expanding its functional testing capabilities, the conce=
+pt
+of boot testing is now deprecated.  Boot results are scheduled to be droppe=
+d on
+*5th June 2020*.  The full schedule for boot tests deprecation is available=
+ on
+this GitHub issue: https://github.com/kernelci/kernelci-backend/issues/238
+
+The new equivalent is the *baseline* test suite which also runs sanity chec=
+ks
+using dmesg and bootrr: https://github.com/kernelci/bootrr
+
+See the *baseline results for this kernel revision* on this page:
+https://kernelci.org/test/job/stable-rc/branch/linux-4.4.y/kernel/v4.4.225-=
+48-gd147737ac3ba/plan/baseline/
+
+---------------------------------------------------------------------------=
+----
+
+stable-rc/linux-4.4.y boot: 63 boots: 4 failed, 54 passed with 3 offline, 2=
+ untried/unknown (v4.4.225-48-gd147737ac3ba)
+
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.4.y/kernel/v4.4.225-48-gd147737ac3ba/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
+/kernel/v4.4.225-48-gd147737ac3ba/
+
+Tree: stable-rc
+Branch: linux-4.4.y
+Git Describe: v4.4.225-48-gd147737ac3ba
+Git Commit: d147737ac3bacf4a44c5cfc4a531c308e2fb2027
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 45 unique boards, 16 SoC families, 15 builds out of 144
+
+Boot Regressions Detected:
+
+arm:
+
+    sama5_defconfig:
+        gcc-8:
+          at91-sama5d4_xplained:
+              lab-baylibre: failing since 68 days (last pass: v4.4.216-127-=
+g955137020949 - first fail: v4.4.217)
+
+Boot Failures Detected:
+
+arm:
+    mxs_defconfig:
+        gcc-8:
+            imx28-duckbill: 1 failed lab
+
+    imx_v4_v5_defconfig:
+        gcc-8:
+            imx27-phytec-phycard-s-rdk: 1 failed lab
+
+    multi_v5_defconfig:
+        gcc-8:
+            imx27-phytec-phycard-s-rdk: 1 failed lab
+
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
+
+Offline Platforms:
+
+arm:
+
+    exynos_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
