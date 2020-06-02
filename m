@@ -2,117 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F6FB1EB98A
-	for <lists+stable@lfdr.de>; Tue,  2 Jun 2020 12:26:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A66D11EB995
+	for <lists+stable@lfdr.de>; Tue,  2 Jun 2020 12:27:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726937AbgFBKZf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Jun 2020 06:25:35 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:45844 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726217AbgFBKZD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 2 Jun 2020 06:25:03 -0400
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0529W2sD115764;
-        Tue, 2 Jun 2020 06:24:39 -0400
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 31dfmksvxg-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 02 Jun 2020 06:24:39 -0400
-Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 0529aMS7132792;
-        Tue, 2 Jun 2020 06:24:38 -0400
-Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 31dfmksvw6-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 02 Jun 2020 06:24:38 -0400
-Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
-        by ppma02fra.de.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 052AK7EJ031346;
-        Tue, 2 Jun 2020 10:24:36 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma02fra.de.ibm.com with ESMTP id 31bf47tcdp-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 02 Jun 2020 10:24:35 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 052ANIxI53412138
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 2 Jun 2020 10:23:18 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 889CF5205F;
-        Tue,  2 Jun 2020 10:24:33 +0000 (GMT)
-Received: from oc3871087118.ibm.com (unknown [9.145.29.146])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTPS id B65545204E;
-        Tue,  2 Jun 2020 10:24:32 +0000 (GMT)
-Date:   Tue, 2 Jun 2020 12:24:31 +0200
-From:   Alexander Gordeev <agordeev@linux.ibm.com>
-To:     Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-s390@vger.kernel.org, Stable <stable@vger.kernel.org>,
-        Yury Norov <yury.norov@gmail.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Amritha Nambiar <amritha.nambiar@intel.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Chris Wilson <chris@chris-wilson.co.uk>,
-        Kees Cook <keescook@chromium.org>,
-        Matthew Wilcox <willy@infradead.org>,
-        Miklos Szeredi <mszeredi@redhat.com>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        "Tobin C . Harding" <tobin@kernel.org>,
-        Vineet Gupta <vineet.gupta1@synopsys.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Willem de Bruijn <willemb@google.com>
-Subject: Re: [PATCH RESEND] lib: fix bitmap_parse() on 64-bit big endian archs
-Message-ID: <20200602102430.GA17703@oc3871087118.ibm.com>
-References: <1589798090-11136-1-git-send-email-agordeev@linux.ibm.com>
- <CAHp75VdM2yrpd2d3pK2RkmbhF3yiM4=fiTXL4i3yu3AxV3wY-A@mail.gmail.com>
- <20200518115059.GA19150@oc3871087118.ibm.com>
+        id S1728129AbgFBK0I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Jun 2020 06:26:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34924 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727785AbgFBKYt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Jun 2020 06:24:49 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 612E8206C3;
+        Tue,  2 Jun 2020 10:24:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1591093488;
+        bh=TrGhn5EbApP0rTldnGBC/61hiEOwWaKzZ7RQMycm4gI=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=c22P/nX3NTr76YgD8tg54gr/BppeXI9M3ugHuwhRB7tKQ0gqipPrtJ7nxeM4lQUzM
+         K9zTOafCvzLgxGZRTwK23OWGivNdPced+F1nBgejRA/Jt7dXkGcHaAHSwdWCkxW04H
+         lS64x7DaRYab3G8yNR4x5pxNltn4JXhUUrsFyvAg=
+Date:   Tue, 2 Jun 2020 12:24:47 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Chris Paterson <Chris.Paterson2@renesas.com>
+Cc:     Sasha Levin <sashal@kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "torvalds@linux-foundation.org" <torvalds@linux-foundation.org>,
+        "akpm@linux-foundation.org" <akpm@linux-foundation.org>,
+        "linux@roeck-us.net" <linux@roeck-us.net>,
+        "shuah@kernel.org" <shuah@kernel.org>,
+        "patches@kernelci.org" <patches@kernelci.org>,
+        "ben.hutchings@codethink.co.uk" <ben.hutchings@codethink.co.uk>,
+        "lkft-triage@lists.linaro.org" <lkft-triage@lists.linaro.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH 4.4 00/48] 4.4.226-rc1 review
+Message-ID: <20200602102447.GA2987707@kroah.com>
+References: <20200601173952.175939894@linuxfoundation.org>
+ <OSAPR01MB23858265B59669B78394A94CB78A0@OSAPR01MB2385.jpnprd01.prod.outlook.com>
+ <20200602020651.GM1407771@sasha-vm>
+ <OSAPR01MB2385A58EDAF34A14A3756230B78B0@OSAPR01MB2385.jpnprd01.prod.outlook.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200518115059.GA19150@oc3871087118.ibm.com>
-User-Agent: Mutt/1.5.21 (2010-09-15)
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.216,18.0.687
- definitions=2020-06-02_11:2020-06-01,2020-06-02 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 mlxlogscore=999
- lowpriorityscore=0 malwarescore=0 suspectscore=0 adultscore=0
- cotscore=-2147483648 bulkscore=0 phishscore=0 clxscore=1015
- impostorscore=0 spamscore=0 priorityscore=1501 classifier=spam adjust=0
- reason=mlx scancount=1 engine=8.12.0-2004280000
- definitions=main-2006020061
+In-Reply-To: <OSAPR01MB2385A58EDAF34A14A3756230B78B0@OSAPR01MB2385.jpnprd01.prod.outlook.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, May 18, 2020 at 01:50:59PM +0200, Alexander Gordeev wrote:
-> On Mon, May 18, 2020 at 02:33:43PM +0300, Andy Shevchenko wrote:
-> > On Mon, May 18, 2020 at 1:40 PM Alexander Gordeev
-> > <agordeev@linux.ibm.com> wrote:
+On Tue, Jun 02, 2020 at 09:07:15AM +0000, Chris Paterson wrote:
+> Hello Sasha,
+> 
+> > From: stable-owner@vger.kernel.org <stable-owner@vger.kernel.org> On
+> > Behalf Of Sasha Levin
+> > Sent: 02 June 2020 03:07
+> > 
+> > On Mon, Jun 01, 2020 at 10:14:20PM +0000, Chris Paterson wrote:
+> > >Hi Greg,
 > > >
-> > > Commit 2d6261583be0 ("lib: rework bitmap_parse()") does
-> > > not take into account order of halfwords on 64-bit big
-> > > endian architectures.
+> > >> From: stable-owner@vger.kernel.org <stable-owner@vger.kernel.org> On
+> > >> Behalf Of Greg Kroah-Hartman
+> > >> Sent: 01 June 2020 18:53
+> > >>
+> > >> This is the start of the stable review cycle for the 4.4.226 release.
+> > >> There are 48 patches in this series, all will be posted as a response
+> > >> to this one.  If anyone has any issues with these being applied, please
+> > >> let me know.
+> > >
+> > >I'm seeing some issues with Linux 4.4.226-rc1 (dc230329b026).
+> > >
+> > >We have 4 configurations that fail, 2x Armv7 and 2x x86, whilst building the
+> > modules.
+> > >
+> > >Error message:
+> > >  ERROR: "pptp_msg_name" [net/netfilter/nf_conntrack_pptp.ko] undefined!
+> > >  ERROR: "pptp_msg_name" [net/ipv4/netfilter/nf_nat_pptp.ko] undefined!
+> > >
+> > >Relevant patches are:
+> > >  69969e0f7e37 ("netfilter: nf_conntrack_pptp: prevent buffer overflows in
+> > debug code")
+> > >  3441cc75e4d1 ("netfilter: nf_conntrack_pptp: fix compilation warning with
+> > W=1 build")
+> > >
+> > >I haven't had a chance to dig deeper yet but will do in the morning.
+> > >
+> > >Build/test pipeline/logs: https://gitlab.com/cip-project/cip-testing/linux-stable-
+> > rc-ci/pipelines/151700917
+> > >GitLab CI pipeline: https://gitlab.com/cip-project/cip-testing/linux-cip-
+> > pipelines/-/blob/master/trees/linux-4.4.y.yml
+> > >Relevant LAVA jobs:
+> > https://lava.ciplatform.org/scheduler/alljobs?length=25&search=dc2303#table
 > > 
-> > Thanks for report and the patch!
-> > 
-> > Did it work before? Can we have a test case for that that we will see
-> > the failure?
+> > Thats and interesting one... I've queued fe22cd9b7c98 ("printk: help
+> > pr_debug and pr_devel to optimize out arguments") for 4.4 to address
+> > this.
 > 
-> The test exists and enabled with CONFIG_TEST_BITMAP.
-> It does not appear ever passed before on 64 BE.
-> It does not fail on 64 LE for me either.
-
-Hi Andy et al,
-
-Any feedback on the fix? Does it work on 64 LE for you?
-
-Thanks!
-
-> Thanks!
+> This patch resolves the issue for me.
 > 
-> [...]
-> 
-> > -- 
-> > With Best Regards,
-> > Andy Shevchenko
+> Test pipeline: https://gitlab.com/cip-project/cip-kernel/linux-cip/pipelines/151885545
+
+Thanks for testing -rc2 is out with this fixed.
+
+greg k-h
