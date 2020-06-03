@@ -2,95 +2,178 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 46F491ED776
-	for <lists+stable@lfdr.de>; Wed,  3 Jun 2020 22:35:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FBB61ED7AA
+	for <lists+stable@lfdr.de>; Wed,  3 Jun 2020 22:55:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725992AbgFCUfN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 3 Jun 2020 16:35:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56590 "EHLO
+        id S1725985AbgFCUzq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 3 Jun 2020 16:55:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59746 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725985AbgFCUfM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 3 Jun 2020 16:35:12 -0400
-Received: from mail-pj1-x1041.google.com (mail-pj1-x1041.google.com [IPv6:2607:f8b0:4864:20::1041])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EE36C08C5C2
-        for <stable@vger.kernel.org>; Wed,  3 Jun 2020 13:35:12 -0700 (PDT)
-Received: by mail-pj1-x1041.google.com with SMTP id s88so102152pjb.5
-        for <stable@vger.kernel.org>; Wed, 03 Jun 2020 13:35:12 -0700 (PDT)
+        with ESMTP id S1725922AbgFCUzp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 3 Jun 2020 16:55:45 -0400
+Received: from mail-pl1-x642.google.com (mail-pl1-x642.google.com [IPv6:2607:f8b0:4864:20::642])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6869C08C5C0
+        for <stable@vger.kernel.org>; Wed,  3 Jun 2020 13:55:45 -0700 (PDT)
+Received: by mail-pl1-x642.google.com with SMTP id bg4so1246128plb.3
+        for <stable@vger.kernel.org>; Wed, 03 Jun 2020 13:55:45 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=W5rG5azrfwU1SE5+6VF2CaiUSY0EB63jPHlaOLOAids=;
-        b=H8lAAd7t8MN6jYw5eMcIVe9rAHxpKI1yFv/LZqIHzVdqTGi0osItXRbEC3imxxp5fw
-         XiTsvqNcg9jDA5i7CRdaI5PyhRfdYFu1/Haxwk1herusBfde/0Rxv2M8k7zdqcBZ5vO2
-         uAqTfTk4PSLas1IJTdwiVj7qe87PLWc/DJroM=
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=kcWVZJlcNHmOiVzpVSQGcDwXL5DgoJJyBt1ybFkSvHE=;
+        b=YQp0VYGo6sMdyzq8s6uNbOo5+9dQdAflVc92oVPwUdpqnBoVV0EiQhLH9GjDrlUgGy
+         S86nh1acWny00ok9pzuiJVLBxQu91byb6RFpxDR4gyk8O/w0EPlJ8jrMVFbjMUZfbp4c
+         NpIFPid0lplB8asz86006i5N9AnAGoHyQC2MTCw38cCridn8UJmzE6KC/+whnQR0OOEG
+         3xniSicR7qHigirFUQ1Cn306dwpZ7yDbHSpt6x2sHsW5z4KBCMlSUCmZd4Fsn+RDoFPy
+         k+D5K1SUz1o1UliJqtjmL/WRArz90x4XatFJAElNimRF4kUph7EBr71TKORjHnqb3wUN
+         2L9w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=W5rG5azrfwU1SE5+6VF2CaiUSY0EB63jPHlaOLOAids=;
-        b=pyQmLYBf0Gjjs1GnMRfri8su5TEg8TSIKE8C0eJ1Wyd0+sBIerFk55nPyVi3kufEum
-         20RNNKhCUtue+TCNfoBdTVGBejVgcH2lBWUboemQOAqQ83C6RLHmUduglmZfCzPk7g87
-         UVskAyY87LFBrfb9O9+QassC/6eNl5W5rvLC5EGpGRAoU9XUAbfQlxo5vXZwrK556CKP
-         pqwlL25rogc6sXPqZFPgEi60FaDZ8OCWQryTbuOaxiFIb8W6B/4hzQfJgOK6VE08obOj
-         TuuvnupTb1qHOvXUOA1kPDs/5ykLDgpKDy8WK5wTf/ilTeHLOrxE6U/2C2j8O6V+6pox
-         BCxQ==
-X-Gm-Message-State: AOAM533rW841g+Z9R1G8PPmYshroZ2lOr3pldhvY4G6f27YfP90lH6MD
-        mkdxIuuuODx2ZUuOehnUQKAh8g==
-X-Google-Smtp-Source: ABdhPJxh+aatEAcsfm7x2O7pF9u4HQEykZUt/5RuZbEPGXrhPVdcNGxmsklSppL48UqLLLYO/xjupQ==
-X-Received: by 2002:a17:902:714e:: with SMTP id u14mr1478127plm.175.1591216512009;
-        Wed, 03 Jun 2020 13:35:12 -0700 (PDT)
-Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
-        by smtp.gmail.com with ESMTPSA id i10sm2573857pfa.166.2020.06.03.13.35.10
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=kcWVZJlcNHmOiVzpVSQGcDwXL5DgoJJyBt1ybFkSvHE=;
+        b=kxXuplmRNuUumSFDoXfbPGPCmcuGyUdW05bmG0Sg9Ud3bU9FhbUVjhWus7GEsjU8O1
+         YEaDrAKMJrAPxwMVmGZ/8/7xUFIpNMHV3yDgsChBvJFalXlRIwFY5b2ie7jVIIoS1ykU
+         y53Jca6D1P+Aqg2pe+i7tdzJ5JatObm7D4skgPa4beWUhP9pXvNyzkNEx9l9owuwvdUP
+         Id1AuVC2cxH57dtbxGj673CQYekveM3vwFHK6HTslMjDEUTke7GIRKPlPC+KRMzp4B9g
+         UGLqpwwYwOzwMwxQoz1od6X5fYG5Uzh4m4EOkNk7JaWlfH7+IxtN4J64b66wC7NjN7zN
+         Z8Aw==
+X-Gm-Message-State: AOAM531RM/obq/Jt+ftNA8v89bzoVdE0mumapsYJVpd6ihEEYZ3dVMGk
+        YYeGJ+BwLq86NVb5XqzS+QgdHTAAEHU=
+X-Google-Smtp-Source: ABdhPJwP/xTxYteoVgM3mbluo51sCWLQIBPDJYG5YX1+SzpD5r1f+TzGKmnRCPhoBCBYTIvXhUKOdQ==
+X-Received: by 2002:a17:90a:4d87:: with SMTP id m7mr1902195pjh.26.1591217744853;
+        Wed, 03 Jun 2020 13:55:44 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id b19sm2525521pfi.65.2020.06.03.13.55.43
+        for <stable@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 03 Jun 2020 13:35:10 -0700 (PDT)
-Date:   Wed, 3 Jun 2020 13:35:09 -0700
-From:   Kees Cook <keescook@chromium.org>
-To:     glider@google.com
-Cc:     miklos@szeredi.hu, linux-unionfs@vger.kernel.org,
-        linux-kernel@vger.kernel.org, royyang@google.com,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] ovl: explicitly initialize error in ovl_copy_xattr()
-Message-ID: <202006031219.36197D0729@keescook>
-References: <20200603174714.192027-1-glider@google.com>
+        Wed, 03 Jun 2020 13:55:43 -0700 (PDT)
+Message-ID: <5ed80e4f.1c69fb81.c77ef.6d6b@mx.google.com>
+Date:   Wed, 03 Jun 2020 13:55:43 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200603174714.192027-1-glider@google.com>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.14.183
+X-Kernelci-Report-Type: boot
+X-Kernelci-Branch: linux-4.14.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-4.14.y boot: 121 boots: 3 failed,
+ 107 passed with 5 offline, 5 untried/unknown, 1 conflict (v4.14.183)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jun 03, 2020 at 07:47:14PM +0200, glider@google.com wrote:
-> Under certain circumstances (we found this out running Docker on a
-> Clang-built kernel with CONFIG_INIT_STACK_ALL) ovl_copy_xattr() may
-> return uninitialized value of |error| from ovl_copy_xattr().
-> It is then returned by ovl_create() to lookup_open(), which casts it to
-> an invalid dentry pointer, that can be further read or written by the
-> lookup_open() callers.
-> 
-> Signed-off-by: Alexander Potapenko <glider@google.com>
+******************************************
+* WARNING: Boot tests are now deprecated *
+******************************************
 
-Link: https://bugs.chromium.org/p/chromium/issues/detail?id=1050405
-Fixes: e4ad29fa0d22 ("ovl: use a minimal buffer in ovl_copy_xattr")
-Cc: stable@vger.kernel.org
-Reviewed-by: Kees Cook <keescook@chromium.org>
+As kernelci.org is expanding its functional testing capabilities, the conce=
+pt
+of boot testing is now deprecated.  Boot results are scheduled to be droppe=
+d on
+*5th June 2020*.  The full schedule for boot tests deprecation is available=
+ on
+this GitHub issue: https://github.com/kernelci/kernelci-backend/issues/238
 
-It seems the error isn't reported anywhere, so the value likely isn't
-too important. -EINVAL seems sane to me.
+The new equivalent is the *baseline* test suite which also runs sanity chec=
+ks
+using dmesg and bootrr: https://github.com/kernelci/bootrr
 
-Thought: should CONFIG_INIT_STACK_ALL=y disable uninitialized_var()?
+See the *baseline results for this kernel revision* on this page:
+https://kernelci.org/test/job/stable-rc/branch/linux-4.14.y/kernel/v4.14.18=
+3/plan/baseline/
 
-$ git grep uninitialized_var | wc -l
-300
+---------------------------------------------------------------------------=
+----
 
-We have evidence this is being used inappropriately and is masking bugs.
-I would actually think it should should be removed globally, but it
-seems especially important for CONFIG_INIT_STACK_ALL=y.
+stable-rc/linux-4.14.y boot: 121 boots: 3 failed, 107 passed with 5 offline=
+, 5 untried/unknown, 1 conflict (v4.14.183)
 
-I've opened:
-https://github.com/KSPP/linux/issues/81
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.14.y/kernel/v4.14.183/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
+y/kernel/v4.14.183/
 
--- 
-Kees Cook
+Tree: stable-rc
+Branch: linux-4.14.y
+Git Describe: v4.14.183
+Git Commit: c6db52a88798e5a0dfef80041ad4d33cc8cf04eb
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 74 unique boards, 20 SoC families, 15 builds out of 161
+
+Boot Regressions Detected:
+
+arm:
+
+    qcom_defconfig:
+        gcc-8:
+          qcom-apq8064-cm-qs600:
+              lab-baylibre-seattle: failing since 21 days (last pass: v4.14=
+.180 - first fail: v4.14.180-37-gad4fc99d1989)
+
+    sama5_defconfig:
+        gcc-8:
+          at91-sama5d4_xplained:
+              lab-baylibre: failing since 104 days (last pass: v4.14.170-14=
+1-g00a0113414f7 - first fail: v4.14.171-29-g9cfe30e85240)
+
+    versatile_defconfig:
+        gcc-8:
+          versatile-pb:
+              lab-collabora: new failure (last pass: v4.14.182-77-ge6499674=
+2439)
+
+i386:
+
+    i386_defconfig:
+        gcc-8:
+          qemu_i386:
+              lab-collabora: new failure (last pass: v4.14.182-77-ge6499674=
+2439)
+
+Boot Failures Detected:
+
+arm:
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
+
+arm64:
+    defconfig:
+        gcc-8:
+            meson-gxbb-p200: 1 failed lab
+            meson-gxm-q200: 1 failed lab
+
+Offline Platforms:
+
+arm:
+
+    exynos_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+            qcom-apq8064-cm-qs600: 1 offline lab
+            stih410-b2120: 1 offline lab
+
+Conflicting Boot Failure Detected: (These likely are not failures as other =
+labs are reporting PASS. Needs review.)
+
+i386:
+    i386_defconfig:
+        qemu_i386:
+            lab-collabora: FAIL (gcc-8)
+            lab-baylibre: PASS (gcc-8)
+
+---
+For more info write to <info@kernelci.org>
