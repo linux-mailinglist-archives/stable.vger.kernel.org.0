@@ -2,159 +2,141 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 863691ED872
-	for <lists+stable@lfdr.de>; Thu,  4 Jun 2020 00:13:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C224E1ED8AE
+	for <lists+stable@lfdr.de>; Thu,  4 Jun 2020 00:34:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726512AbgFCWNO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 3 Jun 2020 18:13:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43436 "EHLO
+        id S1726928AbgFCWek (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 3 Jun 2020 18:34:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46756 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726354AbgFCWNO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 3 Jun 2020 18:13:14 -0400
-Received: from mail-pl1-x644.google.com (mail-pl1-x644.google.com [IPv6:2607:f8b0:4864:20::644])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E4C6C08C5C0
-        for <stable@vger.kernel.org>; Wed,  3 Jun 2020 15:13:13 -0700 (PDT)
-Received: by mail-pl1-x644.google.com with SMTP id x11so1304753plv.9
-        for <stable@vger.kernel.org>; Wed, 03 Jun 2020 15:13:13 -0700 (PDT)
+        with ESMTP id S1726787AbgFCWej (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 3 Jun 2020 18:34:39 -0400
+Received: from mail-lj1-x242.google.com (mail-lj1-x242.google.com [IPv6:2a00:1450:4864:20::242])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05053C08C5C0
+        for <stable@vger.kernel.org>; Wed,  3 Jun 2020 15:34:38 -0700 (PDT)
+Received: by mail-lj1-x242.google.com with SMTP id s1so4850669ljo.0
+        for <stable@vger.kernel.org>; Wed, 03 Jun 2020 15:34:37 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=NmUsyQuml4o4c/LNub/sL1c6epYbRXOnyFYNRr2Vg3w=;
-        b=wLMor6w+wv1ye9yrDeH5mSYFkZFLH7FV+RuG0l49p0qKgKSE9cfL+h8z+mkeXmuzs5
-         AfFD+6lmBoaJGKgwU68fumLaIFfDEG/kUiJz5PCQh4hTk6BkaMV4x2io18dDeDb/kiQA
-         DMxjmyw3bhiM+GCHqzROytyMsd/D2BEH1V4XCOMB51pUYwx8RnQR7HIfO2aezzP31MLf
-         Mqo2A4i46cnSsbT6rOw0CSMwSB0bBp9sECACq/vDASUa92zYPeUu+F8h8RlOOxRPzMoz
-         y5LFYqPSOfl3qTXSBTVn0uXfZdX6bCJXdCU8rebSTOcoyxr9dcTM2W9jVz0VssVbJFII
-         XLIw==
+        d=chromium.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=Gh37isHiEa0VDwLfX8KuGahT8mC736+W9oMftFOpgb8=;
+        b=NI9BNZsZdQDK5mmCBfvcf4CZuksZNkq/F+BU0OYIGjn/GXd8AdBMnwywGKwiM14KiN
+         GWVeyJoC99OT1ioTuXeoMUNgTP79Fxp2VHsXm7dQjmmSbo+4nLiuCnHHp1TQP/yZuzdq
+         NFblHC6HRzkHEyA/LHmf9UxTwF9isjRLAry8Q=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=NmUsyQuml4o4c/LNub/sL1c6epYbRXOnyFYNRr2Vg3w=;
-        b=FzScYmU8KDZilxky78hFK34GCTzC6UxxzaGG1sYTaRrY5727rZYbrmUgLSCFAMrPBD
-         aqIysKsqCkpBc/bDqqZuATfw0HLTulqBMyc0ZeoT/TdhuEPDGUQBooEqgnqYD0YL/N9l
-         fGGS4paSE9UlICXLq+5FVI5N/O53BAAr8gHkcuB6csLW7FuXHNn6qsvYKM3Yr7Ndm9iF
-         tbcQqiOVk2u4cgrRt//iPWtKWF+Sm/WrU4iHfxviKydir258CKfmtQL913lQ8oiN2W8I
-         ZgCb4QLus6su1HoTsh3zK8SRA2zVsDOKJIOOaqNrucfi+hv36plT2rEJYbzCnjVPrx47
-         7RDg==
-X-Gm-Message-State: AOAM533Cgy0ocFxmNHgEJJseKcck/L4Mv/pLBMJ1QIq8DcTexPUgdnkc
-        ucrXhI1oAOmBoVJQJnGs9kkExU95WM4=
-X-Google-Smtp-Source: ABdhPJxIsTyZDw8GSdtIMyuH0UIJ0J2SgiGcTeu7iZDQa1tDPrbz0QXwJ6b7TRoRPwRIY2Pl3RUJ5A==
-X-Received: by 2002:a17:902:b411:: with SMTP id x17mr1758750plr.272.1591222392436;
-        Wed, 03 Jun 2020 15:13:12 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id x7sm2524602pfm.14.2020.06.03.15.13.11
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=Gh37isHiEa0VDwLfX8KuGahT8mC736+W9oMftFOpgb8=;
+        b=lUmiBIY/Ckc7qmG+xZSUiBVVNlb0sDwshr7z8imf38Y7HAVbTYp9pUzIz+AcBCc3/i
+         zewe8UUL+mMrjsVWGdBO8F9uOIoMuqGTSZogAPYEYXKpSv9lnKlKZv2GhiKBUqdgFuEB
+         Zh8WAh3vf3791yfjVQkaB6rtPych9Ky2kzBHlf2MlJQJ9zuIbKuNs2OduHIvc3ZYJoZl
+         a80/S9NXYyZ69VlT+JVWynshWwnluqCkikmtO5M/h7b1Bvh76M6byZoh28+efpphv1fW
+         LqGL2DHgwj6GjdjcdqMiUKClDS93U3HXEaxIZSH8d0CUyya4Yq70J81n7dHIM25Ip41+
+         MhqQ==
+X-Gm-Message-State: AOAM531qrnuJWDu9//wYT9UbdMVJ3FC8P8slNcPt8ZbwQJj+sN5JHDRE
+        h7CSuG/jDJEs+Cq/4WXUbzJs62WJejo=
+X-Google-Smtp-Source: ABdhPJyxAK69DTAaM6SkX80mGCt5IVhnTDUEar4YuBk7umqxGdqyD5GBe416umkTJWOzOTg6lu9CMQ==
+X-Received: by 2002:a2e:8944:: with SMTP id b4mr615388ljk.247.1591223674435;
+        Wed, 03 Jun 2020 15:34:34 -0700 (PDT)
+Received: from mail-lf1-f43.google.com (mail-lf1-f43.google.com. [209.85.167.43])
+        by smtp.gmail.com with ESMTPSA id w24sm812068ljd.14.2020.06.03.15.34.32
         for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 03 Jun 2020 15:13:11 -0700 (PDT)
-Message-ID: <5ed82077.1c69fb81.badfa.72b8@mx.google.com>
-Date:   Wed, 03 Jun 2020 15:13:11 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 03 Jun 2020 15:34:33 -0700 (PDT)
+Received: by mail-lf1-f43.google.com with SMTP id c21so2349540lfb.3
+        for <stable@vger.kernel.org>; Wed, 03 Jun 2020 15:34:32 -0700 (PDT)
+X-Received: by 2002:a19:103:: with SMTP id 3mr827227lfb.196.1591223672262;
+ Wed, 03 Jun 2020 15:34:32 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.4.44
-X-Kernelci-Report-Type: boot
-X-Kernelci-Branch: linux-5.4.y
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-5.4.y boot: 144 boots: 1 failed,
- 132 passed with 4 offline, 7 untried/unknown (v5.4.44)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+References: <20200602163257.26978-1-sibis@codeaurora.org> <CAE=gft7sbh_S_GiRohtMmdMN9JzQhG0m3bUerwrmzhjmXucGKw@mail.gmail.com>
+ <6392c800b0be1cbabb8a241cf518ab4b@codeaurora.org>
+In-Reply-To: <6392c800b0be1cbabb8a241cf518ab4b@codeaurora.org>
+From:   Evan Green <evgreen@chromium.org>
+Date:   Wed, 3 Jun 2020 15:33:55 -0700
+X-Gmail-Original-Message-ID: <CAE=gft4v1iHAPJS13fLBXgjt8ZRhD7q894zF_7JvK9QbiTbwhA@mail.gmail.com>
+Message-ID: <CAE=gft4v1iHAPJS13fLBXgjt8ZRhD7q894zF_7JvK9QbiTbwhA@mail.gmail.com>
+Subject: Re: [PATCH 1/2] remoteproc: qcom: q6v5: Update running state before
+ requesting stop
+To:     Sibi Sankar <sibis@codeaurora.org>
+Cc:     Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Andy Gross <agross@kernel.org>,
+        linux-arm-msm <linux-arm-msm@vger.kernel.org>,
+        linux-remoteproc@vger.kernel.org,
+        LKML <linux-kernel@vger.kernel.org>,
+        Ohad Ben Cohen <ohad@wizery.com>, rohitkr@codeaurora.org,
+        stable@vger.kernel.org, linux-kernel-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-******************************************
-* WARNING: Boot tests are now deprecated *
-******************************************
+On Tue, Jun 2, 2020 at 10:29 PM Sibi Sankar <sibis@codeaurora.org> wrote:
+>
+> Evan,
+> Thanks for taking time to review
+> the series.
+>
+> On 2020-06-02 23:14, Evan Green wrote:
+> > On Tue, Jun 2, 2020 at 9:33 AM Sibi Sankar <sibis@codeaurora.org>
+> > wrote:
+> >>
+> >> Sometimes the stop triggers a watchdog rather than a stop-ack. Update
+> >> the running state to false on requesting stop to skip the watchdog
+> >> instead.
+> >>
+> >> Error Logs:
+> >> $ echo stop > /sys/class/remoteproc/remoteproc0/state
+> >> ipa 1e40000.ipa: received modem stopping event
+> >> remoteproc-modem: watchdog received: sys_m_smsm_mpss.c:291:APPS force
+> >> stop
+> >> qcom-q6v5-mss 4080000.remoteproc-modem: port failed halt
+> >> ipa 1e40000.ipa: received modem offline event
+> >> remoteproc0: stopped remote processor 4080000.remoteproc-modem
+> >>
+> >> Fixes: 3b415c8fb263 ("remoteproc: q6v5: Extract common resource
+> >> handling")
+> >> Cc: stable@vger.kernel.org
+> >> Signed-off-by: Sibi Sankar <sibis@codeaurora.org>
+> >> ---
+> >
+> > Are you sure you want to tolerate this behavior from MSS? This is a
+> > graceful shutdown, modem shouldn't have a problem completing the
+> > proper handshake. If they do, isn't that a bug on the modem side?
+>
+> The graceful shutdown is achieved
+> though sysmon (enabled using
+> CONFIG_QCOM_SYSMON). When sysmon is
+> enabled we get a shutdown-ack when we
+> try to stop the modem, post which
+> request stop is a basically a nop.
+> Request stop is done to force stop
+> the modem during failure cases (like
+> rmtfs is not running and so on) and
+> we do want to mask the wdog that we get
+> during this scenario ( The locking
+> already prevents the servicing of the
+> wdog during shutdown, the check just
+> prevents the scheduling of crash handler
+> and err messages associated with it).
+> Also this check was always present and
+> was missed during common q6v5 resource
+> helper migration, hence the unused
+> running state in mss driver.
 
-As kernelci.org is expanding its functional testing capabilities, the conce=
-pt
-of boot testing is now deprecated.  Boot results are scheduled to be droppe=
-d on
-*5th June 2020*.  The full schedule for boot tests deprecation is available=
- on
-this GitHub issue: https://github.com/kernelci/kernelci-backend/issues/238
+So you're saying that the intention of the ->running check already in
+q6v5_wdog_interrupt() was to allow either the stop-ack or wdog
+interrupt to complete the stop. This patch just fixes a regression
+introduced during the refactor.
+This patch seems ok to me then. It still sort of seems like a bug that
+the modem responds arbitrarily in one of two ways, even to a "harsh"
+shutdown request.
 
-The new equivalent is the *baseline* test suite which also runs sanity chec=
-ks
-using dmesg and bootrr: https://github.com/kernelci/bootrr
+I wasn't aware of QCOM_SYSMON. Reading it now, It seems like kind of a
+lot... do I really need all this? Can I get by with just remoteproc
+stops?
+Anyway, for this patch:
 
-See the *baseline results for this kernel revision* on this page:
-https://kernelci.org/test/job/stable-rc/branch/linux-5.4.y/kernel/v5.4.44/p=
-lan/baseline/
-
----------------------------------------------------------------------------=
-----
-
-stable-rc/linux-5.4.y boot: 144 boots: 1 failed, 132 passed with 4 offline,=
- 7 untried/unknown (v5.4.44)
-
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--5.4.y/kernel/v5.4.44/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.4.y=
-/kernel/v5.4.44/
-
-Tree: stable-rc
-Branch: linux-5.4.y
-Git Describe: v5.4.44
-Git Commit: 55852b3fd146ce90d4d4306b467261f2c4869293
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 100 unique boards, 25 SoC families, 17 builds out of 156
-
-Boot Regressions Detected:
-
-arm:
-
-    qcom_defconfig:
-        gcc-8:
-          qcom-apq8064-cm-qs600:
-              lab-baylibre-seattle: failing since 116 days (last pass: v5.4=
-.17-99-gbd0c6624a110 - first fail: v5.4.17-238-gbffcaa93483d)
-
-    sama5_defconfig:
-        gcc-8:
-          at91-sama5d4_xplained:
-              lab-baylibre: failing since 56 days (last pass: v5.4.30-37-g4=
-0da5db79b55 - first fail: v5.4.30-39-g23c04177b89f)
-
-    versatile_defconfig:
-        gcc-8:
-          versatile-pb:
-              lab-collabora: new failure (last pass: v5.4.43-140-gf5694d7c4=
-27e)
-
-arm64:
-
-    defconfig:
-        gcc-8:
-          meson-gxl-s905x-khadas-vim:
-              lab-baylibre: new failure (last pass: v5.4.43-140-gf5694d7c42=
-7e)
-
-Boot Failure Detected:
-
-arm:
-    sama5_defconfig:
-        gcc-8:
-            at91-sama5d4_xplained: 1 failed lab
-
-Offline Platforms:
-
-arm:
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-            qcom-apq8064-cm-qs600: 1 offline lab
-            stih410-b2120: 1 offline lab
-
----
-For more info write to <info@kernelci.org>
+Reviewed-by: Evan Green <evgreen@chromium.org>
