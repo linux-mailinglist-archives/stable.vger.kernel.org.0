@@ -2,117 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AED201ECD24
-	for <lists+stable@lfdr.de>; Wed,  3 Jun 2020 12:05:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E25F01ECDC2
+	for <lists+stable@lfdr.de>; Wed,  3 Jun 2020 12:42:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726159AbgFCKFw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 3 Jun 2020 06:05:52 -0400
-Received: from mga12.intel.com ([192.55.52.136]:30102 "EHLO mga12.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726123AbgFCKFw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 3 Jun 2020 06:05:52 -0400
-IronPort-SDR: GdrM6clIx7TMhwc2oAYSWHBeB59aKUECRD9hKG2Th9b/U1y1QWEHx8g+cD0CQyQOp1AfuyOc8p
- aLJgnscMgPjg==
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga003.fm.intel.com ([10.253.24.29])
-  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Jun 2020 03:05:51 -0700
-IronPort-SDR: aGKqsFG6QYBsdex8XypsLUfdNcskzgd+owH3ClvYc78+3rstPTOjvwG9yuNlptUExynoGa9aBE
- AeAcvYxsE3pg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.73,467,1583222400"; 
-   d="scan'208";a="312553661"
-Received: from stinkbox.fi.intel.com (HELO stinkbox) ([10.237.72.174])
-  by FMSMGA003.fm.intel.com with SMTP; 03 Jun 2020 03:05:48 -0700
-Received: by stinkbox (sSMTP sendmail emulation); Wed, 03 Jun 2020 13:05:48 +0300
-Date:   Wed, 3 Jun 2020 13:05:48 +0300
-From:   Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
-To:     Anshuman Gupta <anshuman.gupta@intel.com>
-Cc:     intel-gfx@lists.freedesktop.org, stable@vger.kernel.org,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Subject: Re: [RFC] drm/i915: lpsp with hdmi/dp outputs
-Message-ID: <20200603100548.GN6112@intel.com>
-References: <20200601101516.21018-1-anshuman.gupta@intel.com>
- <20200601141132.GK6112@intel.com>
- <20200602122807.GN4452@intel.com>
+        id S1725906AbgFCKmg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 3 Jun 2020 06:42:36 -0400
+Received: from hqnvemgate24.nvidia.com ([216.228.121.143]:15743 "EHLO
+        hqnvemgate24.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725836AbgFCKmg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 3 Jun 2020 06:42:36 -0400
+Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate24.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5ed77e3b0001>; Wed, 03 Jun 2020 03:40:59 -0700
+Received: from hqmail.nvidia.com ([172.20.161.6])
+  by hqpgpgate101.nvidia.com (PGP Universal service);
+  Wed, 03 Jun 2020 03:42:36 -0700
+X-PGP-Universal: processed;
+        by hqpgpgate101.nvidia.com on Wed, 03 Jun 2020 03:42:36 -0700
+Received: from [10.26.72.154] (10.124.1.5) by HQMAIL107.nvidia.com
+ (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Wed, 3 Jun
+ 2020 10:42:33 +0000
+Subject: Re: [PATCH 4.9 00/55] 4.9.226-rc3 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
+        <stable@vger.kernel.org>, linux-tegra <linux-tegra@vger.kernel.org>
+References: <20200602181325.420361863@linuxfoundation.org>
+From:   Jon Hunter <jonathanh@nvidia.com>
+Message-ID: <4eaf333a-e497-d39e-338e-a790b116dc62@nvidia.com>
+Date:   Wed, 3 Jun 2020 11:42:30 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.8.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20200602122807.GN4452@intel.com>
-X-Patchwork-Hint: comment
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20200602181325.420361863@linuxfoundation.org>
+X-Originating-IP: [10.124.1.5]
+X-ClientProxiedBy: HQMAIL101.nvidia.com (172.20.187.10) To
+ HQMAIL107.nvidia.com (172.20.187.13)
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1591180859; bh=TE8Gwf6AAmn6VLqDVd/fvaL76PxZrwx9Q6AdZb2E0t8=;
+        h=X-PGP-Universal:Subject:To:CC:References:From:Message-ID:Date:
+         User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
+         X-ClientProxiedBy:Content-Type:Content-Language:
+         Content-Transfer-Encoding;
+        b=S2YISU/PTe1VzJHpuSe46DNmIdxmOu8rGPvJKPM0QF0zZcFylw6OG+qerrJHvFDVi
+         TrXCDh0TDyNnqOx5wteJQoS66dH2IAb8EEufgprMJmcwc46dg/CFnkV23nYy2aU3kN
+         2oDanUp+DIiVpJkS/cpFzzTdF+W09XQ4HtDJr21ACbWz6f6g6UBJC3kyAJ6tfkSqHM
+         YPrTskfq5Z6Keu4G5DzR8dm9POAT67j0Z7TPtG0chYkjlBUwHvNwg9HvEtLSdFiY4c
+         UwN2HLT1IJkSqRI4PqrE1HuYfdHKXF+H7KiHZ+irMtooZP86Rwx1+1dQOQ48Dvmq7F
+         IV0YCJzY5gIJQ==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jun 02, 2020 at 05:58:07PM +0530, Anshuman Gupta wrote:
-> On 2020-06-01 at 17:11:32 +0300, Ville Syrjälä wrote:
-> > On Mon, Jun 01, 2020 at 03:45:16PM +0530, Anshuman Gupta wrote:
-> > > Gen12 hw are failing to enable lpsp configuration due to PG3 was left on
-> > > due to valid usgae count of POWER_DOMAIN_AUDIO.
-> > > It is not required to get POWER_DOMAIN_AUDIO ref-count when enabling
-> > > a crtc, it should be always i915_audio_component request to get/put
-> > > AUDIO_POWER_DOMAIN.
-> > > 
-> > > Cc: stable@vger.kernel.org
-> > > Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
-> > > Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-> > > Signed-off-by: Anshuman Gupta <anshuman.gupta@intel.com>
-> > > ---
-> > >  drivers/gpu/drm/i915/display/intel_display.c | 6 +++++-
-> > >  1 file changed, 5 insertions(+), 1 deletion(-)
-> > > 
-> > > diff --git a/drivers/gpu/drm/i915/display/intel_display.c b/drivers/gpu/drm/i915/display/intel_display.c
-> > > index 6c3b11de2daf..f31a579d7a52 100644
-> > > --- a/drivers/gpu/drm/i915/display/intel_display.c
-> > > +++ b/drivers/gpu/drm/i915/display/intel_display.c
-> > > @@ -7356,7 +7356,11 @@ static u64 get_crtc_power_domains(struct intel_crtc_state *crtc_state)
-> > >  		mask |= BIT_ULL(intel_encoder->power_domain);
-> > >  	}
-> > >  
-> > > -	if (HAS_DDI(dev_priv) && crtc_state->has_audio)
-> > > +	/*
-> > > +	 * Gen12 can drive lpsp on hdmi/dp outpus, it doesn't require to
-> > > +	 * enable AUDIO power in order to enable a crtc
-> > 
-> > Nothing requires audio power to enable a crtc. What this is saying is
-> > that if we want audio then we must enable the audio power. If you
-> > didn't want audio then you wouldn't have .has_audio set.
-> IMO i915_audio_component_get_power also enables audio power, and
-> i915_audio_component_put_power releases the usage count based upon audio
-> runtime idleness but here get_crtc_power_domains() gets the POWER_DOMAIN_AUDIO usages
-> count, which will be released only when this crtc get disbaled.
-> It may enable AUDIO power despite of fact that audio driver has released the
-> usage count.
-> Please correct me if i am wrong here.
 
-The audio component stuff doesn't actually do the audio enable/disable
-sequence.
-
+On 02/06/2020 19:13, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.9.226 release.
+> There are 55 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> > 
-> > That said, looks like audio is moving into the always on well, but not
-> > yet in tgl.
-> Still some of audio functional stuff lies in PG3, not completely removed
-> from PG3.
-> Thanks,
-> Anshuman Gupta.
-> > 
-> > .
-> > > +	 */
-> > > +	if (INTEL_GEN(dev_priv) < 12 && HAS_DDI(dev_priv) && crtc_state->has_audio)
-> > >  		mask |= BIT_ULL(POWER_DOMAIN_AUDIO);
-> > >  
-> > >  	if (crtc_state->shared_dpll)
-> > > -- 
-> > > 2.26.2
-> > 
-> > -- 
-> > Ville Syrjälä
-> > Intel
+> Responses should be made by Thu, 04 Jun 2020 18:12:28 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.226-rc3.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+
+
+All tests are passing for Tegra. Seems that our test gremlins are still
+at large and I cannot pull the report yet. However, I can see that
+everything is passing fine.
+
+Cheers
+Jon
 
 -- 
-Ville Syrjälä
-Intel
+nvpublic
