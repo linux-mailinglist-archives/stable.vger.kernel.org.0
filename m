@@ -2,98 +2,166 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 484BC1ECA96
-	for <lists+stable@lfdr.de>; Wed,  3 Jun 2020 09:30:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E91D1ECAA8
+	for <lists+stable@lfdr.de>; Wed,  3 Jun 2020 09:37:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726080AbgFCHaP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 3 Jun 2020 03:30:15 -0400
-Received: from hqnvemgate24.nvidia.com ([216.228.121.143]:14317 "EHLO
-        hqnvemgate24.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725866AbgFCHaO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 3 Jun 2020 03:30:14 -0400
-Received: from hqpgpgate102.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate24.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
-        id <B5ed751250002>; Wed, 03 Jun 2020 00:28:37 -0700
-Received: from hqmail.nvidia.com ([172.20.161.6])
-  by hqpgpgate102.nvidia.com (PGP Universal service);
-  Wed, 03 Jun 2020 00:30:14 -0700
-X-PGP-Universal: processed;
-        by hqpgpgate102.nvidia.com on Wed, 03 Jun 2020 00:30:14 -0700
-Received: from [10.26.72.154] (10.124.1.5) by HQMAIL107.nvidia.com
- (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Wed, 3 Jun
- 2020 07:30:10 +0000
-Subject: Re: [PATCH 5.4 000/139] 5.4.44-rc2 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <linux-kernel@vger.kernel.org>
-CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
-        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
-        <stable@vger.kernel.org>, linux-tegra <linux-tegra@vger.kernel.org>
-References: <20200602101919.871080962@linuxfoundation.org>
-From:   Jon Hunter <jonathanh@nvidia.com>
-Message-ID: <8cd6c3b7-7f1a-1a7a-9d60-8a814b164698@nvidia.com>
-Date:   Wed, 3 Jun 2020 08:30:08 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.8.0
+        id S1725840AbgFCHhT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 3 Jun 2020 03:37:19 -0400
+Received: from mail27.static.mailgun.info ([104.130.122.27]:45006 "EHLO
+        mail27.static.mailgun.info" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725866AbgFCHhQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 3 Jun 2020 03:37:16 -0400
+DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
+ s=smtp; t=1591169834; h=Message-ID: References: In-Reply-To: Subject:
+ Cc: To: From: Date: Content-Transfer-Encoding: Content-Type:
+ MIME-Version: Sender; bh=aJvFtRy1el1NP+Z5+87GQ+m2nk+T28gjost9JU7AaP0=;
+ b=PU/U0R6QBn/US+5EVe/RcK5Q/1+pQSj7pcd7MajkxRtDyD/Cbta7zM8O02/SmuDnHFpI3MlA
+ jBSxB3+qP9BxzeCETvMgfeh5K7sshTefxY632HblZFn/l8YjK3wxVzZRkTQ8BxUgBbP03iYM
+ zwLzzOkEMrm1jTfF056E4PEBbF8=
+X-Mailgun-Sending-Ip: 104.130.122.27
+X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
+Received: from smtp.codeaurora.org
+ (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171]) by
+ smtp-out-n02.prod.us-east-1.postgun.com with SMTP id
+ 5ed75326cb04586933e89807 (version=TLS1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256); Wed, 03 Jun 2020 07:37:10
+ GMT
+Received: by smtp.codeaurora.org (Postfix, from userid 1001)
+        id 94CBFC43395; Wed,  3 Jun 2020 07:37:09 +0000 (UTC)
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+        aws-us-west-2-caf-mail-1.web.codeaurora.org
+X-Spam-Level: 
+X-Spam-Status: No, score=-1.0 required=2.0 tests=ALL_TRUSTED,URIBL_BLOCKED
+        autolearn=unavailable autolearn_force=no version=3.4.0
+Received: from mail.codeaurora.org (localhost.localdomain [127.0.0.1])
+        (using TLSv1 with cipher ECDHE-RSA-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        (Authenticated sender: guptap)
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id D600BC433CA;
+        Wed,  3 Jun 2020 07:37:08 +0000 (UTC)
 MIME-Version: 1.0
-In-Reply-To: <20200602101919.871080962@linuxfoundation.org>
-X-Originating-IP: [10.124.1.5]
-X-ClientProxiedBy: HQMAIL101.nvidia.com (172.20.187.10) To
- HQMAIL107.nvidia.com (172.20.187.13)
-Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
 Content-Transfer-Encoding: 7bit
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1591169317; bh=fZAEcwv5gLvFlFnhS4YScQ780WLLoVMhSbg3sT199b0=;
-        h=X-PGP-Universal:Subject:To:CC:References:From:Message-ID:Date:
-         User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
-         X-ClientProxiedBy:Content-Type:Content-Language:
-         Content-Transfer-Encoding;
-        b=R9cVMKx9Ap290TRhrlkEC0N67dVtkGvt+AnvpLV5OGMTknL+OhzLvni4tJz2+OQta
-         Er6wwXhprzy7ZT1js1t1sKYe1XvgYGUYi23dEFoKfIDNZ0uSnwdh+Ly2Nr4us60vAT
-         obYxO3xRabkaQxCpMvhQcJL8liMnDI98vGZZVr4TzGffSjDG8/fJ6uutn+YTjJsWYW
-         hgXXlZFVMsoOvVe+o0A6HJZTOh75WIL9iynPHOjy26SOSd+alU5a9cfU/r7G9tVZ30
-         fbyiBQHTHXbcKb6WLpLzxKTe4y4d7EAG8aQqgmBXhcGRon3Lu4I2Ld6g8qxjZYLFhe
-         r60i9SvI1zH2w==
+Date:   Wed, 03 Jun 2020 13:07:08 +0530
+From:   guptap@codeaurora.org
+To:     Robin Murphy <robin.murphy@arm.com>
+Cc:     mhocko@suse.com, owner-linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        linux-mm@kvack.org, iommu@lists.linux-foundation.org,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: [PATCH] iommu/dma: limit iova free size to unmmaped iova
+In-Reply-To: <9b5f8501-6e6e-0cd2-7f98-7cfea13051d7@arm.com>
+References: <20200521113004.12438-1-guptap@codeaurora.org>
+ <7aaa8dcc-6a47-f256-431d-2a1b034b4076@arm.com>
+ <90662ef3123dbf2e93f9718ee5cc14a7@codeaurora.org>
+ <2d873ab9-ebb9-3c2d-f129-55a036ab47d0@arm.com>
+ <4ba082d3bb965524157704ea1ffb1ff4@codeaurora.org>
+ <9b5f8501-6e6e-0cd2-7f98-7cfea13051d7@arm.com>
+Message-ID: <4b6a864674a9231b3ac35e5ce0c7292f@codeaurora.org>
+X-Sender: guptap@codeaurora.org
+User-Agent: Roundcube Webmail/1.3.9
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-On 02/06/2020 11:24, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.4.44 release.
-> There are 139 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On 2020-06-02 18:37, Robin Murphy wrote:
+> On 2020-05-26 08:19, guptap@codeaurora.org wrote:
+>> On 2020-05-22 14:54, Robin Murphy wrote:
+>>> On 2020-05-22 07:25, guptap@codeaurora.org wrote:
+>>>> On 2020-05-22 01:46, Robin Murphy wrote:
+>>>>> On 2020-05-21 12:30, Prakash Gupta wrote:
+>> Sorry for delayed response, it was a long weekend.
+>> I agree that invalid DMA API call can result in unexpected issues and 
+>> client
+>> should fix it, but then the present behavior makes it difficult to 
+>> catch cases
+>> when driver is making wrong DMA API calls. When invalid iova pfn is 
+>> passed it
+>> doesn't fail then and there, though DMA layer is aware of iova being 
+>> invalid. It
+>> fails much after that in the context of an valid map/unmap, with 
+>> BUG_ON().
+>> 
+>> Downgrading BUG_ON() to WARN_ON() in iova_magazine_free_pfns() will 
+>> not help
+>> much as invalid iova will cause NULL pointer dereference.
 > 
-> Responses should be made by Thu, 04 Jun 2020 10:16:52 +0000.
-> Anything received after that time might be too late.
+> Obviously I didn't mean a literal s/BUG/WARN/ substitution - some
+> additional control flow to actually handle the error case was implied.
 > 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.44-rc2.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
-> and the diffstat can be found below.
+> I'll write up the patch myself, since it's easier than further 
+> debating.
 > 
-> thanks,
+
+I think it will address the issue I am facing as well. I will wait for 
+your patch.
+
+>> I see no reason why DMA layer wants to free an iova for which unmapped 
+>> failed.
+>> IMHO queuing an invalid iova (which already failed unmap) to rcache 
+>> which
+>> eventually going to crash the system looks like iommu-dma layer issue.
 > 
-> greg k-h
+> What if the unmap fails because the address range is already entirely
+> unmapped? Freeing the IOVA (or at least attempting to) would be
+> logically appropriate in that case. In fact some IOMMU drivers might
+> not even consider that a failure, so the DMA layer may not even be
+> aware that it's been handed a bogus unallocated address.
+> 
+> The point is that unmapping *doesn't* fail under normal and correct
+> operation, so the DMA layer should not expect to have to handle it.
+> Even if it does happen, that's a highly exceptional case that the DMA
+> layer cannot recover from by itself; at best it can just push the
+> problem elsewhere. It's pretty hard to justify doing extra work to
+> simply move an exceptional problem around without really addressing
+> it.
+> 
 
-All tests are passing for Tegra ...
+iommu_unmap() expects that all areas within unmap size are mapped. 
+infact It
+abandons further unmap if it find any chunk not mapped.  So if an IOMMU
+implementation is not returning failure for already unmapped area,
+then it's prone to issue where DMA API reuse the IOVA, which is already 
+mapped.
 
-Test results for stable-v5.4:
-    11 builds:	11 pass, 0 fail
-    26 boots:	26 pass, 0 fail
-    42 tests:	42 pass, 0 fail
+In this case where iommu implementation returns error for already 
+unmapped area,
+currently there is no way to distinguish an unmap failure due to range 
+already
+unmapped or say while partially unmapping a section map, memory 
+allocation fails
+and thus unmap returns failure.
+In second case, we will free the iova even with mapping present. And 
+subsequent
+dma mapping will keep on failing if it uses this freed iova. For managed 
+iova
+both unmap/map should be done with dma APIs, it should be safe to expect 
+if a
+range is unmapped with DMA APIs corresponding iova is also freed, so 
+there
+shouldn't be a real need to free iova where unmap fails due to range 
+already
+entirely unmapped.
 
-Linux version:	5.4.44-rc2-g2ad6b0698b0e
-Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
-                tegra194-p2972-0000, tegra20-ventana,
-                tegra210-p2371-2180, tegra210-p3450-0000,
-                tegra30-cardhu-a04
+> And in this particular case, personally I would *much* rather see
+> warnings spewing from both the pagetable and IOVA code as early as
+> possible to clearly indicate that the DMA layer itself has been thrown
+> out of sync, than just have warnings that might represent some other
+> source of pagetable corruption (or at worst, depending on the
+> pagetable code, no warnings at all and only have dma_map_*() calls
+> quietly start failing much, much later due to all the IOVA space
+> having been leaked by bad unmaps).
+> 
 
-Cheers
-Jon
+I am not sure how useful is this freed iova if corresponding mappings 
+are not
+unmapped. We won't be able to use those iova. The subsequent iommu_map 
+will fail
+if using this freed iova. So it's important to ensure we only free iova 
+which is
+unmapped successfully.
 
--- 
-nvpublic
+Thanks,
+Prakash
