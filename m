@@ -2,103 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 58B9C1ED2F5
-	for <lists+stable@lfdr.de>; Wed,  3 Jun 2020 17:06:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DAE11ED313
+	for <lists+stable@lfdr.de>; Wed,  3 Jun 2020 17:12:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726138AbgFCPGE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 3 Jun 2020 11:06:04 -0400
-Received: from hqnvemgate24.nvidia.com ([216.228.121.143]:11927 "EHLO
-        hqnvemgate24.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726077AbgFCPGE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 3 Jun 2020 11:06:04 -0400
-Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate24.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
-        id <B5ed7bbfa0001>; Wed, 03 Jun 2020 08:04:26 -0700
-Received: from hqmail.nvidia.com ([172.20.161.6])
-  by hqpgpgate101.nvidia.com (PGP Universal service);
-  Wed, 03 Jun 2020 08:06:03 -0700
-X-PGP-Universal: processed;
-        by hqpgpgate101.nvidia.com on Wed, 03 Jun 2020 08:06:03 -0700
-Received: from [10.26.72.154] (10.124.1.5) by HQMAIL107.nvidia.com
- (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Wed, 3 Jun
- 2020 15:06:01 +0000
-Subject: Re: [PATCH 4.9 00/55] 4.9.226-rc3 review
-From:   Jon Hunter <jonathanh@nvidia.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <linux-kernel@vger.kernel.org>
-CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
-        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
-        <stable@vger.kernel.org>, linux-tegra <linux-tegra@vger.kernel.org>
-References: <20200602181325.420361863@linuxfoundation.org>
- <4eaf333a-e497-d39e-338e-a790b116dc62@nvidia.com>
-Message-ID: <ca7bfb13-a22d-7988-9be2-469b0c4a8437@nvidia.com>
-Date:   Wed, 3 Jun 2020 16:05:59 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.8.0
+        id S1726216AbgFCPLy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 3 Jun 2020 11:11:54 -0400
+Received: from lhrrgout.huawei.com ([185.176.76.210]:2272 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726061AbgFCPLx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 3 Jun 2020 11:11:53 -0400
+Received: from lhreml737-chm.china.huawei.com (unknown [172.18.7.106])
+        by Forcepoint Email with ESMTP id 601BD6C039D8EF1A0077;
+        Wed,  3 Jun 2020 16:11:50 +0100 (IST)
+Received: from fraeml714-chm.china.huawei.com (10.206.15.33) by
+ lhreml737-chm.china.huawei.com (10.201.108.187) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.1913.5; Wed, 3 Jun 2020 16:11:50 +0100
+Received: from roberto-HP-EliteDesk-800-G2-DM-65W.huawei.com (10.204.65.160)
+ by fraeml714-chm.china.huawei.com (10.206.15.33) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.1913.5; Wed, 3 Jun 2020 17:11:49 +0200
+From:   Roberto Sassu <roberto.sassu@huawei.com>
+To:     <zohar@linux.ibm.com>, <tiwai@suse.de>
+CC:     <linux-integrity@vger.kernel.org>,
+        <linux-security-module@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>, <silviu.vlasceanu@huawei.com>,
+        Roberto Sassu <roberto.sassu@huawei.com>,
+        <stable@vger.kernel.org>
+Subject: [PATCH 1/2] ima: Directly assign the ima_default_policy pointer to ima_rules
+Date:   Wed, 3 Jun 2020 17:08:20 +0200
+Message-ID: <20200603150821.8607-1-roberto.sassu@huawei.com>
+X-Mailer: git-send-email 2.17.1
 MIME-Version: 1.0
-In-Reply-To: <4eaf333a-e497-d39e-338e-a790b116dc62@nvidia.com>
-X-Originating-IP: [10.124.1.5]
-X-ClientProxiedBy: HQMAIL101.nvidia.com (172.20.187.10) To
- HQMAIL107.nvidia.com (172.20.187.13)
-Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1591196667; bh=4hUV0TwB+fKkfxySAIqP/sd7nZ7/zxOBIH/wTAQXWIw=;
-        h=X-PGP-Universal:Subject:From:To:CC:References:Message-ID:Date:
-         User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
-         X-ClientProxiedBy:Content-Type:Content-Language:
-         Content-Transfer-Encoding;
-        b=XtQaQb8nnM+h52K43PvC+dTjspHT27MKrVaJXs+urGx55oIWrM+F03bWiLmwvld/G
-         AudPozz4PVXc3c3638zTdWiJouNxFyID36GPW4PN8R0SFC9uJBNa23nl/VRyU08QK5
-         oV6JFj8oq31iWFuaGD1KZXme5X0wMUvy15LJZcowa7R6qg7JSfC691EKNlBOzr23pl
-         eGhcbHOJqk9zUsugmwARZYk7JVen5WHFRongUnKFbyhWT1S5J9ZvEzKL+JobUwJ5Iy
-         QWTWXsolEBhe/XiQtxZdXZmumxqjtZcMSM9bWwt+AWtyB1slsaBwclmG8Bo0pVlTAs
-         bywVysCxQ3R1g==
+Content-Type: text/plain
+X-Originating-IP: [10.204.65.160]
+X-ClientProxiedBy: lhreml719-chm.china.huawei.com (10.201.108.70) To
+ fraeml714-chm.china.huawei.com (10.206.15.33)
+X-CFilter-Loop: Reflected
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+This patch prevents the following oops:
 
-On 03/06/2020 11:42, Jon Hunter wrote:
-> 
-> On 02/06/2020 19:13, Greg Kroah-Hartman wrote:
->> This is the start of the stable review cycle for the 4.9.226 release.
->> There are 55 patches in this series, all will be posted as a response
->> to this one.  If anyone has any issues with these being applied, please
->> let me know.
->>
->> Responses should be made by Thu, 04 Jun 2020 18:12:28 +0000.
->> Anything received after that time might be too late.
->>
->> The whole patch series can be found in one patch at:
->> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.226-rc3.gz
->> or in the git tree and branch at:
->> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
->> and the diffstat can be found below.
->>
->> thanks,
->>
->> greg k-h
-> 
-> 
-> All tests are passing for Tegra. Seems that our test gremlins are still
-> at large and I cannot pull the report yet. However, I can see that
-> everything is passing fine.
+[   10.771813] BUG: kernel NULL pointer dereference, address: 0000000000000
+[...]
+[   10.779790] RIP: 0010:ima_match_policy+0xf7/0xb80
+[...]
+[   10.798576] Call Trace:
+[   10.798993]  ? ima_lsm_policy_change+0x2b0/0x2b0
+[   10.799753]  ? inode_init_owner+0x1a0/0x1a0
+[   10.800484]  ? _raw_spin_lock+0x7a/0xd0
+[   10.801592]  ima_must_appraise.part.0+0xb6/0xf0
+[   10.802313]  ? ima_fix_xattr.isra.0+0xd0/0xd0
+[   10.803167]  ima_must_appraise+0x4f/0x70
+[   10.804004]  ima_post_path_mknod+0x2e/0x80
+[   10.804800]  do_mknodat+0x396/0x3c0
 
-Just for completeness ...
+It occurs when there is a failure during IMA initialization, and
+ima_init_policy() is not called. IMA hooks still call ima_match_policy()
+but ima_rules is NULL. This patch prevents the crash by directly assigning
+the ima_default_policy pointer to ima_rules when ima_rules is defined. This
+wouldn't alter the existing behavior, as ima_rules is always set at the end
+of ima_init_policy().
 
-Test results for stable-v4.9:
-    8 builds:	8 pass, 0 fail
-    16 boots:	16 pass, 0 fail
-    26 tests:	26 pass, 0 fail
+Cc: stable@vger.kernel.org # 3.7.x
+Fixes: 07f6a79415d7d ("ima: add appraise action keywords and default rules")
+Reported-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+---
+ security/integrity/ima/ima_policy.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-Linux version:	4.9.226-rc3-ga836fd8c024d
-Boards tested:	tegra124-jetson-tk1, tegra20-ventana,
-                tegra210-p2371-2180, tegra30-cardhu-a04
-
-Jon
-
+diff --git a/security/integrity/ima/ima_policy.c b/security/integrity/ima/ima_policy.c
+index ef7f68cc935e..e493063a3c34 100644
+--- a/security/integrity/ima/ima_policy.c
++++ b/security/integrity/ima/ima_policy.c
+@@ -204,7 +204,7 @@ static struct ima_rule_entry *arch_policy_entry __ro_after_init;
+ static LIST_HEAD(ima_default_rules);
+ static LIST_HEAD(ima_policy_rules);
+ static LIST_HEAD(ima_temp_rules);
+-static struct list_head *ima_rules;
++static struct list_head *ima_rules = &ima_default_rules;
+ 
+ /* Pre-allocated buffer used for matching keyrings. */
+ static char *ima_keyrings;
+@@ -768,7 +768,6 @@ void __init ima_init_policy(void)
+ 			  ARRAY_SIZE(default_appraise_rules),
+ 			  IMA_DEFAULT_POLICY);
+ 
+-	ima_rules = &ima_default_rules;
+ 	ima_update_policy_flag();
+ }
+ 
 -- 
-nvpublic
+2.17.1
+
