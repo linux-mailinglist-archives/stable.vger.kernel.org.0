@@ -2,190 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C06B51ED746
-	for <lists+stable@lfdr.de>; Wed,  3 Jun 2020 22:21:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 46F491ED776
+	for <lists+stable@lfdr.de>; Wed,  3 Jun 2020 22:35:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725961AbgFCUVn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 3 Jun 2020 16:21:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54502 "EHLO
+        id S1725992AbgFCUfN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 3 Jun 2020 16:35:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56590 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725821AbgFCUVn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 3 Jun 2020 16:21:43 -0400
-Received: from mail-pj1-x1030.google.com (mail-pj1-x1030.google.com [IPv6:2607:f8b0:4864:20::1030])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 638B7C08C5C0
-        for <stable@vger.kernel.org>; Wed,  3 Jun 2020 13:21:43 -0700 (PDT)
-Received: by mail-pj1-x1030.google.com with SMTP id b7so1417378pju.0
-        for <stable@vger.kernel.org>; Wed, 03 Jun 2020 13:21:43 -0700 (PDT)
+        with ESMTP id S1725985AbgFCUfM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 3 Jun 2020 16:35:12 -0400
+Received: from mail-pj1-x1041.google.com (mail-pj1-x1041.google.com [IPv6:2607:f8b0:4864:20::1041])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EE36C08C5C2
+        for <stable@vger.kernel.org>; Wed,  3 Jun 2020 13:35:12 -0700 (PDT)
+Received: by mail-pj1-x1041.google.com with SMTP id s88so102152pjb.5
+        for <stable@vger.kernel.org>; Wed, 03 Jun 2020 13:35:12 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=O5s634Q8WnIDGuVW9P3Rlq1betVw5j2OWwXUj0kOWFQ=;
-        b=I8qV5RHZZjcLZjkgvM0Vlb3RCT3zdXJ8Npe54SnOvnKhozWKmD7yAcZ8rtHgQzFBQ7
-         nyKv9rZzBBpZn/fpHV0DD6T5/R8+2KJCsRmdKAaSyCEwosaN5OW7jUvoUVc5lrlpZY5C
-         D6C15+NpH3hAG8XjIxIDXm+mjpfTMOWDW76aZdmW8h6TUpzWHlv6dBSl7dp1JxEP3heb
-         L3NdxTRR8oNWardBYUitABPmIObrNiH7gJ+AZraNeJoM6PEgFwZP/UMZfRach+tB8ONr
-         WNj5YgrTY+Yn+GfIOZiHqWNXAVJpoj9NuKfBzU/KhvbFqf/gj8kVm/Lrx2GDAykHaqxl
-         jICg==
+        d=chromium.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=W5rG5azrfwU1SE5+6VF2CaiUSY0EB63jPHlaOLOAids=;
+        b=H8lAAd7t8MN6jYw5eMcIVe9rAHxpKI1yFv/LZqIHzVdqTGi0osItXRbEC3imxxp5fw
+         XiTsvqNcg9jDA5i7CRdaI5PyhRfdYFu1/Haxwk1herusBfde/0Rxv2M8k7zdqcBZ5vO2
+         uAqTfTk4PSLas1IJTdwiVj7qe87PLWc/DJroM=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
-         :mime-version:content-transfer-encoding;
-        bh=O5s634Q8WnIDGuVW9P3Rlq1betVw5j2OWwXUj0kOWFQ=;
-        b=qXG5kwEKE90A4nYFL2acJqKkGBKgk06cuuYmea8dq8dtKSCzwVaLJjG9Q0TD7X2TNq
-         l0R8j9PdtPDA3btZjVzs19H+2IcaBAlyl2qUUSEjAvgHd51kJra+EoaZOVyaBJaWmLOE
-         cADK0yLfqhOKyz6PyGo9SNk2qbPYu1uQ3xreC61y9UIcO7B66QbLdDXMa4iTHMQbkI+s
-         ANTg7jhgXRmh0/WDHMZGhF/lqjuzdXt1wGd+wEXbzLUy6fupDcxQXaMrsAhFtCEqV/qJ
-         u9mdeq+N/dGqJWgEJ6j06+pGNNIcphC3Y29jkvAPwvI2BXKdWfONy9G9LdDlf47jvJ3p
-         3Plg==
-X-Gm-Message-State: AOAM532UhRq2RPZHQcdOZP1IefhKwjkTEpJb8gtHLXn8NLyONHr23ive
-        kW02MgTLI3GouylCGO3q3Vo4JqrQ
-X-Google-Smtp-Source: ABdhPJzgFU3HGZTCSFznfv+Bv9yyGb3zwNeB2jfrV3Z7cpPtwM7jLVNYO2Q6Ak1iZZrTXGLzYwairg==
-X-Received: by 2002:a17:90a:db90:: with SMTP id h16mr1898560pjv.119.1591215702557;
-        Wed, 03 Jun 2020 13:21:42 -0700 (PDT)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id q44sm3361658pja.29.2020.06.03.13.21.41
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Wed, 03 Jun 2020 13:21:41 -0700 (PDT)
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     stable@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: Patches to apply to stable releases [6/3/2020]
-Date:   Wed,  3 Jun 2020 13:21:35 -0700
-Message-Id: <20200603202135.78725-1-linux@roeck-us.net>
-X-Mailer: git-send-email 2.17.1
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=W5rG5azrfwU1SE5+6VF2CaiUSY0EB63jPHlaOLOAids=;
+        b=pyQmLYBf0Gjjs1GnMRfri8su5TEg8TSIKE8C0eJ1Wyd0+sBIerFk55nPyVi3kufEum
+         20RNNKhCUtue+TCNfoBdTVGBejVgcH2lBWUboemQOAqQ83C6RLHmUduglmZfCzPk7g87
+         UVskAyY87LFBrfb9O9+QassC/6eNl5W5rvLC5EGpGRAoU9XUAbfQlxo5vXZwrK556CKP
+         pqwlL25rogc6sXPqZFPgEi60FaDZ8OCWQryTbuOaxiFIb8W6B/4hzQfJgOK6VE08obOj
+         TuuvnupTb1qHOvXUOA1kPDs/5ykLDgpKDy8WK5wTf/ilTeHLOrxE6U/2C2j8O6V+6pox
+         BCxQ==
+X-Gm-Message-State: AOAM533rW841g+Z9R1G8PPmYshroZ2lOr3pldhvY4G6f27YfP90lH6MD
+        mkdxIuuuODx2ZUuOehnUQKAh8g==
+X-Google-Smtp-Source: ABdhPJxh+aatEAcsfm7x2O7pF9u4HQEykZUt/5RuZbEPGXrhPVdcNGxmsklSppL48UqLLLYO/xjupQ==
+X-Received: by 2002:a17:902:714e:: with SMTP id u14mr1478127plm.175.1591216512009;
+        Wed, 03 Jun 2020 13:35:12 -0700 (PDT)
+Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
+        by smtp.gmail.com with ESMTPSA id i10sm2573857pfa.166.2020.06.03.13.35.10
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 03 Jun 2020 13:35:10 -0700 (PDT)
+Date:   Wed, 3 Jun 2020 13:35:09 -0700
+From:   Kees Cook <keescook@chromium.org>
+To:     glider@google.com
+Cc:     miklos@szeredi.hu, linux-unionfs@vger.kernel.org,
+        linux-kernel@vger.kernel.org, royyang@google.com,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] ovl: explicitly initialize error in ovl_copy_xattr()
+Message-ID: <202006031219.36197D0729@keescook>
+References: <20200603174714.192027-1-glider@google.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200603174714.192027-1-glider@google.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+On Wed, Jun 03, 2020 at 07:47:14PM +0200, glider@google.com wrote:
+> Under certain circumstances (we found this out running Docker on a
+> Clang-built kernel with CONFIG_INIT_STACK_ALL) ovl_copy_xattr() may
+> return uninitialized value of |error| from ovl_copy_xattr().
+> It is then returned by ovl_create() to lookup_open(), which casts it to
+> an invalid dentry pointer, that can be further read or written by the
+> lookup_open() callers.
+> 
+> Signed-off-by: Alexander Potapenko <glider@google.com>
 
-Please consider applying the following patches to the listed stable
-releases.
+Link: https://bugs.chromium.org/p/chromium/issues/detail?id=1050405
+Fixes: e4ad29fa0d22 ("ovl: use a minimal buffer in ovl_copy_xattr")
+Cc: stable@vger.kernel.org
+Reviewed-by: Kees Cook <keescook@chromium.org>
 
-The following patches were found to be missing in stable releases by the
-Chrome OS missing patch robot. The patches meet the following criteria.
-- The patch includes a Fixes: tag
-  Note that the Fixes: tag does not always point to the correct upstream
-  SHA. In that case the correct upstream SHA is listed below.
-- The patch referenced in the Fixes: tag has been applied to the listed
-  stable release
-- The patch has not been applied to that stable release
+It seems the error isn't reported anywhere, so the value likely isn't
+too important. -EINVAL seems sane to me.
 
-All patches have been applied to the listed stable releases and to at least
-one Chrome OS branch. Resulting images have been build- and runtime-tested
-(where applicable) on real hardware and with virtual hardware on
-kerneltests.org.
+Thought: should CONFIG_INIT_STACK_ALL=y disable uninitialized_var()?
 
-Thanks,
-Guenter
+$ git grep uninitialized_var | wc -l
+300
 
----
-Upstream commit 0e0bf1ea1147 ("perf stat: Zero all the 'ena' and 'run' array slot stats for interval mode")
-  upstream: ToT
-    Fixes: 51fd2df1e882 ("perf stat: Fix interval output values")
-      in linux-4.4.y: 7629c7ef5291
-      upstream: v4.5-rc4
-    Affected branches:
-      linux-4.4.y
-      linux-4.9.y
-      linux-4.14.y
-      linux-4.19.y
-      linux-5.4.y
-      linux-5.6.y
-      Presumably also linux-5.7.y but not checked/tested
+We have evidence this is being used inappropriately and is masking bugs.
+I would actually think it should should be removed globally, but it
+seems especially important for CONFIG_INIT_STACK_ALL=y.
 
-Upstream commit b8018b973c7c ("scsi: scsi_devinfo: fixup string compare")
-  upstream: v4.15-rc1
-    Fixes: 5e7ff2ca7f2d ("SCSI: fix new bug in scsi_dev_info_list string matching")
-      in linux-4.4.y: c4c2a8f5b740
-      upstream: v4.7-rc7
-    Affected branches:
-      linux-4.4.y
-      linux-4.9.y
-      linux-4.14.y
-    Fixed by:
-      ba69ead9e9e9 ("scsi: scsi_devinfo: handle non-terminated strings")
-      [This patch needs to be applied as well]
+I've opened:
+https://github.com/KSPP/linux/issues/81
 
-Upstream commit e87581fe0509 ("usb: gadget: f_uac2: fix error handling in afunc_bind (again)")
-  upstream: v4.18-rc7
-    Fixes: f1d3861d63a5 ("usb: gadget: f_uac2: fix error handling at afunc_bind")
-      in linux-4.4.y: c67c2ed829f3
-      in linux-4.9.y: 5180169dae85
-      upstream: v4.10-rc1
-    Affected branches:
-      linux-4.4.y
-      linux-4.9.y
-      linux-4.14.y (already applied)
-
-Upstream commit f9ac89f5ad61 ("platform/x86: acer-wmi: setup accelerometer when ACPI device was found")
-  upstream: v4.12-rc1
-    Fixes: 98d610c3739a ("platform/x86: acer-wmi: setup accelerometer when machine has appropriate notify event")
-      in linux-4.4.y: ccf0904c49b1
-      in linux-4.9.y: 03470ba96a96
-      upstream: v4.11-rc1
-    Affected branches:
-      linux-4.4.y
-      linux-4.9.y (already applied)
-
-Upstream commit 7284fdf39a91 ("esp6: fix memleak on error path in esp6_input")
-  upstream: v4.18-rc8
-    Fixes: 3f29770723fe ("ipsec: check return value of skb_to_sgvec always")
-      in linux-4.4.y: d55d38496455
-      in linux-4.9.y: 753b04d213ec
-      upstream: v4.13-rc1
-    Affected branches:
-      linux-4.4.y
-      linux-4.9.y
-      linux-4.14.y (already applied)
-
-Upstream commit 3dc7c7badb75 ("IB/mlx4: Fix an error handling path in 'mlx4_ib_rereg_user_mr()'")
-  upstream: v4.18-rc2
-    Fixes: d8f9cc328c88 ("IB/mlx4: Mark user MR as writable if actual virtual memory is writable")
-      in linux-4.4.y: d803aa2fe665
-      in linux-4.9.y: e2ba7bf19727
-      in linux-4.14.y: 1c82abc1b26a
-      upstream: v4.18-rc1
-    Affected branches:
-      linux-4.4.y
-      linux-4.9.y (already applied)
-      linux-4.14.y (already applied)
-
-Upstream commit fa16b69f1299 ("ALSA: hda - No loopback on ALC299 codec")
-  upstream: v4.12-rc3
-    Fixes: 28f1f9b26cee ("ALSA: hda/realtek - Add new codec ID ALC299")
-      in linux-4.4.y: e2d12bdaed6b
-      in linux-4.9.y: f6e94c2c16fe
-      upstream: v4.11-rc1
-    Affected branches:
-      linux-4.4.y
-      linux-4.9.y (already applied)
-
-Upstream commit 86aa66687442 ("libnvdimm: Fix endian conversion issues ")
-  upstream: v5.4-rc1
-    Fixes: 9dedc73a4658 ("libnvdimm/btt: Fix LBA masking during 'free list' population")
-      in linux-4.14.y: bf87f274fe9f
-      in linux-4.19.y: 4e160b91c776
-      upstream: v5.1-rc1
-    Affected branches:
-      linux-4.14.y
-      linux-4.19.y
-
-Upstream commit e2abfc0448a4 ("x86/cpu/amd: Make erratum #1054 a legacy erratum")
-  upstream: ToT
-    Fixes: 21b5ee59ef18 ("x86/cpu/amd: Enable the fixed Instructions Retired counter IRPERF")
-      in linux-4.19.y: f28ec250579c
-      in linux-5.4.y: e0253c422024
-      upstream: v5.6-rc3
-    Affected branches:
-      linux-4.19.y
-      linux-5.4.y
-      linux-5.6.y
-      Presumably also linux-5.7.y but not checked/tested
+-- 
+Kees Cook
