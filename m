@@ -2,94 +2,159 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A65311ED854
-	for <lists+stable@lfdr.de>; Thu,  4 Jun 2020 00:03:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 863691ED872
+	for <lists+stable@lfdr.de>; Thu,  4 Jun 2020 00:13:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726598AbgFCWDs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 3 Jun 2020 18:03:48 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:43218 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726512AbgFCWDs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 3 Jun 2020 18:03:48 -0400
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 053M26gB189223;
-        Wed, 3 Jun 2020 18:03:42 -0400
-Received: from ppma01fra.de.ibm.com (46.49.7a9f.ip4.static.sl-reverse.com [159.122.73.70])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 31egbgxqas-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 03 Jun 2020 18:03:41 -0400
-Received: from pps.filterd (ppma01fra.de.ibm.com [127.0.0.1])
-        by ppma01fra.de.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 053M0gaZ016795;
-        Wed, 3 Jun 2020 22:03:39 GMT
-Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
-        by ppma01fra.de.ibm.com with ESMTP id 31bf47ukfg-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 03 Jun 2020 22:03:39 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 053M3bkW65536104
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 3 Jun 2020 22:03:37 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 05ED4AE055;
-        Wed,  3 Jun 2020 22:03:37 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 23128AE051;
-        Wed,  3 Jun 2020 22:03:36 +0000 (GMT)
-Received: from localhost.localdomain (unknown [9.85.144.192])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed,  3 Jun 2020 22:03:36 +0000 (GMT)
-Message-ID: <1591221815.5146.31.camel@linux.ibm.com>
-Subject: Re: [PATCH 2/2] ima: Call ima_calc_boot_aggregate() in
- ima_eventdigest_init()
-From:   Mimi Zohar <zohar@linux.ibm.com>
-To:     Roberto Sassu <roberto.sassu@huawei.com>, tiwai@suse.de
-Cc:     linux-integrity@vger.kernel.org,
-        linux-security-module@vger.kernel.org,
-        linux-kernel@vger.kernel.org, silviu.vlasceanu@huawei.com,
-        stable@vger.kernel.org
-Date:   Wed, 03 Jun 2020 18:03:35 -0400
-In-Reply-To: <20200603150821.8607-2-roberto.sassu@huawei.com>
-References: <20200603150821.8607-1-roberto.sassu@huawei.com>
-         <20200603150821.8607-2-roberto.sassu@huawei.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.20.5 (3.20.5-1.fc24) 
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.216,18.0.687
- definitions=2020-06-03_13:2020-06-02,2020-06-03 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 adultscore=0
- malwarescore=0 bulkscore=0 phishscore=0 clxscore=1015 cotscore=-2147483648
- spamscore=0 suspectscore=0 priorityscore=1501 impostorscore=0
- mlxlogscore=999 lowpriorityscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2004280000 definitions=main-2006030163
+        id S1726512AbgFCWNO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 3 Jun 2020 18:13:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43436 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726354AbgFCWNO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 3 Jun 2020 18:13:14 -0400
+Received: from mail-pl1-x644.google.com (mail-pl1-x644.google.com [IPv6:2607:f8b0:4864:20::644])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E4C6C08C5C0
+        for <stable@vger.kernel.org>; Wed,  3 Jun 2020 15:13:13 -0700 (PDT)
+Received: by mail-pl1-x644.google.com with SMTP id x11so1304753plv.9
+        for <stable@vger.kernel.org>; Wed, 03 Jun 2020 15:13:13 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=NmUsyQuml4o4c/LNub/sL1c6epYbRXOnyFYNRr2Vg3w=;
+        b=wLMor6w+wv1ye9yrDeH5mSYFkZFLH7FV+RuG0l49p0qKgKSE9cfL+h8z+mkeXmuzs5
+         AfFD+6lmBoaJGKgwU68fumLaIFfDEG/kUiJz5PCQh4hTk6BkaMV4x2io18dDeDb/kiQA
+         DMxjmyw3bhiM+GCHqzROytyMsd/D2BEH1V4XCOMB51pUYwx8RnQR7HIfO2aezzP31MLf
+         Mqo2A4i46cnSsbT6rOw0CSMwSB0bBp9sECACq/vDASUa92zYPeUu+F8h8RlOOxRPzMoz
+         y5LFYqPSOfl3qTXSBTVn0uXfZdX6bCJXdCU8rebSTOcoyxr9dcTM2W9jVz0VssVbJFII
+         XLIw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=NmUsyQuml4o4c/LNub/sL1c6epYbRXOnyFYNRr2Vg3w=;
+        b=FzScYmU8KDZilxky78hFK34GCTzC6UxxzaGG1sYTaRrY5727rZYbrmUgLSCFAMrPBD
+         aqIysKsqCkpBc/bDqqZuATfw0HLTulqBMyc0ZeoT/TdhuEPDGUQBooEqgnqYD0YL/N9l
+         fGGS4paSE9UlICXLq+5FVI5N/O53BAAr8gHkcuB6csLW7FuXHNn6qsvYKM3Yr7Ndm9iF
+         tbcQqiOVk2u4cgrRt//iPWtKWF+Sm/WrU4iHfxviKydir258CKfmtQL913lQ8oiN2W8I
+         ZgCb4QLus6su1HoTsh3zK8SRA2zVsDOKJIOOaqNrucfi+hv36plT2rEJYbzCnjVPrx47
+         7RDg==
+X-Gm-Message-State: AOAM533Cgy0ocFxmNHgEJJseKcck/L4Mv/pLBMJ1QIq8DcTexPUgdnkc
+        ucrXhI1oAOmBoVJQJnGs9kkExU95WM4=
+X-Google-Smtp-Source: ABdhPJxIsTyZDw8GSdtIMyuH0UIJ0J2SgiGcTeu7iZDQa1tDPrbz0QXwJ6b7TRoRPwRIY2Pl3RUJ5A==
+X-Received: by 2002:a17:902:b411:: with SMTP id x17mr1758750plr.272.1591222392436;
+        Wed, 03 Jun 2020 15:13:12 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id x7sm2524602pfm.14.2020.06.03.15.13.11
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 03 Jun 2020 15:13:11 -0700 (PDT)
+Message-ID: <5ed82077.1c69fb81.badfa.72b8@mx.google.com>
+Date:   Wed, 03 Jun 2020 15:13:11 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.4.44
+X-Kernelci-Report-Type: boot
+X-Kernelci-Branch: linux-5.4.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-5.4.y boot: 144 boots: 1 failed,
+ 132 passed with 4 offline, 7 untried/unknown (v5.4.44)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Roberto,
+******************************************
+* WARNING: Boot tests are now deprecated *
+******************************************
 
-On Wed, 2020-06-03 at 17:08 +0200, Roberto Sassu wrote:
-> If the template field 'd' is chosen and the digest to be added to the
-> measurement entry was not calculated with SHA1 or MD5, it is
-> recalculated with SHA1, by using the passed file descriptor. However, this
-> cannot be done for boot_aggregate, because there is no file descriptor.
-> 
-> This patch adds a call to ima_calc_boot_aggregate() in
-> ima_eventdigest_init(), so that the digest can be recalculated also for the
-> boot_aggregate entry.
-> 
-> Cc: stable@vger.kernel.org # 3.13.x
-> Fixes: 3ce1217d6cd5d ("ima: define template fields library and new helpers")
-> Reported-by: Takashi Iwai <tiwai@suse.de>
-> Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+As kernelci.org is expanding its functional testing capabilities, the conce=
+pt
+of boot testing is now deprecated.  Boot results are scheduled to be droppe=
+d on
+*5th June 2020*.  The full schedule for boot tests deprecation is available=
+ on
+this GitHub issue: https://github.com/kernelci/kernelci-backend/issues/238
 
-Thanks, Roberto.
+The new equivalent is the *baseline* test suite which also runs sanity chec=
+ks
+using dmesg and bootrr: https://github.com/kernelci/bootrr
 
-I've pushed both patches out to the next-integrity branch and would
-appreciate some additional testing.
+See the *baseline results for this kernel revision* on this page:
+https://kernelci.org/test/job/stable-rc/branch/linux-5.4.y/kernel/v5.4.44/p=
+lan/baseline/
 
-thanks,
+---------------------------------------------------------------------------=
+----
 
-Mimi
+stable-rc/linux-5.4.y boot: 144 boots: 1 failed, 132 passed with 4 offline,=
+ 7 untried/unknown (v5.4.44)
+
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-5.4.y/kernel/v5.4.44/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.4.y=
+/kernel/v5.4.44/
+
+Tree: stable-rc
+Branch: linux-5.4.y
+Git Describe: v5.4.44
+Git Commit: 55852b3fd146ce90d4d4306b467261f2c4869293
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 100 unique boards, 25 SoC families, 17 builds out of 156
+
+Boot Regressions Detected:
+
+arm:
+
+    qcom_defconfig:
+        gcc-8:
+          qcom-apq8064-cm-qs600:
+              lab-baylibre-seattle: failing since 116 days (last pass: v5.4=
+.17-99-gbd0c6624a110 - first fail: v5.4.17-238-gbffcaa93483d)
+
+    sama5_defconfig:
+        gcc-8:
+          at91-sama5d4_xplained:
+              lab-baylibre: failing since 56 days (last pass: v5.4.30-37-g4=
+0da5db79b55 - first fail: v5.4.30-39-g23c04177b89f)
+
+    versatile_defconfig:
+        gcc-8:
+          versatile-pb:
+              lab-collabora: new failure (last pass: v5.4.43-140-gf5694d7c4=
+27e)
+
+arm64:
+
+    defconfig:
+        gcc-8:
+          meson-gxl-s905x-khadas-vim:
+              lab-baylibre: new failure (last pass: v5.4.43-140-gf5694d7c42=
+7e)
+
+Boot Failure Detected:
+
+arm:
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
+
+Offline Platforms:
+
+arm:
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+            qcom-apq8064-cm-qs600: 1 offline lab
+            stih410-b2120: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
