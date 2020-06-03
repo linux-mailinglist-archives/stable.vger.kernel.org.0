@@ -2,95 +2,167 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8AF451ED814
-	for <lists+stable@lfdr.de>; Wed,  3 Jun 2020 23:30:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 188481ED818
+	for <lists+stable@lfdr.de>; Wed,  3 Jun 2020 23:31:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726229AbgFCVaf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 3 Jun 2020 17:30:35 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:8704 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725961AbgFCVaf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 3 Jun 2020 17:30:35 -0400
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 053L3nje105267;
-        Wed, 3 Jun 2020 17:30:28 -0400
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 31dr8j58y3-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 03 Jun 2020 17:30:28 -0400
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 053LADH9022306;
-        Wed, 3 Jun 2020 21:30:26 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma03ams.nl.ibm.com with ESMTP id 31bf480rq6-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 03 Jun 2020 21:30:26 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 053LUNY58519964
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 3 Jun 2020 21:30:24 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D604252059;
-        Wed,  3 Jun 2020 21:30:23 +0000 (GMT)
-Received: from localhost.localdomain (unknown [9.85.144.192])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 1978D52063;
-        Wed,  3 Jun 2020 21:30:23 +0000 (GMT)
-Message-ID: <1591219822.5146.2.camel@linux.ibm.com>
-Subject: Re: [PATCH 1/2] ima: Directly assign the ima_default_policy pointer
- to ima_rules
-From:   Mimi Zohar <zohar@linux.ibm.com>
-To:     Roberto Sassu <roberto.sassu@huawei.com>, tiwai@suse.de
-Cc:     linux-integrity@vger.kernel.org,
-        linux-security-module@vger.kernel.org,
-        linux-kernel@vger.kernel.org, silviu.vlasceanu@huawei.com,
-        stable@vger.kernel.org
-Date:   Wed, 03 Jun 2020 17:30:22 -0400
-In-Reply-To: <20200603150821.8607-1-roberto.sassu@huawei.com>
-References: <20200603150821.8607-1-roberto.sassu@huawei.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.20.5 (3.20.5-1.fc24) 
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.216,18.0.687
- definitions=2020-06-03_13:2020-06-02,2020-06-03 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 suspectscore=0
- adultscore=0 mlxscore=0 spamscore=0 mlxlogscore=780 impostorscore=0
- phishscore=0 lowpriorityscore=0 priorityscore=1501 bulkscore=0
- malwarescore=0 cotscore=-2147483648 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2004280000 definitions=main-2006030161
+        id S1726404AbgFCVbZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 3 Jun 2020 17:31:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37006 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725961AbgFCVbY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 3 Jun 2020 17:31:24 -0400
+Received: from mail-pf1-x444.google.com (mail-pf1-x444.google.com [IPv6:2607:f8b0:4864:20::444])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF7F2C08C5C0
+        for <stable@vger.kernel.org>; Wed,  3 Jun 2020 14:31:24 -0700 (PDT)
+Received: by mail-pf1-x444.google.com with SMTP id f3so2351095pfd.11
+        for <stable@vger.kernel.org>; Wed, 03 Jun 2020 14:31:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=zOwvDZLrXdCJu/nAhAcxhk3+k7M5fpI55v7fAKNHaoo=;
+        b=wOMheMqW4xGZ7DBArtb9ZrN4Jdz2idQjLCCQSC2sWnR1J4in0Q5sQB9iOYtmLh84Jk
+         CTkXsm9MqGb+hFGs/xXgPQkEqbBq1y87S+QgLNcY+IiirchtOm20RySYRAOqi0DKcw7x
+         TE7BZIoUYGHjOR/NCzlQ6mrV2CLLa6ZWFGwY0zNOll3tgPJgBmWgPAYZCUqLfw8Ue+9Z
+         ab2a8l6vZk7/LSuddV8N8TvzzXYmkDEUHgbZcIczvfIMaca33VEB2qe5yJ+VNnQdgQKF
+         HfkBGhPirudUTxITAeNDJsERW8OG+NJPYsSaA87ihDNMV/oykqMRg0jvSIGHRwJEhDRI
+         XdYQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=zOwvDZLrXdCJu/nAhAcxhk3+k7M5fpI55v7fAKNHaoo=;
+        b=jpn4NV2JgMpCXt8uUfdf8sSYmtOJEMrvcYwQdfLwEarvR81INPgqflQUSaAEw2qR59
+         J5Y7gc+H0Wztu1+gpgTugp6e1uRxeN6rsW4Lv5GfFhINZ4qd0BfzBq6921VQ815ilVvi
+         vWBPOE1nfgCxZpMPzuxOv7rnF4ngJDUE7/Gst1geT/peGabgA7V/YjvJOj50KcSSOBXr
+         NIL0fLRMO0j8oYPmLAnNp7JKgmuG7xXyEg4AoYRnlh3tb+IS5pJQZFybx/lz649uuxTn
+         bBMWyEbcOt64qfRsv/Z+quZLi1uky9RKU6yjd8IhQGIP+5fsCGNzc4x9ah8Bwb/XJcCB
+         hSZw==
+X-Gm-Message-State: AOAM530a1EvqAQliFjAB7W0a4gtPmH7JemWu3qp4wqJ97gs0PSX1QGxw
+        vPt+9g4PQ7FwD+AWkXlqehk143bXKKI=
+X-Google-Smtp-Source: ABdhPJwaMUeYoRZgjildoLQNLRyJipiarVNl87Y3TDU+AxXYBALOf01q2nfCqWDkx7+gdMZvaSmwdw==
+X-Received: by 2002:a63:7d1d:: with SMTP id y29mr1282025pgc.189.1591219883954;
+        Wed, 03 Jun 2020 14:31:23 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id 25sm3276526pjk.50.2020.06.03.14.31.22
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 03 Jun 2020 14:31:23 -0700 (PDT)
+Message-ID: <5ed816ab.1c69fb81.55d35.8a7b@mx.google.com>
+Date:   Wed, 03 Jun 2020 14:31:23 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.19.126
+X-Kernelci-Report-Type: boot
+X-Kernelci-Branch: linux-4.19.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-4.19.y boot: 130 boots: 1 failed,
+ 119 passed with 4 offline, 5 untried/unknown, 1 conflict (v4.19.126)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 2020-06-03 at 17:08 +0200, Roberto Sassu wrote:
-> This patch prevents the following oops:
-> 
-> [   10.771813] BUG: kernel NULL pointer dereference, address: 0000000000000
-> [...]
-> [   10.779790] RIP: 0010:ima_match_policy+0xf7/0xb80
-> [...]
-> [   10.798576] Call Trace:
-> [   10.798993]  ? ima_lsm_policy_change+0x2b0/0x2b0
-> [   10.799753]  ? inode_init_owner+0x1a0/0x1a0
-> [   10.800484]  ? _raw_spin_lock+0x7a/0xd0
-> [   10.801592]  ima_must_appraise.part.0+0xb6/0xf0
-> [   10.802313]  ? ima_fix_xattr.isra.0+0xd0/0xd0
-> [   10.803167]  ima_must_appraise+0x4f/0x70
-> [   10.804004]  ima_post_path_mknod+0x2e/0x80
-> [   10.804800]  do_mknodat+0x396/0x3c0
-> 
-> It occurs when there is a failure during IMA initialization, and
-> ima_init_policy() is not called. IMA hooks still call ima_match_policy()
-> but ima_rules is NULL. This patch prevents the crash by directly assigning
-> the ima_default_policy pointer to ima_rules when ima_rules is defined. This
-> wouldn't alter the existing behavior, as ima_rules is always set at the end
-> of ima_init_policy().
-> 
-> Cc: stable@vger.kernel.org # 3.7.x
-> Fixes: 07f6a79415d7d ("ima: add appraise action keywords and default rules")
-> Reported-by: Takashi Iwai <tiwai@suse.de>
-> Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+******************************************
+* WARNING: Boot tests are now deprecated *
+******************************************
 
-Thanks, Roberto!
+As kernelci.org is expanding its functional testing capabilities, the conce=
+pt
+of boot testing is now deprecated.  Boot results are scheduled to be droppe=
+d on
+*5th June 2020*.  The full schedule for boot tests deprecation is available=
+ on
+this GitHub issue: https://github.com/kernelci/kernelci-backend/issues/238
+
+The new equivalent is the *baseline* test suite which also runs sanity chec=
+ks
+using dmesg and bootrr: https://github.com/kernelci/bootrr
+
+See the *baseline results for this kernel revision* on this page:
+https://kernelci.org/test/job/stable-rc/branch/linux-4.19.y/kernel/v4.19.12=
+6/plan/baseline/
+
+---------------------------------------------------------------------------=
+----
+
+stable-rc/linux-4.19.y boot: 130 boots: 1 failed, 119 passed with 4 offline=
+, 5 untried/unknown, 1 conflict (v4.19.126)
+
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.19.y/kernel/v4.19.126/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
+y/kernel/v4.19.126/
+
+Tree: stable-rc
+Branch: linux-4.19.y
+Git Describe: v4.19.126
+Git Commit: 4707d8e5727387e36ea99c74d5ff0ad227700fd0
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 82 unique boards, 21 SoC families, 17 builds out of 169
+
+Boot Regressions Detected:
+
+arm:
+
+    qcom_defconfig:
+        gcc-8:
+          qcom-apq8064-cm-qs600:
+              lab-baylibre-seattle: failing since 21 days (last pass: v4.19=
+.122 - first fail: v4.19.122-48-g92ba0b6b33ad)
+
+    sama5_defconfig:
+        gcc-8:
+          at91-sama5d4_xplained:
+              lab-baylibre: failing since 82 days (last pass: v4.19.108-87-=
+g624c124960e8 - first fail: v4.19.109)
+
+    versatile_defconfig:
+        gcc-8:
+          versatile-pb:
+              lab-collabora: new failure (last pass: v4.19.125)
+
+i386:
+
+    i386_defconfig:
+        gcc-8:
+          qemu_i386:
+              lab-collabora: new failure (last pass: v4.19.125-93-g80718197=
+a8a3)
+
+Boot Failure Detected:
+
+arm:
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
+
+Offline Platforms:
+
+arm:
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+            qcom-apq8064-cm-qs600: 1 offline lab
+            stih410-b2120: 1 offline lab
+
+Conflicting Boot Failure Detected: (These likely are not failures as other =
+labs are reporting PASS. Needs review.)
+
+i386:
+    i386_defconfig:
+        qemu_i386:
+            lab-collabora: FAIL (gcc-8)
+            lab-baylibre: PASS (gcc-8)
+
+---
+For more info write to <info@kernelci.org>
