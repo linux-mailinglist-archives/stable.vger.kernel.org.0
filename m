@@ -2,95 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C3621ED52B
-	for <lists+stable@lfdr.de>; Wed,  3 Jun 2020 19:42:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B175F1ED53F
+	for <lists+stable@lfdr.de>; Wed,  3 Jun 2020 19:47:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726238AbgFCRmv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 3 Jun 2020 13:42:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58212 "EHLO
+        id S1726350AbgFCRrV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 3 Jun 2020 13:47:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58938 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726061AbgFCRms (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 3 Jun 2020 13:42:48 -0400
-Received: from mail-lf1-x141.google.com (mail-lf1-x141.google.com [IPv6:2a00:1450:4864:20::141])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33B14C08C5C1
-        for <stable@vger.kernel.org>; Wed,  3 Jun 2020 10:33:31 -0700 (PDT)
-Received: by mail-lf1-x141.google.com with SMTP id e125so1859214lfd.1
-        for <stable@vger.kernel.org>; Wed, 03 Jun 2020 10:33:31 -0700 (PDT)
+        with ESMTP id S1726071AbgFCRrV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 3 Jun 2020 13:47:21 -0400
+Received: from mail-qv1-xf4a.google.com (mail-qv1-xf4a.google.com [IPv6:2607:f8b0:4864:20::f4a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDB2AC08C5C1
+        for <stable@vger.kernel.org>; Wed,  3 Jun 2020 10:47:19 -0700 (PDT)
+Received: by mail-qv1-xf4a.google.com with SMTP id k35so2203217qva.18
+        for <stable@vger.kernel.org>; Wed, 03 Jun 2020 10:47:19 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=cogentembedded-com.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=RiYI0t+KrBvaJgMcqUi2332VvHKyX88P2wlQysjVLXM=;
-        b=gk244yjdaq9AeMPc0x74cYRwy2EEkQH/A2o2vAvYivtoPifzXZ4zIPTJxNnt6AEms3
-         lnpu4id+cI4xfoV50YJ3gBY/KHwO5czVFEAW3yZvg2XLVI0C+9X1+Ckei58TxH5yrgfU
-         PF13oW+pEFgFc9YI47rXwqVQRStTEWiZL8fC7FVTh8rSr0KJdluA2FI89xLVmbfQ+NEW
-         wlgPHeXOEVwRUcFUMyqo37mmdKmoeKXeGMAoiKXHwA/4WYa5strDvITPRW9Rem2vUDvL
-         zNBIpLEJlrIhR0I1My/Ub2bW9Sw0qyMOt/HBDths765G9kyJoGaQBb+35SazRc8zZLjg
-         m+LA==
+        d=google.com; s=20161025;
+        h=date:message-id:mime-version:subject:from:to:cc;
+        bh=fLjSsW/NTgyWecVWnnneUC+9Bt4TjOTIssgnySdQoyA=;
+        b=jOQkwCJS99WcGmfd51kk60wxPiOKILfRB8GusbTg7LPsTQIDAsWczAhDblVosu5+ml
+         BjGBUcc6n42Xpx9Lf/bPp7JK+HLXnXqC0UhtijIJwUGnsm6X0vdAfS+6e5MZXS5aL95G
+         ttRSyfpzUVK7JqHpjbfUEM8wAnZx5tHIMMfwuwAps1p+b4rYU/Ww6oYxjv/A24uwRJqx
+         jM3XJ3bU/MW1Jeijd6r22MH6RUEyN7c7GdyoaE1yZnm6B4xmVKaWlMUdjdZ7LWvFd7kO
+         SEQccx0DItI3fmXi7zdty6heTWV5avdhJg7yDPQi8eD1neYsoU00QTiO24rsPDkbsnmf
+         /n9A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=RiYI0t+KrBvaJgMcqUi2332VvHKyX88P2wlQysjVLXM=;
-        b=H5PpBruXFhBnT4FoVJJeynXFr/qlKPseDkfv76NZ2Z/GpAOGZtFc0ddhDHzyUWfQ4S
-         wGF59fgVkWXb5sbo/aFMfR3EnSoS6gJ62OshvUiGwwIkI97BQIkx9rcZ+VsE7dHz0q9a
-         3lkmuY8f0rxNsN/SercjmiLNbA0b+Lhfv0G0Ho/Rt5r5DAnONH6xoP+sUmHrss09SW8e
-         FtwkmvbCXthhopLsYyrrTM1jY50mYXAFJvBWWFvzA96ywjTeNOiD1YiUMIeFetIoIhSy
-         tWFo6OUlxMl4VzxI9iTgHO4p3/c6h+miNNQ79uxg4mDRrGbFY/aJpbCM1HygfXjqNZoj
-         0Wew==
-X-Gm-Message-State: AOAM5307ZsjvVYJOXVo8XajZv+eDVs3fWAo1poUzGjAj/JABk9k/daYF
-        dquJpmJx4qdz8qFFCVXoDwtqiQ==
-X-Google-Smtp-Source: ABdhPJxlDbpPhvBO2HwzpUWB+mZRWd3ea7bAmLgctD4jOZItUkkhqH0olCiHDFJagt7e80KPbSXkjA==
-X-Received: by 2002:ac2:489a:: with SMTP id x26mr297287lfc.111.1591205609563;
-        Wed, 03 Jun 2020 10:33:29 -0700 (PDT)
-Received: from ?IPv6:2a00:1fa0:448d:774a:2057:6699:2c75:847d? ([2a00:1fa0:448d:774a:2057:6699:2c75:847d])
-        by smtp.gmail.com with ESMTPSA id q8sm815921lfo.13.2020.06.03.10.33.28
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 03 Jun 2020 10:33:28 -0700 (PDT)
-Subject: Re: [PATCH v3] usb: host: xhci-mtk: avoid runtime suspend when
- removing hcd
-To:     Macpaul Lin <macpaul.lin@mediatek.com>,
-        Chunfeng Yun <chunfeng.yun@mediatek.com>,
-        Mathias Nyman <mathias.nyman@intel.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        stable@vger.kernel.org
-Cc:     Mediatek WSD Upstream <wsd_upstream@mediatek.com>,
-        Macpaul Lin <macpaul.lin@gmail.com>,
-        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-usb@vger.kernel.org, linux-mediatek@lists.infradead.org
-References: <ebd32a2b-c4ba-8891-b13e-f6c641a94276@linux.intel.com>
- <1591189767-21988-1-git-send-email-macpaul.lin@mediatek.com>
-From:   Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-Message-ID: <b2f3aa9f-a592-0e8c-f897-f5d885fb9740@cogentembedded.com>
-Date:   Wed, 3 Jun 2020 20:33:24 +0300
-User-Agent: Mozilla/5.0 (Windows NT 6.3; WOW64; rv:68.0) Gecko/20100101
- Thunderbird/68.8.1
-MIME-Version: 1.0
-In-Reply-To: <1591189767-21988-1-git-send-email-macpaul.lin@mediatek.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
+        bh=fLjSsW/NTgyWecVWnnneUC+9Bt4TjOTIssgnySdQoyA=;
+        b=E33wy3UfPRQVlIDx8vqEO2mH0tnCzNFZPjYkCso58Dn0Doep/TEp3rqr2mRSE6Fc9d
+         pbLRshHpHnrKX+/uB2WFMweKZV3me0QoMZG3TKipuYXT+4ENuyukXY0++u5Z0SNc6B7Y
+         esJ8BRUU3CR2XTD86Tjk4EHWAtvX3j0pB5W0GQW6se6i1eqEFf0KGRdbHbwe/mGYRqEa
+         2BMx1ph9ziguZEicLV+5xaWgpKKt88Xd6lM/dQ5AKDwsoN8EhY/LkHqWmdMBfMYSI9Tu
+         oQvVOJxcVJKyXh4RH7hvt7kWVDiBJrpPOAPoBzFbqwU1JTxqGHCgaFgTxICScfLPjWUz
+         FyXA==
+X-Gm-Message-State: AOAM533dzpXLk9Itkcb+/GkXKVxi6oHavifGkSIcFdC7NsSj4ucamGOe
+        CL9Hk2ghHoI99VVvdU9jQj62MohFm1I=
+X-Google-Smtp-Source: ABdhPJyTlHSzgJRLnJN7g81F8X0Rocv8raZHSS9nwnnwyEOSikK0OcS11Aw0N94+Ac4/qqujAbRMGPV8W90=
+X-Received: by 2002:ad4:4e86:: with SMTP id dy6mr1006686qvb.106.1591206438886;
+ Wed, 03 Jun 2020 10:47:18 -0700 (PDT)
+Date:   Wed,  3 Jun 2020 19:47:14 +0200
+Message-Id: <20200603174714.192027-1-glider@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.27.0.rc2.251.g90737beb825-goog
+Subject: [PATCH] ovl: explicitly initialize error in ovl_copy_xattr()
+From:   glider@google.com
+To:     miklos@szeredi.hu
+Cc:     linux-unionfs@vger.kernel.org, linux-kernel@vger.kernel.org,
+        keescook@chromium.org, royyang@google.com, stable@vger.kernel.org,
+        Alexander Potapenko <glider@google.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello.
+Under certain circumstances (we found this out running Docker on a
+Clang-built kernel with CONFIG_INIT_STACK_ALL) ovl_copy_xattr() may
+return uninitialized value of |error| from ovl_copy_xattr().
+It is then returned by ovl_create() to lookup_open(), which casts it to
+an invalid dentry pointer, that can be further read or written by the
+lookup_open() callers.
 
-On 03.06.2020 16:09, Macpaul Lin wrote:
+Signed-off-by: Alexander Potapenko <glider@google.com>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Roy Yang <royyang@google.com>
+Cc: <stable@vger.kernel.org> # 4.1
 
-> When runtime suspend was enabled, runtime suspend might happened
+---
 
-    Happen.
+It's unclear to me whether error should be initially 0 or some error
+code (both seem to work), but I thought returning an error makes sense,
+as the situation wasn't anticipated by the code authors.
 
-> when xhci is removing hcd. This might cause kernel panic when hcd
-> has been freed but runtime pm suspend related handle need to
-> reference it.
-> 
-> Signed-off-by: Macpaul Lin <macpaul.lin@mediatek.com>
-> Reviewed-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
-[...]
+The bug seem to date back to at least v4.1 where the annotation has been
+introduced (i.e. the compilers started noticing error could be used
+before being initialized). I hovever didn't try to prove that the
+problem is actually reproducible on such ancient kernels. We've seen it
+on a real machine running v4.4 as well.
+---
+ fs/overlayfs/copy_up.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-MBR, Sergei
+diff --git a/fs/overlayfs/copy_up.c b/fs/overlayfs/copy_up.c
+index 9709cf22cab3..428d43e2d016 100644
+--- a/fs/overlayfs/copy_up.c
++++ b/fs/overlayfs/copy_up.c
+@@ -47,7 +47,7 @@ int ovl_copy_xattr(struct dentry *old, struct dentry *new)
+ {
+ 	ssize_t list_size, size, value_size = 0;
+ 	char *buf, *name, *value = NULL;
+-	int uninitialized_var(error);
++	int error = -EINVAL;
+ 	size_t slen;
+ 
+ 	if (!(old->d_inode->i_opflags & IOP_XATTR) ||
+-- 
+2.27.0.rc2.251.g90737beb825-goog
+
