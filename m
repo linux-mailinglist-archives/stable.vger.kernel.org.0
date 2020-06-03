@@ -2,146 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BCE81ED497
-	for <lists+stable@lfdr.de>; Wed,  3 Jun 2020 18:57:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D74CC1ED495
+	for <lists+stable@lfdr.de>; Wed,  3 Jun 2020 18:56:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726112AbgFCQ5B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 3 Jun 2020 12:57:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51104 "EHLO
+        id S1726134AbgFCQ42 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 3 Jun 2020 12:56:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51016 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725854AbgFCQ5A (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 3 Jun 2020 12:57:00 -0400
-Received: from mail-il1-x144.google.com (mail-il1-x144.google.com [IPv6:2607:f8b0:4864:20::144])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C00A9C08C5C0
-        for <stable@vger.kernel.org>; Wed,  3 Jun 2020 09:57:00 -0700 (PDT)
-Received: by mail-il1-x144.google.com with SMTP id l6so3228991ilo.2
-        for <stable@vger.kernel.org>; Wed, 03 Jun 2020 09:57:00 -0700 (PDT)
+        with ESMTP id S1725854AbgFCQ41 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 3 Jun 2020 12:56:27 -0400
+Received: from mail-pg1-x541.google.com (mail-pg1-x541.google.com [IPv6:2607:f8b0:4864:20::541])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5FFADC08C5C0
+        for <stable@vger.kernel.org>; Wed,  3 Jun 2020 09:56:26 -0700 (PDT)
+Received: by mail-pg1-x541.google.com with SMTP id m1so2182004pgk.1
+        for <stable@vger.kernel.org>; Wed, 03 Jun 2020 09:56:26 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=juliacomputing-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=KQT1mSk5GZAejsG86TNk9V0+f37wlqbJ20Yhgw/mpdQ=;
-        b=ikMGc0vtUJcDbPMcm9sHlaQy6v+9UgeKgDwVp8aGldO90KIg6YELvKjHLpgXmHjgnK
-         Zdph4F7NLsjR64BpFd/RRXi3Pe72kJFb3LxIoMgCTmGJ3aevdThOzGbQmRVyCR+iKvFG
-         ZcM0y4KBNgoBvDnqxkgtya9cgY8fEciPd7buBwArznatxhbBHIk/oeqbK5emxgo7+wkK
-         aBdz7wgAEzybjBG928SmAXEAKGyfvT9QziP6SnVsjOGYTK3uzEL09oqybiJf2x8XRB1S
-         qqrRRCTGZVPFAc5WF5nQyS1p8OpYRrN4WE1UkQmaT4VOtfWgLxv6VvPL2zD7Rme6TtUS
-         EnEw==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=3O6oxgJMf53ISEdxG71eKI/4pjPZb/xWm1uhXDZUBEM=;
+        b=IkztL83Z/EBXFLzzjpDby4sahiTvYK7ALV+lzw63+/M+HoXLnLRrG8xk184SXoE1rn
+         x12H5rBSsBJReQYiMdvD0oI9GN5gYSy1dfZIMmoacGyJ6NehgplZJURkiAaIfRK6NnC1
+         7mcFrx1YEp6B559breafqPDqcbf0LmD7sHgU+BYiw1GbKXRuqRn9Lj9PWGTZhCgT/hmA
+         5cnmVhju79v7/3wuTyRJX3c5k/DNycCf1x4N58KnBtFdHt9OLWc0+RMpHjsaQquzm/oL
+         i+kTcN6amOuoDt8rr89XDbLkXNfxnAMgiDpviRIfoio5DRbz8Nh4SChZ+KQdAh1chqs8
+         PMDw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=KQT1mSk5GZAejsG86TNk9V0+f37wlqbJ20Yhgw/mpdQ=;
-        b=BN8uo2rFMlQ4g6DRRFOU7rDO8wdJ9/J4PV/jPJ5PuU//ivwRoD4j562EEX+6YYxcFZ
-         J0pbktauYYGEZ6rlrmbubMJfRzMbcJO+qXf18WxkPPquhnO/bfG/67p4VH7zPnbb0VEz
-         dPRu+3pGh7TigQMaphZCw6/sc36svgILd4tJgpRz1CTIRwYuTzDL4hZDPVWcSAIiC3uq
-         thmBxudmNgPSh87Yj/69/MfIHVzthqBwSa67BX5EurApleDUYJjfIDNj8+C6YN20/1zo
-         K4p2f3eyuu5Yd4xvTU0jPLnloemYq7aZAPD4710vYuDOdwH5cruRgh6MTKaEukhoRP0A
-         XEMw==
-X-Gm-Message-State: AOAM530jt+BQU47XcsYg919+lheUawCCAhGuKwFgRRNlFVPJFUL/lWuz
-        jsYwQTKsHHRC0C9hp8QGbqh41z1qTACH0I+bbrYGXw==
-X-Google-Smtp-Source: ABdhPJyHkno5yldGr9+v1MKHFlCKN57QArtAe9koNMdcOi9e1WsgIT/9Z751om+WZdbXL3BHa29oO+amRPLqnYHlYtA=
-X-Received: by 2002:a92:290b:: with SMTP id l11mr437220ilg.145.1591203420134;
- Wed, 03 Jun 2020 09:57:00 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=3O6oxgJMf53ISEdxG71eKI/4pjPZb/xWm1uhXDZUBEM=;
+        b=ogtTDuhL/maBuImtVDEmSCwdveQAWweq+IxVnywWPhW7dZsWqE8aBirFrjliZ4Y5+r
+         LNnw3bOWxwWHSfhfV/T6MoUvs1b2RGYIwa74nYARdav4UYbKANi1mlm3gMOSXNK3slka
+         W3+j31LbvazGXXI9Ldva9PZndYK1pgONHL84k7OS3r00mAz08f8JttOK3kl866GUwSj1
+         63UuGrhosXtrpDrr7H1QAafcYOYAxNriafEO1U1kKEzvqtvW+8VPyaZvYboS9cSErl9Z
+         j8rDQCYm76CAZUy14GeD4OgnNEdoSl6K5qhEbZIxvY71JhbCq9gkMAGd36MEpcv5PhBz
+         05ZQ==
+X-Gm-Message-State: AOAM533GDqWS+WF54cTtAC0vbWmJTx9Fh1IHL6ghbT6HCDJUoNu5NX45
+        qK+Ev2L0ROKwjyYi0WYCkUew/nZbLSY=
+X-Google-Smtp-Source: ABdhPJwlRgqkKjO4M857TRN/mTu4n8D1yzKCKUI26BCar+OWe1UFKDAIL1Gr5hO0s5bYd5DFPT2O+Q==
+X-Received: by 2002:a63:5d6:: with SMTP id 205mr290828pgf.237.1591203385174;
+        Wed, 03 Jun 2020 09:56:25 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id v8sm2240363pfn.217.2020.06.03.09.56.23
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 03 Jun 2020 09:56:24 -0700 (PDT)
+Message-ID: <5ed7d638.1c69fb81.48aff.60cb@mx.google.com>
+Date:   Wed, 03 Jun 2020 09:56:24 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20200603151033.11512-1-will@kernel.org> <20200603151033.11512-2-will@kernel.org>
- <CABV8kRwrnixNc074-jQhZzeucGHx9_e5FnQmBS=VuL=tFGjY-Q@mail.gmail.com> <20200603155338.GA12036@willie-the-truck>
-In-Reply-To: <20200603155338.GA12036@willie-the-truck>
-From:   Keno Fischer <keno@juliacomputing.com>
-Date:   Wed, 3 Jun 2020 12:56:24 -0400
-Message-ID: <CABV8kRxSjMY+d+F5aNzq1=5hXhVLGy6TbNLTUsCeSsAncwCzoA@mail.gmail.com>
-Subject: Re: [PATCH 1/2] arm64: Override SPSR.SS when single-stepping is enabled
-To:     Will Deacon <will@kernel.org>
-Cc:     linux-arm-kernel@lists.infradead.org, kernel-team@android.com,
-        Mark Rutland <mark.rutland@arm.com>,
-        Luis Machado <luis.machado@linaro.org>, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.9.226
+X-Kernelci-Report-Type: boot
+X-Kernelci-Branch: linux-4.9.y
+X-Kernelci-Tree: stable
+Subject: stable/linux-4.9.y boot: 47 boots: 1 failed,
+ 44 passed with 2 untried/unknown (v4.9.226)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jun 3, 2020 at 11:53 AM Will Deacon <will@kernel.org> wrote:
-> > However, at the same time as changing this, we should probably make sure
-> > to enable the syscall exit pseudo-singlestep trap (similar issue as the other
-> > patch I had sent for the signal pseudo-singlestep trap), since otherwise
-> > ptracers might get confused about the lack of singlestep trap during a
-> > singlestep -> seccomp -> singlestep path (which would give one trap
-> > less with this patch than before).
->
-> Hmm, I don't completely follow your example. Please could you spell it
-> out a bit more? I fast-forward the stepping state machine on sigreturn,
-> which I thought would be sufficient. Perhaps you're referring to a variant
-> of the situation mentioned by Mark, which I didn't think could happen
-> with ptrace [2].
+******************************************
+* WARNING: Boot tests are now deprecated *
+******************************************
 
-Sure suppose we have code like the following:
+As kernelci.org is expanding its functional testing capabilities, the conce=
+pt
+of boot testing is now deprecated.  Boot results are scheduled to be droppe=
+d on
+*5th June 2020*.  The full schedule for boot tests deprecation is available=
+ on
+this GitHub issue: https://github.com/kernelci/kernelci-backend/issues/238
 
-0x0: svc #0
-0x4: str x0, [x7]
-...
+The new equivalent is the *baseline* test suite which also runs sanity chec=
+ks
+using dmesg and bootrr: https://github.com/kernelci/bootrr
 
-Then, if there's a seccomp filter active that just does
-SECCOMP_RET_TRACE of everything, right now we get traps:
+See the *baseline results for this kernel revision* on this page:
+https://kernelci.org/test/job/stable/branch/linux-4.9.y/kernel/v4.9.226/pla=
+n/baseline/
 
-<- (ip: 0x0)
--> PTRACE_SINGLESTEP
-<- (ip: 0x4 - seccomp trap)
--> PTRACE_SINGLESTEP
-<- SIGTRAP (ip: 0x4 - TRAP_TRACE trap)
--> PTRACE_SINGLESTEP
-<- SIGTRAP (ip: 0x8 - TRAP_TRACE trap)
+---------------------------------------------------------------------------=
+----
 
-With your proposed patch, we instead get
-<- (ip: 0x0)
--> PTRACE_SINGLESTEP
-<- (ip: 0x4 - seccomp trap)
--> PTRACE_SINGLESTEP
-<- SIGTRAP (ip: 0x8 - TRAP_TRACE trap)
+stable/linux-4.9.y boot: 47 boots: 1 failed, 44 passed with 2 untried/unkno=
+wn (v4.9.226)
 
-This is problematic, because the ptracer may want to inspect the
-result of the syscall instruction. On other architectures, this
-problem is solved with a pseudo-singlestep trap that gets executed
-if you resume from a syscall-entry-like trap with PTRACE_SINGLESTEP.
-See the below patch for the change I'm proposing. There is a slight
-issue with that patch, still: It now makes the x7 issue apply to the
-singlestep trap at exit, so we should do the patch to fix that issue
-before we apply that change (or manually check for this situation
-and issue the pseudo-singlestep trap manually).
+Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
+9.y/kernel/v4.9.226/
+Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.9.y/ke=
+rnel/v4.9.226/
 
-My proposed patch below also changes
+Tree: stable
+Branch: linux-4.9.y
+Git Describe: v4.9.226
+Git Commit: af5595c4ae50545abbcc14515e5b15f823fb9b01
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e.git
+Tested: 31 unique boards, 10 SoC families, 12 builds out of 152
 
-<- (ip: 0x0)
--> PTRACE_SYSCALL
-<- (ip: 0x4 - syscall entry trap)
--> PTRACE_SINGLESTEP
-<- SIGTRAP (ip: 0x8 - TRAP_TRACE trap)
+Boot Failure Detected:
 
-to
+arm:
+    sama5_defconfig:
+        gcc-8:
+            at91-sama5d4_xplained: 1 failed lab
 
-<- (ip: 0x0)
--> PTRACE_SYSCALL
-<- (ip: 0x4 - syscall entry trap)
--> PTRACE_SINGLESTEP
-<- SIGTRAP (ip: 0x4 - pseudo-singlestep exit trap)
--> PTRACE_SINGLESTEP
-<- SIGTRAP (ip: 0x8 - TRAP_TRACE trap)
-
-But I consider that a bugfix, since that's how other architectures
-behave and I was going to send in this patch for that reason anyway
-(since this was another one of the aarch64 ptrace quirks we had to
-work around).
-
-diff --git a/arch/arm64/kernel/ptrace.c b/arch/arm64/kernel/ptrace.c
-index b3d3005d9515..104cfcf117d0 100644
---- a/arch/arm64/kernel/ptrace.c
-+++ b/arch/arm64/kernel/ptrace.c
-@@ -1820,7 +1820,7 @@ static void tracehook_report_syscall(struct pt_regs *regs,
-        regs->regs[regno] = dir;
-
-        if (dir == PTRACE_SYSCALL_EXIT)
--               tracehook_report_syscall_exit(regs, 0);
-+               tracehook_report_syscall_exit(regs,
-test_thread_flag(TIF_SINGLESTEP));
-        else if (tracehook_report_syscall_entry(regs))
-                forget_syscall(regs);
+---
+For more info write to <info@kernelci.org>
