@@ -2,100 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B36051EC5F9
-	for <lists+stable@lfdr.de>; Wed,  3 Jun 2020 01:57:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7578E1EC63E
+	for <lists+stable@lfdr.de>; Wed,  3 Jun 2020 02:25:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728341AbgFBX5q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Jun 2020 19:57:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34318 "EHLO
+        id S1726875AbgFCAZ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Jun 2020 20:25:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38636 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726809AbgFBX5q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 2 Jun 2020 19:57:46 -0400
-Received: from mail-pf1-x441.google.com (mail-pf1-x441.google.com [IPv6:2607:f8b0:4864:20::441])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35EACC08C5C0;
-        Tue,  2 Jun 2020 16:57:46 -0700 (PDT)
-Received: by mail-pf1-x441.google.com with SMTP id x207so298448pfc.5;
-        Tue, 02 Jun 2020 16:57:46 -0700 (PDT)
+        with ESMTP id S1726112AbgFCAZ4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 2 Jun 2020 20:25:56 -0400
+Received: from mail-il1-x143.google.com (mail-il1-x143.google.com [IPv6:2607:f8b0:4864:20::143])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76527C08C5C0
+        for <stable@vger.kernel.org>; Tue,  2 Jun 2020 17:25:56 -0700 (PDT)
+Received: by mail-il1-x143.google.com with SMTP id a13so748210ilh.3
+        for <stable@vger.kernel.org>; Tue, 02 Jun 2020 17:25:56 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id;
-        bh=LhRRdC8w+lAb0OncPPcS/QlJQRfxazO8sGm5lyED8hA=;
-        b=OX+NgxMFH6HKye9aRqJ+3IK3xmOQDZuLYWfZ0rlo0pL/zSX9CECd/jP2r1qBGQCL+C
-         bX8jR7OP4+F4OutWf/eHB7w3OBIsOmeVcpVkMAUF4xKx0DHDx8jr1xE4yTxJyqs6Sa8e
-         ttvKQbzw66Uq1f92vRaymJRtK8Z+trVPiPbRCsvrUyvIgb56bMaIoqVmOE2OBtJb7iqa
-         qpzjgBtJ+KFXNaCdQgMoq2292STnrtRbwTqt1kBRx8cq1N8XtACr8t+fbSUJcb0hutKl
-         x5YZ47S7HMxhEoJmUiakT4wmHnZUvMuFxqvSGXFNL97Watb/ZvwKAUYHQogj5wf12+yi
-         EtBg==
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=OvRsMtNyIKIk7Sc8KCclbreP4Z4+OxlMjgwmceSdLLI=;
+        b=B/sUcBKxzNMeToqzjiUIRYcfiwViTsS+wPMosaEt40aG9NDSDsIgXCaq29qMDw1oU6
+         gZxf5/TyyA3atLP/26aADYK3kfBRAbBjDdwiOxVAeauxYawpFRkbN6b42t1bD5wtYyhI
+         ZjB70FBvwLQIoRDvqie/39VaEZ+gWYP+H+pTcCYSPftOUseRSgs36/htW9MfgGbvipBj
+         7/hJIvm2HRTFotpHlyDsELMorhwp9+1NbaDMpi+A/OlvVwcs0Sa+cepvFX07hNG4m/C+
+         lBJIXwG4pzCMK1Z3jQfmNQ/VZ97zTdYIp07C9sZEQFbxQ2NoC/fTLANw7TFSzk0y3qDW
+         P72Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id;
-        bh=LhRRdC8w+lAb0OncPPcS/QlJQRfxazO8sGm5lyED8hA=;
-        b=cCMgIC7hrW+2eb986gzYfJ4SgTN9lW2At+yzxfdzghaK4UiLi/gJo1iUrt2TdbEL2K
-         N0mvt254dcvErARJccLJ2hslxw/cEaJleHs4TTWZozKYDfKrKl+IOoHMDr9T0Y0IezPu
-         8BF0wQCjLTwuDkYBUaVM+K4Amf5YnbtcnJU1ODnPfouSJx5+xG+msGr5UGTlrcHMfBH7
-         lrdLz6ROWcEJcHO2sOH9IVB63tkGKI5bErE4VToR3ElaG6WQ0+2C7cAqHsMeWHu1/15X
-         inFt/Sb736DmSPOddH4TIbhQ9ns1BhNTaAlsF75OKg8HKC8tM1pSFyLXDZg3Cba5WqVA
-         xGgw==
-X-Gm-Message-State: AOAM5332+vCjxIRM0Kol7YWMpb5pOjLS5vJj0fUhJ3ww1vNCboXLKyCg
-        UzCqMP31zD23XYMtmy1z6bvdY3lK
-X-Google-Smtp-Source: ABdhPJxqg4L7MZn6XvklSG2hY4H1xfxiw+5gCrmvl4JKcQd8v5YDGrrkWiHabJbEgaOcqtAvMtx0AQ==
-X-Received: by 2002:a63:4c0b:: with SMTP id z11mr26828518pga.348.1591142265263;
-        Tue, 02 Jun 2020 16:57:45 -0700 (PDT)
-Received: from fainelli-desktop.igp.broadcom.net ([192.19.223.252])
-        by smtp.gmail.com with ESMTPSA id q28sm210308pfg.180.2020.06.02.16.57.43
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 02 Jun 2020 16:57:44 -0700 (PDT)
-From:   Florian Fainelli <f.fainelli@gmail.com>
-To:     linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, zhuguangqing <zhuguangqing@xiaomi.com>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        Pavel Machek <pavel@ucw.cz>, Len Brown <len.brown@intel.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-pm@vger.kernel.org (open list:POWER MANAGEMENT CORE)
-Subject: [PATCH stable 5.4] PM: wakeup: Show statistics for deleted wakeup sources again
-Date:   Tue,  2 Jun 2020 16:57:39 -0700
-Message-Id: <20200602235740.17574-1-f.fainelli@gmail.com>
-X-Mailer: git-send-email 2.17.1
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=OvRsMtNyIKIk7Sc8KCclbreP4Z4+OxlMjgwmceSdLLI=;
+        b=QQUTwowokl/Rj7OWgL56OOBMLhp7ZaXn30m3H/c3DrY9Gn9RYJCGsvCWvYfHabQwmQ
+         R+Dabm8/nzd/086hh6ds6jMMAtTl3fUsC7Q5YzCfSU/N513dPRbQBu3faZGciSxAr9II
+         ywYqjZDpyYJmfm1TafFNeOyRVSswfzh19j0wqUxpArD8cNiGg+ZD1UaEWF1r2mMvZN3u
+         PHX18RAFPakR/E3g6KS+PbqwAyDCahznK6ca0w5Z4frcOFIw/jAKOgC5/iU78qYoD0lU
+         HNk5qGtnfTSsyIRsJDIEuC4FxcIZkzPyhvC8nPD12aXLTq7tAX4LVEIf+cRFO0TETJuC
+         PF1g==
+X-Gm-Message-State: AOAM533HGdR65I5khP1dnDwXEWhwLmEqY0CvOI585VU06XOzyUSRgjZn
+        WeE02/8VluFW+vvd3p7/2JTMH3WRfD+O7MOX3Rc=
+X-Google-Smtp-Source: ABdhPJwo6/xVNOmO3AFIU8ca8Nm0NHPj5n9F3DCR5R0MJBFzI/hhB38Tx6CrlFcvOXCSdcFIZ+aSlXvIP9+t2xvMKXQ=
+X-Received: by 2002:a92:980f:: with SMTP id l15mr1634398ili.251.1591143955830;
+ Tue, 02 Jun 2020 17:25:55 -0700 (PDT)
+MIME-Version: 1.0
+Received: by 2002:ad5:44ef:0:0:0:0:0 with HTTP; Tue, 2 Jun 2020 17:25:55 -0700 (PDT)
+Reply-To: mrsfatimakargbo@outlook.com
+From:   Mr Suleman Bello <edithaviillanueva47@gmail.com>
+Date:   Tue, 2 Jun 2020 17:25:55 -0700
+Message-ID: <CAAVqi3cnLXU_CtuoKVWgCxJyq=mM2f5ytoHVxd-w1jUsvxCceg@mail.gmail.com>
+Subject: Can i trust you?
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: zhuguangqing <zhuguangqing@xiaomi.com>
+Dear Friend,
 
-commit e976eb4b91e906f20ec25b20c152d53c472fc3fd upstream
+Please i want you to read this letter very carefully and i must
+apologize for berging this message into your mail box without any
+formal introduction due to the urgency and confidential of this issue
+and i know that this message will come to you as a surprise, Please
+this is not a joke and i will not like you to joke with it.I am
+Mr.Suleman Bello, a staff in African Development Bank (A.D.B)
+Ouagadougou, Burkina faso West Africa.I discovered existing dormant
+account for years. When I discovered that there had been neither
+continuation nor withdrawals from this account for this long period
+and according to the laws and constitution guiding this banking
+institution, any unserviceable account for more than (7) seven years,
+that fund will be transferred to national treasury as unclaimed fund.
 
-After commit 00ee22c28915 (PM / wakeup: Use seq_open() to show wakeup
-stats), print_wakeup_source_stats(m, &deleted_ws) is not called from
-wakeup_sources_stats_seq_show() any more.
+I Hoped that you will not expose or betray this trust and confident
+that i am about to extablish with you for the mutual benefit of you
+and i,I need your urgent assistance in transferring the sum of $10.5
+)million usd into your account within 7 banking days. This money has
+been dormant for years in our Bank, and The request of foreigner in
+this transaction is necessary because our late customer was a
+foreigner and a burkinabe cannot stand as next of kin to a
+foreigner.Because of the static of this transaction I want you to
+stand as the next of kin so that our bank will accord you the
+recognition and have the fund transferred to your account.
 
-Because deleted_ws is one of the wakeup sources, it should be shown
-too, so add it to the end of all other wakeup sources.
+Upon your response, I shall then provide you with further information
+and more deities that will help you understand the transaction. I am
+expecting your urgent response to enable me inform you on how the
+business will be executed. Please I would like you to keep this
+transaction confidential and as a top secret or delete if you are not
+interested.
 
-Signed-off-by: zhuguangqing <zhuguangqing@xiaomi.com>
-[ rjw: Subject & changelog ]
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
----
- drivers/base/power/wakeup.c | 3 +++
- 1 file changed, 3 insertions(+)
-
-diff --git a/drivers/base/power/wakeup.c b/drivers/base/power/wakeup.c
-index 0bd9b291bb29..92f0960e9014 100644
---- a/drivers/base/power/wakeup.c
-+++ b/drivers/base/power/wakeup.c
-@@ -1073,6 +1073,9 @@ static void *wakeup_sources_stats_seq_next(struct seq_file *m,
- 		break;
- 	}
- 
-+	if (!next_ws)
-+		print_wakeup_source_stats(m, &deleted_ws);
-+
- 	return next_ws;
- }
- 
--- 
-2.17.1
-
+Thanks
+Mr.Suleman Bello.
