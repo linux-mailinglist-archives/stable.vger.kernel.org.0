@@ -2,228 +2,149 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C2A931EC958
-	for <lists+stable@lfdr.de>; Wed,  3 Jun 2020 08:18:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D0D61EC98C
+	for <lists+stable@lfdr.de>; Wed,  3 Jun 2020 08:31:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725859AbgFCGSl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 3 Jun 2020 02:18:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36496 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725810AbgFCGSl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 3 Jun 2020 02:18:41 -0400
-Received: from mail-lf1-x142.google.com (mail-lf1-x142.google.com [IPv6:2a00:1450:4864:20::142])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADEBFC05BD43
-        for <stable@vger.kernel.org>; Tue,  2 Jun 2020 23:18:39 -0700 (PDT)
-Received: by mail-lf1-x142.google.com with SMTP id d7so542906lfi.12
-        for <stable@vger.kernel.org>; Tue, 02 Jun 2020 23:18:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=L1Antw3TmB237X2rD0lLfZbq7G8CDuK+XDIh5Trtg0M=;
-        b=KvVZ3zB4XH8c/FeFY9EwaEUUEkumTj4KRjFaC95lAv4KrA46yIdrIoB0/SmrfK1Jna
-         i8r/0kD27i+AqTBjag0VSIyf5b9Dpv37lr7CsBlUIlRHztoaMwSXkzK8G9O/kKU5oCC+
-         LITfUe2OT9nkRo7lxapHpw1Si7X4cZMTHTmEAR8txWGqjZGfeHAww4nlDc4aZRGtRMiP
-         cheAfO18oYjEQ0npLSbiTWKo1U1NtFc7Qtdmkr5tP3oAqAUomckjgtHqyJMe8Jr15I8Q
-         sh5/riHw5BsajRHBV83vdio98J4YWXxWPHBMhDq7P9+r/lzZ56g8QTrty71lZF70KgU6
-         3r2g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=L1Antw3TmB237X2rD0lLfZbq7G8CDuK+XDIh5Trtg0M=;
-        b=d68NOJBreJpAM0P//v263pcVj6IZcS2CROidhSNDEj/QFq1H0DtN0NfcxUvZtmgqUv
-         kDkk2a9qLRqYWJqkziRyvSoU9P26G7kXSGkU11MqT72QZKXmokVhKnsHerUM7F9bl1H4
-         YtVrFUVs6mI2rF6EUhsHeiHGg/HjWIkk6nxXl5FxzwEwmLMAemaDv/7xerbwKSJpTGZJ
-         APA9jfTgpDoOGZdgL8/rUdm4g+MkM2j22O/YyFBSbNRKAHtnojW8h9+x84yyDYSSD9QF
-         R2uJ74F5y176MFw7V8+LCLQeuQvzGlsowXFE6frAUujeUe1edwxbiTwWv946do4TItUK
-         w6pw==
-X-Gm-Message-State: AOAM5308DZqhX/+KKr8Ijh4GqXaB4v8JBFYQDeWOi9GNi2guWorNPUoM
-        6TgrmRJoEa99yhHHoBkiroAOruHp+MvbtIemO8JLrg==
-X-Google-Smtp-Source: ABdhPJz3sRYK+AVpCyJ7p5q3edlvN7JO6YQshMhM13AlHLtzN+RjDRibm+wntiT9STMOoy8U7F+vDqeQUpaGUHXn17M=
-X-Received: by 2002:a05:6512:533:: with SMTP id o19mr1548565lfc.6.1591165117824;
- Tue, 02 Jun 2020 23:18:37 -0700 (PDT)
+        id S1726003AbgFCGa5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 3 Jun 2020 02:30:57 -0400
+Received: from mout.web.de ([212.227.15.3]:58611 "EHLO mout.web.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725810AbgFCGa5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 3 Jun 2020 02:30:57 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=web.de;
+        s=dbaedf251592; t=1591165849;
+        bh=cTgwzYgW6iZx0BywIpBGa55ko5vfSGTY0u8M5uDF5sg=;
+        h=X-UI-Sender-Class:Cc:Subject:To:From:Date;
+        b=KjPJpsiycKjjP0dbXGHQrc4KcsgYfpmlHId7uaaQI99afb5r6KPTr/C2KRGs+32IZ
+         SuO9mgEg43j71XzyPDmPc3GlYyPyXhkiRViHYxp/dtJrO2ooSqYWqXh32VA09FH94d
+         MzEx6ipzJXCiCeVjj4m7L7ZzMQOeZaZmmwW62UAk=
+X-UI-Sender-Class: c548c8c5-30a9-4db5-a2e7-cb6cb037b8f9
+Received: from [192.168.1.2] ([93.131.82.231]) by smtp.web.de (mrweb003
+ [213.165.67.108]) with ESMTPSA (Nemesis) id 0LeLWP-1jCb121cXl-00qExW; Wed, 03
+ Jun 2020 08:30:49 +0200
+Cc:     linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org,
+        stable@vger.kernel.org, syzkaller@googlegroups.com,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Sungjong Seo <sj1557.seo@samsung.com>,
+        Xiaolong Huang <butterflyhuangxx@gmail.com>
+Subject: Re: [PATCH v2] exfat: fix memory leak in exfat_parse_param()
+To:     Namjae Jeon <namjae.jeon@samsung.com>,
+        linux-fsdevel@vger.kernel.org
+From:   Markus Elfring <Markus.Elfring@web.de>
+Autocrypt: addr=Markus.Elfring@web.de; prefer-encrypt=mutual; keydata=
+ mQINBFg2+xABEADBJW2hoUoFXVFWTeKbqqif8VjszdMkriilx90WB5c0ddWQX14h6w5bT/A8
+ +v43YoGpDNyhgA0w9CEhuwfZrE91GocMtjLO67TAc2i2nxMc/FJRDI0OemO4VJ9RwID6ltwt
+ mpVJgXGKkNJ1ey+QOXouzlErVvE2fRh+KXXN1Q7fSmTJlAW9XJYHS3BDHb0uRpymRSX3O+E2
+ lA87C7R8qAigPDZi6Z7UmwIA83ZMKXQ5stA0lhPyYgQcM7fh7V4ZYhnR0I5/qkUoxKpqaYLp
+ YHBczVP+Zx/zHOM0KQphOMbU7X3c1pmMruoe6ti9uZzqZSLsF+NKXFEPBS665tQr66HJvZvY
+ GMDlntZFAZ6xQvCC1r3MGoxEC1tuEa24vPCC9RZ9wk2sY5Csbva0WwYv3WKRZZBv8eIhGMxs
+ rcpeGShRFyZ/0BYO53wZAPV1pEhGLLxd8eLN/nEWjJE0ejakPC1H/mt5F+yQBJAzz9JzbToU
+ 5jKLu0SugNI18MspJut8AiA1M44CIWrNHXvWsQ+nnBKHDHHYZu7MoXlOmB32ndsfPthR3GSv
+ jN7YD4Ad724H8fhRijmC1+RpuSce7w2JLj5cYj4MlccmNb8YUxsE8brY2WkXQYS8Ivse39MX
+ BE66MQN0r5DQ6oqgoJ4gHIVBUv/ZwgcmUNS5gQkNCFA0dWXznQARAQABtCZNYXJrdXMgRWxm
+ cmluZyA8TWFya3VzLkVsZnJpbmdAd2ViLmRlPokCVAQTAQgAPhYhBHDP0hzibeXjwQ/ITuU9
+ Figxg9azBQJYNvsQAhsjBQkJZgGABQsJCAcCBhUICQoLAgQWAgMBAh4BAheAAAoJEOU9Figx
+ g9azcyMP/iVihZkZ4VyH3/wlV3nRiXvSreqg+pGPI3c8J6DjP9zvz7QHN35zWM++1yNek7Ar
+ OVXwuKBo18ASlYzZPTFJZwQQdkZSV+atwIzG3US50ZZ4p7VyUuDuQQVVqFlaf6qZOkwHSnk+
+ CeGxlDz1POSHY17VbJG2CzPuqMfgBtqIU1dODFLpFq4oIAwEOG6fxRa59qbsTLXxyw+PzRaR
+ LIjVOit28raM83Efk07JKow8URb4u1n7k9RGAcnsM5/WMLRbDYjWTx0lJ2WO9zYwPgRykhn2
+ sOyJVXk9xVESGTwEPbTtfHM+4x0n0gC6GzfTMvwvZ9G6xoM0S4/+lgbaaa9t5tT/PrsvJiob
+ kfqDrPbmSwr2G5mHnSM9M7B+w8odjmQFOwAjfcxoVIHxC4Cl/GAAKsX3KNKTspCHR0Yag78w
+ i8duH/eEd4tB8twcqCi3aCgWoIrhjNS0myusmuA89kAWFFW5z26qNCOefovCx8drdMXQfMYv
+ g5lRk821ZCNBosfRUvcMXoY6lTwHLIDrEfkJQtjxfdTlWQdwr0mM5ye7vd83AManSQwutgpI
+ q+wE8CNY2VN9xAlE7OhcmWXlnAw3MJLW863SXdGlnkA3N+U4BoKQSIToGuXARQ14IMNvfeKX
+ NphLPpUUnUNdfxAHu/S3tPTc/E/oePbHo794dnEm57LuuQINBFg2+xABEADZg/T+4o5qj4cw
+ nd0G5pFy7ACxk28mSrLuva9tyzqPgRZ2bdPiwNXJUvBg1es2u81urekeUvGvnERB/TKekp25
+ 4wU3I2lEhIXj5NVdLc6eU5czZQs4YEZbu1U5iqhhZmKhlLrhLlZv2whLOXRlLwi4jAzXIZAu
+ 76mT813jbczl2dwxFxcT8XRzk9+dwzNTdOg75683uinMgskiiul+dzd6sumdOhRZR7YBT+xC
+ wzfykOgBKnzfFscMwKR0iuHNB+VdEnZw80XGZi4N1ku81DHxmo2HG3icg7CwO1ih2jx8ik0r
+ riIyMhJrTXgR1hF6kQnX7p2mXe6K0s8tQFK0ZZmYpZuGYYsV05OvU8yqrRVL/GYvy4Xgplm3
+ DuMuC7/A9/BfmxZVEPAS1gW6QQ8vSO4zf60zREKoSNYeiv+tURM2KOEj8tCMZN3k3sNASfoG
+ fMvTvOjT0yzMbJsI1jwLwy5uA2JVdSLoWzBD8awZ2X/eCU9YDZeGuWmxzIHvkuMj8FfX8cK/
+ 2m437UA877eqmcgiEy/3B7XeHUipOL83gjfq4ETzVmxVswkVvZvR6j2blQVr+MhCZPq83Ota
+ xNB7QptPxJuNRZ49gtT6uQkyGI+2daXqkj/Mot5tKxNKtM1Vbr/3b+AEMA7qLz7QjhgGJcie
+ qp4b0gELjY1Oe9dBAXMiDwARAQABiQI8BBgBCAAmFiEEcM/SHOJt5ePBD8hO5T0WKDGD1rMF
+ Alg2+xACGwwFCQlmAYAACgkQ5T0WKDGD1rOYSw/+P6fYSZjTJDAl9XNfXRjRRyJSfaw6N1pA
+ Ahuu0MIa3djFRuFCrAHUaaFZf5V2iW5xhGnrhDwE1Ksf7tlstSne/G0a+Ef7vhUyeTn6U/0m
+ +/BrsCsBUXhqeNuraGUtaleatQijXfuemUwgB+mE3B0SobE601XLo6MYIhPh8MG32MKO5kOY
+ hB5jzyor7WoN3ETVNQoGgMzPVWIRElwpcXr+yGoTLAOpG7nkAUBBj9n9TPpSdt/npfok9ZfL
+ /Q+ranrxb2Cy4tvOPxeVfR58XveX85ICrW9VHPVq9sJf/a24bMm6+qEg1V/G7u/AM3fM8U2m
+ tdrTqOrfxklZ7beppGKzC1/WLrcr072vrdiN0icyOHQlfWmaPv0pUnW3AwtiMYngT96BevfA
+ qlwaymjPTvH+cTXScnbydfOQW8220JQwykUe+sHRZfAF5TS2YCkQvsyf7vIpSqo/ttDk4+xc
+ Z/wsLiWTgKlih2QYULvW61XU+mWsK8+ZlYUrRMpkauN4CJ5yTpvp+Orcz5KixHQmc5tbkLWf
+ x0n1QFc1xxJhbzN+r9djSGGN/5IBDfUqSANC8cWzHpWaHmSuU3JSAMB/N+yQjIad2ztTckZY
+ pwT6oxng29LzZspTYUEzMz3wK2jQHw+U66qBFk8whA7B2uAU1QdGyPgahLYSOa4XAEGb6wbI FEE=
+Message-ID: <d0ba7af9-acd4-b5f5-8e34-9ef4af83f458@web.de>
+Date:   Wed, 3 Jun 2020 08:30:48 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.8.1
 MIME-Version: 1.0
-References: <20200602100034.001608787@linuxfoundation.org>
-In-Reply-To: <20200602100034.001608787@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Wed, 3 Jun 2020 11:48:25 +0530
-Message-ID: <CA+G9fYsPCBYpuFO_DBCJGu3+BiwpoBzivm9A5QZrbb2vRPrZeA@mail.gmail.com>
-Subject: Re: [PATCH 4.4 00/47] 4.4.226-rc2 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        lkft-triage@lists.linaro.org,
-        linux- stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-GB
 Content-Transfer-Encoding: quoted-printable
+X-Provags-ID: V03:K1:mIHKvtfLhuIOyoNGc4V7Mx3NGtic38gULadTLZqbsEfB1hSbn23
+ 6mi/jF5bm6GFwfF4rtT8exSljVQ6h0rg+oUnCIq0i9xBUmb2kv6SG84JbtSIM412rB+4TpX
+ wTW++4+TfhBpmAZUFRVKVXpM1j8vM6bnJ/WJQcklePxl3Cq8dhNLTFR5IKsLyjYEqrXDpoI
+ wyRPnE82RJa7SgvxObDIA==
+X-Spam-Flag: NO
+X-UI-Out-Filterresults: notjunk:1;V03:K0:o3o83DNXZkY=:UxQAMDqqSmr8KQCip4obXo
+ LFfW38PTtCtm8b2qHneqtkX8u3TFKNw186zL8HVDaJoU6kmD64MmWv6NXtRa2prnC5f9pD5Jx
+ Ec4SViohqTljv3wRPhThQtFPV/+Hw9z4yW1KqDoM047U6P9/qW3D20Q6opmL075betcmLb4eI
+ DgUO4Ip7166oJMYDZ8s/Oq9JyTc0pwY7PKax2ELH8ouPirUKZ969j3bYt4mbvT4oG3p5LcoYL
+ we1/nbN0ny41HqUOdEGye4KDnSLlu03LWCuaEHf4zQlAD3Z+Sxsxva7W+aKwvW4Avzvvx2KFN
+ lk6JKvS7cp4NpHXFN01RrQ+kznSekDEyThgU7TR6J4Sf64PqJBUp5aI87OmS3T0BGyKzpwhKA
+ d1Bo2tKrGUBVycKW6GX2Jz9v5aeMJ0wtOZCLKtg0f0EwTVqX13LwciOrtO1EF7PrC9oNfTzjv
+ B8RuIVWB2a4pO+imfMiX4A56vjxwJY6eF3A5EIH5nYniISWv5MKKEhfybkd7ZXqmUgv8lIJC0
+ IHyGdfoaUxbtWCzxxOSd8k3Y/9WVRW8SkO5f980dDjUiYf0MYI2Ph03HzJPDxf8wjJ4zYXUJj
+ tdiy/HaMfLi/s+0cQy/YXyS2EkvZGi+8xDQe3dR+uj7Cl+2BrjFfb37Xiu0y+ak2Sb7qVnyT2
+ Jr/q0qQKHy8xfh65dcbNMhqWUTu6kC0IW/Fc0lbd3jpgor8Ei0cMV2KWkiQmJQgS7Y7AM6sxn
+ nROhOLNAXJ9UT/zNDsijKFPOt/lKwjkPDDXPvvDQVtgQsx4OFPSi6FoSh8o6g0mrMt4tZAV5Z
+ 3+Gs4Obgnkn0+izD/z5vptvViTKUSVnAGlnN+Ko1+4eShPHu7YSPrqr/SJzh0l+bnSyNwckiX
+ bvuCgA/2JXFabeQAaPKYfEZ3p6Hzoz70d6CVou7bzCQtTrpNPiWahNwJOH8UKTDmt4n9BnZK9
+ TZ4GlLqKoH9cBsCQclx138XqFAo7SCpcAw0hup8NqOjVNW9N2FIZidso/dkQ9cgcdfcKkHDTi
+ vE/JKuOtgPMGGoK0rwO6hbYMxiXkUeMRiQpGPKQ3UQNdYrvQkmBt8hdIoFprmCvnlc2SNuQXf
+ 6g9rPkcetg0MkZ9a3mmEBAaaaGJCUOgvYqe90dmJUNkjyZGzlMqoYh/Ed5YUtq96PLW8YiUsd
+ 68ZuEufsWY8wzByHLaKpFURi1aILoNik6qNtUuGa6wvinOJsH9wajEgSWLpxo/ab87JEgX+KK
+ J0YYo7qt4xIRvWw6g
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 2 Jun 2020 at 15:46, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
+> Additionally, there's no point copying param->string in
+> exfat_parse_param() - just steal it, leaving NULL in param->string.
+> That's independent from the leak or fix thereof - it's simply
+> avoiding an extra copy.
+
+I find it clearer to provide such a source code adjustment
+by a separate update step.
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Do=
+cumentation/process/submitting-patches.rst?id=3Dd6f9469a03d832dcd17041ed67=
+774ffb5f3e73b3#n138
+
+Please move it into another patch.
+
+
+=E2=80=A6
+> +++ b/fs/exfat/super.c
+=E2=80=A6
+> @@ -686,7 +685,12 @@  static int exfat_get_tree(struct fs_context *fc)
 >
-> This is the start of the stable review cycle for the 4.4.226 release.
-> There are 47 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Thu, 04 Jun 2020 09:57:12 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.4.226-rc2.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.4.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+>  static void exfat_free(struct fs_context *fc)
+>  {
+> -	kfree(fc->s_fs_info);
+> +	struct exfat_sb_info *sbi =3D fc->s_fs_info;
+> +
+> +	if (sbi) {
+> +		exfat_free_iocharset(sbi);
+> +		kfree(sbi);
+> +	}
+>  }
+=E2=80=A6
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+Can it be helpful to annotate the added check according to branch predicti=
+on?
+Are valid pointers likely at this place?
 
-Summary
-------------------------------------------------------------------------
-
-kernel: 4.4.226-rc2
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-4.4.y
-git commit: d147737ac3bacf4a44c5cfc4a531c308e2fb2027
-git describe: v4.4.225-48-gd147737ac3ba
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.4-oe/bui=
-ld/v4.4.225-48-gd147737ac3ba
-
-No regressions (compared to build v4.4.225)
-
-No fixes (compared to build v4.4.225)
-
-Ran 19482 total tests in the following environments and test suites.
-
-Environments
---------------
-- i386
-- juno-r2 - arm64
-- juno-r2-compat
-- juno-r2-kasan
-- x15 - arm
-- x86_64
-- x86-kasan
-
-Test Suites
------------
-* build
-* kselftest
-* kselftest/drivers
-* kselftest/filesystems
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* network-basic-tests
-* perf
-* v4l2-compliance
-* kvm-unit-tests
-* install-android-platform-tools-r2600
-* install-android-platform-tools-r2800
-* kselftest/net
-* kselftest-vsyscall-mode-native
-* kselftest-vsyscall-mode-native/drivers
-* kselftest-vsyscall-mode-native/filesystems
-* kselftest-vsyscall-mode-none
-* kselftest-vsyscall-mode-none/drivers
-* kselftest-vsyscall-mode-none/filesystems
-
-Summary
-------------------------------------------------------------------------
-
-kernel: 4.4.226-rc2
-git repo: https://git.linaro.org/lkft/arm64-stable-rc.git
-git branch: 4.4.226-rc2-hikey-20200602-737
-git commit: 3f551997d7233bd0a671cbf0312dd475e02c92ee
-git describe: 4.4.226-rc2-hikey-20200602-737
-Test details: https://qa-reports.linaro.org/lkft/linaro-hikey-stable-rc-4.4=
--oe/build/4.4.226-rc2-hikey-20200602-737
-
-
-No regressions (compared to build 4.4.226-rc1-hikey-20200601-734)
-
-
-No fixes (compared to build 4.4.226-rc1-hikey-20200601-734)
-
-Ran 1855 total tests in the following environments and test suites.
-
-Environments
---------------
-- hi6220-hikey - arm64
-
-Test Suites
------------
-* build
-* install-android-platform-tools-r2600
-* kselftest
-* kselftest/drivers
-* kselftest/filesystems
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-cpuhotplug-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* perf
-* spectre-meltdown-checker-test
-* v4l2-compliance
-
---=20
-Linaro LKFT
-https://lkft.linaro.org
+Regards,
+Markus
