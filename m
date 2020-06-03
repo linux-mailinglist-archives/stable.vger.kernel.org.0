@@ -2,144 +2,126 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D49B1EC79C
-	for <lists+stable@lfdr.de>; Wed,  3 Jun 2020 04:49:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D26F1EC8CE
+	for <lists+stable@lfdr.de>; Wed,  3 Jun 2020 07:29:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725823AbgFCCt0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Jun 2020 22:49:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60794 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725789AbgFCCt0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 2 Jun 2020 22:49:26 -0400
-Received: from mail-pg1-x544.google.com (mail-pg1-x544.google.com [IPv6:2607:f8b0:4864:20::544])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76608C08C5C0
-        for <stable@vger.kernel.org>; Tue,  2 Jun 2020 19:49:26 -0700 (PDT)
-Received: by mail-pg1-x544.google.com with SMTP id o6so736667pgh.2
-        for <stable@vger.kernel.org>; Tue, 02 Jun 2020 19:49:26 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=UZfXuo2yyBJrbaWSk79ISaU5xV/TuxdIQ9e2ZEp+3rY=;
-        b=WVfshSLEhf8trokGhgonEhjIx0Lzpj9WedOlZNT5c31ttinIo4JhIOamsuReoYFma7
-         M0rLDaj/wYkprtf1pNRamZNrVVbFEIlkW4/cV3MnLSkxR/2G9qolHsubcS+1DFbAArRA
-         +cDW2LerP0KsF74SSb43B7EX5+AtaqcAWZKJJKs/DGBEWQZj6I1M8GmFxxqNoNab2rya
-         qsjn9KUIQeSaTp2vw2wQilydIGg8HQuNS24m8rQlaHA/E+Cu6FO7+zYgsNQR9WIPQz9F
-         RQwmJxNV0mXV78mhd0SIK/LBeTiGg9i2kaNGh6yKoVH5hDYtAWm2kEZ6EmTv5UgG5NKN
-         NwQA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=UZfXuo2yyBJrbaWSk79ISaU5xV/TuxdIQ9e2ZEp+3rY=;
-        b=YQYz5NdGz4hI/nserh3L8z/DwTwRar4WZ3B6XYAJNbd672hdclntkn4ksj/yMLIdDp
-         h3RY9+MR1sXsCPJlH9DL0f54GxEqxU8b1lxzzduXR1l0wa4QGxpAlMWh84m5jZjvyPxQ
-         lSaCfSKhwXATPpj3vUuGe4NbqGPCsxSH7mVHLQpthRej+K87No5HRvl9Uuki6t1fdfwO
-         4aVBiqExxnY+6+i2W0b4MKPhOquc+MjkgVGn1VU4g1QupcigASNniucU7tJmL1FepArT
-         Zv9ubC++k/ipZyYACnV/itlyRVQ3TskGlvURrAqGouSO1FhWmOXg311Aqiu7hJIiz879
-         Pwtw==
-X-Gm-Message-State: AOAM530RgTW2FGUlmp0YwRED7Cdr9imeF2lZmccjnAdvmX4r7tJgQRtJ
-        uD/4H/dxJ1OU8W8KCf2DmQlpgASYyaQ=
-X-Google-Smtp-Source: ABdhPJy6JVNVlViW6NxqdPx6WMPoFXFuhFlGzhcurGupAcfu2bfwM24FghsyKBhT4K3IT3J1fJWFnA==
-X-Received: by 2002:a17:90a:4d4e:: with SMTP id l14mr2795555pjh.10.1591152565559;
-        Tue, 02 Jun 2020 19:49:25 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id h3sm403802pjk.10.2020.06.02.19.49.24
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 02 Jun 2020 19:49:24 -0700 (PDT)
-Message-ID: <5ed70fb4.1c69fb81.2c55d.1fc9@mx.google.com>
-Date:   Tue, 02 Jun 2020 19:49:24 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1725807AbgFCF36 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 3 Jun 2020 01:29:58 -0400
+Received: from mail27.static.mailgun.info ([104.130.122.27]:57467 "EHLO
+        mail27.static.mailgun.info" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725792AbgFCF36 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 3 Jun 2020 01:29:58 -0400
+DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
+ s=smtp; t=1591162197; h=Message-ID: References: In-Reply-To: Subject:
+ Cc: To: From: Date: Content-Transfer-Encoding: Content-Type:
+ MIME-Version: Sender; bh=zzTfxHouLE9jM7tdzGJeF4YIRqLBMDbYhT7bqTud5lA=;
+ b=dMtcrUdd22dqF7Yd2FS67oy4w9uq2fW/rmbR5rJxu+FCymR/AZIxQajBlkfZzWJBXnXCqtz2
+ Yg0OU0E1nirXevqs0mEuUWz/+5Ty4aK+pgAX/xLjouacRlqPZU2MihRyngT0ybZ/ARgDZeV+
+ g+WBLrZBMyMA5Pvu2p6vOkUI0d4=
+X-Mailgun-Sending-Ip: 104.130.122.27
+X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
+Received: from smtp.codeaurora.org
+ (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171]) by
+ smtp-out-n12.prod.us-west-2.postgun.com with SMTP id
+ 5ed7354746d39fc0a2950d7e (version=TLS1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256); Wed, 03 Jun 2020 05:29:43
+ GMT
+Received: by smtp.codeaurora.org (Postfix, from userid 1001)
+        id EA77CC433CB; Wed,  3 Jun 2020 05:29:42 +0000 (UTC)
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+        aws-us-west-2-caf-mail-1.web.codeaurora.org
+X-Spam-Level: 
+X-Spam-Status: No, score=-1.0 required=2.0 tests=ALL_TRUSTED
+        autolearn=unavailable autolearn_force=no version=3.4.0
+Received: from mail.codeaurora.org (localhost.localdomain [127.0.0.1])
+        (using TLSv1 with cipher ECDHE-RSA-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        (Authenticated sender: sibis)
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id 5441DC433C6;
+        Wed,  3 Jun 2020 05:29:42 +0000 (UTC)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.9.225-56-ga836fd8c024d
-X-Kernelci-Report-Type: boot
-X-Kernelci-Branch: linux-4.9.y
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-4.9.y boot: 86 boots: 2 failed,
- 78 passed with 4 offline, 2 untried/unknown (v4.9.225-56-ga836fd8c024d)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Content-Transfer-Encoding: 7bit
+Date:   Wed, 03 Jun 2020 10:59:42 +0530
+From:   Sibi Sankar <sibis@codeaurora.org>
+To:     Evan Green <evgreen@chromium.org>
+Cc:     Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Andy Gross <agross@kernel.org>,
+        linux-arm-msm <linux-arm-msm@vger.kernel.org>,
+        linux-remoteproc@vger.kernel.org,
+        LKML <linux-kernel@vger.kernel.org>,
+        Ohad Ben Cohen <ohad@wizery.com>, rohitkr@codeaurora.org,
+        stable@vger.kernel.org, linux-kernel-owner@vger.kernel.org
+Subject: Re: [PATCH 1/2] remoteproc: qcom: q6v5: Update running state before
+ requesting stop
+In-Reply-To: <CAE=gft7sbh_S_GiRohtMmdMN9JzQhG0m3bUerwrmzhjmXucGKw@mail.gmail.com>
+References: <20200602163257.26978-1-sibis@codeaurora.org>
+ <CAE=gft7sbh_S_GiRohtMmdMN9JzQhG0m3bUerwrmzhjmXucGKw@mail.gmail.com>
+Message-ID: <6392c800b0be1cbabb8a241cf518ab4b@codeaurora.org>
+X-Sender: sibis@codeaurora.org
+User-Agent: Roundcube Webmail/1.3.9
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-******************************************
-* WARNING: Boot tests are now deprecated *
-******************************************
+Evan,
+Thanks for taking time to review
+the series.
 
-As kernelci.org is expanding its functional testing capabilities, the conce=
-pt
-of boot testing is now deprecated.  Boot results are scheduled to be droppe=
-d on
-*5th June 2020*.  The full schedule for boot tests deprecation is available=
- on
-this GitHub issue: https://github.com/kernelci/kernelci-backend/issues/238
+On 2020-06-02 23:14, Evan Green wrote:
+> On Tue, Jun 2, 2020 at 9:33 AM Sibi Sankar <sibis@codeaurora.org> 
+> wrote:
+>> 
+>> Sometimes the stop triggers a watchdog rather than a stop-ack. Update
+>> the running state to false on requesting stop to skip the watchdog
+>> instead.
+>> 
+>> Error Logs:
+>> $ echo stop > /sys/class/remoteproc/remoteproc0/state
+>> ipa 1e40000.ipa: received modem stopping event
+>> remoteproc-modem: watchdog received: sys_m_smsm_mpss.c:291:APPS force 
+>> stop
+>> qcom-q6v5-mss 4080000.remoteproc-modem: port failed halt
+>> ipa 1e40000.ipa: received modem offline event
+>> remoteproc0: stopped remote processor 4080000.remoteproc-modem
+>> 
+>> Fixes: 3b415c8fb263 ("remoteproc: q6v5: Extract common resource 
+>> handling")
+>> Cc: stable@vger.kernel.org
+>> Signed-off-by: Sibi Sankar <sibis@codeaurora.org>
+>> ---
+> 
+> Are you sure you want to tolerate this behavior from MSS? This is a
+> graceful shutdown, modem shouldn't have a problem completing the
+> proper handshake. If they do, isn't that a bug on the modem side?
 
-The new equivalent is the *baseline* test suite which also runs sanity chec=
-ks
-using dmesg and bootrr: https://github.com/kernelci/bootrr
+The graceful shutdown is achieved
+though sysmon (enabled using
+CONFIG_QCOM_SYSMON). When sysmon is
+enabled we get a shutdown-ack when we
+try to stop the modem, post which
+request stop is a basically a nop.
+Request stop is done to force stop
+the modem during failure cases (like
+rmtfs is not running and so on) and
+we do want to mask the wdog that we get
+during this scenario ( The locking
+already prevents the servicing of the
+wdog during shutdown, the check just
+prevents the scheduling of crash handler
+and err messages associated with it).
+Also this check was always present and
+was missed during common q6v5 resource
+helper migration, hence the unused
+running state in mss driver.
 
-See the *baseline results for this kernel revision* on this page:
-https://kernelci.org/test/job/stable-rc/branch/linux-4.9.y/kernel/v4.9.225-=
-56-ga836fd8c024d/plan/baseline/
+> 
+> I just worry this will mask real issues that happen during graceful 
+> shutdown.
+> -Evan
 
----------------------------------------------------------------------------=
-----
-
-stable-rc/linux-4.9.y boot: 86 boots: 2 failed, 78 passed with 4 offline, 2=
- untried/unknown (v4.9.225-56-ga836fd8c024d)
-
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.9.y/kernel/v4.9.225-56-ga836fd8c024d/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
-/kernel/v4.9.225-56-ga836fd8c024d/
-
-Tree: stable-rc
-Branch: linux-4.9.y
-Git Describe: v4.9.225-56-ga836fd8c024d
-Git Commit: a836fd8c024d14989c7cbfb91040e805b093f1d7
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 54 unique boards, 18 SoC families, 15 builds out of 157
-
-Boot Regressions Detected:
-
-x86_64:
-
-    x86_64_defconfig:
-        gcc-8:
-          qemu_x86_64:
-              lab-baylibre: new failure (last pass: v4.9.225-60-g6915714f12=
-d0)
-
-Boot Failures Detected:
-
-arm:
-    sama5_defconfig:
-        gcc-8:
-            at91-sama5d4_xplained: 1 failed lab
-
-x86_64:
-    x86_64_defconfig:
-        gcc-8:
-            qemu_x86_64: 1 failed lab
-
-Offline Platforms:
-
-arm:
-
-    exynos_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-            qcom-apq8064-cm-qs600: 1 offline lab
-            stih410-b2120: 1 offline lab
-
----
-For more info write to <info@kernelci.org>
+-- 
+Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum,
+a Linux Foundation Collaborative Project.
