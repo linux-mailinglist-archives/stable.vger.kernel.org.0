@@ -2,157 +2,169 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 323961ED312
-	for <lists+stable@lfdr.de>; Wed,  3 Jun 2020 17:12:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 674F01ED304
+	for <lists+stable@lfdr.de>; Wed,  3 Jun 2020 17:10:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726099AbgFCPLx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 3 Jun 2020 11:11:53 -0400
-Received: from lhrrgout.huawei.com ([185.176.76.210]:2273 "EHLO huawei.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1725930AbgFCPLx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 3 Jun 2020 11:11:53 -0400
-Received: from lhreml738-chm.china.huawei.com (unknown [172.18.7.107])
-        by Forcepoint Email with ESMTP id 02C85582F77A874555B4;
-        Wed,  3 Jun 2020 16:11:51 +0100 (IST)
-Received: from fraeml714-chm.china.huawei.com (10.206.15.33) by
- lhreml738-chm.china.huawei.com (10.201.108.188) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.1913.5; Wed, 3 Jun 2020 16:11:50 +0100
-Received: from roberto-HP-EliteDesk-800-G2-DM-65W.huawei.com (10.204.65.160)
- by fraeml714-chm.china.huawei.com (10.206.15.33) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.1913.5; Wed, 3 Jun 2020 17:11:49 +0200
-From:   Roberto Sassu <roberto.sassu@huawei.com>
-To:     <zohar@linux.ibm.com>, <tiwai@suse.de>
-CC:     <linux-integrity@vger.kernel.org>,
-        <linux-security-module@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, <silviu.vlasceanu@huawei.com>,
-        Roberto Sassu <roberto.sassu@huawei.com>,
-        <stable@vger.kernel.org>
-Subject: [PATCH 2/2] ima: Call ima_calc_boot_aggregate() in ima_eventdigest_init()
-Date:   Wed, 3 Jun 2020 17:08:21 +0200
-Message-ID: <20200603150821.8607-2-roberto.sassu@huawei.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20200603150821.8607-1-roberto.sassu@huawei.com>
-References: <20200603150821.8607-1-roberto.sassu@huawei.com>
+        id S1725930AbgFCPKl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 3 Jun 2020 11:10:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59996 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725867AbgFCPKk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 3 Jun 2020 11:10:40 -0400
+Received: from localhost.localdomain (236.31.169.217.in-addr.arpa [217.169.31.236])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id BDC4720738;
+        Wed,  3 Jun 2020 15:10:38 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1591197040;
+        bh=gKvbfpjBh+WV8ibWx+mAW/8twYU/HgRm8UsC6FLsumc=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=lkOJbLycAIlNAgY97t1dpHkXD8V8vD0C3OoKdqOeBhd4NoOCKGU+mFW9wxoRkrYW8
+         6U0nPxc9pInW5v40aLnvbhrpQs7zjOjfFmJIByVcHuXuXgNhhVnqtyaLxSWoJPuUOv
+         WWkColmNC39XdrHESZWiMzLLJgfgxT7U1mIrRh5U=
+From:   Will Deacon <will@kernel.org>
+To:     linux-arm-kernel@lists.infradead.org
+Cc:     Will Deacon <will@kernel.org>, kernel-team@android.com,
+        Mark Rutland <mark.rutland@arm.com>,
+        Luis Machado <luis.machado@linaro.org>,
+        Keno Fischer <keno@juliacomputing.com>, stable@vger.kernel.org
+Subject: [PATCH 1/2] arm64: Override SPSR.SS when single-stepping is enabled
+Date:   Wed,  3 Jun 2020 16:10:32 +0100
+Message-Id: <20200603151033.11512-2-will@kernel.org>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20200603151033.11512-1-will@kernel.org>
+References: <20200603151033.11512-1-will@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.204.65.160]
-X-ClientProxiedBy: lhreml719-chm.china.huawei.com (10.201.108.70) To
- fraeml714-chm.china.huawei.com (10.206.15.33)
-X-CFilter-Loop: Reflected
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-If the template field 'd' is chosen and the digest to be added to the
-measurement entry was not calculated with SHA1 or MD5, it is
-recalculated with SHA1, by using the passed file descriptor. However, this
-cannot be done for boot_aggregate, because there is no file descriptor.
+Luis reports that, when reverse debugging with GDB, single-step does not
+function as expected on arm64:
 
-This patch adds a call to ima_calc_boot_aggregate() in
-ima_eventdigest_init(), so that the digest can be recalculated also for the
-boot_aggregate entry.
+  | I've noticed, under very specific conditions, that a PTRACE_SINGLESTEP
+  | request by GDB won't execute the underlying instruction. As a consequence,
+  | the PC doesn't move, but we return a SIGTRAP just like we would for a
+  | regular successful PTRACE_SINGLESTEP request.
 
-Cc: stable@vger.kernel.org # 3.13.x
-Fixes: 3ce1217d6cd5d ("ima: define template fields library and new helpers")
-Reported-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+The underlying problem is that when the CPU register state is restored
+as part of a reverse step, the SPSR.SS bit is cleared and so the hardware
+single-step state can transition to the "active-pending" state, causing
+an unexpected step exception to be taken immediately if a step operation
+is attempted.
+
+In hindsight, we probably shouldn't have exposed SPSR.SS in the pstate
+accessible by the GPR regset, but it's a bit late for that now. Instead,
+simply prevent userspace from configuring the bit to a value which is
+inconsistent with the TIF_SINGLESTEP state for the task being traced.
+
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/1eed6d69-d53d-9657-1fc9-c089be07f98c@linaro.org
+Reported-by: Luis Machado <luis.machado@linaro.org>
+Tested-by: Luis Machado <luis.machado@linaro.org>
+Signed-off-by: Will Deacon <will@kernel.org>
 ---
- security/integrity/ima/ima.h              |  3 ++-
- security/integrity/ima/ima_crypto.c       |  6 +++---
- security/integrity/ima/ima_init.c         |  2 +-
- security/integrity/ima/ima_template_lib.c | 18 ++++++++++++++++++
- 4 files changed, 24 insertions(+), 5 deletions(-)
+ arch/arm64/include/asm/debug-monitors.h |  2 ++
+ arch/arm64/kernel/debug-monitors.c      | 20 ++++++++++++++++----
+ arch/arm64/kernel/ptrace.c              |  4 ++--
+ arch/arm64/kernel/signal.c              |  6 +++++-
+ 4 files changed, 25 insertions(+), 7 deletions(-)
 
-diff --git a/security/integrity/ima/ima.h b/security/integrity/ima/ima.h
-index 02796473238b..df93ac258e01 100644
---- a/security/integrity/ima/ima.h
-+++ b/security/integrity/ima/ima.h
-@@ -57,6 +57,7 @@ extern int ima_hash_algo_idx __ro_after_init;
- extern int ima_extra_slots __ro_after_init;
- extern int ima_appraise;
- extern struct tpm_chip *ima_tpm_chip;
-+extern const char boot_aggregate_name[];
+diff --git a/arch/arm64/include/asm/debug-monitors.h b/arch/arm64/include/asm/debug-monitors.h
+index e5ceea213e39..0b298f48f5bf 100644
+--- a/arch/arm64/include/asm/debug-monitors.h
++++ b/arch/arm64/include/asm/debug-monitors.h
+@@ -109,6 +109,8 @@ void disable_debug_monitors(enum dbg_active_el el);
  
- /* IMA event related data */
- struct ima_event_data {
-@@ -144,7 +145,7 @@ int ima_calc_buffer_hash(const void *buf, loff_t len,
- 			 struct ima_digest_data *hash);
- int ima_calc_field_array_hash(struct ima_field_data *field_data,
- 			      struct ima_template_entry *entry);
--int __init ima_calc_boot_aggregate(struct ima_digest_data *hash);
-+int ima_calc_boot_aggregate(struct ima_digest_data *hash);
- void ima_add_violation(struct file *file, const unsigned char *filename,
- 		       struct integrity_iint_cache *iint,
- 		       const char *op, const char *cause);
-diff --git a/security/integrity/ima/ima_crypto.c b/security/integrity/ima/ima_crypto.c
-index f3a7f4eb1fc1..ba5cc3264240 100644
---- a/security/integrity/ima/ima_crypto.c
-+++ b/security/integrity/ima/ima_crypto.c
-@@ -806,8 +806,8 @@ static void __init ima_pcrread(u32 idx, struct tpm_digest *d)
-  * hash algorithm for reading the TPM PCRs as for calculating the boot
-  * aggregate digest as stored in the measurement list.
+ void user_rewind_single_step(struct task_struct *task);
+ void user_fastforward_single_step(struct task_struct *task);
++void user_regs_reset_single_step(struct user_pt_regs *regs,
++				 struct task_struct *task);
+ 
+ void kernel_enable_single_step(struct pt_regs *regs);
+ void kernel_disable_single_step(void);
+diff --git a/arch/arm64/kernel/debug-monitors.c b/arch/arm64/kernel/debug-monitors.c
+index 15e80c876d46..732e7ecaa692 100644
+--- a/arch/arm64/kernel/debug-monitors.c
++++ b/arch/arm64/kernel/debug-monitors.c
+@@ -141,17 +141,20 @@ postcore_initcall(debug_monitors_init);
+ /*
+  * Single step API and exception handling.
   */
--static int __init ima_calc_boot_aggregate_tfm(char *digest, u16 alg_id,
--					      struct crypto_shash *tfm)
-+static int ima_calc_boot_aggregate_tfm(char *digest, u16 alg_id,
-+				       struct crypto_shash *tfm)
+-static void set_regs_spsr_ss(struct pt_regs *regs)
++static void set_user_regs_spsr_ss(struct user_pt_regs *regs)
  {
- 	struct tpm_digest d = { .alg_id = alg_id, .digest = {0} };
- 	int rc;
-@@ -835,7 +835,7 @@ static int __init ima_calc_boot_aggregate_tfm(char *digest, u16 alg_id,
- 	return rc;
+ 	regs->pstate |= DBG_SPSR_SS;
+ }
+-NOKPROBE_SYMBOL(set_regs_spsr_ss);
++NOKPROBE_SYMBOL(set_user_regs_spsr_ss);
+ 
+-static void clear_regs_spsr_ss(struct pt_regs *regs)
++static void clear_user_regs_spsr_ss(struct user_pt_regs *regs)
+ {
+ 	regs->pstate &= ~DBG_SPSR_SS;
+ }
+-NOKPROBE_SYMBOL(clear_regs_spsr_ss);
++NOKPROBE_SYMBOL(clear_user_regs_spsr_ss);
++
++#define set_regs_spsr_ss(r)	set_user_regs_spsr_ss(&(r)->user_regs)
++#define clear_regs_spsr_ss(r)	clear_user_regs_spsr_ss(&(r)->user_regs)
+ 
+ static DEFINE_SPINLOCK(debug_hook_lock);
+ static LIST_HEAD(user_step_hook);
+@@ -402,6 +405,15 @@ void user_fastforward_single_step(struct task_struct *task)
+ 		clear_regs_spsr_ss(task_pt_regs(task));
  }
  
--int __init ima_calc_boot_aggregate(struct ima_digest_data *hash)
-+int ima_calc_boot_aggregate(struct ima_digest_data *hash)
++void user_regs_reset_single_step(struct user_pt_regs *regs,
++				 struct task_struct *task)
++{
++	if (test_tsk_thread_flag(task, TIF_SINGLESTEP))
++		set_user_regs_spsr_ss(regs);
++	else
++		clear_user_regs_spsr_ss(regs);
++}
++
+ /* Kernel API */
+ void kernel_enable_single_step(struct pt_regs *regs)
  {
- 	struct crypto_shash *tfm;
- 	u16 crypto_id, alg_id;
-diff --git a/security/integrity/ima/ima_init.c b/security/integrity/ima/ima_init.c
-index fc1e1002b48d..4902fe7bd570 100644
---- a/security/integrity/ima/ima_init.c
-+++ b/security/integrity/ima/ima_init.c
-@@ -19,7 +19,7 @@
- #include "ima.h"
+diff --git a/arch/arm64/kernel/ptrace.c b/arch/arm64/kernel/ptrace.c
+index 585dd7f5c826..e871ab3ab29b 100644
+--- a/arch/arm64/kernel/ptrace.c
++++ b/arch/arm64/kernel/ptrace.c
+@@ -1934,8 +1934,8 @@ static int valid_native_regs(struct user_pt_regs *regs)
+  */
+ int valid_user_regs(struct user_pt_regs *regs, struct task_struct *task)
+ {
+-	if (!test_tsk_thread_flag(task, TIF_SINGLESTEP))
+-		regs->pstate &= ~DBG_SPSR_SS;
++	/* https://lore.kernel.org/lkml/20191118131525.GA4180@willie-the-truck */
++	user_regs_reset_single_step(regs, task);
  
- /* name for boot aggregate entry */
--static const char boot_aggregate_name[] = "boot_aggregate";
-+const char boot_aggregate_name[] = "boot_aggregate";
- struct tpm_chip *ima_tpm_chip;
+ 	if (is_compat_thread(task_thread_info(task)))
+ 		return valid_compat_regs(regs);
+diff --git a/arch/arm64/kernel/signal.c b/arch/arm64/kernel/signal.c
+index 801d56cdf701..c57a077f66cf 100644
+--- a/arch/arm64/kernel/signal.c
++++ b/arch/arm64/kernel/signal.c
+@@ -505,8 +505,12 @@ static int restore_sigframe(struct pt_regs *regs,
+ 	forget_syscall(regs);
  
- /* Add the boot aggregate to the IMA measurement list and extend
-diff --git a/security/integrity/ima/ima_template_lib.c b/security/integrity/ima/ima_template_lib.c
-index 9cd1e50f3ccc..635c6ac05050 100644
---- a/security/integrity/ima/ima_template_lib.c
-+++ b/security/integrity/ima/ima_template_lib.c
-@@ -286,6 +286,24 @@ int ima_eventdigest_init(struct ima_event_data *event_data,
- 		goto out;
- 	}
- 
-+	if ((const char *)event_data->filename == boot_aggregate_name) {
-+		if (ima_tpm_chip) {
-+			hash.hdr.algo = HASH_ALGO_SHA1;
-+			result = ima_calc_boot_aggregate(&hash.hdr);
+ 	err |= !valid_user_regs(&regs->user_regs, current);
+-	if (err == 0)
 +
-+			/* algo can change depending on available PCR banks */
-+			if (!result && hash.hdr.algo != HASH_ALGO_SHA1)
-+				result = -EINVAL;
-+
-+			if (result < 0)
-+				memset(&hash, 0, sizeof(hash));
-+		}
-+
-+		cur_digest = hash.hdr.digest;
-+		cur_digestsize = hash_digest_size[HASH_ALGO_SHA1];
-+		goto out;
++	if (err == 0) {
++		/* Make it look like we stepped the sigreturn system call */
++		user_fastforward_single_step(current);
+ 		err = parse_user_sigframe(&user, sf);
 +	}
-+
- 	if (!event_data->file)	/* missing info to re-calculate the digest */
- 		return -EINVAL;
  
+ 	if (err == 0 && system_supports_fpsimd()) {
+ 		if (!user.fpsimd)
 -- 
-2.17.1
+2.27.0.rc2.251.g90737beb825-goog
 
