@@ -2,61 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 11C2A1EEBB2
-	for <lists+stable@lfdr.de>; Thu,  4 Jun 2020 22:17:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 034FD1EEBC2
+	for <lists+stable@lfdr.de>; Thu,  4 Jun 2020 22:19:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728365AbgFDURP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Jun 2020 16:17:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59982 "EHLO mail.kernel.org"
+        id S1727984AbgFDUSy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Jun 2020 16:18:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60276 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726906AbgFDURO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 4 Jun 2020 16:17:14 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1726456AbgFDUSy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 4 Jun 2020 16:18:54 -0400
+Received: from localhost.localdomain (unknown [194.230.155.118])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 21D242067B;
-        Thu,  4 Jun 2020 20:17:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CF5D6206E6;
+        Thu,  4 Jun 2020 20:18:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591301834;
-        bh=3GiddxXcnsJSK2ifatJjmaNUgk6h6y7Z56UEGVh1O1M=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=hbhAowt+aoDCZ+6E8FvGSei/hevOkxDLMqAs6gssavrCffU/MkJt0HUxCGAf0cKAr
-         lbwox2hJW/QBpg5mLG0q8CcA9jY5Vymn1VN/nLclhe8v3BP4hRTi58s+mCWyW0bxWn
-         w62eEJ2PsLrLx2CW9uE5ALP+7wezwY4zPdN3jA1I=
-Date:   Thu, 4 Jun 2020 22:17:12 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     David =?utf-8?Q?Bala=C5=BEic?= <xerces9@gmail.com>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Guillaume Nault <gnault@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: Re: [PATCH 4.19 12/80] pppoe: only process PADT targeted at local
- interfaces
-Message-ID: <20200604201712.GB1308830@kroah.com>
-References: <20200518173450.097837707@linuxfoundation.org>
- <20200518173452.813559136@linuxfoundation.org>
- <CAPJ9Yc8YOeqeO4mo80iVMf3ay+CkdMvYzJY1BqXMNPcKzL6_zg@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAPJ9Yc8YOeqeO4mo80iVMf3ay+CkdMvYzJY1BqXMNPcKzL6_zg@mail.gmail.com>
+        s=default; t=1591301934;
+        bh=8AMUfx+U41h/W4ISZLyWgwankxiN0RxfqRn8dcLTozk=;
+        h=From:To:Cc:Subject:Date:From;
+        b=cG4hGRm4OKubJ9zcO4yHg94fi43rWCmcMt8d3MJmSafIsSh2OGN1qFw9nk/MLdprw
+         H6eZ30H84bXPOOlHoH1sDG1irCKDzTN0sOTcomSsPzs8jhao4DDoUxzs+Oh7L/XD8P
+         U7sNhA/X4xC11tIvj05ZxlWkA9jfz2Zax3QCFD6Y=
+From:   Krzysztof Kozlowski <krzk@kernel.org>
+To:     Tony Luck <tony.luck@intel.com>, Fenghua Yu <fenghua.yu@intel.com>,
+        Tom Vaden <tom.vaden@hpe.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Daisuke HATAYAMA <d.hatayama@jp.fujitsu.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc:     kbuild-all@lists.01.org, Joerg Roedel <jroedel@suse.de>,
+        stable@vger.kernel.org
+Subject: [RFT PATCH] ia64: Fix build error with !COREDUMP
+Date:   Thu,  4 Jun 2020 22:18:42 +0200
+Message-Id: <20200604201842.29482-1-krzk@kernel.org>
+X-Mailer: git-send-email 2.17.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jun 04, 2020 at 08:39:00PM +0200, David Balažic wrote:
-> Hi!
-> 
-> Is there a good reason this did not land in 4.14 branch?
-> 
-> Openwrt is using that and so it missed this patch.
-> 
-> Any chance it goes in in next round?
+Fix linkage error when CONFIG_BINFMT_ELF is selected but CONFIG_COREDUMP
+is not:
 
-Does it apply and build cleanly?
+    ia64-linux-ld: arch/ia64/kernel/elfcore.o: in function `elf_core_write_extra_phdrs':
+    elfcore.c:(.text+0x172): undefined reference to `dump_emit'
+    ia64-linux-ld: arch/ia64/kernel/elfcore.o: in function `elf_core_write_extra_data':
+    elfcore.c:(.text+0x2b2): undefined reference to `dump_emit'
 
-I don't know why I didn't backport it further, something must have
-broke...
+Cc: <stable@vger.kernel.org>
+Fixes: 1fcccbac89f5 ("elf coredump: replace ELF_CORE_EXTRA_* macros by functions")
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 
-greg k-h
+---
+
+Please let kbuild test it for a while before applying. I built it only
+on few configurations.
+
+This is similar fix to commit 42d91f612c87 ("um: Fix build error and
+kconfig for i386") although I put different fixes tag - the commit which
+introduced this part of code.
+---
+ arch/ia64/kernel/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/ia64/kernel/Makefile b/arch/ia64/kernel/Makefile
+index 1a8df6669eee..18d6008b151f 100644
+--- a/arch/ia64/kernel/Makefile
++++ b/arch/ia64/kernel/Makefile
+@@ -41,7 +41,7 @@ obj-y				+= esi_stub.o	# must be in kernel proper
+ endif
+ obj-$(CONFIG_INTEL_IOMMU)	+= pci-dma.o
+ 
+-obj-$(CONFIG_BINFMT_ELF)	+= elfcore.o
++obj-$(CONFIG_ELF_CORE)		+= elfcore.o
+ 
+ # fp_emulate() expects f2-f5,f16-f31 to contain the user-level state.
+ CFLAGS_traps.o  += -mfixed-range=f2-f5,f16-f31
+-- 
+2.17.1
+
