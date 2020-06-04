@@ -2,170 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3ED7A1EDFD2
-	for <lists+stable@lfdr.de>; Thu,  4 Jun 2020 10:32:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EFBF1EDFEF
+	for <lists+stable@lfdr.de>; Thu,  4 Jun 2020 10:43:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727040AbgFDIcQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Jun 2020 04:32:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46606 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726802AbgFDIcQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 4 Jun 2020 04:32:16 -0400
-Received: from willie-the-truck (236.31.169.217.in-addr.arpa [217.169.31.236])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A6C3C205CB;
-        Thu,  4 Jun 2020 08:32:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591259535;
-        bh=TeLh2MiZ+WUxHMvaCtKZTxDIsCftRerNXDtI9fGV3Sg=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=UDhYNUWvn+7bl1nUHVyK4S2RiDzX1XbFt+qd2f5x8/Um9Efh3qpLHtMFo/yhf7hp9
-         xfp81JtLYDElEdw5NmJMXeUW7YDTFqB5PVszSvzQQy4wn2kovD12Sx4YDnU+0KOhjq
-         6q5L/2HDpjYDs/gN5ANjMJ/135rC/beZZd520g6A=
-Date:   Thu, 4 Jun 2020 09:32:11 +0100
-From:   Will Deacon <will@kernel.org>
-To:     Keno Fischer <keno@juliacomputing.com>
-Cc:     linux-arm-kernel@lists.infradead.org, kernel-team@android.com,
-        Mark Rutland <mark.rutland@arm.com>,
-        Luis Machado <luis.machado@linaro.org>, stable@vger.kernel.org
-Subject: Re: [PATCH 1/2] arm64: Override SPSR.SS when single-stepping is
- enabled
-Message-ID: <20200604083210.GC30155@willie-the-truck>
-References: <20200603151033.11512-1-will@kernel.org>
- <20200603151033.11512-2-will@kernel.org>
- <CABV8kRwrnixNc074-jQhZzeucGHx9_e5FnQmBS=VuL=tFGjY-Q@mail.gmail.com>
- <20200603155338.GA12036@willie-the-truck>
- <CABV8kRxSjMY+d+F5aNzq1=5hXhVLGy6TbNLTUsCeSsAncwCzoA@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CABV8kRxSjMY+d+F5aNzq1=5hXhVLGy6TbNLTUsCeSsAncwCzoA@mail.gmail.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+        id S1728061AbgFDInH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Jun 2020 04:43:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56188 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726802AbgFDInG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 4 Jun 2020 04:43:06 -0400
+Received: from mail-yb1-xb49.google.com (mail-yb1-xb49.google.com [IPv6:2607:f8b0:4864:20::b49])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3436C05BD1E
+        for <stable@vger.kernel.org>; Thu,  4 Jun 2020 01:43:04 -0700 (PDT)
+Received: by mail-yb1-xb49.google.com with SMTP id y189so7291013ybc.14
+        for <stable@vger.kernel.org>; Thu, 04 Jun 2020 01:43:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=date:message-id:mime-version:subject:from:to:cc;
+        bh=nlkXKlWFIYxfLs04PG1x7XFTLy1mblGWjCOyvzYPXHU=;
+        b=UJ000Iqf10R44YN/3kxhUlycYRN3yTnbTPlNipV0FMnYH1WGgQJvc5zN3Nk0OjO4Ld
+         5T0tJ2LHLrmGgJKTROWQE9w/K78/dLjh7hli7SJKaFrvmA8b/GmXCz0362vT++gHxfom
+         eRvn2BoC/u5TmF7qNpNLlfDPnIQD+kSlg1DAVCn0SsIYY4TNoFrwvvC+zV09RFUMrfQz
+         ctSx5F8TwpDkyk0NVPjl42bIm3H+6Ycve7PwXopqqNChdbqTKxxlyNdlcTE4PEnz7u7W
+         seTSmJSDOo+nfpqYiAFrJDtWCI8E8FnnB1hyOn9QOKoxgMCrYNFz20q/lD/PTDzmxTPK
+         4jyw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
+        bh=nlkXKlWFIYxfLs04PG1x7XFTLy1mblGWjCOyvzYPXHU=;
+        b=RjepkU+lFpiqZoJt3asOsBhpBQMKY/BSEG1CaxfKEpM/MBBW/9E+c5nCgY1hIZd6xY
+         APKOZop8hUep5yCLjdnuLaF4v25kEgRSFLoFpL2UlZ+n9Jxpoan49tv2AR0vCDRbUap8
+         Sd/fd1e+fJb8ZZaFVkcrXUcn/kngtG1ItvWPRxuaYK9edCca1c4Al/97iOmerdMl1m8k
+         iBNmzJIxOkKpmE3z+3/amjPuw6rHVnPZRiKO4FUBcIrKhNzZuzRTel+wHmHNRprKEpVw
+         uyAsWm6cM/hmaxdWrJ5DJehDQik8sRJMk4UuE6u3tAAZhoTOvzs5DZ4oZ1no1gxhtbSS
+         MdYA==
+X-Gm-Message-State: AOAM531jElbpI2GMPMj5GmPmLZcxKySnzoV3hQT88wN6YTqQTbUaOl3i
+        kC8l8FX0aN+QF7sctmUGYJBqfjle2aI=
+X-Google-Smtp-Source: ABdhPJx/x3rTxyXVTfCzwPxpHuZZeyDbY0k/8MsEoTn1vhtNL6AF6homBmYHpgnkIBATuDvPKVRucxU6lT0=
+X-Received: by 2002:a5b:512:: with SMTP id o18mr5703507ybp.419.1591260184074;
+ Thu, 04 Jun 2020 01:43:04 -0700 (PDT)
+Date:   Thu,  4 Jun 2020 10:42:45 +0200
+Message-Id: <20200604084245.161480-1-glider@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.27.0.278.ge193c7cf3a9-goog
+Subject: [PATCH] ovl: explicitly initialize error in ovl_copy_xattr()
+From:   glider@google.com
+To:     miklos@szeredi.hu, vgoyal@redhat.com
+Cc:     linux-unionfs@vger.kernel.org, linux-kernel@vger.kernel.org,
+        keescook@chromium.org, royyang@google.com, stable@vger.kernel.org,
+        Alexander Potapenko <glider@google.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Keno,
+Under certain circumstances (we found this out running Docker on a
+Clang-built kernel with CONFIG_INIT_STACK_ALL) ovl_copy_xattr() may
+return uninitialized value of |error| from ovl_copy_xattr().
+It is then returned by ovl_create() to lookup_open(), which casts it to
+an invalid dentry pointer, that can be further read or written by the
+lookup_open() callers.
 
-Cheers for the really helpful explanation. I have a bunch of
-questions/comments, since it's not very often that somebody shows up who
-understands how this is supposed to work and so I'd like to take advantage
-of that!
+The uninitialized value is returned when all the xattr on the file
+are ovl_is_private_xattr(), which is actually a successful case,
+therefore we initialize |error| with 0.
 
-On Wed, Jun 03, 2020 at 12:56:24PM -0400, Keno Fischer wrote:
-> On Wed, Jun 3, 2020 at 11:53 AM Will Deacon <will@kernel.org> wrote:
-> > > However, at the same time as changing this, we should probably make sure
-> > > to enable the syscall exit pseudo-singlestep trap (similar issue as the other
-> > > patch I had sent for the signal pseudo-singlestep trap), since otherwise
-> > > ptracers might get confused about the lack of singlestep trap during a
-> > > singlestep -> seccomp -> singlestep path (which would give one trap
-> > > less with this patch than before).
-> >
-> > Hmm, I don't completely follow your example. Please could you spell it
-> > out a bit more? I fast-forward the stepping state machine on sigreturn,
-> > which I thought would be sufficient. Perhaps you're referring to a variant
-> > of the situation mentioned by Mark, which I didn't think could happen
-> > with ptrace [2].
-> 
-> Sure suppose we have code like the following:
-> 
-> 0x0: svc #0
-> 0x4: str x0, [x7]
-> ...
-> 
-> Then, if there's a seccomp filter active that just does
-> SECCOMP_RET_TRACE of everything, right now we get traps:
-> 
-> <- (ip: 0x0)
-> -> PTRACE_SINGLESTEP
-> <- (ip: 0x4 - seccomp trap)
-> -> PTRACE_SINGLESTEP
-> <- SIGTRAP (ip: 0x4 - TRAP_TRACE trap)
-> -> PTRACE_SINGLESTEP
-> <- SIGTRAP (ip: 0x8 - TRAP_TRACE trap)
-> 
-> With your proposed patch, we instead get
-> <- (ip: 0x0)
-> -> PTRACE_SINGLESTEP
-> <- (ip: 0x4 - seccomp trap)
-> -> PTRACE_SINGLESTEP
-> <- SIGTRAP (ip: 0x8 - TRAP_TRACE trap)
+Signed-off-by: Alexander Potapenko <glider@google.com>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Roy Yang <royyang@google.com>
+Cc: <stable@vger.kernel.org> # 4.1
 
-Urgh, and actually, I think this is *only* the case if the seccomp
-handler actually changes a register in the target, right?
+---
 
-In which case, your proposed patch should probably do something like:
+The bug seem to date back to at least v4.1 where the annotation has been
+introduced (i.e. the compilers started noticing error could be used
+before being initialized). I hovever didn't try to prove that the
+problem is actually reproducible on such ancient kernels. We've seen it
+on a real machine running v4.4 as well.
 
-	if (dir == PTRACE_SYSCALL_EXIT) {
-		bool stepping = test_thread_flag(TIF_SINGLESTEP);
+v2:
+ -- Per Vivek Goyal's suggestion, changed |error| to be 0
+---
+ fs/overlayfs/copy_up.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-		tracehook_report_syscall_exit(regs, stepping);
-		user_rewind_single_step(regs);
-	}
+diff --git a/fs/overlayfs/copy_up.c b/fs/overlayfs/copy_up.c
+index 9709cf22cab3..07e0d1961e96 100644
+--- a/fs/overlayfs/copy_up.c
++++ b/fs/overlayfs/copy_up.c
+@@ -47,7 +47,7 @@ int ovl_copy_xattr(struct dentry *old, struct dentry *new)
+ {
+ 	ssize_t list_size, size, value_size = 0;
+ 	char *buf, *name, *value = NULL;
+-	int uninitialized_var(error);
++	int error = 0;
+ 	size_t slen;
+ 
+ 	if (!(old->d_inode->i_opflags & IOP_XATTR) ||
+-- 
+2.27.0.278.ge193c7cf3a9-goog
 
-otherwise I think we could get a spurious SIGTRAP on return to userspace.
-What do you think?
-
-This has also got me thinking about your other patch to report a pseudo-step
-exception on entry to a signal handler:
-
-https://lore.kernel.org/r/20200524043827.GA33001@juliacomputing.com
-
-Although we don't actually disarm the step logic there (and so you might
-expect a spurious SIGTRAP on the second instruction of the handler), I
-think it's ok because the tracer will either do PTRACE_SINGLESTEP (and
-rearm the state machine) or PTRACE_CONT (and so stepping will be
-disabled). Do you agree?
-
-> This is problematic, because the ptracer may want to inspect the
-> result of the syscall instruction. On other architectures, this
-> problem is solved with a pseudo-singlestep trap that gets executed
-> if you resume from a syscall-entry-like trap with PTRACE_SINGLESTEP.
-> See the below patch for the change I'm proposing. There is a slight
-> issue with that patch, still: It now makes the x7 issue apply to the
-> singlestep trap at exit, so we should do the patch to fix that issue
-> before we apply that change (or manually check for this situation
-> and issue the pseudo-singlestep trap manually).
-
-I don't see the dependency on the x7 issue; x7 is nobbled on syscall entry,
-so it will be nobbled in the psuedo-step trap as well as the hardware step
-trap on syscall return. I'd also like to backport this to stable, without
-having to backport an optional extension to the ptrace API for preserving
-x7. Or are you saying that the value of x7 should be PTRACE_SYSCALL_ENTER
-for the pseudo trap? That seems a bit weird to me, but then this is all
-weird anyway.
-
-> My proposed patch below also changes
-> 
-> <- (ip: 0x0)
-> -> PTRACE_SYSCALL
-> <- (ip: 0x4 - syscall entry trap)
-> -> PTRACE_SINGLESTEP
-> <- SIGTRAP (ip: 0x8 - TRAP_TRACE trap)
-> 
-> to
-> 
-> <- (ip: 0x0)
-> -> PTRACE_SYSCALL
-> <- (ip: 0x4 - syscall entry trap)
-> -> PTRACE_SINGLESTEP
-> <- SIGTRAP (ip: 0x4 - pseudo-singlestep exit trap)
-> -> PTRACE_SINGLESTEP
-> <- SIGTRAP (ip: 0x8 - TRAP_TRACE trap)
-> 
-> But I consider that a bugfix, since that's how other architectures
-> behave and I was going to send in this patch for that reason anyway
-> (since this was another one of the aarch64 ptrace quirks we had to
-> work around).
-
-I think that's still the case with my addition above, so that's good.
-Any other quirks you ran into that we should address here? Now that I have
-this stuff partially paged-in, it would be good to fix a bunch of this
-at once. I can send out a v2 which includes the two patches from you
-once we're agreed on the details.
-
-Thanks,
-
-Will
