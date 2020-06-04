@@ -2,186 +2,136 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C0441EE064
-	for <lists+stable@lfdr.de>; Thu,  4 Jun 2020 11:00:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D66C1EE0CE
+	for <lists+stable@lfdr.de>; Thu,  4 Jun 2020 11:10:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728261AbgFDJAV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Jun 2020 05:00:21 -0400
-Received: from gofer.mess.org ([88.97.38.141]:36059 "EHLO gofer.mess.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726664AbgFDJAV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 4 Jun 2020 05:00:21 -0400
-Received: by gofer.mess.org (Postfix, from userid 1000)
-        id E0C27C643A; Thu,  4 Jun 2020 10:00:16 +0100 (BST)
-Date:   Thu, 4 Jun 2020 10:00:16 +0100
-From:   Sean Young <sean@mess.org>
-To:     stable@vger.kernel.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Brad Love <brad@nextdimension.cc>, linux-media@vger.kernel.org,
-        hverkuil-cisco@xs4all.nl, mchehab@kernel.org,
-        laurent.pinchart@ideasonboard.com
-Subject: Re: [PATCH 1/1] dvbdev: Fix tuner->demod media controller link
-Message-ID: <20200604090016.GA20902@gofer.mess.org>
-References: <20200514164043.8756-1-3126054018@nextdimension.cc>
- <20200514164043.8756-2-3126054018@nextdimension.cc>
+        id S1727016AbgFDJJL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Jun 2020 05:09:11 -0400
+Received: from lelv0143.ext.ti.com ([198.47.23.248]:57062 "EHLO
+        lelv0143.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728187AbgFDJJJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 4 Jun 2020 05:09:09 -0400
+Received: from lelv0266.itg.ti.com ([10.180.67.225])
+        by lelv0143.ext.ti.com (8.15.2/8.15.2) with ESMTP id 054995ct041070;
+        Thu, 4 Jun 2020 04:09:05 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
+        s=ti-com-17Q1; t=1591261745;
+        bh=EJKAnx9Nl8mi/jJOJx1KYMioKNaKUF1bH8shJvTpLgA=;
+        h=Subject:To:CC:References:From:Date:In-Reply-To;
+        b=mLKC5JpsId/vJNdHeEpj8Je04CpJUpQxkSL0kTUs6XX8VRGT6OzwFU9N7he6I1q5f
+         /KuwT6Bs6km3uxb1vYhzXOPLAODUehViNU0RscfeY4xHJCkRZwshl9f8HxyWQOZBeD
+         HQInQaTXVWAPmwMmpL+s53bJT68PNDzoWFft20h8=
+Received: from DLEE103.ent.ti.com (dlee103.ent.ti.com [157.170.170.33])
+        by lelv0266.itg.ti.com (8.15.2/8.15.2) with ESMTPS id 054995Kp068022
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Thu, 4 Jun 2020 04:09:05 -0500
+Received: from DLEE113.ent.ti.com (157.170.170.24) by DLEE103.ent.ti.com
+ (157.170.170.33) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1979.3; Thu, 4 Jun
+ 2020 04:09:05 -0500
+Received: from fllv0039.itg.ti.com (10.64.41.19) by DLEE113.ent.ti.com
+ (157.170.170.24) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1979.3 via
+ Frontend Transport; Thu, 4 Jun 2020 04:09:05 -0500
+Received: from [10.1.3.6] (ileax41-snat.itg.ti.com [10.172.224.153])
+        by fllv0039.itg.ti.com (8.15.2/8.15.2) with ESMTP id 054994md042022;
+        Thu, 4 Jun 2020 04:09:04 -0500
+Subject: Re: [PATCH] drm/tidss: fix modeset init for DPI panels
+To:     Tomi Valkeinen <tomi.valkeinen@ti.com>,
+        <dri-devel@lists.freedesktop.org>
+CC:     <stable@vger.kernel.org>
+References: <20200604080214.107159-1-tomi.valkeinen@ti.com>
+From:   Jyri Sarha <jsarha@ti.com>
+Autocrypt: addr=jsarha@ti.com; prefer-encrypt=mutual; keydata=
+ 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
+Message-ID: <5514c989-47f6-8ff4-7446-9bccdba0a214@ti.com>
+Date:   Thu, 4 Jun 2020 12:09:03 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.4.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200514164043.8756-2-3126054018@nextdimension.cc>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20200604080214.107159-1-tomi.valkeinen@ti.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-GB
+Content-Transfer-Encoding: 7bit
+X-EXCLAIMER-MD-CONFIG: e1e8a2fd-e40a-4ac6-ac9b-f7e9cc9ee180
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, May 14, 2020 at 11:40:43AM -0500, Brad Love wrote:
-> Fixes bug exposed by:
+On 04/06/2020 11:02, Tomi Valkeinen wrote:
+> The connector type for DISPC's DPI videoport was set the LVDS instead of
+> DPI. This causes any DPI panel setup to fail with tidss, making all DPI
+> panels unusable.
 > 
-> [a3fbc2e6bb0: media: mc-entity.c: use WARN_ON, validate link pads]
+> Fix this by using correct connector type.
+> 
+> Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+> Fixes: 32a1795f57eecc39749017 ("drm/tidss: New driver for TI Keystone platform Display SubSystem")
+> Cc: stable@vger.kernel.org # v5.7+
 
-This patch was merged for v5.8, but should have been merged for v5.7
-as well. Please can it be merged into v5.7 stable. The upstream
-commit is 9f984cacf4f4d53fd8a3f44d7f13528b81c1f6a8.
+Reviewed-by: Jyri Sarha <jsarha@ti.com>
 
-Thanks,
-
-Sean
-
-
-> 
-> The dvbdev incorrectly requests a tuner sink pad to connect to a demux
-> sink pad. The media controller failure percolates back and the dvb device
-> creation fails. Fix this by requesting a tuner source pad. Instead of
-> forcing that pad to be index zero, check if a negative integer error
-> is returned. A note is added that first source pad found is chosen.
-> 
-> Affected bridges cx231xx and em28xx printed the below warning[s]
-> when a variety of media controller dvb enabled devices were connected.
-> The warning returns an error causing all affected devices to fail DVB
-> device creation.
-> 
-> 
-> [  253.138332] ------------[ cut here ]------------
-> [  253.138339] WARNING: CPU: 0 PID: 1550 at drivers/media/mc/mc-entity.c:669 media_create_pad_link+0x1e0/0x200 [mc]
-> [  253.138339] Modules linked in: si2168 em28xx_dvb(+) em28xx si2157 lgdt3306a cx231xx_dvb dvb_core cx231xx_alsa cx25840 cx231xx tveeprom cx2341x i2c_mux videobuf2_vmalloc videobuf2_memops videobuf2_v4l2 videobuf2_common videodev mc ir_rc5_decoder rc_hauppauge mceusb rc_core eda
-> c_mce_amd kvm nls_iso8859_1 crct10dif_pclmul crc32_pclmul ghash_clmulni_intel aesni_intel crypto_simd cryptd glue_helper efi_pstore wmi_bmof k10temp asix usbnet mii nouveau snd_hda_codec_realtek snd_hda_codec_generic input_leds ledtrig_audio snd_hda_codec_hdmi mxm_wmi snd_hda_in
-> tel video snd_intel_dspcfg ttm snd_hda_codec drm_kms_helper snd_hda_core drm snd_hwdep snd_seq_midi snd_seq_midi_event i2c_algo_bit snd_pcm snd_rawmidi fb_sys_fops snd_seq syscopyarea sysfillrect snd_seq_device sysimgblt snd_timer snd soundcore ccp mac_hid sch_fq_codel parport_p
-> c ppdev lp parport ip_tables x_tables autofs4 vfio_pci irqbypass vfio_virqfd vfio_iommu_type1 vfio hid_generic usbhid hid i2c_piix4 ahci libahci wmi gpio_amdpt
-> [  253.138370]  gpio_generic
-> [  253.138372] CPU: 0 PID: 1550 Comm: modprobe Tainted: G        W         5.7.0-rc2+ #181
-> [  253.138373] Hardware name: MSI MS-7A39/B350M GAMING PRO (MS-7A39), BIOS 2.G0 04/27/2018
-> [  253.138376] RIP: 0010:media_create_pad_link+0x1e0/0x200 [mc]
-> [  253.138378] Code: 26 fd ff ff 44 8b 4d d0 eb d9 0f 0b 41 b9 ea ff ff ff 44 89 c8 c3 0f 0b 41 b9 ea ff ff ff eb f2 0f 0b 41 b9 ea ff ff ff eb e8 <0f> 0b 41 b9 ea ff ff ff eb af 0f 0b 41 b9 ea ff ff ff eb a5 66 90
-> [  253.138379] RSP: 0018:ffffb9ecc0ee7a78 EFLAGS: 00010246
-> [  253.138380] RAX: ffff943f706c99d8 RBX: 0000000000000000 RCX: 0000000000000000
-> [  253.138381] RDX: ffff943f613e0180 RSI: 0000000000000000 RDI: ffff943f706c9958
-> [  253.138381] RBP: ffffb9ecc0ee7ab0 R08: 0000000000000001 R09: ffff943f613e0180
-> [  253.138382] R10: ffff943f613e0180 R11: ffff943f706c9400 R12: 0000000000000000
-> [  253.138383] R13: 0000000000000001 R14: ffff943f706c9958 R15: 0000000000000001
-> [  253.138384] FS:  00007f3cd29ba540(0000) GS:ffff943f8ec00000(0000) knlGS:0000000000000000
-> [  253.138385] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> [  253.138385] CR2: 000055f7de0ca830 CR3: 00000003dd208000 CR4: 00000000003406f0
-> [  253.138386] Call Trace:
-> [  253.138392]  media_create_pad_links+0x104/0x1b0 [mc]
-> [  253.138397]  dvb_create_media_graph+0x350/0x5f0 [dvb_core]
-> [  253.138402]  em28xx_dvb_init+0x5ea/0x2600 [em28xx_dvb]
-> [  253.138408]  em28xx_register_extension+0x63/0xc0 [em28xx]
-> [  253.138410]  ? 0xffffffffc039c000
-> [  253.138412]  em28xx_dvb_register+0x15/0x1000 [em28xx_dvb]
-> [  253.138416]  do_one_initcall+0x71/0x250
-> [  253.138418]  ? do_init_module+0x27/0x22e
-> [  253.138421]  ? _cond_resched+0x1a/0x50
-> [  253.138423]  ? kmem_cache_alloc_trace+0x1ec/0x270
-> [  253.138425]  ? __vunmap+0x1e3/0x240
-> [  253.138427]  do_init_module+0x5f/0x22e
-> [  253.138430]  load_module+0x2525/0x2d40
-> [  253.138436]  __do_sys_finit_module+0xe5/0x120
-> [  253.138438]  ? __do_sys_finit_module+0xe5/0x120
-> [  253.138442]  __x64_sys_finit_module+0x1a/0x20
-> [  253.138443]  do_syscall_64+0x57/0x1b0
-> [  253.138445]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-> [  253.138446] RIP: 0033:0x7f3cd24dc839
-> [  253.138448] Code: 00 f3 c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 40 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 1f f6 2c 00 f7 d8 64 89 01 48
-> [  253.138449] RSP: 002b:00007ffe4fc514d8 EFLAGS: 00000246 ORIG_RAX: 0000000000000139
-> [  253.138450] RAX: ffffffffffffffda RBX: 000055a9237f63f0 RCX: 00007f3cd24dc839
-> [  253.138451] RDX: 0000000000000000 RSI: 000055a922c3ad2e RDI: 0000000000000000
-> [  253.138451] RBP: 000055a922c3ad2e R08: 0000000000000000 R09: 0000000000000000
-> [  253.138452] R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
-> [  253.138453] R13: 000055a9237f5550 R14: 0000000000040000 R15: 000055a9237f63f0
-> [  253.138456] ---[ end trace a60f19c54aa96ec4 ]---
-> 
-> 
-> [  234.915628] ------------[ cut here ]------------
-> [  234.915640] WARNING: CPU: 0 PID: 1502 at drivers/media/mc/mc-entity.c:669 media_create_pad_link+0x1e0/0x200 [mc]
-> [  234.915641] Modules linked in: si2157 lgdt3306a cx231xx_dvb(+) dvb_core cx231xx_alsa cx25840 cx231xx tveeprom cx2341x i2c_mux videobuf2_vmalloc videobuf2_memops videobuf2_v4l2 videobuf2_common videodev mc ir_rc5_decoder rc_hauppauge mceusb rc_core edac_mce_amd kvm nls_iso8859
-> _1 crct10dif_pclmul crc32_pclmul ghash_clmulni_intel aesni_intel crypto_simd cryptd glue_helper efi_pstore wmi_bmof k10temp asix usbnet mii nouveau snd_hda_codec_realtek snd_hda_codec_generic input_leds ledtrig_audio snd_hda_codec_hdmi mxm_wmi snd_hda_intel video snd_intel_dspcf
-> g ttm snd_hda_codec drm_kms_helper snd_hda_core drm snd_hwdep snd_seq_midi snd_seq_midi_event i2c_algo_bit snd_pcm snd_rawmidi fb_sys_fops snd_seq syscopyarea sysfillrect snd_seq_device sysimgblt snd_timer snd soundcore ccp mac_hid sch_fq_codel parport_pc ppdev lp parport ip_tab
-> les x_tables autofs4 vfio_pci irqbypass vfio_virqfd vfio_iommu_type1 vfio hid_generic usbhid hid i2c_piix4 ahci libahci wmi gpio_amdpt gpio_generic
-> [  234.915700] CPU: 0 PID: 1502 Comm: modprobe Not tainted 5.7.0-rc2+ #181
-> [  234.915702] Hardware name: MSI MS-7A39/B350M GAMING PRO (MS-7A39), BIOS 2.G0 04/27/2018
-> [  234.915709] RIP: 0010:media_create_pad_link+0x1e0/0x200 [mc]
-> [  234.915712] Code: 26 fd ff ff 44 8b 4d d0 eb d9 0f 0b 41 b9 ea ff ff ff 44 89 c8 c3 0f 0b 41 b9 ea ff ff ff eb f2 0f 0b 41 b9 ea ff ff ff eb e8 <0f> 0b 41 b9 ea ff ff ff eb af 0f 0b 41 b9 ea ff ff ff eb a5 66 90
-> [  234.915714] RSP: 0018:ffffb9ecc1b6fa50 EFLAGS: 00010246
-> [  234.915717] RAX: ffff943f8c94a9d8 RBX: 0000000000000000 RCX: 0000000000000000
-> [  234.915719] RDX: ffff943f613e0900 RSI: 0000000000000000 RDI: ffff943f8c94a958
-> [  234.915721] RBP: ffffb9ecc1b6fa88 R08: 0000000000000001 R09: ffff943f613e0900
-> [  234.915723] R10: ffff943f613e0900 R11: ffff943f6b590c00 R12: 0000000000000000
-> [  234.915724] R13: 0000000000000001 R14: ffff943f8c94a958 R15: 0000000000000001
-> [  234.915727] FS:  00007f4ca3646540(0000) GS:ffff943f8ec00000(0000) knlGS:0000000000000000
-> [  234.915729] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> [  234.915731] CR2: 00007fff7a53ba18 CR3: 00000003da614000 CR4: 00000000003406f0
-> [  234.915733] Call Trace:
-> [  234.915745]  media_create_pad_links+0x104/0x1b0 [mc]
-> [  234.915756]  dvb_create_media_graph+0x350/0x5f0 [dvb_core]
-> [  234.915766]  dvb_init.part.4+0x691/0x1360 [cx231xx_dvb]
-> [  234.915780]  dvb_init+0x1a/0x20 [cx231xx_dvb]
-> [  234.915787]  cx231xx_register_extension+0x71/0xa0 [cx231xx]
-> [  234.915791]  ? 0xffffffffc042f000
-> [  234.915796]  cx231xx_dvb_register+0x15/0x1000 [cx231xx_dvb]
-> [  234.915802]  do_one_initcall+0x71/0x250
-> [  234.915807]  ? do_init_module+0x27/0x22e
-> [  234.915811]  ? _cond_resched+0x1a/0x50
-> [  234.915816]  ? kmem_cache_alloc_trace+0x1ec/0x270
-> [  234.915820]  ? __vunmap+0x1e3/0x240
-> [  234.915826]  do_init_module+0x5f/0x22e
-> [  234.915831]  load_module+0x2525/0x2d40
-> [  234.915848]  __do_sys_finit_module+0xe5/0x120
-> [  234.915850]  ? __do_sys_finit_module+0xe5/0x120
-> [  234.915862]  __x64_sys_finit_module+0x1a/0x20
-> [  234.915865]  do_syscall_64+0x57/0x1b0
-> [  234.915870]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-> [  234.915872] RIP: 0033:0x7f4ca3168839
-> [  234.915876] Code: 00 f3 c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 40 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 1f f6 2c 00 f7 d8 64 89 01 48
-> [  234.915878] RSP: 002b:00007ffcea3db3b8 EFLAGS: 00000246 ORIG_RAX: 0000000000000139
-> [  234.915881] RAX: ffffffffffffffda RBX: 000055af22c29340 RCX: 00007f4ca3168839
-> [  234.915882] RDX: 0000000000000000 RSI: 000055af22c38390 RDI: 0000000000000001
-> [  234.915884] RBP: 000055af22c38390 R08: 0000000000000000 R09: 0000000000000000
-> [  234.915885] R10: 0000000000000001 R11: 0000000000000246 R12: 0000000000000000
-> [  234.915887] R13: 000055af22c29060 R14: 0000000000040000 R15: 0000000000000000
-> [  234.915896] ---[ end trace a60f19c54aa96ec3 ]---
-> 
-> 
-> Signed-off-by: Brad Love <brad@nextdimension.cc>
 > ---
->  drivers/media/dvb-core/dvbdev.c | 5 +++--
->  1 file changed, 3 insertions(+), 2 deletions(-)
+>  drivers/gpu/drm/tidss/tidss_kms.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> diff --git a/drivers/media/dvb-core/dvbdev.c b/drivers/media/dvb-core/dvbdev.c
-> index 80b6a71aa33e..1cd2dc7e4168 100644
-> --- a/drivers/media/dvb-core/dvbdev.c
-> +++ b/drivers/media/dvb-core/dvbdev.c
-> @@ -707,9 +707,10 @@ int dvb_create_media_graph(struct dvb_adapter *adap,
->  	}
->  
->  	if (ntuner && ndemod) {
-> -		pad_source = media_get_pad_index(tuner, true,
-> +		/* NOTE: first found tuner source pad presumed correct */
-> +		pad_source = media_get_pad_index(tuner, false,
->  						 PAD_SIGNAL_ANALOG);
-> -		if (pad_source)
-> +		if (pad_source < 0)
->  			return -EINVAL;
->  		ret = media_create_pad_links(mdev,
->  					     MEDIA_ENT_F_TUNER,
-> -- 
-> 2.23.0
+> diff --git a/drivers/gpu/drm/tidss/tidss_kms.c b/drivers/gpu/drm/tidss/tidss_kms.c
+> index 7d419960b030..74467f6eafee 100644
+> --- a/drivers/gpu/drm/tidss/tidss_kms.c
+> +++ b/drivers/gpu/drm/tidss/tidss_kms.c
+> @@ -154,7 +154,7 @@ static int tidss_dispc_modeset_init(struct tidss_device *tidss)
+>  				break;
+>  			case DISPC_VP_DPI:
+>  				enc_type = DRM_MODE_ENCODER_DPI;
+> -				conn_type = DRM_MODE_CONNECTOR_LVDS;
+> +				conn_type = DRM_MODE_CONNECTOR_DPI;
+>  				break;
+>  			default:
+>  				WARN_ON(1);
+> 
+
+
+-- 
+Texas Instruments Finland Oy, Porkkalankatu 22, 00180 Helsinki.
+Y-tunnus/Business ID: 0615521-4. Kotipaikka/Domicile: Helsinki
