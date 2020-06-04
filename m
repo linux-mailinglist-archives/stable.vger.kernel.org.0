@@ -2,123 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E30B1EEB2B
-	for <lists+stable@lfdr.de>; Thu,  4 Jun 2020 21:31:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 414CB1EEB3B
+	for <lists+stable@lfdr.de>; Thu,  4 Jun 2020 21:36:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728727AbgFDTbZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Jun 2020 15:31:25 -0400
-Received: from mail3-relais-sop.national.inria.fr ([192.134.164.104]:56336
-        "EHLO mail3-relais-sop.national.inria.fr" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726666AbgFDTbZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 4 Jun 2020 15:31:25 -0400
-X-IronPort-AV: E=Sophos;i="5.73,472,1583190000"; 
-   d="scan'208";a="350624709"
-Received: from abo-173-121-68.mrs.modulonet.fr (HELO hadrien) ([85.68.121.173])
-  by mail3-relais-sop.national.inria.fr with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 04 Jun 2020 21:31:22 +0200
-Date:   Thu, 4 Jun 2020 21:31:21 +0200 (CEST)
-From:   Julia Lawall <julia.lawall@inria.fr>
-X-X-Sender: jll@hadrien
-To:     Matthias Maennich <maennich@google.com>
-cc:     linux-kernel@vger.kernel.org, kernel-team@android.com,
-        Julia Lawall <julia.lawall@inria.fr>,
-        YueHaibing <yuehaibing@huawei.com>, jeyu@kernel.org,
-        cocci@systeme.lip6.fr, stable@vger.kernel.org,
-        Shuah Khan <skhan@linuxfoundation.org>
-Subject: Re: [PATCH] scripts: add dummy report mode to add_namespace.cocci
-In-Reply-To: <20200604164145.173925-1-maennich@google.com>
-Message-ID: <alpine.DEB.2.21.2006042130080.2577@hadrien>
-References: <20200604164145.173925-1-maennich@google.com>
-User-Agent: Alpine 2.21 (DEB 202 2017-01-01)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+        id S1729212AbgFDTfy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Jun 2020 15:35:54 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:23274 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728420AbgFDTfy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 4 Jun 2020 15:35:54 -0400
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 054JZcWQ180917;
+        Thu, 4 Jun 2020 15:35:46 -0400
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 31c542sjs7-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 04 Jun 2020 15:35:46 -0400
+Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 054JZcEd181711;
+        Thu, 4 Jun 2020 15:35:38 -0400
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 31c542sjj2-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 04 Jun 2020 15:35:38 -0400
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 054JWcf1012568;
+        Thu, 4 Jun 2020 19:35:24 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma03ams.nl.ibm.com with ESMTP id 31bf482mxp-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 04 Jun 2020 19:35:24 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 054JZMnY54395258
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 4 Jun 2020 19:35:22 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id EF48811C052;
+        Thu,  4 Jun 2020 19:35:21 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E915C11C04A;
+        Thu,  4 Jun 2020 19:35:20 +0000 (GMT)
+Received: from localhost.localdomain (unknown [9.85.133.34])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu,  4 Jun 2020 19:35:20 +0000 (GMT)
+Message-ID: <1591299320.5146.53.camel@linux.ibm.com>
+Subject: Re: [PATCH 2/2] ima: Call ima_calc_boot_aggregate() in
+ ima_eventdigest_init()
+From:   Mimi Zohar <zohar@linux.ibm.com>
+To:     Bruno Meneguele <bmeneg@redhat.com>
+Cc:     Roberto Sassu <roberto.sassu@huawei.com>, tiwai@suse.de,
+        linux-integrity@vger.kernel.org,
+        linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org, silviu.vlasceanu@huawei.com,
+        stable@vger.kernel.org
+Date:   Thu, 04 Jun 2020 15:35:20 -0400
+In-Reply-To: <20200604191207.GR2970@glitch>
+References: <20200603150821.8607-1-roberto.sassu@huawei.com>
+         <20200603150821.8607-2-roberto.sassu@huawei.com>
+         <1591221815.5146.31.camel@linux.ibm.com> <20200604191207.GR2970@glitch>
+Content-Type: text/plain; charset="UTF-8"
+X-Mailer: Evolution 3.20.5 (3.20.5-1.fc24) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.216,18.0.687
+ definitions=2020-06-04_12:2020-06-04,2020-06-04 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 impostorscore=0
+ mlxlogscore=999 cotscore=-2147483648 mlxscore=0 adultscore=0 spamscore=0
+ lowpriorityscore=0 suspectscore=0 malwarescore=0 phishscore=0 bulkscore=0
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2004280000 definitions=main-2006040132
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Thu, 2020-06-04 at 16:12 -0300, Bruno Meneguele wrote:
+> On Wed, Jun 03, 2020 at 06:03:35PM -0400, Mimi Zohar wrote:
+> > Hi Roberto,
+> > 
+> > On Wed, 2020-06-03 at 17:08 +0200, Roberto Sassu wrote:
+> > > If the template field 'd' is chosen and the digest to be added to the
+> > > measurement entry was not calculated with SHA1 or MD5, it is
+> > > recalculated with SHA1, by using the passed file descriptor. However, this
+> > > cannot be done for boot_aggregate, because there is no file descriptor.
+> > > 
+> > > This patch adds a call to ima_calc_boot_aggregate() in
+> > > ima_eventdigest_init(), so that the digest can be recalculated also for the
+> > > boot_aggregate entry.
+> > > 
+> > > Cc: stable@vger.kernel.org # 3.13.x
+> > > Fixes: 3ce1217d6cd5d ("ima: define template fields library and new helpers")
+> > > Reported-by: Takashi Iwai <tiwai@suse.de>
+> > > Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+> > 
+> > Thanks, Roberto.
+> > 
+> > I've pushed both patches out to the next-integrity branch and would
+> > appreciate some additional testing.
+> > 
+> > thanks,
+> > 
+> > Mimi
+> > 
+> 
+> Hi Mimi and Roberto,
+> 
+> FWIW, I've tested this patch manually and things went fine, with no
+> unexpected behavior or results. 
 
+Thanks, Bruno!
 
-On Thu, 4 Jun 2020, Matthias Maennich wrote:
+> However, wouldn't it be worth add a note in kmsg about the
+> ima_calc_boot_aggregate() being called with an algo different from the
+> system's default? Just to let the user know he won't find a sha256 when
+> check the measurement. But that's something we can add later too.
 
-> When running `make coccicheck` in report mode using the
-> add_namespace.cocci file, it will fail for files that contain
-> MODULE_LICENSE. Those match the replacement precondition, but spatch
-> errors out as virtual.ns is not set.
->
-> In order to fix that, add the virtual rule nsdeps and only do search and
-> replace if that rule has been explicitly requested.
->
-> In order to make spatch happy in report mode, we also need a dummy rule,
-> as otherwise it errors out with "No rules apply". Using a script:python
-> rule appears unrelated and odd, but this is the shortest I could come up
-> with.
->
-> Adjust scripts/nsdeps accordingly to set the nsdeps rule when run trough
-> `make nsdeps`.
->
-> Suggested-by: Julia Lawall <julia.lawall@inria.fr>
-> Fixes: c7c4e29fb5a4 ("scripts: add_namespace: Fix coccicheck failed")
-> Cc: YueHaibing <yuehaibing@huawei.com>
-> Cc: jeyu@kernel.org
-> Cc: cocci@systeme.lip6.fr
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Matthias Maennich <maennich@google.com>
+There's no guarantees that the IMA default crypto algorithm will be
+used for calculating the boot_aggregate.  The algorithm is dependent
+on the TPM.  For example, the default IMA algorithm could be sha256,
+but on a system with TPM 1.2, the boot_aggregate would have to be
+sha1.
 
-Acked-by: Julia Lawall <julia.lawall@inria.fr>
+This patch addresses a mismatch between the template format field ('d'
+field) and the larger digest.  We could require the "ima_template_fmt"
+specified on the boot command line define an appropriate format, but
+Roberto decided to support the situation where both "d" and "d-ng" are
+defined.
 
-Shuah reported the problem to me, so you could add
-
-Reported-by: Shuah Khan <skhan@linuxfoundation.org>
-
-
-> ---
->  scripts/coccinelle/misc/add_namespace.cocci | 8 +++++++-
->  scripts/nsdeps                              | 2 +-
->  2 files changed, 8 insertions(+), 2 deletions(-)
->
-> diff --git a/scripts/coccinelle/misc/add_namespace.cocci b/scripts/coccinelle/misc/add_namespace.cocci
-> index 99e93a6c2e24..cbf1614163cb 100644
-> --- a/scripts/coccinelle/misc/add_namespace.cocci
-> +++ b/scripts/coccinelle/misc/add_namespace.cocci
-> @@ -6,6 +6,7 @@
->  /// add a missing namespace tag to a module source file.
->  ///
->
-> +virtual nsdeps
->  virtual report
->
->  @has_ns_import@
-> @@ -16,10 +17,15 @@ MODULE_IMPORT_NS(ns);
->
->  // Add missing imports, but only adjacent to a MODULE_LICENSE statement.
->  // That ensures we are adding it only to the main module source file.
-> -@do_import depends on !has_ns_import@
-> +@do_import depends on !has_ns_import && nsdeps@
->  declarer name MODULE_LICENSE;
->  expression license;
->  identifier virtual.ns;
->  @@
->  MODULE_LICENSE(license);
->  + MODULE_IMPORT_NS(ns);
-> +
-> +// Dummy rule for report mode that would otherwise be empty and make spatch
-> +// fail ("No rules apply.")
-> +@script:python depends on report@
-> +@@
-> diff --git a/scripts/nsdeps b/scripts/nsdeps
-> index 03a8e7cbe6c7..dab4c1a0e27d 100644
-> --- a/scripts/nsdeps
-> +++ b/scripts/nsdeps
-> @@ -29,7 +29,7 @@ fi
->
->  generate_deps_for_ns() {
->  	$SPATCH --very-quiet --in-place --sp-file \
-> -		$srctree/scripts/coccinelle/misc/add_namespace.cocci -D ns=$1 $2
-> +		$srctree/scripts/coccinelle/misc/add_namespace.cocci -D nsdeps -D ns=$1 $2
->  }
->
->  generate_deps() {
-> --
-> 2.27.0.rc2.251.g90737beb825-goog
->
->
+Mimi
