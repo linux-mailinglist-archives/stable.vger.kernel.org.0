@@ -2,179 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 393601EDBC6
-	for <lists+stable@lfdr.de>; Thu,  4 Jun 2020 05:39:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 482E41EDC84
+	for <lists+stable@lfdr.de>; Thu,  4 Jun 2020 06:47:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726363AbgFDDjP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 3 Jun 2020 23:39:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37440 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726604AbgFDDjM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 3 Jun 2020 23:39:12 -0400
-Received: from mail-il1-x142.google.com (mail-il1-x142.google.com [IPv6:2607:f8b0:4864:20::142])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACE9FC08C5C0
-        for <stable@vger.kernel.org>; Wed,  3 Jun 2020 20:39:10 -0700 (PDT)
-Received: by mail-il1-x142.google.com with SMTP id r2so4705921ila.4
-        for <stable@vger.kernel.org>; Wed, 03 Jun 2020 20:39:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=sargun.me; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=JL8KAHI97qtguZ9Tb2fscmILbngbHV5HZl94fH1QWiU=;
-        b=BkAIZS5UfiiyWUPoA8i0jqjgQC/WADaVCEyErmWLwK8t3GHDHFMmZ0cWMKoqVrqQqf
-         GO+t+UGX7bnWxdI5DqxuR9Q92NU7fHo24UZMJGMnMMJRKYKo4x/F7pwAsbhyN7Gn60ju
-         n7q3PRtkSlmouoqf/iL9VnER2wtgOLpNaqOco=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=JL8KAHI97qtguZ9Tb2fscmILbngbHV5HZl94fH1QWiU=;
-        b=i6V9Ov4+Z+VE82781qETh9bc7eGCprdG9RLAA81vZp3cWXcEvl6Zg8jzKhat6aHzpy
-         4Em/Ybd3KzahgiZatKqYlhgvDaDzRUjkFtjvWjGXiBqDIsucyh4uRbOPIR4gNfBNwCY3
-         0FvszhruzIqog/j0u8WeYku3yflxOjaNBHL2/y2nBAoXHkek6yQ5FD08MKlezKywm1lC
-         NnB+XaSYAiXo5tSneeB3zqT8RbcaMfdLn5V4KGJR119iCsicrEBok85W06zQ3lUsQhcj
-         R22pw1zMUgKS3RpXmaxG6mwld891XLiurbCjOnMtFsWqUBng63Ofr7xN3zd5207i6fdj
-         2H2g==
-X-Gm-Message-State: AOAM532Hq2l3iVuXOZ9CYi3IYNDEhn9y4Ep+UXzXwv0PgP/IL3X7lJqh
-        FW0sNKAsX+RrqJkZuKvZGXhsWg==
-X-Google-Smtp-Source: ABdhPJzpJ/gMzj+cF7tx0wsNnght7qYo/ErxsBP4IEom49PMUnSj0R69oQgNuqTUaWsGxM0Rfd7pDA==
-X-Received: by 2002:a92:c812:: with SMTP id v18mr2474993iln.178.1591241949645;
-        Wed, 03 Jun 2020 20:39:09 -0700 (PDT)
-Received: from ircssh-2.c.rugged-nimbus-611.internal (80.60.198.104.bc.googleusercontent.com. [104.198.60.80])
-        by smtp.gmail.com with ESMTPSA id v20sm828328ilc.1.2020.06.03.20.39.09
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Wed, 03 Jun 2020 20:39:09 -0700 (PDT)
-Date:   Thu, 4 Jun 2020 03:39:07 +0000
-From:   Sargun Dhillon <sargun@sargun.me>
-To:     Christian Brauner <christian.brauner@ubuntu.com>
-Cc:     Kees Cook <keescook@chromium.org>, linux-kernel@vger.kernel.org,
-        Tycho Andersen <tycho@tycho.ws>,
-        Matt Denton <mpdenton@google.com>,
-        Jann Horn <jannh@google.com>, Chris Palmer <palmer@google.com>,
-        Aleksa Sarai <cyphar@cyphar.com>,
-        Robert Sesek <rsesek@google.com>,
-        containers@lists.linux-foundation.org,
-        Giuseppe Scrivano <gscrivan@redhat.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Daniel Wagner <daniel.wagner@bmw-carit.de>,
-        "David S . Miller" <davem@davemloft.net>,
-        John Fastabend <john.r.fastabend@intel.com>,
-        Tejun Heo <tj@kernel.org>, stable@vger.kernel.org,
-        cgroups@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH v3 1/4] fs, net: Standardize on file_receive helper to
- move fds across processes
-Message-ID: <20200604033907.GA16025@ircssh-2.c.rugged-nimbus-611.internal>
-References: <20200603011044.7972-1-sargun@sargun.me>
- <20200603011044.7972-2-sargun@sargun.me>
- <20200604012452.vh33nufblowuxfed@wittgenstein>
+        id S1726158AbgFDErR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Jun 2020 00:47:17 -0400
+Received: from mail-eopbgr150054.outbound.protection.outlook.com ([40.107.15.54]:8928
+        "EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1725950AbgFDErQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 4 Jun 2020 00:47:16 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=W4mzbMxzLVvDxEWq0AEBTMayIsaMSNNRK+mZbyv4xG5oEpOSl/iULstFQto7JJu12EKh7AIQDXXKCsBeUO94BtyLz/YFM5BYMU3DO2Zm3U5XU7dPctKFtAX4KHP/Z2yfFsiox5XajM8TNvFRwIN0vlCU2V4SOR5x4VcHcFlu7Axbyutwwukd01vsewninpVx7/vYaRXThp/1pqc9h+9PAlPFfZKqRE6Zkqd3Lssz+vp+8pO69fX72Sbs4xQJH4VMR7uWDjanPh3zlTnuqOHg6emUaap9O2KEJBfO/waO5DSTodTq1t46DKU2kRn1zZxTjc6WTu5Orgep98Tw83bjaw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=noaHx6GA4sE4qeUfjrXWLwrGBpPZ5dHA5aXa4jYsxnM=;
+ b=IiqIZE0lg8re64RbTul7O4zn1gZuM/bq/XP05HtDkjRj/sdVMuoOIMPonGQYLVQ4A9VrT4fILzqJ2GXhDxMfZAOoAkYu7HFAmThIs3nmdNCL1Zv+z+G0gTRIFgfpSDWybPYPp7yK2+2vvPG5NVwmJMpBkW4SFQ+vwYX8twkvBiYqdxM4agqUxuv+QP30VRwQFS+IgKj4MZt/B+3tUDV/2Pm8mq/y/sxDblNL3WY94ltUZ0yxBr/M0xBrbIRLVuzTJmNp0PedrYdb+EI+tFPvTr2Ey6rtKRS24J7BYKR57134HT0cFVtjIbHvdsC4qDMs3nFJ79OHurwJuuOu0xjFBw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=mellanox.com; dmarc=pass action=none header.from=mellanox.com;
+ dkim=pass header.d=mellanox.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Mellanox.com;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=noaHx6GA4sE4qeUfjrXWLwrGBpPZ5dHA5aXa4jYsxnM=;
+ b=XpSqX/okyK1pY4VS1QASa0xHk6vWzMX3c5zCvEseeDR+pEWG8/jakF08VLO3Vesd0OkoSAjQL0GZd1vSghw9WlvD4tODUT4wG/9jMNoYGKU0nidltR91yPYuDC6Gd2qVC8y0DwN2s2K74AJ8ksMptz6Nbw4N8mpaWyJFbCgBcUs=
+Received: from VI1PR05MB5102.eurprd05.prod.outlook.com (2603:10a6:803:5e::23)
+ by VI1PR05MB6688.eurprd05.prod.outlook.com (2603:10a6:800:131::12) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3066.18; Thu, 4 Jun
+ 2020 04:47:13 +0000
+Received: from VI1PR05MB5102.eurprd05.prod.outlook.com
+ ([fe80::2405:4594:97a:13c]) by VI1PR05MB5102.eurprd05.prod.outlook.com
+ ([fe80::2405:4594:97a:13c%2]) with mapi id 15.20.3045.024; Thu, 4 Jun 2020
+ 04:47:13 +0000
+From:   Saeed Mahameed <saeedm@mellanox.com>
+To:     "efremov@linux.com" <efremov@linux.com>,
+        "davem@davemloft.net" <davem@davemloft.net>,
+        "leon@kernel.org" <leon@kernel.org>,
+        Alex Vesker <valex@mellanox.com>
+CC:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] net/mlx5: DR, Fix freeing in dr_create_rc_qp()
+Thread-Topic: [PATCH] net/mlx5: DR, Fix freeing in dr_create_rc_qp()
+Thread-Index: AQHWODQW08Et5AyQukqYq107OQeR4qjH5gKA
+Date:   Thu, 4 Jun 2020 04:47:13 +0000
+Message-ID: <71eddd29fce960fed5556083548d68368315f6c3.camel@mellanox.com>
+References: <20200601164526.19430-1-efremov@linux.com>
+In-Reply-To: <20200601164526.19430-1-efremov@linux.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+user-agent: Evolution 3.36.2 (3.36.2-1.fc32) 
+authentication-results: linux.com; dkim=none (message not signed)
+ header.d=none;linux.com; dmarc=none action=none header.from=mellanox.com;
+x-originating-ip: [73.15.39.150]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-ht: Tenant
+x-ms-office365-filtering-correlation-id: f599eb7f-4e5b-4dd7-18ed-08d8084259ba
+x-ms-traffictypediagnostic: VI1PR05MB6688:
+x-ms-exchange-transport-forked: True
+x-microsoft-antispam-prvs: <VI1PR05MB6688861F81343A19710EA2ADBE890@VI1PR05MB6688.eurprd05.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:4941;
+x-forefront-prvs: 04244E0DC5
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: a4prBYqFb+5pssA7glNlr8ux+Ayz6VsdKYGua+ZBmdtETiR5TRzvwZOJOxsZG3CBQXGzRH7OW3NptBiCxLrXauKLUkQ4Ioryd066mAeqojrwTTTPrBgEh32HHkcx5Zz7o0D0Z/krN8wD8dd603zC9W6EmoyjNp5Nf70hJP+xDRdsAroKKIyeDF0RXJxw4sEcpvBDVeWWyBf1QoG57g2rUfFsGV2a0BqL1djaeiT+sT7OZb/2Vzq+EmRvs0uid3rbeMZNrJSYzFLXgBI/L2sAp8JJKkc61VDMFvrqITCAoMQWAGyWMicFKkd2/yHXWHyAfB2pSvsIFoYk8t6r0kgXSA==
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:VI1PR05MB5102.eurprd05.prod.outlook.com;PTR:;CAT:NONE;SFTY:;SFS:(4636009)(136003)(346002)(366004)(396003)(376002)(39860400002)(76116006)(6486002)(5660300002)(478600001)(71200400001)(4744005)(2906002)(8676002)(8936002)(36756003)(6636002)(26005)(110136005)(4326008)(6506007)(91956017)(6512007)(186003)(66476007)(64756008)(66946007)(54906003)(86362001)(2616005)(66446008)(66556008)(316002);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata: q727Na69tJDNxZUCAthSHI77Qw21KIViDB+TuTaYP04Qi2LxiucFelHkkGxdrdWrq+UpCGJMeZC8hoAcELbSj0loxlDlIXzlQ5sEvVZ/xxKpYQR1QHW0Aumb+8Q6OYrL2gGrJ48tsujSwL36HXq29p0lCOG6VMUwNRKHjU6dGD0idLQqFQpA3FHTqj5OO8hB+O/FBbJahy2sWLYDhYg5bGP4Y8nOUCfS4NMXX/rrJdOmqaqlcgj04+EAKRob5ZXaGDFWjHFw6UYKdxfo9cUqApgMHTIESB4Ys7TMubKxxe4VJR0lficdEO/bES8PJRODaNy9LdyDvUZaKVCmMrU+wxp3ENLmwQEnyhSLc/3VYQ3LqSwzwbXoboLuuz3nqzFOnCur8+zlmQobAHSCOWhRj4OtPSNXIwjVAb8haq3SSvfrmOSIJkikk3gOew4LR8UatdJ3SuQ++hMvu2wtBhmGjL4r5d3WMjol7WuAcz90XVM=
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <D670B1CD12B599478A49F8D3DCB91643@eurprd05.prod.outlook.com>
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200604012452.vh33nufblowuxfed@wittgenstein>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+X-OriginatorOrg: Mellanox.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: f599eb7f-4e5b-4dd7-18ed-08d8084259ba
+X-MS-Exchange-CrossTenant-originalarrivaltime: 04 Jun 2020 04:47:13.6598
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: a652971c-7d2e-4d9b-a6a4-d149256f461b
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: nrYTWcJ9EiYoHogJnnjB04U63p5XRd9CfiGFXTYH0dPriHW3jdflOLZHoHqBJL7a6CD1QZlKHbeenMUmrmd/Mg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: VI1PR05MB6688
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jun 04, 2020 at 03:24:52AM +0200, Christian Brauner wrote:
-> On Tue, Jun 02, 2020 at 06:10:41PM -0700, Sargun Dhillon wrote:
-> > Previously there were two chunks of code where the logic to receive file
-> > descriptors was duplicated in net. The compat version of copying
-> > file descriptors via SCM_RIGHTS did not have logic to update cgroups.
-> > Logic to change the cgroup data was added in:
-> > commit 48a87cc26c13 ("net: netprio: fd passed in SCM_RIGHTS datagram not set correctly")
-> > commit d84295067fc7 ("net: net_cls: fd passed in SCM_RIGHTS datagram not set correctly")
-> > 
-> > This was not copied to the compat path. This commit fixes that, and thus
-> > should be cherry-picked into stable.
-> > 
-> > This introduces a helper (file_receive) which encapsulates the logic for
-> > handling calling security hooks as well as manipulating cgroup information.
-> > This helper can then be used other places in the kernel where file
-> > descriptors are copied between processes
-> > 
-> > I tested cgroup classid setting on both the compat (x32) path, and the
-> > native path to ensure that when moving the file descriptor the classid
-> > is set.
-> > 
-> > Signed-off-by: Sargun Dhillon <sargun@sargun.me>
-> > Suggested-by: Kees Cook <keescook@chromium.org>
-> > Cc: Al Viro <viro@zeniv.linux.org.uk>
-> > Cc: Christian Brauner <christian.brauner@ubuntu.com>
-> > Cc: Daniel Wagner <daniel.wagner@bmw-carit.de>
-> > Cc: David S. Miller <davem@davemloft.net>
-> > Cc: Jann Horn <jannh@google.com>,
-> > Cc: John Fastabend <john.r.fastabend@intel.com>
-> > Cc: Tejun Heo <tj@kernel.org>
-> > Cc: Tycho Andersen <tycho@tycho.ws>
-> > Cc: stable@vger.kernel.org
-> > Cc: cgroups@vger.kernel.org
-> > Cc: linux-fsdevel@vger.kernel.org
-> > Cc: linux-kernel@vger.kernel.org
-> > ---
-> >  fs/file.c            | 35 +++++++++++++++++++++++++++++++++++
-> >  include/linux/file.h |  1 +
-> >  net/compat.c         | 10 +++++-----
-> >  net/core/scm.c       | 14 ++++----------
-> >  4 files changed, 45 insertions(+), 15 deletions(-)
-> > 
-> > diff --git a/fs/file.c b/fs/file.c
-> > index abb8b7081d7a..5afd76fca8c2 100644
-> > --- a/fs/file.c
-> > +++ b/fs/file.c
-> > @@ -18,6 +18,9 @@
-> >  #include <linux/bitops.h>
-> >  #include <linux/spinlock.h>
-> >  #include <linux/rcupdate.h>
-> > +#include <net/sock.h>
-> > +#include <net/netprio_cgroup.h>
-> > +#include <net/cls_cgroup.h>
-> >  
-> >  unsigned int sysctl_nr_open __read_mostly = 1024*1024;
-> >  unsigned int sysctl_nr_open_min = BITS_PER_LONG;
-> > @@ -931,6 +934,38 @@ int replace_fd(unsigned fd, struct file *file, unsigned flags)
-> >  	return err;
-> >  }
-> >  
-> > +/*
-> > + * File Receive - Receive a file from another process
-> > + *
-> > + * This function is designed to receive files from other tasks. It encapsulates
-> > + * logic around security and cgroups. The file descriptor provided must be a
-> > + * freshly allocated (unused) file descriptor.
-> > + *
-> > + * This helper does not consume a reference to the file, so the caller must put
-> > + * their reference.
-> > + *
-> > + * Returns 0 upon success.
-> > + */
-> > +int file_receive(int fd, struct file *file)
-> 
-> This is all just a remote version of fd_install(), yet it deviates from
-> fd_install()'s semantics and naming. That's not great imho. What about
-> naming this something like:
-> 
-> fd_install_received()
-> 
-> and move the get_file() out of there so it has the same semantics as
-> fd_install(). It seems rather dangerous to have a function like
-> fd_install() that consumes a reference once it returned and another
-> version of this that is basically the same thing but doesn't consume a
-> reference because it takes its own. Seems an invitation for confusion.
-> Does that make sense?
-> 
-You're right. The reason for the difference in my mind is that fd_install
-always succeeds, whereas file_receive can fail. It's easier to do something
-like:
-fd_install(fd, get_file(f))
-vs.
-if (file_receive(fd, get_file(f))
-	fput(f);
-
-Alternatively, if the reference was always consumed, it is somewhat
-easier.
-
-I'm fine either way, but just explaining my reasoning for the difference
-in behaviour.
+T24gTW9uLCAyMDIwLTA2LTAxIGF0IDE5OjQ1ICswMzAwLCBEZW5pcyBFZnJlbW92IHdyb3RlOg0K
+PiBWYXJpYWJsZSAiaW4iIGluIGRyX2NyZWF0ZV9yY19xcCgpIGlzIGFsbG9jYXRlZCB3aXRoIGt2
+emFsbG9jKCkgYW5kDQo+IHNob3VsZCBiZSBmcmVlZCB3aXRoIGt2ZnJlZSgpLg0KPiANCj4gRml4
+ZXM6IDI5N2NjY2ViZGM1YSAoIm5ldC9tbHg1OiBEUiwgRXhwb3NlIGFuIGludGVybmFsIEFQSSB0
+byBpc3N1ZQ0KPiBSRE1BIG9wZXJhdGlvbnMiKQ0KPiBDYzogc3RhYmxlQHZnZXIua2VybmVsLm9y
+Zw0KPiBTaWduZWQtb2ZmLWJ5OiBEZW5pcyBFZnJlbW92IDxlZnJlbW92QGxpbnV4LmNvbT4NCj4g
+DQoNCkFwcGxpZWQgdG8gbmV0LW1seDUsDQpUaGFua3MsDQpTYWVlZC4NCg==
