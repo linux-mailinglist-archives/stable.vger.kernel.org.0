@@ -2,130 +2,169 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D4A451EE949
-	for <lists+stable@lfdr.de>; Thu,  4 Jun 2020 19:18:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8ADF51EEA28
+	for <lists+stable@lfdr.de>; Thu,  4 Jun 2020 20:17:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730123AbgFDRSb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Jun 2020 13:18:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40084 "EHLO mail.kernel.org"
+        id S1730371AbgFDSQV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Jun 2020 14:16:21 -0400
+Received: from mout.perfora.net ([74.208.4.196]:41257 "EHLO mout.perfora.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730088AbgFDRSa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 4 Jun 2020 13:18:30 -0400
-Received: from localhost.localdomain (c-71-198-47-131.hsd1.ca.comcast.net [71.198.47.131])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B2EDB208A7;
-        Thu,  4 Jun 2020 17:18:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591291110;
-        bh=uw9ajEZK2U3R/mzyqBwWkfseWaLTMdFVYUrHwtUw4+E=;
-        h=Date:From:To:Subject:From;
-        b=JADrRbd+tHXXwLx+jZV4vrvb5O9yD71MgwceUyOOsAcqSXNt7SIPZBOxq0gGK9dBr
-         N702xj1zeWnzn2rYkKxGa02UdxjM1iayMNxLlAT5RDJp9BewtBljYALkdl18YhfXE6
-         +KBEtV6++frFgSn32dmbbOQMA7Y/j5pTA8fCt/xA=
-Date:   Thu, 04 Jun 2020 10:18:29 -0700
-From:   akpm@linux-foundation.org
-To:     dan.j.williams@intel.com, daniel.m.jordan@oracle.com,
-        david@redhat.com, jmorris@namei.org, ktkhai@virtuozzo.com,
-        mhocko@suse.com, mm-commits@vger.kernel.org,
-        pankaj.gupta.linux@gmail.com, pasha.tatashin@soleen.com,
-        sashal@kernel.org, shile.zhang@linux.alibaba.com,
-        stable@vger.kernel.org, vbabka@suse.cz, yiwei@redhat.com
-Subject:  [merged]
- mm-call-cond_resched-from-deferred_init_memmap.patch removed from -mm tree
-Message-ID: <20200604171829.2a2P11QAF%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S1729856AbgFDSQU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 4 Jun 2020 14:16:20 -0400
+Received: from [192.168.123.2] ([72.192.149.107]) by mrelay.perfora.net
+ (mreueus002 [74.208.5.2]) with ESMTPSA (Nemesis) id 0MDRPv-1jjsXu20sv-00Gqxu;
+ Thu, 04 Jun 2020 20:16:11 +0200
+Subject: Re: [PATCH nf] nft_set_rbtree: Don't account for expired elements on
+ insertion
+To:     Phil Sutter <phil@nwl.cc>, Stefano Brivio <sbrivio@redhat.com>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, netfilter-devel@vger.kernel.org
+References: <924e80c7b563cc6522a241b123c955c18983edb1.1591141588.git.sbrivio@redhat.com>
+ <20200603153531.GS31506@orbyte.nwl.cc>
+From:   Mike Dillinger <miked@softtalker.com>
+X-Tagtoolbar-Keys: D20200604111609461
+Message-ID: <79640a97-b164-42c4-cc24-2be1c2265e44@softtalker.com>
+Date:   Thu, 4 Jun 2020 11:16:09 -0700
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
+ Firefox/68.0 Thunderbird/68.8.1
+MIME-Version: 1.0
+In-Reply-To: <20200603153531.GS31506@orbyte.nwl.cc>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 8bit
+Content-Language: en-US
+X-Provags-ID: V03:K1:xnOaNxaqT6I9IpQezLahS/A0L5efRZ/p90d8tgQ13oOwm8+RZnU
+ iVZdhhCLslBOiUkTbbX60F26QPIsUjtmlZxnaWERVxrBWyJ/FF9beZJqPthoyPkevzKFaT8
+ u2BTqfxWKZ+k39icz53BllwwDO5BWp0DBVaknc2V1TepDoTY+oEqIU2ZYuSK8HqtzaXVzvx
+ E4hDWhsUjwwoTOoKRbXjQ==
+X-Spam-Flag: NO
+X-UI-Out-Filterresults: notjunk:1;V03:K0:fIdiQ4vSmxU=:co/LXnM9yiewfkNg9/g+rf
+ v2lpi0pzrc+SNVxbFjg4VQhsQgXmxjZJNqTY6u8Fw/lit8/ai7bBiqz6qhFXyFH6NuRzztRR2
+ sGJ9uwGPy2mIxYocEtMoxEXbtAHrPTQleVDhYMXBGfVTWo1vkiGUZpyLDoaRHpNnG91Q0YrUp
+ Lf6ZrPampMrx1BrVkfciyimPnoytMRAhXxGJPIseqYD6/W5Qhcl9LmvSL/yHbkw6pwI9qYRjh
+ 7YKw5ZiuZ2kTLGvYdZB57dR2WuNHu0av+OadJ1AbmfisTRC6yk+3gJUpUHuVN1R7aKOSZCLtR
+ bipSIpo8F3HYxJP2RIii9mqZRYAfg44PXdZzqh6IEONhMI5VSDrl1ufAOZtlC4sjwEjDZJU4P
+ kODGe9F2IVaseGe0EZEszYh21rr81WNpHJloezXWsM1puqyArdWm8BMuszHJdj8B5Zd6e19xl
+ FxKkRkSzCb2ANRD8QNw6+rToe8LBlPEpEx17BbZolylQx2jSmqoSk+96Xqa+pJPxdvgB3oRYl
+ y1hVzCX3AxCS6DCF/RtcFiwpQ8Ev8EPOd37HrW7a1UhZGNpU4rwT6RydIISkU0waCyyrq8rri
+ 7LZiw5ASmMwS0CZB013ZIBlMdydPAhdLIhx6vt9onFhcHZkcfWINfY6Nh+C6aV50Fn1DEl36s
+ opvr6kbDXe9UqtzEmU3w5kID+a4odlVK4JaaoNrqZpC5+FR9lt2R5qwEbOgKwNxc+5+MNx6Tt
+ 7CcBWUNDkOdfWqgd33zY+CXxUFfv3URuZ0TGTbpMRnlxfEtUjzrtBYcuItmT15Taoq9CAF4vZ
+ Y4qcyiujaf7oc1el3I3UFY5oCmZwEo43t44aS8i+1Lsf3b+a5wGByoQMtETo7E0I6jOXIKC
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+> Signed-off-by: Stefano Brivio<sbrivio@redhat.com>
+> ---
+>   .../testcases/sets/0044interval_overlap_0     | 81 ++++++++++++++-----
+>   1 file changed, 61 insertions(+), 20 deletions(-)
+>
+> diff --git a/tests/shell/testcases/sets/0044interval_overlap_0 b/tests/shell/testcases/sets/0044interval_overlap_0
+> index fad92ddcf356..16f661a00116 100755
+> --- a/tests/shell/testcases/sets/0044interval_overlap_0
+> +++ b/tests/shell/testcases/sets/0044interval_overlap_0
+> @@ -7,6 +7,13 @@
+>   #   existing one
+>   # - for concatenated ranges, the new element is less specific than any existing
+>   #   overlapping element, as elements are evaluated in order of insertion
+> +#
+> +# Then, repeat the test with a set configured for 1s timeout, checking that:
+> +# - we can insert all the elements as described above
+> +# - once the timeout has expired, we can insert all the elements again, and old
+> +#   elements are not present
+> +# - before the timeout expires again, we can re-add elements that are not
+> +#   expected to fail, but old elements might be present
+>   
+>   #	Accept	Interval	List
+>   intervals_simple="
+> @@ -39,28 +46,62 @@ intervals_concat="
+>   	y	15-20 . 49-61	0-2 . 0-3, 10-20 . 30-40, 15-20 . 50-60, 3-9 . 4-29, 15-20 . 49-61
+>   "
+>   
+> -$NFT add table t
+> -$NFT add set t s '{ type inet_service ; flags interval ; }'
+> -$NFT add set t c '{ type inet_service . inet_service ; flags interval ; }'
+> +match_elements() {
+> +	skip=0
+> +	n=0
+> +	out=
+> +	for a in $($NFT list set t ${1})}; do
+> +		[ ${n} -eq 0 ] && [ "${a}" = "elements" ] && n=1
+> +		[ ${n} -eq 1 ] && [ "${a}" = "=" ]	  && n=2
+> +		[ ${n} -eq 2 ] && [ "${a}" = "{" ]	  && n=3 && continue
+> +		[ ${n} -lt 3 ] 					 && continue
+> +
+> +		[ "${a}" = "}" ]				 && break
+> +
+> +		[ ${skip} -eq 1 ] && skip=0 && out="${out},"	 && continue
+> +		[ "${a}" = "expires" ] && skip=1		 && continue
+> +
+> +		[ -n "${out}" ] && out="${out} ${a}" || out="${a}"
+> +	done
+> +	[ "${out%,}" = "${2}" ]
+> +}
+>   
+> -IFS='	
+> +add_elements() {
+> +	set="s"
+> +	IFS='	
+>   '
+> -set="s"
+> -for t in ${intervals_simple} switch ${intervals_concat}; do
+> -	[ "${t}" = "switch" ] && set="c"         && continue
+> -	[ -z "${pass}" ]      && pass="${t}"     && continue
+> -	[ -z "${interval}" ]  && interval="${t}" && continue
+> +	for t in ${intervals_simple} switch ${intervals_concat}; do
+> +		unset IFS
+> +		[ "${t}" = "switch" ] && set="c"         && continue
+> +		[ -z "${pass}" ]      && pass="${t}"     && continue
+> +		[ -z "${interval}" ]  && interval="${t}" && continue
+>   
+> -	if [ "${pass}" = "y" ]; then
+> -		$NFT add element t ${set} "{ ${interval} }"
+> -	else
+> -		! $NFT add element t ${set} "{ ${interval} }" 2>/dev/null
+> -	fi
+> -	$NFT list set t ${set} | tr -d '\n\t' | tr -s ' ' | \
+> -		grep -q "elements = { ${t} }"
+> +		if [ "${pass}" = "y" ]; then
+> +			$NFT add element t ${set} "{ ${interval} }"
+> +		else
+> +			! $NFT add element t ${set} "{ ${interval} }" 2>/dev/null
+> +		fi
+>   
+> -	pass=
+> -	interval=
+> -done
+> +		[ "${1}" != "nomatch" ] && match_elements "${set}" "${t}"
+>   
+> -unset IFS
+> +		pass=
+> +		interval=
+> +		IFS='	
+> +'
+> +	done
+> +	unset IFS
+> +}
+> +
+> +$NFT add table t
+> +$NFT add set t s '{ type inet_service ; flags interval ; }'
+> +$NFT add set t c '{ type inet_service . inet_service ; flags interval ; }'
+> +add_elements
+> +
+> +$NFT flush ruleset
+> +$NFT add table t
+> +$NFT add set t s '{ type inet_service ; flags interval,timeout; timeout 1s; gc-interval 1s; }'
+> +$NFT add set t c '{ type inet_service . inet_service ; flags interval,timeout ; timeout 1s; gc-interval 1s; }'
+> +add_elements
+> +sleep 1
+> +add_elements
+> +add_elements nomatch
 
-The patch titled
-     Subject: mm: call cond_resched() from deferred_init_memmap()
-has been removed from the -mm tree.  Its filename was
-     mm-call-cond_resched-from-deferred_init_memmap.patch
+Hello All,
 
-This patch was dropped because it was merged into mainline or a subsystem tree
+Is there any way I can track this change so I know what kernel version to expect it in?  Pardon my ignorance, but I'm new to Linux kernel changes.  I have familiarity with change requests, so if I can follow this on GitHub or some other tracking system, that would be great.
 
-------------------------------------------------------
-From: Pavel Tatashin <pasha.tatashin@soleen.com>
-Subject: mm: call cond_resched() from deferred_init_memmap()
-
-Now that deferred pages are initialized with interrupts enabled we can
-replace touch_nmi_watchdog() with cond_resched(), as it was before
-3a2d7fa8a3d5.
-
-For now, we cannot do the same in deferred_grow_zone() as it is still
-initializes pages with interrupts disabled.
-
-This change fixes RCU problem described in
-https://lkml.kernel.org/r/20200401104156.11564-2-david@redhat.com
-
-[   60.474005] rcu: INFO: rcu_sched detected stalls on CPUs/tasks:
-[   60.475000] rcu:  1-...0: (0 ticks this GP) idle=02a/1/0x4000000000000000 softirq=1/1 fqs=15000
-[   60.475000] rcu:  (detected by 0, t=60002 jiffies, g=-1199, q=1)
-[   60.475000] Sending NMI from CPU 0 to CPUs 1:
-[    1.760091] NMI backtrace for cpu 1
-[    1.760091] CPU: 1 PID: 20 Comm: pgdatinit0 Not tainted 4.18.0-147.9.1.el8_1.x86_64 #1
-[    1.760091] Hardware name: Red Hat KVM, BIOS 1.13.0-1.module+el8.2.0+5520+4e5817f3 04/01/2014
-[    1.760091] RIP: 0010:__init_single_page.isra.65+0x10/0x4f
-[    1.760091] Code: 48 83 cf 63 48 89 f8 0f 1f 40 00 48 89 c6 48 89 d7 e8 6b 18 80 ff 66 90 5b c3 31 c0 b9 10 00 00 00 49 89 f8 48 c1 e6 33 f3 ab <b8> 07 00 00 00 48 c1 e2 36 41 c7 40 34 01 00 00 00 48 c1 e0 33 41
-[    1.760091] RSP: 0000:ffffba783123be40 EFLAGS: 00000006
-[    1.760091] RAX: 0000000000000000 RBX: fffffad34405e300 RCX: 0000000000000000
-[    1.760091] RDX: 0000000000000000 RSI: 0010000000000000 RDI: fffffad34405e340
-[    1.760091] RBP: 0000000033f3177e R08: fffffad34405e300 R09: 0000000000000002
-[    1.760091] R10: 000000000000002b R11: ffff98afb691a500 R12: 0000000000000002
-[    1.760091] R13: 0000000000000000 R14: 000000003f03ea00 R15: 000000003e10178c
-[    1.760091] FS:  0000000000000000(0000) GS:ffff9c9ebeb00000(0000) knlGS:0000000000000000
-[    1.760091] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[    1.760091] CR2: 00000000ffffffff CR3: 000000a1cf20a001 CR4: 00000000003606e0
-[    1.760091] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[    1.760091] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[    1.760091] Call Trace:
-[    1.760091]  deferred_init_pages+0x8f/0xbf
-[    1.760091]  deferred_init_memmap+0x184/0x29d
-[    1.760091]  ? deferred_free_pages.isra.97+0xba/0xba
-[    1.760091]  kthread+0x112/0x130
-[    1.760091]  ? kthread_flush_work_fn+0x10/0x10
-[    1.760091]  ret_from_fork+0x35/0x40
-[   89.123011] node 0 initialised, 1055935372 pages in 88650ms
-
-Link: http://lkml.kernel.org/r/20200403140952.17177-4-pasha.tatashin@soleen.com
-Fixes: 3a2d7fa8a3d5 ("mm: disable interrupts while initializing deferred pages")
-Reported-by: Yiqian Wei <yiwei@redhat.com>
-Tested-by: David Hildenbrand <david@redhat.com>
-Signed-off-by: Pavel Tatashin <pasha.tatashin@soleen.com>
-Reviewed-by: Daniel Jordan <daniel.m.jordan@oracle.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: James Morris <jmorris@namei.org>
-Cc: Kirill Tkhai <ktkhai@virtuozzo.com>
-Cc: Sasha Levin <sashal@kernel.org>
-Cc: Shile Zhang <shile.zhang@linux.alibaba.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: <stable@vger.kernel.org>	[4.17+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- mm/page_alloc.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
---- a/mm/page_alloc.c~mm-call-cond_resched-from-deferred_init_memmap
-+++ a/mm/page_alloc.c
-@@ -1870,7 +1870,7 @@ static int __init deferred_init_memmap(v
- 	 */
- 	while (spfn < epfn) {
- 		nr_pages += deferred_init_maxorder(&i, zone, &spfn, &epfn);
--		touch_nmi_watchdog();
-+		cond_resched();
- 	}
- zone_empty:
- 	/* Sanity check that the next zone really is unpopulated */
-_
-
-Patches currently in -mm which might be from pasha.tatashin@soleen.com are
-
-
+Thanks!
+-MikeD
