@@ -2,62 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 185751EDD36
-	for <lists+stable@lfdr.de>; Thu,  4 Jun 2020 08:34:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 627F91EDD3E
+	for <lists+stable@lfdr.de>; Thu,  4 Jun 2020 08:37:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726104AbgFDGeS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Jun 2020 02:34:18 -0400
-Received: from sonic303-1.consmr.mail.bf2.yahoo.com ([74.6.131.40]:39708 "EHLO
-        sonic303-1.consmr.mail.bf2.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725959AbgFDGeR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 4 Jun 2020 02:34:17 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1591252455; bh=eVWQE8aO6isO2IoHTAvouja63Qo1x862VnNlRn9e1Ww=; h=Date:From:Reply-To:Subject:References:From:Subject; b=ggWPsVfxKKF/MbqhellDq68IlKPnwKjGogh3JcvZerTal0t7blhkzC1mLyRbiTuOSM0bCDk038go/oDsK/lQAo7M9a+CtRbITfOW3xx3MRhdn18vV3mB8pU/zJvGwA/94tfZGrPEjEfupaehFV83fbo04lZOVD6tYgW9gWg/22iiBrHG4fLs3mou4qHbUBPVtG+luEZ/7ueTI3Uh83/vlyQ6GpqxtEUOkGeJemDFrFnoMee5dY/StLkBFO3WIHxQ1ggCQN9Fb09dqFRGEeV7YHrmB4FWNUDCVgBGR9Jf56V/IUjAyT8j8cbZplY4X/KgjONE5XPS2kOsutJh/6TMdw==
-X-YMail-OSG: msU5.qMVM1mbsAbCo5kWJ2m5anHHU.jli.IOGnM1Ib7fAY6Vi5_TSqZp375EYmW
- N5erBonnYbIF0EmVtEPnUuMlSfOEgK9QvYEbd1SmyA4Oomxkj.UyykyenuWNrZxGUG5OwGsNO8T7
- _lkUlXYKZv4WGIVEchG9yETGqlfFfvPeQCsg295bc4jXX.GqXGEDCPSAjR404psCdC62NZheyERS
- D0uVyMcriPgUQFB.55urvyOE367F2o5zx4DfMPXuWNyvF_xlDHAnH7Vv6J_k2SuEGCsqHSQ4kKUA
- Sx4aNKJK604dFCK3DZboy6mxCqCusF5D2CH53sehV.MdLceCe54Rarc3.RfQWcAmnPy3N.pInrmv
- YTEr_umHHEqPvdlBBY8YSuquSIsSAM_YEKiI6KIBIXOnD5sE0TVpdm2.w8LiATNymUjc.bLEcUYd
- SBW.UAx3eB7vXNx_DEsU6KMW3.q81XoU0.IfStmMe6jTfwSPdUbx_nW1WHMTvt.XUtkDgh9.v963
- qnVmBrOAbRhhErcCSnOGeiCNLwMdP0Ont_K.PSsgcWbMoqaVtT6DjuYYaOFyqLjReJzcufkNVyuk
- KLl.dxDzSMvvOg3_PSULrMx.Oi19ss6sdnum4sfhz6z5hb1xxgLPYd6AEdbaXT.mrIzFb7aXBCaH
- SO5Ys1eU5vDXmlrwwMFfWmc6C7z0DGtXVdeWvJ3rZUvXYppGIizlZo7u.R55e1_IrZIgFfadIoty
- lZ_bTlIlN5qsxskYREryA4GiUpwsZhHTmhwgdGSMLnPi_jqfOqYndaV2z42Vk6WInUG57Kx6rbHN
- AlbIQu0PNn7Xnpxy4Si41G.DtottaxcF0F.x0dBeIFbZiBq2xvE_2ONqZ9p8uypwjbwr7LJKMheq
- zf5eoRop4uJWuNRtz4lwkU6Khr23kkFZumD7BaWIVSXgrsqARvFXuKti2_5qCo0rIt9JdgFIXOn_
- wVuLJ6DBOf0M26uyQ9K8NZ49at2VzLTtovBmKAA_.spsh4Q_P98ti8p3CIB7O8Qp5Fg8_CUF6kCV
- 1WaJ7vxmW9dS6hDqZTO8nFytOl5w8dyR.sSNxLtxoNZPiJjqzBXGLPD650i.T.NuiYR5MBdmqiBE
- PAtLE9FoNgPXPwBDRzribJou0fV_qV_rv.yFDiM9TsBk5GBvihGG9EVBk1Ru1EFpCCMxTKAvj9ao
- q_9FXpmdmM4ppP7dMXzP2EQxFbsLpGO.ABqinp._DUN7OKnOVKotxmiJCaYV9JRgymYecXhMwW4O
- tcXLNkd4mgaibNcf99lNSkuR3Uh5M6MrmqLVxxkjtcvDdhLTmYo3aZmaK2KZ2QPd.IvPBzw--
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic303.consmr.mail.bf2.yahoo.com with HTTP; Thu, 4 Jun 2020 06:34:15 +0000
-Date:   Thu, 4 Jun 2020 06:34:12 +0000 (UTC)
-From:   "Mr. KARIM TRAORE " <madelynjosh963@gmail.com>
-Reply-To: karimore245@gmail.com
-Message-ID: <1146322427.1746753.1591252452716@mail.yahoo.com>
-Subject: BUSINESS PROPOSAL
+        id S1726837AbgFDGhH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Jun 2020 02:37:07 -0400
+Received: from stargate.chelsio.com ([12.32.117.8]:25718 "EHLO
+        stargate.chelsio.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726248AbgFDGhH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 4 Jun 2020 02:37:07 -0400
+Received: from localhost (moto.blr.asicdesigners.com [10.193.184.79] (may be forged))
+        by stargate.chelsio.com (8.13.8/8.13.8) with ESMTP id 0546aexD007993;
+        Wed, 3 Jun 2020 23:36:41 -0700
+Date:   Thu, 4 Jun 2020 12:06:39 +0530
+From:   Dakshaja Uppalapati <dakshaja@chelsio.com>
+To:     Sagi Grimberg <sagi@grimberg.me>, Christoph Hellwig <hch@lst.de>
+Cc:     eduard@hasenleithner.at, kbusch@kernel.org,
+        gregkh@linuxfoundation.org,
+        Nirranjan Kirubaharan <nirranjan@chelsio.com>,
+        Potnuri Bharat Teja <bharat@chelsio.com>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH nvme] nvme: Revert "nvme: Discard workaround for
+ non-conformant devices"
+Message-ID: <20200604063638.GA15118@chelsio.com>
+References: <20200603091851.16957-1-dakshaja@chelsio.com>
+ <20200603130750.GA13511@lst.de>
+ <20200603161717.GA11442@chelsio.com>
+ <20200603162338.GA27240@lst.de>
+ <6b58318c-fc41-66b9-b4d2-868d832392bb@grimberg.me>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-References: <1146322427.1746753.1591252452716.ref@mail.yahoo.com>
-X-Mailer: WebService/1.1.16037 YMailNodin Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3896.0 Safari/537.36
-To:     unlisted-recipients:; (no To-header on input)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <6b58318c-fc41-66b9-b4d2-868d832392bb@grimberg.me>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Wednesday, June 06/03/20, 2020 at 14:20:01 -0700, Sagi Grimberg wrote:
+> 
+> > > > Err, why?  Please send an actual bug report with details of your
+> > > > setup.
+> > > 
+> > > Hi Christoph,
+> > > 
+> > > Here is the link describing the issue initially reported for upstream
+> > > kernel 5.5:
+> > > 
+> > > https://lore.kernel.org/linux-nvme/CH2PR12MB40053A64681EFA3E6F63FDFBDD2A0@CH2PR12MB4005.namprd12.prod.outlook.com/
+> > > 
+> > > Issue is later fixed with upstream commit b716e688.
+> > 
+> > We are talking about two different things here.  One is the Linux NVMe
+> > host code that can be used with lots of different controllers.  Many of
+> > them are PCIe controller, especially cheap ones.
+> > 
+> > The other is the Linux NVMe target code.  So if a fix for very common
+> > PCIe controller trigger a bug in the target code there is no 1:1
+> > relationship as even if you are talking to a Linux fabrics controller
+> > it usually runs a different kernel version on a different system.
+> > 
+> > That being said you can always backport that fix as well, which probably
+> > is a good idea as it fixes a real bug.
+> > 
+> > Nevermind that nothing in your revert patch indicated it wasn't for
+> > mainline.
+> 
+> Agree..
 
-
-
-Dear Friend,
-
-I am Mr. KARIM TRAORE Working with a reputable bank here in Burkina Faso as the manager in audit department. During our last banking audits we discovered an abandoned account belongs to one of our deceased customer, late Mr. Hamid Amine Razzaq, a billionaire businessman.
-
-Meanwhile, before i contacted you i have done personal investigation in locating any of his relatives who knows about the account, but i came out unsuccessful. I am writing to request your assistance in transferring the sum of 10.500.000.00 (Ten million Five Hundred Thousand Dollars) into your account.
-
-I decided to contact you to act as his foreign business partner so that my bank will accord you the recognition and have the fund transfer into your account. More details information will be forwarded to you.
-
-I am expecting to read from you soon.
-Best Regards
-Mr. KARIM TRAORE.
+Just to confirm that I got it right, Do you want me to send all 6 patches 
+(fix and dependent patches) to stable?
