@@ -2,124 +2,149 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8AE6E1EDFA0
-	for <lists+stable@lfdr.de>; Thu,  4 Jun 2020 10:17:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 03D6B1EDFCA
+	for <lists+stable@lfdr.de>; Thu,  4 Jun 2020 10:29:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727053AbgFDIRF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Jun 2020 04:17:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52182 "EHLO
+        id S1727886AbgFDI3E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Jun 2020 04:29:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54028 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726995AbgFDIRF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 4 Jun 2020 04:17:05 -0400
-Received: from mail-yb1-xb49.google.com (mail-yb1-xb49.google.com [IPv6:2607:f8b0:4864:20::b49])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1505DC03E96D
-        for <stable@vger.kernel.org>; Thu,  4 Jun 2020 01:17:05 -0700 (PDT)
-Received: by mail-yb1-xb49.google.com with SMTP id f130so7066115yba.9
-        for <stable@vger.kernel.org>; Thu, 04 Jun 2020 01:17:05 -0700 (PDT)
+        with ESMTP id S1727021AbgFDI3D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 4 Jun 2020 04:29:03 -0400
+Received: from mail-wr1-x443.google.com (mail-wr1-x443.google.com [IPv6:2a00:1450:4864:20::443])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FB28C03E96D
+        for <stable@vger.kernel.org>; Thu,  4 Jun 2020 01:29:03 -0700 (PDT)
+Received: by mail-wr1-x443.google.com with SMTP id x14so5103733wrp.2
+        for <stable@vger.kernel.org>; Thu, 04 Jun 2020 01:29:03 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
-        h=date:in-reply-to:message-id:mime-version:references:subject:from:to
-         :cc;
-        bh=dBhjvQ74rk87+xvmHCHMByl/N/LCyKOoeijL1Gf/O4E=;
-        b=PTgQ328YnDam3JMX89/M53yQXWYuipuKp4wnwdFku6bBvCivR7xb1c6eFbsE+H+Kf4
-         kUz2G12JgF+LiQiAvLcWiRPuS0BSKFkpjKDRGWJQU89Um5iJXLvZzIIvV6LxQ283D9F+
-         UfAsuYZVjO+4tzvsTuDLhBPoFbJSSRZDif7PNa+4qrRuQYyG41Ts9TU6opuqooH4lOEn
-         ldJUeiGFtsgSHv/VsJ3A4ZpuG5nrBSLfJ7WXy6/KT4T1L6RxrFlTuKyHPs0hOqWc9Bql
-         KpLW0eUirQTTztYWMtEFOJdK3aCJjOX6KyAN15F4dJAqw+nrHapuFvPs4ZDklaAw/JBl
-         uhYw==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=PKk1J+LKsQnN71HxmGj+GvS1I8q6haqL05yr0+A1nbc=;
+        b=WtU+u7SAU/10RONQscOH90M1y5frlrcns0jI0jk4A+ZGLxcINgOAebeV7SVyJoudZ4
+         K2IxCfLAEob4lqVbfMdHz1pWGbs1L9RHPpMdfSZGyusCdj6fqOGJEuSw7YETgMCD2b9g
+         oxySnMad83p3lROkqgkJzMqyh1nWE5+aZnHO3JLroi+Caob04IEIHdfCM0Sv3nNtN5yy
+         Xnsj54Ic6qGuSJoryz6neW86cVs5lZ8BKWpK7uPqNIxzKZ3YHT8NwxpBhhqNSoR2bNGB
+         k6r2KuJSh/jDO5Ttz6HUwWcN/4yi0HB2UxQJvlP8HaIAZXOCrXLzbdr0vxK6iaXXGpFQ
+         BQYQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:in-reply-to:message-id:mime-version
-         :references:subject:from:to:cc;
-        bh=dBhjvQ74rk87+xvmHCHMByl/N/LCyKOoeijL1Gf/O4E=;
-        b=Ltoh23XQV5L/1SrAffwv/lR1UArKZSV/N/8H7vV5FdEoR1AXe2vCMXeBfDLz3lgugf
-         lUjdvJE7k3BvVwDiwbfb9ROoMzQ/Eh5GboJ+oRRXsu8JHNm8fd87EkGvqiDZjofaNETC
-         qJQLv5PabF7EHT4hyM3HGjb9XpBdODhPkPmQeHSAFDF0GzAcFmRzHZ3gqUAVZRfO+dNk
-         jXn1K3JwOqP+EflZ3I5fZSwEQfW/W/wvbfslqXhlVXb/QyS2t1Urkz4P0MmtWFMk6z2E
-         Dd45XX6xGZslhaNHH0OYiDlB+ATo+ExmbMQmPYsVGpFJNT0iPlqhHmn16xw9RAFxmB7/
-         asIg==
-X-Gm-Message-State: AOAM530Vx/VNi6nR8Wn9YGLFfbfr04OnyzyeAQz0jz7KRvzbwXs3pBJQ
-        2hXfchRXFCWYg7Do/REryExT1l1sgaXi
-X-Google-Smtp-Source: ABdhPJw8DqlSWOZDSYtk3HzYUQDUrhkIKVQXAMPIq2tKNiuSr8cBaTwCXqaZggl1HvweWqrSm1EDwrkxlI++
-X-Received: by 2002:a25:cb48:: with SMTP id b69mr1168096ybg.252.1591258624144;
- Thu, 04 Jun 2020 01:17:04 -0700 (PDT)
-Date:   Thu, 04 Jun 2020 01:17:01 -0700
-In-Reply-To: <CAHbLzkq84qtOqfvP5SmPoAyL+Pyffd9K3108AOYk5yKF03jBmw@mail.gmail.com>
-Message-Id: <xr937dwn454y.fsf@gthelen.svl.corp.google.com>
-Mime-Version: 1.0
-References: <20200601032204.124624-1-gthelen@google.com> <CAHbLzkq84qtOqfvP5SmPoAyL+Pyffd9K3108AOYk5yKF03jBmw@mail.gmail.com>
-Subject: Re: [PATCH] shmem, memcg: enable memcg aware shrinker
-From:   Greg Thelen <gthelen@google.com>
-To:     Yang Shi <shy828301@gmail.com>
-Cc:     Hugh Dickins <hughd@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Kirill Tkhai <ktkhai@virtuozzo.com>,
-        Linux MM <linux-mm@kvack.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        stable@vger.kernel.org
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=PKk1J+LKsQnN71HxmGj+GvS1I8q6haqL05yr0+A1nbc=;
+        b=pNDccuS0BHLfJDz1ZoSd29TDYzKy5RXPV15fowFP47LiwP8NaC3uAcMlBkEQ4x1mcU
+         vhy96eQQ+BR9m7ydjZP7eir4QQFlVhbxoqZDAAb3CnO8ymZVOZIt4tdBmacDN6yPK1i2
+         KRTjFcWXnqbu5i4LmbIi78L1qD/Z+FvdDNpWP3+W+SBtEw8uH174Peg0unBa6qQZSIJn
+         FzB3mG+t3PDGTMnV/4UmVZmLO5x6wZDWSU54D7wR+A9gCF0z5WWeL9bz+7aeICmmM/VP
+         32V25kCcL7+vKXGoWHzIZhSGV+VHLSRQAAZhg461627tff3yCSjQlSq3K/1+ZqozGzpi
+         ZQsg==
+X-Gm-Message-State: AOAM533+7qywRjzoERw/DsOIA8nidhHw6YZcR7dVGlMWTQ7DUgkNBziW
+        lOb0LaV4cTPC19KFzm0yZmuToR1wY8E2ovfE17DOl6XgCsI=
+X-Google-Smtp-Source: ABdhPJwxA29S3nQkC+kbqdUWQn8sCRoRz9vl6rWnzYsBIk0CUZ+8HyZP3MLlPEW2KSjuVOgA1J45AHniSsP4EUdx4vk=
+X-Received: by 2002:a5d:4282:: with SMTP id k2mr3211795wrq.196.1591259342120;
+ Thu, 04 Jun 2020 01:29:02 -0700 (PDT)
+MIME-Version: 1.0
+References: <20200603174714.192027-1-glider@google.com> <20200603214633.GF48122@redhat.com>
+In-Reply-To: <20200603214633.GF48122@redhat.com>
+From:   Alexander Potapenko <glider@google.com>
+Date:   Thu, 4 Jun 2020 10:28:50 +0200
+Message-ID: <CAG_fn=UhoY1r59gsqC55PvDR6tydgi9+vaELa_v6cYUoAk0=MA@mail.gmail.com>
+Subject: Re: [PATCH] ovl: explicitly initialize error in ovl_copy_xattr()
+To:     Vivek Goyal <vgoyal@redhat.com>
+Cc:     miklos@szeredi.hu, linux-unionfs@vger.kernel.org,
+        LKML <linux-kernel@vger.kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Roy Yang <royyang@google.com>, stable@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Yang Shi <shy828301@gmail.com> wrote:
-
-> On Sun, May 31, 2020 at 8:22 PM Greg Thelen <gthelen@google.com> wrote:
->>
->> Since v4.19 commit b0dedc49a2da ("mm/vmscan.c: iterate only over charged
->> shrinkers during memcg shrink_slab()") a memcg aware shrinker is only
->> called when the per-memcg per-node shrinker_map indicates that the
->> shrinker may have objects to release to the memcg and node.
->>
->> shmem_unused_huge_count and shmem_unused_huge_scan support the per-tmpfs
->> shrinker which advertises per memcg and numa awareness.  The shmem
->> shrinker releases memory by splitting hugepages that extend beyond
->> i_size.
->>
->> Shmem does not currently set bits in shrinker_map.  So, starting with
->> b0dedc49a2da, memcg reclaim avoids calling the shmem shrinker under
->> pressure.  This leads to undeserved memcg OOM kills.
->> Example that reliably sees memcg OOM kill in unpatched kernel:
->>   FS=/tmp/fs
->>   CONTAINER=/cgroup/memory/tmpfs_shrinker
->>   mkdir -p $FS
->>   mount -t tmpfs -o huge=always nodev $FS
->>   # Create 1000 MB container, which shouldn't suffer OOM.
->>   mkdir $CONTAINER
->>   echo 1000M > $CONTAINER/memory.limit_in_bytes
->>   echo $BASHPID >> $CONTAINER/cgroup.procs
->>   # Create 4000 files.  Ideally each file uses 4k data page + a little
->>   # metadata.  Assume 8k total per-file, 32MB (4000*8k) should easily
->>   # fit within container's 1000 MB.  But if data pages use 2MB
->>   # hugepages (due to aggressive huge=always) then files consume 8GB,
->>   # which hits memcg 1000 MB limit.
->>   for i in {1..4000}; do
->>     echo . > $FS/$i
->>   done
+On Wed, Jun 3, 2020 at 11:46 PM Vivek Goyal <vgoyal@redhat.com> wrote:
 >
-> It looks all the inodes which have tail THP beyond i_size are on one
-> single list, then the shrinker actually just splits the first
-> nr_to_scan inodes. But since the list is not memcg aware, so it seems
-> it may split the THPs which are not charged to the victim memcg and
-> the victim memcg still may suffer from pre-mature oom, right?
+> On Wed, Jun 03, 2020 at 07:47:14PM +0200, glider@google.com wrote:
+> > Under certain circumstances (we found this out running Docker on a
+> > Clang-built kernel with CONFIG_INIT_STACK_ALL) ovl_copy_xattr() may
+> > return uninitialized value of |error| from ovl_copy_xattr().
+>
+> If we are returning uninitialized value of error, doesn't that mean
+> that somewhere in the function we are returning without setting error.
+> And that probably means that's a bug and we should fix it?
 
-Correct.  shmem_unused_huge_shrink() is not memcg aware.  In response to
-memcg pressure it will split the post-i_size tails of nr_to_scan tmpfs
-inodes regardless of if they're charged to the under-pressure memcg.
-do_shrink_slab() looks like it'll repeatedly call
-shmem_unused_huge_shrink().  So it will split tails of many inodes.  So
-I think it'll avoid the oom by over shrinking.  This is not ideal.  But
-it seems better than undeserved oom kill.
+Could be. My understanding of that code is quite limited, so I'm happy
+to change the patch if necessary.
 
-I think the solution (as Kirill Tkhai suggested) a memcg-aware index
-would solve both:
-1) avoid premature oom by registering shrinker to responding to memcg
-   pressure
-2) avoid shrinking/splitting inodes unrelated to the under-pressure
-   memcg
+> I am wondering if this is triggered by loop finishing because all
+> the xattr on the file are ovl_is_private_xattr().
 
-I can certainly look into that (thanks Kirill for the pointers).  In the
-short term I'm still interested in avoiding premature OOMs with the
-original thread (i.e. restore pre-4.19 behavior to shmem shrinker for
-memcg pressure).  I plan to test and repost v2.
+Yes, that's the case. The loop makes one iteration, then
+ovl_is_private_xattr() returns true, then the loop ends.
+
+> In that case, we
+> will come out of the loop without setting error. This is in fact
+> success and we should return 0 instead of some random error?
+
+Thanks for letting me know. I'll change that to 0 then.
+
+> Thanks
+> Vivek
+>
+>
+> > It is then returned by ovl_create() to lookup_open(), which casts it to
+> > an invalid dentry pointer, that can be further read or written by the
+> > lookup_open() callers.
+> >
+> > Signed-off-by: Alexander Potapenko <glider@google.com>
+> > Cc: Kees Cook <keescook@chromium.org>
+> > Cc: Roy Yang <royyang@google.com>
+> > Cc: <stable@vger.kernel.org> # 4.1
+> >
+> > ---
+> >
+> > It's unclear to me whether error should be initially 0 or some error
+> > code (both seem to work), but I thought returning an error makes sense,
+> > as the situation wasn't anticipated by the code authors.
+> >
+> > The bug seem to date back to at least v4.1 where the annotation has bee=
+n
+> > introduced (i.e. the compilers started noticing error could be used
+> > before being initialized). I hovever didn't try to prove that the
+> > problem is actually reproducible on such ancient kernels. We've seen it
+> > on a real machine running v4.4 as well.
+> > ---
+> >  fs/overlayfs/copy_up.c | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> >
+> > diff --git a/fs/overlayfs/copy_up.c b/fs/overlayfs/copy_up.c
+> > index 9709cf22cab3..428d43e2d016 100644
+> > --- a/fs/overlayfs/copy_up.c
+> > +++ b/fs/overlayfs/copy_up.c
+> > @@ -47,7 +47,7 @@ int ovl_copy_xattr(struct dentry *old, struct dentry =
+*new)
+> >  {
+> >       ssize_t list_size, size, value_size =3D 0;
+> >       char *buf, *name, *value =3D NULL;
+> > -     int uninitialized_var(error);
+> > +     int error =3D -EINVAL;
+> >       size_t slen;
+> >
+> >       if (!(old->d_inode->i_opflags & IOP_XATTR) ||
+> > --
+> > 2.27.0.rc2.251.g90737beb825-goog
+> >
+>
+
+
+--=20
+Alexander Potapenko
+Software Engineer
+
+Google Germany GmbH
+Erika-Mann-Stra=C3=9Fe, 33
+80636 M=C3=BCnchen
+
+Gesch=C3=A4ftsf=C3=BChrer: Paul Manicle, Halimah DeLaine Prado
+Registergericht und -nummer: Hamburg, HRB 86891
+Sitz der Gesellschaft: Hamburg
