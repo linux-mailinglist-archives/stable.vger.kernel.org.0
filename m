@@ -2,96 +2,169 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E734E1EE548
-	for <lists+stable@lfdr.de>; Thu,  4 Jun 2020 15:28:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA8DA1EE56A
+	for <lists+stable@lfdr.de>; Thu,  4 Jun 2020 15:34:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728357AbgFDN2H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Jun 2020 09:28:07 -0400
-Received: from eu-smtp-delivery-151.mimecast.com ([185.58.86.151]:23426 "EHLO
-        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728119AbgFDN2H (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 4 Jun 2020 09:28:07 -0400
-Received: from AcuMS.aculab.com (156.67.243.126 [156.67.243.126]) (Using
- TLS) by relay.mimecast.com with ESMTP id
- uk-mta-67-smgdUXOqPqOLrGJKNE45Cg-1; Thu, 04 Jun 2020 14:28:03 +0100
-X-MC-Unique: smgdUXOqPqOLrGJKNE45Cg-1
-Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) by
- AcuMS.aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) with Microsoft SMTP
- Server (TLS) id 15.0.1347.2; Thu, 4 Jun 2020 14:28:02 +0100
-Received: from AcuMS.Aculab.com ([fe80::43c:695e:880f:8750]) by
- AcuMS.aculab.com ([fe80::43c:695e:880f:8750%12]) with mapi id 15.00.1347.000;
- Thu, 4 Jun 2020 14:28:02 +0100
-From:   David Laight <David.Laight@ACULAB.COM>
-To:     'Christian Brauner' <christian.brauner@ubuntu.com>,
-        Kees Cook <keescook@chromium.org>
-CC:     Sargun Dhillon <sargun@sargun.me>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Tycho Andersen <tycho@tycho.ws>,
-        Matt Denton <mpdenton@google.com>,
-        Jann Horn <jannh@google.com>, Chris Palmer <palmer@google.com>,
-        Aleksa Sarai <cyphar@cyphar.com>,
-        Robert Sesek <rsesek@google.com>,
-        "containers@lists.linux-foundation.org" 
-        <containers@lists.linux-foundation.org>,
-        Giuseppe Scrivano <gscrivan@redhat.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Al Viro" <viro@zeniv.linux.org.uk>,
-        Daniel Wagner <daniel.wagner@bmw-carit.de>,
-        "David S . Miller" <davem@davemloft.net>,
-        John Fastabend <john.r.fastabend@intel.com>,
-        Tejun Heo <tj@kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "cgroups@vger.kernel.org" <cgroups@vger.kernel.org>,
-        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>
-Subject: RE: [PATCH v3 1/4] fs, net: Standardize on file_receive helper to
- move fds across processes
-Thread-Topic: [PATCH v3 1/4] fs, net: Standardize on file_receive helper to
- move fds across processes
-Thread-Index: AQHWOm8IcrQ9iML/NEWzIJOikhNiKKjIcAVA
-Date:   Thu, 4 Jun 2020 13:28:02 +0000
-Message-ID: <f1b77cafef8c4d159b1daa9cd4a06794@AcuMS.aculab.com>
-References: <20200603011044.7972-1-sargun@sargun.me>
- <20200603011044.7972-2-sargun@sargun.me>
- <20200604012452.vh33nufblowuxfed@wittgenstein>
- <202006031845.F587F85A@keescook>
- <20200604125226.eztfrpvvuji7cbb2@wittgenstein>
-In-Reply-To: <20200604125226.eztfrpvvuji7cbb2@wittgenstein>
-Accept-Language: en-GB, en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [10.202.205.107]
+        id S1728632AbgFDNeH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Jun 2020 09:34:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36190 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728617AbgFDNeG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 4 Jun 2020 09:34:06 -0400
+Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id B0BDC207F5;
+        Thu,  4 Jun 2020 13:34:05 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1591277645;
+        bh=oTpdh0V2Z95uY3LBT8s4QiNnX2wWztmbveBiUjivoGs=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=YR6CZ4InhWsUIB0fnTVAgtFWHZM0Q9V817LIfrnpJkEIN3cbTWbaHSqpkaGScFNAF
+         dKit3INlFzUfog/sqPThe1V17GKxiCOkAU+HJ0Mj9RSzznP/Zn8zAOQKvR/mHDmhIa
+         6qEZ+dO3rA3gYktLJj6oAvywWHIrYTn7S/Cnk4OM=
+Received: from 78.163-31-62.static.virginmediabusiness.co.uk ([62.31.163.78] helo=why.lan)
+        by disco-boy.misterjones.org with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <maz@kernel.org>)
+        id 1jgq0S-000G3O-6u; Thu, 04 Jun 2020 14:34:04 +0100
+From:   Marc Zyngier <maz@kernel.org>
+To:     kvm@vger.kernel.org, kvmarm@lists.cs.columbia.edu,
+        linux-arm-kernel@lists.infradead.org
+Cc:     James Morse <james.morse@arm.com>,
+        Julien Thierry <julien.thierry.kdev@gmail.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Mark Rutland <mark.rutland@arm.com>, kernel-team@android.com,
+        stable@vger.kernel.org
+Subject: [PATCH 1/3] KVM: arm64: Save the host's PtrAuth keys in non-preemptible context
+Date:   Thu,  4 Jun 2020 14:33:52 +0100
+Message-Id: <20200604133354.1279412-2-maz@kernel.org>
+X-Mailer: git-send-email 2.26.2
+In-Reply-To: <20200604133354.1279412-1-maz@kernel.org>
+References: <20200604133354.1279412-1-maz@kernel.org>
 MIME-Version: 1.0
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: aculab.com
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: base64
+Content-Transfer-Encoding: 8bit
+X-SA-Exim-Connect-IP: 62.31.163.78
+X-SA-Exim-Rcpt-To: kvm@vger.kernel.org, kvmarm@lists.cs.columbia.edu, linux-arm-kernel@lists.infradead.org, james.morse@arm.com, julien.thierry.kdev@gmail.com, suzuki.poulose@arm.com, will@kernel.org, catalin.marinas@arm.com, mark.rutland@arm.com, kernel-team@android.com, stable@vger.kernel.org
+X-SA-Exim-Mail-From: maz@kernel.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-RnJvbTogQ2hyaXN0aWFuIEJyYXVuZXINCj4gU2VudDogMDQgSnVuZSAyMDIwIDEzOjUyDQouLg0K
-PiBGb3Igc2NtIHlvdSBjYW4gZmFpbCBzb21ld2hlcmUgaW4gdGhlIG1pZGRsZSBvZiBwdXR0aW5n
-IGFueSBudW1iZXIgb2YNCj4gZmlsZSBkZXNjcmlwdG9ycyBzbyB5b3UncmUgbGVmdCBpbiBhIHN0
-YXRlIHdpdGggb25seSBhIHN1YnNldCBvZg0KPiByZXF1ZXN0ZWQgZmlsZSBkZXNjcmlwdG9ycyBp
-bnN0YWxsZWQgc28gaXQncyBub3QgcmVhbGx5IHVzZWZ1bCB0aGVyZS4NCj4gQW5kIGlmIHlvdSBt
-YW5hZ2UgdG8gaW5zdGFsbCBhbiBmZCBidXQgdGhlbiBmYWlsIHRvIHB1dF91c2VyKCkgaXQNCj4g
-dXNlcnNwYWNlIGNhbiBzaW1wbHkgY2hlY2sgaXQncyBmZHMgdmlhIHByb2MgYW5kIGhhcyB0byBh
-bnl3YXkgb24gYW55DQo+IHNjbSBtZXNzYWdlIGVycm9yLiBJZiB5b3UgZmFpbCBhbiBzY20gbWVz
-c2FnZSB1c2Vyc3BhY2UgYmV0dGVyIGNoZWNrDQo+IHRoZWlyIGZkcy4NCg0KVGhlcmUgaXMgYSBz
-aW1pbGFyIGVycm9yIHBhdGggaW4gdGhlIHNjdHAgJ3BlZWxvZmYnIGNvZGUuDQpJZiB0aGUgcHV0
-X3VzZXIoKSBmYWlscyBpdCBjdXJyZW50bHkgY2xvc2VzIHRoZSBmZCBiZWZvcmUNCnJldHVybmlu
-ZyAtRUZBVUxULg0KDQpJJ20gbm90IGF0IGFsbCBzdXJlIHRoaXMgaXMgaGVscGZ1bC4NClRoZSBh
-cHBsaWNhdGlvbiBjYW4ndCB0ZWxsIHdoZXRoZXIgdGhlIFNJR1NFR1YgaGFwcGVuZWQgb24gdGhl
-DQpjb3B5aW4gb2YgdGhlIHBhcmFtZXRlcnMgb3IgdGhlIGNvcHlvdXQgb2YgdGhlIHJlc3VsdC4N
-Cg0KSVNUTSB0aGF0IGlmIHRoZSBhcHBsaWNhdGlvbiBwYXNzZXMgYW4gYWRkcmVzcyB0aGF0IGNh
-bm5vdA0KYmUgd3JpdHRlbiB0byBpdCBkZXNlcnZlcyB3aGF0IGl0IGdldHMgLSB0eXBpY2FsbHkg
-YW4gZmQgaXQNCmRvZXNuJ3Qga25vdyB0aGUgbnVtYmVyIG9mLg0KDQpXaGF0IGlzIGltcG9ydGFu
-dCBpcyB0aGF0IHRoZSBrZXJuZWwgZGF0YSBpcyBjb25zaXN0ZW50Lg0KU28gd2hlbiB0aGUgcHJv
-Y2VzcyBleGl0cyB0aGUgZmQgaXMgY2xvc2VkIGFuZCBhbGwgdGhlIHJlc291cmNlcw0KYXJlIHJl
-bGVhc2VkLg0KDQoJRGF2aWQNCg0KLQ0KUmVnaXN0ZXJlZCBBZGRyZXNzIExha2VzaWRlLCBCcmFt
-bGV5IFJvYWQsIE1vdW50IEZhcm0sIE1pbHRvbiBLZXluZXMsIE1LMSAxUFQsIFVLDQpSZWdpc3Ry
-YXRpb24gTm86IDEzOTczODYgKFdhbGVzKQ0K
+When using the PtrAuth feature in a guest, we need to save the host's
+keys before allowing the guest to program them. For that, we dump
+them in a per-CPU data structure (the so called host context).
+
+But both call sites that do this are in preemptible context,
+which may end up in disaster should the vcpu thread get preempted
+before reentering the guest.
+
+Instead, save the keys eagerly on each vcpu_load(). This has an
+increased overhead, but is at least safe.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+---
+ arch/arm64/include/asm/kvm_emulate.h |  6 ------
+ arch/arm64/kvm/arm.c                 | 18 +++++++++++++++++-
+ arch/arm64/kvm/handle_exit.c         | 19 ++-----------------
+ 3 files changed, 19 insertions(+), 24 deletions(-)
+
+diff --git a/arch/arm64/include/asm/kvm_emulate.h b/arch/arm64/include/asm/kvm_emulate.h
+index a30b4eec7cb4..977843e4d5fb 100644
+--- a/arch/arm64/include/asm/kvm_emulate.h
++++ b/arch/arm64/include/asm/kvm_emulate.h
+@@ -112,12 +112,6 @@ static inline void vcpu_ptrauth_disable(struct kvm_vcpu *vcpu)
+ 	vcpu->arch.hcr_el2 &= ~(HCR_API | HCR_APK);
+ }
+ 
+-static inline void vcpu_ptrauth_setup_lazy(struct kvm_vcpu *vcpu)
+-{
+-	if (vcpu_has_ptrauth(vcpu))
+-		vcpu_ptrauth_disable(vcpu);
+-}
+-
+ static inline unsigned long vcpu_get_vsesr(struct kvm_vcpu *vcpu)
+ {
+ 	return vcpu->arch.vsesr_el2;
+diff --git a/arch/arm64/kvm/arm.c b/arch/arm64/kvm/arm.c
+index d6988401c22a..152049c5055d 100644
+--- a/arch/arm64/kvm/arm.c
++++ b/arch/arm64/kvm/arm.c
+@@ -337,6 +337,12 @@ void kvm_arch_vcpu_unblocking(struct kvm_vcpu *vcpu)
+ 	preempt_enable();
+ }
+ 
++#define __ptrauth_save_key(regs, key)						\
++({										\
++	regs[key ## KEYLO_EL1] = read_sysreg_s(SYS_ ## key ## KEYLO_EL1);	\
++	regs[key ## KEYHI_EL1] = read_sysreg_s(SYS_ ## key ## KEYHI_EL1);	\
++})
++
+ void kvm_arch_vcpu_load(struct kvm_vcpu *vcpu, int cpu)
+ {
+ 	int *last_ran;
+@@ -370,7 +376,17 @@ void kvm_arch_vcpu_load(struct kvm_vcpu *vcpu, int cpu)
+ 	else
+ 		vcpu_set_wfx_traps(vcpu);
+ 
+-	vcpu_ptrauth_setup_lazy(vcpu);
++	if (vcpu_has_ptrauth(vcpu)) {
++		struct kvm_cpu_context *ctxt = vcpu->arch.host_cpu_context;
++
++		__ptrauth_save_key(ctxt->sys_regs, APIA);
++		__ptrauth_save_key(ctxt->sys_regs, APIB);
++		__ptrauth_save_key(ctxt->sys_regs, APDA);
++		__ptrauth_save_key(ctxt->sys_regs, APDB);
++		__ptrauth_save_key(ctxt->sys_regs, APGA);
++
++		vcpu_ptrauth_disable(vcpu);
++	}
+ }
+ 
+ void kvm_arch_vcpu_put(struct kvm_vcpu *vcpu)
+diff --git a/arch/arm64/kvm/handle_exit.c b/arch/arm64/kvm/handle_exit.c
+index eb194696ef62..065251efa2e6 100644
+--- a/arch/arm64/kvm/handle_exit.c
++++ b/arch/arm64/kvm/handle_exit.c
+@@ -162,31 +162,16 @@ static int handle_sve(struct kvm_vcpu *vcpu, struct kvm_run *run)
+ 	return 1;
+ }
+ 
+-#define __ptrauth_save_key(regs, key)						\
+-({										\
+-	regs[key ## KEYLO_EL1] = read_sysreg_s(SYS_ ## key ## KEYLO_EL1);	\
+-	regs[key ## KEYHI_EL1] = read_sysreg_s(SYS_ ## key ## KEYHI_EL1);	\
+-})
+-
+ /*
+  * Handle the guest trying to use a ptrauth instruction, or trying to access a
+  * ptrauth register.
+  */
+ void kvm_arm_vcpu_ptrauth_trap(struct kvm_vcpu *vcpu)
+ {
+-	struct kvm_cpu_context *ctxt;
+-
+-	if (vcpu_has_ptrauth(vcpu)) {
++	if (vcpu_has_ptrauth(vcpu))
+ 		vcpu_ptrauth_enable(vcpu);
+-		ctxt = vcpu->arch.host_cpu_context;
+-		__ptrauth_save_key(ctxt->sys_regs, APIA);
+-		__ptrauth_save_key(ctxt->sys_regs, APIB);
+-		__ptrauth_save_key(ctxt->sys_regs, APDA);
+-		__ptrauth_save_key(ctxt->sys_regs, APDB);
+-		__ptrauth_save_key(ctxt->sys_regs, APGA);
+-	} else {
++	else
+ 		kvm_inject_undefined(vcpu);
+-	}
+ }
+ 
+ /*
+-- 
+2.26.2
 
