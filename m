@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE1FB1EE21B
-	for <lists+stable@lfdr.de>; Thu,  4 Jun 2020 12:09:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EDFFA1EE229
+	for <lists+stable@lfdr.de>; Thu,  4 Jun 2020 12:12:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727021AbgFDKJc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Jun 2020 06:09:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55046 "EHLO mail.kernel.org"
+        id S1726604AbgFDKMv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Jun 2020 06:12:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57788 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725959AbgFDKJb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 4 Jun 2020 06:09:31 -0400
+        id S1725959AbgFDKMv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 4 Jun 2020 06:12:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1C042206DC;
-        Thu,  4 Jun 2020 10:09:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EECF1206DC;
+        Thu,  4 Jun 2020 10:12:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591265371;
-        bh=xXdPu38YWyQ73+Cyeb82ZqZQ/k4huUSorcV6nbvvIF4=;
+        s=default; t=1591265571;
+        bh=peEtLId/tUqo98LxopCo0O0NM/erk0V6Sk2Ce6Saamc=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Uxo+/g3E0JbZ1R+1cfAAT1tiZFkisPupkDO9oEuZy+pgva0KnZNVcgOaM6qjo6h+K
-         aTm1BYtZWSvZYPtuvueFfvgACvvXm57NE6Wkv7EEaFVi84xGdwOOIQA/e2SZGwaxnj
-         GVmu2nchUOTCQBImm07CKQqty6x1ThqjA6K+SXg8=
-Date:   Thu, 4 Jun 2020 12:09:29 +0200
+        b=2Q/3I9dv5LHslQuew4qFeMPGhdpAGwFe1rEVG6+Y7yOsAQz7NTuQTAOJdIWmXFSJR
+         /wAyJz4ZTyWbcCkEKcuA/vUrGz/BObQfPrMnyEWdjN9RDciQnkWBz4602JN65GlFhD
+         asR9x6cVEWkrr6ehqnSp6FMeAfFYHjFBAqpBLiIU=
+Date:   Thu, 4 Jun 2020 12:12:49 +0200
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     Guenter Roeck <linux@roeck-us.net>
 Cc:     stable@vger.kernel.org, Sasha Levin <sashal@kernel.org>
 Subject: Re: Patches to apply to stable releases [6/3/2020]
-Message-ID: <20200604100929.GA550434@kroah.com>
+Message-ID: <20200604101249.GB550434@kroah.com>
 References: <20200603202135.78725-1-linux@roeck-us.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -63,31 +63,20 @@ On Wed, Jun 03, 2020 at 01:21:35PM -0700, Guenter Roeck wrote:
 > Guenter
 > 
 > ---
-> Upstream commit 0e0bf1ea1147 ("perf stat: Zero all the 'ena' and 'run' array slot stats for interval mode")
+
+
+> Upstream commit e2abfc0448a4 ("x86/cpu/amd: Make erratum #1054 a legacy erratum")
 >   upstream: ToT
->     Fixes: 51fd2df1e882 ("perf stat: Fix interval output values")
->       in linux-4.4.y: 7629c7ef5291
->       upstream: v4.5-rc4
+>     Fixes: 21b5ee59ef18 ("x86/cpu/amd: Enable the fixed Instructions Retired counter IRPERF")
+>       in linux-4.19.y: f28ec250579c
+>       in linux-5.4.y: e0253c422024
+>       upstream: v5.6-rc3
 >     Affected branches:
->       linux-4.4.y
->       linux-4.9.y
->       linux-4.14.y
 >       linux-4.19.y
 >       linux-5.4.y
 >       linux-5.6.y
 >       Presumably also linux-5.7.y but not checked/tested
 
-You are starting to catch patches that are now in Linus's tree, but have
-not shown up in a -rc release yet.  We really should wait for these
-until they do show up in a real release, unless there is a specific need
-otherwise.
-
-Usually I require the maintainer of the subsystem to ask me to merge
-those patches, as it gives me someone to blame if things go wrong :)
-
-So can you hold off on these types of patches until they show up in a
--rc release?
-
-thanks,
+I didn't queue this one up either, but all others I have now, thanks.
 
 greg k-h
