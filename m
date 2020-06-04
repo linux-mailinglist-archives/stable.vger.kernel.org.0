@@ -2,28 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E72961EE947
-	for <lists+stable@lfdr.de>; Thu,  4 Jun 2020 19:18:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E8F61EE948
+	for <lists+stable@lfdr.de>; Thu,  4 Jun 2020 19:18:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730119AbgFDRSY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Jun 2020 13:18:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39966 "EHLO mail.kernel.org"
+        id S1730120AbgFDRS2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Jun 2020 13:18:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40024 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730088AbgFDRSY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 4 Jun 2020 13:18:24 -0400
+        id S1730088AbgFDRS1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 4 Jun 2020 13:18:27 -0400
 Received: from localhost.localdomain (c-71-198-47-131.hsd1.ca.comcast.net [71.198.47.131])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 787C7208A7;
-        Thu,  4 Jun 2020 17:18:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A9E53208A9;
+        Thu,  4 Jun 2020 17:18:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591291103;
-        bh=rc99WeaQ/ELVurOyvMHNX7p78gpO3XPEdlEH/Wsw4g4=;
+        s=default; t=1591291107;
+        bh=3+YMneDSrmUWlu9Uv/J03uSkIePwxmOrJ7KRCx2Ccgc=;
         h=Date:From:To:Subject:From;
-        b=imGkyeTv5EXroNOOb6BnyOWJb+iDjpejJFjxJO6+PZltwGjMsaJbEmntUv6twdOxL
-         DF+gtdppJ8nSnN1Eza9PulroIw7rzArNjV+54KNeNrj3bmaf2XWhxvy1P8IqGUwVvl
-         ryevPX44B0wvnuqGSh8rFgpgBiSJotaedNXjskEU=
-Date:   Thu, 04 Jun 2020 10:18:23 -0700
+        b=UhtDLrqxjoIdNVIqxCVlxW+t02ZTWL7dqsqp/geeo78TRnhcrMLFQcFiK30hMVYPi
+         ZL4MwuwEGWf2L0bAqfmDXKHKVNgb2f+JZkDS3y2McIFyx4GL9cCmwDMI2+gq5rLWBY
+         NJkMyI3+hgUMRpvUZnV4g/mSYQQpMCUCIA+w1wlA=
+Date:   Thu, 04 Jun 2020 10:18:26 -0700
 From:   akpm@linux-foundation.org
 To:     dan.j.williams@intel.com, daniel.m.jordan@oracle.com,
         david@redhat.com, jmorris@namei.org, ktkhai@virtuozzo.com,
@@ -32,9 +32,9 @@ To:     dan.j.williams@intel.com, daniel.m.jordan@oracle.com,
         shile.zhang@linux.alibaba.com, stable@vger.kernel.org,
         vbabka@suse.cz, yiwei@redhat.com
 Subject:  [merged]
- mm-call-touch_nmi_watchdog-on-max-order-boundaries-in-deferred-init.patch
- removed from -mm tree
-Message-ID: <20200604171823.7hBQJ8Hc_%akpm@linux-foundation.org>
+ mm-initialize-deferred-pages-with-interrupts-enabled.patch removed from -mm
+ tree
+Message-ID: <20200604171826.Rlcuwa_R4%akpm@linux-foundation.org>
 User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -43,100 +43,116 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The patch titled
-     Subject: mm/pagealloc.c: call touch_nmi_watchdog() on max order boundaries in deferred init
+     Subject: mm: initialize deferred pages with interrupts enabled
 has been removed from the -mm tree.  Its filename was
-     mm-call-touch_nmi_watchdog-on-max-order-boundaries-in-deferred-init.patch
+     mm-initialize-deferred-pages-with-interrupts-enabled.patch
 
 This patch was dropped because it was merged into mainline or a subsystem tree
 
 ------------------------------------------------------
-From: Daniel Jordan <daniel.m.jordan@oracle.com>
-Subject: mm/pagealloc.c: call touch_nmi_watchdog() on max order boundaries in deferred init
+From: Pavel Tatashin <pasha.tatashin@soleen.com>
+Subject: mm: initialize deferred pages with interrupts enabled
 
-Patch series "initialize deferred pages with interrupts enabled", v4.
+Initializing struct pages is a long task and keeping interrupts disabled
+for the duration of this operation introduces a number of problems.
 
-Keep interrupts enabled during deferred page initialization in order to
-make code more modular and allow jiffies to update.
+1. jiffies are not updated for long period of time, and thus incorrect time
+   is reported. See proposed solution and discussion here:
+   lkml/20200311123848.118638-1-shile.zhang@linux.alibaba.com
+2. It prevents farther improving deferred page initialization by allowing
+   intra-node multi-threading.
 
-Original approach, and discussion can be found here:
- http://lkml.kernel.org/r/20200311123848.118638-1-shile.zhang@linux.alibaba.com
+We are keeping interrupts disabled to solve a rather theoretical problem
+that was never observed in real world (See 3a2d7fa8a3d5).
 
+Let's keep interrupts enabled. In case we ever encounter a scenario where
+an interrupt thread wants to allocate large amount of memory this early in
+boot we can deal with that by growing zone (see deferred_grow_zone()) by
+the needed amount before starting deferred_init_memmap() threads.
 
-This patch (of 3):
+Before:
+[    1.232459] node 0 initialised, 12058412 pages in 1ms
 
-deferred_init_memmap() disables interrupts the entire time, so it calls
-touch_nmi_watchdog() periodically to avoid soft lockup splats.  Soon it
-will run with interrupts enabled, at which point cond_resched() should be
-used instead.
+After:
+[    1.632580] node 0 initialised, 12051227 pages in 436ms
 
-deferred_grow_zone() makes the same watchdog calls through code shared
-with deferred init but will continue to run with interrupts disabled, so
-it can't call cond_resched().
-
-Pull the watchdog calls up to these two places to allow the first to be
-changed later, independently of the second.  The frequency reduces from
-twice per pageblock (init and free) to once per max order block.
-
-Link: http://lkml.kernel.org/r/20200403140952.17177-2-pasha.tatashin@soleen.com
+Link: http://lkml.kernel.org/r/20200403140952.17177-3-pasha.tatashin@soleen.com
 Fixes: 3a2d7fa8a3d5 ("mm: disable interrupts while initializing deferred pages")
-Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
+Reported-by: Shile Zhang <shile.zhang@linux.alibaba.com>
 Signed-off-by: Pavel Tatashin <pasha.tatashin@soleen.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Daniel Jordan <daniel.m.jordan@oracle.com>
 Acked-by: Michal Hocko <mhocko@suse.com>
 Acked-by: Vlastimil Babka <vbabka@suse.cz>
+Reviewed-by: David Hildenbrand <david@redhat.com>
 Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Shile Zhang <shile.zhang@linux.alibaba.com>
-Cc: Kirill Tkhai <ktkhai@virtuozzo.com>
 Cc: James Morris <jmorris@namei.org>
+Cc: Kirill Tkhai <ktkhai@virtuozzo.com>
 Cc: Sasha Levin <sashal@kernel.org>
 Cc: Yiqian Wei <yiwei@redhat.com>
 Cc: <stable@vger.kernel.org>	[4.17+]
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- mm/page_alloc.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ include/linux/mmzone.h |    2 ++
+ mm/page_alloc.c        |   20 +++++++-------------
+ 2 files changed, 9 insertions(+), 13 deletions(-)
 
---- a/mm/page_alloc.c~mm-call-touch_nmi_watchdog-on-max-order-boundaries-in-deferred-init
+--- a/include/linux/mmzone.h~mm-initialize-deferred-pages-with-interrupts-enabled
++++ a/include/linux/mmzone.h
+@@ -680,6 +680,8 @@ typedef struct pglist_data {
+ 	/*
+ 	 * Must be held any time you expect node_start_pfn,
+ 	 * node_present_pages, node_spanned_pages or nr_zones to stay constant.
++	 * Also synchronizes pgdat->first_deferred_pfn during deferred page
++	 * init.
+ 	 *
+ 	 * pgdat_resize_lock() and pgdat_resize_unlock() are provided to
+ 	 * manipulate node_size_lock without checking for CONFIG_MEMORY_HOTPLUG
+--- a/mm/page_alloc.c~mm-initialize-deferred-pages-with-interrupts-enabled
 +++ a/mm/page_alloc.c
-@@ -1693,7 +1693,6 @@ static void __init deferred_free_pages(u
- 		} else if (!(pfn & nr_pgmask)) {
- 			deferred_free_range(pfn - nr_free, nr_free);
- 			nr_free = 1;
--			touch_nmi_watchdog();
- 		} else {
- 			nr_free++;
- 		}
-@@ -1723,7 +1722,6 @@ static unsigned long  __init deferred_in
- 			continue;
- 		} else if (!page || !(pfn & nr_pgmask)) {
- 			page = pfn_to_page(pfn);
--			touch_nmi_watchdog();
- 		} else {
- 			page++;
- 		}
-@@ -1863,8 +1861,10 @@ static int __init deferred_init_memmap(v
- 	 * that we can avoid introducing any issues with the buddy
- 	 * allocator.
- 	 */
--	while (spfn < epfn)
-+	while (spfn < epfn) {
- 		nr_pages += deferred_init_maxorder(&i, zone, &spfn, &epfn);
-+		touch_nmi_watchdog();
-+	}
+@@ -1844,6 +1844,13 @@ static int __init deferred_init_memmap(v
+ 	BUG_ON(pgdat->first_deferred_pfn > pgdat_end_pfn(pgdat));
+ 	pgdat->first_deferred_pfn = ULONG_MAX;
+ 
++	/*
++	 * Once we unlock here, the zone cannot be grown anymore, thus if an
++	 * interrupt thread must allocate this early in boot, zone must be
++	 * pre-grown prior to start of deferred page initialization.
++	 */
++	pgdat_resize_unlock(pgdat, &flags);
++
+ 	/* Only the highest zone is deferred so find it */
+ 	for (zid = 0; zid < MAX_NR_ZONES; zid++) {
+ 		zone = pgdat->node_zones + zid;
+@@ -1866,8 +1873,6 @@ static int __init deferred_init_memmap(v
+ 		touch_nmi_watchdog();
+ 	}
  zone_empty:
- 	pgdat_resize_unlock(pgdat, &flags);
+-	pgdat_resize_unlock(pgdat, &flags);
+-
+ 	/* Sanity check that the next zone really is unpopulated */
+ 	WARN_ON(++zid < MAX_NR_ZONES && populated_zone(++zone));
  
-@@ -1948,6 +1948,7 @@ deferred_grow_zone(struct zone *zone, un
- 		first_deferred_pfn = spfn;
+@@ -1910,17 +1915,6 @@ deferred_grow_zone(struct zone *zone, un
+ 	pgdat_resize_lock(pgdat, &flags);
  
- 		nr_pages += deferred_init_maxorder(&i, zone, &spfn, &epfn);
-+		touch_nmi_watchdog();
- 
- 		/* We should only stop along section boundaries */
- 		if ((first_deferred_pfn ^ spfn) < PAGES_PER_SECTION)
+ 	/*
+-	 * If deferred pages have been initialized while we were waiting for
+-	 * the lock, return true, as the zone was grown.  The caller will retry
+-	 * this zone.  We won't return to this function since the caller also
+-	 * has this static branch.
+-	 */
+-	if (!static_branch_unlikely(&deferred_pages)) {
+-		pgdat_resize_unlock(pgdat, &flags);
+-		return true;
+-	}
+-
+-	/*
+ 	 * If someone grew this zone while we were waiting for spinlock, return
+ 	 * true, as there might be enough pages already.
+ 	 */
 _
 
-Patches currently in -mm which might be from daniel.m.jordan@oracle.com are
+Patches currently in -mm which might be from pasha.tatashin@soleen.com are
 
 
