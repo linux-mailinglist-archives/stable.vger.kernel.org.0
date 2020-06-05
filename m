@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C1DE1EFB2C
-	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 16:24:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 108DB1EFB52
+	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 16:26:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728016AbgFEOYV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Jun 2020 10:24:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47060 "EHLO mail.kernel.org"
+        id S1728424AbgFEOZt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Jun 2020 10:25:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45456 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728496AbgFEORg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Jun 2020 10:17:36 -0400
+        id S1728220AbgFEOQV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Jun 2020 10:16:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 11E64208B6;
-        Fri,  5 Jun 2020 14:17:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 22459208B8;
+        Fri,  5 Jun 2020 14:16:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591366655;
-        bh=6zwGUGo6IJLz1UzgMnCPHNAuZNi38tSvN2PQ+FnbxdA=;
+        s=default; t=1591366580;
+        bh=LzQfa0p9cHUENQO0mAWYOT5ENogDMcPQBaPgv/iz+ok=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y58PH5Uy6N7d7r56oZcYtUWWx13jyHJbPNQQtgLrJ1nUXWP48ztkeMPcr/2ZaPw8h
-         4PLXzTYg+/XMxZS1Wm4aL0rOF1HUJybTtt/Nws+lA+Xf2mzCeymEqfVNbCrK9Yz9ra
-         2J/Q9n7PKTQ1mbeROcM2JnkYRw2wvHmCmwk/Di8Q=
+        b=QaQ9xPps8VDC6lrzac9rrch59jnaiGgtMMoT+AKH69HPCK8LOcN1F/RuhCMQfkT9U
+         a3+S2HYsjYsckliAjE2GO2HgdMX9BGh5UAqEtBJrD0AYXCxUZ266GgNiUvZNYYiUXr
+         hV4if5Iz3q3PChjT4dLnew01syA9MuZSXMyqe1xU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Dexuan Cui <decui@microsoft.com>,
-        Tianyu Lan <Tianyu.Lan@microsoft.com>,
-        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 09/43] x86/hyperv: Properly suspend/resume reenlightenment notifications
-Date:   Fri,  5 Jun 2020 16:14:39 +0200
-Message-Id: <20200605140153.012469521@linuxfoundation.org>
+        stable@vger.kernel.org, Peter Ujfalusi <peter.ujfalusi@ti.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 10/43] dmaengine: ti: k3-udma: Fix TR mode flags for slave_sg and memcpy
+Date:   Fri,  5 Jun 2020 16:14:40 +0200
+Message-Id: <20200605140153.064092219@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200605140152.493743366@linuxfoundation.org>
 References: <20200605140152.493743366@linuxfoundation.org>
@@ -45,84 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vitaly Kuznetsov <vkuznets@redhat.com>
+From: Peter Ujfalusi <peter.ujfalusi@ti.com>
 
-[ Upstream commit 38dce4195f0daefb566279fd9fd51e1fbd62ae1b ]
+[ Upstream commit be4054b8b6671ebc977eb7774b8e889d2d05d3e3 ]
 
-Errors during hibernation with reenlightenment notifications enabled were
-reported:
+cppi5_tr_csf_set() clears previously set Configuration Specific Flags.
+Setting the EOP flag clears the SUPR_EVT flag for the last TR which is not
+desirable as we do not want to have events from the TR.
 
- [   51.730435] PM: hibernation entry
- [   51.737435] PM: Syncing filesystems ...
- ...
- [   54.102216] Disabling non-boot CPUs ...
- [   54.106633] smpboot: CPU 1 is now offline
- [   54.110006] unchecked MSR access error: WRMSR to 0x40000106 (tried to
-     write 0x47c72780000100ee) at rIP: 0xffffffff90062f24
-     native_write_msr+0x4/0x20)
- [   54.110006] Call Trace:
- [   54.110006]  hv_cpu_die+0xd9/0xf0
- ...
-
-Normally, hv_cpu_die() just reassigns reenlightenment notifications to some
-other CPU when the CPU receiving them goes offline. Upon hibernation, there
-is no other CPU which is still online so cpumask_any_but(cpu_online_mask)
-returns >= nr_cpu_ids and using it as hv_vp_index index is incorrect.
-Disable the feature when cpumask_any_but() fails.
-
-Also, as we now disable reenlightenment notifications upon hibernation we
-need to restore them on resume. Check if hv_reenlightenment_cb was
-previously set and restore from hv_resume().
-
-Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Reviewed-by: Dexuan Cui <decui@microsoft.com>
-Reviewed-by: Tianyu Lan <Tianyu.Lan@microsoft.com>
-Link: https://lore.kernel.org/r/20200512160153.134467-1-vkuznets@redhat.com
-Signed-off-by: Wei Liu <wei.liu@kernel.org>
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Link: https://lore.kernel.org/r/20200512134531.5742-1-peter.ujfalusi@ti.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/hyperv/hv_init.c | 19 +++++++++++++++++--
- 1 file changed, 17 insertions(+), 2 deletions(-)
+ drivers/dma/ti/k3-udma.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/hyperv/hv_init.c b/arch/x86/hyperv/hv_init.c
-index fd51bac11b46..acf76b466db6 100644
---- a/arch/x86/hyperv/hv_init.c
-+++ b/arch/x86/hyperv/hv_init.c
-@@ -226,10 +226,18 @@ static int hv_cpu_die(unsigned int cpu)
- 
- 	rdmsrl(HV_X64_MSR_REENLIGHTENMENT_CONTROL, *((u64 *)&re_ctrl));
- 	if (re_ctrl.target_vp == hv_vp_index[cpu]) {
--		/* Reassign to some other online CPU */
-+		/*
-+		 * Reassign reenlightenment notifications to some other online
-+		 * CPU or just disable the feature if there are no online CPUs
-+		 * left (happens on hibernation).
-+		 */
- 		new_cpu = cpumask_any_but(cpu_online_mask, cpu);
- 
--		re_ctrl.target_vp = hv_vp_index[new_cpu];
-+		if (new_cpu < nr_cpu_ids)
-+			re_ctrl.target_vp = hv_vp_index[new_cpu];
-+		else
-+			re_ctrl.enabled = 0;
-+
- 		wrmsrl(HV_X64_MSR_REENLIGHTENMENT_CONTROL, *((u64 *)&re_ctrl));
+diff --git a/drivers/dma/ti/k3-udma.c b/drivers/dma/ti/k3-udma.c
+index 0536866a58ce..4bfbca2add1b 100644
+--- a/drivers/dma/ti/k3-udma.c
++++ b/drivers/dma/ti/k3-udma.c
+@@ -2148,7 +2148,8 @@ udma_prep_slave_sg_tr(struct udma_chan *uc, struct scatterlist *sgl,
+ 		d->residue += sg_dma_len(sgent);
  	}
  
-@@ -293,6 +301,13 @@ static void hv_resume(void)
+-	cppi5_tr_csf_set(&tr_req[tr_idx - 1].flags, CPPI5_TR_CSF_EOP);
++	cppi5_tr_csf_set(&tr_req[tr_idx - 1].flags,
++			 CPPI5_TR_CSF_SUPR_EVT | CPPI5_TR_CSF_EOP);
  
- 	hv_hypercall_pg = hv_hypercall_pg_saved;
- 	hv_hypercall_pg_saved = NULL;
-+
-+	/*
-+	 * Reenlightenment notifications are disabled by hv_cpu_die(0),
-+	 * reenable them here if hv_reenlightenment_cb was previously set.
-+	 */
-+	if (hv_reenlightenment_cb)
-+		set_hv_tscchange_cb(hv_reenlightenment_cb);
+ 	return d;
  }
+@@ -2725,7 +2726,8 @@ udma_prep_dma_memcpy(struct dma_chan *chan, dma_addr_t dest, dma_addr_t src,
+ 		tr_req[1].dicnt3 = 1;
+ 	}
  
- /* Note: when the ops are called, only CPU0 is online and IRQs are disabled. */
+-	cppi5_tr_csf_set(&tr_req[num_tr - 1].flags, CPPI5_TR_CSF_EOP);
++	cppi5_tr_csf_set(&tr_req[num_tr - 1].flags,
++			 CPPI5_TR_CSF_SUPR_EVT | CPPI5_TR_CSF_EOP);
+ 
+ 	if (uc->config.metadata_size)
+ 		d->vd.tx.metadata_ops = &metadata_ops;
 -- 
 2.25.1
 
