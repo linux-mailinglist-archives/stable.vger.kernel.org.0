@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FFE61EFAB6
-	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 16:20:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D88341EFADE
+	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 16:21:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728902AbgFEOUA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Jun 2020 10:20:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51060 "EHLO mail.kernel.org"
+        id S1728659AbgFEOVm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Jun 2020 10:21:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51124 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728345AbgFEOT7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Jun 2020 10:19:59 -0400
+        id S1728906AbgFEOUB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Jun 2020 10:20:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CB7AB21527;
-        Fri,  5 Jun 2020 14:19:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 138192070B;
+        Fri,  5 Jun 2020 14:20:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591366799;
-        bh=CKtD8J02zi1GXn5FojkAwD2VlMui6Y5z2va8/XDci2k=;
+        s=default; t=1591366801;
+        bh=MULI+Njyfm2wJqBQaQ0lcAG8tNbzME1uIFaWCPpfjBo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0K6f6RW0Fqvtm3MDetLW68sDyt2jUbykzflPdFAx1EVg0jpc7j6riFPUhDwAyN6Xl
-         KtZss7ND58FHuyfcl8mYYp1i1611J09u86ngpRUvIdKV/znAHgc2p8VUo2qb91vXKs
-         OwNAuU8/q4jNun2TxGIycYGQVMd5H1h2anQEHxo8=
+        b=OaZF1XD9QtX75GpWwDRw6GaRVdWYnzPsipmZFy7kM/mG5g4K+roqjSH57RPZtIbHX
+         POPaDeTUX2XYyQ3bBw3z8ocA8vikMlXf7FHXNgz3EMNGX0EPCledqKfzIaronWCVAn
+         1/WjSBm11r5J7WIzz8fo1fBSRhN8pPAKN12/dN3o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeremy Kerr <jk@ozlabs.org>,
-        Stan Johnson <userm57@yahoo.com>,
-        Finn Thain <fthain@telegraphics.com.au>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Jan Schmidt <jan@centricular.com>,
+        Dave Airlie <airlied@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 22/28] net: bmac: Fix read of MAC address from ROM
-Date:   Fri,  5 Jun 2020 16:15:24 +0200
-Message-Id: <20200605140253.688243498@linuxfoundation.org>
+Subject: [PATCH 4.19 23/28] drm/edid: Add Oculus Rift S to non-desktop list
+Date:   Fri,  5 Jun 2020 16:15:25 +0200
+Message-Id: <20200605140253.749629298@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200605140252.338635395@linuxfoundation.org>
 References: <20200605140252.338635395@linuxfoundation.org>
@@ -46,41 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeremy Kerr <jk@ozlabs.org>
+From: Jan Schmidt <jan@centricular.com>
 
-[ Upstream commit ef01cee2ee1b369c57a936166483d40942bcc3e3 ]
+[ Upstream commit 5a3f610877e9d08968ea7237551049581f02b163 ]
 
-In bmac_get_station_address, We're reading two bytes at a time from ROM,
-but we do that six times, resulting in 12 bytes of read & writes. This
-means we will write off the end of the six-byte destination buffer.
+Add a quirk for the Oculus Rift S OVR0012 display so
+it shows up as a non-desktop display.
 
-This change fixes the for-loop to only read/write six bytes.
-
-Based on a proposed fix from Finn Thain <fthain@telegraphics.com.au>.
-
-Signed-off-by: Jeremy Kerr <jk@ozlabs.org>
-Reported-by: Stan Johnson <userm57@yahoo.com>
-Tested-by: Stan Johnson <userm57@yahoo.com>
-Reported-by: Finn Thain <fthain@telegraphics.com.au>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Jan Schmidt <jan@centricular.com>
+Signed-off-by: Dave Airlie <airlied@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200507180628.740936-1-jan@centricular.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/apple/bmac.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/drm_edid.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/apple/bmac.c b/drivers/net/ethernet/apple/bmac.c
-index 6a8e2567f2bd..ab6ce85540b8 100644
---- a/drivers/net/ethernet/apple/bmac.c
-+++ b/drivers/net/ethernet/apple/bmac.c
-@@ -1181,7 +1181,7 @@ bmac_get_station_address(struct net_device *dev, unsigned char *ea)
- 	int i;
- 	unsigned short data;
+diff --git a/drivers/gpu/drm/drm_edid.c b/drivers/gpu/drm/drm_edid.c
+index d5dcee7f1fc8..108f542176b8 100644
+--- a/drivers/gpu/drm/drm_edid.c
++++ b/drivers/gpu/drm/drm_edid.c
+@@ -198,10 +198,11 @@ static const struct edid_quirk {
+ 	{ "HVR", 0xaa01, EDID_QUIRK_NON_DESKTOP },
+ 	{ "HVR", 0xaa02, EDID_QUIRK_NON_DESKTOP },
  
--	for (i = 0; i < 6; i++)
-+	for (i = 0; i < 3; i++)
- 		{
- 			reset_and_select_srom(dev);
- 			data = read_srom(dev, i + EnetAddressOffset/2, SROMAddressBits);
+-	/* Oculus Rift DK1, DK2, and CV1 VR Headsets */
++	/* Oculus Rift DK1, DK2, CV1 and Rift S VR Headsets */
+ 	{ "OVR", 0x0001, EDID_QUIRK_NON_DESKTOP },
+ 	{ "OVR", 0x0003, EDID_QUIRK_NON_DESKTOP },
+ 	{ "OVR", 0x0004, EDID_QUIRK_NON_DESKTOP },
++	{ "OVR", 0x0012, EDID_QUIRK_NON_DESKTOP },
+ 
+ 	/* Windows Mixed Reality Headsets */
+ 	{ "ACR", 0x7fce, EDID_QUIRK_NON_DESKTOP },
 -- 
 2.25.1
 
