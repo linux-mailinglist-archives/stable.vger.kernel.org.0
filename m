@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A13A21EFA6F
-	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 16:19:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B0E31EFA70
+	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 16:19:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727984AbgFEORe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Jun 2020 10:17:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46966 "EHLO mail.kernel.org"
+        id S1728494AbgFEORf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Jun 2020 10:17:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47016 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728454AbgFEORc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Jun 2020 10:17:32 -0400
+        id S1727893AbgFEORe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Jun 2020 10:17:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8490E208A7;
-        Fri,  5 Jun 2020 14:17:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C2E53206A2;
+        Fri,  5 Jun 2020 14:17:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591366651;
-        bh=iEDnrsz6xY98L2zR/1m+vsa68l86wv7afRh44H+XURc=;
+        s=default; t=1591366653;
+        bh=15vT6BO6SLJKvTbMECpr6jSBvhkfxGZDulCbFJ6eCMc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pAwmyTvGqTknSYn8ipevxDZVgOc7NkoJEUPACAcUWNYvFJGNZ0mjEfVtGYYLg9HC7
-         PHiQLgYfqz4vYoSM4No98Q/mykjHWlRLx8CyI6VJ0vuVreyaacsNDFSIS/7lNHD4IZ
-         KUiznbowzC4SqFKa6CilUK8o3S2yzC6NLFgbLn5w=
+        b=z5K5zAZmbGxchPRs10jCIjZoYifgAHgqEkOe43YwY4P3fhRmzU2h4X/sS2JUUDCDy
+         kZQhrSmmPprYZKaqVRxT/ENV1iV3QKCvFpukqA7GnQ3DRGTBJxI+XyIXNUen/5oSM9
+         AUZmulu/xEEs899THeymBsNBLSIBeJ+JG4dXjNrk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
-        Can Guo <cang@codeaurora.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Dave Young <dyoung@redhat.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 07/43] scsi: pm: Balance pm_only counter of request queue during system resume
-Date:   Fri,  5 Jun 2020 16:14:37 +0200
-Message-Id: <20200605140152.908868723@linuxfoundation.org>
+Subject: [PATCH 5.6 08/43] efi/earlycon: Fix early printk for wider fonts
+Date:   Fri,  5 Jun 2020 16:14:38 +0200
+Message-Id: <20200605140152.960471619@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200605140152.493743366@linuxfoundation.org>
 References: <20200605140152.493743366@linuxfoundation.org>
@@ -45,80 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Can Guo <cang@codeaurora.org>
+From: Dave Young <dyoung@redhat.com>
 
-[ Upstream commit 05d18ae1cc8a0308b12f37b4ab94afce3535fac9 ]
+[ Upstream commit 8f592ada59b321d248391bae175cd78a12972223 ]
 
-During system resume, scsi_resume_device() decreases a request queue's
-pm_only counter if the scsi device was quiesced before. But after that, if
-the scsi device's RPM status is RPM_SUSPENDED, the pm_only counter is still
-held (non-zero). Current SCSI resume hook only sets the RPM status of the
-scsi_device and its request queue to RPM_ACTIVE, but leaves the pm_only
-counter unchanged. This may make the request queue's pm_only counter remain
-non-zero after resume hook returns, hence those who are waiting on the
-mq_freeze_wq would never be woken up. Fix this by calling
-blk_post_runtime_resume() if a sdev's RPM status was RPM_SUSPENDED.
+When I play with terminus fonts I noticed the efi early printk does
+not work because the earlycon code assumes font width is 8.
 
-(struct request_queue)0xFFFFFF815B69E938
-	pm_only = (counter = 2),
-	rpm_status = 0,
-	dev = 0xFFFFFF815B0511A0,
+Here add the code to adapt with larger fonts.  Tested with all kinds
+of kernel built-in fonts on my laptop. Also tested with a local draft
+patch for 14x28 !bold terminus font.
 
-((struct device)0xFFFFFF815B0511A0)).power
-	is_suspended = FALSE,
-	runtime_status = RPM_ACTIVE,
-
-(struct scsi_device)0xffffff815b051000
-	request_queue = 0xFFFFFF815B69E938,
-	sdev_state = SDEV_RUNNING,
-	quiesced_by = 0x0,
-
-B::v.f_/task_0xFFFFFF810C246940
--000|__switch_to(prev = 0xFFFFFF810C246940, next = 0xFFFFFF80A49357C0)
--001|context_switch(inline)
--001|__schedule(?)
--002|schedule()
--003|blk_queue_enter(q = 0xFFFFFF815B69E938, flags = 0)
--004|generic_make_request(?)
--005|submit_bio(bio = 0xFFFFFF80A8195B80)
-
-Link: https://lore.kernel.org/r/1588740936-28846-1-git-send-email-cang@codeaurora.org
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Can Guo <cang@codeaurora.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Dave Young <dyoung@redhat.com>
+Link: https://lore.kernel.org/r/20200412024927.GA6884@dhcp-128-65.nay.redhat.com
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/scsi_pm.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/firmware/efi/earlycon.c | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/scsi/scsi_pm.c b/drivers/scsi/scsi_pm.c
-index 3717eea37ecb..5f0ad8b32e3a 100644
---- a/drivers/scsi/scsi_pm.c
-+++ b/drivers/scsi/scsi_pm.c
-@@ -80,6 +80,10 @@ static int scsi_dev_type_resume(struct device *dev,
- 	dev_dbg(dev, "scsi resume: %d\n", err);
+diff --git a/drivers/firmware/efi/earlycon.c b/drivers/firmware/efi/earlycon.c
+index 5d4f84781aa0..a52236e11e5f 100644
+--- a/drivers/firmware/efi/earlycon.c
++++ b/drivers/firmware/efi/earlycon.c
+@@ -114,14 +114,16 @@ static void efi_earlycon_write_char(u32 *dst, unsigned char c, unsigned int h)
+ 	const u32 color_black = 0x00000000;
+ 	const u32 color_white = 0x00ffffff;
+ 	const u8 *src;
+-	u8 s8;
+-	int m;
++	int m, n, bytes;
++	u8 x;
  
- 	if (err == 0) {
-+		bool was_runtime_suspended;
-+
-+		was_runtime_suspended = pm_runtime_suspended(dev);
-+
- 		pm_runtime_disable(dev);
- 		err = pm_runtime_set_active(dev);
- 		pm_runtime_enable(dev);
-@@ -93,8 +97,10 @@ static int scsi_dev_type_resume(struct device *dev,
- 		 */
- 		if (!err && scsi_is_sdev_device(dev)) {
- 			struct scsi_device *sdev = to_scsi_device(dev);
--
--			blk_set_runtime_active(sdev->request_queue);
-+			if (was_runtime_suspended)
-+				blk_post_runtime_resume(sdev->request_queue, 0);
-+			else
-+				blk_set_runtime_active(sdev->request_queue);
- 		}
- 	}
+-	src = font->data + c * font->height;
+-	s8 = *(src + h);
++	bytes = BITS_TO_BYTES(font->width);
++	src = font->data + c * font->height * bytes + h * bytes;
  
+-	for (m = 0; m < 8; m++) {
+-		if ((s8 >> (7 - m)) & 1)
++	for (m = 0; m < font->width; m++) {
++		n = m % 8;
++		x = *(src + m / 8);
++		if ((x >> (7 - n)) & 1)
+ 			*dst = color_white;
+ 		else
+ 			*dst = color_black;
 -- 
 2.25.1
 
