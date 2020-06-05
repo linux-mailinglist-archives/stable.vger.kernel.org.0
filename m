@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 20A921EFA40
-	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 16:16:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A86161EFB5C
+	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 16:26:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728124AbgFEOQE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Jun 2020 10:16:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44942 "EHLO mail.kernel.org"
+        id S1728044AbgFEO0I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Jun 2020 10:26:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45006 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728103AbgFEOQD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Jun 2020 10:16:03 -0400
+        id S1728143AbgFEOQG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Jun 2020 10:16:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 17E4A2063A;
-        Fri,  5 Jun 2020 14:16:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5A28420899;
+        Fri,  5 Jun 2020 14:16:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591366562;
-        bh=Pkcwu9AqmId6jd12wS0uGd4NuEHW69FIQ87ZrnjzgDk=;
+        s=default; t=1591366564;
+        bh=i1PfMsBvUSIG0yNBlmGABRb1fF2BKTZp1A1FBnuK4zM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ekEZpPyO2KpUhpJ7MpaNRLRzgr0+D/xVCK1d2EE3Tyo+bQl8TGaEuV9BeDSIWgSYX
-         8Z1HMJojYx1vnTVfCn+FnDopJDpyOZL7BSkBH/E4HXxyjDM5Uv09qrCyFmeov1MLKS
-         L37jQ/JU+F0u8a8JSZxzse15MtNWQDMEfugJSTUM=
+        b=E0Nl/MNcalcFjHNP9pgygrrzgeYv2u7K8KpvZY6NCmrhIC8b2eNW7AJtgthJQO3Gt
+         wr9gUJA1wSlzYdJ/8CPzayfl22pmKJxnMm/IsOvRHyJTBzYIIjq9nTO8COl79jjC88
+         1gzdJtDaL1JFc/1+w3F/P2udhROsiLBsZVpfENNE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 5.7 04/14] HID: multitouch: enable multi-input as a quirk for some devices
-Date:   Fri,  5 Jun 2020 16:14:54 +0200
-Message-Id: <20200605135951.286187746@linuxfoundation.org>
+        stable@vger.kernel.org, Julian Sax <jsbc@gmx.de>,
+        Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH 5.7 05/14] HID: i2c-hid: add Schneider SCL142ALM to descriptor override
+Date:   Fri,  5 Jun 2020 16:14:55 +0200
+Message-Id: <20200605135951.340584155@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200605135951.018731965@linuxfoundation.org>
 References: <20200605135951.018731965@linuxfoundation.org>
@@ -44,102 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+From: Julian Sax <jsbc@gmx.de>
 
-commit 40d5bb87377a599d0405af765290f28aaa6abb1e upstream.
+commit 6507ef10660efdfee93f0f3b9fac24b5e4d83e56 upstream.
 
-Two touchpad/trackstick combos are currently not behaving properly.
-They define a mouse emulation collection, as per Win8 requirements,
-but also define a separate mouse collection for the trackstick.
+This device uses the SIPODEV SP1064 touchpad, which does not
+supply descriptors, so it has to be added to the override list.
 
-The way the kernel currently treat the collections is that it
-merges both in one device. However, given that the first mouse
-collection already defines X,Y and left, right buttons, when
-mapping the events from the second mouse collection, hid-multitouch
-sees that these events are already mapped, and simply ignores them.
-
-To be able to report events from the tracktick, add a new quirked
-class for it, and manually add the 2 devices we know about.
-
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=207235
 Cc: stable@vger.kernel.org
-Tested-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Julian Sax <jsbc@gmx.de>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/hid/hid-multitouch.c |   26 ++++++++++++++++++++++++++
- 1 file changed, 26 insertions(+)
+ drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -69,6 +69,7 @@ MODULE_LICENSE("GPL");
- #define MT_QUIRK_ASUS_CUSTOM_UP		BIT(17)
- #define MT_QUIRK_WIN8_PTP_BUTTONS	BIT(18)
- #define MT_QUIRK_SEPARATE_APP_REPORT	BIT(19)
-+#define MT_QUIRK_FORCE_MULTI_INPUT	BIT(20)
+--- a/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
++++ b/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
+@@ -389,6 +389,14 @@ static const struct dmi_system_id i2c_hi
+ 		},
+ 		.driver_data = (void *)&sipodev_desc
+ 	},
++	{
++		.ident = "Schneider SCL142ALM",
++		.matches = {
++			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "SCHNEIDER"),
++			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "SCL142ALM"),
++		},
++		.driver_data = (void *)&sipodev_desc
++	},
+ 	{ }	/* Terminate list */
+ };
  
- #define MT_INPUTMODE_TOUCHSCREEN	0x02
- #define MT_INPUTMODE_TOUCHPAD		0x03
-@@ -189,6 +190,7 @@ static void mt_post_parse(struct mt_devi
- #define MT_CLS_WIN_8				0x0012
- #define MT_CLS_EXPORT_ALL_INPUTS		0x0013
- #define MT_CLS_WIN_8_DUAL			0x0014
-+#define MT_CLS_WIN_8_FORCE_MULTI_INPUT		0x0015
- 
- /* vendor specific classes */
- #define MT_CLS_3M				0x0101
-@@ -279,6 +281,15 @@ static const struct mt_class mt_classes[
- 			MT_QUIRK_CONTACT_CNT_ACCURATE |
- 			MT_QUIRK_WIN8_PTP_BUTTONS,
- 		.export_all_inputs = true },
-+	{ .name = MT_CLS_WIN_8_FORCE_MULTI_INPUT,
-+		.quirks = MT_QUIRK_ALWAYS_VALID |
-+			MT_QUIRK_IGNORE_DUPLICATES |
-+			MT_QUIRK_HOVERING |
-+			MT_QUIRK_CONTACT_CNT_ACCURATE |
-+			MT_QUIRK_STICKY_FINGERS |
-+			MT_QUIRK_WIN8_PTP_BUTTONS |
-+			MT_QUIRK_FORCE_MULTI_INPUT,
-+		.export_all_inputs = true },
- 
- 	/*
- 	 * vendor specific classes
-@@ -1714,6 +1725,11 @@ static int mt_probe(struct hid_device *h
- 	if (id->group != HID_GROUP_MULTITOUCH_WIN_8)
- 		hdev->quirks |= HID_QUIRK_MULTI_INPUT;
- 
-+	if (mtclass->quirks & MT_QUIRK_FORCE_MULTI_INPUT) {
-+		hdev->quirks &= ~HID_QUIRK_INPUT_PER_APP;
-+		hdev->quirks |= HID_QUIRK_MULTI_INPUT;
-+	}
-+
- 	timer_setup(&td->release_timer, mt_expired_timeout, 0);
- 
- 	ret = hid_parse(hdev);
-@@ -1926,6 +1942,11 @@ static const struct hid_device_id mt_dev
- 		MT_USB_DEVICE(USB_VENDOR_ID_DWAV,
- 			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_C002) },
- 
-+	/* Elan devices */
-+	{ .driver_data = MT_CLS_WIN_8_FORCE_MULTI_INPUT,
-+		HID_DEVICE(BUS_I2C, HID_GROUP_MULTITOUCH_WIN_8,
-+			USB_VENDOR_ID_ELAN, 0x313a) },
-+
- 	/* Elitegroup panel */
- 	{ .driver_data = MT_CLS_SERIAL,
- 		MT_USB_DEVICE(USB_VENDOR_ID_ELITEGROUP,
-@@ -2056,6 +2077,11 @@ static const struct hid_device_id mt_dev
- 		MT_USB_DEVICE(USB_VENDOR_ID_STANTUM_STM,
- 			USB_DEVICE_ID_MTP_STM)},
- 
-+	/* Synaptics devices */
-+	{ .driver_data = MT_CLS_WIN_8_FORCE_MULTI_INPUT,
-+		HID_DEVICE(BUS_I2C, HID_GROUP_MULTITOUCH_WIN_8,
-+			USB_VENDOR_ID_SYNAPTICS, 0xce08) },
-+
- 	/* TopSeed panels */
- 	{ .driver_data = MT_CLS_TOPSEED,
- 		MT_USB_DEVICE(USB_VENDOR_ID_TOPSEED2,
 
 
