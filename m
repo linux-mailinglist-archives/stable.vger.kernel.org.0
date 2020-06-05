@@ -2,212 +2,143 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 479BE1EFB7A
-	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 16:33:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AD1B1EFBF1
+	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 16:56:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728048AbgFEOdy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Jun 2020 10:33:54 -0400
-Received: from us-smtp-2.mimecast.com ([205.139.110.61]:60843 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728013AbgFEOdy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 5 Jun 2020 10:33:54 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1591367632;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=UnXpqpJmhsoGN5vwHlR9MCzTruzIUpnFGVXn1tVsFuM=;
-        b=Mxnr9w42gdtZZTOYLApVKTrKQb2nOmPpSPYPD0KDhV+7WqLnghdoRHpgvMlloEj8GnRNqj
-        yVS1JlGtZ/enEJsMmgLRMS20JLqOFO1FwS4CDHDZ3OOmjJPMgwY7TAHkdNGkEs+eOS6aTN
-        KRB9572/hD9ZhikSVB4Nr6Og+u2lHdw=
-Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
- [209.85.218.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-230-Cr0RIS5WNYywzNOouhCKGg-1; Fri, 05 Jun 2020 10:33:50 -0400
-X-MC-Unique: Cr0RIS5WNYywzNOouhCKGg-1
-Received: by mail-ej1-f71.google.com with SMTP id r11so3698411ejd.1
-        for <stable@vger.kernel.org>; Fri, 05 Jun 2020 07:33:50 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=UnXpqpJmhsoGN5vwHlR9MCzTruzIUpnFGVXn1tVsFuM=;
-        b=U9KzX7PryOUyohW5sMrebEoAT/+VCM8sKTS0JxmOszapixrdSkolFp6ZfMcDrvk8E/
-         7kRNlVeKaihFJmD8dDaic2uKddw4ZK9ayxptc2Xg744qiaz1LaM/xXu8oPtDsvjRVuk/
-         HaiJ+ggpMjyWt8RaqlLsmJFGObyc1NZvn2/1mTvYgkLZCEqYdChTzvrYEq/+Tajdu5IX
-         AugsbTBHvwhrAbu649tQlkPQx08IC3BGr6V+YXCr36HPDdWyey4JvJDa37nPClBKlUQC
-         Hm8uP771jPCx9nN5+TAdWIhAmYII2FWLqyvprkBld1am9gOJ3XZBp1nMCyQTeCtOc8xl
-         XxYw==
-X-Gm-Message-State: AOAM531nRs23FK1ejbhCoL9Z2DH87O5OkRMEAxIxNknSsz5T0Dx9dHfv
-        EGvPU14yXbp6LBSuY5eg3dJsM+i+xUKCFZ4vSbsq+l/jimNy7jOVeHHf5gTdl1w16Uo1LqA6nw3
-        D0nhM+jmBhqkMVLkC
-X-Received: by 2002:a17:906:4554:: with SMTP id s20mr8783717ejq.241.1591367629239;
-        Fri, 05 Jun 2020 07:33:49 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxPmTQAV1XuXHtuL/qMSpWO2BScpZajU1f7rMoqZ9XHo3qWMvt1jv1U5k9HlA8ZVtwsZNScZA==
-X-Received: by 2002:a17:906:4554:: with SMTP id s20mr8783698ejq.241.1591367628950;
-        Fri, 05 Jun 2020 07:33:48 -0700 (PDT)
-Received: from x1.localdomain (2001-1c00-0c0c-fe00-d2ea-f29d-118b-24dc.cable.dynamic.v6.ziggo.nl. [2001:1c00:c0c:fe00:d2ea:f29d:118b:24dc])
-        by smtp.gmail.com with ESMTPSA id o7sm230792edj.52.2020.06.05.07.33.48
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 05 Jun 2020 07:33:48 -0700 (PDT)
-Subject: Re: [PATCH] pinctrl: baytrail: Fix pin being driven low for a while
- on gpiod_get(..., GPIOD_OUT_HIGH)
-To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc:     Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        intel-gfx <intel-gfx@lists.freedesktop.org>,
-        linux-gpio@vger.kernel.org, stable@vger.kernel.org
-References: <20200602122130.45630-1-hdegoede@redhat.com>
- <20200602152317.GI2428291@smile.fi.intel.com>
-From:   Hans de Goede <hdegoede@redhat.com>
-Message-ID: <ba931618-9259-aca0-142c-c1dfb67e737e@redhat.com>
-Date:   Fri, 5 Jun 2020 16:33:47 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.8.0
+        id S1728048AbgFEO4d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Jun 2020 10:56:33 -0400
+Received: from mta-02.yadro.com ([89.207.88.252]:37006 "EHLO mta-01.yadro.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1727114AbgFEO4d (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Jun 2020 10:56:33 -0400
+Received: from localhost (unknown [127.0.0.1])
+        by mta-01.yadro.com (Postfix) with ESMTP id 4F9294A49D;
+        Fri,  5 Jun 2020 14:56:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=yadro.com; h=
+        content-type:content-type:content-transfer-encoding:mime-version
+        :x-mailer:message-id:date:date:subject:subject:from:from
+        :received:received:received; s=mta-01; t=1591368989; x=
+        1593183390; bh=hK5UW7fk6ycA8/izqnLe126UrSfd0sSzmiAdgwpDkxw=; b=U
+        ieNmetrJw4t403aCETV/RSTzl3UWYcbayAPJwQJUoJbG7XdsYW2P2cjmFa/S6aF5
+        qSw08+6ZnChFcKWcvjER1Ce4opvbWnBBgL61yIzzLQUaXMhBkV7ri09vul5gkgm0
+        ZEOrhnHT60GJt08MrO1uHN2cPRfqYu8DCHFfBqJNBg=
+X-Virus-Scanned: amavisd-new at yadro.com
+Received: from mta-01.yadro.com ([127.0.0.1])
+        by localhost (mta-01.yadro.com [127.0.0.1]) (amavisd-new, port 10024)
+        with ESMTP id A1kT8fw3RmxJ; Fri,  5 Jun 2020 17:56:29 +0300 (MSK)
+Received: from T-EXCH-02.corp.yadro.com (t-exch-02.corp.yadro.com [172.17.10.102])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mta-01.yadro.com (Postfix) with ESMTPS id D0E484C87F;
+        Fri,  5 Jun 2020 17:56:28 +0300 (MSK)
+Received: from localhost (172.17.204.212) by T-EXCH-02.corp.yadro.com
+ (172.17.10.102) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384_P384) id 15.1.669.32; Fri, 5 Jun
+ 2020 17:56:28 +0300
+From:   Roman Bolshakov <r.bolshakov@yadro.com>
+To:     <linux-scsi@vger.kernel.org>
+CC:     <GR-QLogic-Storage-Upstream@marvell.com>,
+        <target-devel@vger.kernel.org>, <linux@yadro.com>,
+        Roman Bolshakov <r.bolshakov@yadro.com>,
+        Quinn Tran <qutran@marvell.com>, Arun Easi <aeasi@marvell.com>,
+        Nilesh Javali <njavali@marvell.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Daniel Wagner <dwagner@suse.de>,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Martin Wilck <mwilck@suse.com>, <stable@vger.kernel.org>
+Subject: [PATCH v2] scsi: qla2xxx: Keep initiator ports after RSCN
+Date:   Fri, 5 Jun 2020 17:44:37 +0300
+Message-ID: <20200605144435.27023-1-r.bolshakov@yadro.com>
+X-Mailer: git-send-email 2.26.1
 MIME-Version: 1.0
-In-Reply-To: <20200602152317.GI2428291@smile.fi.intel.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Originating-IP: [172.17.204.212]
+X-ClientProxiedBy: T-EXCH-01.corp.yadro.com (172.17.10.101) To
+ T-EXCH-02.corp.yadro.com (172.17.10.102)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+The driver performs SCR (state change registration) in all modes
+including pure target mode.
 
-On 6/2/20 5:23 PM, Andy Shevchenko wrote:
-> On Tue, Jun 02, 2020 at 02:21:30PM +0200, Hans de Goede wrote:
->> The pins on the Bay Trail SoC have separate input-buffer and output-buffer
->> enable bits and a read of the level bit of the value register will always
->> return the value from the input-buffer.
->>
->> The BIOS of a device may configure a pin in output-only mode, only enabling
->> the output buffer, and write 1 to the level bit to drive the pin high.
->> This 1 written to the level bit will be stored inside the data-latch of the
->> output buffer.
->>
->> But a subsequent read of the value register will return 0 for the level bit
->> because the input-buffer is disabled. This causes a read-modify-write as
->> done by byt_gpio_set_direction() to write 0 to the level bit, driving the
->> pin low!
->>
->> Before this commit byt_gpio_direction_output() relied on
->> pinctrl_gpio_direction_output() to set the direction, followed by a call
->> to byt_gpio_set() to apply the selected value. This causes the pin to
->> go low between the pinctrl_gpio_direction_output() and byt_gpio_set()
->> calls.
->>
->> Change byt_gpio_direction_output() to directly make the register
->> modifications itself instead. Replacing the 2 subsequent writes to the
->> value register with a single write.
->>
->> Note that the pinctrl code does not keep track internally of the direction,
->> so not going through pinctrl_gpio_direction_output() is not an issue.
->>
->> This issue was noticed on a Trekstor SurfTab Twin 10.1. When the panel is
->> already on at boot (no external monitor connected), then the i915 driver
->> does a gpiod_get(..., GPIOD_OUT_HIGH) for the panel-enable GPIO. The
->> temporarily going low of that GPIO was causing the panel to reset itself
->> after which it would not show an image until it was turned off and back on
->> again (until a full modeset was done on it). This commit fixes this.
-> 
-> No Fixes tag?
+For each RSCN, scan_needed flag is set in qla2x00_handle_rscn() for the
+port mentioned in the RSCN and fabric rescan is scheduled. During the
+rescan, GNN_FT handler, qla24xx_async_gnnft_done() deletes session of
+the port that caused the RSCN.
 
-It is sort of hard to pin the introduction of this down to a single
-commit. If I were to guess, I guess the commit introducing the driver?
+In target mode, the session deletion has an impact on ATIO handler,
+qlt_24xx_atio_pkt(). Target responds with SAM STATUS BUSY to I/O
+incoming from the deleted session. qlt_handle_cmd_for_atio() and
+qlt_handle_task_mgmt() return -EFAULT if they are not able to find
+session of the command/TMF, and that results in invocation of
+qlt_send_busy():
 
->> Cc: stable@vger.kernel.org
->> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-> 
-> ...
-> 
->> +static void byt_gpio_direct_irq_check(struct intel_pinctrl *vg,
->> +				      unsigned int offset)
->> +{
->> +	void __iomem *conf_reg = byt_gpio_reg(vg, offset, BYT_CONF0_REG);
->> +
->> +	/*
->> +	 * Before making any direction modifications, do a check if gpio is set
-> 
->> +	 * for direct IRQ.  On baytrail, setting GPIO to output does not make
-> 
-> Since we change this, perhaps
-> 
-> 'IRQ.  On baytrail' -> 'IRQ. On Baytrail' (one space and capital 'B').
+  qlt_24xx_atio_pkt_all_vps: qla_target(0): type 6 ox_id 0014
+  qla_target(0): Unable to send command to target, sending BUSY status
 
-Sure, not sure if that is worth respinning the patch for though,
-either way let me know.
+Such response causes command timeout on the initiator. Error handler
+thread on the initiator will be spawned to abort the commands:
 
->> +	 * sense, so let's at least inform the caller before they shoot
->> +	 * themselves in the foot.
->> +	 */
->> +	if (readl(conf_reg) & BYT_DIRECT_IRQ_EN)
->> +		dev_info_once(vg->dev, "Potential Error: Setting GPIO with direct_irq_en to output");
->> +}
-> 
-> ...
-> 
->>   static int byt_gpio_direction_output(struct gpio_chip *chip,
->>   				     unsigned int offset, int value)
->>   {
->> -	int ret = pinctrl_gpio_direction_output(chip->base + offset);
->> +	struct intel_pinctrl *vg = gpiochip_get_data(chip);
->> +	void __iomem *val_reg = byt_gpio_reg(vg, offset, BYT_VAL_REG);
->> +	unsigned long flags;
->> +	u32 reg;
->>   
->> -	if (ret)
->> -		return ret;
->> +	raw_spin_lock_irqsave(&byt_lock, flags);
->>   
->> -	byt_gpio_set(chip, offset, value);
->> +	byt_gpio_direct_irq_check(vg, offset);
->>   
->> +	reg = readl(val_reg);
->> +	reg &= ~BYT_DIR_MASK;
->> +	if (value)
->> +		reg |= BYT_LEVEL;
->> +	else
->> +		reg &= ~BYT_LEVEL;
->> +
->> +	writel(reg, val_reg);
->> +
->> +	raw_spin_unlock_irqrestore(&byt_lock, flags);
->>   	return 0;
->>   }
-> 
-> Wouldn't be simple below fix the issue?
-> 
-> @@ -1171,14 +1171,10 @@ static int byt_gpio_direction_input(struct gpio_chip *chip, unsigned int offset)
->   static int byt_gpio_direction_output(struct gpio_chip *chip,
->                                       unsigned int offset, int value)
->   {
-> -       int ret = pinctrl_gpio_direction_output(chip->base + offset);
-> -
-> -       if (ret)
-> -               return ret;
-> -
-> +       /* Set value first to avoid a glitch */
->          byt_gpio_set(chip, offset, value);
->   
-> -       return 0;
-> +       return pinctrl_gpio_direction_output(chip->base + offset);
->   }
+  scsi 23:0:0:0: tag#0 abort scheduled
+  scsi 23:0:0:0: tag#0 aborting command
+  qla2xxx [0000:af:00.0]-188c:23: Entered qla24xx_abort_command.
+  qla2xxx [0000:af:00.0]-801c:23: Abort command issued nexus=23:0:0 -- 0 2003.
 
-No that will not help the pin is already high, but any reads
-of the register will return the BYT_LEVEL bit as being low, so
-the read-write-modify done when setting the direction reads BYT_LEVEL
-as 0 and writes it back as such.
+Command abort is rejected by target and fails (2003), error handler then
+tries to perform DEVICE RESET and TARGET RESET but they're also doomed
+to fail because TMFs are ignored for the deleted sessions.
 
-So your proposal would actually make the problem much worse (and more
-obvious) if we do the byt_gpio_set() first then for pins which have
-there input-buffer initially disabled, the value passed to
-byt_gpio_direction_output will be completely ignored and they will
-always end up as being driven low.
+Then initiator makes BUS RESET that resets the link via
+qla2x00_full_login_lip(). BUS RESET succeeds and brings initiator port
+up, SAN switch detects that and sends RSCN to the target port and it
+fails again the same way as described above. It never goes out of the
+loop.
 
-Regards,
+The change breaks the RSCN loop by keeping initiator sessions mentioned
+in RSCN payload in all modes, including dual and pure target mode.
 
-Hans
+Fixes: 2037ce49d30a ("scsi: qla2xxx: Fix stale session")
+Cc: Quinn Tran <qutran@marvell.com>
+Cc: Arun Easi <aeasi@marvell.com>
+Cc: Nilesh Javali <njavali@marvell.com>
+Cc: Bart Van Assche <bvanassche@acm.org>
+Cc: Daniel Wagner <dwagner@suse.de>
+Cc: Himanshu Madhani <himanshu.madhani@oracle.com>
+Cc: Martin Wilck <mwilck@suse.com>
+Cc: stable@vger.kernel.org # v5.4+
+Signed-off-by: Roman Bolshakov <r.bolshakov@yadro.com>
+---
+ drivers/scsi/qla2xxx/qla_gs.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+Changes since v1:
+  - Corrected an error when N_Port_ID change wouldn't clean up stale
+    session (Martin W.).
+
+    N_Port_ID may change in the switched fabric topology if initiator
+    cable is replugged to another physical port on the SAN switch (some
+    fabrics assign physical port number to domain area). Physical
+    reconnection implies that initiator is going to relogin anyway and
+    previous session is no longer needed.
+
+diff --git a/drivers/scsi/qla2xxx/qla_gs.c b/drivers/scsi/qla2xxx/qla_gs.c
+index 42c3ad27f1cb..df670fba2ab8 100644
+--- a/drivers/scsi/qla2xxx/qla_gs.c
++++ b/drivers/scsi/qla2xxx/qla_gs.c
+@@ -3496,7 +3496,9 @@ void qla24xx_async_gnnft_done(scsi_qla_host_t *vha, srb_t *sp)
+ 				qla2x00_clear_loop_id(fcport);
+ 				fcport->flags |= FCF_FABRIC_DEVICE;
+ 			} else if (fcport->d_id.b24 != rp->id.b24 ||
+-				fcport->scan_needed) {
++				   (fcport->scan_needed &&
++				    fcport->port_type != FCT_INITIATOR &&
++				    fcport->port_type != FCT_NVME_INITIATOR)) {
+ 				qlt_schedule_sess_for_deletion(fcport);
+ 			}
+ 			fcport->d_id.b24 = rp->id.b24;
+-- 
+2.26.1
 
