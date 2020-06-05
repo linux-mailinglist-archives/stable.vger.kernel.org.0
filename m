@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E7F31EFAD2
-	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 16:21:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 263C51EFA7B
+	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 16:19:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728370AbgFEOVQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Jun 2020 10:21:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51522 "EHLO mail.kernel.org"
+        id S1728566AbgFEOR6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Jun 2020 10:17:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48282 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728941AbgFEOUS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Jun 2020 10:20:18 -0400
+        id S1728562AbgFEOR4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Jun 2020 10:17:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 01309206DC;
-        Fri,  5 Jun 2020 14:20:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 76AC5208B6;
+        Fri,  5 Jun 2020 14:17:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591366817;
-        bh=2Ovjp60VIwBljOoEVFT7uq/DsgfITO8n10lmxaues1U=;
+        s=default; t=1591366676;
+        bh=asKtWcyGAdzXXjpWubp+3p6mt4qc0yLoJUQIKkDkIvk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s5sFn0khgzdFQ8FgjdVtxwvAydZu1QazSIU4Iqm9kBKdOJ8QGoQHVTlmMckCitwpk
-         aN+THsDAQmDgeJqokR2aYql6SKspCJ4mAsohm2qFfF0D+i8NxuuNNk9p2EpdrSe9fg
-         Osi28PGRa3KRrEbfCKjtCS/DHTJ+uFN5Z4dNn1+o=
+        b=i0rHgVt632MQ5RRxHUIWIiwrHst3fsMnDeXENlaiQLJh/iSHbbd5hVXarUof+fHuX
+         q2H13M4maKnu1UJ4QDyyX8uiMch5+n3YWb/D4nrQiBm1GLJVD50NU4D6/KD3/XijX8
+         qKPfwBA/XeKpmfotzs7nWkxugDHWL4bogcr9FYl4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Scott Shumate <scott.shumate@gmail.com>,
-        Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 4.19 04/28] HID: sony: Fix for broken buttons on DS3 USB dongles
+        stable@vger.kernel.org, Matthew Garrett <mjg59@google.com>,
+        Felix Fietkau <nbd@nbd.name>
+Subject: [PATCH 5.6 36/43] mt76: mt76x02u: Add support for newer versions of the XBox One wifi adapter
 Date:   Fri,  5 Jun 2020 16:15:06 +0200
-Message-Id: <20200605140252.586688136@linuxfoundation.org>
+Message-Id: <20200605140154.413870207@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200605140252.338635395@linuxfoundation.org>
-References: <20200605140252.338635395@linuxfoundation.org>
+In-Reply-To: <20200605140152.493743366@linuxfoundation.org>
+References: <20200605140152.493743366@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,60 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Scott Shumate <scott.shumate@gmail.com>
+From: Matthew Garrett <matthewgarrett@google.com>
 
-commit e72455b898ac678667c5674668186b4670d87d11 upstream.
+commit b2934279c3e9719145ff4090d4ab951e340df17e upstream.
 
-Fix for non-working buttons on knock-off USB dongles for Sony
-controllers. These USB dongles are used to connect older Sony DA/DS1/DS2
-controllers via USB and are common on Amazon, AliExpress, etc.  Without
-the patch, the square, X, and circle buttons do not function.  These
-dongles used to work prior to kernel 4.10 but removing the global DS3
-report fixup in commit e19a267b9987 ("HID: sony: DS3 comply to Linux gamepad
-spec") exposed the problem.
+The current version has a new USB ID and reports as an 0x7632 device.
+Adding the IDs results in it working out of the box.
 
-Many people reported the problem on the Ubuntu forums and are working
-around the problem by falling back to the 4.9 hid-sony driver.
-
-The problem stems from these dongles incorrectly reporting their button
-count as 13 instead of 16.  This patch fixes up the report descriptor by
-changing the button report count to 16 and removing 3 padding bits.
-
-Cc: stable@vger.kernel.org
-Fixes: e19a267b9987 ("HID: sony: DS3 comply to Linux gamepad spec")
-Signed-off-by: Scott Shumate <scott.shumate@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Matthew Garrett <mjg59@google.com>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/hid/hid-sony.c |   17 +++++++++++++++++
- 1 file changed, 17 insertions(+)
+ drivers/net/wireless/mediatek/mt76/mt76x02.h    |    1 +
+ drivers/net/wireless/mediatek/mt76/mt76x2/usb.c |    1 +
+ 2 files changed, 2 insertions(+)
 
---- a/drivers/hid/hid-sony.c
-+++ b/drivers/hid/hid-sony.c
-@@ -869,6 +869,23 @@ static u8 *sony_report_fixup(struct hid_
- 	if (sc->quirks & PS3REMOTE)
- 		return ps3remote_fixup(hdev, rdesc, rsize);
- 
-+	/*
-+	 * Some knock-off USB dongles incorrectly report their button count
-+	 * as 13 instead of 16 causing three non-functional buttons.
-+	 */
-+	if ((sc->quirks & SIXAXIS_CONTROLLER_USB) && *rsize >= 45 &&
-+		/* Report Count (13) */
-+		rdesc[23] == 0x95 && rdesc[24] == 0x0D &&
-+		/* Usage Maximum (13) */
-+		rdesc[37] == 0x29 && rdesc[38] == 0x0D &&
-+		/* Report Count (3) */
-+		rdesc[43] == 0x95 && rdesc[44] == 0x03) {
-+		hid_info(hdev, "Fixing up USB dongle report descriptor\n");
-+		rdesc[24] = 0x10;
-+		rdesc[38] = 0x10;
-+		rdesc[44] = 0x00;
-+	}
-+
- 	return rdesc;
+--- a/drivers/net/wireless/mediatek/mt76/mt76x02.h
++++ b/drivers/net/wireless/mediatek/mt76/mt76x02.h
+@@ -211,6 +211,7 @@ static inline bool is_mt76x0(struct mt76
+ static inline bool is_mt76x2(struct mt76x02_dev *dev)
+ {
+ 	return mt76_chip(&dev->mt76) == 0x7612 ||
++	       mt76_chip(&dev->mt76) == 0x7632 ||
+ 	       mt76_chip(&dev->mt76) == 0x7662 ||
+ 	       mt76_chip(&dev->mt76) == 0x7602;
  }
+--- a/drivers/net/wireless/mediatek/mt76/mt76x2/usb.c
++++ b/drivers/net/wireless/mediatek/mt76/mt76x2/usb.c
+@@ -18,6 +18,7 @@ static const struct usb_device_id mt76x2
+ 	{ USB_DEVICE(0x7392, 0xb711) },	/* Edimax EW 7722 UAC */
+ 	{ USB_DEVICE(0x0846, 0x9053) },	/* Netgear A6210 */
+ 	{ USB_DEVICE(0x045e, 0x02e6) },	/* XBox One Wireless Adapter */
++	{ USB_DEVICE(0x045e, 0x02fe) },	/* XBox One Wireless Adapter */
+ 	{ },
+ };
  
 
 
