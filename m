@@ -2,62 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C31191EF979
-	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 15:43:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D1D671EF9B8
+	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 15:58:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726970AbgFENno (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Jun 2020 09:43:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56196 "EHLO mail.kernel.org"
+        id S1727097AbgFEN6I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Jun 2020 09:58:08 -0400
+Received: from mx2.suse.de ([195.135.220.15]:33028 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726553AbgFENno (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Jun 2020 09:43:44 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 64DD2206E6;
-        Fri,  5 Jun 2020 13:43:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591364623;
-        bh=KBCcuTezSWxYTEPq9nG3ArfE3UjgerB234MqoT7vp+k=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=o2RAK/G3omLJ6JiTp5x1lly/Uk287EnuhWtlIn8LG62bsKCe9r031neVMYaaXqaLF
-         4u+3q/rOQ7refZyi+XHuwtFvcxXblifMd0iuMHwyJud8GAH0wuE6RZ6+lKtgM2+W/U
-         3PTUkVeQ6/SYZC8Z1Rh2feP8PZZyfUrA3MdcXTi0=
-Date:   Fri, 5 Jun 2020 15:43:40 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Dakshaja Uppalapati <dakshaja@chelsio.com>
-Cc:     eduard@hasenleithner.at, kbusch@kernel.org, sagi@grimberg.me,
-        hch@lst.de, nirranjan@chelsio.com, bharat@chelsio.com,
-        stable <stable@vger.kernel.org>
-Subject: Re: [PATCH nvme] nvme: Revert "nvme: Discard workaround for
- non-conformant devices"
-Message-ID: <20200605134340.GA3109673@kroah.com>
-References: <20200603091851.16957-1-dakshaja@chelsio.com>
+        id S1727090AbgFEN6H (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Jun 2020 09:58:07 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx2.suse.de (Postfix) with ESMTP id F317CAC51;
+        Fri,  5 Jun 2020 13:58:08 +0000 (UTC)
+From:   Thomas Zimmermann <tzimmermann@suse.de>
+To:     airlied@redhat.com, daniel@ffwll.ch, sam@ravnborg.org,
+        emil.velikov@collabora.com, kraxel@redhat.com
+Cc:     dri-devel@lists.freedesktop.org,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>,
+        Armijn Hemel <armijn@tjaldur.nl>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org
+Subject: [PATCH 01/14] drm/mgag200: Remove declaration of mgag200_mmap() from header file
+Date:   Fri,  5 Jun 2020 15:57:50 +0200
+Message-Id: <20200605135803.19811-2-tzimmermann@suse.de>
+X-Mailer: git-send-email 2.26.2
+In-Reply-To: <20200605135803.19811-1-tzimmermann@suse.de>
+References: <20200605135803.19811-1-tzimmermann@suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200603091851.16957-1-dakshaja@chelsio.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jun 03, 2020 at 02:48:51PM +0530, Dakshaja Uppalapati wrote:
-> This reverts upstream 'commit 530436c45ef2
-> ("nvme: Discard workaround for non-conformant devices")'
-> 
-> Since commit `530436c45ef2` introduced a regression due to which
-> blk_update_request IO error is observed on formatting device, reverting it.
-> 
-> Fixes: 530436c45ef2 ("nvme: Discard workaround for non-conformant devices")
-> Cc: stable <stable@vger.kernel.org> # 4.19+
-> Signed-off-by: Dakshaja Uppalapati <dakshaja@chelsio.com>
-> ---
->  drivers/nvme/host/core.c | 12 +++---------
->  1 file changed, 3 insertions(+), 9 deletions(-)
+Commit 94668ac796a5 ("drm/mgag200: Convert mgag200 driver to VRAM MM")
+removed the implementation of mgag200_mmap(). Also remove the declaration.
 
-This was only for stable?
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Fixes: 94668ac796a5 ("drm/mgag200: Convert mgag200 driver to VRAM MM")
+Cc: Gerd Hoffmann <kraxel@redhat.com>
+Cc: Dave Airlie <airlied@redhat.com>
+Cc: Krzysztof Kozlowski <krzk@kernel.org>
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: Sam Ravnborg <sam@ravnborg.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: "Noralf Trønnes" <noralf@tronnes.org>
+Cc: Armijn Hemel <armijn@tjaldur.nl>
+Cc: Alex Deucher <alexander.deucher@amd.com>
+Cc: Emil Velikov <emil.velikov@collabora.com>
+Cc: <stable@vger.kernel.org> # v5.3+
+---
+ drivers/gpu/drm/mgag200/mgag200_drv.h | 1 -
+ 1 file changed, 1 deletion(-)
 
-Totally confused...
+diff --git a/drivers/gpu/drm/mgag200/mgag200_drv.h b/drivers/gpu/drm/mgag200/mgag200_drv.h
+index 47df62b1ad290..92b6679029fe5 100644
+--- a/drivers/gpu/drm/mgag200/mgag200_drv.h
++++ b/drivers/gpu/drm/mgag200/mgag200_drv.h
+@@ -198,6 +198,5 @@ void mgag200_i2c_destroy(struct mga_i2c_chan *i2c);
+ 
+ int mgag200_mm_init(struct mga_device *mdev);
+ void mgag200_mm_fini(struct mga_device *mdev);
+-int mgag200_mmap(struct file *filp, struct vm_area_struct *vma);
+ 
+ #endif				/* __MGAG200_DRV_H__ */
+-- 
+2.26.2
 
-greg k-h
