@@ -2,286 +2,353 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 332781EF0B3
-	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 06:50:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 839A11EF280
+	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 09:54:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726026AbgFEEul (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Jun 2020 00:50:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45218 "EHLO
+        id S1726072AbgFEHyk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Jun 2020 03:54:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45178 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725280AbgFEEul (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 5 Jun 2020 00:50:41 -0400
-Received: from mail-qt1-x841.google.com (mail-qt1-x841.google.com [IPv6:2607:f8b0:4864:20::841])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 316FEC08C5C1
-        for <stable@vger.kernel.org>; Thu,  4 Jun 2020 21:50:41 -0700 (PDT)
-Received: by mail-qt1-x841.google.com with SMTP id z1so7521047qtn.2
-        for <stable@vger.kernel.org>; Thu, 04 Jun 2020 21:50:41 -0700 (PDT)
+        with ESMTP id S1725986AbgFEHyk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 5 Jun 2020 03:54:40 -0400
+Received: from mail-il1-x144.google.com (mail-il1-x144.google.com [IPv6:2607:f8b0:4864:20::144])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F33ACC08C5C3
+        for <stable@vger.kernel.org>; Fri,  5 Jun 2020 00:54:39 -0700 (PDT)
+Received: by mail-il1-x144.google.com with SMTP id e11so3561765ilr.4
+        for <stable@vger.kernel.org>; Fri, 05 Jun 2020 00:54:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=YYFG7BATzDU9S82kn1J9pAmjsSff6pBtSrBKC8WNkW4=;
-        b=voSUTkVue/f33gxYggKRUpF/lSTr1yX6uz+45AZNhgIDzGoRewYun2f2OhxJFedXZt
-         Jxz+i1E6i/vcElaB0MfcinsDMRXkbku8X5evQzJlxt4MZ91bUux4GYJfY108QEEjVEMP
-         gh5wbdhEsS/AzLMcKA4fcKOOn2PknuTGpxM/1sxfHlhE0MwgNaZg4cXsdCUBJp8Wm5f/
-         l0dcvS8OEh12bdSF0HTiY5nEsqX1mC6bQOdkHGGKMXIZXUwbEY7ZlQ7zkADrESxxAo8g
-         JWrfCWj9ky8uFTvSnguz8cLLcUN5ZXoRSb4IwEDSl/aptJpik5lC55g3K4udcR80dgaZ
-         O7KQ==
+        d=sargun.me; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=n3CbR66nPfpD0gS2lRT/W4hlXwXHn+0jPaByp2D7Ys4=;
+        b=t1xgUo7nYwNixWnmxgLBT7oUcykY44kUV/1DJgvAmFZE8wKYdPDHRItAsebPxPwlpG
+         9qGmmWtC3P6l8aKd6lz5Ufj75qysHw3dOkMIY69vD1fn+x1acWlT0fCL2Kw5df76B/RX
+         lgXHJSzCvbXxPeInThtUHKbu1aZndwqLkRT58=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=YYFG7BATzDU9S82kn1J9pAmjsSff6pBtSrBKC8WNkW4=;
-        b=fTpvSliU58Ocg1aICImzqY/gsxWBFoIbvCOb6uZCbi67qtpPiAQHRVghuf7oV7jmNE
-         Ksx+ptDY4Z6bt4NPyVU7gI9jMicelH3H6pfQvNMmZZguQQ9BpQ8JcZbWTCJtdtzxF5Vg
-         LIP+QAGzXxLtUHW5Tpq9QsAFnW7iRS1E3Dvqk2ae6nGbrooiuuyPIe8wjpv8dJeg+fXf
-         MnAYLOwBVFWJQI4K6lzOI7ZcFRKsZVlXVe16M4hb3HSkSv/UuZ7kU/7OGLavOgouberW
-         2RgeVVCm+0XPRmU9ZFd9qBCj1xU/A10wIhBdIQwpcuPT0ZegU0VEeqs4LrbEDgJ3xM3+
-         3vRA==
-X-Gm-Message-State: AOAM532ViBUQtLxLe3xTJDP1fewzs/zO4CkCtfZCsIBRFHHL29dzLVHl
-        SKJrScugOc+FKQbQH70dwc1AUHG7muA=
-X-Google-Smtp-Source: ABdhPJyH2bZnxYvDqqW0X7W77nB5DLqb6gEl4yMJSEdCNauDD7NuYNwjAf/WG7pFmtnHhQsVk0qiWA==
-X-Received: by 2002:ac8:7089:: with SMTP id y9mr8390185qto.355.1591332639288;
-        Thu, 04 Jun 2020 21:50:39 -0700 (PDT)
-Received: from [192.168.0.185] ([191.34.95.148])
-        by smtp.gmail.com with ESMTPSA id z4sm6781241qtu.33.2020.06.04.21.50.36
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 04 Jun 2020 21:50:38 -0700 (PDT)
-Subject: Re: [PATCH 1/2] arm64: Override SPSR.SS when single-stepping is
- enabled
-To:     Will Deacon <will@kernel.org>,
-        Keno Fischer <keno@juliacomputing.com>
-Cc:     linux-arm-kernel@lists.infradead.org, kernel-team@android.com,
-        Mark Rutland <mark.rutland@arm.com>, stable@vger.kernel.org
-References: <20200603151033.11512-1-will@kernel.org>
- <20200603151033.11512-2-will@kernel.org>
- <CABV8kRwrnixNc074-jQhZzeucGHx9_e5FnQmBS=VuL=tFGjY-Q@mail.gmail.com>
- <20200603155338.GA12036@willie-the-truck>
- <CABV8kRxSjMY+d+F5aNzq1=5hXhVLGy6TbNLTUsCeSsAncwCzoA@mail.gmail.com>
- <20200604083210.GC30155@willie-the-truck>
-From:   Luis Machado <luis.machado@linaro.org>
-Message-ID: <fdce5355-8a85-7bdc-0fba-a2a6c08cb0b8@linaro.org>
-Date:   Fri, 5 Jun 2020 01:50:34 -0300
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=n3CbR66nPfpD0gS2lRT/W4hlXwXHn+0jPaByp2D7Ys4=;
+        b=QVfqBCZ8YF5BriD9jBWlXF6eeSzWDaf7WduY0HEmmmGHqH84MexZpyxL7EH1REoHcH
+         A6CPbvGQoRFRWeEO7wx02KNH5QUOlABdp/+37cnup3lTXHrxCfHX6+983tX58TGk+tXq
+         lpHZSU1f9m/Xib7qDIFAKcw27TD4fL2j5Y9GB2R0usvWGnmxLS51ZJaAxz1JoBWhM1PW
+         YRw8ZGZnroQToxlyZNlL6K9Wv3G0pFfpkvQsmeBnDSorhskqUeviqw5deNoUg3N9PfMv
+         IC8CiRxdBYke5IBVXb+q4Xm4h7BfTbE/ke1GsczxMtQX4gMwbntbrc/qnhFsU1eZeq1T
+         as1w==
+X-Gm-Message-State: AOAM531EWTZJ8SO2S1ItQZhbPZNAiWwG6W+g5TJ353k5OZwsfrER2EMB
+        N5JlTi6YxDDIJklr4i8kIYPDFw==
+X-Google-Smtp-Source: ABdhPJzyjMg39sQ2akfrcESO0H4RodytAdFsFB/8SayPct+ohuphz9c67lrhN/VL/Cw2tpn4nAZ7yQ==
+X-Received: by 2002:a92:7f03:: with SMTP id a3mr7379149ild.269.1591343678764;
+        Fri, 05 Jun 2020 00:54:38 -0700 (PDT)
+Received: from ircssh-2.c.rugged-nimbus-611.internal (80.60.198.104.bc.googleusercontent.com. [104.198.60.80])
+        by smtp.gmail.com with ESMTPSA id p22sm2732408ill.52.2020.06.05.00.54.37
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Fri, 05 Jun 2020 00:54:38 -0700 (PDT)
+Date:   Fri, 5 Jun 2020 07:54:36 +0000
+From:   Sargun Dhillon <sargun@sargun.me>
+To:     Christian Brauner <christian.brauner@ubuntu.com>
+Cc:     Kees Cook <keescook@chromium.org>, linux-kernel@vger.kernel.org,
+        Tycho Andersen <tycho@tycho.ws>,
+        Matt Denton <mpdenton@google.com>,
+        Jann Horn <jannh@google.com>, Chris Palmer <palmer@google.com>,
+        Aleksa Sarai <cyphar@cyphar.com>,
+        Robert Sesek <rsesek@google.com>,
+        containers@lists.linux-foundation.org,
+        Giuseppe Scrivano <gscrivan@redhat.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Daniel Wagner <daniel.wagner@bmw-carit.de>,
+        "David S . Miller" <davem@davemloft.net>,
+        John Fastabend <john.r.fastabend@intel.com>,
+        Tejun Heo <tj@kernel.org>, stable@vger.kernel.org,
+        cgroups@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH v3 1/4] fs, net: Standardize on file_receive helper to
+ move fds across processes
+Message-ID: <20200605075435.GA3345@ircssh-2.c.rugged-nimbus-611.internal>
+References: <20200603011044.7972-1-sargun@sargun.me>
+ <20200603011044.7972-2-sargun@sargun.me>
+ <20200604012452.vh33nufblowuxfed@wittgenstein>
+ <202006031845.F587F85A@keescook>
+ <20200604125226.eztfrpvvuji7cbb2@wittgenstein>
 MIME-Version: 1.0
-In-Reply-To: <20200604083210.GC30155@willie-the-truck>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200604125226.eztfrpvvuji7cbb2@wittgenstein>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
-
-On 6/4/20 5:32 AM, Will Deacon wrote:
-> Hi Keno,
+On Thu, Jun 04, 2020 at 02:52:26PM +0200, Christian Brauner wrote:
+> On Wed, Jun 03, 2020 at 07:22:57PM -0700, Kees Cook wrote:
+> > On Thu, Jun 04, 2020 at 03:24:52AM +0200, Christian Brauner wrote:
+> > > On Tue, Jun 02, 2020 at 06:10:41PM -0700, Sargun Dhillon wrote:
+> > > > Previously there were two chunks of code where the logic to receive file
+> > > > descriptors was duplicated in net. The compat version of copying
+> > > > file descriptors via SCM_RIGHTS did not have logic to update cgroups.
+> > > > Logic to change the cgroup data was added in:
+> > > > commit 48a87cc26c13 ("net: netprio: fd passed in SCM_RIGHTS datagram not set correctly")
+> > > > commit d84295067fc7 ("net: net_cls: fd passed in SCM_RIGHTS datagram not set correctly")
+> > > > 
+> > > > This was not copied to the compat path. This commit fixes that, and thus
+> > > > should be cherry-picked into stable.
+> > > > 
+> > > > This introduces a helper (file_receive) which encapsulates the logic for
+> > > > handling calling security hooks as well as manipulating cgroup information.
+> > > > This helper can then be used other places in the kernel where file
+> > > > descriptors are copied between processes
+> > > > 
+> > > > I tested cgroup classid setting on both the compat (x32) path, and the
+> > > > native path to ensure that when moving the file descriptor the classid
+> > > > is set.
+> > > > 
+> > > > Signed-off-by: Sargun Dhillon <sargun@sargun.me>
+> > > > Suggested-by: Kees Cook <keescook@chromium.org>
+> > > > Cc: Al Viro <viro@zeniv.linux.org.uk>
+> > > > Cc: Christian Brauner <christian.brauner@ubuntu.com>
+> > > > Cc: Daniel Wagner <daniel.wagner@bmw-carit.de>
+> > > > Cc: David S. Miller <davem@davemloft.net>
+> > > > Cc: Jann Horn <jannh@google.com>,
+> > > > Cc: John Fastabend <john.r.fastabend@intel.com>
+> > > > Cc: Tejun Heo <tj@kernel.org>
+> > > > Cc: Tycho Andersen <tycho@tycho.ws>
+> > > > Cc: stable@vger.kernel.org
+> > > > Cc: cgroups@vger.kernel.org
+> > > > Cc: linux-fsdevel@vger.kernel.org
+> > > > Cc: linux-kernel@vger.kernel.org
+> > > > ---
+> > > >  fs/file.c            | 35 +++++++++++++++++++++++++++++++++++
+> > > >  include/linux/file.h |  1 +
+> > > >  net/compat.c         | 10 +++++-----
+> > > >  net/core/scm.c       | 14 ++++----------
+> > > >  4 files changed, 45 insertions(+), 15 deletions(-)
+> > > > 
+> > > 
+> > > This is all just a remote version of fd_install(), yet it deviates from
+> > > fd_install()'s semantics and naming. That's not great imho. What about
+> > > naming this something like:
+> > > 
+> > > fd_install_received()
+> > > 
+> > > and move the get_file() out of there so it has the same semantics as
+> > > fd_install(). It seems rather dangerous to have a function like
+> > > fd_install() that consumes a reference once it returned and another
+> > > version of this that is basically the same thing but doesn't consume a
+> > > reference because it takes its own. Seems an invitation for confusion.
+> > > Does that make sense?
+> > 
+> > We have some competing opinions on this, I guess. What I really don't
+> > like is the copy/pasting of the get_unused_fd_flags() and
+> > put_unused_fd() needed by (nearly) all the callers. If it's a helper, it
+> > should help. Specifically, I'd like to see this:
+> > 
+> > int file_receive(int fd, unsigned long flags, struct file *file,
+> > 		 int __user *fdptr)
 > 
-> Cheers for the really helpful explanation. I have a bunch of
-> questions/comments, since it's not very often that somebody shows up who
-> understands how this is supposed to work and so I'd like to take advantage
-> of that!
+> I still fail to see what this whole put_user() handling buys us at all
+> and why this function needs to be anymore complicated then simply:
 > 
-> On Wed, Jun 03, 2020 at 12:56:24PM -0400, Keno Fischer wrote:
->> On Wed, Jun 3, 2020 at 11:53 AM Will Deacon <will@kernel.org> wrote:
->>>> However, at the same time as changing this, we should probably make sure
->>>> to enable the syscall exit pseudo-singlestep trap (similar issue as the other
->>>> patch I had sent for the signal pseudo-singlestep trap), since otherwise
->>>> ptracers might get confused about the lack of singlestep trap during a
->>>> singlestep -> seccomp -> singlestep path (which would give one trap
->>>> less with this patch than before).
->>>
->>> Hmm, I don't completely follow your example. Please could you spell it
->>> out a bit more? I fast-forward the stepping state machine on sigreturn,
->>> which I thought would be sufficient. Perhaps you're referring to a variant
->>> of the situation mentioned by Mark, which I didn't think could happen
->>> with ptrace [2].
->>
->> Sure suppose we have code like the following:
->>
->> 0x0: svc #0
->> 0x4: str x0, [x7]
->> ...
->>
->> Then, if there's a seccomp filter active that just does
->> SECCOMP_RET_TRACE of everything, right now we get traps:
->>
->> <- (ip: 0x0)
->> -> PTRACE_SINGLESTEP
->> <- (ip: 0x4 - seccomp trap)
->> -> PTRACE_SINGLESTEP
->> <- SIGTRAP (ip: 0x4 - TRAP_TRACE trap)
->> -> PTRACE_SINGLESTEP
->> <- SIGTRAP (ip: 0x8 - TRAP_TRACE trap)
->>
->> With your proposed patch, we instead get
->> <- (ip: 0x0)
->> -> PTRACE_SINGLESTEP
->> <- (ip: 0x4 - seccomp trap)
->> -> PTRACE_SINGLESTEP
->> <- SIGTRAP (ip: 0x8 - TRAP_TRACE trap)
+> fd_install_received(int fd, struct file *file)
+> {
+> 	security_file_receive(file);
+>  
+>  	sock = sock_from_file(fd, &err);
+>  	if (sock) {
+>  		sock_update_netprioidx(&sock->sk->sk_cgrp_data);
+>  		sock_update_classid(&sock->sk->sk_cgrp_data);
+>  	}
 > 
-> Urgh, and actually, I think this is *only* the case if the seccomp
-> handler actually changes a register in the target, right?
+> 	fd_install();
+> 	return;
+> }
 > 
-> In which case, your proposed patch should probably do something like:
+> exactly like fd_install() but for received files.
 > 
-> 	if (dir == PTRACE_SYSCALL_EXIT) {
-> 		bool stepping = test_thread_flag(TIF_SINGLESTEP);
+> For scm you can fail somewhere in the middle of putting any number of
+> file descriptors so you're left in a state with only a subset of
+> requested file descriptors installed so it's not really useful there.
+> And if you manage to install an fd but then fail to put_user() it
+> userspace can simply check it's fds via proc and has to anyway on any
+> scm message error. If you fail an scm message userspace better check
+> their fds.
+> For seccomp maybe but even there I doubt it and I still maintain that
+> userspace screwing this up is on them which is how we do this most of
+> the time. And for pidfd_getfd() this whole put_user() thing doesn't
+> matter at all.
 > 
-> 		tracehook_report_syscall_exit(regs, stepping);
-> 		user_rewind_single_step(regs);
-> 	}
+> It's much easier and clearer if we simply have a fd_install() -
+> fd_install_received() parallelism where we follow an established
+> convention. _But_ if that blocks you from making this generic enough
+> then at least the replace_fd() vs fd_install() logic seems it shouldn't
+> be in there. 
 > 
-> otherwise I think we could get a spurious SIGTRAP on return to userspace.
-> What do you think?
+> And the function name really needs to drive home the point that it
+> installs an fd into the tasks fdtable no matter what version you go
+> with. file_receive() is really not accurate enough for this at all.
 > 
-> This has also got me thinking about your other patch to report a pseudo-step
-> exception on entry to a signal handler:
-> 
-> https://lore.kernel.org/r/20200524043827.GA33001@juliacomputing.com
-> 
-> Although we don't actually disarm the step logic there (and so you might
-> expect a spurious SIGTRAP on the second instruction of the handler), I
-> think it's ok because the tracer will either do PTRACE_SINGLESTEP (and
-> rearm the state machine) or PTRACE_CONT (and so stepping will be
-> disabled). Do you agree?
-> 
->> This is problematic, because the ptracer may want to inspect the
->> result of the syscall instruction. On other architectures, this
->> problem is solved with a pseudo-singlestep trap that gets executed
->> if you resume from a syscall-entry-like trap with PTRACE_SINGLESTEP.
->> See the below patch for the change I'm proposing. There is a slight
->> issue with that patch, still: It now makes the x7 issue apply to the
->> singlestep trap at exit, so we should do the patch to fix that issue
->> before we apply that change (or manually check for this situation
->> and issue the pseudo-singlestep trap manually).
-> 
-> I don't see the dependency on the x7 issue; x7 is nobbled on syscall entry,
-> so it will be nobbled in the psuedo-step trap as well as the hardware step
-> trap on syscall return. I'd also like to backport this to stable, without
-> having to backport an optional extension to the ptrace API for preserving
-> x7. Or are you saying that the value of x7 should be PTRACE_SYSCALL_ENTER
-> for the pseudo trap? That seems a bit weird to me, but then this is all
-> weird anyway.
-> 
->> My proposed patch below also changes
->>
->> <- (ip: 0x0)
->> -> PTRACE_SYSCALL
->> <- (ip: 0x4 - syscall entry trap)
->> -> PTRACE_SINGLESTEP
->> <- SIGTRAP (ip: 0x8 - TRAP_TRACE trap)
->>
->> to
->>
->> <- (ip: 0x0)
->> -> PTRACE_SYSCALL
->> <- (ip: 0x4 - syscall entry trap)
->> -> PTRACE_SINGLESTEP
->> <- SIGTRAP (ip: 0x4 - pseudo-singlestep exit trap)
->> -> PTRACE_SINGLESTEP
->> <- SIGTRAP (ip: 0x8 - TRAP_TRACE trap)
->>
->> But I consider that a bugfix, since that's how other architectures
->> behave and I was going to send in this patch for that reason anyway
->> (since this was another one of the aarch64 ptrace quirks we had to
->> work around).
-> 
-> I think that's still the case with my addition above, so that's good.
-> Any other quirks you ran into that we should address here? Now that I have
-> this stuff partially paged-in, it would be good to fix a bunch of this
-> at once. I can send out a v2 which includes the two patches from you
-> once we're agreed on the details.
+> > {
+> > 	struct socket *sock;
+> > 	int err;
+> > 
+> > 	err = security_file_receive(file);
+> > 	if (err)
+> > 		return err;
+> > 
+> > 	if (fd < 0) {
+> > 		/* Install new fd. */
+> > 		int new_fd;
+> > 
+> > 		err = get_unused_fd_flags(flags);
+> > 		if (err < 0)
+> > 			return err;
+> > 		new_fd = err;
+> > 
+> > 		/* Copy fd to any waiting user memory. */
+> > 		if (fdptr) {
+> > 			err = put_user(new_fd, fdptr);
+> > 			if (err < 0) {
+> > 				put_unused_fd(new_fd);
+> > 				return err;
+> > 			}
+> > 		}
+> > 		fd_install(new_fd, get_file(file));
+> > 		fd = new_fd;
+> > 	} else {
+> > 		/* Replace existing fd. */
+> > 		err = replace_fd(fd, file, flags);
+> > 		if (err)
+> > 			return err;
+> > 	}
+> > 
+> > 	/* Bump the cgroup usage counts. */
+> > 	sock = sock_from_file(fd, &err);
+> > 	if (sock) {
+> > 		sock_update_netprioidx(&sock->sk->sk_cgrp_data);
+> > 		sock_update_classid(&sock->sk->sk_cgrp_data);
+> > 	}
+> > 
+> > 	return fd;
+> > }
+> > 
+> > If everyone else *really* prefers keeping the get_unused_fd_flags() /
+> > put_unused_fd() stuff outside the helper, then I guess I'll give up,
+> > but I think it is MUCH cleaner this way -- all 4 users trim down lots
+> > of code duplication.
+> > 
+> > -- 
+> > Kees Cook
+How about this:
 
-Since we're discussing arm64 ptrace/kernel quirks, I'm gonna go ahead 
-and describe a strange behavior on arm64 that I could not reproduce on 
-x86, for example. I apologize for hijacking the thread if this is a 
-non-issue or not related.
 
-This is something I noticed when single-stepping over fork and vfork 
-syscalls in GDB, so handling of PTRACE_EVENT_FORK, PTRACE_EVENT_VFORK 
-and PTRACE_EVENT_VFORK_DONE.
+static int do_dup2(struct files_struct *files,
+	struct file *file, unsigned fd, unsigned flags)
+__releases(&files->file_lock)
+{
+	struct file *tofree;
+	struct fdtable *fdt;
 
-The situation seems to happen more reliably with vforks since it is a 
-two stage operation with VFORK and VFORK_DONE.
+	...
 
-Suppose we're stopped at a vfork syscall instruction and that the child 
-we spawn will exit immediately. If we attempt to single-step that 
-particular instruction, this is what happens for arm64:
+	/*
+	 * New bit, allowing the file to be null. Doesn't have the same
+	 * "sanity check" bits from __alloc_fd
+	 */
+	if (likely(file))
+		get_file(file);
+	rcu_assign_pointer(fdt->fd[fd], file);
 
---
+	__set_open_fd(fd, fdt);
 
-[Step over vfork syscall]
-ptrace(PTRACE_SINGLESTEP, 63049, 0x1, SIG_0) = 0
---- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_TRAPPED, si_pid=63049, 
-si_uid=13595, si_status=SIGTRAP, si_utime=0, si_stime=0} ---
+	...
+}
 
-[vfork event for child 63052]
-ptrace(PTRACE_GETEVENTMSG, 63049, NULL, [63052]) = 0
+/*
+ * File Receive - Receive a file from another process
+ *
+ * Encapsulates the logic to handle receiving a file from another task. It
+ * does not install the file descriptor. That is delegated to the user. If
+ * an error occurs that results in the file descriptor not being installed,
+ * they must put_unused_fd.
+ *
+ * fd should be >= 0 if you intend on replacing a file descriptor, or
+ * alternatively -1 if you want file_receive to allocate an FD for you
+ *
+ * Returns the fd number on success.
+ * Returns negative error code on failure.
+ *
+ */
+int file_receive(int fd, unsigned int flags, struct file *file)
+{
+	int err;
+	struct socket *sock;
+	struct files_struct *files = current->files;
 
-...
+	err = security_file_receive(file);
+	if (err)
+		return err;
 
-[Detach child]
-ptrace(PTRACE_DETACH, 63052, NULL, SIG_0) = 0
-ptrace(PTRACE_CONT, 63049, 0x1, SIG_0)  = 0
---- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_TRAPPED, si_pid=63049, 
-si_uid=13595, si_status=SIGTRAP, si_utime=0, si_stime=0} ---
+	if (fd >= 0) {
+		if (fd >= rlimit(RLIMIT_NOFILE))
+			return -EBADF;
 
-...
+		spin_lock(&files->file_lock);
+		err = expand_files(files, fd);
+		if (err < 0) {
+			goto out_unlock;
+		}
 
-ptrace(PTRACE_SINGLESTEP, 63049, 0x1, SIG_0) = 0
---- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_TRAPPED, si_pid=63049, 
-si_uid=13595, si_status=SIGCHLD, si_utime=0, si_stime=0} ---
+		err = do_dup2(files, NULL, fd, flags);
+		if (err)
+			return err;
+	} else {
+		fd = get_unused_fd_flags(flags);
+		if (fd < 0)
+			return fd;
+	}
 
---
+	sock = sock_from_file(file, &err);
+	if (sock) {
+		sock_update_netprioidx(&sock->sk->sk_cgrp_data);
+		sock_update_classid(&sock->sk->sk_cgrp_data);
+	}
 
-For x86-64, we have this:
+	return fd;
 
---
+out_unlock:
+	spin_unlock(&files->file_lock);
+	return err;
+}
 
-[Step over vfork syscall]
-ptrace(PTRACE_SINGLESTEP, 13484, 0x1, SIG_0) = 0
---- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_TRAPPED, si_pid=13484, 
-si_uid=1000, si_status=SIGTRAP, si_utime=0, si_stime=0} ---
---- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_TRAPPED, si_pid=13493, 
-si_uid=1000, si_status=SIGSTOP, si_utime=0, si_stime=0} ---
+---
 
-[vfork event for child 13493]
-ptrace(PTRACE_GETEVENTMSG, 13484, NULL, [13493]) = 0
+then the code in scm.c:
+err = file_receive(-1, flags, fp[i]);
+if (err < 0)
+	break;
 
-...
+new_fd = err;
+err = put_user(new_fd, cmfptr);
+if (err) {
+	put_unused_fd(new_fd);
+	break;
+}
 
-[Detach child]
-ptrace(PTRACE_DETACH, 13493, NULL, SIG_0) = 0
-ptrace(PTRACE_CONT, 13484, 0x1, SIG_0)  = 0
---- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_TRAPPED, si_pid=13484, 
-si_uid=1000, si_status=SIGTRAP, si_utime=0, si_stime=0} ---
+/* Bump the usage count and install the file. */
+fd_install(new_fd, get_file(fp[i]));
 
-...
+And addfd:
+ret = file_receive(addfd->fd, addfd->flags, addfd->file);
+if (ret >= 0)
+	fd_install(ret, get_file(addfd->file));
+addfd->ret = ret;
 
-ptrace(PTRACE_SINGLESTEP, 13484, 0x1, SIG_0) = 0
---- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_TRAPPED, si_pid=13484, 
-si_uid=1000, si_status=SIGTRAP, si_utime=0, si_stime=0} ---
+----
 
---
+This way there is:
+1. No "put_user" logic in file_receive
+2. Minimal (single) branching logic, unless there's something in between
+   the file_receive and installing the FD, such as put_user.
+3. Doesn't implement fd_install, so there's no ambiguity about it being
+   file_install_received vs. just the receive logic.
 
-There are a couple things off:
-
-1 - x86-64 seems to get an extra SIGSTOP when we single-step over the 
-vfork syscall, though this doesn't seem to do any harm.
-
-2 - This is the one that throws GDB off. In the last single-step 
-request, arm64 gets a SIGCHLD instead of the SIGTRAP x86-64 gets.
-
-I did some experiments with it, and it seems the last SIGCHLD is more 
-prone to being delivered (instead of a SIGTRAP) if we put some load on 
-the machine (by firing off processes or producing a lot of screen output 
-for example).
-
-Does this ring any bells? I suppose signal delivery order is not 
-guaranteed in this context, but x86-64 seems to deliver them 
-consistently in the same order.
