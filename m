@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D8C7E1EF7B0
-	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 14:29:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 27FB71EF768
+	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 14:29:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726993AbgFEM2l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Jun 2020 08:28:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58020 "EHLO mail.kernel.org"
+        id S1727055AbgFEM0G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Jun 2020 08:26:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58066 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727036AbgFEM0D (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Jun 2020 08:26:03 -0400
+        id S1727040AbgFEM0F (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Jun 2020 08:26:05 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 71A0A20897;
-        Fri,  5 Jun 2020 12:26:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8EE1F20899;
+        Fri,  5 Jun 2020 12:26:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591359963;
-        bh=x+RK2T1KYWRR6tas5jCc3xdvFytQfG2NGT0oj43jnCY=;
+        s=default; t=1591359964;
+        bh=190JLV0gOcwxDInkyWUEGInDFzgDvb8MAPlIROCkhmY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d17yrxjlMkMTc8bPYGzwVwDX3Qup1P1Ru4GkBUDbUvKMnzVnmbTmnQ6Psq3OAE0hU
-         uvwDa05ulUGG22cY6AQsgv6eB/Lfh1r9kSGOV0wvYqWEmDkO5nYjg1eb5OSghER5H5
-         mS6T+L7hbzdzdxaJlK5o8S7KoDxaeiPFj2IHmWeQ=
+        b=fp5K34e8CgXkk4wwwXw1H1kfFO7cWK9VI96g2V5G9XpU2O8FOpUVuMi/6rWTZQ0Lp
+         G9aSWl+jsB2lPHTujAtx/bg4CeXTWsungFs7tBUosj0RZaKuCnCnEYmn4i41sOM4LX
+         +FTdJBGVEQA9H2XDafz6JKqdLSYQerAgOag0DwlI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Willem de Bruijn <willemb@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
+Cc:     Daniele Palmas <dnlplm@gmail.com>,
+        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
         "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>,
-        virtualization@lists.linux-foundation.org
-Subject: [PATCH AUTOSEL 4.19 4/9] net: check untrusted gso_size at kernel entry
-Date:   Fri,  5 Jun 2020 08:25:52 -0400
-Message-Id: <20200605122558.2882712-4-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 5/9] net: usb: qmi_wwan: add Telit LE910C1-EUX composition
+Date:   Fri,  5 Jun 2020 08:25:53 -0400
+Message-Id: <20200605122558.2882712-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200605122558.2882712-1-sashal@kernel.org>
 References: <20200605122558.2882712-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -45,77 +46,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Willem de Bruijn <willemb@google.com>
+From: Daniele Palmas <dnlplm@gmail.com>
 
-[ Upstream commit 6dd912f82680761d8fb6b1bb274a69d4c7010988 ]
+[ Upstream commit 591612aa578cd7148b7b9d74869ef40118978389 ]
 
-Syzkaller again found a path to a kernel crash through bad gso input:
-a packet with gso size exceeding len.
+Add support for Telit LE910C1-EUX composition
 
-These packets are dropped in tcp_gso_segment and udp[46]_ufo_fragment.
-But they may affect gso size calculations earlier in the path.
-
-Now that we have thlen as of commit 9274124f023b ("net: stricter
-validation of untrusted gso packets"), check gso_size at entry too.
-
-Fixes: bfd5f4a3d605 ("packet: Add GSO/csum offload support.")
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: Willem de Bruijn <willemb@google.com>
+0x1031: tty, tty, tty, rmnet
+Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
+Acked-by: Bjørn Mork <bjorn@mork.no>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/virtio_net.h | 14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ drivers/net/usb/qmi_wwan.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
-index f36727098df8..1c296f370e46 100644
---- a/include/linux/virtio_net.h
-+++ b/include/linux/virtio_net.h
-@@ -31,6 +31,7 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
- {
- 	unsigned int gso_type = 0;
- 	unsigned int thlen = 0;
-+	unsigned int p_off = 0;
- 	unsigned int ip_proto;
- 
- 	if (hdr->gso_type != VIRTIO_NET_HDR_GSO_NONE) {
-@@ -68,7 +69,8 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
- 		if (!skb_partial_csum_set(skb, start, off))
- 			return -EINVAL;
- 
--		if (skb_transport_offset(skb) + thlen > skb_headlen(skb))
-+		p_off = skb_transport_offset(skb) + thlen;
-+		if (p_off > skb_headlen(skb))
- 			return -EINVAL;
- 	} else {
- 		/* gso packets without NEEDS_CSUM do not set transport_offset.
-@@ -92,17 +94,25 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
- 				return -EINVAL;
- 			}
- 
--			if (keys.control.thoff + thlen > skb_headlen(skb) ||
-+			p_off = keys.control.thoff + thlen;
-+			if (p_off > skb_headlen(skb) ||
- 			    keys.basic.ip_proto != ip_proto)
- 				return -EINVAL;
- 
- 			skb_set_transport_header(skb, keys.control.thoff);
-+		} else if (gso_type) {
-+			p_off = thlen;
-+			if (p_off > skb_headlen(skb))
-+				return -EINVAL;
- 		}
- 	}
- 
- 	if (hdr->gso_type != VIRTIO_NET_HDR_GSO_NONE) {
- 		u16 gso_size = __virtio16_to_cpu(little_endian, hdr->gso_size);
- 
-+		if (skb->len - p_off <= gso_size)
-+			return -EINVAL;
-+
- 		skb_shinfo(skb)->gso_size = gso_size;
- 		skb_shinfo(skb)->gso_type = gso_type;
- 
+diff --git a/drivers/net/usb/qmi_wwan.c b/drivers/net/usb/qmi_wwan.c
+index c8222cdf755d..1f70e00838f2 100644
+--- a/drivers/net/usb/qmi_wwan.c
++++ b/drivers/net/usb/qmi_wwan.c
+@@ -1260,6 +1260,7 @@ static const struct usb_device_id products[] = {
+ 	{QMI_FIXED_INTF(0x1bbb, 0x0203, 2)},	/* Alcatel L800MA */
+ 	{QMI_FIXED_INTF(0x2357, 0x0201, 4)},	/* TP-LINK HSUPA Modem MA180 */
+ 	{QMI_FIXED_INTF(0x2357, 0x9000, 4)},	/* TP-LINK MA260 */
++	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1031, 3)}, /* Telit LE910C1-EUX */
+ 	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1040, 2)},	/* Telit LE922A */
+ 	{QMI_FIXED_INTF(0x1bc7, 0x1100, 3)},	/* Telit ME910 */
+ 	{QMI_FIXED_INTF(0x1bc7, 0x1101, 3)},	/* Telit ME910 dual modem */
 -- 
 2.25.1
 
