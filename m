@@ -2,105 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 704F61EFAD9
-	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 16:21:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A2F1D1EFB47
+	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 16:25:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728971AbgFEOVV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Jun 2020 10:21:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51392 "EHLO mail.kernel.org"
+        id S1728251AbgFEOQc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Jun 2020 10:16:32 -0400
+Received: from mx2.suse.de ([195.135.220.15]:42444 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728934AbgFEOUO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Jun 2020 10:20:14 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6CE102070B;
-        Fri,  5 Jun 2020 14:20:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591366812;
-        bh=ZX1tnruJSvdsfDaH4vcNnaq0VG75PQYjQCUTI1CB0R4=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E4qeqkGu1N98yY+Bqbjivrtt8+u8xn1SYHSPy4QIMx5PZ9v4RhV+lDOj30pQ0CQHv
-         3XwcwRqR5yRreycdBJBqJqjlLk8jOnCNjYnIq4ffH7b1ygi4iOvB272WqBGLfbinOt
-         yzTZur7Ezs6F58hfm5WpwdGAz4htlyGj0B7loIo0=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 28/28] net: smsc911x: Fix runtime PM imbalance on error
-Date:   Fri,  5 Jun 2020 16:15:30 +0200
-Message-Id: <20200605140254.054763694@linuxfoundation.org>
-X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200605140252.338635395@linuxfoundation.org>
-References: <20200605140252.338635395@linuxfoundation.org>
-User-Agent: quilt/0.66
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+        id S1728241AbgFEOQb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Jun 2020 10:16:31 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx2.suse.de (Postfix) with ESMTP id 13E65AAD0;
+        Fri,  5 Jun 2020 14:16:33 +0000 (UTC)
+Received: by quack2.suse.cz (Postfix, from userid 1000)
+        id 4D67A1E0267; Fri,  5 Jun 2020 16:16:29 +0200 (CEST)
+From:   Jan Kara <jack@suse.cz>
+To:     <linux-block@vger.kernel.org>
+Cc:     Paolo Valente <paolo.valente@linaro.org>, Jan Kara <jack@suse.cz>,
+        stable@vger.kernel.org
+Subject: [PATCH 1/3] bfq: Avoid false bfq queue merging
+Date:   Fri,  5 Jun 2020 16:16:16 +0200
+Message-Id: <20200605141629.15347-1-jack@suse.cz>
+X-Mailer: git-send-email 2.16.4
+In-Reply-To: <20200605140837.5394-1-jack@suse.cz>
+References: <20200605140837.5394-1-jack@suse.cz>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinghao Liu <dinghao.liu@zju.edu.cn>
+bfq_setup_cooperator() uses bfqd->in_serv_last_pos so detect whether it
+makes sense to merge current bfq queue with the in-service queue.
+However if the in-service queue is freshly scheduled and didn't dispatch
+any requests yet, bfqd->in_serv_last_pos is stale and contains value
+from the previously scheduled bfq queue which can thus result in a bogus
+decision that the two queues should be merged. This bug can be observed
+for example with the following fio jobfile:
 
-[ Upstream commit 539d39ad0c61b35f69565a037d7586deaf6d6166 ]
+[global]
+direct=0
+ioengine=sync
+invalidate=1
+size=1g
+rw=read
 
-Remove runtime PM usage counter decrement when the
-increment function has not been called to keep the
-counter balanced.
+[reader]
+numjobs=4
+directory=/mnt
 
-Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+where the 4 processes will end up in the one shared bfq queue although
+they do IO to physically very distant files (for some reason I was able to
+observe this only with slice_idle=1ms setting).
+
+Fix the problem by invalidating bfqd->in_serv_last_pos when switching
+in-service queue.
+
+Fixes: 058fdecc6de7 ("block, bfq: fix in-service-queue check for queue merging")
+CC: stable@vger.kernel.org
+Signed-off-by: Jan Kara <jack@suse.cz>
 ---
- drivers/net/ethernet/smsc/smsc911x.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ block/bfq-iosched.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/smsc/smsc911x.c b/drivers/net/ethernet/smsc/smsc911x.c
-index ce4bfecc26c7..ae80a223975d 100644
---- a/drivers/net/ethernet/smsc/smsc911x.c
-+++ b/drivers/net/ethernet/smsc/smsc911x.c
-@@ -2515,20 +2515,20 @@ static int smsc911x_drv_probe(struct platform_device *pdev)
- 
- 	retval = smsc911x_init(dev);
- 	if (retval < 0)
--		goto out_disable_resources;
-+		goto out_init_fail;
- 
- 	netif_carrier_off(dev);
- 
- 	retval = smsc911x_mii_init(pdev, dev);
- 	if (retval) {
- 		SMSC_WARN(pdata, probe, "Error %i initialising mii", retval);
--		goto out_disable_resources;
-+		goto out_init_fail;
+diff --git a/block/bfq-iosched.c b/block/bfq-iosched.c
+index 3d411716d7ee..50017275915f 100644
+--- a/block/bfq-iosched.c
++++ b/block/bfq-iosched.c
+@@ -2937,6 +2937,7 @@ static void __bfq_set_in_service_queue(struct bfq_data *bfqd,
  	}
  
- 	retval = register_netdev(dev);
- 	if (retval) {
- 		SMSC_WARN(pdata, probe, "Error %i registering device", retval);
--		goto out_disable_resources;
-+		goto out_init_fail;
- 	} else {
- 		SMSC_TRACE(pdata, probe,
- 			   "Network interface: \"%s\"", dev->name);
-@@ -2569,9 +2569,10 @@ static int smsc911x_drv_probe(struct platform_device *pdev)
+ 	bfqd->in_service_queue = bfqq;
++	bfqd->in_serv_last_pos = 0;
+ }
  
- 	return 0;
- 
--out_disable_resources:
-+out_init_fail:
- 	pm_runtime_put(&pdev->dev);
- 	pm_runtime_disable(&pdev->dev);
-+out_disable_resources:
- 	(void)smsc911x_disable_resources(pdev);
- out_enable_resources_fail:
- 	smsc911x_free_resources(pdev);
+ /*
 -- 
-2.25.1
-
-
+2.16.4
 
