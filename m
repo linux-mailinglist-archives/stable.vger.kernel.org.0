@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 585C21EF764
-	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 14:29:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D24DC1EF763
+	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 14:29:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727025AbgFEM0C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Jun 2020 08:26:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57830 "EHLO mail.kernel.org"
+        id S1727021AbgFEM0B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Jun 2020 08:26:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57900 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727005AbgFEMZ6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Jun 2020 08:25:58 -0400
+        id S1727017AbgFEM0A (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Jun 2020 08:26:00 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6BB2120897;
-        Fri,  5 Jun 2020 12:25:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1013920820;
+        Fri,  5 Jun 2020 12:25:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591359957;
-        bh=LSh1+GupV2pKz+d4OidsvMNQT+xAZ6AUoy6Hh6bd47s=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kRgcmkxghSDPY4tyN3SmjnQNuxJUrKM7vufd5WT9azpmn0n2umUR61/GwbQd9i7WQ
-         LY6pn2mUf2xNYrkx9Qf/CFWg1ZAAbu4BHvssCsAxuSTz64db0yEco66iI/+0UY4Qo+
-         YdI+v5ERbd/b5etgSgwPJa31cvIUXMyGI0xN5TIk=
+        s=default; t=1591359959;
+        bh=+/l/HKb94QJ1fLl/aY9Ci1ZVow5m6nAWV0fLci86yno=;
+        h=From:To:Cc:Subject:Date:From;
+        b=ai8AfOaRun5UtE8+K3s7ii5XJMsBhy584xcYCUEDfzBwykR7TGVqvlYBwWcYvvPhT
+         InI0aeWp6+n0y69FmfFo6Vx3ehtjUyI4kI9aUSTaKpmhO113/BcQ9O1pl+j3BVLBbU
+         uIGLueetq4xw39kG+Cai96bpI9LHy3KT+sObhPHo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Eric Dumazet <edumazet@google.com>,
-        James Chapman <jchapman@katalix.com>,
-        Andrii Nakryiko <andriin@fb.com>,
-        syzbot+3610d489778b57cc8031@syzkaller.appspotmail.com,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 14/14] l2tp: do not use inet_hash()/inet_unhash()
-Date:   Fri,  5 Jun 2020 08:25:40 -0400
-Message-Id: <20200605122540.2882539-14-sashal@kernel.org>
+Cc:     Stephan Gerhold <stephan@gerhold.net>,
+        Andi Shyti <andi@etezian.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 1/9] Input: mms114 - fix handling of mms345l
+Date:   Fri,  5 Jun 2020 08:25:49 -0400
+Message-Id: <20200605122558.2882712-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200605122540.2882539-1-sashal@kernel.org>
-References: <20200605122540.2882539-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -46,206 +42,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Stephan Gerhold <stephan@gerhold.net>
 
-[ Upstream commit 02c71b144c811bcdd865e0a1226d0407d11357e8 ]
+[ Upstream commit 3f8f770575d911c989043d8f0fb8dec96360c41c ]
 
-syzbot recently found a way to crash the kernel [1]
+MMS345L is another first generation touch screen from Melfas,
+which uses the same registers as MMS152.
 
-Issue here is that inet_hash() & inet_unhash() are currently
-only meant to be used by TCP & DCCP, since only these protocols
-provide the needed hashinfo pointer.
+However, using I2C_M_NOSTART for it causes errors when reading:
 
-L2TP uses a single list (instead of a hash table)
+	i2c i2c-0: sendbytes: NAK bailout.
+	mms114 0-0048: __mms114_read_reg: i2c transfer failed (-5)
 
-This old bug became an issue after commit 610236587600
-("bpf: Add new cgroup attach type to enable sock modifications")
-since after this commit, sk_common_release() can be called
-while the L2TP socket is still considered 'hashed'.
+The driver works fine as soon as I2C_M_NOSTART is removed.
 
-general protection fault, probably for non-canonical address 0xdffffc0000000001: 0000 [#1] PREEMPT SMP KASAN
-KASAN: null-ptr-deref in range [0x0000000000000008-0x000000000000000f]
-CPU: 0 PID: 7063 Comm: syz-executor654 Not tainted 5.7.0-rc6-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-RIP: 0010:inet_unhash+0x11f/0x770 net/ipv4/inet_hashtables.c:600
-Code: 03 0f b6 04 02 84 c0 74 08 3c 03 0f 8e dd 04 00 00 48 8d 7d 08 44 8b 73 08 48 b8 00 00 00 00 00 fc ff df 48 89 fa 48 c1 ea 03 <80> 3c 02 00 0f 85 55 05 00 00 48 8d 7d 14 4c 8b 6d 08 48 b8 00 00
-RSP: 0018:ffffc90001777d30 EFLAGS: 00010202
-RAX: dffffc0000000000 RBX: ffff88809a6df940 RCX: ffffffff8697c242
-RDX: 0000000000000001 RSI: ffffffff8697c251 RDI: 0000000000000008
-RBP: 0000000000000000 R08: ffff88809f3ae1c0 R09: fffffbfff1514cc1
-R10: ffffffff8a8a6607 R11: fffffbfff1514cc0 R12: ffff88809a6df9b0
-R13: 0000000000000007 R14: 0000000000000000 R15: ffffffff873a4d00
-FS:  0000000001d2b880(0000) GS:ffff8880ae600000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00000000006cd090 CR3: 000000009403a000 CR4: 00000000001406f0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- sk_common_release+0xba/0x370 net/core/sock.c:3210
- inet_create net/ipv4/af_inet.c:390 [inline]
- inet_create+0x966/0xe00 net/ipv4/af_inet.c:248
- __sock_create+0x3cb/0x730 net/socket.c:1428
- sock_create net/socket.c:1479 [inline]
- __sys_socket+0xef/0x200 net/socket.c:1521
- __do_sys_socket net/socket.c:1530 [inline]
- __se_sys_socket net/socket.c:1528 [inline]
- __x64_sys_socket+0x6f/0xb0 net/socket.c:1528
- do_syscall_64+0xf6/0x7d0 arch/x86/entry/common.c:295
- entry_SYSCALL_64_after_hwframe+0x49/0xb3
-RIP: 0033:0x441e29
-Code: e8 fc b3 02 00 48 83 c4 18 c3 0f 1f 80 00 00 00 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 eb 08 fc ff c3 66 2e 0f 1f 84 00 00 00 00
-RSP: 002b:00007ffdce184148 EFLAGS: 00000246 ORIG_RAX: 0000000000000029
-RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 0000000000441e29
-RDX: 0000000000000073 RSI: 0000000000000002 RDI: 0000000000000002
-RBP: 0000000000000000 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
-R13: 0000000000402c30 R14: 0000000000000000 R15: 0000000000000000
-Modules linked in:
----[ end trace 23b6578228ce553e ]---
-RIP: 0010:inet_unhash+0x11f/0x770 net/ipv4/inet_hashtables.c:600
-Code: 03 0f b6 04 02 84 c0 74 08 3c 03 0f 8e dd 04 00 00 48 8d 7d 08 44 8b 73 08 48 b8 00 00 00 00 00 fc ff df 48 89 fa 48 c1 ea 03 <80> 3c 02 00 0f 85 55 05 00 00 48 8d 7d 14 4c 8b 6d 08 48 b8 00 00
-RSP: 0018:ffffc90001777d30 EFLAGS: 00010202
-RAX: dffffc0000000000 RBX: ffff88809a6df940 RCX: ffffffff8697c242
-RDX: 0000000000000001 RSI: ffffffff8697c251 RDI: 0000000000000008
-RBP: 0000000000000000 R08: ffff88809f3ae1c0 R09: fffffbfff1514cc1
-R10: ffffffff8a8a6607 R11: fffffbfff1514cc0 R12: ffff88809a6df9b0
-R13: 0000000000000007 R14: 0000000000000000 R15: ffffffff873a4d00
-FS:  0000000001d2b880(0000) GS:ffff8880ae600000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00000000006cd090 CR3: 000000009403a000 CR4: 00000000001406f0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-
-Fixes: 0d76751fad77 ("l2tp: Add L2TPv3 IP encapsulation (no UDP) support")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: James Chapman <jchapman@katalix.com>
-Cc: Andrii Nakryiko <andriin@fb.com>
-Reported-by: syzbot+3610d489778b57cc8031@syzkaller.appspotmail.com
+Reviewed-by: Andi Shyti <andi@etezian.org>
+Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
+Link: https://lore.kernel.org/r/20200405170904.61512-1-stephan@gerhold.net
+[dtor: removed separate mms345l handling, made everyone use standard
+transfer mode, propagated the 10bit addressing flag to the read part of the
+transfer as well.]
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/l2tp/l2tp_ip.c  | 29 ++++++++++++++++++++++-------
- net/l2tp/l2tp_ip6.c | 30 ++++++++++++++++++++++--------
- 2 files changed, 44 insertions(+), 15 deletions(-)
+ drivers/input/touchscreen/mms114.c | 12 +++++-------
+ 1 file changed, 5 insertions(+), 7 deletions(-)
 
-diff --git a/net/l2tp/l2tp_ip.c b/net/l2tp/l2tp_ip.c
-index 0d7c887a2b75..955662a6dee7 100644
---- a/net/l2tp/l2tp_ip.c
-+++ b/net/l2tp/l2tp_ip.c
-@@ -20,7 +20,6 @@
- #include <net/icmp.h>
- #include <net/udp.h>
- #include <net/inet_common.h>
--#include <net/inet_hashtables.h>
- #include <net/tcp_states.h>
- #include <net/protocol.h>
- #include <net/xfrm.h>
-@@ -209,15 +208,31 @@ static int l2tp_ip_recv(struct sk_buff *skb)
- 	return 0;
- }
+diff --git a/drivers/input/touchscreen/mms114.c b/drivers/input/touchscreen/mms114.c
+index a5ab774da4cc..fca908ba4841 100644
+--- a/drivers/input/touchscreen/mms114.c
++++ b/drivers/input/touchscreen/mms114.c
+@@ -91,15 +91,15 @@ static int __mms114_read_reg(struct mms114_data *data, unsigned int reg,
+ 	if (reg <= MMS114_MODE_CONTROL && reg + len > MMS114_MODE_CONTROL)
+ 		BUG();
  
--static int l2tp_ip_open(struct sock *sk)
-+static int l2tp_ip_hash(struct sock *sk)
- {
--	/* Prevent autobind. We don't have ports. */
--	inet_sk(sk)->inet_num = IPPROTO_L2TP;
-+	if (sk_unhashed(sk)) {
-+		write_lock_bh(&l2tp_ip_lock);
-+		sk_add_node(sk, &l2tp_ip_table);
-+		write_unlock_bh(&l2tp_ip_lock);
-+	}
-+	return 0;
-+}
+-	/* Write register: use repeated start */
++	/* Write register */
+ 	xfer[0].addr = client->addr;
+-	xfer[0].flags = I2C_M_TEN | I2C_M_NOSTART;
++	xfer[0].flags = client->flags & I2C_M_TEN;
+ 	xfer[0].len = 1;
+ 	xfer[0].buf = &buf;
  
-+static void l2tp_ip_unhash(struct sock *sk)
-+{
-+	if (sk_unhashed(sk))
-+		return;
- 	write_lock_bh(&l2tp_ip_lock);
--	sk_add_node(sk, &l2tp_ip_table);
-+	sk_del_node_init(sk);
- 	write_unlock_bh(&l2tp_ip_lock);
-+}
-+
-+static int l2tp_ip_open(struct sock *sk)
-+{
-+	/* Prevent autobind. We don't have ports. */
-+	inet_sk(sk)->inet_num = IPPROTO_L2TP;
+ 	/* Read data */
+ 	xfer[1].addr = client->addr;
+-	xfer[1].flags = I2C_M_RD;
++	xfer[1].flags = (client->flags & I2C_M_TEN) | I2C_M_RD;
+ 	xfer[1].len = len;
+ 	xfer[1].buf = val;
  
-+	l2tp_ip_hash(sk);
- 	return 0;
- }
+@@ -428,10 +428,8 @@ static int mms114_probe(struct i2c_client *client,
+ 	const void *match_data;
+ 	int error;
  
-@@ -594,8 +609,8 @@ static struct proto l2tp_ip_prot = {
- 	.sendmsg	   = l2tp_ip_sendmsg,
- 	.recvmsg	   = l2tp_ip_recvmsg,
- 	.backlog_rcv	   = l2tp_ip_backlog_recv,
--	.hash		   = inet_hash,
--	.unhash		   = inet_unhash,
-+	.hash		   = l2tp_ip_hash,
-+	.unhash		   = l2tp_ip_unhash,
- 	.obj_size	   = sizeof(struct l2tp_ip_sock),
- #ifdef CONFIG_COMPAT
- 	.compat_setsockopt = compat_ip_setsockopt,
-diff --git a/net/l2tp/l2tp_ip6.c b/net/l2tp/l2tp_ip6.c
-index d148766f40d1..0fa694bd3f6a 100644
---- a/net/l2tp/l2tp_ip6.c
-+++ b/net/l2tp/l2tp_ip6.c
-@@ -20,8 +20,6 @@
- #include <net/icmp.h>
- #include <net/udp.h>
- #include <net/inet_common.h>
--#include <net/inet_hashtables.h>
--#include <net/inet6_hashtables.h>
- #include <net/tcp_states.h>
- #include <net/protocol.h>
- #include <net/xfrm.h>
-@@ -222,15 +220,31 @@ static int l2tp_ip6_recv(struct sk_buff *skb)
- 	return 0;
- }
+-	if (!i2c_check_functionality(client->adapter,
+-				I2C_FUNC_PROTOCOL_MANGLING)) {
+-		dev_err(&client->dev,
+-			"Need i2c bus that supports protocol mangling\n");
++	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
++		dev_err(&client->dev, "Not supported I2C adapter\n");
+ 		return -ENODEV;
+ 	}
  
--static int l2tp_ip6_open(struct sock *sk)
-+static int l2tp_ip6_hash(struct sock *sk)
- {
--	/* Prevent autobind. We don't have ports. */
--	inet_sk(sk)->inet_num = IPPROTO_L2TP;
-+	if (sk_unhashed(sk)) {
-+		write_lock_bh(&l2tp_ip6_lock);
-+		sk_add_node(sk, &l2tp_ip6_table);
-+		write_unlock_bh(&l2tp_ip6_lock);
-+	}
-+	return 0;
-+}
- 
-+static void l2tp_ip6_unhash(struct sock *sk)
-+{
-+	if (sk_unhashed(sk))
-+		return;
- 	write_lock_bh(&l2tp_ip6_lock);
--	sk_add_node(sk, &l2tp_ip6_table);
-+	sk_del_node_init(sk);
- 	write_unlock_bh(&l2tp_ip6_lock);
-+}
-+
-+static int l2tp_ip6_open(struct sock *sk)
-+{
-+	/* Prevent autobind. We don't have ports. */
-+	inet_sk(sk)->inet_num = IPPROTO_L2TP;
- 
-+	l2tp_ip6_hash(sk);
- 	return 0;
- }
- 
-@@ -728,8 +742,8 @@ static struct proto l2tp_ip6_prot = {
- 	.sendmsg	   = l2tp_ip6_sendmsg,
- 	.recvmsg	   = l2tp_ip6_recvmsg,
- 	.backlog_rcv	   = l2tp_ip6_backlog_recv,
--	.hash		   = inet6_hash,
--	.unhash		   = inet_unhash,
-+	.hash		   = l2tp_ip6_hash,
-+	.unhash		   = l2tp_ip6_unhash,
- 	.obj_size	   = sizeof(struct l2tp_ip6_sock),
- #ifdef CONFIG_COMPAT
- 	.compat_setsockopt = compat_ipv6_setsockopt,
 -- 
 2.25.1
 
