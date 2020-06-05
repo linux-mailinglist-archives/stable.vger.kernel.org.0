@@ -2,42 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3617B1EFA5B
-	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 16:18:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 746CE1EFAED
+	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 16:22:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728307AbgFEOQt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Jun 2020 10:16:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45982 "EHLO mail.kernel.org"
+        id S1728786AbgFEOTG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Jun 2020 10:19:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49700 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728298AbgFEOQs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Jun 2020 10:16:48 -0400
+        id S1728178AbgFEOTC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Jun 2020 10:19:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 631CF20835;
-        Fri,  5 Jun 2020 14:16:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9C446208A9;
+        Fri,  5 Jun 2020 14:19:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591366607;
-        bh=5ytxPpxU0m3lHoVVGX4RTX2V48UhxcGD1rEGh/T19/c=;
+        s=default; t=1591366742;
+        bh=k4MdHdKkOwBPSJvJDuxl0DBhK1L0mnYClje06rnuBRo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z+1Zk3GAHb5VyLeSqvzIn8rFSkxF22GRvyWvmJ3bCsw7XweT7MRuF6ZaVLWEhYS9e
-         g8qCa0G94t8548Xox4rwvzrNuxzni6ei7FZwZ9ZaON6gUuf+pmiO5TSgR1qkxrPLOh
-         OTpIEllt3EpU4HhduuDlCDunrndA2Ya9fzCvOXdY=
+        b=P7O0fFJ7ZXIO6dj0OTyCG8mg3AJXdTYeVzmwl08P71AIHZEIw8t8WpixZm4qiruOw
+         bWFZC64Jpf/dOHti+zu5X3DAqzu2/bAIrTsIRfhfZ6r47JnaI5DufvmP8QtLfrm3oU
+         h9xbrMiHMcaA13cwaUbq7UORUBOOPnPzrPb4aXw8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Vladimir Stempen <vladimir.stempen@amd.com>,
-        Wenjing Liu <Wenjing.Liu@amd.com>,
-        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 21/43] drm/amd/display: DP training to set properly SCRAMBLING_DISABLE
+        syzbot+1e925b4b836afe85a1c6@syzkaller-ppc64.appspotmail.com,
+        syzbot+587b2421926808309d21@syzkaller-ppc64.appspotmail.com,
+        syzbot+58320b7171734bf79d26@syzkaller.appspotmail.com,
+        syzbot+d6074fb08bdb2e010520@syzkaller.appspotmail.com,
+        Daniel Axtens <dja@axtens.net>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Andrew Donnellan <ajd@linux.ibm.com>,
+        David Rientjes <rientjes@google.com>,
+        Akash Goel <akash.goel@intel.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Salvatore Bonaccorso <carnil@debian.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 08/38] kernel/relay.c: handle alloc_percpu returning NULL in relay_open
 Date:   Fri,  5 Jun 2020 16:14:51 +0200
-Message-Id: <20200605140153.634806305@linuxfoundation.org>
+Message-Id: <20200605140253.051743118@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200605140152.493743366@linuxfoundation.org>
-References: <20200605140152.493743366@linuxfoundation.org>
+In-Reply-To: <20200605140252.542768750@linuxfoundation.org>
+References: <20200605140252.542768750@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,74 +55,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Stempen <vladimir.stempen@amd.com>
+From: Daniel Axtens <dja@axtens.net>
 
-[ Upstream commit b6ef55ccba7ed00fc10e3e6f619c8f886162427f ]
+commit 54e200ab40fc14c863bcc80a51e20b7906608fce upstream.
 
-[Why]
-DP training sequence to set SCRAMBLING_DISABLE bit properly based on
-training pattern - per DP Spec.
+alloc_percpu() may return NULL, which means chan->buf may be set to NULL.
+In that case, when we do *per_cpu_ptr(chan->buf, ...), we dereference an
+invalid pointer:
 
-[How]
-Update dpcd_pattern.v1_4.SCRAMBLING_DISABLE with 1 for TPS1, TPS2, TPS3,
-but not for TPS4.
+  BUG: Unable to handle kernel data access at 0x7dae0000
+  Faulting instruction address: 0xc0000000003f3fec
+  ...
+  NIP relay_open+0x29c/0x600
+  LR relay_open+0x270/0x600
+  Call Trace:
+     relay_open+0x264/0x600 (unreliable)
+     __blk_trace_setup+0x254/0x600
+     blk_trace_setup+0x68/0xa0
+     sg_ioctl+0x7bc/0x2e80
+     do_vfs_ioctl+0x13c/0x1300
+     ksys_ioctl+0x94/0x130
+     sys_ioctl+0x48/0xb0
+     system_call+0x5c/0x68
 
-Signed-off-by: Vladimir Stempen <vladimir.stempen@amd.com>
-Reviewed-by: Wenjing Liu <Wenjing.Liu@amd.com>
-Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Check if alloc_percpu returns NULL.
+
+This was found by syzkaller both on x86 and powerpc, and the reproducer
+it found on powerpc is capable of hitting the issue as an unprivileged
+user.
+
+Fixes: 017c59c042d0 ("relay: Use per CPU constructs for the relay channel buffer pointers")
+Reported-by: syzbot+1e925b4b836afe85a1c6@syzkaller-ppc64.appspotmail.com
+Reported-by: syzbot+587b2421926808309d21@syzkaller-ppc64.appspotmail.com
+Reported-by: syzbot+58320b7171734bf79d26@syzkaller.appspotmail.com
+Reported-by: syzbot+d6074fb08bdb2e010520@syzkaller.appspotmail.com
+Signed-off-by: Daniel Axtens <dja@axtens.net>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Michael Ellerman <mpe@ellerman.id.au>
+Reviewed-by: Andrew Donnellan <ajd@linux.ibm.com>
+Acked-by: David Rientjes <rientjes@google.com>
+Cc: Akash Goel <akash.goel@intel.com>
+Cc: Andrew Donnellan <ajd@linux.ibm.com>
+Cc: Guenter Roeck <linux@roeck-us.net>
+Cc: Salvatore Bonaccorso <carnil@debian.org>
+Cc: <stable@vger.kernel.org>	[4.10+]
+Link: http://lkml.kernel.org/r/20191219121256.26480-1-dja@axtens.net
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- .../gpu/drm/amd/display/dc/core/dc_link_dp.c  | 27 +++++++++++++++++++
- 1 file changed, 27 insertions(+)
+ kernel/relay.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c b/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
-index 1b6c75a4dd60..fbcd979438e2 100644
---- a/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
-+++ b/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
-@@ -220,6 +220,30 @@ static enum dpcd_training_patterns
- 	return dpcd_tr_pattern;
- }
+--- a/kernel/relay.c
++++ b/kernel/relay.c
+@@ -581,6 +581,11 @@ struct rchan *relay_open(const char *bas
+ 		return NULL;
  
-+static uint8_t dc_dp_initialize_scrambling_data_symbols(
-+	struct dc_link *link,
-+	enum dc_dp_training_pattern pattern)
-+{
-+	uint8_t disable_scrabled_data_symbols = 0;
-+
-+	switch (pattern) {
-+	case DP_TRAINING_PATTERN_SEQUENCE_1:
-+	case DP_TRAINING_PATTERN_SEQUENCE_2:
-+	case DP_TRAINING_PATTERN_SEQUENCE_3:
-+		disable_scrabled_data_symbols = 1;
-+		break;
-+	case DP_TRAINING_PATTERN_SEQUENCE_4:
-+		disable_scrabled_data_symbols = 0;
-+		break;
-+	default:
-+		ASSERT(0);
-+		DC_LOG_HW_LINK_TRAINING("%s: Invalid HW Training pattern: %d\n",
-+			__func__, pattern);
-+		break;
+ 	chan->buf = alloc_percpu(struct rchan_buf *);
++	if (!chan->buf) {
++		kfree(chan);
++		return NULL;
 +	}
-+	return disable_scrabled_data_symbols;
-+}
 +
- static inline bool is_repeater(struct dc_link *link, uint32_t offset)
- {
- 	return (!link->is_lttpr_mode_transparent && offset != 0);
-@@ -252,6 +276,9 @@ static void dpcd_set_lt_pattern_and_lane_settings(
- 	dpcd_pattern.v1_4.TRAINING_PATTERN_SET =
- 		dc_dp_training_pattern_to_dpcd_training_pattern(link, pattern);
- 
-+	dpcd_pattern.v1_4.SCRAMBLING_DISABLE =
-+		dc_dp_initialize_scrambling_data_symbols(link, pattern);
-+
- 	dpcd_lt_buffer[DP_TRAINING_PATTERN_SET - DP_TRAINING_PATTERN_SET]
- 		= dpcd_pattern.raw;
- 
--- 
-2.25.1
-
+ 	chan->version = RELAYFS_CHANNEL_VERSION;
+ 	chan->n_subbufs = n_subbufs;
+ 	chan->subbuf_size = subbuf_size;
 
 
