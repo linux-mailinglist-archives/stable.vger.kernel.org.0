@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DD15A1EFAC3
-	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 16:20:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C3FE1EFA77
+	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 16:19:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728114AbgFEOUa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Jun 2020 10:20:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51874 "EHLO mail.kernel.org"
+        id S1728548AbgFEORv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Jun 2020 10:17:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48120 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728016AbgFEOU3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Jun 2020 10:20:29 -0400
+        id S1728543AbgFEORt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Jun 2020 10:17:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 67439206F0;
-        Fri,  5 Jun 2020 14:20:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B268A208A9;
+        Fri,  5 Jun 2020 14:17:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591366828;
-        bh=+lEalpydFPuoTLmL+lIAkvgtLcYak05gGNyBg7fZBME=;
+        s=default; t=1591366669;
+        bh=nZhiGEfILEKMt44G8xrubVFUgbwYyN4KAnoxAwiFdG0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CVKsuq5ZU5hhN2UeczcCjS6aFsGQ4/TgwWmuuk1FQIJdtO0oQAq0qw60WcGOrTUB6
-         LpIiLeapnGjeKHO1rFx0lIOYd8t9lQLSVTT/OILyUm+swc/q1f0tYfQO9utiFxGGPz
-         DxMM6SQvzGfOOPr8WwEaaHVIoHnl5a1UltJv11GM=
+        b=16m48TuBYUMgd1B6kz67v+3nvoaqD6d+rXNgjf5OV3Rs3xExtD3hTlQshNFMp4fDr
+         v0ije9FTXgwC+93C+g+EdaGCQQcel3kDWL05saKc/L+MVDKLp32dUcnFMkUYaRK5jy
+         35R5ADQaDguz401oBfZ/v3fgFzxBx82EEgZLakr4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bean Huo <beanhuo@micron.com>,
-        Can Guo <cang@codeaurora.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Eric Biggers <ebiggers@google.com>
-Subject: [PATCH 4.19 09/28] scsi: ufs: Release clock if DMA map fails
+        stable@vger.kernel.org, Tomasz Figa <tfiga@chromium.org>,
+        Bingbu Cao <bingbu.cao@intel.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 5.6 41/43] media: staging: ipu3-imgu: Move alignment attribute to field
 Date:   Fri,  5 Jun 2020 16:15:11 +0200
-Message-Id: <20200605140252.892569834@linuxfoundation.org>
+Message-Id: <20200605140154.678386284@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200605140252.338635395@linuxfoundation.org>
-References: <20200605140252.338635395@linuxfoundation.org>
+In-Reply-To: <20200605140152.493743366@linuxfoundation.org>
+References: <20200605140152.493743366@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,36 +45,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Can Guo <cang@codeaurora.org>
+From: Sakari Ailus <sakari.ailus@linux.intel.com>
 
-commit 17c7d35f141ef6158076adf3338f115f64fcf760 upstream.
+commit 8c038effd893920facedf18c2c0976cec4a33408 upstream.
 
-In queuecommand path, if DMA map fails, it bails out with clock held.  In
-this case, release the clock to keep its usage paired.
+Move the alignment attribute of struct ipu3_uapi_awb_fr_config_s to the
+field in struct ipu3_uapi_4a_config, the other location where the struct
+is used.
 
-[mkp: applied by hand]
-
-Link: https://lore.kernel.org/r/0101016ed3d66395-1b7e7fce-b74d-42ca-a88a-4db78b795d3b-000000@us-west-2.amazonses.com
-Reviewed-by: Bean Huo <beanhuo@micron.com>
-Signed-off-by: Can Guo <cang@codeaurora.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-[EB: resolved cherry-pick conflict caused by newer kernels not having
- the clear_bit_unlock() line]
-Signed-off-by: Eric Biggers <ebiggers@google.com>
+Fixes: commit c9d52c114a9f ("media: staging: imgu: Address a compiler warning on alignment")
+Reported-by: Tomasz Figa <tfiga@chromium.org>
+Tested-by: Bingbu Cao <bingbu.cao@intel.com>
+Cc: stable@vger.kernel.org # for v5.3 and up
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/scsi/ufs/ufshcd.c |    1 +
- 1 file changed, 1 insertion(+)
 
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -2505,6 +2505,7 @@ static int ufshcd_queuecommand(struct Sc
+---
+ drivers/staging/media/ipu3/include/intel-ipu3.h |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+--- a/drivers/staging/media/ipu3/include/intel-ipu3.h
++++ b/drivers/staging/media/ipu3/include/intel-ipu3.h
+@@ -450,7 +450,7 @@ struct ipu3_uapi_awb_fr_config_s {
+ 	__u32 bayer_sign;
+ 	__u8 bayer_nf;
+ 	__u8 reserved2[7];
+-} __attribute__((aligned(32))) __packed;
++} __packed;
  
- 	err = ufshcd_map_sg(hba, lrbp);
- 	if (err) {
-+		ufshcd_release(hba);
- 		lrbp->cmd = NULL;
- 		clear_bit_unlock(tag, &hba->lrb_in_use);
- 		goto out;
+ /**
+  * struct ipu3_uapi_4a_config - 4A config
+@@ -466,7 +466,8 @@ struct ipu3_uapi_4a_config {
+ 	struct ipu3_uapi_ae_grid_config ae_grd_config;
+ 	__u8 padding[20];
+ 	struct ipu3_uapi_af_config_s af_config;
+-	struct ipu3_uapi_awb_fr_config_s awb_fr_config;
++	struct ipu3_uapi_awb_fr_config_s awb_fr_config
++		__attribute__((aligned(32)));
+ } __packed;
+ 
+ /**
 
 
