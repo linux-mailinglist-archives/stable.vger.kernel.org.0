@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B7EF1EF7AF
+	by mail.lfdr.de (Postfix) with ESMTP id D8C7E1EF7B0
 	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 14:29:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727768AbgFEM2l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1726993AbgFEM2l (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 5 Jun 2020 08:28:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57966 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:58020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727030AbgFEM0C (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Jun 2020 08:26:02 -0400
+        id S1727036AbgFEM0D (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Jun 2020 08:26:03 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 49795208B8;
-        Fri,  5 Jun 2020 12:26:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 71A0A20897;
+        Fri,  5 Jun 2020 12:26:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591359962;
-        bh=EX0j6+M/+UdwY/4QdsFpQQKwXC4s7i5x/rj9KTC31EI=;
+        s=default; t=1591359963;
+        bh=x+RK2T1KYWRR6tas5jCc3xdvFytQfG2NGT0oj43jnCY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=caSpdc4l2jY9ykOrxLXNbvBGi4favcrznqOn3p4Na1dZ+NZJ3baplWNqD4Y54Minz
-         J7+WONi4f5LPA2zOf48XWcVNDVzBhesQNIVCxWkON15ScvX4PLF2ubySk/37zCmkMW
-         skrjS88Z2eMto7y2AsPTfslunh2MDHoo+fNiMbVY=
+        b=d17yrxjlMkMTc8bPYGzwVwDX3Qup1P1Ru4GkBUDbUvKMnzVnmbTmnQ6Psq3OAE0hU
+         uvwDa05ulUGG22cY6AQsgv6eB/Lfh1r9kSGOV0wvYqWEmDkO5nYjg1eb5OSghER5H5
+         mS6T+L7hbzdzdxaJlK5o8S7KoDxaeiPFj2IHmWeQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jens Axboe <axboe@kernel.dk>,
-        Stefano Garzarella <sgarzare@redhat.com>,
-        Ingo Molnar <mingo@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 3/9] sched/fair: Don't NUMA balance for kthreads
-Date:   Fri,  5 Jun 2020 08:25:51 -0400
-Message-Id: <20200605122558.2882712-3-sashal@kernel.org>
+Cc:     Willem de Bruijn <willemb@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>,
+        virtualization@lists.linux-foundation.org
+Subject: [PATCH AUTOSEL 4.19 4/9] net: check untrusted gso_size at kernel entry
+Date:   Fri,  5 Jun 2020 08:25:52 -0400
+Message-Id: <20200605122558.2882712-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200605122558.2882712-1-sashal@kernel.org>
 References: <20200605122558.2882712-1-sashal@kernel.org>
@@ -45,53 +45,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Willem de Bruijn <willemb@google.com>
 
-[ Upstream commit 18f855e574d9799a0e7489f8ae6fd8447d0dd74a ]
+[ Upstream commit 6dd912f82680761d8fb6b1bb274a69d4c7010988 ]
 
-Stefano reported a crash with using SQPOLL with io_uring:
+Syzkaller again found a path to a kernel crash through bad gso input:
+a packet with gso size exceeding len.
 
-  BUG: kernel NULL pointer dereference, address: 00000000000003b0
-  CPU: 2 PID: 1307 Comm: io_uring-sq Not tainted 5.7.0-rc7 #11
-  RIP: 0010:task_numa_work+0x4f/0x2c0
-  Call Trace:
-   task_work_run+0x68/0xa0
-   io_sq_thread+0x252/0x3d0
-   kthread+0xf9/0x130
-   ret_from_fork+0x35/0x40
+These packets are dropped in tcp_gso_segment and udp[46]_ufo_fragment.
+But they may affect gso size calculations earlier in the path.
 
-which is task_numa_work() oopsing on current->mm being NULL.
+Now that we have thlen as of commit 9274124f023b ("net: stricter
+validation of untrusted gso packets"), check gso_size at entry too.
 
-The task work is queued by task_tick_numa(), which checks if current->mm is
-NULL at the time of the call. But this state isn't necessarily persistent,
-if the kthread is using use_mm() to temporarily adopt the mm of a task.
-
-Change the task_tick_numa() check to exclude kernel threads in general,
-as it doesn't make sense to attempt ot balance for kthreads anyway.
-
-Reported-by: Stefano Garzarella <sgarzare@redhat.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Acked-by: Peter Zijlstra <peterz@infradead.org>
-Link: https://lore.kernel.org/r/865de121-8190-5d30-ece5-3b097dc74431@kernel.dk
+Fixes: bfd5f4a3d605 ("packet: Add GSO/csum offload support.")
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: Willem de Bruijn <willemb@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/fair.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/linux/virtio_net.h | 14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index 86ccaaf0c1bf..92b1e71f13c8 100644
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -2697,7 +2697,7 @@ void task_tick_numa(struct rq *rq, struct task_struct *curr)
- 	/*
- 	 * We don't care about NUMA placement if we don't have memory.
- 	 */
--	if (!curr->mm || (curr->flags & PF_EXITING) || work->next != work)
-+	if ((curr->flags & (PF_EXITING | PF_KTHREAD)) || work->next != work)
- 		return;
+diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
+index f36727098df8..1c296f370e46 100644
+--- a/include/linux/virtio_net.h
++++ b/include/linux/virtio_net.h
+@@ -31,6 +31,7 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
+ {
+ 	unsigned int gso_type = 0;
+ 	unsigned int thlen = 0;
++	unsigned int p_off = 0;
+ 	unsigned int ip_proto;
  
- 	/*
+ 	if (hdr->gso_type != VIRTIO_NET_HDR_GSO_NONE) {
+@@ -68,7 +69,8 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
+ 		if (!skb_partial_csum_set(skb, start, off))
+ 			return -EINVAL;
+ 
+-		if (skb_transport_offset(skb) + thlen > skb_headlen(skb))
++		p_off = skb_transport_offset(skb) + thlen;
++		if (p_off > skb_headlen(skb))
+ 			return -EINVAL;
+ 	} else {
+ 		/* gso packets without NEEDS_CSUM do not set transport_offset.
+@@ -92,17 +94,25 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
+ 				return -EINVAL;
+ 			}
+ 
+-			if (keys.control.thoff + thlen > skb_headlen(skb) ||
++			p_off = keys.control.thoff + thlen;
++			if (p_off > skb_headlen(skb) ||
+ 			    keys.basic.ip_proto != ip_proto)
+ 				return -EINVAL;
+ 
+ 			skb_set_transport_header(skb, keys.control.thoff);
++		} else if (gso_type) {
++			p_off = thlen;
++			if (p_off > skb_headlen(skb))
++				return -EINVAL;
+ 		}
+ 	}
+ 
+ 	if (hdr->gso_type != VIRTIO_NET_HDR_GSO_NONE) {
+ 		u16 gso_size = __virtio16_to_cpu(little_endian, hdr->gso_size);
+ 
++		if (skb->len - p_off <= gso_size)
++			return -EINVAL;
++
+ 		skb_shinfo(skb)->gso_size = gso_size;
+ 		skb_shinfo(skb)->gso_type = gso_type;
+ 
 -- 
 2.25.1
 
