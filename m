@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F08F21EFA55
-	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 16:16:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E6FB1EFB39
+	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 16:25:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728292AbgFEOQo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Jun 2020 10:16:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45894 "EHLO mail.kernel.org"
+        id S1728627AbgFEOYv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Jun 2020 10:24:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46490 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728232AbgFEOQn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Jun 2020 10:16:43 -0400
+        id S1728395AbgFEORJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Jun 2020 10:17:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CB72920835;
-        Fri,  5 Jun 2020 14:16:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DB88D206A2;
+        Fri,  5 Jun 2020 14:17:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591366603;
-        bh=41bL/hsDOIfSdm4FHHJ0WFyAbLah6gLP1gFgetM7Daw=;
+        s=default; t=1591366628;
+        bh=6lfb7wQDy8XOEZ/WYA0tSYBztD39KIGmFvRx0mhnJ4I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EajJYiWoAYCrtKqqoRIQdjUZvh7zMUp85QlNfLVA7mXRpVw30efmLMI2CGqYfZJmy
-         J8g9ME0m97yIAmECQKMiGBn69/GVKOz+yvtomYhpsrsRSzOYt96C/oBktV3zM29fiX
-         Ln9gnEpyh2XVWaUETozkdTR7LxLuxIjzmlANaHeY=
+        b=kJC5i0fRBni/Jaa/ZSHcdbEMqnrx2NjyCZedG1jSCAzx6km+p3by6OxxplNtz/RsT
+         99b2TU7kmz2/GebFXK7xtmpFvlkhsvLaVvtDetX9QYo+Vq/piwsskT7ro8SNE1yZF1
+         stLPuF9yvEYYfssRIpt5sB5L84VCZgIaEAXhjYAc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tejun Heo <tj@kernel.org>,
-        Mel Gorman <mgorman@techsingularity.net>,
+        stable@vger.kernel.org, Paul Greco <pmgreco@us.ibm.com>,
+        Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>,
+        Vineet Gupta <vgupta@synopsys.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 02/43] Revert "cgroup: Add memory barriers to plug cgroup_rstat_updated() race window"
-Date:   Fri,  5 Jun 2020 16:14:32 +0200
-Message-Id: <20200605140152.625667193@linuxfoundation.org>
+Subject: [PATCH 5.6 03/43] ARC: Fix ICCM & DCCM runtime size checks
+Date:   Fri,  5 Jun 2020 16:14:33 +0200
+Message-Id: <20200605140152.683629598@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200605140152.493743366@linuxfoundation.org>
 References: <20200605140152.493743366@linuxfoundation.org>
@@ -44,70 +45,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tejun Heo <tj@kernel.org>
+From: Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>
 
-[ Upstream commit d8ef4b38cb69d907f9b0e889c44d05fc0f890977 ]
+[ Upstream commit 43900edf67d7ef3ac8909854d75b8a1fba2d570c ]
 
-This reverts commit 9a9e97b2f1f2 ("cgroup: Add memory barriers to plug
-cgroup_rstat_updated() race window").
+As of today the ICCM and DCCM size checks are incorrectly using
+mismatched units (KiB checked against bytes). The CONFIG_ARC_DCCM_SZ
+and CONFIG_ARC_ICCM_SZ are in KiB, but the size calculated in
+runtime and stored in cpu->dccm.sz and cpu->iccm.sz is in bytes.
 
-The commit was added in anticipation of memcg rstat conversion which needed
-synchronous accounting for the event counters (e.g. oom kill count). However,
-the conversion didn't get merged due to percpu memory overhead concern which
-couldn't be addressed at the time.
+Fix that.
 
-Unfortunately, the patch's addition of smp_mb() to cgroup_rstat_updated()
-meant that every scheduling event now had to go through an additional full
-barrier and Mel Gorman noticed it as 1% regression in netperf UDP_STREAM test.
-
-There's no need to have this barrier in tree now and even if we need
-synchronous accounting in the future, the right thing to do is separating that
-out to a separate function so that hot paths which don't care about
-synchronous behavior don't have to pay the overhead of the full barrier. Let's
-revert.
-
-Signed-off-by: Tejun Heo <tj@kernel.org>
-Reported-by: Mel Gorman <mgorman@techsingularity.net>
-Link: http://lkml.kernel.org/r/20200409154413.GK3818@techsingularity.net
-Cc: v4.18+
+Reported-by: Paul Greco <pmgreco@us.ibm.com>
+Signed-off-by: Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>
+Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/cgroup/rstat.c | 16 +++-------------
- 1 file changed, 3 insertions(+), 13 deletions(-)
+ arch/arc/kernel/setup.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/cgroup/rstat.c b/kernel/cgroup/rstat.c
-index 6f87352f8219..41ca996568df 100644
---- a/kernel/cgroup/rstat.c
-+++ b/kernel/cgroup/rstat.c
-@@ -33,12 +33,9 @@ void cgroup_rstat_updated(struct cgroup *cgrp, int cpu)
- 		return;
+diff --git a/arch/arc/kernel/setup.c b/arch/arc/kernel/setup.c
+index aa41af6ef4ac..efdedf83b954 100644
+--- a/arch/arc/kernel/setup.c
++++ b/arch/arc/kernel/setup.c
+@@ -11,6 +11,7 @@
+ #include <linux/clocksource.h>
+ #include <linux/console.h>
+ #include <linux/module.h>
++#include <linux/sizes.h>
+ #include <linux/cpu.h>
+ #include <linux/of_clk.h>
+ #include <linux/of_fdt.h>
+@@ -409,12 +410,12 @@ static void arc_chk_core_config(void)
+ 	if ((unsigned int)__arc_dccm_base != cpu->dccm.base_addr)
+ 		panic("Linux built with incorrect DCCM Base address\n");
  
- 	/*
--	 * Paired with the one in cgroup_rstat_cpu_pop_updated().  Either we
--	 * see NULL updated_next or they see our updated stat.
--	 */
--	smp_mb();
--
--	/*
-+	 * Speculative already-on-list test. This may race leading to
-+	 * temporary inaccuracies, which is fine.
-+	 *
- 	 * Because @parent's updated_children is terminated with @parent
- 	 * instead of NULL, we can tell whether @cgrp is on the list by
- 	 * testing the next pointer for NULL.
-@@ -134,13 +131,6 @@ static struct cgroup *cgroup_rstat_cpu_pop_updated(struct cgroup *pos,
- 		*nextp = rstatc->updated_next;
- 		rstatc->updated_next = NULL;
+-	if (CONFIG_ARC_DCCM_SZ != cpu->dccm.sz)
++	if (CONFIG_ARC_DCCM_SZ * SZ_1K != cpu->dccm.sz)
+ 		panic("Linux built with incorrect DCCM Size\n");
+ #endif
  
--		/*
--		 * Paired with the one in cgroup_rstat_cpu_updated().
--		 * Either they see NULL updated_next or we see their
--		 * updated stat.
--		 */
--		smp_mb();
--
- 		return pos;
- 	}
+ #ifdef CONFIG_ARC_HAS_ICCM
+-	if (CONFIG_ARC_ICCM_SZ != cpu->iccm.sz)
++	if (CONFIG_ARC_ICCM_SZ * SZ_1K != cpu->iccm.sz)
+ 		panic("Linux built with incorrect ICCM Size\n");
+ #endif
  
 -- 
 2.25.1
