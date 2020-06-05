@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BBF201EFB5A
-	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 16:26:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 27A971EFB11
+	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 16:24:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727804AbgFEOP5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Jun 2020 10:15:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44714 "EHLO mail.kernel.org"
+        id S1728670AbgFEOS3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Jun 2020 10:18:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49000 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728093AbgFEOP4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Jun 2020 10:15:56 -0400
+        id S1728115AbgFEOS2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Jun 2020 10:18:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4D2A62063A;
-        Fri,  5 Jun 2020 14:15:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 78623208C3;
+        Fri,  5 Jun 2020 14:18:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591366555;
-        bh=KX0wPoZfWnP4R5JzHVE4rOgaZ7FssBpsYKHdzxcphs4=;
+        s=default; t=1591366707;
+        bh=YIcdnnyOKEuV0vIUAYtbmWYzxLxPDM2ybURBJcpbMzA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ll9UnDK2m6y0e5xmEfBq7R+5Y7dNuaPC770T+XJu8652IOcxLn8GCYhpfdLW8v81K
-         FadxOdNxDdvqMycIKMn1yKlm7kXloluu51Ak0Kvac8Gyh3d9TZqIoRGZRJn6uZWd1b
-         B7Q4Q1vycNA6ChXYWBHD5wHv3NAWIZgJUD6ZyZYI=
+        b=PQMrlsBCYNBgnPUuR+z0JUNzTnJKINvwdP1sW47rIPLvhcgyjc415XLLtiPUS5l5G
+         6W9/cGyNrzIy0m1dYbysXPPPn4wHNZQYxpu68+H6qOyEkM3caMPMWXQtTvUZ9jvv+q
+         svRxaLpb7fyJ8xR8GwMZNrDHlAmkkLqcwz9x/BxU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hu Jiahui <kirin.say@gmail.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 5.7 14/14] airo: Fix read overflows sending packets
+        stable@vger.kernel.org, Sven Schnelle <svens@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 21/38] s390/ftrace: save traced function caller
 Date:   Fri,  5 Jun 2020 16:15:04 +0200
-Message-Id: <20200605135951.863796958@linuxfoundation.org>
+Message-Id: <20200605140253.841296290@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200605135951.018731965@linuxfoundation.org>
-References: <20200605135951.018731965@linuxfoundation.org>
+In-Reply-To: <20200605140252.542768750@linuxfoundation.org>
+References: <20200605140252.542768750@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,62 +44,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Vasily Gorbik <gor@linux.ibm.com>
 
-commit 11e7a91994c29da96d847f676be023da6a2c1359 upstream.
+[ Upstream commit b4adfe55915d8363e244e42386d69567db1719b9 ]
 
-The problem is that we always copy a minimum of ETH_ZLEN (60) bytes from
-skb->data even when skb->len is less than ETH_ZLEN so it leads to a read
-overflow.
+A typical backtrace acquired from ftraced function currently looks like
+the following (e.g. for "path_openat"):
 
-The fix is to pad skb->data to at least ETH_ZLEN bytes.
+arch_stack_walk+0x15c/0x2d8
+stack_trace_save+0x50/0x68
+stack_trace_call+0x15a/0x3b8
+ftrace_graph_caller+0x0/0x1c
+0x3e0007e3c98 <- ftraced function caller (should be do_filp_open+0x7c/0xe8)
+do_open_execat+0x70/0x1b8
+__do_execve_file.isra.0+0x7d8/0x860
+__s390x_sys_execve+0x56/0x68
+system_call+0xdc/0x2d8
 
-Cc: <stable@vger.kernel.org>
-Reported-by: Hu Jiahui <kirin.say@gmail.com>
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20200527184830.GA1164846@mwanda
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Note random "0x3e0007e3c98" stack value as ftraced function caller. This
+value causes either imprecise unwinder result or unwinding failure.
+That "0x3e0007e3c98" comes from r14 of ftraced function stack frame, which
+it haven't had a chance to initialize since the very first instruction
+calls ftrace code ("ftrace_caller"). (ftraced function might never
+save r14 as well). Nevertheless according to s390 ABI any function
+is called with stack frame allocated for it and r14 contains return
+address. "ftrace_caller" itself is called with "brasl %r0,ftrace_caller".
+So, to fix this issue simply always save traced function caller onto
+ftraced function stack frame.
 
+Reported-by: Sven Schnelle <svens@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/cisco/airo.c |   12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ arch/s390/kernel/mcount.S | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/net/wireless/cisco/airo.c
-+++ b/drivers/net/wireless/cisco/airo.c
-@@ -1925,6 +1925,10 @@ static netdev_tx_t mpi_start_xmit(struct
- 		airo_print_err(dev->name, "%s: skb == NULL!",__func__);
- 		return NETDEV_TX_OK;
- 	}
-+	if (skb_padto(skb, ETH_ZLEN)) {
-+		dev->stats.tx_dropped++;
-+		return NETDEV_TX_OK;
-+	}
- 	npacks = skb_queue_len (&ai->txq);
- 
- 	if (npacks >= MAXTXQ - 1) {
-@@ -2127,6 +2131,10 @@ static netdev_tx_t airo_start_xmit(struc
- 		airo_print_err(dev->name, "%s: skb == NULL!", __func__);
- 		return NETDEV_TX_OK;
- 	}
-+	if (skb_padto(skb, ETH_ZLEN)) {
-+		dev->stats.tx_dropped++;
-+		return NETDEV_TX_OK;
-+	}
- 
- 	/* Find a vacant FID */
- 	for( i = 0; i < MAX_FIDS / 2 && (fids[i] & 0xffff0000); i++ );
-@@ -2201,6 +2209,10 @@ static netdev_tx_t airo_start_xmit11(str
- 		airo_print_err(dev->name, "%s: skb == NULL!", __func__);
- 		return NETDEV_TX_OK;
- 	}
-+	if (skb_padto(skb, ETH_ZLEN)) {
-+		dev->stats.tx_dropped++;
-+		return NETDEV_TX_OK;
-+	}
- 
- 	/* Find a vacant FID */
- 	for( i = MAX_FIDS / 2; i < MAX_FIDS && (fids[i] & 0xffff0000); i++ );
+diff --git a/arch/s390/kernel/mcount.S b/arch/s390/kernel/mcount.S
+index 3431b2d5e334..f942341429b1 100644
+--- a/arch/s390/kernel/mcount.S
++++ b/arch/s390/kernel/mcount.S
+@@ -41,6 +41,7 @@ EXPORT_SYMBOL(_mcount)
+ ENTRY(ftrace_caller)
+ 	.globl	ftrace_regs_caller
+ 	.set	ftrace_regs_caller,ftrace_caller
++	stg	%r14,(__SF_GPRS+8*8)(%r15)	# save traced function caller
+ 	lgr	%r1,%r15
+ #if !(defined(CC_USING_HOTPATCH) || defined(CC_USING_NOP_MCOUNT))
+ 	aghi	%r0,MCOUNT_RETURN_FIXUP
+-- 
+2.25.1
+
 
 
