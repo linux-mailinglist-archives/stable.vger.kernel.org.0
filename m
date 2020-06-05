@@ -2,335 +2,286 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A67231EEF3A
-	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 03:50:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 332781EF0B3
+	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 06:50:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725883AbgFEBus (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Jun 2020 21:50:48 -0400
-Received: from us-smtp-2.mimecast.com ([205.139.110.61]:52450 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725601AbgFEBus (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 4 Jun 2020 21:50:48 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1591321845;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=0FgY15pzfZNGCmvTD49EehHfYDrDMgYqFHgWXZl+GEk=;
-        b=UbZBLXNOSxSeNRqD9DcOyjaIgGl1se12Nm38+pyENx0kjV5g6NphmaIp/anU06+qMJs/Yy
-        ShNpoupDeqJUdpkzV2kw3IhMveJgR0vhdqAm10yXDwhhfohSpAweWmihDQIiW9/FnEb8yV
-        eA2qIo7jn9Co5nnGxRglWHwx2rhOrtE=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-248-ENB39huUNxCfJdFHZfIciw-1; Thu, 04 Jun 2020 21:50:42 -0400
-X-MC-Unique: ENB39huUNxCfJdFHZfIciw-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 4F294800685
-        for <stable@vger.kernel.org>; Fri,  5 Jun 2020 01:50:41 +0000 (UTC)
-Received: from [172.54.87.56] (cpt-1054.paas.prod.upshift.rdu2.redhat.com [10.0.19.79])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id A32007CCC2;
-        Fri,  5 Jun 2020 01:50:35 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+        id S1726026AbgFEEul (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Jun 2020 00:50:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45218 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725280AbgFEEul (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 5 Jun 2020 00:50:41 -0400
+Received: from mail-qt1-x841.google.com (mail-qt1-x841.google.com [IPv6:2607:f8b0:4864:20::841])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 316FEC08C5C1
+        for <stable@vger.kernel.org>; Thu,  4 Jun 2020 21:50:41 -0700 (PDT)
+Received: by mail-qt1-x841.google.com with SMTP id z1so7521047qtn.2
+        for <stable@vger.kernel.org>; Thu, 04 Jun 2020 21:50:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=YYFG7BATzDU9S82kn1J9pAmjsSff6pBtSrBKC8WNkW4=;
+        b=voSUTkVue/f33gxYggKRUpF/lSTr1yX6uz+45AZNhgIDzGoRewYun2f2OhxJFedXZt
+         Jxz+i1E6i/vcElaB0MfcinsDMRXkbku8X5evQzJlxt4MZ91bUux4GYJfY108QEEjVEMP
+         gh5wbdhEsS/AzLMcKA4fcKOOn2PknuTGpxM/1sxfHlhE0MwgNaZg4cXsdCUBJp8Wm5f/
+         l0dcvS8OEh12bdSF0HTiY5nEsqX1mC6bQOdkHGGKMXIZXUwbEY7ZlQ7zkADrESxxAo8g
+         JWrfCWj9ky8uFTvSnguz8cLLcUN5ZXoRSb4IwEDSl/aptJpik5lC55g3K4udcR80dgaZ
+         O7KQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=YYFG7BATzDU9S82kn1J9pAmjsSff6pBtSrBKC8WNkW4=;
+        b=fTpvSliU58Ocg1aICImzqY/gsxWBFoIbvCOb6uZCbi67qtpPiAQHRVghuf7oV7jmNE
+         Ksx+ptDY4Z6bt4NPyVU7gI9jMicelH3H6pfQvNMmZZguQQ9BpQ8JcZbWTCJtdtzxF5Vg
+         LIP+QAGzXxLtUHW5Tpq9QsAFnW7iRS1E3Dvqk2ae6nGbrooiuuyPIe8wjpv8dJeg+fXf
+         MnAYLOwBVFWJQI4K6lzOI7ZcFRKsZVlXVe16M4hb3HSkSv/UuZ7kU/7OGLavOgouberW
+         2RgeVVCm+0XPRmU9ZFd9qBCj1xU/A10wIhBdIQwpcuPT0ZegU0VEeqs4LrbEDgJ3xM3+
+         3vRA==
+X-Gm-Message-State: AOAM532ViBUQtLxLe3xTJDP1fewzs/zO4CkCtfZCsIBRFHHL29dzLVHl
+        SKJrScugOc+FKQbQH70dwc1AUHG7muA=
+X-Google-Smtp-Source: ABdhPJyH2bZnxYvDqqW0X7W77nB5DLqb6gEl4yMJSEdCNauDD7NuYNwjAf/WG7pFmtnHhQsVk0qiWA==
+X-Received: by 2002:ac8:7089:: with SMTP id y9mr8390185qto.355.1591332639288;
+        Thu, 04 Jun 2020 21:50:39 -0700 (PDT)
+Received: from [192.168.0.185] ([191.34.95.148])
+        by smtp.gmail.com with ESMTPSA id z4sm6781241qtu.33.2020.06.04.21.50.36
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 04 Jun 2020 21:50:38 -0700 (PDT)
+Subject: Re: [PATCH 1/2] arm64: Override SPSR.SS when single-stepping is
+ enabled
+To:     Will Deacon <will@kernel.org>,
+        Keno Fischer <keno@juliacomputing.com>
+Cc:     linux-arm-kernel@lists.infradead.org, kernel-team@android.com,
+        Mark Rutland <mark.rutland@arm.com>, stable@vger.kernel.org
+References: <20200603151033.11512-1-will@kernel.org>
+ <20200603151033.11512-2-will@kernel.org>
+ <CABV8kRwrnixNc074-jQhZzeucGHx9_e5FnQmBS=VuL=tFGjY-Q@mail.gmail.com>
+ <20200603155338.GA12036@willie-the-truck>
+ <CABV8kRxSjMY+d+F5aNzq1=5hXhVLGy6TbNLTUsCeSsAncwCzoA@mail.gmail.com>
+ <20200604083210.GC30155@willie-the-truck>
+From:   Luis Machado <luis.machado@linaro.org>
+Message-ID: <fdce5355-8a85-7bdc-0fba-a2a6c08cb0b8@linaro.org>
+Date:   Fri, 5 Jun 2020 01:50:34 -0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 5.6.16-e4d3ad1.cki
- (stable-queue)
-Date:   Fri, 05 Jun 2020 01:50:35 -0000
-CC:     Ondrej Moris <omoris@redhat.com>,
-        Ondrej Mosnacek <omosnace@redhat.com>
-Message-ID: <cki.8159CAE0CB.PEUJGRS0ZQ@redhat.com>
-X-Gitlab-Pipeline-ID: 593717
-X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com/
-X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/593717
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+In-Reply-To: <20200604083210.GC30155@willie-the-truck>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi,
 
-Hello,
+On 6/4/20 5:32 AM, Will Deacon wrote:
+> Hi Keno,
+> 
+> Cheers for the really helpful explanation. I have a bunch of
+> questions/comments, since it's not very often that somebody shows up who
+> understands how this is supposed to work and so I'd like to take advantage
+> of that!
+> 
+> On Wed, Jun 03, 2020 at 12:56:24PM -0400, Keno Fischer wrote:
+>> On Wed, Jun 3, 2020 at 11:53 AM Will Deacon <will@kernel.org> wrote:
+>>>> However, at the same time as changing this, we should probably make sure
+>>>> to enable the syscall exit pseudo-singlestep trap (similar issue as the other
+>>>> patch I had sent for the signal pseudo-singlestep trap), since otherwise
+>>>> ptracers might get confused about the lack of singlestep trap during a
+>>>> singlestep -> seccomp -> singlestep path (which would give one trap
+>>>> less with this patch than before).
+>>>
+>>> Hmm, I don't completely follow your example. Please could you spell it
+>>> out a bit more? I fast-forward the stepping state machine on sigreturn,
+>>> which I thought would be sufficient. Perhaps you're referring to a variant
+>>> of the situation mentioned by Mark, which I didn't think could happen
+>>> with ptrace [2].
+>>
+>> Sure suppose we have code like the following:
+>>
+>> 0x0: svc #0
+>> 0x4: str x0, [x7]
+>> ...
+>>
+>> Then, if there's a seccomp filter active that just does
+>> SECCOMP_RET_TRACE of everything, right now we get traps:
+>>
+>> <- (ip: 0x0)
+>> -> PTRACE_SINGLESTEP
+>> <- (ip: 0x4 - seccomp trap)
+>> -> PTRACE_SINGLESTEP
+>> <- SIGTRAP (ip: 0x4 - TRAP_TRACE trap)
+>> -> PTRACE_SINGLESTEP
+>> <- SIGTRAP (ip: 0x8 - TRAP_TRACE trap)
+>>
+>> With your proposed patch, we instead get
+>> <- (ip: 0x0)
+>> -> PTRACE_SINGLESTEP
+>> <- (ip: 0x4 - seccomp trap)
+>> -> PTRACE_SINGLESTEP
+>> <- SIGTRAP (ip: 0x8 - TRAP_TRACE trap)
+> 
+> Urgh, and actually, I think this is *only* the case if the seccomp
+> handler actually changes a register in the target, right?
+> 
+> In which case, your proposed patch should probably do something like:
+> 
+> 	if (dir == PTRACE_SYSCALL_EXIT) {
+> 		bool stepping = test_thread_flag(TIF_SINGLESTEP);
+> 
+> 		tracehook_report_syscall_exit(regs, stepping);
+> 		user_rewind_single_step(regs);
+> 	}
+> 
+> otherwise I think we could get a spurious SIGTRAP on return to userspace.
+> What do you think?
+> 
+> This has also got me thinking about your other patch to report a pseudo-step
+> exception on entry to a signal handler:
+> 
+> https://lore.kernel.org/r/20200524043827.GA33001@juliacomputing.com
+> 
+> Although we don't actually disarm the step logic there (and so you might
+> expect a spurious SIGTRAP on the second instruction of the handler), I
+> think it's ok because the tracer will either do PTRACE_SINGLESTEP (and
+> rearm the state machine) or PTRACE_CONT (and so stepping will be
+> disabled). Do you agree?
+> 
+>> This is problematic, because the ptracer may want to inspect the
+>> result of the syscall instruction. On other architectures, this
+>> problem is solved with a pseudo-singlestep trap that gets executed
+>> if you resume from a syscall-entry-like trap with PTRACE_SINGLESTEP.
+>> See the below patch for the change I'm proposing. There is a slight
+>> issue with that patch, still: It now makes the x7 issue apply to the
+>> singlestep trap at exit, so we should do the patch to fix that issue
+>> before we apply that change (or manually check for this situation
+>> and issue the pseudo-singlestep trap manually).
+> 
+> I don't see the dependency on the x7 issue; x7 is nobbled on syscall entry,
+> so it will be nobbled in the psuedo-step trap as well as the hardware step
+> trap on syscall return. I'd also like to backport this to stable, without
+> having to backport an optional extension to the ptrace API for preserving
+> x7. Or are you saying that the value of x7 should be PTRACE_SYSCALL_ENTER
+> for the pseudo trap? That seems a bit weird to me, but then this is all
+> weird anyway.
+> 
+>> My proposed patch below also changes
+>>
+>> <- (ip: 0x0)
+>> -> PTRACE_SYSCALL
+>> <- (ip: 0x4 - syscall entry trap)
+>> -> PTRACE_SINGLESTEP
+>> <- SIGTRAP (ip: 0x8 - TRAP_TRACE trap)
+>>
+>> to
+>>
+>> <- (ip: 0x0)
+>> -> PTRACE_SYSCALL
+>> <- (ip: 0x4 - syscall entry trap)
+>> -> PTRACE_SINGLESTEP
+>> <- SIGTRAP (ip: 0x4 - pseudo-singlestep exit trap)
+>> -> PTRACE_SINGLESTEP
+>> <- SIGTRAP (ip: 0x8 - TRAP_TRACE trap)
+>>
+>> But I consider that a bugfix, since that's how other architectures
+>> behave and I was going to send in this patch for that reason anyway
+>> (since this was another one of the aarch64 ptrace quirks we had to
+>> work around).
+> 
+> I think that's still the case with my addition above, so that's good.
+> Any other quirks you ran into that we should address here? Now that I have
+> this stuff partially paged-in, it would be good to fix a bunch of this
+> at once. I can send out a v2 which includes the two patches from you
+> once we're agreed on the details.
 
-We ran automated tests on a recent commit from this kernel tree:
+Since we're discussing arm64 ptrace/kernel quirks, I'm gonna go ahead 
+and describe a strange behavior on arm64 that I could not reproduce on 
+x86, for example. I apologize for hijacking the thread if this is a 
+non-issue or not related.
 
-       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/li=
-nux-stable-rc.git
-            Commit: e4d3ad101947 - media: dvbdev: Fix tuner->demod media cont=
-roller link
+This is something I noticed when single-stepping over fork and vfork 
+syscalls in GDB, so handling of PTRACE_EVENT_FORK, PTRACE_EVENT_VFORK 
+and PTRACE_EVENT_VFORK_DONE.
 
-The results of these automated tests are provided below.
+The situation seems to happen more reliably with vforks since it is a 
+two stage operation with VFORK and VFORK_DONE.
 
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
+Suppose we're stopped at a vfork syscall instruction and that the child 
+we spawn will exit immediately. If we attempt to single-step that 
+particular instruction, this is what happens for arm64:
 
-All kernel binaries, config files, and logs are available for download here:
+--
 
-  https://cki-artifacts.s3.us-east-2.amazonaws.com/index.html?prefix=3Ddatawa=
-rehouse/2020/06/04/593717
+[Step over vfork syscall]
+ptrace(PTRACE_SINGLESTEP, 63049, 0x1, SIG_0) = 0
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_TRAPPED, si_pid=63049, 
+si_uid=13595, si_status=SIGTRAP, si_utime=0, si_stime=0} ---
 
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
+[vfork event for child 63052]
+ptrace(PTRACE_GETEVENTMSG, 63049, NULL, [63052]) = 0
 
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
+...
 
-Compile testing
----------------
+[Detach child]
+ptrace(PTRACE_DETACH, 63052, NULL, SIG_0) = 0
+ptrace(PTRACE_CONT, 63049, 0x1, SIG_0)  = 0
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_TRAPPED, si_pid=63049, 
+si_uid=13595, si_status=SIGTRAP, si_utime=0, si_stime=0} ---
 
-We compiled the kernel for 4 architectures:
+...
 
-    aarch64:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+ptrace(PTRACE_SINGLESTEP, 63049, 0x1, SIG_0) = 0
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_TRAPPED, si_pid=63049, 
+si_uid=13595, si_status=SIGCHLD, si_utime=0, si_stime=0} ---
 
-    ppc64le:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+--
 
-    s390x:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+For x86-64, we have this:
 
-    x86_64:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+--
 
+[Step over vfork syscall]
+ptrace(PTRACE_SINGLESTEP, 13484, 0x1, SIG_0) = 0
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_TRAPPED, si_pid=13484, 
+si_uid=1000, si_status=SIGTRAP, si_utime=0, si_stime=0} ---
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_TRAPPED, si_pid=13493, 
+si_uid=1000, si_status=SIGSTOP, si_utime=0, si_stime=0} ---
 
+[vfork event for child 13493]
+ptrace(PTRACE_GETEVENTMSG, 13484, NULL, [13493]) = 0
 
-Hardware testing
-----------------
-We booted each kernel and ran the following tests:
+...
 
-  aarch64:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test - as root
-       =E2=9C=85 Podman system integration test - as user
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking: igmp conformance test
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func - local
-       =E2=9C=85 Networking route_func - forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns - transport
-       =E2=9C=85 Networking ipsec: basic netns - tunnel
-       =E2=9C=85 Libkcapi AF_ALG test
-       =E2=9C=85 pciutils: update pci ids test
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =E2=9C=85 storage: SCSI VPD
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 jvm - DaCapo Benchmark Suite
-       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
-       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9C=85 Networking firewall: basic netfilter test
-       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
-       =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9C=85 kdump - kexec_boot
+[Detach child]
+ptrace(PTRACE_DETACH, 13493, NULL, SIG_0) = 0
+ptrace(PTRACE_CONT, 13484, 0x1, SIG_0)  = 0
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_TRAPPED, si_pid=13484, 
+si_uid=1000, si_status=SIGTRAP, si_utime=0, si_stime=0} ---
 
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 xfstests - ext4
-       =E2=9C=85 xfstests - xfs
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 storage: software RAID testing
-       =E2=9C=85 stress: stress-ng
-       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
-       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+...
 
-  ppc64le:
-    Host 1:
+ptrace(PTRACE_SINGLESTEP, 13484, 0x1, SIG_0) = 0
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_TRAPPED, si_pid=13484, 
+si_uid=1000, si_status=SIGTRAP, si_utime=0, si_stime=0} ---
 
-       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
-marked
-       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
-       This is not the fault of the kernel that was tested.
+--
 
-       =E2=9C=85 Boot test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Podman system integration test - as root
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Podman system integration test - as user
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Loopdev Sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory function: memfd_create
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 AMTU (Abstract Machine Test Utility)
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking bridge: sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Ethernet drivers sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking socket: fuzz
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route: pmtu
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route_func - local
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route_func - forward
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking TCP: keepalive test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking UDP: socket
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: geneve basic test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: gre basic
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 L2TP basic test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: vxlan basic
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking ipsec: basic netns - tunnel
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Libkcapi AF_ALG test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 pciutils: update pci ids test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 ALSA PCM loopback test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 ALSA Control (mixer) Userspace Element test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 jvm - DaCapo Benchmark Suite
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 jvm - jcstress tests
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking firewall: basic ne=
-tfilter test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 audit: audit testsuite test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 trace: ftrace/tracer
+There are a couple things off:
 
-    Host 2:
+1 - x86-64 seems to get an extra SIGSTOP when we single-step over the 
+vfork syscall, though this doesn't seem to do any harm.
 
-       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
-marked
-       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
-       This is not the fault of the kernel that was tested.
+2 - This is the one that throws GDB off. In the last single-step 
+request, arm64 gets a SIGCHLD instead of the SIGTRAP x86-64 gets.
 
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Boot test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 kdump - sysrq-c
+I did some experiments with it, and it seems the last SIGCHLD is more 
+prone to being delivered (instead of a SIGTRAP) if we put some load on 
+the machine (by firing off processes or producing a lot of screen output 
+for example).
 
-  s390x:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 stress: stress-ng
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =F0=9F=9A=A7 =E2=9C=85 kdump - sysrq-c
-
-    Host 3:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test - as root
-       =E2=9C=85 Podman system integration test - as user
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func - local
-       =E2=9C=85 Networking route_func - forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns - transport
-       =E2=9C=85 Networking ipsec: basic netns - tunnel
-       =E2=9C=85 Libkcapi AF_ALG test
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 jvm - DaCapo Benchmark Suite
-       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
-       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9C=85 Networking firewall: basic netfilter test
-       =F0=9F=9A=A7 =E2=9D=8C audit: audit testsuite test
-       =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9C=85 kdump - kexec_boot
-
-  x86_64:
-    Host 1:
-       =E2=9C=85 Boot test
-       =F0=9F=9A=A7 =E2=9C=85 kdump - sysrq-c
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 xfstests - ext4
-       =E2=9C=85 xfstests - xfs
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 storage: software RAID testing
-       =E2=9C=85 stress: stress-ng
-       =F0=9F=9A=A7 =E2=9C=85 CPU: Frequency Driver Test
-       =F0=9F=9A=A7 =E2=9C=85 CPU: Idle Test
-       =F0=9F=9A=A7 =E2=9C=85 IOMMU boot test
-       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
-       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-
-    Host 3:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test - as root
-       =E2=9C=85 Podman system integration test - as user
-       =E2=9C=85 LTP
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking: igmp conformance test
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func - local
-       =E2=9C=85 Networking route_func - forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 L2TP basic test
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 Networking ipsec: basic netns - transport
-       =E2=9C=85 Networking ipsec: basic netns - tunnel
-       =E2=9C=85 Libkcapi AF_ALG test
-       =E2=9C=85 pciutils: sanity smoke test
-       =E2=9C=85 pciutils: update pci ids test
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =E2=9C=85 storage: SCSI VPD
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 jvm - DaCapo Benchmark Suite
-       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
-       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9C=85 Networking firewall: basic netfilter test
-       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
-       =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9C=85 kdump - kexec_boot
-
-  Test sources: https://github.com/CKI-project/tests-beaker
-    =F0=9F=92=9A Pull requests are welcome for new tests or improvements to e=
-xisting tests!
-
-Aborted tests
--------------
-Tests that didn't complete running successfully are marked with =E2=9A=A1=E2=
-=9A=A1=E2=9A=A1.
-If this was caused by an infrastructure issue, we try to mark that
-explicitly in the report.
-
-Waived tests
-------------
-If the test run included waived tests, they are marked with =F0=9F=9A=A7. Suc=
-h tests are
-executed but their results are not taken into account. Tests are waived when
-their results are not reliable enough, e.g. when they're just introduced or a=
-re
-being fixed.
-
-Testing timeout
----------------
-We aim to provide a report within reasonable timeframe. Tests that haven't
-finished running yet are marked with =E2=8F=B1.
-
+Does this ring any bells? I suppose signal delivery order is not 
+guaranteed in this context, but x86-64 seems to deliver them 
+consistently in the same order.
