@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 719B41EFAFF
-	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 16:23:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD15A1EFAC3
+	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 16:20:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728706AbgFEOWx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Jun 2020 10:22:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49342 "EHLO mail.kernel.org"
+        id S1728114AbgFEOUa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Jun 2020 10:20:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51874 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728729AbgFEOSo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Jun 2020 10:18:44 -0400
+        id S1728016AbgFEOU3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Jun 2020 10:20:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 82CC6208A7;
-        Fri,  5 Jun 2020 14:18:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 67439206F0;
+        Fri,  5 Jun 2020 14:20:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591366724;
-        bh=5EMxD/AfSpLyjuXNqb5ixny+nHiT+Kx9uhypSmTttzI=;
+        s=default; t=1591366828;
+        bh=+lEalpydFPuoTLmL+lIAkvgtLcYak05gGNyBg7fZBME=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2bhtSuvfK/u1JdD0JaaTwSY8So3ONDSiiVgxHaJrBEZwOdr8uoWFYhSKkKlh3N5Ut
-         XHrQ4WrEjUOO719Xcfb1LqX5jb6DPNjdApirZH+MFffNf+t3UEHturiqIfvaRZfzbF
-         ED2zjd3bP7RT69D7JNtiz+j+26T80ysXerZKxjqs=
+        b=CVKsuq5ZU5hhN2UeczcCjS6aFsGQ4/TgwWmuuk1FQIJdtO0oQAq0qw60WcGOrTUB6
+         LpIiLeapnGjeKHO1rFx0lIOYd8t9lQLSVTT/OILyUm+swc/q1f0tYfQO9utiFxGGPz
+         DxMM6SQvzGfOOPr8WwEaaHVIoHnl5a1UltJv11GM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Atsushi Nemoto <atsushi.nemoto@sord.co.jp>,
-        Thor Thayer <thor.thayer@linux.intel.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 28/38] i2c: altera: Fix race between xfer_msg and isr thread
+        stable@vger.kernel.org, Bean Huo <beanhuo@micron.com>,
+        Can Guo <cang@codeaurora.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Eric Biggers <ebiggers@google.com>
+Subject: [PATCH 4.19 09/28] scsi: ufs: Release clock if DMA map fails
 Date:   Fri,  5 Jun 2020 16:15:11 +0200
-Message-Id: <20200605140254.249867969@linuxfoundation.org>
+Message-Id: <20200605140252.892569834@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200605140252.542768750@linuxfoundation.org>
-References: <20200605140252.542768750@linuxfoundation.org>
+In-Reply-To: <20200605140252.338635395@linuxfoundation.org>
+References: <20200605140252.338635395@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,93 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Atsushi Nemoto <atsushi.nemoto@sord.co.jp>
+From: Can Guo <cang@codeaurora.org>
 
-[ Upstream commit 5d4c7977499a736f3f80826bdc9744344ad55589 ]
+commit 17c7d35f141ef6158076adf3338f115f64fcf760 upstream.
 
-Use a mutex to protect access to idev->msg_len, idev->buf, etc. which
-are modified by both altr_i2c_xfer_msg() and altr_i2c_isr().
+In queuecommand path, if DMA map fails, it bails out with clock held.  In
+this case, release the clock to keep its usage paired.
 
-This is the minimal fix for easy backporting. A cleanup to remove the
-spinlock will be added later.
+[mkp: applied by hand]
 
-Signed-off-by: Atsushi Nemoto <atsushi.nemoto@sord.co.jp>
-Acked-by: Thor Thayer <thor.thayer@linux.intel.com>
-[wsa: updated commit message]
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/r/0101016ed3d66395-1b7e7fce-b74d-42ca-a88a-4db78b795d3b-000000@us-west-2.amazonses.com
+Reviewed-by: Bean Huo <beanhuo@micron.com>
+Signed-off-by: Can Guo <cang@codeaurora.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+[EB: resolved cherry-pick conflict caused by newer kernels not having
+ the clear_bit_unlock() line]
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/i2c/busses/i2c-altera.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ drivers/scsi/ufs/ufshcd.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/i2c/busses/i2c-altera.c b/drivers/i2c/busses/i2c-altera.c
-index 92d2c706c2a7..a60042431370 100644
---- a/drivers/i2c/busses/i2c-altera.c
-+++ b/drivers/i2c/busses/i2c-altera.c
-@@ -70,6 +70,7 @@
-  * @isr_mask: cached copy of local ISR enables.
-  * @isr_status: cached copy of local ISR status.
-  * @lock: spinlock for IRQ synchronization.
-+ * @isr_mutex: mutex for IRQ thread.
-  */
- struct altr_i2c_dev {
- 	void __iomem *base;
-@@ -86,6 +87,7 @@ struct altr_i2c_dev {
- 	u32 isr_mask;
- 	u32 isr_status;
- 	spinlock_t lock;	/* IRQ synchronization */
-+	struct mutex isr_mutex;
- };
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -2505,6 +2505,7 @@ static int ufshcd_queuecommand(struct Sc
  
- static void
-@@ -245,10 +247,11 @@ static irqreturn_t altr_i2c_isr(int irq, void *_dev)
- 	struct altr_i2c_dev *idev = _dev;
- 	u32 status = idev->isr_status;
- 
-+	mutex_lock(&idev->isr_mutex);
- 	if (!idev->msg) {
- 		dev_warn(idev->dev, "unexpected interrupt\n");
- 		altr_i2c_int_clear(idev, ALTR_I2C_ALL_IRQ);
--		return IRQ_HANDLED;
-+		goto out;
- 	}
- 	read = (idev->msg->flags & I2C_M_RD) != 0;
- 
-@@ -301,6 +304,8 @@ static irqreturn_t altr_i2c_isr(int irq, void *_dev)
- 		complete(&idev->msg_complete);
- 		dev_dbg(idev->dev, "Message Complete\n");
- 	}
-+out:
-+	mutex_unlock(&idev->isr_mutex);
- 
- 	return IRQ_HANDLED;
- }
-@@ -312,6 +317,7 @@ static int altr_i2c_xfer_msg(struct altr_i2c_dev *idev, struct i2c_msg *msg)
- 	u32 value;
- 	u8 addr = i2c_8bit_addr_from_msg(msg);
- 
-+	mutex_lock(&idev->isr_mutex);
- 	idev->msg = msg;
- 	idev->msg_len = msg->len;
- 	idev->buf = msg->buf;
-@@ -336,6 +342,7 @@ static int altr_i2c_xfer_msg(struct altr_i2c_dev *idev, struct i2c_msg *msg)
- 		altr_i2c_int_enable(idev, imask, true);
- 		altr_i2c_fill_tx_fifo(idev);
- 	}
-+	mutex_unlock(&idev->isr_mutex);
- 
- 	time_left = wait_for_completion_timeout(&idev->msg_complete,
- 						ALTR_I2C_XFER_TIMEOUT);
-@@ -409,6 +416,7 @@ static int altr_i2c_probe(struct platform_device *pdev)
- 	idev->dev = &pdev->dev;
- 	init_completion(&idev->msg_complete);
- 	spin_lock_init(&idev->lock);
-+	mutex_init(&idev->isr_mutex);
- 
- 	ret = device_property_read_u32(idev->dev, "fifo-size",
- 				       &idev->fifo_size);
--- 
-2.25.1
-
+ 	err = ufshcd_map_sg(hba, lrbp);
+ 	if (err) {
++		ufshcd_release(hba);
+ 		lrbp->cmd = NULL;
+ 		clear_bit_unlock(tag, &hba->lrb_in_use);
+ 		goto out;
 
 
