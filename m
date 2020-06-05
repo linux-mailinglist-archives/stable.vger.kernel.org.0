@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D24DC1EF763
-	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 14:29:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B06C1EF7B5
+	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 14:29:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727021AbgFEM0B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Jun 2020 08:26:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57900 "EHLO mail.kernel.org"
+        id S1726409AbgFEM2w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Jun 2020 08:28:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57930 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727017AbgFEM0A (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Jun 2020 08:26:00 -0400
+        id S1727018AbgFEM0B (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Jun 2020 08:26:01 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1013920820;
-        Fri,  5 Jun 2020 12:25:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2AE53208B6;
+        Fri,  5 Jun 2020 12:26:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591359959;
-        bh=+/l/HKb94QJ1fLl/aY9Ci1ZVow5m6nAWV0fLci86yno=;
-        h=From:To:Cc:Subject:Date:From;
-        b=ai8AfOaRun5UtE8+K3s7ii5XJMsBhy584xcYCUEDfzBwykR7TGVqvlYBwWcYvvPhT
-         InI0aeWp6+n0y69FmfFo6Vx3ehtjUyI4kI9aUSTaKpmhO113/BcQ9O1pl+j3BVLBbU
-         uIGLueetq4xw39kG+Cai96bpI9LHy3KT+sObhPHo=
+        s=default; t=1591359960;
+        bh=At0/+C8mJmu58fFEoD3DVJfwfXlhXQeYSjcq2SXhuRE=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=ZdIrtGWbaYkjpaoUhRBK3OPTTpln9YFkRxjcLHxBp9osWt7W8ZbG90RkaBRef5ScQ
+         qLJpFcdCXP0ynTcA0saekR89sx0CPI3QXIJ1GwlsP8rvLEYND2+0x9KVmyJ1ujDq0S
+         yXCbUhnZpTpvj7MmSCDg3Sq5d/PRWjQjWEcr4a30=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Stephan Gerhold <stephan@gerhold.net>,
-        Andi Shyti <andi@etezian.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 1/9] Input: mms114 - fix handling of mms345l
-Date:   Fri,  5 Jun 2020 08:25:49 -0400
-Message-Id: <20200605122558.2882712-1-sashal@kernel.org>
+Cc:     Fredrik Strupe <fredrik@strupe.net>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.19 2/9] ARM: 8977/1: ptrace: Fix mask for thumb breakpoint hook
+Date:   Fri,  5 Jun 2020 08:25:50 -0400
+Message-Id: <20200605122558.2882712-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20200605122558.2882712-1-sashal@kernel.org>
+References: <20200605122558.2882712-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -42,68 +45,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephan Gerhold <stephan@gerhold.net>
+From: Fredrik Strupe <fredrik@strupe.net>
 
-[ Upstream commit 3f8f770575d911c989043d8f0fb8dec96360c41c ]
+[ Upstream commit 3866f217aaa81bf7165c7f27362eee5d7919c496 ]
 
-MMS345L is another first generation touch screen from Melfas,
-which uses the same registers as MMS152.
+call_undef_hook() in traps.c applies the same instr_mask for both 16-bit
+and 32-bit thumb instructions. If instr_mask then is only 16 bits wide
+(0xffff as opposed to 0xffffffff), the first half-word of 32-bit thumb
+instructions will be masked out. This makes the function match 32-bit
+thumb instructions where the second half-word is equal to instr_val,
+regardless of the first half-word.
 
-However, using I2C_M_NOSTART for it causes errors when reading:
+The result in this case is that all undefined 32-bit thumb instructions
+with the second half-word equal to 0xde01 (udf #1) work as breakpoints
+and will raise a SIGTRAP instead of a SIGILL, instead of just the one
+intended 16-bit instruction. An example of such an instruction is
+0xeaa0de01, which is unallocated according to Arm ARM and should raise a
+SIGILL, but instead raises a SIGTRAP.
 
-	i2c i2c-0: sendbytes: NAK bailout.
-	mms114 0-0048: __mms114_read_reg: i2c transfer failed (-5)
+This patch fixes the issue by setting all the bits in instr_mask, which
+will still match the intended 16-bit thumb instruction (where the
+upper half is always 0), but not any 32-bit thumb instructions.
 
-The driver works fine as soon as I2C_M_NOSTART is removed.
-
-Reviewed-by: Andi Shyti <andi@etezian.org>
-Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
-Link: https://lore.kernel.org/r/20200405170904.61512-1-stephan@gerhold.net
-[dtor: removed separate mms345l handling, made everyone use standard
-transfer mode, propagated the 10bit addressing flag to the read part of the
-transfer as well.]
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Oleg Nesterov <oleg@redhat.com>
+Signed-off-by: Fredrik Strupe <fredrik@strupe.net>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/touchscreen/mms114.c | 12 +++++-------
- 1 file changed, 5 insertions(+), 7 deletions(-)
+ arch/arm/kernel/ptrace.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/input/touchscreen/mms114.c b/drivers/input/touchscreen/mms114.c
-index a5ab774da4cc..fca908ba4841 100644
---- a/drivers/input/touchscreen/mms114.c
-+++ b/drivers/input/touchscreen/mms114.c
-@@ -91,15 +91,15 @@ static int __mms114_read_reg(struct mms114_data *data, unsigned int reg,
- 	if (reg <= MMS114_MODE_CONTROL && reg + len > MMS114_MODE_CONTROL)
- 		BUG();
+diff --git a/arch/arm/kernel/ptrace.c b/arch/arm/kernel/ptrace.c
+index 36718a424358..492ac74a63f4 100644
+--- a/arch/arm/kernel/ptrace.c
++++ b/arch/arm/kernel/ptrace.c
+@@ -229,8 +229,8 @@ static struct undef_hook arm_break_hook = {
+ };
  
--	/* Write register: use repeated start */
-+	/* Write register */
- 	xfer[0].addr = client->addr;
--	xfer[0].flags = I2C_M_TEN | I2C_M_NOSTART;
-+	xfer[0].flags = client->flags & I2C_M_TEN;
- 	xfer[0].len = 1;
- 	xfer[0].buf = &buf;
- 
- 	/* Read data */
- 	xfer[1].addr = client->addr;
--	xfer[1].flags = I2C_M_RD;
-+	xfer[1].flags = (client->flags & I2C_M_TEN) | I2C_M_RD;
- 	xfer[1].len = len;
- 	xfer[1].buf = val;
- 
-@@ -428,10 +428,8 @@ static int mms114_probe(struct i2c_client *client,
- 	const void *match_data;
- 	int error;
- 
--	if (!i2c_check_functionality(client->adapter,
--				I2C_FUNC_PROTOCOL_MANGLING)) {
--		dev_err(&client->dev,
--			"Need i2c bus that supports protocol mangling\n");
-+	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
-+		dev_err(&client->dev, "Not supported I2C adapter\n");
- 		return -ENODEV;
- 	}
- 
+ static struct undef_hook thumb_break_hook = {
+-	.instr_mask	= 0xffff,
+-	.instr_val	= 0xde01,
++	.instr_mask	= 0xffffffff,
++	.instr_val	= 0x0000de01,
+ 	.cpsr_mask	= PSR_T_BIT,
+ 	.cpsr_val	= PSR_T_BIT,
+ 	.fn		= break_trap,
 -- 
 2.25.1
 
