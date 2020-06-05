@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 27A971EFB11
-	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 16:24:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D4C3A1EFAD5
+	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 16:21:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728670AbgFEOS3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Jun 2020 10:18:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49000 "EHLO mail.kernel.org"
+        id S1728941AbgFEOVV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Jun 2020 10:21:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51476 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728115AbgFEOS2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Jun 2020 10:18:28 -0400
+        id S1728936AbgFEOUP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Jun 2020 10:20:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 78623208C3;
-        Fri,  5 Jun 2020 14:18:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B1295206F0;
+        Fri,  5 Jun 2020 14:20:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591366707;
-        bh=YIcdnnyOKEuV0vIUAYtbmWYzxLxPDM2ybURBJcpbMzA=;
+        s=default; t=1591366815;
+        bh=ENKjQYmYMCjflvqJ1k6DiqcolDaC2VSz//DVoK6MOHg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PQMrlsBCYNBgnPUuR+z0JUNzTnJKINvwdP1sW47rIPLvhcgyjc415XLLtiPUS5l5G
-         6W9/cGyNrzIy0m1dYbysXPPPn4wHNZQYxpu68+H6qOyEkM3caMPMWXQtTvUZ9jvv+q
-         svRxaLpb7fyJ8xR8GwMZNrDHlAmkkLqcwz9x/BxU=
+        b=oFEC1uPAaoGDByafvDib6pViOhrrhW2hA2V+z21ro6hU4lCErQWMQyhQiOzQrArUr
+         MKmcFbsWV79qRmJqhrmVQmOXmgDo4Xh+ph2kJXRjMM/Z+J54Lwfy+F1VBBqxhQzCLK
+         6KSqa2bSxuSswj5r0TPfpZZlYZc8WjY6aQAHxwU4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sven Schnelle <svens@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 21/38] s390/ftrace: save traced function caller
-Date:   Fri,  5 Jun 2020 16:15:04 +0200
-Message-Id: <20200605140253.841296290@linuxfoundation.org>
+        stable@vger.kernel.org, Fan Yang <Fan_Yang@sjtu.edu.cn>,
+        Dan Williams <dan.j.williams@intel.com>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.19 03/28] mm: Fix mremap not considering huge pmd devmap
+Date:   Fri,  5 Jun 2020 16:15:05 +0200
+Message-Id: <20200605140252.532170068@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200605140252.542768750@linuxfoundation.org>
-References: <20200605140252.542768750@linuxfoundation.org>
+In-Reply-To: <20200605140252.338635395@linuxfoundation.org>
+References: <20200605140252.338635395@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,55 +45,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Gorbik <gor@linux.ibm.com>
+From: Fan Yang <Fan_Yang@sjtu.edu.cn>
 
-[ Upstream commit b4adfe55915d8363e244e42386d69567db1719b9 ]
+commit 5bfea2d9b17f1034a68147a8b03b9789af5700f9 upstream.
 
-A typical backtrace acquired from ftraced function currently looks like
-the following (e.g. for "path_openat"):
+The original code in mm/mremap.c checks huge pmd by:
 
-arch_stack_walk+0x15c/0x2d8
-stack_trace_save+0x50/0x68
-stack_trace_call+0x15a/0x3b8
-ftrace_graph_caller+0x0/0x1c
-0x3e0007e3c98 <- ftraced function caller (should be do_filp_open+0x7c/0xe8)
-do_open_execat+0x70/0x1b8
-__do_execve_file.isra.0+0x7d8/0x860
-__s390x_sys_execve+0x56/0x68
-system_call+0xdc/0x2d8
+		if (is_swap_pmd(*old_pmd) || pmd_trans_huge(*old_pmd)) {
 
-Note random "0x3e0007e3c98" stack value as ftraced function caller. This
-value causes either imprecise unwinder result or unwinding failure.
-That "0x3e0007e3c98" comes from r14 of ftraced function stack frame, which
-it haven't had a chance to initialize since the very first instruction
-calls ftrace code ("ftrace_caller"). (ftraced function might never
-save r14 as well). Nevertheless according to s390 ABI any function
-is called with stack frame allocated for it and r14 contains return
-address. "ftrace_caller" itself is called with "brasl %r0,ftrace_caller".
-So, to fix this issue simply always save traced function caller onto
-ftraced function stack frame.
+However, a DAX mapped nvdimm is mapped as huge page (by default) but it
+is not transparent huge page (_PAGE_PSE | PAGE_DEVMAP).  This commit
+changes the condition to include the case.
 
-Reported-by: Sven Schnelle <svens@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This addresses CVE-2020-10757.
+
+Fixes: 5c7fb56e5e3f ("mm, dax: dax-pmd vs thp-pmd vs hugetlbfs-pmd")
+Cc: <stable@vger.kernel.org>
+Reported-by: Fan Yang <Fan_Yang@sjtu.edu.cn>
+Signed-off-by: Fan Yang <Fan_Yang@sjtu.edu.cn>
+Tested-by: Fan Yang <Fan_Yang@sjtu.edu.cn>
+Tested-by: Dan Williams <dan.j.williams@intel.com>
+Reviewed-by: Dan Williams <dan.j.williams@intel.com>
+Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/s390/kernel/mcount.S | 1 +
- 1 file changed, 1 insertion(+)
+ arch/x86/include/asm/pgtable.h |    1 +
+ mm/mremap.c                    |    2 +-
+ 2 files changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/s390/kernel/mcount.S b/arch/s390/kernel/mcount.S
-index 3431b2d5e334..f942341429b1 100644
---- a/arch/s390/kernel/mcount.S
-+++ b/arch/s390/kernel/mcount.S
-@@ -41,6 +41,7 @@ EXPORT_SYMBOL(_mcount)
- ENTRY(ftrace_caller)
- 	.globl	ftrace_regs_caller
- 	.set	ftrace_regs_caller,ftrace_caller
-+	stg	%r14,(__SF_GPRS+8*8)(%r15)	# save traced function caller
- 	lgr	%r1,%r15
- #if !(defined(CC_USING_HOTPATCH) || defined(CC_USING_NOP_MCOUNT))
- 	aghi	%r0,MCOUNT_RETURN_FIXUP
--- 
-2.25.1
-
+--- a/arch/x86/include/asm/pgtable.h
++++ b/arch/x86/include/asm/pgtable.h
+@@ -237,6 +237,7 @@ static inline int pmd_large(pmd_t pte)
+ }
+ 
+ #ifdef CONFIG_TRANSPARENT_HUGEPAGE
++/* NOTE: when predicate huge page, consider also pmd_devmap, or use pmd_large */
+ static inline int pmd_trans_huge(pmd_t pmd)
+ {
+ 	return (pmd_val(pmd) & (_PAGE_PSE|_PAGE_DEVMAP)) == _PAGE_PSE;
+--- a/mm/mremap.c
++++ b/mm/mremap.c
+@@ -221,7 +221,7 @@ unsigned long move_page_tables(struct vm
+ 		new_pmd = alloc_new_pmd(vma->vm_mm, vma, new_addr);
+ 		if (!new_pmd)
+ 			break;
+-		if (is_swap_pmd(*old_pmd) || pmd_trans_huge(*old_pmd)) {
++		if (is_swap_pmd(*old_pmd) || pmd_trans_huge(*old_pmd) || pmd_devmap(*old_pmd)) {
+ 			if (extent == HPAGE_PMD_SIZE) {
+ 				bool moved;
+ 				/* See comment in move_ptes() */
 
 
