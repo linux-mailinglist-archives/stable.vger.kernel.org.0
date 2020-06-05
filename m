@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DA0AF1EFAF4
-	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 16:22:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BACBB1EFAAC
+	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 16:20:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728189AbgFEOWY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Jun 2020 10:22:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49948 "EHLO mail.kernel.org"
+        id S1728870AbgFEOTp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Jun 2020 10:19:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50652 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728216AbgFEOTO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Jun 2020 10:19:14 -0400
+        id S1728868AbgFEOTo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Jun 2020 10:19:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0BB26208A7;
-        Fri,  5 Jun 2020 14:19:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D0338208A9;
+        Fri,  5 Jun 2020 14:19:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591366753;
-        bh=AwfvXfjnTNJMGNoI9iVhy0FrSXDouyxhVUlCc0eNCaw=;
+        s=default; t=1591366783;
+        bh=kZ653TAVsKhYxuyba0Eo5i8jBSmHN67hKWJU7TSjppE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HPlbZh4lifsTE9+4sph122Uqw6c6iWRwuVGbr6FuoF1JGKeNBMFE8s/QEbQmy9aYB
-         5XlGweA4gfU5SlYgBfu4ysmfTBJnIXJ6xMARRfUL4RveXFXVwuARHX+hk68riLxDC3
-         ySb/tmzNU6OEHzwBHiwtf+Puwk9JH31MlD62ruXk=
+        b=st077g+7Frz3iERAOjIENimXXGTxDEccNrGcg3BLRXRNRnIAdDKOYNhjo2DJJ0b3M
+         UAxdJAgR/Fqnro+/cJ4CXu/POG884mN2B3wdFObl5X1lYwYxXvbaSvKMnkhxgjmJkO
+         1/bRIqg6Dun+6PtFBHMSCatE0ujrj8tbrENhDrqQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 34/38] null_blk: return error for invalid zone size
-Date:   Fri,  5 Jun 2020 16:15:17 +0200
-Message-Id: <20200605140254.877560188@linuxfoundation.org>
+        stable@vger.kernel.org, Sven Schnelle <svens@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 16/28] s390/ftrace: save traced function caller
+Date:   Fri,  5 Jun 2020 16:15:18 +0200
+Message-Id: <20200605140253.342375848@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200605140252.542768750@linuxfoundation.org>
-References: <20200605140252.542768750@linuxfoundation.org>
+In-Reply-To: <20200605140252.338635395@linuxfoundation.org>
+References: <20200605140252.338635395@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,63 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
+From: Vasily Gorbik <gor@linux.ibm.com>
 
-[ Upstream commit e274832590211c4b1b1e807ca66fad8b5bb8b328 ]
+[ Upstream commit b4adfe55915d8363e244e42386d69567db1719b9 ]
 
-In null_init_zone_dev() check if the zone size is larger than device
-capacity, return error if needed.
+A typical backtrace acquired from ftraced function currently looks like
+the following (e.g. for "path_openat"):
 
-This also fixes the following oops :-
+arch_stack_walk+0x15c/0x2d8
+stack_trace_save+0x50/0x68
+stack_trace_call+0x15a/0x3b8
+ftrace_graph_caller+0x0/0x1c
+0x3e0007e3c98 <- ftraced function caller (should be do_filp_open+0x7c/0xe8)
+do_open_execat+0x70/0x1b8
+__do_execve_file.isra.0+0x7d8/0x860
+__s390x_sys_execve+0x56/0x68
+system_call+0xdc/0x2d8
 
-null_blk: changed the number of conventional zones to 4294967295
-BUG: kernel NULL pointer dereference, address: 0000000000000010
-PGD 7d76c5067 P4D 7d76c5067 PUD 7d240c067 PMD 0
-Oops: 0002 [#1] SMP NOPTI
-CPU: 4 PID: 5508 Comm: nullbtests.sh Tainted: G OE 5.7.0-rc4lblk-fnext0
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.0-59-gc9ba5276e4
-RIP: 0010:null_init_zoned_dev+0x17a/0x27f [null_blk]
-RSP: 0018:ffffc90007007e00 EFLAGS: 00010246
-RAX: 0000000000000020 RBX: ffff8887fb3f3c00 RCX: 0000000000000007
-RDX: 0000000000000000 RSI: ffff8887ca09d688 RDI: ffff888810fea510
-RBP: 0000000000000010 R08: ffff8887ca09d688 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000000 R12: ffff8887c26e8000
-R13: ffffffffa05e9390 R14: 0000000000000000 R15: 0000000000000001
-FS:  00007fcb5256f740(0000) GS:ffff888810e00000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000000000000010 CR3: 000000081e8fe000 CR4: 00000000003406e0
-Call Trace:
- null_add_dev+0x534/0x71b [null_blk]
- nullb_device_power_store.cold.41+0x8/0x2e [null_blk]
- configfs_write_file+0xe6/0x150
- vfs_write+0xba/0x1e0
- ksys_write+0x5f/0xe0
- do_syscall_64+0x60/0x250
- entry_SYSCALL_64_after_hwframe+0x49/0xb3
-RIP: 0033:0x7fcb51c71840
+Note random "0x3e0007e3c98" stack value as ftraced function caller. This
+value causes either imprecise unwinder result or unwinding failure.
+That "0x3e0007e3c98" comes from r14 of ftraced function stack frame, which
+it haven't had a chance to initialize since the very first instruction
+calls ftrace code ("ftrace_caller"). (ftraced function might never
+save r14 as well). Nevertheless according to s390 ABI any function
+is called with stack frame allocated for it and r14 contains return
+address. "ftrace_caller" itself is called with "brasl %r0,ftrace_caller".
+So, to fix this issue simply always save traced function caller onto
+ftraced function stack frame.
 
-Signed-off-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Reported-by: Sven Schnelle <svens@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/null_blk_zoned.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ arch/s390/kernel/mcount.S | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/block/null_blk_zoned.c b/drivers/block/null_blk_zoned.c
-index 3d7fdea872f8..2553e05e0725 100644
---- a/drivers/block/null_blk_zoned.c
-+++ b/drivers/block/null_blk_zoned.c
-@@ -20,6 +20,10 @@ int null_zone_init(struct nullb_device *dev)
- 		pr_err("zone_size must be power-of-two\n");
- 		return -EINVAL;
- 	}
-+	if (dev->zone_size > dev->size) {
-+		pr_err("Zone size larger than device capacity\n");
-+		return -EINVAL;
-+	}
- 
- 	dev->zone_size_sects = dev->zone_size << ZONE_SIZE_SHIFT;
- 	dev->nr_zones = dev_size >>
+diff --git a/arch/s390/kernel/mcount.S b/arch/s390/kernel/mcount.S
+index 83afd5b78e16..020f9aac7dc0 100644
+--- a/arch/s390/kernel/mcount.S
++++ b/arch/s390/kernel/mcount.S
+@@ -40,6 +40,7 @@ EXPORT_SYMBOL(_mcount)
+ ENTRY(ftrace_caller)
+ 	.globl	ftrace_regs_caller
+ 	.set	ftrace_regs_caller,ftrace_caller
++	stg	%r14,(__SF_GPRS+8*8)(%r15)	# save traced function caller
+ 	lgr	%r1,%r15
+ #if !(defined(CC_USING_HOTPATCH) || defined(CC_USING_NOP_MCOUNT))
+ 	aghi	%r0,MCOUNT_RETURN_FIXUP
 -- 
 2.25.1
 
