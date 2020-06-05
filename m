@@ -2,94 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 58DE41EF8F9
-	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 15:26:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0F261EF90F
+	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 15:32:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726946AbgFEN0B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Jun 2020 09:26:01 -0400
-Received: from mga02.intel.com ([134.134.136.20]:16169 "EHLO mga02.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726931AbgFEN0A (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Jun 2020 09:26:00 -0400
-IronPort-SDR: sjSG+MwpU7tDcBFJzmoDFNhpoyXMHvgt6gZkmnhYKDcYyaCgnjuQ+uHENMwB/634CgX3Dq+z3F
- e+nNIYuRzXeQ==
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga004.fm.intel.com ([10.253.24.48])
-  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Jun 2020 06:25:59 -0700
-IronPort-SDR: QqxE7vVCy+o4w+yOREYmgWZnFs85Wh6JiXNHvhNhepNpRslwIXDBPaaHax64B+3tgyJr2LBEAt
- oaWmWd4bnrag==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.73,476,1583222400"; 
-   d="scan'208";a="294688917"
-Received: from smile.fi.intel.com (HELO smile) ([10.237.68.40])
-  by fmsmga004.fm.intel.com with ESMTP; 05 Jun 2020 06:25:56 -0700
-Received: from andy by smile with local (Exim 4.93)
-        (envelope-from <andy.shevchenko@gmail.com>)
-        id 1jhCMA-00B2K3-BC; Fri, 05 Jun 2020 16:25:58 +0300
-Date:   Fri, 5 Jun 2020 16:25:58 +0300
-From:   Andy Shevchenko <andy.shevchenko@gmail.com>
-To:     Alexander Gordeev <agordeev@linux.ibm.com>
-Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-s390@vger.kernel.org, Stable <stable@vger.kernel.org>,
-        Yury Norov <yury.norov@gmail.com>,
-        Amritha Nambiar <amritha.nambiar@intel.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Chris Wilson <chris@chris-wilson.co.uk>,
-        Kees Cook <keescook@chromium.org>,
-        Matthew Wilcox <willy@infradead.org>,
-        Miklos Szeredi <mszeredi@redhat.com>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        "Tobin C . Harding" <tobin@kernel.org>,
-        Vineet Gupta <vineet.gupta1@synopsys.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Willem de Bruijn <willemb@google.com>
-Subject: Re: [PATCH RESEND] lib: fix bitmap_parse() on 64-bit big endian archs
-Message-ID: <20200605132558.GM2428291@smile.fi.intel.com>
-References: <1589798090-11136-1-git-send-email-agordeev@linux.ibm.com>
- <CAHp75VdM2yrpd2d3pK2RkmbhF3yiM4=fiTXL4i3yu3AxV3wY-A@mail.gmail.com>
- <20200518115059.GA19150@oc3871087118.ibm.com>
- <20200602102430.GA17703@oc3871087118.ibm.com>
+        id S1726946AbgFENc1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Jun 2020 09:32:27 -0400
+Received: from mail-ot1-f67.google.com ([209.85.210.67]:39472 "EHLO
+        mail-ot1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726844AbgFENc0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 5 Jun 2020 09:32:26 -0400
+Received: by mail-ot1-f67.google.com with SMTP id g5so7583910otg.6;
+        Fri, 05 Jun 2020 06:32:25 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=r5xkCx6S6H0OEEUFi5jI6heu9Q5+k1PSszipZkD4qO4=;
+        b=unnBItwCHN6XsJ2rGva8AJjMrdCDLG/XJt/eliLdBQYZyLRjkahhMYiA+YtZGx85ix
+         mReMxnJ7tE1D/Neqjgc00UAqit4P9EfcUvooWWQz2DIxe+Uaf3c7ah6BigpTBoQpRV6F
+         m+SS8KcY2kMhPdST7C2pn5PAiCnUOtsWe7lF5nVt+zMYan2Rzr2iWJqi8MHftErYWjkG
+         Z0C6wDBfORlYszBJbDjF247BfNLFyF7O29XRJpVVcGdykarppIk0QjCfCu9REAvthTY1
+         broQCLS36EzPisIRJaU7RMBmhAqZs4+OFxLnvYsgM+F3gWMq+ELVYODmpR9xiq6TTbeB
+         3kvQ==
+X-Gm-Message-State: AOAM530bstNAify8b7trjlUHA+L/uoqcdE7DHYZxsD+lREYe9OHYmjSz
+        E0X6uOpbQv0JWZFTSjRaBUgJtR2uTNGlPzhvSe0=
+X-Google-Smtp-Source: ABdhPJx/2s0YSjL0Yoa1CBlVQPXNsAgX1/mFvRuZ/AKVx+jsfWoonKouaBjMJfpsxJ/XGbfSXMxS1pgNexk4kOj/N9M=
+X-Received: by 2002:a05:6830:20d1:: with SMTP id z17mr7336449otq.167.1591363945478;
+ Fri, 05 Jun 2020 06:32:25 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200602102430.GA17703@oc3871087118.ibm.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+References: <158889473309.2292982.18007035454673387731.stgit@dwillia2-desk3.amr.corp.intel.com>
+In-Reply-To: <158889473309.2292982.18007035454673387731.stgit@dwillia2-desk3.amr.corp.intel.com>
+From:   "Rafael J. Wysocki" <rafael@kernel.org>
+Date:   Fri, 5 Jun 2020 15:32:14 +0200
+Message-ID: <CAJZ5v0gq55A7880dOJD7skwx7mnjsqbCqEGFvEo552U9W2zH3Q@mail.gmail.com>
+Subject: Re: [PATCH v2] ACPI: Drop rcu usage for MMIO mappings
+To:     Dan Williams <dan.j.williams@intel.com>
+Cc:     Rafael Wysocki <rafael.j.wysocki@intel.com>,
+        Stable <stable@vger.kernel.org>, Len Brown <lenb@kernel.org>,
+        Borislav Petkov <bp@alien8.de>,
+        Ira Weiny <ira.weiny@intel.com>,
+        James Morse <james.morse@arm.com>,
+        Erik Kaneda <erik.kaneda@intel.com>,
+        Myron Stowe <myron.stowe@redhat.com>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
+        "linux-nvdimm@lists.01.org" <linux-nvdimm@lists.01.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jun 02, 2020 at 12:24:31PM +0200, Alexander Gordeev wrote:
-> On Mon, May 18, 2020 at 01:50:59PM +0200, Alexander Gordeev wrote:
-> > On Mon, May 18, 2020 at 02:33:43PM +0300, Andy Shevchenko wrote:
-> > > On Mon, May 18, 2020 at 1:40 PM Alexander Gordeev
-> > > <agordeev@linux.ibm.com> wrote:
-> > > >
-> > > > Commit 2d6261583be0 ("lib: rework bitmap_parse()") does
-> > > > not take into account order of halfwords on 64-bit big
-> > > > endian architectures.
-> > > 
-> > > Thanks for report and the patch!
-> > > 
-> > > Did it work before? Can we have a test case for that that we will see
-> > > the failure?
-> > 
-> > The test exists and enabled with CONFIG_TEST_BITMAP.
-> > It does not appear ever passed before on 64 BE.
-> > It does not fail on 64 LE for me either.
-> 
-> Hi Andy et al,
-> 
-> Any feedback on the fix? Does it work on 64 LE for you?
+On Fri, May 8, 2020 at 1:55 AM Dan Williams <dan.j.williams@intel.com> wrote:
+>
+> Recently a performance problem was reported for a process invoking a
+> non-trival ASL program. The method call in this case ends up
+> repetitively triggering a call path like:
+>
+>     acpi_ex_store
+>     acpi_ex_store_object_to_node
+>     acpi_ex_write_data_to_field
+>     acpi_ex_insert_into_field
+>     acpi_ex_write_with_update_rule
+>     acpi_ex_field_datum_io
+>     acpi_ex_access_region
+>     acpi_ev_address_space_dispatch
+>     acpi_ex_system_memory_space_handler
+>     acpi_os_map_cleanup.part.14
+>     _synchronize_rcu_expedited.constprop.89
+>     schedule
+>
+> The end result of frequent synchronize_rcu_expedited() invocation is
+> tiny sub-millisecond spurts of execution where the scheduler freely
+> migrates this apparently sleepy task. The overhead of frequent scheduler
+> invocation multiplies the execution time by a factor of 2-3X.
+>
+> For example, performance improves from 16 minutes to 7 minutes for a
+> firmware update procedure across 24 devices.
+>
+> Perhaps the rcu usage was intended to allow for not taking a sleeping
+> lock in the acpi_os_{read,write}_memory() path which ostensibly could be
+> called from an APEI NMI error interrupt?
 
-Test case, please.
+Not really.
 
-Yes, you can simulate BE test case on LE platform and vise versa.
+acpi_os_{read|write}_memory() end up being called from non-NMI
+interrupt context via acpi_hw_{read|write}(), respectively, and quite
+obviously ioremap() cannot be run from there, but in those cases the
+mappings in question are there in the list already in all cases and so
+the ioremap() isn't used then.
 
--- 
-With Best Regards,
-Andy Shevchenko
+RCU is there to protect these users from walking the list while it is
+being updated.
 
+> Neither rcu_read_lock() nor ioremap() are interrupt safe, so add a WARN_ONCE() to validate that rcu
+> was not serving as a mechanism to avoid direct calls to ioremap().
 
+But it would produce false-positives if the IRQ context was not NMI,
+wouldn't it?
+
+> Even the original implementation had a spin_lock_irqsave(), but that is not
+> NMI safe.
+
+Which is not a problem (see above).
+
+> APEI itself already has some concept of avoiding ioremap() from
+> interrupt context (see erst_exec_move_data()), if the new warning
+> triggers it means that APEI either needs more instrumentation like that
+> to pre-emptively fail, or more infrastructure to arrange for pre-mapping
+> the resources it needs in NMI context.
+
+Well, I'm not sure about that.
+
+Thanks!
