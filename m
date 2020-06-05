@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 349751EF7C2
+	by mail.lfdr.de (Postfix) with ESMTP id A3FB11EF7C3
 	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 14:29:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726983AbgFEMZx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Jun 2020 08:25:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57666 "EHLO mail.kernel.org"
+        id S1726410AbgFEM3Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Jun 2020 08:29:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57690 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726969AbgFEMZv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Jun 2020 08:25:51 -0400
+        id S1726981AbgFEMZx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Jun 2020 08:25:53 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B9F7B206DC;
-        Fri,  5 Jun 2020 12:25:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B273B20835;
+        Fri,  5 Jun 2020 12:25:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591359951;
-        bh=dC7qEY8RWldK5Tu4/BHmKfll+FauoIDgIQY9R1Du2LQ=;
+        s=default; t=1591359952;
+        bh=apDgnAQBd/K2/3jrja5jP8BCQtPiv1jeDJYxqBqjj+E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nNCrv1bliNGQ//YC3zJZQFcAXFvhXoSZIq//HLg0lL/iPcXK3NyHy0d/P6G0/wIec
-         NCOMzv0mlF14I01BQxvVYXH0Deiv/Ngtq5ZFDVaQ5cE94e4ty4MS/cd/VQPiU024Ni
-         xWyEEoW47col6UXdgEupGEK6qMx6HRhbHy2MRL6M=
+        b=jisyzQSvJtRQz6WCoTv9TPKO1gBRFDEN04BjIHwqI4fmXFMN8ruWajVNzTKEp6aS2
+         9aq09h/Sg2Dmtj24Xw4CnDnVZgQEBfRDUlkA8JWMBS9Eln7qBZCHluOrkNSVWjBAp9
+         /nnA7X07FcAKMsg4QZ63Kq8pGiT02gP6Xz8DcCis=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Guo Ren <guoren@linux.alibaba.com>,
-        Sasha Levin <sashal@kernel.org>, linux-csky@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 09/14] csky: Fixup abiv2 syscall_trace break a4 & a5
-Date:   Fri,  5 Jun 2020 08:25:35 -0400
-Message-Id: <20200605122540.2882539-9-sashal@kernel.org>
+Cc:     Andreas Gruenbacher <agruenba@redhat.com>,
+        Bob Peterson <rpeterso@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, cluster-devel@redhat.com
+Subject: [PATCH AUTOSEL 5.4 10/14] gfs2: Even more gfs2_find_jhead fixes
+Date:   Fri,  5 Jun 2020 08:25:36 -0400
+Message-Id: <20200605122540.2882539-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200605122540.2882539-1-sashal@kernel.org>
 References: <20200605122540.2882539-1-sashal@kernel.org>
@@ -42,50 +43,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guo Ren <guoren@linux.alibaba.com>
+From: Andreas Gruenbacher <agruenba@redhat.com>
 
-[ Upstream commit e0bbb53843b5fdfe464b099217e3b9d97e8a75d7 ]
+[ Upstream commit 20be493b787cd581c9fffad7fcd6bfbe6af1050c ]
 
-Current implementation could destory a4 & a5 when strace, so we need to get them
-from pt_regs by SAVE_ALL.
+Fix several issues in the previous gfs2_find_jhead fix:
+* When updating @blocks_submitted, @block refers to the first block block not
+  submitted yet, not the last block submitted, so fix an off-by-one error.
+* We want to ensure that @blocks_submitted is far enough ahead of @blocks_read
+  to guarantee that there is in-flight I/O.  Otherwise, we'll eventually end up
+  waiting for pages that haven't been submitted, yet.
+* It's much easier to compare the number of blocks added with the number of
+  blocks submitted to limit the maximum bio size.
+* Even with bio chaining, we can keep adding blocks until we reach the maximum
+  bio size, as long as we stop at a page boundary.  This simplifies the logic.
 
-Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Reviewed-by: Bob Peterson <rpeterso@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/csky/abiv2/inc/abi/entry.h | 2 ++
- arch/csky/kernel/entry.S        | 6 ++++--
- 2 files changed, 6 insertions(+), 2 deletions(-)
+ fs/gfs2/lops.c | 15 +++++----------
+ 1 file changed, 5 insertions(+), 10 deletions(-)
 
-diff --git a/arch/csky/abiv2/inc/abi/entry.h b/arch/csky/abiv2/inc/abi/entry.h
-index 9023828ede97..ac8f65a3e75a 100644
---- a/arch/csky/abiv2/inc/abi/entry.h
-+++ b/arch/csky/abiv2/inc/abi/entry.h
-@@ -13,6 +13,8 @@
- #define LSAVE_A1	28
- #define LSAVE_A2	32
- #define LSAVE_A3	36
-+#define LSAVE_A4	40
-+#define LSAVE_A5	44
+diff --git a/fs/gfs2/lops.c b/fs/gfs2/lops.c
+index 8303b44a5068..d2ed4dc4434c 100644
+--- a/fs/gfs2/lops.c
++++ b/fs/gfs2/lops.c
+@@ -504,12 +504,12 @@ int gfs2_find_jhead(struct gfs2_jdesc *jd, struct gfs2_log_header_host *head,
+ 	unsigned int bsize = sdp->sd_sb.sb_bsize, off;
+ 	unsigned int bsize_shift = sdp->sd_sb.sb_bsize_shift;
+ 	unsigned int shift = PAGE_SHIFT - bsize_shift;
+-	unsigned int max_bio_size = 2 * 1024 * 1024;
++	unsigned int max_blocks = 2 * 1024 * 1024 >> bsize_shift;
+ 	struct gfs2_journal_extent *je;
+ 	int sz, ret = 0;
+ 	struct bio *bio = NULL;
+ 	struct page *page = NULL;
+-	bool bio_chained = false, done = false;
++	bool done = false;
+ 	errseq_t since;
  
- #define KSPTOUSP
- #define USPTOKSP
-diff --git a/arch/csky/kernel/entry.S b/arch/csky/kernel/entry.S
-index 65c55f22532a..4349528fbf38 100644
---- a/arch/csky/kernel/entry.S
-+++ b/arch/csky/kernel/entry.S
-@@ -170,8 +170,10 @@ csky_syscall_trace:
- 	ldw	a3, (sp, LSAVE_A3)
- #if defined(__CSKYABIV2__)
- 	subi	sp, 8
--	stw	r5, (sp, 0x4)
--	stw	r4, (sp, 0x0)
-+	ldw	r9, (sp, LSAVE_A4)
-+	stw	r9, (sp, 0x0)
-+	ldw	r9, (sp, LSAVE_A5)
-+	stw	r9, (sp, 0x4)
- #else
- 	ldw	r6, (sp, LSAVE_A4)
- 	ldw	r7, (sp, LSAVE_A5)
+ 	memset(head, 0, sizeof(*head));
+@@ -532,10 +532,7 @@ int gfs2_find_jhead(struct gfs2_jdesc *jd, struct gfs2_log_header_host *head,
+ 				off = 0;
+ 			}
+ 
+-			if (!bio || (bio_chained && !off) ||
+-			    bio->bi_iter.bi_size >= max_bio_size) {
+-				/* start new bio */
+-			} else {
++			if (bio && (off || block < blocks_submitted + max_blocks)) {
+ 				sector_t sector = dblock << sdp->sd_fsb2bb_shift;
+ 
+ 				if (bio_end_sector(bio) == sector) {
+@@ -548,19 +545,17 @@ int gfs2_find_jhead(struct gfs2_jdesc *jd, struct gfs2_log_header_host *head,
+ 						(PAGE_SIZE - off) >> bsize_shift;
+ 
+ 					bio = gfs2_chain_bio(bio, blocks);
+-					bio_chained = true;
+ 					goto add_block_to_new_bio;
+ 				}
+ 			}
+ 
+ 			if (bio) {
+-				blocks_submitted = block + 1;
++				blocks_submitted = block;
+ 				submit_bio(bio);
+ 			}
+ 
+ 			bio = gfs2_log_alloc_bio(sdp, dblock, gfs2_end_log_read);
+ 			bio->bi_opf = REQ_OP_READ;
+-			bio_chained = false;
+ add_block_to_new_bio:
+ 			sz = bio_add_page(bio, page, bsize, off);
+ 			BUG_ON(sz != bsize);
+@@ -568,7 +563,7 @@ int gfs2_find_jhead(struct gfs2_jdesc *jd, struct gfs2_log_header_host *head,
+ 			off += bsize;
+ 			if (off == PAGE_SIZE)
+ 				page = NULL;
+-			if (blocks_submitted < 2 * max_bio_size >> bsize_shift) {
++			if (blocks_submitted <= blocks_read + max_blocks) {
+ 				/* Keep at least one bio in flight */
+ 				continue;
+ 			}
 -- 
 2.25.1
 
