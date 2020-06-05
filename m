@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 108DB1EFB52
-	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 16:26:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ACEE41EFA4C
+	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 16:16:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728424AbgFEOZt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Jun 2020 10:25:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45456 "EHLO mail.kernel.org"
+        id S1728231AbgFEOQ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Jun 2020 10:16:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45492 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728220AbgFEOQV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Jun 2020 10:16:21 -0400
+        id S1727929AbgFEOQX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Jun 2020 10:16:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 22459208B8;
-        Fri,  5 Jun 2020 14:16:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 670CE208A9;
+        Fri,  5 Jun 2020 14:16:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591366580;
-        bh=LzQfa0p9cHUENQO0mAWYOT5ENogDMcPQBaPgv/iz+ok=;
+        s=default; t=1591366582;
+        bh=5EMxD/AfSpLyjuXNqb5ixny+nHiT+Kx9uhypSmTttzI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QaQ9xPps8VDC6lrzac9rrch59jnaiGgtMMoT+AKH69HPCK8LOcN1F/RuhCMQfkT9U
-         a3+S2HYsjYsckliAjE2GO2HgdMX9BGh5UAqEtBJrD0AYXCxUZ266GgNiUvZNYYiUXr
-         hV4if5Iz3q3PChjT4dLnew01syA9MuZSXMyqe1xU=
+        b=jyCjfj975bHSnl0j4tUCw8yPlQ3vjs5Gr3rbljB4rtj29oZnvm9eAAO50Wv5r45x6
+         Dv5OEWQw0ozXIglokm/M9ZUT1a+9p+4Kq6EnNVNOV0o9k3isoZUTx/qyLGFdf2wDix
+         7LPDujXy2uj5qTVzQDCPe2O2aGgRDjjgZrUAo8HA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Ujfalusi <peter.ujfalusi@ti.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 10/43] dmaengine: ti: k3-udma: Fix TR mode flags for slave_sg and memcpy
-Date:   Fri,  5 Jun 2020 16:14:40 +0200
-Message-Id: <20200605140153.064092219@linuxfoundation.org>
+        stable@vger.kernel.org, Atsushi Nemoto <atsushi.nemoto@sord.co.jp>,
+        Thor Thayer <thor.thayer@linux.intel.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 11/43] i2c: altera: Fix race between xfer_msg and isr thread
+Date:   Fri,  5 Jun 2020 16:14:41 +0200
+Message-Id: <20200605140153.115818428@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200605140152.493743366@linuxfoundation.org>
 References: <20200605140152.493743366@linuxfoundation.org>
@@ -43,46 +44,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Ujfalusi <peter.ujfalusi@ti.com>
+From: Atsushi Nemoto <atsushi.nemoto@sord.co.jp>
 
-[ Upstream commit be4054b8b6671ebc977eb7774b8e889d2d05d3e3 ]
+[ Upstream commit 5d4c7977499a736f3f80826bdc9744344ad55589 ]
 
-cppi5_tr_csf_set() clears previously set Configuration Specific Flags.
-Setting the EOP flag clears the SUPR_EVT flag for the last TR which is not
-desirable as we do not want to have events from the TR.
+Use a mutex to protect access to idev->msg_len, idev->buf, etc. which
+are modified by both altr_i2c_xfer_msg() and altr_i2c_isr().
 
-Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
-Link: https://lore.kernel.org/r/20200512134531.5742-1-peter.ujfalusi@ti.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+This is the minimal fix for easy backporting. A cleanup to remove the
+spinlock will be added later.
+
+Signed-off-by: Atsushi Nemoto <atsushi.nemoto@sord.co.jp>
+Acked-by: Thor Thayer <thor.thayer@linux.intel.com>
+[wsa: updated commit message]
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/ti/k3-udma.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/i2c/busses/i2c-altera.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/dma/ti/k3-udma.c b/drivers/dma/ti/k3-udma.c
-index 0536866a58ce..4bfbca2add1b 100644
---- a/drivers/dma/ti/k3-udma.c
-+++ b/drivers/dma/ti/k3-udma.c
-@@ -2148,7 +2148,8 @@ udma_prep_slave_sg_tr(struct udma_chan *uc, struct scatterlist *sgl,
- 		d->residue += sg_dma_len(sgent);
+diff --git a/drivers/i2c/busses/i2c-altera.c b/drivers/i2c/busses/i2c-altera.c
+index 92d2c706c2a7..a60042431370 100644
+--- a/drivers/i2c/busses/i2c-altera.c
++++ b/drivers/i2c/busses/i2c-altera.c
+@@ -70,6 +70,7 @@
+  * @isr_mask: cached copy of local ISR enables.
+  * @isr_status: cached copy of local ISR status.
+  * @lock: spinlock for IRQ synchronization.
++ * @isr_mutex: mutex for IRQ thread.
+  */
+ struct altr_i2c_dev {
+ 	void __iomem *base;
+@@ -86,6 +87,7 @@ struct altr_i2c_dev {
+ 	u32 isr_mask;
+ 	u32 isr_status;
+ 	spinlock_t lock;	/* IRQ synchronization */
++	struct mutex isr_mutex;
+ };
+ 
+ static void
+@@ -245,10 +247,11 @@ static irqreturn_t altr_i2c_isr(int irq, void *_dev)
+ 	struct altr_i2c_dev *idev = _dev;
+ 	u32 status = idev->isr_status;
+ 
++	mutex_lock(&idev->isr_mutex);
+ 	if (!idev->msg) {
+ 		dev_warn(idev->dev, "unexpected interrupt\n");
+ 		altr_i2c_int_clear(idev, ALTR_I2C_ALL_IRQ);
+-		return IRQ_HANDLED;
++		goto out;
  	}
+ 	read = (idev->msg->flags & I2C_M_RD) != 0;
  
--	cppi5_tr_csf_set(&tr_req[tr_idx - 1].flags, CPPI5_TR_CSF_EOP);
-+	cppi5_tr_csf_set(&tr_req[tr_idx - 1].flags,
-+			 CPPI5_TR_CSF_SUPR_EVT | CPPI5_TR_CSF_EOP);
+@@ -301,6 +304,8 @@ static irqreturn_t altr_i2c_isr(int irq, void *_dev)
+ 		complete(&idev->msg_complete);
+ 		dev_dbg(idev->dev, "Message Complete\n");
+ 	}
++out:
++	mutex_unlock(&idev->isr_mutex);
  
- 	return d;
+ 	return IRQ_HANDLED;
  }
-@@ -2725,7 +2726,8 @@ udma_prep_dma_memcpy(struct dma_chan *chan, dma_addr_t dest, dma_addr_t src,
- 		tr_req[1].dicnt3 = 1;
+@@ -312,6 +317,7 @@ static int altr_i2c_xfer_msg(struct altr_i2c_dev *idev, struct i2c_msg *msg)
+ 	u32 value;
+ 	u8 addr = i2c_8bit_addr_from_msg(msg);
+ 
++	mutex_lock(&idev->isr_mutex);
+ 	idev->msg = msg;
+ 	idev->msg_len = msg->len;
+ 	idev->buf = msg->buf;
+@@ -336,6 +342,7 @@ static int altr_i2c_xfer_msg(struct altr_i2c_dev *idev, struct i2c_msg *msg)
+ 		altr_i2c_int_enable(idev, imask, true);
+ 		altr_i2c_fill_tx_fifo(idev);
  	}
++	mutex_unlock(&idev->isr_mutex);
  
--	cppi5_tr_csf_set(&tr_req[num_tr - 1].flags, CPPI5_TR_CSF_EOP);
-+	cppi5_tr_csf_set(&tr_req[num_tr - 1].flags,
-+			 CPPI5_TR_CSF_SUPR_EVT | CPPI5_TR_CSF_EOP);
+ 	time_left = wait_for_completion_timeout(&idev->msg_complete,
+ 						ALTR_I2C_XFER_TIMEOUT);
+@@ -409,6 +416,7 @@ static int altr_i2c_probe(struct platform_device *pdev)
+ 	idev->dev = &pdev->dev;
+ 	init_completion(&idev->msg_complete);
+ 	spin_lock_init(&idev->lock);
++	mutex_init(&idev->isr_mutex);
  
- 	if (uc->config.metadata_size)
- 		d->vd.tx.metadata_ops = &metadata_ops;
+ 	ret = device_property_read_u32(idev->dev, "fifo-size",
+ 				       &idev->fifo_size);
 -- 
 2.25.1
 
