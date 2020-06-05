@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DE8A31EFD83
-	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 18:26:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 932521EFDF7
+	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 18:29:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726316AbgFEQZ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Jun 2020 12:25:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40712 "EHLO
+        id S1726750AbgFEQ0C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Jun 2020 12:26:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40718 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726024AbgFEQZ7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 5 Jun 2020 12:25:59 -0400
-Received: from mail-pj1-x1044.google.com (mail-pj1-x1044.google.com [IPv6:2607:f8b0:4864:20::1044])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06634C08C5C2;
-        Fri,  5 Jun 2020 09:25:59 -0700 (PDT)
-Received: by mail-pj1-x1044.google.com with SMTP id s88so2949204pjb.5;
-        Fri, 05 Jun 2020 09:25:59 -0700 (PDT)
+        with ESMTP id S1726727AbgFEQ0B (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 5 Jun 2020 12:26:01 -0400
+Received: from mail-pg1-x543.google.com (mail-pg1-x543.google.com [IPv6:2607:f8b0:4864:20::543])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D3B2C08C5C2;
+        Fri,  5 Jun 2020 09:26:01 -0700 (PDT)
+Received: by mail-pg1-x543.google.com with SMTP id o6so5377104pgh.2;
+        Fri, 05 Jun 2020 09:26:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=xiTMuwQ2X7Lvg1AXoObZHg8t385K8uvAl/6Z6GSCNRE=;
-        b=PDO192MXtCEDH4yvw6uZfm77X6P4U22M7lARMan18YXz3iENPg4XxWelg81QrEsJpn
-         kHAc5uecbkfIa/ZC5+sblLfe20Rfi5qKPaQWV9DvtjnAjFUgUA7lYWbj2QbLDeaiQk1I
-         M2VCJgzSuHqbOb6ZJ3usaDMS04+Qi5vCcDWTtW1U/ksln2oZBSMMLnduaI5kOvnFf9z/
-         Dx/tcXUsEEPppj/9dwA5mhCnWukXJJv4NeYxxz5F3DpBHpayldKcn8202m0uhnKepd1h
-         t2fWOo6Rbnjextv6pqkAslqz+AKHf9BFn5P2ac4EAq3x+feY/qQoc9leEjYyFeYi+SO1
-         2X6g==
+        bh=FrKureXAugTznm0BDZd4QZA9eNgJhwIv0PlSXJOT72U=;
+        b=sTwJSvUcQ20+52QuZlahVZ/PtgEVkSBVPfH530tFTp29oZT9wXxczb8OHoQU8iS0pN
+         PSdp+BHmPkExZqmwEdgmyOpz7JgFI1CbCT8HQKSrG21QIMe4qYettibVCVjlmh2vmlVp
+         570ZeirjE28Zo41IQk0XELbF4SeVkGf7gTmTNOt+UrMdLt47PFw32aPo1/JrMx5+/3c7
+         AhBLnwoCz6GGp7gt/mFR6XL65PLfWOr002c9xWkqRxPDRTJuGfwd3JyWpLxyfq+bctPi
+         m4RsGMZ+NWtHITvNy17FEgOcyzoCYScKnh3z9nfM/7SrC9EMgvdCyj9awU1zVCVhR2iy
+         j55g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references;
-        bh=xiTMuwQ2X7Lvg1AXoObZHg8t385K8uvAl/6Z6GSCNRE=;
-        b=uWgUYJzAMRnd9tRWz+Zilk731umoPhHwzk8Y5IXLtfGmeMPvyz069xdCCQYkxCoHoN
-         3TXWBCLqdh4C7aLtTnWrN1nee7C977Azi4Py8r459arP7ORnhGF3MrTndRBmOYKXuIVb
-         o+m2EddMmPJ410CoTsBrWvYJNxCLDKrQoywJzfLON9BsV//EdTHWea1rvcPczUNmDHRG
-         1Pv1LO1J/5UlWQMxI1MxW+Q+6iLwiisTpy3Vf8zTcwTsceu6FJeb6Br3WFMz4xeIlSbS
-         3H/GJHh6F8OBY/8qo5N48R/BKKITShz1J/z+s7GduxuR0Lo9TuW9VNFmeanuQG/8tLAV
-         y8XQ==
-X-Gm-Message-State: AOAM533cwmhDuolHO1UMFkkZ6n0syAVdC4L93qr7Q1Y0USO+zD2rqD8Q
-        S7c4Eb5UpVcoCKpo8DMArM+LHE6P
-X-Google-Smtp-Source: ABdhPJzHxb4CKJjj1XbqGo+0bkVBi1f+HfoixTcES5XCnrpj/TQdExSyuo2+qImM8vYbsgYhRgeGVA==
-X-Received: by 2002:a17:90a:898a:: with SMTP id v10mr2269707pjn.95.1591374358118;
-        Fri, 05 Jun 2020 09:25:58 -0700 (PDT)
+        bh=FrKureXAugTznm0BDZd4QZA9eNgJhwIv0PlSXJOT72U=;
+        b=ovRBnLB/R924eIijJRGESn9b+giNlAkHdkyFwqFYbrdt6OGZKK/k1P7lxt6JK8I2Dw
+         t8wOVjy63fOYTcOoHUFAQXw1lVEYE42ftQXbLLW7MWHSFwOCchj+f7UxogpVqSiQ04tD
+         WBwKLbW+nhiOXF4xwkm8iNlw+UNMLSdvZFGsVNPZnoiCm7ywstSQRN6NkK9v8sVd9YeA
+         3frUVfbdAiHzbIIwpd1xtzG4J67OcW20gKDH/x0RF8UfT1eklW4EKXFMiDtDYsN5Uqy/
+         P5KNc4F6tYbhQCj/g6tzo6Cje1VW/6NNRb4T5mUApBZONpRVjTxNtih0LIEpL+Yznp+E
+         rU3g==
+X-Gm-Message-State: AOAM530Q2O40p0bkIN9idn5WdFwzLFTnHuuWRYIPu0Mc59IdwUf80BLu
+        0PLpXZNtA9ey1FHU25XT+XePepSE
+X-Google-Smtp-Source: ABdhPJzr7d6bll/CqwR+jW9s0alK40zPfr3i3/ktdsLPzXYazAPQVp5BJfS0dLJEvvs1FhpQRG/BoQ==
+X-Received: by 2002:aa7:95bd:: with SMTP id a29mr10340370pfk.57.1591374360329;
+        Fri, 05 Jun 2020 09:26:00 -0700 (PDT)
 Received: from localhost.localdomain ([192.19.223.252])
-        by smtp.gmail.com with ESMTPSA id b29sm86205pff.176.2020.06.05.09.25.56
+        by smtp.gmail.com with ESMTPSA id b29sm86205pff.176.2020.06.05.09.25.58
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 05 Jun 2020 09:25:57 -0700 (PDT)
+        Fri, 05 Jun 2020 09:25:59 -0700 (PDT)
 From:   Florian Fainelli <f.fainelli@gmail.com>
 X-Google-Original-From: Florian Fainelli <florian.fainelli@broadcom.com>
 To:     linux-kernel@vger.kernel.org
@@ -63,9 +63,9 @@ Cc:     stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
         (V4L/DVB)),
         linux-fsdevel@vger.kernel.org (open list:FILESYSTEMS (VFS and
         infrastructure))
-Subject: [PATCH stable 4.9 01/21] media: dvb_frontend: ensure that inital front end status initialized
-Date:   Fri,  5 Jun 2020 09:24:58 -0700
-Message-Id: <20200605162518.28099-2-florian.fainelli@broadcom.com>
+Subject: [PATCH stable 4.9 02/21] media: dvb_frontend: initialize variable s with FE_NONE instead of 0
+Date:   Fri,  5 Jun 2020 09:24:59 -0700
+Message-Id: <20200605162518.28099-3-florian.fainelli@broadcom.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20200605162518.28099-1-florian.fainelli@broadcom.com>
 References: <20200605162518.28099-1-florian.fainelli@broadcom.com>
@@ -76,16 +76,13 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Colin Ian King <colin.king@canonical.com>
 
-commit a9e4998073d49a762a154a6b48a332ec6cb8e6b1 upstream
+commit 450694c3b9f47b826a002089c463b9454b4bbe42 upstream
 
-The fe_status variable s is not initialized meaning it can have any
-random garbage status.  This could be problematic if fe->ops.tune is
-false as s is not updated by the call to fe->ops.tune() and a
-subsequent check on the change status will using a garbage value.
-Fix this by adding FE_NONE to the enum fe_status and initializing
-s to this.
+GIT_AUTHOR_NAME=Colin King
+GIT_AUTHOR_EMAIL=colin.king@canonical.com
 
-Detected by CoverityScan, CID#112887 ("Uninitialized scalar variable")
+In a previous commit, we added FE_NONE as an unknown fe_status.
+Initialize variable s to FE_NONE instead of the more opaque value 0.
 
 Signed-off-by: Colin Ian King <colin.king@canonical.com>
 Reviewed-by: Shuah Khan <shuahkh@osg.samsung.com>
@@ -93,34 +90,21 @@ Signed-off-by: Mauro Carvalho Chehab <mchehab@s-opensource.com>
 Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 ---
  drivers/media/dvb-core/dvb_frontend.c | 2 +-
- include/uapi/linux/dvb/frontend.h     | 1 +
- 2 files changed, 2 insertions(+), 1 deletion(-)
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/media/dvb-core/dvb_frontend.c b/drivers/media/dvb-core/dvb_frontend.c
-index 2f054db8807b..372057cabea4 100644
+index 372057cabea4..3b045298546c 100644
 --- a/drivers/media/dvb-core/dvb_frontend.c
 +++ b/drivers/media/dvb-core/dvb_frontend.c
-@@ -629,7 +629,7 @@ static int dvb_frontend_thread(void *data)
- 	struct dvb_frontend *fe = data;
- 	struct dtv_frontend_properties *c = &fe->dtv_property_cache;
- 	struct dvb_frontend_private *fepriv = fe->frontend_priv;
--	enum fe_status s;
+@@ -458,7 +458,7 @@ static int dvb_frontend_swzigzag_autotune(struct dvb_frontend *fe, int check_wra
+ 
+ static void dvb_frontend_swzigzag(struct dvb_frontend *fe)
+ {
+-	enum fe_status s = 0;
 +	enum fe_status s = FE_NONE;
- 	enum dvbfe_algo algo;
- 	bool re_tune = false;
- 	bool semheld = false;
-diff --git a/include/uapi/linux/dvb/frontend.h b/include/uapi/linux/dvb/frontend.h
-index 00a20cd21ee2..afc3972b0879 100644
---- a/include/uapi/linux/dvb/frontend.h
-+++ b/include/uapi/linux/dvb/frontend.h
-@@ -127,6 +127,7 @@ enum fe_sec_mini_cmd {
-  *			to reset DiSEqC, tone and parameters
-  */
- enum fe_status {
-+	FE_NONE			= 0x00,
- 	FE_HAS_SIGNAL		= 0x01,
- 	FE_HAS_CARRIER		= 0x02,
- 	FE_HAS_VITERBI		= 0x04,
+ 	int retval = 0;
+ 	struct dvb_frontend_private *fepriv = fe->frontend_priv;
+ 	struct dtv_frontend_properties *c = &fe->dtv_property_cache, tmp;
 -- 
 2.17.1
 
