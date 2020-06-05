@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A30721EFA4E
-	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 16:16:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AEA061EFB10
+	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 16:24:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727925AbgFEOQb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Jun 2020 10:16:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45616 "EHLO mail.kernel.org"
+        id S1727944AbgFEOSZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Jun 2020 10:18:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48910 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728234AbgFEOQa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Jun 2020 10:16:30 -0400
+        id S1728661AbgFEOSX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Jun 2020 10:18:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 347DE2086A;
-        Fri,  5 Jun 2020 14:16:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D84D5208B8;
+        Fri,  5 Jun 2020 14:18:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591366589;
-        bh=muJTA8gw92hC3PZu1PneM6mFIFDrGyL77weaKHDumjM=;
+        s=default; t=1591366703;
+        bh=9bgOnoqQ3+XkHBwKqZjrpgx+J9Wfv4rHG89fs41V1TM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JH+KM/Smhzp0bxO8BYuzWt/fCiAnyNvV/nOBw53XJ5t0xDR1Qfoyp4IG7EfkxSGOY
-         eHfZHi3EVDL+k4qhM09nHkhzMKqni4HbItMb6TGFNHQAlys+qdDBxf77uChRpR4WVw
-         uKEGmQ7hMcV+fcXMu2ia4U7VsR5meSYTj23KU5pM=
+        b=bCbKh1rVRdcruYOjlT37m4Byq/recCkv5f1fdGBrj4eTqiiiTkZF8KuAiLt88RJ0Q
+         SqdKcM8h85CmDxeq+60nPPPnSdl/Cx5okjgSz63NzU9GjJ1mzrhIL42akifRzd+OiQ
+         KCrtYtwi3//jdWjuEUjcU7YlIDxBAVerv3KGDmwU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 14/43] io_uring: fix FORCE_ASYNC req preparation
-Date:   Fri,  5 Jun 2020 16:14:44 +0200
-Message-Id: <20200605140153.269887611@linuxfoundation.org>
+        stable@vger.kernel.org, Fan Yang <Fan_Yang@sjtu.edu.cn>,
+        Dan Williams <dan.j.williams@intel.com>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 02/38] mm: Fix mremap not considering huge pmd devmap
+Date:   Fri,  5 Jun 2020 16:14:45 +0200
+Message-Id: <20200605140252.678256519@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200605140152.493743366@linuxfoundation.org>
-References: <20200605140152.493743366@linuxfoundation.org>
+In-Reply-To: <20200605140252.542768750@linuxfoundation.org>
+References: <20200605140252.542768750@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,45 +45,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Begunkov <asml.silence@gmail.com>
+From: Fan Yang <Fan_Yang@sjtu.edu.cn>
 
-[ Upstream commit bd2ab18a1d6267446eae1b47dd839050452bdf7f ]
+commit 5bfea2d9b17f1034a68147a8b03b9789af5700f9 upstream.
 
-As for other not inlined requests, alloc req->io for FORCE_ASYNC reqs,
-so they can be prepared properly.
+The original code in mm/mremap.c checks huge pmd by:
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+		if (is_swap_pmd(*old_pmd) || pmd_trans_huge(*old_pmd)) {
+
+However, a DAX mapped nvdimm is mapped as huge page (by default) but it
+is not transparent huge page (_PAGE_PSE | PAGE_DEVMAP).  This commit
+changes the condition to include the case.
+
+This addresses CVE-2020-10757.
+
+Fixes: 5c7fb56e5e3f ("mm, dax: dax-pmd vs thp-pmd vs hugetlbfs-pmd")
+Cc: <stable@vger.kernel.org>
+Reported-by: Fan Yang <Fan_Yang@sjtu.edu.cn>
+Signed-off-by: Fan Yang <Fan_Yang@sjtu.edu.cn>
+Tested-by: Fan Yang <Fan_Yang@sjtu.edu.cn>
+Tested-by: Dan Williams <dan.j.williams@intel.com>
+Reviewed-by: Dan Williams <dan.j.williams@intel.com>
+Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- fs/io_uring.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ arch/x86/include/asm/pgtable.h |    1 +
+ mm/mremap.c                    |    2 +-
+ 2 files changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index aa800f70c55e..504484dc33e4 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -4823,9 +4823,15 @@ fail_req:
- 			io_double_put_req(req);
- 		}
- 	} else if (req->flags & REQ_F_FORCE_ASYNC) {
--		ret = io_req_defer_prep(req, sqe);
--		if (unlikely(ret < 0))
--			goto fail_req;
-+		if (!req->io) {
-+			ret = -EAGAIN;
-+			if (io_alloc_async_ctx(req))
-+				goto fail_req;
-+			ret = io_req_defer_prep(req, sqe);
-+			if (unlikely(ret < 0))
-+				goto fail_req;
-+		}
-+
- 		/*
- 		 * Never try inline submit of IOSQE_ASYNC is set, go straight
- 		 * to async execution.
--- 
-2.25.1
-
+--- a/arch/x86/include/asm/pgtable.h
++++ b/arch/x86/include/asm/pgtable.h
+@@ -253,6 +253,7 @@ static inline int pmd_large(pmd_t pte)
+ }
+ 
+ #ifdef CONFIG_TRANSPARENT_HUGEPAGE
++/* NOTE: when predicate huge page, consider also pmd_devmap, or use pmd_large */
+ static inline int pmd_trans_huge(pmd_t pmd)
+ {
+ 	return (pmd_val(pmd) & (_PAGE_PSE|_PAGE_DEVMAP)) == _PAGE_PSE;
+--- a/mm/mremap.c
++++ b/mm/mremap.c
+@@ -266,7 +266,7 @@ unsigned long move_page_tables(struct vm
+ 		new_pmd = alloc_new_pmd(vma->vm_mm, vma, new_addr);
+ 		if (!new_pmd)
+ 			break;
+-		if (is_swap_pmd(*old_pmd) || pmd_trans_huge(*old_pmd)) {
++		if (is_swap_pmd(*old_pmd) || pmd_trans_huge(*old_pmd) || pmd_devmap(*old_pmd)) {
+ 			if (extent == HPAGE_PMD_SIZE) {
+ 				bool moved;
+ 				/* See comment in move_ptes() */
 
 
