@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 918751EFB4F
-	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 16:26:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A9F3A1EFA91
+	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 16:19:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728269AbgFEOZl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Jun 2020 10:25:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45656 "EHLO mail.kernel.org"
+        id S1728746AbgFEOSu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Jun 2020 10:18:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49440 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728250AbgFEOQc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Jun 2020 10:16:32 -0400
+        id S1728738AbgFEOSt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Jun 2020 10:18:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6F6AB2075B;
-        Fri,  5 Jun 2020 14:16:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 28144208A7;
+        Fri,  5 Jun 2020 14:18:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591366591;
-        bh=EUyRpb3EQAr3VgeyKmxe4l/6m82tQ6ZFBOGR+llSCE0=;
+        s=default; t=1591366728;
+        bh=D4r6OX5ozF6eB8oFMSsc6D1ClCAeu0v3Pg3qY5inDxI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EKMG6og3TG8ORfExXpwBHLrR16jaN1VjJ/vqG7Z0zOVAAgkh35+Pr2Yyr9Cy/m3HS
-         uCnSbhvo77mzy2VbbM1UyObo+0k3k4LtMwiHz2sEJSwhXBHGCIcy0Am7g061C3D5D9
-         alMZ90iCnNY/VJ7qXE0n42ILKy0iVJg2Yxfsfb8Q=
+        b=UIHsJMJ7dLuMH8IOKhUY3MOYwAlwtmuz4geFOMMdtyVq+AYpv3l+KkEIezSMKC4t/
+         iwgyg2lTJoBW94/kjPz1Mo1/hVp7j8hYt5Kj4xOcBIeCFAdePZxubeV6M3nmpwKobh
+         1T0CNlIZedm2ffljI3QQxJC2PZWYdbtuJk/VzfN4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leon Romanovsky <leonro@mellanox.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 15/43] net: phy: propagate an error back to the callers of phy_sfp_probe
-Date:   Fri,  5 Jun 2020 16:14:45 +0200
-Message-Id: <20200605140153.322521877@linuxfoundation.org>
+        stable@vger.kernel.org, Scott Shumate <scott.shumate@gmail.com>,
+        Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH 5.4 03/38] HID: sony: Fix for broken buttons on DS3 USB dongles
+Date:   Fri,  5 Jun 2020 16:14:46 +0200
+Message-Id: <20200605140252.741138694@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200605140152.493743366@linuxfoundation.org>
-References: <20200605140152.493743366@linuxfoundation.org>
+In-Reply-To: <20200605140252.542768750@linuxfoundation.org>
+References: <20200605140252.542768750@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,52 +43,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leon Romanovsky <leonro@mellanox.com>
+From: Scott Shumate <scott.shumate@gmail.com>
 
-[ Upstream commit e3f2d5579c0b8ad9d1fb6a5813cee38a86386e05 ]
+commit e72455b898ac678667c5674668186b4670d87d11 upstream.
 
-The compilation warning below reveals that the errors returned from
-the sfp_bus_add_upstream() call are not propagated to the callers.
-Fix it by returning "ret".
+Fix for non-working buttons on knock-off USB dongles for Sony
+controllers. These USB dongles are used to connect older Sony DA/DS1/DS2
+controllers via USB and are common on Amazon, AliExpress, etc.  Without
+the patch, the square, X, and circle buttons do not function.  These
+dongles used to work prior to kernel 4.10 but removing the global DS3
+report fixup in commit e19a267b9987 ("HID: sony: DS3 comply to Linux gamepad
+spec") exposed the problem.
 
-14:37:51 drivers/net/phy/phy_device.c: In function 'phy_sfp_probe':
-14:37:51 drivers/net/phy/phy_device.c:1236:6: warning: variable 'ret'
-   set but not used [-Wunused-but-set-variable]
-14:37:51  1236 |  int ret;
-14:37:51       |      ^~~
+Many people reported the problem on the Ubuntu forums and are working
+around the problem by falling back to the 4.9 hid-sony driver.
 
-Fixes: 298e54fa810e ("net: phy: add core phylib sfp support")
-Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The problem stems from these dongles incorrectly reporting their button
+count as 13 instead of 16.  This patch fixes up the report descriptor by
+changing the button report count to 16 and removing 3 padding bits.
+
+Cc: stable@vger.kernel.org
+Fixes: e19a267b9987 ("HID: sony: DS3 comply to Linux gamepad spec")
+Signed-off-by: Scott Shumate <scott.shumate@gmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/phy/phy_device.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/hid/hid-sony.c |   17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
 
-diff --git a/drivers/net/phy/phy_device.c b/drivers/net/phy/phy_device.c
-index 28e3c5c0e3c3..faca0d84f5af 100644
---- a/drivers/net/phy/phy_device.c
-+++ b/drivers/net/phy/phy_device.c
-@@ -1239,7 +1239,7 @@ int phy_sfp_probe(struct phy_device *phydev,
- 		  const struct sfp_upstream_ops *ops)
- {
- 	struct sfp_bus *bus;
--	int ret;
-+	int ret = 0;
+--- a/drivers/hid/hid-sony.c
++++ b/drivers/hid/hid-sony.c
+@@ -867,6 +867,23 @@ static u8 *sony_report_fixup(struct hid_
+ 	if (sc->quirks & PS3REMOTE)
+ 		return ps3remote_fixup(hdev, rdesc, rsize);
  
- 	if (phydev->mdio.dev.fwnode) {
- 		bus = sfp_bus_find_fwnode(phydev->mdio.dev.fwnode);
-@@ -1251,7 +1251,7 @@ int phy_sfp_probe(struct phy_device *phydev,
- 		ret = sfp_bus_add_upstream(bus, phydev, ops);
- 		sfp_bus_put(bus);
- 	}
--	return 0;
-+	return ret;
++	/*
++	 * Some knock-off USB dongles incorrectly report their button count
++	 * as 13 instead of 16 causing three non-functional buttons.
++	 */
++	if ((sc->quirks & SIXAXIS_CONTROLLER_USB) && *rsize >= 45 &&
++		/* Report Count (13) */
++		rdesc[23] == 0x95 && rdesc[24] == 0x0D &&
++		/* Usage Maximum (13) */
++		rdesc[37] == 0x29 && rdesc[38] == 0x0D &&
++		/* Report Count (3) */
++		rdesc[43] == 0x95 && rdesc[44] == 0x03) {
++		hid_info(hdev, "Fixing up USB dongle report descriptor\n");
++		rdesc[24] = 0x10;
++		rdesc[38] = 0x10;
++		rdesc[44] = 0x00;
++	}
++
+ 	return rdesc;
  }
- EXPORT_SYMBOL(phy_sfp_probe);
  
--- 
-2.25.1
-
 
 
