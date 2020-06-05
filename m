@@ -2,123 +2,144 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 508731EFE82
-	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 19:09:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5AA191EFE8A
+	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 19:09:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726964AbgFERJH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Jun 2020 13:09:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47628 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726648AbgFERJG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 5 Jun 2020 13:09:06 -0400
-Received: from mail-ed1-x542.google.com (mail-ed1-x542.google.com [IPv6:2a00:1450:4864:20::542])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 508B6C08C5C3
-        for <stable@vger.kernel.org>; Fri,  5 Jun 2020 10:09:06 -0700 (PDT)
-Received: by mail-ed1-x542.google.com with SMTP id l1so8017207ede.11
-        for <stable@vger.kernel.org>; Fri, 05 Jun 2020 10:09:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=intel-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=nXYAuD6cJqilYclvO4FvsMZJybvzN9VYDs0VzjdhPnY=;
-        b=t5puf6jywvyNN+70hb28Pvg47DXUPXRfy9clfajsTCTEsz1DVvuvmucmrFXPN4Yera
-         iX5tmSkGaAyNZayciyT3GMyFrOCN4SMWL8M84IxZWnMlNodshGHe66dJPL3M3KK6I7au
-         +Gg13yxDpSJdJwDAO/u+oQ8sXaQeYhxw/MvP+CTILg91x4xdp1wBvSxfUYgpmnTt/Mh1
-         ptUOCyR+L/3/QbN0ianVVqfl1yyY1EzbmpTorznVSk6wXtS5PLZ7NKDsgw4KvfvqTugO
-         4eHoGho3ymydRboxbZbhxWUgmRgJ6CgGhcQB5t8qPVtxxju5siJRkecD5se6dBe/h2N6
-         0LAA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=nXYAuD6cJqilYclvO4FvsMZJybvzN9VYDs0VzjdhPnY=;
-        b=jEkC5vc4Qkt8MYaOKZZNG/d9pG0//ONsPDyadCwiE76A/VRWXwr2gHUNTblm1djmZZ
-         ULE7PgPv+xQWFwkzzfPqO18EDFP1jMMPgfRUWUdYgpLyiaDngs86qx+sImkHRV/kBFGj
-         1WBnIDbodyrX8rZ/68u21gfEBP1G7oY4V5t8kYSbXfXfoIkWRwsfzxPDXEWmReYVb0UO
-         uuuAulQFtIoKecV+ekUysqX7t38XFO0QOYSV31QcuGQEl7LqowDUvTCAWb7afWz3GhIz
-         Y+ANzlppeWRzQMGad4D5jLbO+ZRFvSm6gz6r/JmbxJ4KLCcuKp4FRLkhEfY/V3tsneHe
-         vC3w==
-X-Gm-Message-State: AOAM532EHcz8o6UFu/PrUXiOBleSSfvhhOlOBPk7mTKg6FRnocdHN9cC
-        bP0NrYaqqE+JSxRvlH0O1xim/R1hBYLM/Jvx+N6OIw==
-X-Google-Smtp-Source: ABdhPJxATfr/IFgw85Nm/0I0I4vMJ3s9Mbj4YTfektxdqlqB/pT+k/tztb3pG7J2zznxMo8KQcFTv2Q6AnRteS+UOLs=
-X-Received: by 2002:aa7:c944:: with SMTP id h4mr10040096edt.383.1591376944978;
- Fri, 05 Jun 2020 10:09:04 -0700 (PDT)
+        id S1727813AbgFERJb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Jun 2020 13:09:31 -0400
+Received: from mga18.intel.com ([134.134.136.126]:24813 "EHLO mga18.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726324AbgFERJb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Jun 2020 13:09:31 -0400
+IronPort-SDR: JwmNp8b9Yr4qL8P78n+TuNCQR1xYd2PYy6GT8I6BOFAuH2GvYajawejcufcAGr4zW+tz9B3ifn
+ 8r1y9btTvTHA==
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga001.jf.intel.com ([10.7.209.18])
+  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Jun 2020 10:09:30 -0700
+IronPort-SDR: ejD2iB+0Y/PIY6NUm6qMALZslYTaBiAheR1m3mbD0+dYitoSyHA0rPS0jANDAeWq8XRlUCM/yB
+ V5ypg5o/Rbnw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.73,477,1583222400"; 
+   d="scan'208";a="348494979"
+Received: from smile.fi.intel.com (HELO smile) ([10.237.68.40])
+  by orsmga001.jf.intel.com with ESMTP; 05 Jun 2020 10:09:28 -0700
+Received: from andy by smile with local (Exim 4.93)
+        (envelope-from <andriy.shevchenko@linux.intel.com>)
+        id 1jhFqV-00B4hT-DR; Fri, 05 Jun 2020 20:09:31 +0300
+Date:   Fri, 5 Jun 2020 20:09:31 +0300
+From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To:     Hans de Goede <hdegoede@redhat.com>
+Cc:     Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        intel-gfx <intel-gfx@lists.freedesktop.org>,
+        linux-gpio@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH] pinctrl: baytrail: Fix pin being driven low for a while
+ on gpiod_get(..., GPIOD_OUT_HIGH)
+Message-ID: <20200605170931.GR2428291@smile.fi.intel.com>
+References: <20200602122130.45630-1-hdegoede@redhat.com>
+ <20200602152317.GI2428291@smile.fi.intel.com>
+ <ba931618-9259-aca0-142c-c1dfb67e737e@redhat.com>
 MIME-Version: 1.0
-References: <158889473309.2292982.18007035454673387731.stgit@dwillia2-desk3.amr.corp.intel.com>
- <2643462.teTRrieJB7@kreacher>
-In-Reply-To: <2643462.teTRrieJB7@kreacher>
-From:   Dan Williams <dan.j.williams@intel.com>
-Date:   Fri, 5 Jun 2020 10:08:53 -0700
-Message-ID: <CAPcyv4hWLKP7fdLhWLn8vxf5rJKvKyU0yLfDs0XMjW-9U9tM-g@mail.gmail.com>
-Subject: Re: [RFT][PATCH] ACPI: OSL: Use rwlock instead of RCU for memory management
-To:     "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Cc:     Rafael J Wysocki <rafael.j.wysocki@intel.com>,
-        stable <stable@vger.kernel.org>, Len Brown <lenb@kernel.org>,
-        Borislav Petkov <bp@alien8.de>,
-        Ira Weiny <ira.weiny@intel.com>,
-        James Morse <james.morse@arm.com>,
-        Erik Kaneda <erik.kaneda@intel.com>,
-        Myron Stowe <myron.stowe@redhat.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Linux ACPI <linux-acpi@vger.kernel.org>,
-        linux-nvdimm <linux-nvdimm@lists.01.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ba931618-9259-aca0-142c-c1dfb67e737e@redhat.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jun 5, 2020 at 7:06 AM Rafael J. Wysocki <rjw@rjwysocki.net> wrote:
->
-> From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-> Subject: [PATCH] ACPI: OSL: Use rwlock instead of RCU for memory management
->
-> The ACPI OS layer uses RCU to protect the list of ACPI memory
-> mappings from being walked while it is updated.  Among other
-> situations, that list can be walked in non-NMI interrupt context,
-> so using a sleeping lock to protect it is not an option.
->
-> However, performance issues related to the RCU usage in there
-> appear, as described by Dan Williams:
->
-> "Recently a performance problem was reported for a process invoking
-> a non-trival ASL program. The method call in this case ends up
-> repetitively triggering a call path like:
->
->     acpi_ex_store
->     acpi_ex_store_object_to_node
->     acpi_ex_write_data_to_field
->     acpi_ex_insert_into_field
->     acpi_ex_write_with_update_rule
->     acpi_ex_field_datum_io
->     acpi_ex_access_region
->     acpi_ev_address_space_dispatch
->     acpi_ex_system_memory_space_handler
->     acpi_os_map_cleanup.part.14
->     _synchronize_rcu_expedited.constprop.89
->     schedule
->
-> The end result of frequent synchronize_rcu_expedited() invocation is
-> tiny sub-millisecond spurts of execution where the scheduler freely
-> migrates this apparently sleepy task. The overhead of frequent
-> scheduler invocation multiplies the execution time by a factor
-> of 2-3X."
->
-> In order to avoid these issues, replace the RCU in the ACPI OS
-> layer by an rwlock.
->
-> That rwlock should not be frequently contended, so the performance
-> impact of it is not expected to be significant.
->
-> Reported-by: Dan Williams <dan.j.williams@intel.com>
-> Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-> ---
->
-> Hi Dan,
->
-> This is a possible fix for the ACPI OSL RCU-related performance issues, but
-> can you please arrange for the testing of it on the affected systems?
+On Fri, Jun 05, 2020 at 04:33:47PM +0200, Hans de Goede wrote:
+> On 6/2/20 5:23 PM, Andy Shevchenko wrote:
+> > On Tue, Jun 02, 2020 at 02:21:30PM +0200, Hans de Goede wrote:
+> > > The pins on the Bay Trail SoC have separate input-buffer and output-buffer
+> > > enable bits and a read of the level bit of the value register will always
+> > > return the value from the input-buffer.
+> > > 
+> > > The BIOS of a device may configure a pin in output-only mode, only enabling
+> > > the output buffer, and write 1 to the level bit to drive the pin high.
+> > > This 1 written to the level bit will be stored inside the data-latch of the
+> > > output buffer.
+> > > 
+> > > But a subsequent read of the value register will return 0 for the level bit
+> > > because the input-buffer is disabled. This causes a read-modify-write as
+> > > done by byt_gpio_set_direction() to write 0 to the level bit, driving the
+> > > pin low!
+> > > 
+> > > Before this commit byt_gpio_direction_output() relied on
+> > > pinctrl_gpio_direction_output() to set the direction, followed by a call
+> > > to byt_gpio_set() to apply the selected value. This causes the pin to
+> > > go low between the pinctrl_gpio_direction_output() and byt_gpio_set()
+> > > calls.
+> > > 
+> > > Change byt_gpio_direction_output() to directly make the register
+> > > modifications itself instead. Replacing the 2 subsequent writes to the
+> > > value register with a single write.
+> > > 
+> > > Note that the pinctrl code does not keep track internally of the direction,
+> > > so not going through pinctrl_gpio_direction_output() is not an issue.
+> > > 
+> > > This issue was noticed on a Trekstor SurfTab Twin 10.1. When the panel is
+> > > already on at boot (no external monitor connected), then the i915 driver
+> > > does a gpiod_get(..., GPIOD_OUT_HIGH) for the panel-enable GPIO. The
+> > > temporarily going low of that GPIO was causing the panel to reset itself
+> > > after which it would not show an image until it was turned off and back on
+> > > again (until a full modeset was done on it). This commit fixes this.
+> > 
+> > No Fixes tag?
+> 
+> It is sort of hard to pin the introduction of this down to a single
+> commit. If I were to guess, I guess the commit introducing the driver?
 
-Ugh, is it really this simple? I did not realize the read-side is NMI
-safe. I'll take a look.
+Why not? Good guess to me (but I think rather the one which converts GPIO
+driver to pin control).
+
+...
+
+> > > +	/*
+> > > +	 * Before making any direction modifications, do a check if gpio is set
+> > 
+> > > +	 * for direct IRQ.  On baytrail, setting GPIO to output does not make
+> > 
+> > Since we change this, perhaps
+> > 
+> > 'IRQ.  On baytrail' -> 'IRQ. On Baytrail' (one space and capital 'B').
+> 
+> Sure, not sure if that is worth respinning the patch for though,
+> either way let me know.
+
+I think makes sense to respin. We still have time.
+
+> > > +	 * sense, so let's at least inform the caller before they shoot
+> > > +	 * themselves in the foot.
+> > > +	 */
+
+...
+
+> > Wouldn't be simple below fix the issue?
+
+> No that will not help the pin is already high, but any reads
+> of the register will return the BYT_LEVEL bit as being low, so
+> the read-write-modify done when setting the direction reads BYT_LEVEL
+> as 0 and writes it back as such.
+
+So, if I read documentation correctly, there is no means to read back current
+output value if input is disabled. Alas, quite a bad design of hardware.
+And on top of that likely nobody has tested that on non-Windows platform.
+
+> So your proposal would actually make the problem much worse (and more
+> obvious) if we do the byt_gpio_set() first then for pins which have
+> there input-buffer initially disabled, the value passed to
+> byt_gpio_direction_output will be completely ignored and they will
+> always end up as being driven low.
+
+What I proposed is not gonna work AFAIU documentation.
+
+Btw, can we for sake of consistency update direction_input() as well?
+
+-- 
+With Best Regards,
+Andy Shevchenko
+
+
