@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A51341EF745
-	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 14:25:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B7221EF747
+	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 14:25:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726668AbgFEMZY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Jun 2020 08:25:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56604 "EHLO mail.kernel.org"
+        id S1726731AbgFEMZ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Jun 2020 08:25:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56630 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726656AbgFEMZX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Jun 2020 08:25:23 -0400
+        id S1726666AbgFEMZY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Jun 2020 08:25:24 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EEF262075B;
-        Fri,  5 Jun 2020 12:25:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 210A8207D5;
+        Fri,  5 Jun 2020 12:25:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591359922;
-        bh=jHd1X1zusmajFRLzbO/kks6/nt/Ek1Ar51xZCouIZN0=;
+        s=default; t=1591359923;
+        bh=jm6x0RRvrOOaubi6Ix7xcoeaXwJB5qwx91pe4/tNY94=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eFnIrvpF9zrOGlz/uzEgdA3BISZYtqh3mhEqaLeYoxOXR61ytOOoDt96VWaDsmE/p
-         2jd58XAVagftYeZY7kShgZhKuw8pAEoi6iGnK32FydcrKQIGwZJNNw1eIrIlB56OE1
-         pKZUr+K9H9rDLvlFhSuLhcpajfTpBmPdqkaDtThU=
+        b=1lkvJca1AnWOFu1AJROaGIlW0WmR4izYgJGm+6k+0RCTiiYAViJjPKVA102jEjFc/
+         tKxIwMDdfFsRo/TML8t2EiDB6tRrlaVQmXZtv1ZmtihuwZTtx9KkxO3PBGp7dMfP6+
+         ojBB61UUSFhmabKDQ4Zljy8IOhBt6fsoEPmL8VEU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jens Axboe <axboe@kernel.dk>,
-        Stefano Garzarella <sgarzare@redhat.com>,
-        Ingo Molnar <mingo@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.6 04/17] sched/fair: Don't NUMA balance for kthreads
-Date:   Fri,  5 Jun 2020 08:25:03 -0400
-Message-Id: <20200605122517.2882338-4-sashal@kernel.org>
+Cc:     Fugang Duan <fugang.duan@nxp.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        linux-stm32@st-md-mailman.stormreply.com,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.6 05/17] net: stmmac: enable timestamp snapshot for required PTP packets in dwmac v5.10a
+Date:   Fri,  5 Jun 2020 08:25:04 -0400
+Message-Id: <20200605122517.2882338-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200605122517.2882338-1-sashal@kernel.org>
 References: <20200605122517.2882338-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -45,53 +46,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Fugang Duan <fugang.duan@nxp.com>
 
-[ Upstream commit 18f855e574d9799a0e7489f8ae6fd8447d0dd74a ]
+[ Upstream commit f2fb6b6275eba9d312957ca44c487bd780da6169 ]
 
-Stefano reported a crash with using SQPOLL with io_uring:
+For rx filter 'HWTSTAMP_FILTER_PTP_V2_EVENT', it should be
+PTP v2/802.AS1, any layer, any kind of event packet, but HW only
+take timestamp snapshot for below PTP message: sync, Pdelay_req,
+Pdelay_resp.
 
-  BUG: kernel NULL pointer dereference, address: 00000000000003b0
-  CPU: 2 PID: 1307 Comm: io_uring-sq Not tainted 5.7.0-rc7 #11
-  RIP: 0010:task_numa_work+0x4f/0x2c0
-  Call Trace:
-   task_work_run+0x68/0xa0
-   io_sq_thread+0x252/0x3d0
-   kthread+0xf9/0x130
-   ret_from_fork+0x35/0x40
+Then it causes below issue when test E2E case:
+ptp4l[2479.534]: port 1: received DELAY_REQ without timestamp
+ptp4l[2481.423]: port 1: received DELAY_REQ without timestamp
+ptp4l[2481.758]: port 1: received DELAY_REQ without timestamp
+ptp4l[2483.524]: port 1: received DELAY_REQ without timestamp
+ptp4l[2484.233]: port 1: received DELAY_REQ without timestamp
+ptp4l[2485.750]: port 1: received DELAY_REQ without timestamp
+ptp4l[2486.888]: port 1: received DELAY_REQ without timestamp
+ptp4l[2487.265]: port 1: received DELAY_REQ without timestamp
+ptp4l[2487.316]: port 1: received DELAY_REQ without timestamp
 
-which is task_numa_work() oopsing on current->mm being NULL.
+Timestamp snapshot dependency on register bits in received path:
+SNAPTYPSEL TSMSTRENA TSEVNTENA 	PTP_Messages
+01         x         0          SYNC, Follow_Up, Delay_Req,
+                                Delay_Resp, Pdelay_Req, Pdelay_Resp,
+                                Pdelay_Resp_Follow_Up
+01         0         1          SYNC, Pdelay_Req, Pdelay_Resp
 
-The task work is queued by task_tick_numa(), which checks if current->mm is
-NULL at the time of the call. But this state isn't necessarily persistent,
-if the kthread is using use_mm() to temporarily adopt the mm of a task.
+For dwmac v5.10a, enabling all events by setting register
+DWC_EQOS_TIME_STAMPING[SNAPTYPSEL] to 2’b01, clearing bit [TSEVNTENA]
+to 0’b0, which can support all required events.
 
-Change the task_tick_numa() check to exclude kernel threads in general,
-as it doesn't make sense to attempt ot balance for kthreads anyway.
-
-Reported-by: Stefano Garzarella <sgarzare@redhat.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Acked-by: Peter Zijlstra <peterz@infradead.org>
-Link: https://lore.kernel.org/r/865de121-8190-5d30-ece5-3b097dc74431@kernel.dk
+Signed-off-by: Fugang Duan <fugang.duan@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/fair.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/stmicro/stmmac/stmmac_main.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index 603d3d3cbf77..efb15f0f464b 100644
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -2682,7 +2682,7 @@ static void task_tick_numa(struct rq *rq, struct task_struct *curr)
- 	/*
- 	 * We don't care about NUMA placement if we don't have memory.
- 	 */
--	if (!curr->mm || (curr->flags & PF_EXITING) || work->next != work)
-+	if ((curr->flags & (PF_EXITING | PF_KTHREAD)) || work->next != work)
- 		return;
- 
- 	/*
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+index d564459290ce..bcb39012d34d 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+@@ -630,7 +630,8 @@ static int stmmac_hwtstamp_set(struct net_device *dev, struct ifreq *ifr)
+ 			config.rx_filter = HWTSTAMP_FILTER_PTP_V2_EVENT;
+ 			ptp_v2 = PTP_TCR_TSVER2ENA;
+ 			snap_type_sel = PTP_TCR_SNAPTYPSEL_1;
+-			ts_event_en = PTP_TCR_TSEVNTENA;
++			if (priv->synopsys_id != DWMAC_CORE_5_10)
++				ts_event_en = PTP_TCR_TSEVNTENA;
+ 			ptp_over_ipv4_udp = PTP_TCR_TSIPV4ENA;
+ 			ptp_over_ipv6_udp = PTP_TCR_TSIPV6ENA;
+ 			ptp_over_ethernet = PTP_TCR_TSIPENA;
 -- 
 2.25.1
 
