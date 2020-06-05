@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AEA061EFB10
-	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 16:24:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 918751EFB4F
+	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 16:26:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727944AbgFEOSZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Jun 2020 10:18:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48910 "EHLO mail.kernel.org"
+        id S1728269AbgFEOZl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Jun 2020 10:25:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45656 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728661AbgFEOSX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Jun 2020 10:18:23 -0400
+        id S1728250AbgFEOQc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Jun 2020 10:16:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D84D5208B8;
-        Fri,  5 Jun 2020 14:18:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6F6AB2075B;
+        Fri,  5 Jun 2020 14:16:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591366703;
-        bh=9bgOnoqQ3+XkHBwKqZjrpgx+J9Wfv4rHG89fs41V1TM=;
+        s=default; t=1591366591;
+        bh=EUyRpb3EQAr3VgeyKmxe4l/6m82tQ6ZFBOGR+llSCE0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bCbKh1rVRdcruYOjlT37m4Byq/recCkv5f1fdGBrj4eTqiiiTkZF8KuAiLt88RJ0Q
-         SqdKcM8h85CmDxeq+60nPPPnSdl/Cx5okjgSz63NzU9GjJ1mzrhIL42akifRzd+OiQ
-         KCrtYtwi3//jdWjuEUjcU7YlIDxBAVerv3KGDmwU=
+        b=EKMG6og3TG8ORfExXpwBHLrR16jaN1VjJ/vqG7Z0zOVAAgkh35+Pr2Yyr9Cy/m3HS
+         uCnSbhvo77mzy2VbbM1UyObo+0k3k4LtMwiHz2sEJSwhXBHGCIcy0Am7g061C3D5D9
+         alMZ90iCnNY/VJ7qXE0n42ILKy0iVJg2Yxfsfb8Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fan Yang <Fan_Yang@sjtu.edu.cn>,
-        Dan Williams <dan.j.williams@intel.com>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 02/38] mm: Fix mremap not considering huge pmd devmap
+        stable@vger.kernel.org, Leon Romanovsky <leonro@mellanox.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 15/43] net: phy: propagate an error back to the callers of phy_sfp_probe
 Date:   Fri,  5 Jun 2020 16:14:45 +0200
-Message-Id: <20200605140252.678256519@linuxfoundation.org>
+Message-Id: <20200605140153.322521877@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200605140252.542768750@linuxfoundation.org>
-References: <20200605140252.542768750@linuxfoundation.org>
+In-Reply-To: <20200605140152.493743366@linuxfoundation.org>
+References: <20200605140152.493743366@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,56 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fan Yang <Fan_Yang@sjtu.edu.cn>
+From: Leon Romanovsky <leonro@mellanox.com>
 
-commit 5bfea2d9b17f1034a68147a8b03b9789af5700f9 upstream.
+[ Upstream commit e3f2d5579c0b8ad9d1fb6a5813cee38a86386e05 ]
 
-The original code in mm/mremap.c checks huge pmd by:
+The compilation warning below reveals that the errors returned from
+the sfp_bus_add_upstream() call are not propagated to the callers.
+Fix it by returning "ret".
 
-		if (is_swap_pmd(*old_pmd) || pmd_trans_huge(*old_pmd)) {
+14:37:51 drivers/net/phy/phy_device.c: In function 'phy_sfp_probe':
+14:37:51 drivers/net/phy/phy_device.c:1236:6: warning: variable 'ret'
+   set but not used [-Wunused-but-set-variable]
+14:37:51  1236 |  int ret;
+14:37:51       |      ^~~
 
-However, a DAX mapped nvdimm is mapped as huge page (by default) but it
-is not transparent huge page (_PAGE_PSE | PAGE_DEVMAP).  This commit
-changes the condition to include the case.
-
-This addresses CVE-2020-10757.
-
-Fixes: 5c7fb56e5e3f ("mm, dax: dax-pmd vs thp-pmd vs hugetlbfs-pmd")
-Cc: <stable@vger.kernel.org>
-Reported-by: Fan Yang <Fan_Yang@sjtu.edu.cn>
-Signed-off-by: Fan Yang <Fan_Yang@sjtu.edu.cn>
-Tested-by: Fan Yang <Fan_Yang@sjtu.edu.cn>
-Tested-by: Dan Williams <dan.j.williams@intel.com>
-Reviewed-by: Dan Williams <dan.j.williams@intel.com>
-Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 298e54fa810e ("net: phy: add core phylib sfp support")
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/pgtable.h |    1 +
- mm/mremap.c                    |    2 +-
- 2 files changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/phy/phy_device.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/x86/include/asm/pgtable.h
-+++ b/arch/x86/include/asm/pgtable.h
-@@ -253,6 +253,7 @@ static inline int pmd_large(pmd_t pte)
- }
- 
- #ifdef CONFIG_TRANSPARENT_HUGEPAGE
-+/* NOTE: when predicate huge page, consider also pmd_devmap, or use pmd_large */
- static inline int pmd_trans_huge(pmd_t pmd)
+diff --git a/drivers/net/phy/phy_device.c b/drivers/net/phy/phy_device.c
+index 28e3c5c0e3c3..faca0d84f5af 100644
+--- a/drivers/net/phy/phy_device.c
++++ b/drivers/net/phy/phy_device.c
+@@ -1239,7 +1239,7 @@ int phy_sfp_probe(struct phy_device *phydev,
+ 		  const struct sfp_upstream_ops *ops)
  {
- 	return (pmd_val(pmd) & (_PAGE_PSE|_PAGE_DEVMAP)) == _PAGE_PSE;
---- a/mm/mremap.c
-+++ b/mm/mremap.c
-@@ -266,7 +266,7 @@ unsigned long move_page_tables(struct vm
- 		new_pmd = alloc_new_pmd(vma->vm_mm, vma, new_addr);
- 		if (!new_pmd)
- 			break;
--		if (is_swap_pmd(*old_pmd) || pmd_trans_huge(*old_pmd)) {
-+		if (is_swap_pmd(*old_pmd) || pmd_trans_huge(*old_pmd) || pmd_devmap(*old_pmd)) {
- 			if (extent == HPAGE_PMD_SIZE) {
- 				bool moved;
- 				/* See comment in move_ptes() */
+ 	struct sfp_bus *bus;
+-	int ret;
++	int ret = 0;
+ 
+ 	if (phydev->mdio.dev.fwnode) {
+ 		bus = sfp_bus_find_fwnode(phydev->mdio.dev.fwnode);
+@@ -1251,7 +1251,7 @@ int phy_sfp_probe(struct phy_device *phydev,
+ 		ret = sfp_bus_add_upstream(bus, phydev, ops);
+ 		sfp_bus_put(bus);
+ 	}
+-	return 0;
++	return ret;
+ }
+ EXPORT_SYMBOL(phy_sfp_probe);
+ 
+-- 
+2.25.1
+
 
 
