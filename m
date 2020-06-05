@@ -2,58 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F7921EF70D
-	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 14:08:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4079F1EF740
+	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 14:25:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726441AbgFEMIF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Jun 2020 08:08:05 -0400
-Received: from sonic304-20.consmr.mail.sg3.yahoo.com ([106.10.242.210]:45475
-        "EHLO sonic304-20.consmr.mail.sg3.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726404AbgFEMIF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 5 Jun 2020 08:08:05 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1591358881; bh=ymRF8bJ+M3trxzdWPwq/27Qe0+bVMhuhvq5GHhnaWi8=; h=Date:From:Reply-To:Subject:References:From:Subject; b=VnG8Wd5RW4SuT6NwWZyk3BHJEv3BaF0kur7W5SHP/LE3sPD7n5n2EL1F8Ax/BdyPf4IM6zm67GI3CwhXUambHDsg8/QQFfSyM9hCUKiw9d+ahaubb7zSwsg7Vy0Jh69wIdBkyJiEcDQiWzlgzdeazYXvwcpB/sTmvU1uq/EpLdWn/P+E5hlE8iT5Bcykb4GQnMtqew2SArC47VZNA5OIidnHEeRH+ydZVV5x0Stm71X6AQyKA0qROG3rDmBN9q7W7MEpEYls7uPTkIb/Qe76B/o0oaP4IER6L+MXW4S3onWRiz8AADJNuD/Is6oSLYc0zz9+a9GxMkY3D4u3gRnhSg==
-X-YMail-OSG: zfcNcdQVM1kzLzQd4rWV19jHqeQ7T_iU69aPviETUTbEfzA9SDfIYssu6OTvjUC
- Tx538_KnsEVqFsQNKOUAias8q8ZQ8d5yU1yeTvKX6J_x9.YyLGM9mxI6NZlcLsA37xh6i_6Mbs8G
- KVIqxI7l2l1j9r6sTEJ4ZVjtDo.OEaUk3cOj8o6Jfk7O8OTrGePBSYz15.i.ND1z14PJ2.ITsCkx
- OAKOGxrzlvi0Z0TXX6JDPDwjyVfdnzB5gR29.4VwCVj8iA_w1_PjEwv_7MbyO_kb0yc65ZVlPd3j
- 42Oq6AfDvryi9rd7KjDi1HECTDGwRzn9V4AJs6qT3fEkCPY_WwCYIzh1XnRv.LRaH9W7A20quvjc
- SwFw_.nDtnOu_zMGiSHwKqWYbjK9vRCxMG2pHTmkny.DaDFD_4B4vws8VvR6eWNwGYUS8ny1zNWG
- 6VTAhUI_kpWo87yVGVav3MpQYkfuBuFkoVbhi6MloG9T8Uu9syJv6m8e9yXmTN4OkVVdwa.hyGG3
- pO6uys9u6M4qrHSIq9fErT1MsAkgw4IfEzkasUzg2XOT2uV4vddVzJ3DkDSZ66Fm9MteyVlahKlr
- 2eEkpn3vJVCmo0UMv8uR0hRfw43bx6Uy7cj0bQM0ITYqtQpWDqWCn33k1qcUAP7ksSDiRk_kUJ0v
- eWTcuVsZYnIxkEceeoLD.44YD9bcFzfnmiwaUXmbKd1LffSHRhb5p2Bg05U.7qX.kfdrwiyonP9j
- FQ5_dL_aoC6115Sb5kM4LK4a94OfffRG0o02LW4lF.CYaE9LM1kiBWReSNDdlleNkXzj3WKw5jq4
- p9K7B982SLAoXwlOBRdhPppMv1CY7AlsM8eYaGWgmjrLbExvXarjQCgGVHXhlS3G1rufyIcYVZYR
- 79rNmZuowpYpKf6SI061z25qYtt5SB5xU__QdI6tkJW4D5d9ZLV_JNx0uKaCcCIbjwxwWIhHidDV
- BSFztkvdyuh2ajsIPdiwE89lsFBG1DeVR915bo.EZkoy78sZ3VSNLJ0W59m0GdMpAS44c37PfQP3
- JKCORP2ayD8JpDeIbe6N6OZxp0D13QWUoQOYsUvLnQglfQWo0ZyZVDHsR6jJuaLZE1QjOqPlxyzl
- FL2Tk2zsNl5Nqpv0qMD9gJO_9aCgFx7uNG84Mcxj5TyMbRxO9XqYrSiUF.GxIDieQwhFKgEC.vd3
- Eulo3dDZepIheyuq00rHoIdRk3Bu6SItaI0.SGtSpVQhCd62mJBnzr5VuBPk6pRGLuvunWLqhSyJ
- Hs.YCpBtFRF_TifpRIUM1I1JUoaYw5rMSSFj4wVfFAxNuy_FFxvXi4MZbCGT3KvJSAhInKtDWBJk
- -
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic304.consmr.mail.sg3.yahoo.com with HTTP; Fri, 5 Jun 2020 12:08:01 +0000
-Date:   Fri, 5 Jun 2020 12:07:58 +0000 (UTC)
-From:   "Mr. Edgar Oscar" <scdn1920483@gmail.com>
-Reply-To: scdn-1@go2.pl
-Message-ID: <2042759130.1339979.1591358878387@mail.yahoo.com>
-Subject: Hello, Thanks
+        id S1726465AbgFEMZU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Jun 2020 08:25:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56482 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726385AbgFEMZT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Jun 2020 08:25:19 -0400
+Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7B356206DC;
+        Fri,  5 Jun 2020 12:25:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1591359919;
+        bh=MLqhFEY4rb9ifVdmWQOYU8217QDWLQ5r1hBtnHBxGUI=;
+        h=From:To:Cc:Subject:Date:From;
+        b=w6RfXQZ/MmbXml344KqYUsYjUbwAG8fkMwvbVITA6sqpwEAAyxOZ9uvOhuZ8DrMqp
+         Vs/OGShNhzrih3e7+PoGJZadbOOkC5X9sLV7zjWRBG+UgemvRONjB7RBeEAeXIKovi
+         Fwvk2E4jeGGvn1wlv9I8+tJ3FAaPl2ESByXAJWVU=
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Stephan Gerhold <stephan@gerhold.net>,
+        Andi Shyti <andi@etezian.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.6 01/17] Input: mms114 - fix handling of mms345l
+Date:   Fri,  5 Jun 2020 08:25:00 -0400
+Message-Id: <20200605122517.2882338-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-References: <2042759130.1339979.1591358878387.ref@mail.yahoo.com>
-X-Mailer: WebService/1.1.16037 YMailNodin Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36
-To:     unlisted-recipients:; (no To-header on input)
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Stephan Gerhold <stephan@gerhold.net>
 
+[ Upstream commit 3f8f770575d911c989043d8f0fb8dec96360c41c ]
 
-Hello,
-my name is Mr. Edgar Oscar. i'm a Business Man Dealing with Exportation Diamond & Cold. please i'm so sorry I got your mail through search to let you know my Situation Am a dying Man here in Hospital Bed in United State here. I Lost my Wife and my only Daught for Covid-19 and i'm Covid-19 Patient i have a Heart disease. and my Doctor open-up to me Mr. Edgar Oscar we are sorry i know to myself that my Life is not Guarrantee any more, i want to handover my project to you. i have already instructed the Bank to transfer my fund sum of usd $4,500,000.00 to you as to enable you give 50% to the Less Privilege Home and take 50% i have given all i have here in America to the Less Privilege and the needy I ask my Doctor to help me keep you inform if you did not hear from again. please reply me Urgent. this is my Doctor Whatsapp to reach me very urgent. +13019692737
+MMS345L is another first generation touch screen from Melfas,
+which uses the same registers as MMS152.
 
-Thanks.
+However, using I2C_M_NOSTART for it causes errors when reading:
 
-Mr. Edgar Oscar
-CEO
+	i2c i2c-0: sendbytes: NAK bailout.
+	mms114 0-0048: __mms114_read_reg: i2c transfer failed (-5)
+
+The driver works fine as soon as I2C_M_NOSTART is removed.
+
+Reviewed-by: Andi Shyti <andi@etezian.org>
+Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
+Link: https://lore.kernel.org/r/20200405170904.61512-1-stephan@gerhold.net
+[dtor: removed separate mms345l handling, made everyone use standard
+transfer mode, propagated the 10bit addressing flag to the read part of the
+transfer as well.]
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/input/touchscreen/mms114.c | 12 +++++-------
+ 1 file changed, 5 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/input/touchscreen/mms114.c b/drivers/input/touchscreen/mms114.c
+index 69c6d559eeb0..2ef1adaed9af 100644
+--- a/drivers/input/touchscreen/mms114.c
++++ b/drivers/input/touchscreen/mms114.c
+@@ -91,15 +91,15 @@ static int __mms114_read_reg(struct mms114_data *data, unsigned int reg,
+ 	if (reg <= MMS114_MODE_CONTROL && reg + len > MMS114_MODE_CONTROL)
+ 		BUG();
+ 
+-	/* Write register: use repeated start */
++	/* Write register */
+ 	xfer[0].addr = client->addr;
+-	xfer[0].flags = I2C_M_TEN | I2C_M_NOSTART;
++	xfer[0].flags = client->flags & I2C_M_TEN;
+ 	xfer[0].len = 1;
+ 	xfer[0].buf = &buf;
+ 
+ 	/* Read data */
+ 	xfer[1].addr = client->addr;
+-	xfer[1].flags = I2C_M_RD;
++	xfer[1].flags = (client->flags & I2C_M_TEN) | I2C_M_RD;
+ 	xfer[1].len = len;
+ 	xfer[1].buf = val;
+ 
+@@ -428,10 +428,8 @@ static int mms114_probe(struct i2c_client *client,
+ 	const void *match_data;
+ 	int error;
+ 
+-	if (!i2c_check_functionality(client->adapter,
+-				I2C_FUNC_PROTOCOL_MANGLING)) {
+-		dev_err(&client->dev,
+-			"Need i2c bus that supports protocol mangling\n");
++	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
++		dev_err(&client->dev, "Not supported I2C adapter\n");
+ 		return -ENODEV;
+ 	}
+ 
+-- 
+2.25.1
+
