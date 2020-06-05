@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 415C01EFAB1
-	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 16:20:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BBF201EFB5A
+	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 16:26:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728884AbgFEOTy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Jun 2020 10:19:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50852 "EHLO mail.kernel.org"
+        id S1727804AbgFEOP5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Jun 2020 10:15:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44714 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728881AbgFEOTx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Jun 2020 10:19:53 -0400
+        id S1728093AbgFEOP4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Jun 2020 10:15:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F145C2086A;
-        Fri,  5 Jun 2020 14:19:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4D2A62063A;
+        Fri,  5 Jun 2020 14:15:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591366792;
-        bh=BIYWajaI1KvjRnL5KKXrEQDz4NUESrwTb95Dq8TCVnk=;
+        s=default; t=1591366555;
+        bh=KX0wPoZfWnP4R5JzHVE4rOgaZ7FssBpsYKHdzxcphs4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C+rnbEzlrsmj1ukJacz88HrCIx6EViU968If+TvKwyEQuE9UmiYKCH+a6YJ26OB/9
-         GZlGbQIX/6mqwGkejIfDJ8TdMW3BM3FqlkOXbZph0tP4SWvuMK2epoqp2UAdLcBI1o
-         49y2ST31MWXckc6+GnnAMVaSuZQwhAzb/kv/+MOU=
+        b=ll9UnDK2m6y0e5xmEfBq7R+5Y7dNuaPC770T+XJu8652IOcxLn8GCYhpfdLW8v81K
+         FadxOdNxDdvqMycIKMn1yKlm7kXloluu51Ak0Kvac8Gyh3d9TZqIoRGZRJn6uZWd1b
+         B7Q4Q1vycNA6ChXYWBHD5wHv3NAWIZgJUD6ZyZYI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vishal Verma <vishal.l.verma@intel.com>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: =?UTF-8?q?=5BPATCH=204=2E19=2002/28=5D=20libnvdimm=3A=20Fix=20endian=20conversion=20issues=C2=A0?=
+        stable@vger.kernel.org, Hu Jiahui <kirin.say@gmail.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 5.7 14/14] airo: Fix read overflows sending packets
 Date:   Fri,  5 Jun 2020 16:15:04 +0200
-Message-Id: <20200605140252.475940014@linuxfoundation.org>
+Message-Id: <20200605135951.863796958@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200605140252.338635395@linuxfoundation.org>
-References: <20200605140252.338635395@linuxfoundation.org>
+In-Reply-To: <20200605135951.018731965@linuxfoundation.org>
+References: <20200605135951.018731965@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,75 +45,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 86aa66687442ef45909ff9814b82b4d2bb892294 upstream.
+commit 11e7a91994c29da96d847f676be023da6a2c1359 upstream.
 
-nd_label->dpa issue was observed when trying to enable the namespace created
-with little-endian kernel on a big-endian kernel. That made me run
-`sparse` on the rest of the code and other changes are the result of that.
+The problem is that we always copy a minimum of ETH_ZLEN (60) bytes from
+skb->data even when skb->len is less than ETH_ZLEN so it leads to a read
+overflow.
 
-Fixes: d9b83c756953 ("libnvdimm, btt: rework error clearing")
-Fixes: 9dedc73a4658 ("libnvdimm/btt: Fix LBA masking during 'free list' population")
-Reviewed-by: Vishal Verma <vishal.l.verma@intel.com>
-Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-Link: https://lore.kernel.org/r/20190809074726.27815-1-aneesh.kumar@linux.ibm.com
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
-Cc: Guenter Roeck <linux@roeck-us.net>
+The fix is to pad skb->data to at least ETH_ZLEN bytes.
+
+Cc: <stable@vger.kernel.org>
+Reported-by: Hu Jiahui <kirin.say@gmail.com>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20200527184830.GA1164846@mwanda
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/nvdimm/btt.c            |    8 ++++----
- drivers/nvdimm/namespace_devs.c |    7 ++++---
- 2 files changed, 8 insertions(+), 7 deletions(-)
+ drivers/net/wireless/cisco/airo.c |   12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
---- a/drivers/nvdimm/btt.c
-+++ b/drivers/nvdimm/btt.c
-@@ -400,9 +400,9 @@ static int btt_flog_write(struct arena_i
- 	arena->freelist[lane].sub = 1 - arena->freelist[lane].sub;
- 	if (++(arena->freelist[lane].seq) == 4)
- 		arena->freelist[lane].seq = 1;
--	if (ent_e_flag(ent->old_map))
-+	if (ent_e_flag(le32_to_cpu(ent->old_map)))
- 		arena->freelist[lane].has_err = 1;
--	arena->freelist[lane].block = le32_to_cpu(ent_lba(ent->old_map));
-+	arena->freelist[lane].block = ent_lba(le32_to_cpu(ent->old_map));
+--- a/drivers/net/wireless/cisco/airo.c
++++ b/drivers/net/wireless/cisco/airo.c
+@@ -1925,6 +1925,10 @@ static netdev_tx_t mpi_start_xmit(struct
+ 		airo_print_err(dev->name, "%s: skb == NULL!",__func__);
+ 		return NETDEV_TX_OK;
+ 	}
++	if (skb_padto(skb, ETH_ZLEN)) {
++		dev->stats.tx_dropped++;
++		return NETDEV_TX_OK;
++	}
+ 	npacks = skb_queue_len (&ai->txq);
  
- 	return ret;
- }
-@@ -568,8 +568,8 @@ static int btt_freelist_init(struct aren
- 		 * FIXME: if error clearing fails during init, we want to make
- 		 * the BTT read-only
- 		 */
--		if (ent_e_flag(log_new.old_map) &&
--				!ent_normal(log_new.old_map)) {
-+		if (ent_e_flag(le32_to_cpu(log_new.old_map)) &&
-+		    !ent_normal(le32_to_cpu(log_new.old_map))) {
- 			arena->freelist[i].has_err = 1;
- 			ret = arena_clear_freelist_error(arena, i);
- 			if (ret)
---- a/drivers/nvdimm/namespace_devs.c
-+++ b/drivers/nvdimm/namespace_devs.c
-@@ -1996,7 +1996,7 @@ static struct device *create_namespace_p
- 		nd_mapping = &nd_region->mapping[i];
- 		label_ent = list_first_entry_or_null(&nd_mapping->labels,
- 				typeof(*label_ent), list);
--		label0 = label_ent ? label_ent->label : 0;
-+		label0 = label_ent ? label_ent->label : NULL;
+ 	if (npacks >= MAXTXQ - 1) {
+@@ -2127,6 +2131,10 @@ static netdev_tx_t airo_start_xmit(struc
+ 		airo_print_err(dev->name, "%s: skb == NULL!", __func__);
+ 		return NETDEV_TX_OK;
+ 	}
++	if (skb_padto(skb, ETH_ZLEN)) {
++		dev->stats.tx_dropped++;
++		return NETDEV_TX_OK;
++	}
  
- 		if (!label0) {
- 			WARN_ON(1);
-@@ -2332,8 +2332,9 @@ static struct device **scan_labels(struc
- 			continue;
+ 	/* Find a vacant FID */
+ 	for( i = 0; i < MAX_FIDS / 2 && (fids[i] & 0xffff0000); i++ );
+@@ -2201,6 +2209,10 @@ static netdev_tx_t airo_start_xmit11(str
+ 		airo_print_err(dev->name, "%s: skb == NULL!", __func__);
+ 		return NETDEV_TX_OK;
+ 	}
++	if (skb_padto(skb, ETH_ZLEN)) {
++		dev->stats.tx_dropped++;
++		return NETDEV_TX_OK;
++	}
  
- 		/* skip labels that describe extents outside of the region */
--		if (nd_label->dpa < nd_mapping->start || nd_label->dpa > map_end)
--			continue;
-+		if (__le64_to_cpu(nd_label->dpa) < nd_mapping->start ||
-+		    __le64_to_cpu(nd_label->dpa) > map_end)
-+				continue;
- 
- 		i = add_namespace_resource(nd_region, nd_label, devs, count);
- 		if (i < 0)
+ 	/* Find a vacant FID */
+ 	for( i = MAX_FIDS / 2; i < MAX_FIDS && (fids[i] & 0xffff0000); i++ );
 
 
