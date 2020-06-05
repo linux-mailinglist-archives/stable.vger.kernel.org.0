@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 059171EFDD8
-	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 18:29:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB5371EFDE4
+	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 18:29:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727105AbgFEQ0U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Jun 2020 12:26:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40774 "EHLO
+        id S1726044AbgFEQ27 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Jun 2020 12:28:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40784 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727083AbgFEQ0Q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 5 Jun 2020 12:26:16 -0400
-Received: from mail-pj1-x1044.google.com (mail-pj1-x1044.google.com [IPv6:2607:f8b0:4864:20::1044])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EBFA6C08C5C2;
-        Fri,  5 Jun 2020 09:26:16 -0700 (PDT)
-Received: by mail-pj1-x1044.google.com with SMTP id jz3so2793353pjb.0;
-        Fri, 05 Jun 2020 09:26:16 -0700 (PDT)
+        with ESMTP id S1727094AbgFEQ0T (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 5 Jun 2020 12:26:19 -0400
+Received: from mail-pl1-x643.google.com (mail-pl1-x643.google.com [IPv6:2607:f8b0:4864:20::643])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FEB8C08C5C4;
+        Fri,  5 Jun 2020 09:26:19 -0700 (PDT)
+Received: by mail-pl1-x643.google.com with SMTP id g12so3820798pll.10;
+        Fri, 05 Jun 2020 09:26:19 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=4mgoDUsj8qd3U36+CA2uGlc/0AibJkfSi1z/E24vv4c=;
-        b=Hg2u48S6166BZZDCriE16P7Z9nJJbj1RrQk8zDGkmVWGFXMY2v/NVjXhj3yjLkP1jN
-         9wlcXFoGZdbvr0JJ95Ycn0nnWNFm6I34/nr+lmKWkfR9ICWz18Gah3O+IMab7sFkK06u
-         yT/Clx4EOetR96GOvoSx85SXbV8xgPbV0JMVP3yq/+RGm4Lw5Kz3OI5T7uAFMU2twl+R
-         D7nWzh89qXW6m1ExsXlzlHC4f1oDYEU/OFJ24cY49ddvqfjr5crSX4a1qR9OTlXJzbSv
-         dwKLBtzcq/J9hMiN6t3moE9CAr1aLI6jxfdOIU4s9uqXFCKWLlyDP1PwQVGCirzQeTTi
-         DdoQ==
+        bh=P9QFzVDXmyF/4FAK3YhuPZVq3F8vZzWLPk9FHl2uNlY=;
+        b=B7CLR+n7xCrM/7jGBaWosCExnekVU0GmOisXCHtPqSoYy+yNncf0PeQsqqCsYn7pmy
+         qwelSsGwTrair18RdjQNiKk5vIiWOvq+gGaa+6jROE+qlFyLNlA6KZ84NbWNtxxD9OOK
+         zlXfrtCnl+4/U/sYBRVQ4+kEMFgG9qnuBqy1xHAd7h3UZgXh45fEp246L7ukIDsc+pR4
+         Hn3zfRXtHXUP9XJ15TXVxaIQWzhe9WAT814y0Cun9vZUVvDNENUjy114GCvatc3NN9bb
+         z4uFq0Nu8fK+1uowop7CvZ66FwpW5Eb+UHzDZkA3xejPn1WZSambm9eXut2rAhlDKu90
+         yEXw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references;
-        bh=4mgoDUsj8qd3U36+CA2uGlc/0AibJkfSi1z/E24vv4c=;
-        b=rwVztJ4gRRGxoZjI0GLZI4oSMQpAFs/DRgw8BYtZt4ibADLCrb0YHI49ddTuZiPvPA
-         HJkyWXjRsFU0aryDAyh6vcysfnXpRrr5DS7gwhuJH8jOGwHZGNazNQhzC6X2ygSvKMUe
-         VmOcCRQtz9Iu0xvhV1qi35Es3EmFwBAHGkpDek99wiXzKkq8ac35wb07xsA5YyB0JXas
-         U9JwP4klGojkS4G7hFen3eMgpufGlSEirguqKn18W/lJg07FGysorM0gNo3sXo/Jkvsb
-         S5QEycuESZpNBAHsHeXzG9fZT/0XA1zOGpG1m8HYt2MhSRLb7ljofl9tQyLzeAvmCGyP
-         +xKA==
-X-Gm-Message-State: AOAM532Zddh5NS5n9JbsGXspLK6UelgeD0U4t0U3mWg2LDdyCQuqCSsi
-        4vFkzqtuPhw9rukCaTHDtLL/csov
-X-Google-Smtp-Source: ABdhPJz4+nYoo5tYqI4UZ0dOGNJ5ZN+SiXUhFLRItWvmIkIJhs3id6BOoBtto+pgeKLOTpSrf+CiYw==
-X-Received: by 2002:a17:90a:6344:: with SMTP id v4mr3642685pjs.27.1591374376017;
-        Fri, 05 Jun 2020 09:26:16 -0700 (PDT)
+        bh=P9QFzVDXmyF/4FAK3YhuPZVq3F8vZzWLPk9FHl2uNlY=;
+        b=f2eCGtPQrJwAtpG0pG5P/7PMrQxXPCAGQ4Y5IVbRuG01j3hdp7urrLMesPca8r2S+J
+         +I3jqNAmGQwoyiTV2DCxwRqAB+ILk7K27pFWJUS/CG83YhAhdF2OE7041ItNbbBWq1Y0
+         Og5gOH/ow1hpTiqmQY1dP6FENp/6SCoPdXl29Lkv5qfgWiqhZTsTeoUz1/XHXGWkkEtv
+         9uF6oxMWy5JXcA1jK8pO0j8awEuJs8rGMg0NPn+5tG4nXP+KZhgkrEL+A4QEiF5GZS1o
+         7apcnrkDs6qEUxSkninFLLj+CaTYltmtksZVUFuH5YWK6WqSqDxSvqFA3DDGBsJDfob6
+         uOqA==
+X-Gm-Message-State: AOAM533ERb4rrANqQ6lkd492CCRKTAtdHZjTZkOPCWTOROAzQr7JvvAw
+        uk4sqUYsvmZmIxnB5+EfPV+zZKwI
+X-Google-Smtp-Source: ABdhPJzLsTKKOuLCzSt+NPiC0yKqidFmbux2ObQg9JpxfsHKAa649lwl+xLQS+4u1vaRYtZhPh1hUQ==
+X-Received: by 2002:a17:902:b716:: with SMTP id d22mr9269877pls.33.1591374378165;
+        Fri, 05 Jun 2020 09:26:18 -0700 (PDT)
 Received: from localhost.localdomain ([192.19.223.252])
-        by smtp.gmail.com with ESMTPSA id b29sm86205pff.176.2020.06.05.09.26.13
+        by smtp.gmail.com with ESMTPSA id b29sm86205pff.176.2020.06.05.09.26.16
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 05 Jun 2020 09:26:15 -0700 (PDT)
+        Fri, 05 Jun 2020 09:26:17 -0700 (PDT)
 From:   Florian Fainelli <f.fainelli@gmail.com>
 X-Google-Original-From: Florian Fainelli <florian.fainelli@broadcom.com>
 To:     linux-kernel@vger.kernel.org
@@ -64,9 +64,9 @@ Cc:     stable@vger.kernel.org,
         (V4L/DVB)),
         linux-fsdevel@vger.kernel.org (open list:FILESYSTEMS (VFS and
         infrastructure))
-Subject: [PATCH stable 4.9 09/21] media: dvb_frontend: get rid of set_property() callback
-Date:   Fri,  5 Jun 2020 09:25:06 -0700
-Message-Id: <20200605162518.28099-10-florian.fainelli@broadcom.com>
+Subject: [PATCH stable 4.9 10/21] media: dvb_frontend: cleanup dvb_frontend_ioctl_properties()
+Date:   Fri,  5 Jun 2020 09:25:07 -0700
+Message-Id: <20200605162518.28099-11-florian.fainelli@broadcom.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20200605162518.28099-1-florian.fainelli@broadcom.com>
 References: <20200605162518.28099-1-florian.fainelli@broadcom.com>
@@ -77,61 +77,152 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Mauro Carvalho Chehab <mchehab@s-opensource.com>
 
-commit 6680e73b5226114992acfc11f9cf5730f706fb01 upstream
+commit 2b5df42b8dec69fb926a242007fd462343db4408 upstream
 
-Now that all clients of set_property() were removed, get rid
-of this callback.
+Use a switch() on this function, just like on other ioctl
+handlers and handle parameters inside each part of the
+switch.
 
+That makes it easier to integrate with the already existing
+ioctl handler function.
+
+Reviewed-by: Shuah Khan <shuahkh@osg.samsung.com>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@s-opensource.com>
 Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 ---
- drivers/media/dvb-core/dvb_frontend.c | 7 -------
- drivers/media/dvb-core/dvb_frontend.h | 5 -----
- 2 files changed, 12 deletions(-)
+ drivers/media/dvb-core/dvb_frontend.c | 83 ++++++++++++++++-----------
+ 1 file changed, 51 insertions(+), 32 deletions(-)
 
 diff --git a/drivers/media/dvb-core/dvb_frontend.c b/drivers/media/dvb-core/dvb_frontend.c
-index 97c825f97b15..2bf55a786e29 100644
+index 2bf55a786e29..c446f51be21a 100644
 --- a/drivers/media/dvb-core/dvb_frontend.c
 +++ b/drivers/media/dvb-core/dvb_frontend.c
-@@ -1751,13 +1751,6 @@ static int dtv_property_process_set(struct dvb_frontend *fe,
- 	int r = 0;
+@@ -1956,21 +1956,25 @@ static int dvb_frontend_ioctl_properties(struct file *file,
+ 	struct dvb_frontend *fe = dvbdev->priv;
+ 	struct dvb_frontend_private *fepriv = fe->frontend_priv;
  	struct dtv_frontend_properties *c = &fe->dtv_property_cache;
- 
--	/* Allow the frontend to validate incoming properties */
--	if (fe->ops.set_property) {
--		r = fe->ops.set_property(fe, tvp);
--		if (r < 0)
--			return r;
--	}
+-	int err = 0;
 -
- 	dtv_property_dump(fe, true, tvp);
+-	struct dtv_properties *tvps = parg;
+-	struct dtv_property *tvp = NULL;
+-	int i;
++	int err, i;
  
- 	switch(tvp->cmd) {
-diff --git a/drivers/media/dvb-core/dvb_frontend.h b/drivers/media/dvb-core/dvb_frontend.h
-index 57cedbe5c2c7..f852f0a49f42 100644
---- a/drivers/media/dvb-core/dvb_frontend.h
-+++ b/drivers/media/dvb-core/dvb_frontend.h
-@@ -397,11 +397,8 @@ struct dtv_frontend_properties;
-  * @search:		callback function used on some custom algo search algos.
-  * @tuner_ops:		pointer to struct dvb_tuner_ops
-  * @analog_ops:		pointer to struct analog_demod_ops
-- * @set_property:	callback function to allow the frontend to validade
-- *			incoming properties. Should not be used on new drivers.
-  */
- struct dvb_frontend_ops {
+ 	dev_dbg(fe->dvb->device, "%s:\n", __func__);
+ 
+-	if (cmd == FE_SET_PROPERTY) {
+-		dev_dbg(fe->dvb->device, "%s: properties.num = %d\n", __func__, tvps->num);
+-		dev_dbg(fe->dvb->device, "%s: properties.props = %p\n", __func__, tvps->props);
++	switch(cmd) {
++	case FE_SET_PROPERTY: {
++		struct dtv_properties *tvps = parg;
++		struct dtv_property *tvp = NULL;
++
++		dev_dbg(fe->dvb->device, "%s: properties.num = %d\n",
++			__func__, tvps->num);
++		dev_dbg(fe->dvb->device, "%s: properties.props = %p\n",
++			__func__, tvps->props);
+ 
+-		/* Put an arbitrary limit on the number of messages that can
+-		 * be sent at once */
+-		if ((tvps->num == 0) || (tvps->num > DTV_IOCTL_MAX_MSGS))
++		/*
++		 * Put an arbitrary limit on the number of messages that can
++		 * be sent at once
++		 */
++		if (!tvps->num || (tvps->num > DTV_IOCTL_MAX_MSGS))
+ 			return -EINVAL;
+ 
+ 		tvp = memdup_user(tvps->props, tvps->num * sizeof(*tvp));
+@@ -1979,23 +1983,34 @@ static int dvb_frontend_ioctl_properties(struct file *file,
+ 
+ 		for (i = 0; i < tvps->num; i++) {
+ 			err = dtv_property_process_set(fe, tvp + i, file);
+-			if (err < 0)
+-				goto out;
++			if (err < 0) {
++				kfree(tvp);
++				return err;
++			}
+ 			(tvp + i)->result = err;
+ 		}
+ 
+ 		if (c->state == DTV_TUNE)
+ 			dev_dbg(fe->dvb->device, "%s: Property cache is full, tuning\n", __func__);
+ 
+-	} else if (cmd == FE_GET_PROPERTY) {
++		kfree(tvp);
++		break;
++	}
++	case FE_GET_PROPERTY: {
++		struct dtv_properties *tvps = parg;
++		struct dtv_property *tvp = NULL;
+ 		struct dtv_frontend_properties getp = fe->dtv_property_cache;
+ 
+-		dev_dbg(fe->dvb->device, "%s: properties.num = %d\n", __func__, tvps->num);
+-		dev_dbg(fe->dvb->device, "%s: properties.props = %p\n", __func__, tvps->props);
++		dev_dbg(fe->dvb->device, "%s: properties.num = %d\n",
++			__func__, tvps->num);
++		dev_dbg(fe->dvb->device, "%s: properties.props = %p\n",
++			__func__, tvps->props);
+ 
+-		/* Put an arbitrary limit on the number of messages that can
+-		 * be sent at once */
+-		if ((tvps->num == 0) || (tvps->num > DTV_IOCTL_MAX_MSGS))
++		/*
++		 * Put an arbitrary limit on the number of messages that can
++		 * be sent at once
++		 */
++		if (!tvps->num || (tvps->num > DTV_IOCTL_MAX_MSGS))
+ 			return -EINVAL;
+ 
+ 		tvp = memdup_user(tvps->props, tvps->num * sizeof(*tvp));
+@@ -2010,28 +2025,32 @@ static int dvb_frontend_ioctl_properties(struct file *file,
+ 		 */
+ 		if (fepriv->state != FESTATE_IDLE) {
+ 			err = dtv_get_frontend(fe, &getp, NULL);
+-			if (err < 0)
+-				goto out;
++			if (err < 0) {
++				kfree(tvp);
++				return err;
++			}
+ 		}
+ 		for (i = 0; i < tvps->num; i++) {
+ 			err = dtv_property_process_get(fe, &getp, tvp + i, file);
+-			if (err < 0)
+-				goto out;
++			if (err < 0) {
++				kfree(tvp);
++				return err;
++			}
+ 			(tvp + i)->result = err;
+ 		}
+ 
+ 		if (copy_to_user((void __user *)tvps->props, tvp,
+ 				 tvps->num * sizeof(struct dtv_property))) {
+-			err = -EFAULT;
+-			goto out;
++			kfree(tvp);
++			return -EFAULT;
+ 		}
 -
- 	struct dvb_frontend_info info;
- 
- 	u8 delsys[MAX_DELSYS];
-@@ -459,8 +456,6 @@ struct dvb_frontend_ops {
- 
- 	struct dvb_tuner_ops tuner_ops;
- 	struct analog_demod_ops analog_ops;
+-	} else
+-		err = -EOPNOTSUPP;
 -
--	int (*set_property)(struct dvb_frontend* fe, struct dtv_property* tvp);
- };
+-out:
+-	kfree(tvp);
+-	return err;
++		kfree(tvp);
++		break;
++	}
++	default:
++		return -ENOTSUPP;
++	} /* switch */
++	return 0;
+ }
  
- #ifdef __DVB_CORE__
+ static int dtv_set_frontend(struct dvb_frontend *fe)
 -- 
 2.17.1
 
