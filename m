@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F9B01EFB12
-	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 16:24:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D6E201EFA69
+	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 16:18:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728677AbgFEOSa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Jun 2020 10:18:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48960 "EHLO mail.kernel.org"
+        id S1728440AbgFEORU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Jun 2020 10:17:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46658 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728666AbgFEOS0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Jun 2020 10:18:26 -0400
+        id S1728431AbgFEORS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Jun 2020 10:17:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 27AB82086A;
-        Fri,  5 Jun 2020 14:18:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E374020B80;
+        Fri,  5 Jun 2020 14:17:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591366705;
-        bh=jZU+7oxL2h7ADuMpEuIHAqjKMflvYcAP/bZoBRQXAHc=;
+        s=default; t=1591366637;
+        bh=Pkcwu9AqmId6jd12wS0uGd4NuEHW69FIQ87ZrnjzgDk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KLF4onLh1yj4enQZzCM6vkesoCAvojhDYDv87UI4Mboj/V0hURCV4qeAnKoPDgTvH
-         ZhsErthTFbGbak7rBmZhSA6NIGIJwZWzAHYTl4TexSy9AsbZSWc0xtnqo/3SpAmVn+
-         fZDDEQMKUN4AG2A3nFXhWo1hkpo7dw+8lIZm91oI=
+        b=gKq2OmYbOm/cLJlrmqzieF/NS3kD6rmBmdsVKNK8ANsT147Lem8twCImRmXMV3ibX
+         PEq+Y3/bJ1Ph52nA90u88UImLhP6xbtFabrLplvx01CU2ln7PyIXTHhpsZgbB7SwWD
+         /kvpKpf3rZfzaV5mJ0KFrhIdzUGNv1RuHGfNOC98=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jaroslav Kysela <perex@perex.cz>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 20/38] ASoC: intel - fix the card names
+        stable@vger.kernel.org,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH 5.6 33/43] HID: multitouch: enable multi-input as a quirk for some devices
 Date:   Fri,  5 Jun 2020 16:15:03 +0200
-Message-Id: <20200605140253.776451245@linuxfoundation.org>
+Message-Id: <20200605140154.258356179@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200605140252.542768750@linuxfoundation.org>
-References: <20200605140252.542768750@linuxfoundation.org>
+In-Reply-To: <20200605140152.493743366@linuxfoundation.org>
+References: <20200605140152.493743366@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,69 +44,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jaroslav Kysela <perex@perex.cz>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-[ Upstream commit d745cc1ab65945b2d17ec9c5652f38299c054649 ]
+commit 40d5bb87377a599d0405af765290f28aaa6abb1e upstream.
 
-Those strings are exposed to the user space as the
-card name thus used in the GUIs. The common
-standard is to avoid '_' here. The worst case
-is 'sof-skl_hda_card' string.
+Two touchpad/trackstick combos are currently not behaving properly.
+They define a mouse emulation collection, as per Win8 requirements,
+but also define a separate mouse collection for the trackstick.
 
-Signed-off-by: Jaroslav Kysela <perex@perex.cz>
-Cc: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Cc: Mark Brown <broonie@kernel.org>
-Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20191028164624.14334-1-perex@perex.cz
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The way the kernel currently treat the collections is that it
+merges both in one device. However, given that the first mouse
+collection already defines X,Y and left, right buttons, when
+mapping the events from the second mouse collection, hid-multitouch
+sees that these events are already mapped, and simply ignores them.
+
+To be able to report events from the tracktick, add a new quirked
+class for it, and manually add the 2 devices we know about.
+
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=207235
+Cc: stable@vger.kernel.org
+Tested-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- sound/soc/intel/boards/kbl_rt5663_rt5514_max98927.c | 2 +-
- sound/soc/intel/boards/skl_hda_dsp_generic.c        | 2 +-
- sound/soc/intel/boards/sof_rt5682.c                 | 2 +-
- 3 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/hid/hid-multitouch.c |   26 ++++++++++++++++++++++++++
+ 1 file changed, 26 insertions(+)
 
-diff --git a/sound/soc/intel/boards/kbl_rt5663_rt5514_max98927.c b/sound/soc/intel/boards/kbl_rt5663_rt5514_max98927.c
-index 67b276a65a8d..8ad31c91fc75 100644
---- a/sound/soc/intel/boards/kbl_rt5663_rt5514_max98927.c
-+++ b/sound/soc/intel/boards/kbl_rt5663_rt5514_max98927.c
-@@ -626,7 +626,7 @@ static int kabylake_card_late_probe(struct snd_soc_card *card)
-  * kabylake audio machine driver for  MAX98927 + RT5514 + RT5663
-  */
- static struct snd_soc_card kabylake_audio_card = {
--	.name = "kbl_r5514_5663_max",
-+	.name = "kbl-r5514-5663-max",
- 	.owner = THIS_MODULE,
- 	.dai_link = kabylake_dais,
- 	.num_links = ARRAY_SIZE(kabylake_dais),
-diff --git a/sound/soc/intel/boards/skl_hda_dsp_generic.c b/sound/soc/intel/boards/skl_hda_dsp_generic.c
-index 1778acdc367c..e8d676c192f6 100644
---- a/sound/soc/intel/boards/skl_hda_dsp_generic.c
-+++ b/sound/soc/intel/boards/skl_hda_dsp_generic.c
-@@ -90,7 +90,7 @@ skl_hda_add_dai_link(struct snd_soc_card *card, struct snd_soc_dai_link *link)
- }
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -69,6 +69,7 @@ MODULE_LICENSE("GPL");
+ #define MT_QUIRK_ASUS_CUSTOM_UP		BIT(17)
+ #define MT_QUIRK_WIN8_PTP_BUTTONS	BIT(18)
+ #define MT_QUIRK_SEPARATE_APP_REPORT	BIT(19)
++#define MT_QUIRK_FORCE_MULTI_INPUT	BIT(20)
  
- static struct snd_soc_card hda_soc_card = {
--	.name = "skl_hda_card",
-+	.name = "hda-dsp",
- 	.owner = THIS_MODULE,
- 	.dai_link = skl_hda_be_dai_links,
- 	.dapm_widgets = skl_hda_widgets,
-diff --git a/sound/soc/intel/boards/sof_rt5682.c b/sound/soc/intel/boards/sof_rt5682.c
-index 06b7d6c6c9a0..302ca1920791 100644
---- a/sound/soc/intel/boards/sof_rt5682.c
-+++ b/sound/soc/intel/boards/sof_rt5682.c
-@@ -374,7 +374,7 @@ static int dmic_init(struct snd_soc_pcm_runtime *rtd)
+ #define MT_INPUTMODE_TOUCHSCREEN	0x02
+ #define MT_INPUTMODE_TOUCHPAD		0x03
+@@ -189,6 +190,7 @@ static void mt_post_parse(struct mt_devi
+ #define MT_CLS_WIN_8				0x0012
+ #define MT_CLS_EXPORT_ALL_INPUTS		0x0013
+ #define MT_CLS_WIN_8_DUAL			0x0014
++#define MT_CLS_WIN_8_FORCE_MULTI_INPUT		0x0015
  
- /* sof audio machine driver for rt5682 codec */
- static struct snd_soc_card sof_audio_card_rt5682 = {
--	.name = "sof_rt5682",
-+	.name = "rt5682", /* the sof- prefix is added by the core */
- 	.owner = THIS_MODULE,
- 	.controls = sof_controls,
- 	.num_controls = ARRAY_SIZE(sof_controls),
--- 
-2.25.1
-
+ /* vendor specific classes */
+ #define MT_CLS_3M				0x0101
+@@ -279,6 +281,15 @@ static const struct mt_class mt_classes[
+ 			MT_QUIRK_CONTACT_CNT_ACCURATE |
+ 			MT_QUIRK_WIN8_PTP_BUTTONS,
+ 		.export_all_inputs = true },
++	{ .name = MT_CLS_WIN_8_FORCE_MULTI_INPUT,
++		.quirks = MT_QUIRK_ALWAYS_VALID |
++			MT_QUIRK_IGNORE_DUPLICATES |
++			MT_QUIRK_HOVERING |
++			MT_QUIRK_CONTACT_CNT_ACCURATE |
++			MT_QUIRK_STICKY_FINGERS |
++			MT_QUIRK_WIN8_PTP_BUTTONS |
++			MT_QUIRK_FORCE_MULTI_INPUT,
++		.export_all_inputs = true },
+ 
+ 	/*
+ 	 * vendor specific classes
+@@ -1714,6 +1725,11 @@ static int mt_probe(struct hid_device *h
+ 	if (id->group != HID_GROUP_MULTITOUCH_WIN_8)
+ 		hdev->quirks |= HID_QUIRK_MULTI_INPUT;
+ 
++	if (mtclass->quirks & MT_QUIRK_FORCE_MULTI_INPUT) {
++		hdev->quirks &= ~HID_QUIRK_INPUT_PER_APP;
++		hdev->quirks |= HID_QUIRK_MULTI_INPUT;
++	}
++
+ 	timer_setup(&td->release_timer, mt_expired_timeout, 0);
+ 
+ 	ret = hid_parse(hdev);
+@@ -1926,6 +1942,11 @@ static const struct hid_device_id mt_dev
+ 		MT_USB_DEVICE(USB_VENDOR_ID_DWAV,
+ 			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_C002) },
+ 
++	/* Elan devices */
++	{ .driver_data = MT_CLS_WIN_8_FORCE_MULTI_INPUT,
++		HID_DEVICE(BUS_I2C, HID_GROUP_MULTITOUCH_WIN_8,
++			USB_VENDOR_ID_ELAN, 0x313a) },
++
+ 	/* Elitegroup panel */
+ 	{ .driver_data = MT_CLS_SERIAL,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_ELITEGROUP,
+@@ -2056,6 +2077,11 @@ static const struct hid_device_id mt_dev
+ 		MT_USB_DEVICE(USB_VENDOR_ID_STANTUM_STM,
+ 			USB_DEVICE_ID_MTP_STM)},
+ 
++	/* Synaptics devices */
++	{ .driver_data = MT_CLS_WIN_8_FORCE_MULTI_INPUT,
++		HID_DEVICE(BUS_I2C, HID_GROUP_MULTITOUCH_WIN_8,
++			USB_VENDOR_ID_SYNAPTICS, 0xce08) },
++
+ 	/* TopSeed panels */
+ 	{ .driver_data = MT_CLS_TOPSEED,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_TOPSEED2,
 
 
