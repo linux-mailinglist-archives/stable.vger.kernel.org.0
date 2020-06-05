@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 630611EFAE5
-	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 16:22:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3ADD81EFA79
+	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 16:19:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728844AbgFEOTd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Jun 2020 10:19:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50358 "EHLO mail.kernel.org"
+        id S1728238AbgFEORx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Jun 2020 10:17:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48180 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728836AbgFEOTa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Jun 2020 10:19:30 -0400
+        id S1727097AbgFEORw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Jun 2020 10:17:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1C899208C9;
-        Fri,  5 Jun 2020 14:19:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EAB57208A9;
+        Fri,  5 Jun 2020 14:17:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591366769;
-        bh=71BL5Z1ecs5DImypsWO4GB/7Dn3Y5DY64CvQ/lzXbV0=;
+        s=default; t=1591366671;
+        bh=kT9GL7Y6XK75ZPRKJrNeL+EQ+QvF63CVbQb4WwFxR88=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bJuo78KwvmRVet2oCM4/0F27/HXy6D9mt4kbboZJxvFLPsBGi3YmMHR+mP1sI4Dsa
-         v84z46hGAo3o3kjgSycylQhvW4ZiWeXDMbkYmloUt8W6XXoVazTzzJ0VB14Fu20p/R
-         LYqEAlw7CwUOwDJ00AOdp8hQu32cJwkSmR9jkgxE=
+        b=drN2a3kRLE5CDemz5FkZUvWyqP8s59BWwZmMyaHYMuYn1op8M40q6Vf8Vz3UdtHD5
+         so21tL2N3A+2ykAFLqrR+t5r8wDslLP43lcqJRU2DVG3IGtZeRdMpj+lXoY3s5oL/R
+         Qq1wyrQvil0uCBlhHkpya+HwG3WA6nq+pIr94I6E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, DENG Qingfang <dqfext@gmail.com>,
         Florian Fainelli <f.fainelli@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 10/28] net: dsa: mt7530: set CPU port to fallback mode
+Subject: [PATCH 5.6 42/43] net: dsa: mt7530: set CPU port to fallback mode
 Date:   Fri,  5 Jun 2020 16:15:12 +0200
-Message-Id: <20200605140252.956351161@linuxfoundation.org>
+Message-Id: <20200605140154.731458967@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200605140252.338635395@linuxfoundation.org>
-References: <20200605140252.338635395@linuxfoundation.org>
+In-Reply-To: <20200605140152.493743366@linuxfoundation.org>
+References: <20200605140152.493743366@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -76,7 +76,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/net/dsa/mt7530.c
 +++ b/drivers/net/dsa/mt7530.c
-@@ -860,10 +860,15 @@ mt7530_port_set_vlan_aware(struct dsa_sw
+@@ -818,10 +818,15 @@ mt7530_port_set_vlan_aware(struct dsa_sw
  		   PCR_MATRIX_MASK, PCR_MATRIX(MT7530_ALL_MEMBERS));
  
  	/* Trapped into security mode allows packet forwarding through VLAN
