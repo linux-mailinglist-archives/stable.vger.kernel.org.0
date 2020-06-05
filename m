@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 18AB81EFB13
-	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 16:24:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A8A41EFABF
+	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 16:20:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728705AbgFEOSg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Jun 2020 10:18:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49140 "EHLO mail.kernel.org"
+        id S1728475AbgFEOUX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Jun 2020 10:20:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51594 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728694AbgFEOSf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Jun 2020 10:18:35 -0400
+        id S1728945AbgFEOUU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Jun 2020 10:20:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5FD2B208A9;
-        Fri,  5 Jun 2020 14:18:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 450BC2074B;
+        Fri,  5 Jun 2020 14:20:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591366714;
-        bh=e457R5kMuQc+J3OvEFDOmILElJ0iUqvdT1p4JmF0cjI=;
+        s=default; t=1591366819;
+        bh=yoGrA38esDLQ8SgY4VYMWUjj6qYv8c6hWJsXS2aZk1c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yg1PcRA0DiJh0jsz8QHfYRsLDQ1w5W/YLmA7EDXJsc3Znu04ncLS5mjEuTqupNzN1
-         CfFrstF9fsUSgJyyB1b+B4Yl3byJtbQPpB83ViktmkWqwEhfYW0yYO42hlrIrMQsyu
-         yoPpdwoQc4fti2Ol0I2BzX8JWxeyfawT0TinYCws=
+        b=vvo/t3x941KC91a9Awe2KDRfWYx2fyIzERTY/UeItSzRbD4KAd3/ku9ZGOUHGSCgI
+         qfmo/iHQZ4DqUpxJWSinqxbV4NO3KFedCUWL5JEzYCBfk+Z47k97gDHfjVa81Pfjmu
+         DaiglefbfDX6Z5VmvKo8Ot1KGHVrWcrZIT/0VKh0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Greco <pmgreco@us.ibm.com>,
-        Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>,
-        Vineet Gupta <vgupta@synopsys.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 24/38] ARC: Fix ICCM & DCCM runtime size checks
+        stable@vger.kernel.org, Julian Sax <jsbc@gmx.de>,
+        Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH 4.19 05/28] HID: i2c-hid: add Schneider SCL142ALM to descriptor override
 Date:   Fri,  5 Jun 2020 16:15:07 +0200
-Message-Id: <20200605140254.018990935@linuxfoundation.org>
+Message-Id: <20200605140252.639944692@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200605140252.542768750@linuxfoundation.org>
-References: <20200605140252.542768750@linuxfoundation.org>
+In-Reply-To: <20200605140252.338635395@linuxfoundation.org>
+References: <20200605140252.338635395@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,54 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>
+From: Julian Sax <jsbc@gmx.de>
 
-[ Upstream commit 43900edf67d7ef3ac8909854d75b8a1fba2d570c ]
+commit 6507ef10660efdfee93f0f3b9fac24b5e4d83e56 upstream.
 
-As of today the ICCM and DCCM size checks are incorrectly using
-mismatched units (KiB checked against bytes). The CONFIG_ARC_DCCM_SZ
-and CONFIG_ARC_ICCM_SZ are in KiB, but the size calculated in
-runtime and stored in cpu->dccm.sz and cpu->iccm.sz is in bytes.
+This device uses the SIPODEV SP1064 touchpad, which does not
+supply descriptors, so it has to be added to the override list.
 
-Fix that.
+Cc: stable@vger.kernel.org
+Signed-off-by: Julian Sax <jsbc@gmx.de>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Reported-by: Paul Greco <pmgreco@us.ibm.com>
-Signed-off-by: Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>
-Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arc/kernel/setup.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/arch/arc/kernel/setup.c b/arch/arc/kernel/setup.c
-index 7ee89dc61f6e..23dc002aa574 100644
---- a/arch/arc/kernel/setup.c
-+++ b/arch/arc/kernel/setup.c
-@@ -12,6 +12,7 @@
- #include <linux/clocksource.h>
- #include <linux/console.h>
- #include <linux/module.h>
-+#include <linux/sizes.h>
- #include <linux/cpu.h>
- #include <linux/of_fdt.h>
- #include <linux/of.h>
-@@ -409,12 +410,12 @@ static void arc_chk_core_config(void)
- 	if ((unsigned int)__arc_dccm_base != cpu->dccm.base_addr)
- 		panic("Linux built with incorrect DCCM Base address\n");
+--- a/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
++++ b/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
+@@ -381,6 +381,14 @@ static const struct dmi_system_id i2c_hi
+ 		},
+ 		.driver_data = (void *)&sipodev_desc
+ 	},
++	{
++		.ident = "Schneider SCL142ALM",
++		.matches = {
++			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "SCHNEIDER"),
++			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "SCL142ALM"),
++		},
++		.driver_data = (void *)&sipodev_desc
++	},
+ 	{ }	/* Terminate list */
+ };
  
--	if (CONFIG_ARC_DCCM_SZ != cpu->dccm.sz)
-+	if (CONFIG_ARC_DCCM_SZ * SZ_1K != cpu->dccm.sz)
- 		panic("Linux built with incorrect DCCM Size\n");
- #endif
- 
- #ifdef CONFIG_ARC_HAS_ICCM
--	if (CONFIG_ARC_ICCM_SZ != cpu->iccm.sz)
-+	if (CONFIG_ARC_ICCM_SZ * SZ_1K != cpu->iccm.sz)
- 		panic("Linux built with incorrect ICCM Size\n");
- #endif
- 
--- 
-2.25.1
-
 
 
