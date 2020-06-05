@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BFE571EFB0C
-	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 16:24:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D282B1EFA83
+	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 16:19:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728626AbgFEOSN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Jun 2020 10:18:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48682 "EHLO mail.kernel.org"
+        id S1728632AbgFEOSP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Jun 2020 10:18:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48706 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728047AbgFEOSM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Jun 2020 10:18:12 -0400
+        id S1728044AbgFEOSO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Jun 2020 10:18:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7D478208C9;
-        Fri,  5 Jun 2020 14:18:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C476B208C3;
+        Fri,  5 Jun 2020 14:18:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591366692;
-        bh=ZGMog9yqu0TCyJN1EWr5F2XERNVBALJNbXJoL/6fjq0=;
+        s=default; t=1591366694;
+        bh=H8TSug70zdms/pTRXhiGGPW0NgzFCnlO3fUnymnDzyc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Itjjys8oYcaTTjEBVM/ltNBzPK/wSO7McofwuEIU0urzRgRt/nP7F3KFhCGDf8uez
-         cQ0MxC8n3UCW2ge5X6UFvXhZxYp98x19l2ykN6oPM8y48qGtZeX+jCgz2pH5Cx0oii
-         HMPH5tcG0JrJ9btjR6rwNINQPFi5yZsnRSNvOZJs=
+        b=TAcVjE0frETREHXvs29JGdDgNYReuofQWTeUvUEMdXT7jdO0TJFwxpzQabGfcRJII
+         4S0S5wfd2/9Qw8GXx42BaHaIMqiZNGWfSWuKdunN9MXFmIdiKelf3LZZkiPP8IYdil
+         pRPTcfA7cdlNTkaTD9ad1vg1ID25b77P3rcfpZpI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lucas De Marchi <lucas.demarchi@intel.com>,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 15/38] drm/i915: fix port checks for MST support on gen >= 11
-Date:   Fri,  5 Jun 2020 16:14:58 +0200
-Message-Id: <20200605140253.489209653@linuxfoundation.org>
+        stable@vger.kernel.org, Xiang Chen <chenxiang66@hisilicon.com>,
+        John Garry <john.garry@huawei.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 16/38] scsi: hisi_sas: Check sas_port before using it
+Date:   Fri,  5 Jun 2020 16:14:59 +0200
+Message-Id: <20200605140253.543975590@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200605140252.542768750@linuxfoundation.org>
 References: <20200605140252.542768750@linuxfoundation.org>
@@ -44,88 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lucas De Marchi <lucas.demarchi@intel.com>
+From: Xiang Chen <chenxiang66@hisilicon.com>
 
-[ Upstream commit 10d987fd1b7baceaafa78d805e71427ab735b4e4 ]
+[ Upstream commit 8c39673d5474b95374df2104dc1f65205c5278b8 ]
 
-Both Ice Lake and Elkhart Lake (gen 11) support MST on all external
-connections except DDI A. Tiger Lake (gen 12) supports on all external
-connections.
+Need to check the structure sas_port before using it.
 
-Move the check to happen inside intel_dp_mst_encoder_init() and add
-specific platform checks.
-
-v2: Replace != with == checks for ports on gen < 11 (Ville)
-
-Signed-off-by: Lucas De Marchi <lucas.demarchi@intel.com>
-Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20191015164029.18431-3-lucas.demarchi@intel.com
+Link: https://lore.kernel.org/r/1573551059-107873-2-git-send-email-john.garry@huawei.com
+Signed-off-by: Xiang Chen <chenxiang66@hisilicon.com>
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/display/intel_dp.c     |  7 ++-----
- drivers/gpu/drm/i915/display/intel_dp_mst.c | 22 +++++++++++++++------
- 2 files changed, 18 insertions(+), 11 deletions(-)
+ drivers/scsi/hisi_sas/hisi_sas_main.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/i915/display/intel_dp.c b/drivers/gpu/drm/i915/display/intel_dp.c
-index 9b15ac4f2fb6..4ab6531a4a74 100644
---- a/drivers/gpu/drm/i915/display/intel_dp.c
-+++ b/drivers/gpu/drm/i915/display/intel_dp.c
-@@ -7218,11 +7218,8 @@ intel_dp_init_connector(struct intel_digital_port *intel_dig_port,
- 		intel_connector->get_hw_state = intel_connector_get_hw_state;
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_main.c b/drivers/scsi/hisi_sas/hisi_sas_main.c
+index 849335d76cf6..6f4692f0d714 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_main.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_main.c
+@@ -974,12 +974,13 @@ static void hisi_sas_port_notify_formed(struct asd_sas_phy *sas_phy)
+ 	struct hisi_hba *hisi_hba = sas_ha->lldd_ha;
+ 	struct hisi_sas_phy *phy = sas_phy->lldd_phy;
+ 	struct asd_sas_port *sas_port = sas_phy->port;
+-	struct hisi_sas_port *port = to_hisi_sas_port(sas_port);
++	struct hisi_sas_port *port;
+ 	unsigned long flags;
  
- 	/* init MST on ports that can support it */
--	if (HAS_DP_MST(dev_priv) && !intel_dp_is_edp(intel_dp) &&
--	    (port == PORT_B || port == PORT_C ||
--	     port == PORT_D || port == PORT_F))
--		intel_dp_mst_encoder_init(intel_dig_port,
--					  intel_connector->base.base.id);
-+	intel_dp_mst_encoder_init(intel_dig_port,
-+				  intel_connector->base.base.id);
+ 	if (!sas_port)
+ 		return;
  
- 	if (!intel_edp_init_connector(intel_dp, intel_connector)) {
- 		intel_dp_aux_fini(intel_dp);
-diff --git a/drivers/gpu/drm/i915/display/intel_dp_mst.c b/drivers/gpu/drm/i915/display/intel_dp_mst.c
-index 600873c796d0..74d45a0eecb8 100644
---- a/drivers/gpu/drm/i915/display/intel_dp_mst.c
-+++ b/drivers/gpu/drm/i915/display/intel_dp_mst.c
-@@ -653,21 +653,31 @@ intel_dp_mst_encoder_active_links(struct intel_digital_port *intel_dig_port)
- int
- intel_dp_mst_encoder_init(struct intel_digital_port *intel_dig_port, int conn_base_id)
- {
-+	struct drm_i915_private *i915 = to_i915(intel_dig_port->base.base.dev);
- 	struct intel_dp *intel_dp = &intel_dig_port->dp;
--	struct drm_device *dev = intel_dig_port->base.base.dev;
-+	enum port port = intel_dig_port->base.port;
- 	int ret;
- 
--	intel_dp->can_mst = true;
-+	if (!HAS_DP_MST(i915) || intel_dp_is_edp(intel_dp))
-+		return 0;
-+
-+	if (INTEL_GEN(i915) < 12 && port == PORT_A)
-+		return 0;
-+
-+	if (INTEL_GEN(i915) < 11 && port == PORT_E)
-+		return 0;
-+
- 	intel_dp->mst_mgr.cbs = &mst_cbs;
- 
- 	/* create encoders */
- 	intel_dp_create_fake_mst_encoders(intel_dig_port);
--	ret = drm_dp_mst_topology_mgr_init(&intel_dp->mst_mgr, dev,
-+	ret = drm_dp_mst_topology_mgr_init(&intel_dp->mst_mgr, &i915->drm,
- 					   &intel_dp->aux, 16, 3, conn_base_id);
--	if (ret) {
--		intel_dp->can_mst = false;
-+	if (ret)
- 		return ret;
--	}
-+
-+	intel_dp->can_mst = true;
-+
- 	return 0;
- }
- 
++	port = to_hisi_sas_port(sas_port);
+ 	spin_lock_irqsave(&hisi_hba->lock, flags);
+ 	port->port_attached = 1;
+ 	port->id = phy->port_id;
 -- 
 2.25.1
 
