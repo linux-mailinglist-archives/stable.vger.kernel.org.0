@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CCE031EFAAA
-	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 16:20:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA0AF1EFAF4
+	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 16:22:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728433AbgFEOTn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Jun 2020 10:19:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50602 "EHLO mail.kernel.org"
+        id S1728189AbgFEOWY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Jun 2020 10:22:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49948 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728860AbgFEOTl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Jun 2020 10:19:41 -0400
+        id S1728216AbgFEOTO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Jun 2020 10:19:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 83CE6208C3;
-        Fri,  5 Jun 2020 14:19:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0BB26208A7;
+        Fri,  5 Jun 2020 14:19:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591366781;
-        bh=sXJRCZe3wSoZKHyLoHmplsdTx1p8e9SXjjR3pDu+tIA=;
+        s=default; t=1591366753;
+        bh=AwfvXfjnTNJMGNoI9iVhy0FrSXDouyxhVUlCc0eNCaw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iYl0DTRjUjZN3n97YBWqAF4BVczb/HzX9F3DV1snJyhuCniYi+EruJY8R8eEOSL1e
-         JFEt1Df/T3Rb4E/KnMzIBuH7uAa0KZWGDACxGlqVFuZ7bqK/AUfuadZRc2nrzhexWa
-         rtnL6olYpvCkJshOHQ6UgB6da7F7YhPCsisxhGdY=
+        b=HPlbZh4lifsTE9+4sph122Uqw6c6iWRwuVGbr6FuoF1JGKeNBMFE8s/QEbQmy9aYB
+         5XlGweA4gfU5SlYgBfu4ysmfTBJnIXJ6xMARRfUL4RveXFXVwuARHX+hk68riLxDC3
+         ySb/tmzNU6OEHzwBHiwtf+Puwk9JH31MlD62ruXk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, fengsheng <fengsheng5@huawei.com>,
-        Xinwei Kong <kong.kongxinwei@hisilicon.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 15/28] spi: dw: use "smp_mb()" to avoid sending spi data error
+        stable@vger.kernel.org,
+        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 34/38] null_blk: return error for invalid zone size
 Date:   Fri,  5 Jun 2020 16:15:17 +0200
-Message-Id: <20200605140253.279609547@linuxfoundation.org>
+Message-Id: <20200605140254.877560188@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200605140252.338635395@linuxfoundation.org>
-References: <20200605140252.338635395@linuxfoundation.org>
+In-Reply-To: <20200605140252.542768750@linuxfoundation.org>
+References: <20200605140252.542768750@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,46 +44,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xinwei Kong <kong.kongxinwei@hisilicon.com>
+From: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
 
-[ Upstream commit bfda044533b213985bc62bd7ca96f2b984d21b80 ]
+[ Upstream commit e274832590211c4b1b1e807ca66fad8b5bb8b328 ]
 
-Because of out-of-order execution about some CPU architecture,
-In this debug stage we find Completing spi interrupt enable ->
-prodrucing TXEI interrupt -> running "interrupt_transfer" function
-will prior to set "dw->rx and dws->rx_end" data, so this patch add
-memory barrier to enable dw->rx and dw->rx_end to be visible and
-solve to send SPI data error.
-eg:
-it will fix to this following low possibility error in testing environment
-which using SPI control to connect TPM Modules
+In null_init_zone_dev() check if the zone size is larger than device
+capacity, return error if needed.
 
-kernel: tpm tpm0: Operation Timed out
-kernel: tpm tpm0: tpm_relinquish_locality: : error -1
+This also fixes the following oops :-
 
-Signed-off-by: fengsheng <fengsheng5@huawei.com>
-Signed-off-by: Xinwei Kong <kong.kongxinwei@hisilicon.com>
-Link: https://lore.kernel.org/r/1578019930-55858-1-git-send-email-kong.kongxinwei@hisilicon.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+null_blk: changed the number of conventional zones to 4294967295
+BUG: kernel NULL pointer dereference, address: 0000000000000010
+PGD 7d76c5067 P4D 7d76c5067 PUD 7d240c067 PMD 0
+Oops: 0002 [#1] SMP NOPTI
+CPU: 4 PID: 5508 Comm: nullbtests.sh Tainted: G OE 5.7.0-rc4lblk-fnext0
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.0-59-gc9ba5276e4
+RIP: 0010:null_init_zoned_dev+0x17a/0x27f [null_blk]
+RSP: 0018:ffffc90007007e00 EFLAGS: 00010246
+RAX: 0000000000000020 RBX: ffff8887fb3f3c00 RCX: 0000000000000007
+RDX: 0000000000000000 RSI: ffff8887ca09d688 RDI: ffff888810fea510
+RBP: 0000000000000010 R08: ffff8887ca09d688 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000000 R12: ffff8887c26e8000
+R13: ffffffffa05e9390 R14: 0000000000000000 R15: 0000000000000001
+FS:  00007fcb5256f740(0000) GS:ffff888810e00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000000000000010 CR3: 000000081e8fe000 CR4: 00000000003406e0
+Call Trace:
+ null_add_dev+0x534/0x71b [null_blk]
+ nullb_device_power_store.cold.41+0x8/0x2e [null_blk]
+ configfs_write_file+0xe6/0x150
+ vfs_write+0xba/0x1e0
+ ksys_write+0x5f/0xe0
+ do_syscall_64+0x60/0x250
+ entry_SYSCALL_64_after_hwframe+0x49/0xb3
+RIP: 0033:0x7fcb51c71840
+
+Signed-off-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-dw.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/block/null_blk_zoned.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/spi/spi-dw.c b/drivers/spi/spi-dw.c
-index 5a47e28e38c1..6f0f6b99953d 100644
---- a/drivers/spi/spi-dw.c
-+++ b/drivers/spi/spi-dw.c
-@@ -304,6 +304,9 @@ static int dw_spi_transfer_one(struct spi_controller *master,
- 	dws->len = transfer->len;
- 	spin_unlock_irqrestore(&dws->buf_lock, flags);
+diff --git a/drivers/block/null_blk_zoned.c b/drivers/block/null_blk_zoned.c
+index 3d7fdea872f8..2553e05e0725 100644
+--- a/drivers/block/null_blk_zoned.c
++++ b/drivers/block/null_blk_zoned.c
+@@ -20,6 +20,10 @@ int null_zone_init(struct nullb_device *dev)
+ 		pr_err("zone_size must be power-of-two\n");
+ 		return -EINVAL;
+ 	}
++	if (dev->zone_size > dev->size) {
++		pr_err("Zone size larger than device capacity\n");
++		return -EINVAL;
++	}
  
-+	/* Ensure dw->rx and dw->rx_end are visible */
-+	smp_mb();
-+
- 	spi_enable_chip(dws, 0);
- 
- 	/* Handle per transfer options for bpw and speed */
+ 	dev->zone_size_sects = dev->zone_size << ZONE_SIZE_SHIFT;
+ 	dev->nr_zones = dev_size >>
 -- 
 2.25.1
 
