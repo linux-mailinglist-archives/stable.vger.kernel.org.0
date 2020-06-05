@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DF3E51EF7E5
+	by mail.lfdr.de (Postfix) with ESMTP id 730501EF7E4
 	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 14:33:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726946AbgFEM3u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Jun 2020 08:29:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57452 "EHLO mail.kernel.org"
+        id S1726955AbgFEM3p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Jun 2020 08:29:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57494 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726939AbgFEMZq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Jun 2020 08:25:46 -0400
+        id S1726946AbgFEMZr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Jun 2020 08:25:47 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F17072075B;
-        Fri,  5 Jun 2020 12:25:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 30A2720835;
+        Fri,  5 Jun 2020 12:25:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591359945;
-        bh=pLoF6CctGEQJ++vNC1sEPzcqQMNSpnwUdvyBSVNNa/A=;
+        s=default; t=1591359946;
+        bh=j9fuMJzFwntpV3mYqfu+qUswix+dSaLC/uawv7kL3uY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=viD7xH2llsmyz3vCEfzjxxucc9KKYU3dixjNeBDFKWKNPbaCZYRUVCjb1SEES2SVJ
-         cqwKfi6ckI8BRSM7MOxUeDhHpic765XX4gfsxGddDrTx8sROe/102bWh5KakRbxCiw
-         fsFUwOEfgedxEPQI+hoSpNEgSAH8dPkV5z40zISY=
+        b=o/7cDnZ0P2pWgE151b6Rr4op8o57vFbpNz8wt8Ms6EgcHzzGBaINy9bw7lzxRAnEA
+         tvmCln3RKQqIEHSdg/FFwAbT1smJj8F7/2csD9hddIDb+eooG6QrTQsInEi02OUCK9
+         hQs5VHinJZGEJkbMybpr3pZSNVUjrHzDsoLtSg84=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Fugang Duan <fugang.duan@nxp.com>,
+Cc:     Willem de Bruijn <willemb@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
         "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 04/14] net: stmmac: enable timestamp snapshot for required PTP packets in dwmac v5.10a
-Date:   Fri,  5 Jun 2020 08:25:30 -0400
-Message-Id: <20200605122540.2882539-4-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>,
+        virtualization@lists.linux-foundation.org
+Subject: [PATCH AUTOSEL 5.4 05/14] net: check untrusted gso_size at kernel entry
+Date:   Fri,  5 Jun 2020 08:25:31 -0400
+Message-Id: <20200605122540.2882539-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200605122540.2882539-1-sashal@kernel.org>
 References: <20200605122540.2882539-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -46,58 +45,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fugang Duan <fugang.duan@nxp.com>
+From: Willem de Bruijn <willemb@google.com>
 
-[ Upstream commit f2fb6b6275eba9d312957ca44c487bd780da6169 ]
+[ Upstream commit 6dd912f82680761d8fb6b1bb274a69d4c7010988 ]
 
-For rx filter 'HWTSTAMP_FILTER_PTP_V2_EVENT', it should be
-PTP v2/802.AS1, any layer, any kind of event packet, but HW only
-take timestamp snapshot for below PTP message: sync, Pdelay_req,
-Pdelay_resp.
+Syzkaller again found a path to a kernel crash through bad gso input:
+a packet with gso size exceeding len.
 
-Then it causes below issue when test E2E case:
-ptp4l[2479.534]: port 1: received DELAY_REQ without timestamp
-ptp4l[2481.423]: port 1: received DELAY_REQ without timestamp
-ptp4l[2481.758]: port 1: received DELAY_REQ without timestamp
-ptp4l[2483.524]: port 1: received DELAY_REQ without timestamp
-ptp4l[2484.233]: port 1: received DELAY_REQ without timestamp
-ptp4l[2485.750]: port 1: received DELAY_REQ without timestamp
-ptp4l[2486.888]: port 1: received DELAY_REQ without timestamp
-ptp4l[2487.265]: port 1: received DELAY_REQ without timestamp
-ptp4l[2487.316]: port 1: received DELAY_REQ without timestamp
+These packets are dropped in tcp_gso_segment and udp[46]_ufo_fragment.
+But they may affect gso size calculations earlier in the path.
 
-Timestamp snapshot dependency on register bits in received path:
-SNAPTYPSEL TSMSTRENA TSEVNTENA 	PTP_Messages
-01         x         0          SYNC, Follow_Up, Delay_Req,
-                                Delay_Resp, Pdelay_Req, Pdelay_Resp,
-                                Pdelay_Resp_Follow_Up
-01         0         1          SYNC, Pdelay_Req, Pdelay_Resp
+Now that we have thlen as of commit 9274124f023b ("net: stricter
+validation of untrusted gso packets"), check gso_size at entry too.
 
-For dwmac v5.10a, enabling all events by setting register
-DWC_EQOS_TIME_STAMPING[SNAPTYPSEL] to 2’b01, clearing bit [TSEVNTENA]
-to 0’b0, which can support all required events.
-
-Signed-off-by: Fugang Duan <fugang.duan@nxp.com>
+Fixes: bfd5f4a3d605 ("packet: Add GSO/csum offload support.")
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: Willem de Bruijn <willemb@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ include/linux/virtio_net.h | 14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-index 1623516efb17..982be75fde83 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-@@ -630,7 +630,8 @@ static int stmmac_hwtstamp_set(struct net_device *dev, struct ifreq *ifr)
- 			config.rx_filter = HWTSTAMP_FILTER_PTP_V2_EVENT;
- 			ptp_v2 = PTP_TCR_TSVER2ENA;
- 			snap_type_sel = PTP_TCR_SNAPTYPSEL_1;
--			ts_event_en = PTP_TCR_TSEVNTENA;
-+			if (priv->synopsys_id != DWMAC_CORE_5_10)
-+				ts_event_en = PTP_TCR_TSEVNTENA;
- 			ptp_over_ipv4_udp = PTP_TCR_TSIPV4ENA;
- 			ptp_over_ipv6_udp = PTP_TCR_TSIPV6ENA;
- 			ptp_over_ethernet = PTP_TCR_TSIPENA;
+diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
+index 6f6ade63b04c..88997022a4b5 100644
+--- a/include/linux/virtio_net.h
++++ b/include/linux/virtio_net.h
+@@ -31,6 +31,7 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
+ {
+ 	unsigned int gso_type = 0;
+ 	unsigned int thlen = 0;
++	unsigned int p_off = 0;
+ 	unsigned int ip_proto;
+ 
+ 	if (hdr->gso_type != VIRTIO_NET_HDR_GSO_NONE) {
+@@ -68,7 +69,8 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
+ 		if (!skb_partial_csum_set(skb, start, off))
+ 			return -EINVAL;
+ 
+-		if (skb_transport_offset(skb) + thlen > skb_headlen(skb))
++		p_off = skb_transport_offset(skb) + thlen;
++		if (p_off > skb_headlen(skb))
+ 			return -EINVAL;
+ 	} else {
+ 		/* gso packets without NEEDS_CSUM do not set transport_offset.
+@@ -92,17 +94,25 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
+ 				return -EINVAL;
+ 			}
+ 
+-			if (keys.control.thoff + thlen > skb_headlen(skb) ||
++			p_off = keys.control.thoff + thlen;
++			if (p_off > skb_headlen(skb) ||
+ 			    keys.basic.ip_proto != ip_proto)
+ 				return -EINVAL;
+ 
+ 			skb_set_transport_header(skb, keys.control.thoff);
++		} else if (gso_type) {
++			p_off = thlen;
++			if (p_off > skb_headlen(skb))
++				return -EINVAL;
+ 		}
+ 	}
+ 
+ 	if (hdr->gso_type != VIRTIO_NET_HDR_GSO_NONE) {
+ 		u16 gso_size = __virtio16_to_cpu(little_endian, hdr->gso_size);
+ 
++		if (skb->len - p_off <= gso_size)
++			return -EINVAL;
++
+ 		skb_shinfo(skb)->gso_size = gso_size;
+ 		skb_shinfo(skb)->gso_type = gso_type;
+ 
 -- 
 2.25.1
 
