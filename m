@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D4C3A1EFAD5
-	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 16:21:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 698F41EFB35
+	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 16:25:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728941AbgFEOVV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Jun 2020 10:21:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51476 "EHLO mail.kernel.org"
+        id S1728223AbgFEOYi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Jun 2020 10:24:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46764 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728936AbgFEOUP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Jun 2020 10:20:15 -0400
+        id S1728449AbgFEORW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Jun 2020 10:17:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B1295206F0;
-        Fri,  5 Jun 2020 14:20:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6EF3A20835;
+        Fri,  5 Jun 2020 14:17:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591366815;
-        bh=ENKjQYmYMCjflvqJ1k6DiqcolDaC2VSz//DVoK6MOHg=;
+        s=default; t=1591366641;
+        bh=pcwZ8QAtQqf2jGKfibADVbKbceKZrKRWppgjgQ5/tFw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oFEC1uPAaoGDByafvDib6pViOhrrhW2hA2V+z21ro6hU4lCErQWMQyhQiOzQrArUr
-         MKmcFbsWV79qRmJqhrmVQmOXmgDo4Xh+ph2kJXRjMM/Z+J54Lwfy+F1VBBqxhQzCLK
-         6KSqa2bSxuSswj5r0TPfpZZlYZc8WjY6aQAHxwU4=
+        b=ZYlNtXjTW6CXjY9e23Su+FVz2ixVAAGDlg0ynkVskLkbiSNTNFjlFkehDE6espE/B
+         OP0mS9b3S3Oi9g9R/emFmBblRI3z6z6lcJM2mbMxLnj6oNcCTlr8Xj0H44clE/3pyE
+         4BSmt2Obab+uUKJozkOKQLSuZpTnSVHQCGgItI9M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fan Yang <Fan_Yang@sjtu.edu.cn>,
-        Dan Williams <dan.j.williams@intel.com>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 03/28] mm: Fix mremap not considering huge pmd devmap
+        stable@vger.kernel.org,
+        Giuseppe Marco Randazzo <gmrandazzo@gmail.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Christian Lamparter <chunkeey@gmail.com>
+Subject: [PATCH 5.6 35/43] p54usb: add AirVasT USB stick device-id
 Date:   Fri,  5 Jun 2020 16:15:05 +0200
-Message-Id: <20200605140252.532170068@linuxfoundation.org>
+Message-Id: <20200605140154.361575957@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200605140252.338635395@linuxfoundation.org>
-References: <20200605140252.338635395@linuxfoundation.org>
+In-Reply-To: <20200605140152.493743366@linuxfoundation.org>
+References: <20200605140152.493743366@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,56 +45,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fan Yang <Fan_Yang@sjtu.edu.cn>
+From: Giuseppe Marco Randazzo <gmrandazzo@gmail.com>
 
-commit 5bfea2d9b17f1034a68147a8b03b9789af5700f9 upstream.
+commit 63e49a9fdac1b4e97ac26cb3fe953f210d83bc53 upstream.
 
-The original code in mm/mremap.c checks huge pmd by:
+This patch adds the AirVasT USB wireless devices 124a:4026
+to the list of supported devices. It's using the ISL3886
+usb firmware. Without this modification, the wiki adapter
+is not recognized.
 
-		if (is_swap_pmd(*old_pmd) || pmd_trans_huge(*old_pmd)) {
-
-However, a DAX mapped nvdimm is mapped as huge page (by default) but it
-is not transparent huge page (_PAGE_PSE | PAGE_DEVMAP).  This commit
-changes the condition to include the case.
-
-This addresses CVE-2020-10757.
-
-Fixes: 5c7fb56e5e3f ("mm, dax: dax-pmd vs thp-pmd vs hugetlbfs-pmd")
 Cc: <stable@vger.kernel.org>
-Reported-by: Fan Yang <Fan_Yang@sjtu.edu.cn>
-Signed-off-by: Fan Yang <Fan_Yang@sjtu.edu.cn>
-Tested-by: Fan Yang <Fan_Yang@sjtu.edu.cn>
-Tested-by: Dan Williams <dan.j.williams@intel.com>
-Reviewed-by: Dan Williams <dan.j.williams@intel.com>
-Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Giuseppe Marco Randazzo <gmrandazzo@gmail.com>
+Signed-off-by: Christian Lamparter <chunkeey@gmail.com> [formatted, reworded]
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20200405220659.45621-1-chunkeey@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/include/asm/pgtable.h |    1 +
- mm/mremap.c                    |    2 +-
- 2 files changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/wireless/intersil/p54/p54usb.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/x86/include/asm/pgtable.h
-+++ b/arch/x86/include/asm/pgtable.h
-@@ -237,6 +237,7 @@ static inline int pmd_large(pmd_t pte)
- }
- 
- #ifdef CONFIG_TRANSPARENT_HUGEPAGE
-+/* NOTE: when predicate huge page, consider also pmd_devmap, or use pmd_large */
- static inline int pmd_trans_huge(pmd_t pmd)
- {
- 	return (pmd_val(pmd) & (_PAGE_PSE|_PAGE_DEVMAP)) == _PAGE_PSE;
---- a/mm/mremap.c
-+++ b/mm/mremap.c
-@@ -221,7 +221,7 @@ unsigned long move_page_tables(struct vm
- 		new_pmd = alloc_new_pmd(vma->vm_mm, vma, new_addr);
- 		if (!new_pmd)
- 			break;
--		if (is_swap_pmd(*old_pmd) || pmd_trans_huge(*old_pmd)) {
-+		if (is_swap_pmd(*old_pmd) || pmd_trans_huge(*old_pmd) || pmd_devmap(*old_pmd)) {
- 			if (extent == HPAGE_PMD_SIZE) {
- 				bool moved;
- 				/* See comment in move_ptes() */
+--- a/drivers/net/wireless/intersil/p54/p54usb.c
++++ b/drivers/net/wireless/intersil/p54/p54usb.c
+@@ -61,6 +61,7 @@ static const struct usb_device_id p54u_t
+ 	{USB_DEVICE(0x0db0, 0x6826)},	/* MSI UB54G (MS-6826) */
+ 	{USB_DEVICE(0x107b, 0x55f2)},	/* Gateway WGU-210 (Gemtek) */
+ 	{USB_DEVICE(0x124a, 0x4023)},	/* Shuttle PN15, Airvast WM168g, IOGear GWU513 */
++	{USB_DEVICE(0x124a, 0x4026)},	/* AirVasT USB wireless device */
+ 	{USB_DEVICE(0x1435, 0x0210)},	/* Inventel UR054G */
+ 	{USB_DEVICE(0x15a9, 0x0002)},	/* Gemtek WUBI-100GW 802.11g */
+ 	{USB_DEVICE(0x1630, 0x0005)},	/* 2Wire 802.11g USB (v1) / Z-Com */
 
 
