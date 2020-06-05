@@ -2,138 +2,135 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 457081EFD73
-	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 18:21:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 03CC81EFD81
+	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 18:25:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726648AbgFEQVn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Jun 2020 12:21:43 -0400
-Received: from mail-ot1-f65.google.com ([209.85.210.65]:34548 "EHLO
-        mail-ot1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726316AbgFEQVm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 5 Jun 2020 12:21:42 -0400
-Received: by mail-ot1-f65.google.com with SMTP id b18so8061249oti.1;
-        Fri, 05 Jun 2020 09:21:42 -0700 (PDT)
+        id S1726044AbgFEQZ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Jun 2020 12:25:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40704 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726024AbgFEQZ5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 5 Jun 2020 12:25:57 -0400
+Received: from mail-pl1-x643.google.com (mail-pl1-x643.google.com [IPv6:2607:f8b0:4864:20::643])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A08DC08C5C2;
+        Fri,  5 Jun 2020 09:25:57 -0700 (PDT)
+Received: by mail-pl1-x643.google.com with SMTP id q16so3831260plr.2;
+        Fri, 05 Jun 2020 09:25:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id;
+        bh=NmjJTQt+IYO8O2qNw9u4ijfCErC5N7IeIeNyGgIbvio=;
+        b=mPr9+gTWNwpKDsKOJGXUCBCs6GLgzT1t4M83KwCqmr/HsvIbBW/n2qeroOgyD98R6Z
+         BC+D75K4uc8/eeWfuLhSALEX9dkCM3hVPiwIQ9XLfNdPvZl/+1DogxkGfjg6toeXhG6+
+         1Alyg0VAtCIUkzVf3hLvW+1rVyUN/+cRgky20Q0toXOK4tvV1+Nor4QYqV1rk4ho/NRz
+         oeE1h6z/SJacetRElo5Z+obsMwTLvayvvv1kQklCQkKfkapXbRJ2ygj0YIC00un1Crv/
+         zNlcapqzRA7maZ64zUDSAcH9GqZAa8JHVwA8nSgQtwYirbrMTLSy4SILBGLvhLtF9SmW
+         u6mA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=tNm/MEsuRiThlj0w2Ep6hniygV5tFbfb9SR7Z3GLj9Y=;
-        b=YbkqS2xAQNP8YNDMayOSoXFruFdNzU6pLFsUOiZKSdsZZL3FM+8Wqb6AAeGLdsmALy
-         1PicxwCxQIF+e7CJMPqTAKkVZySs+wchMe6cppRL94vAUOEF9+xUmOgqEWxzEKbJCeOv
-         wP0g1h2BlTcQe/3vPYZ8+AM25UX8VsPCCKBTgbqvcUwzzyC5cgwb8rJoWyaW3KzGR+Ir
-         gy5Jbe9YbjRfTm5q4NVKXytBdxK9gqQtRNXEGsZu/6/u677XXIc7jjxQH+6OKIgFXRc8
-         6cdA/Ib/FFou+s4u7/PvCq6iEH5oUlBTEGB9bv/OKM2lFGGuEn98bWqhKvHydC2QUOAF
-         k0MQ==
-X-Gm-Message-State: AOAM532ZOfGX0J0IYOGZlVy7UJFUHXP51uO8WoBGkzESzkylvHplMCVo
-        rqv0i064/mgK78sm/E5rkhASMb7eFpLysByHxeI=
-X-Google-Smtp-Source: ABdhPJwGbBmx3OnMsin8+/tCfwolPcXpa3AYr4pgSORGQmWTl8u3ZgO7Zkxncv+YIFsOCyUUBnNaQR6wgbRYJGe3OY4=
-X-Received: by 2002:a05:6830:20d1:: with SMTP id z17mr7872068otq.167.1591374101775;
- Fri, 05 Jun 2020 09:21:41 -0700 (PDT)
-MIME-Version: 1.0
-References: <158889473309.2292982.18007035454673387731.stgit@dwillia2-desk3.amr.corp.intel.com>
- <CAJZ5v0gq55A7880dOJD7skwx7mnjsqbCqEGFvEo552U9W2zH3Q@mail.gmail.com> <CAPcyv4gQNPNOmSVrp7epS5_10qLUuGbutQ2xz7LXnpEhkWeA_w@mail.gmail.com>
-In-Reply-To: <CAPcyv4gQNPNOmSVrp7epS5_10qLUuGbutQ2xz7LXnpEhkWeA_w@mail.gmail.com>
-From:   "Rafael J. Wysocki" <rafael@kernel.org>
-Date:   Fri, 5 Jun 2020 18:21:30 +0200
-Message-ID: <CAJZ5v0g-TSk+7d-b0j5THeNtuSDeSJmKZHcG3mBesVZgkCyJOg@mail.gmail.com>
-Subject: Re: [PATCH v2] ACPI: Drop rcu usage for MMIO mappings
-To:     Dan Williams <dan.j.williams@intel.com>
-Cc:     "Rafael J. Wysocki" <rafael@kernel.org>,
-        Rafael Wysocki <rafael.j.wysocki@intel.com>,
-        Stable <stable@vger.kernel.org>, Len Brown <lenb@kernel.org>,
-        Borislav Petkov <bp@alien8.de>,
-        Ira Weiny <ira.weiny@intel.com>,
-        James Morse <james.morse@arm.com>,
-        Erik Kaneda <erik.kaneda@intel.com>,
-        Myron Stowe <myron.stowe@redhat.com>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
-        "linux-nvdimm@lists.01.org" <linux-nvdimm@lists.01.org>
-Content-Type: text/plain; charset="UTF-8"
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=NmjJTQt+IYO8O2qNw9u4ijfCErC5N7IeIeNyGgIbvio=;
+        b=k9kQdE6q9aOYYgo5ohKMMRm+UV2vfha289MV9qqDsPpCJt/ClJJsJk2LVhqkpdTTMP
+         FIYoKLuyszFuQevCjAGDY3klBz5o85AkR1CFb/IMLtrVhE46CtmQJM6l4APoFwqT79CW
+         /zj0M31g7SZRd8mgsleIaKBEvl6WnA3coxdnRcIw6mHWJuBNlhVOlH1FcQC2tkM1BvoD
+         SRXfDoJMahK4v1uWVJsEJrcoUKiW9wTnDS7sskMQkFuGX/kpD0Edc7CDCBdYAoFk/+aP
+         u405ztoiL/xgYJgFk/ykyj4ylCewMwoEVeX5uhnID5IEKYMpT1WMj4wKYOla+IQybMzB
+         bgLA==
+X-Gm-Message-State: AOAM531SR7EFRux+wNv/rJmLBH8bhARYWb3eJwhJci9qIz6Yv9T6EEFZ
+        Z6zjkKAA+MTVkX1jRcB5mhMaakw2
+X-Google-Smtp-Source: ABdhPJzY/o/kBe/m0Q1OcLEXBvHQsXZ1pxuuE+S08cN5pisOWBUb/sNIFZDsOJIS8dbxTeLacLU9fg==
+X-Received: by 2002:a17:90b:f0e:: with SMTP id br14mr3833000pjb.78.1591374356024;
+        Fri, 05 Jun 2020 09:25:56 -0700 (PDT)
+Received: from localhost.localdomain ([192.19.223.252])
+        by smtp.gmail.com with ESMTPSA id b29sm86205pff.176.2020.06.05.09.25.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 05 Jun 2020 09:25:55 -0700 (PDT)
+From:   Florian Fainelli <f.fainelli@gmail.com>
+X-Google-Original-From: Florian Fainelli <florian.fainelli@broadcom.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org,
+        Florian Fainelli <florian.fainelli@broadcom.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Michael Krufky <mkrufky@linuxtv.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Shuah Khan <shuah@kernel.org>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Jaedon Shin <jaedon.shin@gmail.com>,
+        Colin Ian King <colin.king@canonical.com>,
+        Katsuhiro Suzuki <suzuki.katsuhiro@socionext.com>,
+        Satendra Singh Thakur <satendra.t@samsung.com>,
+        linux-media@vger.kernel.org (open list:MEDIA INPUT INFRASTRUCTURE
+        (V4L/DVB)),
+        linux-fsdevel@vger.kernel.org (open list:FILESYSTEMS (VFS and
+        infrastructure))
+Subject: [PATCH stable 4.9 00/21] Unbreak 32-bit DVB applications on 64-bit kernels
+Date:   Fri,  5 Jun 2020 09:24:57 -0700
+Message-Id: <20200605162518.28099-1-florian.fainelli@broadcom.com>
+X-Mailer: git-send-email 2.17.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jun 5, 2020 at 6:18 PM Dan Williams <dan.j.williams@intel.com> wrote:
->
-> On Fri, Jun 5, 2020 at 6:32 AM Rafael J. Wysocki <rafael@kernel.org> wrote:
-> >
-> > On Fri, May 8, 2020 at 1:55 AM Dan Williams <dan.j.williams@intel.com> wrote:
-> > >
-> > > Recently a performance problem was reported for a process invoking a
-> > > non-trival ASL program. The method call in this case ends up
-> > > repetitively triggering a call path like:
-> > >
-> > >     acpi_ex_store
-> > >     acpi_ex_store_object_to_node
-> > >     acpi_ex_write_data_to_field
-> > >     acpi_ex_insert_into_field
-> > >     acpi_ex_write_with_update_rule
-> > >     acpi_ex_field_datum_io
-> > >     acpi_ex_access_region
-> > >     acpi_ev_address_space_dispatch
-> > >     acpi_ex_system_memory_space_handler
-> > >     acpi_os_map_cleanup.part.14
-> > >     _synchronize_rcu_expedited.constprop.89
-> > >     schedule
-> > >
-> > > The end result of frequent synchronize_rcu_expedited() invocation is
-> > > tiny sub-millisecond spurts of execution where the scheduler freely
-> > > migrates this apparently sleepy task. The overhead of frequent scheduler
-> > > invocation multiplies the execution time by a factor of 2-3X.
-> > >
-> > > For example, performance improves from 16 minutes to 7 minutes for a
-> > > firmware update procedure across 24 devices.
-> > >
-> > > Perhaps the rcu usage was intended to allow for not taking a sleeping
-> > > lock in the acpi_os_{read,write}_memory() path which ostensibly could be
-> > > called from an APEI NMI error interrupt?
-> >
-> > Not really.
-> >
-> > acpi_os_{read|write}_memory() end up being called from non-NMI
-> > interrupt context via acpi_hw_{read|write}(), respectively, and quite
-> > obviously ioremap() cannot be run from there, but in those cases the
-> > mappings in question are there in the list already in all cases and so
-> > the ioremap() isn't used then.
-> >
-> > RCU is there to protect these users from walking the list while it is
-> > being updated.
-> >
-> > > Neither rcu_read_lock() nor ioremap() are interrupt safe, so add a WARN_ONCE() to validate that rcu
-> > > was not serving as a mechanism to avoid direct calls to ioremap().
-> >
-> > But it would produce false-positives if the IRQ context was not NMI,
-> > wouldn't it?
-> >
-> > > Even the original implementation had a spin_lock_irqsave(), but that is not
-> > > NMI safe.
-> >
-> > Which is not a problem (see above).
-> >
-> > > APEI itself already has some concept of avoiding ioremap() from
-> > > interrupt context (see erst_exec_move_data()), if the new warning
-> > > triggers it means that APEI either needs more instrumentation like that
-> > > to pre-emptively fail, or more infrastructure to arrange for pre-mapping
-> > > the resources it needs in NMI context.
-> >
-> > Well, I'm not sure about that.
->
-> Right, this patch set is about 2-3 generations behind the architecture
-> of the fix we are discussing internally, you might mention that.
+Hi all,
 
-Yes, sorry.
+This long patch series was motivated by backporting Jaedon's changes
+which add a proper ioctl compatibility layer for 32-bit applications
+running on 64-bit kernels. We have a number of Android TV-based products
+currently running on the 4.9 kernel and this was broken for them.
 
-> The fix we are looking at now is to pre-map operation regions in a
-> similar manner as the way APEI resources are pre-mapped. The
-> pre-mapping would arrange for synchronize_rcu_expedited() to be elided
-> on each dynamic mapping attempt. The other piece is to arrange for
-> operation-regions to be mapped at their full size at once rather than
-> a page at a time.
+Thanks to Robert McConnell for identifying and providing the patches in
+their initial format.
 
-However, if the RCU usage in ACPI OSL can be replaced with an rwlock,
-some of the ACPICA changes above may not be necessary anymore (even
-though some of them may still be worth making).
+In order for Jaedon's patches to apply cleanly a number of changes were
+applied to support those changes. If you deem the patch series too big
+please let me know.
+
+Thanks
+
+Colin Ian King (2):
+  media: dvb_frontend: ensure that inital front end status initialized
+  media: dvb_frontend: initialize variable s with FE_NONE instead of 0
+
+Jaedon Shin (3):
+  media: dvb_frontend: Add unlocked_ioctl in dvb_frontend.c
+  media: dvb_frontend: Add compat_ioctl callback
+  media: dvb_frontend: Add commands implementation for compat ioct
+
+Katsuhiro Suzuki (1):
+  media: dvb_frontend: fix wrong cast in compat_ioctl
+
+Mauro Carvalho Chehab (14):
+  media: dvb/frontend.h: move out a private internal structure
+  media: dvb/frontend.h: document the uAPI file
+  media: dvb_frontend: get rid of get_property() callback
+  media: stv0288: get rid of set_property boilerplate
+  media: stv6110: get rid of a srate dead code
+  media: friio-fe: get rid of set_property()
+  media: dvb_frontend: get rid of set_property() callback
+  media: dvb_frontend: cleanup dvb_frontend_ioctl_properties()
+  media: dvb_frontend: cleanup ioctl handling logic
+  media: dvb_frontend: get rid of property cache's state
+  media: dvb_frontend: better document the -EPERM condition
+  media: dvb_frontend: fix return values for FE_SET_PROPERTY
+  media: dvb_frontend: be sure to init dvb_frontend_handle_ioctl()
+    return code
+  media: dvb_frontend: fix return error code
+
+Satendra Singh Thakur (1):
+  media: dvb_frontend: dtv_property_process_set() cleanups
+
+ .../media/uapi/dvb/fe-get-property.rst        |   7 +-
+ drivers/media/dvb-core/dvb_frontend.c         | 571 +++++++++++------
+ drivers/media/dvb-core/dvb_frontend.h         |  13 -
+ drivers/media/dvb-frontends/lg2160.c          |  14 -
+ drivers/media/dvb-frontends/stv0288.c         |   7 -
+ drivers/media/dvb-frontends/stv6110.c         |   9 -
+ drivers/media/usb/dvb-usb/friio-fe.c          |  24 -
+ fs/compat_ioctl.c                             |  17 -
+ include/uapi/linux/dvb/frontend.h             | 592 +++++++++++++++---
+ 9 files changed, 881 insertions(+), 373 deletions(-)
+
+-- 
+2.17.1
+
