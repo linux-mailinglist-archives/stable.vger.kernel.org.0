@@ -2,118 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B0F261EF90F
-	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 15:32:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C31191EF979
+	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 15:43:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726946AbgFENc1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Jun 2020 09:32:27 -0400
-Received: from mail-ot1-f67.google.com ([209.85.210.67]:39472 "EHLO
-        mail-ot1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726844AbgFENc0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 5 Jun 2020 09:32:26 -0400
-Received: by mail-ot1-f67.google.com with SMTP id g5so7583910otg.6;
-        Fri, 05 Jun 2020 06:32:25 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=r5xkCx6S6H0OEEUFi5jI6heu9Q5+k1PSszipZkD4qO4=;
-        b=unnBItwCHN6XsJ2rGva8AJjMrdCDLG/XJt/eliLdBQYZyLRjkahhMYiA+YtZGx85ix
-         mReMxnJ7tE1D/Neqjgc00UAqit4P9EfcUvooWWQz2DIxe+Uaf3c7ah6BigpTBoQpRV6F
-         m+SS8KcY2kMhPdST7C2pn5PAiCnUOtsWe7lF5nVt+zMYan2Rzr2iWJqi8MHftErYWjkG
-         Z0C6wDBfORlYszBJbDjF247BfNLFyF7O29XRJpVVcGdykarppIk0QjCfCu9REAvthTY1
-         broQCLS36EzPisIRJaU7RMBmhAqZs4+OFxLnvYsgM+F3gWMq+ELVYODmpR9xiq6TTbeB
-         3kvQ==
-X-Gm-Message-State: AOAM530bstNAify8b7trjlUHA+L/uoqcdE7DHYZxsD+lREYe9OHYmjSz
-        E0X6uOpbQv0JWZFTSjRaBUgJtR2uTNGlPzhvSe0=
-X-Google-Smtp-Source: ABdhPJx/2s0YSjL0Yoa1CBlVQPXNsAgX1/mFvRuZ/AKVx+jsfWoonKouaBjMJfpsxJ/XGbfSXMxS1pgNexk4kOj/N9M=
-X-Received: by 2002:a05:6830:20d1:: with SMTP id z17mr7336449otq.167.1591363945478;
- Fri, 05 Jun 2020 06:32:25 -0700 (PDT)
+        id S1726970AbgFENno (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Jun 2020 09:43:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56196 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726553AbgFENno (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Jun 2020 09:43:44 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 64DD2206E6;
+        Fri,  5 Jun 2020 13:43:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1591364623;
+        bh=KBCcuTezSWxYTEPq9nG3ArfE3UjgerB234MqoT7vp+k=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=o2RAK/G3omLJ6JiTp5x1lly/Uk287EnuhWtlIn8LG62bsKCe9r031neVMYaaXqaLF
+         4u+3q/rOQ7refZyi+XHuwtFvcxXblifMd0iuMHwyJud8GAH0wuE6RZ6+lKtgM2+W/U
+         3PTUkVeQ6/SYZC8Z1Rh2feP8PZZyfUrA3MdcXTi0=
+Date:   Fri, 5 Jun 2020 15:43:40 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Dakshaja Uppalapati <dakshaja@chelsio.com>
+Cc:     eduard@hasenleithner.at, kbusch@kernel.org, sagi@grimberg.me,
+        hch@lst.de, nirranjan@chelsio.com, bharat@chelsio.com,
+        stable <stable@vger.kernel.org>
+Subject: Re: [PATCH nvme] nvme: Revert "nvme: Discard workaround for
+ non-conformant devices"
+Message-ID: <20200605134340.GA3109673@kroah.com>
+References: <20200603091851.16957-1-dakshaja@chelsio.com>
 MIME-Version: 1.0
-References: <158889473309.2292982.18007035454673387731.stgit@dwillia2-desk3.amr.corp.intel.com>
-In-Reply-To: <158889473309.2292982.18007035454673387731.stgit@dwillia2-desk3.amr.corp.intel.com>
-From:   "Rafael J. Wysocki" <rafael@kernel.org>
-Date:   Fri, 5 Jun 2020 15:32:14 +0200
-Message-ID: <CAJZ5v0gq55A7880dOJD7skwx7mnjsqbCqEGFvEo552U9W2zH3Q@mail.gmail.com>
-Subject: Re: [PATCH v2] ACPI: Drop rcu usage for MMIO mappings
-To:     Dan Williams <dan.j.williams@intel.com>
-Cc:     Rafael Wysocki <rafael.j.wysocki@intel.com>,
-        Stable <stable@vger.kernel.org>, Len Brown <lenb@kernel.org>,
-        Borislav Petkov <bp@alien8.de>,
-        Ira Weiny <ira.weiny@intel.com>,
-        James Morse <james.morse@arm.com>,
-        Erik Kaneda <erik.kaneda@intel.com>,
-        Myron Stowe <myron.stowe@redhat.com>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
-        "linux-nvdimm@lists.01.org" <linux-nvdimm@lists.01.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200603091851.16957-1-dakshaja@chelsio.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, May 8, 2020 at 1:55 AM Dan Williams <dan.j.williams@intel.com> wrote:
->
-> Recently a performance problem was reported for a process invoking a
-> non-trival ASL program. The method call in this case ends up
-> repetitively triggering a call path like:
->
->     acpi_ex_store
->     acpi_ex_store_object_to_node
->     acpi_ex_write_data_to_field
->     acpi_ex_insert_into_field
->     acpi_ex_write_with_update_rule
->     acpi_ex_field_datum_io
->     acpi_ex_access_region
->     acpi_ev_address_space_dispatch
->     acpi_ex_system_memory_space_handler
->     acpi_os_map_cleanup.part.14
->     _synchronize_rcu_expedited.constprop.89
->     schedule
->
-> The end result of frequent synchronize_rcu_expedited() invocation is
-> tiny sub-millisecond spurts of execution where the scheduler freely
-> migrates this apparently sleepy task. The overhead of frequent scheduler
-> invocation multiplies the execution time by a factor of 2-3X.
->
-> For example, performance improves from 16 minutes to 7 minutes for a
-> firmware update procedure across 24 devices.
->
-> Perhaps the rcu usage was intended to allow for not taking a sleeping
-> lock in the acpi_os_{read,write}_memory() path which ostensibly could be
-> called from an APEI NMI error interrupt?
+On Wed, Jun 03, 2020 at 02:48:51PM +0530, Dakshaja Uppalapati wrote:
+> This reverts upstream 'commit 530436c45ef2
+> ("nvme: Discard workaround for non-conformant devices")'
+> 
+> Since commit `530436c45ef2` introduced a regression due to which
+> blk_update_request IO error is observed on formatting device, reverting it.
+> 
+> Fixes: 530436c45ef2 ("nvme: Discard workaround for non-conformant devices")
+> Cc: stable <stable@vger.kernel.org> # 4.19+
+> Signed-off-by: Dakshaja Uppalapati <dakshaja@chelsio.com>
+> ---
+>  drivers/nvme/host/core.c | 12 +++---------
+>  1 file changed, 3 insertions(+), 9 deletions(-)
 
-Not really.
+This was only for stable?
 
-acpi_os_{read|write}_memory() end up being called from non-NMI
-interrupt context via acpi_hw_{read|write}(), respectively, and quite
-obviously ioremap() cannot be run from there, but in those cases the
-mappings in question are there in the list already in all cases and so
-the ioremap() isn't used then.
+Totally confused...
 
-RCU is there to protect these users from walking the list while it is
-being updated.
-
-> Neither rcu_read_lock() nor ioremap() are interrupt safe, so add a WARN_ONCE() to validate that rcu
-> was not serving as a mechanism to avoid direct calls to ioremap().
-
-But it would produce false-positives if the IRQ context was not NMI,
-wouldn't it?
-
-> Even the original implementation had a spin_lock_irqsave(), but that is not
-> NMI safe.
-
-Which is not a problem (see above).
-
-> APEI itself already has some concept of avoiding ioremap() from
-> interrupt context (see erst_exec_move_data()), if the new warning
-> triggers it means that APEI either needs more instrumentation like that
-> to pre-emptively fail, or more infrastructure to arrange for pre-mapping
-> the resources it needs in NMI context.
-
-Well, I'm not sure about that.
-
-Thanks!
+greg k-h
