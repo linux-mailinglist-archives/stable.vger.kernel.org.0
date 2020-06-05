@@ -2,112 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 61ECF1EFDAE
-	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 18:27:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF5991EFE21
+	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 18:39:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728346AbgFEQ0z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Jun 2020 12:26:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40870 "EHLO
+        id S1726836AbgFEQj4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Jun 2020 12:39:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43028 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728300AbgFEQ0o (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 5 Jun 2020 12:26:44 -0400
-Received: from mail-pl1-x644.google.com (mail-pl1-x644.google.com [IPv6:2607:f8b0:4864:20::644])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D001C08C5C2;
-        Fri,  5 Jun 2020 09:26:43 -0700 (PDT)
-Received: by mail-pl1-x644.google.com with SMTP id v24so3825970plo.6;
-        Fri, 05 Jun 2020 09:26:43 -0700 (PDT)
+        with ESMTP id S1726016AbgFEQjz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 5 Jun 2020 12:39:55 -0400
+Received: from mail-ej1-x642.google.com (mail-ej1-x642.google.com [IPv6:2a00:1450:4864:20::642])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A198C08C5C3
+        for <stable@vger.kernel.org>; Fri,  5 Jun 2020 09:39:55 -0700 (PDT)
+Received: by mail-ej1-x642.google.com with SMTP id z5so10831247ejb.3
+        for <stable@vger.kernel.org>; Fri, 05 Jun 2020 09:39:55 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=s6oLxuZtz92MCMs+Rc0jAsvvKy4fsrw+h3fzX94hKHI=;
-        b=LC9xGG5Mpl7l9RocA+JmkF3GXVhNsllocgKi08w3I/rV5Pvheph3idCf9rJfkJF8gy
-         c7m05ERn1FldKvEFXHMxvLJl8BT/nIyf+QIMw6iNMcdl55IbZR8msVD2gZOxoIIiTl5c
-         +TNOJa8uLfw6SVEhHf23IWYJQZ7PNisgeQFKyQ6AHCEdkqddGzlViSu1PJeadPTxc1SB
-         k7bUzlJLicjyQlwYVVI88Sz+NXj2YxLFUY+5fxEyCjOjRUJJ5k44nhdLmifKv51p0FZH
-         pROVUBhPNRg5GClRhqXYL0L29RXYn761O+su/eqXL40VciugEtlWAz+quQv7sSI10Rtq
-         ItMA==
+        d=intel-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=8MiHJvWvFUN4W4TOaBTTRVwH9Kbcz3EtLSrutNpEo/8=;
+        b=BXGx739NHMzDG5jF4pX2SjGcZdBMtypWsjdXc+T5TXcMRY3QFLn1zVYTB10ArVqHfw
+         bS2lJVfCpuTD82oSoAPn3j92VWPnGK3U9NUDm8MQimf3XMKwYy5kLcX07pC1YGpVXB2O
+         3gP+9IYgz88+xJpYfAzaurF+CZ8yPzls/rjK0WfZtXiZKUXRZsqhDHr4qc11YmqpXt9e
+         r86XRpvXT+Cy7gLPk8Rype/AN669h2aux8SKpgTvrVFDhanzHQcIcspCONHUC6/YyZs1
+         5ZPK/WfUFfhDs5cz5AFCES84sqyqXKNvoU5i+bNAsSbPuv0mImc46an+0ZEFKox19Ymn
+         uSsA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references;
-        bh=s6oLxuZtz92MCMs+Rc0jAsvvKy4fsrw+h3fzX94hKHI=;
-        b=PQ9f9Ade/gUzyZy5S9Vo6KGNqSRI3aLOEzYtuUDr54I0cG8JkE9QgZl57A01/tDrYn
-         +HLGOlEpaGzJ2uS/jh474dYOf2ipJpqRGjB8ogX+Kt7tA6QZfI1H8me3c+ekbqQHFENL
-         CYWfAct77rlVM4t3QnpTJ/TpyHdo/Q502xotZ5k+1jrRvF2UeuFcr+KWPqoQOvR2g9zn
-         o/vUZrPFTxEdl11j8l3GgY2FtIYcBbKWJRDdHEd5+BR3AovQupx1yH0O1WRvZyMEFOlX
-         WtjJLocZ2yyz5us39xEyAzYAmrTrC1FYz4XNIO1wCNOOgL5KpgyM9GB/2X+CDy6/OZXc
-         KKSA==
-X-Gm-Message-State: AOAM530F358/FxuRXdvSKQmnWEB5nkTF5QMGR6f4CjkV3YwdvnqRQ+nN
-        czKPO8nTnLe5sHrYQI1Pb7yoFrz+
-X-Google-Smtp-Source: ABdhPJzGvAyLDr9UoI4bW8o5yZzXk+PoTpDmgdFNhxX7kuEbHzhX2mG+MBfWxqp5UKeyXBsErABbZw==
-X-Received: by 2002:a17:90a:d487:: with SMTP id s7mr3858502pju.37.1591374402616;
-        Fri, 05 Jun 2020 09:26:42 -0700 (PDT)
-Received: from localhost.localdomain ([192.19.223.252])
-        by smtp.gmail.com with ESMTPSA id b29sm86205pff.176.2020.06.05.09.26.40
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 05 Jun 2020 09:26:41 -0700 (PDT)
-From:   Florian Fainelli <f.fainelli@gmail.com>
-X-Google-Original-From: Florian Fainelli <florian.fainelli@broadcom.com>
-To:     linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org,
-        Mauro Carvalho Chehab <mchehab@s-opensource.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Michael Krufky <mkrufky@linuxtv.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Shuah Khan <shuah@kernel.org>,
-        Jaedon Shin <jaedon.shin@gmail.com>,
-        Colin Ian King <colin.king@canonical.com>,
-        Katsuhiro Suzuki <suzuki.katsuhiro@socionext.com>,
-        Satendra Singh Thakur <satendra.t@samsung.com>,
-        linux-media@vger.kernel.org (open list:MEDIA INPUT INFRASTRUCTURE
-        (V4L/DVB)),
-        linux-fsdevel@vger.kernel.org (open list:FILESYSTEMS (VFS and
-        infrastructure))
-Subject: [PATCH stable 4.9 21/21] media: dvb_frontend: fix return error code
-Date:   Fri,  5 Jun 2020 09:25:18 -0700
-Message-Id: <20200605162518.28099-22-florian.fainelli@broadcom.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20200605162518.28099-1-florian.fainelli@broadcom.com>
-References: <20200605162518.28099-1-florian.fainelli@broadcom.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=8MiHJvWvFUN4W4TOaBTTRVwH9Kbcz3EtLSrutNpEo/8=;
+        b=ooqh19UA06PP9InkZukV7GWQbjoDYFAePVXXUttfARpEfkurv/ATOZffAa949mB6xK
+         znoqgyLurC0yYcnrESVHh0d9s4UnyepL/4NI+vpr48dxGg5FAwMFyyyUkyFipNrgR03F
+         ViEdSin/iksHbf9VAJT1ImFj4Y4WSk1+VpH2jZt02wUxbsTtIhBKoOvwdnFdnFjVXeMP
+         mxaC+lEboEbH7ps7s3/96FKhF6bUUtTZAml8X/mjDQqlYAxoUy8UpsH8nqbx3AOyYERE
+         umqjRKetKQ8tM427tzasnMcaRIFDFOw89Sr2I7l4f8GRROebwpGar4QqB2hmbJh7+Q1i
+         buMw==
+X-Gm-Message-State: AOAM531kMojjz2if8HtXJ/AF0XmF7rFK+auXEkjng6Z4TTbM282fkAmI
+        8o9AHRrzEn5f6R1FzBhfsJjqzUP7+00da5WKw5ne+g==
+X-Google-Smtp-Source: ABdhPJz9NOYy2yZ6H8XGWcEzcmqj7Uj80HxfYALJr2J1pSWlpcP4qVMIo7RE/ZyxbXyEIMN2Y5wxAGBnr9c0Vhr3t/s=
+X-Received: by 2002:a17:906:bcfc:: with SMTP id op28mr4137917ejb.237.1591375193798;
+ Fri, 05 Jun 2020 09:39:53 -0700 (PDT)
+MIME-Version: 1.0
+References: <158889473309.2292982.18007035454673387731.stgit@dwillia2-desk3.amr.corp.intel.com>
+ <CAJZ5v0gq55A7880dOJD7skwx7mnjsqbCqEGFvEo552U9W2zH3Q@mail.gmail.com>
+ <CAPcyv4gQNPNOmSVrp7epS5_10qLUuGbutQ2xz7LXnpEhkWeA_w@mail.gmail.com> <CAJZ5v0g-TSk+7d-b0j5THeNtuSDeSJmKZHcG3mBesVZgkCyJOg@mail.gmail.com>
+In-Reply-To: <CAJZ5v0g-TSk+7d-b0j5THeNtuSDeSJmKZHcG3mBesVZgkCyJOg@mail.gmail.com>
+From:   Dan Williams <dan.j.williams@intel.com>
+Date:   Fri, 5 Jun 2020 09:39:42 -0700
+Message-ID: <CAPcyv4iECAzRjAUJ1hymOzZRjBYQ_baFrSz=2ah=2pfehn9S_g@mail.gmail.com>
+Subject: Re: [PATCH v2] ACPI: Drop rcu usage for MMIO mappings
+To:     "Rafael J. Wysocki" <rafael@kernel.org>
+Cc:     Rafael Wysocki <rafael.j.wysocki@intel.com>,
+        Stable <stable@vger.kernel.org>, Len Brown <lenb@kernel.org>,
+        Borislav Petkov <bp@alien8.de>,
+        Ira Weiny <ira.weiny@intel.com>,
+        James Morse <james.morse@arm.com>,
+        Erik Kaneda <erik.kaneda@intel.com>,
+        Myron Stowe <myron.stowe@redhat.com>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
+        "linux-nvdimm@lists.01.org" <linux-nvdimm@lists.01.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mauro Carvalho Chehab <mchehab@s-opensource.com>
+On Fri, Jun 5, 2020 at 9:22 AM Rafael J. Wysocki <rafael@kernel.org> wrote:
+[..]
+> > The fix we are looking at now is to pre-map operation regions in a
+> > similar manner as the way APEI resources are pre-mapped. The
+> > pre-mapping would arrange for synchronize_rcu_expedited() to be elided
+> > on each dynamic mapping attempt. The other piece is to arrange for
+> > operation-regions to be mapped at their full size at once rather than
+> > a page at a time.
+>
+> However, if the RCU usage in ACPI OSL can be replaced with an rwlock,
+> some of the ACPICA changes above may not be necessary anymore (even
+> though some of them may still be worth making).
 
-commit 330dada5957e3ca0c8811b14c45e3ac42c694651 upstream
+I don't think you can replace the RCU usage in ACPI OSL and still
+maintain NMI lookups in a dynamic list.
 
-The correct error code when a function is not defined is
--ENOTSUPP. It was typoed wrong as -EOPNOTSUPP, with,
-unfortunately, exists, but it is not used by the DVB core.
+However, there are 3 solutions I see:
 
-Thanks-to: Geert Uytterhoeven <geert@linux-m68k.org>
-Thanks-to: Arnd Bergmann <arnd@arndb.de>
+- Prevent acpi_os_map_cleanup() from triggering at high frequency by
+pre-mapping and never unmapping operation-regions resources (internal
+discussion in progress)
 
-To make me revisit this code.
+- Prevent walks of the 'acpi_ioremaps' list (acpi_map_lookup_virt())
+from NMI context by re-writing the physical addresses in the APEI
+tables with pre-mapped virtual address, i.e. remove rcu_read_lock()
+and list_for_each_entry_rcu() from NMI context.
 
-Fixes: a9cb97c3e628 ("media: dvb_frontend: be sure to init dvb_frontend_handle_ioctl() return code")
-Signed-off-by: Mauro Carvalho Chehab <mchehab@s-opensource.com>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
----
- drivers/media/dvb-core/dvb_frontend.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+- Split operation-region resources into a separate mapping mechanism
+than APEI resources so that typical locking can be used for the
+sleepable resources and let the NMI accessible resources be managed
+separately.
 
-diff --git a/drivers/media/dvb-core/dvb_frontend.c b/drivers/media/dvb-core/dvb_frontend.c
-index 740dedf03361..cd45b3894661 100644
---- a/drivers/media/dvb-core/dvb_frontend.c
-+++ b/drivers/media/dvb-core/dvb_frontend.c
-@@ -2265,7 +2265,7 @@ static int dvb_frontend_handle_ioctl(struct file *file,
- 	struct dvb_frontend *fe = dvbdev->priv;
- 	struct dvb_frontend_private *fepriv = fe->frontend_priv;
- 	struct dtv_frontend_properties *c = &fe->dtv_property_cache;
--	int i, err = -EOPNOTSUPP;
-+	int i, err = -ENOTSUPP;
- 
- 	dev_dbg(fe->dvb->device, "%s:\n", __func__);
- 
--- 
-2.17.1
-
+That last one is one we have not discussed internally, but it occurred
+to me when you mentioned replacing RCU.
