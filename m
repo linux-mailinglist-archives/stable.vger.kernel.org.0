@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C8501EFB59
-	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 16:26:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 84B371EFAA5
+	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 16:20:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726553AbgFEOPy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Jun 2020 10:15:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44648 "EHLO mail.kernel.org"
+        id S1728255AbgFEOT3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Jun 2020 10:19:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50310 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728077AbgFEOPx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Jun 2020 10:15:53 -0400
+        id S1727973AbgFEOT1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Jun 2020 10:19:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 114722063A;
-        Fri,  5 Jun 2020 14:15:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C7188208A9;
+        Fri,  5 Jun 2020 14:19:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591366553;
-        bh=eDtv6RqkFFoGv8zY7QyREa51bhrLW+hkdxbZ/eGXaHo=;
+        s=default; t=1591366767;
+        bh=hdTdm917EtRampf7Yvwgw4mSbIBi5+48PdnjaXNUQTk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sIBMv+KP1SQE5btlIoal66ORqLEJmRvyRefFNUJNBHwXS70rWuQuMAq/70jaKqx5d
-         yRFZnY/O3dnD7dudHslA762TnFH2aJnvc/OZ6hVksbIuUQKv2ATOZgUtGkMBw8Myc6
-         dOnj9Dt7d5fv0TwdeokufnPlVySF9qbYJQVbRRL4=
+        b=T46Z5o/Gz7tqUk2Y0qVLYw83nL20O+JsCIQlB3M6l/8V/MAaGMcUEnlVoj7w3CYBt
+         ySOnrgAkJgLhoB/rTv8N9mRypmtSKhYaD8qPm7UJ2KZ2GjcLKU5FDtJbm0Fwk62DEH
+         Tj5H6fGqyCBdGFtTByWk8335T1ZvscNBzOsRgV/U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, DENG Qingfang <dqfext@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.7 13/14] net: dsa: mt7530: set CPU port to fallback mode
+        stable@vger.kernel.org, Tejun Heo <tj@kernel.org>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 01/28] Revert "cgroup: Add memory barriers to plug cgroup_rstat_updated() race window"
 Date:   Fri,  5 Jun 2020 16:15:03 +0200
-Message-Id: <20200605135951.807618055@linuxfoundation.org>
+Message-Id: <20200605140252.421219691@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200605135951.018731965@linuxfoundation.org>
-References: <20200605135951.018731965@linuxfoundation.org>
+In-Reply-To: <20200605140252.338635395@linuxfoundation.org>
+References: <20200605140252.338635395@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -44,71 +46,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: DENG Qingfang <dqfext@gmail.com>
+From: Tejun Heo <tj@kernel.org>
 
-commit 38152ea37d8bdaffa22603e0a5b5b86cfa8714c9 upstream.
+[ Upstream commit d8ef4b38cb69d907f9b0e889c44d05fc0f890977 ]
 
-Currently, setting a bridge's self PVID to other value and deleting
-the default VID 1 renders untagged ports of that VLAN unable to talk to
-the CPU port:
+This reverts commit 9a9e97b2f1f2 ("cgroup: Add memory barriers to plug
+cgroup_rstat_updated() race window").
 
-	bridge vlan add dev br0 vid 2 pvid untagged self
-	bridge vlan del dev br0 vid 1 self
-	bridge vlan add dev sw0p0 vid 2 pvid untagged
-	bridge vlan del dev sw0p0 vid 1
-	# br0 cannot send untagged frames out of sw0p0 anymore
+The commit was added in anticipation of memcg rstat conversion which needed
+synchronous accounting for the event counters (e.g. oom kill count). However,
+the conversion didn't get merged due to percpu memory overhead concern which
+couldn't be addressed at the time.
 
-That is because the CPU port is set to security mode and its PVID is
-still 1, and untagged frames are dropped due to VLAN member violation.
+Unfortunately, the patch's addition of smp_mb() to cgroup_rstat_updated()
+meant that every scheduling event now had to go through an additional full
+barrier and Mel Gorman noticed it as 1% regression in netperf UDP_STREAM test.
 
-Set the CPU port to fallback mode so untagged frames can pass through.
+There's no need to have this barrier in tree now and even if we need
+synchronous accounting in the future, the right thing to do is separating that
+out to a separate function so that hot paths which don't care about
+synchronous behavior don't have to pay the overhead of the full barrier. Let's
+revert.
 
-Fixes: 83163f7dca56 ("net: dsa: mediatek: add VLAN support for MT7530")
-Signed-off-by: DENG Qingfang <dqfext@gmail.com>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Tejun Heo <tj@kernel.org>
+Reported-by: Mel Gorman <mgorman@techsingularity.net>
+Link: http://lkml.kernel.org/r/20200409154413.GK3818@techsingularity.net
+Cc: v4.18+
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/mt7530.c |   11 ++++++++---
- drivers/net/dsa/mt7530.h |    6 ++++++
- 2 files changed, 14 insertions(+), 3 deletions(-)
+ kernel/cgroup/rstat.c | 16 +++-------------
+ 1 file changed, 3 insertions(+), 13 deletions(-)
 
---- a/drivers/net/dsa/mt7530.c
-+++ b/drivers/net/dsa/mt7530.c
-@@ -807,10 +807,15 @@ mt7530_port_set_vlan_aware(struct dsa_sw
- 		   PCR_MATRIX_MASK, PCR_MATRIX(MT7530_ALL_MEMBERS));
+diff --git a/kernel/cgroup/rstat.c b/kernel/cgroup/rstat.c
+index bb95a35e8c2d..d0ed410b4127 100644
+--- a/kernel/cgroup/rstat.c
++++ b/kernel/cgroup/rstat.c
+@@ -32,12 +32,9 @@ void cgroup_rstat_updated(struct cgroup *cgrp, int cpu)
+ 		return;
  
- 	/* Trapped into security mode allows packet forwarding through VLAN
--	 * table lookup.
-+	 * table lookup. CPU port is set to fallback mode to let untagged
-+	 * frames pass through.
- 	 */
--	mt7530_rmw(priv, MT7530_PCR_P(port), PCR_PORT_VLAN_MASK,
--		   MT7530_PORT_SECURITY_MODE);
-+	if (dsa_is_cpu_port(ds, port))
-+		mt7530_rmw(priv, MT7530_PCR_P(port), PCR_PORT_VLAN_MASK,
-+			   MT7530_PORT_FALLBACK_MODE);
-+	else
-+		mt7530_rmw(priv, MT7530_PCR_P(port), PCR_PORT_VLAN_MASK,
-+			   MT7530_PORT_SECURITY_MODE);
+ 	/*
+-	 * Paired with the one in cgroup_rstat_cpu_pop_upated().  Either we
+-	 * see NULL updated_next or they see our updated stat.
+-	 */
+-	smp_mb();
+-
+-	/*
++	 * Speculative already-on-list test. This may race leading to
++	 * temporary inaccuracies, which is fine.
++	 *
+ 	 * Because @parent's updated_children is terminated with @parent
+ 	 * instead of NULL, we can tell whether @cgrp is on the list by
+ 	 * testing the next pointer for NULL.
+@@ -133,13 +130,6 @@ static struct cgroup *cgroup_rstat_cpu_pop_updated(struct cgroup *pos,
+ 		*nextp = rstatc->updated_next;
+ 		rstatc->updated_next = NULL;
  
- 	/* Set the port as a user port which is to be able to recognize VID
- 	 * from incoming packets before fetching entry within the VLAN table.
---- a/drivers/net/dsa/mt7530.h
-+++ b/drivers/net/dsa/mt7530.h
-@@ -153,6 +153,12 @@ enum mt7530_port_mode {
- 	/* Port Matrix Mode: Frames are forwarded by the PCR_MATRIX members. */
- 	MT7530_PORT_MATRIX_MODE = PORT_VLAN(0),
+-		/*
+-		 * Paired with the one in cgroup_rstat_cpu_updated().
+-		 * Either they see NULL updated_next or we see their
+-		 * updated stat.
+-		 */
+-		smp_mb();
+-
+ 		return pos;
+ 	}
  
-+	/* Fallback Mode: Forward received frames with ingress ports that do
-+	 * not belong to the VLAN member. Frames whose VID is not listed on
-+	 * the VLAN table are forwarded by the PCR_MATRIX members.
-+	 */
-+	MT7530_PORT_FALLBACK_MODE = PORT_VLAN(1),
-+
- 	/* Security Mode: Discard any frame due to ingress membership
- 	 * violation or VID missed on the VLAN table.
- 	 */
+-- 
+2.25.1
+
 
 
