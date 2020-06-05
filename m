@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 668821EF792
-	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 14:29:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD6D91EF77D
+	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 14:29:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727970AbgFEM1O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Jun 2020 08:27:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58668 "EHLO mail.kernel.org"
+        id S1727833AbgFEM02 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Jun 2020 08:26:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58706 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727806AbgFEM0Y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Jun 2020 08:26:24 -0400
+        id S1727816AbgFEM0Z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Jun 2020 08:26:25 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B3A8D207D8;
-        Fri,  5 Jun 2020 12:26:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D26A6208A9;
+        Fri,  5 Jun 2020 12:26:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591359983;
-        bh=M5fd0eDw+8QWXAEFGd3bGemif6hc4uE35x4W0JpWdsM=;
+        s=default; t=1591359984;
+        bh=bg6aCtD8ioDsZhST6nFlp180UjQ3I/GcDRoEOgtoPfU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bj+WpXlopu7J4bu4eDqlo8D51R+vbY33K8RujA/F0/tL6VLRO/BTCb8bw4qA6b0Ci
-         6CPhfCTtyI3pmwRlpLCaln5jj9luq5tA8ywa/42PUSktG5kQFT2chG9U55+Dv86Uw4
-         8HLf+4HvU25oHS0sRPQIViDPh8/N77cfcTSoyW9M=
+        b=L7Vjw2RoxkRgsuLAJMWhDnCQyOKMAx5BmqCAryP4SsQxuTAi8KIKut5MPECl/PbiW
+         76OOdIfJ96c3CjOuuHsjrQPGkCMbpWfkjKY8AIwa/ydlaNlHKG+x/JNFtroSl0h7YE
+         b2Oc3ZS93Juf9R3M4f8NV2Qni2e7VYEjDEW4bEVY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jens Axboe <axboe@kernel.dk>,
-        Stefano Garzarella <sgarzare@redhat.com>,
-        Ingo Molnar <mingo@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 2/6] sched/fair: Don't NUMA balance for kthreads
-Date:   Fri,  5 Jun 2020 08:26:16 -0400
-Message-Id: <20200605122620.2882962-2-sashal@kernel.org>
+Cc:     Daniele Palmas <dnlplm@gmail.com>,
+        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 3/6] net: usb: qmi_wwan: add Telit LE910C1-EUX composition
+Date:   Fri,  5 Jun 2020 08:26:17 -0400
+Message-Id: <20200605122620.2882962-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200605122620.2882962-1-sashal@kernel.org>
 References: <20200605122620.2882962-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -45,53 +46,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Daniele Palmas <dnlplm@gmail.com>
 
-[ Upstream commit 18f855e574d9799a0e7489f8ae6fd8447d0dd74a ]
+[ Upstream commit 591612aa578cd7148b7b9d74869ef40118978389 ]
 
-Stefano reported a crash with using SQPOLL with io_uring:
+Add support for Telit LE910C1-EUX composition
 
-  BUG: kernel NULL pointer dereference, address: 00000000000003b0
-  CPU: 2 PID: 1307 Comm: io_uring-sq Not tainted 5.7.0-rc7 #11
-  RIP: 0010:task_numa_work+0x4f/0x2c0
-  Call Trace:
-   task_work_run+0x68/0xa0
-   io_sq_thread+0x252/0x3d0
-   kthread+0xf9/0x130
-   ret_from_fork+0x35/0x40
-
-which is task_numa_work() oopsing on current->mm being NULL.
-
-The task work is queued by task_tick_numa(), which checks if current->mm is
-NULL at the time of the call. But this state isn't necessarily persistent,
-if the kthread is using use_mm() to temporarily adopt the mm of a task.
-
-Change the task_tick_numa() check to exclude kernel threads in general,
-as it doesn't make sense to attempt ot balance for kthreads anyway.
-
-Reported-by: Stefano Garzarella <sgarzare@redhat.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Acked-by: Peter Zijlstra <peterz@infradead.org>
-Link: https://lore.kernel.org/r/865de121-8190-5d30-ece5-3b097dc74431@kernel.dk
+0x1031: tty, tty, tty, rmnet
+Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
+Acked-by: Bjørn Mork <bjorn@mork.no>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/fair.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/usb/qmi_wwan.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index 5e65c7eea872..8233032a2f01 100644
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -2542,7 +2542,7 @@ void task_tick_numa(struct rq *rq, struct task_struct *curr)
- 	/*
- 	 * We don't care about NUMA placement if we don't have memory.
- 	 */
--	if (!curr->mm || (curr->flags & PF_EXITING) || work->next != work)
-+	if ((curr->flags & (PF_EXITING | PF_KTHREAD)) || work->next != work)
- 		return;
- 
- 	/*
+diff --git a/drivers/net/usb/qmi_wwan.c b/drivers/net/usb/qmi_wwan.c
+index 5755eec00d7f..9a873616dd27 100644
+--- a/drivers/net/usb/qmi_wwan.c
++++ b/drivers/net/usb/qmi_wwan.c
+@@ -921,6 +921,7 @@ static const struct usb_device_id products[] = {
+ 	{QMI_FIXED_INTF(0x1bbb, 0x0203, 2)},	/* Alcatel L800MA */
+ 	{QMI_FIXED_INTF(0x2357, 0x0201, 4)},	/* TP-LINK HSUPA Modem MA180 */
+ 	{QMI_FIXED_INTF(0x2357, 0x9000, 4)},	/* TP-LINK MA260 */
++	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1031, 3)}, /* Telit LE910C1-EUX */
+ 	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1040, 2)},	/* Telit LE922A */
+ 	{QMI_FIXED_INTF(0x1bc7, 0x1100, 3)},	/* Telit ME910 */
+ 	{QMI_FIXED_INTF(0x1bc7, 0x1101, 3)},	/* Telit ME910 dual modem */
 -- 
 2.25.1
 
