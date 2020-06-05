@@ -2,50 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C0151EFACE
-	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 16:21:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B3A3E1EFA8D
+	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 16:19:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728954AbgFEOU0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Jun 2020 10:20:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51694 "EHLO mail.kernel.org"
+        id S1728713AbgFEOSl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Jun 2020 10:18:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49232 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728485AbgFEOUZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Jun 2020 10:20:25 -0400
+        id S1728133AbgFEOSk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Jun 2020 10:18:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B0D76206DC;
-        Fri,  5 Jun 2020 14:20:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EA1502086A;
+        Fri,  5 Jun 2020 14:18:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591366824;
-        bh=k4MdHdKkOwBPSJvJDuxl0DBhK1L0mnYClje06rnuBRo=;
+        s=default; t=1591366719;
+        bh=prOMc/RStpaK3YUH4KzHyr5ESVXotKLWP1/xmvu8a7w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q16biRXaDee45UnkZEJkT7dHeg449l9dji/lH5mYywMrR56HsGsu7af8ldJYEaoZw
-         /ADfG+qLodWFRMguP5wli6naqw2e1i9nJLSCv3Hg5MEQGgXbbRSq1ayIH8KfYQfyBn
-         jj7D7ZN36/l9BHLCH2JJ0H3C+I0omFRElD+vEJfI=
+        b=n69pkJ77yeQXmJ60SjfnFp//PA6Vik0r0AKKc72PfZkkv2DYlqT5G6LKT31BfaYDG
+         zqUFMsjQTrfrI3yEfnRf2A1V0YNPP+/Qb9Zmd+lGoGqSMFqTfYTIISamd2SSUT32TU
+         NnrUakBlicuFSvDRl59l6+w4spW9W16toKDqOVrE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+1e925b4b836afe85a1c6@syzkaller-ppc64.appspotmail.com,
-        syzbot+587b2421926808309d21@syzkaller-ppc64.appspotmail.com,
-        syzbot+58320b7171734bf79d26@syzkaller.appspotmail.com,
-        syzbot+d6074fb08bdb2e010520@syzkaller.appspotmail.com,
-        Daniel Axtens <dja@axtens.net>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Andrew Donnellan <ajd@linux.ibm.com>,
-        David Rientjes <rientjes@google.com>,
-        Akash Goel <akash.goel@intel.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Salvatore Bonaccorso <carnil@debian.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 07/28] kernel/relay.c: handle alloc_percpu returning NULL in relay_open
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 26/38] evm: Fix RCU list related warnings
 Date:   Fri,  5 Jun 2020 16:15:09 +0200
-Message-Id: <20200605140252.766450436@linuxfoundation.org>
+Message-Id: <20200605140254.133441606@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200605140252.338635395@linuxfoundation.org>
-References: <20200605140252.338635395@linuxfoundation.org>
+In-Reply-To: <20200605140252.542768750@linuxfoundation.org>
+References: <20200605140252.542768750@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,71 +46,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Axtens <dja@axtens.net>
+From: Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>
 
-commit 54e200ab40fc14c863bcc80a51e20b7906608fce upstream.
+[ Upstream commit 770f60586d2af0590be263f55fd079226313922c ]
 
-alloc_percpu() may return NULL, which means chan->buf may be set to NULL.
-In that case, when we do *per_cpu_ptr(chan->buf, ...), we dereference an
-invalid pointer:
+This patch fixes the following warning and few other instances of
+traversal of evm_config_xattrnames list:
 
-  BUG: Unable to handle kernel data access at 0x7dae0000
-  Faulting instruction address: 0xc0000000003f3fec
-  ...
-  NIP relay_open+0x29c/0x600
-  LR relay_open+0x270/0x600
-  Call Trace:
-     relay_open+0x264/0x600 (unreliable)
-     __blk_trace_setup+0x254/0x600
-     blk_trace_setup+0x68/0xa0
-     sg_ioctl+0x7bc/0x2e80
-     do_vfs_ioctl+0x13c/0x1300
-     ksys_ioctl+0x94/0x130
-     sys_ioctl+0x48/0xb0
-     system_call+0x5c/0x68
+[   32.848432] =============================
+[   32.848707] WARNING: suspicious RCU usage
+[   32.848966] 5.7.0-rc1-00006-ga8d5875ce5f0b #1 Not tainted
+[   32.849308] -----------------------------
+[   32.849567] security/integrity/evm/evm_main.c:231 RCU-list traversed in non-reader section!!
 
-Check if alloc_percpu returns NULL.
+Since entries are only added to the list and never deleted, use
+list_for_each_entry_lockless() instead of list_for_each_entry_rcu for
+traversing the list.  Also, add a relevant comment in evm_secfs.c to
+indicate this fact.
 
-This was found by syzkaller both on x86 and powerpc, and the reproducer
-it found on powerpc is capable of hitting the issue as an unprivileged
-user.
-
-Fixes: 017c59c042d0 ("relay: Use per CPU constructs for the relay channel buffer pointers")
-Reported-by: syzbot+1e925b4b836afe85a1c6@syzkaller-ppc64.appspotmail.com
-Reported-by: syzbot+587b2421926808309d21@syzkaller-ppc64.appspotmail.com
-Reported-by: syzbot+58320b7171734bf79d26@syzkaller.appspotmail.com
-Reported-by: syzbot+d6074fb08bdb2e010520@syzkaller.appspotmail.com
-Signed-off-by: Daniel Axtens <dja@axtens.net>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Michael Ellerman <mpe@ellerman.id.au>
-Reviewed-by: Andrew Donnellan <ajd@linux.ibm.com>
-Acked-by: David Rientjes <rientjes@google.com>
-Cc: Akash Goel <akash.goel@intel.com>
-Cc: Andrew Donnellan <ajd@linux.ibm.com>
-Cc: Guenter Roeck <linux@roeck-us.net>
-Cc: Salvatore Bonaccorso <carnil@debian.org>
-Cc: <stable@vger.kernel.org>	[4.10+]
-Link: http://lkml.kernel.org/r/20191219121256.26480-1-dja@axtens.net
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Reported-by: kernel test robot <lkp@intel.com>
+Suggested-by: Paul E. McKenney <paulmck@kernel.org>
+Signed-off-by: Madhuparna Bhowmik <madhuparnabhowmik10@gmail.com>
+Acked-by: Paul E. McKenney <paulmck@kernel.org> (RCU viewpoint)
+Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/relay.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ security/integrity/evm/evm_crypto.c | 2 +-
+ security/integrity/evm/evm_main.c   | 4 ++--
+ security/integrity/evm/evm_secfs.c  | 9 ++++++++-
+ 3 files changed, 11 insertions(+), 4 deletions(-)
 
---- a/kernel/relay.c
-+++ b/kernel/relay.c
-@@ -581,6 +581,11 @@ struct rchan *relay_open(const char *bas
- 		return NULL;
+diff --git a/security/integrity/evm/evm_crypto.c b/security/integrity/evm/evm_crypto.c
+index cc826c2767a3..fbc2ee6d46fc 100644
+--- a/security/integrity/evm/evm_crypto.c
++++ b/security/integrity/evm/evm_crypto.c
+@@ -209,7 +209,7 @@ static int evm_calc_hmac_or_hash(struct dentry *dentry,
+ 	data->hdr.length = crypto_shash_digestsize(desc->tfm);
  
- 	chan->buf = alloc_percpu(struct rchan_buf *);
-+	if (!chan->buf) {
-+		kfree(chan);
-+		return NULL;
-+	}
-+
- 	chan->version = RELAYFS_CHANNEL_VERSION;
- 	chan->n_subbufs = n_subbufs;
- 	chan->subbuf_size = subbuf_size;
+ 	error = -ENODATA;
+-	list_for_each_entry_rcu(xattr, &evm_config_xattrnames, list) {
++	list_for_each_entry_lockless(xattr, &evm_config_xattrnames, list) {
+ 		bool is_ima = false;
+ 
+ 		if (strcmp(xattr->name, XATTR_NAME_IMA) == 0)
+diff --git a/security/integrity/evm/evm_main.c b/security/integrity/evm/evm_main.c
+index f9a81b187fae..a2c393385db0 100644
+--- a/security/integrity/evm/evm_main.c
++++ b/security/integrity/evm/evm_main.c
+@@ -99,7 +99,7 @@ static int evm_find_protected_xattrs(struct dentry *dentry)
+ 	if (!(inode->i_opflags & IOP_XATTR))
+ 		return -EOPNOTSUPP;
+ 
+-	list_for_each_entry_rcu(xattr, &evm_config_xattrnames, list) {
++	list_for_each_entry_lockless(xattr, &evm_config_xattrnames, list) {
+ 		error = __vfs_getxattr(dentry, inode, xattr->name, NULL, 0);
+ 		if (error < 0) {
+ 			if (error == -ENODATA)
+@@ -230,7 +230,7 @@ static int evm_protected_xattr(const char *req_xattr_name)
+ 	struct xattr_list *xattr;
+ 
+ 	namelen = strlen(req_xattr_name);
+-	list_for_each_entry_rcu(xattr, &evm_config_xattrnames, list) {
++	list_for_each_entry_lockless(xattr, &evm_config_xattrnames, list) {
+ 		if ((strlen(xattr->name) == namelen)
+ 		    && (strncmp(req_xattr_name, xattr->name, namelen) == 0)) {
+ 			found = 1;
+diff --git a/security/integrity/evm/evm_secfs.c b/security/integrity/evm/evm_secfs.c
+index c11c1f7b3ddd..0f37ef27268d 100644
+--- a/security/integrity/evm/evm_secfs.c
++++ b/security/integrity/evm/evm_secfs.c
+@@ -234,7 +234,14 @@ static ssize_t evm_write_xattrs(struct file *file, const char __user *buf,
+ 		goto out;
+ 	}
+ 
+-	/* Guard against races in evm_read_xattrs */
++	/*
++	 * xattr_list_mutex guards against races in evm_read_xattrs().
++	 * Entries are only added to the evm_config_xattrnames list
++	 * and never deleted. Therefore, the list is traversed
++	 * using list_for_each_entry_lockless() without holding
++	 * the mutex in evm_calc_hmac_or_hash(), evm_find_protected_xattrs()
++	 * and evm_protected_xattr().
++	 */
+ 	mutex_lock(&xattr_list_mutex);
+ 	list_for_each_entry(tmp, &evm_config_xattrnames, list) {
+ 		if (strcmp(xattr->name, tmp->name) == 0) {
+-- 
+2.25.1
+
 
 
