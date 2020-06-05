@@ -2,58 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 461441EF496
-	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 11:47:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D5DEF1EF4B7
+	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 11:54:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726291AbgFEJqt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Jun 2020 05:46:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34274 "EHLO
+        id S1726294AbgFEJym (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Jun 2020 05:54:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35484 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726276AbgFEJqs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 5 Jun 2020 05:46:48 -0400
-Received: from mail-wm1-x341.google.com (mail-wm1-x341.google.com [IPv6:2a00:1450:4864:20::341])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0967DC08C5C4
-        for <stable@vger.kernel.org>; Fri,  5 Jun 2020 02:46:47 -0700 (PDT)
-Received: by mail-wm1-x341.google.com with SMTP id q25so8461850wmj.0
-        for <stable@vger.kernel.org>; Fri, 05 Jun 2020 02:46:46 -0700 (PDT)
+        with ESMTP id S1726270AbgFEJyl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 5 Jun 2020 05:54:41 -0400
+Received: from mail-ed1-x541.google.com (mail-ed1-x541.google.com [IPv6:2a00:1450:4864:20::541])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D9D7C08C5C3
+        for <stable@vger.kernel.org>; Fri,  5 Jun 2020 02:54:40 -0700 (PDT)
+Received: by mail-ed1-x541.google.com with SMTP id g9so6945536edw.10
+        for <stable@vger.kernel.org>; Fri, 05 Jun 2020 02:54:40 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
+        d=szeredi.hu; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=mbmJ3LGfRiCwEeU4P9Eu8WSdnCz4EbKhItYlMOGXu1A=;
-        b=iL9qGE+E9zBWaNqdk8hDmBlMprQUairHW4PfVNjYcYGoaafczwzw9pIGtR1C8sQFTE
-         tvtjvMIA7yevSjlNLmU70R4KAJIBT169XelUrMV1mu7EZscPE620aeO1gmajhcRCla5v
-         oNn8Z7NIG2ldEbTq6q60ApoSLsbw/YjMlk1nCnzpG3yEILOdbd1S5eiVULW6bMGXYCQL
-         Ecf8AtZCnzWtn+n3tHACfowa95G40epMD0AqAR/eynPrfj52cCxH+0tPuAxiaeJWx+T9
-         VA0Kt+jw7TFw10lNElcTJX1B9QYCT8zOYBkgiXMD/k0r3goAiMGbM87IKvsSI1BMhyxE
-         BDCA==
+        bh=kQ16o+qUwgYcoh0hZifP35qFFRDEvSaPDsLpEh1ikCk=;
+        b=rCaoirU7A0HN6aBgr2LdE3yr5g17a+UroWILMuXJVVtYCBdmWed1GS8GwUni1Mn4bs
+         WiCixcK2FEbDfiqcT5aI8OwT4CDrGCx8TZ3kDHlnVgJ+ErAZ6buF8PeNt5p6EhEJTg76
+         RwBhpNX0IUheJeDrz936ea+31jUlqJ1kNQaSM=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=mbmJ3LGfRiCwEeU4P9Eu8WSdnCz4EbKhItYlMOGXu1A=;
-        b=GaIk/YhAssL3XUj4plmxrgUi8C9d8PFL9AS9JsPexy3eYRoS4P0kMMjR56bWnVylji
-         w/A4UJb+eyUv/aNvbo6JUhCOzrFMaCojG56awZrJS02zJ0Z/AJeigybAj0D8zHmMLGfW
-         L/rhgeDd4fEzpQJzDFGcDvDmP1QAZp75WqzCScHHJJX73jwSt8FaZ86t8MoYsZy7lxWV
-         1nCSHeshyOb0biCSoQfeLkncSSH3L9I7drdqFF4tYGOexad+rVx5dktQYVzj+RekeKbq
-         7JfK6+yuLiDVmoU5+/3ntvOaBHaGD3EINzeZLhhnAiANxVK6KNxF9Y+sWRa1wzD+mq/5
-         /0wg==
-X-Gm-Message-State: AOAM5312N6a59HAPQHNNYv0qitgDFaCFPH87DP49fhYMRHVhhyMQUfUL
-        6vPsBKesnpJRscXkeanMrsXRQglYeO8VxXZmdNr9SA==
-X-Google-Smtp-Source: ABdhPJz6paBIsszLKlumm4Z3GVnmnLd9zlrplUT1OaXrXB7uJgeytGX12BCwGe9vd8Vc/7j/UcCyZb0mpJOnD+AX4PM=
-X-Received: by 2002:a1c:19c1:: with SMTP id 184mr1746984wmz.29.1591350405584;
- Fri, 05 Jun 2020 02:46:45 -0700 (PDT)
+        bh=kQ16o+qUwgYcoh0hZifP35qFFRDEvSaPDsLpEh1ikCk=;
+        b=tDLDZ/uSRdf4VAWx8XMr7qvRkcFAqgSys95SrP7Dg2a5keKBg02t/9MIrPDHYz7otp
+         w7LvBlAmmrLFOrKG2dihCools0plTwoLzSaXbSNk9/OUmwav67VZ+O3mkog0K6vjn5DC
+         P92HJ2mILY1zcKSJ2aWRhhfOhrlHBDwuMTibbG2E0+ozzUXtZtFkMWelx7FeGpdDa9zj
+         b4NsGIi7s/pOlgzCKrojBAI64PWsgqM99uGzYTUy9q7GPthISdzyJkwRQfcERE1rmEtl
+         js7IuGZu+MJLKReUpO6EHidfqGvzIYbp80kxBrXB699p66HPFv872RnGXpM5wTbl1zCR
+         c4bw==
+X-Gm-Message-State: AOAM53262CnsuP+2fTFpk1m1Ac1eVL/xp6ZikbiYgDBIM7keZvDDu84L
+        3RFrhK5hnwFVsNGHB12JjJy4bnXQLP+TNdWlH77Uog==
+X-Google-Smtp-Source: ABdhPJxPXhJVSPka5expBk13ruYWdBASBt1uTHiBSxAcue4V3qBGXozjJwtdDHlzLpa3GAZtoYQwqOkGqSuOZOhiOKI=
+X-Received: by 2002:aa7:d785:: with SMTP id s5mr8857980edq.17.1591350879015;
+ Fri, 05 Jun 2020 02:54:39 -0700 (PDT)
 MIME-Version: 1.0
 References: <20200604084245.161480-1-glider@google.com> <202006040844.C50B47699@keescook>
 In-Reply-To: <202006040844.C50B47699@keescook>
-From:   Alexander Potapenko <glider@google.com>
-Date:   Fri, 5 Jun 2020 11:46:34 +0200
-Message-ID: <CAG_fn=UMye_Qq3XZCVQP150iYeV3BrF_mPVLh83+H4mUy_cmnA@mail.gmail.com>
+From:   Miklos Szeredi <miklos@szeredi.hu>
+Date:   Fri, 5 Jun 2020 11:54:27 +0200
+Message-ID: <CAJfpegsNL17k+Yv1-4bmogqjzq-rO9H1xT-+DM2m7qq7oH25MQ@mail.gmail.com>
 Subject: Re: [PATCH] ovl: explicitly initialize error in ovl_copy_xattr()
 To:     Kees Cook <keescook@chromium.org>
-Cc:     miklos@szeredi.hu, Vivek Goyal <vgoyal@redhat.com>,
-        linux-unionfs@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>,
-        Roy Yang <royyang@google.com>, stable@vger.kernel.org
+Cc:     Alexander Potapenko <glider@google.com>,
+        Vivek Goyal <vgoyal@redhat.com>,
+        overlayfs <linux-unionfs@vger.kernel.org>,
+        linux-kernel@vger.kernel.org, royyang@google.com,
+        stable <stable@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -98,21 +97,13 @@ On Thu, Jun 4, 2020 at 5:57 PM Kees Cook <keescook@chromium.org> wrote:
 >
 > Fixes: e4ad29fa0d22 ("ovl: use a minimal buffer in ovl_copy_xattr")
 
-https://bugs.chromium.org/p/chromium/issues/detail?id=1050405 mentions v4.4.212.
-Your patch could've been slipped into that kernel as well.
 
-> What did you find in v4.1? It looks like error isn't uninitialized in
-> v4.1:
+I believe it's actually:
 
-The annotation appeared first in
-https://elixir.bootlin.com/linux/v4.1.18/source/fs/overlayfs/copy_up.c#L27,
-does that count as 4.1 or 4.2?
+Fixes: 0956254a2d5b ("ovl: don't copy up opaqueness")
 
-> But v4.1.52 backported the above patch (e4ad29fa0d22), which is why I
-> don't try to figure these things out manually. Once we find the commit,
-> the tools will figure it out. I think you just need:
->
-> Fixes: e4ad29fa0d22 ("ovl: use a minimal buffer in ovl_copy_xattr")
-> Cc: stable@vger.kernel.org
+That patch added the ovl_is_private_xattr() check in ovl_copy_xattr(),
+without which 'error' was always initilalized.
 
-Sounds good!
+Thanks,
+Miklos
