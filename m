@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 648751EFA75
-	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 16:19:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BD3E1EFAC1
+	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 16:20:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728531AbgFEORq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Jun 2020 10:17:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48014 "EHLO mail.kernel.org"
+        id S1728959AbgFEOU1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Jun 2020 10:20:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51822 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728528AbgFEORp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Jun 2020 10:17:45 -0400
+        id S1728957AbgFEOU1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Jun 2020 10:20:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 29F3B208A9;
-        Fri,  5 Jun 2020 14:17:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 295912074B;
+        Fri,  5 Jun 2020 14:20:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591366664;
-        bh=kFwCRCraMBRyepMZo+yl/SXXPj0zsoJ7YQUxEPQ2XHA=;
+        s=default; t=1591366826;
+        bh=0Sdw19cZUj8gXdGRxHjvIBv37iyXz0YRfj4NGJbcFrc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M3zhwa3uHosfLWDZTumKSC/+I6Sh1oLdzfua1Bd6jmJj14UokIFCHi8OhvTYwjFMD
-         kxAJoyHQcrVYKs079Hh2/R6f2667+UKTOP2kFvShyXNrxoEl+DtzEyihOpCXkniKr6
-         w/yGQX3SPHmxvICHlljwmUKxZnPwJu4qieliQCP8=
+        b=FPOshHwGmSNKAS5YBXgaRnsH4OU0Vm4dPQEk00KZrxLzhGu7bcTbA64Mh1sE0Xcov
+         Q3E09yfyTzb9N/l3Q0JBXMGZKvljSpPGW7R/CJP9hB9Y86UAkWwcpcDe0SHDng8pIY
+         1SNnR3l91r4sPCn+hx2RDSvdmxKk+n/YsjKkTGtk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         =?UTF-8?q?J=C3=A9r=C3=B4me=20Pouiller?= 
         <jerome.pouiller@silabs.com>, Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.6 39/43] mmc: fix compilation of user API
-Date:   Fri,  5 Jun 2020 16:15:09 +0200
-Message-Id: <20200605140154.569917110@linuxfoundation.org>
+Subject: [PATCH 4.19 08/28] mmc: fix compilation of user API
+Date:   Fri,  5 Jun 2020 16:15:10 +0200
+Message-Id: <20200605140252.829389737@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200605140152.493743366@linuxfoundation.org>
-References: <20200605140152.493743366@linuxfoundation.org>
+In-Reply-To: <20200605140252.338635395@linuxfoundation.org>
+References: <20200605140252.338635395@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -76,6 +76,6 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 +#include <linux/major.h>
  
  struct mmc_ioc_cmd {
- 	/*
+ 	/* Implies direction of data.  true = write, false = read */
 
 
