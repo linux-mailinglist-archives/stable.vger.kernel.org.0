@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1AF7A1EFA46
-	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 16:16:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 20EB21EFA61
+	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 16:18:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728082AbgFEOQK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Jun 2020 10:16:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45166 "EHLO mail.kernel.org"
+        id S1728378AbgFEORD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Jun 2020 10:17:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46320 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728173AbgFEOQJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Jun 2020 10:16:09 -0400
+        id S1728373AbgFEORC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Jun 2020 10:17:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DA1322075B;
-        Fri,  5 Jun 2020 14:16:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1E59B20820;
+        Fri,  5 Jun 2020 14:17:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591366569;
-        bh=iK6d8iiYLeDwGlgo/490db9Xd5xTRUxqCFRX3a0V7H8=;
+        s=default; t=1591366621;
+        bh=O5JZywhz7iAfb7m4Z4WcOq4q0ejSwcFYHqTjUmqM/h8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U+fpA4zjlyHbo8hvf775spRJusJYugayS+9JZ9VjzjB0OgUlAxOjVx6b0R8/8o24d
-         Gq/5nxSTB8FNuuOkv7EuJQrk3ESrMlFIMSo5SB9EtZnXcRQhjSQSABY7EQJha+muxH
-         Lb6x7aZ5iMBgcqWNiu1TsJUre4CqQn6+mYlkcOuw=
+        b=rri9CENTStIQxe68OqdBc1VarHtHXh9BvaMOFutzsrGeA+9/oqxFrwEiCpl1rO0px
+         9jhtmyjggNxK7n80mGxTp5seCMavd1+siWzGX09KziWYUPm2rpoq9ulJpjqmSFJr2k
+         hc6JvYv9XOzCyy68jUaGF4T4X9BXpiv+JOWliuGE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matthew Garrett <mjg59@google.com>,
-        Felix Fietkau <nbd@nbd.name>
-Subject: [PATCH 5.7 07/14] mt76: mt76x02u: Add support for newer versions of the XBox One wifi adapter
+        stable@vger.kernel.org, Jonathan McDowell <noodles@earth.li>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 27/43] net: ethernet: stmmac: Enable interface clocks on probe for IPQ806x
 Date:   Fri,  5 Jun 2020 16:14:57 +0200
-Message-Id: <20200605135951.447750570@linuxfoundation.org>
+Message-Id: <20200605140153.945772434@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200605135951.018731965@linuxfoundation.org>
-References: <20200605135951.018731965@linuxfoundation.org>
+In-Reply-To: <20200605140152.493743366@linuxfoundation.org>
+References: <20200605140152.493743366@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,41 +44,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthew Garrett <matthewgarrett@google.com>
+From: Jonathan McDowell <noodles@earth.li>
 
-commit b2934279c3e9719145ff4090d4ab951e340df17e upstream.
+[ Upstream commit a96ac8a0045e3cbe3e5af6d1b3c78c6c2065dec5 ]
 
-The current version has a new USB ID and reports as an 0x7632 device.
-Adding the IDs results in it working out of the box.
+The ipq806x_gmac_probe() function enables the PTP clock but not the
+appropriate interface clocks. This means that if the bootloader hasn't
+done so attempting to bring up the interface will fail with an error
+like:
 
-Signed-off-by: Matthew Garrett <mjg59@google.com>
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[   59.028131] ipq806x-gmac-dwmac 37600000.ethernet: Failed to reset the dma
+[   59.028196] ipq806x-gmac-dwmac 37600000.ethernet eth1: stmmac_hw_setup: DMA engine initialization failed
+[   59.034056] ipq806x-gmac-dwmac 37600000.ethernet eth1: stmmac_open: Hw setup failed
 
+This patch, a slightly cleaned up version of one posted by Sergey
+Sergeev in:
+
+https://forum.openwrt.org/t/support-for-mikrotik-rb3011uias-rm/4064/257
+
+correctly enables the clock; we have already configured the source just
+before this.
+
+Tested on a MikroTik RB3011.
+
+Signed-off-by: Jonathan McDowell <noodles@earth.li>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt76x02.h    |    1 +
- drivers/net/wireless/mediatek/mt76/mt76x2/usb.c |    1 +
- 2 files changed, 2 insertions(+)
+ drivers/net/ethernet/stmicro/stmmac/dwmac-ipq806x.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
---- a/drivers/net/wireless/mediatek/mt76/mt76x02.h
-+++ b/drivers/net/wireless/mediatek/mt76/mt76x02.h
-@@ -216,6 +216,7 @@ static inline bool is_mt76x0(struct mt76
- static inline bool is_mt76x2(struct mt76x02_dev *dev)
- {
- 	return mt76_chip(&dev->mt76) == 0x7612 ||
-+	       mt76_chip(&dev->mt76) == 0x7632 ||
- 	       mt76_chip(&dev->mt76) == 0x7662 ||
- 	       mt76_chip(&dev->mt76) == 0x7602;
- }
---- a/drivers/net/wireless/mediatek/mt76/mt76x2/usb.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt76x2/usb.c
-@@ -18,6 +18,7 @@ static const struct usb_device_id mt76x2
- 	{ USB_DEVICE(0x7392, 0xb711) },	/* Edimax EW 7722 UAC */
- 	{ USB_DEVICE(0x0846, 0x9053) },	/* Netgear A6210 */
- 	{ USB_DEVICE(0x045e, 0x02e6) },	/* XBox One Wireless Adapter */
-+	{ USB_DEVICE(0x045e, 0x02fe) },	/* XBox One Wireless Adapter */
- 	{ },
- };
+diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac-ipq806x.c b/drivers/net/ethernet/stmicro/stmmac/dwmac-ipq806x.c
+index 6ae13dc19510..02102c781a8c 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac-ipq806x.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-ipq806x.c
+@@ -319,6 +319,19 @@ static int ipq806x_gmac_probe(struct platform_device *pdev)
+ 	/* Enable PTP clock */
+ 	regmap_read(gmac->nss_common, NSS_COMMON_CLK_GATE, &val);
+ 	val |= NSS_COMMON_CLK_GATE_PTP_EN(gmac->id);
++	switch (gmac->phy_mode) {
++	case PHY_INTERFACE_MODE_RGMII:
++		val |= NSS_COMMON_CLK_GATE_RGMII_RX_EN(gmac->id) |
++			NSS_COMMON_CLK_GATE_RGMII_TX_EN(gmac->id);
++		break;
++	case PHY_INTERFACE_MODE_SGMII:
++		val |= NSS_COMMON_CLK_GATE_GMII_RX_EN(gmac->id) |
++				NSS_COMMON_CLK_GATE_GMII_TX_EN(gmac->id);
++		break;
++	default:
++		/* We don't get here; the switch above will have errored out */
++		unreachable();
++	}
+ 	regmap_write(gmac->nss_common, NSS_COMMON_CLK_GATE, val);
  
+ 	if (gmac->phy_mode == PHY_INTERFACE_MODE_SGMII) {
+-- 
+2.25.1
+
 
 
