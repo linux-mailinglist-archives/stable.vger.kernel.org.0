@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A7921EFB48
-	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 16:25:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 88A8C1EFA52
+	for <lists+stable@lfdr.de>; Fri,  5 Jun 2020 16:16:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728261AbgFEOZe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Jun 2020 10:25:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45722 "EHLO mail.kernel.org"
+        id S1728269AbgFEOQi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Jun 2020 10:16:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45782 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728256AbgFEOQe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Jun 2020 10:16:34 -0400
+        id S1728265AbgFEOQh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Jun 2020 10:16:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AE8002086A;
-        Fri,  5 Jun 2020 14:16:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 022F92075B;
+        Fri,  5 Jun 2020 14:16:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591366594;
-        bh=hlKiCg2RNDT/gKW+Zea75Lq46LZTVe35HoTVcsPU+Gs=;
+        s=default; t=1591366596;
+        bh=SoHylZ6iLn+VLc0OHY0aK98CsyxfdDPEAMQscWGk9iA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=InWOadnLoWEBMsCFHRTsDu1ZkhPqxpGm8wyS5IVovqhJ5/5JhGkDjfbAs+58CySV0
-         e8Y62F27QgIdmOQw2ptLl0YwxExK8v5FUdYiJj7qOk84MEAw30kH980mnKz+m0qIHm
-         8Hvz1nKuR02DnLYjAUPl33MTcH1zs6+qF/r7++4w=
+        b=uxLo47VElmz5tWHF8u+DZ9z3KUPRzltPHIIHjyw2ipxADoSsg9KicGForNf82n4m1
+         4HXsWcAnZnTx/Byherr4TZSq5kLEvgHxfTWDKbIlUD+CF3LTyT1P7ek+CUs+ISpJAu
+         H8q81FPhpG/E/WfiA5p6T7VJqxn4r1dpDgTq7qQM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sedat Dilek <sedat.dilek@gmail.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Borislav Petkov <bp@suse.de>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        stable@vger.kernel.org, Jeremy Kerr <jk@ozlabs.org>,
+        Stan Johnson <userm57@yahoo.com>,
+        Finn Thain <fthain@telegraphics.com.au>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 16/43] x86/mmiotrace: Use cpumask_available() for cpumask_var_t variables
-Date:   Fri,  5 Jun 2020 16:14:46 +0200
-Message-Id: <20200605140153.373869549@linuxfoundation.org>
+Subject: [PATCH 5.6 17/43] net: bmac: Fix read of MAC address from ROM
+Date:   Fri,  5 Jun 2020 16:14:47 +0200
+Message-Id: <20200605140153.425683489@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200605140152.493743366@linuxfoundation.org>
 References: <20200605140152.493743366@linuxfoundation.org>
@@ -47,65 +46,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Jeremy Kerr <jk@ozlabs.org>
 
-[ Upstream commit d7110a26e5905ec2fe3fc88bc6a538901accb72b ]
+[ Upstream commit ef01cee2ee1b369c57a936166483d40942bcc3e3 ]
 
-When building with Clang + -Wtautological-compare and
-CONFIG_CPUMASK_OFFSTACK unset:
+In bmac_get_station_address, We're reading two bytes at a time from ROM,
+but we do that six times, resulting in 12 bytes of read & writes. This
+means we will write off the end of the six-byte destination buffer.
 
-  arch/x86/mm/mmio-mod.c:375:6: warning: comparison of array 'downed_cpus'
-  equal to a null pointer is always false [-Wtautological-pointer-compare]
-          if (downed_cpus == NULL &&
-              ^~~~~~~~~~~    ~~~~
-  arch/x86/mm/mmio-mod.c:405:6: warning: comparison of array 'downed_cpus'
-  equal to a null pointer is always false [-Wtautological-pointer-compare]
-          if (downed_cpus == NULL || cpumask_weight(downed_cpus) == 0)
-              ^~~~~~~~~~~    ~~~~
-  2 warnings generated.
+This change fixes the for-loop to only read/write six bytes.
 
-Commit
+Based on a proposed fix from Finn Thain <fthain@telegraphics.com.au>.
 
-  f7e30f01a9e2 ("cpumask: Add helper cpumask_available()")
-
-added cpumask_available() to fix warnings of this nature. Use that here
-so that clang does not warn regardless of CONFIG_CPUMASK_OFFSTACK's
-value.
-
-Reported-by: Sedat Dilek <sedat.dilek@gmail.com>
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Acked-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Link: https://github.com/ClangBuiltLinux/linux/issues/982
-Link: https://lkml.kernel.org/r/20200408205323.44490-1-natechancellor@gmail.com
+Signed-off-by: Jeremy Kerr <jk@ozlabs.org>
+Reported-by: Stan Johnson <userm57@yahoo.com>
+Tested-by: Stan Johnson <userm57@yahoo.com>
+Reported-by: Finn Thain <fthain@telegraphics.com.au>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/mm/mmio-mod.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/apple/bmac.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/mm/mmio-mod.c b/arch/x86/mm/mmio-mod.c
-index 673de6063345..92530af38b09 100644
---- a/arch/x86/mm/mmio-mod.c
-+++ b/arch/x86/mm/mmio-mod.c
-@@ -372,7 +372,7 @@ static void enter_uniprocessor(void)
- 	int cpu;
- 	int err;
+diff --git a/drivers/net/ethernet/apple/bmac.c b/drivers/net/ethernet/apple/bmac.c
+index a58185b1d8bf..3e3711b60d01 100644
+--- a/drivers/net/ethernet/apple/bmac.c
++++ b/drivers/net/ethernet/apple/bmac.c
+@@ -1182,7 +1182,7 @@ bmac_get_station_address(struct net_device *dev, unsigned char *ea)
+ 	int i;
+ 	unsigned short data;
  
--	if (downed_cpus == NULL &&
-+	if (!cpumask_available(downed_cpus) &&
- 	    !alloc_cpumask_var(&downed_cpus, GFP_KERNEL)) {
- 		pr_notice("Failed to allocate mask\n");
- 		goto out;
-@@ -402,7 +402,7 @@ static void leave_uniprocessor(void)
- 	int cpu;
- 	int err;
- 
--	if (downed_cpus == NULL || cpumask_weight(downed_cpus) == 0)
-+	if (!cpumask_available(downed_cpus) || cpumask_weight(downed_cpus) == 0)
- 		return;
- 	pr_notice("Re-enabling CPUs...\n");
- 	for_each_cpu(cpu, downed_cpus) {
+-	for (i = 0; i < 6; i++)
++	for (i = 0; i < 3; i++)
+ 		{
+ 			reset_and_select_srom(dev);
+ 			data = read_srom(dev, i + EnetAddressOffset/2, SROMAddressBits);
 -- 
 2.25.1
 
