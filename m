@@ -2,181 +2,142 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B8EBB1F07E6
-	for <lists+stable@lfdr.de>; Sat,  6 Jun 2020 18:27:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 38F2F1F07ED
+	for <lists+stable@lfdr.de>; Sat,  6 Jun 2020 18:30:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728732AbgFFQ07 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 6 Jun 2020 12:26:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38488 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726075AbgFFQ06 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 6 Jun 2020 12:26:58 -0400
-Received: from mail-lf1-x143.google.com (mail-lf1-x143.google.com [IPv6:2a00:1450:4864:20::143])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E31FC03E96A
-        for <stable@vger.kernel.org>; Sat,  6 Jun 2020 09:26:56 -0700 (PDT)
-Received: by mail-lf1-x143.google.com with SMTP id d7so7638454lfi.12
-        for <stable@vger.kernel.org>; Sat, 06 Jun 2020 09:26:56 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=WVipMmANOU1TRs4bJMqo6LMdlj1YJeAI2TUZczm2aTw=;
-        b=OVOMqoIe555B1hV0WAdydYjQa7QDL/leZXjEUsZ8+vZo7TeKPnb+ULGJUXJGfOfTga
-         yFnVaDYZZlutVlYX/pUGAU3wdNkv+1U5cDWfoISagxa7G8SaiVktuSlF9q7+HTf7Xql5
-         vHEOvO8ZHYBGk8CQxE61hJJg9iRhJLZcOch9XyeBCvsuoDWRMsYuicf4b3eQbPBDWBHm
-         6ELxLqMp8NZmtZJIol7Px8HpK8rJMmlhYuXgigzLn9tvLY1R2udqC8M7+ERkTCGPkaA/
-         uzEb9Z2eYB54KkEx/nsTeXmApRRkv/yWngxm1sJ9t3mbdtoOMeGTva7KzBjbXegxzbvr
-         nrSw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=WVipMmANOU1TRs4bJMqo6LMdlj1YJeAI2TUZczm2aTw=;
-        b=NZSZjCXiAw9lZfLnIKA49swrLvM6VTVNI6fiP4AsGAhh0ObFUKatrQ4McRZ28H8tXf
-         Yu/T5i/kc/FOHnqUh7pdRHfMRZXI1sDPmu4YYzjqT35FjlZkxvy3r1FV1SEO44TFx3Fj
-         hdq0Kxoq7PBXS1/kIc/mG7DforVSNLFeCSHbSIQv+J6uDpz5LHaIZQK5L/oplsGGsPdB
-         1Wj3v8c3s9UGRexKcjMq+HJi1wEvdggsz8yXbNzvzPZc/dCw1+5NUqfnu4NXVFpjkVi/
-         0d8dEXLctA8fDhlLynffpxQRPTon9P8FoPDfIn8IjpAA9q5odiwsCPsaXplyPgeVxLlx
-         5oVg==
-X-Gm-Message-State: AOAM530SlD1tnkNa+njMnGhHmsNMa5GCrfK8NlWFh5qE4y27LXYm9L0i
-        Px++k/ZKLhaQS5yIPzNgj4ZKjUJHefOOFVADzyFnCQ==
-X-Google-Smtp-Source: ABdhPJyJjX1YglqzJhvvFpLs8hNGBh+SSfnFt6AP22UOBLoSHqX6yu6LfxIB4yln42330u/EGAq+9Ic0ZJFeWdKVYe8=
-X-Received: by 2002:a19:641b:: with SMTP id y27mr7657667lfb.74.1591460814960;
- Sat, 06 Jun 2020 09:26:54 -0700 (PDT)
+        id S1728737AbgFFQai (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 6 Jun 2020 12:30:38 -0400
+Received: from ns.mm-sol.com ([37.157.136.199]:44861 "EHLO extserv.mm-sol.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726968AbgFFQah (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 6 Jun 2020 12:30:37 -0400
+Received: from [192.168.1.9] (hst-208-212.medicom.bg [84.238.208.212])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (Client did not present a certificate)
+        by extserv.mm-sol.com (Postfix) with ESMTPSA id 83EB6CFCE;
+        Sat,  6 Jun 2020 19:30:33 +0300 (EEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=mm-sol.com; s=201706;
+        t=1591461033; bh=9Jbiod1vB7zOrB+Jk7X53N7PxKajryvdgLEigxtjI4s=;
+        h=Subject:To:Cc:From:Date:From;
+        b=Vypu7//tMZa9tpCbHL1Ji6VLjIFz9l8PJtA/ehTMfAnRvO4uAcQfwY79lq3e5Fwch
+         4rmpKpGcm+EJs6gL4yMeDuyy3oAD++xm7GMZlnvoQnvtIUHNAYq34yYyAkXP3lOKuT
+         UATDVvO1+KWvaS/TPQlavw0RK5u4glJTkTWL3ynu4PTbjomzb1jisW9lViFz96HAGS
+         ai87vqIUSdYp+cU8ptRD4geRFAQXGLMX2wh0Cy2w1LsU5xPvVq1S4Wr63ZDYzYnDHr
+         zEpb2eanVKJAg/9pOIF4PsjOILDA6vAKrQyTz62cAHVrV4g1le3GJdynBuaoi+Qjgf
+         6NMu8VIxXg/+g==
+Subject: Re: [PATCH v5 07/11] PCI: qcom: Define some PARF params needed for
+ ipq8064 SoC
+To:     Ansuel Smith <ansuelsmth@gmail.com>,
+        Rob Herring <robh+dt@kernel.org>
+Cc:     stable@vger.kernel.org, Rob Herring <robh@kernel.org>,
+        Andy Gross <agross@kernel.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Andrew Murray <amurray@thegoodpenguin.co.uk>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
+        linux-arm-msm@vger.kernel.org, linux-pci@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20200602115353.20143-1-ansuelsmth@gmail.com>
+ <20200602115353.20143-8-ansuelsmth@gmail.com>
+From:   Stanimir Varbanov <svarbanov@mm-sol.com>
+Message-ID: <f0f86fd3-c6ad-94f6-5256-8089e2b8af65@mm-sol.com>
+Date:   Sat, 6 Jun 2020 19:30:26 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.8.0
 MIME-Version: 1.0
-References: <20200605140252.542768750@linuxfoundation.org>
-In-Reply-To: <20200605140252.542768750@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Sat, 6 Jun 2020 21:56:43 +0530
-Message-ID: <CA+G9fYs8M4h-j+t4zypuTw+013F5vkvkAUxKu6iEwGHRxKC_4Q@mail.gmail.com>
-Subject: Re: [PATCH 5.4 00/38] 5.4.45-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        linux- stable <stable@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20200602115353.20143-8-ansuelsmth@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 5 Jun 2020 at 19:49, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.4.45 release.
-> There are 38 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Sun, 07 Jun 2020 13:54:56 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.4.45-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.4.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+Hi,
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+On 6/2/20 2:53 PM, Ansuel Smith wrote:
+> Set some specific value for Tx De-Emphasis, Tx Swing and Rx equalization
+> needed on some ipq8064 based device (Netgear R7800 for example). Without
+> this the system locks on kernel load.
+> 
+> Fixes: 82a823833f4e ("PCI: qcom: Add Qualcomm PCIe controller driver")
+> Signed-off-by: Ansuel Smith <ansuelsmth@gmail.com>
+> Cc: stable@vger.kernel.org # v4.5+
+> Reviewed-by: Rob Herring <robh@kernel.org>
+> ---
+>  drivers/pci/controller/dwc/pcie-qcom.c | 27 ++++++++++++++++++++++++++
+>  1 file changed, 27 insertions(+)
+> 
+> diff --git a/drivers/pci/controller/dwc/pcie-qcom.c b/drivers/pci/controller/dwc/pcie-qcom.c
+> index f2ea1ab6f584..f5398b0d270c 100644
+> --- a/drivers/pci/controller/dwc/pcie-qcom.c
+> +++ b/drivers/pci/controller/dwc/pcie-qcom.c
+> @@ -46,6 +46,9 @@
+>  
+>  #define PCIE20_PARF_PHY_CTRL			0x40
+>  #define PCIE20_PARF_PHY_REFCLK			0x4C
+> +#define PHY_REFCLK_SSP_EN			BIT(16)
+> +#define PHY_REFCLK_USE_PAD			BIT(12)
 
-Summary
-------------------------------------------------------------------------
+These two are not used in the patch, please move it in 08/11.
 
-kernel: 5.4.45-rc1
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-5.4.y
-git commit: 0e4e419d5fc3f776cc5ac829737dd6020f89f2a6
-git describe: v5.4.44-39-g0e4e419d5fc3
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-5.4-oe/bui=
-ld/v5.4.44-39-g0e4e419d5fc3
+> +
+>  #define PCIE20_PARF_DBI_BASE_ADDR		0x168
+>  #define PCIE20_PARF_SLV_ADDR_SPACE_SIZE		0x16C
+>  #define PCIE20_PARF_MHI_CLOCK_RESET_CTRL	0x174
+> @@ -77,6 +80,18 @@
+>  #define DBI_RO_WR_EN				1
+>  
+>  #define PERST_DELAY_US				1000
+> +/* PARF registers */
+> +#define PCIE20_PARF_PCS_DEEMPH			0x34
+> +#define PCS_DEEMPH_TX_DEEMPH_GEN1(x)		((x) << 16)
+> +#define PCS_DEEMPH_TX_DEEMPH_GEN2_3_5DB(x)	((x) << 8)
+> +#define PCS_DEEMPH_TX_DEEMPH_GEN2_6DB(x)	((x) << 0)
+> +
+> +#define PCIE20_PARF_PCS_SWING			0x38
+> +#define PCS_SWING_TX_SWING_FULL(x)		((x) << 8)
+> +#define PCS_SWING_TX_SWING_LOW(x)		((x) << 0)
+> +
+> +#define PCIE20_PARF_CONFIG_BITS		0x50
+> +#define PHY_RX0_EQ(x)				((x) << 24)
+>  
+>  #define PCIE20_v3_PARF_SLV_ADDR_SPACE_SIZE	0x358
+>  #define SLV_ADDR_SPACE_SZ			0x10000000
+> @@ -293,6 +308,7 @@ static int qcom_pcie_init_2_1_0(struct qcom_pcie *pcie)
+>  	struct qcom_pcie_resources_2_1_0 *res = &pcie->res.v2_1_0;
+>  	struct dw_pcie *pci = pcie->pci;
+>  	struct device *dev = pci->dev;
+> +	struct device_node *node = dev->of_node;
+>  	u32 val;
+>  	int ret;
+>  
+> @@ -347,6 +363,17 @@ static int qcom_pcie_init_2_1_0(struct qcom_pcie *pcie)
+>  	val &= ~BIT(0);
+>  	writel(val, pcie->parf + PCIE20_PARF_PHY_CTRL);
+>  
+> +	if (of_device_is_compatible(node, "qcom,pcie-ipq8064")) {
+> +		writel(PCS_DEEMPH_TX_DEEMPH_GEN1(24) |
+> +			       PCS_DEEMPH_TX_DEEMPH_GEN2_3_5DB(24) |
+> +			       PCS_DEEMPH_TX_DEEMPH_GEN2_6DB(34),
+> +		       pcie->parf + PCIE20_PARF_PCS_DEEMPH);
+> +		writel(PCS_SWING_TX_SWING_FULL(120) |
+> +			       PCS_SWING_TX_SWING_LOW(120),
+> +		       pcie->parf + PCIE20_PARF_PCS_SWING);
 
-No regressions (compared to build v5.4.44)
+Please fix the indentations above.
 
-No fixes (compared to build v5.4.44)
+> +		writel(PHY_RX0_EQ(4), pcie->parf + PCIE20_PARF_CONFIG_BITS);
+> +	}
+> +
+>  	/* enable external reference clock */
+>  	val = readl(pcie->parf + PCIE20_PARF_PHY_REFCLK);
+>  	val |= BIT(16);
+> 
 
-Ran 32219 total tests in the following environments and test suites.
-
-Environments
---------------
-- dragonboard-410c
-- hi6220-hikey
-- i386
-- juno-r2
-- juno-r2-compat
-- juno-r2-kasan
-- nxp-ls2088
-- qemu_arm
-- qemu_arm64
-- qemu_i386
-- qemu_x86_64
-- x15
-- x86
-- x86-kasan
-
-Test Suites
------------
-* build
-* install-android-platform-tools-r2600
-* install-android-platform-tools-r2800
-* kselftest
-* kselftest/drivers
-* kselftest/filesystems
-* kselftest/net
-* libgpiod
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-dio-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-sched-tests
-* ltp-syscalls-tests
-* perf
-* v4l2-compliance
-* libhugetlbfs
-* ltp-cve-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-ipc-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-securebits-tests
-* network-basic-tests
-* ltp-controllers-tests
-* ltp-open-posix-tests
-* kvm-unit-tests
-* kselftest-vsyscall-mode-native
-* kselftest-vsyscall-mode-native/drivers
-* kselftest-vsyscall-mode-native/filesystems
-* kselftest-vsyscall-mode-native/net
-* kselftest-vsyscall-mode-none
-* kselftest-vsyscall-mode-none/drivers
-* kselftest-vsyscall-mode-none/filesystems
-* kselftest-vsyscall-mode-none/net
-
---=20
-Linaro LKFT
-https://lkft.linaro.org
+-- 
+regards,
+Stan
