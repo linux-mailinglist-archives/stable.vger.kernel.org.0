@@ -2,133 +2,167 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D4E421F06CF
-	for <lists+stable@lfdr.de>; Sat,  6 Jun 2020 15:34:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E510E1F06DB
+	for <lists+stable@lfdr.de>; Sat,  6 Jun 2020 15:57:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726505AbgFFNeu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 6 Jun 2020 09:34:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40040 "EHLO
+        id S1726089AbgFFN5Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 6 Jun 2020 09:57:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43556 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725831AbgFFNeu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 6 Jun 2020 09:34:50 -0400
-Received: from mail-pj1-x1044.google.com (mail-pj1-x1044.google.com [IPv6:2607:f8b0:4864:20::1044])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 310D4C03E96A;
-        Sat,  6 Jun 2020 06:34:50 -0700 (PDT)
-Received: by mail-pj1-x1044.google.com with SMTP id k7so9878pjj.4;
-        Sat, 06 Jun 2020 06:34:50 -0700 (PDT)
+        with ESMTP id S1726078AbgFFN5X (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 6 Jun 2020 09:57:23 -0400
+Received: from mail-wm1-x343.google.com (mail-wm1-x343.google.com [IPv6:2a00:1450:4864:20::343])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66E04C03E96A
+        for <stable@vger.kernel.org>; Sat,  6 Jun 2020 06:57:23 -0700 (PDT)
+Received: by mail-wm1-x343.google.com with SMTP id g10so10925275wmh.4
+        for <stable@vger.kernel.org>; Sat, 06 Jun 2020 06:57:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=sender:subject:to:cc:references:from:autocrypt:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=QdYgfPVgJsp4oh97F1pD98XMgFr+KvAclh3DzIXgN04=;
-        b=UVIf8juW7xtgF20ksVnFMRiG6EH/fQKVPsdtYllcHVowuY2hvfcvBP2DCByRWVZWNI
-         ySmxZk+v3IFSdwwUgQSXjvGZNPEmlBvPLhBVF6qmFlwwrSlwQzZq/FE99Oul8uPBt+pp
-         rnS4uj0y6DJMd0lSdsY63Yf3l3ixguJeqIU0swjkYQE/oDhd0fqG2UobyyjMdY5t4dtd
-         8MTpuT+6Qxsl5yA4yuz+xMXE22AZuR+QI3ExQINK8On0sjrkv6r/ozce4wWLVZIapV45
-         RNeUMAh4ijZR/hELAB+BgKfDSnX0muUn+a++/8gk/RyfS8sCmVE7Ap/TgdVvG6Cvg5aU
-         gjVA==
+        h=sender:date:from:to:cc:subject:message-id:mime-version
+         :content-disposition;
+        bh=xfsmSzt88xNplVXKxLC9tYLWFki5wpzyznqbG/0KmNo=;
+        b=ndE1/NsffLHnBUXSBauvCEHfvhGitLPmkwEEv+f2ZC0IYFwY3Abow8wySZmrmcKJ8Z
+         SJzXDpK6Z34QXqiyx/zlm18jh4dQ5UoB8sBjEHb7T3s70PfbkMVSEYtSSdJFzA9E5nqh
+         UEQp0Rxs5ts9fyYAL9FlTfgvoYX33JFOemjDSZhpzaL2wSui0Im8pajbCYg123PqXrlf
+         7yYjgStfaAhwz2c4tg1fm+Y9usSuia08gSFcDAVGFAbvAkmc1+a8oLxKjd1YZtjDa3rO
+         3q3Z0mgzgVyBtzqbwuQHX1+z1oczUWoSwywqwEH8qqxUnUBzrExung/utIWdI8u+jLYC
+         0tXg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:subject:to:cc:references:from:autocrypt
-         :message-id:date:user-agent:mime-version:in-reply-to
-         :content-language:content-transfer-encoding;
-        bh=QdYgfPVgJsp4oh97F1pD98XMgFr+KvAclh3DzIXgN04=;
-        b=eRC4PCHxEDE1Q+5MgDBp5vHZQdTH1OK7BZJAFypSS+fwdvtdr3BWn6A1LcONsQEg1C
-         182xT3ATM/NgIIQyYgiMW1S29fSOD3KgT76PIMgQ4yu/GVvCj2W04vJDYSEnETywIAF5
-         pbVSo7o1Doe52sIQcgfVJPvdM/+IN031XZ6Nou8hvpkCYtxTpJcSgZHXiLpsHRB36xJc
-         6RzKCfHH/MQGEW6LOeNbvX8q0jtvnJj6V01RWBsRBvrWNRxhquOKh0LAQpbGterMlWXf
-         HmZztdBCoJqn1ch6rdE85qYrRJuXyZlyz3aAtMLga/IhufjmMipKBSviABZY+eFkDYym
-         M4dw==
-X-Gm-Message-State: AOAM530g+MPnlxQvSpRNHp9wah5k3DV2e6H4SqgA20WG6/cDL29SWvCE
-        iE0ouI5V4Aa0QcCtaMUHfNiZAPHb
-X-Google-Smtp-Source: ABdhPJwUwO8m1XHwImjLhes6ZpTy7wkLXtarUnUMN+HRgCmpRsVhV9OOJGM0lX+uIUSkErRlmSLLYg==
-X-Received: by 2002:a17:902:710b:: with SMTP id a11mr13946293pll.156.1591450489597;
-        Sat, 06 Jun 2020 06:34:49 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id p14sm10824481pju.7.2020.06.06.06.34.48
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 06 Jun 2020 06:34:49 -0700 (PDT)
-Subject: Re: [PATCH 5.7 00/14] 5.7.1-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-References: <20200605135951.018731965@linuxfoundation.org>
-From:   Guenter Roeck <linux@roeck-us.net>
-Autocrypt: addr=linux@roeck-us.net; keydata=
- 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
- mDW4+i+XlNFUPUYMrIKi9joBhu18ssf5i5Q=
-Message-ID: <77f30512-ff14-47a4-9350-9fd4151657a9@roeck-us.net>
-Date:   Sat, 6 Jun 2020 06:34:48 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :mime-version:content-disposition;
+        bh=xfsmSzt88xNplVXKxLC9tYLWFki5wpzyznqbG/0KmNo=;
+        b=toB+0HrAjaN3Rd6TjnbL7KgFYixI3+lNUy5bRYg9XE2LJhsTrPCMa+dlPQNUdEqKxU
+         lS4+FGXxvjaDNXTP8SEHHBVobQmerPFQvJtefqyRa5m2os5Qg29FSiBotqd/024DSYjY
+         HkOXsEsQ+EjCw6ex/FURAQR5czMtDEDQRjYm/u5n+MAbPWNAzVJ9VY8+dDckceK2sEXR
+         9eGKV7Ho4qMRvXs/Y4Z77Uw3C8VsoRxgc7FgLtr9wIkIkDEaIaCRejTomTcuw9HG93gI
+         JA6VVw2Hq2sMI3xzHqxV9qGnp7nOrg79tWLjcYCUDeYyBZjW/uVCE9MTuKmPEAb8zXkI
+         F16A==
+X-Gm-Message-State: AOAM531/WTfj8OtLx9+jbvLY0AXV1RWRYFTqFDpns8dvqymkZiOx8jKy
+        zmcc575dYWbUa+o150FEsFI=
+X-Google-Smtp-Source: ABdhPJw5zdbEjxR+Yv98vCMEujRuaDXTYf9OzV0/+qVeHttszQx1k/GM/xH/uTzOiLeKUYigcy+zow==
+X-Received: by 2002:a05:600c:4146:: with SMTP id h6mr7797080wmm.170.1591451841995;
+        Sat, 06 Jun 2020 06:57:21 -0700 (PDT)
+Received: from eldamar (80-218-24-251.dclient.hispeed.ch. [80.218.24.251])
+        by smtp.gmail.com with ESMTPSA id b185sm21011105wmd.3.2020.06.06.06.57.20
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 06 Jun 2020 06:57:20 -0700 (PDT)
+Date:   Sat, 6 Jun 2020 15:57:20 +0200
+From:   Salvatore Bonaccorso <carnil@debian.org>
+To:     stable <stable@vger.kernel.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Chuhong Yuan <hslester96@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: Please apply commit 9453264ef586 ("media: go7007: fix a miss of
+ snd_card_free") to v4.9.y up to v5.4.y
+Message-ID: <20200606135720.GA1832951@eldamar.local>
 MIME-Version: 1.0
-In-Reply-To: <20200605135951.018731965@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 6/5/20 7:14 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.7.1 release.
-> There are 14 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Sun, 07 Jun 2020 13:54:56 +0000.
-> Anything received after that time might be too late.
-> 
+Hi
 
+Could you please apply 9453264ef586 ("media: go7007: fix a miss of
+snd_card_free") to v4.9.y up to v5.4.y stable series? The fix is
+related to CVE-2019-20810.
 
-Build results:
-	total: 155 pass: 155 fail: 0
-Qemu test results:
-	total: 431 pass: 431 fail: 0
+The commit can be cherry-picked as is for 5.4.y but needs a small
+adjustment for context for versions which do not contain c0decac19da3
+("media: use strscpy() instead of strlcpy()") and ba78170ef153
+("media: go7007: Fix misuse of strscpy"). Attached a respective patch
+which applies with that refresh back to v4.9.y.
 
-Guenter
+Regards,
+Salvatore
+
+From fd93d8ec8b3447fd29509d2d2f92352e26ff3804 Mon Sep 17 00:00:00 2001
+From: Chuhong Yuan <hslester96@gmail.com>
+Date: Tue, 10 Dec 2019 04:15:48 +0100
+Subject: [PATCH] media: go7007: fix a miss of snd_card_free
+
+go7007_snd_init() misses a snd_card_free() in an error path.
+Add the missed call to fix it.
+
+Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+[Salvatore Bonaccorso: Adjust context for backport to versions which do
+not contain c0decac19da3 ("media: use strscpy() instead of strlcpy()")
+and ba78170ef153 ("media: go7007: Fix misuse of strscpy")]
+Signed-off-by: Salvatore Bonaccorso <carnil@debian.org>
+---
+ drivers/media/usb/go7007/snd-go7007.c | 35 +++++++++++++--------------
+ 1 file changed, 17 insertions(+), 18 deletions(-)
+
+diff --git a/drivers/media/usb/go7007/snd-go7007.c b/drivers/media/usb/go7007/snd-go7007.c
+index 137fc253b122..96c37a131deb 100644
+--- a/drivers/media/usb/go7007/snd-go7007.c
++++ b/drivers/media/usb/go7007/snd-go7007.c
+@@ -244,22 +244,18 @@ int go7007_snd_init(struct go7007 *go)
+ 	gosnd->capturing = 0;
+ 	ret = snd_card_new(go->dev, index[dev], id[dev], THIS_MODULE, 0,
+ 			   &gosnd->card);
+-	if (ret < 0) {
+-		kfree(gosnd);
+-		return ret;
+-	}
++	if (ret < 0)
++		goto free_snd;
++
+ 	ret = snd_device_new(gosnd->card, SNDRV_DEV_LOWLEVEL, go,
+ 			&go7007_snd_device_ops);
+-	if (ret < 0) {
+-		kfree(gosnd);
+-		return ret;
+-	}
++	if (ret < 0)
++		goto free_card;
++
+ 	ret = snd_pcm_new(gosnd->card, "go7007", 0, 0, 1, &gosnd->pcm);
+-	if (ret < 0) {
+-		snd_card_free(gosnd->card);
+-		kfree(gosnd);
+-		return ret;
+-	}
++	if (ret < 0)
++		goto free_card;
++
+ 	strlcpy(gosnd->card->driver, "go7007", sizeof(gosnd->card->driver));
+ 	strlcpy(gosnd->card->shortname, go->name, sizeof(gosnd->card->driver));
+ 	strlcpy(gosnd->card->longname, gosnd->card->shortname,
+@@ -270,11 +266,8 @@ int go7007_snd_init(struct go7007 *go)
+ 			&go7007_snd_capture_ops);
+ 
+ 	ret = snd_card_register(gosnd->card);
+-	if (ret < 0) {
+-		snd_card_free(gosnd->card);
+-		kfree(gosnd);
+-		return ret;
+-	}
++	if (ret < 0)
++		goto free_card;
+ 
+ 	gosnd->substream = NULL;
+ 	go->snd_context = gosnd;
+@@ -282,6 +275,12 @@ int go7007_snd_init(struct go7007 *go)
+ 	++dev;
+ 
+ 	return 0;
++
++free_card:
++	snd_card_free(gosnd->card);
++free_snd:
++	kfree(gosnd);
++	return ret;
+ }
+ EXPORT_SYMBOL(go7007_snd_init);
+ 
+-- 
+2.27.0.rc0
+
