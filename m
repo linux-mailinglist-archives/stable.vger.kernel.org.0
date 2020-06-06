@@ -2,29 +2,29 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 989AC1F0AA8
-	for <lists+stable@lfdr.de>; Sun,  7 Jun 2020 11:36:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D5081F0AAC
+	for <lists+stable@lfdr.de>; Sun,  7 Jun 2020 11:36:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726425AbgFGJgG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 7 Jun 2020 05:36:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54930 "EHLO
+        id S1726507AbgFGJgI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 7 Jun 2020 05:36:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54936 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726418AbgFGJgG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 7 Jun 2020 05:36:06 -0400
+        with ESMTP id S1726418AbgFGJgH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 7 Jun 2020 05:36:07 -0400
 Received: from Galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 137EFC08C5C2;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA65FC08C5C2;
         Sun,  7 Jun 2020 02:36:06 -0700 (PDT)
 Received: from p5de0bf0b.dip0.t-ipconnect.de ([93.224.191.11] helo=nanos.tec.linutronix.de)
         by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
         (Exim 4.80)
         (envelope-from <tglx@linutronix.de>)
-        id 1jhrih-0000KB-7L; Sun, 07 Jun 2020 11:35:59 +0200
+        id 1jhrii-0000LD-62; Sun, 07 Jun 2020 11:36:00 +0200
 Received: from nanos.tec.linutronix.de (localhost [IPv6:::1])
-        by nanos.tec.linutronix.de (Postfix) with ESMTP id 6E173FF805;
-        Sun,  7 Jun 2020 11:35:58 +0200 (CEST)
-Message-Id: <20200606221531.963970768@linutronix.de>
+        by nanos.tec.linutronix.de (Postfix) with ESMTP id A89A110108F;
+        Sun,  7 Jun 2020 11:35:59 +0200 (CEST)
+Message-Id: <20200606221532.080560273@linutronix.de>
 User-Agent: quilt/0.65
-Date:   Sat, 06 Jun 2020 23:51:16 +0200
+Date:   Sat, 06 Jun 2020 23:51:17 +0200
 From:   Thomas Gleixner <tglx@linutronix.de>
 To:     LKML <linux-kernel@vger.kernel.org>
 Cc:     Miklos Szeredi <miklos@szeredi.hu>, x86@kernel.org,
@@ -34,7 +34,7 @@ Cc:     Miklos Szeredi <miklos@szeredi.hu>, x86@kernel.org,
         Juergen Gross <jgross@suse.com>,
         Christophe Leroy <christophe.leroy@c-s.fr>,
         stable@vger.kernel.org
-Subject: [patch 2/3] lib/vdso: Provide sanity check for cycles (again)
+Subject: [patch 3/3] x86/vdso: Unbreak paravirt VDSO clocks
 References: <20200606215114.380723277@linutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,68 +47,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The original x86 VDSO implementation checked for the validity of the clock
-source read by testing whether the returned signed cycles value is less
-than zero. This check was also used by the vdso read function to signal
-that the current selected clocksource is not VDSO capable.
-
-During the rework of the VDSO code the check was removed and replaced with
-a check for the clocksource mode being != NONE.
-
-This turned out to be a mistake because the check is necessary for paravirt
-and hyperv clock sources. The reason is that these clock sources have their
-own internal sequence counter to validate the clocksource at the point of
+The conversion of x86 VDSO to the generic clock mode storage broke the
+paravirt and hyperv clocksource logic. These clock sources have their own
+internal sequence counter to validate the clocksource at the point of
 reading it. This is necessary because the hypervisor can invalidate the
 clocksource asynchronously so a check during the VDSO data update is not
-sufficient. Having a separate indicator for the validity is slower than
-just validating the cycles value. The check for it being negative turned
-out to be the fastest implementation and safe as it would require an uptime
-of ~73 years with a 4GHz counter frequency to result in a false positive.
+sufficient. If the internal check during read invalidates the clocksource
+the read return U64_MAX. The original code checked this efficiently by
+testing whether the result (casted to signed) is negative, i.e. bit 63 is
+set. This was done that way because an extra indicator for the validity had
+more overhead.
 
-Add an optional function to validate the cycles with a default
-implementation which allows the compiler to optimize it out for
-architectures which do not require it.
+The conversion broke this check because the check was replaced by a check
+for a valid VDSO clock mode.
+
+The wreckage manifests itself when the paravirt clock is installed as a
+valid VDSO clock and during runtime invalidated by the hypervisor,
+e.g. after a host suspend/resume cycle. After the invalidation the read
+function returns U64_MAX which is used as cycles and makes the clock jump
+by ~2200 seconds, and become stale until the 2200 seconds have elapsed
+where it starts to jump again. The period of this effect depends on the
+shift/mult pair of the clocksource and the jumps and staleness are an
+artifact of undefined but reproducible behaviour of math overflow.
+
+Implement an x86 version of the new vdso_cycles_ok() inline which adds this
+check back and a variant of vdso_clocksource_ok() which lets the compiler
+optimize it out to avoid the extra conditional. That's suboptimal when the
+system does not have a VDSO capable clocksource, but that's not the case
+which is optimized for.
 
 Reported-by: Miklos Szeredi <miklos@szeredi.hu>
 Fixes: 5d51bee725cc ("clocksource: Add common vdso clock mode storage")
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 Cc: stable@vger.kernel.org
 ---
- lib/vdso/gettimeofday.c |   11 +++++++++++
- 1 file changed, 11 insertions(+)
+ arch/x86/include/asm/vdso/gettimeofday.h |   18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
---- a/lib/vdso/gettimeofday.c
-+++ b/lib/vdso/gettimeofday.c
-@@ -38,6 +38,13 @@ static inline bool vdso_clocksource_ok(c
+--- a/arch/x86/include/asm/vdso/gettimeofday.h
++++ b/arch/x86/include/asm/vdso/gettimeofday.h
+@@ -271,6 +271,24 @@ static __always_inline const struct vdso
+ 	return __vdso_data;
  }
- #endif
  
-+#ifndef vdso_cycles_ok
-+static inline bool vdso_cycles_ok(u64 cycles)
++static inline bool arch_vdso_clocksource_ok(const struct vdso_data *vd)
 +{
 +	return true;
 +}
-+#endif
++#define vdso_clocksource_ok arch_vdso_clocksource_ok
 +
- #ifdef CONFIG_TIME_NS
- static int do_hres_timens(const struct vdso_data *vdns, clockid_t clk,
- 			  struct __kernel_timespec *ts)
-@@ -62,6 +69,8 @@ static int do_hres_timens(const struct v
- 			return -1;
- 
- 		cycles = __arch_get_hw_counter(vd->clock_mode);
-+		if (unlikely(!vdso_cycles_ok(cycles)))
-+			return -1;
- 		ns = vdso_ts->nsec;
- 		last = vd->cycle_last;
- 		ns += vdso_calc_delta(cycles, last, vd->mask, vd->mult);
-@@ -130,6 +139,8 @@ static __always_inline int do_hres(const
- 			return -1;
- 
- 		cycles = __arch_get_hw_counter(vd->clock_mode);
-+		if (unlikely(!vdso_cycles_ok(cycles)))
-+			return -1;
- 		ns = vdso_ts->nsec;
- 		last = vd->cycle_last;
- 		ns += vdso_calc_delta(cycles, last, vd->mask, vd->mult);
++/*
++ * Clocksource read value validation to handle PV and HyperV clocksources
++ * which can be invalidated asynchronously and indicate invalidation by
++ * returning U64_MAX, which can be effectively tested by checking for a
++ * negative value after casting it to s64.
++ */
++static inline bool arch_vdso_cycles_ok(u64 cycles)
++{
++	return (s64)cycles >= 0;
++}
++#define vdso_cycles_ok arch_vdso_cycles_ok
++
+ /*
+  * x86 specific delta calculation.
+  *
 
