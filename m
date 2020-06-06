@@ -2,54 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C13F71F07DA
-	for <lists+stable@lfdr.de>; Sat,  6 Jun 2020 18:12:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B8EBB1F07E6
+	for <lists+stable@lfdr.de>; Sat,  6 Jun 2020 18:27:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728836AbgFFQMW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 6 Jun 2020 12:12:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36250 "EHLO
+        id S1728732AbgFFQ07 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 6 Jun 2020 12:26:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38488 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728844AbgFFQMV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 6 Jun 2020 12:12:21 -0400
-Received: from mail-lj1-x244.google.com (mail-lj1-x244.google.com [IPv6:2a00:1450:4864:20::244])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 707A7C03E96A
-        for <stable@vger.kernel.org>; Sat,  6 Jun 2020 09:12:20 -0700 (PDT)
-Received: by mail-lj1-x244.google.com with SMTP id i27so4478060ljb.12
-        for <stable@vger.kernel.org>; Sat, 06 Jun 2020 09:12:20 -0700 (PDT)
+        with ESMTP id S1726075AbgFFQ06 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 6 Jun 2020 12:26:58 -0400
+Received: from mail-lf1-x143.google.com (mail-lf1-x143.google.com [IPv6:2a00:1450:4864:20::143])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E31FC03E96A
+        for <stable@vger.kernel.org>; Sat,  6 Jun 2020 09:26:56 -0700 (PDT)
+Received: by mail-lf1-x143.google.com with SMTP id d7so7638454lfi.12
+        for <stable@vger.kernel.org>; Sat, 06 Jun 2020 09:26:56 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc:content-transfer-encoding;
-        bh=OG5llYWkn5ZpZagpX7W+tCCaDr6jjTc5m5YMMo8l7Zo=;
-        b=RIMhhhmoI8UwYKTaRLxkh0h69EFG+8vPgB0xAZcBNFa4lnNxKESC4KSXBt8gFrhAUE
-         Oi+JRFdXlVPE34BG7/HmvYmzlnC+hDguRK/3Xj+fX/PSPcMnlccucMCKj3+aODceoNyE
-         ypeL5bCX59z1VGqnVEkm5Cvy1e6gj0CXNxmJrezyXpcb6OJwFAwfVV2MtNqUk162Pjez
-         7O9akbngW5USEJsCP3ZLJOHqa8N2maMpTB/bobZ5wK/F+qoXkn/SIDO/GEslzgB5+r1X
-         NnR/t82w4yUl3Mu1uOPLVDcoZuhkJYXBfjnhcAn3/wMgF24LKVjWlHWYpH2shiAhSX2d
-         3whA==
+        bh=WVipMmANOU1TRs4bJMqo6LMdlj1YJeAI2TUZczm2aTw=;
+        b=OVOMqoIe555B1hV0WAdydYjQa7QDL/leZXjEUsZ8+vZo7TeKPnb+ULGJUXJGfOfTga
+         yFnVaDYZZlutVlYX/pUGAU3wdNkv+1U5cDWfoISagxa7G8SaiVktuSlF9q7+HTf7Xql5
+         vHEOvO8ZHYBGk8CQxE61hJJg9iRhJLZcOch9XyeBCvsuoDWRMsYuicf4b3eQbPBDWBHm
+         6ELxLqMp8NZmtZJIol7Px8HpK8rJMmlhYuXgigzLn9tvLY1R2udqC8M7+ERkTCGPkaA/
+         uzEb9Z2eYB54KkEx/nsTeXmApRRkv/yWngxm1sJ9t3mbdtoOMeGTva7KzBjbXegxzbvr
+         nrSw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc:content-transfer-encoding;
-        bh=OG5llYWkn5ZpZagpX7W+tCCaDr6jjTc5m5YMMo8l7Zo=;
-        b=diu5dswNxv9g024guCmqKZJGgR1ZyoWDSYF4BkXmyY+ouiUYuucllgHnhIfr6iK/Ap
-         QEa0aJb41kfORiU50cGsSvomeSUBXc2FWd60CowoA39fPOzLJ5jxy6y9Xodk8SD3cr1N
-         nSpWUkiMFalen633o0z5yUs3waTpwUWYG7I/yaqpmdECDE471xmvgB4fggyuGrcgWeD1
-         pgo0pU0dp8Lp59LYhTC3aJAxl9DZY3WSRI6b+6XGo/Xfibj6LJRuuHgWTpraGC/4XUD4
-         pVCCqbWdJ5EVGEEmTPYq2PE05pWq7ZB+K+x5FAdhHpXcTSrCu9lMq4uRy8JuXSXnIIwh
-         0Bqg==
-X-Gm-Message-State: AOAM531lYLx+eIUer1PErTHOOFGgLEcPwIMQExdlqTCN4gPdCS6K7682
-        hvDw79n9bxyNAlydaR0HRCvLgBWx0LOJxrAtl9iB6Q==
-X-Google-Smtp-Source: ABdhPJx1bJBffMprTiS1CSYX4PIv3MJoz0FvJRUKQinahJ0Wo/qcO1CalKfwe4bKmuLz4AUd5ISsCSvhslEIpIVUUWI=
-X-Received: by 2002:a2e:9c91:: with SMTP id x17mr7774513lji.366.1591459938611;
- Sat, 06 Jun 2020 09:12:18 -0700 (PDT)
+        bh=WVipMmANOU1TRs4bJMqo6LMdlj1YJeAI2TUZczm2aTw=;
+        b=NZSZjCXiAw9lZfLnIKA49swrLvM6VTVNI6fiP4AsGAhh0ObFUKatrQ4McRZ28H8tXf
+         Yu/T5i/kc/FOHnqUh7pdRHfMRZXI1sDPmu4YYzjqT35FjlZkxvy3r1FV1SEO44TFx3Fj
+         hdq0Kxoq7PBXS1/kIc/mG7DforVSNLFeCSHbSIQv+J6uDpz5LHaIZQK5L/oplsGGsPdB
+         1Wj3v8c3s9UGRexKcjMq+HJi1wEvdggsz8yXbNzvzPZc/dCw1+5NUqfnu4NXVFpjkVi/
+         0d8dEXLctA8fDhlLynffpxQRPTon9P8FoPDfIn8IjpAA9q5odiwsCPsaXplyPgeVxLlx
+         5oVg==
+X-Gm-Message-State: AOAM530SlD1tnkNa+njMnGhHmsNMa5GCrfK8NlWFh5qE4y27LXYm9L0i
+        Px++k/ZKLhaQS5yIPzNgj4ZKjUJHefOOFVADzyFnCQ==
+X-Google-Smtp-Source: ABdhPJyJjX1YglqzJhvvFpLs8hNGBh+SSfnFt6AP22UOBLoSHqX6yu6LfxIB4yln42330u/EGAq+9Ic0ZJFeWdKVYe8=
+X-Received: by 2002:a19:641b:: with SMTP id y27mr7657667lfb.74.1591460814960;
+ Sat, 06 Jun 2020 09:26:54 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200605140152.493743366@linuxfoundation.org>
-In-Reply-To: <20200605140152.493743366@linuxfoundation.org>
+References: <20200605140252.542768750@linuxfoundation.org>
+In-Reply-To: <20200605140252.542768750@linuxfoundation.org>
 From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Sat, 6 Jun 2020 21:42:07 +0530
-Message-ID: <CA+G9fYvDNVD0h8mKCsg+v2J=+dDuC4fcHT2Qk+u_1FMFHtWtZw@mail.gmail.com>
-Subject: Re: [PATCH 5.6 00/43] 5.6.17-rc1 review
+Date:   Sat, 6 Jun 2020 21:56:43 +0530
+Message-ID: <CA+G9fYs8M4h-j+t4zypuTw+013F5vkvkAUxKu6iEwGHRxKC_4Q@mail.gmail.com>
+Subject: Re: [PATCH 5.4 00/38] 5.4.45-rc1 review
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     open list <linux-kernel@vger.kernel.org>,
         Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
@@ -66,11 +66,11 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 5 Jun 2020 at 19:48, Greg Kroah-Hartman
+On Fri, 5 Jun 2020 at 19:49, Greg Kroah-Hartman
 <gregkh@linuxfoundation.org> wrote:
 >
-> This is the start of the stable review cycle for the 5.6.17 release.
-> There are 43 patches in this series, all will be posted as a response
+> This is the start of the stable review cycle for the 5.4.45 release.
+> There are 38 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 >
@@ -79,10 +79,10 @@ On Fri, 5 Jun 2020 at 19:48, Greg Kroah-Hartman
 >
 > The whole patch series can be found in one patch at:
 >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.6.17-rc1.gz
+5.4.45-rc1.gz
 > or in the git tree and branch at:
 >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.6.y
+-rc.git linux-5.4.y
 > and the diffstat can be found below.
 >
 > thanks,
@@ -95,20 +95,20 @@ No regressions on arm64, arm, x86_64, and i386.
 Summary
 ------------------------------------------------------------------------
 
-kernel: 5.6.17-rc1
+kernel: 5.4.45-rc1
 git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
 le-rc.git
-git branch: linux-5.6.y
-git commit: 6266fb28693fc3d724b6a365a86e04a846a4f991
-git describe: v5.6.16-44-g6266fb28693f
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-5.6-oe/bui=
-ld/v5.6.16-44-g6266fb28693f
+git branch: linux-5.4.y
+git commit: 0e4e419d5fc3f776cc5ac829737dd6020f89f2a6
+git describe: v5.4.44-39-g0e4e419d5fc3
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-5.4-oe/bui=
+ld/v5.4.44-39-g0e4e419d5fc3
 
-No regressions (compared to build v5.6.16)
+No regressions (compared to build v5.4.44)
 
-No fixes (compared to build v5.6.16)
+No fixes (compared to build v5.4.44)
 
-Ran 33592 total tests in the following environments and test suites.
+Ran 32219 total tests in the following environments and test suites.
 
 Environments
 --------------
@@ -137,36 +137,36 @@ Test Suites
 * kselftest/filesystems
 * kselftest/net
 * libgpiod
-* libhugetlbfs
 * linux-log-parser
 * ltp-cap_bounds-tests
 * ltp-commands-tests
 * ltp-containers-tests
-* ltp-controllers-tests
 * ltp-cpuhotplug-tests
 * ltp-crypto-tests
 * ltp-dio-tests
+* ltp-hugetlb-tests
 * ltp-io-tests
-* ltp-ipc-tests
 * ltp-math-tests
-* ltp-nptl-tests
-* ltp-pty-tests
+* ltp-mm-tests
 * ltp-sched-tests
-* ltp-securebits-tests
 * ltp-syscalls-tests
 * perf
+* v4l2-compliance
+* libhugetlbfs
 * ltp-cve-tests
-* ltp-hugetlb-tests
-* ltp-mm-tests
 * ltp-fcntl-locktests-tests
 * ltp-filecaps-tests
 * ltp-fs-tests
 * ltp-fs_bind-tests
 * ltp-fs_perms_simple-tests
 * ltp-fsx-tests
-* ltp-open-posix-tests
+* ltp-ipc-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-securebits-tests
 * network-basic-tests
-* v4l2-compliance
+* ltp-controllers-tests
+* ltp-open-posix-tests
 * kvm-unit-tests
 * kselftest-vsyscall-mode-native
 * kselftest-vsyscall-mode-native/drivers
