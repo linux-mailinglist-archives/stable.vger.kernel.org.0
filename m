@@ -2,129 +2,220 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B2231F0582
-	for <lists+stable@lfdr.de>; Sat,  6 Jun 2020 08:56:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E21F1F05EF
+	for <lists+stable@lfdr.de>; Sat,  6 Jun 2020 11:32:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726508AbgFFG4i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 6 Jun 2020 02:56:38 -0400
-Received: from mail-ot1-f65.google.com ([209.85.210.65]:36917 "EHLO
-        mail-ot1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726384AbgFFG4i (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 6 Jun 2020 02:56:38 -0400
-Received: by mail-ot1-f65.google.com with SMTP id v13so9492439otp.4;
-        Fri, 05 Jun 2020 23:56:37 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=NQUek8YBI/Ra2tT9dStFeBAAq+j/b7SMm32naih+7IE=;
-        b=g/BNmS+nt1Hp+fI8wygGKZZ1JIRr4HE9IHnBqVxgEKDJySHqbeDQxSfjQIhP5FcbdN
-         KVc97Vb4AyBmhnOOClfcnKiayarjgrjJ9BbhiT50tW8Gn3oohVRbMEyG/IrCVB1i5cLJ
-         VcsVDVv8Owun+4hawVDlgTloiEi15pmhnnlUPy0GOH0pFwZ9oYRGLxrr5BF4H/DeGr+T
-         gL04O6KNEyhCIiTe/S0FLNJaZzEmuyLkSNlqmnhk508fm0T/o0vXm2W2/fwTzDe1rzR4
-         wrCGx37dfjhRivYHKfMwnYJtx+b0GyeHgvXOLS3CcB4uMJR0nzh0PnioTvtj/w7BN+8y
-         7fkA==
-X-Gm-Message-State: AOAM530PjjDwz36RiqoEWTQaGxJjY5fDckZVKuQE0/MOgh3s9d6MDoTO
-        QBPuM+UPwbQEU0QPxoK1xwsRpbSpU0ugH4snnYk=
-X-Google-Smtp-Source: ABdhPJy5G9cnRHYIUiUNNY9zRXhvU1FrRDkIKTt5EqvrkkpoPAAkazH16Q+MOIvluty4GDmy6mdsJACPkDR8keWm4k0=
-X-Received: by 2002:a9d:39f5:: with SMTP id y108mr3763834otb.262.1591426597228;
- Fri, 05 Jun 2020 23:56:37 -0700 (PDT)
-MIME-Version: 1.0
-References: <158889473309.2292982.18007035454673387731.stgit@dwillia2-desk3.amr.corp.intel.com>
- <2643462.teTRrieJB7@kreacher> <CAPcyv4hWLKP7fdLhWLn8vxf5rJKvKyU0yLfDs0XMjW-9U9tM-g@mail.gmail.com>
-In-Reply-To: <CAPcyv4hWLKP7fdLhWLn8vxf5rJKvKyU0yLfDs0XMjW-9U9tM-g@mail.gmail.com>
-From:   "Rafael J. Wysocki" <rafael@kernel.org>
-Date:   Sat, 6 Jun 2020 08:56:26 +0200
-Message-ID: <CAJZ5v0gAJyCi4YiVP4LuH3sCBWMArODDxkjKqk28Svug1+bTtw@mail.gmail.com>
-Subject: Re: [RFT][PATCH] ACPI: OSL: Use rwlock instead of RCU for memory management
-To:     Dan Williams <dan.j.williams@intel.com>
-Cc:     "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        Rafael J Wysocki <rafael.j.wysocki@intel.com>,
-        stable <stable@vger.kernel.org>, Len Brown <lenb@kernel.org>,
-        Borislav Petkov <bp@alien8.de>,
-        Ira Weiny <ira.weiny@intel.com>,
-        James Morse <james.morse@arm.com>,
-        Erik Kaneda <erik.kaneda@intel.com>,
-        Myron Stowe <myron.stowe@redhat.com>,
+        id S1728650AbgFFJb6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 6 Jun 2020 05:31:58 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:37491 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1725283AbgFFJb5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 6 Jun 2020 05:31:57 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1591435915;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=WPYvKtAQCtTVFMEFm9HcgELx9JdP3kWVQkmiIOpQoqI=;
+        b=BgpQCxLQJ3h4A7eFILHUYybwxvOVk57zumYg8cUtHbUIDWq3aNE6HvjkBUFrCAMVvmaA3+
+        tl02rjDE12oKs5vKTvTjd6Bk8W+PWmwVs6/0YbO3w37c+fPULfIkkd7vNGagydw8Icu7/H
+        S/84QSubn1KE3VKRkVZKsu2ZlI6NFzE=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-461-Ed4nRy47NWmNGbr_pwUmqQ-1; Sat, 06 Jun 2020 05:31:53 -0400
+X-MC-Unique: Ed4nRy47NWmNGbr_pwUmqQ-1
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id A117C1853562;
+        Sat,  6 Jun 2020 09:31:52 +0000 (UTC)
+Received: from x1.localdomain.com (ovpn-112-50.ams2.redhat.com [10.36.112.50])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 586D210013D5;
+        Sat,  6 Jun 2020 09:31:51 +0000 (UTC)
+From:   Hans de Goede <hdegoede@redhat.com>
+To:     Mika Westerberg <mika.westerberg@linux.intel.com>,
         Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Linux ACPI <linux-acpi@vger.kernel.org>,
-        linux-nvdimm <linux-nvdimm@lists.01.org>
-Content-Type: text/plain; charset="UTF-8"
+        Linus Walleij <linus.walleij@linaro.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>, linux-gpio@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: [PATCH v2] pinctrl: baytrail: Fix pin being driven low for a while on gpiod_get(..., GPIOD_OUT_HIGH)
+Date:   Sat,  6 Jun 2020 11:31:50 +0200
+Message-Id: <20200606093150.32882-1-hdegoede@redhat.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jun 5, 2020 at 7:09 PM Dan Williams <dan.j.williams@intel.com> wrote:
->
-> On Fri, Jun 5, 2020 at 7:06 AM Rafael J. Wysocki <rjw@rjwysocki.net> wrote:
-> >
-> > From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-> > Subject: [PATCH] ACPI: OSL: Use rwlock instead of RCU for memory management
-> >
-> > The ACPI OS layer uses RCU to protect the list of ACPI memory
-> > mappings from being walked while it is updated.  Among other
-> > situations, that list can be walked in non-NMI interrupt context,
-> > so using a sleeping lock to protect it is not an option.
-> >
-> > However, performance issues related to the RCU usage in there
-> > appear, as described by Dan Williams:
-> >
-> > "Recently a performance problem was reported for a process invoking
-> > a non-trival ASL program. The method call in this case ends up
-> > repetitively triggering a call path like:
-> >
-> >     acpi_ex_store
-> >     acpi_ex_store_object_to_node
-> >     acpi_ex_write_data_to_field
-> >     acpi_ex_insert_into_field
-> >     acpi_ex_write_with_update_rule
-> >     acpi_ex_field_datum_io
-> >     acpi_ex_access_region
-> >     acpi_ev_address_space_dispatch
-> >     acpi_ex_system_memory_space_handler
-> >     acpi_os_map_cleanup.part.14
-> >     _synchronize_rcu_expedited.constprop.89
-> >     schedule
-> >
-> > The end result of frequent synchronize_rcu_expedited() invocation is
-> > tiny sub-millisecond spurts of execution where the scheduler freely
-> > migrates this apparently sleepy task. The overhead of frequent
-> > scheduler invocation multiplies the execution time by a factor
-> > of 2-3X."
-> >
-> > In order to avoid these issues, replace the RCU in the ACPI OS
-> > layer by an rwlock.
-> >
-> > That rwlock should not be frequently contended, so the performance
-> > impact of it is not expected to be significant.
-> >
-> > Reported-by: Dan Williams <dan.j.williams@intel.com>
-> > Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-> > ---
-> >
-> > Hi Dan,
-> >
-> > This is a possible fix for the ACPI OSL RCU-related performance issues, but
-> > can you please arrange for the testing of it on the affected systems?
->
-> Ugh, is it really this simple? I did not realize the read-side is NMI
-> safe. I'll take a look.
+The pins on the Bay Trail SoC have separate input-buffer and output-buffer
+enable bits and a read of the level bit of the value register will always
+return the value from the input-buffer.
 
-But if an NMI triggers while the lock is being held for writing, it
-will deadlock, won't it?
+The BIOS of a device may configure a pin in output-only mode, only enabling
+the output buffer, and write 1 to the level bit to drive the pin high.
+This 1 written to the level bit will be stored inside the data-latch of the
+output buffer.
 
-OTOH, according to the RCU documentation it is valid to call
-rcu_read_[un]lock() from an NMI handler (see Interrupts and NMIs in
-Documentation/RCU/Design/Requirements/Requirements.rst) so we are good
-from this perspective today.
+But a subsequent read of the value register will return 0 for the level bit
+because the input-buffer is disabled. This causes a read-modify-write as
+done by byt_gpio_set_direction() to write 0 to the level bit, driving the
+pin low!
 
-Unless we teach APEI to avoid mapping lookups from
-apei_{read|write}(), which wouldn't be unreasonable by itself, we need
-to hold on to the RCU in ACPI OSL, so it looks like addressing the
-problem in ACPICA is the best way to do it (and the current ACPICA
-code in question is suboptimal, so it would be good to rework it
-anyway).
+Before this commit byt_gpio_direction_output() relied on
+pinctrl_gpio_direction_output() to set the direction, followed by a call
+to byt_gpio_set() to apply the selected value. This causes the pin to
+go low between the pinctrl_gpio_direction_output() and byt_gpio_set()
+calls.
 
-Cheers!
+Change byt_gpio_direction_output() to directly make the register
+modifications itself instead. Replacing the 2 subsequent writes to the
+value register with a single write.
+
+Note that the pinctrl code does not keep track internally of the direction,
+so not going through pinctrl_gpio_direction_output() is not an issue.
+
+This issue was noticed on a Trekstor SurfTab Twin 10.1. When the panel is
+already on at boot (no external monitor connected), then the i915 driver
+does a gpiod_get(..., GPIOD_OUT_HIGH) for the panel-enable GPIO. The
+temporarily going low of that GPIO was causing the panel to reset itself
+after which it would not show an image until it was turned off and back on
+again (until a full modeset was done on it). This commit fixes this.
+
+This commit also updates the byt_gpio_direction_input() to use direct
+register accesses instead of going through pinctrl_gpio_direction_input(),
+to keep it consistent with byt_gpio_direction_output().
+
+Note for backporting, this commit depends on:
+commit e2b74419e5cc ("pinctrl: baytrail: Replace WARN with dev_info_once
+when setting direct-irq pin to output")
+
+Cc: stable@vger.kernel.org
+Fixes: 86e3ef812fe3 ("pinctrl: baytrail: Update gpio chip operations")
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+Note the factoring out of the direct IRQ mode warning is deliberately not
+split into a separate patch to make backporting this easier.
+
+---
+Changes in v2:
+- Add fixes tag
+- Also change byt_gpio_direction_input() to directly making the change
+  itself for consistency
+- Add a comment above byt_gpio_direction_output() to avoid someone doing
+  a well intended cleanup in the future re-introducing the problem
+---
+ drivers/pinctrl/intel/pinctrl-baytrail.c | 67 +++++++++++++++++++-----
+ 1 file changed, 53 insertions(+), 14 deletions(-)
+
+diff --git a/drivers/pinctrl/intel/pinctrl-baytrail.c b/drivers/pinctrl/intel/pinctrl-baytrail.c
+index 9b821c9cbd16..b033f9d13fb4 100644
+--- a/drivers/pinctrl/intel/pinctrl-baytrail.c
++++ b/drivers/pinctrl/intel/pinctrl-baytrail.c
+@@ -800,6 +800,21 @@ static void byt_gpio_disable_free(struct pinctrl_dev *pctl_dev,
+ 	pm_runtime_put(vg->dev);
+ }
+ 
++static void byt_gpio_direct_irq_check(struct intel_pinctrl *vg,
++				      unsigned int offset)
++{
++	void __iomem *conf_reg = byt_gpio_reg(vg, offset, BYT_CONF0_REG);
++
++	/*
++	 * Before making any direction modifications, do a check if gpio is set
++	 * for direct IRQ. On Bay Trail, setting GPIO to output does not make
++	 * sense, so let's at least inform the caller before they shoot
++	 * themselves in the foot.
++	 */
++	if (readl(conf_reg) & BYT_DIRECT_IRQ_EN)
++		dev_info_once(vg->dev, "Potential Error: Setting GPIO with direct_irq_en to output");
++}
++
+ static int byt_gpio_set_direction(struct pinctrl_dev *pctl_dev,
+ 				  struct pinctrl_gpio_range *range,
+ 				  unsigned int offset,
+@@ -807,7 +822,6 @@ static int byt_gpio_set_direction(struct pinctrl_dev *pctl_dev,
+ {
+ 	struct intel_pinctrl *vg = pinctrl_dev_get_drvdata(pctl_dev);
+ 	void __iomem *val_reg = byt_gpio_reg(vg, offset, BYT_VAL_REG);
+-	void __iomem *conf_reg = byt_gpio_reg(vg, offset, BYT_CONF0_REG);
+ 	unsigned long flags;
+ 	u32 value;
+ 
+@@ -817,14 +831,8 @@ static int byt_gpio_set_direction(struct pinctrl_dev *pctl_dev,
+ 	value &= ~BYT_DIR_MASK;
+ 	if (input)
+ 		value |= BYT_OUTPUT_EN;
+-	else if (readl(conf_reg) & BYT_DIRECT_IRQ_EN)
+-		/*
+-		 * Before making any direction modifications, do a check if gpio
+-		 * is set for direct IRQ.  On baytrail, setting GPIO to output
+-		 * does not make sense, so let's at least inform the caller before
+-		 * they shoot themselves in the foot.
+-		 */
+-		dev_info_once(vg->dev, "Potential Error: Setting GPIO with direct_irq_en to output");
++	else
++		byt_gpio_direct_irq_check(vg, offset);
+ 
+ 	writel(value, val_reg);
+ 
+@@ -1165,19 +1173,50 @@ static int byt_gpio_get_direction(struct gpio_chip *chip, unsigned int offset)
+ 
+ static int byt_gpio_direction_input(struct gpio_chip *chip, unsigned int offset)
+ {
+-	return pinctrl_gpio_direction_input(chip->base + offset);
++	struct intel_pinctrl *vg = gpiochip_get_data(chip);
++	void __iomem *val_reg = byt_gpio_reg(vg, offset, BYT_VAL_REG);
++	unsigned long flags;
++	u32 reg;
++
++	raw_spin_lock_irqsave(&byt_lock, flags);
++
++	reg = readl(val_reg);
++	reg &= ~BYT_DIR_MASK;
++	reg |= BYT_OUTPUT_EN;
++	writel(reg, val_reg);
++
++	raw_spin_unlock_irqrestore(&byt_lock, flags);
++	return 0;
+ }
+ 
++/*
++ * Note despite the temptation this MUST NOT be converted into a call to
++ * pinctrl_gpio_direction_output() + byt_gpio_set() that does not work this
++ * MUST be done as a single BYT_VAL_REG register write.
++ * See the commit message of the commit adding this comment for details.
++ */
+ static int byt_gpio_direction_output(struct gpio_chip *chip,
+ 				     unsigned int offset, int value)
+ {
+-	int ret = pinctrl_gpio_direction_output(chip->base + offset);
++	struct intel_pinctrl *vg = gpiochip_get_data(chip);
++	void __iomem *val_reg = byt_gpio_reg(vg, offset, BYT_VAL_REG);
++	unsigned long flags;
++	u32 reg;
+ 
+-	if (ret)
+-		return ret;
++	raw_spin_lock_irqsave(&byt_lock, flags);
++
++	byt_gpio_direct_irq_check(vg, offset);
+ 
+-	byt_gpio_set(chip, offset, value);
++	reg = readl(val_reg);
++	reg &= ~BYT_DIR_MASK;
++	if (value)
++		reg |= BYT_LEVEL;
++	else
++		reg &= ~BYT_LEVEL;
+ 
++	writel(reg, val_reg);
++
++	raw_spin_unlock_irqrestore(&byt_lock, flags);
+ 	return 0;
+ }
+ 
+-- 
+2.26.2
+
