@@ -2,220 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E21F1F05EF
-	for <lists+stable@lfdr.de>; Sat,  6 Jun 2020 11:32:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 53FDF1F06C8
+	for <lists+stable@lfdr.de>; Sat,  6 Jun 2020 15:33:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728650AbgFFJb6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 6 Jun 2020 05:31:58 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:37491 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1725283AbgFFJb5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 6 Jun 2020 05:31:57 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1591435915;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=WPYvKtAQCtTVFMEFm9HcgELx9JdP3kWVQkmiIOpQoqI=;
-        b=BgpQCxLQJ3h4A7eFILHUYybwxvOVk57zumYg8cUtHbUIDWq3aNE6HvjkBUFrCAMVvmaA3+
-        tl02rjDE12oKs5vKTvTjd6Bk8W+PWmwVs6/0YbO3w37c+fPULfIkkd7vNGagydw8Icu7/H
-        S/84QSubn1KE3VKRkVZKsu2ZlI6NFzE=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-461-Ed4nRy47NWmNGbr_pwUmqQ-1; Sat, 06 Jun 2020 05:31:53 -0400
-X-MC-Unique: Ed4nRy47NWmNGbr_pwUmqQ-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id A117C1853562;
-        Sat,  6 Jun 2020 09:31:52 +0000 (UTC)
-Received: from x1.localdomain.com (ovpn-112-50.ams2.redhat.com [10.36.112.50])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 586D210013D5;
-        Sat,  6 Jun 2020 09:31:51 +0000 (UTC)
-From:   Hans de Goede <hdegoede@redhat.com>
-To:     Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Linus Walleij <linus.walleij@linaro.org>
-Cc:     Hans de Goede <hdegoede@redhat.com>, linux-gpio@vger.kernel.org,
+        id S1726078AbgFFNdH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 6 Jun 2020 09:33:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39762 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725831AbgFFNdF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 6 Jun 2020 09:33:05 -0400
+Received: from mail-pj1-x1043.google.com (mail-pj1-x1043.google.com [IPv6:2607:f8b0:4864:20::1043])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60CD6C03E96A;
+        Sat,  6 Jun 2020 06:33:05 -0700 (PDT)
+Received: by mail-pj1-x1043.google.com with SMTP id jz3so3824841pjb.0;
+        Sat, 06 Jun 2020 06:33:05 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:subject:to:cc:references:from:autocrypt:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=niRVB3I9lYUuSr9b3LISr6RvcpH3LkL2m9lwuVg8njI=;
+        b=bEsdpeVQyIyNEFMf3FNN9yB46vVBIXVkReBMnA3XX0i87TeOsSV4fS8zcwB1d2QnWF
+         EvEWV5e3YH8ur5uI0Ld3yec2wYIfkXO73Mi/UiQVCyLPHBqxKQXR+hGMdYg0PSVb4dgd
+         fp4WVfFGxEhrI8ljgJ6GBRhHZJSN9QmxJU7OmEECCCMwI8orUaxV0PN0sQAXK5a+Gg8J
+         TvxzcYkhjppo7cwIBmS6wGTLXk7OxmKECmxEFdgecusMz2vHHX6hW0+OVUPecGH2bABw
+         zXZhIUjVzzWLIqYF//6ruAK4EHCQY9lYce3LLzVfON2AdWaOUgRt0ZkVLnzEM1sQrH3y
+         p9Vw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:subject:to:cc:references:from:autocrypt
+         :message-id:date:user-agent:mime-version:in-reply-to
+         :content-language:content-transfer-encoding;
+        bh=niRVB3I9lYUuSr9b3LISr6RvcpH3LkL2m9lwuVg8njI=;
+        b=K/qc1JmyXInrea2lRzzc2mgCEWHXKEZcJFqrueTVYVNWY1iBBc0H8uSpePONKv6UY9
+         /MGP6VmIiQiqeFdZ1NcuQMnU5358CE6fGSur/Dno71QBh0Ot5glRpaSRqKk+xRuJEEdB
+         q8Os6diNjAWdZiMvWT+5eKaQBq9NrG9BGgIJzAcith/QnFKpQCVk6yX3YuSXVGsEwcN2
+         /ATE0GmRTdylVD/iBTLDepFOH+i7KXVyc9Oe/7D7ZR+Xbv4par5pa6Sq3xwu2DDPZ2Fh
+         ZsoWuqmoFT1MRHSYsH2kCqGtdpe2/ozq16BLuOByLP1x+h8B7kGwV+BoO6Q0rOlp+9D1
+         k8vw==
+X-Gm-Message-State: AOAM533nUEcrCvy5CKfJLndJdeDOREOOP7/SaYb0mPKTvEF3Ns3+WaCV
+        E4ZroO9xLYn62PWVNOr1/TvlFyxu
+X-Google-Smtp-Source: ABdhPJzCPqTMTYNkbiuQ0stgGheDgXb9Y6hmfkJUraxaqPLVeThuxJ9TRW6B0wBlwzS4H8lWpZPnAA==
+X-Received: by 2002:a17:902:b286:: with SMTP id u6mr13760080plr.264.1591450384624;
+        Sat, 06 Jun 2020 06:33:04 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id l63sm2436096pfd.122.2020.06.06.06.33.02
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sat, 06 Jun 2020 06:33:03 -0700 (PDT)
+Subject: Re: [PATCH 4.19 00/28] 4.19.127-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
         stable@vger.kernel.org
-Subject: [PATCH v2] pinctrl: baytrail: Fix pin being driven low for a while on gpiod_get(..., GPIOD_OUT_HIGH)
-Date:   Sat,  6 Jun 2020 11:31:50 +0200
-Message-Id: <20200606093150.32882-1-hdegoede@redhat.com>
+References: <20200605140252.338635395@linuxfoundation.org>
+From:   Guenter Roeck <linux@roeck-us.net>
+Autocrypt: addr=linux@roeck-us.net; keydata=
+ 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
+ mDW4+i+XlNFUPUYMrIKi9joBhu18ssf5i5Q=
+Message-ID: <d3ff957e-488f-a1fe-846d-eb4a8d8279ec@roeck-us.net>
+Date:   Sat, 6 Jun 2020 06:33:01 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
+In-Reply-To: <20200605140252.338635395@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The pins on the Bay Trail SoC have separate input-buffer and output-buffer
-enable bits and a read of the level bit of the value register will always
-return the value from the input-buffer.
+On 6/5/20 7:15 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.19.127 release.
+> There are 28 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sun, 07 Jun 2020 13:54:56 +0000.
+> Anything received after that time might be too late.
+> 
 
-The BIOS of a device may configure a pin in output-only mode, only enabling
-the output buffer, and write 1 to the level bit to drive the pin high.
-This 1 written to the level bit will be stored inside the data-latch of the
-output buffer.
+Build results:
+	total: 155 pass: 155 fail: 0
+Qemu test results:
+	total: 421 pass: 421 fail: 0
 
-But a subsequent read of the value register will return 0 for the level bit
-because the input-buffer is disabled. This causes a read-modify-write as
-done by byt_gpio_set_direction() to write 0 to the level bit, driving the
-pin low!
-
-Before this commit byt_gpio_direction_output() relied on
-pinctrl_gpio_direction_output() to set the direction, followed by a call
-to byt_gpio_set() to apply the selected value. This causes the pin to
-go low between the pinctrl_gpio_direction_output() and byt_gpio_set()
-calls.
-
-Change byt_gpio_direction_output() to directly make the register
-modifications itself instead. Replacing the 2 subsequent writes to the
-value register with a single write.
-
-Note that the pinctrl code does not keep track internally of the direction,
-so not going through pinctrl_gpio_direction_output() is not an issue.
-
-This issue was noticed on a Trekstor SurfTab Twin 10.1. When the panel is
-already on at boot (no external monitor connected), then the i915 driver
-does a gpiod_get(..., GPIOD_OUT_HIGH) for the panel-enable GPIO. The
-temporarily going low of that GPIO was causing the panel to reset itself
-after which it would not show an image until it was turned off and back on
-again (until a full modeset was done on it). This commit fixes this.
-
-This commit also updates the byt_gpio_direction_input() to use direct
-register accesses instead of going through pinctrl_gpio_direction_input(),
-to keep it consistent with byt_gpio_direction_output().
-
-Note for backporting, this commit depends on:
-commit e2b74419e5cc ("pinctrl: baytrail: Replace WARN with dev_info_once
-when setting direct-irq pin to output")
-
-Cc: stable@vger.kernel.org
-Fixes: 86e3ef812fe3 ("pinctrl: baytrail: Update gpio chip operations")
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
----
-Note the factoring out of the direct IRQ mode warning is deliberately not
-split into a separate patch to make backporting this easier.
-
----
-Changes in v2:
-- Add fixes tag
-- Also change byt_gpio_direction_input() to directly making the change
-  itself for consistency
-- Add a comment above byt_gpio_direction_output() to avoid someone doing
-  a well intended cleanup in the future re-introducing the problem
----
- drivers/pinctrl/intel/pinctrl-baytrail.c | 67 +++++++++++++++++++-----
- 1 file changed, 53 insertions(+), 14 deletions(-)
-
-diff --git a/drivers/pinctrl/intel/pinctrl-baytrail.c b/drivers/pinctrl/intel/pinctrl-baytrail.c
-index 9b821c9cbd16..b033f9d13fb4 100644
---- a/drivers/pinctrl/intel/pinctrl-baytrail.c
-+++ b/drivers/pinctrl/intel/pinctrl-baytrail.c
-@@ -800,6 +800,21 @@ static void byt_gpio_disable_free(struct pinctrl_dev *pctl_dev,
- 	pm_runtime_put(vg->dev);
- }
- 
-+static void byt_gpio_direct_irq_check(struct intel_pinctrl *vg,
-+				      unsigned int offset)
-+{
-+	void __iomem *conf_reg = byt_gpio_reg(vg, offset, BYT_CONF0_REG);
-+
-+	/*
-+	 * Before making any direction modifications, do a check if gpio is set
-+	 * for direct IRQ. On Bay Trail, setting GPIO to output does not make
-+	 * sense, so let's at least inform the caller before they shoot
-+	 * themselves in the foot.
-+	 */
-+	if (readl(conf_reg) & BYT_DIRECT_IRQ_EN)
-+		dev_info_once(vg->dev, "Potential Error: Setting GPIO with direct_irq_en to output");
-+}
-+
- static int byt_gpio_set_direction(struct pinctrl_dev *pctl_dev,
- 				  struct pinctrl_gpio_range *range,
- 				  unsigned int offset,
-@@ -807,7 +822,6 @@ static int byt_gpio_set_direction(struct pinctrl_dev *pctl_dev,
- {
- 	struct intel_pinctrl *vg = pinctrl_dev_get_drvdata(pctl_dev);
- 	void __iomem *val_reg = byt_gpio_reg(vg, offset, BYT_VAL_REG);
--	void __iomem *conf_reg = byt_gpio_reg(vg, offset, BYT_CONF0_REG);
- 	unsigned long flags;
- 	u32 value;
- 
-@@ -817,14 +831,8 @@ static int byt_gpio_set_direction(struct pinctrl_dev *pctl_dev,
- 	value &= ~BYT_DIR_MASK;
- 	if (input)
- 		value |= BYT_OUTPUT_EN;
--	else if (readl(conf_reg) & BYT_DIRECT_IRQ_EN)
--		/*
--		 * Before making any direction modifications, do a check if gpio
--		 * is set for direct IRQ.  On baytrail, setting GPIO to output
--		 * does not make sense, so let's at least inform the caller before
--		 * they shoot themselves in the foot.
--		 */
--		dev_info_once(vg->dev, "Potential Error: Setting GPIO with direct_irq_en to output");
-+	else
-+		byt_gpio_direct_irq_check(vg, offset);
- 
- 	writel(value, val_reg);
- 
-@@ -1165,19 +1173,50 @@ static int byt_gpio_get_direction(struct gpio_chip *chip, unsigned int offset)
- 
- static int byt_gpio_direction_input(struct gpio_chip *chip, unsigned int offset)
- {
--	return pinctrl_gpio_direction_input(chip->base + offset);
-+	struct intel_pinctrl *vg = gpiochip_get_data(chip);
-+	void __iomem *val_reg = byt_gpio_reg(vg, offset, BYT_VAL_REG);
-+	unsigned long flags;
-+	u32 reg;
-+
-+	raw_spin_lock_irqsave(&byt_lock, flags);
-+
-+	reg = readl(val_reg);
-+	reg &= ~BYT_DIR_MASK;
-+	reg |= BYT_OUTPUT_EN;
-+	writel(reg, val_reg);
-+
-+	raw_spin_unlock_irqrestore(&byt_lock, flags);
-+	return 0;
- }
- 
-+/*
-+ * Note despite the temptation this MUST NOT be converted into a call to
-+ * pinctrl_gpio_direction_output() + byt_gpio_set() that does not work this
-+ * MUST be done as a single BYT_VAL_REG register write.
-+ * See the commit message of the commit adding this comment for details.
-+ */
- static int byt_gpio_direction_output(struct gpio_chip *chip,
- 				     unsigned int offset, int value)
- {
--	int ret = pinctrl_gpio_direction_output(chip->base + offset);
-+	struct intel_pinctrl *vg = gpiochip_get_data(chip);
-+	void __iomem *val_reg = byt_gpio_reg(vg, offset, BYT_VAL_REG);
-+	unsigned long flags;
-+	u32 reg;
- 
--	if (ret)
--		return ret;
-+	raw_spin_lock_irqsave(&byt_lock, flags);
-+
-+	byt_gpio_direct_irq_check(vg, offset);
- 
--	byt_gpio_set(chip, offset, value);
-+	reg = readl(val_reg);
-+	reg &= ~BYT_DIR_MASK;
-+	if (value)
-+		reg |= BYT_LEVEL;
-+	else
-+		reg &= ~BYT_LEVEL;
- 
-+	writel(reg, val_reg);
-+
-+	raw_spin_unlock_irqrestore(&byt_lock, flags);
- 	return 0;
- }
- 
--- 
-2.26.2
-
+Guenter
