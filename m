@@ -2,120 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 30C7B1F1069
-	for <lists+stable@lfdr.de>; Mon,  8 Jun 2020 01:28:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 36B071F1088
+	for <lists+stable@lfdr.de>; Mon,  8 Jun 2020 01:41:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727791AbgFGX2v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 7 Jun 2020 19:28:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44660 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727786AbgFGX2u (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 7 Jun 2020 19:28:50 -0400
-Received: from mail-pl1-x62e.google.com (mail-pl1-x62e.google.com [IPv6:2607:f8b0:4864:20::62e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA9A8C061A0E
-        for <stable@vger.kernel.org>; Sun,  7 Jun 2020 16:28:50 -0700 (PDT)
-Received: by mail-pl1-x62e.google.com with SMTP id x11so5923419plv.9
-        for <stable@vger.kernel.org>; Sun, 07 Jun 2020 16:28:50 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=b+hwi77dCEdEZMUR8Sd67Zs/g6uWMMwLw4SyXCqcis4=;
-        b=KyLwvx669MOiANitWECyUfjQI5xLx3NjvMWsyqHg6zVByU3NVqgmgS7Vqdnp5O041B
-         ieQvweU5yulhH80MvlbDfiHYNhP2kbxpE4Ga+yin9d2O8nXFPbILJf/UdkH5XOTcgx+u
-         hlw1t3Ii8nGWRh8lT8G4pIoyw0k+oyYfIE0SOkXAk4hrwB5MwCcsheRU0NI3o0Bq1PSR
-         KDihYKXRvP83SQFK2aGFJPi5J0FrsUmXPym2GXfhnev59xo29jA0qlVr6WRl/AxXj9Di
-         gwxJogit6/wI8Ba3iTRvHmC+AWNwuGk4gFw37BY8rNX96vUJESDiaYHG6J+7Kd1twBoz
-         Mitw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=b+hwi77dCEdEZMUR8Sd67Zs/g6uWMMwLw4SyXCqcis4=;
-        b=qdAmlr6fYw8HvxCVFAGpSV8xJUUT+PXwluTbJVviUGpFz3UN+UMX5lkgWJp4zh1Njv
-         czmjWeX3+elUYFKg7kGJW2J10DrdE178oYwciNu04Mbm/i26bvGK0sG2ZNb5i0i6oa8w
-         N26cUskMHJOT8A6zFC7pZOwMHM9WBLHPLipM7FAXISUUC1wuS8BA3pFzBCkNSpSF+/as
-         7FMNQs5CXz3Fbx+sJZv6MtQbSldxL/ITv9UBUXIZCLiJ7G4NG0TLHeH/1aHp5DltiH4w
-         jRJsQbtpUiWyitBsQbDSelRKlvNyHcbXAAw5l1tq1x1TkCWIi/qBgKE+D7lrEdL7kiSA
-         auww==
-X-Gm-Message-State: AOAM533z+YHi/4S7Ol/RXfnRfp/n7HOmqUoRAjfcTcEcyKm0A7rSDrzl
-        Q1Ncf9+CSGSNyYIT+2+q63vQmc5g7Pg=
-X-Google-Smtp-Source: ABdhPJwGt7oZuPeHA6QkmNFGsEakAnT/glcdbdyj2w0NsCQ+a1O7253Arb5MYI4WiV76elbH5iOboA==
-X-Received: by 2002:a17:902:9f90:: with SMTP id g16mr18849214plq.146.1591572529745;
-        Sun, 07 Jun 2020 16:28:49 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id n2sm5402022pfd.125.2020.06.07.16.28.48
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 07 Jun 2020 16:28:48 -0700 (PDT)
-Message-ID: <5edd7830.1c69fb81.36198.660c@mx.google.com>
-Date:   Sun, 07 Jun 2020 16:28:48 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Branch: linux-4.14.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.14.183-30-gefd7e05248bc
-Subject: stable-rc/linux-4.14.y baseline: 46 runs,
- 1 regressions (v4.14.183-30-gefd7e05248bc)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+        id S1727878AbgFGXlU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 7 Jun 2020 19:41:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37894 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727794AbgFGXlU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 7 Jun 2020 19:41:20 -0400
+Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id D8773206D5;
+        Sun,  7 Jun 2020 23:41:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1591573279;
+        bh=APTxFSG75AKTzpoVzzrTh4B5I2uDGGrY3UXjBuEWkZs=;
+        h=Date:From:To:Subject:In-Reply-To:From;
+        b=vBO3g04tfSvaN4DydHprM8GgQYo9neemaafMO2DpMxLHgnDVtI8D9oDlnilP0SBb2
+         8vqz/6IGgjvz4U0/CM+vd0JzXl5AZgK8g0/bil4PdvZ4CIgLX/qBrCsl8ZMpIVA1QV
+         0opfR+ftIPdeR0CXtxjXgA/zyw6ILEyoxHhrXqk0=
+Date:   Sun, 07 Jun 2020 16:41:18 -0700
+From:   Andrew Morton <akpm@linux-foundation.org>
+To:     hdk1983@gmail.com, hermes@ceres.dti.ne.jp,
+        konishi.ryusuke@gmail.com, me@waltonhoops.com,
+        mm-commits@vger.kernel.org, stable@vger.kernel.org, tom@logand.com
+Subject:  +
+ nilfs2-fix-null-pointer-dereference-at-nilfs_segctor_do_construct.patch
+ added to -mm tree
+Message-ID: <20200607234118.e6OahXAr8%akpm@linux-foundation.org>
+In-Reply-To: <20200604164523.e15f3177f4b69dcb4f2534a1@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y baseline: 46 runs, 1 regressions (v4.14.183-30-gefd7=
-e05248bc)
 
-Regressions Summary
--------------------
+The patch titled
+     Subject: nilfs2: fix null pointer dereference at nilfs_segctor_do_construct()
+has been added to the -mm tree.  Its filename is
+     nilfs2-fix-null-pointer-dereference-at-nilfs_segctor_do_construct.patch
 
-platform        | arch  | lab          | compiler | defconfig | results
-----------------+-------+--------------+----------+-----------+--------
-meson-gxbb-p200 | arm64 | lab-baylibre | gcc-8    | defconfig | 0/1    =
+This patch should soon appear at
+    http://ozlabs.org/~akpm/mmots/broken-out/nilfs2-fix-null-pointer-dereference-at-nilfs_segctor_do_construct.patch
+and later at
+    http://ozlabs.org/~akpm/mmotm/broken-out/nilfs2-fix-null-pointer-dereference-at-nilfs_segctor_do_construct.patch
 
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.14.y/ker=
-nel/v4.14.183-30-gefd7e05248bc/plan/baseline/
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-4.14.y
-  Describe: v4.14.183-30-gefd7e05248bc
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      efd7e05248bc70b1954a1d40a255eba3bce686a4 =
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
 
+------------------------------------------------------
+From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Subject: nilfs2: fix null pointer dereference at nilfs_segctor_do_construct()
 
+After commit c3aab9a0bd91 ("mm/filemap.c: don't initiate writeback if
+mapping has no dirty pages"), the following null pointer dereference has
+been reported on nilfs2:
 
-Test Regressions
----------------- =
+ BUG: kernel NULL pointer dereference, address: 00000000000000a8
+ #PF: supervisor read access in kernel mode
+ #PF: error_code(0x0000) - not-present page
+ PGD 0 P4D 0
+ Oops: 0000 [#1] SMP PTI
+ ...
+ RIP: 0010:percpu_counter_add_batch+0xa/0x60
+ ...
+ Call Trace:
+  __test_set_page_writeback+0x2d3/0x330
+  nilfs_segctor_do_construct+0x10d3/0x2110 [nilfs2]
+  nilfs_segctor_construct+0x168/0x260 [nilfs2]
+  nilfs_segctor_thread+0x127/0x3b0 [nilfs2]
+  kthread+0xf8/0x130
+  ...
 
+This crash turned out to be caused by set_page_writeback() call for
+segment summary buffers at nilfs_segctor_prepare_write().
 
+set_page_writeback() can call inc_wb_stat(inode_to_wb(inode),
+WB_WRITEBACK) where inode_to_wb(inode) is NULL if the inode of
+underlying block device does not have an associated wb.
 
-platform        | arch  | lab          | compiler | defconfig | results
-----------------+-------+--------------+----------+-----------+--------
-meson-gxbb-p200 | arm64 | lab-baylibre | gcc-8    | defconfig | 0/1    =
+This fixes the issue by calling inode_attach_wb() in advance to ensure
+to associate the bdev inode with its wb.
 
+Link: http://lkml.kernel.org/r/20200608.011819.1399059588922299158.konishi.ryusuke@gmail.com
+Fixes: c3aab9a0bd91 ("mm/filemap.c: don't initiate writeback if mapping has no dirty pages")
+Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Tested-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Reported-by: Walton Hoops <me@waltonhoops.com>
+Reported-by: Tomas Hlavaty <tom@logand.com>
+Reported-by: ARAI Shun-ichi <hermes@ceres.dti.ne.jp>
+Reported-by: Hideki EIRAKU <hdk1983@gmail.com>
+Cc: <stable@vger.kernel.org>	[5.4+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
 
-  Details:     https://kernelci.org/test/plan/id/5edd47db37b648784a97bf0c
+ fs/nilfs2/segment.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.1=
-83-30-gefd7e05248bc/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-=
-p200.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.1=
-83-30-gefd7e05248bc/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-=
-p200.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2019=
-.02-11-g17e793fa4728/arm64/baseline/rootfs.cpio.gz =
+--- a/fs/nilfs2/segment.c~nilfs2-fix-null-pointer-dereference-at-nilfs_segctor_do_construct
++++ a/fs/nilfs2/segment.c
+@@ -2780,6 +2780,8 @@ int nilfs_attach_log_writer(struct super
+ 	if (!nilfs->ns_writer)
+ 		return -ENOMEM;
+ 
++	inode_attach_wb(nilfs->ns_bdev->bd_inode, NULL);
++
+ 	err = nilfs_segctor_start_thread(nilfs->ns_writer);
+ 	if (err) {
+ 		kfree(nilfs->ns_writer);
+_
 
+Patches currently in -mm which might be from konishi.ryusuke@gmail.com are
 
-  * baseline.login: https://kernelci.org/test/case/id/5edd47db37b648784a97b=
-f0d
-      failing since 68 days (last pass: v4.14.172-114-g734382e2d26e, first =
-fail: v4.14.174-131-g234ce78cac23) =20
+nilfs2-fix-null-pointer-dereference-at-nilfs_segctor_do_construct.patch
+
