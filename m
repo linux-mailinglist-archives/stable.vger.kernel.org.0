@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F3F851F0B79
-	for <lists+stable@lfdr.de>; Sun,  7 Jun 2020 15:37:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A08F1F0B7A
+	for <lists+stable@lfdr.de>; Sun,  7 Jun 2020 15:38:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726517AbgFGNhy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 7 Jun 2020 09:37:54 -0400
-Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:41961 "EHLO
+        id S1726522AbgFGNiB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 7 Jun 2020 09:38:01 -0400
+Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:33041 "EHLO
         forward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726465AbgFGNhy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 7 Jun 2020 09:37:54 -0400
+        by vger.kernel.org with ESMTP id S1726465AbgFGNiA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 7 Jun 2020 09:38:00 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 7DA80194061A;
-        Sun,  7 Jun 2020 09:37:51 -0400 (EDT)
+        by mailforward.nyi.internal (Postfix) with ESMTP id 94FDF19405EF;
+        Sun,  7 Jun 2020 09:37:59 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Sun, 07 Jun 2020 09:37:51 -0400
+  by compute1.internal (MEProxy); Sun, 07 Jun 2020 09:37:59 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=4c4HSq
-        ioTxmWIO/JX0tXXrO5eGtbItmpxNl1PzelHvg=; b=aSK4EJLibdMDU04ZqCqy3V
-        UO/zfEA8d7Cov6q0vBzb/28krODNwE3dKNM/WamDw4cqlKy6VpSbudCyvp1sWcUZ
-        OMZO3f9p6I89K9nZiJhyNj1d8vl6gOGu+KdQLrqK+0lZrGp6/ZhvgR1PJqcRxK4E
-        koFyw3at9D6x8+tbWUCcIbde66Xjcs614FgFdRCYz1fedFMwg4VA/7MPeXyltva3
-        7TbC3ZRFf2wlXz1l6K+lXE9gBhrGanneO+sMK2aMSfpg6fW1D49vKS3S0l8hHRgk
-        Pq3lUG5r5ogDH2ghbuzknMeX3VKvepTjJsH9iJ30LQ5PbGvAXpgsjhyRt4IaKH2g
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=N3mHjv
+        dJoK1dS71OW6RzJCPxwtMXXih1MqXttX5+enY=; b=kWVJUxSfx6fBf63O4VbVsO
+        spUVwz++25gkh7OzUvo08qw8xJUQ6BpP3J1WYO0cXnHjA4D6MiCntWwaTl/wFtKT
+        HhUaME3jo70UEMJVPtGawzYSPbs4LXbx0zmUrTl9b5joFJM3dKUP9vKroKYoi1f1
+        y4RgTgS0czxilm4Hdo2q8sHcMHbUqm+L+GXWlfm434VIgSbt00L93iZe3Ev3XAXl
+        eHrcwTtkQ8ZeM6UkCh1I7f1JnkW2OLc9LBco4BZeQzRaX9Ou9bclzbduQxULYsHR
+        s6xAvb7NfIyHaP0FmtvBeggAg3Wvw78Um+MHhFFyAao02lKs4IHAfuhdRFSGvH8A
         ==
-X-ME-Sender: <xms:r-3cXkmoVQ1VH5Aa5g-Ru_gZxnIIORy-A2v_xIjPKOE4uzBsUvACvQ>
+X-ME-Sender: <xms:t-3cXikJzznIORc-_BFwlmVxTp8rfCnAZmGY6gT2TCGt2dUYIq5zIw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudegledgieelucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
     etveeuveeludejjefgteehnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushht
-    vghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
+    vghrufhiiigvpedunecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
     drtghomh
-X-ME-Proxy: <xmx:r-3cXj1Z7FuQOYF3QdI_wO5IjOPgIgn8UlMY00ySHxnuLacduXg5sw>
-    <xmx:r-3cXiola507EJzBSs_VKEglf95FFqEl0AiiQlLeARa3CbB8Vm2zVg>
-    <xmx:r-3cXgn7nT2y6pKdMlsEsvqZIPsAucdt9vcPnNDvbVQrr74rUYGFmQ>
-    <xmx:r-3cXn_9Q3RuRIOAWLyErLbZzg_ps-IOxUdCrGDhSps3F3chd7hinw>
+X-ME-Proxy: <xmx:t-3cXp3YI-cjJfBcj5yC5eynFedfFgVNdDF1poHbdBkPVjiQVolAkw>
+    <xmx:t-3cXgqh_GzIJ3WvjBN4p7ZHvx-3TOlQy2AMbXwAjINhrcpfGyYW2g>
+    <xmx:t-3cXmn5WsaBb1Z9dYxY7TleOKtxiiHG-925pjB88OsLyzOxzaxNFA>
+    <xmx:t-3cXl8VVZmx5QCLXjcxHxByqupSpgEnChcOGboy5ivFjjOdKeudog>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id F0299328005E;
-        Sun,  7 Jun 2020 09:37:50 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] net: check untrusted gso_size at kernel entry" failed to apply to 4.9-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 387813280060;
+        Sun,  7 Jun 2020 09:37:59 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] net: check untrusted gso_size at kernel entry" failed to apply to 4.4-stable tree
 To:     willemb@google.com, davem@davemloft.net, syzkaller@googlegroups.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 07 Jun 2020 15:37:49 +0200
-Message-ID: <1591537069139208@kroah.com>
+Date:   Sun, 07 Jun 2020 15:37:50 +0200
+Message-ID: <1591537070167121@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -58,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
