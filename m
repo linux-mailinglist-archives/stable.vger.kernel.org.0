@@ -2,105 +2,139 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A2771F0B44
-	for <lists+stable@lfdr.de>; Sun,  7 Jun 2020 15:10:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F3F851F0B79
+	for <lists+stable@lfdr.de>; Sun,  7 Jun 2020 15:37:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726584AbgFGNKu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 7 Jun 2020 09:10:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59568 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726474AbgFGNKt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 7 Jun 2020 09:10:49 -0400
-Received: from mail-ej1-x641.google.com (mail-ej1-x641.google.com [IPv6:2a00:1450:4864:20::641])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4AC3C08C5C2;
-        Sun,  7 Jun 2020 06:10:48 -0700 (PDT)
-Received: by mail-ej1-x641.google.com with SMTP id mb16so15239746ejb.4;
-        Sun, 07 Jun 2020 06:10:48 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=MX/EH+yzBWn8lnHAP2qqU7wLOvhFMWrYnulg7lebjTQ=;
-        b=JGqSh7xTSGCTwmqWpyH/EIVvTtUeUXKSxUMfRnj6g/gwjiAaArfRvidbM2j0z4WyOT
-         wbW4ie4YzmfYHakTxXFxI5C5zi72vDOI4Pyfrj4cgxBuFcI3KG2sOtOUaxsxKQsgB6TJ
-         91ZWDQ8Y+PNEU5ywTs0sZn3z+5caW7aYdrmfYWmpK23ptI9YDYPVLOESJyGt2jKNgSZs
-         yykodSmV5tdyB3ZTtesh8G2TSZErmyjtuKjz7BsiYR8bJN1AygZz+fT+TdsjKs8FPE52
-         6XztjgET/aA25rcb31+cUJ2oXMB0DDxx7VOsKRU7iVqB1ymopCtSxiBKemE9U9b/+AVr
-         3R3w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=MX/EH+yzBWn8lnHAP2qqU7wLOvhFMWrYnulg7lebjTQ=;
-        b=tIe6lAghfcAcRTPDyEf6JNMjYvMAN0nVC2UqJct+7TA2EUY/5AjQteYQx7bRgRAI9J
-         g8k33BV4hWvTF+jB+g7BMt1tkGROzJwhAwx29afgSpJtrcO0Wo/dh3Ymki414v3mcP8i
-         8FwZ44snx05j4rZUeRidsEmF3dX+kH8HsVVa49/S7vKJ60qGdT7f/aprvIwhRS8yi+ld
-         xePTjeipgUSiBOh9oDaYlJQoCxQMrsMUNcBNouK9NUM26sbbdsSglZg+1wIxm1d1ZCBm
-         wYgApsKPRMcKgLQHl3IcVaUhNpAmZMGfzB73/WhqMxQmn+3gqXI89LjjIbvTCIB6A6zI
-         agTw==
-X-Gm-Message-State: AOAM533NJ54gtKXs1R1RrMrmr2h8JF6HutXDezSCBC3gHW3+/lVj1rqT
-        ml8BIPh81cE6aE2JeaD7ZEk=
-X-Google-Smtp-Source: ABdhPJxEtsz38SPAOEW5T1+qoTrex7tTi646pKzpoR2FsB/ZnUnvaE0pGvgUiWZvL9LpswLvEtD0ow==
-X-Received: by 2002:a17:906:b1c3:: with SMTP id bv3mr17354363ejb.292.1591535447335;
-        Sun, 07 Jun 2020 06:10:47 -0700 (PDT)
-Received: from localhost.localdomain (p200300f137189200428d5cfffeb99db8.dip0.t-ipconnect.de. [2003:f1:3718:9200:428d:5cff:feb9:9db8])
-        by smtp.googlemail.com with ESMTPSA id v24sm8437933ejf.20.2020.06.07.06.10.46
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 07 Jun 2020 06:10:46 -0700 (PDT)
-From:   Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-To:     tsbogend@alpha.franken.de, hauke@hauke-m.de,
-        linux-mips@vger.kernel.org
-Cc:     john@phrozen.org, linux-kernel@vger.kernel.org,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        stable@vger.kernel.org
-Subject: [PATCH] MIPS: lantiq: xway: sysctrl: fix the GPHY clock alias names
-Date:   Sun,  7 Jun 2020 15:10:23 +0200
-Message-Id: <20200607131023.3136390-1-martin.blumenstingl@googlemail.com>
-X-Mailer: git-send-email 2.27.0
+        id S1726517AbgFGNhy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 7 Jun 2020 09:37:54 -0400
+Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:41961 "EHLO
+        forward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726465AbgFGNhy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 7 Jun 2020 09:37:54 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 7DA80194061A;
+        Sun,  7 Jun 2020 09:37:51 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Sun, 07 Jun 2020 09:37:51 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=4c4HSq
+        ioTxmWIO/JX0tXXrO5eGtbItmpxNl1PzelHvg=; b=aSK4EJLibdMDU04ZqCqy3V
+        UO/zfEA8d7Cov6q0vBzb/28krODNwE3dKNM/WamDw4cqlKy6VpSbudCyvp1sWcUZ
+        OMZO3f9p6I89K9nZiJhyNj1d8vl6gOGu+KdQLrqK+0lZrGp6/ZhvgR1PJqcRxK4E
+        koFyw3at9D6x8+tbWUCcIbde66Xjcs614FgFdRCYz1fedFMwg4VA/7MPeXyltva3
+        7TbC3ZRFf2wlXz1l6K+lXE9gBhrGanneO+sMK2aMSfpg6fW1D49vKS3S0l8hHRgk
+        Pq3lUG5r5ogDH2ghbuzknMeX3VKvepTjJsH9iJ30LQ5PbGvAXpgsjhyRt4IaKH2g
+        ==
+X-ME-Sender: <xms:r-3cXkmoVQ1VH5Aa5g-Ru_gZxnIIORy-A2v_xIjPKOE4uzBsUvACvQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudegledgieelucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
+    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushht
+    vghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
+    drtghomh
+X-ME-Proxy: <xmx:r-3cXj1Z7FuQOYF3QdI_wO5IjOPgIgn8UlMY00ySHxnuLacduXg5sw>
+    <xmx:r-3cXiola507EJzBSs_VKEglf95FFqEl0AiiQlLeARa3CbB8Vm2zVg>
+    <xmx:r-3cXgn7nT2y6pKdMlsEsvqZIPsAucdt9vcPnNDvbVQrr74rUYGFmQ>
+    <xmx:r-3cXn_9Q3RuRIOAWLyErLbZzg_ps-IOxUdCrGDhSps3F3chd7hinw>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id F0299328005E;
+        Sun,  7 Jun 2020 09:37:50 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] net: check untrusted gso_size at kernel entry" failed to apply to 4.9-stable tree
+To:     willemb@google.com, davem@davemloft.net, syzkaller@googlegroups.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Sun, 07 Jun 2020 15:37:49 +0200
+Message-ID: <1591537069139208@kroah.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The dt-bindings for the GSWIP describe that the node should be named
-"switch". Use the same name in sysctrl.c so the GSWIP driver can
-actually find the "gphy0" and "gphy1" clocks.
 
-Fixes: 14fceff4771e51 ("net: dsa: Add Lantiq / Intel DSA driver for vrx200")
-Cc: stable@vger.kernel.org
-Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
----
- arch/mips/lantiq/xway/sysctrl.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+The patch below does not apply to the 4.9-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-diff --git a/arch/mips/lantiq/xway/sysctrl.c b/arch/mips/lantiq/xway/sysctrl.c
-index aa37545ebe8f..b10342018d19 100644
---- a/arch/mips/lantiq/xway/sysctrl.c
-+++ b/arch/mips/lantiq/xway/sysctrl.c
-@@ -514,8 +514,8 @@ void __init ltq_soc_init(void)
- 		clkdev_add_pmu("1e10b308.eth", NULL, 0, 0, PMU_SWITCH |
- 			       PMU_PPE_DP | PMU_PPE_TC);
- 		clkdev_add_pmu("1da00000.usif", "NULL", 1, 0, PMU_USIF);
--		clkdev_add_pmu("1e108000.gswip", "gphy0", 0, 0, PMU_GPHY);
--		clkdev_add_pmu("1e108000.gswip", "gphy1", 0, 0, PMU_GPHY);
-+		clkdev_add_pmu("1e108000.switch", "gphy0", 0, 0, PMU_GPHY);
-+		clkdev_add_pmu("1e108000.switch", "gphy1", 0, 0, PMU_GPHY);
- 		clkdev_add_pmu("1e103100.deu", NULL, 1, 0, PMU_DEU);
- 		clkdev_add_pmu("1e116000.mei", "afe", 1, 2, PMU_ANALOG_DSL_AFE);
- 		clkdev_add_pmu("1e116000.mei", "dfe", 1, 0, PMU_DFE);
-@@ -538,8 +538,8 @@ void __init ltq_soc_init(void)
- 				PMU_SWITCH | PMU_PPE_DPLUS | PMU_PPE_DPLUM |
- 				PMU_PPE_EMA | PMU_PPE_TC | PMU_PPE_SLL01 |
- 				PMU_PPE_QSB | PMU_PPE_TOP);
--		clkdev_add_pmu("1e108000.gswip", "gphy0", 0, 0, PMU_GPHY);
--		clkdev_add_pmu("1e108000.gswip", "gphy1", 0, 0, PMU_GPHY);
-+		clkdev_add_pmu("1e108000.switch", "gphy0", 0, 0, PMU_GPHY);
-+		clkdev_add_pmu("1e108000.switch", "gphy1", 0, 0, PMU_GPHY);
- 		clkdev_add_pmu("1e103000.sdio", NULL, 1, 0, PMU_SDIO);
- 		clkdev_add_pmu("1e103100.deu", NULL, 1, 0, PMU_DEU);
- 		clkdev_add_pmu("1e116000.mei", "dfe", 1, 0, PMU_DFE);
--- 
-2.27.0
+thanks,
+
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 6dd912f82680761d8fb6b1bb274a69d4c7010988 Mon Sep 17 00:00:00 2001
+From: Willem de Bruijn <willemb@google.com>
+Date: Mon, 25 May 2020 15:07:40 -0400
+Subject: [PATCH] net: check untrusted gso_size at kernel entry
+
+Syzkaller again found a path to a kernel crash through bad gso input:
+a packet with gso size exceeding len.
+
+These packets are dropped in tcp_gso_segment and udp[46]_ufo_fragment.
+But they may affect gso size calculations earlier in the path.
+
+Now that we have thlen as of commit 9274124f023b ("net: stricter
+validation of untrusted gso packets"), check gso_size at entry too.
+
+Fixes: bfd5f4a3d605 ("packet: Add GSO/csum offload support.")
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: Willem de Bruijn <willemb@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+
+diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
+index 6f6ade63b04c..88997022a4b5 100644
+--- a/include/linux/virtio_net.h
++++ b/include/linux/virtio_net.h
+@@ -31,6 +31,7 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
+ {
+ 	unsigned int gso_type = 0;
+ 	unsigned int thlen = 0;
++	unsigned int p_off = 0;
+ 	unsigned int ip_proto;
+ 
+ 	if (hdr->gso_type != VIRTIO_NET_HDR_GSO_NONE) {
+@@ -68,7 +69,8 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
+ 		if (!skb_partial_csum_set(skb, start, off))
+ 			return -EINVAL;
+ 
+-		if (skb_transport_offset(skb) + thlen > skb_headlen(skb))
++		p_off = skb_transport_offset(skb) + thlen;
++		if (p_off > skb_headlen(skb))
+ 			return -EINVAL;
+ 	} else {
+ 		/* gso packets without NEEDS_CSUM do not set transport_offset.
+@@ -92,17 +94,25 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
+ 				return -EINVAL;
+ 			}
+ 
+-			if (keys.control.thoff + thlen > skb_headlen(skb) ||
++			p_off = keys.control.thoff + thlen;
++			if (p_off > skb_headlen(skb) ||
+ 			    keys.basic.ip_proto != ip_proto)
+ 				return -EINVAL;
+ 
+ 			skb_set_transport_header(skb, keys.control.thoff);
++		} else if (gso_type) {
++			p_off = thlen;
++			if (p_off > skb_headlen(skb))
++				return -EINVAL;
+ 		}
+ 	}
+ 
+ 	if (hdr->gso_type != VIRTIO_NET_HDR_GSO_NONE) {
+ 		u16 gso_size = __virtio16_to_cpu(little_endian, hdr->gso_size);
+ 
++		if (skb->len - p_off <= gso_size)
++			return -EINVAL;
++
+ 		skb_shinfo(skb)->gso_size = gso_size;
+ 		skb_shinfo(skb)->gso_type = gso_type;
+ 
 
