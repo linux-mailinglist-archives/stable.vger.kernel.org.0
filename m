@@ -2,150 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9AD0E1F1EC0
-	for <lists+stable@lfdr.de>; Mon,  8 Jun 2020 20:11:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 15C911F1F27
+	for <lists+stable@lfdr.de>; Mon,  8 Jun 2020 20:42:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725968AbgFHSLk convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Mon, 8 Jun 2020 14:11:40 -0400
-Received: from mail.fireflyinternet.com ([109.228.58.192]:53437 "EHLO
-        fireflyinternet.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1725885AbgFHSLk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 8 Jun 2020 14:11:40 -0400
-X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
-Received: from localhost (unverified [78.156.65.138]) 
-        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP (TLS) id 21434389-1500050 
-        for multiple; Mon, 08 Jun 2020 19:11:29 +0100
-Content-Type: text/plain; charset="utf-8"
+        id S1725785AbgFHSmB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 14:42:01 -0400
+Received: from correo.us.es ([193.147.175.20]:45114 "EHLO mail.us.es"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725280AbgFHSl7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 14:41:59 -0400
+Received: from antivirus1-rhel7.int (unknown [192.168.2.11])
+        by mail.us.es (Postfix) with ESMTP id 82EE9DBC06
+        for <stable@vger.kernel.org>; Mon,  8 Jun 2020 20:41:56 +0200 (CEST)
+Received: from antivirus1-rhel7.int (localhost [127.0.0.1])
+        by antivirus1-rhel7.int (Postfix) with ESMTP id 75777DA789
+        for <stable@vger.kernel.org>; Mon,  8 Jun 2020 20:41:56 +0200 (CEST)
+Received: by antivirus1-rhel7.int (Postfix, from userid 99)
+        id 6A5D2DA791; Mon,  8 Jun 2020 20:41:56 +0200 (CEST)
+X-Spam-Checker-Version: SpamAssassin 3.4.1 (2015-04-28) on antivirus1-rhel7.int
+X-Spam-Level: 
+X-Spam-Status: No, score=-108.2 required=7.5 tests=ALL_TRUSTED,BAYES_50,
+        SMTPAUTH_US2,USER_IN_WHITELIST autolearn=disabled version=3.4.1
+Received: from antivirus1-rhel7.int (localhost [127.0.0.1])
+        by antivirus1-rhel7.int (Postfix) with ESMTP id 2B288DA78B;
+        Mon,  8 Jun 2020 20:41:54 +0200 (CEST)
+Received: from 192.168.1.97 (192.168.1.97)
+ by antivirus1-rhel7.int (F-Secure/fsigk_smtp/550/antivirus1-rhel7.int);
+ Mon, 08 Jun 2020 20:41:54 +0200 (CEST)
+X-Virus-Status: clean(F-Secure/fsigk_smtp/550/antivirus1-rhel7.int)
+Received: from us.es (unknown [90.77.255.23])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        (Authenticated sender: 1984lsi)
+        by entrada.int (Postfix) with ESMTPSA id 09FF942EF4E0;
+        Mon,  8 Jun 2020 20:41:53 +0200 (CEST)
+Date:   Mon, 8 Jun 2020 20:41:53 +0200
+X-SMTPAUTHUS: auth mail.us.es
+From:   Pablo Neira Ayuso <pablo@netfilter.org>
+To:     Stefano Brivio <sbrivio@redhat.com>
+Cc:     Mike Dillinger <miked@softtalker.com>, stable@vger.kernel.org,
+        netfilter-devel@vger.kernel.org
+Subject: Re: [PATCH nf] nft_set_rbtree: Don't account for expired elements on
+ insertion
+Message-ID: <20200608184153.GA7865@salvia>
+References: <924e80c7b563cc6522a241b123c955c18983edb1.1591141588.git.sbrivio@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-In-Reply-To: <20200608174654.1400710-1-rodrigo.vivi@intel.com>
-References: <20200608174654.1400710-1-rodrigo.vivi@intel.com>
-To:     Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        intel-gfx@lists.freedesktop.org
-Subject: Re: [Intel-gfx] [PATCH] drm/i915: Include asm sources for {ivb, hsw}_clear_kernel.c
-From:   Chris Wilson <chris@chris-wilson.co.uk>
-Cc:     Alexandre Oliva <lxoliva@fsfla.org>,
-        Jani Nikula <jani.nikula@intel.com>, stable@vger.kernel.org
-Message-ID: <159163988890.30073.8976615673203599761@build.alporthouse.com>
-User-Agent: alot/0.8.1
-Date:   Mon, 08 Jun 2020 19:11:28 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <924e80c7b563cc6522a241b123c955c18983edb1.1591141588.git.sbrivio@redhat.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+X-Virus-Scanned: ClamAV using ClamSMTP
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Quoting Rodrigo Vivi (2020-06-08 18:46:53)
-> Alexandre Oliva has recently removed these files from Linux Libre
-> with concerns that the sources weren't available.
+On Wed, Jun 03, 2020 at 01:50:11AM +0200, Stefano Brivio wrote:
+> While checking the validity of insertion in __nft_rbtree_insert(),
+> we currently ignore conflicting elements and intervals only if they
+> are not active within the next generation.
 > 
-> The sources are available on IGT repository, and only open source
-> tools are used to generate the {ivb,hsw}_clear_kernel.c files.
+> However, if we consider expired elements and intervals as
+> potentially conflicting and overlapping, we'll return error for
+> entries that should be added instead. This is particularly visible
+> with garbage collection intervals that are comparable with the
+> element timeout itself, as reported by Mike Dillinger.
 > 
-> However, the remaining concern from Alexandre Oliva was around
-> GPL license and the source not been present when distributing
-> the code.
+> Other than the simple issue of denying insertion of valid entries,
+> this might also result in insertion of a single element (opening or
+> closing) out of a given interval. With single entries (that are
+> inserted as intervals of size 1), this leads in turn to the creation
+> of new intervals. For example:
 > 
-> So, it looks like 2 alternatives are possible, the use of
-> linux-firmware.git repository to store the blob or making sure
-> that the source is also present in our tree. Since the goal
-> is to limit the i915 firmware to only the micro-controller blobs
-> let's make sure that we do include the asm sources here in our tree.
+>   # nft add element t s { 192.0.2.1 }
+>   # nft list ruleset
+>   [...]
+>      elements = { 192.0.2.1-255.255.255.255 }
 > 
-> Btw, I tried to have some diligence here and make sure that the
-> asms that these commits are adding are truly the source for
-> the mentioned files:
+> Always ignore expired elements active in the next generation, while
+> checking for conflicts.
 > 
-> ./scripts/generate_clear_kernel.sh -g ivb -m /home/vivijim/intel/freedesktop.org/mesa/mesa/build/src/intel/tools/i965_asm
+> It might be more convenient to introduce a new macro that covers
+> both inactive and expired items, as this type of check also appears
+> quite frequently in other set back-ends. This is however beyond the
+> scope of this fix and can be deferred to a separate patch.
 > 
-> igt$ ./scripts/generate_clear_kernel.sh -g ivb -m /home/vivijim/intel/freedesktop.org/mesa/mesa/build/src/intel/tools/i965_asm
-> Output file not specified - using default file "ivb-cb_assembled"
-> 
-> Generating gen7 CB Kernel assembled file "ivb_clear_kernel.c" for i915 driver...
-> 
-> igt$ diff /home/vivijim/i915/drm-tip/drivers/gpu/drm/i915/gt/ivb_clear_kernel.c ivb_clear_kernel.c
-> 5c5
-> <  * Generated by: IGT Gpu Tools on Fri 21 Feb 2020 05:29:32 AM UTC
-> ---
-> >  * Generated by: IGT Gpu Tools on Mon 08 Jun 2020 10:00:54 AM PDT
-> 61c61
-> < };
-> ---
-> > };
-> \ No newline at end of file
-> 
-> igt$ ./scripts/generate_clear_kernel.sh -g hsw -m /hom
-> e/vivijim/intel/freedesktop.org/mesa/mesa/build/src/intel/tools/i965_asm
-> Output file not specified - using default file "hsw-cb_assembled"
-> 
-> Generating gen7.5 CB Kernel assembled file "hsw_clear_kernel.c" for i915 driver...
-> 
-> igt$ diff /home/vivijim/i915/drm-tip/drivers/gpu/drm/i915/gt/hsw_clear_kernel.c hsw_clear_kernel.c
-> 5c5
-> <  * Generated by: IGT Gpu Tools on Fri 21 Feb 2020 05:30:13 AM UTC
-> ---
-> >  * Generated by: IGT Gpu Tools on Mon 08 Jun 2020 10:01:42 AM PDT
-> 61c61
-> < };
-> ---
-> > };
-> \ No newline at end of file
-> 
-> Used IGT and Mesa master repositories from Fri Jun 5 2020)
-> IGT: 53e8c878a6fb ("tests/kms_chamelium: Force reprobe after replugging the connector")
-> Mesa: 5d13c7477eb1 ("radv: set keep_statistic_info with RADV_DEBUG=shaderstats")
-> Mesa built with: meson build -D platforms=drm,x11 -D dri-drivers=i965 -D gallium-drivers=iris -D prefix=/usr -D libdir=/usr/lib64/ -Dtools=intel -Dkulkan-drivers=intel && ninja -C build
-> 
-> Reference: http://www.fsfla.org/pipermail/linux-libre/2020-June/003374.html
-> Reference: http://www.fsfla.org/pipermail/linux-libre/2020-June/003375.html
-> Fixes: 47f8253d2b89 ("drm/i915/gen7: Clear all EU/L3 residual contexts")
-> Cc: <stable@vger.kernel.org> # v5.7+
-> Cc: Alexandre Oliva <lxoliva@fsfla.org>
-> Cc: Prathap Kumar Valsan <prathap.kumar.valsan@intel.com>
-> Cc: Akeem G Abodunrin <akeem.g.abodunrin@intel.com>
-> Cc: Mika Kuoppala <mika.kuoppala@linux.intel.com>
-> Cc: Chris Wilson <chris@chris-wilson.co.uk>
-> Cc: Jani Nikula <jani.nikula@intel.com>
-> Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-> Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
-> ---
->  .../drm/i915/gt/shaders/clear_kernel/hsw.asm  | 141 ++++++++++++++++++
->  .../drm/i915/gt/shaders/clear_kernel/ivb.asm  | 139 +++++++++++++++++
->  2 files changed, 280 insertions(+)
->  create mode 100644 drivers/gpu/drm/i915/gt/shaders/clear_kernel/hsw.asm
->  create mode 100644 drivers/gpu/drm/i915/gt/shaders/clear_kernel/ivb.asm
-> 
-> diff --git a/drivers/gpu/drm/i915/gt/shaders/clear_kernel/hsw.asm b/drivers/gpu/drm/i915/gt/shaders/clear_kernel/hsw.asm
-> new file mode 100644
-> index 000000000000..bc29baf22c61
-> --- /dev/null
-> +++ b/drivers/gpu/drm/i915/gt/shaders/clear_kernel/hsw.asm
-> @@ -0,0 +1,141 @@
-> +/* SPDX-License-Identifier: MIT */
-> +/*
-> + * Copyright © 2020 Intel Corporation
-> + *
-> + * Permission is hereby granted, free of charge, to any person obtaining a
-> + * copy of this software and associated documentation files (the "Software"),
-> + * to deal in the Software without restriction, including without limitation
-> + * the rights to use, copy, modify, merge, publish, distribute, sublicense,
-> + * and/or sell copies of the Software, and to permit persons to whom the
-> + * Software is furnished to do so, subject to the following conditions:
-> + *
-> + * The above copyright notice and this permission notice (including the next
-> + * paragraph) shall be included in all copies or substantial portions of the
-> + * Software.
-> + *
-> + * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-> + * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-> + * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
-> + * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-> + * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-> + * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-> + * DEALINGS IN THE SOFTWARE.
+> Other than the overlap detection cases introduced by commit
+> 7c84d41416d8 ("netfilter: nft_set_rbtree: Detect partial overlaps
+> on insertion"), we also have to cover the original conflict check
+> dealing with conflicts between two intervals of size 1, which was
+> introduced before support for timeout was introduced. This won't
+> return an error to the user as -EEXIST is masked by nft if
+> NLM_F_EXCL is not given, but would result in a silent failure
+> adding the entry.
 
-You already said it was MIT, you don't need to duplicate the copyright
-statement.
-
-Should there not be instructions on how to generate the object code?
-shaders/readme?
--Chris
+Applied, thanks.
