@@ -2,353 +2,189 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 75A041F2974
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:05:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C6AD1F2A52
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:11:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729271AbgFIAAZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 20:00:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47328 "EHLO mail.kernel.org"
+        id S1732884AbgFIAGp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 20:06:45 -0400
+Received: from mga18.intel.com ([134.134.136.126]:2406 "EHLO mga18.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730989AbgFHXWh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:22:37 -0400
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EB53A20842;
-        Mon,  8 Jun 2020 23:22:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658557;
-        bh=rHK6ecMusKRT07rLh2WdYDHPsBpgyNUL1DSb6z2C5QM=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O068cF0sFsS3DDxSgADazcYNnXrq2KIFaq1000oR+YRk/C6thUpTwQgr5PB0KLaTb
-         /src9Y7qe+teoSmheuiRtE1VA4EXuSQab2uV7KZ3FAuow0CfdEBrto6+OZIx0A1PyH
-         ep8/7jRSc1jb7XtN14jbZZ+GYYHbmoeI9ua47eiY=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Daniel Axtens <dja@axtens.net>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        David Gow <davidgow@google.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Daniel Micay <danielmicay@gmail.com>,
-        Andrey Ryabinin <aryabinin@virtuozzo.com>,
-        Alexander Potapenko <glider@google.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 175/175] string.h: fix incompatibility between FORTIFY_SOURCE and KASAN
-Date:   Mon,  8 Jun 2020 19:18:48 -0400
-Message-Id: <20200608231848.3366970-175-sashal@kernel.org>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200608231848.3366970-1-sashal@kernel.org>
-References: <20200608231848.3366970-1-sashal@kernel.org>
+        id S1731073AbgFHXVB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:21:01 -0400
+IronPort-SDR: WBiv3I24bZurSAhkGpXGFiFrwIbiKstz0RGAcsWoCOEgd6w7FsEdiMjRcme4FHlV9leZhra7Oz
+ Ks5fVE2M00kA==
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga005.fm.intel.com ([10.253.24.32])
+  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Jun 2020 16:20:56 -0700
+IronPort-SDR: GVEKN+Sdzpyjph5He8dWFqU4792RyNmdgbHW6dezk+RIVHItTPaj/0e8G7ouifjCXLPaZfiiyw
+ 1z9/1ezyYMRg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.73,489,1583222400"; 
+   d="scan'208";a="472877250"
+Received: from fmsmsx107.amr.corp.intel.com ([10.18.124.205])
+  by fmsmga005.fm.intel.com with ESMTP; 08 Jun 2020 16:20:56 -0700
+Received: from fmsmsx602.amr.corp.intel.com (10.18.126.82) by
+ fmsmsx107.amr.corp.intel.com (10.18.124.205) with Microsoft SMTP Server (TLS)
+ id 14.3.439.0; Mon, 8 Jun 2020 16:20:55 -0700
+Received: from fmsmsx611.amr.corp.intel.com (10.18.126.91) by
+ fmsmsx602.amr.corp.intel.com (10.18.126.82) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.1713.5; Mon, 8 Jun 2020 16:20:52 -0700
+Received: from FMSEDG002.ED.cps.intel.com (10.1.192.134) by
+ fmsmsx611.amr.corp.intel.com (10.18.126.91) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id 15.1.1713.5
+ via Frontend Transport; Mon, 8 Jun 2020 16:20:52 -0700
+Received: from NAM12-BN8-obe.outbound.protection.outlook.com (104.47.55.175)
+ by edgegateway.intel.com (192.55.55.69) with Microsoft SMTP Server (TLS) id
+ 14.3.439.0; Mon, 8 Jun 2020 16:20:51 -0700
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=HGAAZYpk5bmrzlSboH+WX2LojCGPp3Ci2ISrptZGsBWMtBoFXuDlCe4lZIYkjj8YxXPxk+MG5S8nOSxxghkLyBDmyLbcIG+7xY5rgGe92J7QQNGOSKODJ6+QnNosJ16leyl/tcI+EDhuxoc00buiTvIbXQpaYGkHTae2mEjPsqRrn07XhRSztriwyIXDmjKQvqiFO64uTHmpZVaaoUoEjsQEfetRmnfveWbGHyAoXr/rf0ZMJKwW4w+SbaemXkxp91RYb66qaNCME9S0WGYBNl97Ue5Hzne+xaztVo4Q+w4mumKCyx6Lu6EQIdac21e9tQfk2NsAMLuEUUW9GaKPyA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=f6aVbVROYJmQsF3MUYrpfaXpatbExk4/M5Bzum+K41c=;
+ b=Cb6hUFcYwF47hpCQ8i40p63VzrTVEzRyPoxmcCiJs1KyXIVwtUFC1M/Ece/7DNpzbVa0LFwOdQPx+TAInaZ501awOoV2me6WIFYnvZoleRxKxGCznsTb+GftVhBoAJzB+ZWN28H8bxv6k8eQZfcpMWUJpSBKUkN+fWDkOgYV/l1BxaGSD/qPEHpi3nRirgoZwhMJJy2Fd5t0mA5qZC/jHKah7kySJPidIkpoJipVn22s/xfJ3InVwiVmLHrR3GwHZWMdwR3HObZ/KhQRuzQ93WDc49+7ruiWRYXGWPZifNTZ0BLPjCwY2+5/DzflMuUzMcJS1bVrnAReiccziYuQKg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
+ dkim=pass header.d=intel.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=intel.onmicrosoft.com;
+ s=selector2-intel-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=f6aVbVROYJmQsF3MUYrpfaXpatbExk4/M5Bzum+K41c=;
+ b=eZg+Hlz4v51BDG53O6IfrlrZXmcj1wZi6ti3BMWnZYCugXTsXh55dJhBxfe0JlJMAJXMFoSB1o9ywN6zdCxk2OVjQqioo8+DgJy/FKAXzx+WsrVMMsVOYVgGiRl6vh/Ovwp2fYMDIGgMHrsE40d0C3470qxMRaxB01aN0jsTgMc=
+Received: from BYAPR11MB3096.namprd11.prod.outlook.com (2603:10b6:a03:8f::14)
+ by BYAPR11MB3512.namprd11.prod.outlook.com (2603:10b6:a03:8f::26) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3066.18; Mon, 8 Jun
+ 2020 23:20:44 +0000
+Received: from BYAPR11MB3096.namprd11.prod.outlook.com
+ ([fe80::ad0c:c6a9:6f39:eb92]) by BYAPR11MB3096.namprd11.prod.outlook.com
+ ([fe80::ad0c:c6a9:6f39:eb92%5]) with mapi id 15.20.3066.023; Mon, 8 Jun 2020
+ 23:20:44 +0000
+From:   "Kaneda, Erik" <erik.kaneda@intel.com>
+To:     Nick Desaulniers <ndesaulniers@google.com>
+CC:     "Moore, Robert" <robert.moore@intel.com>,
+        "Wysocki, Rafael J" <rafael.j.wysocki@intel.com>,
+        Len Brown <lenb@kernel.org>, Ard Biesheuvel <ardb@kernel.org>,
+        "dvyukov@google.com" <dvyukov@google.com>,
+        "glider@google.com" <glider@google.com>,
+        "guohanjun@huawei.com" <guohanjun@huawei.com>,
+        "linux-arm-kernel@lists.infradead.org" 
+        <linux-arm-kernel@lists.infradead.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "lorenzo.pieralisi@arm.com" <lorenzo.pieralisi@arm.com>,
+        "mark.rutland@arm.com" <mark.rutland@arm.com>,
+        "pcc@google.com" <pcc@google.com>,
+        "rjw@rjwysocki.net" <rjw@rjwysocki.net>,
+        "will@kernel.org" <will@kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>,
+        "devel@acpica.org" <devel@acpica.org>
+Subject: RE: [PATCH] ACPICA: fix UBSAN warning using __builtin_offsetof
+Thread-Topic: [PATCH] ACPICA: fix UBSAN warning using __builtin_offsetof
+Thread-Index: AQHWOGr94BDOASQdIU6ZpTv243EHY6jEbrjQgAE8tYCACbloIA==
+Date:   Mon, 8 Jun 2020 23:20:43 +0000
+Message-ID: <BYAPR11MB309660952553AB3EA9A303B5F0850@BYAPR11MB3096.namprd11.prod.outlook.com>
+References: <CAMj1kXErFuvOoG=DB6sz5HBvDuHDiKwWD8uOyLuxaX-u8-+dbA@mail.gmail.com>
+ <20200601231805.207441-1-ndesaulniers@google.com>
+ <BYAPR11MB30969737340044437013BF44F08B0@BYAPR11MB3096.namprd11.prod.outlook.com>
+ <CAKwvOdmsCmPFiDOq7AYUyEx=60B=qo8u9yhnJDQ6nd6Ew7xDkQ@mail.gmail.com>
+In-Reply-To: <CAKwvOdmsCmPFiDOq7AYUyEx=60B=qo8u9yhnJDQ6nd6Ew7xDkQ@mail.gmail.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+dlp-version: 11.2.0.6
+dlp-product: dlpe-windows
+dlp-reaction: no-action
+authentication-results: google.com; dkim=none (message not signed)
+ header.d=none;google.com; dmarc=none action=none header.from=intel.com;
+x-originating-ip: [192.55.52.197]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: f035c9f2-12f6-42b0-89bd-08d80c02915d
+x-ms-traffictypediagnostic: BYAPR11MB3512:
+x-ld-processed: 46c98d88-e344-4ed4-8496-4ed7712e255d,ExtAddr
+x-ms-exchange-transport-forked: True
+x-microsoft-antispam-prvs: <BYAPR11MB35129814DE957994DFC43656F0850@BYAPR11MB3512.namprd11.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:8882;
+x-forefront-prvs: 042857DBB5
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: WqFK+UvF7i6eRfNr77zIL5DNUv+HZfiwAfdoVCoepnnFaomnlIoUeUY83/r3nMihO6bKaxtTky12cFEHljD8Bo7AoMo2FJ96+qrkatfnjztnsv/DuB3yk55U9J70PHRa5wovK8gnFTqRhPVnnkhzFhTPElpSlLM/HUlNAu6xgxJ7brBzK4FNk6WmNrhG0aDMrwGgYszi7NuoHgJxREVzAFzbHX876o+BhSIPJQUiPs11MePD72wJsNmWs0S6Vjq0lrS8HwI7I4eY60HDh4J9YEhI4mwFHNn+eQ6rIw/jJSWqaXmfR3aKflLqYdFq0fTJLgxjx5dgijzjp8AzwCMIsg==
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BYAPR11MB3096.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFTY:;SFS:(136003)(39860400002)(396003)(376002)(346002)(366004)(26005)(4326008)(8936002)(7696005)(186003)(6506007)(52536014)(6916009)(55016002)(9686003)(53546011)(5660300002)(86362001)(83380400001)(54906003)(478600001)(66946007)(76116006)(66446008)(66476007)(316002)(2906002)(66556008)(7416002)(71200400001)(8676002)(64756008)(33656002);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata: bZeWdsZSEwydr1UGhtRW9SfMujJW6tm6HY+L4NjaQ2AYCEHOZjJaumv1bed4sNjg6wJrU9HnlzJBmXKqyqb1L2ddx5qD+Ogejr3UCk2Iyw4SILSpuru1dN5cxc5DfCY2iZU2iOf6louyx3BJThnn/ysPinPxSvp8WHtlc3Yve31c+PMLNRpw9oTgHy4xVYRb+oq+7PJD9ic8uEoxA+O9wCV/9tgXjYX9NVhVYousLtwuX70BmUF4MgfurfHbmzwTKOV9zOLPLOWLLrvKwLXdTW4lnk18JB4/xsfGFx+kkqKlnMmai3JNMJzzpm/TDVtZIP/R1x3UnnclUiFSFxv2CiG3BD83V/fHt3KTBjxOtSxqSzXjEm1k7ohSxfr+TdX6EOoZTlBI3wcRB5kKwcpt20sq1cozeQRxzefJOchltdkQbdcjhRgylewbsnHOI8ao0ZsVXq2ZoMW+k5CexRk6WVviti2ddIOp51HAnmrtk9A=
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+X-MS-Exchange-CrossTenant-Network-Message-Id: f035c9f2-12f6-42b0-89bd-08d80c02915d
+X-MS-Exchange-CrossTenant-originalarrivaltime: 08 Jun 2020 23:20:43.9990
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: lh1a80XnT7qUEBYXJe9c321NHddbM2J/3VHG42hATQqSuELaqb+g44bTJKMXQZzD/nw8qjRni1kQVCLyou92HQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BYAPR11MB3512
+X-OriginatorOrg: intel.com
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Axtens <dja@axtens.net>
-
-[ Upstream commit 47227d27e2fcb01a9e8f5958d8997cf47a820afc ]
-
-The memcmp KASAN self-test fails on a kernel with both KASAN and
-FORTIFY_SOURCE.
-
-When FORTIFY_SOURCE is on, a number of functions are replaced with
-fortified versions, which attempt to check the sizes of the operands.
-However, these functions often directly invoke __builtin_foo() once they
-have performed the fortify check.  Using __builtins may bypass KASAN
-checks if the compiler decides to inline it's own implementation as
-sequence of instructions, rather than emit a function call that goes out
-to a KASAN-instrumented implementation.
-
-Why is only memcmp affected?
-============================
-
-Of the string and string-like functions that kasan_test tests, only memcmp
-is replaced by an inline sequence of instructions in my testing on x86
-with gcc version 9.2.1 20191008 (Ubuntu 9.2.1-9ubuntu2).
-
-I believe this is due to compiler heuristics.  For example, if I annotate
-kmalloc calls with the alloc_size annotation (and disable some fortify
-compile-time checking!), the compiler will replace every memset except the
-one in kmalloc_uaf_memset with inline instructions.  (I have some WIP
-patches to add this annotation.)
-
-Does this affect other functions in string.h?
-=============================================
-
-Yes. Anything that uses __builtin_* rather than __real_* could be
-affected. This looks like:
-
- - strncpy
- - strcat
- - strlen
- - strlcpy maybe, under some circumstances?
- - strncat under some circumstances
- - memset
- - memcpy
- - memmove
- - memcmp (as noted)
- - memchr
- - strcpy
-
-Whether a function call is emitted always depends on the compiler.  Most
-bugs should get caught by FORTIFY_SOURCE, but the missed memcmp test shows
-that this is not always the case.
-
-Isn't FORTIFY_SOURCE disabled with KASAN?
-========================================-
-
-The string headers on all arches supporting KASAN disable fortify with
-kasan, but only when address sanitisation is _also_ disabled.  For example
-from x86:
-
- #if defined(CONFIG_KASAN) && !defined(__SANITIZE_ADDRESS__)
- /*
-  * For files that are not instrumented (e.g. mm/slub.c) we
-  * should use not instrumented version of mem* functions.
-  */
- #define memcpy(dst, src, len) __memcpy(dst, src, len)
- #define memmove(dst, src, len) __memmove(dst, src, len)
- #define memset(s, c, n) __memset(s, c, n)
-
- #ifndef __NO_FORTIFY
- #define __NO_FORTIFY /* FORTIFY_SOURCE uses __builtin_memcpy, etc. */
- #endif
-
- #endif
-
-This comes from commit 6974f0c4555e ("include/linux/string.h: add the
-option of fortified string.h functions"), and doesn't work when KASAN is
-enabled and the file is supposed to be sanitised - as with test_kasan.c
-
-I'm pretty sure this is not wrong, but not as expansive it should be:
-
- * we shouldn't use __builtin_memcpy etc in files where we don't have
-   instrumentation - it could devolve into a function call to memcpy,
-   which will be instrumented. Rather, we should use __memcpy which
-   by convention is not instrumented.
-
- * we also shouldn't be using __builtin_memcpy when we have a KASAN
-   instrumented file, because it could be replaced with inline asm
-   that will not be instrumented.
-
-What is correct behaviour?
-==========================
-
-Firstly, there is some overlap between fortification and KASAN: both
-provide some level of _runtime_ checking. Only fortify provides
-compile-time checking.
-
-KASAN and fortify can pick up different things at runtime:
-
- - Some fortify functions, notably the string functions, could easily be
-   modified to consider sub-object sizes (e.g. members within a struct),
-   and I have some WIP patches to do this. KASAN cannot detect these
-   because it cannot insert poision between members of a struct.
-
- - KASAN can detect many over-reads/over-writes when the sizes of both
-   operands are unknown, which fortify cannot.
-
-So there are a couple of options:
-
- 1) Flip the test: disable fortify in santised files and enable it in
-    unsanitised files. This at least stops us missing KASAN checking, but
-    we lose the fortify checking.
-
- 2) Make the fortify code always call out to real versions. Do this only
-    for KASAN, for fear of losing the inlining opportunities we get from
-    __builtin_*.
-
-(We can't use kasan_check_{read,write}: because the fortify functions are
-_extern inline_, you can't include _static_ inline functions without a
-compiler warning. kasan_check_{read,write} are static inline so we can't
-use them even when they would otherwise be suitable.)
-
-Take approach 2 and call out to real versions when KASAN is enabled.
-
-Use __underlying_foo to distinguish from __real_foo: __real_foo always
-refers to the kernel's implementation of foo, __underlying_foo could be
-either the kernel implementation or the __builtin_foo implementation.
-
-This is sometimes enough to make the memcmp test succeed with
-FORTIFY_SOURCE enabled. It is at least enough to get the function call
-into the module. One more fix is needed to make it reliable: see the next
-patch.
-
-Fixes: 6974f0c4555e ("include/linux/string.h: add the option of fortified string.h functions")
-Signed-off-by: Daniel Axtens <dja@axtens.net>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Tested-by: David Gow <davidgow@google.com>
-Reviewed-by: Dmitry Vyukov <dvyukov@google.com>
-Cc: Daniel Micay <danielmicay@gmail.com>
-Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
-Cc: Alexander Potapenko <glider@google.com>
-Link: http://lkml.kernel.org/r/20200423154503.5103-3-dja@axtens.net
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- include/linux/string.h | 60 +++++++++++++++++++++++++++++++++---------
- 1 file changed, 48 insertions(+), 12 deletions(-)
-
-diff --git a/include/linux/string.h b/include/linux/string.h
-index b6ccdc2c7f02..b2264355272d 100644
---- a/include/linux/string.h
-+++ b/include/linux/string.h
-@@ -269,6 +269,31 @@ void __read_overflow3(void) __compiletime_error("detected read beyond size of ob
- void __write_overflow(void) __compiletime_error("detected write beyond size of object passed as 1st parameter");
- 
- #if !defined(__NO_FORTIFY) && defined(__OPTIMIZE__) && defined(CONFIG_FORTIFY_SOURCE)
-+
-+#ifdef CONFIG_KASAN
-+extern void *__underlying_memchr(const void *p, int c, __kernel_size_t size) __RENAME(memchr);
-+extern int __underlying_memcmp(const void *p, const void *q, __kernel_size_t size) __RENAME(memcmp);
-+extern void *__underlying_memcpy(void *p, const void *q, __kernel_size_t size) __RENAME(memcpy);
-+extern void *__underlying_memmove(void *p, const void *q, __kernel_size_t size) __RENAME(memmove);
-+extern void *__underlying_memset(void *p, int c, __kernel_size_t size) __RENAME(memset);
-+extern char *__underlying_strcat(char *p, const char *q) __RENAME(strcat);
-+extern char *__underlying_strcpy(char *p, const char *q) __RENAME(strcpy);
-+extern __kernel_size_t __underlying_strlen(const char *p) __RENAME(strlen);
-+extern char *__underlying_strncat(char *p, const char *q, __kernel_size_t count) __RENAME(strncat);
-+extern char *__underlying_strncpy(char *p, const char *q, __kernel_size_t size) __RENAME(strncpy);
-+#else
-+#define __underlying_memchr	__builtin_memchr
-+#define __underlying_memcmp	__builtin_memcmp
-+#define __underlying_memcpy	__builtin_memcpy
-+#define __underlying_memmove	__builtin_memmove
-+#define __underlying_memset	__builtin_memset
-+#define __underlying_strcat	__builtin_strcat
-+#define __underlying_strcpy	__builtin_strcpy
-+#define __underlying_strlen	__builtin_strlen
-+#define __underlying_strncat	__builtin_strncat
-+#define __underlying_strncpy	__builtin_strncpy
-+#endif
-+
- __FORTIFY_INLINE char *strncpy(char *p, const char *q, __kernel_size_t size)
- {
- 	size_t p_size = __builtin_object_size(p, 0);
-@@ -276,14 +301,14 @@ __FORTIFY_INLINE char *strncpy(char *p, const char *q, __kernel_size_t size)
- 		__write_overflow();
- 	if (p_size < size)
- 		fortify_panic(__func__);
--	return __builtin_strncpy(p, q, size);
-+	return __underlying_strncpy(p, q, size);
- }
- 
- __FORTIFY_INLINE char *strcat(char *p, const char *q)
- {
- 	size_t p_size = __builtin_object_size(p, 0);
- 	if (p_size == (size_t)-1)
--		return __builtin_strcat(p, q);
-+		return __underlying_strcat(p, q);
- 	if (strlcat(p, q, p_size) >= p_size)
- 		fortify_panic(__func__);
- 	return p;
-@@ -297,7 +322,7 @@ __FORTIFY_INLINE __kernel_size_t strlen(const char *p)
- 	/* Work around gcc excess stack consumption issue */
- 	if (p_size == (size_t)-1 ||
- 	    (__builtin_constant_p(p[p_size - 1]) && p[p_size - 1] == '\0'))
--		return __builtin_strlen(p);
-+		return __underlying_strlen(p);
- 	ret = strnlen(p, p_size);
- 	if (p_size <= ret)
- 		fortify_panic(__func__);
-@@ -330,7 +355,7 @@ __FORTIFY_INLINE size_t strlcpy(char *p, const char *q, size_t size)
- 			__write_overflow();
- 		if (len >= p_size)
- 			fortify_panic(__func__);
--		__builtin_memcpy(p, q, len);
-+		__underlying_memcpy(p, q, len);
- 		p[len] = '\0';
- 	}
- 	return ret;
-@@ -343,12 +368,12 @@ __FORTIFY_INLINE char *strncat(char *p, const char *q, __kernel_size_t count)
- 	size_t p_size = __builtin_object_size(p, 0);
- 	size_t q_size = __builtin_object_size(q, 0);
- 	if (p_size == (size_t)-1 && q_size == (size_t)-1)
--		return __builtin_strncat(p, q, count);
-+		return __underlying_strncat(p, q, count);
- 	p_len = strlen(p);
- 	copy_len = strnlen(q, count);
- 	if (p_size < p_len + copy_len + 1)
- 		fortify_panic(__func__);
--	__builtin_memcpy(p + p_len, q, copy_len);
-+	__underlying_memcpy(p + p_len, q, copy_len);
- 	p[p_len + copy_len] = '\0';
- 	return p;
- }
-@@ -360,7 +385,7 @@ __FORTIFY_INLINE void *memset(void *p, int c, __kernel_size_t size)
- 		__write_overflow();
- 	if (p_size < size)
- 		fortify_panic(__func__);
--	return __builtin_memset(p, c, size);
-+	return __underlying_memset(p, c, size);
- }
- 
- __FORTIFY_INLINE void *memcpy(void *p, const void *q, __kernel_size_t size)
-@@ -375,7 +400,7 @@ __FORTIFY_INLINE void *memcpy(void *p, const void *q, __kernel_size_t size)
- 	}
- 	if (p_size < size || q_size < size)
- 		fortify_panic(__func__);
--	return __builtin_memcpy(p, q, size);
-+	return __underlying_memcpy(p, q, size);
- }
- 
- __FORTIFY_INLINE void *memmove(void *p, const void *q, __kernel_size_t size)
-@@ -390,7 +415,7 @@ __FORTIFY_INLINE void *memmove(void *p, const void *q, __kernel_size_t size)
- 	}
- 	if (p_size < size || q_size < size)
- 		fortify_panic(__func__);
--	return __builtin_memmove(p, q, size);
-+	return __underlying_memmove(p, q, size);
- }
- 
- extern void *__real_memscan(void *, int, __kernel_size_t) __RENAME(memscan);
-@@ -416,7 +441,7 @@ __FORTIFY_INLINE int memcmp(const void *p, const void *q, __kernel_size_t size)
- 	}
- 	if (p_size < size || q_size < size)
- 		fortify_panic(__func__);
--	return __builtin_memcmp(p, q, size);
-+	return __underlying_memcmp(p, q, size);
- }
- 
- __FORTIFY_INLINE void *memchr(const void *p, int c, __kernel_size_t size)
-@@ -426,7 +451,7 @@ __FORTIFY_INLINE void *memchr(const void *p, int c, __kernel_size_t size)
- 		__read_overflow();
- 	if (p_size < size)
- 		fortify_panic(__func__);
--	return __builtin_memchr(p, c, size);
-+	return __underlying_memchr(p, c, size);
- }
- 
- void *__real_memchr_inv(const void *s, int c, size_t n) __RENAME(memchr_inv);
-@@ -457,11 +482,22 @@ __FORTIFY_INLINE char *strcpy(char *p, const char *q)
- 	size_t p_size = __builtin_object_size(p, 0);
- 	size_t q_size = __builtin_object_size(q, 0);
- 	if (p_size == (size_t)-1 && q_size == (size_t)-1)
--		return __builtin_strcpy(p, q);
-+		return __underlying_strcpy(p, q);
- 	memcpy(p, q, strlen(q) + 1);
- 	return p;
- }
- 
-+/* Don't use these outside the FORITFY_SOURCE implementation */
-+#undef __underlying_memchr
-+#undef __underlying_memcmp
-+#undef __underlying_memcpy
-+#undef __underlying_memmove
-+#undef __underlying_memset
-+#undef __underlying_strcat
-+#undef __underlying_strcpy
-+#undef __underlying_strlen
-+#undef __underlying_strncat
-+#undef __underlying_strncpy
- #endif
- 
- /**
--- 
-2.25.1
-
+DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogTmljayBEZXNhdWxuaWVy
+cyA8bmRlc2F1bG5pZXJzQGdvb2dsZS5jb20+DQo+IFNlbnQ6IFR1ZXNkYXksIEp1bmUgMiwgMjAy
+MCAxMTo0NyBBTQ0KPiBUbzogS2FuZWRhLCBFcmlrIDxlcmlrLmthbmVkYUBpbnRlbC5jb20+DQo+
+IENjOiBNb29yZSwgUm9iZXJ0IDxyb2JlcnQubW9vcmVAaW50ZWwuY29tPjsgV3lzb2NraSwgUmFm
+YWVsIEoNCj4gPHJhZmFlbC5qLnd5c29ja2lAaW50ZWwuY29tPjsgTGVuIEJyb3duIDxsZW5iQGtl
+cm5lbC5vcmc+OyBBcmQNCj4gQmllc2hldXZlbCA8YXJkYkBrZXJuZWwub3JnPjsgZHZ5dWtvdkBn
+b29nbGUuY29tOyBnbGlkZXJAZ29vZ2xlLmNvbTsNCj4gZ3VvaGFuanVuQGh1YXdlaS5jb207IGxp
+bnV4LWFybS1rZXJuZWxAbGlzdHMuaW5mcmFkZWFkLm9yZzsgbGludXgtDQo+IGtlcm5lbEB2Z2Vy
+Lmtlcm5lbC5vcmc7IGxvcmVuem8ucGllcmFsaXNpQGFybS5jb207DQo+IG1hcmsucnV0bGFuZEBh
+cm0uY29tOyBwY2NAZ29vZ2xlLmNvbTsgcmp3QHJqd3lzb2NraS5uZXQ7DQo+IHdpbGxAa2VybmVs
+Lm9yZzsgc3RhYmxlQHZnZXIua2VybmVsLm9yZzsgbGludXgtYWNwaUB2Z2VyLmtlcm5lbC5vcmc7
+DQo+IGRldmVsQGFjcGljYS5vcmcNCj4gU3ViamVjdDogUmU6IFtQQVRDSF0gQUNQSUNBOiBmaXgg
+VUJTQU4gd2FybmluZyB1c2luZyBfX2J1aWx0aW5fb2Zmc2V0b2YNCj4gDQo+IE9uIE1vbiwgSnVu
+IDEsIDIwMjAgYXQgNTowMyBQTSBLYW5lZGEsIEVyaWsgPGVyaWsua2FuZWRhQGludGVsLmNvbT4N
+Cj4gd3JvdGU6DQo+ID4NCj4gPg0KPiA+IEhpLA0KPiA+DQo+ID4gPiBXaWxsIHJlcG9ydGVkIFVC
+U0FOIHdhcm5pbmdzOg0KPiA+ID4gVUJTQU46IG51bGwtcHRyLWRlcmVmIGluIGRyaXZlcnMvYWNw
+aS9hY3BpY2EvdGJmYWR0LmM6NDU5OjM3DQo+ID4gPiBVQlNBTjogbnVsbC1wdHItZGVyZWYgaW4g
+YXJjaC9hcm02NC9rZXJuZWwvc21wLmM6NTk2OjYNCj4gPiA+DQo+ID4gPiBMb29rcyBsaWtlIHRo
+ZSBlbXVsYXRlZCBvZmZzZXRvZiBtYWNybyBBQ1BJX09GRlNFVCBpcyBjYXVzaW5nIHRoZXNlLg0K
+PiA+ID4gV2UgY2FuIGF2b2lkIHRoaXMgYnkgdXNpbmcgdGhlIGNvbXBpbGVyIGJ1aWx0aW4sIF9f
+YnVpbHRpbl9vZmZzZXRvZi4NCj4gPg0KPiA+IEknbGwgdGFrZSBhIGxvb2sgYXQgdGhpcyB0b21v
+cnJvdw0KPiA+ID4NCj4gPiA+IFRoZSBub24ta2VybmVsIHJ1bnRpbWUgb2YgVUJTQU4gd291bGQg
+cHJpbnQ6DQo+ID4gPiBydW50aW1lIGVycm9yOiBtZW1iZXIgYWNjZXNzIHdpdGhpbiBudWxsIHBv
+aW50ZXIgb2YgdHlwZSBmb3IgdGhpcyBtYWNyby4NCj4gPg0KPiA+IGFjdHlwZXMuaCBpcyBvd25l
+ZCBieSBBQ1BJQ0Egc28gd2UgdHlwaWNhbGx5IGRvIG5vdCBhbGxvdw0KPiA+IGNvbXBpbGVyLXNw
+ZWNpZmljIGV4dGVuc2lvbnMgYmVjYXVzZSB0aGUgY29kZSBpcyBpbnRlbmRlZCB0byBiZQ0KPiA+
+IGNvbXBpbGVkIHVzaW5nIHRoZSBDOTkgc3RhbmRhcmQgd2l0aG91dCBjb21waWxlciBleHRlbnNp
+b25zLiBXZSBjb3VsZA0KPiA+IGFsbG93IHRoaXMgc29ydCBvZiB0aGluZyBpbiBhIExpbnV4LXNw
+ZWNpZmljIGhlYWRlciBmaWxlIGxpa2UNCj4gaW5jbHVkZS9hY3BpL3BsYXRmb3JtL2FjbGludXgu
+aCBidXQgSSdsbCB0YWtlIGEgbG9vayBhdCB0aGUgZXJyb3IgYXMgd2VsbC4uDQo+IA0KSGksDQoN
+Cj4gSWYgSSdtIG5vdCBhbGxvd2VkIHRvIHRvdWNoIHRoYXQgaGVhZGVyLCBpdCBsb29rcyBsaWtl
+IEkgY2FuIGluY2x1ZGUNCj4gPGxpbnV4L3N0ZGRlZi5oPiAocmF0aGVyIHRoYW4gbXkgaG9zdCdz
+IDxzdGRkZWYuaD4pIHRvIGdldCBhIGRlZmluaXRpb24gb2YNCg0KV2h5IG5vdCB1c2UgeW91ciBo
+b3N0J3Mgc3RkZGVmLmg/DQoNCj4gYG9mZnNldG9mYCB0aGF0cyBpbXBsZW1lbnRlZCBpbiB0ZXJt
+cyBvZiBgX19idWlsdGluX29mZnNldG9mYC4gIEkgc2hvdWxkIGJlDQo+IGFibGUgdG8gdXNlIHRo
+YXQgdG8gcmVwbGFjZSB1c2VzIG9mIEFDUElfT0ZGU0VULiAgQXJlIGFueSBvZiB0aGVzZSBvZmYg
+bGltaXRzPw0KDQpZZXMsIHRoZSBpZGVhIGlzIHRvIGRlZmluZSBBQ1BJX09GRlNFVCBpbiBhIHdh
+eSB0aGF0IHlvdSB3YW50IHNvIHRoYXQgd2UgZG9uJ3QgdG91Y2ggdGhlIHVzZXMgYmVsb3cuDQoN
+CkVyaWsNCj4gDQo+ICQgZ3JlcCAtcm4gQUNQSV9PRkZTRVQNCj4gYXJjaC9hcm02NC9pbmNsdWRl
+L2FzbS9hY3BpLmg6MzQ6I2RlZmluZQ0KPiBBQ1BJX01BRFRfR0lDQ19NSU5fTEVOR1RIDQo+IEFD
+UElfT0ZGU0VUKCAgXCBhcmNoL2FybTY0L2luY2x1ZGUvYXNtL2FjcGkuaDo0MTojZGVmaW5lDQo+
+IEFDUElfTUFEVF9HSUNDX1NQRSAoQUNQSV9PRkZTRVQoc3RydWN0IGFjcGlfbWFkdF9nZW5lcmlj
+X2ludGVycnVwdCwgXA0KPiBpbmNsdWRlL2FjcGkvYWN0YmwuaDozNzY6I2RlZmluZSBBQ1BJX0ZB
+RFRfT0ZGU0VUKGYpICAgICAgICAgICAgICh1MTYpDQo+IEFDUElfT0ZGU0VUIChzdHJ1Y3QgYWNw
+aV90YWJsZV9mYWR0LCBmKQ0KPiBkcml2ZXJzL2FjcGkvYWNwaWNhL2FjcmVzcmMuaDo4NDojZGVm
+aW5lIEFDUElfUlNfT0ZGU0VUKGYpDQo+ICAgKHU4KSBBQ1BJX09GRlNFVCAoc3RydWN0IGFjcGlf
+cmVzb3VyY2UsZikNCj4gZHJpdmVycy9hY3BpL2FjcGljYS9hY3Jlc3JjLmg6ODU6I2RlZmluZSBB
+TUxfT0ZGU0VUKGYpDQo+ICAgKHU4KSBBQ1BJX09GRlNFVCAodW5pb24gYW1sX3Jlc291cmNlLGYp
+DQo+IGRyaXZlcnMvYWNwaS9hY3BpY2EvYWNpbnRlcnAuaDoxNzojZGVmaW5lIEFDUElfRVhEX09G
+RlNFVChmKQ0KPiAodTgpIEFDUElfT0ZGU0VUICh1bmlvbiBhY3BpX29wZXJhbmRfb2JqZWN0LGYp
+DQo+IGRyaXZlcnMvYWNwaS9hY3BpY2EvYWNpbnRlcnAuaDoxODojZGVmaW5lIEFDUElfRVhEX05T
+T0ZGU0VUKGYpDQo+ICh1OCkgQUNQSV9PRkZTRVQgKHN0cnVjdCBhY3BpX25hbWVzcGFjZV9ub2Rl
+LGYpDQo+IGRyaXZlcnMvYWNwaS9hY3BpY2EvcnNkdW1waW5mby5jOjE2OiNkZWZpbmUgQUNQSV9S
+U0RfT0ZGU0VUKGYpDQo+ICAodTgpIEFDUElfT0ZGU0VUICh1bmlvbiBhY3BpX3Jlc291cmNlX2Rh
+dGEsZikNCj4gZHJpdmVycy9hY3BpL2FjcGljYS9yc2R1bXBpbmZvLmM6MTc6I2RlZmluZSBBQ1BJ
+X1BSVF9PRkZTRVQoZikNCj4gICh1OCkgQUNQSV9PRkZTRVQgKHN0cnVjdCBhY3BpX3BjaV9yb3V0
+aW5nX3RhYmxlLGYpDQo+IA0KPiAtLQ0KPiBUaGFua3MsDQo+IH5OaWNrIERlc2F1bG5pZXJzDQo=
