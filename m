@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ADB611F311D
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 03:07:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D8621F3107
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 03:05:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728848AbgFIBF4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 21:05:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51128 "EHLO mail.kernel.org"
+        id S1727858AbgFHXHU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 19:07:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51208 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727820AbgFHXHN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:07:13 -0400
+        id S1727836AbgFHXHP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:07:15 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F2B7320842;
-        Mon,  8 Jun 2020 23:07:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1A7592087E;
+        Mon,  8 Jun 2020 23:07:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591657632;
-        bh=asHvb1M4yJnWpzR6XeynGk7s5pr0sNh85tnSYRIZyVE=;
+        s=default; t=1591657635;
+        bh=3YAXEK4s/GPg8WqzWmTln3TcNkCmuYxwrw8nQ+1yss8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bxB2fj6AmupA8MqEdRE5Um4Jq+W7F/sgw1z6t++Dgbx1Gr3sTo9yIp6QoHf0Alsel
-         ryuEUlm2PHJyGpZ7KI3QZ1E+dtDJfTw5XFqhfJKo1HuxQfD2szANLFql7vpgjNxJxY
-         abes/FiBRDQAvZMMSqo+8CWvvmxDNvw8BO7NfITs=
+        b=0M7iczwC3xP1ohFOKS+sb3j8fD4sIcxZe3gd9Y0jx0Xa/0+azREVde1sB8M/mlA5z
+         /p5x8Fx26+my98Oqq4qyXLMJd5Esr9UaN7jJ9/ewkted4U/0+ADDFULD6vnZBXxfM5
+         Fa+IjrL/49VPuJND3+ksyeXiGTV4WkQl6oX+b4OE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tiezhu Yang <yangtiezhu@loongson.cn>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Sasha Levin <sashal@kernel.org>, linux-mips@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.7 051/274] MIPS: Loongson: Build ATI Radeon GPU driver as module
-Date:   Mon,  8 Jun 2020 19:02:24 -0400
-Message-Id: <20200608230607.3361041-51-sashal@kernel.org>
+Cc:     Dafna Hirschfeld <dafna.hirschfeld@collabora.com>,
+        Helen Koike <helen.koike@collabora.com>,
+        Dave Stevenson <dave.stevenson@raspberrypi.com>,
+        Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.7 053/274] media: i2c: imx219: Fix a bug in imx219_enum_frame_size
+Date:   Mon,  8 Jun 2020 19:02:26 -0400
+Message-Id: <20200608230607.3361041-53-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608230607.3361041-1-sashal@kernel.org>
 References: <20200608230607.3361041-1-sashal@kernel.org>
@@ -43,44 +47,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tiezhu Yang <yangtiezhu@loongson.cn>
+From: Dafna Hirschfeld <dafna.hirschfeld@collabora.com>
 
-[ Upstream commit a44de7497f91834df0b8b6d459e259788ba66794 ]
+[ Upstream commit b2bbf1aac61186ef904fd28079e847d3feadb89e ]
 
-When ATI Radeon GPU driver has been compiled directly into the kernel
-instead of as a module, we should make sure the firmware for the model
-(check available ones in /lib/firmware/radeon) is built-in to the kernel
-as well, otherwise there exists the following fatal error during GPU init,
-change CONFIG_DRM_RADEON=y to CONFIG_DRM_RADEON=m to fix it.
+When enumerating the frame sizes, the value sent to
+imx219_get_format_code should be fse->code
+(the code from the ioctl) and not imx219->fmt.code
+which is the code set currently in the driver.
 
-[    1.900997] [drm] Loading RS780 Microcode
-[    1.905077] radeon 0000:01:05.0: Direct firmware load for radeon/RS780_pfp.bin failed with error -2
-[    1.914140] r600_cp: Failed to load firmware "radeon/RS780_pfp.bin"
-[    1.920405] [drm:r600_init] *ERROR* Failed to load firmware!
-[    1.926069] radeon 0000:01:05.0: Fatal error during GPU init
-[    1.931729] [drm] radeon: finishing device.
-
-Fixes: 024e6a8b5bb1 ("MIPS: Loongson: Add a Loongson-3 default config file")
-Signed-off-by: Tiezhu Yang <yangtiezhu@loongson.cn>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Fixes: 22da1d56e982 ("media: i2c: imx219: Add support for RAW8 bit bayer format")
+Signed-off-by: Dafna Hirschfeld <dafna.hirschfeld@collabora.com>
+Reviewed-by: Helen Koike <helen.koike@collabora.com>
+Reviewed-by: Dave Stevenson <dave.stevenson@raspberrypi.com>
+Reviewed-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/configs/loongson3_defconfig | 2 +-
+ drivers/media/i2c/imx219.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/mips/configs/loongson3_defconfig b/arch/mips/configs/loongson3_defconfig
-index 51675f5000d6..b0c24bd292b2 100644
---- a/arch/mips/configs/loongson3_defconfig
-+++ b/arch/mips/configs/loongson3_defconfig
-@@ -229,7 +229,7 @@ CONFIG_MEDIA_CAMERA_SUPPORT=y
- CONFIG_MEDIA_USB_SUPPORT=y
- CONFIG_USB_VIDEO_CLASS=m
- CONFIG_DRM=y
--CONFIG_DRM_RADEON=y
-+CONFIG_DRM_RADEON=m
- CONFIG_FB_RADEON=y
- CONFIG_LCD_CLASS_DEVICE=y
- CONFIG_LCD_PLATFORM=m
+diff --git a/drivers/media/i2c/imx219.c b/drivers/media/i2c/imx219.c
+index cb03bdec1f9c..86e0564bfb4f 100644
+--- a/drivers/media/i2c/imx219.c
++++ b/drivers/media/i2c/imx219.c
+@@ -781,7 +781,7 @@ static int imx219_enum_frame_size(struct v4l2_subdev *sd,
+ 	if (fse->index >= ARRAY_SIZE(supported_modes))
+ 		return -EINVAL;
+ 
+-	if (fse->code != imx219_get_format_code(imx219, imx219->fmt.code))
++	if (fse->code != imx219_get_format_code(imx219, fse->code))
+ 		return -EINVAL;
+ 
+ 	fse->min_width = supported_modes[fse->index].width;
 -- 
 2.25.1
 
