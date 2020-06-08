@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 35C9C1F2FC0
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:53:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D9C61F2D6A
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:33:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728825AbgFIAxL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 20:53:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55614 "EHLO mail.kernel.org"
+        id S1729938AbgFHXO4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 19:14:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35548 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728509AbgFHXJs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:09:48 -0400
+        id S1729059AbgFHXOz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:14:55 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9F6B0208FE;
-        Mon,  8 Jun 2020 23:09:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9D9DD2158C;
+        Mon,  8 Jun 2020 23:14:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591657787;
-        bh=jLox+8Gi6bC9/N3l0vacC+fK6yX3qEtgPqcMiIXdWZg=;
+        s=default; t=1591658095;
+        bh=hH8VdHMcoSdW4iq/P16jtsTULNtxfV93v0SaSsDH9LE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nMRFeyMkQrhgT48q24DKEP0czU89K2T65O+/c8kW3xEnN9tuZMLJ0ZonwdymA2J7O
-         Eq4ZziMRzJUxcZdnZygO15OD4+6xdETi8YoEPCnXTZ7CLTXyNLY8wU8RcOTvAR6njx
-         mHd2Ip2E7+NzqHwl2MZVYWXRh36A1SDH2Jry03PE=
+        b=o8WzBhaou6blv1CXvicM13zj0rZNFP/Bzx3t4QqEd2hYri8vjiFzV/4xuggbPv5BC
+         Vq9K1jISbAl/GXCL2Ksa4lPW1+YNvffIy/qF7NyYvPAT8kc3IAEoGhJ9O6dTx6kHMg
+         z/cgJKole8wizIQVT//g73h6zI9KFphIdrr5/DRA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.7 168/274] dsa: sja1105: dynamically allocate stats structure
-Date:   Mon,  8 Jun 2020 19:04:21 -0400
-Message-Id: <20200608230607.3361041-168-sashal@kernel.org>
+Cc:     Mike Pozulp <pozulp.kernel@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.6 137/606] ALSA: hda/realtek: Add quirk for Samsung Notebook
+Date:   Mon,  8 Jun 2020 19:04:22 -0400
+Message-Id: <20200608231211.3363633-137-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200608230607.3361041-1-sashal@kernel.org>
-References: <20200608230607.3361041-1-sashal@kernel.org>
+In-Reply-To: <20200608231211.3363633-1-sashal@kernel.org>
+References: <20200608231211.3363633-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -43,196 +43,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Mike Pozulp <pozulp.kernel@gmail.com>
 
-[ Upstream commit ae1804de93f6f1626906567ae7deec8e0111259d ]
+[ Upstream commit 14425f1f521fdfe274a7bb390637c786432e08b4 ]
 
-The addition of sja1105_port_status_ether structure into the
-statistics causes the frame size to go over the warning limit:
+Some models of the Samsung Notebook 9 have very quiet and distorted
+headphone output. This quirk changes the VREF value of the ALC298
+codec NID 0x1a from default HIZ to new 100.
 
-drivers/net/dsa/sja1105/sja1105_ethtool.c:421:6: error: stack frame size of 1104 bytes in function 'sja1105_get_ethtool_stats' [-Werror,-Wframe-larger-than=]
+[ adjusted to 5.7-base and rearranged in SSID order -- tiwai ]
 
-Use dynamic allocation to avoid this.
-
-Fixes: 336aa67bd027 ("net: dsa: sja1105: show more ethtool statistics counters for P/Q/R/S")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Mike Pozulp <pozulp.kernel@gmail.com>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=207423
+Link: https://lore.kernel.org/r/20200510032838.1989130-1-pozulp.kernel@gmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/sja1105/sja1105_ethtool.c | 144 +++++++++++-----------
- 1 file changed, 74 insertions(+), 70 deletions(-)
+ sound/pci/hda/patch_realtek.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/drivers/net/dsa/sja1105/sja1105_ethtool.c b/drivers/net/dsa/sja1105/sja1105_ethtool.c
-index d742ffcbfce9..709f035055c5 100644
---- a/drivers/net/dsa/sja1105/sja1105_ethtool.c
-+++ b/drivers/net/dsa/sja1105/sja1105_ethtool.c
-@@ -421,92 +421,96 @@ static char sja1105pqrs_extra_port_stats[][ETH_GSTRING_LEN] = {
- void sja1105_get_ethtool_stats(struct dsa_switch *ds, int port, u64 *data)
- {
- 	struct sja1105_private *priv = ds->priv;
--	struct sja1105_port_status status;
-+	struct sja1105_port_status *status;
- 	int rc, i, k = 0;
+diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
+index 368ed3678fc2..b377aca71cbf 100644
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -6095,6 +6095,7 @@ enum {
+ 	ALC285_FIXUP_HP_GPIO_LED,
+ 	ALC285_FIXUP_HP_MUTE_LED,
+ 	ALC236_FIXUP_HP_MUTE_LED,
++	ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET,
+ };
  
--	memset(&status, 0, sizeof(status));
-+	status = kzalloc(sizeof(*status), GFP_KERNEL);
-+	if (!status)
-+		goto out;
+ static const struct hda_fixup alc269_fixups[] = {
+@@ -7251,6 +7252,13 @@ static const struct hda_fixup alc269_fixups[] = {
+ 		.type = HDA_FIXUP_FUNC,
+ 		.v.func = alc236_fixup_hp_mute_led,
+ 	},
++	[ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET] = {
++		.type = HDA_FIXUP_VERBS,
++		.v.verbs = (const struct hda_verb[]) {
++			{ 0x1a, AC_VERB_SET_PIN_WIDGET_CONTROL, 0xc5 },
++			{ }
++		},
++	},
+ };
  
--	rc = sja1105_port_status_get(priv, &status, port);
-+	rc = sja1105_port_status_get(priv, status, port);
- 	if (rc < 0) {
- 		dev_err(ds->dev, "Failed to read port %d counters: %d\n",
- 			port, rc);
--		return;
-+		goto out;
- 	}
- 	memset(data, 0, ARRAY_SIZE(sja1105_port_stats) * sizeof(u64));
--	data[k++] = status.mac.n_runt;
--	data[k++] = status.mac.n_soferr;
--	data[k++] = status.mac.n_alignerr;
--	data[k++] = status.mac.n_miierr;
--	data[k++] = status.mac.typeerr;
--	data[k++] = status.mac.sizeerr;
--	data[k++] = status.mac.tctimeout;
--	data[k++] = status.mac.priorerr;
--	data[k++] = status.mac.nomaster;
--	data[k++] = status.mac.memov;
--	data[k++] = status.mac.memerr;
--	data[k++] = status.mac.invtyp;
--	data[k++] = status.mac.intcyov;
--	data[k++] = status.mac.domerr;
--	data[k++] = status.mac.pcfbagdrop;
--	data[k++] = status.mac.spcprior;
--	data[k++] = status.mac.ageprior;
--	data[k++] = status.mac.portdrop;
--	data[k++] = status.mac.lendrop;
--	data[k++] = status.mac.bagdrop;
--	data[k++] = status.mac.policeerr;
--	data[k++] = status.mac.drpnona664err;
--	data[k++] = status.mac.spcerr;
--	data[k++] = status.mac.agedrp;
--	data[k++] = status.hl1.n_n664err;
--	data[k++] = status.hl1.n_vlanerr;
--	data[k++] = status.hl1.n_unreleased;
--	data[k++] = status.hl1.n_sizeerr;
--	data[k++] = status.hl1.n_crcerr;
--	data[k++] = status.hl1.n_vlnotfound;
--	data[k++] = status.hl1.n_ctpolerr;
--	data[k++] = status.hl1.n_polerr;
--	data[k++] = status.hl1.n_rxfrm;
--	data[k++] = status.hl1.n_rxbyte;
--	data[k++] = status.hl1.n_txfrm;
--	data[k++] = status.hl1.n_txbyte;
--	data[k++] = status.hl2.n_qfull;
--	data[k++] = status.hl2.n_part_drop;
--	data[k++] = status.hl2.n_egr_disabled;
--	data[k++] = status.hl2.n_not_reach;
-+	data[k++] = status->mac.n_runt;
-+	data[k++] = status->mac.n_soferr;
-+	data[k++] = status->mac.n_alignerr;
-+	data[k++] = status->mac.n_miierr;
-+	data[k++] = status->mac.typeerr;
-+	data[k++] = status->mac.sizeerr;
-+	data[k++] = status->mac.tctimeout;
-+	data[k++] = status->mac.priorerr;
-+	data[k++] = status->mac.nomaster;
-+	data[k++] = status->mac.memov;
-+	data[k++] = status->mac.memerr;
-+	data[k++] = status->mac.invtyp;
-+	data[k++] = status->mac.intcyov;
-+	data[k++] = status->mac.domerr;
-+	data[k++] = status->mac.pcfbagdrop;
-+	data[k++] = status->mac.spcprior;
-+	data[k++] = status->mac.ageprior;
-+	data[k++] = status->mac.portdrop;
-+	data[k++] = status->mac.lendrop;
-+	data[k++] = status->mac.bagdrop;
-+	data[k++] = status->mac.policeerr;
-+	data[k++] = status->mac.drpnona664err;
-+	data[k++] = status->mac.spcerr;
-+	data[k++] = status->mac.agedrp;
-+	data[k++] = status->hl1.n_n664err;
-+	data[k++] = status->hl1.n_vlanerr;
-+	data[k++] = status->hl1.n_unreleased;
-+	data[k++] = status->hl1.n_sizeerr;
-+	data[k++] = status->hl1.n_crcerr;
-+	data[k++] = status->hl1.n_vlnotfound;
-+	data[k++] = status->hl1.n_ctpolerr;
-+	data[k++] = status->hl1.n_polerr;
-+	data[k++] = status->hl1.n_rxfrm;
-+	data[k++] = status->hl1.n_rxbyte;
-+	data[k++] = status->hl1.n_txfrm;
-+	data[k++] = status->hl1.n_txbyte;
-+	data[k++] = status->hl2.n_qfull;
-+	data[k++] = status->hl2.n_part_drop;
-+	data[k++] = status->hl2.n_egr_disabled;
-+	data[k++] = status->hl2.n_not_reach;
- 
- 	if (priv->info->device_id == SJA1105E_DEVICE_ID ||
- 	    priv->info->device_id == SJA1105T_DEVICE_ID)
--		return;
-+		goto out;;
- 
- 	memset(data + k, 0, ARRAY_SIZE(sja1105pqrs_extra_port_stats) *
- 			sizeof(u64));
- 	for (i = 0; i < 8; i++) {
--		data[k++] = status.hl2.qlevel_hwm[i];
--		data[k++] = status.hl2.qlevel[i];
-+		data[k++] = status->hl2.qlevel_hwm[i];
-+		data[k++] = status->hl2.qlevel[i];
- 	}
--	data[k++] = status.ether.n_drops_nolearn;
--	data[k++] = status.ether.n_drops_noroute;
--	data[k++] = status.ether.n_drops_ill_dtag;
--	data[k++] = status.ether.n_drops_dtag;
--	data[k++] = status.ether.n_drops_sotag;
--	data[k++] = status.ether.n_drops_sitag;
--	data[k++] = status.ether.n_drops_utag;
--	data[k++] = status.ether.n_tx_bytes_1024_2047;
--	data[k++] = status.ether.n_tx_bytes_512_1023;
--	data[k++] = status.ether.n_tx_bytes_256_511;
--	data[k++] = status.ether.n_tx_bytes_128_255;
--	data[k++] = status.ether.n_tx_bytes_65_127;
--	data[k++] = status.ether.n_tx_bytes_64;
--	data[k++] = status.ether.n_tx_mcast;
--	data[k++] = status.ether.n_tx_bcast;
--	data[k++] = status.ether.n_rx_bytes_1024_2047;
--	data[k++] = status.ether.n_rx_bytes_512_1023;
--	data[k++] = status.ether.n_rx_bytes_256_511;
--	data[k++] = status.ether.n_rx_bytes_128_255;
--	data[k++] = status.ether.n_rx_bytes_65_127;
--	data[k++] = status.ether.n_rx_bytes_64;
--	data[k++] = status.ether.n_rx_mcast;
--	data[k++] = status.ether.n_rx_bcast;
-+	data[k++] = status->ether.n_drops_nolearn;
-+	data[k++] = status->ether.n_drops_noroute;
-+	data[k++] = status->ether.n_drops_ill_dtag;
-+	data[k++] = status->ether.n_drops_dtag;
-+	data[k++] = status->ether.n_drops_sotag;
-+	data[k++] = status->ether.n_drops_sitag;
-+	data[k++] = status->ether.n_drops_utag;
-+	data[k++] = status->ether.n_tx_bytes_1024_2047;
-+	data[k++] = status->ether.n_tx_bytes_512_1023;
-+	data[k++] = status->ether.n_tx_bytes_256_511;
-+	data[k++] = status->ether.n_tx_bytes_128_255;
-+	data[k++] = status->ether.n_tx_bytes_65_127;
-+	data[k++] = status->ether.n_tx_bytes_64;
-+	data[k++] = status->ether.n_tx_mcast;
-+	data[k++] = status->ether.n_tx_bcast;
-+	data[k++] = status->ether.n_rx_bytes_1024_2047;
-+	data[k++] = status->ether.n_rx_bytes_512_1023;
-+	data[k++] = status->ether.n_rx_bytes_256_511;
-+	data[k++] = status->ether.n_rx_bytes_128_255;
-+	data[k++] = status->ether.n_rx_bytes_65_127;
-+	data[k++] = status->ether.n_rx_bytes_64;
-+	data[k++] = status->ether.n_rx_mcast;
-+	data[k++] = status->ether.n_rx_bcast;
-+out:
-+	kfree(status);
- }
- 
- void sja1105_get_strings(struct dsa_switch *ds, int port,
+ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
+@@ -7446,6 +7454,8 @@ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
+ 	SND_PCI_QUIRK(0x10ec, 0x10f2, "Intel Reference board", ALC700_FIXUP_INTEL_REFERENCE),
+ 	SND_PCI_QUIRK(0x10f7, 0x8338, "Panasonic CF-SZ6", ALC269_FIXUP_HEADSET_MODE),
+ 	SND_PCI_QUIRK(0x144d, 0xc109, "Samsung Ativ book 9 (NP900X3G)", ALC269_FIXUP_INV_DMIC),
++	SND_PCI_QUIRK(0x144d, 0xc169, "Samsung Notebook 9 Pen (NP930SBE-K01US)", ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET),
++	SND_PCI_QUIRK(0x144d, 0xc176, "Samsung Notebook 9 Pro (NP930MBE-K04US)", ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET),
+ 	SND_PCI_QUIRK(0x144d, 0xc740, "Samsung Ativ book 8 (NP870Z5G)", ALC269_FIXUP_ATIV_BOOK_8),
+ 	SND_PCI_QUIRK(0x1458, 0xfa53, "Gigabyte BXBT-2807", ALC283_FIXUP_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x1462, 0xb120, "MSI Cubi MS-B120", ALC283_FIXUP_HEADSET_MIC),
 -- 
 2.25.1
 
