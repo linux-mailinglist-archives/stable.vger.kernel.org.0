@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AA2E91F3163
+	by mail.lfdr.de (Postfix) with ESMTP id 360C01F3162
 	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 03:09:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727015AbgFHXGe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1727021AbgFHXGe (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 8 Jun 2020 19:06:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49738 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:49762 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727008AbgFHXGc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:06:32 -0400
+        id S1727010AbgFHXGd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:06:33 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 151D920820;
-        Mon,  8 Jun 2020 23:06:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 542F02076C;
+        Mon,  8 Jun 2020 23:06:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591657591;
-        bh=x7XNxG+6Ey9iNd/8UiXWD76fUZIbSvQFJ+JJaQo5fqk=;
+        s=default; t=1591657593;
+        bh=URSM4OVSd3VdBQHRpH5PXvzyY3qrWEOKrHQAtea9Itk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YP8pPkKbQFz25zt4gifp3yg/NIvpC8zOuz4CaJURDjLKfy56qMgPKgZORxfFg2ouC
-         ZRHLoMuDvl1pJBaoBwjT+tJw9TTt1sImXbXbl2fr+rqhKGGEP2lqe6e7NPZrdNa4jV
-         dAFWQVXNfkiio/j1THRY7vtg9uyQ/rIjo0gUxj3k=
+        b=nXHZGou2DqBTPFsVuY9HKXlHWZI4PBVsyeu6721ZO61faGWNpMRl1Z0fx4cSidQF4
+         TLvkYWZsqf+59prx3C6SLFxYbS0mkU0J0q8tY80j4Uo8KCn/sgUmSrq7fFDlipHLxh
+         YkjifqmuTae5/xkopQhEJ3Nv3bvpUqSOEPH2YjGE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     limingyu <limingyu@uniontech.com>,
-        zhoubinbin <zhoubinbin@uniontech.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+Cc:     Enric Balletbo i Serra <enric.balletbo@collabora.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Sam Ravnborg <sam@ravnborg.org>,
+        Sasha Levin <sashal@kernel.org>,
         dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.7 019/274] drm/amdgpu: Init data to avoid oops while reading pp_num_states.
-Date:   Mon,  8 Jun 2020 19:01:52 -0400
-Message-Id: <20200608230607.3361041-19-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.7 020/274] drm/bridge: panel: Return always an error pointer in drm_panel_bridge_add()
+Date:   Mon,  8 Jun 2020 19:01:53 -0400
+Message-Id: <20200608230607.3361041-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608230607.3361041-1-sashal@kernel.org>
 References: <20200608230607.3361041-1-sashal@kernel.org>
@@ -45,51 +45,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: limingyu <limingyu@uniontech.com>
+From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
 
-[ Upstream commit 6f81b2d047c59eb77cd04795a44245d6a52cdaec ]
+[ Upstream commit 30be3031087139061de4421bf52015931eaab569 ]
 
-For chip like CHIP_OLAND with si enabled(amdgpu.si_support=1),
-the amdgpu will expose pp_num_states to the /sys directory.
-In this moment, read the pp_num_states file will excute the
-amdgpu_get_pp_num_states func. In our case, the data hasn't
-been initialized, so the kernel will access some ilegal
-address, trigger the segmentfault and system will reboot soon:
+Since commit 89958b7cd955 ("drm/bridge: panel: Infer connector type from
+panel by default"), drm_panel_bridge_add() and their variants can return
+NULL and an error pointer. This is fine but none of the actual users of
+the API are checking for the NULL value. Instead of change all the
+users, seems reasonable to return an error pointer instead. So change
+the returned value for those functions when the connector type is unknown.
 
-    uos@uos-PC:~$ cat /sys/devices/pci0000\:00/0000\:00\:00.0/0000\:01\:00
-    .0/pp_num_states
-
-    Message from syslogd@uos-PC at Apr 22 09:26:20 ...
-     kernel:[   82.154129] Internal error: Oops: 96000004 [#1] SMP
-
-This patch aims to fix this problem, avoid that reading file
-triggers the kernel sementfault.
-
-Signed-off-by: limingyu <limingyu@uniontech.com>
-Signed-off-by: zhoubinbin <zhoubinbin@uniontech.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Suggested-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200416210654.2468805-1-enric.balletbo@collabora.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/bridge/panel.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c
-index abe94a55ecad..49e2e43f2e4a 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c
-@@ -444,8 +444,11 @@ static ssize_t amdgpu_get_pp_num_states(struct device *dev,
- 		ret = smu_get_power_num_states(&adev->smu, &data);
- 		if (ret)
- 			return ret;
--	} else if (adev->powerplay.pp_funcs->get_pp_num_states)
-+	} else if (adev->powerplay.pp_funcs->get_pp_num_states) {
- 		amdgpu_dpm_get_pp_num_states(adev, &data);
-+	} else {
-+		memset(&data, 0, sizeof(data));
-+	}
+diff --git a/drivers/gpu/drm/bridge/panel.c b/drivers/gpu/drm/bridge/panel.c
+index 8461ee8304ba..7a3df0f319f3 100644
+--- a/drivers/gpu/drm/bridge/panel.c
++++ b/drivers/gpu/drm/bridge/panel.c
+@@ -166,7 +166,7 @@ static const struct drm_bridge_funcs panel_bridge_bridge_funcs = {
+  *
+  * The connector type is set to @panel->connector_type, which must be set to a
+  * known type. Calling this function with a panel whose connector type is
+- * DRM_MODE_CONNECTOR_Unknown will return NULL.
++ * DRM_MODE_CONNECTOR_Unknown will return ERR_PTR(-EINVAL).
+  *
+  * See devm_drm_panel_bridge_add() for an automatically managed version of this
+  * function.
+@@ -174,7 +174,7 @@ static const struct drm_bridge_funcs panel_bridge_bridge_funcs = {
+ struct drm_bridge *drm_panel_bridge_add(struct drm_panel *panel)
+ {
+ 	if (WARN_ON(panel->connector_type == DRM_MODE_CONNECTOR_Unknown))
+-		return NULL;
++		return ERR_PTR(-EINVAL);
  
- 	pm_runtime_mark_last_busy(ddev->dev);
- 	pm_runtime_put_autosuspend(ddev->dev);
+ 	return drm_panel_bridge_add_typed(panel, panel->connector_type);
+ }
+@@ -265,7 +265,7 @@ struct drm_bridge *devm_drm_panel_bridge_add(struct device *dev,
+ 					     struct drm_panel *panel)
+ {
+ 	if (WARN_ON(panel->connector_type == DRM_MODE_CONNECTOR_Unknown))
+-		return NULL;
++		return ERR_PTR(-EINVAL);
+ 
+ 	return devm_drm_panel_bridge_add_typed(dev, panel,
+ 					       panel->connector_type);
 -- 
 2.25.1
 
