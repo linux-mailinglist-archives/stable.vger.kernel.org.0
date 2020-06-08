@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 759631F225B
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:08:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 647401F2323
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:13:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727961AbgFHXHk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 19:07:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52096 "EHLO mail.kernel.org"
+        id S1729195AbgFHXM6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 19:12:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60764 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727125AbgFHXHi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:07:38 -0400
+        id S1728231AbgFHXM5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:12:57 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2652E2086A;
-        Mon,  8 Jun 2020 23:07:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1697D208C7;
+        Mon,  8 Jun 2020 23:12:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591657658;
-        bh=asa8ONHvLvSLrkUv5RGqx9vJCcv05F7tTMtmQgGoEZs=;
+        s=default; t=1591657977;
+        bh=jpDTO98NTAQXW0vDddw9K2FDKrrPkVG//C7RQILuNx0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xFuu7ttfb3sjtwrGPnq9s6o7cB5lVCU14IoUfuvMsTMN4Dwus1QZH0/+C3YOA2Sek
-         Lp60ROA2KDpvLj9IUXkwboIquzTIko5c48PcGNXE7Q0PTuw4UTz4XIUGJpSHebWMPY
-         XmaEc1H/OyNSCgH2whzQlc9/iIywc0K23mka7mr8=
+        b=rvDz3DiQklk9Udj2lX9/vBUrPmBdNgkGuZdmJY2RxtssrOVhZiKMj/VK3K+YbAXzk
+         e5yGNyd4VyMF0MdlnlSbNpmazDq1O3KIqFBBP9GJRaXrzkOb0amGfPgRccjP4/TqH4
+         eYSV+FteXGxjvxTOex5wU23qJkn5jAjCKP36rlOQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Linus Walleij <linus.walleij@linaro.org>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.7 070/274] ARM: 8978/1: mm: make act_mm() respect THREAD_SIZE
-Date:   Mon,  8 Jun 2020 19:02:43 -0400
-Message-Id: <20200608230607.3361041-70-sashal@kernel.org>
+Cc:     Christophe Leroy <christophe.leroy@c-s.fr>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 5.6 039/606] powerpc/32s: Fix build failure with CONFIG_PPC_KUAP_DEBUG
+Date:   Mon,  8 Jun 2020 19:02:44 -0400
+Message-Id: <20200608231211.3363633-39-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200608230607.3361041-1-sashal@kernel.org>
-References: <20200608230607.3361041-1-sashal@kernel.org>
+In-Reply-To: <20200608231211.3363633-1-sashal@kernel.org>
+References: <20200608231211.3363633-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -46,63 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Walleij <linus.walleij@linaro.org>
+From: Christophe Leroy <christophe.leroy@c-s.fr>
 
-[ Upstream commit e1de94380af588bdf6ad6f0cc1f75004c35bc096 ]
+commit 4833ce06e6855d526234618b746ffb71d6612c9a upstream.
 
-Recent work with KASan exposed the folling hard-coded bitmask
-in arch/arm/mm/proc-macros.S:
+gpr2 is not a parametre of kuap_check(), it doesn't exist.
 
-  bic     rd, sp, #8128
-  bic     rd, rd, #63
+Use gpr instead.
 
-This forms the bitmask 0x1FFF that is coinciding with
-(PAGE_SIZE << THREAD_SIZE_ORDER) - 1, this code was assuming
-that THREAD_SIZE is always 8K (8192).
-
-As KASan was increasing THREAD_SIZE_ORDER to 2, I ran into
-this bug.
-
-Fix it by this little oneline suggested by Ard:
-
-  bic     rd, sp, #(THREAD_SIZE - 1) & ~63
-
-Where THREAD_SIZE is defined using THREAD_SIZE_ORDER.
-
-We have to also include <linux/const.h> since the THREAD_SIZE
-expands to use the _AC() macro.
-
-Cc: Ard Biesheuvel <ardb@kernel.org>
-Cc: Florian Fainelli <f.fainelli@gmail.com>
-Suggested-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: a68c31fc01ef ("powerpc/32s: Implement Kernel Userspace Access Protection")
+Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/ea599546f2a7771bde551393889e44e6b2632332.1587368807.git.christophe.leroy@c-s.fr
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/mm/proc-macros.S | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/powerpc/include/asm/book3s/32/kup.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/mm/proc-macros.S b/arch/arm/mm/proc-macros.S
-index 5461d589a1e2..60ac7c5999a9 100644
---- a/arch/arm/mm/proc-macros.S
-+++ b/arch/arm/mm/proc-macros.S
-@@ -5,6 +5,7 @@
-  *  VMA_VM_FLAGS
-  *  VM_EXEC
-  */
-+#include <linux/const.h>
- #include <asm/asm-offsets.h>
- #include <asm/thread_info.h>
+diff --git a/arch/powerpc/include/asm/book3s/32/kup.h b/arch/powerpc/include/asm/book3s/32/kup.h
+index 3c0ba22dc360..db0a1c281587 100644
+--- a/arch/powerpc/include/asm/book3s/32/kup.h
++++ b/arch/powerpc/include/asm/book3s/32/kup.h
+@@ -75,7 +75,7 @@
  
-@@ -30,7 +31,7 @@
-  * act_mm - get current->active_mm
-  */
- 	.macro	act_mm, rd
--	bic	\rd, sp, #8128
-+	bic	\rd, sp, #(THREAD_SIZE - 1) & ~63
- 	bic	\rd, \rd, #63
- 	ldr	\rd, [\rd, #TI_TASK]
- 	.if (TSK_ACTIVE_MM > IMM12_MASK)
+ .macro kuap_check	current, gpr
+ #ifdef CONFIG_PPC_KUAP_DEBUG
+-	lwz	\gpr2, KUAP(thread)
++	lwz	\gpr, KUAP(thread)
+ 999:	twnei	\gpr, 0
+ 	EMIT_BUG_ENTRY 999b, __FILE__, __LINE__, (BUGFLAG_WARNING | BUGFLAG_ONCE)
+ #endif
 -- 
 2.25.1
 
