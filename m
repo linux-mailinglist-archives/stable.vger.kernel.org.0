@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 883531F2CD7
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:30:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B1BC1F2CC5
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:28:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729755AbgFHXQe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 19:16:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37930 "EHLO mail.kernel.org"
+        id S2387417AbgFIA1y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 20:27:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37966 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729739AbgFHXQd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:16:33 -0400
+        id S1730262AbgFHXQf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:16:35 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ABE2E20820;
-        Mon,  8 Jun 2020 23:16:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D24CF20774;
+        Mon,  8 Jun 2020 23:16:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658193;
-        bh=/vbQSAarfWCrkIH4Xhngwau6L7c14Hu+WRKH7eUcJhk=;
+        s=default; t=1591658194;
+        bh=u5NxD93tNMR+Uf0sSapJqUPBUUPQUR3kyYU+THAHAO0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m2XAC9UN/tst8CXkIeUs4LN2tNdu0qKHCFL7gwvNNTZ69rycM1v6+8dpyZK/VhehV
-         BAli82BrtAle8Pn83vKWnVgWe3HXCg6STYROU+QHDJnYGMboaZVb+XZILM0lk7O7aK
-         7RXbbbj07B0Re5YcDfTSF15Z9FfJPKqs739GzQn8=
+        b=VbuQ5ubnJBlBxuIZJBs0IL5MUpZgYev3wAiGP8wO56JxoWY0TzV19ZN1oetKjTW9C
+         eVSbQC/A/XN/cdypiqpvkVYH5B1VlNx038xh1VfkjIFlgeWBDvNoRr895bdj3ojrOv
+         7nRkFHmxDKdJ7RTKNVtZFY3uFStXCjX88GG7y75w=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Boris Sukholitko <boris.sukholitko@broadcom.com>,
-        Edward Cree <ecree@solarflare.com>,
+Cc:     Martin KaFai Lau <kafai@fb.com>, Josef Bacik <jbacik@fb.com>,
         "David S . Miller" <davem@davemloft.net>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.6 214/606] __netif_receive_skb_core: pass skb by reference
-Date:   Mon,  8 Jun 2020 19:05:39 -0400
-Message-Id: <20200608231211.3363633-214-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.6 215/606] net: inet_csk: Fix so_reuseport bind-address cache in tb->fast*
+Date:   Mon,  8 Jun 2020 19:05:40 -0400
+Message-Id: <20200608231211.3363633-215-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608231211.3363633-1-sashal@kernel.org>
 References: <20200608231211.3363633-1-sashal@kernel.org>
@@ -45,94 +44,166 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Boris Sukholitko <boris.sukholitko@broadcom.com>
+From: Martin KaFai Lau <kafai@fb.com>
 
-[ Upstream commit c0bbbdc32febd4f034ecbf3ea17865785b2c0652 ]
+[ Upstream commit 88d7fcfa3b1fe670f0412b95be785aafca63352b ]
 
-__netif_receive_skb_core may change the skb pointer passed into it (e.g.
-in rx_handler). The original skb may be freed as a result of this
-operation.
+The commit 637bc8bbe6c0 ("inet: reset tb->fastreuseport when adding a reuseport sk")
+added a bind-address cache in tb->fast*.  The tb->fast* caches the address
+of a sk which has successfully been binded with SO_REUSEPORT ON.  The idea
+is to avoid the expensive conflict search in inet_csk_bind_conflict().
 
-The callers of __netif_receive_skb_core may further process original skb
-by using pt_prev pointer returned by __netif_receive_skb_core thus
-leading to unpleasant effects.
+There is an issue with wildcard matching where sk_reuseport_match() should
+have returned false but it is currently returning true.  It ends up
+hiding bind conflict.  For example,
 
-The solution is to pass skb by reference into __netif_receive_skb_core.
+bind("[::1]:443"); /* without SO_REUSEPORT. Succeed. */
+bind("[::2]:443"); /* with    SO_REUSEPORT. Succeed. */
+bind("[::]:443");  /* with    SO_REUSEPORT. Still Succeed where it shouldn't */
 
-v2: Added Fixes tag and comment regarding ppt_prev and skb invariant.
+The last bind("[::]:443") with SO_REUSEPORT on should have failed because
+it should have a conflict with the very first bind("[::1]:443") which
+has SO_REUSEPORT off.  However, the address "[::2]" is cached in
+tb->fast* in the second bind. In the last bind, the sk_reuseport_match()
+returns true because the binding sk's wildcard addr "[::]" matches with
+the "[::2]" cached in tb->fast*.
 
-Fixes: 88eb1944e18c ("net: core: propagate SKB lists through packet_type lookup")
-Signed-off-by: Boris Sukholitko <boris.sukholitko@broadcom.com>
-Acked-by: Edward Cree <ecree@solarflare.com>
+The correct bind conflict is reported by removing the second
+bind such that tb->fast* cache is not involved and forces the
+bind("[::]:443") to go through the inet_csk_bind_conflict():
+
+bind("[::1]:443"); /* without SO_REUSEPORT. Succeed. */
+bind("[::]:443");  /* with    SO_REUSEPORT. -EADDRINUSE */
+
+The expected behavior for sk_reuseport_match() is, it should only allow
+the "cached" tb->fast* address to be used as a wildcard match but not
+the address of the binding sk.  To do that, the current
+"bool match_wildcard" arg is split into
+"bool match_sk1_wildcard" and "bool match_sk2_wildcard".
+
+This change only affects the sk_reuseport_match() which is only
+used by inet_csk (e.g. TCP).
+The other use cases are calling inet_rcv_saddr_equal() and
+this patch makes it pass the same "match_wildcard" arg twice to
+the "ipv[46]_rcv_saddr_equal(..., match_wildcard, match_wildcard)".
+
+Cc: Josef Bacik <jbacik@fb.com>
+Fixes: 637bc8bbe6c0 ("inet: reset tb->fastreuseport when adding a reuseport sk")
+Signed-off-by: Martin KaFai Lau <kafai@fb.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/dev.c | 20 +++++++++++++++-----
- 1 file changed, 15 insertions(+), 5 deletions(-)
+ net/ipv4/inet_connection_sock.c | 43 ++++++++++++++++++---------------
+ 1 file changed, 24 insertions(+), 19 deletions(-)
 
-diff --git a/net/core/dev.c b/net/core/dev.c
-index c7047b40f569..87fd5424e205 100644
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -4988,11 +4988,12 @@ static inline int nf_ingress(struct sk_buff *skb, struct packet_type **pt_prev,
- 	return 0;
- }
+diff --git a/net/ipv4/inet_connection_sock.c b/net/ipv4/inet_connection_sock.c
+index d545fb99a8a1..76afe93904d5 100644
+--- a/net/ipv4/inet_connection_sock.c
++++ b/net/ipv4/inet_connection_sock.c
+@@ -24,17 +24,19 @@
+ #include <net/addrconf.h>
  
--static int __netif_receive_skb_core(struct sk_buff *skb, bool pfmemalloc,
-+static int __netif_receive_skb_core(struct sk_buff **pskb, bool pfmemalloc,
- 				    struct packet_type **ppt_prev)
+ #if IS_ENABLED(CONFIG_IPV6)
+-/* match_wildcard == true:  IPV6_ADDR_ANY equals to any IPv6 addresses if IPv6
+- *                          only, and any IPv4 addresses if not IPv6 only
+- * match_wildcard == false: addresses must be exactly the same, i.e.
+- *                          IPV6_ADDR_ANY only equals to IPV6_ADDR_ANY,
+- *                          and 0.0.0.0 equals to 0.0.0.0 only
++/* match_sk*_wildcard == true:  IPV6_ADDR_ANY equals to any IPv6 addresses
++ *				if IPv6 only, and any IPv4 addresses
++ *				if not IPv6 only
++ * match_sk*_wildcard == false: addresses must be exactly the same, i.e.
++ *				IPV6_ADDR_ANY only equals to IPV6_ADDR_ANY,
++ *				and 0.0.0.0 equals to 0.0.0.0 only
+  */
+ static bool ipv6_rcv_saddr_equal(const struct in6_addr *sk1_rcv_saddr6,
+ 				 const struct in6_addr *sk2_rcv_saddr6,
+ 				 __be32 sk1_rcv_saddr, __be32 sk2_rcv_saddr,
+ 				 bool sk1_ipv6only, bool sk2_ipv6only,
+-				 bool match_wildcard)
++				 bool match_sk1_wildcard,
++				 bool match_sk2_wildcard)
  {
- 	struct packet_type *ptype, *pt_prev;
- 	rx_handler_func_t *rx_handler;
-+	struct sk_buff *skb = *pskb;
- 	struct net_device *orig_dev;
- 	bool deliver_exact = false;
- 	int ret = NET_RX_DROP;
-@@ -5023,8 +5024,10 @@ static int __netif_receive_skb_core(struct sk_buff *skb, bool pfmemalloc,
- 		ret2 = do_xdp_generic(rcu_dereference(skb->dev->xdp_prog), skb);
- 		preempt_enable();
- 
--		if (ret2 != XDP_PASS)
--			return NET_RX_DROP;
-+		if (ret2 != XDP_PASS) {
-+			ret = NET_RX_DROP;
-+			goto out;
-+		}
- 		skb_reset_mac_len(skb);
+ 	int addr_type = ipv6_addr_type(sk1_rcv_saddr6);
+ 	int addr_type2 = sk2_rcv_saddr6 ? ipv6_addr_type(sk2_rcv_saddr6) : IPV6_ADDR_MAPPED;
+@@ -44,8 +46,8 @@ static bool ipv6_rcv_saddr_equal(const struct in6_addr *sk1_rcv_saddr6,
+ 		if (!sk2_ipv6only) {
+ 			if (sk1_rcv_saddr == sk2_rcv_saddr)
+ 				return true;
+-			if (!sk1_rcv_saddr || !sk2_rcv_saddr)
+-				return match_wildcard;
++			return (match_sk1_wildcard && !sk1_rcv_saddr) ||
++				(match_sk2_wildcard && !sk2_rcv_saddr);
+ 		}
+ 		return false;
  	}
+@@ -53,11 +55,11 @@ static bool ipv6_rcv_saddr_equal(const struct in6_addr *sk1_rcv_saddr6,
+ 	if (addr_type == IPV6_ADDR_ANY && addr_type2 == IPV6_ADDR_ANY)
+ 		return true;
  
-@@ -5174,6 +5177,13 @@ static int __netif_receive_skb_core(struct sk_buff *skb, bool pfmemalloc,
+-	if (addr_type2 == IPV6_ADDR_ANY && match_wildcard &&
++	if (addr_type2 == IPV6_ADDR_ANY && match_sk2_wildcard &&
+ 	    !(sk2_ipv6only && addr_type == IPV6_ADDR_MAPPED))
+ 		return true;
+ 
+-	if (addr_type == IPV6_ADDR_ANY && match_wildcard &&
++	if (addr_type == IPV6_ADDR_ANY && match_sk1_wildcard &&
+ 	    !(sk1_ipv6only && addr_type2 == IPV6_ADDR_MAPPED))
+ 		return true;
+ 
+@@ -69,18 +71,19 @@ static bool ipv6_rcv_saddr_equal(const struct in6_addr *sk1_rcv_saddr6,
+ }
+ #endif
+ 
+-/* match_wildcard == true:  0.0.0.0 equals to any IPv4 addresses
+- * match_wildcard == false: addresses must be exactly the same, i.e.
+- *                          0.0.0.0 only equals to 0.0.0.0
++/* match_sk*_wildcard == true:  0.0.0.0 equals to any IPv4 addresses
++ * match_sk*_wildcard == false: addresses must be exactly the same, i.e.
++ *				0.0.0.0 only equals to 0.0.0.0
+  */
+ static bool ipv4_rcv_saddr_equal(__be32 sk1_rcv_saddr, __be32 sk2_rcv_saddr,
+-				 bool sk2_ipv6only, bool match_wildcard)
++				 bool sk2_ipv6only, bool match_sk1_wildcard,
++				 bool match_sk2_wildcard)
+ {
+ 	if (!sk2_ipv6only) {
+ 		if (sk1_rcv_saddr == sk2_rcv_saddr)
+ 			return true;
+-		if (!sk1_rcv_saddr || !sk2_rcv_saddr)
+-			return match_wildcard;
++		return (match_sk1_wildcard && !sk1_rcv_saddr) ||
++			(match_sk2_wildcard && !sk2_rcv_saddr);
  	}
+ 	return false;
+ }
+@@ -96,10 +99,12 @@ bool inet_rcv_saddr_equal(const struct sock *sk, const struct sock *sk2,
+ 					    sk2->sk_rcv_saddr,
+ 					    ipv6_only_sock(sk),
+ 					    ipv6_only_sock(sk2),
++					    match_wildcard,
+ 					    match_wildcard);
+ #endif
+ 	return ipv4_rcv_saddr_equal(sk->sk_rcv_saddr, sk2->sk_rcv_saddr,
+-				    ipv6_only_sock(sk2), match_wildcard);
++				    ipv6_only_sock(sk2), match_wildcard,
++				    match_wildcard);
+ }
+ EXPORT_SYMBOL(inet_rcv_saddr_equal);
  
- out:
-+	/* The invariant here is that if *ppt_prev is not NULL
-+	 * then skb should also be non-NULL.
-+	 *
-+	 * Apparently *ppt_prev assignment above holds this invariant due to
-+	 * skb dereferencing near it.
-+	 */
-+	*pskb = skb;
- 	return ret;
+@@ -273,10 +278,10 @@ static inline int sk_reuseport_match(struct inet_bind_bucket *tb,
+ 					    tb->fast_rcv_saddr,
+ 					    sk->sk_rcv_saddr,
+ 					    tb->fast_ipv6_only,
+-					    ipv6_only_sock(sk), true);
++					    ipv6_only_sock(sk), true, false);
+ #endif
+ 	return ipv4_rcv_saddr_equal(tb->fast_rcv_saddr, sk->sk_rcv_saddr,
+-				    ipv6_only_sock(sk), true);
++				    ipv6_only_sock(sk), true, false);
  }
  
-@@ -5183,7 +5193,7 @@ static int __netif_receive_skb_one_core(struct sk_buff *skb, bool pfmemalloc)
- 	struct packet_type *pt_prev = NULL;
- 	int ret;
- 
--	ret = __netif_receive_skb_core(skb, pfmemalloc, &pt_prev);
-+	ret = __netif_receive_skb_core(&skb, pfmemalloc, &pt_prev);
- 	if (pt_prev)
- 		ret = INDIRECT_CALL_INET(pt_prev->func, ipv6_rcv, ip_rcv, skb,
- 					 skb->dev, pt_prev, orig_dev);
-@@ -5261,7 +5271,7 @@ static void __netif_receive_skb_list_core(struct list_head *head, bool pfmemallo
- 		struct packet_type *pt_prev = NULL;
- 
- 		skb_list_del_init(skb);
--		__netif_receive_skb_core(skb, pfmemalloc, &pt_prev);
-+		__netif_receive_skb_core(&skb, pfmemalloc, &pt_prev);
- 		if (!pt_prev)
- 			continue;
- 		if (pt_curr != pt_prev || od_curr != orig_dev) {
+ /* Obtain a reference to a local port for the given sock,
 -- 
 2.25.1
 
