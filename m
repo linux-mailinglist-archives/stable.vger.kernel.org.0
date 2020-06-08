@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B0CCD1F2E13
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:40:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B9EC61F2E26
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:40:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729328AbgFHXNW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 19:13:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33090 "EHLO mail.kernel.org"
+        id S1729676AbgFIAjU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 20:39:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33128 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729303AbgFHXNV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:13:21 -0400
+        id S1729332AbgFHXNX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:13:23 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BFB2920B80;
-        Mon,  8 Jun 2020 23:13:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E9BAD214D8;
+        Mon,  8 Jun 2020 23:13:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658001;
-        bh=2tfyawIOeBBGpVSvjt7DJKriTpeiTWyLW3csCNfR08k=;
+        s=default; t=1591658002;
+        bh=mnT9exT/fvQwG63m42+9Iftl9jERWCZuns3xk0LrKSM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G+eDDXahsUbeWkAN1O7Ky/ww+WY94VvjJZUw2nZOSIjDFe7bKGjS1o2XwzbBBBXNv
-         XDpPSzuRzEqpjGMfDK58mvjNJB43w5TM+B1yel0cSJRKpI/GY6W2RCmyRMkxwBw/Q2
-         adXHvdqBW8QzEUihlyT9o3fDCzKzVQOyP8dfDI+M=
+        b=xOln4T7m5U/ly0SZ0D/VZCwGunRBH0nC6QoTmU2Xgb2dHSeNdYAG79bcYdNacSgZO
+         8XPLKDUt1SCTeVMAfFUctneNGAh7fPvmh7P3vHvJjShkHLZYceRs0TcdGXAAfCMEau
+         /loJG2eHc9C+qclLN4zsEFgH+JzQlPISmMnsC9C0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Loic Poulain <loic.poulain@linaro.org>,
+Cc:     Neil Armstrong <narmstrong@baylibre.com>,
+        Kevin Hilman <khilman@baylibre.com>,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.6 058/606] arm64: dts: qcom: msm8996: Reduce vdd_apc voltage
-Date:   Mon,  8 Jun 2020 19:03:03 -0400
-Message-Id: <20200608231211.3363633-58-sashal@kernel.org>
+        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-amlogic@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.6 059/606] arm64: dts: meson-g12-common: fix dwc2 clock names
+Date:   Mon,  8 Jun 2020 19:03:04 -0400
+Message-Id: <20200608231211.3363633-59-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608231211.3363633-1-sashal@kernel.org>
 References: <20200608231211.3363633-1-sashal@kernel.org>
@@ -44,40 +46,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bjorn Andersson <bjorn.andersson@linaro.org>
+From: Neil Armstrong <narmstrong@baylibre.com>
 
-commit 28810eecae08f9458a44831978e36f14ed182c80 upstream.
+commit e4f634d812634067b0c661af2e3cecfd629c89b8 upstream.
 
-Some msm8996 based devices are unstable when run with VDD_APC of 1.23V,
-which is listed as the maximum voltage in "Turbo" mode. Given that the
-CPU cluster is not run in "Turbo" mode, reduce this to 0.98V - the
-maximum voltage for nominal operation.
+Use the correct dwc2 clock name.
 
-Tested-by: Loic Poulain <loic.poulain@linaro.org>
-Fixes: 7a2a2231ef22 ("arm64: dts: apq8096-db820c: Fix VDD core voltage")
-Cc: Loic Poulain <loic.poulain@linaro.org>
-Link: https://lore.kernel.org/r/20200318054442.3066726-1-bjorn.andersson@linaro.org
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Fixes: 9baf7d6be730 ("arm64: dts: meson: g12a: Add G12A USB nodes")
+Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
+Signed-off-by: Kevin Hilman <khilman@baylibre.com>
+Reviewed-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Link: https://lore.kernel.org/r/20200326160857.11929-3-narmstrong@baylibre.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/boot/dts/qcom/apq8096-db820c.dtsi | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm64/boot/dts/amlogic/meson-g12-common.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/apq8096-db820c.dtsi b/arch/arm64/boot/dts/qcom/apq8096-db820c.dtsi
-index fff6115f2670..a85b85d85a5f 100644
---- a/arch/arm64/boot/dts/qcom/apq8096-db820c.dtsi
-+++ b/arch/arm64/boot/dts/qcom/apq8096-db820c.dtsi
-@@ -658,8 +658,8 @@ s10 {
- 	s11 {
- 		qcom,saw-leader;
- 		regulator-always-on;
--		regulator-min-microvolt = <1230000>;
--		regulator-max-microvolt = <1230000>;
-+		regulator-min-microvolt = <980000>;
-+		regulator-max-microvolt = <980000>;
- 	};
- };
- 
+diff --git a/arch/arm64/boot/dts/amlogic/meson-g12-common.dtsi b/arch/arm64/boot/dts/amlogic/meson-g12-common.dtsi
+index abe04f4ad7d8..eeaa95baaa10 100644
+--- a/arch/arm64/boot/dts/amlogic/meson-g12-common.dtsi
++++ b/arch/arm64/boot/dts/amlogic/meson-g12-common.dtsi
+@@ -2204,7 +2204,7 @@ dwc2: usb@ff400000 {
+ 				reg = <0x0 0xff400000 0x0 0x40000>;
+ 				interrupts = <GIC_SPI 31 IRQ_TYPE_LEVEL_HIGH>;
+ 				clocks = <&clkc CLKID_USB1_DDR_BRIDGE>;
+-				clock-names = "ddr";
++				clock-names = "otg";
+ 				phys = <&usb2_phy1>;
+ 				phy-names = "usb2-phy";
+ 				dr_mode = "peripheral";
 -- 
 2.25.1
 
