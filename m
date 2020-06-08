@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F9DC1F2363
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:15:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 05EF31F2294
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:10:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729732AbgFHXOJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 19:14:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34196 "EHLO mail.kernel.org"
+        id S1728320AbgFHXJF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 19:09:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54628 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729715AbgFHXOH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:14:07 -0400
+        id S1728314AbgFHXJC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:09:02 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 33D4020C09;
-        Mon,  8 Jun 2020 23:14:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AB0CB208E4;
+        Mon,  8 Jun 2020 23:09:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658047;
-        bh=bFUuWf7lEhjrgELh7Ay8Q+iXglie08ZUdzhs4xcPd48=;
+        s=default; t=1591657741;
+        bh=t8EX+OcVvPjkVogK7HTxyL6ukX9m/HBgPkG41B/CT7o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ER4giVg/SI+NAzNFnWXX/6wCurrMSmL5JWI7ziungK8Ye+mdtrVAFzyVSlpEQEh1j
-         z4VIFKYe4WwjLm88Up+dxPT1eHnaZBS8kyla4XC/f4ZcElMWdkSuMsXA5WhlGdgfzJ
-         sMpc7uLZZQFlvm/o864fSwFDjttmIOJbZJDDK0Qs=
+        b=IroOBB1iUIAbfWFEHwfez+w4FimyjYl1vuD59NknoZ2ENcif8Ul+4Z7s9EM+6mNXx
+         OdNuQ9pXXqiVIg/He419YAyJvdXbpePYsXTJUHCaSXxKlxdJnJGNLAC5+ci33MozDM
+         8S4O/QBqADEG0DZtfGNkdVyHBR/7e6zUNrS2TKGA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        linux-i2c@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.6 096/606] i2c: mux: demux-pinctrl: Fix an error handling path in 'i2c_demux_pinctrl_probe()'
-Date:   Mon,  8 Jun 2020 19:03:41 -0400
-Message-Id: <20200608231211.3363633-96-sashal@kernel.org>
+Cc:     Andrii Nakryiko <andriin@fb.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-kselftest@vger.kernel.org, netdev@vger.kernel.org,
+        bpf@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.7 130/274] selftests/bpf: Fix memory leak in test selector
+Date:   Mon,  8 Jun 2020 19:03:43 -0400
+Message-Id: <20200608230607.3361041-130-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200608231211.3363633-1-sashal@kernel.org>
-References: <20200608231211.3363633-1-sashal@kernel.org>
+In-Reply-To: <20200608230607.3361041-1-sashal@kernel.org>
+References: <20200608230607.3361041-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -43,33 +45,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Andrii Nakryiko <andriin@fb.com>
 
-[ Upstream commit e9d1a0a41d4486955e96552293c1fcf1fce61602 ]
+[ Upstream commit f25d5416d64c796aa639136eb0b076c8bd579b54 ]
 
-A call to 'i2c_demux_deactivate_master()' is missing in the error handling
-path, as already done in the remove function.
+Free test selector substrings, which were strdup()'ed.
 
-Fixes: 50a5ba876908 ("i2c: mux: demux-pinctrl: add driver")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Fixes: b65053cd94f4 ("selftests/bpf: Add whitelist/blacklist of test names to test_progs")
+Signed-off-by: Andrii Nakryiko <andriin@fb.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/bpf/20200429012111.277390-6-andriin@fb.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/muxes/i2c-demux-pinctrl.c | 1 +
- 1 file changed, 1 insertion(+)
+ tools/testing/selftests/bpf/test_progs.c | 20 ++++++++++++++++----
+ 1 file changed, 16 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/i2c/muxes/i2c-demux-pinctrl.c b/drivers/i2c/muxes/i2c-demux-pinctrl.c
-index 0e16490eb3a1..5365199a31f4 100644
---- a/drivers/i2c/muxes/i2c-demux-pinctrl.c
-+++ b/drivers/i2c/muxes/i2c-demux-pinctrl.c
-@@ -272,6 +272,7 @@ static int i2c_demux_pinctrl_probe(struct platform_device *pdev)
- err_rollback_available:
- 	device_remove_file(&pdev->dev, &dev_attr_available_masters);
- err_rollback:
-+	i2c_demux_deactivate_master(priv);
- 	for (j = 0; j < i; j++) {
- 		of_node_put(priv->chan[j].parent_np);
- 		of_changeset_destroy(&priv->chan[j].chgset);
+diff --git a/tools/testing/selftests/bpf/test_progs.c b/tools/testing/selftests/bpf/test_progs.c
+index b521e0a512b6..86d0020c9eec 100644
+--- a/tools/testing/selftests/bpf/test_progs.c
++++ b/tools/testing/selftests/bpf/test_progs.c
+@@ -420,6 +420,18 @@ static int libbpf_print_fn(enum libbpf_print_level level,
+ 	return 0;
+ }
+ 
++static void free_str_set(const struct str_set *set)
++{
++	int i;
++
++	if (!set)
++		return;
++
++	for (i = 0; i < set->cnt; i++)
++		free((void *)set->strs[i]);
++	free(set->strs);
++}
++
+ static int parse_str_list(const char *s, struct str_set *set)
+ {
+ 	char *input, *state = NULL, *next, **tmp, **strs = NULL;
+@@ -756,11 +768,11 @@ int main(int argc, char **argv)
+ 	fprintf(stdout, "Summary: %d/%d PASSED, %d SKIPPED, %d FAILED\n",
+ 		env.succ_cnt, env.sub_succ_cnt, env.skip_cnt, env.fail_cnt);
+ 
+-	free(env.test_selector.blacklist.strs);
+-	free(env.test_selector.whitelist.strs);
++	free_str_set(&env.test_selector.blacklist);
++	free_str_set(&env.test_selector.whitelist);
+ 	free(env.test_selector.num_set);
+-	free(env.subtest_selector.blacklist.strs);
+-	free(env.subtest_selector.whitelist.strs);
++	free_str_set(&env.subtest_selector.blacklist);
++	free_str_set(&env.subtest_selector.whitelist);
+ 	free(env.subtest_selector.num_set);
+ 
+ 	return env.fail_cnt ? EXIT_FAILURE : EXIT_SUCCESS;
 -- 
 2.25.1
 
