@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CB1CC1F2C1E
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:23:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A60031F2BDA
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:23:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728399AbgFIAU7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 20:20:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40058 "EHLO mail.kernel.org"
+        id S1730568AbgFHXSB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 19:18:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40070 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730562AbgFHXR6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:17:58 -0400
+        id S1729778AbgFHXSA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:18:00 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 16E252083E;
-        Mon,  8 Jun 2020 23:17:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 38E3020842;
+        Mon,  8 Jun 2020 23:17:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658278;
-        bh=MWITYB0vR5lA3KxxO0iN6yDsjvP8KH/f4rd52IxEzSg=;
+        s=default; t=1591658280;
+        bh=XTK4PTgbowt2TP7bgKTHwyjcQMJPwmm0A2xMP+LiFEU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=obHUcP9Xa3uitrZ2Iq4W8R+yxpy+/BcEarHg+xzX96MX6+9vv5qAPUoR2AGcSHdzy
-         87c9LNBkOvowQLZVV1wVJ0zY593j1g2FV0m9WovModvdG6vS0Wf5pL6DJd5u8q97uY
-         gNFJLbr1+cVVD5Ccy82Pfz0b6anE6tzBEgsh9Za0=
+        b=PPUJS1jdSGAuqWJiq+ON3E/pKFMIaE6abnljD4lXxPtDi71e0jb5ldhgyo6zjma+d
+         QlgbiEnSOSa5qsPT319uD7lzCXksrxDX4xeCgpxYX4/SfXDxxF2lvhtETpyKjIZNJ2
+         i1QCfALLwL4Z6WhEwtAc6iyoHXxz3ivz5zfoCpY0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kefeng Wang <wangkefeng.wang@huawei.com>,
-        Hulk Robot <hulkci@huawei.com>,
-        Palmer Dabbelt <palmerdabbelt@google.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-riscv@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.6 284/606] riscv: pgtable: Fix __kernel_map_pages build error if NOMMU
-Date:   Mon,  8 Jun 2020 19:06:49 -0400
-Message-Id: <20200608231211.3363633-284-sashal@kernel.org>
+Cc:     Steve French <stfrench@microsoft.com>,
+        Coverity <scan-admin@coverity.com>,
+        Shyam Prasad N <nspmangalore@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, linux-cifs@vger.kernel.org,
+        samba-technical@lists.samba.org
+Subject: [PATCH AUTOSEL 5.6 285/606] cifs: Fix null pointer check in cifs_read
+Date:   Mon,  8 Jun 2020 19:06:50 -0400
+Message-Id: <20200608231211.3363633-285-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608231211.3363633-1-sashal@kernel.org>
 References: <20200608231211.3363633-1-sashal@kernel.org>
@@ -45,37 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kefeng Wang <wangkefeng.wang@huawei.com>
+From: Steve French <stfrench@microsoft.com>
 
-[ Upstream commit 9a6630aef93394ac54494c7e273e9bc026509375 ]
+[ Upstream commit 9bd21d4b1a767c3abebec203342f3820dcb84662 ]
 
-riscv64-none-linux-gnu-ld: mm/page_alloc.o: in function `.L0 ':
-page_alloc.c:(.text+0xd34): undefined reference to `__kernel_map_pages'
-riscv64-none-linux-gnu-ld: page_alloc.c:(.text+0x104a): undefined reference to `__kernel_map_pages'
-riscv64-none-linux-gnu-ld: mm/page_alloc.o: in function `__pageblock_pfn_to_page':
-page_alloc.c:(.text+0x145e): undefined reference to `__kernel_map_pages'
+Coverity scan noted a redundant null check
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
+Coverity-id: 728517
+Reported-by: Coverity <scan-admin@coverity.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Reviewed-by: Shyam Prasad N <nspmangalore@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/include/asm/pgtable.h | 2 ++
- 1 file changed, 2 insertions(+)
+ fs/cifs/file.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/riscv/include/asm/pgtable.h b/arch/riscv/include/asm/pgtable.h
-index 05b92987f500..31d912944d8d 100644
---- a/arch/riscv/include/asm/pgtable.h
-+++ b/arch/riscv/include/asm/pgtable.h
-@@ -467,6 +467,8 @@ static inline int ptep_clear_flush_young(struct vm_area_struct *vma,
- 
- #define TASK_SIZE 0xffffffffUL
- 
-+static inline void __kernel_map_pages(struct page *page, int numpages, int enable) {}
-+
- #endif /* !CONFIG_MMU */
- 
- #define kern_addr_valid(addr)   (1) /* FIXME */
+diff --git a/fs/cifs/file.c b/fs/cifs/file.c
+index 5920820bfbd0..b30b03747dd6 100644
+--- a/fs/cifs/file.c
++++ b/fs/cifs/file.c
+@@ -4060,7 +4060,7 @@ cifs_read(struct file *file, char *read_data, size_t read_size, loff_t *offset)
+ 			 * than it negotiated since it will refuse the read
+ 			 * then.
+ 			 */
+-			if ((tcon->ses) && !(tcon->ses->capabilities &
++			if (!(tcon->ses->capabilities &
+ 				tcon->ses->server->vals->cap_large_files)) {
+ 				current_read_size = min_t(uint,
+ 					current_read_size, CIFSMaxBufSize);
 -- 
 2.25.1
 
