@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BFF7E1F2FE4
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:54:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D34D1F2FE7
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:54:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727089AbgFHXJd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 19:09:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55192 "EHLO mail.kernel.org"
+        id S1728796AbgFIAym (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 20:54:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55234 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728419AbgFHXJ2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:09:28 -0400
+        id S1726970AbgFHXJb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:09:31 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6F48020897;
-        Mon,  8 Jun 2020 23:09:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BAA94208B8;
+        Mon,  8 Jun 2020 23:09:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591657768;
-        bh=9tkCS5V/ET0qK/qSspzqlwj0GfOSKTROamVXeZoqZYY=;
+        s=default; t=1591657770;
+        bh=Ua04pMjpye9PITZFvdpeHXmH7tJJFLNH+IV3ssmzsA0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l07D7tx7z2Ba8/M8Odh7sh4OBIZEo8yeySd93kJTl6v8PlhieYSrwgFTa3yj/CjuN
-         NzItjH24w8dKHCPRF6nC7Q5/hVq6ZAUWZFm6FZG+LebfcidoyAXtfcfUZTmWqUMn0e
-         zX6dv7QT3khwejZThx4LOBaDxi67PAbfg9f/HAY8=
+        b=KTzcm84WpsKqitHrQ1vBbGILl8PTvX4kQcMz+3k+pDP3uoFHoZY22S6+lbsJmyW7n
+         emu+57FMPgthyLKNwdU1kzc09QhmUkuChu+6+pvNObsVXSPEux9WHa/luFMch/BRCf
+         o8b3jU/48/GEpEzSP0LF6/iObKQ0dppmthzuzO/k=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Wei Yongjun <weiyongjun1@huawei.com>,
-        Vladimir Zapolskiy <vz@mleia.com>,
+        Grygorii Strashko <grygorii.strashko@ti.com>,
         "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.7 152/274] net: lpc-enet: fix error return code in lpc_mii_init()
-Date:   Mon,  8 Jun 2020 19:04:05 -0400
-Message-Id: <20200608230607.3361041-152-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-omap@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.7 154/274] drivers: net: davinci_mdio: fix potential NULL dereference in davinci_mdio_probe()
+Date:   Mon,  8 Jun 2020 19:04:07 -0400
+Message-Id: <20200608230607.3361041-154-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608230607.3361041-1-sashal@kernel.org>
 References: <20200608230607.3361041-1-sashal@kernel.org>
@@ -47,34 +47,46 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Wei Yongjun <weiyongjun1@huawei.com>
 
-[ Upstream commit 88ec7cb22ddde725ed4ce15991f0bd9dd817fd85 ]
+[ Upstream commit e00edb4efbbc07425441a3be2aa87abaf5800d96 ]
 
-Fix to return a negative error code from the error handling
-case instead of 0, as done elsewhere in this function.
+platform_get_resource() may fail and return NULL, so we should
+better check it's return value to avoid a NULL pointer dereference
+since devm_ioremap() does not check input parameters for null.
 
-Fixes: b7370112f519 ("lpc32xx: Added ethernet driver")
+This is detected by Coccinelle semantic patch.
+
+@@
+expression pdev, res, n, t, e, e1, e2;
+@@
+
+res = \(platform_get_resource\|platform_get_resource_byname\)(pdev, t, n);
++ if (!res)
++   return -EINVAL;
+... when != res == NULL
+e = devm_ioremap(e1, res->start, e2);
+
+Fixes: 03f66f067560 ("net: ethernet: ti: davinci_mdio: use devm_ioremap()")
 Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-Acked-by: Vladimir Zapolskiy <vz@mleia.com>
+Reviewed-by: Grygorii Strashko <grygorii.strashko@ti.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/nxp/lpc_eth.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/ti/davinci_mdio.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/ethernet/nxp/lpc_eth.c b/drivers/net/ethernet/nxp/lpc_eth.c
-index d20cf03a3ea0..311454d9b0bc 100644
---- a/drivers/net/ethernet/nxp/lpc_eth.c
-+++ b/drivers/net/ethernet/nxp/lpc_eth.c
-@@ -823,7 +823,8 @@ static int lpc_mii_init(struct netdata_local *pldat)
- 	if (err)
- 		goto err_out_unregister_bus;
+diff --git a/drivers/net/ethernet/ti/davinci_mdio.c b/drivers/net/ethernet/ti/davinci_mdio.c
+index 38b7f6d35759..702fdc393da0 100644
+--- a/drivers/net/ethernet/ti/davinci_mdio.c
++++ b/drivers/net/ethernet/ti/davinci_mdio.c
+@@ -397,6 +397,8 @@ static int davinci_mdio_probe(struct platform_device *pdev)
+ 	data->dev = dev;
  
--	if (lpc_mii_probe(pldat->ndev) != 0)
-+	err = lpc_mii_probe(pldat->ndev);
-+	if (err)
- 		goto err_out_unregister_bus;
- 
- 	return 0;
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	if (!res)
++		return -EINVAL;
+ 	data->regs = devm_ioremap(dev, res->start, resource_size(res));
+ 	if (!data->regs)
+ 		return -ENOMEM;
 -- 
 2.25.1
 
