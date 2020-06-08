@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 095591F2CD8
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:30:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 883531F2CD7
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:30:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730277AbgFIA2H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 20:28:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37914 "EHLO mail.kernel.org"
+        id S1729755AbgFHXQe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 19:16:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37930 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729029AbgFHXQd (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1729739AbgFHXQd (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 8 Jun 2020 19:16:33 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7DBA320801;
-        Mon,  8 Jun 2020 23:16:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ABE2E20820;
+        Mon,  8 Jun 2020 23:16:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658192;
-        bh=HDdW0MJUTbfnO2m1+2iJ3oY3VCGxouDs0bFCj228V14=;
+        s=default; t=1591658193;
+        bh=/vbQSAarfWCrkIH4Xhngwau6L7c14Hu+WRKH7eUcJhk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fetSKYARyY5K1G7B9kIQTXpruLbS7rF6pypWv8r3Qj7P7s3SqTs7S7oiQSMHtPuMn
-         Do1Y43pDfZniDYisxIMHI94ya7rN99bp1FbHvzj5K7PJ4/d20nFHrkkYBQseCWpqvF
-         qsZnneOmPszl9l9CgDbzjRXiKMTJ9ZOXtAnAtoRY=
+        b=m2XAC9UN/tst8CXkIeUs4LN2tNdu0qKHCFL7gwvNNTZ69rycM1v6+8dpyZK/VhehV
+         BAli82BrtAle8Pn83vKWnVgWe3HXCg6STYROU+QHDJnYGMboaZVb+XZILM0lk7O7aK
+         7RXbbbj07B0Re5YcDfTSF15Z9FfJPKqs739GzQn8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Grygorii Strashko <grygorii.strashko@ti.com>,
+Cc:     Boris Sukholitko <boris.sukholitko@broadcom.com>,
+        Edward Cree <ecree@solarflare.com>,
         "David S . Miller" <davem@davemloft.net>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-omap@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.6 213/606] net: ethernet: ti: cpsw: fix ASSERT_RTNL() warning during suspend
-Date:   Mon,  8 Jun 2020 19:05:38 -0400
-Message-Id: <20200608231211.3363633-213-sashal@kernel.org>
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.6 214/606] __netif_receive_skb_core: pass skb by reference
+Date:   Mon,  8 Jun 2020 19:05:39 -0400
+Message-Id: <20200608231211.3363633-214-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608231211.3363633-1-sashal@kernel.org>
 References: <20200608231211.3363633-1-sashal@kernel.org>
@@ -44,50 +45,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Grygorii Strashko <grygorii.strashko@ti.com>
+From: Boris Sukholitko <boris.sukholitko@broadcom.com>
 
-[ Upstream commit 4c64b83d03f4aafcdf710caad994cbc855802e74 ]
+[ Upstream commit c0bbbdc32febd4f034ecbf3ea17865785b2c0652 ]
 
-vlan_for_each() are required to be called with rtnl_lock taken, otherwise
-ASSERT_RTNL() warning will be triggered - which happens now during System
-resume from suspend:
-  cpsw_suspend()
-  |- cpsw_ndo_stop()
-    |- __hw_addr_ref_unsync_dev()
-      |- cpsw_purge_all_mc()
-         |- vlan_for_each()
-            |- ASSERT_RTNL();
+__netif_receive_skb_core may change the skb pointer passed into it (e.g.
+in rx_handler). The original skb may be freed as a result of this
+operation.
 
-Hence, fix it by surrounding cpsw_ndo_stop() by rtnl_lock/unlock() calls.
+The callers of __netif_receive_skb_core may further process original skb
+by using pt_prev pointer returned by __netif_receive_skb_core thus
+leading to unpleasant effects.
 
-Fixes: 15180eca569b ("net: ethernet: ti: cpsw: fix vlan mcast")
-Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
+The solution is to pass skb by reference into __netif_receive_skb_core.
+
+v2: Added Fixes tag and comment regarding ppt_prev and skb invariant.
+
+Fixes: 88eb1944e18c ("net: core: propagate SKB lists through packet_type lookup")
+Signed-off-by: Boris Sukholitko <boris.sukholitko@broadcom.com>
+Acked-by: Edward Cree <ecree@solarflare.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/ti/cpsw.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ net/core/dev.c | 20 +++++++++++++++-----
+ 1 file changed, 15 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/ethernet/ti/cpsw.c b/drivers/net/ethernet/ti/cpsw.c
-index 6ae4a72e6f43..5577ff0b7663 100644
---- a/drivers/net/ethernet/ti/cpsw.c
-+++ b/drivers/net/ethernet/ti/cpsw.c
-@@ -1752,11 +1752,15 @@ static int cpsw_suspend(struct device *dev)
- 	struct cpsw_common *cpsw = dev_get_drvdata(dev);
- 	int i;
+diff --git a/net/core/dev.c b/net/core/dev.c
+index c7047b40f569..87fd5424e205 100644
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -4988,11 +4988,12 @@ static inline int nf_ingress(struct sk_buff *skb, struct packet_type **pt_prev,
+ 	return 0;
+ }
  
-+	rtnl_lock();
-+
- 	for (i = 0; i < cpsw->data.slaves; i++)
- 		if (cpsw->slaves[i].ndev)
- 			if (netif_running(cpsw->slaves[i].ndev))
- 				cpsw_ndo_stop(cpsw->slaves[i].ndev);
+-static int __netif_receive_skb_core(struct sk_buff *skb, bool pfmemalloc,
++static int __netif_receive_skb_core(struct sk_buff **pskb, bool pfmemalloc,
+ 				    struct packet_type **ppt_prev)
+ {
+ 	struct packet_type *ptype, *pt_prev;
+ 	rx_handler_func_t *rx_handler;
++	struct sk_buff *skb = *pskb;
+ 	struct net_device *orig_dev;
+ 	bool deliver_exact = false;
+ 	int ret = NET_RX_DROP;
+@@ -5023,8 +5024,10 @@ static int __netif_receive_skb_core(struct sk_buff *skb, bool pfmemalloc,
+ 		ret2 = do_xdp_generic(rcu_dereference(skb->dev->xdp_prog), skb);
+ 		preempt_enable();
  
-+	rtnl_unlock();
-+
- 	/* Select sleep pin state */
- 	pinctrl_pm_select_sleep_state(dev);
+-		if (ret2 != XDP_PASS)
+-			return NET_RX_DROP;
++		if (ret2 != XDP_PASS) {
++			ret = NET_RX_DROP;
++			goto out;
++		}
+ 		skb_reset_mac_len(skb);
+ 	}
  
+@@ -5174,6 +5177,13 @@ static int __netif_receive_skb_core(struct sk_buff *skb, bool pfmemalloc,
+ 	}
+ 
+ out:
++	/* The invariant here is that if *ppt_prev is not NULL
++	 * then skb should also be non-NULL.
++	 *
++	 * Apparently *ppt_prev assignment above holds this invariant due to
++	 * skb dereferencing near it.
++	 */
++	*pskb = skb;
+ 	return ret;
+ }
+ 
+@@ -5183,7 +5193,7 @@ static int __netif_receive_skb_one_core(struct sk_buff *skb, bool pfmemalloc)
+ 	struct packet_type *pt_prev = NULL;
+ 	int ret;
+ 
+-	ret = __netif_receive_skb_core(skb, pfmemalloc, &pt_prev);
++	ret = __netif_receive_skb_core(&skb, pfmemalloc, &pt_prev);
+ 	if (pt_prev)
+ 		ret = INDIRECT_CALL_INET(pt_prev->func, ipv6_rcv, ip_rcv, skb,
+ 					 skb->dev, pt_prev, orig_dev);
+@@ -5261,7 +5271,7 @@ static void __netif_receive_skb_list_core(struct list_head *head, bool pfmemallo
+ 		struct packet_type *pt_prev = NULL;
+ 
+ 		skb_list_del_init(skb);
+-		__netif_receive_skb_core(skb, pfmemalloc, &pt_prev);
++		__netif_receive_skb_core(&skb, pfmemalloc, &pt_prev);
+ 		if (!pt_prev)
+ 			continue;
+ 		if (pt_curr != pt_prev || od_curr != orig_dev) {
 -- 
 2.25.1
 
