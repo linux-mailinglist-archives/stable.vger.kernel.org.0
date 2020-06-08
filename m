@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CF7A51F2E99
+	by mail.lfdr.de (Postfix) with ESMTP id 593F11F2E98
 	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:44:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729576AbgFIAnL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 20:43:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59668 "EHLO mail.kernel.org"
+        id S1727981AbgFIAnK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 20:43:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59722 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729065AbgFHXMR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:12:17 -0400
+        id S1729068AbgFHXMT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:12:19 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 23BD02100A;
-        Mon,  8 Jun 2020 23:12:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ABA7620B80;
+        Mon,  8 Jun 2020 23:12:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591657937;
-        bh=8nQncJi5dmbaNaaPI8nXqY9KO2UFv5f5/j9HKgRd4LI=;
+        s=default; t=1591657938;
+        bh=aN5brpsFZWSZstePsyj1eXrJmP0H8MYhQWcXHNeVZI4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UwQD0iSAu9xR4HE8FUSHPtJC0p25sx/mKqO5EUObo1UzSZ7lvj4bYSwqOjRSNSlAI
-         ZPpAFdwOcoxDliRMkEDNCItNomR1TG4wTkvyTrOrZARwrprlzx1tUrQhNGcb+4jqa1
-         LcQdLGXMl1thpDk7QG/TNiq6QLlsPWCBC0x3ENHM=
+        b=AeLfjrPGnIBjd48EsveAaHCeHPVQKdPV0BhpIr6FXSHpQoE3vUSplL3KL5d3k/kSa
+         vDm1dbtJT65cXhUYp85KBVTo7q2dqDr6UsM48dL9iTHTizTfLqVEmdY0y6tMz3Sh/Z
+         gbP/UgYnAYU1pQ/SrlJd421JE/r6ZPBkNl1k93oc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yafang Shao <laoar.shao@gmail.com>,
+Cc:     Roman Penyaev <rpenyaev@suse.de>, Jason Baron <jbaron@akamai.com>,
         Randy Dunlap <rdunlap@infradead.org>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Shakeel Butt <shakeelb@google.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Chris Down <chris@chrisdown.name>,
-        Michal Hocko <mhocko@suse.com>,
+        Khazhismel Kumykov <khazhy@google.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
         Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.6 004/606] mm, memcg: fix inconsistent oom event behavior
-Date:   Mon,  8 Jun 2020 19:02:09 -0400
-Message-Id: <20200608231211.3363633-4-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.6 005/606] epoll: call final ep_events_available() check under the lock
+Date:   Mon,  8 Jun 2020 19:02:10 -0400
+Message-Id: <20200608231211.3363633-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608231211.3363633-1-sashal@kernel.org>
 References: <20200608231211.3363633-1-sashal@kernel.org>
@@ -49,76 +47,127 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yafang Shao <laoar.shao@gmail.com>
+From: Roman Penyaev <rpenyaev@suse.de>
 
-[ Upstream commit 04fd61a4e01028210a91f0efc408c8bc61a3018c ]
+[ Upstream commit 65759097d804d2a9ad2b687db436319704ba7019 ]
 
-A recent commit 9852ae3fe529 ("mm, memcg: consider subtrees in
-memory.events") changed the behavior of memcg events, which will now
-consider subtrees in memory.events.
+There is a possible race when ep_scan_ready_list() leaves ->rdllist and
+->obflist empty for a short period of time although some events are
+pending.  It is quite likely that ep_events_available() observes empty
+lists and goes to sleep.
 
-But oom_kill event is a special one as it is used in both cgroup1 and
-cgroup2.  In cgroup1, it is displayed in memory.oom_control.  The file
-memory.oom_control is in both root memcg and non root memcg, that is
-different with memory.event as it only in non-root memcg.  That commit
-is okay for cgroup2, but it is not okay for cgroup1 as it will cause
-inconsistent behavior between root memcg and non-root memcg.
+Since commit 339ddb53d373 ("fs/epoll: remove unnecessary wakeups of
+nested epoll") we are conservative in wakeups (there is only one place
+for wakeup and this is ep_poll_callback()), thus ep_events_available()
+must always observe correct state of two lists.
 
-Here's an example on why this behavior is inconsistent in cgroup1.
+The easiest and correct way is to do the final check under the lock.
+This does not impact the performance, since lock is taken anyway for
+adding a wait entry to the wait queue.
 
-       root memcg
-       /
-    memcg foo
-     /
-  memcg bar
+The discussion of the problem can be found here:
 
-Suppose there's an oom_kill in memcg bar, then the oon_kill will be
+   https://lore.kernel.org/linux-fsdevel/a2f22c3c-c25a-4bda-8339-a7bdaf17849e@akamai.com/
 
-       root memcg : memory.oom_control(oom_kill)  0
-       /
-    memcg foo : memory.oom_control(oom_kill)  1
-     /
-  memcg bar : memory.oom_control(oom_kill)  1
+In this patch barrierless __set_current_state() is used.  This is safe
+since waitqueue_active() is called under the same lock on wakeup side.
 
-For the non-root memcg, its memory.oom_control(oom_kill) includes its
-descendants' oom_kill, but for root memcg, it doesn't include its
-descendants' oom_kill.  That means, memory.oom_control(oom_kill) has
-different meanings in different memcgs.  That is inconsistent.  Then the
-user has to know whether the memcg is root or not.
+Short-circuit for fatal signals (i.e.  fatal_signal_pending() check) is
+moved to the line just before actual events harvesting routine.  This is
+fully compliant to what is said in the comment of the patch where the
+actual fatal_signal_pending() check was added: c257a340ede0 ("fs, epoll:
+short circuit fetching events if thread has been killed").
 
-If we can't fully support it in cgroup1, for example by adding
-memory.events.local into cgroup1 as well, then let's don't touch its
-original behavior.
-
-Fixes: 9852ae3fe529 ("mm, memcg: consider subtrees in memory.events")
+Fixes: 339ddb53d373 ("fs/epoll: remove unnecessary wakeups of nested epoll")
+Reported-by: Jason Baron <jbaron@akamai.com>
 Reported-by: Randy Dunlap <rdunlap@infradead.org>
-Signed-off-by: Yafang Shao <laoar.shao@gmail.com>
+Signed-off-by: Roman Penyaev <rpenyaev@suse.de>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Shakeel Butt <shakeelb@google.com>
-Acked-by: Johannes Weiner <hannes@cmpxchg.org>
-Acked-by: Chris Down <chris@chrisdown.name>
-Acked-by: Michal Hocko <mhocko@suse.com>
+Reviewed-by: Jason Baron <jbaron@akamai.com>
+Cc: Khazhismel Kumykov <khazhy@google.com>
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>
 Cc: <stable@vger.kernel.org>
-Link: http://lkml.kernel.org/r/20200502141055.7378-1-laoar.shao@gmail.com
+Link: http://lkml.kernel.org/r/20200505145609.1865152-1-rpenyaev@suse.de
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/memcontrol.h | 2 ++
- 1 file changed, 2 insertions(+)
+ fs/eventpoll.c | 48 ++++++++++++++++++++++++++++--------------------
+ 1 file changed, 28 insertions(+), 20 deletions(-)
 
-diff --git a/include/linux/memcontrol.h b/include/linux/memcontrol.h
-index e9ba01336d4e..bc5a3621a9d7 100644
---- a/include/linux/memcontrol.h
-+++ b/include/linux/memcontrol.h
-@@ -783,6 +783,8 @@ static inline void memcg_memory_event(struct mem_cgroup *memcg,
- 		atomic_long_inc(&memcg->memory_events[event]);
- 		cgroup_file_notify(&memcg->events_file);
+diff --git a/fs/eventpoll.c b/fs/eventpoll.c
+index b0a097274cfe..f5a481089893 100644
+--- a/fs/eventpoll.c
++++ b/fs/eventpoll.c
+@@ -1857,34 +1857,33 @@ static int ep_poll(struct eventpoll *ep, struct epoll_event __user *events,
+ 		 * event delivery.
+ 		 */
+ 		init_wait(&wait);
+-		write_lock_irq(&ep->lock);
+-		__add_wait_queue_exclusive(&ep->wq, &wait);
+-		write_unlock_irq(&ep->lock);
  
-+		if (!cgroup_subsys_on_dfl(memory_cgrp_subsys))
-+			break;
- 		if (cgrp_dfl_root.flags & CGRP_ROOT_MEMORY_LOCAL_EVENTS)
++		write_lock_irq(&ep->lock);
+ 		/*
+-		 * We don't want to sleep if the ep_poll_callback() sends us
+-		 * a wakeup in between. That's why we set the task state
+-		 * to TASK_INTERRUPTIBLE before doing the checks.
++		 * Barrierless variant, waitqueue_active() is called under
++		 * the same lock on wakeup ep_poll_callback() side, so it
++		 * is safe to avoid an explicit barrier.
+ 		 */
+-		set_current_state(TASK_INTERRUPTIBLE);
++		__set_current_state(TASK_INTERRUPTIBLE);
++
+ 		/*
+-		 * Always short-circuit for fatal signals to allow
+-		 * threads to make a timely exit without the chance of
+-		 * finding more events available and fetching
+-		 * repeatedly.
++		 * Do the final check under the lock. ep_scan_ready_list()
++		 * plays with two lists (->rdllist and ->ovflist) and there
++		 * is always a race when both lists are empty for short
++		 * period of time although events are pending, so lock is
++		 * important.
+ 		 */
+-		if (fatal_signal_pending(current)) {
+-			res = -EINTR;
+-			break;
++		eavail = ep_events_available(ep);
++		if (!eavail) {
++			if (signal_pending(current))
++				res = -EINTR;
++			else
++				__add_wait_queue_exclusive(&ep->wq, &wait);
+ 		}
++		write_unlock_irq(&ep->lock);
+ 
+-		eavail = ep_events_available(ep);
+-		if (eavail)
+-			break;
+-		if (signal_pending(current)) {
+-			res = -EINTR;
++		if (eavail || res)
  			break;
- 	} while ((memcg = parent_mem_cgroup(memcg)) &&
+-		}
+ 
+ 		if (!schedule_hrtimeout_range(to, slack, HRTIMER_MODE_ABS)) {
+ 			timed_out = 1;
+@@ -1905,6 +1904,15 @@ static int ep_poll(struct eventpoll *ep, struct epoll_event __user *events,
+ 	}
+ 
+ send_events:
++	if (fatal_signal_pending(current)) {
++		/*
++		 * Always short-circuit for fatal signals to allow
++		 * threads to make a timely exit without the chance of
++		 * finding more events available and fetching
++		 * repeatedly.
++		 */
++		res = -EINTR;
++	}
+ 	/*
+ 	 * Try to transfer events to user space. In case we get 0 events and
+ 	 * there's still timeout left over, we go trying again in search of
 -- 
 2.25.1
 
