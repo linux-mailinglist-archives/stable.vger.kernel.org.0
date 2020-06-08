@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8897F1F22E8
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:12:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 770F01F22EA
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:12:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728816AbgFHXLE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 19:11:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57638 "EHLO mail.kernel.org"
+        id S1728826AbgFHXLH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 19:11:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57694 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728809AbgFHXLC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:11:02 -0400
+        id S1728817AbgFHXLF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:11:05 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E42EF2100A;
-        Mon,  8 Jun 2020 23:11:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9097A208FE;
+        Mon,  8 Jun 2020 23:11:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591657861;
-        bh=FSSEj0I+Qs96LnMPO/9ObpRwOVHhKyOHosCzGUsdNQk=;
+        s=default; t=1591657864;
+        bh=H41nqotO2pzomHP53p6h5JZJ/pOdapmKqlagWJkG6tY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nY3tjfeOqLqgfHbWwjoH5T27o3y8gH28q9tJMm/TN+uLkzmsmETD7q9GbZGbt3Fzk
-         x6UXe4Of/sKdjqdk6XzkpyLFiBUxWY38cM+xhfdeKmOGyi2QZWaQ+AdNoehyxmQ59V
-         ZXutCAWtYP3Li6wveroouNtF2jTLn7h+SzEQ7WoM=
+        b=N24tVHbF5bA3naoTQim6FDAES1W4lWvycgWcPIQ68yYdkbMvEzBksVFGy5uiiinBt
+         e28Fe1tzbRnEltCgLHhXldupzz60LiwkhGBl1gXUh091Ac0NBGIWnExHPHRrTd2tAi
+         p4VI80eZiBzkSg3MBo59If+KY7/EHaf6ufHhzaHY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Felix Kuehling <Felix.Kuehling@amd.com>,
-        Jay Cornwall <Jay.Cornwall@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.7 224/274] drm/amdgpu: Sync with VM root BO when switching VM to CPU update mode
-Date:   Mon,  8 Jun 2020 19:05:17 -0400
-Message-Id: <20200608230607.3361041-224-sashal@kernel.org>
+Cc:     Alan Maguire <alan.maguire@oracle.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-kselftest@vger.kernel.org, netdev@vger.kernel.org,
+        bpf@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.7 226/274] selftests/bpf: CONFIG_LIRC required for test_lirc_mode2.sh
+Date:   Mon,  8 Jun 2020 19:05:19 -0400
+Message-Id: <20200608230607.3361041-226-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608230607.3361041-1-sashal@kernel.org>
 References: <20200608230607.3361041-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -47,49 +45,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Kuehling <Felix.Kuehling@amd.com>
+From: Alan Maguire <alan.maguire@oracle.com>
 
-[ Upstream commit 90ca78deb004abe75b5024968a199acb96bb70f9 ]
+[ Upstream commit a5dfaa2ab94057dd75c7911143482a0a85593c14 ]
 
-This fixes an intermittent bug where a root PD clear operation still in
-progress could overwrite a PDE update done by the CPU, resulting in a
-VM fault.
+test_lirc_mode2.sh assumes presence of /sys/class/rc/rc0/lirc*/uevent
+which will not be present unless CONFIG_LIRC=y
 
-Fixes: 108b4d928c03 ("drm/amd/amdgpu: Update VM function pointer")
-Reported-by: Jay Cornwall <Jay.Cornwall@amd.com>
-Tested-by: Jay Cornwall <Jay.Cornwall@amd.com>
-Signed-off-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fixes: 6bdd533cee9a ("bpf: add selftest for lirc_mode2 type program")
+Signed-off-by: Alan Maguire <alan.maguire@oracle.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/1590147389-26482-3-git-send-email-alan.maguire@oracle.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ tools/testing/selftests/bpf/config | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c
-index 6d9252a27916..06242096973c 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c
-@@ -2996,10 +2996,17 @@ int amdgpu_vm_make_compute(struct amdgpu_device *adev, struct amdgpu_vm *vm,
- 		   !amdgpu_gmc_vram_full_visible(&adev->gmc)),
- 		  "CPU update of VM recommended only for large BAR system\n");
- 
--	if (vm->use_cpu_for_update)
-+	if (vm->use_cpu_for_update) {
-+		/* Sync with last SDMA update/clear before switching to CPU */
-+		r = amdgpu_bo_sync_wait(vm->root.base.bo,
-+					AMDGPU_FENCE_OWNER_UNDEFINED, true);
-+		if (r)
-+			goto free_idr;
-+
- 		vm->update_funcs = &amdgpu_vm_cpu_funcs;
--	else
-+	} else {
- 		vm->update_funcs = &amdgpu_vm_sdma_funcs;
-+	}
- 	dma_fence_put(vm->last_update);
- 	vm->last_update = NULL;
- 	vm->is_compute_context = true;
+diff --git a/tools/testing/selftests/bpf/config b/tools/testing/selftests/bpf/config
+index 48e058552eb7..2118e23ac07a 100644
+--- a/tools/testing/selftests/bpf/config
++++ b/tools/testing/selftests/bpf/config
+@@ -38,3 +38,4 @@ CONFIG_IPV6_SIT=m
+ CONFIG_BPF_JIT=y
+ CONFIG_BPF_LSM=y
+ CONFIG_SECURITY=y
++CONFIG_LIRC=y
 -- 
 2.25.1
 
