@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4733B1F2BCC
+	by mail.lfdr.de (Postfix) with ESMTP id B6D381F2BCD
 	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:22:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730459AbgFHXRa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 19:17:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39026 "EHLO mail.kernel.org"
+        id S1730474AbgFHXRd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 19:17:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39116 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729680AbgFHXR3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:17:29 -0400
+        id S1730463AbgFHXRb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:17:31 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E79BA20899;
-        Mon,  8 Jun 2020 23:17:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E6BA52083E;
+        Mon,  8 Jun 2020 23:17:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658248;
-        bh=kl7MXkBZJGC6s8thZUM2YDAIP7k2Z9xNDyBuU/WLlk8=;
+        s=default; t=1591658250;
+        bh=APpvt+MMCcQxISVhtvO7q0OKCxYEbo4iENP+Gh1BHl4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r+74YaG3d5z4l1KyordyVQV1GB/b2YN5LUnOTWdMsqDIIvMEu0fq5Ps4uZZueXdWP
-         3hC1k+jxroysNojiwtiZhhfTRMQXNjbfaT6k7QQQTeq5nHusc7Qi2+nUk7gfjVfJSo
-         Knalf2RQ3/cl/8/rjQwsXFj7XcIBegx3+Z3+WokA=
+        b=WJNkZ+DBux7MEnukq6mZ0wfXkqX0J7Y5ZOw0sYxwzHUVeayW6zU3J3LcLDGTX4xIM
+         z3y5iGHNnlKDHvvtamwtUtsnm6UHEcCzC9qcj+GwHlSgdenETydVP29z261SDDg8WD
+         hg5kvqe/nr+l2CvoKDS12zmbAT3XO6/fwcDyW7i0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andrew Oakley <andrew@adoakley.name>, Takashi Iwai <tiwai@suse.de>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.6 258/606] ALSA: usb-audio: add mapping for ASRock TRX40 Creator
-Date:   Mon,  8 Jun 2020 19:06:23 -0400
-Message-Id: <20200608231211.3363633-258-sashal@kernel.org>
+Cc:     Tony Lindgren <tony@atomide.com>, maemo-leste@lists.dyne.org,
+        Merlijn Wajer <merlijn@wizzup.org>,
+        Pavel Machek <pavel@ucw.cz>,
+        Sebastian Reichel <sre@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.6 260/606] ARM: dts: omap4-droid4: Fix occasional lost wakeirq for uart1
+Date:   Mon,  8 Jun 2020 19:06:25 -0400
+Message-Id: <20200608231211.3363633-260-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608231211.3363633-1-sashal@kernel.org>
 References: <20200608231211.3363633-1-sashal@kernel.org>
@@ -42,58 +45,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrew Oakley <andrew@adoakley.name>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit da7a8f1a8fc3e14c6dcc52b4098bddb8f20390be ]
+[ Upstream commit 738b150ecefbffb6e55cfa8a3b66a844f777d8fb ]
 
-This is another TRX40 based motherboard with ALC1220-VB USB-audio
-that requires a static mapping table.
+Looks like using the UART CTS pin does not always trigger for a wake-up
+when the SoC is idle.
 
-This motherboard also has a PCI device which advertises no codecs.  The
-PCI ID is 1022:1487 and PCI SSID is 1022:d102.  As this is using the AMD
-vendor ID, don't blacklist for now in case other boards have a working
-audio device with the same ssid.
+This is probably because the modem first uses gpio_149 to signal the SoC
+that data will be sent, and the CTS will only get used later when the
+data transfer is starting.
 
-alsa-info.sh report for this board:
-http://alsa-project.org/db/?f=0a742f89066527497b77ce16bca486daccf8a70c
+Let's fix the issue by configuring the gpio_149 pad as the wakeirq for
+UART. We have gpio_149 managed by the USB PHY for powering up the right
+USB mode, and after that, the gpio gets recycled as the modem wake-up
+pin. If needeed, the USB PHY can also later on be configured to use
+gpio_149 pad as the wakeirq as a shared irq.
 
-Signed-off-by: Andrew Oakley <andrew@adoakley.name>
-Link: https://lore.kernel.org/r/20200503141639.35519-1-andrew@adoakley.name
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Let's also configure the missing properties for uart-has-rtscts and
+current-speed for the modem port while at it. We already configure the
+hardware flow control pins with uart1_pins pinctrl setting.
+
+Cc: maemo-leste@lists.dyne.org
+Cc: Merlijn Wajer <merlijn@wizzup.org>
+Cc: Pavel Machek <pavel@ucw.cz>
+Cc: Sebastian Reichel <sre@kernel.org>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/mixer_maps.c   | 5 +++++
- sound/usb/quirks-table.h | 1 +
- 2 files changed, 6 insertions(+)
+ arch/arm/boot/dts/motorola-mapphone-common.dtsi | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/sound/usb/mixer_maps.c b/sound/usb/mixer_maps.c
-index 0260c750e156..bfdc6ad52785 100644
---- a/sound/usb/mixer_maps.c
-+++ b/sound/usb/mixer_maps.c
-@@ -549,6 +549,11 @@ static const struct usbmix_ctl_map usbmix_ctl_maps[] = {
- 		.map = trx40_mobo_map,
- 		.connector_map = trx40_mobo_connector_map,
- 	},
-+	{	/* Asrock TRX40 Creator */
-+		.id = USB_ID(0x26ce, 0x0a01),
-+		.map = trx40_mobo_map,
-+		.connector_map = trx40_mobo_connector_map,
-+	},
- 	{ 0 } /* terminator */
+diff --git a/arch/arm/boot/dts/motorola-mapphone-common.dtsi b/arch/arm/boot/dts/motorola-mapphone-common.dtsi
+index 01ea9a1e2c86..06fbffa81636 100644
+--- a/arch/arm/boot/dts/motorola-mapphone-common.dtsi
++++ b/arch/arm/boot/dts/motorola-mapphone-common.dtsi
+@@ -723,14 +723,18 @@ &timer9 {
  };
  
-diff --git a/sound/usb/quirks-table.h b/sound/usb/quirks-table.h
-index 8c2f5c23e1b4..aa4c16ce0e57 100644
---- a/sound/usb/quirks-table.h
-+++ b/sound/usb/quirks-table.h
-@@ -3647,6 +3647,7 @@ AU0828_DEVICE(0x2040, 0x7270, "Hauppauge", "HVR-950Q"),
- ALC1220_VB_DESKTOP(0x0414, 0xa002), /* Gigabyte TRX40 Aorus Pro WiFi */
- ALC1220_VB_DESKTOP(0x0db0, 0x0d64), /* MSI TRX40 Creator */
- ALC1220_VB_DESKTOP(0x0db0, 0x543d), /* MSI TRX40 */
-+ALC1220_VB_DESKTOP(0x26ce, 0x0a01), /* Asrock TRX40 Creator */
- #undef ALC1220_VB_DESKTOP
+ /*
+- * As uart1 is wired to mdm6600 with rts and cts, we can use the cts pin for
+- * uart1 wakeirq.
++ * The uart1 port is wired to mdm6600 with rts and cts. The modem uses gpio_149
++ * for wake-up events for both the USB PHY and the UART. We can use gpio_149
++ * pad as the shared wakeirq for the UART rather than the RX or CTS pad as we
++ * have gpio_149 trigger before the UART transfer starts.
+  */
+ &uart1 {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&uart1_pins>;
+ 	interrupts-extended = <&wakeupgen GIC_SPI 72 IRQ_TYPE_LEVEL_HIGH
+-			       &omap4_pmx_core 0xfc>;
++			       &omap4_pmx_core 0x110>;
++	uart-has-rtscts;
++	current-speed = <115200>;
+ };
  
- #undef USB_DEVICE_VENDOR_SPEC
+ &uart3 {
 -- 
 2.25.1
 
