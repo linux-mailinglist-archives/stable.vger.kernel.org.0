@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 569561F268C
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:45:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16F6E1F2755
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:47:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732045AbgFHX0s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 19:26:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54672 "EHLO mail.kernel.org"
+        id S1732160AbgFHXox (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 19:44:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54702 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732040AbgFHX0r (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:26:47 -0400
+        id S1732046AbgFHX0s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:26:48 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2C0372074B;
-        Mon,  8 Jun 2020 23:26:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5437620775;
+        Mon,  8 Jun 2020 23:26:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658806;
-        bh=Sy0U6npbpL4YrxpNb8BSlUzN3C5FuEgDLXmWVdd9Ia4=;
+        s=default; t=1591658808;
+        bh=AAfkLpT9edLdmgMXYbLCzCEGj//XvIHuRpSFFzXZ2xg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nTt2EiTUtukqSikbCoNn8LoBxThbrNZd7YKlh0uvL7us2F7303cOOoF2V//knb69i
-         KvNzRvkEaEOouIpq01P6QdFy6FC+oprlxiMfzFHO6iPTfv/AAc8fpAD5N81MJthujl
-         1II1lCGsg89Dwfq1W1Mo4Fv0YgoeA2scgYro9Tp4=
+        b=RKncHkAkbrbqUaYVuLagAnpuVY/iaTFmLcVdgy60ddklLqS1v2A6CutDfhAfeZzXl
+         rP7vfSNMfIZwdkf9jmab7UI2Ior4G5eEwcoLLVGzjbPa9xOW0O1PJEU6Q60N9OHJNE
+         vpcdEBV/F65j6TNAo8YcaV7IZ15/lN/vnXR3Rq/Q=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arthur Kiyanovski <akiyano@amazon.com>,
-        Sameeh Jubran <sameehj@amazon.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 05/50] net: ena: fix error returning in ena_com_get_hash_function()
-Date:   Mon,  8 Jun 2020 19:25:55 -0400
-Message-Id: <20200608232640.3370262-5-sashal@kernel.org>
+Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Feng Tang <feng.tang@intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 06/50] spi: dw: Zero DMA Tx and Rx configurations on stack
+Date:   Mon,  8 Jun 2020 19:25:56 -0400
+Message-Id: <20200608232640.3370262-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608232640.3370262-1-sashal@kernel.org>
 References: <20200608232640.3370262-1-sashal@kernel.org>
@@ -44,50 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arthur Kiyanovski <akiyano@amazon.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit e9a1de378dd46375f9abfd8de1e6f59ee114a793 ]
+[ Upstream commit 3cb97e223d277f84171cc4ccecab31e08b2ee7b5 ]
 
-In case the "func" parameter is NULL we now return "-EINVAL".
-This shouldn't happen in general, but when it does happen, this is the
-proper way to handle it.
+Some DMA controller drivers do not tolerate non-zero values in
+the DMA configuration structures. Zero them to avoid issues with
+such DMA controller drivers. Even despite above this is a good
+practice per se.
 
-We also check func for NULL in the beginning of the function, as there
-is no reason to do all the work and realize in the end of the function
-it was useless.
-
-Signed-off-by: Sameeh Jubran <sameehj@amazon.com>
-Signed-off-by: Arthur Kiyanovski <akiyano@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 7063c0d942a1 ("spi/dw_spi: add DMA support")
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Acked-by: Feng Tang <feng.tang@intel.com>
+Cc: Feng Tang <feng.tang@intel.com>
+Link: https://lore.kernel.org/r/20200506153025.21441-1-andriy.shevchenko@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/amazon/ena/ena_com.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/spi/spi-dw-mid.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/ethernet/amazon/ena/ena_com.c b/drivers/net/ethernet/amazon/ena/ena_com.c
-index 905911f78693..e95f19e573a7 100644
---- a/drivers/net/ethernet/amazon/ena/ena_com.c
-+++ b/drivers/net/ethernet/amazon/ena/ena_com.c
-@@ -2096,6 +2096,9 @@ int ena_com_get_hash_function(struct ena_com_dev *ena_dev,
- 		rss->hash_key;
- 	int rc;
+diff --git a/drivers/spi/spi-dw-mid.c b/drivers/spi/spi-dw-mid.c
+index e31971f91475..f77d03b658ab 100644
+--- a/drivers/spi/spi-dw-mid.c
++++ b/drivers/spi/spi-dw-mid.c
+@@ -155,6 +155,7 @@ static struct dma_async_tx_descriptor *dw_spi_dma_prepare_tx(struct dw_spi *dws,
+ 	if (!xfer->tx_buf)
+ 		return NULL;
  
-+	if (unlikely(!func))
-+		return -EINVAL;
-+
- 	rc = ena_com_get_feature_ex(ena_dev, &get_resp,
- 				    ENA_ADMIN_RSS_HASH_FUNCTION,
- 				    rss->hash_key_dma_addr,
-@@ -2108,8 +2111,7 @@ int ena_com_get_hash_function(struct ena_com_dev *ena_dev,
- 	if (rss->hash_func)
- 		rss->hash_func--;
++	memset(&txconf, 0, sizeof(txconf));
+ 	txconf.direction = DMA_MEM_TO_DEV;
+ 	txconf.dst_addr = dws->dma_addr;
+ 	txconf.dst_maxburst = 16;
+@@ -201,6 +202,7 @@ static struct dma_async_tx_descriptor *dw_spi_dma_prepare_rx(struct dw_spi *dws,
+ 	if (!xfer->rx_buf)
+ 		return NULL;
  
--	if (func)
--		*func = rss->hash_func;
-+	*func = rss->hash_func;
- 
- 	if (key)
- 		memcpy(key, hash_key->key, (size_t)(hash_key->keys_num) << 2);
++	memset(&rxconf, 0, sizeof(rxconf));
+ 	rxconf.direction = DMA_DEV_TO_MEM;
+ 	rxconf.src_addr = dws->dma_addr;
+ 	rxconf.src_maxburst = 16;
 -- 
 2.25.1
 
