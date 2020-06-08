@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 37C321F2276
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:08:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 133FB1F2357
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:15:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726949AbgFHXIe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 19:08:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53702 "EHLO mail.kernel.org"
+        id S1729622AbgFHXN5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 19:13:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33862 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728186AbgFHXIc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:08:32 -0400
+        id S1728025AbgFHXNy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:13:54 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F041E20890;
-        Mon,  8 Jun 2020 23:08:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D205F20897;
+        Mon,  8 Jun 2020 23:13:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591657712;
-        bh=hX12khJAdZqJIox8b1e42ktmh3BYm/+28o1Cp2ygp9Y=;
+        s=default; t=1591658033;
+        bh=TjVIzJCh0CEfsQLND/3pcn51jPC8iMMpkKt8EVaLwEw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ojWFZjvhPABLZzzWyx0ApvbRDOYPBWYVIqn+q/k15H4l83B+foHy0/33im2D42i9o
-         0F9Frsi8O1n9aahmt/0GgwpHmEE2ZppfSA6kCXJ1SPHGed8SHPZzDPn4d/fDKMbYkP
-         HYdEwEX5Gc+mNgyq5jDV6ExGtX1G1qBF6R0oqY0Q=
+        b=g173U1sG/Klnqgg20gUX7d5aGQt7/lbKnm6Lk4cpGPxw1aAxTmA8f4rCFUIg53Eh/
+         VhjtG8XT3q+FabBd4S/HqE/xNUPweUppEb5J1TFwn8qb0PivxS7/PLUPxrJocWdlem
+         19xfl4a4JXtUCoV6dbS4adbTeKxgXh2JC7Veng/s=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Colin Ian King <colin.king@canonical.com>,
-        Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.7 108/274] media: dvb: return -EREMOTEIO on i2c transfer failure.
-Date:   Mon,  8 Jun 2020 19:03:21 -0400
-Message-Id: <20200608230607.3361041-108-sashal@kernel.org>
+Cc:     Roberto Sassu <roberto.sassu@huawei.com>,
+        Krzysztof Struczynski <krzysztof.struczynski@huawei.com>,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-integrity@vger.kernel.org,
+        linux-security-module@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.6 084/606] ima: Fix return value of ima_write_policy()
+Date:   Mon,  8 Jun 2020 19:03:29 -0400
+Message-Id: <20200608231211.3363633-84-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200608230607.3361041-1-sashal@kernel.org>
-References: <20200608230607.3361041-1-sashal@kernel.org>
+In-Reply-To: <20200608231211.3363633-1-sashal@kernel.org>
+References: <20200608231211.3363633-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -44,41 +46,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Roberto Sassu <roberto.sassu@huawei.com>
 
-[ Upstream commit 96f3a9392799dd0f6472648a7366622ffd0989f3 ]
+[ Upstream commit 2e3a34e9f409ebe83d1af7cd2f49fca7af97dfac ]
 
-Currently when i2c transfers fail the error return -EREMOTEIO
-is assigned to err but then later overwritten when the tuner
-attach call is made.  Fix this by returning early with the
-error return code -EREMOTEIO on i2c transfer failure errors.
+This patch fixes the return value of ima_write_policy() when a new policy
+is directly passed to IMA and the current policy requires appraisal of the
+file containing the policy. Currently, if appraisal is not in ENFORCE mode,
+ima_write_policy() returns 0 and leads user space applications to an
+endless loop. Fix this issue by denying the operation regardless of the
+appraisal mode.
 
-If the transfer fails, an uninitialized value will be read from b2.
-
-Addresses-Coverity: ("Unused value")
-
-Fixes: fbfee8684ff2 ("V4L/DVB (5651): Dibusb-mb: convert pll handling to properly use dvb-pll")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Cc: stable@vger.kernel.org # 4.10.x
+Fixes: 19f8a84713edc ("ima: measure and appraise the IMA policy itself")
+Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+Reviewed-by: Krzysztof Struczynski <krzysztof.struczynski@huawei.com>
+Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/dvb-usb/dibusb-mb.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ security/integrity/ima/ima_fs.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/media/usb/dvb-usb/dibusb-mb.c b/drivers/media/usb/dvb-usb/dibusb-mb.c
-index d4ea72bf09c5..5131c8d4c632 100644
---- a/drivers/media/usb/dvb-usb/dibusb-mb.c
-+++ b/drivers/media/usb/dvb-usb/dibusb-mb.c
-@@ -81,7 +81,7 @@ static int dibusb_tuner_probe_and_attach(struct dvb_usb_adapter *adap)
- 
- 	if (i2c_transfer(&adap->dev->i2c_adap, msg, 2) != 2) {
- 		err("tuner i2c write failed.");
--		ret = -EREMOTEIO;
-+		return -EREMOTEIO;
+diff --git a/security/integrity/ima/ima_fs.c b/security/integrity/ima/ima_fs.c
+index 2000e8df0301..68571c40d61f 100644
+--- a/security/integrity/ima/ima_fs.c
++++ b/security/integrity/ima/ima_fs.c
+@@ -340,8 +340,7 @@ static ssize_t ima_write_policy(struct file *file, const char __user *buf,
+ 		integrity_audit_msg(AUDIT_INTEGRITY_STATUS, NULL, NULL,
+ 				    "policy_update", "signed policy required",
+ 				    1, 0);
+-		if (ima_appraise & IMA_APPRAISE_ENFORCE)
+-			result = -EACCES;
++		result = -EACCES;
+ 	} else {
+ 		result = ima_parse_add_rule(data);
  	}
- 
- 	if (adap->fe_adap[0].fe->ops.i2c_gate_ctrl)
 -- 
 2.25.1
 
