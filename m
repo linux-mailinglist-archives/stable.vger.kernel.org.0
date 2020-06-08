@@ -2,38 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AE5611F27F5
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:55:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7AEFA1F2837
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:55:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731797AbgFHXZ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 19:25:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51938 "EHLO mail.kernel.org"
+        id S1731962AbgFHXuJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 19:50:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51976 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731459AbgFHXZZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:25:25 -0400
+        id S1731465AbgFHXZ1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:25:27 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DD7642064C;
-        Mon,  8 Jun 2020 23:25:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 24DF82072F;
+        Mon,  8 Jun 2020 23:25:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658724;
-        bh=asa8ONHvLvSLrkUv5RGqx9vJCcv05F7tTMtmQgGoEZs=;
+        s=default; t=1591658726;
+        bh=xZpGO2Wpg8bkbZbIwKzLlhUpZOxh3/2ANTJ01WCWS6c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UkSVm8N3Q5YlsD+bmYLlQVZUGk/J9kC1My7oIUZE8+ijPrvdqY6M+GuQpGgU9knxH
-         OyF3ORkUqxm5Zv9+UdvRtujHYEfS2PenkVjSmrP2e/lvEY0GDKtM04O1J05RhitfZL
-         tccno7jjEyirQq74PYMw6gbaqGgqoNhHFF9b6sdU=
+        b=wrnmnr9nRcXtGec+Zld5ILCDQCFezjAilWBzqf/iQt3zw3HNaojIZY+de6iFL6Ksm
+         KzW0LoUFCg8EzcKtt7GuJWbqlpLu2IewdkuEpzYu1By6yDZPT7ji4WpNBKGCrn8let
+         dD1o8ZzfEwVA3/M47W2Jrxqlg/ZPR07rsSIauvI8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Linus Walleij <linus.walleij@linaro.org>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.14 18/72] ARM: 8978/1: mm: make act_mm() respect THREAD_SIZE
-Date:   Mon,  8 Jun 2020 19:24:06 -0400
-Message-Id: <20200608232500.3369581-18-sashal@kernel.org>
+Cc:     Serge Semin <Sergey.Semin@baikalelectronics.ru>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Georgy Vlasov <Georgy.Vlasov@baikalelectronics.ru>,
+        Ramil Zaripov <Ramil.Zaripov@baikalelectronics.ru>,
+        Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Arnd Bergmann <arnd@arndb.de>, Feng Tang <feng.tang@intel.com>,
+        Rob Herring <robh+dt@kernel.org>, linux-mips@vger.kernel.org,
+        devicetree@vger.kernel.org, Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 19/72] spi: dw: Fix Rx-only DMA transfers
+Date:   Mon,  8 Jun 2020 19:24:07 -0400
+Message-Id: <20200608232500.3369581-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608232500.3369581-1-sashal@kernel.org>
 References: <20200608232500.3369581-1-sashal@kernel.org>
@@ -46,63 +50,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Walleij <linus.walleij@linaro.org>
+From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
 
-[ Upstream commit e1de94380af588bdf6ad6f0cc1f75004c35bc096 ]
+[ Upstream commit 46164fde6b7890e7a3982d54549947c8394c0192 ]
 
-Recent work with KASan exposed the folling hard-coded bitmask
-in arch/arm/mm/proc-macros.S:
+Tx-only DMA transfers are working perfectly fine since in this case
+the code just ignores the Rx FIFO overflow interrupts. But it turns
+out the SPI Rx-only transfers are broken since nothing pushing any
+data to the shift registers, so the Rx FIFO is left empty and the
+SPI core subsystems just returns a timeout error. Since DW DMAC
+driver doesn't support something like cyclic write operations of
+a single byte to a device register, the only way to support the
+Rx-only SPI transfers is to fake it by using a dummy Tx-buffer.
+This is what we intend to fix in this commit by setting the
+SPI_CONTROLLER_MUST_TX flag for DMA-capable platform.
 
-  bic     rd, sp, #8128
-  bic     rd, rd, #63
-
-This forms the bitmask 0x1FFF that is coinciding with
-(PAGE_SIZE << THREAD_SIZE_ORDER) - 1, this code was assuming
-that THREAD_SIZE is always 8K (8192).
-
-As KASan was increasing THREAD_SIZE_ORDER to 2, I ran into
-this bug.
-
-Fix it by this little oneline suggested by Ard:
-
-  bic     rd, sp, #(THREAD_SIZE - 1) & ~63
-
-Where THREAD_SIZE is defined using THREAD_SIZE_ORDER.
-
-We have to also include <linux/const.h> since the THREAD_SIZE
-expands to use the _AC() macro.
-
-Cc: Ard Biesheuvel <ardb@kernel.org>
-Cc: Florian Fainelli <f.fainelli@gmail.com>
-Suggested-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Georgy Vlasov <Georgy.Vlasov@baikalelectronics.ru>
+Cc: Ramil Zaripov <Ramil.Zaripov@baikalelectronics.ru>
+Cc: Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>
+Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Feng Tang <feng.tang@intel.com>
+Cc: Rob Herring <robh+dt@kernel.org>
+Cc: linux-mips@vger.kernel.org
+Cc: devicetree@vger.kernel.org
+Link: https://lore.kernel.org/r/20200529131205.31838-9-Sergey.Semin@baikalelectronics.ru
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mm/proc-macros.S | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/spi/spi-dw.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm/mm/proc-macros.S b/arch/arm/mm/proc-macros.S
-index 5461d589a1e2..60ac7c5999a9 100644
---- a/arch/arm/mm/proc-macros.S
-+++ b/arch/arm/mm/proc-macros.S
-@@ -5,6 +5,7 @@
-  *  VMA_VM_FLAGS
-  *  VM_EXEC
-  */
-+#include <linux/const.h>
- #include <asm/asm-offsets.h>
- #include <asm/thread_info.h>
+diff --git a/drivers/spi/spi-dw.c b/drivers/spi/spi-dw.c
+index b461200871f8..26ed3b4233a2 100644
+--- a/drivers/spi/spi-dw.c
++++ b/drivers/spi/spi-dw.c
+@@ -526,6 +526,7 @@ int dw_spi_add_host(struct device *dev, struct dw_spi *dws)
+ 			dws->dma_inited = 0;
+ 		} else {
+ 			master->can_dma = dws->dma_ops->can_dma;
++			master->flags |= SPI_CONTROLLER_MUST_TX;
+ 		}
+ 	}
  
-@@ -30,7 +31,7 @@
-  * act_mm - get current->active_mm
-  */
- 	.macro	act_mm, rd
--	bic	\rd, sp, #8128
-+	bic	\rd, sp, #(THREAD_SIZE - 1) & ~63
- 	bic	\rd, \rd, #63
- 	ldr	\rd, [\rd, #TI_TASK]
- 	.if (TSK_ACTIVE_MM > IMM12_MASK)
 -- 
 2.25.1
 
