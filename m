@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 51A771F2DC4
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:36:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D50A41F3037
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:57:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729713AbgFHXOG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 19:14:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34120 "EHLO mail.kernel.org"
+        id S1728443AbgFIA5K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 20:57:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54508 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728931AbgFHXOF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:14:05 -0400
+        id S1728291AbgFHXI4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:08:56 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9654B214D8;
-        Mon,  8 Jun 2020 23:14:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 735CF2085B;
+        Mon,  8 Jun 2020 23:08:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658045;
-        bh=ZrjVoD4ZwV/tZz4fxl1W6b/CNXJM9Tqt8/6U32PtV6w=;
+        s=default; t=1591657736;
+        bh=84y+gW41dURSJi/gdvoDOb2sY4x5qag2jIQ+OeQgv8s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WY0w7yHgumIB0bS3ic4RHKt5Gk/F9PJed0ZovmG55p7A68QsCLChOMOqH5HqgeGYf
-         0sxdG2eUWQwV255H8oJsheiNN2/QzuUTs6b7dpcMEchIuXM0qO9kbixPExVq8k7Kq0
-         6r0TeYpTCyMA1sUyNKiuUzQKF29wmurhG2ckcjgk=
+        b=XUynSZ2HWhsPfzIukzg3R68sZn+l+CpO6f/KVYplWfYLX+HvtqvDPJchna2c8D125
+         2QzU8i0zpw7EdHEeSmqSl0S5VDjyoGw/3y6dsTRPgEVV9EABFlGKJ2iOAhtNgBsewA
+         ewJbc848PauumTH1KwhGMPyC5b7rwxkkBt5qhQrI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Raul E Rangel <rrangel@chromium.org>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Joerg Roedel <jroedel@suse.de>,
+Cc:     Alain Michaud <alainm@chromium.org>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>,
-        iommu@lists.linux-foundation.org
-Subject: [PATCH AUTOSEL 5.6 094/606] iommu/amd: Fix get_acpihid_device_id()
+        linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.7 126/274] Bluetooth: Adding driver and quirk defs for multi-role LE
 Date:   Mon,  8 Jun 2020 19:03:39 -0400
-Message-Id: <20200608231211.3363633-94-sashal@kernel.org>
+Message-Id: <20200608230607.3361041-126-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200608231211.3363633-1-sashal@kernel.org>
-References: <20200608231211.3363633-1-sashal@kernel.org>
+In-Reply-To: <20200608230607.3361041-1-sashal@kernel.org>
+References: <20200608230607.3361041-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -46,42 +44,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Raul E Rangel <rrangel@chromium.org>
+From: Alain Michaud <alainm@chromium.org>
 
-[ Upstream commit ea90228c7b2ae6646bb6381385229aabb6f14cd2 ]
+[ Upstream commit 220915857e29795ae5ba4222806268b4a99c19c1 ]
 
-acpi_dev_hid_uid_match() expects a null pointer for UID if it doesn't
-exist. The acpihid_map_entry contains a char buffer for holding the
-UID. If no UID was provided in the IVRS table, this buffer will be
-zeroed. If we pass in a null string, acpi_dev_hid_uid_match() will
-return false because it will try and match an empty string to the ACPI
-UID of the device.
+This change adds the relevant driver and quirk to allow drivers to
+report the le_states as being trustworthy.
 
-Fixes: ae5e6c6439c3 ("iommu/amd: Switch to use acpi_dev_hid_uid_match()")
-Suggested-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Raul E Rangel <rrangel@chromium.org>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/20200511103229.v2.1.I6f1b6f973ee6c8af1348611370c73a0ec0ea53f1@changeid
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+This has historically been disabled as controllers did not reliably
+support this. In particular, this will be used to relax this condition
+for controllers that have been well tested and reliable.
+
+	/* Most controller will fail if we try to create new connections
+	 * while we have an existing one in slave role.
+	 */
+	if (hdev->conn_hash.le_num_slave > 0)
+		return NULL;
+
+Signed-off-by: Alain Michaud <alainm@chromium.org>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/amd_iommu.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/bluetooth/btusb.c   | 1 +
+ include/net/bluetooth/hci.h | 9 +++++++++
+ 2 files changed, 10 insertions(+)
 
-diff --git a/drivers/iommu/amd_iommu.c b/drivers/iommu/amd_iommu.c
-index 500d0a8c966f..1d8634250afc 100644
---- a/drivers/iommu/amd_iommu.c
-+++ b/drivers/iommu/amd_iommu.c
-@@ -127,7 +127,8 @@ static inline int get_acpihid_device_id(struct device *dev,
- 		return -ENODEV;
+diff --git a/drivers/bluetooth/btusb.c b/drivers/bluetooth/btusb.c
+index 3bdec42c9612..3d9313c746f3 100644
+--- a/drivers/bluetooth/btusb.c
++++ b/drivers/bluetooth/btusb.c
+@@ -58,6 +58,7 @@ static struct usb_driver btusb_driver;
+ #define BTUSB_CW6622		0x100000
+ #define BTUSB_MEDIATEK		0x200000
+ #define BTUSB_WIDEBAND_SPEECH	0x400000
++#define BTUSB_VALID_LE_STATES   0x800000
  
- 	list_for_each_entry(p, &acpihid_map, list) {
--		if (acpi_dev_hid_uid_match(adev, p->hid, p->uid)) {
-+		if (acpi_dev_hid_uid_match(adev, p->hid,
-+					   p->uid[0] ? p->uid : NULL)) {
- 			if (entry)
- 				*entry = p;
- 			return p->devid;
+ static const struct usb_device_id btusb_table[] = {
+ 	/* Generic Bluetooth USB device */
+diff --git a/include/net/bluetooth/hci.h b/include/net/bluetooth/hci.h
+index 5f60e135aeb6..25c2e5ee81dc 100644
+--- a/include/net/bluetooth/hci.h
++++ b/include/net/bluetooth/hci.h
+@@ -214,6 +214,15 @@ enum {
+ 	 * This quirk must be set before hci_register_dev is called.
+ 	 */
+ 	HCI_QUIRK_WIDEBAND_SPEECH_SUPPORTED,
++
++	/* When this quirk is set, the controller has validated that
++	 * LE states reported through the HCI_LE_READ_SUPPORTED_STATES are
++	 * valid.  This mechanism is necessary as many controllers have
++	 * been seen has having trouble initiating a connectable
++	 * advertisement despite the state combination being reported as
++	 * supported.
++	 */
++	HCI_QUIRK_VALID_LE_STATES,
+ };
+ 
+ /* HCI device flags */
 -- 
 2.25.1
 
