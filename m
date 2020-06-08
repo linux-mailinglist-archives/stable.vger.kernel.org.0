@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 39C2C1F2DDD
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:38:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 572881F3067
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:59:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729642AbgFIAhA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 20:37:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33812 "EHLO mail.kernel.org"
+        id S1730346AbgFIA6v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 20:58:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54160 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729633AbgFHXNw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:13:52 -0400
+        id S1728227AbgFHXIn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:08:43 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 934D6212CC;
-        Mon,  8 Jun 2020 23:13:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 88CF52086A;
+        Mon,  8 Jun 2020 23:08:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658032;
-        bh=iBUom3UexuJtoL9Ox33IMnAZayXMsAmGh1AfuUlcV8s=;
+        s=default; t=1591657722;
+        bh=fMiqwzuk4vvw9yMwklyaFMiZEVHBhDB1iwoQv9tfwCk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d0eL5QqP8ei447D5afqv2l8GxkeH0hRjTbXsuTBo8hNRWhZOQ/0TMNh+8UEqOXG/j
-         HAbV9zm/3zV08DTc+C0eAKCu3kPi8SDoGSySu2aa5lZSXjIp2aTTfiI34Kv0jUZrLb
-         GHZNcoh36qrUTd6wS0qdbPS9Fd9fXyXxUv3OO6sg=
+        b=Zz1q5QWExXqC9oCBSXau0BjJa1fgaNeoPLVH5ZI1fVE24DhIMaCKCh4F+oVpHZOA8
+         LUzN6EYVD5zLyG3qfoVJmI+qkARgSsyo3iDi8fUTPUmo/RLc/mn8q54PVG2wV1Q3nL
+         kfevFUa4iCLd+mEDIaq3IPL5mCi8AeW3wclgLitc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Roberto Sassu <roberto.sassu@huawei.com>,
-        Krzysztof Struczynski <krzysztof.struczynski@huawei.com>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-integrity@vger.kernel.org,
-        linux-security-module@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.6 083/606] evm: Check also if *tfm is an error pointer in init_desc()
+Cc:     Paul Moore <paul@paul-moore.com>, teroincn@gmail.com,
+        Richard Guy Briggs <rgb@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, linux-audit@redhat.com
+Subject: [PATCH AUTOSEL 5.7 115/274] audit: fix a net reference leak in audit_list_rules_send()
 Date:   Mon,  8 Jun 2020 19:03:28 -0400
-Message-Id: <20200608231211.3363633-83-sashal@kernel.org>
+Message-Id: <20200608230607.3361041-115-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200608231211.3363633-1-sashal@kernel.org>
-References: <20200608231211.3363633-1-sashal@kernel.org>
+In-Reply-To: <20200608230607.3361041-1-sashal@kernel.org>
+References: <20200608230607.3361041-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -46,47 +43,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roberto Sassu <roberto.sassu@huawei.com>
+From: Paul Moore <paul@paul-moore.com>
 
-[ Upstream commit 53de3b080d5eae31d0de219617155dcc34e7d698 ]
+[ Upstream commit 3054d06719079388a543de6adb812638675ad8f5 ]
 
-This patch avoids a kernel panic due to accessing an error pointer set by
-crypto_alloc_shash(). It occurs especially when there are many files that
-require an unsupported algorithm, as it would increase the likelihood of
-the following race condition:
+If audit_list_rules_send() fails when trying to create a new thread
+to send the rules it also fails to cleanup properly, leaking a
+reference to a net structure.  This patch fixes the error patch and
+renames audit_send_list() to audit_send_list_thread() to better
+match its cousin, audit_send_reply_thread().
 
-Task A: *tfm = crypto_alloc_shash() <= error pointer
-Task B: if (*tfm == NULL) <= *tfm is not NULL, use it
-Task B: rc = crypto_shash_init(desc) <= panic
-Task A: *tfm = NULL
-
-This patch uses the IS_ERR_OR_NULL macro to determine whether or not a new
-crypto context must be created.
-
-Cc: stable@vger.kernel.org
-Fixes: d46eb3699502b ("evm: crypto hash replaced by shash")
-Co-developed-by: Krzysztof Struczynski <krzysztof.struczynski@huawei.com>
-Signed-off-by: Krzysztof Struczynski <krzysztof.struczynski@huawei.com>
-Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+Reported-by: teroincn@gmail.com
+Reviewed-by: Richard Guy Briggs <rgb@redhat.com>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/integrity/evm/evm_crypto.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/audit.c       |  2 +-
+ kernel/audit.h       |  2 +-
+ kernel/auditfilter.c | 16 +++++++---------
+ 3 files changed, 9 insertions(+), 11 deletions(-)
 
-diff --git a/security/integrity/evm/evm_crypto.c b/security/integrity/evm/evm_crypto.c
-index d485f6fc908e..302adeb2d37b 100644
---- a/security/integrity/evm/evm_crypto.c
-+++ b/security/integrity/evm/evm_crypto.c
-@@ -93,7 +93,7 @@ static struct shash_desc *init_desc(char type, uint8_t hash_algo)
- 		algo = hash_algo_name[hash_algo];
+diff --git a/kernel/audit.c b/kernel/audit.c
+index 033b14712340..f711f424a28a 100644
+--- a/kernel/audit.c
++++ b/kernel/audit.c
+@@ -880,7 +880,7 @@ static int kauditd_thread(void *dummy)
+ 	return 0;
+ }
+ 
+-int audit_send_list(void *_dest)
++int audit_send_list_thread(void *_dest)
+ {
+ 	struct audit_netlink_list *dest = _dest;
+ 	struct sk_buff *skb;
+diff --git a/kernel/audit.h b/kernel/audit.h
+index 2eed4d231624..f0233dc40b17 100644
+--- a/kernel/audit.h
++++ b/kernel/audit.h
+@@ -229,7 +229,7 @@ struct audit_netlink_list {
+ 	struct sk_buff_head q;
+ };
+ 
+-int audit_send_list(void *_dest);
++int audit_send_list_thread(void *_dest);
+ 
+ extern int selinux_audit_rule_update(void);
+ 
+diff --git a/kernel/auditfilter.c b/kernel/auditfilter.c
+index 026e34da4ace..a10e2997aa6c 100644
+--- a/kernel/auditfilter.c
++++ b/kernel/auditfilter.c
+@@ -1161,11 +1161,8 @@ int audit_rule_change(int type, int seq, void *data, size_t datasz)
+  */
+ int audit_list_rules_send(struct sk_buff *request_skb, int seq)
+ {
+-	u32 portid = NETLINK_CB(request_skb).portid;
+-	struct net *net = sock_net(NETLINK_CB(request_skb).sk);
+ 	struct task_struct *tsk;
+ 	struct audit_netlink_list *dest;
+-	int err = 0;
+ 
+ 	/* We can't just spew out the rules here because we might fill
+ 	 * the available socket buffer space and deadlock waiting for
+@@ -1173,25 +1170,26 @@ int audit_list_rules_send(struct sk_buff *request_skb, int seq)
+ 	 * happen if we're actually running in the context of auditctl
+ 	 * trying to _send_ the stuff */
+ 
+-	dest = kmalloc(sizeof(struct audit_netlink_list), GFP_KERNEL);
++	dest = kmalloc(sizeof(*dest), GFP_KERNEL);
+ 	if (!dest)
+ 		return -ENOMEM;
+-	dest->net = get_net(net);
+-	dest->portid = portid;
++	dest->net = get_net(sock_net(NETLINK_CB(request_skb).sk));
++	dest->portid = NETLINK_CB(request_skb).portid;
+ 	skb_queue_head_init(&dest->q);
+ 
+ 	mutex_lock(&audit_filter_mutex);
+ 	audit_list_rules(seq, &dest->q);
+ 	mutex_unlock(&audit_filter_mutex);
+ 
+-	tsk = kthread_run(audit_send_list, dest, "audit_send_list");
++	tsk = kthread_run(audit_send_list_thread, dest, "audit_send_list");
+ 	if (IS_ERR(tsk)) {
+ 		skb_queue_purge(&dest->q);
++		put_net(dest->net);
+ 		kfree(dest);
+-		err = PTR_ERR(tsk);
++		return PTR_ERR(tsk);
  	}
  
--	if (*tfm == NULL) {
-+	if (IS_ERR_OR_NULL(*tfm)) {
- 		mutex_lock(&mutex);
- 		if (*tfm)
- 			goto out;
+-	return err;
++	return 0;
+ }
+ 
+ int audit_comparator(u32 left, u32 op, u32 right)
 -- 
 2.25.1
 
