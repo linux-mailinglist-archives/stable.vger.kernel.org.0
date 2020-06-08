@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0997F1F2FB4
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:53:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 787631F2D61
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:33:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730170AbgFIAwo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 20:52:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55900 "EHLO mail.kernel.org"
+        id S1733153AbgFIAc5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 20:32:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35738 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728535AbgFHXJ4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:09:56 -0400
+        id S1729968AbgFHXPD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:15:03 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E6B00208E4;
-        Mon,  8 Jun 2020 23:09:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5D64521532;
+        Mon,  8 Jun 2020 23:15:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591657795;
-        bh=5TvpbYkiQw9NZ9edJDaOVOmu8yyAmlourZTRXxSr9R0=;
+        s=default; t=1591658103;
+        bh=sQjkPKrlL5V6DRjrdXB0ZI0gV62k+bpSQLHdQ/3cqXg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O5HaA7Q8rb6tYJIRdTgHe2wQGuCgdU2+2fgPo7mYEbRB70sw35DW52wwdiE3b/Wva
-         4NNPnCiyi9EgK5h5+yeAX5DRsyQe49dVJMf0yH/JsHEgNNFz3aG7reEqjmXMq/1Tan
-         SVyLQUWOFZswBYcgXwRP5L0hsjrKZ4wK1kxYz5j8=
+        b=HdalPhSvWtKyZq43qt3WTeXBnz/PflSmIamaw8Nfcv3DW2YMJTcbjeDpI+xsG8pKu
+         buUBOF9eZPvQSkH3KmerDzKcZtvZxge0qmcoQ1iuk2mBCCdm8VNH3NJ9LP+o1MCS/k
+         F2maAZrc00dGcMGZwaSZ3DG1hh64BuwXxbLow1To=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Brian Foster <bfoster@redhat.com>,
-        Dave Chinner <dchinner@redhat.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Allison Collins <allison.henderson@oracle.com>,
-        "Darrick J . Wong" <darrick.wong@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-xfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.7 174/274] xfs: fix duplicate verification from xfs_qm_dqflush()
-Date:   Mon,  8 Jun 2020 19:04:27 -0400
-Message-Id: <20200608230607.3361041-174-sashal@kernel.org>
+Cc:     Scott Bahling <sbahling@suse.com>, Takashi Iwai <tiwai@suse.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.6 143/606] ALSA: iec1712: Initialize STDSP24 properly when using the model=staudio option
+Date:   Mon,  8 Jun 2020 19:04:28 -0400
+Message-Id: <20200608231211.3363633-143-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200608230607.3361041-1-sashal@kernel.org>
-References: <20200608230607.3361041-1-sashal@kernel.org>
+In-Reply-To: <20200608231211.3363633-1-sashal@kernel.org>
+References: <20200608231211.3363633-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -46,48 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Foster <bfoster@redhat.com>
+From: Scott Bahling <sbahling@suse.com>
 
-[ Upstream commit 629dcb38dc351947ed6a26a997d4b587f3bd5c7e ]
+commit b0cb099062b0c18246c3a20caaab4c0afc303255 upstream.
 
-The pre-flush dquot verification in xfs_qm_dqflush() duplicates the
-read verifier by checking the dquot in the on-disk buffer. Instead,
-verify the in-core variant before it is flushed to the buffer.
+The ST Audio ADCIII is an STDSP24 card plus extension box. With commit
+e8a91ae18bdc ("ALSA: ice1712: Add support for STAudio ADCIII") we
+enabled the ADCIII ports using the model=staudio option but forgot
+this part to ensure the STDSP24 card is initialized properly.
 
-Fixes: 7224fa482a6d ("xfs: add full xfs_dqblk verifier")
-Signed-off-by: Brian Foster <bfoster@redhat.com>
-Reviewed-by: Dave Chinner <dchinner@redhat.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Allison Collins <allison.henderson@oracle.com>
-Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: e8a91ae18bdc ("ALSA: ice1712: Add support for STAudio ADCIII")
+Signed-off-by: Scott Bahling <sbahling@suse.com>
+Cc: <stable@vger.kernel.org>
+BugLink: https://bugzilla.suse.com/show_bug.cgi?id=1048934
+Link: https://lore.kernel.org/r/20200518175728.28766-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/xfs/xfs_dquot.c | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ sound/pci/ice1712/ice1712.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/fs/xfs/xfs_dquot.c b/fs/xfs/xfs_dquot.c
-index af2c8e5ceea0..265feb62290d 100644
---- a/fs/xfs/xfs_dquot.c
-+++ b/fs/xfs/xfs_dquot.c
-@@ -1116,13 +1116,12 @@ xfs_qm_dqflush(
- 	dqb = bp->b_addr + dqp->q_bufoffset;
- 	ddqp = &dqb->dd_diskdq;
- 
--	/*
--	 * A simple sanity check in case we got a corrupted dquot.
--	 */
--	fa = xfs_dqblk_verify(mp, dqb, be32_to_cpu(ddqp->d_id), 0);
-+	/* sanity check the in-core structure before we flush */
-+	fa = xfs_dquot_verify(mp, &dqp->q_core, be32_to_cpu(dqp->q_core.d_id),
-+			      0);
- 	if (fa) {
- 		xfs_alert(mp, "corrupt dquot ID 0x%x in memory at %pS",
--				be32_to_cpu(ddqp->d_id), fa);
-+				be32_to_cpu(dqp->q_core.d_id), fa);
- 		xfs_buf_relse(bp);
- 		xfs_dqfunlock(dqp);
- 		xfs_force_shutdown(mp, SHUTDOWN_CORRUPT_INCORE);
+diff --git a/sound/pci/ice1712/ice1712.c b/sound/pci/ice1712/ice1712.c
+index 884d0cdec08c..73e1e5400506 100644
+--- a/sound/pci/ice1712/ice1712.c
++++ b/sound/pci/ice1712/ice1712.c
+@@ -2332,7 +2332,8 @@ static int snd_ice1712_chip_init(struct snd_ice1712 *ice)
+ 	pci_write_config_byte(ice->pci, 0x61, ice->eeprom.data[ICE_EEP1_ACLINK]);
+ 	pci_write_config_byte(ice->pci, 0x62, ice->eeprom.data[ICE_EEP1_I2SID]);
+ 	pci_write_config_byte(ice->pci, 0x63, ice->eeprom.data[ICE_EEP1_SPDIF]);
+-	if (ice->eeprom.subvendor != ICE1712_SUBDEVICE_STDSP24) {
++	if (ice->eeprom.subvendor != ICE1712_SUBDEVICE_STDSP24 &&
++	    ice->eeprom.subvendor != ICE1712_SUBDEVICE_STAUDIO_ADCIII) {
+ 		ice->gpio.write_mask = ice->eeprom.gpiomask;
+ 		ice->gpio.direction = ice->eeprom.gpiodir;
+ 		snd_ice1712_write(ice, ICE1712_IREG_GPIO_WRITE_MASK,
 -- 
 2.25.1
 
