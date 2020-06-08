@@ -2,62 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C3271F244F
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:21:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 609B21F2451
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:21:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730926AbgFHXUO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 19:20:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43528 "EHLO mail.kernel.org"
+        id S1730930AbgFHXUR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 19:20:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43600 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730917AbgFHXUM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:20:12 -0400
+        id S1730921AbgFHXUO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:20:14 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E385B2083E;
-        Mon,  8 Jun 2020 23:20:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8C1202074B;
+        Mon,  8 Jun 2020 23:20:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658412;
-        bh=mTiX6BVUQ3jkX0Jh2seMK/MdH4mnuw+Iqv/QKtJSdaw=;
+        s=default; t=1591658413;
+        bh=UgH8czb3Zqf99cuf6/cq5xSM1xd308oDJ5vXdkILL9g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qKgvNP0N3CNMBG+tALDLCf1u6go5NV7yncc+aIHUYQvPuJ43OlG4s5rlLD07z+ACk
-         bbtkliuqL2qJxxng2XSCZyNfkD95os1vS480LstmAF8hNC841l82VRhJLsHLVKqRFL
-         Zl9pgXGe0sDXnXrTE68oegudT8hjNQWzg31BsRBI=
+        b=XsyHY1Z1IZeI/ZC6xck34lVfuBKFswhRcAgyhwfNgOvVlcJghvBYzhZ/v7KL0ruFa
+         vg0Gcdrm4KIB43pghf71fcj/v+rU5c8YPk3J67c0/KWhzOGTtA8P2LXSi41nVM72TF
+         93sobBbPk6BX+1YRhxI1b2yN8U6KoX6iOGuQeJXY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christoph Hellwig <hch@lst.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Christophe Leroy <christophe.leroy@c-s.fr>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        David Airlie <airlied@linux.ie>, Gao Xiang <xiang@kernel.org>,
-        Haiyang Zhang <haiyangz@microsoft.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        "K. Y. Srinivasan" <kys@microsoft.com>,
-        Laura Abbott <labbott@redhat.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Michael Kelley <mikelley@microsoft.com>,
-        Minchan Kim <minchan@kernel.org>,
-        Nitin Gupta <ngupta@vflare.org>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Stephen Hemminger <sthemmin@microsoft.com>,
-        Sumit Semwal <sumit.semwal@linaro.org>,
-        Wei Liu <wei.liu@kernel.org>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Heiko Carstens <heiko.carstens@de.ibm.com>,
-        Paul Mackerras <paulus@ozlabs.org>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Will Deacon <will@kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, devel@driverdev.osuosl.org,
-        dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org
-Subject: [PATCH AUTOSEL 5.4 061/175] staging: android: ion: use vmap instead of vm_map_ram
-Date:   Mon,  8 Jun 2020 19:16:54 -0400
-Message-Id: <20200608231848.3366970-61-sashal@kernel.org>
+Cc:     Venkateswara Naralasetty <vnaralas@codeaurora.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>, ath10k@lists.infradead.org,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 062/175] ath10k: fix kernel null pointer dereference
+Date:   Mon,  8 Jun 2020 19:16:55 -0400
+Message-Id: <20200608231848.3366970-62-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608231848.3366970-1-sashal@kernel.org>
 References: <20200608231848.3366970-1-sashal@kernel.org>
@@ -70,67 +44,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Venkateswara Naralasetty <vnaralas@codeaurora.org>
 
-[ Upstream commit 5bf9917452112694b2c774465ee4dbe441c84b77 ]
+[ Upstream commit acb31476adc9ff271140cdd4d3c707ff0c97f5a4 ]
 
-vm_map_ram can keep mappings around after the vm_unmap_ram.  Using that
-with non-PAGE_KERNEL mappings can lead to all kinds of aliasing issues.
+Currently sta airtime is updated without any lock in case of
+host based airtime calculation. Which may result in accessing the
+invalid sta pointer in case of continuous station connect/disconnect.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Christophe Leroy <christophe.leroy@c-s.fr>
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: David Airlie <airlied@linux.ie>
-Cc: Gao Xiang <xiang@kernel.org>
-Cc: Haiyang Zhang <haiyangz@microsoft.com>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>
-Cc: Laura Abbott <labbott@redhat.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Michael Kelley <mikelley@microsoft.com>
-Cc: Minchan Kim <minchan@kernel.org>
-Cc: Nitin Gupta <ngupta@vflare.org>
-Cc: Robin Murphy <robin.murphy@arm.com>
-Cc: Sakari Ailus <sakari.ailus@linux.intel.com>
-Cc: Stephen Hemminger <sthemmin@microsoft.com>
-Cc: Sumit Semwal <sumit.semwal@linaro.org>
-Cc: Wei Liu <wei.liu@kernel.org>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Paul Mackerras <paulus@ozlabs.org>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Will Deacon <will@kernel.org>
-Link: http://lkml.kernel.org/r/20200414131348.444715-4-hch@lst.de
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+This patch fix the kernel null pointer dereference by updating the
+station airtime with proper RCU lock in case of host based airtime
+calculation.
+
+Proceeding with the analysis of "ARM Kernel Panic".
+The APSS crash happened due to OOPS on CPU 0.
+Crash Signature : Unable to handle kernel NULL pointer dereference
+at virtual address 00000300
+During the crash,
+PC points to "ieee80211_sta_register_airtime+0x1c/0x448 [mac80211]"
+LR points to "ath10k_txrx_tx_unref+0x17c/0x364 [ath10k_core]".
+The Backtrace obtained is as follows:
+[<bf880238>] (ieee80211_sta_register_airtime [mac80211]) from
+[<bf945a38>] (ath10k_txrx_tx_unref+0x17c/0x364 [ath10k_core])
+[<bf945a38>] (ath10k_txrx_tx_unref [ath10k_core]) from
+[<bf9428e4>] (ath10k_htt_txrx_compl_task+0xa50/0xfc0 [ath10k_core])
+[<bf9428e4>] (ath10k_htt_txrx_compl_task [ath10k_core]) from
+[<bf9b9bc8>] (ath10k_pci_napi_poll+0x50/0xf8 [ath10k_pci])
+[<bf9b9bc8>] (ath10k_pci_napi_poll [ath10k_pci]) from
+[<c059e3b0>] (net_rx_action+0xac/0x160)
+[<c059e3b0>] (net_rx_action) from [<c02329a4>] (__do_softirq+0x104/0x294)
+[<c02329a4>] (__do_softirq) from [<c0232b64>] (run_ksoftirqd+0x30/0x90)
+[<c0232b64>] (run_ksoftirqd) from [<c024e358>] (smpboot_thread_fn+0x25c/0x274)
+[<c024e358>] (smpboot_thread_fn) from [<c02482fc>] (kthread+0xd8/0xec)
+
+Tested HW: QCA9888
+Tested FW: 10.4-3.10-00047
+
+Signed-off-by: Venkateswara Naralasetty <vnaralas@codeaurora.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/1585736290-17661-1-git-send-email-vnaralas@codeaurora.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/android/ion/ion_heap.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/wireless/ath/ath10k/txrx.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/staging/android/ion/ion_heap.c b/drivers/staging/android/ion/ion_heap.c
-index 473b465724f1..0755b11348ed 100644
---- a/drivers/staging/android/ion/ion_heap.c
-+++ b/drivers/staging/android/ion/ion_heap.c
-@@ -99,12 +99,12 @@ int ion_heap_map_user(struct ion_heap *heap, struct ion_buffer *buffer,
+diff --git a/drivers/net/wireless/ath/ath10k/txrx.c b/drivers/net/wireless/ath/ath10k/txrx.c
+index 39abf8b12903..f46b9083bbf1 100644
+--- a/drivers/net/wireless/ath/ath10k/txrx.c
++++ b/drivers/net/wireless/ath/ath10k/txrx.c
+@@ -84,9 +84,11 @@ int ath10k_txrx_tx_unref(struct ath10k_htt *htt,
+ 		wake_up(&htt->empty_tx_wq);
+ 	spin_unlock_bh(&htt->tx_lock);
  
- static int ion_heap_clear_pages(struct page **pages, int num, pgprot_t pgprot)
- {
--	void *addr = vm_map_ram(pages, num, -1, pgprot);
-+	void *addr = vmap(pages, num, VM_MAP, pgprot);
++	rcu_read_lock();
+ 	if (txq && txq->sta && skb_cb->airtime_est)
+ 		ieee80211_sta_register_airtime(txq->sta, txq->tid,
+ 					       skb_cb->airtime_est, 0);
++	rcu_read_unlock();
  
- 	if (!addr)
- 		return -ENOMEM;
- 	memset(addr, 0, PAGE_SIZE * num);
--	vm_unmap_ram(addr, num);
-+	vunmap(addr);
- 
- 	return 0;
- }
+ 	if (ar->bus_param.dev_type != ATH10K_DEV_TYPE_HL)
+ 		dma_unmap_single(dev, skb_cb->paddr, msdu->len, DMA_TO_DEVICE);
 -- 
 2.25.1
 
