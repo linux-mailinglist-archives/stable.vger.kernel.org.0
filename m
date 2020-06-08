@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 03F721F243B
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:20:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DBB41F243F
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:21:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730796AbgFHXTa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 19:19:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42264 "EHLO mail.kernel.org"
+        id S1729052AbgFHXTc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 19:19:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42346 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730404AbgFHXT3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:19:29 -0400
+        id S1730800AbgFHXTb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:19:31 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1B7B82086A;
-        Mon,  8 Jun 2020 23:19:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AB8D52088E;
+        Mon,  8 Jun 2020 23:19:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658368;
-        bh=i9Cm6uE8F2dwMgkxMHO8K4IqGtya6rXxjwkvqMYxwkw=;
+        s=default; t=1591658371;
+        bh=4aSMtzqJJndbwSqCLBktDy6vMXgnT+YthzhW1XOHtAk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GUla7vGpz8ttbP8vRm0OBDoeUA6yBP/SkPuEKJeEOA7pyyNlr+Ge8oFDuyRNW9IL9
-         DJQEeBHTQhSMqRho275J5KGI5EZYsCVWkv3rXPq7R+5jDSMW2jS10orX8B5wWzLC86
-         HppLInAmU2LxuxZvhw3Rk10Ur1Mv152zUFwxoHq4=
+        b=rDXOks5iCiKgsBsQQAQTmciFG73psRbr0nEEXftelW8QGpW8u1ycUscw/q2X5eUXs
+         RgZCmtSevobMK3qppy3fyM/ZIWM93m23IruNfAaHybcsXPsCflXNKr82KWt82tgQje
+         3Fa0N4/eJM1H0VQuJttDuvMP++KSsPPFuz4SPaE4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Weiping Zhang <zhangweiping@didiglobal.com>,
-        Bart van Assche <bvanassche@acm.org>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 032/175] block: reset mapping if failed to update hardware queue count
-Date:   Mon,  8 Jun 2020 19:16:25 -0400
-Message-Id: <20200608231848.3366970-32-sashal@kernel.org>
+Cc:     Jeremy Cline <jcline@redhat.com>,
+        "Frank Ch . Eigler" <fche@redhat.com>,
+        James Morris <jmorris@namei.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-security-module@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 034/175] lockdown: Allow unprivileged users to see lockdown status
+Date:   Mon,  8 Jun 2020 19:16:27 -0400
+Message-Id: <20200608231848.3366970-34-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608231848.3366970-1-sashal@kernel.org>
 References: <20200608231848.3366970-1-sashal@kernel.org>
@@ -44,68 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Weiping Zhang <zhangweiping@didiglobal.com>
+From: Jeremy Cline <jcline@redhat.com>
 
-[ Upstream commit aa880ad690ab6d4c53934af85fb5a43e69ecb0f5 ]
+[ Upstream commit 60cf7c5ed5f7087c4de87a7676b8c82d96fd166c ]
 
-When we increase hardware queue count, blk_mq_update_queue_map will
-reset the mapping between cpu and hardware queue base on the hardware
-queue count(set->nr_hw_queues). The mapping cannot be reset if it
-encounters error in blk_mq_realloc_hw_ctxs, but the fallback flow will
-continue using it, then blk_mq_map_swqueue will touch a invalid memory,
-because the mapping points to a wrong hctx.
+A number of userspace tools, such as systemtap, need a way to see the
+current lockdown state so they can gracefully deal with the kernel being
+locked down. The state is already exposed in
+/sys/kernel/security/lockdown, but is only readable by root. Adjust the
+permissions so unprivileged users can read the state.
 
-blktest block/030:
-
-null_blk: module loaded
-Increasing nr_hw_queues to 8 fails, fallback to 1
-==================================================================
-BUG: KASAN: null-ptr-deref in blk_mq_map_swqueue+0x2f2/0x830
-Read of size 8 at addr 0000000000000128 by task nproc/8541
-
-CPU: 5 PID: 8541 Comm: nproc Not tainted 5.7.0-rc4-dbg+ #3
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
-rel-1.13.0-0-gf21b5a4-rebuilt.opensuse.org 04/01/2014
-Call Trace:
-dump_stack+0xa5/0xe6
-__kasan_report.cold+0x65/0xbb
-kasan_report+0x45/0x60
-check_memory_region+0x15e/0x1c0
-__kasan_check_read+0x15/0x20
-blk_mq_map_swqueue+0x2f2/0x830
-__blk_mq_update_nr_hw_queues+0x3df/0x690
-blk_mq_update_nr_hw_queues+0x32/0x50
-nullb_device_submit_queues_store+0xde/0x160 [null_blk]
-configfs_write_file+0x1c4/0x250 [configfs]
-__vfs_write+0x4c/0x90
-vfs_write+0x14b/0x2d0
-ksys_write+0xdd/0x180
-__x64_sys_write+0x47/0x50
-do_syscall_64+0x6f/0x310
-entry_SYSCALL_64_after_hwframe+0x49/0xb3
-
-Signed-off-by: Weiping Zhang <zhangweiping@didiglobal.com>
-Tested-by: Bart van Assche <bvanassche@acm.org>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 000d388ed3bb ("security: Add a static lockdown policy LSM")
+Cc: Frank Ch. Eigler <fche@redhat.com>
+Signed-off-by: Jeremy Cline <jcline@redhat.com>
+Signed-off-by: James Morris <jmorris@namei.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-mq.c | 2 +-
+ security/lockdown/lockdown.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/block/blk-mq.c b/block/blk-mq.c
-index 22ce0c6a8e6a..0550366e25d8 100644
---- a/block/blk-mq.c
-+++ b/block/blk-mq.c
-@@ -3304,8 +3304,8 @@ static void __blk_mq_update_nr_hw_queues(struct blk_mq_tag_set *set,
+diff --git a/security/lockdown/lockdown.c b/security/lockdown/lockdown.c
+index 40b790536def..ae594c0a127f 100644
+--- a/security/lockdown/lockdown.c
++++ b/security/lockdown/lockdown.c
+@@ -175,7 +175,7 @@ static int __init lockdown_secfs_init(void)
+ {
+ 	struct dentry *dentry;
  
- 	prev_nr_hw_queues = set->nr_hw_queues;
- 	set->nr_hw_queues = nr_hw_queues;
--	blk_mq_update_queue_map(set);
- fallback:
-+	blk_mq_update_queue_map(set);
- 	list_for_each_entry(q, &set->tag_list, tag_set_list) {
- 		blk_mq_realloc_hw_ctxs(set, q);
- 		if (q->nr_hw_queues != set->nr_hw_queues) {
+-	dentry = securityfs_create_file("lockdown", 0600, NULL, NULL,
++	dentry = securityfs_create_file("lockdown", 0644, NULL, NULL,
+ 					&lockdown_ops);
+ 	return PTR_ERR_OR_ZERO(dentry);
+ }
 -- 
 2.25.1
 
