@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5EE111F2B55
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:17:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 737E81F2B53
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:17:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732292AbgFIAOn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 20:14:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41838 "EHLO mail.kernel.org"
+        id S1731671AbgFIAOi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 20:14:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41910 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728767AbgFHXTI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:19:08 -0400
+        id S1730741AbgFHXTM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:19:12 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D326920823;
-        Mon,  8 Jun 2020 23:19:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7AEF02083E;
+        Mon,  8 Jun 2020 23:19:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658348;
-        bh=JhpQfRsModk5sQ9aL2T3NULoav7X7hkWKs2gzjta+OE=;
+        s=default; t=1591658352;
+        bh=455i9YpdBs7gqDTT9okDLeK5g807fcJ/fdxIEM9G10w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rpFbyzgNNmH4LspWHtunhToYT4EegV9c64u/IgjnBBcozllYp17ZHKoUEPd0BeDC8
-         Cg1toVKMQFAvDL1NZ1UAgtmjtbcyPdrdlHMiv19JOnJuzrnFciIrd08G27Ql5SOVim
-         x6N5BQy/9daRoLFkT2OzMc+qyj88eozW8iovi4Lg=
+        b=ec5ghmQnfqLQE3dWBNYaKEA+6sEWMYA2Oaqm/OHOI7BuxNxkIfRClAEVJLhHvg7zP
+         1KwINkn47C8uBYrRjdc6B0fL6GMZBcCnr7t/3meBtCCOzokH/AtdP07LllIwiGC5iU
+         s8Cirq0FoUy6l383FWGkKNsoOZE0NVntWuMw7bnw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andrii Nakryiko <andriin@fb.com>, Alston Tang <alston64@fb.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 016/175] libbpf: Fix memory leak and possible double-free in hashmap__clear
-Date:   Mon,  8 Jun 2020 19:16:09 -0400
-Message-Id: <20200608231848.3366970-16-sashal@kernel.org>
+Cc:     Huaixin Chang <changhuaixin@linux.alibaba.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Ben Segall <bsegall@google.com>, Phil Auld <pauld@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 019/175] sched/fair: Refill bandwidth before scaling
+Date:   Mon,  8 Jun 2020 19:16:12 -0400
+Message-Id: <20200608231848.3366970-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608231848.3366970-1-sashal@kernel.org>
 References: <20200608231848.3366970-1-sashal@kernel.org>
@@ -44,44 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrii Nakryiko <andriin@fb.com>
+From: Huaixin Chang <changhuaixin@linux.alibaba.com>
 
-[ Upstream commit 229bf8bf4d910510bc1a2fd0b89bd467cd71050d ]
+[ Upstream commit 5a6d6a6ccb5f48ca8cf7c6d64ff83fd9c7999390 ]
 
-Fix memory leak in hashmap_clear() not freeing hashmap_entry structs for each
-of the remaining entries. Also NULL-out bucket list to prevent possible
-double-free between hashmap__clear() and hashmap__free().
+In order to prevent possible hardlockup of sched_cfs_period_timer()
+loop, loop count is introduced to denote whether to scale quota and
+period or not. However, scale is done between forwarding period timer
+and refilling cfs bandwidth runtime, which means that period timer is
+forwarded with old "period" while runtime is refilled with scaled
+"quota".
 
-Running test_progs-asan flavor clearly showed this problem.
+Move do_sched_cfs_period_timer() before scaling to solve this.
 
-Reported-by: Alston Tang <alston64@fb.com>
-Signed-off-by: Andrii Nakryiko <andriin@fb.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/20200429012111.277390-5-andriin@fb.com
+Fixes: 2e8e19226398 ("sched/fair: Limit sched_cfs_period_timer() loop to avoid hard lockup")
+Signed-off-by: Huaixin Chang <changhuaixin@linux.alibaba.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Ben Segall <bsegall@google.com>
+Reviewed-by: Phil Auld <pauld@redhat.com>
+Link: https://lkml.kernel.org/r/20200420024421.22442-3-changhuaixin@linux.alibaba.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/bpf/hashmap.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ kernel/sched/fair.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/tools/lib/bpf/hashmap.c b/tools/lib/bpf/hashmap.c
-index 6122272943e6..9ef9f6201d8b 100644
---- a/tools/lib/bpf/hashmap.c
-+++ b/tools/lib/bpf/hashmap.c
-@@ -56,7 +56,14 @@ struct hashmap *hashmap__new(hashmap_hash_fn hash_fn,
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index 193b6ab74d7f..3116734630c6 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -4942,6 +4942,8 @@ static enum hrtimer_restart sched_cfs_period_timer(struct hrtimer *timer)
+ 		if (!overrun)
+ 			break;
  
- void hashmap__clear(struct hashmap *map)
- {
-+	struct hashmap_entry *cur, *tmp;
-+	int bkt;
++		idle = do_sched_cfs_period_timer(cfs_b, overrun, flags);
 +
-+	hashmap__for_each_entry_safe(map, cur, tmp, bkt) {
-+		free(cur);
-+	}
- 	free(map->buckets);
-+	map->buckets = NULL;
- 	map->cap = map->cap_bits = map->sz = 0;
- }
+ 		if (++count > 3) {
+ 			u64 new, old = ktime_to_ns(cfs_b->period);
  
+@@ -4971,8 +4973,6 @@ static enum hrtimer_restart sched_cfs_period_timer(struct hrtimer *timer)
+ 			/* reset count so we don't come right back in here */
+ 			count = 0;
+ 		}
+-
+-		idle = do_sched_cfs_period_timer(cfs_b, overrun, flags);
+ 	}
+ 	if (idle)
+ 		cfs_b->period_active = 0;
 -- 
 2.25.1
 
