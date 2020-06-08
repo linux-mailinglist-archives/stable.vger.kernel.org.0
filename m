@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E6DED1F2DAC
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:36:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 99CF81F3011
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:56:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730043AbgFIAfo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 20:35:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34604 "EHLO mail.kernel.org"
+        id S1728409AbgFIAzn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 20:55:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54986 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728573AbgFHXOX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:14:23 -0400
+        id S1728377AbgFHXJQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:09:16 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 21CA121534;
-        Mon,  8 Jun 2020 23:14:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B1E2120890;
+        Mon,  8 Jun 2020 23:09:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658063;
-        bh=ONsYDddsZTVKtfoCed08ZnVV6GO76273vrFEOVSs5A8=;
+        s=default; t=1591657755;
+        bh=shKfPmny0Xk+z6QTEuZIiryuf3ktSCpn4+P8VnIPKmM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GIISY9s7yB6tLnVuXgPVCDGbpUJSsojA5qiUyAdTxIuElTfJV8hQcwqs4yEixd42k
-         UkRYiWYGWzxRi4HOWiZ4j0hdUSUe7MovtK6ywruD0ePamskeR3NhmLy57DSVZlzhGx
-         AbVSOvltFFI0Q5W4gQJSj6Ah+GsyGnoFlF7E0J/E=
+        b=iFs9iKl+90UzgJN8wlwBZyDZ+0q2sMLFIpwErgqLD+ZTuOzusiv547ZAAn2l/VhjY
+         7kgb9NOnrhSMjjXXOSbY4gBlpIf3koGIT4ax+oH07l4uFqbCDZOcawRPghWvU/a2Gy
+         FskhDJWRzJuNFZiGRzy9QDTAFkbup53ehIlCj+dM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Quinn Tran <qutran@marvell.com>,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Nilesh Javali <njavali@marvell.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.6 109/606] scsi: qla2xxx: Delete all sessions before unregister local nvme port
+Cc:     Nathan Chancellor <natechancellor@gmail.com>,
+        Dmitry Golovin <dima@golovin.in>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>,
+        clang-built-linux@googlegroups.com
+Subject: [PATCH AUTOSEL 5.7 141/274] lib/mpi: Fix 64-bit MIPS build with Clang
 Date:   Mon,  8 Jun 2020 19:03:54 -0400
-Message-Id: <20200608231211.3363633-109-sashal@kernel.org>
+Message-Id: <20200608230607.3361041-141-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200608231211.3363633-1-sashal@kernel.org>
-References: <20200608231211.3363633-1-sashal@kernel.org>
+In-Reply-To: <20200608230607.3361041-1-sashal@kernel.org>
+References: <20200608230607.3361041-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -45,64 +45,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quinn Tran <qutran@marvell.com>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit c48f849d3f7a4ec1025105f446e29d395c4dcc2f ]
+[ Upstream commit 18f1ca46858eac22437819937ae44aa9a8f9f2fa ]
 
-Delete all sessions before unregistering local nvme port.  This allows nvme
-layer to decrement all active rport count down to zero.  Once the count is
-down to zero, nvme would call qla to continue with the npiv port deletion.
+When building 64r6_defconfig with CONFIG_MIPS32_O32 disabled and
+CONFIG_CRYPTO_RSA enabled:
 
-PID: 27448  TASK: ffff9e34b777c1c0  CPU: 0   COMMAND: "qaucli"
- 0 [ffff9e25e84abbd8] __schedule at ffffffff977858ca
- 1 [ffff9e25e84abc68] schedule at ffffffff97785d79
- 2 [ffff9e25e84abc78] schedule_timeout at ffffffff97783881
- 3 [ffff9e25e84abd28] wait_for_completion at ffffffff9778612d
- 4 [ffff9e25e84abd88] qla_nvme_delete at ffffffffc0e3024e [qla2xxx]
- 5 [ffff9e25e84abda8] qla24xx_vport_delete at ffffffffc0e024b9 [qla2xxx]
- 6 [ffff9e25e84abdf0] fc_vport_terminate at ffffffffc011c247 [scsi_transport_fc]
- 7 [ffff9e25e84abe28] store_fc_host_vport_delete at ffffffffc011cd94 [scsi_transport_fc]
- 8 [ffff9e25e84abe70] dev_attr_store at ffffffff974b376b
- 9 [ffff9e25e84abe80] sysfs_kf_write at ffffffff972d9a92
-10 [ffff9e25e84abe90] kernfs_fop_write at ffffffff972d907b
-11 [ffff9e25e84abec8] vfs_write at ffffffff9724c790
-12 [ffff9e25e84abf08] sys_write at ffffffff9724d55f
-13 [ffff9e25e84abf50] system_call_fastpath at ffffffff97792ed2
-    RIP: 00007fc0bd81a6fd  RSP: 00007ffff78d9648  RFLAGS: 00010202
-    RAX: 0000000000000001  RBX: 0000000000000022  RCX: 00007ffff78d96e0
-    RDX: 0000000000000022  RSI: 00007ffff78d94e0  RDI: 0000000000000008
-    RBP: 00007ffff78d9440   R8: 0000000000000000   R9: 00007fc0bd48b2cd
-    R10: 0000000000000017  R11: 0000000000000293  R12: 0000000000000000
-    R13: 00005624e4dac840  R14: 00005624e4da9a10  R15: 0000000000000000
-    ORIG_RAX: 0000000000000001  CS: 0033  SS: 002b
+lib/mpi/generic_mpih-mul1.c:37:24: error: invalid use of a cast in a
+inline asm context requiring an l-value: remove the cast
+or build with -fheinous-gnu-extensions
+                umul_ppmm(prod_high, prod_low, s1_ptr[j], s2_limb);
+                ~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+lib/mpi/longlong.h:664:22: note: expanded from macro 'umul_ppmm'
+                 : "=d" ((UDItype)(w0))
+                         ~~~~~~~~~~^~~
+lib/mpi/generic_mpih-mul1.c:37:13: error: invalid use of a cast in a
+inline asm context requiring an l-value: remove the cast
+or build with -fheinous-gnu-extensions
+                umul_ppmm(prod_high, prod_low, s1_ptr[j], s2_limb);
+                ~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+lib/mpi/longlong.h:668:22: note: expanded from macro 'umul_ppmm'
+                 : "=d" ((UDItype)(w1))
+                         ~~~~~~~~~~^~~
+2 errors generated.
 
-Link: https://lore.kernel.org/r/20200331104015.24868-4-njavali@marvell.com
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Quinn Tran <qutran@marvell.com>
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+This special case for umul_ppmm for MIPS64r6 was added in
+commit bbc25bee37d2b ("lib/mpi: Fix umul_ppmm() for MIPS64r6"), due to
+GCC being inefficient and emitting a __multi3 intrinsic.
+
+There is no such issue with clang; with this patch applied, I can build
+this configuration without any problems and there are no link errors
+like mentioned in the commit above (which I can still reproduce with
+GCC 9.3.0 when that commit is reverted). Only use this definition when
+GCC is being used.
+
+This really should have been caught by commit b0c091ae04f67 ("lib/mpi:
+Eliminate unused umul_ppmm definitions for MIPS") when I was messing
+around in this area but I was not testing 64-bit MIPS at the time.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/885
+Reported-by: Dmitry Golovin <dima@golovin.in>
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_attr.c | 2 +-
+ lib/mpi/longlong.h | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_attr.c b/drivers/scsi/qla2xxx/qla_attr.c
-index d7e7043f9eab..9556392652e3 100644
---- a/drivers/scsi/qla2xxx/qla_attr.c
-+++ b/drivers/scsi/qla2xxx/qla_attr.c
-@@ -2928,11 +2928,11 @@ qla24xx_vport_delete(struct fc_vport *fc_vport)
- 	    test_bit(FCPORT_UPDATE_NEEDED, &vha->dpc_flags))
- 		msleep(1000);
- 
--	qla_nvme_delete(vha);
- 
- 	qla24xx_disable_vp(vha);
- 	qla2x00_wait_for_sess_deletion(vha);
- 
-+	qla_nvme_delete(vha);
- 	vha->flags.delete_progress = 1;
- 
- 	qlt_remove_target(ha, vha);
+diff --git a/lib/mpi/longlong.h b/lib/mpi/longlong.h
+index 891e1c3549c4..afbd99987cf8 100644
+--- a/lib/mpi/longlong.h
++++ b/lib/mpi/longlong.h
+@@ -653,7 +653,7 @@ do {						\
+ 	**************  MIPS/64  **************
+ 	***************************************/
+ #if (defined(__mips) && __mips >= 3) && W_TYPE_SIZE == 64
+-#if defined(__mips_isa_rev) && __mips_isa_rev >= 6
++#if defined(__mips_isa_rev) && __mips_isa_rev >= 6 && defined(CONFIG_CC_IS_GCC)
+ /*
+  * GCC ends up emitting a __multi3 intrinsic call for MIPS64r6 with the plain C
+  * code below, so we special case MIPS64r6 until the compiler can do better.
 -- 
 2.25.1
 
