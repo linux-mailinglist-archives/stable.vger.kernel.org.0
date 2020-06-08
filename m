@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ED9821F2A78
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:12:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 813041F2A2E
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:11:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732831AbgFIAIj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 20:08:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44324 "EHLO mail.kernel.org"
+        id S1729739AbgFHXUi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 19:20:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44344 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730991AbgFHXUg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:20:36 -0400
+        id S1730646AbgFHXUh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:20:37 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C2BDC20842;
-        Mon,  8 Jun 2020 23:20:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0E12F20872;
+        Mon,  8 Jun 2020 23:20:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658435;
-        bh=lIYatyaky7rSKOXjSGtd40LsxoDaedv+mNGO2ITQ/Zg=;
+        s=default; t=1591658437;
+        bh=y4UdUA/9UkNQTvxeGrmO6D5zKgcdYnG2u60ay2utmTQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wiAly3wZUKX6xPn4HCt+XOEGqvQw/Z/89MfyHI57N03a4Wv38tNuOFnonB9+etzgF
-         ITMb2abrRL60iYpCxB+aLUF9E4oxaBAbCPX4eRhMKza5OhLgi6348EJQtFp5bwcJ/h
-         7hyGq1EbuGFL7BDsVIrapi3/tFPzhr9WjA6v7J1k=
+        b=sNM0xLws5JdUTfUJbKbZpkbJBiqlZtmCYGbZJWCLPRgvEn8CrwgSeufH14y8KI6Gm
+         WUc+UfprwIIG1pHoOoPhKuJkN/wagMOjZ7ovzxzGHsBd3WjqtnSjofMwDbx2q2RgPL
+         lJVg/dRmCkASphgmmY33zocyHuCpmq9h6I6JIJyk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Paul Moore <paul@paul-moore.com>, teroincn@gmail.com,
-        Richard Guy Briggs <rgb@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, linux-audit@redhat.com
-Subject: [PATCH AUTOSEL 5.4 079/175] audit: fix a net reference leak in audit_list_rules_send()
-Date:   Mon,  8 Jun 2020 19:17:12 -0400
-Message-Id: <20200608231848.3366970-79-sashal@kernel.org>
+Cc:     "Andrea Parri (Microsoft)" <parri.andrea@gmail.com>,
+        Dexuan Cui <decui@microsoft.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Michael Kelley <mikelley@microsoft.com>,
+        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        linux-hyperv@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 080/175] Drivers: hv: vmbus: Always handle the VMBus messages on CPU0
+Date:   Mon,  8 Jun 2020 19:17:13 -0400
+Message-Id: <20200608231848.3366970-80-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608231848.3366970-1-sashal@kernel.org>
 References: <20200608231848.3366970-1-sashal@kernel.org>
@@ -43,101 +46,164 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Moore <paul@paul-moore.com>
+From: "Andrea Parri (Microsoft)" <parri.andrea@gmail.com>
 
-[ Upstream commit 3054d06719079388a543de6adb812638675ad8f5 ]
+[ Upstream commit 8a857c55420f29da4fc131adc22b12d474c48f4c ]
 
-If audit_list_rules_send() fails when trying to create a new thread
-to send the rules it also fails to cleanup properly, leaking a
-reference to a net structure.  This patch fixes the error patch and
-renames audit_send_list() to audit_send_list_thread() to better
-match its cousin, audit_send_reply_thread().
+A Linux guest have to pick a "connect CPU" to communicate with the
+Hyper-V host.  This CPU can not be taken offline because Hyper-V does
+not provide a way to change that CPU assignment.
 
-Reported-by: teroincn@gmail.com
-Reviewed-by: Richard Guy Briggs <rgb@redhat.com>
-Signed-off-by: Paul Moore <paul@paul-moore.com>
+Current code sets the connect CPU to whatever CPU ends up running the
+function vmbus_negotiate_version(), and this will generate problems if
+that CPU is taken offine.
+
+Establish CPU0 as the connect CPU, and add logics to prevents the
+connect CPU from being taken offline.   We could pick some other CPU,
+and we could pick that "other CPU" dynamically if there was a reason to
+do so at some point in the future.  But for now, #defining the connect
+CPU to 0 is the most straightforward and least complex solution.
+
+While on this, add inline comments explaining "why" offer and rescind
+messages should not be handled by a same serialized work queue.
+
+Suggested-by: Dexuan Cui <decui@microsoft.com>
+Signed-off-by: Andrea Parri (Microsoft) <parri.andrea@gmail.com>
+Reviewed-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Link: https://lore.kernel.org/r/20200406001514.19876-2-parri.andrea@gmail.com
+Reviewed-by: Michael Kelley <mikelley@microsoft.com>
+Signed-off-by: Wei Liu <wei.liu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/audit.c       |  2 +-
- kernel/audit.h       |  2 +-
- kernel/auditfilter.c | 16 +++++++---------
- 3 files changed, 9 insertions(+), 11 deletions(-)
+ drivers/hv/connection.c   | 20 +-------------------
+ drivers/hv/hv.c           |  7 +++++++
+ drivers/hv/hyperv_vmbus.h | 11 ++++++-----
+ drivers/hv/vmbus_drv.c    | 20 +++++++++++++++++---
+ 4 files changed, 31 insertions(+), 27 deletions(-)
 
-diff --git a/kernel/audit.c b/kernel/audit.c
-index a4eeece2eecd..05ae208ad442 100644
---- a/kernel/audit.c
-+++ b/kernel/audit.c
-@@ -879,7 +879,7 @@ static int kauditd_thread(void *dummy)
- 	return 0;
- }
- 
--int audit_send_list(void *_dest)
-+int audit_send_list_thread(void *_dest)
+diff --git a/drivers/hv/connection.c b/drivers/hv/connection.c
+index 6e4c015783ff..c90d79096e8c 100644
+--- a/drivers/hv/connection.c
++++ b/drivers/hv/connection.c
+@@ -67,7 +67,6 @@ static __u32 vmbus_get_next_version(__u32 current_version)
+ int vmbus_negotiate_version(struct vmbus_channel_msginfo *msginfo, u32 version)
  {
- 	struct audit_netlink_list *dest = _dest;
- 	struct sk_buff *skb;
-diff --git a/kernel/audit.h b/kernel/audit.h
-index 6fb7160412d4..ddc22878433d 100644
---- a/kernel/audit.h
-+++ b/kernel/audit.h
-@@ -229,7 +229,7 @@ struct audit_netlink_list {
- 	struct sk_buff_head q;
- };
+ 	int ret = 0;
+-	unsigned int cur_cpu;
+ 	struct vmbus_channel_initiate_contact *msg;
+ 	unsigned long flags;
  
--int audit_send_list(void *_dest);
-+int audit_send_list_thread(void *_dest);
+@@ -100,24 +99,7 @@ int vmbus_negotiate_version(struct vmbus_channel_msginfo *msginfo, u32 version)
  
- extern int selinux_audit_rule_update(void);
+ 	msg->monitor_page1 = virt_to_phys(vmbus_connection.monitor_pages[0]);
+ 	msg->monitor_page2 = virt_to_phys(vmbus_connection.monitor_pages[1]);
+-	/*
+-	 * We want all channel messages to be delivered on CPU 0.
+-	 * This has been the behavior pre-win8. This is not
+-	 * perf issue and having all channel messages delivered on CPU 0
+-	 * would be ok.
+-	 * For post win8 hosts, we support receiving channel messagges on
+-	 * all the CPUs. This is needed for kexec to work correctly where
+-	 * the CPU attempting to connect may not be CPU 0.
+-	 */
+-	if (version >= VERSION_WIN8_1) {
+-		cur_cpu = get_cpu();
+-		msg->target_vcpu = hv_cpu_number_to_vp_number(cur_cpu);
+-		vmbus_connection.connect_cpu = cur_cpu;
+-		put_cpu();
+-	} else {
+-		msg->target_vcpu = 0;
+-		vmbus_connection.connect_cpu = 0;
+-	}
++	msg->target_vcpu = hv_cpu_number_to_vp_number(VMBUS_CONNECT_CPU);
  
-diff --git a/kernel/auditfilter.c b/kernel/auditfilter.c
-index 026e34da4ace..a10e2997aa6c 100644
---- a/kernel/auditfilter.c
-+++ b/kernel/auditfilter.c
-@@ -1161,11 +1161,8 @@ int audit_rule_change(int type, int seq, void *data, size_t datasz)
-  */
- int audit_list_rules_send(struct sk_buff *request_skb, int seq)
- {
--	u32 portid = NETLINK_CB(request_skb).portid;
--	struct net *net = sock_net(NETLINK_CB(request_skb).sk);
- 	struct task_struct *tsk;
- 	struct audit_netlink_list *dest;
--	int err = 0;
+ 	/*
+ 	 * Add to list before we send the request since we may
+diff --git a/drivers/hv/hv.c b/drivers/hv/hv.c
+index fcc52797c169..d6320022af15 100644
+--- a/drivers/hv/hv.c
++++ b/drivers/hv/hv.c
+@@ -249,6 +249,13 @@ int hv_synic_cleanup(unsigned int cpu)
+ 	bool channel_found = false;
+ 	unsigned long flags;
  
- 	/* We can't just spew out the rules here because we might fill
- 	 * the available socket buffer space and deadlock waiting for
-@@ -1173,25 +1170,26 @@ int audit_list_rules_send(struct sk_buff *request_skb, int seq)
- 	 * happen if we're actually running in the context of auditctl
- 	 * trying to _send_ the stuff */
++	/*
++	 * Hyper-V does not provide a way to change the connect CPU once
++	 * it is set; we must prevent the connect CPU from going offline.
++	 */
++	if (cpu == VMBUS_CONNECT_CPU)
++		return -EBUSY;
++
+ 	/*
+ 	 * Search for channels which are bound to the CPU we're about to
+ 	 * cleanup. In case we find one and vmbus is still connected we need to
+diff --git a/drivers/hv/hyperv_vmbus.h b/drivers/hv/hyperv_vmbus.h
+index af9379a3bf89..cabcb66e7c5e 100644
+--- a/drivers/hv/hyperv_vmbus.h
++++ b/drivers/hv/hyperv_vmbus.h
+@@ -212,12 +212,13 @@ enum vmbus_connect_state {
  
--	dest = kmalloc(sizeof(struct audit_netlink_list), GFP_KERNEL);
-+	dest = kmalloc(sizeof(*dest), GFP_KERNEL);
- 	if (!dest)
- 		return -ENOMEM;
--	dest->net = get_net(net);
--	dest->portid = portid;
-+	dest->net = get_net(sock_net(NETLINK_CB(request_skb).sk));
-+	dest->portid = NETLINK_CB(request_skb).portid;
- 	skb_queue_head_init(&dest->q);
+ #define MAX_SIZE_CHANNEL_MESSAGE	HV_MESSAGE_PAYLOAD_BYTE_COUNT
  
- 	mutex_lock(&audit_filter_mutex);
- 	audit_list_rules(seq, &dest->q);
- 	mutex_unlock(&audit_filter_mutex);
+-struct vmbus_connection {
+-	/*
+-	 * CPU on which the initial host contact was made.
+-	 */
+-	int connect_cpu;
++/*
++ * The CPU that Hyper-V will interrupt for VMBUS messages, such as
++ * CHANNELMSG_OFFERCHANNEL and CHANNELMSG_RESCIND_CHANNELOFFER.
++ */
++#define VMBUS_CONNECT_CPU	0
  
--	tsk = kthread_run(audit_send_list, dest, "audit_send_list");
-+	tsk = kthread_run(audit_send_list_thread, dest, "audit_send_list");
- 	if (IS_ERR(tsk)) {
- 		skb_queue_purge(&dest->q);
-+		put_net(dest->net);
- 		kfree(dest);
--		err = PTR_ERR(tsk);
-+		return PTR_ERR(tsk);
- 	}
++struct vmbus_connection {
+ 	u32 msg_conn_id;
  
--	return err;
-+	return 0;
+ 	atomic_t offer_in_progress;
+diff --git a/drivers/hv/vmbus_drv.c b/drivers/hv/vmbus_drv.c
+index 9cdd434bb340..160ff640485b 100644
+--- a/drivers/hv/vmbus_drv.c
++++ b/drivers/hv/vmbus_drv.c
+@@ -1092,14 +1092,28 @@ void vmbus_on_msg_dpc(unsigned long data)
+ 			/*
+ 			 * If we are handling the rescind message;
+ 			 * schedule the work on the global work queue.
++			 *
++			 * The OFFER message and the RESCIND message should
++			 * not be handled by the same serialized work queue,
++			 * because the OFFER handler may call vmbus_open(),
++			 * which tries to open the channel by sending an
++			 * OPEN_CHANNEL message to the host and waits for
++			 * the host's response; however, if the host has
++			 * rescinded the channel before it receives the
++			 * OPEN_CHANNEL message, the host just silently
++			 * ignores the OPEN_CHANNEL message; as a result,
++			 * the guest's OFFER handler hangs for ever, if we
++			 * handle the RESCIND message in the same serialized
++			 * work queue: the RESCIND handler can not start to
++			 * run before the OFFER handler finishes.
+ 			 */
+-			schedule_work_on(vmbus_connection.connect_cpu,
++			schedule_work_on(VMBUS_CONNECT_CPU,
+ 					 &ctx->work);
+ 			break;
+ 
+ 		case CHANNELMSG_OFFERCHANNEL:
+ 			atomic_inc(&vmbus_connection.offer_in_progress);
+-			queue_work_on(vmbus_connection.connect_cpu,
++			queue_work_on(VMBUS_CONNECT_CPU,
+ 				      vmbus_connection.work_queue,
+ 				      &ctx->work);
+ 			break;
+@@ -1146,7 +1160,7 @@ static void vmbus_force_channel_rescinded(struct vmbus_channel *channel)
+ 
+ 	INIT_WORK(&ctx->work, vmbus_onmessage_work);
+ 
+-	queue_work_on(vmbus_connection.connect_cpu,
++	queue_work_on(VMBUS_CONNECT_CPU,
+ 		      vmbus_connection.work_queue,
+ 		      &ctx->work);
  }
- 
- int audit_comparator(u32 left, u32 op, u32 right)
 -- 
 2.25.1
 
