@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DF0F1F3120
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 03:07:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A5041F310E
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 03:06:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728085AbgFIBGK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 21:06:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51016 "EHLO mail.kernel.org"
+        id S1727830AbgFHXHN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 19:07:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51062 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727812AbgFHXHK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:07:10 -0400
+        id S1727815AbgFHXHM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:07:12 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 63B41208FE;
-        Mon,  8 Jun 2020 23:07:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9E6E520888;
+        Mon,  8 Jun 2020 23:07:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591657630;
-        bh=fsEGIbz/4fPJrX1KDAkRizHiHWLMOJDJ+GaVZBcdVZg=;
+        s=default; t=1591657631;
+        bh=CnVp9pwpDTm0m2p+hSbXaay1pQhH2Cr6uUvMrwh7L4Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aI6GHyKmWLXMKv0pktwtRNZ83P8eY9hvwHbvrGEPYmfEfu3pGdSk13JL5GmIHzsJX
-         NbAgfiLypM89nWkL6r1N9CzJpSEQ+5xs1pTSDA1YTXUgRytpjExiRk8DMUFrch/lZd
-         ddJfW45LyU1gFD/sqgM1+dHD8Iv9ojmuhld4iPoQ=
+        b=asC0ZA2Kf7DQBdLkqrlomrj2p18prOf9rXA/3a50M2saW74UL/sxWig7wuYS/0Trk
+         cj2JzGb8u6WKcAG7IwLwbv2PwcYcx0IvfywyL4gfHw4gR4QyZBjxczCf1hE0GCw887
+         VIojbkv2t5sHzIVeHdN0ameH6FJGoZM2I96Njzbs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Koba Ko <koba.ko@canonical.com>,
-        Mario Limonciello <Mario.limonciello@dell.com>,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        platform-driver-x86@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.7 049/274] platform/x86: dell-laptop: don't register micmute LED if there is no token
-Date:   Mon,  8 Jun 2020 19:02:22 -0400
-Message-Id: <20200608230607.3361041-49-sashal@kernel.org>
+Cc:     Ulf Hansson <ulf.hansson@linaro.org>,
+        Lina Iyer <ilina@codeaurora.org>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.7 050/274] cpuidle: psci: Fixup execution order when entering a domain idle state
+Date:   Mon,  8 Jun 2020 19:02:23 -0400
+Message-Id: <20200608230607.3361041-50-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608230607.3361041-1-sashal@kernel.org>
 References: <20200608230607.3361041-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -47,52 +46,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Koba Ko <koba.ko@canonical.com>
+From: Ulf Hansson <ulf.hansson@linaro.org>
 
-[ Upstream commit 257e03a334ccb96e657bf5f6ab3b5693a22c2aa4 ]
+[ Upstream commit 8b7ce5e49049ca78c238f03d70569a73da049f32 ]
 
-On Dell G3-3590, error message is issued during boot up,
-"platform::micmute: Setting an LED's brightness failed (-19)",
-but there's no micmute led on the machine.
+Moving forward, platforms are going to need to execute specific "last-man"
+operations before a domain idle state can be entered. In one way or the
+other, these operations needs to be triggered while walking the
+hierarchical topology via runtime PM and genpd, as it's at that point the
+last-man becomes known.
 
-Get the related tokens of SMBIOS, GLOBAL_MIC_MUTE_DISABLE/ENABLE.
-If one of two tokens doesn't exist,
-don't call led_classdev_register() for platform::micmute.
-After that, you wouldn't see the platform::micmute in /sys/class/leds/,
-and the error message wouldn't see in dmesg.
+Moreover, executing last-man operations needs to be done after the CPU PM
+notifications are sent through cpu_pm_enter(), as otherwise it's likely
+that some notifications would fail. Therefore, let's re-order the sequence
+in psci_enter_domain_idle_state(), so cpu_pm_enter() gets called prior
+pm_runtime_put_sync().
 
-Fixes: d00fa46e0a2c6 ("platform/x86: dell-laptop: Add micmute LED trigger support")
-Signed-off-by: Koba Ko <koba.ko@canonical.com>
-Reviewed-by: Mario Limonciello <Mario.limonciello@dell.com>
-Reviewed-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Fixes: ce85aef570df ("cpuidle: psci: Manage runtime PM in the idle path")
+Reported-by: Lina Iyer <ilina@codeaurora.org>
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Acked-by: Sudeep Holla <sudeep.holla@arm.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/dell-laptop.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ drivers/cpuidle/cpuidle-psci.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/platform/x86/dell-laptop.c b/drivers/platform/x86/dell-laptop.c
-index f8d3e3bd1bb5..5e9c2296931c 100644
---- a/drivers/platform/x86/dell-laptop.c
-+++ b/drivers/platform/x86/dell-laptop.c
-@@ -2204,10 +2204,13 @@ static int __init dell_init(void)
+diff --git a/drivers/cpuidle/cpuidle-psci.c b/drivers/cpuidle/cpuidle-psci.c
+index bae9140a65a5..d0fb585073c6 100644
+--- a/drivers/cpuidle/cpuidle-psci.c
++++ b/drivers/cpuidle/cpuidle-psci.c
+@@ -58,6 +58,10 @@ static int psci_enter_domain_idle_state(struct cpuidle_device *dev,
+ 	u32 state;
+ 	int ret;
  
- 	dell_laptop_register_notifier(&dell_laptop_notifier);
++	ret = cpu_pm_enter();
++	if (ret)
++		return -1;
++
+ 	/* Do runtime PM to manage a hierarchical CPU toplogy. */
+ 	pm_runtime_put_sync_suspend(pd_dev);
  
--	micmute_led_cdev.brightness = ledtrig_audio_get(LED_AUDIO_MICMUTE);
--	ret = led_classdev_register(&platform_device->dev, &micmute_led_cdev);
--	if (ret < 0)
--		goto fail_led;
-+	if (dell_smbios_find_token(GLOBAL_MIC_MUTE_DISABLE) &&
-+	    dell_smbios_find_token(GLOBAL_MIC_MUTE_ENABLE)) {
-+		micmute_led_cdev.brightness = ledtrig_audio_get(LED_AUDIO_MICMUTE);
-+		ret = led_classdev_register(&platform_device->dev, &micmute_led_cdev);
-+		if (ret < 0)
-+			goto fail_led;
-+	}
+@@ -65,10 +69,12 @@ static int psci_enter_domain_idle_state(struct cpuidle_device *dev,
+ 	if (!state)
+ 		state = states[idx];
  
- 	if (acpi_video_get_backlight_type() != acpi_backlight_vendor)
- 		return 0;
+-	ret = psci_enter_state(idx, state);
++	ret = psci_cpu_suspend_enter(state) ? -1 : idx;
+ 
+ 	pm_runtime_get_sync(pd_dev);
+ 
++	cpu_pm_exit();
++
+ 	/* Clear the domain state to start fresh when back from idle. */
+ 	psci_set_domain_state(0);
+ 	return ret;
 -- 
 2.25.1
 
