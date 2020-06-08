@@ -2,48 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DB0051F195C
-	for <lists+stable@lfdr.de>; Mon,  8 Jun 2020 14:56:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C15F21F195F
+	for <lists+stable@lfdr.de>; Mon,  8 Jun 2020 14:56:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729867AbgFHMys (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 08:54:48 -0400
-Received: from mga07.intel.com ([134.134.136.100]:24195 "EHLO mga07.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729850AbgFHMyg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 08:54:36 -0400
-IronPort-SDR: snJx6xfWjuoPNWsFzf7tHGIShaueZ2tltCofjzLLzm6y+UgjCNosoFSPv0oY+OjV/rYGKSuug6
- Od+7CZt2ATFg==
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga003.jf.intel.com ([10.7.209.27])
-  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Jun 2020 05:54:35 -0700
-IronPort-SDR: 1b8quhAFTc0jTTKs/rYqChdSLNXYuK3WRXwZzr9Psx945UHNW9hL4q5aATK7R5VRm2CTBOEsrw
- gwZgyTA08fxg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.73,487,1583222400"; 
-   d="scan'208";a="270496420"
-Received: from black.fi.intel.com ([10.237.72.28])
-  by orsmga003.jf.intel.com with ESMTP; 08 Jun 2020 05:54:31 -0700
-Received: by black.fi.intel.com (Postfix, from userid 1000)
-        id B8D1D25A; Mon,  8 Jun 2020 15:54:30 +0300 (EEST)
-From:   "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
-To:     Dave Hansen <dave.hansen@linux.intel.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        "H. Peter Anvin" <hpa@zytor.com>
-Cc:     Dan Williams <dan.j.williams@intel.com>,
-        Tony Luck <tony.luck@intel.com>, x86@kernel.org,
-        linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Dave Hansen <dave.hansen@intel.com>, stable@vger.kernel.org
-Subject: [PATCHv2 2/2] x86/boot/KASLR: Fix boot with some memory above MAXMEM
-Date:   Mon,  8 Jun 2020 15:54:24 +0300
-Message-Id: <20200608125424.70198-3-kirill.shutemov@linux.intel.com>
-X-Mailer: git-send-email 2.27.0.rc2
-In-Reply-To: <20200608125424.70198-1-kirill.shutemov@linux.intel.com>
-References: <20200608125424.70198-1-kirill.shutemov@linux.intel.com>
+        id S1729452AbgFHMyx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 08:54:53 -0400
+Received: from mail.fireflyinternet.com ([109.228.58.192]:61171 "EHLO
+        fireflyinternet.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1729578AbgFHMyt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 8 Jun 2020 08:54:49 -0400
+X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
+Received: from build.alporthouse.com (unverified [78.156.65.138]) 
+        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 21431026-1500050 
+        for multiple; Mon, 08 Jun 2020 13:54:39 +0100
+From:   Chris Wilson <chris@chris-wilson.co.uk>
+To:     intel-gfx@lists.freedesktop.org
+Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
+        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
+        stable@vger.kernel.org
+Subject: [PATCH v2] drm/i915/gt: Prevent enabling breadcrumbs on the virtual engine
+Date:   Mon,  8 Jun 2020 13:54:38 +0100
+Message-Id: <20200608125438.28700-1-chris@chris-wilson.co.uk>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20200608102845.26194-1-chris@chris-wilson.co.uk>
+References: <20200608102845.26194-1-chris@chris-wilson.co.uk>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
@@ -51,44 +33,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-A 5-level paging capable machine can have memory above 46-bit in the
-physical address space. This memory is only addressable in the 5-level
-paging mode: we don't have enough virtual address space to create direct
-mapping for such memory in the 4-level paging mode
+The virtual engines are not connected directly to hardware, so do not
+generate interrupts themselves, nor do we expect to enable breadcrumb
+tracking on them. However, if we clear out a stale virtual request, we
+will process the breadcrumbs on the current virtual engine. Here, we
+only need to add the delayed signal onto the stale signal queue, and
+send the signal once clear of the engine locks. In the meantime, this
+may be transferred onto the next sibling if we execute the next virtual
+request before the work is completed.
 
-Teach KASLR to avoid memory regions above MAXMEM or truncate the region
-if the end is above MAXMEM.
+The effect of losing tracking of the virtual breadcrumb interrupt is
+that we leak the GT wakeref, keeping the device awake.
 
-Signed-off-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Reviewed-by: Dave Hansen <dave.hansen@intel.com>
-Cc: stable@vger.kernel.org # v4.14
+Reported-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Fixes: b647c7df01b7 ("drm/i915: Fixup preempt-to-busy vs resubmission of a virtual request")
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Cc: <stable@vger.kernel.org> # v5.5+
 ---
- arch/x86/boot/compressed/kaslr.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/gpu/drm/i915/gt/intel_breadcrumbs.c | 6 ++++++
+ drivers/gpu/drm/i915/gt/intel_engine_cs.c   | 3 +++
+ drivers/gpu/drm/i915/gt/intel_lrc.c         | 2 ++
+ 3 files changed, 11 insertions(+)
 
-diff --git a/arch/x86/boot/compressed/kaslr.c b/arch/x86/boot/compressed/kaslr.c
-index d7408af55738..99db18eeb40e 100644
---- a/arch/x86/boot/compressed/kaslr.c
-+++ b/arch/x86/boot/compressed/kaslr.c
-@@ -695,7 +695,18 @@ static bool process_mem_region(struct mem_vector *region,
- 			       unsigned long long minimum,
- 			       unsigned long long image_size)
+diff --git a/drivers/gpu/drm/i915/gt/intel_breadcrumbs.c b/drivers/gpu/drm/i915/gt/intel_breadcrumbs.c
+index d907d538176e..9eaf3dc17c99 100644
+--- a/drivers/gpu/drm/i915/gt/intel_breadcrumbs.c
++++ b/drivers/gpu/drm/i915/gt/intel_breadcrumbs.c
+@@ -225,6 +225,9 @@ static bool __intel_breadcrumbs_arm_irq(struct intel_breadcrumbs *b)
+ 	struct intel_engine_cs *engine =
+ 		container_of(b, struct intel_engine_cs, breadcrumbs);
+ 
++	if (intel_engine_is_virtual(engine))
++		return true;
++
+ 	lockdep_assert_held(&b->irq_lock);
+ 	if (b->irq_armed)
+ 		return true;
+@@ -308,6 +311,9 @@ void intel_engine_transfer_stale_breadcrumbs(struct intel_engine_cs *engine,
+ 
+ void intel_engine_fini_breadcrumbs(struct intel_engine_cs *engine)
  {
-+	unsigned long long end;
- 	int i;
++	struct intel_breadcrumbs *b = &engine->breadcrumbs;
 +
-+	/* Cannot access memory region above MAXMEM: skip it. */
-+	if (region->start >= MAXMEM)
-+		return 0;
++	GEM_BUG_ON(atomic_read(&b->irq_work.flags));
+ }
+ 
+ bool i915_request_enable_breadcrumb(struct i915_request *rq)
+diff --git a/drivers/gpu/drm/i915/gt/intel_engine_cs.c b/drivers/gpu/drm/i915/gt/intel_engine_cs.c
+index e5141a897786..4f2c348aa32c 100644
+--- a/drivers/gpu/drm/i915/gt/intel_engine_cs.c
++++ b/drivers/gpu/drm/i915/gt/intel_engine_cs.c
+@@ -1515,6 +1515,9 @@ void intel_engine_dump(struct intel_engine_cs *engine,
+ 		drm_printf(m, "*** WEDGED ***\n");
+ 
+ 	drm_printf(m, "\tAwake? %d\n", atomic_read(&engine->wakeref.count));
++	drm_printf(m, "\tBreadcrumbs? armed:%s, signalers:%s\n",
++		   yesno(engine->breadcrumbs.irq_armed),
++		   yesno(!list_empty(&engine->breadcrumbs.signalers)));
+ 	drm_printf(m, "\tBarriers?: %s\n",
+ 		   yesno(!llist_empty(&engine->barrier_tasks)));
+ 	drm_printf(m, "\tLatency: %luus\n",
+diff --git a/drivers/gpu/drm/i915/gt/intel_lrc.c b/drivers/gpu/drm/i915/gt/intel_lrc.c
+index d55a5e0466e5..9d932e985d96 100644
+--- a/drivers/gpu/drm/i915/gt/intel_lrc.c
++++ b/drivers/gpu/drm/i915/gt/intel_lrc.c
+@@ -5339,6 +5339,8 @@ static void virtual_context_destroy(struct kref *kref)
+ 	GEM_BUG_ON(ve->request);
+ 	GEM_BUG_ON(ve->context.inflight);
+ 
++	intel_engine_fini_breadcrumbs(&ve->base);
 +
-+	/* Truncate the region if the end is above MAXMEM */
-+	end = region->start + region->size;
-+	end = min_t(unsigned long long, end, MAXMEM - 1);
-+	region->size = end - region->start;
-+
- 	/*
- 	 * If no immovable memory found, or MEMORY_HOTREMOVE disabled,
- 	 * use @region directly.
+ 	for (n = 0; n < ve->num_siblings; n++) {
+ 		struct intel_engine_cs *sibling = ve->siblings[n];
+ 		struct rb_node *node = &ve->nodes[sibling->id].rb;
 -- 
-2.26.2
+2.20.1
 
