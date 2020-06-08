@@ -2,34 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D3E81F2886
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:56:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 319401F2883
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:56:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731831AbgFHXxn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1732609AbgFHXxn (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 8 Jun 2020 19:53:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50320 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:50416 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731610AbgFHXYV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:24:21 -0400
+        id S1731266AbgFHXYX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:24:23 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 065FC2087E;
-        Mon,  8 Jun 2020 23:24:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 01BC9208E4;
+        Mon,  8 Jun 2020 23:24:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658661;
-        bh=DHBRFXpIxPF1VNe8ybMO2CoC+qFMUHZwChE270UunJw=;
+        s=default; t=1591658663;
+        bh=IOZWJSLAfCXni2wXh/hljcXuStlMCsfYOW6iECGONUk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jqIjmIhiDaP3S+c8UTiAconzpgN/+gHtEi85VNRhE/Krh5bDSRP/Bybmziq/SxVde
-         geDQ6D1wHOmjB0kyjwlkMGaBPnCuK8eZwdxmGp9EaMboZAGXwW0TOlFZCcsKFmAwYT
-         1C/vGVQn8A8dG0dc8NRZj6xVKkbRowoSJGncGgV0=
+        b=USmhyISbgNc+FTVrMJ4I7mlxBzr0mcJdQzm7Tx/LCZNgzjCZnsJdCo3Vgw7B5rsFB
+         fnJ3cugj09iS/XuPsLG7i45l1oIE4M527PTXM2fnkRUjhX2yfFM+dJBtlWzPcaj8LZ
+         DpLpUHSaha1MFBk7uSH8z4f4eTAebT1cxseibPz4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arvind Sankar <nivedita@alum.mit.edu>,
-        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 078/106] x86/boot: Correct relocation destination on old linkers
-Date:   Mon,  8 Jun 2020 19:22:10 -0400
-Message-Id: <20200608232238.3368589-78-sashal@kernel.org>
+Cc:     Serge Semin <Sergey.Semin@baikalelectronics.ru>,
+        Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Paul Burton <paulburton@kernel.org>,
+        Ralf Baechle <ralf@linux-mips.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Rob Herring <robh+dt@kernel.org>, devicetree@vger.kernel.org,
+        Sasha Levin <sashal@kernel.org>, linux-mips@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 079/106] mips: MAAR: Use more precise address mask
+Date:   Mon,  8 Jun 2020 19:22:11 -0400
+Message-Id: <20200608232238.3368589-79-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608232238.3368589-1-sashal@kernel.org>
 References: <20200608232238.3368589-1-sashal@kernel.org>
@@ -42,112 +48,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arvind Sankar <nivedita@alum.mit.edu>
+From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
 
-[ Upstream commit 5214028dd89e49ba27007c3ee475279e584261f0 ]
+[ Upstream commit bbb5946eb545fab8ad8f46bce8a803e1c0c39d47 ]
 
-For the 32-bit kernel, as described in
+Indeed according to the MIPS32 Privileged Resource Architecgture the MAAR
+pair register address field either takes [12:31] bits for non-XPA systems
+and [12:55] otherwise. In any case the current address mask is just
+wrong for 64-bit and 32-bits XPA chips. So lets extend it to 59-bits
+of physical address value. This shall cover the 64-bits architecture and
+systems with XPA enabled, and won't cause any problem for non-XPA 32-bit
+systems, since address values exceeding the architecture specific MAAR
+mask will be just truncated with setting zeros in the unsupported upper
+bits.
 
-  6d92bc9d483a ("x86/build: Build compressed x86 kernels as PIE"),
-
-pre-2.26 binutils generates R_386_32 relocations in PIE mode. Since the
-startup code does not perform relocation, any reloc entry with R_386_32
-will remain as 0 in the executing code.
-
-Commit
-
-  974f221c84b0 ("x86/boot: Move compressed kernel to the end of the
-                 decompression buffer")
-
-added a new symbol _end but did not mark it hidden, which doesn't give
-the correct offset on older linkers. This causes the compressed kernel
-to be copied beyond the end of the decompression buffer, rather than
-flush against it. This region of memory may be reserved or already
-allocated for other purposes by the bootloader.
-
-Mark _end as hidden to fix. This changes the relocation from R_386_32 to
-R_386_RELATIVE even on the pre-2.26 binutils.
-
-For 64-bit, this is not strictly necessary, as the 64-bit kernel is only
-built as PIE if the linker supports -z noreloc-overflow, which implies
-binutils-2.27+, but for consistency, mark _end as hidden here too.
-
-The below illustrates the before/after impact of the patch using
-binutils-2.25 and gcc-4.6.4 (locally compiled from source) and QEMU.
-
-  Disassembly before patch:
-    48:   8b 86 60 02 00 00       mov    0x260(%esi),%eax
-    4e:   2d 00 00 00 00          sub    $0x0,%eax
-                          4f: R_386_32    _end
-  Disassembly after patch:
-    48:   8b 86 60 02 00 00       mov    0x260(%esi),%eax
-    4e:   2d 00 f0 76 00          sub    $0x76f000,%eax
-                          4f: R_386_RELATIVE      *ABS*
-
-Dump from extract_kernel before patch:
-	early console in extract_kernel
-	input_data: 0x0207c098 <--- this is at output + init_size
-	input_len: 0x0074fef1
-	output: 0x01000000
-	output_len: 0x00fa63d0
-	kernel_total_size: 0x0107c000
-	needed_size: 0x0107c000
-
-Dump from extract_kernel after patch:
-	early console in extract_kernel
-	input_data: 0x0190d098 <--- this is at output + init_size - _end
-	input_len: 0x0074fef1
-	output: 0x01000000
-	output_len: 0x00fa63d0
-	kernel_total_size: 0x0107c000
-	needed_size: 0x0107c000
-
-Fixes: 974f221c84b0 ("x86/boot: Move compressed kernel to the end of the decompression buffer")
-Signed-off-by: Arvind Sankar <nivedita@alum.mit.edu>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lkml.kernel.org/r/20200207214926.3564079-1-nivedita@alum.mit.edu
+Co-developed-by: Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>
+Signed-off-by: Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>
+Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Cc: Paul Burton <paulburton@kernel.org>
+Cc: Ralf Baechle <ralf@linux-mips.org>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Rob Herring <robh+dt@kernel.org>
+Cc: devicetree@vger.kernel.org
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/boot/compressed/head_32.S | 5 +++--
- arch/x86/boot/compressed/head_64.S | 1 +
- 2 files changed, 4 insertions(+), 2 deletions(-)
+ arch/mips/include/asm/mipsregs.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/boot/compressed/head_32.S b/arch/x86/boot/compressed/head_32.S
-index 01d628ea3402..c6c4b877f3d2 100644
---- a/arch/x86/boot/compressed/head_32.S
-+++ b/arch/x86/boot/compressed/head_32.S
-@@ -49,16 +49,17 @@
-  * Position Independent Executable (PIE) so that linker won't optimize
-  * R_386_GOT32X relocation to its fixed symbol address.  Older
-  * linkers generate R_386_32 relocations against locally defined symbols,
-- * _bss, _ebss, _got and _egot, in PIE.  It isn't wrong, just less
-+ * _bss, _ebss, _got, _egot and _end, in PIE.  It isn't wrong, just less
-  * optimal than R_386_RELATIVE.  But the x86 kernel fails to properly handle
-  * R_386_32 relocations when relocating the kernel.  To generate
-- * R_386_RELATIVE relocations, we mark _bss, _ebss, _got and _egot as
-+ * R_386_RELATIVE relocations, we mark _bss, _ebss, _got, _egot and _end as
-  * hidden:
-  */
- 	.hidden _bss
- 	.hidden _ebss
- 	.hidden _got
- 	.hidden _egot
-+	.hidden _end
+diff --git a/arch/mips/include/asm/mipsregs.h b/arch/mips/include/asm/mipsregs.h
+index 1bb9448777c5..f9a7c137be9f 100644
+--- a/arch/mips/include/asm/mipsregs.h
++++ b/arch/mips/include/asm/mipsregs.h
+@@ -749,7 +749,7 @@
  
- 	__HEAD
- ENTRY(startup_32)
-diff --git a/arch/x86/boot/compressed/head_64.S b/arch/x86/boot/compressed/head_64.S
-index 9fa644c62839..474733f8b330 100644
---- a/arch/x86/boot/compressed/head_64.S
-+++ b/arch/x86/boot/compressed/head_64.S
-@@ -42,6 +42,7 @@
- 	.hidden _ebss
- 	.hidden _got
- 	.hidden _egot
-+	.hidden _end
- 
- 	__HEAD
- 	.code32
+ /* MAAR bit definitions */
+ #define MIPS_MAAR_VH		(_U64CAST_(1) << 63)
+-#define MIPS_MAAR_ADDR		((BIT_ULL(BITS_PER_LONG - 12) - 1) << 12)
++#define MIPS_MAAR_ADDR		GENMASK_ULL(55, 12)
+ #define MIPS_MAAR_ADDR_SHIFT	12
+ #define MIPS_MAAR_S		(_ULCAST_(1) << 1)
+ #define MIPS_MAAR_VL		(_ULCAST_(1) << 0)
 -- 
 2.25.1
 
