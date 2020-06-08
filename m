@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 323601F2D0A
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:30:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B0B61F2F55
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:50:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730221AbgFIAa3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 20:30:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36838 "EHLO mail.kernel.org"
+        id S1729059AbgFIAto (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 20:49:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56910 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730089AbgFHXPo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:15:44 -0400
+        id S1728740AbgFHXKl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:10:41 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D3B9220659;
-        Mon,  8 Jun 2020 23:15:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1DDF8208FE;
+        Mon,  8 Jun 2020 23:10:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658144;
-        bh=NIvfnbAIw5QiLc2iBkfIAXHTrtRPZKfqnsnYAz9ZcoA=;
+        s=default; t=1591657841;
+        bh=/WXHUUPc1w97z44Y0YVUkz4p30wFHJ30MGCDQ+SgazA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zAxxxOiPCejfHMqXscA2CSRKCvkRBq0/TkIGlgCdQbm4O9rOx60/9FHTj+D9Hcm/H
-         2MdfuaqIumRBfCjavvluZ2v6QX8VH+RV9sFfdZtlZfa8thuzxoObCsw+v85XT4zL0U
-         KhN36uMRH3HNZf0Hc9S6c52bnAxw6006N2JDdHWs=
+        b=snqut+Tl/I+yd/9hD/fbPvVLEMVTIXg20kbpJsJfHLdMNak9uUFjDcs1/CdKm982P
+         axEI+dM5VUtgpqtQ1Uw7Sp6Smw49Uha+cUUb/ms3pkaXXLbIprktRWumWPjWwNqYdr
+         Q7TRwqhmGqNBN8jzkjeFUR01c5AnoVb9kEMcZC/k=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Gregory CLEMENT <gregory.clement@bootlin.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-iio@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.6 177/606] iio: adc: ti-ads8344: Fix channel selection
+Cc:     Alex Elder <elder@linaro.org>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.7 209/274] net: ipa: do not clear interrupt in gsi_channel_start()
 Date:   Mon,  8 Jun 2020 19:05:02 -0400
-Message-Id: <20200608231211.3363633-177-sashal@kernel.org>
+Message-Id: <20200608230607.3361041-209-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200608231211.3363633-1-sashal@kernel.org>
-References: <20200608231211.3363633-1-sashal@kernel.org>
+In-Reply-To: <20200608230607.3361041-1-sashal@kernel.org>
+References: <20200608230607.3361041-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -45,71 +43,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gregory CLEMENT <gregory.clement@bootlin.com>
+From: Alex Elder <elder@linaro.org>
 
-commit bcfa1e253d2e329e1ebab5c89f3c73f6dd17606c upstream.
+[ Upstream commit 195ef57f870070cb02f2f3b99a63d69e8e8f798e ]
 
-During initial submission the selection of the channel was done using
-the scan_index member of the iio_chan_spec structure. It was an abuse
-because this member is supposed to be used with a buffer so it was
-removed.
+In gsi_channel_start() there is harmless-looking comment "Clear the
+channel's event ring interrupt in case it's pending".  The intent
+was to avoid getting spurious interrupts when first bringing up a
+channel.
 
-However there was still the need to be able to known how to select a
-channel, the correct member to store this information is address.
+However we now use channel stop/start to implement suspend and
+resume, and an interrupt pending at the time we resume is actually
+something we don't want to ignore.
 
-Thanks to this it is possible to select any other channel than the
-channel 0.
+The very first time we bring up the channel we do not expect an
+interrupt to be pending, and even if it were, the effect would
+simply be to schedule NAPI on that channel, which would find nothing
+to do, which is not a problem.
 
-Fixes: 8dd2d7c0fed7 ("iio: adc: Add driver for the TI ADS8344 A/DC chips")
-Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Stop clearing any pending IEOB interrupt in gsi_channel_start().
+That leaves one caller of the trivial function gsi_isr_ieob_clear().
+Get rid of that function and just open-code it in gsi_isr_ieob()
+instead.
+
+This fixes a problem where suspend/resume IPA v4.2 would get stuck
+when resuming after a suspend.
+
+Signed-off-by: Alex Elder <elder@linaro.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/adc/ti-ads8344.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/net/ipa/gsi.c | 11 +----------
+ 1 file changed, 1 insertion(+), 10 deletions(-)
 
-diff --git a/drivers/iio/adc/ti-ads8344.c b/drivers/iio/adc/ti-ads8344.c
-index abe4b56c847c..8a8792010c20 100644
---- a/drivers/iio/adc/ti-ads8344.c
-+++ b/drivers/iio/adc/ti-ads8344.c
-@@ -32,16 +32,17 @@ struct ads8344 {
- 	u8 rx_buf[3];
- };
+diff --git a/drivers/net/ipa/gsi.c b/drivers/net/ipa/gsi.c
+index 8d9ca1c335e8..043a675e1be1 100644
+--- a/drivers/net/ipa/gsi.c
++++ b/drivers/net/ipa/gsi.c
+@@ -238,11 +238,6 @@ static void gsi_irq_ieob_enable(struct gsi *gsi, u32 evt_ring_id)
+ 	iowrite32(val, gsi->virt + GSI_CNTXT_SRC_IEOB_IRQ_MSK_OFFSET);
+ }
  
--#define ADS8344_VOLTAGE_CHANNEL(chan, si)				\
-+#define ADS8344_VOLTAGE_CHANNEL(chan, addr)				\
- 	{								\
- 		.type = IIO_VOLTAGE,					\
- 		.indexed = 1,						\
- 		.channel = chan,					\
- 		.info_mask_separate = BIT(IIO_CHAN_INFO_RAW),		\
- 		.info_mask_shared_by_type = BIT(IIO_CHAN_INFO_SCALE),	\
-+		.address = addr,					\
- 	}
+-static void gsi_isr_ieob_clear(struct gsi *gsi, u32 mask)
+-{
+-	iowrite32(mask, gsi->virt + GSI_CNTXT_SRC_IEOB_IRQ_CLR_OFFSET);
+-}
+-
+ static void gsi_irq_ieob_disable(struct gsi *gsi, u32 evt_ring_id)
+ {
+ 	u32 val;
+@@ -756,7 +751,6 @@ static void gsi_channel_deprogram(struct gsi_channel *channel)
+ int gsi_channel_start(struct gsi *gsi, u32 channel_id)
+ {
+ 	struct gsi_channel *channel = &gsi->channel[channel_id];
+-	u32 evt_ring_id = channel->evt_ring_id;
+ 	int ret;
  
--#define ADS8344_VOLTAGE_CHANNEL_DIFF(chan1, chan2, si)			\
-+#define ADS8344_VOLTAGE_CHANNEL_DIFF(chan1, chan2, addr)		\
- 	{								\
- 		.type = IIO_VOLTAGE,					\
- 		.indexed = 1,						\
-@@ -50,6 +51,7 @@ struct ads8344 {
- 		.differential = 1,					\
- 		.info_mask_separate = BIT(IIO_CHAN_INFO_RAW),		\
- 		.info_mask_shared_by_type = BIT(IIO_CHAN_INFO_SCALE),	\
-+		.address = addr,					\
- 	}
+ 	mutex_lock(&gsi->mutex);
+@@ -765,9 +759,6 @@ int gsi_channel_start(struct gsi *gsi, u32 channel_id)
  
- static const struct iio_chan_spec ads8344_channels[] = {
-@@ -105,7 +107,7 @@ static int ads8344_read_raw(struct iio_dev *iio,
- 	switch (mask) {
- 	case IIO_CHAN_INFO_RAW:
- 		mutex_lock(&adc->lock);
--		*value = ads8344_adc_conversion(adc, channel->scan_index,
-+		*value = ads8344_adc_conversion(adc, channel->address,
- 						channel->differential);
- 		mutex_unlock(&adc->lock);
- 		if (*value < 0)
+ 	mutex_unlock(&gsi->mutex);
+ 
+-	/* Clear the channel's event ring interrupt in case it's pending */
+-	gsi_isr_ieob_clear(gsi, BIT(evt_ring_id));
+-
+ 	gsi_channel_thaw(channel);
+ 
+ 	return ret;
+@@ -1071,7 +1062,7 @@ static void gsi_isr_ieob(struct gsi *gsi)
+ 	u32 event_mask;
+ 
+ 	event_mask = ioread32(gsi->virt + GSI_CNTXT_SRC_IEOB_IRQ_OFFSET);
+-	gsi_isr_ieob_clear(gsi, event_mask);
++	iowrite32(event_mask, gsi->virt + GSI_CNTXT_SRC_IEOB_IRQ_CLR_OFFSET);
+ 
+ 	while (event_mask) {
+ 		u32 evt_ring_id = __ffs(event_mask);
 -- 
 2.25.1
 
