@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 700B61F2BB6
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:18:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D562A1F2BB9
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:18:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730657AbgFHXSg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 19:18:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40904 "EHLO mail.kernel.org"
+        id S1730444AbgFIASZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 20:18:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40948 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730656AbgFHXSg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:18:36 -0400
+        id S1730660AbgFHXSh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:18:37 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 422DE20842;
-        Mon,  8 Jun 2020 23:18:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 69FD620814;
+        Mon,  8 Jun 2020 23:18:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658316;
-        bh=xfgbRMaYu1U4oFDf4gWpQzShktC0BgPWQW1Ys9OQYtQ=;
+        s=default; t=1591658317;
+        bh=74mmgenOw4MmKp1UIPKTZunpiAwuag71URypgKevze8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oO0SGEFffzgh8rP0vI+FoSaKfMMYo2jj2V7WmX2CzWr3peSFAnOjGqeLNFovLj/Ik
-         7iUvHhZMZ+L1Sxwd40LPIusnToAlNsK9wBWaEAgcB4UcPS0dagk27gkxlbjtF7+Wbo
-         pHYKFaBoxSUwYwlGXsLkN9f+L+fye0XcTlx8nI0M=
+        b=pnY/RZ2WIfZCpi/pGnF1he024wuY7odGsZbVcgIfxHE2fz2J8PY4YP915SBjQaMcu
+         YqXaWo3QdY1y/Qfd7nNO/lIwiNsox9+w0WjAeHcQLZt+CwUTRyXgmh+Q9+kLG0aFFb
+         Aw36ESfwkc4bHPuBA6rA0RmgJK1AxjexY1DOnUok=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tiezhu Yang <yangtiezhu@loongson.cn>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Sasha Levin <sashal@kernel.org>,
-        bcm-kernel-feedback-list@broadcom.com, linux-gpio@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.6 316/606] gpio: bcm-kona: Fix return value of bcm_kona_gpio_probe()
-Date:   Mon,  8 Jun 2020 19:07:21 -0400
-Message-Id: <20200608231211.3363633-316-sashal@kernel.org>
+Cc:     Qiushi Wu <wu000273@umn.edu>, Jason Gunthorpe <jgg@mellanox.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.6 317/606] RDMA/pvrdma: Fix missing pci disable in pvrdma_pci_probe()
+Date:   Mon,  8 Jun 2020 19:07:22 -0400
+Message-Id: <20200608231211.3363633-317-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608231211.3363633-1-sashal@kernel.org>
 References: <20200608231211.3363633-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,35 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tiezhu Yang <yangtiezhu@loongson.cn>
+From: Qiushi Wu <wu000273@umn.edu>
 
-[ Upstream commit 98f7d1b15e87c84488b30ecc4ec753b0690b9dbf ]
+[ Upstream commit db857e6ae548f0f4f4a0f63fffeeedf3cca21f9d ]
 
-Propagate the error code returned by devm_platform_ioremap_resource()
-out of probe() instead of overwriting it.
+In function pvrdma_pci_probe(), pdev was not disabled in one error
+path. Thus replace the jump target “err_free_device” by
+"err_disable_pdev".
 
-Fixes: 72d8cb715477 ("drivers: gpio: bcm-kona: use devm_platform_ioremap_resource()")
-Signed-off-by: Tiezhu Yang <yangtiezhu@loongson.cn>
-[Bartosz: tweaked the commit message]
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Fixes: 29c8d9eba550 ("IB: Add vmw_pvrdma driver")
+Link: https://lore.kernel.org/r/20200523030457.16160-1-wu000273@umn.edu
+Signed-off-by: Qiushi Wu <wu000273@umn.edu>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpio-bcm-kona.c | 2 +-
+ drivers/infiniband/hw/vmw_pvrdma/pvrdma_main.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpio/gpio-bcm-kona.c b/drivers/gpio/gpio-bcm-kona.c
-index baee8c3f06ad..cf3687a7925f 100644
---- a/drivers/gpio/gpio-bcm-kona.c
-+++ b/drivers/gpio/gpio-bcm-kona.c
-@@ -625,7 +625,7 @@ static int bcm_kona_gpio_probe(struct platform_device *pdev)
- 
- 	kona_gpio->reg_base = devm_platform_ioremap_resource(pdev, 0);
- 	if (IS_ERR(kona_gpio->reg_base)) {
--		ret = -ENXIO;
-+		ret = PTR_ERR(kona_gpio->reg_base);
- 		goto err_irq_domain;
+diff --git a/drivers/infiniband/hw/vmw_pvrdma/pvrdma_main.c b/drivers/infiniband/hw/vmw_pvrdma/pvrdma_main.c
+index e580ae9cc55a..780fd2dfc07e 100644
+--- a/drivers/infiniband/hw/vmw_pvrdma/pvrdma_main.c
++++ b/drivers/infiniband/hw/vmw_pvrdma/pvrdma_main.c
+@@ -829,7 +829,7 @@ static int pvrdma_pci_probe(struct pci_dev *pdev,
+ 	    !(pci_resource_flags(pdev, 1) & IORESOURCE_MEM)) {
+ 		dev_err(&pdev->dev, "PCI BAR region not MMIO\n");
+ 		ret = -ENOMEM;
+-		goto err_free_device;
++		goto err_disable_pdev;
  	}
  
+ 	ret = pci_request_regions(pdev, DRV_NAME);
 -- 
 2.25.1
 
