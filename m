@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 305AC1F245D
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:21:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 14CBF1F245F
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:21:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731031AbgFHXUt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 19:20:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44496 "EHLO mail.kernel.org"
+        id S1731044AbgFHXUu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 19:20:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44610 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730294AbgFHXUn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:20:43 -0400
+        id S1730607AbgFHXUs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:20:48 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4FBB12074B;
-        Mon,  8 Jun 2020 23:20:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E319020842;
+        Mon,  8 Jun 2020 23:20:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658443;
-        bh=TuE8F4Kp/1BCyF5lcTqpPvSR2sTnc3LPuZINlKzRv4w=;
+        s=default; t=1591658447;
+        bh=ce0isAu4Cmsi2XbgqA4dLuWU6vjSgdACuLihU0af/wQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zAOljr9cnu7R0ygqXDkDVONURVAGIXQnBMgs1TFdUG2/f80Kw7k4N0Cyhq3Sy78ze
-         kSBiafpkL94WjoE8Xgkc3frGGwleZCGL49vR3faAtJ2s8dNBWvr/cuoBLusiy5riA5
-         QQ2H+RLWpugAynUMhEcgvEUW5cd2Evboi3KAXNs8=
+        b=ke8MWeJAN9T18uwufLUD+3pSOWcG6z7yIPEDvcoSuyvdk6EmMvi/jPspooxGLDUAt
+         OjGOWV9nUIxl4OtdGRvetF6fdI6RyRgHevW8sL7dk01IDJ4gSCt9ytOIAVXX/36fh0
+         F2Bbdphxve6iqEboeWiKaPYHorgtqnZxOY3cyTT8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Doug Berger <opendmb@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>,
-        bcm-kernel-feedback-list@broadcom.com, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 085/175] net: bcmgenet: Fix WoL with password after deep sleep
-Date:   Mon,  8 Jun 2020 19:17:18 -0400
-Message-Id: <20200608231848.3366970-85-sashal@kernel.org>
+Cc:     Peter Zijlstra <peterz@infradead.org>, Qian Cai <cai@lca.pw>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 5.4 089/175] sched/core: Fix illegal RCU from offline CPUs
+Date:   Mon,  8 Jun 2020 19:17:22 -0400
+Message-Id: <20200608231848.3366970-89-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608231848.3366970-1-sashal@kernel.org>
 References: <20200608231848.3366970-1-sashal@kernel.org>
@@ -45,145 +43,152 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Doug Berger <opendmb@gmail.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit 6f7689057a0f10a6c967b9f2759d7a3dc948b930 ]
+[ Upstream commit bf2c59fce4074e55d622089b34be3a6bc95484fb ]
 
-Broadcom STB chips support a deep sleep mode where all register contents
-are lost. Because we were stashing the MagicPacket password into some of
-these registers a suspend into that deep sleep then a resumption would
-not lead to being able to wake-up from MagicPacket with password again.
+In the CPU-offline process, it calls mmdrop() after idle entry and the
+subsequent call to cpuhp_report_idle_dead(). Once execution passes the
+call to rcu_report_dead(), RCU is ignoring the CPU, which results in
+lockdep complaining when mmdrop() uses RCU from either memcg or
+debugobjects below.
 
-Fix this by keeping a software copy of the password and program it
-during suspend.
+Fix it by cleaning up the active_mm state from BP instead. Every arch
+which has CONFIG_HOTPLUG_CPU should have already called idle_task_exit()
+from AP. The only exception is parisc because it switches them to
+&init_mm unconditionally (see smp_boot_one_cpu() and smp_cpu_init()),
+but the patch will still work there because it calls mmgrab(&init_mm) in
+smp_cpu_init() and then should call mmdrop(&init_mm) in finish_cpu().
 
-Fixes: c51de7f3976b ("net: bcmgenet: add Wake-on-LAN support code")
-Suggested-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Doug Berger <opendmb@gmail.com>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+  WARNING: suspicious RCU usage
+  -----------------------------
+  kernel/workqueue.c:710 RCU or wq_pool_mutex should be held!
+
+  other info that might help us debug this:
+
+  RCU used illegally from offline CPU!
+  Call Trace:
+   dump_stack+0xf4/0x164 (unreliable)
+   lockdep_rcu_suspicious+0x140/0x164
+   get_work_pool+0x110/0x150
+   __queue_work+0x1bc/0xca0
+   queue_work_on+0x114/0x120
+   css_release+0x9c/0xc0
+   percpu_ref_put_many+0x204/0x230
+   free_pcp_prepare+0x264/0x570
+   free_unref_page+0x38/0xf0
+   __mmdrop+0x21c/0x2c0
+   idle_task_exit+0x170/0x1b0
+   pnv_smp_cpu_kill_self+0x38/0x2e0
+   cpu_die+0x48/0x64
+   arch_cpu_idle_dead+0x30/0x50
+   do_idle+0x2f4/0x470
+   cpu_startup_entry+0x38/0x40
+   start_secondary+0x7a8/0xa80
+   start_secondary_resume+0x10/0x14
+
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Qian Cai <cai@lca.pw>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Acked-by: Michael Ellerman <mpe@ellerman.id.au> (powerpc)
+Link: https://lkml.kernel.org/r/20200401214033.8448-1-cai@lca.pw
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/broadcom/genet/bcmgenet.h    |  2 +
- .../ethernet/broadcom/genet/bcmgenet_wol.c    | 39 +++++++++----------
- 2 files changed, 20 insertions(+), 21 deletions(-)
+ arch/powerpc/platforms/powernv/smp.c |  1 -
+ include/linux/sched/mm.h             |  2 ++
+ kernel/cpu.c                         | 18 +++++++++++++++++-
+ kernel/sched/core.c                  |  5 +++--
+ 4 files changed, 22 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/broadcom/genet/bcmgenet.h b/drivers/net/ethernet/broadcom/genet/bcmgenet.h
-index dbc69d8fa05f..5b7c2f9241d0 100644
---- a/drivers/net/ethernet/broadcom/genet/bcmgenet.h
-+++ b/drivers/net/ethernet/broadcom/genet/bcmgenet.h
-@@ -14,6 +14,7 @@
- #include <linux/if_vlan.h>
- #include <linux/phy.h>
- #include <linux/dim.h>
-+#include <linux/ethtool.h>
+diff --git a/arch/powerpc/platforms/powernv/smp.c b/arch/powerpc/platforms/powernv/smp.c
+index 13e251699346..b2ba3e95bda7 100644
+--- a/arch/powerpc/platforms/powernv/smp.c
++++ b/arch/powerpc/platforms/powernv/smp.c
+@@ -167,7 +167,6 @@ static void pnv_smp_cpu_kill_self(void)
+ 	/* Standard hot unplug procedure */
  
- /* total number of Buffer Descriptors, same for Rx/Tx */
- #define TOTAL_DESC				256
-@@ -674,6 +675,7 @@ struct bcmgenet_priv {
- 	/* WOL */
- 	struct clk *clk_wol;
- 	u32 wolopts;
-+	u8 sopass[SOPASS_MAX];
- 
- 	struct bcmgenet_mib_counters mib;
- 
-diff --git a/drivers/net/ethernet/broadcom/genet/bcmgenet_wol.c b/drivers/net/ethernet/broadcom/genet/bcmgenet_wol.c
-index ea20d94bd050..a41f82379369 100644
---- a/drivers/net/ethernet/broadcom/genet/bcmgenet_wol.c
-+++ b/drivers/net/ethernet/broadcom/genet/bcmgenet_wol.c
-@@ -41,18 +41,13 @@
- void bcmgenet_get_wol(struct net_device *dev, struct ethtool_wolinfo *wol)
- {
- 	struct bcmgenet_priv *priv = netdev_priv(dev);
--	u32 reg;
- 
- 	wol->supported = WAKE_MAGIC | WAKE_MAGICSECURE;
- 	wol->wolopts = priv->wolopts;
- 	memset(wol->sopass, 0, sizeof(wol->sopass));
- 
--	if (wol->wolopts & WAKE_MAGICSECURE) {
--		reg = bcmgenet_umac_readl(priv, UMAC_MPD_PW_MS);
--		put_unaligned_be16(reg, &wol->sopass[0]);
--		reg = bcmgenet_umac_readl(priv, UMAC_MPD_PW_LS);
--		put_unaligned_be32(reg, &wol->sopass[2]);
--	}
-+	if (wol->wolopts & WAKE_MAGICSECURE)
-+		memcpy(wol->sopass, priv->sopass, sizeof(priv->sopass));
+ 	idle_task_exit();
+-	current->active_mm = NULL; /* for sanity */
+ 	cpu = smp_processor_id();
+ 	DBG("CPU%d offline\n", cpu);
+ 	generic_set_cpu_dead(cpu);
+diff --git a/include/linux/sched/mm.h b/include/linux/sched/mm.h
+index c49257a3b510..a132d875d351 100644
+--- a/include/linux/sched/mm.h
++++ b/include/linux/sched/mm.h
+@@ -49,6 +49,8 @@ static inline void mmdrop(struct mm_struct *mm)
+ 		__mmdrop(mm);
  }
  
- /* ethtool function - set WOL (Wake on LAN) settings.
-@@ -62,7 +57,6 @@ int bcmgenet_set_wol(struct net_device *dev, struct ethtool_wolinfo *wol)
- {
- 	struct bcmgenet_priv *priv = netdev_priv(dev);
- 	struct device *kdev = &priv->pdev->dev;
--	u32 reg;
- 
- 	if (!device_can_wakeup(kdev))
- 		return -ENOTSUPP;
-@@ -70,17 +64,8 @@ int bcmgenet_set_wol(struct net_device *dev, struct ethtool_wolinfo *wol)
- 	if (wol->wolopts & ~(WAKE_MAGIC | WAKE_MAGICSECURE))
- 		return -EINVAL;
- 
--	reg = bcmgenet_umac_readl(priv, UMAC_MPD_CTRL);
--	if (wol->wolopts & WAKE_MAGICSECURE) {
--		bcmgenet_umac_writel(priv, get_unaligned_be16(&wol->sopass[0]),
--				     UMAC_MPD_PW_MS);
--		bcmgenet_umac_writel(priv, get_unaligned_be32(&wol->sopass[2]),
--				     UMAC_MPD_PW_LS);
--		reg |= MPD_PW_EN;
--	} else {
--		reg &= ~MPD_PW_EN;
--	}
--	bcmgenet_umac_writel(priv, reg, UMAC_MPD_CTRL);
-+	if (wol->wolopts & WAKE_MAGICSECURE)
-+		memcpy(priv->sopass, wol->sopass, sizeof(priv->sopass));
- 
- 	/* Flag the device and relevant IRQ as wakeup capable */
- 	if (wol->wolopts) {
-@@ -120,6 +105,14 @@ static int bcmgenet_poll_wol_status(struct bcmgenet_priv *priv)
- 	return retries;
++void mmdrop(struct mm_struct *mm);
++
+ /*
+  * This has to be called after a get_task_mm()/mmget_not_zero()
+  * followed by taking the mmap_sem for writing before modifying the
+diff --git a/kernel/cpu.c b/kernel/cpu.c
+index d7890c1285bf..7527825ac7da 100644
+--- a/kernel/cpu.c
++++ b/kernel/cpu.c
+@@ -3,6 +3,7 @@
+  *
+  * This code is licenced under the GPL.
+  */
++#include <linux/sched/mm.h>
+ #include <linux/proc_fs.h>
+ #include <linux/smp.h>
+ #include <linux/init.h>
+@@ -564,6 +565,21 @@ static int bringup_cpu(unsigned int cpu)
+ 	return bringup_wait_for_ap(cpu);
  }
  
-+static void bcmgenet_set_mpd_password(struct bcmgenet_priv *priv)
++static int finish_cpu(unsigned int cpu)
 +{
-+	bcmgenet_umac_writel(priv, get_unaligned_be16(&priv->sopass[0]),
-+			     UMAC_MPD_PW_MS);
-+	bcmgenet_umac_writel(priv, get_unaligned_be32(&priv->sopass[2]),
-+			     UMAC_MPD_PW_LS);
++	struct task_struct *idle = idle_thread_get(cpu);
++	struct mm_struct *mm = idle->active_mm;
++
++	/*
++	 * idle_task_exit() will have switched to &init_mm, now
++	 * clean up any remaining active_mm state.
++	 */
++	if (mm != &init_mm)
++		idle->active_mm = &init_mm;
++	mmdrop(mm);
++	return 0;
 +}
 +
- int bcmgenet_wol_power_down_cfg(struct bcmgenet_priv *priv,
- 				enum bcmgenet_power_mode mode)
- {
-@@ -140,13 +133,17 @@ int bcmgenet_wol_power_down_cfg(struct bcmgenet_priv *priv,
+ /*
+  * Hotplug state machine related functions
+  */
+@@ -1434,7 +1450,7 @@ static struct cpuhp_step cpuhp_hp_states[] = {
+ 	[CPUHP_BRINGUP_CPU] = {
+ 		.name			= "cpu:bringup",
+ 		.startup.single		= bringup_cpu,
+-		.teardown.single	= NULL,
++		.teardown.single	= finish_cpu,
+ 		.cant_stop		= true,
+ 	},
+ 	/* Final state before CPU kills itself */
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index e99d326fa569..4874e1468279 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -6177,13 +6177,14 @@ void idle_task_exit(void)
+ 	struct mm_struct *mm = current->active_mm;
  
- 	reg = bcmgenet_umac_readl(priv, UMAC_MPD_CTRL);
- 	reg |= MPD_EN;
-+	if (priv->wolopts & WAKE_MAGICSECURE) {
-+		bcmgenet_set_mpd_password(priv);
-+		reg |= MPD_PW_EN;
-+	}
- 	bcmgenet_umac_writel(priv, reg, UMAC_MPD_CTRL);
+ 	BUG_ON(cpu_online(smp_processor_id()));
++	BUG_ON(current != this_rq()->idle);
  
- 	/* Do not leave UniMAC in MPD mode only */
- 	retries = bcmgenet_poll_wol_status(priv);
- 	if (retries < 0) {
- 		reg = bcmgenet_umac_readl(priv, UMAC_MPD_CTRL);
--		reg &= ~MPD_EN;
-+		reg &= ~(MPD_EN | MPD_PW_EN);
- 		bcmgenet_umac_writel(priv, reg, UMAC_MPD_CTRL);
- 		return retries;
+ 	if (mm != &init_mm) {
+ 		switch_mm(mm, &init_mm, current);
+-		current->active_mm = &init_mm;
+ 		finish_arch_post_lock_switch();
  	}
-@@ -185,7 +182,7 @@ void bcmgenet_wol_power_up_cfg(struct bcmgenet_priv *priv,
- 	reg = bcmgenet_umac_readl(priv, UMAC_MPD_CTRL);
- 	if (!(reg & MPD_EN))
- 		return;	/* already powered up so skip the rest */
--	reg &= ~MPD_EN;
-+	reg &= ~(MPD_EN | MPD_PW_EN);
- 	bcmgenet_umac_writel(priv, reg, UMAC_MPD_CTRL);
+-	mmdrop(mm);
++
++	/* finish_cpu(), as ran on the BP, will clean up the active_mm state */
+ }
  
- 	/* Disable CRC Forward */
+ /*
 -- 
 2.25.1
 
