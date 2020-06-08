@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 62EB31F2C46
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:23:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FB671F2C41
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:23:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732679AbgFIAWx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 20:22:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38910 "EHLO mail.kernel.org"
+        id S1730694AbgFIAWk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 20:22:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38946 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730442AbgFHXRY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:17:24 -0400
+        id S1727790AbgFHXRZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:17:25 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 076BA2085B;
-        Mon,  8 Jun 2020 23:17:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 56C8E20872;
+        Mon,  8 Jun 2020 23:17:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658243;
-        bh=Gi1p5Xec9w3fZYMiDzv0dil+Mc4HSpJGmEu+Z2qiNG0=;
+        s=default; t=1591658245;
+        bh=AWCLOTsOVYlks3c11ILR2yy+m7XFAsly4FIalG791BM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T6JL6YCZq9zM+xLsFB8wtANOCusSMbHB7jUql4VWhuqtcfFdNFMQpSg1+Qqg7FNwu
-         UIt7sYseVjkRI0DRTIgCMGH6vPPp0sQ1nda1mm5KCJ0MDLBQMVeWVzmsj/03WHvhcA
-         6hF6Kv24ISo5OZuFOBtIcLZ+IoBiF05YeIvZAfCg=
+        b=WPr1n6HQZtGSwh/hQP0I6CxN9ZJ3df6PZWJLSj5hXhQHVH0dW94iWDyLt39KnNA5B
+         X/VT0I3hI6BUvRl1s4jkkFfZA86dsV3SZmRNcVzOT5FT65X1YDCb2iDTX6l8oDxmU4
+         kbjr1tvIYxxU4AcOcbXtZLdsWjD2yRkcnkrjDS48=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Johan Jonker <jbx6244@gmail.com>, Heiko Stuebner <heiko@sntech.de>,
-        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
+        Sasha Levin <sashal@kernel.org>,
         linux-arm-kernel@lists.infradead.org,
-        linux-rockchip@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.6 254/606] arm64: dts: rockchip: swap interrupts interrupt-names rk3399 gpu node
-Date:   Mon,  8 Jun 2020 19:06:19 -0400
-Message-Id: <20200608231211.3363633-254-sashal@kernel.org>
+        linux-rockchip@lists.infradead.org, devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.6 255/606] ARM: dts: rockchip: swap clock-names of gpu nodes
+Date:   Mon,  8 Jun 2020 19:06:20 -0400
+Message-Id: <20200608231211.3363633-255-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608231211.3363633-1-sashal@kernel.org>
 References: <20200608231211.3363633-1-sashal@kernel.org>
@@ -46,45 +46,63 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Johan Jonker <jbx6244@gmail.com>
 
-[ Upstream commit c604fd810bda667bdc20b2c041917baa7803e0fb ]
+[ Upstream commit b14f3898d2c25a9b47a61fb879d0b1f3af92c59b ]
 
-Dts files with Rockchip rk3399 'gpu' nodes were manually verified.
-In order to automate this process arm,mali-midgard.txt
+Dts files with Rockchip 'gpu' nodes were manually verified.
+In order to automate this process arm,mali-utgard.txt
 has been converted to yaml. In the new setup dtbs_check with
-arm,mali-midgard.yaml expects interrupts and interrupt-names values
-in the same order. Fix this for rk3399.
-
-make ARCH=arm64 dtbs_check
-DT_SCHEMA_FILES=Documentation/devicetree/bindings/gpu/
-arm,mali-midgard.yaml
+arm,mali-utgard.yaml expects clock-names values
+in the same order, so fix that.
 
 Signed-off-by: Johan Jonker <jbx6244@gmail.com>
-Link: https://lore.kernel.org/r/20200425143837.18706-1-jbx6244@gmail.com
+Link: https://lore.kernel.org/r/20200425192500.1808-1-jbx6244@gmail.com
 Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/rockchip/rk3399.dtsi | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ arch/arm/boot/dts/rk3036.dtsi | 2 +-
+ arch/arm/boot/dts/rk322x.dtsi | 2 +-
+ arch/arm/boot/dts/rk3xxx.dtsi | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/rockchip/rk3399.dtsi b/arch/arm64/boot/dts/rockchip/rk3399.dtsi
-index 5c4238a80144..c341172ec208 100644
---- a/arch/arm64/boot/dts/rockchip/rk3399.dtsi
-+++ b/arch/arm64/boot/dts/rockchip/rk3399.dtsi
-@@ -1890,10 +1890,10 @@ edp_in_vopl: endpoint@1 {
- 	gpu: gpu@ff9a0000 {
- 		compatible = "rockchip,rk3399-mali", "arm,mali-t860";
- 		reg = <0x0 0xff9a0000 0x0 0x10000>;
--		interrupts = <GIC_SPI 19 IRQ_TYPE_LEVEL_HIGH 0>,
--			     <GIC_SPI 20 IRQ_TYPE_LEVEL_HIGH 0>,
--			     <GIC_SPI 21 IRQ_TYPE_LEVEL_HIGH 0>;
--		interrupt-names = "gpu", "job", "mmu";
-+		interrupts = <GIC_SPI 20 IRQ_TYPE_LEVEL_HIGH 0>,
-+			     <GIC_SPI 21 IRQ_TYPE_LEVEL_HIGH 0>,
-+			     <GIC_SPI 19 IRQ_TYPE_LEVEL_HIGH 0>;
-+		interrupt-names = "job", "mmu", "gpu";
- 		clocks = <&cru ACLK_GPU>;
- 		#cooling-cells = <2>;
- 		power-domains = <&power RK3399_PD_GPU>;
+diff --git a/arch/arm/boot/dts/rk3036.dtsi b/arch/arm/boot/dts/rk3036.dtsi
+index cf36e25195b4..8c4b8f56c9e0 100644
+--- a/arch/arm/boot/dts/rk3036.dtsi
++++ b/arch/arm/boot/dts/rk3036.dtsi
+@@ -128,7 +128,7 @@ gpu: gpu@10090000 {
+ 		assigned-clocks = <&cru SCLK_GPU>;
+ 		assigned-clock-rates = <100000000>;
+ 		clocks = <&cru SCLK_GPU>, <&cru SCLK_GPU>;
+-		clock-names = "core", "bus";
++		clock-names = "bus", "core";
+ 		resets = <&cru SRST_GPU>;
+ 		status = "disabled";
+ 	};
+diff --git a/arch/arm/boot/dts/rk322x.dtsi b/arch/arm/boot/dts/rk322x.dtsi
+index 4e90efdc9630..729119952c68 100644
+--- a/arch/arm/boot/dts/rk322x.dtsi
++++ b/arch/arm/boot/dts/rk322x.dtsi
+@@ -561,7 +561,7 @@ gpu: gpu@20000000 {
+ 				  "pp1",
+ 				  "ppmmu1";
+ 		clocks = <&cru ACLK_GPU>, <&cru ACLK_GPU>;
+-		clock-names = "core", "bus";
++		clock-names = "bus", "core";
+ 		resets = <&cru SRST_GPU_A>;
+ 		status = "disabled";
+ 	};
+diff --git a/arch/arm/boot/dts/rk3xxx.dtsi b/arch/arm/boot/dts/rk3xxx.dtsi
+index 241f43e29c77..bb5ff10b9110 100644
+--- a/arch/arm/boot/dts/rk3xxx.dtsi
++++ b/arch/arm/boot/dts/rk3xxx.dtsi
+@@ -84,7 +84,7 @@ gpu: gpu@10090000 {
+ 		compatible = "arm,mali-400";
+ 		reg = <0x10090000 0x10000>;
+ 		clocks = <&cru ACLK_GPU>, <&cru ACLK_GPU>;
+-		clock-names = "core", "bus";
++		clock-names = "bus", "core";
+ 		assigned-clocks = <&cru ACLK_GPU>;
+ 		assigned-clock-rates = <100000000>;
+ 		resets = <&cru SRST_GPU>;
 -- 
 2.25.1
 
