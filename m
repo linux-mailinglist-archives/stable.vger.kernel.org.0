@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E3C671F2E5A
+	by mail.lfdr.de (Postfix) with ESMTP id 0B8401F2E58
 	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:42:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728028AbgFIAkz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 20:40:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60332 "EHLO mail.kernel.org"
+        id S1732342AbgFIAks (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 20:40:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60602 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728050AbgFHXMv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:12:51 -0400
+        id S1728028AbgFHXMx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:12:53 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EA35920B80;
-        Mon,  8 Jun 2020 23:12:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1701F20E65;
+        Mon,  8 Jun 2020 23:12:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591657971;
-        bh=Yf6tijfTtkC0daEZSzoDMhzmrg/OWgETF9rfSQTSNGw=;
+        s=default; t=1591657973;
+        bh=AN4+Ouy4r6PuoweN6SQVEtPsqTvyyPgIEM8Ru3zOnRs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J/nmDo6tmPGgBdJDjGiJKR5FYeQQxJIC6ss1nCQ099jMorsuL2M6lyxjNxW2BtUBM
-         NU7g61fvlN2XHm47aY7oxLIyjr/x/YIiCkKvOrCPbShWr65ls2lt3UDdBh3VyNkL6i
-         OUnz7pb8nEMrwozIY5+fn2K6b0ciQ9kTDZ2wRq9s=
+        b=o0TNMQPoh9l8kGsYn5opGuftNojJa322vh4xd112QfsOfX8eCHE6/lzT7qp6nX89+
+         rEJa3Ldx4WA9TzhFbUa5FkesN0T1qNhoZpeqMdn3wPXOTFsYtUBiFYiiXnTQfjQPPk
+         0/vOrjf0K6Yncg371bZnvtIImgx/xD5r14WaWOfg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Michal=20Vok=C3=A1=C4=8D?= <michal.vokac@ysoft.com>,
-        Shawn Guo <shawnguo@kernel.org>,
+Cc:     Simon Ser <contact@emersion.fr>, Roman Gilg <subdiff@gmail.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Harry Wentland <hwentlan@amd.com>,
+        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.6 034/606] ARM: dts: imx6dl-yapp4: Fix Ursa board Ethernet connection
-Date:   Mon,  8 Jun 2020 19:02:39 -0400
-Message-Id: <20200608231211.3363633-34-sashal@kernel.org>
+        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.6 035/606] drm/amd/display: add basic atomic check for cursor plane
+Date:   Mon,  8 Jun 2020 19:02:40 -0400
+Message-Id: <20200608231211.3363633-35-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608231211.3363633-1-sashal@kernel.org>
 References: <20200608231211.3363633-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -45,38 +46,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michal Vokáč <michal.vokac@ysoft.com>
+From: Simon Ser <contact@emersion.fr>
 
-commit cbe63a8358310244e6007398bd2c7c70c7fd51cd upstream.
+commit 626bf90fe03fa080d8df06bb0397c95c53ae8e27 upstream.
 
-The Y Soft yapp4 platform supports up to two Ethernet ports.
-The Ursa board though has only one Ethernet port populated and that is
-the port@2. Since the introduction of this platform into mainline a wrong
-port was deleted and the Ethernet could never work. Fix this by deleting
-the correct port node.
+This patch adds a basic cursor check when an atomic test-only commit is
+performed. The position and size of the cursor plane is checked.
 
-Fixes: 87489ec3a77f ("ARM: dts: imx: Add Y Soft IOTA Draco, Hydra and Ursa boards")
+This should fix user-space relying on atomic checks to assign buffers to
+planes.
+
+Signed-off-by: Simon Ser <contact@emersion.fr>
+Reported-by: Roman Gilg <subdiff@gmail.com>
+References: https://github.com/emersion/libliftoff/issues/46
+Cc: Alex Deucher <alexander.deucher@amd.com>
+Cc: Harry Wentland <hwentlan@amd.com>
+Reviewed-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Michal Vokáč <michal.vokac@ysoft.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/imx6dl-yapp4-ursa.dts | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 26 +++++++++++++++++--
+ 1 file changed, 24 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/imx6dl-yapp4-ursa.dts b/arch/arm/boot/dts/imx6dl-yapp4-ursa.dts
-index 0d594e4bd559..a1173bf5bff5 100644
---- a/arch/arm/boot/dts/imx6dl-yapp4-ursa.dts
-+++ b/arch/arm/boot/dts/imx6dl-yapp4-ursa.dts
-@@ -38,7 +38,7 @@ &reg_usb_h1_vbus {
- };
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+index 8136a58deb39..5e27a67fbc58 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -7716,6 +7716,7 @@ static int dm_update_plane_state(struct dc *dc,
+ 	struct drm_crtc_state *old_crtc_state, *new_crtc_state;
+ 	struct dm_crtc_state *dm_new_crtc_state, *dm_old_crtc_state;
+ 	struct dm_plane_state *dm_new_plane_state, *dm_old_plane_state;
++	struct amdgpu_crtc *new_acrtc;
+ 	bool needs_reset;
+ 	int ret = 0;
  
- &switch_ports {
--	/delete-node/ port@2;
-+	/delete-node/ port@3;
- };
+@@ -7725,9 +7726,30 @@ static int dm_update_plane_state(struct dc *dc,
+ 	dm_new_plane_state = to_dm_plane_state(new_plane_state);
+ 	dm_old_plane_state = to_dm_plane_state(old_plane_state);
  
- &touchscreen {
+-	/*TODO Implement atomic check for cursor plane */
+-	if (plane->type == DRM_PLANE_TYPE_CURSOR)
++	/*TODO Implement better atomic check for cursor plane */
++	if (plane->type == DRM_PLANE_TYPE_CURSOR) {
++		if (!enable || !new_plane_crtc ||
++			drm_atomic_plane_disabling(plane->state, new_plane_state))
++			return 0;
++
++		new_acrtc = to_amdgpu_crtc(new_plane_crtc);
++
++		if ((new_plane_state->crtc_w > new_acrtc->max_cursor_width) ||
++			(new_plane_state->crtc_h > new_acrtc->max_cursor_height)) {
++			DRM_DEBUG_ATOMIC("Bad cursor size %d x %d\n",
++							 new_plane_state->crtc_w, new_plane_state->crtc_h);
++			return -EINVAL;
++		}
++
++		if (new_plane_state->crtc_x <= -new_acrtc->max_cursor_width ||
++			new_plane_state->crtc_y <= -new_acrtc->max_cursor_height) {
++			DRM_DEBUG_ATOMIC("Bad cursor position %d, %d\n",
++							 new_plane_state->crtc_x, new_plane_state->crtc_y);
++			return -EINVAL;
++		}
++
+ 		return 0;
++	}
+ 
+ 	needs_reset = should_reset_plane(state, plane, old_plane_state,
+ 					 new_plane_state);
 -- 
 2.25.1
 
