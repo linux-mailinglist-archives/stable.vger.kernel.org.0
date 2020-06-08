@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 32AFD1F2FD8
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:54:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 84AB11F2D88
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:36:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728471AbgFHXJj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 19:09:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55438 "EHLO mail.kernel.org"
+        id S1727915AbgFIAeG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 20:34:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35230 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728461AbgFHXJi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:09:38 -0400
+        id S1729892AbgFHXOo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:14:44 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 27914208C3;
-        Mon,  8 Jun 2020 23:09:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AF65120B80;
+        Mon,  8 Jun 2020 23:14:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591657777;
-        bh=JmjN4SKRjIMoEBWFAxnMdHJm535jSOrlTjFMyuVq29s=;
+        s=default; t=1591658084;
+        bh=8cvxJMJFDcmUm/5T5Iw939tVnqpy6rotxOWw3C4jB4A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CfgoyIxlczAim9GGH6xxkFrpqlr+E07pInFm72kRyoMVREEFVkjjBF5BJYoGsZJfq
-         cIyJ33warzhROZdR5ivCUFNd1B4u4yCmkcUOXWmV5uL08OeTuq3s0VN4Jt11vEu7ss
-         3r4Q1ejw2p8TWZTNfwzRs4K++jPvSh0neZPSDOvo=
+        b=OTYgpUMCr+/MxXM5OLal87LzCsWBtiqRZCnbO2+ILxkJbO+ARJhUi9BjvamZMP5sN
+         t4WdsMOcc3WeA8ITTn2DmXVyaAzlEBfpC/zZNgN0bqXVj47nhAXGjLPpOGlXWGbWCA
+         fkhaZGyK1F2iJJj7BNNWXTXam5DW12ATLUmk+6Pw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yunjian Wang <wangyunjian@huawei.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.7 160/274] net: allwinner: Fix use correct return type for ndo_start_xmit()
+Cc:     Joerg Roedel <jroedel@suse.de>, Qian Cai <cai@lca.pw>,
+        Sasha Levin <sashal@kernel.org>,
+        iommu@lists.linux-foundation.org
+Subject: [PATCH AUTOSEL 5.6 128/606] iommu/amd: Call domain_flush_complete() in update_domain()
 Date:   Mon,  8 Jun 2020 19:04:13 -0400
-Message-Id: <20200608230607.3361041-160-sashal@kernel.org>
+Message-Id: <20200608231211.3363633-128-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200608230607.3361041-1-sashal@kernel.org>
-References: <20200608230607.3361041-1-sashal@kernel.org>
+In-Reply-To: <20200608231211.3363633-1-sashal@kernel.org>
+References: <20200608231211.3363633-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -44,43 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yunjian Wang <wangyunjian@huawei.com>
+From: Joerg Roedel <jroedel@suse.de>
 
-[ Upstream commit 09f6c44aaae0f1bdb8b983d7762676d5018c53bc ]
+[ Upstream commit f44a4d7e4f1cdef73c90b1dc749c4d8a7372a8eb ]
 
-The method ndo_start_xmit() returns a value of type netdev_tx_t. Fix
-the ndo function to use the correct type. And emac_start_xmit() can
-leak one skb if 'channel' == 3.
+The update_domain() function is expected to also inform the hardware
+about domain changes. This needs a COMPLETION_WAIT command to be sent
+to all IOMMUs which use the domain.
 
-Signed-off-by: Yunjian Wang <wangyunjian@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Tested-by: Qian Cai <cai@lca.pw>
+Link: https://lore.kernel.org/r/20200504125413.16798-4-joro@8bytes.org
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/allwinner/sun4i-emac.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/iommu/amd_iommu.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/allwinner/sun4i-emac.c b/drivers/net/ethernet/allwinner/sun4i-emac.c
-index 18d3b4340bd4..b3b8a8010142 100644
---- a/drivers/net/ethernet/allwinner/sun4i-emac.c
-+++ b/drivers/net/ethernet/allwinner/sun4i-emac.c
-@@ -417,7 +417,7 @@ static void emac_timeout(struct net_device *dev, unsigned int txqueue)
- /* Hardware start transmission.
-  * Send a packet to media from the upper layer.
-  */
--static int emac_start_xmit(struct sk_buff *skb, struct net_device *dev)
-+static netdev_tx_t emac_start_xmit(struct sk_buff *skb, struct net_device *dev)
- {
- 	struct emac_board_info *db = netdev_priv(dev);
- 	unsigned long channel;
-@@ -425,7 +425,7 @@ static int emac_start_xmit(struct sk_buff *skb, struct net_device *dev)
+diff --git a/drivers/iommu/amd_iommu.c b/drivers/iommu/amd_iommu.c
+index 18c995a16d80..2aa46a6de172 100644
+--- a/drivers/iommu/amd_iommu.c
++++ b/drivers/iommu/amd_iommu.c
+@@ -2345,6 +2345,7 @@ static void update_domain(struct protection_domain *domain)
  
- 	channel = db->tx_fifo_stat & 3;
- 	if (channel == 3)
--		return 1;
-+		return NETDEV_TX_BUSY;
+ 	/* Flush domain TLB(s) and wait for completion */
+ 	domain_flush_tlb_pde(domain);
++	domain_flush_complete(domain);
+ }
  
- 	channel = (channel == 1 ? 1 : 0);
- 
+ int __init amd_iommu_init_api(void)
 -- 
 2.25.1
 
