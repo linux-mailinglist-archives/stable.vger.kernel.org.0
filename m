@@ -2,111 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C15F21F195F
-	for <lists+stable@lfdr.de>; Mon,  8 Jun 2020 14:56:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D16D1F196E
+	for <lists+stable@lfdr.de>; Mon,  8 Jun 2020 14:56:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729452AbgFHMyx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 08:54:53 -0400
-Received: from mail.fireflyinternet.com ([109.228.58.192]:61171 "EHLO
-        fireflyinternet.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1729578AbgFHMyt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 8 Jun 2020 08:54:49 -0400
-X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
-Received: from build.alporthouse.com (unverified [78.156.65.138]) 
-        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 21431026-1500050 
-        for multiple; Mon, 08 Jun 2020 13:54:39 +0100
-From:   Chris Wilson <chris@chris-wilson.co.uk>
-To:     intel-gfx@lists.freedesktop.org
-Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
-        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
-        stable@vger.kernel.org
-Subject: [PATCH v2] drm/i915/gt: Prevent enabling breadcrumbs on the virtual engine
-Date:   Mon,  8 Jun 2020 13:54:38 +0100
-Message-Id: <20200608125438.28700-1-chris@chris-wilson.co.uk>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200608102845.26194-1-chris@chris-wilson.co.uk>
-References: <20200608102845.26194-1-chris@chris-wilson.co.uk>
+        id S1729109AbgFHMz5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 08:55:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56034 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729757AbgFHMzq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 8 Jun 2020 08:55:46 -0400
+Received: from mail-yb1-xb42.google.com (mail-yb1-xb42.google.com [IPv6:2607:f8b0:4864:20::b42])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E56C6C08C5C3
+        for <stable@vger.kernel.org>; Mon,  8 Jun 2020 05:55:45 -0700 (PDT)
+Received: by mail-yb1-xb42.google.com with SMTP id r18so9142027ybl.5
+        for <stable@vger.kernel.org>; Mon, 08 Jun 2020 05:55:45 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=9puv86n9omdhXcooTm/BujstUWUyltb7GHGCcI8590U=;
+        b=lyXIKlQn8I9jBAhmOWcVd5Zqki/l8hFVBu2vINn2A4X5osg8xhWRT3S47Z0BHvHmat
+         Z+X8+P5n/qZ9wqWJb7WShAxQ9viFOnU1I/k1Q1Htb3vJrrv9l/hNx3nN5uFt+x1joTJW
+         lC2kCmR7w0erueLQLP/1EXKjvaKg/d1NK7JNOh4rpB0yhHF+DbK4JiiPj7w1v10pJurP
+         NL8Rzi322dHz48oJnO/44mcWRdZiKiG1kZRGSeMEgdVrEVwlUTmC6W0wIuGt+HVCUzMw
+         hTbb04ud3ILEjvHAWrrsW+m+vsofOyTOdEox2r1h4ao3r6VPQFcFU8KH/AHeCWYXv+YH
+         oL8A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=9puv86n9omdhXcooTm/BujstUWUyltb7GHGCcI8590U=;
+        b=t2rLcD2SutgW3Wy9PLEqRmI/xOtNxrGZYwpfZO/9rKyorZAiJ/QyR5TReqMxHngnyQ
+         ZgH77pD3zdWH+xFahjZ+ABDmV5N14AOMoW2YuZnFYyQOaw9CI6Z7W5ke9AzIDqEqwgqz
+         aS26Gpnh0TAqm/iNrMEemdJ7LVITfiJHYGkEW476P/bdltu4WaeijLNmW3GWQg71IKcw
+         ktzf/J088mHqI7ZjPuKsupaxWFizS3/ZCYyoRnUnp9uKV5J8AefBKmJq/5vB6dTmoBty
+         uhVSZwniSdyRlIPrMPiwlT/d+WGetk0BV8C/AK++oSA2vXEBNzsqgLeQPey0iKTaJjBt
+         GoGw==
+X-Gm-Message-State: AOAM532hwxX6WRLvFsrRnwqt/MVQCciY21FL0FuT0ZIQSFTxfZZu7zv8
+        1N1EPspZAHTVVhB9iS1BHT4Ngy1wkohSG808fzs=
+X-Google-Smtp-Source: ABdhPJzaNFQdEk4blXzhU8f/vdQRN+xcp0uCVdR3Rx+0YCYI+G2zGcAhWxpIgHUR2I4i3HPt8ItjVsWEH1qWft3dlm4=
+X-Received: by 2002:a25:b98d:: with SMTP id r13mr30685998ybg.416.1591620945130;
+ Mon, 08 Jun 2020 05:55:45 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: by 2002:a25:df84:0:0:0:0:0 with HTTP; Mon, 8 Jun 2020 05:55:44 -0700 (PDT)
+Reply-To: Mr.mohamedsimpore@gmail.com
+From:   " Mr.Mohamed Simpore" <mrtariqzubair01@gmail.com>
+Date:   Mon, 8 Jun 2020 12:55:44 +0000
+Message-ID: <CAK5vn+ffhs4Xj0NnqcDLHPkmL3U69A8ptxXp8oX131CL-eYeHQ@mail.gmail.com>
+Subject: URGENT REPLY NEEDED.
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The virtual engines are not connected directly to hardware, so do not
-generate interrupts themselves, nor do we expect to enable breadcrumb
-tracking on them. However, if we clear out a stale virtual request, we
-will process the breadcrumbs on the current virtual engine. Here, we
-only need to add the delayed signal onto the stale signal queue, and
-send the signal once clear of the engine locks. In the meantime, this
-may be transferred onto the next sibling if we execute the next virtual
-request before the work is completed.
-
-The effect of losing tracking of the virtual breadcrumb interrupt is
-that we leak the GT wakeref, keeping the device awake.
-
-Reported-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Fixes: b647c7df01b7 ("drm/i915: Fixup preempt-to-busy vs resubmission of a virtual request")
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Cc: <stable@vger.kernel.org> # v5.5+
----
- drivers/gpu/drm/i915/gt/intel_breadcrumbs.c | 6 ++++++
- drivers/gpu/drm/i915/gt/intel_engine_cs.c   | 3 +++
- drivers/gpu/drm/i915/gt/intel_lrc.c         | 2 ++
- 3 files changed, 11 insertions(+)
-
-diff --git a/drivers/gpu/drm/i915/gt/intel_breadcrumbs.c b/drivers/gpu/drm/i915/gt/intel_breadcrumbs.c
-index d907d538176e..9eaf3dc17c99 100644
---- a/drivers/gpu/drm/i915/gt/intel_breadcrumbs.c
-+++ b/drivers/gpu/drm/i915/gt/intel_breadcrumbs.c
-@@ -225,6 +225,9 @@ static bool __intel_breadcrumbs_arm_irq(struct intel_breadcrumbs *b)
- 	struct intel_engine_cs *engine =
- 		container_of(b, struct intel_engine_cs, breadcrumbs);
- 
-+	if (intel_engine_is_virtual(engine))
-+		return true;
-+
- 	lockdep_assert_held(&b->irq_lock);
- 	if (b->irq_armed)
- 		return true;
-@@ -308,6 +311,9 @@ void intel_engine_transfer_stale_breadcrumbs(struct intel_engine_cs *engine,
- 
- void intel_engine_fini_breadcrumbs(struct intel_engine_cs *engine)
- {
-+	struct intel_breadcrumbs *b = &engine->breadcrumbs;
-+
-+	GEM_BUG_ON(atomic_read(&b->irq_work.flags));
- }
- 
- bool i915_request_enable_breadcrumb(struct i915_request *rq)
-diff --git a/drivers/gpu/drm/i915/gt/intel_engine_cs.c b/drivers/gpu/drm/i915/gt/intel_engine_cs.c
-index e5141a897786..4f2c348aa32c 100644
---- a/drivers/gpu/drm/i915/gt/intel_engine_cs.c
-+++ b/drivers/gpu/drm/i915/gt/intel_engine_cs.c
-@@ -1515,6 +1515,9 @@ void intel_engine_dump(struct intel_engine_cs *engine,
- 		drm_printf(m, "*** WEDGED ***\n");
- 
- 	drm_printf(m, "\tAwake? %d\n", atomic_read(&engine->wakeref.count));
-+	drm_printf(m, "\tBreadcrumbs? armed:%s, signalers:%s\n",
-+		   yesno(engine->breadcrumbs.irq_armed),
-+		   yesno(!list_empty(&engine->breadcrumbs.signalers)));
- 	drm_printf(m, "\tBarriers?: %s\n",
- 		   yesno(!llist_empty(&engine->barrier_tasks)));
- 	drm_printf(m, "\tLatency: %luus\n",
-diff --git a/drivers/gpu/drm/i915/gt/intel_lrc.c b/drivers/gpu/drm/i915/gt/intel_lrc.c
-index d55a5e0466e5..9d932e985d96 100644
---- a/drivers/gpu/drm/i915/gt/intel_lrc.c
-+++ b/drivers/gpu/drm/i915/gt/intel_lrc.c
-@@ -5339,6 +5339,8 @@ static void virtual_context_destroy(struct kref *kref)
- 	GEM_BUG_ON(ve->request);
- 	GEM_BUG_ON(ve->context.inflight);
- 
-+	intel_engine_fini_breadcrumbs(&ve->base);
-+
- 	for (n = 0; n < ve->num_siblings; n++) {
- 		struct intel_engine_cs *sibling = ve->siblings[n];
- 		struct rb_node *node = &ve->nodes[sibling->id].rb;
 -- 
-2.20.1
+Dear,
+,
+My name is Mr.mohamed simpore, am the Bill and Exchange (assistant)
+Manager of Bank of Africa Ouagadougou, Burkina Faso. In my department
+I discovered an abandoned sum of eighteen million Five hundred
+thousand United State of American dollars (18.5MILLION USA DOLLARS) in
+an account that belongs to one of our foreign customer who died in
+airline that crashed on 4th October 2003.
 
+Since I got information about his death I have been expecting his next
+of kin to come over and claim his money because we can not release it
+unless somebody applies for it as the next of kin or relation to the
+deceased as indicated in our banking guidelines, but unfortunately we
+learnt that all his supposed next of kin or relation died alongside
+with him  in the plane crash leaving nobody behind for the claim. It
+is therefore upon this discovery that I decided to make this business
+proposal to you and release the money to you as next of kin or
+relation to the deceased for safety and subsequent disbursement since
+nobody is coming for it and I don't want the money to go into the bank
+treasury as unclaimed bill.
+
+You will be entitled with 40% of the total sum while 60% will be for
+me after which I will visit your Country to invest my own share when
+the fund is successfully transferred into your account, Please I would
+like  you to keep this transaction confidential and as a top secret as
+you may wish to know that I am a bank official.
+
+Yours sincerely
+ Mr.mohamed simpore
