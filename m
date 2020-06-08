@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EA3A91F316D
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 03:10:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 312FE1F3164
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 03:09:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729121AbgFIBJC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 21:09:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49910 "EHLO mail.kernel.org"
+        id S1727043AbgFHXGl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 19:06:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49966 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727031AbgFHXGh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:06:37 -0400
+        id S1727036AbgFHXGi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:06:38 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1BE9F2088E;
-        Mon,  8 Jun 2020 23:06:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6349120774;
+        Mon,  8 Jun 2020 23:06:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591657597;
-        bh=KtAe3ObSg25LYSidXIG8L8qyak2OFEVpw47b12Sn1UY=;
+        s=default; t=1591657598;
+        bh=h6qgXN4fgHCA3UiZlx2CBU9FEsMck4TG+MvMhPBdHmg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CDob7BstU3Fw6JHjJo6+nEU5zMwXbEQYLBfhk45mmmfmECguNkv9sqOq9C1Hgmj7R
-         3KzFFwyC6Inu8MDOSJDh3F9OScaIxc3aNamUo95UMDCK5Nm68Jb67hnH/YOQ4CLWQG
-         u4gR4F8xrROFoJ7Fjkcb3iQPSc2C7QJqZKFD36Zw=
+        b=To50O7H1PqWbNIUyxLRobz+R59ApnaJDF2hwj2LgWMkrUj+QaYcfaK9XEa/SUIPtV
+         BTDnW1b7+JcKAqmCiJjNFr2G78qEmIFu9Otgt8X9pgcRNJyXBkalmNCSVxn6o/HWtd
+         mt3+hy4tyDLXZh5NFdVyTgeQtgnmANoO4Vn9vz5A=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Veronika Kabatova <vkabatov@redhat.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Andrii Nakryiko <andriin@fb.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-kselftest@vger.kernel.org, netdev@vger.kernel.org,
+Cc:     Andrii Nakryiko <andriin@fb.com>, Alston Tang <alston64@fb.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
         bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.7 023/274] selftests/bpf: Copy runqslower to OUTPUT directory
-Date:   Mon,  8 Jun 2020 19:01:56 -0400
-Message-Id: <20200608230607.3361041-23-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.7 024/274] libbpf: Fix memory leak and possible double-free in hashmap__clear
+Date:   Mon,  8 Jun 2020 19:01:57 -0400
+Message-Id: <20200608230607.3361041-24-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608230607.3361041-1-sashal@kernel.org>
 References: <20200608230607.3361041-1-sashal@kernel.org>
@@ -46,45 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Veronika Kabatova <vkabatov@redhat.com>
+From: Andrii Nakryiko <andriin@fb.com>
 
-[ Upstream commit b26d1e2b60284dc9f66ffad9ccd5c5da1100bb4b ]
+[ Upstream commit 229bf8bf4d910510bc1a2fd0b89bd467cd71050d ]
 
-$(OUTPUT)/runqslower makefile target doesn't actually create runqslower
-binary in the $(OUTPUT) directory. As lib.mk expects all
-TEST_GEN_PROGS_EXTENDED (which runqslower is a part of) to be present in
-the OUTPUT directory, this results in an error when running e.g. `make
-install`:
+Fix memory leak in hashmap_clear() not freeing hashmap_entry structs for each
+of the remaining entries. Also NULL-out bucket list to prevent possible
+double-free between hashmap__clear() and hashmap__free().
 
-rsync: link_stat "tools/testing/selftests/bpf/runqslower" failed: No
-       such file or directory (2)
+Running test_progs-asan flavor clearly showed this problem.
 
-Copy the binary into the OUTPUT directory after building it to fix the
-error.
-
-Fixes: 3a0d3092a4ed ("selftests/bpf: Build runqslower from selftests")
-Signed-off-by: Veronika Kabatova <vkabatov@redhat.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Andrii Nakryiko <andriin@fb.com>
-Link: https://lore.kernel.org/bpf/20200428173742.2988395-1-vkabatov@redhat.com
+Reported-by: Alston Tang <alston64@fb.com>
+Signed-off-by: Andrii Nakryiko <andriin@fb.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/bpf/20200429012111.277390-5-andriin@fb.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/bpf/Makefile | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ tools/lib/bpf/hashmap.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/tools/testing/selftests/bpf/Makefile b/tools/testing/selftests/bpf/Makefile
-index 7729892e0b04..4e654d41c7af 100644
---- a/tools/testing/selftests/bpf/Makefile
-+++ b/tools/testing/selftests/bpf/Makefile
-@@ -141,7 +141,8 @@ VMLINUX_BTF := $(abspath $(firstword $(wildcard $(VMLINUX_BTF_PATHS))))
- $(OUTPUT)/runqslower: $(BPFOBJ)
- 	$(Q)$(MAKE) $(submake_extras) -C $(TOOLSDIR)/bpf/runqslower	\
- 		    OUTPUT=$(SCRATCH_DIR)/ VMLINUX_BTF=$(VMLINUX_BTF)   \
--		    BPFOBJ=$(BPFOBJ) BPF_INCLUDE=$(INCLUDE_DIR)
-+		    BPFOBJ=$(BPFOBJ) BPF_INCLUDE=$(INCLUDE_DIR) &&	\
-+		    cp $(SCRATCH_DIR)/runqslower $@
+diff --git a/tools/lib/bpf/hashmap.c b/tools/lib/bpf/hashmap.c
+index 54c30c802070..cffb96202e0d 100644
+--- a/tools/lib/bpf/hashmap.c
++++ b/tools/lib/bpf/hashmap.c
+@@ -59,7 +59,14 @@ struct hashmap *hashmap__new(hashmap_hash_fn hash_fn,
  
- $(TEST_GEN_PROGS) $(TEST_GEN_PROGS_EXTENDED): $(OUTPUT)/test_stub.o $(BPFOBJ)
+ void hashmap__clear(struct hashmap *map)
+ {
++	struct hashmap_entry *cur, *tmp;
++	int bkt;
++
++	hashmap__for_each_entry_safe(map, cur, tmp, bkt) {
++		free(cur);
++	}
+ 	free(map->buckets);
++	map->buckets = NULL;
+ 	map->cap = map->cap_bits = map->sz = 0;
+ }
  
 -- 
 2.25.1
