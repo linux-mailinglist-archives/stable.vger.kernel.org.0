@@ -2,93 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D91821F264D
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:38:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DEA5B1F2737
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:46:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728175AbgFHXhg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 19:37:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58562 "EHLO mail.kernel.org"
+        id S2387889AbgFHXni (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 19:43:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49694 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732254AbgFHX2m (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:28:42 -0400
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        id S2387667AbgFHXnh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:43:37 -0400
+Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 86537208A7;
-        Mon,  8 Jun 2020 23:28:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C28012078C;
+        Mon,  8 Jun 2020 23:43:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658922;
-        bh=/YM9Qim2UEDqZy57Oom9XviW8SgEHAn+SAnkAOLb4D8=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tqLIC3G0y8tomj3AsuaAbfurjL+jMcLhOAVTj56NG4mO+kNfEVRTIXLocwKmhDexf
-         nxlMRVHcIJJ+yhTD6QFhbxbwF1KkGdq4an+xNdUzNx1SHSEhTRYgkc+PNL7y8/47gX
-         PDGeM+Mx9U0Iiz5iq3kZ/dNBxbm+gKP0YT6okN6k=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ido Schimmel <idosch@mellanox.com>,
-        Nikolay Aleksandrov <nikolay@cumulusnetworks.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 37/37] vxlan: Avoid infinite loop when suppressing NS messages with invalid options
-Date:   Mon,  8 Jun 2020 19:27:49 -0400
-Message-Id: <20200608232750.3370747-37-sashal@kernel.org>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200608232750.3370747-1-sashal@kernel.org>
-References: <20200608232750.3370747-1-sashal@kernel.org>
-MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+        s=default; t=1591659816;
+        bh=ggPZuuhjSRGM7zE7zXP/zWIFiCo7SNBnhpwJ3wfZQFU=;
+        h=Date:From:To:Subject:In-Reply-To:From;
+        b=PpD7Ew+6wXPOLcQ8M58cxscQ0mBKy1LNI/UV23Klf/NVIJmVoF0nkVbefAF1JXF8z
+         BEEmH+Y/LyfRGUYzp9ubilSB+VVyGy7HqnntfZFEf+zb6GOYhl1xWqF3UvT+HvAed9
+         F/AwJj7hJon99QS4BFMKZKCJYse5IqAptspNU4nI=
+Date:   Mon, 08 Jun 2020 16:43:35 -0700
+From:   Andrew Morton <akpm@linux-foundation.org>
+To:     acme@redhat.com, agordeev@linux.ibm.com, amritha.nambiar@intel.com,
+        andriy.shevchenko@linux.intel.com, chris@chris-wilson.co.uk,
+        keescook@chromium.org, linux@rasmusvillemoes.dk,
+        mm-commits@vger.kernel.org, mszeredi@redhat.com,
+        stable@vger.kernel.org, steffen.klassert@secunet.com,
+        tobin@kernel.org, vineet.gupta1@synopsys.com, will.deacon@arm.com,
+        willemb@google.com, willy@infradead.org, yury.norov@gmail.com
+Subject:  + lib-fix-bitmap_parse-on-64-bit-big-endian-archs.patch
+ added to -mm tree
+Message-ID: <20200608234335.ip8WJ3NXZ%akpm@linux-foundation.org>
+In-Reply-To: <20200607212615.b050e41fac139a1e16fe00bd@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ido Schimmel <idosch@mellanox.com>
 
-[ Upstream commit 8066e6b449e050675df48e7c4b16c29f00507ff0 ]
+The patch titled
+     Subject: lib: fix bitmap_parse() on 64-bit big endian archs
+has been added to the -mm tree.  Its filename is
+     lib-fix-bitmap_parse-on-64-bit-big-endian-archs.patch
 
-When proxy mode is enabled the vxlan device might reply to Neighbor
-Solicitation (NS) messages on behalf of remote hosts.
+This patch should soon appear at
+    http://ozlabs.org/~akpm/mmots/broken-out/lib-fix-bitmap_parse-on-64-bit-big-endian-archs.patch
+and later at
+    http://ozlabs.org/~akpm/mmotm/broken-out/lib-fix-bitmap_parse-on-64-bit-big-endian-archs.patch
 
-In case the NS message includes the "Source link-layer address" option
-[1], the vxlan device will use the specified address as the link-layer
-destination address in its reply.
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
 
-To avoid an infinite loop, break out of the options parsing loop when
-encountering an option with length zero and disregard the NS message.
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
 
-This is consistent with the IPv6 ndisc code and RFC 4886 which states
-that "Nodes MUST silently discard an ND packet that contains an option
-with length zero" [2].
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
 
-[1] https://tools.ietf.org/html/rfc4861#section-4.3
-[2] https://tools.ietf.org/html/rfc4861#section-4.6
+------------------------------------------------------
+From: Alexander Gordeev <agordeev@linux.ibm.com>
+Subject: lib: fix bitmap_parse() on 64-bit big endian archs
 
-Fixes: 4b29dba9c085 ("vxlan: fix nonfunctional neigh_reduce()")
-Signed-off-by: Ido Schimmel <idosch@mellanox.com>
-Acked-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Commit 2d6261583be0 ("lib: rework bitmap_parse()") does not take into
+account order of halfwords on 64-bit big endian architectures.  As result
+(at least) Receive Packet Steering, IRQ affinity masks and runtime kernel
+test "test_bitmap" get broken on s390.
+
+Link: http://lkml.kernel.org/r/1591634471-17647-1-git-send-email-agordeev@linux.ibm.com
+Fixes: 2d6261583be0 ("lib: rework bitmap_parse()")
+Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: Yury Norov <yury.norov@gmail.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Amritha Nambiar <amritha.nambiar@intel.com>
+Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Miklos Szeredi <mszeredi@redhat.com>
+Cc: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Cc: Steffen Klassert <steffen.klassert@secunet.com>
+Cc: "Tobin C . Harding" <tobin@kernel.org>
+Cc: Vineet Gupta <vineet.gupta1@synopsys.com>
+Cc: Will Deacon <will.deacon@arm.com>
+Cc: Willem de Bruijn <willemb@google.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
- drivers/net/vxlan.c | 4 ++++
- 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/net/vxlan.c b/drivers/net/vxlan.c
-index d6ae6d3c98ed..c12f2984d7ef 100644
---- a/drivers/net/vxlan.c
-+++ b/drivers/net/vxlan.c
-@@ -1476,6 +1476,10 @@ static struct sk_buff *vxlan_na_create(struct sk_buff *request,
- 	daddr = eth_hdr(request)->h_source;
- 	ns_olen = request->len - skb_transport_offset(request) - sizeof(*ns);
- 	for (i = 0; i < ns_olen-1; i += (ns->opt[i+1]<<3)) {
-+		if (!ns->opt[i + 1]) {
-+			kfree_skb(reply);
-+			return NULL;
-+		}
- 		if (ns->opt[i] == ND_OPT_SOURCE_LL_ADDR) {
- 			daddr = ns->opt + i + sizeof(struct nd_opt_hdr);
- 			break;
--- 
-2.25.1
+ lib/bitmap.c |    8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+--- a/lib/bitmap.c~lib-fix-bitmap_parse-on-64-bit-big-endian-archs
++++ a/lib/bitmap.c
+@@ -740,6 +740,7 @@ int bitmap_parse(const char *start, unsi
+ 	const char *end = strnchrnul(start, buflen, '\n') - 1;
+ 	int chunks = BITS_TO_U32(nmaskbits);
+ 	u32 *bitmap = (u32 *)maskp;
++	int chunk = 0;
+ 	int unset_bit;
+ 
+ 	while (1) {
+@@ -750,9 +751,14 @@ int bitmap_parse(const char *start, unsi
+ 		if (!chunks--)
+ 			return -EOVERFLOW;
+ 
+-		end = bitmap_get_x32_reverse(start, end, bitmap++);
++#if defined(CONFIG_64BIT) && defined(__BIG_ENDIAN)
++		end = bitmap_get_x32_reverse(start, end, &bitmap[chunk ^ 1]);
++#else
++		end = bitmap_get_x32_reverse(start, end, &bitmap[chunk]);
++#endif
+ 		if (IS_ERR(end))
+ 			return PTR_ERR(end);
++		chunk++;
+ 	}
+ 
+ 	unset_bit = (BITS_TO_U32(nmaskbits) - chunks) * 32;
+_
+
+Patches currently in -mm which might be from agordeev@linux.ibm.com are
+
+lib-fix-bitmap_parse-on-64-bit-big-endian-archs.patch
 
