@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6578E1F27F0
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:55:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 00AF81F2850
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:56:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731766AbgFHXZO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 19:25:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51626 "EHLO mail.kernel.org"
+        id S1731910AbgFHXu6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 19:50:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51642 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731769AbgFHXZN (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1731776AbgFHXZN (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 8 Jun 2020 19:25:13 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 424ED20872;
-        Mon,  8 Jun 2020 23:25:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 68677208C7;
+        Mon,  8 Jun 2020 23:25:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658712;
-        bh=ihRGke3F8C3EzU5YHRa+sfbGeIHPfno11X1+nn+coJA=;
+        s=default; t=1591658713;
+        bh=ByaBwvM0x9jrCerVOvexAYwUk8Y6Xv2hRaX91b41Llk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hAf7lJS2ptma0Jn7gHKHqWVkULVjwubcx9Czt0eWNIC0XqIobams3Q9jKqH6WjPhh
-         LLxEgYK8k/qz7Dn69YHxC6k5LKb8So6NQ67UlP2cZFHO72mIQOaCSpDv1kJc6cHll2
-         7fdzS3V3bui5RW/WuFlloglgAbyllxgack0RgGGQ=
+        b=2OamDg6z88I6mGpsbQmGlP2xRd6LVuWRPXcd+FBVPiqa6fA/LiZbZndwvWHJptZ1U
+         zwk68crPN6BSBLd3MVG8OSX5bUe+sqDlMnBTBD64m12jgyb+nzWvplLW/zY3BaM7+K
+         IXxmv6k8A8uj8zcy0COoFiR639/94KlhTP9UDMAM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Feng Tang <feng.tang@intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 09/72] spi: dw: Zero DMA Tx and Rx configurations on stack
-Date:   Mon,  8 Jun 2020 19:23:57 -0400
-Message-Id: <20200608232500.3369581-9-sashal@kernel.org>
+Cc:     Jesper Dangaard Brouer <brouer@redhat.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        intel-wired-lan@lists.osuosl.org, netdev@vger.kernel.org,
+        bpf@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 10/72] ixgbe: Fix XDP redirect on archs with PAGE_SIZE above 4K
+Date:   Mon,  8 Jun 2020 19:23:58 -0400
+Message-Id: <20200608232500.3369581-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608232500.3369581-1-sashal@kernel.org>
 References: <20200608232500.3369581-1-sashal@kernel.org>
@@ -44,46 +46,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Jesper Dangaard Brouer <brouer@redhat.com>
 
-[ Upstream commit 3cb97e223d277f84171cc4ccecab31e08b2ee7b5 ]
+[ Upstream commit 88eb0ee17b2ece64fcf6689a4557a5c2e7a89c4b ]
 
-Some DMA controller drivers do not tolerate non-zero values in
-the DMA configuration structures. Zero them to avoid issues with
-such DMA controller drivers. Even despite above this is a good
-practice per se.
+The ixgbe driver have another memory model when compiled on archs with
+PAGE_SIZE above 4096 bytes. In this mode it doesn't split the page in
+two halves, but instead increment rx_buffer->page_offset by truesize of
+packet (which include headroom and tailroom for skb_shared_info).
 
-Fixes: 7063c0d942a1 ("spi/dw_spi: add DMA support")
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Acked-by: Feng Tang <feng.tang@intel.com>
-Cc: Feng Tang <feng.tang@intel.com>
-Link: https://lore.kernel.org/r/20200506153025.21441-1-andriy.shevchenko@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+This is done correctly in ixgbe_build_skb(), but in ixgbe_rx_buffer_flip
+which is currently only called on XDP_TX and XDP_REDIRECT, it forgets
+to add the tailroom for skb_shared_info. This breaks XDP_REDIRECT, for
+veth and cpumap.  Fix by adding size of skb_shared_info tailroom.
+
+Maintainers notice: This fix have been queued to Jeff.
+
+Fixes: 6453073987ba ("ixgbe: add initial support for xdp redirect")
+Signed-off-by: Jesper Dangaard Brouer <brouer@redhat.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Cc: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+Link: https://lore.kernel.org/bpf/158945344946.97035.17031588499266605743.stgit@firesoul
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-dw-mid.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/intel/ixgbe/ixgbe_main.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spi-dw-mid.c b/drivers/spi/spi-dw-mid.c
-index 837cb8d0bac6..4f41d44e8b4c 100644
---- a/drivers/spi/spi-dw-mid.c
-+++ b/drivers/spi/spi-dw-mid.c
-@@ -155,6 +155,7 @@ static struct dma_async_tx_descriptor *dw_spi_dma_prepare_tx(struct dw_spi *dws,
- 	if (!xfer->tx_buf)
- 		return NULL;
+diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
+index ba184287e11f..64ee45b6680a 100644
+--- a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
++++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
+@@ -2274,7 +2274,8 @@ static void ixgbe_rx_buffer_flip(struct ixgbe_ring *rx_ring,
+ 	rx_buffer->page_offset ^= truesize;
+ #else
+ 	unsigned int truesize = ring_uses_build_skb(rx_ring) ?
+-				SKB_DATA_ALIGN(IXGBE_SKB_PAD + size) :
++				SKB_DATA_ALIGN(IXGBE_SKB_PAD + size) +
++				SKB_DATA_ALIGN(sizeof(struct skb_shared_info)) :
+ 				SKB_DATA_ALIGN(size);
  
-+	memset(&txconf, 0, sizeof(txconf));
- 	txconf.direction = DMA_MEM_TO_DEV;
- 	txconf.dst_addr = dws->dma_addr;
- 	txconf.dst_maxburst = 16;
-@@ -201,6 +202,7 @@ static struct dma_async_tx_descriptor *dw_spi_dma_prepare_rx(struct dw_spi *dws,
- 	if (!xfer->rx_buf)
- 		return NULL;
- 
-+	memset(&rxconf, 0, sizeof(rxconf));
- 	rxconf.direction = DMA_DEV_TO_MEM;
- 	rxconf.src_addr = dws->dma_addr;
- 	rxconf.src_maxburst = 16;
+ 	rx_buffer->page_offset += truesize;
 -- 
 2.25.1
 
