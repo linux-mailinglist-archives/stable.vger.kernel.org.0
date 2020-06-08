@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 675D11F2782
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:47:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A79F1F277C
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:47:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387941AbgFHXqZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 19:46:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53730 "EHLO mail.kernel.org"
+        id S2387939AbgFHXqY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 19:46:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53792 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731082AbgFHX0W (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:26:22 -0400
+        id S2387574AbgFHX0X (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:26:23 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C52CC2068D;
-        Mon,  8 Jun 2020 23:26:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0E25B2076C;
+        Mon,  8 Jun 2020 23:26:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658781;
-        bh=qSU5bk/zdU503FulCoQ5cGikvBLDwT/dO8p24RY/tnY=;
+        s=default; t=1591658782;
+        bh=vDmiUleOLVGBvXRoHzTmv9b/ueaiIe9zKsWdWf678uE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dF+9HtO11XcWycpjUrJOzAV5QyXspsyjvkf3sobGLIk04WGe4GQ0roy024qiA6L6l
-         u5ENI66iFbJc/32RGMSuTEbiADFLEnvhMxV/x/zXpwh9XKZXvTcqdhl8EUNRKb7/tw
-         TMscJJSXyRD8I/G5kL+I99cDZyMvXrOWz4bfAgeA=
+        b=M50vOAv4WBir3UeSWt+CV/FsWDK2hsf0XVEsKhiSgTdNSh3oIVGi30VyQ/L455Y16
+         pWEIw5IGwvIcQZIcu2Yr1+M894ErbpP+pQ5P4bKK8YrObwHd/fY5YXHriqLqAj6Nek
+         IytSkeMY2tVzMIulGMymLvQ8JN1FrMZWi3hHcJIk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Finn Thain <fthain@telegraphics.com.au>,
-        Stan Johnson <userm57@yahoo.com>,
-        Joshua Thompson <funaho@jurai.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-m68k@lists.linux-m68k.org
-Subject: [PATCH AUTOSEL 4.14 58/72] m68k: mac: Don't call via_flush_cache() on Mac IIfx
-Date:   Mon,  8 Jun 2020 19:24:46 -0400
-Message-Id: <20200608232500.3369581-58-sashal@kernel.org>
+Cc:     Alexander Sverdlin <alexander.sverdlin@nokia.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 59/72] macvlan: Skip loopback packets in RX handler
+Date:   Mon,  8 Jun 2020 19:24:47 -0400
+Message-Id: <20200608232500.3369581-59-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608232500.3369581-1-sashal@kernel.org>
 References: <20200608232500.3369581-1-sashal@kernel.org>
@@ -46,169 +43,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Finn Thain <fthain@telegraphics.com.au>
+From: Alexander Sverdlin <alexander.sverdlin@nokia.com>
 
-[ Upstream commit bcc44f6b74106b31f0b0408b70305a40360d63b7 ]
+[ Upstream commit 81f3dc9349ce0bf7b8447f147f45e70f0a5b36a6 ]
 
-There is no VIA2 chip on the Mac IIfx, so don't call via_flush_cache().
-This avoids a boot crash which appeared in v5.4.
+Ignore loopback-originatig packets soon enough and don't try to process L2
+header where it doesn't exist. The very similar br_handle_frame() in bridge
+code performs exactly the same check.
 
-printk: console [ttyS0] enabled
-printk: bootconsole [debug0] disabled
-printk: bootconsole [debug0] disabled
-Calibrating delay loop... 9.61 BogoMIPS (lpj=48064)
-pid_max: default: 32768 minimum: 301
-Mount-cache hash table entries: 1024 (order: 0, 4096 bytes, linear)
-Mountpoint-cache hash table entries: 1024 (order: 0, 4096 bytes, linear)
-devtmpfs: initialized
-random: get_random_u32 called from bucket_table_alloc.isra.27+0x68/0x194 with crng_init=0
-clocksource: jiffies: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 19112604462750000 ns
-futex hash table entries: 256 (order: -1, 3072 bytes, linear)
-NET: Registered protocol family 16
-Data read fault at 0x00000000 in Super Data (pc=0x8a6a)
-BAD KERNEL BUSERR
-Oops: 00000000
-Modules linked in:
-PC: [<00008a6a>] via_flush_cache+0x12/0x2c
-SR: 2700  SP: 01c1fe3c  a2: 01c24000
-d0: 00001119    d1: 0000000c    d2: 00012000    d3: 0000000f
-d4: 01c06840    d5: 00033b92    a0: 00000000    a1: 00000000
-Process swapper (pid: 1, task=01c24000)
-Frame format=B ssw=0755 isc=0200 isb=fff7 daddr=00000000 dobuf=01c1fed0
-baddr=00008a6e dibuf=0000004e ver=f
-Stack from 01c1fec4:
-        01c1fed0 00007d7e 00010080 01c1fedc 0000792e 00000001 01c1fef4 00006b40
-        01c80000 00040000 00000006 00000003 01c1ff1c 004a545e 004ff200 00040000
-        00000000 00000003 01c06840 00033b92 004a5410 004b6c88 01c1ff84 000021e2
-        00000073 00000003 01c06840 00033b92 0038507a 004bb094 004b6ca8 004b6c88
-        004b6ca4 004b6c88 000021ae 00020002 00000000 01c0685d 00000000 01c1ffb4
-        0049f938 00409c85 01c06840 0045bd40 00000073 00000002 00000002 00000000
-Call Trace: [<00007d7e>] mac_cache_card_flush+0x12/0x1c
- [<00010080>] fix_dnrm+0x2/0x18
- [<0000792e>] cache_push+0x46/0x5a
- [<00006b40>] arch_dma_prep_coherent+0x60/0x6e
- [<00040000>] switched_to_dl+0x76/0xd0
- [<004a545e>] dma_atomic_pool_init+0x4e/0x188
- [<00040000>] switched_to_dl+0x76/0xd0
- [<00033b92>] parse_args+0x0/0x370
- [<004a5410>] dma_atomic_pool_init+0x0/0x188
- [<000021e2>] do_one_initcall+0x34/0x1be
- [<00033b92>] parse_args+0x0/0x370
- [<0038507a>] strcpy+0x0/0x1e
- [<000021ae>] do_one_initcall+0x0/0x1be
- [<00020002>] do_proc_dointvec_conv+0x54/0x74
- [<0049f938>] kernel_init_freeable+0x126/0x190
- [<0049f94c>] kernel_init_freeable+0x13a/0x190
- [<004a5410>] dma_atomic_pool_init+0x0/0x188
- [<00041798>] complete+0x0/0x3c
- [<000b9b0c>] kfree+0x0/0x20a
- [<0038df98>] schedule+0x0/0xd0
- [<0038d604>] kernel_init+0x0/0xda
- [<0038d610>] kernel_init+0xc/0xda
- [<0038d604>] kernel_init+0x0/0xda
- [<00002d38>] ret_from_kernel_thread+0xc/0x14
-Code: 0000 2079 0048 10da 2279 0048 10c8 d3c8 <1011> 0200 fff7 1280 d1f9 0048 10c8 1010 0000 0008 1080 4e5e 4e75 4e56 0000 2039
-Disabling lock debugging due to kernel taint
-Kernel panic - not syncing: Attempted to kill init! exitcode=0x0000000b
+This is an example of such ICMPv6 packet:
 
-Thanks to Stan Johnson for capturing the console log and running git
-bisect.
+skb len=96 headroom=40 headlen=96 tailroom=56
+mac=(40,0) net=(40,40) trans=80
+shinfo(txflags=0 nr_frags=0 gso(size=0 type=0 segs=0))
+csum(0xae2e9a2f ip_summed=1 complete_sw=0 valid=0 level=0)
+hash(0xc97ebd88 sw=1 l4=1) proto=0x86dd pkttype=5 iif=24
+dev name=etha01.212 feat=0x0x0000000040005000
+skb headroom: 00000000: 00 7c 86 52 84 88 ff ff 00 00 00 00 00 00 08 00
+skb headroom: 00000010: 45 00 00 9e 5d 5c 40 00 40 11 33 33 00 00 00 01
+skb headroom: 00000020: 02 40 43 80 00 00 86 dd
+skb linear:   00000000: 60 09 88 bd 00 38 3a ff fe 80 00 00 00 00 00 00
+skb linear:   00000010: 00 40 43 ff fe 80 00 00 ff 02 00 00 00 00 00 00
+skb linear:   00000020: 00 00 00 00 00 00 00 01 86 00 61 00 40 00 00 2d
+skb linear:   00000030: 00 00 00 00 00 00 00 00 03 04 40 e0 00 00 01 2c
+skb linear:   00000040: 00 00 00 78 00 00 00 00 fd 5f 42 68 23 87 a8 81
+skb linear:   00000050: 00 00 00 00 00 00 00 00 01 01 02 40 43 80 00 00
+skb tailroom: 00000000: ...
+skb tailroom: 00000010: ...
+skb tailroom: 00000020: ...
+skb tailroom: 00000030: ...
 
-Git bisect said commit 8e3a68fb55e0 ("dma-mapping: make
-dma_atomic_pool_init self-contained") is the first "bad" commit. I don't
-know why. Perhaps mach_l2_flush first became reachable with that commit.
+Call Trace, how it happens exactly:
+ ...
+ macvlan_handle_frame+0x321/0x425 [macvlan]
+ ? macvlan_forward_source+0x110/0x110 [macvlan]
+ __netif_receive_skb_core+0x545/0xda0
+ ? enqueue_task_fair+0xe5/0x8e0
+ ? __netif_receive_skb_one_core+0x36/0x70
+ __netif_receive_skb_one_core+0x36/0x70
+ process_backlog+0x97/0x140
+ net_rx_action+0x1eb/0x350
+ ? __hrtimer_run_queues+0x136/0x2e0
+ __do_softirq+0xe3/0x383
+ do_softirq_own_stack+0x2a/0x40
+ </IRQ>
+ do_softirq.part.4+0x4e/0x50
+ netif_rx_ni+0x60/0xd0
+ dev_loopback_xmit+0x83/0xf0
+ ip6_finish_output2+0x575/0x590 [ipv6]
+ ? ip6_cork_release.isra.1+0x64/0x90 [ipv6]
+ ? __ip6_make_skb+0x38d/0x680 [ipv6]
+ ? ip6_output+0x6c/0x140 [ipv6]
+ ip6_output+0x6c/0x140 [ipv6]
+ ip6_send_skb+0x1e/0x60 [ipv6]
+ rawv6_sendmsg+0xc4b/0xe10 [ipv6]
+ ? proc_put_long+0xd0/0xd0
+ ? rw_copy_check_uvector+0x4e/0x110
+ ? sock_sendmsg+0x36/0x40
+ sock_sendmsg+0x36/0x40
+ ___sys_sendmsg+0x2b6/0x2d0
+ ? proc_dointvec+0x23/0x30
+ ? addrconf_sysctl_forward+0x8d/0x250 [ipv6]
+ ? dev_forward_change+0x130/0x130 [ipv6]
+ ? _raw_spin_unlock+0x12/0x30
+ ? proc_sys_call_handler.isra.14+0x9f/0x110
+ ? __call_rcu+0x213/0x510
+ ? get_max_files+0x10/0x10
+ ? trace_hardirqs_on+0x2c/0xe0
+ ? __sys_sendmsg+0x63/0xa0
+ __sys_sendmsg+0x63/0xa0
+ do_syscall_64+0x6c/0x1e0
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Reported-and-tested-by: Stan Johnson <userm57@yahoo.com>
-Signed-off-by: Finn Thain <fthain@telegraphics.com.au>
-Cc: Joshua Thompson <funaho@jurai.org>
-Link: https://lore.kernel.org/r/b8bbeef197d6b3898e82ed0d231ad08f575a4b34.1589949122.git.fthain@telegraphics.com.au
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Signed-off-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/m68k/include/asm/mac_via.h |  1 +
- arch/m68k/mac/config.c          | 21 ++-------------------
- arch/m68k/mac/via.c             |  6 +++++-
- 3 files changed, 8 insertions(+), 20 deletions(-)
+ drivers/net/macvlan.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/arch/m68k/include/asm/mac_via.h b/arch/m68k/include/asm/mac_via.h
-index de1470c4d829..1149251ea58d 100644
---- a/arch/m68k/include/asm/mac_via.h
-+++ b/arch/m68k/include/asm/mac_via.h
-@@ -257,6 +257,7 @@ extern int rbv_present,via_alt_mapping;
+diff --git a/drivers/net/macvlan.c b/drivers/net/macvlan.c
+index 3072fc902eca..b7f41c52766f 100644
+--- a/drivers/net/macvlan.c
++++ b/drivers/net/macvlan.c
+@@ -449,6 +449,10 @@ static rx_handler_result_t macvlan_handle_frame(struct sk_buff **pskb)
+ 	int ret;
+ 	rx_handler_result_t handle_res;
  
- struct irq_desc;
- 
-+extern void via_l2_flush(int writeback);
- extern void via_register_interrupts(void);
- extern void via_irq_enable(int);
- extern void via_irq_disable(int);
-diff --git a/arch/m68k/mac/config.c b/arch/m68k/mac/config.c
-index 2004b3f72d80..3ea7450c51f2 100644
---- a/arch/m68k/mac/config.c
-+++ b/arch/m68k/mac/config.c
-@@ -61,7 +61,6 @@ extern void iop_preinit(void);
- extern void iop_init(void);
- extern void via_init(void);
- extern void via_init_clock(irq_handler_t func);
--extern void via_flush_cache(void);
- extern void oss_init(void);
- extern void psc_init(void);
- extern void baboon_init(void);
-@@ -132,21 +131,6 @@ int __init mac_parse_bootinfo(const struct bi_record *record)
- 	return unknown;
- }
- 
--/*
-- * Flip into 24bit mode for an instant - flushes the L2 cache card. We
-- * have to disable interrupts for this. Our IRQ handlers will crap
-- * themselves if they take an IRQ in 24bit mode!
-- */
--
--static void mac_cache_card_flush(int writeback)
--{
--	unsigned long flags;
--
--	local_irq_save(flags);
--	via_flush_cache();
--	local_irq_restore(flags);
--}
--
- void __init config_mac(void)
- {
- 	if (!MACH_IS_MAC)
-@@ -179,9 +163,8 @@ void __init config_mac(void)
- 	 * not.
- 	 */
- 
--	if (macintosh_config->ident == MAC_MODEL_IICI
--	    || macintosh_config->ident == MAC_MODEL_IIFX)
--		mach_l2_flush = mac_cache_card_flush;
-+	if (macintosh_config->ident == MAC_MODEL_IICI)
-+		mach_l2_flush = via_l2_flush;
- }
- 
- 
-diff --git a/arch/m68k/mac/via.c b/arch/m68k/mac/via.c
-index 863806e6775a..6ab6a1d54b37 100644
---- a/arch/m68k/mac/via.c
-+++ b/arch/m68k/mac/via.c
-@@ -300,10 +300,14 @@ void via_debug_dump(void)
-  * the system into 24-bit mode for an instant.
-  */
- 
--void via_flush_cache(void)
-+void via_l2_flush(int writeback)
- {
-+	unsigned long flags;
++	/* Packets from dev_loopback_xmit() do not have L2 header, bail out */
++	if (unlikely(skb->pkt_type == PACKET_LOOPBACK))
++		return RX_HANDLER_PASS;
 +
-+	local_irq_save(flags);
- 	via2[gBufB] &= ~VIA2B_vMode32;
- 	via2[gBufB] |= VIA2B_vMode32;
-+	local_irq_restore(flags);
- }
- 
- /*
+ 	port = macvlan_port_get_rcu(skb->dev);
+ 	if (is_multicast_ether_addr(eth->h_dest)) {
+ 		unsigned int hash;
 -- 
 2.25.1
 
