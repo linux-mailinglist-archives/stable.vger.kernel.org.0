@@ -2,39 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2027F1F2348
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:15:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C504C1F2271
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:08:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729482AbgFHXNc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 19:13:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33298 "EHLO mail.kernel.org"
+        id S1728162AbgFHXIZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 19:08:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53582 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729403AbgFHXNa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:13:30 -0400
+        id S1728127AbgFHXIY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:08:24 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8CD3321508;
-        Mon,  8 Jun 2020 23:13:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 097FA2085B;
+        Mon,  8 Jun 2020 23:08:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658010;
-        bh=S5DIYHBVPtyga/0O3sP4/9sG7cR7paSmpGq1tweZE3E=;
+        s=default; t=1591657703;
+        bh=ulgzXYC0umJqLr8UKHgIViy/K3yWrij/YDsys4Du2PI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LDRI/QtBON6/Hlo6gZ+srpDWwtbZdYWGAV1BN2qqarZ4ksCrobZFfNXlJxN8uFrxH
-         fWdArLlPC/GMyRrbFHQtG1+O3Vl3pPVLiCtPgQ36YcfLXobRa2v1eTTPAPE5m5t6ad
-         JSxLeq06IQA05LXKLlIK8ocAXOHXc+EX5VHwIq68=
+        b=fnUR+2mRT4CJmeSQyuvD+ETxomCONtNToZ6fJWU7XP09If04OsGz4pgJv0iMjH2dK
+         G1iFvDzt1SrJc0UG4f+pP7d+Mg75hZ1vVcVU4Bk19dH5TuN4mslZ3EfXAUklW6vPyo
+         zQJXvTvkka0LRwL4IEpkqNiN1U5DXqcDl8NcgG44=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Geert Uytterhoeven <geert+renesas@glider.be>,
-        Ulrich Hecht <uli+renesas@fpond.eu>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-renesas-soc@vger.kernel.org, devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.6 065/606] ARM: dts: r8a7740: Add missing extal2 to CPG node
-Date:   Mon,  8 Jun 2020 19:03:10 -0400
-Message-Id: <20200608231211.3363633-65-sashal@kernel.org>
+Cc:     Stephane Eranian <eranian@google.com>,
+        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@redhat.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Andrey Zhizhikin <andrey.z@gmail.com>,
+        Kan Liang <kan.liang@linux.intel.com>,
+        Kefeng Wang <wangkefeng.wang@huawei.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Petr Mladek <pmladek@suse.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.7 101/274] tools api fs: Make xxx__mountpoint() more scalable
+Date:   Mon,  8 Jun 2020 19:03:14 -0400
+Message-Id: <20200608230607.3361041-101-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200608231211.3363633-1-sashal@kernel.org>
-References: <20200608231211.3363633-1-sashal@kernel.org>
+In-Reply-To: <20200608230607.3361041-1-sashal@kernel.org>
+References: <20200608230607.3361041-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -44,40 +53,180 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Stephane Eranian <eranian@google.com>
 
-commit e47cb97f153193d4b41ca8d48127da14513d54c7 upstream.
+[ Upstream commit c6fddb28bad26e5472cb7acf7b04cd5126f1a4ab ]
 
-The Clock Pulse Generator (CPG) device node lacks the extal2 clock.
-This may lead to a failure registering the "r" clock, or to a wrong
-parent for the "usb24s" clock, depending on MD_CK2 pin configuration and
-boot loader CPG_USBCKCR register configuration.
+The xxx_mountpoint() interface provided by fs.c finds mount points for
+common pseudo filesystems. The first time xxx_mountpoint() is invoked,
+it scans the mount table (/proc/mounts) looking for a match. If found,
+it is cached. The price to scan /proc/mounts is paid once if the mount
+is found.
 
-This went unnoticed, as this does not affect the single upstream board
-configuration, which relies on the first clock input only.
+When the mount point is not found, subsequent calls to xxx_mountpoint()
+scan /proc/mounts over and over again.  There is no caching.
 
-Fixes: d9ffd583bf345e2e ("ARM: shmobile: r8a7740: add SoC clocks to DTS")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Ulrich Hecht <uli+renesas@fpond.eu>
-Link: https://lore.kernel.org/r/20200508095918.6061-1-geert+renesas@glider.be
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This causes a scaling issue in perf record with hugeltbfs__mountpoint().
+The function is called for each process found in
+synthesize__mmap_events().  If the machine has thousands of processes
+and if the /proc/mounts has many entries this could cause major overhead
+in perf record. We have observed multi-second slowdowns on some
+configurations.
+
+As an example on a laptop:
+
+Before:
+
+  $ sudo umount /dev/hugepages
+  $ strace -e trace=openat -o /tmp/tt perf record -a ls
+  $ fgrep mounts /tmp/tt
+  285
+
+After:
+
+  $ sudo umount /dev/hugepages
+  $ strace -e trace=openat -o /tmp/tt perf record -a ls
+  $ fgrep mounts /tmp/tt
+  1
+
+One could argue that the non-caching in case the moint point is not
+found is intentional. That way subsequent calls may discover a moint
+point if the sysadmin mounts the filesystem. But the same argument could
+be made against caching the mount point. It could be unmounted causing
+errors.  It all depends on the intent of the interface. This patch
+assumes it is expected to scan /proc/mounts once. The patch documents
+the caching behavior in the fs.h header file.
+
+An alternative would be to just fix perf record. But it would solve the
+problem with hugetlbs__mountpoint() but there could be similar issues
+(possibly down the line) with other xxx_mountpoint() calls in perf or
+other tools.
+
+Signed-off-by: Stephane Eranian <eranian@google.com>
+Reviewed-by: Ian Rogers <irogers@google.com>
+Acked-by: Jiri Olsa <jolsa@redhat.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Andrey Zhizhikin <andrey.z@gmail.com>
+Cc: Kan Liang <kan.liang@linux.intel.com>
+Cc: Kefeng Wang <wangkefeng.wang@huawei.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Petr Mladek <pmladek@suse.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Link: http://lore.kernel.org/lkml/20200402154357.107873-3-irogers@google.com
+Signed-off-by: Ian Rogers <irogers@google.com>
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/r8a7740.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/lib/api/fs/fs.c | 17 +++++++++++++++++
+ tools/lib/api/fs/fs.h | 12 ++++++++++++
+ 2 files changed, 29 insertions(+)
 
-diff --git a/arch/arm/boot/dts/r8a7740.dtsi b/arch/arm/boot/dts/r8a7740.dtsi
-index ebc1ff64f530..90feb2cf9960 100644
---- a/arch/arm/boot/dts/r8a7740.dtsi
-+++ b/arch/arm/boot/dts/r8a7740.dtsi
-@@ -479,7 +479,7 @@ fsibck_clk: fsibck {
- 		cpg_clocks: cpg_clocks@e6150000 {
- 			compatible = "renesas,r8a7740-cpg-clocks";
- 			reg = <0xe6150000 0x10000>;
--			clocks = <&extal1_clk>, <&extalr_clk>;
-+			clocks = <&extal1_clk>, <&extal2_clk>, <&extalr_clk>;
- 			#clock-cells = <1>;
- 			clock-output-names = "system", "pllc0", "pllc1",
- 					     "pllc2", "r",
+diff --git a/tools/lib/api/fs/fs.c b/tools/lib/api/fs/fs.c
+index 027b18f7ed8c..82f53d81a7a7 100644
+--- a/tools/lib/api/fs/fs.c
++++ b/tools/lib/api/fs/fs.c
+@@ -90,6 +90,7 @@ struct fs {
+ 	const char * const	*mounts;
+ 	char			 path[PATH_MAX];
+ 	bool			 found;
++	bool			 checked;
+ 	long			 magic;
+ };
+ 
+@@ -111,31 +112,37 @@ static struct fs fs__entries[] = {
+ 		.name	= "sysfs",
+ 		.mounts	= sysfs__fs_known_mountpoints,
+ 		.magic	= SYSFS_MAGIC,
++		.checked = false,
+ 	},
+ 	[FS__PROCFS] = {
+ 		.name	= "proc",
+ 		.mounts	= procfs__known_mountpoints,
+ 		.magic	= PROC_SUPER_MAGIC,
++		.checked = false,
+ 	},
+ 	[FS__DEBUGFS] = {
+ 		.name	= "debugfs",
+ 		.mounts	= debugfs__known_mountpoints,
+ 		.magic	= DEBUGFS_MAGIC,
++		.checked = false,
+ 	},
+ 	[FS__TRACEFS] = {
+ 		.name	= "tracefs",
+ 		.mounts	= tracefs__known_mountpoints,
+ 		.magic	= TRACEFS_MAGIC,
++		.checked = false,
+ 	},
+ 	[FS__HUGETLBFS] = {
+ 		.name	= "hugetlbfs",
+ 		.mounts = hugetlbfs__known_mountpoints,
+ 		.magic	= HUGETLBFS_MAGIC,
++		.checked = false,
+ 	},
+ 	[FS__BPF_FS] = {
+ 		.name	= "bpf",
+ 		.mounts = bpf_fs__known_mountpoints,
+ 		.magic	= BPF_FS_MAGIC,
++		.checked = false,
+ 	},
+ };
+ 
+@@ -158,6 +165,7 @@ static bool fs__read_mounts(struct fs *fs)
+ 	}
+ 
+ 	fclose(fp);
++	fs->checked = true;
+ 	return fs->found = found;
+ }
+ 
+@@ -220,6 +228,7 @@ static bool fs__env_override(struct fs *fs)
+ 		return false;
+ 
+ 	fs->found = true;
++	fs->checked = true;
+ 	strncpy(fs->path, override_path, sizeof(fs->path) - 1);
+ 	fs->path[sizeof(fs->path) - 1] = '\0';
+ 	return true;
+@@ -246,6 +255,14 @@ static const char *fs__mountpoint(int idx)
+ 	if (fs->found)
+ 		return (const char *)fs->path;
+ 
++	/* the mount point was already checked for the mount point
++	 * but and did not exist, so return NULL to avoid scanning again.
++	 * This makes the found and not found paths cost equivalent
++	 * in case of multiple calls.
++	 */
++	if (fs->checked)
++		return NULL;
++
+ 	return fs__get_mountpoint(fs);
+ }
+ 
+diff --git a/tools/lib/api/fs/fs.h b/tools/lib/api/fs/fs.h
+index 936edb95e1f3..aa222ca30311 100644
+--- a/tools/lib/api/fs/fs.h
++++ b/tools/lib/api/fs/fs.h
+@@ -18,6 +18,18 @@
+ 	const char *name##__mount(void);	\
+ 	bool name##__configured(void);		\
+ 
++/*
++ * The xxxx__mountpoint() entry points find the first match mount point for each
++ * filesystems listed below, where xxxx is the filesystem type.
++ *
++ * The interface is as follows:
++ *
++ * - If a mount point is found on first call, it is cached and used for all
++ *   subsequent calls.
++ *
++ * - If a mount point is not found, NULL is returned on first call and all
++ *   subsequent calls.
++ */
+ FS(sysfs)
+ FS(procfs)
+ FS(debugfs)
 -- 
 2.25.1
 
