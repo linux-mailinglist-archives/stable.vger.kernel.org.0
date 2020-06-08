@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 46FAE1F3172
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 03:10:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF10D1F316B
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 03:10:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727774AbgFIBJS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 21:09:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49786 "EHLO mail.kernel.org"
+        id S1733105AbgFIBJC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 21:09:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49858 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727018AbgFHXGe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:06:34 -0400
+        id S1727027AbgFHXGg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:06:36 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 822692078C;
-        Mon,  8 Jun 2020 23:06:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D4D3E207C3;
+        Mon,  8 Jun 2020 23:06:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591657594;
-        bh=rza3GijJEHiYQS6naUd/LTVSyFhudYeYmLttrcZ8jOs=;
+        s=default; t=1591657595;
+        bh=1Bo6mQ3UXemvfcY+3K6du4CSfs7iEjEpfOdhQeNvJW0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O5eG3ktZYMifgzMt7m0OJalm0RkBxpin3ruCipnjkVYysg0fCbvAi2VkClacudXeL
-         dQBuC5nVZPrtyTWSZu66XrHe6ElomP9UtCc3h7qwheqiU/cLXWuLfLN93hVyGDhQnS
-         wxi7uXBGm9H7trsXE7Jupq0EEZSyUXlpHR2IdxnA=
+        b=sa9v6HA9KjtrGk9x6r6bvrXPTUW7Ql3ItsrtWESnorKSSlruutG8Hy+up7uRxrWcI
+         zNa2/5CgKYlhZOpLXPrZZwr3g0XQsomm8w8XeMpcvyj3sz/4yxSxu8173pn8xD0Mbu
+         RbQ8eJVBg+dLH2Y1ESl/mPpHHu3VAAgSmXn/T27w=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wei Yongjun <weiyongjun1@huawei.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.7 021/274] net: ethernet: ti: fix return value check in k3_cppi_desc_pool_create_name()
-Date:   Mon,  8 Jun 2020 19:01:54 -0400
-Message-Id: <20200608230607.3361041-21-sashal@kernel.org>
+Cc:     Gavin Shan <gshan@redhat.com>, Mark Rutland <mark.rutland@arm.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.7 022/274] arm64/kernel: Fix range on invalidating dcache for boot page tables
+Date:   Mon,  8 Jun 2020 19:01:55 -0400
+Message-Id: <20200608230607.3361041-22-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608230607.3361041-1-sashal@kernel.org>
 References: <20200608230607.3361041-1-sashal@kernel.org>
@@ -43,37 +43,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Yongjun <weiyongjun1@huawei.com>
+From: Gavin Shan <gshan@redhat.com>
 
-[ Upstream commit 2ac757e4152e3322a04a6dfb3d1fa010d3521abf ]
+[ Upstream commit 9d2d75ede59bc1edd8561f2ee9d4702a5ea0ae30 ]
 
-In case of error, the function gen_pool_create() returns NULL pointer
-not ERR_PTR(). The IS_ERR() test in the return value check should be
-replaced with NULL test.
+Prior to commit 8eb7e28d4c642c31 ("arm64/mm: move runtime pgds to
+rodata"), idmap_pgd_dir, tramp_pg_dir, reserved_ttbr0, swapper_pg_dir,
+and init_pg_dir were contiguous at the end of the kernel image. The
+maintenance at the end of __create_page_tables assumed these were
+contiguous, and affected everything from the start of idmap_pg_dir
+to the end of init_pg_dir.
 
-Fixes: 93a76530316a ("net: ethernet: ti: introduce am65x/j721e gigabit eth subsystem driver")
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+That commit moved all but init_pg_dir into the .rodata section, with
+other data placed between idmap_pg_dir and init_pg_dir, but did not
+update the maintenance. Hence the maintenance is performed on much
+more data than necessary (but as the bootloader previously made this
+clean to the PoC there is no functional problem).
+
+As we only alter idmap_pg_dir, and init_pg_dir, we only need to perform
+maintenance for these. As the other dirs are in .rodata, the bootloader
+will have initialised them as expected and cleaned them to the PoC. The
+kernel will initialize them as necessary after enabling the MMU.
+
+This patch reworks the maintenance to only cover the idmap_pg_dir and
+init_pg_dir to avoid this unnecessary work.
+
+Signed-off-by: Gavin Shan <gshan@redhat.com>
+Reviewed-by: Mark Rutland <mark.rutland@arm.com>
+Link: https://lore.kernel.org/r/20200427235700.112220-1-gshan@redhat.com
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/ti/k3-cppi-desc-pool.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm64/include/asm/pgtable.h |  1 +
+ arch/arm64/kernel/head.S         | 12 +++++++++---
+ arch/arm64/kernel/vmlinux.lds.S  |  1 +
+ 3 files changed, 11 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/ti/k3-cppi-desc-pool.c b/drivers/net/ethernet/ti/k3-cppi-desc-pool.c
-index ad7cfc1316ce..38cc12f9f133 100644
---- a/drivers/net/ethernet/ti/k3-cppi-desc-pool.c
-+++ b/drivers/net/ethernet/ti/k3-cppi-desc-pool.c
-@@ -64,8 +64,8 @@ k3_cppi_desc_pool_create_name(struct device *dev, size_t size,
- 		return ERR_PTR(-ENOMEM);
+diff --git a/arch/arm64/include/asm/pgtable.h b/arch/arm64/include/asm/pgtable.h
+index 538c85e62f86..25f56df7ed9a 100644
+--- a/arch/arm64/include/asm/pgtable.h
++++ b/arch/arm64/include/asm/pgtable.h
+@@ -457,6 +457,7 @@ extern pgd_t init_pg_dir[PTRS_PER_PGD];
+ extern pgd_t init_pg_end[];
+ extern pgd_t swapper_pg_dir[PTRS_PER_PGD];
+ extern pgd_t idmap_pg_dir[PTRS_PER_PGD];
++extern pgd_t idmap_pg_end[];
+ extern pgd_t tramp_pg_dir[PTRS_PER_PGD];
  
- 	pool->gen_pool = gen_pool_create(ilog2(pool->desc_size), -1);
--	if (IS_ERR(pool->gen_pool)) {
--		ret = PTR_ERR(pool->gen_pool);
-+	if (!pool->gen_pool) {
-+		ret = -ENOMEM;
- 		dev_err(pool->dev, "pool create failed %d\n", ret);
- 		kfree_const(pool_name);
- 		goto gen_pool_create_fail;
+ extern void set_swapper_pgd(pgd_t *pgdp, pgd_t pgd);
+diff --git a/arch/arm64/kernel/head.S b/arch/arm64/kernel/head.S
+index 57a91032b4c2..32f5ecbec0ea 100644
+--- a/arch/arm64/kernel/head.S
++++ b/arch/arm64/kernel/head.S
+@@ -394,13 +394,19 @@ SYM_FUNC_START_LOCAL(__create_page_tables)
+ 
+ 	/*
+ 	 * Since the page tables have been populated with non-cacheable
+-	 * accesses (MMU disabled), invalidate the idmap and swapper page
+-	 * tables again to remove any speculatively loaded cache lines.
++	 * accesses (MMU disabled), invalidate those tables again to
++	 * remove any speculatively loaded cache lines.
+ 	 */
++	dmb	sy
++
+ 	adrp	x0, idmap_pg_dir
++	adrp	x1, idmap_pg_end
++	sub	x1, x1, x0
++	bl	__inval_dcache_area
++
++	adrp	x0, init_pg_dir
+ 	adrp	x1, init_pg_end
+ 	sub	x1, x1, x0
+-	dmb	sy
+ 	bl	__inval_dcache_area
+ 
+ 	ret	x28
+diff --git a/arch/arm64/kernel/vmlinux.lds.S b/arch/arm64/kernel/vmlinux.lds.S
+index 497f9675071d..94402aaf5f5c 100644
+--- a/arch/arm64/kernel/vmlinux.lds.S
++++ b/arch/arm64/kernel/vmlinux.lds.S
+@@ -139,6 +139,7 @@ SECTIONS
+ 
+ 	idmap_pg_dir = .;
+ 	. += IDMAP_DIR_SIZE;
++	idmap_pg_end = .;
+ 
+ #ifdef CONFIG_UNMAP_KERNEL_AT_EL0
+ 	tramp_pg_dir = .;
 -- 
 2.25.1
 
