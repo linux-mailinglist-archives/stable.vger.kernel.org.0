@@ -2,38 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 666941F281C
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:55:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 12BE71F2819
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:55:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732514AbgFHXsq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1732531AbgFHXsq (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 8 Jun 2020 19:48:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52282 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:52330 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731833AbgFHXZh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:25:37 -0400
+        id S1731843AbgFHXZj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:25:39 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D8F2B207C3;
-        Mon,  8 Jun 2020 23:25:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3D65C2072F;
+        Mon,  8 Jun 2020 23:25:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658736;
-        bh=SqMZ8KY+FjtbFnYZ4eKhIAmYzpPAlUIp/YzvchYKZzg=;
+        s=default; t=1591658738;
+        bh=sYvEZ3ie+tmaRMJshAXG4p97enIGKEhKVwoCNDYnywU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vlGkNWTjxE1v5YItC6y/LmMfNbCJIWk8lidNxOKY3QPWWZ8jWIyAy/A2pua9e6BFp
-         OfOx3WZE70lf27kUyjt5HuNVOKgLa1knxaQjOUhw+CdFhx6kMkJFla3+5YBMKyZNO5
-         xeqXyhLRkmHkdDVI34id5wLtce7ZF4G5b7VguNI8=
+        b=pNvNIKtB4u+w1U9a5xa9Zmw7BmzD1xFh9TtWtSnknXC9Nwbf05FbdA+BP5VzNrLWL
+         VNciAmDM6Uz9vtHcSwZcPUkPb8SFmTBIPWYlPYWCCQT/oTV1nwunPnSjeo/BPaXW0J
+         dtd2PWHraQRSTnljUxzxUSdHsMnEqgPimgCfRqtg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jaehoon Chung <jh80.chung@samsung.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org,
-        brcm80211-dev-list.pdl@broadcom.com,
-        brcm80211-dev-list@cypress.com, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 25/72] brcmfmac: fix wrong location to get firmware feature
-Date:   Mon,  8 Jun 2020 19:24:13 -0400
-Message-Id: <20200608232500.3369581-25-sashal@kernel.org>
+Cc:     Stephane Eranian <eranian@google.com>,
+        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@redhat.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Andrey Zhizhikin <andrey.z@gmail.com>,
+        Kan Liang <kan.liang@linux.intel.com>,
+        Kefeng Wang <wangkefeng.wang@huawei.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Petr Mladek <pmladek@suse.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 26/72] tools api fs: Make xxx__mountpoint() more scalable
+Date:   Mon,  8 Jun 2020 19:24:14 -0400
+Message-Id: <20200608232500.3369581-26-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608232500.3369581-1-sashal@kernel.org>
 References: <20200608232500.3369581-1-sashal@kernel.org>
@@ -46,43 +53,180 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jaehoon Chung <jh80.chung@samsung.com>
+From: Stephane Eranian <eranian@google.com>
 
-[ Upstream commit c57673852062428cdeabdd6501ac8b8e4c302067 ]
+[ Upstream commit c6fddb28bad26e5472cb7acf7b04cd5126f1a4ab ]
 
-sup_wpa feature is getting after setting feature_disable flag.
-If firmware is supported sup_wpa feature,  it's always enabled
-regardless of feature_disable flag.
+The xxx_mountpoint() interface provided by fs.c finds mount points for
+common pseudo filesystems. The first time xxx_mountpoint() is invoked,
+it scans the mount table (/proc/mounts) looking for a match. If found,
+it is cached. The price to scan /proc/mounts is paid once if the mount
+is found.
 
-Fixes: b8a64f0e96c2 ("brcmfmac: support 4-way handshake offloading for WPA/WPA2-PSK")
-Signed-off-by: Jaehoon Chung <jh80.chung@samsung.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20200330052528.10503-1-jh80.chung@samsung.com
+When the mount point is not found, subsequent calls to xxx_mountpoint()
+scan /proc/mounts over and over again.  There is no caching.
+
+This causes a scaling issue in perf record with hugeltbfs__mountpoint().
+The function is called for each process found in
+synthesize__mmap_events().  If the machine has thousands of processes
+and if the /proc/mounts has many entries this could cause major overhead
+in perf record. We have observed multi-second slowdowns on some
+configurations.
+
+As an example on a laptop:
+
+Before:
+
+  $ sudo umount /dev/hugepages
+  $ strace -e trace=openat -o /tmp/tt perf record -a ls
+  $ fgrep mounts /tmp/tt
+  285
+
+After:
+
+  $ sudo umount /dev/hugepages
+  $ strace -e trace=openat -o /tmp/tt perf record -a ls
+  $ fgrep mounts /tmp/tt
+  1
+
+One could argue that the non-caching in case the moint point is not
+found is intentional. That way subsequent calls may discover a moint
+point if the sysadmin mounts the filesystem. But the same argument could
+be made against caching the mount point. It could be unmounted causing
+errors.  It all depends on the intent of the interface. This patch
+assumes it is expected to scan /proc/mounts once. The patch documents
+the caching behavior in the fs.h header file.
+
+An alternative would be to just fix perf record. But it would solve the
+problem with hugetlbs__mountpoint() but there could be similar issues
+(possibly down the line) with other xxx_mountpoint() calls in perf or
+other tools.
+
+Signed-off-by: Stephane Eranian <eranian@google.com>
+Reviewed-by: Ian Rogers <irogers@google.com>
+Acked-by: Jiri Olsa <jolsa@redhat.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Andrey Zhizhikin <andrey.z@gmail.com>
+Cc: Kan Liang <kan.liang@linux.intel.com>
+Cc: Kefeng Wang <wangkefeng.wang@huawei.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Petr Mladek <pmladek@suse.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Link: http://lore.kernel.org/lkml/20200402154357.107873-3-irogers@google.com
+Signed-off-by: Ian Rogers <irogers@google.com>
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/broadcom/brcm80211/brcmfmac/feature.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ tools/lib/api/fs/fs.c | 17 +++++++++++++++++
+ tools/lib/api/fs/fs.h | 12 ++++++++++++
+ 2 files changed, 29 insertions(+)
 
-diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/feature.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/feature.c
-index 53ae30259989..473b2b3cb6f5 100644
---- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/feature.c
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/feature.c
-@@ -192,13 +192,14 @@ void brcmf_feat_attach(struct brcmf_pub *drvr)
- 	if (!err)
- 		ifp->drvr->feat_flags |= BIT(BRCMF_FEAT_SCAN_RANDOM_MAC);
+diff --git a/tools/lib/api/fs/fs.c b/tools/lib/api/fs/fs.c
+index 45b50b89009a..c61841051a90 100644
+--- a/tools/lib/api/fs/fs.c
++++ b/tools/lib/api/fs/fs.c
+@@ -90,6 +90,7 @@ struct fs {
+ 	const char * const	*mounts;
+ 	char			 path[PATH_MAX];
+ 	bool			 found;
++	bool			 checked;
+ 	long			 magic;
+ };
  
-+	brcmf_feat_iovar_int_get(ifp, BRCMF_FEAT_FWSUP, "sup_wpa");
-+
- 	if (drvr->settings->feature_disable) {
- 		brcmf_dbg(INFO, "Features: 0x%02x, disable: 0x%02x\n",
- 			  ifp->drvr->feat_flags,
- 			  drvr->settings->feature_disable);
- 		ifp->drvr->feat_flags &= ~drvr->settings->feature_disable;
+@@ -111,31 +112,37 @@ static struct fs fs__entries[] = {
+ 		.name	= "sysfs",
+ 		.mounts	= sysfs__fs_known_mountpoints,
+ 		.magic	= SYSFS_MAGIC,
++		.checked = false,
+ 	},
+ 	[FS__PROCFS] = {
+ 		.name	= "proc",
+ 		.mounts	= procfs__known_mountpoints,
+ 		.magic	= PROC_SUPER_MAGIC,
++		.checked = false,
+ 	},
+ 	[FS__DEBUGFS] = {
+ 		.name	= "debugfs",
+ 		.mounts	= debugfs__known_mountpoints,
+ 		.magic	= DEBUGFS_MAGIC,
++		.checked = false,
+ 	},
+ 	[FS__TRACEFS] = {
+ 		.name	= "tracefs",
+ 		.mounts	= tracefs__known_mountpoints,
+ 		.magic	= TRACEFS_MAGIC,
++		.checked = false,
+ 	},
+ 	[FS__HUGETLBFS] = {
+ 		.name	= "hugetlbfs",
+ 		.mounts = hugetlbfs__known_mountpoints,
+ 		.magic	= HUGETLBFS_MAGIC,
++		.checked = false,
+ 	},
+ 	[FS__BPF_FS] = {
+ 		.name	= "bpf",
+ 		.mounts = bpf_fs__known_mountpoints,
+ 		.magic	= BPF_FS_MAGIC,
++		.checked = false,
+ 	},
+ };
+ 
+@@ -158,6 +165,7 @@ static bool fs__read_mounts(struct fs *fs)
  	}
--	brcmf_feat_iovar_int_get(ifp, BRCMF_FEAT_FWSUP, "sup_wpa");
  
- 	/* set chip related quirks */
- 	switch (drvr->bus_if->chip) {
+ 	fclose(fp);
++	fs->checked = true;
+ 	return fs->found = found;
+ }
+ 
+@@ -220,6 +228,7 @@ static bool fs__env_override(struct fs *fs)
+ 		return false;
+ 
+ 	fs->found = true;
++	fs->checked = true;
+ 	strncpy(fs->path, override_path, sizeof(fs->path) - 1);
+ 	fs->path[sizeof(fs->path) - 1] = '\0';
+ 	return true;
+@@ -246,6 +255,14 @@ static const char *fs__mountpoint(int idx)
+ 	if (fs->found)
+ 		return (const char *)fs->path;
+ 
++	/* the mount point was already checked for the mount point
++	 * but and did not exist, so return NULL to avoid scanning again.
++	 * This makes the found and not found paths cost equivalent
++	 * in case of multiple calls.
++	 */
++	if (fs->checked)
++		return NULL;
++
+ 	return fs__get_mountpoint(fs);
+ }
+ 
+diff --git a/tools/lib/api/fs/fs.h b/tools/lib/api/fs/fs.h
+index dda49deefb52..57a3dc160b08 100644
+--- a/tools/lib/api/fs/fs.h
++++ b/tools/lib/api/fs/fs.h
+@@ -18,6 +18,18 @@
+ 	const char *name##__mount(void);	\
+ 	bool name##__configured(void);		\
+ 
++/*
++ * The xxxx__mountpoint() entry points find the first match mount point for each
++ * filesystems listed below, where xxxx is the filesystem type.
++ *
++ * The interface is as follows:
++ *
++ * - If a mount point is found on first call, it is cached and used for all
++ *   subsequent calls.
++ *
++ * - If a mount point is not found, NULL is returned on first call and all
++ *   subsequent calls.
++ */
+ FS(sysfs)
+ FS(procfs)
+ FS(debugfs)
 -- 
 2.25.1
 
