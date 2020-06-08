@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E4BF21F23CB
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:17:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C2461F22F9
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:12:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730259AbgFHXQd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 19:16:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37906 "EHLO mail.kernel.org"
+        id S1728909AbgFHXLb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 19:11:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58418 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729724AbgFHXQb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:16:31 -0400
+        id S1728908AbgFHXL3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:11:29 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 47A7820775;
-        Mon,  8 Jun 2020 23:16:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 02E8220897;
+        Mon,  8 Jun 2020 23:11:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658191;
-        bh=a2CY6OgccZ/MzILBCK547icbIFs4kUmhLQzNXn32fNs=;
+        s=default; t=1591657889;
+        bh=8ytuBy4b62zsfobpy3ImeP8JbnWVrWV3o5vABkvCtmw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gg4LnPOzpTeTZEmL1xc5tTFuJSlxzOybO/N0RKq6EFBzx98iqEKoVnv0ELvO6dO4Y
-         pxZJOFlWDBxlvxPrKqaf0CXD9vqLI5p+gdDVBtLBdTZzoVfiCDR/AvW++taGP1RMwa
-         ynG+6Jqtj7T4mHMxnPC7qFJ24Q4vf/LMVePLYl7M=
+        b=Q9ok72UT3eWh5tiCYk/2OMepss5v+ki2yWhrgP3HCrYb3LFDpU2Evyqx3d5dRUrV1
+         maugMZN1MAMgQ2U35/RKJNhxyuu6FmnxQM3DXuRr//NiGx1jl8FBTuHk+wBIn8uv2z
+         So0+FI10zfIiOMWT1Y7GVBUpvXnpRPqLxMplvCkQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     DENG Qingfang <dqfext@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        netdev@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.6 212/606] net: dsa: mt7530: fix roaming from DSA user ports
-Date:   Mon,  8 Jun 2020 19:05:37 -0400
-Message-Id: <20200608231211.3363633-212-sashal@kernel.org>
+Cc:     Marek Vasut <marex@denx.de>, Ulf Hansson <ulf.hansson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-mmc@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.7 245/274] mmc: mmci: Switch to mmc_regulator_set_vqmmc()
+Date:   Mon,  8 Jun 2020 19:05:38 -0400
+Message-Id: <20200608230607.3361041-245-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200608231211.3363633-1-sashal@kernel.org>
-References: <20200608231211.3363633-1-sashal@kernel.org>
+In-Reply-To: <20200608230607.3361041-1-sashal@kernel.org>
+References: <20200608230607.3361041-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -45,128 +42,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: DENG Qingfang <dqfext@gmail.com>
+From: Marek Vasut <marex@denx.de>
 
-[ Upstream commit 5e5502e012b8129e11be616acb0f9c34bc8f8adb ]
+[ Upstream commit 3e09a81e166c0a5544832459be17561a6b231ac7 ]
 
-When a client moves from a DSA user port to a software port in a bridge,
-it cannot reach any other clients that connected to the DSA user ports.
-That is because SA learning on the CPU port is disabled, so the switch
-ignores the client's frames from the CPU port and still thinks it is at
-the user port.
+Instead of reimplementing the logic in mmc_regulator_set_vqmmc(), use the
+mmc code function directly.
 
-Fix it by enabling SA learning on the CPU port.
+This also allows us to fix a related issue on STM32MP1, when a voltage
+switch of 1.8V is done for the eMMC, but the current level is already set
+to 1.8V. More precisely, in this scenario the call to the
+->post_sig_volt_switch() hangs, indefinitely waiting for the voltage switch
+to complete. Fix this problem by checking if mmc_regulator_set_vqmmc()
+returned 1 and then skip invoking the callback.
 
-To prevent the switch from learning from flooding frames from the CPU
-port, set skb->offload_fwd_mark to 1 for unicast and broadcast frames,
-and let the switch flood them instead of trapping to the CPU port.
-Multicast frames still need to be trapped to the CPU port for snooping,
-so set the SA_DIS bit of the MTK tag to 1 when transmitting those frames
-to disable SA learning.
-
-Fixes: b8f126a8d543 ("net-next: dsa: add dsa support for Mediatek MT7530 switch")
-Signed-off-by: DENG Qingfang <dqfext@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Marek Vasut <marex@denx.de>
+Link: https://lore.kernel.org/r/20200416163649.336967-3-marex@denx.de
+[Ulf: Updated the commit message]
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/mt7530.c |  9 ++-------
- drivers/net/dsa/mt7530.h |  1 +
- net/dsa/tag_mtk.c        | 15 +++++++++++++++
- 3 files changed, 18 insertions(+), 7 deletions(-)
+ drivers/mmc/host/mmci.c | 30 ++++++++----------------------
+ 1 file changed, 8 insertions(+), 22 deletions(-)
 
-diff --git a/drivers/net/dsa/mt7530.c b/drivers/net/dsa/mt7530.c
-index 0123498242b9..b95425a63a13 100644
---- a/drivers/net/dsa/mt7530.c
-+++ b/drivers/net/dsa/mt7530.c
-@@ -639,11 +639,8 @@ mt7530_cpu_port_enable(struct mt7530_priv *priv,
- 	mt7530_write(priv, MT7530_PVC_P(port),
- 		     PORT_SPEC_TAG);
- 
--	/* Disable auto learning on the cpu port */
--	mt7530_set(priv, MT7530_PSC_P(port), SA_DIS);
--
--	/* Unknown unicast frame fordwarding to the cpu port */
--	mt7530_set(priv, MT7530_MFC, UNU_FFP(BIT(port)));
-+	/* Unknown multicast frame forwarding to the cpu port */
-+	mt7530_rmw(priv, MT7530_MFC, UNM_FFP_MASK, UNM_FFP(BIT(port)));
- 
- 	/* Set CPU port number */
- 	if (priv->id == ID_MT7621)
-@@ -1247,8 +1244,6 @@ mt7530_setup(struct dsa_switch *ds)
- 	/* Enable and reset MIB counters */
- 	mt7530_mib_reset(ds);
- 
--	mt7530_clear(priv, MT7530_MFC, UNU_FFP_MASK);
--
- 	for (i = 0; i < MT7530_NUM_PORTS; i++) {
- 		/* Disable forwarding by default on all ports */
- 		mt7530_rmw(priv, MT7530_PCR_P(i), PCR_MATRIX_MASK,
-diff --git a/drivers/net/dsa/mt7530.h b/drivers/net/dsa/mt7530.h
-index 756140b7dfd5..0e7e36d8f994 100644
---- a/drivers/net/dsa/mt7530.h
-+++ b/drivers/net/dsa/mt7530.h
-@@ -31,6 +31,7 @@ enum {
- #define MT7530_MFC			0x10
- #define  BC_FFP(x)			(((x) & 0xff) << 24)
- #define  UNM_FFP(x)			(((x) & 0xff) << 16)
-+#define  UNM_FFP_MASK			UNM_FFP(~0)
- #define  UNU_FFP(x)			(((x) & 0xff) << 8)
- #define  UNU_FFP_MASK			UNU_FFP(~0)
- #define  CPU_EN				BIT(7)
-diff --git a/net/dsa/tag_mtk.c b/net/dsa/tag_mtk.c
-index b5705cba8318..d6619edd53e5 100644
---- a/net/dsa/tag_mtk.c
-+++ b/net/dsa/tag_mtk.c
-@@ -15,6 +15,7 @@
- #define MTK_HDR_XMIT_TAGGED_TPID_8100	1
- #define MTK_HDR_RECV_SOURCE_PORT_MASK	GENMASK(2, 0)
- #define MTK_HDR_XMIT_DP_BIT_MASK	GENMASK(5, 0)
-+#define MTK_HDR_XMIT_SA_DIS		BIT(6)
- 
- static struct sk_buff *mtk_tag_xmit(struct sk_buff *skb,
- 				    struct net_device *dev)
-@@ -22,6 +23,9 @@ static struct sk_buff *mtk_tag_xmit(struct sk_buff *skb,
- 	struct dsa_port *dp = dsa_slave_to_port(dev);
- 	u8 *mtk_tag;
- 	bool is_vlan_skb = true;
-+	unsigned char *dest = eth_hdr(skb)->h_dest;
-+	bool is_multicast_skb = is_multicast_ether_addr(dest) &&
-+				!is_broadcast_ether_addr(dest);
- 
- 	/* Build the special tag after the MAC Source Address. If VLAN header
- 	 * is present, it's required that VLAN header and special tag is
-@@ -47,6 +51,10 @@ static struct sk_buff *mtk_tag_xmit(struct sk_buff *skb,
- 		     MTK_HDR_XMIT_UNTAGGED;
- 	mtk_tag[1] = (1 << dp->index) & MTK_HDR_XMIT_DP_BIT_MASK;
- 
-+	/* Disable SA learning for multicast frames */
-+	if (unlikely(is_multicast_skb))
-+		mtk_tag[1] |= MTK_HDR_XMIT_SA_DIS;
-+
- 	/* Tag control information is kept for 802.1Q */
- 	if (!is_vlan_skb) {
- 		mtk_tag[2] = 0;
-@@ -61,6 +69,9 @@ static struct sk_buff *mtk_tag_rcv(struct sk_buff *skb, struct net_device *dev,
+diff --git a/drivers/mmc/host/mmci.c b/drivers/mmc/host/mmci.c
+index 647567def612..a69d6a0c2e15 100644
+--- a/drivers/mmc/host/mmci.c
++++ b/drivers/mmc/host/mmci.c
+@@ -1861,31 +1861,17 @@ static int mmci_get_cd(struct mmc_host *mmc)
+ static int mmci_sig_volt_switch(struct mmc_host *mmc, struct mmc_ios *ios)
  {
- 	int port;
- 	__be16 *phdr, hdr;
-+	unsigned char *dest = eth_hdr(skb)->h_dest;
-+	bool is_multicast_skb = is_multicast_ether_addr(dest) &&
-+				!is_broadcast_ether_addr(dest);
+ 	struct mmci_host *host = mmc_priv(mmc);
+-	int ret = 0;
+-
+-	if (!IS_ERR(mmc->supply.vqmmc)) {
++	int ret;
  
- 	if (unlikely(!pskb_may_pull(skb, MTK_HDR_LEN)))
- 		return NULL;
-@@ -86,6 +97,10 @@ static struct sk_buff *mtk_tag_rcv(struct sk_buff *skb, struct net_device *dev,
- 	if (!skb->dev)
- 		return NULL;
+-		switch (ios->signal_voltage) {
+-		case MMC_SIGNAL_VOLTAGE_330:
+-			ret = regulator_set_voltage(mmc->supply.vqmmc,
+-						2700000, 3600000);
+-			break;
+-		case MMC_SIGNAL_VOLTAGE_180:
+-			ret = regulator_set_voltage(mmc->supply.vqmmc,
+-						1700000, 1950000);
+-			break;
+-		case MMC_SIGNAL_VOLTAGE_120:
+-			ret = regulator_set_voltage(mmc->supply.vqmmc,
+-						1100000, 1300000);
+-			break;
+-		}
++	ret = mmc_regulator_set_vqmmc(mmc, ios);
  
-+	/* Only unicast or broadcast frames are offloaded */
-+	if (likely(!is_multicast_skb))
-+		skb->offload_fwd_mark = 1;
-+
- 	return skb;
+-		if (!ret && host->ops && host->ops->post_sig_volt_switch)
+-			ret = host->ops->post_sig_volt_switch(host, ios);
++	if (!ret && host->ops && host->ops->post_sig_volt_switch)
++		ret = host->ops->post_sig_volt_switch(host, ios);
++	else if (ret)
++		ret = 0;
+ 
+-		if (ret)
+-			dev_warn(mmc_dev(mmc), "Voltage switch failed\n");
+-	}
++	if (ret < 0)
++		dev_warn(mmc_dev(mmc), "Voltage switch failed\n");
+ 
+ 	return ret;
  }
- 
 -- 
 2.25.1
 
