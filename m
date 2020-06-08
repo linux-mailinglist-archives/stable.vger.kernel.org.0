@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0739B1F2DD6
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:38:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E177E1F3043
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:58:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729652AbgFHXN7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 19:13:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33906 "EHLO mail.kernel.org"
+        id S2387934AbgFIA5f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 20:57:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54334 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728249AbgFHXN6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:13:58 -0400
+        id S1728256AbgFHXIt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:08:49 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A4C91208C3;
-        Mon,  8 Jun 2020 23:13:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E2A5E20890;
+        Mon,  8 Jun 2020 23:08:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658038;
-        bh=5dYKczIvQ+iFI127IXOGGHsWU0/YsZaZeXftt1nV9sg=;
+        s=default; t=1591657728;
+        bh=PUyU3U9isDmaYsYKg2rpQuCuvr/2DQIyf+WB6GzmRyQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NkRzZo2QJ8th5SxXeyPHztf26SBMrdfWnbMdXzfhtnjIYdoltg2m6VyEYAED40S6n
-         Xzg9WiOa0GoQE0FHoMMlA/6ShUBXbQQR1f2Ok9wHWxLkiI1bg2pKh/V9i3F7gufOfk
-         FRi9Mt81q0+N8GalzXaO2XumN1R51Z3eZFLY1V6o=
+        b=oCDWNenV3khRsXaTAPT50HJksh3vDUleuUpZFjq3ZTRvU/fKbDps/Pp5kuTr41S9E
+         nMXTeeZi6/LMatBmpceTfaxp4DG+JRxlnKaawoAG2rJ7/he/Eulynp8uVOJQZQlDhp
+         Uw6ERkJ3JyzYPvGxi/SnGVQ8O2njKxiR7rYGRf9Q=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Miquel Raynal <miquel.raynal@bootlin.com>,
-        Boris Brezillon <boris.brezillon@collabora.com>,
-        Richard Weinberger <richard@nod.at>,
-        Sasha Levin <sashal@kernel.org>, linux-mtd@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.6 088/606] mtd: spinand: Propagate ECC information to the MTD structure
+Cc:     Jesper Dangaard Brouer <brouer@redhat.com>,
+        Ioana Ciornei <ioana.ciornei@nxp.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.7 120/274] dpaa2-eth: fix return codes used in ndo_setup_tc
 Date:   Mon,  8 Jun 2020 19:03:33 -0400
-Message-Id: <20200608231211.3363633-88-sashal@kernel.org>
+Message-Id: <20200608230607.3361041-120-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200608231211.3363633-1-sashal@kernel.org>
-References: <20200608231211.3363633-1-sashal@kernel.org>
+In-Reply-To: <20200608230607.3361041-1-sashal@kernel.org>
+References: <20200608230607.3361041-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -44,39 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miquel Raynal <miquel.raynal@bootlin.com>
+From: Jesper Dangaard Brouer <brouer@redhat.com>
 
-[ Upstream commit 3507273d5a4d3c2e46f9d3f9ed9449805f5dff07 ]
+[ Upstream commit b89c1e6bdc73f5775e118eb2ab778e75b262b30c ]
 
-This is done by default in the raw NAND core (nand_base.c) but was
-missing in the SPI-NAND core. Without these two lines the ecc_strength
-and ecc_step_size values are not exported to the user through sysfs.
+Drivers ndo_setup_tc call should return -EOPNOTSUPP, when it cannot
+support the qdisc type. Other return values will result in failing the
+qdisc setup.  This lead to qdisc noop getting assigned, which will
+drop all TX packets on the interface.
 
-Fixes: 7529df465248 ("mtd: nand: Add core infrastructure to support SPI NANDs")
-Cc: stable@vger.kernel.org
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Fixes: ab1e6de2bd49 ("dpaa2-eth: Add mqprio support")
+Signed-off-by: Jesper Dangaard Brouer <brouer@redhat.com>
+Tested-by: Ioana Ciornei <ioana.ciornei@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/nand/spi/core.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/mtd/nand/spi/core.c b/drivers/mtd/nand/spi/core.c
-index 8dda51bbdd11..0d21c68bfe24 100644
---- a/drivers/mtd/nand/spi/core.c
-+++ b/drivers/mtd/nand/spi/core.c
-@@ -1049,6 +1049,10 @@ static int spinand_init(struct spinand_device *spinand)
+diff --git a/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c b/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c
+index d97c320a2dc0..569e06d2bab2 100644
+--- a/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c
++++ b/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c
+@@ -2018,7 +2018,7 @@ static int dpaa2_eth_setup_tc(struct net_device *net_dev,
+ 	int i;
  
- 	mtd->oobavail = ret;
+ 	if (type != TC_SETUP_QDISC_MQPRIO)
+-		return -EINVAL;
++		return -EOPNOTSUPP;
  
-+	/* Propagate ECC information to mtd_info */
-+	mtd->ecc_strength = nand->eccreq.strength;
-+	mtd->ecc_step_size = nand->eccreq.step_size;
-+
- 	return 0;
+ 	mqprio->hw = TC_MQPRIO_HW_OFFLOAD_TCS;
+ 	num_queues = dpaa2_eth_queue_count(priv);
+@@ -2030,7 +2030,7 @@ static int dpaa2_eth_setup_tc(struct net_device *net_dev,
+ 	if (num_tc  > dpaa2_eth_tc_count(priv)) {
+ 		netdev_err(net_dev, "Max %d traffic classes supported\n",
+ 			   dpaa2_eth_tc_count(priv));
+-		return -EINVAL;
++		return -EOPNOTSUPP;
+ 	}
  
- err_cleanup_nanddev:
+ 	if (!num_tc) {
 -- 
 2.25.1
 
