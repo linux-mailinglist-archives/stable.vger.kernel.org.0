@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B37AE1F2DE6
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:38:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C94271F3071
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:59:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733071AbgFIAhT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 20:37:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33688 "EHLO mail.kernel.org"
+        id S1727001AbgFIA7Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 20:59:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54028 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728226AbgFHXNr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:13:47 -0400
+        id S1728198AbgFHXIh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:08:37 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E572F2151B;
-        Mon,  8 Jun 2020 23:13:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5376A2086A;
+        Mon,  8 Jun 2020 23:08:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658026;
-        bh=zESFxIFR4j5NKmOI/snMfU7cpIAaidE+dty64bB3DYM=;
+        s=default; t=1591657717;
+        bh=FmZBpMkmKEa+BWw2RykpSg1I5MeKBmsg8bPHuXEZEK8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yl7m359BXnoO073N3qpqv2BjJfoJA5iTeg0jliyijLvp81IytqPPy2iohmEBRtQTh
-         q+z/OPdFta5q4oOIaA+jwyWP5p/qeMZ43kY7K1CvF6zEiVfzJbTQWpPQrWjjWyykbQ
-         sTAoiKY5QX5QrWHfqVq9pQ3qRrKJEMR+i6IJ43Mg=
+        b=W6rJQxXlXjAc6JHfSj3g+msk86nQMQ/0uy8joQExtx0+6ZXEydKKqv+4pdOYFI4Jm
+         l0Kp0u90Fxcj1sy470gnqMabTahGul1mNJgZlLvyRsG9VgYORvSi/io2tOxlFzuZLf
+         TPm/aDgogJGEyXAaP33CUPEx7ZlY2VO5xwTZ6XBc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sergei Trofimovich <slyfox@gentoo.org>,
-        Jiri Kosina <jkosina@suse.cz>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Thomas Backlund <tmb@mageia.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kbuild@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.6 078/606] Makefile: disallow data races on gcc-10 as well
-Date:   Mon,  8 Jun 2020 19:03:23 -0400
-Message-Id: <20200608231211.3363633-78-sashal@kernel.org>
+Cc:     Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org,
+        linux-renesas-soc@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.7 111/274] media: platform: fcp: Set appropriate DMA parameters
+Date:   Mon,  8 Jun 2020 19:03:24 -0400
+Message-Id: <20200608230607.3361041-111-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200608231211.3363633-1-sashal@kernel.org>
-References: <20200608231211.3363633-1-sashal@kernel.org>
+In-Reply-To: <20200608230607.3361041-1-sashal@kernel.org>
+References: <20200608230607.3361041-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -46,36 +46,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergei Trofimovich <slyfox@gentoo.org>
+From: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
 
-commit b1112139a103b4b1101d0d2d72931f2d33d8c978 upstream.
+[ Upstream commit dd844fb8e50b12e65bbdc5746c9876c6735500df ]
 
-gcc-10 will rename --param=allow-store-data-races=0
-to -fno-allow-store-data-races.
+Enabling CONFIG_DMA_API_DEBUG=y and CONFIG_DMA_API_DEBUG_SG=y will
+enable extra validation on DMA operations ensuring that the size
+restraints are met.
 
-The flag change happened at https://gcc.gnu.org/PR92046.
+When using the FCP in conjunction with the VSP1/DU, and display frames,
+the size of the DMA operations is larger than the default maximum
+segment size reported by the DMA core (64K). With the DMA debug enabled,
+this produces a warning such as the following:
 
-Signed-off-by: Sergei Trofimovich <slyfox@gentoo.org>
-Acked-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Cc: Thomas Backlund <tmb@mageia.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+"DMA-API: rcar-fcp fea27000.fcp: mapping sg segment longer than device
+claims to support [len=3145728] [max=65536]"
+
+We have no specific limitation on the segment size which isn't already
+handled by the VSP1/DU which actually handles the DMA allcoations and
+buffer management, so define a maximum segment size of up to 4GB (a 32
+bit mask).
+
+Reported-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Fixes: 7b49235e83b2 ("[media] v4l: Add Renesas R-Car FCP driver")
+Signed-off-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Tested-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Makefile | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/media/platform/rcar-fcp.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/Makefile b/Makefile
-index 955b57a8ec15..7afb6942d3f7 100644
---- a/Makefile
-+++ b/Makefile
-@@ -710,6 +710,7 @@ endif
+diff --git a/drivers/media/platform/rcar-fcp.c b/drivers/media/platform/rcar-fcp.c
+index 43c78620c9d8..5c6b00737fe7 100644
+--- a/drivers/media/platform/rcar-fcp.c
++++ b/drivers/media/platform/rcar-fcp.c
+@@ -8,6 +8,7 @@
+  */
  
- # Tell gcc to never replace conditional load with a non-conditional one
- KBUILD_CFLAGS	+= $(call cc-option,--param=allow-store-data-races=0)
-+KBUILD_CFLAGS	+= $(call cc-option,-fno-allow-store-data-races)
+ #include <linux/device.h>
++#include <linux/dma-mapping.h>
+ #include <linux/list.h>
+ #include <linux/module.h>
+ #include <linux/mod_devicetable.h>
+@@ -21,6 +22,7 @@
+ struct rcar_fcp_device {
+ 	struct list_head list;
+ 	struct device *dev;
++	struct device_dma_parameters dma_parms;
+ };
  
- include scripts/Makefile.kcov
- include scripts/Makefile.gcc-plugins
+ static LIST_HEAD(fcp_devices);
+@@ -136,6 +138,9 @@ static int rcar_fcp_probe(struct platform_device *pdev)
+ 
+ 	fcp->dev = &pdev->dev;
+ 
++	fcp->dev->dma_parms = &fcp->dma_parms;
++	dma_set_max_seg_size(fcp->dev, DMA_BIT_MASK(32));
++
+ 	pm_runtime_enable(&pdev->dev);
+ 
+ 	mutex_lock(&fcp_lock);
 -- 
 2.25.1
 
