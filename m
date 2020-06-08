@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A2D101F22E6
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:12:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8897F1F22E8
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:12:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728805AbgFHXLA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 19:11:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57524 "EHLO mail.kernel.org"
+        id S1728816AbgFHXLE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 19:11:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57638 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728798AbgFHXK7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:10:59 -0400
+        id S1728809AbgFHXLC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:11:02 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7260F20E65;
-        Mon,  8 Jun 2020 23:10:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E42EF2100A;
+        Mon,  8 Jun 2020 23:11:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591657859;
-        bh=7McYIa9P3Rh28JO6FRRv8eTfuuEGvhSv6QQoypGjkZ4=;
+        s=default; t=1591657861;
+        bh=FSSEj0I+Qs96LnMPO/9ObpRwOVHhKyOHosCzGUsdNQk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h5g3+OahlaK5paaudlsHuxazMgq2TiVbGAYLOZQhDW2PCsYSgfcECIY3WGPdfQKXc
-         0cFswUmyNjZNUm9PKleh0Au9atEKhaXffcdeuvtIX/rfmlAaRsZmpTktuakqt97cFO
-         Zun57MrGo6auY9G/yRRbEWtHoSVwCuIFosxUzwiY=
+        b=nY3tjfeOqLqgfHbWwjoH5T27o3y8gH28q9tJMm/TN+uLkzmsmETD7q9GbZGbt3Fzk
+         x6UXe4Of/sKdjqdk6XzkpyLFiBUxWY38cM+xhfdeKmOGyi2QZWaQ+AdNoehyxmQ59V
+         ZXutCAWtYP3Li6wveroouNtF2jTLn7h+SzEQ7WoM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nicolas Toromanoff <nicolas.toromanoff@st.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>, linux-crypto@vger.kernel.org,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.7 222/274] crypto: stm32/crc32 - fix multi-instance
-Date:   Mon,  8 Jun 2020 19:05:15 -0400
-Message-Id: <20200608230607.3361041-222-sashal@kernel.org>
+Cc:     Felix Kuehling <Felix.Kuehling@amd.com>,
+        Jay Cornwall <Jay.Cornwall@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.7 224/274] drm/amdgpu: Sync with VM root BO when switching VM to CPU update mode
+Date:   Mon,  8 Jun 2020 19:05:17 -0400
+Message-Id: <20200608230607.3361041-224-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608230607.3361041-1-sashal@kernel.org>
 References: <20200608230607.3361041-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -45,120 +47,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Toromanoff <nicolas.toromanoff@st.com>
+From: Felix Kuehling <Felix.Kuehling@amd.com>
 
-[ Upstream commit 10b89c43a64eb0d236903b79a3bc9d8f6cbfd9c7 ]
+[ Upstream commit 90ca78deb004abe75b5024968a199acb96bb70f9 ]
 
-Ensure CRC algorithm is registered only once in crypto framework when
-there are several instances of CRC devices.
+This fixes an intermittent bug where a root PD clear operation still in
+progress could overwrite a PDE update done by the CPU, resulting in a
+VM fault.
 
-Update the CRC device list management to avoid that only the first CRC
-instance is used.
-
-Fixes: b51dbe90912a ("crypto: stm32 - Support for STM32 CRC32 crypto module")
-
-Signed-off-by: Nicolas Toromanoff <nicolas.toromanoff@st.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: 108b4d928c03 ("drm/amd/amdgpu: Update VM function pointer")
+Reported-by: Jay Cornwall <Jay.Cornwall@amd.com>
+Tested-by: Jay Cornwall <Jay.Cornwall@amd.com>
+Signed-off-by: Felix Kuehling <Felix.Kuehling@amd.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/stm32/stm32-crc32.c | 48 ++++++++++++++++++++++--------
- 1 file changed, 36 insertions(+), 12 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/crypto/stm32/stm32-crc32.c b/drivers/crypto/stm32/stm32-crc32.c
-index 1c3e411b7acb..10304511f9b4 100644
---- a/drivers/crypto/stm32/stm32-crc32.c
-+++ b/drivers/crypto/stm32/stm32-crc32.c
-@@ -91,16 +91,29 @@ static int stm32_crc_setkey(struct crypto_shash *tfm, const u8 *key,
- 	return 0;
- }
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c
+index 6d9252a27916..06242096973c 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c
+@@ -2996,10 +2996,17 @@ int amdgpu_vm_make_compute(struct amdgpu_device *adev, struct amdgpu_vm *vm,
+ 		   !amdgpu_gmc_vram_full_visible(&adev->gmc)),
+ 		  "CPU update of VM recommended only for large BAR system\n");
  
--static int stm32_crc_init(struct shash_desc *desc)
-+static struct stm32_crc *stm32_crc_get_next_crc(void)
- {
--	struct stm32_crc_desc_ctx *ctx = shash_desc_ctx(desc);
--	struct stm32_crc_ctx *mctx = crypto_shash_ctx(desc->tfm);
- 	struct stm32_crc *crc;
- 
- 	spin_lock_bh(&crc_list.lock);
- 	crc = list_first_entry(&crc_list.dev_list, struct stm32_crc, list);
-+	if (crc)
-+		list_move_tail(&crc->list, &crc_list.dev_list);
- 	spin_unlock_bh(&crc_list.lock);
- 
-+	return crc;
-+}
+-	if (vm->use_cpu_for_update)
++	if (vm->use_cpu_for_update) {
++		/* Sync with last SDMA update/clear before switching to CPU */
++		r = amdgpu_bo_sync_wait(vm->root.base.bo,
++					AMDGPU_FENCE_OWNER_UNDEFINED, true);
++		if (r)
++			goto free_idr;
 +
-+static int stm32_crc_init(struct shash_desc *desc)
-+{
-+	struct stm32_crc_desc_ctx *ctx = shash_desc_ctx(desc);
-+	struct stm32_crc_ctx *mctx = crypto_shash_ctx(desc->tfm);
-+	struct stm32_crc *crc;
-+
-+	crc = stm32_crc_get_next_crc();
-+	if (!crc)
-+		return -ENODEV;
-+
- 	pm_runtime_get_sync(crc->dev);
- 
- 	/* Reset, set key, poly and configure in bit reverse mode */
-@@ -125,9 +138,9 @@ static int stm32_crc_update(struct shash_desc *desc, const u8 *d8,
- 	struct stm32_crc_ctx *mctx = crypto_shash_ctx(desc->tfm);
- 	struct stm32_crc *crc;
- 
--	spin_lock_bh(&crc_list.lock);
--	crc = list_first_entry(&crc_list.dev_list, struct stm32_crc, list);
--	spin_unlock_bh(&crc_list.lock);
-+	crc = stm32_crc_get_next_crc();
-+	if (!crc)
-+		return -ENODEV;
- 
- 	pm_runtime_get_sync(crc->dev);
- 
-@@ -200,6 +213,8 @@ static int stm32_crc_digest(struct shash_desc *desc, const u8 *data,
- 	return stm32_crc_init(desc) ?: stm32_crc_finup(desc, data, length, out);
- }
- 
-+static unsigned int refcnt;
-+static DEFINE_MUTEX(refcnt_lock);
- static struct shash_alg algs[] = {
- 	/* CRC-32 */
- 	{
-@@ -290,12 +305,18 @@ static int stm32_crc_probe(struct platform_device *pdev)
- 	list_add(&crc->list, &crc_list.dev_list);
- 	spin_unlock(&crc_list.lock);
- 
--	ret = crypto_register_shashes(algs, ARRAY_SIZE(algs));
--	if (ret) {
--		dev_err(dev, "Failed to register\n");
--		clk_disable_unprepare(crc->clk);
--		return ret;
-+	mutex_lock(&refcnt_lock);
-+	if (!refcnt) {
-+		ret = crypto_register_shashes(algs, ARRAY_SIZE(algs));
-+		if (ret) {
-+			mutex_unlock(&refcnt_lock);
-+			dev_err(dev, "Failed to register\n");
-+			clk_disable_unprepare(crc->clk);
-+			return ret;
-+		}
- 	}
-+	refcnt++;
-+	mutex_unlock(&refcnt_lock);
- 
- 	dev_info(dev, "Initialized\n");
- 
-@@ -316,7 +337,10 @@ static int stm32_crc_remove(struct platform_device *pdev)
- 	list_del(&crc->list);
- 	spin_unlock(&crc_list.lock);
- 
--	crypto_unregister_shashes(algs, ARRAY_SIZE(algs));
-+	mutex_lock(&refcnt_lock);
-+	if (!--refcnt)
-+		crypto_unregister_shashes(algs, ARRAY_SIZE(algs));
-+	mutex_unlock(&refcnt_lock);
- 
- 	pm_runtime_disable(crc->dev);
- 	pm_runtime_put_noidle(crc->dev);
+ 		vm->update_funcs = &amdgpu_vm_cpu_funcs;
+-	else
++	} else {
+ 		vm->update_funcs = &amdgpu_vm_sdma_funcs;
++	}
+ 	dma_fence_put(vm->last_update);
+ 	vm->last_update = NULL;
+ 	vm->is_compute_context = true;
 -- 
 2.25.1
 
