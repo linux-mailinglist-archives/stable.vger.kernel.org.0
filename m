@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6034B1F24EA
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:25:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C135D1F24ED
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:25:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730314AbgFHXXs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 19:23:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49268 "EHLO mail.kernel.org"
+        id S1731551AbgFHXXy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 19:23:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49614 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731532AbgFHXXm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:23:42 -0400
+        id S1731547AbgFHXXw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:23:52 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E96B82086A;
-        Mon,  8 Jun 2020 23:23:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4D6CF208A9;
+        Mon,  8 Jun 2020 23:23:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658621;
-        bh=UsEG3iC+oiPsZweDeQ31oi9Cjb/xTjbfwlSd+iowqvs=;
+        s=default; t=1591658632;
+        bh=5nAVtwoFHCoPigIxGOY2qWRJl5r7Z7evVNEqTcc2Ow8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iiiZk+3AF8vmVimKdnZ2f4NNfL7cpscyu5p2DOreJQ4MLonVPV85Bxs9HMoZptH9E
-         s5aWekXOal4x4+3ItcBsYI9zyLdkW9AMxwhZphJHSVHs6MV58K25GqUjb54ujDi4tH
-         WTXpfdB0MNllD1EHnGOpq6XysuvSIHiA6zxe3VYY=
+        b=Anwz8KRDnOBdu9nYCgQgnH/w3b6OnLEAyV1wOgxM0oQXQxt183bu7M49Fs56YjNUq
+         4iZ0LS4IG8wzMEgFar9yJN8OcfugUkZsyPqkNuGiWZsqSDb9fLseUxqJL4VOg7XsJv
+         vx4zWEl0vybFzvHC0ILZMSjqVsGpi+z2XVLEGuHM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nathan Chancellor <natechancellor@gmail.com>,
-        Dmitry Golovin <dima@golovin.in>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+Cc:     Masashi Honma <masashi.honma@gmail.com>,
+        Denis <pro.denis@protonmail.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>,
-        clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 4.19 046/106] lib/mpi: Fix 64-bit MIPS build with Clang
-Date:   Mon,  8 Jun 2020 19:21:38 -0400
-Message-Id: <20200608232238.3368589-46-sashal@kernel.org>
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 055/106] ath9k_htc: Silence undersized packet warnings
+Date:   Mon,  8 Jun 2020 19:21:47 -0400
+Message-Id: <20200608232238.3368589-55-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608232238.3368589-1-sashal@kernel.org>
 References: <20200608232238.3368589-1-sashal@kernel.org>
@@ -45,67 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Masashi Honma <masashi.honma@gmail.com>
 
-[ Upstream commit 18f1ca46858eac22437819937ae44aa9a8f9f2fa ]
+[ Upstream commit 450edd2805982d14ed79733a82927d2857b27cac ]
 
-When building 64r6_defconfig with CONFIG_MIPS32_O32 disabled and
-CONFIG_CRYPTO_RSA enabled:
+Some devices like TP-Link TL-WN722N produces this kind of messages
+frequently.
 
-lib/mpi/generic_mpih-mul1.c:37:24: error: invalid use of a cast in a
-inline asm context requiring an l-value: remove the cast
-or build with -fheinous-gnu-extensions
-                umul_ppmm(prod_high, prod_low, s1_ptr[j], s2_limb);
-                ~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-lib/mpi/longlong.h:664:22: note: expanded from macro 'umul_ppmm'
-                 : "=d" ((UDItype)(w0))
-                         ~~~~~~~~~~^~~
-lib/mpi/generic_mpih-mul1.c:37:13: error: invalid use of a cast in a
-inline asm context requiring an l-value: remove the cast
-or build with -fheinous-gnu-extensions
-                umul_ppmm(prod_high, prod_low, s1_ptr[j], s2_limb);
-                ~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-lib/mpi/longlong.h:668:22: note: expanded from macro 'umul_ppmm'
-                 : "=d" ((UDItype)(w1))
-                         ~~~~~~~~~~^~~
-2 errors generated.
+kernel: ath: phy0: Short RX data len, dropping (dlen: 4)
 
-This special case for umul_ppmm for MIPS64r6 was added in
-commit bbc25bee37d2b ("lib/mpi: Fix umul_ppmm() for MIPS64r6"), due to
-GCC being inefficient and emitting a __multi3 intrinsic.
+This warning is useful for developers to recognize that the device
+(Wi-Fi dongle or USB hub etc) is noisy but not for general users. So
+this patch make this warning to debug message.
 
-There is no such issue with clang; with this patch applied, I can build
-this configuration without any problems and there are no link errors
-like mentioned in the commit above (which I can still reproduce with
-GCC 9.3.0 when that commit is reverted). Only use this definition when
-GCC is being used.
-
-This really should have been caught by commit b0c091ae04f67 ("lib/mpi:
-Eliminate unused umul_ppmm definitions for MIPS") when I was messing
-around in this area but I was not testing 64-bit MIPS at the time.
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/885
-Reported-by: Dmitry Golovin <dima@golovin.in>
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Reported-By: Denis <pro.denis@protonmail.com>
+Ref: https://bugzilla.kernel.org/show_bug.cgi?id=207539
+Fixes: cd486e627e67 ("ath9k_htc: Discard undersized packets")
+Signed-off-by: Masashi Honma <masashi.honma@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20200504214443.4485-1-masashi.honma@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/mpi/longlong.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/ath/ath9k/htc_drv_txrx.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/lib/mpi/longlong.h b/lib/mpi/longlong.h
-index e01b705556aa..6c5229f98c9e 100644
---- a/lib/mpi/longlong.h
-+++ b/lib/mpi/longlong.h
-@@ -671,7 +671,7 @@ do {						\
- 	**************  MIPS/64  **************
- 	***************************************/
- #if (defined(__mips) && __mips >= 3) && W_TYPE_SIZE == 64
--#if defined(__mips_isa_rev) && __mips_isa_rev >= 6
-+#if defined(__mips_isa_rev) && __mips_isa_rev >= 6 && defined(CONFIG_CC_IS_GCC)
- /*
-  * GCC ends up emitting a __multi3 intrinsic call for MIPS64r6 with the plain C
-  * code below, so we special case MIPS64r6 until the compiler can do better.
+diff --git a/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c b/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c
+index b5d7ef4da17f..f19393e584dc 100644
+--- a/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c
++++ b/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c
+@@ -999,9 +999,9 @@ static bool ath9k_rx_prepare(struct ath9k_htc_priv *priv,
+ 	 * which are not PHY_ERROR (short radar pulses have a length of 3)
+ 	 */
+ 	if (unlikely(!rs_datalen || (rs_datalen < 10 && !is_phyerr))) {
+-		ath_warn(common,
+-			 "Short RX data len, dropping (dlen: %d)\n",
+-			 rs_datalen);
++		ath_dbg(common, ANY,
++			"Short RX data len, dropping (dlen: %d)\n",
++			rs_datalen);
+ 		goto rx_next;
+ 	}
+ 
 -- 
 2.25.1
 
