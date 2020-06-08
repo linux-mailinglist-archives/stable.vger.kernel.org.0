@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E177E1F3043
+	by mail.lfdr.de (Postfix) with ESMTP id 6BE171F3042
 	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:58:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387934AbgFIA5f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 20:57:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54334 "EHLO mail.kernel.org"
+        id S1731740AbgFIA5d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 20:57:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54374 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728256AbgFHXIt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:08:49 -0400
+        id S1728262AbgFHXIu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:08:50 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E2A5E20890;
-        Mon,  8 Jun 2020 23:08:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 10950208C7;
+        Mon,  8 Jun 2020 23:08:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591657728;
-        bh=PUyU3U9isDmaYsYKg2rpQuCuvr/2DQIyf+WB6GzmRyQ=;
+        s=default; t=1591657729;
+        bh=SWWGoQsVVAyjX/AN81bixPfF8lDzZ/UMYuq0YgzmvUs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oCDWNenV3khRsXaTAPT50HJksh3vDUleuUpZFjq3ZTRvU/fKbDps/Pp5kuTr41S9E
-         nMXTeeZi6/LMatBmpceTfaxp4DG+JRxlnKaawoAG2rJ7/he/Eulynp8uVOJQZQlDhp
-         Uw6ERkJ3JyzYPvGxi/SnGVQ8O2njKxiR7rYGRf9Q=
+        b=AQ6VfoPodepn32on6YldBsZakXGLZ2rsGgt+KUpcALeqGTla3c5h7X27iXe1pRgX9
+         IUAdDgHjyhtv0B7Q/S0VHWx6gNfoaACjo47k9SuR8TE+dK5fT9TtywEPDdCU5x5jkp
+         WHCHsT4To1unWZq44INcFyBVd3Ev/KOIw67IkCB0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jesper Dangaard Brouer <brouer@redhat.com>,
-        Ioana Ciornei <ioana.ciornei@nxp.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.7 120/274] dpaa2-eth: fix return codes used in ndo_setup_tc
-Date:   Mon,  8 Jun 2020 19:03:33 -0400
-Message-Id: <20200608230607.3361041-120-sashal@kernel.org>
+Cc:     Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>, linux-bcache@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.7 121/274] bcache: remove a duplicate ->make_request_fn assignment
+Date:   Mon,  8 Jun 2020 19:03:34 -0400
+Message-Id: <20200608230607.3361041-121-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608230607.3361041-1-sashal@kernel.org>
 References: <20200608230607.3361041-1-sashal@kernel.org>
@@ -44,46 +42,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jesper Dangaard Brouer <brouer@redhat.com>
+From: Christoph Hellwig <hch@lst.de>
 
-[ Upstream commit b89c1e6bdc73f5775e118eb2ab778e75b262b30c ]
+[ Upstream commit a91b2014fc31dc6eaa02ca33aa3b4d1b6e4a0207 ]
 
-Drivers ndo_setup_tc call should return -EOPNOTSUPP, when it cannot
-support the qdisc type. Other return values will result in failing the
-qdisc setup.  This lead to qdisc noop getting assigned, which will
-drop all TX packets on the interface.
+The make_request_fn pointer should only be assigned by blk_alloc_queue.
+Fix a left over manual initialization.
 
-Fixes: ab1e6de2bd49 ("dpaa2-eth: Add mqprio support")
-Signed-off-by: Jesper Dangaard Brouer <brouer@redhat.com>
-Tested-by: Ioana Ciornei <ioana.ciornei@nxp.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: ff27668ce809 ("bcache: pass the make_request methods to blk_queue_make_request")
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/md/bcache/request.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c b/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c
-index d97c320a2dc0..569e06d2bab2 100644
---- a/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c
-+++ b/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c
-@@ -2018,7 +2018,7 @@ static int dpaa2_eth_setup_tc(struct net_device *net_dev,
- 	int i;
+diff --git a/drivers/md/bcache/request.c b/drivers/md/bcache/request.c
+index 71a90fbec314..77d1a2697517 100644
+--- a/drivers/md/bcache/request.c
++++ b/drivers/md/bcache/request.c
+@@ -1372,7 +1372,6 @@ void bch_flash_dev_request_init(struct bcache_device *d)
+ {
+ 	struct gendisk *g = d->disk;
  
- 	if (type != TC_SETUP_QDISC_MQPRIO)
--		return -EINVAL;
-+		return -EOPNOTSUPP;
- 
- 	mqprio->hw = TC_MQPRIO_HW_OFFLOAD_TCS;
- 	num_queues = dpaa2_eth_queue_count(priv);
-@@ -2030,7 +2030,7 @@ static int dpaa2_eth_setup_tc(struct net_device *net_dev,
- 	if (num_tc  > dpaa2_eth_tc_count(priv)) {
- 		netdev_err(net_dev, "Max %d traffic classes supported\n",
- 			   dpaa2_eth_tc_count(priv));
--		return -EINVAL;
-+		return -EOPNOTSUPP;
- 	}
- 
- 	if (!num_tc) {
+-	g->queue->make_request_fn		= flash_dev_make_request;
+ 	g->queue->backing_dev_info->congested_fn = flash_dev_congested;
+ 	d->cache_miss				= flash_dev_cache_miss;
+ 	d->ioctl				= flash_dev_ioctl;
 -- 
 2.25.1
 
