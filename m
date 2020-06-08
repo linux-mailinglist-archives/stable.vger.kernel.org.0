@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3519B1F2D6C
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:34:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 35C9C1F2FC0
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:53:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728511AbgFIAd1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 20:33:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35538 "EHLO mail.kernel.org"
+        id S1728825AbgFIAxL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 20:53:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55614 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728746AbgFHXOz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:14:55 -0400
+        id S1728509AbgFHXJs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:09:48 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8DF0E21532;
-        Mon,  8 Jun 2020 23:14:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9F6B0208FE;
+        Mon,  8 Jun 2020 23:09:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658094;
-        bh=zkzHQ3L6t8f+yP/wGT2EgnhMayEURSqiXPI+bmXbr6k=;
+        s=default; t=1591657787;
+        bh=jLox+8Gi6bC9/N3l0vacC+fK6yX3qEtgPqcMiIXdWZg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bh0yGGoLRoIAjOrSn2SarRTwDcRrLIGQY10UHe15/4rO1eKzla1j0JLVx7rYUj+vR
-         6byqBCdAv1aCrpjzAvUXaKYLuHi9k1zu5j8teRIZWR6LEAM7OrsXWLUprxIENHr5fJ
-         jRmPzU7cP77qXhNiJsXwOctK/jGvcviJuAI9dRbE=
+        b=nMRFeyMkQrhgT48q24DKEP0czU89K2T65O+/c8kW3xEnN9tuZMLJ0ZonwdymA2J7O
+         Eq4ZziMRzJUxcZdnZygO15OD4+6xdETi8YoEPCnXTZ7CLTXyNLY8wU8RcOTvAR6njx
+         mHd2Ip2E7+NzqHwl2MZVYWXRh36A1SDH2Jry03PE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kailang Yang <kailang@realtek.com>, Takashi Iwai <tiwai@suse.de>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.6 136/606] ALSA: hda/realtek - Add HP new mute led supported for ALC236
+Cc:     Arnd Bergmann <arnd@arndb.de>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.7 168/274] dsa: sja1105: dynamically allocate stats structure
 Date:   Mon,  8 Jun 2020 19:04:21 -0400
-Message-Id: <20200608231211.3363633-136-sashal@kernel.org>
+Message-Id: <20200608230607.3361041-168-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200608231211.3363633-1-sashal@kernel.org>
-References: <20200608231211.3363633-1-sashal@kernel.org>
+In-Reply-To: <20200608230607.3361041-1-sashal@kernel.org>
+References: <20200608230607.3361041-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -42,114 +43,196 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kailang Yang <kailang@realtek.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 24164f434dc9c23cd34fca1e36acea9d0581bdde ]
+[ Upstream commit ae1804de93f6f1626906567ae7deec8e0111259d ]
 
-HP new platform has new mute led feature.
-COEF index 0x34 bit 5 to control playback mute led.
-COEF index 0x35 bit 2 and bit 3 to control Mic mute led.
+The addition of sja1105_port_status_ether structure into the
+statistics causes the frame size to go over the warning limit:
 
-[ corrected typos by tiwai ]
+drivers/net/dsa/sja1105/sja1105_ethtool.c:421:6: error: stack frame size of 1104 bytes in function 'sja1105_get_ethtool_stats' [-Werror,-Wframe-larger-than=]
 
-Signed-off-by: Kailang Yang <kailang@realtek.com>
-Link: https://lore.kernel.org/r/6741211598ba499687362ff2aa30626b@realtek.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Use dynamic allocation to avoid this.
+
+Fixes: 336aa67bd027 ("net: dsa: sja1105: show more ethtool statistics counters for P/Q/R/S")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_realtek.c | 44 +++++++++++++++++++++++++++++++++++
- 1 file changed, 44 insertions(+)
+ drivers/net/dsa/sja1105/sja1105_ethtool.c | 144 +++++++++++-----------
+ 1 file changed, 74 insertions(+), 70 deletions(-)
 
-diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
-index 44fbd5d2d89c..368ed3678fc2 100644
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -4223,6 +4223,23 @@ static void alc285_fixup_hp_mute_led_coefbit(struct hda_codec *codec,
- 	}
- }
- 
-+static void alc236_fixup_hp_mute_led_coefbit(struct hda_codec *codec,
-+					  const struct hda_fixup *fix,
-+					  int action)
-+{
-+	struct alc_spec *spec = codec->spec;
-+
-+	if (action == HDA_FIXUP_ACT_PRE_PROBE) {
-+		spec->mute_led_polarity = 0;
-+		spec->mute_led_coef_idx = 0x34;
-+		spec->mute_led_coefbit_mask = 1<<5;
-+		spec->mute_led_coefbit_on = 0;
-+		spec->mute_led_coefbit_off = 1<<5;
-+		spec->gen.vmaster_mute.hook = alc_fixup_mute_led_coefbit_hook;
-+		spec->gen.vmaster_mute_enum = 1;
-+	}
-+}
-+
- /* turn on/off mic-mute LED per capture hook by coef bit */
- static void alc_hp_cap_micmute_update(struct hda_codec *codec)
+diff --git a/drivers/net/dsa/sja1105/sja1105_ethtool.c b/drivers/net/dsa/sja1105/sja1105_ethtool.c
+index d742ffcbfce9..709f035055c5 100644
+--- a/drivers/net/dsa/sja1105/sja1105_ethtool.c
++++ b/drivers/net/dsa/sja1105/sja1105_ethtool.c
+@@ -421,92 +421,96 @@ static char sja1105pqrs_extra_port_stats[][ETH_GSTRING_LEN] = {
+ void sja1105_get_ethtool_stats(struct dsa_switch *ds, int port, u64 *data)
  {
-@@ -4250,6 +4267,20 @@ static void alc285_fixup_hp_coef_micmute_led(struct hda_codec *codec,
+ 	struct sja1105_private *priv = ds->priv;
+-	struct sja1105_port_status status;
++	struct sja1105_port_status *status;
+ 	int rc, i, k = 0;
+ 
+-	memset(&status, 0, sizeof(status));
++	status = kzalloc(sizeof(*status), GFP_KERNEL);
++	if (!status)
++		goto out;
+ 
+-	rc = sja1105_port_status_get(priv, &status, port);
++	rc = sja1105_port_status_get(priv, status, port);
+ 	if (rc < 0) {
+ 		dev_err(ds->dev, "Failed to read port %d counters: %d\n",
+ 			port, rc);
+-		return;
++		goto out;
  	}
+ 	memset(data, 0, ARRAY_SIZE(sja1105_port_stats) * sizeof(u64));
+-	data[k++] = status.mac.n_runt;
+-	data[k++] = status.mac.n_soferr;
+-	data[k++] = status.mac.n_alignerr;
+-	data[k++] = status.mac.n_miierr;
+-	data[k++] = status.mac.typeerr;
+-	data[k++] = status.mac.sizeerr;
+-	data[k++] = status.mac.tctimeout;
+-	data[k++] = status.mac.priorerr;
+-	data[k++] = status.mac.nomaster;
+-	data[k++] = status.mac.memov;
+-	data[k++] = status.mac.memerr;
+-	data[k++] = status.mac.invtyp;
+-	data[k++] = status.mac.intcyov;
+-	data[k++] = status.mac.domerr;
+-	data[k++] = status.mac.pcfbagdrop;
+-	data[k++] = status.mac.spcprior;
+-	data[k++] = status.mac.ageprior;
+-	data[k++] = status.mac.portdrop;
+-	data[k++] = status.mac.lendrop;
+-	data[k++] = status.mac.bagdrop;
+-	data[k++] = status.mac.policeerr;
+-	data[k++] = status.mac.drpnona664err;
+-	data[k++] = status.mac.spcerr;
+-	data[k++] = status.mac.agedrp;
+-	data[k++] = status.hl1.n_n664err;
+-	data[k++] = status.hl1.n_vlanerr;
+-	data[k++] = status.hl1.n_unreleased;
+-	data[k++] = status.hl1.n_sizeerr;
+-	data[k++] = status.hl1.n_crcerr;
+-	data[k++] = status.hl1.n_vlnotfound;
+-	data[k++] = status.hl1.n_ctpolerr;
+-	data[k++] = status.hl1.n_polerr;
+-	data[k++] = status.hl1.n_rxfrm;
+-	data[k++] = status.hl1.n_rxbyte;
+-	data[k++] = status.hl1.n_txfrm;
+-	data[k++] = status.hl1.n_txbyte;
+-	data[k++] = status.hl2.n_qfull;
+-	data[k++] = status.hl2.n_part_drop;
+-	data[k++] = status.hl2.n_egr_disabled;
+-	data[k++] = status.hl2.n_not_reach;
++	data[k++] = status->mac.n_runt;
++	data[k++] = status->mac.n_soferr;
++	data[k++] = status->mac.n_alignerr;
++	data[k++] = status->mac.n_miierr;
++	data[k++] = status->mac.typeerr;
++	data[k++] = status->mac.sizeerr;
++	data[k++] = status->mac.tctimeout;
++	data[k++] = status->mac.priorerr;
++	data[k++] = status->mac.nomaster;
++	data[k++] = status->mac.memov;
++	data[k++] = status->mac.memerr;
++	data[k++] = status->mac.invtyp;
++	data[k++] = status->mac.intcyov;
++	data[k++] = status->mac.domerr;
++	data[k++] = status->mac.pcfbagdrop;
++	data[k++] = status->mac.spcprior;
++	data[k++] = status->mac.ageprior;
++	data[k++] = status->mac.portdrop;
++	data[k++] = status->mac.lendrop;
++	data[k++] = status->mac.bagdrop;
++	data[k++] = status->mac.policeerr;
++	data[k++] = status->mac.drpnona664err;
++	data[k++] = status->mac.spcerr;
++	data[k++] = status->mac.agedrp;
++	data[k++] = status->hl1.n_n664err;
++	data[k++] = status->hl1.n_vlanerr;
++	data[k++] = status->hl1.n_unreleased;
++	data[k++] = status->hl1.n_sizeerr;
++	data[k++] = status->hl1.n_crcerr;
++	data[k++] = status->hl1.n_vlnotfound;
++	data[k++] = status->hl1.n_ctpolerr;
++	data[k++] = status->hl1.n_polerr;
++	data[k++] = status->hl1.n_rxfrm;
++	data[k++] = status->hl1.n_rxbyte;
++	data[k++] = status->hl1.n_txfrm;
++	data[k++] = status->hl1.n_txbyte;
++	data[k++] = status->hl2.n_qfull;
++	data[k++] = status->hl2.n_part_drop;
++	data[k++] = status->hl2.n_egr_disabled;
++	data[k++] = status->hl2.n_not_reach;
+ 
+ 	if (priv->info->device_id == SJA1105E_DEVICE_ID ||
+ 	    priv->info->device_id == SJA1105T_DEVICE_ID)
+-		return;
++		goto out;;
+ 
+ 	memset(data + k, 0, ARRAY_SIZE(sja1105pqrs_extra_port_stats) *
+ 			sizeof(u64));
+ 	for (i = 0; i < 8; i++) {
+-		data[k++] = status.hl2.qlevel_hwm[i];
+-		data[k++] = status.hl2.qlevel[i];
++		data[k++] = status->hl2.qlevel_hwm[i];
++		data[k++] = status->hl2.qlevel[i];
+ 	}
+-	data[k++] = status.ether.n_drops_nolearn;
+-	data[k++] = status.ether.n_drops_noroute;
+-	data[k++] = status.ether.n_drops_ill_dtag;
+-	data[k++] = status.ether.n_drops_dtag;
+-	data[k++] = status.ether.n_drops_sotag;
+-	data[k++] = status.ether.n_drops_sitag;
+-	data[k++] = status.ether.n_drops_utag;
+-	data[k++] = status.ether.n_tx_bytes_1024_2047;
+-	data[k++] = status.ether.n_tx_bytes_512_1023;
+-	data[k++] = status.ether.n_tx_bytes_256_511;
+-	data[k++] = status.ether.n_tx_bytes_128_255;
+-	data[k++] = status.ether.n_tx_bytes_65_127;
+-	data[k++] = status.ether.n_tx_bytes_64;
+-	data[k++] = status.ether.n_tx_mcast;
+-	data[k++] = status.ether.n_tx_bcast;
+-	data[k++] = status.ether.n_rx_bytes_1024_2047;
+-	data[k++] = status.ether.n_rx_bytes_512_1023;
+-	data[k++] = status.ether.n_rx_bytes_256_511;
+-	data[k++] = status.ether.n_rx_bytes_128_255;
+-	data[k++] = status.ether.n_rx_bytes_65_127;
+-	data[k++] = status.ether.n_rx_bytes_64;
+-	data[k++] = status.ether.n_rx_mcast;
+-	data[k++] = status.ether.n_rx_bcast;
++	data[k++] = status->ether.n_drops_nolearn;
++	data[k++] = status->ether.n_drops_noroute;
++	data[k++] = status->ether.n_drops_ill_dtag;
++	data[k++] = status->ether.n_drops_dtag;
++	data[k++] = status->ether.n_drops_sotag;
++	data[k++] = status->ether.n_drops_sitag;
++	data[k++] = status->ether.n_drops_utag;
++	data[k++] = status->ether.n_tx_bytes_1024_2047;
++	data[k++] = status->ether.n_tx_bytes_512_1023;
++	data[k++] = status->ether.n_tx_bytes_256_511;
++	data[k++] = status->ether.n_tx_bytes_128_255;
++	data[k++] = status->ether.n_tx_bytes_65_127;
++	data[k++] = status->ether.n_tx_bytes_64;
++	data[k++] = status->ether.n_tx_mcast;
++	data[k++] = status->ether.n_tx_bcast;
++	data[k++] = status->ether.n_rx_bytes_1024_2047;
++	data[k++] = status->ether.n_rx_bytes_512_1023;
++	data[k++] = status->ether.n_rx_bytes_256_511;
++	data[k++] = status->ether.n_rx_bytes_128_255;
++	data[k++] = status->ether.n_rx_bytes_65_127;
++	data[k++] = status->ether.n_rx_bytes_64;
++	data[k++] = status->ether.n_rx_mcast;
++	data[k++] = status->ether.n_rx_bcast;
++out:
++	kfree(status);
  }
  
-+static void alc236_fixup_hp_coef_micmute_led(struct hda_codec *codec,
-+				const struct hda_fixup *fix, int action)
-+{
-+	struct alc_spec *spec = codec->spec;
-+
-+	if (action == HDA_FIXUP_ACT_PRE_PROBE) {
-+		spec->mic_led_coef_idx = 0x35;
-+		spec->mic_led_coefbit_mask = 3<<2;
-+		spec->mic_led_coefbit_on = 2<<2;
-+		spec->mic_led_coefbit_off = 1<<2;
-+		snd_hda_gen_add_micmute_led(codec, alc_hp_cap_micmute_update);
-+	}
-+}
-+
- static void alc285_fixup_hp_mute_led(struct hda_codec *codec,
- 				const struct hda_fixup *fix, int action)
- {
-@@ -4257,6 +4288,13 @@ static void alc285_fixup_hp_mute_led(struct hda_codec *codec,
- 	alc285_fixup_hp_coef_micmute_led(codec, fix, action);
- }
- 
-+static void alc236_fixup_hp_mute_led(struct hda_codec *codec,
-+				const struct hda_fixup *fix, int action)
-+{
-+	alc236_fixup_hp_mute_led_coefbit(codec, fix, action);
-+	alc236_fixup_hp_coef_micmute_led(codec, fix, action);
-+}
-+
- #if IS_REACHABLE(CONFIG_INPUT)
- static void gpio2_mic_hotkey_event(struct hda_codec *codec,
- 				   struct hda_jack_callback *event)
-@@ -6056,6 +6094,7 @@ enum {
- 	ALC294_FIXUP_ASUS_COEF_1B,
- 	ALC285_FIXUP_HP_GPIO_LED,
- 	ALC285_FIXUP_HP_MUTE_LED,
-+	ALC236_FIXUP_HP_MUTE_LED,
- };
- 
- static const struct hda_fixup alc269_fixups[] = {
-@@ -7208,6 +7247,10 @@ static const struct hda_fixup alc269_fixups[] = {
- 		.type = HDA_FIXUP_FUNC,
- 		.v.func = alc285_fixup_hp_mute_led,
- 	},
-+	[ALC236_FIXUP_HP_MUTE_LED] = {
-+		.type = HDA_FIXUP_FUNC,
-+		.v.func = alc236_fixup_hp_mute_led,
-+	},
- };
- 
- static const struct snd_pci_quirk alc269_fixup_tbl[] = {
-@@ -7354,6 +7397,7 @@ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
- 	SND_PCI_QUIRK(0x103c, 0x84e7, "HP Pavilion 15", ALC269_FIXUP_HP_MUTE_LED_MIC3),
- 	SND_PCI_QUIRK(0x103c, 0x8736, "HP", ALC285_FIXUP_HP_GPIO_LED),
- 	SND_PCI_QUIRK(0x103c, 0x877a, "HP", ALC285_FIXUP_HP_MUTE_LED),
-+	SND_PCI_QUIRK(0x103c, 0x877d, "HP", ALC236_FIXUP_HP_MUTE_LED),
- 	SND_PCI_QUIRK(0x1043, 0x103e, "ASUS X540SA", ALC256_FIXUP_ASUS_MIC),
- 	SND_PCI_QUIRK(0x1043, 0x103f, "ASUS TX300", ALC282_FIXUP_ASUS_TX300),
- 	SND_PCI_QUIRK(0x1043, 0x106d, "Asus K53BE", ALC269_FIXUP_LIMIT_INT_MIC_BOOST),
+ void sja1105_get_strings(struct dsa_switch *ds, int port,
 -- 
 2.25.1
 
