@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D63AC1F2FCC
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:53:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 07A881F2D70
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:34:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728493AbgFIAxi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 20:53:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55528 "EHLO mail.kernel.org"
+        id S1729923AbgFHXOz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 19:14:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35384 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728488AbgFHXJn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:09:43 -0400
+        id S1728339AbgFHXOu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:14:50 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 195F320897;
-        Mon,  8 Jun 2020 23:09:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B30AB215A4;
+        Mon,  8 Jun 2020 23:14:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591657782;
-        bh=YP48rbtDsCt7cPYauRcjGLjAc3a4MGalUtGGAlwwvpg=;
+        s=default; t=1591658090;
+        bh=DjlhHUZDtsooc2pYbEF4q0noeXu2UUg4RSSjcFAuF0E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=caYNJ/377KU+JoNx1q38H67pp0OaoZ88mXx/hTWbnNStLGmcj56v79XpR77FMDNm4
-         r7eaZGqJQ8WZwBDumGKdEcEKYrbCAUopsgjBcgbhgvKIhGwjYnHiNVvZaw5OqFwY2n
-         I3/EQxkq0JQq6e/UVAlvU0aTu62HL2xXYe5+bLBM=
+        b=sKKsQHjcTHF4gRtbVQ3QockKkfTOhRdkYlEQETOYlAO7wDC2fC8BaAZzhtVHAzWXJ
+         8lKZZlEbRmK7CreHksR+tZzXNMfqVl+sNAqgKrvar6n9/O0ayiYJMKW4ZlQGLglUB1
+         TD8T/2uFd3IyUoDwgg6V+1922CVcP+KoyKcK7Hxs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Colin Ian King <colin.king@canonical.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.7 164/274] libertas_tf: avoid a null dereference in pointer priv
-Date:   Mon,  8 Jun 2020 19:04:17 -0400
-Message-Id: <20200608230607.3361041-164-sashal@kernel.org>
+Cc:     Yunfeng Ye <yeyunfeng@huawei.com>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.6 133/606] tools/bootconfig: Fix resource leak in apply_xbc()
+Date:   Mon,  8 Jun 2020 19:04:18 -0400
+Message-Id: <20200608231211.3363633-133-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200608230607.3361041-1-sashal@kernel.org>
-References: <20200608230607.3361041-1-sashal@kernel.org>
+In-Reply-To: <20200608231211.3363633-1-sashal@kernel.org>
+References: <20200608231211.3363633-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -44,47 +44,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Yunfeng Ye <yeyunfeng@huawei.com>
 
-[ Upstream commit 049ceac308b0d57c4f06b9fb957cdf95d315cf0b ]
+[ Upstream commit 8842604446d1f005abcbf8c63c12eabdb5695094 ]
 
-Currently there is a check if priv is null when calling lbtf_remove_card
-but not in a previous call to if_usb_reset_dev that can also dereference
-priv.  Fix this by also only calling lbtf_remove_card if priv is null.
+Fix the @data and @fd allocations that are leaked in the error path of
+apply_xbc().
 
-It is noteable that there don't seem to be any bugs reported that the
-null pointer dereference has ever occurred, so I'm not sure if the null
-check is required, but since we're doing a null check anyway it should
-be done for both function calls.
+Link: http://lkml.kernel.org/r/583a49c9-c27a-931d-e6c2-6f63a4b18bea@huawei.com
 
-Addresses-Coverity: ("Dereference before null check")
-Fixes: baa0280f08c7 ("libertas_tf: don't defer firmware loading until start()")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20200501173900.296658-1-colin.king@canonical.com
+Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Yunfeng Ye <yeyunfeng@huawei.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/marvell/libertas_tf/if_usb.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ tools/bootconfig/main.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/wireless/marvell/libertas_tf/if_usb.c b/drivers/net/wireless/marvell/libertas_tf/if_usb.c
-index 25ac9db35dbf..bedc09215088 100644
---- a/drivers/net/wireless/marvell/libertas_tf/if_usb.c
-+++ b/drivers/net/wireless/marvell/libertas_tf/if_usb.c
-@@ -247,10 +247,10 @@ static void if_usb_disconnect(struct usb_interface *intf)
+diff --git a/tools/bootconfig/main.c b/tools/bootconfig/main.c
+index a9b97814d1a9..5dbe893cf00c 100644
+--- a/tools/bootconfig/main.c
++++ b/tools/bootconfig/main.c
+@@ -287,6 +287,7 @@ int apply_xbc(const char *path, const char *xbc_path)
+ 	ret = delete_xbc(path);
+ 	if (ret < 0) {
+ 		pr_err("Failed to delete previous boot config: %d\n", ret);
++		free(data);
+ 		return ret;
+ 	}
  
- 	lbtf_deb_enter(LBTF_DEB_MAIN);
+@@ -294,24 +295,26 @@ int apply_xbc(const char *path, const char *xbc_path)
+ 	fd = open(path, O_RDWR | O_APPEND);
+ 	if (fd < 0) {
+ 		pr_err("Failed to open %s: %d\n", path, fd);
++		free(data);
+ 		return fd;
+ 	}
+ 	/* TODO: Ensure the @path is initramfs/initrd image */
+ 	ret = write(fd, data, size + 8);
+ 	if (ret < 0) {
+ 		pr_err("Failed to apply a boot config: %d\n", ret);
+-		return ret;
++		goto out;
+ 	}
+ 	/* Write a magic word of the bootconfig */
+ 	ret = write(fd, BOOTCONFIG_MAGIC, BOOTCONFIG_MAGIC_LEN);
+ 	if (ret < 0) {
+ 		pr_err("Failed to apply a boot config magic: %d\n", ret);
+-		return ret;
++		goto out;
+ 	}
++out:
+ 	close(fd);
+ 	free(data);
  
--	if_usb_reset_device(priv);
--
--	if (priv)
-+	if (priv) {
-+		if_usb_reset_device(priv);
- 		lbtf_remove_card(priv);
-+	}
+-	return 0;
++	return ret;
+ }
  
- 	/* Unlink and free urb */
- 	if_usb_free(cardp);
+ int usage(void)
 -- 
 2.25.1
 
