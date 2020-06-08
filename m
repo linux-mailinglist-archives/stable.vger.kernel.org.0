@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 355181F3080
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 03:00:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C68061F2DC9
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:38:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728677AbgFIA7q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 20:59:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53794 "EHLO mail.kernel.org"
+        id S1729541AbgFHXNl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 19:13:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33502 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726924AbgFHXI3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:08:29 -0400
+        id S1729531AbgFHXNk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:13:40 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 060F5208A9;
-        Mon,  8 Jun 2020 23:08:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4116B212CC;
+        Mon,  8 Jun 2020 23:13:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591657709;
-        bh=9bnpDbtIjXuK5hf81+Zi0XxGmFb2an6nsBRCwIBobCo=;
+        s=default; t=1591658019;
+        bh=PAF7TTob2i+fDQUy2vnO8iUW+qZWiXx2tOJs+soBO68=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XATXZLj1LjgZbm7pOW+9TTb198t7ZwvcBkubbigsJ/qMyKnmfBMoi8E3p19y2ZQ+e
-         jP2fRcnqVPgGavZvXesT917K1BrRvz8B940Gf7PqQ+mN0lnTwdxuzj8MzSHdswYCoa
-         /C//Dp+OpdIJ2HeKFKpeM79F7CT3Ua077+nJFApo=
+        b=VV3Qyerf7dWJEdNT3HShUwCKFvIbcbP5CiszGVj80m7eXz3NJpsbCfpBgBLqLbPIA
+         5bjEYJhypEOGp+OVE7efveAjbPzw++qmhYWg7cGuZw7GtyLnlvRmJ1Y4gNPNrVZGJW
+         /VPXtpYqSy/MtUBcyLJhykXRTsepjCUIMKeaCmVY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jitao Shi <jitao.shi@mediatek.com>, Rob Herring <robh@kernel.org>,
-        Chun-Kuang Hu <chunkuang.hu@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.7 105/274] dt-bindings: display: mediatek: control dpi pins mode to avoid leakage
+Cc:     Kefeng Wang <wangkefeng.wang@huawei.com>,
+        Palmer Dabbelt <palmerdabbelt@google.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-riscv@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.6 073/606] riscv: perf: RISCV_BASE_PMU should be independent
 Date:   Mon,  8 Jun 2020 19:03:18 -0400
-Message-Id: <20200608230607.3361041-105-sashal@kernel.org>
+Message-Id: <20200608231211.3363633-73-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200608230607.3361041-1-sashal@kernel.org>
-References: <20200608230607.3361041-1-sashal@kernel.org>
+In-Reply-To: <20200608231211.3363633-1-sashal@kernel.org>
+References: <20200608231211.3363633-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -46,46 +44,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jitao Shi <jitao.shi@mediatek.com>
+From: Kefeng Wang <wangkefeng.wang@huawei.com>
 
-[ Upstream commit b0ff9b590733079f7f9453e5976a9dd2630949e3 ]
+commit 48084c3595cb7429f6ba734cfea1313573b9a7fa upstream.
 
-Add property "pinctrl-names" to swap pin mode between gpio and dpi mode.
-Set the dpi pins to gpio mode and output-low to avoid leakage current
-when dpi disabled.
+Selecting PERF_EVENTS without selecting RISCV_BASE_PMU results in a build
+error.
 
-Acked-by: Rob Herring <robh@kernel.org>
-Signed-off-by: Jitao Shi <jitao.shi@mediatek.com>
-Signed-off-by: Chun-Kuang Hu <chunkuang.hu@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+[Palmer: commit text]
+Fixes: 178e9fc47aae("perf: riscv: preliminary RISC-V support")
+Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- .../devicetree/bindings/display/mediatek/mediatek,dpi.txt   | 6 ++++++
- 1 file changed, 6 insertions(+)
+ arch/riscv/include/asm/perf_event.h | 8 ++------
+ arch/riscv/kernel/Makefile          | 2 +-
+ 2 files changed, 3 insertions(+), 7 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/display/mediatek/mediatek,dpi.txt b/Documentation/devicetree/bindings/display/mediatek/mediatek,dpi.txt
-index 58914cf681b8..77def4456706 100644
---- a/Documentation/devicetree/bindings/display/mediatek/mediatek,dpi.txt
-+++ b/Documentation/devicetree/bindings/display/mediatek/mediatek,dpi.txt
-@@ -17,6 +17,9 @@ Required properties:
-   Documentation/devicetree/bindings/graph.txt. This port should be connected
-   to the input port of an attached HDMI or LVDS encoder chip.
+diff --git a/arch/riscv/include/asm/perf_event.h b/arch/riscv/include/asm/perf_event.h
+index 0234048b12bc..062efd3a1d5d 100644
+--- a/arch/riscv/include/asm/perf_event.h
++++ b/arch/riscv/include/asm/perf_event.h
+@@ -12,19 +12,14 @@
+ #include <linux/ptrace.h>
+ #include <linux/interrupt.h>
  
-+Optional properties:
-+- pinctrl-names: Contain "default" and "sleep".
-+
- Example:
++#ifdef CONFIG_RISCV_BASE_PMU
+ #define RISCV_BASE_COUNTERS	2
  
- dpi0: dpi@1401d000 {
-@@ -27,6 +30,9 @@ dpi0: dpi@1401d000 {
- 		 <&mmsys CLK_MM_DPI_ENGINE>,
- 		 <&apmixedsys CLK_APMIXED_TVDPLL>;
- 	clock-names = "pixel", "engine", "pll";
-+	pinctrl-names = "default", "sleep";
-+	pinctrl-0 = <&dpi_pin_func>;
-+	pinctrl-1 = <&dpi_pin_idle>;
+ /*
+  * The RISCV_MAX_COUNTERS parameter should be specified.
+  */
  
- 	port {
- 		dpi0_out: endpoint {
+-#ifdef CONFIG_RISCV_BASE_PMU
+ #define RISCV_MAX_COUNTERS	2
+-#endif
+-
+-#ifndef RISCV_MAX_COUNTERS
+-#error "Please provide a valid RISCV_MAX_COUNTERS for the PMU."
+-#endif
+ 
+ /*
+  * These are the indexes of bits in counteren register *minus* 1,
+@@ -82,6 +77,7 @@ struct riscv_pmu {
+ 	int		irq;
+ };
+ 
++#endif
+ #ifdef CONFIG_PERF_EVENTS
+ #define perf_arch_bpf_user_pt_regs(regs) (struct user_regs_struct *)regs
+ #endif
+diff --git a/arch/riscv/kernel/Makefile b/arch/riscv/kernel/Makefile
+index f40205cb9a22..1dcc095dc23c 100644
+--- a/arch/riscv/kernel/Makefile
++++ b/arch/riscv/kernel/Makefile
+@@ -38,7 +38,7 @@ obj-$(CONFIG_MODULE_SECTIONS)	+= module-sections.o
+ obj-$(CONFIG_FUNCTION_TRACER)	+= mcount.o ftrace.o
+ obj-$(CONFIG_DYNAMIC_FTRACE)	+= mcount-dyn.o
+ 
+-obj-$(CONFIG_PERF_EVENTS)	+= perf_event.o
++obj-$(CONFIG_RISCV_BASE_PMU)	+= perf_event.o
+ obj-$(CONFIG_PERF_EVENTS)	+= perf_callchain.o
+ obj-$(CONFIG_HAVE_PERF_REGS)	+= perf_regs.o
+ obj-$(CONFIG_RISCV_SBI)		+= sbi.o
 -- 
 2.25.1
 
