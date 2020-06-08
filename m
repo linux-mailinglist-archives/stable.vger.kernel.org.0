@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 78BF81F24C5
+	by mail.lfdr.de (Postfix) with ESMTP id E84811F24C6
 	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:24:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731310AbgFHXW0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2387410AbgFHXW0 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 8 Jun 2020 19:22:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46958 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:47000 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387397AbgFHXWZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:22:25 -0400
+        id S2387407AbgFHXW0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:22:26 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ECF582086A;
-        Mon,  8 Jun 2020 23:22:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 33212208A7;
+        Mon,  8 Jun 2020 23:22:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658544;
-        bh=56jubeqSvCe5abxjdH8iGRYSrHs+X6XVvwqLUlx67Zo=;
+        s=default; t=1591658545;
+        bh=FnpfvCY1kK+oJUKHHBWMuFJE4lUNfe9+BmbcSoGl+oM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DACyNFBNx8YZ0aOdjm+9JGcUp790ezNSDkuLCn1zFIwl/+vqVlInDxrm4vEusVrgH
-         aAFxfO/nQw7VsyTHSByQJKJ9ElPu3HSiWoWoZHtPCnwR5oJv4ml6daW1ux4x8vzYNc
-         psgd6PD5wGIXwz4aTzQI/BldxW63bJrqLx0Ik5w0=
+        b=xuMPGiqo+vf7nLRpPE2gMbOCkuVb/lNzxY3WJNmiHKYtpeCiFuxKMvYf2VYNkM0vT
+         TUuOpra093uQDkROMIhYKdlhD9MswWwAn7/UT2ldOB6Cc0VI/80c2Q4aReOvGbXZ7D
+         4LCI1mr0aMvS6oh2iCZaIOsNu4ZkwubJQVhnGGKs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chris Chiu <chiu@endlessm.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        acpi4asus-user@lists.sourceforge.net,
-        platform-driver-x86@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 166/175] platform/x86: asus_wmi: Reserve more space for struct bias_args
-Date:   Mon,  8 Jun 2020 19:18:39 -0400
-Message-Id: <20200608231848.3366970-166-sashal@kernel.org>
+Cc:     Ido Schimmel <idosch@mellanox.com>,
+        Nikolay Aleksandrov <nikolay@cumulusnetworks.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 167/175] vxlan: Avoid infinite loop when suppressing NS messages with invalid options
+Date:   Mon,  8 Jun 2020 19:18:40 -0400
+Message-Id: <20200608231848.3366970-167-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608231848.3366970-1-sashal@kernel.org>
 References: <20200608231848.3366970-1-sashal@kernel.org>
@@ -46,58 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Chiu <chiu@endlessm.com>
+From: Ido Schimmel <idosch@mellanox.com>
 
-[ Upstream commit 7b91f1565fbfbe5a162d91f8a1f6c5580c2fc1d0 ]
+[ Upstream commit 8066e6b449e050675df48e7c4b16c29f00507ff0 ]
 
-On the ASUS laptop UX325JA/UX425JA, most of the media keys are not
-working due to the ASUS WMI driver fails to be loaded. The ACPI error
-as follows leads to the failure of asus_wmi_evaluate_method.
-  ACPI BIOS Error (bug): AE_AML_BUFFER_LIMIT, Field [IIA3] at bit offset/length 96/32 exceeds size of target Buffer (96 bits) (20200326/dsopcode-203)
-  No Local Variables are initialized for Method [WMNB]
-  ACPI Error: Aborting method \_SB.ATKD.WMNB due to previous error (AE_AML_BUFFER_LIMIT) (20200326/psparse-531)
+When proxy mode is enabled the vxlan device might reply to Neighbor
+Solicitation (NS) messages on behalf of remote hosts.
 
-The DSDT for the WMNB part shows that 5 DWORD required for local
-variables and the 3rd variable IIA3 hit the buffer limit.
+In case the NS message includes the "Source link-layer address" option
+[1], the vxlan device will use the specified address as the link-layer
+destination address in its reply.
 
-Method (WMNB, 3, Serialized)
-{ ..
-    CreateDWordField (Arg2, Zero, IIA0)
-    CreateDWordField (Arg2, 0x04, IIA1)
-    CreateDWordField (Arg2, 0x08, IIA2)
-    CreateDWordField (Arg2, 0x0C, IIA3)
-    CreateDWordField (Arg2, 0x10, IIA4)
-    Local0 = (Arg1 & 0xFFFFFFFF)
-    If ((Local0 == 0x54494E49))
-  ..
-}
+To avoid an infinite loop, break out of the options parsing loop when
+encountering an option with length zero and disregard the NS message.
 
-The limitation is determined by the input acpi_buffer size passed
-to the wmi_evaluate_method. Since the struct bios_args is the data
-structure used as input buffer by default for all ASUS WMI calls,
-the size needs to be expanded to fix the problem.
+This is consistent with the IPv6 ndisc code and RFC 4886 which states
+that "Nodes MUST silently discard an ND packet that contains an option
+with length zero" [2].
 
-Signed-off-by: Chris Chiu <chiu@endlessm.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+[1] https://tools.ietf.org/html/rfc4861#section-4.3
+[2] https://tools.ietf.org/html/rfc4861#section-4.6
+
+Fixes: 4b29dba9c085 ("vxlan: fix nonfunctional neigh_reduce()")
+Signed-off-by: Ido Schimmel <idosch@mellanox.com>
+Acked-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/asus-wmi.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/vxlan.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/platform/x86/asus-wmi.c b/drivers/platform/x86/asus-wmi.c
-index 41e28552b2ce..b1f4a31ba1ee 100644
---- a/drivers/platform/x86/asus-wmi.c
-+++ b/drivers/platform/x86/asus-wmi.c
-@@ -111,6 +111,8 @@ struct bios_args {
- 	u32 arg0;
- 	u32 arg1;
- 	u32 arg2; /* At least TUF Gaming series uses 3 dword input buffer. */
-+	u32 arg4;
-+	u32 arg5;
- } __packed;
- 
- /*
+diff --git a/drivers/net/vxlan.c b/drivers/net/vxlan.c
+index ae59fca96032..03434db36b5c 100644
+--- a/drivers/net/vxlan.c
++++ b/drivers/net/vxlan.c
+@@ -1924,6 +1924,10 @@ static struct sk_buff *vxlan_na_create(struct sk_buff *request,
+ 	ns_olen = request->len - skb_network_offset(request) -
+ 		sizeof(struct ipv6hdr) - sizeof(*ns);
+ 	for (i = 0; i < ns_olen-1; i += (ns->opt[i+1]<<3)) {
++		if (!ns->opt[i + 1]) {
++			kfree_skb(reply);
++			return NULL;
++		}
+ 		if (ns->opt[i] == ND_OPT_SOURCE_LL_ADDR) {
+ 			daddr = ns->opt + i + sizeof(struct nd_opt_hdr);
+ 			break;
 -- 
 2.25.1
 
