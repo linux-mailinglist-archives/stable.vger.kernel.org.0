@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EF51D1F2E47
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:40:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D9DBA1F2E0B
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:40:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729236AbgFIAka (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 20:40:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60924 "EHLO mail.kernel.org"
+        id S1729225AbgFHXNF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 19:13:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60934 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729206AbgFHXNC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:13:02 -0400
+        id S1729217AbgFHXND (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:13:03 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D77AF208C7;
-        Mon,  8 Jun 2020 23:13:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 32EBC20897;
+        Mon,  8 Jun 2020 23:13:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591657981;
-        bh=ykA2/1B6WlQZ3TXxlaaNUqKEm5FMxSR7j0S3cwhJ6Vk=;
+        s=default; t=1591657982;
+        bh=amJlntM7cL51BUjWOmIJKS2PIvEibkIaWrfHuN4gSMs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ADKYFVZe8XuzibmgVvYqd1ZF5DH2wVEwOI0JxgwuwfXbvwsi9eGV1qS40aH1c7dmM
-         FZd3oAHFc9KjMGAxMooxYYNDrEVa1KZ0sgdG89IcweTqUMpIXcU6mjWOamVrsp2bxc
-         XpaMxvHc6ahoV5zdcWtxb1AG/GEbuczUvr1XaZzM=
+        b=Vfe0iTVydxwryS8pausQZSLEPE3UWcbIxynFHUHQZhS5AYGa6Udx3FuRPduJgMADq
+         rPh4I7vGp7gUGX7KKzN8fESyJ8UveQDcotmftnNaMrqlIACfqGK9JUz2fxILk7K+VS
+         INK5IvsD73Cf2xZErriw2y8fE0g19F3BBonTy+CE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Borislav Petkov <bp@suse.de>,
-        Sergei Trofimovich <slyfox@gentoo.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        xen-devel@lists.xenproject.org, linux-sparse@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.6 042/606] x86: Fix early boot crash on gcc-10, third try
-Date:   Mon,  8 Jun 2020 19:02:47 -0400
-Message-Id: <20200608231211.3363633-42-sashal@kernel.org>
+Cc:     Josh Poimboeuf <jpoimboe@redhat.com>, Pavel Machek <pavel@denx.de>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: [PATCH AUTOSEL 5.6 043/606] x86/unwind/orc: Fix error handling in __unwind_start()
+Date:   Mon,  8 Jun 2020 19:02:48 -0400
+Message-Id: <20200608231211.3363633-43-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608231211.3363633-1-sashal@kernel.org>
 References: <20200608231211.3363633-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -46,151 +43,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Borislav Petkov <bp@suse.de>
+From: Josh Poimboeuf <jpoimboe@redhat.com>
 
-commit a9a3ed1eff3601b63aea4fb462d8b3b92c7c1e7e upstream.
+commit 71c95825289f585014fe9741b051d32a7a916680 upstream.
 
-... or the odyssey of trying to disable the stack protector for the
-function which generates the stack canary value.
+The unwind_state 'error' field is used to inform the reliable unwinding
+code that the stack trace can't be trusted.  Set this field for all
+errors in __unwind_start().
 
-The whole story started with Sergei reporting a boot crash with a kernel
-built with gcc-10:
+Also, move the zeroing out of the unwind_state struct to before the ORC
+table initialization check, to prevent the caller from reading
+uninitialized data if the ORC table is corrupted.
 
-  Kernel panic — not syncing: stack-protector: Kernel stack is corrupted in: start_secondary
-  CPU: 1 PID: 0 Comm: swapper/1 Not tainted 5.6.0-rc5—00235—gfffb08b37df9 #139
-  Hardware name: Gigabyte Technology Co., Ltd. To be filled by O.E.M./H77M—D3H, BIOS F12 11/14/2013
-  Call Trace:
-    dump_stack
-    panic
-    ? start_secondary
-    __stack_chk_fail
-    start_secondary
-    secondary_startup_64
-  -—-[ end Kernel panic — not syncing: stack—protector: Kernel stack is corrupted in: start_secondary
-
-This happens because gcc-10 tail-call optimizes the last function call
-in start_secondary() - cpu_startup_entry() - and thus emits a stack
-canary check which fails because the canary value changes after the
-boot_init_stack_canary() call.
-
-To fix that, the initial attempt was to mark the one function which
-generates the stack canary with:
-
-  __attribute__((optimize("-fno-stack-protector"))) ... start_secondary(void *unused)
-
-however, using the optimize attribute doesn't work cumulatively
-as the attribute does not add to but rather replaces previously
-supplied optimization options - roughly all -fxxx options.
-
-The key one among them being -fno-omit-frame-pointer and thus leading to
-not present frame pointer - frame pointer which the kernel needs.
-
-The next attempt to prevent compilers from tail-call optimizing
-the last function call cpu_startup_entry(), shy of carving out
-start_secondary() into a separate compilation unit and building it with
--fno-stack-protector, was to add an empty asm("").
-
-This current solution was short and sweet, and reportedly, is supported
-by both compilers but we didn't get very far this time: future (LTO?)
-optimization passes could potentially eliminate this, which leads us
-to the third attempt: having an actual memory barrier there which the
-compiler cannot ignore or move around etc.
-
-That should hold for a long time, but hey we said that about the other
-two solutions too so...
-
-Reported-by: Sergei Trofimovich <slyfox@gentoo.org>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Tested-by: Kalle Valo <kvalo@codeaurora.org>
-Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/20200314164451.346497-1-slyfox@gentoo.org
+Fixes: af085d9084b4 ("stacktrace/x86: add function for detecting reliable stack traces")
+Fixes: d3a09104018c ("x86/unwinder/orc: Dont bail on stack overflow")
+Fixes: 98d0c8ebf77e ("x86/unwind/orc: Prevent unwinding before ORC initialization")
+Reported-by: Pavel Machek <pavel@denx.de>
+Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/d6ac7215a84ca92b895fdd2e1aa546729417e6e6.1589487277.git.jpoimboe@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/stackprotector.h | 7 ++++++-
- arch/x86/kernel/smpboot.c             | 8 ++++++++
- arch/x86/xen/smp_pv.c                 | 1 +
- include/linux/compiler.h              | 6 ++++++
- init/main.c                           | 2 ++
- 5 files changed, 23 insertions(+), 1 deletion(-)
+ arch/x86/kernel/unwind_orc.c | 16 +++++++++-------
+ 1 file changed, 9 insertions(+), 7 deletions(-)
 
-diff --git a/arch/x86/include/asm/stackprotector.h b/arch/x86/include/asm/stackprotector.h
-index 91e29b6a86a5..9804a7957f4e 100644
---- a/arch/x86/include/asm/stackprotector.h
-+++ b/arch/x86/include/asm/stackprotector.h
-@@ -55,8 +55,13 @@
- /*
-  * Initialize the stackprotector canary value.
-  *
-- * NOTE: this must only be called from functions that never return,
-+ * NOTE: this must only be called from functions that never return
-  * and it must always be inlined.
-+ *
-+ * In addition, it should be called from a compilation unit for which
-+ * stack protector is disabled. Alternatively, the caller should not end
-+ * with a function call which gets tail-call optimized as that would
-+ * lead to checking a modified canary value.
-  */
- static __always_inline void boot_init_stack_canary(void)
+diff --git a/arch/x86/kernel/unwind_orc.c b/arch/x86/kernel/unwind_orc.c
+index 80537dcbddef..9414f02a55ea 100644
+--- a/arch/x86/kernel/unwind_orc.c
++++ b/arch/x86/kernel/unwind_orc.c
+@@ -611,23 +611,23 @@ EXPORT_SYMBOL_GPL(unwind_next_frame);
+ void __unwind_start(struct unwind_state *state, struct task_struct *task,
+ 		    struct pt_regs *regs, unsigned long *first_frame)
  {
-diff --git a/arch/x86/kernel/smpboot.c b/arch/x86/kernel/smpboot.c
-index 69881b2d446c..9674321ce3a3 100644
---- a/arch/x86/kernel/smpboot.c
-+++ b/arch/x86/kernel/smpboot.c
-@@ -262,6 +262,14 @@ static void notrace start_secondary(void *unused)
+-	if (!orc_init)
+-		goto done;
+-
+ 	memset(state, 0, sizeof(*state));
+ 	state->task = task;
  
- 	wmb();
- 	cpu_startup_entry(CPUHP_AP_ONLINE_IDLE);
++	if (!orc_init)
++		goto err;
 +
-+	/*
-+	 * Prevent tail call to cpu_startup_entry() because the stack protector
-+	 * guard has been changed a couple of function calls up, in
-+	 * boot_init_stack_canary() and must not be checked before tail calling
-+	 * another function.
-+	 */
-+	prevent_tail_call_optimization();
+ 	/*
+ 	 * Refuse to unwind the stack of a task while it's executing on another
+ 	 * CPU.  This check is racy, but that's ok: the unwinder has other
+ 	 * checks to prevent it from going off the rails.
+ 	 */
+ 	if (task_on_another_cpu(task))
+-		goto done;
++		goto err;
+ 
+ 	if (regs) {
+ 		if (user_mode(regs))
+-			goto done;
++			goto the_end;
+ 
+ 		state->ip = regs->ip;
+ 		state->sp = regs->sp;
+@@ -660,6 +660,7 @@ void __unwind_start(struct unwind_state *state, struct task_struct *task,
+ 		 * generate some kind of backtrace if this happens.
+ 		 */
+ 		void *next_page = (void *)PAGE_ALIGN((unsigned long)state->sp);
++		state->error = true;
+ 		if (get_stack_info(next_page, state->task, &state->stack_info,
+ 				   &state->stack_mask))
+ 			return;
+@@ -685,8 +686,9 @@ void __unwind_start(struct unwind_state *state, struct task_struct *task,
+ 
+ 	return;
+ 
+-done:
++err:
++	state->error = true;
++the_end:
+ 	state->stack_info.type = STACK_TYPE_UNKNOWN;
+-	return;
  }
- 
- /**
-diff --git a/arch/x86/xen/smp_pv.c b/arch/x86/xen/smp_pv.c
-index 802ee5bba66c..0cebe5db691d 100644
---- a/arch/x86/xen/smp_pv.c
-+++ b/arch/x86/xen/smp_pv.c
-@@ -92,6 +92,7 @@ asmlinkage __visible void cpu_bringup_and_idle(void)
- 	cpu_bringup();
- 	boot_init_stack_canary();
- 	cpu_startup_entry(CPUHP_AP_ONLINE_IDLE);
-+	prevent_tail_call_optimization();
- }
- 
- void xen_smp_intr_free_pv(unsigned int cpu)
-diff --git a/include/linux/compiler.h b/include/linux/compiler.h
-index 034b0a644efc..448c91bf543b 100644
---- a/include/linux/compiler.h
-+++ b/include/linux/compiler.h
-@@ -356,4 +356,10 @@ static inline void *offset_to_ptr(const int *off)
- /* &a[0] degrades to a pointer: a different type from an array */
- #define __must_be_array(a)	BUILD_BUG_ON_ZERO(__same_type((a), &(a)[0]))
- 
-+/*
-+ * This is needed in functions which generate the stack canary, see
-+ * arch/x86/kernel/smpboot.c::start_secondary() for an example.
-+ */
-+#define prevent_tail_call_optimization()	mb()
-+
- #endif /* __LINUX_COMPILER_H */
-diff --git a/init/main.c b/init/main.c
-index 8ee04f875b21..6bcad75d60ad 100644
---- a/init/main.c
-+++ b/init/main.c
-@@ -1032,6 +1032,8 @@ asmlinkage __visible void __init start_kernel(void)
- 
- 	/* Do the rest non-__init'ed, we're now alive */
- 	arch_call_rest_init();
-+
-+	prevent_tail_call_optimization();
- }
- 
- /* Call all constructor functions linked into the kernel. */
+ EXPORT_SYMBOL_GPL(__unwind_start);
 -- 
 2.25.1
 
