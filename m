@@ -2,36 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BAB41F2902
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:04:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B8A0A1F2905
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:04:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731284AbgFHXWR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 19:22:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46774 "EHLO mail.kernel.org"
+        id S1731302AbgFHXWW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 19:22:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46850 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731278AbgFHXWQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:22:16 -0400
+        id S1730187AbgFHXWT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:22:19 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 550E82086A;
-        Mon,  8 Jun 2020 23:22:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A8B8620814;
+        Mon,  8 Jun 2020 23:22:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658536;
-        bh=gt02xV2gTXAGJGD8SHqqXs6e/DU/oGfgASH0Dlqg5Pw=;
+        s=default; t=1591658539;
+        bh=hX+AuUfC+65TXjmH+ynIPh/epxU7Rix/OdCLMDYXuoE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SI4CO99KM9tTVwppXyxMVQP2WbGiROlfX8qM4hcnVXoq2/jjlTfG36f45t3TGOryn
-         UKCth3N4g9rVam183u46sRVv/Vk4P8PwxkMRNpSe3moy+YIbdFvUnlWJFkHZweyBlz
-         6MCegIIYAHuK/RO08dd6jCXBgQVPmVeKozQvq+Hg=
+        b=FnQNqn2+9t3YZfXovdFs0zuJTKJH6dn7GRrdsPJyZMqKfGv29XivxmriNOpYEWB6w
+         cf8oKllhhBG8tqiCPN4MlqNvsAY0pPZRWwKAcq0GB+uXPwFTWfluxAm3d1OeUFjuZo
+         AULh4a0EyYfStPyctFT1oSiGUEs3OsMCU1XjHrgo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sharon <sara.sharon@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 159/175] iwlwifi: mvm: fix aux station leak
-Date:   Mon,  8 Jun 2020 19:18:32 -0400
-Message-Id: <20200608231848.3366970-159-sashal@kernel.org>
+Cc:     Serge Semin <Sergey.Semin@baikalelectronics.ru>,
+        Georgy Vlasov <Georgy.Vlasov@baikalelectronics.ru>,
+        Ramil Zaripov <Ramil.Zaripov@baikalelectronics.ru>,
+        Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Feng Tang <feng.tang@intel.com>,
+        Rob Herring <robh+dt@kernel.org>, linux-mips@vger.kernel.org,
+        devicetree@vger.kernel.org, Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 161/175] spi: dw: Return any value retrieved from the dma_transfer callback
+Date:   Mon,  8 Jun 2020 19:18:34 -0400
+Message-Id: <20200608231848.3366970-161-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608231848.3366970-1-sashal@kernel.org>
 References: <20200608231848.3366970-1-sashal@kernel.org>
@@ -44,112 +51,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sharon <sara.sharon@intel.com>
+From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
 
-[ Upstream commit f327236df2afc8c3c711e7e070f122c26974f4da ]
+[ Upstream commit f0410bbf7d0fb80149e3b17d11d31f5b5197873e ]
 
-When mvm is initialized we alloc aux station with aux queue.
-We later free the station memory when driver is stopped, but we
-never free the queue's memory, which casues a leak.
+DW APB SSI DMA-part of the driver may need to perform the requested
+SPI-transfer synchronously. In that case the dma_transfer() callback
+will return 0 as a marker of the SPI transfer being finished so the
+SPI core doesn't need to wait and may proceed with the SPI message
+trasnfers pumping procedure. This will be needed to fix the problem
+when DMA transactions are finished, but there is still data left in
+the SPI Tx/Rx FIFOs being sent/received. But for now make dma_transfer
+to return 1 as the normal dw_spi_transfer_one() method.
 
-Add a proper de-initialization of the station.
-
-Signed-off-by: Sharon <sara.sharon@intel.com>
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Link: https://lore.kernel.org/r/iwlwifi.20200529092401.0121c5be55e9.Id7516fbb3482131d0c9dfb51ff20b226617ddb49@changeid
+Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+Cc: Georgy Vlasov <Georgy.Vlasov@baikalelectronics.ru>
+Cc: Ramil Zaripov <Ramil.Zaripov@baikalelectronics.ru>
+Cc: Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>
+Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Feng Tang <feng.tang@intel.com>
+Cc: Rob Herring <robh+dt@kernel.org>
+Cc: linux-mips@vger.kernel.org
+Cc: devicetree@vger.kernel.org
+Link: https://lore.kernel.org/r/20200529131205.31838-3-Sergey.Semin@baikalelectronics.ru
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/wireless/intel/iwlwifi/mvm/mac80211.c  |  5 ++---
- drivers/net/wireless/intel/iwlwifi/mvm/sta.c   | 18 +++++++++++++-----
- drivers/net/wireless/intel/iwlwifi/mvm/sta.h   |  6 +++---
- 3 files changed, 18 insertions(+), 11 deletions(-)
+ drivers/spi/spi-dw-mid.c | 2 +-
+ drivers/spi/spi-dw.c     | 7 ++-----
+ 2 files changed, 3 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c b/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
-index 6ca087ffd163..ed92a8e8cd51 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
-@@ -1193,14 +1193,13 @@ void __iwl_mvm_mac_stop(struct iwl_mvm *mvm)
- 	 */
- 	flush_work(&mvm->roc_done_wk);
+diff --git a/drivers/spi/spi-dw-mid.c b/drivers/spi/spi-dw-mid.c
+index b044d4071690..b07710c76fc9 100644
+--- a/drivers/spi/spi-dw-mid.c
++++ b/drivers/spi/spi-dw-mid.c
+@@ -266,7 +266,7 @@ static int mid_spi_dma_transfer(struct dw_spi *dws, struct spi_transfer *xfer)
+ 		dma_async_issue_pending(dws->txchan);
+ 	}
  
-+	iwl_mvm_rm_aux_sta(mvm);
-+
- 	iwl_mvm_stop_device(mvm);
- 
- 	iwl_mvm_async_handlers_purge(mvm);
- 	/* async_handlers_list is empty and will stay empty: HW is stopped */
- 
--	/* the fw is stopped, the aux sta is dead: clean up driver state */
--	iwl_mvm_del_aux_sta(mvm);
--
- 	/*
- 	 * Clear IN_HW_RESTART and HW_RESTART_REQUESTED flag when stopping the
- 	 * hw (as restart_complete() won't be called in this case) and mac80211
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/sta.c b/drivers/net/wireless/intel/iwlwifi/mvm/sta.c
-index 71d339e90a9e..41f62793a57c 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/sta.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/sta.c
-@@ -2080,16 +2080,24 @@ int iwl_mvm_rm_snif_sta(struct iwl_mvm *mvm, struct ieee80211_vif *vif)
- 	return ret;
+-	return 0;
++	return 1;
  }
  
--void iwl_mvm_dealloc_snif_sta(struct iwl_mvm *mvm)
-+int iwl_mvm_rm_aux_sta(struct iwl_mvm *mvm)
- {
--	iwl_mvm_dealloc_int_sta(mvm, &mvm->snif_sta);
--}
-+	int ret;
+ static void mid_spi_dma_stop(struct dw_spi *dws)
+diff --git a/drivers/spi/spi-dw.c b/drivers/spi/spi-dw.c
+index 8a4438f4c954..3063ec75dca8 100644
+--- a/drivers/spi/spi-dw.c
++++ b/drivers/spi/spi-dw.c
+@@ -370,11 +370,8 @@ static int dw_spi_transfer_one(struct spi_controller *master,
  
--void iwl_mvm_del_aux_sta(struct iwl_mvm *mvm)
--{
- 	lockdep_assert_held(&mvm->mutex);
+ 	spi_enable_chip(dws, 1);
  
-+	iwl_mvm_disable_txq(mvm, NULL, mvm->aux_queue, IWL_MAX_TID_COUNT, 0);
-+	ret = iwl_mvm_rm_sta_common(mvm, mvm->aux_sta.sta_id);
-+	if (ret)
-+		IWL_WARN(mvm, "Failed sending remove station\n");
- 	iwl_mvm_dealloc_int_sta(mvm, &mvm->aux_sta);
-+
-+	return ret;
-+}
-+
-+void iwl_mvm_dealloc_snif_sta(struct iwl_mvm *mvm)
-+{
-+	iwl_mvm_dealloc_int_sta(mvm, &mvm->snif_sta);
- }
+-	if (dws->dma_mapped) {
+-		ret = dws->dma_ops->dma_transfer(dws, transfer);
+-		if (ret < 0)
+-			return ret;
+-	}
++	if (dws->dma_mapped)
++		return dws->dma_ops->dma_transfer(dws, transfer);
  
- /*
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/sta.h b/drivers/net/wireless/intel/iwlwifi/mvm/sta.h
-index 8d70093847cb..da2d1ac01229 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/sta.h
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/sta.h
-@@ -8,7 +8,7 @@
-  * Copyright(c) 2012 - 2014 Intel Corporation. All rights reserved.
-  * Copyright(c) 2013 - 2014 Intel Mobile Communications GmbH
-  * Copyright(c) 2015 - 2016 Intel Deutschland GmbH
-- * Copyright(c) 2018 - 2019 Intel Corporation
-+ * Copyright(c) 2018 - 2020 Intel Corporation
-  *
-  * This program is free software; you can redistribute it and/or modify
-  * it under the terms of version 2 of the GNU General Public License as
-@@ -31,7 +31,7 @@
-  * Copyright(c) 2012 - 2014 Intel Corporation. All rights reserved.
-  * Copyright(c) 2013 - 2014 Intel Mobile Communications GmbH
-  * Copyright(c) 2015 - 2016 Intel Deutschland GmbH
-- * Copyright(c) 2018 - 2019 Intel Corporation
-+ * Copyright(c) 2018 - 2020 Intel Corporation
-  * All rights reserved.
-  *
-  * Redistribution and use in source and binary forms, with or without
-@@ -541,7 +541,7 @@ int iwl_mvm_sta_tx_agg(struct iwl_mvm *mvm, struct ieee80211_sta *sta,
- 		       int tid, u8 queue, bool start);
- 
- int iwl_mvm_add_aux_sta(struct iwl_mvm *mvm);
--void iwl_mvm_del_aux_sta(struct iwl_mvm *mvm);
-+int iwl_mvm_rm_aux_sta(struct iwl_mvm *mvm);
- 
- int iwl_mvm_alloc_bcast_sta(struct iwl_mvm *mvm, struct ieee80211_vif *vif);
- int iwl_mvm_send_add_bcast_sta(struct iwl_mvm *mvm, struct ieee80211_vif *vif);
+ 	if (chip->poll_mode)
+ 		return poll_transfer(dws);
 -- 
 2.25.1
 
