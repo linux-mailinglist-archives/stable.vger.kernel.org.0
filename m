@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 33F991F2DA4
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:36:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 20D061F2FFA
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:55:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729827AbgFIAfV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 20:35:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34794 "EHLO mail.kernel.org"
+        id S1731069AbgFIAzD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 20:55:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55096 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728955AbgFHXO2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:14:28 -0400
+        id S1728409AbgFHXJX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:09:23 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BDD742158C;
-        Mon,  8 Jun 2020 23:14:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C34BE20897;
+        Mon,  8 Jun 2020 23:09:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658068;
-        bh=rFk4ndRXik1qE5fwJ3x+1OM2AUjpwZLqi+jCYlMawr8=;
+        s=default; t=1591657762;
+        bh=0iFoIg7nV2CD2R+djatO1hodQJVSkJJ3Jzd7XRmEByk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1TNYjLSW9NRSPbMFceSfYyImR1gOXTp4d63d1/FrxS9kDZl4JGN8wUwI9o27MOYmY
-         YTdH1l7mD1CgIPzM7+BEVmhtdD07z29/UGbyCMJxQXaIuw2a+bkNc3/U3ui6ZatHzX
-         FAineUZgkN+BHq8quY+JOI4ohTYVPVE6MxRQ9b7o=
+        b=DvkJPWcz8Chv93fFOsvsqHwdIG9INMFslKzZxNlTm/Mr9ZP2eN13AoCFRPORr0OEK
+         u5yYL/fQidpuRVK2lt3I+keORZldq6cgdPYrfpiSVuEBVWC7e03xqtlXwzNg959qOT
+         Zi+BDEA9azIFKb/u8RMcB5no+K0Eq8Bxc04xk/Lk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Gavin Shan <gshan@redhat.com>, Shay Agroskin <shayagr@amazon.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.6 114/606] net/ena: Fix build warning in ena_xdp_set()
-Date:   Mon,  8 Jun 2020 19:03:59 -0400
-Message-Id: <20200608231211.3363633-114-sashal@kernel.org>
+Cc:     =?UTF-8?q?=C5=81ukasz=20Stelmach?= <l.stelmach@samsung.com>,
+        AKASHI Takahiro <takahiro.akashi@linaro.org>,
+        James Morse <james.morse@arm.com>,
+        Bhupesh Sharma <bhsharma@redhat.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.7 147/274] arm64: kexec_file: print appropriate variable
+Date:   Mon,  8 Jun 2020 19:04:00 -0400
+Message-Id: <20200608230607.3361041-147-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200608231211.3363633-1-sashal@kernel.org>
-References: <20200608231211.3363633-1-sashal@kernel.org>
+In-Reply-To: <20200608230607.3361041-1-sashal@kernel.org>
+References: <20200608230607.3361041-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 X-stable: review
@@ -45,46 +47,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gavin Shan <gshan@redhat.com>
+From: Łukasz Stelmach <l.stelmach@samsung.com>
 
-[ Upstream commit caec66198d137c26f0d234abc498866a58c64150 ]
+[ Upstream commit 51075e0cb759a736e60ab4f3a5fed8670dba5852 ]
 
-This fixes the following build warning in ena_xdp_set(), which is
-observed on aarch64 with 64KB page size.
+The value of kbuf->memsz may be different than kbuf->bufsz after calling
+kexec_add_buffer(). Hence both values should be logged.
 
-   In file included from ./include/net/inet_sock.h:19,
-      from ./include/net/ip.h:27,
-      from drivers/net/ethernet/amazon/ena/ena_netdev.c:46:
-   drivers/net/ethernet/amazon/ena/ena_netdev.c: In function         \
-   ‘ena_xdp_set’:                                                    \
-   drivers/net/ethernet/amazon/ena/ena_netdev.c:557:6: warning:      \
-   format ‘%lu’                                                      \
-   expects argument of type ‘long unsigned int’, but argument 4      \
-   has type ‘int’                                                    \
-   [-Wformat=] "Failed to set xdp program, the current MTU (%d) is   \
-   larger than the maximum allowed MTU (%lu) while xdp is on",
-
-Signed-off-by: Gavin Shan <gshan@redhat.com>
-Acked-by: Shay Agroskin <shayagr@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 52b2a8af74360 ("arm64: kexec_file: load initrd and device-tree")
+Fixes: 3751e728cef29 ("arm64: kexec_file: add crash dump support")
+Signed-off-by: Łukasz Stelmach <l.stelmach@samsung.com>
+Cc: AKASHI Takahiro <takahiro.akashi@linaro.org>
+Cc: James Morse <james.morse@arm.com>
+Cc: Bhupesh Sharma <bhsharma@redhat.com>
+Link: https://lore.kernel.org/r/20200430163142.27282-2-l.stelmach@samsung.com
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/amazon/ena/ena_netdev.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/kernel/machine_kexec_file.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/amazon/ena/ena_netdev.h b/drivers/net/ethernet/amazon/ena/ena_netdev.h
-index 8795e0b1dc3c..8984aa211112 100644
---- a/drivers/net/ethernet/amazon/ena/ena_netdev.h
-+++ b/drivers/net/ethernet/amazon/ena/ena_netdev.h
-@@ -69,7 +69,7 @@
-  * 16kB.
-  */
- #if PAGE_SIZE > SZ_16K
--#define ENA_PAGE_SIZE SZ_16K
-+#define ENA_PAGE_SIZE (_AC(SZ_16K, UL))
- #else
- #define ENA_PAGE_SIZE PAGE_SIZE
- #endif
+diff --git a/arch/arm64/kernel/machine_kexec_file.c b/arch/arm64/kernel/machine_kexec_file.c
+index b40c3b0def92..5ebb21b859b4 100644
+--- a/arch/arm64/kernel/machine_kexec_file.c
++++ b/arch/arm64/kernel/machine_kexec_file.c
+@@ -284,7 +284,7 @@ int load_other_segments(struct kimage *image,
+ 		image->arch.elf_headers_sz = headers_sz;
+ 
+ 		pr_debug("Loaded elf core header at 0x%lx bufsz=0x%lx memsz=0x%lx\n",
+-			 image->arch.elf_headers_mem, headers_sz, headers_sz);
++			 image->arch.elf_headers_mem, kbuf.bufsz, kbuf.memsz);
+ 	}
+ 
+ 	/* load initrd */
+@@ -305,7 +305,7 @@ int load_other_segments(struct kimage *image,
+ 		initrd_load_addr = kbuf.mem;
+ 
+ 		pr_debug("Loaded initrd at 0x%lx bufsz=0x%lx memsz=0x%lx\n",
+-				initrd_load_addr, initrd_len, initrd_len);
++				initrd_load_addr, kbuf.bufsz, kbuf.memsz);
+ 	}
+ 
+ 	/* load dtb */
+@@ -332,7 +332,7 @@ int load_other_segments(struct kimage *image,
+ 	image->arch.dtb_mem = kbuf.mem;
+ 
+ 	pr_debug("Loaded dtb at 0x%lx bufsz=0x%lx memsz=0x%lx\n",
+-			kbuf.mem, dtb_len, dtb_len);
++			kbuf.mem, kbuf.bufsz, kbuf.memsz);
+ 
+ 	return 0;
+ 
 -- 
 2.25.1
 
