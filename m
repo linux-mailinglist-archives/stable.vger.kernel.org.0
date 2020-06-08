@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 93ABF1F2AC2
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:12:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA2B31F2ABC
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:12:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732156AbgFIALv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 20:11:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43020 "EHLO mail.kernel.org"
+        id S1730865AbgFHXTw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 19:19:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43058 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730080AbgFHXTu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:19:50 -0400
+        id S1729561AbgFHXTw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:19:52 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C902E20899;
-        Mon,  8 Jun 2020 23:19:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ECB9320842;
+        Mon,  8 Jun 2020 23:19:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658390;
-        bh=MkhQdYmlwhdXAwRMV4INdW/RGVcDVH26f6kH/J+KPUo=;
+        s=default; t=1591658391;
+        bh=E0SZMsJZ5fPOnwF6Lflu+D2Uif5yyqCVMNhKdwUo0/I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iJ07D4TKpueQZ21+OYPz0Ek4jNOaUup5ox8YW0k+BJZs3nmcQs6rVH9nnUGctb/Dk
-         sUyoWT/r/h6KpIGnbUuiv8mUzSzwGjT8oQ1KNb2/CH9n7LwXQyQ90trB3Jl5gxBey+
-         Lkd+U21AeZiabDNpuIwD5qZDm3iOrIGGDWeUqODQ=
+        b=IvpnWajaisU84m/jIrSri7AkiFvT2GXEQ+UnIjCknXIXwYLz/1b/40zdRywvI9OMc
+         Wb/FutXE2MvLdXa0fHuOSn0GAFFH/Hq1EIb99F7gIFGQCKlFZUtUoETrf85gurEVmA
+         7IP3/tu9D41w/9ZRUypFYVV3OKNl1ZW62TiouWu0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Josef Bacik <josef@toxicpanda.com>,
-        Nikolay Borisov <nborisov@suse.com>,
-        David Sterba <dsterba@suse.com>,
+Cc:     Filipe Manana <fdmanana@suse.com>, David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>, linux-btrfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 048/175] btrfs: account for trans_block_rsv in may_commit_transaction
-Date:   Mon,  8 Jun 2020 19:16:41 -0400
-Message-Id: <20200608231848.3366970-48-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 049/175] btrfs: do not ignore error from btrfs_next_leaf() when inserting checksums
+Date:   Mon,  8 Jun 2020 19:16:42 -0400
+Message-Id: <20200608231848.3366970-49-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608231848.3366970-1-sashal@kernel.org>
 References: <20200608231848.3366970-1-sashal@kernel.org>
@@ -44,53 +42,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-[ Upstream commit bb4f58a747f0421b10645fbf75a6acc88da0de50 ]
+[ Upstream commit 7e4a3f7ed5d54926ec671bbb13e171cfe179cc50 ]
 
-On ppc64le with 64k page size (respectively 64k block size) generic/320
-was failing and debug output showed we were getting a premature ENOSPC
-with a bunch of space in btrfs_fs_info::trans_block_rsv.
+We are currently treating any non-zero return value from btrfs_next_leaf()
+the same way, by going to the code that inserts a new checksum item in the
+tree. However if btrfs_next_leaf() returns an error (a value < 0), we
+should just stop and return the error, and not behave as if nothing has
+happened, since in that case we do not have a way to know if there is a
+next leaf or we are currently at the last leaf already.
 
-This meant there were still open transaction handles holding space, yet
-the flusher didn't commit the transaction because it deemed the freed
-space won't be enough to satisfy the current reserve ticket. Fix this
-by accounting for space in trans_block_rsv when deciding whether the
-current transaction should be committed or not.
+So fix that by returning the error from btrfs_next_leaf().
 
-Reviewed-by: Nikolay Borisov <nborisov@suse.com>
-Tested-by: Nikolay Borisov <nborisov@suse.com>
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/space-info.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ fs/btrfs/file-item.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/fs/btrfs/space-info.c b/fs/btrfs/space-info.c
-index e8a4b0ebe97f..5b47e3c44c8f 100644
---- a/fs/btrfs/space-info.c
-+++ b/fs/btrfs/space-info.c
-@@ -462,6 +462,7 @@ static int may_commit_transaction(struct btrfs_fs_info *fs_info,
- 	struct reserve_ticket *ticket = NULL;
- 	struct btrfs_block_rsv *delayed_rsv = &fs_info->delayed_block_rsv;
- 	struct btrfs_block_rsv *delayed_refs_rsv = &fs_info->delayed_refs_rsv;
-+	struct btrfs_block_rsv *trans_rsv = &fs_info->trans_block_rsv;
- 	struct btrfs_trans_handle *trans;
- 	u64 bytes_needed;
- 	u64 reclaim_bytes = 0;
-@@ -524,6 +525,11 @@ static int may_commit_transaction(struct btrfs_fs_info *fs_info,
- 	spin_lock(&delayed_refs_rsv->lock);
- 	reclaim_bytes += delayed_refs_rsv->reserved;
- 	spin_unlock(&delayed_refs_rsv->lock);
-+
-+	spin_lock(&trans_rsv->lock);
-+	reclaim_bytes += trans_rsv->reserved;
-+	spin_unlock(&trans_rsv->lock);
-+
- 	if (reclaim_bytes >= bytes_needed)
- 		goto commit;
- 	bytes_needed -= reclaim_bytes;
+diff --git a/fs/btrfs/file-item.c b/fs/btrfs/file-item.c
+index f62a179f85bb..2b8f29c07668 100644
+--- a/fs/btrfs/file-item.c
++++ b/fs/btrfs/file-item.c
+@@ -798,10 +798,12 @@ int btrfs_csum_file_blocks(struct btrfs_trans_handle *trans,
+ 		nritems = btrfs_header_nritems(path->nodes[0]);
+ 		if (!nritems || (path->slots[0] >= nritems - 1)) {
+ 			ret = btrfs_next_leaf(root, path);
+-			if (ret == 1)
++			if (ret < 0) {
++				goto out;
++			} else if (ret > 0) {
+ 				found_next = 1;
+-			if (ret != 0)
+ 				goto insert;
++			}
+ 			slot = path->slots[0];
+ 		}
+ 		btrfs_item_key_to_cpu(path->nodes[0], &found_key, slot);
 -- 
 2.25.1
 
