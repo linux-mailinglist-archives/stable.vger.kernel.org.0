@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C13DD1F29B1
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:05:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A52611F29B3
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:05:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387703AbgFIADW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2387662AbgFIADW (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 8 Jun 2020 20:03:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46084 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:46132 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731223AbgFHXVt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:21:49 -0400
+        id S1731225AbgFHXVv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:21:51 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B385D208B3;
-        Mon,  8 Jun 2020 23:21:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0E34A20842;
+        Mon,  8 Jun 2020 23:21:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658509;
-        bh=qvMEqAuOf5Z/TluxxmrPx3SKltHINKkkkiAXGoLWkaA=;
+        s=default; t=1591658510;
+        bh=za9EyI3o5uaFj1FcFu/tNsgXVP1mJnijVnQloGQKC8c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l+df3N1+SndCxyYknxS80q3yv5EZHZFNKNaK05WjtnwbJbHYegkhe1CPF7QEUbRJ8
-         uXkBYz2r6oPS/uO2wg1lNc8qcDfoj+pR3IUiOUIZYYBuRN/I2v8rV98x4RZMjaGfx+
-         8oNKJsSJzDpNO42GWCOpYfYnZ4ySueTYpY2KN1Us=
+        b=0QWkDq//IfWdyHXzYu7A2xomoT1iponN6USptM6G49qEdIGy59BwDrpSqcDvHqWj7
+         Q2+BO6dp6oo+NurjVyFOEzsyNcmwmS1n2x+yI8Pr0d9g2eCV3PJJD000QHfw51FKzV
+         bN1omiVfWHEQfcni5tCQN5aC/UtnZ/2T6+ggaPh4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Felix Kuehling <Felix.Kuehling@amd.com>,
-        Jay Cornwall <Jay.Cornwall@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.4 139/175] drm/amdgpu: Sync with VM root BO when switching VM to CPU update mode
-Date:   Mon,  8 Jun 2020 19:18:12 -0400
-Message-Id: <20200608231848.3366970-139-sashal@kernel.org>
+Cc:     Alan Maguire <alan.maguire@oracle.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-kselftest@vger.kernel.org, netdev@vger.kernel.org,
+        bpf@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 140/175] selftests/bpf: CONFIG_IPV6_SEG6_BPF required for test_seg6_loop.o
+Date:   Mon,  8 Jun 2020 19:18:13 -0400
+Message-Id: <20200608231848.3366970-140-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608231848.3366970-1-sashal@kernel.org>
 References: <20200608231848.3366970-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -47,49 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Kuehling <Felix.Kuehling@amd.com>
+From: Alan Maguire <alan.maguire@oracle.com>
 
-[ Upstream commit 90ca78deb004abe75b5024968a199acb96bb70f9 ]
+[ Upstream commit 3c8e8cf4b18b3a7034fab4c4504fc4b54e4b6195 ]
 
-This fixes an intermittent bug where a root PD clear operation still in
-progress could overwrite a PDE update done by the CPU, resulting in a
-VM fault.
+test_seg6_loop.o uses the helper bpf_lwt_seg6_adjust_srh();
+it will not be present if CONFIG_IPV6_SEG6_BPF is not specified.
 
-Fixes: 108b4d928c03 ("drm/amd/amdgpu: Update VM function pointer")
-Reported-by: Jay Cornwall <Jay.Cornwall@amd.com>
-Tested-by: Jay Cornwall <Jay.Cornwall@amd.com>
-Signed-off-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fixes: b061017f8b4d ("selftests/bpf: add realistic loop tests")
+Signed-off-by: Alan Maguire <alan.maguire@oracle.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/1590147389-26482-2-git-send-email-alan.maguire@oracle.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ tools/testing/selftests/bpf/config | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c
-index c7514f743409..6335bd4ae374 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c
-@@ -2867,10 +2867,17 @@ int amdgpu_vm_make_compute(struct amdgpu_device *adev, struct amdgpu_vm *vm, uns
- 	WARN_ONCE((vm->use_cpu_for_update && !amdgpu_gmc_vram_full_visible(&adev->gmc)),
- 		  "CPU update of VM recommended only for large BAR system\n");
- 
--	if (vm->use_cpu_for_update)
-+	if (vm->use_cpu_for_update) {
-+		/* Sync with last SDMA update/clear before switching to CPU */
-+		r = amdgpu_bo_sync_wait(vm->root.base.bo,
-+					AMDGPU_FENCE_OWNER_UNDEFINED, true);
-+		if (r)
-+			goto free_idr;
-+
- 		vm->update_funcs = &amdgpu_vm_cpu_funcs;
--	else
-+	} else {
- 		vm->update_funcs = &amdgpu_vm_sdma_funcs;
-+	}
- 	dma_fence_put(vm->last_update);
- 	vm->last_update = NULL;
- 
+diff --git a/tools/testing/selftests/bpf/config b/tools/testing/selftests/bpf/config
+index 5dc109f4c097..b9601f13cf03 100644
+--- a/tools/testing/selftests/bpf/config
++++ b/tools/testing/selftests/bpf/config
+@@ -25,6 +25,7 @@ CONFIG_XDP_SOCKETS=y
+ CONFIG_FTRACE_SYSCALLS=y
+ CONFIG_IPV6_TUNNEL=y
+ CONFIG_IPV6_GRE=y
++CONFIG_IPV6_SEG6_BPF=y
+ CONFIG_NET_FOU=m
+ CONFIG_NET_FOU_IP_TUNNELS=y
+ CONFIG_IPV6_FOU=m
 -- 
 2.25.1
 
