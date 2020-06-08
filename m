@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 901FE1F2D1C
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:33:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 803551F2F97
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:52:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730023AbgFHXPX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 19:15:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36238 "EHLO mail.kernel.org"
+        id S1728606AbgFHXKR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 19:10:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56412 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728561AbgFHXPV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:15:21 -0400
+        id S1728599AbgFHXKQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:10:16 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 756BD20774;
-        Mon,  8 Jun 2020 23:15:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 243D4208A9;
+        Mon,  8 Jun 2020 23:10:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658121;
-        bh=5xfvrXfgGzAoI+QrpARM+doyiSzu3Hq1ghxRMgHX12I=;
+        s=default; t=1591657816;
+        bh=5itkUDluYpaS3Zxz7oL2dZm1OCRzVTnguZY9d4Ovqcg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FPL2qmpcq13FQwScbyJCY6LXUpPfKKjJU3/ZQN/oOHBPl2/pjjkZ8rAAKF1UtXWKG
-         2gI1SuJigWmptD6FWyh1MKbwytOGWiU4A+h/kcssdyWTDUe9Lds7pwJ2LIOUEREA99
-         Ot9dJqbsmjrYeiLrFXLNz5e39/gyFiXiF5uJE6Iw=
+        b=CZ7plkCrPkDrRgea6NdYDVaUTu/XP1wglSFD+VvXneIOnMABxu4hKk3uJOcFLRP8i
+         ea9XDisjhl/Tgdf8wAFtlKnTZ5ep3K+wv4z+zr3oAMeF+qd6NEA826f1wJnHqCviEA
+         gVRyCgNyI3DjEOsbAZs0IfPFSjkZ6I8hWqGOIpT8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vladimir Murzin <vladimir.murzin@arm.com>,
-        Dijil Mohan <Dijil.Mohan@arm.com>,
-        Vinod Koul <vkoul@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        dmaengine@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.6 158/606] dmaengine: dmatest: Restore default for channel
+Cc:     Lorenzo Bianconi <lorenzo@kernel.org>,
+        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.7 190/274] mt76: mt7663: fix mt7615_mac_cca_stats_reset routine
 Date:   Mon,  8 Jun 2020 19:04:43 -0400
-Message-Id: <20200608231211.3363633-158-sashal@kernel.org>
+Message-Id: <20200608230607.3361041-190-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200608231211.3363633-1-sashal@kernel.org>
-References: <20200608231211.3363633-1-sashal@kernel.org>
+In-Reply-To: <20200608230607.3361041-1-sashal@kernel.org>
+References: <20200608230607.3361041-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -45,51 +45,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Murzin <vladimir.murzin@arm.com>
+From: Lorenzo Bianconi <lorenzo@kernel.org>
 
-commit 6b41030fdc79086db5d673c5ed7169f3ee8c13b9 upstream.
+[ Upstream commit 886a862d3677ac0d3b57d19ffcf5b2d48b9c5267 ]
 
-In case of dmatest is built-in and no channel was configured test
-doesn't run with:
+Fix PHYMUX_5 register definition for mt7663 in
+mt7615_mac_cca_stats_reset routine
 
-dmatest: Could not start test, no channels configured
-
-Even though description to "channel" parameter claims that default is
-any.
-
-Add default channel back as it used to be rather than reject test with
-no channel configuration.
-
-Fixes: d53513d5dc285d9a95a534fc41c5c08af6b60eac ("dmaengine: dmatest: Add support for multi channel testing)
-Reported-by: Dijil Mohan <Dijil.Mohan@arm.com>
-Signed-off-by: Vladimir Murzin <vladimir.murzin@arm.com>
-Link: https://lore.kernel.org/r/20200429071522.58148-1-vladimir.murzin@arm.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: f40ac0f3d3c0 ("mt76: mt7615: introduce mt7663e support")
+Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/dmatest.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/net/wireless/mediatek/mt76/mt7615/mac.c  | 8 +++++++-
+ drivers/net/wireless/mediatek/mt76/mt7615/regs.h | 1 +
+ 2 files changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/dma/dmatest.c b/drivers/dma/dmatest.c
-index 364dd34799d4..0425984db118 100644
---- a/drivers/dma/dmatest.c
-+++ b/drivers/dma/dmatest.c
-@@ -1166,10 +1166,11 @@ static int dmatest_run_set(const char *val, const struct kernel_param *kp)
- 		mutex_unlock(&info->lock);
- 		return ret;
- 	} else if (dmatest_run) {
--		if (is_threaded_test_pending(info))
--			start_threaded_tests(info);
--		else
--			pr_info("Could not start test, no channels configured\n");
-+		if (!is_threaded_test_pending(info)) {
-+			pr_info("No channels configured, continue with any\n");
-+			add_threaded_test(info);
-+		}
-+		start_threaded_tests(info);
- 	} else {
- 		stop_threaded_test(info);
- 	}
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7615/mac.c b/drivers/net/wireless/mediatek/mt76/mt7615/mac.c
+index a27a6d164009..656231786d55 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7615/mac.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7615/mac.c
+@@ -1574,8 +1574,14 @@ void mt7615_mac_cca_stats_reset(struct mt7615_phy *phy)
+ {
+ 	struct mt7615_dev *dev = phy->dev;
+ 	bool ext_phy = phy != &dev->phy;
+-	u32 reg = MT_WF_PHY_R0_PHYMUX_5(ext_phy);
++	u32 reg;
+ 
++	if (is_mt7663(&dev->mt76))
++		reg = MT7663_WF_PHY_R0_PHYMUX_5;
++	else
++		reg = MT_WF_PHY_R0_PHYMUX_5(ext_phy);
++
++	/* reset PD and MDRDY counters */
+ 	mt76_clear(dev, reg, GENMASK(22, 20));
+ 	mt76_set(dev, reg, BIT(22) | BIT(20));
+ }
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7615/regs.h b/drivers/net/wireless/mediatek/mt76/mt7615/regs.h
+index 1e0d95b917e1..f7c2a633841c 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7615/regs.h
++++ b/drivers/net/wireless/mediatek/mt76/mt7615/regs.h
+@@ -151,6 +151,7 @@ enum mt7615_reg_base {
+ #define MT_WF_PHY_WF2_RFCTRL0_LPBCN_EN	BIT(9)
+ 
+ #define MT_WF_PHY_R0_PHYMUX_5(_phy)	MT_WF_PHY(0x0614 + ((_phy) << 9))
++#define MT7663_WF_PHY_R0_PHYMUX_5	MT_WF_PHY(0x0414)
+ 
+ #define MT_WF_PHY_R0_PHYCTRL_STS0(_phy)	MT_WF_PHY(0x020c + ((_phy) << 9))
+ #define MT_WF_PHYCTRL_STAT_PD_OFDM	GENMASK(31, 16)
 -- 
 2.25.1
 
