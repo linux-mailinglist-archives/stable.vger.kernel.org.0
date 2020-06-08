@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 914861F2BFB
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:23:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C0CEE1F2BF7
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:23:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730259AbgFIAT3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 20:19:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40428 "EHLO mail.kernel.org"
+        id S1732200AbgFIATS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 20:19:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40444 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730598AbgFHXSQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:18:16 -0400
+        id S1728044AbgFHXSR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:18:17 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 643162088E;
-        Mon,  8 Jun 2020 23:18:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 64B6E20872;
+        Mon,  8 Jun 2020 23:18:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658296;
-        bh=4MGp3GhSPRW69gWgo1kGqYevai5ODOUvvSzkzf6cRa4=;
+        s=default; t=1591658297;
+        bh=2ZPjej86uWTbLn4JuUOXaDIYjHQwrcYDh8zvLp7nqxA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JjL78svF+OXpefNn6lMuyKORGsyuLI2/Wv9pWgYxPj7Rly14Jh2JNfV9cnNg5vTIc
-         L5s/Uo8wno69jAlFwv6V2w4Vtf5jYtdvzvemdKuXtrE7/DaBOUhntRqV4RO+VIWO+k
-         3AeXH89UbBqNFjfypkNYKZafIbjLeWnuskccksTU=
+        b=r5pLLdMr5V1BY6o4CYK/Lm869JZMWnufo46j9/GM41sLyjGRegaNDyw8XCaWotltq
+         nlKEWEzEnEhHiCclqt3AnztWEQQ2Tuip5BYCA+9Pz1VJah3XtDysGJsti58gdtLzme
+         t7oaPYIrTd9sB+5NZvoTMPyufTdZjqgl8f+5Sq/M=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Russell King <rmk+kernel@armlinux.org.uk>,
+        Tomas Paukrt <tomas.paukrt@advantech.cz>,
         Sasha Levin <sashal@kernel.org>,
         linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.6 299/606] ARM: uaccess: integrate uaccess_save and uaccess_restore
-Date:   Mon,  8 Jun 2020 19:07:04 -0400
-Message-Id: <20200608231211.3363633-299-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.6 300/606] ARM: uaccess: fix DACR mismatch with nested exceptions
+Date:   Mon,  8 Jun 2020 19:07:05 -0400
+Message-Id: <20200608231211.3363633-300-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608231211.3363633-1-sashal@kernel.org>
 References: <20200608231211.3363633-1-sashal@kernel.org>
@@ -45,74 +46,116 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Russell King <rmk+kernel@armlinux.org.uk>
 
-[ Upstream commit 8ede890b0bcebe8c760aacfe20e934d98c3dc6aa ]
+[ Upstream commit 71f8af1110101facfad68989ff91f88f8e2c3e22 ]
 
-Integrate uaccess_save / uaccess_restore macros into the new
-uaccess_entry / uaccess_exit macros respectively.
+Tomas Paukrt reports that his SAM9X60 based system (ARM926, ARMv5TJ)
+fails to fix up alignment faults, eventually resulting in a kernel
+oops.
 
+The problem occurs when using CONFIG_CPU_USE_DOMAINS with commit
+e6978e4bf181 ("ARM: save and reset the address limit when entering an
+exception").  This is because the address limit is set back to
+TASK_SIZE on exception entry, and, although it is restored on exception
+exit, the domain register is not.
+
+Hence, this sequence can occur:
+
+  interrupt
+    pt_regs->addr_limit = addr_limit		// USER_DS
+    addr_limit = USER_DS
+    alignment exception
+    __probe_kernel_read()
+      old_fs = get_fs()				// USER_DS
+      set_fs(KERNEL_DS)
+        addr_limit = KERNEL_DS
+        dacr.kernel = DOMAIN_MANAGER
+        interrupt
+          pt_regs->addr_limit = addr_limit	// KERNEL_DS
+          addr_limit = USER_DS
+          alignment exception
+          __probe_kernel_read()
+            old_fs = get_fs()			// USER_DS
+            set_fs(KERNEL_DS)
+              addr_limit = KERNEL_DS
+              dacr.kernel = DOMAIN_MANAGER
+            ...
+            set_fs(old_fs)
+              addr_limit = USER_DS
+              dacr.kernel = DOMAIN_CLIENT
+          ...
+          addr_limit = pt_regs->addr_limit	// KERNEL_DS
+        interrupt returns
+
+At this point, addr_limit is correctly restored to KERNEL_DS for
+__probe_kernel_read() to continue execution, but dacr.kernel is not,
+it has been reset by the set_fs(old_fs) to DOMAIN_CLIENT.
+
+This would not have happened prior to the mentioned commit, because
+addr_limit would remain KERNEL_DS, so get_fs() would have returned
+KERNEL_DS, and so would correctly nest.
+
+This commit fixes the problem by also saving the DACR on exception
+entry if either CONFIG_CPU_SW_DOMAIN_PAN or CONFIG_CPU_USE_DOMAINS are
+enabled, and resetting the DACR appropriately on exception entry to
+match addr_limit and PAN settings.
+
+Fixes: e6978e4bf181 ("ARM: save and reset the address limit when entering an exception")
+Reported-by: Tomas Paukrt <tomas.paukrt@advantech.cz>
 Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/include/asm/uaccess-asm.h | 30 +++++++++++++-----------------
- 1 file changed, 13 insertions(+), 17 deletions(-)
+ arch/arm/include/asm/uaccess-asm.h | 25 ++++++++++++++++++++-----
+ 1 file changed, 20 insertions(+), 5 deletions(-)
 
 diff --git a/arch/arm/include/asm/uaccess-asm.h b/arch/arm/include/asm/uaccess-asm.h
-index d475e3e8145d..e46468b91eaa 100644
+index e46468b91eaa..907571fd05c6 100644
 --- a/arch/arm/include/asm/uaccess-asm.h
 +++ b/arch/arm/include/asm/uaccess-asm.h
-@@ -67,30 +67,23 @@
+@@ -67,15 +67,21 @@
  #endif
  	.endm
  
--	.macro	uaccess_save, tmp
- #ifdef CONFIG_CPU_SW_DOMAIN_PAN
--	mrc	p15, 0, \tmp, c3, c0, 0
--	str	\tmp, [sp, #SVC_DACR]
--#endif
--	.endm
--
--	.macro	uaccess_restore
 -#ifdef CONFIG_CPU_SW_DOMAIN_PAN
--	ldr	r0, [sp, #SVC_DACR]
--	mcr	p15, 0, r0, c3, c0, 0
-+#define DACR(x...)	x
-+#else
-+#define DACR(x...)
++#if defined(CONFIG_CPU_SW_DOMAIN_PAN) || defined(CONFIG_CPU_USE_DOMAINS)
+ #define DACR(x...)	x
+ #else
+ #define DACR(x...)
  #endif
--	.endm
  
  	/*
- 	 * Save the address limit on entry to a privileged exception and
- 	 * if using PAN, save and disable usermode access.
+-	 * Save the address limit on entry to a privileged exception and
+-	 * if using PAN, save and disable usermode access.
++	 * Save the address limit on entry to a privileged exception.
++	 *
++	 * If we are using the DACR for kernel access by the user accessors
++	 * (CONFIG_CPU_USE_DOMAINS=y), always reset the DACR kernel domain
++	 * back to client mode, whether or not \disable is set.
++	 *
++	 * If we are using SW PAN, set the DACR user domain to no access
++	 * if \disable is set.
  	 */
  	.macro	uaccess_entry, tsk, tmp0, tmp1, tmp2, disable
--	ldr	\tmp0, [\tsk, #TI_ADDR_LIMIT]
--	mov	\tmp1, #TASK_SIZE
--	str	\tmp1, [\tsk, #TI_ADDR_LIMIT]
--	str	\tmp0, [sp, #SVC_ADDR_LIMIT]
--	uaccess_save \tmp0
-+	ldr	\tmp1, [\tsk, #TI_ADDR_LIMIT]
-+	mov	\tmp2, #TASK_SIZE
-+	str	\tmp2, [\tsk, #TI_ADDR_LIMIT]
-+ DACR(	mrc	p15, 0, \tmp0, c3, c0, 0)
-+ DACR(	str	\tmp0, [sp, #SVC_DACR])
-+	str	\tmp1, [sp, #SVC_ADDR_LIMIT]
- 	.if \disable
- 	uaccess_disable \tmp0
+ 	ldr	\tmp1, [\tsk, #TI_ADDR_LIMIT]
+@@ -84,8 +90,17 @@
+  DACR(	mrc	p15, 0, \tmp0, c3, c0, 0)
+  DACR(	str	\tmp0, [sp, #SVC_DACR])
+ 	str	\tmp1, [sp, #SVC_ADDR_LIMIT]
+-	.if \disable
+-	uaccess_disable \tmp0
++	.if \disable && IS_ENABLED(CONFIG_CPU_SW_DOMAIN_PAN)
++	/* kernel=client, user=no access */
++	mov	\tmp2, #DACR_UACCESS_DISABLE
++	mcr	p15, 0, \tmp2, c3, c0, 0
++	instr_sync
++	.elseif IS_ENABLED(CONFIG_CPU_USE_DOMAINS)
++	/* kernel=client */
++	bic	\tmp2, \tmp0, #domain_mask(DOMAIN_KERNEL)
++	orr	\tmp2, \tmp2, #domain_val(DOMAIN_KERNEL, DOMAIN_CLIENT)
++	mcr	p15, 0, \tmp2, c3, c0, 0
++	instr_sync
  	.endif
-@@ -99,8 +92,11 @@
- 	/* Restore the user access state previously saved by uaccess_entry */
- 	.macro	uaccess_exit, tsk, tmp0, tmp1
- 	ldr	\tmp1, [sp, #SVC_ADDR_LIMIT]
--	uaccess_restore
-+ DACR(	ldr	\tmp0, [sp, #SVC_DACR])
- 	str	\tmp1, [\tsk, #TI_ADDR_LIMIT]
-+ DACR(	mcr	p15, 0, \tmp0, c3, c0, 0)
  	.endm
  
-+#undef DACR
-+
- #endif /* __ASM_UACCESS_ASM_H__ */
 -- 
 2.25.1
 
