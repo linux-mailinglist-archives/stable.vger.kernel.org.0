@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 11D2B1F2503
+	by mail.lfdr.de (Postfix) with ESMTP id EC85D1F2506
 	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:25:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731640AbgFHXYg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 19:24:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50728 "EHLO mail.kernel.org"
+        id S2387523AbgFHXYm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 19:24:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50844 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387508AbgFHXYf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:24:35 -0400
+        id S1731648AbgFHXYl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:24:41 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DF1BC20899;
-        Mon,  8 Jun 2020 23:24:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7D93120842;
+        Mon,  8 Jun 2020 23:24:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658674;
-        bh=Ljoi6SPtp9BQsszabiJzv6FOpQKYVjz22TNrx7xiH/E=;
+        s=default; t=1591658680;
+        bh=FR0GBdXZRS3MESMaSu9Hju37YGFee3H+3/6KHSvEvTA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ejASoqjemsbEHFaqD9mmmftna/M6mOvEPCS4OBNBUVuG331pa4Th9gdDRc6HJx/JG
-         g2wZitxGYlHqIudqo6TYCXh+TD626p/vUYyaey4f7BFQ6AvnLT5O3wfGyKyjs3TAMh
-         QVFW6h7pv6IP+Qyzqe7zgxug5hdSdi5qg78fxewQ=
+        b=YXQRbD3QG+I8fZQyXPqAhzRmYviW4VPltqdN2vY1i8laMnz9J0Zskmw1NLDSKhwgY
+         crZoG08RtZ9fUwPB+9QUNJMeTQGyEis53qhYkXm7RxX+/70Kn5ydLR7Sbj6BGF37jv
+         bpjEcK3cqQ3tlvOyMI8Ma6h95HlvvDesRSF1fvLo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Qu Wenruo <wqu@suse.com>, Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>, linux-btrfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 086/106] btrfs: qgroup: mark qgroup inconsistent if we're inherting snapshot to a new qgroup
-Date:   Mon,  8 Jun 2020 19:22:18 -0400
-Message-Id: <20200608232238.3368589-86-sashal@kernel.org>
+Cc:     Coly Li <colyli@suse.de>, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>, linux-bcache@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 091/106] bcache: fix refcount underflow in bcache_device_free()
+Date:   Mon,  8 Jun 2020 19:22:23 -0400
+Message-Id: <20200608232238.3368589-91-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608232238.3368589-1-sashal@kernel.org>
 References: <20200608232238.3368589-1-sashal@kernel.org>
@@ -43,121 +42,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qu Wenruo <wqu@suse.com>
+From: Coly Li <colyli@suse.de>
 
-[ Upstream commit cbab8ade585a18c4334b085564d9d046e01a3f70 ]
+[ Upstream commit 86da9f736740eba602389908574dfbb0f517baa5 ]
 
-[BUG]
-For the following operation, qgroup is guaranteed to be screwed up due
-to snapshot adding to a new qgroup:
+The problematic code piece in bcache_device_free() is,
 
-  # mkfs.btrfs -f $dev
-  # mount $dev $mnt
-  # btrfs qgroup en $mnt
-  # btrfs subv create $mnt/src
-  # xfs_io -f -c "pwrite 0 1m" $mnt/src/file
-  # sync
-  # btrfs qgroup create 1/0 $mnt/src
-  # btrfs subv snapshot -i 1/0 $mnt/src $mnt/snapshot
-  # btrfs qgroup show -prce $mnt/src
-  qgroupid         rfer         excl     max_rfer     max_excl parent  child
-  --------         ----         ----     --------     -------- ------  -----
-  0/5          16.00KiB     16.00KiB         none         none ---     ---
-  0/257         1.02MiB     16.00KiB         none         none ---     ---
-  0/258         1.02MiB     16.00KiB         none         none 1/0     ---
-  1/0             0.00B        0.00B         none         none ---     0/258
-	        ^^^^^^^^^^^^^^^^^^^^
+ 785 static void bcache_device_free(struct bcache_device *d)
+ 786 {
+ 787     struct gendisk *disk = d->disk;
+ [snipped]
+ 799     if (disk) {
+ 800             if (disk->flags & GENHD_FL_UP)
+ 801                     del_gendisk(disk);
+ 802
+ 803             if (disk->queue)
+ 804                     blk_cleanup_queue(disk->queue);
+ 805
+ 806             ida_simple_remove(&bcache_device_idx,
+ 807                               first_minor_to_idx(disk->first_minor));
+ 808             put_disk(disk);
+ 809         }
+ [snipped]
+ 816 }
 
-[CAUSE]
-The problem is in btrfs_qgroup_inherit(), we don't have good enough
-check to determine if the new relation would break the existing
-accounting.
+At line 808, put_disk(disk) may encounter kobject refcount of 'disk'
+being underflow.
 
-Unlike btrfs_add_qgroup_relation(), which has proper check to determine
-if we can do quick update without a rescan, in btrfs_qgroup_inherit() we
-can even assign a snapshot to multiple qgroups.
+Here is how to reproduce the issue,
+- Attche the backing device to a cache device and do random write to
+  make the cache being dirty.
+- Stop the bcache device while the cache device has dirty data of the
+  backing device.
+- Only register the backing device back, NOT register cache device.
+- The bcache device node /dev/bcache0 won't show up, because backing
+  device waits for the cache device shows up for the missing dirty
+  data.
+- Now echo 1 into /sys/fs/bcache/pendings_cleanup, to stop the pending
+  backing device.
+- After the pending backing device stopped, use 'dmesg' to check kernel
+  message, a use-after-free warning from KASA reported the refcount of
+  kobject linked to the 'disk' is underflow.
 
-[FIX]
-Fix it by manually marking qgroup inconsistent for snapshot inheritance.
+The dropping refcount at line 808 in the above code piece is added by
+add_disk(d->disk) in bch_cached_dev_run(). But in the above condition
+the cache device is not registered, bch_cached_dev_run() has no chance
+to be called and the refcount is not added. The put_disk() for a non-
+added refcount of gendisk kobject triggers a underflow warning.
 
-For subvolume creation, since all its extents are exclusively owned, we
-don't need to rescan.
+This patch checks whether GENHD_FL_UP is set in disk->flags, if it is
+not set then the bcache device was not added, don't call put_disk()
+and the the underflow issue can be avoided.
 
-In theory, we should call relation check like quick_update_accounting()
-when doing qgroup inheritance and inform user about qgroup accounting
-inconsistency.
-
-But we don't have good mechanism to relay that back to the user in the
-snapshot creation context, thus we can only silently mark the qgroup
-inconsistent.
-
-Anyway, user shouldn't use qgroup inheritance during snapshot creation,
-and should add qgroup relationship after snapshot creation by 'btrfs
-qgroup assign', which has a much better UI to inform user about qgroup
-inconsistent and kick in rescan automatically.
-
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Qu Wenruo <wqu@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Coly Li <colyli@suse.de>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/qgroup.c | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ drivers/md/bcache/super.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/fs/btrfs/qgroup.c b/fs/btrfs/qgroup.c
-index cbd40826f5dc..c8ed4db73b84 100644
---- a/fs/btrfs/qgroup.c
-+++ b/fs/btrfs/qgroup.c
-@@ -2259,6 +2259,7 @@ int btrfs_qgroup_inherit(struct btrfs_trans_handle *trans, u64 srcid,
- 	struct btrfs_root *quota_root;
- 	struct btrfs_qgroup *srcgroup;
- 	struct btrfs_qgroup *dstgroup;
-+	bool need_rescan = false;
- 	u32 level_size = 0;
- 	u64 nums;
+diff --git a/drivers/md/bcache/super.c b/drivers/md/bcache/super.c
+index 5b5cbfadd003..68ebc2759c2e 100644
+--- a/drivers/md/bcache/super.c
++++ b/drivers/md/bcache/super.c
+@@ -775,7 +775,9 @@ static void bcache_device_free(struct bcache_device *d)
+ 		bcache_device_detach(d);
  
-@@ -2402,6 +2403,13 @@ int btrfs_qgroup_inherit(struct btrfs_trans_handle *trans, u64 srcid,
- 				goto unlock;
- 		}
- 		++i_qgroups;
+ 	if (disk) {
+-		if (disk->flags & GENHD_FL_UP)
++		bool disk_added = (disk->flags & GENHD_FL_UP) != 0;
 +
-+		/*
-+		 * If we're doing a snapshot, and adding the snapshot to a new
-+		 * qgroup, the numbers are guaranteed to be incorrect.
-+		 */
-+		if (srcid)
-+			need_rescan = true;
++		if (disk_added)
+ 			del_gendisk(disk);
+ 
+ 		if (disk->queue)
+@@ -783,7 +785,8 @@ static void bcache_device_free(struct bcache_device *d)
+ 
+ 		ida_simple_remove(&bcache_device_idx,
+ 				  first_minor_to_idx(disk->first_minor));
+-		put_disk(disk);
++		if (disk_added)
++			put_disk(disk);
  	}
  
- 	for (i = 0; i <  inherit->num_ref_copies; ++i, i_qgroups += 2) {
-@@ -2421,6 +2429,9 @@ int btrfs_qgroup_inherit(struct btrfs_trans_handle *trans, u64 srcid,
- 
- 		dst->rfer = src->rfer - level_size;
- 		dst->rfer_cmpr = src->rfer_cmpr - level_size;
-+
-+		/* Manually tweaking numbers certainly needs a rescan */
-+		need_rescan = true;
- 	}
- 	for (i = 0; i <  inherit->num_excl_copies; ++i, i_qgroups += 2) {
- 		struct btrfs_qgroup *src;
-@@ -2439,6 +2450,7 @@ int btrfs_qgroup_inherit(struct btrfs_trans_handle *trans, u64 srcid,
- 
- 		dst->excl = src->excl + level_size;
- 		dst->excl_cmpr = src->excl_cmpr + level_size;
-+		need_rescan = true;
- 	}
- 
- unlock:
-@@ -2446,6 +2458,8 @@ int btrfs_qgroup_inherit(struct btrfs_trans_handle *trans, u64 srcid,
- out:
- 	if (!committing)
- 		mutex_unlock(&fs_info->qgroup_ioctl_lock);
-+	if (need_rescan)
-+		fs_info->qgroup_flags |= BTRFS_QGROUP_STATUS_FLAG_INCONSISTENT;
- 	return ret;
- }
- 
+ 	bioset_exit(&d->bio_split);
 -- 
 2.25.1
 
