@@ -2,94 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E4C311F1718
-	for <lists+stable@lfdr.de>; Mon,  8 Jun 2020 12:59:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 932CF1F1760
+	for <lists+stable@lfdr.de>; Mon,  8 Jun 2020 13:16:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729505AbgFHK75 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 06:59:57 -0400
-Received: from mga01.intel.com ([192.55.52.88]:20100 "EHLO mga01.intel.com"
+        id S1729398AbgFHLQX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 07:16:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33690 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726202AbgFHK75 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 06:59:57 -0400
-IronPort-SDR: NeZ88um0eO0/VEhkD3jMT8V28wH01xnlD0/sp6P6VWTNyPXW8SWCUNfS6vwozruIA3pnP3K6DB
- oY+XqMoNsCNQ==
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Jun 2020 03:59:56 -0700
-IronPort-SDR: 7UeMIu9syk/NjzhM3fO6gHiRjwpyM8+oTUkbPYUlMIrVxsENqpwpxuQFRZfaVnvnAnljy4e6EH
- otaX3jF+vFLw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.73,487,1583222400"; 
-   d="scan'208";a="379387369"
-Received: from lahna.fi.intel.com (HELO lahna) ([10.237.72.163])
-  by fmsmga001.fm.intel.com with SMTP; 08 Jun 2020 03:59:54 -0700
-Received: by lahna (sSMTP sendmail emulation); Mon, 08 Jun 2020 13:59:53 +0300
-Date:   Mon, 8 Jun 2020 13:59:53 +0300
-From:   Mika Westerberg <mika.westerberg@linux.intel.com>
-To:     Hans de Goede <hdegoede@redhat.com>
-Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        linux-gpio@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH v2] pinctrl: baytrail: Fix pin being driven low for a
- while on gpiod_get(..., GPIOD_OUT_HIGH)
-Message-ID: <20200608105953.GC247495@lahna.fi.intel.com>
-References: <20200606093150.32882-1-hdegoede@redhat.com>
+        id S1729371AbgFHLQW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 07:16:22 -0400
+Received: from localhost (fw-tnat.cambridge.arm.com [217.140.96.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 304192072F;
+        Mon,  8 Jun 2020 11:16:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1591614981;
+        bh=zYU+C+PGf5dDW4qDWm1pWIclB3owG0XcTceTu8qombA=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Q9Wpo9bEJEdcTJMCyKy7ZT9rxa47Nd99waxgfzn77Rlv9kyqNQWO/sOpSwzfoBVg9
+         0DW8je9lPY6x510TuzCC+BBhYLLYeQnZdCEcktminkIoc29RmfBjPj2+A9m0xqKQKi
+         MNJPs5KbE8PQtxoMoXhlZQv4RFvDnxmq2xZb2DdE=
+Date:   Mon, 8 Jun 2020 12:16:19 +0100
+From:   Mark Brown <broonie@kernel.org>
+To:     Pavel Machek <pavel@denx.de>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        fengsheng <fengsheng5@huawei.com>,
+        Xinwei Kong <kong.kongxinwei@hisilicon.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 4.19 15/28] spi: dw: use "smp_mb()" to avoid sending spi
+ data error
+Message-ID: <20200608111619.GB4593@sirena.org.uk>
+References: <20200605140252.338635395@linuxfoundation.org>
+ <20200605140253.279609547@linuxfoundation.org>
+ <20200607200910.GA13138@amd>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="JYK4vJDZwFMowpUq"
 Content-Disposition: inline
-In-Reply-To: <20200606093150.32882-1-hdegoede@redhat.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+In-Reply-To: <20200607200910.GA13138@amd>
+X-Cookie: I'm rated PG-34!!
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Jun 06, 2020 at 11:31:50AM +0200, Hans de Goede wrote:
-> The pins on the Bay Trail SoC have separate input-buffer and output-buffer
-> enable bits and a read of the level bit of the value register will always
-> return the value from the input-buffer.
-> 
-> The BIOS of a device may configure a pin in output-only mode, only enabling
-> the output buffer, and write 1 to the level bit to drive the pin high.
-> This 1 written to the level bit will be stored inside the data-latch of the
-> output buffer.
-> 
-> But a subsequent read of the value register will return 0 for the level bit
-> because the input-buffer is disabled. This causes a read-modify-write as
-> done by byt_gpio_set_direction() to write 0 to the level bit, driving the
-> pin low!
-> 
-> Before this commit byt_gpio_direction_output() relied on
-> pinctrl_gpio_direction_output() to set the direction, followed by a call
-> to byt_gpio_set() to apply the selected value. This causes the pin to
-> go low between the pinctrl_gpio_direction_output() and byt_gpio_set()
-> calls.
-> 
-> Change byt_gpio_direction_output() to directly make the register
-> modifications itself instead. Replacing the 2 subsequent writes to the
-> value register with a single write.
-> 
-> Note that the pinctrl code does not keep track internally of the direction,
-> so not going through pinctrl_gpio_direction_output() is not an issue.
-> 
-> This issue was noticed on a Trekstor SurfTab Twin 10.1. When the panel is
-> already on at boot (no external monitor connected), then the i915 driver
-> does a gpiod_get(..., GPIOD_OUT_HIGH) for the panel-enable GPIO. The
-> temporarily going low of that GPIO was causing the panel to reset itself
-> after which it would not show an image until it was turned off and back on
-> again (until a full modeset was done on it). This commit fixes this.
-> 
-> This commit also updates the byt_gpio_direction_input() to use direct
-> register accesses instead of going through pinctrl_gpio_direction_input(),
-> to keep it consistent with byt_gpio_direction_output().
-> 
-> Note for backporting, this commit depends on:
-> commit e2b74419e5cc ("pinctrl: baytrail: Replace WARN with dev_info_once
-> when setting direct-irq pin to output")
-> 
-> Cc: stable@vger.kernel.org
-> Fixes: 86e3ef812fe3 ("pinctrl: baytrail: Update gpio chip operations")
-> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 
-Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+--JYK4vJDZwFMowpUq
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Sun, Jun 07, 2020 at 10:09:11PM +0200, Pavel Machek wrote:
+
+> > Because of out-of-order execution about some CPU architecture,
+> > In this debug stage we find Completing spi interrupt enable ->
+> > prodrucing TXEI interrupt -> running "interrupt_transfer" function
+> > will prior to set "dw->rx and dws->rx_end" data, so this patch add
+> > memory barrier to enable dw->rx and dw->rx_end to be visible and
+> > solve to send SPI data error.
+
+> So, this is apparently CPU-vs-device issue...
+
+The commit message is a bit unclear but my read had been interrupt
+handler racing with sending new data rather than an ordering issue with
+writes to the hardware. =20
+
+--JYK4vJDZwFMowpUq
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAl7eHgIACgkQJNaLcl1U
+h9DhCwf/d1dXgEHH5Hb83+eAVx5v90fL3DClK2WyN5AJ/z1D2CZILow8Ky35z2Yb
+33tiaskGua1M+7vsabIQ9pYSZL8oOkYwrDwP5UXGTJK4pwJxkBEpFL5ab+x6dTc9
+9TUx/93YOc/OhD45++q3dEzUmS8ZoPKHiwxaglfe76Dw6S2wSErBsACqmWWZMUvz
+VkkLcuJDcxpL+jjIwWDfkD4jKovGgJd8g4dAoJ+WGBHGYSr0SqYxlBVWlYP0yPaV
++h8aMjgeKHdWytbm6DHuo3bBgxgGUoif0s9wbAYxaW0piJzB9DGqHBxFhMtE3FF3
+PZZ49fhK8VXpyCy+4wNylwx+lE2JXg==
+=cxCC
+-----END PGP SIGNATURE-----
+
+--JYK4vJDZwFMowpUq--
