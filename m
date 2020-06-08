@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D90CB1F2CC9
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:30:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD5E81F2CCB
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:30:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729349AbgFHXP7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 19:15:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37138 "EHLO mail.kernel.org"
+        id S1730149AbgFHXQB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 19:16:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37204 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730136AbgFHXP6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:15:58 -0400
+        id S1730142AbgFHXQA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:16:00 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B42C120760;
-        Mon,  8 Jun 2020 23:15:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 74F742068D;
+        Mon,  8 Jun 2020 23:15:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658158;
-        bh=8oY5NOb43ECW2UuHijbZc/Fbrh+sjRf3T0dHqJZ28CQ=;
+        s=default; t=1591658159;
+        bh=SGCaoOMYYcm8aE6If3PJMgTqwZ7DYL1Rsw+HKEuNXM0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jKMP9b2KNY0f7qAij0PKq6hIUuXj7vrfuB2kGJw7e1sUuHjjQWxV5/6aqFBRdUyej
-         IEl4orlb0DzhOa04nSw2m5bnJ9peOWKnpLvvAqs1C96xMEC8aRCIuRf0gNKk3/9seL
-         6YDb1x0f8o8gZd6Bl2cPUvY+KzSdtCFOPkVflBYY=
+        b=1Ng9fo0pcWdT8ksumAzqmILuA5Rj2r/P3x2FeyFNJAbANEHZ5BpnkUt76Z0FSwZI2
+         JGBKO9u+5m4ugCY/ppoD0A/KfNn8VBSsCp7jvmjp1DBinXmTEefuFX3m2uVRM3wBCb
+         0UrsWK+l6v48lpX78swFeKxgQGCPcT/BbKbuDavE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Marco Elver <elver@google.com>,
-        kernel test robot <rong.a.chen@intel.com>,
+Cc:     Arnd Bergmann <arnd@arndb.de>,
+        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Andrey Konovalov <andreyknvl@google.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Alexander Potapenko <glider@google.com>,
-        Andrey Ryabinin <aryabinin@virtuozzo.com>,
-        Qian Cai <cai@lca.pw>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        Rich Felker <dalias@libc.org>,
+        "David S. Miller" <davem@davemloft.net>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        kasan-dev@googlegroups.com, linux-mm@kvack.org
-Subject: [PATCH AUTOSEL 5.6 188/606] kasan: disable branch tracing for core runtime
-Date:   Mon,  8 Jun 2020 19:05:13 -0400
-Message-Id: <20200608231211.3363633-188-sashal@kernel.org>
+        linux-sh@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.6 189/606] sh: include linux/time_types.h for sockios
+Date:   Mon,  8 Jun 2020 19:05:14 -0400
+Message-Id: <20200608231211.3363633-189-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608231211.3363633-1-sashal@kernel.org>
 References: <20200608231211.3363633-1-sashal@kernel.org>
@@ -51,86 +49,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marco Elver <elver@google.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit 33cd65e73abd693c00c4156cf23677c453b41b3b upstream.
+commit fc94cf2092c7c1267fa2deb8388d624f50eba808 upstream.
 
-During early boot, while KASAN is not yet initialized, it is possible to
-enter reporting code-path and end up in kasan_report().
+Using the socket ioctls on arch/sh (and only there) causes build time
+problems when __kernel_old_timeval/__kernel_old_timespec are not already
+visible to the compiler.
 
-While uninitialized, the branch there prevents generating any reports,
-however, under certain circumstances when branches are being traced
-(TRACE_BRANCH_PROFILING), we may recurse deep enough to cause kernel
-reboots without warning.
+Add an explict include line for the header that defines these
+structures.
 
-To prevent similar issues in future, we should disable branch tracing
-for the core runtime.
-
-[elver@google.com: remove duplicate DISABLE_BRANCH_PROFILING, per Qian Cai]
-  Link: https://lore.kernel.org/lkml/20200517011732.GE24705@shao2-debian/
-  Link: http://lkml.kernel.org/r/20200522075207.157349-1-elver@google.com
-Reported-by: kernel test robot <rong.a.chen@intel.com>
-Signed-off-by: Marco Elver <elver@google.com>
+Fixes: 8c709f9a0693 ("y2038: sh: remove timeval/timespec usage from headers")
+Fixes: 0768e17073dc ("net: socket: implement 64-bit timestamps")
+Reported-by: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Andrey Konovalov <andreyknvl@google.com>
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Cc: Alexander Potapenko <glider@google.com>
-Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
-Cc: Qian Cai <cai@lca.pw>
+Tested-by: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
+Cc: Rich Felker <dalias@libc.org>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
 Cc: <stable@vger.kernel.org>
-Link: http://lkml.kernel.org/r//20200517011732.GE24705@shao2-debian/
-Link: http://lkml.kernel.org/r/20200519182459.87166-1-elver@google.com
+Link: http://lkml.kernel.org/r/20200519131327.1836482-1-arnd@arndb.de
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/kasan/Makefile  | 8 ++++----
- mm/kasan/generic.c | 1 -
- mm/kasan/tags.c    | 1 -
- 3 files changed, 4 insertions(+), 6 deletions(-)
+ arch/sh/include/uapi/asm/sockios.h | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/mm/kasan/Makefile b/mm/kasan/Makefile
-index 08b43de2383b..f36ffc090f5f 100644
---- a/mm/kasan/Makefile
-+++ b/mm/kasan/Makefile
-@@ -14,10 +14,10 @@ CFLAGS_REMOVE_tags.o = $(CC_FLAGS_FTRACE)
- # Function splitter causes unnecessary splits in __asan_load1/__asan_store1
- # see: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=63533
+diff --git a/arch/sh/include/uapi/asm/sockios.h b/arch/sh/include/uapi/asm/sockios.h
+index 3da561453260..ef01ced9e169 100644
+--- a/arch/sh/include/uapi/asm/sockios.h
++++ b/arch/sh/include/uapi/asm/sockios.h
+@@ -2,6 +2,8 @@
+ #ifndef __ASM_SH_SOCKIOS_H
+ #define __ASM_SH_SOCKIOS_H
  
--CFLAGS_common.o := $(call cc-option, -fno-conserve-stack -fno-stack-protector)
--CFLAGS_generic.o := $(call cc-option, -fno-conserve-stack -fno-stack-protector)
--CFLAGS_generic_report.o := $(call cc-option, -fno-conserve-stack -fno-stack-protector)
--CFLAGS_tags.o := $(call cc-option, -fno-conserve-stack -fno-stack-protector)
-+CFLAGS_common.o := $(call cc-option, -fno-conserve-stack -fno-stack-protector) -DDISABLE_BRANCH_PROFILING
-+CFLAGS_generic.o := $(call cc-option, -fno-conserve-stack -fno-stack-protector) -DDISABLE_BRANCH_PROFILING
-+CFLAGS_generic_report.o := $(call cc-option, -fno-conserve-stack -fno-stack-protector) -DDISABLE_BRANCH_PROFILING
-+CFLAGS_tags.o := $(call cc-option, -fno-conserve-stack -fno-stack-protector) -DDISABLE_BRANCH_PROFILING
- 
- obj-$(CONFIG_KASAN) := common.o init.o report.o
- obj-$(CONFIG_KASAN_GENERIC) += generic.o generic_report.o quarantine.o
-diff --git a/mm/kasan/generic.c b/mm/kasan/generic.c
-index 616f9dd82d12..76a80033e0b7 100644
---- a/mm/kasan/generic.c
-+++ b/mm/kasan/generic.c
-@@ -15,7 +15,6 @@
-  */
- 
- #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
--#define DISABLE_BRANCH_PROFILING
- 
- #include <linux/export.h>
- #include <linux/interrupt.h>
-diff --git a/mm/kasan/tags.c b/mm/kasan/tags.c
-index 0e987c9ca052..caf4efd9888c 100644
---- a/mm/kasan/tags.c
-+++ b/mm/kasan/tags.c
-@@ -12,7 +12,6 @@
-  */
- 
- #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
--#define DISABLE_BRANCH_PROFILING
- 
- #include <linux/export.h>
- #include <linux/interrupt.h>
++#include <linux/time_types.h>
++
+ /* Socket-level I/O control calls. */
+ #define FIOGETOWN	_IOR('f', 123, int)
+ #define FIOSETOWN 	_IOW('f', 124, int)
 -- 
 2.25.1
 
