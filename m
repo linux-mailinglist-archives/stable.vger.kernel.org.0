@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1ED381F29CA
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:05:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE8EF1F29C7
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:05:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731203AbgFIAEU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 20:04:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45904 "EHLO mail.kernel.org"
+        id S1731206AbgFHXVm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 19:21:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45936 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731196AbgFHXVl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:21:41 -0400
+        id S1731200AbgFHXVm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:21:42 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 76179208A7;
-        Mon,  8 Jun 2020 23:21:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8327020842;
+        Mon,  8 Jun 2020 23:21:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658500;
-        bh=3J//wm36//AEStju1ppLMr4exvv9fdRyG83XN1eX8ck=;
+        s=default; t=1591658501;
+        bh=HXy9QkS4DekEeRywjSWFzBjwCqscsZtP1slMzTKcyMU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OlARCsin/38FPcapX+oEnaPRkGtmp2LKixryJ8PJUT7/TtFMBk7ZbV5e/YgnsyB4N
-         HU0V1Dwjl22lHtxdUEJA7Y9H+KPig2jbo1qTq6Vm9FR8DmI8yJCHCqpRW/TFYwasHe
-         9NLG+MnTJHZ81qtpv2NDWZSiIY6fTP4X9kAKb6vo=
+        b=G1COJ0fXv2w1eFX5Z8oujBQ8Yn7/+GmJNmiSAmt4gAqiGI6DhV7EHMrGsT9eJ63Rg
+         nFzz2ybafH1IHnGQ+rakwew1AA7k8nMMw0JMp14yzElKPvAuRTsvKRj6rRookH05da
+         esxvYckb6D7jNBozlaBsva6Juyqwrc7A6mOe6rNI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Huaixin Chang <changhuaixin@linux.alibaba.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Ben Segall <bsegall@google.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 132/175] sched: Defend cfs and rt bandwidth quota against overflow
-Date:   Mon,  8 Jun 2020 19:18:05 -0400
-Message-Id: <20200608231848.3366970-132-sashal@kernel.org>
+Cc:     Serge Semin <Sergey.Semin@baikalelectronics.ru>,
+        Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Paul Burton <paulburton@kernel.org>,
+        Ralf Baechle <ralf@linux-mips.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Rob Herring <robh+dt@kernel.org>, devicetree@vger.kernel.org,
+        Sasha Levin <sashal@kernel.org>, linux-mips@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 133/175] mips: MAAR: Use more precise address mask
+Date:   Mon,  8 Jun 2020 19:18:06 -0400
+Message-Id: <20200608231848.3366970-133-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608231848.3366970-1-sashal@kernel.org>
 References: <20200608231848.3366970-1-sashal@kernel.org>
@@ -44,106 +48,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Huaixin Chang <changhuaixin@linux.alibaba.com>
+From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
 
-[ Upstream commit d505b8af58912ae1e1a211fabc9995b19bd40828 ]
+[ Upstream commit bbb5946eb545fab8ad8f46bce8a803e1c0c39d47 ]
 
-When users write some huge number into cpu.cfs_quota_us or
-cpu.rt_runtime_us, overflow might happen during to_ratio() shifts of
-schedulable checks.
+Indeed according to the MIPS32 Privileged Resource Architecgture the MAAR
+pair register address field either takes [12:31] bits for non-XPA systems
+and [12:55] otherwise. In any case the current address mask is just
+wrong for 64-bit and 32-bits XPA chips. So lets extend it to 59-bits
+of physical address value. This shall cover the 64-bits architecture and
+systems with XPA enabled, and won't cause any problem for non-XPA 32-bit
+systems, since address values exceeding the architecture specific MAAR
+mask will be just truncated with setting zeros in the unsupported upper
+bits.
 
-to_ratio() could be altered to avoid unnecessary internal overflow, but
-min_cfs_quota_period is less than 1 << BW_SHIFT, so a cutoff would still
-be needed. Set a cap MAX_BW for cfs_quota_us and rt_runtime_us to
-prevent overflow.
-
-Signed-off-by: Huaixin Chang <changhuaixin@linux.alibaba.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Ben Segall <bsegall@google.com>
-Link: https://lkml.kernel.org/r/20200425105248.60093-1-changhuaixin@linux.alibaba.com
+Co-developed-by: Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>
+Signed-off-by: Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>
+Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Cc: Paul Burton <paulburton@kernel.org>
+Cc: Ralf Baechle <ralf@linux-mips.org>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Rob Herring <robh+dt@kernel.org>
+Cc: devicetree@vger.kernel.org
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/core.c  |  8 ++++++++
- kernel/sched/rt.c    | 12 +++++++++++-
- kernel/sched/sched.h |  2 ++
- 3 files changed, 21 insertions(+), 1 deletion(-)
+ arch/mips/include/asm/mipsregs.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index 4874e1468279..361cbc2dc966 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -7374,6 +7374,8 @@ static DEFINE_MUTEX(cfs_constraints_mutex);
+diff --git a/arch/mips/include/asm/mipsregs.h b/arch/mips/include/asm/mipsregs.h
+index bdbdc19a2b8f..3afdb39d092a 100644
+--- a/arch/mips/include/asm/mipsregs.h
++++ b/arch/mips/include/asm/mipsregs.h
+@@ -750,7 +750,7 @@
  
- const u64 max_cfs_quota_period = 1 * NSEC_PER_SEC; /* 1s */
- static const u64 min_cfs_quota_period = 1 * NSEC_PER_MSEC; /* 1ms */
-+/* More than 203 days if BW_SHIFT equals 20. */
-+static const u64 max_cfs_runtime = MAX_BW * NSEC_PER_USEC;
- 
- static int __cfs_schedulable(struct task_group *tg, u64 period, u64 runtime);
- 
-@@ -7401,6 +7403,12 @@ static int tg_set_cfs_bandwidth(struct task_group *tg, u64 period, u64 quota)
- 	if (period > max_cfs_quota_period)
- 		return -EINVAL;
- 
-+	/*
-+	 * Bound quota to defend quota against overflow during bandwidth shift.
-+	 */
-+	if (quota != RUNTIME_INF && quota > max_cfs_runtime)
-+		return -EINVAL;
-+
- 	/*
- 	 * Prevent race between setting of cfs_rq->runtime_enabled and
- 	 * unthrottle_offline_cfs_rqs().
-diff --git a/kernel/sched/rt.c b/kernel/sched/rt.c
-index 7bf917e4d63a..5b04bba4500d 100644
---- a/kernel/sched/rt.c
-+++ b/kernel/sched/rt.c
-@@ -9,6 +9,8 @@
- 
- int sched_rr_timeslice = RR_TIMESLICE;
- int sysctl_sched_rr_timeslice = (MSEC_PER_SEC / HZ) * RR_TIMESLICE;
-+/* More than 4 hours if BW_SHIFT equals 20. */
-+static const u64 max_rt_runtime = MAX_BW;
- 
- static int do_sched_rt_period_timer(struct rt_bandwidth *rt_b, int overrun);
- 
-@@ -2513,6 +2515,12 @@ static int tg_set_rt_bandwidth(struct task_group *tg,
- 	if (rt_period == 0)
- 		return -EINVAL;
- 
-+	/*
-+	 * Bound quota to defend quota against overflow during bandwidth shift.
-+	 */
-+	if (rt_runtime != RUNTIME_INF && rt_runtime > max_rt_runtime)
-+		return -EINVAL;
-+
- 	mutex_lock(&rt_constraints_mutex);
- 	read_lock(&tasklist_lock);
- 	err = __rt_schedulable(tg, rt_period, rt_runtime);
-@@ -2634,7 +2642,9 @@ static int sched_rt_global_validate(void)
- 		return -EINVAL;
- 
- 	if ((sysctl_sched_rt_runtime != RUNTIME_INF) &&
--		(sysctl_sched_rt_runtime > sysctl_sched_rt_period))
-+		((sysctl_sched_rt_runtime > sysctl_sched_rt_period) ||
-+		 ((u64)sysctl_sched_rt_runtime *
-+			NSEC_PER_USEC > max_rt_runtime)))
- 		return -EINVAL;
- 
- 	return 0;
-diff --git a/kernel/sched/sched.h b/kernel/sched/sched.h
-index c7e7481968bf..570659f1c6e2 100644
---- a/kernel/sched/sched.h
-+++ b/kernel/sched/sched.h
-@@ -1889,6 +1889,8 @@ extern void init_dl_rq_bw_ratio(struct dl_rq *dl_rq);
- #define BW_SHIFT		20
- #define BW_UNIT			(1 << BW_SHIFT)
- #define RATIO_SHIFT		8
-+#define MAX_BW_BITS		(64 - BW_SHIFT)
-+#define MAX_BW			((1ULL << MAX_BW_BITS) - 1)
- unsigned long to_ratio(u64 period, u64 runtime);
- 
- extern void init_entity_runnable_average(struct sched_entity *se);
+ /* MAAR bit definitions */
+ #define MIPS_MAAR_VH		(_U64CAST_(1) << 63)
+-#define MIPS_MAAR_ADDR		((BIT_ULL(BITS_PER_LONG - 12) - 1) << 12)
++#define MIPS_MAAR_ADDR		GENMASK_ULL(55, 12)
+ #define MIPS_MAAR_ADDR_SHIFT	12
+ #define MIPS_MAAR_S		(_ULCAST_(1) << 1)
+ #define MIPS_MAAR_VL		(_ULCAST_(1) << 0)
 -- 
 2.25.1
 
