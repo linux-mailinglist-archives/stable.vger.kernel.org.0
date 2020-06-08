@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E4EDF1F2EF1
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:47:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B7D91F2EE5
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:46:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728952AbgFHXLm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 19:11:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58654 "EHLO mail.kernel.org"
+        id S1728959AbgFHXLn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 19:11:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58672 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728941AbgFHXLk (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728947AbgFHXLk (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 8 Jun 2020 19:11:40 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E343B20897;
-        Mon,  8 Jun 2020 23:11:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 196C920CC7;
+        Mon,  8 Jun 2020 23:11:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591657899;
-        bh=6qFB+xmqfN7wt3Btr+n50UrRMA+WUXiQ88tCbhKAgm0=;
+        s=default; t=1591657900;
+        bh=qok90Y6RRP2J8tbxAucBbgy2dtFP7l/geCBkoIHHl4Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NcVAQO8WgMuZiME8wwVHlXlkkj1n5Gpzr7k1er9V6yIM7OXEc9biqPsoCGnt8/a6P
-         FuIcQqQZUirAzElBu/wqlAZmpHkfI+3OTaZUX5QqtRNePflZEqmZHuGY9PeLSri9UQ
-         okmemf525p1r/DT8h8/+x0GAHmxzviOmuaVyK5U4=
+        b=iU6rdbZU84/Gd86RxLrvvOjpFdu/0y1Tx7qQInn7zKgWl0fvisoLrrRMxlFpc2gHT
+         l64ENTpVdZiO5t/eQaX46ltVdTil5ac+Vt21Pv8rMEoLqD5e+bDf3YsrDhBuiTBkHQ
+         8Jpc6dumfSdlx0eEixRUpjj9GygYiM6Zju7rry9E=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sharon <sara.sharon@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.7 253/274] iwlwifi: mvm: fix aux station leak
-Date:   Mon,  8 Jun 2020 19:05:46 -0400
-Message-Id: <20200608230607.3361041-253-sashal@kernel.org>
+Cc:     Haibo Chen <haibo.chen@nxp.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-mmc@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.7 254/274] mmc: sdhci-esdhc-imx: fix the mask for tuning start point
+Date:   Mon,  8 Jun 2020 19:05:47 -0400
+Message-Id: <20200608230607.3361041-254-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608230607.3361041-1-sashal@kernel.org>
 References: <20200608230607.3361041-1-sashal@kernel.org>
@@ -44,112 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sharon <sara.sharon@intel.com>
+From: Haibo Chen <haibo.chen@nxp.com>
 
-[ Upstream commit f327236df2afc8c3c711e7e070f122c26974f4da ]
+[ Upstream commit 1194be8c949b8190b2882ad8335a5d98aa50c735 ]
 
-When mvm is initialized we alloc aux station with aux queue.
-We later free the station memory when driver is stopped, but we
-never free the queue's memory, which casues a leak.
+According the RM, the bit[6~0] of register ESDHC_TUNING_CTRL is
+TUNING_START_TAP, bit[7] of this register is to disable the command
+CRC check for standard tuning. So fix it here.
 
-Add a proper de-initialization of the station.
-
-Signed-off-by: Sharon <sara.sharon@intel.com>
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Link: https://lore.kernel.org/r/iwlwifi.20200529092401.0121c5be55e9.Id7516fbb3482131d0c9dfb51ff20b226617ddb49@changeid
+Fixes: d87fc9663688 ("mmc: sdhci-esdhc-imx: support setting tuning start point")
+Signed-off-by: Haibo Chen <haibo.chen@nxp.com>
+Link: https://lore.kernel.org/r/1590488522-9292-1-git-send-email-haibo.chen@nxp.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/wireless/intel/iwlwifi/mvm/mac80211.c  |  5 ++---
- drivers/net/wireless/intel/iwlwifi/mvm/sta.c   | 18 +++++++++++++-----
- drivers/net/wireless/intel/iwlwifi/mvm/sta.h   |  6 +++---
- 3 files changed, 18 insertions(+), 11 deletions(-)
+ drivers/mmc/host/sdhci-esdhc-imx.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c b/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
-index 7aa1350b093e..cf3c46c9b1ee 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
-@@ -1209,14 +1209,13 @@ void __iwl_mvm_mac_stop(struct iwl_mvm *mvm)
- 	 */
- 	flush_work(&mvm->roc_done_wk);
+diff --git a/drivers/mmc/host/sdhci-esdhc-imx.c b/drivers/mmc/host/sdhci-esdhc-imx.c
+index 5ec8e4bf1ac7..a514b9ea9460 100644
+--- a/drivers/mmc/host/sdhci-esdhc-imx.c
++++ b/drivers/mmc/host/sdhci-esdhc-imx.c
+@@ -89,7 +89,7 @@
+ #define ESDHC_STD_TUNING_EN		(1 << 24)
+ /* NOTE: the minimum valid tuning start tap for mx6sl is 1 */
+ #define ESDHC_TUNING_START_TAP_DEFAULT	0x1
+-#define ESDHC_TUNING_START_TAP_MASK	0xff
++#define ESDHC_TUNING_START_TAP_MASK	0x7f
+ #define ESDHC_TUNING_STEP_MASK		0x00070000
+ #define ESDHC_TUNING_STEP_SHIFT		16
  
-+	iwl_mvm_rm_aux_sta(mvm);
-+
- 	iwl_mvm_stop_device(mvm);
- 
- 	iwl_mvm_async_handlers_purge(mvm);
- 	/* async_handlers_list is empty and will stay empty: HW is stopped */
- 
--	/* the fw is stopped, the aux sta is dead: clean up driver state */
--	iwl_mvm_del_aux_sta(mvm);
--
- 	/*
- 	 * Clear IN_HW_RESTART and HW_RESTART_REQUESTED flag when stopping the
- 	 * hw (as restart_complete() won't be called in this case) and mac80211
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/sta.c b/drivers/net/wireless/intel/iwlwifi/mvm/sta.c
-index 56ae72debb96..07ca8c91499d 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/sta.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/sta.c
-@@ -2080,16 +2080,24 @@ int iwl_mvm_rm_snif_sta(struct iwl_mvm *mvm, struct ieee80211_vif *vif)
- 	return ret;
- }
- 
--void iwl_mvm_dealloc_snif_sta(struct iwl_mvm *mvm)
-+int iwl_mvm_rm_aux_sta(struct iwl_mvm *mvm)
- {
--	iwl_mvm_dealloc_int_sta(mvm, &mvm->snif_sta);
--}
-+	int ret;
- 
--void iwl_mvm_del_aux_sta(struct iwl_mvm *mvm)
--{
- 	lockdep_assert_held(&mvm->mutex);
- 
-+	iwl_mvm_disable_txq(mvm, NULL, mvm->aux_queue, IWL_MAX_TID_COUNT, 0);
-+	ret = iwl_mvm_rm_sta_common(mvm, mvm->aux_sta.sta_id);
-+	if (ret)
-+		IWL_WARN(mvm, "Failed sending remove station\n");
- 	iwl_mvm_dealloc_int_sta(mvm, &mvm->aux_sta);
-+
-+	return ret;
-+}
-+
-+void iwl_mvm_dealloc_snif_sta(struct iwl_mvm *mvm)
-+{
-+	iwl_mvm_dealloc_int_sta(mvm, &mvm->snif_sta);
- }
- 
- /*
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/sta.h b/drivers/net/wireless/intel/iwlwifi/mvm/sta.h
-index 8d70093847cb..da2d1ac01229 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/sta.h
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/sta.h
-@@ -8,7 +8,7 @@
-  * Copyright(c) 2012 - 2014 Intel Corporation. All rights reserved.
-  * Copyright(c) 2013 - 2014 Intel Mobile Communications GmbH
-  * Copyright(c) 2015 - 2016 Intel Deutschland GmbH
-- * Copyright(c) 2018 - 2019 Intel Corporation
-+ * Copyright(c) 2018 - 2020 Intel Corporation
-  *
-  * This program is free software; you can redistribute it and/or modify
-  * it under the terms of version 2 of the GNU General Public License as
-@@ -31,7 +31,7 @@
-  * Copyright(c) 2012 - 2014 Intel Corporation. All rights reserved.
-  * Copyright(c) 2013 - 2014 Intel Mobile Communications GmbH
-  * Copyright(c) 2015 - 2016 Intel Deutschland GmbH
-- * Copyright(c) 2018 - 2019 Intel Corporation
-+ * Copyright(c) 2018 - 2020 Intel Corporation
-  * All rights reserved.
-  *
-  * Redistribution and use in source and binary forms, with or without
-@@ -541,7 +541,7 @@ int iwl_mvm_sta_tx_agg(struct iwl_mvm *mvm, struct ieee80211_sta *sta,
- 		       int tid, u8 queue, bool start);
- 
- int iwl_mvm_add_aux_sta(struct iwl_mvm *mvm);
--void iwl_mvm_del_aux_sta(struct iwl_mvm *mvm);
-+int iwl_mvm_rm_aux_sta(struct iwl_mvm *mvm);
- 
- int iwl_mvm_alloc_bcast_sta(struct iwl_mvm *mvm, struct ieee80211_vif *vif);
- int iwl_mvm_send_add_bcast_sta(struct iwl_mvm *mvm, struct ieee80211_vif *vif);
 -- 
 2.25.1
 
