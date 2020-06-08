@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7AA011F2F01
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:47:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DADE81F2EED
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:46:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728067AbgFIAqt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 20:46:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58368 "EHLO mail.kernel.org"
+        id S1728206AbgFHXLg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 19:11:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58496 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727865AbgFHXL3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:11:29 -0400
+        id S1728162AbgFHXLe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:11:34 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D12D120E65;
-        Mon,  8 Jun 2020 23:11:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B9DBD20897;
+        Mon,  8 Jun 2020 23:11:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591657888;
-        bh=ccKiDK3evDF3ELMAGfBKIcswpEkX5T9uPmZmUMJvvZo=;
+        s=default; t=1591657893;
+        bh=J2LPRJU66y4X8KcWE0g+592NbySdoJsVXoYtZI00P5I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lDxyYuoobH/7VMXroh5HSlWA6BzBLsKRsdrnzBzgft+m6is/QX8VtaF8WvyYVgW09
-         vlfrp02zTtgf3SUfj8QQQjLwg2Z18mqT0QkTW7YViI1wKeJQmY9nC0/WO89N6dhC6x
-         rtuTOlgyIA2YxQk9IGCFtvs6+pDy0K4XDqHMS+bM=
+        b=ROP1rxkHmSif6KNnYX1KxXVihi18D7znAeCVKrM4JfqmcpMAO2N5DGoWqSkR+DckI
+         9bG3th7dla5RoL0AlyciPDYvYRlw+AqeKhvBN1HOydba8dt8EPmEJ1Ce/4CEhdQaSA
+         +FZmqdizTHwRR7Bh7T/2UgUoC5LNoVvtimsm9Kl8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Brian Foster <bfoster@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, linux-xfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.7 244/274] xfs: force writes to delalloc regions to unwritten
-Date:   Mon,  8 Jun 2020 19:05:37 -0400
-Message-Id: <20200608230607.3361041-244-sashal@kernel.org>
+Cc:     Ulf Hansson <ulf.hansson@linaro.org>,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-mmc@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.7 248/274] mmc: owl-mmc: Respect the cmd->busy_timeout from the mmc core
+Date:   Mon,  8 Jun 2020 19:05:41 -0400
+Message-Id: <20200608230607.3361041-248-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608230607.3361041-1-sashal@kernel.org>
 References: <20200608230607.3361041-1-sashal@kernel.org>
@@ -44,73 +44,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Darrick J. Wong" <darrick.wong@oracle.com>
+From: Ulf Hansson <ulf.hansson@linaro.org>
 
-[ Upstream commit a5949d3faedf492fa7863b914da408047ab46eb0 ]
+[ Upstream commit f37ac1ae3ca93d0995553ad9604a25eadfe9406d ]
 
-When writing to a delalloc region in the data fork, commit the new
-allocations (of the da reservation) as unwritten so that the mappings
-are only marked written once writeback completes successfully.  This
-fixes the problem of stale data exposure if the system goes down during
-targeted writeback of a specific region of a file, as tested by
-generic/042.
+For commands that doesn't involve to prepare a data transfer, owl-mmc is
+using a fixed 30s response timeout. This is a bit problematic.
 
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Brian Foster <bfoster@redhat.com>
+For some commands it means waiting longer than needed for the completion to
+expire, which may not a big issue, but still. For other commands, like for
+an erase (CMD38) that uses a R1B response, may require longer timeouts than
+30s. In these cases, we may end up treating the command as it failed, while
+it just needed some more time to complete successfully.
+
+Fix the problem by respecting the cmd->busy_timeout, which is provided by
+the mmc core.
+
+Cc: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Link: https://lore.kernel.org/r/20200414161413.3036-8-ulf.hansson@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/libxfs/xfs_bmap.c | 29 +++++++++++++++++------------
- 1 file changed, 17 insertions(+), 12 deletions(-)
+ drivers/mmc/host/owl-mmc.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/fs/xfs/libxfs/xfs_bmap.c b/fs/xfs/libxfs/xfs_bmap.c
-index fda13cd7add0..f8fe83c9348d 100644
---- a/fs/xfs/libxfs/xfs_bmap.c
-+++ b/fs/xfs/libxfs/xfs_bmap.c
-@@ -4193,17 +4193,7 @@ xfs_bmapi_allocate(
- 	bma->got.br_blockcount = bma->length;
- 	bma->got.br_state = XFS_EXT_NORM;
+diff --git a/drivers/mmc/host/owl-mmc.c b/drivers/mmc/host/owl-mmc.c
+index 01ffe51f413d..5e20c099fe03 100644
+--- a/drivers/mmc/host/owl-mmc.c
++++ b/drivers/mmc/host/owl-mmc.c
+@@ -92,6 +92,8 @@
+ #define OWL_SD_STATE_RC16ER		BIT(1)
+ #define OWL_SD_STATE_CRC7ER		BIT(0)
  
--	/*
--	 * In the data fork, a wasdelay extent has been initialized, so
--	 * shouldn't be flagged as unwritten.
--	 *
--	 * For the cow fork, however, we convert delalloc reservations
--	 * (extents allocated for speculative preallocation) to
--	 * allocated unwritten extents, and only convert the unwritten
--	 * extents to real extents when we're about to write the data.
--	 */
--	if ((!bma->wasdel || (bma->flags & XFS_BMAPI_COWFORK)) &&
--	    (bma->flags & XFS_BMAPI_PREALLOC))
-+	if (bma->flags & XFS_BMAPI_PREALLOC)
- 		bma->got.br_state = XFS_EXT_UNWRITTEN;
- 
- 	if (bma->wasdel)
-@@ -4611,8 +4601,23 @@ xfs_bmapi_convert_delalloc(
- 	bma.offset = bma.got.br_startoff;
- 	bma.length = max_t(xfs_filblks_t, bma.got.br_blockcount, MAXEXTLEN);
- 	bma.minleft = xfs_bmapi_minleft(tp, ip, whichfork);
++#define OWL_CMD_TIMEOUT_MS		30000
 +
-+	/*
-+	 * When we're converting the delalloc reservations backing dirty pages
-+	 * in the page cache, we must be careful about how we create the new
-+	 * extents:
-+	 *
-+	 * New CoW fork extents are created unwritten, turned into real extents
-+	 * when we're about to write the data to disk, and mapped into the data
-+	 * fork after the write finishes.  End of story.
-+	 *
-+	 * New data fork extents must be mapped in as unwritten and converted
-+	 * to real extents after the write succeeds to avoid exposing stale
-+	 * disk contents if we crash.
-+	 */
-+	bma.flags = XFS_BMAPI_PREALLOC;
- 	if (whichfork == XFS_COW_FORK)
--		bma.flags = XFS_BMAPI_COWFORK | XFS_BMAPI_PREALLOC;
-+		bma.flags |= XFS_BMAPI_COWFORK;
+ struct owl_mmc_host {
+ 	struct device *dev;
+ 	struct reset_control *reset;
+@@ -172,6 +174,7 @@ static void owl_mmc_send_cmd(struct owl_mmc_host *owl_host,
+ 			     struct mmc_command *cmd,
+ 			     struct mmc_data *data)
+ {
++	unsigned long timeout;
+ 	u32 mode, state, resp[2];
+ 	u32 cmd_rsp_mask = 0;
  
- 	if (!xfs_iext_peek_prev_extent(ifp, &bma.icur, &bma.prev))
- 		bma.prev.br_startoff = NULLFILEOFF;
+@@ -239,7 +242,10 @@ static void owl_mmc_send_cmd(struct owl_mmc_host *owl_host,
+ 	if (data)
+ 		return;
+ 
+-	if (!wait_for_completion_timeout(&owl_host->sdc_complete, 30 * HZ)) {
++	timeout = msecs_to_jiffies(cmd->busy_timeout ? cmd->busy_timeout :
++		OWL_CMD_TIMEOUT_MS);
++
++	if (!wait_for_completion_timeout(&owl_host->sdc_complete, timeout)) {
+ 		dev_err(owl_host->dev, "CMD interrupt timeout\n");
+ 		cmd->error = -ETIMEDOUT;
+ 		return;
 -- 
 2.25.1
 
