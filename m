@@ -2,37 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 23CBE1F2656
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:38:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE5821F2651
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:38:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732236AbgFHX2i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 19:28:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58346 "EHLO mail.kernel.org"
+        id S1730803AbgFHXhh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 19:37:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58462 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732230AbgFHX2h (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:28:37 -0400
+        id S1732241AbgFHX2l (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:28:41 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ECD3D20775;
-        Mon,  8 Jun 2020 23:28:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 846982089D;
+        Mon,  8 Jun 2020 23:28:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658916;
-        bh=4YRfAq+rtQuqty9LNpNsgrzO7Qs0uRzEQHvkDNNxyrs=;
+        s=default; t=1591658920;
+        bh=Ec9E1Z1Kggiu9aSgVolMP5zrSre0Y3RZiZbp6pW4Gz0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u3AdsEh6G35CzhK3YAAE0tPW4A3INhcpixjPqHa96CWPQ7S74kl/1rxIlkZmSLd8O
-         t9K7/IGqqp2ToDHdutc4KhCnF3/dd4WLFmBkJMc+8RSs4taxlk6O45652YPsIXfqSd
-         QRXbxbMPZjLSl77agMo60gHlVro/2DaFhEvfePDQ=
+        b=M/ia1UA8nibxF6/m26MtEGkXNeVugPk79K0Thgh9drICPU9FybzNnKXqL+hNt9C67
+         0DmmNujX04x0WfbRE1TBXxwNZIZaANPGsqm9M8jVhOTQ2KE8vNd3iYesOS3Red9urY
+         7xkCzppnkk26TpFCqyNyCglQsvEwQKgfRH6Bjwj0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dave Chinner <david@fromorbit.com>,
-        Dave Chinner <dchinner@redhat.com>,
-        Christoph Hellwig <hch@lst.de>,
-        "Darrick J . Wong" <darrick.wong@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-xfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 33/37] xfs: gut error handling in xfs_trans_unreserve_and_mod_sb()
-Date:   Mon,  8 Jun 2020 19:27:45 -0400
-Message-Id: <20200608232750.3370747-33-sashal@kernel.org>
+Cc:     Serge Semin <Sergey.Semin@baikalelectronics.ru>,
+        Georgy Vlasov <Georgy.Vlasov@baikalelectronics.ru>,
+        Ramil Zaripov <Ramil.Zaripov@baikalelectronics.ru>,
+        Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Feng Tang <feng.tang@intel.com>,
+        Rob Herring <robh+dt@kernel.org>, linux-mips@vger.kernel.org,
+        devicetree@vger.kernel.org, Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 35/37] spi: dw: Return any value retrieved from the dma_transfer callback
+Date:   Mon,  8 Jun 2020 19:27:47 -0400
+Message-Id: <20200608232750.3370747-35-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608232750.3370747-1-sashal@kernel.org>
 References: <20200608232750.3370747-1-sashal@kernel.org>
@@ -45,236 +51,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Chinner <david@fromorbit.com>
+From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
 
-[ Upstream commit dc3ffbb14060c943469d5e12900db3a60bc3fa64 ]
+[ Upstream commit f0410bbf7d0fb80149e3b17d11d31f5b5197873e ]
 
-xfs: gut error handling in xfs_trans_unreserve_and_mod_sb()
+DW APB SSI DMA-part of the driver may need to perform the requested
+SPI-transfer synchronously. In that case the dma_transfer() callback
+will return 0 as a marker of the SPI transfer being finished so the
+SPI core doesn't need to wait and may proceed with the SPI message
+trasnfers pumping procedure. This will be needed to fix the problem
+when DMA transactions are finished, but there is still data left in
+the SPI Tx/Rx FIFOs being sent/received. But for now make dma_transfer
+to return 1 as the normal dw_spi_transfer_one() method.
 
-From: Dave Chinner <dchinner@redhat.com>
-
-The error handling in xfs_trans_unreserve_and_mod_sb() is largely
-incorrect - rolling back the changes in the transaction if only one
-counter underruns makes all the other counters incorrect. We still
-allow the change to proceed and committing the transaction, except
-now we have multiple incorrect counters instead of a single
-underflow.
-
-Further, we don't actually report the error to the caller, so this
-is completely silent except on debug kernels that will assert on
-failure before we even get to the rollback code.  Hence this error
-handling is broken, untested, and largely unnecessary complexity.
-
-Just remove it.
-
-Signed-off-by: Dave Chinner <dchinner@redhat.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+Cc: Georgy Vlasov <Georgy.Vlasov@baikalelectronics.ru>
+Cc: Ramil Zaripov <Ramil.Zaripov@baikalelectronics.ru>
+Cc: Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>
+Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Feng Tang <feng.tang@intel.com>
+Cc: Rob Herring <robh+dt@kernel.org>
+Cc: linux-mips@vger.kernel.org
+Cc: devicetree@vger.kernel.org
+Link: https://lore.kernel.org/r/20200529131205.31838-3-Sergey.Semin@baikalelectronics.ru
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/xfs_trans.c | 163 ++++++---------------------------------------
- 1 file changed, 20 insertions(+), 143 deletions(-)
+ drivers/spi/spi-dw-mid.c | 2 +-
+ drivers/spi/spi-dw.c     | 7 ++-----
+ 2 files changed, 3 insertions(+), 6 deletions(-)
 
-diff --git a/fs/xfs/xfs_trans.c b/fs/xfs/xfs_trans.c
-index 748b16aff45a..921fd09d019d 100644
---- a/fs/xfs/xfs_trans.c
-+++ b/fs/xfs/xfs_trans.c
-@@ -478,57 +478,9 @@ xfs_trans_apply_sb_deltas(
- 				  sizeof(sbp->sb_frextents) - 1);
+diff --git a/drivers/spi/spi-dw-mid.c b/drivers/spi/spi-dw-mid.c
+index bd116f117b02..14902efae621 100644
+--- a/drivers/spi/spi-dw-mid.c
++++ b/drivers/spi/spi-dw-mid.c
+@@ -274,7 +274,7 @@ static int mid_spi_dma_transfer(struct dw_spi *dws, struct spi_transfer *xfer)
+ 		dma_async_issue_pending(dws->txchan);
+ 	}
+ 
+-	return 0;
++	return 1;
  }
  
--STATIC int
--xfs_sb_mod8(
--	uint8_t			*field,
--	int8_t			delta)
--{
--	int8_t			counter = *field;
--
--	counter += delta;
--	if (counter < 0) {
--		ASSERT(0);
--		return -EINVAL;
--	}
--	*field = counter;
--	return 0;
--}
--
--STATIC int
--xfs_sb_mod32(
--	uint32_t		*field,
--	int32_t			delta)
--{
--	int32_t			counter = *field;
--
--	counter += delta;
--	if (counter < 0) {
--		ASSERT(0);
--		return -EINVAL;
--	}
--	*field = counter;
--	return 0;
--}
--
--STATIC int
--xfs_sb_mod64(
--	uint64_t		*field,
--	int64_t			delta)
--{
--	int64_t			counter = *field;
--
--	counter += delta;
--	if (counter < 0) {
--		ASSERT(0);
--		return -EINVAL;
--	}
--	*field = counter;
--	return 0;
--}
--
- /*
-- * xfs_trans_unreserve_and_mod_sb() is called to release unused reservations
-- * and apply superblock counter changes to the in-core superblock.  The
-+ * xfs_trans_unreserve_and_mod_sb() is called to release unused reservations and
-+ * apply superblock counter changes to the in-core superblock.  The
-  * t_res_fdblocks_delta and t_res_frextents_delta fields are explicitly NOT
-  * applied to the in-core superblock.  The idea is that that has already been
-  * done.
-@@ -573,20 +525,17 @@ xfs_trans_unreserve_and_mod_sb(
- 	/* apply the per-cpu counters */
- 	if (blkdelta) {
- 		error = xfs_mod_fdblocks(mp, blkdelta, rsvd);
--		if (error)
--			goto out;
-+		ASSERT(!error);
- 	}
+ static void mid_spi_dma_stop(struct dw_spi *dws)
+diff --git a/drivers/spi/spi-dw.c b/drivers/spi/spi-dw.c
+index 4edd38d03b93..3667f8860aaf 100644
+--- a/drivers/spi/spi-dw.c
++++ b/drivers/spi/spi-dw.c
+@@ -382,11 +382,8 @@ static int dw_spi_transfer_one(struct spi_master *master,
  
- 	if (idelta) {
- 		error = xfs_mod_icount(mp, idelta);
--		if (error)
--			goto out_undo_fdblocks;
-+		ASSERT(!error);
- 	}
+ 	spi_enable_chip(dws, 1);
  
- 	if (ifreedelta) {
- 		error = xfs_mod_ifree(mp, ifreedelta);
--		if (error)
--			goto out_undo_icount;
-+		ASSERT(!error);
- 	}
+-	if (dws->dma_mapped) {
+-		ret = dws->dma_ops->dma_transfer(dws, transfer);
+-		if (ret < 0)
+-			return ret;
+-	}
++	if (dws->dma_mapped)
++		return dws->dma_ops->dma_transfer(dws, transfer);
  
- 	if (rtxdelta == 0 && !(tp->t_flags & XFS_TRANS_SB_DIRTY))
-@@ -594,95 +543,23 @@ xfs_trans_unreserve_and_mod_sb(
- 
- 	/* apply remaining deltas */
- 	spin_lock(&mp->m_sb_lock);
--	if (rtxdelta) {
--		error = xfs_sb_mod64(&mp->m_sb.sb_frextents, rtxdelta);
--		if (error)
--			goto out_undo_ifree;
--	}
--
--	if (tp->t_dblocks_delta != 0) {
--		error = xfs_sb_mod64(&mp->m_sb.sb_dblocks, tp->t_dblocks_delta);
--		if (error)
--			goto out_undo_frextents;
--	}
--	if (tp->t_agcount_delta != 0) {
--		error = xfs_sb_mod32(&mp->m_sb.sb_agcount, tp->t_agcount_delta);
--		if (error)
--			goto out_undo_dblocks;
--	}
--	if (tp->t_imaxpct_delta != 0) {
--		error = xfs_sb_mod8(&mp->m_sb.sb_imax_pct, tp->t_imaxpct_delta);
--		if (error)
--			goto out_undo_agcount;
--	}
--	if (tp->t_rextsize_delta != 0) {
--		error = xfs_sb_mod32(&mp->m_sb.sb_rextsize,
--				     tp->t_rextsize_delta);
--		if (error)
--			goto out_undo_imaxpct;
--	}
--	if (tp->t_rbmblocks_delta != 0) {
--		error = xfs_sb_mod32(&mp->m_sb.sb_rbmblocks,
--				     tp->t_rbmblocks_delta);
--		if (error)
--			goto out_undo_rextsize;
--	}
--	if (tp->t_rblocks_delta != 0) {
--		error = xfs_sb_mod64(&mp->m_sb.sb_rblocks, tp->t_rblocks_delta);
--		if (error)
--			goto out_undo_rbmblocks;
--	}
--	if (tp->t_rextents_delta != 0) {
--		error = xfs_sb_mod64(&mp->m_sb.sb_rextents,
--				     tp->t_rextents_delta);
--		if (error)
--			goto out_undo_rblocks;
--	}
--	if (tp->t_rextslog_delta != 0) {
--		error = xfs_sb_mod8(&mp->m_sb.sb_rextslog,
--				     tp->t_rextslog_delta);
--		if (error)
--			goto out_undo_rextents;
--	}
-+	mp->m_sb.sb_frextents += rtxdelta;
-+	mp->m_sb.sb_dblocks += tp->t_dblocks_delta;
-+	mp->m_sb.sb_agcount += tp->t_agcount_delta;
-+	mp->m_sb.sb_imax_pct += tp->t_imaxpct_delta;
-+	mp->m_sb.sb_rextsize += tp->t_rextsize_delta;
-+	mp->m_sb.sb_rbmblocks += tp->t_rbmblocks_delta;
-+	mp->m_sb.sb_rblocks += tp->t_rblocks_delta;
-+	mp->m_sb.sb_rextents += tp->t_rextents_delta;
-+	mp->m_sb.sb_rextslog += tp->t_rextslog_delta;
- 	spin_unlock(&mp->m_sb_lock);
--	return;
- 
--out_undo_rextents:
--	if (tp->t_rextents_delta)
--		xfs_sb_mod64(&mp->m_sb.sb_rextents, -tp->t_rextents_delta);
--out_undo_rblocks:
--	if (tp->t_rblocks_delta)
--		xfs_sb_mod64(&mp->m_sb.sb_rblocks, -tp->t_rblocks_delta);
--out_undo_rbmblocks:
--	if (tp->t_rbmblocks_delta)
--		xfs_sb_mod32(&mp->m_sb.sb_rbmblocks, -tp->t_rbmblocks_delta);
--out_undo_rextsize:
--	if (tp->t_rextsize_delta)
--		xfs_sb_mod32(&mp->m_sb.sb_rextsize, -tp->t_rextsize_delta);
--out_undo_imaxpct:
--	if (tp->t_rextsize_delta)
--		xfs_sb_mod8(&mp->m_sb.sb_imax_pct, -tp->t_imaxpct_delta);
--out_undo_agcount:
--	if (tp->t_agcount_delta)
--		xfs_sb_mod32(&mp->m_sb.sb_agcount, -tp->t_agcount_delta);
--out_undo_dblocks:
--	if (tp->t_dblocks_delta)
--		xfs_sb_mod64(&mp->m_sb.sb_dblocks, -tp->t_dblocks_delta);
--out_undo_frextents:
--	if (rtxdelta)
--		xfs_sb_mod64(&mp->m_sb.sb_frextents, -rtxdelta);
--out_undo_ifree:
--	spin_unlock(&mp->m_sb_lock);
--	if (ifreedelta)
--		xfs_mod_ifree(mp, -ifreedelta);
--out_undo_icount:
--	if (idelta)
--		xfs_mod_icount(mp, -idelta);
--out_undo_fdblocks:
--	if (blkdelta)
--		xfs_mod_fdblocks(mp, -blkdelta, rsvd);
--out:
--	ASSERT(error == 0);
-+	/*
-+	 * Debug checks outside of the spinlock so they don't lock up the
-+	 * machine if they fail.
-+	 */
-+	ASSERT(mp->m_sb.sb_imax_pct >= 0);
-+	ASSERT(mp->m_sb.sb_rextslog >= 0);
- 	return;
- }
- 
+ 	if (chip->poll_mode)
+ 		return poll_transfer(dws);
 -- 
 2.25.1
 
