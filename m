@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE9681F18AF
-	for <lists+stable@lfdr.de>; Mon,  8 Jun 2020 14:24:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 226491F18B0
+	for <lists+stable@lfdr.de>; Mon,  8 Jun 2020 14:24:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729678AbgFHMY2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 08:24:28 -0400
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:54985 "EHLO
+        id S1729681AbgFHMY3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 08:24:29 -0400
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:48423 "EHLO
         wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729628AbgFHMY1 (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Mon, 8 Jun 2020 08:24:27 -0400
+        by vger.kernel.org with ESMTP id S1729628AbgFHMY3 (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Mon, 8 Jun 2020 08:24:29 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id CCF05610;
-        Mon,  8 Jun 2020 08:24:26 -0400 (EDT)
+        by mailforward.west.internal (Postfix) with ESMTP id 46E145FE;
+        Mon,  8 Jun 2020 08:24:28 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Mon, 08 Jun 2020 08:24:27 -0400
+  by compute1.internal (MEProxy); Mon, 08 Jun 2020 08:24:28 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=d1R1wV
-        JjbGihAMADMqbfjAfp6zGoZCM730/stJv0Hyk=; b=HZRUdQOqHIibhRO2WQ1t4f
-        Qoz8hTefrNKYe0h43zA2RLMo98B4p0Z4u8XId/C5GW0dznNGOaPdkDiZvevLlfRx
-        o1r9I7lV4wHYndcSw1yNKfX6FPWBQ6VbQjMR6PUzc0NzsLyWgQTp0GNhc3I2bhDS
-        xdwl+7BS8dfDPwZUms0Ng8z3HSwDB8erZej7+2skkqnngjjC8Yl5u3QrJgs4pwuc
-        HkmgmIPPyyqf2Z2nI3xVjuiFqOqt0FWeSjWLACZd2HCLpEmPS3mZGYef0G6I44sq
-        +3CRROdzx2ZqvbAtzNWhr6r94MYasZEkGX9XZ6y1h1d3aqTJn+REmmPEeQxK+P6w
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=UyLVVJ
+        KkO9niNfLdseKxebsdCfZfQphwEkvNtWimIAM=; b=LyCDfaey4g7dOT0Z9eV+/X
+        JPvgjSQk1M3G6Ovo2VefEFGNTdxPRNCCUtHPleXfTz/93KX1LjgEBPaHo1cILcgY
+        8kY2mremf+4ERBDhUf+VyKsKp3Wr8BtmHCS6FdSJy0b8x3LaqXLJr1FfuFmorUAr
+        HrVUCroQNsCd49v/3dLzkz32PsF3AFPXF19ip57LMzT5DssN/Z9tjKk1CunokYHu
+        bJ4VOyetiA94HSoAeQIQx7wtkEPaitUgmaxzK4jtFqB+EWfMy+17o3kQRx/C81XY
+        gEfe4Uzlr63tyvcVxRASqUoALvBjPlas7UGlmA+K0Mo0KTPVH87BynqeFrF0MVBw
         ==
-X-ME-Sender: <xms:-i3eXoSzD1vjxb15C3gXk8PWO6HSjM5nIKBQKNYACwRMgBO8dkP4OQ>
+X-ME-Sender: <xms:-y3eXv3AgQvTM-954GjSiLyu-DQvukj0uw0QhQD3DdV7QNJSdOVA2A>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudehuddgheegucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
@@ -36,20 +36,20 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudehuddgheegucetufdoteggod
     etveeuveeludejjefgteehnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushht
     vghrufhiiigvpedunecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
     drtghomh
-X-ME-Proxy: <xmx:-i3eXlwjnh5AaoQUoK6PoJKiIyLkwa7PosZOWFWHV3CBIwNWMVryyg>
-    <xmx:-i3eXl0OSnU4G58Ohaz28Ni8HLR1VScyELeJRJHA4yCPdh490zNjcg>
-    <xmx:-i3eXsAXD6KiFVcVtzX_lsf2wrSEBkeHsBKHXIgGr-TehPvk91oWvA>
-    <xmx:-i3eXrflaNoVCxyuiiD0FJmTq9Zs1CUPx60eE5uxjjQrE3cvthHtLqz5Tuw>
+X-ME-Proxy: <xmx:-y3eXuGV1BBKrl1KGzvYkirftvxnCV3Vj2yIcxL4fK99hSU5drg6mQ>
+    <xmx:-y3eXv5O-GnrV-t21Z7nJ0ITvEPqiV6FllSRn8XyjvMlO04Ei6WWPw>
+    <xmx:-y3eXk1CvZCu9oEr_l8KCUPrSwBjTcfTpOvdnF7L1SSbTl-dWzR9QQ>
+    <xmx:-y3eXtxDxwwYflZx_BygbaqrJjuaM5HS69gZ-QSzBtLvR_0D0Ktccbq0GLg>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 13D82306218B;
-        Mon,  8 Jun 2020 08:24:25 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] iio: vcnl4000: Fix i2c swapped word reading." failed to apply to 4.4-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 80FAB3061DC5;
+        Mon,  8 Jun 2020 08:24:27 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] iio: vcnl4000: Fix i2c swapped word reading." failed to apply to 4.9-stable tree
 To:     m.othacehe@gmail.com, Jonathan.Cameron@huawei.com,
         Stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 08 Jun 2020 14:24:17 +0200
-Message-ID: <159161905713153@kroah.com>
+Message-ID: <159161905769239@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
