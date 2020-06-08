@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CBE91F2426
+	by mail.lfdr.de (Postfix) with ESMTP id 7CA681F2427
 	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:20:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730604AbgFHXST (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 19:18:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40476 "EHLO mail.kernel.org"
+        id S1730629AbgFHXSZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 19:18:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40578 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730600AbgFHXSS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:18:18 -0400
+        id S1730185AbgFHXSY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:18:24 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 76E742086A;
-        Mon,  8 Jun 2020 23:18:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 223FC20872;
+        Mon,  8 Jun 2020 23:18:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658298;
-        bh=fI0DzAU9GLVa8esFFM30UHEYhA2aD0DBiWdQTB/DY1k=;
+        s=default; t=1591658304;
+        bh=XO+oMWgl804ly3oZq6jef/75wIN+ikeQHz5cht/6Jlk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bdUbg6DPwMvqup/0HEuqO35tQm/T1365Tx+5wCGKCIsKdQBLNC9ZNq6Zs/syRrerH
-         qsMWcDa0ooHcN8qLta5gQlTau/eZy8QlZzWM5o81lIHiUiP2oRnU8xlf9FNO8e0byl
-         JvhFwUYHpfIBgCzQLOsFTRmqBzT8qkkAjcgl3na0=
+        b=Xm/hTo4KHT86N5nV05g54s5fOho83plsj5/n++8MTJ79cx5ojVYBaI640N4BaAuTg
+         errbVSAbboX1rm/pDJkgTede2JsuSAgDcl3LV03fdFaETDQvt1SPi14ZpfYyYnp1xX
+         5iefqXaYjmuaYxzFSKr7ZjxQqztdss8ulfPmg2qo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Takashi Iwai <tiwai@suse.de>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Sasha Levin <sashal@kernel.org>, linux-gpio@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.6 301/606] gpio: exar: Fix bad handling for ida_simple_get error path
-Date:   Mon,  8 Jun 2020 19:07:06 -0400
-Message-Id: <20200608231211.3363633-301-sashal@kernel.org>
+Cc:     Kaike Wan <kaike.wan@intel.com>, Lin Yi <teroincn@gmail.com>,
+        Mike Marciniszyn <mike.marciniszyn@intel.com>,
+        Dennis Dalessandro <dennis.dalessandro@intel.com>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.6 306/606] IB/qib: Call kobject_put() when kobject_init_and_add() fails
+Date:   Mon,  8 Jun 2020 19:07:11 -0400
+Message-Id: <20200608231211.3363633-306-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608231211.3363633-1-sashal@kernel.org>
 References: <20200608231211.3363633-1-sashal@kernel.org>
@@ -43,53 +46,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Kaike Wan <kaike.wan@intel.com>
 
-[ Upstream commit 333830aa149a87cabeb5d30fbcf12eecc8040d2c ]
+[ Upstream commit a35cd6447effd5c239b564c80fa109d05ff3d114 ]
 
-The commit 7ecced0934e5 ("gpio: exar: add a check for the return value
-of ida_simple_get fails") added a goto jump to the common error
-handler for ida_simple_get() error, but this is wrong in two ways:
-it doesn't set the proper return code and, more badly, it invokes
-ida_simple_remove() with a negative index that shall lead to a kernel
-panic via BUG_ON().
+When kobject_init_and_add() returns an error in the function
+qib_create_port_files(), the function kobject_put() is not called for the
+corresponding kobject, which potentially leads to memory leak.
 
-This patch addresses those two issues.
+This patch fixes the issue by calling kobject_put() even if
+kobject_init_and_add() fails. In addition, the ppd->diagc_kobj is released
+along with other kobjects when the sysfs is unregistered.
 
-Fixes: 7ecced0934e5 ("gpio: exar: add a check for the return value of ida_simple_get fails")
+Fixes: f931551bafe1 ("IB/qib: Add new qib driver for QLogic PCIe InfiniBand adapters")
+Link: https://lore.kernel.org/r/20200512031328.189865.48627.stgit@awfm-01.aw.intel.com
 Cc: <stable@vger.kernel.org>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Suggested-by: Lin Yi <teroincn@gmail.com>
+Reviewed-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
+Signed-off-by: Kaike Wan <kaike.wan@intel.com>
+Signed-off-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
+Reviewed-by: Leon Romanovsky <leonro@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpio-exar.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/infiniband/hw/qib/qib_sysfs.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpio/gpio-exar.c b/drivers/gpio/gpio-exar.c
-index da1ef0b1c291..b1accfba017d 100644
---- a/drivers/gpio/gpio-exar.c
-+++ b/drivers/gpio/gpio-exar.c
-@@ -148,8 +148,10 @@ static int gpio_exar_probe(struct platform_device *pdev)
- 	mutex_init(&exar_gpio->lock);
+diff --git a/drivers/infiniband/hw/qib/qib_sysfs.c b/drivers/infiniband/hw/qib/qib_sysfs.c
+index 568b21eb6ea1..021df0654ba7 100644
+--- a/drivers/infiniband/hw/qib/qib_sysfs.c
++++ b/drivers/infiniband/hw/qib/qib_sysfs.c
+@@ -760,7 +760,7 @@ int qib_create_port_files(struct ib_device *ibdev, u8 port_num,
+ 		qib_dev_err(dd,
+ 			"Skipping linkcontrol sysfs info, (err %d) port %u\n",
+ 			ret, port_num);
+-		goto bail;
++		goto bail_link;
+ 	}
+ 	kobject_uevent(&ppd->pport_kobj, KOBJ_ADD);
  
- 	index = ida_simple_get(&ida_index, 0, 0, GFP_KERNEL);
--	if (index < 0)
--		goto err_destroy;
-+	if (index < 0) {
-+		ret = index;
-+		goto err_mutex_destroy;
-+	}
+@@ -770,7 +770,7 @@ int qib_create_port_files(struct ib_device *ibdev, u8 port_num,
+ 		qib_dev_err(dd,
+ 			"Skipping sl2vl sysfs info, (err %d) port %u\n",
+ 			ret, port_num);
+-		goto bail_link;
++		goto bail_sl;
+ 	}
+ 	kobject_uevent(&ppd->sl2vl_kobj, KOBJ_ADD);
  
- 	sprintf(exar_gpio->name, "exar_gpio%d", index);
- 	exar_gpio->gpio_chip.label = exar_gpio->name;
-@@ -176,6 +178,7 @@ static int gpio_exar_probe(struct platform_device *pdev)
+@@ -780,7 +780,7 @@ int qib_create_port_files(struct ib_device *ibdev, u8 port_num,
+ 		qib_dev_err(dd,
+ 			"Skipping diag_counters sysfs info, (err %d) port %u\n",
+ 			ret, port_num);
+-		goto bail_sl;
++		goto bail_diagc;
+ 	}
+ 	kobject_uevent(&ppd->diagc_kobj, KOBJ_ADD);
  
- err_destroy:
- 	ida_simple_remove(&ida_index, index);
-+err_mutex_destroy:
- 	mutex_destroy(&exar_gpio->lock);
- 	return ret;
- }
+@@ -793,7 +793,7 @@ int qib_create_port_files(struct ib_device *ibdev, u8 port_num,
+ 		qib_dev_err(dd,
+ 		 "Skipping Congestion Control sysfs info, (err %d) port %u\n",
+ 		 ret, port_num);
+-		goto bail_diagc;
++		goto bail_cc;
+ 	}
+ 
+ 	kobject_uevent(&ppd->pport_cc_kobj, KOBJ_ADD);
+@@ -854,6 +854,7 @@ void qib_verbs_unregister_sysfs(struct qib_devdata *dd)
+ 				&cc_table_bin_attr);
+ 			kobject_put(&ppd->pport_cc_kobj);
+ 		}
++		kobject_put(&ppd->diagc_kobj);
+ 		kobject_put(&ppd->sl2vl_kobj);
+ 		kobject_put(&ppd->pport_kobj);
+ 	}
 -- 
 2.25.1
 
