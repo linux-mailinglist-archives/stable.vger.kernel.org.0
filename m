@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B91541F2ED3
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:45:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C39AC1F2ED1
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:45:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729635AbgFIApT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729003AbgFIApT (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 8 Jun 2020 20:45:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58842 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:58874 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728232AbgFHXLs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:11:48 -0400
+        id S1728992AbgFHXLt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:11:49 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 89D1B20CC7;
-        Mon,  8 Jun 2020 23:11:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C1FFC212CC;
+        Mon,  8 Jun 2020 23:11:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591657908;
-        bh=ZOBjPwNTxWrUqyukv0mLvrQ62a6ylels/hEl/abfOe8=;
+        s=default; t=1591657909;
+        bh=VW46B+ei0NsG89h3+DTKJ1cC++KE1d0wIR0QtbLgOmE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DYRO/nsqRMkgaHjFhOl5gtJMBRnUFQOOjShQO6tMGRGQY98thHz8hSU951rb2fr99
-         rfmw/gv1jZmAehPSt7I7VLXoaez3RBpa8gI9iO33MtTwsZT8R4bHGaAppM7uBDNgsE
-         TnDUZmaoQN0kqhLd/fam+CO19qP78n0pp61jens0=
+        b=XSo1qGLjue8HRya73WN2HuxugFQ/ZMf8uFPKV5vzXYT5H+478jqWETW86N+c4cjBD
+         bJQnDTEPb0yuoE/JFwuamSdo2XvQl4cVMGGesombS+hNTokteWbYh1H1ZCw9c1kyca
+         0kFxlM2/4wYaWKPNfKeW8CYR2sfQouk0JQlCt8eE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jesse Brandeburg <jesse.brandeburg@intel.com>,
-        Andrew Bowers <andrewx.bowers@intel.com>,
-        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
+Cc:     Nickolai Kozachenko <daemongloom@gmail.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>,
-        intel-wired-lan@lists.osuosl.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.7 260/274] ice: Fix inability to set channels when down
-Date:   Mon,  8 Jun 2020 19:05:53 -0400
-Message-Id: <20200608230607.3361041-260-sashal@kernel.org>
+        platform-driver-x86@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.7 261/274] platform/x86: intel-hid: Add a quirk to support HP Spectre X2 (2015)
+Date:   Mon,  8 Jun 2020 19:05:54 -0400
+Message-Id: <20200608230607.3361041-261-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608230607.3361041-1-sashal@kernel.org>
 References: <20200608230607.3361041-1-sashal@kernel.org>
@@ -45,46 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jesse Brandeburg <jesse.brandeburg@intel.com>
+From: Nickolai Kozachenko <daemongloom@gmail.com>
 
-[ Upstream commit 765dd7a1827c687b782e6ab3dd6daf4d13a4780f ]
+[ Upstream commit 8fe63eb757ac6e661a384cc760792080bdc738dc ]
 
-Currently the driver prevents a user from doing
-modprobe ice
-ethtool -L eth0 combined 5
-ip link set eth0 up
+HEBC method reports capabilities of 5 button array but HP Spectre X2 (2015)
+does not have this control method (the same was for Wacom MobileStudio Pro).
+Expand previous DMI quirk by Alex Hung to also enable 5 button array
+for this system.
 
-The ethtool command fails, because the driver is checking to see if the
-interface is down before allowing the get_channels to proceed (even for
-a set_channels).
-
-Remove this check and allow the user to configure the interface
-before bringing it up, which is a much better usability case.
-
-Fixes: 87324e747fde ("ice: Implement ethtool ops for channels")
-Signed-off-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
-Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
-Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+Signed-off-by: Nickolai Kozachenko <daemongloom@gmail.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice_ethtool.c | 4 ----
- 1 file changed, 4 deletions(-)
+ drivers/platform/x86/intel-hid.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_ethtool.c b/drivers/net/ethernet/intel/ice/ice_ethtool.c
-index 593fb37bd59e..153e3565e313 100644
---- a/drivers/net/ethernet/intel/ice/ice_ethtool.c
-+++ b/drivers/net/ethernet/intel/ice/ice_ethtool.c
-@@ -3171,10 +3171,6 @@ ice_get_channels(struct net_device *dev, struct ethtool_channels *ch)
- 	struct ice_vsi *vsi = np->vsi;
- 	struct ice_pf *pf = vsi->back;
+diff --git a/drivers/platform/x86/intel-hid.c b/drivers/platform/x86/intel-hid.c
+index cc7dd4d87cce..9ee79b74311c 100644
+--- a/drivers/platform/x86/intel-hid.c
++++ b/drivers/platform/x86/intel-hid.c
+@@ -79,6 +79,13 @@ static const struct dmi_system_id button_array_table[] = {
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "Wacom MobileStudio Pro 16"),
+ 		},
+ 	},
++	{
++		.ident = "HP Spectre x2 (2015)",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "HP"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "HP Spectre x2 Detachable"),
++		},
++	},
+ 	{ }
+ };
  
--	/* check to see if VSI is active */
--	if (test_bit(__ICE_DOWN, vsi->state))
--		return;
--
- 	/* report maximum channels */
- 	ch->max_rx = ice_get_max_rxq(pf);
- 	ch->max_tx = ice_get_max_txq(pf);
 -- 
 2.25.1
 
