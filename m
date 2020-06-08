@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE71F1F308F
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 03:00:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 60DA01F3088
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 03:00:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728387AbgFIBAd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 21:00:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53446 "EHLO mail.kernel.org"
+        id S1728327AbgFIBAS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 21:00:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53506 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728144AbgFHXIT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:08:19 -0400
+        id S1728147AbgFHXIV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:08:21 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5BC23208B3;
-        Mon,  8 Jun 2020 23:08:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 76C7C20890;
+        Mon,  8 Jun 2020 23:08:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591657699;
-        bh=+2NOhQ0peQsJcxduJPSM0cvQWxmusNKkC9yPB/u6K58=;
+        s=default; t=1591657700;
+        bh=ryU2J0iK8Lex4mHvGq6NX9OPCyzlM1AV6h7MRDb0HtI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zE/h0stFZvhtamSDe92/jiNDqFbmUzzmXsxUfZDbMGXamzwjeMAGXU+yWynb5eE28
-         qvZJRbDXXrBOcLcMC0kCpO27GfSBDVKYzkO2cNbpoEy1jUqOPeOAkQ5sOMk78OHzRV
-         2tfZrWKAGEtLf/7/Q1/z9RgkOyaSGXcDMUz/AYmg=
+        b=bOmxFonwECq+KXAJx4aadvoSiznPcPdML6oDnUKGm4K4VIVzXrjqHMxYqVq5QnyCC
+         86MLw55ZuJf90VPu7kQUorF5rYCc0TfvclNxpxnDevAq8iBoQvH2FqQzIceunMD/zQ
+         EE6sk5fAr5CJ7QdeeJrQULkc2hmgMo9biFufiGuc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.7 098/274] spi: Respect DataBitLength field of SpiSerialBusV2() ACPI resource
-Date:   Mon,  8 Jun 2020 19:03:11 -0400
-Message-Id: <20200608230607.3361041-98-sashal@kernel.org>
+Cc:     Jaehoon Chung <jh80.chung@samsung.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org,
+        brcm80211-dev-list.pdl@broadcom.com,
+        brcm80211-dev-list@cypress.com, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.7 099/274] brcmfmac: fix wrong location to get firmware feature
+Date:   Mon,  8 Jun 2020 19:03:12 -0400
+Message-Id: <20200608230607.3361041-99-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608230607.3361041-1-sashal@kernel.org>
 References: <20200608230607.3361041-1-sashal@kernel.org>
@@ -43,38 +46,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Jaehoon Chung <jh80.chung@samsung.com>
 
-[ Upstream commit 0dadde344d965566589cd82797893d5aa06557a3 ]
+[ Upstream commit c57673852062428cdeabdd6501ac8b8e4c302067 ]
 
-By unknown reason the commit 64bee4d28c9e
-  ("spi / ACPI: add ACPI enumeration support")
-missed the DataBitLength property to encounter when parse SPI slave
-device data from ACPI.
+sup_wpa feature is getting after setting feature_disable flag.
+If firmware is supported sup_wpa feature,  it's always enabled
+regardless of feature_disable flag.
 
-Fill the gap here.
-
-Fixes: 64bee4d28c9e ("spi / ACPI: add ACPI enumeration support")
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20200413180406.1826-1-andriy.shevchenko@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: b8a64f0e96c2 ("brcmfmac: support 4-way handshake offloading for WPA/WPA2-PSK")
+Signed-off-by: Jaehoon Chung <jh80.chung@samsung.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20200330052528.10503-1-jh80.chung@samsung.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/feature.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spi.c b/drivers/spi/spi.c
-index c92c89467e7e..e0e27fe06878 100644
---- a/drivers/spi/spi.c
-+++ b/drivers/spi/spi.c
-@@ -2111,6 +2111,7 @@ static int acpi_spi_add_resource(struct acpi_resource *ares, void *data)
- 			}
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/feature.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/feature.c
+index 5da0dda0d899..0dcefbd0c000 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/feature.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/feature.c
+@@ -285,13 +285,14 @@ void brcmf_feat_attach(struct brcmf_pub *drvr)
+ 	if (!err)
+ 		ifp->drvr->feat_flags |= BIT(BRCMF_FEAT_SCAN_RANDOM_MAC);
  
- 			lookup->max_speed_hz = sb->connection_speed;
-+			lookup->bits_per_word = sb->data_bit_length;
++	brcmf_feat_iovar_int_get(ifp, BRCMF_FEAT_FWSUP, "sup_wpa");
++
+ 	if (drvr->settings->feature_disable) {
+ 		brcmf_dbg(INFO, "Features: 0x%02x, disable: 0x%02x\n",
+ 			  ifp->drvr->feat_flags,
+ 			  drvr->settings->feature_disable);
+ 		ifp->drvr->feat_flags &= ~drvr->settings->feature_disable;
+ 	}
+-	brcmf_feat_iovar_int_get(ifp, BRCMF_FEAT_FWSUP, "sup_wpa");
  
- 			if (sb->clock_phase == ACPI_SPI_SECOND_PHASE)
- 				lookup->mode |= SPI_CPHA;
+ 	brcmf_feat_firmware_overrides(drvr);
+ 
 -- 
 2.25.1
 
