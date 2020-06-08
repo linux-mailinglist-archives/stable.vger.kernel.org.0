@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FE2F1F2F78
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:51:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 220951F2D35
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:33:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728852AbgFIAuf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 20:50:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56598 "EHLO mail.kernel.org"
+        id S1729566AbgFIAb2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 20:31:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36522 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728649AbgFHXK2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:10:28 -0400
+        id S1728582AbgFHXPb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:15:31 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 36954208FE;
-        Mon,  8 Jun 2020 23:10:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 74CE620872;
+        Mon,  8 Jun 2020 23:15:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591657827;
-        bh=RErxoPQL57Pp8qE20X8tNu1DhNmZrHDXsOBxyT30KC0=;
+        s=default; t=1591658131;
+        bh=ROkDuAVEAX5iprg27/OAqxRmFR4g+xJwM9tn3TX5o7U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hqXphQ5lg5hMJQ1SXB3cDmkqGOz9lsSunvgbshaIpZ6XSOfsJg2TzMqzWUJqES51v
-         sy3jrJZQ7c6HuhAGJDqSvk5Qdk9gOm1u0KD7KoHCnMZjYqXmVvovxavkSsB6suAKBe
-         kTDTdXQLrXsgSEKe6tTG0a0bKX6qBAptXhKUKULc=
+        b=Md1E2cuGJA1uRpi9TJDRoRad33v4fq0h8wEt8zF/IKac2OYjcJYdYybCojuvIToFi
+         iJmv2K7yLQoL4WjQdGcfjP1aKOe2Z6P04anJZ1IgiOIXIgVj1cHsxXun3jB05o1eQq
+         zskhFM2EdiQerSberAgHlkr2pyMzUtkEWykXUnMM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chung-Hsien Hsu <stanley.hsu@cypress.com>,
-        Chi-Hsien Lin <chi-hsien.lin@cypress.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org,
-        brcm80211-dev-list.pdl@broadcom.com,
-        brcm80211-dev-list@cypress.com, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.7 198/274] brcmfmac: fix WPA/WPA2-PSK 4-way handshake offload and SAE offload failures
+Cc:     Sasha Levin <sashal@kernel.org>,
+        Russell King <linux@armlinux.org.uk>,
+        Christoph Hellwig <hch@lst.de>,
+        Ludovic Barre <ludovic.barre@st.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: [PATCH AUTOSEL 5.6 166/606] Revert "driver core: platform: Initialize dma_parms for platform devices"
 Date:   Mon,  8 Jun 2020 19:04:51 -0400
-Message-Id: <20200608230607.3361041-198-sashal@kernel.org>
+Message-Id: <20200608231211.3363633-166-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200608230607.3361041-1-sashal@kernel.org>
-References: <20200608230607.3361041-1-sashal@kernel.org>
+In-Reply-To: <20200608231211.3363633-1-sashal@kernel.org>
+References: <20200608231211.3363633-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -47,66 +48,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chung-Hsien Hsu <stanley.hsu@cypress.com>
+[ Upstream commit 1d2a14649ef5b5eb64ea5ce276d7df502bac4dbe ]
 
-[ Upstream commit b2fe11f0777311a764e47e2f9437809b4673b7b1 ]
+[ Upstream commit 885a64715fd81e6af6d94a038556e0b2e6deb19c ]
 
-An incorrect value of use_fwsup is set for 4-way handshake offload for
-WPA//WPA2-PSK, caused by commit 3b1e0a7bdfee ("brcmfmac: add support for
-SAE authentication offload"). It results in missing bit
-BRCMF_VIF_STATUS_EAP_SUCCESS set in brcmf_is_linkup() and causes the
-failure. This patch correct the value for the case.
+This reverts commit 7c8978c0837d40c302f5e90d24c298d9ca9fc097, a new
+version will come in the next release cycle.
 
-Also setting bit BRCMF_VIF_STATUS_EAP_SUCCESS for SAE offload case in
-brcmf_is_linkup() to fix SAE offload failure.
-
-Fixes: 3b1e0a7bdfee ("brcmfmac: add support for SAE authentication offload")
-Signed-off-by: Chung-Hsien Hsu <stanley.hsu@cypress.com>
-Signed-off-by: Chi-Hsien Lin <chi-hsien.lin@cypress.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/1589277788-119966-1-git-send-email-chi-hsien.lin@cypress.com
+Cc: <stable@vger.kernel.org>
+Cc: Russell King <linux@armlinux.org.uk>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Ludovic Barre <ludovic.barre@st.com>
+Cc: Linus Walleij <linus.walleij@linaro.org>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../wireless/broadcom/brcm80211/brcmfmac/cfg80211.c  | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/base/platform.c         | 2 --
+ include/linux/platform_device.h | 1 -
+ 2 files changed, 3 deletions(-)
 
-diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c
-index 2ba165330038..bacd762cdf3e 100644
---- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c
-@@ -1819,6 +1819,10 @@ brcmf_set_key_mgmt(struct net_device *ndev, struct cfg80211_connect_params *sme)
- 		switch (sme->crypto.akm_suites[0]) {
- 		case WLAN_AKM_SUITE_SAE:
- 			val = WPA3_AUTH_SAE_PSK;
-+			if (sme->crypto.sae_pwd) {
-+				brcmf_dbg(INFO, "using SAE offload\n");
-+				profile->use_fwsup = BRCMF_PROFILE_FWSUP_SAE;
-+			}
- 			break;
- 		default:
- 			bphy_err(drvr, "invalid cipher group (%d)\n",
-@@ -2104,11 +2108,6 @@ brcmf_cfg80211_connect(struct wiphy *wiphy, struct net_device *ndev,
- 		goto done;
- 	}
- 
--	if (sme->crypto.sae_pwd) {
--		brcmf_dbg(INFO, "using SAE offload\n");
--		profile->use_fwsup = BRCMF_PROFILE_FWSUP_SAE;
--	}
+diff --git a/drivers/base/platform.c b/drivers/base/platform.c
+index c81b68d5d66d..b5ce7b085795 100644
+--- a/drivers/base/platform.c
++++ b/drivers/base/platform.c
+@@ -361,8 +361,6 @@ struct platform_object {
+  */
+ static void setup_pdev_dma_masks(struct platform_device *pdev)
+ {
+-	pdev->dev.dma_parms = &pdev->dma_parms;
 -
- 	if (sme->crypto.psk &&
- 	    profile->use_fwsup != BRCMF_PROFILE_FWSUP_SAE) {
- 		if (WARN_ON(profile->use_fwsup != BRCMF_PROFILE_FWSUP_NONE)) {
-@@ -5495,7 +5494,8 @@ static bool brcmf_is_linkup(struct brcmf_cfg80211_vif *vif,
- 	u32 event = e->event_code;
- 	u32 status = e->status;
+ 	if (!pdev->dev.coherent_dma_mask)
+ 		pdev->dev.coherent_dma_mask = DMA_BIT_MASK(32);
+ 	if (!pdev->dev.dma_mask) {
+diff --git a/include/linux/platform_device.h b/include/linux/platform_device.h
+index 81900b3cbe37..041bfa412aa0 100644
+--- a/include/linux/platform_device.h
++++ b/include/linux/platform_device.h
+@@ -25,7 +25,6 @@ struct platform_device {
+ 	bool		id_auto;
+ 	struct device	dev;
+ 	u64		platform_dma_mask;
+-	struct device_dma_parameters dma_parms;
+ 	u32		num_resources;
+ 	struct resource	*resource;
  
--	if (vif->profile.use_fwsup == BRCMF_PROFILE_FWSUP_PSK &&
-+	if ((vif->profile.use_fwsup == BRCMF_PROFILE_FWSUP_PSK ||
-+	     vif->profile.use_fwsup == BRCMF_PROFILE_FWSUP_SAE) &&
- 	    event == BRCMF_E_PSK_SUP &&
- 	    status == BRCMF_E_STATUS_FWSUP_COMPLETED)
- 		set_bit(BRCMF_VIF_STATUS_EAP_SUCCESS, &vif->sme_state);
 -- 
 2.25.1
 
