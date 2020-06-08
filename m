@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C31781F2D8F
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:36:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E8031F2FF2
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:55:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728505AbgFIAe2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 20:34:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35056 "EHLO mail.kernel.org"
+        id S1728426AbgFIAym (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 20:54:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55248 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729844AbgFHXOh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:14:37 -0400
+        id S1728423AbgFHXJb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:09:31 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D0D6D208C3;
-        Mon,  8 Jun 2020 23:14:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F352E208C3;
+        Mon,  8 Jun 2020 23:09:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658077;
-        bh=rbi3a+PbdSMbyR8m15t3ysXJq+b6p36K+8o0FGva/1w=;
+        s=default; t=1591657771;
+        bh=Sl/PYpXNg++EVQUk+AQqR0ej8vbmve0/ub7u9lPRBMY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F+pel3pWj1bKwvTHTraQMu/riPxObsoSgSgmzUAFHs7zJ9jsZAq47TkgkaYA1TuGQ
-         a5HEBK6fcyzAvVZZk0xPcL6Hqe/mdO4zAChBstvag9h72MGV2wim2Rgo/UGNlky/Us
-         UvzzFC5Nm5uxMs7WeSvREmri44t62oHXYeIyamdQ=
+        b=NeELp2pjl36MzAMRdPZaZKHlcTTbpu2DLTvfPnWfEZrRxfB53jd7a75gmj0kXPSwV
+         JzVwRlM6M90BJLtUvEnloFpG9Ehv9Ey4ejcQsWEZVzRi+UAvNSss5H5QXLU+WsKHI1
+         BHMP6d4s2OTrddoC/lLpGx+YLPRDtbi3x/SMAFTI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Mario Limonciello <mario.limonciello@dell.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
-        linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.6 122/606] HID: quirks: Add HID_QUIRK_NO_INIT_REPORTS quirk for Dell K12A keyboard-dock
-Date:   Mon,  8 Jun 2020 19:04:07 -0400
-Message-Id: <20200608231211.3363633-122-sashal@kernel.org>
+Cc:     Ansuel Smith <ansuelsmth@gmail.com>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org,
+        linux-arm-msm@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.7 155/274] cpufreq: qcom: fix wrong compatible binding
+Date:   Mon,  8 Jun 2020 19:04:08 -0400
+Message-Id: <20200608230607.3361041-155-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200608231211.3363633-1-sashal@kernel.org>
-References: <20200608231211.3363633-1-sashal@kernel.org>
+In-Reply-To: <20200608230607.3361041-1-sashal@kernel.org>
+References: <20200608230607.3361041-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -44,50 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Ansuel Smith <ansuelsmth@gmail.com>
 
-[ Upstream commit 1e189f267015a098bdcb82cc652d13fbf2203fa0 ]
+[ Upstream commit 2dea651680cea1f3a29925de51002f33d1f55711 ]
 
-Add a HID_QUIRK_NO_INIT_REPORTS quirk for the Dell K12A keyboard-dock,
-which can be used with various Dell Venue 11 models.
+Binding in Documentation is still "operating-points-v2-kryo-cpu".
+Restore the old binding to fix the compatibility problem.
 
-Without this quirk the keyboard/touchpad combo works fine when connected
-at boot, but when hotplugged 9 out of 10 times it will not work properly.
-Adding the quirk fixes this.
-
-Cc: Mario Limonciello <mario.limonciello@dell.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Fixes: a8811ec764f9 ("cpufreq: qcom: Add support for krait based socs")
+Signed-off-by: Ansuel Smith <ansuelsmth@gmail.com>
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-ids.h    | 1 +
- drivers/hid/hid-quirks.c | 1 +
- 2 files changed, 2 insertions(+)
+ drivers/cpufreq/qcom-cpufreq-nvmem.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 55afc089cb25..b1d6156ebf9d 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -1111,6 +1111,7 @@
- #define USB_DEVICE_ID_SYNAPTICS_LTS2	0x1d10
- #define USB_DEVICE_ID_SYNAPTICS_HD	0x0ac3
- #define USB_DEVICE_ID_SYNAPTICS_QUAD_HD	0x1ac3
-+#define USB_DEVICE_ID_SYNAPTICS_DELL_K12A	0x2819
- #define USB_DEVICE_ID_SYNAPTICS_ACER_SWITCH5_012	0x2968
- #define USB_DEVICE_ID_SYNAPTICS_TP_V103	0x5710
- #define USB_DEVICE_ID_SYNAPTICS_ACER_SWITCH5	0x81a7
-diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
-index 3735546bb524..acc7c14f7fbc 100644
---- a/drivers/hid/hid-quirks.c
-+++ b/drivers/hid/hid-quirks.c
-@@ -163,6 +163,7 @@ static const struct hid_device_id hid_quirks[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_LTS2), HID_QUIRK_NO_INIT_REPORTS },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_QUAD_HD), HID_QUIRK_NO_INIT_REPORTS },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_TP_V103), HID_QUIRK_NO_INIT_REPORTS },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_DELL_K12A), HID_QUIRK_NO_INIT_REPORTS },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_TOPMAX, USB_DEVICE_ID_TOPMAX_COBRAPAD), HID_QUIRK_BADPAD },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_TOUCHPACK, USB_DEVICE_ID_TOUCHPACK_RTS), HID_QUIRK_MULTI_INPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_TPV, USB_DEVICE_ID_TPV_OPTICAL_TOUCHSCREEN_8882), HID_QUIRK_NOGET },
+diff --git a/drivers/cpufreq/qcom-cpufreq-nvmem.c b/drivers/cpufreq/qcom-cpufreq-nvmem.c
+index a1b8238872a2..d06b37822c3d 100644
+--- a/drivers/cpufreq/qcom-cpufreq-nvmem.c
++++ b/drivers/cpufreq/qcom-cpufreq-nvmem.c
+@@ -277,7 +277,7 @@ static int qcom_cpufreq_probe(struct platform_device *pdev)
+ 	if (!np)
+ 		return -ENOENT;
+ 
+-	ret = of_device_is_compatible(np, "operating-points-v2-qcom-cpu");
++	ret = of_device_is_compatible(np, "operating-points-v2-kryo-cpu");
+ 	if (!ret) {
+ 		of_node_put(np);
+ 		return -ENOENT;
 -- 
 2.25.1
 
