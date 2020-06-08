@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 632CB1F26C2
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:46:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B87E61F26C7
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:46:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387741AbgFHX21 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 19:28:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57876 "EHLO mail.kernel.org"
+        id S1732152AbgFHXie (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 19:38:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57908 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731949AbgFHX2Z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:28:25 -0400
+        id S1732217AbgFHX20 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:28:26 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1892620853;
-        Mon,  8 Jun 2020 23:28:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2D442208A9;
+        Mon,  8 Jun 2020 23:28:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658904;
-        bh=0Vp2LJtlSoEL3sF9zwbuRjicAB8CUEe7ntKtbbih9qc=;
+        s=default; t=1591658906;
+        bh=iKUmM6v7/ah/zZSaO/RwZOR+T9xRXtfNxHYJYjeZnTM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wq2JR/iR6/LE1IZDBd6TmLUxHTsK1XxmWLZI6HG0QLQstv7JvNpABQunWz91QTBK1
-         xBgHo3RWA6CdBqQXzLQPq2+Qze1Dt7E5GU2Gf+qVPAHnDjCq+PPuX/gk2X0RjuqlLW
-         ifCu4sURsAdMfWgeV/fAmXMrPBWGFggRlhLcqkTU=
+        b=xNICaa6yVL286VYlGrUiA8d6RKgTBF/4dBigeEaeUdKizp4BzoRIDxXS5c4KUr8M0
+         lGxso0tMYlsrEc7QEeHbESzQ/IO8nC32uHvBOb6e3PJBjjvADNeVi45t9lY/bQ0FxG
+         IPxT7hgI+q93OH45Lh8Yb8p3lB9r4joepDMk/6r8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Guoqing Jiang <guoqing.jiang@cloud.ionos.com>,
-        Song Liu <songliubraving@fb.com>,
-        Sasha Levin <sashal@kernel.org>, linux-raid@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 25/37] md: don't flush workqueue unconditionally in md_open
-Date:   Mon,  8 Jun 2020 19:27:37 -0400
-Message-Id: <20200608232750.3370747-25-sashal@kernel.org>
+Cc:     =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Ganapathi Bhat <ganapathi.bhat@nxp.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 26/37] mwifiex: Fix memory corruption in dump_station
+Date:   Mon,  8 Jun 2020 19:27:38 -0400
+Message-Id: <20200608232750.3370747-26-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608232750.3370747-1-sashal@kernel.org>
 References: <20200608232750.3370747-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,161 +46,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guoqing Jiang <guoqing.jiang@cloud.ionos.com>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit f6766ff6afff70e2aaf39e1511e16d471de7c3ae ]
+[ Upstream commit 3aa42bae9c4d1641aeb36f1a8585cd1d506cf471 ]
 
-We need to check mddev->del_work before flush workqueu since the purpose
-of flush is to ensure the previous md is disappeared. Otherwise the similar
-deadlock appeared if LOCKDEP is enabled, it is due to md_open holds the
-bdev->bd_mutex before flush workqueue.
+The mwifiex_cfg80211_dump_station() uses static variable for iterating
+over a linked list of all associated stations (when the driver is in UAP
+role). This has a race condition if .dump_station is called in parallel
+for multiple interfaces. This corruption can be triggered by registering
+multiple SSIDs and calling, in parallel for multiple interfaces
+    iw dev <iface> station dump
 
-kernel: [  154.522645] ======================================================
-kernel: [  154.522647] WARNING: possible circular locking dependency detected
-kernel: [  154.522650] 5.6.0-rc7-lp151.27-default #25 Tainted: G           O
-kernel: [  154.522651] ------------------------------------------------------
-kernel: [  154.522653] mdadm/2482 is trying to acquire lock:
-kernel: [  154.522655] ffff888078529128 ((wq_completion)md_misc){+.+.}, at: flush_workqueue+0x84/0x4b0
-kernel: [  154.522673]
-kernel: [  154.522673] but task is already holding lock:
-kernel: [  154.522675] ffff88804efa9338 (&bdev->bd_mutex){+.+.}, at: __blkdev_get+0x79/0x590
-kernel: [  154.522691]
-kernel: [  154.522691] which lock already depends on the new lock.
-kernel: [  154.522691]
-kernel: [  154.522694]
-kernel: [  154.522694] the existing dependency chain (in reverse order) is:
-kernel: [  154.522696]
-kernel: [  154.522696] -> #4 (&bdev->bd_mutex){+.+.}:
-kernel: [  154.522704]        __mutex_lock+0x87/0x950
-kernel: [  154.522706]        __blkdev_get+0x79/0x590
-kernel: [  154.522708]        blkdev_get+0x65/0x140
-kernel: [  154.522709]        blkdev_get_by_dev+0x2f/0x40
-kernel: [  154.522716]        lock_rdev+0x3d/0x90 [md_mod]
-kernel: [  154.522719]        md_import_device+0xd6/0x1b0 [md_mod]
-kernel: [  154.522723]        new_dev_store+0x15e/0x210 [md_mod]
-kernel: [  154.522728]        md_attr_store+0x7a/0xc0 [md_mod]
-kernel: [  154.522732]        kernfs_fop_write+0x117/0x1b0
-kernel: [  154.522735]        vfs_write+0xad/0x1a0
-kernel: [  154.522737]        ksys_write+0xa4/0xe0
-kernel: [  154.522745]        do_syscall_64+0x64/0x2b0
-kernel: [  154.522748]        entry_SYSCALL_64_after_hwframe+0x49/0xbe
-kernel: [  154.522749]
-kernel: [  154.522749] -> #3 (&mddev->reconfig_mutex){+.+.}:
-kernel: [  154.522752]        __mutex_lock+0x87/0x950
-kernel: [  154.522756]        new_dev_store+0xc9/0x210 [md_mod]
-kernel: [  154.522759]        md_attr_store+0x7a/0xc0 [md_mod]
-kernel: [  154.522761]        kernfs_fop_write+0x117/0x1b0
-kernel: [  154.522763]        vfs_write+0xad/0x1a0
-kernel: [  154.522765]        ksys_write+0xa4/0xe0
-kernel: [  154.522767]        do_syscall_64+0x64/0x2b0
-kernel: [  154.522769]        entry_SYSCALL_64_after_hwframe+0x49/0xbe
-kernel: [  154.522770]
-kernel: [  154.522770] -> #2 (kn->count#253){++++}:
-kernel: [  154.522775]        __kernfs_remove+0x253/0x2c0
-kernel: [  154.522778]        kernfs_remove+0x1f/0x30
-kernel: [  154.522780]        kobject_del+0x28/0x60
-kernel: [  154.522783]        mddev_delayed_delete+0x24/0x30 [md_mod]
-kernel: [  154.522786]        process_one_work+0x2a7/0x5f0
-kernel: [  154.522788]        worker_thread+0x2d/0x3d0
-kernel: [  154.522793]        kthread+0x117/0x130
-kernel: [  154.522795]        ret_from_fork+0x3a/0x50
-kernel: [  154.522796]
-kernel: [  154.522796] -> #1 ((work_completion)(&mddev->del_work)){+.+.}:
-kernel: [  154.522800]        process_one_work+0x27e/0x5f0
-kernel: [  154.522802]        worker_thread+0x2d/0x3d0
-kernel: [  154.522804]        kthread+0x117/0x130
-kernel: [  154.522806]        ret_from_fork+0x3a/0x50
-kernel: [  154.522807]
-kernel: [  154.522807] -> #0 ((wq_completion)md_misc){+.+.}:
-kernel: [  154.522813]        __lock_acquire+0x1392/0x1690
-kernel: [  154.522816]        lock_acquire+0xb4/0x1a0
-kernel: [  154.522818]        flush_workqueue+0xab/0x4b0
-kernel: [  154.522821]        md_open+0xb6/0xc0 [md_mod]
-kernel: [  154.522823]        __blkdev_get+0xea/0x590
-kernel: [  154.522825]        blkdev_get+0x65/0x140
-kernel: [  154.522828]        do_dentry_open+0x1d1/0x380
-kernel: [  154.522831]        path_openat+0x567/0xcc0
-kernel: [  154.522834]        do_filp_open+0x9b/0x110
-kernel: [  154.522836]        do_sys_openat2+0x201/0x2a0
-kernel: [  154.522838]        do_sys_open+0x57/0x80
-kernel: [  154.522840]        do_syscall_64+0x64/0x2b0
-kernel: [  154.522842]        entry_SYSCALL_64_after_hwframe+0x49/0xbe
-kernel: [  154.522844]
-kernel: [  154.522844] other info that might help us debug this:
-kernel: [  154.522844]
-kernel: [  154.522846] Chain exists of:
-kernel: [  154.522846]   (wq_completion)md_misc --> &mddev->reconfig_mutex --> &bdev->bd_mutex
-kernel: [  154.522846]
-kernel: [  154.522850]  Possible unsafe locking scenario:
-kernel: [  154.522850]
-kernel: [  154.522852]        CPU0                    CPU1
-kernel: [  154.522853]        ----                    ----
-kernel: [  154.522854]   lock(&bdev->bd_mutex);
-kernel: [  154.522856]                                lock(&mddev->reconfig_mutex);
-kernel: [  154.522858]                                lock(&bdev->bd_mutex);
-kernel: [  154.522860]   lock((wq_completion)md_misc);
-kernel: [  154.522861]
-kernel: [  154.522861]  *** DEADLOCK ***
-kernel: [  154.522861]
-kernel: [  154.522864] 1 lock held by mdadm/2482:
-kernel: [  154.522865]  #0: ffff88804efa9338 (&bdev->bd_mutex){+.+.}, at: __blkdev_get+0x79/0x590
-kernel: [  154.522868]
-kernel: [  154.522868] stack backtrace:
-kernel: [  154.522873] CPU: 1 PID: 2482 Comm: mdadm Tainted: G           O      5.6.0-rc7-lp151.27-default #25
-kernel: [  154.522875] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1ubuntu1 04/01/2014
-kernel: [  154.522878] Call Trace:
-kernel: [  154.522881]  dump_stack+0x8f/0xcb
-kernel: [  154.522884]  check_noncircular+0x194/0x1b0
-kernel: [  154.522888]  ? __lock_acquire+0x1392/0x1690
-kernel: [  154.522890]  __lock_acquire+0x1392/0x1690
-kernel: [  154.522893]  lock_acquire+0xb4/0x1a0
-kernel: [  154.522895]  ? flush_workqueue+0x84/0x4b0
-kernel: [  154.522898]  flush_workqueue+0xab/0x4b0
-kernel: [  154.522900]  ? flush_workqueue+0x84/0x4b0
-kernel: [  154.522905]  ? md_open+0xb6/0xc0 [md_mod]
-kernel: [  154.522908]  md_open+0xb6/0xc0 [md_mod]
-kernel: [  154.522910]  __blkdev_get+0xea/0x590
-kernel: [  154.522912]  ? bd_acquire+0xc0/0xc0
-kernel: [  154.522914]  blkdev_get+0x65/0x140
-kernel: [  154.522916]  ? bd_acquire+0xc0/0xc0
-kernel: [  154.522918]  do_dentry_open+0x1d1/0x380
-kernel: [  154.522921]  path_openat+0x567/0xcc0
-kernel: [  154.522923]  ? __lock_acquire+0x380/0x1690
-kernel: [  154.522926]  do_filp_open+0x9b/0x110
-kernel: [  154.522929]  ? __alloc_fd+0xe5/0x1f0
-kernel: [  154.522935]  ? kmem_cache_alloc+0x28c/0x630
-kernel: [  154.522939]  ? do_sys_openat2+0x201/0x2a0
-kernel: [  154.522941]  do_sys_openat2+0x201/0x2a0
-kernel: [  154.522944]  do_sys_open+0x57/0x80
-kernel: [  154.522946]  do_syscall_64+0x64/0x2b0
-kernel: [  154.522948]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-kernel: [  154.522951] RIP: 0033:0x7f98d279d9ae
+[16750.719775] Unable to handle kernel paging request at virtual address dead000000000110
+...
+[16750.899173] Call trace:
+[16750.901696]  mwifiex_cfg80211_dump_station+0x94/0x100 [mwifiex]
+[16750.907824]  nl80211_dump_station+0xbc/0x278 [cfg80211]
+[16750.913160]  netlink_dump+0xe8/0x320
+[16750.916827]  netlink_recvmsg+0x1b4/0x338
+[16750.920861]  ____sys_recvmsg+0x7c/0x2b0
+[16750.924801]  ___sys_recvmsg+0x70/0x98
+[16750.928564]  __sys_recvmsg+0x58/0xa0
+[16750.932238]  __arm64_sys_recvmsg+0x28/0x30
+[16750.936453]  el0_svc_common.constprop.3+0x90/0x158
+[16750.941378]  do_el0_svc+0x74/0x90
+[16750.944784]  el0_sync_handler+0x12c/0x1a8
+[16750.948903]  el0_sync+0x114/0x140
+[16750.952312] Code: f9400003 f907f423 eb02007f 54fffd60 (b9401060)
+[16750.958583] ---[ end trace c8ad181c2f4b8576 ]---
 
-And md_alloc also flushed the same workqueue, but the thing is different
-here. Because all the paths call md_alloc don't hold bdev->bd_mutex, and
-the flush is necessary to avoid race condition, so leave it as it is.
+This patch drops the use of the static iterator, and instead every time
+the function is called iterates to the idx-th position of the
+linked-list.
 
-Signed-off-by: Guoqing Jiang <guoqing.jiang@cloud.ionos.com>
-Signed-off-by: Song Liu <songliubraving@fb.com>
+It would be better to convert the code not to use linked list for
+associated stations storage (since the chip has a limited number of
+associated stations anyway - it could just be an array). Such a change
+may be proposed in the future. In the meantime this patch can backported
+into stable kernels in this simple form.
+
+Fixes: 8baca1a34d4c ("mwifiex: dump station support in uap mode")
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Acked-by: Ganapathi Bhat <ganapathi.bhat@nxp.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20200515075924.13841-1-pali@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/md.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/wireless/mwifiex/cfg80211.c | 14 ++++++--------
+ 1 file changed, 6 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/md/md.c b/drivers/md/md.c
-index d59d79b77fd6..60161690e226 100644
---- a/drivers/md/md.c
-+++ b/drivers/md/md.c
-@@ -7038,7 +7038,8 @@ static int md_open(struct block_device *bdev, fmode_t mode)
- 		 */
- 		mddev_put(mddev);
- 		/* Wait until bdev->bd_disk is definitely gone */
--		flush_workqueue(md_misc_wq);
-+		if (work_pending(&mddev->del_work))
-+			flush_workqueue(md_misc_wq);
- 		/* Then retry the open from the top */
- 		return -ERESTARTSYS;
- 	}
+diff --git a/drivers/net/wireless/mwifiex/cfg80211.c b/drivers/net/wireless/mwifiex/cfg80211.c
+index c6c2d3304dba..8b649b8e4301 100644
+--- a/drivers/net/wireless/mwifiex/cfg80211.c
++++ b/drivers/net/wireless/mwifiex/cfg80211.c
+@@ -1387,7 +1387,8 @@ mwifiex_cfg80211_dump_station(struct wiphy *wiphy, struct net_device *dev,
+ 			      int idx, u8 *mac, struct station_info *sinfo)
+ {
+ 	struct mwifiex_private *priv = mwifiex_netdev_get_priv(dev);
+-	static struct mwifiex_sta_node *node;
++	struct mwifiex_sta_node *node;
++	int i;
+ 
+ 	if ((GET_BSS_ROLE(priv) == MWIFIEX_BSS_ROLE_STA) &&
+ 	    priv->media_connected && idx == 0) {
+@@ -1397,13 +1398,10 @@ mwifiex_cfg80211_dump_station(struct wiphy *wiphy, struct net_device *dev,
+ 		mwifiex_send_cmd(priv, HOST_CMD_APCMD_STA_LIST,
+ 				 HostCmd_ACT_GEN_GET, 0, NULL, true);
+ 
+-		if (node && (&node->list == &priv->sta_list)) {
+-			node = NULL;
+-			return -ENOENT;
+-		}
+-
+-		node = list_prepare_entry(node, &priv->sta_list, list);
+-		list_for_each_entry_continue(node, &priv->sta_list, list) {
++		i = 0;
++		list_for_each_entry(node, &priv->sta_list, list) {
++			if (i++ != idx)
++				continue;
+ 			ether_addr_copy(mac, node->mac_addr);
+ 			return mwifiex_dump_station_info(priv, node, sinfo);
+ 		}
 -- 
 2.25.1
 
