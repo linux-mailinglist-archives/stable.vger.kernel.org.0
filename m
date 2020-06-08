@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F06B1F2DD2
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:38:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 78D691F306B
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:59:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729632AbgFHXNw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 19:13:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33780 "EHLO mail.kernel.org"
+        id S1730393AbgFIA7B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 20:59:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54118 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729615AbgFHXNv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:13:51 -0400
+        id S1728225AbgFHXIl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:08:41 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5673821527;
-        Mon,  8 Jun 2020 23:13:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 56098208C9;
+        Mon,  8 Jun 2020 23:08:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658031;
-        bh=PEqJ5eyUtSxJhYnhnCrIAr5eo6UL8Kd/34b2Bw2Fusg=;
+        s=default; t=1591657721;
+        bh=dmbHKk/CvJ8hqCWgAkefYUpXXod9lx3uh0ILF4HJH5s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TOPdiM5vRSJossSVMACGCX9VTNDMH+7/XUPzb539+Ba+IVj2bGzQnwtiC9cTU8xWS
-         gUC5AJ2Ho4smMKaw5XFoYcID9OzSups7AdBLKv+9nNbH/QHmLwB/xEyH1mS1RYE7Xm
-         Qg0s6Y5MU1kXS06qF0/4WrGRjJCxwkMQ21kBWPFc=
+        b=fnh5MmtozhO9R2twYmFqOSd1ReWHWpOfF6Rv/njvuzu3bR3e3V5S4xG5M7fe6fcwu
+         B4qiw/X8zaJ4klWiDvWGMV4tLOD97iV1YFZL68MjQGYdrJTgIJ4sA8q3f640FIiuKx
+         Lg0EYmBPRa4wqgidZZ8L4sWnjI1bW5YpDYTnY2VU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Roberto Sassu <roberto.sassu@huawei.com>,
-        Goldwyn Rodrigues <rgoldwyn@suse.com>,
-        Mimi Zohar <zohar@linux.ibm.com>,
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>,
-        linux-integrity@vger.kernel.org,
-        linux-security-module@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.6 082/606] ima: Set file->f_mode instead of file->f_flags in ima_calc_file_hash()
+        linux-bluetooth@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.7 114/274] Bluetooth: btbcm: Add 2 missing models to subver tables
 Date:   Mon,  8 Jun 2020 19:03:27 -0400
-Message-Id: <20200608231211.3363633-82-sashal@kernel.org>
+Message-Id: <20200608230607.3361041-114-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200608231211.3363633-1-sashal@kernel.org>
-References: <20200608231211.3363633-1-sashal@kernel.org>
+In-Reply-To: <20200608230607.3361041-1-sashal@kernel.org>
+References: <20200608230607.3361041-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -46,70 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roberto Sassu <roberto.sassu@huawei.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 0014cc04e8ec077dc482f00c87dfd949cfe2b98f ]
+[ Upstream commit c03ee9af4e07112bd3fc688daca9e654f41eca93 ]
 
-Commit a408e4a86b36 ("ima: open a new file instance if no read
-permissions") tries to create a new file descriptor to calculate a file
-digest if the file has not been opened with O_RDONLY flag. However, if a
-new file descriptor cannot be obtained, it sets the FMODE_READ flag to
-file->f_flags instead of file->f_mode.
+Currently the bcm_uart_subver_ and bcm_usb_subver_table-s lack entries
+for the BCM4324B5 and BCM20703A1 chipsets. This makes the code use just
+"BCM" as prefix for the filename to pass to request-firmware, making it
+harder for users to figure out which firmware they need. This especially
+is problematic with the UART attached BCM4324B5 where this leads to the
+filename being just "BCM.hcd".
 
-This patch fixes this issue by replacing f_flags with f_mode as it was
-before that commit.
+Add the 2 missing devices to subver tables. This has been tested on:
 
-Cc: stable@vger.kernel.org # 4.20.x
-Fixes: a408e4a86b36 ("ima: open a new file instance if no read permissions")
-Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
-Reviewed-by: Goldwyn Rodrigues <rgoldwyn@suse.com>
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+1. A Dell XPS15 9550 where this makes btbcm.c try to load
+"BCM20703A1-0a5c-6410.hcd" before it tries to load "BCM-0a5c-6410.hcd".
+
+2. A Thinkpad 8 where this makes btbcm.c try to load
+"BCM4324B5.hcd" before it tries to load "BCM.hcd"
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/integrity/ima/ima_crypto.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/bluetooth/btbcm.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/security/integrity/ima/ima_crypto.c b/security/integrity/ima/ima_crypto.c
-index 7967a6904851..e8fa23cd4a6c 100644
---- a/security/integrity/ima/ima_crypto.c
-+++ b/security/integrity/ima/ima_crypto.c
-@@ -413,7 +413,7 @@ int ima_calc_file_hash(struct file *file, struct ima_digest_data *hash)
- 	loff_t i_size;
- 	int rc;
- 	struct file *f = file;
--	bool new_file_instance = false, modified_flags = false;
-+	bool new_file_instance = false, modified_mode = false;
+diff --git a/drivers/bluetooth/btbcm.c b/drivers/bluetooth/btbcm.c
+index 1f498f358f60..e1377934507c 100644
+--- a/drivers/bluetooth/btbcm.c
++++ b/drivers/bluetooth/btbcm.c
+@@ -380,6 +380,7 @@ static const struct bcm_subver_table bcm_uart_subver_table[] = {
+ 	{ 0x410e, "BCM43341B0"	},	/* 002.001.014 */
+ 	{ 0x4204, "BCM2076B1"	},	/* 002.002.004 */
+ 	{ 0x4406, "BCM4324B3"	},	/* 002.004.006 */
++	{ 0x4606, "BCM4324B5"	},	/* 002.006.006 */
+ 	{ 0x6109, "BCM4335C0"	},	/* 003.001.009 */
+ 	{ 0x610c, "BCM4354"	},	/* 003.001.012 */
+ 	{ 0x2122, "BCM4343A0"	},	/* 001.001.034 */
+@@ -395,6 +396,7 @@ static const struct bcm_subver_table bcm_uart_subver_table[] = {
+ };
  
- 	/*
- 	 * For consistency, fail file's opened with the O_DIRECT flag on
-@@ -433,13 +433,13 @@ int ima_calc_file_hash(struct file *file, struct ima_digest_data *hash)
- 		f = dentry_open(&file->f_path, flags, file->f_cred);
- 		if (IS_ERR(f)) {
- 			/*
--			 * Cannot open the file again, lets modify f_flags
-+			 * Cannot open the file again, lets modify f_mode
- 			 * of original and continue
- 			 */
- 			pr_info_ratelimited("Unable to reopen file for reading.\n");
- 			f = file;
--			f->f_flags |= FMODE_READ;
--			modified_flags = true;
-+			f->f_mode |= FMODE_READ;
-+			modified_mode = true;
- 		} else {
- 			new_file_instance = true;
- 		}
-@@ -457,8 +457,8 @@ int ima_calc_file_hash(struct file *file, struct ima_digest_data *hash)
- out:
- 	if (new_file_instance)
- 		fput(f);
--	else if (modified_flags)
--		f->f_flags &= ~FMODE_READ;
-+	else if (modified_mode)
-+		f->f_mode &= ~FMODE_READ;
- 	return rc;
- }
- 
+ static const struct bcm_subver_table bcm_usb_subver_table[] = {
++	{ 0x2105, "BCM20703A1"	},	/* 001.001.005 */
+ 	{ 0x210b, "BCM43142A0"	},	/* 001.001.011 */
+ 	{ 0x2112, "BCM4314A0"	},	/* 001.001.018 */
+ 	{ 0x2118, "BCM20702A0"	},	/* 001.001.024 */
 -- 
 2.25.1
 
