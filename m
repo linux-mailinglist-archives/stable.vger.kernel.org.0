@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D4FB81F2D07
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:30:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 317941F2F46
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:49:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729970AbgFHXPv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 19:15:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36968 "EHLO mail.kernel.org"
+        id S1730095AbgFIAtC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 20:49:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57240 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730103AbgFHXPv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:15:51 -0400
+        id S1728048AbgFHXKu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:10:50 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1767220760;
-        Mon,  8 Jun 2020 23:15:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C64A7208C7;
+        Mon,  8 Jun 2020 23:10:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658149;
-        bh=T91HkriA4AVveN5p0X9Tth1A4tfYSz0CPkwXMfu++hQ=;
+        s=default; t=1591657849;
+        bh=Loi2gZDSbCrROCbcd1K6A4WD/voItVzsRtt0yXur1NA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i5gly1zXRiK8L3Dx9iKRSudRrr5sELbF7AYVwWuhI732n5GAsrvYW/PLyh6IXX5TX
-         6Q1omBG3q5K15Xjs+/Ht8f7Aw+NDXCkgI4OLvCUGtd3KnQdZJAKOHt1OFjcx9r/teK
-         9DQlhh0cXZ64NpbR7srWM4RWNMtZgh1fqwTKMVCw=
+        b=1E6owgM8CFu4BVrfqMfNwKpYtI2LnpUAeUBupYRG43OS374qsOgi0P5QzUbTPhSHA
+         0TviYxSv133O8z5LScWYlHrzXCiI1QLw2qV2lpXq0UrXAtmaFQAsvdS81Xif0bSQKv
+         mGoSR/tjl8bX1f+Mv6xBTxTO84LD5BcvGDv9Shn8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexander Usyskin <alexander.usyskin@intel.com>,
-        =?UTF-8?q?=E4=BA=BF=E4=B8=80?= <teroincn@gmail.com>,
-        Tomas Winkler <tomas.winkler@intel.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH AUTOSEL 5.6 182/606] mei: release me_cl object reference
-Date:   Mon,  8 Jun 2020 19:05:07 -0400
-Message-Id: <20200608231211.3363633-182-sashal@kernel.org>
+Cc:     Huaixin Chang <changhuaixin@linux.alibaba.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Ben Segall <bsegall@google.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.7 215/274] sched: Defend cfs and rt bandwidth quota against overflow
+Date:   Mon,  8 Jun 2020 19:05:08 -0400
+Message-Id: <20200608230607.3361041-215-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200608231211.3363633-1-sashal@kernel.org>
-References: <20200608231211.3363633-1-sashal@kernel.org>
+In-Reply-To: <20200608230607.3361041-1-sashal@kernel.org>
+References: <20200608230607.3361041-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -45,44 +44,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Usyskin <alexander.usyskin@intel.com>
+From: Huaixin Chang <changhuaixin@linux.alibaba.com>
 
-commit fc9c03ce30f79b71807961bfcb42be191af79873 upstream.
+[ Upstream commit d505b8af58912ae1e1a211fabc9995b19bd40828 ]
 
-Allow me_cl object to be freed by releasing the reference
-that was acquired  by one of the search functions:
-__mei_me_cl_by_uuid_id() or __mei_me_cl_by_uuid()
+When users write some huge number into cpu.cfs_quota_us or
+cpu.rt_runtime_us, overflow might happen during to_ratio() shifts of
+schedulable checks.
 
-Cc: <stable@vger.kernel.org>
-Reported-by: 亿一 <teroincn@gmail.com>
-Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
-Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
-Link: https://lore.kernel.org/r/20200512223140.32186-1-tomas.winkler@intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+to_ratio() could be altered to avoid unnecessary internal overflow, but
+min_cfs_quota_period is less than 1 << BW_SHIFT, so a cutoff would still
+be needed. Set a cap MAX_BW for cfs_quota_us and rt_runtime_us to
+prevent overflow.
+
+Signed-off-by: Huaixin Chang <changhuaixin@linux.alibaba.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Ben Segall <bsegall@google.com>
+Link: https://lkml.kernel.org/r/20200425105248.60093-1-changhuaixin@linux.alibaba.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/mei/client.c | 2 ++
- 1 file changed, 2 insertions(+)
+ kernel/sched/core.c  |  8 ++++++++
+ kernel/sched/rt.c    | 12 +++++++++++-
+ kernel/sched/sched.h |  2 ++
+ 3 files changed, 21 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/misc/mei/client.c b/drivers/misc/mei/client.c
-index 1e3edbbacb1e..c6b163060c76 100644
---- a/drivers/misc/mei/client.c
-+++ b/drivers/misc/mei/client.c
-@@ -266,6 +266,7 @@ void mei_me_cl_rm_by_uuid(struct mei_device *dev, const uuid_le *uuid)
- 	down_write(&dev->me_clients_rwsem);
- 	me_cl = __mei_me_cl_by_uuid(dev, uuid);
- 	__mei_me_cl_del(dev, me_cl);
-+	mei_me_cl_put(me_cl);
- 	up_write(&dev->me_clients_rwsem);
- }
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index 0bbf387d0f19..5eccfb816d23 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -7386,6 +7386,8 @@ static DEFINE_MUTEX(cfs_constraints_mutex);
  
-@@ -287,6 +288,7 @@ void mei_me_cl_rm_by_uuid_id(struct mei_device *dev, const uuid_le *uuid, u8 id)
- 	down_write(&dev->me_clients_rwsem);
- 	me_cl = __mei_me_cl_by_uuid_id(dev, uuid, id);
- 	__mei_me_cl_del(dev, me_cl);
-+	mei_me_cl_put(me_cl);
- 	up_write(&dev->me_clients_rwsem);
- }
+ const u64 max_cfs_quota_period = 1 * NSEC_PER_SEC; /* 1s */
+ static const u64 min_cfs_quota_period = 1 * NSEC_PER_MSEC; /* 1ms */
++/* More than 203 days if BW_SHIFT equals 20. */
++static const u64 max_cfs_runtime = MAX_BW * NSEC_PER_USEC;
  
+ static int __cfs_schedulable(struct task_group *tg, u64 period, u64 runtime);
+ 
+@@ -7413,6 +7415,12 @@ static int tg_set_cfs_bandwidth(struct task_group *tg, u64 period, u64 quota)
+ 	if (period > max_cfs_quota_period)
+ 		return -EINVAL;
+ 
++	/*
++	 * Bound quota to defend quota against overflow during bandwidth shift.
++	 */
++	if (quota != RUNTIME_INF && quota > max_cfs_runtime)
++		return -EINVAL;
++
+ 	/*
+ 	 * Prevent race between setting of cfs_rq->runtime_enabled and
+ 	 * unthrottle_offline_cfs_rqs().
+diff --git a/kernel/sched/rt.c b/kernel/sched/rt.c
+index df11d88c9895..6d60ba21ed29 100644
+--- a/kernel/sched/rt.c
++++ b/kernel/sched/rt.c
+@@ -9,6 +9,8 @@
+ 
+ int sched_rr_timeslice = RR_TIMESLICE;
+ int sysctl_sched_rr_timeslice = (MSEC_PER_SEC / HZ) * RR_TIMESLICE;
++/* More than 4 hours if BW_SHIFT equals 20. */
++static const u64 max_rt_runtime = MAX_BW;
+ 
+ static int do_sched_rt_period_timer(struct rt_bandwidth *rt_b, int overrun);
+ 
+@@ -2585,6 +2587,12 @@ static int tg_set_rt_bandwidth(struct task_group *tg,
+ 	if (rt_period == 0)
+ 		return -EINVAL;
+ 
++	/*
++	 * Bound quota to defend quota against overflow during bandwidth shift.
++	 */
++	if (rt_runtime != RUNTIME_INF && rt_runtime > max_rt_runtime)
++		return -EINVAL;
++
+ 	mutex_lock(&rt_constraints_mutex);
+ 	err = __rt_schedulable(tg, rt_period, rt_runtime);
+ 	if (err)
+@@ -2702,7 +2710,9 @@ static int sched_rt_global_validate(void)
+ 		return -EINVAL;
+ 
+ 	if ((sysctl_sched_rt_runtime != RUNTIME_INF) &&
+-		(sysctl_sched_rt_runtime > sysctl_sched_rt_period))
++		((sysctl_sched_rt_runtime > sysctl_sched_rt_period) ||
++		 ((u64)sysctl_sched_rt_runtime *
++			NSEC_PER_USEC > max_rt_runtime)))
+ 		return -EINVAL;
+ 
+ 	return 0;
+diff --git a/kernel/sched/sched.h b/kernel/sched/sched.h
+index db3a57675ccf..1f58677a8f23 100644
+--- a/kernel/sched/sched.h
++++ b/kernel/sched/sched.h
+@@ -1918,6 +1918,8 @@ extern void init_dl_inactive_task_timer(struct sched_dl_entity *dl_se);
+ #define BW_SHIFT		20
+ #define BW_UNIT			(1 << BW_SHIFT)
+ #define RATIO_SHIFT		8
++#define MAX_BW_BITS		(64 - BW_SHIFT)
++#define MAX_BW			((1ULL << MAX_BW_BITS) - 1)
+ unsigned long to_ratio(u64 period, u64 runtime);
+ 
+ extern void init_entity_runnable_average(struct sched_entity *se);
 -- 
 2.25.1
 
