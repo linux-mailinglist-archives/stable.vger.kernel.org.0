@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 661201F2D2B
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:33:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 65E6D1F2F5D
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:50:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732537AbgFIAap (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 20:30:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36754 "EHLO mail.kernel.org"
+        id S1728735AbgFHXKl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 19:10:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56766 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730057AbgFHXPk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:15:40 -0400
+        id S1728720AbgFHXKi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:10:38 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CC3B120659;
-        Mon,  8 Jun 2020 23:15:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EDC03208C7;
+        Mon,  8 Jun 2020 23:10:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658139;
-        bh=cXeMnDqdkahj2EjCcRUHHlnMagG9C2OAzyC6JFHrO/I=;
+        s=default; t=1591657837;
+        bh=wksmgPnNwuVecvuMyghSK6yEBXhOXlfzIvgZODHm3XU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qw9lwp7/R5uIuoYOckfRej+T8W47wJqDh+Dqu4AvBfm6LO0CbpFzEEu1SlspM2K7E
-         VGVLeJWg0zeoUHtwtWDQ3pOi/Su6DhBdBQAMq2N5Jir3nYxTX4wyWyOZVQkswYD8cy
-         B1p4ijuMB1fW/3P9gvBcn9x+iyfSwdnDyHLGPHms=
+        b=UP7+48USk+3ZAr9hoY8SNoj1Brnu0oT1t81qkeHtSR5E4uzuieCveiJC7HAPQHXtY
+         wq8XKuuUVHkGKhDxtCAuScictlAUV8XLm4ETJA84QVCc7jz9b2kxOvzINkhypDGD14
+         6HXBXail0oLj8hZBtnrX+SVi1cC96kYe7/E4ik18=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Fabrice Gasnier <fabrice.gasnier@st.com>, Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-iio@vger.kernel.org,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.6 173/606] iio: adc: stm32-adc: fix device used to request dma
-Date:   Mon,  8 Jun 2020 19:04:58 -0400
-Message-Id: <20200608231211.3363633-173-sashal@kernel.org>
+Cc:     Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
+        io-uring@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.7 206/274] io_uring: allow POLL_ADD with double poll_wait() users
+Date:   Mon,  8 Jun 2020 19:04:59 -0400
+Message-Id: <20200608230607.3361041-206-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200608231211.3363633-1-sashal@kernel.org>
-References: <20200608231211.3363633-1-sashal@kernel.org>
+In-Reply-To: <20200608230607.3361041-1-sashal@kernel.org>
+References: <20200608230607.3361041-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -46,66 +42,310 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabrice Gasnier <fabrice.gasnier@st.com>
+From: Jens Axboe <axboe@kernel.dk>
 
-commit 52cd91c27f3908b88e8b25aed4a4d20660abcc45 upstream.
+[ Upstream commit 18bceab101adde8f38de76016bc77f3f25cf22f4 ]
 
-DMA channel request should use device struct from platform device struct.
-Currently it's using iio device struct. But at this stage when probing,
-device struct isn't yet registered (e.g. device_register is done in
-iio_device_register). Since commit 71723a96b8b1 ("dmaengine: Create
-symlinks between DMA channels and slaves"), a warning message is printed
-as the links in sysfs can't be created, due to device isn't yet registered:
-- Cannot create DMA slave symlink
-- Cannot create DMA dma:rx symlink
+Some file descriptors use separate waitqueues for their f_ops->poll()
+handler, most commonly one for read and one for write. The io_uring
+poll implementation doesn't work with that, as the 2nd poll_wait()
+call will cause the io_uring poll request to -EINVAL.
 
-Fix this by using device struct from platform device to request dma chan.
+This affects (at least) tty devices and /dev/random as well. This is a
+big problem for event loops where some file descriptors work, and others
+don't.
 
-Fixes: 2763ea0585c99 ("iio: adc: stm32: add optional dma support")
+With this fix, io_uring handles multiple waitqueues.
 
-Signed-off-by: Fabrice Gasnier <fabrice.gasnier@st.com>
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/adc/stm32-adc.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ fs/io_uring.c | 218 +++++++++++++++++++++++++++++++++-----------------
+ 1 file changed, 146 insertions(+), 72 deletions(-)
 
-diff --git a/drivers/iio/adc/stm32-adc.c b/drivers/iio/adc/stm32-adc.c
-index ae622ee6d08c..dfc3a306c667 100644
---- a/drivers/iio/adc/stm32-adc.c
-+++ b/drivers/iio/adc/stm32-adc.c
-@@ -1812,18 +1812,18 @@ static int stm32_adc_chan_of_init(struct iio_dev *indio_dev)
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 03147b6694fd..dd90c3fcd4f5 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -4096,27 +4096,6 @@ struct io_poll_table {
+ 	int error;
+ };
+ 
+-static void __io_queue_proc(struct io_poll_iocb *poll, struct io_poll_table *pt,
+-			    struct wait_queue_head *head)
+-{
+-	if (unlikely(poll->head)) {
+-		pt->error = -EINVAL;
+-		return;
+-	}
+-
+-	pt->error = 0;
+-	poll->head = head;
+-	add_wait_queue(head, &poll->wait);
+-}
+-
+-static void io_async_queue_proc(struct file *file, struct wait_queue_head *head,
+-			       struct poll_table_struct *p)
+-{
+-	struct io_poll_table *pt = container_of(p, struct io_poll_table, pt);
+-
+-	__io_queue_proc(&pt->req->apoll->poll, pt, head);
+-}
+-
+ static int __io_async_wake(struct io_kiocb *req, struct io_poll_iocb *poll,
+ 			   __poll_t mask, task_work_func_t func)
+ {
+@@ -4170,6 +4149,144 @@ static bool io_poll_rewait(struct io_kiocb *req, struct io_poll_iocb *poll)
+ 	return false;
+ }
+ 
++static void io_poll_remove_double(struct io_kiocb *req)
++{
++	struct io_poll_iocb *poll = (struct io_poll_iocb *) req->io;
++
++	lockdep_assert_held(&req->ctx->completion_lock);
++
++	if (poll && poll->head) {
++		struct wait_queue_head *head = poll->head;
++
++		spin_lock(&head->lock);
++		list_del_init(&poll->wait.entry);
++		if (poll->wait.private)
++			refcount_dec(&req->refs);
++		poll->head = NULL;
++		spin_unlock(&head->lock);
++	}
++}
++
++static void io_poll_complete(struct io_kiocb *req, __poll_t mask, int error)
++{
++	struct io_ring_ctx *ctx = req->ctx;
++
++	io_poll_remove_double(req);
++	req->poll.done = true;
++	io_cqring_fill_event(req, error ? error : mangle_poll(mask));
++	io_commit_cqring(ctx);
++}
++
++static void io_poll_task_handler(struct io_kiocb *req, struct io_kiocb **nxt)
++{
++	struct io_ring_ctx *ctx = req->ctx;
++
++	if (io_poll_rewait(req, &req->poll)) {
++		spin_unlock_irq(&ctx->completion_lock);
++		return;
++	}
++
++	hash_del(&req->hash_node);
++	io_poll_complete(req, req->result, 0);
++	req->flags |= REQ_F_COMP_LOCKED;
++	io_put_req_find_next(req, nxt);
++	spin_unlock_irq(&ctx->completion_lock);
++
++	io_cqring_ev_posted(ctx);
++}
++
++static void io_poll_task_func(struct callback_head *cb)
++{
++	struct io_kiocb *req = container_of(cb, struct io_kiocb, task_work);
++	struct io_kiocb *nxt = NULL;
++
++	io_poll_task_handler(req, &nxt);
++	if (nxt) {
++		struct io_ring_ctx *ctx = nxt->ctx;
++
++		mutex_lock(&ctx->uring_lock);
++		__io_queue_sqe(nxt, NULL);
++		mutex_unlock(&ctx->uring_lock);
++	}
++}
++
++static int io_poll_double_wake(struct wait_queue_entry *wait, unsigned mode,
++			       int sync, void *key)
++{
++	struct io_kiocb *req = wait->private;
++	struct io_poll_iocb *poll = (struct io_poll_iocb *) req->io;
++	__poll_t mask = key_to_poll(key);
++
++	/* for instances that support it check for an event match first: */
++	if (mask && !(mask & poll->events))
++		return 0;
++
++	if (req->poll.head) {
++		bool done;
++
++		spin_lock(&req->poll.head->lock);
++		done = list_empty(&req->poll.wait.entry);
++		if (!done)
++			list_del_init(&req->poll.wait.entry);
++		spin_unlock(&req->poll.head->lock);
++		if (!done)
++			__io_async_wake(req, poll, mask, io_poll_task_func);
++	}
++	refcount_dec(&req->refs);
++	return 1;
++}
++
++static void io_init_poll_iocb(struct io_poll_iocb *poll, __poll_t events,
++			      wait_queue_func_t wake_func)
++{
++	poll->head = NULL;
++	poll->done = false;
++	poll->canceled = false;
++	poll->events = events;
++	INIT_LIST_HEAD(&poll->wait.entry);
++	init_waitqueue_func_entry(&poll->wait, wake_func);
++}
++
++static void __io_queue_proc(struct io_poll_iocb *poll, struct io_poll_table *pt,
++			    struct wait_queue_head *head)
++{
++	struct io_kiocb *req = pt->req;
++
++	/*
++	 * If poll->head is already set, it's because the file being polled
++	 * uses multiple waitqueues for poll handling (eg one for read, one
++	 * for write). Setup a separate io_poll_iocb if this happens.
++	 */
++	if (unlikely(poll->head)) {
++		/* already have a 2nd entry, fail a third attempt */
++		if (req->io) {
++			pt->error = -EINVAL;
++			return;
++		}
++		poll = kmalloc(sizeof(*poll), GFP_ATOMIC);
++		if (!poll) {
++			pt->error = -ENOMEM;
++			return;
++		}
++		io_init_poll_iocb(poll, req->poll.events, io_poll_double_wake);
++		refcount_inc(&req->refs);
++		poll->wait.private = req;
++		req->io = (void *) poll;
++	}
++
++	pt->error = 0;
++	poll->head = head;
++	add_wait_queue(head, &poll->wait);
++}
++
++static void io_async_queue_proc(struct file *file, struct wait_queue_head *head,
++			       struct poll_table_struct *p)
++{
++	struct io_poll_table *pt = container_of(p, struct io_poll_table, pt);
++
++	__io_queue_proc(&pt->req->apoll->poll, pt, head);
++}
++
+ static void io_async_task_func(struct callback_head *cb)
+ {
+ 	struct io_kiocb *req = container_of(cb, struct io_kiocb, task_work);
+@@ -4245,18 +4362,13 @@ static __poll_t __io_arm_poll_handler(struct io_kiocb *req,
+ 	bool cancel = false;
+ 
+ 	poll->file = req->file;
+-	poll->head = NULL;
+-	poll->done = poll->canceled = false;
+-	poll->events = mask;
++	io_init_poll_iocb(poll, mask, wake_func);
++	poll->wait.private = req;
+ 
+ 	ipt->pt._key = mask;
+ 	ipt->req = req;
+ 	ipt->error = -EINVAL;
+ 
+-	INIT_LIST_HEAD(&poll->wait.entry);
+-	init_waitqueue_func_entry(&poll->wait, wake_func);
+-	poll->wait.private = req;
+-
+ 	mask = vfs_poll(req->file, &ipt->pt) & poll->events;
+ 
+ 	spin_lock_irq(&ctx->completion_lock);
+@@ -4287,6 +4399,7 @@ static bool io_arm_poll_handler(struct io_kiocb *req)
+ 	struct async_poll *apoll;
+ 	struct io_poll_table ipt;
+ 	__poll_t mask, ret;
++	bool had_io;
+ 
+ 	if (!req->file || !file_can_poll(req->file))
+ 		return false;
+@@ -4301,6 +4414,7 @@ static bool io_arm_poll_handler(struct io_kiocb *req)
+ 
+ 	req->flags |= REQ_F_POLLED;
+ 	memcpy(&apoll->work, &req->work, sizeof(req->work));
++	had_io = req->io != NULL;
+ 
+ 	get_task_struct(current);
+ 	req->task = current;
+@@ -4320,7 +4434,9 @@ static bool io_arm_poll_handler(struct io_kiocb *req)
+ 					io_async_wake);
+ 	if (ret) {
+ 		ipt.error = 0;
+-		apoll->poll.done = true;
++		/* only remove double add if we did it here */
++		if (!had_io)
++			io_poll_remove_double(req);
+ 		spin_unlock_irq(&ctx->completion_lock);
+ 		memcpy(&req->work, &apoll->work, sizeof(req->work));
+ 		kfree(apoll);
+@@ -4353,6 +4469,7 @@ static bool io_poll_remove_one(struct io_kiocb *req)
+ 	bool do_complete;
+ 
+ 	if (req->opcode == IORING_OP_POLL_ADD) {
++		io_poll_remove_double(req);
+ 		do_complete = __io_poll_remove_one(req, &req->poll);
+ 	} else {
+ 		struct async_poll *apoll = req->apoll;
+@@ -4453,49 +4570,6 @@ static int io_poll_remove(struct io_kiocb *req)
  	return 0;
  }
  
--static int stm32_adc_dma_request(struct iio_dev *indio_dev)
-+static int stm32_adc_dma_request(struct device *dev, struct iio_dev *indio_dev)
+-static void io_poll_complete(struct io_kiocb *req, __poll_t mask, int error)
+-{
+-	struct io_ring_ctx *ctx = req->ctx;
+-
+-	req->poll.done = true;
+-	io_cqring_fill_event(req, error ? error : mangle_poll(mask));
+-	io_commit_cqring(ctx);
+-}
+-
+-static void io_poll_task_handler(struct io_kiocb *req, struct io_kiocb **nxt)
+-{
+-	struct io_ring_ctx *ctx = req->ctx;
+-	struct io_poll_iocb *poll = &req->poll;
+-
+-	if (io_poll_rewait(req, poll)) {
+-		spin_unlock_irq(&ctx->completion_lock);
+-		return;
+-	}
+-
+-	hash_del(&req->hash_node);
+-	io_poll_complete(req, req->result, 0);
+-	req->flags |= REQ_F_COMP_LOCKED;
+-	io_put_req_find_next(req, nxt);
+-	spin_unlock_irq(&ctx->completion_lock);
+-
+-	io_cqring_ev_posted(ctx);
+-}
+-
+-static void io_poll_task_func(struct callback_head *cb)
+-{
+-	struct io_kiocb *req = container_of(cb, struct io_kiocb, task_work);
+-	struct io_kiocb *nxt = NULL;
+-
+-	io_poll_task_handler(req, &nxt);
+-	if (nxt) {
+-		struct io_ring_ctx *ctx = nxt->ctx;
+-
+-		mutex_lock(&ctx->uring_lock);
+-		__io_queue_sqe(nxt, NULL);
+-		mutex_unlock(&ctx->uring_lock);
+-	}
+-}
+-
+ static int io_poll_wake(struct wait_queue_entry *wait, unsigned mode, int sync,
+ 			void *key)
  {
- 	struct stm32_adc *adc = iio_priv(indio_dev);
- 	struct dma_slave_config config;
- 	int ret;
- 
--	adc->dma_chan = dma_request_chan(&indio_dev->dev, "rx");
-+	adc->dma_chan = dma_request_chan(dev, "rx");
- 	if (IS_ERR(adc->dma_chan)) {
- 		ret = PTR_ERR(adc->dma_chan);
- 		if (ret != -ENODEV) {
- 			if (ret != -EPROBE_DEFER)
--				dev_err(&indio_dev->dev,
-+				dev_err(dev,
- 					"DMA channel request failed with %d\n",
- 					ret);
- 			return ret;
-@@ -1930,7 +1930,7 @@ static int stm32_adc_probe(struct platform_device *pdev)
- 	if (ret < 0)
- 		return ret;
- 
--	ret = stm32_adc_dma_request(indio_dev);
-+	ret = stm32_adc_dma_request(dev, indio_dev);
- 	if (ret < 0)
- 		return ret;
- 
 -- 
 2.25.1
 
