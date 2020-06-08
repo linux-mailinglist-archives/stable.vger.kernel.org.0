@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1AFC81F3183
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 03:10:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 600FE1F317D
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 03:10:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726961AbgFIBJ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 21:09:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49250 "EHLO mail.kernel.org"
+        id S1727097AbgFIBJt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 21:09:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49386 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726746AbgFHXGU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:06:20 -0400
+        id S1726961AbgFHXGY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:06:24 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EB0E820814;
-        Mon,  8 Jun 2020 23:06:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 668D920774;
+        Mon,  8 Jun 2020 23:06:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591657579;
-        bh=WEeDvDkZo6MB/KF4kzcZdE3zlcrJdIB/C1My+LZzDtE=;
+        s=default; t=1591657583;
+        bh=RfN7e+IqfNDAX+YUtjar6zUcVJXwkRCwxqE082RR7Yc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CXZCmrsSTCJi85B2OgtfU1M/ujDWeniRCjwh6inwVNIWEFSjQaLbhCW6/0rX3iFKZ
-         trWqocGeuLceRlwhWSNjz6rUPgu2zuZxKW7sNinVcAyKJvdxVdnJF1VXFrXDSh5p45
-         oyWonD8uIcc1wNBOIrErJZWtG9sCHcAz7hlLlNEc=
+        b=A5QyrQpoGQ9sNl6Fa+BgTAVKlgiP2UtyIkh8Pc21Ku2c/G3rJFVoMd55lFACXKWYX
+         XsOdeJYzh3sfBVlqkS3Bh/EtpFh8RJHqoVdvcjHjwqNaVekvUMFY8xrFy8phXGOj8F
+         0uqGlOGwxGT9Vt4WaKlA1sLV6Tk9iRJEy6aWBqVI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>, linux-crypto@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.7 009/274] crypto: ccp -- don't "select" CONFIG_DMADEVICES
-Date:   Mon,  8 Jun 2020 19:01:42 -0400
-Message-Id: <20200608230607.3361041-9-sashal@kernel.org>
+Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.7 012/274] media: vicodec: Fix error codes in probe function
+Date:   Mon,  8 Jun 2020 19:01:45 -0400
+Message-Id: <20200608230607.3361041-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608230607.3361041-1-sashal@kernel.org>
 References: <20200608230607.3361041-1-sashal@kernel.org>
@@ -44,57 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit eebac678556d6927f09a992872f4464cf3aecc76 ]
+[ Upstream commit f36592e7b343d853edf44d3545bb68961c0949a4 ]
 
-DMADEVICES is the top-level option for the slave DMA
-subsystem, and should not be selected by device drivers,
-as this can cause circular dependencies such as:
+If these functions fail then we return success, but we should instead
+preserve negative error code and return that.
 
-drivers/net/ethernet/freescale/Kconfig:6:error: recursive dependency detected!
-drivers/net/ethernet/freescale/Kconfig:6:	symbol NET_VENDOR_FREESCALE depends on PPC_BESTCOMM
-drivers/dma/bestcomm/Kconfig:6:	symbol PPC_BESTCOMM depends on DMADEVICES
-drivers/dma/Kconfig:6:	symbol DMADEVICES is selected by CRYPTO_DEV_SP_CCP
-drivers/crypto/ccp/Kconfig:10:	symbol CRYPTO_DEV_SP_CCP depends on CRYPTO
-crypto/Kconfig:16:	symbol CRYPTO is selected by LIBCRC32C
-lib/Kconfig:222:	symbol LIBCRC32C is selected by LIQUIDIO
-drivers/net/ethernet/cavium/Kconfig:65:	symbol LIQUIDIO depends on PTP_1588_CLOCK
-drivers/ptp/Kconfig:8:	symbol PTP_1588_CLOCK is implied by FEC
-drivers/net/ethernet/freescale/Kconfig:23:	symbol FEC depends on NET_VENDOR_FREESCALE
-
-The LIQUIDIO driver causing this problem is addressed in a
-separate patch, but this change is needed to prevent it from
-happening again.
-
-Using "depends on DMADEVICES" is what we do for all other
-implementations of slave DMA controllers as well.
-
-Fixes: b3c2fee5d66b ("crypto: ccp - Ensure all dependencies are specified")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: fde649b418d1 ("media: vicodec: Register another node for stateless decoder")
+Fixes: c022a4a95722 ("media: vicodec: add struct for encoder/decoder instance")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/ccp/Kconfig | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/media/platform/vicodec/vicodec-core.c | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/crypto/ccp/Kconfig b/drivers/crypto/ccp/Kconfig
-index e0a8bd15aa74..32268e239bf1 100644
---- a/drivers/crypto/ccp/Kconfig
-+++ b/drivers/crypto/ccp/Kconfig
-@@ -10,10 +10,9 @@ config CRYPTO_DEV_CCP_DD
- config CRYPTO_DEV_SP_CCP
- 	bool "Cryptographic Coprocessor device"
- 	default y
--	depends on CRYPTO_DEV_CCP_DD
-+	depends on CRYPTO_DEV_CCP_DD && DMADEVICES
- 	select HW_RANDOM
- 	select DMA_ENGINE
--	select DMADEVICES
- 	select CRYPTO_SHA1
- 	select CRYPTO_SHA256
- 	help
+diff --git a/drivers/media/platform/vicodec/vicodec-core.c b/drivers/media/platform/vicodec/vicodec-core.c
+index 30ced1c21387..e879290727ef 100644
+--- a/drivers/media/platform/vicodec/vicodec-core.c
++++ b/drivers/media/platform/vicodec/vicodec-core.c
+@@ -2114,16 +2114,19 @@ static int vicodec_probe(struct platform_device *pdev)
+ 
+ 	platform_set_drvdata(pdev, dev);
+ 
+-	if (register_instance(dev, &dev->stateful_enc,
+-			      "stateful-encoder", true))
++	ret = register_instance(dev, &dev->stateful_enc, "stateful-encoder",
++				true);
++	if (ret)
+ 		goto unreg_dev;
+ 
+-	if (register_instance(dev, &dev->stateful_dec,
+-			      "stateful-decoder", false))
++	ret = register_instance(dev, &dev->stateful_dec, "stateful-decoder",
++				false);
++	if (ret)
+ 		goto unreg_sf_enc;
+ 
+-	if (register_instance(dev, &dev->stateless_dec,
+-			      "stateless-decoder", false))
++	ret = register_instance(dev, &dev->stateless_dec, "stateless-decoder",
++				false);
++	if (ret)
+ 		goto unreg_sf_dec;
+ 
+ #ifdef CONFIG_MEDIA_CONTROLLER
 -- 
 2.25.1
 
