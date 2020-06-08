@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A0391F2FA3
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:52:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3816B1F2D51
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:33:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728819AbgFIAwL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 20:52:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56188 "EHLO mail.kernel.org"
+        id S1733131AbgFIAcR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 20:32:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36014 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728579AbgFHXKI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:10:08 -0400
+        id S1728576AbgFHXPP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:15:15 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 39D61208A9;
-        Mon,  8 Jun 2020 23:10:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2C84321531;
+        Mon,  8 Jun 2020 23:15:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591657808;
-        bh=3fRy+M5MKsobW1DMkCE6aT8AuhzEA6KfX/ybdilXmPA=;
+        s=default; t=1591658114;
+        bh=U4a716t1zfB5zL2gtGQ6ceowiQ4YOsRO6zDnhNKNyKQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ELe17dI3Nfkg8sQQkaYKaDaxivhq3puSVAAy0Y2i1BQCqu8aXfj/wmVl/LOCrsMr3
-         LZIvjZj/zBxY+QJMOHxBctnUYJOJdAPIy3/GtR/zFPUE8atDgi9UvRzo5kYItfdqHG
-         j+AE9h6U3L/cwks5AnW0J9bFkJB4hJZTNQXSccoE=
+        b=H9T0ycRFoGB813INPHrl1lodbv8tLA1ucqGA4UzV9rwFXyfdG/YOzkEHIhpn4bO8g
+         JNiOnsjX9wD5pc91Hyx55MqflMAg8fclz+f5sN3h1Ic2Tb/7oXVM5CAUMGh4/wxDxH
+         4XfNErw9HDAmU1RlXry/VbRukcw/TffSt+FuqNqc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Rakesh Pillai <pillair@codeaurora.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>, ath10k@lists.infradead.org,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.7 184/274] ath10k: Skip handling del_server during driver exit
+Cc:     Venkata Narendra Kumar Gutta <vnkgutta@codeaurora.org>,
+        Maulik Shah <mkshah@codeaurora.org>,
+        Douglas Anderson <dianders@chromium.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-arm-msm@vger.kernel.org, linux-gpio@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.6 152/606] pinctrl: qcom: Add affinity callbacks to msmgpio IRQ chip
 Date:   Mon,  8 Jun 2020 19:04:37 -0400
-Message-Id: <20200608230607.3361041-184-sashal@kernel.org>
+Message-Id: <20200608231211.3363633-152-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200608230607.3361041-1-sashal@kernel.org>
-References: <20200608230607.3361041-1-sashal@kernel.org>
+In-Reply-To: <20200608231211.3363633-1-sashal@kernel.org>
+References: <20200608231211.3363633-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -44,94 +47,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rakesh Pillai <pillair@codeaurora.org>
+From: Venkata Narendra Kumar Gutta <vnkgutta@codeaurora.org>
 
-[ Upstream commit 7c6d67b136ceb0aebc7a3153b300e925ed915daf ]
+commit dca4f40742e09ec5d908a7fc2862498e6cf9d911 upstream.
 
-The qmi infrastructure sends the client a del_server
-event when the client releases its qmi handle. This
-is not the msg indicating the actual qmi server exiting.
-In such cases the del_server msg should not be processed,
-since the wifi firmware does not reset its qmi state.
+Wakeup capable GPIO IRQs routed via PDC are not being migrated when a CPU
+is hotplugged. Add affinity callbacks to msmgpio IRQ chip to update the
+affinity of wakeup capable IRQs.
 
-Hence skip the processing of del_server event when the
-driver is unloading.
-
-Tested HW: WCN3990
-Tested FW: WLAN.HL.3.1-01040-QCAHLSWMTPLZ-1
-
-Fixes: ba94c753ccb4 ("ath10k: add QMI message handshake for wcn3990 client")
-Signed-off-by: Rakesh Pillai <pillair@codeaurora.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/1588663061-12138-1-git-send-email-pillair@codeaurora.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: e35a6ae0eb3a ("pinctrl/msm: Setup GPIO chip in hierarchy")
+Signed-off-by: Venkata Narendra Kumar Gutta <vnkgutta@codeaurora.org>
+[mkshah: updated commit text and minor code fixes]
+Signed-off-by: Maulik Shah <mkshah@codeaurora.org>
+Tested-by: Douglas Anderson <dianders@chromium.org>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Link: https://lore.kernel.org/r/1588314617-4556-1-git-send-email-mkshah@codeaurora.org
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/ath/ath10k/qmi.c | 13 ++++++++++++-
- drivers/net/wireless/ath/ath10k/qmi.h |  6 ++++++
- 2 files changed, 18 insertions(+), 1 deletion(-)
+ drivers/pinctrl/qcom/pinctrl-msm.c | 25 +++++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
 
-diff --git a/drivers/net/wireless/ath/ath10k/qmi.c b/drivers/net/wireless/ath/ath10k/qmi.c
-index 85dce43c5439..7abdef8d6b9b 100644
---- a/drivers/net/wireless/ath/ath10k/qmi.c
-+++ b/drivers/net/wireless/ath/ath10k/qmi.c
-@@ -961,7 +961,16 @@ static void ath10k_qmi_del_server(struct qmi_handle *qmi_hdl,
- 		container_of(qmi_hdl, struct ath10k_qmi, qmi_hdl);
- 
- 	qmi->fw_ready = false;
--	ath10k_qmi_driver_event_post(qmi, ATH10K_QMI_EVENT_SERVER_EXIT, NULL);
-+
-+	/*
-+	 * The del_server event is to be processed only if coming from
-+	 * the qmi server. The qmi infrastructure sends del_server, when
-+	 * any client releases the qmi handle. In this case do not process
-+	 * this del_server event.
-+	 */
-+	if (qmi->state == ATH10K_QMI_STATE_INIT_DONE)
-+		ath10k_qmi_driver_event_post(qmi, ATH10K_QMI_EVENT_SERVER_EXIT,
-+					     NULL);
+diff --git a/drivers/pinctrl/qcom/pinctrl-msm.c b/drivers/pinctrl/qcom/pinctrl-msm.c
+index 9f1c9951949e..14a8f8fa0ea3 100644
+--- a/drivers/pinctrl/qcom/pinctrl-msm.c
++++ b/drivers/pinctrl/qcom/pinctrl-msm.c
+@@ -1010,6 +1010,29 @@ static void msm_gpio_irq_relres(struct irq_data *d)
+ 	module_put(gc->owner);
  }
  
- static struct qmi_ops ath10k_qmi_ops = {
-@@ -1091,6 +1100,7 @@ int ath10k_qmi_init(struct ath10k *ar, u32 msa_size)
- 	if (ret)
- 		goto err_qmi_lookup;
- 
-+	qmi->state = ATH10K_QMI_STATE_INIT_DONE;
- 	return 0;
- 
- err_qmi_lookup:
-@@ -1109,6 +1119,7 @@ int ath10k_qmi_deinit(struct ath10k *ar)
- 	struct ath10k_snoc *ar_snoc = ath10k_snoc_priv(ar);
- 	struct ath10k_qmi *qmi = ar_snoc->qmi;
- 
-+	qmi->state = ATH10K_QMI_STATE_DEINIT;
- 	qmi_handle_release(&qmi->qmi_hdl);
- 	cancel_work_sync(&qmi->event_work);
- 	destroy_workqueue(qmi->event_wq);
-diff --git a/drivers/net/wireless/ath/ath10k/qmi.h b/drivers/net/wireless/ath/ath10k/qmi.h
-index dc257375f161..b59720524224 100644
---- a/drivers/net/wireless/ath/ath10k/qmi.h
-+++ b/drivers/net/wireless/ath/ath10k/qmi.h
-@@ -83,6 +83,11 @@ struct ath10k_qmi_driver_event {
- 	void *data;
- };
- 
-+enum ath10k_qmi_state {
-+	ATH10K_QMI_STATE_INIT_DONE,
-+	ATH10K_QMI_STATE_DEINIT,
-+};
++static int msm_gpio_irq_set_affinity(struct irq_data *d,
++				const struct cpumask *dest, bool force)
++{
++	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
++	struct msm_pinctrl *pctrl = gpiochip_get_data(gc);
 +
- struct ath10k_qmi {
- 	struct ath10k *ar;
- 	struct qmi_handle qmi_hdl;
-@@ -105,6 +110,7 @@ struct ath10k_qmi {
- 	char fw_build_timestamp[MAX_TIMESTAMP_LEN + 1];
- 	struct ath10k_qmi_cal_data cal_data[MAX_NUM_CAL_V01];
- 	bool msa_fixed_perm;
-+	enum ath10k_qmi_state state;
- };
++	if (d->parent_data && test_bit(d->hwirq, pctrl->skip_wake_irqs))
++		return irq_chip_set_affinity_parent(d, dest, force);
++
++	return 0;
++}
++
++static int msm_gpio_irq_set_vcpu_affinity(struct irq_data *d, void *vcpu_info)
++{
++	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
++	struct msm_pinctrl *pctrl = gpiochip_get_data(gc);
++
++	if (d->parent_data && test_bit(d->hwirq, pctrl->skip_wake_irqs))
++		return irq_chip_set_vcpu_affinity_parent(d, vcpu_info);
++
++	return 0;
++}
++
+ static void msm_gpio_irq_handler(struct irq_desc *desc)
+ {
+ 	struct gpio_chip *gc = irq_desc_get_handler_data(desc);
+@@ -1108,6 +1131,8 @@ static int msm_gpio_init(struct msm_pinctrl *pctrl)
+ 	pctrl->irq_chip.irq_set_wake = msm_gpio_irq_set_wake;
+ 	pctrl->irq_chip.irq_request_resources = msm_gpio_irq_reqres;
+ 	pctrl->irq_chip.irq_release_resources = msm_gpio_irq_relres;
++	pctrl->irq_chip.irq_set_affinity = msm_gpio_irq_set_affinity;
++	pctrl->irq_chip.irq_set_vcpu_affinity = msm_gpio_irq_set_vcpu_affinity;
  
- int ath10k_qmi_wlan_enable(struct ath10k *ar,
+ 	np = of_parse_phandle(pctrl->dev->of_node, "wakeup-parent", 0);
+ 	if (np) {
 -- 
 2.25.1
 
