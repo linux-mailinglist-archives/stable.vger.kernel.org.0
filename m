@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AC31E1F2E6F
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:42:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 90F591F2E57
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:42:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729179AbgFIAlj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 20:41:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60264 "EHLO mail.kernel.org"
+        id S1729175AbgFHXMo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 19:12:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60332 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728110AbgFHXMl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:12:41 -0400
+        id S1728134AbgFHXMm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:12:42 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 404C820E65;
-        Mon,  8 Jun 2020 23:12:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5BB3C212CC;
+        Mon,  8 Jun 2020 23:12:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591657960;
-        bh=y1k0L0u63nACylLO42kH0crZJWdOhL+v+GEltLADNhc=;
+        s=default; t=1591657962;
+        bh=Gb4m4Bg7zSFEgsq+BlQuMfZGMwCh1LLMqd3yI6mgJ00=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WZ0DBiXZ7nu0u4b+MvLMjdBGfkCZ69oRW8nmQ+rXWUu5IS3pWWTsmX0nj2nXNx8zs
-         ehDUV7nwnlXHzWU/Ub5G3nRQibD5NosH/Fkjk8NVwCxoopmizuCMwadQ+QsRX2Jcm1
-         ZGXKZQlySK6K1JRr+mVaHyy43pSQD/9rrE9iZkd0=
+        b=yaOo7wwk+ghb0sVQfevFXDdiHqkcdKc1OWumfWE76vAp3CmH93q3KwuuHQx/eKuB/
+         S4yzaPvSsmhuy+ottEq4+OIHyGQP4StyJ1XWntTbUDvueeV85q1NdIBdYcsmayluJs
+         G3W6UbaWkOKAdWMWKXU0OdBQ7yDpuitdCCLSvOzI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jesus Ramos <jesus-ramos@live.com>, Takashi Iwai <tiwai@suse.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.6 025/606] ALSA: usb-audio: Add control message quirk delay for Kingston HyperX headset
-Date:   Mon,  8 Jun 2020 19:02:30 -0400
-Message-Id: <20200608231211.3363633-25-sashal@kernel.org>
+Cc:     Eugeniu Rosca <erosca@de.adit-jv.com>,
+        Alan Stern <stern@rowland.harvard.edu>,
+        Hardik Gajjar <hgajjar@de.adit-jv.com>,
+        linux-renesas-soc@vger.kernel.org, linux-usb@vger.kernel.org,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: [PATCH AUTOSEL 5.6 026/606] usb: core: hub: limit HUB_QUIRK_DISABLE_AUTOSUSPEND to USB5534B
+Date:   Mon,  8 Jun 2020 19:02:31 -0400
+Message-Id: <20200608231211.3363633-26-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608231211.3363633-1-sashal@kernel.org>
 References: <20200608231211.3363633-1-sashal@kernel.org>
@@ -43,45 +46,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jesus Ramos <jesus-ramos@live.com>
+From: Eugeniu Rosca <erosca@de.adit-jv.com>
 
-commit 073919e09ca445d4486968e3f851372ff44cf2b5 upstream.
+commit 76e1ef1d81a4129d7e2fb8c48c83b166d1c8e040 upstream.
 
-Kingston HyperX headset with 0951:16ad also needs the same quirk for
-delaying the frequency controls.
+On Tue, May 12, 2020 at 09:36:07PM +0800, Kai-Heng Feng wrote [1]:
+> This patch prevents my Raven Ridge xHCI from getting runtime suspend.
 
-Signed-off-by: Jesus Ramos <jesus-ramos@live.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/BY5PR19MB3634BA68C7CCA23D8DF428E796AF0@BY5PR19MB3634.namprd19.prod.outlook.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+The problem described in v5.6 commit 1208f9e1d758c9 ("USB: hub: Fix the
+broken detection of USB3 device in SMSC hub") applies solely to the
+USB5534B hub [2] present on the Kingfisher Infotainment Carrier Board,
+manufactured by Shimafuji Electric Inc [3].
+
+Despite that, the aforementioned commit applied the quirk to _all_ hubs
+carrying vendor ID 0x424 (i.e. SMSC), of which there are more [4] than
+initially expected. Consequently, the quirk is now enabled on platforms
+carrying SMSC/Microchip hub models which potentially don't exhibit the
+original issue.
+
+To avoid reports like [1], further limit the quirk's scope to
+USB5534B [2], by employing both Vendor and Product ID checks.
+
+Tested on H3ULCB + Kingfisher rev. M05.
+
+[1] https://lore.kernel.org/linux-renesas-soc/73933975-6F0E-40F5-9584-D2B8F615C0F3@canonical.com/
+[2] https://www.microchip.com/wwwproducts/en/USB5534B
+[3] http://www.shimafuji.co.jp/wp/wp-content/uploads/2018/08/SBEV-RCAR-KF-M06Board_HWSpecificationEN_Rev130.pdf
+[4] https://devicehunt.com/search/type/usb/vendor/0424/device/any
+
+Fixes: 1208f9e1d758c9 ("USB: hub: Fix the broken detection of USB3 device in SMSC hub")
+Cc: stable@vger.kernel.org # v4.14+
+Cc: Alan Stern <stern@rowland.harvard.edu>
+Cc: Hardik Gajjar <hgajjar@de.adit-jv.com>
+Cc: linux-renesas-soc@vger.kernel.org
+Cc: linux-usb@vger.kernel.org
+Reported-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Signed-off-by: Eugeniu Rosca <erosca@de.adit-jv.com>
+Tested-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Link: https://lore.kernel.org/r/20200514220246.13290-1-erosca@de.adit-jv.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/usb/quirks.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/usb/core/hub.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/sound/usb/quirks.c b/sound/usb/quirks.c
-index 0686e056e39b..732580bdc6a4 100644
---- a/sound/usb/quirks.c
-+++ b/sound/usb/quirks.c
-@@ -1592,13 +1592,14 @@ void snd_usb_ctl_msg_quirk(struct usb_device *dev, unsigned int pipe,
- 	    && (requesttype & USB_TYPE_MASK) == USB_TYPE_CLASS)
- 		msleep(20);
+diff --git a/drivers/usb/core/hub.c b/drivers/usb/core/hub.c
+index 2b6565c06c23..fc748c731832 100644
+--- a/drivers/usb/core/hub.c
++++ b/drivers/usb/core/hub.c
+@@ -39,6 +39,7 @@
  
--	/* Zoom R16/24, Logitech H650e, Jabra 550a needs a tiny delay here,
--	 * otherwise requests like get/set frequency return as failed despite
--	 * actually succeeding.
-+	/* Zoom R16/24, Logitech H650e, Jabra 550a, Kingston HyperX needs a tiny
-+	 * delay here, otherwise requests like get/set frequency return as
-+	 * failed despite actually succeeding.
- 	 */
- 	if ((chip->usb_id == USB_ID(0x1686, 0x00dd) ||
- 	     chip->usb_id == USB_ID(0x046d, 0x0a46) ||
--	     chip->usb_id == USB_ID(0x0b0e, 0x0349)) &&
-+	     chip->usb_id == USB_ID(0x0b0e, 0x0349) ||
-+	     chip->usb_id == USB_ID(0x0951, 0x16ad)) &&
- 	    (requesttype & USB_TYPE_MASK) == USB_TYPE_CLASS)
- 		usleep_range(1000, 2000);
+ #define USB_VENDOR_GENESYS_LOGIC		0x05e3
+ #define USB_VENDOR_SMSC				0x0424
++#define USB_PRODUCT_USB5534B			0x5534
+ #define HUB_QUIRK_CHECK_PORT_AUTOSUSPEND	0x01
+ #define HUB_QUIRK_DISABLE_AUTOSUSPEND		0x02
+ 
+@@ -5621,8 +5622,11 @@ static void hub_event(struct work_struct *work)
  }
+ 
+ static const struct usb_device_id hub_id_table[] = {
+-    { .match_flags = USB_DEVICE_ID_MATCH_VENDOR | USB_DEVICE_ID_MATCH_INT_CLASS,
++    { .match_flags = USB_DEVICE_ID_MATCH_VENDOR
++                   | USB_DEVICE_ID_MATCH_PRODUCT
++                   | USB_DEVICE_ID_MATCH_INT_CLASS,
+       .idVendor = USB_VENDOR_SMSC,
++      .idProduct = USB_PRODUCT_USB5534B,
+       .bInterfaceClass = USB_CLASS_HUB,
+       .driver_info = HUB_QUIRK_DISABLE_AUTOSUSPEND},
+     { .match_flags = USB_DEVICE_ID_MATCH_VENDOR
 -- 
 2.25.1
 
