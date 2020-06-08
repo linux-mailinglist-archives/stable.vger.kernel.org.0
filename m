@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 82D7A1F26F5
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:46:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 760A11F26AE
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:45:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731850AbgFHXk4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 19:40:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56674 "EHLO mail.kernel.org"
+        id S2387642AbgFHX1z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 19:27:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56720 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732177AbgFHX1w (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:27:52 -0400
+        id S1732184AbgFHX1x (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:27:53 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 102CF2064C;
-        Mon,  8 Jun 2020 23:27:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4FF892074B;
+        Mon,  8 Jun 2020 23:27:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658871;
-        bh=cwL7ZgCT1/kGJ02B69yPXiGwStmRlYGEYGQMLyPF4Mg=;
-        h=From:To:Cc:Subject:Date:From;
-        b=LQekrIZNEUnAaDwrUiLslI8Xmmt9AbbBRVBf8tEuTC9tlGpsrvU89AhOk8MwYmDmL
-         z9AsB4QG15dJ5MfAAavA4qc09NDfCDcttPJbG3RdfqRX+rdWy4DbSxQPMgLU03I4+q
-         Al+Wy1c3nWAMNjAIIddgZpejniuBCwbnheqqs+tY=
+        s=default; t=1591658873;
+        bh=CW+S2I9j3FWtgNNgKAVdRFjVBnucE7ZH77BuXJM6opA=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=eLNzTG6vMkyOKPQjXeAdN0W+MIJzANEGu1hB3Qtr88vtLk0tI8pkpyLsR2zcZ8+3Y
+         IHxVX+x+BIGnSFf1IeqUaOgsXZ/cnTyygr05VesF4yVOxmKY4j6V1onkzsm1XBoqJT
+         693yoELMLsX4tl9Jmt4PBozt9Aj9x0NZpTP41yKg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Qiujun Huang <hqjagain@gmail.com>,
-        syzbot+d403396d4df67ad0bd5f@syzkaller.appspotmail.com,
+        syzbot+b1c61e5f11be5782f192@syzkaller.appspotmail.com,
         Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>,
         linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 01/37] ath9x: Fix stack-out-of-bounds Write in ath9k_hif_usb_rx_cb
-Date:   Mon,  8 Jun 2020 19:27:13 -0400
-Message-Id: <20200608232750.3370747-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 02/37] ath9k: Fix use-after-free Write in ath9k_htc_rx_msg
+Date:   Mon,  8 Jun 2020 19:27:14 -0400
+Message-Id: <20200608232750.3370747-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20200608232750.3370747-1-sashal@kernel.org>
+References: <20200608232750.3370747-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -45,25 +47,27 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Qiujun Huang <hqjagain@gmail.com>
 
-[ Upstream commit 19d6c375d671ce9949a864fb9a03e19f5487b4d3 ]
+[ Upstream commit e4ff08a4d727146bb6717a39a8d399d834654345 ]
 
-Add barrier to accessing the stack array skb_pool.
+Write out of slab bounds. We should check epid.
 
 The case reported by syzbot:
-https://lore.kernel.org/linux-usb/0000000000003d7c1505a2168418@google.com
-BUG: KASAN: stack-out-of-bounds in ath9k_hif_usb_rx_stream
-drivers/net/wireless/ath/ath9k/hif_usb.c:626 [inline]
-BUG: KASAN: stack-out-of-bounds in ath9k_hif_usb_rx_cb+0xdf6/0xf70
-drivers/net/wireless/ath/ath9k/hif_usb.c:666
-Write of size 8 at addr ffff8881db309a28 by task swapper/1/0
+https://lore.kernel.org/linux-usb/0000000000006ac55b05a1c05d72@google.com
+BUG: KASAN: use-after-free in htc_process_conn_rsp
+drivers/net/wireless/ath/ath9k/htc_hst.c:131 [inline]
+BUG: KASAN: use-after-free in ath9k_htc_rx_msg+0xa25/0xaf0
+drivers/net/wireless/ath/ath9k/htc_hst.c:443
+Write of size 2 at addr ffff8881cea291f0 by task swapper/1/0
 
 Call Trace:
-ath9k_hif_usb_rx_stream drivers/net/wireless/ath/ath9k/hif_usb.c:626
+ htc_process_conn_rsp drivers/net/wireless/ath/ath9k/htc_hst.c:131
 [inline]
-ath9k_hif_usb_rx_cb+0xdf6/0xf70
-drivers/net/wireless/ath/ath9k/hif_usb.c:666
-__usb_hcd_giveback_urb+0x1f2/0x470 drivers/usb/core/hcd.c:1648
-usb_hcd_giveback_urb+0x368/0x420 drivers/usb/core/hcd.c:1713
+ath9k_htc_rx_msg+0xa25/0xaf0
+drivers/net/wireless/ath/ath9k/htc_hst.c:443
+ath9k_hif_usb_reg_in_cb+0x1ba/0x630
+drivers/net/wireless/ath/ath9k/hif_usb.c:718
+__usb_hcd_giveback_urb+0x29a/0x550 drivers/usb/core/hcd.c:1650
+usb_hcd_giveback_urb+0x368/0x420 drivers/usb/core/hcd.c:1716
 dummy_timer+0x1258/0x32ae drivers/usb/gadget/udc/dummy_hcd.c:1966
 call_timer_fn+0x195/0x6f0 kernel/time/timer.c:1404
 expire_timers kernel/time/timer.c:1449 [inline]
@@ -71,31 +75,29 @@ __run_timers kernel/time/timer.c:1773 [inline]
 __run_timers kernel/time/timer.c:1740 [inline]
 run_timer_softirq+0x5f9/0x1500 kernel/time/timer.c:1786
 
-Reported-and-tested-by: syzbot+d403396d4df67ad0bd5f@syzkaller.appspotmail.com
+Reported-and-tested-by: syzbot+b1c61e5f11be5782f192@syzkaller.appspotmail.com
 Signed-off-by: Qiujun Huang <hqjagain@gmail.com>
 Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20200404041838.10426-5-hqjagain@gmail.com
+Link: https://lore.kernel.org/r/20200404041838.10426-4-hqjagain@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath9k/hif_usb.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/net/wireless/ath/ath9k/htc_hst.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/wireless/ath/ath9k/hif_usb.c b/drivers/net/wireless/ath/ath9k/hif_usb.c
-index 1f019df15a67..386e87ea8fc8 100644
---- a/drivers/net/wireless/ath/ath9k/hif_usb.c
-+++ b/drivers/net/wireless/ath/ath9k/hif_usb.c
-@@ -608,6 +608,11 @@ static void ath9k_hif_usb_rx_stream(struct hif_device_usb *hif_dev,
- 			hif_dev->remain_skb = nskb;
- 			spin_unlock(&hif_dev->rx_lock);
- 		} else {
-+			if (pool_index == MAX_PKT_NUM_IN_TRANSFER) {
-+				dev_err(&hif_dev->udev->dev,
-+					"ath9k_htc: over RX MAX_PKT_NUM\n");
-+				goto err;
-+			}
- 			nskb = __dev_alloc_skb(pkt_len + 32, GFP_ATOMIC);
- 			if (!nskb) {
- 				dev_err(&hif_dev->udev->dev,
+diff --git a/drivers/net/wireless/ath/ath9k/htc_hst.c b/drivers/net/wireless/ath/ath9k/htc_hst.c
+index fd85f996c554..257b6ee51e54 100644
+--- a/drivers/net/wireless/ath/ath9k/htc_hst.c
++++ b/drivers/net/wireless/ath/ath9k/htc_hst.c
+@@ -114,6 +114,9 @@ static void htc_process_conn_rsp(struct htc_target *target,
+ 
+ 	if (svc_rspmsg->status == HTC_SERVICE_SUCCESS) {
+ 		epid = svc_rspmsg->endpoint_id;
++		if (epid < 0 || epid >= ENDPOINT_MAX)
++			return;
++
+ 		service_id = be16_to_cpu(svc_rspmsg->service_id);
+ 		max_msglen = be16_to_cpu(svc_rspmsg->max_msg_len);
+ 		endpoint = &target->endpoint[epid];
 -- 
 2.25.1
 
