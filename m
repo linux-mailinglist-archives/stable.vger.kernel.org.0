@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E76F41F27EF
+	by mail.lfdr.de (Postfix) with ESMTP id 0837C1F27ED
 	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:55:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731772AbgFHXZN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 19:25:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51560 "EHLO mail.kernel.org"
+        id S1731393AbgFHXZM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 19:25:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51612 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731763AbgFHXZK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:25:10 -0400
+        id S1731765AbgFHXZL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:25:11 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C39A92074B;
-        Mon,  8 Jun 2020 23:25:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 18AB5208A7;
+        Mon,  8 Jun 2020 23:25:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658709;
-        bh=mtuGhnGkFOv4Dnysg1avCQwqR0R4OOqhgGtN1I4N6do=;
+        s=default; t=1591658710;
+        bh=saLN3d1KPLnQ2+/04KMRkgHFhsJjNTOGFsAj3gFbmXQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K5LJdj55XBhL0KzkCMd8LcssockatR/FZMgfEYTlwrB9oR5EMzp1HWyQC27M0Wzb2
-         BjIP+kTO/LWVBE+OvFhvReesa5dLJICcGPBnMELdEoJ5k0u5PrYa+f3eFhTn1WZspC
-         T53jxVLhUVeLhlDUiTWzRhYaOJYDMUTT8XNioNAI=
+        b=dSU7307pFlURZdck+57UCQkwbNPjiuUMa1PCCpHonsAi6pcjnVTBtbFDRQfsujQ41
+         c8kwOiUvVxC5DQQ91qXa5WNekvnW5GZoilxMiGCMJpb/wnAUK2uGNfI9naXITWqndT
+         QBorWlPSbB6saPY/wXt9O3hzO9DbJNYwsq1sld8A=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Evan Green <evgreen@chromium.org>,
-        Shobhit Srivastava <shobhit.srivastava@intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org, linux-spi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 07/72] spi: pxa2xx: Apply CS clk quirk to BXT
-Date:   Mon,  8 Jun 2020 19:23:55 -0400
-Message-Id: <20200608232500.3369581-7-sashal@kernel.org>
+Cc:     Arthur Kiyanovski <akiyano@amazon.com>,
+        Sameeh Jubran <sameehj@amazon.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 08/72] net: ena: fix error returning in ena_com_get_hash_function()
+Date:   Mon,  8 Jun 2020 19:23:56 -0400
+Message-Id: <20200608232500.3369581-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608232500.3369581-1-sashal@kernel.org>
 References: <20200608232500.3369581-1-sashal@kernel.org>
@@ -46,42 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evan Green <evgreen@chromium.org>
+From: Arthur Kiyanovski <akiyano@amazon.com>
 
-[ Upstream commit 6eefaee4f2d366a389da0eb95e524ba82bf358c4 ]
+[ Upstream commit e9a1de378dd46375f9abfd8de1e6f59ee114a793 ]
 
-With a couple allies at Intel, and much badgering, I got confirmation
-from Intel that at least BXT suffers from the same SPI chip-select
-issue as Cannonlake (and beyond). The issue being that after going
-through runtime suspend/resume, toggling the chip-select line without
-also sending data does nothing.
+In case the "func" parameter is NULL we now return "-EINVAL".
+This shouldn't happen in general, but when it does happen, this is the
+proper way to handle it.
 
-Add the quirk to BXT to briefly toggle dynamic clock gating off and
-on, forcing the fabric to wake up enough to notice the CS register
-change.
+We also check func for NULL in the beginning of the function, as there
+is no reason to do all the work and realize in the end of the function
+it was useless.
 
-Signed-off-by: Evan Green <evgreen@chromium.org>
-Cc: Shobhit Srivastava <shobhit.srivastava@intel.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20200427163238.1.Ib1faaabe236e37ea73be9b8dcc6aa034cb3c8804@changeid
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sameeh Jubran <sameehj@amazon.com>
+Signed-off-by: Arthur Kiyanovski <akiyano@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-pxa2xx.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/amazon/ena/ena_com.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/spi/spi-pxa2xx.c b/drivers/spi/spi-pxa2xx.c
-index 5160e16d3a98..45a211c7dd22 100644
---- a/drivers/spi/spi-pxa2xx.c
-+++ b/drivers/spi/spi-pxa2xx.c
-@@ -156,6 +156,7 @@ static const struct lpss_config lpss_platforms[] = {
- 		.tx_threshold_hi = 48,
- 		.cs_sel_shift = 8,
- 		.cs_sel_mask = 3 << 8,
-+		.cs_clk_stays_gated = true,
- 	},
- 	{	/* LPSS_CNL_SSP */
- 		.offset = 0x200,
+diff --git a/drivers/net/ethernet/amazon/ena/ena_com.c b/drivers/net/ethernet/amazon/ena/ena_com.c
+index dc9149a32f41..bb1710ff910a 100644
+--- a/drivers/net/ethernet/amazon/ena/ena_com.c
++++ b/drivers/net/ethernet/amazon/ena/ena_com.c
+@@ -2131,6 +2131,9 @@ int ena_com_get_hash_function(struct ena_com_dev *ena_dev,
+ 		rss->hash_key;
+ 	int rc;
+ 
++	if (unlikely(!func))
++		return -EINVAL;
++
+ 	rc = ena_com_get_feature_ex(ena_dev, &get_resp,
+ 				    ENA_ADMIN_RSS_HASH_FUNCTION,
+ 				    rss->hash_key_dma_addr,
+@@ -2143,8 +2146,7 @@ int ena_com_get_hash_function(struct ena_com_dev *ena_dev,
+ 	if (rss->hash_func)
+ 		rss->hash_func--;
+ 
+-	if (func)
+-		*func = rss->hash_func;
++	*func = rss->hash_func;
+ 
+ 	if (key)
+ 		memcpy(key, hash_key->key, (size_t)(hash_key->keys_num) << 2);
 -- 
 2.25.1
 
