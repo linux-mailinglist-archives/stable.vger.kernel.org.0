@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 996A91F26E4
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:46:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 56CDD1F26B4
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:46:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731055AbgFHXkQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 19:40:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56808 "EHLO mail.kernel.org"
+        id S2387686AbgFHX2G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 19:28:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56946 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731881AbgFHX2D (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:28:03 -0400
+        id S2387678AbgFHX2E (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:28:04 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E77BD20872;
-        Mon,  8 Jun 2020 23:28:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2748820897;
+        Mon,  8 Jun 2020 23:28:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658882;
-        bh=FdpUTESJ9f6tKR31I9XJPxlSZiptBJC8TU1UArWeeCo=;
+        s=default; t=1591658883;
+        bh=o23A9+aPsDsblHRk7bpNwsM+EWR1GnGWmRJdBz1zUDM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iAQyAxx9GP9vrFKPdTdBPHPEA78OMOm4sgiRl2LPdTdgCFIYWqJLr3kfjsxNj3MF5
-         JDUMrH8dnLaUxQVXm4y0KUOGGR3lXVJJOD6b9ZvcYHLd60UMwAraLBoq9DxhLxJGkV
-         lJu7++ryr5T7VKaZPKuvS/BEp46VP/jxhKD1yuwE=
+        b=Snqcl8CWm2avaUKnzghsaQYpKHRZWF7LJezLpZrtTc9VWXPCMgryUBKUbvtg1LCIB
+         nmpeYNfKDlQd0Fs8VDn/TMjhl1DUxLGOlB/doTFMJ6EF3L6ydxG+/DuORmPVLui8AL
+         cryV68I8L+LwNVD3hKFcrjvvEYeQmIPPKohsTI9U=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Linus Walleij <linus.walleij@linaro.org>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.4 09/37] ARM: 8978/1: mm: make act_mm() respect THREAD_SIZE
-Date:   Mon,  8 Jun 2020 19:27:21 -0400
-Message-Id: <20200608232750.3370747-9-sashal@kernel.org>
+Cc:     Jia-Ju Bai <baijiaju1990@gmail.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 10/37] net: vmxnet3: fix possible buffer overflow caused by bad DMA value in vmxnet3_get_rss()
+Date:   Mon,  8 Jun 2020 19:27:22 -0400
+Message-Id: <20200608232750.3370747-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608232750.3370747-1-sashal@kernel.org>
 References: <20200608232750.3370747-1-sashal@kernel.org>
@@ -46,63 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Walleij <linus.walleij@linaro.org>
+From: Jia-Ju Bai <baijiaju1990@gmail.com>
 
-[ Upstream commit e1de94380af588bdf6ad6f0cc1f75004c35bc096 ]
+[ Upstream commit 3e1c6846b9e108740ef8a37be80314053f5dd52a ]
 
-Recent work with KASan exposed the folling hard-coded bitmask
-in arch/arm/mm/proc-macros.S:
+The value adapter->rss_conf is stored in DMA memory, and it is assigned
+to rssConf, so rssConf->indTableSize can be modified at anytime by
+malicious hardware. Because rssConf->indTableSize is assigned to n,
+buffer overflow may occur when the code "rssConf->indTable[n]" is
+executed.
 
-  bic     rd, sp, #8128
-  bic     rd, rd, #63
+To fix this possible bug, n is checked after being used.
 
-This forms the bitmask 0x1FFF that is coinciding with
-(PAGE_SIZE << THREAD_SIZE_ORDER) - 1, this code was assuming
-that THREAD_SIZE is always 8K (8192).
-
-As KASan was increasing THREAD_SIZE_ORDER to 2, I ran into
-this bug.
-
-Fix it by this little oneline suggested by Ard:
-
-  bic     rd, sp, #(THREAD_SIZE - 1) & ~63
-
-Where THREAD_SIZE is defined using THREAD_SIZE_ORDER.
-
-We have to also include <linux/const.h> since the THREAD_SIZE
-expands to use the _AC() macro.
-
-Cc: Ard Biesheuvel <ardb@kernel.org>
-Cc: Florian Fainelli <f.fainelli@gmail.com>
-Suggested-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mm/proc-macros.S | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/vmxnet3/vmxnet3_ethtool.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/arm/mm/proc-macros.S b/arch/arm/mm/proc-macros.S
-index e6bfdcc381f8..1da55d34f4d6 100644
---- a/arch/arm/mm/proc-macros.S
-+++ b/arch/arm/mm/proc-macros.S
-@@ -4,6 +4,7 @@
-  *  VMA_VM_FLAGS
-  *  VM_EXEC
-  */
-+#include <linux/const.h>
- #include <asm/asm-offsets.h>
- #include <asm/thread_info.h>
- 
-@@ -30,7 +31,7 @@
-  * act_mm - get current->active_mm
-  */
- 	.macro	act_mm, rd
--	bic	\rd, sp, #8128
-+	bic	\rd, sp, #(THREAD_SIZE - 1) & ~63
- 	bic	\rd, \rd, #63
- 	ldr	\rd, [\rd, #TI_TASK]
- 	ldr	\rd, [\rd, #TSK_ACTIVE_MM]
+diff --git a/drivers/net/vmxnet3/vmxnet3_ethtool.c b/drivers/net/vmxnet3/vmxnet3_ethtool.c
+index 9ba11d737753..f35597c44e3c 100644
+--- a/drivers/net/vmxnet3/vmxnet3_ethtool.c
++++ b/drivers/net/vmxnet3/vmxnet3_ethtool.c
+@@ -664,6 +664,8 @@ vmxnet3_get_rss(struct net_device *netdev, u32 *p, u8 *key, u8 *hfunc)
+ 		*hfunc = ETH_RSS_HASH_TOP;
+ 	if (!p)
+ 		return 0;
++	if (n > UPT1_RSS_MAX_IND_TABLE_SIZE)
++		return 0;
+ 	while (n--)
+ 		p[n] = rssConf->indTable[n];
+ 	return 0;
 -- 
 2.25.1
 
