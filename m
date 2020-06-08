@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A37261F2EE2
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:46:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F374C1F2EDA
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:46:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729602AbgFIAp5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 20:45:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58752 "EHLO mail.kernel.org"
+        id S1727115AbgFIApn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 20:45:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58772 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728234AbgFHXLo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:11:44 -0400
+        id S1728970AbgFHXLp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:11:45 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3648D21508;
-        Mon,  8 Jun 2020 23:11:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4458620C56;
+        Mon,  8 Jun 2020 23:11:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591657903;
-        bh=3RrjVjucjaQRqQ0XpzGPy0vis0dtQ3RxxAdXgJmrAC4=;
+        s=default; t=1591657905;
+        bh=T+jPFC0lA+eBgkxLgd3PN4lxPcbqGMXjwaRExUrc1pA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nJZYs9AHcvtBqOZ/0evyRmorFpTprlg5EB1khVH8jcjf+InDEJUCWRnzCRNPIMCB2
-         +JHYBI2xMHDPNgrjU08S3odzdDSLWU5jym3aRwbC6Bpla/46ivNxNo+R1BeLlAZGwo
-         ATPhWgygZm9NucV5o+h3AMTvg/UzOIRGJiLSoVYo=
+        b=wpauXWF0xUP/EW+swiGrLj8liDsHnL+S8AW+VkjDO6s4bdx0HuNWU5Hh1wE3UH3zT
+         Wm1Jo/Z7KcgH2KrLcp2Fs23m/huH3apgLJuPORLQZ76sj8c7V7kWChy53jIbQ7h7MX
+         dnM3cgwWSf+JmyDFlzXruaJFpbkLMUdgOyU0yaSw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Qiushi Wu <wu000273@umn.edu>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.7 256/274] cpuidle: Fix three reference count leaks
-Date:   Mon,  8 Jun 2020 19:05:49 -0400
-Message-Id: <20200608230607.3361041-256-sashal@kernel.org>
+Cc:     Angelo Dureghello <angelo.dureghello@timesys.com>,
+        Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.7 257/274] spi: spi-fsl-dspi: fix native data copy
+Date:   Mon,  8 Jun 2020 19:05:50 -0400
+Message-Id: <20200608230607.3361041-257-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608230607.3361041-1-sashal@kernel.org>
 References: <20200608230607.3361041-1-sashal@kernel.org>
@@ -43,54 +44,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiushi Wu <wu000273@umn.edu>
+From: Angelo Dureghello <angelo.dureghello@timesys.com>
 
-[ Upstream commit c343bf1ba5efcbf2266a1fe3baefec9cc82f867f ]
+[ Upstream commit 263b81dc6c932c8bc550d5e7bfc178d2b3fc491e ]
 
-kobject_init_and_add() takes reference even when it fails.
-If this function returns an error, kobject_put() must be called to
-properly clean up the memory associated with the object.
+ColdFire is a big-endian cpu with a big-endian dspi hw module,
+so, it uses native access, but memcpy breaks the endianness.
 
-Previous commit "b8eb718348b8" fixed a similar problem.
+So, if i understand properly, by native copy we would mean
+be(cpu)->be(dspi) or le(cpu)->le(dspi) accesses, so my fix
+shouldn't break anything, but i couldn't test it on LS family,
+so every test is really appreciated.
 
-Signed-off-by: Qiushi Wu <wu000273@umn.edu>
-[ rjw: Subject ]
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: 53fadb4d90c7 ("spi: spi-fsl-dspi: Simplify bytes_per_word gymnastics")
+Signed-off-by: Angelo Dureghello <angelo.dureghello@timesys.com>
+Tested-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Reviewed-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Link: https://lore.kernel.org/r/20200529195756.184677-1-angelo.dureghello@timesys.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpuidle/sysfs.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/spi/spi-fsl-dspi.c | 24 ++++++++++++++++++++++--
+ 1 file changed, 22 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/cpuidle/sysfs.c b/drivers/cpuidle/sysfs.c
-index cdeedbf02646..55107565b319 100644
---- a/drivers/cpuidle/sysfs.c
-+++ b/drivers/cpuidle/sysfs.c
-@@ -515,7 +515,7 @@ static int cpuidle_add_state_sysfs(struct cpuidle_device *device)
- 		ret = kobject_init_and_add(&kobj->kobj, &ktype_state_cpuidle,
- 					   &kdev->kobj, "state%d", i);
- 		if (ret) {
--			kfree(kobj);
-+			kobject_put(&kobj->kobj);
- 			goto error_state;
- 		}
- 		cpuidle_add_s2idle_attr_group(kobj);
-@@ -646,7 +646,7 @@ static int cpuidle_add_driver_sysfs(struct cpuidle_device *dev)
- 	ret = kobject_init_and_add(&kdrv->kobj, &ktype_driver_cpuidle,
- 				   &kdev->kobj, "driver");
- 	if (ret) {
--		kfree(kdrv);
-+		kobject_put(&kdrv->kobj);
- 		return ret;
- 	}
+diff --git a/drivers/spi/spi-fsl-dspi.c b/drivers/spi/spi-fsl-dspi.c
+index 50e41f66a2d7..2e9f9adc5900 100644
+--- a/drivers/spi/spi-fsl-dspi.c
++++ b/drivers/spi/spi-fsl-dspi.c
+@@ -246,13 +246,33 @@ struct fsl_dspi {
  
-@@ -740,7 +740,7 @@ int cpuidle_add_sysfs(struct cpuidle_device *dev)
- 	error = kobject_init_and_add(&kdev->kobj, &ktype_cpuidle, &cpu_dev->kobj,
- 				   "cpuidle");
- 	if (error) {
--		kfree(kdev);
-+		kobject_put(&kdev->kobj);
- 		return error;
- 	}
+ static void dspi_native_host_to_dev(struct fsl_dspi *dspi, u32 *txdata)
+ {
+-	memcpy(txdata, dspi->tx, dspi->oper_word_size);
++	switch (dspi->oper_word_size) {
++	case 1:
++		*txdata = *(u8 *)dspi->tx;
++		break;
++	case 2:
++		*txdata = *(u16 *)dspi->tx;
++		break;
++	case 4:
++		*txdata = *(u32 *)dspi->tx;
++		break;
++	}
+ 	dspi->tx += dspi->oper_word_size;
+ }
+ 
+ static void dspi_native_dev_to_host(struct fsl_dspi *dspi, u32 rxdata)
+ {
+-	memcpy(dspi->rx, &rxdata, dspi->oper_word_size);
++	switch (dspi->oper_word_size) {
++	case 1:
++		*(u8 *)dspi->rx = rxdata;
++		break;
++	case 2:
++		*(u16 *)dspi->rx = rxdata;
++		break;
++	case 4:
++		*(u32 *)dspi->rx = rxdata;
++		break;
++	}
+ 	dspi->rx += dspi->oper_word_size;
+ }
  
 -- 
 2.25.1
