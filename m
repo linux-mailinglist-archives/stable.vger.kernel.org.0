@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F07B81F2233
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:07:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E9FEC1F2235
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:07:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727070AbgFHXGr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 19:06:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50044 "EHLO mail.kernel.org"
+        id S1727077AbgFHXGs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 19:06:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50164 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726993AbgFHXGm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:06:42 -0400
+        id S1727065AbgFHXGq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:06:46 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0D46420853;
-        Mon,  8 Jun 2020 23:06:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 56F8120820;
+        Mon,  8 Jun 2020 23:06:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591657601;
-        bh=HvvRqZwkh6QFAxuP2/osGSKcmwJD2DscUKII0BRZplw=;
+        s=default; t=1591657605;
+        bh=B3xFYh7AMdy6830NHmMW9gIz6XlazHF4qwfRiP3z9Wo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=swwSbdITupFVkO66bA/IrlyzbWeKGZFDEQTNEShqwzkAfRTrR/gE+PiczdQZ15tlb
-         wtfPUv+fJ+2hpfPnXCIFYhHm7L1mh2rFISJ9Woti9x1IUt7edM6d+Y/Pir2PmpQzzI
-         JvZPIrQgyCm+J82hK5sNb3iX/xrVgiDm7LDnwBpM=
+        b=oKcy2C9BkzC6s21iJyLzYHi6LDHVpBHzYXsesCn/x0B6w5Pafg+wo6zGfhG5Nz2tD
+         zIQqnhqsp1OaAgKysJkfmyzT+Eni5CGqfAAc+wXOJ8X0FB6IU7R3hKbaa8CAZMEFGA
+         2+2zVjrbdLg4UJLqxTkVWXg9fFUp4lVtyaVs9KmA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Huaixin Chang <changhuaixin@linux.alibaba.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Ben Segall <bsegall@google.com>, Phil Auld <pauld@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.7 027/274] sched/fair: Refill bandwidth before scaling
-Date:   Mon,  8 Jun 2020 19:02:00 -0400
-Message-Id: <20200608230607.3361041-27-sashal@kernel.org>
+Cc:     Ard Biesheuvel <ardb@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Peter Collingbourne <pcc@google.com>,
+        Sami Tolvanen <samitolvanen@google.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Fangrui Song <maskray@google.com>,
+        Sasha Levin <sashal@kernel.org>, linux-efi@vger.kernel.org,
+        clang-built-linux@googlegroups.com
+Subject: [PATCH AUTOSEL 5.7 030/274] efi/libstub/x86: Work around LLVM ELF quirk build regression
+Date:   Mon,  8 Jun 2020 19:02:03 -0400
+Message-Id: <20200608230607.3361041-30-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608230607.3361041-1-sashal@kernel.org>
 References: <20200608230607.3361041-1-sashal@kernel.org>
@@ -44,52 +48,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Huaixin Chang <changhuaixin@linux.alibaba.com>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-[ Upstream commit 5a6d6a6ccb5f48ca8cf7c6d64ff83fd9c7999390 ]
+[ Upstream commit f77767ed5f4d398b29119563155e4ece2dfeee13 ]
 
-In order to prevent possible hardlockup of sched_cfs_period_timer()
-loop, loop count is introduced to denote whether to scale quota and
-period or not. However, scale is done between forwarding period timer
-and refilling cfs bandwidth runtime, which means that period timer is
-forwarded with old "period" while runtime is refilled with scaled
-"quota".
+When building the x86 EFI stub with Clang, the libstub Makefile rules
+that manipulate the ELF object files may throw an error like:
 
-Move do_sched_cfs_period_timer() before scaling to solve this.
+    STUBCPY drivers/firmware/efi/libstub/efi-stub-helper.stub.o
+  strip: drivers/firmware/efi/libstub/efi-stub-helper.stub.o: Failed to find link section for section 10
+  objcopy: drivers/firmware/efi/libstub/efi-stub-helper.stub.o: Failed to find link section for section 10
 
-Fixes: 2e8e19226398 ("sched/fair: Limit sched_cfs_period_timer() loop to avoid hard lockup")
-Signed-off-by: Huaixin Chang <changhuaixin@linux.alibaba.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Ben Segall <bsegall@google.com>
-Reviewed-by: Phil Auld <pauld@redhat.com>
-Link: https://lkml.kernel.org/r/20200420024421.22442-3-changhuaixin@linux.alibaba.com
+This is the result of a LLVM feature [0] where symbol references are
+stored in a LLVM specific .llvm_addrsig section in a non-transparent way,
+causing generic ELF tools such as strip or objcopy to choke on them.
+
+So force the compiler not to emit these sections, by passing the
+appropriate command line option.
+
+[0] https://sourceware.org/bugzilla/show_bug.cgi?id=23817
+
+Cc: Nick Desaulniers <ndesaulniers@google.com>
+Cc: Peter Collingbourne <pcc@google.com>
+Cc: Sami Tolvanen <samitolvanen@google.com>
+Reported-by: Arnd Bergmann <arnd@arndb.de>
+Suggested-by: Fangrui Song <maskray@google.com>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/fair.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/firmware/efi/libstub/Makefile | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index da3e5b54715b..2ae7e30ccb33 100644
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -5170,6 +5170,8 @@ static enum hrtimer_restart sched_cfs_period_timer(struct hrtimer *timer)
- 		if (!overrun)
- 			break;
+diff --git a/drivers/firmware/efi/libstub/Makefile b/drivers/firmware/efi/libstub/Makefile
+index 094eabdecfe6..d85016553f14 100644
+--- a/drivers/firmware/efi/libstub/Makefile
++++ b/drivers/firmware/efi/libstub/Makefile
+@@ -30,6 +30,7 @@ KBUILD_CFLAGS			:= $(cflags-y) -DDISABLE_BRANCH_PROFILING \
+ 				   -D__NO_FORTIFY \
+ 				   $(call cc-option,-ffreestanding) \
+ 				   $(call cc-option,-fno-stack-protector) \
++				   $(call cc-option,-fno-addrsig) \
+ 				   -D__DISABLE_EXPORTS
  
-+		idle = do_sched_cfs_period_timer(cfs_b, overrun, flags);
-+
- 		if (++count > 3) {
- 			u64 new, old = ktime_to_ns(cfs_b->period);
- 
-@@ -5199,8 +5201,6 @@ static enum hrtimer_restart sched_cfs_period_timer(struct hrtimer *timer)
- 			/* reset count so we don't come right back in here */
- 			count = 0;
- 		}
--
--		idle = do_sched_cfs_period_timer(cfs_b, overrun, flags);
- 	}
- 	if (idle)
- 		cfs_b->period_active = 0;
+ GCOV_PROFILE			:= n
 -- 
 2.25.1
 
