@@ -2,127 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ACB361F20AE
-	for <lists+stable@lfdr.de>; Mon,  8 Jun 2020 22:30:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED2F91F20C2
+	for <lists+stable@lfdr.de>; Mon,  8 Jun 2020 22:38:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726730AbgFHU35 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 16:29:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41690 "EHLO
+        id S1726743AbgFHUia (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 16:38:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43036 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726725AbgFHU34 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 8 Jun 2020 16:29:56 -0400
-Received: from mail-pl1-x642.google.com (mail-pl1-x642.google.com [IPv6:2607:f8b0:4864:20::642])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A048EC08C5C3
-        for <stable@vger.kernel.org>; Mon,  8 Jun 2020 13:29:56 -0700 (PDT)
-Received: by mail-pl1-x642.google.com with SMTP id y17so7102426plb.8
-        for <stable@vger.kernel.org>; Mon, 08 Jun 2020 13:29:56 -0700 (PDT)
+        with ESMTP id S1726427AbgFHUi3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 8 Jun 2020 16:38:29 -0400
+Received: from mail-yb1-xb49.google.com (mail-yb1-xb49.google.com [IPv6:2607:f8b0:4864:20::b49])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4350C08C5C2
+        for <stable@vger.kernel.org>; Mon,  8 Jun 2020 13:38:28 -0700 (PDT)
+Received: by mail-yb1-xb49.google.com with SMTP id e192so22553473ybf.17
+        for <stable@vger.kernel.org>; Mon, 08 Jun 2020 13:38:28 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+        h=date:in-reply-to:message-id:mime-version:references:subject:from:to
          :cc;
-        bh=9/ePEPr3ygUN4g38F3++3TkPRxfaceUs+kBlSlUSKY0=;
-        b=pw8Bxdhl9XS8tPgtRzulSMnEvJeKhw67A+rrpfiRgoNRVcVxkndGIyj1Htofn7jVH4
-         QQfC8wwV1c2hsbd3F+BArgJJLlVJygelysnZp9v8OWukz4LhpZm+mPNjLH12Rd6OrYqv
-         FEepyuJwLd31BVubTZVtn1FwTiI9AReTM8JynaA0xsEGX3ndHt2r47Zqeq30tgQZ8wVC
-         8g6XsZLQuN3A2UBO1Vc4xRfN66xu2jdQFy7ZOSpEIlWqwg+LIA2MCYx82el77wcfvMaA
-         K7z7TSrp13wbs0s5jkpBtBoquIhBmNnU+rdDHrJolRI2C6P7l78M4Jbr0MihSflNPFXb
-         +zfw==
+        bh=5otuoY2gGErOy9A+cbCl1OR8KmTp9iNB+S30IArJGxY=;
+        b=KYzOYiQt3FGzO24Ji/cgJDS2qf8jKUBMSw0hou1XPe1iZ0NlVNuyLLK6BVkY7wpIEr
+         4nju/eU6yQqj6iQg3Pj88h6aC9XpeUhO6aRvg/Z3EHx1d3uJqRlPI36O1665sP+Riv3V
+         ORNQ/AVH79J0kEBSAxKrGpHIofF7rH4KVneMUC+7Lz8w5qRoCdxfnJ7Bs5IV5yMtTbtq
+         +z/X8TVEvqXJL+EzAMEnLS03+TpJtP2O5tmH70OLnKM6p5Fv0DS2LhNfQRWuO3vIAsHd
+         VrTGN6E7yLxjULQgMxXdaUowGrlPR4ev7g6d3XZ4mLcwIUCfXE4ic5pRxQymDSQFJ4Ja
+         MnZQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=9/ePEPr3ygUN4g38F3++3TkPRxfaceUs+kBlSlUSKY0=;
-        b=ShqlU1deNdcIK48yxpZLIt2vIZ2jYgCVFSD5lTVpZOc3GuO7r7xEdFMbzxWVspNvO+
-         naaDuRhZWWcEaFTJyutmsXgB0arpT1QubbhnSItlbRKG7KswluLmcGumu0ENQspdyanU
-         zMAQCwKw1dugQOl68tjHKPDHNXVKrEQ4qWI2Kjy3uBGG4HRlwtpUS6hLZsdV2dnq+ehl
-         8PYgtQVOD6uGCaGLIzAV/C3lETIZV1Mji79DN8czQbOSAD76hiD8dc80RxuIEsa2UQP7
-         YeCG9LWxLSzyvJm+rMsF4ZKXDTnDsJtmKPKWhNf1AggxHSnehJ6poOq2giWEXQWIw6ri
-         ADsQ==
-X-Gm-Message-State: AOAM532r3tXqV2vqUAiRzpzJhRfGQH31kqaMHpsOFoeQHUcg/a5eb5kY
-        eHjn6pcP1yMHfB4MGU14DTvadi5QNnxKyRusa6Y+yQ==
-X-Google-Smtp-Source: ABdhPJxqTvjFFkKCm0i/uL4/XPDo2bwuLtgj0Uxawq6E2pFoZqBvslwKDi6qgeiJF1A8ll3duqQhBNh0BQd5R/EezHw=
-X-Received: by 2002:a17:90a:e2c4:: with SMTP id fr4mr1046413pjb.32.1591648195517;
- Mon, 08 Jun 2020 13:29:55 -0700 (PDT)
-MIME-Version: 1.0
-References: <CAMj1kXErFuvOoG=DB6sz5HBvDuHDiKwWD8uOyLuxaX-u8-+dbA@mail.gmail.com>
- <20200601231805.207441-1-ndesaulniers@google.com> <BYAPR11MB30969737340044437013BF44F08B0@BYAPR11MB3096.namprd11.prod.outlook.com>
- <CAKwvOdmsCmPFiDOq7AYUyEx=60B=qo8u9yhnJDQ6nd6Ew7xDkQ@mail.gmail.com> <20200608145150.GA7418@willie-the-truck>
-In-Reply-To: <20200608145150.GA7418@willie-the-truck>
+        h=x-gm-message-state:date:in-reply-to:message-id:mime-version
+         :references:subject:from:to:cc;
+        bh=5otuoY2gGErOy9A+cbCl1OR8KmTp9iNB+S30IArJGxY=;
+        b=HS40In4Los8bq2yKUum55HVxT1EIudLq0OU5kQBTrAvYspQqpQZAjs4GCOsR5kNJVq
+         0Qp2dFxIITM/XJIzShpJz3C3DFdtg33uYXShHr8/vhLmUVTrr1NyovMsCYnSBrXoIP93
+         +HsI6FeVnnuzXG0zP00Ju89XPOgEnbZe40PcSrqeHjrImX14EeQn3kQZPiNKqpemj/dI
+         OQz0PTS6jJa4pqZlLGUHm+KTdCp88xubtlP2Tmk6mTZ/P+pCbNi8rog8cX0UU1GexyIr
+         PkT17NTZOT5tMzDXzg+EFw29JHTnHAXkY7wACOQweuynOiA8zIYBolGh69akViECa4R4
+         QAgQ==
+X-Gm-Message-State: AOAM533jynkhlVkR2VHxj42L1d+fVM/e9eBXVudn+fMCWYjUV3JEjBnI
+        Gx7lciqlRczMx2bp0zq5qw78S7Xk3lhUC2EiMtk=
+X-Google-Smtp-Source: ABdhPJwMCfh6+j1JcOF7Ui/FzLouS0/CmQh3VYSy0Ww5vOQqYGp9/ZKrVXazWyjuLYCs7jqttRbM/Z4w4upIk0lRVbk=
+X-Received: by 2002:a5b:54e:: with SMTP id r14mr956210ybp.93.1591648707480;
+ Mon, 08 Jun 2020 13:38:27 -0700 (PDT)
+Date:   Mon,  8 Jun 2020 13:38:17 -0700
+In-Reply-To: <CAKwvOdnBhHnhUZ9MHgqEQ4nEyzHWUH+DPV-J0KoYyWNEnsDHbg@mail.gmail.com>
+Message-Id: <20200608203818.189423-1-ndesaulniers@google.com>
+Mime-Version: 1.0
+References: <CAKwvOdnBhHnhUZ9MHgqEQ4nEyzHWUH+DPV-J0KoYyWNEnsDHbg@mail.gmail.com>
+X-Mailer: git-send-email 2.27.0.278.ge193c7cf3a9-goog
+Subject: [PATCH v2] arm64: acpi: fix UBSAN warning
 From:   Nick Desaulniers <ndesaulniers@google.com>
-Date:   Mon, 8 Jun 2020 13:29:44 -0700
-Message-ID: <CAKwvOdnBhHnhUZ9MHgqEQ4nEyzHWUH+DPV-J0KoYyWNEnsDHbg@mail.gmail.com>
-Subject: Re: [PATCH] ACPICA: fix UBSAN warning using __builtin_offsetof
 To:     Will Deacon <will@kernel.org>,
-        "Moore, Robert" <robert.moore@intel.com>
-Cc:     "Kaneda, Erik" <erik.kaneda@intel.com>,
-        "Wysocki, Rafael J" <rafael.j.wysocki@intel.com>,
-        Len Brown <lenb@kernel.org>, Ard Biesheuvel <ardb@kernel.org>,
-        "dvyukov@google.com" <dvyukov@google.com>,
-        "glider@google.com" <glider@google.com>,
-        "guohanjun@huawei.com" <guohanjun@huawei.com>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "lorenzo.pieralisi@arm.com" <lorenzo.pieralisi@arm.com>,
-        "mark.rutland@arm.com" <mark.rutland@arm.com>,
-        "pcc@google.com" <pcc@google.com>,
-        "rjw@rjwysocki.net" <rjw@rjwysocki.net>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>,
-        "devel@acpica.org" <devel@acpica.org>
+        Catalin Marinas <catalin.marinas@arm.com>
+Cc:     Nick Desaulniers <ndesaulniers@google.com>, stable@vger.kernel.org,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Enrico Weigelt <info@metux.net>,
+        Allison Randal <allison@lohutok.net>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Jeremy Linton <jeremy.linton@arm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jun 8, 2020 at 7:51 AM Will Deacon <will@kernel.org> wrote:
->
-> Hey Nick,
->
-> On Tue, Jun 02, 2020 at 11:46:31AM -0700, Nick Desaulniers wrote:
-> > On Mon, Jun 1, 2020 at 5:03 PM Kaneda, Erik <erik.kaneda@intel.com> wrote:
-> > > > Will reported UBSAN warnings:
-> > > > UBSAN: null-ptr-deref in drivers/acpi/acpica/tbfadt.c:459:37
-> > > > UBSAN: null-ptr-deref in arch/arm64/kernel/smp.c:596:6
-> > > >
-> > > > Looks like the emulated offsetof macro ACPI_OFFSET is causing these. We
-> > > > can avoid this by using the compiler builtin, __builtin_offsetof.
-> > >
-> > > I'll take a look at this tomorrow
-> > > >
-> > > > The non-kernel runtime of UBSAN would print:
-> > > > runtime error: member access within null pointer of type for this macro.
-> > >
-> > > actypes.h is owned by ACPICA so we typically do not allow compiler-specific
-> > > extensions because the code is intended to be compiled using the C99 standard
-> > > without compiler extensions. We could allow this sort of thing in a Linux-specific
-> > > header file like include/acpi/platform/aclinux.h but I'll take a look at the error as well..
-> >
-> > If I'm not allowed to touch that header, it looks like I can include
-> > <linux/stddef.h> (rather than my host's <stddef.h>) to get a
-> > definition of `offsetof` thats implemented in terms of
-> > `__builtin_offsetof`.  I should be able to use that to replace uses of
-> > ACPI_OFFSET.  Are any of these off limits?
->
-> It's not so much about not being allowed to touch the header, but rather
-> that the kernel imports the code from a different project:
->
-> https://acpica.org/community
->
-> > $ grep -rn ACPI_OFFSET
-> > arch/arm64/include/asm/acpi.h:34:#define ACPI_MADT_GICC_MIN_LENGTH
-> > ACPI_OFFSET(  \
-> > arch/arm64/include/asm/acpi.h:41:#define ACPI_MADT_GICC_SPE
-> > (ACPI_OFFSET(struct acpi_madt_generic_interrupt, \
->
-> I'm happy to take patches to the stuff under arch/arm64/, fwiw.
+Will reported a UBSAN warning:
 
-Not really sure how to untangle this.  Those two cases under
-arch/arm64/ are straightforward to fix:
-```
-diff --git a/arch/arm64/include/asm/acpi.h
-b/arch/arm64/include/asm/acpi.h
+UBSAN: null-ptr-deref in arch/arm64/kernel/smp.c:596:6
+member access within null pointer of type 'struct acpi_madt_generic_interrupt'
+CPU: 0 PID: 0 Comm: swapper Not tainted 5.7.0-rc6-00124-g96bc42ff0a82 #1
+Call trace:
+ dump_backtrace+0x0/0x384
+ show_stack+0x28/0x38
+ dump_stack+0xec/0x174
+ handle_null_ptr_deref+0x134/0x174
+ __ubsan_handle_type_mismatch_v1+0x84/0xa4
+ acpi_parse_gic_cpu_interface+0x60/0xe8
+ acpi_parse_entries_array+0x288/0x498
+ acpi_table_parse_entries_array+0x178/0x1b4
+ acpi_table_parse_madt+0xa4/0x110
+ acpi_parse_and_init_cpus+0x38/0x100
+ smp_init_cpus+0x74/0x258
+ setup_arch+0x350/0x3ec
+ start_kernel+0x98/0x6f4
+
+This is from the use of the ACPI_OFFSET in
+arch/arm64/include/asm/acpi.h. Replace its use with offsetof from
+include/linux/stddef.h which should implement the same logic using
+__builtin_offsetof, so that UBSAN wont warn.
+
+Link: https://lore.kernel.org/lkml/20200521100952.GA5360@willie-the-truck/
+Cc: stable@vger.kernel.org
+Reported-by: Will Deacon <will@kernel.org>
+Suggested-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+---
+Changes V1 -> V2:
+* Just fix one of the two warnings, specific to arm64.
+* Put warning in commit message.
+
+ arch/arm64/include/asm/acpi.h | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm64/include/asm/acpi.h b/arch/arm64/include/asm/acpi.h
 index b263e239cb59..a45366c3909b 100644
 --- a/arch/arm64/include/asm/acpi.h
 +++ b/arch/arm64/include/asm/acpi.h
@@ -131,7 +114,7 @@ index b263e239cb59..a45366c3909b 100644
  #include <linux/memblock.h>
  #include <linux/psci.h>
 +#include <linux/stddef.h>
-
+ 
  #include <asm/cputype.h>
  #include <asm/io.h>
 @@ -31,14 +32,14 @@
@@ -140,51 +123,17 @@ index b263e239cb59..a45366c3909b 100644
   */
 -#define ACPI_MADT_GICC_MIN_LENGTH   ACPI_OFFSET(  \
 +#define ACPI_MADT_GICC_MIN_LENGTH   offsetof(  \
-        struct acpi_madt_generic_interrupt, efficiency_class)
-
- #define BAD_MADT_GICC_ENTRY(entry, end)
-         \
-        (!(entry) || (entry)->header.length < ACPI_MADT_GICC_MIN_LENGTH || \
-        (unsigned long)(entry) + (entry)->header.length > (end))
-
+ 	struct acpi_madt_generic_interrupt, efficiency_class)
+ 
+ #define BAD_MADT_GICC_ENTRY(entry, end)					\
+ 	(!(entry) || (entry)->header.length < ACPI_MADT_GICC_MIN_LENGTH || \
+ 	(unsigned long)(entry) + (entry)->header.length > (end))
+ 
 -#define ACPI_MADT_GICC_SPE  (ACPI_OFFSET(struct acpi_madt_generic_interrupt, \
 +#define ACPI_MADT_GICC_SPE  (offsetof(struct acpi_madt_generic_interrupt, \
-        spe_interrupt) + sizeof(u16))
-
+ 	spe_interrupt) + sizeof(u16))
+ 
  /* Basic configuration for ACPI */
-```
-
-But for one of the warnings you reported, as an example:
-UBSAN: null-ptr-deref in drivers/acpi/acpica/tbfadt.c:459:37
-
-```
-$ ag ACPI_FADT_V2_SIZE
-include/acpi/actbl.h
-394:#define ACPI_FADT_V2_SIZE       (u32) (ACPI_FADT_OFFSET
-(minor_revision) + 1)
-
-drivers/acpi/acpica/tbfadt.c
-459:    if (acpi_gbl_FADT.header.length <= ACPI_FADT_V2_SIZE) {
-
-$ ag ACPI_FADT_OFFSET
-...
-include/acpi/actbl.h
-376:#define ACPI_FADT_OFFSET(f)             (u16) ACPI_OFFSET (struct
-acpi_table_fadt, f)
-...
-```
-So the use of ACPI_FADT_V2_SIZE in drivers/acpi/acpica/tbfadt.c is
-triggering one of the warnings.  ACPI_FADT_V2_SIZE is defined in terms
-of ACPI_FADT_OFFSET which is defined in terms of ACPI_OFFSET in
-include/acpi/actbl.h.  From the link you posted, include/acpi/actbl.h
-is from the project under source/include/.
-
-Further, drivers/acpi/acpica/tbfadt.c seems to also be from the
-upstream project under source/components/tables/tbfadt.c.
-
-Regardless, the second of the two warnings is definitely fixed by my
-above diff, so let me rephrase the previous commit message with that
-diff and resend.
 -- 
-Thanks,
-~Nick Desaulniers
+2.27.0.278.ge193c7cf3a9-goog
+
