@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 97A501F27FE
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:55:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D373E1F2810
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:55:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730294AbgFHXZq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 19:25:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52506 "EHLO mail.kernel.org"
+        id S1732490AbgFHXs0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 19:48:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52540 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731519AbgFHXZo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:25:44 -0400
+        id S1731332AbgFHXZp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:25:45 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0AA7220801;
-        Mon,  8 Jun 2020 23:25:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 36B6E20812;
+        Mon,  8 Jun 2020 23:25:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658743;
-        bh=Q1MnH9RZEWmo/MLTr/txxuhrn1OC1QQbfLP0JeFzoCs=;
+        s=default; t=1591658745;
+        bh=gurwdtib4L861NscFcX0tABfxzET9woljcbtDY2AjP4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K9UrIuhOEqFRmywn8q9fpAxEWVe3BivcI1a27OMgfeVwgefb3/fI3zM2IqKlCzXmS
-         yToHalQn3lw6WOPweILyYJW8pKaX+2BVflmiNgYFbIg/HN8S5T+UI/1IHMSeDWicwZ
-         wI+gj1lZBihPP6BxLY+iarc6qnFnv3fREtD8G5Vg=
+        b=UJjd5vCRnVZM8opQB2aMIgc9oDwPrwADeQTlIw5NxVWN7kv6cJ6i1T2kI7C1Jilb9
+         4ivg0Z1y4elic79nDzXq9BPWGCEfHGY7lu3azYDlNacsNLwvKEFCmS467bxliodRmY
+         KqcmiRqh/fLDU0FVFsM1sgauvwfi1a3j73fN7TK0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Colin Ian King <colin.king@canonical.com>,
-        Sean Young <sean@mess.org>,
+Cc:     Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 30/72] media: dvb: return -EREMOTEIO on i2c transfer failure.
-Date:   Mon,  8 Jun 2020 19:24:18 -0400
-Message-Id: <20200608232500.3369581-30-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org,
+        linux-renesas-soc@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 31/72] media: platform: fcp: Set appropriate DMA parameters
+Date:   Mon,  8 Jun 2020 19:24:19 -0400
+Message-Id: <20200608232500.3369581-31-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608232500.3369581-1-sashal@kernel.org>
 References: <20200608232500.3369581-1-sashal@kernel.org>
@@ -44,41 +46,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
 
-[ Upstream commit 96f3a9392799dd0f6472648a7366622ffd0989f3 ]
+[ Upstream commit dd844fb8e50b12e65bbdc5746c9876c6735500df ]
 
-Currently when i2c transfers fail the error return -EREMOTEIO
-is assigned to err but then later overwritten when the tuner
-attach call is made.  Fix this by returning early with the
-error return code -EREMOTEIO on i2c transfer failure errors.
+Enabling CONFIG_DMA_API_DEBUG=y and CONFIG_DMA_API_DEBUG_SG=y will
+enable extra validation on DMA operations ensuring that the size
+restraints are met.
 
-If the transfer fails, an uninitialized value will be read from b2.
+When using the FCP in conjunction with the VSP1/DU, and display frames,
+the size of the DMA operations is larger than the default maximum
+segment size reported by the DMA core (64K). With the DMA debug enabled,
+this produces a warning such as the following:
 
-Addresses-Coverity: ("Unused value")
+"DMA-API: rcar-fcp fea27000.fcp: mapping sg segment longer than device
+claims to support [len=3145728] [max=65536]"
 
-Fixes: fbfee8684ff2 ("V4L/DVB (5651): Dibusb-mb: convert pll handling to properly use dvb-pll")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Sean Young <sean@mess.org>
+We have no specific limitation on the segment size which isn't already
+handled by the VSP1/DU which actually handles the DMA allcoations and
+buffer management, so define a maximum segment size of up to 4GB (a 32
+bit mask).
+
+Reported-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Fixes: 7b49235e83b2 ("[media] v4l: Add Renesas R-Car FCP driver")
+Signed-off-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Tested-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/dvb-usb/dibusb-mb.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/platform/rcar-fcp.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/media/usb/dvb-usb/dibusb-mb.c b/drivers/media/usb/dvb-usb/dibusb-mb.c
-index a0057641cc86..c55180912c3a 100644
---- a/drivers/media/usb/dvb-usb/dibusb-mb.c
-+++ b/drivers/media/usb/dvb-usb/dibusb-mb.c
-@@ -84,7 +84,7 @@ static int dibusb_tuner_probe_and_attach(struct dvb_usb_adapter *adap)
+diff --git a/drivers/media/platform/rcar-fcp.c b/drivers/media/platform/rcar-fcp.c
+index 2988031d285d..0047d144c932 100644
+--- a/drivers/media/platform/rcar-fcp.c
++++ b/drivers/media/platform/rcar-fcp.c
+@@ -12,6 +12,7 @@
+  */
  
- 	if (i2c_transfer(&adap->dev->i2c_adap, msg, 2) != 2) {
- 		err("tuner i2c write failed.");
--		ret = -EREMOTEIO;
-+		return -EREMOTEIO;
- 	}
+ #include <linux/device.h>
++#include <linux/dma-mapping.h>
+ #include <linux/list.h>
+ #include <linux/module.h>
+ #include <linux/mutex.h>
+@@ -24,6 +25,7 @@
+ struct rcar_fcp_device {
+ 	struct list_head list;
+ 	struct device *dev;
++	struct device_dma_parameters dma_parms;
+ };
  
- 	if (adap->fe_adap[0].fe->ops.i2c_gate_ctrl)
+ static LIST_HEAD(fcp_devices);
+@@ -139,6 +141,9 @@ static int rcar_fcp_probe(struct platform_device *pdev)
+ 
+ 	fcp->dev = &pdev->dev;
+ 
++	fcp->dev->dma_parms = &fcp->dma_parms;
++	dma_set_max_seg_size(fcp->dev, DMA_BIT_MASK(32));
++
+ 	pm_runtime_enable(&pdev->dev);
+ 
+ 	mutex_lock(&fcp_lock);
 -- 
 2.25.1
 
