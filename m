@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E55B1F3179
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 03:10:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A5B401F3175
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 03:10:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727773AbgFIBJe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 21:09:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49504 "EHLO mail.kernel.org"
+        id S1727018AbgFIBJ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 21:09:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49546 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726981AbgFHXG0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:06:26 -0400
+        id S1726987AbgFHXG1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:06:27 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B2C772076C;
-        Mon,  8 Jun 2020 23:06:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C30892078B;
+        Mon,  8 Jun 2020 23:06:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591657585;
-        bh=PURkuQjDd4uIDSMLujFEZ60c931LKLsJlFRXqNsQ6kw=;
+        s=default; t=1591657586;
+        bh=QvvVCvpXuafBpUcquVWzRQSZlm/2kfM6wsz5kMmPuOY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0KKKP/EfVcoougZuQJA6+xLrYjf9GhGybSTAfw/FbskRW7izHTD+iZHnvodJKy3BE
-         VpN1ehWSzE6DbOH2K73Bcnu7xs5/c+Ttg5fVBblh7DXVLqwCgfItDOZq9xDt2/8SKs
-         x/RgPQTgpXkzMEojPyXDtn/t5bXRHroNYdaktLRs=
+        b=VlX2/C5tn7WpAQ3rnSVSb0eQFLlTpTjQPiwpTLt19c7sFwXwPljqmg4ZA+hhz6RCo
+         vuxPdWJOYNrElV9pLeixR4IezgltNqwkB6KlFdQ7HAZQRe7/gfteQH0oNcOcLDYoeV
+         hk6hHBDk75V/3ZVarK2z/VC7nwCzDvsJAIx3anhw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.7 014/274] media: v4l2-ctrls: v4l2_ctrl_g/s_ctrl*(): don't continue when WARN_ON
-Date:   Mon,  8 Jun 2020 19:01:47 -0400
-Message-Id: <20200608230607.3361041-14-sashal@kernel.org>
+Cc:     Julien Thierry <jthierry@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Miroslav Benes <mbenes@suse.cz>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.7 015/274] objtool: Ignore empty alternatives
+Date:   Mon,  8 Jun 2020 19:01:48 -0400
+Message-Id: <20200608230607.3361041-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608230607.3361041-1-sashal@kernel.org>
 References: <20200608230607.3361041-1-sashal@kernel.org>
@@ -43,87 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+From: Julien Thierry <jthierry@redhat.com>
 
-[ Upstream commit 7c3bae3f430af6b4fcbdb7272e191e266fd94b45 ]
+[ Upstream commit 7170cf47d16f1ba29eca07fd818870b7af0a93a5 ]
 
-If the v4l2_ctrl_g_ctrl*() or __v4l2_ctrl_s_ctrl*() functions
-are called for the wrong control type then they call WARN_ON
-since that is a driver error. But they still continue, potentially
-overwriting data. Change this to return an error (s_ctrl) or 0
-(g_ctrl), just to be safe.
+The .alternatives section can contain entries with no original
+instructions. Objtool will currently crash when handling such an entry.
 
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Just skip that entry, but still give a warning to discourage useless
+entries.
+
+Signed-off-by: Julien Thierry <jthierry@redhat.com>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Miroslav Benes <mbenes@suse.cz>
+Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/v4l2-core/v4l2-ctrls.c | 18 ++++++++++++------
- 1 file changed, 12 insertions(+), 6 deletions(-)
+ tools/objtool/check.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/media/v4l2-core/v4l2-ctrls.c b/drivers/media/v4l2-core/v4l2-ctrls.c
-index 93d33d1db4e8..452edd06d67d 100644
---- a/drivers/media/v4l2-core/v4l2-ctrls.c
-+++ b/drivers/media/v4l2-core/v4l2-ctrls.c
-@@ -3794,7 +3794,8 @@ s32 v4l2_ctrl_g_ctrl(struct v4l2_ctrl *ctrl)
- 	struct v4l2_ext_control c;
+diff --git a/tools/objtool/check.c b/tools/objtool/check.c
+index 3c6da70e6084..5a867a469ba5 100644
+--- a/tools/objtool/check.c
++++ b/tools/objtool/check.c
+@@ -916,6 +916,12 @@ static int add_special_section_alts(struct objtool_file *file)
+ 		}
  
- 	/* It's a driver bug if this happens. */
--	WARN_ON(!ctrl->is_int);
-+	if (WARN_ON(!ctrl->is_int))
-+		return 0;
- 	c.value = 0;
- 	get_ctrl(ctrl, &c);
- 	return c.value;
-@@ -3806,7 +3807,8 @@ s64 v4l2_ctrl_g_ctrl_int64(struct v4l2_ctrl *ctrl)
- 	struct v4l2_ext_control c;
- 
- 	/* It's a driver bug if this happens. */
--	WARN_ON(ctrl->is_ptr || ctrl->type != V4L2_CTRL_TYPE_INTEGER64);
-+	if (WARN_ON(ctrl->is_ptr || ctrl->type != V4L2_CTRL_TYPE_INTEGER64))
-+		return 0;
- 	c.value64 = 0;
- 	get_ctrl(ctrl, &c);
- 	return c.value64;
-@@ -4215,7 +4217,8 @@ int __v4l2_ctrl_s_ctrl(struct v4l2_ctrl *ctrl, s32 val)
- 	lockdep_assert_held(ctrl->handler->lock);
- 
- 	/* It's a driver bug if this happens. */
--	WARN_ON(!ctrl->is_int);
-+	if (WARN_ON(!ctrl->is_int))
-+		return -EINVAL;
- 	ctrl->val = val;
- 	return set_ctrl(NULL, ctrl, 0);
- }
-@@ -4226,7 +4229,8 @@ int __v4l2_ctrl_s_ctrl_int64(struct v4l2_ctrl *ctrl, s64 val)
- 	lockdep_assert_held(ctrl->handler->lock);
- 
- 	/* It's a driver bug if this happens. */
--	WARN_ON(ctrl->is_ptr || ctrl->type != V4L2_CTRL_TYPE_INTEGER64);
-+	if (WARN_ON(ctrl->is_ptr || ctrl->type != V4L2_CTRL_TYPE_INTEGER64))
-+		return -EINVAL;
- 	*ctrl->p_new.p_s64 = val;
- 	return set_ctrl(NULL, ctrl, 0);
- }
-@@ -4237,7 +4241,8 @@ int __v4l2_ctrl_s_ctrl_string(struct v4l2_ctrl *ctrl, const char *s)
- 	lockdep_assert_held(ctrl->handler->lock);
- 
- 	/* It's a driver bug if this happens. */
--	WARN_ON(ctrl->type != V4L2_CTRL_TYPE_STRING);
-+	if (WARN_ON(ctrl->type != V4L2_CTRL_TYPE_STRING))
-+		return -EINVAL;
- 	strscpy(ctrl->p_new.p_char, s, ctrl->maximum + 1);
- 	return set_ctrl(NULL, ctrl, 0);
- }
-@@ -4249,7 +4254,8 @@ int __v4l2_ctrl_s_ctrl_area(struct v4l2_ctrl *ctrl,
- 	lockdep_assert_held(ctrl->handler->lock);
- 
- 	/* It's a driver bug if this happens. */
--	WARN_ON(ctrl->type != V4L2_CTRL_TYPE_AREA);
-+	if (WARN_ON(ctrl->type != V4L2_CTRL_TYPE_AREA))
-+		return -EINVAL;
- 	*ctrl->p_new.p_area = *area;
- 	return set_ctrl(NULL, ctrl, 0);
- }
+ 		if (special_alt->group) {
++			if (!special_alt->orig_len) {
++				WARN_FUNC("empty alternative entry",
++					  orig_insn->sec, orig_insn->offset);
++				continue;
++			}
++
+ 			ret = handle_group_alt(file, special_alt, orig_insn,
+ 					       &new_insn);
+ 			if (ret)
 -- 
 2.25.1
 
