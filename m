@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B2E51F2BAA
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:18:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EB821F2BA9
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:18:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729954AbgFHXSq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 19:18:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41134 "EHLO mail.kernel.org"
+        id S1729795AbgFHXSr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 19:18:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41152 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729186AbgFHXSo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:18:44 -0400
+        id S1728395AbgFHXSp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:18:45 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1566A20842;
-        Mon,  8 Jun 2020 23:18:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2362620823;
+        Mon,  8 Jun 2020 23:18:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658324;
-        bh=yelJ21b3v0Rc7rYz3Zzu5h2wxtT86ub0XQvVeh7D2zE=;
+        s=default; t=1591658325;
+        bh=sn8Keq0WlrH2oMOMaqzuef1suUNEu90hJWl2+RdW0To=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=13+czhf0MrDvFxljm2he3+ntQM/pIT958vXsn/NOHq9yqrPAfmmbnPWTm3anPzZNE
-         XklqtRQgCy9wsXNrVQsfKTDnKG3/rXnnibhZ59aA/iHJQvEhDrKnAkLbBHJDstQi9W
-         eaZeY0DTJN1k4zKylzxAyFEZ2VSot2YAuCU5Ggz0=
+        b=Lz+X0UzdbPgLWiR3vCKPD2v4+VAoYznhAOGMECW6TDFv/2wzfxorCDyr2Dd4mHeud
+         2tjkXrMsNnKKv9IusGEKjJtky1ia86xR72srLGpN1elGvN/QlWwHViMXnSX83g+RQ0
+         mPxd5Vo9pft9ZDIKJuIzArBwQ+/LEJNOCwUSz1aE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kailang Yang <kailang@realtek.com>, Takashi Iwai <tiwai@suse.de>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.6 324/606] ALSA: hda/realtek - Add new codec supported for ALC287
-Date:   Mon,  8 Jun 2020 19:07:29 -0400
-Message-Id: <20200608231211.3363633-324-sashal@kernel.org>
+Cc:     Jerry Lee <leisurelysw24@gmail.com>,
+        Ilya Dryomov <idryomov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, ceph-devel@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.6 325/606] libceph: ignore pool overlay and cache logic on redirects
+Date:   Mon,  8 Jun 2020 19:07:30 -0400
+Message-Id: <20200608231211.3363633-325-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608231211.3363633-1-sashal@kernel.org>
 References: <20200608231211.3363633-1-sashal@kernel.org>
@@ -42,49 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kailang Yang <kailang@realtek.com>
+From: Jerry Lee <leisurelysw24@gmail.com>
 
-[ Upstream commit 630e36126e420e1756378b3427b42711ce0b9ddd ]
+[ Upstream commit 890bd0f8997ae6ac0a367dd5146154a3963306dd ]
 
-Enable new codec supported for ALC287.
+OSD client should ignore cache/overlay flag if got redirect reply.
+Otherwise, the client hangs when the cache tier is in forward mode.
 
-Signed-off-by: Kailang Yang <kailang@realtek.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/dcf5ce5507104d0589a917cbb71dc3c6@realtek.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+[ idryomov: Redirects are effectively deprecated and no longer
+  used or tested.  The original tiering modes based on redirects
+  are inherently flawed because redirects can race and reorder,
+  potentially resulting in data corruption.  The new proxy and
+  readproxy tiering modes should be used instead of forward and
+  readforward.  Still marking for stable as obviously correct,
+  though. ]
+
+Cc: stable@vger.kernel.org
+URL: https://tracker.ceph.com/issues/23296
+URL: https://tracker.ceph.com/issues/36406
+Signed-off-by: Jerry Lee <leisurelysw24@gmail.com>
+Reviewed-by: Ilya Dryomov <idryomov@gmail.com>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_realtek.c | 3 +++
- 1 file changed, 3 insertions(+)
+ net/ceph/osd_client.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
-index 92c6e58c3862..e62d58872b6e 100644
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -384,6 +384,7 @@ static void alc_fill_eapd_coef(struct hda_codec *codec)
- 	case 0x10ec0282:
- 	case 0x10ec0283:
- 	case 0x10ec0286:
-+	case 0x10ec0287:
- 	case 0x10ec0288:
- 	case 0x10ec0285:
- 	case 0x10ec0298:
-@@ -8292,6 +8293,7 @@ static int patch_alc269(struct hda_codec *codec)
- 	case 0x10ec0215:
- 	case 0x10ec0245:
- 	case 0x10ec0285:
-+	case 0x10ec0287:
- 	case 0x10ec0289:
- 		spec->codec_variant = ALC269_TYPE_ALC215;
- 		spec->shutup = alc225_shutup;
-@@ -9570,6 +9572,7 @@ static const struct hda_device_id snd_hda_id_realtek[] = {
- 	HDA_CODEC_ENTRY(0x10ec0284, "ALC284", patch_alc269),
- 	HDA_CODEC_ENTRY(0x10ec0285, "ALC285", patch_alc269),
- 	HDA_CODEC_ENTRY(0x10ec0286, "ALC286", patch_alc269),
-+	HDA_CODEC_ENTRY(0x10ec0287, "ALC287", patch_alc269),
- 	HDA_CODEC_ENTRY(0x10ec0288, "ALC288", patch_alc269),
- 	HDA_CODEC_ENTRY(0x10ec0289, "ALC289", patch_alc269),
- 	HDA_CODEC_ENTRY(0x10ec0290, "ALC290", patch_alc269),
+diff --git a/net/ceph/osd_client.c b/net/ceph/osd_client.c
+index af868d3923b9..834019dbc6b1 100644
+--- a/net/ceph/osd_client.c
++++ b/net/ceph/osd_client.c
+@@ -3652,7 +3652,9 @@ static void handle_reply(struct ceph_osd *osd, struct ceph_msg *msg)
+ 		 * supported.
+ 		 */
+ 		req->r_t.target_oloc.pool = m.redirect.oloc.pool;
+-		req->r_flags |= CEPH_OSD_FLAG_REDIRECTED;
++		req->r_flags |= CEPH_OSD_FLAG_REDIRECTED |
++				CEPH_OSD_FLAG_IGNORE_OVERLAY |
++				CEPH_OSD_FLAG_IGNORE_CACHE;
+ 		req->r_tid = 0;
+ 		__submit_request(req, false);
+ 		goto out_unlock_osdc;
 -- 
 2.25.1
 
