@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BD111F295B
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:05:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FF821F2925
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:04:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732596AbgFHX65 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 19:58:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48082 "EHLO mail.kernel.org"
+        id S1729070AbgFHXXI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 19:23:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48132 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730718AbgFHXXE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:23:04 -0400
+        id S1731433AbgFHXXG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:23:06 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3D69C2086A;
-        Mon,  8 Jun 2020 23:23:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 47E93208A7;
+        Mon,  8 Jun 2020 23:23:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658583;
-        bh=Q2Jr5bwK7AWpm1F1YiVCtAdICbovuPznWwL2R1tA0v8=;
+        s=default; t=1591658585;
+        bh=stJzp+0uDkiYIjALJsrQp9bsVu0wkK33koz/CtwL74o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T6ZPwhjHnUG+HJTAv5VX5exKm4h71SgkAOj/H8Mabw7/UoSW/8dQHoOYbEKOeXFvi
-         KxsS2S7kznvBZKqSnUIVwDJy/dLvsh4BJk4yMo+4ZZh6ZlhIW0j3HM34Dhjd/q2GUU
-         zPp0mwj25SspzSfl2Kg7bQzH9YLzUBQ0zLV7Vavo=
+        b=e9DOwnzxAeV/2TlWNj3IGX7uI+JUgjJmRQqZfJo1pTroYapBZ2vjVZY3uYMrQA6Mq
+         XzQUrO7CXQLxwolFbUxWcqiYzPvu9kHmT1PkYYnCglob9OxZTjm6TlUccB8zh2OOLJ
+         zXjq3s1/Inb95r6iFl3cVxknzsFP+Kq2UiNbEIoI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Serge Semin <Sergey.Semin@baikalelectronics.ru>,
-        Georgy Vlasov <Georgy.Vlasov@baikalelectronics.ru>,
-        Ramil Zaripov <Ramil.Zaripov@baikalelectronics.ru>,
         Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>,
         Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Paul Burton <paulburton@kernel.org>,
         Ralf Baechle <ralf@linux-mips.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Arnd Bergmann <arnd@arndb.de>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Rob Herring <robh+dt@kernel.org>, linux-mips@vger.kernel.org,
-        devicetree@vger.kernel.org, Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 020/106] spi: dw: Enable interrupts in accordance with DMA xfer mode
-Date:   Mon,  8 Jun 2020 19:21:12 -0400
-Message-Id: <20200608232238.3368589-20-sashal@kernel.org>
+        linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 021/106] clocksource: dw_apb_timer: Make CPU-affiliation being optional
+Date:   Mon,  8 Jun 2020 19:21:13 -0400
+Message-Id: <20200608232238.3368589-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608232238.3368589-1-sashal@kernel.org>
 References: <20200608232238.3368589-1-sashal@kernel.org>
@@ -54,66 +54,73 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
 
-[ Upstream commit 43dba9f3f98c2b184a19f856f06fe22817bfd9e0 ]
+[ Upstream commit cee43dbf2ee3f430434e2b66994eff8a1aeda889 ]
 
-It's pointless to track the Tx overrun interrupts if Rx-only SPI
-transfer is issued. Similarly there is no need in handling the Rx
-overrun/underrun interrupts if Tx-only SPI transfer is executed.
-So lets unmask the interrupts only if corresponding SPI
-transactions are implied.
+Currently the DW APB Timer driver binds each clockevent timers to a
+particular CPU. This isn't good for multiple reasons. First of all seeing
+the device is placed on APB bus (which makes it accessible from any CPU
+core), accessible over MMIO and having the DYNIRQ flag set we can be sure
+that manually binding the timer to any CPU just isn't correct. By doing
+so we just set an extra limitation on device usage. This also doesn't
+reflect the device actual capability, since by setting the IRQ affinity
+we can make it virtually local to any CPU. Secondly imagine if you had a
+real CPU-local timer with the same rating and the same CPU-affinity.
+In this case if DW APB timer was registered first, then due to the
+clockevent framework tick-timer selection procedure we'll end up with the
+real CPU-local timer being left unselected for clock-events tracking. But
+on most of the platforms (MIPS/ARM/etc) such timers are normally embedded
+into the CPU core and are accessible with much better performance then
+devices placed on APB. For instance in MIPS architectures there is
+r4k-timer, which is CPU-local, assigned with the same rating, and normally
+its clockevent device is registered after the platform-specific one.
 
-Co-developed-by: Georgy Vlasov <Georgy.Vlasov@baikalelectronics.ru>
-Signed-off-by: Georgy Vlasov <Georgy.Vlasov@baikalelectronics.ru>
+So in order to fix all of these issues let's make the DW APB Timer CPU
+affinity being optional and deactivated by passing a negative CPU id,
+which will effectively set the DW APB clockevent timer cpumask to
+'cpu_possible_mask'.
+
 Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
-Cc: Ramil Zaripov <Ramil.Zaripov@baikalelectronics.ru>
 Cc: Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>
 Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Cc: Paul Burton <paulburton@kernel.org>
 Cc: Ralf Baechle <ralf@linux-mips.org>
+Cc: Alessandro Zummo <a.zummo@towertech.it>
+Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Cc: Rob Herring <robh+dt@kernel.org>
 Cc: linux-mips@vger.kernel.org
+Cc: linux-rtc@vger.kernel.org
 Cc: devicetree@vger.kernel.org
-Link: https://lore.kernel.org/r/20200522000806.7381-3-Sergey.Semin@baikalelectronics.ru
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Link: https://lore.kernel.org/r/20200521204818.25436-5-Sergey.Semin@baikalelectronics.ru
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-dw-mid.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ drivers/clocksource/dw_apb_timer.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/spi/spi-dw-mid.c b/drivers/spi/spi-dw-mid.c
-index f7ec8b98e6db..e1b34ef9a31c 100644
---- a/drivers/spi/spi-dw-mid.c
-+++ b/drivers/spi/spi-dw-mid.c
-@@ -228,19 +228,23 @@ static struct dma_async_tx_descriptor *dw_spi_dma_prepare_rx(struct dw_spi *dws,
- 
- static int mid_spi_dma_setup(struct dw_spi *dws, struct spi_transfer *xfer)
- {
--	u16 dma_ctrl = 0;
-+	u16 imr = 0, dma_ctrl = 0;
- 
- 	dw_writel(dws, DW_SPI_DMARDLR, 0xf);
- 	dw_writel(dws, DW_SPI_DMATDLR, 0x10);
- 
--	if (xfer->tx_buf)
-+	if (xfer->tx_buf) {
- 		dma_ctrl |= SPI_DMA_TDMAE;
--	if (xfer->rx_buf)
-+		imr |= SPI_INT_TXOI;
-+	}
-+	if (xfer->rx_buf) {
- 		dma_ctrl |= SPI_DMA_RDMAE;
-+		imr |= SPI_INT_RXUI | SPI_INT_RXOI;
-+	}
- 	dw_writel(dws, DW_SPI_DMACR, dma_ctrl);
- 
- 	/* Set the interrupt mask */
--	spi_umask_intr(dws, SPI_INT_TXOI | SPI_INT_RXUI | SPI_INT_RXOI);
-+	spi_umask_intr(dws, imr);
- 
- 	dws->transfer_handler = dma_transfer;
- 
+diff --git a/drivers/clocksource/dw_apb_timer.c b/drivers/clocksource/dw_apb_timer.c
+index 1f5f734e4919..a018199575e3 100644
+--- a/drivers/clocksource/dw_apb_timer.c
++++ b/drivers/clocksource/dw_apb_timer.c
+@@ -225,7 +225,8 @@ static int apbt_next_event(unsigned long delta,
+ /**
+  * dw_apb_clockevent_init() - use an APB timer as a clock_event_device
+  *
+- * @cpu:	The CPU the events will be targeted at.
++ * @cpu:	The CPU the events will be targeted at or -1 if CPU affiliation
++ *		isn't required.
+  * @name:	The name used for the timer and the IRQ for it.
+  * @rating:	The rating to give the timer.
+  * @base:	I/O base for the timer registers.
+@@ -260,7 +261,7 @@ dw_apb_clockevent_init(int cpu, const char *name, unsigned rating,
+ 	dw_ced->ced.max_delta_ticks = 0x7fffffff;
+ 	dw_ced->ced.min_delta_ns = clockevent_delta2ns(5000, &dw_ced->ced);
+ 	dw_ced->ced.min_delta_ticks = 5000;
+-	dw_ced->ced.cpumask = cpumask_of(cpu);
++	dw_ced->ced.cpumask = cpu < 0 ? cpu_possible_mask : cpumask_of(cpu);
+ 	dw_ced->ced.features = CLOCK_EVT_FEAT_PERIODIC |
+ 				CLOCK_EVT_FEAT_ONESHOT | CLOCK_EVT_FEAT_DYNIRQ;
+ 	dw_ced->ced.set_state_shutdown = apbt_shutdown;
 -- 
 2.25.1
 
