@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 336C41F27E9
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:55:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EDB351F285A
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:56:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731434AbgFHXZG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 19:25:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51470 "EHLO mail.kernel.org"
+        id S1731753AbgFHXvb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 19:51:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51498 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731739AbgFHXZF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:25:05 -0400
+        id S1731740AbgFHXZG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:25:06 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 263382074B;
-        Mon,  8 Jun 2020 23:25:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 44BC02086A;
+        Mon,  8 Jun 2020 23:25:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658704;
-        bh=jB0JHajaiSD8nMrmh1e+MEqgjkNC208Fvh9HNwxgcUw=;
+        s=default; t=1591658706;
+        bh=0FHpN1EHSVTg7MDnWTWFsKSpU17oCBDRoxafwMs6u4Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d0Pmp4Vv0v5zT4DATm5TqvhvYJjX/1ObkjUGgNYosrAz6+EFMp0NGJXLOMVrTQkIs
-         wsWjFjRD565lyrfldCKHY5be0v4QBEZ1YsLoRbH/IfBVTYEXfBAIS2gXcZ1xDRx3DS
-         iHnmZXcZMkjeyrbZNhtS6ydQisEFTq/6VrY1dB8Q=
+        b=rymT3uWa/7XRQA2xVPZCv7bjIg3a4ZWdSvjIbiJdvRnQ2+Sc3m3UawvJHM0NxI9+d
+         bodtNNd3z6pKhVCs7+9g35llBcv74mARL9bFVXXxQsDUKUgQHEFozxbke/v96N5MIE
+         5e78bseke1f6NnvYDmd/t63DsM4pMrCMTwi/wVaI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Bogdan Togorean <bogdan.togorean@analog.com>,
-        Andrzej Hajda <a.hajda@samsung.com>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.14 03/72] drm: bridge: adv7511: Extend list of audio sample rates
-Date:   Mon,  8 Jun 2020 19:23:51 -0400
-Message-Id: <20200608232500.3369581-3-sashal@kernel.org>
+Cc:     Arnd Bergmann <arnd@arndb.de>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>, linux-crypto@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 04/72] crypto: ccp -- don't "select" CONFIG_DMADEVICES
+Date:   Mon,  8 Jun 2020 19:23:52 -0400
+Message-Id: <20200608232500.3369581-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608232500.3369581-1-sashal@kernel.org>
 References: <20200608232500.3369581-1-sashal@kernel.org>
@@ -44,48 +44,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bogdan Togorean <bogdan.togorean@analog.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit b97b6a1f6e14a25d1e1ca2a46c5fa3e2ca374e22 ]
+[ Upstream commit eebac678556d6927f09a992872f4464cf3aecc76 ]
 
-ADV7511 support sample rates up to 192kHz. CTS and N parameters should
-be computed accordingly so this commit extend the list up to maximum
-supported sample rate.
+DMADEVICES is the top-level option for the slave DMA
+subsystem, and should not be selected by device drivers,
+as this can cause circular dependencies such as:
 
-Signed-off-by: Bogdan Togorean <bogdan.togorean@analog.com>
-Reviewed-by: Andrzej Hajda <a.hajda@samsung.com>
-Signed-off-by: Andrzej Hajda <a.hajda@samsung.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200413113513.86091-2-bogdan.togorean@analog.com
+drivers/net/ethernet/freescale/Kconfig:6:error: recursive dependency detected!
+drivers/net/ethernet/freescale/Kconfig:6:	symbol NET_VENDOR_FREESCALE depends on PPC_BESTCOMM
+drivers/dma/bestcomm/Kconfig:6:	symbol PPC_BESTCOMM depends on DMADEVICES
+drivers/dma/Kconfig:6:	symbol DMADEVICES is selected by CRYPTO_DEV_SP_CCP
+drivers/crypto/ccp/Kconfig:10:	symbol CRYPTO_DEV_SP_CCP depends on CRYPTO
+crypto/Kconfig:16:	symbol CRYPTO is selected by LIBCRC32C
+lib/Kconfig:222:	symbol LIBCRC32C is selected by LIQUIDIO
+drivers/net/ethernet/cavium/Kconfig:65:	symbol LIQUIDIO depends on PTP_1588_CLOCK
+drivers/ptp/Kconfig:8:	symbol PTP_1588_CLOCK is implied by FEC
+drivers/net/ethernet/freescale/Kconfig:23:	symbol FEC depends on NET_VENDOR_FREESCALE
+
+The LIQUIDIO driver causing this problem is addressed in a
+separate patch, but this change is needed to prevent it from
+happening again.
+
+Using "depends on DMADEVICES" is what we do for all other
+implementations of slave DMA controllers as well.
+
+Fixes: b3c2fee5d66b ("crypto: ccp - Ensure all dependencies are specified")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/adv7511/adv7511_audio.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ drivers/crypto/ccp/Kconfig | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/bridge/adv7511/adv7511_audio.c b/drivers/gpu/drm/bridge/adv7511/adv7511_audio.c
-index 67469c26bae8..45a027d7a1e4 100644
---- a/drivers/gpu/drm/bridge/adv7511/adv7511_audio.c
-+++ b/drivers/gpu/drm/bridge/adv7511/adv7511_audio.c
-@@ -20,13 +20,15 @@ static void adv7511_calc_cts_n(unsigned int f_tmds, unsigned int fs,
- {
- 	switch (fs) {
- 	case 32000:
--		*n = 4096;
-+	case 48000:
-+	case 96000:
-+	case 192000:
-+		*n = fs * 128 / 1000;
- 		break;
- 	case 44100:
--		*n = 6272;
--		break;
--	case 48000:
--		*n = 6144;
-+	case 88200:
-+	case 176400:
-+		*n = fs * 128 / 900;
- 		break;
- 	}
- 
+diff --git a/drivers/crypto/ccp/Kconfig b/drivers/crypto/ccp/Kconfig
+index 6d626606b9c5..898dcf3200c3 100644
+--- a/drivers/crypto/ccp/Kconfig
++++ b/drivers/crypto/ccp/Kconfig
+@@ -8,10 +8,9 @@ config CRYPTO_DEV_CCP_DD
+ config CRYPTO_DEV_SP_CCP
+ 	bool "Cryptographic Coprocessor device"
+ 	default y
+-	depends on CRYPTO_DEV_CCP_DD
++	depends on CRYPTO_DEV_CCP_DD && DMADEVICES
+ 	select HW_RANDOM
+ 	select DMA_ENGINE
+-	select DMADEVICES
+ 	select CRYPTO_SHA1
+ 	select CRYPTO_SHA256
+ 	help
 -- 
 2.25.1
 
