@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D9BB11F30A7
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 03:01:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 490331F3096
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 03:00:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730227AbgFIBBg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 21:01:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53222 "EHLO mail.kernel.org"
+        id S1728118AbgFHXIN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 19:08:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53292 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728105AbgFHXIK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:08:10 -0400
+        id S1728107AbgFHXIL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:08:11 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E6845208B6;
-        Mon,  8 Jun 2020 23:08:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3832B20842;
+        Mon,  8 Jun 2020 23:08:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591657689;
-        bh=oka/rNmtiRJwDwVogsEa+EcBiai5h5lBqQBMHdewr8A=;
+        s=default; t=1591657691;
+        bh=UgH8czb3Zqf99cuf6/cq5xSM1xd308oDJ5vXdkILL9g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r8FOv85L2uOxj7PFZ8XWJqGtpSz6db3fNysG4dV++0l+2MPZGxNJjJQZo9sqqFSA7
-         z8+8GXJSLvliblyvMUn6IcQDKgFTYchDJar5o9MU8Jiz6RnisiaoIm2waY1q3jVh5u
-         Ix6UneSP7SOhBtWifxl/LgdpFYHdNvdya2+pBY7I=
+        b=NImMvxuqEixileN0cKasTp1aFKdtMLCwg1iIfjFyF9fv37jbF6iU7Ct6dEOMmIxa7
+         LLgNlo/97uYHUknNhQvR+Di4AMmidwrMVeXXL/99neosQJYELI35TL23LxOfpeiRwS
+         8NbV7BOq/QM++pzixWzH2Y1W+cGAvdILbkhsrDc8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sriram R <srirrama@codeaurora.org>,
+Cc:     Venkateswara Naralasetty <vnaralas@codeaurora.org>,
         Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>, ath11k@lists.infradead.org,
+        Sasha Levin <sashal@kernel.org>, ath10k@lists.infradead.org,
         linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.7 091/274] ath11k: Avoid mgmt tx count underflow
-Date:   Mon,  8 Jun 2020 19:03:04 -0400
-Message-Id: <20200608230607.3361041-91-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.7 092/274] ath10k: fix kernel null pointer dereference
+Date:   Mon,  8 Jun 2020 19:03:05 -0400
+Message-Id: <20200608230607.3361041-92-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608230607.3361041-1-sashal@kernel.org>
 References: <20200608230607.3361041-1-sashal@kernel.org>
@@ -44,40 +44,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sriram R <srirrama@codeaurora.org>
+From: Venkateswara Naralasetty <vnaralas@codeaurora.org>
 
-[ Upstream commit 800113ff4b1d277c2b66ffc04d4d38f202a0d187 ]
+[ Upstream commit acb31476adc9ff271140cdd4d3c707ff0c97f5a4 ]
 
-The mgmt tx count reference is incremented/decremented on every mgmt tx and on
-tx completion event from firmware.
-In case of an unexpected mgmt tx completion event from firmware,
-the counter would underflow. Avoid this by decrementing
-only when the tx count is greater than 0.
+Currently sta airtime is updated without any lock in case of
+host based airtime calculation. Which may result in accessing the
+invalid sta pointer in case of continuous station connect/disconnect.
 
-Signed-off-by: Sriram R <srirrama@codeaurora.org>
+This patch fix the kernel null pointer dereference by updating the
+station airtime with proper RCU lock in case of host based airtime
+calculation.
+
+Proceeding with the analysis of "ARM Kernel Panic".
+The APSS crash happened due to OOPS on CPU 0.
+Crash Signature : Unable to handle kernel NULL pointer dereference
+at virtual address 00000300
+During the crash,
+PC points to "ieee80211_sta_register_airtime+0x1c/0x448 [mac80211]"
+LR points to "ath10k_txrx_tx_unref+0x17c/0x364 [ath10k_core]".
+The Backtrace obtained is as follows:
+[<bf880238>] (ieee80211_sta_register_airtime [mac80211]) from
+[<bf945a38>] (ath10k_txrx_tx_unref+0x17c/0x364 [ath10k_core])
+[<bf945a38>] (ath10k_txrx_tx_unref [ath10k_core]) from
+[<bf9428e4>] (ath10k_htt_txrx_compl_task+0xa50/0xfc0 [ath10k_core])
+[<bf9428e4>] (ath10k_htt_txrx_compl_task [ath10k_core]) from
+[<bf9b9bc8>] (ath10k_pci_napi_poll+0x50/0xf8 [ath10k_pci])
+[<bf9b9bc8>] (ath10k_pci_napi_poll [ath10k_pci]) from
+[<c059e3b0>] (net_rx_action+0xac/0x160)
+[<c059e3b0>] (net_rx_action) from [<c02329a4>] (__do_softirq+0x104/0x294)
+[<c02329a4>] (__do_softirq) from [<c0232b64>] (run_ksoftirqd+0x30/0x90)
+[<c0232b64>] (run_ksoftirqd) from [<c024e358>] (smpboot_thread_fn+0x25c/0x274)
+[<c024e358>] (smpboot_thread_fn) from [<c02482fc>] (kthread+0xd8/0xec)
+
+Tested HW: QCA9888
+Tested FW: 10.4-3.10-00047
+
+Signed-off-by: Venkateswara Naralasetty <vnaralas@codeaurora.org>
 Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/1585567028-9242-1-git-send-email-srirrama@codeaurora.org
+Link: https://lore.kernel.org/r/1585736290-17661-1-git-send-email-vnaralas@codeaurora.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath11k/wmi.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/net/wireless/ath/ath10k/txrx.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/wireless/ath/ath11k/wmi.c b/drivers/net/wireless/ath/ath11k/wmi.c
-index 6fec62846279..73beca6d6b5f 100644
---- a/drivers/net/wireless/ath/ath11k/wmi.c
-+++ b/drivers/net/wireless/ath/ath11k/wmi.c
-@@ -3740,8 +3740,9 @@ static int wmi_process_mgmt_tx_comp(struct ath11k *ar, u32 desc_id,
+diff --git a/drivers/net/wireless/ath/ath10k/txrx.c b/drivers/net/wireless/ath/ath10k/txrx.c
+index 39abf8b12903..f46b9083bbf1 100644
+--- a/drivers/net/wireless/ath/ath10k/txrx.c
++++ b/drivers/net/wireless/ath/ath10k/txrx.c
+@@ -84,9 +84,11 @@ int ath10k_txrx_tx_unref(struct ath10k_htt *htt,
+ 		wake_up(&htt->empty_tx_wq);
+ 	spin_unlock_bh(&htt->tx_lock);
  
- 	ieee80211_tx_status_irqsafe(ar->hw, msdu);
++	rcu_read_lock();
+ 	if (txq && txq->sta && skb_cb->airtime_est)
+ 		ieee80211_sta_register_airtime(txq->sta, txq->tid,
+ 					       skb_cb->airtime_est, 0);
++	rcu_read_unlock();
  
--	WARN_ON_ONCE(atomic_read(&ar->num_pending_mgmt_tx) == 0);
--	atomic_dec(&ar->num_pending_mgmt_tx);
-+	/* WARN when we received this event without doing any mgmt tx */
-+	if (atomic_dec_if_positive(&ar->num_pending_mgmt_tx) < 0)
-+		WARN_ON_ONCE(1);
- 
- 	return 0;
- }
+ 	if (ar->bus_param.dev_type != ATH10K_DEV_TYPE_HL)
+ 		dma_unmap_single(dev, skb_cb->paddr, msdu->len, DMA_TO_DEVICE);
 -- 
 2.25.1
 
