@@ -2,44 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F31581F2956
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:04:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 39E781F2950
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:04:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730898AbgFHX6s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 19:58:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48196 "EHLO mail.kernel.org"
+        id S1730646AbgFHX6d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 19:58:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48292 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731438AbgFHXXI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:23:08 -0400
+        id S1729849AbgFHXXL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:23:11 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 49442208B8;
-        Mon,  8 Jun 2020 23:23:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A382A20899;
+        Mon,  8 Jun 2020 23:23:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658587;
-        bh=ve5sv8gFv7HyvXD4yB6SaZpZw1HlQaywAYRES+51m3s=;
+        s=default; t=1591658591;
+        bh=/rsiNZmJKMU7ImUM+XD8KQ6xKLVf5BpHcUfc7DiIKDY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=udj6tN0WC8mn1HJ9TPIAfcqWtRr9ZcPWueoplTIARy9Psc9h9rJWkUNBpFHx95OYw
-         MPB76o0sS0IViXghVfWJHsFDQfdbw/DdpmK7NPkJokZYsxQTxe+zE4c8amasF31yhG
-         4kmsyO1vEiTNMkn1oY6gtn/WTFSkXtExNFgKDFtM=
+        b=BJB3TY+orpPhaXiEqle9dhpG4RxQqWii7/TV3KrxYwM2yEISIIkBnns9Dlv5Wedl6
+         bqxlTUX1hT+EWhVZALi23BL9ppr/fO/b09aiADzPrdxzfq5VI5CnN5Ey3RQlFAXHpN
+         ZiHUt9wiwMcRRUEA7EcX39O0HF5xKIBgC0Vbplxk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Serge Semin <Sergey.Semin@baikalelectronics.ru>,
-        Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Paul Burton <paulburton@kernel.org>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Rob Herring <robh+dt@kernel.org>, linux-mips@vger.kernel.org,
-        linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 022/106] clocksource: dw_apb_timer_of: Fix missing clockevent timers
-Date:   Mon,  8 Jun 2020 19:21:14 -0400
-Message-Id: <20200608232238.3368589-22-sashal@kernel.org>
+Cc:     Sven Eckelmann <sven@narfation.org>,
+        Matthias Schiffer <mschiffer@universe-factory.net>,
+        Simon Wunderlich <sw@simonwunderlich.de>,
+        Sasha Levin <sashal@kernel.org>,
+        b.a.t.m.a.n@lists.open-mesh.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 025/106] batman-adv: Revert "disable ethtool link speed detection when auto negotiation off"
+Date:   Mon,  8 Jun 2020 19:21:17 -0400
+Message-Id: <20200608232238.3368589-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608232238.3368589-1-sashal@kernel.org>
 References: <20200608232238.3368589-1-sashal@kernel.org>
@@ -52,72 +45,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+From: Sven Eckelmann <sven@narfation.org>
 
-[ Upstream commit 6d2e16a3181bafb77b535095c39ad1c8b9558c8c ]
+[ Upstream commit 9ad346c90509ebd983f60da7d082f261ad329507 ]
 
-Commit 100214889973 ("clocksource: dw_apb_timer_of: use
-clocksource_of_init") replaced a publicly available driver
-initialization method with one called by the timer_probe() method
-available after CLKSRC_OF. In current implementation it traverses
-all the timers available in the system and calls their initialization
-methods if corresponding devices were either in dtb or in acpi. But
-if before the commit any number of available timers would be installed
-as clockevent and clocksource devices, after that there would be at most
-two. The rest are just ignored since default case branch doesn't do
-anything. I don't see a reason of such behaviour, neither the commit
-message explains it. Moreover this might be wrong if on some platforms
-these timers might be used for different purpose, as virtually CPU-local
-clockevent timers and as an independent broadcast timer. So in order
-to keep the compatibility with the platforms where the order of the
-timers detection has some meaning, lets add the secondly discovered
-timer to be of clocksource/sched_clock type, while the very first and
-the others would provide the clockevents service.
+The commit 8c46fcd78308 ("batman-adv: disable ethtool link speed detection
+when auto negotiation off") disabled the usage of ethtool's link_ksetting
+when auto negotation was enabled due to invalid values when used with
+tun/tap virtual net_devices. According to the patch, automatic measurements
+should be used for these kind of interfaces.
 
-Fixes: 100214889973 ("clocksource: dw_apb_timer_of: use clocksource_of_init")
-Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
-Cc: Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>
-Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Cc: Paul Burton <paulburton@kernel.org>
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Rob Herring <robh+dt@kernel.org>
-Cc: linux-mips@vger.kernel.org
-Cc: linux-rtc@vger.kernel.org
-Cc: devicetree@vger.kernel.org
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/r/20200521204818.25436-7-Sergey.Semin@baikalelectronics.ru
+But there are major flaws with this argumentation:
+
+* automatic measurements are not implemented
+* auto negotiation has nothing to do with the validity of the retrieved
+  values
+
+The first point has to be fixed by a longer patch series. The "validity"
+part of the second point must be addressed in the same patch series by
+dropping the usage of ethtool's link_ksetting (thus always doing automatic
+measurements over ethernet).
+
+Drop the patch again to have more default values for various net_device
+types/configurations. The user can still overwrite them using the
+batadv_hardif's BATADV_ATTR_THROUGHPUT_OVERRIDE.
+
+Reported-by: Matthias Schiffer <mschiffer@universe-factory.net>
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clocksource/dw_apb_timer_of.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ net/batman-adv/bat_v_elp.c | 15 +--------------
+ 1 file changed, 1 insertion(+), 14 deletions(-)
 
-diff --git a/drivers/clocksource/dw_apb_timer_of.c b/drivers/clocksource/dw_apb_timer_of.c
-index 69866cd8f4bb..3e4d0e5733d3 100644
---- a/drivers/clocksource/dw_apb_timer_of.c
-+++ b/drivers/clocksource/dw_apb_timer_of.c
-@@ -146,10 +146,6 @@ static int num_called;
- static int __init dw_apb_timer_init(struct device_node *timer)
- {
- 	switch (num_called) {
--	case 0:
--		pr_debug("%s: found clockevent timer\n", __func__);
--		add_clockevent(timer);
--		break;
- 	case 1:
- 		pr_debug("%s: found clocksource timer\n", __func__);
- 		add_clocksource(timer);
-@@ -160,6 +156,8 @@ static int __init dw_apb_timer_init(struct device_node *timer)
- #endif
- 		break;
- 	default:
-+		pr_debug("%s: found clockevent timer\n", __func__);
-+		add_clockevent(timer);
- 		break;
- 	}
- 
+diff --git a/net/batman-adv/bat_v_elp.c b/net/batman-adv/bat_v_elp.c
+index 5da183b2f4c9..af3da6cdfc79 100644
+--- a/net/batman-adv/bat_v_elp.c
++++ b/net/batman-adv/bat_v_elp.c
+@@ -132,20 +132,7 @@ static u32 batadv_v_elp_get_throughput(struct batadv_hardif_neigh_node *neigh)
+ 	rtnl_lock();
+ 	ret = __ethtool_get_link_ksettings(hard_iface->net_dev, &link_settings);
+ 	rtnl_unlock();
+-
+-	/* Virtual interface drivers such as tun / tap interfaces, VLAN, etc
+-	 * tend to initialize the interface throughput with some value for the
+-	 * sake of having a throughput number to export via ethtool. This
+-	 * exported throughput leaves batman-adv to conclude the interface
+-	 * throughput is genuine (reflecting reality), thus no measurements
+-	 * are necessary.
+-	 *
+-	 * Based on the observation that those interface types also tend to set
+-	 * the link auto-negotiation to 'off', batman-adv shall check this
+-	 * setting to differentiate between genuine link throughput information
+-	 * and placeholders installed by virtual interfaces.
+-	 */
+-	if (ret == 0 && link_settings.base.autoneg == AUTONEG_ENABLE) {
++	if (ret == 0) {
+ 		/* link characteristics might change over time */
+ 		if (link_settings.base.duplex == DUPLEX_FULL)
+ 			hard_iface->bat_v.flags |= BATADV_FULL_DUPLEX;
 -- 
 2.25.1
 
