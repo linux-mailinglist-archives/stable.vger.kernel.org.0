@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 43E901F309B
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 03:01:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D7E7A1F3098
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 03:01:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733018AbgFIBAw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 21:00:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53292 "EHLO mail.kernel.org"
+        id S1728294AbgFIBAv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 21:00:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53346 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728119AbgFHXIO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:08:14 -0400
+        id S1728122AbgFHXIP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:08:15 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0F98420890;
-        Mon,  8 Jun 2020 23:08:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4717F20842;
+        Mon,  8 Jun 2020 23:08:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591657693;
-        bh=gKzG+lHGoOpM2mIO0msURUKrbiSBaCSYkpuqFaD/Kpo=;
+        s=default; t=1591657695;
+        bh=h1T8WN4lKVZU17Fkg6U+9UkbB+FzXtXp0Ckcu6/lPss=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2mduG3pQErdPhu2+9alibASgjRUqrviQBPYbX7UOw/oSSiT9RFgMZdKNtTyp1oGVp
-         9CSzPqLoti09QwMNsIRh50VkjVJfZt4tGepO6Pst5GzntsCeR9qZWUBy8NRdYGYiCp
-         kZqfpV0Bsytr3usx8j7GiuKuJU9VQ2bhh1XexAcw=
+        b=AR8Bew5NPRB8LiSO6uflaDp8v5HK9mp+G9wE1TNxF+FKHg1qQoZFff36/ibycqFGU
+         qgXAaL8JfP9U/ZtDTVLSYjLVxuGQ+dEnjNP4EnH3kJk4dSf/jdc5vXhKAZjdITmihW
+         05xV3lJ4GCgjw8D6uDhNmBeE1UB59raSj5qoVfbU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Qiujun Huang <hqjagain@gmail.com>,
-        syzbot+40d5d2e8a4680952f042@syzkaller.appspotmail.com,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.7 094/274] ath9k: Fix general protection fault in ath9k_hif_usb_rx_cb
-Date:   Mon,  8 Jun 2020 19:03:07 -0400
-Message-Id: <20200608230607.3361041-94-sashal@kernel.org>
+Cc:     Alvin Lee <alvin.lee2@amd.com>,
+        Yongqiang Sun <yongqiang.sun@amd.com>,
+        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.7 095/274] drm/amd/display: Revert to old formula in set_vtg_params
+Date:   Mon,  8 Jun 2020 19:03:08 -0400
+Message-Id: <20200608230607.3361041-95-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608230607.3361041-1-sashal@kernel.org>
 References: <20200608230607.3361041-1-sashal@kernel.org>
@@ -45,219 +46,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiujun Huang <hqjagain@gmail.com>
+From: Alvin Lee <alvin.lee2@amd.com>
 
-[ Upstream commit 2bbcaaee1fcbd83272e29f31e2bb7e70d8c49e05 ]
+[ Upstream commit a1a0e61f3c43c610f0a3c109348c14ce930c1977 ]
 
-In ath9k_hif_usb_rx_cb interface number is assumed to be 0.
-usb_ifnum_to_if(urb->dev, 0)
-But it isn't always true.
+[Why]
+New formula + cursor change causing underflow
+on certain configs
 
-The case reported by syzbot:
-https://lore.kernel.org/linux-usb/000000000000666c9c05a1c05d12@google.com
-usb 2-1: new high-speed USB device number 2 using dummy_hcd
-usb 2-1: config 1 has an invalid interface number: 2 but max is 0
-usb 2-1: config 1 has no interface number 0
-usb 2-1: New USB device found, idVendor=0cf3, idProduct=9271, bcdDevice=
-1.08
-usb 2-1: New USB device strings: Mfr=1, Product=2, SerialNumber=3
-general protection fault, probably for non-canonical address
-0xdffffc0000000015: 0000 [#1] SMP KASAN
-KASAN: null-ptr-deref in range [0x00000000000000a8-0x00000000000000af]
-CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.6.0-rc5-syzkaller #0
+[How]
+Rever to old formula
 
-Call Trace
-__usb_hcd_giveback_urb+0x29a/0x550 drivers/usb/core/hcd.c:1650
-usb_hcd_giveback_urb+0x368/0x420 drivers/usb/core/hcd.c:1716
-dummy_timer+0x1258/0x32ae drivers/usb/gadget/udc/dummy_hcd.c:1966
-call_timer_fn+0x195/0x6f0 kernel/time/timer.c:1404
-expire_timers kernel/time/timer.c:1449 [inline]
-__run_timers kernel/time/timer.c:1773 [inline]
-__run_timers kernel/time/timer.c:1740 [inline]
-run_timer_softirq+0x5f9/0x1500 kernel/time/timer.c:1786
-__do_softirq+0x21e/0x950 kernel/softirq.c:292
-invoke_softirq kernel/softirq.c:373 [inline]
-irq_exit+0x178/0x1a0 kernel/softirq.c:413
-exiting_irq arch/x86/include/asm/apic.h:546 [inline]
-smp_apic_timer_interrupt+0x141/0x540 arch/x86/kernel/apic/apic.c:1146
-apic_timer_interrupt+0xf/0x20 arch/x86/entry/entry_64.S:829
-
-Reported-and-tested-by: syzbot+40d5d2e8a4680952f042@syzkaller.appspotmail.com
-Signed-off-by: Qiujun Huang <hqjagain@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20200404041838.10426-6-hqjagain@gmail.com
+Signed-off-by: Alvin Lee <alvin.lee2@amd.com>
+Reviewed-by: Yongqiang Sun <yongqiang.sun@amd.com>
+Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath9k/hif_usb.c | 48 ++++++++++++++++++------
- drivers/net/wireless/ath/ath9k/hif_usb.h |  5 +++
- 2 files changed, 42 insertions(+), 11 deletions(-)
+ drivers/gpu/drm/amd/display/dc/dcn10/dcn10_optc.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath9k/hif_usb.c b/drivers/net/wireless/ath/ath9k/hif_usb.c
-index 6049d3766c64..4ed21dad6a8e 100644
---- a/drivers/net/wireless/ath/ath9k/hif_usb.c
-+++ b/drivers/net/wireless/ath/ath9k/hif_usb.c
-@@ -643,9 +643,9 @@ static void ath9k_hif_usb_rx_stream(struct hif_device_usb *hif_dev,
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_optc.c b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_optc.c
+index 17d96ec6acd8..ec0ab42becba 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_optc.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_optc.c
+@@ -299,6 +299,7 @@ void optc1_set_vtg_params(struct timing_generator *optc,
+ 	uint32_t asic_blank_end;
+ 	uint32_t v_init;
+ 	uint32_t v_fp2 = 0;
++	int32_t vertical_line_start;
  
- static void ath9k_hif_usb_rx_cb(struct urb *urb)
- {
--	struct sk_buff *skb = (struct sk_buff *) urb->context;
--	struct hif_device_usb *hif_dev =
--		usb_get_intfdata(usb_ifnum_to_if(urb->dev, 0));
-+	struct rx_buf *rx_buf = (struct rx_buf *)urb->context;
-+	struct hif_device_usb *hif_dev = rx_buf->hif_dev;
-+	struct sk_buff *skb = rx_buf->skb;
- 	int ret;
+ 	struct optc *optc1 = DCN10TG_FROM_TG(optc);
  
- 	if (!skb)
-@@ -685,14 +685,15 @@ static void ath9k_hif_usb_rx_cb(struct urb *urb)
- 	return;
- free:
- 	kfree_skb(skb);
-+	kfree(rx_buf);
- }
+@@ -315,8 +316,9 @@ void optc1_set_vtg_params(struct timing_generator *optc,
+ 			patched_crtc_timing.v_border_top;
  
- static void ath9k_hif_usb_reg_in_cb(struct urb *urb)
- {
--	struct sk_buff *skb = (struct sk_buff *) urb->context;
-+	struct rx_buf *rx_buf = (struct rx_buf *)urb->context;
-+	struct hif_device_usb *hif_dev = rx_buf->hif_dev;
-+	struct sk_buff *skb = rx_buf->skb;
- 	struct sk_buff *nskb;
--	struct hif_device_usb *hif_dev =
--		usb_get_intfdata(usb_ifnum_to_if(urb->dev, 0));
- 	int ret;
+ 	/* if VSTARTUP is before VSYNC, FP2 is the offset, otherwise 0 */
+-	if (optc1->vstartup_start > asic_blank_end)
+-		v_fp2 = optc1->vstartup_start - asic_blank_end;
++	vertical_line_start = asic_blank_end - optc1->vstartup_start + 1;
++	if (vertical_line_start < 0)
++		v_fp2 = -vertical_line_start;
  
- 	if (!skb)
-@@ -750,6 +751,7 @@ static void ath9k_hif_usb_reg_in_cb(struct urb *urb)
- 	return;
- free:
- 	kfree_skb(skb);
-+	kfree(rx_buf);
- 	urb->context = NULL;
- }
- 
-@@ -795,7 +797,7 @@ static int ath9k_hif_usb_alloc_tx_urbs(struct hif_device_usb *hif_dev)
- 	init_usb_anchor(&hif_dev->mgmt_submitted);
- 
- 	for (i = 0; i < MAX_TX_URB_NUM; i++) {
--		tx_buf = kzalloc(sizeof(struct tx_buf), GFP_KERNEL);
-+		tx_buf = kzalloc(sizeof(*tx_buf), GFP_KERNEL);
- 		if (!tx_buf)
- 			goto err;
- 
-@@ -832,8 +834,9 @@ static void ath9k_hif_usb_dealloc_rx_urbs(struct hif_device_usb *hif_dev)
- 
- static int ath9k_hif_usb_alloc_rx_urbs(struct hif_device_usb *hif_dev)
- {
--	struct urb *urb = NULL;
-+	struct rx_buf *rx_buf = NULL;
- 	struct sk_buff *skb = NULL;
-+	struct urb *urb = NULL;
- 	int i, ret;
- 
- 	init_usb_anchor(&hif_dev->rx_submitted);
-@@ -841,6 +844,12 @@ static int ath9k_hif_usb_alloc_rx_urbs(struct hif_device_usb *hif_dev)
- 
- 	for (i = 0; i < MAX_RX_URB_NUM; i++) {
- 
-+		rx_buf = kzalloc(sizeof(*rx_buf), GFP_KERNEL);
-+		if (!rx_buf) {
-+			ret = -ENOMEM;
-+			goto err_rxb;
-+		}
-+
- 		/* Allocate URB */
- 		urb = usb_alloc_urb(0, GFP_KERNEL);
- 		if (urb == NULL) {
-@@ -855,11 +864,14 @@ static int ath9k_hif_usb_alloc_rx_urbs(struct hif_device_usb *hif_dev)
- 			goto err_skb;
- 		}
- 
-+		rx_buf->hif_dev = hif_dev;
-+		rx_buf->skb = skb;
-+
- 		usb_fill_bulk_urb(urb, hif_dev->udev,
- 				  usb_rcvbulkpipe(hif_dev->udev,
- 						  USB_WLAN_RX_PIPE),
- 				  skb->data, MAX_RX_BUF_SIZE,
--				  ath9k_hif_usb_rx_cb, skb);
-+				  ath9k_hif_usb_rx_cb, rx_buf);
- 
- 		/* Anchor URB */
- 		usb_anchor_urb(urb, &hif_dev->rx_submitted);
-@@ -885,6 +897,8 @@ static int ath9k_hif_usb_alloc_rx_urbs(struct hif_device_usb *hif_dev)
- err_skb:
- 	usb_free_urb(urb);
- err_urb:
-+	kfree(rx_buf);
-+err_rxb:
- 	ath9k_hif_usb_dealloc_rx_urbs(hif_dev);
- 	return ret;
- }
-@@ -896,14 +910,21 @@ static void ath9k_hif_usb_dealloc_reg_in_urbs(struct hif_device_usb *hif_dev)
- 
- static int ath9k_hif_usb_alloc_reg_in_urbs(struct hif_device_usb *hif_dev)
- {
--	struct urb *urb = NULL;
-+	struct rx_buf *rx_buf = NULL;
- 	struct sk_buff *skb = NULL;
-+	struct urb *urb = NULL;
- 	int i, ret;
- 
- 	init_usb_anchor(&hif_dev->reg_in_submitted);
- 
- 	for (i = 0; i < MAX_REG_IN_URB_NUM; i++) {
- 
-+		rx_buf = kzalloc(sizeof(*rx_buf), GFP_KERNEL);
-+		if (!rx_buf) {
-+			ret = -ENOMEM;
-+			goto err_rxb;
-+		}
-+
- 		/* Allocate URB */
- 		urb = usb_alloc_urb(0, GFP_KERNEL);
- 		if (urb == NULL) {
-@@ -918,11 +939,14 @@ static int ath9k_hif_usb_alloc_reg_in_urbs(struct hif_device_usb *hif_dev)
- 			goto err_skb;
- 		}
- 
-+		rx_buf->hif_dev = hif_dev;
-+		rx_buf->skb = skb;
-+
- 		usb_fill_int_urb(urb, hif_dev->udev,
- 				  usb_rcvintpipe(hif_dev->udev,
- 						  USB_REG_IN_PIPE),
- 				  skb->data, MAX_REG_IN_BUF_SIZE,
--				  ath9k_hif_usb_reg_in_cb, skb, 1);
-+				  ath9k_hif_usb_reg_in_cb, rx_buf, 1);
- 
- 		/* Anchor URB */
- 		usb_anchor_urb(urb, &hif_dev->reg_in_submitted);
-@@ -948,6 +972,8 @@ static int ath9k_hif_usb_alloc_reg_in_urbs(struct hif_device_usb *hif_dev)
- err_skb:
- 	usb_free_urb(urb);
- err_urb:
-+	kfree(rx_buf);
-+err_rxb:
- 	ath9k_hif_usb_dealloc_reg_in_urbs(hif_dev);
- 	return ret;
- }
-diff --git a/drivers/net/wireless/ath/ath9k/hif_usb.h b/drivers/net/wireless/ath/ath9k/hif_usb.h
-index a94e7e1c86e9..5985aa15ca93 100644
---- a/drivers/net/wireless/ath/ath9k/hif_usb.h
-+++ b/drivers/net/wireless/ath/ath9k/hif_usb.h
-@@ -86,6 +86,11 @@ struct tx_buf {
- 	struct list_head list;
- };
- 
-+struct rx_buf {
-+	struct sk_buff *skb;
-+	struct hif_device_usb *hif_dev;
-+};
-+
- #define HIF_USB_TX_STOP  BIT(0)
- #define HIF_USB_TX_FLUSH BIT(1)
- 
+ 	/* Interlace */
+ 	if (REG(OTG_INTERLACE_CONTROL)) {
 -- 
 2.25.1
 
