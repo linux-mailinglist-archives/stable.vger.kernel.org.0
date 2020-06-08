@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C79B1F24AE
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:24:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F210F1F24B1
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:24:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731197AbgFHXVk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 19:21:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45888 "EHLO mail.kernel.org"
+        id S1730845AbgFHXVt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 19:21:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46032 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731193AbgFHXVj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:21:39 -0400
+        id S1731212AbgFHXVr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:21:47 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6C4A92072F;
-        Mon,  8 Jun 2020 23:21:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 49F562087E;
+        Mon,  8 Jun 2020 23:21:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658499;
-        bh=xJDsdbdyq7liIv4sqCE7RI5+x+OictqjM4VIOWGkLNU=;
+        s=default; t=1591658507;
+        bh=HYSVE/1juFSqORM3IGHffuIE4Q+k2VgOnbKSYKG6VWg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=daQILlnQCPHNw8hbf0aT8x5FAYGWx+nTclPrT8zI3TvNmOC2x4djmJjjoHWAfDFv7
-         HEyWd/K3MbOICsu5He+29Zq+W5ev6kYWlkvevcHsfR9Z4TW+cuBmrZ0nmf3DG3ex4L
-         YBsEYmRVhqkUi0maB8kz5H6waddA3n1U4LN0TxTA=
+        b=FbHiTPLte85PtnlZY8KHXelSbugjvGYovtytiYiS2OvldOQJmPcX9elJJ6IF6Br27
+         VJ6Y0zIWuk3JBeEiMj0ZD6h5GFLbVbFcyvTGu/FMDsktToDD49vMcV/t+NTnR4FLli
+         ie94AQNVppEaIjMSwBG6Xz8gsIrgwJGEcZlNqPCY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arvind Sankar <nivedita@alum.mit.edu>,
-        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 131/175] x86/boot: Correct relocation destination on old linkers
-Date:   Mon,  8 Jun 2020 19:18:04 -0400
-Message-Id: <20200608231848.3366970-131-sashal@kernel.org>
+Cc:     Nicolas Toromanoff <nicolas.toromanoff@st.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>, linux-crypto@vger.kernel.org,
+        linux-stm32@st-md-mailman.stormreply.com,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 137/175] crypto: stm32/crc32 - fix multi-instance
+Date:   Mon,  8 Jun 2020 19:18:10 -0400
+Message-Id: <20200608231848.3366970-137-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608231848.3366970-1-sashal@kernel.org>
 References: <20200608231848.3366970-1-sashal@kernel.org>
@@ -42,112 +45,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arvind Sankar <nivedita@alum.mit.edu>
+From: Nicolas Toromanoff <nicolas.toromanoff@st.com>
 
-[ Upstream commit 5214028dd89e49ba27007c3ee475279e584261f0 ]
+[ Upstream commit 10b89c43a64eb0d236903b79a3bc9d8f6cbfd9c7 ]
 
-For the 32-bit kernel, as described in
+Ensure CRC algorithm is registered only once in crypto framework when
+there are several instances of CRC devices.
 
-  6d92bc9d483a ("x86/build: Build compressed x86 kernels as PIE"),
+Update the CRC device list management to avoid that only the first CRC
+instance is used.
 
-pre-2.26 binutils generates R_386_32 relocations in PIE mode. Since the
-startup code does not perform relocation, any reloc entry with R_386_32
-will remain as 0 in the executing code.
+Fixes: b51dbe90912a ("crypto: stm32 - Support for STM32 CRC32 crypto module")
 
-Commit
-
-  974f221c84b0 ("x86/boot: Move compressed kernel to the end of the
-                 decompression buffer")
-
-added a new symbol _end but did not mark it hidden, which doesn't give
-the correct offset on older linkers. This causes the compressed kernel
-to be copied beyond the end of the decompression buffer, rather than
-flush against it. This region of memory may be reserved or already
-allocated for other purposes by the bootloader.
-
-Mark _end as hidden to fix. This changes the relocation from R_386_32 to
-R_386_RELATIVE even on the pre-2.26 binutils.
-
-For 64-bit, this is not strictly necessary, as the 64-bit kernel is only
-built as PIE if the linker supports -z noreloc-overflow, which implies
-binutils-2.27+, but for consistency, mark _end as hidden here too.
-
-The below illustrates the before/after impact of the patch using
-binutils-2.25 and gcc-4.6.4 (locally compiled from source) and QEMU.
-
-  Disassembly before patch:
-    48:   8b 86 60 02 00 00       mov    0x260(%esi),%eax
-    4e:   2d 00 00 00 00          sub    $0x0,%eax
-                          4f: R_386_32    _end
-  Disassembly after patch:
-    48:   8b 86 60 02 00 00       mov    0x260(%esi),%eax
-    4e:   2d 00 f0 76 00          sub    $0x76f000,%eax
-                          4f: R_386_RELATIVE      *ABS*
-
-Dump from extract_kernel before patch:
-	early console in extract_kernel
-	input_data: 0x0207c098 <--- this is at output + init_size
-	input_len: 0x0074fef1
-	output: 0x01000000
-	output_len: 0x00fa63d0
-	kernel_total_size: 0x0107c000
-	needed_size: 0x0107c000
-
-Dump from extract_kernel after patch:
-	early console in extract_kernel
-	input_data: 0x0190d098 <--- this is at output + init_size - _end
-	input_len: 0x0074fef1
-	output: 0x01000000
-	output_len: 0x00fa63d0
-	kernel_total_size: 0x0107c000
-	needed_size: 0x0107c000
-
-Fixes: 974f221c84b0 ("x86/boot: Move compressed kernel to the end of the decompression buffer")
-Signed-off-by: Arvind Sankar <nivedita@alum.mit.edu>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lkml.kernel.org/r/20200207214926.3564079-1-nivedita@alum.mit.edu
+Signed-off-by: Nicolas Toromanoff <nicolas.toromanoff@st.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/boot/compressed/head_32.S | 5 +++--
- arch/x86/boot/compressed/head_64.S | 1 +
- 2 files changed, 4 insertions(+), 2 deletions(-)
+ drivers/crypto/stm32/stm32-crc32.c | 48 ++++++++++++++++++++++--------
+ 1 file changed, 36 insertions(+), 12 deletions(-)
 
-diff --git a/arch/x86/boot/compressed/head_32.S b/arch/x86/boot/compressed/head_32.S
-index 70ffce98c568..d7c0fcc1dbf9 100644
---- a/arch/x86/boot/compressed/head_32.S
-+++ b/arch/x86/boot/compressed/head_32.S
-@@ -49,16 +49,17 @@
-  * Position Independent Executable (PIE) so that linker won't optimize
-  * R_386_GOT32X relocation to its fixed symbol address.  Older
-  * linkers generate R_386_32 relocations against locally defined symbols,
-- * _bss, _ebss, _got and _egot, in PIE.  It isn't wrong, just less
-+ * _bss, _ebss, _got, _egot and _end, in PIE.  It isn't wrong, just less
-  * optimal than R_386_RELATIVE.  But the x86 kernel fails to properly handle
-  * R_386_32 relocations when relocating the kernel.  To generate
-- * R_386_RELATIVE relocations, we mark _bss, _ebss, _got and _egot as
-+ * R_386_RELATIVE relocations, we mark _bss, _ebss, _got, _egot and _end as
-  * hidden:
-  */
- 	.hidden _bss
- 	.hidden _ebss
- 	.hidden _got
- 	.hidden _egot
-+	.hidden _end
+diff --git a/drivers/crypto/stm32/stm32-crc32.c b/drivers/crypto/stm32/stm32-crc32.c
+index 93969d23a4a8..e68b856d03b6 100644
+--- a/drivers/crypto/stm32/stm32-crc32.c
++++ b/drivers/crypto/stm32/stm32-crc32.c
+@@ -93,16 +93,29 @@ static int stm32_crc_setkey(struct crypto_shash *tfm, const u8 *key,
+ 	return 0;
+ }
  
- 	__HEAD
- ENTRY(startup_32)
-diff --git a/arch/x86/boot/compressed/head_64.S b/arch/x86/boot/compressed/head_64.S
-index 07d2002da642..50c9eeb36f0d 100644
---- a/arch/x86/boot/compressed/head_64.S
-+++ b/arch/x86/boot/compressed/head_64.S
-@@ -42,6 +42,7 @@
- 	.hidden _ebss
- 	.hidden _got
- 	.hidden _egot
-+	.hidden _end
+-static int stm32_crc_init(struct shash_desc *desc)
++static struct stm32_crc *stm32_crc_get_next_crc(void)
+ {
+-	struct stm32_crc_desc_ctx *ctx = shash_desc_ctx(desc);
+-	struct stm32_crc_ctx *mctx = crypto_shash_ctx(desc->tfm);
+ 	struct stm32_crc *crc;
  
- 	__HEAD
- 	.code32
+ 	spin_lock_bh(&crc_list.lock);
+ 	crc = list_first_entry(&crc_list.dev_list, struct stm32_crc, list);
++	if (crc)
++		list_move_tail(&crc->list, &crc_list.dev_list);
+ 	spin_unlock_bh(&crc_list.lock);
+ 
++	return crc;
++}
++
++static int stm32_crc_init(struct shash_desc *desc)
++{
++	struct stm32_crc_desc_ctx *ctx = shash_desc_ctx(desc);
++	struct stm32_crc_ctx *mctx = crypto_shash_ctx(desc->tfm);
++	struct stm32_crc *crc;
++
++	crc = stm32_crc_get_next_crc();
++	if (!crc)
++		return -ENODEV;
++
+ 	pm_runtime_get_sync(crc->dev);
+ 
+ 	/* Reset, set key, poly and configure in bit reverse mode */
+@@ -127,9 +140,9 @@ static int stm32_crc_update(struct shash_desc *desc, const u8 *d8,
+ 	struct stm32_crc_ctx *mctx = crypto_shash_ctx(desc->tfm);
+ 	struct stm32_crc *crc;
+ 
+-	spin_lock_bh(&crc_list.lock);
+-	crc = list_first_entry(&crc_list.dev_list, struct stm32_crc, list);
+-	spin_unlock_bh(&crc_list.lock);
++	crc = stm32_crc_get_next_crc();
++	if (!crc)
++		return -ENODEV;
+ 
+ 	pm_runtime_get_sync(crc->dev);
+ 
+@@ -202,6 +215,8 @@ static int stm32_crc_digest(struct shash_desc *desc, const u8 *data,
+ 	return stm32_crc_init(desc) ?: stm32_crc_finup(desc, data, length, out);
+ }
+ 
++static unsigned int refcnt;
++static DEFINE_MUTEX(refcnt_lock);
+ static struct shash_alg algs[] = {
+ 	/* CRC-32 */
+ 	{
+@@ -292,12 +307,18 @@ static int stm32_crc_probe(struct platform_device *pdev)
+ 	list_add(&crc->list, &crc_list.dev_list);
+ 	spin_unlock(&crc_list.lock);
+ 
+-	ret = crypto_register_shashes(algs, ARRAY_SIZE(algs));
+-	if (ret) {
+-		dev_err(dev, "Failed to register\n");
+-		clk_disable_unprepare(crc->clk);
+-		return ret;
++	mutex_lock(&refcnt_lock);
++	if (!refcnt) {
++		ret = crypto_register_shashes(algs, ARRAY_SIZE(algs));
++		if (ret) {
++			mutex_unlock(&refcnt_lock);
++			dev_err(dev, "Failed to register\n");
++			clk_disable_unprepare(crc->clk);
++			return ret;
++		}
+ 	}
++	refcnt++;
++	mutex_unlock(&refcnt_lock);
+ 
+ 	dev_info(dev, "Initialized\n");
+ 
+@@ -318,7 +339,10 @@ static int stm32_crc_remove(struct platform_device *pdev)
+ 	list_del(&crc->list);
+ 	spin_unlock(&crc_list.lock);
+ 
+-	crypto_unregister_shashes(algs, ARRAY_SIZE(algs));
++	mutex_lock(&refcnt_lock);
++	if (!--refcnt)
++		crypto_unregister_shashes(algs, ARRAY_SIZE(algs));
++	mutex_unlock(&refcnt_lock);
+ 
+ 	pm_runtime_disable(crc->dev);
+ 	pm_runtime_put_noidle(crc->dev);
 -- 
 2.25.1
 
