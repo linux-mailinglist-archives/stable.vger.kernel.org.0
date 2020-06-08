@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C0E71F30C9
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 03:03:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D72711F30C8
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 03:03:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728007AbgFHXHs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 19:07:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52382 "EHLO mail.kernel.org"
+        id S1729945AbgFIBDC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 21:03:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52444 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727798AbgFHXHr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:07:47 -0400
+        id S1728012AbgFHXHt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:07:49 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 68FA22085B;
-        Mon,  8 Jun 2020 23:07:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B99522086A;
+        Mon,  8 Jun 2020 23:07:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591657667;
-        bh=gaxOcen6Q9dN8HfcwwrP4yk5frKodCMa00mJuEccJdw=;
+        s=default; t=1591657668;
+        bh=PRuINvBRZW2mZwEv6yL9odErB1I7qLxkutEUY51xAFc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XCZo0I1Ybf6xpusNtSPDjTtVn7SdvFYmZsk8z4q0H65Gp0xd9wKbKvdRp6oG8Rrhn
-         uFlmGyQzPYeD88aIdsKXqGmOVE5sg0XYBd80Et3Yr7O7Fnw3z6zsSH+919Oe8q9g/N
-         wvUzGuhXgwrSsbXZlKUGMdHWJhXujfzlpmVU6t0I=
+        b=UJUV0YaVsV7c2Vo+aIuG2esMjFNttNQCp9gIq4S37E3DtsvCslivS0wX9BbEzutp7
+         R+MecZQAIJQVSV18Zcl27yUJK3bRB5drN9AJ/uH0PF2Uev8v5oKqGMNHsOIOfeyJN4
+         2h+BXF0Os6EALcOKpvCzC4JTZNDh54fhQpDaqhg4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Tobias Baumann <017623705678@o2online.de>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, linux-mmc@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-amlogic@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.7 077/274] mmc: meson-mx-sdio: trigger a soft reset after a timeout or CRC error
-Date:   Mon,  8 Jun 2020 19:02:50 -0400
-Message-Id: <20200608230607.3361041-77-sashal@kernel.org>
+Cc:     Chuhong Yuan <hslester96@gmail.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-bluetooth@vger.kernel.org,
+        linux-mediatek@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.7 078/274] Bluetooth: btmtkuart: Improve exception handling in btmtuart_probe()
+Date:   Mon,  8 Jun 2020 19:02:51 -0400
+Message-Id: <20200608230607.3361041-78-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608230607.3361041-1-sashal@kernel.org>
 References: <20200608230607.3361041-1-sashal@kernel.org>
@@ -46,77 +46,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+From: Chuhong Yuan <hslester96@gmail.com>
 
-[ Upstream commit 91995b904ec2e44b5c159ac6a5d3f154345a4de7 ]
+[ Upstream commit 4803c54ca24923a30664bea2a7772db6e7303c51 ]
 
-The vendor driver (from the 3.10 kernel) triggers a soft reset every
-time before starting a new command. While this fixes a problem where
-SDIO cards are not detected at all (because all commands simply
-timed out) this hurts SD card read performance a bit (in my tests
-between 10% to 20%).
+Calls of the functions clk_disable_unprepare() and hci_free_dev()
+were missing for the exception handling.
+Thus add the missed function calls together with corresponding
+jump targets.
 
-Trigger a soft reset after we got a CRC error or if the previous command
-timed out (just like the vendor driver from the same 3.10 kernel for the
-newer SDHC controller IP does). This fixes detection of SDIO cards and
-doesn't hurt SD card read performance at the same time.
-
-With this patch the initialization of an RTL8723BS SDIO card looks like
-this:
-  req done (CMD52): -110: 00000000 00000000 00000000 00000000
-  clock 400000Hz busmode 2 powermode 2 cs 1 Vdd 21 width 1 timing 0
-  starting CMD0 arg 00000000 flags 000000c0
-  req done (CMD0): 0: 00000000 00000000 00000000 00000000
-  clock 400000Hz busmode 2 powermode 2 cs 0 Vdd 21 width 1 timing 0
-  starting CMD8 arg 000001aa flags 000002f5
-  req done (CMD8): -110: 00000000 00000000 00000000 00000000
-  starting CMD5 arg 00000000 flags 000002e1
-  req done (CMD5): 0: 90ff0000 00000000 00000000 00000000
-  starting CMD5 arg 00200000 flags 000002e1
-  req done (CMD5): 0: 90ff0000 00000000 00000000 00000000
-  starting CMD3 arg 00000000 flags 00000075
-  req done (CMD3): 0: 00010000 00000000 00000000 00000000
-  starting CMD7 arg 00010000 flags 00000015
-  req done (CMD7): 0: 00001e00 00000000 00000000 00000000
-  starting CMD52 arg 00000000 flags 00000195
-  req done (CMD52): 0: 00001032 00000000 00000000 00000000
-  [... more CMD52 omitted ...]
-  clock 400000Hz busmode 2 powermode 2 cs 0 Vdd 21 width 1 timing 2
-  clock 50000000Hz busmode 2 powermode 2 cs 0 Vdd 21 width 1 timing 2
-  starting CMD52 arg 00000e00 flags 00000195
-  req done (CMD52): 0: 00001000 00000000 00000000 00000000
-  starting CMD52 arg 80000e02 flags 00000195
-  req done (CMD52): 0: 00001002 00000000 00000000 00000000
-  clock 50000000Hz busmode 2 powermode 2 cs 0 Vdd 21 width 4 timing 2
-  starting CMD52 arg 00020000 flags 00000195
-  req done (CMD52): 0: 00001007 00000000 00000000 00000000
-  [... more CMD52 omitted ...]
-  new high speed SDIO card at address 0001
-
-Fixes: ed80a13bb4c4c9 ("mmc: meson-mx-sdio: Add a driver for the Amlogic Meson8 and Meson8b SoCs")
-Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Link: https://lore.kernel.org/r/20200503222805.2668941-1-martin.blumenstingl@googlemail.com
-Tested-by: Tobias Baumann <017623705678@o2online.de>
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Fixes: 055825614c6b ("Bluetooth: btmtkuart: add an implementation for clock osc property")
+Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/meson-mx-sdio.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/bluetooth/btmtkuart.c | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/mmc/host/meson-mx-sdio.c b/drivers/mmc/host/meson-mx-sdio.c
-index 2e58743d83bb..3813b544f571 100644
---- a/drivers/mmc/host/meson-mx-sdio.c
-+++ b/drivers/mmc/host/meson-mx-sdio.c
-@@ -246,6 +246,9 @@ static void meson_mx_mmc_request_done(struct meson_mx_mmc_host *host)
+diff --git a/drivers/bluetooth/btmtkuart.c b/drivers/bluetooth/btmtkuart.c
+index e11169ad8247..8a81fbca5c9d 100644
+--- a/drivers/bluetooth/btmtkuart.c
++++ b/drivers/bluetooth/btmtkuart.c
+@@ -1015,7 +1015,7 @@ static int btmtkuart_probe(struct serdev_device *serdev)
+ 	if (btmtkuart_is_standalone(bdev)) {
+ 		err = clk_prepare_enable(bdev->osc);
+ 		if (err < 0)
+-			return err;
++			goto err_hci_free_dev;
  
- 	mrq = host->mrq;
+ 		if (bdev->boot) {
+ 			gpiod_set_value_cansleep(bdev->boot, 1);
+@@ -1028,10 +1028,8 @@ static int btmtkuart_probe(struct serdev_device *serdev)
  
-+	if (host->cmd->error)
-+		meson_mx_mmc_soft_reset(host);
-+
- 	host->mrq = NULL;
- 	host->cmd = NULL;
+ 		/* Power on */
+ 		err = regulator_enable(bdev->vcc);
+-		if (err < 0) {
+-			clk_disable_unprepare(bdev->osc);
+-			return err;
+-		}
++		if (err < 0)
++			goto err_clk_disable_unprepare;
  
+ 		/* Reset if the reset-gpios is available otherwise the board
+ 		 * -level design should be guaranteed.
+@@ -1063,7 +1061,6 @@ static int btmtkuart_probe(struct serdev_device *serdev)
+ 	err = hci_register_dev(hdev);
+ 	if (err < 0) {
+ 		dev_err(&serdev->dev, "Can't register HCI device\n");
+-		hci_free_dev(hdev);
+ 		goto err_regulator_disable;
+ 	}
+ 
+@@ -1072,6 +1069,11 @@ static int btmtkuart_probe(struct serdev_device *serdev)
+ err_regulator_disable:
+ 	if (btmtkuart_is_standalone(bdev))
+ 		regulator_disable(bdev->vcc);
++err_clk_disable_unprepare:
++	if (btmtkuart_is_standalone(bdev))
++		clk_disable_unprepare(bdev->osc);
++err_hci_free_dev:
++	hci_free_dev(hdev);
+ 
+ 	return err;
+ }
 -- 
 2.25.1
 
