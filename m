@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A7F671F269E
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:45:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 07F061F26A1
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:45:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731236AbgFHX11 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 19:27:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55742 "EHLO mail.kernel.org"
+        id S1732133AbgFHX12 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 19:27:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55830 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732119AbgFHX1V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:27:21 -0400
+        id S1732124AbgFHX10 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:27:26 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3EE8020812;
-        Mon,  8 Jun 2020 23:27:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2324120775;
+        Mon,  8 Jun 2020 23:27:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658841;
-        bh=J/+l/UZTLwjwA2JlavVjEHcDdD1pl6zF5wuk5/A+ZGY=;
+        s=default; t=1591658844;
+        bh=PcpT25rK7rYNhpCqz1U5PiI8V6SO18bbgHhxO/L2RUQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XC9SuIKCd50Op3/AenxGzztUMGUdc5UormBIkVi2Qy6xEMPNVrWx3VkTLoepHdhUD
-         9bR+eDo9RlfVj1dBQ5AVuxGkv7LHeQ4AHkHEhLKrpONxvzxEYwmp46dTWph8i2xNxB
-         HD0/u5pgem4t3Wn/NOSdZ5zmG7C/tcG2VbI4HgDg=
+        b=VMoZvbivSaz0cneP89rBBchI9zJX+XBZT/YS3CGpAClqY/G9Or865ZWUUmjVK4jJz
+         GvlkpbYBmK64NwU695O5V5WegFhCQydO6Ni38fTxVHp8SeEOS7sHExDv0xISAlc0zU
+         OIC6qtuo8eCS7nrM38EoCImFDxbgGY28H+ye/IEk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Masashi Honma <masashi.honma@gmail.com>,
-        Denis <pro.denis@protonmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 30/50] ath9k_htc: Silence undersized packet warnings
-Date:   Mon,  8 Jun 2020 19:26:20 -0400
-Message-Id: <20200608232640.3370262-30-sashal@kernel.org>
+Cc:     Serge Semin <Sergey.Semin@baikalelectronics.ru>,
+        Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Paul Burton <paulburton@kernel.org>,
+        Ralf Baechle <ralf@linux-mips.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Rob Herring <robh+dt@kernel.org>, linux-pm@vger.kernel.org,
+        devicetree@vger.kernel.org, Sasha Levin <sashal@kernel.org>,
+        linux-mips@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 32/50] mips: cm: Fix an invalid error code of INTVN_*_ERR
+Date:   Mon,  8 Jun 2020 19:26:22 -0400
+Message-Id: <20200608232640.3370262-32-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608232640.3370262-1-sashal@kernel.org>
 References: <20200608232640.3370262-1-sashal@kernel.org>
@@ -45,46 +49,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masashi Honma <masashi.honma@gmail.com>
+From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
 
-[ Upstream commit 450edd2805982d14ed79733a82927d2857b27cac ]
+[ Upstream commit 8a0efb8b101665a843205eab3d67ab09cb2d9a8d ]
 
-Some devices like TP-Link TL-WN722N produces this kind of messages
-frequently.
+Commit 3885c2b463f6 ("MIPS: CM: Add support for reporting CM cache
+errors") adds cm2_causes[] array with map of error type ID and
+pointers to the short description string. There is a mistake in
+the table, since according to MIPS32 manual CM2_ERROR_TYPE = {17,18}
+correspond to INTVN_WR_ERR and INTVN_RD_ERR, while the table
+claims they have {0x17,0x18} codes. This is obviously hex-dec
+copy-paste bug. Moreover codes {0x18 - 0x1a} indicate L2 ECC errors.
 
-kernel: ath: phy0: Short RX data len, dropping (dlen: 4)
-
-This warning is useful for developers to recognize that the device
-(Wi-Fi dongle or USB hub etc) is noisy but not for general users. So
-this patch make this warning to debug message.
-
-Reported-By: Denis <pro.denis@protonmail.com>
-Ref: https://bugzilla.kernel.org/show_bug.cgi?id=207539
-Fixes: cd486e627e67 ("ath9k_htc: Discard undersized packets")
-Signed-off-by: Masashi Honma <masashi.honma@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20200504214443.4485-1-masashi.honma@gmail.com
+Fixes: 3885c2b463f6 ("MIPS: CM: Add support for reporting CM cache errors")
+Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+Cc: Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>
+Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Cc: Paul Burton <paulburton@kernel.org>
+Cc: Ralf Baechle <ralf@linux-mips.org>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Rob Herring <robh+dt@kernel.org>
+Cc: linux-pm@vger.kernel.org
+Cc: devicetree@vger.kernel.org
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath9k/htc_drv_txrx.c | 6 +++---
+ arch/mips/kernel/mips-cm.c | 6 +++---
  1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c b/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c
-index 52b42ecee621..2eb169b204f8 100644
---- a/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c
-+++ b/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c
-@@ -998,9 +998,9 @@ static bool ath9k_rx_prepare(struct ath9k_htc_priv *priv,
- 	 * which are not PHY_ERROR (short radar pulses have a length of 3)
- 	 */
- 	if (unlikely(!rs_datalen || (rs_datalen < 10 && !is_phyerr))) {
--		ath_warn(common,
--			 "Short RX data len, dropping (dlen: %d)\n",
--			 rs_datalen);
-+		ath_dbg(common, ANY,
-+			"Short RX data len, dropping (dlen: %d)\n",
-+			rs_datalen);
- 		goto rx_next;
- 	}
+diff --git a/arch/mips/kernel/mips-cm.c b/arch/mips/kernel/mips-cm.c
+index 60177a612cb1..df65516778a2 100644
+--- a/arch/mips/kernel/mips-cm.c
++++ b/arch/mips/kernel/mips-cm.c
+@@ -123,9 +123,9 @@ static char *cm2_causes[32] = {
+ 	"COH_RD_ERR", "MMIO_WR_ERR", "MMIO_RD_ERR", "0x07",
+ 	"0x08", "0x09", "0x0a", "0x0b",
+ 	"0x0c", "0x0d", "0x0e", "0x0f",
+-	"0x10", "0x11", "0x12", "0x13",
+-	"0x14", "0x15", "0x16", "INTVN_WR_ERR",
+-	"INTVN_RD_ERR", "0x19", "0x1a", "0x1b",
++	"0x10", "INTVN_WR_ERR", "INTVN_RD_ERR", "0x13",
++	"0x14", "0x15", "0x16", "0x17",
++	"0x18", "0x19", "0x1a", "0x1b",
+ 	"0x1c", "0x1d", "0x1e", "0x1f"
+ };
  
 -- 
 2.25.1
