@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 55A201F2DEE
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:38:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E6FE1F3076
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:59:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730152AbgFIAhb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 20:37:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33622 "EHLO mail.kernel.org"
+        id S1728198AbgFIA7d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 20:59:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53954 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728729AbgFHXNq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:13:46 -0400
+        id S1728189AbgFHXIf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:08:35 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 56C8321531;
-        Mon,  8 Jun 2020 23:13:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4A0EA20B80;
+        Mon,  8 Jun 2020 23:08:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658025;
-        bh=8LKkSmb+vl2Qod9UjEFoRnxV0NQLj0PnYzV7F1Rt0VE=;
+        s=default; t=1591657714;
+        bh=kaP/FO0bXL5pXYHZnRhTIm3f8R07p05FwcCbUeZnhno=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Mp2ki8QheQA4RVefEe177A8fH1b8ZRNKxUDRQiIWp+ryAJDmg6lyvML1Ed8K+DVRS
-         kNMIBqClYjYRVxHXsYl/kRLGjXKt3chydNckxLX659Lehejg3qH/IR0BS88/DA5XBd
-         gZOBp/McGKG89tWJTTeaQBwg9M8VAhwlV3XHDqA4=
+        b=sVNj062oTiDVLNly3Qcf/hbj4KDG/+7c0VGUHGoCmbFIljRpx67bjOdMdp1Q9CH1E
+         cItvYMto46MklAlfarXuOgjlIqVtFhLXZSwcGrsrpJw9zLu6tXI0A7Z9Plvy/KFxgr
+         VWDzk6n6PO2d+SAfRUbH2zU/7XH6Up8Z/4yLDTqU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Daniel Borkmann <daniel@iogearbox.net>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Christoph Hellwig <hch@lst.de>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Brendan Gregg <brendan.d.gregg@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-doc@vger.kernel.org, netdev@vger.kernel.org,
-        bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.6 077/606] bpf: Restrict bpf_trace_printk()'s %s usage and add %pks, %pus specifier
+Cc:     Philipp Zabel <p.zabel@pengutronix.de>,
+        Fabio Estevam <festevam@gmail.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Steve Longerbeam <slongerbeam@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org,
+        devel@driverdev.osuosl.org, linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.7 109/274] media: imx: utils: fix and simplify pixel format enumeration
 Date:   Mon,  8 Jun 2020 19:03:22 -0400
-Message-Id: <20200608231211.3363633-77-sashal@kernel.org>
+Message-Id: <20200608230607.3361041-109-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200608231211.3363633-1-sashal@kernel.org>
-References: <20200608231211.3363633-1-sashal@kernel.org>
+In-Reply-To: <20200608230607.3361041-1-sashal@kernel.org>
+References: <20200608230607.3361041-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -49,232 +48,347 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Borkmann <daniel@iogearbox.net>
+From: Philipp Zabel <p.zabel@pengutronix.de>
 
-commit b2a5212fb634561bb734c6356904e37f6665b955 upstream.
+[ Upstream commit f2267d7ed803add8820c7a6537c12a6d8732f570 ]
 
-Usage of plain %s conversion specifier in bpf_trace_printk() suffers from the
-very same issue as bpf_probe_read{,str}() helpers, that is, it is broken on
-archs with overlapping address ranges.
+Merge yuv_formats and rgb_formats into a single array. Always loop over
+all entries, skipping those that do not match the requested search
+criteria. This simplifies the code, lets us get rid of the manual
+counting of array entries, and stops accidentally ignoring some non-mbus
+RGB formats.
 
-While the helpers have been addressed through work in 6ae08ae3dea2 ("bpf: Add
-probe_read_{user, kernel} and probe_read_{user, kernel}_str helpers"), we need
-an option for bpf_trace_printk() as well to fix it.
+Before:
 
-Similarly as with the helpers, force users to make an explicit choice by adding
-%pks and %pus specifier to bpf_trace_printk() which will then pick the corresponding
-strncpy_from_unsafe*() variant to perform the access under KERNEL_DS or USER_DS.
-The %pk* (kernel specifier) and %pu* (user specifier) can later also be extended
-for other objects aside strings that are probed and printed under tracing, and
-reused out of other facilities like bpf_seq_printf() or BTF based type printing.
+  $ v4l2-ctl -d /dev/video14 --list-formats-out
+  ioctl: VIDIOC_ENUM_FMT
+	Type: Video Output
 
-Existing behavior of %s for current users is still kept working for archs where it
-is not broken and therefore gated through CONFIG_ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE.
-For archs not having this property we fall-back to pick probing under KERNEL_DS as
-a sensible default.
+	[0]: 'UYVY' (UYVY 4:2:2)
+	[1]: 'YUYV' (YUYV 4:2:2)
+	[2]: 'YU12' (Planar YUV 4:2:0)
+	[3]: 'YV12' (Planar YVU 4:2:0)
+	[4]: '422P' (Planar YUV 4:2:2)
+	[5]: 'NV12' (Y/CbCr 4:2:0)
+	[6]: 'NV16' (Y/CbCr 4:2:2)
+	[7]: 'RGBP' (16-bit RGB 5-6-5)
+	[8]: 'RGB3' (24-bit RGB 8-8-8)
+	[9]: 'BX24' (32-bit XRGB 8-8-8-8)
 
-Fixes: 8d3b7dce8622 ("bpf: add support for %s specifier to bpf_trace_printk()")
-Reported-by: Linus Torvalds <torvalds@linux-foundation.org>
-Reported-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Cc: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: Brendan Gregg <brendan.d.gregg@gmail.com>
-Link: https://lore.kernel.org/bpf/20200515101118.6508-4-daniel@iogearbox.net
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+After:
+
+  $ v4l2-ctl -d /dev/video14 --list-formats-out
+  ioctl: VIDIOC_ENUM_FMT
+	Type: Video Output
+
+	[0]: 'UYVY' (UYVY 4:2:2)
+	[1]: 'YUYV' (YUYV 4:2:2)
+	[2]: 'YU12' (Planar YUV 4:2:0)
+	[3]: 'YV12' (Planar YVU 4:2:0)
+	[4]: '422P' (Planar YUV 4:2:2)
+	[5]: 'NV12' (Y/CbCr 4:2:0)
+	[6]: 'NV16' (Y/CbCr 4:2:2)
+	[7]: 'RGBP' (16-bit RGB 5-6-5)
+	[8]: 'RGB3' (24-bit RGB 8-8-8)
+	[9]: 'BGR3' (24-bit BGR 8-8-8)
+	[10]: 'BX24' (32-bit XRGB 8-8-8-8)
+	[11]: 'XR24' (32-bit BGRX 8-8-8-8)
+	[12]: 'RX24' (32-bit XBGR 8-8-8-8)
+	[13]: 'XB24' (32-bit RGBX 8-8-8-8)
+
+Tested on a imx6q-sabresd.
+
+[laurent.pinchart@ideasonboard.com: Make loop counters unsigned]
+[laurent.pinchart@ideasonboard.com: Decrement index instead of adding a counter]
+[laurent.pinchart@ideasonboard.com: Return directly from within loop instead of breaking]
+[slongerbeam@gmail.com: Fix colorspace comparison error]
+
+Fixes: e130291212df5 ("[media] media: Add i.MX media core driver")
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+Tested-by: Fabio Estevam <festevam@gmail.com>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Steve Longerbeam <slongerbeam@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/core-api/printk-formats.rst | 14 ++++
- kernel/trace/bpf_trace.c                  | 94 +++++++++++++++--------
- lib/vsprintf.c                            | 12 +++
- 3 files changed, 88 insertions(+), 32 deletions(-)
+ drivers/staging/media/imx/imx-media-utils.c | 193 ++++++--------------
+ 1 file changed, 59 insertions(+), 134 deletions(-)
 
-diff --git a/Documentation/core-api/printk-formats.rst b/Documentation/core-api/printk-formats.rst
-index 8ebe46b1af39..5dfcc4592b23 100644
---- a/Documentation/core-api/printk-formats.rst
-+++ b/Documentation/core-api/printk-formats.rst
-@@ -112,6 +112,20 @@ used when printing stack backtraces. The specifier takes into
- consideration the effect of compiler optimisations which may occur
- when tail-calls are used and marked with the noreturn GCC attribute.
- 
-+Probed Pointers from BPF / tracing
-+----------------------------------
-+
-+::
-+
-+	%pks	kernel string
-+	%pus	user string
-+
-+The ``k`` and ``u`` specifiers are used for printing prior probed memory from
-+either kernel memory (k) or user memory (u). The subsequent ``s`` specifier
-+results in printing a string. For direct use in regular vsnprintf() the (k)
-+and (u) annotation is ignored, however, when used out of BPF's bpf_trace_printk(),
-+for example, it reads the memory it is pointing to without faulting.
-+
- Kernel Pointers
- ---------------
- 
-diff --git a/kernel/trace/bpf_trace.c b/kernel/trace/bpf_trace.c
-index 68250d433bd7..b899a2d7e900 100644
---- a/kernel/trace/bpf_trace.c
-+++ b/kernel/trace/bpf_trace.c
-@@ -325,17 +325,15 @@ static const struct bpf_func_proto *bpf_get_probe_write_proto(void)
+diff --git a/drivers/staging/media/imx/imx-media-utils.c b/drivers/staging/media/imx/imx-media-utils.c
+index fae981698c49..39469031e510 100644
+--- a/drivers/staging/media/imx/imx-media-utils.c
++++ b/drivers/staging/media/imx/imx-media-utils.c
+@@ -9,12 +9,9 @@
  
  /*
-  * Only limited trace_printk() conversion specifiers allowed:
-- * %d %i %u %x %ld %li %lu %lx %lld %lli %llu %llx %p %s
-+ * %d %i %u %x %ld %li %lu %lx %lld %lli %llu %llx %p %pks %pus %s
+  * List of supported pixel formats for the subdevs.
+- *
+- * In all of these tables, the non-mbus formats (with no
+- * mbus codes) must all fall at the end of the table.
   */
- BPF_CALL_5(bpf_trace_printk, char *, fmt, u32, fmt_size, u64, arg1,
- 	   u64, arg2, u64, arg3)
- {
-+	int i, mod[3] = {}, fmt_cnt = 0;
-+	char buf[64], fmt_ptype;
-+	void *unsafe_ptr = NULL;
- 	bool str_seen = false;
--	int mod[3] = {};
--	int fmt_cnt = 0;
--	u64 unsafe_addr;
--	char buf[64];
--	int i;
- 
- 	/*
- 	 * bpf_check()->check_func_arg()->check_stack_boundary()
-@@ -361,40 +359,71 @@ BPF_CALL_5(bpf_trace_printk, char *, fmt, u32, fmt_size, u64, arg1,
- 		if (fmt[i] == 'l') {
- 			mod[fmt_cnt]++;
- 			i++;
--		} else if (fmt[i] == 'p' || fmt[i] == 's') {
-+		} else if (fmt[i] == 'p') {
- 			mod[fmt_cnt]++;
-+			if ((fmt[i + 1] == 'k' ||
-+			     fmt[i + 1] == 'u') &&
-+			    fmt[i + 2] == 's') {
-+				fmt_ptype = fmt[i + 1];
-+				i += 2;
-+				goto fmt_str;
-+			}
-+
- 			/* disallow any further format extensions */
- 			if (fmt[i + 1] != 0 &&
- 			    !isspace(fmt[i + 1]) &&
- 			    !ispunct(fmt[i + 1]))
- 				return -EINVAL;
--			fmt_cnt++;
--			if (fmt[i] == 's') {
--				if (str_seen)
--					/* allow only one '%s' per fmt string */
--					return -EINVAL;
--				str_seen = true;
 -
--				switch (fmt_cnt) {
--				case 1:
--					unsafe_addr = arg1;
--					arg1 = (long) buf;
--					break;
--				case 2:
--					unsafe_addr = arg2;
--					arg2 = (long) buf;
--					break;
--				case 3:
--					unsafe_addr = arg3;
--					arg3 = (long) buf;
--					break;
--				}
--				buf[0] = 0;
--				strncpy_from_unsafe(buf,
--						    (void *) (long) unsafe_addr,
+-static const struct imx_media_pixfmt yuv_formats[] = {
++static const struct imx_media_pixfmt pixel_formats[] = {
++	/*** YUV formats start here ***/
+ 	{
+ 		.fourcc	= V4L2_PIX_FMT_UYVY,
+ 		.codes  = {
+@@ -31,12 +28,7 @@ static const struct imx_media_pixfmt yuv_formats[] = {
+ 		},
+ 		.cs     = IPUV3_COLORSPACE_YUV,
+ 		.bpp    = 16,
+-	},
+-	/***
+-	 * non-mbus YUV formats start here. NOTE! when adding non-mbus
+-	 * formats, NUM_NON_MBUS_YUV_FORMATS must be updated below.
+-	 ***/
+-	{
++	}, {
+ 		.fourcc	= V4L2_PIX_FMT_YUV420,
+ 		.cs     = IPUV3_COLORSPACE_YUV,
+ 		.bpp    = 12,
+@@ -62,13 +54,7 @@ static const struct imx_media_pixfmt yuv_formats[] = {
+ 		.bpp    = 16,
+ 		.planar = true,
+ 	},
+-};
+-
+-#define NUM_NON_MBUS_YUV_FORMATS 5
+-#define NUM_YUV_FORMATS ARRAY_SIZE(yuv_formats)
+-#define NUM_MBUS_YUV_FORMATS (NUM_YUV_FORMATS - NUM_NON_MBUS_YUV_FORMATS)
+-
+-static const struct imx_media_pixfmt rgb_formats[] = {
++	/*** RGB formats start here ***/
+ 	{
+ 		.fourcc	= V4L2_PIX_FMT_RGB565,
+ 		.codes  = {MEDIA_BUS_FMT_RGB565_2X8_LE},
+@@ -83,12 +69,28 @@ static const struct imx_media_pixfmt rgb_formats[] = {
+ 		},
+ 		.cs     = IPUV3_COLORSPACE_RGB,
+ 		.bpp    = 24,
++	}, {
++		.fourcc	= V4L2_PIX_FMT_BGR24,
++		.cs     = IPUV3_COLORSPACE_RGB,
++		.bpp    = 24,
+ 	}, {
+ 		.fourcc	= V4L2_PIX_FMT_XRGB32,
+ 		.codes  = {MEDIA_BUS_FMT_ARGB8888_1X32},
+ 		.cs     = IPUV3_COLORSPACE_RGB,
+ 		.bpp    = 32,
+ 		.ipufmt = true,
++	}, {
++		.fourcc	= V4L2_PIX_FMT_XBGR32,
++		.cs     = IPUV3_COLORSPACE_RGB,
++		.bpp    = 32,
++	}, {
++		.fourcc	= V4L2_PIX_FMT_BGRX32,
++		.cs     = IPUV3_COLORSPACE_RGB,
++		.bpp    = 32,
++	}, {
++		.fourcc	= V4L2_PIX_FMT_RGBX32,
++		.cs     = IPUV3_COLORSPACE_RGB,
++		.bpp    = 32,
+ 	},
+ 	/*** raw bayer and grayscale formats start here ***/
+ 	{
+@@ -182,33 +184,8 @@ static const struct imx_media_pixfmt rgb_formats[] = {
+ 		.bpp    = 16,
+ 		.bayer  = true,
+ 	},
+-	/***
+-	 * non-mbus RGB formats start here. NOTE! when adding non-mbus
+-	 * formats, NUM_NON_MBUS_RGB_FORMATS must be updated below.
+-	 ***/
+-	{
+-		.fourcc	= V4L2_PIX_FMT_BGR24,
+-		.cs     = IPUV3_COLORSPACE_RGB,
+-		.bpp    = 24,
+-	}, {
+-		.fourcc	= V4L2_PIX_FMT_XBGR32,
+-		.cs     = IPUV3_COLORSPACE_RGB,
+-		.bpp    = 32,
+-	}, {
+-		.fourcc	= V4L2_PIX_FMT_BGRX32,
+-		.cs     = IPUV3_COLORSPACE_RGB,
+-		.bpp    = 32,
+-	}, {
+-		.fourcc	= V4L2_PIX_FMT_RGBX32,
+-		.cs     = IPUV3_COLORSPACE_RGB,
+-		.bpp    = 32,
+-	},
+ };
+ 
+-#define NUM_NON_MBUS_RGB_FORMATS 2
+-#define NUM_RGB_FORMATS ARRAY_SIZE(rgb_formats)
+-#define NUM_MBUS_RGB_FORMATS (NUM_RGB_FORMATS - NUM_NON_MBUS_RGB_FORMATS)
+-
+ static const struct imx_media_pixfmt ipu_yuv_formats[] = {
+ 	{
+ 		.fourcc = V4L2_PIX_FMT_YUV32,
+@@ -246,21 +223,24 @@ static void init_mbus_colorimetry(struct v4l2_mbus_framefmt *mbus,
+ 					      mbus->ycbcr_enc);
+ }
+ 
+-static const
+-struct imx_media_pixfmt *__find_format(u32 fourcc,
+-				       u32 code,
+-				       bool allow_non_mbus,
+-				       bool allow_bayer,
+-				       const struct imx_media_pixfmt *array,
+-				       u32 array_size)
++static const struct imx_media_pixfmt *find_format(u32 fourcc,
++						  u32 code,
++						  enum codespace_sel cs_sel,
++						  bool allow_non_mbus,
++						  bool allow_bayer)
+ {
+-	const struct imx_media_pixfmt *fmt;
+-	int i, j;
++	unsigned int i;
+ 
+-	for (i = 0; i < array_size; i++) {
+-		fmt = &array[i];
++	for (i = 0; i < ARRAY_SIZE(pixel_formats); i++) {
++		const struct imx_media_pixfmt *fmt = &pixel_formats[i];
++		enum codespace_sel fmt_cs_sel;
++		unsigned int j;
+ 
+-		if ((!allow_non_mbus && !fmt->codes[0]) ||
++		fmt_cs_sel = (fmt->cs == IPUV3_COLORSPACE_YUV) ?
++			CS_SEL_YUV : CS_SEL_RGB;
 +
-+			goto fmt_next;
-+		} else if (fmt[i] == 's') {
-+			mod[fmt_cnt]++;
-+			fmt_ptype = fmt[i];
-+fmt_str:
-+			if (str_seen)
-+				/* allow only one '%s' per fmt string */
-+				return -EINVAL;
-+			str_seen = true;
-+
-+			if (fmt[i + 1] != 0 &&
-+			    !isspace(fmt[i + 1]) &&
-+			    !ispunct(fmt[i + 1]))
-+				return -EINVAL;
-+
-+			switch (fmt_cnt) {
-+			case 0:
-+				unsafe_ptr = (void *)(long)arg1;
-+				arg1 = (long)buf;
-+				break;
-+			case 1:
-+				unsafe_ptr = (void *)(long)arg2;
-+				arg2 = (long)buf;
-+				break;
-+			case 2:
-+				unsafe_ptr = (void *)(long)arg3;
-+				arg3 = (long)buf;
-+				break;
-+			}
-+
-+			buf[0] = 0;
-+			switch (fmt_ptype) {
-+			case 's':
-+#ifdef CONFIG_ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE
-+				strncpy_from_unsafe(buf, unsafe_ptr,
- 						    sizeof(buf));
-+				break;
-+#endif
-+			case 'k':
-+				strncpy_from_unsafe_strict(buf, unsafe_ptr,
-+							   sizeof(buf));
-+				break;
-+			case 'u':
-+				strncpy_from_unsafe_user(buf,
-+					(__force void __user *)unsafe_ptr,
-+							 sizeof(buf));
-+				break;
- 			}
--			continue;
-+			goto fmt_next;
++		if ((cs_sel != CS_SEL_ANY && fmt_cs_sel != cs_sel) ||
++		    (!allow_non_mbus && !fmt->codes[0]) ||
+ 		    (!allow_bayer && fmt->bayer))
+ 			continue;
+ 
+@@ -270,39 +250,13 @@ struct imx_media_pixfmt *__find_format(u32 fourcc,
+ 		if (!code)
+ 			continue;
+ 
+-		for (j = 0; fmt->codes[j]; j++) {
++		for (j = 0; j < ARRAY_SIZE(fmt->codes) && fmt->codes[j]; j++) {
+ 			if (code == fmt->codes[j])
+ 				return fmt;
  		}
- 
- 		if (fmt[i] == 'l') {
-@@ -405,6 +434,7 @@ BPF_CALL_5(bpf_trace_printk, char *, fmt, u32, fmt_size, u64, arg1,
- 		if (fmt[i] != 'i' && fmt[i] != 'd' &&
- 		    fmt[i] != 'u' && fmt[i] != 'x')
- 			return -EINVAL;
-+fmt_next:
- 		fmt_cnt++;
  	}
+-	return NULL;
+-}
  
-diff --git a/lib/vsprintf.c b/lib/vsprintf.c
-index 7c488a1ce318..532b6606a18a 100644
---- a/lib/vsprintf.c
-+++ b/lib/vsprintf.c
-@@ -2168,6 +2168,10 @@ char *fwnode_string(char *buf, char *end, struct fwnode_handle *fwnode,
-  *		f full name
-  *		P node name, including a possible unit address
-  * - 'x' For printing the address. Equivalent to "%lx".
-+ * - '[ku]s' For a BPF/tracing related format specifier, e.g. used out of
-+ *           bpf_trace_printk() where [ku] prefix specifies either kernel (k)
-+ *           or user (u) memory to probe, and:
-+ *              s a string, equivalent to "%s" on direct vsnprintf() use
-  *
-  * ** When making changes please also update:
-  *	Documentation/core-api/printk-formats.rst
-@@ -2251,6 +2255,14 @@ char *pointer(const char *fmt, char *buf, char *end, void *ptr,
- 		if (!IS_ERR(ptr))
- 			break;
- 		return err_ptr(buf, end, ptr, spec);
-+	case 'u':
-+	case 'k':
-+		switch (fmt[1]) {
-+		case 's':
-+			return string(buf, end, ptr, spec);
-+		default:
-+			return error_string(buf, end, "(einval)", spec);
-+		}
- 	}
+-static const struct imx_media_pixfmt *find_format(u32 fourcc,
+-						  u32 code,
+-						  enum codespace_sel cs_sel,
+-						  bool allow_non_mbus,
+-						  bool allow_bayer)
+-{
+-	const struct imx_media_pixfmt *ret;
+-
+-	switch (cs_sel) {
+-	case CS_SEL_YUV:
+-		return __find_format(fourcc, code, allow_non_mbus, allow_bayer,
+-				     yuv_formats, NUM_YUV_FORMATS);
+-	case CS_SEL_RGB:
+-		return __find_format(fourcc, code, allow_non_mbus, allow_bayer,
+-				     rgb_formats, NUM_RGB_FORMATS);
+-	case CS_SEL_ANY:
+-		ret = __find_format(fourcc, code, allow_non_mbus, allow_bayer,
+-				    yuv_formats, NUM_YUV_FORMATS);
+-		if (ret)
+-			return ret;
+-		return __find_format(fourcc, code, allow_non_mbus, allow_bayer,
+-				     rgb_formats, NUM_RGB_FORMATS);
+-	default:
+-		return NULL;
+-	}
++	return NULL;
+ }
  
- 	/* default is to _not_ leak addresses, hash before printing */
+ static int enum_format(u32 *fourcc, u32 *code, u32 index,
+@@ -310,61 +264,32 @@ static int enum_format(u32 *fourcc, u32 *code, u32 index,
+ 		       bool allow_non_mbus,
+ 		       bool allow_bayer)
+ {
+-	const struct imx_media_pixfmt *fmt;
+-	u32 mbus_yuv_sz = NUM_MBUS_YUV_FORMATS;
+-	u32 mbus_rgb_sz = NUM_MBUS_RGB_FORMATS;
+-	u32 yuv_sz = NUM_YUV_FORMATS;
+-	u32 rgb_sz = NUM_RGB_FORMATS;
++	unsigned int i;
+ 
+-	switch (cs_sel) {
+-	case CS_SEL_YUV:
+-		if (index >= yuv_sz ||
+-		    (!allow_non_mbus && index >= mbus_yuv_sz))
+-			return -EINVAL;
+-		fmt = &yuv_formats[index];
+-		break;
+-	case CS_SEL_RGB:
+-		if (index >= rgb_sz ||
+-		    (!allow_non_mbus && index >= mbus_rgb_sz))
+-			return -EINVAL;
+-		fmt = &rgb_formats[index];
+-		if (!allow_bayer && fmt->bayer)
+-			return -EINVAL;
+-		break;
+-	case CS_SEL_ANY:
+-		if (!allow_non_mbus) {
+-			if (index >= mbus_yuv_sz) {
+-				index -= mbus_yuv_sz;
+-				if (index >= mbus_rgb_sz)
+-					return -EINVAL;
+-				fmt = &rgb_formats[index];
+-				if (!allow_bayer && fmt->bayer)
+-					return -EINVAL;
+-			} else {
+-				fmt = &yuv_formats[index];
+-			}
+-		} else {
+-			if (index >= yuv_sz + rgb_sz)
+-				return -EINVAL;
+-			if (index >= yuv_sz) {
+-				fmt = &rgb_formats[index - yuv_sz];
+-				if (!allow_bayer && fmt->bayer)
+-					return -EINVAL;
+-			} else {
+-				fmt = &yuv_formats[index];
+-			}
++	for (i = 0; i < ARRAY_SIZE(pixel_formats); i++) {
++		const struct imx_media_pixfmt *fmt = &pixel_formats[i];
++		enum codespace_sel fmt_cs_sel;
++
++		fmt_cs_sel = (fmt->cs == IPUV3_COLORSPACE_YUV) ?
++			CS_SEL_YUV : CS_SEL_RGB;
++
++		if ((cs_sel != CS_SEL_ANY && fmt_cs_sel != cs_sel) ||
++		    (!allow_non_mbus && !fmt->codes[0]) ||
++		    (!allow_bayer && fmt->bayer))
++			continue;
++
++		if (index == 0) {
++			if (fourcc)
++				*fourcc = fmt->fourcc;
++			if (code)
++				*code = fmt->codes[0];
++			return 0;
+ 		}
+-		break;
+-	default:
+-		return -EINVAL;
+-	}
+ 
+-	if (fourcc)
+-		*fourcc = fmt->fourcc;
+-	if (code)
+-		*code = fmt->codes[0];
++		index--;
++	}
+ 
+-	return 0;
++	return -EINVAL;
+ }
+ 
+ const struct imx_media_pixfmt *
 -- 
 2.25.1
 
