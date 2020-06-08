@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 637BD1F30D5
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 03:03:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F22B1F30D0
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 03:03:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387542AbgFIBDQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 21:03:16 -0400
+        id S1733007AbgFIBDP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 21:03:15 -0400
 Received: from mail.kernel.org ([198.145.29.99]:51970 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727946AbgFHXHg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:07:36 -0400
+        id S1727955AbgFHXHj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:07:39 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0E56B2087E;
-        Mon,  8 Jun 2020 23:07:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 681F420872;
+        Mon,  8 Jun 2020 23:07:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591657656;
-        bh=1S5Q9TpFA1WJBMNsZ9T26wr84UeMbZz/aKxvsdAw2F8=;
+        s=default; t=1591657659;
+        bh=gumFx8A5m9fNWLYnCaEu3mPXlkEB5qOQe53IV6HBUdM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=km9GvmngdZq79C+MzaGB8nqr2G2hUBnj764Y6Zvkg9+Zad9q6VXVq+tQZO+tGbLA6
-         0uGO41lNP0N3zDpyaSyAzmzRmYIu0dz/taCQ5p/XlEw9tGkXFwH3A2AZUj3Owmu4c5
-         VxKXWEhxvsY9Yu+UdwX4e49GE/6BuCMK+juDu/0E=
+        b=iofGzeyDknde6/RtOsP1/LBRNvBoC4KPuuKCtiR4QMJxHx6S+pbisToUxaJ2l2WUa
+         J9eJvBlHyA/A8xsqd6vw4GNHcHV75+b6AA3UoYZKSYTIOJUY5V1qw9cMl6c03uOGVW
+         iTFHNJKbTPJfYOHwe7ZUIR0is15QWxp+U/a1FOvc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Peter Rosin <peda@axentia.se>, Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.7 069/274] spi: mux: repair mux usage
-Date:   Mon,  8 Jun 2020 19:02:42 -0400
-Message-Id: <20200608230607.3361041-69-sashal@kernel.org>
+Cc:     Sven Eckelmann <sven@narfation.org>,
+        Matthias Schiffer <mschiffer@universe-factory.net>,
+        Simon Wunderlich <sw@simonwunderlich.de>,
+        Sasha Levin <sashal@kernel.org>,
+        b.a.t.m.a.n@lists.open-mesh.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.7 071/274] batman-adv: Revert "disable ethtool link speed detection when auto negotiation off"
+Date:   Mon,  8 Jun 2020 19:02:44 -0400
+Message-Id: <20200608230607.3361041-71-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608230607.3361041-1-sashal@kernel.org>
 References: <20200608230607.3361041-1-sashal@kernel.org>
@@ -42,56 +45,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Rosin <peda@axentia.se>
+From: Sven Eckelmann <sven@narfation.org>
 
-[ Upstream commit a2b02e4623fb127fa65a13e4ac5aa56e4ae16291 ]
+[ Upstream commit 9ad346c90509ebd983f60da7d082f261ad329507 ]
 
-It is not valid to cache/short out selection of the mux.
+The commit 8c46fcd78308 ("batman-adv: disable ethtool link speed detection
+when auto negotiation off") disabled the usage of ethtool's link_ksetting
+when auto negotation was enabled due to invalid values when used with
+tun/tap virtual net_devices. According to the patch, automatic measurements
+should be used for these kind of interfaces.
 
-mux_control_select() only locks the mux until mux_control_deselect()
-is called. mux_control_deselect() may put the mux in some low power
-state or some other user of the mux might select it for other purposes.
-These things are probably not happening in the original setting where
-this driver was developed, but it is said to be a generic SPI mux.
+But there are major flaws with this argumentation:
 
-Also, the mux framework will short out the actual low level muxing
-operation when/if that is possible.
+* automatic measurements are not implemented
+* auto negotiation has nothing to do with the validity of the retrieved
+  values
 
-Fixes: e9e40543ad5b ("spi: Add generic SPI multiplexer")
-Signed-off-by: Peter Rosin <peda@axentia.se>
-Link: https://lore.kernel.org/r/20200525104352.26807-1-peda@axentia.se
-Signed-off-by: Mark Brown <broonie@kernel.org>
+The first point has to be fixed by a longer patch series. The "validity"
+part of the second point must be addressed in the same patch series by
+dropping the usage of ethtool's link_ksetting (thus always doing automatic
+measurements over ethernet).
+
+Drop the patch again to have more default values for various net_device
+types/configurations. The user can still overwrite them using the
+batadv_hardif's BATADV_ATTR_THROUGHPUT_OVERRIDE.
+
+Reported-by: Matthias Schiffer <mschiffer@universe-factory.net>
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-mux.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ net/batman-adv/bat_v_elp.c | 15 +--------------
+ 1 file changed, 1 insertion(+), 14 deletions(-)
 
-diff --git a/drivers/spi/spi-mux.c b/drivers/spi/spi-mux.c
-index 4f94c9127fc1..cc9ef371db14 100644
---- a/drivers/spi/spi-mux.c
-+++ b/drivers/spi/spi-mux.c
-@@ -51,6 +51,10 @@ static int spi_mux_select(struct spi_device *spi)
- 	struct spi_mux_priv *priv = spi_controller_get_devdata(spi->controller);
- 	int ret;
- 
-+	ret = mux_control_select(priv->mux, spi->chip_select);
-+	if (ret)
-+		return ret;
-+
- 	if (priv->current_cs == spi->chip_select)
- 		return 0;
- 
-@@ -62,10 +66,6 @@ static int spi_mux_select(struct spi_device *spi)
- 	priv->spi->mode = spi->mode;
- 	priv->spi->bits_per_word = spi->bits_per_word;
- 
--	ret = mux_control_select(priv->mux, spi->chip_select);
--	if (ret)
--		return ret;
+diff --git a/net/batman-adv/bat_v_elp.c b/net/batman-adv/bat_v_elp.c
+index 1e3172db7492..955e0b8960d6 100644
+--- a/net/batman-adv/bat_v_elp.c
++++ b/net/batman-adv/bat_v_elp.c
+@@ -127,20 +127,7 @@ static u32 batadv_v_elp_get_throughput(struct batadv_hardif_neigh_node *neigh)
+ 	rtnl_lock();
+ 	ret = __ethtool_get_link_ksettings(hard_iface->net_dev, &link_settings);
+ 	rtnl_unlock();
 -
- 	priv->current_cs = spi->chip_select;
- 
- 	return 0;
+-	/* Virtual interface drivers such as tun / tap interfaces, VLAN, etc
+-	 * tend to initialize the interface throughput with some value for the
+-	 * sake of having a throughput number to export via ethtool. This
+-	 * exported throughput leaves batman-adv to conclude the interface
+-	 * throughput is genuine (reflecting reality), thus no measurements
+-	 * are necessary.
+-	 *
+-	 * Based on the observation that those interface types also tend to set
+-	 * the link auto-negotiation to 'off', batman-adv shall check this
+-	 * setting to differentiate between genuine link throughput information
+-	 * and placeholders installed by virtual interfaces.
+-	 */
+-	if (ret == 0 && link_settings.base.autoneg == AUTONEG_ENABLE) {
++	if (ret == 0) {
+ 		/* link characteristics might change over time */
+ 		if (link_settings.base.duplex == DUPLEX_FULL)
+ 			hard_iface->bat_v.flags |= BATADV_FULL_DUPLEX;
 -- 
 2.25.1
 
