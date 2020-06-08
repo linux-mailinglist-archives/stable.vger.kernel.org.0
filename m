@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E99241F2C3C
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:23:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BEDE1F2BD0
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:22:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728383AbgFIAW1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 20:22:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39156 "EHLO mail.kernel.org"
+        id S1730044AbgFHXRh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 19:17:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39272 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728931AbgFHXRc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:17:32 -0400
+        id S1730481AbgFHXRe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:17:34 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 412FC20853;
-        Mon,  8 Jun 2020 23:17:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E0BED20853;
+        Mon,  8 Jun 2020 23:17:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658251;
-        bh=JOvf7Z0unFZPa0R3IIQFYG1Wc1kvGB+pDnGn35Q+6iY=;
+        s=default; t=1591658254;
+        bh=PwGEB/vLSvl2vUNqv3qWtWIltm08uq5RJYrsOTA1Xek=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jpMlPrhhsOTiB99fAleMHvofvKOoS4WIxbtg7WdH6+yyj0Lb5HZmdltvzi3/9B2s8
-         dKRBeFQqf3CBOLClEzF3fSq8n/eKvyqgQVI9woqUAbCzZtbtlzIxWHBgqQS2tzkJxH
-         9nA1XbU52q/b6NpTsQiU0fzIsksydYC/NJvsM59w=
+        b=YrLEj3TRUToTIIh8hhkGB5Jyqx2MWLbTU3ECkpTK1VKoataJ/RsslleO2kasZVBYP
+         fhzOLiq8HUHmvE9gMsOyTLCjnz1kYi1rZsVR2+5xS+GD0m/p0NKNNPoniKZNIr+eSn
+         Ui3H6Mv3lJRrhysx8Mfp9GKA30HubODnK/bYDo/Q=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chuhong Yuan <hslester96@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.6 261/606] net: microchip: encx24j600: add missed kthread_stop
-Date:   Mon,  8 Jun 2020 19:06:26 -0400
-Message-Id: <20200608231211.3363633-261-sashal@kernel.org>
+Cc:     Bob Peterson <rpeterso@redhat.com>,
+        Andreas Gruenbacher <agruenba@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, cluster-devel@redhat.com
+Subject: [PATCH AUTOSEL 5.6 263/606] gfs2: move privileged user check to gfs2_quota_lock_check
+Date:   Mon,  8 Jun 2020 19:06:28 -0400
+Message-Id: <20200608231211.3363633-263-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608231211.3363633-1-sashal@kernel.org>
 References: <20200608231211.3363633-1-sashal@kernel.org>
@@ -43,51 +43,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuhong Yuan <hslester96@gmail.com>
+From: Bob Peterson <rpeterso@redhat.com>
 
-[ Upstream commit ff8ce319e9c25e920d994cc35236f0bb32dfc8f3 ]
+[ Upstream commit 4ed0c30811cb4d30ef89850b787a53a84d5d2bcb ]
 
-This driver calls kthread_run() in probe, but forgets to call
-kthread_stop() in probe failure and remove.
-Add the missed kthread_stop() to fix it.
+Before this patch, function gfs2_quota_lock checked if it was called
+from a privileged user, and if so, it bypassed the quota check:
+superuser can operate outside the quotas.
+That's the wrong place for the check because the lock/unlock functions
+are separate from the lock_check function, and you can do lock and
+unlock without actually checking the quotas.
 
-Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This patch moves the check to gfs2_quota_lock_check.
+
+Signed-off-by: Bob Peterson <rpeterso@redhat.com>
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/microchip/encx24j600.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ fs/gfs2/quota.c | 3 +--
+ fs/gfs2/quota.h | 3 ++-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/microchip/encx24j600.c b/drivers/net/ethernet/microchip/encx24j600.c
-index 39925e4bf2ec..b25a13da900a 100644
---- a/drivers/net/ethernet/microchip/encx24j600.c
-+++ b/drivers/net/ethernet/microchip/encx24j600.c
-@@ -1070,7 +1070,7 @@ static int encx24j600_spi_probe(struct spi_device *spi)
- 	if (unlikely(ret)) {
- 		netif_err(priv, probe, ndev, "Error %d initializing card encx24j600 card\n",
- 			  ret);
--		goto out_free;
-+		goto out_stop;
- 	}
+diff --git a/fs/gfs2/quota.c b/fs/gfs2/quota.c
+index e9f93045eb01..832d44782f74 100644
+--- a/fs/gfs2/quota.c
++++ b/fs/gfs2/quota.c
+@@ -1040,8 +1040,7 @@ int gfs2_quota_lock(struct gfs2_inode *ip, kuid_t uid, kgid_t gid)
+ 	u32 x;
+ 	int error = 0;
  
- 	eidled = encx24j600_read_reg(priv, EIDLED);
-@@ -1088,6 +1088,8 @@ static int encx24j600_spi_probe(struct spi_device *spi)
+-	if (capable(CAP_SYS_RESOURCE) ||
+-	    sdp->sd_args.ar_quota != GFS2_QUOTA_ON)
++	if (sdp->sd_args.ar_quota != GFS2_QUOTA_ON)
+ 		return 0;
  
- out_unregister:
- 	unregister_netdev(priv->ndev);
-+out_stop:
-+	kthread_stop(priv->kworker_task);
- out_free:
- 	free_netdev(ndev);
+ 	error = gfs2_quota_hold(ip, uid, gid);
+diff --git a/fs/gfs2/quota.h b/fs/gfs2/quota.h
+index 765627d9a91e..fe68a91dc16f 100644
+--- a/fs/gfs2/quota.h
++++ b/fs/gfs2/quota.h
+@@ -44,7 +44,8 @@ static inline int gfs2_quota_lock_check(struct gfs2_inode *ip,
+ 	int ret;
  
-@@ -1100,6 +1102,7 @@ static int encx24j600_spi_remove(struct spi_device *spi)
- 	struct encx24j600_priv *priv = dev_get_drvdata(&spi->dev);
- 
- 	unregister_netdev(priv->ndev);
-+	kthread_stop(priv->kworker_task);
- 
- 	free_netdev(priv->ndev);
- 
+ 	ap->allowed = UINT_MAX; /* Assume we are permitted a whole lot */
+-	if (sdp->sd_args.ar_quota == GFS2_QUOTA_OFF)
++	if (capable(CAP_SYS_RESOURCE) ||
++	    sdp->sd_args.ar_quota == GFS2_QUOTA_OFF)
+ 		return 0;
+ 	ret = gfs2_quota_lock(ip, NO_UID_QUOTA_CHANGE, NO_GID_QUOTA_CHANGE);
+ 	if (ret)
 -- 
 2.25.1
 
