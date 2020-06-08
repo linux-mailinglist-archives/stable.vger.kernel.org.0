@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D348F1F26A6
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:45:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D6921F26A7
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:45:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732145AbgFHX1n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 19:27:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56388 "EHLO mail.kernel.org"
+        id S1732154AbgFHX1q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 19:27:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56430 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732141AbgFHX1m (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:27:42 -0400
+        id S1732147AbgFHX1o (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:27:44 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 426D52064C;
-        Mon,  8 Jun 2020 23:27:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A55892068D;
+        Mon,  8 Jun 2020 23:27:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658862;
-        bh=zg1MY30pWLAJyYYeXVGxxC6IoKKFWbAWqtBif7+QwTA=;
+        s=default; t=1591658863;
+        bh=YGuNbxnOFdGZn9xhW1g0YbhvMFNUM6o6VtQi5BCwJ9E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2nOPo1NQAHnpqklaHhWgNvacb8R30xdCC5+1PJgy8azO1yUs3u3sGm+0ds04rT0EW
-         8RnM37+TStbfFlBngKcBlnVtizdYBXu9/KGYh0eMUEOmzHZIxHqqLipvxf2Mgbp/yn
-         09omLZr1CsOwNGTZB01f/FR0YbtYQxL/GyBoUUew=
+        b=rvZset2ucH6KBJDK17lX02b3sF9IGcHf49WHUElnsN5paw5/g61TPO5Cny5BBKjOT
+         CX+poo3XretIEvFZGBvfPvTtZsW30TGg+g4GvNVSor4qAN0RKYfvdVzbrtmPRGd6O8
+         x/uwy1WfCqPOA4ERwL2HMp784SOgwQ3UkXANCM/4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ulf Hansson <ulf.hansson@linaro.org>,
-        Rui Miguel Silva <rmfrfs@gmail.com>,
-        Johan Hovold <johan@kernel.org>, Alex Elder <elder@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        greybus-dev@lists.linaro.org, Sasha Levin <sashal@kernel.org>,
-        devel@driverdev.osuosl.org
-Subject: [PATCH AUTOSEL 4.9 45/50] staging: greybus: sdio: Respect the cmd->busy_timeout from the mmc core
-Date:   Mon,  8 Jun 2020 19:26:35 -0400
-Message-Id: <20200608232640.3370262-45-sashal@kernel.org>
+Cc:     Xie XiuQi <xiexiuqi@huawei.com>, Hulk Robot <hulkci@huawei.com>,
+        Andrew Bowers <andrewx.bowers@intel.com>,
+        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        intel-wired-lan@lists.osuosl.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 46/50] ixgbe: fix signed-integer-overflow warning
+Date:   Mon,  8 Jun 2020 19:26:36 -0400
+Message-Id: <20200608232640.3370262-46-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608232640.3370262-1-sashal@kernel.org>
 References: <20200608232640.3370262-1-sashal@kernel.org>
@@ -46,63 +45,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ulf Hansson <ulf.hansson@linaro.org>
+From: Xie XiuQi <xiexiuqi@huawei.com>
 
-[ Upstream commit a389087ee9f195fcf2f31cd771e9ec5f02c16650 ]
+[ Upstream commit 3b70683fc4d68f5d915d9dc7e5ba72c732c7315c ]
 
-Using a fixed 1s timeout for all commands is a bit problematic.
+ubsan report this warning, fix it by adding a unsigned suffix.
 
-For some commands it means waiting longer than needed for the timeout to
-expire, which may not a big issue, but still. For other commands, like for
-an erase (CMD38) that uses a R1B response, may require longer timeouts than
-1s. In these cases, we may end up treating the command as it failed, while
-it just needed some more time to complete successfully.
+UBSAN: signed-integer-overflow in
+drivers/net/ethernet/intel/ixgbe/ixgbe_common.c:2246:26
+65535 * 65537 cannot be represented in type 'int'
+CPU: 21 PID: 7 Comm: kworker/u256:0 Not tainted 5.7.0-rc3-debug+ #39
+Hardware name: Huawei TaiShan 2280 V2/BC82AMDC, BIOS 2280-V2 03/27/2020
+Workqueue: ixgbe ixgbe_service_task [ixgbe]
+Call trace:
+ dump_backtrace+0x0/0x3f0
+ show_stack+0x28/0x38
+ dump_stack+0x154/0x1e4
+ ubsan_epilogue+0x18/0x60
+ handle_overflow+0xf8/0x148
+ __ubsan_handle_mul_overflow+0x34/0x48
+ ixgbe_fc_enable_generic+0x4d0/0x590 [ixgbe]
+ ixgbe_service_task+0xc20/0x1f78 [ixgbe]
+ process_one_work+0x8f0/0xf18
+ worker_thread+0x430/0x6d0
+ kthread+0x218/0x238
+ ret_from_fork+0x10/0x18
 
-Fix the problem by respecting the cmd->busy_timeout, which is provided by
-the mmc core.
-
-Cc: Rui Miguel Silva <rmfrfs@gmail.com>
-Cc: Johan Hovold <johan@kernel.org>
-Cc: Alex Elder <elder@kernel.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: greybus-dev@lists.linaro.org
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Acked-by: Rui Miguel Silva <rmfrfs@gmail.com>
-Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Link: https://lore.kernel.org/r/20200414161413.3036-20-ulf.hansson@linaro.org
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Xie XiuQi <xiexiuqi@huawei.com>
+Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
+Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/greybus/sdio.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/intel/ixgbe/ixgbe_common.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/staging/greybus/sdio.c b/drivers/staging/greybus/sdio.c
-index 5649ef1e379d..82a1c2cf6687 100644
---- a/drivers/staging/greybus/sdio.c
-+++ b/drivers/staging/greybus/sdio.c
-@@ -413,6 +413,7 @@ static int gb_sdio_command(struct gb_sdio_host *host, struct mmc_command *cmd)
- 	struct gb_sdio_command_request request = {0};
- 	struct gb_sdio_command_response response;
- 	struct mmc_data *data = host->mrq->data;
-+	unsigned int timeout_ms;
- 	u8 cmd_flags;
- 	u8 cmd_type;
- 	int i;
-@@ -471,9 +472,12 @@ static int gb_sdio_command(struct gb_sdio_host *host, struct mmc_command *cmd)
- 		request.data_blksz = cpu_to_le16(data->blksz);
+diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe_common.c b/drivers/net/ethernet/intel/ixgbe/ixgbe_common.c
+index 0d2baec546e1..c17135b7fca7 100644
+--- a/drivers/net/ethernet/intel/ixgbe/ixgbe_common.c
++++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_common.c
+@@ -2219,7 +2219,7 @@ s32 ixgbe_fc_enable_generic(struct ixgbe_hw *hw)
  	}
  
--	ret = gb_operation_sync(host->connection, GB_SDIO_TYPE_COMMAND,
--				&request, sizeof(request), &response,
--				sizeof(response));
-+	timeout_ms = cmd->busy_timeout ? cmd->busy_timeout :
-+		GB_OPERATION_TIMEOUT_DEFAULT;
-+
-+	ret = gb_operation_sync_timeout(host->connection, GB_SDIO_TYPE_COMMAND,
-+					&request, sizeof(request), &response,
-+					sizeof(response), timeout_ms);
- 	if (ret < 0)
- 		goto out;
+ 	/* Configure pause time (2 TCs per register) */
+-	reg = hw->fc.pause_time * 0x00010001;
++	reg = hw->fc.pause_time * 0x00010001U;
+ 	for (i = 0; i < (MAX_TRAFFIC_CLASS / 2); i++)
+ 		IXGBE_WRITE_REG(hw, IXGBE_FCTTV(i), reg);
  
 -- 
 2.25.1
