@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F1EE91F29FD
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:06:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C7DD1F29F9
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:06:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731124AbgFHXVQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 19:21:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45422 "EHLO mail.kernel.org"
+        id S1729849AbgFIAF4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 20:05:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45436 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730394AbgFHXVP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:21:15 -0400
+        id S1728511AbgFHXVQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:21:16 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 96CD320823;
-        Mon,  8 Jun 2020 23:21:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B4F9220870;
+        Mon,  8 Jun 2020 23:21:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658475;
-        bh=caU9kQfvMODb0OJ2Hu0o+ztCJtskyU9GmhAPkivUg70=;
+        s=default; t=1591658476;
+        bh=K2YU//ZLvZNkYLg+KDV0DbTG8YJHfFJJ2wGbc+BUzfo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oTei9LQKW1gU1ekE14ScOuYJADuOQdK++79/m5/BWEutTTbC03BqVAJhHnpjp6hfP
-         Vurinn8MKRWkTtrWlTNhQjHyQEt2oOlyNioEYsxlj8BkdwbFCU/YqDv+as8HS9BxSd
-         YWdfV8878uDo3DGw4TtA7an0mOmCBavwsDasp6IA=
+        b=E8CP6XXgfABEKi+amc5HQ0aPpAED47zxRxwx/CUrToeG5qFxpil4yulOI2E6Aqr23
+         50+i9alodR3OYF1mVkKzqArTBfpKYOUlkUL4/fl9/Uvn9I0L8XqTbATv5wwQzN/M7q
+         0tOAXyhSFPSmvqhiRrv7BgEYmF3GVyM4Phh+FyBk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mordechay Goodstein <mordechay.goodstein@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 112/175] iwlwifi: avoid debug max amsdu config overwriting itself
-Date:   Mon,  8 Jun 2020 19:17:45 -0400
-Message-Id: <20200608231848.3366970-112-sashal@kernel.org>
+Cc:     Christoph Hellwig <hch@lst.de>, Keith Busch <kbusch@kernel.org>,
+        Sagi Grimberg <sagi@grimberg.me>, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 113/175] nvme: refine the Qemu Identify CNS quirk
+Date:   Mon,  8 Jun 2020 19:17:46 -0400
+Message-Id: <20200608231848.3366970-113-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608231848.3366970-1-sashal@kernel.org>
 References: <20200608231848.3366970-1-sashal@kernel.org>
@@ -44,94 +43,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mordechay Goodstein <mordechay.goodstein@intel.com>
+From: Christoph Hellwig <hch@lst.de>
 
-[ Upstream commit a65a5824298b06049dbaceb8a9bd19709dc9507c ]
+[ Upstream commit b9a5c3d4c34d8bd9fd75f7f28d18a57cb68da237 ]
 
-If we set amsdu_len one after another the second one overwrites
-the orig_amsdu_len so allow only moving from debug to non debug state.
+Add a helper to check if we can use Identify CNS values > 1, and refine
+the Qemu quirk to not apply to reported versions larger than 1.1, as the
+Qemu implementation had been fixed by then.
 
-Also the TLC update check was wrong: it was checking that also the orig
-is smaller then the new updated size, which is not the case in debug
-amsdu mode.
-
-Signed-off-by: Mordechay Goodstein <mordechay.goodstein@intel.com>
-Fixes: af2984e9e625 ("iwlwifi: mvm: add a debugfs entry to set a fixed size AMSDU for all TX packets")
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Link: https://lore.kernel.org/r/iwlwifi.20200424182644.e565446a4fce.I9729d8c520d8b8bb4de9a5cdc62e01eb85168aac@changeid
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Keith Busch <kbusch@kernel.org>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlwifi/mvm/debugfs.c | 11 +++++++----
- drivers/net/wireless/intel/iwlwifi/mvm/rs-fw.c   | 15 ++++++++-------
- 2 files changed, 15 insertions(+), 11 deletions(-)
+ drivers/nvme/host/core.c | 16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/debugfs.c b/drivers/net/wireless/intel/iwlwifi/mvm/debugfs.c
-index ad18c2f1a806..524f9dd2323d 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/debugfs.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/debugfs.c
-@@ -5,10 +5,9 @@
-  *
-  * GPL LICENSE SUMMARY
-  *
-- * Copyright(c) 2012 - 2014 Intel Corporation. All rights reserved.
-  * Copyright(c) 2013 - 2015 Intel Mobile Communications GmbH
-  * Copyright(c) 2016 - 2017 Intel Deutschland GmbH
-- * Copyright(c) 2018 - 2019 Intel Corporation
-+ * Copyright(c) 2012 - 2014, 2018 - 2020 Intel Corporation
-  *
-  * This program is free software; you can redistribute it and/or modify
-  * it under the terms of version 2 of the GNU General Public License as
-@@ -28,10 +27,9 @@
-  *
-  * BSD LICENSE
-  *
-- * Copyright(c) 2012 - 2014 Intel Corporation. All rights reserved.
-  * Copyright(c) 2013 - 2015 Intel Mobile Communications GmbH
-  * Copyright(c) 2016 - 2017 Intel Deutschland GmbH
-- * Copyright(c) 2018 - 2019 Intel Corporation
-+ * Copyright(c) 2012 - 2014, 2018 - 2020 Intel Corporation
-  * All rights reserved.
-  *
-  * Redistribution and use in source and binary forms, with or without
-@@ -478,6 +476,11 @@ static ssize_t iwl_dbgfs_amsdu_len_write(struct ieee80211_sta *sta,
- 	if (kstrtou16(buf, 0, &amsdu_len))
- 		return -EINVAL;
+diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+index f0e0af3aa714..d4b388793f40 100644
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -1032,6 +1032,19 @@ void nvme_stop_keep_alive(struct nvme_ctrl *ctrl)
+ }
+ EXPORT_SYMBOL_GPL(nvme_stop_keep_alive);
  
-+	/* only change from debug set <-> debug unset */
-+	if ((amsdu_len && mvmsta->orig_amsdu_len) ||
-+	    (!!amsdu_len && mvmsta->orig_amsdu_len))
-+		return -EBUSY;
++/*
++ * In NVMe 1.0 the CNS field was just a binary controller or namespace
++ * flag, thus sending any new CNS opcodes has a big chance of not working.
++ * Qemu unfortunately had that bug after reporting a 1.1 version compliance
++ * (but not for any later version).
++ */
++static bool nvme_ctrl_limited_cns(struct nvme_ctrl *ctrl)
++{
++	if (ctrl->quirks & NVME_QUIRK_IDENTIFY_CNS)
++		return ctrl->vs < NVME_VS(1, 2, 0);
++	return ctrl->vs < NVME_VS(1, 1, 0);
++}
 +
- 	if (amsdu_len) {
- 		mvmsta->orig_amsdu_len = sta->max_amsdu_len;
- 		sta->max_amsdu_len = amsdu_len;
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/rs-fw.c b/drivers/net/wireless/intel/iwlwifi/mvm/rs-fw.c
-index 5b2bd603febf..be8bc0601d7b 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/rs-fw.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/rs-fw.c
-@@ -367,14 +367,15 @@ void iwl_mvm_tlc_update_notif(struct iwl_mvm *mvm,
- 		u16 size = le32_to_cpu(notif->amsdu_size);
- 		int i;
+ static int nvme_identify_ctrl(struct nvme_ctrl *dev, struct nvme_id_ctrl **id)
+ {
+ 	struct nvme_command c = { };
+@@ -3740,8 +3753,7 @@ static void nvme_scan_work(struct work_struct *work)
  
--		/*
--		 * In debug sta->max_amsdu_len < size
--		 * so also check with orig_amsdu_len which holds the original
--		 * data before debugfs changed the value
--		 */
--		if (WARN_ON(sta->max_amsdu_len < size &&
--			    mvmsta->orig_amsdu_len < size))
-+		if (sta->max_amsdu_len < size) {
-+			/*
-+			 * In debug sta->max_amsdu_len < size
-+			 * so also check with orig_amsdu_len which holds the
-+			 * original data before debugfs changed the value
-+			 */
-+			WARN_ON(mvmsta->orig_amsdu_len < size);
- 			goto out;
-+		}
- 
- 		mvmsta->amsdu_enabled = le32_to_cpu(notif->amsdu_enabled);
- 		mvmsta->max_amsdu_len = size;
+ 	mutex_lock(&ctrl->scan_lock);
+ 	nn = le32_to_cpu(id->nn);
+-	if (ctrl->vs >= NVME_VS(1, 1, 0) &&
+-	    !(ctrl->quirks & NVME_QUIRK_IDENTIFY_CNS)) {
++	if (!nvme_ctrl_limited_cns(ctrl)) {
+ 		if (!nvme_scan_ns_list(ctrl, nn))
+ 			goto out_free_id;
+ 	}
 -- 
 2.25.1
 
