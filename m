@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 58C4D1F2B21
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:17:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 49CBE1F2B46
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:17:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730769AbgFHXTX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 19:19:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42024 "EHLO mail.kernel.org"
+        id S1732257AbgFIANz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 20:13:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42068 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730766AbgFHXTR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:19:17 -0400
+        id S1730421AbgFHXTS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:19:18 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 51E212083E;
-        Mon,  8 Jun 2020 23:19:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B52C920842;
+        Mon,  8 Jun 2020 23:19:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658357;
-        bh=elBE11fQiN4qbvXIOtPynWlN6qJBOFWfp7dr4xXo6MY=;
+        s=default; t=1591658358;
+        bh=q2rVo/aR3JTRBRIML0kZmbB8f0+fBsJ6fAx8XSXDfSQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pDTrdO53CYIqty9VZfI5HpOf3HOPeH4Jb+N09DjwV+f/jRN15M9RS1nkkWwgCu8hG
-         ZymzmZt33A3ZXT5KZJuuke+GbWpc3A42Oy3ggBhhjCMeNLFkCLRgkWUa4muRhlj4oH
-         VP90kR6rX/PhfLzJRI/Zqz0PDhYI9YVBZ0CQfiU4=
+        b=aa5n72AiMtnCQmsm8//nZX5NDE1rEY+xWIPfflU4XI+iKjlUoVk+HHL11solShQHx
+         c8f9VoLyljD5+7gKiVbc0w1y2l6kfXqshbUe8I8lO5NpBrUO+Bp3FiR22wcmnHI6c9
+         SSHR6wOtvy1W23NVE4iTnxoEZlI1shB50Wc4YYGY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wen Gong <wgong@codeaurora.org>, Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>, ath10k@lists.infradead.org,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 023/175] ath10k: remove the max_sched_scan_reqs value
-Date:   Mon,  8 Jun 2020 19:16:16 -0400
-Message-Id: <20200608231848.3366970-23-sashal@kernel.org>
+Cc:     Daniel Thompson <daniel.thompson@linaro.org>,
+        Douglas Anderson <dianders@chromium.org>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 024/175] arm64: cacheflush: Fix KGDB trap detection
+Date:   Mon,  8 Jun 2020 19:16:17 -0400
+Message-Id: <20200608231848.3366970-24-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608231848.3366970-1-sashal@kernel.org>
 References: <20200608231848.3366970-1-sashal@kernel.org>
@@ -43,49 +44,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wen Gong <wgong@codeaurora.org>
+From: Daniel Thompson <daniel.thompson@linaro.org>
 
-[ Upstream commit d431f8939c1419854dfe89dd345387f5397c6edd ]
+[ Upstream commit ab8ad279ceac4fc78ae4dcf1a26326e05695e537 ]
 
-The struct cfg80211_wowlan of NET_DETECT WoWLAN feature share the same
-struct cfg80211_sched_scan_request together with scheduled scan request
-feature, and max_sched_scan_reqs of wiphy is only used for sched scan,
-and ath10k does not support scheduled scan request feature, so ath10k
-does not set flag NL80211_FEATURE_SCHED_SCAN_RANDOM_MAC_ADDR, but ath10k
-set max_sched_scan_reqs of wiphy to a non zero value 1, then function
-nl80211_add_commands_unsplit of cfg80211 will set it support command
-NL80211_CMD_START_SCHED_SCAN because max_sched_scan_reqs is a non zero
-value, but actually ath10k not support it, then it leads a mismatch result
-for sched scan of cfg80211, then application shill found the mismatch and
-stop running case of MAC random address scan and then the case fail.
+flush_icache_range() contains a bodge to avoid issuing IPIs when the kgdb
+trap handler is running because issuing IPIs is unsafe (and not needed)
+in this execution context. However the current test, based on
+kgdb_connected is flawed: it both over-matches and under-matches.
 
-After remove max_sched_scan_reqs value, it keeps match for sched scan and
-case of MAC random address scan pass.
+The over match occurs because kgdb_connected is set when gdb attaches
+to the stub and remains set during normal running. This is relatively
+harmelss because in almost all cases irq_disabled() will be false.
 
-Tested with QCA6174 SDIO with firmware WLAN.RMH.4.4.1-00029.
-Tested with QCA6174 PCIe with firmware WLAN.RM.4.4.1-00110-QCARMSWP-1.
+The under match is more serious. When kdb is used instead of kgdb to access
+the debugger then kgdb_connected is not set in all the places that the
+debug core updates sw breakpoints (and hence flushes the icache). This
+can lead to deadlock.
 
-Fixes: ce834e280f2f875 ("ath10k: support NET_DETECT WoWLAN feature")
-Signed-off-by: Wen Gong <wgong@codeaurora.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20191114050001.4658-1-wgong@codeaurora.org
+Fix by replacing the ad-hoc check with the proper kgdb macro. This also
+allows us to drop the #ifdef wrapper.
+
+Fixes: 3b8c9f1cdfc5 ("arm64: IPI each CPU after invalidating the I-cache for kernel mappings")
+Signed-off-by: Daniel Thompson <daniel.thompson@linaro.org>
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
+Link: https://lore.kernel.org/r/20200504170518.2959478-1-daniel.thompson@linaro.org
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath10k/mac.c | 1 -
- 1 file changed, 1 deletion(-)
+ arch/arm64/include/asm/cacheflush.h | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath10k/mac.c b/drivers/net/wireless/ath/ath10k/mac.c
-index 36d24ea126a2..b0f6f2727053 100644
---- a/drivers/net/wireless/ath/ath10k/mac.c
-+++ b/drivers/net/wireless/ath/ath10k/mac.c
-@@ -8811,7 +8811,6 @@ int ath10k_mac_register(struct ath10k *ar)
- 	ar->hw->wiphy->max_scan_ie_len = WLAN_SCAN_PARAMS_MAX_IE_LEN;
+diff --git a/arch/arm64/include/asm/cacheflush.h b/arch/arm64/include/asm/cacheflush.h
+index 665c78e0665a..3e7dda6f1ab1 100644
+--- a/arch/arm64/include/asm/cacheflush.h
++++ b/arch/arm64/include/asm/cacheflush.h
+@@ -79,7 +79,7 @@ static inline void flush_icache_range(unsigned long start, unsigned long end)
+ 	 * IPI all online CPUs so that they undergo a context synchronization
+ 	 * event and are forced to refetch the new instructions.
+ 	 */
+-#ifdef CONFIG_KGDB
++
+ 	/*
+ 	 * KGDB performs cache maintenance with interrupts disabled, so we
+ 	 * will deadlock trying to IPI the secondary CPUs. In theory, we can
+@@ -89,9 +89,9 @@ static inline void flush_icache_range(unsigned long start, unsigned long end)
+ 	 * the patching operation, so we don't need extra IPIs here anyway.
+ 	 * In which case, add a KGDB-specific bodge and return early.
+ 	 */
+-	if (kgdb_connected && irqs_disabled())
++	if (in_dbg_master())
+ 		return;
+-#endif
++
+ 	kick_all_cpus_sync();
+ }
  
- 	if (test_bit(WMI_SERVICE_NLO, ar->wmi.svc_map)) {
--		ar->hw->wiphy->max_sched_scan_reqs = 1;
- 		ar->hw->wiphy->max_sched_scan_ssids = WMI_PNO_MAX_SUPP_NETWORKS;
- 		ar->hw->wiphy->max_match_sets = WMI_PNO_MAX_SUPP_NETWORKS;
- 		ar->hw->wiphy->max_sched_scan_ie_len = WMI_PNO_MAX_IE_LENGTH;
 -- 
 2.25.1
 
