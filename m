@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 67B131F2DD9
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:38:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 73A211F3040
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:58:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729677AbgFHXOC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 19:14:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34032 "EHLO mail.kernel.org"
+        id S1730098AbgFIA5c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 20:57:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729666AbgFHXOB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:14:01 -0400
+        id S1728265AbgFHXIv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:08:51 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0AD9B214D8;
-        Mon,  8 Jun 2020 23:13:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1CF4E21475;
+        Mon,  8 Jun 2020 23:08:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658040;
-        bh=LT8LrH50b5S9Ylv0GfXkR5aMNPboBN/KdvdNtqstb+c=;
+        s=default; t=1591657731;
+        bh=oFIdwIPcbSh6WjyfTNz2t9h1mlmA98OxWyFA46v78Jg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OlJmF3zvTv+7o/V9tNjFIJWFdr6y+BBxmQX1i1CvNbUlOKXjmcYpBUuJCiV+jAf13
-         QwmuSre11gDswMPTJKqGyi7UUreZ41kgf5EW0wGb8dkykQnsF+nKtvg9nJx3PJLBgI
-         YezOudo1Mx8tPlJRCZijvH9TJSwY5lzd81iiWvyQ=
+        b=AYe+7FSqRXpY6YsctQaifpSRtMogA1eMZzVPVqMl1GwL9W28tucxa26OlXgyLdM8G
+         7glcAxO5Ncom+3iuS1M5R+FTVqtoia1cG/FCLh9Grw/SqcRZk5FKJzi5VnluMT58jG
+         y21DT7En6uE8V6iGoyELbo1tAgnznFkbpbX+eg3c=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        syzbot+b48daca8639150bc5e73@syzkaller.appspotmail.com,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.6 090/606] pipe: Fix pipe_full() test in opipe_prep().
+Cc:     Zou Wei <zou_wei@huawei.com>, Hulk Robot <hulkci@huawei.com>,
+        Saeed Mahameed <saeedm@mellanox.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.7 122/274] net/mlx4_core: Add missing iounmap() in error path
 Date:   Mon,  8 Jun 2020 19:03:35 -0400
-Message-Id: <20200608231211.3363633-90-sashal@kernel.org>
+Message-Id: <20200608230607.3361041-122-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200608231211.3363633-1-sashal@kernel.org>
-References: <20200608231211.3363633-1-sashal@kernel.org>
+In-Reply-To: <20200608230607.3361041-1-sashal@kernel.org>
+References: <20200608230607.3361041-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -44,57 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+From: Zou Wei <zou_wei@huawei.com>
 
-[ Upstream commit 566d136289dc57816ac290de87a9a0f7d9bd3cbb ]
+[ Upstream commit c90af587a9eee697e2d89683113707cada70116a ]
 
-syzbot is reporting that splice()ing from non-empty read side to
-already-full write side causes unkillable task, for opipe_prep() is by
-error not inverting pipe_full() test.
+This fixes the following coccicheck warning:
 
-  CPU: 0 PID: 9460 Comm: syz-executor.5 Not tainted 5.6.0-rc3-next-20200228-syzkaller #0
-  Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-  RIP: 0010:rol32 include/linux/bitops.h:105 [inline]
-  RIP: 0010:iterate_chain_key kernel/locking/lockdep.c:369 [inline]
-  RIP: 0010:__lock_acquire+0x6a3/0x5270 kernel/locking/lockdep.c:4178
-  Call Trace:
-     lock_acquire+0x197/0x420 kernel/locking/lockdep.c:4720
-     __mutex_lock_common kernel/locking/mutex.c:956 [inline]
-     __mutex_lock+0x156/0x13c0 kernel/locking/mutex.c:1103
-     pipe_lock_nested fs/pipe.c:66 [inline]
-     pipe_double_lock+0x1a0/0x1e0 fs/pipe.c:104
-     splice_pipe_to_pipe fs/splice.c:1562 [inline]
-     do_splice+0x35f/0x1520 fs/splice.c:1141
-     __do_sys_splice fs/splice.c:1447 [inline]
-     __se_sys_splice fs/splice.c:1427 [inline]
-     __x64_sys_splice+0x2b5/0x320 fs/splice.c:1427
-     do_syscall_64+0xf6/0x790 arch/x86/entry/common.c:295
-     entry_SYSCALL_64_after_hwframe+0x49/0xbe
+drivers/net/ethernet/mellanox/mlx4/crdump.c:200:2-8: ERROR: missing iounmap;
+ioremap on line 190 and execution via conditional on line 198
 
-Reported-by: syzbot+b48daca8639150bc5e73@syzkaller.appspotmail.com
-Link: https://syzkaller.appspot.com/bug?id=9386d051e11e09973d5a4cf79af5e8cedf79386d
-Fixes: 8cefc107ca54c8b0 ("pipe: Use head and tail pointers for the ring, not cursor and length")
-Cc: stable@vger.kernel.org # 5.5+
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 7ef19d3b1d5e ("devlink: report error once U32_MAX snapshot ids have been used")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zou Wei <zou_wei@huawei.com>
+Reviewed-by: Saeed Mahameed <saeedm@mellanox.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/splice.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlx4/crdump.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/splice.c b/fs/splice.c
-index d671936d0aad..39b11a9a6b98 100644
---- a/fs/splice.c
-+++ b/fs/splice.c
-@@ -1503,7 +1503,7 @@ static int opipe_prep(struct pipe_inode_info *pipe, unsigned int flags)
- 	 * Check pipe occupancy without the inode lock first. This function
- 	 * is speculative anyways, so missing one is ok.
- 	 */
--	if (pipe_full(pipe->head, pipe->tail, pipe->max_usage))
-+	if (!pipe_full(pipe->head, pipe->tail, pipe->max_usage))
- 		return 0;
+diff --git a/drivers/net/ethernet/mellanox/mlx4/crdump.c b/drivers/net/ethernet/mellanox/mlx4/crdump.c
+index 73eae80e1cb7..ac5468b77488 100644
+--- a/drivers/net/ethernet/mellanox/mlx4/crdump.c
++++ b/drivers/net/ethernet/mellanox/mlx4/crdump.c
+@@ -197,6 +197,7 @@ int mlx4_crdump_collect(struct mlx4_dev *dev)
+ 	err = devlink_region_snapshot_id_get(devlink, &id);
+ 	if (err) {
+ 		mlx4_err(dev, "crdump: devlink get snapshot id err %d\n", err);
++		iounmap(cr_space);
+ 		return err;
+ 	}
  
- 	ret = 0;
 -- 
 2.25.1
 
