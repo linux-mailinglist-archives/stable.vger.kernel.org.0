@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 65BC21F2918
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:04:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 56D8A1F2968
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:05:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731385AbgFHXWv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 19:22:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47694 "EHLO mail.kernel.org"
+        id S1731778AbgFHX7j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 19:59:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47788 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731376AbgFHXWt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:22:49 -0400
+        id S1730680AbgFHXWw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:22:52 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E26C32087E;
-        Mon,  8 Jun 2020 23:22:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 91D0820842;
+        Mon,  8 Jun 2020 23:22:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658569;
-        bh=8VsisCMdQB7FOqcUK+LQADDqxVzfGHy233uyzs+RPE0=;
+        s=default; t=1591658572;
+        bh=CY52Bl6hIbhNX7WaF6Vsas88tR+RJPp+8Q5PkrVQ+eg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=scfhqmtDwJHOpoZEohzUq72ynZqIwrg0wRK6846VnCZLLxExTE3TKZCUTzIYRpskr
-         bNFSwhnJbMu4oyqWxESC22vye8kKgT/ZU8RN9R1YQphP26MSynMP4qplAURXJLCTg8
-         aC7l44j601x+TrfxwaPE6nWdh66GxrLjSOlpo6RY=
+        b=vp/Toiib1plIK7goIcaMXbI40N69wwItt0R08mzJTLBJkguxI4giijvnEFOsJSgaJ
+         SFVactodennwc8rnrtOyfwSwwLFtyYdBcbfUt0dRe4bBfdqZwYCGDR3XIbyPK2CrZH
+         hQkJUqdG7OukCVSGGWAkRsl/S4kYD9hAW59eWP6U=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arthur Kiyanovski <akiyano@amazon.com>,
-        Sameeh Jubran <sameehj@amazon.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 009/106] net: ena: fix error returning in ena_com_get_hash_function()
-Date:   Mon,  8 Jun 2020 19:21:01 -0400
-Message-Id: <20200608232238.3368589-9-sashal@kernel.org>
+Cc:     Daniel Thompson <daniel.thompson@linaro.org>,
+        Douglas Anderson <dianders@chromium.org>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.19 011/106] arm64: cacheflush: Fix KGDB trap detection
+Date:   Mon,  8 Jun 2020 19:21:03 -0400
+Message-Id: <20200608232238.3368589-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608232238.3368589-1-sashal@kernel.org>
 References: <20200608232238.3368589-1-sashal@kernel.org>
@@ -44,50 +44,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arthur Kiyanovski <akiyano@amazon.com>
+From: Daniel Thompson <daniel.thompson@linaro.org>
 
-[ Upstream commit e9a1de378dd46375f9abfd8de1e6f59ee114a793 ]
+[ Upstream commit ab8ad279ceac4fc78ae4dcf1a26326e05695e537 ]
 
-In case the "func" parameter is NULL we now return "-EINVAL".
-This shouldn't happen in general, but when it does happen, this is the
-proper way to handle it.
+flush_icache_range() contains a bodge to avoid issuing IPIs when the kgdb
+trap handler is running because issuing IPIs is unsafe (and not needed)
+in this execution context. However the current test, based on
+kgdb_connected is flawed: it both over-matches and under-matches.
 
-We also check func for NULL in the beginning of the function, as there
-is no reason to do all the work and realize in the end of the function
-it was useless.
+The over match occurs because kgdb_connected is set when gdb attaches
+to the stub and remains set during normal running. This is relatively
+harmelss because in almost all cases irq_disabled() will be false.
 
-Signed-off-by: Sameeh Jubran <sameehj@amazon.com>
-Signed-off-by: Arthur Kiyanovski <akiyano@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+The under match is more serious. When kdb is used instead of kgdb to access
+the debugger then kgdb_connected is not set in all the places that the
+debug core updates sw breakpoints (and hence flushes the icache). This
+can lead to deadlock.
+
+Fix by replacing the ad-hoc check with the proper kgdb macro. This also
+allows us to drop the #ifdef wrapper.
+
+Fixes: 3b8c9f1cdfc5 ("arm64: IPI each CPU after invalidating the I-cache for kernel mappings")
+Signed-off-by: Daniel Thompson <daniel.thompson@linaro.org>
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
+Link: https://lore.kernel.org/r/20200504170518.2959478-1-daniel.thompson@linaro.org
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/amazon/ena/ena_com.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ arch/arm64/include/asm/cacheflush.h | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/amazon/ena/ena_com.c b/drivers/net/ethernet/amazon/ena/ena_com.c
-index 3afc0e59a2bd..d07f7f65169a 100644
---- a/drivers/net/ethernet/amazon/ena/ena_com.c
-+++ b/drivers/net/ethernet/amazon/ena/ena_com.c
-@@ -2137,6 +2137,9 @@ int ena_com_get_hash_function(struct ena_com_dev *ena_dev,
- 		rss->hash_key;
- 	int rc;
- 
-+	if (unlikely(!func))
-+		return -EINVAL;
+diff --git a/arch/arm64/include/asm/cacheflush.h b/arch/arm64/include/asm/cacheflush.h
+index 19844211a4e6..a449a1c602d3 100644
+--- a/arch/arm64/include/asm/cacheflush.h
++++ b/arch/arm64/include/asm/cacheflush.h
+@@ -90,7 +90,7 @@ static inline void flush_icache_range(unsigned long start, unsigned long end)
+ 	 * IPI all online CPUs so that they undergo a context synchronization
+ 	 * event and are forced to refetch the new instructions.
+ 	 */
+-#ifdef CONFIG_KGDB
 +
- 	rc = ena_com_get_feature_ex(ena_dev, &get_resp,
- 				    ENA_ADMIN_RSS_HASH_FUNCTION,
- 				    rss->hash_key_dma_addr,
-@@ -2149,8 +2152,7 @@ int ena_com_get_hash_function(struct ena_com_dev *ena_dev,
- 	if (rss->hash_func)
- 		rss->hash_func--;
+ 	/*
+ 	 * KGDB performs cache maintenance with interrupts disabled, so we
+ 	 * will deadlock trying to IPI the secondary CPUs. In theory, we can
+@@ -100,9 +100,9 @@ static inline void flush_icache_range(unsigned long start, unsigned long end)
+ 	 * the patching operation, so we don't need extra IPIs here anyway.
+ 	 * In which case, add a KGDB-specific bodge and return early.
+ 	 */
+-	if (kgdb_connected && irqs_disabled())
++	if (in_dbg_master())
+ 		return;
+-#endif
++
+ 	kick_all_cpus_sync();
+ }
  
--	if (func)
--		*func = rss->hash_func;
-+	*func = rss->hash_func;
- 
- 	if (key)
- 		memcpy(key, hash_key->key, (size_t)(hash_key->keys_num) << 2);
 -- 
 2.25.1
 
