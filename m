@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8796F1F246B
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:21:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B12A1F246D
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:21:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731106AbgFHXVI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 19:21:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44976 "EHLO mail.kernel.org"
+        id S1731112AbgFHXVL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 19:21:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44942 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731105AbgFHXVG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:21:06 -0400
+        id S1729055AbgFHXVH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:21:07 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C062920823;
-        Mon,  8 Jun 2020 23:21:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 713BB2086A;
+        Mon,  8 Jun 2020 23:21:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658466;
-        bh=FCCEw+4akgFAHzkOen0GsKaRoZY8JJzUhE5Y8DFpSiE=;
+        s=default; t=1591658467;
+        bh=EPvLA69U/3lpdJqAkicuhqkJDkhVEvtI1+W5+HOOb80=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cgas8/HAhQo5uPv0bX1+KM/p+VrXu/+ykdRPpkwX57dYu35HyJjciPVzu+PtlHVGD
-         efkefiEocgqBNVrCZoUja/bytQiJLyFeMwwyiiYCEzKc6y5PaiTD619QA7oFZu9ZOR
-         Pyey5cWSlhCEJZvHrWerAwTrvD6nNzYDTjfTdUis=
+        b=Keg6KlwfXA3JBPmP9D1FZmVsuMYtBJQvo9zwkMmSC4ihJIQ5bgAgLJaGW4CqAyvRF
+         5DwBIFkbU2gc/vvsaO4PsjxKvBlnAQYST3WTCg52zlwvTtsyXufLfAZlsxX4Giek48
+         pYfzp0E6zOw4nl8agbLdWg8lHz8BAqkvyZKADv4Y=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Serge Semin <Sergey.Semin@baikalelectronics.ru>,
-        Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Paul Burton <paulburton@kernel.org>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Rob Herring <robh+dt@kernel.org>, linux-pm@vger.kernel.org,
-        devicetree@vger.kernel.org, Sasha Levin <sashal@kernel.org>,
-        linux-mips@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 104/175] mips: cm: Fix an invalid error code of INTVN_*_ERR
-Date:   Mon,  8 Jun 2020 19:17:37 -0400
-Message-Id: <20200608231848.3366970-104-sashal@kernel.org>
+Cc:     Daniel Thompson <daniel.thompson@linaro.org>,
+        Will Deacon <will@kernel.org>,
+        Douglas Anderson <dianders@chromium.org>,
+        Sasha Levin <sashal@kernel.org>,
+        kgdb-bugreport@lists.sourceforge.net
+Subject: [PATCH AUTOSEL 5.4 105/175] kgdb: Fix spurious true from in_dbg_master()
+Date:   Mon,  8 Jun 2020 19:17:38 -0400
+Message-Id: <20200608231848.3366970-105-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608231848.3366970-1-sashal@kernel.org>
 References: <20200608231848.3366970-1-sashal@kernel.org>
@@ -49,51 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+From: Daniel Thompson <daniel.thompson@linaro.org>
 
-[ Upstream commit 8a0efb8b101665a843205eab3d67ab09cb2d9a8d ]
+[ Upstream commit 3fec4aecb311995189217e64d725cfe84a568de3 ]
 
-Commit 3885c2b463f6 ("MIPS: CM: Add support for reporting CM cache
-errors") adds cm2_causes[] array with map of error type ID and
-pointers to the short description string. There is a mistake in
-the table, since according to MIPS32 manual CM2_ERROR_TYPE = {17,18}
-correspond to INTVN_WR_ERR and INTVN_RD_ERR, while the table
-claims they have {0x17,0x18} codes. This is obviously hex-dec
-copy-paste bug. Moreover codes {0x18 - 0x1a} indicate L2 ECC errors.
+Currently there is a small window where a badly timed migration could
+cause in_dbg_master() to spuriously return true. Specifically if we
+migrate to a new core after reading the processor id and the previous
+core takes a breakpoint then we will evaluate true if we read
+kgdb_active before we get the IPI to bring us to halt.
 
-Fixes: 3885c2b463f6 ("MIPS: CM: Add support for reporting CM cache errors")
-Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
-Cc: Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>
-Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Cc: Paul Burton <paulburton@kernel.org>
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Rob Herring <robh+dt@kernel.org>
-Cc: linux-pm@vger.kernel.org
-Cc: devicetree@vger.kernel.org
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Fix this by checking irqs_disabled() first. Interrupts are always
+disabled when we are executing the kgdb trap so this is an acceptable
+prerequisite. This also allows us to replace raw_smp_processor_id()
+with smp_processor_id() since the short circuit logic will prevent
+warnings from PREEMPT_DEBUG.
+
+Fixes: dcc7871128e9 ("kgdb: core changes to support kdb")
+Suggested-by: Will Deacon <will@kernel.org>
+Link: https://lore.kernel.org/r/20200506164223.2875760-1-daniel.thompson@linaro.org
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
+Signed-off-by: Daniel Thompson <daniel.thompson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/kernel/mips-cm.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ include/linux/kgdb.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/mips/kernel/mips-cm.c b/arch/mips/kernel/mips-cm.c
-index e5ea3db23d6b..a9eab83d9148 100644
---- a/arch/mips/kernel/mips-cm.c
-+++ b/arch/mips/kernel/mips-cm.c
-@@ -119,9 +119,9 @@ static char *cm2_causes[32] = {
- 	"COH_RD_ERR", "MMIO_WR_ERR", "MMIO_RD_ERR", "0x07",
- 	"0x08", "0x09", "0x0a", "0x0b",
- 	"0x0c", "0x0d", "0x0e", "0x0f",
--	"0x10", "0x11", "0x12", "0x13",
--	"0x14", "0x15", "0x16", "INTVN_WR_ERR",
--	"INTVN_RD_ERR", "0x19", "0x1a", "0x1b",
-+	"0x10", "INTVN_WR_ERR", "INTVN_RD_ERR", "0x13",
-+	"0x14", "0x15", "0x16", "0x17",
-+	"0x18", "0x19", "0x1a", "0x1b",
- 	"0x1c", "0x1d", "0x1e", "0x1f"
- };
- 
+diff --git a/include/linux/kgdb.h b/include/linux/kgdb.h
+index b072aeb1fd78..4d6fe87fd38f 100644
+--- a/include/linux/kgdb.h
++++ b/include/linux/kgdb.h
+@@ -323,7 +323,7 @@ extern void gdbstub_exit(int status);
+ extern int			kgdb_single_step;
+ extern atomic_t			kgdb_active;
+ #define in_dbg_master() \
+-	(raw_smp_processor_id() == atomic_read(&kgdb_active))
++	(irqs_disabled() && (smp_processor_id() == atomic_read(&kgdb_active)))
+ extern bool dbg_is_early;
+ extern void __init dbg_late_init(void);
+ extern void kgdb_panic(const char *msg);
 -- 
 2.25.1
 
