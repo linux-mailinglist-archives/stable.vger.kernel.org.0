@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 133FB1F2357
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:15:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 30A321F2355
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:15:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729622AbgFHXN5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 19:13:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33862 "EHLO mail.kernel.org"
+        id S1728461AbgFHXN4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 19:13:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33884 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728025AbgFHXNy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:13:54 -0400
+        id S1728799AbgFHXNz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:13:55 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D205F20897;
-        Mon,  8 Jun 2020 23:13:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1EC9621508;
+        Mon,  8 Jun 2020 23:13:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658033;
-        bh=TjVIzJCh0CEfsQLND/3pcn51jPC8iMMpkKt8EVaLwEw=;
+        s=default; t=1591658034;
+        bh=OSIyjFeWmXecL53OVI8UGmOLm+YGOusPJaisg9IFerw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g173U1sG/Klnqgg20gUX7d5aGQt7/lbKnm6Lk4cpGPxw1aAxTmA8f4rCFUIg53Eh/
-         VhjtG8XT3q+FabBd4S/HqE/xNUPweUppEb5J1TFwn8qb0PivxS7/PLUPxrJocWdlem
-         19xfl4a4JXtUCoV6dbS4adbTeKxgXh2JC7Veng/s=
+        b=r0CyB6Wv9ntcJb8uRrEkdQr9q8g9TvE+LCOqaWDLE/Dz+vE6SphJ1Akncw7qM+Sbg
+         ln2S7i/onmE9dx++yzsnrHi1P+w0daRC4jzmW/PgWRXpLXt33Ff/PvU64ZO5MhEd+z
+         qdtiHkYBxJIxxktceAHg3TeTOzuOGRO69vlTvC2o=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Roberto Sassu <roberto.sassu@huawei.com>,
-        Krzysztof Struczynski <krzysztof.struczynski@huawei.com>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-integrity@vger.kernel.org,
-        linux-security-module@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.6 084/606] ima: Fix return value of ima_write_policy()
-Date:   Mon,  8 Jun 2020 19:03:29 -0400
-Message-Id: <20200608231211.3363633-84-sashal@kernel.org>
+Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
+        Amir Goldstein <amir73il@gmail.com>,
+        Miklos Szeredi <mszeredi@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, linux-unionfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.6 085/606] ovl: potential crash in ovl_fid_to_fh()
+Date:   Mon,  8 Jun 2020 19:03:30 -0400
+Message-Id: <20200608231211.3363633-85-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608231211.3363633-1-sashal@kernel.org>
 References: <20200608231211.3363633-1-sashal@kernel.org>
@@ -46,41 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roberto Sassu <roberto.sassu@huawei.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 2e3a34e9f409ebe83d1af7cd2f49fca7af97dfac ]
+[ Upstream commit 9aafc1b0187322fa4fd4eb905d0903172237206c ]
 
-This patch fixes the return value of ima_write_policy() when a new policy
-is directly passed to IMA and the current policy requires appraisal of the
-file containing the policy. Currently, if appraisal is not in ENFORCE mode,
-ima_write_policy() returns 0 and leads user space applications to an
-endless loop. Fix this issue by denying the operation regardless of the
-appraisal mode.
+The "buflen" value comes from the user and there is a potential that it
+could be zero.  In do_handle_to_path() we know that "handle->handle_bytes"
+is non-zero and we do:
 
-Cc: stable@vger.kernel.org # 4.10.x
-Fixes: 19f8a84713edc ("ima: measure and appraise the IMA policy itself")
-Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
-Reviewed-by: Krzysztof Struczynski <krzysztof.struczynski@huawei.com>
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+	handle_dwords = handle->handle_bytes >> 2;
+
+So values 1-3 become zero.  Then in ovl_fh_to_dentry() we do:
+
+	int len = fh_len << 2;
+
+So now len is in the "0,4-128" range and a multiple of 4.  But if
+"buflen" is zero it will try to copy negative bytes when we do the
+memcpy in ovl_fid_to_fh().
+
+	memcpy(&fh->fb, fid, buflen - OVL_FH_WIRE_OFFSET);
+
+And that will lead to a crash.  Thanks to Amir Goldstein for his help
+with this patch.
+
+Fixes: cbe7fba8edfc ("ovl: make sure that real fid is 32bit aligned in memory")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Amir Goldstein <amir73il@gmail.com>
+Cc: <stable@vger.kernel.org> # v5.5
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/integrity/ima/ima_fs.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ fs/overlayfs/export.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/security/integrity/ima/ima_fs.c b/security/integrity/ima/ima_fs.c
-index 2000e8df0301..68571c40d61f 100644
---- a/security/integrity/ima/ima_fs.c
-+++ b/security/integrity/ima/ima_fs.c
-@@ -340,8 +340,7 @@ static ssize_t ima_write_policy(struct file *file, const char __user *buf,
- 		integrity_audit_msg(AUDIT_INTEGRITY_STATUS, NULL, NULL,
- 				    "policy_update", "signed policy required",
- 				    1, 0);
--		if (ima_appraise & IMA_APPRAISE_ENFORCE)
--			result = -EACCES;
-+		result = -EACCES;
- 	} else {
- 		result = ima_parse_add_rule(data);
- 	}
+diff --git a/fs/overlayfs/export.c b/fs/overlayfs/export.c
+index 6f54d70cef27..e605017031ee 100644
+--- a/fs/overlayfs/export.c
++++ b/fs/overlayfs/export.c
+@@ -777,6 +777,9 @@ static struct ovl_fh *ovl_fid_to_fh(struct fid *fid, int buflen, int fh_type)
+ 	if (fh_type != OVL_FILEID_V0)
+ 		return ERR_PTR(-EINVAL);
+ 
++	if (buflen <= OVL_FH_WIRE_OFFSET)
++		return ERR_PTR(-EINVAL);
++
+ 	fh = kzalloc(buflen, GFP_KERNEL);
+ 	if (!fh)
+ 		return ERR_PTR(-ENOMEM);
 -- 
 2.25.1
 
