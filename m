@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D83241F2D67
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:33:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 356AD1F2FB0
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:53:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729968AbgFIAdI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 20:33:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35602 "EHLO mail.kernel.org"
+        id S1730655AbgFIAwp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 20:52:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55872 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729063AbgFHXO6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:14:58 -0400
+        id S1728531AbgFHXJz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:09:55 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1310B21532;
-        Mon,  8 Jun 2020 23:14:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A352B20B80;
+        Mon,  8 Jun 2020 23:09:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658098;
-        bh=D+iRbQC6z8MOvPf+wJ8QtqomMFjyJtXjEcd/jU/C5hg=;
+        s=default; t=1591657794;
+        bh=iJmO4xHRje2jpVeG+/TAXg5Tl4+PC6G/lsyYhTcVaoA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xIpvUNolhX/wA/4iDCt0rNSSJX1h0cfPNIR0yt29tZ5v3hNMbnJl7uVIKJ8TLc/x4
-         Vwd+rVDK/1J5bqSsFDi8+Vl7ccMwAfn0JeoDn2t1yNhdWMaWR2f3baZ+N8kmRFAiCa
-         x/MzRQ8vPbXO5YMenm7P/FLVz6ZVE5aqsVdEDC9M=
+        b=scF3xgVf19nDtR1M/xV7AS0fPaUdcvgkuPotxMjwwIyBy5faxGwepJojSyYsQQnTF
+         EXaXT/Wan4Tc5zx6X8RJiEMSdkRKUrsihD9Ftgn6n7EJJjTA04dvmoq1bSvroLeyfj
+         kBl5QoK5FGisrL1Kmfxr6VFqjRUGsL3iDi0mw3M0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jian-Hong Pan <jian-hong@endlessm.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
-        alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.6 140/606] ALSA: hda/realtek: Enable headset mic of ASUS UX581LV with ALC295
-Date:   Mon,  8 Jun 2020 19:04:25 -0400
-Message-Id: <20200608231211.3363633-140-sashal@kernel.org>
+Cc:     Brian Foster <bfoster@redhat.com>,
+        "Darrick J . Wong" <darrick.wong@oracle.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Allison Collins <allison.henderson@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-xfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.7 173/274] xfs: reset buffer write failure state on successful completion
+Date:   Mon,  8 Jun 2020 19:04:26 -0400
+Message-Id: <20200608230607.3361041-173-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200608231211.3363633-1-sashal@kernel.org>
-References: <20200608231211.3363633-1-sashal@kernel.org>
+In-Reply-To: <20200608230607.3361041-1-sashal@kernel.org>
+References: <20200608230607.3361041-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -43,34 +45,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jian-Hong Pan <jian-hong@endlessm.com>
+From: Brian Foster <bfoster@redhat.com>
 
-[ Upstream commit 7900e81797613b92f855f9921392a7430cbdf88c ]
+[ Upstream commit b6983e80b03bd4fd42de71993b3ac7403edac758 ]
 
-The ASUS UX581LV laptop's audio (1043:19e1) with ALC295 can't detect the
-headset microphone until ALC295_FIXUP_ASUS_MIC_NO_PRESENCE quirk
-applied.
+The buffer write failure flag is intended to control the internal
+write retry that XFS has historically implemented to help mitigate
+the severity of transient I/O errors. The flag is set when a buffer
+is resubmitted from the I/O completion path due to a previous
+failure. It is checked on subsequent I/O completions to skip the
+internal retry and fall through to the higher level configurable
+error handling mechanism. The flag is cleared in the synchronous and
+delwri submission paths and also checked in various places to log
+write failure messages.
 
-Signed-off-by: Jian-Hong Pan <jian-hong@endlessm.com>
-Link: https://lore.kernel.org/r/20200512061525.133985-3-jian-hong@endlessm.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+There are a couple minor problems with the current usage of this
+flag. One is that we issue an internal retry after every submission
+from xfsaild due to how delwri submission clears the flag. This
+results in double the expected or configured number of write
+attempts when under sustained failures. Another more subtle issue is
+that the flag is never cleared on successful I/O completion. This
+can cause xfs_wait_buftarg() to suggest that dirty buffers are being
+thrown away due to the existence of the flag, when the reality is
+that the flag might still be set because the write succeeded on the
+retry.
+
+Clear the write failure flag on successful I/O completion to address
+both of these problems. This means that the internal retry attempt
+occurs once since the last time a buffer write failed and that
+various other contexts only see the flag set when the immediately
+previous write attempt has failed.
+
+Signed-off-by: Brian Foster <bfoster@redhat.com>
+Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Allison Collins <allison.henderson@oracle.com>
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_realtek.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/xfs/xfs_buf.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
-index ece762d0c714..dc2302171a71 100644
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -7436,6 +7436,7 @@ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
- 	SND_PCI_QUIRK(0x1043, 0x18b1, "Asus MJ401TA", ALC256_FIXUP_ASUS_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x1043, 0x18f1, "Asus FX505DT", ALC256_FIXUP_ASUS_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x1043, 0x19ce, "ASUS B9450FA", ALC294_FIXUP_ASUS_HPE),
-+	SND_PCI_QUIRK(0x1043, 0x19e1, "ASUS UX581LV", ALC295_FIXUP_ASUS_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1043, 0x1a13, "Asus G73Jw", ALC269_FIXUP_ASUS_G73JW),
- 	SND_PCI_QUIRK(0x1043, 0x1a30, "ASUS X705UD", ALC256_FIXUP_ASUS_MIC),
- 	SND_PCI_QUIRK(0x1043, 0x1b11, "ASUS UX431DA", ALC294_FIXUP_ASUS_COEF_1B),
+diff --git a/fs/xfs/xfs_buf.c b/fs/xfs/xfs_buf.c
+index 9ec3eaf1c618..afa73a19caa1 100644
+--- a/fs/xfs/xfs_buf.c
++++ b/fs/xfs/xfs_buf.c
+@@ -1197,8 +1197,10 @@ xfs_buf_ioend(
+ 		bp->b_ops->verify_read(bp);
+ 	}
+ 
+-	if (!bp->b_error)
++	if (!bp->b_error) {
++		bp->b_flags &= ~XBF_WRITE_FAIL;
+ 		bp->b_flags |= XBF_DONE;
++	}
+ 
+ 	if (bp->b_iodone)
+ 		(*(bp->b_iodone))(bp);
+@@ -1258,7 +1260,7 @@ xfs_bwrite(
+ 
+ 	bp->b_flags |= XBF_WRITE;
+ 	bp->b_flags &= ~(XBF_ASYNC | XBF_READ | _XBF_DELWRI_Q |
+-			 XBF_WRITE_FAIL | XBF_DONE);
++			 XBF_DONE);
+ 
+ 	error = xfs_buf_submit(bp);
+ 	if (error)
+@@ -1983,7 +1985,7 @@ xfs_buf_delwri_submit_buffers(
+ 		 * synchronously. Otherwise, drop the buffer from the delwri
+ 		 * queue and submit async.
+ 		 */
+-		bp->b_flags &= ~(_XBF_DELWRI_Q | XBF_WRITE_FAIL);
++		bp->b_flags &= ~_XBF_DELWRI_Q;
+ 		bp->b_flags |= XBF_WRITE;
+ 		if (wait_list) {
+ 			bp->b_flags &= ~XBF_ASYNC;
 -- 
 2.25.1
 
