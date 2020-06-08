@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 269E11F2D19
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:33:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A7B061F2F91
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:52:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727980AbgFHXPM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 19:15:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35934 "EHLO mail.kernel.org"
+        id S1727776AbgFHXKG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 19:10:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56088 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728719AbgFHXPK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:15:10 -0400
+        id S1728563AbgFHXKE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:10:04 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 921F121501;
-        Mon,  8 Jun 2020 23:15:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7CC7720897;
+        Mon,  8 Jun 2020 23:10:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658110;
-        bh=jAO10dhZ0/bvgXRJ5ALw6c+WQy6MKBhxPTMd0JqViQU=;
+        s=default; t=1591657804;
+        bh=65ENYAQRWakhPRgaNzD0irL6QZnR+Xw7OGN49opy4QQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yp0wg583cF/EJPOSbFpdN9IqDseS+8SjiNe+I6RNd5lKW+bWA7Sg7dxHXYpvHm0oJ
-         Gfa7aIoiLnNdXok2JCtEkj8WOuCcRik8BW7c5JwB/bgqLCUFXFyBE7/2mT9cDNm7nC
-         lai9bI4IGeA7KA8S0NjsuY0CxyU/sYX4FnL+EWak=
+        b=03m8R1XDD8wN4ItpDJXJpe/KgYF2BVkPFbVhPoGg96Xf89uiJ+IMmrW6clsLNhHsQ
+         jONdHRIdcdgKWzmHTZha2Nub0COj/c6PgRpdB38cayAWxvUi0GJiR2LnXtuudfPsrw
+         q+2gkQLZ30kfS5MUUpmo3r7bcoTVnu3sq0Hb9QEA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Keno Fischer <keno@juliacomputing.com>,
-        Will Deacon <will@kernel.org>,
-        Sudeep Holla <sudeep.holla@arm.com>, Bin Lu <Bin.Lu@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.6 149/606] arm64: Fix PTRACE_SYSEMU semantics
+Cc:     Arnd Bergmann <arnd@arndb.de>, Christoph Hellwig <hch@lst.de>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
+        linux-nvme@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.7 181/274] nvme-fc: avoid gcc-10 zero-length-bounds warning
 Date:   Mon,  8 Jun 2020 19:04:34 -0400
-Message-Id: <20200608231211.3363633-149-sashal@kernel.org>
+Message-Id: <20200608230607.3361041-181-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200608231211.3363633-1-sashal@kernel.org>
-References: <20200608231211.3363633-1-sashal@kernel.org>
+In-Reply-To: <20200608230607.3361041-1-sashal@kernel.org>
+References: <20200608230607.3361041-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -46,60 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Keno Fischer <keno@juliacomputing.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit 1cf6022bd9161081215028203919c33fcfa6debb upstream.
+[ Upstream commit 3add1d93d9919b6de94aa47900d4904adffbc976 ]
 
-Quoth the man page:
-```
-       If the tracee was restarted by PTRACE_SYSCALL or PTRACE_SYSEMU, the
-       tracee enters syscall-enter-stop just prior to entering any system
-       call (which will not be executed if the restart was using
-       PTRACE_SYSEMU, regardless of any change made to registers at this
-       point or how the tracee is restarted after this stop).
-```
+When CONFIG_ARCH_NO_SG_CHAIN is set, op->sgl[0] cannot be dereferenced,
+as gcc-10 now points out:
 
-The parenthetical comment is currently true on x86 and powerpc,
-but not currently true on arm64. arm64 re-checks the _TIF_SYSCALL_EMU
-flag after the syscall entry ptrace stop. However, at this point,
-it reflects which method was used to re-start the syscall
-at the entry stop, rather than the method that was used to reach it.
-Fix that by recording the original flag before performing the ptrace
-stop, bringing the behavior in line with documentation and x86/powerpc.
+drivers/nvme/host/fc.c: In function 'nvme_fc_init_request':
+drivers/nvme/host/fc.c:1774:29: warning: array subscript 0 is outside the bounds of an interior zero-length array 'struct scatterlist[0]' [-Wzero-length-bounds]
+ 1774 |  op->op.fcp_req.first_sgl = &op->sgl[0];
+      |                             ^~~~~~~~~~~
+drivers/nvme/host/fc.c:98:21: note: while referencing 'sgl'
+   98 |  struct scatterlist sgl[NVME_INLINE_SG_CNT];
+      |                     ^~~
 
-Fixes: f086f67485c5 ("arm64: ptrace: add support for syscall emulation")
-Cc: <stable@vger.kernel.org> # 5.3.x-
-Signed-off-by: Keno Fischer <keno@juliacomputing.com>
-Acked-by: Will Deacon <will@kernel.org>
-Tested-by: Sudeep Holla <sudeep.holla@arm.com>
-Tested-by: Bin Lu <Bin.Lu@arm.com>
-[catalin.marinas@arm.com: moved 'flags' bit masking]
-[catalin.marinas@arm.com: changed 'flags' type to unsigned long]
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+I don't know if this is a legitimate warning or a false-positive.
+If this is just a false alarm, the warning is easily suppressed
+by interpreting the array as a pointer.
+
+Fixes: b1ae1a238900 ("nvme-fc: Avoid preallocating big SGL for data")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/ptrace.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/nvme/host/fc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/kernel/ptrace.c b/arch/arm64/kernel/ptrace.c
-index cd6e5fa48b9c..c30f77bd875f 100644
---- a/arch/arm64/kernel/ptrace.c
-+++ b/arch/arm64/kernel/ptrace.c
-@@ -1829,10 +1829,11 @@ static void tracehook_report_syscall(struct pt_regs *regs,
- 
- int syscall_trace_enter(struct pt_regs *regs)
- {
--	if (test_thread_flag(TIF_SYSCALL_TRACE) ||
--		test_thread_flag(TIF_SYSCALL_EMU)) {
-+	unsigned long flags = READ_ONCE(current_thread_info()->flags);
-+
-+	if (flags & (_TIF_SYSCALL_EMU | _TIF_SYSCALL_TRACE)) {
- 		tracehook_report_syscall(regs, PTRACE_SYSCALL_ENTER);
--		if (!in_syscall(regs) || test_thread_flag(TIF_SYSCALL_EMU))
-+		if (!in_syscall(regs) || (flags & _TIF_SYSCALL_EMU))
- 			return -1;
- 	}
- 
+diff --git a/drivers/nvme/host/fc.c b/drivers/nvme/host/fc.c
+index 7dfc4a2ecf1e..5ef4a84c442a 100644
+--- a/drivers/nvme/host/fc.c
++++ b/drivers/nvme/host/fc.c
+@@ -1771,7 +1771,7 @@ nvme_fc_init_request(struct blk_mq_tag_set *set, struct request *rq,
+ 	res = __nvme_fc_init_request(ctrl, queue, &op->op, rq, queue->rqcnt++);
+ 	if (res)
+ 		return res;
+-	op->op.fcp_req.first_sgl = &op->sgl[0];
++	op->op.fcp_req.first_sgl = op->sgl;
+ 	op->op.fcp_req.private = &op->priv[0];
+ 	nvme_req(rq)->ctrl = &ctrl->ctrl;
+ 	return res;
 -- 
 2.25.1
 
