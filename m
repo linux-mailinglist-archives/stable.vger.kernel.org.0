@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A52611F29B3
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:05:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8907C1F29B5
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:05:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387662AbgFIADW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1731656AbgFIADW (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 8 Jun 2020 20:03:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46132 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:46178 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731225AbgFHXVv (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727944AbgFHXVv (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 8 Jun 2020 19:21:51 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0E34A20842;
-        Mon,  8 Jun 2020 23:21:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 45C7F208A9;
+        Mon,  8 Jun 2020 23:21:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658510;
-        bh=za9EyI3o5uaFj1FcFu/tNsgXVP1mJnijVnQloGQKC8c=;
+        s=default; t=1591658512;
+        bh=0YVnDIreOK/Qgcug016q4I9zteEoAUnaRTsD50qmXB8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0QWkDq//IfWdyHXzYu7A2xomoT1iponN6USptM6G49qEdIGy59BwDrpSqcDvHqWj7
-         Q2+BO6dp6oo+NurjVyFOEzsyNcmwmS1n2x+yI8Pr0d9g2eCV3PJJD000QHfw51FKzV
-         bN1omiVfWHEQfcni5tCQN5aC/UtnZ/2T6+ggaPh4=
+        b=dPpj4YMpZwv7ErJ2YPS5ppm5HpfsxHJkgR0sy97QzGEowqaVMIoW+MHOTjQqIA7x3
+         dy3zZy398Kt56cM9/aRg03bsjSrqIdzTsYg1i/9kodAZdnv4oTYAtaffOM3a8VhQ+9
+         /WdHzc5cOIow/wulnM8Rme8tJ/88kg8P8Fi8enig=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alan Maguire <alan.maguire@oracle.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-kselftest@vger.kernel.org, netdev@vger.kernel.org,
-        bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 140/175] selftests/bpf: CONFIG_IPV6_SEG6_BPF required for test_seg6_loop.o
-Date:   Mon,  8 Jun 2020 19:18:13 -0400
-Message-Id: <20200608231848.3366970-140-sashal@kernel.org>
+Cc:     Arvind Sankar <nivedita@alum.mit.edu>,
+        Borislav Petkov <bp@suse.de>,
+        Kees Cook <keescook@chromium.org>,
+        Dave Hansen <dave.hansen@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 141/175] x86/mm: Stop printing BRK addresses
+Date:   Mon,  8 Jun 2020 19:18:14 -0400
+Message-Id: <20200608231848.3366970-141-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608231848.3366970-1-sashal@kernel.org>
 References: <20200608231848.3366970-1-sashal@kernel.org>
@@ -45,34 +45,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Maguire <alan.maguire@oracle.com>
+From: Arvind Sankar <nivedita@alum.mit.edu>
 
-[ Upstream commit 3c8e8cf4b18b3a7034fab4c4504fc4b54e4b6195 ]
+[ Upstream commit 67d631b7c05eff955ccff4139327f0f92a5117e5 ]
 
-test_seg6_loop.o uses the helper bpf_lwt_seg6_adjust_srh();
-it will not be present if CONFIG_IPV6_SEG6_BPF is not specified.
+This currently leaks kernel physical addresses into userspace.
 
-Fixes: b061017f8b4d ("selftests/bpf: add realistic loop tests")
-Signed-off-by: Alan Maguire <alan.maguire@oracle.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/1590147389-26482-2-git-send-email-alan.maguire@oracle.com
+Signed-off-by: Arvind Sankar <nivedita@alum.mit.edu>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: Kees Cook <keescook@chromium.org>
+Acked-by: Dave Hansen <dave.hansen@intel.com>
+Link: https://lkml.kernel.org/r/20200229231120.1147527-1-nivedita@alum.mit.edu
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/bpf/config | 1 +
- 1 file changed, 1 insertion(+)
+ arch/x86/mm/init.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/tools/testing/selftests/bpf/config b/tools/testing/selftests/bpf/config
-index 5dc109f4c097..b9601f13cf03 100644
---- a/tools/testing/selftests/bpf/config
-+++ b/tools/testing/selftests/bpf/config
-@@ -25,6 +25,7 @@ CONFIG_XDP_SOCKETS=y
- CONFIG_FTRACE_SYSCALLS=y
- CONFIG_IPV6_TUNNEL=y
- CONFIG_IPV6_GRE=y
-+CONFIG_IPV6_SEG6_BPF=y
- CONFIG_NET_FOU=m
- CONFIG_NET_FOU_IP_TUNNELS=y
- CONFIG_IPV6_FOU=m
+diff --git a/arch/x86/mm/init.c b/arch/x86/mm/init.c
+index fd10d91a6115..af352e228fa2 100644
+--- a/arch/x86/mm/init.c
++++ b/arch/x86/mm/init.c
+@@ -121,8 +121,6 @@ __ref void *alloc_low_pages(unsigned int num)
+ 	} else {
+ 		pfn = pgt_buf_end;
+ 		pgt_buf_end += num;
+-		printk(KERN_DEBUG "BRK [%#010lx, %#010lx] PGTABLE\n",
+-			pfn << PAGE_SHIFT, (pgt_buf_end << PAGE_SHIFT) - 1);
+ 	}
+ 
+ 	for (i = 0; i < num; i++) {
 -- 
 2.25.1
 
