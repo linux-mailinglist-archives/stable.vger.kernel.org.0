@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EC42F1F2296
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:10:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D24341F236A
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:15:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728349AbgFHXJJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 19:09:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54746 "EHLO mail.kernel.org"
+        id S1728932AbgFHXOV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 19:14:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34564 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728338AbgFHXJH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:09:07 -0400
+        id S1729782AbgFHXOU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:14:20 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BAC5120897;
-        Mon,  8 Jun 2020 23:09:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CD33821501;
+        Mon,  8 Jun 2020 23:14:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591657746;
-        bh=gxk9MSh3P8MPirDz3R+VvLbXVPW8bi0sEi+cQ9ZIbSQ=;
+        s=default; t=1591658060;
+        bh=Py3+27fq+KilaCdz5w6bUQlZKu+dOEQXm4a/GCeSecM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lTxNbrXd+EOIMJt2pS99zyO2GfR0vIAOu4a+fGMlJwKVArStOjHwFJNWkQPh7/9bc
-         P8DDXjDBa1lrJAe6NRyVD4rNwoczRNN6Xwvg2lJ2Ria87y/i6a5lzSTZJVNc90SVGk
-         DE+a9f39QHE+UAU7aQ/ab9wHqtbOlUqYtJRzOkvA=
+        b=apYM7flILDF3V3vBTVKV19qNemJuZDxZImEDO+GYsh/GyxPi2WPVfCi4hrYVqLIW0
+         dxFBR/zBCD30ziQemqG2CkzRqvn7R0DwFda4QJ/p8rYhv7xvSG9v5OCm9DJlccG/ca
+         vT1j/N9SAE7DkDI40HJqmWzNoCHoNlzFhAel7EXs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andrii Nakryiko <andriin@fb.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Carlos Neira <cneirabustos@gmail.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-kselftest@vger.kernel.org, netdev@vger.kernel.org,
-        bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.7 134/274] selftests/bpf: Fix bpf_link leak in ns_current_pid_tgid selftest
-Date:   Mon,  8 Jun 2020 19:03:47 -0400
-Message-Id: <20200608230607.3361041-134-sashal@kernel.org>
+Cc:     Jiri Kosina <jkosina@suse.cz>,
+        Xiaojian Cao <xiaojian.cao@cn.alps.com>,
+        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.6 107/606] HID: alps: ALPS_1657 is too specific; use U1_UNICORN_LEGACY instead
+Date:   Mon,  8 Jun 2020 19:03:52 -0400
+Message-Id: <20200608231211.3363633-107-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200608230607.3361041-1-sashal@kernel.org>
-References: <20200608230607.3361041-1-sashal@kernel.org>
+In-Reply-To: <20200608231211.3363633-1-sashal@kernel.org>
+References: <20200608231211.3363633-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -46,37 +43,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrii Nakryiko <andriin@fb.com>
+From: Jiri Kosina <jkosina@suse.cz>
 
-[ Upstream commit 8d30e80a049ad699264e4a12911e349f93c7279a ]
+[ Upstream commit 185af3e775b693f773d9a4b5a8c3cda69fc8ca0f ]
 
-If condition is inverted, but it's also just not necessary.
+HID_DEVICE_ID_ALPS_1657 PID is too specific, as there are many other
+ALPS hardware IDs using this particular touchpad.
 
-Fixes: 1c1052e0140a ("tools/testing/selftests/bpf: Add self-tests for new helper bpf_get_ns_current_pid_tgid.")
-Signed-off-by: Andrii Nakryiko <andriin@fb.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Cc: Carlos Neira <cneirabustos@gmail.com>
-Link: https://lore.kernel.org/bpf/20200429012111.277390-11-andriin@fb.com
+Rename the identifier to HID_DEVICE_ID_ALPS_U1_UNICORN_LEGACY in order
+to describe reality better.
+
+Fixes: 640e403b1fd24 ("HID: alps: Add AUI1657 device ID")
+Reported-by: Xiaojian Cao <xiaojian.cao@cn.alps.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/bpf/prog_tests/ns_current_pid_tgid.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ drivers/hid/hid-alps.c | 2 +-
+ drivers/hid/hid-ids.h  | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/tools/testing/selftests/bpf/prog_tests/ns_current_pid_tgid.c b/tools/testing/selftests/bpf/prog_tests/ns_current_pid_tgid.c
-index 542240e16564..e74dc501b27f 100644
---- a/tools/testing/selftests/bpf/prog_tests/ns_current_pid_tgid.c
-+++ b/tools/testing/selftests/bpf/prog_tests/ns_current_pid_tgid.c
-@@ -80,9 +80,6 @@ void test_ns_current_pid_tgid(void)
- 		  "User pid/tgid %llu BPF pid/tgid %llu\n", id, bss.pid_tgid))
- 		goto cleanup;
- cleanup:
--	if (!link) {
--		bpf_link__destroy(link);
--		link = NULL;
--	}
-+	bpf_link__destroy(link);
- 	bpf_object__close(obj);
- }
+diff --git a/drivers/hid/hid-alps.c b/drivers/hid/hid-alps.c
+index c2a2bd528890..b2ad319a74b9 100644
+--- a/drivers/hid/hid-alps.c
++++ b/drivers/hid/hid-alps.c
+@@ -802,7 +802,7 @@ static int alps_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 		break;
+ 	case HID_DEVICE_ID_ALPS_U1_DUAL:
+ 	case HID_DEVICE_ID_ALPS_U1:
+-	case HID_DEVICE_ID_ALPS_1657:
++	case HID_DEVICE_ID_ALPS_U1_UNICORN_LEGACY:
+ 		data->dev_type = U1;
+ 		break;
+ 	default:
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 7d769ca864a7..b3cc26ca375f 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -79,9 +79,9 @@
+ #define HID_DEVICE_ID_ALPS_U1_DUAL_PTP	0x121F
+ #define HID_DEVICE_ID_ALPS_U1_DUAL_3BTN_PTP	0x1220
+ #define HID_DEVICE_ID_ALPS_U1		0x1215
++#define HID_DEVICE_ID_ALPS_U1_UNICORN_LEGACY         0x121E
+ #define HID_DEVICE_ID_ALPS_T4_BTNLESS	0x120C
+ #define HID_DEVICE_ID_ALPS_1222		0x1222
+-#define HID_DEVICE_ID_ALPS_1657         0x121E
+ 
+ #define USB_VENDOR_ID_AMI		0x046b
+ #define USB_DEVICE_ID_AMI_VIRT_KEYBOARD_AND_MOUSE	0xff10
 -- 
 2.25.1
 
