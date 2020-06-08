@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A897C1F302C
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:57:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B28C1F303A
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:57:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727828AbgFHXIx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 19:08:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54422 "EHLO mail.kernel.org"
+        id S1727077AbgFIA5W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 20:57:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54468 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727000AbgFHXIx (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728273AbgFHXIx (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 8 Jun 2020 19:08:53 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6ED9D2085B;
-        Mon,  8 Jun 2020 23:08:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E1BC820890;
+        Mon,  8 Jun 2020 23:08:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591657732;
-        bh=fK82cI40GO1yH3Ip1kLba1zXWfkLTxYg+MFpEbXh69w=;
+        s=default; t=1591657733;
+        bh=LqIvZdy0rZViN+9Rw5CFoFIo9NiAxYZqFGNN6r9tn/o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AB2x00QQzebqBsUwR4YxJzpr5+xeA8I+kaWTScWv1pvzB4lZ32TZQhAQ72rT/0Htb
-         iYMGZaiSMGr4z7ARXLCAUdlKvhYOxRin5QoowGhMP6wiqZswdRHKYnI2JDZ92dWtE7
-         6L5THfCOknEfk/y7lgBM629S6VtZ+NFlKLGNfXbU=
+        b=n1mK95cfqwdhOTBa4rQ1ZwJxhYxOzm2hG0j28XhtUnwFZhCX/XVy+RrmIlqnVbi0Y
+         MqxzqiPQizq7FQFZ38DqiT3EqJWuevboRGMvgnkJEfPz3o1TnPcN/80ohKLRhjRZbF
+         uCOO2nYMwH1pgiQW0O1OdHr/ruHCngA6/SunVm5c=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Luke Nelson <lukenels@cs.washington.edu>,
-        Luke Nelson <luke.r.nels@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Xi Wang <xi.wang@gmail.com>, Sasha Levin <sashal@kernel.org>,
-        netdev@vger.kernel.org, bpf@vger.kernel.org,
-        linux-riscv@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.7 123/274] bpf, riscv: Fix tail call count off by one in RV32 BPF JIT
-Date:   Mon,  8 Jun 2020 19:03:36 -0400
-Message-Id: <20200608230607.3361041-123-sashal@kernel.org>
+Cc:     Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>,
+        netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.7 124/274] netfilter: nft_nat: return EOPNOTSUPP if type or flags are not supported
+Date:   Mon,  8 Jun 2020 19:03:37 -0400
+Message-Id: <20200608230607.3361041-124-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608230607.3361041-1-sashal@kernel.org>
 References: <20200608230607.3361041-1-sashal@kernel.org>
@@ -46,46 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luke Nelson <lukenels@cs.washington.edu>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit 745abfaa9eafa597d31fdf24a3249e5206a98768 ]
+[ Upstream commit 0d7c83463fdf7841350f37960a7abadd3e650b41 ]
 
-This patch fixes an off by one error in the RV32 JIT handling for BPF
-tail call. Currently, the code decrements TCC before checking if it
-is less than zero. This limits the maximum number of tail calls to 32
-instead of 33 as in other JITs. The fix is to instead check the old
-value of TCC before decrementing.
+Instead of EINVAL which should be used for malformed netlink messages.
 
-Fixes: 5f316b65e99f ("riscv, bpf: Add RV32G eBPF JIT")
-Signed-off-by: Luke Nelson <luke.r.nels@gmail.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Acked-by: Xi Wang <xi.wang@gmail.com>
-Link: https://lore.kernel.org/bpf/20200421002804.5118-1-luke.r.nels@gmail.com
+Fixes: eb31628e37a0 ("netfilter: nf_tables: Add support for IPv6 NAT")
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/net/bpf_jit_comp32.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ net/netfilter/nft_nat.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/riscv/net/bpf_jit_comp32.c b/arch/riscv/net/bpf_jit_comp32.c
-index 302934177760..11083d4d5f2d 100644
---- a/arch/riscv/net/bpf_jit_comp32.c
-+++ b/arch/riscv/net/bpf_jit_comp32.c
-@@ -770,12 +770,13 @@ static int emit_bpf_tail_call(int insn, struct rv_jit_context *ctx)
- 	emit_bcc(BPF_JGE, lo(idx_reg), RV_REG_T1, off, ctx);
+diff --git a/net/netfilter/nft_nat.c b/net/netfilter/nft_nat.c
+index 8b44a4de5329..bb49a217635e 100644
+--- a/net/netfilter/nft_nat.c
++++ b/net/netfilter/nft_nat.c
+@@ -129,7 +129,7 @@ static int nft_nat_init(const struct nft_ctx *ctx, const struct nft_expr *expr,
+ 		priv->type = NF_NAT_MANIP_DST;
+ 		break;
+ 	default:
+-		return -EINVAL;
++		return -EOPNOTSUPP;
+ 	}
  
- 	/*
--	 * if ((temp_tcc = tcc - 1) < 0)
-+	 * temp_tcc = tcc - 1;
-+	 * if (tcc < 0)
- 	 *   goto out;
- 	 */
- 	emit(rv_addi(RV_REG_T1, RV_REG_TCC, -1), ctx);
- 	off = (tc_ninsn - (ctx->ninsns - start_insn)) << 2;
--	emit_bcc(BPF_JSLT, RV_REG_T1, RV_REG_ZERO, off, ctx);
-+	emit_bcc(BPF_JSLT, RV_REG_TCC, RV_REG_ZERO, off, ctx);
+ 	if (tb[NFTA_NAT_FAMILY] == NULL)
+@@ -196,7 +196,7 @@ static int nft_nat_init(const struct nft_ctx *ctx, const struct nft_expr *expr,
+ 	if (tb[NFTA_NAT_FLAGS]) {
+ 		priv->flags = ntohl(nla_get_be32(tb[NFTA_NAT_FLAGS]));
+ 		if (priv->flags & ~NF_NAT_RANGE_MASK)
+-			return -EINVAL;
++			return -EOPNOTSUPP;
+ 	}
  
- 	/*
- 	 * prog = array->ptrs[index];
+ 	return nf_ct_netns_get(ctx->net, family);
 -- 
 2.25.1
 
