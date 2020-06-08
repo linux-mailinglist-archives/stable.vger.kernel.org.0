@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EAB401F2F4D
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:50:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CC751F2D08
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:30:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732506AbgFIAtO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 20:49:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56910 "EHLO mail.kernel.org"
+        id S1730107AbgFHXPu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 19:15:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36924 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728769AbgFHXKr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:10:47 -0400
+        id S1729052AbgFHXPt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:15:49 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8784C208FE;
-        Mon,  8 Jun 2020 23:10:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D55612068D;
+        Mon,  8 Jun 2020 23:15:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591657847;
-        bh=gJS+b6GNXzHhvclf1Xkyzwi8iPGNLwhFWy7di66hKhA=;
+        s=default; t=1591658148;
+        bh=UC/hJa4X7QpfVijofanUa1kALbeXhRnw1dF4T3sBwyc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=glgcZjDkYUkpaE2rStqQn4imHhkjEFT/Ze5UXxhnIq9Q+59IUcHaTqQxHN8J7zm39
-         7N5DVewEftxT1bQFgu6RhwsdDqVAu1XpptJ3FyBq1FzUtDdE+LB7hTYDAi8ylmUfez
-         PUHSNk32SzdmrxLPkA4mdFwXXNkVMBsAk/7i2JM4=
+        b=CDJ0ANxCBfx9sk1d3mSPj/eAFgpg/jj7QF+h0IaeL2aK3t3DYF9JTEy15q5w9tLks
+         RPfVebBfMXwPzWCGH8O1zvbc3yfM0IXwEEIcenzGs2Ka9slI+xHBatVvg6Q1bH9l3m
+         OQhAtwEvj4dQxZLsVYPL7zYh4xhV0QqG9sgXV7xc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arvind Sankar <nivedita@alum.mit.edu>,
-        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.7 213/274] x86/boot: Correct relocation destination on old linkers
+Cc:     Sagar Shrikant Kadam <sagar.kadam@sifive.com>,
+        Atish Patra <Atish.Patra@wdc.com>,
+        Palmer Dabbelt <palmerdabbelt@google.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-serial@vger.kernel.org, linux-riscv@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.6 181/606] tty: serial: add missing spin_lock_init for SiFive serial console
 Date:   Mon,  8 Jun 2020 19:05:06 -0400
-Message-Id: <20200608230607.3361041-213-sashal@kernel.org>
+Message-Id: <20200608231211.3363633-181-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200608230607.3361041-1-sashal@kernel.org>
-References: <20200608230607.3361041-1-sashal@kernel.org>
+In-Reply-To: <20200608231211.3363633-1-sashal@kernel.org>
+References: <20200608231211.3363633-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -42,112 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arvind Sankar <nivedita@alum.mit.edu>
+From: Sagar Shrikant Kadam <sagar.kadam@sifive.com>
 
-[ Upstream commit 5214028dd89e49ba27007c3ee475279e584261f0 ]
+commit 17b4efdf4e4867079012a48ca10d965fe9d68822 upstream.
 
-For the 32-bit kernel, as described in
+An uninitialised spin lock for sifive serial console raises a bad
+magic spin_lock error as reported and discussed here [1].
+Initialising the spin lock resolves the issue.
 
-  6d92bc9d483a ("x86/build: Build compressed x86 kernels as PIE"),
+The fix is tested on HiFive Unleashed A00 board with Linux 5.7-rc4
+and OpenSBI v0.7
 
-pre-2.26 binutils generates R_386_32 relocations in PIE mode. Since the
-startup code does not perform relocation, any reloc entry with R_386_32
-will remain as 0 in the executing code.
+[1] https://lore.kernel.org/linux-riscv/b9fe49483a903f404e7acc15a6efbef756db28ae.camel@wdc.com
 
-Commit
-
-  974f221c84b0 ("x86/boot: Move compressed kernel to the end of the
-                 decompression buffer")
-
-added a new symbol _end but did not mark it hidden, which doesn't give
-the correct offset on older linkers. This causes the compressed kernel
-to be copied beyond the end of the decompression buffer, rather than
-flush against it. This region of memory may be reserved or already
-allocated for other purposes by the bootloader.
-
-Mark _end as hidden to fix. This changes the relocation from R_386_32 to
-R_386_RELATIVE even on the pre-2.26 binutils.
-
-For 64-bit, this is not strictly necessary, as the 64-bit kernel is only
-built as PIE if the linker supports -z noreloc-overflow, which implies
-binutils-2.27+, but for consistency, mark _end as hidden here too.
-
-The below illustrates the before/after impact of the patch using
-binutils-2.25 and gcc-4.6.4 (locally compiled from source) and QEMU.
-
-  Disassembly before patch:
-    48:   8b 86 60 02 00 00       mov    0x260(%esi),%eax
-    4e:   2d 00 00 00 00          sub    $0x0,%eax
-                          4f: R_386_32    _end
-  Disassembly after patch:
-    48:   8b 86 60 02 00 00       mov    0x260(%esi),%eax
-    4e:   2d 00 f0 76 00          sub    $0x76f000,%eax
-                          4f: R_386_RELATIVE      *ABS*
-
-Dump from extract_kernel before patch:
-	early console in extract_kernel
-	input_data: 0x0207c098 <--- this is at output + init_size
-	input_len: 0x0074fef1
-	output: 0x01000000
-	output_len: 0x00fa63d0
-	kernel_total_size: 0x0107c000
-	needed_size: 0x0107c000
-
-Dump from extract_kernel after patch:
-	early console in extract_kernel
-	input_data: 0x0190d098 <--- this is at output + init_size - _end
-	input_len: 0x0074fef1
-	output: 0x01000000
-	output_len: 0x00fa63d0
-	kernel_total_size: 0x0107c000
-	needed_size: 0x0107c000
-
-Fixes: 974f221c84b0 ("x86/boot: Move compressed kernel to the end of the decompression buffer")
-Signed-off-by: Arvind Sankar <nivedita@alum.mit.edu>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lkml.kernel.org/r/20200207214926.3564079-1-nivedita@alum.mit.edu
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 45c054d0815b ("tty: serial: add driver for the SiFive UART")
+Reported-by: Atish Patra <Atish.Patra@wdc.com>
+Signed-off-by: Sagar Shrikant Kadam <sagar.kadam@sifive.com>
+Reviewed-by: Palmer Dabbelt <palmerdabbelt@google.com>
+Acked-by: Palmer Dabbelt <palmerdabbelt@google.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/1589019852-21505-2-git-send-email-sagar.kadam@sifive.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/boot/compressed/head_32.S | 5 +++--
- arch/x86/boot/compressed/head_64.S | 1 +
- 2 files changed, 4 insertions(+), 2 deletions(-)
+ drivers/tty/serial/sifive.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/x86/boot/compressed/head_32.S b/arch/x86/boot/compressed/head_32.S
-index ab3307036ba4..03557f2174bf 100644
---- a/arch/x86/boot/compressed/head_32.S
-+++ b/arch/x86/boot/compressed/head_32.S
-@@ -49,16 +49,17 @@
-  * Position Independent Executable (PIE) so that linker won't optimize
-  * R_386_GOT32X relocation to its fixed symbol address.  Older
-  * linkers generate R_386_32 relocations against locally defined symbols,
-- * _bss, _ebss, _got and _egot, in PIE.  It isn't wrong, just less
-+ * _bss, _ebss, _got, _egot and _end, in PIE.  It isn't wrong, just less
-  * optimal than R_386_RELATIVE.  But the x86 kernel fails to properly handle
-  * R_386_32 relocations when relocating the kernel.  To generate
-- * R_386_RELATIVE relocations, we mark _bss, _ebss, _got and _egot as
-+ * R_386_RELATIVE relocations, we mark _bss, _ebss, _got, _egot and _end as
-  * hidden:
-  */
- 	.hidden _bss
- 	.hidden _ebss
- 	.hidden _got
- 	.hidden _egot
-+	.hidden _end
+diff --git a/drivers/tty/serial/sifive.c b/drivers/tty/serial/sifive.c
+index d5f81b98e4d7..38133eba83a8 100644
+--- a/drivers/tty/serial/sifive.c
++++ b/drivers/tty/serial/sifive.c
+@@ -840,6 +840,7 @@ console_initcall(sifive_console_init);
  
- 	__HEAD
- SYM_FUNC_START(startup_32)
-diff --git a/arch/x86/boot/compressed/head_64.S b/arch/x86/boot/compressed/head_64.S
-index 4f7e6b84be07..76d1d64d51e3 100644
---- a/arch/x86/boot/compressed/head_64.S
-+++ b/arch/x86/boot/compressed/head_64.S
-@@ -42,6 +42,7 @@
- 	.hidden _ebss
- 	.hidden _got
- 	.hidden _egot
-+	.hidden _end
+ static void __ssp_add_console_port(struct sifive_serial_port *ssp)
+ {
++	spin_lock_init(&ssp->port.lock);
+ 	sifive_serial_console_ports[ssp->port.line] = ssp;
+ }
  
- 	__HEAD
- 	.code32
 -- 
 2.25.1
 
