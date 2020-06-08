@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D72711F30C8
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 03:03:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C97461F30C2
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 03:03:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729945AbgFIBDC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 21:03:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52444 "EHLO mail.kernel.org"
+        id S1728019AbgFIBCl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 21:02:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52644 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728012AbgFHXHt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:07:49 -0400
+        id S1728034AbgFHXHx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:07:53 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B99522086A;
-        Mon,  8 Jun 2020 23:07:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0B40D2089D;
+        Mon,  8 Jun 2020 23:07:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591657668;
-        bh=PRuINvBRZW2mZwEv6yL9odErB1I7qLxkutEUY51xAFc=;
+        s=default; t=1591657672;
+        bh=fD1Mv3OSJzmSUoaS2M1EiI+nfFsRVHr4ttthDic856o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UJUV0YaVsV7c2Vo+aIuG2esMjFNttNQCp9gIq4S37E3DtsvCslivS0wX9BbEzutp7
-         R+MecZQAIJQVSV18Zcl27yUJK3bRB5drN9AJ/uH0PF2Uev8v5oKqGMNHsOIOfeyJN4
-         2h+BXF0Os6EALcOKpvCzC4JTZNDh54fhQpDaqhg4=
+        b=yLcLmBS7FoL2qRPOE2hgzCre7I7T+KsLeat8v5PtKod9Z/buhtfotseDmmm/c30F0
+         YPtCBtvbLqFp/65XL8JfJyOPMmxCHkcjvaw8l7F/KFScY958AvQ1229gYgSodMtj6d
+         iYFBEGykAfkAXyC/6NwBJ+XWIf9eb8g24a+KmYrs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chuhong Yuan <hslester96@gmail.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
+Cc:     Paul M Stillwell Jr <paul.m.stillwell.jr@intel.com>,
+        Andrew Bowers <andrewx.bowers@intel.com>,
+        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
         Sasha Levin <sashal@kernel.org>,
-        linux-bluetooth@vger.kernel.org,
-        linux-mediatek@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.7 078/274] Bluetooth: btmtkuart: Improve exception handling in btmtuart_probe()
-Date:   Mon,  8 Jun 2020 19:02:51 -0400
-Message-Id: <20200608230607.3361041-78-sashal@kernel.org>
+        intel-wired-lan@lists.osuosl.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.7 081/274] ice: fix PCI device serial number to be lowercase values
+Date:   Mon,  8 Jun 2020 19:02:54 -0400
+Message-Id: <20200608230607.3361041-81-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608230607.3361041-1-sashal@kernel.org>
 References: <20200608230607.3361041-1-sashal@kernel.org>
@@ -46,69 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuhong Yuan <hslester96@gmail.com>
+From: Paul M Stillwell Jr <paul.m.stillwell.jr@intel.com>
 
-[ Upstream commit 4803c54ca24923a30664bea2a7772db6e7303c51 ]
+[ Upstream commit 1a9c561aa35534a03c0aa51c7fb1485731202a7c ]
 
-Calls of the functions clk_disable_unprepare() and hci_free_dev()
-were missing for the exception handling.
-Thus add the missed function calls together with corresponding
-jump targets.
+Commit ceb2f00707f9 ("ice: Use pci_get_dsn()") changed the code to
+use a new function to get the Device Serial Number. It also changed
+the case of the filename for loading a package on a specific NIC
+from lowercase to uppercase. Change the filename back to
+lowercase since that is what we specified.
 
-Fixes: 055825614c6b ("Bluetooth: btmtkuart: add an implementation for clock osc property")
-Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Fixes: ceb2f00707f9 ("ice: Use pci_get_dsn()")
+Signed-off-by: Paul M Stillwell Jr <paul.m.stillwell.jr@intel.com>
+Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
+Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/btmtkuart.c | 14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+ drivers/net/ethernet/intel/ice/ice_main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/bluetooth/btmtkuart.c b/drivers/bluetooth/btmtkuart.c
-index e11169ad8247..8a81fbca5c9d 100644
---- a/drivers/bluetooth/btmtkuart.c
-+++ b/drivers/bluetooth/btmtkuart.c
-@@ -1015,7 +1015,7 @@ static int btmtkuart_probe(struct serdev_device *serdev)
- 	if (btmtkuart_is_standalone(bdev)) {
- 		err = clk_prepare_enable(bdev->osc);
- 		if (err < 0)
--			return err;
-+			goto err_hci_free_dev;
+diff --git a/drivers/net/ethernet/intel/ice/ice_main.c b/drivers/net/ethernet/intel/ice/ice_main.c
+index 599dab844034..545817dbff67 100644
+--- a/drivers/net/ethernet/intel/ice/ice_main.c
++++ b/drivers/net/ethernet/intel/ice/ice_main.c
+@@ -3126,7 +3126,7 @@ static char *ice_get_opt_fw_name(struct ice_pf *pf)
+ 	if (!opt_fw_filename)
+ 		return NULL;
  
- 		if (bdev->boot) {
- 			gpiod_set_value_cansleep(bdev->boot, 1);
-@@ -1028,10 +1028,8 @@ static int btmtkuart_probe(struct serdev_device *serdev)
+-	snprintf(opt_fw_filename, NAME_MAX, "%sice-%016llX.pkg",
++	snprintf(opt_fw_filename, NAME_MAX, "%sice-%016llx.pkg",
+ 		 ICE_DDP_PKG_PATH, dsn);
  
- 		/* Power on */
- 		err = regulator_enable(bdev->vcc);
--		if (err < 0) {
--			clk_disable_unprepare(bdev->osc);
--			return err;
--		}
-+		if (err < 0)
-+			goto err_clk_disable_unprepare;
- 
- 		/* Reset if the reset-gpios is available otherwise the board
- 		 * -level design should be guaranteed.
-@@ -1063,7 +1061,6 @@ static int btmtkuart_probe(struct serdev_device *serdev)
- 	err = hci_register_dev(hdev);
- 	if (err < 0) {
- 		dev_err(&serdev->dev, "Can't register HCI device\n");
--		hci_free_dev(hdev);
- 		goto err_regulator_disable;
- 	}
- 
-@@ -1072,6 +1069,11 @@ static int btmtkuart_probe(struct serdev_device *serdev)
- err_regulator_disable:
- 	if (btmtkuart_is_standalone(bdev))
- 		regulator_disable(bdev->vcc);
-+err_clk_disable_unprepare:
-+	if (btmtkuart_is_standalone(bdev))
-+		clk_disable_unprepare(bdev->osc);
-+err_hci_free_dev:
-+	hci_free_dev(hdev);
- 
- 	return err;
- }
+ 	return opt_fw_filename;
 -- 
 2.25.1
 
