@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3540D1F2F17
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:47:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B3C51F2F15
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:47:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731070AbgFIAre (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1733095AbgFIAre (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 8 Jun 2020 20:47:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58104 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:58140 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728041AbgFHXLV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:11:21 -0400
+        id S1728027AbgFHXLW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:11:22 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CEAD920890;
-        Mon,  8 Jun 2020 23:11:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 06DEF20897;
+        Mon,  8 Jun 2020 23:11:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591657880;
-        bh=rkbbiQCs8BHaHAQU5zfRpAxLE0KUC9UftSsS8I2Mpe0=;
+        s=default; t=1591657881;
+        bh=NmONvKJ0gOKK07cv1ukhga0XXabhbQVXjH/GnFicpKM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=efOhbxNz2KTF7Q2wV3/g9wSdumlDXPJOtY81+KL+jko7+nhjymMvUNzkFKM0tUIFU
-         op1y1bgDJkIwEwZ2331oChz3VhGYSS50IUYVZTkPy1JG04DfPQ1G/lqBQ5b6PTlSob
-         Mv+3CYnKLMWtvSBvigQjwSZOjIUbMibXmx8IBdPE=
+        b=pBeDq8Dhyr71YAq13INoLcu5tEvfYz9MUAcNhSCI2Nb0moGS6XU/qYnBtM/A3SLK1
+         wEo7k5FxOd+T3zdwMnjmmPAaukg+nG3cEdYxU+RiJEMQcXvm2PLly4HVP86zUi9VdJ
+         I7WFTRH3VjWtFVeBT7CadGfbfBKJtsjiMph8y/8k=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sagi Grimberg <sagi@grimberg.me>,
-        David Milburn <dmilburn@redhat.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.7 237/274] nvmet: fix memory leak when removing namespaces and controllers concurrently
-Date:   Mon,  8 Jun 2020 19:05:30 -0400
-Message-Id: <20200608230607.3361041-237-sashal@kernel.org>
+Cc:     Alexander Sverdlin <alexander.sverdlin@nokia.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.7 238/274] macvlan: Skip loopback packets in RX handler
+Date:   Mon,  8 Jun 2020 19:05:31 -0400
+Message-Id: <20200608230607.3361041-238-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608230607.3361041-1-sashal@kernel.org>
 References: <20200608230607.3361041-1-sashal@kernel.org>
@@ -44,91 +43,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sagi Grimberg <sagi@grimberg.me>
+From: Alexander Sverdlin <alexander.sverdlin@nokia.com>
 
-[ Upstream commit 64f5e9cdd711b030b05062c17b2ecfbce890cf4c ]
+[ Upstream commit 81f3dc9349ce0bf7b8447f147f45e70f0a5b36a6 ]
 
-When removing a namespace, we add an NS_CHANGE async event, however if
-the controller admin queue is removed after the event was added but not
-yet processed, we won't free the aens, resulting in the below memory
-leak [1].
+Ignore loopback-originatig packets soon enough and don't try to process L2
+header where it doesn't exist. The very similar br_handle_frame() in bridge
+code performs exactly the same check.
 
-Fix that by moving nvmet_async_event_free to the final controller
-release after it is detached from subsys->ctrls ensuring no async
-events are added, and modify it to simply remove all pending aens.
+This is an example of such ICMPv6 packet:
 
---
-$ cat /sys/kernel/debug/kmemleak
-unreferenced object 0xffff888c1af2c000 (size 32):
-  comm "nvmetcli", pid 5164, jiffies 4295220864 (age 6829.924s)
-  hex dump (first 32 bytes):
-    28 01 82 3b 8b 88 ff ff 28 01 82 3b 8b 88 ff ff  (..;....(..;....
-    02 00 04 65 76 65 6e 74 5f 66 69 6c 65 00 00 00  ...event_file...
-  backtrace:
-    [<00000000217ae580>] nvmet_add_async_event+0x57/0x290 [nvmet]
-    [<0000000012aa2ea9>] nvmet_ns_changed+0x206/0x300 [nvmet]
-    [<00000000bb3fd52e>] nvmet_ns_disable+0x367/0x4f0 [nvmet]
-    [<00000000e91ca9ec>] nvmet_ns_free+0x15/0x180 [nvmet]
-    [<00000000a15deb52>] config_item_release+0xf1/0x1c0
-    [<000000007e148432>] configfs_rmdir+0x555/0x7c0
-    [<00000000f4506ea6>] vfs_rmdir+0x142/0x3c0
-    [<0000000000acaaf0>] do_rmdir+0x2b2/0x340
-    [<0000000034d1aa52>] do_syscall_64+0xa5/0x4d0
-    [<00000000211f13bc>] entry_SYSCALL_64_after_hwframe+0x6a/0xdf
+skb len=96 headroom=40 headlen=96 tailroom=56
+mac=(40,0) net=(40,40) trans=80
+shinfo(txflags=0 nr_frags=0 gso(size=0 type=0 segs=0))
+csum(0xae2e9a2f ip_summed=1 complete_sw=0 valid=0 level=0)
+hash(0xc97ebd88 sw=1 l4=1) proto=0x86dd pkttype=5 iif=24
+dev name=etha01.212 feat=0x0x0000000040005000
+skb headroom: 00000000: 00 7c 86 52 84 88 ff ff 00 00 00 00 00 00 08 00
+skb headroom: 00000010: 45 00 00 9e 5d 5c 40 00 40 11 33 33 00 00 00 01
+skb headroom: 00000020: 02 40 43 80 00 00 86 dd
+skb linear:   00000000: 60 09 88 bd 00 38 3a ff fe 80 00 00 00 00 00 00
+skb linear:   00000010: 00 40 43 ff fe 80 00 00 ff 02 00 00 00 00 00 00
+skb linear:   00000020: 00 00 00 00 00 00 00 01 86 00 61 00 40 00 00 2d
+skb linear:   00000030: 00 00 00 00 00 00 00 00 03 04 40 e0 00 00 01 2c
+skb linear:   00000040: 00 00 00 78 00 00 00 00 fd 5f 42 68 23 87 a8 81
+skb linear:   00000050: 00 00 00 00 00 00 00 00 01 01 02 40 43 80 00 00
+skb tailroom: 00000000: ...
+skb tailroom: 00000010: ...
+skb tailroom: 00000020: ...
+skb tailroom: 00000030: ...
 
-Fixes: a07b4970f464 ("nvmet: add a generic NVMe target")
-Reported-by: David Milburn <dmilburn@redhat.com>
-Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
-Tested-by: David Milburn <dmilburn@redhat.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Call Trace, how it happens exactly:
+ ...
+ macvlan_handle_frame+0x321/0x425 [macvlan]
+ ? macvlan_forward_source+0x110/0x110 [macvlan]
+ __netif_receive_skb_core+0x545/0xda0
+ ? enqueue_task_fair+0xe5/0x8e0
+ ? __netif_receive_skb_one_core+0x36/0x70
+ __netif_receive_skb_one_core+0x36/0x70
+ process_backlog+0x97/0x140
+ net_rx_action+0x1eb/0x350
+ ? __hrtimer_run_queues+0x136/0x2e0
+ __do_softirq+0xe3/0x383
+ do_softirq_own_stack+0x2a/0x40
+ </IRQ>
+ do_softirq.part.4+0x4e/0x50
+ netif_rx_ni+0x60/0xd0
+ dev_loopback_xmit+0x83/0xf0
+ ip6_finish_output2+0x575/0x590 [ipv6]
+ ? ip6_cork_release.isra.1+0x64/0x90 [ipv6]
+ ? __ip6_make_skb+0x38d/0x680 [ipv6]
+ ? ip6_output+0x6c/0x140 [ipv6]
+ ip6_output+0x6c/0x140 [ipv6]
+ ip6_send_skb+0x1e/0x60 [ipv6]
+ rawv6_sendmsg+0xc4b/0xe10 [ipv6]
+ ? proc_put_long+0xd0/0xd0
+ ? rw_copy_check_uvector+0x4e/0x110
+ ? sock_sendmsg+0x36/0x40
+ sock_sendmsg+0x36/0x40
+ ___sys_sendmsg+0x2b6/0x2d0
+ ? proc_dointvec+0x23/0x30
+ ? addrconf_sysctl_forward+0x8d/0x250 [ipv6]
+ ? dev_forward_change+0x130/0x130 [ipv6]
+ ? _raw_spin_unlock+0x12/0x30
+ ? proc_sys_call_handler.isra.14+0x9f/0x110
+ ? __call_rcu+0x213/0x510
+ ? get_max_files+0x10/0x10
+ ? trace_hardirqs_on+0x2c/0xe0
+ ? __sys_sendmsg+0x63/0xa0
+ __sys_sendmsg+0x63/0xa0
+ do_syscall_64+0x6c/0x1e0
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+Signed-off-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/target/core.c | 15 ++++++---------
- 1 file changed, 6 insertions(+), 9 deletions(-)
+ drivers/net/macvlan.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/nvme/target/core.c b/drivers/nvme/target/core.c
-index b685f99d56a1..aa5ca222c6f5 100644
---- a/drivers/nvme/target/core.c
-+++ b/drivers/nvme/target/core.c
-@@ -157,14 +157,12 @@ static void nvmet_async_events_process(struct nvmet_ctrl *ctrl, u16 status)
+diff --git a/drivers/net/macvlan.c b/drivers/net/macvlan.c
+index 0482adc9916b..e900ebb94499 100644
+--- a/drivers/net/macvlan.c
++++ b/drivers/net/macvlan.c
+@@ -447,6 +447,10 @@ static rx_handler_result_t macvlan_handle_frame(struct sk_buff **pskb)
+ 	int ret;
+ 	rx_handler_result_t handle_res;
  
- static void nvmet_async_events_free(struct nvmet_ctrl *ctrl)
- {
--	struct nvmet_req *req;
-+	struct nvmet_async_event *aen, *tmp;
- 
- 	mutex_lock(&ctrl->lock);
--	while (ctrl->nr_async_event_cmds) {
--		req = ctrl->async_event_cmds[--ctrl->nr_async_event_cmds];
--		mutex_unlock(&ctrl->lock);
--		nvmet_req_complete(req, NVME_SC_INTERNAL | NVME_SC_DNR);
--		mutex_lock(&ctrl->lock);
-+	list_for_each_entry_safe(aen, tmp, &ctrl->async_events, entry) {
-+		list_del(&aen->entry);
-+		kfree(aen);
- 	}
- 	mutex_unlock(&ctrl->lock);
- }
-@@ -764,10 +762,8 @@ void nvmet_sq_destroy(struct nvmet_sq *sq)
- 	 * If this is the admin queue, complete all AERs so that our
- 	 * queue doesn't have outstanding requests on it.
- 	 */
--	if (ctrl && ctrl->sqs && ctrl->sqs[0] == sq) {
-+	if (ctrl && ctrl->sqs && ctrl->sqs[0] == sq)
- 		nvmet_async_events_process(ctrl, status);
--		nvmet_async_events_free(ctrl);
--	}
- 	percpu_ref_kill_and_confirm(&sq->ref, nvmet_confirm_sq);
- 	wait_for_completion(&sq->confirm_done);
- 	wait_for_completion(&sq->free_done);
-@@ -1357,6 +1353,7 @@ static void nvmet_ctrl_free(struct kref *ref)
- 
- 	ida_simple_remove(&cntlid_ida, ctrl->cntlid);
- 
-+	nvmet_async_events_free(ctrl);
- 	kfree(ctrl->sqs);
- 	kfree(ctrl->cqs);
- 	kfree(ctrl->changed_ns_list);
++	/* Packets from dev_loopback_xmit() do not have L2 header, bail out */
++	if (unlikely(skb->pkt_type == PACKET_LOOPBACK))
++		return RX_HANDLER_PASS;
++
+ 	port = macvlan_port_get_rcu(skb->dev);
+ 	if (is_multicast_ether_addr(eth->h_dest)) {
+ 		unsigned int hash;
 -- 
 2.25.1
 
