@@ -2,48 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 490C51F23D1
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:18:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D48531F2303
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:12:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730327AbgFHXQn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 19:16:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38104 "EHLO mail.kernel.org"
+        id S1728575AbgFHXLq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 19:11:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58710 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730314AbgFHXQm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:16:42 -0400
+        id S1728956AbgFHXLn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:11:43 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0253820801;
-        Mon,  8 Jun 2020 23:16:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 46390208C7;
+        Mon,  8 Jun 2020 23:11:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658202;
-        bh=c5eiPu2dbd+pDztLejTMF6S4xO95QJd761VA4H594WQ=;
+        s=default; t=1591657902;
+        bh=6HOsWHnTqpNN0Ww98s4zhADHwT4C9g+b0ZwlZiz0xY8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pf08Ct3IzuU9LK9NxS86fP0QrMdtNw8ZPFx0sS8RCWucr4P7xZe9GyXMxqDyyU6xm
-         VCfv/azYrk2S8xPbivldjOSm70ZVvo8bVNEQyFj3OsAlecgsFnw71NqzZ7iRdW0f7d
-         v90FBI2eLfq5aKadVAzCx+fQ4nTvrudZHM7OS3dM=
+        b=q6+yK5xcXoToxsmXCxnJ0RYvbO864SOBliytRVPEtlmn+RjiKVCAp6pqzQydEFfdp
+         pOFVoI2sIVECZu+C1suSAC/C3xVXxPLux/To68X1yXnRyrHJCxE0ryhhNBGuZp+HWJ
+         VkkwIiisMKmGrEKZ4RyVGhHlaUXzO6/vR/6fy0Z8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yuqi Jin <jinyuqi@huawei.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-        Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Jiri Pirko <jiri@resnulli.us>,
-        Arvind Sankar <nivedita@alum.mit.edu>,
-        Jiong Wang <jiongwang@huawei.com>,
-        Shaokun Zhang <zhangshaokun@hisilicon.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.6 221/606] net: revert "net: get rid of an signed integer overflow in ip_idents_reserve()"
-Date:   Mon,  8 Jun 2020 19:05:46 -0400
-Message-Id: <20200608231211.3363633-221-sashal@kernel.org>
+Cc:     Serge Semin <Sergey.Semin@baikalelectronics.ru>,
+        Georgy Vlasov <Georgy.Vlasov@baikalelectronics.ru>,
+        Ramil Zaripov <Ramil.Zaripov@baikalelectronics.ru>,
+        Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Feng Tang <feng.tang@intel.com>,
+        Rob Herring <robh+dt@kernel.org>, linux-mips@vger.kernel.org,
+        devicetree@vger.kernel.org, Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.7 255/274] spi: dw: Return any value retrieved from the dma_transfer callback
+Date:   Mon,  8 Jun 2020 19:05:48 -0400
+Message-Id: <20200608230607.3361041-255-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200608231211.3363633-1-sashal@kernel.org>
-References: <20200608231211.3363633-1-sashal@kernel.org>
+In-Reply-To: <20200608230607.3361041-1-sashal@kernel.org>
+References: <20200608230607.3361041-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -53,69 +51,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuqi Jin <jinyuqi@huawei.com>
+From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
 
-[ Upstream commit a6211caa634da39d861a47437ffcda8b38ef421b ]
+[ Upstream commit f0410bbf7d0fb80149e3b17d11d31f5b5197873e ]
 
-Commit adb03115f459 ("net: get rid of an signed integer overflow in ip_idents_reserve()")
-used atomic_cmpxchg to replace "atomic_add_return" inside the function
-"ip_idents_reserve". The reason was to avoid UBSAN warning.
-However, this change has caused performance degrade and in GCC-8,
-fno-strict-overflow is now mapped to -fwrapv -fwrapv-pointer
-and signed integer overflow is now undefined by default at all
-optimization levels[1]. Moreover, it was a bug in UBSAN vs -fwrapv
-/-fno-strict-overflow, so Let's revert it safely.
+DW APB SSI DMA-part of the driver may need to perform the requested
+SPI-transfer synchronously. In that case the dma_transfer() callback
+will return 0 as a marker of the SPI transfer being finished so the
+SPI core doesn't need to wait and may proceed with the SPI message
+trasnfers pumping procedure. This will be needed to fix the problem
+when DMA transactions are finished, but there is still data left in
+the SPI Tx/Rx FIFOs being sent/received. But for now make dma_transfer
+to return 1 as the normal dw_spi_transfer_one() method.
 
-[1] https://gcc.gnu.org/gcc-8/changes.html
-
-Suggested-by: Peter Zijlstra <peterz@infradead.org>
-Suggested-by: Eric Dumazet <edumazet@google.com>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
-Cc: Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: Jiri Pirko <jiri@resnulli.us>
-Cc: Arvind Sankar <nivedita@alum.mit.edu>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Eric Dumazet <edumazet@google.com>
-Cc: Jiong Wang <jiongwang@huawei.com>
-Signed-off-by: Yuqi Jin <jinyuqi@huawei.com>
-Signed-off-by: Shaokun Zhang <zhangshaokun@hisilicon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+Cc: Georgy Vlasov <Georgy.Vlasov@baikalelectronics.ru>
+Cc: Ramil Zaripov <Ramil.Zaripov@baikalelectronics.ru>
+Cc: Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>
+Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Feng Tang <feng.tang@intel.com>
+Cc: Rob Herring <robh+dt@kernel.org>
+Cc: linux-mips@vger.kernel.org
+Cc: devicetree@vger.kernel.org
+Link: https://lore.kernel.org/r/20200529131205.31838-3-Sergey.Semin@baikalelectronics.ru
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/route.c | 14 ++++++--------
- 1 file changed, 6 insertions(+), 8 deletions(-)
+ drivers/spi/spi-dw-mid.c | 2 +-
+ drivers/spi/spi-dw.c     | 7 ++-----
+ 2 files changed, 3 insertions(+), 6 deletions(-)
 
-diff --git a/net/ipv4/route.c b/net/ipv4/route.c
-index ef6b70774fe1..fea6a8a11183 100644
---- a/net/ipv4/route.c
-+++ b/net/ipv4/route.c
-@@ -491,18 +491,16 @@ u32 ip_idents_reserve(u32 hash, int segs)
- 	atomic_t *p_id = ip_idents + hash % IP_IDENTS_SZ;
- 	u32 old = READ_ONCE(*p_tstamp);
- 	u32 now = (u32)jiffies;
--	u32 new, delta = 0;
-+	u32 delta = 0;
+diff --git a/drivers/spi/spi-dw-mid.c b/drivers/spi/spi-dw-mid.c
+index e6c045ecffba..23cebdeb67e2 100644
+--- a/drivers/spi/spi-dw-mid.c
++++ b/drivers/spi/spi-dw-mid.c
+@@ -266,7 +266,7 @@ static int mid_spi_dma_transfer(struct dw_spi *dws, struct spi_transfer *xfer)
+ 		dma_async_issue_pending(dws->txchan);
+ 	}
  
- 	if (old != now && cmpxchg(p_tstamp, old, now) == old)
- 		delta = prandom_u32_max(now - old);
- 
--	/* Do not use atomic_add_return() as it makes UBSAN unhappy */
--	do {
--		old = (u32)atomic_read(p_id);
--		new = old + delta + segs;
--	} while (atomic_cmpxchg(p_id, old, new) != old);
--
--	return new - segs;
-+	/* If UBSAN reports an error there, please make sure your compiler
-+	 * supports -fno-strict-overflow before reporting it that was a bug
-+	 * in UBSAN, and it has been fixed in GCC-8.
-+	 */
-+	return atomic_add_return(segs + delta, p_id) - segs;
+-	return 0;
++	return 1;
  }
- EXPORT_SYMBOL(ip_idents_reserve);
  
+ static void mid_spi_dma_stop(struct dw_spi *dws)
+diff --git a/drivers/spi/spi-dw.c b/drivers/spi/spi-dw.c
+index e8f275c850ce..594a1ac09d9c 100644
+--- a/drivers/spi/spi-dw.c
++++ b/drivers/spi/spi-dw.c
+@@ -373,11 +373,8 @@ static int dw_spi_transfer_one(struct spi_controller *master,
+ 
+ 	spi_enable_chip(dws, 1);
+ 
+-	if (dws->dma_mapped) {
+-		ret = dws->dma_ops->dma_transfer(dws, transfer);
+-		if (ret < 0)
+-			return ret;
+-	}
++	if (dws->dma_mapped)
++		return dws->dma_ops->dma_transfer(dws, transfer);
+ 
+ 	if (chip->poll_mode)
+ 		return poll_transfer(dws);
 -- 
 2.25.1
 
