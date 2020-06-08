@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D3C8B1F2A88
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:12:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F6C11F2A81
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:12:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731116AbgFIAJf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 20:09:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44066 "EHLO mail.kernel.org"
+        id S2387669AbgFIAJC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 20:09:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44122 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730977AbgFHXU2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:20:28 -0400
+        id S1730200AbgFHXU3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:20:29 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 846B72087E;
-        Mon,  8 Jun 2020 23:20:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A9CCA2089D;
+        Mon,  8 Jun 2020 23:20:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658428;
-        bh=TbF4JEtB+TcG8WFlAYVFqF05iaPUYZDw/QPUOnnOWos=;
+        s=default; t=1591658429;
+        bh=hX12khJAdZqJIox8b1e42ktmh3BYm/+28o1Cp2ygp9Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dCOIbUSkq9E9BriV03O6WwnoOrt+xnFOCwRz0Vk0ptpImq8/uEyfK0hAhJ9Q1dHU9
-         Fqt045SM3rJF9Jad9HyOUCXCmQjxy3xqPbhOWFbVxJU05XXBARSvGweYsMxU6LVMiI
-         C+hN8/7xXijlKWRghmI0cH0Cq6Fg/+3VabvBYIX0=
+        b=ydosGOvVnFrOMlzAIazXWApWPYhfsmQHBhGh2iERhCeCZq6hSIyIHtgjSgxz4DR7T
+         7oLGieTbg57lYydvuUJOGnRSmTVxmAGYV+QtTyfYoQp9rNCDIucDGhondEVwmajdY4
+         G30FS5uyceKnrowrzelLHaLXFDaEEp/pRjWB3+60=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Paul Moore <paul@paul-moore.com>, teroincn@gmail.com,
-        Richard Guy Briggs <rgb@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, linux-audit@redhat.com
-Subject: [PATCH AUTOSEL 5.4 073/175] audit: fix a net reference leak in audit_send_reply()
-Date:   Mon,  8 Jun 2020 19:17:06 -0400
-Message-Id: <20200608231848.3366970-73-sashal@kernel.org>
+Cc:     Colin Ian King <colin.king@canonical.com>,
+        Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 074/175] media: dvb: return -EREMOTEIO on i2c transfer failure.
+Date:   Mon,  8 Jun 2020 19:17:07 -0400
+Message-Id: <20200608231848.3366970-74-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608231848.3366970-1-sashal@kernel.org>
 References: <20200608231848.3366970-1-sashal@kernel.org>
@@ -43,112 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Moore <paul@paul-moore.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit a48b284b403a4a073d8beb72d2bb33e54df67fb6 ]
+[ Upstream commit 96f3a9392799dd0f6472648a7366622ffd0989f3 ]
 
-If audit_send_reply() fails when trying to create a new thread to
-send the reply it also fails to cleanup properly, leaking a reference
-to a net structure.  This patch fixes the error path and makes a
-handful of other cleanups that came up while fixing the code.
+Currently when i2c transfers fail the error return -EREMOTEIO
+is assigned to err but then later overwritten when the tuner
+attach call is made.  Fix this by returning early with the
+error return code -EREMOTEIO on i2c transfer failure errors.
 
-Reported-by: teroincn@gmail.com
-Reviewed-by: Richard Guy Briggs <rgb@redhat.com>
-Signed-off-by: Paul Moore <paul@paul-moore.com>
+If the transfer fails, an uninitialized value will be read from b2.
+
+Addresses-Coverity: ("Unused value")
+
+Fixes: fbfee8684ff2 ("V4L/DVB (5651): Dibusb-mb: convert pll handling to properly use dvb-pll")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/audit.c | 50 +++++++++++++++++++++++++++++---------------------
- 1 file changed, 29 insertions(+), 21 deletions(-)
+ drivers/media/usb/dvb-usb/dibusb-mb.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/audit.c b/kernel/audit.c
-index fcfbb3476ccd..a4eeece2eecd 100644
---- a/kernel/audit.c
-+++ b/kernel/audit.c
-@@ -923,19 +923,30 @@ struct sk_buff *audit_make_reply(int seq, int type, int done,
- 	return NULL;
- }
+diff --git a/drivers/media/usb/dvb-usb/dibusb-mb.c b/drivers/media/usb/dvb-usb/dibusb-mb.c
+index d4ea72bf09c5..5131c8d4c632 100644
+--- a/drivers/media/usb/dvb-usb/dibusb-mb.c
++++ b/drivers/media/usb/dvb-usb/dibusb-mb.c
+@@ -81,7 +81,7 @@ static int dibusb_tuner_probe_and_attach(struct dvb_usb_adapter *adap)
  
-+static void audit_free_reply(struct audit_reply *reply)
-+{
-+	if (!reply)
-+		return;
-+
-+	if (reply->skb)
-+		kfree_skb(reply->skb);
-+	if (reply->net)
-+		put_net(reply->net);
-+	kfree(reply);
-+}
-+
- static int audit_send_reply_thread(void *arg)
- {
- 	struct audit_reply *reply = (struct audit_reply *)arg;
--	struct sock *sk = audit_get_sk(reply->net);
+ 	if (i2c_transfer(&adap->dev->i2c_adap, msg, 2) != 2) {
+ 		err("tuner i2c write failed.");
+-		ret = -EREMOTEIO;
++		return -EREMOTEIO;
+ 	}
  
- 	audit_ctl_lock();
- 	audit_ctl_unlock();
- 
- 	/* Ignore failure. It'll only happen if the sender goes away,
- 	   because our timeout is set to infinite. */
--	netlink_unicast(sk, reply->skb, reply->portid, 0);
--	put_net(reply->net);
--	kfree(reply);
-+	netlink_unicast(audit_get_sk(reply->net), reply->skb, reply->portid, 0);
-+	reply->skb = NULL;
-+	audit_free_reply(reply);
- 	return 0;
- }
- 
-@@ -949,35 +960,32 @@ static int audit_send_reply_thread(void *arg)
-  * @payload: payload data
-  * @size: payload size
-  *
-- * Allocates an skb, builds the netlink message, and sends it to the port id.
-- * No failure notifications.
-+ * Allocates a skb, builds the netlink message, and sends it to the port id.
-  */
- static void audit_send_reply(struct sk_buff *request_skb, int seq, int type, int done,
- 			     int multi, const void *payload, int size)
- {
--	struct net *net = sock_net(NETLINK_CB(request_skb).sk);
--	struct sk_buff *skb;
- 	struct task_struct *tsk;
--	struct audit_reply *reply = kmalloc(sizeof(struct audit_reply),
--					    GFP_KERNEL);
-+	struct audit_reply *reply;
- 
-+	reply = kzalloc(sizeof(*reply), GFP_KERNEL);
- 	if (!reply)
- 		return;
- 
--	skb = audit_make_reply(seq, type, done, multi, payload, size);
--	if (!skb)
--		goto out;
--
--	reply->net = get_net(net);
-+	reply->skb = audit_make_reply(seq, type, done, multi, payload, size);
-+	if (!reply->skb)
-+		goto err;
-+	reply->net = get_net(sock_net(NETLINK_CB(request_skb).sk));
- 	reply->portid = NETLINK_CB(request_skb).portid;
--	reply->skb = skb;
- 
- 	tsk = kthread_run(audit_send_reply_thread, reply, "audit_send_reply");
--	if (!IS_ERR(tsk))
--		return;
--	kfree_skb(skb);
--out:
--	kfree(reply);
-+	if (IS_ERR(tsk))
-+		goto err;
-+
-+	return;
-+
-+err:
-+	audit_free_reply(reply);
- }
- 
- /*
+ 	if (adap->fe_adap[0].fe->ops.i2c_gate_ctrl)
 -- 
 2.25.1
 
