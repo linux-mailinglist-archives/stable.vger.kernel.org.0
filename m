@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A7011F23C3
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:17:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D4241F23C5
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:17:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730206AbgFHXQW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 19:16:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37660 "EHLO mail.kernel.org"
+        id S1729530AbgFHXQ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 19:16:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37758 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729612AbgFHXQU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:16:20 -0400
+        id S1730212AbgFHXQZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:16:25 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A17E520775;
-        Mon,  8 Jun 2020 23:16:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D2ED220774;
+        Mon,  8 Jun 2020 23:16:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658180;
-        bh=kx3TrV2JbUKa+5KdldsNkanjDhdA6+qB50fP9MVXPMs=;
+        s=default; t=1591658184;
+        bh=ELK744J/8qKjfSZZ7rJvMXPHFOvT+Jq9rLbg63EOrh0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vOCgadq7YszEENxvdyYBClhq69kGPeAT9zfgo3j6B3voo/+C/MykClxAIcEARiARN
-         f4RTcWLglraPJ2HrBBxPiLBbxz0oeZ7viggbzUCzPQHNSVPuGxG5QKPmcuoMhcdX1H
-         WglQDm5eP43+PxeLSE2EEC9C4/kmuMGb1SfRNWwk=
+        b=WuulyLi5frMwDGoh7bhnwR86621qQ28qkW4juvOnp6BRKDL1NtLvorC5Tg/Ce85fX
+         z2HiCkMdoDrNMttTkkvAreN++YJ3hkzRxQjW105csj4qtHulelp4Oc5TM5/RfF2Bty
+         5FhDjo5tKLpFdIoS0y02c8VrZXXlB0uQ6Agf/KMI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Phil Auld <pauld@redhat.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.6 205/606] sched/fair: Fix enqueue_task_fair() warning some more
-Date:   Mon,  8 Jun 2020 19:05:30 -0400
-Message-Id: <20200608231211.3363633-205-sashal@kernel.org>
+Cc:     Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-hams@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.6 207/606] ax25: fix setsockopt(SO_BINDTODEVICE)
+Date:   Mon,  8 Jun 2020 19:05:32 -0400
+Message-Id: <20200608231211.3363633-207-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608231211.3363633-1-sashal@kernel.org>
 References: <20200608231211.3363633-1-sashal@kernel.org>
@@ -45,55 +45,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phil Auld <pauld@redhat.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit b34cb07dde7c2346dec73d053ce926aeaa087303 ]
+[ Upstream commit 687775cec056b38a4c8f3291e0dd7a9145f7b667 ]
 
-sched/fair: Fix enqueue_task_fair warning some more
+syzbot was able to trigger this trace [1], probably by using
+a zero optlen.
 
-The recent patch, fe61468b2cb (sched/fair: Fix enqueue_task_fair warning)
-did not fully resolve the issues with the rq->tmp_alone_branch !=
-&rq->leaf_cfs_rq_list warning in enqueue_task_fair. There is a case where
-the first for_each_sched_entity loop exits due to on_rq, having incompletely
-updated the list.  In this case the second for_each_sched_entity loop can
-further modify se. The later code to fix up the list management fails to do
-what is needed because se does not point to the sched_entity which broke out
-of the first loop. The list is not fixed up because the throttled parent was
-already added back to the list by a task enqueue in a parallel child hierarchy.
+While we are at it, cap optlen to IFNAMSIZ - 1 instead of IFNAMSIZ.
 
-Address this by calling list_add_leaf_cfs_rq if there are throttled parents
-while doing the second for_each_sched_entity loop.
+[1]
+BUG: KMSAN: uninit-value in strnlen+0xf9/0x170 lib/string.c:569
+CPU: 0 PID: 8807 Comm: syz-executor483 Not tainted 5.7.0-rc4-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Call Trace:
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0x1c9/0x220 lib/dump_stack.c:118
+ kmsan_report+0xf7/0x1e0 mm/kmsan/kmsan_report.c:121
+ __msan_warning+0x58/0xa0 mm/kmsan/kmsan_instr.c:215
+ strnlen+0xf9/0x170 lib/string.c:569
+ dev_name_hash net/core/dev.c:207 [inline]
+ netdev_name_node_lookup net/core/dev.c:277 [inline]
+ __dev_get_by_name+0x75/0x2b0 net/core/dev.c:778
+ ax25_setsockopt+0xfa3/0x1170 net/ax25/af_ax25.c:654
+ __compat_sys_setsockopt+0x4ed/0x910 net/compat.c:403
+ __do_compat_sys_setsockopt net/compat.c:413 [inline]
+ __se_compat_sys_setsockopt+0xdd/0x100 net/compat.c:410
+ __ia32_compat_sys_setsockopt+0x62/0x80 net/compat.c:410
+ do_syscall_32_irqs_on arch/x86/entry/common.c:339 [inline]
+ do_fast_syscall_32+0x3bf/0x6d0 arch/x86/entry/common.c:398
+ entry_SYSENTER_compat+0x68/0x77 arch/x86/entry/entry_64_compat.S:139
+RIP: 0023:0xf7f57dd9
+Code: 90 e8 0b 00 00 00 f3 90 0f ae e8 eb f9 8d 74 26 00 89 3c 24 c3 90 90 90 90 90 90 90 90 90 90 90 90 51 52 55 89 e5 0f 34 cd 80 <5d> 5a 59 c3 90 90 90 90 eb 0d 90 90 90 90 90 90 90 90 90 90 90 90
+RSP: 002b:00000000ffae8c1c EFLAGS: 00000217 ORIG_RAX: 000000000000016e
+RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 0000000000000101
+RDX: 0000000000000019 RSI: 0000000020000000 RDI: 0000000000000004
+RBP: 0000000000000012 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000000
+R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
 
-Fixes: fe61468b2cb ("sched/fair: Fix enqueue_task_fair warning")
-Suggested-by: Vincent Guittot <vincent.guittot@linaro.org>
-Signed-off-by: Phil Auld <pauld@redhat.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
-Reviewed-by: Vincent Guittot <vincent.guittot@linaro.org>
-Link: https://lkml.kernel.org/r/20200512135222.GC2201@lorien.usersys.redhat.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Local variable ----devname@ax25_setsockopt created at:
+ ax25_setsockopt+0xe6/0x1170 net/ax25/af_ax25.c:536
+ ax25_setsockopt+0xe6/0x1170 net/ax25/af_ax25.c:536
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/sched/fair.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ net/ax25/af_ax25.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index 7cd86641b44b..603d3d3cbf77 100644
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -5298,6 +5298,13 @@ enqueue_task_fair(struct rq *rq, struct task_struct *p, int flags)
- 		/* end evaluation on encountering a throttled cfs_rq */
- 		if (cfs_rq_throttled(cfs_rq))
- 			goto enqueue_throttle;
-+
-+               /*
-+                * One parent has been throttled and cfs_rq removed from the
-+                * list. Add it back to not break the leaf list.
-+                */
-+               if (throttled_hierarchy(cfs_rq))
-+                       list_add_leaf_cfs_rq(cfs_rq);
- 	}
+diff --git a/net/ax25/af_ax25.c b/net/ax25/af_ax25.c
+index ff57ea89c27e..fd91cd34f25e 100644
+--- a/net/ax25/af_ax25.c
++++ b/net/ax25/af_ax25.c
+@@ -635,8 +635,10 @@ static int ax25_setsockopt(struct socket *sock, int level, int optname,
+ 		break;
  
- enqueue_throttle:
+ 	case SO_BINDTODEVICE:
+-		if (optlen > IFNAMSIZ)
+-			optlen = IFNAMSIZ;
++		if (optlen > IFNAMSIZ - 1)
++			optlen = IFNAMSIZ - 1;
++
++		memset(devname, 0, sizeof(devname));
+ 
+ 		if (copy_from_user(devname, optval, optlen)) {
+ 			res = -EFAULT;
 -- 
 2.25.1
 
