@@ -2,46 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B3611F2D71
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:34:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A8C361F2FC3
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:53:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729922AbgFIAdg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 20:33:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35536 "EHLO mail.kernel.org"
+        id S1728509AbgFIAxW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 20:53:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55604 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729921AbgFHXOy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:14:54 -0400
+        id S1727111AbgFHXJq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:09:46 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C11FA216FD;
-        Mon,  8 Jun 2020 23:14:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 76B6120B80;
+        Mon,  8 Jun 2020 23:09:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658092;
-        bh=REDsuEysCkGozpy/tAflcxRA3nXs5g++jF7F2KLZaHI=;
+        s=default; t=1591657786;
+        bh=WbypKLIbtcVOwzPyhZ4KFwIQhQ7w3yZw6d1nuMf9yqk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eyB+LWtf2Wpc9hQKGLhZ9l6PSY/3eoHvzFsN+ZQgd0J8H5NGtbXLpPFUj7q3YKxD/
-         uLQYyx9Z6Mr6ElAm710/3J+zo1t9i2RX38LTRb5zzGYxvEwiM60Ijt+zGkNAKaR559
-         IDItDmr2HEFmB9DHVW/X9gDzMh+TwOHUVk2pAlyY=
+        b=ByRfLa+IM7qb0iNDpe8KwbNOfHY0ya6tbveOFpoVWStYQFp4IrmSdcUFgniXvfmDj
+         xl2i9muI34vj03AEQw1nc8josI6WhISCo7BhtTVZl1JTpnRnlbHl5ffo8MdlYWbDXl
+         oGoYSmq4hFN8jiQOpJ2DMJxP1kZCX8CLEhNqtvH8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Aymeric Agon-Rambosson <aymeric.agon@yandex.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Jan Kiszka <jan.kiszka@siemens.com>,
-        Kieran Bingham <kbingham@kernel.org>,
-        Douglas Anderson <dianders@chromium.org>,
-        Nikolay Borisov <n.borisov.lkml@gmail.com>,
-        Jackie Liu <liuyun01@kylinos.cn>,
-        Jason Wessel <jason.wessel@windriver.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.6 134/606] scripts/gdb: repair rb_first() and rb_last()
-Date:   Mon,  8 Jun 2020 19:04:19 -0400
-Message-Id: <20200608231211.3363633-134-sashal@kernel.org>
+Cc:     Devulapally Shiva Krishna <shiva@chelsio.com>,
+        Ayush Sawal <ayush.sawal@chelsio.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, linux-crypto@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.7 167/274] Crypto/chcr: fix for ccm(aes) failed test
+Date:   Mon,  8 Jun 2020 19:04:20 -0400
+Message-Id: <20200608230607.3361041-167-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200608231211.3363633-1-sashal@kernel.org>
-References: <20200608231211.3363633-1-sashal@kernel.org>
+In-Reply-To: <20200608230607.3361041-1-sashal@kernel.org>
+References: <20200608230607.3361041-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -51,55 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aymeric Agon-Rambosson <aymeric.agon@yandex.com>
+From: Devulapally Shiva Krishna <shiva@chelsio.com>
 
-[ Upstream commit 50e36be1fb9572b2e4f2753340bdce3116bf2ce7 ]
+[ Upstream commit 10b0c75d7bc19606fa9a62c8ab9180e95c0e0385 ]
 
-The current implementations of the rb_first() and rb_last() gdb
-functions have a variable that references itself in its instanciation,
-which causes the function to throw an error if a specific condition on
-the argument is met.  The original author rather intended to reference
-the argument and made a typo.  Referring the argument instead makes the
-function work as intended.
+The ccm(aes) test fails when req->assoclen > ~240bytes.
 
-Signed-off-by: Aymeric Agon-Rambosson <aymeric.agon@yandex.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Cc: Jan Kiszka <jan.kiszka@siemens.com>
-Cc: Kieran Bingham <kbingham@kernel.org>
-Cc: Douglas Anderson <dianders@chromium.org>
-Cc: Nikolay Borisov <n.borisov.lkml@gmail.com>
-Cc: Jackie Liu <liuyun01@kylinos.cn>
-Cc: Jason Wessel <jason.wessel@windriver.com>
-Link: http://lkml.kernel.org/r/20200427051029.354840-1-aymeric.agon@yandex.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+The problem is the value assigned to auth_offset is wrong.
+As auth_offset is unsigned char, it can take max value as 255.
+So fix it by making it unsigned int.
+
+Signed-off-by: Ayush Sawal <ayush.sawal@chelsio.com>
+Signed-off-by: Devulapally Shiva Krishna <shiva@chelsio.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/gdb/linux/rbtree.py | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/crypto/chelsio/chcr_algo.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/scripts/gdb/linux/rbtree.py b/scripts/gdb/linux/rbtree.py
-index 39db889b874c..c4b991607917 100644
---- a/scripts/gdb/linux/rbtree.py
-+++ b/scripts/gdb/linux/rbtree.py
-@@ -12,7 +12,7 @@ rb_node_type = utils.CachedType("struct rb_node")
+diff --git a/drivers/crypto/chelsio/chcr_algo.c b/drivers/crypto/chelsio/chcr_algo.c
+index 446fb896ee6d..6c2cd36048ea 100644
+--- a/drivers/crypto/chelsio/chcr_algo.c
++++ b/drivers/crypto/chelsio/chcr_algo.c
+@@ -2925,7 +2925,7 @@ static void fill_sec_cpl_for_aead(struct cpl_tx_sec_pdu *sec_cpl,
+ 	unsigned int mac_mode = CHCR_SCMD_AUTH_MODE_CBCMAC;
+ 	unsigned int rx_channel_id = reqctx->rxqidx / ctx->rxq_perchan;
+ 	unsigned int ccm_xtra;
+-	unsigned char tag_offset = 0, auth_offset = 0;
++	unsigned int tag_offset = 0, auth_offset = 0;
+ 	unsigned int assoclen;
  
- def rb_first(root):
-     if root.type == rb_root_type.get_type():
--        node = node.address.cast(rb_root_type.get_type().pointer())
-+        node = root.address.cast(rb_root_type.get_type().pointer())
-     elif root.type != rb_root_type.get_type().pointer():
-         raise gdb.GdbError("Must be struct rb_root not {}".format(root.type))
- 
-@@ -28,7 +28,7 @@ def rb_first(root):
- 
- def rb_last(root):
-     if root.type == rb_root_type.get_type():
--        node = node.address.cast(rb_root_type.get_type().pointer())
-+        node = root.address.cast(rb_root_type.get_type().pointer())
-     elif root.type != rb_root_type.get_type().pointer():
-         raise gdb.GdbError("Must be struct rb_root not {}".format(root.type))
- 
+ 	if (get_aead_subtype(tfm) == CRYPTO_ALG_SUB_TYPE_AEAD_RFC4309)
 -- 
 2.25.1
 
