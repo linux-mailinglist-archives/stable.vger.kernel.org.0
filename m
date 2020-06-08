@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 490331F3096
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 03:00:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D1821F30A1
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 03:01:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728118AbgFHXIN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 19:08:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53292 "EHLO mail.kernel.org"
+        id S1728460AbgFIBBT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 21:01:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53222 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728107AbgFHXIL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:08:11 -0400
+        id S1728112AbgFHXIM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:08:12 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3832B20842;
-        Mon,  8 Jun 2020 23:08:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BA31D2085B;
+        Mon,  8 Jun 2020 23:08:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591657691;
-        bh=UgH8czb3Zqf99cuf6/cq5xSM1xd308oDJ5vXdkILL9g=;
+        s=default; t=1591657692;
+        bh=kVIOllr8fDQE8SnXjV5fYgbyAB/fiHFpzuNrVxYSoCU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NImMvxuqEixileN0cKasTp1aFKdtMLCwg1iIfjFyF9fv37jbF6iU7Ct6dEOMmIxa7
-         LLgNlo/97uYHUknNhQvR+Di4AMmidwrMVeXXL/99neosQJYELI35TL23LxOfpeiRwS
-         8NbV7BOq/QM++pzixWzH2Y1W+cGAvdILbkhsrDc8=
+        b=Nkn4X7Dbz23Pdnb97+mgezpEeWfTRSLQKtFRbhGrVbBi1kRnObO7CRh2trGWs6/7X
+         912cmJpnreoeOp0XeibwwCcVtHNXEsN3OZq0ahh1snVR2/yzTSZ8n6bxwQwL6rZOXZ
+         b21K3W7WZHu+LXWn1FeH7SXzd2i4a7DfDUmTjQTE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Venkateswara Naralasetty <vnaralas@codeaurora.org>,
+Cc:     Qiujun Huang <hqjagain@gmail.com>,
+        syzbot+5d338854440137ea0fef@syzkaller.appspotmail.com,
         Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>, ath10k@lists.infradead.org,
+        Sasha Levin <sashal@kernel.org>,
         linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.7 092/274] ath10k: fix kernel null pointer dereference
-Date:   Mon,  8 Jun 2020 19:03:05 -0400
-Message-Id: <20200608230607.3361041-92-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.7 093/274] ath9k: Fix use-after-free Read in ath9k_wmi_ctrl_rx
+Date:   Mon,  8 Jun 2020 19:03:06 -0400
+Message-Id: <20200608230607.3361041-93-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608230607.3361041-1-sashal@kernel.org>
 References: <20200608230607.3361041-1-sashal@kernel.org>
@@ -44,66 +45,162 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Venkateswara Naralasetty <vnaralas@codeaurora.org>
+From: Qiujun Huang <hqjagain@gmail.com>
 
-[ Upstream commit acb31476adc9ff271140cdd4d3c707ff0c97f5a4 ]
+[ Upstream commit abeaa85054ff8cfe8b99aafc5c70ea067e5d0908 ]
 
-Currently sta airtime is updated without any lock in case of
-host based airtime calculation. Which may result in accessing the
-invalid sta pointer in case of continuous station connect/disconnect.
+Free wmi later after cmd urb has been killed, as urb cb will access wmi.
 
-This patch fix the kernel null pointer dereference by updating the
-station airtime with proper RCU lock in case of host based airtime
-calculation.
+the case reported by syzbot:
+https://lore.kernel.org/linux-usb/0000000000000002fc05a1d61a68@google.com
+BUG: KASAN: use-after-free in ath9k_wmi_ctrl_rx+0x416/0x500
+drivers/net/wireless/ath/ath9k/wmi.c:215
+Read of size 1 at addr ffff8881cef1417c by task swapper/1/0
 
-Proceeding with the analysis of "ARM Kernel Panic".
-The APSS crash happened due to OOPS on CPU 0.
-Crash Signature : Unable to handle kernel NULL pointer dereference
-at virtual address 00000300
-During the crash,
-PC points to "ieee80211_sta_register_airtime+0x1c/0x448 [mac80211]"
-LR points to "ath10k_txrx_tx_unref+0x17c/0x364 [ath10k_core]".
-The Backtrace obtained is as follows:
-[<bf880238>] (ieee80211_sta_register_airtime [mac80211]) from
-[<bf945a38>] (ath10k_txrx_tx_unref+0x17c/0x364 [ath10k_core])
-[<bf945a38>] (ath10k_txrx_tx_unref [ath10k_core]) from
-[<bf9428e4>] (ath10k_htt_txrx_compl_task+0xa50/0xfc0 [ath10k_core])
-[<bf9428e4>] (ath10k_htt_txrx_compl_task [ath10k_core]) from
-[<bf9b9bc8>] (ath10k_pci_napi_poll+0x50/0xf8 [ath10k_pci])
-[<bf9b9bc8>] (ath10k_pci_napi_poll [ath10k_pci]) from
-[<c059e3b0>] (net_rx_action+0xac/0x160)
-[<c059e3b0>] (net_rx_action) from [<c02329a4>] (__do_softirq+0x104/0x294)
-[<c02329a4>] (__do_softirq) from [<c0232b64>] (run_ksoftirqd+0x30/0x90)
-[<c0232b64>] (run_ksoftirqd) from [<c024e358>] (smpboot_thread_fn+0x25c/0x274)
-[<c024e358>] (smpboot_thread_fn) from [<c02482fc>] (kthread+0xd8/0xec)
+Call Trace:
+<IRQ>
+ath9k_wmi_ctrl_rx+0x416/0x500 drivers/net/wireless/ath/ath9k/wmi.c:215
+ath9k_htc_rx_msg+0x2da/0xaf0
+drivers/net/wireless/ath/ath9k/htc_hst.c:459
+ath9k_hif_usb_reg_in_cb+0x1ba/0x630
+drivers/net/wireless/ath/ath9k/hif_usb.c:718
+__usb_hcd_giveback_urb+0x29a/0x550 drivers/usb/core/hcd.c:1650
+usb_hcd_giveback_urb+0x368/0x420 drivers/usb/core/hcd.c:1716
+dummy_timer+0x1258/0x32ae drivers/usb/gadget/udc/dummy_hcd.c:1966
+call_timer_fn+0x195/0x6f0 kernel/time/timer.c:1404
+expire_timers kernel/time/timer.c:1449 [inline]
+__run_timers kernel/time/timer.c:1773 [inline]
+__run_timers kernel/time/timer.c:1740 [inline]
+run_timer_softirq+0x5f9/0x1500 kernel/time/timer.c:1786
 
-Tested HW: QCA9888
-Tested FW: 10.4-3.10-00047
-
-Signed-off-by: Venkateswara Naralasetty <vnaralas@codeaurora.org>
+Reported-and-tested-by: syzbot+5d338854440137ea0fef@syzkaller.appspotmail.com
+Signed-off-by: Qiujun Huang <hqjagain@gmail.com>
 Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/1585736290-17661-1-git-send-email-vnaralas@codeaurora.org
+Link: https://lore.kernel.org/r/20200404041838.10426-3-hqjagain@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath10k/txrx.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/wireless/ath/ath9k/hif_usb.c      |  5 +++--
+ drivers/net/wireless/ath/ath9k/hif_usb.h      |  1 +
+ drivers/net/wireless/ath/ath9k/htc_drv_init.c | 10 +++++++---
+ drivers/net/wireless/ath/ath9k/wmi.c          |  5 ++++-
+ drivers/net/wireless/ath/ath9k/wmi.h          |  3 ++-
+ 5 files changed, 17 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath10k/txrx.c b/drivers/net/wireless/ath/ath10k/txrx.c
-index 39abf8b12903..f46b9083bbf1 100644
---- a/drivers/net/wireless/ath/ath10k/txrx.c
-+++ b/drivers/net/wireless/ath/ath10k/txrx.c
-@@ -84,9 +84,11 @@ int ath10k_txrx_tx_unref(struct ath10k_htt *htt,
- 		wake_up(&htt->empty_tx_wq);
- 	spin_unlock_bh(&htt->tx_lock);
+diff --git a/drivers/net/wireless/ath/ath9k/hif_usb.c b/drivers/net/wireless/ath/ath9k/hif_usb.c
+index c4a2b7201ce3..6049d3766c64 100644
+--- a/drivers/net/wireless/ath/ath9k/hif_usb.c
++++ b/drivers/net/wireless/ath/ath9k/hif_usb.c
+@@ -978,7 +978,7 @@ static int ath9k_hif_usb_alloc_urbs(struct hif_device_usb *hif_dev)
+ 	return -ENOMEM;
+ }
  
-+	rcu_read_lock();
- 	if (txq && txq->sta && skb_cb->airtime_est)
- 		ieee80211_sta_register_airtime(txq->sta, txq->tid,
- 					       skb_cb->airtime_est, 0);
-+	rcu_read_unlock();
+-static void ath9k_hif_usb_dealloc_urbs(struct hif_device_usb *hif_dev)
++void ath9k_hif_usb_dealloc_urbs(struct hif_device_usb *hif_dev)
+ {
+ 	usb_kill_anchored_urbs(&hif_dev->regout_submitted);
+ 	ath9k_hif_usb_dealloc_reg_in_urbs(hif_dev);
+@@ -1346,8 +1346,9 @@ static void ath9k_hif_usb_disconnect(struct usb_interface *interface)
  
- 	if (ar->bus_param.dev_type != ATH10K_DEV_TYPE_HL)
- 		dma_unmap_single(dev, skb_cb->paddr, msdu->len, DMA_TO_DEVICE);
+ 	if (hif_dev->flags & HIF_USB_READY) {
+ 		ath9k_htc_hw_deinit(hif_dev->htc_handle, unplugged);
+-		ath9k_htc_hw_free(hif_dev->htc_handle);
+ 		ath9k_hif_usb_dev_deinit(hif_dev);
++		ath9k_destoy_wmi(hif_dev->htc_handle->drv_priv);
++		ath9k_htc_hw_free(hif_dev->htc_handle);
+ 	}
+ 
+ 	usb_set_intfdata(interface, NULL);
+diff --git a/drivers/net/wireless/ath/ath9k/hif_usb.h b/drivers/net/wireless/ath/ath9k/hif_usb.h
+index 7846916aa01d..a94e7e1c86e9 100644
+--- a/drivers/net/wireless/ath/ath9k/hif_usb.h
++++ b/drivers/net/wireless/ath/ath9k/hif_usb.h
+@@ -133,5 +133,6 @@ struct hif_device_usb {
+ 
+ int ath9k_hif_usb_init(void);
+ void ath9k_hif_usb_exit(void);
++void ath9k_hif_usb_dealloc_urbs(struct hif_device_usb *hif_dev);
+ 
+ #endif /* HTC_USB_H */
+diff --git a/drivers/net/wireless/ath/ath9k/htc_drv_init.c b/drivers/net/wireless/ath/ath9k/htc_drv_init.c
+index d961095ab01f..40a065028ebe 100644
+--- a/drivers/net/wireless/ath/ath9k/htc_drv_init.c
++++ b/drivers/net/wireless/ath/ath9k/htc_drv_init.c
+@@ -931,8 +931,9 @@ static int ath9k_init_device(struct ath9k_htc_priv *priv,
+ int ath9k_htc_probe_device(struct htc_target *htc_handle, struct device *dev,
+ 			   u16 devid, char *product, u32 drv_info)
+ {
+-	struct ieee80211_hw *hw;
++	struct hif_device_usb *hif_dev;
+ 	struct ath9k_htc_priv *priv;
++	struct ieee80211_hw *hw;
+ 	int ret;
+ 
+ 	hw = ieee80211_alloc_hw(sizeof(struct ath9k_htc_priv), &ath9k_htc_ops);
+@@ -967,7 +968,10 @@ int ath9k_htc_probe_device(struct htc_target *htc_handle, struct device *dev,
+ 	return 0;
+ 
+ err_init:
+-	ath9k_deinit_wmi(priv);
++	ath9k_stop_wmi(priv);
++	hif_dev = (struct hif_device_usb *)htc_handle->hif_dev;
++	ath9k_hif_usb_dealloc_urbs(hif_dev);
++	ath9k_destoy_wmi(priv);
+ err_free:
+ 	ieee80211_free_hw(hw);
+ 	return ret;
+@@ -982,7 +986,7 @@ void ath9k_htc_disconnect_device(struct htc_target *htc_handle, bool hotunplug)
+ 			htc_handle->drv_priv->ah->ah_flags |= AH_UNPLUGGED;
+ 
+ 		ath9k_deinit_device(htc_handle->drv_priv);
+-		ath9k_deinit_wmi(htc_handle->drv_priv);
++		ath9k_stop_wmi(htc_handle->drv_priv);
+ 		ieee80211_free_hw(htc_handle->drv_priv->hw);
+ 	}
+ }
+diff --git a/drivers/net/wireless/ath/ath9k/wmi.c b/drivers/net/wireless/ath/ath9k/wmi.c
+index d1f6710ca63b..e7a3127395be 100644
+--- a/drivers/net/wireless/ath/ath9k/wmi.c
++++ b/drivers/net/wireless/ath/ath9k/wmi.c
+@@ -112,14 +112,17 @@ struct wmi *ath9k_init_wmi(struct ath9k_htc_priv *priv)
+ 	return wmi;
+ }
+ 
+-void ath9k_deinit_wmi(struct ath9k_htc_priv *priv)
++void ath9k_stop_wmi(struct ath9k_htc_priv *priv)
+ {
+ 	struct wmi *wmi = priv->wmi;
+ 
+ 	mutex_lock(&wmi->op_mutex);
+ 	wmi->stopped = true;
+ 	mutex_unlock(&wmi->op_mutex);
++}
+ 
++void ath9k_destoy_wmi(struct ath9k_htc_priv *priv)
++{
+ 	kfree(priv->wmi);
+ }
+ 
+diff --git a/drivers/net/wireless/ath/ath9k/wmi.h b/drivers/net/wireless/ath/ath9k/wmi.h
+index 380175d5ecd7..d8b912206232 100644
+--- a/drivers/net/wireless/ath/ath9k/wmi.h
++++ b/drivers/net/wireless/ath/ath9k/wmi.h
+@@ -179,7 +179,6 @@ struct wmi {
+ };
+ 
+ struct wmi *ath9k_init_wmi(struct ath9k_htc_priv *priv);
+-void ath9k_deinit_wmi(struct ath9k_htc_priv *priv);
+ int ath9k_wmi_connect(struct htc_target *htc, struct wmi *wmi,
+ 		      enum htc_endpoint_id *wmi_ctrl_epid);
+ int ath9k_wmi_cmd(struct wmi *wmi, enum wmi_cmd_id cmd_id,
+@@ -189,6 +188,8 @@ int ath9k_wmi_cmd(struct wmi *wmi, enum wmi_cmd_id cmd_id,
+ void ath9k_wmi_event_tasklet(unsigned long data);
+ void ath9k_fatal_work(struct work_struct *work);
+ void ath9k_wmi_event_drain(struct ath9k_htc_priv *priv);
++void ath9k_stop_wmi(struct ath9k_htc_priv *priv);
++void ath9k_destoy_wmi(struct ath9k_htc_priv *priv);
+ 
+ #define WMI_CMD(_wmi_cmd)						\
+ 	do {								\
 -- 
 2.25.1
 
