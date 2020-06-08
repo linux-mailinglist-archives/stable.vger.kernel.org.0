@@ -2,44 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F80B1F2748
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:47:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 82D521F2693
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:45:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730677AbgFHXo2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 19:44:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54828 "EHLO mail.kernel.org"
+        id S1730801AbgFHX07 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 19:26:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54866 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732075AbgFHX0y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:26:54 -0400
+        id S1732083AbgFHX0z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:26:55 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ACA6A20801;
-        Mon,  8 Jun 2020 23:26:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9A5F120812;
+        Mon,  8 Jun 2020 23:26:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658814;
-        bh=f1V455MIpPmgMu8VkJ6CW9z6ZykWPwkYorbzYRpxZvE=;
+        s=default; t=1591658815;
+        bh=wZkPRWgHIQV8H8zchVdHRguaa94l7MzEpOEAYMmoduU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1gfuf/6CDdnX1OcH5bEelNRwGjVEuDLvYBcVIAeviTK/ph8UdLz2eGdenWG8YjnEU
-         uV3pyGHQKK3RvDKfl46Ew36anzbGQ53ziNQ/BfMj6ES4QAJIv3YFpDPfElejkgti/n
-         vXtCS7Ap9b5Z+5u1ADnsAxe99fa2BqHIRYFdZ8xs=
+        b=SKKLk0hTa+oshA6312g6yG5M6TGunpHhkn2nYm9KnVZsSrzfFhCF/yY83MciVY6vB
+         h+ffDjQ+lfF4YVnb4DKkTqDX6d0MG5IrBUC7PWZTCP6E5O/RusE/+zR34WcplEn0li
+         6rG9vCHJQGx+anI7yRoJ+GMujfisYOLJfiuGk724=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Serge Semin <Sergey.Semin@baikalelectronics.ru>,
-        Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Paul Burton <paulburton@kernel.org>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Rob Herring <robh+dt@kernel.org>, linux-mips@vger.kernel.org,
-        linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 10/50] clocksource: dw_apb_timer_of: Fix missing clockevent timers
-Date:   Mon,  8 Jun 2020 19:26:00 -0400
-Message-Id: <20200608232640.3370262-10-sashal@kernel.org>
+Cc:     Filipe Manana <fdmanana@suse.com>, David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>, linux-btrfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 11/50] btrfs: do not ignore error from btrfs_next_leaf() when inserting checksums
+Date:   Mon,  8 Jun 2020 19:26:01 -0400
+Message-Id: <20200608232640.3370262-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608232640.3370262-1-sashal@kernel.org>
 References: <20200608232640.3370262-1-sashal@kernel.org>
@@ -52,72 +42,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+From: Filipe Manana <fdmanana@suse.com>
 
-[ Upstream commit 6d2e16a3181bafb77b535095c39ad1c8b9558c8c ]
+[ Upstream commit 7e4a3f7ed5d54926ec671bbb13e171cfe179cc50 ]
 
-Commit 100214889973 ("clocksource: dw_apb_timer_of: use
-clocksource_of_init") replaced a publicly available driver
-initialization method with one called by the timer_probe() method
-available after CLKSRC_OF. In current implementation it traverses
-all the timers available in the system and calls their initialization
-methods if corresponding devices were either in dtb or in acpi. But
-if before the commit any number of available timers would be installed
-as clockevent and clocksource devices, after that there would be at most
-two. The rest are just ignored since default case branch doesn't do
-anything. I don't see a reason of such behaviour, neither the commit
-message explains it. Moreover this might be wrong if on some platforms
-these timers might be used for different purpose, as virtually CPU-local
-clockevent timers and as an independent broadcast timer. So in order
-to keep the compatibility with the platforms where the order of the
-timers detection has some meaning, lets add the secondly discovered
-timer to be of clocksource/sched_clock type, while the very first and
-the others would provide the clockevents service.
+We are currently treating any non-zero return value from btrfs_next_leaf()
+the same way, by going to the code that inserts a new checksum item in the
+tree. However if btrfs_next_leaf() returns an error (a value < 0), we
+should just stop and return the error, and not behave as if nothing has
+happened, since in that case we do not have a way to know if there is a
+next leaf or we are currently at the last leaf already.
 
-Fixes: 100214889973 ("clocksource: dw_apb_timer_of: use clocksource_of_init")
-Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
-Cc: Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>
-Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Cc: Paul Burton <paulburton@kernel.org>
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Rob Herring <robh+dt@kernel.org>
-Cc: linux-mips@vger.kernel.org
-Cc: linux-rtc@vger.kernel.org
-Cc: devicetree@vger.kernel.org
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/r/20200521204818.25436-7-Sergey.Semin@baikalelectronics.ru
+So fix that by returning the error from btrfs_next_leaf().
+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clocksource/dw_apb_timer_of.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ fs/btrfs/file-item.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/clocksource/dw_apb_timer_of.c b/drivers/clocksource/dw_apb_timer_of.c
-index aee6c0d39a7c..024e6cc5025b 100644
---- a/drivers/clocksource/dw_apb_timer_of.c
-+++ b/drivers/clocksource/dw_apb_timer_of.c
-@@ -146,10 +146,6 @@ static int num_called;
- static int __init dw_apb_timer_init(struct device_node *timer)
- {
- 	switch (num_called) {
--	case 0:
--		pr_debug("%s: found clockevent timer\n", __func__);
--		add_clockevent(timer);
--		break;
- 	case 1:
- 		pr_debug("%s: found clocksource timer\n", __func__);
- 		add_clocksource(timer);
-@@ -160,6 +156,8 @@ static int __init dw_apb_timer_init(struct device_node *timer)
- #endif
- 		break;
- 	default:
-+		pr_debug("%s: found clockevent timer\n", __func__);
-+		add_clockevent(timer);
- 		break;
- 	}
- 
+diff --git a/fs/btrfs/file-item.c b/fs/btrfs/file-item.c
+index d0d571c47d33..4f919628137c 100644
+--- a/fs/btrfs/file-item.c
++++ b/fs/btrfs/file-item.c
+@@ -779,10 +779,12 @@ int btrfs_csum_file_blocks(struct btrfs_trans_handle *trans,
+ 		nritems = btrfs_header_nritems(path->nodes[0]);
+ 		if (!nritems || (path->slots[0] >= nritems - 1)) {
+ 			ret = btrfs_next_leaf(root, path);
+-			if (ret == 1)
++			if (ret < 0) {
++				goto out;
++			} else if (ret > 0) {
+ 				found_next = 1;
+-			if (ret != 0)
+ 				goto insert;
++			}
+ 			slot = path->slots[0];
+ 		}
+ 		btrfs_item_key_to_cpu(path->nodes[0], &found_key, slot);
 -- 
 2.25.1
 
