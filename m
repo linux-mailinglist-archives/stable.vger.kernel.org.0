@@ -2,87 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D16D1F196E
-	for <lists+stable@lfdr.de>; Mon,  8 Jun 2020 14:56:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3575A1F1987
+	for <lists+stable@lfdr.de>; Mon,  8 Jun 2020 15:00:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729109AbgFHMz5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 08:55:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56034 "EHLO
+        id S1729002AbgFHNAJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 09:00:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56722 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729757AbgFHMzq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 8 Jun 2020 08:55:46 -0400
-Received: from mail-yb1-xb42.google.com (mail-yb1-xb42.google.com [IPv6:2607:f8b0:4864:20::b42])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E56C6C08C5C3
-        for <stable@vger.kernel.org>; Mon,  8 Jun 2020 05:55:45 -0700 (PDT)
-Received: by mail-yb1-xb42.google.com with SMTP id r18so9142027ybl.5
-        for <stable@vger.kernel.org>; Mon, 08 Jun 2020 05:55:45 -0700 (PDT)
+        with ESMTP id S1729027AbgFHNAI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 8 Jun 2020 09:00:08 -0400
+Received: from mail-il1-x144.google.com (mail-il1-x144.google.com [IPv6:2607:f8b0:4864:20::144])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 583ACC08C5C2
+        for <stable@vger.kernel.org>; Mon,  8 Jun 2020 06:00:08 -0700 (PDT)
+Received: by mail-il1-x144.google.com with SMTP id a13so16621192ilh.3
+        for <stable@vger.kernel.org>; Mon, 08 Jun 2020 06:00:08 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=9puv86n9omdhXcooTm/BujstUWUyltb7GHGCcI8590U=;
-        b=lyXIKlQn8I9jBAhmOWcVd5Zqki/l8hFVBu2vINn2A4X5osg8xhWRT3S47Z0BHvHmat
-         Z+X8+P5n/qZ9wqWJb7WShAxQ9viFOnU1I/k1Q1Htb3vJrrv9l/hNx3nN5uFt+x1joTJW
-         lC2kCmR7w0erueLQLP/1EXKjvaKg/d1NK7JNOh4rpB0yhHF+DbK4JiiPj7w1v10pJurP
-         NL8Rzi322dHz48oJnO/44mcWRdZiKiG1kZRGSeMEgdVrEVwlUTmC6W0wIuGt+HVCUzMw
-         hTbb04ud3ILEjvHAWrrsW+m+vsofOyTOdEox2r1h4ao3r6VPQFcFU8KH/AHeCWYXv+YH
-         oL8A==
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=xzqu+iFV41uQ5rRnrlJv4Ne5bNFmgIQ58DyeSLBnd8k=;
+        b=t3PnPLTmvPOpmbjXdkW/1/Kek2KUrbYQi8CNCai1CJPJd23TOZ8HSdds1VrVPiBpew
+         MT0jXa2Dpx8B41sjvtO7oB3Jw9AddduQnp+zsavv+aQNKij/SsNqnFMbzJWc+kPBkhW9
+         qJsTM6jvDy35fpqPXRvJF7/2rmKnstz/UbXbfrnCwVtr1hvyvw45byo3tgL155Hd+DEX
+         n6vXMuDz/QG82kqjoGuMXoJaj2hdLyx2MXPaMnn+cYjhCLaI+9gUBe9g76Y1w30GRHaQ
+         vrReoQHVXfQDgp4X5ebMTnACi1ZwzXv9jaUibgXqFQimPlfgYOB8djHa7H7TEQfCQv+D
+         NCDg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=9puv86n9omdhXcooTm/BujstUWUyltb7GHGCcI8590U=;
-        b=t2rLcD2SutgW3Wy9PLEqRmI/xOtNxrGZYwpfZO/9rKyorZAiJ/QyR5TReqMxHngnyQ
-         ZgH77pD3zdWH+xFahjZ+ABDmV5N14AOMoW2YuZnFYyQOaw9CI6Z7W5ke9AzIDqEqwgqz
-         aS26Gpnh0TAqm/iNrMEemdJ7LVITfiJHYGkEW476P/bdltu4WaeijLNmW3GWQg71IKcw
-         ktzf/J088mHqI7ZjPuKsupaxWFizS3/ZCYyoRnUnp9uKV5J8AefBKmJq/5vB6dTmoBty
-         uhVSZwniSdyRlIPrMPiwlT/d+WGetk0BV8C/AK++oSA2vXEBNzsqgLeQPey0iKTaJjBt
-         GoGw==
-X-Gm-Message-State: AOAM532hwxX6WRLvFsrRnwqt/MVQCciY21FL0FuT0ZIQSFTxfZZu7zv8
-        1N1EPspZAHTVVhB9iS1BHT4Ngy1wkohSG808fzs=
-X-Google-Smtp-Source: ABdhPJzaNFQdEk4blXzhU8f/vdQRN+xcp0uCVdR3Rx+0YCYI+G2zGcAhWxpIgHUR2I4i3HPt8ItjVsWEH1qWft3dlm4=
-X-Received: by 2002:a25:b98d:: with SMTP id r13mr30685998ybg.416.1591620945130;
- Mon, 08 Jun 2020 05:55:45 -0700 (PDT)
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=xzqu+iFV41uQ5rRnrlJv4Ne5bNFmgIQ58DyeSLBnd8k=;
+        b=r67bKrJtGNpBeFrKU+AK1uKALNCIPc8BvFTAKDco4izCCTFZ5TuNPCBWfwB+RsqVBd
+         Nl7ayhqkjwD1BR8FG3ZT6SuOlKcVWhkWKnvhonRGWTJdbN72SBQi8Eogihf/7g05m+3m
+         zukIVV4mvVQbEfKOLG9V3O+SH9OWzXjSWTGYKAiaxuEnZ63xhSFo6PamCOU2RCtXpSgu
+         y914qmY9nB0N8Qd0SAVcmQE2BTfGCG08pyuEnG9uZJm8U/qGCRW7h0miyd9kyBcbQeZp
+         rFi5DY+udIpqiRkOVmbzXMvUIdO3MZzalL4rbvT/h/7dTQ+4/l2l7abXT47dhZpHFivn
+         X6sA==
+X-Gm-Message-State: AOAM5335LIx6KEX33pf01FXIuZfrK1cMYngfbX73MHbufsGa7piXL9Be
+        aeybl3vyVXz9FbkqSA7CJERSPv/39E249E1dLzmUfA==
+X-Google-Smtp-Source: ABdhPJw5WB9EOySm2wH6EmfWjYA9cFmKhV2arzz+tVkloRXXWnBOmM6OmSpsrtvPxHroOFUQG4srl7ts0LFv8KLUPNM=
+X-Received: by 2002:a92:c812:: with SMTP id v18mr22196616iln.178.1591621207231;
+ Mon, 08 Jun 2020 06:00:07 -0700 (PDT)
 MIME-Version: 1.0
-Received: by 2002:a25:df84:0:0:0:0:0 with HTTP; Mon, 8 Jun 2020 05:55:44 -0700 (PDT)
-Reply-To: Mr.mohamedsimpore@gmail.com
-From:   " Mr.Mohamed Simpore" <mrtariqzubair01@gmail.com>
-Date:   Mon, 8 Jun 2020 12:55:44 +0000
-Message-ID: <CAK5vn+ffhs4Xj0NnqcDLHPkmL3U69A8ptxXp8oX131CL-eYeHQ@mail.gmail.com>
-Subject: URGENT REPLY NEEDED.
-To:     undisclosed-recipients:;
+References: <20200608094030.87031-1-gprocida@google.com> <20200608105617.GA295073@kroah.com>
+In-Reply-To: <20200608105617.GA295073@kroah.com>
+From:   Giuliano Procida <gprocida@google.com>
+Date:   Mon, 8 Jun 2020 13:59:50 +0100
+Message-ID: <CAGvU0HkztXrxXcAk+W3kv01h3--+MttsT4ee62M+21KUxOwvsg@mail.gmail.com>
+Subject: Re: [PATCH] blk-mq: sync the update nr_hw_queues with blk_mq_queue_tag_busy_iter
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, Ming Lei <ming.lei@redhat.com>,
+        Jens Axboe <axboe@kernel.dk>
 Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
--- 
-Dear,
-,
-My name is Mr.mohamed simpore, am the Bill and Exchange (assistant)
-Manager of Bank of Africa Ouagadougou, Burkina Faso. In my department
-I discovered an abandoned sum of eighteen million Five hundred
-thousand United State of American dollars (18.5MILLION USA DOLLARS) in
-an account that belongs to one of our foreign customer who died in
-airline that crashed on 4th October 2003.
+-bouncing mail.
 
-Since I got information about his death I have been expecting his next
-of kin to come over and claim his money because we can not release it
-unless somebody applies for it as the next of kin or relation to the
-deceased as indicated in our banking guidelines, but unfortunately we
-learnt that all his supposed next of kin or relation died alongside
-with him  in the plane crash leaving nobody behind for the claim. It
-is therefore upon this discovery that I decided to make this business
-proposal to you and release the money to you as next of kin or
-relation to the deceased for safety and subsequent disbursement since
-nobody is coming for it and I don't want the money to go into the bank
-treasury as unclaimed bill.
+That wasn't clever. Apologies.
 
-You will be entitled with 40% of the total sum while 60% will be for
-me after which I will visit your Country to invest my own share when
-the fund is successfully transferred into your account, Please I would
-like  you to keep this transaction confidential and as a top secret as
-you may wish to know that I am a bank official.
+This one is for 4.9.
 
-Yours sincerely
- Mr.mohamed simpore
+Giuliano.
+
+On Mon, 8 Jun 2020 at 11:56, Greg KH <gregkh@linuxfoundation.org> wrote:
+>
+> On Mon, Jun 08, 2020 at 10:40:30AM +0100, Giuliano Procida wrote:
+> > From: Jianchao Wang <jianchao.w.wang@oracle.com>
+> >
+> > commit f5bbbbe4d63577026f908a809f22f5fd5a90ea1f upstream.
+> >
+> > For blk-mq, part_in_flight/rw will invoke blk_mq_in_flight/rw to
+> > account the inflight requests. It will access the queue_hw_ctx and
+> > nr_hw_queues w/o any protection. When updating nr_hw_queues and
+> > blk_mq_in_flight/rw occur concurrently, panic comes up.
+> >
+> > Before update nr_hw_queues, the q will be frozen. So we could use
+> > q_usage_counter to avoid the race. percpu_ref_is_zero is used here
+> > so that we will not miss any in-flight request. The access to
+> > nr_hw_queues and queue_hw_ctx in blk_mq_queue_tag_busy_iter are
+> > under rcu critical section, __blk_mq_update_nr_hw_queues could use
+> > synchronize_rcu to ensure the zeroed q_usage_counter to be globally
+> > visible.
+> >
+> > Backporting Notes
+> >
+> > This is a re-backport, landing synchronize_rcu in the right place.
+>
+> You sent this twice?
+>
+> And what stable kernel(s) does it go to?
+>
+> thanks,
+>
+> greg k-h
