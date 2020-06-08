@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 760A11F26AE
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:45:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8EBBD1F26F3
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:46:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387642AbgFHX1z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 19:27:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56720 "EHLO mail.kernel.org"
+        id S2387644AbgFHXkv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 19:40:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56758 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732184AbgFHX1x (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:27:53 -0400
+        id S2387636AbgFHX1y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:27:54 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4FF892074B;
-        Mon,  8 Jun 2020 23:27:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 85BB52078D;
+        Mon,  8 Jun 2020 23:27:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658873;
-        bh=CW+S2I9j3FWtgNNgKAVdRFjVBnucE7ZH77BuXJM6opA=;
+        s=default; t=1591658874;
+        bh=WgAg0khaNIffBS03mIfrXfCWjgE0Tum93tuXxBi0yRc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eLNzTG6vMkyOKPQjXeAdN0W+MIJzANEGu1hB3Qtr88vtLk0tI8pkpyLsR2zcZ8+3Y
-         IHxVX+x+BIGnSFf1IeqUaOgsXZ/cnTyygr05VesF4yVOxmKY4j6V1onkzsm1XBoqJT
-         693yoELMLsX4tl9Jmt4PBozt9Aj9x0NZpTP41yKg=
+        b=WCtMRS6J4AtS7z5tVgac/Q14P8rX6lgfSzCciuviUPIVzQsSiv3NdwG7cbhBUlXkg
+         CdQgehc4sCs+MBgAnKWzGJrcmpv9Y/obSKe0Jzn+z6rDu5Lu/MpG/uSVJ79MxO2Z3Q
+         iKxfVVnAHd9TLlCXTdxDkmUaa0NuhQlf3Tzp+wOw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Qiujun Huang <hqjagain@gmail.com>,
-        syzbot+b1c61e5f11be5782f192@syzkaller.appspotmail.com,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 02/37] ath9k: Fix use-after-free Write in ath9k_htc_rx_msg
-Date:   Mon,  8 Jun 2020 19:27:14 -0400
-Message-Id: <20200608232750.3370747-2-sashal@kernel.org>
+Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Feng Tang <feng.tang@intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 03/37] spi: dw: Zero DMA Tx and Rx configurations on stack
+Date:   Mon,  8 Jun 2020 19:27:15 -0400
+Message-Id: <20200608232750.3370747-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608232750.3370747-1-sashal@kernel.org>
 References: <20200608232750.3370747-1-sashal@kernel.org>
@@ -45,59 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiujun Huang <hqjagain@gmail.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit e4ff08a4d727146bb6717a39a8d399d834654345 ]
+[ Upstream commit 3cb97e223d277f84171cc4ccecab31e08b2ee7b5 ]
 
-Write out of slab bounds. We should check epid.
+Some DMA controller drivers do not tolerate non-zero values in
+the DMA configuration structures. Zero them to avoid issues with
+such DMA controller drivers. Even despite above this is a good
+practice per se.
 
-The case reported by syzbot:
-https://lore.kernel.org/linux-usb/0000000000006ac55b05a1c05d72@google.com
-BUG: KASAN: use-after-free in htc_process_conn_rsp
-drivers/net/wireless/ath/ath9k/htc_hst.c:131 [inline]
-BUG: KASAN: use-after-free in ath9k_htc_rx_msg+0xa25/0xaf0
-drivers/net/wireless/ath/ath9k/htc_hst.c:443
-Write of size 2 at addr ffff8881cea291f0 by task swapper/1/0
-
-Call Trace:
- htc_process_conn_rsp drivers/net/wireless/ath/ath9k/htc_hst.c:131
-[inline]
-ath9k_htc_rx_msg+0xa25/0xaf0
-drivers/net/wireless/ath/ath9k/htc_hst.c:443
-ath9k_hif_usb_reg_in_cb+0x1ba/0x630
-drivers/net/wireless/ath/ath9k/hif_usb.c:718
-__usb_hcd_giveback_urb+0x29a/0x550 drivers/usb/core/hcd.c:1650
-usb_hcd_giveback_urb+0x368/0x420 drivers/usb/core/hcd.c:1716
-dummy_timer+0x1258/0x32ae drivers/usb/gadget/udc/dummy_hcd.c:1966
-call_timer_fn+0x195/0x6f0 kernel/time/timer.c:1404
-expire_timers kernel/time/timer.c:1449 [inline]
-__run_timers kernel/time/timer.c:1773 [inline]
-__run_timers kernel/time/timer.c:1740 [inline]
-run_timer_softirq+0x5f9/0x1500 kernel/time/timer.c:1786
-
-Reported-and-tested-by: syzbot+b1c61e5f11be5782f192@syzkaller.appspotmail.com
-Signed-off-by: Qiujun Huang <hqjagain@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20200404041838.10426-4-hqjagain@gmail.com
+Fixes: 7063c0d942a1 ("spi/dw_spi: add DMA support")
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Acked-by: Feng Tang <feng.tang@intel.com>
+Cc: Feng Tang <feng.tang@intel.com>
+Link: https://lore.kernel.org/r/20200506153025.21441-1-andriy.shevchenko@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath9k/htc_hst.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/spi/spi-dw-mid.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/wireless/ath/ath9k/htc_hst.c b/drivers/net/wireless/ath/ath9k/htc_hst.c
-index fd85f996c554..257b6ee51e54 100644
---- a/drivers/net/wireless/ath/ath9k/htc_hst.c
-+++ b/drivers/net/wireless/ath/ath9k/htc_hst.c
-@@ -114,6 +114,9 @@ static void htc_process_conn_rsp(struct htc_target *target,
+diff --git a/drivers/spi/spi-dw-mid.c b/drivers/spi/spi-dw-mid.c
+index bb1052e748f2..4d6434b244e2 100644
+--- a/drivers/spi/spi-dw-mid.c
++++ b/drivers/spi/spi-dw-mid.c
+@@ -155,6 +155,7 @@ static struct dma_async_tx_descriptor *dw_spi_dma_prepare_tx(struct dw_spi *dws,
+ 	if (!xfer->tx_buf)
+ 		return NULL;
  
- 	if (svc_rspmsg->status == HTC_SERVICE_SUCCESS) {
- 		epid = svc_rspmsg->endpoint_id;
-+		if (epid < 0 || epid >= ENDPOINT_MAX)
-+			return;
-+
- 		service_id = be16_to_cpu(svc_rspmsg->service_id);
- 		max_msglen = be16_to_cpu(svc_rspmsg->max_msg_len);
- 		endpoint = &target->endpoint[epid];
++	memset(&txconf, 0, sizeof(txconf));
+ 	txconf.direction = DMA_MEM_TO_DEV;
+ 	txconf.dst_addr = dws->dma_addr;
+ 	txconf.dst_maxburst = 16;
+@@ -201,6 +202,7 @@ static struct dma_async_tx_descriptor *dw_spi_dma_prepare_rx(struct dw_spi *dws,
+ 	if (!xfer->rx_buf)
+ 		return NULL;
+ 
++	memset(&rxconf, 0, sizeof(rxconf));
+ 	rxconf.direction = DMA_DEV_TO_MEM;
+ 	rxconf.src_addr = dws->dma_addr;
+ 	rxconf.src_maxburst = 16;
 -- 
 2.25.1
 
