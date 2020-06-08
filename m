@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7ECE61F2F1F
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:48:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 954C01F2F2E
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:48:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728811AbgFHXLC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 19:11:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57594 "EHLO mail.kernel.org"
+        id S1728961AbgFIAsQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 20:48:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57674 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728804AbgFHXLB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:11:01 -0400
+        id S1728056AbgFHXLD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:11:03 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BD1D020890;
-        Mon,  8 Jun 2020 23:10:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 43FF720890;
+        Mon,  8 Jun 2020 23:11:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591657860;
-        bh=X9M32Bh0nXxv5LYujkA9sCqehA1ijPRpYu/JYe4UznQ=;
+        s=default; t=1591657863;
+        bh=eJJmdAzWi5I3ihv1Az8v+6SrdP9aQn6Z/DKHTk4Vsyo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hAwsSVlePQy8TDIbTwgCH8Xngov4jQudnI2zYLmJoGX9Sbhrtc/tP9u/DVc4PTYyJ
-         EVndcrmZCEUfI5P6xK5mjJkeS5zEHyWW5q4z6YbftPQW63zglmCVxsJ2144nnH2vK6
-         Mgl76zD/JW8ApXGINHcdVHQvc2ynKNzWP3jNwMeg=
+        b=SvU07pGgwsLQDmlFmqQKd+eTpsdHG2OvBieg51fWRpOxT9UpgH7oE91Jruw+PZvf9
+         q28oSO+scZ0xYjPdouUtiy0LHgOoqyeKgB0xCQp1udzFy/wOkllqsTabL0kQAHLYGo
+         g7lR7n39LEMm39jqed77FxDjTic5yIWSHSyYft7Q=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     chen gong <curry.gong@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.7 223/274] drm/amd/powerpay: Disable gfxoff when setting manual mode on picasso and raven
-Date:   Mon,  8 Jun 2020 19:05:16 -0400
-Message-Id: <20200608230607.3361041-223-sashal@kernel.org>
+Cc:     Alan Maguire <alan.maguire@oracle.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-kselftest@vger.kernel.org, netdev@vger.kernel.org,
+        bpf@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.7 225/274] selftests/bpf: CONFIG_IPV6_SEG6_BPF required for test_seg6_loop.o
+Date:   Mon,  8 Jun 2020 19:05:18 -0400
+Message-Id: <20200608230607.3361041-225-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608230607.3361041-1-sashal@kernel.org>
 References: <20200608230607.3361041-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -45,96 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: chen gong <curry.gong@amd.com>
+From: Alan Maguire <alan.maguire@oracle.com>
 
-[ Upstream commit cbd2d08c7463e78d625a69e9db27ad3004cbbd99 ]
+[ Upstream commit 3c8e8cf4b18b3a7034fab4c4504fc4b54e4b6195 ]
 
-[Problem description]
-1. Boot up picasso platform, launches desktop, Don't do anything (APU enter into "gfxoff" state)
-2. Remote login to platform using SSH, then type the command line:
-	sudo su -c "echo manual > /sys/class/drm/card0/device/power_dpm_force_performance_level"
-	sudo su -c "echo 2 > /sys/class/drm/card0/device/pp_dpm_sclk" (fix SCLK to 1400MHz)
-3. Move the mouse around in Window
-4. Phenomenon :  The screen frozen
+test_seg6_loop.o uses the helper bpf_lwt_seg6_adjust_srh();
+it will not be present if CONFIG_IPV6_SEG6_BPF is not specified.
 
-Tester will switch sclk level during glmark2 run time.
-APU will enter "gfxoff" state intermittently during glmark2 run time.
-The system got hanged if fix GFXCLK to 1400MHz when APU is in "gfxoff"
-state.
-
-[Debug]
-1. Fix SCLK to X MHz
-	1400: screen frozen, screen black, then OS will reboot.
-	1300: screen frozen.
-	1200: screen frozen, screen black.
-	1100: screen frozen, screen black, then OS will reboot.
-	1000: screen frozen, screen black.
-	900:  screen frozen, screen black, then OS will reboot.
-	800:  Situation Nomal, issue disappear.
-	700:  Situation Nomal, issue disappear.
-2. SBIOS setting: AMD CBS --> SMU Debug Options -->SMU Debug --> "GFX DLDO Psm Margin Control":
-	50 : Situation Nomal, issue disappear.
-	45 : Situation Nomal, issue disappear.
-	40 : Situation Nomal, issue disappear.
-	35 : Situation Nomal, issue disappear.
-	30 : screen black.
-	25 : screen frozen, then blurred screen.
-	20 : screen frozen.
-	15 : screen black.
-	10 : screen frozen.
-	5  : screen frozen, then blurred screen.
-3. Disable GFXOFF feature
-	Situation Nomal, issue disappear.
-
-[Why]
-Through a period of time debugging with Sys Eng team and SMU team, Sys
-Eng team said this is voltage/frequency marginal issue not a F/W or H/W
-bug. This experiment proves that default targetPsm [for f=1400MHz] is
-not sufficient when GFXOFF is enabled on Picasso.
-
-SMU team think it is an odd test conditions to force sclk="1400MHz" when
-GPU is in "gfxoff" state，then wake up the GFX. SCLK should be in the
-"lowest frequency" when gfxoff.
-
-[How]
-Disable gfxoff when setting manual mode.
-Enable gfxoff when setting other mode(exiting manual mode) again.
-
-By the way, from the user point of view, now that user switch to manual
-mode and force SCLK Frequency, he don't want SCLK be controlled by
-workload.It becomes meaningless to "switch to manual mode" if APU enter "gfxoff"
-due to lack of workload at this point.
-
-Tips: Same issue observed on Raven.
-
-Signed-off-by: chen gong <curry.gong@amd.com>
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fixes: b061017f8b4d ("selftests/bpf: add realistic loop tests")
+Signed-off-by: Alan Maguire <alan.maguire@oracle.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/1590147389-26482-2-git-send-email-alan.maguire@oracle.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ tools/testing/selftests/bpf/config | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c
-index 49e2e43f2e4a..532f4d908b8d 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c
-@@ -383,6 +383,15 @@ static ssize_t amdgpu_set_dpm_forced_performance_level(struct device *dev,
- 		return count;
- 	}
- 
-+	if (adev->asic_type == CHIP_RAVEN) {
-+		if (adev->rev_id < 8) {
-+			if (current_level != AMD_DPM_FORCED_LEVEL_MANUAL && level == AMD_DPM_FORCED_LEVEL_MANUAL)
-+				amdgpu_gfx_off_ctrl(adev, false);
-+			else if (current_level == AMD_DPM_FORCED_LEVEL_MANUAL && level != AMD_DPM_FORCED_LEVEL_MANUAL)
-+				amdgpu_gfx_off_ctrl(adev, true);
-+		}
-+	}
-+
- 	/* profile_exit setting is valid only when current mode is in profile mode */
- 	if (!(current_level & (AMD_DPM_FORCED_LEVEL_PROFILE_STANDARD |
- 	    AMD_DPM_FORCED_LEVEL_PROFILE_MIN_SCLK |
+diff --git a/tools/testing/selftests/bpf/config b/tools/testing/selftests/bpf/config
+index 60e3ae5d4e48..48e058552eb7 100644
+--- a/tools/testing/selftests/bpf/config
++++ b/tools/testing/selftests/bpf/config
+@@ -25,6 +25,7 @@ CONFIG_XDP_SOCKETS=y
+ CONFIG_FTRACE_SYSCALLS=y
+ CONFIG_IPV6_TUNNEL=y
+ CONFIG_IPV6_GRE=y
++CONFIG_IPV6_SEG6_BPF=y
+ CONFIG_NET_FOU=m
+ CONFIG_NET_FOU_IP_TUNNELS=y
+ CONFIG_IPV6_FOU=m
 -- 
 2.25.1
 
