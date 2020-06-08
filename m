@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D72CC1F296B
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:05:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DD631F2916
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:04:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732100AbgFHX7x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 19:59:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47434 "EHLO mail.kernel.org"
+        id S1731380AbgFHXWt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 19:22:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47656 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731360AbgFHXWn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:22:43 -0400
+        id S1731369AbgFHXWs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:22:48 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0454E2072F;
-        Mon,  8 Jun 2020 23:22:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D5E7F20872;
+        Mon,  8 Jun 2020 23:22:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658563;
-        bh=yKkzUylOknIwecsv8r1l0CYmrdBOv5/1gOFSrHKSh6k=;
+        s=default; t=1591658568;
+        bh=BbxdWGnvVlDQStaBtcIGrsZkW4bEhkfCkN1SYoePdjU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I9UDFavuNbrBdLPPhUN75J9gco6ObsPjUcn31GslbH18hnXG9vjQ5KU8+c7B5HwMF
-         7EkeXPGBppo1/SRDF7sLj/R6qSv6dFYN7E704Nb+76V+yHOMvTVrnWFf7jJOlH1W1R
-         mB/uO6xF4+83EP/eGNlt8+vXucOoxfTP5GAdRJBw=
+        b=AB+ZO2bdd6QxE8zSZApCgDq7xa3i99poCVQBZxZYQ0PVwVmX5xo5gaTWeM/j0f0zf
+         qdbXEyMiEsXeItUtcY3fiUPhFhyqxDQVMqHL4eTahQu8+658oT6Fs6XfeJHEjppImj
+         jWmBU6u9FQn7qoI9y8skFgJ3ibGOqmKQJYqYVils=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>, linux-crypto@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 004/106] crypto: ccp -- don't "select" CONFIG_DMADEVICES
-Date:   Mon,  8 Jun 2020 19:20:56 -0400
-Message-Id: <20200608232238.3368589-4-sashal@kernel.org>
+Cc:     Mark Starovoytov <mstarovoitov@marvell.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 008/106] net: atlantic: make hw_get_regs optional
+Date:   Mon,  8 Jun 2020 19:21:00 -0400
+Message-Id: <20200608232238.3368589-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608232238.3368589-1-sashal@kernel.org>
 References: <20200608232238.3368589-1-sashal@kernel.org>
@@ -44,57 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Mark Starovoytov <mstarovoitov@marvell.com>
 
-[ Upstream commit eebac678556d6927f09a992872f4464cf3aecc76 ]
+[ Upstream commit d0f23741c202c685447050713907f3be39a985ee ]
 
-DMADEVICES is the top-level option for the slave DMA
-subsystem, and should not be selected by device drivers,
-as this can cause circular dependencies such as:
+This patch fixes potential crash in case if hw_get_regs is NULL.
 
-drivers/net/ethernet/freescale/Kconfig:6:error: recursive dependency detected!
-drivers/net/ethernet/freescale/Kconfig:6:	symbol NET_VENDOR_FREESCALE depends on PPC_BESTCOMM
-drivers/dma/bestcomm/Kconfig:6:	symbol PPC_BESTCOMM depends on DMADEVICES
-drivers/dma/Kconfig:6:	symbol DMADEVICES is selected by CRYPTO_DEV_SP_CCP
-drivers/crypto/ccp/Kconfig:10:	symbol CRYPTO_DEV_SP_CCP depends on CRYPTO
-crypto/Kconfig:16:	symbol CRYPTO is selected by LIBCRC32C
-lib/Kconfig:222:	symbol LIBCRC32C is selected by LIQUIDIO
-drivers/net/ethernet/cavium/Kconfig:65:	symbol LIQUIDIO depends on PTP_1588_CLOCK
-drivers/ptp/Kconfig:8:	symbol PTP_1588_CLOCK is implied by FEC
-drivers/net/ethernet/freescale/Kconfig:23:	symbol FEC depends on NET_VENDOR_FREESCALE
-
-The LIQUIDIO driver causing this problem is addressed in a
-separate patch, but this change is needed to prevent it from
-happening again.
-
-Using "depends on DMADEVICES" is what we do for all other
-implementations of slave DMA controllers as well.
-
-Fixes: b3c2fee5d66b ("crypto: ccp - Ensure all dependencies are specified")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Mark Starovoytov <mstarovoitov@marvell.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/ccp/Kconfig | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/net/ethernet/aquantia/atlantic/aq_nic.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/crypto/ccp/Kconfig b/drivers/crypto/ccp/Kconfig
-index b9dfae47aefd..7f5fc705503d 100644
---- a/drivers/crypto/ccp/Kconfig
-+++ b/drivers/crypto/ccp/Kconfig
-@@ -9,10 +9,9 @@ config CRYPTO_DEV_CCP_DD
- config CRYPTO_DEV_SP_CCP
- 	bool "Cryptographic Coprocessor device"
- 	default y
--	depends on CRYPTO_DEV_CCP_DD
-+	depends on CRYPTO_DEV_CCP_DD && DMADEVICES
- 	select HW_RANDOM
- 	select DMA_ENGINE
--	select DMADEVICES
- 	select CRYPTO_SHA1
- 	select CRYPTO_SHA256
- 	help
+diff --git a/drivers/net/ethernet/aquantia/atlantic/aq_nic.c b/drivers/net/ethernet/aquantia/atlantic/aq_nic.c
+index 15dcfb6704e5..adac5df0d6b4 100644
+--- a/drivers/net/ethernet/aquantia/atlantic/aq_nic.c
++++ b/drivers/net/ethernet/aquantia/atlantic/aq_nic.c
+@@ -620,6 +620,9 @@ int aq_nic_get_regs(struct aq_nic_s *self, struct ethtool_regs *regs, void *p)
+ 	u32 *regs_buff = p;
+ 	int err = 0;
+ 
++	if (unlikely(!self->aq_hw_ops->hw_get_regs))
++		return -EOPNOTSUPP;
++
+ 	regs->version = 1;
+ 
+ 	err = self->aq_hw_ops->hw_get_regs(self->aq_hw,
+@@ -634,6 +637,9 @@ int aq_nic_get_regs(struct aq_nic_s *self, struct ethtool_regs *regs, void *p)
+ 
+ int aq_nic_get_regs_count(struct aq_nic_s *self)
+ {
++	if (unlikely(!self->aq_hw_ops->hw_get_regs))
++		return 0;
++
+ 	return self->aq_nic_cfg.aq_hw_caps->mac_regs_count;
+ }
+ 
 -- 
 2.25.1
 
