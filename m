@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FCB11F2522
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:25:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AD02C1F255C
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:29:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731830AbgFHXZg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 19:25:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52194 "EHLO mail.kernel.org"
+        id S1731890AbgFHXZ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 19:25:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52778 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729666AbgFHXZf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:25:35 -0400
+        id S1730607AbgFHXZ4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:25:56 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 51C6C2064C;
-        Mon,  8 Jun 2020 23:25:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B2EC92076A;
+        Mon,  8 Jun 2020 23:25:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658734;
-        bh=cEAwhKXZ0vIoeCZNcZkMl5/cQkuma4wulq4WG3BfiYk=;
+        s=default; t=1591658755;
+        bh=u9jQ5Wst+t+dyQX8hD+WWjVAKD9bo+Ts/flkudQAhxI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SM8usdS+db8XJI/qjgHvdB9zRbIBiaxXS4URelfhbVfJ4p7lTtm08bKgcSr6qIp6F
-         0jBDkKOR6KE9pQdonSPck+LARBLAZkqwncuXU76TTdWI6cyGMAHVvo3h6gEVQOUnMq
-         RIOFIMv0wP8cLbZEra1sP/knO2xWVfM5gZMkmI00=
+        b=M5TACHXvPifdB6G2bFORpzAByCW3aJiSjNXKnfTS9/iQ+/oHLkuv6kWGwvRul3e+V
+         MiMz3gzPINtakarKMI3awxydcyLdjQJX2w/sbg0XECXXGyKfZ3/EE5gesv4fDwKMGn
+         3AUIfyEO7p/tLcYvISVqaYV9b487NhaY/YytoAYg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Qiujun Huang <hqjagain@gmail.com>,
-        syzbot+5d338854440137ea0fef@syzkaller.appspotmail.com,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 23/72] ath9k: Fix use-after-free Read in ath9k_wmi_ctrl_rx
-Date:   Mon,  8 Jun 2020 19:24:11 -0400
-Message-Id: <20200608232500.3369581-23-sashal@kernel.org>
+Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 40/72] media: cec: silence shift wrapping warning in __cec_s_log_addrs()
+Date:   Mon,  8 Jun 2020 19:24:28 -0400
+Message-Id: <20200608232500.3369581-40-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200608232500.3369581-1-sashal@kernel.org>
 References: <20200608232500.3369581-1-sashal@kernel.org>
@@ -45,162 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiujun Huang <hqjagain@gmail.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit abeaa85054ff8cfe8b99aafc5c70ea067e5d0908 ]
+[ Upstream commit 3b5af3171e2d5a73ae6f04965ed653d039904eb6 ]
 
-Free wmi later after cmd urb has been killed, as urb cb will access wmi.
+The log_addrs->log_addr_type[i] value is a u8 which is controlled by
+the user and comes from the ioctl.  If it's over 31 then that results in
+undefined behavior (shift wrapping) and that leads to a Smatch static
+checker warning.  We already cap the value later so we can silence the
+warning just by re-ordering the existing checks.
 
-the case reported by syzbot:
-https://lore.kernel.org/linux-usb/0000000000000002fc05a1d61a68@google.com
-BUG: KASAN: use-after-free in ath9k_wmi_ctrl_rx+0x416/0x500
-drivers/net/wireless/ath/ath9k/wmi.c:215
-Read of size 1 at addr ffff8881cef1417c by task swapper/1/0
+I think the UBSan checker will also catch this bug at runtime and
+generate a warning.  But otherwise the bug is harmless.
 
-Call Trace:
-<IRQ>
-ath9k_wmi_ctrl_rx+0x416/0x500 drivers/net/wireless/ath/ath9k/wmi.c:215
-ath9k_htc_rx_msg+0x2da/0xaf0
-drivers/net/wireless/ath/ath9k/htc_hst.c:459
-ath9k_hif_usb_reg_in_cb+0x1ba/0x630
-drivers/net/wireless/ath/ath9k/hif_usb.c:718
-__usb_hcd_giveback_urb+0x29a/0x550 drivers/usb/core/hcd.c:1650
-usb_hcd_giveback_urb+0x368/0x420 drivers/usb/core/hcd.c:1716
-dummy_timer+0x1258/0x32ae drivers/usb/gadget/udc/dummy_hcd.c:1966
-call_timer_fn+0x195/0x6f0 kernel/time/timer.c:1404
-expire_timers kernel/time/timer.c:1449 [inline]
-__run_timers kernel/time/timer.c:1773 [inline]
-__run_timers kernel/time/timer.c:1740 [inline]
-run_timer_softirq+0x5f9/0x1500 kernel/time/timer.c:1786
-
-Reported-and-tested-by: syzbot+5d338854440137ea0fef@syzkaller.appspotmail.com
-Signed-off-by: Qiujun Huang <hqjagain@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20200404041838.10426-3-hqjagain@gmail.com
+Fixes: 9881fe0ca187 ("[media] cec: add HDMI CEC framework (adapter)")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath9k/hif_usb.c      |  5 +++--
- drivers/net/wireless/ath/ath9k/hif_usb.h      |  1 +
- drivers/net/wireless/ath/ath9k/htc_drv_init.c | 10 +++++++---
- drivers/net/wireless/ath/ath9k/wmi.c          |  5 ++++-
- drivers/net/wireless/ath/ath9k/wmi.h          |  3 ++-
- 5 files changed, 17 insertions(+), 7 deletions(-)
+ drivers/media/cec/cec-adap.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath9k/hif_usb.c b/drivers/net/wireless/ath/ath9k/hif_usb.c
-index 4399e1ebac15..805d88ecc7ac 100644
---- a/drivers/net/wireless/ath/ath9k/hif_usb.c
-+++ b/drivers/net/wireless/ath/ath9k/hif_usb.c
-@@ -976,7 +976,7 @@ static int ath9k_hif_usb_alloc_urbs(struct hif_device_usb *hif_dev)
- 	return -ENOMEM;
- }
+diff --git a/drivers/media/cec/cec-adap.c b/drivers/media/cec/cec-adap.c
+index 0d7d687aeea0..061b7824f698 100644
+--- a/drivers/media/cec/cec-adap.c
++++ b/drivers/media/cec/cec-adap.c
+@@ -1624,6 +1624,10 @@ int __cec_s_log_addrs(struct cec_adapter *adap,
+ 		unsigned j;
  
--static void ath9k_hif_usb_dealloc_urbs(struct hif_device_usb *hif_dev)
-+void ath9k_hif_usb_dealloc_urbs(struct hif_device_usb *hif_dev)
- {
- 	usb_kill_anchored_urbs(&hif_dev->regout_submitted);
- 	ath9k_hif_usb_dealloc_reg_in_urbs(hif_dev);
-@@ -1344,8 +1344,9 @@ static void ath9k_hif_usb_disconnect(struct usb_interface *interface)
- 
- 	if (hif_dev->flags & HIF_USB_READY) {
- 		ath9k_htc_hw_deinit(hif_dev->htc_handle, unplugged);
--		ath9k_htc_hw_free(hif_dev->htc_handle);
- 		ath9k_hif_usb_dev_deinit(hif_dev);
-+		ath9k_destoy_wmi(hif_dev->htc_handle->drv_priv);
-+		ath9k_htc_hw_free(hif_dev->htc_handle);
- 	}
- 
- 	usb_set_intfdata(interface, NULL);
-diff --git a/drivers/net/wireless/ath/ath9k/hif_usb.h b/drivers/net/wireless/ath/ath9k/hif_usb.h
-index 7846916aa01d..a94e7e1c86e9 100644
---- a/drivers/net/wireless/ath/ath9k/hif_usb.h
-+++ b/drivers/net/wireless/ath/ath9k/hif_usb.h
-@@ -133,5 +133,6 @@ struct hif_device_usb {
- 
- int ath9k_hif_usb_init(void);
- void ath9k_hif_usb_exit(void);
-+void ath9k_hif_usb_dealloc_urbs(struct hif_device_usb *hif_dev);
- 
- #endif /* HTC_USB_H */
-diff --git a/drivers/net/wireless/ath/ath9k/htc_drv_init.c b/drivers/net/wireless/ath/ath9k/htc_drv_init.c
-index da2164b0cccc..66ef5cf16450 100644
---- a/drivers/net/wireless/ath/ath9k/htc_drv_init.c
-+++ b/drivers/net/wireless/ath/ath9k/htc_drv_init.c
-@@ -933,8 +933,9 @@ static int ath9k_init_device(struct ath9k_htc_priv *priv,
- int ath9k_htc_probe_device(struct htc_target *htc_handle, struct device *dev,
- 			   u16 devid, char *product, u32 drv_info)
- {
--	struct ieee80211_hw *hw;
-+	struct hif_device_usb *hif_dev;
- 	struct ath9k_htc_priv *priv;
-+	struct ieee80211_hw *hw;
- 	int ret;
- 
- 	hw = ieee80211_alloc_hw(sizeof(struct ath9k_htc_priv), &ath9k_htc_ops);
-@@ -969,7 +970,10 @@ int ath9k_htc_probe_device(struct htc_target *htc_handle, struct device *dev,
- 	return 0;
- 
- err_init:
--	ath9k_deinit_wmi(priv);
-+	ath9k_stop_wmi(priv);
-+	hif_dev = (struct hif_device_usb *)htc_handle->hif_dev;
-+	ath9k_hif_usb_dealloc_urbs(hif_dev);
-+	ath9k_destoy_wmi(priv);
- err_free:
- 	ieee80211_free_hw(hw);
- 	return ret;
-@@ -984,7 +988,7 @@ void ath9k_htc_disconnect_device(struct htc_target *htc_handle, bool hotunplug)
- 			htc_handle->drv_priv->ah->ah_flags |= AH_UNPLUGGED;
- 
- 		ath9k_deinit_device(htc_handle->drv_priv);
--		ath9k_deinit_wmi(htc_handle->drv_priv);
-+		ath9k_stop_wmi(htc_handle->drv_priv);
- 		ieee80211_free_hw(htc_handle->drv_priv->hw);
- 	}
- }
-diff --git a/drivers/net/wireless/ath/ath9k/wmi.c b/drivers/net/wireless/ath/ath9k/wmi.c
-index 64a354fa78ab..f57f48e4d7a0 100644
---- a/drivers/net/wireless/ath/ath9k/wmi.c
-+++ b/drivers/net/wireless/ath/ath9k/wmi.c
-@@ -112,14 +112,17 @@ struct wmi *ath9k_init_wmi(struct ath9k_htc_priv *priv)
- 	return wmi;
- }
- 
--void ath9k_deinit_wmi(struct ath9k_htc_priv *priv)
-+void ath9k_stop_wmi(struct ath9k_htc_priv *priv)
- {
- 	struct wmi *wmi = priv->wmi;
- 
- 	mutex_lock(&wmi->op_mutex);
- 	wmi->stopped = true;
- 	mutex_unlock(&wmi->op_mutex);
-+}
- 
-+void ath9k_destoy_wmi(struct ath9k_htc_priv *priv)
-+{
- 	kfree(priv->wmi);
- }
- 
-diff --git a/drivers/net/wireless/ath/ath9k/wmi.h b/drivers/net/wireless/ath/ath9k/wmi.h
-index 380175d5ecd7..d8b912206232 100644
---- a/drivers/net/wireless/ath/ath9k/wmi.h
-+++ b/drivers/net/wireless/ath/ath9k/wmi.h
-@@ -179,7 +179,6 @@ struct wmi {
- };
- 
- struct wmi *ath9k_init_wmi(struct ath9k_htc_priv *priv);
--void ath9k_deinit_wmi(struct ath9k_htc_priv *priv);
- int ath9k_wmi_connect(struct htc_target *htc, struct wmi *wmi,
- 		      enum htc_endpoint_id *wmi_ctrl_epid);
- int ath9k_wmi_cmd(struct wmi *wmi, enum wmi_cmd_id cmd_id,
-@@ -189,6 +188,8 @@ int ath9k_wmi_cmd(struct wmi *wmi, enum wmi_cmd_id cmd_id,
- void ath9k_wmi_event_tasklet(unsigned long data);
- void ath9k_fatal_work(struct work_struct *work);
- void ath9k_wmi_event_drain(struct ath9k_htc_priv *priv);
-+void ath9k_stop_wmi(struct ath9k_htc_priv *priv);
-+void ath9k_destoy_wmi(struct ath9k_htc_priv *priv);
- 
- #define WMI_CMD(_wmi_cmd)						\
- 	do {								\
+ 		log_addrs->log_addr[i] = CEC_LOG_ADDR_INVALID;
++		if (log_addrs->log_addr_type[i] > CEC_LOG_ADDR_TYPE_UNREGISTERED) {
++			dprintk(1, "unknown logical address type\n");
++			return -EINVAL;
++		}
+ 		if (type_mask & (1 << log_addrs->log_addr_type[i])) {
+ 			dprintk(1, "duplicate logical address type\n");
+ 			return -EINVAL;
+@@ -1644,10 +1648,6 @@ int __cec_s_log_addrs(struct cec_adapter *adap,
+ 			dprintk(1, "invalid primary device type\n");
+ 			return -EINVAL;
+ 		}
+-		if (log_addrs->log_addr_type[i] > CEC_LOG_ADDR_TYPE_UNREGISTERED) {
+-			dprintk(1, "unknown logical address type\n");
+-			return -EINVAL;
+-		}
+ 		for (j = 0; j < feature_sz; j++) {
+ 			if ((features[j] & 0x80) == 0) {
+ 				if (op_is_dev_features)
 -- 
 2.25.1
 
