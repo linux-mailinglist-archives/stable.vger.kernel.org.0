@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F17AA1F2D3B
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:33:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47FE91F2F6B
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 02:51:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729306AbgFIAbo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 20:31:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36402 "EHLO mail.kernel.org"
+        id S1728648AbgFHXK1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 19:10:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56544 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728917AbgFHXP2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:15:28 -0400
+        id S1728378AbgFHXKX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:10:23 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 248A620760;
-        Mon,  8 Jun 2020 23:15:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EEEA6208C7;
+        Mon,  8 Jun 2020 23:10:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658128;
-        bh=44g2p60ef6jX0NKp5biRUFqEU0/P6TtB7D5IGi8TaZw=;
+        s=default; t=1591657822;
+        bh=mS6E5KdtOU9+7cFz8Yn3gX2S53udT9uaNWpGg0utQBc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KKQI4w4sAQr5p7P9i4PVhBeUJe07y0I6i9Mvtt8i3r1q8a3NNgQVvfJZizGRLo7oP
-         ayhc7lKmR75CNEsra+zMKjWhB+g5FOZBdF54htF41sgzswcFgQrMF4uSzR9YoAZqtW
-         PZlC7445OEnQLhlIF7HgNO8C3YJ7DvTnElhfSjIU=
+        b=e/1c1OC0+TIplm/MdXHNey5q9LSCxYDT2AHVXg46J2PdHSe+erEFTdKnP1PEkJNJ4
+         97jJATeWkq7SJNXqAsNxLKI8s+QQxPc0i5qyFkerhquFNwZC2afm9dEgGuFx33ROi8
+         +HGV415XMb32+JvpiwCOVAI+2g8sNyBPS38An8vw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
-        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
-        Matthew Auld <matthew.auld@intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.6 163/606] drm/i915: Propagate error from completed fences
+Cc:     Lorenzo Bianconi <lorenzo@kernel.org>,
+        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.7 195/274] mt76: mt7615: fix mt7615_driver_own routine
 Date:   Mon,  8 Jun 2020 19:04:48 -0400
-Message-Id: <20200608231211.3363633-163-sashal@kernel.org>
+Message-Id: <20200608230607.3361041-195-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200608231211.3363633-1-sashal@kernel.org>
-References: <20200608231211.3363633-1-sashal@kernel.org>
+In-Reply-To: <20200608230607.3361041-1-sashal@kernel.org>
+References: <20200608230607.3361041-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -46,42 +45,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Wilson <chris@chris-wilson.co.uk>
+From: Lorenzo Bianconi <lorenzo@kernel.org>
 
-commit bc850943486887e3859597a266767f95db90aa72 upstream.
+[ Upstream commit 338061619185133f56ac17365deb1e75eaecc604 ]
 
-We need to preserve fatal errors from fences that are being terminated
-as we hook them up.
+Introduce MT_PCIE_DOORBELL_PUSH register to fix mt7615_driver_own
+routine for mt7663e
 
-Fixes: ef4688497512 ("drm/i915: Propagate fence errors")
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Cc: Matthew Auld <matthew.auld@intel.com>
-Reviewed-by: Matthew Auld <matthew.auld@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200506162136.3325-1-chris@chris-wilson.co.uk
-(cherry picked from commit 24fe5f2ab2478053d50a3bc629ada895903a5cbc)
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: f40ac0f3d3c0 ("mt76: mt7615: introduce mt7663e support")
+Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/i915_request.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/wireless/mediatek/mt76/mt7615/mcu.c  | 6 +++++-
+ drivers/net/wireless/mediatek/mt76/mt7615/regs.h | 1 +
+ 2 files changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/i915/i915_request.c b/drivers/gpu/drm/i915/i915_request.c
-index 32ab154db788..1f50fc8bcebf 100644
---- a/drivers/gpu/drm/i915/i915_request.c
-+++ b/drivers/gpu/drm/i915/i915_request.c
-@@ -947,8 +947,10 @@ i915_request_await_request(struct i915_request *to, struct i915_request *from)
- 	GEM_BUG_ON(to == from);
- 	GEM_BUG_ON(to->timeline == from->timeline);
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7615/mcu.c b/drivers/net/wireless/mediatek/mt76/mt7615/mcu.c
+index 0d56e0834bde..29a7aaabb6da 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7615/mcu.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7615/mcu.c
+@@ -1526,16 +1526,20 @@ static void mt7622_trigger_hif_int(struct mt7615_dev *dev, bool en)
  
--	if (i915_request_completed(from))
-+	if (i915_request_completed(from)) {
-+		i915_sw_fence_set_error_once(&to->submit, from->fence.error);
- 		return 0;
-+	}
+ static int mt7615_driver_own(struct mt7615_dev *dev)
+ {
++	struct mt76_dev *mdev = &dev->mt76;
+ 	u32 addr;
  
- 	if (to->engine->schedule) {
- 		ret = i915_sched_node_add_dependency(&to->sched,
+-	addr = is_mt7663(&dev->mt76) ? MT_CONN_HIF_ON_LPCTL : MT_CFG_LPCR_HOST;
++	addr = is_mt7663(mdev) ? MT_PCIE_DOORBELL_PUSH : MT_CFG_LPCR_HOST;
+ 	mt76_wr(dev, addr, MT_CFG_LPCR_HOST_DRV_OWN);
+ 
+ 	mt7622_trigger_hif_int(dev, true);
++
++	addr = is_mt7663(mdev) ? MT_CONN_HIF_ON_LPCTL : MT_CFG_LPCR_HOST;
+ 	if (!mt76_poll_msec(dev, addr, MT_CFG_LPCR_HOST_FW_OWN, 0, 3000)) {
+ 		dev_err(dev->mt76.dev, "Timeout for driver own\n");
+ 		return -EIO;
+ 	}
++
+ 	mt7622_trigger_hif_int(dev, false);
+ 
+ 	return 0;
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7615/regs.h b/drivers/net/wireless/mediatek/mt76/mt7615/regs.h
+index f7c2a633841c..de0ef165c0ba 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7615/regs.h
++++ b/drivers/net/wireless/mediatek/mt76/mt7615/regs.h
+@@ -65,6 +65,7 @@ enum mt7615_reg_base {
+ #define MT_HIF2_BASE			0xf0000
+ #define MT_HIF2(ofs)			(MT_HIF2_BASE + (ofs))
+ #define MT_PCIE_IRQ_ENABLE		MT_HIF2(0x188)
++#define MT_PCIE_DOORBELL_PUSH		MT_HIF2(0x1484)
+ 
+ #define MT_CFG_LPCR_HOST		MT_HIF(0x1f0)
+ #define MT_CFG_LPCR_HOST_FW_OWN		BIT(0)
 -- 
 2.25.1
 
