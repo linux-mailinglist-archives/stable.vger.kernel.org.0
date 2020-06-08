@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FEF41F234F
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:15:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B07441F2277
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 01:08:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727940AbgFHXNp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 19:13:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33578 "EHLO mail.kernel.org"
+        id S1728193AbgFHXIf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 19:08:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53876 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729551AbgFHXNn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:13:43 -0400
+        id S1728185AbgFHXIc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Jun 2020 19:08:32 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ADBF7214D8;
-        Mon,  8 Jun 2020 23:13:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BCAF0208B3;
+        Mon,  8 Jun 2020 23:08:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591658022;
-        bh=O4sIm0dMTHqRZCNxs3PMb5hcgRJULMMM54RSsYvmZzM=;
+        s=default; t=1591657711;
+        bh=grvurrTZx3QwnOzhXNCbI8odxJzQ/tew0Ej4W8RRl6w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F1yw1wz+uI9OEFQsyy85GOQZGHGC3KoGlB+D/SIm0JmdbSTAmmD1l3wts9O9c//c6
-         ic/0LubGEJyDE4eQxEaPXgyJbTzL7zLwOZb0IVHgz4KJJTij391/f4h86OZSLw2S8F
-         MGGaJuS01F2kLvG7WOQmjW/T54rB3TZcAW3IkKb8=
+        b=Pq9U9VwPnDQHdbKhFQ0zOd3KWcclX55nI1ghEtveU3ZTMfNc2DzgBu+zrqL02ZsFr
+         SxvlvO3j8wTfwLTfZ85UUeCcOkI01v/eYAkKBRNYkjI1Ofnv67a7DovColhoJu5zMC
+         w67CsH/doGz6aaqXMBpeYGYHCqFp2VqS5az4+uQc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yonghong Song <yhs@fb.com>, Alexei Starovoitov <ast@kernel.org>,
-        Andrii Nakryiko <andriin@fb.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        netdev@vger.kernel.org, bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.6 075/606] bpf: Enforce returning 0 for fentry/fexit progs
+Cc:     Paul Moore <paul@paul-moore.com>, teroincn@gmail.com,
+        Richard Guy Briggs <rgb@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, linux-audit@redhat.com
+Subject: [PATCH AUTOSEL 5.7 107/274] audit: fix a net reference leak in audit_send_reply()
 Date:   Mon,  8 Jun 2020 19:03:20 -0400
-Message-Id: <20200608231211.3363633-75-sashal@kernel.org>
+Message-Id: <20200608230607.3361041-107-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200608231211.3363633-1-sashal@kernel.org>
-References: <20200608231211.3363633-1-sashal@kernel.org>
+In-Reply-To: <20200608230607.3361041-1-sashal@kernel.org>
+References: <20200608230607.3361041-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -44,64 +43,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yonghong Song <yhs@fb.com>
+From: Paul Moore <paul@paul-moore.com>
 
-commit e92888c72fbdc6f9d07b3b0604c012e81d7c0da7 upstream.
+[ Upstream commit a48b284b403a4a073d8beb72d2bb33e54df67fb6 ]
 
-Currently, tracing/fentry and tracing/fexit prog
-return values are not enforced. In trampoline codes,
-the fentry/fexit prog return values are ignored.
-Let us enforce it to be 0 to avoid confusion and
-allows potential future extension.
+If audit_send_reply() fails when trying to create a new thread to
+send the reply it also fails to cleanup properly, leaking a reference
+to a net structure.  This patch fixes the error path and makes a
+handful of other cleanups that came up while fixing the code.
 
-This patch also explicitly added return value
-checking for tracing/raw_tp, tracing/fmod_ret,
-and freplace programs such that these program
-return values can be anything. The purpose are
-two folds:
- 1. to make it explicit about return value expectations
-    for these programs in verifier.
- 2. for tracing prog_type, if a future attach type
-    is added, the default is -ENOTSUPP which will
-    enforce to specify return value ranges explicitly.
-
-Fixes: fec56f5890d9 ("bpf: Introduce BPF trampoline")
-Signed-off-by: Yonghong Song <yhs@fb.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Acked-by: Andrii Nakryiko <andriin@fb.com>
-Link: https://lore.kernel.org/bpf/20200514053206.1298415-1-yhs@fb.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: teroincn@gmail.com
+Reviewed-by: Richard Guy Briggs <rgb@redhat.com>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/verifier.c | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ kernel/audit.c | 50 +++++++++++++++++++++++++++++---------------------
+ 1 file changed, 29 insertions(+), 21 deletions(-)
 
-diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
-index 1c53ccbd5b5d..c1bb5be530e9 100644
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -6498,6 +6498,22 @@ static int check_return_code(struct bpf_verifier_env *env)
- 			return 0;
- 		range = tnum_const(0);
- 		break;
-+	case BPF_PROG_TYPE_TRACING:
-+		switch (env->prog->expected_attach_type) {
-+		case BPF_TRACE_FENTRY:
-+		case BPF_TRACE_FEXIT:
-+			range = tnum_const(0);
-+			break;
-+		case BPF_TRACE_RAW_TP:
-+			return 0;
-+		default:
-+			return -ENOTSUPP;
-+		}
-+		break;
-+	case BPF_PROG_TYPE_EXT:
-+		/* freplace program can return anything as its return value
-+		 * depends on the to-be-replaced kernel func or bpf program.
-+		 */
- 	default:
- 		return 0;
- 	}
+diff --git a/kernel/audit.c b/kernel/audit.c
+index 87f31bf1f0a0..033b14712340 100644
+--- a/kernel/audit.c
++++ b/kernel/audit.c
+@@ -924,19 +924,30 @@ struct sk_buff *audit_make_reply(int seq, int type, int done,
+ 	return NULL;
+ }
+ 
++static void audit_free_reply(struct audit_reply *reply)
++{
++	if (!reply)
++		return;
++
++	if (reply->skb)
++		kfree_skb(reply->skb);
++	if (reply->net)
++		put_net(reply->net);
++	kfree(reply);
++}
++
+ static int audit_send_reply_thread(void *arg)
+ {
+ 	struct audit_reply *reply = (struct audit_reply *)arg;
+-	struct sock *sk = audit_get_sk(reply->net);
+ 
+ 	audit_ctl_lock();
+ 	audit_ctl_unlock();
+ 
+ 	/* Ignore failure. It'll only happen if the sender goes away,
+ 	   because our timeout is set to infinite. */
+-	netlink_unicast(sk, reply->skb, reply->portid, 0);
+-	put_net(reply->net);
+-	kfree(reply);
++	netlink_unicast(audit_get_sk(reply->net), reply->skb, reply->portid, 0);
++	reply->skb = NULL;
++	audit_free_reply(reply);
+ 	return 0;
+ }
+ 
+@@ -950,35 +961,32 @@ static int audit_send_reply_thread(void *arg)
+  * @payload: payload data
+  * @size: payload size
+  *
+- * Allocates an skb, builds the netlink message, and sends it to the port id.
+- * No failure notifications.
++ * Allocates a skb, builds the netlink message, and sends it to the port id.
+  */
+ static void audit_send_reply(struct sk_buff *request_skb, int seq, int type, int done,
+ 			     int multi, const void *payload, int size)
+ {
+-	struct net *net = sock_net(NETLINK_CB(request_skb).sk);
+-	struct sk_buff *skb;
+ 	struct task_struct *tsk;
+-	struct audit_reply *reply = kmalloc(sizeof(struct audit_reply),
+-					    GFP_KERNEL);
++	struct audit_reply *reply;
+ 
++	reply = kzalloc(sizeof(*reply), GFP_KERNEL);
+ 	if (!reply)
+ 		return;
+ 
+-	skb = audit_make_reply(seq, type, done, multi, payload, size);
+-	if (!skb)
+-		goto out;
+-
+-	reply->net = get_net(net);
++	reply->skb = audit_make_reply(seq, type, done, multi, payload, size);
++	if (!reply->skb)
++		goto err;
++	reply->net = get_net(sock_net(NETLINK_CB(request_skb).sk));
+ 	reply->portid = NETLINK_CB(request_skb).portid;
+-	reply->skb = skb;
+ 
+ 	tsk = kthread_run(audit_send_reply_thread, reply, "audit_send_reply");
+-	if (!IS_ERR(tsk))
+-		return;
+-	kfree_skb(skb);
+-out:
+-	kfree(reply);
++	if (IS_ERR(tsk))
++		goto err;
++
++	return;
++
++err:
++	audit_free_reply(reply);
+ }
+ 
+ /*
 -- 
 2.25.1
 
