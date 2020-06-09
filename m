@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 39CE21F438B
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 19:54:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F8191F43BE
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 19:58:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732864AbgFIRyS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Jun 2020 13:54:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45796 "EHLO mail.kernel.org"
+        id S1733197AbgFIRzG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Jun 2020 13:55:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47174 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733072AbgFIRyP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Jun 2020 13:54:15 -0400
+        id S1733191AbgFIRzF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Jun 2020 13:55:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CA7502074B;
-        Tue,  9 Jun 2020 17:54:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 87E2C20734;
+        Tue,  9 Jun 2020 17:55:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591725255;
-        bh=miLTQdPwzuk9lQFiqP5cxP8nhx922KpR3g6Sz11QT1U=;
+        s=default; t=1591725305;
+        bh=Faj6ySPN4NhaH1lHmRfYbHVD4GDrDtfBMnqzZGepr5g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1aRaydkc+B/OwLKD2bjyEGp/Zh8aopevXaE2KVz/gUQgd3dIXJK3BF4adxj5xnu2m
-         KF2ZTodggkZuXbOcsr9Akvux8rgLDk6VxqYeiq8Pgf4MitMEMEtGVPedRhL0wHfEie
-         NuXzr+RanUGxGI0gLnHxGU58EH3Ppw/PY3bz7/+M=
+        b=UcIn1wfAQGhlIIdRk6GmFSSNv7xorr1z2HLxI3jX3GO0K8UdSeKnNMOhADjVdRXVw
+         fSaRbJQj3zBKHRKij/10oyFHNqje4WgJWmWbzef67ViPn652tdfbQhICRbAV5pNVhw
+         YHQaCjCUtKKFj8gFu1b8/KSTlp440G7YYpz+PXc0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pascal Terjan <pterjan@google.com>
-Subject: [PATCH 5.6 32/41] staging: rtl8712: Fix IEEE80211_ADDBA_PARAM_BUF_SIZE_MASK
+        stable@vger.kernel.org, Daniele Palmas <dnlplm@gmail.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.7 03/24] USB: serial: option: add Telit LE910C1-EUX compositions
 Date:   Tue,  9 Jun 2020 19:45:34 +0200
-Message-Id: <20200609174115.150785569@linuxfoundation.org>
+Message-Id: <20200609174149.576102514@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200609174112.129412236@linuxfoundation.org>
-References: <20200609174112.129412236@linuxfoundation.org>
+In-Reply-To: <20200609174149.255223112@linuxfoundation.org>
+References: <20200609174149.255223112@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,51 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pascal Terjan <pterjan@google.com>
+From: Daniele Palmas <dnlplm@gmail.com>
 
-commit 15ea976a1f12b5fd76b1bd6ff3eb5132fd28047f upstream.
+commit 399ad9477c523f721f8e51d4f824bdf7267f120c upstream.
 
-The value in shared headers was fixed 9 years ago in commit 8d661f1e462d
-("ieee80211: correct IEEE80211_ADDBA_PARAM_BUF_SIZE_MASK macro") and
-while looking at using shared headers for other duplicated constants
-I noticed this driver uses the old value.
+Add Telit LE910C1-EUX compositions:
 
-The macros are also defined twice in this file so I am deleting the
-second definition.
+	0x1031: tty, tty, tty, rmnet
+	0x1033: tty, tty, tty, ecm
 
-Signed-off-by: Pascal Terjan <pterjan@google.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200523211247.23262-1-pterjan@google.com
+Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
+Link: https://lore.kernel.org/r/20200525211106.27338-1-dnlplm@gmail.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/rtl8712/wifi.h |    9 +--------
- 1 file changed, 1 insertion(+), 8 deletions(-)
+ drivers/usb/serial/option.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/staging/rtl8712/wifi.h
-+++ b/drivers/staging/rtl8712/wifi.h
-@@ -440,7 +440,7 @@ static inline unsigned char *get_hdr_bss
- /* block-ack parameters */
- #define IEEE80211_ADDBA_PARAM_POLICY_MASK 0x0002
- #define IEEE80211_ADDBA_PARAM_TID_MASK 0x003C
--#define IEEE80211_ADDBA_PARAM_BUF_SIZE_MASK 0xFFA0
-+#define IEEE80211_ADDBA_PARAM_BUF_SIZE_MASK 0xFFC0
- #define IEEE80211_DELBA_PARAM_TID_MASK 0xF000
- #define IEEE80211_DELBA_PARAM_INITIATOR_MASK 0x0800
- 
-@@ -532,13 +532,6 @@ struct ieee80211_ht_addt_info {
- #define IEEE80211_HT_IE_NON_GF_STA_PRSNT	0x0004
- #define IEEE80211_HT_IE_NON_HT_STA_PRSNT	0x0010
- 
--/* block-ack parameters */
--#define IEEE80211_ADDBA_PARAM_POLICY_MASK 0x0002
--#define IEEE80211_ADDBA_PARAM_TID_MASK 0x003C
--#define IEEE80211_ADDBA_PARAM_BUF_SIZE_MASK 0xFFA0
--#define IEEE80211_DELBA_PARAM_TID_MASK 0xF000
--#define IEEE80211_DELBA_PARAM_INITIATOR_MASK 0x0800
--
- /*
-  * A-PMDU buffer sizes
-  * According to IEEE802.11n spec size varies from 8K to 64K (in powers of 2)
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -1157,6 +1157,10 @@ static const struct usb_device_id option
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_CC864_SINGLE) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_DE910_DUAL) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_UE910_V2) },
++	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1031, 0xff),	/* Telit LE910C1-EUX */
++	 .driver_info = NCTRL(0) | RSVD(3) },
++	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1033, 0xff),	/* Telit LE910C1-EUX (ECM) */
++	 .driver_info = NCTRL(0) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE922_USBCFG0),
+ 	  .driver_info = RSVD(0) | RSVD(1) | NCTRL(2) | RSVD(3) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE922_USBCFG1),
 
 
