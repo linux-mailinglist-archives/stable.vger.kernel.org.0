@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 43BA11F45F2
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:23:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A80CD1F462C
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:25:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730612AbgFIRsX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Jun 2020 13:48:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60640 "EHLO mail.kernel.org"
+        id S1731943AbgFIRqb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Jun 2020 13:46:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56528 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732271AbgFIRsW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Jun 2020 13:48:22 -0400
+        id S1730424AbgFIRq3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Jun 2020 13:46:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4A206207ED;
-        Tue,  9 Jun 2020 17:48:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D8EB8207ED;
+        Tue,  9 Jun 2020 17:46:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591724901;
-        bh=sAKqQsYspESBgdnN+eV9couIFzpg4RDXKq4PEh5Ww5M=;
+        s=default; t=1591724789;
+        bh=zB/WZwl5Lv9DzA8ZRU7nN5IaoD3oyLoA2VH4IaYLapk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AsfEUCK2srszFp2b2HA7OzKcseLter37K/z/FmQautaF6YT0hQDM3Q0D772LiQQs7
-         iAVQQMeqAT1P1fWRJbPUa9406Y7/oHfErIOqopE2iZ6AjtcpwJ/NgumNprqH6Eytkm
-         xmvKazHlOhaiO521vkJvzfyK13Tji5QEvYsZK1f0=
+        b=vdQNZo0aN68exjtCnoT2m0JhQSlOtoAKFYbPngu16WNzmYrT3nhiIE7C5t7GzwmxG
+         iZOgcYve+gR2ONvjteGM7aYQOMH1187GtS4Zd1Cq0e7f+Y3Wl3Zyo5arSrANze0Eq4
+         i5O9os4kNCBcMg+EAPxvIj9eciAX5+nWNcmBBlNA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhen Lei <thunder.leizhen@huawei.com>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 4.9 03/42] esp6: fix memleak on error path in esp6_input
+        stable@vger.kernel.org, Paul Greco <pmgreco@us.ibm.com>,
+        Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>,
+        Vineet Gupta <vgupta@synopsys.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 09/36] ARC: Fix ICCM & DCCM runtime size checks
 Date:   Tue,  9 Jun 2020 19:44:09 +0200
-Message-Id: <20200609174015.786573756@linuxfoundation.org>
+Message-Id: <20200609173933.818886101@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200609174015.379493548@linuxfoundation.org>
-References: <20200609174015.379493548@linuxfoundation.org>
+In-Reply-To: <20200609173933.288044334@linuxfoundation.org>
+References: <20200609173933.288044334@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,38 +45,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhen Lei <thunder.leizhen@huawei.com>
+From: Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>
 
-commit 7284fdf39a912322ce97de2d30def3c6068a418c upstream.
+[ Upstream commit 43900edf67d7ef3ac8909854d75b8a1fba2d570c ]
 
-This ought to be an omission in e6194923237 ("esp: Fix memleaks on error
-paths."). The memleak on error path in esp6_input is similar to esp_input
-of esp4.
+As of today the ICCM and DCCM size checks are incorrectly using
+mismatched units (KiB checked against bytes). The CONFIG_ARC_DCCM_SZ
+and CONFIG_ARC_ICCM_SZ are in KiB, but the size calculated in
+runtime and stored in cpu->dccm.sz and cpu->iccm.sz is in bytes.
 
-Fixes: e6194923237 ("esp: Fix memleaks on error paths.")
-Fixes: 3f29770723f ("ipsec: check return value of skb_to_sgvec always")
-Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
-Cc: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fix that.
 
+Reported-by: Paul Greco <pmgreco@us.ibm.com>
+Signed-off-by: Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>
+Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/esp6.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/arc/kernel/setup.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/net/ipv6/esp6.c
-+++ b/net/ipv6/esp6.c
-@@ -426,8 +426,10 @@ static int esp6_input(struct xfrm_state
+diff --git a/arch/arc/kernel/setup.c b/arch/arc/kernel/setup.c
+index 3013f3f82b95..66e4dc8bce1d 100644
+--- a/arch/arc/kernel/setup.c
++++ b/arch/arc/kernel/setup.c
+@@ -12,6 +12,7 @@
+ #include <linux/root_dev.h>
+ #include <linux/console.h>
+ #include <linux/module.h>
++#include <linux/sizes.h>
+ #include <linux/cpu.h>
+ #include <linux/clk-provider.h>
+ #include <linux/of_fdt.h>
+@@ -308,12 +309,12 @@ static void arc_chk_core_config(void)
+ 	if ((unsigned int)__arc_dccm_base != cpu->dccm.base_addr)
+ 		panic("Linux built with incorrect DCCM Base address\n");
  
- 	sg_init_table(sg, nfrags);
- 	ret = skb_to_sgvec(skb, sg, 0, skb->len);
--	if (unlikely(ret < 0))
-+	if (unlikely(ret < 0)) {
-+		kfree(tmp);
- 		goto out;
-+	}
+-	if (CONFIG_ARC_DCCM_SZ != cpu->dccm.sz)
++	if (CONFIG_ARC_DCCM_SZ * SZ_1K != cpu->dccm.sz)
+ 		panic("Linux built with incorrect DCCM Size\n");
+ #endif
  
- 	aead_request_set_crypt(req, sg, sg, elen + ivlen, iv);
- 	aead_request_set_ad(req, assoclen);
+ #ifdef CONFIG_ARC_HAS_ICCM
+-	if (CONFIG_ARC_ICCM_SZ != cpu->iccm.sz)
++	if (CONFIG_ARC_ICCM_SZ * SZ_1K != cpu->iccm.sz)
+ 		panic("Linux built with incorrect ICCM Size\n");
+ #endif
+ 
+-- 
+2.25.1
+
 
 
