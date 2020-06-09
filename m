@@ -2,82 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 475FB1F3392
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 07:44:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B6BA51F33F6
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 08:11:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726917AbgFIFoJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Jun 2020 01:44:09 -0400
-Received: from mail-ej1-f66.google.com ([209.85.218.66]:34031 "EHLO
-        mail-ej1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725770AbgFIFoI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Jun 2020 01:44:08 -0400
-Received: by mail-ej1-f66.google.com with SMTP id l27so20944663ejc.1;
-        Mon, 08 Jun 2020 22:44:07 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=NZeC2/l48nupjKZvZ1jifZHSazauyXFgX8W5icrG39c=;
-        b=hiHJvP2Oz2DMMgl27Rro/HLbzxi0eFdhL6rX5Qh/MMI3oa8GNDuNxpBwjTDE59oad1
-         LdsLqVmOJl1o1eZUHxjmFexrKgMm9m23wAYsZE9FJS/EHg/mkvaO7e3d+RdLd0Fx/BkD
-         x5stO24EUhj1Q3dAMZar17CrZw6NA3wMNpux6kzttnEtkwMYz6qhOjbP6qQsVgstv7NH
-         +fOM0JPXE4GgmteCt75hALEw4wlLdEtnrdyJ+QySletvysdYl3WFFFRb2R3WHRGvdiAa
-         ZO3iyvwlB1Rq8bKUXehEaXrjEX4FEZqiLs4WhiOc33ZCN/upqf1c//BePvxTUlmLu2ib
-         c5vQ==
-X-Gm-Message-State: AOAM533wVPr+SO3nhZ04axXoerO0P5jSFJkQAX5JW9+LDuKSGo/3pM6k
-        P65F9o5pKPtmC2WclTfru8/2E3Jr
-X-Google-Smtp-Source: ABdhPJwBZUsfBN+emWGyLy+h3uIerzOeMndGA5PEhloRNP2IpAjxVh7Ct2PlfRPRsZdK9GwZfHxjqg==
-X-Received: by 2002:a17:906:2bd8:: with SMTP id n24mr25455206ejg.83.1591681446481;
-        Mon, 08 Jun 2020 22:44:06 -0700 (PDT)
-Received: from zenbook-val.localdomain (bbcs-65-74.pub.wingo.ch. [144.2.65.74])
-        by smtp.gmail.com with ESMTPSA id g13sm14004652edy.27.2020.06.08.22.44.05
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 08 Jun 2020 22:44:05 -0700 (PDT)
-From:   Valentin Longchamp <valentin@longchamp.me>
-To:     netdev@vger.kernel.org
-Cc:     kuba@kernel.org, davem@davemloft.net, xiyou.wangcong@gmail.com,
-        jhs@mojatatu.com, Valentin Longchamp <valentin@longchamp.me>,
-        stable@vger.kernel.org
-Subject: [PATCH v2 1/2] net: sched: export __netdev_watchdog_up()
-Date:   Tue,  9 Jun 2020 07:43:50 +0200
-Message-Id: <20200609054351.21725-1-valentin@longchamp.me>
-X-Mailer: git-send-email 2.25.1
+        id S1726967AbgFIGLB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Jun 2020 02:11:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47232 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726896AbgFIGLB (ORCPT <rfc822;Stable@vger.kernel.org>);
+        Tue, 9 Jun 2020 02:11:01 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5F985207F9;
+        Tue,  9 Jun 2020 06:10:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1591683059;
+        bh=eSdrg62KITEmYVAyDpRd7JoweXylWWBolUzSB9I90/U=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=OW5/v4WNzTyhGPZcn5CTuZPQsvbiaLlsbrrv/6aDUeBT9reUSZy250wKEQUxnE3i5
+         9QbgAxqPyNM5a4oR2gMGlU9E0PxBmGBeS3XCQbMolA/yH4lBYLvWlghdwRKRkjV+kd
+         IykFQa7UfMdgOE96guFC14NE2DOxt2Q+2QZxMFrk=
+Date:   Tue, 9 Jun 2020 08:10:57 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     m.othacehe@gmail.com, Jonathan.Cameron@huawei.com,
+        Stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] iio: vcnl4000: Fix i2c swapped word
+ reading." failed to apply to 4.14-stable tree
+Message-ID: <20200609061057.GA498890@kroah.com>
+References: <1591619056246224@kroah.com>
+ <20200608204114.GS1407771@sasha-vm>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200608204114.GS1407771@sasha-vm>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Since the quiesce/activate rework, __netdev_watchdog_up() is directly
-called in the ucc_geth driver.
+On Mon, Jun 08, 2020 at 04:41:14PM -0400, Sasha Levin wrote:
+> On Mon, Jun 08, 2020 at 02:24:16PM +0200, gregkh@linuxfoundation.org wrote:
+> > 
+> > The patch below does not apply to the 4.14-stable tree.
+> > If someone wants it applied there, or to any other stable or longterm
+> > tree, then please email the backport, including the original git commit
+> > id to <stable@vger.kernel.org>.
+> > 
+> > thanks,
+> > 
+> > greg k-h
+> > 
+> > ------------------ original commit in Linus's tree ------------------
+> > 
+> > > From 18dfb5326370991c81a6d1ed6d1aeee055cb8c05 Mon Sep 17 00:00:00 2001
+> > From: Mathieu Othacehe <m.othacehe@gmail.com>
+> > Date: Sun, 3 May 2020 11:29:55 +0200
+> > Subject: [PATCH] iio: vcnl4000: Fix i2c swapped word reading.
+> > 
+> > The bytes returned by the i2c reading need to be swapped
+> > unconditionally. Otherwise, on be16 platforms, an incorrect value will be
+> > returned.
+> > 
+> > Taking the slow path via next merge window as its been around a while
+> > and we have a patch set dependent on this which would be held up.
+> > 
+> > Fixes: 62a1efb9f868 ("iio: add vcnl4000 combined ALS and proximity sensor")
+> > Signed-off-by: Mathieu Othacehe <m.othacehe@gmail.com>
+> > Cc: <Stable@vger.kernel.org>
+> > Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+> 
+> There were some context conflicts due to renaming of the lock (and it
+> not existing on 4.4). I've fixed it and queued for 4.14-4.4.
 
-Unfortunately, this function is not available for modules and thus
-ucc_geth cannot be built as a module anymore. Fix it by exporting
-__netdev_watchdog_up().
-
-Since the commit introducing the regression was backported to stable
-branches, this one should ideally be as well.
-
-Fixes: 79dde73cf9bc ("net/ethernet/freescale: rework quiesce/activate for ucc_geth")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Valentin Longchamp <valentin@longchamp.me>
----
- net/sched/sch_generic.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/net/sched/sch_generic.c b/net/sched/sch_generic.c
-index b19a0021a0bd..265a61d011df 100644
---- a/net/sched/sch_generic.c
-+++ b/net/sched/sch_generic.c
-@@ -464,6 +464,7 @@ void __netdev_watchdog_up(struct net_device *dev)
- 			dev_hold(dev);
- 	}
- }
-+EXPORT_SYMBOL_GPL(__netdev_watchdog_up);
- 
- static void dev_watchdog_up(struct net_device *dev)
- {
--- 
-2.25.1
-
+Thanks, but I think you forgot to push your local version of the queue
+to git.kernel.org :(
