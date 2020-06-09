@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E9AE01F440C
+	by mail.lfdr.de (Postfix) with ESMTP id 7B9991F440B
 	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:02:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732908AbgFIR7q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Jun 2020 13:59:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46802 "EHLO mail.kernel.org"
+        id S1730450AbgFIR7o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Jun 2020 13:59:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46876 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733152AbgFIRyt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Jun 2020 13:54:49 -0400
+        id S1733155AbgFIRyv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Jun 2020 13:54:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A3451207ED;
-        Tue,  9 Jun 2020 17:54:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E418C2074B;
+        Tue,  9 Jun 2020 17:54:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591725289;
-        bh=mQlyIZpsFwSxbxKyryxpvl6ccsVmLfLXK1O83SaWYIw=;
+        s=default; t=1591725291;
+        bh=lIILPL42IFBVcWuXpYQIqz50dWGRHcCxPk53+yBLr3Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PkcR/eZiBKy4A3uwc/7rhCwd7xvafGZpFmzadO4gfIph4iz7fQw6exTPkxfcN72pm
-         7N939ZaeW+Fx3fb7MEXO5SbFvPRw6TKH8wX2OyoFvaxbeVJC86qWuE5jR9262i9oRl
-         v3iK6VR4/ByMJFIEZTKGDZZGEFLx9ezrVrpczh2A=
+        b=NUCYGtbpxbSfZ6fhPWJ5XFna/UR8KeK67r/oZ6ZJCZrrQUXtfuTUqWHN705SnKSTV
+         zl6LZfQQDnPtQZCgrPntg2cVAO53kQtvFBavtupL3/SDyoJvRtygK/rbh9eH/tO8uA
+         FNwltayzqijW18/ezXrnxX5ktC8AQeOg1p9xG3lQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Steven Rostedt <rostedt@goodmis.org>
-Subject: [PATCH 5.6 40/41] uprobes: ensure that uprobe->offset and ->ref_ctr_offset are properly aligned
-Date:   Tue,  9 Jun 2020 19:45:42 +0200
-Message-Id: <20200609174115.918001432@linuxfoundation.org>
+        Paul Gortmaker <paul.gortmaker@windriver.com>,
+        Roi Dayan <roid@mellanox.com>, Mark Bloch <markb@mellanox.com>,
+        Saeed Mahameed <saeedm@mellanox.com>
+Subject: [PATCH 5.6 41/41] Revert "net/mlx5: Annotate mutex destroy for root ns"
+Date:   Tue,  9 Jun 2020 19:45:43 +0200
+Message-Id: <20200609174116.018450623@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200609174112.129412236@linuxfoundation.org>
 References: <20200609174112.129412236@linuxfoundation.org>
@@ -48,76 +45,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oleg Nesterov <oleg@redhat.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit 013b2deba9a6b80ca02f4fafd7dedf875e9b4450 upstream.
+This reverts commit 9b035b08e7e5fe7b2e75636324edf41ee30c5f94 which is
+commit 9ca415399dae133b00273a4283ef31d003a6818d upstream.
 
-uprobe_write_opcode() must not cross page boundary; prepare_uprobe()
-relies on arch_uprobe_analyze_insn() which should validate "vaddr" but
-some architectures (csky, s390, and sparc) don't do this.
+It was backported incorrectly, Paul writes at:
+	https://lore.kernel.org/r/20200607203425.GD23662@windriver.com
 
-We can remove the BUG_ON() check in prepare_uprobe() and validate the
-offset early in __uprobe_register(). The new IS_ALIGNED() check matches
-the alignment check in arch_prepare_kprobe() on supported architectures,
-so I think that all insns must be aligned to UPROBE_SWBP_INSN_SIZE.
+	I happened to notice this commit:
 
-Another problem is __update_ref_ctr() which was wrong from the very
-beginning, it can read/write outside of kmap'ed page unless "vaddr" is
-aligned to sizeof(short), __uprobe_register() should check this too.
+	9ca415399dae - "net/mlx5: Annotate mutex destroy for root ns"
 
-Reported-by: Linus Torvalds <torvalds@linux-foundation.org>
-Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Oleg Nesterov <oleg@redhat.com>
-Reviewed-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
-Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Tested-by: Sven Schnelle <svens@linux.ibm.com>
-Cc: Steven Rostedt <rostedt@goodmis.org>
-Cc: stable@vger.kernel.org
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+	...was backported to 4.19 and 5.4 and v5.6 in linux-stable.
+
+	It patches del_sw_root_ns() - which only exists after v5.7-rc7 from:
+
+	6eb7a268a99b - "net/mlx5: Don't maintain a case of del_sw_func being
+	null"
+
+	which creates the one line del_sw_root_ns stub function around
+	kfree(node) by breaking it out of tree_put_node().
+
+	In the absense of del_sw_root_ns - the backport finds an identical one
+	line kfree stub fcn - named del_sw_prio from this earlier commit:
+
+	139ed6c6c46a - "net/mlx5: Fix steering memory leak"  [in v4.15-rc5]
+
+	and then puts the mutex_destroy() into that (wrong) function, instead of
+	putting it into tree_put_node where the root ns case used to be hand
+
+Reported-by: Paul Gortmaker <paul.gortmaker@windriver.com>
+Cc: Roi Dayan <roid@mellanox.com>
+Cc: Mark Bloch <markb@mellanox.com>
+Cc: Saeed Mahameed <saeedm@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- kernel/events/uprobes.c |   16 ++++++++++++----
- 1 file changed, 12 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/fs_core.c |    6 ------
+ 1 file changed, 6 deletions(-)
 
---- a/kernel/events/uprobes.c
-+++ b/kernel/events/uprobes.c
-@@ -867,10 +867,6 @@ static int prepare_uprobe(struct uprobe
- 	if (ret)
- 		goto out;
+--- a/drivers/net/ethernet/mellanox/mlx5/core/fs_core.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/fs_core.c
+@@ -416,12 +416,6 @@ static void del_sw_ns(struct fs_node *no
  
--	/* uprobe_write_opcode() assumes we don't cross page boundary */
--	BUG_ON((uprobe->offset & ~PAGE_MASK) +
--			UPROBE_SWBP_INSN_SIZE > PAGE_SIZE);
+ static void del_sw_prio(struct fs_node *node)
+ {
+-	struct mlx5_flow_root_namespace *root_ns;
+-	struct mlx5_flow_namespace *ns;
 -
- 	smp_wmb(); /* pairs with the smp_rmb() in handle_swbp() */
- 	set_bit(UPROBE_COPY_INSN, &uprobe->flags);
+-	fs_get_obj(ns, node);
+-	root_ns = container_of(ns, struct mlx5_flow_root_namespace, ns);
+-	mutex_destroy(&root_ns->chain_lock);
+ 	kfree(node);
+ }
  
-@@ -1166,6 +1162,15 @@ static int __uprobe_register(struct inod
- 	if (offset > i_size_read(inode))
- 		return -EINVAL;
- 
-+	/*
-+	 * This ensures that copy_from_page(), copy_to_page() and
-+	 * __update_ref_ctr() can't cross page boundary.
-+	 */
-+	if (!IS_ALIGNED(offset, UPROBE_SWBP_INSN_SIZE))
-+		return -EINVAL;
-+	if (!IS_ALIGNED(ref_ctr_offset, sizeof(short)))
-+		return -EINVAL;
-+
-  retry:
- 	uprobe = alloc_uprobe(inode, offset, ref_ctr_offset);
- 	if (!uprobe)
-@@ -2014,6 +2019,9 @@ static int is_trap_at_addr(struct mm_str
- 	uprobe_opcode_t opcode;
- 	int result;
- 
-+	if (WARN_ON_ONCE(!IS_ALIGNED(vaddr, UPROBE_SWBP_INSN_SIZE)))
-+		return -EINVAL;
-+
- 	pagefault_disable();
- 	result = __get_user(opcode, (uprobe_opcode_t __user *)vaddr);
- 	pagefault_enable();
 
 
