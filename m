@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 957441F4395
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 19:54:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C51D1F4397
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 19:54:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733128AbgFIRyj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Jun 2020 13:54:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46442 "EHLO mail.kernel.org"
+        id S1728848AbgFIRym (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Jun 2020 13:54:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46518 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732970AbgFIRyi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Jun 2020 13:54:38 -0400
+        id S1733130AbgFIRyk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Jun 2020 13:54:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6CF4F20774;
-        Tue,  9 Jun 2020 17:54:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A4BF4207ED;
+        Tue,  9 Jun 2020 17:54:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591725277;
-        bh=R/2+iH0ntOAXXcyfdHjyJIeGtR8m6nlM7VYdO+xk6Gs=;
+        s=default; t=1591725280;
+        bh=phxy64nO8Wf40GLRS00pHWHki1XrTITKJ4PREB/auzM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nWI/ZHvDVuBt3fhPUnKKFe6R+Dg7gVhJzf5U60NVtP96I3ICIX3aYxawDA7rpE6dD
-         uHETDWS7bKb9yD9HtUnsrH4VLoA5VRnewfcEW6UXpy7gNNG+W9QAZgTP8c43B5UUW0
-         CpKWWmy0SUaxMN+J3Vr7Xny3hK3/oVjMZtcVSzfs=
+        b=zsOr1zwPPPxjEAiRKKztN/O2iKdi8W4W7UzGMlioO57X9pavHEs9ywqqC7dA/ds53
+         Y8gJvrvID5FzkxvFe62S7y1Urj+TTOkUoulOTCYk4tjCjYFutsWBAX6q1uDiAs+ciT
+         8jv1iUQou2fPeLnfFK9xXz3wsBEBd2jRlUS0WOGs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Willem de Bruijn <willemb@google.com>,
+        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.6 13/41] net: be more gentle about silly gso requests coming from user
-Date:   Tue,  9 Jun 2020 19:45:15 +0200
-Message-Id: <20200609174113.413018047@linuxfoundation.org>
+Subject: [PATCH 5.6 14/41] net: dsa: felix: send VLANs on CPU port as egress-tagged
+Date:   Tue,  9 Jun 2020 19:45:16 +0200
+Message-Id: <20200609174113.500646507@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200609174112.129412236@linuxfoundation.org>
 References: <20200609174112.129412236@linuxfoundation.org>
@@ -44,69 +44,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit 7c6d2ecbda83150b2036a2b36b21381ad4667762 ]
+[ Upstream commit 183be6f967fe37c3154bfac39e913c3bafe89d1b ]
 
-Recent change in virtio_net_hdr_to_skb() broke some packetdrill tests.
+As explained in other commits before (b9cd75e66895 and 87b0f983f66f),
+ocelot switches have a single egress-untagged VLAN per port, and the
+driver would deny adding a second one while an egress-untagged VLAN
+already exists.
 
-When --mss=XXX option is set, packetdrill always provide gso_type & gso_size
-for its inbound packets, regardless of packet size.
+But on the CPU port (where the VLAN configuration is implicit, because
+there is no net device for the bridge to control), the DSA core attempts
+to add a VLAN using the same flags as were used for the front-panel
+port. This would make adding any untagged VLAN fail due to the CPU port
+rejecting the configuration:
 
-	if (packet->tcp && packet->mss) {
-		if (packet->ipv4)
-			gso.gso_type = VIRTIO_NET_HDR_GSO_TCPV4;
-		else
-			gso.gso_type = VIRTIO_NET_HDR_GSO_TCPV6;
-		gso.gso_size = packet->mss;
-	}
+bridge vlan add dev swp0 vid 100 pvid untagged
+[ 1865.854253] mscc_felix 0000:00:00.5: Port already has a native VLAN: 1
+[ 1865.860824] mscc_felix 0000:00:00.5: Failed to add VLAN 100 to port 5: -16
 
-Since many other programs could do the same, relax virtio_net_hdr_to_skb()
-to no longer return an error, but instead ignore gso settings.
+(note that port 5 is the CPU port and not the front-panel swp0).
 
-This keeps Willem intent to make sure no malicious packet could
-reach gso stack.
+So this hardware will send all VLANs as tagged towards the CPU.
 
-Note that TCP stack has a special logic in tcp_set_skb_tso_segs()
-to clear gso_size for small packets.
-
-Fixes: 6dd912f82680 ("net: check untrusted gso_size at kernel entry")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Willem de Bruijn <willemb@google.com>
-Acked-by: Willem de Bruijn <willemb@google.com>
+Fixes: 56051948773e ("net: dsa: ocelot: add driver for Felix switch family")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/virtio_net.h |   17 +++++++++--------
- 1 file changed, 9 insertions(+), 8 deletions(-)
+ drivers/net/dsa/ocelot/felix.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/include/linux/virtio_net.h
-+++ b/include/linux/virtio_net.h
-@@ -109,16 +109,17 @@ retry:
+--- a/drivers/net/dsa/ocelot/felix.c
++++ b/drivers/net/dsa/ocelot/felix.c
+@@ -100,13 +100,17 @@ static void felix_vlan_add(struct dsa_sw
+ 			   const struct switchdev_obj_port_vlan *vlan)
+ {
+ 	struct ocelot *ocelot = ds->priv;
++	u16 flags = vlan->flags;
+ 	u16 vid;
+ 	int err;
  
- 	if (hdr->gso_type != VIRTIO_NET_HDR_GSO_NONE) {
- 		u16 gso_size = __virtio16_to_cpu(little_endian, hdr->gso_size);
-+		struct skb_shared_info *shinfo = skb_shinfo(skb);
- 
--		if (skb->len - p_off <= gso_size)
--			return -EINVAL;
-+		/* Too small packets are not really GSO ones. */
-+		if (skb->len - p_off > gso_size) {
-+			shinfo->gso_size = gso_size;
-+			shinfo->gso_type = gso_type;
- 
--		skb_shinfo(skb)->gso_size = gso_size;
--		skb_shinfo(skb)->gso_type = gso_type;
--
--		/* Header must be checked, and gso_segs computed. */
--		skb_shinfo(skb)->gso_type |= SKB_GSO_DODGY;
--		skb_shinfo(skb)->gso_segs = 0;
-+			/* Header must be checked, and gso_segs computed. */
-+			shinfo->gso_type |= SKB_GSO_DODGY;
-+			shinfo->gso_segs = 0;
-+		}
- 	}
- 
- 	return 0;
++	if (dsa_is_cpu_port(ds, port))
++		flags &= ~BRIDGE_VLAN_INFO_UNTAGGED;
++
+ 	for (vid = vlan->vid_begin; vid <= vlan->vid_end; vid++) {
+ 		err = ocelot_vlan_add(ocelot, port, vid,
+-				      vlan->flags & BRIDGE_VLAN_INFO_PVID,
+-				      vlan->flags & BRIDGE_VLAN_INFO_UNTAGGED);
++				      flags & BRIDGE_VLAN_INFO_PVID,
++				      flags & BRIDGE_VLAN_INFO_UNTAGGED);
+ 		if (err) {
+ 			dev_err(ds->dev, "Failed to add VLAN %d to port %d: %d\n",
+ 				vid, port, err);
 
 
