@@ -2,59 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1AD571F47D8
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 22:14:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DBAF1F480A
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 22:28:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389440AbgFIUO0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Jun 2020 16:14:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35580 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732949AbgFIUOZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Jun 2020 16:14:25 -0400
-Received: from shards.monkeyblade.net (shards.monkeyblade.net [IPv6:2620:137:e000::1:9])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D1FAC05BD1E;
-        Tue,  9 Jun 2020 13:14:25 -0700 (PDT)
-Received: from localhost (unknown [IPv6:2601:601:9f00:477::3d5])
-        (using TLSv1 with cipher AES256-SHA (256/256 bits))
-        (Client did not present a certificate)
-        (Authenticated sender: davem-davemloft)
-        by shards.monkeyblade.net (Postfix) with ESMTPSA id B21771277F12C;
-        Tue,  9 Jun 2020 13:14:24 -0700 (PDT)
-Date:   Tue, 09 Jun 2020 13:14:23 -0700 (PDT)
-Message-Id: <20200609.131423.797063277862873757.davem@davemloft.net>
-To:     valentin@longchamp.me
-Cc:     netdev@vger.kernel.org, kuba@kernel.org, xiyou.wangcong@gmail.com,
-        jhs@mojatatu.com, stable@vger.kernel.org
-Subject: Re: [PATCH v3] net: sched: export __netdev_watchdog_up()
-From:   David Miller <davem@davemloft.net>
-In-Reply-To: <20200609201154.22022-1-valentin@longchamp.me>
-References: <20200609201154.22022-1-valentin@longchamp.me>
-X-Mailer: Mew version 6.8 on Emacs 26.3
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Greylist: Sender succeeded SMTP AUTH, not delayed by milter-greylist-4.5.12 (shards.monkeyblade.net [149.20.54.216]); Tue, 09 Jun 2020 13:14:25 -0700 (PDT)
+        id S2387731AbgFIU20 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Jun 2020 16:28:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44700 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1733222AbgFIU2X (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Jun 2020 16:28:23 -0400
+Received: from sol.localdomain (c-107-3-166-239.hsd1.ca.comcast.net [107.3.166.239])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7DB8A206C3;
+        Tue,  9 Jun 2020 20:28:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1591734502;
+        bh=H/1jyA2ENEl76fko3i9AUC1qpu0Coz7F0CswtYS3WFg=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=P4T3MvRrVMmtF3DbaNR6Vf9oaL5Jydxxzs2uKXV09TAGaRgb3FsE2ef7SwvZALph5
+         oLzKqq/yk82ZVm20+xmwMUS0IlcojUDB+UExygverfwT7n9SSgELPQgUAZuSMTp3+/
+         zSn333TkeHIJXbPbfcPqt0I9lUR/Dp6eiEyNsjFA=
+Date:   Tue, 9 Jun 2020 13:28:21 -0700
+From:   Eric Biggers <ebiggers@kernel.org>
+To:     Theodore Ts'o <tytso@mit.edu>
+Cc:     Daniel Rosenberg <drosen@google.com>, stable@vger.kernel.org,
+        linux-ext4@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        linux-fsdevel@vger.kernel.org,
+        Gabriel Krisman Bertazi <krisman@collabora.co.uk>
+Subject: Re: [PATCH v2] ext4: avoid utf8_strncasecmp() with unstable name
+Message-ID: <20200609202821.GB1105@sol.localdomain>
+References: <20200601200543.59417-1-ebiggers@kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200601200543.59417-1-ebiggers@kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Valentin Longchamp <valentin@longchamp.me>
-Date: Tue,  9 Jun 2020 22:11:54 +0200
+On Mon, Jun 01, 2020 at 01:05:43PM -0700, Eric Biggers wrote:
+> From: Eric Biggers <ebiggers@google.com>
+> 
+> If the dentry name passed to ->d_compare() fits in dentry::d_iname, then
+> it may be concurrently modified by a rename.  This can cause undefined
+> behavior (possibly out-of-bounds memory accesses or crashes) in
+> utf8_strncasecmp(), since fs/unicode/ isn't written to handle strings
+> that may be concurrently modified.
+> 
+> Fix this by first copying the filename to a stack buffer if needed.
+> This way we get a stable snapshot of the filename.
+> 
+> Fixes: b886ee3e778e ("ext4: Support case-insensitive file name lookups")
+> Cc: <stable@vger.kernel.org> # v5.2+
+> Cc: Al Viro <viro@zeniv.linux.org.uk>
+> Cc: Daniel Rosenberg <drosen@google.com>
+> Cc: Gabriel Krisman Bertazi <krisman@collabora.co.uk>
+> Signed-off-by: Eric Biggers <ebiggers@google.com>
+> ---
+> 
+> v2: use memcpy() + barrier() instead of a byte-by-byte copy.
+> 
+>  fs/ext4/dir.c | 16 ++++++++++++++++
+>  1 file changed, 16 insertions(+)
 
-> Since the quiesce/activate rework, __netdev_watchdog_up() is directly
-> called in the ucc_geth driver.
-> 
-> Unfortunately, this function is not available for modules and thus
-> ucc_geth cannot be built as a module anymore. Fix it by exporting
-> __netdev_watchdog_up().
-> 
-> Since the commit introducing the regression was backported to stable
-> branches, this one should ideally be as well.
-> 
-> Fixes: 79dde73cf9bc ("net/ethernet/freescale: rework quiesce/activate for ucc_geth")
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Valentin Longchamp <valentin@longchamp.me>
+Ted, could you take this through the ext4 tree as a fix for 5.8?
+The f2fs patch has been merged already.
 
-Applied and queued up for -stable, please don't CC: stable for networking changes
-in the future, thank you.
+- Eric
