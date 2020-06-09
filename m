@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A84C71F4353
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 19:52:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 12B401F433A
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 19:51:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731689AbgFIRwT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Jun 2020 13:52:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42352 "EHLO mail.kernel.org"
+        id S1732703AbgFIRvd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Jun 2020 13:51:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40524 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731666AbgFIRwO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Jun 2020 13:52:14 -0400
+        id S1732838AbgFIRva (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Jun 2020 13:51:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 95ED420734;
-        Tue,  9 Jun 2020 17:52:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8240F20801;
+        Tue,  9 Jun 2020 17:51:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591725134;
-        bh=Faj6ySPN4NhaH1lHmRfYbHVD4GDrDtfBMnqzZGepr5g=;
+        s=default; t=1591725089;
+        bh=IQ8TZqtNisZcnfd68GmdwMvlZEhBgeL4LcKHhgNydZo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zi5DYHYFPu6n3Ot0K3cYp1nx/tgt60Dv/LOpMfrxWp37EDVaWXdF++HHCEq/Or6Va
-         O88go99Us3tGHd4YmkA/f4WNOfTY89zge0vBjmNtXuw/YBMGqfv7z9khnYvJEVG6UJ
-         4HeYL+4wtmaUl48gpYiZVV9MDjAzqO2tKQE2DslY=
+        b=vl5gezQwTNLrfIXYsL2zR0Uxu62Ytkln5hP4ufOw4yZchpUlghWP60P1ZV8WBp0Qp
+         zdHkjQ5BYVFMvfMrK67MlhSLC6lVGSqvV6dzw0d4CngHvx67s+VPQtdQtCaLA62XvD
+         dM9biG1XbdwB780qbg+no6FWHVq0Ak50VMKtdXhY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniele Palmas <dnlplm@gmail.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.4 14/34] USB: serial: option: add Telit LE910C1-EUX compositions
+        stable@vger.kernel.org, Mark Gross <mgross@linux.intel.com>,
+        Borislav Petkov <bp@suse.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Josh Poimboeuf <jpoimboe@redhat.com>
+Subject: [PATCH 4.19 20/25] x86/cpu: Add table argument to cpu_matches()
 Date:   Tue,  9 Jun 2020 19:45:10 +0200
-Message-Id: <20200609174054.419238416@linuxfoundation.org>
+Message-Id: <20200609174050.982899765@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200609174052.628006868@linuxfoundation.org>
-References: <20200609174052.628006868@linuxfoundation.org>
+In-Reply-To: <20200609174048.576094775@linuxfoundation.org>
+References: <20200609174048.576094775@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,37 +45,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniele Palmas <dnlplm@gmail.com>
+From: Mark Gross <mgross@linux.intel.com>
 
-commit 399ad9477c523f721f8e51d4f824bdf7267f120c upstream.
+commit 93920f61c2ad7edb01e63323832585796af75fc9 upstream
 
-Add Telit LE910C1-EUX compositions:
+To make cpu_matches() reusable for other matching tables, have it take a
+pointer to a x86_cpu_id table as an argument.
 
-	0x1031: tty, tty, tty, rmnet
-	0x1033: tty, tty, tty, ecm
+ [ bp: Flip arguments order. ]
 
-Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
-Link: https://lore.kernel.org/r/20200525211106.27338-1-dnlplm@gmail.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Mark Gross <mgross@linux.intel.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Josh Poimboeuf <jpoimboe@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/usb/serial/option.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ arch/x86/kernel/cpu/common.c |   23 +++++++++++++----------
+ 1 file changed, 13 insertions(+), 10 deletions(-)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -1157,6 +1157,10 @@ static const struct usb_device_id option
- 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_CC864_SINGLE) },
- 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_DE910_DUAL) },
- 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_UE910_V2) },
-+	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1031, 0xff),	/* Telit LE910C1-EUX */
-+	 .driver_info = NCTRL(0) | RSVD(3) },
-+	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1033, 0xff),	/* Telit LE910C1-EUX (ECM) */
-+	 .driver_info = NCTRL(0) },
- 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE922_USBCFG0),
- 	  .driver_info = RSVD(0) | RSVD(1) | NCTRL(2) | RSVD(3) },
- 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE922_USBCFG1),
+--- a/arch/x86/kernel/cpu/common.c
++++ b/arch/x86/kernel/cpu/common.c
+@@ -1013,9 +1013,9 @@ static const __initconst struct x86_cpu_
+ 	{}
+ };
+ 
+-static bool __init cpu_matches(unsigned long which)
++static bool __init cpu_matches(const struct x86_cpu_id *table, unsigned long which)
+ {
+-	const struct x86_cpu_id *m = x86_match_cpu(cpu_vuln_whitelist);
++	const struct x86_cpu_id *m = x86_match_cpu(table);
+ 
+ 	return m && !!(m->driver_data & which);
+ }
+@@ -1035,29 +1035,32 @@ static void __init cpu_set_bug_bits(stru
+ 	u64 ia32_cap = x86_read_arch_cap_msr();
+ 
+ 	/* Set ITLB_MULTIHIT bug if cpu is not in the whitelist and not mitigated */
+-	if (!cpu_matches(NO_ITLB_MULTIHIT) && !(ia32_cap & ARCH_CAP_PSCHANGE_MC_NO))
++	if (!cpu_matches(cpu_vuln_whitelist, NO_ITLB_MULTIHIT) &&
++	    !(ia32_cap & ARCH_CAP_PSCHANGE_MC_NO))
+ 		setup_force_cpu_bug(X86_BUG_ITLB_MULTIHIT);
+ 
+-	if (cpu_matches(NO_SPECULATION))
++	if (cpu_matches(cpu_vuln_whitelist, NO_SPECULATION))
+ 		return;
+ 
+ 	setup_force_cpu_bug(X86_BUG_SPECTRE_V1);
+ 	setup_force_cpu_bug(X86_BUG_SPECTRE_V2);
+ 
+-	if (!cpu_matches(NO_SSB) && !(ia32_cap & ARCH_CAP_SSB_NO) &&
++	if (!cpu_matches(cpu_vuln_whitelist, NO_SSB) &&
++	    !(ia32_cap & ARCH_CAP_SSB_NO) &&
+ 	   !cpu_has(c, X86_FEATURE_AMD_SSB_NO))
+ 		setup_force_cpu_bug(X86_BUG_SPEC_STORE_BYPASS);
+ 
+ 	if (ia32_cap & ARCH_CAP_IBRS_ALL)
+ 		setup_force_cpu_cap(X86_FEATURE_IBRS_ENHANCED);
+ 
+-	if (!cpu_matches(NO_MDS) && !(ia32_cap & ARCH_CAP_MDS_NO)) {
++	if (!cpu_matches(cpu_vuln_whitelist, NO_MDS) &&
++	    !(ia32_cap & ARCH_CAP_MDS_NO)) {
+ 		setup_force_cpu_bug(X86_BUG_MDS);
+-		if (cpu_matches(MSBDS_ONLY))
++		if (cpu_matches(cpu_vuln_whitelist, MSBDS_ONLY))
+ 			setup_force_cpu_bug(X86_BUG_MSBDS_ONLY);
+ 	}
+ 
+-	if (!cpu_matches(NO_SWAPGS))
++	if (!cpu_matches(cpu_vuln_whitelist, NO_SWAPGS))
+ 		setup_force_cpu_bug(X86_BUG_SWAPGS);
+ 
+ 	/*
+@@ -1075,7 +1078,7 @@ static void __init cpu_set_bug_bits(stru
+ 	     (ia32_cap & ARCH_CAP_TSX_CTRL_MSR)))
+ 		setup_force_cpu_bug(X86_BUG_TAA);
+ 
+-	if (cpu_matches(NO_MELTDOWN))
++	if (cpu_matches(cpu_vuln_whitelist, NO_MELTDOWN))
+ 		return;
+ 
+ 	/* Rogue Data Cache Load? No! */
+@@ -1084,7 +1087,7 @@ static void __init cpu_set_bug_bits(stru
+ 
+ 	setup_force_cpu_bug(X86_BUG_CPU_MELTDOWN);
+ 
+-	if (cpu_matches(NO_L1TF))
++	if (cpu_matches(cpu_vuln_whitelist, NO_L1TF))
+ 		return;
+ 
+ 	setup_force_cpu_bug(X86_BUG_L1TF);
 
 
