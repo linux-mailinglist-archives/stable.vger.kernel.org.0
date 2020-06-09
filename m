@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E43541F45CB
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:21:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D0181F4549
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:14:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388755AbgFISUh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Jun 2020 14:20:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34054 "EHLO mail.kernel.org"
+        id S1731078AbgFISOC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Jun 2020 14:14:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38682 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730870AbgFIRs5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Jun 2020 13:48:57 -0400
+        id S1731193AbgFIRup (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Jun 2020 13:50:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 52725207ED;
-        Tue,  9 Jun 2020 17:48:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B4DD120734;
+        Tue,  9 Jun 2020 17:50:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591724936;
-        bh=X3vyRBVH4/GkTFt4U+nAcaxH2bkam9sS8gFS67sK6EU=;
+        s=default; t=1591725045;
+        bh=1D1atwDSzipyEayBvq/aWajeGTfkEWw1Y6rBLxAEMoI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tfVn5C5DIslctcTwcxp7NUnsQ1YWNwKergUqSaIU2AdZ++i5g3AQKIb0gHdVgQ2VS
-         8hbr1UvYBl7+FWQS4aCUzezdzofmAkmSUSd4Tr6TbsxSHlKZngh5bQ0C655GdmM5Fv
-         GbW4DcE7EOvheWR2NKcC2jhZq5g7PfuXYB27Q3xM=
+        b=xYIox7UM36XVvY3r+UhuG3ivncnClQ8/OeTfw3BMrrTtUZMxJuR/njrtOsef2NrSP
+         q0lUIVZwafvNJUjvRucyvkzG9eX+SmEdCpi2ITppV6Ew7WIuhMd2N4xKNTJHCEX/Wy
+         xHRyYegrSVqRrC/OAvuhKrUlzlFcTwQqFLV9jfh0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
-        Bin Liu <b-liu@ti.com>
-Subject: [PATCH 4.9 31/42] usb: musb: Fix runtime PM imbalance on error
+        stable@vger.kernel.org, Bean Huo <beanhuo@micron.com>,
+        Can Guo <cang@codeaurora.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Eric Biggers <ebiggers@google.com>
+Subject: [PATCH 4.14 21/46] scsi: ufs: Release clock if DMA map fails
 Date:   Tue,  9 Jun 2020 19:44:37 +0200
-Message-Id: <20200609174018.888846237@linuxfoundation.org>
+Message-Id: <20200609174026.103882129@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200609174015.379493548@linuxfoundation.org>
-References: <20200609174015.379493548@linuxfoundation.org>
+In-Reply-To: <20200609174022.938987501@linuxfoundation.org>
+References: <20200609174022.938987501@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,54 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinghao Liu <dinghao.liu@zju.edu.cn>
+From: Can Guo <cang@codeaurora.org>
 
-commit e4befc121df03dc8ed2ac1031c98f9538e244bae upstream.
+commit 17c7d35f141ef6158076adf3338f115f64fcf760 upstream.
 
-When copy_from_user() returns an error code, there
-is a runtime PM usage counter imbalance.
+In queuecommand path, if DMA map fails, it bails out with clock held.  In
+this case, release the clock to keep its usage paired.
 
-Fix this by moving copy_from_user() to the beginning
-of this function.
+[mkp: applied by hand]
 
-Fixes: 7b6c1b4c0e1e ("usb: musb: fix runtime PM in debugfs")
-
-Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
-Cc: stable@vger.kernel.org
-Signed-off-by: Bin Liu <b-liu@ti.com>
-Link: https://lore.kernel.org/r/20200525025049.3400-7-b-liu@ti.com
+Link: https://lore.kernel.org/r/0101016ed3d66395-1b7e7fce-b74d-42ca-a88a-4db78b795d3b-000000@us-west-2.amazonses.com
+Reviewed-by: Bean Huo <beanhuo@micron.com>
+Signed-off-by: Can Guo <cang@codeaurora.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+[EB: resolved cherry-pick conflict caused by newer kernels not having
+ the clear_bit_unlock() line]
+Signed-off-by: Eric Biggers <ebiggers@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/usb/musb/musb_debugfs.c |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/scsi/ufs/ufshcd.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/usb/musb/musb_debugfs.c
-+++ b/drivers/usb/musb/musb_debugfs.c
-@@ -200,6 +200,11 @@ static ssize_t musb_test_mode_write(stru
- 	u8			test;
- 	char			buf[18];
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -2365,6 +2365,7 @@ static int ufshcd_queuecommand(struct Sc
  
-+	memset(buf, 0x00, sizeof(buf));
-+
-+	if (copy_from_user(buf, ubuf, min_t(size_t, sizeof(buf) - 1, count)))
-+		return -EFAULT;
-+
- 	pm_runtime_get_sync(musb->controller);
- 	test = musb_readb(musb->mregs, MUSB_TESTMODE);
- 	if (test) {
-@@ -208,11 +213,6 @@ static ssize_t musb_test_mode_write(stru
- 		goto ret;
- 	}
- 
--	memset(buf, 0x00, sizeof(buf));
--
--	if (copy_from_user(buf, ubuf, min_t(size_t, sizeof(buf) - 1, count)))
--		return -EFAULT;
--
- 	if (strstarts(buf, "force host"))
- 		test = MUSB_TEST_FORCE_HOST;
- 
+ 	err = ufshcd_map_sg(hba, lrbp);
+ 	if (err) {
++		ufshcd_release(hba);
+ 		lrbp->cmd = NULL;
+ 		clear_bit_unlock(tag, &hba->lrb_in_use);
+ 		goto out;
 
 
