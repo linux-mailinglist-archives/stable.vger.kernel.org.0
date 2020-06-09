@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 309E11F444D
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:04:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E024C1F4486
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:05:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733002AbgFISDA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Jun 2020 14:03:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43744 "EHLO mail.kernel.org"
+        id S2387835AbgFISF2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Jun 2020 14:05:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41114 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732985AbgFIRxD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Jun 2020 13:53:03 -0400
+        id S1731021AbgFIRvk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Jun 2020 13:51:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C61B0207C3;
-        Tue,  9 Jun 2020 17:53:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BEBC420734;
+        Tue,  9 Jun 2020 17:51:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591725183;
-        bh=tJ7i3gI0/ijEe7QVglU/MZNhpV1Jc+al4aF2FGTCKJs=;
+        s=default; t=1591725100;
+        bh=ccjtb1exREAQABGA30nQpiXVzk+9HpQ22UP3vU8g8vc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mvI099iCC1Xomkd3DHQmrDXKnJaHLRREPrTNFQLCXpyWSo9KRwMUuhthmMDWygIhw
-         pYuUAUvTungBGmQ1wCinnwgrZlycNuRMixnNvWAgSwsg2Ih6wN4t0rpoqh29jtmh3j
-         aJYL6Md/eWrSb/Te/vrZ11/YFQLaQxkY81kEhXbo=
+        b=lH5I65G/LBMdBe4pqcRWk1m9d9AE4XnnQpMN6SiOq5fksmEV9j5dVfYC0y6cmRhx4
+         HdTB216pUaZTA4cTeAhifOsnGovBTvuPilSmN5dvDj0W0xbIl4vVrKNFNooCqYeE+K
+         AqExG8S/gnqwc3yoHN86Rav8+JzMfYchRyRLDvw8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Stable@vger.kernel.org,
-        Tomasz Duszynski <tomasz.duszynski@octakon.com>
-Subject: [PATCH 5.4 18/34] iio:chemical:pms7003: Fix timestamp alignment and prevent data leak.
+        stable@vger.kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Steven Rostedt <rostedt@goodmis.org>
+Subject: [PATCH 4.19 24/25] uprobes: ensure that uprobe->offset and ->ref_ctr_offset are properly aligned
 Date:   Tue,  9 Jun 2020 19:45:14 +0200
-Message-Id: <20200609174054.904245534@linuxfoundation.org>
+Message-Id: <20200609174051.488794266@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200609174052.628006868@linuxfoundation.org>
-References: <20200609174052.628006868@linuxfoundation.org>
+In-Reply-To: <20200609174048.576094775@linuxfoundation.org>
+References: <20200609174048.576094775@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,72 +48,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+From: Oleg Nesterov <oleg@redhat.com>
 
-commit 13e945631c2ffb946c0af342812a3cd39227de6e upstream.
+commit 013b2deba9a6b80ca02f4fafd7dedf875e9b4450 upstream.
 
-One of a class of bugs pointed out by Lars in a recent review.
-iio_push_to_buffers_with_timestamp assumes the buffer used is aligned
-to the size of the timestamp (8 bytes).  This is not guaranteed in
-this driver which uses an array of smaller elements on the stack.
-As Lars also noted this anti pattern can involve a leak of data to
-userspace and that indeed can happen here.  We close both issues by
-moving to a suitable structure in the iio_priv() data with alignment
-explicitly requested.  This data is allocated with kzalloc so no
-data can leak appart from previous readings.
+uprobe_write_opcode() must not cross page boundary; prepare_uprobe()
+relies on arch_uprobe_analyze_insn() which should validate "vaddr" but
+some architectures (csky, s390, and sparc) don't do this.
 
-Fixes: a1d642266c14 ("iio: chemical: add support for Plantower PMS7003 sensor")
-Reported-by: Lars-Peter Clausen <lars@metafoo.de>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Cc: <Stable@vger.kernel.org>
-Acked-by: Tomasz Duszynski <tomasz.duszynski@octakon.com>
+We can remove the BUG_ON() check in prepare_uprobe() and validate the
+offset early in __uprobe_register(). The new IS_ALIGNED() check matches
+the alignment check in arch_prepare_kprobe() on supported architectures,
+so I think that all insns must be aligned to UPROBE_SWBP_INSN_SIZE.
+
+Another problem is __update_ref_ctr() which was wrong from the very
+beginning, it can read/write outside of kmap'ed page unless "vaddr" is
+aligned to sizeof(short), __uprobe_register() should check this too.
+
+Reported-by: Linus Torvalds <torvalds@linux-foundation.org>
+Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Oleg Nesterov <oleg@redhat.com>
+Reviewed-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
+Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Tested-by: Sven Schnelle <svens@linux.ibm.com>
+Cc: Steven Rostedt <rostedt@goodmis.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iio/chemical/pms7003.c |   17 ++++++++++++-----
- 1 file changed, 12 insertions(+), 5 deletions(-)
+ kernel/events/uprobes.c |   16 ++++++++++++----
+ 1 file changed, 12 insertions(+), 4 deletions(-)
 
---- a/drivers/iio/chemical/pms7003.c
-+++ b/drivers/iio/chemical/pms7003.c
-@@ -73,6 +73,11 @@ struct pms7003_state {
- 	struct pms7003_frame frame;
- 	struct completion frame_ready;
- 	struct mutex lock; /* must be held whenever state gets touched */
-+	/* Used to construct scan to push to the IIO buffer */
-+	struct {
-+		u16 data[3]; /* PM1, PM2P5, PM10 */
-+		s64 ts;
-+	} scan;
- };
+--- a/kernel/events/uprobes.c
++++ b/kernel/events/uprobes.c
+@@ -612,10 +612,6 @@ static int prepare_uprobe(struct uprobe
+ 	if (ret)
+ 		goto out;
  
- static int pms7003_do_cmd(struct pms7003_state *state, enum pms7003_cmd cmd)
-@@ -104,7 +109,6 @@ static irqreturn_t pms7003_trigger_handl
- 	struct iio_dev *indio_dev = pf->indio_dev;
- 	struct pms7003_state *state = iio_priv(indio_dev);
- 	struct pms7003_frame *frame = &state->frame;
--	u16 data[3 + 1 + 4]; /* PM1, PM2P5, PM10, padding, timestamp */
- 	int ret;
+-	/* uprobe_write_opcode() assumes we don't cross page boundary */
+-	BUG_ON((uprobe->offset & ~PAGE_MASK) +
+-			UPROBE_SWBP_INSN_SIZE > PAGE_SIZE);
+-
+ 	smp_wmb(); /* pairs with the smp_rmb() in handle_swbp() */
+ 	set_bit(UPROBE_COPY_INSN, &uprobe->flags);
  
- 	mutex_lock(&state->lock);
-@@ -114,12 +118,15 @@ static irqreturn_t pms7003_trigger_handl
- 		goto err;
- 	}
+@@ -911,6 +907,15 @@ static int __uprobe_register(struct inod
+ 	if (offset > i_size_read(inode))
+ 		return -EINVAL;
  
--	data[PM1] = pms7003_get_pm(frame->data + PMS7003_PM1_OFFSET);
--	data[PM2P5] = pms7003_get_pm(frame->data + PMS7003_PM2P5_OFFSET);
--	data[PM10] = pms7003_get_pm(frame->data + PMS7003_PM10_OFFSET);
-+	state->scan.data[PM1] =
-+		pms7003_get_pm(frame->data + PMS7003_PM1_OFFSET);
-+	state->scan.data[PM2P5] =
-+		pms7003_get_pm(frame->data + PMS7003_PM2P5_OFFSET);
-+	state->scan.data[PM10] =
-+		pms7003_get_pm(frame->data + PMS7003_PM10_OFFSET);
- 	mutex_unlock(&state->lock);
++	/*
++	 * This ensures that copy_from_page(), copy_to_page() and
++	 * __update_ref_ctr() can't cross page boundary.
++	 */
++	if (!IS_ALIGNED(offset, UPROBE_SWBP_INSN_SIZE))
++		return -EINVAL;
++	if (!IS_ALIGNED(ref_ctr_offset, sizeof(short)))
++		return -EINVAL;
++
+  retry:
+ 	uprobe = alloc_uprobe(inode, offset);
+ 	if (!uprobe)
+@@ -1708,6 +1713,9 @@ static int is_trap_at_addr(struct mm_str
+ 	uprobe_opcode_t opcode;
+ 	int result;
  
--	iio_push_to_buffers_with_timestamp(indio_dev, data,
-+	iio_push_to_buffers_with_timestamp(indio_dev, &state->scan,
- 					   iio_get_time_ns(indio_dev));
- err:
- 	iio_trigger_notify_done(indio_dev->trig);
++	if (WARN_ON_ONCE(!IS_ALIGNED(vaddr, UPROBE_SWBP_INSN_SIZE)))
++		return -EINVAL;
++
+ 	pagefault_disable();
+ 	result = __get_user(opcode, (uprobe_opcode_t __user *)vaddr);
+ 	pagefault_enable();
 
 
