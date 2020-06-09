@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F8CE1F439E
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 19:55:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB1501F43F4
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 19:59:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733201AbgFIRzK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Jun 2020 13:55:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47218 "EHLO mail.kernel.org"
+        id S1732218AbgFIR6v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Jun 2020 13:58:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47268 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733198AbgFIRzH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Jun 2020 13:55:07 -0400
+        id S1731767AbgFIRzK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Jun 2020 13:55:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C85BB20734;
-        Tue,  9 Jun 2020 17:55:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1D29B2074B;
+        Tue,  9 Jun 2020 17:55:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591725307;
-        bh=61wbgqZP6RiTlB2en8fs2oA+5228qjJ/z3HAiGnFn+A=;
+        s=default; t=1591725309;
+        bh=cVDViZWwgHNsufUmT2I+Hp2X1qg/QoZVvKpHAG/7+i8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EV+R6ag0lLfVl4tGzI4WtFo9zj+/5hUOpk6Pda7uRFdu+N4E8+KkbcirHBbbeIegu
-         6zVhG9zKu4gHaXMrMV/TngQWgvzAQaRvPQ6TYIEjsvWRqVPd5wxRziksZ76zvi5GRp
-         qR72dc8fcdAPYN8YYvJFX5e6YYfY9lvPArYkex/I=
+        b=KVtOLlluydHzVB+fCKe0efHXGOsIFf+rclLy0uyuNMIs8VRhVTmrPzv8jT94wb05X
+         ebgQbT1AeqbAt1wJTWsD1VRNBxU21ui0OcVdfIIJoCsMJNTL3ltfPoWdN9PVXr4Inw
+         VSbnXu8XAflgsQrqHwEkRPfl25dfT1CaCSAR49Y0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Michael Hanselmann <public@hansmi.ch>,
         Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.7 04/24] USB: serial: ch341: add basis for quirk detection
-Date:   Tue,  9 Jun 2020 19:45:35 +0200
-Message-Id: <20200609174149.663568644@linuxfoundation.org>
+Subject: [PATCH 5.7 05/24] USB: serial: ch341: fix lockup of devices with limited prescaler
+Date:   Tue,  9 Jun 2020 19:45:36 +0200
+Message-Id: <20200609174149.750150881@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200609174149.255223112@linuxfoundation.org>
 References: <20200609174149.255223112@linuxfoundation.org>
@@ -43,106 +43,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Hanselmann <public@hansmi.ch>
+From: Johan Hovold <johan@kernel.org>
 
-commit c404bf4aa9236cb4d1068e499ae42acf48a6ff97 upstream.
+commit c432df155919582a3cefa35a8f86256c830fa9a4 upstream.
 
-A subset of CH341 devices does not support all features, namely the
-prescaler is limited to a reduced precision and there is no support for
-sending a RS232 break condition. This patch adds a detection function
-which will be extended to set quirk flags as they're implemented.
+Michael Hanselmann reports that
 
-The author's affected device has an imprint of "340" on the
-turquoise-colored plug, but not all such devices appear to be affected.
+	[a] subset of all CH341 devices stop responding to bulk
+	transfers, usually after the third byte, when the highest
+	prescaler bit (0b100) is set. There is one exception, namely a
+	prescaler of exactly 0b111 (fact=1, ps=3).
 
-Signed-off-by: Michael Hanselmann <public@hansmi.ch>
-Link: https://lore.kernel.org/r/1e1ae0da6082bb528a44ef323d4e1d3733d38858.1585697281.git.public@hansmi.ch
-[ johan: use long type for quirks; rephrase and use port device for
-	 messages; handle short reads; set quirk flags directly in
-	 helper function ]
+Fix this by forcing a lower base clock (fact = 0) whenever needed.
+
+This specifically makes the standard rates 110, 134 and 200 bps work
+again with these devices.
+
+Fixes: 35714565089e ("USB: serial: ch341: reimplement line-speed handling")
 Cc: stable <stable@vger.kernel.org>	# 5.5
+Reported-by: Michael Hanselmann <public@hansmi.ch>
+Link: https://lore.kernel.org/r/20200514141743.GE25962@localhost
 Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/serial/ch341.c |   53 +++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 53 insertions(+)
+ drivers/usb/serial/ch341.c |   15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
 --- a/drivers/usb/serial/ch341.c
 +++ b/drivers/usb/serial/ch341.c
-@@ -87,6 +87,7 @@ struct ch341_private {
- 	u8 mcr;
- 	u8 msr;
- 	u8 lcr;
-+	unsigned long quirks;
- };
+@@ -73,6 +73,8 @@
+ #define CH341_LCR_CS6          0x01
+ #define CH341_LCR_CS5          0x00
  
- static void ch341_set_termios(struct tty_struct *tty,
-@@ -308,6 +309,53 @@ out:	kfree(buffer);
- 	return r;
- }
- 
-+static int ch341_detect_quirks(struct usb_serial_port *port)
-+{
-+	struct ch341_private *priv = usb_get_serial_port_data(port);
-+	struct usb_device *udev = port->serial->dev;
-+	const unsigned int size = 2;
-+	unsigned long quirks = 0;
-+	char *buffer;
-+	int r;
++#define CH341_QUIRK_LIMITED_PRESCALER	BIT(0)
 +
-+	buffer = kmalloc(size, GFP_KERNEL);
-+	if (!buffer)
-+		return -ENOMEM;
-+
-+	/*
-+	 * A subset of CH34x devices does not support all features. The
-+	 * prescaler is limited and there is no support for sending a RS232
-+	 * break condition. A read failure when trying to set up the latter is
-+	 * used to detect these devices.
-+	 */
-+	r = usb_control_msg(udev, usb_rcvctrlpipe(udev, 0), CH341_REQ_READ_REG,
-+			    USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_IN,
-+			    CH341_REG_BREAK, 0, buffer, size, DEFAULT_TIMEOUT);
-+	if (r == -EPIPE) {
-+		dev_dbg(&port->dev, "break control not supported\n");
-+		r = 0;
-+		goto out;
-+	}
-+
-+	if (r != size) {
-+		if (r >= 0)
-+			r = -EIO;
-+		dev_err(&port->dev, "failed to read break control: %d\n", r);
-+		goto out;
-+	}
-+
-+	r = 0;
-+out:
-+	kfree(buffer);
-+
-+	if (quirks) {
-+		dev_dbg(&port->dev, "enabling quirk flags: 0x%02lx\n", quirks);
-+		priv->quirks |= quirks;
-+	}
-+
-+	return r;
-+}
-+
- static int ch341_port_probe(struct usb_serial_port *port)
+ static const struct usb_device_id id_table[] = {
+ 	{ USB_DEVICE(0x4348, 0x5523) },
+ 	{ USB_DEVICE(0x1a86, 0x7523) },
+@@ -160,9 +162,11 @@ static const speed_t ch341_min_rates[] =
+  *		2 <= div <= 256 if fact = 0, or
+  *		9 <= div <= 256 if fact = 1
+  */
+-static int ch341_get_divisor(speed_t speed)
++static int ch341_get_divisor(struct ch341_private *priv)
  {
- 	struct ch341_private *priv;
-@@ -330,6 +378,11 @@ static int ch341_port_probe(struct usb_s
- 		goto error;
+ 	unsigned int fact, div, clk_div;
++	speed_t speed = priv->baud_rate;
++	bool force_fact0 = false;
+ 	int ps;
  
- 	usb_set_serial_port_data(port, priv);
-+
-+	r = ch341_detect_quirks(port);
-+	if (r < 0)
-+		goto error;
-+
- 	return 0;
+ 	/*
+@@ -188,8 +192,12 @@ static int ch341_get_divisor(speed_t spe
+ 	clk_div = CH341_CLK_DIV(ps, fact);
+ 	div = CH341_CLKRATE / (clk_div * speed);
  
- error:	kfree(priv);
++	/* Some devices require a lower base clock if ps < 3. */
++	if (ps < 3 && (priv->quirks & CH341_QUIRK_LIMITED_PRESCALER))
++		force_fact0 = true;
++
+ 	/* Halve base clock (fact = 0) if required. */
+-	if (div < 9 || div > 255) {
++	if (div < 9 || div > 255 || force_fact0) {
+ 		div /= 2;
+ 		clk_div *= 2;
+ 		fact = 0;
+@@ -228,7 +236,7 @@ static int ch341_set_baudrate_lcr(struct
+ 	if (!priv->baud_rate)
+ 		return -EINVAL;
+ 
+-	val = ch341_get_divisor(priv->baud_rate);
++	val = ch341_get_divisor(priv);
+ 	if (val < 0)
+ 		return -EINVAL;
+ 
+@@ -333,6 +341,7 @@ static int ch341_detect_quirks(struct us
+ 			    CH341_REG_BREAK, 0, buffer, size, DEFAULT_TIMEOUT);
+ 	if (r == -EPIPE) {
+ 		dev_dbg(&port->dev, "break control not supported\n");
++		quirks = CH341_QUIRK_LIMITED_PRESCALER;
+ 		r = 0;
+ 		goto out;
+ 	}
 
 
