@@ -2,271 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EE891F367E
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 10:54:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B60C1F36DC
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 11:18:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728285AbgFIIyC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Jun 2020 04:54:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43262 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728243AbgFIIxx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Jun 2020 04:53:53 -0400
-Received: from Galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED9A2C05BD43;
-        Tue,  9 Jun 2020 01:53:52 -0700 (PDT)
-Received: from [5.158.153.53] (helo=tip-bot2.lab.linutronix.de)
-        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
-        (Exim 4.80)
-        (envelope-from <tip-bot2@linutronix.de>)
-        id 1jia10-0005d0-1E; Tue, 09 Jun 2020 10:53:50 +0200
-Received: from [127.0.1.1] (localhost [IPv6:::1])
-        by tip-bot2.lab.linutronix.de (Postfix) with ESMTP id A48B91C0475;
-        Tue,  9 Jun 2020 10:53:49 +0200 (CEST)
-Date:   Tue, 09 Jun 2020 08:53:49 -0000
-From:   "tip-bot2 for Anthony Steinhauser" <tip-bot2@linutronix.de>
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: x86/urgent] x86/speculation: Avoid force-disabling IBPB based
- on STIBP and enhanced IBRS.
-Cc:     Anthony Steinhauser <asteinhauser@google.com>,
-        Thomas Gleixner <tglx@linutronix.de>, stable@vger.kernel.org,
-        x86 <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>
+        id S1728452AbgFIJSe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Jun 2020 05:18:34 -0400
+Received: from mail-eopbgr680072.outbound.protection.outlook.com ([40.107.68.72]:46013
+        "EHLO NAM04-BN3-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726923AbgFIJSb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Jun 2020 05:18:31 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=Uncn5GfsBPIr8sU4lemBCCUistKvtintmsIaEvkaT+KzLy7r5mAN9SE9g4KAmrPfamDXzLhSSodYurXHNmWz6CkohGBQsOjB/6HBFlX8UGRiAt2k7ftejkCmPJgLFMHq8yTM06kzOrsimuUdugn2lBBPEbtYZMBt45BYSydrxTelZhUOKJh1OI6lZP6fj1daeYM4LLpbTnvTutmgwJamdWlsnrFjisdCGVCnRG3TH2/83HUQjrzo6JKM2ax4Og1yzJHk/YFqw0bwO7Wz8hMfkU37U/VXauWb29UI5uz94tN749A8EAv5n1rrG0rR53T1QZ+DWnYch6qYAxlPYlJTrw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=n9FXM/4Rm6p2J10fmO81c6kmzrDwnV8wjw01f0850fs=;
+ b=Zk3CrLsbWYhfXkMf4EPUcrc0IlO0GLMBpFdVKu0Yc4UrCjWoHnHrDzxZhKbnYfPZoFKmS3KQIaF+lDXncxZwb31lqM6OqZihP+HyqPmf5ZZp80NeI///Kk7Of/mrg2PGiaf0fBEqcfZf0iRtVpuufNdgPtQPEsRduuASvyYmPoB8CyBsVFBS2E8cSF4BaSZRCi3Zq2NNWH4ti8SEgLH+BSpZLqm//+Mpky2EiUhvJz77n2m+8P6a9kzVJehQvZH+WBrU70ifOI/6rbBJHAyheuPAb2QzWRzwx/ZBA6Ek0J1H88KjL5MnTD1LzcRqtaKuan36N6veU+NQGW7UcoKPCw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=infinera.com; dmarc=pass action=none header.from=infinera.com;
+ dkim=pass header.d=infinera.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=infinera.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=n9FXM/4Rm6p2J10fmO81c6kmzrDwnV8wjw01f0850fs=;
+ b=hYme+gDTKfWOUFKzg6GQ053GtBd1BqkOE9lTAdskmZigTm0au5xjnDL/fmmyeKnpuMG7PAZtQRK8iDQ+XczyC+E2++20AKkxIOJ8jY2Z+gOTma+wlZfW9ABpJB/Q45+126lFIDrfRa/ek8B21OyqRaXHxIbYpuzBt5tVWhVqU3U=
+Received: from BN8PR10MB3540.namprd10.prod.outlook.com (2603:10b6:408:ae::24)
+ by BN8PR10MB3345.namprd10.prod.outlook.com (2603:10b6:408:d0::12) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3066.19; Tue, 9 Jun
+ 2020 09:18:27 +0000
+Received: from BN8PR10MB3540.namprd10.prod.outlook.com
+ ([fe80::c158:d59f:e3bc:1941]) by BN8PR10MB3540.namprd10.prod.outlook.com
+ ([fe80::c158:d59f:e3bc:1941%2]) with mapi id 15.20.3066.023; Tue, 9 Jun 2020
+ 09:18:27 +0000
+From:   Joakim Tjernlund <Joakim.Tjernlund@infinera.com>
+To:     "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
+        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>
+CC:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Joakim Tjernlund <Joakim.Tjernlund@infinera.com>
+Subject: [PATCH] cdc-acm: Add DISABLE_ECHO quirk for Microchip/SMSC chip
+Thread-Topic: [PATCH] cdc-acm: Add DISABLE_ECHO quirk for Microchip/SMSC chip
+Thread-Index: AQHWPj7vE6bGMvPEXUO2kanZKLBwtw==
+Date:   Tue, 9 Jun 2020 09:18:27 +0000
+Message-ID: <20200605105418.22263-1-joakim.tjernlund@infinera.com>
+Accept-Language: en-GB, en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+received-spf: Pass (protection.outlook.com: domain of infinera.com designates
+ 8.4.225.191 as permitted sender) receiver=protection.outlook.com;
+ client-ip=8.4.225.191; helo=owa.infinera.com;
+x-ms-publictraffictype: Email
+authentication-results: spf=pass (sender IP is 8.4.225.191)
+ smtp.mailfrom=infinera.com; infinera.mail.onmicrosoft.com; dkim=none (message
+ not signed) header.d=none;infinera.mail.onmicrosoft.com; dmarc=pass
+ action=none header.from=infinera.com;
+x-eopattributedmessage: 0
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BN8PR10MB3540.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFTY:;SFS:(4636009)(39860400002)(136003)(396003)(376002)(366004)(346002)(36756003)(26005)(1076003)(186003)(6512007)(5660300002)(6506007)(4744005)(2616005)(4326008)(8936002)(110136005)(107886003)(85236043)(316002)(83380400001)(91956017)(2906002)(66476007)(6486002)(478600001)(66446008)(64756008)(71200400001)(86362001)(8676002)(66556008)(54906003)(66946007);DIR:OUT;SFP:1101;
+x-ms-office365-filtering-correlation-id: 56a2e7ae-89d8-46f6-7681-08d8093ed2a7
+x-ms-traffictypediagnostic: BN7PR10MB2418:|BN8PR10MB3345:
+x-ms-exchange-atpmessageproperties: SA|SL
+x-mailer: git-send-email 2.26.2
+x-ms-exchange-crosstenant-id: 285643de-5f5b-4b03-a153-0ae2dc8aaf77
+x-ms-exchange-crosstenant-originalarrivaltime: 05 Jun 2020 10:54:29.9128 (UTC)
+x-microsoft-antispam: BCL:0;
+x-ms-exchange-transport-crosstenantheadersstamped: BN7PR10MB2418
+x-ms-exchange-crosstenant-fromentityheader: HybridOnPrem
+x-ms-oob-tlc-oobclassifiers: OLM:381;OLM:381;
+x-ms-exchange-crosstenant-network-message-id: 56a2e7ae-89d8-46f6-7681-08d8093ed2a7
+x-ms-exchange-transport-endtoendlatency: 00:00:02.0055123
+x-ms-exchange-processed-by-bccfoldering: 15.20.3066.021
+x-psinmdfa: 1.0
+x-originalarrivaltime: 05 Jun 2020 10:54:27.0387 (UTC)
+ FILETIME=[AEA5C0B0:01D63B27]
+x-microsoft-antispam-message-info: pzd+Vfa/JkdvlQYjdnbkdnH2p/jKXjsWfAno73QngvEX6/Zt7TRbS78lIIKXLFZCIf0xfA0fbd/JfErHVxkPWTkfiySVu3DupBzIafaBrzuE+mTsQKRJUdsAOvSWlL/6VlCtnsfZ7mNaoc+ilDqtNtUU+xhR8fZz6EhE6f54cPG73DpZapfeq/7SXmTQbdBzHZF+BqM2gPfbvHitPDDJ5ETz89I+YgO9vneIqf3qyh6oRNUBi5BnNFaU97BRi05KuNCIgnffYyTge6zfseGm/JN9p3G0szXBEWoLkFBWToiKsbwDaygSQQJ2ptCQ928L
+x-ms-exchange-crosstenant-originalattributedtenantconnectingip: TenantId=285643de-5f5b-4b03-a153-0ae2dc8aaf77;Ip=[8.4.225.191];Helo=[owa.infinera.com]
+x-originating-ip: [88.131.87.201]
+x-ms-office365-filtering-correlation-id-prvs: 56a2e7ae-89d8-46f6-7681-08d8093ed2a7
+x-ms-exchange-transport-forked: True
+x-microsoft-antispam-prvs: <BN8PR10MB3345F0E17921BBD266419158F4820@BN8PR10MB3345.namprd10.prod.outlook.com>
+x-forefront-prvs: 042957ACD7
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-messagedata: ipEhc1K+5fARG7+UYOsbxkLOZRpTpWQRsNY0nePrShRlpskGMZO45JGNYJvK4Mk7QRALYYK7wIAQoOSnDmGZKzrWLzdbuvpKdqJR7UYriA2yvp+0ERncar3CLXfx2Uj/ViEqFzkw6MBW6DbOr2e3EVCWMQx4g0GY8r8Kh+OCM/7kMzCavjmnYs/kXeF7QxPJ5SxlTiYHOjyrrOZRvWPOldYUJfcbNDJ32C/0uuutqDL5UOjrAua+egpqcE6mVbc12v8qLxjFZoTdUzW6xR1lTjoL87OxeEuLvUv4RPDAtfLw8rtTyXAnbu3I2upeNfPIlE10p6rD9J4ZnMq4nWcpocmDSW93vmENC+lFSywywcnzeKIR9KvJ0uM8twaAIlGV2gvS9+RbJBzSYT6nCkhhwxlAqoDovms5WZJzt+I6I3bovTaVInl4twAZV/m1jQALCQvDvAfhuvbb0PiZxL8qOfl+TqxGrfkJHHT5uYWbybU=
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Message-ID: <159169282952.17951.3529693809120577424.tip-bot2@tip-bot2>
-X-Mailer: tip-git-log-daemon
-Robot-ID: <tip-bot2.linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Linutronix-Spam-Score: -1.0
-X-Linutronix-Spam-Level: -
-X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
+X-OriginatorOrg: infinera.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 56a2e7ae-89d8-46f6-7681-08d8093ed2a7
+X-MS-Exchange-CrossTenant-originalarrivaltime: 09 Jun 2020 09:18:27.6039
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 285643de-5f5b-4b03-a153-0ae2dc8aaf77
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: G4DB+B27DiXKczUf+NKPEaHqMVjrherY7ItAvp+shJCcBiAGnt0vJ/xu8dQ6hLYZAlBfOEvC9yBkGNqS+rcXEw==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN8PR10MB3345
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the x86/urgent branch of tip:
+USB_DEVICE(0x0424, 0x274e) can send data before cdc_acm is ready,
+causing garbage chars on the TTY causing stray input to the shell
+and/or login prompt.
 
-Commit-ID:     21998a351512eba4ed5969006f0c55882d995ada
-Gitweb:        https://git.kernel.org/tip/21998a351512eba4ed5969006f0c55882d995ada
-Author:        Anthony Steinhauser <asteinhauser@google.com>
-AuthorDate:    Tue, 19 May 2020 06:40:42 -07:00
-Committer:     Thomas Gleixner <tglx@linutronix.de>
-CommitterDate: Tue, 09 Jun 2020 10:50:54 +02:00
-
-x86/speculation: Avoid force-disabling IBPB based on STIBP and enhanced IBRS.
-
-When STIBP is unavailable or enhanced IBRS is available, Linux
-force-disables the IBPB mitigation of Spectre-BTB even when simultaneous
-multithreading is disabled. While attempts to enable IBPB using
-prctl(PR_SET_SPECULATION_CTRL, PR_SPEC_INDIRECT_BRANCH, ...) fail with
-EPERM, the seccomp syscall (or its prctl(PR_SET_SECCOMP, ...) equivalent)
-which are used e.g. by Chromium or OpenSSH succeed with no errors but the
-application remains silently vulnerable to cross-process Spectre v2 attacks
-(classical BTB poisoning). At the same time the SYSFS reporting
-(/sys/devices/system/cpu/vulnerabilities/spectre_v2) displays that IBPB is
-conditionally enabled when in fact it is unconditionally disabled.
-
-STIBP is useful only when SMT is enabled. When SMT is disabled and STIBP is
-unavailable, it makes no sense to force-disable also IBPB, because IBPB
-protects against cross-process Spectre-BTB attacks regardless of the SMT
-state. At the same time since missing STIBP was only observed on AMD CPUs,
-AMD does not recommend using STIBP, but recommends using IBPB, so disabling
-IBPB because of missing STIBP goes directly against AMD's advice:
-https://developer.amd.com/wp-content/resources/Architecture_Guidelines_Update_Indirect_Branch_Control.pdf
-
-Similarly, enhanced IBRS is designed to protect cross-core BTB poisoning
-and BTB-poisoning attacks from user space against kernel (and
-BTB-poisoning attacks from guest against hypervisor), it is not designed
-to prevent cross-process (or cross-VM) BTB poisoning between processes (or
-VMs) running on the same core. Therefore, even with enhanced IBRS it is
-necessary to flush the BTB during context-switches, so there is no reason
-to force disable IBPB when enhanced IBRS is available.
-
-Enable the prctl control of IBPB even when STIBP is unavailable or enhanced
-IBRS is available.
-
-Fixes: 7cc765a67d8e ("x86/speculation: Enable prctl mode for spectre_v2_user")
-Signed-off-by: Anthony Steinhauser <asteinhauser@google.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Joakim Tjernlund <joakim.tjernlund@infinera.com>
 Cc: stable@vger.kernel.org
 ---
- arch/x86/kernel/cpu/bugs.c | 87 +++++++++++++++++++++----------------
- 1 file changed, 50 insertions(+), 37 deletions(-)
+ drivers/usb/class/cdc-acm.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/x86/kernel/cpu/bugs.c b/arch/x86/kernel/cpu/bugs.c
-index ed54b3b..8d57562 100644
---- a/arch/x86/kernel/cpu/bugs.c
-+++ b/arch/x86/kernel/cpu/bugs.c
-@@ -495,7 +495,9 @@ early_param("nospectre_v1", nospectre_v1_cmdline);
- static enum spectre_v2_mitigation spectre_v2_enabled __ro_after_init =
- 	SPECTRE_V2_NONE;
- 
--static enum spectre_v2_user_mitigation spectre_v2_user __ro_after_init =
-+static enum spectre_v2_user_mitigation spectre_v2_user_stibp __ro_after_init =
-+	SPECTRE_V2_USER_NONE;
-+static enum spectre_v2_user_mitigation spectre_v2_user_ibpb __ro_after_init =
- 	SPECTRE_V2_USER_NONE;
- 
- #ifdef CONFIG_RETPOLINE
-@@ -641,15 +643,6 @@ spectre_v2_user_select_mitigation(enum spectre_v2_mitigation_cmd v2_cmd)
- 		break;
- 	}
- 
--	/*
--	 * At this point, an STIBP mode other than "off" has been set.
--	 * If STIBP support is not being forced, check if STIBP always-on
--	 * is preferred.
--	 */
--	if (mode != SPECTRE_V2_USER_STRICT &&
--	    boot_cpu_has(X86_FEATURE_AMD_STIBP_ALWAYS_ON))
--		mode = SPECTRE_V2_USER_STRICT_PREFERRED;
--
- 	/* Initialize Indirect Branch Prediction Barrier */
- 	if (boot_cpu_has(X86_FEATURE_IBPB)) {
- 		setup_force_cpu_cap(X86_FEATURE_USE_IBPB);
-@@ -672,23 +665,36 @@ spectre_v2_user_select_mitigation(enum spectre_v2_mitigation_cmd v2_cmd)
- 		pr_info("mitigation: Enabling %s Indirect Branch Prediction Barrier\n",
- 			static_key_enabled(&switch_mm_always_ibpb) ?
- 			"always-on" : "conditional");
-+
-+		spectre_v2_user_ibpb = mode;
- 	}
- 
--	/* If enhanced IBRS is enabled no STIBP required */
--	if (spectre_v2_enabled == SPECTRE_V2_IBRS_ENHANCED)
-+	/*
-+	 * If enhanced IBRS is enabled or SMT impossible, STIBP is not
-+	 * required.
-+	 */
-+	if (!smt_possible || spectre_v2_enabled == SPECTRE_V2_IBRS_ENHANCED)
- 		return;
- 
- 	/*
--	 * If SMT is not possible or STIBP is not available clear the STIBP
--	 * mode.
-+	 * At this point, an STIBP mode other than "off" has been set.
-+	 * If STIBP support is not being forced, check if STIBP always-on
-+	 * is preferred.
-+	 */
-+	if (mode != SPECTRE_V2_USER_STRICT &&
-+	    boot_cpu_has(X86_FEATURE_AMD_STIBP_ALWAYS_ON))
-+		mode = SPECTRE_V2_USER_STRICT_PREFERRED;
-+
-+	/*
-+	 * If STIBP is not available, clear the STIBP mode.
- 	 */
--	if (!smt_possible || !boot_cpu_has(X86_FEATURE_STIBP))
-+	if (!boot_cpu_has(X86_FEATURE_STIBP))
- 		mode = SPECTRE_V2_USER_NONE;
-+
-+	spectre_v2_user_stibp = mode;
-+
- set_mode:
--	spectre_v2_user = mode;
--	/* Only print the STIBP mode when SMT possible */
--	if (smt_possible)
--		pr_info("%s\n", spectre_v2_user_strings[mode]);
-+	pr_info("%s\n", spectre_v2_user_strings[mode]);
- }
- 
- static const char * const spectre_v2_strings[] = {
-@@ -921,7 +927,7 @@ void cpu_bugs_smt_update(void)
- {
- 	mutex_lock(&spec_ctrl_mutex);
- 
--	switch (spectre_v2_user) {
-+	switch (spectre_v2_user_stibp) {
- 	case SPECTRE_V2_USER_NONE:
- 		break;
- 	case SPECTRE_V2_USER_STRICT:
-@@ -1164,14 +1170,16 @@ static int ib_prctl_set(struct task_struct *task, unsigned long ctrl)
- {
- 	switch (ctrl) {
- 	case PR_SPEC_ENABLE:
--		if (spectre_v2_user == SPECTRE_V2_USER_NONE)
-+		if (spectre_v2_user_ibpb == SPECTRE_V2_USER_NONE &&
-+		    spectre_v2_user_stibp == SPECTRE_V2_USER_NONE)
- 			return 0;
- 		/*
- 		 * Indirect branch speculation is always disabled in strict
- 		 * mode.
- 		 */
--		if (spectre_v2_user == SPECTRE_V2_USER_STRICT ||
--		    spectre_v2_user == SPECTRE_V2_USER_STRICT_PREFERRED)
-+		if (spectre_v2_user_ibpb == SPECTRE_V2_USER_STRICT ||
-+		    spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT ||
-+		    spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT_PREFERRED)
- 			return -EPERM;
- 		task_clear_spec_ib_disable(task);
- 		task_update_spec_tif(task);
-@@ -1182,10 +1190,12 @@ static int ib_prctl_set(struct task_struct *task, unsigned long ctrl)
- 		 * Indirect branch speculation is always allowed when
- 		 * mitigation is force disabled.
- 		 */
--		if (spectre_v2_user == SPECTRE_V2_USER_NONE)
-+		if (spectre_v2_user_ibpb == SPECTRE_V2_USER_NONE &&
-+		    spectre_v2_user_stibp == SPECTRE_V2_USER_NONE)
- 			return -EPERM;
--		if (spectre_v2_user == SPECTRE_V2_USER_STRICT ||
--		    spectre_v2_user == SPECTRE_V2_USER_STRICT_PREFERRED)
-+		if (spectre_v2_user_ibpb == SPECTRE_V2_USER_STRICT ||
-+		    spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT ||
-+		    spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT_PREFERRED)
- 			return 0;
- 		task_set_spec_ib_disable(task);
- 		if (ctrl == PR_SPEC_FORCE_DISABLE)
-@@ -1216,7 +1226,8 @@ void arch_seccomp_spec_mitigate(struct task_struct *task)
- {
- 	if (ssb_mode == SPEC_STORE_BYPASS_SECCOMP)
- 		ssb_prctl_set(task, PR_SPEC_FORCE_DISABLE);
--	if (spectre_v2_user == SPECTRE_V2_USER_SECCOMP)
-+	if (spectre_v2_user_ibpb == SPECTRE_V2_USER_SECCOMP ||
-+	    spectre_v2_user_stibp == SPECTRE_V2_USER_SECCOMP)
- 		ib_prctl_set(task, PR_SPEC_FORCE_DISABLE);
- }
- #endif
-@@ -1247,22 +1258,24 @@ static int ib_prctl_get(struct task_struct *task)
- 	if (!boot_cpu_has_bug(X86_BUG_SPECTRE_V2))
- 		return PR_SPEC_NOT_AFFECTED;
- 
--	switch (spectre_v2_user) {
--	case SPECTRE_V2_USER_NONE:
-+	if (spectre_v2_user_ibpb == SPECTRE_V2_USER_NONE &&
-+	    spectre_v2_user_stibp == SPECTRE_V2_USER_NONE)
- 		return PR_SPEC_ENABLE;
--	case SPECTRE_V2_USER_PRCTL:
--	case SPECTRE_V2_USER_SECCOMP:
-+	else if (spectre_v2_user_ibpb == SPECTRE_V2_USER_STRICT ||
-+	    spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT ||
-+	    spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT_PREFERRED)
-+		return PR_SPEC_DISABLE;
-+	else if (spectre_v2_user_ibpb == SPECTRE_V2_USER_PRCTL ||
-+	    spectre_v2_user_ibpb == SPECTRE_V2_USER_SECCOMP ||
-+	    spectre_v2_user_stibp == SPECTRE_V2_USER_PRCTL ||
-+	    spectre_v2_user_stibp == SPECTRE_V2_USER_SECCOMP) {
- 		if (task_spec_ib_force_disable(task))
- 			return PR_SPEC_PRCTL | PR_SPEC_FORCE_DISABLE;
- 		if (task_spec_ib_disable(task))
- 			return PR_SPEC_PRCTL | PR_SPEC_DISABLE;
- 		return PR_SPEC_PRCTL | PR_SPEC_ENABLE;
--	case SPECTRE_V2_USER_STRICT:
--	case SPECTRE_V2_USER_STRICT_PREFERRED:
--		return PR_SPEC_DISABLE;
--	default:
-+	} else
- 		return PR_SPEC_NOT_AFFECTED;
--	}
- }
- 
- int arch_prctl_spec_ctrl_get(struct task_struct *task, unsigned long which)
-@@ -1501,7 +1514,7 @@ static char *stibp_state(void)
- 	if (spectre_v2_enabled == SPECTRE_V2_IBRS_ENHANCED)
- 		return "";
- 
--	switch (spectre_v2_user) {
-+	switch (spectre_v2_user_stibp) {
- 	case SPECTRE_V2_USER_NONE:
- 		return ", STIBP: disabled";
- 	case SPECTRE_V2_USER_STRICT:
+diff --git a/drivers/usb/class/cdc-acm.c b/drivers/usb/class/cdc-acm.c
+index ded8d93834ca..d579b05a2c2b 100644
+--- a/drivers/usb/class/cdc-acm.c
++++ b/drivers/usb/class/cdc-acm.c
+@@ -1689,6 +1689,8 @@ static int acm_pre_reset(struct usb_interface *intf)
+=20
+ static const struct usb_device_id acm_ids[] =3D {
+ 	/* quirky and broken devices */
++	{ USB_DEVICE(0x0424, 0x274e), /* Microchip Technology, Inc. (formerly SMS=
+C) */
++	  .driver_info =3D DISABLE_ECHO, }, /* DISABLE ECHO in termios flag */
+ 	{ USB_DEVICE(0x076d, 0x0006), /* Denso Cradle CU-321 */
+ 	.driver_info =3D NO_UNION_NORMAL, },/* has no union descriptor */
+ 	{ USB_DEVICE(0x17ef, 0x7000), /* Lenovo USB modem */
+--=20
+2.26.2
+
