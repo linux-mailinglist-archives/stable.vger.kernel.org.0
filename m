@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8662F1F45B8
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:20:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5405D1F461B
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:24:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388496AbgFISUB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Jun 2020 14:20:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35422 "EHLO mail.kernel.org"
+        id S2388938AbgFISYI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Jun 2020 14:24:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57916 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730975AbgFIRt2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Jun 2020 13:49:28 -0400
+        id S1732000AbgFIRrC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Jun 2020 13:47:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 820E22081A;
-        Tue,  9 Jun 2020 17:49:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EEF5820801;
+        Tue,  9 Jun 2020 17:47:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591724967;
-        bh=ZX1tnruJSvdsfDaH4vcNnaq0VG75PQYjQCUTI1CB0R4=;
+        s=default; t=1591724821;
+        bh=ikB4s8noR1CxF9dx3pGgDKnk55QCMNe+k4/d1n8xh8U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ClNiBmRto52E88aFrVt7R6vReqUcdBEw3e7fD+xiDbj2K1vjj3VrJJ/ilQ/aEYQE/
-         6caoU5HdBiiZ7D93CXg200uF5ELeURhsigsGXbC79kI8m5HQQvJXGx+9L4TKV+E4OY
-         +aB6l6RtWARBmQwkNi9xma+lfEOHM90SMO8ehnHc=
+        b=gEVxAzsqhbi2yjvqAgk0ADCeeDPTx6KecPuyf7wjCG6QXURUS9jB/FhhwyEYTKZpL
+         O6zF5ndhi3YNibzLXSKpbZVWn+AGV6Malfm8jmyNj/k7tsHaK0ijNHiwOLzLsVfNjr
+         Mihq1N6uyXtdNld4kGx6hhpSO/+TyMlEMq795r+k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 14/46] net: smsc911x: Fix runtime PM imbalance on error
+        stable@vger.kernel.org, Mark Gross <mgross@linux.intel.com>,
+        Borislav Petkov <bp@suse.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Tony Luck <tony.luck@intel.com>,
+        Josh Poimboeuf <jpoimboe@redhat.com>
+Subject: [PATCH 4.4 30/36] x86/cpu: Add a steppings field to struct x86_cpu_id
 Date:   Tue,  9 Jun 2020 19:44:30 +0200
-Message-Id: <20200609174024.222420538@linuxfoundation.org>
+Message-Id: <20200609173935.338970788@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200609174022.938987501@linuxfoundation.org>
-References: <20200609174022.938987501@linuxfoundation.org>
+In-Reply-To: <20200609173933.288044334@linuxfoundation.org>
+References: <20200609173933.288044334@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,63 +46,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinghao Liu <dinghao.liu@zju.edu.cn>
+From: Mark Gross <mgross@linux.intel.com>
 
-[ Upstream commit 539d39ad0c61b35f69565a037d7586deaf6d6166 ]
+commit e9d7144597b10ff13ff2264c059f7d4a7fbc89ac upstream
 
-Remove runtime PM usage counter decrement when the
-increment function has not been called to keep the
-counter balanced.
+Intel uses the same family/model for several CPUs. Sometimes the
+stepping must be checked to tell them apart.
 
-Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+On x86 there can be at most 16 steppings. Add a steppings bitmask to
+x86_cpu_id and a X86_MATCH_VENDOR_FAMILY_MODEL_STEPPING_FEATURE macro
+and support for matching against family/model/stepping.
+
+ [ bp: Massage.
+   tglx: Lightweight variant for backporting ]
+
+Signed-off-by: Mark Gross <mgross@linux.intel.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Tony Luck <tony.luck@intel.com>
+Reviewed-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/smsc/smsc911x.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ arch/x86/include/asm/cpu_device_id.h |   27 +++++++++++++++++++++++++++
+ arch/x86/kernel/cpu/match.c          |    7 ++++++-
+ include/linux/mod_devicetable.h      |    6 ++++++
+ 3 files changed, 39 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/smsc/smsc911x.c b/drivers/net/ethernet/smsc/smsc911x.c
-index ce4bfecc26c7..ae80a223975d 100644
---- a/drivers/net/ethernet/smsc/smsc911x.c
-+++ b/drivers/net/ethernet/smsc/smsc911x.c
-@@ -2515,20 +2515,20 @@ static int smsc911x_drv_probe(struct platform_device *pdev)
+--- a/arch/x86/include/asm/cpu_device_id.h
++++ b/arch/x86/include/asm/cpu_device_id.h
+@@ -8,6 +8,33 @@
  
- 	retval = smsc911x_init(dev);
- 	if (retval < 0)
--		goto out_disable_resources;
-+		goto out_init_fail;
+ #include <linux/mod_devicetable.h>
  
- 	netif_carrier_off(dev);
++#define X86_STEPPINGS(mins, maxs)    GENMASK(maxs, mins)
++
++/**
++ * X86_MATCH_VENDOR_FAM_MODEL_STEPPINGS_FEATURE - Base macro for CPU matching
++ * @_vendor:	The vendor name, e.g. INTEL, AMD, HYGON, ..., ANY
++ *		The name is expanded to X86_VENDOR_@_vendor
++ * @_family:	The family number or X86_FAMILY_ANY
++ * @_model:	The model number, model constant or X86_MODEL_ANY
++ * @_steppings:	Bitmask for steppings, stepping constant or X86_STEPPING_ANY
++ * @_feature:	A X86_FEATURE bit or X86_FEATURE_ANY
++ * @_data:	Driver specific data or NULL. The internal storage
++ *		format is unsigned long. The supplied value, pointer
++ *		etc. is casted to unsigned long internally.
++ *
++ * Backport version to keep the SRBDS pile consistant. No shorter variants
++ * required for this.
++ */
++#define X86_MATCH_VENDOR_FAM_MODEL_STEPPINGS_FEATURE(_vendor, _family, _model, \
++						    _steppings, _feature, _data) { \
++	.vendor		= X86_VENDOR_##_vendor,				\
++	.family		= _family,					\
++	.model		= _model,					\
++	.steppings	= _steppings,					\
++	.feature	= _feature,					\
++	.driver_data	= (unsigned long) _data				\
++}
++
+ extern const struct x86_cpu_id *x86_match_cpu(const struct x86_cpu_id *match);
  
- 	retval = smsc911x_mii_init(pdev, dev);
- 	if (retval) {
- 		SMSC_WARN(pdata, probe, "Error %i initialising mii", retval);
--		goto out_disable_resources;
-+		goto out_init_fail;
- 	}
+ #endif
+--- a/arch/x86/kernel/cpu/match.c
++++ b/arch/x86/kernel/cpu/match.c
+@@ -33,13 +33,18 @@ const struct x86_cpu_id *x86_match_cpu(c
+ 	const struct x86_cpu_id *m;
+ 	struct cpuinfo_x86 *c = &boot_cpu_data;
  
- 	retval = register_netdev(dev);
- 	if (retval) {
- 		SMSC_WARN(pdata, probe, "Error %i registering device", retval);
--		goto out_disable_resources;
-+		goto out_init_fail;
- 	} else {
- 		SMSC_TRACE(pdata, probe,
- 			   "Network interface: \"%s\"", dev->name);
-@@ -2569,9 +2569,10 @@ static int smsc911x_drv_probe(struct platform_device *pdev)
+-	for (m = match; m->vendor | m->family | m->model | m->feature; m++) {
++	for (m = match;
++	     m->vendor | m->family | m->model | m->steppings | m->feature;
++	     m++) {
+ 		if (m->vendor != X86_VENDOR_ANY && c->x86_vendor != m->vendor)
+ 			continue;
+ 		if (m->family != X86_FAMILY_ANY && c->x86 != m->family)
+ 			continue;
+ 		if (m->model != X86_MODEL_ANY && c->x86_model != m->model)
+ 			continue;
++		if (m->steppings != X86_STEPPING_ANY &&
++		    !(BIT(c->x86_stepping) & m->steppings))
++			continue;
+ 		if (m->feature != X86_FEATURE_ANY && !cpu_has(c, m->feature))
+ 			continue;
+ 		return m;
+--- a/include/linux/mod_devicetable.h
++++ b/include/linux/mod_devicetable.h
+@@ -572,6 +572,10 @@ struct mips_cdmm_device_id {
+ /*
+  * MODULE_DEVICE_TABLE expects this struct to be called x86cpu_device_id.
+  * Although gcc seems to ignore this error, clang fails without this define.
++ *
++ * Note: The ordering of the struct is different from upstream because the
++ * static initializers in kernels < 5.7 still use C89 style while upstream
++ * has been converted to proper C99 initializers.
+  */
+ #define x86cpu_device_id x86_cpu_id
+ struct x86_cpu_id {
+@@ -580,6 +584,7 @@ struct x86_cpu_id {
+ 	__u16 model;
+ 	__u16 feature;	/* bit index */
+ 	kernel_ulong_t driver_data;
++	__u16 steppings;
+ };
  
- 	return 0;
+ #define X86_FEATURE_MATCH(x) \
+@@ -588,6 +593,7 @@ struct x86_cpu_id {
+ #define X86_VENDOR_ANY 0xffff
+ #define X86_FAMILY_ANY 0
+ #define X86_MODEL_ANY  0
++#define X86_STEPPING_ANY 0
+ #define X86_FEATURE_ANY 0	/* Same as FPU, you can't test for that */
  
--out_disable_resources:
-+out_init_fail:
- 	pm_runtime_put(&pdev->dev);
- 	pm_runtime_disable(&pdev->dev);
-+out_disable_resources:
- 	(void)smsc911x_disable_resources(pdev);
- out_enable_resources_fail:
- 	smsc911x_free_resources(pdev);
--- 
-2.25.1
-
+ /*
 
 
