@@ -2,193 +2,142 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 495A51F453A
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:13:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 539E61F4596
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:18:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388245AbgFISNI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Jun 2020 14:13:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39596 "EHLO mail.kernel.org"
+        id S1732685AbgFISSJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Jun 2020 14:18:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37448 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732778AbgFIRvH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Jun 2020 13:51:07 -0400
+        id S1732631AbgFIRuP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Jun 2020 13:50:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B4A3F2074B;
-        Tue,  9 Jun 2020 17:51:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 824D9207C3;
+        Tue,  9 Jun 2020 17:50:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591725066;
-        bh=LmDXrdnTdQZE3STrw+xTiFWz36crARbNW12eODsSAX4=;
-        h=From:To:Cc:Subject:Date:From;
-        b=i8xsn+eMif3EnGBbP927n3mgaLMEjTcAt3n//f8DZjmgPm2NKrgaokdXGaQud98pK
-         N0HuoCetbQNXjc/rbjJCer8yM+0PDdFj0COSXjwIFK+rak12MFL8l69el61TOrEJIi
-         DGkz+x2S4f5a5wYC+VJG/euGmjLG7RYiHQp3iwEw=
+        s=default; t=1591725015;
+        bh=0ctzlTivcvYKVK0qXh7I1nTlH3cJHR+nkz97FZGU0Ds=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=JsMcIERQNS2yedDcA7d6zj8f/+ptKfzsdywLcDl0/xlnq0sdULEhZb00EhWPw53R8
+         w5Ad8sImKe/66sh+Md8OAj4vYkBuMS4tAwSZ/4lZ0wP39E/Z4yg2gkUSBXs9yvLV4+
+         q0BjDWGmHv/4M/bHgMdKRUF6yY+BAdBxZ3QZr2zg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-Subject: [PATCH 4.19 00/25] 4.19.128-rc1 review
-Date:   Tue,  9 Jun 2020 19:44:50 +0200
-Message-Id: <20200609174048.576094775@linuxfoundation.org>
+        stable@vger.kernel.org, Kyungtae Kim <kt0755@gmail.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 4.14 35/46] vt: keyboard: avoid signed integer overflow in k_ascii
+Date:   Tue,  9 Jun 2020 19:44:51 +0200
+Message-Id: <20200609174029.735837494@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-MIME-Version: 1.0
+In-Reply-To: <20200609174022.938987501@linuxfoundation.org>
+References: <20200609174022.938987501@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.128-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.19.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.19.128-rc1
-X-KernelTest-Deadline: 2020-06-11T17:40+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 4.19.128 release.
-There are 25 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Responses should be made by Thu, 11 Jun 2020 17:40:24 +0000.
-Anything received after that time might be too late.
+commit b86dab054059b970111b5516ae548efaae5b3aae upstream.
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.128-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
-and the diffstat can be found below.
+When k_ascii is invoked several times in a row there is a potential for
+signed integer overflow:
 
-thanks,
+UBSAN: Undefined behaviour in drivers/tty/vt/keyboard.c:888:19 signed integer overflow:
+10 * 1111111111 cannot be represented in type 'int'
+CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.6.11 #1
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS Bochs 01/01/2011
+Call Trace:
+ <IRQ>
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0xce/0x128 lib/dump_stack.c:118
+ ubsan_epilogue+0xe/0x30 lib/ubsan.c:154
+ handle_overflow+0xdc/0xf0 lib/ubsan.c:184
+ __ubsan_handle_mul_overflow+0x2a/0x40 lib/ubsan.c:205
+ k_ascii+0xbf/0xd0 drivers/tty/vt/keyboard.c:888
+ kbd_keycode drivers/tty/vt/keyboard.c:1477 [inline]
+ kbd_event+0x888/0x3be0 drivers/tty/vt/keyboard.c:1495
 
-greg k-h
+While it can be worked around by using check_mul_overflow()/
+check_add_overflow(), it is better to introduce a separate flag to
+signal that number pad is being used to compose a symbol, and
+change type of the accumulator from signed to unsigned, thus
+avoiding undefined behavior when it overflows.
 
--------------
-Pseudo-Shortlog of commits:
+Reported-by: Kyungtae Kim <kt0755@gmail.com>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200525232740.GA262061@dtor-ws
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 4.19.128-rc1
+---
+ drivers/tty/vt/keyboard.c |   26 ++++++++++++++++----------
+ 1 file changed, 16 insertions(+), 10 deletions(-)
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Revert "net/mlx5: Annotate mutex destroy for root ns"
-
-Oleg Nesterov <oleg@redhat.com>
-    uprobes: ensure that uprobe->offset and ->ref_ctr_offset are properly aligned
-
-Josh Poimboeuf <jpoimboe@redhat.com>
-    x86/speculation: Add Ivy Bridge to affected list
-
-Mark Gross <mgross@linux.intel.com>
-    x86/speculation: Add SRBDS vulnerability and mitigation documentation
-
-Mark Gross <mgross@linux.intel.com>
-    x86/speculation: Add Special Register Buffer Data Sampling (SRBDS) mitigation
-
-Mark Gross <mgross@linux.intel.com>
-    x86/cpu: Add 'table' argument to cpu_matches()
-
-Mark Gross <mgross@linux.intel.com>
-    x86/cpu: Add a steppings field to struct x86_cpu_id
-
-Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-    nvmem: qfprom: remove incorrect write support
-
-Oliver Neukum <oneukum@suse.com>
-    CDC-ACM: heed quirk also in error handling
-
-Pascal Terjan <pterjan@google.com>
-    staging: rtl8712: Fix IEEE80211_ADDBA_PARAM_BUF_SIZE_MASK
-
-Jiri Slaby <jslaby@suse.cz>
-    tty: hvc_console, fix crashes on parallel open/close
-
-Dmitry Torokhov <dmitry.torokhov@gmail.com>
-    vt: keyboard: avoid signed integer overflow in k_ascii
-
-Dinghao Liu <dinghao.liu@zju.edu.cn>
-    usb: musb: Fix runtime PM imbalance on error
-
-Bin Liu <b-liu@ti.com>
-    usb: musb: start session in resume for host port
-
-Mathieu Othacehe <m.othacehe@gmail.com>
-    iio: vcnl4000: Fix i2c swapped word reading.
-
-Daniele Palmas <dnlplm@gmail.com>
-    USB: serial: option: add Telit LE910C1-EUX compositions
-
-Bin Liu <b-liu@ti.com>
-    USB: serial: usb_wwan: do not resubmit rx urb on fatal errors
-
-Matt Jolly <Kangie@footclan.ninja>
-    USB: serial: qcserial: add DW5816e QDL support
-
-Willem de Bruijn <willemb@google.com>
-    net: check untrusted gso_size at kernel entry
-
-Stefano Garzarella <sgarzare@redhat.com>
-    vsock: fix timeout in vsock_accept()
-
-Chuhong Yuan <hslester96@gmail.com>
-    NFC: st21nfca: add missed kfree_skb() in an error path
-
-Daniele Palmas <dnlplm@gmail.com>
-    net: usb: qmi_wwan: add Telit LE910C1-EUX composition
-
-Eric Dumazet <edumazet@google.com>
-    l2tp: do not use inet_hash()/inet_unhash()
-
-Eric Dumazet <edumazet@google.com>
-    l2tp: add sk_family checks to l2tp_validate_socket
-
-Yang Yingliang <yangyingliang@huawei.com>
-    devinet: fix memleak in inetdev_init()
-
-
--------------
-
-Diffstat:
-
- Documentation/ABI/testing/sysfs-devices-system-cpu |   1 +
- Documentation/admin-guide/hw-vuln/index.rst        |   1 +
- .../special-register-buffer-data-sampling.rst      | 149 +++++++++++++++++++++
- Documentation/admin-guide/kernel-parameters.txt    |  20 +++
- Makefile                                           |   4 +-
- arch/x86/include/asm/cpu_device_id.h               |  27 ++++
- arch/x86/include/asm/cpufeatures.h                 |   2 +
- arch/x86/include/asm/msr-index.h                   |   4 +
- arch/x86/kernel/cpu/bugs.c                         | 106 +++++++++++++++
- arch/x86/kernel/cpu/common.c                       |  54 ++++++--
- arch/x86/kernel/cpu/cpu.h                          |   1 +
- arch/x86/kernel/cpu/match.c                        |   7 +-
- drivers/base/cpu.c                                 |   8 ++
- drivers/iio/light/vcnl4000.c                       |   6 +-
- drivers/net/ethernet/mellanox/mlx5/core/fs_core.c  |   6 -
- drivers/net/usb/qmi_wwan.c                         |   1 +
- drivers/nfc/st21nfca/dep.c                         |   4 +-
- drivers/nvmem/qfprom.c                             |  14 --
- drivers/staging/rtl8712/wifi.h                     |   9 +-
- drivers/tty/hvc/hvc_console.c                      |  23 ++--
- drivers/tty/vt/keyboard.c                          |  26 ++--
- drivers/usb/class/cdc-acm.c                        |   2 +-
- drivers/usb/musb/musb_core.c                       |   7 +
- drivers/usb/musb/musb_debugfs.c                    |  10 +-
- drivers/usb/serial/option.c                        |   4 +
- drivers/usb/serial/qcserial.c                      |   1 +
- drivers/usb/serial/usb_wwan.c                      |   4 +
- include/linux/mod_devicetable.h                    |   6 +
- include/linux/virtio_net.h                         |  14 +-
- kernel/events/uprobes.c                            |  16 ++-
- net/ipv4/devinet.c                                 |   1 +
- net/l2tp/l2tp_core.c                               |   3 +
- net/l2tp/l2tp_ip.c                                 |  29 +++-
- net/l2tp/l2tp_ip6.c                                |  30 +++--
- net/vmw_vsock/af_vsock.c                           |   2 +-
- 35 files changed, 503 insertions(+), 99 deletions(-)
+--- a/drivers/tty/vt/keyboard.c
++++ b/drivers/tty/vt/keyboard.c
+@@ -126,7 +126,11 @@ static DEFINE_SPINLOCK(func_buf_lock); /
+ static unsigned long key_down[BITS_TO_LONGS(KEY_CNT)];	/* keyboard key bitmap */
+ static unsigned char shift_down[NR_SHIFT];		/* shift state counters.. */
+ static bool dead_key_next;
+-static int npadch = -1;					/* -1 or number assembled on pad */
++
++/* Handles a number being assembled on the number pad */
++static bool npadch_active;
++static unsigned int npadch_value;
++
+ static unsigned int diacr;
+ static char rep;					/* flag telling character repeat */
+ 
+@@ -816,12 +820,12 @@ static void k_shift(struct vc_data *vc,
+ 		shift_state &= ~(1 << value);
+ 
+ 	/* kludge */
+-	if (up_flag && shift_state != old_state && npadch != -1) {
++	if (up_flag && shift_state != old_state && npadch_active) {
+ 		if (kbd->kbdmode == VC_UNICODE)
+-			to_utf8(vc, npadch);
++			to_utf8(vc, npadch_value);
+ 		else
+-			put_queue(vc, npadch & 0xff);
+-		npadch = -1;
++			put_queue(vc, npadch_value & 0xff);
++		npadch_active = false;
+ 	}
+ }
+ 
+@@ -839,7 +843,7 @@ static void k_meta(struct vc_data *vc, u
+ 
+ static void k_ascii(struct vc_data *vc, unsigned char value, char up_flag)
+ {
+-	int base;
++	unsigned int base;
+ 
+ 	if (up_flag)
+ 		return;
+@@ -853,10 +857,12 @@ static void k_ascii(struct vc_data *vc,
+ 		base = 16;
+ 	}
+ 
+-	if (npadch == -1)
+-		npadch = value;
+-	else
+-		npadch = npadch * base + value;
++	if (!npadch_active) {
++		npadch_value = 0;
++		npadch_active = true;
++	}
++
++	npadch_value = npadch_value * base + value;
+ }
+ 
+ static void k_lock(struct vc_data *vc, unsigned char value, char up_flag)
 
 
