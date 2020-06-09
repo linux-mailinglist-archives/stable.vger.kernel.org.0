@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A7A71F43E1
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 19:59:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DF1D1F43DF
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 19:59:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730160AbgFIR6B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Jun 2020 13:58:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47990 "EHLO mail.kernel.org"
+        id S1731936AbgFIR54 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Jun 2020 13:57:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48024 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733271AbgFIRzh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Jun 2020 13:55:37 -0400
+        id S1733274AbgFIRzj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Jun 2020 13:55:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5A24720812;
-        Tue,  9 Jun 2020 17:55:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 98F272074B;
+        Tue,  9 Jun 2020 17:55:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591725336;
-        bh=miLTQdPwzuk9lQFiqP5cxP8nhx922KpR3g6Sz11QT1U=;
+        s=default; t=1591725339;
+        bh=YTyoHd0MzPjxsqW5XiQ39GqBwRaCwhClaKY7ifAGU4A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VhF5im26SG2cedIWsqYpMYE3O/+PQTPgJEj4waEu154iGl3SL4oAVwR4DLOy/tQoK
-         2GnaZd15+xmnGJ6HRN5zTKxCj9lJGyRWflRnRx0NcT+P/0k0gQWi4FI7dwi0gkAsLK
-         AGWAB0bcxNpKbJBwBjxsgOkfiaV4OLjCEi6Al2bI=
+        b=OpnCH2hcShMHvvupvJ90e12xg75LbcIMd+xgWjTHxlxY+yKf78GBtu/w9V9dXF0t9
+         zwrsH6E653U6zqBkYoOzsW+k8QpVABGK1uUQk71DO6LyyjNn8duk1X8pKV5irtiA/H
+         JwJhm20oiwD7eA92rviZW9Ph4Yz4h8JORR7aZm3I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pascal Terjan <pterjan@google.com>
-Subject: [PATCH 5.7 16/24] staging: rtl8712: Fix IEEE80211_ADDBA_PARAM_BUF_SIZE_MASK
-Date:   Tue,  9 Jun 2020 19:45:47 +0200
-Message-Id: <20200609174150.650165331@linuxfoundation.org>
+        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
+        Jean Rene Dawin <jdawin@math.uni-bielefeld.de>
+Subject: [PATCH 5.7 17/24] CDC-ACM: heed quirk also in error handling
+Date:   Tue,  9 Jun 2020 19:45:48 +0200
+Message-Id: <20200609174150.726412380@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200609174149.255223112@linuxfoundation.org>
 References: <20200609174149.255223112@linuxfoundation.org>
@@ -42,51 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pascal Terjan <pterjan@google.com>
+From: Oliver Neukum <oneukum@suse.com>
 
-commit 15ea976a1f12b5fd76b1bd6ff3eb5132fd28047f upstream.
+commit 97fe809934dd2b0b37dfef3a2fc70417f485d7af upstream.
 
-The value in shared headers was fixed 9 years ago in commit 8d661f1e462d
-("ieee80211: correct IEEE80211_ADDBA_PARAM_BUF_SIZE_MASK macro") and
-while looking at using shared headers for other duplicated constants
-I noticed this driver uses the old value.
+If buffers are iterated over in the error case, the lower limits
+for quirky devices must be heeded.
 
-The macros are also defined twice in this file so I am deleting the
-second definition.
-
-Signed-off-by: Pascal Terjan <pterjan@google.com>
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Reported-by: Jean Rene Dawin <jdawin@math.uni-bielefeld.de>
+Fixes: a4e7279cd1d19 ("cdc-acm: introduce a cool down")
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200523211247.23262-1-pterjan@google.com
+Link: https://lore.kernel.org/r/20200526124420.22160-1-oneukum@suse.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/rtl8712/wifi.h |    9 +--------
- 1 file changed, 1 insertion(+), 8 deletions(-)
+ drivers/usb/class/cdc-acm.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/staging/rtl8712/wifi.h
-+++ b/drivers/staging/rtl8712/wifi.h
-@@ -440,7 +440,7 @@ static inline unsigned char *get_hdr_bss
- /* block-ack parameters */
- #define IEEE80211_ADDBA_PARAM_POLICY_MASK 0x0002
- #define IEEE80211_ADDBA_PARAM_TID_MASK 0x003C
--#define IEEE80211_ADDBA_PARAM_BUF_SIZE_MASK 0xFFA0
-+#define IEEE80211_ADDBA_PARAM_BUF_SIZE_MASK 0xFFC0
- #define IEEE80211_DELBA_PARAM_TID_MASK 0xF000
- #define IEEE80211_DELBA_PARAM_INITIATOR_MASK 0x0800
+--- a/drivers/usb/class/cdc-acm.c
++++ b/drivers/usb/class/cdc-acm.c
+@@ -584,7 +584,7 @@ static void acm_softint(struct work_stru
+ 	}
  
-@@ -532,13 +532,6 @@ struct ieee80211_ht_addt_info {
- #define IEEE80211_HT_IE_NON_GF_STA_PRSNT	0x0004
- #define IEEE80211_HT_IE_NON_HT_STA_PRSNT	0x0010
- 
--/* block-ack parameters */
--#define IEEE80211_ADDBA_PARAM_POLICY_MASK 0x0002
--#define IEEE80211_ADDBA_PARAM_TID_MASK 0x003C
--#define IEEE80211_ADDBA_PARAM_BUF_SIZE_MASK 0xFFA0
--#define IEEE80211_DELBA_PARAM_TID_MASK 0xF000
--#define IEEE80211_DELBA_PARAM_INITIATOR_MASK 0x0800
--
- /*
-  * A-PMDU buffer sizes
-  * According to IEEE802.11n spec size varies from 8K to 64K (in powers of 2)
+ 	if (test_and_clear_bit(ACM_ERROR_DELAY, &acm->flags)) {
+-		for (i = 0; i < ACM_NR; i++) 
++		for (i = 0; i < acm->rx_buflimit; i++)
+ 			if (test_and_clear_bit(i, &acm->urbs_in_error_delay))
+ 					acm_submit_read_urb(acm, i, GFP_NOIO);
+ 	}
 
 
