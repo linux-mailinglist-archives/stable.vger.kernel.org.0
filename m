@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CD101F452E
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:12:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 707721F4474
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:05:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731654AbgFISMa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Jun 2020 14:12:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40138 "EHLO mail.kernel.org"
+        id S2388002AbgFISEi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Jun 2020 14:04:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42154 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732793AbgFIRvU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Jun 2020 13:51:20 -0400
+        id S1728537AbgFIRwH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Jun 2020 13:52:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 733D3207C3;
-        Tue,  9 Jun 2020 17:51:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BFC2F20774;
+        Tue,  9 Jun 2020 17:52:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591725079;
-        bh=A8/2DMt2DlV627jgZn/LmE7bO5UtcIiyT4fVmDE37ak=;
+        s=default; t=1591725127;
+        bh=R/2+iH0ntOAXXcyfdHjyJIeGtR8m6nlM7VYdO+xk6Gs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WRrHNaCukbmXDC6j5ZoiNN/uhBzVMD2cFIVKCeeMAqNFezScMKqZ8SxdT768rY5Ln
-         H+JWfzED0usA0VV2lOM3Jygf9qe+iAPCHt5/530l81g2DPTSmmlLbXLiT4DM2ZhHSL
-         dJY5bPb2lbA/je433apflUJSdANxApEG6UKvKYI4=
+        b=PGiGlpsv78ZxLpPpISRRRINaRgbklQyt0rsqe95S2IP7okbQM8MxyUL1R3CjOwz2e
+         lRhTNvoXdgy8jPct9v1OyDjNvgPm9mK0au1OZ8wJ7ViMA5D6p0aJSqASnfweWcZiNP
+         TcxUFZlzTWAdjvJoMkDtcPxhOeKzBFiGCECDu4PI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pascal Terjan <pterjan@google.com>
-Subject: [PATCH 4.19 16/25] staging: rtl8712: Fix IEEE80211_ADDBA_PARAM_BUF_SIZE_MASK
-Date:   Tue,  9 Jun 2020 19:45:06 +0200
-Message-Id: <20200609174050.473019746@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Willem de Bruijn <willemb@google.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 11/34] net: be more gentle about silly gso requests coming from user
+Date:   Tue,  9 Jun 2020 19:45:07 +0200
+Message-Id: <20200609174054.051190910@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200609174048.576094775@linuxfoundation.org>
-References: <20200609174048.576094775@linuxfoundation.org>
+In-Reply-To: <20200609174052.628006868@linuxfoundation.org>
+References: <20200609174052.628006868@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,51 +44,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pascal Terjan <pterjan@google.com>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 15ea976a1f12b5fd76b1bd6ff3eb5132fd28047f upstream.
+[ Upstream commit 7c6d2ecbda83150b2036a2b36b21381ad4667762 ]
 
-The value in shared headers was fixed 9 years ago in commit 8d661f1e462d
-("ieee80211: correct IEEE80211_ADDBA_PARAM_BUF_SIZE_MASK macro") and
-while looking at using shared headers for other duplicated constants
-I noticed this driver uses the old value.
+Recent change in virtio_net_hdr_to_skb() broke some packetdrill tests.
 
-The macros are also defined twice in this file so I am deleting the
-second definition.
+When --mss=XXX option is set, packetdrill always provide gso_type & gso_size
+for its inbound packets, regardless of packet size.
 
-Signed-off-by: Pascal Terjan <pterjan@google.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200523211247.23262-1-pterjan@google.com
+	if (packet->tcp && packet->mss) {
+		if (packet->ipv4)
+			gso.gso_type = VIRTIO_NET_HDR_GSO_TCPV4;
+		else
+			gso.gso_type = VIRTIO_NET_HDR_GSO_TCPV6;
+		gso.gso_size = packet->mss;
+	}
+
+Since many other programs could do the same, relax virtio_net_hdr_to_skb()
+to no longer return an error, but instead ignore gso settings.
+
+This keeps Willem intent to make sure no malicious packet could
+reach gso stack.
+
+Note that TCP stack has a special logic in tcp_set_skb_tso_segs()
+to clear gso_size for small packets.
+
+Fixes: 6dd912f82680 ("net: check untrusted gso_size at kernel entry")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Willem de Bruijn <willemb@google.com>
+Acked-by: Willem de Bruijn <willemb@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/staging/rtl8712/wifi.h |    9 +--------
- 1 file changed, 1 insertion(+), 8 deletions(-)
+ include/linux/virtio_net.h |   17 +++++++++--------
+ 1 file changed, 9 insertions(+), 8 deletions(-)
 
---- a/drivers/staging/rtl8712/wifi.h
-+++ b/drivers/staging/rtl8712/wifi.h
-@@ -468,7 +468,7 @@ static inline unsigned char *get_hdr_bss
- /* block-ack parameters */
- #define IEEE80211_ADDBA_PARAM_POLICY_MASK 0x0002
- #define IEEE80211_ADDBA_PARAM_TID_MASK 0x003C
--#define IEEE80211_ADDBA_PARAM_BUF_SIZE_MASK 0xFFA0
-+#define IEEE80211_ADDBA_PARAM_BUF_SIZE_MASK 0xFFC0
- #define IEEE80211_DELBA_PARAM_TID_MASK 0xF000
- #define IEEE80211_DELBA_PARAM_INITIATOR_MASK 0x0800
+--- a/include/linux/virtio_net.h
++++ b/include/linux/virtio_net.h
+@@ -109,16 +109,17 @@ retry:
  
-@@ -562,13 +562,6 @@ struct ieee80211_ht_addt_info {
- #define IEEE80211_HT_IE_NON_GF_STA_PRSNT	0x0004
- #define IEEE80211_HT_IE_NON_HT_STA_PRSNT	0x0010
+ 	if (hdr->gso_type != VIRTIO_NET_HDR_GSO_NONE) {
+ 		u16 gso_size = __virtio16_to_cpu(little_endian, hdr->gso_size);
++		struct skb_shared_info *shinfo = skb_shinfo(skb);
  
--/* block-ack parameters */
--#define IEEE80211_ADDBA_PARAM_POLICY_MASK 0x0002
--#define IEEE80211_ADDBA_PARAM_TID_MASK 0x003C
--#define IEEE80211_ADDBA_PARAM_BUF_SIZE_MASK 0xFFA0
--#define IEEE80211_DELBA_PARAM_TID_MASK 0xF000
--#define IEEE80211_DELBA_PARAM_INITIATOR_MASK 0x0800
+-		if (skb->len - p_off <= gso_size)
+-			return -EINVAL;
++		/* Too small packets are not really GSO ones. */
++		if (skb->len - p_off > gso_size) {
++			shinfo->gso_size = gso_size;
++			shinfo->gso_type = gso_type;
+ 
+-		skb_shinfo(skb)->gso_size = gso_size;
+-		skb_shinfo(skb)->gso_type = gso_type;
 -
- /*
-  * A-PMDU buffer sizes
-  * According to IEEE802.11n spec size varies from 8K to 64K (in powers of 2)
+-		/* Header must be checked, and gso_segs computed. */
+-		skb_shinfo(skb)->gso_type |= SKB_GSO_DODGY;
+-		skb_shinfo(skb)->gso_segs = 0;
++			/* Header must be checked, and gso_segs computed. */
++			shinfo->gso_type |= SKB_GSO_DODGY;
++			shinfo->gso_segs = 0;
++		}
+ 	}
+ 
+ 	return 0;
 
 
