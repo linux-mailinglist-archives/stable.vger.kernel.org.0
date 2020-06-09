@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 867FB1F4460
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:04:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C54D1F4431
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:02:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733051AbgFISDk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Jun 2020 14:03:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43126 "EHLO mail.kernel.org"
+        id S1732448AbgFISCE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Jun 2020 14:02:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45064 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732922AbgFIRwl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Jun 2020 13:52:41 -0400
+        id S1731696AbgFIRxs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Jun 2020 13:53:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 72603207F9;
-        Tue,  9 Jun 2020 17:52:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A926C20734;
+        Tue,  9 Jun 2020 17:53:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591725160;
-        bh=mlChgyTv5SQLeyzNVZm89cxyxj49nT+0TF3uaH4MMaI=;
+        s=default; t=1591725228;
+        bh=61wbgqZP6RiTlB2en8fs2oA+5228qjJ/z3HAiGnFn+A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GavMI/mRc+WajWXLqaPhQxH5t7oLAx/qRwoQ5nOfH3LKYBOZJBhf0AZNkaRQchwZ6
-         AKlgmvnQyqlKmBAqMUYv+37YQ9jNqV3LyppgtFKBtDVIUBE1iGHO82GYQLPRv8Knbp
-         hcwPWiRBIiEz0dakRjdL1ut921HqfEzUBJ2ZBs8Y=
+        b=BLpXqw6FgWG9zguQeLFPFMxGiubI9Ekaxza42YwjMI5++wa8JUAlGTkogbuNaURgq
+         ZYWV37MuhKiDcLsT783n0TK6A3yyLM1FmQEEjU5NtxDge/tFCPK7TRNElmJLQbJg5A
+         6K0W++e7muZ7uuPdFuDxgbHJqnB5t9BHsNR52Tp4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Douglas Anderson <dianders@chromium.org>
-Subject: [PATCH 5.4 26/34] nvmem: qfprom: remove incorrect write support
-Date:   Tue,  9 Jun 2020 19:45:22 +0200
-Message-Id: <20200609174056.359919958@linuxfoundation.org>
+        stable@vger.kernel.org, Michael Hanselmann <public@hansmi.ch>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.6 21/41] USB: serial: ch341: add basis for quirk detection
+Date:   Tue,  9 Jun 2020 19:45:23 +0200
+Message-Id: <20200609174114.150309933@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200609174052.628006868@linuxfoundation.org>
-References: <20200609174052.628006868@linuxfoundation.org>
+In-Reply-To: <20200609174112.129412236@linuxfoundation.org>
+References: <20200609174112.129412236@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,55 +43,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+From: Michael Hanselmann <public@hansmi.ch>
 
-commit 8d9eb0d6d59a5d7028c80a30831143d3e75515a7 upstream.
+commit c404bf4aa9236cb4d1068e499ae42acf48a6ff97 upstream.
 
-qfprom has different address spaces for read and write. Reads are
-always done from corrected address space, where as writes are done
-on raw address space.
-Writing to corrected address space is invalid and ignored, so it
-does not make sense to have this support in the driver which only
-supports corrected address space regions at the moment.
+A subset of CH341 devices does not support all features, namely the
+prescaler is limited to a reduced precision and there is no support for
+sending a RS232 break condition. This patch adds a detection function
+which will be extended to set quirk flags as they're implemented.
 
-Fixes: 4ab11996b489 ("nvmem: qfprom: Add Qualcomm QFPROM support.")
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200522113341.7728-1-srinivas.kandagatla@linaro.org
+The author's affected device has an imprint of "340" on the
+turquoise-colored plug, but not all such devices appear to be affected.
+
+Signed-off-by: Michael Hanselmann <public@hansmi.ch>
+Link: https://lore.kernel.org/r/1e1ae0da6082bb528a44ef323d4e1d3733d38858.1585697281.git.public@hansmi.ch
+[ johan: use long type for quirks; rephrase and use port device for
+	 messages; handle short reads; set quirk flags directly in
+	 helper function ]
+Cc: stable <stable@vger.kernel.org>	# 5.5
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/nvmem/qfprom.c |   14 --------------
- 1 file changed, 14 deletions(-)
+ drivers/usb/serial/ch341.c |   53 +++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 53 insertions(+)
 
---- a/drivers/nvmem/qfprom.c
-+++ b/drivers/nvmem/qfprom.c
-@@ -27,25 +27,11 @@ static int qfprom_reg_read(void *context
- 	return 0;
- }
- 
--static int qfprom_reg_write(void *context,
--			 unsigned int reg, void *_val, size_t bytes)
--{
--	struct qfprom_priv *priv = context;
--	u8 *val = _val;
--	int i = 0, words = bytes;
--
--	while (words--)
--		writeb(*val++, priv->base + reg + i++);
--
--	return 0;
--}
--
- static struct nvmem_config econfig = {
- 	.name = "qfprom",
- 	.stride = 1,
- 	.word_size = 1,
- 	.reg_read = qfprom_reg_read,
--	.reg_write = qfprom_reg_write,
+--- a/drivers/usb/serial/ch341.c
++++ b/drivers/usb/serial/ch341.c
+@@ -87,6 +87,7 @@ struct ch341_private {
+ 	u8 mcr;
+ 	u8 msr;
+ 	u8 lcr;
++	unsigned long quirks;
  };
  
- static int qfprom_probe(struct platform_device *pdev)
+ static void ch341_set_termios(struct tty_struct *tty,
+@@ -308,6 +309,53 @@ out:	kfree(buffer);
+ 	return r;
+ }
+ 
++static int ch341_detect_quirks(struct usb_serial_port *port)
++{
++	struct ch341_private *priv = usb_get_serial_port_data(port);
++	struct usb_device *udev = port->serial->dev;
++	const unsigned int size = 2;
++	unsigned long quirks = 0;
++	char *buffer;
++	int r;
++
++	buffer = kmalloc(size, GFP_KERNEL);
++	if (!buffer)
++		return -ENOMEM;
++
++	/*
++	 * A subset of CH34x devices does not support all features. The
++	 * prescaler is limited and there is no support for sending a RS232
++	 * break condition. A read failure when trying to set up the latter is
++	 * used to detect these devices.
++	 */
++	r = usb_control_msg(udev, usb_rcvctrlpipe(udev, 0), CH341_REQ_READ_REG,
++			    USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_IN,
++			    CH341_REG_BREAK, 0, buffer, size, DEFAULT_TIMEOUT);
++	if (r == -EPIPE) {
++		dev_dbg(&port->dev, "break control not supported\n");
++		r = 0;
++		goto out;
++	}
++
++	if (r != size) {
++		if (r >= 0)
++			r = -EIO;
++		dev_err(&port->dev, "failed to read break control: %d\n", r);
++		goto out;
++	}
++
++	r = 0;
++out:
++	kfree(buffer);
++
++	if (quirks) {
++		dev_dbg(&port->dev, "enabling quirk flags: 0x%02lx\n", quirks);
++		priv->quirks |= quirks;
++	}
++
++	return r;
++}
++
+ static int ch341_port_probe(struct usb_serial_port *port)
+ {
+ 	struct ch341_private *priv;
+@@ -330,6 +378,11 @@ static int ch341_port_probe(struct usb_s
+ 		goto error;
+ 
+ 	usb_set_serial_port_data(port, priv);
++
++	r = ch341_detect_quirks(port);
++	if (r < 0)
++		goto error;
++
+ 	return 0;
+ 
+ error:	kfree(priv);
 
 
