@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C44041F42D2
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 19:48:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C4701F430C
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 19:49:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732220AbgFIRsH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Jun 2020 13:48:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60068 "EHLO mail.kernel.org"
+        id S1732509AbgFIRt1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Jun 2020 13:49:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35324 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732216AbgFIRsG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Jun 2020 13:48:06 -0400
+        id S1732506AbgFIRtZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Jun 2020 13:49:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7C9AA20814;
-        Tue,  9 Jun 2020 17:48:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 23D0D2081A;
+        Tue,  9 Jun 2020 17:49:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591724885;
-        bh=I/C5wTw0k+vOVdGvsWnZiMB/R9OHvicC4Y/1i2mXlxo=;
+        s=default; t=1591724964;
+        bh=hTuX6Gj/Z///hx0xMNbk6em5czwcq15xu7qUuc2sooU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M3waLlpvJpRt+SOuLMIrBciDiRGnf6W+0snLeF/cN0XONymjtFS3OvpHvPt6DW9ie
-         cf9VfG4usnWVFCottqXlBrkYj4+mumefDrr/SaVvStd8VCthOyL2A4xlCuv5OLl/xa
-         uprOj8bczj2RG92YcwNJ+gC0PQvBg566oAXLyM6Y=
+        b=eENykR2GyjDUhH3ho0X8ykwVgaZkYpsWDVPy1q02W8jOZ3m9gvUKqIDiC/E1L1k9b
+         QJOSeBX4Q1KovLXaq/CbLC4WgUvMxQI/s2kzhJ5Lh6AmWAzRut7165aFxSv532hTw/
+         RXT9MOjfBf8ZG3gcwRR/u8M9E6vdQXKsFTFQ95sc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hu Jiahui <kirin.say@gmail.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 4.9 21/42] airo: Fix read overflows sending packets
-Date:   Tue,  9 Jun 2020 19:44:27 +0200
-Message-Id: <20200609174017.780861051@linuxfoundation.org>
+        stable@vger.kernel.org, Jonathan McDowell <noodles@earth.li>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 13/46] net: ethernet: stmmac: Enable interface clocks on probe for IPQ806x
+Date:   Tue,  9 Jun 2020 19:44:29 +0200
+Message-Id: <20200609174024.110413848@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200609174015.379493548@linuxfoundation.org>
-References: <20200609174015.379493548@linuxfoundation.org>
+In-Reply-To: <20200609174022.938987501@linuxfoundation.org>
+References: <20200609174022.938987501@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,62 +44,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Jonathan McDowell <noodles@earth.li>
 
-commit 11e7a91994c29da96d847f676be023da6a2c1359 upstream.
+[ Upstream commit a96ac8a0045e3cbe3e5af6d1b3c78c6c2065dec5 ]
 
-The problem is that we always copy a minimum of ETH_ZLEN (60) bytes from
-skb->data even when skb->len is less than ETH_ZLEN so it leads to a read
-overflow.
+The ipq806x_gmac_probe() function enables the PTP clock but not the
+appropriate interface clocks. This means that if the bootloader hasn't
+done so attempting to bring up the interface will fail with an error
+like:
 
-The fix is to pad skb->data to at least ETH_ZLEN bytes.
+[   59.028131] ipq806x-gmac-dwmac 37600000.ethernet: Failed to reset the dma
+[   59.028196] ipq806x-gmac-dwmac 37600000.ethernet eth1: stmmac_hw_setup: DMA engine initialization failed
+[   59.034056] ipq806x-gmac-dwmac 37600000.ethernet eth1: stmmac_open: Hw setup failed
 
-Cc: <stable@vger.kernel.org>
-Reported-by: Hu Jiahui <kirin.say@gmail.com>
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20200527184830.GA1164846@mwanda
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This patch, a slightly cleaned up version of one posted by Sergey
+Sergeev in:
 
+https://forum.openwrt.org/t/support-for-mikrotik-rb3011uias-rm/4064/257
+
+correctly enables the clock; we have already configured the source just
+before this.
+
+Tested on a MikroTik RB3011.
+
+Signed-off-by: Jonathan McDowell <noodles@earth.li>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/cisco/airo.c |   12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/net/ethernet/stmicro/stmmac/dwmac-ipq806x.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
---- a/drivers/net/wireless/cisco/airo.c
-+++ b/drivers/net/wireless/cisco/airo.c
-@@ -1928,6 +1928,10 @@ static netdev_tx_t mpi_start_xmit(struct
- 		airo_print_err(dev->name, "%s: skb == NULL!",__func__);
- 		return NETDEV_TX_OK;
- 	}
-+	if (skb_padto(skb, ETH_ZLEN)) {
-+		dev->stats.tx_dropped++;
-+		return NETDEV_TX_OK;
+diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac-ipq806x.c b/drivers/net/ethernet/stmicro/stmmac/dwmac-ipq806x.c
+index 11a4a81b0397..bcc5d1e16ce2 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac-ipq806x.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-ipq806x.c
+@@ -330,6 +330,19 @@ static int ipq806x_gmac_probe(struct platform_device *pdev)
+ 	/* Enable PTP clock */
+ 	regmap_read(gmac->nss_common, NSS_COMMON_CLK_GATE, &val);
+ 	val |= NSS_COMMON_CLK_GATE_PTP_EN(gmac->id);
++	switch (gmac->phy_mode) {
++	case PHY_INTERFACE_MODE_RGMII:
++		val |= NSS_COMMON_CLK_GATE_RGMII_RX_EN(gmac->id) |
++			NSS_COMMON_CLK_GATE_RGMII_TX_EN(gmac->id);
++		break;
++	case PHY_INTERFACE_MODE_SGMII:
++		val |= NSS_COMMON_CLK_GATE_GMII_RX_EN(gmac->id) |
++				NSS_COMMON_CLK_GATE_GMII_TX_EN(gmac->id);
++		break;
++	default:
++		/* We don't get here; the switch above will have errored out */
++		unreachable();
 +	}
- 	npacks = skb_queue_len (&ai->txq);
+ 	regmap_write(gmac->nss_common, NSS_COMMON_CLK_GATE, val);
  
- 	if (npacks >= MAXTXQ - 1) {
-@@ -2130,6 +2134,10 @@ static netdev_tx_t airo_start_xmit(struc
- 		airo_print_err(dev->name, "%s: skb == NULL!", __func__);
- 		return NETDEV_TX_OK;
- 	}
-+	if (skb_padto(skb, ETH_ZLEN)) {
-+		dev->stats.tx_dropped++;
-+		return NETDEV_TX_OK;
-+	}
- 
- 	/* Find a vacant FID */
- 	for( i = 0; i < MAX_FIDS / 2 && (fids[i] & 0xffff0000); i++ );
-@@ -2204,6 +2212,10 @@ static netdev_tx_t airo_start_xmit11(str
- 		airo_print_err(dev->name, "%s: skb == NULL!", __func__);
- 		return NETDEV_TX_OK;
- 	}
-+	if (skb_padto(skb, ETH_ZLEN)) {
-+		dev->stats.tx_dropped++;
-+		return NETDEV_TX_OK;
-+	}
- 
- 	/* Find a vacant FID */
- 	for( i = MAX_FIDS / 2; i < MAX_FIDS && (fids[i] & 0xffff0000); i++ );
+ 	if (gmac->phy_mode == PHY_INTERFACE_MODE_SGMII) {
+-- 
+2.25.1
+
 
 
