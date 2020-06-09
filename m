@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F32161F45A5
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:19:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D40331F45CD
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:21:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730807AbgFISSs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Jun 2020 14:18:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37126 "EHLO mail.kernel.org"
+        id S2388921AbgFISUn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Jun 2020 14:20:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33674 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730866AbgFIRuG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Jun 2020 13:50:06 -0400
+        id S1732334AbgFIRsu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Jun 2020 13:48:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7D5A92081A;
-        Tue,  9 Jun 2020 17:50:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5FB9620801;
+        Tue,  9 Jun 2020 17:48:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591725005;
-        bh=CqPY/+dkQ2Nz5ag0iLhLKZPPQ1DZEosOK/8x77+VTuM=;
+        s=default; t=1591724929;
+        bh=I8e9rXkiQJBJOMniruow/r9QenuLuPUf8wI/t2e2w7I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ROQYqmdb2x+scyCe/95L7Bkxzxv6X+js8xmScDSuHc8vFi3DGMM4u9kdbpSbFyJyW
-         hrB9SH0+YPsHIFdFTrzhvnAVWwbmOCMJSFVtKKurM9XT+O4fJtEqWsBM1ap1iengpT
-         vGrbRWNVifgTSReuYl6QQUYiFfW9qG5g+rACQ7dA=
+        b=wZ4h7GifXSawG66L9AoAWj3i4CTM/hfAmNNFNlo7OEE7IpxrFyKusuEyyCSyBU4AF
+         Z9CGz7mX2gIy1xmtMockt4iXgR+LAw1JP6DgLIE9JJmckYiyRgLzPRhOtRjaq7SNpM
+         8tz/a8syih/fJwodoAUs6MhOK/t7i/TCK5v+hYxo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bin Liu <b-liu@ti.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.14 31/46] USB: serial: usb_wwan: do not resubmit rx urb on fatal errors
+        stable@vger.kernel.org, Mathieu Othacehe <m.othacehe@gmail.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 41/42] iio: vcnl4000: Fix i2c swapped word reading.
 Date:   Tue,  9 Jun 2020 19:44:47 +0200
-Message-Id: <20200609174028.670373983@linuxfoundation.org>
+Message-Id: <20200609174020.075090473@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200609174022.938987501@linuxfoundation.org>
-References: <20200609174022.938987501@linuxfoundation.org>
+In-Reply-To: <20200609174015.379493548@linuxfoundation.org>
+References: <20200609174015.379493548@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,36 +45,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bin Liu <b-liu@ti.com>
+From: Mathieu Othacehe <m.othacehe@gmail.com>
 
-commit 986c1748c84d7727defeaeca74a73b37f7d5cce1 upstream.
+[ Upstream commit 18dfb5326370991c81a6d1ed6d1aeee055cb8c05 ]
 
-usb_wwan_indat_callback() shouldn't resubmit rx urb if the previous urb
-status is a fatal error. Or the usb controller would keep processing the
-new urbs then run into interrupt storm, and has no chance to recover.
+The bytes returned by the i2c reading need to be swapped
+unconditionally. Otherwise, on be16 platforms, an incorrect value will be
+returned.
 
-Fixes: 6c1ee66a0b2b ("USB-Serial: Fix error handling of usb_wwan")
-Cc: stable@vger.kernel.org
-Signed-off-by: Bin Liu <b-liu@ti.com>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Taking the slow path via next merge window as its been around a while
+and we have a patch set dependent on this which would be held up.
 
+Fixes: 62a1efb9f868 ("iio: add vcnl4000 combined ALS and proximity sensor")
+Signed-off-by: Mathieu Othacehe <m.othacehe@gmail.com>
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/serial/usb_wwan.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/iio/light/vcnl4000.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
---- a/drivers/usb/serial/usb_wwan.c
-+++ b/drivers/usb/serial/usb_wwan.c
-@@ -302,6 +302,10 @@ static void usb_wwan_indat_callback(stru
- 	if (status) {
- 		dev_dbg(dev, "%s: nonzero status: %d on endpoint %02x.\n",
- 			__func__, status, endpoint);
-+
-+		/* don't resubmit on fatal errors */
-+		if (status == -ESHUTDOWN || status == -ENOENT)
-+			return;
- 	} else {
- 		if (urb->actual_length) {
- 			tty_insert_flip_string(&port->port, data,
+diff --git a/drivers/iio/light/vcnl4000.c b/drivers/iio/light/vcnl4000.c
+index 360b6e98137a..5a3a532937ba 100644
+--- a/drivers/iio/light/vcnl4000.c
++++ b/drivers/iio/light/vcnl4000.c
+@@ -61,7 +61,6 @@ static int vcnl4000_measure(struct vcnl4000_data *data, u8 req_mask,
+ 				u8 rdy_mask, u8 data_reg, int *val)
+ {
+ 	int tries = 20;
+-	__be16 buf;
+ 	int ret;
+ 
+ 	mutex_lock(&data->lock);
+@@ -88,13 +87,12 @@ static int vcnl4000_measure(struct vcnl4000_data *data, u8 req_mask,
+ 		goto fail;
+ 	}
+ 
+-	ret = i2c_smbus_read_i2c_block_data(data->client,
+-		data_reg, sizeof(buf), (u8 *) &buf);
++	ret = i2c_smbus_read_word_swapped(data->client, data_reg);
+ 	if (ret < 0)
+ 		goto fail;
+ 
+ 	mutex_unlock(&data->lock);
+-	*val = be16_to_cpu(buf);
++	*val = ret;
+ 
+ 	return 0;
+ 
+-- 
+2.25.1
+
 
 
