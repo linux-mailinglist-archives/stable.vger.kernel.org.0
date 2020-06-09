@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CB3C1F45B2
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:19:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D047F1F4604
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:23:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388856AbgFISTb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Jun 2020 14:19:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36092 "EHLO mail.kernel.org"
+        id S1732472AbgFISXC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Jun 2020 14:23:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59446 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732550AbgFIRtn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Jun 2020 13:49:43 -0400
+        id S1732146AbgFIRru (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Jun 2020 13:47:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 864C720801;
-        Tue,  9 Jun 2020 17:49:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5D46320825;
+        Tue,  9 Jun 2020 17:47:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591724983;
-        bh=3XDvXZld3h/2dX04iqm+4ls4antOHtFKxEtomIO23CY=;
+        s=default; t=1591724869;
+        bh=sDGANuZ7FD1nVMA1tNWPzxIt/Uk/CzGd5Gz40qhIhgc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pjw3OcJcp6+hlROmUQVnu8ab/cPVtlGkapfORifQ6YWtpIJikZDEzuPmsWQaaTNxs
-         AG+zcD3VuxO4Y65OBgSNcRgc2wsh4uN6JBsNDo99Z8n91JGETcpl+/KjSt+0qJdyQK
-         jRxCecL5G3GtmObbwFVy6ciYbZiQmqkJXhJvYCqs=
+        b=gerFKBfyOdKrgKQqg7t+/gmCNwuxgX8bAVSnOn/Y+wvKQ63YNULRyjb93aVuId1hB
+         juLVS2s0FyIRvcuWsXnxlVosSJAWD0nCFr3CHjIoM6r5hT5jXCW4/PT8NGHnjZVDPJ
+         6ZFnR+FIbQq5hFAn9ojlnO5iu+S7ZWO69HInVhRs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sven Schnelle <svens@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 05/46] s390/ftrace: save traced function caller
+        stable@vger.kernel.org,
+        Giuseppe Marco Randazzo <gmrandazzo@gmail.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Christian Lamparter <chunkeey@gmail.com>
+Subject: [PATCH 4.9 15/42] p54usb: add AirVasT USB stick device-id
 Date:   Tue,  9 Jun 2020 19:44:21 +0200
-Message-Id: <20200609174023.361913754@linuxfoundation.org>
+Message-Id: <20200609174017.128858518@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200609174022.938987501@linuxfoundation.org>
-References: <20200609174022.938987501@linuxfoundation.org>
+In-Reply-To: <20200609174015.379493548@linuxfoundation.org>
+References: <20200609174015.379493548@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,55 +45,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Gorbik <gor@linux.ibm.com>
+From: Giuseppe Marco Randazzo <gmrandazzo@gmail.com>
 
-[ Upstream commit b4adfe55915d8363e244e42386d69567db1719b9 ]
+commit 63e49a9fdac1b4e97ac26cb3fe953f210d83bc53 upstream.
 
-A typical backtrace acquired from ftraced function currently looks like
-the following (e.g. for "path_openat"):
+This patch adds the AirVasT USB wireless devices 124a:4026
+to the list of supported devices. It's using the ISL3886
+usb firmware. Without this modification, the wiki adapter
+is not recognized.
 
-arch_stack_walk+0x15c/0x2d8
-stack_trace_save+0x50/0x68
-stack_trace_call+0x15a/0x3b8
-ftrace_graph_caller+0x0/0x1c
-0x3e0007e3c98 <- ftraced function caller (should be do_filp_open+0x7c/0xe8)
-do_open_execat+0x70/0x1b8
-__do_execve_file.isra.0+0x7d8/0x860
-__s390x_sys_execve+0x56/0x68
-system_call+0xdc/0x2d8
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Giuseppe Marco Randazzo <gmrandazzo@gmail.com>
+Signed-off-by: Christian Lamparter <chunkeey@gmail.com> [formatted, reworded]
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20200405220659.45621-1-chunkeey@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Note random "0x3e0007e3c98" stack value as ftraced function caller. This
-value causes either imprecise unwinder result or unwinding failure.
-That "0x3e0007e3c98" comes from r14 of ftraced function stack frame, which
-it haven't had a chance to initialize since the very first instruction
-calls ftrace code ("ftrace_caller"). (ftraced function might never
-save r14 as well). Nevertheless according to s390 ABI any function
-is called with stack frame allocated for it and r14 contains return
-address. "ftrace_caller" itself is called with "brasl %r0,ftrace_caller".
-So, to fix this issue simply always save traced function caller onto
-ftraced function stack frame.
-
-Reported-by: Sven Schnelle <svens@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/mcount.S | 1 +
+ drivers/net/wireless/intersil/p54/p54usb.c |    1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/arch/s390/kernel/mcount.S b/arch/s390/kernel/mcount.S
-index 0cfd5a83a1da..151f001a90ff 100644
---- a/arch/s390/kernel/mcount.S
-+++ b/arch/s390/kernel/mcount.S
-@@ -40,6 +40,7 @@ EXPORT_SYMBOL(_mcount)
- ENTRY(ftrace_caller)
- 	.globl	ftrace_regs_caller
- 	.set	ftrace_regs_caller,ftrace_caller
-+	stg	%r14,(__SF_GPRS+8*8)(%r15)	# save traced function caller
- 	lgr	%r1,%r15
- #ifndef CC_USING_HOTPATCH
- 	aghi	%r0,MCOUNT_RETURN_FIXUP
--- 
-2.25.1
-
+--- a/drivers/net/wireless/intersil/p54/p54usb.c
++++ b/drivers/net/wireless/intersil/p54/p54usb.c
+@@ -64,6 +64,7 @@ static struct usb_device_id p54u_table[]
+ 	{USB_DEVICE(0x0db0, 0x6826)},	/* MSI UB54G (MS-6826) */
+ 	{USB_DEVICE(0x107b, 0x55f2)},	/* Gateway WGU-210 (Gemtek) */
+ 	{USB_DEVICE(0x124a, 0x4023)},	/* Shuttle PN15, Airvast WM168g, IOGear GWU513 */
++	{USB_DEVICE(0x124a, 0x4026)},	/* AirVasT USB wireless device */
+ 	{USB_DEVICE(0x1435, 0x0210)},	/* Inventel UR054G */
+ 	{USB_DEVICE(0x15a9, 0x0002)},	/* Gemtek WUBI-100GW 802.11g */
+ 	{USB_DEVICE(0x1630, 0x0005)},	/* 2Wire 802.11g USB (v1) / Z-Com */
 
 
