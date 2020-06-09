@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C4D991F458D
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:17:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E43541F45CB
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:21:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387777AbgFISRe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Jun 2020 14:17:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37690 "EHLO mail.kernel.org"
+        id S2388755AbgFISUh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Jun 2020 14:20:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34054 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730953AbgFIRuW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Jun 2020 13:50:22 -0400
+        id S1730870AbgFIRs5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Jun 2020 13:48:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DA29420734;
-        Tue,  9 Jun 2020 17:50:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 52725207ED;
+        Tue,  9 Jun 2020 17:48:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591725022;
-        bh=0Sdw19cZUj8gXdGRxHjvIBv37iyXz0YRfj4NGJbcFrc=;
+        s=default; t=1591724936;
+        bh=X3vyRBVH4/GkTFt4U+nAcaxH2bkam9sS8gFS67sK6EU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t+G/b15ucEen/2Mn39v1FiJBcMhvRl40OyyH9s8teck8A5Kun1ik8jXgHCjxJKjq3
-         QFbvXGdw9mNmfZ8HjqJBv8Ujma7LDj51Kz+l9m3Y6NQxd8eDltIeubbLQdNRp+6QnZ
-         PSD0lyVBVjuCVBw+P7y0ct/AwIzhQuOzUzJb3eAs=
+        b=tfVn5C5DIslctcTwcxp7NUnsQ1YWNwKergUqSaIU2AdZ++i5g3AQKIb0gHdVgQ2VS
+         8hbr1UvYBl7+FWQS4aCUzezdzofmAkmSUSd4Tr6TbsxSHlKZngh5bQ0C655GdmM5Fv
+         GbW4DcE7EOvheWR2NKcC2jhZq5g7PfuXYB27Q3xM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?J=C3=A9r=C3=B4me=20Pouiller?= 
-        <jerome.pouiller@silabs.com>, Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 4.14 20/46] mmc: fix compilation of user API
-Date:   Tue,  9 Jun 2020 19:44:36 +0200
-Message-Id: <20200609174025.231350016@linuxfoundation.org>
+        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        Bin Liu <b-liu@ti.com>
+Subject: [PATCH 4.9 31/42] usb: musb: Fix runtime PM imbalance on error
+Date:   Tue,  9 Jun 2020 19:44:37 +0200
+Message-Id: <20200609174018.888846237@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200609174022.938987501@linuxfoundation.org>
-References: <20200609174022.938987501@linuxfoundation.org>
+In-Reply-To: <20200609174015.379493548@linuxfoundation.org>
+References: <20200609174015.379493548@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,38 +43,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jérôme Pouiller <jerome.pouiller@silabs.com>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-commit 83fc5dd57f86c3ec7d6d22565a6ff6c948853b64 upstream.
+commit e4befc121df03dc8ed2ac1031c98f9538e244bae upstream.
 
-The definitions of MMC_IOC_CMD  and of MMC_IOC_MULTI_CMD rely on
-MMC_BLOCK_MAJOR:
+When copy_from_user() returns an error code, there
+is a runtime PM usage counter imbalance.
 
-    #define MMC_IOC_CMD       _IOWR(MMC_BLOCK_MAJOR, 0, struct mmc_ioc_cmd)
-    #define MMC_IOC_MULTI_CMD _IOWR(MMC_BLOCK_MAJOR, 1, struct mmc_ioc_multi_cmd)
+Fix this by moving copy_from_user() to the beginning
+of this function.
 
-However, MMC_BLOCK_MAJOR is defined in linux/major.h and
-linux/mmc/ioctl.h did not include it.
+Fixes: 7b6c1b4c0e1e ("usb: musb: fix runtime PM in debugfs")
 
-Signed-off-by: Jérôme Pouiller <jerome.pouiller@silabs.com>
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20200511161902.191405-1-Jerome.Pouiller@silabs.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Bin Liu <b-liu@ti.com>
+Link: https://lore.kernel.org/r/20200525025049.3400-7-b-liu@ti.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/uapi/linux/mmc/ioctl.h |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/musb/musb_debugfs.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
---- a/include/uapi/linux/mmc/ioctl.h
-+++ b/include/uapi/linux/mmc/ioctl.h
-@@ -3,6 +3,7 @@
- #define LINUX_MMC_IOCTL_H
+--- a/drivers/usb/musb/musb_debugfs.c
++++ b/drivers/usb/musb/musb_debugfs.c
+@@ -200,6 +200,11 @@ static ssize_t musb_test_mode_write(stru
+ 	u8			test;
+ 	char			buf[18];
  
- #include <linux/types.h>
-+#include <linux/major.h>
++	memset(buf, 0x00, sizeof(buf));
++
++	if (copy_from_user(buf, ubuf, min_t(size_t, sizeof(buf) - 1, count)))
++		return -EFAULT;
++
+ 	pm_runtime_get_sync(musb->controller);
+ 	test = musb_readb(musb->mregs, MUSB_TESTMODE);
+ 	if (test) {
+@@ -208,11 +213,6 @@ static ssize_t musb_test_mode_write(stru
+ 		goto ret;
+ 	}
  
- struct mmc_ioc_cmd {
- 	/* Implies direction of data.  true = write, false = read */
+-	memset(buf, 0x00, sizeof(buf));
+-
+-	if (copy_from_user(buf, ubuf, min_t(size_t, sizeof(buf) - 1, count)))
+-		return -EFAULT;
+-
+ 	if (strstarts(buf, "force host"))
+ 		test = MUSB_TEST_FORCE_HOST;
+ 
 
 
