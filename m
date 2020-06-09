@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C54D1F4431
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:02:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 25F101F443A
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:04:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732448AbgFISCE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Jun 2020 14:02:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45064 "EHLO mail.kernel.org"
+        id S1729348AbgFIRwr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Jun 2020 13:52:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43186 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731696AbgFIRxs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Jun 2020 13:53:48 -0400
+        id S1731611AbgFIRwn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Jun 2020 13:52:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A926C20734;
-        Tue,  9 Jun 2020 17:53:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A7FCF20801;
+        Tue,  9 Jun 2020 17:52:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591725228;
-        bh=61wbgqZP6RiTlB2en8fs2oA+5228qjJ/z3HAiGnFn+A=;
+        s=default; t=1591725163;
+        bh=hOmNoff9bwoQAs+mY1OICGkI+7xRGt2c2lk5BdXv4rc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BLpXqw6FgWG9zguQeLFPFMxGiubI9Ekaxza42YwjMI5++wa8JUAlGTkogbuNaURgq
-         ZYWV37MuhKiDcLsT783n0TK6A3yyLM1FmQEEjU5NtxDge/tFCPK7TRNElmJLQbJg5A
-         6K0W++e7muZ7uuPdFuDxgbHJqnB5t9BHsNR52Tp4=
+        b=LUyKuR3vOL4olONq1+4a7k3Bw/FXRuDntlYlXNCNbLwnaLVsVp9jesbEsd/PKqRn3
+         8ei9h3XiKEryZZGjz0qh15Hx9vk+XNrA5/lz5kOmlNA++B74+9iNJq/nc+96GOAuVA
+         WlWvGMqmu+eB4KUh4tfm9Qt2cCuxjjhKul55LkLM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Hanselmann <public@hansmi.ch>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.6 21/41] USB: serial: ch341: add basis for quirk detection
+        stable@vger.kernel.org, Tony W Wang-oc <TonyWWang-oc@zhaoxin.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 5.4 27/34] x86/speculation/spectre_v2: Exclude Zhaoxin CPUs from SPECTRE_V2
 Date:   Tue,  9 Jun 2020 19:45:23 +0200
-Message-Id: <20200609174114.150309933@linuxfoundation.org>
+Message-Id: <20200609174056.885099252@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200609174112.129412236@linuxfoundation.org>
-References: <20200609174112.129412236@linuxfoundation.org>
+In-Reply-To: <20200609174052.628006868@linuxfoundation.org>
+References: <20200609174052.628006868@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,106 +43,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Hanselmann <public@hansmi.ch>
+From: Tony W Wang-oc <TonyWWang-oc@zhaoxin.com>
 
-commit c404bf4aa9236cb4d1068e499ae42acf48a6ff97 upstream.
+commit 1e41a766c98b481400ab8c5a7aa8ea63a1bb03de upstream.
 
-A subset of CH341 devices does not support all features, namely the
-prescaler is limited to a reduced precision and there is no support for
-sending a RS232 break condition. This patch adds a detection function
-which will be extended to set quirk flags as they're implemented.
+New Zhaoxin family 7 CPUs are not affected by SPECTRE_V2. So define a
+separate cpu_vuln_whitelist bit NO_SPECTRE_V2 and add these CPUs to the cpu
+vulnerability whitelist.
 
-The author's affected device has an imprint of "340" on the
-turquoise-colored plug, but not all such devices appear to be affected.
-
-Signed-off-by: Michael Hanselmann <public@hansmi.ch>
-Link: https://lore.kernel.org/r/1e1ae0da6082bb528a44ef323d4e1d3733d38858.1585697281.git.public@hansmi.ch
-[ johan: use long type for quirks; rephrase and use port device for
-	 messages; handle short reads; set quirk flags directly in
-	 helper function ]
-Cc: stable <stable@vger.kernel.org>	# 5.5
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Tony W Wang-oc <TonyWWang-oc@zhaoxin.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lore.kernel.org/r/1579227872-26972-2-git-send-email-TonyWWang-oc@zhaoxin.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/usb/serial/ch341.c |   53 +++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 53 insertions(+)
+ arch/x86/kernel/cpu/common.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/serial/ch341.c
-+++ b/drivers/usb/serial/ch341.c
-@@ -87,6 +87,7 @@ struct ch341_private {
- 	u8 mcr;
- 	u8 msr;
- 	u8 lcr;
-+	unsigned long quirks;
+--- a/arch/x86/kernel/cpu/common.c
++++ b/arch/x86/kernel/cpu/common.c
+@@ -1024,6 +1024,7 @@ static void identify_cpu_without_cpuid(s
+ #define MSBDS_ONLY		BIT(5)
+ #define NO_SWAPGS		BIT(6)
+ #define NO_ITLB_MULTIHIT	BIT(7)
++#define NO_SPECTRE_V2		BIT(8)
+ 
+ #define VULNWL(_vendor, _family, _model, _whitelist)	\
+ 	{ X86_VENDOR_##_vendor, _family, _model, X86_FEATURE_ANY, _whitelist }
+@@ -1085,6 +1086,10 @@ static const __initconst struct x86_cpu_
+ 	/* FAMILY_ANY must be last, otherwise 0x0f - 0x12 matches won't work */
+ 	VULNWL_AMD(X86_FAMILY_ANY,	NO_MELTDOWN | NO_L1TF | NO_MDS | NO_SWAPGS | NO_ITLB_MULTIHIT),
+ 	VULNWL_HYGON(X86_FAMILY_ANY,	NO_MELTDOWN | NO_L1TF | NO_MDS | NO_SWAPGS | NO_ITLB_MULTIHIT),
++
++	/* Zhaoxin Family 7 */
++	VULNWL(CENTAUR,	7, X86_MODEL_ANY,	NO_SPECTRE_V2),
++	VULNWL(ZHAOXIN,	7, X86_MODEL_ANY,	NO_SPECTRE_V2),
+ 	{}
  };
  
- static void ch341_set_termios(struct tty_struct *tty,
-@@ -308,6 +309,53 @@ out:	kfree(buffer);
- 	return r;
- }
+@@ -1117,7 +1122,9 @@ static void __init cpu_set_bug_bits(stru
+ 		return;
  
-+static int ch341_detect_quirks(struct usb_serial_port *port)
-+{
-+	struct ch341_private *priv = usb_get_serial_port_data(port);
-+	struct usb_device *udev = port->serial->dev;
-+	const unsigned int size = 2;
-+	unsigned long quirks = 0;
-+	char *buffer;
-+	int r;
+ 	setup_force_cpu_bug(X86_BUG_SPECTRE_V1);
+-	setup_force_cpu_bug(X86_BUG_SPECTRE_V2);
 +
-+	buffer = kmalloc(size, GFP_KERNEL);
-+	if (!buffer)
-+		return -ENOMEM;
-+
-+	/*
-+	 * A subset of CH34x devices does not support all features. The
-+	 * prescaler is limited and there is no support for sending a RS232
-+	 * break condition. A read failure when trying to set up the latter is
-+	 * used to detect these devices.
-+	 */
-+	r = usb_control_msg(udev, usb_rcvctrlpipe(udev, 0), CH341_REQ_READ_REG,
-+			    USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_IN,
-+			    CH341_REG_BREAK, 0, buffer, size, DEFAULT_TIMEOUT);
-+	if (r == -EPIPE) {
-+		dev_dbg(&port->dev, "break control not supported\n");
-+		r = 0;
-+		goto out;
-+	}
-+
-+	if (r != size) {
-+		if (r >= 0)
-+			r = -EIO;
-+		dev_err(&port->dev, "failed to read break control: %d\n", r);
-+		goto out;
-+	}
-+
-+	r = 0;
-+out:
-+	kfree(buffer);
-+
-+	if (quirks) {
-+		dev_dbg(&port->dev, "enabling quirk flags: 0x%02lx\n", quirks);
-+		priv->quirks |= quirks;
-+	}
-+
-+	return r;
-+}
-+
- static int ch341_port_probe(struct usb_serial_port *port)
- {
- 	struct ch341_private *priv;
-@@ -330,6 +378,11 @@ static int ch341_port_probe(struct usb_s
- 		goto error;
++	if (!cpu_matches(NO_SPECTRE_V2))
++		setup_force_cpu_bug(X86_BUG_SPECTRE_V2);
  
- 	usb_set_serial_port_data(port, priv);
-+
-+	r = ch341_detect_quirks(port);
-+	if (r < 0)
-+		goto error;
-+
- 	return 0;
- 
- error:	kfree(priv);
+ 	if (!cpu_matches(NO_SSB) && !(ia32_cap & ARCH_CAP_SSB_NO) &&
+ 	   !cpu_has(c, X86_FEATURE_AMD_SSB_NO))
 
 
