@@ -2,71 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EC1241F3A1C
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 13:54:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 85CB11F3A5F
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 14:06:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726784AbgFILyK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Jun 2020 07:54:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55654 "EHLO mail.kernel.org"
+        id S1728096AbgFIMGS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Jun 2020 08:06:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32808 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726395AbgFILyK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Jun 2020 07:54:10 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        id S1728005AbgFIMGR (ORCPT <rfc822;Stable@vger.kernel.org>);
+        Tue, 9 Jun 2020 08:06:17 -0400
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8D0152078C;
-        Tue,  9 Jun 2020 11:54:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 82F38206A4;
+        Tue,  9 Jun 2020 12:06:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591703650;
-        bh=iBfG8GxVDEIxnY8D2Kh7owDOzMhOq6bQ5SzIneuMYjQ=;
+        s=default; t=1591704376;
+        bh=ankWepK0yGzyXMpKCb4jxIHWsCzXkcbMaLXNyQXub/4=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=J+sqT7bdhNIDVrjMarERxKXkEhlWo3nXW3Cd2b2m5yZibqU60GLguzzZ1jO0jOg09
-         hIKcRS2S/wk99pxINvF4QexufSwZgKkFwn4TwR3Mke9sZLuLgPH3LeibDyj7KEGSph
-         CkFCou5GXBGF9F9YtQ+DFn9AfDf+mwUe9InkW+ng=
-Date:   Tue, 9 Jun 2020 13:54:07 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Pavel Machek <pavel@ucw.cz>
-Cc:     Daniel Axtens <dja@axtens.net>, Sasha Levin <sashal@kernel.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        David Gow <davidgow@google.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Daniel Micay <danielmicay@gmail.com>,
-        Andrey Ryabinin <aryabinin@virtuozzo.com>,
-        Alexander Potapenko <glider@google.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: Re: [PATCH AUTOSEL 4.14 72/72] string.h: fix incompatibility between
- FORTIFY_SOURCE and KASAN
-Message-ID: <20200609115407.GA819153@kroah.com>
-References: <20200608232500.3369581-1-sashal@kernel.org>
- <20200608232500.3369581-72-sashal@kernel.org>
- <87ftb5t933.fsf@dja-thinkpad.axtens.net>
- <20200609112025.GA2523@amd>
+        b=mTZ3FhT0H4TaacjNdC+2V8JqWlsypjBDjFmCehRxyW2Il+8VzIrvnnFybcgMlKO51
+         unuXdFPRXSBdCBCDeVrXdV9ir69YPQHtojcN6ebnBu1J5+ozvh8KvbgjZSs3sDNTRx
+         8dQzS7KAWfOGRL2QymJckU38gR7U3zYU0iBj+iP0=
+Date:   Tue, 9 Jun 2020 08:06:15 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     m.othacehe@gmail.com, Jonathan.Cameron@huawei.com,
+        Stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] iio: vcnl4000: Fix i2c swapped word
+ reading." failed to apply to 4.14-stable tree
+Message-ID: <20200609120615.GV1407771@sasha-vm>
+References: <1591619056246224@kroah.com>
+ <20200608204114.GS1407771@sasha-vm>
+ <20200609061057.GA498890@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <20200609112025.GA2523@amd>
+In-Reply-To: <20200609061057.GA498890@kroah.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jun 09, 2020 at 01:20:25PM +0200, Pavel Machek wrote:
-> On Tue 2020-06-09 09:46:08, Daniel Axtens wrote:
-> > Hi Sasha,
-> > 
-> > There's nothing inherently wrong with these patches being backported,
-> > but they fix a bug that doesn't cause a crash and only affects debug
-> > kernels compiled with KASAN and FORTIFY_SOURCE. Personally I wouldn't
-> > change a core header file in a stable kernel for that. Perhaps I'm too
-> > risk-averse.
-> 
-> You are in agreement with existing documentation -- stable is only for
-> serious bugs.
+On Tue, Jun 09, 2020 at 08:10:57AM +0200, Greg KH wrote:
+>On Mon, Jun 08, 2020 at 04:41:14PM -0400, Sasha Levin wrote:
+>> On Mon, Jun 08, 2020 at 02:24:16PM +0200, gregkh@linuxfoundation.org wrote:
+>> >
+>> > The patch below does not apply to the 4.14-stable tree.
+>> > If someone wants it applied there, or to any other stable or longterm
+>> > tree, then please email the backport, including the original git commit
+>> > id to <stable@vger.kernel.org>.
+>> >
+>> > thanks,
+>> >
+>> > greg k-h
+>> >
+>> > ------------------ original commit in Linus's tree ------------------
+>> >
+>> > > From 18dfb5326370991c81a6d1ed6d1aeee055cb8c05 Mon Sep 17 00:00:00 2001
+>> > From: Mathieu Othacehe <m.othacehe@gmail.com>
+>> > Date: Sun, 3 May 2020 11:29:55 +0200
+>> > Subject: [PATCH] iio: vcnl4000: Fix i2c swapped word reading.
+>> >
+>> > The bytes returned by the i2c reading need to be swapped
+>> > unconditionally. Otherwise, on be16 platforms, an incorrect value will be
+>> > returned.
+>> >
+>> > Taking the slow path via next merge window as its been around a while
+>> > and we have a patch set dependent on this which would be held up.
+>> >
+>> > Fixes: 62a1efb9f868 ("iio: add vcnl4000 combined ALS and proximity sensor")
+>> > Signed-off-by: Mathieu Othacehe <m.othacehe@gmail.com>
+>> > Cc: <Stable@vger.kernel.org>
+>> > Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+>>
+>> There were some context conflicts due to renaming of the lock (and it
+>> not existing on 4.4). I've fixed it and queued for 4.14-4.4.
+>
+>Thanks, but I think you forgot to push your local version of the queue
+>to git.kernel.org :(
 
-No, lots of people run KASAN on those kernels when they are testing
-their devices, this patch is fine.
+Oops, now pushed.
 
-thanks,
-
-greg k-h
+-- 
+Thanks,
+Sasha
