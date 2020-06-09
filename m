@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D33BB1F4595
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:18:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6105B1F4538
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:13:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730901AbgFISSJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Jun 2020 14:18:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37524 "EHLO mail.kernel.org"
+        id S2388504AbgFISMw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Jun 2020 14:12:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39736 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730831AbgFIRuS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Jun 2020 13:50:18 -0400
+        id S1732783AbgFIRvJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Jun 2020 13:51:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DACAD20734;
-        Tue,  9 Jun 2020 17:50:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0486520734;
+        Tue,  9 Jun 2020 17:51:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591725017;
-        bh=VtjkihTuVllpFfhNrS3tRvO8qxCmSo/LYqKqAW5Ms8M=;
+        s=default; t=1591725068;
+        bh=ZOP/40nKubHZHmuTnhPNbEcsmyO1P1HPd+yWEn8fjHM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r2GVySLVE4Z9kC+YYki5uDoOthhrCYndHfTuqAtcBVP7x/lxHvCnkWu04cRv8hyZD
-         BHPgFQgqhAP0ASNbFRu3cdxmO8+33NOC4n/TStAnKHphVmXcoIju4FRugEfO+GHLmE
-         OR3m6KHaLBq0AhG9O+a0B1b+X3XvS80MncMddQ+Q=
+        b=cEKAwGltTpwHdSJTengc+iQNUD/9msHmjJMBa3l5+xowNVcYfvR/W737+vnTBO+FH
+         g5tFMsmPGwX+hZgLJt7DHp2igmqpQTDQ8iPlsEkdwAaSa6ly+kcJMdZYBnZiQ6LcR0
+         owcUAwldE+WR5rN64S5QgDzk6zH/452jC50s0vIo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>,
-        Raghavendra <rananta@codeaurora.org>
-Subject: [PATCH 4.14 36/46] tty: hvc_console, fix crashes on parallel open/close
-Date:   Tue,  9 Jun 2020 19:44:52 +0200
-Message-Id: <20200609174029.956324114@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        James Chapman <jchapman@katalix.com>,
+        Andrii Nakryiko <andriin@fb.com>,
+        syzbot+3610d489778b57cc8031@syzkaller.appspotmail.com
+Subject: [PATCH 4.19 03/25] l2tp: do not use inet_hash()/inet_unhash()
+Date:   Tue,  9 Jun 2020 19:44:53 +0200
+Message-Id: <20200609174048.979812603@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200609174022.938987501@linuxfoundation.org>
-References: <20200609174022.938987501@linuxfoundation.org>
+In-Reply-To: <20200609174048.576094775@linuxfoundation.org>
+References: <20200609174048.576094775@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,101 +45,201 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Slaby <jslaby@suse.cz>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 24eb2377f977fe06d84fca558f891f95bc28a449 upstream.
+[ Upstream commit 02c71b144c811bcdd865e0a1226d0407d11357e8 ]
 
-hvc_open sets tty->driver_data to NULL when open fails at some point.
-Typically, the failure happens in hp->ops->notifier_add(). If there is
-a racing process which tries to open such mangled tty, which was not
-closed yet, the process will crash in hvc_open as tty->driver_data is
-NULL.
+syzbot recently found a way to crash the kernel [1]
 
-All this happens because close wants to know whether open failed or not.
-But ->open should not NULL this and other tty fields for ->close to be
-happy. ->open should call tty_port_set_initialized(true) and close
-should check by tty_port_initialized() instead. So do this properly in
-this driver.
+Issue here is that inet_hash() & inet_unhash() are currently
+only meant to be used by TCP & DCCP, since only these protocols
+provide the needed hashinfo pointer.
 
-So this patch removes these from ->open:
-* tty_port_tty_set(&hp->port, NULL). This happens on last close.
-* tty->driver_data = NULL. Dtto.
-* tty_port_put(&hp->port). This happens in shutdown and until now, this
-  must have been causing a reference underflow, if I am not missing
-  something.
+L2TP uses a single list (instead of a hash table)
 
-Signed-off-by: Jiri Slaby <jslaby@suse.cz>
-Cc: stable <stable@vger.kernel.org>
-Reported-and-tested-by: Raghavendra <rananta@codeaurora.org>
-Link: https://lore.kernel.org/r/20200526145632.13879-1-jslaby@suse.cz
+This old bug became an issue after commit 610236587600
+("bpf: Add new cgroup attach type to enable sock modifications")
+since after this commit, sk_common_release() can be called
+while the L2TP socket is still considered 'hashed'.
+
+general protection fault, probably for non-canonical address 0xdffffc0000000001: 0000 [#1] PREEMPT SMP KASAN
+KASAN: null-ptr-deref in range [0x0000000000000008-0x000000000000000f]
+CPU: 0 PID: 7063 Comm: syz-executor654 Not tainted 5.7.0-rc6-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+RIP: 0010:inet_unhash+0x11f/0x770 net/ipv4/inet_hashtables.c:600
+Code: 03 0f b6 04 02 84 c0 74 08 3c 03 0f 8e dd 04 00 00 48 8d 7d 08 44 8b 73 08 48 b8 00 00 00 00 00 fc ff df 48 89 fa 48 c1 ea 03 <80> 3c 02 00 0f 85 55 05 00 00 48 8d 7d 14 4c 8b 6d 08 48 b8 00 00
+RSP: 0018:ffffc90001777d30 EFLAGS: 00010202
+RAX: dffffc0000000000 RBX: ffff88809a6df940 RCX: ffffffff8697c242
+RDX: 0000000000000001 RSI: ffffffff8697c251 RDI: 0000000000000008
+RBP: 0000000000000000 R08: ffff88809f3ae1c0 R09: fffffbfff1514cc1
+R10: ffffffff8a8a6607 R11: fffffbfff1514cc0 R12: ffff88809a6df9b0
+R13: 0000000000000007 R14: 0000000000000000 R15: ffffffff873a4d00
+FS:  0000000001d2b880(0000) GS:ffff8880ae600000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00000000006cd090 CR3: 000000009403a000 CR4: 00000000001406f0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ sk_common_release+0xba/0x370 net/core/sock.c:3210
+ inet_create net/ipv4/af_inet.c:390 [inline]
+ inet_create+0x966/0xe00 net/ipv4/af_inet.c:248
+ __sock_create+0x3cb/0x730 net/socket.c:1428
+ sock_create net/socket.c:1479 [inline]
+ __sys_socket+0xef/0x200 net/socket.c:1521
+ __do_sys_socket net/socket.c:1530 [inline]
+ __se_sys_socket net/socket.c:1528 [inline]
+ __x64_sys_socket+0x6f/0xb0 net/socket.c:1528
+ do_syscall_64+0xf6/0x7d0 arch/x86/entry/common.c:295
+ entry_SYSCALL_64_after_hwframe+0x49/0xb3
+RIP: 0033:0x441e29
+Code: e8 fc b3 02 00 48 83 c4 18 c3 0f 1f 80 00 00 00 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 eb 08 fc ff c3 66 2e 0f 1f 84 00 00 00 00
+RSP: 002b:00007ffdce184148 EFLAGS: 00000246 ORIG_RAX: 0000000000000029
+RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 0000000000441e29
+RDX: 0000000000000073 RSI: 0000000000000002 RDI: 0000000000000002
+RBP: 0000000000000000 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
+R13: 0000000000402c30 R14: 0000000000000000 R15: 0000000000000000
+Modules linked in:
+---[ end trace 23b6578228ce553e ]---
+RIP: 0010:inet_unhash+0x11f/0x770 net/ipv4/inet_hashtables.c:600
+Code: 03 0f b6 04 02 84 c0 74 08 3c 03 0f 8e dd 04 00 00 48 8d 7d 08 44 8b 73 08 48 b8 00 00 00 00 00 fc ff df 48 89 fa 48 c1 ea 03 <80> 3c 02 00 0f 85 55 05 00 00 48 8d 7d 14 4c 8b 6d 08 48 b8 00 00
+RSP: 0018:ffffc90001777d30 EFLAGS: 00010202
+RAX: dffffc0000000000 RBX: ffff88809a6df940 RCX: ffffffff8697c242
+RDX: 0000000000000001 RSI: ffffffff8697c251 RDI: 0000000000000008
+RBP: 0000000000000000 R08: ffff88809f3ae1c0 R09: fffffbfff1514cc1
+R10: ffffffff8a8a6607 R11: fffffbfff1514cc0 R12: ffff88809a6df9b0
+R13: 0000000000000007 R14: 0000000000000000 R15: ffffffff873a4d00
+FS:  0000000001d2b880(0000) GS:ffff8880ae600000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00000000006cd090 CR3: 000000009403a000 CR4: 00000000001406f0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+
+Fixes: 0d76751fad77 ("l2tp: Add L2TPv3 IP encapsulation (no UDP) support")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: James Chapman <jchapman@katalix.com>
+Cc: Andrii Nakryiko <andriin@fb.com>
+Reported-by: syzbot+3610d489778b57cc8031@syzkaller.appspotmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/tty/hvc/hvc_console.c |   23 ++++++++---------------
- 1 file changed, 8 insertions(+), 15 deletions(-)
+ net/l2tp/l2tp_ip.c  |   29 ++++++++++++++++++++++-------
+ net/l2tp/l2tp_ip6.c |   30 ++++++++++++++++++++++--------
+ 2 files changed, 44 insertions(+), 15 deletions(-)
 
---- a/drivers/tty/hvc/hvc_console.c
-+++ b/drivers/tty/hvc/hvc_console.c
-@@ -357,15 +357,14 @@ static int hvc_open(struct tty_struct *t
- 	 * tty fields and return the kref reference.
- 	 */
- 	if (rc) {
--		tty_port_tty_set(&hp->port, NULL);
--		tty->driver_data = NULL;
--		tty_port_put(&hp->port);
- 		printk(KERN_ERR "hvc_open: request_irq failed with rc %d.\n", rc);
--	} else
-+	} else {
- 		/* We are ready... raise DTR/RTS */
- 		if (C_BAUD(tty))
- 			if (hp->ops->dtr_rts)
- 				hp->ops->dtr_rts(hp, 1);
-+		tty_port_set_initialized(&hp->port, true);
-+	}
+--- a/net/l2tp/l2tp_ip.c
++++ b/net/l2tp/l2tp_ip.c
+@@ -24,7 +24,6 @@
+ #include <net/icmp.h>
+ #include <net/udp.h>
+ #include <net/inet_common.h>
+-#include <net/inet_hashtables.h>
+ #include <net/tcp_states.h>
+ #include <net/protocol.h>
+ #include <net/xfrm.h>
+@@ -213,15 +212,31 @@ discard:
+ 	return 0;
+ }
  
- 	/* Force wakeup of the polling thread */
- 	hvc_kick();
-@@ -375,22 +374,12 @@ static int hvc_open(struct tty_struct *t
- 
- static void hvc_close(struct tty_struct *tty, struct file * filp)
+-static int l2tp_ip_open(struct sock *sk)
++static int l2tp_ip_hash(struct sock *sk)
  {
--	struct hvc_struct *hp;
-+	struct hvc_struct *hp = tty->driver_data;
- 	unsigned long flags;
+-	/* Prevent autobind. We don't have ports. */
+-	inet_sk(sk)->inet_num = IPPROTO_L2TP;
++	if (sk_unhashed(sk)) {
++		write_lock_bh(&l2tp_ip_lock);
++		sk_add_node(sk, &l2tp_ip_table);
++		write_unlock_bh(&l2tp_ip_lock);
++	}
++	return 0;
++}
  
- 	if (tty_hung_up_p(filp))
- 		return;
- 
--	/*
--	 * No driver_data means that this close was issued after a failed
--	 * hvc_open by the tty layer's release_dev() function and we can just
--	 * exit cleanly because the kref reference wasn't made.
--	 */
--	if (!tty->driver_data)
--		return;
--
--	hp = tty->driver_data;
--
- 	spin_lock_irqsave(&hp->port.lock, flags);
- 
- 	if (--hp->port.count == 0) {
-@@ -398,6 +387,9 @@ static void hvc_close(struct tty_struct
- 		/* We are done with the tty pointer now. */
- 		tty_port_tty_set(&hp->port, NULL);
- 
-+		if (!tty_port_initialized(&hp->port))
-+			return;
++static void l2tp_ip_unhash(struct sock *sk)
++{
++	if (sk_unhashed(sk))
++		return;
+ 	write_lock_bh(&l2tp_ip_lock);
+-	sk_add_node(sk, &l2tp_ip_table);
++	sk_del_node_init(sk);
+ 	write_unlock_bh(&l2tp_ip_lock);
++}
 +
- 		if (C_HUPCL(tty))
- 			if (hp->ops->dtr_rts)
- 				hp->ops->dtr_rts(hp, 0);
-@@ -414,6 +406,7 @@ static void hvc_close(struct tty_struct
- 		 * waking periodically to check chars_in_buffer().
- 		 */
- 		tty_wait_until_sent(tty, HVC_CLOSE_WAIT);
-+		tty_port_set_initialized(&hp->port, false);
- 	} else {
- 		if (hp->port.count < 0)
- 			printk(KERN_ERR "hvc_close %X: oops, count is %d\n",
++static int l2tp_ip_open(struct sock *sk)
++{
++	/* Prevent autobind. We don't have ports. */
++	inet_sk(sk)->inet_num = IPPROTO_L2TP;
+ 
++	l2tp_ip_hash(sk);
+ 	return 0;
+ }
+ 
+@@ -598,8 +613,8 @@ static struct proto l2tp_ip_prot = {
+ 	.sendmsg	   = l2tp_ip_sendmsg,
+ 	.recvmsg	   = l2tp_ip_recvmsg,
+ 	.backlog_rcv	   = l2tp_ip_backlog_recv,
+-	.hash		   = inet_hash,
+-	.unhash		   = inet_unhash,
++	.hash		   = l2tp_ip_hash,
++	.unhash		   = l2tp_ip_unhash,
+ 	.obj_size	   = sizeof(struct l2tp_ip_sock),
+ #ifdef CONFIG_COMPAT
+ 	.compat_setsockopt = compat_ip_setsockopt,
+--- a/net/l2tp/l2tp_ip6.c
++++ b/net/l2tp/l2tp_ip6.c
+@@ -24,8 +24,6 @@
+ #include <net/icmp.h>
+ #include <net/udp.h>
+ #include <net/inet_common.h>
+-#include <net/inet_hashtables.h>
+-#include <net/inet6_hashtables.h>
+ #include <net/tcp_states.h>
+ #include <net/protocol.h>
+ #include <net/xfrm.h>
+@@ -226,15 +224,31 @@ discard:
+ 	return 0;
+ }
+ 
+-static int l2tp_ip6_open(struct sock *sk)
++static int l2tp_ip6_hash(struct sock *sk)
+ {
+-	/* Prevent autobind. We don't have ports. */
+-	inet_sk(sk)->inet_num = IPPROTO_L2TP;
++	if (sk_unhashed(sk)) {
++		write_lock_bh(&l2tp_ip6_lock);
++		sk_add_node(sk, &l2tp_ip6_table);
++		write_unlock_bh(&l2tp_ip6_lock);
++	}
++	return 0;
++}
+ 
++static void l2tp_ip6_unhash(struct sock *sk)
++{
++	if (sk_unhashed(sk))
++		return;
+ 	write_lock_bh(&l2tp_ip6_lock);
+-	sk_add_node(sk, &l2tp_ip6_table);
++	sk_del_node_init(sk);
+ 	write_unlock_bh(&l2tp_ip6_lock);
++}
++
++static int l2tp_ip6_open(struct sock *sk)
++{
++	/* Prevent autobind. We don't have ports. */
++	inet_sk(sk)->inet_num = IPPROTO_L2TP;
+ 
++	l2tp_ip6_hash(sk);
+ 	return 0;
+ }
+ 
+@@ -732,8 +746,8 @@ static struct proto l2tp_ip6_prot = {
+ 	.sendmsg	   = l2tp_ip6_sendmsg,
+ 	.recvmsg	   = l2tp_ip6_recvmsg,
+ 	.backlog_rcv	   = l2tp_ip6_backlog_recv,
+-	.hash		   = inet6_hash,
+-	.unhash		   = inet_unhash,
++	.hash		   = l2tp_ip6_hash,
++	.unhash		   = l2tp_ip6_unhash,
+ 	.obj_size	   = sizeof(struct l2tp_ip6_sock),
+ #ifdef CONFIG_COMPAT
+ 	.compat_setsockopt = compat_ipv6_setsockopt,
 
 
