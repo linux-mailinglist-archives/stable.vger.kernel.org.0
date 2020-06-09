@@ -2,101 +2,148 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DB9701F3D65
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 15:55:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 34EF81F3DD8
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 16:20:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729972AbgFINzU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Jun 2020 09:55:20 -0400
-Received: from jabberwock.ucw.cz ([46.255.230.98]:37954 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726967AbgFINzT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Jun 2020 09:55:19 -0400
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 2B30D1C0C0C; Tue,  9 Jun 2020 15:55:18 +0200 (CEST)
-Date:   Tue, 9 Jun 2020 15:55:17 +0200
-From:   Pavel Machek <pavel@denx.de>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     Daniel Axtens <dja@axtens.net>, Sasha Levin <sashal@kernel.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        David Gow <davidgow@google.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Daniel Micay <danielmicay@gmail.com>,
-        Andrey Ryabinin <aryabinin@virtuozzo.com>,
-        Alexander Potapenko <glider@google.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: Re: [PATCH AUTOSEL 4.14 72/72] string.h: fix incompatibility between
- FORTIFY_SOURCE and KASAN
-Message-ID: <20200609135517.GA4806@amd>
-References: <20200608232500.3369581-1-sashal@kernel.org>
- <20200608232500.3369581-72-sashal@kernel.org>
- <87ftb5t933.fsf@dja-thinkpad.axtens.net>
- <20200609112025.GA2523@amd>
- <20200609115407.GA819153@kroah.com>
+        id S1728832AbgFIOUM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Jun 2020 10:20:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54312 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726967AbgFIOUL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Jun 2020 10:20:11 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id D8F06206D5;
+        Tue,  9 Jun 2020 14:20:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1591712410;
+        bh=HSeYCyX+M5Ng843ltjN3GLINElmDCvwhn5Vr6o3fIT8=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=wdXbpbWx22o8lCA7X1XcT7vQoXpeaf2/vOSfaqAWsXP7dyLmRqIhZiKROfpUdbo3V
+         nfWkaugoydI1dDmg3/33jkTnmzd/EtXBY5gApnqyBdNGj4IPqwuc0EouWhHKmirepg
+         3i+kJ22BA7LArD97agEzeq2oxxc8KhF+484ZUET8=
+Date:   Tue, 9 Jun 2020 16:20:07 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     trix@redhat.com
+Cc:     stable <stable@vger.kernel.org>, linux-fpga@vger.kernel.org,
+        shuah@kernel.org, linux-kernel@vger.kernel.org,
+        linux-kselftest@vger.kernel.org
+Subject: Re: [PATCH 1/1] selftests: fpga: dfl: A test for afu interrupt
+ support
+Message-ID: <20200609142007.GA831428@kroah.com>
+References: <20200609130208.27390-1-trix@redhat.com>
+ <20200609130208.27390-2-trix@redhat.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="2fHTh5uZTiUOsy+g"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200609115407.GA819153@kroah.com>
-User-Agent: Mutt/1.5.23 (2014-03-12)
+In-Reply-To: <20200609130208.27390-2-trix@redhat.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Tue, Jun 09, 2020 at 06:02:08AM -0700, trix@redhat.com wrote:
+> From: Tom Rix <trix@redhat.com>
+> 
+> Check that the ioctl DFL_FPGA_PORT_ERR_GET_IRQ_NUM returns
+> an expected result.
+> 
+> Tested on vf device 0xbcc1
+> 
+> Sample run with
+> $ sudo make -C tools/testing/selftests TARGETS=drivers/fpga run_tests
+> ...
+> ok 1 selftests: drivers/fpga: afu_intr
+> 
+> Signed-off-by: Tom Rix <trix@redhat.com>
+> ---
+>  tools/testing/selftests/Makefile              |  1 +
+>  tools/testing/selftests/drivers/fpga/Makefile |  9 +++++
+>  .../testing/selftests/drivers/fpga/afu_intr.c | 38 +++++++++++++++++++
+>  tools/testing/selftests/drivers/fpga/config   |  1 +
+>  4 files changed, 49 insertions(+)
+>  create mode 100644 tools/testing/selftests/drivers/fpga/Makefile
+>  create mode 100644 tools/testing/selftests/drivers/fpga/afu_intr.c
+>  create mode 100644 tools/testing/selftests/drivers/fpga/config
+> 
+> diff --git a/tools/testing/selftests/Makefile b/tools/testing/selftests/Makefile
+> index 1195bd85af38..4c6eda659125 100644
+> --- a/tools/testing/selftests/Makefile
+> +++ b/tools/testing/selftests/Makefile
+> @@ -9,6 +9,7 @@ TARGETS += clone3
+>  TARGETS += cpufreq
+>  TARGETS += cpu-hotplug
+>  TARGETS += drivers/dma-buf
+> +TARGETS += drivers/fpga
+>  TARGETS += efivarfs
+>  TARGETS += exec
+>  TARGETS += filesystems
+> diff --git a/tools/testing/selftests/drivers/fpga/Makefile b/tools/testing/selftests/drivers/fpga/Makefile
+> new file mode 100644
+> index 000000000000..0a472e8c67c5
+> --- /dev/null
+> +++ b/tools/testing/selftests/drivers/fpga/Makefile
+> @@ -0,0 +1,9 @@
+> +# SPDX-License-Identifier: GPL-2.0-only
+> +CFLAGS += -I../../../../../usr/include/
+> +CFLAGS += -I../../../../../include/uapi/
+> +
+> +TEST_GEN_PROGS := afu_intr
+> +
+> +top_srcdir ?=../../../../..
+> +
+> +include ../../lib.mk
+> diff --git a/tools/testing/selftests/drivers/fpga/afu_intr.c b/tools/testing/selftests/drivers/fpga/afu_intr.c
+> new file mode 100644
+> index 000000000000..aa1efba94605
+> --- /dev/null
+> +++ b/tools/testing/selftests/drivers/fpga/afu_intr.c
+> @@ -0,0 +1,38 @@
+> +// SPDX-License-Identifier: GPL-2.0
+> +#include <stdio.h>
+> +#include <stdlib.h>
+> +#include <stdint.h>
+> +#include <string.h>
+> +#include <linux/fcntl.h>
+> +#include <linux/fpga-dfl.h>
+> +
+> +#define TEST_PREFIX	"drivers/fpga/afu_intr"
+> +
+> +int main(int argc, char *argv[])
+> +{
+> +	int devfd, status;
+> +	struct dfl_fpga_port_info port_info;
+> +	uint32_t irq_num;
+> +
+> +	devfd = open("/dev/dfl-port.0", O_RDONLY);
+> +	if (devfd < 0) {
+> +		printf("%s: [skip,no-ufpgaintr]\n", TEST_PREFIX);
+> +		exit(77);
+> +	}
+> +
+> +	/*
+> +	 * From fpga-dl.h :
+> +	 * Currently hardware supports up to 1 irq.
+> +	 * Return: 0 on success, -errno on failure.
+> +	 */
+> +	irq_num = -1;
+> +	status = ioctl(devfd, DFL_FPGA_PORT_ERR_GET_IRQ_NUM, &irq_num);
+> +	if (status != 0 || irq_num > 255) {
+> +		printf("%s: [FAIL,err-get-irq-num]\n", TEST_PREFIX);
+> +		close(devfd);
+> +		exit(1);
+> +	}
+> +
+> +	close(devfd);
+> +	return 0;
+> +}
 
---2fHTh5uZTiUOsy+g
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Why not use the ksft_* functions and frameworks to properly print out
+the test status and results so that tools can correctly parse it?
 
-On Tue 2020-06-09 13:54:07, Greg KH wrote:
-> On Tue, Jun 09, 2020 at 01:20:25PM +0200, Pavel Machek wrote:
-> > On Tue 2020-06-09 09:46:08, Daniel Axtens wrote:
-> > > Hi Sasha,
-> > >=20
-> > > There's nothing inherently wrong with these patches being backported,
-> > > but they fix a bug that doesn't cause a crash and only affects debug
-> > > kernels compiled with KASAN and FORTIFY_SOURCE. Personally I wouldn't
-> > > change a core header file in a stable kernel for that. Perhaps I'm too
-> > > risk-averse.
-> >=20
-> > You are in agreement with existing documentation -- stable is only for
-> > serious bugs.
->=20
-> No, lots of people run KASAN on those kernels when they are testing
-> their devices, this patch is fine.
+It's generally bad-form to make up your own format.
 
-Documentation currently says:
+thanks,
 
- - It must fix a problem that causes a build error (but not for things
-    marked CONFIG_BROKEN), an oops, a hang, data corruption, a real
-    security issue, or some "oh, that's not good" issue.  In short,
-    something critical.
-
-=2E..but we also get various warning fixes (sometimes for external
-tools), changes to make printk()s less verbose, changes to make
-debugging easier, etc...
-
-Could the documentation be updated to match current use?
-
-Thanks,
-									Pavel
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
-
---2fHTh5uZTiUOsy+g
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAl7flMUACgkQMOfwapXb+vK3pACglGW9799N3OTLxgOM/OIQZpKv
-P6gAoJr5V9ho8ygRxTBFRQuFKDpQConC
-=MJK1
------END PGP SIGNATURE-----
-
---2fHTh5uZTiUOsy+g--
+gre gk-h
