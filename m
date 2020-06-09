@@ -2,96 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CD16C1F3237
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 04:11:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B905C1F331E
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 06:28:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726749AbgFICL2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 22:11:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37748 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726746AbgFICL1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 8 Jun 2020 22:11:27 -0400
-Received: from mail-lf1-x143.google.com (mail-lf1-x143.google.com [IPv6:2a00:1450:4864:20::143])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2448CC03E969
-        for <stable@vger.kernel.org>; Mon,  8 Jun 2020 19:11:27 -0700 (PDT)
-Received: by mail-lf1-x143.google.com with SMTP id c21so11480521lfb.3
-        for <stable@vger.kernel.org>; Mon, 08 Jun 2020 19:11:27 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:sender:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=v5UsUhJ0bTobpKZ8F3/LmZTk9aYFGr2oX9z+vAftnoQ=;
-        b=YB6//yn07bKx9P/uLzhOifi/FvFvrQ+3opaM552m1F2MHd623sIBFnnooZkYD05Ixu
-         0iGbWJzkMSf8IEf7baS+acROhGshmgWRUgsFDtPXBAjSXhYQQfspTYyUgS5/6pFiYs4B
-         9JqPn/3Sq9oXp/n41EPQdHSVofGUWc18Jj5Sbf3GUmeG7Mcn7E1T1OISzm4vUKP18UoG
-         orxgmN+17DIn8cBvWJteAp+x1kVQbAXugL+0/Ts8rShRC69FVCs4D1SLgjenYCC/8GQp
-         GtOrAxm5RHN7VpdZB4srcGcyX5vOL9hTohxz1GhXKvo5Fpz8lUhhUQW35E/SSbi3W5sz
-         GiOA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
-         :to:content-transfer-encoding;
-        bh=v5UsUhJ0bTobpKZ8F3/LmZTk9aYFGr2oX9z+vAftnoQ=;
-        b=W9kb5Frhz8WmFoxiaFvoJVKB2IUbbj6QdQ90cE66Yr+dVHHp0f3BrmnQFJtLvYz+1M
-         M55Wr5tQR+YGijaoxFYJ3pCYMn45nwtrei4Tu88P2qbP/6lgZD+RtqvYhId3oSxt+a+3
-         zBPxW6yTyiAySteNXaA+ofC0iDNPhIVyWszolL3Vtw1zqMRM0teb4YO8F9crIXVE/PEE
-         fzKva0qh5OCN3v7tS4MHjPRB1MACUMz3EQhbuV8vKcCNvrxaLw1/1Gw5zFvrRrL4sW/z
-         DdXJ5XyzB1tJSXoL7PyFldF/AqXx8t0d9ImJHl5VomnWCWfWn1gx0ydrentaIcYC1Ez0
-         p+Pg==
-X-Gm-Message-State: AOAM533tDF7RTOSveoQSZm4o7eMudhItEXdiVgj8zHbbpU8m1b1mgvB8
-        UicBme6oYLGYANMRIh4VCliTxAuurjkDMPew9qs=
-X-Google-Smtp-Source: ABdhPJzccwJ2Qx54fpdewBVnpaXK3EoPMw5AchlHLbNufY+4mxvlv+lWLvswyYZdiMwGiZ+HLoS0tG596C6EmFkRliM=
-X-Received: by 2002:a05:6512:10c3:: with SMTP id k3mr14241234lfg.33.1591668685459;
- Mon, 08 Jun 2020 19:11:25 -0700 (PDT)
+        id S1726789AbgFIE2P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Jun 2020 00:28:15 -0400
+Received: from aserp2120.oracle.com ([141.146.126.78]:39230 "EHLO
+        aserp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725770AbgFIE2O (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Jun 2020 00:28:14 -0400
+Received: from pps.filterd (aserp2120.oracle.com [127.0.0.1])
+        by aserp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 0594QkpE168999;
+        Tue, 9 Jun 2020 04:28:07 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=date : from : to : cc
+ : subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=corp-2020-01-29;
+ bh=Jt2kiv390E1D+m0oPc+Qsbk4ZBhT+v1fnFnvl4GqKxQ=;
+ b=H1O/0E9mi9Fs7ul0NstbE9S6I5duvQclMeEkZjuCm+M+u4KO4cjBVJs7Eks1sWHRW+eB
+ p0/Xl8fHi2moN2zCczqy3mgHjRN2NOtqsiP8zYHQ9wQttnxFIvMxvrDwbSSIHEHFQwHa
+ Qittgy3dIECCZhRLpcNHzvcgHcB3EdNj4yQxZVkBYMha32ZwFlDr7THBLEFRu7KfcrnZ
+ PQOooJRgnd3QuHIoKTeJyfP0pSO+Uq5kIyHn6uc3Cxyb6YmbCU0sn83EubmkKW19SGeW
+ vE4n1OZMoxJP7Yhm9qRbyn8veNf1F5xkwK38aU01J1Dg1J3Sib/Ewm7BZlVTJ09AP4SU 3Q== 
+Received: from aserp3020.oracle.com (aserp3020.oracle.com [141.146.126.70])
+        by aserp2120.oracle.com with ESMTP id 31g33m2c56-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Tue, 09 Jun 2020 04:28:07 +0000
+Received: from pps.filterd (aserp3020.oracle.com [127.0.0.1])
+        by aserp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 0594OJMY194136;
+        Tue, 9 Jun 2020 04:28:06 GMT
+Received: from userv0121.oracle.com (userv0121.oracle.com [156.151.31.72])
+        by aserp3020.oracle.com with ESMTP id 31gn24qvce-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 09 Jun 2020 04:28:06 +0000
+Received: from abhmp0020.oracle.com (abhmp0020.oracle.com [141.146.116.26])
+        by userv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 0594S0JL026608;
+        Tue, 9 Jun 2020 04:28:00 GMT
+Received: from localhost (/67.169.218.210)
+        by default (Oracle Beehive Gateway v4.0)
+        with ESMTP ; Mon, 08 Jun 2020 21:27:59 -0700
+Date:   Mon, 8 Jun 2020 21:27:58 -0700
+From:   "Darrick J. Wong" <darrick.wong@oracle.com>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Christoph Hellwig <hch@lst.de>,
+        Brian Foster <bfoster@redhat.com>, linux-xfs@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 5.7 244/274] xfs: force writes to delalloc
+ regions to unwritten
+Message-ID: <20200609042758.GQ1334206@magnolia>
+References: <20200608230607.3361041-1-sashal@kernel.org>
+ <20200608230607.3361041-244-sashal@kernel.org>
+ <20200609010727.GN1334206@magnolia>
+ <20200609021021.GU1407771@sasha-vm>
 MIME-Version: 1.0
-Received: by 2002:a2e:890e:0:0:0:0:0 with HTTP; Mon, 8 Jun 2020 19:11:25 -0700 (PDT)
-From:   Donna Louise <donnalouisemchince@gmail.com>
-Date:   Mon, 8 Jun 2020 14:11:25 -1200
-X-Google-Sender-Auth: GaAS81nqYwAPTcY2akMcZTYYVn0
-Message-ID: <CADh0myvsZ+msD18LcYRUQQnLzS3tN+kqb0rJU04m0S4WsZcQ5g@mail.gmail.com>
-Subject: Hello,
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200609021021.GU1407771@sasha-vm>
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9646 signatures=668680
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 spamscore=0 suspectscore=1 mlxscore=0
+ phishscore=0 adultscore=0 bulkscore=0 malwarescore=0 mlxlogscore=999
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2004280000
+ definitions=main-2006090032
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9646 signatures=668680
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=1 adultscore=0 spamscore=0
+ cotscore=-2147483648 malwarescore=0 phishscore=0 mlxscore=0 clxscore=1031
+ lowpriorityscore=0 impostorscore=0 priorityscore=1501 mlxlogscore=999
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2004280000 definitions=main-2006090033
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear Friend,
+On Mon, Jun 08, 2020 at 10:10:21PM -0400, Sasha Levin wrote:
+> On Mon, Jun 08, 2020 at 06:07:27PM -0700, Darrick J. Wong wrote:
+> > On Mon, Jun 08, 2020 at 07:05:37PM -0400, Sasha Levin wrote:
+> > > From: "Darrick J. Wong" <darrick.wong@oracle.com>
+> > > 
+> > > [ Upstream commit a5949d3faedf492fa7863b914da408047ab46eb0 ]
+> > > 
+> > > When writing to a delalloc region in the data fork, commit the new
+> > > allocations (of the da reservation) as unwritten so that the mappings
+> > > are only marked written once writeback completes successfully.  This
+> > > fixes the problem of stale data exposure if the system goes down during
+> > > targeted writeback of a specific region of a file, as tested by
+> > > generic/042.
+> > > 
+> > > Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+> > > Reviewed-by: Christoph Hellwig <hch@lst.de>
+> > > Reviewed-by: Brian Foster <bfoster@redhat.com>
+> > > Signed-off-by: Sasha Levin <sashal@kernel.org>
+> > 
+> > Err, this doesn't have a Fixes: tag attached to it.  Does it pass
+> > fstests?  Because it doesn't look like you've pulled in "xfs: don't fail
+> > unwritten extent conversion on writeback due to edquot", which is needed
+> > to avoid regressing fstests...
+> > 
+> > ...waitaminute, that whole series lacks Fixes: tags because it wasn't
+> > considered a good enough candidate for automatic backport.
+> 
+> AUTOSEL doesn't look just at the Fixes tag :)
+> 
+> > Ummm, does the autosel fstests driver turn on quotas? ;)
+> 
+> Uh, apparently not :/ Is it okay to just enable it across all tests?
 
-  I am glad to know you, but God knows you better and he knows why he
-has directed me to you at this point in time so do not be surprise at
-all. My names are Mrs. Donna Louise McInnes a widow, i have been
-suffering from ovarian cancer disease. At this moment i am about to
-end the race like this because the illness has gotten to a very bad
-stage, without any family members and no child. I hoped that you will
-not expose or betray this trust and confident that I am about to
-entrust on you for the mutual benefit of the orphans and the less
-privileges ones. I have some funds I inherited from my late husband,
-the sum of ($11.000.000 Eleven million dollars.) deposited in the
-Bank.  Having known my present health status, I decided to entrust
-this fund to you believing that you will utilize it the way i am going
-to instruct herein.
+It should be at this point.
 
-Therefore I need you to assist me and reclaim this money and use it
-for Charity works, for orphanages and gives justice and help to the
-poor, needy and to promote the words of God and the effort that the
-house of God will be maintained says The Lord." Jeremiah 22:15-16.=E2=80=9C
+> While I go fix that up, would you rather drop the series, or pick up
+> 1edd2c055dff ("xfs: don't fail unwritten extent conversion on writeback
+> due to edquot")?`
 
-It will be my great pleasure to compensate you with 35 % percent of
-the total money for your personal use, 5 % percent for any expenses
-that may occur during the international transfer process while 60% of
-the money will go to the charity project.
+Let's drop it for now, please.  There might be a few more tweaks needed
+to get that bit just right.
 
-All I require from you is sincerity and ability to complete God task
-without any failure. It will be my pleasure to see that the bank has
-finally release and transfer the fund into your bank account therein
-your country even before I die here in the hospital, because of my
-present health status everything need to be process rapidly as soon as
-possible. I am waiting for your immediate reply, if only you are
-interested for further details of the transaction and execution of
-this charitable project.
+--D
 
-Best Regards your friend Mrs.
-Donna Louise McInnes.
+> -- 
+> Thanks,
+> Sasha
