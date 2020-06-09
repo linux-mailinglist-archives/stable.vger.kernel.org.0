@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2ED921F462D
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:25:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 43BA11F45F2
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:23:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731945AbgFIRqb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Jun 2020 13:46:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56454 "EHLO mail.kernel.org"
+        id S1730612AbgFIRsX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Jun 2020 13:48:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60640 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728440AbgFIRq2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Jun 2020 13:46:28 -0400
+        id S1732271AbgFIRsW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Jun 2020 13:48:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 99EAE2083B;
-        Tue,  9 Jun 2020 17:46:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4A206207ED;
+        Tue,  9 Jun 2020 17:48:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591724787;
-        bh=tQDjHVEAGy3xPyqfNA0RAzmpf7LBtFyTEvPPWoq8YZQ=;
+        s=default; t=1591724901;
+        bh=sAKqQsYspESBgdnN+eV9couIFzpg4RDXKq4PEh5Ww5M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H2A7Lz2/S9goBeohb2P68jM9+tSuEfO/s94fC5Z3sNxXY1a7RP3LTqKbrhL5LlCI5
-         RxTmzwqk3iB4uH1tfJfNQHCpqE0TXdu2mggtsVAD+lxAKI/CCUz7OCPlxgKUGSh0eI
-         5+PeFqzOoDxhT+59fgzJXU8p19Od82B5MDX1ayZo=
+        b=AsfEUCK2srszFp2b2HA7OzKcseLter37K/z/FmQautaF6YT0hQDM3Q0D772LiQQs7
+         iAVQQMeqAT1P1fWRJbPUa9406Y7/oHfErIOqopE2iZ6AjtcpwJ/NgumNprqH6Eytkm
+         xmvKazHlOhaiO521vkJvzfyK13Tji5QEvYsZK1f0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sven Schnelle <svens@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 08/36] s390/ftrace: save traced function caller
-Date:   Tue,  9 Jun 2020 19:44:08 +0200
-Message-Id: <20200609173933.762054768@linuxfoundation.org>
+        stable@vger.kernel.org, Zhen Lei <thunder.leizhen@huawei.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 4.9 03/42] esp6: fix memleak on error path in esp6_input
+Date:   Tue,  9 Jun 2020 19:44:09 +0200
+Message-Id: <20200609174015.786573756@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200609173933.288044334@linuxfoundation.org>
-References: <20200609173933.288044334@linuxfoundation.org>
+In-Reply-To: <20200609174015.379493548@linuxfoundation.org>
+References: <20200609174015.379493548@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,55 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Gorbik <gor@linux.ibm.com>
+From: Zhen Lei <thunder.leizhen@huawei.com>
 
-[ Upstream commit b4adfe55915d8363e244e42386d69567db1719b9 ]
+commit 7284fdf39a912322ce97de2d30def3c6068a418c upstream.
 
-A typical backtrace acquired from ftraced function currently looks like
-the following (e.g. for "path_openat"):
+This ought to be an omission in e6194923237 ("esp: Fix memleaks on error
+paths."). The memleak on error path in esp6_input is similar to esp_input
+of esp4.
 
-arch_stack_walk+0x15c/0x2d8
-stack_trace_save+0x50/0x68
-stack_trace_call+0x15a/0x3b8
-ftrace_graph_caller+0x0/0x1c
-0x3e0007e3c98 <- ftraced function caller (should be do_filp_open+0x7c/0xe8)
-do_open_execat+0x70/0x1b8
-__do_execve_file.isra.0+0x7d8/0x860
-__s390x_sys_execve+0x56/0x68
-system_call+0xdc/0x2d8
+Fixes: e6194923237 ("esp: Fix memleaks on error paths.")
+Fixes: 3f29770723f ("ipsec: check return value of skb_to_sgvec always")
+Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Cc: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Note random "0x3e0007e3c98" stack value as ftraced function caller. This
-value causes either imprecise unwinder result or unwinding failure.
-That "0x3e0007e3c98" comes from r14 of ftraced function stack frame, which
-it haven't had a chance to initialize since the very first instruction
-calls ftrace code ("ftrace_caller"). (ftraced function might never
-save r14 as well). Nevertheless according to s390 ABI any function
-is called with stack frame allocated for it and r14 contains return
-address. "ftrace_caller" itself is called with "brasl %r0,ftrace_caller".
-So, to fix this issue simply always save traced function caller onto
-ftraced function stack frame.
-
-Reported-by: Sven Schnelle <svens@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/mcount.S | 1 +
- 1 file changed, 1 insertion(+)
+ net/ipv6/esp6.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/s390/kernel/mcount.S b/arch/s390/kernel/mcount.S
-index 78ba14546e00..68425e68e65a 100644
---- a/arch/s390/kernel/mcount.S
-+++ b/arch/s390/kernel/mcount.S
-@@ -36,6 +36,7 @@ ENTRY(_mcount)
- ENTRY(ftrace_caller)
- 	.globl	ftrace_regs_caller
- 	.set	ftrace_regs_caller,ftrace_caller
-+	stg	%r14,(__SF_GPRS+8*8)(%r15)	# save traced function caller
- 	lgr	%r1,%r15
- #ifndef CC_USING_HOTPATCH
- 	aghi	%r0,MCOUNT_RETURN_FIXUP
--- 
-2.25.1
-
+--- a/net/ipv6/esp6.c
++++ b/net/ipv6/esp6.c
+@@ -426,8 +426,10 @@ static int esp6_input(struct xfrm_state
+ 
+ 	sg_init_table(sg, nfrags);
+ 	ret = skb_to_sgvec(skb, sg, 0, skb->len);
+-	if (unlikely(ret < 0))
++	if (unlikely(ret < 0)) {
++		kfree(tmp);
+ 		goto out;
++	}
+ 
+ 	aead_request_set_crypt(req, sg, sg, elen + ivlen, iv);
+ 	aead_request_set_ad(req, assoclen);
 
 
