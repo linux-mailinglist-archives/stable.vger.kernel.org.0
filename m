@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EFD5C1F42C9
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 19:48:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E22E1F42B3
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 19:46:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732163AbgFIRrv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Jun 2020 13:47:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59324 "EHLO mail.kernel.org"
+        id S1732003AbgFIRql (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Jun 2020 13:46:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57004 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732156AbgFIRrr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Jun 2020 13:47:47 -0400
+        id S1731989AbgFIRqj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Jun 2020 13:46:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2299820812;
-        Tue,  9 Jun 2020 17:47:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E856E207ED;
+        Tue,  9 Jun 2020 17:46:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591724867;
-        bh=yoGrA38esDLQ8SgY4VYMWUjj6qYv8c6hWJsXS2aZk1c=;
+        s=default; t=1591724798;
+        bh=zkJQSLw/Dy68h6dhKZB4cv7uPLMKQ4BbBcHloBdFfRY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xX5CJsxp79PtGR2nsci9LrHj0JBK1fPqM1yBoLHFfHRCAMPJkvaOJmu5/i9Q5kTt4
-         zUnZlOUqlgqFJDkJfZrrMxzjYo74DqYtdhYhE3XKOZ24sds0deJGhwufTRZMNaJXtg
-         BWwowGx8GZsXeJZDB18oOCMrc+hWNwSRRbNRB8pU=
+        b=qdHoPdRbTJQgIDrCil1WFGT847E/RZon11QcSq4ktHHK+aurXNZU2gH6bS8D4xUiU
+         jW/iAqE7u+uCgfWnTsWHi535HkKVjIDq499+yMxR1E9WZM1Yl/vh7IN3HWskwHvut/
+         79oLZtUGQ60U/Q/a8VKDr4g4XEuZ0ZpL0HTaL6yk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julian Sax <jsbc@gmx.de>,
-        Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 4.9 14/42] HID: i2c-hid: add Schneider SCL142ALM to descriptor override
-Date:   Tue,  9 Jun 2020 19:44:20 +0200
-Message-Id: <20200609174017.028132158@linuxfoundation.org>
+        stable@vger.kernel.org, Stefano Garzarella <sgarzare@redhat.com>,
+        Jorgen Hansen <jhansen@vmware.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.4 21/36] vsock: fix timeout in vsock_accept()
+Date:   Tue,  9 Jun 2020 19:44:21 +0200
+Message-Id: <20200609173934.543954970@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200609174015.379493548@linuxfoundation.org>
-References: <20200609174015.379493548@linuxfoundation.org>
+In-Reply-To: <20200609173933.288044334@linuxfoundation.org>
+References: <20200609173933.288044334@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,38 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Julian Sax <jsbc@gmx.de>
+From: Stefano Garzarella <sgarzare@redhat.com>
 
-commit 6507ef10660efdfee93f0f3b9fac24b5e4d83e56 upstream.
+[ Upstream commit 7e0afbdfd13d1e708fe96e31c46c4897101a6a43 ]
 
-This device uses the SIPODEV SP1064 touchpad, which does not
-supply descriptors, so it has to be added to the override list.
+The accept(2) is an "input" socket interface, so we should use
+SO_RCVTIMEO instead of SO_SNDTIMEO to set the timeout.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Julian Sax <jsbc@gmx.de>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+So this patch replace sock_sndtimeo() with sock_rcvtimeo() to
+use the right timeout in the vsock_accept().
+
+Fixes: d021c344051a ("VSOCK: Introduce VM Sockets")
+Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+Reviewed-by: Jorgen Hansen <jhansen@vmware.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ net/vmw_vsock/af_vsock.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
-+++ b/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
-@@ -381,6 +381,14 @@ static const struct dmi_system_id i2c_hi
- 		},
- 		.driver_data = (void *)&sipodev_desc
- 	},
-+	{
-+		.ident = "Schneider SCL142ALM",
-+		.matches = {
-+			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "SCHNEIDER"),
-+			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "SCL142ALM"),
-+		},
-+		.driver_data = (void *)&sipodev_desc
-+	},
- 	{ }	/* Terminate list */
- };
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -1270,7 +1270,7 @@ static int vsock_accept(struct socket *s
+ 	/* Wait for children sockets to appear; these are the new sockets
+ 	 * created upon connection establishment.
+ 	 */
+-	timeout = sock_sndtimeo(listener, flags & O_NONBLOCK);
++	timeout = sock_rcvtimeo(listener, flags & O_NONBLOCK);
+ 	prepare_to_wait(sk_sleep(listener), &wait, TASK_INTERRUPTIBLE);
  
+ 	while ((connected = vsock_dequeue_accept(listener)) == NULL &&
 
 
