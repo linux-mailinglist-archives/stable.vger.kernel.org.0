@@ -2,96 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D5AB71F3E74
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 16:40:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 870CA1F3E83
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 16:45:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730424AbgFIOka (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Jun 2020 10:40:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40312 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726395AbgFIOk3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Jun 2020 10:40:29 -0400
-Received: from Galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE79DC05BD1E;
-        Tue,  9 Jun 2020 07:40:28 -0700 (PDT)
-Received: from [5.158.153.53] (helo=tip-bot2.lab.linutronix.de)
-        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
-        (Exim 4.80)
-        (envelope-from <tip-bot2@linutronix.de>)
-        id 1jifQP-0002oA-AB; Tue, 09 Jun 2020 16:40:25 +0200
-Received: from [127.0.1.1] (localhost [IPv6:::1])
-        by tip-bot2.lab.linutronix.de (Postfix) with ESMTP id DD4BB1C007F;
-        Tue,  9 Jun 2020 16:40:24 +0200 (CEST)
-Date:   Tue, 09 Jun 2020 14:40:24 -0000
-From:   "tip-bot2 for Thomas Gleixner" <tip-bot2@linutronix.de>
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: x86/urgent] clocksource: Remove obsolete ifdef
-Cc:     Thomas Gleixner <tglx@linutronix.de>,
-        Miklos Szeredi <mszeredi@redhat.com>, stable@vger.kernel.org,
-        x86 <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20200606221531.845475036@linutronix.de>
-References: <20200606221531.845475036@linutronix.de>
+        id S1729130AbgFIOp1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Jun 2020 10:45:27 -0400
+Received: from us-smtp-1.mimecast.com ([205.139.110.61]:58445 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726395AbgFIOp1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Jun 2020 10:45:27 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1591713925;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=D0N8IG0w6TqyvrPZq3Bf6WEEBOpAcUrPcq971x3xCR0=;
+        b=YJ5hZqfIra5z12yIBFMzSoripGfL2g3X52X118G6t2zNX5CSpGxTkcxiQEP55K9xNItp02
+        8GA/yNGg+Mg4TkuP0oMIhUopl5TyWXHOOactm9yuY4mfz2qpycycpToFKsSaPtVljjTCBi
+        wscudhgnIWFTlvg/v3DEe6mWf0DLElg=
+Received: from mail-qv1-f71.google.com (mail-qv1-f71.google.com
+ [209.85.219.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-122-DVxVQt9rOd6iYjDmpXh96Q-1; Tue, 09 Jun 2020 10:45:23 -0400
+X-MC-Unique: DVxVQt9rOd6iYjDmpXh96Q-1
+Received: by mail-qv1-f71.google.com with SMTP id j4so16858132qvt.20
+        for <stable@vger.kernel.org>; Tue, 09 Jun 2020 07:45:23 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-transfer-encoding
+         :content-language;
+        bh=D0N8IG0w6TqyvrPZq3Bf6WEEBOpAcUrPcq971x3xCR0=;
+        b=tAxQPIql5/M4b6bv0Lp/ToYnHCepokTeaWgmDBQykCCKVLdA8i2eRrpub0JXJt+npq
+         JJrMTUZGb8pDgDMAKG1ZcLZNWkEm0qQOYMXbw8x/jPpl9AD2TSzDOOOVOWS5/lhAhiHj
+         cMn/s2tZXZ7gwHyWMkZ1dLpWoCPTMoHWN5M+nK5RFuRm15rAQHsaRc8NlS4NCKe4qpHf
+         kjgTihe2/bYvMvGImCL13wTMP3+3ZCd1txFKjXEXqzWQUdGxaxVx3oR8v+75NFf82CgM
+         pip5PNFEOzXEZDJ1JI39Q9vDVdCMfpxKY33uScLcdCmFKTS8x250guV5Xoun4ptsoDAu
+         jjGA==
+X-Gm-Message-State: AOAM5306YK7g1Sc9f9vGercuN6bY48rz7FNxwVxvquWVeFJeeZlEkz+9
+        FkYTVurBjdG8wsZEo+7BYpeF9pBlkZB+jpGSd8cNOA4AlTch9XxwIr4lnnWUWL7RgWi7i8idiqC
+        I1BxWwh+PriEeJqQm
+X-Received: by 2002:a37:7645:: with SMTP id r66mr27146846qkc.397.1591713921604;
+        Tue, 09 Jun 2020 07:45:21 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxrDWGGcedgDp0WJSfkST6HxfilfGNNkZ2qb1/AuAvSqBZwRXvtCKZT5td9mD5UlkwPlyTrdg==
+X-Received: by 2002:a37:7645:: with SMTP id r66mr27146798qkc.397.1591713921109;
+        Tue, 09 Jun 2020 07:45:21 -0700 (PDT)
+Received: from trix.remote.csb (075-142-250-213.res.spectrum.com. [75.142.250.213])
+        by smtp.gmail.com with ESMTPSA id f43sm11650042qte.58.2020.06.09.07.45.19
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 09 Jun 2020 07:45:20 -0700 (PDT)
+Subject: Re: [PATCH 1/1] selftests: fpga: dfl: A test for afu interrupt
+ support
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     stable <stable@vger.kernel.org>, linux-fpga@vger.kernel.org,
+        shuah@kernel.org, linux-kernel@vger.kernel.org,
+        linux-kselftest@vger.kernel.org
+References: <20200609130208.27390-1-trix@redhat.com>
+ <20200609130208.27390-2-trix@redhat.com> <20200609142007.GA831428@kroah.com>
+From:   Tom Rix <trix@redhat.com>
+Message-ID: <d3d8e518-0760-8cbe-cf74-191f70329a46@redhat.com>
+Date:   Tue, 9 Jun 2020 07:45:18 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.6.0
 MIME-Version: 1.0
-Message-ID: <159171362475.17951.5175349331927727185.tip-bot2@tip-bot2>
-X-Mailer: tip-git-log-daemon
-Robot-ID: <tip-bot2.linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Linutronix-Spam-Score: -1.0
-X-Linutronix-Spam-Level: -
-X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
+In-Reply-To: <20200609142007.GA831428@kroah.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Content-Language: en-US
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the x86/urgent branch of tip:
 
-Commit-ID:     c7f3d43b629b598a2bb9ec3524e844eae7492e7e
-Gitweb:        https://git.kernel.org/tip/c7f3d43b629b598a2bb9ec3524e844eae7492e7e
-Author:        Thomas Gleixner <tglx@linutronix.de>
-AuthorDate:    Sat, 06 Jun 2020 23:51:15 +02:00
-Committer:     Thomas Gleixner <tglx@linutronix.de>
-CommitterDate: Tue, 09 Jun 2020 16:36:47 +02:00
+> Why not use the ksft_* functions and frameworks to properly print out
+> the test status and results so that tools can correctly parse it?
+>
+> It's generally bad-form to make up your own format.
 
-clocksource: Remove obsolete ifdef
+I used the the drivers/dma-buf test a basis example.  Can you point me at a better example ?
 
-CONFIG_GENERIC_VDSO_CLOCK_MODE was a transitional config switch which got
-removed after all architectures got converted to the new storage model.
+T
 
-But the removal forgot to remove the #ifdef which guards the
-vdso_clock_mode sanity check, which effectively disables the sanity check.
+> thanks,
+>
+> gre gk-h
+>
 
-Remove it now.
-
-Fixes: f86fd32db706 ("lib/vdso: Cleanup clock mode storage leftovers")
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Miklos Szeredi <mszeredi@redhat.com>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20200606221531.845475036@linutronix.de
-
----
- kernel/time/clocksource.c | 2 --
- 1 file changed, 2 deletions(-)
-
-diff --git a/kernel/time/clocksource.c b/kernel/time/clocksource.c
-index 7cb09c4..02441ea 100644
---- a/kernel/time/clocksource.c
-+++ b/kernel/time/clocksource.c
-@@ -928,14 +928,12 @@ int __clocksource_register_scale(struct clocksource *cs, u32 scale, u32 freq)
- 
- 	clocksource_arch_init(cs);
- 
--#ifdef CONFIG_GENERIC_VDSO_CLOCK_MODE
- 	if (cs->vdso_clock_mode < 0 ||
- 	    cs->vdso_clock_mode >= VDSO_CLOCKMODE_MAX) {
- 		pr_warn("clocksource %s registered with invalid VDSO mode %d. Disabling VDSO support.\n",
- 			cs->name, cs->vdso_clock_mode);
- 		cs->vdso_clock_mode = VDSO_CLOCKMODE_NONE;
- 	}
--#endif
- 
- 	/* Initialize mult/shift and max_idle_ns */
- 	__clocksource_update_freq_scale(cs, scale, freq);
