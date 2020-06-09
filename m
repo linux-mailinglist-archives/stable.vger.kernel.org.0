@@ -2,43 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 21DA01F4615
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:24:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C4D991F458D
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:17:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732218AbgFISXr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Jun 2020 14:23:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58452 "EHLO mail.kernel.org"
+        id S2387777AbgFISRe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Jun 2020 14:17:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37690 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732071AbgFIRrP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Jun 2020 13:47:15 -0400
+        id S1730953AbgFIRuW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Jun 2020 13:50:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1317C20820;
-        Tue,  9 Jun 2020 17:47:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DA29420734;
+        Tue,  9 Jun 2020 17:50:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591724835;
-        bh=xdwFVTfgP3vZ5Wz9kYYn9FvzA9/8botzxGW8McRJN6A=;
+        s=default; t=1591725022;
+        bh=0Sdw19cZUj8gXdGRxHjvIBv37iyXz0YRfj4NGJbcFrc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Pc6Ad2TEHRHn8PS6XMWVgKFRgmp8t9d7NDQ5XLG8m61aHiFQzUnDj+3CTfglXoXz9
-         yrus80aB6o+c0bmfOTdukhc+FUHi2HxrwBVeeKZiCqYPXRGUkx/qSBxq0kbbuQYsk6
-         k4wiipzbLjC3T4BhJDUf523pdk3cw41TpKsA1bKQ=
+        b=t+G/b15ucEen/2Mn39v1FiJBcMhvRl40OyyH9s8teck8A5Kun1ik8jXgHCjxJKjq3
+         QFbvXGdw9mNmfZ8HjqJBv8Ujma7LDj51Kz+l9m3Y6NQxd8eDltIeubbLQdNRp+6QnZ
+         PSD0lyVBVjuCVBw+P7y0ct/AwIzhQuOzUzJb3eAs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Steven Rostedt <rostedt@goodmis.org>
-Subject: [PATCH 4.4 36/36] uprobes: ensure that uprobe->offset and ->ref_ctr_offset are properly aligned
+        =?UTF-8?q?J=C3=A9r=C3=B4me=20Pouiller?= 
+        <jerome.pouiller@silabs.com>, Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 4.14 20/46] mmc: fix compilation of user API
 Date:   Tue,  9 Jun 2020 19:44:36 +0200
-Message-Id: <20200609173935.927158590@linuxfoundation.org>
+Message-Id: <20200609174025.231350016@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200609173933.288044334@linuxfoundation.org>
-References: <20200609173933.288044334@linuxfoundation.org>
+In-Reply-To: <20200609174022.938987501@linuxfoundation.org>
+References: <20200609174022.938987501@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,76 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oleg Nesterov <oleg@redhat.com>
+From: Jérôme Pouiller <jerome.pouiller@silabs.com>
 
-commit 013b2deba9a6b80ca02f4fafd7dedf875e9b4450 upstream.
+commit 83fc5dd57f86c3ec7d6d22565a6ff6c948853b64 upstream.
 
-uprobe_write_opcode() must not cross page boundary; prepare_uprobe()
-relies on arch_uprobe_analyze_insn() which should validate "vaddr" but
-some architectures (csky, s390, and sparc) don't do this.
+The definitions of MMC_IOC_CMD  and of MMC_IOC_MULTI_CMD rely on
+MMC_BLOCK_MAJOR:
 
-We can remove the BUG_ON() check in prepare_uprobe() and validate the
-offset early in __uprobe_register(). The new IS_ALIGNED() check matches
-the alignment check in arch_prepare_kprobe() on supported architectures,
-so I think that all insns must be aligned to UPROBE_SWBP_INSN_SIZE.
+    #define MMC_IOC_CMD       _IOWR(MMC_BLOCK_MAJOR, 0, struct mmc_ioc_cmd)
+    #define MMC_IOC_MULTI_CMD _IOWR(MMC_BLOCK_MAJOR, 1, struct mmc_ioc_multi_cmd)
 
-Another problem is __update_ref_ctr() which was wrong from the very
-beginning, it can read/write outside of kmap'ed page unless "vaddr" is
-aligned to sizeof(short), __uprobe_register() should check this too.
+However, MMC_BLOCK_MAJOR is defined in linux/major.h and
+linux/mmc/ioctl.h did not include it.
 
-Reported-by: Linus Torvalds <torvalds@linux-foundation.org>
-Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Oleg Nesterov <oleg@redhat.com>
-Reviewed-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
-Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Tested-by: Sven Schnelle <svens@linux.ibm.com>
-Cc: Steven Rostedt <rostedt@goodmis.org>
+Signed-off-by: Jérôme Pouiller <jerome.pouiller@silabs.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Link: https://lore.kernel.org/r/20200511161902.191405-1-Jerome.Pouiller@silabs.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/events/uprobes.c |   16 ++++++++++++----
- 1 file changed, 12 insertions(+), 4 deletions(-)
+ include/uapi/linux/mmc/ioctl.h |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/kernel/events/uprobes.c
-+++ b/kernel/events/uprobes.c
-@@ -602,10 +602,6 @@ static int prepare_uprobe(struct uprobe
- 	if (ret)
- 		goto out;
+--- a/include/uapi/linux/mmc/ioctl.h
++++ b/include/uapi/linux/mmc/ioctl.h
+@@ -3,6 +3,7 @@
+ #define LINUX_MMC_IOCTL_H
  
--	/* uprobe_write_opcode() assumes we don't cross page boundary */
--	BUG_ON((uprobe->offset & ~PAGE_MASK) +
--			UPROBE_SWBP_INSN_SIZE > PAGE_SIZE);
--
- 	smp_wmb(); /* pairs with the smp_rmb() in handle_swbp() */
- 	set_bit(UPROBE_COPY_INSN, &uprobe->flags);
+ #include <linux/types.h>
++#include <linux/major.h>
  
-@@ -884,6 +880,15 @@ int uprobe_register(struct inode *inode,
- 	if (offset > i_size_read(inode))
- 		return -EINVAL;
- 
-+	/*
-+	 * This ensures that copy_from_page(), copy_to_page() and
-+	 * __update_ref_ctr() can't cross page boundary.
-+	 */
-+	if (!IS_ALIGNED(offset, UPROBE_SWBP_INSN_SIZE))
-+		return -EINVAL;
-+	if (!IS_ALIGNED(ref_ctr_offset, sizeof(short)))
-+		return -EINVAL;
-+
-  retry:
- 	uprobe = alloc_uprobe(inode, offset);
- 	if (!uprobe)
-@@ -1692,6 +1697,9 @@ static int is_trap_at_addr(struct mm_str
- 	uprobe_opcode_t opcode;
- 	int result;
- 
-+	if (WARN_ON_ONCE(!IS_ALIGNED(vaddr, UPROBE_SWBP_INSN_SIZE)))
-+		return -EINVAL;
-+
- 	pagefault_disable();
- 	result = __copy_from_user_inatomic(&opcode, (void __user*)vaddr,
- 							sizeof(opcode));
+ struct mmc_ioc_cmd {
+ 	/* Implies direction of data.  true = write, false = read */
 
 
