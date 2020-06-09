@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B78101F4490
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:06:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4897B1F451E
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:12:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388146AbgFISF4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Jun 2020 14:05:56 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:41202 "EHLO
+        id S2388428AbgFISLy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Jun 2020 14:11:54 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:41232 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1731897AbgFISFz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Jun 2020 14:05:55 -0400
+        by vger.kernel.org with ESMTP id S2388130AbgFISF5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Jun 2020 14:05:57 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1jiidF-0001oT-1I; Tue, 09 Jun 2020 19:05:53 +0100
+        id 1jiidF-0001oe-9B; Tue, 09 Jun 2020 19:05:53 +0100
 Received: from ben by deadeye with local (Exim 4.94)
         (envelope-from <ben@decadent.org.uk>)
-        id 1jiidE-006VvD-Iq; Tue, 09 Jun 2020 19:05:52 +0100
+        id 1jiidE-006VvG-Jl; Tue, 09 Jun 2020 19:05:52 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,14 +26,15 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
+        "Alan Stern" <stern@rowland.harvard.edu>,
         "David Mosberger" <davidm@egauge.net>,
         "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>
-Date:   Tue, 09 Jun 2020 19:04:07 +0100
-Message-ID: <lsq.1591725832.662003982@decadent.org.uk>
+Date:   Tue, 09 Jun 2020 19:04:08 +0100
+Message-ID: <lsq.1591725832.694160445@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 16/61] drivers: usb: core: Don't disable irqs in
- usb_sg_wait() during URB submit.
+Subject: [PATCH 3.16 17/61] drivers: usb: core: Minimize irq disabling in
+ usb_sg_cancel()
 In-Reply-To: <lsq.1591725831.850867383@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -49,76 +50,68 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: David Mosberger <davidm@egauge.net>
 
-commit 98b74b0ee57af1bcb6e8b2e76e707a71c5ef8ec9 upstream.
+commit 5f2e5fb873e269fcb806165715d237f0de4ecf1d upstream.
 
-usb_submit_urb() may take quite long to execute.  For example, a
-single sg list may have 30 or more entries, possibly leading to that
-many calls to DMA-map pages.  This can cause interrupt latency of
-several hundred micro-seconds.
+Restructure usb_sg_cancel() so we don't have to disable interrupts
+while cancelling the URBs.
 
-Avoid the problem by releasing the io->lock spinlock and re-enabling
-interrupts before calling usb_submit_urb().  This opens races with
-usb_sg_cancel() and sg_complete().  Handle those races by using
-usb_block_urb() to stop URBs from being submitted after
-usb_sg_cancel() or sg_complete() with error.
-
-Note that usb_unlink_urb() is guaranteed to return -ENODEV if
-!io->urbs[i]->dev and since the -ENODEV case is already handled,
-we don't have to check for !io->urbs[i]->dev explicitly.
-
-Before this change, reading 512MB from an ext3 filesystem on a USB
-memory stick showed a throughput of 12 MB/s with about 500 missed
-deadlines.
-
-With this change, reading the same file gave the same throughput but
-only one or two missed deadlines.
-
+Suggested-by: Alan Stern <stern@rowland.harvard.edu>
 Signed-off-by: David Mosberger <davidm@egauge.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- drivers/usb/core/message.c | 15 +++++++--------
- 1 file changed, 7 insertions(+), 8 deletions(-)
+ drivers/usb/core/message.c | 37 +++++++++++++++++--------------------
+ 1 file changed, 17 insertions(+), 20 deletions(-)
 
 --- a/drivers/usb/core/message.c
 +++ b/drivers/usb/core/message.c
-@@ -306,9 +306,10 @@ static void sg_complete(struct urb *urb)
- 		 */
- 		spin_unlock(&io->lock);
- 		for (i = 0, found = 0; i < io->entries; i++) {
--			if (!io->urbs[i] || !io->urbs[i]->dev)
-+			if (!io->urbs[i])
- 				continue;
- 			if (found) {
-+				usb_block_urb(io->urbs[i]);
- 				retval = usb_unlink_urb(io->urbs[i]);
- 				if (retval != -EINPROGRESS &&
- 				    retval != -ENODEV &&
-@@ -519,12 +520,10 @@ void usb_sg_wait(struct usb_sg_request *
- 		int retval;
+@@ -581,31 +581,28 @@ EXPORT_SYMBOL_GPL(usb_sg_wait);
+ void usb_sg_cancel(struct usb_sg_request *io)
+ {
+ 	unsigned long flags;
++	int i, retval;
  
- 		io->urbs[i]->dev = io->dev;
--		retval = usb_submit_urb(io->urbs[i], GFP_ATOMIC);
+ 	spin_lock_irqsave(&io->lock, flags);
++	if (io->status) {
++		spin_unlock_irqrestore(&io->lock, flags);
++		return;
++	}
++	/* shut everything down */
++	io->status = -ECONNRESET;
++	spin_unlock_irqrestore(&io->lock, flags);
+ 
+-	/* shut everything down, if it didn't already */
+-	if (!io->status) {
+-		int i;
 -
--		/* after we submit, let completions or cancellations fire;
--		 * we handshake using io->status.
--		 */
- 		spin_unlock_irq(&io->lock);
-+
-+		retval = usb_submit_urb(io->urbs[i], GFP_NOIO);
-+
- 		switch (retval) {
- 			/* maybe we retrying will recover */
- 		case -ENXIO:	/* hc didn't queue this one */
-@@ -594,8 +593,8 @@ void usb_sg_cancel(struct usb_sg_request
- 		for (i = 0; i < io->entries; i++) {
- 			int retval;
+-		io->status = -ECONNRESET;
+-		spin_unlock(&io->lock);
+-		for (i = 0; i < io->entries; i++) {
+-			int retval;
+-
+-			usb_block_urb(io->urbs[i]);
++	for (i = io->entries - 1; i >= 0; --i) {
++		usb_block_urb(io->urbs[i]);
  
--			if (!io->urbs[i]->dev)
--				continue;
-+			usb_block_urb(io->urbs[i]);
-+
- 			retval = usb_unlink_urb(io->urbs[i]);
- 			if (retval != -EINPROGRESS
- 					&& retval != -ENODEV
+-			retval = usb_unlink_urb(io->urbs[i]);
+-			if (retval != -EINPROGRESS
+-					&& retval != -ENODEV
+-					&& retval != -EBUSY
+-					&& retval != -EIDRM)
+-				dev_warn(&io->dev->dev, "%s, unlink --> %d\n",
+-					__func__, retval);
+-		}
+-		spin_lock(&io->lock);
++		retval = usb_unlink_urb(io->urbs[i]);
++		if (retval != -EINPROGRESS
++		    && retval != -ENODEV
++		    && retval != -EBUSY
++		    && retval != -EIDRM)
++			dev_warn(&io->dev->dev, "%s, unlink --> %d\n",
++				 __func__, retval);
+ 	}
+-	spin_unlock_irqrestore(&io->lock, flags);
+ }
+ EXPORT_SYMBOL_GPL(usb_sg_cancel);
+ 
 
