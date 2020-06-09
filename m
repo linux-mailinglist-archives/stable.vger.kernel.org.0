@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A6B91F46EB
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 21:18:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A57CC1F46ED
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 21:18:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729523AbgFITSL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Jun 2020 15:18:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51018 "EHLO mail.kernel.org"
+        id S1730633AbgFITSZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Jun 2020 15:18:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51220 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729318AbgFITSK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Jun 2020 15:18:10 -0400
+        id S1729318AbgFITSY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Jun 2020 15:18:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D9733206D5;
-        Tue,  9 Jun 2020 19:18:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F1EB320734;
+        Tue,  9 Jun 2020 19:18:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591730289;
-        bh=1wA2k3/8+BeB5vO72LER7S0mPUOOUaUUFt8UVAI8SO8=;
+        s=default; t=1591730303;
+        bh=IpZW/2FSFVdaAzEF8PUPW2p0qKc4IefaxU2AP0T4i2g=;
         h=From:To:Cc:Subject:Date:From;
-        b=f+OmPaYMHWno/oHZNyUe2ye1Gd/+9KMqVQCjrKb92CZNe5fWZfp9WgpfJFgdan3ZV
-         A75w/OtfUY1SggYND675XSBSoyjhnHkRtTUg91G9F7mJGN7pJjUNPIvQ0/MKej914s
-         2KPH25wFZBT9AOiKxLoBpU8ffpauFDHG7PoKgeZE=
+        b=iHD0U4NLPXcAWMtXKDqg0nAshjHiO/MXkh2fv2Jr3pCanbSBP4FWQUzJCYntsquSk
+         FCX9bDc2F1yC/gm16NWt+MvjvWiM8oo2C+lcTRwDA/58FGYsVtK7SKAEfZHmysEzcu
+         zV8t+vuH8HhwsfCIyBzr0tyPzyyN81tJMRDOeU5E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,20 +30,20 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
         ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
         stable@vger.kernel.org
-Subject: [PATCH 4.4 00/36] 4.4.227-rc2 review
-Date:   Tue,  9 Jun 2020 21:18:06 +0200
-Message-Id: <20200609190211.793882726@linuxfoundation.org>
+Subject: [PATCH 4.9 00/42] 4.9.227-rc2 review
+Date:   Tue,  9 Jun 2020 21:18:21 +0200
+Message-Id: <20200609190124.109610974@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 MIME-Version: 1.0
 User-Agent: quilt/0.66
 X-stable: review
 X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.227-rc2.gz
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.227-rc2.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.4.y
+X-KernelTest-Branch: linux-4.9.y
 X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.4.227-rc2
-X-KernelTest-Deadline: 2020-06-11T19:02+00:00
+X-KernelTest-Version: 4.9.227-rc2
+X-KernelTest-Deadline: 2020-06-11T19:01+00:00
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
@@ -51,18 +51,18 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 4.4.227 release.
-There are 36 patches in this series, all will be posted as a response
+This is the start of the stable review cycle for the 4.9.227 release.
+There are 42 patches in this series, all will be posted as a response
 to this one.  If anyone has any issues with these being applied, please
 let me know.
 
-Responses should be made by Thu, 11 Jun 2020 19:02:00 +0000.
+Responses should be made by Thu, 11 Jun 2020 19:01:14 +0000.
 Anything received after that time might be too late.
 
 The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.227-rc2.gz
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.227-rc2.gz
 or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.4.y
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
 and the diffstat can be found below.
 
 thanks,
@@ -73,7 +73,7 @@ greg k-h
 Pseudo-Shortlog of commits:
 
 Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 4.4.227-rc2
+    Linux 4.9.227-rc2
 
 Oleg Nesterov <oleg@redhat.com>
     uprobes: ensure that uprobe->offset and ->ref_ctr_offset are properly aligned
@@ -96,14 +96,20 @@ Mark Gross <mgross@linux.intel.com>
 Mark Gross <mgross@linux.intel.com>
     x86/cpu: Add a steppings field to struct x86_cpu_id
 
-Jia Zhang <qianyue.zj@alibaba-inc.com>
-    x86/cpu: Rename cpu_data.x86_mask to cpu_data.x86_stepping
+Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+    nvmem: qfprom: remove incorrect write support
 
 Pascal Terjan <pterjan@google.com>
     staging: rtl8712: Fix IEEE80211_ADDBA_PARAM_BUF_SIZE_MASK
 
+Jiri Slaby <jslaby@suse.cz>
+    tty: hvc_console, fix crashes on parallel open/close
+
 Dmitry Torokhov <dmitry.torokhov@gmail.com>
     vt: keyboard: avoid signed integer overflow in k_ascii
+
+Dinghao Liu <dinghao.liu@zju.edu.cn>
+    usb: musb: Fix runtime PM imbalance on error
 
 Daniele Palmas <dnlplm@gmail.com>
     USB: serial: option: add Telit LE910C1-EUX compositions
@@ -115,9 +121,6 @@ Matt Jolly <Kangie@footclan.ninja>
     USB: serial: qcserial: add DW5816e QDL support
 
 Eric Dumazet <edumazet@google.com>
-    l2tp: do not use inet_hash()/inet_unhash()
-
-Eric Dumazet <edumazet@google.com>
     l2tp: add sk_family checks to l2tp_validate_socket
 
 Stefano Garzarella <sgarzare@redhat.com>
@@ -126,8 +129,17 @@ Stefano Garzarella <sgarzare@redhat.com>
 Chuhong Yuan <hslester96@gmail.com>
     NFC: st21nfca: add missed kfree_skb() in an error path
 
+Daniele Palmas <dnlplm@gmail.com>
+    net: usb: qmi_wwan: add Telit LE910C1-EUX composition
+
+Eric Dumazet <edumazet@google.com>
+    l2tp: do not use inet_hash()/inet_unhash()
+
 Yang Yingliang <yangyingliang@huawei.com>
     devinet: fix memleak in inetdev_init()
+
+Dan Carpenter <dan.carpenter@oracle.com>
+    airo: Fix read overflows sending packets
 
 Can Guo <cang@codeaurora.org>
     scsi: ufs: Release clock if DMA map fails
@@ -141,8 +153,23 @@ Ben Hutchings <ben@decadent.org.uk>
 Jérôme Pouiller <jerome.pouiller@silabs.com>
     mmc: fix compilation of user API
 
+Daniel Axtens <dja@axtens.net>
+    kernel/relay.c: handle alloc_percpu returning NULL in relay_open
+
+Giuseppe Marco Randazzo <gmrandazzo@gmail.com>
+    p54usb: add AirVasT USB stick device-id
+
+Julian Sax <jsbc@gmx.de>
+    HID: i2c-hid: add Schneider SCL142ALM to descriptor override
+
+Fan Yang <Fan_Yang@sjtu.edu.cn>
+    mm: Fix mremap not considering huge pmd devmap
+
 Guillaume Nault <gnault@redhat.com>
     pppoe: only process PADT targeted at local interfaces
+
+Dinghao Liu <dinghao.liu@zju.edu.cn>
+    net: smsc911x: Fix runtime PM imbalance on error
 
 Jonathan McDowell <noodles@earth.li>
     net: ethernet: stmmac: Enable interface clocks on probe for IPQ806x
@@ -165,17 +192,8 @@ Vasily Gorbik <gor@linux.ibm.com>
 Xinwei Kong <kong.kongxinwei@hisilicon.com>
     spi: dw: use "smp_mb()" to avoid sending spi data error
 
-Takashi Iwai <tiwai@suse.de>
-    ALSA: hda - No loopback on ALC299 codec
-
-Christophe Jaillet <christophe.jaillet@wanadoo.fr>
-    IB/mlx4: Fix an error handling path in 'mlx4_ib_rereg_user_mr()'
-
 Zhen Lei <thunder.leizhen@huawei.com>
     esp6: fix memleak on error path in esp6_input
-
-Lee, Chun-Yi <joeyli.kernel@gmail.com>
-    platform/x86: acer-wmi: setup accelerometer when ACPI device was found
 
 Eugeniu Rosca <erosca@de.adit-jv.com>
     usb: gadget: f_uac2: fix error handling in afunc_bind (again)
@@ -189,81 +207,58 @@ Hannes Reinecke <hare@suse.de>
 Diffstat:
 
  Documentation/ABI/testing/sysfs-devices-system-cpu |   1 +
+ Documentation/hw-vuln/index.rst                    |   3 +-
  .../special-register-buffer-data-sampling.rst      | 149 +++++++++++++++++++++
  Documentation/kernel-parameters.txt                |  20 +++
  Makefile                                           |   4 +-
  arch/arc/kernel/setup.c                            |   5 +-
  arch/s390/kernel/mcount.S                          |   1 +
- arch/x86/include/asm/acpi.h                        |   2 +-
  arch/x86/include/asm/cpu_device_id.h               |  27 ++++
- arch/x86/include/asm/cpufeatures.h                 |   2 +
+ arch/x86/include/asm/cpufeatures.h                 |  30 +++--
  arch/x86/include/asm/msr-index.h                   |   4 +
- arch/x86/include/asm/processor.h                   |   2 +-
- arch/x86/kernel/amd_nb.c                           |   2 +-
- arch/x86/kernel/asm-offsets_32.c                   |   2 +-
- arch/x86/kernel/cpu/amd.c                          |  26 ++--
+ arch/x86/include/asm/pgtable.h                     |   1 +
  arch/x86/kernel/cpu/bugs.c                         | 106 +++++++++++++++
- arch/x86/kernel/cpu/centaur.c                      |   4 +-
- arch/x86/kernel/cpu/common.c                       |  62 +++++++--
+ arch/x86/kernel/cpu/common.c                       |  54 ++++++--
  arch/x86/kernel/cpu/cpu.h                          |   1 +
- arch/x86/kernel/cpu/cyrix.c                        |   2 +-
- arch/x86/kernel/cpu/intel.c                        |  20 +--
  arch/x86/kernel/cpu/match.c                        |   7 +-
- arch/x86/kernel/cpu/microcode/intel.c              |   4 +-
- arch/x86/kernel/cpu/mtrr/generic.c                 |   2 +-
- arch/x86/kernel/cpu/mtrr/main.c                    |   4 +-
- arch/x86/kernel/cpu/perf_event_intel.c             |   2 +-
- arch/x86/kernel/cpu/perf_event_intel_lbr.c         |   2 +-
- arch/x86/kernel/cpu/perf_event_p6.c                |   2 +-
- arch/x86/kernel/cpu/proc.c                         |   4 +-
- arch/x86/kernel/head_32.S                          |   4 +-
- arch/x86/kernel/mpparse.c                          |   2 +-
  arch/x86/mm/mmio-mod.c                             |   4 +-
  drivers/base/cpu.c                                 |   8 ++
- drivers/char/hw_random/via-rng.c                   |   2 +-
- drivers/cpufreq/acpi-cpufreq.c                     |   2 +-
- drivers/cpufreq/longhaul.c                         |   6 +-
- drivers/cpufreq/p4-clockmod.c                      |   2 +-
- drivers/cpufreq/powernow-k7.c                      |   2 +-
- drivers/cpufreq/speedstep-centrino.c               |   4 +-
- drivers/cpufreq/speedstep-lib.c                    |   6 +-
- drivers/crypto/padlock-aes.c                       |   2 +-
- drivers/edac/amd64_edac.c                          |   2 +-
- drivers/edac/mce_amd.c                             |   2 +-
- drivers/hwmon/coretemp.c                           |   6 +-
- drivers/hwmon/hwmon-vid.c                          |   2 +-
- drivers/hwmon/k10temp.c                            |   2 +-
- drivers/hwmon/k8temp.c                             |   2 +-
+ drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c           |   8 ++
  drivers/iio/light/vcnl4000.c                       |   6 +-
- drivers/infiniband/hw/mlx4/mr.c                    |   7 +-
  drivers/net/can/slcan.c                            |   3 +-
  drivers/net/ethernet/apple/bmac.c                  |   2 +-
  drivers/net/ethernet/freescale/ucc_geth.c          |  13 +-
+ drivers/net/ethernet/smsc/smsc911x.c               |   9 +-
  .../net/ethernet/stmicro/stmmac/dwmac-ipq806x.c    |  13 ++
  drivers/net/ppp/pppoe.c                            |   3 +
  drivers/net/slip/slip.c                            |   3 +
+ drivers/net/usb/qmi_wwan.c                         |   1 +
+ drivers/net/wireless/cisco/airo.c                  |  12 ++
+ drivers/net/wireless/intersil/p54/p54usb.c         |   1 +
  drivers/nfc/st21nfca/dep.c                         |   4 +-
- drivers/platform/x86/acer-wmi.c                    |   9 +-
+ drivers/nvmem/qfprom.c                             |  14 --
  drivers/scsi/scsi_devinfo.c                        |  23 ++--
  drivers/scsi/ufs/ufshcd.c                          |   1 +
  drivers/spi/spi-dw.c                               |   3 +
  drivers/staging/rtl8712/wifi.h                     |   9 +-
+ drivers/tty/hvc/hvc_console.c                      |  23 ++--
  drivers/tty/vt/keyboard.c                          |  26 ++--
  drivers/usb/gadget/function/f_uac2.c               |   4 +-
+ drivers/usb/musb/musb_debugfs.c                    |  10 +-
  drivers/usb/serial/option.c                        |   4 +
  drivers/usb/serial/qcserial.c                      |   1 +
  drivers/usb/serial/usb_wwan.c                      |   4 +
- drivers/video/fbdev/geode/video_gx.c               |   2 +-
  include/linux/mod_devicetable.h                    |   6 +
  include/uapi/linux/mmc/ioctl.h                     |   1 +
  kernel/events/uprobes.c                            |  14 +-
+ kernel/relay.c                                     |   5 +
+ mm/mremap.c                                        |   2 +-
  net/ipv4/devinet.c                                 |   1 +
  net/ipv6/esp6.c                                    |   4 +-
  net/l2tp/l2tp_core.c                               |   2 +
- net/l2tp/l2tp_ip.c                                 |  28 +++-
- net/l2tp/l2tp_ip6.c                                |  28 +++-
+ net/l2tp/l2tp_ip.c                                 |  29 +++-
+ net/l2tp/l2tp_ip6.c                                |  30 +++--
  net/vmw_vsock/af_vsock.c                           |   2 +-
- sound/pci/hda/patch_realtek.c                      |   3 +
- 76 files changed, 601 insertions(+), 157 deletions(-)
+ 53 files changed, 585 insertions(+), 136 deletions(-)
 
 
