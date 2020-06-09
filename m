@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E49161F452B
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:12:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E79D91F4514
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:11:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388689AbgFISMV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Jun 2020 14:12:21 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:41198 "EHLO
+        id S2387470AbgFISLe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Jun 2020 14:11:34 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:41258 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1731654AbgFISF4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Jun 2020 14:05:56 -0400
+        by vger.kernel.org with ESMTP id S2388137AbgFISF5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Jun 2020 14:05:57 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1jiidE-0001oH-OX; Tue, 09 Jun 2020 19:05:52 +0100
+        id 1jiidE-0001oJ-NA; Tue, 09 Jun 2020 19:05:52 +0100
 Received: from ben by deadeye with local (Exim 4.94)
         (envelope-from <ben@decadent.org.uk>)
-        id 1jiidE-006VuV-3E; Tue, 09 Jun 2020 19:05:52 +0100
+        id 1jiidE-006VuX-50; Tue, 09 Jun 2020 19:05:52 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,15 +26,17 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Lukas Bulwahn" <lukas.bulwahn@gmail.com>,
         "Jouni Hogander" <jouni.hogander@unikie.com>,
-        "Marc Kleine-Budde" <mkl@pengutronix.de>,
-        "Wolfgang Grandegger" <wg@grandegger.com>
-Date:   Tue, 09 Jun 2020 19:03:52 +0100
-Message-ID: <lsq.1591725832.514637201@decadent.org.uk>
+        "David Miller" <davem@davemloft.net>,
+        "Lukas Bulwahn" <lukas.bulwahn@gmail.com>,
+        "Oliver Hartkopp" <socketcan@hartkopp.net>,
+        "Wolfgang Grandegger" <wg@grandegger.com>,
+        "Marc Kleine-Budde" <mkl@pengutronix.de>
+Date:   Tue, 09 Jun 2020 19:03:53 +0100
+Message-ID: <lsq.1591725832.958362576@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 01/61] slcan: Fix memory leak in error path
+Subject: [PATCH 3.16 02/61] can: slcan: Fix use-after-free Read in slcan_open
 In-Reply-To: <lsq.1591725831.850867383@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -50,47 +52,59 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jouni Hogander <jouni.hogander@unikie.com>
 
-commit ed50e1600b4483c049ce76e6bd3b665a6a9300ed upstream.
+commit 9ebd796e24008f33f06ebea5a5e6aceb68b51794 upstream.
 
-This patch is fixing memory leak reported by Syzkaller:
+Slcan_open doesn't clean-up device which registration failed from the
+slcan_devs device list. On next open this list is iterated and freed
+device is accessed. Fix this by calling slc_free_netdev in error path.
 
-BUG: memory leak unreferenced object 0xffff888067f65500 (size 4096):
-  comm "syz-executor043", pid 454, jiffies 4294759719 (age 11.930s)
-  hex dump (first 32 bytes):
-    73 6c 63 61 6e 30 00 00 00 00 00 00 00 00 00 00 slcan0..........
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
-  backtrace:
-    [<00000000a06eec0d>] __kmalloc+0x18b/0x2c0
-    [<0000000083306e66>] kvmalloc_node+0x3a/0xc0
-    [<000000006ac27f87>] alloc_netdev_mqs+0x17a/0x1080
-    [<0000000061a996c9>] slcan_open+0x3ae/0x9a0
-    [<000000001226f0f9>] tty_ldisc_open.isra.1+0x76/0xc0
-    [<0000000019289631>] tty_set_ldisc+0x28c/0x5f0
-    [<000000004de5a617>] tty_ioctl+0x48d/0x1590
-    [<00000000daef496f>] do_vfs_ioctl+0x1c7/0x1510
-    [<0000000059068dbc>] ksys_ioctl+0x99/0xb0
-    [<000000009a6eb334>] __x64_sys_ioctl+0x78/0xb0
-    [<0000000053d0332e>] do_syscall_64+0x16f/0x580
-    [<0000000021b83b99>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
-    [<000000008ea75434>] 0xffffffffffffffff
+Driver/net/can/slcan.c is derived from slip.c. Use-after-free error was
+identified in slip_open by syzboz. Same bug is in slcan.c. Here is the
+trace from the Syzbot slip report:
 
+__dump_stack lib/dump_stack.c:77 [inline]
+dump_stack+0x197/0x210 lib/dump_stack.c:118
+print_address_description.constprop.0.cold+0xd4/0x30b mm/kasan/report.c:374
+__kasan_report.cold+0x1b/0x41 mm/kasan/report.c:506
+kasan_report+0x12/0x20 mm/kasan/common.c:634
+__asan_report_load8_noabort+0x14/0x20 mm/kasan/generic_report.c:132
+sl_sync drivers/net/slip/slip.c:725 [inline]
+slip_open+0xecd/0x11b7 drivers/net/slip/slip.c:801
+tty_ldisc_open.isra.0+0xa3/0x110 drivers/tty/tty_ldisc.c:469
+tty_set_ldisc+0x30e/0x6b0 drivers/tty/tty_ldisc.c:596
+tiocsetd drivers/tty/tty_io.c:2334 [inline]
+tty_ioctl+0xe8d/0x14f0 drivers/tty/tty_io.c:2594
+vfs_ioctl fs/ioctl.c:46 [inline]
+file_ioctl fs/ioctl.c:509 [inline]
+do_vfs_ioctl+0xdb6/0x13e0 fs/ioctl.c:696
+ksys_ioctl+0xab/0xd0 fs/ioctl.c:713
+__do_sys_ioctl fs/ioctl.c:720 [inline]
+__se_sys_ioctl fs/ioctl.c:718 [inline]
+__x64_sys_ioctl+0x73/0xb0 fs/ioctl.c:718
+do_syscall_64+0xfa/0x760 arch/x86/entry/common.c:290
+entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+Fixes: ed50e1600b44 ("slcan: Fix memory leak in error path")
 Cc: Wolfgang Grandegger <wg@grandegger.com>
 Cc: Marc Kleine-Budde <mkl@pengutronix.de>
+Cc: David Miller <davem@davemloft.net>
+Cc: Oliver Hartkopp <socketcan@hartkopp.net>
 Cc: Lukas Bulwahn <lukas.bulwahn@gmail.com>
 Signed-off-by: Jouni Hogander <jouni.hogander@unikie.com>
+Acked-by: Oliver Hartkopp <socketcan@hartkopp.net>
 Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+[bwh: Backported to 3.16: slc_free_netdev() calls free_netdev() here, so
+ delete the direct call to free_netdev()]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- drivers/net/can/slcan.c | 1 +
- 1 file changed, 1 insertion(+)
-
 --- a/drivers/net/can/slcan.c
 +++ b/drivers/net/can/slcan.c
-@@ -620,6 +620,7 @@ err_free_chan:
+@@ -620,7 +620,7 @@ err_free_chan:
  	sl->tty = NULL;
  	tty->disc_data = NULL;
  	clear_bit(SLF_INUSE, &sl->flags);
-+	free_netdev(sl->dev);
+-	free_netdev(sl->dev);
++	slc_free_netdev(sl->dev);
  
  err_exit:
  	rtnl_unlock();
