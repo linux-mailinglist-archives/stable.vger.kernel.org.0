@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D72F1F4302
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 19:49:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 80F781F432E
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 19:51:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732466AbgFIRtL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Jun 2020 13:49:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34584 "EHLO mail.kernel.org"
+        id S1731361AbgFIRvA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Jun 2020 13:51:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39288 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732362AbgFIRtJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Jun 2020 13:49:09 -0400
+        id S1732760AbgFIRu7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Jun 2020 13:50:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BFE342081A;
-        Tue,  9 Jun 2020 17:49:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 906472074B;
+        Tue,  9 Jun 2020 17:50:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591724948;
-        bh=ikB4s8noR1CxF9dx3pGgDKnk55QCMNe+k4/d1n8xh8U=;
+        s=default; t=1591725059;
+        bh=dneXgUP1hvA/ZLqtJEfa5ZryFKN8+0iq70e7wX8rxDU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xjo4Cn0gBdGdAPA92SmgkXdJ8RLquH6CjPqPzgsK5WmwkWNxZV4eel+rbMvXUl8ua
-         txVwzfIo0QLc7h/WyEvbsebN32U0TMbOiq7uakvR1PYqVo0AGzNeJG6xCKX4VrmuU7
-         jbmCdxTDHXLXsCyT6Zmr4lMMu2U4p0tCJ8iOXGWo=
+        b=rZVGqPR+O+8qDt9JtgnohGDCRp8YTdgtmAtGiK+MUEPkfRRoqTWy3gLD4WktF1icA
+         60Uc/Lxv3RBjjGPluvehXGVwp/7RvXG8QmVvIMElMApTqFSa+czZ7GPvGhrA6bdMZB
+         UmDktNyL2Zo94EEMby1DBPJSGaRIWTUs4Dd3JY1c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Gross <mgross@linux.intel.com>,
-        Borislav Petkov <bp@suse.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Tony Luck <tony.luck@intel.com>,
-        Josh Poimboeuf <jpoimboe@redhat.com>
-Subject: [PATCH 4.9 36/42] x86/cpu: Add a steppings field to struct x86_cpu_id
-Date:   Tue,  9 Jun 2020 19:44:42 +0200
-Message-Id: <20200609174019.475695691@linuxfoundation.org>
+        stable@vger.kernel.org, Stefano Garzarella <sgarzare@redhat.com>,
+        Jorgen Hansen <jhansen@vmware.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 27/46] vsock: fix timeout in vsock_accept()
+Date:   Tue,  9 Jun 2020 19:44:43 +0200
+Message-Id: <20200609174027.453089041@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200609174015.379493548@linuxfoundation.org>
-References: <20200609174015.379493548@linuxfoundation.org>
+In-Reply-To: <20200609174022.938987501@linuxfoundation.org>
+References: <20200609174022.938987501@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,118 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Gross <mgross@linux.intel.com>
+From: Stefano Garzarella <sgarzare@redhat.com>
 
-commit e9d7144597b10ff13ff2264c059f7d4a7fbc89ac upstream
+[ Upstream commit 7e0afbdfd13d1e708fe96e31c46c4897101a6a43 ]
 
-Intel uses the same family/model for several CPUs. Sometimes the
-stepping must be checked to tell them apart.
+The accept(2) is an "input" socket interface, so we should use
+SO_RCVTIMEO instead of SO_SNDTIMEO to set the timeout.
 
-On x86 there can be at most 16 steppings. Add a steppings bitmask to
-x86_cpu_id and a X86_MATCH_VENDOR_FAMILY_MODEL_STEPPING_FEATURE macro
-and support for matching against family/model/stepping.
+So this patch replace sock_sndtimeo() with sock_rcvtimeo() to
+use the right timeout in the vsock_accept().
 
- [ bp: Massage.
-   tglx: Lightweight variant for backporting ]
-
-Signed-off-by: Mark Gross <mgross@linux.intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Tony Luck <tony.luck@intel.com>
-Reviewed-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Fixes: d021c344051a ("VSOCK: Introduce VM Sockets")
+Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+Reviewed-by: Jorgen Hansen <jhansen@vmware.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/cpu_device_id.h |   27 +++++++++++++++++++++++++++
- arch/x86/kernel/cpu/match.c          |    7 ++++++-
- include/linux/mod_devicetable.h      |    6 ++++++
- 3 files changed, 39 insertions(+), 1 deletion(-)
+ net/vmw_vsock/af_vsock.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/include/asm/cpu_device_id.h
-+++ b/arch/x86/include/asm/cpu_device_id.h
-@@ -8,6 +8,33 @@
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -1290,7 +1290,7 @@ static int vsock_accept(struct socket *s
+ 	/* Wait for children sockets to appear; these are the new sockets
+ 	 * created upon connection establishment.
+ 	 */
+-	timeout = sock_sndtimeo(listener, flags & O_NONBLOCK);
++	timeout = sock_rcvtimeo(listener, flags & O_NONBLOCK);
+ 	prepare_to_wait(sk_sleep(listener), &wait, TASK_INTERRUPTIBLE);
  
- #include <linux/mod_devicetable.h>
- 
-+#define X86_STEPPINGS(mins, maxs)    GENMASK(maxs, mins)
-+
-+/**
-+ * X86_MATCH_VENDOR_FAM_MODEL_STEPPINGS_FEATURE - Base macro for CPU matching
-+ * @_vendor:	The vendor name, e.g. INTEL, AMD, HYGON, ..., ANY
-+ *		The name is expanded to X86_VENDOR_@_vendor
-+ * @_family:	The family number or X86_FAMILY_ANY
-+ * @_model:	The model number, model constant or X86_MODEL_ANY
-+ * @_steppings:	Bitmask for steppings, stepping constant or X86_STEPPING_ANY
-+ * @_feature:	A X86_FEATURE bit or X86_FEATURE_ANY
-+ * @_data:	Driver specific data or NULL. The internal storage
-+ *		format is unsigned long. The supplied value, pointer
-+ *		etc. is casted to unsigned long internally.
-+ *
-+ * Backport version to keep the SRBDS pile consistant. No shorter variants
-+ * required for this.
-+ */
-+#define X86_MATCH_VENDOR_FAM_MODEL_STEPPINGS_FEATURE(_vendor, _family, _model, \
-+						    _steppings, _feature, _data) { \
-+	.vendor		= X86_VENDOR_##_vendor,				\
-+	.family		= _family,					\
-+	.model		= _model,					\
-+	.steppings	= _steppings,					\
-+	.feature	= _feature,					\
-+	.driver_data	= (unsigned long) _data				\
-+}
-+
- extern const struct x86_cpu_id *x86_match_cpu(const struct x86_cpu_id *match);
- 
- #endif
---- a/arch/x86/kernel/cpu/match.c
-+++ b/arch/x86/kernel/cpu/match.c
-@@ -33,13 +33,18 @@ const struct x86_cpu_id *x86_match_cpu(c
- 	const struct x86_cpu_id *m;
- 	struct cpuinfo_x86 *c = &boot_cpu_data;
- 
--	for (m = match; m->vendor | m->family | m->model | m->feature; m++) {
-+	for (m = match;
-+	     m->vendor | m->family | m->model | m->steppings | m->feature;
-+	     m++) {
- 		if (m->vendor != X86_VENDOR_ANY && c->x86_vendor != m->vendor)
- 			continue;
- 		if (m->family != X86_FAMILY_ANY && c->x86 != m->family)
- 			continue;
- 		if (m->model != X86_MODEL_ANY && c->x86_model != m->model)
- 			continue;
-+		if (m->steppings != X86_STEPPING_ANY &&
-+		    !(BIT(c->x86_stepping) & m->steppings))
-+			continue;
- 		if (m->feature != X86_FEATURE_ANY && !cpu_has(c, m->feature))
- 			continue;
- 		return m;
---- a/include/linux/mod_devicetable.h
-+++ b/include/linux/mod_devicetable.h
-@@ -572,6 +572,10 @@ struct mips_cdmm_device_id {
- /*
-  * MODULE_DEVICE_TABLE expects this struct to be called x86cpu_device_id.
-  * Although gcc seems to ignore this error, clang fails without this define.
-+ *
-+ * Note: The ordering of the struct is different from upstream because the
-+ * static initializers in kernels < 5.7 still use C89 style while upstream
-+ * has been converted to proper C99 initializers.
-  */
- #define x86cpu_device_id x86_cpu_id
- struct x86_cpu_id {
-@@ -580,6 +584,7 @@ struct x86_cpu_id {
- 	__u16 model;
- 	__u16 feature;	/* bit index */
- 	kernel_ulong_t driver_data;
-+	__u16 steppings;
- };
- 
- #define X86_FEATURE_MATCH(x) \
-@@ -588,6 +593,7 @@ struct x86_cpu_id {
- #define X86_VENDOR_ANY 0xffff
- #define X86_FAMILY_ANY 0
- #define X86_MODEL_ANY  0
-+#define X86_STEPPING_ANY 0
- #define X86_FEATURE_ANY 0	/* Same as FPU, you can't test for that */
- 
- /*
+ 	while ((connected = vsock_dequeue_accept(listener)) == NULL &&
 
 
