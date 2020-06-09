@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E5A581F44B8
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:08:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 28B4F1F44D5
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:09:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388308AbgFISHR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Jun 2020 14:07:17 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:41432 "EHLO
+        id S2388042AbgFISIN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Jun 2020 14:08:13 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:41430 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2388176AbgFISF7 (ORCPT
+        by vger.kernel.org with ESMTP id S2388173AbgFISF7 (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 9 Jun 2020 14:05:59 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1jiidG-0001p1-I0; Tue, 09 Jun 2020 19:05:54 +0100
+        id 1jiidG-0001p0-KM; Tue, 09 Jun 2020 19:05:54 +0100
 Received: from ben by deadeye with local (Exim 4.94)
         (envelope-from <ben@decadent.org.uk>)
-        id 1jiidG-006Vxc-9b; Tue, 09 Jun 2020 19:05:54 +0100
+        id 1jiidG-006Vxl-C7; Tue, 09 Jun 2020 19:05:54 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,18 +26,15 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Josh Poimboeuf" <jpoimboe@redhat.com>,
-        "Neelima Krishnan" <neelima.krishnan@intel.com>,
-        "Thomas Gleixner" <tglx@linutronix.de>,
         "Mark Gross" <mgross@linux.intel.com>,
-        "Pawan Gupta" <pawan.kumar.gupta@linux.intel.com>,
-        "Tony Luck" <tony.luck@intel.com>, "Borislav Petkov" <bp@suse.de>
-Date:   Tue, 09 Jun 2020 19:04:48 +0100
-Message-ID: <lsq.1591725832.552133937@decadent.org.uk>
+        "Tony Luck" <tony.luck@intel.com>, "Borislav Petkov" <bp@suse.de>,
+        "Josh Poimboeuf" <jpoimboe@redhat.com>
+Date:   Tue, 09 Jun 2020 19:04:49 +0100
+Message-ID: <lsq.1591725832.534120483@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 57/61] x86/speculation: Add Special Register Buffer
- Data Sampling (SRBDS) mitigation
+Subject: [PATCH 3.16 58/61] x86/speculation: Add SRBDS vulnerability and
+ mitigation documentation
 In-Reply-To: <lsq.1591725831.850867383@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -53,370 +50,172 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Mark Gross <mgross@linux.intel.com>
 
-commit 7e5b3c267d256822407a22fdce6afdf9cd13f9fb upstream.
+commit 7222a1b5b87417f22265c92deea76a6aecd0fb0f upstream.
 
-SRBDS is an MDS-like speculative side channel that can leak bits from the
-random number generator (RNG) across cores and threads. New microcode
-serializes the processor access during the execution of RDRAND and
-RDSEED. This ensures that the shared buffer is overwritten before it is
-released for reuse.
+Add documentation for the SRBDS vulnerability and its mitigation.
 
-While it is present on all affected CPU models, the microcode mitigation
-is not needed on models that enumerate ARCH_CAPABILITIES[MDS_NO] in the
-cases where TSX is not supported or has been disabled with TSX_CTRL.
-
-The mitigation is activated by default on affected processors and it
-increases latency for RDRAND and RDSEED instructions. Among other
-effects this will reduce throughput from /dev/urandom.
-
-* Enable administrator to configure the mitigation off when desired using
-  either mitigations=off or srbds=off.
-
-* Export vulnerability status via sysfs
-
-* Rename file-scoped macros to apply for non-whitelist table initializations.
-
- [ bp: Massage,
-   - s/VULNBL_INTEL_STEPPING/VULNBL_INTEL_STEPPINGS/g,
-   - do not read arch cap MSR a second time in tsx_fused_off() - just pass it in,
-   - flip check in cpu_set_bug_bits() to save an indentation level,
-   - reflow comments.
-   jpoimboe: s/Mitigated/Mitigation/ in user-visible strings
-   tglx: Dropped the fused off magic for now
- ]
+ [ bp: Massage.
+   jpoimboe: sysfs table strings. ]
 
 Signed-off-by: Mark Gross <mgross@linux.intel.com>
 Signed-off-by: Borislav Petkov <bp@suse.de>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 Reviewed-by: Tony Luck <tony.luck@intel.com>
-Reviewed-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
 Reviewed-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Tested-by: Neelima Krishnan <neelima.krishnan@intel.com>
-[bwh: Backported to 3.16:
- - CPU feature words and bugs are numbered differently
- - Adjust filename for <asm/msr-index.h>]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- .../ABI/testing/sysfs-devices-system-cpu      |   1 +
- Documentation/kernel-parameters.txt           |  20 ++++
- arch/x86/include/asm/cpufeatures.h            |   2 +
- arch/x86/include/uapi/asm/msr-index.h         |   4 +
- arch/x86/kernel/cpu/bugs.c                    | 106 ++++++++++++++++++
- arch/x86/kernel/cpu/common.c                  |  31 +++++
- arch/x86/kernel/cpu/cpu.h                     |   1 +
- drivers/base/cpu.c                            |   8 ++
- 8 files changed, 173 insertions(+)
+ .../special-register-buffer-data-sampling.rst | 148 ++++++++++++++++++
+ 1 file changed, 148 insertions(+)
+ create mode 100644 Documentation/hw-vuln/special-register-buffer-data-sampling.rst
 
---- a/Documentation/ABI/testing/sysfs-devices-system-cpu
-+++ b/Documentation/ABI/testing/sysfs-devices-system-cpu
-@@ -232,6 +232,7 @@ What:		/sys/devices/system/cpu/vulnerabi
- 		/sys/devices/system/cpu/vulnerabilities/spec_store_bypass
- 		/sys/devices/system/cpu/vulnerabilities/l1tf
- 		/sys/devices/system/cpu/vulnerabilities/mds
-+		/sys/devices/system/cpu/vulnerabilities/srbds
- 		/sys/devices/system/cpu/vulnerabilities/tsx_async_abort
- 		/sys/devices/system/cpu/vulnerabilities/itlb_multihit
- Date:		January 2018
---- a/Documentation/kernel-parameters.txt
-+++ b/Documentation/kernel-parameters.txt
-@@ -3356,6 +3356,26 @@ bytes respectively. Such letter suffixes
- 	spia_pedr=
- 	spia_peddr=
- 
-+	srbds=		[X86,INTEL]
-+			Control the Special Register Buffer Data Sampling
-+			(SRBDS) mitigation.
+--- /dev/null
++++ b/Documentation/hw-vuln/special-register-buffer-data-sampling.rst
+@@ -0,0 +1,148 @@
++.. SPDX-License-Identifier: GPL-2.0
 +
-+			Certain CPUs are vulnerable to an MDS-like
-+			exploit which can leak bits from the random
-+			number generator.
++SRBDS - Special Register Buffer Data Sampling
++=============================================
 +
-+			By default, this issue is mitigated by
-+			microcode.  However, the microcode fix can cause
-+			the RDRAND and RDSEED instructions to become
-+			much slower.  Among other effects, this will
-+			result in reduced throughput from /dev/urandom.
++SRBDS is a hardware vulnerability that allows MDS :doc:`mds` techniques to
++infer values returned from special register accesses.  Special register
++accesses are accesses to off core registers.  According to Intel's evaluation,
++the special register reads that have a security expectation of privacy are
++RDRAND, RDSEED and SGX EGETKEY.
 +
-+			The microcode mitigation can be disabled with
-+			the following option:
++When RDRAND, RDSEED and EGETKEY instructions are used, the data is moved
++to the core through the special register mechanism that is susceptible
++to MDS attacks.
 +
-+			off:    Disable mitigation and remove
-+				performance impact to RDRAND and RDSEED
++Affected processors
++--------------------
++Core models (desktop, mobile, Xeon-E3) that implement RDRAND and/or RDSEED may
++be affected.
 +
- 	stack_guard_gap=	[MM]
- 			override the default stack gap protection. The value
- 			is in page units and it defines how many pages prior
---- a/arch/x86/include/asm/cpufeatures.h
-+++ b/arch/x86/include/asm/cpufeatures.h
-@@ -247,6 +247,7 @@
- #define X86_FEATURE_AVX512CD	( 9*32+28) /* AVX-512 Conflict Detection */
- 
- /* Intel-defined CPU features, CPUID level 0x00000007:0 (EDX), word 10 */
-+#define X86_FEATURE_SRBDS_CTRL		(10*32+ 9) /* "" SRBDS mitigation MSR available */
- #define X86_FEATURE_MD_CLEAR		(10*32+10) /* VERW clears CPU buffers */
- #define X86_FEATURE_SPEC_CTRL		(10*32+26) /* "" Speculation Control (IBRS + IBPB) */
- #define X86_FEATURE_INTEL_STIBP		(10*32+27) /* "" Single Thread Indirect Branch Predictors */
-@@ -281,5 +282,6 @@
- #define X86_BUG_SWAPGS		X86_BUG(12) /* CPU is affected by speculation through SWAPGS */
- #define X86_BUG_TAA		X86_BUG(13) /* CPU is affected by TSX Async Abort(TAA) */
- #define X86_BUG_ITLB_MULTIHIT	X86_BUG(14) /* CPU may incur MCE during certain page attribute changes */
-+#define X86_BUG_SRBDS		X86_BUG(15) /* CPU may leak RNG bits if not mitigated */
- 
- #endif /* _ASM_X86_CPUFEATURES_H */
---- a/arch/x86/include/uapi/asm/msr-index.h
-+++ b/arch/x86/include/uapi/asm/msr-index.h
-@@ -90,6 +90,10 @@
- #define TSX_CTRL_RTM_DISABLE		(1UL << 0) /* Disable RTM feature */
- #define TSX_CTRL_CPUID_CLEAR		(1UL << 1) /* Disable TSX enumeration */
- 
-+/* SRBDS support */
-+#define MSR_IA32_MCU_OPT_CTRL		0x00000123
-+#define RNGDS_MITG_DIS			BIT(0)
++A processor is affected by SRBDS if its Family_Model and stepping is
++in the following list, with the exception of the listed processors
++exporting MDS_NO while Intel TSX is available yet not enabled. The
++latter class of processors are only affected when Intel TSX is enabled
++by software using TSX_CTRL_MSR otherwise they are not affected.
 +
- #define MSR_IA32_SYSENTER_CS		0x00000174
- #define MSR_IA32_SYSENTER_ESP		0x00000175
- #define MSR_IA32_SYSENTER_EIP		0x00000176
---- a/arch/x86/kernel/cpu/bugs.c
-+++ b/arch/x86/kernel/cpu/bugs.c
-@@ -38,6 +38,7 @@ static void __init ssb_select_mitigation
- static void __init l1tf_select_mitigation(void);
- static void __init mds_select_mitigation(void);
- static void __init taa_select_mitigation(void);
-+static void __init srbds_select_mitigation(void);
- 
- /* The base value of the SPEC_CTRL MSR that always has to be preserved. */
- u64 x86_spec_ctrl_base;
-@@ -159,6 +160,7 @@ void __init check_bugs(void)
- 	l1tf_select_mitigation();
- 	mds_select_mitigation();
- 	taa_select_mitigation();
-+	srbds_select_mitigation();
- 
- 	arch_smt_update();
- 
-@@ -417,6 +419,97 @@ static int __init tsx_async_abort_parse_
- early_param("tsx_async_abort", tsx_async_abort_parse_cmdline);
- 
- #undef pr_fmt
-+#define pr_fmt(fmt)	"SRBDS: " fmt
++  =============  ============  ========
++  common name    Family_Model  Stepping
++  =============  ============  ========
++  Haswell        06_3CH        All
++  Haswell_L      06_45H        All
++  Haswell_G      06_46H        All
 +
-+enum srbds_mitigations {
-+	SRBDS_MITIGATION_OFF,
-+	SRBDS_MITIGATION_UCODE_NEEDED,
-+	SRBDS_MITIGATION_FULL,
-+	SRBDS_MITIGATION_TSX_OFF,
-+	SRBDS_MITIGATION_HYPERVISOR,
-+};
++  Broadwell_G    06_47H        All
++  Broadwell      06_3DH        All
 +
-+static enum srbds_mitigations srbds_mitigation = SRBDS_MITIGATION_FULL;
++  Skylake_L      06_4EH        All
++  Skylake        06_5EH        All
 +
-+static const char * const srbds_strings[] = {
-+	[SRBDS_MITIGATION_OFF]		= "Vulnerable",
-+	[SRBDS_MITIGATION_UCODE_NEEDED]	= "Vulnerable: No microcode",
-+	[SRBDS_MITIGATION_FULL]		= "Mitigation: Microcode",
-+	[SRBDS_MITIGATION_TSX_OFF]	= "Mitigation: TSX disabled",
-+	[SRBDS_MITIGATION_HYPERVISOR]	= "Unknown: Dependent on hypervisor status",
-+};
++  Kabylake_L     06_8EH        <=0xC
 +
-+static bool srbds_off;
++  Kabylake       06_9EH        <=0xD
++  =============  ============  ========
 +
-+void update_srbds_msr(void)
-+{
-+	u64 mcu_ctrl;
++Related CVEs
++------------
 +
-+	if (!boot_cpu_has_bug(X86_BUG_SRBDS))
-+		return;
++The following CVE entry is related to this SRBDS issue:
 +
-+	if (boot_cpu_has(X86_FEATURE_HYPERVISOR))
-+		return;
++    ==============  =====  =====================================
++    CVE-2020-0543   SRBDS  Special Register Buffer Data Sampling
++    ==============  =====  =====================================
 +
-+	if (srbds_mitigation == SRBDS_MITIGATION_UCODE_NEEDED)
-+		return;
++Attack scenarios
++----------------
++An unprivileged user can extract values returned from RDRAND and RDSEED
++executed on another core or sibling thread using MDS techniques.
 +
-+	rdmsrl(MSR_IA32_MCU_OPT_CTRL, mcu_ctrl);
 +
-+	switch (srbds_mitigation) {
-+	case SRBDS_MITIGATION_OFF:
-+	case SRBDS_MITIGATION_TSX_OFF:
-+		mcu_ctrl |= RNGDS_MITG_DIS;
-+		break;
-+	case SRBDS_MITIGATION_FULL:
-+		mcu_ctrl &= ~RNGDS_MITG_DIS;
-+		break;
-+	default:
-+		break;
-+	}
++Mitigation mechanism
++-------------------
++Intel will release microcode updates that modify the RDRAND, RDSEED, and
++EGETKEY instructions to overwrite secret special register data in the shared
++staging buffer before the secret data can be accessed by another logical
++processor.
 +
-+	wrmsrl(MSR_IA32_MCU_OPT_CTRL, mcu_ctrl);
-+}
++During execution of the RDRAND, RDSEED, or EGETKEY instructions, off-core
++accesses from other logical processors will be delayed until the special
++register read is complete and the secret data in the shared staging buffer is
++overwritten.
 +
-+static void __init srbds_select_mitigation(void)
-+{
-+	u64 ia32_cap;
++This has three effects on performance:
 +
-+	if (!boot_cpu_has_bug(X86_BUG_SRBDS))
-+		return;
++#. RDRAND, RDSEED, or EGETKEY instructions have higher latency.
 +
-+	/*
-+	 * Check to see if this is one of the MDS_NO systems supporting
-+	 * TSX that are only exposed to SRBDS when TSX is enabled.
-+	 */
-+	ia32_cap = x86_read_arch_cap_msr();
-+	if ((ia32_cap & ARCH_CAP_MDS_NO) && !boot_cpu_has(X86_FEATURE_RTM))
-+		srbds_mitigation = SRBDS_MITIGATION_TSX_OFF;
-+	else if (boot_cpu_has(X86_FEATURE_HYPERVISOR))
-+		srbds_mitigation = SRBDS_MITIGATION_HYPERVISOR;
-+	else if (!boot_cpu_has(X86_FEATURE_SRBDS_CTRL))
-+		srbds_mitigation = SRBDS_MITIGATION_UCODE_NEEDED;
-+	else if (cpu_mitigations_off() || srbds_off)
-+		srbds_mitigation = SRBDS_MITIGATION_OFF;
++#. Executing RDRAND at the same time on multiple logical processors will be
++   serialized, resulting in an overall reduction in the maximum RDRAND
++   bandwidth.
 +
-+	update_srbds_msr();
-+	pr_info("%s\n", srbds_strings[srbds_mitigation]);
-+}
++#. Executing RDRAND, RDSEED or EGETKEY will delay memory accesses from other
++   logical processors that miss their core caches, with an impact similar to
++   legacy locked cache-line-split accesses.
 +
-+static int __init srbds_parse_cmdline(char *str)
-+{
-+	if (!str)
-+		return -EINVAL;
++The microcode updates provide an opt-out mechanism (RNGDS_MITG_DIS) to disable
++the mitigation for RDRAND and RDSEED instructions executed outside of Intel
++Software Guard Extensions (Intel SGX) enclaves. On logical processors that
++disable the mitigation using this opt-out mechanism, RDRAND and RDSEED do not
++take longer to execute and do not impact performance of sibling logical
++processors memory accesses. The opt-out mechanism does not affect Intel SGX
++enclaves (including execution of RDRAND or RDSEED inside an enclave, as well
++as EGETKEY execution).
 +
-+	if (!boot_cpu_has_bug(X86_BUG_SRBDS))
-+		return 0;
++IA32_MCU_OPT_CTRL MSR Definition
++--------------------------------
++Along with the mitigation for this issue, Intel added a new thread-scope
++IA32_MCU_OPT_CTRL MSR, (address 0x123). The presence of this MSR and
++RNGDS_MITG_DIS (bit 0) is enumerated by CPUID.(EAX=07H,ECX=0).EDX[SRBDS_CTRL =
++9]==1. This MSR is introduced through the microcode update.
 +
-+	srbds_off = !strcmp(str, "off");
-+	return 0;
-+}
-+early_param("srbds", srbds_parse_cmdline);
++Setting IA32_MCU_OPT_CTRL[0] (RNGDS_MITG_DIS) to 1 for a logical processor
++disables the mitigation for RDRAND and RDSEED executed outside of an Intel SGX
++enclave on that logical processor. Opting out of the mitigation for a
++particular logical processor does not affect the RDRAND and RDSEED mitigations
++for other logical processors.
 +
-+#undef pr_fmt
- #define pr_fmt(fmt)     "Spectre V1 : " fmt
- 
- enum spectre_v1_mitigation {
-@@ -1422,6 +1515,11 @@ static char *ibpb_state(void)
- 	return "";
- }
- 
-+static ssize_t srbds_show_state(char *buf)
-+{
-+	return sprintf(buf, "%s\n", srbds_strings[srbds_mitigation]);
-+}
++Note that inside of an Intel SGX enclave, the mitigation is applied regardless
++of the value of RNGDS_MITG_DS.
 +
- static ssize_t cpu_show_common(struct device *dev, struct device_attribute *attr,
- 			       char *buf, unsigned int bug)
- {
-@@ -1463,6 +1561,9 @@ static ssize_t cpu_show_common(struct de
- 	case X86_BUG_ITLB_MULTIHIT:
- 		return itlb_multihit_show_state(buf);
- 
-+	case X86_BUG_SRBDS:
-+		return srbds_show_state(buf);
++Mitigation control on the kernel command line
++---------------------------------------------
++The kernel command line allows control over the SRBDS mitigation at boot time
++with the option "srbds=".  The option for this is:
 +
- 	default:
- 		break;
- 	}
-@@ -1509,4 +1610,9 @@ ssize_t cpu_show_itlb_multihit(struct de
- {
- 	return cpu_show_common(dev, attr, buf, X86_BUG_ITLB_MULTIHIT);
- }
++  ============= =============================================================
++  off           This option disables SRBDS mitigation for RDRAND and RDSEED on
++                affected platforms.
++  ============= =============================================================
 +
-+ssize_t cpu_show_srbds(struct device *dev, struct device_attribute *attr, char *buf)
-+{
-+	return cpu_show_common(dev, attr, buf, X86_BUG_SRBDS);
-+}
- #endif
---- a/arch/x86/kernel/cpu/common.c
-+++ b/arch/x86/kernel/cpu/common.c
-@@ -872,6 +872,27 @@ static const __initconst struct x86_cpu_
- 	{}
- };
- 
-+#define VULNBL_INTEL_STEPPINGS(model, steppings, issues)		   \
-+	X86_MATCH_VENDOR_FAM_MODEL_STEPPINGS_FEATURE(INTEL, 6,		   \
-+					    INTEL_FAM6_##model, steppings, \
-+					    X86_FEATURE_ANY, issues)
++SRBDS System Information
++-----------------------
++The Linux kernel provides vulnerability status information through sysfs.  For
++SRBDS this can be accessed by the following sysfs file:
++/sys/devices/system/cpu/vulnerabilities/srbds
 +
-+#define SRBDS		BIT(0)
++The possible values contained in this file are:
 +
-+static const struct x86_cpu_id cpu_vuln_blacklist[] __initconst = {
-+	VULNBL_INTEL_STEPPINGS(IVYBRIDGE,	X86_STEPPING_ANY,		SRBDS),
-+	VULNBL_INTEL_STEPPINGS(HASWELL_CORE,	X86_STEPPING_ANY,		SRBDS),
-+	VULNBL_INTEL_STEPPINGS(HASWELL_ULT,	X86_STEPPING_ANY,		SRBDS),
-+	VULNBL_INTEL_STEPPINGS(HASWELL_GT3E,	X86_STEPPING_ANY,		SRBDS),
-+	VULNBL_INTEL_STEPPINGS(BROADWELL_GT3E,	X86_STEPPING_ANY,		SRBDS),
-+	VULNBL_INTEL_STEPPINGS(BROADWELL_CORE,	X86_STEPPING_ANY,		SRBDS),
-+	VULNBL_INTEL_STEPPINGS(SKYLAKE_MOBILE,	X86_STEPPING_ANY,		SRBDS),
-+	VULNBL_INTEL_STEPPINGS(SKYLAKE_DESKTOP,	X86_STEPPING_ANY,		SRBDS),
-+	VULNBL_INTEL_STEPPINGS(KABYLAKE_MOBILE,	X86_STEPPINGS(0x0, 0xC),	SRBDS),
-+	VULNBL_INTEL_STEPPINGS(KABYLAKE_DESKTOP,X86_STEPPINGS(0x0, 0xD),	SRBDS),
-+	{}
-+};
++ ============================== =============================================
++ Not affected                   Processor not vulnerable
++ Vulnerable                     Processor vulnerable and mitigation disabled
++ Vulnerable: No microcode       Processor vulnerable and microcode is missing
++                                mitigation
++ Mitigation: Microcode          Processor is vulnerable and mitigation is in
++                                effect.
++ Mitigation: TSX disabled       Processor is only vulnerable when TSX is
++                                enabled while this system was booted with TSX
++                                disabled.
++ Unknown: Dependent on
++ hypervisor status              Running on virtual guest processor that is
++                                affected but with no way to know if host
++                                processor is mitigated or vulnerable.
++ ============================== =============================================
 +
- static bool __init cpu_matches(const struct x86_cpu_id *table, unsigned long which)
- {
- 	const struct x86_cpu_id *m = x86_match_cpu(table);
-@@ -937,6 +958,15 @@ static void __init cpu_set_bug_bits(stru
- 	     (ia32_cap & ARCH_CAP_TSX_CTRL_MSR)))
- 		setup_force_cpu_bug(X86_BUG_TAA);
- 
-+	/*
-+	 * SRBDS affects CPUs which support RDRAND or RDSEED and are listed
-+	 * in the vulnerability blacklist.
-+	 */
-+	if ((cpu_has(c, X86_FEATURE_RDRAND) ||
-+	     cpu_has(c, X86_FEATURE_RDSEED)) &&
-+	    cpu_matches(cpu_vuln_blacklist, SRBDS))
-+		    setup_force_cpu_bug(X86_BUG_SRBDS);
-+
- 	if (cpu_matches(cpu_vuln_whitelist, NO_MELTDOWN))
- 		return;
- 
-@@ -1283,6 +1313,7 @@ void identify_secondary_cpu(struct cpuin
- #endif
- 	mtrr_ap_init();
- 	x86_spec_ctrl_setup_ap();
-+	update_srbds_msr();
- }
- 
- struct msr_range {
---- a/arch/x86/kernel/cpu/cpu.h
-+++ b/arch/x86/kernel/cpu/cpu.h
-@@ -63,6 +63,7 @@ extern void get_cpu_cap(struct cpuinfo_x
- extern void cpu_detect_cache_sizes(struct cpuinfo_x86 *c);
-  
- extern void x86_spec_ctrl_setup_ap(void);
-+extern void update_srbds_msr(void);
- 
- extern u64 x86_read_arch_cap_msr(void);
- 
---- a/drivers/base/cpu.c
-+++ b/drivers/base/cpu.c
-@@ -469,6 +469,12 @@ ssize_t __weak cpu_show_itlb_multihit(st
- 	return sprintf(buf, "Not affected\n");
- }
- 
-+ssize_t __weak cpu_show_srbds(struct device *dev,
-+			      struct device_attribute *attr, char *buf)
-+{
-+	return sprintf(buf, "Not affected\n");
-+}
-+
- static DEVICE_ATTR(meltdown, 0444, cpu_show_meltdown, NULL);
- static DEVICE_ATTR(spectre_v1, 0444, cpu_show_spectre_v1, NULL);
- static DEVICE_ATTR(spectre_v2, 0444, cpu_show_spectre_v2, NULL);
-@@ -477,6 +483,7 @@ static DEVICE_ATTR(l1tf, 0444, cpu_show_
- static DEVICE_ATTR(mds, 0444, cpu_show_mds, NULL);
- static DEVICE_ATTR(tsx_async_abort, 0444, cpu_show_tsx_async_abort, NULL);
- static DEVICE_ATTR(itlb_multihit, 0444, cpu_show_itlb_multihit, NULL);
-+static DEVICE_ATTR(srbds, 0444, cpu_show_srbds, NULL);
- 
- static struct attribute *cpu_root_vulnerabilities_attrs[] = {
- 	&dev_attr_meltdown.attr,
-@@ -487,6 +494,7 @@ static struct attribute *cpu_root_vulner
- 	&dev_attr_mds.attr,
- 	&dev_attr_tsx_async_abort.attr,
- 	&dev_attr_itlb_multihit.attr,
-+	&dev_attr_srbds.attr,
- 	NULL
- };
- 
++SRBDS Default mitigation
++------------------------
++This new microcode serializes processor access during execution of RDRAND,
++RDSEED ensures that the shared buffer is overwritten before it is released for
++reuse.  Use the "srbds=off" kernel command line to disable the mitigation for
++RDRAND and RDSEED.
 
