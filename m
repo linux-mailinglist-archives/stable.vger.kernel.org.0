@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FAA31F42AA
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 19:46:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3058F1F42AF
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 19:46:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731910AbgFIRqT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Jun 2020 13:46:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56092 "EHLO mail.kernel.org"
+        id S1731950AbgFIRqb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Jun 2020 13:46:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56408 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728440AbgFIRqR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Jun 2020 13:46:17 -0400
+        id S1731928AbgFIRq0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Jun 2020 13:46:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3105420812;
-        Tue,  9 Jun 2020 17:46:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 59A972081A;
+        Tue,  9 Jun 2020 17:46:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591724775;
-        bh=1v+8pQJ2MGHqi5djMU3ruNLkZLDmt6+87t8aQprpRs4=;
+        s=default; t=1591724784;
+        bh=HtOKJ+6AhzRcJp42rN8vMCosQZR/IW/NBwTb7UtPEfQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ymmMk6r6PB2xuf/Udpad3OV3n/ISist/kYT4/SElOxLsYZHSpidfKW0VeItUBmKmR
-         X+WNgWNdidpQ9jvLD2SLdg3EEREfRn8PIporvlaj4nYoTQorKnVUW3uSTPYjAnqr/8
-         MV+XR/Z0TDW2zPE+oYzGOytiBh6gCxb+KY/cLoBU=
+        b=rclGf4Y3iN4zmI1W7O73mS+Rzjzby9epkvo98b0keK2AR+dzeHRJ9I0hsufxswY0j
+         OuuPFl6Xo/eKHiRFdR3a5x0i0ic9CkvLlShc0yDhC2ZZ68Uf2BspiS1MCv9njNROEv
+         cOCXDZ9n15rdULmdQ7lHk0xieLRjNqVi4ude1Usg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Samuel Sieb <samuel-kbugs@sieb.net>,
-        "Lee, Chun-Yi" <jlee@suse.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 4.4 03/36] platform/x86: acer-wmi: setup accelerometer when ACPI device was found
-Date:   Tue,  9 Jun 2020 19:44:03 +0200
-Message-Id: <20200609173933.485128117@linuxfoundation.org>
+        stable@vger.kernel.org, fengsheng <fengsheng5@huawei.com>,
+        Xinwei Kong <kong.kongxinwei@hisilicon.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 07/36] spi: dw: use "smp_mb()" to avoid sending spi data error
+Date:   Tue,  9 Jun 2020 19:44:07 +0200
+Message-Id: <20200609173933.708823642@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200609173933.288044334@linuxfoundation.org>
 References: <20200609173933.288044334@linuxfoundation.org>
@@ -45,66 +45,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lee, Chun-Yi <joeyli.kernel@gmail.com>
+From: Xinwei Kong <kong.kongxinwei@hisilicon.com>
 
-commit f9ac89f5ad613b462339e845aeb8494646fd9be2 upstream.
+[ Upstream commit bfda044533b213985bc62bd7ca96f2b984d21b80 ]
 
-The 98d610c3739a patch was introduced since v4.11-rc1 that it causes
-that the accelerometer input device will not be created on workable
-machines because the HID string comparing logic is wrong.
+Because of out-of-order execution about some CPU architecture,
+In this debug stage we find Completing spi interrupt enable ->
+prodrucing TXEI interrupt -> running "interrupt_transfer" function
+will prior to set "dw->rx and dws->rx_end" data, so this patch add
+memory barrier to enable dw->rx and dw->rx_end to be visible and
+solve to send SPI data error.
+eg:
+it will fix to this following low possibility error in testing environment
+which using SPI control to connect TPM Modules
 
-And, the patch doesn't prevent that the accelerometer input device
-be created on the machines that have no BST0001. That's because
-the acpi_get_devices() returns success even it didn't find any
-match device.
+kernel: tpm tpm0: Operation Timed out
+kernel: tpm tpm0: tpm_relinquish_locality: : error -1
 
-This patch fixed the HID string comparing logic of BST0001 device.
-And, it also makes sure that the acpi_get_devices() returns
-acpi_handle for BST0001.
-
-Fixes: 98d610c3739a ("acer-wmi: setup accelerometer when machine has appropriate notify event")
-Reference: https://bugzilla.kernel.org/show_bug.cgi?id=193761
-Reported-by: Samuel Sieb <samuel-kbugs@sieb.net>
-Signed-off-by: "Lee, Chun-Yi" <jlee@suse.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: fengsheng <fengsheng5@huawei.com>
+Signed-off-by: Xinwei Kong <kong.kongxinwei@hisilicon.com>
+Link: https://lore.kernel.org/r/1578019930-55858-1-git-send-email-kong.kongxinwei@hisilicon.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/acer-wmi.c |    9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ drivers/spi/spi-dw.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/platform/x86/acer-wmi.c
-+++ b/drivers/platform/x86/acer-wmi.c
-@@ -1826,7 +1826,7 @@ static acpi_status __init acer_wmi_get_h
- 	if (!strcmp(ctx, "SENR")) {
- 		if (acpi_bus_get_device(ah, &dev))
- 			return AE_OK;
--		if (!strcmp(ACER_WMID_ACCEL_HID, acpi_device_hid(dev)))
-+		if (strcmp(ACER_WMID_ACCEL_HID, acpi_device_hid(dev)))
- 			return AE_OK;
- 	} else
- 		return AE_OK;
-@@ -1847,8 +1847,7 @@ static int __init acer_wmi_get_handle(co
- 	handle = NULL;
- 	status = acpi_get_devices(prop, acer_wmi_get_handle_cb,
- 					(void *)name, &handle);
--
--	if (ACPI_SUCCESS(status)) {
-+	if (ACPI_SUCCESS(status) && handle) {
- 		*ah = handle;
- 		return 0;
- 	} else {
-@@ -2199,8 +2198,8 @@ static int __init acer_wmi_init(void)
- 		if (err)
- 			return err;
- 		err = acer_wmi_accel_setup();
--		if (err)
--			return err;
-+		if (err && err != -ENODEV)
-+			pr_warn("Cannot enable accelerometer\n");
- 	}
+diff --git a/drivers/spi/spi-dw.c b/drivers/spi/spi-dw.c
+index 4edd38d03b93..5688591e9cd3 100644
+--- a/drivers/spi/spi-dw.c
++++ b/drivers/spi/spi-dw.c
+@@ -306,6 +306,9 @@ static int dw_spi_transfer_one(struct spi_master *master,
+ 	dws->len = transfer->len;
+ 	spin_unlock_irqrestore(&dws->buf_lock, flags);
  
- 	err = platform_driver_register(&acer_platform_driver);
++	/* Ensure dw->rx and dw->rx_end are visible */
++	smp_mb();
++
+ 	spi_enable_chip(dws, 0);
+ 
+ 	/* Handle per transfer options for bpw and speed */
+-- 
+2.25.1
+
 
 
