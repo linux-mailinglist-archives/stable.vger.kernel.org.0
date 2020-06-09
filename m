@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BE121F447F
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:05:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8152D1F4554
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:15:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733165AbgFISFW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Jun 2020 14:05:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41270 "EHLO mail.kernel.org"
+        id S1732686AbgFIRub (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Jun 2020 13:50:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38030 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732714AbgFIRvp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Jun 2020 13:51:45 -0400
+        id S1732678AbgFIRua (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Jun 2020 13:50:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3702C20774;
-        Tue,  9 Jun 2020 17:51:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B79862074B;
+        Tue,  9 Jun 2020 17:50:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591725104;
-        bh=YUQ3zE6gHknWLZQ8cWA+ZL/A4ox6L2Wm10Hf9XSjg5U=;
+        s=default; t=1591725029;
+        bh=qbdyCf58m8+ORdca2KSYY9BjsjLeAO/ctzG3MgN7rTo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zuG3f/WgEjhhwoSvFLWEFenvf3xEE4H9UfUOJdxihMb6CULYzHGSyJpZfCOgvQb5C
-         B2RHn60sXC3gkMbupcbDBp7ZdVndEy4BQg1hZXGu6eaHKJvO20tcU76QwszO0n4OBN
-         BkdkmZI010O08pfryRlsn+chthxDlST9QU+hVoLM=
+        b=0XTpYkFmAWYQ5NJcpROsHBPFKjH+7lvgX6tYRl8i1NLUuyjlVjCHO/VpQ5r4hMmNs
+         nTCcV6zjOSfmQmMKLipg8TfwSd4XcY1R8FpCfA+NELukeka5JNqjABEeuKBLqEXhAe
+         iX3lmv0HRFqETCk99bu3G1hl7DXQeQIF+6zBeh+M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chuhong Yuan <hslester96@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 05/25] NFC: st21nfca: add missed kfree_skb() in an error path
-Date:   Tue,  9 Jun 2020 19:44:55 +0200
-Message-Id: <20200609174049.232877910@linuxfoundation.org>
+        stable@vger.kernel.org, Mark Gross <mgross@linux.intel.com>,
+        Borislav Petkov <bp@suse.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Tony Luck <tony.luck@intel.com>,
+        Josh Poimboeuf <jpoimboe@redhat.com>
+Subject: [PATCH 4.14 40/46] x86/cpu: Add a steppings field to struct x86_cpu_id
+Date:   Tue,  9 Jun 2020 19:44:56 +0200
+Message-Id: <20200609174030.416433946@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200609174048.576094775@linuxfoundation.org>
-References: <20200609174048.576094775@linuxfoundation.org>
+In-Reply-To: <20200609174022.938987501@linuxfoundation.org>
+References: <20200609174022.938987501@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,34 +46,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuhong Yuan <hslester96@gmail.com>
+From: Mark Gross <mgross@linux.intel.com>
 
-[ Upstream commit 3decabdc714ca56c944f4669b4cdec5c2c1cea23 ]
+commit e9d7144597b10ff13ff2264c059f7d4a7fbc89ac upstream
 
-st21nfca_tm_send_atr_res() misses to call kfree_skb() in an error path.
-Add the missed function call to fix it.
+Intel uses the same family/model for several CPUs. Sometimes the
+stepping must be checked to tell them apart.
 
-Fixes: 1892bf844ea0 ("NFC: st21nfca: Adding P2P support to st21nfca in Initiator & Target mode")
-Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+On x86 there can be at most 16 steppings. Add a steppings bitmask to
+x86_cpu_id and a X86_MATCH_VENDOR_FAMILY_MODEL_STEPPING_FEATURE macro
+and support for matching against family/model/stepping.
+
+ [ bp: Massage.
+   tglx: Lightweight variant for backporting ]
+
+Signed-off-by: Mark Gross <mgross@linux.intel.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Tony Luck <tony.luck@intel.com>
+Reviewed-by: Josh Poimboeuf <jpoimboe@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nfc/st21nfca/dep.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/x86/include/asm/cpu_device_id.h |   27 +++++++++++++++++++++++++++
+ arch/x86/kernel/cpu/match.c          |    7 ++++++-
+ include/linux/mod_devicetable.h      |    6 ++++++
+ 3 files changed, 39 insertions(+), 1 deletion(-)
 
---- a/drivers/nfc/st21nfca/dep.c
-+++ b/drivers/nfc/st21nfca/dep.c
-@@ -184,8 +184,10 @@ static int st21nfca_tm_send_atr_res(stru
- 		memcpy(atr_res->gbi, atr_req->gbi, gb_len);
- 		r = nfc_set_remote_general_bytes(hdev->ndev, atr_res->gbi,
- 						  gb_len);
--		if (r < 0)
-+		if (r < 0) {
-+			kfree_skb(skb);
- 			return r;
-+		}
- 	}
+--- a/arch/x86/include/asm/cpu_device_id.h
++++ b/arch/x86/include/asm/cpu_device_id.h
+@@ -9,6 +9,33 @@
  
- 	info->dep_info.curr_nfc_dep_pni = 0;
+ #include <linux/mod_devicetable.h>
+ 
++#define X86_STEPPINGS(mins, maxs)    GENMASK(maxs, mins)
++
++/**
++ * X86_MATCH_VENDOR_FAM_MODEL_STEPPINGS_FEATURE - Base macro for CPU matching
++ * @_vendor:	The vendor name, e.g. INTEL, AMD, HYGON, ..., ANY
++ *		The name is expanded to X86_VENDOR_@_vendor
++ * @_family:	The family number or X86_FAMILY_ANY
++ * @_model:	The model number, model constant or X86_MODEL_ANY
++ * @_steppings:	Bitmask for steppings, stepping constant or X86_STEPPING_ANY
++ * @_feature:	A X86_FEATURE bit or X86_FEATURE_ANY
++ * @_data:	Driver specific data or NULL. The internal storage
++ *		format is unsigned long. The supplied value, pointer
++ *		etc. is casted to unsigned long internally.
++ *
++ * Backport version to keep the SRBDS pile consistant. No shorter variants
++ * required for this.
++ */
++#define X86_MATCH_VENDOR_FAM_MODEL_STEPPINGS_FEATURE(_vendor, _family, _model, \
++						    _steppings, _feature, _data) { \
++	.vendor		= X86_VENDOR_##_vendor,				\
++	.family		= _family,					\
++	.model		= _model,					\
++	.steppings	= _steppings,					\
++	.feature	= _feature,					\
++	.driver_data	= (unsigned long) _data				\
++}
++
+ extern const struct x86_cpu_id *x86_match_cpu(const struct x86_cpu_id *match);
+ 
+ #endif
+--- a/arch/x86/kernel/cpu/match.c
++++ b/arch/x86/kernel/cpu/match.c
+@@ -34,13 +34,18 @@ const struct x86_cpu_id *x86_match_cpu(c
+ 	const struct x86_cpu_id *m;
+ 	struct cpuinfo_x86 *c = &boot_cpu_data;
+ 
+-	for (m = match; m->vendor | m->family | m->model | m->feature; m++) {
++	for (m = match;
++	     m->vendor | m->family | m->model | m->steppings | m->feature;
++	     m++) {
+ 		if (m->vendor != X86_VENDOR_ANY && c->x86_vendor != m->vendor)
+ 			continue;
+ 		if (m->family != X86_FAMILY_ANY && c->x86 != m->family)
+ 			continue;
+ 		if (m->model != X86_MODEL_ANY && c->x86_model != m->model)
+ 			continue;
++		if (m->steppings != X86_STEPPING_ANY &&
++		    !(BIT(c->x86_stepping) & m->steppings))
++			continue;
+ 		if (m->feature != X86_FEATURE_ANY && !cpu_has(c, m->feature))
+ 			continue;
+ 		return m;
+--- a/include/linux/mod_devicetable.h
++++ b/include/linux/mod_devicetable.h
+@@ -589,6 +589,10 @@ struct mips_cdmm_device_id {
+ /*
+  * MODULE_DEVICE_TABLE expects this struct to be called x86cpu_device_id.
+  * Although gcc seems to ignore this error, clang fails without this define.
++ *
++ * Note: The ordering of the struct is different from upstream because the
++ * static initializers in kernels < 5.7 still use C89 style while upstream
++ * has been converted to proper C99 initializers.
+  */
+ #define x86cpu_device_id x86_cpu_id
+ struct x86_cpu_id {
+@@ -597,6 +601,7 @@ struct x86_cpu_id {
+ 	__u16 model;
+ 	__u16 feature;	/* bit index */
+ 	kernel_ulong_t driver_data;
++	__u16 steppings;
+ };
+ 
+ #define X86_FEATURE_MATCH(x) \
+@@ -605,6 +610,7 @@ struct x86_cpu_id {
+ #define X86_VENDOR_ANY 0xffff
+ #define X86_FAMILY_ANY 0
+ #define X86_MODEL_ANY  0
++#define X86_STEPPING_ANY 0
+ #define X86_FEATURE_ANY 0	/* Same as FPU, you can't test for that */
+ 
+ /*
 
 
