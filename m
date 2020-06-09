@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 835B21F42C2
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 19:47:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0001A1F42C5
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 19:47:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732087AbgFIRrX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Jun 2020 13:47:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58554 "EHLO mail.kernel.org"
+        id S1732040AbgFIRrl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Jun 2020 13:47:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58982 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732061AbgFIRrU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Jun 2020 13:47:20 -0400
+        id S1732133AbgFIRrj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Jun 2020 13:47:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9E0D6207F9;
-        Tue,  9 Jun 2020 17:47:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1122C20823;
+        Tue,  9 Jun 2020 17:47:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591724840;
-        bh=uxgkLmEM+qRpdRQoAjDFTn3eJyZ9H2fvH5ojL6T9T60=;
+        s=default; t=1591724858;
+        bh=hTuX6Gj/Z///hx0xMNbk6em5czwcq15xu7qUuc2sooU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CMesLuVscIlxMrGCM4cUiH3H70+KmQIqJ6g019syGzvn+MkygQ5FxRQJa7tuQxb3O
-         SFqs0Z9hbAT0p8tQTtVSX2DN5FcVfLtn/VIFMPLNKzbA1a7bRqWiRP9vxa5zRnLAqI
-         vwwjDHIoH8b5MjIlyB4MsyHMl/8BC7RR4JlSXaN4=
+        b=qTH6nwMx44ZfMLS4AoPa6VcNqpQT/+yzWwNQMUK6Dovgzunz2M9rRQZqVgwY6Jqza
+         mCTOAT4Pqf7vdhEkq2lyO3MhW3faQjax+1WfNKp4dr8cDXostQCY6k/LYSUAIHGaxR
+         cV/T5KrJmYIiqcC8vOA6MjZs5sQPRddtA0AQKNfI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?David=20Bala=C5=BEic?= <xerces9@gmail.com>,
-        Guillaume Nault <gnault@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 14/36] pppoe: only process PADT targeted at local interfaces
-Date:   Tue,  9 Jun 2020 19:44:14 +0200
-Message-Id: <20200609173934.094297589@linuxfoundation.org>
+        stable@vger.kernel.org, Jonathan McDowell <noodles@earth.li>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 10/42] net: ethernet: stmmac: Enable interface clocks on probe for IPQ806x
+Date:   Tue,  9 Jun 2020 19:44:16 +0200
+Message-Id: <20200609174016.550278310@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200609173933.288044334@linuxfoundation.org>
-References: <20200609173933.288044334@linuxfoundation.org>
+In-Reply-To: <20200609174015.379493548@linuxfoundation.org>
+References: <20200609174015.379493548@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,32 +44,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guillaume Nault <gnault@redhat.com>
+From: Jonathan McDowell <noodles@earth.li>
 
-We don't want to disconnect a session because of a stray PADT arriving
-while the interface is in promiscuous mode.
-Furthermore, multicast and broadcast packets make no sense here, so
-only PACKET_HOST is accepted.
+[ Upstream commit a96ac8a0045e3cbe3e5af6d1b3c78c6c2065dec5 ]
 
-Reported-by: David Balažic <xerces9@gmail.com>
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Guillaume Nault <gnault@redhat.com>
+The ipq806x_gmac_probe() function enables the PTP clock but not the
+appropriate interface clocks. This means that if the bootloader hasn't
+done so attempting to bring up the interface will fail with an error
+like:
+
+[   59.028131] ipq806x-gmac-dwmac 37600000.ethernet: Failed to reset the dma
+[   59.028196] ipq806x-gmac-dwmac 37600000.ethernet eth1: stmmac_hw_setup: DMA engine initialization failed
+[   59.034056] ipq806x-gmac-dwmac 37600000.ethernet eth1: stmmac_open: Hw setup failed
+
+This patch, a slightly cleaned up version of one posted by Sergey
+Sergeev in:
+
+https://forum.openwrt.org/t/support-for-mikrotik-rb3011uias-rm/4064/257
+
+correctly enables the clock; we have already configured the source just
+before this.
+
+Tested on a MikroTik RB3011.
+
+Signed-off-by: Jonathan McDowell <noodles@earth.li>
 Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ppp/pppoe.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/ethernet/stmicro/stmmac/dwmac-ipq806x.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
---- a/drivers/net/ppp/pppoe.c
-+++ b/drivers/net/ppp/pppoe.c
-@@ -494,6 +494,9 @@ static int pppoe_disc_rcv(struct sk_buff
- 	if (!skb)
- 		goto out;
+diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac-ipq806x.c b/drivers/net/ethernet/stmicro/stmmac/dwmac-ipq806x.c
+index 11a4a81b0397..bcc5d1e16ce2 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac-ipq806x.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-ipq806x.c
+@@ -330,6 +330,19 @@ static int ipq806x_gmac_probe(struct platform_device *pdev)
+ 	/* Enable PTP clock */
+ 	regmap_read(gmac->nss_common, NSS_COMMON_CLK_GATE, &val);
+ 	val |= NSS_COMMON_CLK_GATE_PTP_EN(gmac->id);
++	switch (gmac->phy_mode) {
++	case PHY_INTERFACE_MODE_RGMII:
++		val |= NSS_COMMON_CLK_GATE_RGMII_RX_EN(gmac->id) |
++			NSS_COMMON_CLK_GATE_RGMII_TX_EN(gmac->id);
++		break;
++	case PHY_INTERFACE_MODE_SGMII:
++		val |= NSS_COMMON_CLK_GATE_GMII_RX_EN(gmac->id) |
++				NSS_COMMON_CLK_GATE_GMII_TX_EN(gmac->id);
++		break;
++	default:
++		/* We don't get here; the switch above will have errored out */
++		unreachable();
++	}
+ 	regmap_write(gmac->nss_common, NSS_COMMON_CLK_GATE, val);
  
-+	if (skb->pkt_type != PACKET_HOST)
-+		goto abort;
-+
- 	if (!pskb_may_pull(skb, sizeof(struct pppoe_hdr)))
- 		goto abort;
- 
+ 	if (gmac->phy_mode == PHY_INTERFACE_MODE_SGMII) {
+-- 
+2.25.1
+
 
 
