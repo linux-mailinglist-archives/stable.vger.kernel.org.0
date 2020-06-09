@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 99D6C1F4418
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:02:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A24101F4416
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:02:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732010AbgFISAk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Jun 2020 14:00:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46088 "EHLO mail.kernel.org"
+        id S1731821AbgFISA2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Jun 2020 14:00:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46294 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733092AbgFIRy0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Jun 2020 13:54:26 -0400
+        id S1731784AbgFIRye (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Jun 2020 13:54:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1ECE120774;
-        Tue,  9 Jun 2020 17:54:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DB01D20774;
+        Tue,  9 Jun 2020 17:54:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591725266;
-        bh=4+Cz8ptYSoYm2xcypo5QyXImcSVs9nbjvhvcyN0v64c=;
+        s=default; t=1591725273;
+        bh=7nZ/+o5UaRLwkNrovTT646FBi7lBEF3IetlxK2JdAAY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cnwQIgllwGswcu7NpFpE9/NEPjcvetNjzIot1nGmOXGIl8MwJBAimsRqJp17CJqTO
-         6U5MAxfrXl0wcE2pRWyj0La3fjTeqjKjOWBvy+bcZPttXaPWt+kx0GnHGJXunJFqHS
-         Jr2zTlk4srqxcrNmpBH0/QtVCNtxxg46maPGeP1M=
+        b=snuHhQTkAA4X8SI/sS9Y9bjiuHtsjdt9kCNhw/CsWzkm8Re8f6gR5RoCEo8HiXAcN
+         Ml9fLpETCgKaWBukzs9qwmjoEkA2+jtAEARGahOYxB81UBDm6FYLuwYF7btf1+5CK9
+         KDYXbHBw/g80q3Xa+nxmepTNGsQSWhKgtUu13loY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jonas Falkevik <jonas.falkevik@gmail.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        Xin Long <lucien.xin@gmail.com>,
+        stable@vger.kernel.org, Jia He <justin.he@arm.com>,
+        Stefano Garzarella <sgarzare@redhat.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.6 10/41] sctp: check assoc before SCTP_ADDR_{MADE_PRIM, ADDED} event
-Date:   Tue,  9 Jun 2020 19:45:12 +0200
-Message-Id: <20200609174113.106939763@linuxfoundation.org>
+Subject: [PATCH 5.6 11/41] virtio_vsock: Fix race condition in virtio_transport_recv_pkt
+Date:   Tue,  9 Jun 2020 19:45:13 +0200
+Message-Id: <20200609174113.221123784@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200609174112.129412236@linuxfoundation.org>
 References: <20200609174112.129412236@linuxfoundation.org>
@@ -45,40 +44,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonas Falkevik <jonas.falkevik@gmail.com>
+From: Jia He <justin.he@arm.com>
 
-[ Upstream commit 45ebf73ebcec88a34a778f5feaa0b82b1c76069e ]
+[ Upstream commit 8692cefc433f282228fd44938dd4d26ed38254a2 ]
 
-Make sure SCTP_ADDR_{MADE_PRIM,ADDED} are sent only for associations
-that have been established.
+When client on the host tries to connect(SOCK_STREAM, O_NONBLOCK) to the
+server on the guest, there will be a panic on a ThunderX2 (armv8a server):
 
-These events are described in rfc6458#section-6.1
-SCTP_PEER_ADDR_CHANGE:
-This tag indicates that an address that is
-part of an existing association has experienced a change of
-state (e.g., a failure or return to service of the reachability
-of an endpoint via a specific transport address).
+[  463.718844] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000000
+[  463.718848] Mem abort info:
+[  463.718849]   ESR = 0x96000044
+[  463.718852]   EC = 0x25: DABT (current EL), IL = 32 bits
+[  463.718853]   SET = 0, FnV = 0
+[  463.718854]   EA = 0, S1PTW = 0
+[  463.718855] Data abort info:
+[  463.718856]   ISV = 0, ISS = 0x00000044
+[  463.718857]   CM = 0, WnR = 1
+[  463.718859] user pgtable: 4k pages, 48-bit VAs, pgdp=0000008f6f6e9000
+[  463.718861] [0000000000000000] pgd=0000000000000000
+[  463.718866] Internal error: Oops: 96000044 [#1] SMP
+[...]
+[  463.718977] CPU: 213 PID: 5040 Comm: vhost-5032 Tainted: G           O      5.7.0-rc7+ #139
+[  463.718980] Hardware name: GIGABYTE R281-T91-00/MT91-FS1-00, BIOS F06 09/25/2018
+[  463.718982] pstate: 60400009 (nZCv daif +PAN -UAO)
+[  463.718995] pc : virtio_transport_recv_pkt+0x4c8/0xd40 [vmw_vsock_virtio_transport_common]
+[  463.718999] lr : virtio_transport_recv_pkt+0x1fc/0xd40 [vmw_vsock_virtio_transport_common]
+[  463.719000] sp : ffff80002dbe3c40
+[...]
+[  463.719025] Call trace:
+[  463.719030]  virtio_transport_recv_pkt+0x4c8/0xd40 [vmw_vsock_virtio_transport_common]
+[  463.719034]  vhost_vsock_handle_tx_kick+0x360/0x408 [vhost_vsock]
+[  463.719041]  vhost_worker+0x100/0x1a0 [vhost]
+[  463.719048]  kthread+0x128/0x130
+[  463.719052]  ret_from_fork+0x10/0x18
 
-Signed-off-by: Jonas Falkevik <jonas.falkevik@gmail.com>
-Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Reviewed-by: Xin Long <lucien.xin@gmail.com>
+The race condition is as follows:
+Task1                                Task2
+=====                                =====
+__sock_release                       virtio_transport_recv_pkt
+  __vsock_release                      vsock_find_bound_socket (found sk)
+    lock_sock_nested
+    vsock_remove_sock
+    sock_orphan
+      sk_set_socket(sk, NULL)
+    sk->sk_shutdown = SHUTDOWN_MASK
+    ...
+    release_sock
+                                    lock_sock
+                                       virtio_transport_recv_connecting
+                                         sk->sk_socket->state (panic!)
+
+The root cause is that vsock_find_bound_socket can't hold the lock_sock,
+so there is a small race window between vsock_find_bound_socket() and
+lock_sock(). If __vsock_release() is running in another task,
+sk->sk_socket will be set to NULL inadvertently.
+
+This fixes it by checking sk->sk_shutdown(suggested by Stefano) after
+lock_sock since sk->sk_shutdown is set to SHUTDOWN_MASK under the
+protection of lock_sock_nested.
+
+Signed-off-by: Jia He <justin.he@arm.com>
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sctp/ulpevent.c |    3 +++
- 1 file changed, 3 insertions(+)
+ net/vmw_vsock/virtio_transport_common.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/net/sctp/ulpevent.c
-+++ b/net/sctp/ulpevent.c
-@@ -343,6 +343,9 @@ void sctp_ulpevent_nofity_peer_addr_chan
- 	struct sockaddr_storage addr;
- 	struct sctp_ulpevent *event;
+--- a/net/vmw_vsock/virtio_transport_common.c
++++ b/net/vmw_vsock/virtio_transport_common.c
+@@ -1128,6 +1128,14 @@ void virtio_transport_recv_pkt(struct vi
  
-+	if (asoc->state < SCTP_STATE_ESTABLISHED)
-+		return;
+ 	lock_sock(sk);
+ 
++	/* Check if sk has been released before lock_sock */
++	if (sk->sk_shutdown == SHUTDOWN_MASK) {
++		(void)virtio_transport_reset_no_sock(t, pkt);
++		release_sock(sk);
++		sock_put(sk);
++		goto free_pkt;
++	}
 +
- 	memset(&addr, 0, sizeof(struct sockaddr_storage));
- 	memcpy(&addr, &transport->ipaddr, transport->af_specific->sockaddr_len);
+ 	/* Update CID in case it has changed after a transport reset event */
+ 	vsk->local_addr.svm_cid = dst.svm_cid;
  
 
 
