@@ -2,92 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D3C861F3EC6
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 17:01:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 86D401F3EFF
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 17:15:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730656AbgFIPBs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Jun 2020 11:01:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43572 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730531AbgFIPBm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Jun 2020 11:01:42 -0400
-Received: from mail-ot1-x342.google.com (mail-ot1-x342.google.com [IPv6:2607:f8b0:4864:20::342])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D014CC08C5C3
-        for <stable@vger.kernel.org>; Tue,  9 Jun 2020 08:01:38 -0700 (PDT)
-Received: by mail-ot1-x342.google.com with SMTP id n6so7503030otl.0
-        for <stable@vger.kernel.org>; Tue, 09 Jun 2020 08:01:38 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linuxfoundation.org; s=google;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=fV8ZFDB43FV3g5g5fZTxYLi7vsPxA13YSgKOxxB6Lc4=;
-        b=ifgMqLNaEDoJ3ggtZ+CDKXlxlAhzRY618v/+r51qXTg5XTFIpLHDYpOowMjKcjIxfH
-         TS9NlRSEADUBQ12AB25ifuTk2OIXnmtJ5PptilvJ0j8B/+B1Y69m5jA7/p0DkP1IjQ6+
-         yEOpkGL/mNoOp/IWAhjZxONzJuJU9Z3p8hbNg=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=fV8ZFDB43FV3g5g5fZTxYLi7vsPxA13YSgKOxxB6Lc4=;
-        b=EvGXPWFj/8dxSYF6zfy1K6S6ui5CvWrjx2c4bsXGoX55XyZBnAQXTGsrfdoCUlQKPs
-         zf88Lj1UGhVRpn2H37JRLu4zoQnX0PNxU3MdddPh3RG9IPKqnH6lIYJI3Wx0cCcgDM9j
-         0KTmh+HL21exk8vWREKcGZiEQWm55pSh++2K3z2DUTehf41czMcnMlrf3HVBaWILH5Za
-         ytDxWiUbtk1tjz0ivZ/kMZmXexEMFIPNcrUUYa1OhYD92AgaiO1E3cQCPWu+HorRcbDl
-         LSB4g5l2B+DLOPexT8KHDWxqMGUSPXmYOLgM01TxfQHo2cibLAfB8otZC42Xo2GdWDe1
-         73AQ==
-X-Gm-Message-State: AOAM531H8Bwz7FzMwUvfw/MMPBEHESIsvLVjDotQguaomIFYLQzD9QZa
-        82TlkxPLG5/wWciY5y57umNfGA==
-X-Google-Smtp-Source: ABdhPJxGmnoepX29AANMk4+Z5b3vk+XlqO9YIXrRdoke3DisNE70ra7JK0DqrOFn056B0XzmgUHgGQ==
-X-Received: by 2002:a9d:969:: with SMTP id 96mr15323599otp.319.1591714897141;
-        Tue, 09 Jun 2020 08:01:37 -0700 (PDT)
-Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net. [24.9.64.241])
-        by smtp.gmail.com with ESMTPSA id s124sm3209070oig.19.2020.06.09.08.01.35
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 09 Jun 2020 08:01:36 -0700 (PDT)
-Subject: Re: [PATCH 1/1] selftests: fpga: dfl: A test for afu interrupt
- support
-To:     Tom Rix <trix@redhat.com>, Greg KH <gregkh@linuxfoundation.org>
-Cc:     stable <stable@vger.kernel.org>, linux-fpga@vger.kernel.org,
-        shuah@kernel.org, linux-kernel@vger.kernel.org,
-        linux-kselftest@vger.kernel.org,
-        Shuah Khan <skhan@linuxfoundation.org>
-References: <20200609130208.27390-1-trix@redhat.com>
- <20200609130208.27390-2-trix@redhat.com> <20200609142007.GA831428@kroah.com>
- <d3d8e518-0760-8cbe-cf74-191f70329a46@redhat.com>
-From:   Shuah Khan <skhan@linuxfoundation.org>
-Message-ID: <340c25e4-579b-a06b-49ae-63937dc0fbf0@linuxfoundation.org>
-Date:   Tue, 9 Jun 2020 09:01:35 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.8.0
+        id S1730569AbgFIPPk convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Tue, 9 Jun 2020 11:15:40 -0400
+Received: from mail.fireflyinternet.com ([109.228.58.192]:49771 "EHLO
+        fireflyinternet.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1730436AbgFIPPk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Jun 2020 11:15:40 -0400
+X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
+Received: from localhost (unverified [78.156.65.138]) 
+        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP (TLS) id 21444154-1500050 
+        for multiple; Tue, 09 Jun 2020 16:15:29 +0100
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <d3d8e518-0760-8cbe-cf74-191f70329a46@redhat.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 8BIT
+In-Reply-To: <20200609122856.10207-1-chris@chris-wilson.co.uk>
+References: <20200609122856.10207-1-chris@chris-wilson.co.uk>
+Cc:     Mika Kuoppala <mika.kuoppala@linux.intel.com>,
+        stable@vger.kernel.org
+To:     intel-gfx@lists.freedesktop.org
+Subject: Re: [PATCH] drm/i915/gt: Incrementally check for rewinding
+From:   Chris Wilson <chris@chris-wilson.co.uk>
+Message-ID: <159171572885.24308.5160778009299838490@build.alporthouse.com>
+User-Agent: alot/0.8.1
+Date:   Tue, 09 Jun 2020 16:15:28 +0100
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 6/9/20 8:45 AM, Tom Rix wrote:
+Quoting Chris Wilson (2020-06-09 13:28:56)
+> In commit 5ba32c7be81e ("drm/i915/execlists: Always force a context
+> reload when rewinding RING_TAIL"), we placed the check for rewinding a
+> context on actually submitting the next request in that context. This
+> was so that we only had to check once, and could do so with precision
+> avoiding as many forced restores as possible. For example, to ensure
+> that we can resubmit the same request a couple of times, we include a
+> small wa_tail such that on the next submission, the ring->tail will
+> appear to move forwards when resubmitting the same request. This is very
+> common as it will happen for every lite-restore to fill the second port
+> after a context switch.
 > 
->> Why not use the ksft_* functions and frameworks to properly print out
->> the test status and results so that tools can correctly parse it?
->>
->> It's generally bad-form to make up your own format.
+> However, intel_ring_direction() is limited in precision to movements of
+> upto half the ring size. The consequence being that if we tried to
+> unwind many requests, we could exceed half the ring and flip the sense
+> of the direction, so missing a force restore. As no request can be
+> greater than half the ring (i.e. 2048 bytes in the smallest case), we
+> can check for rollback incrementally. As we check against the tail that
+> would be submitted, we do not lose any sensitivity and allow lite
+> restores for the simple case. We still need to double check upon
+> submitting the context, to allow for multiple preemptions and
+> resubmissions.
 > 
-> I used the the drivers/dma-buf test a basis example.  Can you point me at a better example ?
+> Fixes: 5ba32c7be81e ("drm/i915/execlists: Always force a context reload when rewinding RING_TAIL")
+> Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+> Cc: Mika Kuoppala <mika.kuoppala@linux.intel.com>
+> Cc: <stable@vger.kernel.org> # v5.4+
+> ---
+>  drivers/gpu/drm/i915/gt/intel_engine_cs.c     |   4 +-
+>  drivers/gpu/drm/i915/gt/intel_lrc.c           |  21 +++-
+>  drivers/gpu/drm/i915/gt/intel_ring.c          |   4 +
+>  drivers/gpu/drm/i915/gt/selftest_mocs.c       |  18 ++-
+>  drivers/gpu/drm/i915/gt/selftest_ring.c       | 110 ++++++++++++++++++
+>  .../drm/i915/selftests/i915_mock_selftests.h  |   1 +
+>  6 files changed, 154 insertions(+), 4 deletions(-)
+>  create mode 100644 drivers/gpu/drm/i915/gt/selftest_ring.c
 > 
+> diff --git a/drivers/gpu/drm/i915/gt/intel_engine_cs.c b/drivers/gpu/drm/i915/gt/intel_engine_cs.c
+> index e5141a897786..0a05301e00fb 100644
+> --- a/drivers/gpu/drm/i915/gt/intel_engine_cs.c
+> +++ b/drivers/gpu/drm/i915/gt/intel_engine_cs.c
+> @@ -646,7 +646,7 @@ static int engine_setup_common(struct intel_engine_cs *engine)
+>  struct measure_breadcrumb {
+>         struct i915_request rq;
+>         struct intel_ring ring;
+> -       u32 cs[1024];
+> +       u32 cs[2048];
+>  };
+>  
+>  static int measure_breadcrumb_dw(struct intel_context *ce)
+> @@ -667,6 +667,8 @@ static int measure_breadcrumb_dw(struct intel_context *ce)
+>  
+>         frame->ring.vaddr = frame->cs;
+>         frame->ring.size = sizeof(frame->cs);
+> +       frame->ring.wrap =
+> +               BITS_PER_TYPE(frame->ring.size) - ilog2(frame->ring.size);
+>         frame->ring.effective_size = frame->ring.size;
+>         intel_ring_update_space(&frame->ring);
+>         frame->rq.ring = &frame->ring;
+> diff --git a/drivers/gpu/drm/i915/gt/intel_lrc.c b/drivers/gpu/drm/i915/gt/intel_lrc.c
+> index a057f7a2a521..f66274e60bb6 100644
+> --- a/drivers/gpu/drm/i915/gt/intel_lrc.c
+> +++ b/drivers/gpu/drm/i915/gt/intel_lrc.c
+> @@ -1137,6 +1137,13 @@ __unwind_incomplete_requests(struct intel_engine_cs *engine)
+>                         list_move(&rq->sched.link, pl);
+>                         set_bit(I915_FENCE_FLAG_PQUEUE, &rq->fence.flags);
+>  
+> +                       /* Check for rollback incrementally */
+> +                       if (intel_ring_direction(rq->ring,
+> +                                                intel_ring_wrap(rq->ring,
+> +                                                                rq->tail),
+> +                                                rq->ring->tail) <= 0)
+> +                               rq->context->lrc.desc |= CTX_DESC_FORCE_RESTORE;
 
-A few examples to choose from as a reference:
-
-tools/testing/selftests/breakpoints
-tools/testing/selftests/timens
-
-Please reach out to me if you have any questions.
-
-thanks,
--- Shuah
-
-
+We could be a bit more cheeky in that the problem only occurs if we
+rollback far enough that there is a danger is mistaking the rollback for
+a forward update.
+-Chris
