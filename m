@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D26E1F42CD
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 19:48:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 14B351F4315
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 19:50:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732193AbgFIRr6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Jun 2020 13:47:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59708 "EHLO mail.kernel.org"
+        id S1732584AbgFIRtx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Jun 2020 13:49:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36548 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732190AbgFIRr4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Jun 2020 13:47:56 -0400
+        id S1730956AbgFIRtx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Jun 2020 13:49:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 36D17207ED;
-        Tue,  9 Jun 2020 17:47:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CA212208B6;
+        Tue,  9 Jun 2020 17:49:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591724876;
-        bh=ps8pnlBp1WwH8dOmL2uAK8jQRRYb/JbeuNB5BmVB1l0=;
+        s=default; t=1591724992;
+        bh=8su1/yDtzEiYTbiR3qLGi+y6W6cRci67Qbj9Nl2n2BQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cU5vUCBrgxlKITgPu0i04bKduwOcDR7tpvKGf3dd4zzpH7v6LjXSc5lKDxOgygum5
-         wq9zrX0qKK9TFgZHWThkSfGRdeVOzfVdD5jcXqn9iaGkG+szkoZF0kWEMS6kvmC3TA
-         fwwd6wWsggvdTWvf+fksolLSzHNE5223PjSlFLTI=
+        b=C775qNLb4y3lR9pr3ja8SfxNqmBqjnBHuFIWdjDCo+JcCEeV2mi6MhiIbGFDlsrzk
+         d1FaWvuO7uAlqTfDy5hSVTBTAN+5WdEp/OP4UHm942Ixm+ks/eOicfIIHVOdBYAeKR
+         XwJ4s+k81kilb8zihS6HRR7c+YrW6m9ZqVxQ3OBo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, yangerkun <yangerkun@huawei.com>,
-        Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 4.9 18/42] slcan: Fix double-free on slcan_open() error path
-Date:   Tue,  9 Jun 2020 19:44:24 +0200
-Message-Id: <20200609174017.456929674@linuxfoundation.org>
+        stable@vger.kernel.org, Atsushi Nemoto <atsushi.nemoto@sord.co.jp>,
+        Thor Thayer <thor.thayer@linux.intel.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 09/46] i2c: altera: Fix race between xfer_msg and isr thread
+Date:   Tue,  9 Jun 2020 19:44:25 +0200
+Message-Id: <20200609174023.715903677@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200609174015.379493548@linuxfoundation.org>
-References: <20200609174015.379493548@linuxfoundation.org>
+In-Reply-To: <20200609174022.938987501@linuxfoundation.org>
+References: <20200609174022.938987501@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,43 +44,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Hutchings <ben@decadent.org.uk>
+From: Atsushi Nemoto <atsushi.nemoto@sord.co.jp>
 
-Commit 9ebd796e2400 ("can: slcan: Fix use-after-free Read in
-slcan_open") was incorrectly backported to 4.4 and 4.9 stable
-branches.
+[ Upstream commit 5d4c7977499a736f3f80826bdc9744344ad55589 ]
 
-Since they do not have commit cf124db566e6 ("net: Fix inconsistent
-teardown and release of private netdev state."), the destructor
-function slc_free_netdev() is already responsible for calling
-free_netdev() and slcan_open() must not call both of them.
+Use a mutex to protect access to idev->msg_len, idev->buf, etc. which
+are modified by both altr_i2c_xfer_msg() and altr_i2c_isr().
 
-yangerkun previously fixed the same bug in slip.
+This is the minimal fix for easy backporting. A cleanup to remove the
+spinlock will be added later.
 
-Fixes: ce624b2089ea ("can: slcan: Fix use-after-free Read in slcan_open") # 4.4
-Fixes: f59604a80fa4 ("slcan: not call free_netdev before rtnl_unlock ...") # 4.4
-Fixes: 56635a1e6ffb ("can: slcan: Fix use-after-free Read in slcan_open") # 4.9
-Fixes: a1c9b23142ac ("slcan: not call free_netdev before rtnl_unlock ...") # 4.9
-Cc: yangerkun <yangerkun@huawei.com>
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Atsushi Nemoto <atsushi.nemoto@sord.co.jp>
+Acked-by: Thor Thayer <thor.thayer@linux.intel.com>
+[wsa: updated commit message]
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/slcan.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/i2c/busses/i2c-altera.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
---- a/drivers/net/can/slcan.c
-+++ b/drivers/net/can/slcan.c
-@@ -618,10 +618,9 @@ err_free_chan:
- 	sl->tty = NULL;
- 	tty->disc_data = NULL;
- 	clear_bit(SLF_INUSE, &sl->flags);
--	slc_free_netdev(sl->dev);
- 	/* do not call free_netdev before rtnl_unlock */
- 	rtnl_unlock();
--	free_netdev(sl->dev);
-+	slc_free_netdev(sl->dev);
- 	return err;
+diff --git a/drivers/i2c/busses/i2c-altera.c b/drivers/i2c/busses/i2c-altera.c
+index 8915ee30a5b4..1d59eede537b 100644
+--- a/drivers/i2c/busses/i2c-altera.c
++++ b/drivers/i2c/busses/i2c-altera.c
+@@ -81,6 +81,7 @@
+  * @isr_mask: cached copy of local ISR enables.
+  * @isr_status: cached copy of local ISR status.
+  * @lock: spinlock for IRQ synchronization.
++ * @isr_mutex: mutex for IRQ thread.
+  */
+ struct altr_i2c_dev {
+ 	void __iomem *base;
+@@ -97,6 +98,7 @@ struct altr_i2c_dev {
+ 	u32 isr_mask;
+ 	u32 isr_status;
+ 	spinlock_t lock;	/* IRQ synchronization */
++	struct mutex isr_mutex;
+ };
  
- err_exit:
+ static void
+@@ -256,10 +258,11 @@ static irqreturn_t altr_i2c_isr(int irq, void *_dev)
+ 	struct altr_i2c_dev *idev = _dev;
+ 	u32 status = idev->isr_status;
+ 
++	mutex_lock(&idev->isr_mutex);
+ 	if (!idev->msg) {
+ 		dev_warn(idev->dev, "unexpected interrupt\n");
+ 		altr_i2c_int_clear(idev, ALTR_I2C_ALL_IRQ);
+-		return IRQ_HANDLED;
++		goto out;
+ 	}
+ 	read = (idev->msg->flags & I2C_M_RD) != 0;
+ 
+@@ -312,6 +315,8 @@ static irqreturn_t altr_i2c_isr(int irq, void *_dev)
+ 		complete(&idev->msg_complete);
+ 		dev_dbg(idev->dev, "Message Complete\n");
+ 	}
++out:
++	mutex_unlock(&idev->isr_mutex);
+ 
+ 	return IRQ_HANDLED;
+ }
+@@ -323,6 +328,7 @@ static int altr_i2c_xfer_msg(struct altr_i2c_dev *idev, struct i2c_msg *msg)
+ 	u32 value;
+ 	u8 addr = i2c_8bit_addr_from_msg(msg);
+ 
++	mutex_lock(&idev->isr_mutex);
+ 	idev->msg = msg;
+ 	idev->msg_len = msg->len;
+ 	idev->buf = msg->buf;
+@@ -347,6 +353,7 @@ static int altr_i2c_xfer_msg(struct altr_i2c_dev *idev, struct i2c_msg *msg)
+ 		altr_i2c_int_enable(idev, imask, true);
+ 		altr_i2c_fill_tx_fifo(idev);
+ 	}
++	mutex_unlock(&idev->isr_mutex);
+ 
+ 	time_left = wait_for_completion_timeout(&idev->msg_complete,
+ 						ALTR_I2C_XFER_TIMEOUT);
+@@ -420,6 +427,7 @@ static int altr_i2c_probe(struct platform_device *pdev)
+ 	idev->dev = &pdev->dev;
+ 	init_completion(&idev->msg_complete);
+ 	spin_lock_init(&idev->lock);
++	mutex_init(&idev->isr_mutex);
+ 
+ 	ret = device_property_read_u32(idev->dev, "fifo-size",
+ 				       &idev->fifo_size);
+-- 
+2.25.1
+
 
 
