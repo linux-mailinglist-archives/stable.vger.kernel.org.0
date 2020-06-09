@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A523D1F4427
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:02:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CF391F4450
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:04:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387776AbgFISB0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Jun 2020 14:01:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45336 "EHLO mail.kernel.org"
+        id S1732904AbgFISDS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Jun 2020 14:03:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43540 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729245AbgFIRx7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Jun 2020 13:53:59 -0400
+        id S1729149AbgFIRwy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Jun 2020 13:52:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ED5C0207C3;
-        Tue,  9 Jun 2020 17:53:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D45E52074B;
+        Tue,  9 Jun 2020 17:52:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591725239;
-        bh=ZrcFpicY48yEj/t3oOOvrY6iRxu9Vz8EnLcs7aIAD0c=;
+        s=default; t=1591725174;
+        bh=KBJDsnC/ruZzhFkAosuSNvcMKVC5aIEuK5TDQj8MtJI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j2veEF61ujdb4U7qvYvf3wRFmGmoZqnnwFQDkynalqajhhZMqW2SO2UmbdoObAsp6
-         TvL7XIkJP3HXwzY3TaSQqizqZot2G0ZZgWQjUdUBTiHFw8Px/61N2H9dk0rHvrk7Kf
-         lntk2VPsJVwsuvfuBRyDOI+6LX0eZkKRgxjkKBPI=
+        b=YxgbHg6bEcvkOMrvMFv5dNw9KsXciWO7AMJpLzQpvMxOw6RiYw1viJDQ5NQV35PVw
+         8Om2V3cdcSrSyoYtbCV/u26bDB36BcHKmFLFw1jX0w4nj/QvYhfQGhw+EER9pYUf2+
+         1hZnAF+XWsq9nnJH8l1tzHRv2SK5pvkbMegG5wVg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fabrice Gasnier <fabrice.gasnier@st.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.6 26/41] iio: adc: stm32-adc: fix a wrong error message when probing interrupts
+        stable@vger.kernel.org, Josh Poimboeuf <jpoimboe@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 5.4 32/34] x86/speculation: Add Ivy Bridge to affected list
 Date:   Tue,  9 Jun 2020 19:45:28 +0200
-Message-Id: <20200609174114.621447158@linuxfoundation.org>
+Message-Id: <20200609174058.092286604@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200609174112.129412236@linuxfoundation.org>
-References: <20200609174112.129412236@linuxfoundation.org>
+In-Reply-To: <20200609174052.628006868@linuxfoundation.org>
+References: <20200609174052.628006868@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,124 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabrice Gasnier <fabrice.gasnier@st.com>
+From: Josh Poimboeuf <jpoimboe@redhat.com>
 
-commit 10134ec3f8cefa6a40fe84987f1795e9e0da9715 upstream.
+commit 3798cc4d106e91382bfe016caa2edada27c2bb3f upstream
 
-A wrong error message is printed out currently, like on STM32MP15:
-- stm32-adc-core 48003000.adc: IRQ index 2 not found.
+Make the docs match the code.
 
-This is seen since commit 7723f4c5ecdb ("driver core: platform: Add an
-error message to platform_get_irq*()").
-The STM32 ADC core driver wrongly requests up to 3 interrupt lines. It
-should request only the necessary IRQs, based on the compatible:
-- stm32f4/h7 ADCs share a common interrupt
-- stm32mp1, has one interrupt line per ADC.
-So add the number of required interrupts to the compatible data.
-
-Fixes: d58c67d1d851 ("iio: adc: stm32-adc: add support for STM32MP1")
-Signed-off-by: Fabrice Gasnier <fabrice.gasnier@st.com>
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/iio/adc/stm32-adc-core.c |   34 ++++++++++++++--------------------
- 1 file changed, 14 insertions(+), 20 deletions(-)
+ Documentation/admin-guide/hw-vuln/special-register-buffer-data-sampling.rst |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/drivers/iio/adc/stm32-adc-core.c
-+++ b/drivers/iio/adc/stm32-adc-core.c
-@@ -65,12 +65,14 @@ struct stm32_adc_priv;
-  * @clk_sel:	clock selection routine
-  * @max_clk_rate_hz: maximum analog clock rate (Hz, from datasheet)
-  * @has_syscfg: SYSCFG capability flags
-+ * @num_irqs:	number of interrupt lines
-  */
- struct stm32_adc_priv_cfg {
- 	const struct stm32_adc_common_regs *regs;
- 	int (*clk_sel)(struct platform_device *, struct stm32_adc_priv *);
- 	u32 max_clk_rate_hz;
- 	unsigned int has_syscfg;
-+	unsigned int num_irqs;
- };
+--- a/Documentation/admin-guide/hw-vuln/special-register-buffer-data-sampling.rst
++++ b/Documentation/admin-guide/hw-vuln/special-register-buffer-data-sampling.rst
+@@ -27,6 +27,8 @@ by software using TSX_CTRL_MSR otherwise
+   =============  ============  ========
+   common name    Family_Model  Stepping
+   =============  ============  ========
++  IvyBridge      06_3AH        All
++
+   Haswell        06_3CH        All
+   Haswell_L      06_45H        All
+   Haswell_G      06_46H        All
+@@ -37,9 +39,8 @@ by software using TSX_CTRL_MSR otherwise
+   Skylake_L      06_4EH        All
+   Skylake        06_5EH        All
  
- /**
-@@ -375,21 +377,15 @@ static int stm32_adc_irq_probe(struct pl
- 	struct device_node *np = pdev->dev.of_node;
- 	unsigned int i;
- 
--	for (i = 0; i < STM32_ADC_MAX_ADCS; i++) {
-+	/*
-+	 * Interrupt(s) must be provided, depending on the compatible:
-+	 * - stm32f4/h7 shares a common interrupt line.
-+	 * - stm32mp1, has one line per ADC
-+	 */
-+	for (i = 0; i < priv->cfg->num_irqs; i++) {
- 		priv->irq[i] = platform_get_irq(pdev, i);
--		if (priv->irq[i] < 0) {
--			/*
--			 * At least one interrupt must be provided, make others
--			 * optional:
--			 * - stm32f4/h7 shares a common interrupt.
--			 * - stm32mp1, has one line per ADC (either for ADC1,
--			 *   ADC2 or both).
--			 */
--			if (i && priv->irq[i] == -ENXIO)
--				continue;
+-  Kabylake_L     06_8EH        <=0xC
 -
-+		if (priv->irq[i] < 0)
- 			return priv->irq[i];
--		}
- 	}
+-  Kabylake       06_9EH        <=0xD
++  Kabylake_L     06_8EH        <= 0xC
++  Kabylake       06_9EH        <= 0xD
+   =============  ============  ========
  
- 	priv->domain = irq_domain_add_simple(np, STM32_ADC_MAX_ADCS, 0,
-@@ -400,9 +396,7 @@ static int stm32_adc_irq_probe(struct pl
- 		return -ENOMEM;
- 	}
- 
--	for (i = 0; i < STM32_ADC_MAX_ADCS; i++) {
--		if (priv->irq[i] < 0)
--			continue;
-+	for (i = 0; i < priv->cfg->num_irqs; i++) {
- 		irq_set_chained_handler(priv->irq[i], stm32_adc_irq_handler);
- 		irq_set_handler_data(priv->irq[i], priv);
- 	}
-@@ -420,11 +414,8 @@ static void stm32_adc_irq_remove(struct
- 		irq_dispose_mapping(irq_find_mapping(priv->domain, hwirq));
- 	irq_domain_remove(priv->domain);
- 
--	for (i = 0; i < STM32_ADC_MAX_ADCS; i++) {
--		if (priv->irq[i] < 0)
--			continue;
-+	for (i = 0; i < priv->cfg->num_irqs; i++)
- 		irq_set_chained_handler(priv->irq[i], NULL);
--	}
- }
- 
- static int stm32_adc_core_switches_supply_en(struct stm32_adc_priv *priv,
-@@ -817,6 +808,7 @@ static const struct stm32_adc_priv_cfg s
- 	.regs = &stm32f4_adc_common_regs,
- 	.clk_sel = stm32f4_adc_clk_sel,
- 	.max_clk_rate_hz = 36000000,
-+	.num_irqs = 1,
- };
- 
- static const struct stm32_adc_priv_cfg stm32h7_adc_priv_cfg = {
-@@ -824,6 +816,7 @@ static const struct stm32_adc_priv_cfg s
- 	.clk_sel = stm32h7_adc_clk_sel,
- 	.max_clk_rate_hz = 36000000,
- 	.has_syscfg = HAS_VBOOSTER,
-+	.num_irqs = 1,
- };
- 
- static const struct stm32_adc_priv_cfg stm32mp1_adc_priv_cfg = {
-@@ -831,6 +824,7 @@ static const struct stm32_adc_priv_cfg s
- 	.clk_sel = stm32h7_adc_clk_sel,
- 	.max_clk_rate_hz = 40000000,
- 	.has_syscfg = HAS_VBOOSTER | HAS_ANASWVDD,
-+	.num_irqs = 2,
- };
- 
- static const struct of_device_id stm32_adc_of_match[] = {
+ Related CVEs
 
 
