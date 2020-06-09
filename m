@@ -2,90 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B02371F3410
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 08:24:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 066D61F3461
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 08:51:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727833AbgFIGYs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Jun 2020 02:24:48 -0400
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:51199 "EHLO
-        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726887AbgFIGYs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Jun 2020 02:24:48 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.nyi.internal (Postfix) with ESMTP id 223395C013C;
-        Tue,  9 Jun 2020 02:24:47 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Tue, 09 Jun 2020 02:24:47 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm1; bh=6YshrS/Ih7VzQTq3SoeR2hI2K7U
-        dtFUaZNkccRAOyik=; b=HAxQ7xxzVnl452GN35ykH3L0lO4MFEByG5N0iPsdmaN
-        V99duU+pL9O4I0d0PkvZGwE2sZvvUHJKHcimyAwhsvZwFLXJRsnOOLoFXJgvnA5Y
-        ++7v8YLPAd659aAZqCYPuRMd+QxVl7t6JozulfPfJDYS7JGw2R5mXkPGqUyTnPkx
-        3fe652XLUgCpp68y+3LcbHMtBhIdOjpvUdlm77yDQiSMvCBQA56miyLMLpeASXtw
-        5qsWk9tAYiHEZTPAUmhFgB3JUtqgI/MGoE+ZTD//Gix6IbKB2VxDtSiWnF/2KfV1
-        PItUffPheutTcOgoJQfOWHq+l3ifOC/AmBStawJXuEQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=6YshrS
-        /Ih7VzQTq3SoeR2hI2K7UdtFUaZNkccRAOyik=; b=WBNBm5s3ZuHPN0DVe1ydIF
-        xgfS93U1yrq2RkGopZOP60ZZMjvKJ8CPoEs/N42zuVlI24/frbxWR95YpSXkdO0V
-        lIyv0EocdQh0dvyRheB4d9A+MEVG5zuU5ON6OQuz8rd5AP+UgTLPFqI+3udmxvAB
-        sJcYuVUvlLcUmCdPXF4jnvju6QZuxT4HgMDWXmm8W73XulR7jQhTIzoQoUf3ch5X
-        kKS4vq8+LqZuLV61NzUi9FNgo4V9jtDii04TUf9AERnOmk5DIr54dblAhtlOUmw2
-        AUtZ0mjk81yRffvb3DpHa7ueEAPkMhnkerh17rhMXL0A9Hw+RP0n98+Qq6Ewp1EQ
-        ==
-X-ME-Sender: <xms:LivfXhAErgIQ3-OU-qhuAq_AWfxbRqhkRZOlH6zVV9eJmj4sPQCm1w>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudehfedguddutdcutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
-    necuuegrihhlohhuthemuceftddtnecunecujfgurhepfffhvffukfhfgggtuggjsehttd
-    ertddttddvnecuhfhrohhmpefirhgvghcumffjuceoghhrvghgsehkrhhorghhrdgtohhm
-    qeenucggtffrrghtthgvrhhnpeevueehjefgfffgiedvudekvdektdelleelgefhleejie
-    eugeegveeuuddukedvteenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgv
-    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
-    gtohhm
-X-ME-Proxy: <xmx:LivfXvg2dGIC2-KgRDPgusnB64MvUGxiQKxmEV9OIkvazJb_LppZtQ>
-    <xmx:LivfXsmP3gjpb5JtZKLoSlkeEUTh8vj3EYAY8f1StqdbC7_TcPF3Gw>
-    <xmx:LivfXrw6IdzviIAb31NUTS22jx67oBNBWEattebkbmfGGIqE02eDNQ>
-    <xmx:LyvfXtfglH9wH46k0_n4a0J5jWeeuXiTO4KNy88Cyd7_zUj3e9iGkQ>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 839153280065;
-        Tue,  9 Jun 2020 02:24:46 -0400 (EDT)
-Date:   Tue, 9 Jun 2020 08:24:45 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Thomas Gleixner <tglx@linutronix.de>
-Cc:     stable@vger.kernel.org
-Subject: Re: [tip-bot2 for Jay Lang] [tip: x86/urgent] x86/ioperm: Prevent a
- memory leak when fork fails
-Message-ID: <20200609062445.GB500177@kroah.com>
-References: <878sgxa31c.fsf@nanos.tec.linutronix.de>
+        id S1727990AbgFIGvF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Jun 2020 02:51:05 -0400
+Received: from ex13-edg-ou-002.vmware.com ([208.91.0.190]:4711 "EHLO
+        EX13-EDG-OU-002.vmware.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727892AbgFIGvE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Jun 2020 02:51:04 -0400
+Received: from sc9-mailhost2.vmware.com (10.113.161.72) by
+ EX13-EDG-OU-002.vmware.com (10.113.208.156) with Microsoft SMTP Server id
+ 15.0.1156.6; Mon, 8 Jun 2020 23:51:02 -0700
+Received: from vikash-ubuntu-virtual-machine.eng.vmware.com (unknown [10.197.103.194])
+        by sc9-mailhost2.vmware.com (Postfix) with ESMTP id 75837B12E0;
+        Tue,  9 Jun 2020 02:51:03 -0400 (EDT)
+From:   Vikash Bansal <bvikas@vmware.com>
+To:     <gregkh@linuxfoundation.org>
+CC:     <stable@vger.kernel.org>, <srivatsab@vmware.com>,
+        <srivatsa@csail.mit.edu>, <amakhalov@vmware.com>,
+        <srinidhir@vmware.com>, <bvikas@vmware.com>, <anishs@vmware.com>,
+        <vsirnapalli@vmware.com>, <akaher@vmware.com>, <clm@fb.com>,
+        <josef@toxicpanda.com>, <dsterba@suse.com>,
+        <anand.jain@oracle.com>, <linux-btrfs@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: [PATCH v4.19.y 0/2] btrfs: Fix for CVE-2019-18885
+Date:   Tue, 9 Jun 2020 12:20:16 +0530
+Message-ID: <20200609065018.26378-1-bvikas@vmware.com>
+X-Mailer: git-send-email 2.17.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <878sgxa31c.fsf@nanos.tec.linutronix.de>
+Content-Type: text/plain
+Received-SPF: None (EX13-EDG-OU-002.vmware.com: bvikas@vmware.com does not
+ designate permitted sender hosts)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jun 08, 2020 at 07:19:27PM +0200, Thomas Gleixner wrote:
-> Dear stable team!
-> 
-> I fatfingered the CC: stable in
-> 
->    4bfe6cce133c ("x86/ioperm: Prevent a memory leak when fork fails")
-> 
-> so neither the tip bot mail reached nor your checks for Cc: stable in
-> Linus tree will find that.
-> 
-> Can you please pick that up?
+CVE Description:
+NVD Site Link: https://nvd.nist.gov/vuln/detail?vulnId=CVE-2019-18885
 
-It's already been picked up, and is in the 5.6.16 release as I happened
-to notice the "fun" use of cc: stable just by chance:
-	    Cc: stable#@vger.kernel.org
-:)
+It was discovered that the btrfs file system in the Linux kernel did not
+properly validate metadata, leading to a NULL pointer dereference. An
+attacker could use this to specially craft a file system image that, when
+mounted, could cause a denial of service (system crash).
 
-thanks,
+[PATCH v4.19.y 1/2]:
+Backporting of upsream commit 09ba3bc9dd15:
+btrfs: merge btrfs_find_device and find_device
 
-greg k-h
+[PATCH v4.19.y 2/2]:
+Backporting of upstream commit 62fdaa52a3d0:
+btrfs: Detect unbalanced tree with empty leaf before crashing
+
+On NVD site link of "commit 09ba3bc9dd150457c506e4661380a6183af651c1" 
+was given as the fix for this CVE. But the issue was still reproducible.
+So had to apply patch "Commit 62fdaa52a3d00a875da771719b6dc537ca79fce1"
+to fix the issue.
