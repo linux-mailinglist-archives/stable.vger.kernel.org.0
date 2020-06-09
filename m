@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C94D71F4328
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 19:51:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 20D441F4356
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 19:52:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731143AbgFIRup (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Jun 2020 13:50:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38376 "EHLO mail.kernel.org"
+        id S1729402AbgFIRwa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Jun 2020 13:52:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42698 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732714AbgFIRui (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Jun 2020 13:50:38 -0400
+        id S1732892AbgFIRwZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Jun 2020 13:52:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BF92E2074B;
-        Tue,  9 Jun 2020 17:50:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B0FA02074B;
+        Tue,  9 Jun 2020 17:52:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591725038;
-        bh=KBJDsnC/ruZzhFkAosuSNvcMKVC5aIEuK5TDQj8MtJI=;
+        s=default; t=1591725145;
+        bh=tlrqTCvHAD7zvP2mZ+lUjBeNaDmgSx14Us+yObbsOvM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iOA2Ig6hSGa1LbVtfK05wbl6sMs+xS3bCa7n8urh4drnR1OvY9KEbfhyj3TuTXZfu
-         pTmV9yEmM7v0xYgscyxrkwKGRZrFtguWzIiQQaN+LQCbcH2zbpqbo6QEE91C2Fvuly
-         1XD4kGHL7sSLZlqdxDiAkhjK+IrLBWbPmw7tU73w=
+        b=C8SNNAdU+hl6Z+K0zW7Owb8cQYrnwCw4YLcqTZ6+NmLz0EtGCH63WRv8D8K4Ne0ZQ
+         QJiPS60t7rVR+ZACJIO0ujHayk6Drq4dtXMzHLGEA2YdHnPIwPfz5aehRMJjo/gHZZ
+         /c9vbU+avxkMklfNT9VRQYP5rx1p4+mJtaXHR9D4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josh Poimboeuf <jpoimboe@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 4.14 44/46] x86/speculation: Add Ivy Bridge to affected list
-Date:   Tue,  9 Jun 2020 19:45:00 +0200
-Message-Id: <20200609174030.903153138@linuxfoundation.org>
+        stable@vger.kernel.org, Daniele Palmas <dnlplm@gmail.com>,
+        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 06/34] net: usb: qmi_wwan: add Telit LE910C1-EUX composition
+Date:   Tue,  9 Jun 2020 19:45:02 +0200
+Message-Id: <20200609174053.406992811@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200609174022.938987501@linuxfoundation.org>
-References: <20200609174022.938987501@linuxfoundation.org>
+In-Reply-To: <20200609174052.628006868@linuxfoundation.org>
+References: <20200609174052.628006868@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,41 +44,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josh Poimboeuf <jpoimboe@redhat.com>
+From: Daniele Palmas <dnlplm@gmail.com>
 
-commit 3798cc4d106e91382bfe016caa2edada27c2bb3f upstream
+[ Upstream commit 591612aa578cd7148b7b9d74869ef40118978389 ]
 
-Make the docs match the code.
+Add support for Telit LE910C1-EUX composition
 
-Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+0x1031: tty, tty, tty, rmnet
+Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
+Acked-by: Bjørn Mork <bjorn@mork.no>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/admin-guide/hw-vuln/special-register-buffer-data-sampling.rst |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/net/usb/qmi_wwan.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/Documentation/admin-guide/hw-vuln/special-register-buffer-data-sampling.rst
-+++ b/Documentation/admin-guide/hw-vuln/special-register-buffer-data-sampling.rst
-@@ -27,6 +27,8 @@ by software using TSX_CTRL_MSR otherwise
-   =============  ============  ========
-   common name    Family_Model  Stepping
-   =============  ============  ========
-+  IvyBridge      06_3AH        All
-+
-   Haswell        06_3CH        All
-   Haswell_L      06_45H        All
-   Haswell_G      06_46H        All
-@@ -37,9 +39,8 @@ by software using TSX_CTRL_MSR otherwise
-   Skylake_L      06_4EH        All
-   Skylake        06_5EH        All
- 
--  Kabylake_L     06_8EH        <=0xC
--
--  Kabylake       06_9EH        <=0xD
-+  Kabylake_L     06_8EH        <= 0xC
-+  Kabylake       06_9EH        <= 0xD
-   =============  ============  ========
- 
- Related CVEs
+--- a/drivers/net/usb/qmi_wwan.c
++++ b/drivers/net/usb/qmi_wwan.c
+@@ -1324,6 +1324,7 @@ static const struct usb_device_id produc
+ 	{QMI_FIXED_INTF(0x1bbb, 0x0203, 2)},	/* Alcatel L800MA */
+ 	{QMI_FIXED_INTF(0x2357, 0x0201, 4)},	/* TP-LINK HSUPA Modem MA180 */
+ 	{QMI_FIXED_INTF(0x2357, 0x9000, 4)},	/* TP-LINK MA260 */
++	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1031, 3)}, /* Telit LE910C1-EUX */
+ 	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1040, 2)},	/* Telit LE922A */
+ 	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1050, 2)},	/* Telit FN980 */
+ 	{QMI_FIXED_INTF(0x1bc7, 0x1100, 3)},	/* Telit ME910 */
 
 
