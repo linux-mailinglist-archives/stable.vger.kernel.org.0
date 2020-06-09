@@ -2,43 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 528A01F45CE
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:21:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CBE41F459B
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:18:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733178AbgFISUn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Jun 2020 14:20:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33816 "EHLO mail.kernel.org"
+        id S1732624AbgFIRuK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Jun 2020 13:50:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37196 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730903AbgFIRsx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Jun 2020 13:48:53 -0400
+        id S1732619AbgFIRuI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Jun 2020 13:50:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B4A2020812;
-        Tue,  9 Jun 2020 17:48:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B3FEA20801;
+        Tue,  9 Jun 2020 17:50:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591724932;
-        bh=6dG3ob7rYkydmIVHfK+isbfmVkWGYTFmUuMdFmWLh9s=;
+        s=default; t=1591725008;
+        bh=xzadQ1Q/nQuNVupW22AtcutHsf/XwQ6neMfVQckp7GE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cbBg+X3/7tHtbj/HIWSgaRMDqVGpWPHmltic4JB+ouCX0R9gW58cEzWUbzwjvG/OM
-         lxqV5wy4Qt+N9VUTq7QXvGVSXmGE1W0TLjKFlQ6Q76eaYQDRLIY0iuT3axsWYeTXbx
-         q7KiOt6RSbH6k+opWPaVfaZNtmBRSTFb75llSL04=
+        b=WIl5JH5OixDPBYDukpYaJLUcySDCbaAn3xib+sBHz9aNBMGnep04x3zQKAgc4V7xn
+         vUzhbtho1wAZGZOyUMEnp7iSN2oqTp7TW7WgjwFQnOLkXv0OVi5UQyzB/X1NTwUyaR
+         efPNcaLbZB31DamO2sbkUBaqS4YgTk9d38IXQD68=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Steven Rostedt <rostedt@goodmis.org>
-Subject: [PATCH 4.9 42/42] uprobes: ensure that uprobe->offset and ->ref_ctr_offset are properly aligned
+        stable@vger.kernel.org, Daniele Palmas <dnlplm@gmail.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.14 32/46] USB: serial: option: add Telit LE910C1-EUX compositions
 Date:   Tue,  9 Jun 2020 19:44:48 +0200
-Message-Id: <20200609174020.195537504@linuxfoundation.org>
+Message-Id: <20200609174028.895269186@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200609174015.379493548@linuxfoundation.org>
-References: <20200609174015.379493548@linuxfoundation.org>
+In-Reply-To: <20200609174022.938987501@linuxfoundation.org>
+References: <20200609174022.938987501@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,76 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oleg Nesterov <oleg@redhat.com>
+From: Daniele Palmas <dnlplm@gmail.com>
 
-commit 013b2deba9a6b80ca02f4fafd7dedf875e9b4450 upstream.
+commit 399ad9477c523f721f8e51d4f824bdf7267f120c upstream.
 
-uprobe_write_opcode() must not cross page boundary; prepare_uprobe()
-relies on arch_uprobe_analyze_insn() which should validate "vaddr" but
-some architectures (csky, s390, and sparc) don't do this.
+Add Telit LE910C1-EUX compositions:
 
-We can remove the BUG_ON() check in prepare_uprobe() and validate the
-offset early in __uprobe_register(). The new IS_ALIGNED() check matches
-the alignment check in arch_prepare_kprobe() on supported architectures,
-so I think that all insns must be aligned to UPROBE_SWBP_INSN_SIZE.
+	0x1031: tty, tty, tty, rmnet
+	0x1033: tty, tty, tty, ecm
 
-Another problem is __update_ref_ctr() which was wrong from the very
-beginning, it can read/write outside of kmap'ed page unless "vaddr" is
-aligned to sizeof(short), __uprobe_register() should check this too.
-
-Reported-by: Linus Torvalds <torvalds@linux-foundation.org>
-Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Oleg Nesterov <oleg@redhat.com>
-Reviewed-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
-Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Tested-by: Sven Schnelle <svens@linux.ibm.com>
-Cc: Steven Rostedt <rostedt@goodmis.org>
+Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
+Link: https://lore.kernel.org/r/20200525211106.27338-1-dnlplm@gmail.com
 Cc: stable@vger.kernel.org
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/events/uprobes.c |   16 ++++++++++++----
- 1 file changed, 12 insertions(+), 4 deletions(-)
+ drivers/usb/serial/option.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/kernel/events/uprobes.c
-+++ b/kernel/events/uprobes.c
-@@ -604,10 +604,6 @@ static int prepare_uprobe(struct uprobe
- 	if (ret)
- 		goto out;
- 
--	/* uprobe_write_opcode() assumes we don't cross page boundary */
--	BUG_ON((uprobe->offset & ~PAGE_MASK) +
--			UPROBE_SWBP_INSN_SIZE > PAGE_SIZE);
--
- 	smp_wmb(); /* pairs with the smp_rmb() in handle_swbp() */
- 	set_bit(UPROBE_COPY_INSN, &uprobe->flags);
- 
-@@ -886,6 +882,15 @@ int uprobe_register(struct inode *inode,
- 	if (offset > i_size_read(inode))
- 		return -EINVAL;
- 
-+	/*
-+	 * This ensures that copy_from_page(), copy_to_page() and
-+	 * __update_ref_ctr() can't cross page boundary.
-+	 */
-+	if (!IS_ALIGNED(offset, UPROBE_SWBP_INSN_SIZE))
-+		return -EINVAL;
-+	if (!IS_ALIGNED(ref_ctr_offset, sizeof(short)))
-+		return -EINVAL;
-+
-  retry:
- 	uprobe = alloc_uprobe(inode, offset);
- 	if (!uprobe)
-@@ -1696,6 +1701,9 @@ static int is_trap_at_addr(struct mm_str
- 	uprobe_opcode_t opcode;
- 	int result;
- 
-+	if (WARN_ON_ONCE(!IS_ALIGNED(vaddr, UPROBE_SWBP_INSN_SIZE)))
-+		return -EINVAL;
-+
- 	pagefault_disable();
- 	result = __get_user(opcode, (uprobe_opcode_t __user *)vaddr);
- 	pagefault_enable();
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -1160,6 +1160,10 @@ static const struct usb_device_id option
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_CC864_SINGLE) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_DE910_DUAL) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_UE910_V2) },
++	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1031, 0xff),	/* Telit LE910C1-EUX */
++	 .driver_info = NCTRL(0) | RSVD(3) },
++	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1033, 0xff),	/* Telit LE910C1-EUX (ECM) */
++	 .driver_info = NCTRL(0) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE922_USBCFG0),
+ 	  .driver_info = RSVD(0) | RSVD(1) | NCTRL(2) | RSVD(3) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE922_USBCFG1),
 
 
