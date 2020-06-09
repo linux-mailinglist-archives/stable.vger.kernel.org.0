@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 75F021F4536
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:13:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB27A1F460F
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:24:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732765AbgFIRvC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Jun 2020 13:51:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39406 "EHLO mail.kernel.org"
+        id S1732002AbgFIRrQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Jun 2020 13:47:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58328 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732752AbgFIRvB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Jun 2020 13:51:01 -0400
+        id S1732052AbgFIRrN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Jun 2020 13:47:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 082AC20774;
-        Tue,  9 Jun 2020 17:51:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C5D82207ED;
+        Tue,  9 Jun 2020 17:47:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591725061;
-        bh=GVHnm3hh3L2GRK/NDb/CACB4DM4slcHUXJjsoaWORg4=;
+        s=default; t=1591724833;
+        bh=GyyX7JDwC23wnpynPfM3VmIsUUQS2VfgCl7CFsrpotw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mhS123lxZTxKZOpWpz3NoCmzBOZ1IPGtBzddGNmKguqERbImNcdeNRlqcEoKV/try
-         JhhwRv6mYFz3mSjKGqkJ56nPJ4XimYw78sTpZlfF9QGQdn6+faddRxwlyGD03/YZeW
-         ZuAMx35bgqAjCmphPboEOJSSqK9EUmwFcvkKm8FA=
+        b=OE/pxgK11z6GPrhmDZi9qIszwfexVIsmL84Ryh6GIU4xKMTDokvrbBJC5vDA7vBf/
+         deYTqolwyz0wSHuIpY3PwHdQ2C5rYV0Jhkj0yucBQ45mp59Lh3/etFfLfN05SO/NXg
+         trKCQCYXmJdit2IA0M54y8nA+p2hJ9ClgGYpJUIE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Giuseppe Marco Randazzo <gmrandazzo@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Christian Lamparter <chunkeey@gmail.com>
-Subject: [PATCH 4.14 18/46] p54usb: add AirVasT USB stick device-id
-Date:   Tue,  9 Jun 2020 19:44:34 +0200
-Message-Id: <20200609174024.677216703@linuxfoundation.org>
+        stable@vger.kernel.org, Mathieu Othacehe <m.othacehe@gmail.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 35/36] iio: vcnl4000: Fix i2c swapped word reading.
+Date:   Tue,  9 Jun 2020 19:44:35 +0200
+Message-Id: <20200609173935.835075859@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200609174022.938987501@linuxfoundation.org>
-References: <20200609174022.938987501@linuxfoundation.org>
+In-Reply-To: <20200609173933.288044334@linuxfoundation.org>
+References: <20200609173933.288044334@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,35 +45,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Giuseppe Marco Randazzo <gmrandazzo@gmail.com>
+From: Mathieu Othacehe <m.othacehe@gmail.com>
 
-commit 63e49a9fdac1b4e97ac26cb3fe953f210d83bc53 upstream.
+[ Upstream commit 18dfb5326370991c81a6d1ed6d1aeee055cb8c05 ]
 
-This patch adds the AirVasT USB wireless devices 124a:4026
-to the list of supported devices. It's using the ISL3886
-usb firmware. Without this modification, the wiki adapter
-is not recognized.
+The bytes returned by the i2c reading need to be swapped
+unconditionally. Otherwise, on be16 platforms, an incorrect value will be
+returned.
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Giuseppe Marco Randazzo <gmrandazzo@gmail.com>
-Signed-off-by: Christian Lamparter <chunkeey@gmail.com> [formatted, reworded]
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20200405220659.45621-1-chunkeey@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Taking the slow path via next merge window as its been around a while
+and we have a patch set dependent on this which would be held up.
 
+Fixes: 62a1efb9f868 ("iio: add vcnl4000 combined ALS and proximity sensor")
+Signed-off-by: Mathieu Othacehe <m.othacehe@gmail.com>
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intersil/p54/p54usb.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/iio/light/vcnl4000.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
---- a/drivers/net/wireless/intersil/p54/p54usb.c
-+++ b/drivers/net/wireless/intersil/p54/p54usb.c
-@@ -64,6 +64,7 @@ static const struct usb_device_id p54u_t
- 	{USB_DEVICE(0x0db0, 0x6826)},	/* MSI UB54G (MS-6826) */
- 	{USB_DEVICE(0x107b, 0x55f2)},	/* Gateway WGU-210 (Gemtek) */
- 	{USB_DEVICE(0x124a, 0x4023)},	/* Shuttle PN15, Airvast WM168g, IOGear GWU513 */
-+	{USB_DEVICE(0x124a, 0x4026)},	/* AirVasT USB wireless device */
- 	{USB_DEVICE(0x1435, 0x0210)},	/* Inventel UR054G */
- 	{USB_DEVICE(0x15a9, 0x0002)},	/* Gemtek WUBI-100GW 802.11g */
- 	{USB_DEVICE(0x1630, 0x0005)},	/* 2Wire 802.11g USB (v1) / Z-Com */
+diff --git a/drivers/iio/light/vcnl4000.c b/drivers/iio/light/vcnl4000.c
+index c9d85bbc9230..a17891511be5 100644
+--- a/drivers/iio/light/vcnl4000.c
++++ b/drivers/iio/light/vcnl4000.c
+@@ -56,7 +56,6 @@ static int vcnl4000_measure(struct vcnl4000_data *data, u8 req_mask,
+ 				u8 rdy_mask, u8 data_reg, int *val)
+ {
+ 	int tries = 20;
+-	__be16 buf;
+ 	int ret;
+ 
+ 	ret = i2c_smbus_write_byte_data(data->client, VCNL4000_COMMAND,
+@@ -80,12 +79,11 @@ static int vcnl4000_measure(struct vcnl4000_data *data, u8 req_mask,
+ 		return -EIO;
+ 	}
+ 
+-	ret = i2c_smbus_read_i2c_block_data(data->client,
+-		data_reg, sizeof(buf), (u8 *) &buf);
++	ret = i2c_smbus_read_word_swapped(data->client, data_reg);
+ 	if (ret < 0)
+ 		return ret;
+ 
+-	*val = be16_to_cpu(buf);
++	*val = ret;
+ 
+ 	return 0;
+ }
+-- 
+2.25.1
+
 
 
