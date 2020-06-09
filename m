@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 080F51F4600
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:23:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 895F71F45BA
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:20:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728304AbgFISWp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Jun 2020 14:22:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60004 "EHLO mail.kernel.org"
+        id S2388882AbgFISUG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Jun 2020 14:20:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35146 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732212AbgFIRsD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Jun 2020 13:48:03 -0400
+        id S1731058AbgFIRtU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Jun 2020 13:49:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 21D5F207F9;
-        Tue,  9 Jun 2020 17:48:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6A2072081A;
+        Tue,  9 Jun 2020 17:49:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591724883;
-        bh=L99taIM+omKw6xpLci/GzbwOu6gRvGvUPFTqXy6EsDM=;
+        s=default; t=1591724959;
+        bh=TxT4HgKP8cxjnm29rmgpIbDnAgilIC2D7Ig1uEnXgPA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=09hjy3maDUW6fBMjwjHJLi0y+SfOjlsDmm8SvCAUkAmoNtB5dd7lqABoX84vCc/51
-         vw0CIJKTfvZXG+tzOL8vxLgaNU+WjdwQsR/JYVYb1eABr7qm6x46j9OCeTnzamLWsS
-         tiWpfN8Jg/SAbafr5RQ77QImqLBpf2xZlrLFf56U=
+        b=AnHD+vB3UsJLMJ+Q+2vmUQ0eHBEzGamAT2RFArJqRBZMrcE9WkC9jGQw0FSR1VXDM
+         JDuIeKAeXAiLMzozDXJKhMzbA/xEwMNfB6tlSMeoFwRF/d4xd2UpO0eaarGa4EUyhw
+         QW3MN4UDaCicoeb4NXv4Jh9D3i0dkHwICoGnSwAA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bean Huo <beanhuo@micron.com>,
-        Can Guo <cang@codeaurora.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Eric Biggers <ebiggers@google.com>
-Subject: [PATCH 4.9 20/42] scsi: ufs: Release clock if DMA map fails
-Date:   Tue,  9 Jun 2020 19:44:26 +0200
-Message-Id: <20200609174017.670122929@linuxfoundation.org>
+        stable@vger.kernel.org, Jeremy Kerr <jk@ozlabs.org>,
+        Stan Johnson <userm57@yahoo.com>,
+        Finn Thain <fthain@telegraphics.com.au>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 11/46] net: bmac: Fix read of MAC address from ROM
+Date:   Tue,  9 Jun 2020 19:44:27 +0200
+Message-Id: <20200609174023.912758807@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200609174015.379493548@linuxfoundation.org>
-References: <20200609174015.379493548@linuxfoundation.org>
+In-Reply-To: <20200609174022.938987501@linuxfoundation.org>
+References: <20200609174022.938987501@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,36 +46,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Can Guo <cang@codeaurora.org>
+From: Jeremy Kerr <jk@ozlabs.org>
 
-commit 17c7d35f141ef6158076adf3338f115f64fcf760 upstream.
+[ Upstream commit ef01cee2ee1b369c57a936166483d40942bcc3e3 ]
 
-In queuecommand path, if DMA map fails, it bails out with clock held.  In
-this case, release the clock to keep its usage paired.
+In bmac_get_station_address, We're reading two bytes at a time from ROM,
+but we do that six times, resulting in 12 bytes of read & writes. This
+means we will write off the end of the six-byte destination buffer.
 
-[mkp: applied by hand]
+This change fixes the for-loop to only read/write six bytes.
 
-Link: https://lore.kernel.org/r/0101016ed3d66395-1b7e7fce-b74d-42ca-a88a-4db78b795d3b-000000@us-west-2.amazonses.com
-Reviewed-by: Bean Huo <beanhuo@micron.com>
-Signed-off-by: Can Guo <cang@codeaurora.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-[EB: resolved cherry-pick conflict caused by newer kernels not having
- the clear_bit_unlock() line]
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Based on a proposed fix from Finn Thain <fthain@telegraphics.com.au>.
+
+Signed-off-by: Jeremy Kerr <jk@ozlabs.org>
+Reported-by: Stan Johnson <userm57@yahoo.com>
+Tested-by: Stan Johnson <userm57@yahoo.com>
+Reported-by: Finn Thain <fthain@telegraphics.com.au>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufshcd.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/apple/bmac.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -1512,6 +1512,7 @@ static int ufshcd_queuecommand(struct Sc
+diff --git a/drivers/net/ethernet/apple/bmac.c b/drivers/net/ethernet/apple/bmac.c
+index eac740c476ce..a8b462e1beba 100644
+--- a/drivers/net/ethernet/apple/bmac.c
++++ b/drivers/net/ethernet/apple/bmac.c
+@@ -1187,7 +1187,7 @@ bmac_get_station_address(struct net_device *dev, unsigned char *ea)
+ 	int i;
+ 	unsigned short data;
  
- 	err = ufshcd_map_sg(hba, lrbp);
- 	if (err) {
-+		ufshcd_release(hba);
- 		lrbp->cmd = NULL;
- 		clear_bit_unlock(tag, &hba->lrb_in_use);
- 		goto out;
+-	for (i = 0; i < 6; i++)
++	for (i = 0; i < 3; i++)
+ 		{
+ 			reset_and_select_srom(dev);
+ 			data = read_srom(dev, i + EnetAddressOffset/2, SROMAddressBits);
+-- 
+2.25.1
+
 
 
