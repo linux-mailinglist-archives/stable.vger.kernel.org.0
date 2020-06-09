@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D3741F441D
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:02:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 09D731F441B
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:02:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387470AbgFISAt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1733143AbgFISAt (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 9 Jun 2020 14:00:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45756 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:45836 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733071AbgFIRyN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Jun 2020 13:54:13 -0400
+        id S1731571AbgFIRyR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Jun 2020 13:54:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 833AF20801;
-        Tue,  9 Jun 2020 17:54:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1DCC520774;
+        Tue,  9 Jun 2020 17:54:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591725253;
-        bh=7H0o9iPkpfeRrO+kK8fHciPXul+ErU2mXc1tBvSlrxs=;
+        s=default; t=1591725257;
+        bh=XEGidvdyGCOiAiBQ9Tc8EFoGZ03ZmvSA/xlWKKMAXOo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fuNdg4krJBg/3222C9pFqowxCLjvqaD2qXsUallGff7InQVImI6fWJd0XPKX4OI0w
-         Fq+45pSCtBGtFsGbzxKMzDFmnI7gJSJ1RXA0g/fzY6mh33MSNjNTxui7oY4PFu99y/
-         AMY0oodi/PLpBdWpw2mujDaqjTu1TodvBdGBj7Vg=
+        b=QFQPGNtZTA/ug4qD1sgjpPxjqtzJ+3I33slp85jX15vKs42Qt7cJKxPADoWz2m/eg
+         C+SAfDmbMX2sV/LJUGWlv1f8lg7i9gb2g/IWVysZKzl0HE5HIWh2EPNqBqGf2ArzkM
+         3p7K4rg4gi3LDWeitlTtYjNSeX/eP1TfNJNNq9YM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>,
-        Raghavendra <rananta@codeaurora.org>
-Subject: [PATCH 5.6 31/41] tty: hvc_console, fix crashes on parallel open/close
-Date:   Tue,  9 Jun 2020 19:45:33 +0200
-Message-Id: <20200609174115.064905891@linuxfoundation.org>
+        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
+        Jean Rene Dawin <jdawin@math.uni-bielefeld.de>
+Subject: [PATCH 5.6 33/41] CDC-ACM: heed quirk also in error handling
+Date:   Tue,  9 Jun 2020 19:45:35 +0200
+Message-Id: <20200609174115.238537419@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200609174112.129412236@linuxfoundation.org>
 References: <20200609174112.129412236@linuxfoundation.org>
@@ -43,101 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Slaby <jslaby@suse.cz>
+From: Oliver Neukum <oneukum@suse.com>
 
-commit 24eb2377f977fe06d84fca558f891f95bc28a449 upstream.
+commit 97fe809934dd2b0b37dfef3a2fc70417f485d7af upstream.
 
-hvc_open sets tty->driver_data to NULL when open fails at some point.
-Typically, the failure happens in hp->ops->notifier_add(). If there is
-a racing process which tries to open such mangled tty, which was not
-closed yet, the process will crash in hvc_open as tty->driver_data is
-NULL.
+If buffers are iterated over in the error case, the lower limits
+for quirky devices must be heeded.
 
-All this happens because close wants to know whether open failed or not.
-But ->open should not NULL this and other tty fields for ->close to be
-happy. ->open should call tty_port_set_initialized(true) and close
-should check by tty_port_initialized() instead. So do this properly in
-this driver.
-
-So this patch removes these from ->open:
-* tty_port_tty_set(&hp->port, NULL). This happens on last close.
-* tty->driver_data = NULL. Dtto.
-* tty_port_put(&hp->port). This happens in shutdown and until now, this
-  must have been causing a reference underflow, if I am not missing
-  something.
-
-Signed-off-by: Jiri Slaby <jslaby@suse.cz>
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Reported-by: Jean Rene Dawin <jdawin@math.uni-bielefeld.de>
+Fixes: a4e7279cd1d19 ("cdc-acm: introduce a cool down")
 Cc: stable <stable@vger.kernel.org>
-Reported-and-tested-by: Raghavendra <rananta@codeaurora.org>
-Link: https://lore.kernel.org/r/20200526145632.13879-1-jslaby@suse.cz
+Link: https://lore.kernel.org/r/20200526124420.22160-1-oneukum@suse.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/tty/hvc/hvc_console.c |   23 ++++++++---------------
- 1 file changed, 8 insertions(+), 15 deletions(-)
+ drivers/usb/class/cdc-acm.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/tty/hvc/hvc_console.c
-+++ b/drivers/tty/hvc/hvc_console.c
-@@ -371,15 +371,14 @@ static int hvc_open(struct tty_struct *t
- 	 * tty fields and return the kref reference.
- 	 */
- 	if (rc) {
--		tty_port_tty_set(&hp->port, NULL);
--		tty->driver_data = NULL;
--		tty_port_put(&hp->port);
- 		printk(KERN_ERR "hvc_open: request_irq failed with rc %d.\n", rc);
--	} else
-+	} else {
- 		/* We are ready... raise DTR/RTS */
- 		if (C_BAUD(tty))
- 			if (hp->ops->dtr_rts)
- 				hp->ops->dtr_rts(hp, 1);
-+		tty_port_set_initialized(&hp->port, true);
-+	}
+--- a/drivers/usb/class/cdc-acm.c
++++ b/drivers/usb/class/cdc-acm.c
+@@ -584,7 +584,7 @@ static void acm_softint(struct work_stru
+ 	}
  
- 	/* Force wakeup of the polling thread */
- 	hvc_kick();
-@@ -389,22 +388,12 @@ static int hvc_open(struct tty_struct *t
- 
- static void hvc_close(struct tty_struct *tty, struct file * filp)
- {
--	struct hvc_struct *hp;
-+	struct hvc_struct *hp = tty->driver_data;
- 	unsigned long flags;
- 
- 	if (tty_hung_up_p(filp))
- 		return;
- 
--	/*
--	 * No driver_data means that this close was issued after a failed
--	 * hvc_open by the tty layer's release_dev() function and we can just
--	 * exit cleanly because the kref reference wasn't made.
--	 */
--	if (!tty->driver_data)
--		return;
--
--	hp = tty->driver_data;
--
- 	spin_lock_irqsave(&hp->port.lock, flags);
- 
- 	if (--hp->port.count == 0) {
-@@ -412,6 +401,9 @@ static void hvc_close(struct tty_struct
- 		/* We are done with the tty pointer now. */
- 		tty_port_tty_set(&hp->port, NULL);
- 
-+		if (!tty_port_initialized(&hp->port))
-+			return;
-+
- 		if (C_HUPCL(tty))
- 			if (hp->ops->dtr_rts)
- 				hp->ops->dtr_rts(hp, 0);
-@@ -428,6 +420,7 @@ static void hvc_close(struct tty_struct
- 		 * waking periodically to check chars_in_buffer().
- 		 */
- 		tty_wait_until_sent(tty, HVC_CLOSE_WAIT);
-+		tty_port_set_initialized(&hp->port, false);
- 	} else {
- 		if (hp->port.count < 0)
- 			printk(KERN_ERR "hvc_close %X: oops, count is %d\n",
+ 	if (test_and_clear_bit(ACM_ERROR_DELAY, &acm->flags)) {
+-		for (i = 0; i < ACM_NR; i++)
++		for (i = 0; i < acm->rx_buflimit; i++)
+ 			if (test_and_clear_bit(i, &acm->urbs_in_error_delay))
+ 					acm_submit_read_urb(acm, i, GFP_NOIO);
+ 	}
 
 
