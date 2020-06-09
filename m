@@ -2,248 +2,156 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A5411F3084
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 03:00:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E18A1F3149
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 03:08:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729031AbgFIBAA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Jun 2020 21:00:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53702 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728164AbgFHXI1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:08:27 -0400
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5F4BD20774;
-        Mon,  8 Jun 2020 23:08:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591657706;
-        bh=LGucAxx+x52tVKnfbNkMjULMnphu0SKvwqOkseuLR7c=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xjTPc3JYW60UXwGXlMlWoSYlMDTN4KntvnAWtE3IyWyRh5MA4pnJEMjlF7UeSV0Yv
-         sr2Nl+fC7Jpew9Az9UJbH+PW+ZrorRKzhAVwHiTxde13ErOSWI9l3iPMqRvckH04Tf
-         fVB4EKSesJkYwVCXRgGDTDhiLiEPPFNmpxRs3WVg=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vladimir Oltean <vladimir.oltean@nxp.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.7 103/274] net: mscc: ocelot: deal with problematic MAC_ETYPE VCAP IS2 rules
-Date:   Mon,  8 Jun 2020 19:03:16 -0400
-Message-Id: <20200608230607.3361041-103-sashal@kernel.org>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200608230607.3361041-1-sashal@kernel.org>
+        id S2388196AbgFIBHn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Jun 2020 21:07:43 -0400
+Received: from userp2120.oracle.com ([156.151.31.85]:58926 "EHLO
+        userp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726844AbgFIBHl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 8 Jun 2020 21:07:41 -0400
+Received: from pps.filterd (userp2120.oracle.com [127.0.0.1])
+        by userp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 0590uv8R173360;
+        Tue, 9 Jun 2020 01:07:30 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=date : from : to : cc
+ : subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=corp-2020-01-29;
+ bh=IpEVVM0bj8zg9b7eJM0DwMCx4bTSNKHFjqpG8b9CCvg=;
+ b=jw6AFzibkdY0HIZu9DeavIDwExXpfTitqONPy/3YBycUFPgWq9HZddTXr+1ixVcYgvUO
+ bIeANndRdJ1dt2sYAj2brqgKI49ReS2ovmcUgUgHj/E+a6IiVgmFgnnrGb6vo8fi7Ijo
+ ovAiA7c9mIfAenoc0QEKa0rv1JvvWSptfQLHeM+uEVbiGXke8uonm5Tuup7AuoWp8p7R
+ uyr4QsHX08tVE9+lVztidOBlRwGAD1DLzOyfDMJSyy2bX0fjKBH55D/H9tjb0y2tilCB
+ YxyfR+gqU3Wd9rZCcoU6fYz14S8TVkHkDGoaW+BkB9BU2lMJa8x8XXy/A1fY0sqtAc1w Jw== 
+Received: from userp3030.oracle.com (userp3030.oracle.com [156.151.31.80])
+        by userp2120.oracle.com with ESMTP id 31g3smsqvv-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Tue, 09 Jun 2020 01:07:30 +0000
+Received: from pps.filterd (userp3030.oracle.com [127.0.0.1])
+        by userp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 05913fGU016868;
+        Tue, 9 Jun 2020 01:07:29 GMT
+Received: from userv0122.oracle.com (userv0122.oracle.com [156.151.31.75])
+        by userp3030.oracle.com with ESMTP id 31gn2vx6cq-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 09 Jun 2020 01:07:29 +0000
+Received: from abhmp0013.oracle.com (abhmp0013.oracle.com [141.146.116.19])
+        by userv0122.oracle.com (8.14.4/8.14.4) with ESMTP id 05917TFM022951;
+        Tue, 9 Jun 2020 01:07:29 GMT
+Received: from localhost (/10.159.129.223)
+        by default (Oracle Beehive Gateway v4.0)
+        with ESMTP ; Mon, 08 Jun 2020 18:07:28 -0700
+Date:   Mon, 8 Jun 2020 18:07:27 -0700
+From:   "Darrick J. Wong" <darrick.wong@oracle.com>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Christoph Hellwig <hch@lst.de>,
+        Brian Foster <bfoster@redhat.com>, linux-xfs@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 5.7 244/274] xfs: force writes to delalloc
+ regions to unwritten
+Message-ID: <20200609010727.GN1334206@magnolia>
 References: <20200608230607.3361041-1-sashal@kernel.org>
+ <20200608230607.3361041-244-sashal@kernel.org>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200608230607.3361041-244-sashal@kernel.org>
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9646 signatures=668680
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxscore=0 phishscore=0 malwarescore=0
+ bulkscore=0 adultscore=0 mlxlogscore=999 spamscore=0 suspectscore=1
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2004280000
+ definitions=main-2006090005
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9646 signatures=668680
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 adultscore=0 priorityscore=1501
+ lowpriorityscore=0 impostorscore=0 cotscore=-2147483648 suspectscore=1
+ spamscore=0 bulkscore=0 malwarescore=0 phishscore=0 mlxscore=0
+ mlxlogscore=999 clxscore=1031 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2004280000 definitions=main-2006090004
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+On Mon, Jun 08, 2020 at 07:05:37PM -0400, Sasha Levin wrote:
+> From: "Darrick J. Wong" <darrick.wong@oracle.com>
+> 
+> [ Upstream commit a5949d3faedf492fa7863b914da408047ab46eb0 ]
+> 
+> When writing to a delalloc region in the data fork, commit the new
+> allocations (of the da reservation) as unwritten so that the mappings
+> are only marked written once writeback completes successfully.  This
+> fixes the problem of stale data exposure if the system goes down during
+> targeted writeback of a specific region of a file, as tested by
+> generic/042.
+> 
+> Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+> Reviewed-by: Christoph Hellwig <hch@lst.de>
+> Reviewed-by: Brian Foster <bfoster@redhat.com>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
 
-[ Upstream commit 89f9ffd3eb670bad1260bc579f5e13b8f2d5b3e0 ]
+Err, this doesn't have a Fixes: tag attached to it.  Does it pass
+fstests?  Because it doesn't look like you've pulled in "xfs: don't fail
+unwritten extent conversion on writeback due to edquot", which is needed
+to avoid regressing fstests...
 
-By default, the VCAP IS2 will produce a single match for each frame, on
-the most specific classification.
+...waitaminute, that whole series lacks Fixes: tags because it wasn't
+considered a good enough candidate for automatic backport.
 
-Example: a ping packet (ICMP over IPv4 over Ethernet) sent from an IP
-address of 10.0.0.1 and a MAC address of 96:18:82:00:04:01 will match
-this rule:
+Ummm, does the autosel fstests driver turn on quotas? ;)
 
-tc filter add dev swp0 ingress protocol ipv4 \
-	flower skip_sw src_ip 10.0.0.1 action drop
+--D
 
-but not this one:
-
-tc filter add dev swp0 ingress \
-	flower skip_sw src_mac 96:18:82:00:04:01 action drop
-
-Currently the driver does not really warn the user in any way about
-this, and the behavior is rather strange anyway.
-
-The current patch is a workaround to force matches on MAC_ETYPE keys
-(DMAC and SMAC) for all packets irrespective of higher layer protocol.
-The setting is made at the port level.
-
-Of course this breaks all other non-src_mac and non-dst_mac matches, so
-rule exclusivity checks have been added to the driver, in order to never
-have rules of both types on any ingress port.
-
-The bits that discard higher-level protocol information are set only
-once a MAC_ETYPE rule is added to a filter block, and only for the ports
-that are bound to that filter block. Then all further non-MAC_ETYPE
-rules added to that filter block should be denied by the ports bound to
-it.
-
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/net/ethernet/mscc/ocelot_ace.c    | 103 +++++++++++++++++++++-
- drivers/net/ethernet/mscc/ocelot_ace.h    |   5 +-
- drivers/net/ethernet/mscc/ocelot_flower.c |   2 +-
- 3 files changed, 106 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/net/ethernet/mscc/ocelot_ace.c b/drivers/net/ethernet/mscc/ocelot_ace.c
-index 3bd286044480..8a2f7d13ef6d 100644
---- a/drivers/net/ethernet/mscc/ocelot_ace.c
-+++ b/drivers/net/ethernet/mscc/ocelot_ace.c
-@@ -706,13 +706,114 @@ ocelot_ace_rule_get_rule_index(struct ocelot_acl_block *block, int index)
- 	return NULL;
- }
- 
-+/* If @on=false, then SNAP, ARP, IP and OAM frames will not match on keys based
-+ * on destination and source MAC addresses, but only on higher-level protocol
-+ * information. The only frame types to match on keys containing MAC addresses
-+ * in this case are non-SNAP, non-ARP, non-IP and non-OAM frames.
-+ *
-+ * If @on=true, then the above frame types (SNAP, ARP, IP and OAM) will match
-+ * on MAC_ETYPE keys such as destination and source MAC on this ingress port.
-+ * However the setting has the side effect of making these frames not matching
-+ * on any _other_ keys than MAC_ETYPE ones.
-+ */
-+static void ocelot_match_all_as_mac_etype(struct ocelot *ocelot, int port,
-+					  bool on)
-+{
-+	u32 val = 0;
-+
-+	if (on)
-+		val = ANA_PORT_VCAP_S2_CFG_S2_SNAP_DIS(3) |
-+		      ANA_PORT_VCAP_S2_CFG_S2_ARP_DIS(3) |
-+		      ANA_PORT_VCAP_S2_CFG_S2_IP_TCPUDP_DIS(3) |
-+		      ANA_PORT_VCAP_S2_CFG_S2_IP_OTHER_DIS(3) |
-+		      ANA_PORT_VCAP_S2_CFG_S2_OAM_DIS(3);
-+
-+	ocelot_rmw_gix(ocelot, val,
-+		       ANA_PORT_VCAP_S2_CFG_S2_SNAP_DIS_M |
-+		       ANA_PORT_VCAP_S2_CFG_S2_ARP_DIS_M |
-+		       ANA_PORT_VCAP_S2_CFG_S2_IP_TCPUDP_DIS_M |
-+		       ANA_PORT_VCAP_S2_CFG_S2_IP_OTHER_DIS_M |
-+		       ANA_PORT_VCAP_S2_CFG_S2_OAM_DIS_M,
-+		       ANA_PORT_VCAP_S2_CFG, port);
-+}
-+
-+static bool ocelot_ace_is_problematic_mac_etype(struct ocelot_ace_rule *ace)
-+{
-+	if (ace->type != OCELOT_ACE_TYPE_ETYPE)
-+		return false;
-+	if (ether_addr_to_u64(ace->frame.etype.dmac.value) &
-+	    ether_addr_to_u64(ace->frame.etype.dmac.mask))
-+		return true;
-+	if (ether_addr_to_u64(ace->frame.etype.smac.value) &
-+	    ether_addr_to_u64(ace->frame.etype.smac.mask))
-+		return true;
-+	return false;
-+}
-+
-+static bool ocelot_ace_is_problematic_non_mac_etype(struct ocelot_ace_rule *ace)
-+{
-+	if (ace->type == OCELOT_ACE_TYPE_SNAP)
-+		return true;
-+	if (ace->type == OCELOT_ACE_TYPE_ARP)
-+		return true;
-+	if (ace->type == OCELOT_ACE_TYPE_IPV4)
-+		return true;
-+	if (ace->type == OCELOT_ACE_TYPE_IPV6)
-+		return true;
-+	return false;
-+}
-+
-+static bool ocelot_exclusive_mac_etype_ace_rules(struct ocelot *ocelot,
-+						 struct ocelot_ace_rule *ace)
-+{
-+	struct ocelot_acl_block *block = &ocelot->acl_block;
-+	struct ocelot_ace_rule *tmp;
-+	unsigned long port;
-+	int i;
-+
-+	if (ocelot_ace_is_problematic_mac_etype(ace)) {
-+		/* Search for any non-MAC_ETYPE rules on the port */
-+		for (i = 0; i < block->count; i++) {
-+			tmp = ocelot_ace_rule_get_rule_index(block, i);
-+			if (tmp->ingress_port_mask & ace->ingress_port_mask &&
-+			    ocelot_ace_is_problematic_non_mac_etype(tmp))
-+				return false;
-+		}
-+
-+		for_each_set_bit(port, &ace->ingress_port_mask,
-+				 ocelot->num_phys_ports)
-+			ocelot_match_all_as_mac_etype(ocelot, port, true);
-+	} else if (ocelot_ace_is_problematic_non_mac_etype(ace)) {
-+		/* Search for any MAC_ETYPE rules on the port */
-+		for (i = 0; i < block->count; i++) {
-+			tmp = ocelot_ace_rule_get_rule_index(block, i);
-+			if (tmp->ingress_port_mask & ace->ingress_port_mask &&
-+			    ocelot_ace_is_problematic_mac_etype(tmp))
-+				return false;
-+		}
-+
-+		for_each_set_bit(port, &ace->ingress_port_mask,
-+				 ocelot->num_phys_ports)
-+			ocelot_match_all_as_mac_etype(ocelot, port, false);
-+	}
-+
-+	return true;
-+}
-+
- int ocelot_ace_rule_offload_add(struct ocelot *ocelot,
--				struct ocelot_ace_rule *rule)
-+				struct ocelot_ace_rule *rule,
-+				struct netlink_ext_ack *extack)
- {
- 	struct ocelot_acl_block *block = &ocelot->acl_block;
- 	struct ocelot_ace_rule *ace;
- 	int i, index;
- 
-+	if (!ocelot_exclusive_mac_etype_ace_rules(ocelot, rule)) {
-+		NL_SET_ERR_MSG_MOD(extack,
-+				   "Cannot mix MAC_ETYPE with non-MAC_ETYPE rules");
-+		return -EBUSY;
-+	}
-+
- 	/* Add rule to the linked list */
- 	ocelot_ace_rule_add(ocelot, block, rule);
- 
-diff --git a/drivers/net/ethernet/mscc/ocelot_ace.h b/drivers/net/ethernet/mscc/ocelot_ace.h
-index 29d22c566786..099e177f2617 100644
---- a/drivers/net/ethernet/mscc/ocelot_ace.h
-+++ b/drivers/net/ethernet/mscc/ocelot_ace.h
-@@ -194,7 +194,7 @@ struct ocelot_ace_rule {
- 
- 	enum ocelot_ace_action action;
- 	struct ocelot_ace_stats stats;
--	u16 ingress_port_mask;
-+	unsigned long ingress_port_mask;
- 
- 	enum ocelot_vcap_bit dmac_mc;
- 	enum ocelot_vcap_bit dmac_bc;
-@@ -215,7 +215,8 @@ struct ocelot_ace_rule {
- };
- 
- int ocelot_ace_rule_offload_add(struct ocelot *ocelot,
--				struct ocelot_ace_rule *rule);
-+				struct ocelot_ace_rule *rule,
-+				struct netlink_ext_ack *extack);
- int ocelot_ace_rule_offload_del(struct ocelot *ocelot,
- 				struct ocelot_ace_rule *rule);
- int ocelot_ace_rule_stats_update(struct ocelot *ocelot,
-diff --git a/drivers/net/ethernet/mscc/ocelot_flower.c b/drivers/net/ethernet/mscc/ocelot_flower.c
-index 341923311fec..954cb67eeaa2 100644
---- a/drivers/net/ethernet/mscc/ocelot_flower.c
-+++ b/drivers/net/ethernet/mscc/ocelot_flower.c
-@@ -205,7 +205,7 @@ int ocelot_cls_flower_replace(struct ocelot *ocelot, int port,
- 		return ret;
- 	}
- 
--	return ocelot_ace_rule_offload_add(ocelot, ace);
-+	return ocelot_ace_rule_offload_add(ocelot, ace, f->common.extack);
- }
- EXPORT_SYMBOL_GPL(ocelot_cls_flower_replace);
- 
--- 
-2.25.1
-
+> ---
+>  fs/xfs/libxfs/xfs_bmap.c | 29 +++++++++++++++++------------
+>  1 file changed, 17 insertions(+), 12 deletions(-)
+> 
+> diff --git a/fs/xfs/libxfs/xfs_bmap.c b/fs/xfs/libxfs/xfs_bmap.c
+> index fda13cd7add0..f8fe83c9348d 100644
+> --- a/fs/xfs/libxfs/xfs_bmap.c
+> +++ b/fs/xfs/libxfs/xfs_bmap.c
+> @@ -4193,17 +4193,7 @@ xfs_bmapi_allocate(
+>  	bma->got.br_blockcount = bma->length;
+>  	bma->got.br_state = XFS_EXT_NORM;
+>  
+> -	/*
+> -	 * In the data fork, a wasdelay extent has been initialized, so
+> -	 * shouldn't be flagged as unwritten.
+> -	 *
+> -	 * For the cow fork, however, we convert delalloc reservations
+> -	 * (extents allocated for speculative preallocation) to
+> -	 * allocated unwritten extents, and only convert the unwritten
+> -	 * extents to real extents when we're about to write the data.
+> -	 */
+> -	if ((!bma->wasdel || (bma->flags & XFS_BMAPI_COWFORK)) &&
+> -	    (bma->flags & XFS_BMAPI_PREALLOC))
+> +	if (bma->flags & XFS_BMAPI_PREALLOC)
+>  		bma->got.br_state = XFS_EXT_UNWRITTEN;
+>  
+>  	if (bma->wasdel)
+> @@ -4611,8 +4601,23 @@ xfs_bmapi_convert_delalloc(
+>  	bma.offset = bma.got.br_startoff;
+>  	bma.length = max_t(xfs_filblks_t, bma.got.br_blockcount, MAXEXTLEN);
+>  	bma.minleft = xfs_bmapi_minleft(tp, ip, whichfork);
+> +
+> +	/*
+> +	 * When we're converting the delalloc reservations backing dirty pages
+> +	 * in the page cache, we must be careful about how we create the new
+> +	 * extents:
+> +	 *
+> +	 * New CoW fork extents are created unwritten, turned into real extents
+> +	 * when we're about to write the data to disk, and mapped into the data
+> +	 * fork after the write finishes.  End of story.
+> +	 *
+> +	 * New data fork extents must be mapped in as unwritten and converted
+> +	 * to real extents after the write succeeds to avoid exposing stale
+> +	 * disk contents if we crash.
+> +	 */
+> +	bma.flags = XFS_BMAPI_PREALLOC;
+>  	if (whichfork == XFS_COW_FORK)
+> -		bma.flags = XFS_BMAPI_COWFORK | XFS_BMAPI_PREALLOC;
+> +		bma.flags |= XFS_BMAPI_COWFORK;
+>  
+>  	if (!xfs_iext_peek_prev_extent(ifp, &bma.icur, &bma.prev))
+>  		bma.prev.br_startoff = NULLFILEOFF;
+> -- 
+> 2.25.1
+> 
