@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 539E61F4596
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:18:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E2D021F4475
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:05:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732685AbgFISSJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Jun 2020 14:18:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37448 "EHLO mail.kernel.org"
+        id S1728272AbgFISEk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Jun 2020 14:04:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41902 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732631AbgFIRuP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Jun 2020 13:50:15 -0400
+        id S1731657AbgFIRwC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Jun 2020 13:52:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 824D9207C3;
-        Tue,  9 Jun 2020 17:50:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0BEF420774;
+        Tue,  9 Jun 2020 17:51:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591725015;
-        bh=0ctzlTivcvYKVK0qXh7I1nTlH3cJHR+nkz97FZGU0Ds=;
+        s=default; t=1591725120;
+        bh=w8OJSn1asYAB7DlzKyQYaCaAbPbx3QyolRDNwV1LZnw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JsMcIERQNS2yedDcA7d6zj8f/+ptKfzsdywLcDl0/xlnq0sdULEhZb00EhWPw53R8
-         w5Ad8sImKe/66sh+Md8OAj4vYkBuMS4tAwSZ/4lZ0wP39E/Z4yg2gkUSBXs9yvLV4+
-         q0BjDWGmHv/4M/bHgMdKRUF6yY+BAdBxZ3QZr2zg=
+        b=cbK7sL4DQHLhmAWUDRVc6xMBPCaVL5uNlPKLUhlCX9wGb97UBGFbge2njXeQqhGia
+         TPakYOHa2Qo75+4I9lk+iMNRg0jcTJOVT0yp5tLtUxAf6lq2RuWg3f+3lkW1tIMOCI
+         Nv24vEelo+bNoCGJdAKq9oZROJuo7FtyePNlNpZg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kyungtae Kim <kt0755@gmail.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 4.14 35/46] vt: keyboard: avoid signed integer overflow in k_ascii
-Date:   Tue,  9 Jun 2020 19:44:51 +0200
-Message-Id: <20200609174029.735837494@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        James Chapman <jchapman@katalix.com>,
+        Guillaume Nault <gnault@redhat.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 02/25] l2tp: add sk_family checks to l2tp_validate_socket
+Date:   Tue,  9 Jun 2020 19:44:52 +0200
+Message-Id: <20200609174048.851834626@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200609174022.938987501@linuxfoundation.org>
-References: <20200609174022.938987501@linuxfoundation.org>
+In-Reply-To: <20200609174048.576094775@linuxfoundation.org>
+References: <20200609174048.576094775@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,101 +46,139 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Eric Dumazet <edumazet@google.com>
 
-commit b86dab054059b970111b5516ae548efaae5b3aae upstream.
+[ Upstream commit d9a81a225277686eb629938986d97629ea102633 ]
 
-When k_ascii is invoked several times in a row there is a potential for
-signed integer overflow:
+syzbot was able to trigger a crash after using an ISDN socket
+and fool l2tp.
 
-UBSAN: Undefined behaviour in drivers/tty/vt/keyboard.c:888:19 signed integer overflow:
-10 * 1111111111 cannot be represented in type 'int'
-CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.6.11 #1
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS Bochs 01/01/2011
+Fix this by making sure the UDP socket is of the proper family.
+
+BUG: KASAN: slab-out-of-bounds in setup_udp_tunnel_sock+0x465/0x540 net/ipv4/udp_tunnel.c:78
+Write of size 1 at addr ffff88808ed0c590 by task syz-executor.5/3018
+
+CPU: 0 PID: 3018 Comm: syz-executor.5 Not tainted 5.7.0-rc6-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
 Call Trace:
- <IRQ>
  __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0xce/0x128 lib/dump_stack.c:118
- ubsan_epilogue+0xe/0x30 lib/ubsan.c:154
- handle_overflow+0xdc/0xf0 lib/ubsan.c:184
- __ubsan_handle_mul_overflow+0x2a/0x40 lib/ubsan.c:205
- k_ascii+0xbf/0xd0 drivers/tty/vt/keyboard.c:888
- kbd_keycode drivers/tty/vt/keyboard.c:1477 [inline]
- kbd_event+0x888/0x3be0 drivers/tty/vt/keyboard.c:1495
+ dump_stack+0x188/0x20d lib/dump_stack.c:118
+ print_address_description.constprop.0.cold+0xd3/0x413 mm/kasan/report.c:382
+ __kasan_report.cold+0x20/0x38 mm/kasan/report.c:511
+ kasan_report+0x33/0x50 mm/kasan/common.c:625
+ setup_udp_tunnel_sock+0x465/0x540 net/ipv4/udp_tunnel.c:78
+ l2tp_tunnel_register+0xb15/0xdd0 net/l2tp/l2tp_core.c:1523
+ l2tp_nl_cmd_tunnel_create+0x4b2/0xa60 net/l2tp/l2tp_netlink.c:249
+ genl_family_rcv_msg_doit net/netlink/genetlink.c:673 [inline]
+ genl_family_rcv_msg net/netlink/genetlink.c:718 [inline]
+ genl_rcv_msg+0x627/0xdf0 net/netlink/genetlink.c:735
+ netlink_rcv_skb+0x15a/0x410 net/netlink/af_netlink.c:2469
+ genl_rcv+0x24/0x40 net/netlink/genetlink.c:746
+ netlink_unicast_kernel net/netlink/af_netlink.c:1303 [inline]
+ netlink_unicast+0x537/0x740 net/netlink/af_netlink.c:1329
+ netlink_sendmsg+0x882/0xe10 net/netlink/af_netlink.c:1918
+ sock_sendmsg_nosec net/socket.c:652 [inline]
+ sock_sendmsg+0xcf/0x120 net/socket.c:672
+ ____sys_sendmsg+0x6e6/0x810 net/socket.c:2352
+ ___sys_sendmsg+0x100/0x170 net/socket.c:2406
+ __sys_sendmsg+0xe5/0x1b0 net/socket.c:2439
+ do_syscall_64+0xf6/0x7d0 arch/x86/entry/common.c:295
+ entry_SYSCALL_64_after_hwframe+0x49/0xb3
+RIP: 0033:0x45ca29
+Code: 0d b7 fb ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 db b6 fb ff c3 66 2e 0f 1f 84 00 00 00 00
+RSP: 002b:00007effe76edc78 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
+RAX: ffffffffffffffda RBX: 00000000004fe1c0 RCX: 000000000045ca29
+RDX: 0000000000000000 RSI: 0000000020000240 RDI: 0000000000000005
+RBP: 000000000078bf00 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 00000000ffffffff
+R13: 000000000000094e R14: 00000000004d5d00 R15: 00007effe76ee6d4
 
-While it can be worked around by using check_mul_overflow()/
-check_add_overflow(), it is better to introduce a separate flag to
-signal that number pad is being used to compose a symbol, and
-change type of the accumulator from signed to unsigned, thus
-avoiding undefined behavior when it overflows.
+Allocated by task 3018:
+ save_stack+0x1b/0x40 mm/kasan/common.c:49
+ set_track mm/kasan/common.c:57 [inline]
+ __kasan_kmalloc mm/kasan/common.c:495 [inline]
+ __kasan_kmalloc.constprop.0+0xbf/0xd0 mm/kasan/common.c:468
+ __do_kmalloc mm/slab.c:3656 [inline]
+ __kmalloc+0x161/0x7a0 mm/slab.c:3665
+ kmalloc include/linux/slab.h:560 [inline]
+ sk_prot_alloc+0x223/0x2f0 net/core/sock.c:1612
+ sk_alloc+0x36/0x1100 net/core/sock.c:1666
+ data_sock_create drivers/isdn/mISDN/socket.c:600 [inline]
+ mISDN_sock_create+0x272/0x400 drivers/isdn/mISDN/socket.c:796
+ __sock_create+0x3cb/0x730 net/socket.c:1428
+ sock_create net/socket.c:1479 [inline]
+ __sys_socket+0xef/0x200 net/socket.c:1521
+ __do_sys_socket net/socket.c:1530 [inline]
+ __se_sys_socket net/socket.c:1528 [inline]
+ __x64_sys_socket+0x6f/0xb0 net/socket.c:1528
+ do_syscall_64+0xf6/0x7d0 arch/x86/entry/common.c:295
+ entry_SYSCALL_64_after_hwframe+0x49/0xb3
 
-Reported-by: Kyungtae Kim <kt0755@gmail.com>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200525232740.GA262061@dtor-ws
+Freed by task 2484:
+ save_stack+0x1b/0x40 mm/kasan/common.c:49
+ set_track mm/kasan/common.c:57 [inline]
+ kasan_set_free_info mm/kasan/common.c:317 [inline]
+ __kasan_slab_free+0xf7/0x140 mm/kasan/common.c:456
+ __cache_free mm/slab.c:3426 [inline]
+ kfree+0x109/0x2b0 mm/slab.c:3757
+ kvfree+0x42/0x50 mm/util.c:603
+ __free_fdtable+0x2d/0x70 fs/file.c:31
+ put_files_struct fs/file.c:420 [inline]
+ put_files_struct+0x248/0x2e0 fs/file.c:413
+ exit_files+0x7e/0xa0 fs/file.c:445
+ do_exit+0xb04/0x2dd0 kernel/exit.c:791
+ do_group_exit+0x125/0x340 kernel/exit.c:894
+ get_signal+0x47b/0x24e0 kernel/signal.c:2739
+ do_signal+0x81/0x2240 arch/x86/kernel/signal.c:784
+ exit_to_usermode_loop+0x26c/0x360 arch/x86/entry/common.c:161
+ prepare_exit_to_usermode arch/x86/entry/common.c:196 [inline]
+ syscall_return_slowpath arch/x86/entry/common.c:279 [inline]
+ do_syscall_64+0x6b1/0x7d0 arch/x86/entry/common.c:305
+ entry_SYSCALL_64_after_hwframe+0x49/0xb3
+
+The buggy address belongs to the object at ffff88808ed0c000
+ which belongs to the cache kmalloc-2k of size 2048
+The buggy address is located 1424 bytes inside of
+ 2048-byte region [ffff88808ed0c000, ffff88808ed0c800)
+The buggy address belongs to the page:
+page:ffffea00023b4300 refcount:1 mapcount:0 mapping:0000000000000000 index:0x0
+flags: 0xfffe0000000200(slab)
+raw: 00fffe0000000200 ffffea0002838208 ffffea00015ba288 ffff8880aa000e00
+raw: 0000000000000000 ffff88808ed0c000 0000000100000001 0000000000000000
+page dumped because: kasan: bad access detected
+
+Memory state around the buggy address:
+ ffff88808ed0c480: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+ ffff88808ed0c500: 00 00 00 fc fc fc fc fc fc fc fc fc fc fc fc fc
+>ffff88808ed0c580: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+                         ^
+ ffff88808ed0c600: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+ ffff88808ed0c680: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+
+Fixes: 6b9f34239b00 ("l2tp: fix races in tunnel creation")
+Fixes: fd558d186df2 ("l2tp: Split pppol2tp patch into separate l2tp and ppp parts")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: James Chapman <jchapman@katalix.com>
+Cc: Guillaume Nault <gnault@redhat.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Acked-by: Guillaume Nault <gnault@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/tty/vt/keyboard.c |   26 ++++++++++++++++----------
- 1 file changed, 16 insertions(+), 10 deletions(-)
+ net/l2tp/l2tp_core.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/tty/vt/keyboard.c
-+++ b/drivers/tty/vt/keyboard.c
-@@ -126,7 +126,11 @@ static DEFINE_SPINLOCK(func_buf_lock); /
- static unsigned long key_down[BITS_TO_LONGS(KEY_CNT)];	/* keyboard key bitmap */
- static unsigned char shift_down[NR_SHIFT];		/* shift state counters.. */
- static bool dead_key_next;
--static int npadch = -1;					/* -1 or number assembled on pad */
+--- a/net/l2tp/l2tp_core.c
++++ b/net/l2tp/l2tp_core.c
+@@ -1463,6 +1463,9 @@ static int l2tp_validate_socket(const st
+ 	if (sk->sk_type != SOCK_DGRAM)
+ 		return -EPROTONOSUPPORT;
+ 
++	if (sk->sk_family != PF_INET && sk->sk_family != PF_INET6)
++		return -EPROTONOSUPPORT;
 +
-+/* Handles a number being assembled on the number pad */
-+static bool npadch_active;
-+static unsigned int npadch_value;
-+
- static unsigned int diacr;
- static char rep;					/* flag telling character repeat */
- 
-@@ -816,12 +820,12 @@ static void k_shift(struct vc_data *vc,
- 		shift_state &= ~(1 << value);
- 
- 	/* kludge */
--	if (up_flag && shift_state != old_state && npadch != -1) {
-+	if (up_flag && shift_state != old_state && npadch_active) {
- 		if (kbd->kbdmode == VC_UNICODE)
--			to_utf8(vc, npadch);
-+			to_utf8(vc, npadch_value);
- 		else
--			put_queue(vc, npadch & 0xff);
--		npadch = -1;
-+			put_queue(vc, npadch_value & 0xff);
-+		npadch_active = false;
- 	}
- }
- 
-@@ -839,7 +843,7 @@ static void k_meta(struct vc_data *vc, u
- 
- static void k_ascii(struct vc_data *vc, unsigned char value, char up_flag)
- {
--	int base;
-+	unsigned int base;
- 
- 	if (up_flag)
- 		return;
-@@ -853,10 +857,12 @@ static void k_ascii(struct vc_data *vc,
- 		base = 16;
- 	}
- 
--	if (npadch == -1)
--		npadch = value;
--	else
--		npadch = npadch * base + value;
-+	if (!npadch_active) {
-+		npadch_value = 0;
-+		npadch_active = true;
-+	}
-+
-+	npadch_value = npadch_value * base + value;
- }
- 
- static void k_lock(struct vc_data *vc, unsigned char value, char up_flag)
+ 	if ((encap == L2TP_ENCAPTYPE_UDP && sk->sk_protocol != IPPROTO_UDP) ||
+ 	    (encap == L2TP_ENCAPTYPE_IP && sk->sk_protocol != IPPROTO_L2TP))
+ 		return -EPROTONOSUPPORT;
 
 
