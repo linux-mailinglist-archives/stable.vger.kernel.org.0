@@ -2,333 +2,191 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BFEAA1F3F08
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 17:17:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BB7F1F4042
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 18:08:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730640AbgFIPR2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Jun 2020 11:17:28 -0400
-Received: from mail.fireflyinternet.com ([109.228.58.192]:49869 "EHLO
-        fireflyinternet.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726395AbgFIPR2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Jun 2020 11:17:28 -0400
-X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
-Received: from build.alporthouse.com (unverified [78.156.65.138]) 
-        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 21444185-1500050 
-        for multiple; Tue, 09 Jun 2020 16:17:23 +0100
+        id S1730999AbgFIQIW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Jun 2020 12:08:22 -0400
+Received: from mga17.intel.com ([192.55.52.151]:6000 "EHLO mga17.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728888AbgFIQIU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Jun 2020 12:08:20 -0400
+IronPort-SDR: gxebZ3XLUHnv5Xsmi5gO/dPMVEqsez6+TdVDOectmkTxXW6f5F889nMJYCVo6UCAFCEq4A6Rhw
+ S/bV/Xn3b1GQ==
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Jun 2020 09:08:14 -0700
+IronPort-SDR: RrORViVF5OIGlKg78IAMSszRMWniOByegI5YF0wEKPPdsJrlaS/oN+PydUVpKz0z32dxruzT3B
+ L1zyYsHgpAow==
+X-IronPort-AV: E=Sophos;i="5.73,492,1583222400"; 
+   d="scan'208";a="306305944"
+Received: from gem-build.fi.intel.com (HELO localhost) ([10.237.72.180])
+  by orsmga008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Jun 2020 09:08:12 -0700
 From:   Chris Wilson <chris@chris-wilson.co.uk>
-To:     intel-gfx@lists.freedesktop.org
+To:     gfx-internal-devel@eclists.intel.com
 Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
         Mika Kuoppala <mika.kuoppala@linux.intel.com>,
         stable@vger.kernel.org
-Subject: [PATCH] drm/i915/gt: Incrementally check for rewinding
-Date:   Tue,  9 Jun 2020 16:17:23 +0100
-Message-Id: <20200609151723.12971-1-chris@chris-wilson.co.uk>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200609122856.10207-1-chris@chris-wilson.co.uk>
-References: <20200609122856.10207-1-chris@chris-wilson.co.uk>
+Subject: [PATCH 011/185] drm/i915/execlists: Always force a context reload when rewinding RING_TAIL
+Date:   Tue,  9 Jun 2020 16:04:36 +0000
+Message-Id: <20200609160731.287073-12-chris@chris-wilson.co.uk>
+X-Mailer: git-send-email 2.26.2
+In-Reply-To: <20200609160731.287073-1-chris@chris-wilson.co.uk>
+References: <20200609160731.287073-1-chris@chris-wilson.co.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-In commit 5ba32c7be81e ("drm/i915/execlists: Always force a context
-reload when rewinding RING_TAIL"), we placed the check for rewinding a
-context on actually submitting the next request in that context. This
-was so that we only had to check once, and could do so with precision
-avoiding as many forced restores as possible. For example, to ensure
-that we can resubmit the same request a couple of times, we include a
-small wa_tail such that on the next submission, the ring->tail will
-appear to move forwards when resubmitting the same request. This is very
-common as it will happen for every lite-restore to fill the second port
-after a context switch.
+If we rewind the RING_TAIL on a context, due to a preemption event, we
+must force the context restore for the RING_TAIL update to be properly
+handled. Rather than note which preemption events may cause us to rewind
+the tail, compare the new request's tail with the previously submitted
+RING_TAIL, as it turns out that timeslicing was causing unexpected
+rewinds.
 
-However, intel_ring_direction() is limited in precision to movements of
-upto half the ring size. The consequence being that if we tried to
-unwind many requests, we could exceed half the ring and flip the sense
-of the direction, so missing a force restore. As no request can be
-greater than half the ring (i.e. 2048 bytes in the smallest case), we
-can check for rollback incrementally. As we check against the tail that
-would be submitted, we do not lose any sensitivity and allow lite
-restores for the simple case. We still need to double check upon
-submitting the context, to allow for multiple preemptions and
-resubmissions.
+   <idle>-0       0d.s2 1280851190us : __execlists_submission_tasklet: 0000:00:02.0 rcs0: expired last=130:4698, prio=3, hint=3
+   <idle>-0       0d.s2 1280851192us : __i915_request_unsubmit: 0000:00:02.0 rcs0: fence 66:119966, current 119964
+   <idle>-0       0d.s2 1280851195us : __i915_request_unsubmit: 0000:00:02.0 rcs0: fence 130:4698, current 4695
+   <idle>-0       0d.s2 1280851198us : __i915_request_unsubmit: 0000:00:02.0 rcs0: fence 130:4696, current 4695
+^----  Note we unwind 2 requests from the same context
 
-Fixes: 5ba32c7be81e ("drm/i915/execlists: Always force a context reload when rewinding RING_TAIL")
+   <idle>-0       0d.s2 1280851208us : __i915_request_submit: 0000:00:02.0 rcs0: fence 130:4696, current 4695
+   <idle>-0       0d.s2 1280851213us : __i915_request_submit: 0000:00:02.0 rcs0: fence 134:1508, current 1506
+^---- But to apply the new timeslice, we have to replay the first request
+      before the new client can start -- the unexpected RING_TAIL rewind
+
+   <idle>-0       0d.s2 1280851219us : trace_ports: 0000:00:02.0 rcs0: submit { 130:4696*, 134:1508 }
+ synmark2-5425    2..s. 1280851239us : process_csb: 0000:00:02.0 rcs0: cs-irq head=5, tail=0
+ synmark2-5425    2..s. 1280851240us : process_csb: 0000:00:02.0 rcs0: csb[0]: status=0x00008002:0x00000000
+^---- Preemption event for the ELSP update; note the lite-restore
+
+ synmark2-5425    2..s. 1280851243us : trace_ports: 0000:00:02.0 rcs0: preempted { 130:4698, 66:119966 }
+ synmark2-5425    2..s. 1280851246us : trace_ports: 0000:00:02.0 rcs0: promote { 130:4696*, 134:1508 }
+ synmark2-5425    2.... 1280851462us : __i915_request_commit: 0000:00:02.0 rcs0: fence 130:4700, current 4695
+ synmark2-5425    2.... 1280852111us : __i915_request_commit: 0000:00:02.0 rcs0: fence 130:4702, current 4695
+ synmark2-5425    2.Ns1 1280852296us : process_csb: 0000:00:02.0 rcs0: cs-irq head=0, tail=2
+ synmark2-5425    2.Ns1 1280852297us : process_csb: 0000:00:02.0 rcs0: csb[1]: status=0x00000814:0x00000000
+ synmark2-5425    2.Ns1 1280852299us : trace_ports: 0000:00:02.0 rcs0: completed { 130:4696!, 134:1508 }
+ synmark2-5425    2.Ns1 1280852301us : process_csb: 0000:00:02.0 rcs0: csb[2]: status=0x00000818:0x00000040
+ synmark2-5425    2.Ns1 1280852302us : trace_ports: 0000:00:02.0 rcs0: completed { 134:1508, 0:0 }
+ synmark2-5425    2.Ns1 1280852313us : process_csb: process_csb:2336 GEM_BUG_ON(!i915_request_completed(*execlists->active) && !reset_in_progress(execlists))
+
+Fixes: 8ee36e048c98 ("drm/i915/execlists: Minimalistic timeslicing")
+Referenecs: 82c69bf58650 ("drm/i915/gt: Detect if we miss WaIdleLiteRestore")
 Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
 Cc: Mika Kuoppala <mika.kuoppala@linux.intel.com>
+Reviewed-by: Mika Kuoppala <mika.kuoppala@linux.intel.com>
 Cc: <stable@vger.kernel.org> # v5.4+
+Link: https://patchwork.freedesktop.org/patch/msgid/20200207211452.2860634-1-chris@chris-wilson.co.uk
+(cherry picked from commit 5ba32c7be81e53ea8a27190b0f6be98e6c6779af)
 ---
- drivers/gpu/drm/i915/gt/intel_engine_cs.c     |   4 +-
- drivers/gpu/drm/i915/gt/intel_lrc.c           |  21 +++-
- drivers/gpu/drm/i915/gt/intel_ring.c          |   4 +
- drivers/gpu/drm/i915/gt/selftest_mocs.c       |  18 ++-
- drivers/gpu/drm/i915/gt/selftest_ring.c       | 110 ++++++++++++++++++
- .../drm/i915/selftests/i915_mock_selftests.h  |   1 +
- 6 files changed, 154 insertions(+), 4 deletions(-)
- create mode 100644 drivers/gpu/drm/i915/gt/selftest_ring.c
+ drivers/gpu/drm/i915/gt/intel_lrc.c        | 18 ++++++++----------
+ drivers/gpu/drm/i915/gt/intel_ring.c       |  1 +
+ drivers/gpu/drm/i915/gt/intel_ring.h       |  8 ++++++++
+ drivers/gpu/drm/i915/gt/intel_ring_types.h |  1 +
+ 4 files changed, 18 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/gpu/drm/i915/gt/intel_engine_cs.c b/drivers/gpu/drm/i915/gt/intel_engine_cs.c
-index e5141a897786..0a05301e00fb 100644
---- a/drivers/gpu/drm/i915/gt/intel_engine_cs.c
-+++ b/drivers/gpu/drm/i915/gt/intel_engine_cs.c
-@@ -646,7 +646,7 @@ static int engine_setup_common(struct intel_engine_cs *engine)
- struct measure_breadcrumb {
- 	struct i915_request rq;
- 	struct intel_ring ring;
--	u32 cs[1024];
-+	u32 cs[2048];
- };
- 
- static int measure_breadcrumb_dw(struct intel_context *ce)
-@@ -667,6 +667,8 @@ static int measure_breadcrumb_dw(struct intel_context *ce)
- 
- 	frame->ring.vaddr = frame->cs;
- 	frame->ring.size = sizeof(frame->cs);
-+	frame->ring.wrap =
-+		BITS_PER_TYPE(frame->ring.size) - ilog2(frame->ring.size);
- 	frame->ring.effective_size = frame->ring.size;
- 	intel_ring_update_space(&frame->ring);
- 	frame->rq.ring = &frame->ring;
 diff --git a/drivers/gpu/drm/i915/gt/intel_lrc.c b/drivers/gpu/drm/i915/gt/intel_lrc.c
-index a057f7a2a521..5f33342c15e2 100644
+index cded952e7ddf1..742c08e79409d 100644
 --- a/drivers/gpu/drm/i915/gt/intel_lrc.c
 +++ b/drivers/gpu/drm/i915/gt/intel_lrc.c
-@@ -1137,6 +1137,13 @@ __unwind_incomplete_requests(struct intel_engine_cs *engine)
- 			list_move(&rq->sched.link, pl);
- 			set_bit(I915_FENCE_FLAG_PQUEUE, &rq->fence.flags);
+@@ -1446,7 +1446,7 @@ static u64 execlists_update_context(struct i915_request *rq)
+ {
+ 	struct intel_context *ce = rq->context;
+ 	u64 desc = ce->lrc_desc;
+-	u32 tail;
++	u32 tail, prev;
  
-+			/* Check in case rollback so far, we wrap [size/2] */
-+			if (intel_ring_direction(rq->ring,
-+						 intel_ring_wrap(rq->ring,
-+								 rq->tail),
-+						 rq->ring->tail) > 0)
-+				rq->context->lrc.desc |= CTX_DESC_FORCE_RESTORE;
-+
- 			active = rq;
- 		} else {
- 			struct intel_engine_cs *owner = rq->context->engine;
-@@ -1505,8 +1512,9 @@ static u64 execlists_update_context(struct i915_request *rq)
- 	 * HW has a tendency to ignore us rewinding the TAIL to the end of
- 	 * an earlier request.
+ 	/*
+ 	 * WaIdleLiteRestore:bdw,skl
+@@ -1459,9 +1459,15 @@ static u64 execlists_update_context(struct i915_request *rq)
+ 	 * subsequent resubmissions (for lite restore). Should that fail us,
+ 	 * and we try and submit the same tail again, force the context
+ 	 * reload.
++	 *
++	 * If we need to return to a preempted context, we need to skip the
++	 * lite-restore and force it to reload the RING_TAIL. Otherwise, the
++	 * HW has a tendency to ignore us rewinding the TAIL to the end of
++	 * an earlier request.
  	 */
-+	GEM_BUG_ON(ce->lrc_reg_state[CTX_RING_TAIL] != rq->ring->tail);
-+	prev = rq->ring->tail;
  	tail = intel_ring_set_tail(rq->ring, rq->tail);
--	prev = ce->lrc_reg_state[CTX_RING_TAIL];
- 	if (unlikely(intel_ring_direction(rq->ring, tail, prev) <= 0))
+-	if (unlikely(ce->lrc_reg_state[CTX_RING_TAIL] == tail))
++	prev = ce->lrc_reg_state[CTX_RING_TAIL];
++	if (unlikely(intel_ring_direction(rq->ring, tail, prev) <= 0))
  		desc |= CTX_DESC_FORCE_RESTORE;
  	ce->lrc_reg_state[CTX_RING_TAIL] = tail;
-@@ -4758,6 +4766,14 @@ static int gen12_emit_flush(struct i915_request *request, u32 mode)
- 	return 0;
- }
+ 	rq->tail = rq->wa_tail;
+@@ -1979,14 +1985,6 @@ static void execlists_dequeue(struct intel_engine_cs *engine)
+ 			 */
+ 			__unwind_incomplete_requests(engine);
  
-+static void assert_request_valid(struct i915_request *rq)
-+{
-+	struct intel_ring *ring __maybe_unused = rq->ring;
-+
-+	/* Can we unwind this request without appearing to go forwards? */
-+	GEM_BUG_ON(intel_ring_direction(ring, rq->wa_tail, rq->head) <= 0);
-+}
-+
- /*
-  * Reserve space for 2 NOOPs at the end of each request to be
-  * used as a workaround for not being allowed to do lite
-@@ -4770,6 +4786,9 @@ static u32 *gen8_emit_wa_tail(struct i915_request *request, u32 *cs)
- 	*cs++ = MI_NOOP;
- 	request->wa_tail = intel_ring_offset(request, cs);
- 
-+	/* Check that entire request is less than half the ring */
-+	assert_request_valid(request);
-+
- 	return cs;
- }
- 
+-			/*
+-			 * If we need to return to the preempted context, we
+-			 * need to skip the lite-restore and force it to
+-			 * reload the RING_TAIL. Otherwise, the HW has a
+-			 * tendency to ignore us rewinding the TAIL to the
+-			 * end of an earlier request.
+-			 */
+-			last->context->lrc_desc |= CTX_DESC_FORCE_RESTORE;
+ 			last = NULL;
+ 		} else if (need_timeslice(engine, last) &&
+ 			   timer_expired(&engine->execlists.timer)) {
 diff --git a/drivers/gpu/drm/i915/gt/intel_ring.c b/drivers/gpu/drm/i915/gt/intel_ring.c
-index 8cda1b7e17ba..bdb324167ef3 100644
+index 374b28f13ca0b..6ff803f397c4d 100644
 --- a/drivers/gpu/drm/i915/gt/intel_ring.c
 +++ b/drivers/gpu/drm/i915/gt/intel_ring.c
-@@ -315,3 +315,7 @@ int intel_ring_cacheline_align(struct i915_request *rq)
- 	GEM_BUG_ON(rq->ring->emit & (CACHELINE_BYTES - 1));
- 	return 0;
+@@ -145,6 +145,7 @@ intel_engine_create_ring(struct intel_engine_cs *engine, int size)
+ 
+ 	kref_init(&ring->ref);
+ 	ring->size = size;
++	ring->wrap = BITS_PER_TYPE(ring->size) - ilog2(size);
+ 
+ 	/*
+ 	 * Workaround an erratum on the i830 which causes a hang if
+diff --git a/drivers/gpu/drm/i915/gt/intel_ring.h b/drivers/gpu/drm/i915/gt/intel_ring.h
+index ea2839d9e0445..5bdce24994aa0 100644
+--- a/drivers/gpu/drm/i915/gt/intel_ring.h
++++ b/drivers/gpu/drm/i915/gt/intel_ring.h
+@@ -56,6 +56,14 @@ static inline u32 intel_ring_wrap(const struct intel_ring *ring, u32 pos)
+ 	return pos & (ring->size - 1);
  }
+ 
++static inline int intel_ring_direction(const struct intel_ring *ring,
++				       u32 next, u32 prev)
++{
++	typecheck(typeof(ring->size), next);
++	typecheck(typeof(ring->size), prev);
++	return (next - prev) << ring->wrap;
++}
 +
-+#if IS_ENABLED(CONFIG_DRM_I915_SELFTEST)
-+#include "selftest_ring.c"
-+#endif
-diff --git a/drivers/gpu/drm/i915/gt/selftest_mocs.c b/drivers/gpu/drm/i915/gt/selftest_mocs.c
-index 7bae64018ad9..b25eba50c88e 100644
---- a/drivers/gpu/drm/i915/gt/selftest_mocs.c
-+++ b/drivers/gpu/drm/i915/gt/selftest_mocs.c
-@@ -18,6 +18,20 @@ struct live_mocs {
- 	void *vaddr;
+ static inline bool
+ intel_ring_offset_valid(const struct intel_ring *ring,
+ 			unsigned int pos)
+diff --git a/drivers/gpu/drm/i915/gt/intel_ring_types.h b/drivers/gpu/drm/i915/gt/intel_ring_types.h
+index d9f17f38e0cce..3cd7fec7fd8d5 100644
+--- a/drivers/gpu/drm/i915/gt/intel_ring_types.h
++++ b/drivers/gpu/drm/i915/gt/intel_ring_types.h
+@@ -45,6 +45,7 @@ struct intel_ring {
+ 
+ 	u32 space;
+ 	u32 size;
++	u32 wrap;
+ 	u32 effective_size;
  };
  
-+static struct intel_context *mocs_context_create(struct intel_engine_cs *engine)
-+{
-+	struct intel_context *ce;
-+
-+	ce = intel_context_create(engine);
-+	if (IS_ERR(ce))
-+		return ce;
-+
-+	/* We build large requests to read the registers from the ring */
-+	ce->ring = __intel_context_ring_size(SZ_16K);
-+
-+	return ce;
-+}
-+
- static int request_add_sync(struct i915_request *rq, int err)
- {
- 	i915_request_get(rq);
-@@ -301,7 +315,7 @@ static int live_mocs_clean(void *arg)
- 	for_each_engine(engine, gt, id) {
- 		struct intel_context *ce;
- 
--		ce = intel_context_create(engine);
-+		ce = mocs_context_create(engine);
- 		if (IS_ERR(ce)) {
- 			err = PTR_ERR(ce);
- 			break;
-@@ -395,7 +409,7 @@ static int live_mocs_reset(void *arg)
- 	for_each_engine(engine, gt, id) {
- 		struct intel_context *ce;
- 
--		ce = intel_context_create(engine);
-+		ce = mocs_context_create(engine);
- 		if (IS_ERR(ce)) {
- 			err = PTR_ERR(ce);
- 			break;
-diff --git a/drivers/gpu/drm/i915/gt/selftest_ring.c b/drivers/gpu/drm/i915/gt/selftest_ring.c
-new file mode 100644
-index 000000000000..2a8c534dc125
---- /dev/null
-+++ b/drivers/gpu/drm/i915/gt/selftest_ring.c
-@@ -0,0 +1,110 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/*
-+ * Copyright © 2020 Intel Corporation
-+ */
-+
-+static struct intel_ring *mock_ring(unsigned long sz)
-+{
-+	struct intel_ring *ring;
-+
-+	ring = kzalloc(sizeof(*ring) + sz, GFP_KERNEL);
-+	if (!ring)
-+		return NULL;
-+
-+	kref_init(&ring->ref);
-+	ring->size = sz;
-+	ring->wrap = BITS_PER_TYPE(ring->size) - ilog2(sz);
-+	ring->effective_size = sz;
-+	ring->vaddr = (void *)(ring + 1);
-+	atomic_set(&ring->pin_count, 1);
-+
-+	intel_ring_update_space(ring);
-+
-+	return ring;
-+}
-+
-+static void mock_ring_free(struct intel_ring *ring)
-+{
-+	kfree(ring);
-+}
-+
-+static int check_ring_direction(struct intel_ring *ring,
-+				u32 next, u32 prev,
-+				int expected)
-+{
-+	int result;
-+
-+	result = intel_ring_direction(ring, next, prev);
-+	if (result < 0)
-+		result = -1;
-+	else if (result > 0)
-+		result = 1;
-+
-+	if (result != expected) {
-+		pr_err("intel_ring_direction(%u, %u):%d != %d\n",
-+		       next, prev, result, expected);
-+		return -EINVAL;
-+	}
-+
-+	return 0;
-+}
-+
-+static int check_ring_step(struct intel_ring *ring, u32 x, u32 step)
-+{
-+	u32 prev = x, next = intel_ring_wrap(ring, x + step);
-+	int err = 0;
-+
-+	err |= check_ring_direction(ring, next, next,  0);
-+	err |= check_ring_direction(ring, prev, prev,  0);
-+	err |= check_ring_direction(ring, next, prev,  1);
-+	err |= check_ring_direction(ring, prev, next, -1);
-+
-+	return err;
-+}
-+
-+static int check_ring_offset(struct intel_ring *ring, u32 x, u32 step)
-+{
-+	int err = 0;
-+
-+	err |= check_ring_step(ring, x, step);
-+	err |= check_ring_step(ring, intel_ring_wrap(ring, x + 1), step);
-+	err |= check_ring_step(ring, intel_ring_wrap(ring, x - 1), step);
-+
-+	return err;
-+}
-+
-+static int igt_ring_direction(void *dummy)
-+{
-+	struct intel_ring *ring;
-+	unsigned int half = 2048;
-+	int step, err = 0;
-+
-+	ring = mock_ring(2 * half);
-+	if (!ring)
-+		return -ENOMEM;
-+
-+	GEM_BUG_ON(ring->size != 2 * half);
-+
-+	/* Precision of wrap detection is limited to ring->size / 2 */
-+	for (step = 1; step < half; step <<= 1) {
-+		err |= check_ring_offset(ring, 0, step);
-+		err |= check_ring_offset(ring, half, step);
-+	}
-+	err |= check_ring_step(ring, 0, half - 64);
-+
-+	/* And check unwrapped handling for good measure */
-+	err |= check_ring_offset(ring, 0, 2 * half + 64);
-+	err |= check_ring_offset(ring, 3 * half, 1);
-+
-+	mock_ring_free(ring);
-+	return err;
-+}
-+
-+int intel_ring_mock_selftests(void)
-+{
-+	static const struct i915_subtest tests[] = {
-+		SUBTEST(igt_ring_direction),
-+	};
-+
-+	return i915_subtests(tests, NULL);
-+}
-diff --git a/drivers/gpu/drm/i915/selftests/i915_mock_selftests.h b/drivers/gpu/drm/i915/selftests/i915_mock_selftests.h
-index 1929feba4e8e..3db34d3eea58 100644
---- a/drivers/gpu/drm/i915/selftests/i915_mock_selftests.h
-+++ b/drivers/gpu/drm/i915/selftests/i915_mock_selftests.h
-@@ -21,6 +21,7 @@ selftest(fence, i915_sw_fence_mock_selftests)
- selftest(scatterlist, scatterlist_mock_selftests)
- selftest(syncmap, i915_syncmap_mock_selftests)
- selftest(uncore, intel_uncore_mock_selftests)
-+selftest(ring, intel_ring_mock_selftests)
- selftest(engine, intel_engine_cs_mock_selftests)
- selftest(timelines, intel_timeline_mock_selftests)
- selftest(requests, i915_request_mock_selftests)
--- 
-2.20.1
+---------------------------------------------------------------------
+Intel Corporation (UK) Limited
+Registered No. 1134945 (England)
+Registered Office: Pipers Way, Swindon SN3 1RJ
+VAT No: 860 2173 47
+
+This e-mail and any attachments may contain confidential material for
+the sole use of the intended recipient(s). Any review or distribution
+by others is strictly prohibited. If you are not the intended
+recipient, please contact the sender and delete all copies.
 
