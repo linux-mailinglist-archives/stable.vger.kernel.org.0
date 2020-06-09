@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F4BD1F454B
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:14:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C2E9A1F444A
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:04:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388543AbgFISO0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Jun 2020 14:14:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38594 "EHLO mail.kernel.org"
+        id S2387466AbgFISCp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Jun 2020 14:02:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44272 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730785AbgFIRun (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Jun 2020 13:50:43 -0400
+        id S1731479AbgFIRxV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Jun 2020 13:53:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 773F220801;
-        Tue,  9 Jun 2020 17:50:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B0A5F207C3;
+        Tue,  9 Jun 2020 17:53:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591725042;
-        bh=7xBxTpmXdtxNRrrlQG4JjuPbKXQheaxI58CVtdELTgY=;
+        s=default; t=1591725201;
+        bh=vo3FdLqBqtbtjEeMD+wJP5z7o0CKJthufAyEqjJq63s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fwyAGF2y0n0EJwVcYWIThm3QKWescJwtFZPxzWXQMTViyXf/RrSulFCEPBH9mDkM0
-         XNaJvDlV0DcSgwLJLgDIn8xkme4DfaNrwrroL8QpghmYuPDHcYs2xQ649GvRgZkevY
-         dB7O9rUWjCRu8rXomZO+OUiGSHwAL0U2w+pIToPs=
+        b=wTVyAaoElcUrdnzJXuza6W2HvpsPSIQLaB8RV+bHYHf2HwEc48vd83mVOtqJ2oDGM
+         txvqCroEtqFxizK5MTtSz+3WeDBwlL7Y7REFDnX71baEa5w7+5wTbJ71KBb14NJnEm
+         JyHxb1CVVML3xbyRBL8/jNw4ZFhE5WELRUzorsjU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Steven Rostedt <rostedt@goodmis.org>
-Subject: [PATCH 4.14 46/46] uprobes: ensure that uprobe->offset and ->ref_ctr_offset are properly aligned
-Date:   Tue,  9 Jun 2020 19:45:02 +0200
-Message-Id: <20200609174031.164572429@linuxfoundation.org>
+        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
+        Cong Wang <xiyou.wangcong@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.6 01/41] devinet: fix memleak in inetdev_init()
+Date:   Tue,  9 Jun 2020 19:45:03 +0200
+Message-Id: <20200609174112.249140476@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200609174022.938987501@linuxfoundation.org>
-References: <20200609174022.938987501@linuxfoundation.org>
+In-Reply-To: <20200609174112.129412236@linuxfoundation.org>
+References: <20200609174112.129412236@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -48,76 +46,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oleg Nesterov <oleg@redhat.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-commit 013b2deba9a6b80ca02f4fafd7dedf875e9b4450 upstream.
+[ Upstream commit 1b49cd71b52403822731dc9f283185d1da355f97 ]
 
-uprobe_write_opcode() must not cross page boundary; prepare_uprobe()
-relies on arch_uprobe_analyze_insn() which should validate "vaddr" but
-some architectures (csky, s390, and sparc) don't do this.
+When devinet_sysctl_register() failed, the memory allocated
+in neigh_parms_alloc() should be freed.
 
-We can remove the BUG_ON() check in prepare_uprobe() and validate the
-offset early in __uprobe_register(). The new IS_ALIGNED() check matches
-the alignment check in arch_prepare_kprobe() on supported architectures,
-so I think that all insns must be aligned to UPROBE_SWBP_INSN_SIZE.
-
-Another problem is __update_ref_ctr() which was wrong from the very
-beginning, it can read/write outside of kmap'ed page unless "vaddr" is
-aligned to sizeof(short), __uprobe_register() should check this too.
-
-Reported-by: Linus Torvalds <torvalds@linux-foundation.org>
-Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Oleg Nesterov <oleg@redhat.com>
-Reviewed-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
-Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Tested-by: Sven Schnelle <svens@linux.ibm.com>
-Cc: Steven Rostedt <rostedt@goodmis.org>
-Cc: stable@vger.kernel.org
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 20e61da7ffcf ("ipv4: fail early when creating netdev named all or default")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Acked-by: Cong Wang <xiyou.wangcong@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- kernel/events/uprobes.c |   16 ++++++++++++----
- 1 file changed, 12 insertions(+), 4 deletions(-)
+ net/ipv4/devinet.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/kernel/events/uprobes.c
-+++ b/kernel/events/uprobes.c
-@@ -612,10 +612,6 @@ static int prepare_uprobe(struct uprobe
- 	if (ret)
+--- a/net/ipv4/devinet.c
++++ b/net/ipv4/devinet.c
+@@ -276,6 +276,7 @@ static struct in_device *inetdev_init(st
+ 	err = devinet_sysctl_register(in_dev);
+ 	if (err) {
+ 		in_dev->dead = 1;
++		neigh_parms_release(&arp_tbl, in_dev->arp_parms);
+ 		in_dev_put(in_dev);
+ 		in_dev = NULL;
  		goto out;
- 
--	/* uprobe_write_opcode() assumes we don't cross page boundary */
--	BUG_ON((uprobe->offset & ~PAGE_MASK) +
--			UPROBE_SWBP_INSN_SIZE > PAGE_SIZE);
--
- 	smp_wmb(); /* pairs with the smp_rmb() in handle_swbp() */
- 	set_bit(UPROBE_COPY_INSN, &uprobe->flags);
- 
-@@ -894,6 +890,15 @@ int uprobe_register(struct inode *inode,
- 	if (offset > i_size_read(inode))
- 		return -EINVAL;
- 
-+	/*
-+	 * This ensures that copy_from_page(), copy_to_page() and
-+	 * __update_ref_ctr() can't cross page boundary.
-+	 */
-+	if (!IS_ALIGNED(offset, UPROBE_SWBP_INSN_SIZE))
-+		return -EINVAL;
-+	if (!IS_ALIGNED(ref_ctr_offset, sizeof(short)))
-+		return -EINVAL;
-+
-  retry:
- 	uprobe = alloc_uprobe(inode, offset);
- 	if (!uprobe)
-@@ -1704,6 +1709,9 @@ static int is_trap_at_addr(struct mm_str
- 	uprobe_opcode_t opcode;
- 	int result;
- 
-+	if (WARN_ON_ONCE(!IS_ALIGNED(vaddr, UPROBE_SWBP_INSN_SIZE)))
-+		return -EINVAL;
-+
- 	pagefault_disable();
- 	result = __get_user(opcode, (uprobe_opcode_t __user *)vaddr);
- 	pagefault_enable();
 
 
