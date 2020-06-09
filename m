@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A1071F42A9
+	by mail.lfdr.de (Postfix) with ESMTP id 4FAA31F42AA
 	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 19:46:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731199AbgFIRqT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1731910AbgFIRqT (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 9 Jun 2020 13:46:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56014 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:56092 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730513AbgFIRqP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Jun 2020 13:46:15 -0400
+        id S1728440AbgFIRqR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Jun 2020 13:46:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E001420801;
-        Tue,  9 Jun 2020 17:46:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3105420812;
+        Tue,  9 Jun 2020 17:46:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591724773;
-        bh=EanaOwzyQ1/LW1KbbgF6tOW3fAH7iOFBbF8Yv89lJn4=;
+        s=default; t=1591724775;
+        bh=1v+8pQJ2MGHqi5djMU3ruNLkZLDmt6+87t8aQprpRs4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GYiQdNiDIGFGNqSqDpNFjy6dQ0ObXwVDGiJ7euUGVCzrclKpu/E/nY+SFQ5Mfzno/
-         QXeDQ09kV9/VeHtMNy1lmA7Obqqx+8Dfd6bnD+chyKLMxFKP46cbbgi/BhNnNpEDv6
-         l+H8rPy7sXSxRQbHwGignP5TZTQ8W2r+h7hzLcW4=
+        b=ymmMk6r6PB2xuf/Udpad3OV3n/ISist/kYT4/SElOxLsYZHSpidfKW0VeItUBmKmR
+         X+WNgWNdidpQ9jvLD2SLdg3EEREfRn8PIporvlaj4nYoTQorKnVUW3uSTPYjAnqr/8
+         MV+XR/Z0TDW2zPE+oYzGOytiBh6gCxb+KY/cLoBU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eugeniu Rosca <erosca@de.adit-jv.com>,
-        Felipe Balbi <felipe.balbi@linux.intel.com>,
+        stable@vger.kernel.org, Samuel Sieb <samuel-kbugs@sieb.net>,
+        "Lee, Chun-Yi" <jlee@suse.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 4.4 02/36] usb: gadget: f_uac2: fix error handling in afunc_bind (again)
-Date:   Tue,  9 Jun 2020 19:44:02 +0200
-Message-Id: <20200609173933.429375672@linuxfoundation.org>
+Subject: [PATCH 4.4 03/36] platform/x86: acer-wmi: setup accelerometer when ACPI device was found
+Date:   Tue,  9 Jun 2020 19:44:03 +0200
+Message-Id: <20200609173933.485128117@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200609173933.288044334@linuxfoundation.org>
 References: <20200609173933.288044334@linuxfoundation.org>
@@ -44,226 +45,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eugeniu Rosca <erosca@de.adit-jv.com>
+From: Lee, Chun-Yi <joeyli.kernel@gmail.com>
 
-commit e87581fe0509020f77ebf0b7c4c1c338c6a4bcf6 upstream.
+commit f9ac89f5ad613b462339e845aeb8494646fd9be2 upstream.
 
-If usb_ep_autoconfig() fails (i.e. returns a null endpoint descriptor),
-we expect afunc_bind() to fail (i.e. return a negative error code).
+The 98d610c3739a patch was introduced since v4.11-rc1 that it causes
+that the accelerometer input device will not be created on workable
+machines because the HID string comparing logic is wrong.
 
-However, due to v4.10-rc1 commit f1d3861d63a5 ("usb: gadget: f_uac2: fix
-error handling at afunc_bind"), afunc_bind() returns zero, telling the
-caller that it succeeded. This then generates NULL pointer dereference
-in below scenario on Rcar H3-ES20-Salvator-X target:
+And, the patch doesn't prevent that the accelerometer input device
+be created on the machines that have no BST0001. That's because
+the acpi_get_devices() returns success even it didn't find any
+match device.
 
-rcar-gen3:/home/root# modprobe g_audio
-[  626.521155] g_audio gadget: afunc_bind:565 Error!
-[  626.526319] g_audio gadget: Linux USB Audio Gadget, version: Feb 2, 2012
-[  626.533405] g_audio gadget: g_audio ready
-rcar-gen3:/home/root#
-rcar-gen3:/home/root# modprobe -r g_audio
-[  728.256707] ==================================================================
-[  728.264293] BUG: KASAN: null-ptr-deref in u_audio_stop_capture+0x70/0x268 [u_audio]
-[  728.272244] Read of size 8 at addr 00000000000000a0 by task modprobe/2545
-[  728.279309]
-[  728.280849] CPU: 0 PID: 2545 Comm: modprobe Tainted: G        WC      4.14.47+ #152
-[  728.288778] Hardware name: Renesas Salvator-X board based on r8a7795 ES2.0+ (DT)
-[  728.296454] Call trace:
-[  728.299151] [<ffff2000080925ac>] dump_backtrace+0x0/0x364
-[  728.304808] [<ffff200008092924>] show_stack+0x14/0x1c
-[  728.310081] [<ffff200008f8d5cc>] dump_stack+0x108/0x174
-[  728.315522] [<ffff2000083c77c8>] kasan_report+0x1fc/0x354
-[  728.321134] [<ffff2000083c611c>] __asan_load8+0x24/0x94
-[  728.326600] [<ffff2000021e1618>] u_audio_stop_capture+0x70/0x268 [u_audio]
-[  728.333735] [<ffff2000021f8b7c>] afunc_disable+0x44/0x60 [usb_f_uac2]
-[  728.340503] [<ffff20000218177c>] usb_remove_function+0x9c/0x210 [libcomposite]
-[  728.348060] [<ffff200002183320>] remove_config.isra.2+0x1d8/0x218 [libcomposite]
-[  728.355788] [<ffff200002186c54>] __composite_unbind+0x104/0x1f8 [libcomposite]
-[  728.363339] [<ffff200002186d58>] composite_unbind+0x10/0x18 [libcomposite]
-[  728.370536] [<ffff20000152f158>] usb_gadget_remove_driver+0xc0/0x170 [udc_core]
-[  728.378172] [<ffff20000153154c>] usb_gadget_unregister_driver+0x1cc/0x258 [udc_core]
-[  728.386274] [<ffff200002180de8>] usb_composite_unregister+0x10/0x18 [libcomposite]
-[  728.394116] [<ffff2000021d035c>] audio_driver_exit+0x14/0x28 [g_audio]
-[  728.400878] [<ffff200008213ed4>] SyS_delete_module+0x288/0x32c
-[  728.406935] Exception stack(0xffff8006cf6c7ec0 to 0xffff8006cf6c8000)
-[  728.413624] 7ec0: 0000000006136428 0000000000000800 0000000000000000 0000ffffd706efe8
-[  728.421718] 7ee0: 0000ffffd706efe9 000000000000000a 1999999999999999 0000000000000000
-[  728.429792] 7f00: 000000000000006a 000000000042c078 0000000000000000 0000000000000005
-[  728.437870] 7f20: 0000000000000000 0000000000000000 0000000000000004 0000000000000000
-[  728.445952] 7f40: 000000000042bfc8 0000ffffbc7c8f40 0000000000000000 00000000061363c0
-[  728.454035] 7f60: 0000000006136428 0000000000000000 0000000000000000 0000000006136428
-[  728.462114] 7f80: 000000000042c000 0000ffffd7071448 000000000042c000 0000000000000000
-[  728.470190] 7fa0: 00000000061350c0 0000ffffd7070010 000000000041129c 0000ffffd7070010
-[  728.478281] 7fc0: 0000ffffbc7c8f48 0000000060000000 0000000006136428 000000000000006a
-[  728.486351] 7fe0: 0000000000000000 0000000000000000 0000000000000000 0000000000000000
-[  728.494434] [<ffff200008084780>] el0_svc_naked+0x34/0x38
-[  728.499957] ==================================================================
-[  728.507801] Unable to handle kernel NULL pointer dereference at virtual address 000000a0
-[  728.517742] Mem abort info:
-[  728.520993]   Exception class = DABT (current EL), IL = 32 bits
-[  728.527375]   SET = 0, FnV = 0
-[  728.530731]   EA = 0, S1PTW = 0
-[  728.534361] Data abort info:
-[  728.537650]   ISV = 0, ISS = 0x00000006
-[  728.541863]   CM = 0, WnR = 0
-[  728.545167] user pgtable: 4k pages, 48-bit VAs, pgd = ffff8006c6100000
-[  728.552156] [00000000000000a0] *pgd=0000000716a8d003
-[  728.557519] , *pud=00000007116fc003
-[  728.561259] , *pmd=0000000000000000
-[  728.564985] Internal error: Oops: 96000006 [#1] PREEMPT SMP
-[  728.570815] Modules linked in:
-[  728.574023]  usb_f_uac2
-[  728.576560]  u_audio
-[  728.578827]  g_audio(-)
-[  728.581361]  libcomposite
-[  728.584071]  configfs
-[  728.586428]  aes_ce_blk
-[  728.588960]  sata_rcar
-[  728.591421]  crypto_simd
-[  728.594039]  cryptd
-[  728.596217]  libata
-[  728.598396]  aes_ce_cipher
-[  728.601188]  crc32_ce
-[  728.603542]  ghash_ce
-[  728.605896]  gf128mul
-[  728.608250]  aes_arm64
-[  728.610692]  scsi_mod
-[  728.613046]  sha2_ce
-[  728.615313]  xhci_plat_hcd
-[  728.618106]  sha256_arm64
-[  728.620811]  sha1_ce
-[  728.623077]  renesas_usbhs
-[  728.625869]  xhci_hcd
-[  728.628243]  renesas_usb3
-[  728.630948]  sha1_generic
-[  728.633670]  ravb_streaming(C)
-[  728.636814]  udc_core
-[  728.639168]  cpufreq_dt
-[  728.641697]  rcar_gen3_thermal
-[  728.644840]  usb_dmac
-[  728.647194]  pwm_rcar
-[  728.649548]  thermal_sys
-[  728.652165]  virt_dma
-[  728.654519]  mch_core(C)
-[  728.657137]  pwm_bl
-[  728.659315]  snd_soc_rcar
-[  728.662020]  snd_aloop
-[  728.664462]  snd_soc_generic_card
-[  728.667869]  snd_soc_ak4613
-[  728.670749]  ipv6
-[  728.672768]  autofs4
-[  728.675052] CPU: 0 PID: 2545 Comm: modprobe Tainted: G    B   WC      4.14.47+ #152
-[  728.682973] Hardware name: Renesas Salvator-X board based on r8a7795 ES2.0+ (DT)
-[  728.690637] task: ffff8006ced38000 task.stack: ffff8006cf6c0000
-[  728.696814] PC is at u_audio_stop_capture+0x70/0x268 [u_audio]
-[  728.702896] LR is at u_audio_stop_capture+0x70/0x268 [u_audio]
-[  728.708964] pc : [<ffff2000021e1618>] lr : [<ffff2000021e1618>] pstate: 60000145
-[  728.716620] sp : ffff8006cf6c7a50
-[  728.720154] x29: ffff8006cf6c7a50
-[  728.723760] x28: ffff8006ced38000
-[  728.727272] x27: ffff200008fd7000
-[  728.730857] x26: ffff2000021d2340
-[  728.734361] x25: 0000000000000000
-[  728.737948] x24: ffff200009e94b08
-[  728.741452] x23: 00000000000000a0
-[  728.745052] x22: 00000000000000a8
-[  728.748558] x21: 1ffff000d9ed8f7c
-[  728.752142] x20: ffff8006d671a800
-[  728.755646] x19: 0000000000000000
-[  728.759231] x18: 0000000000000000
-[  728.762736] x17: 0000ffffbc7c8f40
-[  728.766320] x16: ffff200008213c4c
-[  728.769823] x15: 0000000000000000
-[  728.773408] x14: 0720072007200720
-[  728.776912] x13: 0720072007200720
-[  728.780497] x12: ffffffffffffffff
-[  728.784001] x11: 0000000000000040
-[  728.787598] x10: 0000000000001600
-[  728.791103] x9 : ffff8006cf6c77a0
-[  728.794689] x8 : ffff8006ced39660
-[  728.798193] x7 : ffff20000811c738
-[  728.801794] x6 : 0000000000000000
-[  728.805299] x5 : dfff200000000000
-[  728.808885] x4 : ffff8006ced38000
-[  728.812390] x3 : ffff200008fb46e8
-[  728.815976] x2 : 0000000000000007
-[  728.819480] x1 : 3ba68643e7431500
-[  728.823066] x0 : 0000000000000000
-[  728.826574] Process modprobe (pid: 2545, stack limit = 0xffff8006cf6c0000)
-[  728.833704] Call trace:
-[  728.836292] Exception stack(0xffff8006cf6c7910 to 0xffff8006cf6c7a50)
-[  728.842987] 7900:                                   0000000000000000 3ba68643e7431500
-[  728.851084] 7920: 0000000000000007 ffff200008fb46e8 ffff8006ced38000 dfff200000000000
-[  728.859173] 7940: 0000000000000000 ffff20000811c738 ffff8006ced39660 ffff8006cf6c77a0
-[  728.867248] 7960: 0000000000001600 0000000000000040 ffffffffffffffff 0720072007200720
-[  728.875323] 7980: 0720072007200720 0000000000000000 ffff200008213c4c 0000ffffbc7c8f40
-[  728.883412] 79a0: 0000000000000000 0000000000000000 ffff8006d671a800 1ffff000d9ed8f7c
-[  728.891485] 79c0: 00000000000000a8 00000000000000a0 ffff200009e94b08 0000000000000000
-[  728.899561] 79e0: ffff2000021d2340 ffff200008fd7000 ffff8006ced38000 ffff8006cf6c7a50
-[  728.907636] 7a00: ffff2000021e1618 ffff8006cf6c7a50 ffff2000021e1618 0000000060000145
-[  728.915710] 7a20: 0000000000000008 0000000000000000 0000ffffffffffff 3ba68643e7431500
-[  728.923780] 7a40: ffff8006cf6c7a50 ffff2000021e1618
-[  728.928880] [<ffff2000021e1618>] u_audio_stop_capture+0x70/0x268 [u_audio]
-[  728.936032] [<ffff2000021f8b7c>] afunc_disable+0x44/0x60 [usb_f_uac2]
-[  728.942822] [<ffff20000218177c>] usb_remove_function+0x9c/0x210 [libcomposite]
-[  728.950385] [<ffff200002183320>] remove_config.isra.2+0x1d8/0x218 [libcomposite]
-[  728.958134] [<ffff200002186c54>] __composite_unbind+0x104/0x1f8 [libcomposite]
-[  728.965689] [<ffff200002186d58>] composite_unbind+0x10/0x18 [libcomposite]
-[  728.972882] [<ffff20000152f158>] usb_gadget_remove_driver+0xc0/0x170 [udc_core]
-[  728.980522] [<ffff20000153154c>] usb_gadget_unregister_driver+0x1cc/0x258 [udc_core]
-[  728.988638] [<ffff200002180de8>] usb_composite_unregister+0x10/0x18 [libcomposite]
-[  728.996472] [<ffff2000021d035c>] audio_driver_exit+0x14/0x28 [g_audio]
-[  729.003231] [<ffff200008213ed4>] SyS_delete_module+0x288/0x32c
-[  729.009278] Exception stack(0xffff8006cf6c7ec0 to 0xffff8006cf6c8000)
-[  729.015946] 7ec0: 0000000006136428 0000000000000800 0000000000000000 0000ffffd706efe8
-[  729.024022] 7ee0: 0000ffffd706efe9 000000000000000a 1999999999999999 0000000000000000
-[  729.032099] 7f00: 000000000000006a 000000000042c078 0000000000000000 0000000000000005
-[  729.040172] 7f20: 0000000000000000 0000000000000000 0000000000000004 0000000000000000
-[  729.048263] 7f40: 000000000042bfc8 0000ffffbc7c8f40 0000000000000000 00000000061363c0
-[  729.056337] 7f60: 0000000006136428 0000000000000000 0000000000000000 0000000006136428
-[  729.064411] 7f80: 000000000042c000 0000ffffd7071448 000000000042c000 0000000000000000
-[  729.072484] 7fa0: 00000000061350c0 0000ffffd7070010 000000000041129c 0000ffffd7070010
-[  729.080563] 7fc0: 0000ffffbc7c8f48 0000000060000000 0000000006136428 000000000000006a
-[  729.088636] 7fe0: 0000000000000000 0000000000000000 0000000000000000 0000000000000000
-[  729.096733] [<ffff200008084780>] el0_svc_naked+0x34/0x38
-[  729.102259] Code: 9597d1b3 aa1703e0 9102a276 958792b9 (f9405275)
-[  729.108617] ---[ end trace 7560c5fa3d100243 ]---
+This patch fixed the HID string comparing logic of BST0001 device.
+And, it also makes sure that the acpi_get_devices() returns
+acpi_handle for BST0001.
 
-After this patch is applied, the issue is fixed:
-rcar-gen3:/home/root# modprobe g_audio
-[   59.217127] g_audio gadget: afunc_bind:565 Error!
-[   59.222329] g_audio ee020000.usb: failed to start g_audio: -19
-modprobe: ERROR: could not insert 'g_audio': No such device
-rcar-gen3:/home/root# modprobe -r g_audio
-rcar-gen3:/home/root#
-
-Fixes: f1d3861d63a5 ("usb: gadget: f_uac2: fix error handling at afunc_bind")
-Signed-off-by: Eugeniu Rosca <erosca@de.adit-jv.com>
-Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
+Fixes: 98d610c3739a ("acer-wmi: setup accelerometer when machine has appropriate notify event")
+Reference: https://bugzilla.kernel.org/show_bug.cgi?id=193761
+Reported-by: Samuel Sieb <samuel-kbugs@sieb.net>
+Signed-off-by: "Lee, Chun-Yi" <jlee@suse.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Cc: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/gadget/function/f_uac2.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/platform/x86/acer-wmi.c |    9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
---- a/drivers/usb/gadget/function/f_uac2.c
-+++ b/drivers/usb/gadget/function/f_uac2.c
-@@ -1069,13 +1069,13 @@ afunc_bind(struct usb_configuration *cfg
- 	agdev->out_ep = usb_ep_autoconfig(gadget, &fs_epout_desc);
- 	if (!agdev->out_ep) {
- 		dev_err(dev, "%s:%d Error!\n", __func__, __LINE__);
--		return ret;
-+		return -ENODEV;
+--- a/drivers/platform/x86/acer-wmi.c
++++ b/drivers/platform/x86/acer-wmi.c
+@@ -1826,7 +1826,7 @@ static acpi_status __init acer_wmi_get_h
+ 	if (!strcmp(ctx, "SENR")) {
+ 		if (acpi_bus_get_device(ah, &dev))
+ 			return AE_OK;
+-		if (!strcmp(ACER_WMID_ACCEL_HID, acpi_device_hid(dev)))
++		if (strcmp(ACER_WMID_ACCEL_HID, acpi_device_hid(dev)))
+ 			return AE_OK;
+ 	} else
+ 		return AE_OK;
+@@ -1847,8 +1847,7 @@ static int __init acer_wmi_get_handle(co
+ 	handle = NULL;
+ 	status = acpi_get_devices(prop, acer_wmi_get_handle_cb,
+ 					(void *)name, &handle);
+-
+-	if (ACPI_SUCCESS(status)) {
++	if (ACPI_SUCCESS(status) && handle) {
+ 		*ah = handle;
+ 		return 0;
+ 	} else {
+@@ -2199,8 +2198,8 @@ static int __init acer_wmi_init(void)
+ 		if (err)
+ 			return err;
+ 		err = acer_wmi_accel_setup();
+-		if (err)
+-			return err;
++		if (err && err != -ENODEV)
++			pr_warn("Cannot enable accelerometer\n");
  	}
  
- 	agdev->in_ep = usb_ep_autoconfig(gadget, &fs_epin_desc);
- 	if (!agdev->in_ep) {
- 		dev_err(dev, "%s:%d Error!\n", __func__, __LINE__);
--		return ret;
-+		return -ENODEV;
- 	}
- 
- 	uac2->p_prm.uac2 = uac2;
+ 	err = platform_driver_register(&acer_platform_driver);
 
 
