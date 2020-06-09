@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AE6E21F4618
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:24:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C56F01F45F1
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:23:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732071AbgFISXx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Jun 2020 14:23:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58056 "EHLO mail.kernel.org"
+        id S1732263AbgFIRsV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Jun 2020 13:48:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60546 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730540AbgFIRrG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Jun 2020 13:47:06 -0400
+        id S1732255AbgFIRsU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Jun 2020 13:48:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6A3D4207F9;
-        Tue,  9 Jun 2020 17:47:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0B8A120812;
+        Tue,  9 Jun 2020 17:48:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591724825;
-        bh=vkHf7FI0b6bdGX/OWeOhR5ZGYTHqccWzpnHhhe8ZyBk=;
+        s=default; t=1591724899;
+        bh=Ds4dIBvPZv/gDivNZp5zWF/CJD3UPYl7R9fH0/e9b5c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BZyOwvrw9ZY+Vumy2zX13H5GBoU60hoCNIQcGc2ziSX9FWt97goQQAn0GEvbxlF2Y
-         gatzXAYygHnk50mvWS1PsJUCIpZx56BnHXFRVmyvmQdJuOAhek2zZpZtuc+KNRNje0
-         vl1shmuFMIbTVq/EfKlKLE3LPBP22HKQLvqGsUgg=
+        b=S4QDpsLgJ/sEhR2mX+VY8IDJ0dSGja6ob3wmuABGWAB2kjuH8/No+xhHKnI53/NxP
+         mFUjgH1LXbpGDDrRrzxVReU1+1n9msx9XRkayu5q1+iUw6oK98FhUVRqD6KxWFL5HL
+         UZlL9MX1tW4y8woXZjyAwP77mQ+w0UMPqyaHNs+Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Gross <mgross@linux.intel.com>,
-        Borislav Petkov <bp@suse.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Tony Luck <tony.luck@intel.com>,
-        Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Neelima Krishnan <neelima.krishnan@intel.com>
-Subject: [PATCH 4.4 32/36] x86/speculation: Add Special Register Buffer Data Sampling (SRBDS) mitigation
-Date:   Tue,  9 Jun 2020 19:44:32 +0200
-Message-Id: <20200609173935.543234250@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        James Chapman <jchapman@katalix.com>,
+        Guillaume Nault <gnault@redhat.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 27/42] l2tp: add sk_family checks to l2tp_validate_socket
+Date:   Tue,  9 Jun 2020 19:44:33 +0200
+Message-Id: <20200609174018.431760755@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200609173933.288044334@linuxfoundation.org>
-References: <20200609173933.288044334@linuxfoundation.org>
+In-Reply-To: <20200609174015.379493548@linuxfoundation.org>
+References: <20200609174015.379493548@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,370 +46,138 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Gross <mgross@linux.intel.com>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 7e5b3c267d256822407a22fdce6afdf9cd13f9fb upstream
+[ Upstream commit d9a81a225277686eb629938986d97629ea102633 ]
 
-SRBDS is an MDS-like speculative side channel that can leak bits from the
-random number generator (RNG) across cores and threads. New microcode
-serializes the processor access during the execution of RDRAND and
-RDSEED. This ensures that the shared buffer is overwritten before it is
-released for reuse.
+syzbot was able to trigger a crash after using an ISDN socket
+and fool l2tp.
 
-While it is present on all affected CPU models, the microcode mitigation
-is not needed on models that enumerate ARCH_CAPABILITIES[MDS_NO] in the
-cases where TSX is not supported or has been disabled with TSX_CTRL.
+Fix this by making sure the UDP socket is of the proper family.
 
-The mitigation is activated by default on affected processors and it
-increases latency for RDRAND and RDSEED instructions. Among other
-effects this will reduce throughput from /dev/urandom.
+BUG: KASAN: slab-out-of-bounds in setup_udp_tunnel_sock+0x465/0x540 net/ipv4/udp_tunnel.c:78
+Write of size 1 at addr ffff88808ed0c590 by task syz-executor.5/3018
 
-* Enable administrator to configure the mitigation off when desired using
-  either mitigations=off or srbds=off.
+CPU: 0 PID: 3018 Comm: syz-executor.5 Not tainted 5.7.0-rc6-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Call Trace:
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0x188/0x20d lib/dump_stack.c:118
+ print_address_description.constprop.0.cold+0xd3/0x413 mm/kasan/report.c:382
+ __kasan_report.cold+0x20/0x38 mm/kasan/report.c:511
+ kasan_report+0x33/0x50 mm/kasan/common.c:625
+ setup_udp_tunnel_sock+0x465/0x540 net/ipv4/udp_tunnel.c:78
+ l2tp_tunnel_register+0xb15/0xdd0 net/l2tp/l2tp_core.c:1523
+ l2tp_nl_cmd_tunnel_create+0x4b2/0xa60 net/l2tp/l2tp_netlink.c:249
+ genl_family_rcv_msg_doit net/netlink/genetlink.c:673 [inline]
+ genl_family_rcv_msg net/netlink/genetlink.c:718 [inline]
+ genl_rcv_msg+0x627/0xdf0 net/netlink/genetlink.c:735
+ netlink_rcv_skb+0x15a/0x410 net/netlink/af_netlink.c:2469
+ genl_rcv+0x24/0x40 net/netlink/genetlink.c:746
+ netlink_unicast_kernel net/netlink/af_netlink.c:1303 [inline]
+ netlink_unicast+0x537/0x740 net/netlink/af_netlink.c:1329
+ netlink_sendmsg+0x882/0xe10 net/netlink/af_netlink.c:1918
+ sock_sendmsg_nosec net/socket.c:652 [inline]
+ sock_sendmsg+0xcf/0x120 net/socket.c:672
+ ____sys_sendmsg+0x6e6/0x810 net/socket.c:2352
+ ___sys_sendmsg+0x100/0x170 net/socket.c:2406
+ __sys_sendmsg+0xe5/0x1b0 net/socket.c:2439
+ do_syscall_64+0xf6/0x7d0 arch/x86/entry/common.c:295
+ entry_SYSCALL_64_after_hwframe+0x49/0xb3
+RIP: 0033:0x45ca29
+Code: 0d b7 fb ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 db b6 fb ff c3 66 2e 0f 1f 84 00 00 00 00
+RSP: 002b:00007effe76edc78 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
+RAX: ffffffffffffffda RBX: 00000000004fe1c0 RCX: 000000000045ca29
+RDX: 0000000000000000 RSI: 0000000020000240 RDI: 0000000000000005
+RBP: 000000000078bf00 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 00000000ffffffff
+R13: 000000000000094e R14: 00000000004d5d00 R15: 00007effe76ee6d4
 
-* Export vulnerability status via sysfs
+Allocated by task 3018:
+ save_stack+0x1b/0x40 mm/kasan/common.c:49
+ set_track mm/kasan/common.c:57 [inline]
+ __kasan_kmalloc mm/kasan/common.c:495 [inline]
+ __kasan_kmalloc.constprop.0+0xbf/0xd0 mm/kasan/common.c:468
+ __do_kmalloc mm/slab.c:3656 [inline]
+ __kmalloc+0x161/0x7a0 mm/slab.c:3665
+ kmalloc include/linux/slab.h:560 [inline]
+ sk_prot_alloc+0x223/0x2f0 net/core/sock.c:1612
+ sk_alloc+0x36/0x1100 net/core/sock.c:1666
+ data_sock_create drivers/isdn/mISDN/socket.c:600 [inline]
+ mISDN_sock_create+0x272/0x400 drivers/isdn/mISDN/socket.c:796
+ __sock_create+0x3cb/0x730 net/socket.c:1428
+ sock_create net/socket.c:1479 [inline]
+ __sys_socket+0xef/0x200 net/socket.c:1521
+ __do_sys_socket net/socket.c:1530 [inline]
+ __se_sys_socket net/socket.c:1528 [inline]
+ __x64_sys_socket+0x6f/0xb0 net/socket.c:1528
+ do_syscall_64+0xf6/0x7d0 arch/x86/entry/common.c:295
+ entry_SYSCALL_64_after_hwframe+0x49/0xb3
 
-* Rename file-scoped macros to apply for non-whitelist table initializations.
+Freed by task 2484:
+ save_stack+0x1b/0x40 mm/kasan/common.c:49
+ set_track mm/kasan/common.c:57 [inline]
+ kasan_set_free_info mm/kasan/common.c:317 [inline]
+ __kasan_slab_free+0xf7/0x140 mm/kasan/common.c:456
+ __cache_free mm/slab.c:3426 [inline]
+ kfree+0x109/0x2b0 mm/slab.c:3757
+ kvfree+0x42/0x50 mm/util.c:603
+ __free_fdtable+0x2d/0x70 fs/file.c:31
+ put_files_struct fs/file.c:420 [inline]
+ put_files_struct+0x248/0x2e0 fs/file.c:413
+ exit_files+0x7e/0xa0 fs/file.c:445
+ do_exit+0xb04/0x2dd0 kernel/exit.c:791
+ do_group_exit+0x125/0x340 kernel/exit.c:894
+ get_signal+0x47b/0x24e0 kernel/signal.c:2739
+ do_signal+0x81/0x2240 arch/x86/kernel/signal.c:784
+ exit_to_usermode_loop+0x26c/0x360 arch/x86/entry/common.c:161
+ prepare_exit_to_usermode arch/x86/entry/common.c:196 [inline]
+ syscall_return_slowpath arch/x86/entry/common.c:279 [inline]
+ do_syscall_64+0x6b1/0x7d0 arch/x86/entry/common.c:305
+ entry_SYSCALL_64_after_hwframe+0x49/0xb3
 
- [ bp: Massage,
-   - s/VULNBL_INTEL_STEPPING/VULNBL_INTEL_STEPPINGS/g,
-   - do not read arch cap MSR a second time in tsx_fused_off() - just pass it in,
-   - flip check in cpu_set_bug_bits() to save an indentation level,
-   - reflow comments.
-   jpoimboe: s/Mitigated/Mitigation/ in user-visible strings
-   tglx: Dropped the fused off magic for now
- ]
+The buggy address belongs to the object at ffff88808ed0c000
+ which belongs to the cache kmalloc-2k of size 2048
+The buggy address is located 1424 bytes inside of
+ 2048-byte region [ffff88808ed0c000, ffff88808ed0c800)
+The buggy address belongs to the page:
+page:ffffea00023b4300 refcount:1 mapcount:0 mapping:0000000000000000 index:0x0
+flags: 0xfffe0000000200(slab)
+raw: 00fffe0000000200 ffffea0002838208 ffffea00015ba288 ffff8880aa000e00
+raw: 0000000000000000 ffff88808ed0c000 0000000100000001 0000000000000000
+page dumped because: kasan: bad access detected
 
-Signed-off-by: Mark Gross <mgross@linux.intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Tony Luck <tony.luck@intel.com>
-Reviewed-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
-Reviewed-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Tested-by: Neelima Krishnan <neelima.krishnan@intel.com>
+Memory state around the buggy address:
+ ffff88808ed0c480: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+ ffff88808ed0c500: 00 00 00 fc fc fc fc fc fc fc fc fc fc fc fc fc
+>ffff88808ed0c580: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+                         ^
+ ffff88808ed0c600: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+ ffff88808ed0c680: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+
+Fixes: 6b9f34239b00 ("l2tp: fix races in tunnel creation")
+Fixes: fd558d186df2 ("l2tp: Split pppol2tp patch into separate l2tp and ppp parts")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: James Chapman <jchapman@katalix.com>
+Cc: Guillaume Nault <gnault@redhat.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Acked-by: Guillaume Nault <gnault@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/ABI/testing/sysfs-devices-system-cpu |    1 
- Documentation/kernel-parameters.txt                |   20 +++
- arch/x86/include/asm/cpufeatures.h                 |    2 
- arch/x86/include/asm/msr-index.h                   |    4 
- arch/x86/kernel/cpu/bugs.c                         |  106 +++++++++++++++++++++
- arch/x86/kernel/cpu/common.c                       |   31 ++++++
- arch/x86/kernel/cpu/cpu.h                          |    1 
- drivers/base/cpu.c                                 |    8 +
- 8 files changed, 173 insertions(+)
+ net/l2tp/l2tp_core.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/Documentation/ABI/testing/sysfs-devices-system-cpu
-+++ b/Documentation/ABI/testing/sysfs-devices-system-cpu
-@@ -279,6 +279,7 @@ What:		/sys/devices/system/cpu/vulnerabi
- 		/sys/devices/system/cpu/vulnerabilities/spec_store_bypass
- 		/sys/devices/system/cpu/vulnerabilities/l1tf
- 		/sys/devices/system/cpu/vulnerabilities/mds
-+		/sys/devices/system/cpu/vulnerabilities/srbds
- 		/sys/devices/system/cpu/vulnerabilities/tsx_async_abort
- 		/sys/devices/system/cpu/vulnerabilities/itlb_multihit
- Date:		January 2018
---- a/Documentation/kernel-parameters.txt
-+++ b/Documentation/kernel-parameters.txt
-@@ -3787,6 +3787,26 @@ bytes respectively. Such letter suffixes
- 	spia_pedr=
- 	spia_peddr=
- 
-+	srbds=		[X86,INTEL]
-+			Control the Special Register Buffer Data Sampling
-+			(SRBDS) mitigation.
-+
-+			Certain CPUs are vulnerable to an MDS-like
-+			exploit which can leak bits from the random
-+			number generator.
-+
-+			By default, this issue is mitigated by
-+			microcode.  However, the microcode fix can cause
-+			the RDRAND and RDSEED instructions to become
-+			much slower.  Among other effects, this will
-+			result in reduced throughput from /dev/urandom.
-+
-+			The microcode mitigation can be disabled with
-+			the following option:
-+
-+			off:    Disable mitigation and remove
-+				performance impact to RDRAND and RDSEED
-+
- 	stack_guard_gap=	[MM]
- 			override the default stack gap protection. The value
- 			is in page units and it defines how many pages prior
---- a/arch/x86/include/asm/cpufeatures.h
-+++ b/arch/x86/include/asm/cpufeatures.h
-@@ -312,6 +312,7 @@
- /* Intel-defined CPU features, CPUID level 0x00000007:0 (EDX), word 18 */
- #define X86_FEATURE_AVX512_4VNNIW	(18*32+ 2) /* AVX-512 Neural Network Instructions */
- #define X86_FEATURE_AVX512_4FMAPS	(18*32+ 3) /* AVX-512 Multiply Accumulation Single precision */
-+#define X86_FEATURE_SRBDS_CTRL		(18*32+ 9) /* "" SRBDS mitigation MSR available */
- #define X86_FEATURE_MD_CLEAR		(18*32+10) /* VERW clears CPU buffers */
- #define X86_FEATURE_SPEC_CTRL		(18*32+26) /* "" Speculation Control (IBRS + IBPB) */
- #define X86_FEATURE_INTEL_STIBP		(18*32+27) /* "" Single Thread Indirect Branch Predictors */
-@@ -343,5 +344,6 @@
- #define X86_BUG_SWAPGS		X86_BUG(21) /* CPU is affected by speculation through SWAPGS */
- #define X86_BUG_TAA		X86_BUG(22) /* CPU is affected by TSX Async Abort(TAA) */
- #define X86_BUG_ITLB_MULTIHIT	X86_BUG(23) /* CPU may incur MCE during certain page attribute changes */
-+#define X86_BUG_SRBDS		X86_BUG(24) /* CPU may leak RNG bits if not mitigated */
- 
- #endif /* _ASM_X86_CPUFEATURES_H */
---- a/arch/x86/include/asm/msr-index.h
-+++ b/arch/x86/include/asm/msr-index.h
-@@ -91,6 +91,10 @@
- #define TSX_CTRL_RTM_DISABLE		BIT(0)	/* Disable RTM feature */
- #define TSX_CTRL_CPUID_CLEAR		BIT(1)	/* Disable TSX enumeration */
- 
-+/* SRBDS support */
-+#define MSR_IA32_MCU_OPT_CTRL		0x00000123
-+#define RNGDS_MITG_DIS			BIT(0)
-+
- #define MSR_IA32_SYSENTER_CS		0x00000174
- #define MSR_IA32_SYSENTER_ESP		0x00000175
- #define MSR_IA32_SYSENTER_EIP		0x00000176
---- a/arch/x86/kernel/cpu/bugs.c
-+++ b/arch/x86/kernel/cpu/bugs.c
-@@ -39,6 +39,7 @@ static void __init l1tf_select_mitigatio
- static void __init mds_select_mitigation(void);
- static void __init mds_print_mitigation(void);
- static void __init taa_select_mitigation(void);
-+static void __init srbds_select_mitigation(void);
- 
- /* The base value of the SPEC_CTRL MSR that always has to be preserved. */
- u64 x86_spec_ctrl_base;
-@@ -99,6 +100,7 @@ void __init check_bugs(void)
- 	l1tf_select_mitigation();
- 	mds_select_mitigation();
- 	taa_select_mitigation();
-+	srbds_select_mitigation();
- 
- 	/*
- 	 * As MDS and TAA mitigations are inter-related, print MDS
-@@ -369,6 +371,97 @@ static int __init tsx_async_abort_parse_
- early_param("tsx_async_abort", tsx_async_abort_parse_cmdline);
- 
- #undef pr_fmt
-+#define pr_fmt(fmt)	"SRBDS: " fmt
-+
-+enum srbds_mitigations {
-+	SRBDS_MITIGATION_OFF,
-+	SRBDS_MITIGATION_UCODE_NEEDED,
-+	SRBDS_MITIGATION_FULL,
-+	SRBDS_MITIGATION_TSX_OFF,
-+	SRBDS_MITIGATION_HYPERVISOR,
-+};
-+
-+static enum srbds_mitigations srbds_mitigation = SRBDS_MITIGATION_FULL;
-+
-+static const char * const srbds_strings[] = {
-+	[SRBDS_MITIGATION_OFF]		= "Vulnerable",
-+	[SRBDS_MITIGATION_UCODE_NEEDED]	= "Vulnerable: No microcode",
-+	[SRBDS_MITIGATION_FULL]		= "Mitigation: Microcode",
-+	[SRBDS_MITIGATION_TSX_OFF]	= "Mitigation: TSX disabled",
-+	[SRBDS_MITIGATION_HYPERVISOR]	= "Unknown: Dependent on hypervisor status",
-+};
-+
-+static bool srbds_off;
-+
-+void update_srbds_msr(void)
-+{
-+	u64 mcu_ctrl;
-+
-+	if (!boot_cpu_has_bug(X86_BUG_SRBDS))
-+		return;
-+
-+	if (boot_cpu_has(X86_FEATURE_HYPERVISOR))
-+		return;
-+
-+	if (srbds_mitigation == SRBDS_MITIGATION_UCODE_NEEDED)
-+		return;
-+
-+	rdmsrl(MSR_IA32_MCU_OPT_CTRL, mcu_ctrl);
-+
-+	switch (srbds_mitigation) {
-+	case SRBDS_MITIGATION_OFF:
-+	case SRBDS_MITIGATION_TSX_OFF:
-+		mcu_ctrl |= RNGDS_MITG_DIS;
-+		break;
-+	case SRBDS_MITIGATION_FULL:
-+		mcu_ctrl &= ~RNGDS_MITG_DIS;
-+		break;
-+	default:
-+		break;
-+	}
-+
-+	wrmsrl(MSR_IA32_MCU_OPT_CTRL, mcu_ctrl);
-+}
-+
-+static void __init srbds_select_mitigation(void)
-+{
-+	u64 ia32_cap;
-+
-+	if (!boot_cpu_has_bug(X86_BUG_SRBDS))
-+		return;
-+
-+	/*
-+	 * Check to see if this is one of the MDS_NO systems supporting
-+	 * TSX that are only exposed to SRBDS when TSX is enabled.
-+	 */
-+	ia32_cap = x86_read_arch_cap_msr();
-+	if ((ia32_cap & ARCH_CAP_MDS_NO) && !boot_cpu_has(X86_FEATURE_RTM))
-+		srbds_mitigation = SRBDS_MITIGATION_TSX_OFF;
-+	else if (boot_cpu_has(X86_FEATURE_HYPERVISOR))
-+		srbds_mitigation = SRBDS_MITIGATION_HYPERVISOR;
-+	else if (!boot_cpu_has(X86_FEATURE_SRBDS_CTRL))
-+		srbds_mitigation = SRBDS_MITIGATION_UCODE_NEEDED;
-+	else if (cpu_mitigations_off() || srbds_off)
-+		srbds_mitigation = SRBDS_MITIGATION_OFF;
-+
-+	update_srbds_msr();
-+	pr_info("%s\n", srbds_strings[srbds_mitigation]);
-+}
-+
-+static int __init srbds_parse_cmdline(char *str)
-+{
-+	if (!str)
-+		return -EINVAL;
-+
-+	if (!boot_cpu_has_bug(X86_BUG_SRBDS))
-+		return 0;
-+
-+	srbds_off = !strcmp(str, "off");
-+	return 0;
-+}
-+early_param("srbds", srbds_parse_cmdline);
-+
-+#undef pr_fmt
- #define pr_fmt(fmt)     "Spectre V1 : " fmt
- 
- enum spectre_v1_mitigation {
-@@ -1377,6 +1470,11 @@ static char *ibpb_state(void)
- 	return "";
- }
- 
-+static ssize_t srbds_show_state(char *buf)
-+{
-+	return sprintf(buf, "%s\n", srbds_strings[srbds_mitigation]);
-+}
-+
- static ssize_t cpu_show_common(struct device *dev, struct device_attribute *attr,
- 			       char *buf, unsigned int bug)
- {
-@@ -1418,6 +1516,9 @@ static ssize_t cpu_show_common(struct de
- 	case X86_BUG_ITLB_MULTIHIT:
- 		return itlb_multihit_show_state(buf);
- 
-+	case X86_BUG_SRBDS:
-+		return srbds_show_state(buf);
-+
- 	default:
- 		break;
+--- a/net/l2tp/l2tp_core.c
++++ b/net/l2tp/l2tp_core.c
+@@ -1568,6 +1568,8 @@ int l2tp_tunnel_create(struct net *net,
+ 			 tunnel_id, fd);
+ 		goto err;
  	}
-@@ -1464,4 +1565,9 @@ ssize_t cpu_show_itlb_multihit(struct de
- {
- 	return cpu_show_common(dev, attr, buf, X86_BUG_ITLB_MULTIHIT);
- }
-+
-+ssize_t cpu_show_srbds(struct device *dev, struct device_attribute *attr, char *buf)
-+{
-+	return cpu_show_common(dev, attr, buf, X86_BUG_SRBDS);
-+}
- #endif
---- a/arch/x86/kernel/cpu/common.c
-+++ b/arch/x86/kernel/cpu/common.c
-@@ -912,6 +912,27 @@ static const __initconst struct x86_cpu_
- 	{}
- };
- 
-+#define VULNBL_INTEL_STEPPINGS(model, steppings, issues)		   \
-+	X86_MATCH_VENDOR_FAM_MODEL_STEPPINGS_FEATURE(INTEL, 6,		   \
-+					    INTEL_FAM6_##model, steppings, \
-+					    X86_FEATURE_ANY, issues)
-+
-+#define SRBDS		BIT(0)
-+
-+static const struct x86_cpu_id cpu_vuln_blacklist[] __initconst = {
-+	VULNBL_INTEL_STEPPINGS(IVYBRIDGE,	X86_STEPPING_ANY,		SRBDS),
-+	VULNBL_INTEL_STEPPINGS(HASWELL_CORE,	X86_STEPPING_ANY,		SRBDS),
-+	VULNBL_INTEL_STEPPINGS(HASWELL_ULT,	X86_STEPPING_ANY,		SRBDS),
-+	VULNBL_INTEL_STEPPINGS(HASWELL_GT3E,	X86_STEPPING_ANY,		SRBDS),
-+	VULNBL_INTEL_STEPPINGS(BROADWELL_GT3E,	X86_STEPPING_ANY,		SRBDS),
-+	VULNBL_INTEL_STEPPINGS(BROADWELL_CORE,	X86_STEPPING_ANY,		SRBDS),
-+	VULNBL_INTEL_STEPPINGS(SKYLAKE_MOBILE,	X86_STEPPING_ANY,		SRBDS),
-+	VULNBL_INTEL_STEPPINGS(SKYLAKE_DESKTOP,	X86_STEPPING_ANY,		SRBDS),
-+	VULNBL_INTEL_STEPPINGS(KABYLAKE_MOBILE,	X86_STEPPINGS(0x0, 0xC),	SRBDS),
-+	VULNBL_INTEL_STEPPINGS(KABYLAKE_DESKTOP,X86_STEPPINGS(0x0, 0xD),	SRBDS),
-+	{}
-+};
-+
- static bool __init cpu_matches(const struct x86_cpu_id *table, unsigned long which)
- {
- 	const struct x86_cpu_id *m = x86_match_cpu(table);
-@@ -977,6 +998,15 @@ static void __init cpu_set_bug_bits(stru
- 	     (ia32_cap & ARCH_CAP_TSX_CTRL_MSR)))
- 		setup_force_cpu_bug(X86_BUG_TAA);
- 
-+	/*
-+	 * SRBDS affects CPUs which support RDRAND or RDSEED and are listed
-+	 * in the vulnerability blacklist.
-+	 */
-+	if ((cpu_has(c, X86_FEATURE_RDRAND) ||
-+	     cpu_has(c, X86_FEATURE_RDSEED)) &&
-+	    cpu_matches(cpu_vuln_blacklist, SRBDS))
-+		    setup_force_cpu_bug(X86_BUG_SRBDS);
-+
- 	if (cpu_matches(cpu_vuln_whitelist, NO_MELTDOWN))
- 		return;
- 
-@@ -1330,6 +1360,7 @@ void identify_secondary_cpu(struct cpuin
- #endif
- 	mtrr_ap_init();
- 	x86_spec_ctrl_setup_ap();
-+	update_srbds_msr();
- }
- 
- struct msr_range {
---- a/arch/x86/kernel/cpu/cpu.h
-+++ b/arch/x86/kernel/cpu/cpu.h
-@@ -64,6 +64,7 @@ extern void get_cpu_cap(struct cpuinfo_x
- extern void cpu_detect_cache_sizes(struct cpuinfo_x86 *c);
- 
- extern void x86_spec_ctrl_setup_ap(void);
-+extern void update_srbds_msr(void);
- 
- extern u64 x86_read_arch_cap_msr(void);
- 
---- a/drivers/base/cpu.c
-+++ b/drivers/base/cpu.c
-@@ -549,6 +549,12 @@ ssize_t __weak cpu_show_itlb_multihit(st
- 	return sprintf(buf, "Not affected\n");
- }
- 
-+ssize_t __weak cpu_show_srbds(struct device *dev,
-+			      struct device_attribute *attr, char *buf)
-+{
-+	return sprintf(buf, "Not affected\n");
-+}
-+
- static DEVICE_ATTR(meltdown, 0444, cpu_show_meltdown, NULL);
- static DEVICE_ATTR(spectre_v1, 0444, cpu_show_spectre_v1, NULL);
- static DEVICE_ATTR(spectre_v2, 0444, cpu_show_spectre_v2, NULL);
-@@ -557,6 +563,7 @@ static DEVICE_ATTR(l1tf, 0444, cpu_show_
- static DEVICE_ATTR(mds, 0444, cpu_show_mds, NULL);
- static DEVICE_ATTR(tsx_async_abort, 0444, cpu_show_tsx_async_abort, NULL);
- static DEVICE_ATTR(itlb_multihit, 0444, cpu_show_itlb_multihit, NULL);
-+static DEVICE_ATTR(srbds, 0444, cpu_show_srbds, NULL);
- 
- static struct attribute *cpu_root_vulnerabilities_attrs[] = {
- 	&dev_attr_meltdown.attr,
-@@ -567,6 +574,7 @@ static struct attribute *cpu_root_vulner
- 	&dev_attr_mds.attr,
- 	&dev_attr_tsx_async_abort.attr,
- 	&dev_attr_itlb_multihit.attr,
-+	&dev_attr_srbds.attr,
- 	NULL
- };
- 
++	if (sk->sk_family != PF_INET && sk->sk_family != PF_INET6)
++		goto err;
+ 	switch (encap) {
+ 	case L2TP_ENCAPTYPE_UDP:
+ 		if (sk->sk_protocol != IPPROTO_UDP) {
 
 
