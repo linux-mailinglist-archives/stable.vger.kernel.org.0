@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A80CD1F462C
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:25:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BBD741F45F3
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:23:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731943AbgFIRqb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Jun 2020 13:46:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56528 "EHLO mail.kernel.org"
+        id S1732278AbgFIRsZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Jun 2020 13:48:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60736 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730424AbgFIRq3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Jun 2020 13:46:29 -0400
+        id S1732272AbgFIRsY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Jun 2020 13:48:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D8EB8207ED;
-        Tue,  9 Jun 2020 17:46:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8B3E6207F9;
+        Tue,  9 Jun 2020 17:48:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591724789;
-        bh=zB/WZwl5Lv9DzA8ZRU7nN5IaoD3oyLoA2VH4IaYLapk=;
+        s=default; t=1591724904;
+        bh=UGCaFbEuunkpiMPLhMo9e/ZU2NqYD3MHVp2tizz5GwA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vdQNZo0aN68exjtCnoT2m0JhQSlOtoAKFYbPngu16WNzmYrT3nhiIE7C5t7GzwmxG
-         iZOgcYve+gR2ONvjteGM7aYQOMH1187GtS4Zd1Cq0e7f+Y3Wl3Zyo5arSrANze0Eq4
-         i5O9os4kNCBcMg+EAPxvIj9eciAX5+nWNcmBBlNA=
+        b=fXZ8PsdqT0PZeB7tPKlamm4lyFXMkV5p4mjNedtDd9r3x4hHREMk00/VU5nlxIdN7
+         QjNusCxNx8SZyoy6gePxJE0pNlBAAwpi1chKdWEvAj08oya3jN1vrvjV3vKnMQtw2X
+         knKqRuRe312nNS2mhCIrCx9/AT+ccOa150wShky0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Greco <pmgreco@us.ibm.com>,
-        Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>,
-        Vineet Gupta <vgupta@synopsys.com>,
+        stable@vger.kernel.org, fengsheng <fengsheng5@huawei.com>,
+        Xinwei Kong <kong.kongxinwei@hisilicon.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 09/36] ARC: Fix ICCM & DCCM runtime size checks
-Date:   Tue,  9 Jun 2020 19:44:09 +0200
-Message-Id: <20200609173933.818886101@linuxfoundation.org>
+Subject: [PATCH 4.9 04/42] spi: dw: use "smp_mb()" to avoid sending spi data error
+Date:   Tue,  9 Jun 2020 19:44:10 +0200
+Message-Id: <20200609174015.905169211@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200609173933.288044334@linuxfoundation.org>
-References: <20200609173933.288044334@linuxfoundation.org>
+In-Reply-To: <20200609174015.379493548@linuxfoundation.org>
+References: <20200609174015.379493548@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,52 +45,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>
+From: Xinwei Kong <kong.kongxinwei@hisilicon.com>
 
-[ Upstream commit 43900edf67d7ef3ac8909854d75b8a1fba2d570c ]
+[ Upstream commit bfda044533b213985bc62bd7ca96f2b984d21b80 ]
 
-As of today the ICCM and DCCM size checks are incorrectly using
-mismatched units (KiB checked against bytes). The CONFIG_ARC_DCCM_SZ
-and CONFIG_ARC_ICCM_SZ are in KiB, but the size calculated in
-runtime and stored in cpu->dccm.sz and cpu->iccm.sz is in bytes.
+Because of out-of-order execution about some CPU architecture,
+In this debug stage we find Completing spi interrupt enable ->
+prodrucing TXEI interrupt -> running "interrupt_transfer" function
+will prior to set "dw->rx and dws->rx_end" data, so this patch add
+memory barrier to enable dw->rx and dw->rx_end to be visible and
+solve to send SPI data error.
+eg:
+it will fix to this following low possibility error in testing environment
+which using SPI control to connect TPM Modules
 
-Fix that.
+kernel: tpm tpm0: Operation Timed out
+kernel: tpm tpm0: tpm_relinquish_locality: : error -1
 
-Reported-by: Paul Greco <pmgreco@us.ibm.com>
-Signed-off-by: Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>
-Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
+Signed-off-by: fengsheng <fengsheng5@huawei.com>
+Signed-off-by: Xinwei Kong <kong.kongxinwei@hisilicon.com>
+Link: https://lore.kernel.org/r/1578019930-55858-1-git-send-email-kong.kongxinwei@hisilicon.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arc/kernel/setup.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/spi/spi-dw.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/arc/kernel/setup.c b/arch/arc/kernel/setup.c
-index 3013f3f82b95..66e4dc8bce1d 100644
---- a/arch/arc/kernel/setup.c
-+++ b/arch/arc/kernel/setup.c
-@@ -12,6 +12,7 @@
- #include <linux/root_dev.h>
- #include <linux/console.h>
- #include <linux/module.h>
-+#include <linux/sizes.h>
- #include <linux/cpu.h>
- #include <linux/clk-provider.h>
- #include <linux/of_fdt.h>
-@@ -308,12 +309,12 @@ static void arc_chk_core_config(void)
- 	if ((unsigned int)__arc_dccm_base != cpu->dccm.base_addr)
- 		panic("Linux built with incorrect DCCM Base address\n");
+diff --git a/drivers/spi/spi-dw.c b/drivers/spi/spi-dw.c
+index 16f0def9df82..babf0a337e96 100644
+--- a/drivers/spi/spi-dw.c
++++ b/drivers/spi/spi-dw.c
+@@ -305,6 +305,9 @@ static int dw_spi_transfer_one(struct spi_master *master,
+ 	dws->len = transfer->len;
+ 	spin_unlock_irqrestore(&dws->buf_lock, flags);
  
--	if (CONFIG_ARC_DCCM_SZ != cpu->dccm.sz)
-+	if (CONFIG_ARC_DCCM_SZ * SZ_1K != cpu->dccm.sz)
- 		panic("Linux built with incorrect DCCM Size\n");
- #endif
++	/* Ensure dw->rx and dw->rx_end are visible */
++	smp_mb();
++
+ 	spi_enable_chip(dws, 0);
  
- #ifdef CONFIG_ARC_HAS_ICCM
--	if (CONFIG_ARC_ICCM_SZ != cpu->iccm.sz)
-+	if (CONFIG_ARC_ICCM_SZ * SZ_1K != cpu->iccm.sz)
- 		panic("Linux built with incorrect ICCM Size\n");
- #endif
- 
+ 	/* Handle per transfer options for bpw and speed */
 -- 
 2.25.1
 
