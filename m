@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 663851F4383
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 19:54:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B63E1F435E
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 19:52:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731794AbgFIRx6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Jun 2020 13:53:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45128 "EHLO mail.kernel.org"
+        id S1732939AbgFIRwt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Jun 2020 13:52:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43350 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731621AbgFIRxv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Jun 2020 13:53:51 -0400
+        id S1732864AbgFIRws (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Jun 2020 13:52:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ED8CE20774;
-        Tue,  9 Jun 2020 17:53:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2E3D320734;
+        Tue,  9 Jun 2020 17:52:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591725230;
-        bh=cVDViZWwgHNsufUmT2I+Hp2X1qg/QoZVvKpHAG/7+i8=;
+        s=default; t=1591725167;
+        bh=6EQsCHB1db4wnTT7zvI7y54pE21bsBWoDpl9oZzvWnk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hAPwyxAOw1F+WwuWJE6MeFPzxtMg2tT0OqhMoH26skMcDrhCCjoy/T80R99pLkKZl
-         3kTf9s7RRLfShGRN9SmHyhBXD1bLhzN9hftq6cEmzzNrNWsH/QR2aIGwliZPOeyIfg
-         l9l9PsGqMr/lOABNESYK858+CPUoNkimHn+GITE0=
+        b=RQKeBQpcNiVNM29vO9lnkFgc5sgtK5M3whz1H2MfYHdklxjTG6aKjB8N+40xWFIg8
+         qn5Accn+0dVBaa6zZjiD9D1KqKM3ShrFV9dhz/wHfDx0Ebs23+EAoqjru/TIHlTsn+
+         8l/+u/fJ30tDOkFt1P2LLg4JJbhl45iYpYkY2MCg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Hanselmann <public@hansmi.ch>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.6 22/41] USB: serial: ch341: fix lockup of devices with limited prescaler
-Date:   Tue,  9 Jun 2020 19:45:24 +0200
-Message-Id: <20200609174114.240869918@linuxfoundation.org>
+        stable@vger.kernel.org, Mark Gross <mgross@linux.intel.com>,
+        Borislav Petkov <bp@suse.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Josh Poimboeuf <jpoimboe@redhat.com>
+Subject: [PATCH 5.4 29/34] x86/cpu: Add table argument to cpu_matches()
+Date:   Tue,  9 Jun 2020 19:45:25 +0200
+Message-Id: <20200609174057.355696135@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200609174112.129412236@linuxfoundation.org>
-References: <20200609174112.129412236@linuxfoundation.org>
+In-Reply-To: <20200609174052.628006868@linuxfoundation.org>
+References: <20200609174052.628006868@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,87 +45,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Mark Gross <mgross@linux.intel.com>
 
-commit c432df155919582a3cefa35a8f86256c830fa9a4 upstream.
+commit 93920f61c2ad7edb01e63323832585796af75fc9 upstream
 
-Michael Hanselmann reports that
+To make cpu_matches() reusable for other matching tables, have it take a
+pointer to a x86_cpu_id table as an argument.
 
-	[a] subset of all CH341 devices stop responding to bulk
-	transfers, usually after the third byte, when the highest
-	prescaler bit (0b100) is set. There is one exception, namely a
-	prescaler of exactly 0b111 (fact=1, ps=3).
+ [ bp: Flip arguments order. ]
 
-Fix this by forcing a lower base clock (fact = 0) whenever needed.
-
-This specifically makes the standard rates 110, 134 and 200 bps work
-again with these devices.
-
-Fixes: 35714565089e ("USB: serial: ch341: reimplement line-speed handling")
-Cc: stable <stable@vger.kernel.org>	# 5.5
-Reported-by: Michael Hanselmann <public@hansmi.ch>
-Link: https://lore.kernel.org/r/20200514141743.GE25962@localhost
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Mark Gross <mgross@linux.intel.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Josh Poimboeuf <jpoimboe@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/usb/serial/ch341.c |   15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ arch/x86/kernel/cpu/common.c |   25 ++++++++++++++-----------
+ 1 file changed, 14 insertions(+), 11 deletions(-)
 
---- a/drivers/usb/serial/ch341.c
-+++ b/drivers/usb/serial/ch341.c
-@@ -73,6 +73,8 @@
- #define CH341_LCR_CS6          0x01
- #define CH341_LCR_CS5          0x00
+--- a/arch/x86/kernel/cpu/common.c
++++ b/arch/x86/kernel/cpu/common.c
+@@ -1093,9 +1093,9 @@ static const __initconst struct x86_cpu_
+ 	{}
+ };
  
-+#define CH341_QUIRK_LIMITED_PRESCALER	BIT(0)
-+
- static const struct usb_device_id id_table[] = {
- 	{ USB_DEVICE(0x4348, 0x5523) },
- 	{ USB_DEVICE(0x1a86, 0x7523) },
-@@ -160,9 +162,11 @@ static const speed_t ch341_min_rates[] =
-  *		2 <= div <= 256 if fact = 0, or
-  *		9 <= div <= 256 if fact = 1
-  */
--static int ch341_get_divisor(speed_t speed)
-+static int ch341_get_divisor(struct ch341_private *priv)
+-static bool __init cpu_matches(unsigned long which)
++static bool __init cpu_matches(const struct x86_cpu_id *table, unsigned long which)
  {
- 	unsigned int fact, div, clk_div;
-+	speed_t speed = priv->baud_rate;
-+	bool force_fact0 = false;
- 	int ps;
+-	const struct x86_cpu_id *m = x86_match_cpu(cpu_vuln_whitelist);
++	const struct x86_cpu_id *m = x86_match_cpu(table);
+ 
+ 	return m && !!(m->driver_data & which);
+ }
+@@ -1115,31 +1115,34 @@ static void __init cpu_set_bug_bits(stru
+ 	u64 ia32_cap = x86_read_arch_cap_msr();
+ 
+ 	/* Set ITLB_MULTIHIT bug if cpu is not in the whitelist and not mitigated */
+-	if (!cpu_matches(NO_ITLB_MULTIHIT) && !(ia32_cap & ARCH_CAP_PSCHANGE_MC_NO))
++	if (!cpu_matches(cpu_vuln_whitelist, NO_ITLB_MULTIHIT) &&
++	    !(ia32_cap & ARCH_CAP_PSCHANGE_MC_NO))
+ 		setup_force_cpu_bug(X86_BUG_ITLB_MULTIHIT);
+ 
+-	if (cpu_matches(NO_SPECULATION))
++	if (cpu_matches(cpu_vuln_whitelist, NO_SPECULATION))
+ 		return;
+ 
+ 	setup_force_cpu_bug(X86_BUG_SPECTRE_V1);
+ 
+-	if (!cpu_matches(NO_SPECTRE_V2))
++	if (!cpu_matches(cpu_vuln_whitelist, NO_SPECTRE_V2))
+ 		setup_force_cpu_bug(X86_BUG_SPECTRE_V2);
+ 
+-	if (!cpu_matches(NO_SSB) && !(ia32_cap & ARCH_CAP_SSB_NO) &&
++	if (!cpu_matches(cpu_vuln_whitelist, NO_SSB) &&
++	    !(ia32_cap & ARCH_CAP_SSB_NO) &&
+ 	   !cpu_has(c, X86_FEATURE_AMD_SSB_NO))
+ 		setup_force_cpu_bug(X86_BUG_SPEC_STORE_BYPASS);
+ 
+ 	if (ia32_cap & ARCH_CAP_IBRS_ALL)
+ 		setup_force_cpu_cap(X86_FEATURE_IBRS_ENHANCED);
+ 
+-	if (!cpu_matches(NO_MDS) && !(ia32_cap & ARCH_CAP_MDS_NO)) {
++	if (!cpu_matches(cpu_vuln_whitelist, NO_MDS) &&
++	    !(ia32_cap & ARCH_CAP_MDS_NO)) {
+ 		setup_force_cpu_bug(X86_BUG_MDS);
+-		if (cpu_matches(MSBDS_ONLY))
++		if (cpu_matches(cpu_vuln_whitelist, MSBDS_ONLY))
+ 			setup_force_cpu_bug(X86_BUG_MSBDS_ONLY);
+ 	}
+ 
+-	if (!cpu_matches(NO_SWAPGS))
++	if (!cpu_matches(cpu_vuln_whitelist, NO_SWAPGS))
+ 		setup_force_cpu_bug(X86_BUG_SWAPGS);
  
  	/*
-@@ -188,8 +192,12 @@ static int ch341_get_divisor(speed_t spe
- 	clk_div = CH341_CLK_DIV(ps, fact);
- 	div = CH341_CLKRATE / (clk_div * speed);
+@@ -1157,7 +1160,7 @@ static void __init cpu_set_bug_bits(stru
+ 	     (ia32_cap & ARCH_CAP_TSX_CTRL_MSR)))
+ 		setup_force_cpu_bug(X86_BUG_TAA);
  
-+	/* Some devices require a lower base clock if ps < 3. */
-+	if (ps < 3 && (priv->quirks & CH341_QUIRK_LIMITED_PRESCALER))
-+		force_fact0 = true;
-+
- 	/* Halve base clock (fact = 0) if required. */
--	if (div < 9 || div > 255) {
-+	if (div < 9 || div > 255 || force_fact0) {
- 		div /= 2;
- 		clk_div *= 2;
- 		fact = 0;
-@@ -228,7 +236,7 @@ static int ch341_set_baudrate_lcr(struct
- 	if (!priv->baud_rate)
- 		return -EINVAL;
+-	if (cpu_matches(NO_MELTDOWN))
++	if (cpu_matches(cpu_vuln_whitelist, NO_MELTDOWN))
+ 		return;
  
--	val = ch341_get_divisor(priv->baud_rate);
-+	val = ch341_get_divisor(priv);
- 	if (val < 0)
- 		return -EINVAL;
+ 	/* Rogue Data Cache Load? No! */
+@@ -1166,7 +1169,7 @@ static void __init cpu_set_bug_bits(stru
  
-@@ -333,6 +341,7 @@ static int ch341_detect_quirks(struct us
- 			    CH341_REG_BREAK, 0, buffer, size, DEFAULT_TIMEOUT);
- 	if (r == -EPIPE) {
- 		dev_dbg(&port->dev, "break control not supported\n");
-+		quirks = CH341_QUIRK_LIMITED_PRESCALER;
- 		r = 0;
- 		goto out;
- 	}
+ 	setup_force_cpu_bug(X86_BUG_CPU_MELTDOWN);
+ 
+-	if (cpu_matches(NO_L1TF))
++	if (cpu_matches(cpu_vuln_whitelist, NO_L1TF))
+ 		return;
+ 
+ 	setup_force_cpu_bug(X86_BUG_L1TF);
 
 
