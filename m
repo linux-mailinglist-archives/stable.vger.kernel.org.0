@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F7401F4547
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:14:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F21FA1F45C7
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:21:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732748AbgFIRuy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Jun 2020 13:50:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39030 "EHLO mail.kernel.org"
+        id S2388903AbgFISUY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Jun 2020 14:20:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34394 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732739AbgFIRux (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Jun 2020 13:50:53 -0400
+        id S1732443AbgFIRtE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Jun 2020 13:49:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A775D2074B;
-        Tue,  9 Jun 2020 17:50:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2FE9F207ED;
+        Tue,  9 Jun 2020 17:49:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591725052;
-        bh=VoaD/XTRncZS6bnl7xCCz9ihPmtnsZ9t4uWmP7GKdEo=;
+        s=default; t=1591724943;
+        bh=e9HiqkUS9AZSGsSrgo//g785d5RIDBsE9uWjLOnWiEo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=me5aXjcPjcKcMtUmUOAAOVu+LtXMn5Puc5J6TCgl2Ua5a12ghP57q3zbneg23iJvr
-         GQ4L/ZKjYVyIATE67D0o/N294Pe7umnCyr6WiBVaFGRlKlxavhGTlwvORuVEVtYXG+
-         n/Nea3ItB66Nul13EM9f9oVNwvd4FkQWOpPfYsMk=
+        b=HPN01z+/ijMImzECqixuAYh4G8k93haPUs6cPV8gorrNhjEYk5XcyGfZiBGTLmE5d
+         LqTsncz9svRcryii7PhNQ/xb+diiL3ptdUJLnu412KdH+Pm5zuHyLzBGCgI/+Cp/J8
+         yUMfWu0nRU8S5vHuYjdfGH+EOxprxW72VGfCa8CY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        James Chapman <jchapman@katalix.com>,
-        Andrii Nakryiko <andriin@fb.com>,
-        syzbot+3610d489778b57cc8031@syzkaller.appspotmail.com
-Subject: [PATCH 4.14 24/46] l2tp: do not use inet_hash()/inet_unhash()
+        stable@vger.kernel.org, Pascal Terjan <pterjan@google.com>
+Subject: [PATCH 4.9 34/42] staging: rtl8712: Fix IEEE80211_ADDBA_PARAM_BUF_SIZE_MASK
 Date:   Tue,  9 Jun 2020 19:44:40 +0200
-Message-Id: <20200609174026.834939467@linuxfoundation.org>
+Message-Id: <20200609174019.249462402@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200609174022.938987501@linuxfoundation.org>
-References: <20200609174022.938987501@linuxfoundation.org>
+In-Reply-To: <20200609174015.379493548@linuxfoundation.org>
+References: <20200609174015.379493548@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,201 +42,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Pascal Terjan <pterjan@google.com>
 
-[ Upstream commit 02c71b144c811bcdd865e0a1226d0407d11357e8 ]
+commit 15ea976a1f12b5fd76b1bd6ff3eb5132fd28047f upstream.
 
-syzbot recently found a way to crash the kernel [1]
+The value in shared headers was fixed 9 years ago in commit 8d661f1e462d
+("ieee80211: correct IEEE80211_ADDBA_PARAM_BUF_SIZE_MASK macro") and
+while looking at using shared headers for other duplicated constants
+I noticed this driver uses the old value.
 
-Issue here is that inet_hash() & inet_unhash() are currently
-only meant to be used by TCP & DCCP, since only these protocols
-provide the needed hashinfo pointer.
+The macros are also defined twice in this file so I am deleting the
+second definition.
 
-L2TP uses a single list (instead of a hash table)
-
-This old bug became an issue after commit 610236587600
-("bpf: Add new cgroup attach type to enable sock modifications")
-since after this commit, sk_common_release() can be called
-while the L2TP socket is still considered 'hashed'.
-
-general protection fault, probably for non-canonical address 0xdffffc0000000001: 0000 [#1] PREEMPT SMP KASAN
-KASAN: null-ptr-deref in range [0x0000000000000008-0x000000000000000f]
-CPU: 0 PID: 7063 Comm: syz-executor654 Not tainted 5.7.0-rc6-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-RIP: 0010:inet_unhash+0x11f/0x770 net/ipv4/inet_hashtables.c:600
-Code: 03 0f b6 04 02 84 c0 74 08 3c 03 0f 8e dd 04 00 00 48 8d 7d 08 44 8b 73 08 48 b8 00 00 00 00 00 fc ff df 48 89 fa 48 c1 ea 03 <80> 3c 02 00 0f 85 55 05 00 00 48 8d 7d 14 4c 8b 6d 08 48 b8 00 00
-RSP: 0018:ffffc90001777d30 EFLAGS: 00010202
-RAX: dffffc0000000000 RBX: ffff88809a6df940 RCX: ffffffff8697c242
-RDX: 0000000000000001 RSI: ffffffff8697c251 RDI: 0000000000000008
-RBP: 0000000000000000 R08: ffff88809f3ae1c0 R09: fffffbfff1514cc1
-R10: ffffffff8a8a6607 R11: fffffbfff1514cc0 R12: ffff88809a6df9b0
-R13: 0000000000000007 R14: 0000000000000000 R15: ffffffff873a4d00
-FS:  0000000001d2b880(0000) GS:ffff8880ae600000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00000000006cd090 CR3: 000000009403a000 CR4: 00000000001406f0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- sk_common_release+0xba/0x370 net/core/sock.c:3210
- inet_create net/ipv4/af_inet.c:390 [inline]
- inet_create+0x966/0xe00 net/ipv4/af_inet.c:248
- __sock_create+0x3cb/0x730 net/socket.c:1428
- sock_create net/socket.c:1479 [inline]
- __sys_socket+0xef/0x200 net/socket.c:1521
- __do_sys_socket net/socket.c:1530 [inline]
- __se_sys_socket net/socket.c:1528 [inline]
- __x64_sys_socket+0x6f/0xb0 net/socket.c:1528
- do_syscall_64+0xf6/0x7d0 arch/x86/entry/common.c:295
- entry_SYSCALL_64_after_hwframe+0x49/0xb3
-RIP: 0033:0x441e29
-Code: e8 fc b3 02 00 48 83 c4 18 c3 0f 1f 80 00 00 00 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 eb 08 fc ff c3 66 2e 0f 1f 84 00 00 00 00
-RSP: 002b:00007ffdce184148 EFLAGS: 00000246 ORIG_RAX: 0000000000000029
-RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 0000000000441e29
-RDX: 0000000000000073 RSI: 0000000000000002 RDI: 0000000000000002
-RBP: 0000000000000000 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
-R13: 0000000000402c30 R14: 0000000000000000 R15: 0000000000000000
-Modules linked in:
----[ end trace 23b6578228ce553e ]---
-RIP: 0010:inet_unhash+0x11f/0x770 net/ipv4/inet_hashtables.c:600
-Code: 03 0f b6 04 02 84 c0 74 08 3c 03 0f 8e dd 04 00 00 48 8d 7d 08 44 8b 73 08 48 b8 00 00 00 00 00 fc ff df 48 89 fa 48 c1 ea 03 <80> 3c 02 00 0f 85 55 05 00 00 48 8d 7d 14 4c 8b 6d 08 48 b8 00 00
-RSP: 0018:ffffc90001777d30 EFLAGS: 00010202
-RAX: dffffc0000000000 RBX: ffff88809a6df940 RCX: ffffffff8697c242
-RDX: 0000000000000001 RSI: ffffffff8697c251 RDI: 0000000000000008
-RBP: 0000000000000000 R08: ffff88809f3ae1c0 R09: fffffbfff1514cc1
-R10: ffffffff8a8a6607 R11: fffffbfff1514cc0 R12: ffff88809a6df9b0
-R13: 0000000000000007 R14: 0000000000000000 R15: ffffffff873a4d00
-FS:  0000000001d2b880(0000) GS:ffff8880ae600000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00000000006cd090 CR3: 000000009403a000 CR4: 00000000001406f0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-
-Fixes: 0d76751fad77 ("l2tp: Add L2TPv3 IP encapsulation (no UDP) support")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: James Chapman <jchapman@katalix.com>
-Cc: Andrii Nakryiko <andriin@fb.com>
-Reported-by: syzbot+3610d489778b57cc8031@syzkaller.appspotmail.com
+Signed-off-by: Pascal Terjan <pterjan@google.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200523211247.23262-1-pterjan@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/l2tp/l2tp_ip.c  |   29 ++++++++++++++++++++++-------
- net/l2tp/l2tp_ip6.c |   30 ++++++++++++++++++++++--------
- 2 files changed, 44 insertions(+), 15 deletions(-)
 
---- a/net/l2tp/l2tp_ip.c
-+++ b/net/l2tp/l2tp_ip.c
-@@ -24,7 +24,6 @@
- #include <net/icmp.h>
- #include <net/udp.h>
- #include <net/inet_common.h>
--#include <net/inet_hashtables.h>
- #include <net/tcp_states.h>
- #include <net/protocol.h>
- #include <net/xfrm.h>
-@@ -215,15 +214,31 @@ discard:
- 	return 0;
- }
+---
+ drivers/staging/rtl8712/wifi.h |    9 +--------
+ 1 file changed, 1 insertion(+), 8 deletions(-)
+
+--- a/drivers/staging/rtl8712/wifi.h
++++ b/drivers/staging/rtl8712/wifi.h
+@@ -471,7 +471,7 @@ static inline unsigned char *get_hdr_bss
+ /* block-ack parameters */
+ #define IEEE80211_ADDBA_PARAM_POLICY_MASK 0x0002
+ #define IEEE80211_ADDBA_PARAM_TID_MASK 0x003C
+-#define IEEE80211_ADDBA_PARAM_BUF_SIZE_MASK 0xFFA0
++#define IEEE80211_ADDBA_PARAM_BUF_SIZE_MASK 0xFFC0
+ #define IEEE80211_DELBA_PARAM_TID_MASK 0xF000
+ #define IEEE80211_DELBA_PARAM_INITIATOR_MASK 0x0800
  
--static int l2tp_ip_open(struct sock *sk)
-+static int l2tp_ip_hash(struct sock *sk)
- {
--	/* Prevent autobind. We don't have ports. */
--	inet_sk(sk)->inet_num = IPPROTO_L2TP;
-+	if (sk_unhashed(sk)) {
-+		write_lock_bh(&l2tp_ip_lock);
-+		sk_add_node(sk, &l2tp_ip_table);
-+		write_unlock_bh(&l2tp_ip_lock);
-+	}
-+	return 0;
-+}
+@@ -565,13 +565,6 @@ struct ieee80211_ht_addt_info {
+ #define IEEE80211_HT_IE_NON_GF_STA_PRSNT	0x0004
+ #define IEEE80211_HT_IE_NON_HT_STA_PRSNT	0x0010
  
-+static void l2tp_ip_unhash(struct sock *sk)
-+{
-+	if (sk_unhashed(sk))
-+		return;
- 	write_lock_bh(&l2tp_ip_lock);
--	sk_add_node(sk, &l2tp_ip_table);
-+	sk_del_node_init(sk);
- 	write_unlock_bh(&l2tp_ip_lock);
-+}
-+
-+static int l2tp_ip_open(struct sock *sk)
-+{
-+	/* Prevent autobind. We don't have ports. */
-+	inet_sk(sk)->inet_num = IPPROTO_L2TP;
- 
-+	l2tp_ip_hash(sk);
- 	return 0;
- }
- 
-@@ -605,8 +620,8 @@ static struct proto l2tp_ip_prot = {
- 	.sendmsg	   = l2tp_ip_sendmsg,
- 	.recvmsg	   = l2tp_ip_recvmsg,
- 	.backlog_rcv	   = l2tp_ip_backlog_recv,
--	.hash		   = inet_hash,
--	.unhash		   = inet_unhash,
-+	.hash		   = l2tp_ip_hash,
-+	.unhash		   = l2tp_ip_unhash,
- 	.obj_size	   = sizeof(struct l2tp_ip_sock),
- #ifdef CONFIG_COMPAT
- 	.compat_setsockopt = compat_ip_setsockopt,
---- a/net/l2tp/l2tp_ip6.c
-+++ b/net/l2tp/l2tp_ip6.c
-@@ -24,8 +24,6 @@
- #include <net/icmp.h>
- #include <net/udp.h>
- #include <net/inet_common.h>
--#include <net/inet_hashtables.h>
--#include <net/inet6_hashtables.h>
- #include <net/tcp_states.h>
- #include <net/protocol.h>
- #include <net/xfrm.h>
-@@ -229,15 +227,31 @@ discard:
- 	return 0;
- }
- 
--static int l2tp_ip6_open(struct sock *sk)
-+static int l2tp_ip6_hash(struct sock *sk)
- {
--	/* Prevent autobind. We don't have ports. */
--	inet_sk(sk)->inet_num = IPPROTO_L2TP;
-+	if (sk_unhashed(sk)) {
-+		write_lock_bh(&l2tp_ip6_lock);
-+		sk_add_node(sk, &l2tp_ip6_table);
-+		write_unlock_bh(&l2tp_ip6_lock);
-+	}
-+	return 0;
-+}
- 
-+static void l2tp_ip6_unhash(struct sock *sk)
-+{
-+	if (sk_unhashed(sk))
-+		return;
- 	write_lock_bh(&l2tp_ip6_lock);
--	sk_add_node(sk, &l2tp_ip6_table);
-+	sk_del_node_init(sk);
- 	write_unlock_bh(&l2tp_ip6_lock);
-+}
-+
-+static int l2tp_ip6_open(struct sock *sk)
-+{
-+	/* Prevent autobind. We don't have ports. */
-+	inet_sk(sk)->inet_num = IPPROTO_L2TP;
- 
-+	l2tp_ip6_hash(sk);
- 	return 0;
- }
- 
-@@ -742,8 +756,8 @@ static struct proto l2tp_ip6_prot = {
- 	.sendmsg	   = l2tp_ip6_sendmsg,
- 	.recvmsg	   = l2tp_ip6_recvmsg,
- 	.backlog_rcv	   = l2tp_ip6_backlog_recv,
--	.hash		   = inet6_hash,
--	.unhash		   = inet_unhash,
-+	.hash		   = l2tp_ip6_hash,
-+	.unhash		   = l2tp_ip6_unhash,
- 	.obj_size	   = sizeof(struct l2tp_ip6_sock),
- #ifdef CONFIG_COMPAT
- 	.compat_setsockopt = compat_ipv6_setsockopt,
+-/* block-ack parameters */
+-#define IEEE80211_ADDBA_PARAM_POLICY_MASK 0x0002
+-#define IEEE80211_ADDBA_PARAM_TID_MASK 0x003C
+-#define IEEE80211_ADDBA_PARAM_BUF_SIZE_MASK 0xFFA0
+-#define IEEE80211_DELBA_PARAM_TID_MASK 0xF000
+-#define IEEE80211_DELBA_PARAM_INITIATOR_MASK 0x0800
+-
+ /*
+  * A-PMDU buffer sizes
+  * According to IEEE802.11n spec size varies from 8K to 64K (in powers of 2)
 
 
