@@ -2,89 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EFE9C1F3B5E
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 15:06:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB9701F3D65
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 15:55:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727773AbgFINGC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Jun 2020 09:06:02 -0400
-Received: from smtp-fw-4101.amazon.com ([72.21.198.25]:15805 "EHLO
-        smtp-fw-4101.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726083AbgFINGC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Jun 2020 09:06:02 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1591707962; x=1623243962;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   mime-version;
-  bh=0XeOyj+5k20ROXk3Q1DUjE/n+U5532PlRrUIVZVWxW0=;
-  b=TieoZhNsaXXnKyU2V5emQU3cq85Mq7ArVGz4k7NB0pflCCY5M7m6rACq
-   MCadI8ma9uf1gunI3Ci2jG0osAasA6k18dPuQuO8vStNBy2iXH23Ls2ij
-   qsgwxkJwrCbmHCOTwI/FT6NdlUMIEduQcTdAEZZd7UBxpQdkJKIj4tpDi
-   s=;
-IronPort-SDR: j5J0W5atFLcNtse/m+nzXHtGxqZSvtfVxwsQR+KE5MBnv/WqLlye7Yy6lmuxWQ6fdzXuIqmPWO
- Sk+dNKPiksEQ==
-X-IronPort-AV: E=Sophos;i="5.73,492,1583193600"; 
-   d="scan'208";a="35280945"
-Received: from iad12-co-svc-p1-lb1-vlan3.amazon.com (HELO email-inbound-relay-1d-37fd6b3d.us-east-1.amazon.com) ([10.43.8.6])
-  by smtp-border-fw-out-4101.iad4.amazon.com with ESMTP; 09 Jun 2020 13:06:01 +0000
-Received: from EX13MTAUEA002.ant.amazon.com (iad55-ws-svc-p15-lb9-vlan2.iad.amazon.com [10.40.159.162])
-        by email-inbound-relay-1d-37fd6b3d.us-east-1.amazon.com (Postfix) with ESMTPS id DDBC0282917;
-        Tue,  9 Jun 2020 13:05:58 +0000 (UTC)
-Received: from EX13D31EUA001.ant.amazon.com (10.43.165.15) by
- EX13MTAUEA002.ant.amazon.com (10.43.61.77) with Microsoft SMTP Server (TLS)
- id 15.0.1497.2; Tue, 9 Jun 2020 13:05:58 +0000
-Received: from u886c93fd17d25d.ant.amazon.com (10.43.161.145) by
- EX13D31EUA001.ant.amazon.com (10.43.165.15) with Microsoft SMTP Server (TLS)
- id 15.0.1497.2; Tue, 9 Jun 2020 13:05:54 +0000
-From:   SeongJae Park <sjpark@amazon.com>
+        id S1729972AbgFINzU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Jun 2020 09:55:20 -0400
+Received: from jabberwock.ucw.cz ([46.255.230.98]:37954 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726967AbgFINzT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Jun 2020 09:55:19 -0400
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 2B30D1C0C0C; Tue,  9 Jun 2020 15:55:18 +0200 (CEST)
+Date:   Tue, 9 Jun 2020 15:55:17 +0200
+From:   Pavel Machek <pavel@denx.de>
 To:     Greg KH <gregkh@linuxfoundation.org>
-CC:     SeongJae Park <sjpark@amazon.com>, <akpm@linux-foundation.org>,
-        <colin.king@canonical.com>, <linux-kernel@vger.kernel.org>,
-        <stable@vger.kernel.org>, SeongJae Park <sjpark@amazon.de>
-Subject: Re: Re: [PATCH v2] scripts/spelling: Recommend blocklist/allowlist instead of blacklist/whitelist
-Date:   Tue, 9 Jun 2020 15:05:38 +0200
-Message-ID: <20200609130538.3573-1-sjpark@amazon.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20200609125607.GB827447@kroah.com> (raw)
+Cc:     Daniel Axtens <dja@axtens.net>, Sasha Levin <sashal@kernel.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        David Gow <davidgow@google.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Daniel Micay <danielmicay@gmail.com>,
+        Andrey Ryabinin <aryabinin@virtuozzo.com>,
+        Alexander Potapenko <glider@google.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: Re: [PATCH AUTOSEL 4.14 72/72] string.h: fix incompatibility between
+ FORTIFY_SOURCE and KASAN
+Message-ID: <20200609135517.GA4806@amd>
+References: <20200608232500.3369581-1-sashal@kernel.org>
+ <20200608232500.3369581-72-sashal@kernel.org>
+ <87ftb5t933.fsf@dja-thinkpad.axtens.net>
+ <20200609112025.GA2523@amd>
+ <20200609115407.GA819153@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.43.161.145]
-X-ClientProxiedBy: EX13d09UWC002.ant.amazon.com (10.43.162.102) To
- EX13D31EUA001.ant.amazon.com (10.43.165.15)
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="2fHTh5uZTiUOsy+g"
+Content-Disposition: inline
+In-Reply-To: <20200609115407.GA819153@kroah.com>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 9 Jun 2020 14:56:07 +0200 Greg KH <gregkh@linuxfoundation.org> wrote:
 
-> On Tue, Jun 09, 2020 at 02:25:49PM +0200, SeongJae Park wrote:
-> > From: SeongJae Park <sjpark@amazon.de>
-> > 
-> > This commit recommends the patches to replace 'blacklist' and
-> > 'whitelist' with the 'blocklist' and 'allowlist', because the new
-> > suggestions are incontrovertible, doesn't make people hurt, and more
-> > self-explanatory.
-> > 
-> > Signed-off-by: SeongJae Park <sjpark@amazon.de>
-> > ---
-> >  scripts/spelling.txt | 2 ++
-> >  1 file changed, 2 insertions(+)
-> 
-> <formletter>
-> 
-> This is not the correct way to submit patches for inclusion in the
-> stable kernel tree.  Please read:
->     https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
-> for how to do this properly.
+--2fHTh5uZTiUOsy+g
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Sorry, I only mistakenly Cc-ed stable@vger.kernel.org.  Please don't pull this
-in the stable tree.
+On Tue 2020-06-09 13:54:07, Greg KH wrote:
+> On Tue, Jun 09, 2020 at 01:20:25PM +0200, Pavel Machek wrote:
+> > On Tue 2020-06-09 09:46:08, Daniel Axtens wrote:
+> > > Hi Sasha,
+> > >=20
+> > > There's nothing inherently wrong with these patches being backported,
+> > > but they fix a bug that doesn't cause a crash and only affects debug
+> > > kernels compiled with KASAN and FORTIFY_SOURCE. Personally I wouldn't
+> > > change a core header file in a stable kernel for that. Perhaps I'm too
+> > > risk-averse.
+> >=20
+> > You are in agreement with existing documentation -- stable is only for
+> > serious bugs.
+>=20
+> No, lots of people run KASAN on those kernels when they are testing
+> their devices, this patch is fine.
 
+Documentation currently says:
+
+ - It must fix a problem that causes a build error (but not for things
+    marked CONFIG_BROKEN), an oops, a hang, data corruption, a real
+    security issue, or some "oh, that's not good" issue.  In short,
+    something critical.
+
+=2E..but we also get various warning fixes (sometimes for external
+tools), changes to make printk()s less verbose, changes to make
+debugging easier, etc...
+
+Could the documentation be updated to match current use?
 
 Thanks,
-SeongJae Park
+									Pavel
+--=20
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
+g.html
 
-> 
-> </formletter>
-> 
+--2fHTh5uZTiUOsy+g
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAl7flMUACgkQMOfwapXb+vK3pACglGW9799N3OTLxgOM/OIQZpKv
+P6gAoJr5V9ho8ygRxTBFRQuFKDpQConC
+=MJK1
+-----END PGP SIGNATURE-----
+
+--2fHTh5uZTiUOsy+g--
