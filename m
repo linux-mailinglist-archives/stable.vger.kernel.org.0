@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 183851F4047
+	by mail.lfdr.de (Postfix) with ESMTP id 2D3EE1F4048
 	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 18:09:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728888AbgFIQJM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Jun 2020 12:09:12 -0400
+        id S1731077AbgFIQJL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Jun 2020 12:09:11 -0400
 Received: from mga09.intel.com ([134.134.136.24]:61032 "EHLO mga09.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731021AbgFIQJM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Jun 2020 12:09:12 -0400
-IronPort-SDR: 0zd9YWepe8gGV/mDmw9d4ISaA+fc62m8b2mfruk4sYLMMlLnD3XKBnJEZi69kwgV37Z8UpWN7Z
- rzEkDUnYE+aA==
+        id S1731005AbgFIQJK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Jun 2020 12:09:10 -0400
+IronPort-SDR: Ebk8Qxqd9NreZ9sB+3h8cQkBigq8Fk/+7YHzipW4xsefmkjlRFFZhX8Bxfd5Qs8gXS7Cka3mzG
+ sy5ioOiZdSFA==
 X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
 Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Jun 2020 09:09:04 -0700
-IronPort-SDR: Rg6nwwKi/BmfTHZ7xkU1UTTkRLnZZFTNSRL4+EN+do9AHHUHesTK14meIbD5x0DbNMRjsN8yeH
- 1CaIuFRek//w==
+  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Jun 2020 09:09:08 -0700
+IronPort-SDR: Z7nH7CTIHz93+mU6nE5txKGaxYkyyMBRE/1+AA6o209kaacUuZIWJrkNPL8M+AD8ZPHtbas99b
+ hNjp7cwVWGUQ==
 X-IronPort-AV: E=Sophos;i="5.73,492,1583222400"; 
-   d="scan'208";a="306306106"
+   d="scan'208";a="306306115"
 Received: from gem-build.fi.intel.com (HELO localhost) ([10.237.72.180])
-  by orsmga008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Jun 2020 09:09:02 -0700
+  by orsmga008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Jun 2020 09:09:06 -0700
 From:   Chris Wilson <chris@chris-wilson.co.uk>
 To:     gfx-internal-devel@eclists.intel.com
 Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
         Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
         stable@vger.kernel.org, Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Subject: [PATCH 024/185] drm/i915: Actually emit the await_start
-Date:   Tue,  9 Jun 2020 16:04:49 +0000
-Message-Id: <20200609160731.287073-25-chris@chris-wilson.co.uk>
+Subject: [PATCH 025/185] drm/i915: Return early for await_start on same timeline
+Date:   Tue,  9 Jun 2020 16:04:50 +0000
+Message-Id: <20200609160731.287073-26-chris@chris-wilson.co.uk>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200609160731.287073-1-chris@chris-wilson.co.uk>
 References: <20200609160731.287073-1-chris@chris-wilson.co.uk>
@@ -42,33 +42,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Fix the inverted test to emit the wait on the end of the previous
-request if we /haven't/ already.
+Requests within a timeline are ordered by that timeline, so awaiting for
+the start of a request within the timeline is a no-op. This used to work
+by falling out of the mutex_trylock() as the signaler and waiter had the
+same timeline and not returning an error.
 
 Fixes: 6a79d848403d ("drm/i915: Lock signaler timeline while navigating")
 Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
 Cc: Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
 Cc: <stable@vger.kernel.org> # v5.5+
 Reviewed-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200305104210.2619967-1-chris@chris-wilson.co.uk
-(cherry picked from commit 07e9c59d63df6a1c44c1975c01827ba18b69270a)
+Link: https://patchwork.freedesktop.org/patch/msgid/20200305134822.2750496-1-chris@chris-wilson.co.uk
+(cherry picked from commit ab7a69020fb5d5c7ba19fba60f62fd6f9ca9f779)
 ---
- drivers/gpu/drm/i915/i915_request.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/i915/i915_request.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/gpu/drm/i915/i915_request.c b/drivers/gpu/drm/i915/i915_request.c
-index 191a538afa5a8..6c387fa1a8547 100644
+index 6c387fa1a8547..1213009f31fbe 100644
 --- a/drivers/gpu/drm/i915/i915_request.c
 +++ b/drivers/gpu/drm/i915/i915_request.c
-@@ -875,7 +875,7 @@ i915_request_await_start(struct i915_request *rq, struct i915_request *signal)
- 		return 0;
+@@ -830,8 +830,8 @@ i915_request_await_start(struct i915_request *rq, struct i915_request *signal)
+ 	struct dma_fence *fence;
+ 	int err;
  
- 	err = 0;
--	if (intel_timeline_sync_is_later(i915_request_timeline(rq), fence))
-+	if (!intel_timeline_sync_is_later(i915_request_timeline(rq), fence))
- 		err = i915_sw_fence_await_dma_fence(&rq->submit,
- 						    fence, 0,
- 						    I915_FENCE_GFP);
+-	GEM_BUG_ON(i915_request_timeline(rq) ==
+-		   rcu_access_pointer(signal->timeline));
++	if (i915_request_timeline(rq) == rcu_access_pointer(signal->timeline))
++		return 0;
+ 
+ 	if (i915_request_started(signal))
+ 		return 0;
 ---------------------------------------------------------------------
 Intel Corporation (UK) Limited
 Registered No. 1134945 (England)
