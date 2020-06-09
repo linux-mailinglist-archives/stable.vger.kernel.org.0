@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F21FA1F45C7
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:21:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B5CA01F4541
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:13:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388903AbgFISUY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Jun 2020 14:20:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34394 "EHLO mail.kernel.org"
+        id S2388537AbgFISNm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Jun 2020 14:13:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39136 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732443AbgFIRtE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Jun 2020 13:49:04 -0400
+        id S1731078AbgFIRuz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Jun 2020 13:50:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2FE9F207ED;
-        Tue,  9 Jun 2020 17:49:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EB82020734;
+        Tue,  9 Jun 2020 17:50:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591724943;
-        bh=e9HiqkUS9AZSGsSrgo//g785d5RIDBsE9uWjLOnWiEo=;
+        s=default; t=1591725054;
+        bh=b9vOCKsHxoxrkiASyAMN5922ixYL3wmiSStmpuTWxyk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HPN01z+/ijMImzECqixuAYh4G8k93haPUs6cPV8gorrNhjEYk5XcyGfZiBGTLmE5d
-         LqTsncz9svRcryii7PhNQ/xb+diiL3ptdUJLnu412KdH+Pm5zuHyLzBGCgI/+Cp/J8
-         yUMfWu0nRU8S5vHuYjdfGH+EOxprxW72VGfCa8CY=
+        b=XD7j4n9jI0KbkMYtBK6ItHM5wDTsnQRushN2CQJYMiYtcW1AwNSOMrHWX35zxOwXp
+         Kls5N7MgZc332VPUi3isGNlsT3TR2LYnaYrKxIWWREYaNR1K0zBs7zCbG1zWXNBX7W
+         Ju0u73bnm3BO4zSSuNA2eYT1x3zd4zT+MwpQ54CY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pascal Terjan <pterjan@google.com>
-Subject: [PATCH 4.9 34/42] staging: rtl8712: Fix IEEE80211_ADDBA_PARAM_BUF_SIZE_MASK
-Date:   Tue,  9 Jun 2020 19:44:40 +0200
-Message-Id: <20200609174019.249462402@linuxfoundation.org>
+        stable@vger.kernel.org, Daniele Palmas <dnlplm@gmail.com>,
+        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 25/46] net: usb: qmi_wwan: add Telit LE910C1-EUX composition
+Date:   Tue,  9 Jun 2020 19:44:41 +0200
+Message-Id: <20200609174026.932083653@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200609174015.379493548@linuxfoundation.org>
-References: <20200609174015.379493548@linuxfoundation.org>
+In-Reply-To: <20200609174022.938987501@linuxfoundation.org>
+References: <20200609174022.938987501@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,51 +44,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pascal Terjan <pterjan@google.com>
+From: Daniele Palmas <dnlplm@gmail.com>
 
-commit 15ea976a1f12b5fd76b1bd6ff3eb5132fd28047f upstream.
+[ Upstream commit 591612aa578cd7148b7b9d74869ef40118978389 ]
 
-The value in shared headers was fixed 9 years ago in commit 8d661f1e462d
-("ieee80211: correct IEEE80211_ADDBA_PARAM_BUF_SIZE_MASK macro") and
-while looking at using shared headers for other duplicated constants
-I noticed this driver uses the old value.
+Add support for Telit LE910C1-EUX composition
 
-The macros are also defined twice in this file so I am deleting the
-second definition.
-
-Signed-off-by: Pascal Terjan <pterjan@google.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200523211247.23262-1-pterjan@google.com
+0x1031: tty, tty, tty, rmnet
+Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
+Acked-by: Bjørn Mork <bjorn@mork.no>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/staging/rtl8712/wifi.h |    9 +--------
- 1 file changed, 1 insertion(+), 8 deletions(-)
+ drivers/net/usb/qmi_wwan.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/staging/rtl8712/wifi.h
-+++ b/drivers/staging/rtl8712/wifi.h
-@@ -471,7 +471,7 @@ static inline unsigned char *get_hdr_bss
- /* block-ack parameters */
- #define IEEE80211_ADDBA_PARAM_POLICY_MASK 0x0002
- #define IEEE80211_ADDBA_PARAM_TID_MASK 0x003C
--#define IEEE80211_ADDBA_PARAM_BUF_SIZE_MASK 0xFFA0
-+#define IEEE80211_ADDBA_PARAM_BUF_SIZE_MASK 0xFFC0
- #define IEEE80211_DELBA_PARAM_TID_MASK 0xF000
- #define IEEE80211_DELBA_PARAM_INITIATOR_MASK 0x0800
- 
-@@ -565,13 +565,6 @@ struct ieee80211_ht_addt_info {
- #define IEEE80211_HT_IE_NON_GF_STA_PRSNT	0x0004
- #define IEEE80211_HT_IE_NON_HT_STA_PRSNT	0x0010
- 
--/* block-ack parameters */
--#define IEEE80211_ADDBA_PARAM_POLICY_MASK 0x0002
--#define IEEE80211_ADDBA_PARAM_TID_MASK 0x003C
--#define IEEE80211_ADDBA_PARAM_BUF_SIZE_MASK 0xFFA0
--#define IEEE80211_DELBA_PARAM_TID_MASK 0xF000
--#define IEEE80211_DELBA_PARAM_INITIATOR_MASK 0x0800
--
- /*
-  * A-PMDU buffer sizes
-  * According to IEEE802.11n spec size varies from 8K to 64K (in powers of 2)
+--- a/drivers/net/usb/qmi_wwan.c
++++ b/drivers/net/usb/qmi_wwan.c
+@@ -1249,6 +1249,7 @@ static const struct usb_device_id produc
+ 	{QMI_FIXED_INTF(0x1bbb, 0x0203, 2)},	/* Alcatel L800MA */
+ 	{QMI_FIXED_INTF(0x2357, 0x0201, 4)},	/* TP-LINK HSUPA Modem MA180 */
+ 	{QMI_FIXED_INTF(0x2357, 0x9000, 4)},	/* TP-LINK MA260 */
++	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1031, 3)}, /* Telit LE910C1-EUX */
+ 	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1040, 2)},	/* Telit LE922A */
+ 	{QMI_FIXED_INTF(0x1bc7, 0x1100, 3)},	/* Telit ME910 */
+ 	{QMI_FIXED_INTF(0x1bc7, 0x1101, 3)},	/* Telit ME910 dual modem */
 
 
