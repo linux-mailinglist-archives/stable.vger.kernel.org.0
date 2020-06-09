@@ -2,43 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E024C1F4486
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:05:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ECAD11F4441
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:04:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387835AbgFISF2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Jun 2020 14:05:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41114 "EHLO mail.kernel.org"
+        id S1728388AbgFIRxK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Jun 2020 13:53:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43860 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731021AbgFIRvk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Jun 2020 13:51:40 -0400
+        id S1732997AbgFIRxG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Jun 2020 13:53:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BEBC420734;
-        Tue,  9 Jun 2020 17:51:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 07F7A20801;
+        Tue,  9 Jun 2020 17:53:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591725100;
-        bh=ccjtb1exREAQABGA30nQpiXVzk+9HpQ22UP3vU8g8vc=;
+        s=default; t=1591725185;
+        bh=JBF1QBhhLgT43+0O28fNaRCb8qfuY9Ah9BnHcGY+DlA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lH5I65G/LBMdBe4pqcRWk1m9d9AE4XnnQpMN6SiOq5fksmEV9j5dVfYC0y6cmRhx4
-         HdTB216pUaZTA4cTeAhifOsnGovBTvuPilSmN5dvDj0W0xbIl4vVrKNFNooCqYeE+K
-         AqExG8S/gnqwc3yoHN86Rav8+JzMfYchRyRLDvw8=
+        b=GK6FugCHj1FpDkI3S6xxPPUjLOhYPLKI128/tL+zyEIktfbCwSmhFQa2O1yDaGHry
+         xTM+48+nT7r6VWpWwKLO3lQeF5fCWhWU6klL9KP4E/p2Cm1qQwfzo+71LvVVSSkOnF
+         AYTIaTfWmZEJHec4Y7h8uGZBME1P+StPaCMQrBXA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Steven Rostedt <rostedt@goodmis.org>
-Subject: [PATCH 4.19 24/25] uprobes: ensure that uprobe->offset and ->ref_ctr_offset are properly aligned
-Date:   Tue,  9 Jun 2020 19:45:14 +0200
-Message-Id: <20200609174051.488794266@linuxfoundation.org>
+        stable@vger.kernel.org, Fabrice Gasnier <fabrice.gasnier@st.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.4 19/34] iio: adc: stm32-adc: fix a wrong error message when probing interrupts
+Date:   Tue,  9 Jun 2020 19:45:15 +0200
+Message-Id: <20200609174055.029698781@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200609174048.576094775@linuxfoundation.org>
-References: <20200609174048.576094775@linuxfoundation.org>
+In-Reply-To: <20200609174052.628006868@linuxfoundation.org>
+References: <20200609174052.628006868@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,76 +44,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oleg Nesterov <oleg@redhat.com>
+From: Fabrice Gasnier <fabrice.gasnier@st.com>
 
-commit 013b2deba9a6b80ca02f4fafd7dedf875e9b4450 upstream.
+commit 10134ec3f8cefa6a40fe84987f1795e9e0da9715 upstream.
 
-uprobe_write_opcode() must not cross page boundary; prepare_uprobe()
-relies on arch_uprobe_analyze_insn() which should validate "vaddr" but
-some architectures (csky, s390, and sparc) don't do this.
+A wrong error message is printed out currently, like on STM32MP15:
+- stm32-adc-core 48003000.adc: IRQ index 2 not found.
 
-We can remove the BUG_ON() check in prepare_uprobe() and validate the
-offset early in __uprobe_register(). The new IS_ALIGNED() check matches
-the alignment check in arch_prepare_kprobe() on supported architectures,
-so I think that all insns must be aligned to UPROBE_SWBP_INSN_SIZE.
+This is seen since commit 7723f4c5ecdb ("driver core: platform: Add an
+error message to platform_get_irq*()").
+The STM32 ADC core driver wrongly requests up to 3 interrupt lines. It
+should request only the necessary IRQs, based on the compatible:
+- stm32f4/h7 ADCs share a common interrupt
+- stm32mp1, has one interrupt line per ADC.
+So add the number of required interrupts to the compatible data.
 
-Another problem is __update_ref_ctr() which was wrong from the very
-beginning, it can read/write outside of kmap'ed page unless "vaddr" is
-aligned to sizeof(short), __uprobe_register() should check this too.
-
-Reported-by: Linus Torvalds <torvalds@linux-foundation.org>
-Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Oleg Nesterov <oleg@redhat.com>
-Reviewed-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
-Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Tested-by: Sven Schnelle <svens@linux.ibm.com>
-Cc: Steven Rostedt <rostedt@goodmis.org>
-Cc: stable@vger.kernel.org
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: d58c67d1d851 ("iio: adc: stm32-adc: add support for STM32MP1")
+Signed-off-by: Fabrice Gasnier <fabrice.gasnier@st.com>
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/events/uprobes.c |   16 ++++++++++++----
- 1 file changed, 12 insertions(+), 4 deletions(-)
+ drivers/iio/adc/stm32-adc-core.c |   34 ++++++++++++++--------------------
+ 1 file changed, 14 insertions(+), 20 deletions(-)
 
---- a/kernel/events/uprobes.c
-+++ b/kernel/events/uprobes.c
-@@ -612,10 +612,6 @@ static int prepare_uprobe(struct uprobe
- 	if (ret)
- 		goto out;
+--- a/drivers/iio/adc/stm32-adc-core.c
++++ b/drivers/iio/adc/stm32-adc-core.c
+@@ -65,12 +65,14 @@ struct stm32_adc_priv;
+  * @clk_sel:	clock selection routine
+  * @max_clk_rate_hz: maximum analog clock rate (Hz, from datasheet)
+  * @has_syscfg: SYSCFG capability flags
++ * @num_irqs:	number of interrupt lines
+  */
+ struct stm32_adc_priv_cfg {
+ 	const struct stm32_adc_common_regs *regs;
+ 	int (*clk_sel)(struct platform_device *, struct stm32_adc_priv *);
+ 	u32 max_clk_rate_hz;
+ 	unsigned int has_syscfg;
++	unsigned int num_irqs;
+ };
  
--	/* uprobe_write_opcode() assumes we don't cross page boundary */
--	BUG_ON((uprobe->offset & ~PAGE_MASK) +
--			UPROBE_SWBP_INSN_SIZE > PAGE_SIZE);
--
- 	smp_wmb(); /* pairs with the smp_rmb() in handle_swbp() */
- 	set_bit(UPROBE_COPY_INSN, &uprobe->flags);
+ /**
+@@ -372,21 +374,15 @@ static int stm32_adc_irq_probe(struct pl
+ 	struct device_node *np = pdev->dev.of_node;
+ 	unsigned int i;
  
-@@ -911,6 +907,15 @@ static int __uprobe_register(struct inod
- 	if (offset > i_size_read(inode))
- 		return -EINVAL;
- 
+-	for (i = 0; i < STM32_ADC_MAX_ADCS; i++) {
 +	/*
-+	 * This ensures that copy_from_page(), copy_to_page() and
-+	 * __update_ref_ctr() can't cross page boundary.
++	 * Interrupt(s) must be provided, depending on the compatible:
++	 * - stm32f4/h7 shares a common interrupt line.
++	 * - stm32mp1, has one line per ADC
 +	 */
-+	if (!IS_ALIGNED(offset, UPROBE_SWBP_INSN_SIZE))
-+		return -EINVAL;
-+	if (!IS_ALIGNED(ref_ctr_offset, sizeof(short)))
-+		return -EINVAL;
-+
-  retry:
- 	uprobe = alloc_uprobe(inode, offset);
- 	if (!uprobe)
-@@ -1708,6 +1713,9 @@ static int is_trap_at_addr(struct mm_str
- 	uprobe_opcode_t opcode;
- 	int result;
++	for (i = 0; i < priv->cfg->num_irqs; i++) {
+ 		priv->irq[i] = platform_get_irq(pdev, i);
+-		if (priv->irq[i] < 0) {
+-			/*
+-			 * At least one interrupt must be provided, make others
+-			 * optional:
+-			 * - stm32f4/h7 shares a common interrupt.
+-			 * - stm32mp1, has one line per ADC (either for ADC1,
+-			 *   ADC2 or both).
+-			 */
+-			if (i && priv->irq[i] == -ENXIO)
+-				continue;
+-
++		if (priv->irq[i] < 0)
+ 			return priv->irq[i];
+-		}
+ 	}
  
-+	if (WARN_ON_ONCE(!IS_ALIGNED(vaddr, UPROBE_SWBP_INSN_SIZE)))
-+		return -EINVAL;
-+
- 	pagefault_disable();
- 	result = __get_user(opcode, (uprobe_opcode_t __user *)vaddr);
- 	pagefault_enable();
+ 	priv->domain = irq_domain_add_simple(np, STM32_ADC_MAX_ADCS, 0,
+@@ -397,9 +393,7 @@ static int stm32_adc_irq_probe(struct pl
+ 		return -ENOMEM;
+ 	}
+ 
+-	for (i = 0; i < STM32_ADC_MAX_ADCS; i++) {
+-		if (priv->irq[i] < 0)
+-			continue;
++	for (i = 0; i < priv->cfg->num_irqs; i++) {
+ 		irq_set_chained_handler(priv->irq[i], stm32_adc_irq_handler);
+ 		irq_set_handler_data(priv->irq[i], priv);
+ 	}
+@@ -417,11 +411,8 @@ static void stm32_adc_irq_remove(struct
+ 		irq_dispose_mapping(irq_find_mapping(priv->domain, hwirq));
+ 	irq_domain_remove(priv->domain);
+ 
+-	for (i = 0; i < STM32_ADC_MAX_ADCS; i++) {
+-		if (priv->irq[i] < 0)
+-			continue;
++	for (i = 0; i < priv->cfg->num_irqs; i++)
+ 		irq_set_chained_handler(priv->irq[i], NULL);
+-	}
+ }
+ 
+ static int stm32_adc_core_switches_supply_en(struct stm32_adc_priv *priv,
+@@ -803,6 +794,7 @@ static const struct stm32_adc_priv_cfg s
+ 	.regs = &stm32f4_adc_common_regs,
+ 	.clk_sel = stm32f4_adc_clk_sel,
+ 	.max_clk_rate_hz = 36000000,
++	.num_irqs = 1,
+ };
+ 
+ static const struct stm32_adc_priv_cfg stm32h7_adc_priv_cfg = {
+@@ -810,6 +802,7 @@ static const struct stm32_adc_priv_cfg s
+ 	.clk_sel = stm32h7_adc_clk_sel,
+ 	.max_clk_rate_hz = 36000000,
+ 	.has_syscfg = HAS_VBOOSTER,
++	.num_irqs = 1,
+ };
+ 
+ static const struct stm32_adc_priv_cfg stm32mp1_adc_priv_cfg = {
+@@ -817,6 +810,7 @@ static const struct stm32_adc_priv_cfg s
+ 	.clk_sel = stm32h7_adc_clk_sel,
+ 	.max_clk_rate_hz = 40000000,
+ 	.has_syscfg = HAS_VBOOSTER | HAS_ANASWVDD,
++	.num_irqs = 2,
+ };
+ 
+ static const struct of_device_id stm32_adc_of_match[] = {
 
 
