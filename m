@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F22D1F446C
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:05:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C6FD91F4479
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:05:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731190AbgFIRwX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Jun 2020 13:52:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42582 "EHLO mail.kernel.org"
+        id S2387701AbgFISE7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Jun 2020 14:04:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41708 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729795AbgFIRwV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Jun 2020 13:52:21 -0400
+        id S1731641AbgFIRv4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Jun 2020 13:51:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4088F2074B;
-        Tue,  9 Jun 2020 17:52:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 81967207C3;
+        Tue,  9 Jun 2020 17:51:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591725140;
-        bh=QY93wMTMJtChRvyaGZk2P4YKUxEb/t/zQgecsPwdtVc=;
+        s=default; t=1591725116;
+        bh=Faj6ySPN4NhaH1lHmRfYbHVD4GDrDtfBMnqzZGepr5g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zHYVNCexZ/kBweTH01TDlTOtDRSj3/mYWv2jsfVslW7SQg1D0JyZGFjnq51kpJL6j
-         rhnwhYAaHtlbaiFqCVJ+g2E6KSmGGYCJdQkf7+RiCwebaPM0UUhEXtRQTL0PKmKZR9
-         qhBbns4A9Nm36vh6QgvstoF0AOhpHH4I8KvrSwec=
+        b=0i3OhJ/E7vvifledqUk5USzuZD2WjTzNuyL9DDzqs20vnWHOe+B7BbYJ4lSXXw6j7
+         0ypYxQuTJ/CA0/CnbLLF0T8won9tsrV/zyZ7o8POrGwkuTPE4T050+mjM+eGjaVlXK
+         RjXg4UXO20yXXYMShX/qO4Jy/0Y8nLqgWlPtxwQQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dexuan Cui <decui@microsoft.com>,
-        Mark Bloch <markb@mellanox.com>,
-        Moshe Shemesh <moshe@mellanox.com>,
-        Saeed Mahameed <saeedm@mellanox.com>
-Subject: [PATCH 5.4 04/34] net/mlx5: Fix crash upon suspend/resume
+        stable@vger.kernel.org, Daniele Palmas <dnlplm@gmail.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.19 10/25] USB: serial: option: add Telit LE910C1-EUX compositions
 Date:   Tue,  9 Jun 2020 19:45:00 +0200
-Message-Id: <20200609174053.194915880@linuxfoundation.org>
+Message-Id: <20200609174049.812421359@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200609174052.628006868@linuxfoundation.org>
-References: <20200609174052.628006868@linuxfoundation.org>
+In-Reply-To: <20200609174048.576094775@linuxfoundation.org>
+References: <20200609174048.576094775@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,58 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Bloch <markb@mellanox.com>
+From: Daniele Palmas <dnlplm@gmail.com>
 
-[ Upstream commit 8fc3e29be9248048f449793502c15af329f35c6e ]
+commit 399ad9477c523f721f8e51d4f824bdf7267f120c upstream.
 
-Currently a Linux system with the mlx5 NIC always crashes upon
-hibernation - suspend/resume.
+Add Telit LE910C1-EUX compositions:
 
-Add basic callbacks so the NIC could be suspended and resumed.
+	0x1031: tty, tty, tty, rmnet
+	0x1033: tty, tty, tty, ecm
 
-Fixes: 9603b61de1ee ("mlx5: Move pci device handling from mlx5_ib to mlx5_core")
-Tested-by: Dexuan Cui <decui@microsoft.com>
-Signed-off-by: Mark Bloch <markb@mellanox.com>
-Reviewed-by: Moshe Shemesh <moshe@mellanox.com>
-Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
+Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
+Link: https://lore.kernel.org/r/20200525211106.27338-1-dnlplm@gmail.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/ethernet/mellanox/mlx5/core/main.c |   18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/main.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/main.c
-@@ -1554,6 +1554,22 @@ static void shutdown(struct pci_dev *pde
- 	mlx5_pci_disable_device(dev);
- }
- 
-+static int mlx5_suspend(struct pci_dev *pdev, pm_message_t state)
-+{
-+	struct mlx5_core_dev *dev = pci_get_drvdata(pdev);
-+
-+	mlx5_unload_one(dev, false);
-+
-+	return 0;
-+}
-+
-+static int mlx5_resume(struct pci_dev *pdev)
-+{
-+	struct mlx5_core_dev *dev = pci_get_drvdata(pdev);
-+
-+	return mlx5_load_one(dev, false);
-+}
-+
- static const struct pci_device_id mlx5_core_pci_table[] = {
- 	{ PCI_VDEVICE(MELLANOX, PCI_DEVICE_ID_MELLANOX_CONNECTIB) },
- 	{ PCI_VDEVICE(MELLANOX, 0x1012), MLX5_PCI_DEV_IS_VF},	/* Connect-IB VF */
-@@ -1597,6 +1613,8 @@ static struct pci_driver mlx5_core_drive
- 	.id_table       = mlx5_core_pci_table,
- 	.probe          = init_one,
- 	.remove         = remove_one,
-+	.suspend        = mlx5_suspend,
-+	.resume         = mlx5_resume,
- 	.shutdown	= shutdown,
- 	.err_handler	= &mlx5_err_handler,
- 	.sriov_configure   = mlx5_core_sriov_configure,
+---
+ drivers/usb/serial/option.c |    4 ++++
+ 1 file changed, 4 insertions(+)
+
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -1157,6 +1157,10 @@ static const struct usb_device_id option
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_CC864_SINGLE) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_DE910_DUAL) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_UE910_V2) },
++	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1031, 0xff),	/* Telit LE910C1-EUX */
++	 .driver_info = NCTRL(0) | RSVD(3) },
++	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1033, 0xff),	/* Telit LE910C1-EUX (ECM) */
++	 .driver_info = NCTRL(0) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE922_USBCFG0),
+ 	  .driver_info = RSVD(0) | RSVD(1) | NCTRL(2) | RSVD(3) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE922_USBCFG1),
 
 
