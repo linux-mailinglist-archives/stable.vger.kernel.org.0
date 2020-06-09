@@ -2,106 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EA561F39A2
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 13:26:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 133EA1F39F2
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 13:41:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727017AbgFIL01 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Jun 2020 07:26:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38530 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726803AbgFIL00 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Jun 2020 07:26:26 -0400
-Received: from mail-ot1-x343.google.com (mail-ot1-x343.google.com [IPv6:2607:f8b0:4864:20::343])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E99C9C05BD1E
-        for <stable@vger.kernel.org>; Tue,  9 Jun 2020 04:26:24 -0700 (PDT)
-Received: by mail-ot1-x343.google.com with SMTP id g7so15217400oti.13
-        for <stable@vger.kernel.org>; Tue, 09 Jun 2020 04:26:24 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=wBaUPUSWH45tLK+6tmgc3g6hevxkjPjMh6FVoHwhDMs=;
-        b=f8uR23v05Q4qt9QXcLXQC0Vj6h6r3qBd8H9itnH5cCccdimMLqCeVYMItnpro3BEYM
-         hOgef2ajRd2B0NxkMEhgRW8Z3gPVISCYza/97PFd/rwf7rmkizY1ZoyoR1n6UuGIhK3b
-         nxXFVvLoJOgJvKQuzw9KsJeVPuY4unvmqGhh+HjoTiqjpZw7AbWlFLzH6yrHq9KpQvyT
-         nfktec+kMsAhuUdoCMkN849HyO16yCbwqZ8pokTvnVM5GEZ2Zg3xmIfn6F+Brz9ZSFCL
-         eZGYimRtcxaEabzJz9hbELECn+5ptzNvYi42A4peAVrWuQBPulUvBlLrSpr/5A1ydpV2
-         MTGA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=wBaUPUSWH45tLK+6tmgc3g6hevxkjPjMh6FVoHwhDMs=;
-        b=dOWDCzQ+0/io8t3MsQbU4rOVQfr1KaqLhEmDD6EuoCsE0qnXKGnQQ2IMIC6MlTKboj
-         3zWXIIg/+xgLj16HkTH1phs2oGhtDcjMAwlZs3WjQNKI6QFQXlwANOnZDlhL+J2u5tCf
-         MQfXRlotsRRnsfFRqNeZLWO6OC/hVcvVW0vJjQDS68CjcTUwAIAOFv/6437Ttg+dFFsA
-         SsICxEfmR0HCwup1RB+62E7Tl3YUzEj/VJC8ohhhDbm8wcvmYbFiprgu/iWM6uKVp25O
-         qZ6YkGylP/WEAi97AREnU/VdTNp2m6MCBoGn6gEO8JYvpdcgdtHBRFhmYx1kVFTCXWdZ
-         KUuw==
-X-Gm-Message-State: AOAM531EP4bdtxBuexnNtDDB75pa8SuR1A398xmqnvjATJNi9GcJ4O9D
-        7FTzGVKNr5TMUeO3TjUbnVQ4YnKUZdZxLcBZIGc=
-X-Google-Smtp-Source: ABdhPJy5tp1BqqvK09G8MuYvXVVPIqMCKqnvmE5r+C+espAHaNH/2NvAIuOn0NOKSt93Y541dQbmQW/G+jwVuFwT/TA=
-X-Received: by 2002:a9d:a34:: with SMTP id 49mr21708286otg.204.1591701984300;
- Tue, 09 Jun 2020 04:26:24 -0700 (PDT)
+        id S1726784AbgFILl0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Jun 2020 07:41:26 -0400
+Received: from foss.arm.com ([217.140.110.172]:40974 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726116AbgFILl0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Jun 2020 07:41:26 -0400
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 788251FB;
+        Tue,  9 Jun 2020 04:41:25 -0700 (PDT)
+Received: from [10.57.11.57] (unknown [10.57.11.57])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 048F93F66F;
+        Tue,  9 Jun 2020 04:41:23 -0700 (PDT)
+Subject: Re: [PATCH 1/2] KVM: arm64: Make vcpu_cp1x() work on Big Endian hosts
+To:     Marc Zyngier <maz@kernel.org>, kvmarm@lists.cs.columbia.edu,
+        kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Cc:     kernel-team@android.com, James Morse <james.morse@arm.com>,
+        stable@vger.kernel.org,
+        Julien Thierry <julien.thierry.kdev@gmail.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>
+References: <20200609084921.1448445-1-maz@kernel.org>
+ <20200609084921.1448445-2-maz@kernel.org>
+From:   Robin Murphy <robin.murphy@arm.com>
+Message-ID: <7c173265-3f8e-51df-d700-7e3658a0e4d8@arm.com>
+Date:   Tue, 9 Jun 2020 12:41:19 +0100
+User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:68.0) Gecko/20100101
+ Thunderbird/68.8.0
 MIME-Version: 1.0
-Received: by 2002:a4a:a34b:0:0:0:0:0 with HTTP; Tue, 9 Jun 2020 04:26:23 -0700 (PDT)
-Reply-To: mherman508@yahoo.com
-From:   United Nations Compensation <inquiryinquiry01@gmail.com>
-Date:   Tue, 9 Jun 2020 12:26:23 +0100
-Message-ID: <CADAq3aXiwqLdD95hux3Z9s2nzODkB7DpVOmW4tdmtyMZruUuqQ@mail.gmail.com>
-Subject: RELEASE OF YOUR PAYMENT !
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20200609084921.1448445-2-maz@kernel.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-GB
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-United Nations Human Settlement and Compensation Programme,
-Capacity Building and Improving the Performance of Humanitarian self support.
+On 2020-06-09 09:49, Marc Zyngier wrote:
+> AArch32 CP1x registers are overlayed on their AArch64 counterparts
+> in the vcpu struct. This leads to an interesting problem as they
+> are stored in their CPU-local format, and thus a CP1x register
+> doesn't "hit" the lower 32bit portion of the AArch64 register on
+> a BE host.
+> 
+> To workaround this unfortunate situation, introduce a bias trick
+> in the vcpu_cp1x() accessors which picks the correct half of the
+> 64bit register.
+> 
+> Cc: stable@vger.kernel.org
+> Reported-by: James Morse <james.morse@arm.com>
+> Signed-off-by: Marc Zyngier <maz@kernel.org>
+> ---
+>   arch/arm64/include/asm/kvm_host.h | 10 ++++++++--
+>   1 file changed, 8 insertions(+), 2 deletions(-)
+> 
+> diff --git a/arch/arm64/include/asm/kvm_host.h b/arch/arm64/include/asm/kvm_host.h
+> index 59029e90b557..e80c0e06f235 100644
+> --- a/arch/arm64/include/asm/kvm_host.h
+> +++ b/arch/arm64/include/asm/kvm_host.h
+> @@ -404,8 +404,14 @@ void vcpu_write_sys_reg(struct kvm_vcpu *vcpu, u64 val, int reg);
+>    * CP14 and CP15 live in the same array, as they are backed by the
+>    * same system registers.
+>    */
+> -#define vcpu_cp14(v,r)		((v)->arch.ctxt.copro[(r)])
+> -#define vcpu_cp15(v,r)		((v)->arch.ctxt.copro[(r)])
+> +#ifdef CPU_BIG_ENDIAN
 
+Ahem... I think you're missing a "CONFIG_" there ;)
 
-Attention Beneficiary
+Bonus trickery - for a 0 or 1 value you can simply use IS_ENABLED().
 
-We wish to notify you about the release of your outstanding payment
-which is truly $2.500,000.00 Million Dollars, The United Nation
-Secretary General scheduled a time frame to settle all foreign debts
-which includes
+Robin.
 
-Humanitarian self support donation, Contract/Inheritance/Lottery
-(Sponsored by Microsoft and Shell Petroleum Lottery) and other
-international loans, Your Name was among the people to receive
-$2.500,000.00 Million Dollars Compensation winning award by United
-Nations,
-
-We have successfully Converted this total amount into an ATM-Card in
-your name, And it has been approved and deposited to ADL-Express this
-morning for registration, and we agreed that, the delivery of your
-$2.500,000.00 Million USD ATM-Card Package will take off tomorrow
-morning,
-
-The information of the ADL-Express Delivery Company is below
-Contact Name Dr. Patrick Mupenda
-From ADL-Express Delivery Company
-Email: adlco@vivaldi.net
-Email: adlexpressco@yahoo.com
-Tel: +229-610-820-11
-Tel: +229-985-679-87
-
-You will contact with your full info where your ATM-card will be delivered to
-
-(1) Full Name:..........
-(2) Mobile Number:.............
-(3) Country of origin:......................
-(4) Your Current delivery address:................
-(5) YOUR Identification Card/Driver's License:..............................
-
-Urgent get back to us today with your full address where your ATM-Card
-will be delivered to you because I will not be in the office next
-week;
-The amount in your ATM-Card is US$ 2.500, 000.00 Million and your Pin
-code is-(8116)
-
-Best Regards,
-Mr. Douglas Herman
-United Nation Head Quarter Dept Reconciliation Committee
-Benin Republic
+> +#define CPx_OFFSET	1
+> +#else
+> +#define CPx_OFFSET	0
+> +#endif
+> +
+> +#define vcpu_cp14(v,r)		((v)->arch.ctxt.copro[(r) ^ CPx_OFFSET])
+> +#define vcpu_cp15(v,r)		((v)->arch.ctxt.copro[(r) ^ CPx_OFFSET])
+>   
+>   struct kvm_vm_stat {
+>   	ulong remote_tlb_flush;
+> 
