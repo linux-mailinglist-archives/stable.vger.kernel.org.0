@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 584B91F45D2
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:21:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 83D501F45A4
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:19:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732334AbgFISUy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Jun 2020 14:20:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33434 "EHLO mail.kernel.org"
+        id S1732542AbgFIRuG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Jun 2020 13:50:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36916 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732378AbgFIRsq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Jun 2020 13:48:46 -0400
+        id S1732602AbgFIRuD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Jun 2020 13:50:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B585820801;
-        Tue,  9 Jun 2020 17:48:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C8F152081A;
+        Tue,  9 Jun 2020 17:50:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591724925;
-        bh=nQ1WDh0G+xKPXzz3fq7UntKJcHjzuMBCe9VrvgHx87g=;
+        s=default; t=1591725001;
+        bh=5IN/lGGbzu1eRrZ/kosjpWT3H5V83nkEOUQyBgm4mx8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zMHmj3cHrcTYSliR8NsVwOY3OeTy3MN4rYJ4V6awlCvk03OBbPuioQPe41LMYYKvX
-         uaNKhqPHd8ZfG++NzoLXSQbS3HnJR9rSzt99AF1lPXMucY+2/ViO5Ed92pd72DF1Eo
-         CDE2xpBFiCZHOqFcuTkspCkeXV1BlMUHstsO4RQY=
+        b=NBwSnUtOspouG0RPCEPQhOyHAEj9J5C5FaNM4nZzwX4Blyid+P7a4V/ssm0bRoU1E
+         e8WZtUYF2oLgxZEeC33Y7IdViqflXkvhd8zPkV6p4yS8xVMx0yu20ut+m3Z1Cniz6S
+         YmlHQ8w/CTqZNDNC5LD38UHNYqAvoONpqGD6Fudg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Gross <mgross@linux.intel.com>,
-        Borislav Petkov <bp@suse.de>, Tony Luck <tony.luck@intel.com>,
-        Josh Poimboeuf <jpoimboe@redhat.com>
-Subject: [PATCH 4.9 39/42] x86/speculation: Add SRBDS vulnerability and mitigation documentation
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        James Chapman <jchapman@katalix.com>,
+        Guillaume Nault <gnault@redhat.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 29/46] l2tp: add sk_family checks to l2tp_validate_socket
 Date:   Tue,  9 Jun 2020 19:44:45 +0200
-Message-Id: <20200609174019.842140727@linuxfoundation.org>
+Message-Id: <20200609174028.506720599@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200609174015.379493548@linuxfoundation.org>
-References: <20200609174015.379493548@linuxfoundation.org>
+In-Reply-To: <20200609174022.938987501@linuxfoundation.org>
+References: <20200609174022.938987501@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,185 +46,138 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Gross <mgross@linux.intel.com>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 7222a1b5b87417f22265c92deea76a6aecd0fb0f upstream
+[ Upstream commit d9a81a225277686eb629938986d97629ea102633 ]
 
-Add documentation for the SRBDS vulnerability and its mitigation.
+syzbot was able to trigger a crash after using an ISDN socket
+and fool l2tp.
 
- [ bp: Massage.
-   jpoimboe: sysfs table strings. ]
+Fix this by making sure the UDP socket is of the proper family.
 
-Signed-off-by: Mark Gross <mgross@linux.intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Tony Luck <tony.luck@intel.com>
-Reviewed-by: Josh Poimboeuf <jpoimboe@redhat.com>
+BUG: KASAN: slab-out-of-bounds in setup_udp_tunnel_sock+0x465/0x540 net/ipv4/udp_tunnel.c:78
+Write of size 1 at addr ffff88808ed0c590 by task syz-executor.5/3018
+
+CPU: 0 PID: 3018 Comm: syz-executor.5 Not tainted 5.7.0-rc6-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Call Trace:
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0x188/0x20d lib/dump_stack.c:118
+ print_address_description.constprop.0.cold+0xd3/0x413 mm/kasan/report.c:382
+ __kasan_report.cold+0x20/0x38 mm/kasan/report.c:511
+ kasan_report+0x33/0x50 mm/kasan/common.c:625
+ setup_udp_tunnel_sock+0x465/0x540 net/ipv4/udp_tunnel.c:78
+ l2tp_tunnel_register+0xb15/0xdd0 net/l2tp/l2tp_core.c:1523
+ l2tp_nl_cmd_tunnel_create+0x4b2/0xa60 net/l2tp/l2tp_netlink.c:249
+ genl_family_rcv_msg_doit net/netlink/genetlink.c:673 [inline]
+ genl_family_rcv_msg net/netlink/genetlink.c:718 [inline]
+ genl_rcv_msg+0x627/0xdf0 net/netlink/genetlink.c:735
+ netlink_rcv_skb+0x15a/0x410 net/netlink/af_netlink.c:2469
+ genl_rcv+0x24/0x40 net/netlink/genetlink.c:746
+ netlink_unicast_kernel net/netlink/af_netlink.c:1303 [inline]
+ netlink_unicast+0x537/0x740 net/netlink/af_netlink.c:1329
+ netlink_sendmsg+0x882/0xe10 net/netlink/af_netlink.c:1918
+ sock_sendmsg_nosec net/socket.c:652 [inline]
+ sock_sendmsg+0xcf/0x120 net/socket.c:672
+ ____sys_sendmsg+0x6e6/0x810 net/socket.c:2352
+ ___sys_sendmsg+0x100/0x170 net/socket.c:2406
+ __sys_sendmsg+0xe5/0x1b0 net/socket.c:2439
+ do_syscall_64+0xf6/0x7d0 arch/x86/entry/common.c:295
+ entry_SYSCALL_64_after_hwframe+0x49/0xb3
+RIP: 0033:0x45ca29
+Code: 0d b7 fb ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 db b6 fb ff c3 66 2e 0f 1f 84 00 00 00 00
+RSP: 002b:00007effe76edc78 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
+RAX: ffffffffffffffda RBX: 00000000004fe1c0 RCX: 000000000045ca29
+RDX: 0000000000000000 RSI: 0000000020000240 RDI: 0000000000000005
+RBP: 000000000078bf00 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 00000000ffffffff
+R13: 000000000000094e R14: 00000000004d5d00 R15: 00007effe76ee6d4
+
+Allocated by task 3018:
+ save_stack+0x1b/0x40 mm/kasan/common.c:49
+ set_track mm/kasan/common.c:57 [inline]
+ __kasan_kmalloc mm/kasan/common.c:495 [inline]
+ __kasan_kmalloc.constprop.0+0xbf/0xd0 mm/kasan/common.c:468
+ __do_kmalloc mm/slab.c:3656 [inline]
+ __kmalloc+0x161/0x7a0 mm/slab.c:3665
+ kmalloc include/linux/slab.h:560 [inline]
+ sk_prot_alloc+0x223/0x2f0 net/core/sock.c:1612
+ sk_alloc+0x36/0x1100 net/core/sock.c:1666
+ data_sock_create drivers/isdn/mISDN/socket.c:600 [inline]
+ mISDN_sock_create+0x272/0x400 drivers/isdn/mISDN/socket.c:796
+ __sock_create+0x3cb/0x730 net/socket.c:1428
+ sock_create net/socket.c:1479 [inline]
+ __sys_socket+0xef/0x200 net/socket.c:1521
+ __do_sys_socket net/socket.c:1530 [inline]
+ __se_sys_socket net/socket.c:1528 [inline]
+ __x64_sys_socket+0x6f/0xb0 net/socket.c:1528
+ do_syscall_64+0xf6/0x7d0 arch/x86/entry/common.c:295
+ entry_SYSCALL_64_after_hwframe+0x49/0xb3
+
+Freed by task 2484:
+ save_stack+0x1b/0x40 mm/kasan/common.c:49
+ set_track mm/kasan/common.c:57 [inline]
+ kasan_set_free_info mm/kasan/common.c:317 [inline]
+ __kasan_slab_free+0xf7/0x140 mm/kasan/common.c:456
+ __cache_free mm/slab.c:3426 [inline]
+ kfree+0x109/0x2b0 mm/slab.c:3757
+ kvfree+0x42/0x50 mm/util.c:603
+ __free_fdtable+0x2d/0x70 fs/file.c:31
+ put_files_struct fs/file.c:420 [inline]
+ put_files_struct+0x248/0x2e0 fs/file.c:413
+ exit_files+0x7e/0xa0 fs/file.c:445
+ do_exit+0xb04/0x2dd0 kernel/exit.c:791
+ do_group_exit+0x125/0x340 kernel/exit.c:894
+ get_signal+0x47b/0x24e0 kernel/signal.c:2739
+ do_signal+0x81/0x2240 arch/x86/kernel/signal.c:784
+ exit_to_usermode_loop+0x26c/0x360 arch/x86/entry/common.c:161
+ prepare_exit_to_usermode arch/x86/entry/common.c:196 [inline]
+ syscall_return_slowpath arch/x86/entry/common.c:279 [inline]
+ do_syscall_64+0x6b1/0x7d0 arch/x86/entry/common.c:305
+ entry_SYSCALL_64_after_hwframe+0x49/0xb3
+
+The buggy address belongs to the object at ffff88808ed0c000
+ which belongs to the cache kmalloc-2k of size 2048
+The buggy address is located 1424 bytes inside of
+ 2048-byte region [ffff88808ed0c000, ffff88808ed0c800)
+The buggy address belongs to the page:
+page:ffffea00023b4300 refcount:1 mapcount:0 mapping:0000000000000000 index:0x0
+flags: 0xfffe0000000200(slab)
+raw: 00fffe0000000200 ffffea0002838208 ffffea00015ba288 ffff8880aa000e00
+raw: 0000000000000000 ffff88808ed0c000 0000000100000001 0000000000000000
+page dumped because: kasan: bad access detected
+
+Memory state around the buggy address:
+ ffff88808ed0c480: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+ ffff88808ed0c500: 00 00 00 fc fc fc fc fc fc fc fc fc fc fc fc fc
+>ffff88808ed0c580: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+                         ^
+ ffff88808ed0c600: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+ ffff88808ed0c680: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+
+Fixes: 6b9f34239b00 ("l2tp: fix races in tunnel creation")
+Fixes: fd558d186df2 ("l2tp: Split pppol2tp patch into separate l2tp and ppp parts")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: James Chapman <jchapman@katalix.com>
+Cc: Guillaume Nault <gnault@redhat.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Acked-by: Guillaume Nault <gnault@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/hw-vuln/index.rst                                 |    3 
- Documentation/hw-vuln/special-register-buffer-data-sampling.rst |  148 ++++++++++
- 2 files changed, 150 insertions(+), 1 deletion(-)
- create mode 100644 Documentation/hw-vuln/special-register-buffer-data-sampling.rst
+ net/l2tp/l2tp_core.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/Documentation/hw-vuln/index.rst
-+++ b/Documentation/hw-vuln/index.rst
-@@ -12,4 +12,5 @@ are configurable at compile, boot or run
-    l1tf
-    mds
-    tsx_async_abort
--   multihit.rst
-+   multihit
-+   special-register-buffer-data-sampling
---- /dev/null
-+++ b/Documentation/hw-vuln/special-register-buffer-data-sampling.rst
-@@ -0,0 +1,148 @@
-+.. SPDX-License-Identifier: GPL-2.0
-+
-+SRBDS - Special Register Buffer Data Sampling
-+=============================================
-+
-+SRBDS is a hardware vulnerability that allows MDS :doc:`mds` techniques to
-+infer values returned from special register accesses.  Special register
-+accesses are accesses to off core registers.  According to Intel's evaluation,
-+the special register reads that have a security expectation of privacy are
-+RDRAND, RDSEED and SGX EGETKEY.
-+
-+When RDRAND, RDSEED and EGETKEY instructions are used, the data is moved
-+to the core through the special register mechanism that is susceptible
-+to MDS attacks.
-+
-+Affected processors
-+--------------------
-+Core models (desktop, mobile, Xeon-E3) that implement RDRAND and/or RDSEED may
-+be affected.
-+
-+A processor is affected by SRBDS if its Family_Model and stepping is
-+in the following list, with the exception of the listed processors
-+exporting MDS_NO while Intel TSX is available yet not enabled. The
-+latter class of processors are only affected when Intel TSX is enabled
-+by software using TSX_CTRL_MSR otherwise they are not affected.
-+
-+  =============  ============  ========
-+  common name    Family_Model  Stepping
-+  =============  ============  ========
-+  Haswell        06_3CH        All
-+  Haswell_L      06_45H        All
-+  Haswell_G      06_46H        All
-+
-+  Broadwell_G    06_47H        All
-+  Broadwell      06_3DH        All
-+
-+  Skylake_L      06_4EH        All
-+  Skylake        06_5EH        All
-+
-+  Kabylake_L     06_8EH        <=0xC
-+
-+  Kabylake       06_9EH        <=0xD
-+  =============  ============  ========
-+
-+Related CVEs
-+------------
-+
-+The following CVE entry is related to this SRBDS issue:
-+
-+    ==============  =====  =====================================
-+    CVE-2020-0543   SRBDS  Special Register Buffer Data Sampling
-+    ==============  =====  =====================================
-+
-+Attack scenarios
-+----------------
-+An unprivileged user can extract values returned from RDRAND and RDSEED
-+executed on another core or sibling thread using MDS techniques.
-+
-+
-+Mitigation mechanism
-+-------------------
-+Intel will release microcode updates that modify the RDRAND, RDSEED, and
-+EGETKEY instructions to overwrite secret special register data in the shared
-+staging buffer before the secret data can be accessed by another logical
-+processor.
-+
-+During execution of the RDRAND, RDSEED, or EGETKEY instructions, off-core
-+accesses from other logical processors will be delayed until the special
-+register read is complete and the secret data in the shared staging buffer is
-+overwritten.
-+
-+This has three effects on performance:
-+
-+#. RDRAND, RDSEED, or EGETKEY instructions have higher latency.
-+
-+#. Executing RDRAND at the same time on multiple logical processors will be
-+   serialized, resulting in an overall reduction in the maximum RDRAND
-+   bandwidth.
-+
-+#. Executing RDRAND, RDSEED or EGETKEY will delay memory accesses from other
-+   logical processors that miss their core caches, with an impact similar to
-+   legacy locked cache-line-split accesses.
-+
-+The microcode updates provide an opt-out mechanism (RNGDS_MITG_DIS) to disable
-+the mitigation for RDRAND and RDSEED instructions executed outside of Intel
-+Software Guard Extensions (Intel SGX) enclaves. On logical processors that
-+disable the mitigation using this opt-out mechanism, RDRAND and RDSEED do not
-+take longer to execute and do not impact performance of sibling logical
-+processors memory accesses. The opt-out mechanism does not affect Intel SGX
-+enclaves (including execution of RDRAND or RDSEED inside an enclave, as well
-+as EGETKEY execution).
-+
-+IA32_MCU_OPT_CTRL MSR Definition
-+--------------------------------
-+Along with the mitigation for this issue, Intel added a new thread-scope
-+IA32_MCU_OPT_CTRL MSR, (address 0x123). The presence of this MSR and
-+RNGDS_MITG_DIS (bit 0) is enumerated by CPUID.(EAX=07H,ECX=0).EDX[SRBDS_CTRL =
-+9]==1. This MSR is introduced through the microcode update.
-+
-+Setting IA32_MCU_OPT_CTRL[0] (RNGDS_MITG_DIS) to 1 for a logical processor
-+disables the mitigation for RDRAND and RDSEED executed outside of an Intel SGX
-+enclave on that logical processor. Opting out of the mitigation for a
-+particular logical processor does not affect the RDRAND and RDSEED mitigations
-+for other logical processors.
-+
-+Note that inside of an Intel SGX enclave, the mitigation is applied regardless
-+of the value of RNGDS_MITG_DS.
-+
-+Mitigation control on the kernel command line
-+---------------------------------------------
-+The kernel command line allows control over the SRBDS mitigation at boot time
-+with the option "srbds=".  The option for this is:
-+
-+  ============= =============================================================
-+  off           This option disables SRBDS mitigation for RDRAND and RDSEED on
-+                affected platforms.
-+  ============= =============================================================
-+
-+SRBDS System Information
-+-----------------------
-+The Linux kernel provides vulnerability status information through sysfs.  For
-+SRBDS this can be accessed by the following sysfs file:
-+/sys/devices/system/cpu/vulnerabilities/srbds
-+
-+The possible values contained in this file are:
-+
-+ ============================== =============================================
-+ Not affected                   Processor not vulnerable
-+ Vulnerable                     Processor vulnerable and mitigation disabled
-+ Vulnerable: No microcode       Processor vulnerable and microcode is missing
-+                                mitigation
-+ Mitigation: Microcode          Processor is vulnerable and mitigation is in
-+                                effect.
-+ Mitigation: TSX disabled       Processor is only vulnerable when TSX is
-+                                enabled while this system was booted with TSX
-+                                disabled.
-+ Unknown: Dependent on
-+ hypervisor status              Running on virtual guest processor that is
-+                                affected but with no way to know if host
-+                                processor is mitigated or vulnerable.
-+ ============================== =============================================
-+
-+SRBDS Default mitigation
-+------------------------
-+This new microcode serializes processor access during execution of RDRAND,
-+RDSEED ensures that the shared buffer is overwritten before it is released for
-+reuse.  Use the "srbds=off" kernel command line to disable the mitigation for
-+RDRAND and RDSEED.
+--- a/net/l2tp/l2tp_core.c
++++ b/net/l2tp/l2tp_core.c
+@@ -1589,6 +1589,8 @@ int l2tp_tunnel_create(struct net *net,
+ 			 tunnel_id, fd);
+ 		goto err;
+ 	}
++	if (sk->sk_family != PF_INET && sk->sk_family != PF_INET6)
++		goto err;
+ 	switch (encap) {
+ 	case L2TP_ENCAPTYPE_UDP:
+ 		if (sk->sk_protocol != IPPROTO_UDP) {
 
 
