@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 060C21F4527
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:12:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A23711F4470
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:05:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387872AbgFISF4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Jun 2020 14:05:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40304 "EHLO mail.kernel.org"
+        id S2387777AbgFISEb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Jun 2020 14:04:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42290 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731340AbgFIRvZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Jun 2020 13:51:25 -0400
+        id S1728272AbgFIRwM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Jun 2020 13:52:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F0D912074B;
-        Tue,  9 Jun 2020 17:51:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5010C20734;
+        Tue,  9 Jun 2020 17:52:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591725084;
-        bh=XxPjzOynTHbPgpR13vBAI/9uNDts2jENToDc88xOW0k=;
+        s=default; t=1591725131;
+        bh=TUchAfSP3c+TsOsIJC3hkMN+LDRDbG1kStznIlC4JxY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1dUjzomlEM4Z4NaPLVJ2AtpjxW42QRYXgNFjoyL1bDscwefqygAZE1Kg2N7/7yoDW
-         x9NilWEYQ8VXE757daXYKIcGh0AOoukWILN+k7gzNpgYgFTqypkUMrquNeYRmSUX4c
-         bkb59BHIrkzBU91M3OJGVCWOrf92voZiZAKgsRNk=
+        b=Gj5udDQNY+UZ6htT396ivANl2oLzwwpJ4TPCdIaZ+Dc1Zlf0SE35dn2kdPilbH8lo
+         1GnkGT4vjxTc+13eHka2UIRLrq6Cci7v19jqqZ6u7t1wK+B93EwL9CUJPKKRmXoLNf
+         vdHZqjVrk83g7IDF/Dr04ga1E2wb58X8/xtetYlw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Douglas Anderson <dianders@chromium.org>
-Subject: [PATCH 4.19 18/25] nvmem: qfprom: remove incorrect write support
-Date:   Tue,  9 Jun 2020 19:45:08 +0200
-Message-Id: <20200609174050.711498673@linuxfoundation.org>
+        stable@vger.kernel.org, Bin Liu <b-liu@ti.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.4 13/34] USB: serial: usb_wwan: do not resubmit rx urb on fatal errors
+Date:   Tue,  9 Jun 2020 19:45:09 +0200
+Message-Id: <20200609174054.295888909@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200609174048.576094775@linuxfoundation.org>
-References: <20200609174048.576094775@linuxfoundation.org>
+In-Reply-To: <20200609174052.628006868@linuxfoundation.org>
+References: <20200609174052.628006868@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,55 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+From: Bin Liu <b-liu@ti.com>
 
-commit 8d9eb0d6d59a5d7028c80a30831143d3e75515a7 upstream.
+commit 986c1748c84d7727defeaeca74a73b37f7d5cce1 upstream.
 
-qfprom has different address spaces for read and write. Reads are
-always done from corrected address space, where as writes are done
-on raw address space.
-Writing to corrected address space is invalid and ignored, so it
-does not make sense to have this support in the driver which only
-supports corrected address space regions at the moment.
+usb_wwan_indat_callback() shouldn't resubmit rx urb if the previous urb
+status is a fatal error. Or the usb controller would keep processing the
+new urbs then run into interrupt storm, and has no chance to recover.
 
-Fixes: 4ab11996b489 ("nvmem: qfprom: Add Qualcomm QFPROM support.")
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200522113341.7728-1-srinivas.kandagatla@linaro.org
+Fixes: 6c1ee66a0b2b ("USB-Serial: Fix error handling of usb_wwan")
+Cc: stable@vger.kernel.org
+Signed-off-by: Bin Liu <b-liu@ti.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/nvmem/qfprom.c |   14 --------------
- 1 file changed, 14 deletions(-)
+ drivers/usb/serial/usb_wwan.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/nvmem/qfprom.c
-+++ b/drivers/nvmem/qfprom.c
-@@ -35,25 +35,11 @@ static int qfprom_reg_read(void *context
- 	return 0;
- }
- 
--static int qfprom_reg_write(void *context,
--			 unsigned int reg, void *_val, size_t bytes)
--{
--	struct qfprom_priv *priv = context;
--	u8 *val = _val;
--	int i = 0, words = bytes;
--
--	while (words--)
--		writeb(*val++, priv->base + reg + i++);
--
--	return 0;
--}
--
- static struct nvmem_config econfig = {
- 	.name = "qfprom",
- 	.stride = 1,
- 	.word_size = 1,
- 	.reg_read = qfprom_reg_read,
--	.reg_write = qfprom_reg_write,
- };
- 
- static int qfprom_probe(struct platform_device *pdev)
+--- a/drivers/usb/serial/usb_wwan.c
++++ b/drivers/usb/serial/usb_wwan.c
+@@ -270,6 +270,10 @@ static void usb_wwan_indat_callback(stru
+ 	if (status) {
+ 		dev_dbg(dev, "%s: nonzero status: %d on endpoint %02x.\n",
+ 			__func__, status, endpoint);
++
++		/* don't resubmit on fatal errors */
++		if (status == -ESHUTDOWN || status == -ENOENT)
++			return;
+ 	} else {
+ 		if (urb->actual_length) {
+ 			tty_insert_flip_string(&port->port, data,
 
 
