@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A6F51F43E3
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 19:59:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A7A71F43E1
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 19:59:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726184AbgFIR6G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Jun 2020 13:58:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47920 "EHLO mail.kernel.org"
+        id S1730160AbgFIR6B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Jun 2020 13:58:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47990 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733261AbgFIRzf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Jun 2020 13:55:35 -0400
+        id S1733271AbgFIRzh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Jun 2020 13:55:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1BC64207ED;
-        Tue,  9 Jun 2020 17:55:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5A24720812;
+        Tue,  9 Jun 2020 17:55:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591725334;
-        bh=7H0o9iPkpfeRrO+kK8fHciPXul+ErU2mXc1tBvSlrxs=;
+        s=default; t=1591725336;
+        bh=miLTQdPwzuk9lQFiqP5cxP8nhx922KpR3g6Sz11QT1U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v6aEIMDUMR4aHw2Z9puBVgJpDur/ejwN3/4eDLiLqUIzoP2859oCVjKJIXvZPMLlb
-         xbvPE8aihXa/QDuyqkLZV6GPVX859EehfaC/zXQFKuR2vY1Xn2unOzcsHnO9Ki8mgi
-         luLt3BdQqKsRmeuBXW1h6QOw8oiPhDESlw7msMJk=
+        b=VhF5im26SG2cedIWsqYpMYE3O/+PQTPgJEj4waEu154iGl3SL4oAVwR4DLOy/tQoK
+         2GnaZd15+xmnGJ6HRN5zTKxCj9lJGyRWflRnRx0NcT+P/0k0gQWi4FI7dwi0gkAsLK
+         AGWAB0bcxNpKbJBwBjxsgOkfiaV4OLjCEi6Al2bI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>,
-        Raghavendra <rananta@codeaurora.org>
-Subject: [PATCH 5.7 15/24] tty: hvc_console, fix crashes on parallel open/close
-Date:   Tue,  9 Jun 2020 19:45:46 +0200
-Message-Id: <20200609174150.573025224@linuxfoundation.org>
+        stable@vger.kernel.org, Pascal Terjan <pterjan@google.com>
+Subject: [PATCH 5.7 16/24] staging: rtl8712: Fix IEEE80211_ADDBA_PARAM_BUF_SIZE_MASK
+Date:   Tue,  9 Jun 2020 19:45:47 +0200
+Message-Id: <20200609174150.650165331@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200609174149.255223112@linuxfoundation.org>
 References: <20200609174149.255223112@linuxfoundation.org>
@@ -43,101 +42,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Slaby <jslaby@suse.cz>
+From: Pascal Terjan <pterjan@google.com>
 
-commit 24eb2377f977fe06d84fca558f891f95bc28a449 upstream.
+commit 15ea976a1f12b5fd76b1bd6ff3eb5132fd28047f upstream.
 
-hvc_open sets tty->driver_data to NULL when open fails at some point.
-Typically, the failure happens in hp->ops->notifier_add(). If there is
-a racing process which tries to open such mangled tty, which was not
-closed yet, the process will crash in hvc_open as tty->driver_data is
-NULL.
+The value in shared headers was fixed 9 years ago in commit 8d661f1e462d
+("ieee80211: correct IEEE80211_ADDBA_PARAM_BUF_SIZE_MASK macro") and
+while looking at using shared headers for other duplicated constants
+I noticed this driver uses the old value.
 
-All this happens because close wants to know whether open failed or not.
-But ->open should not NULL this and other tty fields for ->close to be
-happy. ->open should call tty_port_set_initialized(true) and close
-should check by tty_port_initialized() instead. So do this properly in
-this driver.
+The macros are also defined twice in this file so I am deleting the
+second definition.
 
-So this patch removes these from ->open:
-* tty_port_tty_set(&hp->port, NULL). This happens on last close.
-* tty->driver_data = NULL. Dtto.
-* tty_port_put(&hp->port). This happens in shutdown and until now, this
-  must have been causing a reference underflow, if I am not missing
-  something.
-
-Signed-off-by: Jiri Slaby <jslaby@suse.cz>
+Signed-off-by: Pascal Terjan <pterjan@google.com>
 Cc: stable <stable@vger.kernel.org>
-Reported-and-tested-by: Raghavendra <rananta@codeaurora.org>
-Link: https://lore.kernel.org/r/20200526145632.13879-1-jslaby@suse.cz
+Link: https://lore.kernel.org/r/20200523211247.23262-1-pterjan@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/tty/hvc/hvc_console.c |   23 ++++++++---------------
- 1 file changed, 8 insertions(+), 15 deletions(-)
+ drivers/staging/rtl8712/wifi.h |    9 +--------
+ 1 file changed, 1 insertion(+), 8 deletions(-)
 
---- a/drivers/tty/hvc/hvc_console.c
-+++ b/drivers/tty/hvc/hvc_console.c
-@@ -371,15 +371,14 @@ static int hvc_open(struct tty_struct *t
- 	 * tty fields and return the kref reference.
- 	 */
- 	if (rc) {
--		tty_port_tty_set(&hp->port, NULL);
--		tty->driver_data = NULL;
--		tty_port_put(&hp->port);
- 		printk(KERN_ERR "hvc_open: request_irq failed with rc %d.\n", rc);
--	} else
-+	} else {
- 		/* We are ready... raise DTR/RTS */
- 		if (C_BAUD(tty))
- 			if (hp->ops->dtr_rts)
- 				hp->ops->dtr_rts(hp, 1);
-+		tty_port_set_initialized(&hp->port, true);
-+	}
+--- a/drivers/staging/rtl8712/wifi.h
++++ b/drivers/staging/rtl8712/wifi.h
+@@ -440,7 +440,7 @@ static inline unsigned char *get_hdr_bss
+ /* block-ack parameters */
+ #define IEEE80211_ADDBA_PARAM_POLICY_MASK 0x0002
+ #define IEEE80211_ADDBA_PARAM_TID_MASK 0x003C
+-#define IEEE80211_ADDBA_PARAM_BUF_SIZE_MASK 0xFFA0
++#define IEEE80211_ADDBA_PARAM_BUF_SIZE_MASK 0xFFC0
+ #define IEEE80211_DELBA_PARAM_TID_MASK 0xF000
+ #define IEEE80211_DELBA_PARAM_INITIATOR_MASK 0x0800
  
- 	/* Force wakeup of the polling thread */
- 	hvc_kick();
-@@ -389,22 +388,12 @@ static int hvc_open(struct tty_struct *t
+@@ -532,13 +532,6 @@ struct ieee80211_ht_addt_info {
+ #define IEEE80211_HT_IE_NON_GF_STA_PRSNT	0x0004
+ #define IEEE80211_HT_IE_NON_HT_STA_PRSNT	0x0010
  
- static void hvc_close(struct tty_struct *tty, struct file * filp)
- {
--	struct hvc_struct *hp;
-+	struct hvc_struct *hp = tty->driver_data;
- 	unsigned long flags;
- 
- 	if (tty_hung_up_p(filp))
- 		return;
- 
--	/*
--	 * No driver_data means that this close was issued after a failed
--	 * hvc_open by the tty layer's release_dev() function and we can just
--	 * exit cleanly because the kref reference wasn't made.
--	 */
--	if (!tty->driver_data)
--		return;
+-/* block-ack parameters */
+-#define IEEE80211_ADDBA_PARAM_POLICY_MASK 0x0002
+-#define IEEE80211_ADDBA_PARAM_TID_MASK 0x003C
+-#define IEEE80211_ADDBA_PARAM_BUF_SIZE_MASK 0xFFA0
+-#define IEEE80211_DELBA_PARAM_TID_MASK 0xF000
+-#define IEEE80211_DELBA_PARAM_INITIATOR_MASK 0x0800
 -
--	hp = tty->driver_data;
--
- 	spin_lock_irqsave(&hp->port.lock, flags);
- 
- 	if (--hp->port.count == 0) {
-@@ -412,6 +401,9 @@ static void hvc_close(struct tty_struct
- 		/* We are done with the tty pointer now. */
- 		tty_port_tty_set(&hp->port, NULL);
- 
-+		if (!tty_port_initialized(&hp->port))
-+			return;
-+
- 		if (C_HUPCL(tty))
- 			if (hp->ops->dtr_rts)
- 				hp->ops->dtr_rts(hp, 0);
-@@ -428,6 +420,7 @@ static void hvc_close(struct tty_struct
- 		 * waking periodically to check chars_in_buffer().
- 		 */
- 		tty_wait_until_sent(tty, HVC_CLOSE_WAIT);
-+		tty_port_set_initialized(&hp->port, false);
- 	} else {
- 		if (hp->port.count < 0)
- 			printk(KERN_ERR "hvc_close %X: oops, count is %d\n",
+ /*
+  * A-PMDU buffer sizes
+  * According to IEEE802.11n spec size varies from 8K to 64K (in powers of 2)
 
 
