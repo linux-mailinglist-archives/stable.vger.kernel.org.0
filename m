@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 009701F4463
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:04:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EE5D1F455B
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:15:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733267AbgFISEI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Jun 2020 14:04:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42628 "EHLO mail.kernel.org"
+        id S1728589AbgFISOj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Jun 2020 14:14:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38496 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732806AbgFIRwX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Jun 2020 13:52:23 -0400
+        id S1732716AbgFIRul (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Jun 2020 13:50:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 795B720734;
-        Tue,  9 Jun 2020 17:52:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1F02920774;
+        Tue,  9 Jun 2020 17:50:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591725142;
-        bh=ViZa30ypR7/xokQKb3odmSsdv+h/Zb0AyqQm1aaQY/s=;
+        s=default; t=1591725040;
+        bh=I8e9rXkiQJBJOMniruow/r9QenuLuPUf8wI/t2e2w7I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CfFdMtha45sqsXjdbwbRYNq8oaMSZNi9nwhZsTRX6x5/95sCRdHayghvqUlMAzBL3
-         sst/o2X2MqlBLbj2xX2kxxJeioJuwYeJsgqou6O8LA8pBWWAhvGTkBWzCbbEvg7NAP
-         YwjwsqADLsVuzO1e8Ub73qKeYnh/V3LI4gqYul2Q=
+        b=G+sOFN/Oa9Rro/TmMo1gNXIZHZ6fDw7duo+UHO8ky+hw/Wm/lFjT1M9htzFQuZoXk
+         Hj3+xwDByc+4Mh1fpuDgmwmzGreQuoaL6uVW/7P6gOImr6MPmMh21U5Iq3W85j7Fes
+         wZRDT7/hWlmEC/pZxyn4xpSLOFqolWcjjuABX6Xc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fugang Duan <fugang.duan@nxp.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 05/34] net: stmmac: enable timestamp snapshot for required PTP packets in dwmac v5.10a
+        stable@vger.kernel.org, Mathieu Othacehe <m.othacehe@gmail.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 45/46] iio: vcnl4000: Fix i2c swapped word reading.
 Date:   Tue,  9 Jun 2020 19:45:01 +0200
-Message-Id: <20200609174053.303180274@linuxfoundation.org>
+Message-Id: <20200609174031.043249048@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200609174052.628006868@linuxfoundation.org>
-References: <20200609174052.628006868@linuxfoundation.org>
+In-Reply-To: <20200609174022.938987501@linuxfoundation.org>
+References: <20200609174022.938987501@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,55 +45,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fugang Duan <fugang.duan@nxp.com>
+From: Mathieu Othacehe <m.othacehe@gmail.com>
 
-[ Upstream commit f2fb6b6275eba9d312957ca44c487bd780da6169 ]
+[ Upstream commit 18dfb5326370991c81a6d1ed6d1aeee055cb8c05 ]
 
-For rx filter 'HWTSTAMP_FILTER_PTP_V2_EVENT', it should be
-PTP v2/802.AS1, any layer, any kind of event packet, but HW only
-take timestamp snapshot for below PTP message: sync, Pdelay_req,
-Pdelay_resp.
+The bytes returned by the i2c reading need to be swapped
+unconditionally. Otherwise, on be16 platforms, an incorrect value will be
+returned.
 
-Then it causes below issue when test E2E case:
-ptp4l[2479.534]: port 1: received DELAY_REQ without timestamp
-ptp4l[2481.423]: port 1: received DELAY_REQ without timestamp
-ptp4l[2481.758]: port 1: received DELAY_REQ without timestamp
-ptp4l[2483.524]: port 1: received DELAY_REQ without timestamp
-ptp4l[2484.233]: port 1: received DELAY_REQ without timestamp
-ptp4l[2485.750]: port 1: received DELAY_REQ without timestamp
-ptp4l[2486.888]: port 1: received DELAY_REQ without timestamp
-ptp4l[2487.265]: port 1: received DELAY_REQ without timestamp
-ptp4l[2487.316]: port 1: received DELAY_REQ without timestamp
+Taking the slow path via next merge window as its been around a while
+and we have a patch set dependent on this which would be held up.
 
-Timestamp snapshot dependency on register bits in received path:
-SNAPTYPSEL TSMSTRENA TSEVNTENA 	PTP_Messages
-01         x         0          SYNC, Follow_Up, Delay_Req,
-                                Delay_Resp, Pdelay_Req, Pdelay_Resp,
-                                Pdelay_Resp_Follow_Up
-01         0         1          SYNC, Pdelay_Req, Pdelay_Resp
-
-For dwmac v5.10a, enabling all events by setting register
-DWC_EQOS_TIME_STAMPING[SNAPTYPSEL] to 2’b01, clearing bit [TSEVNTENA]
-to 0’b0, which can support all required events.
-
-Signed-off-by: Fugang Duan <fugang.duan@nxp.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 62a1efb9f868 ("iio: add vcnl4000 combined ALS and proximity sensor")
+Signed-off-by: Mathieu Othacehe <m.othacehe@gmail.com>
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/iio/light/vcnl4000.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-@@ -630,7 +630,8 @@ static int stmmac_hwtstamp_set(struct ne
- 			config.rx_filter = HWTSTAMP_FILTER_PTP_V2_EVENT;
- 			ptp_v2 = PTP_TCR_TSVER2ENA;
- 			snap_type_sel = PTP_TCR_SNAPTYPSEL_1;
--			ts_event_en = PTP_TCR_TSEVNTENA;
-+			if (priv->synopsys_id != DWMAC_CORE_5_10)
-+				ts_event_en = PTP_TCR_TSEVNTENA;
- 			ptp_over_ipv4_udp = PTP_TCR_TSIPV4ENA;
- 			ptp_over_ipv6_udp = PTP_TCR_TSIPV6ENA;
- 			ptp_over_ethernet = PTP_TCR_TSIPENA;
+diff --git a/drivers/iio/light/vcnl4000.c b/drivers/iio/light/vcnl4000.c
+index 360b6e98137a..5a3a532937ba 100644
+--- a/drivers/iio/light/vcnl4000.c
++++ b/drivers/iio/light/vcnl4000.c
+@@ -61,7 +61,6 @@ static int vcnl4000_measure(struct vcnl4000_data *data, u8 req_mask,
+ 				u8 rdy_mask, u8 data_reg, int *val)
+ {
+ 	int tries = 20;
+-	__be16 buf;
+ 	int ret;
+ 
+ 	mutex_lock(&data->lock);
+@@ -88,13 +87,12 @@ static int vcnl4000_measure(struct vcnl4000_data *data, u8 req_mask,
+ 		goto fail;
+ 	}
+ 
+-	ret = i2c_smbus_read_i2c_block_data(data->client,
+-		data_reg, sizeof(buf), (u8 *) &buf);
++	ret = i2c_smbus_read_word_swapped(data->client, data_reg);
+ 	if (ret < 0)
+ 		goto fail;
+ 
+ 	mutex_unlock(&data->lock);
+-	*val = be16_to_cpu(buf);
++	*val = ret;
+ 
+ 	return 0;
+ 
+-- 
+2.25.1
+
 
 
