@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BEC261F4630
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:25:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 080F51F4600
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:23:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730556AbgFISYo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Jun 2020 14:24:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57572 "EHLO mail.kernel.org"
+        id S1728304AbgFISWp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Jun 2020 14:22:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60004 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732018AbgFIRqu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Jun 2020 13:46:50 -0400
+        id S1732212AbgFIRsD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Jun 2020 13:48:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 44F4F20801;
-        Tue,  9 Jun 2020 17:46:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 21D5F207F9;
+        Tue,  9 Jun 2020 17:48:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591724809;
-        bh=mvN444EYeBC8fFHTPY2yR4t38No63yDfTSFm+X7LJlo=;
+        s=default; t=1591724883;
+        bh=L99taIM+omKw6xpLci/GzbwOu6gRvGvUPFTqXy6EsDM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dI3XWeqAQumcRqidexR9BFpGHseIgF93b1fSKXhRNBL08c23EimXMUBoczacf6N7y
-         OTufZU3/1S94XGz858/mxhQdDbL01rMWn64RJ9p4dLaJhZWnhCRaNPsFGUcfK4NjA/
-         rKm/dkTmNCu6jQr1D4pSxT3ojEWlB+WrWVLOd/mk=
+        b=09hjy3maDUW6fBMjwjHJLi0y+SfOjlsDmm8SvCAUkAmoNtB5dd7lqABoX84vCc/51
+         vw0CIJKTfvZXG+tzOL8vxLgaNU+WjdwQsR/JYVYb1eABr7qm6x46j9OCeTnzamLWsS
+         tiWpfN8Jg/SAbafr5RQ77QImqLBpf2xZlrLFf56U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniele Palmas <dnlplm@gmail.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.4 26/36] USB: serial: option: add Telit LE910C1-EUX compositions
+        stable@vger.kernel.org, Bean Huo <beanhuo@micron.com>,
+        Can Guo <cang@codeaurora.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Eric Biggers <ebiggers@google.com>
+Subject: [PATCH 4.9 20/42] scsi: ufs: Release clock if DMA map fails
 Date:   Tue,  9 Jun 2020 19:44:26 +0200
-Message-Id: <20200609173934.951285925@linuxfoundation.org>
+Message-Id: <20200609174017.670122929@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200609173933.288044334@linuxfoundation.org>
-References: <20200609173933.288044334@linuxfoundation.org>
+In-Reply-To: <20200609174015.379493548@linuxfoundation.org>
+References: <20200609174015.379493548@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,37 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniele Palmas <dnlplm@gmail.com>
+From: Can Guo <cang@codeaurora.org>
 
-commit 399ad9477c523f721f8e51d4f824bdf7267f120c upstream.
+commit 17c7d35f141ef6158076adf3338f115f64fcf760 upstream.
 
-Add Telit LE910C1-EUX compositions:
+In queuecommand path, if DMA map fails, it bails out with clock held.  In
+this case, release the clock to keep its usage paired.
 
-	0x1031: tty, tty, tty, rmnet
-	0x1033: tty, tty, tty, ecm
+[mkp: applied by hand]
 
-Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
-Link: https://lore.kernel.org/r/20200525211106.27338-1-dnlplm@gmail.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/0101016ed3d66395-1b7e7fce-b74d-42ca-a88a-4db78b795d3b-000000@us-west-2.amazonses.com
+Reviewed-by: Bean Huo <beanhuo@micron.com>
+Signed-off-by: Can Guo <cang@codeaurora.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+[EB: resolved cherry-pick conflict caused by newer kernels not having
+ the clear_bit_unlock() line]
+Signed-off-by: Eric Biggers <ebiggers@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/usb/serial/option.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/scsi/ufs/ufshcd.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -1146,6 +1146,10 @@ static const struct usb_device_id option
- 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_CC864_SINGLE) },
- 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_DE910_DUAL) },
- 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_UE910_V2) },
-+	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1031, 0xff),	/* Telit LE910C1-EUX */
-+	 .driver_info = NCTRL(0) | RSVD(3) },
-+	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1033, 0xff),	/* Telit LE910C1-EUX (ECM) */
-+	 .driver_info = NCTRL(0) },
- 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE922_USBCFG0),
- 	  .driver_info = RSVD(0) | RSVD(1) | NCTRL(2) | RSVD(3) },
- 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE922_USBCFG1),
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -1512,6 +1512,7 @@ static int ufshcd_queuecommand(struct Sc
+ 
+ 	err = ufshcd_map_sg(hba, lrbp);
+ 	if (err) {
++		ufshcd_release(hba);
+ 		lrbp->cmd = NULL;
+ 		clear_bit_unlock(tag, &hba->lrb_in_use);
+ 		goto out;
 
 
