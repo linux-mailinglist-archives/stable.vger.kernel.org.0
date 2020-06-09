@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5405D1F461B
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:24:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA1611F45B5
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 20:20:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388938AbgFISYI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Jun 2020 14:24:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57916 "EHLO mail.kernel.org"
+        id S2388451AbgFISTq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Jun 2020 14:19:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35500 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732000AbgFIRrC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Jun 2020 13:47:02 -0400
+        id S1732511AbgFIRt3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Jun 2020 13:49:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EEF5820801;
-        Tue,  9 Jun 2020 17:47:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C063920823;
+        Tue,  9 Jun 2020 17:49:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591724821;
-        bh=ikB4s8noR1CxF9dx3pGgDKnk55QCMNe+k4/d1n8xh8U=;
+        s=default; t=1591724969;
+        bh=poBukSSzD7wFHESTRR5ANphHtD5xnl5TZWv1Mq6dpi4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gEVxAzsqhbi2yjvqAgk0ADCeeDPTx6KecPuyf7wjCG6QXURUS9jB/FhhwyEYTKZpL
-         O6zF5ndhi3YNibzLXSKpbZVWn+AGV6Malfm8jmyNj/k7tsHaK0ijNHiwOLzLsVfNjr
-         Mihq1N6uyXtdNld4kGx6hhpSO/+TyMlEMq795r+k=
+        b=YFRgWazgEgAqzKfJJy/jCqVESAhpcakKWngm25Fz+7iE0JoKTjZ9iwFcgiQnuzHP8
+         dYhBLLUuwWYTqQDKCWVgF066VHKR9S2bq5QOfNCylheyu0i8wBWkg7gwX5rCrhqWsi
+         83Zp7Yl0KTFX1ygnfmlD6hp193/4k8pA2Qm/aMIY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Gross <mgross@linux.intel.com>,
-        Borislav Petkov <bp@suse.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Tony Luck <tony.luck@intel.com>,
-        Josh Poimboeuf <jpoimboe@redhat.com>
-Subject: [PATCH 4.4 30/36] x86/cpu: Add a steppings field to struct x86_cpu_id
-Date:   Tue,  9 Jun 2020 19:44:30 +0200
-Message-Id: <20200609173935.338970788@linuxfoundation.org>
+        stable@vger.kernel.org, Fan Yang <Fan_Yang@sjtu.edu.cn>,
+        Dan Williams <dan.j.williams@intel.com>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.14 15/46] mm: Fix mremap not considering huge pmd devmap
+Date:   Tue,  9 Jun 2020 19:44:31 +0200
+Message-Id: <20200609174024.331867792@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200609173933.288044334@linuxfoundation.org>
-References: <20200609173933.288044334@linuxfoundation.org>
+In-Reply-To: <20200609174022.938987501@linuxfoundation.org>
+References: <20200609174022.938987501@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,118 +45,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Gross <mgross@linux.intel.com>
+From: Fan Yang <Fan_Yang@sjtu.edu.cn>
 
-commit e9d7144597b10ff13ff2264c059f7d4a7fbc89ac upstream
+commit 5bfea2d9b17f1034a68147a8b03b9789af5700f9 upstream.
 
-Intel uses the same family/model for several CPUs. Sometimes the
-stepping must be checked to tell them apart.
+The original code in mm/mremap.c checks huge pmd by:
 
-On x86 there can be at most 16 steppings. Add a steppings bitmask to
-x86_cpu_id and a X86_MATCH_VENDOR_FAMILY_MODEL_STEPPING_FEATURE macro
-and support for matching against family/model/stepping.
+		if (is_swap_pmd(*old_pmd) || pmd_trans_huge(*old_pmd)) {
 
- [ bp: Massage.
-   tglx: Lightweight variant for backporting ]
+However, a DAX mapped nvdimm is mapped as huge page (by default) but it
+is not transparent huge page (_PAGE_PSE | PAGE_DEVMAP).  This commit
+changes the condition to include the case.
 
-Signed-off-by: Mark Gross <mgross@linux.intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Tony Luck <tony.luck@intel.com>
-Reviewed-by: Josh Poimboeuf <jpoimboe@redhat.com>
+This addresses CVE-2020-10757.
+
+Fixes: 5c7fb56e5e3f ("mm, dax: dax-pmd vs thp-pmd vs hugetlbfs-pmd")
+Cc: <stable@vger.kernel.org>
+Reported-by: Fan Yang <Fan_Yang@sjtu.edu.cn>
+Signed-off-by: Fan Yang <Fan_Yang@sjtu.edu.cn>
+Tested-by: Fan Yang <Fan_Yang@sjtu.edu.cn>
+Tested-by: Dan Williams <dan.j.williams@intel.com>
+Reviewed-by: Dan Williams <dan.j.williams@intel.com>
+Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- arch/x86/include/asm/cpu_device_id.h |   27 +++++++++++++++++++++++++++
- arch/x86/kernel/cpu/match.c          |    7 ++++++-
- include/linux/mod_devicetable.h      |    6 ++++++
- 3 files changed, 39 insertions(+), 1 deletion(-)
 
---- a/arch/x86/include/asm/cpu_device_id.h
-+++ b/arch/x86/include/asm/cpu_device_id.h
-@@ -8,6 +8,33 @@
+---
+ arch/x86/include/asm/pgtable.h |    1 +
+ mm/mremap.c                    |    2 +-
+ 2 files changed, 2 insertions(+), 1 deletion(-)
+
+--- a/arch/x86/include/asm/pgtable.h
++++ b/arch/x86/include/asm/pgtable.h
+@@ -234,6 +234,7 @@ static inline int pmd_large(pmd_t pte)
+ }
  
- #include <linux/mod_devicetable.h>
- 
-+#define X86_STEPPINGS(mins, maxs)    GENMASK(maxs, mins)
-+
-+/**
-+ * X86_MATCH_VENDOR_FAM_MODEL_STEPPINGS_FEATURE - Base macro for CPU matching
-+ * @_vendor:	The vendor name, e.g. INTEL, AMD, HYGON, ..., ANY
-+ *		The name is expanded to X86_VENDOR_@_vendor
-+ * @_family:	The family number or X86_FAMILY_ANY
-+ * @_model:	The model number, model constant or X86_MODEL_ANY
-+ * @_steppings:	Bitmask for steppings, stepping constant or X86_STEPPING_ANY
-+ * @_feature:	A X86_FEATURE bit or X86_FEATURE_ANY
-+ * @_data:	Driver specific data or NULL. The internal storage
-+ *		format is unsigned long. The supplied value, pointer
-+ *		etc. is casted to unsigned long internally.
-+ *
-+ * Backport version to keep the SRBDS pile consistant. No shorter variants
-+ * required for this.
-+ */
-+#define X86_MATCH_VENDOR_FAM_MODEL_STEPPINGS_FEATURE(_vendor, _family, _model, \
-+						    _steppings, _feature, _data) { \
-+	.vendor		= X86_VENDOR_##_vendor,				\
-+	.family		= _family,					\
-+	.model		= _model,					\
-+	.steppings	= _steppings,					\
-+	.feature	= _feature,					\
-+	.driver_data	= (unsigned long) _data				\
-+}
-+
- extern const struct x86_cpu_id *x86_match_cpu(const struct x86_cpu_id *match);
- 
- #endif
---- a/arch/x86/kernel/cpu/match.c
-+++ b/arch/x86/kernel/cpu/match.c
-@@ -33,13 +33,18 @@ const struct x86_cpu_id *x86_match_cpu(c
- 	const struct x86_cpu_id *m;
- 	struct cpuinfo_x86 *c = &boot_cpu_data;
- 
--	for (m = match; m->vendor | m->family | m->model | m->feature; m++) {
-+	for (m = match;
-+	     m->vendor | m->family | m->model | m->steppings | m->feature;
-+	     m++) {
- 		if (m->vendor != X86_VENDOR_ANY && c->x86_vendor != m->vendor)
- 			continue;
- 		if (m->family != X86_FAMILY_ANY && c->x86 != m->family)
- 			continue;
- 		if (m->model != X86_MODEL_ANY && c->x86_model != m->model)
- 			continue;
-+		if (m->steppings != X86_STEPPING_ANY &&
-+		    !(BIT(c->x86_stepping) & m->steppings))
-+			continue;
- 		if (m->feature != X86_FEATURE_ANY && !cpu_has(c, m->feature))
- 			continue;
- 		return m;
---- a/include/linux/mod_devicetable.h
-+++ b/include/linux/mod_devicetable.h
-@@ -572,6 +572,10 @@ struct mips_cdmm_device_id {
- /*
-  * MODULE_DEVICE_TABLE expects this struct to be called x86cpu_device_id.
-  * Although gcc seems to ignore this error, clang fails without this define.
-+ *
-+ * Note: The ordering of the struct is different from upstream because the
-+ * static initializers in kernels < 5.7 still use C89 style while upstream
-+ * has been converted to proper C99 initializers.
-  */
- #define x86cpu_device_id x86_cpu_id
- struct x86_cpu_id {
-@@ -580,6 +584,7 @@ struct x86_cpu_id {
- 	__u16 model;
- 	__u16 feature;	/* bit index */
- 	kernel_ulong_t driver_data;
-+	__u16 steppings;
- };
- 
- #define X86_FEATURE_MATCH(x) \
-@@ -588,6 +593,7 @@ struct x86_cpu_id {
- #define X86_VENDOR_ANY 0xffff
- #define X86_FAMILY_ANY 0
- #define X86_MODEL_ANY  0
-+#define X86_STEPPING_ANY 0
- #define X86_FEATURE_ANY 0	/* Same as FPU, you can't test for that */
- 
- /*
+ #ifdef CONFIG_TRANSPARENT_HUGEPAGE
++/* NOTE: when predicate huge page, consider also pmd_devmap, or use pmd_large */
+ static inline int pmd_trans_huge(pmd_t pmd)
+ {
+ 	return (pmd_val(pmd) & (_PAGE_PSE|_PAGE_DEVMAP)) == _PAGE_PSE;
+--- a/mm/mremap.c
++++ b/mm/mremap.c
+@@ -223,7 +223,7 @@ unsigned long move_page_tables(struct vm
+ 		new_pmd = alloc_new_pmd(vma->vm_mm, vma, new_addr);
+ 		if (!new_pmd)
+ 			break;
+-		if (is_swap_pmd(*old_pmd) || pmd_trans_huge(*old_pmd)) {
++		if (is_swap_pmd(*old_pmd) || pmd_trans_huge(*old_pmd) || pmd_devmap(*old_pmd)) {
+ 			if (extent == HPAGE_PMD_SIZE) {
+ 				bool moved;
+ 				/* See comment in move_ptes() */
 
 
