@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D28661F4056
-	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 18:12:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BCB721F406A
+	for <lists+stable@lfdr.de>; Tue,  9 Jun 2020 18:13:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731030AbgFIQMk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Jun 2020 12:12:40 -0400
-Received: from mga12.intel.com ([192.55.52.136]:24074 "EHLO mga12.intel.com"
+        id S1731193AbgFIQNl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Jun 2020 12:13:41 -0400
+Received: from mga02.intel.com ([134.134.136.20]:23416 "EHLO mga02.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728888AbgFIQMk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Jun 2020 12:12:40 -0400
-IronPort-SDR: 0qhCwY1EVF8XVy+P9NkWokQIJtgPWtgPWjyrQwC/ea2UqHvqr5x4kXsCUlmFKFn8QZ/oSi2jh5
- q3UsqAbskTaQ==
+        id S1731126AbgFIQNW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Jun 2020 12:13:22 -0400
+IronPort-SDR: mTzo8lA7H7gqXlGW2mzo0X9LHxI0oJJjx1SAfdKns+kW6u14+CyvMJLp1mUSDR/4Ko0IcXWHjL
+ dmDhQ9PUbWXw==
 X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
 Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Jun 2020 09:12:39 -0700
-IronPort-SDR: ddb7h0265o+Y+3268qanSqCRHLr5tO1RkJS0WOLDmYby4Szeff/S79c1upG0lO/YWG9omQXPhI
- 0i/9K4kkOkCg==
+  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Jun 2020 09:13:21 -0700
+IronPort-SDR: 3MT0a82VbHxYdpDdxwVZasiV9/OWeX7YjDFbud65t+6zGg+CtDIRaao1vEKzbgj9bbG8QaL5zk
+ 1xJC0p8It2uw==
 X-IronPort-AV: E=Sophos;i="5.73,492,1583222400"; 
-   d="scan'208";a="306307079"
+   d="scan'208";a="306307387"
 Received: from gem-build.fi.intel.com (HELO localhost) ([10.237.72.180])
-  by orsmga008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Jun 2020 09:12:38 -0700
+  by orsmga008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Jun 2020 09:13:20 -0700
 From:   Chris Wilson <chris@chris-wilson.co.uk>
 To:     gfx-internal-devel@eclists.intel.com
 Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
         Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
         stable@vger.kernel.org
-Subject: [PATCH 076/185] drm/i915: Mark concurrent submissions with a weak-dependency
-Date:   Tue,  9 Jun 2020 16:05:41 +0000
-Message-Id: <20200609160731.287073-77-chris@chris-wilson.co.uk>
+Subject: [PATCH 087/185] drm/i915: Defer semaphore priority bumping to a workqueue
+Date:   Tue,  9 Jun 2020 16:05:52 +0000
+Message-Id: <20200609160731.287073-88-chris@chris-wilson.co.uk>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200609160731.287073-1-chris@chris-wilson.co.uk>
 References: <20200609160731.287073-1-chris@chris-wilson.co.uk>
@@ -42,123 +42,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-We recorded the dependencies for WAIT_FOR_SUBMIT in order that we could
-correctly perform priority inheritance from the parallel branches to the
-common trunk. However, for the purpose of timeslicing and reset
-handling, the dependency is weak -- as we the pair of requests are
-allowed to run in parallel and not in strict succession.
+Since the semaphore fence may be signaled from inside an interrupt
+handler from inside a request holding its request->lock, we cannot then
+enter into the engine->active.lock for processing the semaphore priority
+bump as we may traverse our call tree and end up on another held
+request.
 
-The real significance though is that this allows us to rearrange
-groups of WAIT_FOR_SUBMIT linked requests along the single engine, and
-so can resolve user level inter-batch scheduling dependencies from user
-semaphores.
+CPU 0:
+[ 2243.218864]  _raw_spin_lock_irqsave+0x9a/0xb0
+[ 2243.218867]  i915_schedule_bump_priority+0x49/0x80 [i915]
+[ 2243.218869]  semaphore_notify+0x6d/0x98 [i915]
+[ 2243.218871]  __i915_sw_fence_complete+0x61/0x420 [i915]
+[ 2243.218874]  ? kmem_cache_free+0x211/0x290
+[ 2243.218876]  i915_sw_fence_complete+0x58/0x80 [i915]
+[ 2243.218879]  dma_i915_sw_fence_wake+0x3e/0x80 [i915]
+[ 2243.218881]  signal_irq_work+0x571/0x690 [i915]
+[ 2243.218883]  irq_work_run_list+0xd7/0x120
+[ 2243.218885]  irq_work_run+0x1d/0x50
+[ 2243.218887]  smp_irq_work_interrupt+0x21/0x30
+[ 2243.218889]  irq_work_interrupt+0xf/0x20
 
-Fixes: c81471f5e95c ("drm/i915: Copy across scheduler behaviour flags across submit fences")
-Testcase: igt/gem_exec_fence/submit
+CPU 1:
+[ 2242.173107]  _raw_spin_lock+0x8f/0xa0
+[ 2242.173110]  __i915_request_submit+0x64/0x4a0 [i915]
+[ 2242.173112]  __execlists_submission_tasklet+0x8ee/0x2120 [i915]
+[ 2242.173114]  ? i915_sched_lookup_priolist+0x1e3/0x2b0 [i915]
+[ 2242.173117]  execlists_submit_request+0x2e8/0x2f0 [i915]
+[ 2242.173119]  submit_notify+0x8f/0xc0 [i915]
+[ 2242.173121]  __i915_sw_fence_complete+0x61/0x420 [i915]
+[ 2242.173124]  ? _raw_spin_unlock_irqrestore+0x39/0x40
+[ 2242.173137]  i915_sw_fence_complete+0x58/0x80 [i915]
+[ 2242.173140]  i915_sw_fence_commit+0x16/0x20 [i915]
+
+Closes: https://gitlab.freedesktop.org/drm/intel/issues/1318
+Fixes: b7404c7ecb38 ("drm/i915: Bump ready tasks ahead of busywaits")
 Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
 Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Cc: <stable@vger.kernel.org> # v5.6+
+Cc: <stable@vger.kernel.org> # v5.2+
 Reviewed-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200507155109.8892-1-chris@chris-wilson.co.uk
-(cherry picked from commit 6b6cd2ebd8d071e55998e32b648bb8081f7f02bb)
+Link: https://patchwork.freedesktop.org/patch/msgid/20200310101720.9944-1-chris@chris-wilson.co.uk
+(cherry picked from commit 209df10bb4536c81c2540df96c02cd079435357f)
 ---
- drivers/gpu/drm/i915/gt/intel_lrc.c         | 3 +++
- drivers/gpu/drm/i915/i915_request.c         | 8 ++++++--
- drivers/gpu/drm/i915/i915_scheduler.c       | 6 +++---
- drivers/gpu/drm/i915/i915_scheduler.h       | 3 ++-
- drivers/gpu/drm/i915/i915_scheduler_types.h | 1 +
- 5 files changed, 15 insertions(+), 6 deletions(-)
+ drivers/gpu/drm/i915/i915_request.c | 22 +++++++++++++++++-----
+ drivers/gpu/drm/i915/i915_request.h |  2 ++
+ 2 files changed, 19 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/gpu/drm/i915/gt/intel_lrc.c b/drivers/gpu/drm/i915/gt/intel_lrc.c
-index 2237d03545440..e57b827b00b1e 100644
---- a/drivers/gpu/drm/i915/gt/intel_lrc.c
-+++ b/drivers/gpu/drm/i915/gt/intel_lrc.c
-@@ -1902,6 +1902,9 @@ static void defer_request(struct i915_request *rq, struct list_head * const pl)
- 			struct i915_request *w =
- 				container_of(p->waiter, typeof(*w), sched);
- 
-+			if (p->flags & I915_DEPENDENCY_WEAK)
-+				continue;
-+
- 			/* Leave semaphores spinning on the other engines */
- 			if (w->engine != rq->engine)
- 				continue;
 diff --git a/drivers/gpu/drm/i915/i915_request.c b/drivers/gpu/drm/i915/i915_request.c
-index ee406fa6774ad..ed1af57d1db18 100644
+index e7f96ce0b071e..c7573e66107d0 100644
 --- a/drivers/gpu/drm/i915/i915_request.c
 +++ b/drivers/gpu/drm/i915/i915_request.c
-@@ -1048,7 +1048,9 @@ i915_request_await_request(struct i915_request *to, struct i915_request *from)
- 		return 0;
- 
- 	if (to->engine->schedule) {
--		ret = i915_sched_node_add_dependency(&to->sched, &from->sched);
-+		ret = i915_sched_node_add_dependency(&to->sched,
-+						     &from->sched,
-+						     I915_DEPENDENCY_EXTERNAL);
- 		if (ret < 0)
- 			return ret;
- 	}
-@@ -1179,7 +1181,9 @@ __i915_request_await_execution(struct i915_request *to,
- 
- 	/* Couple the dependency tree for PI on this exposed to->fence */
- 	if (to->engine->schedule) {
--		err = i915_sched_node_add_dependency(&to->sched, &from->sched);
-+		err = i915_sched_node_add_dependency(&to->sched,
-+						     &from->sched,
-+						     I915_DEPENDENCY_WEAK);
- 		if (err < 0)
- 			return err;
- 	}
-diff --git a/drivers/gpu/drm/i915/i915_scheduler.c b/drivers/gpu/drm/i915/i915_scheduler.c
-index e99423e548c99..09d6d4538ff38 100644
---- a/drivers/gpu/drm/i915/i915_scheduler.c
-+++ b/drivers/gpu/drm/i915/i915_scheduler.c
-@@ -463,7 +463,8 @@ bool __i915_sched_node_add_dependency(struct i915_sched_node *node,
+@@ -629,19 +629,31 @@ submit_notify(struct i915_sw_fence *fence, enum i915_sw_fence_notify state)
+ 	return NOTIFY_DONE;
  }
  
- int i915_sched_node_add_dependency(struct i915_sched_node *node,
--				   struct i915_sched_node *signal)
-+				   struct i915_sched_node *signal,
-+				   unsigned long flags)
++static void irq_semaphore_cb(struct irq_work *wrk)
++{
++	struct i915_request *rq =
++		container_of(wrk, typeof(*rq), semaphore_work);
++
++	i915_schedule_bump_priority(rq, I915_PRIORITY_NOSEMAPHORE);
++	i915_request_put(rq);
++}
++
+ static int __i915_sw_fence_call
+ semaphore_notify(struct i915_sw_fence *fence, enum i915_sw_fence_notify state)
  {
- 	struct i915_dependency *dep;
+-	struct i915_request *request =
+-		container_of(fence, typeof(*request), semaphore);
++	struct i915_request *rq = container_of(fence, typeof(*rq), semaphore);
  
-@@ -472,8 +473,7 @@ int i915_sched_node_add_dependency(struct i915_sched_node *node,
- 		return -ENOMEM;
+ 	switch (state) {
+ 	case FENCE_COMPLETE:
+-		i915_schedule_bump_priority(request, I915_PRIORITY_NOSEMAPHORE);
++		if (!(READ_ONCE(rq->sched.attr.priority) & I915_PRIORITY_NOSEMAPHORE)) {
++			i915_request_get(rq);
++			init_irq_work(&rq->semaphore_work, irq_semaphore_cb);
++			irq_work_queue(&rq->semaphore_work);
++		}
+ 		break;
  
- 	if (!__i915_sched_node_add_dependency(node, signal, dep,
--					      I915_DEPENDENCY_EXTERNAL |
--					      I915_DEPENDENCY_ALLOC))
-+					      flags | I915_DEPENDENCY_ALLOC))
- 		i915_dependency_free(dep);
+ 	case FENCE_FREE:
+-		i915_request_put(request);
++		i915_request_put(rq);
+ 		break;
+ 	}
  
- 	return 0;
-diff --git a/drivers/gpu/drm/i915/i915_scheduler.h b/drivers/gpu/drm/i915/i915_scheduler.h
-index d1dc4efef77b5..6f0bf00fc5690 100644
---- a/drivers/gpu/drm/i915/i915_scheduler.h
-+++ b/drivers/gpu/drm/i915/i915_scheduler.h
-@@ -34,7 +34,8 @@ bool __i915_sched_node_add_dependency(struct i915_sched_node *node,
- 				      unsigned long flags);
+@@ -1503,9 +1515,9 @@ void __i915_request_queue(struct i915_request *rq,
+ 	 * decide whether to preempt the entire chain so that it is ready to
+ 	 * run at the earliest possible convenience.
+ 	 */
+-	i915_sw_fence_commit(&rq->semaphore);
+ 	if (attr && rq->engine->schedule)
+ 		rq->engine->schedule(rq, attr);
++	i915_sw_fence_commit(&rq->semaphore);
+ 	i915_sw_fence_commit(&rq->submit);
+ }
  
- int i915_sched_node_add_dependency(struct i915_sched_node *node,
--				   struct i915_sched_node *signal);
-+				   struct i915_sched_node *signal,
-+				   unsigned long flags);
+diff --git a/drivers/gpu/drm/i915/i915_request.h b/drivers/gpu/drm/i915/i915_request.h
+index 32ddba894243f..64501b4b3e3a2 100644
+--- a/drivers/gpu/drm/i915/i915_request.h
++++ b/drivers/gpu/drm/i915/i915_request.h
+@@ -26,6 +26,7 @@
+ #define I915_REQUEST_H
  
- void i915_sched_node_fini(struct i915_sched_node *node);
+ #include <linux/dma-fence.h>
++#include <linux/irq_work.h>
+ #include <linux/lockdep.h>
  
-diff --git a/drivers/gpu/drm/i915/i915_scheduler_types.h b/drivers/gpu/drm/i915/i915_scheduler_types.h
-index d18e705500542..7186875088a0a 100644
---- a/drivers/gpu/drm/i915/i915_scheduler_types.h
-+++ b/drivers/gpu/drm/i915/i915_scheduler_types.h
-@@ -78,6 +78,7 @@ struct i915_dependency {
- 	unsigned long flags;
- #define I915_DEPENDENCY_ALLOC		BIT(0)
- #define I915_DEPENDENCY_EXTERNAL	BIT(1)
-+#define I915_DEPENDENCY_WEAK		BIT(2)
- };
+ #include "gem/i915_gem_context_types.h"
+@@ -208,6 +209,7 @@ struct i915_request {
+ 	};
+ 	struct list_head execute_cb;
+ 	struct i915_sw_fence semaphore;
++	struct irq_work semaphore_work;
  
- #endif /* _I915_SCHEDULER_TYPES_H_ */
+ 	/*
+ 	 * A list of everyone we wait upon, and everyone who waits upon us.
 ---------------------------------------------------------------------
 Intel Corporation (UK) Limited
 Registered No. 1134945 (England)
