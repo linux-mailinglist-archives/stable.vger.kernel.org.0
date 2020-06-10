@@ -2,84 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FC441F5BD6
-	for <lists+stable@lfdr.de>; Wed, 10 Jun 2020 21:11:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA8561F5BFF
+	for <lists+stable@lfdr.de>; Wed, 10 Jun 2020 21:35:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729846AbgFJTLf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Jun 2020 15:11:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50898 "EHLO
+        id S1726891AbgFJTfT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Jun 2020 15:35:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54514 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729844AbgFJTLf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 10 Jun 2020 15:11:35 -0400
-Received: from mail-pg1-x542.google.com (mail-pg1-x542.google.com [IPv6:2607:f8b0:4864:20::542])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 307B7C03E96B;
-        Wed, 10 Jun 2020 12:11:35 -0700 (PDT)
-Received: by mail-pg1-x542.google.com with SMTP id t7so1393603pgt.3;
-        Wed, 10 Jun 2020 12:11:35 -0700 (PDT)
+        with ESMTP id S1726650AbgFJTfT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 10 Jun 2020 15:35:19 -0400
+Received: from mail-ot1-x344.google.com (mail-ot1-x344.google.com [IPv6:2607:f8b0:4864:20::344])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8543AC03E96B
+        for <stable@vger.kernel.org>; Wed, 10 Jun 2020 12:35:19 -0700 (PDT)
+Received: by mail-ot1-x344.google.com with SMTP id s13so2658889otd.7
+        for <stable@vger.kernel.org>; Wed, 10 Jun 2020 12:35:19 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=VjN6PtM9eQcwFat45q7B/D/HGaIIKGoFFHYjqauxi5M=;
-        b=ZG3FMJb/s7lorhLzOiw+9VtxYoaNbteAdtUVi8jp0vu8doytYRyRWeuhiNqkZmycPo
-         FNTf1wDNuJSgQIU1uMhE7OiSDuadU2N00GKZf9KrecCaiq2Q5RjLr3BVzW5HdmE08nYD
-         H1LWYcVA4+gQ1KbPHM6w3m//SNBN35Etg1DigQBSxC/3FjZDVTG5Pmyo9X7s+4Z/6yuq
-         nobb9BpgK/I0jnFHmcDiUVbAJ30JCHEDWDcI7nJY3OvYFRcO9J0qt7d9ntwanWLnUkCE
-         CW+Y11tP4hEaatZNM5d+xRTLeK7OPOZEIjoLelduf5A8YT9aYtixH2yLBNkIrXCUXNZw
-         sEoQ==
+        d=linuxfoundation.org; s=google;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=h8DwvDaJUW54D89L5CMJ9LLKG/vnyzMlJjqUWjz0Z8g=;
+        b=C+Y4rLt2w3UZ1fcrpPsiMniHpA5n0CU8kGPE68MsI+ACFQ64MMIo+HXItyb5puP9FF
+         16OLooGZARLUqNXn69uF0uku4IdQCpApKsLmFZkkIrVErfm/ssZO2HbWw5rJj7RWlaUV
+         nOkE5sFXz/5Q2TYWrH9AJtBqF6Gt7wi8BsZCs=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=VjN6PtM9eQcwFat45q7B/D/HGaIIKGoFFHYjqauxi5M=;
-        b=PPss7E48HX08bpvyFIoGyLQ2ff/r3obVW0yfLVHd1GBnnSzQWH9afGhb9G13sC4/4W
-         XdNtRgMFCkKUxElDL+pqTzQYrMpwaOpu2bITa3GOkxrz3PRXRaOQbzGPlEl0HH9KoMvz
-         q7eGm8gyOCWslWrHE/jzu/yiWjQVOR3E/w49y6Y15UThWnDFR6kqoHE4lt17WYrY9s5f
-         yUQVGUYhsT1auo0OXSQLsN06pK21xIoiU3tdJLI+/9TEZVYZGsLWQdClutTCOzawLo44
-         KV1p+8ScPI8/0s3imSzX/dEHfkXr+Gu6htl+/io1IrVTvKFhLhrKZwdf6WbyWyq894RA
-         ZFCA==
-X-Gm-Message-State: AOAM530Nk0JkTp+a/pGIR//BksIa/1hObAwXjv1haxtyNOus/SlzNv0z
-        PRw4c6Y+oR/5qhz/DlAB2sU=
-X-Google-Smtp-Source: ABdhPJzWzvq+ruJBppZkgAr3qNOWvAdy8YVaJb3I3CCpg30BFY59+gNBpu0TdPma3eVaREpUBfj9GQ==
-X-Received: by 2002:a63:591e:: with SMTP id n30mr3934505pgb.429.1591816294770;
-        Wed, 10 Jun 2020 12:11:34 -0700 (PDT)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id h3sm673149pfr.2.2020.06.10.12.11.34
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Wed, 10 Jun 2020 12:11:34 -0700 (PDT)
-Date:   Wed, 10 Jun 2020 12:11:33 -0700
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=h8DwvDaJUW54D89L5CMJ9LLKG/vnyzMlJjqUWjz0Z8g=;
+        b=RmEvdZUW4+oWb5O0dhwqd11MERPnH2Hv/s8c7VVjt4nv47tdKK7EukT88Jz8QdqA7Q
+         7GwfvJT8rikapIZV8+9SoxuB4ijiG9/oZSCfpvSSd+1ue2CPTMNmTz90eJ7qZI6BSdNx
+         w8MeuOR4Br5CZvM7H/1Ewx8MLAUCATLetaHegpN/xB07RiLwhX5splzlrZpUY/VJsEJO
+         UtqvNu1SVqy7J5BVJCSeRmiwPnGIuunaeCcHCWoHEZq92nJOXL9ZGlUZ/Wb22XMXIl/C
+         z/1yungqd7nH9talGJBPvQ/Xl4e9EUQs21BpqpclL+mMwCx1wUvGesv6CN0NHueqWUsv
+         y2vw==
+X-Gm-Message-State: AOAM533P98uIaRpJiATmxkHLND7jR1vM95kTL2+Bq6ZdO2LToe9iewRY
+        Jbl/ZwOtUjjGHfbQqsjU/n/qbw==
+X-Google-Smtp-Source: ABdhPJw8sENmOAJTSPxHUs5ygnsNC353XrXO+/GNlaXXENgexAxIVbyDjRk4pAiA8P5TacUy3Vc9fQ==
+X-Received: by 2002:a05:6830:141a:: with SMTP id v26mr4006758otp.250.1591817718211;
+        Wed, 10 Jun 2020 12:35:18 -0700 (PDT)
+Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net. [24.9.64.241])
+        by smtp.gmail.com with ESMTPSA id w197sm168898oif.1.2020.06.10.12.35.16
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 10 Jun 2020 12:35:17 -0700 (PDT)
+Subject: Re: [PATCH 4.9 00/42] 4.9.227-rc2 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
         ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 5.7 00/24] 5.7.2-rc1 review
-Message-ID: <20200610191133.GH232340@roeck-us.net>
-References: <20200609174149.255223112@linuxfoundation.org>
+        stable@vger.kernel.org, skhan@linuxfoundation.org
+References: <20200609190124.109610974@linuxfoundation.org>
+From:   Shuah Khan <skhan@linuxfoundation.org>
+Message-ID: <7f9f02b0-b568-adf7-0816-1505709875b9@linuxfoundation.org>
+Date:   Wed, 10 Jun 2020 13:35:15 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.8.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200609174149.255223112@linuxfoundation.org>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+In-Reply-To: <20200609190124.109610974@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jun 09, 2020 at 07:45:31PM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.7.2 release.
-> There are 24 patches in this series, all will be posted as a response
+On 6/9/20 1:18 PM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.9.227 release.
+> There are 42 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 > 
-> Responses should be made by Thu, 11 Jun 2020 17:41:38 +0000.
+> Responses should be made by Thu, 11 Jun 2020 19:01:14 +0000.
 > Anything received after that time might be too late.
 > 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.227-rc2.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-Build results:
-	total: 155 pass: 155 fail: 0
-Qemu test results:
-	total: 431 pass: 431 fail: 0
+Compiled and booted on my test system. No dmesg regressions.
 
-Guenter
+thanks,
+-- Shuah
