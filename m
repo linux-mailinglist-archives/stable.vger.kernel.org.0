@@ -2,222 +2,214 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B17051F4C49
-	for <lists+stable@lfdr.de>; Wed, 10 Jun 2020 06:29:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 50C201F4C7B
+	for <lists+stable@lfdr.de>; Wed, 10 Jun 2020 06:45:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725988AbgFJE3G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Jun 2020 00:29:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55424 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725268AbgFJE3G (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 10 Jun 2020 00:29:06 -0400
-Received: from mail-pl1-x634.google.com (mail-pl1-x634.google.com [IPv6:2607:f8b0:4864:20::634])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52720C05BD1E
-        for <stable@vger.kernel.org>; Tue,  9 Jun 2020 21:29:06 -0700 (PDT)
-Received: by mail-pl1-x634.google.com with SMTP id x11so454606plv.9
-        for <stable@vger.kernel.org>; Tue, 09 Jun 2020 21:29:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=WcP1LJNHJg9Z6dXLAzk54S/3Z7/9cOsXVC5Se06UYX0=;
-        b=YaQhqWJ0Hm+iCALd3YGM2HdUGroEh7PmcWzfjU2VbZ9ZZ9uWab8PDbyRA9nalGnawb
-         aX4fjPmrY//Px3Yw+3949ZuDURyNkGnrbC2QQZ1/wOEtGzt0j/kyNOi/T859itntTxeb
-         2UOG6NWJ8UHvBBYq7qmqsw8sw8YgiSzG0juIafJ3FIhV5qjOAssh3u4USs+DgFs11YId
-         5/1RksZ7n9gcgO8lycRuBWQSrZpdHxKU4kpPc3I2L0Zn/qjNz021dpB9zWmdMHqSoBLj
-         pJOKTm/tW9mR7qCvmAhy7meXgNrAQkc8mqVPvRR5Ap9dzIL32BkYxvLSkhVNE70aUkHu
-         wvHw==
+        id S1726095AbgFJEpP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Jun 2020 00:45:15 -0400
+Received: from us-smtp-2.mimecast.com ([205.139.110.61]:37693 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726078AbgFJEpM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 10 Jun 2020 00:45:12 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1591764310;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type;
+        bh=VxmhQ3VVJqCwy8aaYD5pSLwJjZ0VIqyd7EjfATRpmNc=;
+        b=N4FQ1E4sY/97yjIcbn4mLhxfA7ua4XGg5sJe0dsnbOY5hDWjjOZIgJKYMAwTE8eixYdi5M
+        k+AvEgkbmWe2k1YeKhzKGX3KBy6u9DG+E0gFabINgfNxUjxGtz0EtCAuGPEm70rjcjKng2
+        BYoUPqTiJTHLeliUlIelw+e59ewuHRA=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-450-6fEefKmGP7KVtZRph3pFDA-1; Wed, 10 Jun 2020 00:45:06 -0400
+X-MC-Unique: 6fEefKmGP7KVtZRph3pFDA-1
+Received: by mail-wr1-f72.google.com with SMTP id e1so532835wrm.3
+        for <stable@vger.kernel.org>; Tue, 09 Jun 2020 21:45:06 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=WcP1LJNHJg9Z6dXLAzk54S/3Z7/9cOsXVC5Se06UYX0=;
-        b=hTmoB2RWSATm9E+V8qe7i9TX5vixHb9RjAKAmsPrDzQ/fT2U6kq+42SGy+VK8JsJZ7
-         hBfhJVcYipZUSaXqSGk118b7sc0jMRZm9EHStZNE8JByShwY5S5oxPYvu1J5U4GvDAlO
-         8GoxXwklyDXQShkcTJ/pFhIjnAtnicjqaIyuv+jmnKAlhLH++Yqb7Eu0ILOAQXsfgdhF
-         pTkPgnbtM9+wj3TQYhq6SegfoZ2cQV9EBV/kWLIkyzO1NPla2gKL4gp/SXalkB17ThqN
-         nFx4r123WUaQyJdMDmS1wHmd+2rCBhcmQ17gkGX6gCMAtBfj6befJYzqTjd3L5BOi6dH
-         qSzA==
-X-Gm-Message-State: AOAM533VHYivtfnOHJXB7Jvus0oTKyJuA6a4KVTOpA5uhiBAbuM7jAnA
-        7IgQcr9WDglbdFFuvGsHBGy8GIm4m8o=
-X-Google-Smtp-Source: ABdhPJx+zQZRefhzGhuGzLA6ENEyk9N3wj52yGRrFaTDAAcDfHHNbKZkoL8PcsGj0o1pjldFwGvA4Q==
-X-Received: by 2002:a17:90b:11d8:: with SMTP id gv24mr1228714pjb.66.1591763345488;
-        Tue, 09 Jun 2020 21:29:05 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id hi19sm3707212pjb.49.2020.06.09.21.29.04
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
+         :content-disposition;
+        bh=VxmhQ3VVJqCwy8aaYD5pSLwJjZ0VIqyd7EjfATRpmNc=;
+        b=HRJFp17HDijb6LLLof4KFyvZkHSfQ6qJp/XZORn9RP7aUT9wYno64TT2c9oKmhOiZj
+         8W70zVIm0SON2MEJjbLmx8us/luMGoVZu+qxT00fMTDGhB+GrCrit2ioAjLwHZMuWHrL
+         CdxipNwlQY4JXSRt/FTegAamGdshZ1kCSxlTywH2i+3Ve0wGOoqbPh4O/5iWVkUtGAqB
+         L3aO4LFWxiKOI14XJTLZ61R3t3miNZcPLRFAjeJZ8KEfDJZlJCUqy88frVwKx8EZg+3o
+         XlnSXG127nMwXYXyGOrNnSgh+U+GUjYfbg5bdu6Lcy81R059KyAfRsos5dzgQ8gVvI21
+         FNmA==
+X-Gm-Message-State: AOAM533KJ2e6lzzGvQaJLcK/sS1Z5PAIsjnl6HOzOQpW1IQJIJ9JMwhS
+        0wcO/R+Kd2erFibjxL8IbRRF5tC4OR7cI1mTQRatC6Y1QgbOPJYc5Cnt6Uk6Mu7RnIruFbFjyJf
+        vV5gb3WtCjXgPpdM2
+X-Received: by 2002:a5d:5001:: with SMTP id e1mr1496134wrt.56.1591764305582;
+        Tue, 09 Jun 2020 21:45:05 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJywRytP6FIoM+W4oWypswZZXFPjrrjECTCkbmv+pP0bloGWVKqtSdiGopJ/ccnY8HzNdJNBwg==
+X-Received: by 2002:a5d:5001:: with SMTP id e1mr1496086wrt.56.1591764305280;
+        Tue, 09 Jun 2020 21:45:05 -0700 (PDT)
+Received: from redhat.com (bzq-79-181-55-232.red.bezeqint.net. [79.181.55.232])
+        by smtp.gmail.com with ESMTPSA id q128sm5199346wma.38.2020.06.09.21.45.00
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 09 Jun 2020 21:29:04 -0700 (PDT)
-Message-ID: <5ee06190.1c69fb81.4a3d4.cdaf@mx.google.com>
-Date:   Tue, 09 Jun 2020 21:29:04 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        Tue, 09 Jun 2020 21:45:04 -0700 (PDT)
+Date:   Wed, 10 Jun 2020 00:44:55 -0400
+From:   "Michael S. Tsirkin" <mst@redhat.com>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     kvm@vger.kernel.org, virtualization@lists.linux-foundation.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        akpm@linux-foundation.org, alexander.h.duyck@linux.intel.com,
+        anshuman.khandual@arm.com, anthony.yznaga@oracle.com,
+        arei.gonglei@huawei.com, cai@lca.pw, clabbe@baylibre.com,
+        dan.j.williams@intel.com, davem@davemloft.net, david@redhat.com,
+        dyoung@redhat.com, elfring@users.sourceforge.net,
+        glider@google.com, gregkh@linuxfoundation.org,
+        guennadi.liakhovetski@linux.intel.com, hannes@cmpxchg.org,
+        herbert@gondor.apana.org.au, hulkci@huawei.com,
+        imammedo@redhat.com, jasowang@redhat.com, jgross@suse.com,
+        kernelfans@gmail.com, konrad.wilk@oracle.com, lenb@kernel.org,
+        lingshan.zhu@intel.com, linux-acpi@vger.kernel.org, lkp@intel.com,
+        longpeng2@huawei.com, matej.genci@nutanix.com,
+        mgorman@techsingularity.net, mhocko@kernel.org, mhocko@suse.com,
+        mst@redhat.com, osalvador@suse.com, osalvador@suse.de,
+        pankaj.gupta.linux@gmail.com, pasha.tatashin@soleen.com,
+        pavel.tatashin@microsoft.com, rafael@kernel.org,
+        richard.weiyang@gmail.com, rjw@rjwysocki.net, rppt@linux.ibm.com,
+        stable@vger.kernel.org, stefanha@redhat.com,
+        teawaterz@linux.alibaba.com, vbabka@suse.cz, zou_wei@huawei.com
+Subject: [GIT PULL] virtio: features, fixes
+Message-ID: <20200610004455-mutt-send-email-mst@kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Branch: linux-5.6.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.6.16-86-g1bece508f6a9
-Subject: stable-rc/linux-5.6.y baseline: 61 runs,
- 4 regressions (v5.6.16-86-g1bece508f6a9)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Mutt-Fcc: =sent
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.6.y baseline: 61 runs, 4 regressions (v5.6.16-86-g1bece50=
-8f6a9)
+There's a single commit here that I tweaked since linux-next - the
+change is in printk format string which I consider trivial enough not
+force wait for more testing. A couple of hashes are different from
+what's in linux-next though.  I also upgraded the machine I used to sign
+the tag (didn't change the key) - hope the signature is still ok. If not
+pls let me know!
 
-Regressions Summary
--------------------
+The following changes since commit 3d77e6a8804abcc0504c904bd6e5cdf3a5cf8162:
 
-platform                     | arch   | lab           | compiler | defconfi=
-g        | results
------------------------------+--------+---------------+----------+---------=
----------+--------
-exynos5422-odroidxu3         | arm    | lab-collabora | gcc-8    | exynos_d=
-efconfig | 0/1    =
+  Linux 5.7 (2020-05-31 16:49:15 -0700)
 
-meson-gxl-s805x-libretech-ac | arm64  | lab-baylibre  | gcc-8    | defconfi=
-g        | 0/1    =
+are available in the Git repository at:
 
-qemu_x86_64                  | x86_64 | lab-baylibre  | gcc-8    | x86_64_d=
-efconfig | 0/1    =
+  https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
 
-qemu_x86_64                  | x86_64 | lab-collabora | gcc-8    | x86_64_d=
-efconfig | 0/1    =
+for you to fetch changes up to 044e4b09223039e571e6ec540e25552054208765:
 
+  vhost/test: fix up after API change (2020-06-09 06:42:06 -0400)
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.6.y/kern=
-el/v5.6.16-86-g1bece508f6a9/plan/baseline/
+----------------------------------------------------------------
+virtio: features, fixes
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.6.y
-  Describe: v5.6.16-86-g1bece508f6a9
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      1bece508f6a987257cff511f9ba8b67da8734954 =
+virtio-mem
+doorbell mapping for vdpa
+config interrupt support in ifc
+fixes all over the place
 
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 
+----------------------------------------------------------------
+Alexander Duyck (1):
+      virtio-balloon: Disable free page reporting if page poison reporting is not enabled
 
-Test Regressions
----------------- =
+David Hildenbrand (17):
+      MAINTAINERS: Add myself as virtio-balloon co-maintainer
+      virtio-mem: Paravirtualized memory hotplug
+      MAINTAINERS: Add myself as virtio-mem maintainer
+      virtio-mem: Allow to specify an ACPI PXM as nid
+      virtio-mem: Paravirtualized memory hotunplug part 1
+      virtio-mem: Paravirtualized memory hotunplug part 2
+      mm: Allow to offline unmovable PageOffline() pages via MEM_GOING_OFFLINE
+      virtio-mem: Allow to offline partially unplugged memory blocks
+      mm/memory_hotplug: Introduce offline_and_remove_memory()
+      virtio-mem: Offline and remove completely unplugged memory blocks
+      virtio-mem: Better retry handling
+      virtio-mem: Add parent resource for all added "System RAM"
+      virtio-mem: Drop manual check for already present memory
+      virtio-mem: Unplug subblocks right-to-left
+      virtio-mem: Use -ETXTBSY as error code if the device is busy
+      virtio-mem: Try to unplug the complete online memory block first
+      virtio-mem: Don't rely on implicit compiler padding for requests
 
+Guennadi Liakhovetski (1):
+      vhost: (cosmetic) remove a superfluous variable initialisation
 
+Jason Wang (4):
+      vhost: allow device that does not depend on vhost worker
+      vhost: use mmgrab() instead of mmget() for non worker device
+      vdpa: introduce get_vq_notification method
+      vhost_vdpa: support doorbell mapping via mmap
 
-platform                     | arch   | lab           | compiler | defconfi=
-g        | results
------------------------------+--------+---------------+----------+---------=
----------+--------
-exynos5422-odroidxu3         | arm    | lab-collabora | gcc-8    | exynos_d=
-efconfig | 0/1    =
+Longpeng(Mike) (3):
+      crypto: virtio: Fix src/dst scatterlist calculation in __virtio_crypto_skcipher_do_req()
+      crypto: virtio: Fix use-after-free in virtio_crypto_skcipher_finalize_req()
+      crypto: virtio: Fix dest length calculation in __virtio_crypto_skcipher_do_req()
 
+Markus Elfring (1):
+      virtio-mmio: Delete an error message in vm_find_vqs()
 
-  Details:     https://kernelci.org/test/plan/id/5ee036d4262251e46097bf74
+Matej Genci (1):
+      virtio: add VIRTIO_RING_NO_LEGACY
 
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: exynos_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.6.y/v5.6.16-=
-86-g1bece508f6a9/arm/exynos_defconfig/gcc-8/lab-collabora/baseline-exynos54=
-22-odroidxu3.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.6.y/v5.6.16-=
-86-g1bece508f6a9/arm/exynos_defconfig/gcc-8/lab-collabora/baseline-exynos54=
-22-odroidxu3.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2019=
-.02-11-g17e793fa4728/armel/baseline/rootfs.cpio.gz =
+Michael S. Tsirkin (6):
+      virtio: force spec specified alignment on types
+      vhost: revert "vhost: disable for OABI"
+      vhost_vdpa: disable doorbell mapping for !MMU
+      virtio-mem: drop unnecessary initialization
+      virtio_mem: convert device block size into 64bit
+      vhost/test: fix up after API change
 
+Samuel Zou (1):
+      vdpasim: Fix some coccinelle warnings
 
-  * baseline.login: https://kernelci.org/test/case/id/5ee036d4262251e46097b=
-f75
-      failing since 8 days (last pass: v5.6.13-193-g67346f550ad8, first fai=
-l: v5.6.15-178-gc72fcbc7d224) =
+Zhu Lingshan (5):
+      ifcvf: move IRQ request/free to status change handlers
+      ifcvf: ignore continuous setting same status value
+      vhost_vdpa: Support config interrupt in vdpa
+      vhost: replace -1 with VHOST_FILE_UNBIND in ioctls
+      ifcvf: implement config interrupt in IFCVF
 
+ MAINTAINERS                                |   18 +-
+ drivers/acpi/numa/srat.c                   |    1 +
+ drivers/crypto/virtio/virtio_crypto_algs.c |   21 +-
+ drivers/misc/mic/Kconfig                   |    2 +-
+ drivers/net/caif/Kconfig                   |    2 +-
+ drivers/vdpa/Kconfig                       |    2 +-
+ drivers/vdpa/ifcvf/ifcvf_base.c            |    3 +
+ drivers/vdpa/ifcvf/ifcvf_base.h            |    4 +
+ drivers/vdpa/ifcvf/ifcvf_main.c            |  146 ++-
+ drivers/vdpa/vdpa_sim/vdpa_sim.c           |    7 +-
+ drivers/vhost/Kconfig                      |   17 +-
+ drivers/vhost/net.c                        |    2 +-
+ drivers/vhost/scsi.c                       |    2 +-
+ drivers/vhost/test.c                       |    2 +-
+ drivers/vhost/vdpa.c                       |  112 +-
+ drivers/vhost/vhost.c                      |  100 +-
+ drivers/vhost/vhost.h                      |    8 +-
+ drivers/vhost/vringh.c                     |    6 +-
+ drivers/vhost/vsock.c                      |    2 +-
+ drivers/virtio/Kconfig                     |   17 +
+ drivers/virtio/Makefile                    |    1 +
+ drivers/virtio/virtio_balloon.c            |    9 +-
+ drivers/virtio/virtio_mem.c                | 1965 ++++++++++++++++++++++++++++
+ drivers/virtio/virtio_mmio.c               |    4 +-
+ drivers/virtio/virtio_pci_modern.c         |    1 +
+ include/linux/memory_hotplug.h             |    1 +
+ include/linux/page-flags.h                 |   10 +
+ include/linux/vdpa.h                       |   16 +
+ include/linux/vringh.h                     |    6 +-
+ include/uapi/linux/vhost.h                 |    4 +
+ include/uapi/linux/virtio_ids.h            |    1 +
+ include/uapi/linux/virtio_mem.h            |  211 +++
+ include/uapi/linux/virtio_ring.h           |   48 +-
+ mm/memory_hotplug.c                        |   81 +-
+ mm/page_alloc.c                            |   26 +
+ mm/page_isolation.c                        |    9 +
+ 36 files changed, 2723 insertions(+), 144 deletions(-)
+ create mode 100644 drivers/virtio/virtio_mem.c
+ create mode 100644 include/uapi/linux/virtio_mem.h
 
-
-platform                     | arch   | lab           | compiler | defconfi=
-g        | results
------------------------------+--------+---------------+----------+---------=
----------+--------
-meson-gxl-s805x-libretech-ac | arm64  | lab-baylibre  | gcc-8    | defconfi=
-g        | 0/1    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5ee029931d9350542497bf1b
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.6.y/v5.6.16-=
-86-g1bece508f6a9/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxl-s805=
-x-libretech-ac.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.6.y/v5.6.16-=
-86-g1bece508f6a9/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxl-s805=
-x-libretech-ac.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2019=
-.02-11-g17e793fa4728/arm64/baseline/rootfs.cpio.gz =
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5ee029931d9350542497b=
-f1c
-      new failure (last pass: v5.6.16-44-g6266fb28693f) =
-
-
-
-platform                     | arch   | lab           | compiler | defconfi=
-g        | results
------------------------------+--------+---------------+----------+---------=
----------+--------
-qemu_x86_64                  | x86_64 | lab-baylibre  | gcc-8    | x86_64_d=
-efconfig | 0/1    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5ee029a7b2cc506a4e97bf15
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig
-  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.6.y/v5.6.16-=
-86-g1bece508f6a9/x86_64/x86_64_defconfig/gcc-8/lab-baylibre/baseline-qemu_x=
-86_64.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.6.y/v5.6.16-=
-86-g1bece508f6a9/x86_64/x86_64_defconfig/gcc-8/lab-baylibre/baseline-qemu_x=
-86_64.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2019=
-.02-11-g17e793fa4728/x86/baseline/rootfs.cpio.gz =
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5ee029a7b2cc506a4e97b=
-f16
-      new failure (last pass: v5.6.15-178-g1c16267b1e40) =
-
-
-
-platform                     | arch   | lab           | compiler | defconfi=
-g        | results
------------------------------+--------+---------------+----------+---------=
----------+--------
-qemu_x86_64                  | x86_64 | lab-collabora | gcc-8    | x86_64_d=
-efconfig | 0/1    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5ee029d0e35f3e203997bf14
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig
-  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.6.y/v5.6.16-=
-86-g1bece508f6a9/x86_64/x86_64_defconfig/gcc-8/lab-collabora/baseline-qemu_=
-x86_64.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.6.y/v5.6.16-=
-86-g1bece508f6a9/x86_64/x86_64_defconfig/gcc-8/lab-collabora/baseline-qemu_=
-x86_64.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2019=
-.02-11-g17e793fa4728/x86/baseline/rootfs.cpio.gz =
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5ee029d0e35f3e203997b=
-f15
-      new failure (last pass: v5.6.15-178-g1c16267b1e40) =20
