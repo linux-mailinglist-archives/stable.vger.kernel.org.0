@@ -2,157 +2,164 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF2091F512D
-	for <lists+stable@lfdr.de>; Wed, 10 Jun 2020 11:31:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 88A561F51E7
+	for <lists+stable@lfdr.de>; Wed, 10 Jun 2020 12:09:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727115AbgFJJbE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Jun 2020 05:31:04 -0400
-Received: from youngberry.canonical.com ([91.189.89.112]:56045 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726961AbgFJJbE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 10 Jun 2020 05:31:04 -0400
-Received: from ip5f5af183.dynamic.kabel-deutschland.de ([95.90.241.131] helo=wittgenstein)
-        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.86_2)
-        (envelope-from <christian.brauner@ubuntu.com>)
-        id 1jix4R-0005Hy-9B; Wed, 10 Jun 2020 09:30:55 +0000
-Date:   Wed, 10 Jun 2020 11:30:54 +0200
-From:   Christian Brauner <christian.brauner@ubuntu.com>
-To:     containers@lists.linux-foundation.org,
-        Kees Cook <keescook@chromium.org>
-Cc:     Giuseppe Scrivano <gscrivan@redhat.com>,
-        Robert Sesek <rsesek@google.com>,
-        Chris Palmer <palmer@google.com>, Jann Horn <jannh@google.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Daniel Wagner <daniel.wagner@bmw-carit.de>,
-        linux-kernel@vger.kernel.org, Matt Denton <mpdenton@google.com>,
-        John Fastabend <john.r.fastabend@intel.com>,
-        linux-fsdevel@vger.kernel.org, Tejun Heo <tj@kernel.org>,
-        Al Viro <viro@zeniv.linux.org.uk>, cgroups@vger.kernel.org,
-        stable@vger.kernel.org, "David S . Miller" <davem@davemloft.net>
-Subject: Re: [PATCH v3 1/4] fs, net: Standardize on file_receive helper to
- move fds across processes
-Message-ID: <20200610093054.z7hydwbcmh7ocanw@wittgenstein>
-References: <20200603011044.7972-1-sargun@sargun.me>
- <20200603011044.7972-2-sargun@sargun.me>
- <20200604012452.vh33nufblowuxfed@wittgenstein>
- <202006031845.F587F85A@keescook>
- <20200604125226.eztfrpvvuji7cbb2@wittgenstein>
- <20200605075435.GA3345@ircssh-2.c.rugged-nimbus-611.internal>
- <202006091235.930519F5B@keescook>
- <20200609200346.3fthqgfyw3bxat6l@wittgenstein>
- <202006091346.66B79E07@keescook>
- <037A305F-B3F8-4CFA-B9F8-CD4C9EF9090B@ubuntu.com>
+        id S1727946AbgFJKJs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Jun 2020 06:09:48 -0400
+Received: from mga02.intel.com ([134.134.136.20]:54138 "EHLO mga02.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726134AbgFJKJs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Jun 2020 06:09:48 -0400
+IronPort-SDR: FoUGIqBnQtdp+QpvzeAvg9nARGCJudECfzvOHgvSlnL8x4tdvALJxJfbeC1OncUyWz6MsKNuZL
+ px/d5oaXP3DQ==
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga004.jf.intel.com ([10.7.209.38])
+  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Jun 2020 03:09:47 -0700
+IronPort-SDR: u7yzXtNEAZBPkfeOwCtOYRmrsH/w+dEc86Ro/nm/clrFwBNC8w2AVdls0hHxtXozbAx1wtFaSA
+ 4e4NI+fOUXJw==
+X-IronPort-AV: E=Sophos;i="5.73,495,1583222400"; 
+   d="scan'208";a="418700266"
+Received: from ideak-desk.fi.intel.com ([10.237.72.183])
+  by orsmga004-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Jun 2020 03:09:45 -0700
+Date:   Wed, 10 Jun 2020 13:09:36 +0300
+From:   Imre Deak <imre.deak@intel.com>
+To:     "Lisovskiy, Stanislav" <stanislav.lisovskiy@intel.com>
+Cc:     intel-gfx@lists.freedesktop.org, stable@vger.kernel.org,
+        dri-devel@lists.freedesktop.org
+Subject: Re: [PATCH 2/3] drm/dp_mst: Fix the DDC I2C device registration of
+ an MST port
+Message-ID: <20200610100936.GB10200@ideak-desk.fi.intel.com>
+Reply-To: imre.deak@intel.com
+References: <20200607212522.16935-1-imre.deak@intel.com>
+ <20200607212522.16935-2-imre.deak@intel.com>
+ <20200610080304.GA10787@intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <037A305F-B3F8-4CFA-B9F8-CD4C9EF9090B@ubuntu.com>
+In-Reply-To: <20200610080304.GA10787@intel.com>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jun 09, 2020 at 11:27:30PM +0200, Christian Brauner wrote:
-> On June 9, 2020 10:55:42 PM GMT+02:00, Kees Cook <keescook@chromium.org> wrote:
-> >On Tue, Jun 09, 2020 at 10:03:46PM +0200, Christian Brauner wrote:
-> >> I'm looking at __scm_install_fd() and I wonder what specifically you
-> >> mean by that? The put_user() seems to be placed such that the install
-> >> occurrs only if it succeeded. Sure, it only handles a single fd but
-> >> whatever. Userspace knows that already. Just look at systemd when a
-> >msg
-> >> fails:
-> >> 
-> >> void cmsg_close_all(struct msghdr *mh) {
-> >>         struct cmsghdr *cmsg;
-> >> 
-> >>         assert(mh);
-> >> 
-> >>         CMSG_FOREACH(cmsg, mh)
-> >>                 if (cmsg->cmsg_level == SOL_SOCKET && cmsg->cmsg_type
-> >== SCM_RIGHTS)
-> >>                         close_many((int*) CMSG_DATA(cmsg),
-> >(cmsg->cmsg_len - CMSG_LEN(0)) / sizeof(int));
-> >> }
-> >> 
-> >> The only reasonable scenario for this whole mess I can think of is sm
-> >like (pseudo code):
-> >> 
-> >> fd_install_received(int fd, struct file *file)
-> >> {
-> >>  	sock = sock_from_file(fd, &err);
-> >>  	if (sock) {
-> >>  		sock_update_netprioidx(&sock->sk->sk_cgrp_data);
-> >>  		sock_update_classid(&sock->sk->sk_cgrp_data);
-> >>  	}
-> >> 
-> >> 	fd_install();
-> >> }
-> >> 
-> >> error = 0;
-> >> fdarray = malloc(fdmax);
-> >> for (i = 0; i < fdmax; i++) {
-> >> 	fdarray[i] = get_unused_fd_flags(o_flags);
-> >> 	if (fdarray[i] < 0) {
-> >> 		error = -EBADF;
-> >> 		break;
-> >> 	}
-> >> 
-> >> 	error = security_file_receive(file);
-> >> 	if (error)
-> >> 		break;
-> >> 
-> >> 	error = put_user(fd_array[i], ufd);
-> >> 	if (error)
-> >> 		break;
-> >> }
-> >> 
-> >> for (i = 0; i < fdmax; i++) {
-> >> 	if (error) {
-> >> 		/* ignore errors */
-> >> 		put_user(-EBADF, ufd); /* If this put_user() fails and the first
-> >one succeeded userspace might now close an fd it didn't intend to. */
-> >> 		put_unused_fd(fdarray[i]);
-> >> 	} else {
-> >> 		fd_install_received(fdarray[i], file);
-> >> 	}
-> >> }
-> >
-> >I see 4 cases of the same code pattern (get_unused_fd_flags(),
-> >sock_update_*(), fd_install()), one of them has this difficult
-> >put_user()
-> >in the middle, and one of them has a potential replace_fd() instead of
-> >the get_used/fd_install. So, to me, it makes sense to have a helper
-> >that
-> >encapsulates the common work that each of those call sites has to do,
-> >which I keep cringing at all these suggestions that leave portions of
-> >it
-> >outside the helper.
-> >
-> >If it's too ugly to keep the put_user() in the helper, then we can try
-> >what was suggested earlier, and just totally rework the failure path
-> >for
-> >SCM_RIGHTS.
-> >
-> >LOL. And while we were debating this, hch just went and cleaned stuff
-> >up:
-> >
-> >2618d530dd8b ("net/scm: cleanup scm_detach_fds")
-> >
-> >So, um, yeah, now my proposal is actually even closer to what we
-> >already
-> >have there. We just add the replace_fd() logic to __scm_install_fd()
-> >and
-> >we're done with it.
+On Wed, Jun 10, 2020 at 11:03:04AM +0300, Lisovskiy, Stanislav wrote:
+> On Mon, Jun 08, 2020 at 12:25:21AM +0300, Imre Deak wrote:
+> > During the initial MST probing an MST port's I2C device will be
+> > registered using the kdev of the DRM device as a parent. Later after MST
+> > Connection Status Notifications this I2C device will be re-registered
+> > with the kdev of the port's connector. This will also move
+> > inconsistently the I2C device's sysfs entry from the DRM device's sysfs
+> > dir to the connector's dir.
+> > 
+> > Fix the above by keeping the DRM kdev as the parent of the I2C device.
+> > 
+> > Ideally the connector's kdev would be used as a parent, similarly to
+> > non-MST connectors, however that needs some more refactoring to ensure
+> > the connector's kdev is already available early enough. So keep the
+> > existing (initial) behavior for now.
+> > 
+> > Cc: <stable@vger.kernel.org>
+> > Signed-off-by: Imre Deak <imre.deak@intel.com>
+> > ---
+> >  drivers/gpu/drm/drm_dp_mst_topology.c | 28 +++++++++++++++------------
+> >  1 file changed, 16 insertions(+), 12 deletions(-)
+> > 
+> > diff --git a/drivers/gpu/drm/drm_dp_mst_topology.c b/drivers/gpu/drm/drm_dp_mst_topology.c
+> > index 02c800b8199f..083255c33ee0 100644
+> > --- a/drivers/gpu/drm/drm_dp_mst_topology.c
+> > +++ b/drivers/gpu/drm/drm_dp_mst_topology.c
+> > @@ -88,8 +88,8 @@ static int drm_dp_send_enum_path_resources(struct drm_dp_mst_topology_mgr *mgr,
+> >  static bool drm_dp_validate_guid(struct drm_dp_mst_topology_mgr *mgr,
+> >  				 u8 *guid);
+> >  
+> > -static int drm_dp_mst_register_i2c_bus(struct drm_dp_aux *aux);
+> > -static void drm_dp_mst_unregister_i2c_bus(struct drm_dp_aux *aux);
+> > +static int drm_dp_mst_register_i2c_bus(struct drm_dp_mst_port *port);
+> > +static void drm_dp_mst_unregister_i2c_bus(struct drm_dp_mst_port *port);
+> >  static void drm_dp_mst_kick_tx(struct drm_dp_mst_topology_mgr *mgr);
+> >  
+> >  #define DBG_PREFIX "[dp_mst]"
+> > @@ -1993,7 +1993,7 @@ drm_dp_port_set_pdt(struct drm_dp_mst_port *port, u8 new_pdt,
+> >  			}
+> >  
+> >  			/* remove i2c over sideband */
+> > -			drm_dp_mst_unregister_i2c_bus(&port->aux);
+> > +			drm_dp_mst_unregister_i2c_bus(port);
+> >  		} else {
+> >  			mutex_lock(&mgr->lock);
+> >  			drm_dp_mst_topology_put_mstb(port->mstb);
+> > @@ -2008,7 +2008,7 @@ drm_dp_port_set_pdt(struct drm_dp_mst_port *port, u8 new_pdt,
+> >  	if (port->pdt != DP_PEER_DEVICE_NONE) {
+> >  		if (drm_dp_mst_is_end_device(port->pdt, port->mcs)) {
+> >  			/* add i2c over sideband */
+> > -			ret = drm_dp_mst_register_i2c_bus(&port->aux);
+> > +			ret = drm_dp_mst_register_i2c_bus(port);
+> >  		} else {
+> >  			lct = drm_dp_calculate_rad(port, rad);
+> >  			mstb = drm_dp_add_mst_branch_device(lct, rad);
+> > @@ -5375,22 +5375,26 @@ static const struct i2c_algorithm drm_dp_mst_i2c_algo = {
+> >  
+> >  /**
+> >   * drm_dp_mst_register_i2c_bus() - register an I2C adapter for I2C-over-AUX
+> > - * @aux: DisplayPort AUX channel
+> > + * @port: The port to add the I2C bus on
+> >   *
+> >   * Returns 0 on success or a negative error code on failure.
+> >   */
+> > -static int drm_dp_mst_register_i2c_bus(struct drm_dp_aux *aux)
+> > +static int drm_dp_mst_register_i2c_bus(struct drm_dp_mst_port *port)
+> >  {
+> > +	struct drm_dp_aux *aux = &port->aux;
+> > +	struct device *parent_dev = port->mgr->dev->dev;
+> > +
 > 
-> Cool, you have a link? :)
+> So are we sure that this will always give us thr kdev of the drm device?
+> I mean could there be more complex hierarchy? Just wondering if there is 
+> a way to get drm device kdev in a more explicit way.
 
-For the record, as I didn't see this yesterday since I was already
-looking at a kernel with Christoph's changes. His changes just move the
-logic that was already there before into a separate helper.
+There is a single mgr per DRM driver (kdev) and port objects created by
+a given DRM driver will stay owned by the same DRM driver. So the
+kdev->port association is static.
 
-So effectively nothing has changed semantically in the scm code at all.
-
-This is why I was asking yesterday what you meant by reworking the scm
-code's put_user() logic as it seems obviously correct as it is done now.
-
-Christian
+> >  	aux->ddc.algo = &drm_dp_mst_i2c_algo;
+> >  	aux->ddc.algo_data = aux;
+> >  	aux->ddc.retries = 3;
+> >  
+> >  	aux->ddc.class = I2C_CLASS_DDC;
+> >  	aux->ddc.owner = THIS_MODULE;
+> > -	aux->ddc.dev.parent = aux->dev;
+> > -	aux->ddc.dev.of_node = aux->dev->of_node;
+> > +	/* FIXME: set the kdev of the port's connector as parent */
+> > +	aux->ddc.dev.parent = parent_dev;
+> > +	aux->ddc.dev.of_node = parent_dev->of_node;
+> >  
+> > -	strlcpy(aux->ddc.name, aux->name ? aux->name : dev_name(aux->dev),
+> > +	strlcpy(aux->ddc.name, aux->name ? aux->name : dev_name(parent_dev),
+> >  		sizeof(aux->ddc.name));
+> >  
+> >  	return i2c_add_adapter(&aux->ddc);
+> > @@ -5398,11 +5402,11 @@ static int drm_dp_mst_register_i2c_bus(struct drm_dp_aux *aux)
+> >  
+> >  /**
+> >   * drm_dp_mst_unregister_i2c_bus() - unregister an I2C-over-AUX adapter
+> > - * @aux: DisplayPort AUX channel
+> > + * @port: The port to remove the I2C bus from
+> >   */
+> > -static void drm_dp_mst_unregister_i2c_bus(struct drm_dp_aux *aux)
+> > +static void drm_dp_mst_unregister_i2c_bus(struct drm_dp_mst_port *port)
+> >  {
+> > -	i2c_del_adapter(&aux->ddc);
+> > +	i2c_del_adapter(&port->aux.ddc);
+> >  }
+> >  
+> >  /**
+> > -- 
+> > 2.23.1
+> > 
+> > _______________________________________________
+> > dri-devel mailing list
+> > dri-devel@lists.freedesktop.org
+> > https://lists.freedesktop.org/mailman/listinfo/dri-devel
