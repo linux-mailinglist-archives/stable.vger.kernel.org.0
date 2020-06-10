@@ -2,93 +2,441 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B6171F5C04
-	for <lists+stable@lfdr.de>; Wed, 10 Jun 2020 21:38:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F7DD1F5CFC
+	for <lists+stable@lfdr.de>; Wed, 10 Jun 2020 22:20:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729982AbgFJTh7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Jun 2020 15:37:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54928 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728166AbgFJTh7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 10 Jun 2020 15:37:59 -0400
-Received: from mail-oi1-x244.google.com (mail-oi1-x244.google.com [IPv6:2607:f8b0:4864:20::244])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7310C03E96F
-        for <stable@vger.kernel.org>; Wed, 10 Jun 2020 12:37:58 -0700 (PDT)
-Received: by mail-oi1-x244.google.com with SMTP id a3so3201979oid.4
-        for <stable@vger.kernel.org>; Wed, 10 Jun 2020 12:37:58 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linuxfoundation.org; s=google;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=qw7mwA33eVi6Ku9Rv3oEh0XhxvWo5n6dAxDv4/ZVn4Q=;
-        b=Cl+/Mzk/0SZ3XffJNq32Ne2MCmXxwekCz05Fm7Bm+7CjSaVPVxcMysuVRdv6C0EWDP
-         CUQBz+ypmPSZ47o1g8EQveiPFae2ysIw2eXX3xojpL6fd2zPjvbsEvaP3Ag/m1VR4qnP
-         Lpo+qYxyrZAJqTh+YQQSLf7sZfyS7a42TjO+A=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=qw7mwA33eVi6Ku9Rv3oEh0XhxvWo5n6dAxDv4/ZVn4Q=;
-        b=tCBGerUsUeN+lMbeg7cRi2R082PjjfOIwJQ12WlOa3Z9wHDT4Mmt9hvEgyEwZZAgs+
-         v1KimqRfllSeIqy25Halz/bCT+EsrlO3wJzV9zmdcx9XTmWfdliUKhaSxNhtu9ypFrby
-         vc9SBXwtadeL5RbuzCCT4xB9o6fh9yDSqyN7t7OcwQNGId06oNbASjTnluXKWZT23T7C
-         GCbuILjsQtDAIwHb2/bWz8qC2+rsO2/uozes+fdB+ntf3O2yqw3lydjDhx/LWPT8w1VD
-         RM4PalcOAMfgD1AXjxlCbriYyyxox/SfoyeAJi8tLsJIkzBsdCYLJ732k+iRKYDmh1Gq
-         ALfA==
-X-Gm-Message-State: AOAM533V5g18uWiZjxSL5ovrcNEMuNQ9VwvddC4FduTIBMYk5jCiw1Ch
-        kxS+5L0lbpMlOtmJotetNyIrhUvmRsM=
-X-Google-Smtp-Source: ABdhPJzVvS64iuCcJSk72RzaJ30X/jutQHsqxWHMVgIr8ZyLUB7b5a8cG2WaomugGeNTRmgB+YVfhA==
-X-Received: by 2002:aca:b155:: with SMTP id a82mr3658802oif.122.1591817878292;
-        Wed, 10 Jun 2020 12:37:58 -0700 (PDT)
-Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net. [24.9.64.241])
-        by smtp.gmail.com with ESMTPSA id d13sm198468otq.46.2020.06.10.12.37.57
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 10 Jun 2020 12:37:57 -0700 (PDT)
-Subject: Re: [PATCH 4.4 00/36] 4.4.227-rc2 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>
-References: <20200609190211.793882726@linuxfoundation.org>
-From:   Shuah Khan <skhan@linuxfoundation.org>
-Message-ID: <d78b5b05-2f40-9152-1752-4a1823d0ab46@linuxfoundation.org>
-Date:   Wed, 10 Jun 2020 13:37:56 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.8.0
+        id S1726266AbgFJUUR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Jun 2020 16:20:17 -0400
+Received: from mga03.intel.com ([134.134.136.65]:2570 "EHLO mga03.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726081AbgFJUUQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Jun 2020 16:20:16 -0400
+IronPort-SDR: MpS+TFAVWzxXwnwv2av2Idqhs4bkEmku/L9Xc0sDOe0DIX7NA/9HatJJA2wymNeBVk8xY9Uvg4
+ OonEJEUmee1Q==
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga001.jf.intel.com ([10.7.209.18])
+  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Jun 2020 13:20:14 -0700
+IronPort-SDR: mICvJU2zormngb0z81FehEvrvmma3KyVRZ0WF3VYREMfczu+4MdwC9y15eVNsdIsAwyU+Mcl/4
+ Q0NWQ5etbooA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.73,497,1583222400"; 
+   d="scan'208";a="349974965"
+Received: from rdvivi-losangeles.jf.intel.com ([10.165.21.202])
+  by orsmga001.jf.intel.com with ESMTP; 10 Jun 2020 13:20:13 -0700
+From:   Rodrigo Vivi <rodrigo.vivi@intel.com>
+To:     intel-gfx@lists.freedesktop.org
+Cc:     Rodrigo Vivi <rodrigo.vivi@intel.com>, stable@vger.kernel.org,
+        Alexandre Oliva <lxoliva@fsfla.org>,
+        Prathap Kumar Valsan <prathap.kumar.valsan@intel.com>,
+        Akeem G Abodunrin <akeem.g.abodunrin@intel.com>,
+        Mika Kuoppala <mika.kuoppala@linux.intel.com>,
+        Chris Wilson <chris@chris-wilson.co.uk>,
+        Jani Nikula <jani.nikula@intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+Subject: [PATCH] drm/i915: Include asm sources for {ivb,hsw}_clear_kernel.c
+Date:   Wed, 10 Jun 2020 13:18:07 -0700
+Message-Id: <20200610201807.191440-1-rodrigo.vivi@intel.com>
+X-Mailer: git-send-email 2.24.1
+In-Reply-To: <159163988890.30073.8976615673203599761@build.alporthouse.com>
+References: <159163988890.30073.8976615673203599761@build.alporthouse.com>
 MIME-Version: 1.0
-In-Reply-To: <20200609190211.793882726@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 6/9/20 1:18 PM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.4.227 release.
-> There are 36 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Thu, 11 Jun 2020 19:02:00 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.227-rc2.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.4.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
+Alexandre Oliva has recently removed these files from Linux Libre
+with concerns that the sources weren't available.
 
-Compiled and booted on my test system. No dmesg regressions.
+The sources are available on IGT repository, and only open source
+tools are used to generate the {ivb,hsw}_clear_kernel.c files.
 
-thanks,
--- Shuah
+However, the remaining concern from Alexandre Oliva was around
+GPL license and the source not been present when distributing
+the code.
+
+So, it looks like 2 alternatives are possible, the use of
+linux-firmware.git repository to store the blob or making sure
+that the source is also present in our tree. Since the goal
+is to limit the i915 firmware to only the micro-controller blobs
+let's make sure that we do include the asm sources here in our tree.
+
+Btw, I tried to have some diligence here and make sure that the
+asms that these commits are adding are truly the source for
+the mentioned files:
+
+igt$ ./scripts/generate_clear_kernel.sh -g ivb \
+     -m ~/mesa/build/src/intel/tools/i965_asm
+Output file not specified - using default file "ivb-cb_assembled"
+
+Generating gen7 CB Kernel assembled file "ivb_clear_kernel.c"
+for i915 driver...
+
+igt$ diff ~/i915/drm-tip/drivers/gpu/drm/i915/gt/ivb_clear_kernel.c \
+     ivb_clear_kernel.c
+
+<  * Generated by: IGT Gpu Tools on Fri 21 Feb 2020 05:29:32 AM UTC
+>  * Generated by: IGT Gpu Tools on Mon 08 Jun 2020 10:00:54 AM PDT
+61c61
+< };
+> };
+\ No newline at end of file
+
+igt$ ./scripts/generate_clear_kernel.sh -g hsw \
+     -m ~/mesa/build/src/intel/tools/i965_asm
+Output file not specified - using default file "hsw-cb_assembled"
+
+Generating gen7.5 CB Kernel assembled file "hsw_clear_kernel.c"
+for i915 driver...
+
+igt$ diff ~/i915/drm-tip/drivers/gpu/drm/i915/gt/hsw_clear_kernel.c \
+     hsw_clear_kernel.c
+5c5
+<  * Generated by: IGT Gpu Tools on Fri 21 Feb 2020 05:30:13 AM UTC
+>  * Generated by: IGT Gpu Tools on Mon 08 Jun 2020 10:01:42 AM PDT
+61c61
+< };
+> };
+\ No newline at end of file
+
+Used IGT and Mesa master repositories from Fri Jun 5 2020)
+IGT: 53e8c878a6fb ("tests/kms_chamelium: Force reprobe after replugging
+     the connector")
+Mesa: 5d13c7477eb1 ("radv: set keep_statistic_info with
+      RADV_DEBUG=shaderstats")
+Mesa built with: meson build -D platforms=drm,x11 -D dri-drivers=i965 \
+                 -D gallium-drivers=iris -D prefix=/usr \
+		 -D libdir=/usr/lib64/ -Dtools=intel \
+		 -Dkulkan-drivers=intel && ninja -C build
+
+v2: Header clean-up and include build instructions in a readme (Chris)
+    Modified commit message to respect check-patch
+
+Reference: http://www.fsfla.org/pipermail/linux-libre/2020-June/003374.html
+Reference: http://www.fsfla.org/pipermail/linux-libre/2020-June/003375.html
+Fixes: 47f8253d2b89 ("drm/i915/gen7: Clear all EU/L3 residual contexts")
+Cc: <stable@vger.kernel.org> # v5.7+
+Cc: Alexandre Oliva <lxoliva@fsfla.org>
+Cc: Prathap Kumar Valsan <prathap.kumar.valsan@intel.com>
+Cc: Akeem G Abodunrin <akeem.g.abodunrin@intel.com>
+Cc: Mika Kuoppala <mika.kuoppala@linux.intel.com>
+Cc: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Jani Nikula <jani.nikula@intel.com>
+Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+---
+ drivers/gpu/drm/i915/gt/shaders/README        |  46 +++++++
+ .../drm/i915/gt/shaders/clear_kernel/hsw.asm  | 119 ++++++++++++++++++
+ .../drm/i915/gt/shaders/clear_kernel/ivb.asm  | 117 +++++++++++++++++
+ 3 files changed, 282 insertions(+)
+ create mode 100644 drivers/gpu/drm/i915/gt/shaders/README
+ create mode 100644 drivers/gpu/drm/i915/gt/shaders/clear_kernel/hsw.asm
+ create mode 100644 drivers/gpu/drm/i915/gt/shaders/clear_kernel/ivb.asm
+
+diff --git a/drivers/gpu/drm/i915/gt/shaders/README b/drivers/gpu/drm/i915/gt/shaders/README
+new file mode 100644
+index 000000000000..e7e96d7073c7
+--- /dev/null
++++ b/drivers/gpu/drm/i915/gt/shaders/README
+@@ -0,0 +1,46 @@
++ASM sources for auto generated shaders
++======================================
++
++The i915/gt/hsw_clear_kernel.c and i915/gt/ivb_clear_kernel.c files contain
++pre-compiled batch chunks that will clear any residual render cache during
++context switch.
++
++They are generated from their respective platform ASM files present on
++i915/gt/shaders/clear_kernel directory.
++
++The generated .c files should never be modified directly. Instead, any modification
++needs to be done on the on their respective ASM files and build instructions below
++needes to be followed.
++
++Building
++========
++
++Environment
++-----------
++
++IGT GPU tool scripts and the Mesa's i965 instruction assembler tool are used
++on building.
++
++Please make sure your Mesa tool is compiled with "-Dtools=intel" and
++"-Ddri-drivers=i965", and run this script from IGT source root directory"
++
++The instructions bellow assume:
++    *  IGT gpu tools source code is located on your home directory (~) as ~/igt
++    *  Mesa source code is located on your home directory (~) as ~/mesa
++       and built under the ~/mesa/build directory
++    *  Linux kernel source code is under your home directory (~) as ~/linux
++
++Instructions
++------------
++
++~ $ cp ~/linux/drivers/gpu/drm/i915/gt/shaders/clear_kernel/ivb.asm \
++       ~/igt/lib/i915/shaders/clear_kernel/ivb.asm
++~ $ cd ~/igt
++igt $ ./scripts/generate_clear_kernel.sh -g ivb \
++      -m ~/mesa/build/src/intel/tools/i965_asm
++
++~ $ cp ~/linux/drivers/gpu/drm/i915/gt/shaders/clear_kernel/hsw.asm \
++    ~/igt/lib/i915/shaders/clear_kernel/hsw.asm
++~ $ cd ~/igt
++igt $ ./scripts/generate_clear_kernel.sh -g hsw \
++      -m ~/mesa/build/src/intel/tools/i965_asm
+\ No newline at end of file
+diff --git a/drivers/gpu/drm/i915/gt/shaders/clear_kernel/hsw.asm b/drivers/gpu/drm/i915/gt/shaders/clear_kernel/hsw.asm
+new file mode 100644
+index 000000000000..5fdf384bb621
+--- /dev/null
++++ b/drivers/gpu/drm/i915/gt/shaders/clear_kernel/hsw.asm
+@@ -0,0 +1,119 @@
++// SPDX-License-Identifier: MIT
++/*
++ * Copyright © 2020 Intel Corporation
++ */
++
++/*
++ * Kernel for PAVP buffer clear.
++ *
++ *	1. Clear all 64 GRF registers assigned to the kernel with designated value;
++ *	2. Write 32x16 block of all "0" to render target buffer which indirectly clears
++ *	   512 bytes of Render Cache.
++ */
++
++/* Store designated "clear GRF" value */
++mov(1)          f0.1<1>UW       g1.2<0,1,0>UW                   { align1 1N };
++
++/**
++ * Curbe Format
++ *
++ * DW 1.0 - Block Offset to write Render Cache
++ * DW 1.1 [15:0] - Clear Word
++ * DW 1.2 - Delay iterations
++ * DW 1.3 - Enable Instrumentation (only for debug)
++ * DW 1.4 - Rsvd (intended for context ID)
++ * DW 1.5 - [31:16]:SliceCount, [15:0]:SubSlicePerSliceCount
++ * DW 1.6 - Rsvd MBZ (intended for Enable Wait on Total Thread Count)
++ * DW 1.7 - Rsvd MBZ (inteded for Total Thread Count)
++ *
++ * Binding Table
++ *
++ * BTI 0: 2D Surface to help clear L3 (Render/Data Cache)
++ * BTI 1: Wait/Instrumentation Buffer
++ *  Size : (SliceCount * SubSliceCount  * 16 EUs/SubSlice) rows * (16 threads/EU) cols (Format R32_UINT)
++ *         Expected to be initialized to 0 by driver/another kernel
++ *  Layout:
++ *          RowN: Histogram for EU-N: (SliceID*SubSlicePerSliceCount + SSID)*16 + EUID [assume max 16 EUs / SS]
++ *          Col-k[DW-k]: Threads Executed on ThreadID-k for EU-N
++ */
++add(1)          g1.2<1>UD       g1.2<0,1,0>UD   0x00000001UD    { align1 1N }; /* Loop count to delay kernel: Init to (g1.2 + 1) */
++cmp.z.f0.0(1)   null<1>UD       g1.3<0,1,0>UD   0x00000000UD    { align1 1N };
++(+f0.0) jmpi(1) 352D                                            { align1 WE_all 1N };
++
++/**
++ * State Register has info on where this thread is running
++ *	IVB: sr0.0 :: [15:13]: MBZ, 12: HSID (Half-Slice ID), [11:8]EUID, [2:0] ThreadSlotID
++ *	HSW: sr0.0 :: 15: MBZ, [14:13]: SliceID, 12: HSID (Half-Slice ID), [11:8]EUID, [2:0] ThreadSlotID
++ */
++mov(8)          g3<1>UD         0x00000000UD                    { align1 1Q };
++shr(1)          g3<1>D          sr0<0,1,0>D     12D             { align1 1N };
++and(1)          g3<1>D          g3<0,1,0>D      1D              { align1 1N }; /* g3 has HSID */
++shr(1)          g3.1<1>D        sr0<0,1,0>D     13D             { align1 1N };
++and(1)          g3.1<1>D        g3.1<0,1,0>D    3D              { align1 1N }; /* g3.1 has sliceID */
++mul(1)          g3.5<1>D        g3.1<0,1,0>D    g1.10<0,1,0>UW  { align1 1N };
++add(1)          g3<1>D          g3<0,1,0>D      g3.5<0,1,0>D    { align1 1N }; /* g3 = sliceID * SubSlicePerSliceCount + HSID */
++shr(1)          g3.2<1>D        sr0<0,1,0>D     8D              { align1 1N };
++and(1)          g3.2<1>D        g3.2<0,1,0>D    15D             { align1 1N }; /* g3.2 = EUID */
++mul(1)          g3.4<1>D        g3<0,1,0>D      16D             { align1 1N };
++add(1)          g3.2<1>D        g3.2<0,1,0>D    g3.4<0,1,0>D    { align1 1N }; /* g3.2 now points to EU row number (Y-pixel = V address )  in instrumentation surf */
++
++mov(8)          g5<1>UD         0x00000000UD                    { align1 1Q };
++and(1)          g3.3<1>D        sr0<0,1,0>D     7D              { align1 1N };
++mul(1)          g3.3<1>D        g3.3<0,1,0>D    4D              { align1 1N };
++
++mov(8)          g4<1>UD         g0<8,8,1>UD                     { align1 1Q }; /* Initialize message header with g0 */
++mov(1)          g4<1>UD         g3.3<0,1,0>UD                   { align1 1N }; /* Block offset */
++mov(1)          g4.1<1>UD       g3.2<0,1,0>UD                   { align1 1N }; /* Block offset */
++mov(1)          g4.2<1>UD       0x00000003UD                    { align1 1N }; /* Block size (1 row x 4 bytes) */
++and(1)          g4.3<1>UD       g4.3<0,1,0>UW   0xffffffffUD    { align1 1N };
++
++/* Media block read to fetch current value at specified location in instrumentation buffer */
++sendc(8)        g5<1>UD         g4<8,8,1>F      0x02190001
++
++                            render MsgDesc: media block read MsgCtrl = 0x0 Surface = 1 mlen 1 rlen 1 { align1 1Q };
++add(1)          g5<1>D          g5<0,1,0>D      1D              { align1 1N };
++
++/* Media block write for updated value at specified location in instrumentation buffer */
++sendc(8)        g5<1>UD         g4<8,8,1>F      0x040a8001
++                            render MsgDesc: media block write MsgCtrl = 0x0 Surface = 1 mlen 2 rlen 0 { align1 1Q };
++
++/* Delay thread for specified parameter */
++add.nz.f0.0(1)  g1.2<1>UD       g1.2<0,1,0>UD   -1D             { align1 1N };
++(+f0.0) jmpi(1) -32D                                            { align1 WE_all 1N };
++
++/* Store designated "clear GRF" value */
++mov(1)          f0.1<1>UW       g1.2<0,1,0>UW                   { align1 1N };
++
++/* Initialize looping parameters */
++mov(1)          a0<1>D          0D                              { align1 1N }; /* Initialize a0.0:w=0 */
++mov(1)          a0.4<1>W        127W                            { align1 1N }; /* Loop count. Each loop contains 16 GRF's */
++
++/* Write 32x16 all "0" block */
++mov(8)          g2<1>UD         g0<8,8,1>UD                     { align1 1Q };
++mov(8)          g127<1>UD       g0<8,8,1>UD                     { align1 1Q };
++mov(2)          g2<1>UD         g1<2,2,1>UW                     { align1 1N };
++mov(1)          g2.2<1>UD       0x000f000fUD                    { align1 1N }; /* Block size (16x16) */
++and(1)          g2.3<1>UD       g2.3<0,1,0>UW   0xffffffefUD    { align1 1N };
++mov(16)         g3<1>UD         0x00000000UD                    { align1 1H };
++mov(16)         g4<1>UD         0x00000000UD                    { align1 1H };
++mov(16)         g5<1>UD         0x00000000UD                    { align1 1H };
++mov(16)         g6<1>UD         0x00000000UD                    { align1 1H };
++mov(16)         g7<1>UD         0x00000000UD                    { align1 1H };
++mov(16)         g8<1>UD         0x00000000UD                    { align1 1H };
++mov(16)         g9<1>UD         0x00000000UD                    { align1 1H };
++mov(16)         g10<1>UD        0x00000000UD                    { align1 1H };
++sendc(8)        null<1>UD       g2<8,8,1>F      0x120a8000
++                            render MsgDesc: media block write MsgCtrl = 0x0 Surface = 0 mlen 9 rlen 0 { align1 1Q };
++add(1)          g2<1>UD         g1<0,1,0>UW     0x0010UW        { align1 1N };
++sendc(8)        null<1>UD       g2<8,8,1>F      0x120a8000
++                            render MsgDesc: media block write MsgCtrl = 0x0 Surface = 0 mlen 9 rlen 0 { align1 1Q };
++
++/* Now, clear all GRF registers */
++add.nz.f0.0(1)  a0.4<1>W        a0.4<0,1,0>W    -1W             { align1 1N };
++mov(16)         g[a0]<1>UW      f0.1<0,1,0>UW                   { align1 1H };
++add(1)          a0<1>D          a0<0,1,0>D      32D             { align1 1N };
++(+f0.0) jmpi(1) -64D                                            { align1 WE_all 1N };
++
++/* Terminante the thread */
++sendc(8)        null<1>UD       g127<8,8,1>F    0x82000010
++                            thread_spawner MsgDesc: mlen 1 rlen 0           { align1 1Q EOT };
+diff --git a/drivers/gpu/drm/i915/gt/shaders/clear_kernel/ivb.asm b/drivers/gpu/drm/i915/gt/shaders/clear_kernel/ivb.asm
+new file mode 100644
+index 000000000000..97c7ac9e3854
+--- /dev/null
++++ b/drivers/gpu/drm/i915/gt/shaders/clear_kernel/ivb.asm
+@@ -0,0 +1,117 @@
++// SPDX-License-Identifier: MIT
++/*
++ * Copyright © 2020 Intel Corporation
++ */
++
++/*
++ * Kernel for PAVP buffer clear.
++ *
++ *	1. Clear all 64 GRF registers assigned to the kernel with designated value;
++ *	2. Write 32x16 block of all "0" to render target buffer which indirectly clears
++ *	   512 bytes of Render Cache.
++ */
++
++/* Store designated "clear GRF" value */
++mov(1)          f0.1<1>UW       g1.2<0,1,0>UW                   { align1 1N };
++
++/**
++ * Curbe Format
++ *
++ * DW 1.0 - Block Offset to write Render Cache
++ * DW 1.1 [15:0] - Clear Word
++ * DW 1.2 - Delay iterations
++ * DW 1.3 - Enable Instrumentation (only for debug)
++ * DW 1.4 - Rsvd (intended for context ID)
++ * DW 1.5 - [31:16]:SliceCount, [15:0]:SubSlicePerSliceCount
++ * DW 1.6 - Rsvd MBZ (intended for Enable Wait on Total Thread Count)
++ * DW 1.7 - Rsvd MBZ (inteded for Total Thread Count)
++ *
++ * Binding Table
++ *
++ * BTI 0: 2D Surface to help clear L3 (Render/Data Cache)
++ * BTI 1: Wait/Instrumentation Buffer
++ *  Size : (SliceCount * SubSliceCount  * 16 EUs/SubSlice) rows * (16 threads/EU) cols (Format R32_UINT)
++ *         Expected to be initialized to 0 by driver/another kernel
++ *  Layout :
++ *           RowN: Histogram for EU-N: (SliceID*SubSlicePerSliceCount + SSID)*16 + EUID [assume max 16 EUs / SS]
++ *           Col-k[DW-k]: Threads Executed on ThreadID-k for EU-N
++ */
++add(1)          g1.2<1>UD       g1.2<0,1,0>UD   0x00000001UD    { align1 1N }; /* Loop count to delay kernel: Init to (g1.2 + 1) */
++cmp.z.f0.0(1)   null<1>UD       g1.3<0,1,0>UD   0x00000000UD    { align1 1N };
++(+f0.0) jmpi(1) 44D                                             { align1 WE_all 1N };
++
++/**
++ * State Register has info on where this thread is running
++ *	IVB: sr0.0 :: [15:13]: MBZ, 12: HSID (Half-Slice ID), [11:8]EUID, [2:0] ThreadSlotID
++ *	HSW: sr0.0 :: 15: MBZ, [14:13]: SliceID, 12: HSID (Half-Slice ID), [11:8]EUID, [2:0] ThreadSlotID
++ */
++mov(8)          g3<1>UD         0x00000000UD                    { align1 1Q };
++shr(1)          g3<1>D          sr0<0,1,0>D     12D             { align1 1N };
++and(1)          g3<1>D          g3<0,1,0>D      1D              { align1 1N }; /* g3 has HSID */
++shr(1)          g3.1<1>D        sr0<0,1,0>D     13D             { align1 1N };
++and(1)          g3.1<1>D        g3.1<0,1,0>D    3D              { align1 1N }; /* g3.1 has sliceID */
++mul(1)          g3.5<1>D        g3.1<0,1,0>D    g1.10<0,1,0>UW  { align1 1N };
++add(1)          g3<1>D          g3<0,1,0>D      g3.5<0,1,0>D    { align1 1N }; /* g3 = sliceID * SubSlicePerSliceCount + HSID */
++shr(1)          g3.2<1>D        sr0<0,1,0>D     8D              { align1 1N };
++and(1)          g3.2<1>D        g3.2<0,1,0>D    15D             { align1 1N }; /* g3.2 = EUID */
++mul(1)          g3.4<1>D        g3<0,1,0>D      16D             { align1 1N };
++add(1)          g3.2<1>D        g3.2<0,1,0>D    g3.4<0,1,0>D    { align1 1N }; /* g3.2 now points to EU row number (Y-pixel = V address )  in instrumentation surf */
++
++mov(8)          g5<1>UD         0x00000000UD                    { align1 1Q };
++and(1)          g3.3<1>D        sr0<0,1,0>D     7D              { align1 1N };
++mul(1)          g3.3<1>D        g3.3<0,1,0>D    4D              { align1 1N };
++
++mov(8)          g4<1>UD         g0<8,8,1>UD                     { align1 1Q }; /* Initialize message header with g0 */
++mov(1)          g4<1>UD         g3.3<0,1,0>UD                   { align1 1N }; /* Block offset */
++mov(1)          g4.1<1>UD       g3.2<0,1,0>UD                   { align1 1N }; /* Block offset */
++mov(1)          g4.2<1>UD       0x00000003UD                    { align1 1N }; /* Block size (1 row x 4 bytes) */
++and(1)          g4.3<1>UD       g4.3<0,1,0>UW   0xffffffffUD    { align1 1N };
++
++/* Media block read to fetch current value at specified location in instrumentation buffer */
++sendc(8)        g5<1>UD         g4<8,8,1>F      0x02190001
++                            render MsgDesc: media block read MsgCtrl = 0x0 Surface = 1 mlen 1 rlen 1 { align1 1Q };
++add(1)          g5<1>D          g5<0,1,0>D      1D              { align1 1N };
++
++/* Media block write for updated value at specified location in instrumentation buffer */
++sendc(8)        g5<1>UD         g4<8,8,1>F      0x040a8001
++                            render MsgDesc: media block write MsgCtrl = 0x0 Surface = 1 mlen 2 rlen 0 { align1 1Q };
++/* Delay thread for specified parameter */
++add.nz.f0.0(1)  g1.2<1>UD       g1.2<0,1,0>UD   -1D             { align1 1N };
++(+f0.0) jmpi(1) -4D                                             { align1 WE_all 1N };
++
++/* Store designated "clear GRF" value */
++mov(1)          f0.1<1>UW       g1.2<0,1,0>UW                   { align1 1N };
++
++/* Initialize looping parameters */
++mov(1)          a0<1>D          0D                              { align1 1N }; /* Initialize a0.0:w=0 */
++mov(1)          a0.4<1>W        127W                            { align1 1N }; /* Loop count. Each loop contains 16 GRF's */
++
++/* Write 32x16 all "0" block */
++mov(8)          g2<1>UD         g0<8,8,1>UD                     { align1 1Q };
++mov(8)          g127<1>UD       g0<8,8,1>UD                     { align1 1Q };
++mov(2)          g2<1>UD         g1<2,2,1>UW                     { align1 1N };
++mov(1)          g2.2<1>UD       0x000f000fUD                    { align1 1N }; /* Block size (16x16) */
++and(1)          g2.3<1>UD       g2.3<0,1,0>UW   0xffffffefUD    { align1 1N };
++mov(16)         g3<1>UD         0x00000000UD                    { align1 1H };
++mov(16)         g4<1>UD         0x00000000UD                    { align1 1H };
++mov(16)         g5<1>UD         0x00000000UD                    { align1 1H };
++mov(16)         g6<1>UD         0x00000000UD                    { align1 1H };
++mov(16)         g7<1>UD         0x00000000UD                    { align1 1H };
++mov(16)         g8<1>UD         0x00000000UD                    { align1 1H };
++mov(16)         g9<1>UD         0x00000000UD                    { align1 1H };
++mov(16)         g10<1>UD        0x00000000UD                    { align1 1H };
++sendc(8)        null<1>UD       g2<8,8,1>F      0x120a8000
++                            render MsgDesc: media block write MsgCtrl = 0x0 Surface = 0 mlen 9 rlen 0 { align1 1Q };
++add(1)          g2<1>UD         g1<0,1,0>UW     0x0010UW        { align1 1N };
++sendc(8)        null<1>UD       g2<8,8,1>F      0x120a8000
++                            render MsgDesc: media block write MsgCtrl = 0x0 Surface = 0 mlen 9 rlen 0 { align1 1Q };
++
++/* Now, clear all GRF registers */
++add.nz.f0.0(1)  a0.4<1>W        a0.4<0,1,0>W    -1W             { align1 1N };
++mov(16)         g[a0]<1>UW      f0.1<0,1,0>UW                   { align1 1H };
++add(1)          a0<1>D          a0<0,1,0>D      32D             { align1 1N };
++(+f0.0) jmpi(1) -8D                                             { align1 WE_all 1N };
++
++/* Terminante the thread */
++sendc(8)        null<1>UD       g127<8,8,1>F    0x82000010
++                            thread_spawner MsgDesc: mlen 1 rlen 0           { align1 1Q EOT };
+-- 
+2.24.1
+
