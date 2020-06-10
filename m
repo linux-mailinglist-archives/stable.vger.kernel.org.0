@@ -2,54 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 46B861F4EA0
-	for <lists+stable@lfdr.de>; Wed, 10 Jun 2020 09:11:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 033991F4EBF
+	for <lists+stable@lfdr.de>; Wed, 10 Jun 2020 09:20:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726114AbgFJHLB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Jun 2020 03:11:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52058 "EHLO
+        id S1726364AbgFJHUW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Jun 2020 03:20:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53488 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726105AbgFJHLB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 10 Jun 2020 03:11:01 -0400
+        with ESMTP id S1726318AbgFJHUV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 10 Jun 2020 03:20:21 -0400
 Received: from mail-lj1-x244.google.com (mail-lj1-x244.google.com [IPv6:2a00:1450:4864:20::244])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A844DC03E96B
-        for <stable@vger.kernel.org>; Wed, 10 Jun 2020 00:11:00 -0700 (PDT)
-Received: by mail-lj1-x244.google.com with SMTP id q19so1155672lji.2
-        for <stable@vger.kernel.org>; Wed, 10 Jun 2020 00:11:00 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3808C03E96B
+        for <stable@vger.kernel.org>; Wed, 10 Jun 2020 00:20:20 -0700 (PDT)
+Received: by mail-lj1-x244.google.com with SMTP id 9so1154502ljc.8
+        for <stable@vger.kernel.org>; Wed, 10 Jun 2020 00:20:20 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc:content-transfer-encoding;
-        bh=/Nm0Q3g/j/4B7bpmdYEoTXXfBDp03YrbvNYgYoKMM+w=;
-        b=unA+94puOuIKCYe3zEidd2KdidekSpcqwMz4XYwjesrEq8U/nbMwCjIScKcRWE+fqx
-         DMIQRGEOD8Wtvl370dIZrgr93AZODQIr4Rl80z9O7mltsXeQ+NyfVyKloSSOb9ymu1VL
-         NFQUN3+x1ocmF7bwUbnPrhTklt+OtaqqBkoOUOinkPEy44/qjnMOjB90ln0Ma7W67I2c
-         QKXRBiU551708fTTUPq9onrYNmLjkPX7tH7A3/m6n/JcZaHc9mV4qlrxuMYAxEJ21nQN
-         8ZpJprf9SWax2ea4ChpHsCq/7pHR286TeL5M9VA2UTeerPulhh5oyrDiyKxaUeqOO+M3
-         Px6Q==
+        bh=uZ/PfOScGoa3FweXz1QNDV3wu1XkvanILF/cLBpzXMc=;
+        b=ASYIj2xeGskpwMp1GFHyDoUpd7q4oglT4HkpTJcQssddVLikaxHDbct0piykmh8FkH
+         cUx19DG0LVPO6yF9RSlkRG18C9c68djfAfoEjXew039zxeJko/Db1fHbah2MAvfRBit1
+         74di4GuJZsta7BS0CulmIHEeD65wHFFpHv/QY+XnuYKDr3+hpB0nFEukpTnGta+fNjIM
+         cpfOSFgjW9w/3tXZaaEqOXLegwaWU+Y10KcmZbQukbZHud4K9FW2GNJ89TH8p5hx70n7
+         iRV1P1POgNWrkrdXU22PjcNgORqfXz/zLjDWr9WlFygv7zqqg8cMfK3fVj03l4RGmV6s
+         Zc0g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc:content-transfer-encoding;
-        bh=/Nm0Q3g/j/4B7bpmdYEoTXXfBDp03YrbvNYgYoKMM+w=;
-        b=NJRd1lAQnM08Vv6X7AywyCzkooaz2tN26V+Ftn1xpjiEzWXLHCL3fUZbE414ls3gH+
-         6RECWp37Dq46IiQkbN9V9lqclGqbdcobQH5sHn9CvRuP/D+UKXFEKEAWalE0GDcnqO8J
-         WykUkblPfWqZ9gzn1AxKFu6AV1GxFy6qf1SKLA7nHPkYOv/8FCQhT+un1EbVtW6aithZ
-         ag/x1/1FAgqgGXbSaucP3vgF58KR4H9sBo12c4G5maFcQR7soY6/l4zcaxVdIo+G+dMa
-         hymOpUEA3Is6OD4JnJtMdZpGJw046YhAu+L7NACzH/EcvhUYlbUuhosAi7R+E5VpDZKV
-         nD2Q==
-X-Gm-Message-State: AOAM533VExmC1UG58mo/Zqc0z42N6dlkkPcQUlZvJ3GOFmcacdABDrJC
-        Z2G3C4Rcp6ShFTRZHHMUgtzc/qdvdEl0Vj1nSQfAhA==
-X-Google-Smtp-Source: ABdhPJx4wXpcSfxXsIqJjxGcGMI5lPyrN+46lFb8hyGL0/Q0SVTemXxEOqh5tlDMIiRl50LqgiLM5ainhuQqhlUm51I=
-X-Received: by 2002:a2e:984b:: with SMTP id e11mr941262ljj.358.1591773059027;
- Wed, 10 Jun 2020 00:10:59 -0700 (PDT)
+        bh=uZ/PfOScGoa3FweXz1QNDV3wu1XkvanILF/cLBpzXMc=;
+        b=hcyHzT9r08bgNKfTiCwVmSn/2fNBOMuwD1BsOmiIxo642UYkVodgjf6cn/oXtIGRYl
+         L/JZEhKodLbIpe0Xkj8wn9XIq9GISmL7ahsza5swhv8SAQ5G3NYb6qv0Z/Kq9zzIkRaA
+         9n7+3r8G7pKJFDtp1rTFJIaa0xlgK9q39v1+rOqhY+Eg5Yv5fi07HSR1LFpjtmPPwFuO
+         wpZEqexY/l/LX7N/sKDdgPisLOOSjHMtfEL/qD0p9BVKexeb3iq/9pnsvOC9LRv+EdlK
+         MpMCtBuvqjKpXQhwyh0W03ns2fraqkPihtGzmeGNr2gv4RfyyxHSrirLvEo+wl47u1/c
+         t80g==
+X-Gm-Message-State: AOAM531GVRsLA8ulXblPIwlFo/THrAn/cEcDLL/OxAh75TKycoYkv3R/
+        0lCU7VLNn/m9YF838RVHI2mjad3+FmCy0CeHeI/3zA==
+X-Google-Smtp-Source: ABdhPJyfasAA+T2A7c7gUSsvWqCE7C1lsqY2OfVMnORTtCOe6dUbeYbKeMb3PcxfB/GVl+kp8qmijhyNbr0dI5WgZN0=
+X-Received: by 2002:a2e:974e:: with SMTP id f14mr988228ljj.102.1591773619174;
+ Wed, 10 Jun 2020 00:20:19 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200609174052.628006868@linuxfoundation.org>
-In-Reply-To: <20200609174052.628006868@linuxfoundation.org>
+References: <20200609185946.866927360@linuxfoundation.org>
+In-Reply-To: <20200609185946.866927360@linuxfoundation.org>
 From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Wed, 10 Jun 2020 12:40:47 +0530
-Message-ID: <CA+G9fYtVXRzY0aWpamnK0WcqE=hLKZwBMPKasDPoHZJPAD=sGw@mail.gmail.com>
-Subject: Re: [PATCH 5.4 00/34] 5.4.46-rc1 review
+Date:   Wed, 10 Jun 2020 12:50:07 +0530
+Message-ID: <CA+G9fYvOazOi0_QofyxjENdicKH1yzFwBQGVTw9Z2VdgZ=xvGQ@mail.gmail.com>
+Subject: Re: [PATCH 4.19 00/25] 4.19.128-rc2 review
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     open list <linux-kernel@vger.kernel.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
@@ -66,23 +66,23 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 9 Jun 2020 at 23:22, Greg Kroah-Hartman
+On Wed, 10 Jun 2020 at 00:48, Greg Kroah-Hartman
 <gregkh@linuxfoundation.org> wrote:
 >
-> This is the start of the stable review cycle for the 5.4.46 release.
-> There are 34 patches in this series, all will be posted as a response
+> This is the start of the stable review cycle for the 4.19.128 release.
+> There are 25 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 >
-> Responses should be made by Thu, 11 Jun 2020 17:40:27 +0000.
+> Responses should be made by Thu, 11 Jun 2020 18:59:34 +0000.
 > Anything received after that time might be too late.
 >
 > The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.4.46-rc1.gz
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.19.128-rc2.gz
 > or in the git tree and branch at:
 >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.4.y
+-rc.git linux-4.19.y
 > and the diffstat can be found below.
 >
 > thanks,
@@ -95,28 +95,27 @@ No regressions on arm64, arm, x86_64, and i386.
 Summary
 ------------------------------------------------------------------------
 
-kernel: 5.4.46-rc1
+kernel: 4.19.128-rc2
 git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
 le-rc.git
-git branch: linux-5.4.y
-git commit: 12a5ce113626ce8208aef76d4d2e9fc93ea48ddf
-git describe: v5.4.45-35-g12a5ce113626
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-5.4-oe/bui=
-ld/v5.4.45-35-g12a5ce113626
+git branch: linux-4.19.y
+git commit: f6c346f2d42df9a649df8616aa529f7564b9c0b8
+git describe: v4.19.127-26-gf6c346f2d42d
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.19-oe/bu=
+ild/v4.19.127-26-gf6c346f2d42d
 
-No regressions (compared to build v5.4.44-39-g0e4e419d5fc3)
+No regressions (compared to build v4.19.126-29-g65151bf9f715)
 
-No fixes (compared to build v5.4.44-39-g0e4e419d5fc3)
+No fixes (compared to build v4.19.126-29-g65151bf9f715)
 
-
-Ran 29093 total tests in the following environments and test suites.
+Ran 33547 total tests in the following environments and test suites.
 
 Environments
 --------------
-- dragonboard-410c
-- hi6220-hikey
+- dragonboard-410c - arm64
+- hi6220-hikey - arm64
 - i386
-- juno-r2
+- juno-r2 - arm64
 - juno-r2-compat
 - juno-r2-kasan
 - nxp-ls2088
@@ -124,8 +123,8 @@ Environments
 - qemu_arm64
 - qemu_i386
 - qemu_x86_64
-- x15
-- x86
+- x15 - arm
+- x86_64
 - x86-kasan
 
 Test Suites
@@ -137,15 +136,24 @@ Test Suites
 * kselftest/drivers
 * kselftest/filesystems
 * kselftest/net
-* libgpiod
 * libhugetlbfs
 * linux-log-parser
-* ltp-cap_bounds-tests
 * ltp-commands-tests
 * ltp-containers-tests
+* ltp-cve-tests
+* ltp-hugetlb-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* perf
+* v4l2-compliance
+* kvm-unit-tests
+* ltp-cap_bounds-tests
 * ltp-cpuhotplug-tests
 * ltp-crypto-tests
-* ltp-cve-tests
 * ltp-dio-tests
 * ltp-fcntl-locktests-tests
 * ltp-filecaps-tests
@@ -153,19 +161,9 @@ Test Suites
 * ltp-fs_bind-tests
 * ltp-fs_perms_simple-tests
 * ltp-fsx-tests
-* ltp-hugetlb-tests
 * ltp-io-tests
 * ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
 * ltp-sched-tests
-* perf
-* v4l2-compliance
-* kvm-unit-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
 * network-basic-tests
 * ltp-controllers-tests
 * ltp-open-posix-tests
