@@ -2,93 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 01CAA1F51F5
-	for <lists+stable@lfdr.de>; Wed, 10 Jun 2020 12:12:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AD6F51F520D
+	for <lists+stable@lfdr.de>; Wed, 10 Jun 2020 12:16:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728059AbgFJKMu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Jun 2020 06:12:50 -0400
-Received: from foss.arm.com ([217.140.110.172]:56316 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726134AbgFJKMu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Jun 2020 06:12:50 -0400
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 0C8511FB;
-        Wed, 10 Jun 2020 03:12:49 -0700 (PDT)
-Received: from [10.57.9.128] (unknown [10.57.9.128])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id D7F7A3F7BB;
-        Wed, 10 Jun 2020 03:12:47 -0700 (PDT)
-Subject: Re: [PATCH] iommu/iova: Don't BUG on invalid PFNs
-To:     guptap@codeaurora.org
-Cc:     joro@8bytes.org, iommu@lists.linux-foundation.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-References: <acbd2d092b42738a03a21b417ce64e27f8c91c86.1591103298.git.robin.murphy@arm.com>
- <79df62c92cf61f2b5f717c28d620a283@codeaurora.org>
-From:   Robin Murphy <robin.murphy@arm.com>
-Message-ID: <ae261494-4d38-11b1-37c2-0ab6a671a7d8@arm.com>
-Date:   Wed, 10 Jun 2020 11:12:29 +0100
-User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:68.0) Gecko/20100101
- Thunderbird/68.8.1
+        id S1728134AbgFJKQ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Jun 2020 06:16:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52594 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726533AbgFJKQ2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 10 Jun 2020 06:16:28 -0400
+Received: from mail-ot1-x342.google.com (mail-ot1-x342.google.com [IPv6:2607:f8b0:4864:20::342])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B8DBC03E96B
+        for <stable@vger.kernel.org>; Wed, 10 Jun 2020 03:16:28 -0700 (PDT)
+Received: by mail-ot1-x342.google.com with SMTP id u23so1252406otq.10
+        for <stable@vger.kernel.org>; Wed, 10 Jun 2020 03:16:28 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=cloudflare.com; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=DK7KT4QRy+jvN6KqJwVezT/GyD3BIvlJY6OTkwmEN2Y=;
+        b=w30cr1b/ct3qgcdfvWISAttn/2pK+MoGzWXNmOqJjyC8ILrdIq7eyCcC+xue4nj82m
+         XxkBd0a/RbSnDaI7VXaejrxKC2wef9lm1QRy1Vwn6s0ktWS7NDV0oR6+CG2f9usWp2Ui
+         OtNKK+8g2ySbId7sN7dIDSyP3Yx68DKco3lZ8=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=DK7KT4QRy+jvN6KqJwVezT/GyD3BIvlJY6OTkwmEN2Y=;
+        b=OzjqW8aTEfOzSCkScnVAT8QGij4Gr0lennMCjTAj7qEW43NVAhoUQ/BKyefwCh/iQa
+         25HYOMZedBChaKDa+Ce3JZGD2lNeULHgiP3Ps60HLWHKu7IDMfK93bn/lb/PB+ujkokm
+         RwbQ7VVSnMIa9QhZPxj5HksPGTK0ALYtESJHLxqOUh9uou6NIHcOmk0pGqOokud0yg7T
+         ZPgvoArggJiv6c7ZL0vGT/iKateJrlqFlZ61+CCfAfNNMmic2swZqxa/aQcM0ijSgsKJ
+         ZiLW5GqsMFxtod2Dk7RfjAr/GCFnZwEvpWWRi+j5gh6V6nuvOtETXJ3NrS4oU1m3u3Ex
+         hzFw==
+X-Gm-Message-State: AOAM5301EHCBG0yzzg1aPZsu3RO80TuBHF5Sbrq42ySVD+lAK8uckU1/
+        kJJ8FTjnPW51znvZeKIcSgh1fuHal0UPgU/rKZ/JQQ==
+X-Google-Smtp-Source: ABdhPJzrOa3lWy0c/7yv/8whRHwCb+UqkWNRrmb53qcZvpVj2wwjgBa2L1Nf8+AAD6fKbsAFuBrLTFfuHSw6176hg/w=
+X-Received: by 2002:a9d:7f06:: with SMTP id j6mr1966728otq.132.1591784187645;
+ Wed, 10 Jun 2020 03:16:27 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <79df62c92cf61f2b5f717c28d620a283@codeaurora.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-GB
-Content-Transfer-Encoding: 8bit
+References: <20200521144841.7074-1-lmb@cloudflare.com> <20200522000934.GM33628@sasha-vm>
+In-Reply-To: <20200522000934.GM33628@sasha-vm>
+From:   Lorenz Bauer <lmb@cloudflare.com>
+Date:   Wed, 10 Jun 2020 11:16:16 +0100
+Message-ID: <CACAyw9-FH7e5fXAU923xSN9ENtyBo+FkqHnd7WAbpyhnz=X9MA@mail.gmail.com>
+Subject: Re: [PATCH 4.19.y] selftests: bpf: fix use of undeclared RET_IF macro
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     stable@vger.kernel.org, kernel-team <kernel-team@cloudflare.com>,
+        kernel test robot <rong.a.chen@intel.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2020-06-10 10:27, guptap@codeaurora.org wrote:
-> On 2020-06-02 18:38, Robin Murphy wrote:
->> Unlike the other instances which represent a complete loss of
->> consistency within the rcache mechanism itself, or a fundamental
->> and obvious misconfiguration by an IOMMU driver, the BUG_ON() in
->> iova_magazine_free_pfns() can be provoked at more or less any time
->> in a "spooky action-at-a-distance" manner by any old device driver
->> passing nonsense to dma_unmap_*() which then propagates through to
->> queue_iova().
->>
->> Not only is this well outside the IOVA layer's control, it's also
->> nowhere near fatal enough to justify panicking anyway - all that
->> really achieves is to make debugging the offending driver more
->> difficult. Let's simply WARN and otherwise ignore bogus PFNs.
->>
->> Reported-by: Prakash Gupta <guptap@codeaurora.org>
->> Signed-off-by: Robin Murphy <robin.murphy@arm.com>
->> ---
->>  drivers/iommu/iova.c | 4 +++-
->>  1 file changed, 3 insertions(+), 1 deletion(-)
->>
-> 
-> Copying stable@vger.kernel.org
+On Fri, 22 May 2020 at 01:09, Sasha Levin <sashal@kernel.org> wrote:
+>
+> On Thu, May 21, 2020 at 03:48:41PM +0100, Lorenz Bauer wrote:
+> >commit 634efb750435 ("selftests: bpf: Reset global state between
+> >reuseport test runs") uses a macro RET_IF which doesn't exist in
+> >the v4.19 tree. It is defined as follows:
+> >
+> >        #define RET_IF(condition, tag, format...) ({
+> >                if (CHECK_FAIL(condition)) {
+> >                        printf(tag " " format);
+> >                        return;
+> >                }
+> >        })
+> >
+> >CHECK_FAIL in turn is defined as:
+> >
+> >        #define CHECK_FAIL(condition) ({
+> >                int __ret = !!(condition);
+> >                int __save_errno = errno;
+> >                if (__ret) {
+> >                        test__fail();
+> >                        fprintf(stdout, "%s:FAIL:%d\n", __func__, __LINE__);
+> >                }
+> >                errno = __save_errno;
+> >                __ret;
+> >        })
+> >
+> >Replace occurences of RET_IF with CHECK. This will abort the test binary
+> >if clearing the intermediate state fails.
+> >
+> >Fixes: 634efb750435 ("selftests: bpf: Reset global state between reuseport test runs")
+> >Reported-by: kernel test robot <rong.a.chen@intel.com>
+> >Signed-off-by: Lorenz Bauer <lmb@cloudflare.com>
+>
+> Thanks for the backport Lorenz. We'll need to wait for it to make it
+> into Linus's tree before queueing up for the stable trees.
 
-Per Documentation/process/stable-kernel-rules.rst, I'm not convinced 
-this meets the criteria for stable, which is why I deliberately left 
-that out. This change isn't fixing any bug in itself, it is merely 
-relaxing a behaviour that only comes into play if a serious and 
-effectively unrecoverable bug has already occurred elsewhere.
+Apologies for sending the patch too early (?), I'm still new to this process.
+I've just hit this on 4.19.127. Do you want me to re-submit the patch somewhere?
 
-If Joerg feels like sending it to stable anyway then fair enough, but 
-FYI there is no relevant "Fixes" tag.
+Lorenz
 
-> You can add
-> Reviewed-by: Prakash Gupta <guptap@codeaurora.org>
+-- 
+Lorenz Bauer  |  Systems Engineer
+6th Floor, County Hall/The Riverside Building, SE1 7PB, UK
 
-Thanks,
-Robin.
-
->> diff --git a/drivers/iommu/iova.c b/drivers/iommu/iova.c
->> index 0e6a9536eca6..612cbf668adf 100644
->> --- a/drivers/iommu/iova.c
->> +++ b/drivers/iommu/iova.c
->> @@ -811,7 +811,9 @@ iova_magazine_free_pfns(struct iova_magazine *mag,
->> struct iova_domain *iovad)
->>      for (i = 0 ; i < mag->size; ++i) {
->>          struct iova *iova = private_find_iova(iovad, mag->pfns[i]);
->>
->> -        BUG_ON(!iova);
->> +        if (WARN_ON(!iova))
->> +            continue;
->> +
->>          private_free_iova(iovad, iova);
->>      }
+www.cloudflare.com
