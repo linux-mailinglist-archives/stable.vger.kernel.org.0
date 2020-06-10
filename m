@@ -2,157 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 99A911F5776
-	for <lists+stable@lfdr.de>; Wed, 10 Jun 2020 17:14:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 53AB21F57CD
+	for <lists+stable@lfdr.de>; Wed, 10 Jun 2020 17:27:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730091AbgFJPOu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Jun 2020 11:14:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42504 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730088AbgFJPOt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 10 Jun 2020 11:14:49 -0400
-Received: from mail-oi1-x243.google.com (mail-oi1-x243.google.com [IPv6:2607:f8b0:4864:20::243])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57580C08C5C1
-        for <stable@vger.kernel.org>; Wed, 10 Jun 2020 08:14:49 -0700 (PDT)
-Received: by mail-oi1-x243.google.com with SMTP id k4so2396622oik.2
-        for <stable@vger.kernel.org>; Wed, 10 Jun 2020 08:14:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=oDtkEAKzZyv3dXNpsPsqMVmJ4Y+cSfCKakpKBa1zwUc=;
-        b=udMylkJsBkLSPX/fhP5jeC4vIZEIk7TjusiPwvDt4TqgrxhpxZ32ukAYcSJ5mMIM9/
-         gboTn/jhWul6F0UPWXzXg7jF4ZdDjjdwpiV7Sl8cLMvCDhOBOxJJGxdfWChSjWjNVmIh
-         vpKi/71gW267IO6ChJVTCWAdeNh3yRhOyFajVZn9Bcl5PFGWoWyEvfkJ6+oZQJGfuo2s
-         RumZM5ygadgjL17Q4SHDCYZLwcQ15xcngMgMDL5NNLosOL7bI+wqMcq161vNf+oWYHen
-         4LIlPYpPZ5BIuUp53K9CHX8rMpO7BHFKXoBYKpJutad2geY1d6L+GMb/Nfu0+SiUBmRr
-         F4Pw==
+        id S1730207AbgFJP12 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Jun 2020 11:27:28 -0400
+Received: from us-smtp-2.mimecast.com ([207.211.31.81]:36355 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1730203AbgFJP11 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 10 Jun 2020 11:27:27 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1591802846;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=jjvIRHOCxQwRkhqk1V3wNjs78W+1JFnbVDcZpT/Uz1M=;
+        b=HZ8e2nEToP3qFCSHhjqh+G+E5chPfMdcamIB+yxhW2bYgMdWrCFCwiyNpHteoi+urdgkcU
+        e653gDpiQXwSzyBKAPE6faodynn6z8TXDAlujc3g9sft01Obg9TcVsnLJ2lpG8rZ57HaCi
+        aWzDL00CyN8GDF9d3vCsoa1EPGlaIOU=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-381-dwcAu6kQN22fW3lxFOxoqw-1; Wed, 10 Jun 2020 11:27:24 -0400
+X-MC-Unique: dwcAu6kQN22fW3lxFOxoqw-1
+Received: by mail-wm1-f71.google.com with SMTP id t145so578611wmt.2
+        for <stable@vger.kernel.org>; Wed, 10 Jun 2020 08:27:24 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=oDtkEAKzZyv3dXNpsPsqMVmJ4Y+cSfCKakpKBa1zwUc=;
-        b=GVW7bEd/s3GGnFhJYEJ8GxocbQCRLRqzafyeMwdKfRBqT7PDaupeX99Z0ZN+dIIp06
-         GR9Yc+TiIwqGQKRllHrP4rj/x4rAUO0KbxA8VfNTcoHxpvg6BbW4PdPKuuvjGTUqYbAu
-         u47s47PUqTIQu5k296vJdgdkCGy/3jRob/WH0HjXwPoJwbzEE/W0EYJFRxgGJ6PQTWTj
-         D5q0Y5t5E36rhk2IO6DXvo5EUosUsraTCgiUICVO8L0ZsaX27e+kFkZVsSm8Nb385Zzt
-         LSdHLcN/uSOlo8DXRTag3GcXTfWtz1NBPcfYOUW0t8nY6jt11m/eI2JoHLNVd4k6s8Z6
-         iE0A==
-X-Gm-Message-State: AOAM533ZrmgBzPGDYrIGhyFsXMix3XT4hAgoBL9VVwfffUTwQwQWzlRT
-        SEOUGdOb9dBXq9Cz8K096D/V0Obcrw5n0VqfhctgAw==
-X-Google-Smtp-Source: ABdhPJz7VsuBtbPfx9RhfASCfcCtNEZDfA1tM4aFTMIKx3YAxZCxiJua2WBQytWigumUFZm42pnwJaUbj0Binjq2P/c=
-X-Received: by 2002:aca:1308:: with SMTP id e8mr2665439oii.119.1591802088505;
- Wed, 10 Jun 2020 08:14:48 -0700 (PDT)
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=jjvIRHOCxQwRkhqk1V3wNjs78W+1JFnbVDcZpT/Uz1M=;
+        b=U7Je0ezE4rTam7NptolC9mZGWnIe6ANnWF1SzxpxAQsbB/eKAPk7DZMa4cOIdBXLbU
+         psoRjyBtyTDK9PJurUta17YU0EddNQmV47QEt+dhsdym7YIKeDIvNWTpUZIHQcqvMKCE
+         rZdzsCLfzsVDCy/S5lprxOon7wvBOCwWP3dxNcMAyoGGVvZWFGzRAIq1hyt4KdHEp0oU
+         nhcgL0BEhhMCcBjG+QuGX7O4ZFpSFcNUnvqObeVzh206hHosEYfRskogbijOCasE9kzc
+         dgU3/zqTFtzYptIY6wTw9+Ah4YOL/qPcXypFMwRc5bmGH/tVJYOrE9SfvNyJHGYYwVJh
+         VZew==
+X-Gm-Message-State: AOAM532yRwGaFc+jtxTWszg1HRPYrdiIs8Y+3/F9pezkvgJbi2oy0xit
+        tMMbC8pJvnAV4WxIHopqaTXlznt9bwy6l8qWwv018TW3llFYGdX+aH/SnVPzhSyuGdQOIrvlD2G
+        NXcxNGj10WuPYDXR7
+X-Received: by 2002:adf:ab09:: with SMTP id q9mr4235968wrc.79.1591802843365;
+        Wed, 10 Jun 2020 08:27:23 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzbXFK9zAEzr9CiGFdxkngWHkdza78QVqblrUuo5Ya87D9rMSPYEpvNBknfprfCSRj30DMcMA==
+X-Received: by 2002:adf:ab09:: with SMTP id q9mr4235926wrc.79.1591802843123;
+        Wed, 10 Jun 2020 08:27:23 -0700 (PDT)
+Received: from [192.168.178.58] ([151.20.134.4])
+        by smtp.gmail.com with ESMTPSA id f185sm48624wmf.43.2020.06.10.08.27.22
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 10 Jun 2020 08:27:22 -0700 (PDT)
+Subject: Re: [PATCH v2] KVM: x86: respect singlestep when emulating
+ instruction
+To:     Felipe Franciosi <felipe@nutanix.com>
+Cc:     kvm@vger.kernel.org, stable@vger.kernel.org
+References: <20200519081048.8204-1-felipe@nutanix.com>
+From:   Paolo Bonzini <pbonzini@redhat.com>
+Message-ID: <cfcd5d5f-eb3e-f6ec-2e28-c48750c1d7b5@redhat.com>
+Date:   Wed, 10 Jun 2020 17:27:21 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.6.0
 MIME-Version: 1.0
-References: <20200610083333.455-1-sumit.semwal@linaro.org> <CAK8P3a0PzmtWc1p-KgHzHhY+=gca0J8YsGD=ALGESWsgijQQ7w@mail.gmail.com>
-In-Reply-To: <CAK8P3a0PzmtWc1p-KgHzHhY+=gca0J8YsGD=ALGESWsgijQQ7w@mail.gmail.com>
-From:   Sumit Semwal <sumit.semwal@linaro.org>
-Date:   Wed, 10 Jun 2020 20:44:37 +0530
-Message-ID: <CAO_48GEqxOOOZupGLAa92HXcnbe6_3ZfLvaJsDnv9_XFTTFe6w@mail.gmail.com>
-Subject: Re: [PATCH] dma-buf: Move dma_buf_release() from fops to dentry_ops
-To:     Arnd Bergmann <arnd@arndb.de>
-Cc:     Linux Media Mailing List <linux-media@vger.kernel.org>,
-        dri-devel <dri-devel@lists.freedesktop.org>,
-        Chenbo Feng <fengc@google.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Linaro MM SIG <linaro-mm-sig@lists.linaro.org>,
-        Charan Teja Reddy <charante@codeaurora.org>,
-        syzbot+3643a18836bce555bff6@syzkaller.appspotmail.com,
-        "# 3.4.x" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20200519081048.8204-1-felipe@nutanix.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 10 Jun 2020 at 14:57, Arnd Bergmann <arnd@arndb.de> wrote:
->
-> On Wed, Jun 10, 2020 at 10:33 AM Sumit Semwal <sumit.semwal@linaro.org> wrote:
-> >
-> > Charan Teja reported a 'use-after-free' in dmabuffs_dname [1], which
-> > happens if the dma_buf_release() is called while the userspace is
-> > accessing the dma_buf pseudo fs's dmabuffs_dname() in another process,
-> > and dma_buf_release() releases the dmabuf object when the last reference
-> > to the struct file goes away.
-> >
-> > I discussed with Arnd Bergmann, and he suggested that rather than tying
-> > the dma_buf_release() to the file_operations' release(), we can tie it to
-> > the dentry_operations' d_release(), which will be called when the last ref
-> > to the dentry is removed.
-> >
-> > The path exercised by __fput() calls f_op->release() first, and then calls
-> > dput, which eventually calls d_op->d_release().
-> >
-> > In the 'normal' case, when no userspace access is happening via dma_buf
-> > pseudo fs, there should be exactly one fd, file, dentry and inode, so
-> > closing the fd will kill of everything right away.
-> >
-> > In the presented case, the dentry's d_release() will be called only when
-> > the dentry's last ref is released.
-> >
-> > Therefore, lets move dma_buf_release() from fops->release() to
-> > d_ops->d_release().
-> >
-> > Many thanks to Arnd for his FS insights :)
-> >
-> > [1]: https://lore.kernel.org/patchwork/patch/1238278/
-> >
-> > Fixes: bb2bb9030425 ("dma-buf: add DMA_BUF_SET_NAME ioctls")
-> > Reported-by: syzbot+3643a18836bce555bff6@syzkaller.appspotmail.com
-> > Cc: <stable@vger.kernel.org> [5.3+]
-> > Cc: Arnd Bergmann <arnd@arndb.de>
-> > Reported-by: Charan Teja Reddy <charante@codeaurora.org>
-> > Signed-off-by: Sumit Semwal <sumit.semwal@linaro.org>
->
-> The patch looks correct to me.
->
-> Reviewed-by: Arnd Bergmann <arnd@arndb.de>
->
-> Obviously this should still be verified against the original report if possible.
-Thanks, Arnd!
->
-> >  drivers/dma-buf/dma-buf.c | 13 +++++++------
-> >  1 file changed, 7 insertions(+), 6 deletions(-)
-> >
-> > diff --git a/drivers/dma-buf/dma-buf.c b/drivers/dma-buf/dma-buf.c
-> > index 01ce125f8e8d..92ba4b6ef3e7 100644
-> > --- a/drivers/dma-buf/dma-buf.c
-> > +++ b/drivers/dma-buf/dma-buf.c
-> > @@ -54,8 +54,11 @@ static char *dmabuffs_dname(struct dentry *dentry, char *buffer, int buflen)
-> >                              dentry->d_name.name, ret > 0 ? name : "");
-> >  }
-> >
-> > +static void dma_buf_release(struct dentry *dentry);
-> > +
-> >  static const struct dentry_operations dma_buf_dentry_ops = {
-> >         .d_dname = dmabuffs_dname,
-> > +       .d_release = dma_buf_release,
-> >  };
->
-> I'd suggest rearranging the file to avoid the forward declaration, even
-> if it makes it a little harder to review the change, the resulting code
-> will remain organized more logically.
-Got it, will update it in v2.
->
-> >  static struct vfsmount *dma_buf_mnt;
-> > @@ -77,14 +80,14 @@ static struct file_system_type dma_buf_fs_type = {
-> >         .kill_sb = kill_anon_super,
-> >  };
-> >
-> > -static int dma_buf_release(struct inode *inode, struct file *file)
-> > +static void dma_buf_release(struct dentry *dentry)
-> >  {
-> >         struct dma_buf *dmabuf;
-> >
-> > -       if (!is_dma_buf_file(file))
-> > -               return -EINVAL;
-> > +       if (dentry->d_op != &dma_buf_dentry_ops)
-> > +               return;
->
-> I think the check here is redundant and it's clearer without it.
-Ok, will remove.
->
->           Arnd
+On 19/05/20 10:11, Felipe Franciosi wrote:
+> When userspace configures KVM_GUESTDBG_SINGLESTEP, KVM will manage the
+> presence of X86_EFLAGS_TF via kvm_set/get_rflags on vcpus. The actual
+> rflag bit is therefore hidden from callers.
+> 
+> That includes init_emulate_ctxt() which uses the value returned from
+> kvm_get_flags() to set ctxt->tf. As a result, x86_emulate_instruction()
+> will skip a single step, leaving singlestep_rip stale and not returning
+> to userspace.
+> 
+> This resolves the issue by observing the vcpu guest_debug configuration
+> alongside ctxt->tf in x86_emulate_instruction(), performing the single
+> step if set.
+> 
+> Signed-off-by: Felipe Franciosi <felipe@nutanix.com>
+> ---
+>  arch/x86/kvm/x86.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+> index c17e6eb9ad43..64cb183636da 100644
+> --- a/arch/x86/kvm/x86.c
+> +++ b/arch/x86/kvm/x86.c
+> @@ -6919,7 +6919,7 @@ int x86_emulate_instruction(struct kvm_vcpu *vcpu, gpa_t cr2_or_gpa,
+>  		if (!ctxt->have_exception ||
+>  		    exception_type(ctxt->exception.vector) == EXCPT_TRAP) {
+>  			kvm_rip_write(vcpu, ctxt->eip);
+> -			if (r && ctxt->tf)
+> +			if (r && (ctxt->tf || (vcpu->guest_debug & KVM_GUESTDBG_SINGLESTEP)))
+>  				r = kvm_vcpu_do_singlestep(vcpu);
+>  			if (kvm_x86_ops.update_emulated_instruction)
+>  				kvm_x86_ops.update_emulated_instruction(vcpu);
+> 
 
-Best,
-Sumit.
+Queued, thanks.
+
+Paolo
+
