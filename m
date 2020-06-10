@@ -2,55 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 923461F58B1
-	for <lists+stable@lfdr.de>; Wed, 10 Jun 2020 18:08:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 119B11F5894
+	for <lists+stable@lfdr.de>; Wed, 10 Jun 2020 18:07:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730575AbgFJQIC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Jun 2020 12:08:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50630 "EHLO
+        id S1730471AbgFJQHa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Jun 2020 12:07:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50640 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730516AbgFJQH0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 10 Jun 2020 12:07:26 -0400
-Received: from mail-ej1-x642.google.com (mail-ej1-x642.google.com [IPv6:2a00:1450:4864:20::642])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 288CDC03E96B;
-        Wed, 10 Jun 2020 09:07:26 -0700 (PDT)
-Received: by mail-ej1-x642.google.com with SMTP id o15so3161216ejm.12;
-        Wed, 10 Jun 2020 09:07:26 -0700 (PDT)
+        with ESMTP id S1730520AbgFJQH3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 10 Jun 2020 12:07:29 -0400
+Received: from mail-ed1-x542.google.com (mail-ed1-x542.google.com [IPv6:2a00:1450:4864:20::542])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A62A3C03E96F;
+        Wed, 10 Jun 2020 09:07:28 -0700 (PDT)
+Received: by mail-ed1-x542.google.com with SMTP id t21so1779923edr.12;
+        Wed, 10 Jun 2020 09:07:28 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=lQYgSDTotq5c/39ynoudMriyL83LIjVkw0hGmAWFKNE=;
-        b=cavjiXggwo0vFzCxAxw+P3TdRlfvsyBHodQC6f7sowYmA+D1x3mGL92MfGpLuyAmR1
-         xH/zAHfeVVjOsOe76cGqtIFd8o/UJP1qawtdS5Wxbu1PkjA4CdyP1OUWBO4NkcaQ27KA
-         x2vSU5zpbncHz6j5p93XMX/yQdsUZXZq83FrpnbkbFqilyE4mZB8QuQKYLYB3qDX+FV9
-         1NUNX2t9HlMLS3ovB0arMBFLorAjimDXWjLMn6YWakR3jHLbZN4/E6g4sterY7/kSD7j
-         +FnGqAacrSIIWn83GWhzCxtVh3IBiADhnOggS16d+y8Hb1OklUGCu0PqP143i7vBE6MJ
-         067w==
+        bh=jXtz99iuv/ovCkSGf6u5INPEkSX0yyHnlwxRCUFR+S8=;
+        b=f8VFo0RwITPFhS+h5gblSA0oIENLUYtFC6Oex0pL2SmjXwPu4Bs8FyjUc96ACUxTtx
+         2w4OtgtcEASS9sAWuPSaTyzXTNskP9/MOmbITNlLphWz8osqrYDd+casl3ABNqgpLnzp
+         a+XlYTFXEMVcGTevkIAQ8DxkgykmTAyxr9VOq7WLJ9zuJSi+mm+XfowAzOdVOs7UfYL2
+         c2kfDVyrlSweRtRYzqunb+YY+fGKRp+4m1dTAC3ycHqpQRdm0JQyGrjgAKNADrp1RViQ
+         HP0GaRIaUP0KDY4RZQHZB6lq5FIGgJwuGqFCYCynP9zaPTwhphGZjbLlRh7OnujW0K/B
+         +kCg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=lQYgSDTotq5c/39ynoudMriyL83LIjVkw0hGmAWFKNE=;
-        b=RbM+XY9Ez1TR+X7rUqrml0vpH/C+OwnlmGcqJF2TavGgbbg8gmShGGEOLVE9Fdfuyv
-         Crxqe9dfU3gvfVHjYoyBgnJJ1u5QP2SpD2Oddg0/gdktE+SjbE6ZKvBr6euYt5UEgdHn
-         fubslMN8xYPmiXKa9dWR2S28yaZ1rrLoJUKMkZYEM7mFoI4e3b84nB2NPNbRT36xA3Is
-         mwbMeVGo6Z4nWueaVBXCz6pXdp+8UiTebauAdEOyWSQy7odVM5C8RB2qotHTJpZZZ2Dt
-         41BA1l3C8r1yDldM0xRvJmdIlAsVWdbdbnwisvU53Ja0nbuW8b8U3DDpaGBX66Dg7Cvh
-         rNzw==
-X-Gm-Message-State: AOAM532FnhqFbAIRGqdJxX88e/m4BYim2WuBMpe1jQUvIEZ/A2uRvWdR
-        MAWgi+r1BaUlmR1mw65XIy0=
-X-Google-Smtp-Source: ABdhPJybsQAvzxQa692WxmMix+SEuqe+73dP+MscVMYrY4v0X3F/kEL+d1AnGnc0Aed6wHQSIVZcmA==
-X-Received: by 2002:a17:906:3da1:: with SMTP id y1mr3920586ejh.109.1591805244676;
-        Wed, 10 Jun 2020 09:07:24 -0700 (PDT)
+        bh=jXtz99iuv/ovCkSGf6u5INPEkSX0yyHnlwxRCUFR+S8=;
+        b=gIWrc48449geZvO4VhAKxgfVOezF0c93hS1sd90+Tt6K7BtHHe7guqvmS3BbBU/R1n
+         YY6HDmCVKIxD+cRjPld6RLROJHMSYnus95C0ztQHKITHDWo0aBczui9wZsPh5UAzjKd7
+         c4sbR1u/v6aZOGUu9Eps3WnXFyRWP52rTnn11ByXUQGhtrWqPcd6MFj85wkCPCd9m1/8
+         452Nlb5p2hyR3++075UbaKrMX1AvaL2ZVBXMxv7Zkp2uRis60eqXgusyxWQWPXcBbYFR
+         I8uqHOBmxnlpjkrDSzhZ98Jpc3QsLCZGRD6wP1JNOV8khWHzYng4foAEGjqcq20L/2qA
+         TljQ==
+X-Gm-Message-State: AOAM5325qjEREsSHP1KOgQG64RhH43wz2XHhVeVaKyu98YeAkAYNUKy2
+        NUhw+EV4tAmaBzZAoQq+y3k=
+X-Google-Smtp-Source: ABdhPJxNG24XUh5bQCrgMinY31VYsYlwkitpbR8b8nscOm4hE2+AuB+AsLZHKlfWigsidfDlm3KAyA==
+X-Received: by 2002:aa7:de08:: with SMTP id h8mr2989096edv.164.1591805247304;
+        Wed, 10 Jun 2020 09:07:27 -0700 (PDT)
 Received: from Ansuel-XPS.localdomain (host-79-35-249-242.retail.telecomitalia.it. [79.35.249.242])
-        by smtp.googlemail.com with ESMTPSA id ce25sm56067edb.45.2020.06.10.09.07.22
+        by smtp.googlemail.com with ESMTPSA id ce25sm56067edb.45.2020.06.10.09.07.25
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 10 Jun 2020 09:07:23 -0700 (PDT)
+        Wed, 10 Jun 2020 09:07:26 -0700 (PDT)
 From:   Ansuel Smith <ansuelsmth@gmail.com>
 To:     Rob Herring <robh+dt@kernel.org>
-Cc:     Ansuel Smith <ansuelsmth@gmail.com>, stable@vger.kernel.org,
-        Rob Herring <robh@kernel.org>, Andy Gross <agross@kernel.org>,
+Cc:     Ansuel Smith <ansuelsmth@gmail.com>,
+        Sham Muthayyan <smuthayy@codeaurora.org>,
+        stable@vger.kernel.org, Andy Gross <agross@kernel.org>,
         Bjorn Andersson <bjorn.andersson@linaro.org>,
         Bjorn Helgaas <bhelgaas@google.com>,
         Mark Rutland <mark.rutland@arm.com>,
@@ -60,9 +61,9 @@ Cc:     Ansuel Smith <ansuelsmth@gmail.com>, stable@vger.kernel.org,
         Philipp Zabel <p.zabel@pengutronix.de>,
         linux-arm-msm@vger.kernel.org, linux-pci@vger.kernel.org,
         devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH v6 07/12] PCI: qcom: Define some PARF params needed for ipq8064 SoC
-Date:   Wed, 10 Jun 2020 18:06:49 +0200
-Message-Id: <20200610160655.27799-8-ansuelsmth@gmail.com>
+Subject: [PATCH v6 08/12] PCI: qcom: Add support for tx term offset for rev 2.1.0
+Date:   Wed, 10 Jun 2020 18:06:50 +0200
+Message-Id: <20200610160655.27799-9-ansuelsmth@gmail.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200610160655.27799-1-ansuelsmth@gmail.com>
 References: <20200610160655.27799-1-ansuelsmth@gmail.com>
@@ -73,67 +74,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Set some specific value for Tx De-Emphasis, Tx Swing and Rx equalization
-needed on some ipq8064 based device (Netgear R7800 for example). Without
-this the system locks on kernel load.
+Add tx term offset support to pcie qcom driver need in some revision of
+the ipq806x SoC. Ipq8064 needs tx term offset set to 7.
 
 Fixes: 82a823833f4e ("PCI: qcom: Add Qualcomm PCIe controller driver")
+Signed-off-by: Sham Muthayyan <smuthayy@codeaurora.org>
 Signed-off-by: Ansuel Smith <ansuelsmth@gmail.com>
 Cc: stable@vger.kernel.org # v4.5+
-Reviewed-by: Rob Herring <robh@kernel.org>
 ---
- drivers/pci/controller/dwc/pcie-qcom.c | 24 ++++++++++++++++++++++++
- 1 file changed, 24 insertions(+)
+ drivers/pci/controller/dwc/pcie-qcom.c | 17 ++++++++++++++++-
+ 1 file changed, 16 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/pci/controller/dwc/pcie-qcom.c b/drivers/pci/controller/dwc/pcie-qcom.c
-index f2ea1ab6f584..85313493d51b 100644
+index 85313493d51b..2cd6d1456210 100644
 --- a/drivers/pci/controller/dwc/pcie-qcom.c
 +++ b/drivers/pci/controller/dwc/pcie-qcom.c
-@@ -77,6 +77,18 @@
- #define DBI_RO_WR_EN				1
+@@ -45,7 +45,13 @@
+ #define PCIE_CAP_CPL_TIMEOUT_DISABLE		0x10
  
- #define PERST_DELAY_US				1000
-+/* PARF registers */
-+#define PCIE20_PARF_PCS_DEEMPH			0x34
-+#define PCS_DEEMPH_TX_DEEMPH_GEN1(x)		((x) << 16)
-+#define PCS_DEEMPH_TX_DEEMPH_GEN2_3_5DB(x)	((x) << 8)
-+#define PCS_DEEMPH_TX_DEEMPH_GEN2_6DB(x)	((x) << 0)
+ #define PCIE20_PARF_PHY_CTRL			0x40
++#define PHY_CTRL_PHY_TX0_TERM_OFFSET_MASK	GENMASK(20, 16)
++#define PHY_CTRL_PHY_TX0_TERM_OFFSET(x)		((x) << 16)
 +
-+#define PCIE20_PARF_PCS_SWING			0x38
-+#define PCS_SWING_TX_SWING_FULL(x)		((x) << 8)
-+#define PCS_SWING_TX_SWING_LOW(x)		((x) << 0)
+ #define PCIE20_PARF_PHY_REFCLK			0x4C
++#define PHY_REFCLK_SSP_EN			BIT(16)
++#define PHY_REFCLK_USE_PAD			BIT(12)
 +
-+#define PCIE20_PARF_CONFIG_BITS		0x50
-+#define PHY_RX0_EQ(x)				((x) << 24)
- 
- #define PCIE20_v3_PARF_SLV_ADDR_SPACE_SIZE	0x358
- #define SLV_ADDR_SPACE_SZ			0x10000000
-@@ -293,6 +305,7 @@ static int qcom_pcie_init_2_1_0(struct qcom_pcie *pcie)
- 	struct qcom_pcie_resources_2_1_0 *res = &pcie->res.v2_1_0;
- 	struct dw_pcie *pci = pcie->pci;
- 	struct device *dev = pci->dev;
-+	struct device_node *node = dev->of_node;
- 	u32 val;
- 	int ret;
- 
-@@ -347,6 +360,17 @@ static int qcom_pcie_init_2_1_0(struct qcom_pcie *pcie)
- 	val &= ~BIT(0);
- 	writel(val, pcie->parf + PCIE20_PARF_PHY_CTRL);
+ #define PCIE20_PARF_DBI_BASE_ADDR		0x168
+ #define PCIE20_PARF_SLV_ADDR_SPACE_SIZE		0x16C
+ #define PCIE20_PARF_MHI_CLOCK_RESET_CTRL	0x174
+@@ -371,9 +377,18 @@ static int qcom_pcie_init_2_1_0(struct qcom_pcie *pcie)
+ 		writel(PHY_RX0_EQ(4), pcie->parf + PCIE20_PARF_CONFIG_BITS);
+ 	}
  
 +	if (of_device_is_compatible(node, "qcom,pcie-ipq8064")) {
-+		writel(PCS_DEEMPH_TX_DEEMPH_GEN1(24) |
-+			       PCS_DEEMPH_TX_DEEMPH_GEN2_3_5DB(24) |
-+			       PCS_DEEMPH_TX_DEEMPH_GEN2_6DB(34),
-+		       pcie->parf + PCIE20_PARF_PCS_DEEMPH);
-+		writel(PCS_SWING_TX_SWING_FULL(120) |
-+			       PCS_SWING_TX_SWING_LOW(120),
-+		       pcie->parf + PCIE20_PARF_PCS_SWING);
-+		writel(PHY_RX0_EQ(4), pcie->parf + PCIE20_PARF_CONFIG_BITS);
++		/* set TX termination offset */
++		val = readl(pcie->parf + PCIE20_PARF_PHY_CTRL);
++		val &= ~PHY_CTRL_PHY_TX0_TERM_OFFSET_MASK;
++		val |= PHY_CTRL_PHY_TX0_TERM_OFFSET(7);
++		writel(val, pcie->parf + PCIE20_PARF_PHY_CTRL);
 +	}
 +
  	/* enable external reference clock */
  	val = readl(pcie->parf + PCIE20_PARF_PHY_REFCLK);
- 	val |= BIT(16);
+-	val |= BIT(16);
++	val &= ~PHY_REFCLK_USE_PAD;
++	val |= PHY_REFCLK_SSP_EN;
+ 	writel(val, pcie->parf + PCIE20_PARF_PHY_REFCLK);
+ 
+ 	/* wait for clock acquisition */
 -- 
 2.25.1
 
