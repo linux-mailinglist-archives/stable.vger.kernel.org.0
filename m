@@ -2,120 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C8521F530B
-	for <lists+stable@lfdr.de>; Wed, 10 Jun 2020 13:21:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 28C9F1F5323
+	for <lists+stable@lfdr.de>; Wed, 10 Jun 2020 13:28:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728472AbgFJLVu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Jun 2020 07:21:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34476 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728322AbgFJLVu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 10 Jun 2020 07:21:50 -0400
-Received: from mail-lj1-x243.google.com (mail-lj1-x243.google.com [IPv6:2a00:1450:4864:20::243])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4DF5C03E96B
-        for <stable@vger.kernel.org>; Wed, 10 Jun 2020 04:21:49 -0700 (PDT)
-Received: by mail-lj1-x243.google.com with SMTP id x18so1996232lji.1
-        for <stable@vger.kernel.org>; Wed, 10 Jun 2020 04:21:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=34s/UudA0g6sy/PuF5ij0UDHJHHlXUeLJ0XZZpZwUj0=;
-        b=Zw/UUAncdZrCkVzxyRRfOD0pd964ijRbrOUynobbqQjw8BvJ91e7KKj0W9Lcluz1j6
-         nr5OFK6KCmfGtdLyZ2FrVIYIHPeOpvTWfQhhF0nrIcJMQL/NPWALdu81+iA6CYQClraH
-         x0A3SZ24rsEHfXtN7dJD4CHfJCoNrNxOoaarWuZeKIyRgk8u4k9Pg0Cux46/usK3J37I
-         7F89OLKoyTnHK+j7yoX4YNn2HCByaACA3WDSX4romXYwHWPYJ+oGKiIEG8Gu5x9Vz/OD
-         LxSjmAdn4iU6zA4qEHurICrDVvcHKiPSyLjgMowv297XHmuRShhUxFw/1M0etc79yfCB
-         cEjg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=34s/UudA0g6sy/PuF5ij0UDHJHHlXUeLJ0XZZpZwUj0=;
-        b=RrbcQZQN+FQbH7ftVWOI2sIw4LonbHDp2U04Rv+SnQRftn+DcVey9rzYuhG99DYEjM
-         OEAjpbVwQB/KR3qzUIUC6yRB8gyoEZWKHUb4Qz7GrphMuLl+2cP5+GlsCTL8RoIB1nB+
-         QTzL4AgM4dACNxHGnlFEJxEAeWq2yubx6ML7WNWs0qA/j0QJgXd/4jK3pwMW+fpD8zc2
-         m51/dS5vb/UkPpWGwxx1h/P+xvtX2dxH+aNUTyQOdtGlulFUUtdMT+Ff53RlEy21dnwI
-         8HP0bgCjjY0NSWZuEYGRsrDFXAJnq8iLNH7TU8oNfi7d2qDh7rXeh5YD33diAl/LMVEl
-         SktQ==
-X-Gm-Message-State: AOAM530iIa7u8mJURC33XS5jcM6pxC8trgGCg2aFpm7VCfd9/em41iNd
-        BHGDJjy9y4d5aWa/CAvgdEDPOjJA3LVl2aTbtvZIY5xI
-X-Google-Smtp-Source: ABdhPJyW5H491HGWKGgiLem4FyZKdKKobr76+yfSy+ZTJl5n3Dav1PkDAFK/SXUuZP3anXqMXmrnBOWiguThBzu7Gd8=
-X-Received: by 2002:a2e:351a:: with SMTP id z26mr1502554ljz.144.1591788108186;
- Wed, 10 Jun 2020 04:21:48 -0700 (PDT)
+        id S1728469AbgFJL2N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Jun 2020 07:28:13 -0400
+Received: from hqnvemgate24.nvidia.com ([216.228.121.143]:14116 "EHLO
+        hqnvemgate24.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728412AbgFJL2N (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 10 Jun 2020 07:28:13 -0400
+Received: from hqpgpgate102.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate24.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5ee0c3710000>; Wed, 10 Jun 2020 04:26:41 -0700
+Received: from hqmail.nvidia.com ([172.20.161.6])
+  by hqpgpgate102.nvidia.com (PGP Universal service);
+  Wed, 10 Jun 2020 04:28:12 -0700
+X-PGP-Universal: processed;
+        by hqpgpgate102.nvidia.com on Wed, 10 Jun 2020 04:28:12 -0700
+Received: from [10.26.72.59] (10.124.1.5) by HQMAIL107.nvidia.com
+ (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Wed, 10 Jun
+ 2020 11:28:09 +0000
+Subject: Re: [PATCH 4.4 00/36] 4.4.227-rc2 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
+        <stable@vger.kernel.org>, linux-tegra <linux-tegra@vger.kernel.org>
+References: <20200609190211.793882726@linuxfoundation.org>
+From:   Jon Hunter <jonathanh@nvidia.com>
+Message-ID: <36f2ca95-cdbf-14c9-87dc-d6746ff696ce@nvidia.com>
+Date:   Wed, 10 Jun 2020 12:28:07 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.8.0
 MIME-Version: 1.0
-References: <20200606093150.32882-1-hdegoede@redhat.com>
-In-Reply-To: <20200606093150.32882-1-hdegoede@redhat.com>
-From:   Linus Walleij <linus.walleij@linaro.org>
-Date:   Wed, 10 Jun 2020 13:21:37 +0200
-Message-ID: <CACRpkdaTJ9hW+GTnTVWK1UxHYxgD_c8G=Eq-3=iEN=YJrYLhKg@mail.gmail.com>
-Subject: Re: [PATCH v2] pinctrl: baytrail: Fix pin being driven low for a
- while on gpiod_get(..., GPIOD_OUT_HIGH)
-To:     Hans de Goede <hdegoede@redhat.com>
-Cc:     Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20200609190211.793882726@linuxfoundation.org>
+X-Originating-IP: [10.124.1.5]
+X-ClientProxiedBy: HQMAIL101.nvidia.com (172.20.187.10) To
+ HQMAIL107.nvidia.com (172.20.187.13)
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1591788401; bh=6daNWnj3djyNP2X6nMQ+uudIPivF6fz5MO5w51QjKkY=;
+        h=X-PGP-Universal:Subject:To:CC:References:From:Message-ID:Date:
+         User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
+         X-ClientProxiedBy:Content-Type:Content-Language:
+         Content-Transfer-Encoding;
+        b=bvvdjAg8jSvOpHjWV4eZ1ZgGLYk+pzQ844ULWVrSZfhYGuEXGIHAyKjUtd4YgPqrn
+         /hBqDUAzYvEotligb3NY68WGC8zgXE/2o9rTsQKugOKgfpY1bUzHTaqHg7j/AVXtm/
+         oGu5COLjawBYk0vsLE2bzFdjvU7es5NyJXgG1hFp13vlrY/8nPXnN1g5Pe758B4jXo
+         HEgO9Xz2Vj3HgF9QV+kVUfW8xr6ZHIAkzB+8Ct0i5CZRHrc6gNMJPhR94s4UoI+m9y
+         frLRN+Cc4PLv4mkW6d3Mkbteyy6zdAthrUBfeh6vffQrLvbfFvRSW4i/2IhPFjQZ1K
+         Eu8D9Q5UzNNAQ==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Jun 6, 2020 at 11:31 AM Hans de Goede <hdegoede@redhat.com> wrote:
 
-> The pins on the Bay Trail SoC have separate input-buffer and output-buffer
-> enable bits and a read of the level bit of the value register will always
-> return the value from the input-buffer.
->
-> The BIOS of a device may configure a pin in output-only mode, only enabling
-> the output buffer, and write 1 to the level bit to drive the pin high.
-> This 1 written to the level bit will be stored inside the data-latch of the
-> output buffer.
->
-> But a subsequent read of the value register will return 0 for the level bit
-> because the input-buffer is disabled. This causes a read-modify-write as
-> done by byt_gpio_set_direction() to write 0 to the level bit, driving the
-> pin low!
->
-> Before this commit byt_gpio_direction_output() relied on
-> pinctrl_gpio_direction_output() to set the direction, followed by a call
-> to byt_gpio_set() to apply the selected value. This causes the pin to
-> go low between the pinctrl_gpio_direction_output() and byt_gpio_set()
-> calls.
->
-> Change byt_gpio_direction_output() to directly make the register
-> modifications itself instead. Replacing the 2 subsequent writes to the
-> value register with a single write.
->
-> Note that the pinctrl code does not keep track internally of the direction,
-> so not going through pinctrl_gpio_direction_output() is not an issue.
->
-> This issue was noticed on a Trekstor SurfTab Twin 10.1. When the panel is
-> already on at boot (no external monitor connected), then the i915 driver
-> does a gpiod_get(..., GPIOD_OUT_HIGH) for the panel-enable GPIO. The
-> temporarily going low of that GPIO was causing the panel to reset itself
-> after which it would not show an image until it was turned off and back on
-> again (until a full modeset was done on it). This commit fixes this.
->
-> This commit also updates the byt_gpio_direction_input() to use direct
-> register accesses instead of going through pinctrl_gpio_direction_input(),
-> to keep it consistent with byt_gpio_direction_output().
->
-> Note for backporting, this commit depends on:
-> commit e2b74419e5cc ("pinctrl: baytrail: Replace WARN with dev_info_once
-> when setting direct-irq pin to output")
->
-> Cc: stable@vger.kernel.org
-> Fixes: 86e3ef812fe3 ("pinctrl: baytrail: Update gpio chip operations")
-> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-> ---
-> Note the factoring out of the direct IRQ mode warning is deliberately not
-> split into a separate patch to make backporting this easier.
+On 09/06/2020 20:18, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.4.227 release.
+> There are 36 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Thu, 11 Jun 2020 19:02:00 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.227-rc2.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.4.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-Looks good to me, I expect this in a pull request from Andy for
-fixes, alternatively I can apply it directly for fixes if Andy prefers
-this.
 
-Yours,
-Linus Walleij
+All tests are passing for Tegra ...
+
+Test results for stable-v4.4:
+    6 builds:	6 pass, 0 fail
+    12 boots:	12 pass, 0 fail
+    23 tests:	23 pass, 0 fail
+
+Linux version:	4.4.227-rc2-g61ef7e7aaf1d
+Boards tested:	tegra124-jetson-tk1, tegra20-ventana,
+                tegra30-cardhu-a04
+
+Cheers
+Jon
+
+-- 
+nvpublic
