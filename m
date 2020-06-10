@@ -2,82 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F2F81F5734
-	for <lists+stable@lfdr.de>; Wed, 10 Jun 2020 17:01:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E06A1F5738
+	for <lists+stable@lfdr.de>; Wed, 10 Jun 2020 17:02:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727994AbgFJPB1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Jun 2020 11:01:27 -0400
-Received: from jabberwock.ucw.cz ([46.255.230.98]:42794 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726417AbgFJPB1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 10 Jun 2020 11:01:27 -0400
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 45AC81C0C0A; Wed, 10 Jun 2020 17:01:25 +0200 (CEST)
-Date:   Wed, 10 Jun 2020 17:01:24 +0200
-From:   Pavel Machek <pavel@denx.de>
-To:     Mark Brown <broonie@kernel.org>
-Cc:     Pavel Machek <pavel@denx.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        fengsheng <fengsheng5@huawei.com>,
-        Xinwei Kong <kong.kongxinwei@hisilicon.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 4.19 15/28] spi: dw: use "smp_mb()" to avoid sending spi
- data error
-Message-ID: <20200610150124.GA19775@amd>
-References: <20200605140252.338635395@linuxfoundation.org>
- <20200605140253.279609547@linuxfoundation.org>
- <20200607200910.GA13138@amd>
- <20200608111619.GB4593@sirena.org.uk>
+        id S1729916AbgFJPCH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Jun 2020 11:02:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40498 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726417AbgFJPCG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 10 Jun 2020 11:02:06 -0400
+Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCCA7C03E96B;
+        Wed, 10 Jun 2020 08:02:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20170209; h=In-Reply-To:Content-Type:MIME-Version
+        :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=e/I7IeBlmcoJH8pxLjvp2NE3V5TNcZtshVifaD2OjQs=; b=tyK3sm9NsopRaJm+EEC0wowYUV
+        Tr8R2GEGuheASallfJRx0hvcmZ5g1lyREuAeVbfaIieHwryNVsG641pMAQWCYm16/ruW/WhOT7dCz
+        BJhsmqsXlVHRiMzszwd4KY6njDoRid1x2z/bPZPKD/101UyjXaM6KtyrcNqWsc+YMWrpFcBbUZMfK
+        WR0Akzk+k5wNAvgcqlTWRcLaDU0hjRwl8Jy9BNXZM0JuuaIfqlammJ8l6Vgi/UlwDSFC6/DWAavHU
+        rJNNrnkSwCuukx6pYjxNB3peUp8jdluURTlMYnjaKSYM2N8OcquTCLP/7KFjL+uQI33YsCPX8MX58
+        lMHDhVYA==;
+Received: from hch by bombadil.infradead.org with local (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1jj2Et-0003Ao-7J; Wed, 10 Jun 2020 15:02:03 +0000
+Date:   Wed, 10 Jun 2020 08:02:03 -0700
+From:   Christoph Hellwig <hch@infradead.org>
+To:     Jan Kara <jack@suse.cz>
+Cc:     linux-fsdevel@vger.kernel.org, Ted Tso <tytso@mit.edu>,
+        Martijn Coenen <maco@android.com>, tj@kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 1/3] writeback: Avoid skipping inode writeback
+Message-ID: <20200610150203.GA21733@infradead.org>
+References: <20200601091202.31302-1-jack@suse.cz>
+ <20200601091904.4786-1-jack@suse.cz>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="5vNYLRcllDrimb99"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200608111619.GB4593@sirena.org.uk>
-User-Agent: Mutt/1.5.23 (2014-03-12)
+In-Reply-To: <20200601091904.4786-1-jack@suse.cz>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+This generall looks ok, but a few nitpicks below:
 
---5vNYLRcllDrimb99
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> -static void redirty_tail(struct inode *inode, struct bdi_writeback *wb)
+> +static void __redirty_tail(struct inode *inode, struct bdi_writeback *wb)
 
-On Mon 2020-06-08 12:16:19, Mark Brown wrote:
-> On Sun, Jun 07, 2020 at 10:09:11PM +0200, Pavel Machek wrote:
->=20
-> > > Because of out-of-order execution about some CPU architecture,
-> > > In this debug stage we find Completing spi interrupt enable ->
-> > > prodrucing TXEI interrupt -> running "interrupt_transfer" function
-> > > will prior to set "dw->rx and dws->rx_end" data, so this patch add
-> > > memory barrier to enable dw->rx and dw->rx_end to be visible and
-> > > solve to send SPI data error.
->=20
-> > So, this is apparently CPU-vs-device issue...
->=20
-> The commit message is a bit unclear but my read had been interrupt
-> handler racing with sending new data rather than an ordering issue with
-> writes to the hardware. =20
+I think redirty_tail_locked would be a more decriptive name, and also
+fit other uses in this file (e.g. inode_io_list_move_locked and
+inode_io_list_del_locked).
 
-Aha, patch makes sense, then. Thanks for explanation!
-								Pavel
---=20
-DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
-HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+>  {
+> +	assert_spin_locked(&inode->i_lock);
+>  	if (!list_empty(&wb->b_dirty)) {
 
---5vNYLRcllDrimb99
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+Nit: I find an empty line after asserts and before the real code starts
+nice on the eye.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+>  			break;
+>  		list_move(&inode->i_io_list, &tmp);
+>  		moved++;
+> +		spin_lock(&inode->i_lock);
+>  		if (flags & EXPIRE_DIRTY_ATIME)
+> -			set_bit(__I_DIRTY_TIME_EXPIRED, &inode->i_state);
+> +			inode->i_state |= I_DIRTY_TIME_EXPIRED;
+> +		inode->i_state |= I_SYNC_QUEUED;
+> +		spin_unlock(&inode->i_lock);
 
-iEYEARECAAYFAl7g9cQACgkQMOfwapXb+vIkWwCfbC8j4ZPVgsy51QEIqbEOwPKC
-D9EAnieBrQvggr96Nsofzj8jmC/ie/Ig
-=LnUF
------END PGP SIGNATURE-----
+I wonder if the locking changes should go into a prep patch vs the
+actual logic changes related to I_SYNC_QUEUED?  That would untangle
+the patch quite a bit and make it easier to follow.
 
---5vNYLRcllDrimb99--
+>  #define I_WB_SWITCH		(1 << 13)
+>  #define I_OVL_INUSE		(1 << 14)
+>  #define I_CREATING		(1 << 15)
+> +#define I_SYNC_QUEUED		(1 << 16)
+
+FYI, this conflicts with the I_DONTCAT addition in mainline now.
