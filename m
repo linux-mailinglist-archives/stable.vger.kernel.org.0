@@ -2,134 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 113111F5618
-	for <lists+stable@lfdr.de>; Wed, 10 Jun 2020 15:47:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 57AEF1F562C
+	for <lists+stable@lfdr.de>; Wed, 10 Jun 2020 15:52:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729431AbgFJNqy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Jun 2020 09:46:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40986 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726157AbgFJNqy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Jun 2020 09:46:54 -0400
-Received: from PC-kkoz.proceq.com (unknown [213.160.61.66])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1614D20734;
-        Wed, 10 Jun 2020 13:46:50 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591796813;
-        bh=ySu/M96+t17yNUSK2ZVv+Yrxj6RgjYRwsF77Zozd3Gk=;
-        h=From:To:Cc:Subject:Date:From;
-        b=kabpzzP8emaF3CzGqvm/lJhyhiuL9v+rC3MsEerpO13T6RFyuFGsSEwLJ9FQEz5gg
-         Ulssu7K/SrZYKjRbtG4RTC+nGA/0e5Lok3oKGxFNxy06PgTINst0leAuG+Ektxb9SS
-         oIBT3AQvCY2EP198+Xx4X+Z5cdaHLFJjbFUJ42yI=
-From:   Krzysztof Kozlowski <krzk@kernel.org>
-To:     Oleksij Rempel <linux@rempel-privat.de>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        Gao Pan <b54642@freescale.com>,
-        Fugang Duan <B38611@freescale.com>,
-        Wolfram Sang <wsa@kernel.org>, linux-i2c@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Cc:     Krzysztof Kozlowski <krzk@kernel.org>, stable@vger.kernel.org
-Subject: [PATCH] i2c: imx: Fix external abort on early interrupt
-Date:   Wed, 10 Jun 2020 15:46:42 +0200
-Message-Id: <1591796802-23504-1-git-send-email-krzk@kernel.org>
-X-Mailer: git-send-email 2.7.4
+        id S1729536AbgFJNv7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Jun 2020 09:51:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57842 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726095AbgFJNv7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 10 Jun 2020 09:51:59 -0400
+Received: from mail-oi1-x242.google.com (mail-oi1-x242.google.com [IPv6:2607:f8b0:4864:20::242])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7AB5C03E96B
+        for <stable@vger.kernel.org>; Wed, 10 Jun 2020 06:51:58 -0700 (PDT)
+Received: by mail-oi1-x242.google.com with SMTP id a3so2120173oid.4
+        for <stable@vger.kernel.org>; Wed, 10 Jun 2020 06:51:58 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linuxfoundation.org; s=google;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=rw9Mj0/+zzahZvyDMEuzuvW0Rn8QEeky5cPhAciCJPw=;
+        b=MUaQd6f/BXiIREv15GSwQVLeIhm4Wa2S6Q0t8CHFYR7CME4+8bThfnPUpI9gTi21wt
+         w553O7sARRIPJ0pkWVfikDPaLsjFvKTFjE8Y5sf1Kvr+3YaBdnImkWxSTt/8XQyAwV2d
+         lM8IqHeCuVDN0YSSSECwnn8vzQb4GRR/kC1H8=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=rw9Mj0/+zzahZvyDMEuzuvW0Rn8QEeky5cPhAciCJPw=;
+        b=sGg/1RfaAm1bKAhWuXb+6RtgZnIKO9uTng9xHS1sc19Y7vvUS/BcC80op+0BfaPiTH
+         pjiOW2GeWaqb9lzptVMlTqK4BsTMBCQeqODOOEKV0Bsdr9rICXVXDurYE8tXlcuecRyA
+         nCQ7obcw/cPsAOIs/d3ERS2K3SVUNM4jSXHSXQ85mBc5Wq0ZPv1PMQXofKQWzsKBUgno
+         oq18kVTXuzQiPN1OdCkLAEvGd2EXR0B3TT2CfDCQ2aPf3aLrOjePEupWHUASMUlxhsDX
+         Dp/eXY7vIyAv2i4usILL0gOllD8h6h6cir5YIN9R/ToWSaY/diNHR7X1kGdIQUB9GLiF
+         H7kQ==
+X-Gm-Message-State: AOAM5330i3J18f0h1IFrOvmiNnykCMsfQefVeCO3UI9OeUBrlG7b7sTG
+        q8eITi6lWr2XrVHtDf5Ulzx6UA==
+X-Google-Smtp-Source: ABdhPJxtlQuwQmxDLMoDK57a9/HXESSPe9khaYCy0R14MDk7Rimx4iT8K/X5OC/DbN9zfqtovRPIZg==
+X-Received: by 2002:a05:6808:ab0:: with SMTP id r16mr2574689oij.24.1591797117980;
+        Wed, 10 Jun 2020 06:51:57 -0700 (PDT)
+Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net. [24.9.64.241])
+        by smtp.gmail.com with ESMTPSA id y89sm12308ota.16.2020.06.10.06.51.56
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 10 Jun 2020 06:51:57 -0700 (PDT)
+Subject: Re: [PATCH 5.6 00/41] 5.6.18-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org, skhan@linuxfoundation.org
+References: <20200609174112.129412236@linuxfoundation.org>
+From:   Shuah Khan <skhan@linuxfoundation.org>
+Message-ID: <9696dbd3-0ee3-a511-076a-98bb924bda8e@linuxfoundation.org>
+Date:   Wed, 10 Jun 2020 07:51:56 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.8.0
+MIME-Version: 1.0
+In-Reply-To: <20200609174112.129412236@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-If interrupt comes early (could be triggered with CONFIG_DEBUG_SHIRQ),
-the i2c_imx_isr() will access registers before the I2C hardware is
-initialized.  This leads to external abort on non-linefetch on Toradex
-Colibri VF50 module (with Vybrid VF5xx):
+On 6/9/20 11:45 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.6.18 release.
+> There are 41 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Thu, 11 Jun 2020 17:40:51 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.6.18-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.6.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-    Unhandled fault: external abort on non-linefetch (0x1008) at 0x8882d003
-    Internal error: : 1008 [#1] ARM
-    Modules linked in:
-    CPU: 0 PID: 1 Comm: swapper Not tainted 5.7.0 #607
-    Hardware name: Freescale Vybrid VF5xx/VF6xx (Device Tree)
-      (i2c_imx_isr) from [<8017009c>] (free_irq+0x25c/0x3b0)
-      (free_irq) from [<805844ec>] (release_nodes+0x178/0x284)
-      (release_nodes) from [<80580030>] (really_probe+0x10c/0x348)
-      (really_probe) from [<80580380>] (driver_probe_device+0x60/0x170)
-      (driver_probe_device) from [<80580630>] (device_driver_attach+0x58/0x60)
-      (device_driver_attach) from [<805806bc>] (__driver_attach+0x84/0xc0)
-      (__driver_attach) from [<8057e228>] (bus_for_each_dev+0x68/0xb4)
-      (bus_for_each_dev) from [<8057f3ec>] (bus_add_driver+0x144/0x1ec)
-      (bus_add_driver) from [<80581320>] (driver_register+0x78/0x110)
-      (driver_register) from [<8010213c>] (do_one_initcall+0xa8/0x2f4)
-      (do_one_initcall) from [<80c0100c>] (kernel_init_freeable+0x178/0x1dc)
-      (kernel_init_freeable) from [<80807048>] (kernel_init+0x8/0x110)
-      (kernel_init) from [<80100114>] (ret_from_fork+0x14/0x20)
+Compiled and booted on my test system. No dmesg regressions.
 
-Additionally, the i2c_imx_isr() could wake up the wait queue
-(imx_i2c_struct->queue) before its initialization happens.
-
-Fixes: 1c4b6c3bcf30 ("i2c: imx: implement bus recovery")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
----
- drivers/i2c/busses/i2c-imx.c | 20 ++++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-index 0ab5381aa012..e28a39f4840f 100644
---- a/drivers/i2c/busses/i2c-imx.c
-+++ b/drivers/i2c/busses/i2c-imx.c
-@@ -1171,14 +1171,6 @@ static int i2c_imx_probe(struct platform_device *pdev)
- 		return ret;
- 	}
- 
--	/* Request IRQ */
--	ret = devm_request_irq(&pdev->dev, irq, i2c_imx_isr, IRQF_SHARED,
--				pdev->name, i2c_imx);
--	if (ret) {
--		dev_err(&pdev->dev, "can't claim irq %d\n", irq);
--		goto clk_disable;
--	}
--
- 	/* Init queue */
- 	init_waitqueue_head(&i2c_imx->queue);
- 
-@@ -1223,6 +1215,14 @@ static int i2c_imx_probe(struct platform_device *pdev)
- 	if (ret < 0)
- 		goto clk_notifier_unregister;
- 
-+	/* Request IRQ */
-+	ret = devm_request_irq(&pdev->dev, irq, i2c_imx_isr, IRQF_SHARED,
-+				pdev->name, i2c_imx);
-+	if (ret) {
-+		dev_err(&pdev->dev, "can't claim irq %d\n", irq);
-+		goto i2c_del_adapter;
-+	}
-+
- 	pm_runtime_mark_last_busy(&pdev->dev);
- 	pm_runtime_put_autosuspend(&pdev->dev);
- 
-@@ -1237,6 +1237,8 @@ static int i2c_imx_probe(struct platform_device *pdev)
- 
- 	return 0;   /* Return OK */
- 
-+i2c_del_adapter:
-+	i2c_del_adapter(&i2c_imx->adapter);
- clk_notifier_unregister:
- 	clk_notifier_unregister(i2c_imx->clk, &i2c_imx->clk_change_nb);
- rpm_disable:
-@@ -1244,8 +1246,6 @@ static int i2c_imx_probe(struct platform_device *pdev)
- 	pm_runtime_disable(&pdev->dev);
- 	pm_runtime_set_suspended(&pdev->dev);
- 	pm_runtime_dont_use_autosuspend(&pdev->dev);
--
--clk_disable:
- 	clk_disable_unprepare(i2c_imx->clk);
- 	return ret;
- }
--- 
-2.7.4
-
+thanks,
+-- Shuah
