@@ -2,151 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BC721F508C
-	for <lists+stable@lfdr.de>; Wed, 10 Jun 2020 10:48:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E2B2C1F5094
+	for <lists+stable@lfdr.de>; Wed, 10 Jun 2020 10:50:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726673AbgFJIsw convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Wed, 10 Jun 2020 04:48:52 -0400
-Received: from eu-smtp-delivery-151.mimecast.com ([185.58.86.151]:37621 "EHLO
-        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726931AbgFJIsu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 10 Jun 2020 04:48:50 -0400
-Received: from AcuMS.aculab.com (156.67.243.126 [156.67.243.126]) (Using
- TLS) by relay.mimecast.com with ESMTP id
- uk-mta-161-0yN4TplFM4ieG9IIs6KTcQ-2; Wed, 10 Jun 2020 09:48:46 +0100
-X-MC-Unique: 0yN4TplFM4ieG9IIs6KTcQ-2
-Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) by
- AcuMS.aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) with Microsoft SMTP
- Server (TLS) id 15.0.1347.2; Wed, 10 Jun 2020 09:48:45 +0100
-Received: from AcuMS.Aculab.com ([fe80::43c:695e:880f:8750]) by
- AcuMS.aculab.com ([fe80::43c:695e:880f:8750%12]) with mapi id 15.00.1347.000;
- Wed, 10 Jun 2020 09:48:45 +0100
-From:   David Laight <David.Laight@ACULAB.COM>
-To:     'Sargun Dhillon' <sargun@sargun.me>,
-        Kees Cook <keescook@chromium.org>
-CC:     Christian Brauner <christian.brauner@ubuntu.com>,
-        "containers@lists.linux-foundation.org" 
-        <containers@lists.linux-foundation.org>,
-        Giuseppe Scrivano <gscrivan@redhat.com>,
-        Robert Sesek <rsesek@google.com>,
-        Chris Palmer <palmer@google.com>, Jann Horn <jannh@google.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Daniel Wagner <daniel.wagner@bmw-carit.de>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Matt Denton <mpdenton@google.com>,
-        John Fastabend <john.r.fastabend@intel.com>,
-        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
-        Tejun Heo <tj@kernel.org>, Al Viro <viro@zeniv.linux.org.uk>,
-        "cgroups@vger.kernel.org" <cgroups@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "David S . Miller" <davem@davemloft.net>
-Subject: RE: [PATCH v3 1/4] fs, net: Standardize on file_receive helper to
- move fds across processes
-Thread-Topic: [PATCH v3 1/4] fs, net: Standardize on file_receive helper to
- move fds across processes
-Thread-Index: AQHWPv7tCi14oegu0U6J73sUpcDiU6jRh/3w
-Date:   Wed, 10 Jun 2020 08:48:45 +0000
-Message-ID: <40d76a9a4525414a8c9809cd29a7ba8e@AcuMS.aculab.com>
-References: <20200603011044.7972-2-sargun@sargun.me>
- <20200604012452.vh33nufblowuxfed@wittgenstein>
- <202006031845.F587F85A@keescook>
- <20200604125226.eztfrpvvuji7cbb2@wittgenstein>
- <20200605075435.GA3345@ircssh-2.c.rugged-nimbus-611.internal>
- <202006091235.930519F5B@keescook>
- <20200609200346.3fthqgfyw3bxat6l@wittgenstein>
- <202006091346.66B79E07@keescook>
- <037A305F-B3F8-4CFA-B9F8-CD4C9EF9090B@ubuntu.com>
- <202006092227.D2D0E1F8F@keescook>
- <20200610081237.GA23425@ircssh-2.c.rugged-nimbus-611.internal>
-In-Reply-To: <20200610081237.GA23425@ircssh-2.c.rugged-nimbus-611.internal>
-Accept-Language: en-GB, en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [10.202.205.107]
+        id S1726925AbgFJIu1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Jun 2020 04:50:27 -0400
+Received: from mx2.suse.de ([195.135.220.15]:35476 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726081AbgFJIu1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Jun 2020 04:50:27 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx2.suse.de (Postfix) with ESMTP id D9BE8ABE3;
+        Wed, 10 Jun 2020 08:50:28 +0000 (UTC)
+Subject: Re: [PATCH v2] scripts/spelling: Recommend blocklist/allowlist
+ instead of blacklist/whitelist
+To:     SeongJae Park <sjpark@amazon.com>, akpm@linux-foundation.org
+Cc:     colin.king@canonical.com, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, SeongJae Park <sjpark@amazon.de>
+References: <20200609122549.26304-1-sjpark@amazon.com>
+From:   Jiri Slaby <jslaby@suse.cz>
+Autocrypt: addr=jslaby@suse.cz; prefer-encrypt=mutual; keydata=
+ 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
+Message-ID: <b16e47c9-db60-4d20-6e72-bf0b5ab29a38@suse.cz>
+Date:   Wed, 10 Jun 2020 10:50:24 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.8.1
 MIME-Version: 1.0
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: aculab.com
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+In-Reply-To: <20200609122549.26304-1-sjpark@amazon.com>
+Content-Type: text/plain; charset=iso-8859-2
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sargun Dhillon
-> Sent: 10 June 2020 09:13
+On 09. 06. 20, 14:25, SeongJae Park wrote:
+> From: SeongJae Park <sjpark@amazon.de>
 > 
-> On Tue, Jun 09, 2020 at 10:27:54PM -0700, Kees Cook wrote:
-> > On Tue, Jun 09, 2020 at 11:27:30PM +0200, Christian Brauner wrote:
-> > > On June 9, 2020 10:55:42 PM GMT+02:00, Kees Cook <keescook@chromium.org> wrote:
-> > > >LOL. And while we were debating this, hch just went and cleaned stuff up:
-> > > >
-> > > >2618d530dd8b ("net/scm: cleanup scm_detach_fds")
-> > > >
-> > > >So, um, yeah, now my proposal is actually even closer to what we already
-> > > >have there. We just add the replace_fd() logic to __scm_install_fd() and
-> > > >we're done with it.
-> > >
-> > > Cool, you have a link? :)
-> >
-> > How about this:
-> >
-> Thank you.
-> >
-> https://git.kernel.org/pub/scm/linux/kernel/git/kees/linux.git/commit/?h=devel/seccomp/addfd/v3.1&id=b
-> b94586b9e7cc88e915536c2e9fb991a97b62416
-> >
-> > --
-> > Kees Cook
+> This commit recommends the patches to replace 'blacklist' and
+> 'whitelist' with the 'blocklist' and 'allowlist', because the new
+> suggestions are incontrovertible, doesn't make people hurt, and more
+> self-explanatory.
+
+Sorry, but no, it's definitely not.
+
+> Signed-off-by: SeongJae Park <sjpark@amazon.de>
+> ---
+>  scripts/spelling.txt | 2 ++
+>  1 file changed, 2 insertions(+)
 > 
-> +		if (ufd) {
-> +			error = put_user(new_fd, ufd);
-> +			if (error) {
-> +				put_unused_fd(new_fd);
-> +				return error;
-> +			}
-> + 		}
-> I'm fairly sure this introduces a bug[1] if the user does:
-> 
-> struct msghdr msg = {};
-> struct cmsghdr *cmsg;
-> struct iovec io = {
-> 	.iov_base = &c,
-> 	.iov_len = 1,
-> };
-> 
-> msg.msg_iov = &io;
-> msg.msg_iovlen = 1;
-> msg.msg_control = NULL;
-> msg.msg_controllen = sizeof(buf);
-> 
-> recvmsg(sock, &msg, 0);
-> 
-> They will have the FD installed, no error message, but FD number wont be written
-> to memory AFAICT. If two FDs are passed, you will get an efault. They will both
-> be installed, but memory wont be written to. Maybe instead of 0, make it a
-> poison pointer, or -1 instead?
+> diff --git a/scripts/spelling.txt b/scripts/spelling.txt
+> index d9cd24cf0d40..ea785568d8b8 100644
+> --- a/scripts/spelling.txt
+> +++ b/scripts/spelling.txt
+> @@ -230,6 +230,7 @@ beter||better
+>  betweeen||between
+>  bianries||binaries
+>  bitmast||bitmask
+> +blacklist||blocklist
 
-IMHO if the buffer isn't big enough the nothing should happen.
-(or maybe a few of the fds be returned and the others left for later.)
+Blocklist means a list of blocks here.
 
-OTOH if the user passed an invalid address then installing the fd
-and returning EFAULT (and hence SIGSEGV) seems reasonable.
-Properly written apps just don't do that.
+>  boardcast||broadcast
+>  borad||board
+>  boundry||boundary
+> @@ -1495,6 +1496,7 @@ whcih||which
+>  whenver||whenever
+>  wheter||whether
+>  whe||when
+> +whitelist||allowlist
 
-In essence the 'copy_to_user' is done by the wrapper code.
-The code filling in the CMSG buffer can be considered to be
-writing a kernel buffer.
+Wut? allowlist I am seeing for the 1st time.
 
-IIRC other kernels (eg NetBSD) do the copies for ioctl() requests
-in the ioctl syscall wrapper.
-The IOW/IOR/IOWR flags have to be right.
+Some purists, linguists, and politicians are true fellows at times, or
+at least they think so. This comes in waves and even if they try hard,
+people won't adopt their nonsense. Like we, Czechs, still call piano by
+German Klavier, and not bøinkoklapka, suggested in 19th century (among
+many others) by the horny extremists.
 
-	David
+Shall we stop using black, white, blue, and other colors only because
+they relate to skin color of avatars now? I doubt that.
 
--
-Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
-Registration No: 1397386 (Wales)
-
+thanks,
+-- 
+js
+suse labs
