@@ -2,158 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 482971F4CA8
-	for <lists+stable@lfdr.de>; Wed, 10 Jun 2020 06:55:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C59E91F4CE4
+	for <lists+stable@lfdr.de>; Wed, 10 Jun 2020 07:28:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726042AbgFJEzJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Jun 2020 00:55:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59414 "EHLO
+        id S1726122AbgFJF2A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Jun 2020 01:28:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36200 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726040AbgFJEzI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 10 Jun 2020 00:55:08 -0400
-Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com [IPv6:2607:f8b0:4864:20::102f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E70AEC05BD1E
-        for <stable@vger.kernel.org>; Tue,  9 Jun 2020 21:55:07 -0700 (PDT)
-Received: by mail-pj1-x102f.google.com with SMTP id s88so373003pjb.5
-        for <stable@vger.kernel.org>; Tue, 09 Jun 2020 21:55:07 -0700 (PDT)
+        with ESMTP id S1726117AbgFJF16 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 10 Jun 2020 01:27:58 -0400
+Received: from mail-pg1-x541.google.com (mail-pg1-x541.google.com [IPv6:2607:f8b0:4864:20::541])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58BA2C03E96B
+        for <stable@vger.kernel.org>; Tue,  9 Jun 2020 22:27:57 -0700 (PDT)
+Received: by mail-pg1-x541.google.com with SMTP id o6so482188pgh.2
+        for <stable@vger.kernel.org>; Tue, 09 Jun 2020 22:27:57 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=K64935Prs2iy9zR3uCW9kemZxXcBQ6nSJpCAhyVIoGc=;
-        b=cDwlaJwAc/FpAM8qmHlAIr1k89JRwNBeZorHRd1EeNybOQkhIvkRtJHRFsUFqmHf10
-         QqVk/YgEeEiaW/96uwjZBD1vmjx0ffRZ760a632SOPVO1UOQX23Fi6bBY7p3k57+hDn+
-         HX4QRSg0tZoSAumgY+iwsCESxESIj6bvKYvc+kxBrvTzOyVNmbdInOu7nQ5K/b8duIDp
-         AmH/i7RPhGbxwbcYV8QBGToyNcET9i8uVjLoH85B/ohK42F9E9sPUN6mtwxiIKsFGzVb
-         9sqFn/w4B99uxFKkskQDSmTqu9iTBZs6xTFs+VrchVj2niLr8I2oI1q+a5JlHoz7zOq5
-         UHRw==
+        d=chromium.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=YuvdGzIyUzej8b6gdTa5D7P2JhC6M3cmDi3clfShF/E=;
+        b=PIgAxHYrxUvRr9+6B+Y6rNbCq5cYmCyrWJFoGVB5vsnqF1cxlaBH0TdQtEogAZhAkK
+         0IZo+oyIm9PFRRK9u2lfat+U9IAqccCDhsh4QXM2Gz3Qz/v7cJ50lWwTlK+oRjnhtS65
+         WPTyN5BUNxT9qFvRvz655OCTZSSLHH3QKWdPg=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=K64935Prs2iy9zR3uCW9kemZxXcBQ6nSJpCAhyVIoGc=;
-        b=SoUqWk/sI19UqIqHGr1pRBS24xUn7/klhmAKGYznUZ6Y4Xtw7WLHCaFfMliEc+ElXf
-         hhGIFt47841XTUhPbB3/R6QS+7uewCfZojPhqjlTZkP/9K6OK822YjtPQdVaR1cbOr6g
-         i+ajgFH2pFbx1+eTWlz/GwGTp6qt2z9jBo+nhrlP0D4OysKU6JEULBnZUKIc2ndhorNW
-         Rw7XdVKj9WS+sSicfeOBZtlC6FfK1Zgcqlah1XNZoPJLLID7BgCwwr4GC4zG1ib49pVz
-         id5zBH4aBhBDHsbaxPL3Hjzzd+rfp2MNWbpFJY5SR3fdj69ih3B4BPDOf+ZEnm7aW4yP
-         FuuA==
-X-Gm-Message-State: AOAM531dkfsB40/6XK9G+X+tavKf64GnIoRSqXyHMF7FMFg4kRzLqT3o
-        89l04Z5eBOMBfd6SskZXDB1vYUFdpxg=
-X-Google-Smtp-Source: ABdhPJzR8xIxgxVH8nL+fowgxP8oyAhX4xzzbsoLGnoGn9MuHNTyO8N0vmlGPPcoKQIp+uX9FWcVCA==
-X-Received: by 2002:a17:902:9a89:: with SMTP id w9mr1567670plp.30.1591764905408;
-        Tue, 09 Jun 2020 21:55:05 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id l2sm9643885pga.44.2020.06.09.21.55.04
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=YuvdGzIyUzej8b6gdTa5D7P2JhC6M3cmDi3clfShF/E=;
+        b=dQ/6ETU8409ED3fppT061LP9OmpQr+RD00OJNNYbQHr77tdtmVGwg6DQ9NN7ksheyj
+         SgpQTz3286Qk5eagjbUCsaYgqjbSKar+7MhFAc6HiW4q5BwIBNFwsY65ayQLV7QUDyG4
+         tervt9lZ5fYqO3uMm+yRhkxiRLYDd1jR1PkQuSU1WIW9l+mT7cvlBJsomVmzt2cO75CG
+         H3nEqAkhUQs/wSjWsIbvq7s1+YEAyU2m3nUR2a+McnIX/pjFOvf+5W7j8XlMlQ6lTvV4
+         MbfOGEd24yanbTTVUsbC0H9O4y+5zhfit7AwM2jm+BMv9qL1+NGjWuFw38ReC/FuHH8J
+         c2UA==
+X-Gm-Message-State: AOAM530GA5oJizYxsWmHx77JNPafki457fNoEc4y4gWf/yfuoWdRAXib
+        4tyLXJKRUjyUhKBKSLA6NTy+hw==
+X-Google-Smtp-Source: ABdhPJxlpq2wABOjHadp4pv2ChXznPW+NT4TMS3Cp+fGD3SZI3IGpPc5oHKwOnJ2E6uX2YT9b+mkZA==
+X-Received: by 2002:a62:1917:: with SMTP id 23mr1215614pfz.272.1591766876846;
+        Tue, 09 Jun 2020 22:27:56 -0700 (PDT)
+Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
+        by smtp.gmail.com with ESMTPSA id x3sm11513892pfi.57.2020.06.09.22.27.55
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 09 Jun 2020 21:55:04 -0700 (PDT)
-Message-ID: <5ee067a8.1c69fb81.ab808.274c@mx.google.com>
-Date:   Tue, 09 Jun 2020 21:55:04 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        Tue, 09 Jun 2020 22:27:55 -0700 (PDT)
+Date:   Tue, 9 Jun 2020 22:27:54 -0700
+From:   Kees Cook <keescook@chromium.org>
+To:     Christian Brauner <christian.brauner@ubuntu.com>
+Cc:     containers@lists.linux-foundation.org,
+        Giuseppe Scrivano <gscrivan@redhat.com>,
+        Robert Sesek <rsesek@google.com>,
+        Chris Palmer <palmer@google.com>, Jann Horn <jannh@google.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Daniel Wagner <daniel.wagner@bmw-carit.de>,
+        linux-kernel@vger.kernel.org, Matt Denton <mpdenton@google.com>,
+        John Fastabend <john.r.fastabend@intel.com>,
+        linux-fsdevel@vger.kernel.org, Tejun Heo <tj@kernel.org>,
+        Al Viro <viro@zeniv.linux.org.uk>, cgroups@vger.kernel.org,
+        stable@vger.kernel.org, "David S . Miller" <davem@davemloft.net>
+Subject: Re: [PATCH v3 1/4] fs, net: Standardize on file_receive helper to
+ move fds across processes
+Message-ID: <202006092227.D2D0E1F8F@keescook>
+References: <20200603011044.7972-1-sargun@sargun.me>
+ <20200603011044.7972-2-sargun@sargun.me>
+ <20200604012452.vh33nufblowuxfed@wittgenstein>
+ <202006031845.F587F85A@keescook>
+ <20200604125226.eztfrpvvuji7cbb2@wittgenstein>
+ <20200605075435.GA3345@ircssh-2.c.rugged-nimbus-611.internal>
+ <202006091235.930519F5B@keescook>
+ <20200609200346.3fthqgfyw3bxat6l@wittgenstein>
+ <202006091346.66B79E07@keescook>
+ <037A305F-B3F8-4CFA-B9F8-CD4C9EF9090B@ubuntu.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Branch: linux-4.4.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.4.226-37-g61ef7e7aaf1d
-Subject: stable-rc/linux-4.4.y baseline: 30 runs,
- 2 regressions (v4.4.226-37-g61ef7e7aaf1d)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <037A305F-B3F8-4CFA-B9F8-CD4C9EF9090B@ubuntu.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.4.y baseline: 30 runs, 2 regressions (v4.4.226-37-g61ef7e=
-7aaf1d)
+On Tue, Jun 09, 2020 at 11:27:30PM +0200, Christian Brauner wrote:
+> On June 9, 2020 10:55:42 PM GMT+02:00, Kees Cook <keescook@chromium.org> wrote:
+> >LOL. And while we were debating this, hch just went and cleaned stuff up:
+> >
+> >2618d530dd8b ("net/scm: cleanup scm_detach_fds")
+> >
+> >So, um, yeah, now my proposal is actually even closer to what we already
+> >have there. We just add the replace_fd() logic to __scm_install_fd() and
+> >we're done with it.
+> 
+> Cool, you have a link? :)
 
-Regressions Summary
--------------------
+How about this:
 
-platform    | arch   | lab           | compiler | defconfig           | res=
-ults
-------------+--------+---------------+----------+---------------------+----=
-----
-omap4-panda | arm    | lab-collabora | gcc-8    | omap2plus_defconfig | 3/5=
-    =
+https://git.kernel.org/pub/scm/linux/kernel/git/kees/linux.git/commit/?h=devel/seccomp/addfd/v3.1&id=bb94586b9e7cc88e915536c2e9fb991a97b62416
 
-qemu_x86_64 | x86_64 | lab-baylibre  | gcc-8    | x86_64_defconfig    | 0/1=
-    =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.4.y/kern=
-el/v4.4.226-37-g61ef7e7aaf1d/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-4.4.y
-  Describe: v4.4.226-37-g61ef7e7aaf1d
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      61ef7e7aaf1df32b9a53dda1cdde0caff1293c17 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform    | arch   | lab           | compiler | defconfig           | res=
-ults
-------------+--------+---------------+----------+---------------------+----=
-----
-omap4-panda | arm    | lab-collabora | gcc-8    | omap2plus_defconfig | 3/5=
-    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5ee033c9ee406bcbfa97bf13
-
-  Results:     3 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.226=
--37-g61ef7e7aaf1d/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-omap=
-4-panda.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.226=
--37-g61ef7e7aaf1d/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-omap=
-4-panda.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2019=
-.02-11-g17e793fa4728/armel/baseline/rootfs.cpio.gz =
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/5ee033c9ee406bc=
-bfa97bf18
-      new failure (last pass: v4.4.226)
-      2 lines =
-
-
-
-platform    | arch   | lab           | compiler | defconfig           | res=
-ults
-------------+--------+---------------+----------+---------------------+----=
-----
-qemu_x86_64 | x86_64 | lab-baylibre  | gcc-8    | x86_64_defconfig    | 0/1=
-    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5ee02f650fa41af04a97bf51
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig
-  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.226=
--37-g61ef7e7aaf1d/x86_64/x86_64_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
-x86_64.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.226=
--37-g61ef7e7aaf1d/x86_64/x86_64_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
-x86_64.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2019=
-.02-11-g17e793fa4728/x86/baseline/rootfs.cpio.gz =
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5ee02f650fa41af04a97b=
-f52
-      new failure (last pass: v4.4.226-24-gd275a29aa983) =20
+-- 
+Kees Cook
