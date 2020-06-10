@@ -2,358 +2,222 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B866B1F4C40
-	for <lists+stable@lfdr.de>; Wed, 10 Jun 2020 06:25:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B17051F4C49
+	for <lists+stable@lfdr.de>; Wed, 10 Jun 2020 06:29:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725988AbgFJEZm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Jun 2020 00:25:42 -0400
-Received: from mga03.intel.com ([134.134.136.65]:41165 "EHLO mga03.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725908AbgFJEZl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Jun 2020 00:25:41 -0400
-IronPort-SDR: KPbRKZckX/ZD9SdYpSXrbg26q/Uxz4fmtQVvkg2zYhh7bUAFv+UHBS73/2ktczMIQ+CjwPMdpg
- Nl+mGYbGkiQg==
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga005.fm.intel.com ([10.253.24.32])
-  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Jun 2020 21:25:40 -0700
-IronPort-SDR: UUyBuO4FlUnlM+NT3WcPbtStCXuA3fZXSoSp6YR2oiKGU9foTV7Ky7V1Shcaa8DQxdReJy+C4a
- 52qHRQhtx3kQ==
-X-IronPort-AV: E=Sophos;i="5.73,494,1583222400"; 
-   d="scan'208";a="473291983"
-Received: from ychan10-mobl2.amr.corp.intel.com (HELO [10.212.8.218]) ([10.212.8.218])
-  by fmsmga005-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Jun 2020 21:25:39 -0700
-Subject: Re: [Intel-gfx] [PATCH] drm/i915/gt: Incrementally check for
- rewinding
-To:     Chris Wilson <chris@chris-wilson.co.uk>,
-        intel-gfx@lists.freedesktop.org
-Cc:     stable@vger.kernel.org
-References: <20200609122856.10207-1-chris@chris-wilson.co.uk>
- <20200609151723.12971-1-chris@chris-wilson.co.uk>
-From:   "Chang, Bruce" <yu.bruce.chang@intel.com>
-Message-ID: <bf5c088a-731a-7bc4-ff90-492f18e55045@intel.com>
-Date:   Tue, 9 Jun 2020 21:25:39 -0700
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
- Thunderbird/68.9.0
+        id S1725988AbgFJE3G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Jun 2020 00:29:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55424 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725268AbgFJE3G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 10 Jun 2020 00:29:06 -0400
+Received: from mail-pl1-x634.google.com (mail-pl1-x634.google.com [IPv6:2607:f8b0:4864:20::634])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52720C05BD1E
+        for <stable@vger.kernel.org>; Tue,  9 Jun 2020 21:29:06 -0700 (PDT)
+Received: by mail-pl1-x634.google.com with SMTP id x11so454606plv.9
+        for <stable@vger.kernel.org>; Tue, 09 Jun 2020 21:29:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=WcP1LJNHJg9Z6dXLAzk54S/3Z7/9cOsXVC5Se06UYX0=;
+        b=YaQhqWJ0Hm+iCALd3YGM2HdUGroEh7PmcWzfjU2VbZ9ZZ9uWab8PDbyRA9nalGnawb
+         aX4fjPmrY//Px3Yw+3949ZuDURyNkGnrbC2QQZ1/wOEtGzt0j/kyNOi/T859itntTxeb
+         2UOG6NWJ8UHvBBYq7qmqsw8sw8YgiSzG0juIafJ3FIhV5qjOAssh3u4USs+DgFs11YId
+         5/1RksZ7n9gcgO8lycRuBWQSrZpdHxKU4kpPc3I2L0Zn/qjNz021dpB9zWmdMHqSoBLj
+         pJOKTm/tW9mR7qCvmAhy7meXgNrAQkc8mqVPvRR5Ap9dzIL32BkYxvLSkhVNE70aUkHu
+         wvHw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=WcP1LJNHJg9Z6dXLAzk54S/3Z7/9cOsXVC5Se06UYX0=;
+        b=hTmoB2RWSATm9E+V8qe7i9TX5vixHb9RjAKAmsPrDzQ/fT2U6kq+42SGy+VK8JsJZ7
+         hBfhJVcYipZUSaXqSGk118b7sc0jMRZm9EHStZNE8JByShwY5S5oxPYvu1J5U4GvDAlO
+         8GoxXwklyDXQShkcTJ/pFhIjnAtnicjqaIyuv+jmnKAlhLH++Yqb7Eu0ILOAQXsfgdhF
+         pTkPgnbtM9+wj3TQYhq6SegfoZ2cQV9EBV/kWLIkyzO1NPla2gKL4gp/SXalkB17ThqN
+         nFx4r123WUaQyJdMDmS1wHmd+2rCBhcmQ17gkGX6gCMAtBfj6befJYzqTjd3L5BOi6dH
+         qSzA==
+X-Gm-Message-State: AOAM533VHYivtfnOHJXB7Jvus0oTKyJuA6a4KVTOpA5uhiBAbuM7jAnA
+        7IgQcr9WDglbdFFuvGsHBGy8GIm4m8o=
+X-Google-Smtp-Source: ABdhPJx+zQZRefhzGhuGzLA6ENEyk9N3wj52yGRrFaTDAAcDfHHNbKZkoL8PcsGj0o1pjldFwGvA4Q==
+X-Received: by 2002:a17:90b:11d8:: with SMTP id gv24mr1228714pjb.66.1591763345488;
+        Tue, 09 Jun 2020 21:29:05 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id hi19sm3707212pjb.49.2020.06.09.21.29.04
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 09 Jun 2020 21:29:04 -0700 (PDT)
+Message-ID: <5ee06190.1c69fb81.4a3d4.cdaf@mx.google.com>
+Date:   Tue, 09 Jun 2020 21:29:04 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <20200609151723.12971-1-chris@chris-wilson.co.uk>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Branch: linux-5.6.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v5.6.16-86-g1bece508f6a9
+Subject: stable-rc/linux-5.6.y baseline: 61 runs,
+ 4 regressions (v5.6.16-86-g1bece508f6a9)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 6/9/2020 8:17 AM, Chris Wilson wrote:
-> In commit 5ba32c7be81e ("drm/i915/execlists: Always force a context
-> reload when rewinding RING_TAIL"), we placed the check for rewinding a
-> context on actually submitting the next request in that context. This
-> was so that we only had to check once, and could do so with precision
-> avoiding as many forced restores as possible. For example, to ensure
-> that we can resubmit the same request a couple of times, we include a
-> small wa_tail such that on the next submission, the ring->tail will
-> appear to move forwards when resubmitting the same request. This is very
-> common as it will happen for every lite-restore to fill the second port
-> after a context switch.
->
-> However, intel_ring_direction() is limited in precision to movements of
-> upto half the ring size. The consequence being that if we tried to
-> unwind many requests, we could exceed half the ring and flip the sense
-> of the direction, so missing a force restore. As no request can be
-> greater than half the ring (i.e. 2048 bytes in the smallest case), we
-> can check for rollback incrementally. As we check against the tail that
-> would be submitted, we do not lose any sensitivity and allow lite
-> restores for the simple case. We still need to double check upon
-> submitting the context, to allow for multiple preemptions and
-> resubmissions.
->
-> Fixes: 5ba32c7be81e ("drm/i915/execlists: Always force a context reload when rewinding RING_TAIL")
-> Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-> Cc: Mika Kuoppala <mika.kuoppala@linux.intel.com>
-> Cc: <stable@vger.kernel.org> # v5.4+
+stable-rc/linux-5.6.y baseline: 61 runs, 4 regressions (v5.6.16-86-g1bece50=
+8f6a9)
 
-Verified this has fixed the issue regarding the GPU hang with incomplete 
-error state.
+Regressions Summary
+-------------------
 
-reviewed by: Bruce Chang <yu.bruce.chang@intel.com>
+platform                     | arch   | lab           | compiler | defconfi=
+g        | results
+-----------------------------+--------+---------------+----------+---------=
+---------+--------
+exynos5422-odroidxu3         | arm    | lab-collabora | gcc-8    | exynos_d=
+efconfig | 0/1    =
 
-> ---
->   drivers/gpu/drm/i915/gt/intel_engine_cs.c     |   4 +-
->   drivers/gpu/drm/i915/gt/intel_lrc.c           |  21 +++-
->   drivers/gpu/drm/i915/gt/intel_ring.c          |   4 +
->   drivers/gpu/drm/i915/gt/selftest_mocs.c       |  18 ++-
->   drivers/gpu/drm/i915/gt/selftest_ring.c       | 110 ++++++++++++++++++
->   .../drm/i915/selftests/i915_mock_selftests.h  |   1 +
->   6 files changed, 154 insertions(+), 4 deletions(-)
->   create mode 100644 drivers/gpu/drm/i915/gt/selftest_ring.c
->
-> diff --git a/drivers/gpu/drm/i915/gt/intel_engine_cs.c b/drivers/gpu/drm/i915/gt/intel_engine_cs.c
-> index e5141a897786..0a05301e00fb 100644
-> --- a/drivers/gpu/drm/i915/gt/intel_engine_cs.c
-> +++ b/drivers/gpu/drm/i915/gt/intel_engine_cs.c
-> @@ -646,7 +646,7 @@ static int engine_setup_common(struct intel_engine_cs *engine)
->   struct measure_breadcrumb {
->   	struct i915_request rq;
->   	struct intel_ring ring;
-> -	u32 cs[1024];
-> +	u32 cs[2048];
->   };
->   
->   static int measure_breadcrumb_dw(struct intel_context *ce)
-> @@ -667,6 +667,8 @@ static int measure_breadcrumb_dw(struct intel_context *ce)
->   
->   	frame->ring.vaddr = frame->cs;
->   	frame->ring.size = sizeof(frame->cs);
-> +	frame->ring.wrap =
-> +		BITS_PER_TYPE(frame->ring.size) - ilog2(frame->ring.size);
+meson-gxl-s805x-libretech-ac | arm64  | lab-baylibre  | gcc-8    | defconfi=
+g        | 0/1    =
+
+qemu_x86_64                  | x86_64 | lab-baylibre  | gcc-8    | x86_64_d=
+efconfig | 0/1    =
+
+qemu_x86_64                  | x86_64 | lab-collabora | gcc-8    | x86_64_d=
+efconfig | 0/1    =
 
 
-Not sure if this  frame->ring.wrap being used anywhere
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.6.y/kern=
+el/v5.6.16-86-g1bece508f6a9/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.6.y
+  Describe: v5.6.16-86-g1bece508f6a9
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      1bece508f6a987257cff511f9ba8b67da8734954 =
 
 
->   	frame->ring.effective_size = frame->ring.size;
->   	intel_ring_update_space(&frame->ring);
->   	frame->rq.ring = &frame->ring;
-> diff --git a/drivers/gpu/drm/i915/gt/intel_lrc.c b/drivers/gpu/drm/i915/gt/intel_lrc.c
-> index a057f7a2a521..5f33342c15e2 100644
-> --- a/drivers/gpu/drm/i915/gt/intel_lrc.c
-> +++ b/drivers/gpu/drm/i915/gt/intel_lrc.c
-> @@ -1137,6 +1137,13 @@ __unwind_incomplete_requests(struct intel_engine_cs *engine)
->   			list_move(&rq->sched.link, pl);
->   			set_bit(I915_FENCE_FLAG_PQUEUE, &rq->fence.flags);
->   
-> +			/* Check in case rollback so far, we wrap [size/2] */
-> +			if (intel_ring_direction(rq->ring,
-> +						 intel_ring_wrap(rq->ring,
-> +								 rq->tail),
-> +						 rq->ring->tail) > 0)
-> +				rq->context->lrc.desc |= CTX_DESC_FORCE_RESTORE;
-> +
+
+Test Regressions
+---------------- =
 
 
-minor: maybe just me, "so far" -> "too far"?
+
+platform                     | arch   | lab           | compiler | defconfi=
+g        | results
+-----------------------------+--------+---------------+----------+---------=
+---------+--------
+exynos5422-odroidxu3         | arm    | lab-collabora | gcc-8    | exynos_d=
+efconfig | 0/1    =
 
 
->   			active = rq;
->   		} else {
->   			struct intel_engine_cs *owner = rq->context->engine;
-> @@ -1505,8 +1512,9 @@ static u64 execlists_update_context(struct i915_request *rq)
->   	 * HW has a tendency to ignore us rewinding the TAIL to the end of
->   	 * an earlier request.
->   	 */
-> +	GEM_BUG_ON(ce->lrc_reg_state[CTX_RING_TAIL] != rq->ring->tail);
-> +	prev = rq->ring->tail;
->   	tail = intel_ring_set_tail(rq->ring, rq->tail);
-> -	prev = ce->lrc_reg_state[CTX_RING_TAIL];
->   	if (unlikely(intel_ring_direction(rq->ring, tail, prev) <= 0))
->   		desc |= CTX_DESC_FORCE_RESTORE;
->   	ce->lrc_reg_state[CTX_RING_TAIL] = tail;
-> @@ -4758,6 +4766,14 @@ static int gen12_emit_flush(struct i915_request *request, u32 mode)
->   	return 0;
->   }
->   
-> +static void assert_request_valid(struct i915_request *rq)
-> +{
-> +	struct intel_ring *ring __maybe_unused = rq->ring;
-> +
-> +	/* Can we unwind this request without appearing to go forwards? */
-> +	GEM_BUG_ON(intel_ring_direction(ring, rq->wa_tail, rq->head) <= 0);
-> +}
-> +
->   /*
->    * Reserve space for 2 NOOPs at the end of each request to be
->    * used as a workaround for not being allowed to do lite
-> @@ -4770,6 +4786,9 @@ static u32 *gen8_emit_wa_tail(struct i915_request *request, u32 *cs)
->   	*cs++ = MI_NOOP;
->   	request->wa_tail = intel_ring_offset(request, cs);
->   
-> +	/* Check that entire request is less than half the ring */
-> +	assert_request_valid(request);
-> +
->   	return cs;
->   }
->   
-> diff --git a/drivers/gpu/drm/i915/gt/intel_ring.c b/drivers/gpu/drm/i915/gt/intel_ring.c
-> index 8cda1b7e17ba..bdb324167ef3 100644
-> --- a/drivers/gpu/drm/i915/gt/intel_ring.c
-> +++ b/drivers/gpu/drm/i915/gt/intel_ring.c
-> @@ -315,3 +315,7 @@ int intel_ring_cacheline_align(struct i915_request *rq)
->   	GEM_BUG_ON(rq->ring->emit & (CACHELINE_BYTES - 1));
->   	return 0;
->   }
-> +
-> +#if IS_ENABLED(CONFIG_DRM_I915_SELFTEST)
-> +#include "selftest_ring.c"
-> +#endif
-> diff --git a/drivers/gpu/drm/i915/gt/selftest_mocs.c b/drivers/gpu/drm/i915/gt/selftest_mocs.c
-> index 7bae64018ad9..b25eba50c88e 100644
-> --- a/drivers/gpu/drm/i915/gt/selftest_mocs.c
-> +++ b/drivers/gpu/drm/i915/gt/selftest_mocs.c
-> @@ -18,6 +18,20 @@ struct live_mocs {
->   	void *vaddr;
->   };
->   
-> +static struct intel_context *mocs_context_create(struct intel_engine_cs *engine)
-> +{
-> +	struct intel_context *ce;
-> +
-> +	ce = intel_context_create(engine);
-> +	if (IS_ERR(ce))
-> +		return ce;
-> +
-> +	/* We build large requests to read the registers from the ring */
-> +	ce->ring = __intel_context_ring_size(SZ_16K);
-> +
-> +	return ce;
-> +}
-> +
->   static int request_add_sync(struct i915_request *rq, int err)
->   {
->   	i915_request_get(rq);
-> @@ -301,7 +315,7 @@ static int live_mocs_clean(void *arg)
->   	for_each_engine(engine, gt, id) {
->   		struct intel_context *ce;
->   
-> -		ce = intel_context_create(engine);
-> +		ce = mocs_context_create(engine);
->   		if (IS_ERR(ce)) {
->   			err = PTR_ERR(ce);
->   			break;
-> @@ -395,7 +409,7 @@ static int live_mocs_reset(void *arg)
->   	for_each_engine(engine, gt, id) {
->   		struct intel_context *ce;
->   
-> -		ce = intel_context_create(engine);
-> +		ce = mocs_context_create(engine);
->   		if (IS_ERR(ce)) {
->   			err = PTR_ERR(ce);
->   			break;
-> diff --git a/drivers/gpu/drm/i915/gt/selftest_ring.c b/drivers/gpu/drm/i915/gt/selftest_ring.c
-> new file mode 100644
-> index 000000000000..2a8c534dc125
-> --- /dev/null
-> +++ b/drivers/gpu/drm/i915/gt/selftest_ring.c
-> @@ -0,0 +1,110 @@
-> +// SPDX-License-Identifier: GPL-2.0
-> +/*
-> + * Copyright © 2020 Intel Corporation
-> + */
-> +
-> +static struct intel_ring *mock_ring(unsigned long sz)
-> +{
-> +	struct intel_ring *ring;
-> +
-> +	ring = kzalloc(sizeof(*ring) + sz, GFP_KERNEL);
-> +	if (!ring)
-> +		return NULL;
-> +
-> +	kref_init(&ring->ref);
-> +	ring->size = sz;
-> +	ring->wrap = BITS_PER_TYPE(ring->size) - ilog2(sz);
-> +	ring->effective_size = sz;
-> +	ring->vaddr = (void *)(ring + 1);
-> +	atomic_set(&ring->pin_count, 1);
-> +
-> +	intel_ring_update_space(ring);
-> +
-> +	return ring;
-> +}
-> +
-> +static void mock_ring_free(struct intel_ring *ring)
-> +{
-> +	kfree(ring);
-> +}
-> +
-> +static int check_ring_direction(struct intel_ring *ring,
-> +				u32 next, u32 prev,
-> +				int expected)
-> +{
-> +	int result;
-> +
-> +	result = intel_ring_direction(ring, next, prev);
-> +	if (result < 0)
-> +		result = -1;
-> +	else if (result > 0)
-> +		result = 1;
-> +
-> +	if (result != expected) {
-> +		pr_err("intel_ring_direction(%u, %u):%d != %d\n",
-> +		       next, prev, result, expected);
-> +		return -EINVAL;
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static int check_ring_step(struct intel_ring *ring, u32 x, u32 step)
-> +{
-> +	u32 prev = x, next = intel_ring_wrap(ring, x + step);
-> +	int err = 0;
-> +
-> +	err |= check_ring_direction(ring, next, next,  0);
-> +	err |= check_ring_direction(ring, prev, prev,  0);
-> +	err |= check_ring_direction(ring, next, prev,  1);
-> +	err |= check_ring_direction(ring, prev, next, -1);
-> +
-> +	return err;
-> +}
-> +
-> +static int check_ring_offset(struct intel_ring *ring, u32 x, u32 step)
-> +{
-> +	int err = 0;
-> +
-> +	err |= check_ring_step(ring, x, step);
-> +	err |= check_ring_step(ring, intel_ring_wrap(ring, x + 1), step);
-> +	err |= check_ring_step(ring, intel_ring_wrap(ring, x - 1), step);
-> +
-> +	return err;
-> +}
-> +
-> +static int igt_ring_direction(void *dummy)
-> +{
-> +	struct intel_ring *ring;
-> +	unsigned int half = 2048;
-> +	int step, err = 0;
-> +
-> +	ring = mock_ring(2 * half);
-> +	if (!ring)
-> +		return -ENOMEM;
-> +
-> +	GEM_BUG_ON(ring->size != 2 * half);
-> +
-> +	/* Precision of wrap detection is limited to ring->size / 2 */
-> +	for (step = 1; step < half; step <<= 1) {
-> +		err |= check_ring_offset(ring, 0, step);
-> +		err |= check_ring_offset(ring, half, step);
-> +	}
-> +	err |= check_ring_step(ring, 0, half - 64);
-> +
-> +	/* And check unwrapped handling for good measure */
-> +	err |= check_ring_offset(ring, 0, 2 * half + 64);
-> +	err |= check_ring_offset(ring, 3 * half, 1);
-> +
-> +	mock_ring_free(ring);
-> +	return err;
-> +}
-> +
-> +int intel_ring_mock_selftests(void)
-> +{
-> +	static const struct i915_subtest tests[] = {
-> +		SUBTEST(igt_ring_direction),
-> +	};
-> +
-> +	return i915_subtests(tests, NULL);
-> +}
-> diff --git a/drivers/gpu/drm/i915/selftests/i915_mock_selftests.h b/drivers/gpu/drm/i915/selftests/i915_mock_selftests.h
-> index 1929feba4e8e..3db34d3eea58 100644
-> --- a/drivers/gpu/drm/i915/selftests/i915_mock_selftests.h
-> +++ b/drivers/gpu/drm/i915/selftests/i915_mock_selftests.h
-> @@ -21,6 +21,7 @@ selftest(fence, i915_sw_fence_mock_selftests)
->   selftest(scatterlist, scatterlist_mock_selftests)
->   selftest(syncmap, i915_syncmap_mock_selftests)
->   selftest(uncore, intel_uncore_mock_selftests)
-> +selftest(ring, intel_ring_mock_selftests)
->   selftest(engine, intel_engine_cs_mock_selftests)
->   selftest(timelines, intel_timeline_mock_selftests)
->   selftest(requests, i915_request_mock_selftests)
+  Details:     https://kernelci.org/test/plan/id/5ee036d4262251e46097bf74
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: exynos_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.6.y/v5.6.16-=
+86-g1bece508f6a9/arm/exynos_defconfig/gcc-8/lab-collabora/baseline-exynos54=
+22-odroidxu3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.6.y/v5.6.16-=
+86-g1bece508f6a9/arm/exynos_defconfig/gcc-8/lab-collabora/baseline-exynos54=
+22-odroidxu3.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2019=
+.02-11-g17e793fa4728/armel/baseline/rootfs.cpio.gz =
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5ee036d4262251e46097b=
+f75
+      failing since 8 days (last pass: v5.6.13-193-g67346f550ad8, first fai=
+l: v5.6.15-178-gc72fcbc7d224) =
+
+
+
+platform                     | arch   | lab           | compiler | defconfi=
+g        | results
+-----------------------------+--------+---------------+----------+---------=
+---------+--------
+meson-gxl-s805x-libretech-ac | arm64  | lab-baylibre  | gcc-8    | defconfi=
+g        | 0/1    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5ee029931d9350542497bf1b
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.6.y/v5.6.16-=
+86-g1bece508f6a9/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxl-s805=
+x-libretech-ac.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.6.y/v5.6.16-=
+86-g1bece508f6a9/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxl-s805=
+x-libretech-ac.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2019=
+.02-11-g17e793fa4728/arm64/baseline/rootfs.cpio.gz =
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5ee029931d9350542497b=
+f1c
+      new failure (last pass: v5.6.16-44-g6266fb28693f) =
+
+
+
+platform                     | arch   | lab           | compiler | defconfi=
+g        | results
+-----------------------------+--------+---------------+----------+---------=
+---------+--------
+qemu_x86_64                  | x86_64 | lab-baylibre  | gcc-8    | x86_64_d=
+efconfig | 0/1    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5ee029a7b2cc506a4e97bf15
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig
+  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.6.y/v5.6.16-=
+86-g1bece508f6a9/x86_64/x86_64_defconfig/gcc-8/lab-baylibre/baseline-qemu_x=
+86_64.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.6.y/v5.6.16-=
+86-g1bece508f6a9/x86_64/x86_64_defconfig/gcc-8/lab-baylibre/baseline-qemu_x=
+86_64.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2019=
+.02-11-g17e793fa4728/x86/baseline/rootfs.cpio.gz =
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5ee029a7b2cc506a4e97b=
+f16
+      new failure (last pass: v5.6.15-178-g1c16267b1e40) =
+
+
+
+platform                     | arch   | lab           | compiler | defconfi=
+g        | results
+-----------------------------+--------+---------------+----------+---------=
+---------+--------
+qemu_x86_64                  | x86_64 | lab-collabora | gcc-8    | x86_64_d=
+efconfig | 0/1    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5ee029d0e35f3e203997bf14
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig
+  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.6.y/v5.6.16-=
+86-g1bece508f6a9/x86_64/x86_64_defconfig/gcc-8/lab-collabora/baseline-qemu_=
+x86_64.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.6.y/v5.6.16-=
+86-g1bece508f6a9/x86_64/x86_64_defconfig/gcc-8/lab-collabora/baseline-qemu_=
+x86_64.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2019=
+.02-11-g17e793fa4728/x86/baseline/rootfs.cpio.gz =
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5ee029d0e35f3e203997b=
+f15
+      new failure (last pass: v5.6.15-178-g1c16267b1e40) =20
