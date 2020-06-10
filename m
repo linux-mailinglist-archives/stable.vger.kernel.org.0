@@ -2,99 +2,135 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 925481F5805
-	for <lists+stable@lfdr.de>; Wed, 10 Jun 2020 17:42:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 37D041F588D
+	for <lists+stable@lfdr.de>; Wed, 10 Jun 2020 18:07:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727916AbgFJPmI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Jun 2020 11:42:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41718 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726955AbgFJPmI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Jun 2020 11:42:08 -0400
-Received: from PC-kkoz.proceq.com (unknown [213.160.61.66])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DDBF42072F;
-        Wed, 10 Jun 2020 15:42:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591803728;
-        bh=T0g/Y42kJC01OEoFBGhoaN5SHb8YsES7u1KLhw4yYQ4=;
-        h=From:To:Cc:Subject:Date:From;
-        b=tVAv3mcHxoUQwI0t9AS6dDdcA911AilkLa+olqKAf9FYYA7kqQ4ifCb5LSK9hjAYG
-         ZNkXSLGs62J4ZNSGhiDMdbyz7wOxUfd7rRRPTyW7YjhvjzMXE6IhqN+4elBKUpyq7H
-         xchBOhP2nGhV6I4aB1qWTqrXIsH9mF9MLyM6eRG0=
-From:   Krzysztof Kozlowski <krzk@kernel.org>
-To:     Mark Brown <broonie@kernel.org>,
-        Vladimir Oltean <vladimir.oltean@nxp.com>,
-        linux-spi@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc:     Krzysztof Kozlowski <krzk@kernel.org>, stable@vger.kernel.org
-Subject: [PATCH] spi: spi-fsl-dspi: Free DMA memory with matching function
-Date:   Wed, 10 Jun 2020 17:41:57 +0200
-Message-Id: <1591803717-11218-1-git-send-email-krzk@kernel.org>
-X-Mailer: git-send-email 2.7.4
+        id S1730497AbgFJQHU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Jun 2020 12:07:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50606 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730485AbgFJQHT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 10 Jun 2020 12:07:19 -0400
+Received: from mail-ed1-x542.google.com (mail-ed1-x542.google.com [IPv6:2a00:1450:4864:20::542])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 798D2C03E96B;
+        Wed, 10 Jun 2020 09:07:18 -0700 (PDT)
+Received: by mail-ed1-x542.google.com with SMTP id p18so1794406eds.7;
+        Wed, 10 Jun 2020 09:07:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=0T+25FzC3m+ZCfSnTnyTsPpwm0TEOUYS6HI+FaVLFf0=;
+        b=D5avXRJ0CRE/hkpdok7mBnAiikNs9W5NkXT2b9BVl6NYMzgReCYOdrGmGIGvPSBwZl
+         nxl4XzLAKjaPSQjkfVl/HZD8DFloH1qiDSKyADt57D5apRKldzZs7BDidQJFY9wcofhq
+         PXk6APfsy+7jVgM5MFCVkP/zp35AYMbhXk/lubgfOpZ6HG30lT0PCopglonPazmanWmn
+         lhQETTrZ9GrQT4mqGn9tGmsgdrD/yjL0LtKOC7T8FKTYdcIpXV7hsJbYSW6MpLTRJdvX
+         dj5evpQ16e0MVlWqg7hZLVhdSTzZJJhniR6UlmhBd8QrrlwZX6hGWALkN4WP4K9Avh6L
+         5HUg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=0T+25FzC3m+ZCfSnTnyTsPpwm0TEOUYS6HI+FaVLFf0=;
+        b=mYQksZxnjadvLEVMaCQSfYst33NRdef4PWSuKaNIVDsCF2DabPGwMJObUdHOdGR2bS
+         wmq58Y3HycRkUzYwKmXPNPBYpF/IaK4PmoIwEhrU/UNZJXeezQ0TbanyUzu2mz2IqiHN
+         PZQfkPDe1FQKzz/FOk+2b4xdDl5hVbMxIXjhjT56EvTlIeP2gXxRk04B3nXu6Np2Tlfs
+         PCCNWORX4TcjCUVJwOuJdk0Vv6DEHI/DLkjJLBSHE9qp3Vw/wCviTF6IGzm6PX+R589e
+         hjM3+MAdYjtoyujXqs/80XuGQ41nPHep4gGqSTMWhik+wxv8FYo3fT4qx0BBHxItjPQq
+         Bn3w==
+X-Gm-Message-State: AOAM533kzBc4+GNMbposxlQjpGXQCu6gj3Xj5qdnNySO1FKVPNdeCa6h
+        xJwaF+MPWUVuyGfN5Ww73jA=
+X-Google-Smtp-Source: ABdhPJw+bu9CjVuWWI4xfytkCvENopNDNd4j1yWIK6dWj7rf/Gzq6rA7aX+qYELKxvGHFPBzRi8Tyg==
+X-Received: by 2002:a50:fd05:: with SMTP id i5mr3022459eds.79.1591805237150;
+        Wed, 10 Jun 2020 09:07:17 -0700 (PDT)
+Received: from Ansuel-XPS.localdomain (host-79-35-249-242.retail.telecomitalia.it. [79.35.249.242])
+        by smtp.googlemail.com with ESMTPSA id ce25sm56067edb.45.2020.06.10.09.07.15
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 10 Jun 2020 09:07:16 -0700 (PDT)
+From:   Ansuel Smith <ansuelsmth@gmail.com>
+To:     Rob Herring <robh+dt@kernel.org>
+Cc:     Ansuel Smith <ansuelsmth@gmail.com>,
+        Sham Muthayyan <smuthayy@codeaurora.org>,
+        stable@vger.kernel.org, Rob Herring <robh@kernel.org>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
+        Andy Gross <agross@kernel.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Stanimir Varbanov <svarbanov@mm-sol.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Andrew Murray <amurray@thegoodpenguin.co.uk>,
+        linux-arm-msm@vger.kernel.org, linux-pci@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH v6 04/12] PCI: qcom: Add missing reset for ipq806x
+Date:   Wed, 10 Jun 2020 18:06:46 +0200
+Message-Id: <20200610160655.27799-5-ansuelsmth@gmail.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20200610160655.27799-1-ansuelsmth@gmail.com>
+References: <20200610160655.27799-1-ansuelsmth@gmail.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Driver allocates DMA memory with dma_alloc_coherent() but frees it with
-dma_unmap_single().
+Add missing ext reset used by ipq8064 SoC in PCIe qcom driver.
 
-This causes DMA warning during system shutdown (with DMA debugging) on
-Toradex Colibri VF50 module:
-
-    WARNING: CPU: 0 PID: 1 at ../kernel/dma/debug.c:1036 check_unmap+0x3fc/0xb04
-    DMA-API: fsl-edma 40098000.dma-controller: device driver frees DMA memory with wrong function
-      [device address=0x0000000087040000] [size=8 bytes] [mapped as coherent] [unmapped as single]
-    Hardware name: Freescale Vybrid VF5xx/VF6xx (Device Tree)
-      (unwind_backtrace) from [<8010bb34>] (show_stack+0x10/0x14)
-      (show_stack) from [<8011ced8>] (__warn+0xf0/0x108)
-      (__warn) from [<8011cf64>] (warn_slowpath_fmt+0x74/0xb8)
-      (warn_slowpath_fmt) from [<8017d170>] (check_unmap+0x3fc/0xb04)
-      (check_unmap) from [<8017d900>] (debug_dma_unmap_page+0x88/0x90)
-      (debug_dma_unmap_page) from [<80601d68>] (dspi_release_dma+0x88/0x110)
-      (dspi_release_dma) from [<80601e4c>] (dspi_shutdown+0x5c/0x80)
-      (dspi_shutdown) from [<805845f8>] (device_shutdown+0x17c/0x220)
-      (device_shutdown) from [<80143ef8>] (kernel_restart+0xc/0x50)
-      (kernel_restart) from [<801441cc>] (__do_sys_reboot+0x18c/0x210)
-      (__do_sys_reboot) from [<80100060>] (ret_fast_syscall+0x0/0x28)
-    DMA-API: Mapped at:
-     dma_alloc_attrs+0xa4/0x130
-     dspi_probe+0x568/0x7b4
-     platform_drv_probe+0x6c/0xa4
-     really_probe+0x208/0x348
-     driver_probe_device+0x5c/0xb4
-
-Fixes: 90ba37033cb9 ("spi: spi-fsl-dspi: Add DMA support for Vybrid")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Fixes: 82a823833f4e ("PCI: qcom: Add Qualcomm PCIe controller driver")
+Signed-off-by: Sham Muthayyan <smuthayy@codeaurora.org>
+Signed-off-by: Ansuel Smith <ansuelsmth@gmail.com>
+Cc: stable@vger.kernel.org # v4.5+
+Reviewed-by: Rob Herring <robh@kernel.org>
+Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
 ---
- drivers/spi/spi-fsl-dspi.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/pci/controller/dwc/pcie-qcom.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/drivers/spi/spi-fsl-dspi.c b/drivers/spi/spi-fsl-dspi.c
-index a35faced0456..58190c94561f 100644
---- a/drivers/spi/spi-fsl-dspi.c
-+++ b/drivers/spi/spi-fsl-dspi.c
-@@ -588,14 +588,14 @@ static void dspi_release_dma(struct fsl_dspi *dspi)
- 		return;
+diff --git a/drivers/pci/controller/dwc/pcie-qcom.c b/drivers/pci/controller/dwc/pcie-qcom.c
+index 4512c2c5f61c..4dab5ef630cc 100644
+--- a/drivers/pci/controller/dwc/pcie-qcom.c
++++ b/drivers/pci/controller/dwc/pcie-qcom.c
+@@ -95,6 +95,7 @@ struct qcom_pcie_resources_2_1_0 {
+ 	struct reset_control *ahb_reset;
+ 	struct reset_control *por_reset;
+ 	struct reset_control *phy_reset;
++	struct reset_control *ext_reset;
+ 	struct regulator_bulk_data supplies[QCOM_PCIE_2_1_0_MAX_SUPPLY];
+ };
  
- 	if (dma->chan_tx) {
--		dma_unmap_single(dma->chan_tx->device->dev, dma->tx_dma_phys,
--				 dma_bufsize, DMA_TO_DEVICE);
-+		dma_free_coherent(dma->chan_tx->device->dev, dma_bufsize,
-+				  dma->tx_dma_buf, dma->tx_dma_phys);
- 		dma_release_channel(dma->chan_tx);
- 	}
+@@ -272,6 +273,10 @@ static int qcom_pcie_get_resources_2_1_0(struct qcom_pcie *pcie)
+ 	if (IS_ERR(res->por_reset))
+ 		return PTR_ERR(res->por_reset);
  
- 	if (dma->chan_rx) {
--		dma_unmap_single(dma->chan_rx->device->dev, dma->rx_dma_phys,
--				 dma_bufsize, DMA_FROM_DEVICE);
-+		dma_free_coherent(dma->chan_rx->device->dev, dma_bufsize,
-+				  dma->rx_dma_buf, dma->rx_dma_phys);
- 		dma_release_channel(dma->chan_rx);
- 	}
++	res->ext_reset = devm_reset_control_get_optional_exclusive(dev, "ext");
++	if (IS_ERR(res->ext_reset))
++		return PTR_ERR(res->ext_reset);
++
+ 	res->phy_reset = devm_reset_control_get_exclusive(dev, "phy");
+ 	return PTR_ERR_OR_ZERO(res->phy_reset);
  }
+@@ -285,6 +290,7 @@ static void qcom_pcie_deinit_2_1_0(struct qcom_pcie *pcie)
+ 	reset_control_assert(res->axi_reset);
+ 	reset_control_assert(res->ahb_reset);
+ 	reset_control_assert(res->por_reset);
++	reset_control_assert(res->ext_reset);
+ 	reset_control_assert(res->phy_reset);
+ 	clk_disable_unprepare(res->iface_clk);
+ 	clk_disable_unprepare(res->core_clk);
+@@ -343,6 +349,12 @@ static int qcom_pcie_init_2_1_0(struct qcom_pcie *pcie)
+ 		goto err_deassert_ahb;
+ 	}
+ 
++	ret = reset_control_deassert(res->ext_reset);
++	if (ret) {
++		dev_err(dev, "cannot deassert ext reset\n");
++		goto err_deassert_ahb;
++	}
++
+ 	/* enable PCIe clocks and resets */
+ 	val = readl(pcie->parf + PCIE20_PARF_PHY_CTRL);
+ 	val &= ~BIT(0);
 -- 
-2.7.4
+2.25.1
 
