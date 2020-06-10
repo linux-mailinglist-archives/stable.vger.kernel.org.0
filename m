@@ -2,112 +2,361 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E80541F54A0
-	for <lists+stable@lfdr.de>; Wed, 10 Jun 2020 14:24:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9765D1F550B
+	for <lists+stable@lfdr.de>; Wed, 10 Jun 2020 14:42:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728918AbgFJMYU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Jun 2020 08:24:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37502 "EHLO mail.kernel.org"
+        id S1728757AbgFJMmM convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Wed, 10 Jun 2020 08:42:12 -0400
+Received: from mga18.intel.com ([134.134.136.126]:5269 "EHLO mga18.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728571AbgFJMYT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Jun 2020 08:24:19 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9AECD20691;
-        Wed, 10 Jun 2020 12:24:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591791859;
-        bh=6LyELJk3vkcUyagrfQLlBpMBHC8hbbKrhd4b8Qk2LnA=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=LsxKbzqwp9gA5iEoZIMsjCYGTObB7u1nAaL1gGYwSzQo2pHZDGrWyurp0jXUSS4Iw
-         vdvV0llL2AIFsPivyL4hmLiuW8uSSao2WatR7rhJYfUVUSYtESQG4shynB2XAsC4P/
-         MOS4593n5NaNMs0DjWayxV6w3N6CuqFERM7xgIZg=
-Date:   Wed, 10 Jun 2020 14:24:13 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Lorenz Bauer <lmb@cloudflare.com>
-Cc:     Sasha Levin <sashal@kernel.org>, stable@vger.kernel.org,
-        kernel-team <kernel-team@cloudflare.com>,
-        kernel test robot <rong.a.chen@intel.com>
-Subject: Re: [PATCH 4.19.y] selftests: bpf: fix use of undeclared RET_IF macro
-Message-ID: <20200610122413.GA1900758@kroah.com>
-References: <20200521144841.7074-1-lmb@cloudflare.com>
- <20200522000934.GM33628@sasha-vm>
- <CACAyw9-FH7e5fXAU923xSN9ENtyBo+FkqHnd7WAbpyhnz=X9MA@mail.gmail.com>
- <20200610114956.GA1896587@kroah.com>
- <CACAyw98w=hQX+ZKc-wdGfUN_XmvrRJJ9y=1TB5=XuYSgUUnffA@mail.gmail.com>
+        id S1728595AbgFJMmM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Jun 2020 08:42:12 -0400
+IronPort-SDR: IHeaHOdRBOm/foFci3nKK1IiH/51Al9/n5iS2dKCEnaZh6Kx703guqSRFMdc8GdRD9zJnMhyVP
+ pSs2DOO6gJ1g==
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Jun 2020 05:42:11 -0700
+IronPort-SDR: iO5BMH7Hr+X9BQDMj00agXD/W6QHlcAeDHt663i14cV8l4unJCOiG+Ls5xLfvcgwhqkhDYymNZ
+ qULu+jsmT3Jg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.73,496,1583222400"; 
+   d="scan'208";a="380048730"
+Received: from gaia.fi.intel.com ([10.237.72.192])
+  by fmsmga001.fm.intel.com with ESMTP; 10 Jun 2020 05:42:10 -0700
+Received: by gaia.fi.intel.com (Postfix, from userid 1000)
+        id 1A8AB5C2C9E; Wed, 10 Jun 2020 15:39:35 +0300 (EEST)
+From:   Mika Kuoppala <mika.kuoppala@linux.intel.com>
+To:     Chris Wilson <chris@chris-wilson.co.uk>,
+        intel-gfx@lists.freedesktop.org
+Cc:     Chris Wilson <chris@chris-wilson.co.uk>, stable@vger.kernel.org
+Subject: Re: [PATCH] drm/i915/gt: Incrementally check for rewinding
+In-Reply-To: <20200609151723.12971-1-chris@chris-wilson.co.uk>
+References: <20200609122856.10207-1-chris@chris-wilson.co.uk> <20200609151723.12971-1-chris@chris-wilson.co.uk>
+Date:   Wed, 10 Jun 2020 15:39:34 +0300
+Message-ID: <87a71b9jsp.fsf@gaia.fi.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CACAyw98w=hQX+ZKc-wdGfUN_XmvrRJJ9y=1TB5=XuYSgUUnffA@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8BIT
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jun 10, 2020 at 01:10:14PM +0100, Lorenz Bauer wrote:
-> On Wed, 10 Jun 2020 at 12:50, Greg KH <gregkh@linuxfoundation.org> wrote:
-> >
-> > On Wed, Jun 10, 2020 at 11:16:16AM +0100, Lorenz Bauer wrote:
-> > > On Fri, 22 May 2020 at 01:09, Sasha Levin <sashal@kernel.org> wrote:
-> > > >
-> > > > On Thu, May 21, 2020 at 03:48:41PM +0100, Lorenz Bauer wrote:
-> > > > >commit 634efb750435 ("selftests: bpf: Reset global state between
-> > > > >reuseport test runs") uses a macro RET_IF which doesn't exist in
-> > > > >the v4.19 tree. It is defined as follows:
-> > > > >
-> > > > >        #define RET_IF(condition, tag, format...) ({
-> > > > >                if (CHECK_FAIL(condition)) {
-> > > > >                        printf(tag " " format);
-> > > > >                        return;
-> > > > >                }
-> > > > >        })
-> > > > >
-> > > > >CHECK_FAIL in turn is defined as:
-> > > > >
-> > > > >        #define CHECK_FAIL(condition) ({
-> > > > >                int __ret = !!(condition);
-> > > > >                int __save_errno = errno;
-> > > > >                if (__ret) {
-> > > > >                        test__fail();
-> > > > >                        fprintf(stdout, "%s:FAIL:%d\n", __func__, __LINE__);
-> > > > >                }
-> > > > >                errno = __save_errno;
-> > > > >                __ret;
-> > > > >        })
-> > > > >
-> > > > >Replace occurences of RET_IF with CHECK. This will abort the test binary
-> > > > >if clearing the intermediate state fails.
-> > > > >
-> > > > >Fixes: 634efb750435 ("selftests: bpf: Reset global state between reuseport test runs")
-> > > > >Reported-by: kernel test robot <rong.a.chen@intel.com>
-> > > > >Signed-off-by: Lorenz Bauer <lmb@cloudflare.com>
-> > > >
-> > > > Thanks for the backport Lorenz. We'll need to wait for it to make it
-> > > > into Linus's tree before queueing up for the stable trees.
-> > >
-> > > Apologies for sending the patch too early (?), I'm still new to this process.
-> > > I've just hit this on 4.19.127. Do you want me to re-submit the patch somewhere?
-> >
-> > Is this patch in Linus's tree yet?  If so, just tell us the git commit
-> > id.  If not, it needs to go there first before we can take it to any
-> > stable tree.
-> 
-> The patch isn't in Linus' tree because the problem doesn't exist
-> there. It fixes a build problem on
-> v4.19 which was introduced by the backport of an earlier fix of mine,
-> commit 634efb750435
-> ("selftests: bpf: Reset global state between reuseport test runs").
-> 
-> There is a similar fix from Andrii Nakryiko that went into 5.4 as
-> commit aee43146cc10
-> ("selftest/bpf: fix backported test_select_reuseport selftest
-> changes"), which I hadn't seen
-> at the time.
+Chris Wilson <chris@chris-wilson.co.uk> writes:
 
-Ah, ok, that wasn't very obvious, sorry.  I'll queue this up after the
-next round of kernels are released in a day or so...
+> In commit 5ba32c7be81e ("drm/i915/execlists: Always force a context
+> reload when rewinding RING_TAIL"), we placed the check for rewinding a
+> context on actually submitting the next request in that context. This
+> was so that we only had to check once, and could do so with precision
+> avoiding as many forced restores as possible. For example, to ensure
+> that we can resubmit the same request a couple of times, we include a
+> small wa_tail such that on the next submission, the ring->tail will
+> appear to move forwards when resubmitting the same request. This is very
+> common as it will happen for every lite-restore to fill the second port
+> after a context switch.
+>
+> However, intel_ring_direction() is limited in precision to movements of
+> upto half the ring size. The consequence being that if we tried to
+> unwind many requests, we could exceed half the ring and flip the sense
+> of the direction, so missing a force restore. As no request can be
+> greater than half the ring (i.e. 2048 bytes in the smallest case), we
+> can check for rollback incrementally. As we check against the tail that
+> would be submitted, we do not lose any sensitivity and allow lite
+> restores for the simple case. We still need to double check upon
+> submitting the context, to allow for multiple preemptions and
+> resubmissions.
+>
+> Fixes: 5ba32c7be81e ("drm/i915/execlists: Always force a context reload when rewinding RING_TAIL")
+> Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+> Cc: Mika Kuoppala <mika.kuoppala@linux.intel.com>
+> Cc: <stable@vger.kernel.org> # v5.4+
+> ---
+>  drivers/gpu/drm/i915/gt/intel_engine_cs.c     |   4 +-
+>  drivers/gpu/drm/i915/gt/intel_lrc.c           |  21 +++-
+>  drivers/gpu/drm/i915/gt/intel_ring.c          |   4 +
+>  drivers/gpu/drm/i915/gt/selftest_mocs.c       |  18 ++-
+>  drivers/gpu/drm/i915/gt/selftest_ring.c       | 110 ++++++++++++++++++
+>  .../drm/i915/selftests/i915_mock_selftests.h  |   1 +
+>  6 files changed, 154 insertions(+), 4 deletions(-)
+>  create mode 100644 drivers/gpu/drm/i915/gt/selftest_ring.c
+>
+> diff --git a/drivers/gpu/drm/i915/gt/intel_engine_cs.c b/drivers/gpu/drm/i915/gt/intel_engine_cs.c
+> index e5141a897786..0a05301e00fb 100644
+> --- a/drivers/gpu/drm/i915/gt/intel_engine_cs.c
+> +++ b/drivers/gpu/drm/i915/gt/intel_engine_cs.c
+> @@ -646,7 +646,7 @@ static int engine_setup_common(struct intel_engine_cs *engine)
+>  struct measure_breadcrumb {
+>  	struct i915_request rq;
+>  	struct intel_ring ring;
+> -	u32 cs[1024];
+> +	u32 cs[2048];
+>  };
+>  
+>  static int measure_breadcrumb_dw(struct intel_context *ce)
+> @@ -667,6 +667,8 @@ static int measure_breadcrumb_dw(struct intel_context *ce)
+>  
+>  	frame->ring.vaddr = frame->cs;
+>  	frame->ring.size = sizeof(frame->cs);
+> +	frame->ring.wrap =
+> +		BITS_PER_TYPE(frame->ring.size) - ilog2(frame->ring.size);
+>  	frame->ring.effective_size = frame->ring.size;
+>  	intel_ring_update_space(&frame->ring);
+>  	frame->rq.ring = &frame->ring;
+> diff --git a/drivers/gpu/drm/i915/gt/intel_lrc.c b/drivers/gpu/drm/i915/gt/intel_lrc.c
+> index a057f7a2a521..5f33342c15e2 100644
+> --- a/drivers/gpu/drm/i915/gt/intel_lrc.c
+> +++ b/drivers/gpu/drm/i915/gt/intel_lrc.c
+> @@ -1137,6 +1137,13 @@ __unwind_incomplete_requests(struct intel_engine_cs *engine)
+>  			list_move(&rq->sched.link, pl);
+>  			set_bit(I915_FENCE_FLAG_PQUEUE, &rq->fence.flags);
+>  
+> +			/* Check in case rollback so far, we wrap [size/2] */
 
-thanks,
+This could be ammended a little as why it is not always the case that
+on the rewind the direction is not positive.
 
-greg k-h
+> +			if (intel_ring_direction(rq->ring,
+> +						 intel_ring_wrap(rq->ring,
+> +								 rq->tail),
+> +						 rq->ring->tail) > 0)
+> +				rq->context->lrc.desc |= CTX_DESC_FORCE_RESTORE;
+> +
+>  			active = rq;
+>  		} else {
+>  			struct intel_engine_cs *owner = rq->context->engine;
+> @@ -1505,8 +1512,9 @@ static u64 execlists_update_context(struct i915_request *rq)
+>  	 * HW has a tendency to ignore us rewinding the TAIL to the end of
+>  	 * an earlier request.
+>  	 */
+> +	GEM_BUG_ON(ce->lrc_reg_state[CTX_RING_TAIL] != rq->ring->tail);
+> +	prev = rq->ring->tail;
+>  	tail = intel_ring_set_tail(rq->ring, rq->tail);
+> -	prev = ce->lrc_reg_state[CTX_RING_TAIL];
+>  	if (unlikely(intel_ring_direction(rq->ring, tail, prev) <= 0))
+>  		desc |= CTX_DESC_FORCE_RESTORE;
+>  	ce->lrc_reg_state[CTX_RING_TAIL] = tail;
+> @@ -4758,6 +4766,14 @@ static int gen12_emit_flush(struct i915_request *request, u32 mode)
+>  	return 0;
+>  }
+>  
+> +static void assert_request_valid(struct i915_request *rq)
+> +{
+> +	struct intel_ring *ring __maybe_unused = rq->ring;
+> +
+> +	/* Can we unwind this request without appearing to go forwards? */
+> +	GEM_BUG_ON(intel_ring_direction(ring, rq->wa_tail, rq->head) <= 0);
+
+Chris explained in irc that as the wa_tail is reserved for next
+resubmit, the nondirection is also possible.
+
+> +}
+> +
+>  /*
+>   * Reserve space for 2 NOOPs at the end of each request to be
+>   * used as a workaround for not being allowed to do lite
+> @@ -4770,6 +4786,9 @@ static u32 *gen8_emit_wa_tail(struct i915_request *request, u32 *cs)
+>  	*cs++ = MI_NOOP;
+>  	request->wa_tail = intel_ring_offset(request, cs);
+>  
+> +	/* Check that entire request is less than half the ring */
+> +	assert_request_valid(request);
+
+I was thinking about adding the check in the advance part but
+that is too early. And also the tail validation is too early.
+
+This is so tricky with the wrap handling. But it is easier to
+stand behind the broad shoulders of the really appreciated
+selftests.
+
+Reviewed-by: Mika Kuoppala <mika.kuoppala@linux.intel.com>
+
+> +
+>  	return cs;
+>  }
+>  
+> diff --git a/drivers/gpu/drm/i915/gt/intel_ring.c b/drivers/gpu/drm/i915/gt/intel_ring.c
+> index 8cda1b7e17ba..bdb324167ef3 100644
+> --- a/drivers/gpu/drm/i915/gt/intel_ring.c
+> +++ b/drivers/gpu/drm/i915/gt/intel_ring.c
+> @@ -315,3 +315,7 @@ int intel_ring_cacheline_align(struct i915_request *rq)
+>  	GEM_BUG_ON(rq->ring->emit & (CACHELINE_BYTES - 1));
+>  	return 0;
+>  }
+> +
+> +#if IS_ENABLED(CONFIG_DRM_I915_SELFTEST)
+> +#include "selftest_ring.c"
+> +#endif
+> diff --git a/drivers/gpu/drm/i915/gt/selftest_mocs.c b/drivers/gpu/drm/i915/gt/selftest_mocs.c
+> index 7bae64018ad9..b25eba50c88e 100644
+> --- a/drivers/gpu/drm/i915/gt/selftest_mocs.c
+> +++ b/drivers/gpu/drm/i915/gt/selftest_mocs.c
+> @@ -18,6 +18,20 @@ struct live_mocs {
+>  	void *vaddr;
+>  };
+>  
+> +static struct intel_context *mocs_context_create(struct intel_engine_cs *engine)
+> +{
+> +	struct intel_context *ce;
+> +
+> +	ce = intel_context_create(engine);
+> +	if (IS_ERR(ce))
+> +		return ce;
+> +
+> +	/* We build large requests to read the registers from the ring */
+> +	ce->ring = __intel_context_ring_size(SZ_16K);
+> +
+> +	return ce;
+> +}
+> +
+>  static int request_add_sync(struct i915_request *rq, int err)
+>  {
+>  	i915_request_get(rq);
+> @@ -301,7 +315,7 @@ static int live_mocs_clean(void *arg)
+>  	for_each_engine(engine, gt, id) {
+>  		struct intel_context *ce;
+>  
+> -		ce = intel_context_create(engine);
+> +		ce = mocs_context_create(engine);
+>  		if (IS_ERR(ce)) {
+>  			err = PTR_ERR(ce);
+>  			break;
+> @@ -395,7 +409,7 @@ static int live_mocs_reset(void *arg)
+>  	for_each_engine(engine, gt, id) {
+>  		struct intel_context *ce;
+>  
+> -		ce = intel_context_create(engine);
+> +		ce = mocs_context_create(engine);
+>  		if (IS_ERR(ce)) {
+>  			err = PTR_ERR(ce);
+>  			break;
+> diff --git a/drivers/gpu/drm/i915/gt/selftest_ring.c b/drivers/gpu/drm/i915/gt/selftest_ring.c
+> new file mode 100644
+> index 000000000000..2a8c534dc125
+> --- /dev/null
+> +++ b/drivers/gpu/drm/i915/gt/selftest_ring.c
+> @@ -0,0 +1,110 @@
+> +// SPDX-License-Identifier: GPL-2.0
+> +/*
+> + * Copyright © 2020 Intel Corporation
+> + */
+> +
+> +static struct intel_ring *mock_ring(unsigned long sz)
+> +{
+> +	struct intel_ring *ring;
+> +
+> +	ring = kzalloc(sizeof(*ring) + sz, GFP_KERNEL);
+> +	if (!ring)
+> +		return NULL;
+> +
+> +	kref_init(&ring->ref);
+> +	ring->size = sz;
+> +	ring->wrap = BITS_PER_TYPE(ring->size) - ilog2(sz);
+> +	ring->effective_size = sz;
+> +	ring->vaddr = (void *)(ring + 1);
+> +	atomic_set(&ring->pin_count, 1);
+> +
+> +	intel_ring_update_space(ring);
+> +
+> +	return ring;
+> +}
+> +
+> +static void mock_ring_free(struct intel_ring *ring)
+> +{
+> +	kfree(ring);
+> +}
+> +
+> +static int check_ring_direction(struct intel_ring *ring,
+> +				u32 next, u32 prev,
+> +				int expected)
+> +{
+> +	int result;
+> +
+> +	result = intel_ring_direction(ring, next, prev);
+> +	if (result < 0)
+> +		result = -1;
+> +	else if (result > 0)
+> +		result = 1;
+> +
+> +	if (result != expected) {
+> +		pr_err("intel_ring_direction(%u, %u):%d != %d\n",
+> +		       next, prev, result, expected);
+> +		return -EINVAL;
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static int check_ring_step(struct intel_ring *ring, u32 x, u32 step)
+> +{
+> +	u32 prev = x, next = intel_ring_wrap(ring, x + step);
+> +	int err = 0;
+> +
+> +	err |= check_ring_direction(ring, next, next,  0);
+> +	err |= check_ring_direction(ring, prev, prev,  0);
+> +	err |= check_ring_direction(ring, next, prev,  1);
+> +	err |= check_ring_direction(ring, prev, next, -1);
+> +
+> +	return err;
+> +}
+> +
+> +static int check_ring_offset(struct intel_ring *ring, u32 x, u32 step)
+> +{
+> +	int err = 0;
+> +
+> +	err |= check_ring_step(ring, x, step);
+> +	err |= check_ring_step(ring, intel_ring_wrap(ring, x + 1), step);
+> +	err |= check_ring_step(ring, intel_ring_wrap(ring, x - 1), step);
+> +
+> +	return err;
+> +}
+> +
+> +static int igt_ring_direction(void *dummy)
+> +{
+> +	struct intel_ring *ring;
+> +	unsigned int half = 2048;
+> +	int step, err = 0;
+> +
+> +	ring = mock_ring(2 * half);
+> +	if (!ring)
+> +		return -ENOMEM;
+> +
+> +	GEM_BUG_ON(ring->size != 2 * half);
+> +
+> +	/* Precision of wrap detection is limited to ring->size / 2 */
+> +	for (step = 1; step < half; step <<= 1) {
+> +		err |= check_ring_offset(ring, 0, step);
+> +		err |= check_ring_offset(ring, half, step);
+> +	}
+> +	err |= check_ring_step(ring, 0, half - 64);
+> +
+> +	/* And check unwrapped handling for good measure */
+> +	err |= check_ring_offset(ring, 0, 2 * half + 64);
+> +	err |= check_ring_offset(ring, 3 * half, 1);
+> +
+> +	mock_ring_free(ring);
+> +	return err;
+> +}
+> +
+> +int intel_ring_mock_selftests(void)
+> +{
+> +	static const struct i915_subtest tests[] = {
+> +		SUBTEST(igt_ring_direction),
+> +	};
+> +
+> +	return i915_subtests(tests, NULL);
+> +}
+> diff --git a/drivers/gpu/drm/i915/selftests/i915_mock_selftests.h b/drivers/gpu/drm/i915/selftests/i915_mock_selftests.h
+> index 1929feba4e8e..3db34d3eea58 100644
+> --- a/drivers/gpu/drm/i915/selftests/i915_mock_selftests.h
+> +++ b/drivers/gpu/drm/i915/selftests/i915_mock_selftests.h
+> @@ -21,6 +21,7 @@ selftest(fence, i915_sw_fence_mock_selftests)
+>  selftest(scatterlist, scatterlist_mock_selftests)
+>  selftest(syncmap, i915_syncmap_mock_selftests)
+>  selftest(uncore, intel_uncore_mock_selftests)
+> +selftest(ring, intel_ring_mock_selftests)
+>  selftest(engine, intel_engine_cs_mock_selftests)
+>  selftest(timelines, intel_timeline_mock_selftests)
+>  selftest(requests, i915_request_mock_selftests)
+> -- 
+> 2.20.1
