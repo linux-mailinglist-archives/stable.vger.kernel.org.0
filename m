@@ -2,96 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A0781F5DAA
-	for <lists+stable@lfdr.de>; Wed, 10 Jun 2020 23:25:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8802B1F5DD9
+	for <lists+stable@lfdr.de>; Wed, 10 Jun 2020 23:45:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726180AbgFJVZU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Jun 2020 17:25:20 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:50698 "EHLO
-        shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726119AbgFJVZT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 10 Jun 2020 17:25:19 -0400
-Received: from [192.168.4.242] (helo=deadeye)
-        by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.89)
-        (envelope-from <ben@decadent.org.uk>)
-        id 1jj8Dl-0006uu-4d; Wed, 10 Jun 2020 22:25:17 +0100
-Received: from ben by deadeye with local (Exim 4.94)
-        (envelope-from <ben@decadent.org.uk>)
-        id 1jj8Dk-00024e-Or; Wed, 10 Jun 2020 22:25:16 +0100
-Message-ID: <7a8648afb2af6c3d47bf43edec7346e85c548c95.camel@decadent.org.uk>
-Subject: Re: [PATCH 3.16 00/61] 3.16.85-rc1 review
-From:   Ben Hutchings <ben@decadent.org.uk>
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        Denis Kirjanov <kda@linux-powerpc.org>
-Date:   Wed, 10 Jun 2020 22:25:11 +0100
-In-Reply-To: <20200610190847.GA232340@roeck-us.net>
-References: <lsq.1591725831.850867383@decadent.org.uk>
-         <20200610190847.GA232340@roeck-us.net>
-Content-Type: multipart/signed; micalg="pgp-sha512";
-        protocol="application/pgp-signature"; boundary="=-3a98SMwW65qTTRrj603Y"
-User-Agent: Evolution 3.36.2-1 
-MIME-Version: 1.0
-X-SA-Exim-Connect-IP: 192.168.4.242
-X-SA-Exim-Mail-From: ben@decadent.org.uk
-X-SA-Exim-Scanned: No (on shadbolt.decadent.org.uk); SAEximRunCond expanded to false
+        id S1726573AbgFJVpX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Jun 2020 17:45:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35244 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726293AbgFJVpX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Jun 2020 17:45:23 -0400
+Subject: Re: [GIT PULL] virtio: features, fixes
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1591825522;
+        bh=CE0aQdpou0/7Squu8lBaWHAf5wRg1NIwqMRssSM2m5Y=;
+        h=From:In-Reply-To:References:Date:To:Cc:From;
+        b=uwOfHFMudzPjx89JIxmzIihgrvNSZb8E5Y8VJPcl62MOMXz9JENAI7SwNDlcZT/Xu
+         SmsVNXCaYo4WTWgoOLs/nwK6d09/7X0uH5LMptEpaEyf2jR+uRf2bq+4UInSqLu7Ke
+         I+DUqB2wDcqbwMkgYQwYOqT59zhr0XsLAY6Enz8I=
+From:   pr-tracker-bot@kernel.org
+In-Reply-To: <20200610004455-mutt-send-email-mst@kernel.org>
+References: <20200610004455-mutt-send-email-mst@kernel.org>
+X-PR-Tracked-List-Id: <linux-kernel.vger.kernel.org>
+X-PR-Tracked-Message-Id: <20200610004455-mutt-send-email-mst@kernel.org>
+X-PR-Tracked-Remote: https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+X-PR-Tracked-Commit-Id: 044e4b09223039e571e6ec540e25552054208765
+X-PR-Merge-Tree: torvalds/linux.git
+X-PR-Merge-Refname: refs/heads/master
+X-PR-Merge-Commit-Id: 09102704c67457c6cdea6c0394c34843484a852c
+Message-Id: <159182552257.4867.17502702352097264992.pr-tracker-bot@kernel.org>
+Date:   Wed, 10 Jun 2020 21:45:22 +0000
+To:     "Michael S. Tsirkin" <mst@redhat.com>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        kvm@vger.kernel.org, virtualization@lists.linux-foundation.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        akpm@linux-foundation.org, alexander.h.duyck@linux.intel.com,
+        anshuman.khandual@arm.com, anthony.yznaga@oracle.com,
+        arei.gonglei@huawei.com, cai@lca.pw, clabbe@baylibre.com,
+        dan.j.williams@intel.com, davem@davemloft.net, david@redhat.com,
+        dyoung@redhat.com, elfring@users.sourceforge.net,
+        glider@google.com, gregkh@linuxfoundation.org,
+        guennadi.liakhovetski@linux.intel.com, hannes@cmpxchg.org,
+        herbert@gondor.apana.org.au, hulkci@huawei.com,
+        imammedo@redhat.com, jasowang@redhat.com, jgross@suse.com,
+        kernelfans@gmail.com, konrad.wilk@oracle.com, lenb@kernel.org,
+        lingshan.zhu@intel.com, linux-acpi@vger.kernel.org, lkp@intel.com,
+        longpeng2@huawei.com, matej.genci@nutanix.com,
+        mgorman@techsingularity.net, mhocko@kernel.org, mhocko@suse.com,
+        mst@redhat.com, osalvador@suse.com, osalvador@suse.de,
+        pankaj.gupta.linux@gmail.com, pasha.tatashin@soleen.com,
+        pavel.tatashin@microsoft.com, rafael@kernel.org,
+        richard.weiyang@gmail.com, rjw@rjwysocki.net, rppt@linux.ibm.com,
+        stable@vger.kernel.org, stefanha@redhat.com,
+        teawaterz@linux.alibaba.com, vbabka@suse.cz, zou_wei@huawei.com
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+The pull request you sent on Wed, 10 Jun 2020 00:44:55 -0400:
 
---=-3a98SMwW65qTTRrj603Y
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+> https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
 
-On Wed, 2020-06-10 at 12:08 -0700, Guenter Roeck wrote:
-> On Tue, Jun 09, 2020 at 07:03:51PM +0100, Ben Hutchings wrote:
-> > This is the start of the stable review cycle for the 3.16.85 release.
-> > There are 61 patches in this series, which will be posted as responses
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> >=20
-> > Responses should be made by Thu Jun 11 18:03:51 UTC 2020.
-> > Anything received after that time might be too late.
-> >=20
->=20
-> Build results:
-> 	total: 135 pass: 135 fail: 0
-> Qemu test results:
-> 	total: 229 pass: 229 fail: 0
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/09102704c67457c6cdea6c0394c34843484a852c
 
-Thanks for testing,
+Thank you!
 
-Ben.
-
---=20
-Ben Hutchings
-Life would be so much easier if we could look at the source code.
-
-
-
---=-3a98SMwW65qTTRrj603Y
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAl7hT7cACgkQ57/I7JWG
-EQk55Q//Y7aZmbj2p66Tio3T9l1uOovhjba8eToR6XE5782uW/MvlovNkHB2laPv
-cXqfzzvDe+SHb2Wz4XMxvvjTtKtgRrRx1ERVQIL6FEmGACO5JhgIP4xYuT9jGUEh
-NrFYn6rwbbCKFW169OS621coK/fc/5T1r1+2qtcNr0nqiiPo98NXS+ym/H+Jo+al
-4t6ubrg0AnFOJ6vcKVbqowwwtUkK7z1zrU1ODYSBQmyl7bAAx2BejGeoNcRaZDVk
-3vImf1FmnY/sAU44RFJbl0QqtULmJd/V58IRoXgP1NBCov/urlVZpw/PHKTSdeWY
-FH9JHUs/5X0lOzfNGJTxNVtfcRJ1S8HOg94MooUw+DLraEiMGj/sDVoDpTWLRjVL
-svyj7cH6AXF7oy6WJjCgU8mnsxO+7V68ZkfRSorxUFkAahvJdsRVzxCoZKcHmHzT
-wSpVW/TRESk1TrdUxbck0uAMyG1pfUZCaxHqV3x+YG2jcoQpA7ByLIx4Xqn6SzVz
-H4YrcdBK1f0Jvjoi7oXdFO/ZUGJKpY+JuryK7FDVJOHXnPeBbu8knxeEfShIITjZ
-Z05XhCKBnhnF3tLwU6bOG1qRfpunctYRnTU58Mv7FRRwc3YS5sZhNIFwNRxCVjXg
-j3YZgW86nJGabwwcLrbMOwQTylEMZhKwgLc2pKlzgClxI9gBk7Y=
-=ZHjK
------END PGP SIGNATURE-----
-
---=-3a98SMwW65qTTRrj603Y--
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.wiki.kernel.org/userdoc/prtracker
