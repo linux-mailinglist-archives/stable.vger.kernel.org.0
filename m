@@ -2,83 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A9351F5304
-	for <lists+stable@lfdr.de>; Wed, 10 Jun 2020 13:21:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C8521F530B
+	for <lists+stable@lfdr.de>; Wed, 10 Jun 2020 13:21:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728434AbgFJLVP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Jun 2020 07:21:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39226 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728381AbgFJLVP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Jun 2020 07:21:15 -0400
-Received: from localhost.localdomain (236.31.169.217.in-addr.arpa [217.169.31.236])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 90C21204EA;
-        Wed, 10 Jun 2020 11:21:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591788074;
-        bh=Vy1uNGpCyh3WA6USKC361S2rQ3bIgdUucbjMN7/azjo=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XB3sMSmPStKwcCZbiYtdbjcc80l0y5WR7y4apK8+o9JokOR6gHgKEQwDzHFPMA85c
-         FoCa4mEEx9ZMZAoRsv+zHWXuDbAvF/9mmVN4hLO1ZrO/iqgDUErh9zdAoFUs3ez8g3
-         nU3W3qhCqAntUiYzsYf4mHoYpPfCt5U6DER3f7lQ=
-From:   Will Deacon <will@kernel.org>
-To:     Nick Desaulniers <ndesaulniers@google.com>,
-        Catalin Marinas <catalin.marinas@arm.com>
-Cc:     Will Deacon <will@kernel.org>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Enrico Weigelt <info@metux.net>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Allison Randal <allison@lohutok.net>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Jeremy Linton <jeremy.linton@arm.com>,
-        linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH v2] arm64: acpi: fix UBSAN warning
-Date:   Wed, 10 Jun 2020 12:21:08 +0100
-Message-Id: <159178566875.41592.7975510364023488303.b4-ty@kernel.org>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200608203818.189423-1-ndesaulniers@google.com>
-References: <CAKwvOdnBhHnhUZ9MHgqEQ4nEyzHWUH+DPV-J0KoYyWNEnsDHbg@mail.gmail.com> <20200608203818.189423-1-ndesaulniers@google.com>
+        id S1728472AbgFJLVu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Jun 2020 07:21:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34476 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728322AbgFJLVu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 10 Jun 2020 07:21:50 -0400
+Received: from mail-lj1-x243.google.com (mail-lj1-x243.google.com [IPv6:2a00:1450:4864:20::243])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4DF5C03E96B
+        for <stable@vger.kernel.org>; Wed, 10 Jun 2020 04:21:49 -0700 (PDT)
+Received: by mail-lj1-x243.google.com with SMTP id x18so1996232lji.1
+        for <stable@vger.kernel.org>; Wed, 10 Jun 2020 04:21:49 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=34s/UudA0g6sy/PuF5ij0UDHJHHlXUeLJ0XZZpZwUj0=;
+        b=Zw/UUAncdZrCkVzxyRRfOD0pd964ijRbrOUynobbqQjw8BvJ91e7KKj0W9Lcluz1j6
+         nr5OFK6KCmfGtdLyZ2FrVIYIHPeOpvTWfQhhF0nrIcJMQL/NPWALdu81+iA6CYQClraH
+         x0A3SZ24rsEHfXtN7dJD4CHfJCoNrNxOoaarWuZeKIyRgk8u4k9Pg0Cux46/usK3J37I
+         7F89OLKoyTnHK+j7yoX4YNn2HCByaACA3WDSX4romXYwHWPYJ+oGKiIEG8Gu5x9Vz/OD
+         LxSjmAdn4iU6zA4qEHurICrDVvcHKiPSyLjgMowv297XHmuRShhUxFw/1M0etc79yfCB
+         cEjg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=34s/UudA0g6sy/PuF5ij0UDHJHHlXUeLJ0XZZpZwUj0=;
+        b=RrbcQZQN+FQbH7ftVWOI2sIw4LonbHDp2U04Rv+SnQRftn+DcVey9rzYuhG99DYEjM
+         OEAjpbVwQB/KR3qzUIUC6yRB8gyoEZWKHUb4Qz7GrphMuLl+2cP5+GlsCTL8RoIB1nB+
+         QTzL4AgM4dACNxHGnlFEJxEAeWq2yubx6ML7WNWs0qA/j0QJgXd/4jK3pwMW+fpD8zc2
+         m51/dS5vb/UkPpWGwxx1h/P+xvtX2dxH+aNUTyQOdtGlulFUUtdMT+Ff53RlEy21dnwI
+         8HP0bgCjjY0NSWZuEYGRsrDFXAJnq8iLNH7TU8oNfi7d2qDh7rXeh5YD33diAl/LMVEl
+         SktQ==
+X-Gm-Message-State: AOAM530iIa7u8mJURC33XS5jcM6pxC8trgGCg2aFpm7VCfd9/em41iNd
+        BHGDJjy9y4d5aWa/CAvgdEDPOjJA3LVl2aTbtvZIY5xI
+X-Google-Smtp-Source: ABdhPJyW5H491HGWKGgiLem4FyZKdKKobr76+yfSy+ZTJl5n3Dav1PkDAFK/SXUuZP3anXqMXmrnBOWiguThBzu7Gd8=
+X-Received: by 2002:a2e:351a:: with SMTP id z26mr1502554ljz.144.1591788108186;
+ Wed, 10 Jun 2020 04:21:48 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20200606093150.32882-1-hdegoede@redhat.com>
+In-Reply-To: <20200606093150.32882-1-hdegoede@redhat.com>
+From:   Linus Walleij <linus.walleij@linaro.org>
+Date:   Wed, 10 Jun 2020 13:21:37 +0200
+Message-ID: <CACRpkdaTJ9hW+GTnTVWK1UxHYxgD_c8G=Eq-3=iEN=YJrYLhKg@mail.gmail.com>
+Subject: Re: [PATCH v2] pinctrl: baytrail: Fix pin being driven low for a
+ while on gpiod_get(..., GPIOD_OUT_HIGH)
+To:     Hans de Goede <hdegoede@redhat.com>
+Cc:     Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 8 Jun 2020 13:38:17 -0700, Nick Desaulniers wrote:
-> Will reported a UBSAN warning:
-> 
-> UBSAN: null-ptr-deref in arch/arm64/kernel/smp.c:596:6
-> member access within null pointer of type 'struct acpi_madt_generic_interrupt'
-> CPU: 0 PID: 0 Comm: swapper Not tainted 5.7.0-rc6-00124-g96bc42ff0a82 #1
-> Call trace:
->  dump_backtrace+0x0/0x384
->  show_stack+0x28/0x38
->  dump_stack+0xec/0x174
->  handle_null_ptr_deref+0x134/0x174
->  __ubsan_handle_type_mismatch_v1+0x84/0xa4
->  acpi_parse_gic_cpu_interface+0x60/0xe8
->  acpi_parse_entries_array+0x288/0x498
->  acpi_table_parse_entries_array+0x178/0x1b4
->  acpi_table_parse_madt+0xa4/0x110
->  acpi_parse_and_init_cpus+0x38/0x100
->  smp_init_cpus+0x74/0x258
->  setup_arch+0x350/0x3ec
->  start_kernel+0x98/0x6f4
-> 
-> [...]
+On Sat, Jun 6, 2020 at 11:31 AM Hans de Goede <hdegoede@redhat.com> wrote:
 
-Applied to arm64 (for-next/core), thanks!
+> The pins on the Bay Trail SoC have separate input-buffer and output-buffer
+> enable bits and a read of the level bit of the value register will always
+> return the value from the input-buffer.
+>
+> The BIOS of a device may configure a pin in output-only mode, only enabling
+> the output buffer, and write 1 to the level bit to drive the pin high.
+> This 1 written to the level bit will be stored inside the data-latch of the
+> output buffer.
+>
+> But a subsequent read of the value register will return 0 for the level bit
+> because the input-buffer is disabled. This causes a read-modify-write as
+> done by byt_gpio_set_direction() to write 0 to the level bit, driving the
+> pin low!
+>
+> Before this commit byt_gpio_direction_output() relied on
+> pinctrl_gpio_direction_output() to set the direction, followed by a call
+> to byt_gpio_set() to apply the selected value. This causes the pin to
+> go low between the pinctrl_gpio_direction_output() and byt_gpio_set()
+> calls.
+>
+> Change byt_gpio_direction_output() to directly make the register
+> modifications itself instead. Replacing the 2 subsequent writes to the
+> value register with a single write.
+>
+> Note that the pinctrl code does not keep track internally of the direction,
+> so not going through pinctrl_gpio_direction_output() is not an issue.
+>
+> This issue was noticed on a Trekstor SurfTab Twin 10.1. When the panel is
+> already on at boot (no external monitor connected), then the i915 driver
+> does a gpiod_get(..., GPIOD_OUT_HIGH) for the panel-enable GPIO. The
+> temporarily going low of that GPIO was causing the panel to reset itself
+> after which it would not show an image until it was turned off and back on
+> again (until a full modeset was done on it). This commit fixes this.
+>
+> This commit also updates the byt_gpio_direction_input() to use direct
+> register accesses instead of going through pinctrl_gpio_direction_input(),
+> to keep it consistent with byt_gpio_direction_output().
+>
+> Note for backporting, this commit depends on:
+> commit e2b74419e5cc ("pinctrl: baytrail: Replace WARN with dev_info_once
+> when setting direct-irq pin to output")
+>
+> Cc: stable@vger.kernel.org
+> Fixes: 86e3ef812fe3 ("pinctrl: baytrail: Update gpio chip operations")
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+> ---
+> Note the factoring out of the direct IRQ mode warning is deliberately not
+> split into a separate patch to make backporting this easier.
 
-[1/1] arm64: acpi: fix UBSAN warning
-      https://git.kernel.org/arm64/c/a194c33f45f8
+Looks good to me, I expect this in a pull request from Andy for
+fixes, alternatively I can apply it directly for fixes if Andy prefers
+this.
 
-Cheers,
--- 
-Will
-
-https://fixes.arm64.dev
-https://next.arm64.dev
-https://will.arm64.dev
+Yours,
+Linus Walleij
