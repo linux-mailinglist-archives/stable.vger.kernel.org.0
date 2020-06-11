@@ -2,151 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 181A61F6C64
-	for <lists+stable@lfdr.de>; Thu, 11 Jun 2020 18:50:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 510941F6C69
+	for <lists+stable@lfdr.de>; Thu, 11 Jun 2020 18:51:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726660AbgFKQuc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Jun 2020 12:50:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53550 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726645AbgFKQub (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Jun 2020 12:50:31 -0400
-Received: from mail-pg1-x531.google.com (mail-pg1-x531.google.com [IPv6:2607:f8b0:4864:20::531])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1152BC08C5C1
-        for <stable@vger.kernel.org>; Thu, 11 Jun 2020 09:50:31 -0700 (PDT)
-Received: by mail-pg1-x531.google.com with SMTP id b5so1815151pgm.8
-        for <stable@vger.kernel.org>; Thu, 11 Jun 2020 09:50:31 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=1fYYryRV56wDZ1QXuDYry8Au+lKA2Wgq+TGqrxiwU3U=;
-        b=jx8zKaQz5a8CxqoLbNLPLmVXwgmGNWypBWgL1rSMJb4Dh52WzZ9mt9B89BQOXp9IVr
-         UcuDudeb1h3SuPKkzF5uG+76fPcDydlKjAhOZmAs2ajNTkFCL0V/A2ZSS0H2byHvfu/B
-         /SDm7aFj4Z+34Sx8U2+2PMzn/ZLU3kymTryjq/g02ECII0gTAi6wl0vRshlu3QEjgARP
-         g281ObTADwBLjyox/xNIpmIBaIJ4gtceB5VLXLB1lqxvJtih8ni4WZP32CrNsftL7tqh
-         e4y0sJ3KDOk35+xK1BAZ2f2cp1yBfJeeX8Urir44uRvDfIihU9tOPijBqBUNTah6R31F
-         ScmQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=1fYYryRV56wDZ1QXuDYry8Au+lKA2Wgq+TGqrxiwU3U=;
-        b=pU2nX1kVY8FS9pEbJIFnBsJOUTDpr7+ZEwBMRd3OouARv69VImQuOgICX+VlBoBsnJ
-         K1wDvUiUta7aa6Mg85/aEzcfAEsujT3XUPbiO/XWBZxiFfsIJrMsFVwolkT/rBeOrrjK
-         UZ85vzLC+L7EcLbmQLOiDLqft4RHvXU9xQULMZ/mzIcsxPMCfkuw9Yj1dh4G/BaHvnuW
-         29L/WqllJHyHfZUPny+mEw0WxgSwCf1dy9gqOZ4tdORDNnuVNz0ziscJPDSWnYV6Mb5G
-         1+3R74PHnaUQ2e493csj5GkOQPlMLw6vOZhswZjGVFReUCFhAM1qzExBYoiaMb5uKunK
-         StoA==
-X-Gm-Message-State: AOAM532BeBEuixFfbvn+aOelHiXIeH4VxwKlN8OEAi5MMLaaILMQVDcH
-        hIzIkClpdG9cDXHB7yFM1vsKqT1phO8=
-X-Google-Smtp-Source: ABdhPJw3S8c2aobanXTLLDhKvVBSldV4J4P2ix2Sloicf63iPOPUAeWy1TQCDF6+CRqNv88nQFIXwA==
-X-Received: by 2002:a62:fc86:: with SMTP id e128mr8339240pfh.133.1591894230220;
-        Thu, 11 Jun 2020 09:50:30 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id y136sm3577958pfg.55.2020.06.11.09.50.29
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 11 Jun 2020 09:50:29 -0700 (PDT)
-Message-ID: <5ee260d5.1c69fb81.4d01a.948b@mx.google.com>
-Date:   Thu, 11 Jun 2020 09:50:29 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1726577AbgFKQv0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Jun 2020 12:51:26 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:54695 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726553AbgFKQv0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Jun 2020 12:51:26 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1591894285;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=VyiOMCknkLLdkkng3brgL4BkJyIYCIkonWDKyJSqKTI=;
+        b=g/cd1D77jKVsZ+6Wkk++zDhHsUxLJ+Ff0nnfQjMra4Tmz4an77SWay/NlqiqS04LvbebRI
+        wp57fCyDOSGl5+/c/dh5TlhPfFeivjkhSBqWxFmmmrkakFMQz9gBc1Rd1rJggPD5WA6ijB
+        GTIHs69TogRC7yQXI18UB2dlhv8ePU0=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-487-s3RYe3d_NMOnloE6AlIXkg-1; Thu, 11 Jun 2020 12:51:23 -0400
+X-MC-Unique: s3RYe3d_NMOnloE6AlIXkg-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id F27891800D41;
+        Thu, 11 Jun 2020 16:51:20 +0000 (UTC)
+Received: from dhcp-27-174.brq.redhat.com (unknown [10.40.195.101])
+        by smtp.corp.redhat.com (Postfix) with SMTP id 6A1375D9E5;
+        Thu, 11 Jun 2020 16:51:18 +0000 (UTC)
+Received: by dhcp-27-174.brq.redhat.com (nbSMTP-1.00) for uid 1000
+        oleg@redhat.com; Thu, 11 Jun 2020 18:51:20 +0200 (CEST)
+Date:   Thu, 11 Jun 2020 18:51:17 +0200
+From:   Oleg Nesterov <oleg@redhat.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Naresh Kamboju <naresh.kamboju@linaro.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        linux- stable <stable@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        lkft-triage@lists.linaro.org
+Subject: Re: [PATCH 4.19 24/25] uprobes: ensure that uprobe->offset and
+ ->ref_ctr_offset are properly aligned
+Message-ID: <20200611165116.GE12500@redhat.com>
+References: <20200609174048.576094775@linuxfoundation.org>
+ <20200609174051.488794266@linuxfoundation.org>
+ <CA+G9fYukN5V1z3g6Qwe9K5xnnXEuFafWdqGfDA1Wj2iVstoxfw@mail.gmail.com>
+ <20200609190321.GA1046130@kroah.com>
+ <20200610145305.GA3254@redhat.com>
+ <20200610145855.GA2102398@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Branch: linux-4.14.y
-X-Kernelci-Tree: stable
-X-Kernelci-Kernel: v4.14.184
-Subject: stable/linux-4.14.y baseline: 63 runs, 2 regressions (v4.14.184)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200610145855.GA2102398@kroah.com>
+User-Agent: Mutt/1.5.24 (2015-08-30)
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-4.14.y baseline: 63 runs, 2 regressions (v4.14.184)
+On 06/10, Greg Kroah-Hartman wrote:
+>
+> > Greg, please let me know if you want me to send the patches for 4.9/4.14/4.19.
+>
+> Please do.  I tried to backport it to those trees, and it seems to
+> build/boot/run, but I would like verification I didn't mess anything up
+> :)
+>
+> Your 4.4 version below matched my version, so I think I'm ok...
 
-Regressions Summary
--------------------
+Greg, I was going to send the patches, but after I've cloned
+git/stable/linux-stable-rc.git I see that you have already updated these
 
-platform               | arch  | lab          | compiler | defconfig | resu=
-lts
------------------------+-------+--------------+----------+-----------+-----=
----
-meson-gxbb-p200        | arm64 | lab-baylibre | gcc-8    | defconfig | 0/1 =
-   =
+	origin/queue/4.14
+	origin/queue/4.19
+	origin/queue/4.4
+	origin/queue/4.9
 
-sun50i-a64-pine64-plus | arm64 | lab-baylibre | gcc-8    | defconfig | 0/1 =
-   =
+branches, and the new patches look good to me.
 
+So I think I can relax? ;)
 
-  Details:  https://kernelci.org/test/job/stable/branch/linux-4.14.y/kernel=
-/v4.14.184/plan/baseline/
+Thanks!
 
-  Test:     baseline
-  Tree:     stable
-  Branch:   linux-4.14.y
-  Describe: v4.14.184
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able.git
-  SHA:      b850307b279cbd12ab8c654d1a3dfe55319cc475 =
+Oleg.
 
-
-
-Test Regressions
----------------- =
-
-
-
-platform               | arch  | lab          | compiler | defconfig | resu=
-lts
------------------------+-------+--------------+----------+-----------+-----=
----
-meson-gxbb-p200        | arm64 | lab-baylibre | gcc-8    | defconfig | 0/1 =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/5ee22f2d780a0c187197bf10
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-4.14.y/v4.14.184/=
-arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-p200.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-4.14.y/v4.14.184/=
-arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-p200.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2019=
-.02-11-g17e793fa4728/arm64/baseline/rootfs.cpio.gz =
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5ee22f2d780a0c187197b=
-f11
-      failing since 69 days (last pass: v4.14.172, first fail: v4.14.175) =
-
-
-
-platform               | arch  | lab          | compiler | defconfig | resu=
-lts
------------------------+-------+--------------+----------+-----------+-----=
----
-sun50i-a64-pine64-plus | arm64 | lab-baylibre | gcc-8    | defconfig | 0/1 =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/5ee22f9067edef26f997bf14
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-4.14.y/v4.14.184/=
-arm64/defconfig/gcc-8/lab-baylibre/baseline-sun50i-a64-pine64-plus.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-4.14.y/v4.14.184/=
-arm64/defconfig/gcc-8/lab-baylibre/baseline-sun50i-a64-pine64-plus.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2019=
-.02-11-g17e793fa4728/arm64/baseline/rootfs.cpio.gz =
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5ee22f9067edef26f997b=
-f15
-      new failure (last pass: v4.14.183) =20
