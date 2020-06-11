@@ -2,202 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D0121F65CF
-	for <lists+stable@lfdr.de>; Thu, 11 Jun 2020 12:39:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B47FB1F65F4
+	for <lists+stable@lfdr.de>; Thu, 11 Jun 2020 12:52:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726783AbgFKKj2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Jun 2020 06:39:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52152 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726581AbgFKKj1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Jun 2020 06:39:27 -0400
-Received: from mail-il1-x144.google.com (mail-il1-x144.google.com [IPv6:2607:f8b0:4864:20::144])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D056C08C5C1
-        for <stable@vger.kernel.org>; Thu, 11 Jun 2020 03:39:27 -0700 (PDT)
-Received: by mail-il1-x144.google.com with SMTP id h3so4928268ilh.13
-        for <stable@vger.kernel.org>; Thu, 11 Jun 2020 03:39:27 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=sargun.me; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=09AhYfVptAXhl8RbRmV+vzYPYyK8rezI6f1741Byi5g=;
-        b=hXWw9qrKRCz4lCsZBfjd9GvLPINzD5z7fubizgxMT+JbNOAdKmYagKXytL8D+qGPRs
-         lmq7mz6l8u1AbkV3NVEYISeBNmcu3aUHaVlPzhm+AkMtv3s4lXT3XROD5xmQKChyhc2U
-         y0+7scW5saZn8EzuurZAZeWC3/gnoQi+Wfu4E=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=09AhYfVptAXhl8RbRmV+vzYPYyK8rezI6f1741Byi5g=;
-        b=YI8t5YOjDNo8EPXB6bbQtwpFFd4j7N7b/GaRtD0PvlnkAx4OP4s3YUeRLrxKIYwXFr
-         kce4MLX3xpssXKSojYplxQUOZ3HBZlXCxwhuo1HMPl+Bg2rBIPDCY+rXbFYntYq71ozA
-         VFX/VVprsoMgQZ+GKbP9ST43yJR0lbU9XpaFzbpv90ziA5j1BjTrNNc2rpzx8OiFgJZm
-         Er1kGOw/b5xwQ2vcKAwatkbqBcKNdVAdvD12xRAqBTeXG1UuwRxrg8gCTrHqQGl2jpvx
-         876ywDKYXQuDJc4qQ3VGYCEsX7+5np9QikvkOHSusdvwGTyXAk+8KszQa9EzitM+SzGI
-         Hz7g==
-X-Gm-Message-State: AOAM530wT4D7oJMRFR4QfXIlRm7a73AHwF7fm4KG948lyU/L8R9hYPNH
-        viYTJh9UvyYKZ4M2svncZqDaBA==
-X-Google-Smtp-Source: ABdhPJxolVZUsL9RqG7Jc9UwE72uQAKUEuhgQv/dBYmuIHqJ/Sf9yGKuChTRxgA86GGNuZ/S+QQO+g==
-X-Received: by 2002:a92:dccd:: with SMTP id b13mr7169618ilr.98.1591871965927;
-        Thu, 11 Jun 2020 03:39:25 -0700 (PDT)
-Received: from ircssh-2.c.rugged-nimbus-611.internal (80.60.198.104.bc.googleusercontent.com. [104.198.60.80])
-        by smtp.gmail.com with ESMTPSA id v2sm1276642iol.36.2020.06.11.03.39.24
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Thu, 11 Jun 2020 03:39:25 -0700 (PDT)
-Date:   Thu, 11 Jun 2020 10:39:23 +0000
-From:   Sargun Dhillon <sargun@sargun.me>
-To:     Christian Brauner <christian.brauner@ubuntu.com>
-Cc:     Kees Cook <keescook@chromium.org>,
-        containers@lists.linux-foundation.org,
-        Giuseppe Scrivano <gscrivan@redhat.com>,
-        Robert Sesek <rsesek@google.com>,
-        Chris Palmer <palmer@google.com>, Jann Horn <jannh@google.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Daniel Wagner <daniel.wagner@bmw-carit.de>,
-        linux-kernel@vger.kernel.org, Matt Denton <mpdenton@google.com>,
-        John Fastabend <john.r.fastabend@intel.com>,
-        linux-fsdevel@vger.kernel.org, Tejun Heo <tj@kernel.org>,
-        Al Viro <viro@zeniv.linux.org.uk>, cgroups@vger.kernel.org,
-        stable@vger.kernel.org, "David S . Miller" <davem@davemloft.net>
-Subject: Re: [PATCH v3 1/4] fs, net: Standardize on file_receive helper to
- move fds across processes
-Message-ID: <20200611103922.GA30103@ircssh-2.c.rugged-nimbus-611.internal>
-References: <20200604125226.eztfrpvvuji7cbb2@wittgenstein>
- <20200605075435.GA3345@ircssh-2.c.rugged-nimbus-611.internal>
- <202006091235.930519F5B@keescook>
- <20200609200346.3fthqgfyw3bxat6l@wittgenstein>
- <202006091346.66B79E07@keescook>
- <037A305F-B3F8-4CFA-B9F8-CD4C9EF9090B@ubuntu.com>
- <202006092227.D2D0E1F8F@keescook>
- <20200610081237.GA23425@ircssh-2.c.rugged-nimbus-611.internal>
- <202006101953.899EFB53@keescook>
- <20200611091942.jni2glnpmxisnant@wittgenstein>
+        id S1727097AbgFKKwJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Jun 2020 06:52:09 -0400
+Received: from out4-smtp.messagingengine.com ([66.111.4.28]:57717 "EHLO
+        out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726995AbgFKKwH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Jun 2020 06:52:07 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailout.nyi.internal (Postfix) with ESMTP id CAC3E5C00DE;
+        Thu, 11 Jun 2020 06:52:06 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Thu, 11 Jun 2020 06:52:06 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm1; bh=hFixsBB4fRrJtbpr+200c7FS6ZE
+        e/kugxM+bJ6/yTEI=; b=pLtP1EiekFwYm9vY0vAivtJgw1XrxlQhbVht+6Ek/p+
+        WINXG4E+6fOy8P2due999w/VaU+zk/hwlGkCraJfE6LppM/TBeyjHfr8NyAtLNyj
+        QfJCeA0QI9YrUSIzO4yUwoIDPgbySKgZ2zp9ivlcUlVcidQvoyXm17tzpmCCzA7q
+        l69e6fANcyxVBWdArt1srhkALoIo4v/qI9YBhFbAVzezreSV05h57/RHeWgJRP1A
+        1bREtGWilzVx2oJENiymuW1vn5BjgE6asV7/SrkxyEOkl7xT//6mCpciBXJnNxl1
+        uyttuslyJt5MGgksfb0kV31TTk8QwKILCM4Osj/GaAw==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=hFixsB
+        B4fRrJtbpr+200c7FS6ZEe/kugxM+bJ6/yTEI=; b=FXcdkL6gyxwQUehM5dPZM/
+        puFxW4inLc2P144enkJ3gYITiObP3bn30XyKlSymhHOdceB3+kXObdBHwBQAqNNE
+        z+3iJvwtbzhExI6q0o2xLQNNifXoa9IvGe2a0wJ2E7dHV+scAid+JOa7luK6p0il
+        a8KtOEkw62g6xVRljjqjMmn9yYptAUrdfBXoOYBD7PxpdFopsa5N0vHdaUr7CiJ6
+        23RXZcuYXVEcGPMTofdbmi4Y7Mu0XtbjgYmX3sCqD/iiEDxB1MM1WwEoiX0yMBbm
+        cvuAd38zOVtnI+/7OYC/ME2VqAU7O7qABfyKXVclS5LzGMAAz1uemRFw3no+lMgw
+        ==
+X-ME-Sender: <xms:1QziXj7qXj4YD-ZkEnaeSraU1D0GoM6GUP2nuZNi45whjKGzckQSNg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudehledgtdejucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
+    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpefhuedtfe
+    ffgeefueevvdfgfeekudefleduveetfeehjedtkefhffejuddvveehfeenucffohhmrghi
+    nhepghhithhhuhgsrdgtohhmpdhkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrke
+    elrddutdejnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhho
+    mhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:1QziXo6M-9G8hm0pbqLcc4HFFUsag3sEACpyoZQAtUIg8NXdlbpOvw>
+    <xmx:1QziXqfEqhbSXnWXlUEqEpcv2RTTJUSf1hBpQDOH8rRsvrdCnf4WYQ>
+    <xmx:1QziXkIxO3SwfUA19JuCJZOB82OI8dt48v1vAwbzYgYQkq83AZM-WA>
+    <xmx:1gziXv9ac6MOnCcR-Eg_KXQsY8DiUTdxiEpFmPVdkOX0v_NyHMqXGQ>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 556C4328005E;
+        Thu, 11 Jun 2020 06:52:05 -0400 (EDT)
+Date:   Thu, 11 Jun 2020 12:51:58 +0200
+From:   Greg KH <greg@kroah.com>
+To:     Maria Teguiani <teguiani@google.com>
+Cc:     stable@vger.kernel.org, kernel-team@android.com,
+        Fangrui Song <maskray@google.com>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Stanislav Fomichev <sdf@google.com>,
+        Andrii Nakryiko <andriin@fb.com>,
+        Kees Cook <keescook@chromium.org>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: Re: [PATCH] bpf: Support llvm-objcopy for vmlinux BTF
+Message-ID: <20200611105158.GA3802953@kroah.com>
+References: <20200608133959.97810-1-teguiani@google.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200611091942.jni2glnpmxisnant@wittgenstein>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+In-Reply-To: <20200608133959.97810-1-teguiani@google.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jun 11, 2020 at 11:19:42AM +0200, Christian Brauner wrote:
-> On Wed, Jun 10, 2020 at 07:59:55PM -0700, Kees Cook wrote:
-> > On Wed, Jun 10, 2020 at 08:12:38AM +0000, Sargun Dhillon wrote:
-> > > As an aside, all of this junk should be dropped:
-> > > +	ret = get_user(size, &uaddfd->size);
-> > > +	if (ret)
-> > > +		return ret;
-> > > +
-> > > +	ret = copy_struct_from_user(&addfd, sizeof(addfd), uaddfd, size);
-> > > +	if (ret)
-> > > +		return ret;
-> > > 
-> > > and the size member of the seccomp_notif_addfd struct. I brought this up 
-> > > off-list with Tycho that ioctls have the size of the struct embedded in them. We 
-> > > should just use that. The ioctl definition is based on this[2]:
-> > > #define _IOC(dir,type,nr,size) \
-> > > 	(((dir)  << _IOC_DIRSHIFT) | \
-> > > 	 ((type) << _IOC_TYPESHIFT) | \
-> > > 	 ((nr)   << _IOC_NRSHIFT) | \
-> > > 	 ((size) << _IOC_SIZESHIFT))
-> > > 
-> > > 
-> > > We should just use copy_from_user for now. In the future, we can either 
-> > > introduce new ioctl names for new structs, or extract the size dynamically from 
-> > > the ioctl (and mask it out on the switch statement in seccomp_notify_ioctl.
-> > 
-> > Yeah, that seems reasonable. Here's the diff for that part:
-> > 
-> > diff --git a/include/uapi/linux/seccomp.h b/include/uapi/linux/seccomp.h
-> > index 7b6028b399d8..98bf19b4e086 100644
-> > --- a/include/uapi/linux/seccomp.h
-> > +++ b/include/uapi/linux/seccomp.h
-> > @@ -118,7 +118,6 @@ struct seccomp_notif_resp {
-> >  
-> >  /**
-> >   * struct seccomp_notif_addfd
-> > - * @size: The size of the seccomp_notif_addfd datastructure
-> >   * @id: The ID of the seccomp notification
-> >   * @flags: SECCOMP_ADDFD_FLAG_*
-> >   * @srcfd: The local fd number
-> > @@ -126,7 +125,6 @@ struct seccomp_notif_resp {
-> >   * @newfd_flags: The O_* flags the remote FD should have applied
-> >   */
-> >  struct seccomp_notif_addfd {
-> > -	__u64 size;
-> >  	__u64 id;
-> >  	__u32 flags;
-> >  	__u32 srcfd;
-> > diff --git a/kernel/seccomp.c b/kernel/seccomp.c
-> > index 3c913f3b8451..00cbdad6c480 100644
-> > --- a/kernel/seccomp.c
-> > +++ b/kernel/seccomp.c
-> > @@ -1297,14 +1297,9 @@ static long seccomp_notify_addfd(struct seccomp_filter *filter,
-> >  	struct seccomp_notif_addfd addfd;
-> >  	struct seccomp_knotif *knotif;
-> >  	struct seccomp_kaddfd kaddfd;
-> > -	u64 size;
-> >  	int ret;
-> >  
-> > -	ret = get_user(size, &uaddfd->size);
-> > -	if (ret)
-> > -		return ret;
-> > -
-> > -	ret = copy_struct_from_user(&addfd, sizeof(addfd), uaddfd, size);
-> > +	ret = copy_from_user(&addfd, uaddfd, sizeof(addfd));
-> >  	if (ret)
-> >  		return ret;
-> >  
-> > 
-> > > 
-> > > ----
-> > > +#define SECCOMP_IOCTL_NOTIF_ADDFD	SECCOMP_IOR(3,	\
-> > > +						struct seccomp_notif_addfd)
-> > > 
-> > > Lastly, what I believe to be a small mistake, it should be SECCOMP_IOW, based on 
-> > > the documentation in ioctl.h -- "_IOW means userland is writing and kernel is 
-> > > reading."
-> > 
-> > Oooooh. Yeah; good catch. Uhm, that means SECCOMP_IOCTL_NOTIF_ID_VALID
-> > is wrong too, yes? Tycho, Christian, how disruptive would this be to
-> > fix? (Perhaps support both and deprecate the IOR version at some point
-> > in the future?)
+On Mon, Jun 08, 2020 at 01:39:59PM +0000, Maria Teguiani wrote:
+> From: Fangrui Song <maskray@google.com>
 > 
-> We have custom defines in our source code, i.e.
-> #define SECCOMP_IOCTL_NOTIF_ID_VALID  SECCOMP_IOR(2, __u64)
-> so ideally we'd have a SECCOMP_IOCTL_NOTIF_ID_VALID_V2
+> Simplify gen_btf logic to make it work with llvm-objcopy. The existing
+> 'file format' and 'architecture' parsing logic is brittle and does not
+> work with llvm-objcopy/llvm-objdump.
 > 
-> Does that sound ok?
+> 'file format' output of llvm-objdump>=11 will match GNU objdump, but
+> 'architecture' (bfdarch) may not.
 > 
-> Christian
-Why not change the public API in seccomp.h to:
-#define SECCOMP_IOCTL_NOTIF_ID_VALID	SECCOMP_IOW(2, __u64)
+> .BTF in .tmp_vmlinux.btf is non-SHF_ALLOC. Add the SHF_ALLOC flag
+> because it is part of vmlinux image used for introspection. C code
+> can reference the section via linker script defined __start_BTF and
+> __stop_BTF. This fixes a small problem that previous .BTF had the
+> SHF_WRITE flag (objcopy -I binary -O elf* synthesized .data).
+> 
+> Additionally, `objcopy -I binary` synthesized symbols
+> _binary__btf_vmlinux_bin_start and _binary__btf_vmlinux_bin_stop (not
+> used elsewhere) are replaced with more commonplace __start_BTF and
+> __stop_BTF.
+> 
+> Add 2>/dev/null because GNU objcopy (but not llvm-objcopy) warns
+> "empty loadable segment detected at vaddr=0xffffffff81000000, is this intentional?"
+> 
+> We use a dd command to change the e_type field in the ELF header from
+> ET_EXEC to ET_REL so that lld will accept .btf.vmlinux.bin.o.  Accepting
+> ET_EXEC as an input file is an extremely rare GNU ld feature that lld
+> does not intend to support, because this is error-prone.
+> 
+> The output section description .BTF in include/asm-generic/vmlinux.lds.h
+> avoids potential subtle orphan section placement issues and suppresses
+> --orphan-handling=warn warnings.
+> 
+> Fixes: df786c9b9476 ("bpf: Force .BTF section start to zero when dumping from vmlinux")
+> Fixes: cb0cc635c7a9 ("powerpc: Include .BTF section")
+> Reported-by: Nathan Chancellor <natechancellor@gmail.com>
+> Signed-off-by: Fangrui Song <maskray@google.com>
+> Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+> Tested-by: Stanislav Fomichev <sdf@google.com>
+> Tested-by: Andrii Nakryiko <andriin@fb.com>
+> Reviewed-by: Stanislav Fomichev <sdf@google.com>
+> Reviewed-by: Kees Cook <keescook@chromium.org>
+> Acked-by: Andrii Nakryiko <andriin@fb.com>
+> Acked-by: Michael Ellerman <mpe@ellerman.id.au> (powerpc)
+> Link: https://github.com/ClangBuiltLinux/linux/issues/871
+> Link: https://lore.kernel.org/bpf/20200318222746.173648-1-maskray@google.com
+> (cherry picked from commit 90ceddcb495008ac8ba7a3dce297841efcd7d584)
+> Cc: <stable@vger.kernel.org> # 5.4.x
+> Signed-off-by: Maria Teguiani <teguiani@google.com>
 
-And then in seccomp.c:
-#define SECCOMP_IOCTL_NOTIF_ID_VALID_OLD	SECCOMP_IOR(2, __u64)
-static long seccomp_notify_ioctl(struct file *file, unsigned int cmd,
-				 unsigned long arg)
-{
-	struct seccomp_filter *filter = file->private_data;
-	void __user *buf = (void __user *)arg;
+I've also queued this up to the 5.6.y tree, thanks.
 
-	switch (cmd) {
-	case SECCOMP_IOCTL_NOTIF_RECV:
-		return seccomp_notify_recv(filter, buf);
-	case SECCOMP_IOCTL_NOTIF_SEND:
-		return seccomp_notify_send(filter, buf);
-	case SECCOMP_IOCTL_NOTIF_ID_VALID_OLD:
-		pr_warn_once("Detected usage of legacy (incorrect) version of seccomp notifier notif_id_valid ioctl\n");
-	case SECCOMP_IOCTL_NOTIF_ID_VALID:
-		return seccomp_notify_id_valid(filter, buf);
-	default:
-		return -EINVAL;
-	}
-}
----- 
-
-So, both will work fine, and whenevery anyone recompiles, or picks up new 
-headers, they will start calling the "right" one without a code change, and
-we wont break any userspace.
+greg k-h
