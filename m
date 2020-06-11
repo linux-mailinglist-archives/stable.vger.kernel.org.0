@@ -2,266 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A00EB1F5F87
-	for <lists+stable@lfdr.de>; Thu, 11 Jun 2020 03:37:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FC241F5F91
+	for <lists+stable@lfdr.de>; Thu, 11 Jun 2020 03:41:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726307AbgFKBhy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Jun 2020 21:37:54 -0400
-Received: from mailgw02.mediatek.com ([210.61.82.184]:48639 "EHLO
-        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726163AbgFKBhy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 10 Jun 2020 21:37:54 -0400
-X-UUID: 6d3336460b2d48229e9bd3ff014fc382-20200611
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
-        h=MIME-Version:Content-Type:References:In-Reply-To:Date:CC:To:From:Subject:Message-ID; bh=5BQNJ32dvKGPvS9swjriwLjkBZAVJtmLmFJ+pWtHrNw=;
-        b=jvfAqZVhoVOVLDohtQwJXlLXQnhf+dOJtZI6lOcGVXr7OZsp6k2WA3196oEN+U1RfpxB9KnB455cSXZpeVkg4sTUdkwa9iGKR21qCulOkJo/DAbLylBs4pkupz1WJghG/rIqv810g7XgW3QLhLVYyrdyLjSV7Ou3UtB1uHycE5k=;
-X-UUID: 6d3336460b2d48229e9bd3ff014fc382-20200611
-Received: from mtkcas10.mediatek.inc [(172.21.101.39)] by mailgw02.mediatek.com
-        (envelope-from <miles.chen@mediatek.com>)
-        (Cellopoint E-mail Firewall v4.1.10 Build 0809 with TLS)
-        with ESMTP id 814208450; Thu, 11 Jun 2020 09:37:44 +0800
-Received: from mtkcas08.mediatek.inc (172.21.101.126) by
- mtkmbs01n2.mediatek.inc (172.21.101.79) with Microsoft SMTP Server (TLS) id
- 15.0.1497.2; Thu, 11 Jun 2020 09:37:42 +0800
-Received: from mtkcas08.mediatek.inc (172.21.101.126) by mtkcas08.mediatek.inc
- (172.21.101.126) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Thu, 11 Jun
- 2020 09:37:41 +0800
-Received: from [172.21.77.33] (172.21.77.33) by mtkcas08.mediatek.inc
- (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Thu, 11 Jun 2020 09:37:41 +0800
-Message-ID: <1591839462.26208.24.camel@mtkswgap22>
-Subject: Re: Suggest make 'user_access_begin()' do 'access_ok()' to stable
- kernel
-From:   Miles Chen <miles.chen@mediatek.com>
-To:     Greg KH <gregkh@linuxfoundation.org>
-CC:     <stable@vger.kernel.org>
-Date:   Thu, 11 Jun 2020 09:37:42 +0800
-In-Reply-To: <20200610180249.GA5500@kroah.com>
-References: <1591811900.26208.17.camel@mtkswgap22>
-         <20200610180249.GA5500@kroah.com>
-Content-Type: multipart/mixed; boundary="=-uP7mV4CoXRibNJA6BWZG"
-X-Mailer: Evolution 3.2.3-0ubuntu6 
-MIME-Version: 1.0
-X-MTK:  N
-X-TM-SNTS-SMTP: 417B008E6D65DB18BD4BF5DCE48D5FDCCB0FAC1E9BAD38E0950014F4544DADC72000:8
+        id S1726418AbgFKBli (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Jun 2020 21:41:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50282 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726163AbgFKBlh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Jun 2020 21:41:37 -0400
+Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9F8842074B;
+        Thu, 11 Jun 2020 01:41:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1591839696;
+        bh=hjb8pPe585bninkqwnEsOxv0+a0hwjjw3C85+ies9CE=;
+        h=Date:From:To:Subject:In-Reply-To:From;
+        b=ZDKKUTdFpXXp1beKgBhU402bvkiaJfLLOUUGnseHaN3uCLXrZZVrAkc+n+T6A13O0
+         R35OxB2SSFe3t/epV5xkhqrBciDbizq+nlbNeGmTXOA7oqDi+Vs23P/6R1cKft/cKR
+         bYNv2uqyfyX3ksWuo2gOLjJrYyMg9dobwBTajqOo=
+Date:   Wed, 10 Jun 2020 18:41:35 -0700
+From:   Andrew Morton <akpm@linux-foundation.org>
+To:     akpm@linux-foundation.org, hdk1983@gmail.com,
+        hermes@ceres.dti.ne.jp, konishi.ryusuke@gmail.com,
+        linux-mm@kvack.org, me@waltonhoops.com, mm-commits@vger.kernel.org,
+        stable@vger.kernel.org, tom@logand.com,
+        torvalds@linux-foundation.org
+Subject:  [patch 05/25] nilfs2: fix null pointer dereference at
+ nilfs_segctor_do_construct()
+Message-ID: <20200611014135.qj6WrSl6h%akpm@linux-foundation.org>
+In-Reply-To: <20200610184053.3fa7368ab80e23bfd44de71f@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---=-uP7mV4CoXRibNJA6BWZG
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: base64
+From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Subject: nilfs2: fix null pointer dereference at nilfs_segctor_do_construct()
 
-T24gV2VkLCAyMDIwLTA2LTEwIGF0IDIwOjAyICswMjAwLCBHcmVnIEtIIHdyb3RlOg0KPiBPbiBU
-aHUsIEp1biAxMSwgMjAyMCBhdCAwMTo1ODoyMEFNICswODAwLCBNaWxlcyBDaGVuIHdyb3RlOg0K
-PiA+IEhpLA0KPiA+IA0KPiA+IEkgc3VnZ2VzdCB0byBpbmNsdWRlIHRoZSBjb21taXQ6IDU5NGNj
-MjUxZmRkMCBtYWtlICd1c2VyX2FjY2Vzc19iZWdpbigpJw0KPiA+IGRvICdhY2Nlc3Nfb2soKScg
-Zm9yIENWRS0yMDE4LTIwNjY5Lg0KPiA+IA0KPiA+IHN0YWJsZSB2ZXJzaW9uIHRvIGFwcGx5IHRv
-OiBrZXJuZWwtNC4xNC55IGFuZCBrZXJuZWwtNC4xOS55Lg0KPiA+IA0KPiA+IA0KPiA+IEZyb20g
-dGhlIGRpc2N1c3Npb24gYmVsb3csIEkgY2hlY2tlZCB0aGUgbGF0ZXN0IGtlcm5lbCBhbmQgZm91
-bmQgdGhhdCB3ZQ0KPiA+IHNob3VsZCBhbHNvIGFwcGx5IG90aGVyIDQgcGF0Y2hlcy4gKHRvdGFs
-IDUgcGF0Y2hlcykNCj4gPiBodHRwczovL2xrbWwub3JnL2xrbWwvMjAyMC81LzEyLzk0Mw0KPiA+
-IA0KPiA+IA0KPiA+IHBhdGNoIGxpc3Q6DQo+ID4gY29tbWl0IGFiMTBhZTFjM2JlZiBsaWI6IFJl
-ZHVjZSB1c2VyX2FjY2Vzc19iZWdpbigpIGJvdW5kYXJpZXMgaW4NCj4gPiBzdHJuY3B5X2Zyb21f
-dXNlcigpIGFuZCBzdHJubGVuX3VzZXIoKQ0KPiA+IGNvbW1pdCA2ZTY5M2IzZmZlY2IgeDg2OiB1
-YWNjZXNzOiBJbmhpYml0IHNwZWN1bGF0aW9uIHBhc3QgYWNjZXNzX29rKCkNCj4gPiBpbiB1c2Vy
-X2FjY2Vzc19iZWdpbigpDQo+ID4gY29tbWl0IDljYjJmZWI0ZDIxZCBhcmNoL29wZW5yaXNjOiBG
-aXggaXNzdWVzIHdpdGggYWNjZXNzX29rKCkNCj4gPiBjb21taXQgOTRiZDhhMDVjZDRkIEZpeCAn
-YWNjY2Vzc19vaygpJyBvbiBhbHBoYSBhbmQgU0gNCj4gPiBjb21taXQgNTk0Y2MyNTFmZGQwIG1h
-a2UgJ3VzZXJfYWNjZXNzX2JlZ2luKCknIGRvICdhY2Nlc3Nfb2soKScNCj4gPiANCj4gPiANCj4g
-PiBXaGVyZSBvbmx5IGNvbW1pdCA2ZTY5M2IzZmZlY2IgZG9lcyBub3QgbmVlZCBiYWNrcG9ydCBt
-b2RpZmljYXRpb25zLg0KPiA+IEkgYXR0YWNoIG15IGJhY2twb3J0IHBhdGNoZXMgaW4gdGhpcyBl
-bWFpbC4NCj4gPiANCj4gPiBJIG1lcmdlZCB0aGUgcGF0Y2hlcyB3aXRoIGtlcm5lbC00LjE5LjEy
-NyBhbmQga2VybmVsLTQuMTQuMTgzIHdpdGhvdXQNCj4gPiBjb25mbGljdHMuDQo+ID4gQnVpbGQg
-d2l0aCBhcm02NCBkZWZjb25maWcgYW5kIGJvb3R1cCBvbiBhcm02NCBRRU1VIGVudmlyb25tZW50
-Lg0KPiA+IA0KPiA+IGNoZWVycywNCj4gPiBNaWxlcw0KPiANCj4gPiBGcm9tIGFjMzUxZGU5ZGRk
-ODZlZjcxN2EzZjg5MjM2ZGM1ZjZiMmExMDhjYzcgTW9uIFNlcCAxNyAwMDowMDowMCAyMDAxDQo+
-ID4gRnJvbTogTGludXMgVG9ydmFsZHMgPHRvcnZhbGRzQGxpbnV4LWZvdW5kYXRpb24ub3JnPg0K
-PiA+IERhdGU6IEZyaSwgNCBKYW4gMjAxOSAxMjo1NjowOSAtMDgwMA0KPiA+IFN1YmplY3Q6IFtQ
-QVRDSF0gQkFDS1BPUlQ6IG1ha2UgJ3VzZXJfYWNjZXNzX2JlZ2luKCknIGRvICdhY2Nlc3Nfb2so
-KScNCj4gPiANCj4gPiB1cHN0cmVhbSBjb21taXQgNTk0Y2MyNTFmZGQwICgibWFrZSAndXNlcl9h
-Y2Nlc3NfYmVnaW4oKScgZG8gJ2FjY2Vzc19vaygpJyIpDQo+ID4gDQo+ID4gT3JpZ2luYWxseSwg
-dGhlIHJ1bGUgdXNlZCB0byBiZSB0aGF0IHlvdSdkIGhhdmUgdG8gZG8gYWNjZXNzX29rKCkNCj4g
-PiBzZXBhcmF0ZWx5LCBhbmQgdGhlbiB1c2VyX2FjY2Vzc19iZWdpbigpIGJlZm9yZSBhY3R1YWxs
-eSBkb2luZyB0aGUNCj4gPiBkaXJlY3QgKG9wdGltaXplZCkgdXNlciBhY2Nlc3MuDQo+ID4gDQo+
-ID4gQnV0IGV4cGVyaWVuY2UgaGFzIHNob3duIHRoYXQgcGVvcGxlIHRoZW4gZGVjaWRlIG5vdCB0
-byBkbyBhY2Nlc3Nfb2soKQ0KPiA+IGF0IGFsbCwgYW5kIGluc3RlYWQgcmVseSBvbiBpdCBiZWlu
-ZyBpbXBsaWVkIGJ5IG90aGVyIG9wZXJhdGlvbnMgb3INCj4gPiBzaW1pbGFyLiAgV2hpY2ggbWFr
-ZXMgaXQgdmVyeSBoYXJkIHRvIHZlcmlmeSB0aGF0IHRoZSBhY2Nlc3MgaGFzDQo+ID4gYWN0dWFs
-bHkgYmVlbiByYW5nZS1jaGVja2VkLg0KPiA+IA0KPiA+IElmIHlvdSB1c2UgdGhlIHVuc2FmZSBk
-aXJlY3QgdXNlciBhY2Nlc3NlcywgaGFyZHdhcmUgZmVhdHVyZXMgKGVpdGhlcg0KPiA+IFNNQVAg
-LSBTdXBlcnZpc29yIE1vZGUgQWNjZXNzIFByb3RlY3Rpb24gLSBvbiB4ODYsIG9yIFBBTiAtIFBy
-aXZpbGVnZWQNCj4gPiBBY2Nlc3MgTmV2ZXIgLSBvbiBBUk0pIGRvIGZvcmNlIHlvdSB0byB1c2Ug
-dXNlcl9hY2Nlc3NfYmVnaW4oKS4gIEJ1dA0KPiA+IG5vdGhpbmcgcmVhbGx5IGZvcmNlcyB0aGUg
-cmFuZ2UgY2hlY2suDQo+ID4gDQo+ID4gQnkgcHV0dGluZyB0aGUgcmFuZ2UgY2hlY2sgaW50byB1
-c2VyX2FjY2Vzc19iZWdpbigpLCB3ZSBhY3R1YWxseSBmb3JjZQ0KPiA+IHBlb3BsZSB0byBkbyB0
-aGUgcmlnaHQgdGhpbmcgKHRtKSwgYW5kIHRoZSByYW5nZSBjaGVjayB2aWxsIGJlIHZpc2libGUN
-Cj4gPiBuZWFyIHRoZSBhY3R1YWwgYWNjZXNzZXMuICBXZSBoYXZlIHdheSB0b28gbG9uZyBhIGhp
-c3Rvcnkgb2YgcGVvcGxlDQo+ID4gdHJ5aW5nIHRvIGF2b2lkIHRoZW0uDQo+ID4gDQo+ID4gQnVn
-OiAxMzUzNjgyMjgNCj4gPiBDaGFuZ2UtSWQ6IEk0Y2EwZTQ1NjZlYTA4MGZhMTQ4YzVlNzY4YmIx
-YTBiNmY3MjAxYzAxDQo+ID4gU2lnbmVkLW9mZi1ieTogTGludXMgVG9ydmFsZHMgPHRvcnZhbGRz
-QGxpbnV4LWZvdW5kYXRpb24ub3JnPg0KPiANCj4gTm8gbmVlZCBmb3IgIkJ1ZzoiIG9yICJDaGFu
-Z2UtSWQ6IiBmb3IgcGF0Y2hlcyBmb3Igc3RhYmxlIHRyZWVzLg0KPiANCj4gQWxzbywgY2FuIHlv
-dSBwbGVhc2Ugc2lnbiBvZmYgb24gdGhlc2UgYXMgd2VsbD8NCj4gDQo+IENhbiB5b3UgZml4IHRo
-YXQgdXAgYW5kIHJlc2VuZD8gIEknbGwgYmUgZ2xhZCB0byBxdWV1ZSB0aGVtIHVwIHRoZW4uDQo+
-IA0KPiB0aGFua3MsDQoNClJlbW92ZSB0aGUgIkJ1Zy9DaGFuZ2UtSWQiIGZyb20NCjAwMDEtQkFD
-S1BPUlQtbWFrZS11c2VyX2FjY2Vzc19iZWdpbi1kby1hY2Nlc3Nfb2sucGF0Y2guDQoNCkFjdHVh
-bGx5LCBJIGdvdCB0aGUgcGF0Y2ggZnJvbQ0KaHR0cHM6Ly9hbmRyb2lkLXJldmlldy5nb29nbGVz
-b3VyY2UuY29tL2Mva2VybmVsL2NvbW1vbi8rLzExMTQ2MzINClRvZGQgYmFja3BvcnRlZCB0aGUg
-cGF0Y2ggYnV0IHRoZXJlIGlzIG5vIFRvZGQncyBzaWduZWQtb2ZmLWJ5IGluIGhpcw0KcGF0Y2gu
-IFNob3VsZCBJIGFkZCAiU2lnbmVkLW9mZi1ieTogVG9kZCBLam9zIDx0a2pvc0Bnb29nbGUuY29t
-PiIgYXMNCndlbGw/DQoNCmNoZWVycw0KTWlsZXMNCj4gDQo+IGdyZWcgay1oDQoNCg==
+After commit c3aab9a0bd91 ("mm/filemap.c: don't initiate writeback if
+mapping has no dirty pages"), the following null pointer dereference has
+been reported on nilfs2:
 
---=-uP7mV4CoXRibNJA6BWZG
-Content-Disposition: attachment;
-	filename="0001-BACKPORT-make-user_access_begin-do-access_ok.patch"
-Content-Type: text/x-patch;
-	name="0001-BACKPORT-make-user_access_begin-do-access_ok.patch";
-	charset="UTF-8"
-Content-Transfer-Encoding: base64
+ BUG: kernel NULL pointer dereference, address: 00000000000000a8
+ #PF: supervisor read access in kernel mode
+ #PF: error_code(0x0000) - not-present page
+ PGD 0 P4D 0
+ Oops: 0000 [#1] SMP PTI
+ ...
+ RIP: 0010:percpu_counter_add_batch+0xa/0x60
+ ...
+ Call Trace:
+  __test_set_page_writeback+0x2d3/0x330
+  nilfs_segctor_do_construct+0x10d3/0x2110 [nilfs2]
+  nilfs_segctor_construct+0x168/0x260 [nilfs2]
+  nilfs_segctor_thread+0x127/0x3b0 [nilfs2]
+  kthread+0xf8/0x130
+  ...
 
-RnJvbSBhYzM1MWRlOWRkZDg2ZWY3MTdhM2Y4OTIzNmRjNWY2YjJhMTA4Y2M3IE1vbiBTZXAgMTcg
-MDA6MDA6MDAgMjAwMQ0KRnJvbTogTGludXMgVG9ydmFsZHMgPHRvcnZhbGRzQGxpbnV4LWZvdW5k
-YXRpb24ub3JnPg0KRGF0ZTogRnJpLCA0IEphbiAyMDE5IDEyOjU2OjA5IC0wODAwDQpTdWJqZWN0
-OiBbUEFUQ0hdIEJBQ0tQT1JUOiBtYWtlICd1c2VyX2FjY2Vzc19iZWdpbigpJyBkbyAnYWNjZXNz
-X29rKCknDQoNCnVwc3RyZWFtIGNvbW1pdCA1OTRjYzI1MWZkZDAgKCJtYWtlICd1c2VyX2FjY2Vz
-c19iZWdpbigpJyBkbyAnYWNjZXNzX29rKCknIikNCg0KT3JpZ2luYWxseSwgdGhlIHJ1bGUgdXNl
-ZCB0byBiZSB0aGF0IHlvdSdkIGhhdmUgdG8gZG8gYWNjZXNzX29rKCkNCnNlcGFyYXRlbHksIGFu
-ZCB0aGVuIHVzZXJfYWNjZXNzX2JlZ2luKCkgYmVmb3JlIGFjdHVhbGx5IGRvaW5nIHRoZQ0KZGly
-ZWN0IChvcHRpbWl6ZWQpIHVzZXIgYWNjZXNzLg0KDQpCdXQgZXhwZXJpZW5jZSBoYXMgc2hvd24g
-dGhhdCBwZW9wbGUgdGhlbiBkZWNpZGUgbm90IHRvIGRvIGFjY2Vzc19vaygpDQphdCBhbGwsIGFu
-ZCBpbnN0ZWFkIHJlbHkgb24gaXQgYmVpbmcgaW1wbGllZCBieSBvdGhlciBvcGVyYXRpb25zIG9y
-DQpzaW1pbGFyLiAgV2hpY2ggbWFrZXMgaXQgdmVyeSBoYXJkIHRvIHZlcmlmeSB0aGF0IHRoZSBh
-Y2Nlc3MgaGFzDQphY3R1YWxseSBiZWVuIHJhbmdlLWNoZWNrZWQuDQoNCklmIHlvdSB1c2UgdGhl
-IHVuc2FmZSBkaXJlY3QgdXNlciBhY2Nlc3NlcywgaGFyZHdhcmUgZmVhdHVyZXMgKGVpdGhlcg0K
-U01BUCAtIFN1cGVydmlzb3IgTW9kZSBBY2Nlc3MgUHJvdGVjdGlvbiAtIG9uIHg4Niwgb3IgUEFO
-IC0gUHJpdmlsZWdlZA0KQWNjZXNzIE5ldmVyIC0gb24gQVJNKSBkbyBmb3JjZSB5b3UgdG8gdXNl
-IHVzZXJfYWNjZXNzX2JlZ2luKCkuICBCdXQNCm5vdGhpbmcgcmVhbGx5IGZvcmNlcyB0aGUgcmFu
-Z2UgY2hlY2suDQoNCkJ5IHB1dHRpbmcgdGhlIHJhbmdlIGNoZWNrIGludG8gdXNlcl9hY2Nlc3Nf
-YmVnaW4oKSwgd2UgYWN0dWFsbHkgZm9yY2UNCnBlb3BsZSB0byBkbyB0aGUgcmlnaHQgdGhpbmcg
-KHRtKSwgYW5kIHRoZSByYW5nZSBjaGVjayB2aWxsIGJlIHZpc2libGUNCm5lYXIgdGhlIGFjdHVh
-bCBhY2Nlc3Nlcy4gIFdlIGhhdmUgd2F5IHRvbyBsb25nIGEgaGlzdG9yeSBvZiBwZW9wbGUNCnRy
-eWluZyB0byBhdm9pZCB0aGVtLg0KDQpTaWduZWQtb2ZmLWJ5OiBMaW51cyBUb3J2YWxkcyA8dG9y
-dmFsZHNAbGludXgtZm91bmRhdGlvbi5vcmc+DQpTaWduZWQtb2ZmLWJ5OiBNaWxlcyBDaGVuIDxt
-aWxlcy5jaGVuQG1lZGlhdGVrLmNvbT4NCi0tLQ0KIGFyY2gveDg2L2luY2x1ZGUvYXNtL3VhY2Nl
-c3MuaCAgICAgICAgICAgICB8IDEyICsrKysrKysrKysrLQ0KIGRyaXZlcnMvZ3B1L2RybS9pOTE1
-L2k5MTVfZ2VtX2V4ZWNidWZmZXIuYyB8IDE2ICsrKysrKysrKysrKysrLS0NCiBpbmNsdWRlL2xp
-bnV4L3VhY2Nlc3MuaCAgICAgICAgICAgICAgICAgICAgfCAgMiArLQ0KIGtlcm5lbC9jb21wYXQu
-YyAgICAgICAgICAgICAgICAgICAgICAgICAgICB8ICA2ICsrLS0tLQ0KIGtlcm5lbC9leGl0LmMg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICB8ICA2ICsrLS0tLQ0KIGxpYi9zdHJuY3B5X2Zy
-b21fdXNlci5jICAgICAgICAgICAgICAgICAgICB8ICA5ICsrKysrLS0tLQ0KIGxpYi9zdHJubGVu
-X3VzZXIuYyAgICAgICAgICAgICAgICAgICAgICAgICB8ICA5ICsrKysrLS0tLQ0KIDcgZmlsZXMg
-Y2hhbmdlZCwgNDAgaW5zZXJ0aW9ucygrKSwgMjAgZGVsZXRpb25zKC0pDQoNCmRpZmYgLS1naXQg
-YS9hcmNoL3g4Ni9pbmNsdWRlL2FzbS91YWNjZXNzLmggYi9hcmNoL3g4Ni9pbmNsdWRlL2FzbS91
-YWNjZXNzLmgNCmluZGV4IDQxMTFlZGIzMTg4ZS4uNDEyOGU2ZmRmY2M0IDEwMDY0NA0KLS0tIGEv
-YXJjaC94ODYvaW5jbHVkZS9hc20vdWFjY2Vzcy5oDQorKysgYi9hcmNoL3g4Ni9pbmNsdWRlL2Fz
-bS91YWNjZXNzLmgNCkBAIC03MDksNyArNzA5LDE3IEBAIGV4dGVybiBzdHJ1Y3QgbW92c2xfbWFz
-ayB7DQogICogY2hlY2tpbmcgYmVmb3JlIHVzaW5nIHRoZW0sIGJ1dCB5b3UgaGF2ZSB0byBzdXJy
-b3VuZCB0aGVtIHdpdGggdGhlDQogICogdXNlcl9hY2Nlc3NfYmVnaW4vZW5kKCkgcGFpci4NCiAg
-Ki8NCi0jZGVmaW5lIHVzZXJfYWNjZXNzX2JlZ2luKCkJX191YWNjZXNzX2JlZ2luKCkNCitzdGF0
-aWMgX19tdXN0X2NoZWNrIGlubGluZSBib29sIHVzZXJfYWNjZXNzX2JlZ2luKGludCB0eXBlLA0K
-KwkJCQkJCSAgY29uc3Qgdm9pZCBfX3VzZXIgKnB0ciwNCisJCQkJCQkgIHNpemVfdCBsZW4pDQor
-ew0KKwlpZiAodW5saWtlbHkoIWFjY2Vzc19vayh0eXBlLCBwdHIsIGxlbikpKQ0KKwkJcmV0dXJu
-IDA7DQorCV9fdWFjY2Vzc19iZWdpbigpOw0KKwlyZXR1cm4gMTsNCit9DQorDQorI2RlZmluZSB1
-c2VyX2FjY2Vzc19iZWdpbihhLCBiLCBjKQl1c2VyX2FjY2Vzc19iZWdpbihhLCBiLCBjKQ0KICNk
-ZWZpbmUgdXNlcl9hY2Nlc3NfZW5kKCkJX191YWNjZXNzX2VuZCgpDQogDQogI2RlZmluZSB1bnNh
-ZmVfcHV0X3VzZXIoeCwgcHRyLCBlcnJfbGFiZWwpCQkJCQlcDQpkaWZmIC0tZ2l0IGEvZHJpdmVy
-cy9ncHUvZHJtL2k5MTUvaTkxNV9nZW1fZXhlY2J1ZmZlci5jIGIvZHJpdmVycy9ncHUvZHJtL2k5
-MTUvaTkxNV9nZW1fZXhlY2J1ZmZlci5jDQppbmRleCA2NzliYmFlNTI5NDUuLjA0MTg4ZTUxNjhh
-MiAxMDA2NDQNCi0tLSBhL2RyaXZlcnMvZ3B1L2RybS9pOTE1L2k5MTVfZ2VtX2V4ZWNidWZmZXIu
-Yw0KKysrIGIvZHJpdmVycy9ncHUvZHJtL2k5MTUvaTkxNV9nZW1fZXhlY2J1ZmZlci5jDQpAQCAt
-MTYwMiw3ICsxNjAyLDkgQEAgc3RhdGljIGludCBlYl9jb3B5X3JlbG9jYXRpb25zKGNvbnN0IHN0
-cnVjdCBpOTE1X2V4ZWNidWZmZXIgKmViKQ0KIAkJICogaGFwcGVuZWQgd2Ugd291bGQgbWFrZSB0
-aGUgbWlzdGFrZSBvZiBhc3N1bWluZyB0aGF0IHRoZQ0KIAkJICogcmVsb2NhdGlvbnMgd2VyZSB2
-YWxpZC4NCiAJCSAqLw0KLQkJdXNlcl9hY2Nlc3NfYmVnaW4oKTsNCisJCWlmICghdXNlcl9hY2Nl
-c3NfYmVnaW4oVkVSSUZZX1dSSVRFLCB1cmVsb2NzLCBzaXplKSkNCisJCQlnb3RvIGVuZF91c2Vy
-Ow0KKw0KIAkJZm9yIChjb3BpZWQgPSAwOyBjb3BpZWQgPCBucmVsb2M7IGNvcGllZCsrKQ0KIAkJ
-CXVuc2FmZV9wdXRfdXNlcigtMSwNCiAJCQkJCSZ1cmVsb2NzW2NvcGllZF0ucHJlc3VtZWRfb2Zm
-c2V0LA0KQEAgLTI2MDEsNyArMjYwMywxNyBAQCBpOTE1X2dlbV9leGVjYnVmZmVyMl9pb2N0bChz
-dHJ1Y3QgZHJtX2RldmljZSAqZGV2LCB2b2lkICpkYXRhLA0KIAkJdW5zaWduZWQgaW50IGk7DQog
-DQogCQkvKiBDb3B5IHRoZSBuZXcgYnVmZmVyIG9mZnNldHMgYmFjayB0byB0aGUgdXNlcidzIGV4
-ZWMgbGlzdC4gKi8NCi0JCXVzZXJfYWNjZXNzX2JlZ2luKCk7DQorCQkvKg0KKwkJICogTm90ZTog
-Y291bnQgKiBzaXplb2YoKnVzZXJfZXhlY19saXN0KSBkb2VzIG5vdCBvdmVyZmxvdywNCisJCSAq
-IGJlY2F1c2Ugd2UgY2hlY2tlZCAnY291bnQnIGluIGNoZWNrX2J1ZmZlcl9jb3VudCgpLg0KKwkJ
-ICoNCisJCSAqIEFuZCB0aGlzIHJhbmdlIGFscmVhZHkgZ290IGVmZmVjdGl2ZWx5IGNoZWNrZWQg
-ZWFybGllcg0KKwkJICogd2hlbiB3ZSBkaWQgdGhlICJjb3B5X2Zyb21fdXNlcigpIiBhYm92ZS4N
-CisJCSAqLw0KKwkJaWYgKCF1c2VyX2FjY2Vzc19iZWdpbihWRVJJRllfV1JJVEUsIHVzZXJfZXhl
-Y19saXN0LA0KKwkJCQkgICAgICAgY291bnQgKiBzaXplb2YoKnVzZXJfZXhlY19saXN0KSkpDQor
-CQkJZ290byBlbmRfdXNlcjsNCisNCiAJCWZvciAoaSA9IDA7IGkgPCBhcmdzLT5idWZmZXJfY291
-bnQ7IGkrKykgew0KIAkJCWlmICghKGV4ZWMyX2xpc3RbaV0ub2Zmc2V0ICYgVVBEQVRFKSkNCiAJ
-CQkJY29udGludWU7DQpkaWZmIC0tZ2l0IGEvaW5jbHVkZS9saW51eC91YWNjZXNzLmggYi9pbmNs
-dWRlL2xpbnV4L3VhY2Nlc3MuaA0KaW5kZXggZWZlNzljMWNkZDQ3Li5kNTViNjhiMTEzZGUgMTAw
-NjQ0DQotLS0gYS9pbmNsdWRlL2xpbnV4L3VhY2Nlc3MuaA0KKysrIGIvaW5jbHVkZS9saW51eC91
-YWNjZXNzLmgNCkBAIC0yNjcsNyArMjY3LDcgQEAgZXh0ZXJuIGxvbmcgc3RybmNweV9mcm9tX3Vu
-c2FmZShjaGFyICpkc3QsIGNvbnN0IHZvaWQgKnVuc2FmZV9hZGRyLCBsb25nIGNvdW50KTsNCiAJ
-cHJvYmVfa2VybmVsX3JlYWQoJnJldHZhbCwgYWRkciwgc2l6ZW9mKHJldHZhbCkpDQogDQogI2lm
-bmRlZiB1c2VyX2FjY2Vzc19iZWdpbg0KLSNkZWZpbmUgdXNlcl9hY2Nlc3NfYmVnaW4oKSBkbyB7
-IH0gd2hpbGUgKDApDQorI2RlZmluZSB1c2VyX2FjY2Vzc19iZWdpbih0eXBlLCBwdHIsIGxlbikg
-YWNjZXNzX29rKHR5cGUsIHB0ciwgbGVuKQ0KICNkZWZpbmUgdXNlcl9hY2Nlc3NfZW5kKCkgZG8g
-eyB9IHdoaWxlICgwKQ0KICNkZWZpbmUgdW5zYWZlX2dldF91c2VyKHgsIHB0ciwgZXJyKSBkbyB7
-IGlmICh1bmxpa2VseShfX2dldF91c2VyKHgsIHB0cikpKSBnb3RvIGVycjsgfSB3aGlsZSAoMCkN
-CiAjZGVmaW5lIHVuc2FmZV9wdXRfdXNlcih4LCBwdHIsIGVycikgZG8geyBpZiAodW5saWtlbHko
-X19wdXRfdXNlcih4LCBwdHIpKSkgZ290byBlcnI7IH0gd2hpbGUgKDApDQpkaWZmIC0tZ2l0IGEv
-a2VybmVsL2NvbXBhdC5jIGIva2VybmVsL2NvbXBhdC5jDQppbmRleCA4ZTQwZWZjMjkyOGEuLmU0
-NTQ4YTllOWM1MiAxMDA2NDQNCi0tLSBhL2tlcm5lbC9jb21wYXQuYw0KKysrIGIva2VybmVsL2Nv
-bXBhdC5jDQpAQCAtMzU0LDEwICszNTQsOSBAQCBsb25nIGNvbXBhdF9nZXRfYml0bWFwKHVuc2ln
-bmVkIGxvbmcgKm1hc2ssIGNvbnN0IGNvbXBhdF91bG9uZ190IF9fdXNlciAqdW1hc2ssDQogCWJp
-dG1hcF9zaXplID0gQUxJR04oYml0bWFwX3NpemUsIEJJVFNfUEVSX0NPTVBBVF9MT05HKTsNCiAJ
-bnJfY29tcGF0X2xvbmdzID0gQklUU19UT19DT01QQVRfTE9OR1MoYml0bWFwX3NpemUpOw0KIA0K
-LQlpZiAoIWFjY2Vzc19vayhWRVJJRllfUkVBRCwgdW1hc2ssIGJpdG1hcF9zaXplIC8gOCkpDQor
-CWlmICghdXNlcl9hY2Nlc3NfYmVnaW4oVkVSSUZZX1JFQUQsIHVtYXNrLCBiaXRtYXBfc2l6ZSAv
-IDgpKQ0KIAkJcmV0dXJuIC1FRkFVTFQ7DQogDQotCXVzZXJfYWNjZXNzX2JlZ2luKCk7DQogCXdo
-aWxlIChucl9jb21wYXRfbG9uZ3MgPiAxKSB7DQogCQljb21wYXRfdWxvbmdfdCBsMSwgbDI7DQog
-CQl1bnNhZmVfZ2V0X3VzZXIobDEsIHVtYXNrKyssIEVmYXVsdCk7DQpAQCAtMzg0LDEwICszODMs
-OSBAQCBsb25nIGNvbXBhdF9wdXRfYml0bWFwKGNvbXBhdF91bG9uZ190IF9fdXNlciAqdW1hc2ss
-IHVuc2lnbmVkIGxvbmcgKm1hc2ssDQogCWJpdG1hcF9zaXplID0gQUxJR04oYml0bWFwX3NpemUs
-IEJJVFNfUEVSX0NPTVBBVF9MT05HKTsNCiAJbnJfY29tcGF0X2xvbmdzID0gQklUU19UT19DT01Q
-QVRfTE9OR1MoYml0bWFwX3NpemUpOw0KIA0KLQlpZiAoIWFjY2Vzc19vayhWRVJJRllfV1JJVEUs
-IHVtYXNrLCBiaXRtYXBfc2l6ZSAvIDgpKQ0KKwlpZiAoIXVzZXJfYWNjZXNzX2JlZ2luKFZFUklG
-WV9XUklURSwgdW1hc2ssIGJpdG1hcF9zaXplIC8gOCkpDQogCQlyZXR1cm4gLUVGQVVMVDsNCiAN
-Ci0JdXNlcl9hY2Nlc3NfYmVnaW4oKTsNCiAJd2hpbGUgKG5yX2NvbXBhdF9sb25ncyA+IDEpIHsN
-CiAJCXVuc2lnbmVkIGxvbmcgbSA9ICptYXNrKys7DQogCQl1bnNhZmVfcHV0X3VzZXIoKGNvbXBh
-dF91bG9uZ190KW0sIHVtYXNrKyssIEVmYXVsdCk7DQpkaWZmIC0tZ2l0IGEva2VybmVsL2V4aXQu
-YyBiL2tlcm5lbC9leGl0LmMNCmluZGV4IGU2ZDhiYTFjZDJlMi4uMjEzYmE0NTFkY2IzIDEwMDY0
-NA0KLS0tIGEva2VybmVsL2V4aXQuYw0KKysrIGIva2VybmVsL2V4aXQuYw0KQEAgLTE2MTQsMTAg
-KzE2MTQsOSBAQCBTWVNDQUxMX0RFRklORTUod2FpdGlkLCBpbnQsIHdoaWNoLCBwaWRfdCwgdXBp
-ZCwgc3RydWN0IHNpZ2luZm8gX191c2VyICosDQogCWlmICghaW5mb3ApDQogCQlyZXR1cm4gZXJy
-Ow0KIA0KLQlpZiAoIWFjY2Vzc19vayhWRVJJRllfV1JJVEUsIGluZm9wLCBzaXplb2YoKmluZm9w
-KSkpDQorCWlmICghdXNlcl9hY2Nlc3NfYmVnaW4oVkVSSUZZX1dSSVRFLCBpbmZvcCwgc2l6ZW9m
-KCppbmZvcCkpKQ0KIAkJcmV0dXJuIC1FRkFVTFQ7DQogDQotCXVzZXJfYWNjZXNzX2JlZ2luKCk7
-DQogCXVuc2FmZV9wdXRfdXNlcihzaWdubywgJmluZm9wLT5zaV9zaWdubywgRWZhdWx0KTsNCiAJ
-dW5zYWZlX3B1dF91c2VyKDAsICZpbmZvcC0+c2lfZXJybm8sIEVmYXVsdCk7DQogCXVuc2FmZV9w
-dXRfdXNlcihpbmZvLmNhdXNlLCAmaW5mb3AtPnNpX2NvZGUsIEVmYXVsdCk7DQpAQCAtMTc0Miwx
-MCArMTc0MSw5IEBAIENPTVBBVF9TWVNDQUxMX0RFRklORTUod2FpdGlkLA0KIAlpZiAoIWluZm9w
-KQ0KIAkJcmV0dXJuIGVycjsNCiANCi0JaWYgKCFhY2Nlc3Nfb2soVkVSSUZZX1dSSVRFLCBpbmZv
-cCwgc2l6ZW9mKCppbmZvcCkpKQ0KKwlpZiAoIXVzZXJfYWNjZXNzX2JlZ2luKFZFUklGWV9XUklU
-RSwgaW5mb3AsIHNpemVvZigqaW5mb3ApKSkNCiAJCXJldHVybiAtRUZBVUxUOw0KIA0KLQl1c2Vy
-X2FjY2Vzc19iZWdpbigpOw0KIAl1bnNhZmVfcHV0X3VzZXIoc2lnbm8sICZpbmZvcC0+c2lfc2ln
-bm8sIEVmYXVsdCk7DQogCXVuc2FmZV9wdXRfdXNlcigwLCAmaW5mb3AtPnNpX2Vycm5vLCBFZmF1
-bHQpOw0KIAl1bnNhZmVfcHV0X3VzZXIoaW5mby5jYXVzZSwgJmluZm9wLT5zaV9jb2RlLCBFZmF1
-bHQpOw0KZGlmZiAtLWdpdCBhL2xpYi9zdHJuY3B5X2Zyb21fdXNlci5jIGIvbGliL3N0cm5jcHlf
-ZnJvbV91c2VyLmMNCmluZGV4IGUzMDRiNTRjOWM3ZC4uYjg1NzBhMTE3NzZkIDEwMDY0NA0KLS0t
-IGEvbGliL3N0cm5jcHlfZnJvbV91c2VyLmMNCisrKyBiL2xpYi9zdHJuY3B5X2Zyb21fdXNlci5j
-DQpAQCAtMTE1LDEwICsxMTUsMTEgQEAgbG9uZyBzdHJuY3B5X2Zyb21fdXNlcihjaGFyICpkc3Qs
-IGNvbnN0IGNoYXIgX191c2VyICpzcmMsIGxvbmcgY291bnQpDQogDQogCQlrYXNhbl9jaGVja193
-cml0ZShkc3QsIGNvdW50KTsNCiAJCWNoZWNrX29iamVjdF9zaXplKGRzdCwgY291bnQsIGZhbHNl
-KTsNCi0JCXVzZXJfYWNjZXNzX2JlZ2luKCk7DQotCQlyZXR2YWwgPSBkb19zdHJuY3B5X2Zyb21f
-dXNlcihkc3QsIHNyYywgY291bnQsIG1heCk7DQotCQl1c2VyX2FjY2Vzc19lbmQoKTsNCi0JCXJl
-dHVybiByZXR2YWw7DQorCQlpZiAodXNlcl9hY2Nlc3NfYmVnaW4oVkVSSUZZX1JFQUQsIHNyYywg
-bWF4KSkgew0KKwkJCXJldHZhbCA9IGRvX3N0cm5jcHlfZnJvbV91c2VyKGRzdCwgc3JjLCBjb3Vu
-dCwgbWF4KTsNCisJCQl1c2VyX2FjY2Vzc19lbmQoKTsNCisJCQlyZXR1cm4gcmV0dmFsOw0KKwkJ
-fQ0KIAl9DQogCXJldHVybiAtRUZBVUxUOw0KIH0NCmRpZmYgLS1naXQgYS9saWIvc3Rybmxlbl91
-c2VyLmMgYi9saWIvc3Rybmxlbl91c2VyLmMNCmluZGV4IDE4NGY4MGY3YmFjZi4uZjVmYTViMjY2
-ZWEyIDEwMDY0NA0KLS0tIGEvbGliL3N0cm5sZW5fdXNlci5jDQorKysgYi9saWIvc3Rybmxlbl91
-c2VyLmMNCkBAIC0xMTQsMTAgKzExNCwxMSBAQCBsb25nIHN0cm5sZW5fdXNlcihjb25zdCBjaGFy
-IF9fdXNlciAqc3RyLCBsb25nIGNvdW50KQ0KIAkJdW5zaWduZWQgbG9uZyBtYXggPSBtYXhfYWRk
-ciAtIHNyY19hZGRyOw0KIAkJbG9uZyByZXR2YWw7DQogDQotCQl1c2VyX2FjY2Vzc19iZWdpbigp
-Ow0KLQkJcmV0dmFsID0gZG9fc3Rybmxlbl91c2VyKHN0ciwgY291bnQsIG1heCk7DQotCQl1c2Vy
-X2FjY2Vzc19lbmQoKTsNCi0JCXJldHVybiByZXR2YWw7DQorCQlpZiAodXNlcl9hY2Nlc3NfYmVn
-aW4oVkVSSUZZX1JFQUQsIHN0ciwgbWF4KSkgew0KKwkJCXJldHZhbCA9IGRvX3N0cm5sZW5fdXNl
-cihzdHIsIGNvdW50LCBtYXgpOw0KKwkJCXVzZXJfYWNjZXNzX2VuZCgpOw0KKwkJCXJldHVybiBy
-ZXR2YWw7DQorCQl9DQogCX0NCiAJcmV0dXJuIDA7DQogfQ0KLS0gDQoyLjE4LjANCg0K
+This crash turned out to be caused by set_page_writeback() call for
+segment summary buffers at nilfs_segctor_prepare_write().
 
---=-uP7mV4CoXRibNJA6BWZG--
+set_page_writeback() can call inc_wb_stat(inode_to_wb(inode),
+WB_WRITEBACK) where inode_to_wb(inode) is NULL if the inode of
+underlying block device does not have an associated wb.
 
+This fixes the issue by calling inode_attach_wb() in advance to ensure
+to associate the bdev inode with its wb.
+
+Link: http://lkml.kernel.org/r/20200608.011819.1399059588922299158.konishi.ryusuke@gmail.com
+Fixes: c3aab9a0bd91 ("mm/filemap.c: don't initiate writeback if mapping has no dirty pages")
+Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Tested-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Reported-by: Walton Hoops <me@waltonhoops.com>
+Reported-by: Tomas Hlavaty <tom@logand.com>
+Reported-by: ARAI Shun-ichi <hermes@ceres.dti.ne.jp>
+Reported-by: Hideki EIRAKU <hdk1983@gmail.com>
+Cc: <stable@vger.kernel.org>	[5.4+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ fs/nilfs2/segment.c |    2 ++
+ 1 file changed, 2 insertions(+)
+
+--- a/fs/nilfs2/segment.c~nilfs2-fix-null-pointer-dereference-at-nilfs_segctor_do_construct
++++ a/fs/nilfs2/segment.c
+@@ -2780,6 +2780,8 @@ int nilfs_attach_log_writer(struct super
+ 	if (!nilfs->ns_writer)
+ 		return -ENOMEM;
+ 
++	inode_attach_wb(nilfs->ns_bdev->bd_inode, NULL);
++
+ 	err = nilfs_segctor_start_thread(nilfs->ns_writer);
+ 	if (err) {
+ 		kfree(nilfs->ns_writer);
+_
