@@ -2,110 +2,176 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 739E21F62EE
-	for <lists+stable@lfdr.de>; Thu, 11 Jun 2020 09:51:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E3D5C1F6350
+	for <lists+stable@lfdr.de>; Thu, 11 Jun 2020 10:12:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726702AbgFKHvI convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Thu, 11 Jun 2020 03:51:08 -0400
-Received: from eu-smtp-delivery-151.mimecast.com ([185.58.86.151]:20601 "EHLO
-        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726646AbgFKHvI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Jun 2020 03:51:08 -0400
-Received: from AcuMS.aculab.com (156.67.243.126 [156.67.243.126]) (Using
- TLS) by relay.mimecast.com with ESMTP id uk-mta-9-srxEkIQVNHCvyywSxzAvSQ-1;
- Thu, 11 Jun 2020 08:51:03 +0100
-X-MC-Unique: srxEkIQVNHCvyywSxzAvSQ-1
-Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) by
- AcuMS.aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) with Microsoft SMTP
- Server (TLS) id 15.0.1347.2; Thu, 11 Jun 2020 08:51:03 +0100
-Received: from AcuMS.Aculab.com ([fe80::43c:695e:880f:8750]) by
- AcuMS.aculab.com ([fe80::43c:695e:880f:8750%12]) with mapi id 15.00.1347.000;
- Thu, 11 Jun 2020 08:51:03 +0100
-From:   David Laight <David.Laight@ACULAB.COM>
-To:     'Kees Cook' <keescook@chromium.org>
-CC:     'Sargun Dhillon' <sargun@sargun.me>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        "containers@lists.linux-foundation.org" 
-        <containers@lists.linux-foundation.org>,
-        Giuseppe Scrivano <gscrivan@redhat.com>,
-        Robert Sesek <rsesek@google.com>,
-        Chris Palmer <palmer@google.com>, Jann Horn <jannh@google.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Matt Denton <mpdenton@google.com>,
-        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
-        Tejun Heo <tj@kernel.org>, Al Viro <viro@zeniv.linux.org.uk>,
-        "cgroups@vger.kernel.org" <cgroups@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "David S . Miller" <davem@davemloft.net>
-Subject: RE: [PATCH v3 1/4] fs, net: Standardize on file_receive helper to
- move fds across processes
-Thread-Topic: [PATCH v3 1/4] fs, net: Standardize on file_receive helper to
- move fds across processes
-Thread-Index: AQHWPv7tCi14oegu0U6J73sUpcDiU6jRh/3wgAEizQCAAFtkYA==
-Date:   Thu, 11 Jun 2020 07:51:02 +0000
-Message-ID: <5cb49301f8d8432eacdd0e9d914c14a3@AcuMS.aculab.com>
-References: <202006031845.F587F85A@keescook>
- <20200604125226.eztfrpvvuji7cbb2@wittgenstein>
- <20200605075435.GA3345@ircssh-2.c.rugged-nimbus-611.internal>
- <202006091235.930519F5B@keescook>
- <20200609200346.3fthqgfyw3bxat6l@wittgenstein>
- <202006091346.66B79E07@keescook>
- <037A305F-B3F8-4CFA-B9F8-CD4C9EF9090B@ubuntu.com>
- <202006092227.D2D0E1F8F@keescook>
- <20200610081237.GA23425@ircssh-2.c.rugged-nimbus-611.internal>
- <40d76a9a4525414a8c9809cd29a7ba8e@AcuMS.aculab.com>
- <202006102001.E9779DFA5B@keescook>
-In-Reply-To: <202006102001.E9779DFA5B@keescook>
-Accept-Language: en-GB, en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [10.202.205.107]
-MIME-Version: 1.0
-Authentication-Results: relay.mimecast.com;
-        auth=pass smtp.auth=C51A453 smtp.mailfrom=david.laight@aculab.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: aculab.com
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+        id S1726685AbgFKIMH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Jun 2020 04:12:07 -0400
+Received: from mx2.suse.de ([195.135.220.15]:58480 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726651AbgFKIMG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 11 Jun 2020 04:12:06 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx2.suse.de (Postfix) with ESMTP id BC7A1AC53;
+        Thu, 11 Jun 2020 08:12:07 +0000 (UTC)
+Received: by quack2.suse.cz (Postfix, from userid 1000)
+        id 995401E1289; Thu, 11 Jun 2020 10:12:03 +0200 (CEST)
+From:   Jan Kara <jack@suse.cz>
+To:     <linux-fsdevel@vger.kernel.org>
+Cc:     Christoph Hellwig <hch@infradead.org>,
+        Martijn Coenen <maco@android.com>, Jan Kara <jack@suse.cz>,
+        stable@vger.kernel.org
+Subject: [PATCH 2/4] writeback: Avoid skipping inode writeback
+Date:   Thu, 11 Jun 2020 10:11:53 +0200
+Message-Id: <20200611081203.18161-2-jack@suse.cz>
+X-Mailer: git-send-email 2.16.4
+In-Reply-To: <20200611075033.1248-1-jack@suse.cz>
+References: <20200611075033.1248-1-jack@suse.cz>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook
-> Sent: 11 June 2020 04:03
-...
-> > IIRC other kernels (eg NetBSD) do the copies for ioctl() requests
-> > in the ioctl syscall wrapper.
-> > The IOW/IOR/IOWR flags have to be right.
-> 
-> Yeah, this seems like it'd make a lot more sense (and would have easily
-> caught the IOR/IOW issue pointed out later in the thread). I wonder how
-> insane it would be to try to fix that globally in the kernel...
+Inode's i_io_list list head is used to attach inode to several different
+lists - wb->{b_dirty, b_dirty_time, b_io, b_more_io}. When flush worker
+prepares a list of inodes to writeback e.g. for sync(2), it moves inodes
+to b_io list. Thus it is critical for sync(2) data integrity guarantees
+that inode is not requeued to any other writeback list when inode is
+queued for processing by flush worker. That's the reason why
+writeback_single_inode() does not touch i_io_list (unless the inode is
+completely clean) and why __mark_inode_dirty() does not touch i_io_list
+if I_SYNC flag is set.
 
-Seems like a good idea to me.
-(Even though I'll need to fix our 'out of tree' modules.)
+However there are two flaws in the current logic:
 
-Unlike [sg]etsockopt() at least the buffer is bounded to 1k.
+1) When inode has only I_DIRTY_TIME set but it is already queued in b_io
+list due to sync(2), concurrent __mark_inode_dirty(inode, I_DIRTY_SYNC)
+can still move inode back to b_dirty list resulting in skipping
+writeback of inode time stamps during sync(2).
 
-But you'd really need to add new kernel_ioctl() entry points
-before deprecating the existing ones a release or two later.
+2) When inode is on b_dirty_time list and writeback_single_inode() races
+with __mark_inode_dirty() like:
 
-With a bit of luck there aren't any drivers ported from SYSV that
-just treat the ioctl command as a 32bit transparent value and
-the argument as an integer.
+writeback_single_inode()		__mark_inode_dirty(inode, I_DIRTY_PAGES)
+  inode->i_state |= I_SYNC
+  __writeback_single_inode()
+					  inode->i_state |= I_DIRTY_PAGES;
+					  if (inode->i_state & I_SYNC)
+					    bail
+  if (!(inode->i_state & I_DIRTY_ALL))
+  - not true so nothing done
 
-I actually suspect that BSD added IOW (etc) in the 16bit to 32bit port.
-The kernel copies being moved to the syscall stub at the same time.
-Since Linux has only ever been 32bit and uses IOW is it actually odd
-that Linus didn't do the copies in the stub.
+We end up with I_DIRTY_PAGES inode on b_dirty_time list and thus
+standard background writeback will not writeback this inode leading to
+possible dirty throttling stalls etc. (thanks to Martijn Coenen for this
+analysis).
 
-	David
+Fix these problems by tracking whether inode is queued in b_io or
+b_more_io lists in a new I_SYNC_QUEUED flag. When this flag is set, we
+know flush worker has queued inode and we should not touch i_io_list.
+On the other hand we also know that once flush worker is done with the
+inode it will requeue the inode to appropriate dirty list. When
+I_SYNC_QUEUED is not set, __mark_inode_dirty() can (and must) move inode
+to appropriate dirty list.
 
--
-Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
-Registration No: 1397386 (Wales)
+Reported-by: Martijn Coenen <maco@android.com>
+Fixes: 0ae45f63d4ef ("vfs: add support for a lazytime mount option")
+CC: stable@vger.kernel.org
+Signed-off-by: Jan Kara <jack@suse.cz>
+---
+ fs/fs-writeback.c  | 17 ++++++++++++-----
+ include/linux/fs.h |  8 ++++++--
+ 2 files changed, 18 insertions(+), 7 deletions(-)
+
+diff --git a/fs/fs-writeback.c b/fs/fs-writeback.c
+index ff0b18331590..f470c10641c5 100644
+--- a/fs/fs-writeback.c
++++ b/fs/fs-writeback.c
+@@ -146,6 +146,7 @@ static void inode_io_list_del_locked(struct inode *inode,
+ 	assert_spin_locked(&wb->list_lock);
+ 	assert_spin_locked(&inode->i_lock);
+ 
++	inode->i_state &= ~I_SYNC_QUEUED;
+ 	list_del_init(&inode->i_io_list);
+ 	wb_io_lists_depopulated(wb);
+ }
+@@ -1187,6 +1188,7 @@ static void redirty_tail_locked(struct inode *inode, struct bdi_writeback *wb)
+ 			inode->dirtied_when = jiffies;
+ 	}
+ 	inode_io_list_move_locked(inode, wb, &wb->b_dirty);
++	inode->i_state &= ~I_SYNC_QUEUED;
+ }
+ 
+ static void redirty_tail(struct inode *inode, struct bdi_writeback *wb)
+@@ -1262,8 +1264,11 @@ static int move_expired_inodes(struct list_head *delaying_queue,
+ 			break;
+ 		list_move(&inode->i_io_list, &tmp);
+ 		moved++;
++		spin_lock(&inode->i_lock);
+ 		if (flags & EXPIRE_DIRTY_ATIME)
+-			set_bit(__I_DIRTY_TIME_EXPIRED, &inode->i_state);
++			inode->i_state |= I_DIRTY_TIME_EXPIRED;
++		inode->i_state |= I_SYNC_QUEUED;
++		spin_unlock(&inode->i_lock);
+ 		if (sb_is_blkdev_sb(inode->i_sb))
+ 			continue;
+ 		if (sb && sb != inode->i_sb)
+@@ -1438,6 +1443,7 @@ static void requeue_inode(struct inode *inode, struct bdi_writeback *wb,
+ 	} else if (inode->i_state & I_DIRTY_TIME) {
+ 		inode->dirtied_when = jiffies;
+ 		inode_io_list_move_locked(inode, wb, &wb->b_dirty_time);
++		inode->i_state &= ~I_SYNC_QUEUED;
+ 	} else {
+ 		/* The inode is clean. Remove from writeback lists. */
+ 		inode_io_list_del_locked(inode, wb);
+@@ -2301,11 +2307,12 @@ void __mark_inode_dirty(struct inode *inode, int flags)
+ 		inode->i_state |= flags;
+ 
+ 		/*
+-		 * If the inode is being synced, just update its dirty state.
+-		 * The unlocker will place the inode on the appropriate
+-		 * superblock list, based upon its state.
++		 * If the inode is queued for writeback by flush worker, just
++		 * update its dirty state. Once the flush worker is done with
++		 * the inode it will place it on the appropriate superblock
++		 * list, based upon its state.
+ 		 */
+-		if (inode->i_state & I_SYNC)
++		if (inode->i_state & I_SYNC_QUEUED)
+ 			goto out_unlock_inode;
+ 
+ 		/*
+diff --git a/include/linux/fs.h b/include/linux/fs.h
+index 19ef6c88c152..48556efcdcf0 100644
+--- a/include/linux/fs.h
++++ b/include/linux/fs.h
+@@ -2157,6 +2157,10 @@ static inline void kiocb_clone(struct kiocb *kiocb, struct kiocb *kiocb_src,
+  *
+  * I_DONTCACHE		Evict inode as soon as it is not used anymore.
+  *
++ * I_SYNC_QUEUED	Inode is queued in b_io or b_more_io writeback lists.
++ *			Used to detect that mark_inode_dirty() should not move
++ * 			inode between dirty lists.
++ *
+  * Q: What is the difference between I_WILL_FREE and I_FREEING?
+  */
+ #define I_DIRTY_SYNC		(1 << 0)
+@@ -2174,12 +2178,12 @@ static inline void kiocb_clone(struct kiocb *kiocb, struct kiocb *kiocb_src,
+ #define I_DIO_WAKEUP		(1 << __I_DIO_WAKEUP)
+ #define I_LINKABLE		(1 << 10)
+ #define I_DIRTY_TIME		(1 << 11)
+-#define __I_DIRTY_TIME_EXPIRED	12
+-#define I_DIRTY_TIME_EXPIRED	(1 << __I_DIRTY_TIME_EXPIRED)
++#define I_DIRTY_TIME_EXPIRED	(1 << 12)
+ #define I_WB_SWITCH		(1 << 13)
+ #define I_OVL_INUSE		(1 << 14)
+ #define I_CREATING		(1 << 15)
+ #define I_DONTCACHE		(1 << 16)
++#define I_SYNC_QUEUED		(1 << 17)
+ 
+ #define I_DIRTY_INODE (I_DIRTY_SYNC | I_DIRTY_DATASYNC)
+ #define I_DIRTY (I_DIRTY_INODE | I_DIRTY_PAGES)
+-- 
+2.16.4
 
