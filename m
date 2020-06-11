@@ -2,59 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 960C31F6979
-	for <lists+stable@lfdr.de>; Thu, 11 Jun 2020 15:57:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A76B91F69A3
+	for <lists+stable@lfdr.de>; Thu, 11 Jun 2020 16:10:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726976AbgFKN5g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Jun 2020 09:57:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56558 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726157AbgFKN5g (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 11 Jun 2020 09:57:36 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        id S1727053AbgFKOKA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Jun 2020 10:10:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56962 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726444AbgFKOKA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Jun 2020 10:10:00 -0400
+Received: from mail.skyhub.de (mail.skyhub.de [IPv6:2a01:4f8:190:11c2::b:1457])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5365C08C5C1;
+        Thu, 11 Jun 2020 07:09:59 -0700 (PDT)
+Received: from zn.tnic (p200300ec2f0bef00e16d68ab941b81be.dip0.t-ipconnect.de [IPv6:2003:ec:2f0b:ef00:e16d:68ab:941b:81be])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 306B7206C3;
-        Thu, 11 Jun 2020 13:57:34 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591883854;
-        bh=AfDuKbF9OtpsediGNO+3NynP+WMOL5HhOuy8v9ZFhPg=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=vhHLcpTFHd5cdFwhK1QvbC2PJlU8vaMJ4jssfpO82j97kOmBjBzZXIrUNvMvYVbqM
-         dN+AKheH9BbEQcFRN9rdXB3E0cg044n2CYS/iX7XfRVMLAJeQvK6AC4tIZHMDDo658
-         pTChFlwMIZuZhdpEyUNYhd6nzJR3310o2lY98sDU=
-Date:   Thu, 11 Jun 2020 15:57:27 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Su Kang Yin <cantona@cantona.net>
-Cc:     linux-crypto@vger.kernel.org, christophe.leroy@c-s.fr,
-        stable@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S. Miller" <davem@davemloft.net>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH V2] crypto: talitos - fix ECB and CBC algs ivsize
-Message-ID: <20200611135727.GA1060798@kroah.com>
-References: <cantona@cantona.net>
- <20200611115048.21677-1-cantona@cantona.net>
+        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id E0E081EC02AC;
+        Thu, 11 Jun 2020 16:09:56 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
+        t=1591884597;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
+        bh=JU5IVpy1hwebQASLTWrwgg71St1itM4pRG6bPPA0pxI=;
+        b=ohP+4Y0r6eetmXUM/0YQ7W1ZbY0uQqHyv+KTkfyjr4J9kJtD+2eavOfM92CifFx8dFUY5/
+        +SuICaXRTVHLLvaRxjlFfXwXotYUvswnx8Uylb6o7Szla0KlQDB7cKPYHBjphzDWvJhEFb
+        Padg0/tPzalZtwPoKGEVml4x26mITzc=
+Date:   Thu, 11 Jun 2020 16:09:51 +0200
+From:   Borislav Petkov <bp@alien8.de>
+To:     Anthony Steinhauser <asteinhauser@google.com>
+Cc:     linux-tip-commits@vger.kernel.org,
+        Anthony Steinhauser <asteinhauser@google.com>,
+        Thomas Gleixner <tglx@linutronix.de>, stable@vger.kernel.org,
+        x86 <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [tip: x86/urgent] x86/speculation: Avoid force-disabling IBPB
+ based on STIBP and enhanced IBRS.
+Message-ID: <20200611140951.GD30352@zn.tnic>
+References: <159169282952.17951.3529693809120577424.tip-bot2@tip-bot2>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20200611115048.21677-1-cantona@cantona.net>
+In-Reply-To: <159169282952.17951.3529693809120577424.tip-bot2@tip-bot2>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jun 11, 2020 at 07:50:47PM +0800, Su Kang Yin wrote:
-> commit e1de42fdfc6a ("crypto: talitos - fix ECB algs ivsize")
-> wrongly modified CBC algs ivsize instead of ECB aggs ivsize.
-> 
-> This restore the CBC algs original ivsize of removes ECB's ones.
-> 
-> Fixes: e1de42fdfc6a ("crypto: talitos - fix ECB algs ivsize")
-> Signed-off-by: Su Kang Yin <cantona@cantona.net>
-> ---
-> Patch for 4.9 upstream.
+On Tue, Jun 09, 2020 at 08:53:49AM -0000, tip-bot2 for Anthony Steinhauser wrote:
+> @@ -672,23 +665,36 @@ spectre_v2_user_select_mitigation(enum spectre_v2_mitigation_cmd v2_cmd)
+>  		pr_info("mitigation: Enabling %s Indirect Branch Prediction Barrier\n",
+>  			static_key_enabled(&switch_mm_always_ibpb) ?
+>  			"always-on" : "conditional");
+> +
+> +		spectre_v2_user_ibpb = mode;
+>  	}
+>  
+> -	/* If enhanced IBRS is enabled no STIBP required */
+> -	if (spectre_v2_enabled == SPECTRE_V2_IBRS_ENHANCED)
+> +	/*
+> +	 * If enhanced IBRS is enabled or SMT impossible, STIBP is not
+> +	 * required.
+> +	 */
+> +	if (!smt_possible || spectre_v2_enabled == SPECTRE_V2_IBRS_ENHANCED)
+>  		return;
+>  
+>  	/*
+> -	 * If SMT is not possible or STIBP is not available clear the STIBP
+> -	 * mode.
+> +	 * At this point, an STIBP mode other than "off" has been set.
+> +	 * If STIBP support is not being forced, check if STIBP always-on
+> +	 * is preferred.
+> +	 */
+> +	if (mode != SPECTRE_V2_USER_STRICT &&
+> +	    boot_cpu_has(X86_FEATURE_AMD_STIBP_ALWAYS_ON))
+> +		mode = SPECTRE_V2_USER_STRICT_PREFERRED;
+> +
+> +	/*
+> +	 * If STIBP is not available, clear the STIBP mode.
+>  	 */
+> -	if (!smt_possible || !boot_cpu_has(X86_FEATURE_STIBP))
+> +	if (!boot_cpu_has(X86_FEATURE_STIBP))
+>  		mode = SPECTRE_V2_USER_NONE;
 
-Also seems to be an issue for the 4.14 and 4.19 backport, so I'll queue
-it up there too, thanks!
+Can we merge this test into the one above? Diff ontop:
 
-greg k-h
+---
+diff --git a/arch/x86/kernel/cpu/bugs.c b/arch/x86/kernel/cpu/bugs.c
+index 8d57562b1d2c..05b3163e1b8c 100644
+--- a/arch/x86/kernel/cpu/bugs.c
++++ b/arch/x86/kernel/cpu/bugs.c
+@@ -673,7 +673,9 @@ spectre_v2_user_select_mitigation(enum spectre_v2_mitigation_cmd v2_cmd)
+ 	 * If enhanced IBRS is enabled or SMT impossible, STIBP is not
+ 	 * required.
+ 	 */
+-	if (!smt_possible || spectre_v2_enabled == SPECTRE_V2_IBRS_ENHANCED)
++	if (!boot_cpu_has(X86_FEATURE_STIBP) ||
++	    !smt_possible ||
++	    spectre_v2_enabled == SPECTRE_V2_IBRS_ENHANCED)
+ 		return;
+ 
+ 	/*
+@@ -685,12 +687,6 @@ spectre_v2_user_select_mitigation(enum spectre_v2_mitigation_cmd v2_cmd)
+ 	    boot_cpu_has(X86_FEATURE_AMD_STIBP_ALWAYS_ON))
+ 		mode = SPECTRE_V2_USER_STRICT_PREFERRED;
+ 
+-	/*
+-	 * If STIBP is not available, clear the STIBP mode.
+-	 */
+-	if (!boot_cpu_has(X86_FEATURE_STIBP))
+-		mode = SPECTRE_V2_USER_NONE;
+-
+ 	spectre_v2_user_stibp = mode;
+ 
+ set_mode:
+
+-- 
+Regards/Gruss,
+    Boris.
+
+https://people.kernel.org/tglx/notes-about-netiquette
