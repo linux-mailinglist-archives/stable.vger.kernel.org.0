@@ -2,93 +2,189 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AE7841F68FE
-	for <lists+stable@lfdr.de>; Thu, 11 Jun 2020 15:21:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C9801F6930
+	for <lists+stable@lfdr.de>; Thu, 11 Jun 2020 15:41:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726540AbgFKNVp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Jun 2020 09:21:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39844 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726249AbgFKNVo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 11 Jun 2020 09:21:44 -0400
-Received: from PC-kkoz.proceq.com (unknown [213.160.61.66])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-SHA256 (128/128 bits))
+        id S1726456AbgFKNkS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Jun 2020 09:40:18 -0400
+Received: from mail27.static.mailgun.info ([104.130.122.27]:23000 "EHLO
+        mail27.static.mailgun.info" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727809AbgFKNkR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Jun 2020 09:40:17 -0400
+DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
+ s=smtp; t=1591882816; h=Content-Transfer-Encoding: Content-Type:
+ MIME-Version: Date: Message-ID: Subject: From: Cc: To: Sender;
+ bh=ihrRcjhW9ULLbY+ZlVGkZ/PVZKfJ2usDc73eH+pAOvY=; b=Uil+NTUpKOOa8nHeFTQGndl9UYMGYq0aO//iuzg9Dqp1aJFFwVacouPcjpXu+X63caDWdBGH
+ oG4WRQzH98UXzWFdyBoM5eU85OcG81b7uu4u1qUi73owWB6tnRktjIna8icxQ2Ed/mjwJ0KU
+ DFEWv0waW36LpkwKEVi3kw7h0tE=
+X-Mailgun-Sending-Ip: 104.130.122.27
+X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
+Received: from smtp.codeaurora.org
+ (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171]) by
+ smtp-out-n01.prod.us-east-1.postgun.com with SMTP id
+ 5ee23432c76a4e7a2a8f8d33 (version=TLS1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256); Thu, 11 Jun 2020 13:40:02
+ GMT
+Received: by smtp.codeaurora.org (Postfix, from userid 1001)
+        id 702DCC43387; Thu, 11 Jun 2020 13:40:01 +0000 (UTC)
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+        aws-us-west-2-caf-mail-1.web.codeaurora.org
+X-Spam-Level: 
+X-Spam-Status: No, score=-1.0 required=2.0 tests=ALL_TRUSTED,SPF_NONE
+        autolearn=unavailable autolearn_force=no version=3.4.0
+Received: from [192.168.1.102] (unknown [183.83.143.239])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1D7D520747;
-        Thu, 11 Jun 2020 13:21:41 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591881703;
-        bh=OBPMc7itq41nVZ9VUj3BHPffpSQ5D0xsnUCrEtNQCTw=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nmoxLQICdTtxNJbc0hF3pdIDAq7WDR9cEkjY3uxws4uxjHSQHA87xquSpjp4kDRz7
-         APad7eBsR6z6gt2Qqks9gvePLoU6LFlzBwoUr9GBYce2FKNBPaBxTrJ9cCKN1dbCec
-         UIY39La3e9X9N6dUhzlbpr17oLRpq5ueKaNtumVg=
-From:   Krzysztof Kozlowski <krzk@kernel.org>
-To:     Vinod Koul <vkoul@kernel.org>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Angelo Dureghello <angelo@sysam.it>, dmaengine@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Cc:     Robin Gong <yibin.gong@nxp.com>, Peng Ma <peng.ma@nxp.com>,
-        Fabio Estevam <festevam@gmail.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>, stable@vger.kernel.org
-Subject: [PATCH] dmaengine: mcf-edma: Fix NULL pointer exception in mcf_edma_tx_handler
-Date:   Thu, 11 Jun 2020 15:21:05 +0200
-Message-Id: <1591881665-25592-1-git-send-email-krzk@kernel.org>
-X-Mailer: git-send-email 2.7.4
-In-Reply-To: <1591877861-28156-2-git-send-email-krzk@kernel.org>
-References: <1591877861-28156-2-git-send-email-krzk@kernel.org>
+        (Authenticated sender: charante)
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id 823FBC433CA;
+        Thu, 11 Jun 2020 13:39:58 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org 823FBC433CA
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=none smtp.mailfrom=charante@codeaurora.org
+To:     Sumit Semwal <sumit.semwal@linaro.org>,
+        "open list:DMA BUFFER SHARING FRAMEWORK" 
+        <linux-media@vger.kernel.org>,
+        DRI mailing list <dri-devel@lists.freedesktop.org>
+Cc:     Linaro MM SIG <linaro-mm-sig@lists.linaro.org>,
+        LKML <linux-kernel@vger.kernel.org>, vinmenon@codeaurora.org,
+        stable@vger.kernel.org
+From:   Charan Teja Kalla <charante@codeaurora.org>
+Subject: [PATCH] dmabuf: use spinlock to access dmabuf->name
+Message-ID: <316a5cf9-ca71-6506-bf8b-e79ded9055b2@codeaurora.org>
+Date:   Thu, 11 Jun 2020 19:09:55 +0530
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
+ Thunderbird/68.9.0
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Toradex Colibri VF50 (Vybrid VF5xx) with fsl-edma driver NULL pointer
-exception happens occasionally on serial output initiated by login
-timeout.
+There exists a sleep-while-atomic bug while accessing the dmabuf->name
+under mutex in the dmabuffs_dname(). This is caused from the SELinux
+permissions checks on a process where it tries to validate the inherited
+files from fork() by traversing them through iterate_fd() (which
+traverse files under spin_lock) and call
+match_file(security/selinux/hooks.c) where the permission checks happen.
+This audit information is logged using dump_common_audit_data() where it
+calls d_path() to get the file path name. If the file check happen on
+the dmabuf's fd, then it ends up in ->dmabuffs_dname() and use mutex to
+access dmabuf->name. The flow will be like below:
+flush_unauthorized_files()
+  iterate_fd()
+    spin_lock() --> Start of the atomic section.
+      match_file()
+        file_has_perm()
+          avc_has_perm()
+            avc_audit()
+              slow_avc_audit()
+	        common_lsm_audit()
+		  dump_common_audit_data()
+		    audit_log_d_path()
+		      d_path()
+                        dmabuffs_dname()
+                          mutex_lock()--> Sleep while atomic.
 
-This was reproduced only if kernel was built with significant debugging
-options and EDMA driver is used with serial console.
+Call trace captured (on 4.19 kernels) is below:
+___might_sleep+0x204/0x208
+__might_sleep+0x50/0x88
+__mutex_lock_common+0x5c/0x1068
+__mutex_lock_common+0x5c/0x1068
+mutex_lock_nested+0x40/0x50
+dmabuffs_dname+0xa0/0x170
+d_path+0x84/0x290
+audit_log_d_path+0x74/0x130
+common_lsm_audit+0x334/0x6e8
+slow_avc_audit+0xb8/0xf8
+avc_has_perm+0x154/0x218
+file_has_perm+0x70/0x180
+match_file+0x60/0x78
+iterate_fd+0x128/0x168
+selinux_bprm_committing_creds+0x178/0x248
+security_bprm_committing_creds+0x30/0x48
+install_exec_creds+0x1c/0x68
+load_elf_binary+0x3a4/0x14e0
+search_binary_handler+0xb0/0x1e0
 
-Issue looks like a race condition between interrupt handler
-fsl_edma_tx_handler() (called as a result of fsl_edma_xfer_desc()) and
-terminating the transfer with fsl_edma_terminate_all().
+So, use spinlock to access dmabuf->name to avoid sleep-while-atomic.
 
-The fsl_edma_tx_handler() handles interrupt for a transfer with already
-freed edesc and idle==true.
-
-The mcf-edma driver shares design and lot of code with fsl-edma.  It
-looks like being affected by same problem.  Fix this pattern the same
-way as fix for fsl-edma driver.
-
-Fixes: e7a3ff92eaf1 ("dmaengine: fsl-edma: add ColdFire mcf5441x edma support")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-
+Cc: <stable@vger.kernel.org> [5.3+]
+Signed-off-by: Charan Teja Reddy <charante@codeaurora.org>
 ---
+ drivers/dma-buf/dma-buf.c | 13 +++++++------
+ include/linux/dma-buf.h   |  1 +
+ 2 files changed, 8 insertions(+), 6 deletions(-)
 
-Not tested on HW.
----
- drivers/dma/mcf-edma.c | 7 +++++++
- 1 file changed, 7 insertions(+)
-
-diff --git a/drivers/dma/mcf-edma.c b/drivers/dma/mcf-edma.c
-index e15bd15a9ef6..e12b754e6398 100644
---- a/drivers/dma/mcf-edma.c
-+++ b/drivers/dma/mcf-edma.c
-@@ -35,6 +35,13 @@ static irqreturn_t mcf_edma_tx_handler(int irq, void *dev_id)
- 			mcf_chan = &mcf_edma->chans[ch];
+diff --git a/drivers/dma-buf/dma-buf.c b/drivers/dma-buf/dma-buf.c
+index 01ce125..2e0456c 100644
+--- a/drivers/dma-buf/dma-buf.c
++++ b/drivers/dma-buf/dma-buf.c
+@@ -45,10 +45,10 @@ static char *dmabuffs_dname(struct dentry *dentry, char *buffer, int buflen)
+ 	size_t ret = 0;
  
- 			spin_lock(&mcf_chan->vchan.lock);
-+
-+			if (!mcf_chan->edesc) {
-+				/* terminate_all called before */
-+				spin_unlock(&mcf_chan->vchan.lock);
-+				continue;
-+			}
-+
- 			if (!mcf_chan->edesc->iscyclic) {
- 				list_del(&mcf_chan->edesc->vdesc.node);
- 				vchan_cookie_complete(&mcf_chan->edesc->vdesc);
+ 	dmabuf = dentry->d_fsdata;
+-	dma_resv_lock(dmabuf->resv, NULL);
++	spin_lock(&dmabuf->name_lock);
+ 	if (dmabuf->name)
+ 		ret = strlcpy(name, dmabuf->name, DMA_BUF_NAME_LEN);
+-	dma_resv_unlock(dmabuf->resv);
++	spin_unlock(&dmabuf->name_lock);
+ 
+ 	return dynamic_dname(dentry, buffer, buflen, "/%s:%s",
+ 			     dentry->d_name.name, ret > 0 ? name : "");
+@@ -335,7 +335,7 @@ static long dma_buf_set_name(struct dma_buf *dmabuf, const char __user *buf)
+ 	if (IS_ERR(name))
+ 		return PTR_ERR(name);
+ 
+-	dma_resv_lock(dmabuf->resv, NULL);
++	spin_lock(&dmabuf->name_lock);
+ 	if (!list_empty(&dmabuf->attachments)) {
+ 		ret = -EBUSY;
+ 		kfree(name);
+@@ -345,7 +345,7 @@ static long dma_buf_set_name(struct dma_buf *dmabuf, const char __user *buf)
+ 	dmabuf->name = name;
+ 
+ out_unlock:
+-	dma_resv_unlock(dmabuf->resv);
++	spin_unlock(&dmabuf->name_lock);
+ 	return ret;
+ }
+ 
+@@ -405,10 +405,10 @@ static void dma_buf_show_fdinfo(struct seq_file *m, struct file *file)
+ 	/* Don't count the temporary reference taken inside procfs seq_show */
+ 	seq_printf(m, "count:\t%ld\n", file_count(dmabuf->file) - 1);
+ 	seq_printf(m, "exp_name:\t%s\n", dmabuf->exp_name);
+-	dma_resv_lock(dmabuf->resv, NULL);
++	spin_lock(&dmabuf->name_lock);
+ 	if (dmabuf->name)
+ 		seq_printf(m, "name:\t%s\n", dmabuf->name);
+-	dma_resv_unlock(dmabuf->resv);
++	spin_unlock(&dmabuf->name_lock);
+ }
+ 
+ static const struct file_operations dma_buf_fops = {
+@@ -546,6 +546,7 @@ struct dma_buf *dma_buf_export(const struct dma_buf_export_info *exp_info)
+ 	dmabuf->size = exp_info->size;
+ 	dmabuf->exp_name = exp_info->exp_name;
+ 	dmabuf->owner = exp_info->owner;
++	spin_lock_init(&dmabuf->name_lock);
+ 	init_waitqueue_head(&dmabuf->poll);
+ 	dmabuf->cb_excl.poll = dmabuf->cb_shared.poll = &dmabuf->poll;
+ 	dmabuf->cb_excl.active = dmabuf->cb_shared.active = 0;
+diff --git a/include/linux/dma-buf.h b/include/linux/dma-buf.h
+index ab0c156..93108fd 100644
+--- a/include/linux/dma-buf.h
++++ b/include/linux/dma-buf.h
+@@ -311,6 +311,7 @@ struct dma_buf {
+ 	void *vmap_ptr;
+ 	const char *exp_name;
+ 	const char *name;
++	spinlock_t name_lock;
+ 	struct module *owner;
+ 	struct list_head list_node;
+ 	void *priv;
 -- 
-2.7.4
-
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum, a Linux Foundation Collaborative Project
