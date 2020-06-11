@@ -2,95 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B8241F61F9
-	for <lists+stable@lfdr.de>; Thu, 11 Jun 2020 08:59:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2000C1F6203
+	for <lists+stable@lfdr.de>; Thu, 11 Jun 2020 09:09:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726649AbgFKG7z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Jun 2020 02:59:55 -0400
-Received: from mo-csw1516.securemx.jp ([210.130.202.155]:34906 "EHLO
-        mo-csw.securemx.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726645AbgFKG7z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Jun 2020 02:59:55 -0400
-Received: by mo-csw.securemx.jp (mx-mo-csw1516) id 05B6xQtP016931; Thu, 11 Jun 2020 15:59:27 +0900
-X-Iguazu-Qid: 34triqBKRwjd6RHxUm
-X-Iguazu-QSIG: v=2; s=0; t=1591858766; q=34triqBKRwjd6RHxUm; m=70Ngrk9bJygCOCx7/tcZyBeiJApGNrIPfiCfQtVfhws=
-Received: from imx2.toshiba.co.jp (imx2.toshiba.co.jp [106.186.93.51])
-        by relay.securemx.jp (mx-mr1512) id 05B6xPlI038625;
-        Thu, 11 Jun 2020 15:59:25 +0900
-Received: from enc01.localdomain ([106.186.93.100])
-        by imx2.toshiba.co.jp  with ESMTP id 05B6xPoW013486;
-        Thu, 11 Jun 2020 15:59:25 +0900 (JST)
-Received: from hop001.toshiba.co.jp ([133.199.164.63])
-        by enc01.localdomain  with ESMTP id 05B6xOpx008601;
-        Thu, 11 Jun 2020 15:59:24 +0900
-From:   Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
-To:     stable@vger.kernel.org
-Cc:     gregkh@linuxfoundation.org,
-        Johannes Thumshirn <jthumshirn@suse.de>,
-        Christoph Hellwig <hch@lst.de>,
-        Hannes Reinecke <hare@suse.com>,
-        Bart Van Assche <bart.vanassche@sandisk.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
-Subject: [PATCH for 4.4 and 4.9] scsi: return correct blkprep status code in case scsi_init_io() fails.
-Date:   Thu, 11 Jun 2020 15:59:21 +0900
-X-TSB-HOP: ON
-Message-Id: <20200611065921.3619813-1-nobuhiro1.iwamatsu@toshiba.co.jp>
-X-Mailer: git-send-email 2.27.0
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        id S1726552AbgFKHJz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Jun 2020 03:09:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48226 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726526AbgFKHJy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Jun 2020 03:09:54 -0400
+Received: from mail-ej1-x642.google.com (mail-ej1-x642.google.com [IPv6:2a00:1450:4864:20::642])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1883C08C5C2
+        for <stable@vger.kernel.org>; Thu, 11 Jun 2020 00:09:52 -0700 (PDT)
+Received: by mail-ej1-x642.google.com with SMTP id x1so5353672ejd.8
+        for <stable@vger.kernel.org>; Thu, 11 Jun 2020 00:09:52 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:subject:from:in-reply-to:date:cc
+         :content-transfer-encoding:message-id:references:to;
+        bh=DtL5WAzPI6yFzxKrnFWLyzLneMVuJM2j2+7dCxmKS3E=;
+        b=p1+WbNweAXsOFzeUgS3BfYbGzfF7B6WiRclhIaHuUQHTpojR3koLWggafk7uQmQWS0
+         YpTFAtwdfe/OI7LUu9ruWPReU8+uwd/fPpSyYKQqze3eYK7DN8LKMBtCS5mhK08oDUZa
+         hjGVuo4BG2vHyRda2E6o1mtwvIlNJkuHMMFCbpmY9ukfo4g2tr1f38PoavsekLvyaE/f
+         tkB6uQNZGWSaDELmgExnFMVa7opva8ke3vskgXrawONif8lN9zXmESOjkG9lhfNLWm8U
+         ihP4gRhnX1CGHg7rymRHBeQkq1RwqQk7HfP3KKRVa/bEJdX2ZVQThQ5kvx46eG6nVSzC
+         MurQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:subject:from:in-reply-to:date:cc
+         :content-transfer-encoding:message-id:references:to;
+        bh=DtL5WAzPI6yFzxKrnFWLyzLneMVuJM2j2+7dCxmKS3E=;
+        b=JBC6MCRkqHpXVFUU2g6oTs9Aiy5qpFUfSVXkydHojPhb/j7NGsIH1Rwlng9Y0Q4tr1
+         2rJqpkMQx94EVW9cYU/ed04VwIdLhDSF9yzYP9D00F2DfPEoXKsiYt0aJBVfzrTps7YC
+         QS5XIO/f6ubeudJg5foKTuvd+2EM4UjGYfi1yJ+OWD3TVQRUDVZZKkwX8rQMrlM5aOMM
+         63UiegqG2z0tcvhMv18TJjvofHosCB9pmcwdIMdaSY0yzmUms/vaVe0otDJzaHc7iobX
+         rG+DEazeKuMvw5cPiYOAJRU/GDUKbDlX3+qEW1pM6tI9gRxz7q4WZZX50DMwGkhVyTzu
+         yAEA==
+X-Gm-Message-State: AOAM531Gp/fVXO5AqJ2nbrzQxI+q/Ay+3mrR9WlmQHFrQlfiVTjlVRLM
+        0BHwquUzPikliNeLllrU7wsy8w==
+X-Google-Smtp-Source: ABdhPJyrMVsUvyqud3qgao6R3zRQh8JHC5ZCHnVwXucm82mAcTEGh2aXjGANmZwHt3g+N/SQeBsNhg==
+X-Received: by 2002:a17:906:528b:: with SMTP id c11mr6867128ejm.407.1591859391273;
+        Thu, 11 Jun 2020 00:09:51 -0700 (PDT)
+Received: from [192.168.0.14] ([83.216.184.132])
+        by smtp.gmail.com with ESMTPSA id e4sm1067559edy.17.2020.06.11.00.09.50
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 11 Jun 2020 00:09:50 -0700 (PDT)
+Content-Type: text/plain;
+        charset=us-ascii
+Mime-Version: 1.0 (Mac OS X Mail 12.4 \(3445.104.11\))
+Subject: Re: [PATCH 1/3] bfq: Avoid false bfq queue merging
+From:   Paolo Valente <paolo.valente@linaro.org>
+In-Reply-To: <20200605141629.15347-1-jack@suse.cz>
+Date:   Thu, 11 Jun 2020 09:13:07 +0200
+Cc:     linux-block@vger.kernel.org, stable@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+Message-Id: <FC3651A1-DB65-4A77-9BFB-ACAB80E54F3E@linaro.org>
+References: <20200605140837.5394-1-jack@suse.cz>
+ <20200605141629.15347-1-jack@suse.cz>
+To:     Jan Kara <jack@suse.cz>
+X-Mailer: Apple Mail (2.3445.104.11)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Thumshirn <jthumshirn@suse.de>
 
-commit e7661a8e5ce10b5321882d0bbaf3f81070903319 upstream.
 
-When instrumenting the SCSI layer to run into the
-!blk_rq_nr_phys_segments(rq) case the following warning emitted from the
-block layer:
+> Il giorno 5 giu 2020, alle ore 16:16, Jan Kara <jack@suse.cz> ha scritto:
+> 
+> bfq_setup_cooperator() uses bfqd->in_serv_last_pos so detect whether it
+> makes sense to merge current bfq queue with the in-service queue.
+> However if the in-service queue is freshly scheduled and didn't dispatch
+> any requests yet, bfqd->in_serv_last_pos is stale and contains value
+> from the previously scheduled bfq queue which can thus result in a bogus
+> decision that the two queues should be merged.
 
-blk_peek_request: bad return=-22
+Good catch! 
 
-This happens because since commit fd3fc0b4d730 ("scsi: don't BUG_ON()
-empty DMA transfers") we return the wrong error value from
-scsi_prep_fn() back to the block layer.
+> This bug can be observed
+> for example with the following fio jobfile:
+> 
+> [global]
+> direct=0
+> ioengine=sync
+> invalidate=1
+> size=1g
+> rw=read
+> 
+> [reader]
+> numjobs=4
+> directory=/mnt
+> 
+> where the 4 processes will end up in the one shared bfq queue although
+> they do IO to physically very distant files (for some reason I was able to
+> observe this only with slice_idle=1ms setting).
+> 
+> Fix the problem by invalidating bfqd->in_serv_last_pos when switching
+> in-service queue.
+> 
 
-[mkp: silenced checkpatch]
+Apart from the nonexistent problem that even 0 is a valid LBA :)
 
-Signed-off-by: Johannes Thumshirn <jthumshirn@suse.de>
-Fixes: fd3fc0b4d730 scsi: don't BUG_ON() empty DMA transfers
-Cc: <stable@vger.kernel.org>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Hannes Reinecke <hare@suse.com>
-Reviewed-by: Bart Van Assche <bart.vanassche@sandisk.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-[iwamatsu: - backport for 4.4.y and 4.9.y
-    - Use rq->nr_phys_segments instead of blk_rq_nr_phys_segments]
-Signed-off-by: Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
----
- drivers/scsi/scsi_lib.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/scsi/scsi_lib.c b/drivers/scsi/scsi_lib.c
-index 887045ae5d10a..269198b46adbb 100644
---- a/drivers/scsi/scsi_lib.c
-+++ b/drivers/scsi/scsi_lib.c
-@@ -1118,10 +1118,10 @@ int scsi_init_io(struct scsi_cmnd *cmd)
- 	struct scsi_device *sdev = cmd->device;
- 	struct request *rq = cmd->request;
- 	bool is_mq = (rq->mq_ctx != NULL);
--	int error;
-+	int error = BLKPREP_KILL;
- 
- 	if (WARN_ON_ONCE(!rq->nr_phys_segments))
--		return -EINVAL;
-+		goto err_exit;
- 
- 	error = scsi_init_sgtable(rq, &cmd->sdb);
- 	if (error)
--- 
-2.27.0
-
+Acked-by: Paolo Valente <paolo.valente@linaro.org>
