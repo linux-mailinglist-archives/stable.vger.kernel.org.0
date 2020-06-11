@@ -2,130 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 094D91F6C8D
-	for <lists+stable@lfdr.de>; Thu, 11 Jun 2020 19:06:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D4FF1F6CAC
+	for <lists+stable@lfdr.de>; Thu, 11 Jun 2020 19:14:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726379AbgFKRGc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Jun 2020 13:06:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56022 "EHLO
+        id S1726681AbgFKROy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Jun 2020 13:14:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57306 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726703AbgFKRGb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Jun 2020 13:06:31 -0400
-Received: from mail-pg1-x541.google.com (mail-pg1-x541.google.com [IPv6:2607:f8b0:4864:20::541])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3BA0C08C5C2
-        for <stable@vger.kernel.org>; Thu, 11 Jun 2020 10:06:30 -0700 (PDT)
-Received: by mail-pg1-x541.google.com with SMTP id l63so541279pge.12
-        for <stable@vger.kernel.org>; Thu, 11 Jun 2020 10:06:30 -0700 (PDT)
+        with ESMTP id S1726666AbgFKROx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Jun 2020 13:14:53 -0400
+Received: from mail-pg1-x534.google.com (mail-pg1-x534.google.com [IPv6:2607:f8b0:4864:20::534])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BBB52C08C5C1
+        for <stable@vger.kernel.org>; Thu, 11 Jun 2020 10:14:53 -0700 (PDT)
+Received: by mail-pg1-x534.google.com with SMTP id r18so2788438pgk.11
+        for <stable@vger.kernel.org>; Thu, 11 Jun 2020 10:14:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=pI2G9x8XySR9DruVGRJidO1nAqjYW7jZcLJ0jduQuLM=;
-        b=NqEJ5GA/ehM6UXoHjGGuPNm3B3rfMC1cOHvni2EJcnW9zfClcUy4MFwL3d6X4Umn1G
-         gf95qNdFanqgDq/iJc7qrRLil0x0D2wngwpf5nyMmOSpv1Miw+RLTpCnQCyf6U6A9UgB
-         BIjwZ5q8ylSnAuU3U7wqC1G+YIOYg5ZQMEwwIqa27NlLx4wfBto6cqvEmfhOoIkAQg2D
-         OcPRn7du2QLzn0LYY7+6DIXok09q0JSmnm0eTyfsKq7lCxHphLZiuK/LRFrgjljjDgV4
-         ztCU39IhEGgwqTb3durCnfrOGlFCcAyCoaR7e4UepPjSEK/zT+pqQFMs2xMPU5fiE7jk
-         MPbg==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=WWIUFss0JFLLpy6baKzaOqoE2kOs1Y0xABk4bYuVEYs=;
+        b=s0QPC9QYEsa/GH2+D/qWDWbOsqFnpVCFFlNBuhfWEvy2ixtKGFI7TPadEMlcgFUITO
+         0pvYmnjk+VV/OfC3A7MLNHv/GPb3LAnOEfL2IvVRq0PKR8vlSwsMNvptbbW5Mi+yrcti
+         I/lMTevPKZe+VsnpiEDfmPnIC7PE3RMZqBfOSEMUTc6jJA8HfvuLSGx685EqBiL7XVXd
+         A07ElN2XD0r11DJ5qV4U9bQwWaOZ9YytGC22d6gHOSQ6JZgGNa9W3jMmUUXbchPhhhgr
+         HIUXdO4PrJhmMXaTw1DWb3MDtkkk4imzfYy9OfAu4ChOhdFCLYwVz1EpN2arT4hKldKc
+         gBNw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=pI2G9x8XySR9DruVGRJidO1nAqjYW7jZcLJ0jduQuLM=;
-        b=IccoXf8vwZ+/6cnHHFWEiw4V0uNmgREd8GFPrvDQAQ3o+XCV84PimoPxgCcrsfSl0o
-         qCl11Y2VGd2wiXxiVhFcKLpk7JKHh2Ce6pM7/DwxsdYrLEHbw4naSpX6l5e7qcsuPfOG
-         GwT6ITTjqT0AckeTLoRl2KuxhkcbDAzb3Dbo8x09s4/A2Lbwhw9h2WdONvC4Mcf3kxpE
-         LbfA9yFpqHHIDihbAfp6+XI/vifq7Q5hqKf9nl28R7OV+Mei423AnsjeXFkFXa3KFRtX
-         EhlLpAtm1QgKq3MSx9gsuLTf4npQy+GaugXy2TmcmRPw0MrYFy94EhumxVRrkA2vDNoH
-         uNJQ==
-X-Gm-Message-State: AOAM532Jl66OX2R7xUso3njLnfhqRvaZY4qWYHuoUadm2AE4/muz7IXp
-        Gl6Dm5wQMsfo8z5yKehGSOf1fpMgVH5dif/PV5d54A==
-X-Google-Smtp-Source: ABdhPJwIaddzPZfkreOWkm5D3KkSKXIx2FEPb4DMs82rwvXYSe+SfQFOSBO/0V8ZUaC6ymLwx/6gIHy0Sny57CDe07w=
-X-Received: by 2002:a62:7e95:: with SMTP id z143mr8049365pfc.108.1591895189671;
- Thu, 11 Jun 2020 10:06:29 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=WWIUFss0JFLLpy6baKzaOqoE2kOs1Y0xABk4bYuVEYs=;
+        b=h3DcpLuX3G1P6PCMikF9gc1N/KKT7/hfmPRsHQwQJISO/LVJdAbx9q4MtgxfV8kcVh
+         2SOvkq9ALS0ShSgBP7MmSbo33U8AyyuIiScLyXQe9iRfhscdml8QElgZopoWyBvMUIWH
+         eWFe5xPm8I08bZzi1WTVmrTj3vl+iNqjigCo3aF3Ku+XXTVXjbvwMJMy9t0yKwe/aSkZ
+         Wz4hEASeM89T/HZOKL7ggrajeu6iRR4liL2Q105Btpycp7R91HFlqBP1BV7BPVcwKso3
+         srDGfQN5A67Ww0AgUnDthGBMNfgFcttd6yeNLUc6dPvki3aqqcbLlTocNROtoKhZOaDp
+         eDBA==
+X-Gm-Message-State: AOAM5320rbd8MtJJ+hExkZQpjxd3CVG6obMLwKqZFHAqckA3NygBll7E
+        TXdPnR4XQxOsQ6Io2J7AA5hKqj4wiLc=
+X-Google-Smtp-Source: ABdhPJyyLXiE3mdhrgVhrtzYVgbQpWqzVOKpAfDEQBbfwafMoe5W69iTzmpLpWvVVSrM/4e6+r9WWQ==
+X-Received: by 2002:a63:1c15:: with SMTP id c21mr2492018pgc.363.1591895692391;
+        Thu, 11 Jun 2020 10:14:52 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id d2sm3091231pgp.56.2020.06.11.10.14.50
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 11 Jun 2020 10:14:50 -0700 (PDT)
+Message-ID: <5ee2668a.1c69fb81.b82bd.8574@mx.google.com>
+Date:   Thu, 11 Jun 2020 10:14:50 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <CAMj1kXErFuvOoG=DB6sz5HBvDuHDiKwWD8uOyLuxaX-u8-+dbA@mail.gmail.com>
- <20200601231805.207441-1-ndesaulniers@google.com> <BYAPR11MB3096A0EA2D03BCB76C91F80AF0830@BYAPR11MB3096.namprd11.prod.outlook.com>
- <CAKwvOdnh6Zh+P9SM_qFiy-9u7Y21fn=byTJtG4fTTRJqqU9bcQ@mail.gmail.com>
- <9f4322a5-eea6-fb65-449c-90f3d85f753e@FreeBSD.org> <BYAPR11MB3096904AD67CC83A67A38215F0800@BYAPR11MB3096.namprd11.prod.outlook.com>
-In-Reply-To: <BYAPR11MB3096904AD67CC83A67A38215F0800@BYAPR11MB3096.namprd11.prod.outlook.com>
-From:   Nick Desaulniers <ndesaulniers@google.com>
-Date:   Thu, 11 Jun 2020 10:06:19 -0700
-Message-ID: <CAKwvOdndPdAWVSJ530mgT5onG4zsHExqO79=QvvLvpz51D8LsQ@mail.gmail.com>
-Subject: Re: [Devel] Re: [PATCH] ACPICA: fix UBSAN warning using __builtin_offsetof
-To:     "Kaneda, Erik" <erik.kaneda@intel.com>
-Cc:     Jung-uk Kim <jkim@freebsd.org>,
-        "Wysocki, Rafael J" <rafael.j.wysocki@intel.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        "dvyukov@google.com" <dvyukov@google.com>,
-        "glider@google.com" <glider@google.com>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "lorenzo.pieralisi@arm.com" <lorenzo.pieralisi@arm.com>,
-        "mark.rutland@arm.com" <mark.rutland@arm.com>,
-        "pcc@google.com" <pcc@google.com>,
-        "rjw@rjwysocki.net" <rjw@rjwysocki.net>,
-        "will@kernel.org" <will@kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>,
-        "devel@acpica.org" <devel@acpica.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Branch: linux-4.9.y
+X-Kernelci-Tree: stable
+X-Kernelci-Kernel: v4.9.227
+Subject: stable/linux-4.9.y baseline: 41 runs, 1 regressions (v4.9.227)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jun 11, 2020 at 9:45 AM Kaneda, Erik <erik.kaneda@intel.com> wrote:
->
-> > From: Jung-uk Kim <jkim@FreeBSD.org>
-> >
-> > Actually, I think we should let platform-specific acfoo.h decide what to
-> > do here, i.e.,
->
-> That's a better solution. For Linux, it would look something like this:
->
-> --- a/include/acpi/actypes.h
-> +++ b/include/acpi/actypes.h
-> @@ -508,10 +508,15 @@ typedef u64 acpi_integer;
->
->  #define ACPI_TO_POINTER(i)              ACPI_CAST_PTR (void, (acpi_size) (i))
->  #define ACPI_TO_INTEGER(p)              ACPI_PTR_DIFF (p, (void *) 0)
-> -#define ACPI_OFFSET(d, f)               ACPI_PTR_DIFF (&(((d *) 0)->f), (void *) 0)
->  #define ACPI_PHYSADDR_TO_PTR(i)         ACPI_TO_POINTER(i)
->  #define ACPI_PTR_TO_PHYSADDR(i)         ACPI_TO_INTEGER(i)
->
-> +/* Platforms may want to define their own ACPI_OFFSET */
-> +
-> +#ifndef ACPI_OFFSET
-> +#define ACPI_OFFSET(d, f)               ACPI_PTR_DIFF (&(((d *) 0)->f), (void *) 0)
-> +#endif
-> +
->  /* Optimizations for 4-character (32-bit) acpi_name manipulation */
->
->  #ifndef ACPI_MISALIGNMENT_NOT_SUPPORTED
-> diff --git a/include/acpi/platform/aclinux.h b/include/acpi/platform/aclinux.h
-> index 987e2af7c335..5d1ca6015fce 100644
-> --- a/include/acpi/platform/aclinux.h
-> +++ b/include/acpi/platform/aclinux.h
-> @@ -71,6 +71,11 @@
->  #undef ACPI_DEBUG_DEFAULT
->  #define ACPI_DEBUG_DEFAULT          (ACPI_LV_INFO | ACPI_LV_REPAIR)
->
-> +/* Use gcc's builtin offset instead of the default */
-> +
-> +#undef ACPI_OFFSET
-> +#define ACPI_OFFSET(a,b)            __builtin_offsetof(a,b)
-> +
->  #ifndef CONFIG_ACPI
->
+stable/linux-4.9.y baseline: 41 runs, 1 regressions (v4.9.227)
 
-Looks good at first glance.  Wouldn't actypes.h need to include
-platform/acenv.h first though?  Otherwise you put some header
-inclusion order dependency on folks who include actypes.h to first
-include acenv.h otherwise we're not getting the definition in terms of
-__builtin_offsetof.
+Regressions Summary
+-------------------
 
--- 
-Thanks,
-~Nick Desaulniers
+platform        | arch | lab          | compiler | defconfig           | re=
+sults
+----------------+------+--------------+----------+---------------------+---=
+-----
+omap3-beagle-xm | arm  | lab-baylibre | gcc-8    | omap2plus_defconfig | 0/=
+1    =
+
+
+  Details:  https://kernelci.org/test/job/stable/branch/linux-4.9.y/kernel/=
+v4.9.227/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable
+  Branch:   linux-4.9.y
+  Describe: v4.9.227
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able.git
+  SHA:      e0799bae56744764303252ac8d52ddb5774bcb4e =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform        | arch | lab          | compiler | defconfig           | re=
+sults
+----------------+------+--------------+----------+---------------------+---=
+-----
+omap3-beagle-xm | arm  | lab-baylibre | gcc-8    | omap2plus_defconfig | 0/=
+1    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5ee23178ee5a76624897bf09
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable/linux-4.9.y/v4.9.227/ar=
+m/omap2plus_defconfig/gcc-8/lab-baylibre/baseline-omap3-beagle-xm.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-4.9.y/v4.9.227/ar=
+m/omap2plus_defconfig/gcc-8/lab-baylibre/baseline-omap3-beagle-xm.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2019=
+.02-11-g17e793fa4728/armel/baseline/rootfs.cpio.gz =
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5ee23178ee5a76624897b=
+f0a
+      new failure (last pass: v4.9.226) =20
