@@ -2,140 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CD29C1F69A0
-	for <lists+stable@lfdr.de>; Thu, 11 Jun 2020 16:09:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D64081F6A1F
+	for <lists+stable@lfdr.de>; Thu, 11 Jun 2020 16:35:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727815AbgFKOJA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Jun 2020 10:09:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56804 "EHLO
+        id S1728329AbgFKOfc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Jun 2020 10:35:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60934 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726109AbgFKOI7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Jun 2020 10:08:59 -0400
-Received: from mail-ej1-x641.google.com (mail-ej1-x641.google.com [IPv6:2a00:1450:4864:20::641])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71833C08C5C1
-        for <stable@vger.kernel.org>; Thu, 11 Jun 2020 07:08:58 -0700 (PDT)
-Received: by mail-ej1-x641.google.com with SMTP id o15so6575300ejm.12
-        for <stable@vger.kernel.org>; Thu, 11 Jun 2020 07:08:58 -0700 (PDT)
+        with ESMTP id S1728328AbgFKOfc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Jun 2020 10:35:32 -0400
+Received: from mail-lj1-x229.google.com (mail-lj1-x229.google.com [IPv6:2a00:1450:4864:20::229])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E659AC08C5C3
+        for <stable@vger.kernel.org>; Thu, 11 Jun 2020 07:35:31 -0700 (PDT)
+Received: by mail-lj1-x229.google.com with SMTP id y11so7183159ljm.9
+        for <stable@vger.kernel.org>; Thu, 11 Jun 2020 07:35:31 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:subject:from:in-reply-to:date:cc
-         :content-transfer-encoding:message-id:references:to;
-        bh=ywxAzDifu4/Lt4nUclP2yZ7GdJmm8BVW01PZ3M/CpuU=;
-        b=dGcIY12W7IQN/4zKQpo+enj84L9FnrrJ4Z4DvDO8uXvIyn7V9tjmYK4R83qhrEaKN8
-         gXV4S0MoR27uqIQqyWnNdXa4Ri0i5itrlxLkUREhGvKw87qMZGc46/baDbSYaxg3TaPw
-         iC9ts+ubPddq0s0nLTHJ66HnPNUn/117dPJBLfTzmPbzRrr/fft6Eerf3KL08hRSDRNh
-         b9VEvKLp3qzK6/XXTJqbakQbLCgL53KKEykSJ9QRdNw+qR0VKGGB5GCAc6AEU/FDBndh
-         VwxtmmFGBuk6QnNT9C2FwKrrIqirRFP8uFI/eQ5KIWiU7Lg/fTsoY1S6s8inQc1401I3
-         npIw==
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=KWk0k65t0kOficvgdudXMmddBkNR1PEPUz9kdhfi4Ks=;
+        b=H+m1ObQ8oA3mUjWkoURr+qG3kfHMQzxTcPyrFKEeKFLi6uzC/t9Hui5UZJJxG08xH6
+         7rVdxBgDpCFUOJtSUKhIraQlbkRCokMmbht3vVYFAapq1COXAdtnr1PRIgkBrbYmlc1A
+         Q077llttOxRstZhQXqv+DFJlQLw6Mi9WfCdhbL88BGeNx1D2I5qk17f6LkYZNXEr6LQD
+         yde6uy2zS8EgnuXvCsCR2rxzDu/YqFDvDZHK1mN/ky43mZNJsFtLzzH7l/GXX7K1Veqj
+         gq7LpoEZk8Hy3Fwcq5sivLjtdusU0/gbcevZ21LB6tTmHTE2ro17OEwx2Ve63dfzvVVL
+         N1EA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:subject:from:in-reply-to:date:cc
-         :content-transfer-encoding:message-id:references:to;
-        bh=ywxAzDifu4/Lt4nUclP2yZ7GdJmm8BVW01PZ3M/CpuU=;
-        b=FVPjtvm2xcj5EQ0CNrB8iXpw/+2ogPMgEgvpauvRcW7Zqp4P1TIewCyCxq16ISDioV
-         VrzJPxoAjuNgVekLuGAfrI/Mr8zsCygUMgXXeDVzlIZ4Hdc0/KlDgrf76BzzWSPI7Ms6
-         9pR0dHpbej0DFbnieQOX8XDyGsX91Zb7rWqhQXyZpzFxv2sG3l2o1gYnTiJt1pwwTakM
-         xJQ0sakL6A4MmN9PQRkRjo66di+WbklbXgIPB83iHzG5DdZ2H7tRkfqTrlm/Eh8C41ky
-         MXxaxZczixJuZFie6YZMoF3NyRjOkXFv2+q13RlE1GwMoFtEvETTwdRhhyBEhct1exd3
-         dWIA==
-X-Gm-Message-State: AOAM530RFyfGvDELwr+UKbE5gcfEG8HrHBoB7lHciKTB+8MgO3idYqVu
-        zZ2X3qIBm9fNjU0vNxtbi2MzVgov93s=
-X-Google-Smtp-Source: ABdhPJzHCFEYHDE6Y7f7Zi15DPw4zTS2b17SG2jrg9z9gfMVBuW/Q5+jGH7XSAHxsu3sm33u9sB3mg==
-X-Received: by 2002:a17:906:7acf:: with SMTP id k15mr8830436ejo.410.1591884536972;
-        Thu, 11 Jun 2020 07:08:56 -0700 (PDT)
-Received: from [192.168.0.2] ([83.216.184.132])
-        by smtp.gmail.com with ESMTPSA id n16sm1918051ejl.70.2020.06.11.07.08.55
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 11 Jun 2020 07:08:56 -0700 (PDT)
-Content-Type: text/plain;
-        charset=us-ascii
-Mime-Version: 1.0 (Mac OS X Mail 12.4 \(3445.104.11\))
-Subject: Re: [PATCH 1/3] bfq: Avoid false bfq queue merging
-From:   Paolo Valente <paolo.valente@linaro.org>
-In-Reply-To: <20200611083149.GB18088@quack2.suse.cz>
-Date:   Thu, 11 Jun 2020 16:12:15 +0200
-Cc:     linux-block <linux-block@vger.kernel.org>, stable@vger.kernel.org
-Content-Transfer-Encoding: quoted-printable
-Message-Id: <AF7DA035-BC93-42D2-B0B6-8ECC3273DEBC@linaro.org>
-References: <20200605140837.5394-1-jack@suse.cz>
- <20200605141629.15347-1-jack@suse.cz>
- <FC3651A1-DB65-4A77-9BFB-ACAB80E54F3E@linaro.org>
- <20200611083149.GB18088@quack2.suse.cz>
-To:     Jan Kara <jack@suse.cz>
-X-Mailer: Apple Mail (2.3445.104.11)
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=KWk0k65t0kOficvgdudXMmddBkNR1PEPUz9kdhfi4Ks=;
+        b=fiZVLqC32zP5WfS0xeLelB3QWvukrUueS4oBBo+ZOs6+ttPkAHRNxKJ+5V/bxTp8Y3
+         OFXG902YT/ith3T/rbz595atkRvEV0lO2FZZupeY168EK1G9bwnhVGcoOei2KuT1pMTl
+         O6aATqS72C8F49grBVORiVRWw2SHTD4F3XG3vFCTraS/78dV+p0meqTwhOyXNTwKFB3U
+         nmYOIvIvAqx417VI1mG7b6DTCGD3uACS6Ug0SEgg/1gXYAiG1JA48Eg57KzRDR72uvR9
+         g8dcvJERNdPcoJ3cc0UbHP4mVfZvDSbrUCsYDhYBp1dGFRP984eOgrLkjjzfZZ/DiBot
+         VC+g==
+X-Gm-Message-State: AOAM5322S5crH3kJN4Efpdr4/oXOIdoZOt/nqmNW05QxbQKe1Sj7wrTK
+        KlGFxm0Ju3RGDNSTKA05sYAB1V1Rs7Cex5FcVtw6
+X-Google-Smtp-Source: ABdhPJybuCvUjX/x8Ef8beUk/vAnwQAMrkhFzQY6QulcBSIDD6yCU7He7Vh09xpStp55hBURCug01ltnDXo7IhR0q74=
+X-Received: by 2002:a2e:974e:: with SMTP id f14mr4390482ljj.102.1591886129560;
+ Thu, 11 Jun 2020 07:35:29 -0700 (PDT)
+MIME-Version: 1.0
+References: <159169282952.17951.3529693809120577424.tip-bot2@tip-bot2> <20200611140951.GD30352@zn.tnic>
+In-Reply-To: <20200611140951.GD30352@zn.tnic>
+From:   Anthony Steinhauser <asteinhauser@google.com>
+Date:   Thu, 11 Jun 2020 07:35:18 -0700
+Message-ID: <CAN_oZf16odNhpY6_LqkVY2wpy90jKM9-vgKo4LE8OJ-QTDCKiw@mail.gmail.com>
+Subject: Re: [tip: x86/urgent] x86/speculation: Avoid force-disabling IBPB
+ based on STIBP and enhanced IBRS.
+To:     Borislav Petkov <bp@alien8.de>
+Cc:     linux-tip-commits@vger.kernel.org,
+        Thomas Gleixner <tglx@linutronix.de>, stable@vger.kernel.org,
+        x86 <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi Borislav,
 
+On Thu, Jun 11, 2020 at 7:09 AM Borislav Petkov <bp@alien8.de> wrote:
+>
+> Can we merge this test into the one above? Diff ontop:
 
-> Il giorno 11 giu 2020, alle ore 10:31, Jan Kara <jack@suse.cz> ha =
-scritto:
->=20
-> On Thu 11-06-20 09:13:07, Paolo Valente wrote:
->>=20
->>=20
->>> Il giorno 5 giu 2020, alle ore 16:16, Jan Kara <jack@suse.cz> ha =
-scritto:
->>>=20
->>> bfq_setup_cooperator() uses bfqd->in_serv_last_pos so detect whether =
-it
->>> makes sense to merge current bfq queue with the in-service queue.
->>> However if the in-service queue is freshly scheduled and didn't =
-dispatch
->>> any requests yet, bfqd->in_serv_last_pos is stale and contains value
->>> from the previously scheduled bfq queue which can thus result in a =
-bogus
->>> decision that the two queues should be merged.
->>=20
->> Good catch!=20
->>=20
->>> This bug can be observed
->>> for example with the following fio jobfile:
->>>=20
->>> [global]
->>> direct=3D0
->>> ioengine=3Dsync
->>> invalidate=3D1
->>> size=3D1g
->>> rw=3Dread
->>>=20
->>> [reader]
->>> numjobs=3D4
->>> directory=3D/mnt
->>>=20
->>> where the 4 processes will end up in the one shared bfq queue =
-although
->>> they do IO to physically very distant files (for some reason I was =
-able to
->>> observe this only with slice_idle=3D1ms setting).
->>>=20
->>> Fix the problem by invalidating bfqd->in_serv_last_pos when =
-switching
->>> in-service queue.
->>>=20
->>=20
->> Apart from the nonexistent problem that even 0 is a valid LBA :)
->=20
-> Yes, I was also thinking about that and decided 0 is "good enough" :). =
-But
-> I just as well just switch to (sector_t)-1 if you think it would be =
-better.
->=20
+Yes, I think it's fine.
 
-0 is ok :)
-
-Thanks,
-Paolo
-
->> Acked-by: Paolo Valente <paolo.valente@linaro.org>
->=20
-> Thanks!
->=20
-> 								Honza
->=20
-> --=20
-> Jan Kara <jack@suse.com>
-> SUSE Labs, CR
-
+> Regards/Gruss,
+>     Boris.
+>
+> https://people.kernel.org/tglx/notes-about-netiquette
