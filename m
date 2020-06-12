@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 01CAD1F7AAC
-	for <lists+stable@lfdr.de>; Fri, 12 Jun 2020 17:23:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 717391F7AAF
+	for <lists+stable@lfdr.de>; Fri, 12 Jun 2020 17:23:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726565AbgFLPXW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jun 2020 11:23:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43128 "EHLO mail.kernel.org"
+        id S1726610AbgFLPXa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jun 2020 11:23:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43262 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726272AbgFLPXV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Jun 2020 11:23:21 -0400
+        id S1726272AbgFLPXa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 12 Jun 2020 11:23:30 -0400
 Received: from localhost.localdomain (NE2965lan1.rev.em-net.ne.jp [210.141.244.193])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4041520878;
-        Fri, 12 Jun 2020 15:23:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ED9C120884;
+        Fri, 12 Jun 2020 15:23:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591975401;
-        bh=TSu33CSsTcCx8Wa5ui/4Ko3g3fmL370oljk9gPZh5KQ=;
+        s=default; t=1591975409;
+        bh=x6ui656WX28sE3Yvb4xU6w8S45iyxh69N3Y0uxLKS3c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Kw28jipWRHsrK8JiMPbUQ4YTdii8VdHmWWcIC2jwAFjNwwqmBsWk7RDBamTCC7tXH
-         ryiOagzdf14zZMKQ2Dpuv1ScdtCZyvDfxSawqWFY8jREWrCSCHn2QHoRN4Dt9LWgO1
-         0J28rVO+E56oHMlvY1u8qmh2Uyo+meHU3lFCxJbE=
+        b=CQMwxd2hRK36sigCosK3YhQYeuFn1urJ9k8og8NCjgeXFqHjX3yoLaqpPbw++40Ia
+         uXbYNqNxxpXWi8Kk0DgWxt4VUc/TzcQgcgs3c5zH9go9nfWl39zjh8oyi5Jml0ICea
+         FM1uE4AU4YwijPhiWKkSEBJAQrPPKyG73fScPn0M=
 From:   Masami Hiramatsu <mhiramat@kernel.org>
 To:     Steven Rostedt <rostedt@goodmis.org>
 Cc:     stable@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH 1/4] proc/bootconfig: Fix to use correct quotes for value
-Date:   Sat, 13 Jun 2020 00:23:18 +0900
-Message-Id: <159197539793.80267.10836787284189465765.stgit@devnote2>
+Subject: [PATCH 2/4] tools/bootconfig: Fix to use correct quotes for value
+Date:   Sat, 13 Jun 2020 00:23:26 +0900
+Message-Id: <159197540663.80267.14460253938950080887.stgit@devnote2>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <159197538852.80267.10091816844311950396.stgit@devnote2>
 References: <159197538852.80267.10091816844311950396.stgit@devnote2>
@@ -41,54 +41,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Fix /proc/bootconfig to show the correctly choose the
+Fix bootconfig tool to show the correctly choose the
 double or single quotes according to the value.
 
 If a bootconfig value includes a double quote character,
 we must use single-quotes to quote that value.
 
-Fixes: c1a3c36017d4 ("proc: bootconfig: Add /proc/bootconfig to show boot config list")
+Fixes: 950313ebf79c ("tools: bootconfig: Add bootconfig command")
 Cc: stable@vger.kernel.org
 Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
 ---
- fs/proc/bootconfig.c |   13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ tools/bootconfig/main.c |   14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
-diff --git a/fs/proc/bootconfig.c b/fs/proc/bootconfig.c
-index 9955d75c0585..930d1dae33eb 100644
---- a/fs/proc/bootconfig.c
-+++ b/fs/proc/bootconfig.c
-@@ -27,6 +27,7 @@ static int __init copy_xbc_key_value_list(char *dst, size_t size)
+diff --git a/tools/bootconfig/main.c b/tools/bootconfig/main.c
+index 0efaf45f7367..21896a6675fd 100644
+--- a/tools/bootconfig/main.c
++++ b/tools/bootconfig/main.c
+@@ -14,13 +14,18 @@
+ #include <linux/kernel.h>
+ #include <linux/bootconfig.h>
+ 
+-static int xbc_show_array(struct xbc_node *node)
++static int xbc_show_value(struct xbc_node *node)
  {
- 	struct xbc_node *leaf, *vnode;
  	const char *val;
 +	char q;
- 	char *key, *end = dst + size;
- 	int ret = 0;
+ 	int i = 0;
  
-@@ -41,16 +42,20 @@ static int __init copy_xbc_key_value_list(char *dst, size_t size)
- 			break;
- 		dst += ret;
- 		vnode = xbc_node_get_child(leaf);
--		if (vnode && xbc_node_is_array(vnode)) {
-+		if (vnode) {
- 			xbc_array_for_each_value(vnode, val) {
--				ret = snprintf(dst, rest(dst, end), "\"%s\"%s",
--					val, vnode->next ? ", " : "\n");
-+				if (strchr(val, '"'))
-+					q = '\'';
-+				else
-+					q = '"';
-+				ret = snprintf(dst, rest(dst, end), "%c%s%c%s",
-+					q, val, q, vnode->next ? ", " : "\n");
- 				if (ret < 0)
- 					goto out;
- 				dst += ret;
- 			}
+ 	xbc_array_for_each_value(node, val) {
+-		printf("\"%s\"%s", val, node->next ? ", " : ";\n");
++		if (strchr(val, '"'))
++			q = '\'';
++		else
++			q = '"';
++		printf("%c%s%c%s", q, val, q, node->next ? ", " : ";\n");
+ 		i++;
+ 	}
+ 	return i;
+@@ -48,10 +53,7 @@ static void xbc_show_compact_tree(void)
+ 			continue;
+ 		} else if (cnode && xbc_node_is_value(cnode)) {
+ 			printf("%s = ", xbc_node_get_data(node));
+-			if (cnode->next)
+-				xbc_show_array(cnode);
+-			else
+-				printf("\"%s\";\n", xbc_node_get_data(cnode));
++			xbc_show_value(cnode);
  		} else {
--			ret = snprintf(dst, rest(dst, end), "\"%s\"\n", val);
-+			ret = snprintf(dst, rest(dst, end), "\"\"\n");
- 			if (ret < 0)
- 				break;
- 			dst += ret;
+ 			printf("%s;\n", xbc_node_get_data(node));
+ 		}
 
