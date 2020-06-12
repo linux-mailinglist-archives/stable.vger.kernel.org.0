@@ -2,29 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2434E1F73B5
-	for <lists+stable@lfdr.de>; Fri, 12 Jun 2020 08:14:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B5ABF1F7401
+	for <lists+stable@lfdr.de>; Fri, 12 Jun 2020 08:43:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726473AbgFLGOC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jun 2020 02:14:02 -0400
-Received: from alexa-out-sd-01.qualcomm.com ([199.106.114.38]:47527 "EHLO
-        alexa-out-sd-01.qualcomm.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726361AbgFLGOC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 12 Jun 2020 02:14:02 -0400
-Received: from unknown (HELO ironmsg01-sd.qualcomm.com) ([10.53.140.141])
-  by alexa-out-sd-01.qualcomm.com with ESMTP; 11 Jun 2020 23:14:01 -0700
+        id S1726441AbgFLGnx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jun 2020 02:43:53 -0400
+Received: from alexa-out-sd-02.qualcomm.com ([199.106.114.39]:32056 "EHLO
+        alexa-out-sd-02.qualcomm.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726379AbgFLGnx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 12 Jun 2020 02:43:53 -0400
+Received: from unknown (HELO ironmsg03-sd.qualcomm.com) ([10.53.140.143])
+  by alexa-out-sd-02.qualcomm.com with ESMTP; 11 Jun 2020 23:43:52 -0700
 Received: from sivaprak-linux.qualcomm.com ([10.201.3.202])
-  by ironmsg01-sd.qualcomm.com with ESMTP; 11 Jun 2020 23:13:59 -0700
+  by ironmsg03-sd.qualcomm.com with ESMTP; 11 Jun 2020 23:43:51 -0700
 Received: by sivaprak-linux.qualcomm.com (Postfix, from userid 459349)
-        id C0DC02187B; Fri, 12 Jun 2020 11:43:57 +0530 (IST)
+        id C1A3D21433; Fri, 12 Jun 2020 12:13:49 +0530 (IST)
 From:   Sivaprakash Murugesan <sivaprak@codeaurora.org>
-To:     srichara@qti.qualcomm.com
-Cc:     Sivaprakash Murugesan <sivaprak@codeaurora.org>,
-        stable@vger.kernel.org
-Subject: [PATCH] mtd: rawnand: qcom: avoid write to unavailable register
-Date:   Fri, 12 Jun 2020 11:43:56 +0530
-Message-Id: <1591942436-12536-1-git-send-email-sivaprak@codeaurora.org>
+To:     sivaprak@codeaurora.org
+Cc:     stable@vger.kernel.org
+Subject: [PATCH V3 1/2] mtd: rawnand: qcom: avoid write to unavailable register
+Date:   Fri, 12 Jun 2020 12:13:46 +0530
+Message-Id: <1591944227-12934-2-git-send-email-sivaprak@codeaurora.org>
 X-Mailer: git-send-email 2.7.4
+In-Reply-To: <1591944227-12934-1-git-send-email-sivaprak@codeaurora.org>
+References: <1591944227-12934-1-git-send-email-sivaprak@codeaurora.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -42,6 +43,9 @@ Fixes: dce84760 (mtd: nand: qcom: Support for IPQ8074 QPIC NAND controller)
 Cc: stable@vger.kernel.org
 Signed-off-by: Sivaprakash Murugesan <sivaprak@codeaurora.org>
 ---
+[V3]
+ * Addressed Miquel comments, added flag based on nand controller hw
+   to avoid the register writes to specific ipq platforms
  drivers/mtd/nand/raw/qcom_nandc.c | 8 +++++++-
  1 file changed, 7 insertions(+), 1 deletion(-)
 
