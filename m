@@ -2,30 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DB8241F74E4
-	for <lists+stable@lfdr.de>; Fri, 12 Jun 2020 09:56:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 360A21F74E6
+	for <lists+stable@lfdr.de>; Fri, 12 Jun 2020 09:58:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726380AbgFLH4l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jun 2020 03:56:41 -0400
-Received: from alexa-out-sd-02.qualcomm.com ([199.106.114.39]:1725 "EHLO
-        alexa-out-sd-02.qualcomm.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726357AbgFLH4l (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 12 Jun 2020 03:56:41 -0400
-Received: from unknown (HELO ironmsg02-sd.qualcomm.com) ([10.53.140.142])
-  by alexa-out-sd-02.qualcomm.com with ESMTP; 12 Jun 2020 00:56:40 -0700
+        id S1726302AbgFLH61 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jun 2020 03:58:27 -0400
+Received: from alexa-out-sd-01.qualcomm.com ([199.106.114.38]:18982 "EHLO
+        alexa-out-sd-01.qualcomm.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726262AbgFLH61 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 12 Jun 2020 03:58:27 -0400
+Received: from unknown (HELO ironmsg05-sd.qualcomm.com) ([10.53.140.145])
+  by alexa-out-sd-01.qualcomm.com with ESMTP; 12 Jun 2020 00:58:26 -0700
 Received: from sivaprak-linux.qualcomm.com ([10.201.3.202])
-  by ironmsg02-sd.qualcomm.com with ESMTP; 12 Jun 2020 00:56:39 -0700
+  by ironmsg05-sd.qualcomm.com with ESMTP; 12 Jun 2020 00:58:23 -0700
 Received: by sivaprak-linux.qualcomm.com (Postfix, from userid 459349)
-        id F36942187A; Fri, 12 Jun 2020 13:26:37 +0530 (IST)
+        id BFDF5217CE; Fri, 12 Jun 2020 13:28:21 +0530 (IST)
 From:   Sivaprakash Murugesan <sivaprak@codeaurora.org>
-To:     sivaprak@codeaurora.org
+To:     miquel.raynal@bootlin.com, richard@nod.at, vigneshr@ti.com,
+        peter.ujfalusi@ti.com, sivaprak@codeaurora.org,
+        boris.brezillon@collabora.com, linux-mtd@lists.infradead.org,
+        linux-kernel@vger.kernel.org
 Cc:     stable@vger.kernel.org
 Subject: [PATCH V4 1/2] mtd: rawnand: qcom: avoid write to unavailable register
-Date:   Fri, 12 Jun 2020 13:26:35 +0530
-Message-Id: <1591948596-15899-2-git-send-email-sivaprak@codeaurora.org>
+Date:   Fri, 12 Jun 2020 13:28:15 +0530
+Message-Id: <1591948696-16015-2-git-send-email-sivaprak@codeaurora.org>
 X-Mailer: git-send-email 2.7.4
-In-Reply-To: <1591948596-15899-1-git-send-email-sivaprak@codeaurora.org>
-References: <1591948596-15899-1-git-send-email-sivaprak@codeaurora.org>
+In-Reply-To: <1591948696-16015-1-git-send-email-sivaprak@codeaurora.org>
+References: <1591948696-16015-1-git-send-email-sivaprak@codeaurora.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
