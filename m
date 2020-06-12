@@ -2,192 +2,131 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 53B4F1F755F
-	for <lists+stable@lfdr.de>; Fri, 12 Jun 2020 10:36:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CAE21F7589
+	for <lists+stable@lfdr.de>; Fri, 12 Jun 2020 10:58:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726340AbgFLIgK convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Fri, 12 Jun 2020 04:36:10 -0400
-Received: from eu-smtp-delivery-151.mimecast.com ([207.82.80.151]:44277 "EHLO
-        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726361AbgFLIgK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 12 Jun 2020 04:36:10 -0400
-Received: from AcuMS.aculab.com (156.67.243.126 [156.67.243.126]) (Using
- TLS) by relay.mimecast.com with ESMTP id
- uk-mta-254-37IQVLyONZaErv1-cO8eWQ-1; Fri, 12 Jun 2020 09:36:04 +0100
-X-MC-Unique: 37IQVLyONZaErv1-cO8eWQ-1
-Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) by
- AcuMS.aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) with Microsoft SMTP
- Server (TLS) id 15.0.1347.2; Fri, 12 Jun 2020 09:36:03 +0100
-Received: from AcuMS.Aculab.com ([fe80::43c:695e:880f:8750]) by
- AcuMS.aculab.com ([fe80::43c:695e:880f:8750%12]) with mapi id 15.00.1347.000;
- Fri, 12 Jun 2020 09:36:03 +0100
-From:   David Laight <David.Laight@ACULAB.COM>
-To:     'Kees Cook' <keescook@chromium.org>
-CC:     'Sargun Dhillon' <sargun@sargun.me>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        "containers@lists.linux-foundation.org" 
-        <containers@lists.linux-foundation.org>,
-        Giuseppe Scrivano <gscrivan@redhat.com>,
-        Robert Sesek <rsesek@google.com>,
-        Chris Palmer <palmer@google.com>, Jann Horn <jannh@google.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Daniel Wagner <daniel.wagner@bmw-carit.de>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Matt Denton <mpdenton@google.com>,
-        John Fastabend <john.r.fastabend@intel.com>,
-        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
-        Tejun Heo <tj@kernel.org>, Al Viro <viro@zeniv.linux.org.uk>,
-        "cgroups@vger.kernel.org" <cgroups@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "David S . Miller" <davem@davemloft.net>
-Subject: RE: [PATCH v3 1/4] fs, net: Standardize on file_receive helper to
- move fds across processes
-Thread-Topic: [PATCH v3 1/4] fs, net: Standardize on file_receive helper to
- move fds across processes
-Thread-Index: AQHWP+BcCi14oegu0U6J73sUpcDiU6jTfHDAgACI+YCAAKH2YA==
-Date:   Fri, 12 Jun 2020 08:36:03 +0000
-Message-ID: <94407449bedd4ba58d85446401ff0a42@AcuMS.aculab.com>
-References: <202006091235.930519F5B@keescook>
- <20200609200346.3fthqgfyw3bxat6l@wittgenstein>
- <202006091346.66B79E07@keescook>
- <037A305F-B3F8-4CFA-B9F8-CD4C9EF9090B@ubuntu.com>
- <202006092227.D2D0E1F8F@keescook>
- <20200610081237.GA23425@ircssh-2.c.rugged-nimbus-611.internal>
- <202006101953.899EFB53@keescook>
- <20200611100114.awdjswsd7fdm2uzr@wittgenstein>
- <20200611110630.GB30103@ircssh-2.c.rugged-nimbus-611.internal>
- <067f494d55c14753a31657f958cb0a6e@AcuMS.aculab.com>
- <202006111634.8237E6A5C6@keescook>
-In-Reply-To: <202006111634.8237E6A5C6@keescook>
-Accept-Language: en-GB, en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [10.202.205.107]
+        id S1726343AbgFLI6K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jun 2020 04:58:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32988 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726319AbgFLI6K (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 12 Jun 2020 04:58:10 -0400
+Received: from mail-oi1-x242.google.com (mail-oi1-x242.google.com [IPv6:2607:f8b0:4864:20::242])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0F92C03E96F
+        for <stable@vger.kernel.org>; Fri, 12 Jun 2020 01:58:09 -0700 (PDT)
+Received: by mail-oi1-x242.google.com with SMTP id t25so8024683oij.7
+        for <stable@vger.kernel.org>; Fri, 12 Jun 2020 01:58:09 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:sender:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=Mg3BoW/fLQCp/N5h+7pNt3hqP5JwJpsTjWnCagvdKGU=;
+        b=EKH4/EeTudtgeSaCjmyusNGAy5IaYlEZ+XzzFi8Kg8BI3Yr4s4xYGkF7EJRVHPVB4r
+         FkiVbh1HNfSumsIMI/flHqMAy4qTUGoowPcx7tXXqRlG8hgn3etcOJyBLlwd0jty5UN7
+         7GuWhazOEtD/3g2yc3ue+ZnSheJjGTIeAw+urVlyFr0xw5ljw/enXPHDvQToGSRQD2Bz
+         56lwtGoHeiDzAXPgqoXJrXz8al/rI3kQC/PtxoYi3Dno5RRJ52YFloChH46M5BwT328I
+         jLZ7O/a/6RbAtp8WHMaP6flIXsIXaiXTRg7tutlGsPzovnk4Vli9dM9TDiTaYLaElsre
+         Hw1A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:sender:from:date
+         :message-id:subject:to:content-transfer-encoding;
+        bh=Mg3BoW/fLQCp/N5h+7pNt3hqP5JwJpsTjWnCagvdKGU=;
+        b=Gh+ItK93sQgjVy1JrOV9ajT69QSxO+Py4R3Mofb5b0vkd4JMwbXE+ij2F/Es9Kqdia
+         PnFfVt5kdOoRlY/6YEOyEl5m64K5zq1KXyU6E3mMoeAmAKa5FZyKPsxw0SRrhMwa0AC/
+         iQxUhRTKDAQzKnFh4ZcZ2unjpqJXaW1v9Dy/Bby1STb2Kgpt9aNU8YssgelArzbPJlN4
+         KpU9nJhcvgK1d2b727mXFd0PUAVcssHF/T5p7gq37OiovDNXKpbDVV284pc6V/hMOQc7
+         wOC7Fk+laFYjbvXHcCa31fD54D8uwG7ou45cQ9KAtL29mFtgj+SdHGKtAuSpjEfClKEl
+         geLA==
+X-Gm-Message-State: AOAM5302e3GInY4oNxP94paxKAGZix6M2KsoEhdjZYSc2IpNdzzsASrb
+        7Is7IaMYqP1rACz2oURtvPLkx90CsUWDmAsB
+X-Google-Smtp-Source: ABdhPJyeKgq8zWEEzG9cz966yTdAyShm2UTR8yEc3MXS6bmm2U0hOEi6mN7eR7Bq1Gtna+ohYBAVeGMcgwtjS+rm/x4=
+X-Received: by 2002:aca:310c:: with SMTP id x12mr1294250oix.178.1591952288089;
+ Fri, 12 Jun 2020 01:58:08 -0700 (PDT)
 MIME-Version: 1.0
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: aculab.com
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+Reply-To: colettekipkalya@gmail.com
+Received: by 2002:a05:6838:70d2:0:0:0:0 with HTTP; Fri, 12 Jun 2020 01:58:07
+ -0700 (PDT)
+From:   "Miss. Colette Kipkalya" <colettekipkalya@gmail.com>
+Date:   Fri, 12 Jun 2020 01:58:07 -0700
+X-Google-Sender-Auth: YtzlAqIGGJTbm3wXqGKMfKdY2do
+Message-ID: <CAACgqqj3R55Vp_oyZEHJPF6KFNsO=r3DxO9zcSOWKxQAv4MCMg@mail.gmail.com>
+Subject: My Dearest,
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook
-> Sent: 12 June 2020 00:50
-> > From: Sargun Dhillon
-> > > Sent: 11 June 2020 12:07
-> > > Subject: Re: [PATCH v3 1/4] fs, net: Standardize on file_receive helper to move fds across
-> processes
-> > >
-> > > On Thu, Jun 11, 2020 at 12:01:14PM +0200, Christian Brauner wrote:
-> > > > On Wed, Jun 10, 2020 at 07:59:55PM -0700, Kees Cook wrote:
-> > > > > On Wed, Jun 10, 2020 at 08:12:38AM +0000, Sargun Dhillon wrote:
-> > > > > > As an aside, all of this junk should be dropped:
-> > > > > > +	ret = get_user(size, &uaddfd->size);
-> > > > > > +	if (ret)
-> > > > > > +		return ret;
-> > > > > > +
-> > > > > > +	ret = copy_struct_from_user(&addfd, sizeof(addfd), uaddfd, size);
-> > > > > > +	if (ret)
-> > > > > > +		return ret;
-> > > > > >
-> > > > > > and the size member of the seccomp_notif_addfd struct. I brought this up
-> > > > > > off-list with Tycho that ioctls have the size of the struct embedded in them. We
-> > > > > > should just use that. The ioctl definition is based on this[2]:
-> > > > > > #define _IOC(dir,type,nr,size) \
-> > > > > > 	(((dir)  << _IOC_DIRSHIFT) | \
-> > > > > > 	 ((type) << _IOC_TYPESHIFT) | \
-> > > > > > 	 ((nr)   << _IOC_NRSHIFT) | \
-> > > > > > 	 ((size) << _IOC_SIZESHIFT))
-> > > > > >
-> > > > > >
-> > > > > > We should just use copy_from_user for now. In the future, we can either
-> > > > > > introduce new ioctl names for new structs, or extract the size dynamically from
-> > > > > > the ioctl (and mask it out on the switch statement in seccomp_notify_ioctl.
-> > > > >
-> > > > > Yeah, that seems reasonable. Here's the diff for that part:
-> > > >
-> > > > Why does it matter that the ioctl() has the size of the struct embedded
-> > > > within? Afaik, the kernel itself doesn't do anything with that size. It
-> > > > merely checks that the size is not pathological and it does so at
-> > > > compile time.
-> > > >
-> > > > #ifdef __CHECKER__
-> > > > #define _IOC_TYPECHECK(t) (sizeof(t))
-> > > > #else
-> > > > /* provoke compile error for invalid uses of size argument */
-> > > > extern unsigned int __invalid_size_argument_for_IOC;
-> > > > #define _IOC_TYPECHECK(t) \
-> > > > 	((sizeof(t) == sizeof(t[1]) && \
-> > > > 	  sizeof(t) < (1 << _IOC_SIZEBITS)) ? \
-> > > > 	  sizeof(t) : __invalid_size_argument_for_IOC)
-> > > > #endif
-> > > >
-> > > > The size itself is not verified at runtime. copy_struct_from_user()
-> > > > still makes sense at least if we're going to allow expanding the struct
-> > > > in the future.
-> > > Right, but if we simply change our headers and extend the struct, it will break
-> > > all existing programs compiled against those headers. In order to avoid that, if
-> > > we intend on extending this struct by appending to it, we need to have a
-> > > backwards compatibility mechanism. Just having copy_struct_from_user isn't
-> > > enough. The data structure either must be fixed size, or we need a way to handle
-> > > multiple ioctl numbers derived from headers with different sized struct arguments
-> > >
-> > > The two approaches I see are:
-> > > 1. use more indirection. This has previous art in drm[1]. That's look
-> > > something like this:
-> > >
-> > > struct seccomp_notif_addfd_ptr {
-> > > 	__u64 size;
-> > > 	__u64 addr;
-> > > }
-> > >
-> > > ... And then it'd be up to us to dereference the addr and copy struct from user.
-> >
-> > Do not go down that route. It isn't worth the pain.
-> >
-> > You should also assume that userspace might have a compile-time check
-> > on the buffer length (I've written one - not hard) and that the kernel
-> > might (in the future - or on a BSD kernel) be doing the user copies
-> > for you.
-> >
-> > Also, if you change the structure you almost certainly need to
-> > change the name of the ioctl cmd as well as its value.
-> > Otherwise a recompiled program will pass the new cmd value (and
-> > hopefully the right sized buffer) but it won't have initialised
-> > the buffer properly.
-> > This is likely to lead to unexpected behaviour.
-> 
-> Hmmm.
-> 
-> So, while initially I thought Sargun's observation about ioctl's fixed
-> struct size was right, I think I've been swayed to Christian's view
-> (which is supported by the long tail of struct size pain we've seen in
-> other APIs).
-> 
-> Doing a separate ioctl for each structure version seems like the "old
-> solution" now that we've got EA syscalls. So, I'd like to keep the size
-> and copy_struct_from_user().
+My Dearest,
 
-If the size is variable then why not get the application to fill
-in the size of the structure it is sending at the time of the ioctl.
+I am writing this mail to you with tears and sorrow from my heart.With
+due respect, trust and humanity, i appeal to you to exercise a little
+patience and read through my letter i feel quite safe dealing with you
+in this important business having gone through your remarkable
+profile, honestly i am writing this email to you with pains, tears and
+sorrow from my heart, i will really like to have a good relationship
+with you and i have a special reason why I decided to contact you. I
+decided to contact you due to the urgency of my situation.
 
-So you'd have:
-#define xxx_IOCTL_17(param) _IOCW('X', 17, sizeof *(param))
+My name is Miss.Colette Kipkalya, 23yrs old female and i am from Kenya
+in East Africa. Light in complexion, single (never married) but
+presently i am residing here in Ouagadougou, Burkina Faso refugee
+camp. My father Late Dr Kipkalya Kones was the former Kenyan road
+Minister. He and Assistant Minister of Home Affairs Lorna Laboso had
+been on board the Cessna 210, which was headed to Kericho and crashed
+in a remote area called Kajong'a, in western Kenya. The plane crashed
+on the Tuesday 10th, June, 2008. You can read more about the crash
+through the belowsite:
+http://edition.cnn.com/2008/WORLD/africa/06/10/kenya.crash/index.html?iref=
+=3Dnextin
 
-The application code would then do:
-	ioctl(fd, xxx_IOCTL_17(arg), arg);
+After the burial of my father, my Fathers brother conspired and sold
+my father' s property to an Italian Expert rate which they shared the
+money among themselves and live nothing for me. One faithful morning,
+I opened my father's briefcase and found out the documents which he
+have deposited huge amount of money in one bank in Burkina Faso with
+my name as the next of kin because when he was alive he deposited some
+amount of money in a Bank in Burkina Faso which he used my name as the
+next of kin. The amount in question is $4.7Million.
 
-The kernel code can either choose to have specific 'case'
-for each size, or mask off the length bits and do the
-length check later.
+I have informed the bank about claiming this money and the only thing
+they told me is to look for a foreign partner who will assist me in
+the transfer due to my refugee status here in Burkina Faso. God told
+me that you are the honest and reliable person who will help me and
+stand as my trustee so that I will present you to the Bank for
+transferring of my father=E2=80=99s money to your bank account in overseas.=
+I
+have chosen to contact you after my prayers and I believe that you
+will not betray my trust. But rather take me as your own biological
+sister or daughter which I will be coming to your country as soon as
+this money is transferred to your account.
 
-	David
+My dearest, things are very bad for me here in the refugee camp where
+i am living today. People are dying here day after day because of lack
+of food and poor medical treatment. Even one of us died last night and
+was buried this morning. I am afraid of what i am seeing here. I don't
+know who it will be her turn tomorrow, I was planning to read law in
+my life before the ugly incident that killed my parents that put me in
+this horrible place i found myself toady. This place is like a prison
+as we are only allowed to go out on Monday and Friday of the week as
+given
+by the united nation rules and regulation here in Burkina Faso.
+It=E2=80=99s in this refugee we are only allowed to go out two times in a w=
+eek
+it=E2=80=99s just like one staying in the prison and i hope by Gods grace i
+will come out here soon. I don' t have any relatives now whom i can go
+to and the only person i have now is Rev Isaac Ambrose who is the
+pastor of the (Christ for all Churches) here in the refugee he has
+been very nice to me since i came here but i am not living with him
+rather i am leaving in the women's hostel because the refugee have two
+hostels one for men the other for women, so you can always contact me
+through this my both email address here (colettekipkalya@gmail.com)
+thanks and am waiting for your reply. Please if you want to help me
+out of this situation respond back so that i will tell you more about
+me.
 
--
-Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
-Registration No: 1397386 (Wales)
-
+Yours faithful
+Miss. Colette Kipkalya
