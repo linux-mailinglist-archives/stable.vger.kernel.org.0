@@ -2,177 +2,167 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E3CE21F722E
-	for <lists+stable@lfdr.de>; Fri, 12 Jun 2020 04:22:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 755731F7319
+	for <lists+stable@lfdr.de>; Fri, 12 Jun 2020 06:42:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726475AbgFLCWT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Jun 2020 22:22:19 -0400
-Received: from mail-db8eur05on2050.outbound.protection.outlook.com ([40.107.20.50]:6115
-        "EHLO EUR05-DB8-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726305AbgFLCWS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 11 Jun 2020 22:22:18 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=ARCz3bO8eB/a9rPPW7UbR/imdpyeoBJOQOWzROftqNYbMhyYGgCZeX/w7qUsrTw2eC3fnXbzV/my3V+Sax4h7PEKF7IkcpBrKluPAmDg+WdZk8Vg1BRSNsJwpdbBJgaYpjZ6Rck5ZLZ8CZ7suHXDWIwHaNeTC9EcEJR1tTMjyhnh6jgesLQZJL7ueYCuTiv4s7co0srovl3oPZrF2p3QU4GrBy3YL1HXBpaYLSI0gBXwUr3tGhW/+ygcw124B/XSjeirekcFxlbVmGZdtifNpytqYRSo+za0oQE2GwkPlDIgpE8gDtC44/qTYt+tBkJ4QeAl2MKVO7HbAOMfNuTwSg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=aDJKnIKFY4AKnuDsYKC3aneOdWrI8XXZUMD0yxYK8eM=;
- b=IVuAnIKeIboF+9nf7oBRd+YK/+HsOKwHL0K/u1igWOqsvEgy/b68w5SflwLpLV2xjeBp9G1rDMd4HsN2OFEktYoLmbAXJ0TJAcMJuiLGrQbyXQNCufMNh8j8Bi6+R5dFS4SLkk3OCzpe0qJPjAJynYma7GlqSW+vQTslQMgvwAVWWVL/B6qIveHvs9emBA2ZtVjX4qEhnHdaCoIig+IDX26W5CzosDCOiUMCZgIdLt2N4MHmBkVWLeIiWPlHd2czpnJNZ0XRmShVeBxq5J5O8qqCG/aOCmspumTCV4j3KBCe4Cyit7XuM5GHXozN4RvTQBx01edVbWg1S1njrveeDw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nxp.com; dmarc=pass action=none header.from=nxp.com; dkim=pass
- header.d=nxp.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=aDJKnIKFY4AKnuDsYKC3aneOdWrI8XXZUMD0yxYK8eM=;
- b=nY5zjFJVKjvraKH8Bv+AxLYhf+hKiP0zNAkKgR389Ld9DcKmljcg64qFoyugbN2FotyqJBMVKPjwpEb4hI5oamjwJE96vXmW+qHB4OpyCTIDjBQzQDlRWEIzsbNJ+tbhlszbkUZUgUXmfox8epqwmY0RPVFMKb3iz/5+WJkyoe4=
-Received: from VE1PR04MB6638.eurprd04.prod.outlook.com (2603:10a6:803:119::15)
- by VE1PR04MB6477.eurprd04.prod.outlook.com (2603:10a6:803:11e::14) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3088.18; Fri, 12 Jun
- 2020 02:22:14 +0000
-Received: from VE1PR04MB6638.eurprd04.prod.outlook.com
- ([fe80::5cc4:23a5:ca17:da7d]) by VE1PR04MB6638.eurprd04.prod.outlook.com
- ([fe80::5cc4:23a5:ca17:da7d%6]) with mapi id 15.20.3066.023; Fri, 12 Jun 2020
- 02:22:14 +0000
-From:   Robin Gong <yibin.gong@nxp.com>
-To:     Krzysztof Kozlowski <krzk@kernel.org>,
-        Vinod Koul <vkoul@kernel.org>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Peng Ma <peng.ma@nxp.com>, Fabio Estevam <festevam@gmail.com>,
-        "dmaengine@vger.kernel.org" <dmaengine@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-CC:     "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: RE: [PATCH 2/2] dmaengine: fsl-edma: Fix NULL pointer exception in
- fsl_edma_tx_handler
-Thread-Topic: [PATCH 2/2] dmaengine: fsl-edma: Fix NULL pointer exception in
- fsl_edma_tx_handler
-Thread-Index: AQHWP+pVSg8DVLJSBk+m5kI3CuPTMqjUQEUw
-Date:   Fri, 12 Jun 2020 02:22:13 +0000
-Message-ID: <VE1PR04MB66380552302906130261F96189810@VE1PR04MB6638.eurprd04.prod.outlook.com>
-References: <1591877861-28156-1-git-send-email-krzk@kernel.org>
- <1591877861-28156-2-git-send-email-krzk@kernel.org>
-In-Reply-To: <1591877861-28156-2-git-send-email-krzk@kernel.org>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: kernel.org; dkim=none (message not signed)
- header.d=none;kernel.org; dmarc=none action=none header.from=nxp.com;
-x-originating-ip: [119.31.174.66]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-ht: Tenant
-x-ms-office365-filtering-correlation-id: 38f35fa0-84a4-41da-7ad2-08d80e776be2
-x-ms-traffictypediagnostic: VE1PR04MB6477:
-x-ms-exchange-transport-forked: True
-x-microsoft-antispam-prvs: <VE1PR04MB64771EAD3BDD82EE856EC87089810@VE1PR04MB6477.eurprd04.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:2399;
-x-forefront-prvs: 0432A04947
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: w3Z/DENBTdi+oGwPJ+1mLkfKZ8hMjAilriFwp59YRIXusY4WmGe3waFrHvRR1HJfMYMSS6t9oEJ/N1jF2Pqz+wuwyu71gRSxZ2B11u8o3Wf5KmMKhtE4yHHmNXVINbthYENjlR2iiT5avod5sz69e9Tgb3O6FCjtBPGdLNBYvKb0pqrbzHGNEr/Vt0cVks8u+mPiO6yZMqDBcMmfmx5pNuwzmOXki/bX1dzGIt7G0k973t77bP4Dx9jmx73v530NzZfEByTfql541u5rISseD5ifWAce2/mcgyDACvcHK+sSLXgceO8RQNQxwZ5esCICGkmLJ3s8h18/nhmcCzv03A==
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:VE1PR04MB6638.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFTY:;SFS:(4636009)(376002)(136003)(396003)(39860400002)(346002)(366004)(8936002)(2906002)(8676002)(66946007)(76116006)(66446008)(9686003)(64756008)(55016002)(66476007)(66556008)(86362001)(33656002)(4326008)(26005)(83380400001)(6506007)(478600001)(186003)(7696005)(53546011)(316002)(52536014)(110136005)(71200400001)(5660300002);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata: eG+W6JY9aebLvsItg2YO7wAsdUkN04uMThX0WzHPqYaZ6QIS0OPGiWHxp1VY7VZytaCL0242pNspDbn2VxCRgmbAj+fOwcZeiD9ocojVTi12obepMHi2NIs+Ej3ap/X+UsI4vmFTaNxve1lz+TPd/tSCHlyWJdNGxjZPyC9WiqyK+gbmfgA+b1kODcV04Nup2sZZVTaJYVDzgPXeL40r4k82lEEbD7hUd7GDTUe+ZQhvzly1l+3aFthBdCrNiYoRUfK3xRWqMJFQOuLrm+EVUXcFsGtkBGt+SBdkWYDgOZd+Qa3WM2RrIcUgPkdppmjttb7BM/ZtU0RlFC5XN36pw3WJ+fxxXWq435n9/wp/r/naTB0v08FuqMeYkJatlMTyO2puRel89cuOZseAsi6KUSaiIHDsJ82AxHbkaZrXo045LXJem2ZUiUXVDNPPiEe5avDZn2R6bLIzBZkPDN6dq11pLlo+RAS7p0sPOBrqfpA=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-MIME-Version: 1.0
-X-OriginatorOrg: nxp.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 38f35fa0-84a4-41da-7ad2-08d80e776be2
-X-MS-Exchange-CrossTenant-originalarrivaltime: 12 Jun 2020 02:22:14.5597
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: RrD+NrInfRrV4EaT3YqRVhqzpaON01hURCZe5yp8QB7RYPXQ2Op3kYodbwBuTY3xxw0QVVFFYSKUB+9wDDyDFg==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: VE1PR04MB6477
+        id S1725947AbgFLEme (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jun 2020 00:42:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50166 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725763AbgFLEme (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 12 Jun 2020 00:42:34 -0400
+Received: from mail-pl1-x641.google.com (mail-pl1-x641.google.com [IPv6:2607:f8b0:4864:20::641])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B728C03E96F;
+        Thu, 11 Jun 2020 21:42:34 -0700 (PDT)
+Received: by mail-pl1-x641.google.com with SMTP id g12so3242332pll.10;
+        Thu, 11 Jun 2020 21:42:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id;
+        bh=tnkNvIy4NyhOcfhzdkEEgf5Q0aBBdpOiKM99Ch2kRHo=;
+        b=p2J2k390abBAM4NCbA9yAEM/LrDNElIECJSQNv3Nr8adiQVAS5SzbFY95WgXXxsQIh
+         WJkHweRSLgzRw+GhG7AdtIsCCWhBM8XJSKuStAPyg5GzWrP6UfZokkvvSDuCia7LKDe8
+         71ujb6m40rMGRbwrRU+cN48oUNWf6r0I2VKCdk3XFkhd7SI1mBjeH2MYM00dZWC5qOCP
+         FHXiJVbAQiG/K5Obfn+8x9PhykJbXAlXcTajBOJKJlM1Wemqs6OzfESWAa5E+VfI9uFY
+         0/YzlC1zdTftffN4s1iJyIMA8CW79XvwgF/CZ2Um4s/Uxf3elaXGjlbcz4Tn9Hlj3jV0
+         d2tg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=tnkNvIy4NyhOcfhzdkEEgf5Q0aBBdpOiKM99Ch2kRHo=;
+        b=jnbxLZSaU7SwEo9AWESk+sdWpRd0acuQbNxVGlvA178Yr3FThVn9nxmrSnfij3jgYh
+         AbDNn0ylgjdUqtmpRWt3ncPcSIU8t5D/y/fZ2E2em3n82W7QIK5DE+ZgwsXvsTzjbf3q
+         WTjPi+44VD5V1UhCsBJUdD2SsfdNJQ/Tj/iCAstzTsCbNw5pEZS0rJMQ5aQ9XawhEVbM
+         Wm44JjZi4/SOq6RotGy4vZR2CTYHJ3YxpvnqHo92ijzOIvkRA/ZQr12CjDc56u8qLN21
+         bzjToWMY8SN2aLQ6+QRSBx3j6Ee2pWygpbaLPBtTEI4uNxocvoB6Bug2rjD2LnGJQyPM
+         Y2ug==
+X-Gm-Message-State: AOAM530n+c/lTU6DkdV0kw91aOr8y6QHbomFPES85YR/QxpC6TsRrqhu
+        LWugph0OAvPpHEYWa1g7HRo=
+X-Google-Smtp-Source: ABdhPJwVfVwWuvBqsmyJQUwzIkKhTVDfAOSa0G75EXUmTNsmKXeQmrkCijvdn4svfC9O7GaAMKn6pA==
+X-Received: by 2002:a17:902:c30c:: with SMTP id k12mr10389411plx.130.1591936953486;
+        Thu, 11 Jun 2020 21:42:33 -0700 (PDT)
+Received: from localhost.localdomain ([192.19.223.252])
+        by smtp.gmail.com with ESMTPSA id s9sm4084239pgo.22.2020.06.11.21.42.31
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 11 Jun 2020 21:42:32 -0700 (PDT)
+From:   Florian Fainelli <f.fainelli@gmail.com>
+To:     linux-arm-kernel@lists.infradead.org
+Cc:     stable@vger.kernel.org, will@kernel.org,
+        Will Deacon <will.deacon@arm.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>,
+        Christoffer Dall <christoffer.dall@linaro.org>,
+        Marc Zyngier <marc.zyngier@arm.com>,
+        linux-kernel@vger.kernel.org (open list),
+        kvm@vger.kernel.org (open list:KERNEL VIRTUAL MACHINE (KVM)),
+        kvmarm@lists.cs.columbia.edu (open list:KERNEL VIRTUAL MACHINE FOR
+        ARM64 (KVM/arm64))
+Subject: [PATCH stable 4.9] arm64: entry: Place an SB sequence following an ERET instruction
+Date:   Thu, 11 Jun 2020 21:42:18 -0700
+Message-Id: <20200612044219.31606-1-f.fainelli@gmail.com>
+X-Mailer: git-send-email 2.17.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2020/06/11 20:18 Krzysztof Kozlowski <krzk@kernel.org> wrote:
-> NULL pointer exception happens occasionally on serial output initiated by=
- login
-> timeout.  This was reproduced only if kernel was built with significant
-> debugging options and EDMA driver is used with serial console.
->=20
->     col-vf50 login: root
->     Password:
->     Login timed out after 60 seconds.
->     Unable to handle kernel NULL pointer dereference at virtual address
-> 00000044
->     Internal error: Oops: 5 [#1] ARM
->     CPU: 0 PID: 157 Comm: login Not tainted 5.7.0-next-20200610-dirty #4
->     Hardware name: Freescale Vybrid VF5xx/VF6xx (Device Tree)
->       (fsl_edma_tx_handler) from [<8016eb10>]
-> (__handle_irq_event_percpu+0x64/0x304)
->       (__handle_irq_event_percpu) from [<8016eddc>]
-> (handle_irq_event_percpu+0x2c/0x7c)
->       (handle_irq_event_percpu) from [<8016ee64>]
-> (handle_irq_event+0x38/0x5c)
->       (handle_irq_event) from [<801729e4>]
-> (handle_fasteoi_irq+0xa4/0x160)
->       (handle_fasteoi_irq) from [<8016ddcc>]
-> (generic_handle_irq+0x34/0x44)
->       (generic_handle_irq) from [<8016e40c>]
-> (__handle_domain_irq+0x54/0xa8)
->       (__handle_domain_irq) from [<80508bc8>] (gic_handle_irq+0x4c/0x80)
->       (gic_handle_irq) from [<80100af0>] (__irq_svc+0x70/0x98)
->     Exception stack(0x8459fe80 to 0x8459fec8)
->     fe80: 72286b00 e3359f64 00000001 0000412d a0070013 85c98840
-> 85c98840 a0070013
->     fea0: 8054e0d4 00000000 00000002 00000000 00000002 8459fed0
-> 8081fbe8 8081fbec
->     fec0: 60070013 ffffffff
->       (__irq_svc) from [<8081fbec>]
-> (_raw_spin_unlock_irqrestore+0x30/0x58)
->       (_raw_spin_unlock_irqrestore) from [<8056cb48>]
-> (uart_flush_buffer+0x88/0xf8)
->       (uart_flush_buffer) from [<80554e60>] (tty_ldisc_hangup+0x38/0x1ac)
->       (tty_ldisc_hangup) from [<8054c7f4>] (__tty_hangup+0x158/0x2bc)
->       (__tty_hangup) from [<80557b90>]
-> (disassociate_ctty.part.1+0x30/0x23c)
->       (disassociate_ctty.part.1) from [<8011fc18>] (do_exit+0x580/0xba0)
->       (do_exit) from [<801214f8>] (do_group_exit+0x3c/0xb4)
->       (do_group_exit) from [<80121580>] (__wake_up_parent+0x0/0x14)
->=20
-> Issue looks like race condition between interrupt handler fsl_edma_tx_han=
-dler()
-> (called as result of fsl_edma_xfer_desc()) and terminating the transfer w=
-ith
-> fsl_edma_terminate_all().
->=20
-> The fsl_edma_tx_handler() handles interrupt for a transfer with already f=
-reed
-> edesc and idle=3D=3Dtrue.
->=20
-> Fixes: d6be34fbd39b ("dma: Add Freescale eDMA engine driver support")
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-> ---
->  drivers/dma/fsl-edma.c | 7 +++++++
->  1 file changed, 7 insertions(+)
->=20
-> diff --git a/drivers/dma/fsl-edma.c b/drivers/dma/fsl-edma.c index
-> eff7ebd8cf35..90bb72af306c 100644
-> --- a/drivers/dma/fsl-edma.c
-> +++ b/drivers/dma/fsl-edma.c
-> @@ -45,6 +45,13 @@ static irqreturn_t fsl_edma_tx_handler(int irq, void
-> *dev_id)
->  			fsl_chan =3D &fsl_edma->chans[ch];
->=20
->  			spin_lock(&fsl_chan->vchan.lock);
-> +
-> +			if (!fsl_chan->edesc) {
-> +				/* terminate_all called before */
-> +				spin_unlock(&fsl_chan->vchan.lock);
-> +				continue;
-> +			}
-Reviewed-by: Robin Gong <yibin.gong@nxp.com>
-> +
->  			if (!fsl_chan->edesc->iscyclic) {
->  				list_del(&fsl_chan->edesc->vdesc.node);
->  				vchan_cookie_complete(&fsl_chan->edesc->vdesc);
-> --
-> 2.7.4
+From: Will Deacon <will.deacon@arm.com>
+
+commit 679db70801da9fda91d26caf13bf5b5ccc74e8e8 upstream
+
+Some CPUs can speculate past an ERET instruction and potentially perform
+speculative accesses to memory before processing the exception return.
+Since the register state is often controlled by a lower privilege level
+at the point of an ERET, this could potentially be used as part of a
+side-channel attack.
+
+This patch emits an SB sequence after each ERET so that speculation is
+held up on exception return.
+
+Signed-off-by: Will Deacon <will.deacon@arm.com>
+[florian: Adjust hyp-entry.S to account for the label]
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+---
+Will,
+
+Can you confirm that for 4.9 these are the only places that require
+patching? Thank you!
+
+ arch/arm64/kernel/entry.S      | 2 ++
+ arch/arm64/kvm/hyp/entry.S     | 1 +
+ arch/arm64/kvm/hyp/hyp-entry.S | 4 ++++
+ 3 files changed, 7 insertions(+)
+
+diff --git a/arch/arm64/kernel/entry.S b/arch/arm64/kernel/entry.S
+index ca978d7d98eb..3408c782702c 100644
+--- a/arch/arm64/kernel/entry.S
++++ b/arch/arm64/kernel/entry.S
+@@ -255,6 +255,7 @@ alternative_insn eret, nop, ARM64_UNMAP_KERNEL_AT_EL0
+ 	.else
+ 	eret
+ 	.endif
++	sb
+ 	.endm
+ 
+ 	.macro	get_thread_info, rd
+@@ -945,6 +946,7 @@ __ni_sys_trace:
+ 	mrs	x30, far_el1
+ 	.endif
+ 	eret
++	sb
+ 	.endm
+ 
+ 	.align	11
+diff --git a/arch/arm64/kvm/hyp/entry.S b/arch/arm64/kvm/hyp/entry.S
+index a360ac6e89e9..bc5c6cdb8538 100644
+--- a/arch/arm64/kvm/hyp/entry.S
++++ b/arch/arm64/kvm/hyp/entry.S
+@@ -83,6 +83,7 @@ ENTRY(__guest_enter)
+ 
+ 	// Do not touch any register after this!
+ 	eret
++	sb
+ ENDPROC(__guest_enter)
+ 
+ ENTRY(__guest_exit)
+diff --git a/arch/arm64/kvm/hyp/hyp-entry.S b/arch/arm64/kvm/hyp/hyp-entry.S
+index bf4988f9dae8..3675e7f0ab72 100644
+--- a/arch/arm64/kvm/hyp/hyp-entry.S
++++ b/arch/arm64/kvm/hyp/hyp-entry.S
+@@ -97,6 +97,7 @@ el1_sync:				// Guest trapped into EL2
+ 	do_el2_call
+ 
+ 2:	eret
++	sb
+ 
+ el1_hvc_guest:
+ 	/*
+@@ -147,6 +148,7 @@ wa_epilogue:
+ 	mov	x0, xzr
+ 	add	sp, sp, #16
+ 	eret
++	sb
+ 
+ el1_trap:
+ 	get_vcpu_ptr	x1, x0
+@@ -198,6 +200,7 @@ el2_error:
+ 	b.ne	__hyp_panic
+ 	mov	x0, #(1 << ARM_EXIT_WITH_SERROR_BIT)
+ 	eret
++	sb
+ 
+ ENTRY(__hyp_do_panic)
+ 	mov	lr, #(PSR_F_BIT | PSR_I_BIT | PSR_A_BIT | PSR_D_BIT |\
+@@ -206,6 +209,7 @@ ENTRY(__hyp_do_panic)
+ 	ldr	lr, =panic
+ 	msr	elr_el2, lr
+ 	eret
++	sb
+ ENDPROC(__hyp_do_panic)
+ 
+ ENTRY(__hyp_panic)
+-- 
+2.17.1
 
