@@ -2,122 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B14C1F76CA
-	for <lists+stable@lfdr.de>; Fri, 12 Jun 2020 12:35:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B2E1B1F76D1
+	for <lists+stable@lfdr.de>; Fri, 12 Jun 2020 12:39:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726309AbgFLKfA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jun 2020 06:35:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47942 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726304AbgFLKe7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 12 Jun 2020 06:34:59 -0400
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7AE30C03E96F
-        for <stable@vger.kernel.org>; Fri, 12 Jun 2020 03:34:59 -0700 (PDT)
-Received: from gallifrey.ext.pengutronix.de ([2001:67c:670:201:5054:ff:fe8d:eefb] helo=bjornoya.blackshift.org)
-        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <mkl@pengutronix.de>)
-        id 1jjh1P-0007Sj-B7; Fri, 12 Jun 2020 12:34:51 +0200
-Received: from [IPv6:2a03:f580:87bc:d400:b44d:6713:e0e9:e23c] (unknown [IPv6:2a03:f580:87bc:d400:b44d:6713:e0e9:e23c])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-384) server-signature RSA-PSS (4096 bits) server-digest SHA256
-         client-signature RSA-PSS (4096 bits) client-digest SHA256)
-        (Client CN "mkl@blackshift.org", Issuer "StartCom Class 1 Client CA" (not verified))
-        (Authenticated sender: mkl@blackshift.org)
-        by smtp.blackshift.org (Postfix) with ESMTPSA id A3F35515090;
-        Fri, 12 Jun 2020 10:34:49 +0000 (UTC)
-Subject: Re: [PATCH] i2c: imx: Fix external abort on early interrupt
-To:     Oleksij Rempel <o.rempel@pengutronix.de>,
-        Krzysztof Kozlowski <krzk@kernel.org>
-Cc:     Fabio Estevam <festevam@gmail.com>,
+        id S1726277AbgFLKjz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jun 2020 06:39:55 -0400
+Received: from mail-ed1-f67.google.com ([209.85.208.67]:33692 "EHLO
+        mail-ed1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725911AbgFLKjz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 12 Jun 2020 06:39:55 -0400
+Received: by mail-ed1-f67.google.com with SMTP id o26so6078351edq.0;
+        Fri, 12 Jun 2020 03:39:53 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=bBguARwUO/wHNwoTqDLDR0r7qkZEicJBKW50tLs1qxM=;
+        b=UhNlcgq/malkxkd41EAeM1MkRhuRc06clbbn7cYVHpHeOfVZzsIE4wVo3r2DE/mPc1
+         fPLiWgifElVOQHere7aocDzDhKCEXMeSctOxHlRmZgH5TS5NXltQd/mi20n5hGw0oiDL
+         atbIgq82i4Z+frLkKHTtOm75k2YnFsseTXxsvcTYXegH6g6nHAu+O70lWa9LkVdAIfXZ
+         drOW1ZqNFhRDJW3Swk6bqY7Qah/P9LHu7UdJp9k9ucvyiiUgbEeMPjjzL9eWGRdcHnzQ
+         3hNmAoReaX55XC8ZKHKgMvW91FHx+/Kq8243RoUhES0ge0vIMzwvZ8YJbFwK5Tr36g6V
+         jGPg==
+X-Gm-Message-State: AOAM533LUtvyxeJ3V89fcWnTMKF8/56LTCC8JczzwT1yPIoYL7Zk4g6q
+        XvN745p7gM3wDJa3kl7Eqs4=
+X-Google-Smtp-Source: ABdhPJxUutltGtDoTvlpjvOa5B+zbRtPHYPgbVfuqRWP8igjMXRPh0MsA09sbMQFUVf8LtHUBKErmw==
+X-Received: by 2002:a50:fd19:: with SMTP id i25mr10916965eds.248.1591958392580;
+        Fri, 12 Jun 2020 03:39:52 -0700 (PDT)
+Received: from pi3 ([194.230.155.184])
+        by smtp.googlemail.com with ESMTPSA id qp15sm3379298ejb.69.2020.06.12.03.39.51
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 12 Jun 2020 03:39:51 -0700 (PDT)
+Date:   Fri, 12 Jun 2020 12:39:49 +0200
+From:   Krzysztof Kozlowski <krzk@kernel.org>
+To:     Oleksij Rempel <o.rempel@pengutronix.de>
+Cc:     Wolfram Sang <wsa@kernel.org>, Shawn Guo <shawnguo@kernel.org>,
         Sascha Hauer <s.hauer@pengutronix.de>,
         linux-kernel@vger.kernel.org, stable@vger.kernel.org,
         Oleksij Rempel <linux@rempel-privat.de>,
-        Wolfram Sang <wsa@kernel.org>,
         NXP Linux Team <linux-imx@nxp.com>,
         Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Shawn Guo <shawnguo@kernel.org>,
+        Fabio Estevam <festevam@gmail.com>,
         linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
+Subject: Re: [PATCH] i2c: imx: Fix external abort on early interrupt
+Message-ID: <20200612103949.GB26056@pi3>
 References: <1591796802-23504-1-git-send-email-krzk@kernel.org>
- <20200612090517.GA3030@ninjato> <20200612092941.GA25990@pi3>
- <20200612095604.GA17763@ninjato> <20200612102113.GA26056@pi3>
+ <20200612090517.GA3030@ninjato>
+ <20200612092941.GA25990@pi3>
+ <20200612095604.GA17763@ninjato>
+ <20200612102113.GA26056@pi3>
  <20200612103149.2onoflu5qgwaooli@pengutronix.de>
-From:   Marc Kleine-Budde <mkl@pengutronix.de>
-Autocrypt: addr=mkl@pengutronix.de; prefer-encrypt=mutual; keydata=
- mQINBFFVq30BEACtnSvtXHoeHJxG6nRULcvlkW6RuNwHKmrqoksispp43X8+nwqIFYgb8UaX
- zu8T6kZP2wEIpM9RjEL3jdBjZNCsjSS6x1qzpc2+2ivjdiJsqeaagIgvy2JWy7vUa4/PyGfx
- QyUeXOxdj59DvLwAx8I6hOgeHx2X/ntKAMUxwawYfPZpP3gwTNKc27dJWSomOLgp+gbmOmgc
- 6U5KwhAxPTEb3CsT5RicsC+uQQFumdl5I6XS+pbeXZndXwnj5t84M+HEj7RN6bUfV2WZO/AB
- Xt5+qFkC/AVUcj/dcHvZwQJlGeZxoi4veCoOT2MYqfR0ax1MmN+LVRvKm29oSyD4Ts/97cbs
- XsZDRxnEG3z/7Winiv0ZanclA7v7CQwrzsbpCv+oj+zokGuKasofzKdpywkjAfSE1zTyF+8K
- nxBAmzwEqeQ3iKqBc3AcCseqSPX53mPqmwvNVS2GqBpnOfY7Mxr1AEmxdEcRYbhG6Xdn+ACq
- Dq0Db3A++3PhMSaOu125uIAIwMXRJIzCXYSqXo8NIeo9tobk0C/9w3fUfMTrBDtSviLHqlp8
- eQEP8+TDSmRP/CwmFHv36jd+XGmBHzW5I7qw0OORRwNFYBeEuiOIgxAfjjbLGHh9SRwEqXAL
- kw+WVTwh0MN1k7I9/CDVlGvc3yIKS0sA+wudYiselXzgLuP5cQARAQABtCZNYXJjIEtsZWlu
- ZS1CdWRkZSA8bWtsQHBlbmd1dHJvbml4LmRlPokCVAQTAQoAPgIbAwIeAQIXgAULCQgHAwUV
- CgkICwUWAgMBABYhBMFAC6CzmJ5vvH1bXCte4hHFiupUBQJcUsSbBQkM366zAAoJECte4hHF
- iupUgkAP/2RdxKPZ3GMqag33jKwKAbn/fRqAFWqUH9TCsRH3h6+/uEPnZdzhkL4a9p/6OeJn
- Z6NXqgsyRAOTZsSFcwlfxLNHVxBWm8pMwrBecdt4lzrjSt/3ws2GqxPsmza1Gs61lEdYvLST
- Ix2vPbB4FAfE0kizKAjRZzlwOyuHOr2ilujDsKTpFtd8lV1nBNNn6HBIBR5ShvJnwyUdzuby
- tOsSt7qJEvF1x3y49bHCy3uy+MmYuoEyG6zo9udUzhVsKe3hHYC2kfB16ZOBjFC3lH2U5An+
- yQYIIPZrSWXUeKjeMaKGvbg6W9Oi4XEtrwpzUGhbewxCZZCIrzAH2hz0dUhacxB201Y/faY6
- BdTS75SPs+zjTYo8yE9Y9eG7x/lB60nQjJiZVNvZ88QDfVuLl/heuIq+fyNajBbqbtBT5CWf
- mOP4Dh4xjm3Vwlz8imWW/drEVJZJrPYqv0HdPbY8jVMpqoe5jDloyVn3prfLdXSbKPexlJaW
- 5tnPd4lj8rqOFShRnLFCibpeHWIumqrIqIkiRA9kFW3XMgtU6JkIrQzhJb6Tc6mZg2wuYW0d
- Wo2qvdziMgPkMFiWJpsxM9xPk9BBVwR+uojNq5LzdCsXQ2seG0dhaOTaaIDWVS8U/V8Nqjrl
- 6bGG2quo5YzJuXKjtKjZ4R6k762pHJ3tnzI/jnlc1sXz
-Message-ID: <2bc70a44-8b98-0da5-9408-15d6fa0c20fe@pengutronix.de>
-Date:   Fri, 12 Jun 2020 12:34:47 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.8.1
 MIME-Version: 1.0
-In-Reply-To: <20200612103149.2onoflu5qgwaooli@pengutronix.de>
 Content-Type: text/plain; charset=utf-8
-Content-Language: de-DE
-Content-Transfer-Encoding: 8bit
-X-SA-Exim-Connect-IP: 2001:67c:670:201:5054:ff:fe8d:eefb
-X-SA-Exim-Mail-From: mkl@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: stable@vger.kernel.org
+Content-Disposition: inline
+In-Reply-To: <20200612103149.2onoflu5qgwaooli@pengutronix.de>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 6/12/20 12:31 PM, Oleksij Rempel wrote:
+On Fri, Jun 12, 2020 at 12:31:49PM +0200, Oleksij Rempel wrote:
 > On Fri, Jun 12, 2020 at 12:21:13PM +0200, Krzysztof Kozlowski wrote:
->> On Fri, Jun 12, 2020 at 11:56:04AM +0200, Wolfram Sang wrote:
->>> On Fri, Jun 12, 2020 at 11:29:41AM +0200, Krzysztof Kozlowski wrote:
->>>> On Fri, Jun 12, 2020 at 11:05:17AM +0200, Wolfram Sang wrote:
->>>>> On Wed, Jun 10, 2020 at 03:46:42PM +0200, Krzysztof Kozlowski wrote:
->>>>>> If interrupt comes early (could be triggered with CONFIG_DEBUG_SHIRQ),
->>>>>
->>>>> That code is disabled since 2011 (6d83f94db95c ("genirq: Disable the
->>>>> SHIRQ_DEBUG call in request_threaded_irq for now"))? So, you had this
->>>>> without fake injection, I assume?
->>>>
->>>> No, I observed it only after enabling DEBUG_SHIRQ (to a kernel with
->>>> some debugging options already).
->>>
->>> Interesting. Maybe probe was deferred and you got the extra irq when
->>> deregistering?
->>
->> Yes, good catch. The abort happens right after deferred probe exit.  It
->> could be then different reason than I thought - the interrupt is freed
->> through devm infrastructure quite late.  At this time, the clock might
->> be indeed disabled (error path of probe()).
+> > On Fri, Jun 12, 2020 at 11:56:04AM +0200, Wolfram Sang wrote:
+> > > On Fri, Jun 12, 2020 at 11:29:41AM +0200, Krzysztof Kozlowski wrote:
+> > > > On Fri, Jun 12, 2020 at 11:05:17AM +0200, Wolfram Sang wrote:
+> > > > > On Wed, Jun 10, 2020 at 03:46:42PM +0200, Krzysztof Kozlowski wrote:
+> > > > > > If interrupt comes early (could be triggered with CONFIG_DEBUG_SHIRQ),
+> > > > > 
+> > > > > That code is disabled since 2011 (6d83f94db95c ("genirq: Disable the
+> > > > > SHIRQ_DEBUG call in request_threaded_irq for now"))? So, you had this
+> > > > > without fake injection, I assume?
+> > > > 
+> > > > No, I observed it only after enabling DEBUG_SHIRQ (to a kernel with
+> > > > some debugging options already).
+> > > 
+> > > Interesting. Maybe probe was deferred and you got the extra irq when
+> > > deregistering?
+> > 
+> > Yes, good catch. The abort happens right after deferred probe exit.  It
+> > could be then different reason than I thought - the interrupt is freed
+> > through devm infrastructure quite late.  At this time, the clock might
+> > be indeed disabled (error path of probe()).
+> 
+> This line looks suspicious to me:
+>  Unhandled fault: external abort on non-linefetch (0x1008) at 0x8882d003
+> 
+> 0x8882d003 looks like not initialized pointer.
+> The only not initialized value at devm_request_irq stage is i2c_imx->queue.
 
-From my point of view, the clocks are disabled as Oleksij pointed out, due to
-RUNTIME_PM at the end of probe():
+The queue should be good at this time because it is part of i2c_imx
+which is allocated before interrupt (so freed after interrupt).
 
-> 	pm_runtime_mark_last_busy(&pdev->dev);
-> 	pm_runtime_put_autosuspend(&pdev->dev);
+Like Wolfram suggested, the interrupt comes because of deferred probe.
+The only solution would be to free the IRQ in error path... and in
+driver remove.
 
-Marc
+This basically kills the concept of devm for interrupts. Some other
+drivers experience exactly the same pattern. I now reproduced it on
+unbind of dspi driver of VF5xx:
 
--- 
-Pengutronix e.K.                 | Marc Kleine-Budde           |
-Embedded Linux                   | https://www.pengutronix.de  |
-Vertretung West/Dortmund         | Phone: +49-231-2826-924     |
-Amtsgericht Hildesheim, HRA 2686 | Fax:   +49-5121-206917-5555 |
+echo 4002d000.spi > /sys/devices/platform/soc/40000000.bus/4002d000.spi/driver/unbind
+[  218.391867] Unhandled fault: external abort on non-linefetch (0x1008) at 0x8887f02c
+...
+[  218.754493] [<806185c4>] (regmap_mmio_read32le) from [<8061885c>] (regmap_mmio_read+0x48/0x68)
+[  218.820049] [<80678c64>] (dspi_interrupt) from [<8017acec>] (free_irq+0x26c/0x3cc)
+[  218.827853]  r5:86312200 r4:85a71d40
+[  218.831602] [<8017aa80>] (free_irq) from [<8017dcec>] (devm_irq_release+0x1c/0x20)
+[  218.839420]  r10:805f91fc r9:8630dac8 r8:8630dac8 r7:805f9214 r6:8630d810 r5:85a54780
+[  218.847468]  r4:85a54800
+[  218.850152] [<8017dcd0>] (devm_irq_release) from [<805f98ec>] (release_nodes+0x1e4/0x298)
+
+Best regards,
+Krzysztof
+
