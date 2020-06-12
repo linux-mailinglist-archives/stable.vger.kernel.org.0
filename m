@@ -2,297 +2,140 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 89D1F1F76E4
-	for <lists+stable@lfdr.de>; Fri, 12 Jun 2020 12:46:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB9C61F76EE
+	for <lists+stable@lfdr.de>; Fri, 12 Jun 2020 12:51:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726289AbgFLKqg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jun 2020 06:46:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49720 "EHLO
+        id S1726384AbgFLKvK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jun 2020 06:51:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50430 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725911AbgFLKqe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 12 Jun 2020 06:46:34 -0400
-Received: from mail-io1-xd44.google.com (mail-io1-xd44.google.com [IPv6:2607:f8b0:4864:20::d44])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACCB6C03E96F
-        for <stable@vger.kernel.org>; Fri, 12 Jun 2020 03:46:33 -0700 (PDT)
-Received: by mail-io1-xd44.google.com with SMTP id x189so640447iof.9
-        for <stable@vger.kernel.org>; Fri, 12 Jun 2020 03:46:33 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=sargun.me; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=UhVaLcte/bQZseZm2UZAFNzVmahOYzGWl5NVHlmJpxM=;
-        b=g3fc+WbvrUuf7fzhuoSM0Bqtwx6DTuuljS5pqb5+sbhRyn7AozlgkV+xVvsrlIJm70
-         y8tnoO/CsR6mb0Qa+dTCCs+7QzzoMp5qBXlQzRnYVyzHvf4CXEh1ywyUXJYbFmR55tcp
-         +VWYtTQvNY9NU7lIhBRJqHs/gV43ZZhe2W8vI=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=UhVaLcte/bQZseZm2UZAFNzVmahOYzGWl5NVHlmJpxM=;
-        b=q5mPCuorOscyPor+tchQLBEk2uE6Krs5sI960szreoovR7OBAonWbMTr01uXfJVIb7
-         phvazwoSOx1/HfgWoCiUlMontkf3xNRkhwCzJ1KBGBjsDRkn3AYNjqcq09EDDw5833F+
-         8zBDFgjM2kqaMso2zPey94kQNiCBcuDT029cQFuQad2HZVSQlTNJmjPWbzsFLj3ohlGl
-         yp4LAU0rgSVfwCW/bHW+PuQFxllSCjDPxGKLc0+4JBjn6ZFP5vY90twbygrt/Jcevbve
-         GXCTtaGnk5ojOfgLNJiWnB0Z1cqIxW5AXH7OmxBVi45PfB2leBCqeghuoB0B9FfEry5b
-         RWgA==
-X-Gm-Message-State: AOAM531C7pcnEAv+ZCY6bmYydj58ehJC6tQzY6Vq7g0pwkiZwXY/Ebf9
-        UKzqs3sJErWpcdVysjWjHv9Eww==
-X-Google-Smtp-Source: ABdhPJwDceQMPwhQ9vSubJSTgFKXwO8RIBuV4ZgX7eSDJLKP7PusyHeuFmqsaFLk5Uw9SZlsvaWDuA==
-X-Received: by 2002:a6b:6709:: with SMTP id b9mr13217066ioc.108.1591958792714;
-        Fri, 12 Jun 2020 03:46:32 -0700 (PDT)
-Received: from ircssh-2.c.rugged-nimbus-611.internal (80.60.198.104.bc.googleusercontent.com. [104.198.60.80])
-        by smtp.gmail.com with ESMTPSA id l12sm2930795ilj.8.2020.06.12.03.46.31
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Fri, 12 Jun 2020 03:46:31 -0700 (PDT)
-Date:   Fri, 12 Jun 2020 10:46:30 +0000
-From:   Sargun Dhillon <sargun@sargun.me>
-To:     David Laight <David.Laight@ACULAB.COM>
-Cc:     'Kees Cook' <keescook@chromium.org>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        "containers@lists.linux-foundation.org" 
-        <containers@lists.linux-foundation.org>,
-        Giuseppe Scrivano <gscrivan@redhat.com>,
-        Robert Sesek <rsesek@google.com>,
-        Chris Palmer <palmer@google.com>, Jann Horn <jannh@google.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Daniel Wagner <daniel.wagner@bmw-carit.de>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Matt Denton <mpdenton@google.com>,
-        John Fastabend <john.r.fastabend@intel.com>,
-        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
-        Tejun Heo <tj@kernel.org>, Al Viro <viro@zeniv.linux.org.uk>,
-        "cgroups@vger.kernel.org" <cgroups@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "David S . Miller" <davem@davemloft.net>
-Subject: Re: [PATCH v3 1/4] fs, net: Standardize on file_receive helper to
- move fds across processes
-Message-ID: <20200612104629.GA15814@ircssh-2.c.rugged-nimbus-611.internal>
-References: <202006091346.66B79E07@keescook>
- <037A305F-B3F8-4CFA-B9F8-CD4C9EF9090B@ubuntu.com>
- <202006092227.D2D0E1F8F@keescook>
- <20200610081237.GA23425@ircssh-2.c.rugged-nimbus-611.internal>
- <202006101953.899EFB53@keescook>
- <20200611100114.awdjswsd7fdm2uzr@wittgenstein>
- <20200611110630.GB30103@ircssh-2.c.rugged-nimbus-611.internal>
- <067f494d55c14753a31657f958cb0a6e@AcuMS.aculab.com>
- <202006111634.8237E6A5C6@keescook>
- <94407449bedd4ba58d85446401ff0a42@AcuMS.aculab.com>
+        with ESMTP id S1726362AbgFLKvJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 12 Jun 2020 06:51:09 -0400
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94757C03E96F
+        for <stable@vger.kernel.org>; Fri, 12 Jun 2020 03:51:08 -0700 (PDT)
+Received: from gallifrey.ext.pengutronix.de ([2001:67c:670:201:5054:ff:fe8d:eefb] helo=bjornoya.blackshift.org)
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <mkl@pengutronix.de>)
+        id 1jjhH1-0001TH-TH; Fri, 12 Jun 2020 12:50:59 +0200
+Received: from [IPv6:2a03:f580:87bc:d400:b44d:6713:e0e9:e23c] (unknown [IPv6:2a03:f580:87bc:d400:b44d:6713:e0e9:e23c])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-384) server-signature RSA-PSS (4096 bits)
+         client-signature RSA-PSS (4096 bits))
+        (Client CN "mkl@blackshift.org", Issuer "StartCom Class 1 Client CA" (not verified))
+        (Authenticated sender: mkl@blackshift.org)
+        by smtp.blackshift.org (Postfix) with ESMTPSA id EBE8C5150C1;
+        Fri, 12 Jun 2020 10:50:57 +0000 (UTC)
+Subject: Re: [PATCH] i2c: imx: Fix external abort on early interrupt
+To:     Krzysztof Kozlowski <krzk@kernel.org>
+Cc:     Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Oleksij Rempel <linux@rempel-privat.de>,
+        Wolfram Sang <wsa@kernel.org>,
+        Oleksij Rempel <o.rempel@pengutronix.de>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        Fabio Estevam <festevam@gmail.com>,
+        linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
+References: <1591796802-23504-1-git-send-email-krzk@kernel.org>
+ <20200612090517.GA3030@ninjato> <20200612092941.GA25990@pi3>
+ <20200612095604.GA17763@ninjato> <20200612102113.GA26056@pi3>
+ <20200612103149.2onoflu5qgwaooli@pengutronix.de>
+ <2bc70a44-8b98-0da5-9408-15d6fa0c20fe@pengutronix.de>
+ <20200612104413.GC26056@pi3>
+From:   Marc Kleine-Budde <mkl@pengutronix.de>
+Autocrypt: addr=mkl@pengutronix.de; prefer-encrypt=mutual; keydata=
+ mQINBFFVq30BEACtnSvtXHoeHJxG6nRULcvlkW6RuNwHKmrqoksispp43X8+nwqIFYgb8UaX
+ zu8T6kZP2wEIpM9RjEL3jdBjZNCsjSS6x1qzpc2+2ivjdiJsqeaagIgvy2JWy7vUa4/PyGfx
+ QyUeXOxdj59DvLwAx8I6hOgeHx2X/ntKAMUxwawYfPZpP3gwTNKc27dJWSomOLgp+gbmOmgc
+ 6U5KwhAxPTEb3CsT5RicsC+uQQFumdl5I6XS+pbeXZndXwnj5t84M+HEj7RN6bUfV2WZO/AB
+ Xt5+qFkC/AVUcj/dcHvZwQJlGeZxoi4veCoOT2MYqfR0ax1MmN+LVRvKm29oSyD4Ts/97cbs
+ XsZDRxnEG3z/7Winiv0ZanclA7v7CQwrzsbpCv+oj+zokGuKasofzKdpywkjAfSE1zTyF+8K
+ nxBAmzwEqeQ3iKqBc3AcCseqSPX53mPqmwvNVS2GqBpnOfY7Mxr1AEmxdEcRYbhG6Xdn+ACq
+ Dq0Db3A++3PhMSaOu125uIAIwMXRJIzCXYSqXo8NIeo9tobk0C/9w3fUfMTrBDtSviLHqlp8
+ eQEP8+TDSmRP/CwmFHv36jd+XGmBHzW5I7qw0OORRwNFYBeEuiOIgxAfjjbLGHh9SRwEqXAL
+ kw+WVTwh0MN1k7I9/CDVlGvc3yIKS0sA+wudYiselXzgLuP5cQARAQABtCZNYXJjIEtsZWlu
+ ZS1CdWRkZSA8bWtsQHBlbmd1dHJvbml4LmRlPokCVAQTAQoAPgIbAwIeAQIXgAULCQgHAwUV
+ CgkICwUWAgMBABYhBMFAC6CzmJ5vvH1bXCte4hHFiupUBQJcUsSbBQkM366zAAoJECte4hHF
+ iupUgkAP/2RdxKPZ3GMqag33jKwKAbn/fRqAFWqUH9TCsRH3h6+/uEPnZdzhkL4a9p/6OeJn
+ Z6NXqgsyRAOTZsSFcwlfxLNHVxBWm8pMwrBecdt4lzrjSt/3ws2GqxPsmza1Gs61lEdYvLST
+ Ix2vPbB4FAfE0kizKAjRZzlwOyuHOr2ilujDsKTpFtd8lV1nBNNn6HBIBR5ShvJnwyUdzuby
+ tOsSt7qJEvF1x3y49bHCy3uy+MmYuoEyG6zo9udUzhVsKe3hHYC2kfB16ZOBjFC3lH2U5An+
+ yQYIIPZrSWXUeKjeMaKGvbg6W9Oi4XEtrwpzUGhbewxCZZCIrzAH2hz0dUhacxB201Y/faY6
+ BdTS75SPs+zjTYo8yE9Y9eG7x/lB60nQjJiZVNvZ88QDfVuLl/heuIq+fyNajBbqbtBT5CWf
+ mOP4Dh4xjm3Vwlz8imWW/drEVJZJrPYqv0HdPbY8jVMpqoe5jDloyVn3prfLdXSbKPexlJaW
+ 5tnPd4lj8rqOFShRnLFCibpeHWIumqrIqIkiRA9kFW3XMgtU6JkIrQzhJb6Tc6mZg2wuYW0d
+ Wo2qvdziMgPkMFiWJpsxM9xPk9BBVwR+uojNq5LzdCsXQ2seG0dhaOTaaIDWVS8U/V8Nqjrl
+ 6bGG2quo5YzJuXKjtKjZ4R6k762pHJ3tnzI/jnlc1sXz
+Message-ID: <651c9a33-71e6-c042-58e2-6ad501e984cd@pengutronix.de>
+Date:   Fri, 12 Jun 2020 12:50:56 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.8.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <94407449bedd4ba58d85446401ff0a42@AcuMS.aculab.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+In-Reply-To: <20200612104413.GC26056@pi3>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-GB
+Content-Transfer-Encoding: 8bit
+X-SA-Exim-Connect-IP: 2001:67c:670:201:5054:ff:fe8d:eefb
+X-SA-Exim-Mail-From: mkl@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: stable@vger.kernel.org
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jun 12, 2020 at 08:36:03AM +0000, David Laight wrote:
-> From: Kees Cook
-> > Sent: 12 June 2020 00:50
-> > > From: Sargun Dhillon
-> > > > Sent: 11 June 2020 12:07
-> > > > Subject: Re: [PATCH v3 1/4] fs, net: Standardize on file_receive helper to move fds across
-> > processes
-> > > >
-> > > > On Thu, Jun 11, 2020 at 12:01:14PM +0200, Christian Brauner wrote:
-> > > > > On Wed, Jun 10, 2020 at 07:59:55PM -0700, Kees Cook wrote:
-> > > > > > On Wed, Jun 10, 2020 at 08:12:38AM +0000, Sargun Dhillon wrote:
-> > > > > > > As an aside, all of this junk should be dropped:
-> > > > > > > +	ret = get_user(size, &uaddfd->size);
-> > > > > > > +	if (ret)
-> > > > > > > +		return ret;
-> > > > > > > +
-> > > > > > > +	ret = copy_struct_from_user(&addfd, sizeof(addfd), uaddfd, size);
-> > > > > > > +	if (ret)
-> > > > > > > +		return ret;
-> > > > > > >
-> > > > > > > and the size member of the seccomp_notif_addfd struct. I brought this up
-> > > > > > > off-list with Tycho that ioctls have the size of the struct embedded in them. We
-> > > > > > > should just use that. The ioctl definition is based on this[2]:
-> > > > > > > #define _IOC(dir,type,nr,size) \
-> > > > > > > 	(((dir)  << _IOC_DIRSHIFT) | \
-> > > > > > > 	 ((type) << _IOC_TYPESHIFT) | \
-> > > > > > > 	 ((nr)   << _IOC_NRSHIFT) | \
-> > > > > > > 	 ((size) << _IOC_SIZESHIFT))
-> > > > > > >
-> > > > > > >
-> > > > > > > We should just use copy_from_user for now. In the future, we can either
-> > > > > > > introduce new ioctl names for new structs, or extract the size dynamically from
-> > > > > > > the ioctl (and mask it out on the switch statement in seccomp_notify_ioctl.
-> > > > > >
-> > > > > > Yeah, that seems reasonable. Here's the diff for that part:
-> > > > >
-> > > > > Why does it matter that the ioctl() has the size of the struct embedded
-> > > > > within? Afaik, the kernel itself doesn't do anything with that size. It
-> > > > > merely checks that the size is not pathological and it does so at
-> > > > > compile time.
-> > > > >
-> > > > > #ifdef __CHECKER__
-> > > > > #define _IOC_TYPECHECK(t) (sizeof(t))
-> > > > > #else
-> > > > > /* provoke compile error for invalid uses of size argument */
-> > > > > extern unsigned int __invalid_size_argument_for_IOC;
-> > > > > #define _IOC_TYPECHECK(t) \
-> > > > > 	((sizeof(t) == sizeof(t[1]) && \
-> > > > > 	  sizeof(t) < (1 << _IOC_SIZEBITS)) ? \
-> > > > > 	  sizeof(t) : __invalid_size_argument_for_IOC)
-> > > > > #endif
-> > > > >
-> > > > > The size itself is not verified at runtime. copy_struct_from_user()
-> > > > > still makes sense at least if we're going to allow expanding the struct
-> > > > > in the future.
-> > > > Right, but if we simply change our headers and extend the struct, it will break
-> > > > all existing programs compiled against those headers. In order to avoid that, if
-> > > > we intend on extending this struct by appending to it, we need to have a
-> > > > backwards compatibility mechanism. Just having copy_struct_from_user isn't
-> > > > enough. The data structure either must be fixed size, or we need a way to handle
-> > > > multiple ioctl numbers derived from headers with different sized struct arguments
-> > > >
-> > > > The two approaches I see are:
-> > > > 1. use more indirection. This has previous art in drm[1]. That's look
-> > > > something like this:
-> > > >
-> > > > struct seccomp_notif_addfd_ptr {
-> > > > 	__u64 size;
-> > > > 	__u64 addr;
-> > > > }
-> > > >
-> > > > ... And then it'd be up to us to dereference the addr and copy struct from user.
-> > >
-> > > Do not go down that route. It isn't worth the pain.
-> > >
-> > > You should also assume that userspace might have a compile-time check
-> > > on the buffer length (I've written one - not hard) and that the kernel
-> > > might (in the future - or on a BSD kernel) be doing the user copies
-> > > for you.
-> > >
-> > > Also, if you change the structure you almost certainly need to
-> > > change the name of the ioctl cmd as well as its value.
-> > > Otherwise a recompiled program will pass the new cmd value (and
-> > > hopefully the right sized buffer) but it won't have initialised
-> > > the buffer properly.
-> > > This is likely to lead to unexpected behaviour.
-Why do you say this? Assuming people are just pulling in <linux/seccomp.h>
-they will get both the ioctl number, and the struct. The one case where
-I can see things going wrong is languages which implement their own struct
-packing / ioctls and wouldn't get the updated # because it's hard coded.
-
-
-> > 
-> > Hmmm.
-> > 
-> > So, while initially I thought Sargun's observation about ioctl's fixed
-> > struct size was right, I think I've been swayed to Christian's view
-> > (which is supported by the long tail of struct size pain we've seen in
-> > other APIs).
-> > 
-> > Doing a separate ioctl for each structure version seems like the "old
-> > solution" now that we've got EA syscalls. So, I'd like to keep the size
-> > and copy_struct_from_user().
+On 6/12/20 12:44 PM, Krzysztof Kozlowski wrote:
+> On Fri, Jun 12, 2020 at 12:34:47PM +0200, Marc Kleine-Budde wrote:
+>> On 6/12/20 12:31 PM, Oleksij Rempel wrote:
+>>> On Fri, Jun 12, 2020 at 12:21:13PM +0200, Krzysztof Kozlowski wrote:
+>>>> On Fri, Jun 12, 2020 at 11:56:04AM +0200, Wolfram Sang wrote:
+>>>>> On Fri, Jun 12, 2020 at 11:29:41AM +0200, Krzysztof Kozlowski wrote:
+>>>>>> On Fri, Jun 12, 2020 at 11:05:17AM +0200, Wolfram Sang wrote:
+>>>>>>> On Wed, Jun 10, 2020 at 03:46:42PM +0200, Krzysztof Kozlowski wrote:
+>>>>>>>> If interrupt comes early (could be triggered with CONFIG_DEBUG_SHIRQ),
+>>>>>>>
+>>>>>>> That code is disabled since 2011 (6d83f94db95c ("genirq: Disable the
+>>>>>>> SHIRQ_DEBUG call in request_threaded_irq for now"))? So, you had this
+>>>>>>> without fake injection, I assume?
+>>>>>>
+>>>>>> No, I observed it only after enabling DEBUG_SHIRQ (to a kernel with
+>>>>>> some debugging options already).
+>>>>>
+>>>>> Interesting. Maybe probe was deferred and you got the extra irq when
+>>>>> deregistering?
+>>>>
+>>>> Yes, good catch. The abort happens right after deferred probe exit.  It
+>>>> could be then different reason than I thought - the interrupt is freed
+>>>> through devm infrastructure quite late.  At this time, the clock might
+>>>> be indeed disabled (error path of probe()).
+>>
+>> From my point of view, the clocks are disabled as Oleksij pointed out, due to
+>> RUNTIME_PM at the end of probe():
+>>
+>>> 	pm_runtime_mark_last_busy(&pdev->dev);
+>>> 	pm_runtime_put_autosuspend(&pdev->dev);
 > 
-> If the size is variable then why not get the application to fill
-> in the size of the structure it is sending at the time of the ioctl.
+> These lines come from regular successful probe path, not deferred error path.
 > 
-> So you'd have:
-> #define xxx_IOCTL_17(param) _IOCW('X', 17, sizeof *(param))
-> 
-> The application code would then do:
-> 	ioctl(fd, xxx_IOCTL_17(arg), arg);
-> 
-> The kernel code can either choose to have specific 'case'
-> for each size, or mask off the length bits and do the
-> length check later.
-> 
-> 	David
-> 
-> 
-My suggest, written out (no idea if this code actually works), is as follows:
+> The clock is indeed disabled but not because of runtime PM, but:
+> clk_disable:
+> 	clk_disable_unprepare(i2c_imx->clk);
 
-ioctl.h:
-/* This needs to be added */
-#define IOCDIR_MASK	(_IOC_DIRMASK << _IOC_DIRSHIFT)
+ACK.
 
+I think your analysis is correct: devm for shared IRQs does not work for IP
+cores that need enabled clocks for register access.
 
-seccomp.h:
+And from Oleksij's comment we can conclude that runtime_pm and shared IRQ
+handlers are also tricky for these IP cores :(
 
-struct struct seccomp_notif_addfd {
-	__u64 fd;
-	...
-}
+Marc
 
-/* or IOW? */
-#define SECCOMP_IOCTL_NOTIF_ADDFD	SECCOMP_IOWR(3, struct seccomp_notif_addfd)
-
-seccomp.c:
-static long seccomp_notify_addfd(struct seccomp_filter *filter,
-				 struct seccomp_notif_addfd __user *uaddfd int size)
-{
-	struct seccomp_notif_addfd addfd;
-	int ret;
-
-	if (size < 32)
-		return -EINVAL;
-	if (size > PAGE_SIZE)
-		return -E2BIG;
-
-	ret = copy_struct_from_user(&addfd, sizeof(addfd), uaddfd, size);
-	if (ret)
-		return ret;
-
-	...
-}
-
-/* Mask out size */
-#define SIZE_MASK(cmd)	(~IOCSIZE_MASK & cmd)
-
-/* Mask out direction */
-#define DIR_MASK(cmd)	(~IOCDIR_MASK & cmd)
-
-static long seccomp_notify_ioctl(struct file *file, unsigned int cmd,
-				 unsigned long arg)
-{
-	struct seccomp_filter *filter = file->private_data;
-	void __user *buf = (void __user *)arg;
-
-	/* Fixed size ioctls. Can be converted later on? */
-	switch (cmd) {
-	case SECCOMP_IOCTL_NOTIF_RECV:
-		return seccomp_notify_recv(filter, buf);
-	case SECCOMP_IOCTL_NOTIF_SEND:
-		return seccomp_notify_send(filter, buf);
-	case SECCOMP_IOCTL_NOTIF_ID_VALID:
-		return seccomp_notify_id_valid(filter, buf);
-	}
-
-	/* Probably should make some nicer macros here */
-	switch (SIZE_MASK(DIR_MASK(cmd))) {
-	case SIZE_MASK(DIR_MASK(SECCOMP_IOCTL_NOTIF_ADDFD)):
-		return seccomp_notify_addfd(filter, buf, _IOC_SIZE(cmd));
-	default:
-		return -EINVAL;
-	}
-}
-
---------
-
-What boxes does this tick?
-* Forwards (and backwards) compatibility
-* Applies to existing commands
-* Command can be extended without requiring new ioctl to be defined
-* It well accomodates the future where we want to have a kernel
-  helper copy the structures from userspace
-
-The fact that the size of the argument struct, and the ioctl are defined in the 
-same header gives us the ability to "cheat", and for the argument size to be 
-included / embedded for free in the command passed to ioctl. In turn, this
-gives us two benefits. First, it means we don't have to copy from user twice,
-and can just do it all in one shot since the size is passed with the syscall
-arguments. Second, it means that the user does not have to do the following:
-
-seccomp_notif_addfd addfd = {};
-addfd.size = sizeof(struct seccomp_notif_addfd)
-
-Because sizeof(struct seccomp_notif_addfd) is embedded in 
-SECCOMP_IOCTL_NOTIF_ADDFD based on the same headers they plucked the struct out of.
-
+-- 
+Pengutronix e.K.                 | Marc Kleine-Budde           |
+Embedded Linux                   | https://www.pengutronix.de  |
+Vertretung West/Dortmund         | Phone: +49-231-2826-924     |
+Amtsgericht Hildesheim, HRA 2686 | Fax:   +49-5121-206917-5555 |
