@@ -2,172 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DE121F74FF
-	for <lists+stable@lfdr.de>; Fri, 12 Jun 2020 10:03:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CCB591F753B
+	for <lists+stable@lfdr.de>; Fri, 12 Jun 2020 10:23:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726327AbgFLIDb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jun 2020 04:03:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52900 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726262AbgFLIDa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 12 Jun 2020 04:03:30 -0400
-Received: from mail-lf1-x144.google.com (mail-lf1-x144.google.com [IPv6:2a00:1450:4864:20::144])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 861ACC03E96F
-        for <stable@vger.kernel.org>; Fri, 12 Jun 2020 01:03:30 -0700 (PDT)
-Received: by mail-lf1-x144.google.com with SMTP id w15so4962710lfe.11
-        for <stable@vger.kernel.org>; Fri, 12 Jun 2020 01:03:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=android.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=3VJQVK8KxEZy44A4q0tI85Y8fEnNPI/2JQ7v3xMmBdA=;
-        b=Phor9LJD4hvBOvwad87WNWqqp0hILeYKJ8e6xKfBOlVoVuoaJBtCV3EWim+kVu+DMT
-         1pTJVUQh5d85NtzeHC8zKeBl5LRIq82OGtM57AkkUdRLygalcl5AX+L0mvohY7caYLPb
-         ON9JDRsvZdwmwybesxn8hqIPRnyUy8S1bNQTxCb6wDESGhv+dUrs6ieH2wguK07V32MB
-         6xcXBa/WvxX+Ey441zavBogz/1/1XFo83o00wGkla61pS27azCvGS8bO55HP47JU40OB
-         RNtza0dSWBb+6yICFj13KFhbG7kFQQCbAbhXuQOJcGV3SOuY3zsvYhqbItHcrVVu62yr
-         bQXg==
+        id S1726319AbgFLIXd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jun 2020 04:23:33 -0400
+Received: from mail-ed1-f67.google.com ([209.85.208.67]:39807 "EHLO
+        mail-ed1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726264AbgFLIXd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 12 Jun 2020 04:23:33 -0400
+Received: by mail-ed1-f67.google.com with SMTP id g1so5812887edv.6;
+        Fri, 12 Jun 2020 01:23:31 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=3VJQVK8KxEZy44A4q0tI85Y8fEnNPI/2JQ7v3xMmBdA=;
-        b=J3fOOfw3oXs0PYC+WfZZjTly2GldkqbdNt3Ns+bQ6qSuWCQem0k+V/8ah5DJeLloet
-         sKDvt252NRdgna/vuyZSwihGi2lLyF/+HDpufnDDUi1ERwggEbe4x6VPjx7tJCJ2Lt/A
-         Hyo5zjXnnz1/NnaNO0tbSsfI8NU+6AJ1mwsNayyDqsXlFjOXNrOEIQMqKYawq7qrC8he
-         KXrP+zBQCgILbNJpePQvjXJlb8cQr0okFJNTtJ6Au+/M/qFTcO8DDSTd7HsTfJg5kY3e
-         Cfez3VzaMOg64rH7/Vxs5kuMv6qXeB27VZOkoiJB6Aqf3XziEz2hBrhUVwB18D7Ih0IS
-         X97A==
-X-Gm-Message-State: AOAM5314xSY80fEskhBPqMoYNrWDd8XSYYGI8hRrRMhb37i0S6U712Mz
-        GqwBXWGSHdhzPfpPQIFRkaa5uobuEfh8dFWWprQheRRVdrOfYg==
-X-Google-Smtp-Source: ABdhPJxyqEDXun+8F1M5CDL8LieYo7VIDySJCOCesOCZUAm0HKt0iUqs0KihTjxO6p+FPRMFbOTXb3OmLm6//ADH9YQ=
-X-Received: by 2002:a19:356:: with SMTP id 83mr6268265lfd.179.1591949008970;
- Fri, 12 Jun 2020 01:03:28 -0700 (PDT)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=W7kjCf2/NPWzaAeHmAsGNvR+U/IDoRneEJh+pNJVKTI=;
+        b=rRwlEsGEidwnhVrlJr8ciBVdEz7z7zNlRfks+dZPjljVIj6O+5mwG4HGk6HuFuvOqx
+         EZtiPFi3tEGm3372WvMTYupVxFk5mY49qzSlM1Oc9HRwvmJfjBHlksK0ahP3diQqql+v
+         3BKxwhCkW1M9ZDR/F3zMiGHLk0Z19gwafaB5JwttznLTLc2zdEexuLsajTGgw/kvqIHX
+         57MUJQ0Mu8t48E7zxv74uIjyFGcaU0WGqNjRnM+sAFOZUzg5h+9aBWqc73y/gmHKh2ar
+         A1lRn49p5ysqqwmVPtaGksPjMuPyzmdBl6asnDfeC6duCYuMqFynUcouFeyRbdifaEPy
+         wgGQ==
+X-Gm-Message-State: AOAM5305kgABOa7HxU36CLhnCyCoSNgvRpFGr4hkSygp0t72xV/Z1I+j
+        OXt5P0DwpYGU25ZKtE6LzJM=
+X-Google-Smtp-Source: ABdhPJxxAoLFRIexOIimzunGIXKEGJy9vuUQgzNABANWPlkiFc4Cg/PTfeBSdakQzbTCe25y53Zq9g==
+X-Received: by 2002:a50:f1d9:: with SMTP id y25mr10284528edl.292.1591950211017;
+        Fri, 12 Jun 2020 01:23:31 -0700 (PDT)
+Received: from pi3 ([194.230.155.184])
+        by smtp.googlemail.com with ESMTPSA id g22sm2797843edj.63.2020.06.12.01.23.29
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 12 Jun 2020 01:23:29 -0700 (PDT)
+Date:   Fri, 12 Jun 2020 10:23:27 +0200
+From:   Krzysztof Kozlowski <krzk@kernel.org>
+To:     Oleksij Rempel <o.rempel@pengutronix.de>
+Cc:     Fugang Duan <B38611@freescale.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        linux-kernel@vger.kernel.org, Gao Pan <b54642@freescale.com>,
+        Oleksij Rempel <linux@rempel-privat.de>,
+        Wolfram Sang <wsa@kernel.org>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        stable@vger.kernel.org, Fabio Estevam <festevam@gmail.com>,
+        linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
+Subject: Re: [PATCH] i2c: imx: Fix external abort on early interrupt
+Message-ID: <20200612082327.GA25893@pi3>
+References: <1591796802-23504-1-git-send-email-krzk@kernel.org>
+ <20200612055114.alhm2uakoze6epvf@pengutronix.de>
+ <20200612073815.GA25803@pi3>
+ <20200612080240.73xkiu2esgg6nbp3@pengutronix.de>
 MIME-Version: 1.0
-References: <20200611075033.1248-1-jack@suse.cz> <20200611081203.18161-2-jack@suse.cz>
-In-Reply-To: <20200611081203.18161-2-jack@suse.cz>
-From:   Martijn Coenen <maco@android.com>
-Date:   Fri, 12 Jun 2020 10:03:18 +0200
-Message-ID: <CAB0TPYFOtDdS8BRk6aMhhB_5nxw4N7unqHCjgLFNh=YZC3vywA@mail.gmail.com>
-Subject: Re: [PATCH 2/4] writeback: Avoid skipping inode writeback
-To:     Jan Kara <jack@suse.cz>
-Cc:     linux-fsdevel@vger.kernel.org,
-        Christoph Hellwig <hch@infradead.org>, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20200612080240.73xkiu2esgg6nbp3@pengutronix.de>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Jan,
+On Fri, Jun 12, 2020 at 10:02:40AM +0200, Oleksij Rempel wrote:
+> On Fri, Jun 12, 2020 at 09:38:15AM +0200, Krzysztof Kozlowski wrote:
+> > On Fri, Jun 12, 2020 at 07:51:14AM +0200, Oleksij Rempel wrote:
+> > > Hi Krzysztof,
+> > > 
+> > > thank you for your patch.
+> > > 
+> > > On Wed, Jun 10, 2020 at 03:46:42PM +0200, Krzysztof Kozlowski wrote:
+> > > > If interrupt comes early (could be triggered with CONFIG_DEBUG_SHIRQ),
+> > > > the i2c_imx_isr() will access registers before the I2C hardware is
+> > > > initialized.  This leads to external abort on non-linefetch on Toradex
+> > > > Colibri VF50 module (with Vybrid VF5xx):
+> > > > 
+> > > >     Unhandled fault: external abort on non-linefetch (0x1008) at 0x8882d003
+> > > >     Internal error: : 1008 [#1] ARM
+> > > >     Modules linked in:
+> > > >     CPU: 0 PID: 1 Comm: swapper Not tainted 5.7.0 #607
+> > > >     Hardware name: Freescale Vybrid VF5xx/VF6xx (Device Tree)
+> > > >       (i2c_imx_isr) from [<8017009c>] (free_irq+0x25c/0x3b0)
+> > > >       (free_irq) from [<805844ec>] (release_nodes+0x178/0x284)
+> > > >       (release_nodes) from [<80580030>] (really_probe+0x10c/0x348)
+> > > >       (really_probe) from [<80580380>] (driver_probe_device+0x60/0x170)
+> > > >       (driver_probe_device) from [<80580630>] (device_driver_attach+0x58/0x60)
+> > > >       (device_driver_attach) from [<805806bc>] (__driver_attach+0x84/0xc0)
+> > > >       (__driver_attach) from [<8057e228>] (bus_for_each_dev+0x68/0xb4)
+> > > >       (bus_for_each_dev) from [<8057f3ec>] (bus_add_driver+0x144/0x1ec)
+> > > >       (bus_add_driver) from [<80581320>] (driver_register+0x78/0x110)
+> > > >       (driver_register) from [<8010213c>] (do_one_initcall+0xa8/0x2f4)
+> > > >       (do_one_initcall) from [<80c0100c>] (kernel_init_freeable+0x178/0x1dc)
+> > > >       (kernel_init_freeable) from [<80807048>] (kernel_init+0x8/0x110)
+> > > >       (kernel_init) from [<80100114>] (ret_from_fork+0x14/0x20)
+> > > > 
+> > > > Additionally, the i2c_imx_isr() could wake up the wait queue
+> > > > (imx_i2c_struct->queue) before its initialization happens.
+> > > > 
+> > > > Fixes: 1c4b6c3bcf30 ("i2c: imx: implement bus recovery")
+> > > > Cc: <stable@vger.kernel.org>
+> > > > Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+> > > 
+> > > 
+> > > I assume register access is aborted, because the IP core clock is not
+> > > enabled. In this case we have bigger problem then just probe.
+> > 
+> > If by IP core clock you mean the clock which driver is getting, then
+> > answer is no. This clock is enabled.
+> > 
+> > > Since this driver support runtime power management, the clock will be
+> > > disabled as soon as transfer is done. It means, on shared interrupt, we
+> > > will get in trouble even if there is no active transfer.
+> > 
+> > The driver's runtime PM plays only with this one clock, so it seems
+> > you meant i2c_imx->clk. It is not this problem.
+> > 
+> > > 
+> > > So, probably the only way to fix it, is to check in i2c_imx_isr() if the
+> > > HW is expected to be active and register access should be save.
+> > 
+> > Checking in every interrupt whether the interrupt should be serviced
+> > based on some SW flag because HW might be disabled? That looks unusual,
+> > like a hack.
+> > 
+> > No, the interrupt should be registered when the driver and some other
+> > pieces of HW are ready to service it.
+> 
+> OK.
+> please make sure, irq is probed before calling
+> i2c_add_numbered_adapter(). This will trigger deferred probing of
+> slave devices. Since the irq handler will be added later, tx completion
+> of some requests will be lost or fail.
 
-On Thu, Jun 11, 2020 at 10:12 AM Jan Kara <jack@suse.cz> wrote:
-> Reported-by: Martijn Coenen <maco@android.com>
-> Fixes: 0ae45f63d4ef ("vfs: add support for a lazytime mount option")
-> CC: stable@vger.kernel.org
-> Signed-off-by: Jan Kara <jack@suse.cz>
+Right. I'll move the devm_request_irq().
 
-Thanks again for the fix. We've been running this (well, v1) for over
-2 weeks across at least ~1000 Android devices with different kernel
-versions, and I can confirm we haven't run into the issue this intends
-to fix, or any other issues for that matter. The patch LGTM as well.
+Best regards,
+Krzysztof
 
-Reviewed-by: Martijn Coenen <maco@android.com>
-Tested-by: Martijn Coenen <maco@android.com>
-
-> ---
->  fs/fs-writeback.c  | 17 ++++++++++++-----
->  include/linux/fs.h |  8 ++++++--
->  2 files changed, 18 insertions(+), 7 deletions(-)
->
-> diff --git a/fs/fs-writeback.c b/fs/fs-writeback.c
-> index ff0b18331590..f470c10641c5 100644
-> --- a/fs/fs-writeback.c
-> +++ b/fs/fs-writeback.c
-> @@ -146,6 +146,7 @@ static void inode_io_list_del_locked(struct inode *inode,
->         assert_spin_locked(&wb->list_lock);
->         assert_spin_locked(&inode->i_lock);
->
-> +       inode->i_state &= ~I_SYNC_QUEUED;
->         list_del_init(&inode->i_io_list);
->         wb_io_lists_depopulated(wb);
->  }
-> @@ -1187,6 +1188,7 @@ static void redirty_tail_locked(struct inode *inode, struct bdi_writeback *wb)
->                         inode->dirtied_when = jiffies;
->         }
->         inode_io_list_move_locked(inode, wb, &wb->b_dirty);
-> +       inode->i_state &= ~I_SYNC_QUEUED;
->  }
->
->  static void redirty_tail(struct inode *inode, struct bdi_writeback *wb)
-> @@ -1262,8 +1264,11 @@ static int move_expired_inodes(struct list_head *delaying_queue,
->                         break;
->                 list_move(&inode->i_io_list, &tmp);
->                 moved++;
-> +               spin_lock(&inode->i_lock);
->                 if (flags & EXPIRE_DIRTY_ATIME)
-> -                       set_bit(__I_DIRTY_TIME_EXPIRED, &inode->i_state);
-> +                       inode->i_state |= I_DIRTY_TIME_EXPIRED;
-> +               inode->i_state |= I_SYNC_QUEUED;
-> +               spin_unlock(&inode->i_lock);
->                 if (sb_is_blkdev_sb(inode->i_sb))
->                         continue;
->                 if (sb && sb != inode->i_sb)
-> @@ -1438,6 +1443,7 @@ static void requeue_inode(struct inode *inode, struct bdi_writeback *wb,
->         } else if (inode->i_state & I_DIRTY_TIME) {
->                 inode->dirtied_when = jiffies;
->                 inode_io_list_move_locked(inode, wb, &wb->b_dirty_time);
-> +               inode->i_state &= ~I_SYNC_QUEUED;
->         } else {
->                 /* The inode is clean. Remove from writeback lists. */
->                 inode_io_list_del_locked(inode, wb);
-> @@ -2301,11 +2307,12 @@ void __mark_inode_dirty(struct inode *inode, int flags)
->                 inode->i_state |= flags;
->
->                 /*
-> -                * If the inode is being synced, just update its dirty state.
-> -                * The unlocker will place the inode on the appropriate
-> -                * superblock list, based upon its state.
-> +                * If the inode is queued for writeback by flush worker, just
-> +                * update its dirty state. Once the flush worker is done with
-> +                * the inode it will place it on the appropriate superblock
-> +                * list, based upon its state.
->                  */
-> -               if (inode->i_state & I_SYNC)
-> +               if (inode->i_state & I_SYNC_QUEUED)
->                         goto out_unlock_inode;
->
->                 /*
-> diff --git a/include/linux/fs.h b/include/linux/fs.h
-> index 19ef6c88c152..48556efcdcf0 100644
-> --- a/include/linux/fs.h
-> +++ b/include/linux/fs.h
-> @@ -2157,6 +2157,10 @@ static inline void kiocb_clone(struct kiocb *kiocb, struct kiocb *kiocb_src,
->   *
->   * I_DONTCACHE         Evict inode as soon as it is not used anymore.
->   *
-> + * I_SYNC_QUEUED       Inode is queued in b_io or b_more_io writeback lists.
-> + *                     Used to detect that mark_inode_dirty() should not move
-> + *                     inode between dirty lists.
-> + *
->   * Q: What is the difference between I_WILL_FREE and I_FREEING?
->   */
->  #define I_DIRTY_SYNC           (1 << 0)
-> @@ -2174,12 +2178,12 @@ static inline void kiocb_clone(struct kiocb *kiocb, struct kiocb *kiocb_src,
->  #define I_DIO_WAKEUP           (1 << __I_DIO_WAKEUP)
->  #define I_LINKABLE             (1 << 10)
->  #define I_DIRTY_TIME           (1 << 11)
-> -#define __I_DIRTY_TIME_EXPIRED 12
-> -#define I_DIRTY_TIME_EXPIRED   (1 << __I_DIRTY_TIME_EXPIRED)
-> +#define I_DIRTY_TIME_EXPIRED   (1 << 12)
->  #define I_WB_SWITCH            (1 << 13)
->  #define I_OVL_INUSE            (1 << 14)
->  #define I_CREATING             (1 << 15)
->  #define I_DONTCACHE            (1 << 16)
-> +#define I_SYNC_QUEUED          (1 << 17)
->
->  #define I_DIRTY_INODE (I_DIRTY_SYNC | I_DIRTY_DATASYNC)
->  #define I_DIRTY (I_DIRTY_INODE | I_DIRTY_PAGES)
-> --
-> 2.16.4
->
