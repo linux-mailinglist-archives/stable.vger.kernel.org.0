@@ -2,131 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 00AD51F716F
-	for <lists+stable@lfdr.de>; Fri, 12 Jun 2020 02:34:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C8E781F7195
+	for <lists+stable@lfdr.de>; Fri, 12 Jun 2020 03:07:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726305AbgFLAe4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Jun 2020 20:34:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50102 "EHLO mail.kernel.org"
+        id S1726327AbgFLBH5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Jun 2020 21:07:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45058 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726357AbgFLAe4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 11 Jun 2020 20:34:56 -0400
-Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
+        id S1726326AbgFLBH5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 11 Jun 2020 21:07:57 -0400
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1EA8A20882;
-        Fri, 12 Jun 2020 00:34:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9A1E020842;
+        Fri, 12 Jun 2020 01:07:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591922095;
-        bh=zz+R1tCrrdbQFLgkAtoix3CaVcItIv3OOhLFlcxW5VE=;
-        h=Date:From:To:Subject:In-Reply-To:From;
-        b=ku99JAQfZY65Zi4/pqb7KDYGjjxaht62ddB6kDR8Kr9d6tpFEwETB05ILV7qEZBUd
-         kOCxppxZtWW2m7THDNlyumzyo7MPFnDV4SLHZVDwrHPYT4D9t4bx/IWQHOp6/Hx01T
-         Gml3HtZoboK7T/RAdinAYRstmOC+Jv6Df9fhBV7I=
-Date:   Thu, 11 Jun 2020 17:34:54 -0700
-From:   Andrew Morton <akpm@linux-foundation.org>
-To:     akpm@linux-foundation.org, dave.rodgman@arm.com,
-        linux-mm@kvack.org, mark.rutland@arm.com, markus@oberhumer.com,
-        minchan@kernel.org, mm-commits@vger.kernel.org, ngupta@vflare.org,
-        sergey.senozhatsky.work@gmail.com, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, w@1wt.eu, yuchao0@huawei.com
-Subject:  [patch 4/5] lib/lzo: fix ambiguous encoding bug in
- lzo-rle
-Message-ID: <20200612003454.cUjqmKdwv%akpm@linux-foundation.org>
-In-Reply-To: <20200611173002.24352ae77ca6d6d7e65e4b2a@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        s=default; t=1591924076;
+        bh=TFInTkHIbkTJqhuVQy0vXj9Dfmfs4VSM33hgXD/T2sk=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=sm4viin1nDwqYaWsgKMeRaagqwOUD0UK8hvTDgr3/7auKkkWA9IFaYZJrV7WFMYMl
+         Zw0FbyDAxukyo1JCVHoSxWNS2s6BJn+FnLjByO1kP4hY8igAixQDG1xj95BLR+e3Sp
+         JpnJynA12mavuFjzo5qxvSFYVd8JDo3L1LTX30yU=
+Date:   Thu, 11 Jun 2020 21:07:55 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Saeed Mahameed <saeedm@mellanox.com>
+Cc:     "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "paul.gortmaker@windriver.com" <paul.gortmaker@windriver.com>,
+        Mark Bloch <markb@mellanox.com>, Roi Dayan <roid@mellanox.com>
+Subject: Re: [PATCH 4.19 25/25] Revert "net/mlx5: Annotate mutex destroy for
+ root ns"
+Message-ID: <20200612010755.GW1407771@sasha-vm>
+References: <20200609174048.576094775@linuxfoundation.org>
+ <20200609174051.624603139@linuxfoundation.org>
+ <9233056dbbce44ab5e3a3d401e4e5da119a36780.camel@mellanox.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <9233056dbbce44ab5e3a3d401e4e5da119a36780.camel@mellanox.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Rodgman <dave.rodgman@arm.com>
-Subject: lib/lzo: fix ambiguous encoding bug in lzo-rle
+On Thu, Jun 11, 2020 at 10:17:33PM +0000, Saeed Mahameed wrote:
+>On Tue, 2020-06-09 at 19:45 +0200, Greg Kroah-Hartman wrote:
+>> From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+>>
+>> This reverts commit 95fde2e46860c183f6f47a99381a3b9bff488bd5 which is
+>> commit 9ca415399dae133b00273a4283ef31d003a6818d upstream.
+>>
+>> It was backported incorrectly, Paul writes at:
+>> 	https://lore.kernel.org/r/20200607203425.GD23662@windriver.com
+>>
+>> 	I happened to notice this commit:
+>>
+>> 	9ca415399dae - "net/mlx5: Annotate mutex destroy for root ns"
+>>
+>> 	...was backported to 4.19 and 5.4 and v5.6 in linux-stable.
+>>
+>> 	It patches del_sw_root_ns() - which only exists after v5.7-rc7
+>> from:
+>>
+>> 	6eb7a268a99b - "net/mlx5: Don't maintain a case of del_sw_func
+>> being
+>> 	null"
+>>
+>> 	which creates the one line del_sw_root_ns stub function around
+>> 	kfree(node) by breaking it out of tree_put_node().
+>>
+>> 	In the absense of del_sw_root_ns - the backport finds an
+>> identical one
+>> 	line kfree stub fcn - named del_sw_prio from this earlier
+>> commit:
+>>
+>> 	139ed6c6c46a - "net/mlx5: Fix steering memory leak"  [in v4.15-
+>> rc5]
+>>
+>> 	and then puts the mutex_destroy() into that (wrong) function,
+>> instead of
+>> 	putting it into tree_put_node where the root ns case used to be
+>> hand
+>>
+>> Reported-by: Paul Gortmaker <paul.gortmaker@windriver.com>
+>> Cc: Roi Dayan <roid@mellanox.com>
+>> Cc: Mark Bloch <markb@mellanox.com>
+>> Cc: Saeed Mahameed <saeedm@mellanox.com>
+>> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+>
+>Acked-by: Saeed Mahameed <saeedm@mellanox.com>
+>
+>
+>I don't know if this was due to something wrong in my backporting
+>process or AUTOSEL/wrong Fixes tag related. I will check later and will
+>try my best to avoid this in the future.
 
-In some rare cases, for input data over 32 KB, lzo-rle could encode two
-different inputs to the same compressed representation, so that
-decompression is then ambiguous (i.e.  data may be corrupted - although
-zram is not affected because it operates over 4 KB pages).
+I'm not sure what happened there, but FWIW - AUTOSEL wasn't involved.
 
-This modifies the compressor without changing the decompressor or the
-bitstream format, such that:
-
-- there is no change to how data produced by the old compressor is
-  decompressed
-
-- an old decompressor will correctly decode data from the updated
-  compressor
-
-- performance and compression ratio are not affected
-
-- we avoid introducing a new bitstream format
-
-In testing over 12.8M real-world files totalling 903 GB, three files were
-affected by this bug.  I also constructed 37M semi-random 64 KB files
-totalling 2.27 TB, and saw no affected files.  Finally I tested over files
-constructed to contain each of the ~1024 possible bad input sequences; for
-all of these cases, updated lzo-rle worked correctly.
-
-There is no significant impact to performance or compression ratio.
-
-Link: http://lkml.kernel.org/r/20200507100203.29785-1-dave.rodgman@arm.com
-Signed-off-by: Dave Rodgman <dave.rodgman@arm.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Dave Rodgman <dave.rodgman@arm.com>
-Cc: Willy Tarreau <w@1wt.eu>
-Cc: Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>
-Cc: Markus F.X.J. Oberhumer <markus@oberhumer.com>
-Cc: Minchan Kim <minchan@kernel.org>
-Cc: Nitin Gupta <ngupta@vflare.org>
-Cc: Chao Yu <yuchao0@huawei.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- Documentation/lzo.txt    |    8 ++++++--
- lib/lzo/lzo1x_compress.c |   13 +++++++++++++
- 2 files changed, 19 insertions(+), 2 deletions(-)
-
---- a/Documentation/lzo.txt~lib-lzo-fix-ambiguous-encoding-bug-in-lzo-rle
-+++ a/Documentation/lzo.txt
-@@ -159,11 +159,15 @@ Byte sequences
-            distance = 16384 + (H << 14) + D
-            state = S (copy S literals after this block)
-            End of stream is reached if distance == 16384
-+           In version 1 only, to prevent ambiguity with the RLE case when
-+           ((distance & 0x803f) == 0x803f) && (261 <= length <= 264), the
-+           compressor must not emit block copies where distance and length
-+           meet these conditions.
- 
-         In version 1 only, this instruction is also used to encode a run of
--        zeros if distance = 0xbfff, i.e. H = 1 and the D bits are all 1.
-+           zeros if distance = 0xbfff, i.e. H = 1 and the D bits are all 1.
-            In this case, it is followed by a fourth byte, X.
--           run length = ((X << 3) | (0 0 0 0 0 L L L)) + 4.
-+           run length = ((X << 3) | (0 0 0 0 0 L L L)) + 4
- 
-       0 0 1 L L L L L  (32..63)
-            Copy of small block within 16kB distance (preferably less than 34B)
---- a/lib/lzo/lzo1x_compress.c~lib-lzo-fix-ambiguous-encoding-bug-in-lzo-rle
-+++ a/lib/lzo/lzo1x_compress.c
-@@ -268,6 +268,19 @@ m_len_done:
- 				*op++ = (M4_MARKER | ((m_off >> 11) & 8)
- 						| (m_len - 2));
- 			else {
-+				if (unlikely(((m_off & 0x403f) == 0x403f)
-+						&& (m_len >= 261)
-+						&& (m_len <= 264))
-+						&& likely(bitstream_version)) {
-+					// Under lzo-rle, block copies
-+					// for 261 <= length <= 264 and
-+					// (distance & 0x80f3) == 0x80f3
-+					// can result in ambiguous
-+					// output. Adjust length
-+					// to 260 to prevent ambiguity.
-+					ip -= m_len - 260;
-+					m_len = 260;
-+				}
- 				m_len -= M4_MAX_LEN;
- 				*op++ = (M4_MARKER | ((m_off >> 11) & 8));
- 				while (unlikely(m_len > 255)) {
-_
+-- 
+Thanks,
+Sasha
