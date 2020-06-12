@@ -2,28 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FE201F7161
-	for <lists+stable@lfdr.de>; Fri, 12 Jun 2020 02:30:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 00AD51F716F
+	for <lists+stable@lfdr.de>; Fri, 12 Jun 2020 02:34:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726385AbgFLAaT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Jun 2020 20:30:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45192 "EHLO mail.kernel.org"
+        id S1726305AbgFLAe4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Jun 2020 20:34:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50102 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726294AbgFLAaT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 11 Jun 2020 20:30:19 -0400
+        id S1726357AbgFLAe4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 11 Jun 2020 20:34:56 -0400
 Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A1EC120842;
-        Fri, 12 Jun 2020 00:30:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1EA8A20882;
+        Fri, 12 Jun 2020 00:34:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591921818;
+        s=default; t=1591922095;
         bh=zz+R1tCrrdbQFLgkAtoix3CaVcItIv3OOhLFlcxW5VE=;
         h=Date:From:To:Subject:In-Reply-To:From;
-        b=IR87scxAKrJ/t3FyAel5ono/mPJNuISmJ8nedWwqnRKQk0+Qg1NHY7A1/Yt/+v/cQ
-         Lw6GL53cJZU9k3CJ5FvYyIMlvvr5dzJ32SrX7EcUI9yVVfM+AR+8pvRvDPecGBbmdQ
-         4MgBYV9JjeMRxeq+D3gp0YBPxzdqtT7THih2XM6s=
-Date:   Thu, 11 Jun 2020 17:30:17 -0700
+        b=ku99JAQfZY65Zi4/pqb7KDYGjjxaht62ddB6kDR8Kr9d6tpFEwETB05ILV7qEZBUd
+         kOCxppxZtWW2m7THDNlyumzyo7MPFnDV4SLHZVDwrHPYT4D9t4bx/IWQHOp6/Hx01T
+         Gml3HtZoboK7T/RAdinAYRstmOC+Jv6Df9fhBV7I=
+Date:   Thu, 11 Jun 2020 17:34:54 -0700
 From:   Andrew Morton <akpm@linux-foundation.org>
 To:     akpm@linux-foundation.org, dave.rodgman@arm.com,
         linux-mm@kvack.org, mark.rutland@arm.com, markus@oberhumer.com,
@@ -32,8 +32,8 @@ To:     akpm@linux-foundation.org, dave.rodgman@arm.com,
         torvalds@linux-foundation.org, w@1wt.eu, yuchao0@huawei.com
 Subject:  [patch 4/5] lib/lzo: fix ambiguous encoding bug in
  lzo-rle
-Message-ID: <20200612003017.J8tEMM3zK%akpm@linux-foundation.org>
-In-Reply-To: <20200611172827.bc85320ccf09b4c7e401d3f3@linux-foundation.org>
+Message-ID: <20200612003454.cUjqmKdwv%akpm@linux-foundation.org>
+In-Reply-To: <20200611173002.24352ae77ca6d6d7e65e4b2a@linux-foundation.org>
 User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
