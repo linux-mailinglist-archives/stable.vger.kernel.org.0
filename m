@@ -2,72 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BAE7C1F71C0
-	for <lists+stable@lfdr.de>; Fri, 12 Jun 2020 03:33:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 457321F7202
+	for <lists+stable@lfdr.de>; Fri, 12 Jun 2020 04:03:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726327AbgFLBdW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Jun 2020 21:33:22 -0400
-Received: from mailgw02.mediatek.com ([210.61.82.184]:24585 "EHLO
-        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1725796AbgFLBdW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Jun 2020 21:33:22 -0400
-X-UUID: a0513a9be63a46aa87e3b1c67d53ab09-20200612
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
-        h=Content-Transfer-Encoding:MIME-Version:Content-Type:References:In-Reply-To:Date:CC:To:From:Subject:Message-ID; bh=oGuYpYnQCol1SIDGq8l3xDiCEUooJhW3zBhmGenIrI8=;
-        b=LNfdT2K5CjL8kxelUN+6+XvXS45lryKOi3rBGiHhaQcV7ORUQY3vrVZA7guIJo0FfunBHDg0KyP2MPW8SmJyuoEEW6rtrWyOoNesm8uMXo/AVJA9arCn6V2V3n8s4XkKsdRl0xjL6nJ6TCAE+JmKGz2L2NXrQqZWcXB0d23WBNM=;
-X-UUID: a0513a9be63a46aa87e3b1c67d53ab09-20200612
-Received: from mtkcas06.mediatek.inc [(172.21.101.30)] by mailgw02.mediatek.com
-        (envelope-from <miles.chen@mediatek.com>)
-        (Cellopoint E-mail Firewall v4.1.10 Build 0809 with TLS)
-        with ESMTP id 756543116; Fri, 12 Jun 2020 09:33:17 +0800
-Received: from MTKCAS06.mediatek.inc (172.21.101.30) by
- mtkmbs02n2.mediatek.inc (172.21.101.101) with Microsoft SMTP Server (TLS) id
- 15.0.1497.2; Fri, 12 Jun 2020 09:33:10 +0800
-Received: from [172.21.77.33] (172.21.77.33) by MTKCAS06.mediatek.inc
- (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Fri, 12 Jun 2020 09:33:04 +0800
-Message-ID: <1591925590.8494.1.camel@mtkswgap22>
-Subject: Re: Suggest make 'user_access_begin()' do 'access_ok()' to stable
- kernel
-From:   Miles Chen <miles.chen@mediatek.com>
-To:     Greg KH <gregkh@linuxfoundation.org>
-CC:     <stable@vger.kernel.org>
-Date:   Fri, 12 Jun 2020 09:33:10 +0800
-In-Reply-To: <20200611111506.GE3802953@kroah.com>
-References: <1591811900.26208.17.camel@mtkswgap22>
-         <20200610180249.GA5500@kroah.com> <1591839462.26208.24.camel@mtkswgap22>
-         <20200611111506.GE3802953@kroah.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.2.3-0ubuntu6 
+        id S1726321AbgFLCDQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Jun 2020 22:03:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53982 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726305AbgFLCDP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Jun 2020 22:03:15 -0400
+Received: from mail-qv1-xf42.google.com (mail-qv1-xf42.google.com [IPv6:2607:f8b0:4864:20::f42])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EA54C08C5C1
+        for <stable@vger.kernel.org>; Thu, 11 Jun 2020 19:03:15 -0700 (PDT)
+Received: by mail-qv1-xf42.google.com with SMTP id g11so3730826qvs.2
+        for <stable@vger.kernel.org>; Thu, 11 Jun 2020 19:03:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=cantona-net.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=Xgcq+HGcr+2E0r2fW1Aksh/0luTigEmDuGP+izUX+VY=;
+        b=HmJkGLHP42JUOmNtHkbJ+J0+A7oEgR/tT9d4PEfgn2WB9kHSMwqKuPUXC+T3SU+P6y
+         xC2m7H/uB2xsPRnLgPmB+mvwZDRuKCtcfT6B/+kJ4ZlFzOeQXI0x/RSleZTKYhmqdyLw
+         TclXEV5nXApZIjLSmxG14A37nE6xBaMRIzqr4X2uEZUmrQYUEXc8kSbFiD0nSShYsWTe
+         X3Zk5dUguhoEmMkWluX3klNE9gI9eV+Mdvm4bn777R79pgu1ATVBcCxLxZ4TrQVwvO7c
+         lgGCLxhlb34h3cIS/Vr5hchbWsBCl+EQI+bBHyZRg4P2bBCtkq2vTnvRXsirqZ99PnXU
+         Ncjg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=Xgcq+HGcr+2E0r2fW1Aksh/0luTigEmDuGP+izUX+VY=;
+        b=Qg+Kl9RVu5VleEmrl1Q2FMD0ArM08TecpI4NWk3gnKzK0GNtyOHPxTJPsBJ5p+86fu
+         Tl4V6624IaIi6pzMOzn/pi9Vf4VJ/ObEpEHou/7H2R5tV7O/aXaZ2GnSTtyIcJAZX+Nm
+         EJS/mh0hoMNz7MqU7dK4+kdPvK9HNF4eq8VjVPNxuBkl0Xq5qNHAggnx9FxOYikHL+Yr
+         oanGEdH92FKOi3kXmP0dZPyOT/GGx1LTGcTKD0LB+iTXg93bn0rr6pOfU9jk7QOKBRX+
+         dTah/aW5yYrsutJPKUtMeahV+lBYjXk+vU8Q3ryQyqOjoF6swqZtCBhYtL0DtgWBdrTt
+         f+SQ==
+X-Gm-Message-State: AOAM530rsi/3M5A53SLbq1MiUiCacWIoB62gJ96MA+DLs79JiBHS85tA
+        wUQJi9jn62cEaIETYdp64L0+YAC8QAXFbLpfjocu/w==
+X-Google-Smtp-Source: ABdhPJx4a+HqrR4sihJ1rHsQYSKxpOqkvQBZ2YnE2nDHXikA4/bX33trbn92WZ7+Sml3eGzP9adfCLCKUnE6CmOFjBQ=
+X-Received: by 2002:a05:6214:aaf:: with SMTP id ew15mr10590137qvb.110.1591927394407;
+ Thu, 11 Jun 2020 19:03:14 -0700 (PDT)
 MIME-Version: 1.0
-X-TM-SNTS-SMTP: AB7BD0B4E80D8F37E8D829741A6D2F43B6CF8B0B9C461DDF8C13EA8CD6362DA82000:8
-X-MTK:  N
-Content-Transfer-Encoding: base64
+References: <cantona@cantona.net> <20200611115048.21677-1-cantona@cantona.net> <20200611135727.GA1060798@kroah.com>
+In-Reply-To: <20200611135727.GA1060798@kroah.com>
+From:   Kang Yin Su <cantona@cantona.net>
+Date:   Fri, 12 Jun 2020 10:03:03 +0800
+Message-ID: <CABJLtPHqn1ocvdS6n0x-TQWVY8SabrVJtH6sqvqbw4UX6SCH3Q@mail.gmail.com>
+Subject: Re: [PATCH V2] crypto: talitos - fix ECB and CBC algs ivsize
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     linux-crypto@vger.kernel.org, christophe.leroy@c-s.fr,
+        stable@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>,
+        "David S. Miller" <davem@davemloft.net>,
+        linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-T24gVGh1LCAyMDIwLTA2LTExIGF0IDEzOjE1ICswMjAwLCBHcmVnIEtIIHdyb3RlOg0KPiBPbiBU
-aHUsIEp1biAxMSwgMjAyMCBhdCAwOTozNzo0MkFNICswODAwLCBNaWxlcyBDaGVuIHdyb3RlOg0K
-PiA+IEBAIC0yNjAxLDcgKzI2MDMsMTcgQEAgaTkxNV9nZW1fZXhlY2J1ZmZlcjJfaW9jdGwoc3Ry
-dWN0IGRybV9kZXZpY2UgKmRldiwgdm9pZCAqZGF0YSwNCj4gPiAgCQl1bnNpZ25lZCBpbnQgaTsN
-Cj4gPiAgDQo+ID4gIAkJLyogQ29weSB0aGUgbmV3IGJ1ZmZlciBvZmZzZXRzIGJhY2sgdG8gdGhl
-IHVzZXIncyBleGVjIGxpc3QuICovDQo+ID4gLQkJdXNlcl9hY2Nlc3NfYmVnaW4oKTsNCj4gPiAr
-CQkvKg0KPiA+ICsJCSAqIE5vdGU6IGNvdW50ICogc2l6ZW9mKCp1c2VyX2V4ZWNfbGlzdCkgZG9l
-cyBub3Qgb3ZlcmZsb3csDQo+ID4gKwkJICogYmVjYXVzZSB3ZSBjaGVja2VkICdjb3VudCcgaW4g
-Y2hlY2tfYnVmZmVyX2NvdW50KCkuDQo+ID4gKwkJICoNCj4gPiArCQkgKiBBbmQgdGhpcyByYW5n
-ZSBhbHJlYWR5IGdvdCBlZmZlY3RpdmVseSBjaGVja2VkIGVhcmxpZXINCj4gPiArCQkgKiB3aGVu
-IHdlIGRpZCB0aGUgImNvcHlfZnJvbV91c2VyKCkiIGFib3ZlLg0KPiA+ICsJCSAqLw0KPiA+ICsJ
-CWlmICghdXNlcl9hY2Nlc3NfYmVnaW4oVkVSSUZZX1dSSVRFLCB1c2VyX2V4ZWNfbGlzdCwNCj4g
-PiArCQkJCSAgICAgICBjb3VudCAqIHNpemVvZigqdXNlcl9leGVjX2xpc3QpKSkNCj4gPiArCQkJ
-Z290byBlbmRfdXNlcjsNCj4gPiArDQo+ID4gIAkJZm9yIChpID0gMDsgaSA8IGFyZ3MtPmJ1ZmZl
-cl9jb3VudDsgaSsrKSB7DQo+ID4gIAkJCWlmICghKGV4ZWMyX2xpc3RbaV0ub2Zmc2V0ICYgVVBE
-QVRFKSkNCj4gPiAgCQkJCWNvbnRpbnVlOw0KPiANCj4gTm8gb25lIHNlZW1zIHRvIGhhdmUgdGVz
-dC1idWlsdCB0aGlzIGNvZGUsIGl0IGZhaWxzIGhlcmUgb24gdGhlIDQuMTQueQ0KPiBrZXJuZWwg
-IDooDQo+IA0KPiBJJ2xsIGdvIGZpeCBpdCB1cCwgYnV0IHBsZWFzZSwgYWx3YXlzIGF0IHRoZSB2
-ZXJ5IGxlYXN0LCB0ZXN0IGJ1aWxkIHlvdXINCj4gcGF0Y2hlcyBiZWZvcmUgc2VuZGluZyB0aGVt
-IG91dC4uLg0KPiANCj4gdGhhbmtzLA0KDQpTb3JyeSBmb3IgdGhlIGJyZWFrYWdlLiBJdCB3b24n
-dCBoYXBwZW4gbmV4dCB0aW1lLg0KDQpjaGVlcnMsDQpNaWxlcw0KDQo+IA0KPiBncmVnIGstaA0K
-DQo=
+Cool, thanks!
 
+yin
+
+On Thu, 11 Jun 2020 at 21:57, Greg KH <gregkh@linuxfoundation.org> wrote:
+>
+> On Thu, Jun 11, 2020 at 07:50:47PM +0800, Su Kang Yin wrote:
+> > commit e1de42fdfc6a ("crypto: talitos - fix ECB algs ivsize")
+> > wrongly modified CBC algs ivsize instead of ECB aggs ivsize.
+> >
+> > This restore the CBC algs original ivsize of removes ECB's ones.
+> >
+> > Fixes: e1de42fdfc6a ("crypto: talitos - fix ECB algs ivsize")
+> > Signed-off-by: Su Kang Yin <cantona@cantona.net>
+> > ---
+> > Patch for 4.9 upstream.
+>
+> Also seems to be an issue for the 4.14 and 4.19 backport, so I'll queue
+> it up there too, thanks!
+>
+> greg k-h
