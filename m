@@ -2,96 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2968F1F7647
-	for <lists+stable@lfdr.de>; Fri, 12 Jun 2020 11:56:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F9981F76A9
+	for <lists+stable@lfdr.de>; Fri, 12 Jun 2020 12:21:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725927AbgFLJ4H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jun 2020 05:56:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32816 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725805AbgFLJ4H (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Jun 2020 05:56:07 -0400
-Received: from localhost (p54b33104.dip0.t-ipconnect.de [84.179.49.4])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5A9FB2081A;
-        Fri, 12 Jun 2020 09:56:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591955767;
-        bh=vpHTuwUDM9a5LcIHJu50XcaJieuFQe7fiS+Dk2mMIpM=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=2UEHK2tVpciOsv09SaQXib8V2ByKV+2ALo5gw8FS5anC2j7Tgy3jxXHPBhEomd90v
-         YYxI1o+AFsEg9pGS4MB1Yq+QFS0Lc6M1xgapxTGgqjSEmPY8z/xi7//huR020ol5Li
-         +7ubHZAWSfrptdS+gfVO3wyHzmZMeKaB+cWeBQvc=
-Date:   Fri, 12 Jun 2020 11:56:04 +0200
-From:   Wolfram Sang <wsa@kernel.org>
-To:     Krzysztof Kozlowski <krzk@kernel.org>
+        id S1725872AbgFLKV2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jun 2020 06:21:28 -0400
+Received: from mail-ej1-f67.google.com ([209.85.218.67]:32792 "EHLO
+        mail-ej1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725911AbgFLKVS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 12 Jun 2020 06:21:18 -0400
+Received: by mail-ej1-f67.google.com with SMTP id n24so9597501ejd.0;
+        Fri, 12 Jun 2020 03:21:16 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=UCmnkQ+7r4Yl/XA1DWNILW2Cx3UCtYcdqwjb2/DioLQ=;
+        b=mD1pqe16Ipvj13XKi+L6puzVnNsydwHvj2mShUC1LP7O7rpujc3NPfkyTu/ai9Q36Z
+         4K9Y5dOzQm9ARVstVW4TVFnTzbluZuuFh4bqL+PhRki24UwjrE9+cYC06eLfOqTRYoOg
+         wwvJdjjmu2FKGe7RevBWw4qVloBg5SNwm69jLgfnoz8FItCBOmQkCwb0M0309BCfa3fM
+         PSLu3CGI7ftK9S13AfTOYqKEWg97GPpuR0wKuM8SuM8CaHG1oTazE3P35Cld90+K1Y3p
+         LurczdAsYM/8aY4y/gwh7cmWVZdqD9gsBVM1zDzeYjX6B7pLxVd6Efn5NaNrYlT5XIaN
+         oZNA==
+X-Gm-Message-State: AOAM5331XfNb2iMkxPAsTnfkMUe5HeVVgJYvZuJTH4pbVmKbBkLPtaIx
+        n+gItteF3MTsN9vz2ES2Vxs=
+X-Google-Smtp-Source: ABdhPJzJ6RaY0eAM4hGkuYlc3SLJUwUFh4TiDwD8FMRxFmZkjqZLgmm7NPWi924xDJTeY04nohakWQ==
+X-Received: by 2002:a17:906:c2c6:: with SMTP id ch6mr12273554ejb.36.1591957276099;
+        Fri, 12 Jun 2020 03:21:16 -0700 (PDT)
+Received: from pi3 ([194.230.155.184])
+        by smtp.googlemail.com with ESMTPSA id ws10sm3227738ejb.24.2020.06.12.03.21.14
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 12 Jun 2020 03:21:15 -0700 (PDT)
+Date:   Fri, 12 Jun 2020 12:21:13 +0200
+From:   Krzysztof Kozlowski <krzk@kernel.org>
+To:     Wolfram Sang <wsa@kernel.org>
 Cc:     Oleksij Rempel <linux@rempel-privat.de>,
         Pengutronix Kernel Team <kernel@pengutronix.de>,
         Shawn Guo <shawnguo@kernel.org>,
         Sascha Hauer <s.hauer@pengutronix.de>,
         Fabio Estevam <festevam@gmail.com>,
         NXP Linux Team <linux-imx@nxp.com>,
-        Gao Pan <b54642@freescale.com>,
-        Fugang Duan <B38611@freescale.com>, linux-i2c@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
+        linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Subject: Re: [PATCH] i2c: imx: Fix external abort on early interrupt
-Message-ID: <20200612095604.GA17763@ninjato>
+Message-ID: <20200612102113.GA26056@pi3>
 References: <1591796802-23504-1-git-send-email-krzk@kernel.org>
  <20200612090517.GA3030@ninjato>
  <20200612092941.GA25990@pi3>
+ <20200612095604.GA17763@ninjato>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="RnlQjJ0d97Da+TV1"
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20200612092941.GA25990@pi3>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20200612095604.GA17763@ninjato>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Fri, Jun 12, 2020 at 11:56:04AM +0200, Wolfram Sang wrote:
+> On Fri, Jun 12, 2020 at 11:29:41AM +0200, Krzysztof Kozlowski wrote:
+> > On Fri, Jun 12, 2020 at 11:05:17AM +0200, Wolfram Sang wrote:
+> > > On Wed, Jun 10, 2020 at 03:46:42PM +0200, Krzysztof Kozlowski wrote:
+> > > > If interrupt comes early (could be triggered with CONFIG_DEBUG_SHIRQ),
+> > > 
+> > > That code is disabled since 2011 (6d83f94db95c ("genirq: Disable the
+> > > SHIRQ_DEBUG call in request_threaded_irq for now"))? So, you had this
+> > > without fake injection, I assume?
+> > 
+> > No, I observed it only after enabling DEBUG_SHIRQ (to a kernel with
+> > some debugging options already).
+> 
+> Interesting. Maybe probe was deferred and you got the extra irq when
+> deregistering?
 
---RnlQjJ0d97Da+TV1
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Yes, good catch. The abort happens right after deferred probe exit.  It
+could be then different reason than I thought - the interrupt is freed
+through devm infrastructure quite late.  At this time, the clock might
+be indeed disabled (error path of probe()).
 
-On Fri, Jun 12, 2020 at 11:29:41AM +0200, Krzysztof Kozlowski wrote:
-> On Fri, Jun 12, 2020 at 11:05:17AM +0200, Wolfram Sang wrote:
-> > On Wed, Jun 10, 2020 at 03:46:42PM +0200, Krzysztof Kozlowski wrote:
-> > > If interrupt comes early (could be triggered with CONFIG_DEBUG_SHIRQ),
-> >=20
-> > That code is disabled since 2011 (6d83f94db95c ("genirq: Disable the
-> > SHIRQ_DEBUG call in request_threaded_irq for now"))? So, you had this
-> > without fake injection, I assume?
->=20
-> No, I observed it only after enabling DEBUG_SHIRQ (to a kernel with
-> some debugging options already).
+Best regards,
+Krzysztof
 
-Interesting. Maybe probe was deferred and you got the extra irq when
-deregistering?
-
-
---RnlQjJ0d97Da+TV1
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl7jUTAACgkQFA3kzBSg
-KbbntA//dAQo2Vc4X+lVKV4pApi36lY7bZa0XTJB1+2aZfBti0Twy0cQrN3vvaaQ
-rc4sYXRkK/d1N5z95dj3eWcnmsUtel2Ac5neRuCCFY62y27uI24JJT7HKKXwXPkT
-oFAxksVZ4cDnjrrtpeFSq5vWtqilA8s7m1bapaNS2B5kv7AtRD733NDXHNwec0Io
-nCgN4hKMEY+JZFBhnQG3VfR+i/kuvg4zPd47bb+gc3eGHuXs4jGMb06EXuKmBbK/
-VdjUuwqiO/gGhcFAqdsA1JA9eSbvFfEJndS9uAz9WfXQBtIO//is6jFp5e9kU8Gx
-pmKCiiVUnO5BTLPreLSEqNDJeLAj17ksGj7nSAdxujjXeXLM68j6FZJRytOZLFdG
-o6KSO2QSbPEBGJiArJQj6s7i7GOP5pjPaEb+6x8ldV9hBkeAmsscFD92OiWHSgM6
-rs1NX9s3/64cN0yWl2R0UActscJTQWMntBLiwBXoOU+Pjjh2dZU0ju0+diUjfgA4
-/i714f+DaPkgC+HcTpzpmV9xmDCEGhLV6DJyJkbUHKknDLQ5e5rXxkGAeRWn1cCV
-1UcrBB8YZR/YSJj5FO7T340Fg5kXAAtzZF5qIOSSjmD0cdadtHZNezhbL6jJfiJ2
-seyWQ80gCrbSGVW3DH4sgm+CUDnVvCN33gMa50NmsZ0gPC2F3HA=
-=r8jc
------END PGP SIGNATURE-----
-
---RnlQjJ0d97Da+TV1--
