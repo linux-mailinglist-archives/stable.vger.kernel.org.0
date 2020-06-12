@@ -2,89 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B84DE1F7780
-	for <lists+stable@lfdr.de>; Fri, 12 Jun 2020 13:51:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C5FAE1F77C9
+	for <lists+stable@lfdr.de>; Fri, 12 Jun 2020 14:17:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726281AbgFLLvU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jun 2020 07:51:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50688 "EHLO mail.kernel.org"
+        id S1726053AbgFLMRf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Jun 2020 08:17:35 -0400
+Received: from mga09.intel.com ([134.134.136.24]:3452 "EHLO mga09.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725791AbgFLLvU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Jun 2020 07:51:20 -0400
-Received: from localhost (p54b33104.dip0.t-ipconnect.de [84.179.49.4])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ED897207D8;
-        Fri, 12 Jun 2020 11:51:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1591962679;
-        bh=4SU7cE5K1zuUDgcSqNx4a6863ycbWxNzjj6+RY5JyS4=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=BkdqVphjX1fv36AiWfuo2mhxrD9X8RnCZZRgbLw6LVw7pofACnD2PF9cW8ZQXuUEo
-         vF6eZ+/C5O4ujSsMH+4vPZfQgQb1EOa7TQ/ofyezZIhqzglD8/VdscYUTZSnV+tk/4
-         V6wgTeI0gGoYt77aXLKX+10YRZe/Ece1AJjYAedk=
-Date:   Fri, 12 Jun 2020 13:51:16 +0200
-From:   Wolfram Sang <wsa@kernel.org>
-To:     Krzysztof Kozlowski <krzk@kernel.org>
-Cc:     Oleksij Rempel <o.rempel@pengutronix.de>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Oleksij Rempel <linux@rempel-privat.de>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>,
-        linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
-Subject: Re: [PATCH] i2c: imx: Fix external abort on early interrupt
-Message-ID: <20200612115116.GA18557@ninjato>
-References: <1591796802-23504-1-git-send-email-krzk@kernel.org>
- <20200612090517.GA3030@ninjato>
- <20200612092941.GA25990@pi3>
- <20200612095604.GA17763@ninjato>
- <20200612102113.GA26056@pi3>
- <20200612103149.2onoflu5qgwaooli@pengutronix.de>
- <20200612103949.GB26056@pi3>
+        id S1725886AbgFLMRf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 12 Jun 2020 08:17:35 -0400
+IronPort-SDR: qbShTmu3K2ehklve2pQkVI0tVCYGT1YpkZ2UQX1886Np6Hdtvj0YvVmLhFokwcv7c3BwnaqRK9
+ NSHCkM9NQWbQ==
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga003.jf.intel.com ([10.7.209.27])
+  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Jun 2020 05:17:34 -0700
+IronPort-SDR: SwHtQ8trcoBQgNu1CGmSQWMBZgbqjmNI/e/W8NWq0xJ6qjxJXTkiSSQx/MZL/R9Jj6iyikSWZ8
+ PPptG5tFNhhQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.73,503,1583222400"; 
+   d="scan'208";a="271890504"
+Received: from ideak-desk.fi.intel.com ([10.237.72.183])
+  by orsmga003.jf.intel.com with ESMTP; 12 Jun 2020 05:17:32 -0700
+From:   Imre Deak <imre.deak@intel.com>
+To:     intel-gfx@lists.freedesktop.org
+Cc:     Kunal Joshi <kunal1.joshi@intel.com>, stable@vger.kernel.org
+Subject: [PATCH] drm/i915/icl+: Fix hotplug interrupt disabling after storm detection
+Date:   Fri, 12 Jun 2020 15:17:31 +0300
+Message-Id: <20200612121731.19596-1-imre.deak@intel.com>
+X-Mailer: git-send-email 2.23.1
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="BXVAT5kNtrzKuDFl"
-Content-Disposition: inline
-In-Reply-To: <20200612103949.GB26056@pi3>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Atm, hotplug interrupts on TypeC ports are left enabled after detecting
+an interrupt storm, fix this.
 
---BXVAT5kNtrzKuDFl
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Reported-by: Kunal Joshi <kunal1.joshi@intel.com>
+References: https://gitlab.freedesktop.org/drm/intel/-/issues/351
+Bugzilla: https://gitlab.freedesktop.org/drm/intel/-/issues/1964
+Cc: Kunal Joshi <kunal1.joshi@intel.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Imre Deak <imre.deak@intel.com>
+---
+ drivers/gpu/drm/i915/i915_irq.c | 1 +
+ 1 file changed, 1 insertion(+)
 
+diff --git a/drivers/gpu/drm/i915/i915_irq.c b/drivers/gpu/drm/i915/i915_irq.c
+index 8e823ba25f5f..710224d930c5 100644
+--- a/drivers/gpu/drm/i915/i915_irq.c
++++ b/drivers/gpu/drm/i915/i915_irq.c
+@@ -3132,6 +3132,7 @@ static void gen11_hpd_irq_setup(struct drm_i915_private *dev_priv)
+ 
+ 	val = I915_READ(GEN11_DE_HPD_IMR);
+ 	val &= ~hotplug_irqs;
++	val |= ~enabled_irqs & hotplug_irqs;
+ 	I915_WRITE(GEN11_DE_HPD_IMR, val);
+ 	POSTING_READ(GEN11_DE_HPD_IMR);
+ 
+-- 
+2.23.1
 
-> This basically kills the concept of devm for interrupts. Some other
-
-It only works when you can ensure you have all interrupts disabled (and
-none pending) in remove() or the error paths of probe() etc.
-
-
---BXVAT5kNtrzKuDFl
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl7jbDAACgkQFA3kzBSg
-KbYmdg//RW9DluIKVfF71z6Q72EfwO+kHdqZsli+39eCQGi+J2lBHJpJXsWzim+B
-FXD88zlC2PC0Jg/svBtzq9t4FfmxA/YJH/rwUrr/2f6HYR7dXLfxFJDc+o2j5hFX
-mgHPY9Ol+5l8R8jBDMO87i5Z/Dk8CRcEoiIMnfpnbFjhRdlR3hNxfwQV0u+yLQ5A
-bHfcm3trfqSZooJtfAwoxY0LsrgAcStKVuNKqCS9676Vr5ah11BFGKaklQYNEWRG
-0t5Xnkf6QSVbIHfVj20h70nvTPK4YP+quTs2GDcl/pYXESIduY1qxsbjfSXigi3H
-27Dbu+Vzu1gLaoem3zFgxefBl6JdYsBmoQYPPGiOmayseWg2VTDJrHpgTs7eu2uM
-6o8d3MA4g56sQJocsGSOMvStqu8xEVJ/V5kt6lDR0j7Ue9rhtXZRiDw6/DW3Gmro
-s1BiEX3UwvwXqdGK9z1j+q/skFd3noXVY/goYsxqwwoyO+uMnhy6tW7HCJvse8e+
-ojfwLkXX2Lu4+12+MnDhWEsa/jCEL2ozQC0tU594l5FLU5VYQCetAM7XnUfbDqDF
-B17Ro5HH5+WhaAWwUkWUO5jaVtRe6w0e9P2ChQocQjktjoLNzVPXX8x2vzGGQUrl
-CaGs+J26V4mod0xqhOZkACLpdBUJwb0Ji2/C1ewgBxXkcLofM+4=
-=6fqc
------END PGP SIGNATURE-----
-
---BXVAT5kNtrzKuDFl--
