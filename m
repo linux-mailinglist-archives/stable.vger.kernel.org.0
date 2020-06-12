@@ -2,210 +2,131 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E471E1F7106
-	for <lists+stable@lfdr.de>; Fri, 12 Jun 2020 01:49:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FE201F7161
+	for <lists+stable@lfdr.de>; Fri, 12 Jun 2020 02:30:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726306AbgFKXtk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Jun 2020 19:49:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33432 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726285AbgFKXtk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Jun 2020 19:49:40 -0400
-Received: from mail-pj1-x1043.google.com (mail-pj1-x1043.google.com [IPv6:2607:f8b0:4864:20::1043])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 045ECC08C5C2
-        for <stable@vger.kernel.org>; Thu, 11 Jun 2020 16:49:39 -0700 (PDT)
-Received: by mail-pj1-x1043.google.com with SMTP id b7so3561840pju.0
-        for <stable@vger.kernel.org>; Thu, 11 Jun 2020 16:49:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=bIgDlQTcxFw2KokzUZZm6ZkdF0vG1JUVRJ5FqN6wv7w=;
-        b=EsU01laKYlXeUwOzqhDZANOi8lScnIXVlCztg5QhuFJsyVQo713bCIGsIewq5t48hK
-         TXYXa29VAKYNO2/fMiuiFoiAuuyam8P394K3s2j/jS1UkQhxzRjnSyM61NwpSFXT6C2r
-         dURzq4gRo8VVxydHIaMV2rFLmPerA444DM6uw=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=bIgDlQTcxFw2KokzUZZm6ZkdF0vG1JUVRJ5FqN6wv7w=;
-        b=KPkTt5TKGeWYlOQ9j/0Cz5uNwvrOtGarLo48LvX6k24O//EB5wpjCxbnBYD00wUxNa
-         jmNDmvogxgWWK8usW2iKQuW4HzsVVWbQdCPc81/pzaRxI6x/lC/KlRyo94boQUaRPKCH
-         davu6RULm5qC/meh21owQ9dkZ1e+TOBTG1BmTD8KM2lfoekzH9kmPvude6b4ukDvajty
-         pGKlNHZRDTtM4JcYyycs5v3v/MFIGUx50PG3NYQSm+4UMmA65IcM53DSnpVpCqO4f80B
-         lLlgZ6YurznxmxFXLEPHkniG+NB/ywNYqN1JD8Yu3PGTT2KhNckv9ITsD410dNU+m3ya
-         e1Ig==
-X-Gm-Message-State: AOAM530x/ZF0JueGgstkzZW8FZQmw7dzPkvYFtNttXR3xlR7YZnPIJVd
-        lmW9N3ganoocYw4/Vopvr6wdyw==
-X-Google-Smtp-Source: ABdhPJzKAntT+tqihIhi6knyDIQA+kIZiwM6SoOqVvMIgkg6dNBDxl2KwSVM7Qy1cAVFqCn/cRDWuA==
-X-Received: by 2002:a17:90b:e05:: with SMTP id ge5mr10405229pjb.49.1591919379416;
-        Thu, 11 Jun 2020 16:49:39 -0700 (PDT)
-Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
-        by smtp.gmail.com with ESMTPSA id k126sm4448492pfd.129.2020.06.11.16.49.38
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 11 Jun 2020 16:49:38 -0700 (PDT)
-Date:   Thu, 11 Jun 2020 16:49:37 -0700
-From:   Kees Cook <keescook@chromium.org>
-To:     David Laight <David.Laight@ACULAB.COM>
-Cc:     'Sargun Dhillon' <sargun@sargun.me>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        "containers@lists.linux-foundation.org" 
-        <containers@lists.linux-foundation.org>,
-        Giuseppe Scrivano <gscrivan@redhat.com>,
-        Robert Sesek <rsesek@google.com>,
-        Chris Palmer <palmer@google.com>, Jann Horn <jannh@google.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Daniel Wagner <daniel.wagner@bmw-carit.de>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Matt Denton <mpdenton@google.com>,
-        John Fastabend <john.r.fastabend@intel.com>,
-        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
-        Tejun Heo <tj@kernel.org>, Al Viro <viro@zeniv.linux.org.uk>,
-        "cgroups@vger.kernel.org" <cgroups@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "David S . Miller" <davem@davemloft.net>
-Subject: Re: [PATCH v3 1/4] fs, net: Standardize on file_receive helper to
- move fds across processes
-Message-ID: <202006111634.8237E6A5C6@keescook>
-References: <202006091235.930519F5B@keescook>
- <20200609200346.3fthqgfyw3bxat6l@wittgenstein>
- <202006091346.66B79E07@keescook>
- <037A305F-B3F8-4CFA-B9F8-CD4C9EF9090B@ubuntu.com>
- <202006092227.D2D0E1F8F@keescook>
- <20200610081237.GA23425@ircssh-2.c.rugged-nimbus-611.internal>
- <202006101953.899EFB53@keescook>
- <20200611100114.awdjswsd7fdm2uzr@wittgenstein>
- <20200611110630.GB30103@ircssh-2.c.rugged-nimbus-611.internal>
- <067f494d55c14753a31657f958cb0a6e@AcuMS.aculab.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <067f494d55c14753a31657f958cb0a6e@AcuMS.aculab.com>
+        id S1726385AbgFLAaT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Jun 2020 20:30:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45192 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726294AbgFLAaT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 11 Jun 2020 20:30:19 -0400
+Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id A1EC120842;
+        Fri, 12 Jun 2020 00:30:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1591921818;
+        bh=zz+R1tCrrdbQFLgkAtoix3CaVcItIv3OOhLFlcxW5VE=;
+        h=Date:From:To:Subject:In-Reply-To:From;
+        b=IR87scxAKrJ/t3FyAel5ono/mPJNuISmJ8nedWwqnRKQk0+Qg1NHY7A1/Yt/+v/cQ
+         Lw6GL53cJZU9k3CJ5FvYyIMlvvr5dzJ32SrX7EcUI9yVVfM+AR+8pvRvDPecGBbmdQ
+         4MgBYV9JjeMRxeq+D3gp0YBPxzdqtT7THih2XM6s=
+Date:   Thu, 11 Jun 2020 17:30:17 -0700
+From:   Andrew Morton <akpm@linux-foundation.org>
+To:     akpm@linux-foundation.org, dave.rodgman@arm.com,
+        linux-mm@kvack.org, mark.rutland@arm.com, markus@oberhumer.com,
+        minchan@kernel.org, mm-commits@vger.kernel.org, ngupta@vflare.org,
+        sergey.senozhatsky.work@gmail.com, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, w@1wt.eu, yuchao0@huawei.com
+Subject:  [patch 4/5] lib/lzo: fix ambiguous encoding bug in
+ lzo-rle
+Message-ID: <20200612003017.J8tEMM3zK%akpm@linux-foundation.org>
+In-Reply-To: <20200611172827.bc85320ccf09b4c7e401d3f3@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jun 11, 2020 at 02:56:22PM +0000, David Laight wrote:
-> From: Sargun Dhillon
-> > Sent: 11 June 2020 12:07
-> > Subject: Re: [PATCH v3 1/4] fs, net: Standardize on file_receive helper to move fds across processes
-> > 
-> > On Thu, Jun 11, 2020 at 12:01:14PM +0200, Christian Brauner wrote:
-> > > On Wed, Jun 10, 2020 at 07:59:55PM -0700, Kees Cook wrote:
-> > > > On Wed, Jun 10, 2020 at 08:12:38AM +0000, Sargun Dhillon wrote:
-> > > > > As an aside, all of this junk should be dropped:
-> > > > > +	ret = get_user(size, &uaddfd->size);
-> > > > > +	if (ret)
-> > > > > +		return ret;
-> > > > > +
-> > > > > +	ret = copy_struct_from_user(&addfd, sizeof(addfd), uaddfd, size);
-> > > > > +	if (ret)
-> > > > > +		return ret;
-> > > > >
-> > > > > and the size member of the seccomp_notif_addfd struct. I brought this up
-> > > > > off-list with Tycho that ioctls have the size of the struct embedded in them. We
-> > > > > should just use that. The ioctl definition is based on this[2]:
-> > > > > #define _IOC(dir,type,nr,size) \
-> > > > > 	(((dir)  << _IOC_DIRSHIFT) | \
-> > > > > 	 ((type) << _IOC_TYPESHIFT) | \
-> > > > > 	 ((nr)   << _IOC_NRSHIFT) | \
-> > > > > 	 ((size) << _IOC_SIZESHIFT))
-> > > > >
-> > > > >
-> > > > > We should just use copy_from_user for now. In the future, we can either
-> > > > > introduce new ioctl names for new structs, or extract the size dynamically from
-> > > > > the ioctl (and mask it out on the switch statement in seccomp_notify_ioctl.
-> > > >
-> > > > Yeah, that seems reasonable. Here's the diff for that part:
-> > >
-> > > Why does it matter that the ioctl() has the size of the struct embedded
-> > > within? Afaik, the kernel itself doesn't do anything with that size. It
-> > > merely checks that the size is not pathological and it does so at
-> > > compile time.
-> > >
-> > > #ifdef __CHECKER__
-> > > #define _IOC_TYPECHECK(t) (sizeof(t))
-> > > #else
-> > > /* provoke compile error for invalid uses of size argument */
-> > > extern unsigned int __invalid_size_argument_for_IOC;
-> > > #define _IOC_TYPECHECK(t) \
-> > > 	((sizeof(t) == sizeof(t[1]) && \
-> > > 	  sizeof(t) < (1 << _IOC_SIZEBITS)) ? \
-> > > 	  sizeof(t) : __invalid_size_argument_for_IOC)
-> > > #endif
-> > >
-> > > The size itself is not verified at runtime. copy_struct_from_user()
-> > > still makes sense at least if we're going to allow expanding the struct
-> > > in the future.
-> > Right, but if we simply change our headers and extend the struct, it will break
-> > all existing programs compiled against those headers. In order to avoid that, if
-> > we intend on extending this struct by appending to it, we need to have a
-> > backwards compatibility mechanism. Just having copy_struct_from_user isn't
-> > enough. The data structure either must be fixed size, or we need a way to handle
-> > multiple ioctl numbers derived from headers with different sized struct arguments
-> > 
-> > The two approaches I see are:
-> > 1. use more indirection. This has previous art in drm[1]. That's look
-> > something like this:
-> > 
-> > struct seccomp_notif_addfd_ptr {
-> > 	__u64 size;
-> > 	__u64 addr;
-> > }
-> > 
-> > ... And then it'd be up to us to dereference the addr and copy struct from user.
-> 
-> Do not go down that route. It isn't worth the pain.
-> 
-> You should also assume that userspace might have a compile-time check
-> on the buffer length (I've written one - not hard) and that the kernel
-> might (in the future - or on a BSD kernel) be doing the user copies
-> for you.
-> 
-> Also, if you change the structure you almost certainly need to
-> change the name of the ioctl cmd as well as its value.
-> Otherwise a recompiled program will pass the new cmd value (and
-> hopefully the right sized buffer) but it won't have initialised
-> the buffer properly.
-> This is likely to lead to unexpected behaviour.
+From: Dave Rodgman <dave.rodgman@arm.com>
+Subject: lib/lzo: fix ambiguous encoding bug in lzo-rle
 
-Hmmm.
+In some rare cases, for input data over 32 KB, lzo-rle could encode two
+different inputs to the same compressed representation, so that
+decompression is then ambiguous (i.e.  data may be corrupted - although
+zram is not affected because it operates over 4 KB pages).
 
-So, while initially I thought Sargun's observation about ioctl's fixed
-struct size was right, I think I've been swayed to Christian's view
-(which is supported by the long tail of struct size pain we've seen in
-other APIs).
+This modifies the compressor without changing the decompressor or the
+bitstream format, such that:
 
-Doing a separate ioctl for each structure version seems like the "old
-solution" now that we've got EA syscalls. So, I'd like to keep the size
-and copy_struct_from_user().
+- there is no change to how data produced by the old compressor is
+  decompressed
 
-Which leaves us with the question of how to deal with the ioctl
-numbering. As we've seen, there is no actual enforcement of direction
-nor size, so to that end, while we could provide the hints about both, I
-guess we just don't need to. To that end, perhaps _IO() is best:
+- an old decompressor will correctly decode data from the updated
+  compressor
 
-#define SECCOMP_IOCTL_NOTIF_ADDFD       SECCOMP_IO(3)
+- performance and compression ratio are not affected
 
-Alternatively, we could use a size of either 0, 8(u64), or -1, and then
-use IORW() so we _also_ won't paint ourselves into a corner if we ever
-want to write something back to userspace in the structure:
+- we avoid introducing a new bitstream format
 
-#define SECCOMP_IOCTL_EA(nr) _IOC(_IOC_READ|_IOC_WRITE,SECCOMP_IOC_MAGIC,(nr),0)
-#define SECCOMP_IOCTL_NOTIF_ADDFD       SECCOMP_IOCTL_EA(3)
+In testing over 12.8M real-world files totalling 903 GB, three files were
+affected by this bug.  I also constructed 37M semi-random 64 KB files
+totalling 2.27 TB, and saw no affected files.  Finally I tested over files
+constructed to contain each of the ~1024 possible bad input sequences; for
+all of these cases, updated lzo-rle worked correctly.
 
-or
+There is no significant impact to performance or compression ratio.
 
-#define SECCOMP_IOCTL_EA(nr) _IOC(_IOC_READ|_IOC_WRITE,SECCOMP_IOC_MAGIC,(nr),8)
-#define SECCOMP_IOCTL_NOTIF_ADDFD       SECCOMP_IOCTL_EA(3)
+Link: http://lkml.kernel.org/r/20200507100203.29785-1-dave.rodgman@arm.com
+Signed-off-by: Dave Rodgman <dave.rodgman@arm.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Dave Rodgman <dave.rodgman@arm.com>
+Cc: Willy Tarreau <w@1wt.eu>
+Cc: Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>
+Cc: Markus F.X.J. Oberhumer <markus@oberhumer.com>
+Cc: Minchan Kim <minchan@kernel.org>
+Cc: Nitin Gupta <ngupta@vflare.org>
+Cc: Chao Yu <yuchao0@huawei.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
 
-or
+ Documentation/lzo.txt    |    8 ++++++--
+ lib/lzo/lzo1x_compress.c |   13 +++++++++++++
+ 2 files changed, 19 insertions(+), 2 deletions(-)
 
-#define SECCOMP_IOCTL_EA(nr) _IOC(_IOC_READ|_IOC_WRITE,SECCOMP_IOC_MAGIC,(nr),_IOC_SIZEMASK)
-#define SECCOMP_IOCTL_NOTIF_ADDFD       SECCOMP_IOCTL_EA(3)
-
-I think I prefer the last one.
-
--- 
-Kees Cook
+--- a/Documentation/lzo.txt~lib-lzo-fix-ambiguous-encoding-bug-in-lzo-rle
++++ a/Documentation/lzo.txt
+@@ -159,11 +159,15 @@ Byte sequences
+            distance = 16384 + (H << 14) + D
+            state = S (copy S literals after this block)
+            End of stream is reached if distance == 16384
++           In version 1 only, to prevent ambiguity with the RLE case when
++           ((distance & 0x803f) == 0x803f) && (261 <= length <= 264), the
++           compressor must not emit block copies where distance and length
++           meet these conditions.
+ 
+         In version 1 only, this instruction is also used to encode a run of
+-        zeros if distance = 0xbfff, i.e. H = 1 and the D bits are all 1.
++           zeros if distance = 0xbfff, i.e. H = 1 and the D bits are all 1.
+            In this case, it is followed by a fourth byte, X.
+-           run length = ((X << 3) | (0 0 0 0 0 L L L)) + 4.
++           run length = ((X << 3) | (0 0 0 0 0 L L L)) + 4
+ 
+       0 0 1 L L L L L  (32..63)
+            Copy of small block within 16kB distance (preferably less than 34B)
+--- a/lib/lzo/lzo1x_compress.c~lib-lzo-fix-ambiguous-encoding-bug-in-lzo-rle
++++ a/lib/lzo/lzo1x_compress.c
+@@ -268,6 +268,19 @@ m_len_done:
+ 				*op++ = (M4_MARKER | ((m_off >> 11) & 8)
+ 						| (m_len - 2));
+ 			else {
++				if (unlikely(((m_off & 0x403f) == 0x403f)
++						&& (m_len >= 261)
++						&& (m_len <= 264))
++						&& likely(bitstream_version)) {
++					// Under lzo-rle, block copies
++					// for 261 <= length <= 264 and
++					// (distance & 0x80f3) == 0x80f3
++					// can result in ambiguous
++					// output. Adjust length
++					// to 260 to prevent ambiguity.
++					ip -= m_len - 260;
++					m_len = 260;
++				}
+ 				m_len -= M4_MAX_LEN;
+ 				*op++ = (M4_MARKER | ((m_off >> 11) & 8));
+ 				while (unlikely(m_len > 255)) {
+_
