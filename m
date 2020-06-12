@@ -2,137 +2,192 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CCB591F753B
-	for <lists+stable@lfdr.de>; Fri, 12 Jun 2020 10:23:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 53B4F1F755F
+	for <lists+stable@lfdr.de>; Fri, 12 Jun 2020 10:36:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726319AbgFLIXd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jun 2020 04:23:33 -0400
-Received: from mail-ed1-f67.google.com ([209.85.208.67]:39807 "EHLO
-        mail-ed1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726264AbgFLIXd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 12 Jun 2020 04:23:33 -0400
-Received: by mail-ed1-f67.google.com with SMTP id g1so5812887edv.6;
-        Fri, 12 Jun 2020 01:23:31 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=W7kjCf2/NPWzaAeHmAsGNvR+U/IDoRneEJh+pNJVKTI=;
-        b=rRwlEsGEidwnhVrlJr8ciBVdEz7z7zNlRfks+dZPjljVIj6O+5mwG4HGk6HuFuvOqx
-         EZtiPFi3tEGm3372WvMTYupVxFk5mY49qzSlM1Oc9HRwvmJfjBHlksK0ahP3diQqql+v
-         3BKxwhCkW1M9ZDR/F3zMiGHLk0Z19gwafaB5JwttznLTLc2zdEexuLsajTGgw/kvqIHX
-         57MUJQ0Mu8t48E7zxv74uIjyFGcaU0WGqNjRnM+sAFOZUzg5h+9aBWqc73y/gmHKh2ar
-         A1lRn49p5ysqqwmVPtaGksPjMuPyzmdBl6asnDfeC6duCYuMqFynUcouFeyRbdifaEPy
-         wgGQ==
-X-Gm-Message-State: AOAM5305kgABOa7HxU36CLhnCyCoSNgvRpFGr4hkSygp0t72xV/Z1I+j
-        OXt5P0DwpYGU25ZKtE6LzJM=
-X-Google-Smtp-Source: ABdhPJxxAoLFRIexOIimzunGIXKEGJy9vuUQgzNABANWPlkiFc4Cg/PTfeBSdakQzbTCe25y53Zq9g==
-X-Received: by 2002:a50:f1d9:: with SMTP id y25mr10284528edl.292.1591950211017;
-        Fri, 12 Jun 2020 01:23:31 -0700 (PDT)
-Received: from pi3 ([194.230.155.184])
-        by smtp.googlemail.com with ESMTPSA id g22sm2797843edj.63.2020.06.12.01.23.29
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 12 Jun 2020 01:23:29 -0700 (PDT)
-Date:   Fri, 12 Jun 2020 10:23:27 +0200
-From:   Krzysztof Kozlowski <krzk@kernel.org>
-To:     Oleksij Rempel <o.rempel@pengutronix.de>
-Cc:     Fugang Duan <B38611@freescale.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        linux-kernel@vger.kernel.org, Gao Pan <b54642@freescale.com>,
-        Oleksij Rempel <linux@rempel-privat.de>,
-        Wolfram Sang <wsa@kernel.org>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        stable@vger.kernel.org, Fabio Estevam <festevam@gmail.com>,
-        linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
-Subject: Re: [PATCH] i2c: imx: Fix external abort on early interrupt
-Message-ID: <20200612082327.GA25893@pi3>
-References: <1591796802-23504-1-git-send-email-krzk@kernel.org>
- <20200612055114.alhm2uakoze6epvf@pengutronix.de>
- <20200612073815.GA25803@pi3>
- <20200612080240.73xkiu2esgg6nbp3@pengutronix.de>
+        id S1726340AbgFLIgK convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Fri, 12 Jun 2020 04:36:10 -0400
+Received: from eu-smtp-delivery-151.mimecast.com ([207.82.80.151]:44277 "EHLO
+        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726361AbgFLIgK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 12 Jun 2020 04:36:10 -0400
+Received: from AcuMS.aculab.com (156.67.243.126 [156.67.243.126]) (Using
+ TLS) by relay.mimecast.com with ESMTP id
+ uk-mta-254-37IQVLyONZaErv1-cO8eWQ-1; Fri, 12 Jun 2020 09:36:04 +0100
+X-MC-Unique: 37IQVLyONZaErv1-cO8eWQ-1
+Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) by
+ AcuMS.aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) with Microsoft SMTP
+ Server (TLS) id 15.0.1347.2; Fri, 12 Jun 2020 09:36:03 +0100
+Received: from AcuMS.Aculab.com ([fe80::43c:695e:880f:8750]) by
+ AcuMS.aculab.com ([fe80::43c:695e:880f:8750%12]) with mapi id 15.00.1347.000;
+ Fri, 12 Jun 2020 09:36:03 +0100
+From:   David Laight <David.Laight@ACULAB.COM>
+To:     'Kees Cook' <keescook@chromium.org>
+CC:     'Sargun Dhillon' <sargun@sargun.me>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        "containers@lists.linux-foundation.org" 
+        <containers@lists.linux-foundation.org>,
+        Giuseppe Scrivano <gscrivan@redhat.com>,
+        Robert Sesek <rsesek@google.com>,
+        Chris Palmer <palmer@google.com>, Jann Horn <jannh@google.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Daniel Wagner <daniel.wagner@bmw-carit.de>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Matt Denton <mpdenton@google.com>,
+        John Fastabend <john.r.fastabend@intel.com>,
+        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
+        Tejun Heo <tj@kernel.org>, Al Viro <viro@zeniv.linux.org.uk>,
+        "cgroups@vger.kernel.org" <cgroups@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "David S . Miller" <davem@davemloft.net>
+Subject: RE: [PATCH v3 1/4] fs, net: Standardize on file_receive helper to
+ move fds across processes
+Thread-Topic: [PATCH v3 1/4] fs, net: Standardize on file_receive helper to
+ move fds across processes
+Thread-Index: AQHWP+BcCi14oegu0U6J73sUpcDiU6jTfHDAgACI+YCAAKH2YA==
+Date:   Fri, 12 Jun 2020 08:36:03 +0000
+Message-ID: <94407449bedd4ba58d85446401ff0a42@AcuMS.aculab.com>
+References: <202006091235.930519F5B@keescook>
+ <20200609200346.3fthqgfyw3bxat6l@wittgenstein>
+ <202006091346.66B79E07@keescook>
+ <037A305F-B3F8-4CFA-B9F8-CD4C9EF9090B@ubuntu.com>
+ <202006092227.D2D0E1F8F@keescook>
+ <20200610081237.GA23425@ircssh-2.c.rugged-nimbus-611.internal>
+ <202006101953.899EFB53@keescook>
+ <20200611100114.awdjswsd7fdm2uzr@wittgenstein>
+ <20200611110630.GB30103@ircssh-2.c.rugged-nimbus-611.internal>
+ <067f494d55c14753a31657f958cb0a6e@AcuMS.aculab.com>
+ <202006111634.8237E6A5C6@keescook>
+In-Reply-To: <202006111634.8237E6A5C6@keescook>
+Accept-Language: en-GB, en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.202.205.107]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20200612080240.73xkiu2esgg6nbp3@pengutronix.de>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: aculab.com
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jun 12, 2020 at 10:02:40AM +0200, Oleksij Rempel wrote:
-> On Fri, Jun 12, 2020 at 09:38:15AM +0200, Krzysztof Kozlowski wrote:
-> > On Fri, Jun 12, 2020 at 07:51:14AM +0200, Oleksij Rempel wrote:
-> > > Hi Krzysztof,
-> > > 
-> > > thank you for your patch.
-> > > 
-> > > On Wed, Jun 10, 2020 at 03:46:42PM +0200, Krzysztof Kozlowski wrote:
-> > > > If interrupt comes early (could be triggered with CONFIG_DEBUG_SHIRQ),
-> > > > the i2c_imx_isr() will access registers before the I2C hardware is
-> > > > initialized.  This leads to external abort on non-linefetch on Toradex
-> > > > Colibri VF50 module (with Vybrid VF5xx):
-> > > > 
-> > > >     Unhandled fault: external abort on non-linefetch (0x1008) at 0x8882d003
-> > > >     Internal error: : 1008 [#1] ARM
-> > > >     Modules linked in:
-> > > >     CPU: 0 PID: 1 Comm: swapper Not tainted 5.7.0 #607
-> > > >     Hardware name: Freescale Vybrid VF5xx/VF6xx (Device Tree)
-> > > >       (i2c_imx_isr) from [<8017009c>] (free_irq+0x25c/0x3b0)
-> > > >       (free_irq) from [<805844ec>] (release_nodes+0x178/0x284)
-> > > >       (release_nodes) from [<80580030>] (really_probe+0x10c/0x348)
-> > > >       (really_probe) from [<80580380>] (driver_probe_device+0x60/0x170)
-> > > >       (driver_probe_device) from [<80580630>] (device_driver_attach+0x58/0x60)
-> > > >       (device_driver_attach) from [<805806bc>] (__driver_attach+0x84/0xc0)
-> > > >       (__driver_attach) from [<8057e228>] (bus_for_each_dev+0x68/0xb4)
-> > > >       (bus_for_each_dev) from [<8057f3ec>] (bus_add_driver+0x144/0x1ec)
-> > > >       (bus_add_driver) from [<80581320>] (driver_register+0x78/0x110)
-> > > >       (driver_register) from [<8010213c>] (do_one_initcall+0xa8/0x2f4)
-> > > >       (do_one_initcall) from [<80c0100c>] (kernel_init_freeable+0x178/0x1dc)
-> > > >       (kernel_init_freeable) from [<80807048>] (kernel_init+0x8/0x110)
-> > > >       (kernel_init) from [<80100114>] (ret_from_fork+0x14/0x20)
-> > > > 
-> > > > Additionally, the i2c_imx_isr() could wake up the wait queue
-> > > > (imx_i2c_struct->queue) before its initialization happens.
-> > > > 
-> > > > Fixes: 1c4b6c3bcf30 ("i2c: imx: implement bus recovery")
-> > > > Cc: <stable@vger.kernel.org>
-> > > > Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-> > > 
-> > > 
-> > > I assume register access is aborted, because the IP core clock is not
-> > > enabled. In this case we have bigger problem then just probe.
-> > 
-> > If by IP core clock you mean the clock which driver is getting, then
-> > answer is no. This clock is enabled.
-> > 
-> > > Since this driver support runtime power management, the clock will be
-> > > disabled as soon as transfer is done. It means, on shared interrupt, we
-> > > will get in trouble even if there is no active transfer.
-> > 
-> > The driver's runtime PM plays only with this one clock, so it seems
-> > you meant i2c_imx->clk. It is not this problem.
-> > 
-> > > 
-> > > So, probably the only way to fix it, is to check in i2c_imx_isr() if the
-> > > HW is expected to be active and register access should be save.
-> > 
-> > Checking in every interrupt whether the interrupt should be serviced
-> > based on some SW flag because HW might be disabled? That looks unusual,
-> > like a hack.
-> > 
-> > No, the interrupt should be registered when the driver and some other
-> > pieces of HW are ready to service it.
+From: Kees Cook
+> Sent: 12 June 2020 00:50
+> > From: Sargun Dhillon
+> > > Sent: 11 June 2020 12:07
+> > > Subject: Re: [PATCH v3 1/4] fs, net: Standardize on file_receive helper to move fds across
+> processes
+> > >
+> > > On Thu, Jun 11, 2020 at 12:01:14PM +0200, Christian Brauner wrote:
+> > > > On Wed, Jun 10, 2020 at 07:59:55PM -0700, Kees Cook wrote:
+> > > > > On Wed, Jun 10, 2020 at 08:12:38AM +0000, Sargun Dhillon wrote:
+> > > > > > As an aside, all of this junk should be dropped:
+> > > > > > +	ret = get_user(size, &uaddfd->size);
+> > > > > > +	if (ret)
+> > > > > > +		return ret;
+> > > > > > +
+> > > > > > +	ret = copy_struct_from_user(&addfd, sizeof(addfd), uaddfd, size);
+> > > > > > +	if (ret)
+> > > > > > +		return ret;
+> > > > > >
+> > > > > > and the size member of the seccomp_notif_addfd struct. I brought this up
+> > > > > > off-list with Tycho that ioctls have the size of the struct embedded in them. We
+> > > > > > should just use that. The ioctl definition is based on this[2]:
+> > > > > > #define _IOC(dir,type,nr,size) \
+> > > > > > 	(((dir)  << _IOC_DIRSHIFT) | \
+> > > > > > 	 ((type) << _IOC_TYPESHIFT) | \
+> > > > > > 	 ((nr)   << _IOC_NRSHIFT) | \
+> > > > > > 	 ((size) << _IOC_SIZESHIFT))
+> > > > > >
+> > > > > >
+> > > > > > We should just use copy_from_user for now. In the future, we can either
+> > > > > > introduce new ioctl names for new structs, or extract the size dynamically from
+> > > > > > the ioctl (and mask it out on the switch statement in seccomp_notify_ioctl.
+> > > > >
+> > > > > Yeah, that seems reasonable. Here's the diff for that part:
+> > > >
+> > > > Why does it matter that the ioctl() has the size of the struct embedded
+> > > > within? Afaik, the kernel itself doesn't do anything with that size. It
+> > > > merely checks that the size is not pathological and it does so at
+> > > > compile time.
+> > > >
+> > > > #ifdef __CHECKER__
+> > > > #define _IOC_TYPECHECK(t) (sizeof(t))
+> > > > #else
+> > > > /* provoke compile error for invalid uses of size argument */
+> > > > extern unsigned int __invalid_size_argument_for_IOC;
+> > > > #define _IOC_TYPECHECK(t) \
+> > > > 	((sizeof(t) == sizeof(t[1]) && \
+> > > > 	  sizeof(t) < (1 << _IOC_SIZEBITS)) ? \
+> > > > 	  sizeof(t) : __invalid_size_argument_for_IOC)
+> > > > #endif
+> > > >
+> > > > The size itself is not verified at runtime. copy_struct_from_user()
+> > > > still makes sense at least if we're going to allow expanding the struct
+> > > > in the future.
+> > > Right, but if we simply change our headers and extend the struct, it will break
+> > > all existing programs compiled against those headers. In order to avoid that, if
+> > > we intend on extending this struct by appending to it, we need to have a
+> > > backwards compatibility mechanism. Just having copy_struct_from_user isn't
+> > > enough. The data structure either must be fixed size, or we need a way to handle
+> > > multiple ioctl numbers derived from headers with different sized struct arguments
+> > >
+> > > The two approaches I see are:
+> > > 1. use more indirection. This has previous art in drm[1]. That's look
+> > > something like this:
+> > >
+> > > struct seccomp_notif_addfd_ptr {
+> > > 	__u64 size;
+> > > 	__u64 addr;
+> > > }
+> > >
+> > > ... And then it'd be up to us to dereference the addr and copy struct from user.
+> >
+> > Do not go down that route. It isn't worth the pain.
+> >
+> > You should also assume that userspace might have a compile-time check
+> > on the buffer length (I've written one - not hard) and that the kernel
+> > might (in the future - or on a BSD kernel) be doing the user copies
+> > for you.
+> >
+> > Also, if you change the structure you almost certainly need to
+> > change the name of the ioctl cmd as well as its value.
+> > Otherwise a recompiled program will pass the new cmd value (and
+> > hopefully the right sized buffer) but it won't have initialised
+> > the buffer properly.
+> > This is likely to lead to unexpected behaviour.
 > 
-> OK.
-> please make sure, irq is probed before calling
-> i2c_add_numbered_adapter(). This will trigger deferred probing of
-> slave devices. Since the irq handler will be added later, tx completion
-> of some requests will be lost or fail.
+> Hmmm.
+> 
+> So, while initially I thought Sargun's observation about ioctl's fixed
+> struct size was right, I think I've been swayed to Christian's view
+> (which is supported by the long tail of struct size pain we've seen in
+> other APIs).
+> 
+> Doing a separate ioctl for each structure version seems like the "old
+> solution" now that we've got EA syscalls. So, I'd like to keep the size
+> and copy_struct_from_user().
 
-Right. I'll move the devm_request_irq().
+If the size is variable then why not get the application to fill
+in the size of the structure it is sending at the time of the ioctl.
 
-Best regards,
-Krzysztof
+So you'd have:
+#define xxx_IOCTL_17(param) _IOCW('X', 17, sizeof *(param))
+
+The application code would then do:
+	ioctl(fd, xxx_IOCTL_17(arg), arg);
+
+The kernel code can either choose to have specific 'case'
+for each size, or mask off the length bits and do the
+length check later.
+
+	David
+
+-
+Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
+Registration No: 1397386 (Wales)
 
