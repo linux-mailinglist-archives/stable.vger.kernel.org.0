@@ -2,97 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D90131F7437
-	for <lists+stable@lfdr.de>; Fri, 12 Jun 2020 08:58:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 288AA1F747E
+	for <lists+stable@lfdr.de>; Fri, 12 Jun 2020 09:17:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726447AbgFLG6Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Jun 2020 02:58:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42820 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726403AbgFLG6P (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 12 Jun 2020 02:58:15 -0400
-Received: from mail-pj1-x1042.google.com (mail-pj1-x1042.google.com [IPv6:2607:f8b0:4864:20::1042])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54562C08C5C1
-        for <stable@vger.kernel.org>; Thu, 11 Jun 2020 23:58:14 -0700 (PDT)
-Received: by mail-pj1-x1042.google.com with SMTP id k2so3280160pjs.2
-        for <stable@vger.kernel.org>; Thu, 11 Jun 2020 23:58:14 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=hbBTPedvojIPOHUOPrzkvqJhdMTFZotSf6yPfyzcSVc=;
-        b=VEv60SuR1xOiTK9xkgyJTKlyILo0gJSwdIeMlGuiTetR5wFnYj6YsL3yI5plGAsZg/
-         OMWGwHmJ43PaYQmc4gd+GLuzIVpWUsVLdppG1kCQK4jIBzjwWXGw0RM5BZd3bMh5g6Op
-         5zaycbbMBN8Yc9oPnkdOTIpZ4v5cFWgsPof1Q=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=hbBTPedvojIPOHUOPrzkvqJhdMTFZotSf6yPfyzcSVc=;
-        b=q7LnEWt13LaYRnExBHhoKcPQEeIGl78uYPbz8j7SqrGt3TdZQyic7Bumv7l7rjmaPZ
-         z2TOV6osBtJSZLLLJ0BECXlLAmDpEO8MUB5CzgmOtEEz0Q0vLEAl0PkpuQNaZV8+xMM+
-         pJEfBALwIja91WoZ8k+DOtokP4rJ0TRb5yMnQFGCv2QJU71HAAIN015sjvSLFMVAW85X
-         /P5vIcJp0hUSI1xmlFpxqXtYgL09rhjHJKHVxEnsudtwdj7nxet0DtwqHkkHN4uwGtxG
-         6h0GAQfQdHRBuo033OZMfZyj75p4sp8Oao/y69MkYozhbs9Afgiqb1LHPgnZoabj7oAE
-         sVrg==
-X-Gm-Message-State: AOAM532+e0jZvLtHdA8WWcQmrG1GvNiPrJCpz2RG3Yw3l7Sjs60dMp/d
-        +vAqVaLHkwbK75w1RpTAA2ujpQ==
-X-Google-Smtp-Source: ABdhPJzFarvRyhjwA03KJI+npCqldj7tRexddeTWqnuMNZdeX8tlh9W+3uGOuYbwK6XOUnTfUmmkPQ==
-X-Received: by 2002:a17:902:23:: with SMTP id 32mr10294486pla.40.1591945093613;
-        Thu, 11 Jun 2020 23:58:13 -0700 (PDT)
-Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
-        by smtp.gmail.com with ESMTPSA id t201sm5206590pfc.104.2020.06.11.23.58.12
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 11 Jun 2020 23:58:12 -0700 (PDT)
-Date:   Thu, 11 Jun 2020 23:58:11 -0700
-From:   Kees Cook <keescook@chromium.org>
-To:     David Laight <David.Laight@ACULAB.COM>
-Cc:     'Sargun Dhillon' <sargun@sargun.me>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        "containers@lists.linux-foundation.org" 
-        <containers@lists.linux-foundation.org>,
-        Giuseppe Scrivano <gscrivan@redhat.com>,
-        Robert Sesek <rsesek@google.com>,
-        Chris Palmer <palmer@google.com>, Jann Horn <jannh@google.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Matt Denton <mpdenton@google.com>,
-        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
-        Tejun Heo <tj@kernel.org>, Al Viro <viro@zeniv.linux.org.uk>,
-        "cgroups@vger.kernel.org" <cgroups@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "David S . Miller" <davem@davemloft.net>
-Subject: Re: [PATCH v3 1/4] fs, net: Standardize on file_receive helper to
- move fds across processes
-Message-ID: <202006112355.932D0AD@keescook>
-References: <20200609200346.3fthqgfyw3bxat6l@wittgenstein>
- <202006091346.66B79E07@keescook>
- <037A305F-B3F8-4CFA-B9F8-CD4C9EF9090B@ubuntu.com>
- <202006092227.D2D0E1F8F@keescook>
- <20200610081237.GA23425@ircssh-2.c.rugged-nimbus-611.internal>
- <202006101953.899EFB53@keescook>
- <20200611100114.awdjswsd7fdm2uzr@wittgenstein>
- <20200611110630.GB30103@ircssh-2.c.rugged-nimbus-611.internal>
- <067f494d55c14753a31657f958cb0a6e@AcuMS.aculab.com>
- <202006111634.8237E6A5C6@keescook>
+        id S1726300AbgFLHRE convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Fri, 12 Jun 2020 03:17:04 -0400
+Received: from relay7-d.mail.gandi.net ([217.70.183.200]:52913 "EHLO
+        relay7-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726298AbgFLHRD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 12 Jun 2020 03:17:03 -0400
+X-Originating-IP: 91.224.148.103
+Received: from xps13 (unknown [91.224.148.103])
+        (Authenticated sender: miquel.raynal@bootlin.com)
+        by relay7-d.mail.gandi.net (Postfix) with ESMTPSA id 1D41D2000D;
+        Fri, 12 Jun 2020 07:16:59 +0000 (UTC)
+Date:   Fri, 12 Jun 2020 09:16:58 +0200
+From:   Miquel Raynal <miquel.raynal@bootlin.com>
+To:     Sivaprakash Murugesan <sivaprak@codeaurora.org>
+Cc:     richard@nod.at, vigneshr@ti.com, peter.ujfalusi@ti.com,
+        boris.brezillon@collabora.com, architt@codeaurora.org,
+        linux-mtd@lists.infradead.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH V3 1/2] mtd: rawnand: qcom: avoid write to unavailable
+ register
+Message-ID: <20200612091658.4f9fba49@xps13>
+In-Reply-To: <1591944589-14357-2-git-send-email-sivaprak@codeaurora.org>
+References: <1591944589-14357-1-git-send-email-sivaprak@codeaurora.org>
+        <1591944589-14357-2-git-send-email-sivaprak@codeaurora.org>
+Organization: Bootlin
+X-Mailer: Claws Mail 3.17.4 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <202006111634.8237E6A5C6@keescook>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jun 11, 2020 at 04:49:37PM -0700, Kees Cook wrote:
-> I think I prefer the last one.
+Hi Sivaprakash,
 
-Here's where I am with things:
+Sivaprakash Murugesan <sivaprak@codeaurora.org> wrote on Fri, 12 Jun
+2020 12:19:48 +0530:
 
-https://git.kernel.org/pub/scm/linux/kernel/git/kees/linux.git/log/?h=devel/seccomp/addfd/v3.3
+> SFLASHC_BURST_CFG is only available on older ipq nand platforms, this
+> register has been removed when the NAND controller is moved as part of qpic
+> controller.
+> 
+> avoid register writes to this register on devices which are based on qpic
 
-If we can agree on the ioctl numbering solution, I can actually send the
-series for email review...
+Avoid writing this register on ...
 
--- 
-Kees Cook
+> NAND controllers.
+> 
+> Fixes: a0637834 (mtd: nand: qcom: support for IPQ4019 QPIC NANDcontroller)
+> Fixes: dce84760 (mtd: nand: qcom: Support for IPQ8074 QPIC NAND controller)
+
+I don't think having two Fixes tag is allowed. Take the older one
+instead.
+
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Sivaprakash Murugesan <sivaprak@codeaurora.org>
+> ---
+> [V3]
+>  * Addressed Miquel comments, added flag based on nand controller hw
+>    to avoid the register writes to specific ipq platforms
+>  drivers/mtd/nand/raw/qcom_nandc.c | 8 +++++++-
+>  1 file changed, 7 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/mtd/nand/raw/qcom_nandc.c b/drivers/mtd/nand/raw/qcom_nandc.c
+> index f1daf33..e0c55bb 100644
+> --- a/drivers/mtd/nand/raw/qcom_nandc.c
+> +++ b/drivers/mtd/nand/raw/qcom_nandc.c
+> @@ -459,11 +459,13 @@ struct qcom_nand_host {
+>   * among different NAND controllers.
+>   * @ecc_modes - ecc mode for NAND
+>   * @is_bam - whether NAND controller is using BAM
+> + * @is_qpic - whether NAND CTRL is part of qpic IP
+>   * @dev_cmd_reg_start - NAND_DEV_CMD_* registers starting offset
+>   */
+>  struct qcom_nandc_props {
+>  	u32 ecc_modes;
+>  	bool is_bam;
+> +	bool is_qpic;
+>  	u32 dev_cmd_reg_start;
+>  };
+>  
+> @@ -2774,7 +2776,8 @@ static int qcom_nandc_setup(struct qcom_nand_controller *nandc)
+>  	u32 nand_ctrl;
+>  
+>  	/* kill onenand */
+> -	nandc_write(nandc, SFLASHC_BURST_CFG, 0);
+> +	if (!nandc->props->is_qpic)
+> +		nandc_write(nandc, SFLASHC_BURST_CFG, 0);
+>  	nandc_write(nandc, dev_cmd_reg_addr(nandc, NAND_DEV_CMD_VLD),
+>  		    NAND_DEV_CMD_VLD_VAL);
+>  
+> @@ -3029,18 +3032,21 @@ static int qcom_nandc_remove(struct platform_device *pdev)
+>  static const struct qcom_nandc_props ipq806x_nandc_props = {
+>  	.ecc_modes = (ECC_RS_4BIT | ECC_BCH_8BIT),
+>  	.is_bam = false,
+> +	.is_qpic = false,
+
+This line is unneeded.
+
+>  	.dev_cmd_reg_start = 0x0,
+>  };
+>  
+>  static const struct qcom_nandc_props ipq4019_nandc_props = {
+>  	.ecc_modes = (ECC_BCH_4BIT | ECC_BCH_8BIT),
+>  	.is_bam = true,
+> +	.is_qpic = true,
+>  	.dev_cmd_reg_start = 0x0,
+>  };
+>  
+>  static const struct qcom_nandc_props ipq8074_nandc_props = {
+>  	.ecc_modes = (ECC_BCH_4BIT | ECC_BCH_8BIT),
+>  	.is_bam = true,
+> +	.is_qpic = true,
+>  	.dev_cmd_reg_start = 0x7000,
+>  };
+>  
+
+Much better patch IMHO, just a few nits and we'll be good.
+
+Thanks,
+Miquèl
