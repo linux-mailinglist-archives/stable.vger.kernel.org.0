@@ -2,73 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ABBF21F88BF
-	for <lists+stable@lfdr.de>; Sun, 14 Jun 2020 14:23:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A9091F88FA
+	for <lists+stable@lfdr.de>; Sun, 14 Jun 2020 15:39:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726766AbgFNMXC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Jun 2020 08:23:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52144 "EHLO
+        id S1727050AbgFNNjU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Jun 2020 09:39:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35526 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725815AbgFNMXC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 14 Jun 2020 08:23:02 -0400
-Received: from mail-lf1-x12f.google.com (mail-lf1-x12f.google.com [IPv6:2a00:1450:4864:20::12f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6839C05BD43
-        for <stable@vger.kernel.org>; Sun, 14 Jun 2020 05:23:01 -0700 (PDT)
-Received: by mail-lf1-x12f.google.com with SMTP id w15so7890354lfe.11
-        for <stable@vger.kernel.org>; Sun, 14 Jun 2020 05:23:01 -0700 (PDT)
+        with ESMTP id S1725815AbgFNNjT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 14 Jun 2020 09:39:19 -0400
+Received: from mail-ed1-x542.google.com (mail-ed1-x542.google.com [IPv6:2a00:1450:4864:20::542])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B5BDC05BD43;
+        Sun, 14 Jun 2020 06:39:19 -0700 (PDT)
+Received: by mail-ed1-x542.google.com with SMTP id e12so9595518eds.2;
+        Sun, 14 Jun 2020 06:39:19 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=mime-version:from:date:message-id:subject:to:cc;
-        bh=Btejqnmh6oqc5bOHtaw+fTSiPkuIdgf4wRXHxvccMSg=;
-        b=DyvULmi6BF9TDRk5Wm9KgDEInnqCsRtSlOQotXXXDOOoCg35ZGK40RU2ZmLVS+aG62
-         wL/o6Esm2oDguoWY/VB09fqVgUdm0gy/TdCKvF4qsQBRO6T1k9kHRTrxIpZQ5mC/oEJ4
-         IRatf1CAud2ioc3J/OcEaSNYuDebzDhobqQrLkCjY+/Vx3I+tMDUEqgtxnFtJ8Z9jT2u
-         NbXBqkFn0ZMhCZsQJ9dBtabmEOPR9Ihj756f+2hHBv4A64e9HbifYAfaHZGzjH67kUkn
-         kB5cwiRe70UKvmpwTxLT+Qc8H4/zm2RMBA8kazU34A4xA0xgHhgKZaY+j7HJcXAcUNMV
-         wBlQ==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=ch1266/zLQhz11J/+T8ColOn8pjWDCQ6/ckZ8J1yAl4=;
+        b=nNonRJopASXRG5nObKu0LEYyym18LPtY8KURjqoJgMC0vG+gVDWHqCqIqIJb4ZsY3d
+         X4fDPZ3OzpPvIry/xKfkUUQsVaHDk1cWY+Z3sobHOq+pUoyAVcDu8RWHsoRNX8A17T85
+         sMzprL0d2PA/KJDVCsRmI5FqWn7rNGddVScMfSV3v1uSdyx0aRn8HO/HCYgQE2b/BxuR
+         GplWnRLjahxEqSd+IJs7JIsBAUJ42El8XUWOEVcHN369ds7pTpE+GfQh+TrB8DS5Yycl
+         968Xmu7GNN0uKJqeMh+LgjgWvHv8QYkCyr6MnTG/9oCcKuwHZVTxHoCzkTBFvr4hH0E6
+         jzKQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
-        bh=Btejqnmh6oqc5bOHtaw+fTSiPkuIdgf4wRXHxvccMSg=;
-        b=J5aRZl8yr+CE+NWoYYhgC6BVLVZUG1W9cm7VtmrDXU9ao10nVvhlKXq6EmMVfq9B0O
-         HwWOUE4wV39RqBnF3rjoUgGfJANHSN21aneJqO3ShlmTtTWWmdUYC64+1Wtxau4dEy6R
-         KFmhAkTJKDUk9O3K+gkIY3xwOHPbfsFmoKEe18LLCVkT/4VxJxItcsF7+csyrMbqDmkF
-         syHv3srfEw55/znJ28r00E0u0zi8uNY6gml+5Zs2DPTVk5UWyHrDuMV0LYT+iGoarV4+
-         n9aefruUbM7OX/jOu0SWNao99tkWl9ksPKye30L5uOR41/0xn6/1RjBsUojWr8fTw+Hc
-         Nmzw==
-X-Gm-Message-State: AOAM532S5VeUSR/Lt75GmyMK0IiF3bs0fe/GLw+N2hqrdHesmMROYjnq
-        /tGccAYGfkyquZvvJX317qR1L31YfTMOoGc/QEkUTQy4N4o=
-X-Google-Smtp-Source: ABdhPJyTPFDQrphOQLurQ7bOJfBlcoKpe2TA8Usj1qoqt/FlwFF5zxiufs4421FdCBQ0Z/sX3vv0e7RotSE+59KiskM=
-X-Received: by 2002:ac2:562b:: with SMTP id b11mr11278597lff.47.1592137379497;
- Sun, 14 Jun 2020 05:22:59 -0700 (PDT)
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=ch1266/zLQhz11J/+T8ColOn8pjWDCQ6/ckZ8J1yAl4=;
+        b=Dw1m7sLgaMJnCo5+31u/hjMwzGbmnwRkGe5iRMQd3C4RQQJlg8j0yzcY3S2Kd3zOek
+         KhRVZFAMRBevgsZcnsJFvVO7nbxnFbdX/tiYj5jd9MyEpxhevX1or+5qPxWQf7zSZzQi
+         K6tQ9Zo1g6j7wLYfOt6mHXcCRRdkfPmiZneV7sn5DyOJaEmi1uiUxkFTl0ndKSkxuXsa
+         zmDGZRQ3p8PTVcVWqHZaMmQQqhgaKZGfPgUchamdO1vRqWTYqFjCnPzlFofXbUtZKPPC
+         GFUD98tLXkgixPYneevKTq7tv1yrC61T4iqWXkCZxRwZE9Agp88wYnwEr9DWKSH7lgjt
+         WycQ==
+X-Gm-Message-State: AOAM533G8PUdvdZiweNIfkj900TCeimpOm2Vl33uQz0QxrXdCyzAL64P
+        macssTckbdwGssENjNdGvyKwxrBM6BKdBmvY1PhjIDrN
+X-Google-Smtp-Source: ABdhPJxXCFyPqjmcEIxdCuTNrj6k9PPvCHw30V0XgyEfXpgSbQGtTVaZNoE3ULLuubEmdP3+bn0x5BYTBAdDu+cudQs=
+X-Received: by 2002:a05:6402:545:: with SMTP id i5mr20256115edx.179.1592141954827;
+ Sun, 14 Jun 2020 06:39:14 -0700 (PDT)
 MIME-Version: 1.0
-From:   William Dauchy <wdauchy@gmail.com>
-Date:   Sun, 14 Jun 2020 14:22:47 +0200
-Message-ID: <CAJ75kXaUoedk2UjQ74G2uYkaDUpanvYWtCNU78uX2vVSUVkmjA@mail.gmail.com>
-Subject: backport status of "ipv4: fix a RCU-list lock in fib_triestat_seq_show"
-To:     stable <stable@vger.kernel.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+References: <1592132154-20175-1-git-send-email-krzk@kernel.org>
+ <1592132154-20175-2-git-send-email-krzk@kernel.org> <CA+h21ho_pa0H2MG-aAmUCFj37aYW4es-2V75P4KL-Zjq7qtfRQ@mail.gmail.com>
+ <20200614111829.GA9694@kozik-lap>
+In-Reply-To: <20200614111829.GA9694@kozik-lap>
+From:   Vladimir Oltean <olteanv@gmail.com>
+Date:   Sun, 14 Jun 2020 16:39:03 +0300
+Message-ID: <CA+h21hqE3RbD2XTBbcRsMhsO2OaZ65tAaevFOr00p9ezu8O+iA@mail.gmail.com>
+Subject: Re: [PATCH 2/2] spi: spi-fsl-dspi: Initialize completion before
+ possible interrupt
+To:     Krzysztof Kozlowski <krzk@kernel.org>
+Cc:     Mark Brown <broonie@kernel.org>,
+        Vladimir Oltean <vladimir.oltean@nxp.com>,
+        linux-spi <linux-spi@vger.kernel.org>,
+        lkml <linux-kernel@vger.kernel.org>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
+        Wolfram Sang <wsa@kernel.org>, stable@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
+On Sun, 14 Jun 2020 at 14:18, Krzysztof Kozlowski <krzk@kernel.org> wrote:
+>
+> On Sun, Jun 14, 2020 at 02:14:15PM +0300, Vladimir Oltean wrote:
+> > On Sun, 14 Jun 2020 at 13:56, Krzysztof Kozlowski <krzk@kernel.org> wrote:
+> > >
+> > > If interrupt fires early, the dspi_interrupt() could complete
+> > > (dspi->xfer_done) before its initialization happens.
+> > >
+> > > Fixes: 4f5ee75ea171 ("spi: spi-fsl-dspi: Replace interruptible wait queue with a simple completion")
+> > > Cc: <stable@vger.kernel.org>
+> > > Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+> > > ---
+> >
+> > Why would an interrupt fire before spi_register_controller, therefore
+> > before dspi_transfer_one_message could get called?
+> > Is this master or slave mode?
+>
+> I guess practically it won't fire.  It's more of a matter of logical
+> order and:
+> 1. Someone might fix the CONFIG_DEBUG_SHIRQ_FIXME one day,
 
-I found the following commit fbe4e0c1b298b4665ee6915266c9d6c5b934ef4a
-("ipv4: fix a RCU-list lock in fib_triestat_seq_show") backported in
-the following stable versions: v5.6.x, v5.5.x, v4.19.x, v4.14.x,
-v4.9.x, v4.4.x.
-However I cannot find it in v5.4.x yet. I checked stable queue on
-netdev side (http://patchwork.ozlabs.org/bundle/davem/stable/?state=*)
-but also main stable queue
-https://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+And what if CONFIG_DEBUG_SHIRQ_FIXME gets fixed? I uncommented it, and
+still no issues. dspi_interrupt checks the status bit of the hw, sees
+there's nothing to do, and returns IRQ_NONE.
 
-I was wondering whether it was an oversight or it was expected?
+> 2. The hardware is actually initialized before and someone could attach
+>    to SPI bus some weird device.
+>
 
-Sorry for the noise if I'm mistaken.
+Some weird device that does what?
 
-Best regards,
--- 
-William
+> Best regards,
+> Krzysztof
+>
+
+Thanks,
+-Vladimir
