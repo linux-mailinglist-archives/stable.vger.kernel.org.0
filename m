@@ -2,54 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 09B251F995E
-	for <lists+stable@lfdr.de>; Mon, 15 Jun 2020 15:55:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE2DA1F9962
+	for <lists+stable@lfdr.de>; Mon, 15 Jun 2020 15:56:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729930AbgFONz0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jun 2020 09:55:26 -0400
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:34071 "EHLO
+        id S1729955AbgFON41 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jun 2020 09:56:27 -0400
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:35663 "EHLO
         wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729973AbgFONzZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Jun 2020 09:55:25 -0400
+        by vger.kernel.org with ESMTP id S1728510AbgFON4Q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Jun 2020 09:56:16 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id B13506C5;
-        Mon, 15 Jun 2020 09:55:23 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Mon, 15 Jun 2020 09:55:24 -0400
+        by mailforward.west.internal (Postfix) with ESMTP id C8F676CE;
+        Mon, 15 Jun 2020 09:56:15 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Mon, 15 Jun 2020 09:56:16 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=4ftho4
-        +VKiQx2J0vcGwhoWhCzdWdPNDsxp8zuma7BqM=; b=FXZkq2/wfDMKknTzYUT9u/
-        AORZDlSEi9HyJlCAKiV8Odsa7Hhi8LBZdMjJhTE9xerNqdqeBPBQZ0RSndX6c0GO
-        AzArZD7mJHIFuzN8XAh2d4sOhE4xAmK7TxylnlDXbqGf0B9GFmlCks03YU+iy+Sc
-        ibN/wqY3G9oBVK9zQsxB4bnK4lpG1yWs7uaWUICOYGQxcMwPmbFx1KxxClsPUykX
-        10OH9TgtkU0Xu0DZWVBjPEqj869e1/4n6Yj7CtvkbLx/olxG2YtbKeUE3uQJqPT2
-        3OF3B6Mr+sauhwKNzUygHYK4C6R0K6WRknLVBYTeWIC/F+1ijykShQka2lYI4zsQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=4QW/vz
+        i/7ugGD6p+kjIk1QjeOHjdeS7DYaIfUfSpAeA=; b=PRJMizAlbP9yGiJ3CkH+2K
+        tX0cC0rd/wFFF7BWuPmnImi5eE1VuzU2JrphKSUVoPy4GqtV7QMKrSRnmv2hzJ5A
+        OfAM9dy/yGTRlkw07602ngWgupaElawnC82PxhnTSseHQZrHEQ6oaKvA6wndORP9
+        qHVi5LIGW2fqD8xTodqNl6KwOJxjgdCqqGYbI4Z4hsFn3SmFxx3b8Uls0A+NaPPO
+        TmDAFhXPSxvEftnlf1nsNn+xfYixbJGVxtxm07XOqhXDT8TBzVWn/fVzFwXFAkY3
+        zWRyoly/3i3Qncx4oDDj+C01Js1lbqLkEQ6zg0ZS2r8jIQIpLVs0SalMCxNzX4og
         ==
-X-ME-Sender: <xms:y33nXmmTHBCsCj2_zE3Ci75HbtldUWMaQfCL8aTzuUf8DQxj8Epe2A>
+X-ME-Sender: <xms:_33nXi5_eCOuhqF4eqxbB5-mMlRcUJjBmnhfrWcjyqi1ZqkJatubDQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudeikedgjedtucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
     etveeuveeludejjefgteehnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushht
-    vghrufhiiigvpedunecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
+    vghrufhiiigvpedvnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
     drtghomh
-X-ME-Proxy: <xmx:y33nXt01XcOUeuaSCz0vM-ACVuBBl3h0EYxXHeYuPqfQgxbdCxV3BA>
-    <xmx:y33nXkrVMDI3D37Fru54bfvWeNR6Z8uc-apBOTNJ4OZsaFiKbhfrzA>
-    <xmx:y33nXqm4hk-nEA_zgC7_e_-PUfyDxneB7ipDlKRrDy82dDGyn8vHVg>
-    <xmx:y33nXp-Rw76rzmFGVzgHAMAB0InW1CYO0dHS8-_lZ308X-OsEFo56XQQxlU>
+X-ME-Proxy: <xmx:_33nXr6W78ZsGOL0ukCI7eTbfjisRbZtrgMzhv33tAXUrrt9regG7w>
+    <xmx:_33nXhc7-qdek0v6V7PAmpRz4njMzxqUbmvrHizZgIYNE3tWZ_z6Dg>
+    <xmx:_33nXvI-uQZUlKIIW2HjA0Lv791pHGQyXBhgq4QyUdF7gwLGMFgcbg>
+    <xmx:_33nXlmjvK7wHWRBqTN-_LxiqVmrIBzB3stqlQX2zJgiELh7xWZ0tc3IOuc>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id EFE433280065;
-        Mon, 15 Jun 2020 09:55:22 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] KVM: VMX: enable X86_FEATURE_WAITPKG in KVM capabilities" failed to apply to 5.4-stable tree
-To:     mlevitsk@redhat.com, pbonzini@redhat.com,
-        sean.j.christopherson@intel.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id E14103061CCB;
+        Mon, 15 Jun 2020 09:56:14 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] KVM: x86/mmu: Set mmio_value to '0' if reserved #PF can't be" failed to apply to 4.14-stable tree
+To:     sean.j.christopherson@intel.com, pbonzini@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 15 Jun 2020 15:55:03 +0200
-Message-ID: <15922293031966@kroah.com>
+Date:   Mon, 15 Jun 2020 15:56:03 +0200
+Message-ID: <1592229363123115@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,39 +69,62 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 0abcc8f65cc23b65bc8d1614cc64b02b1641ed7c Mon Sep 17 00:00:00 2001
-From: Maxim Levitsky <mlevitsk@redhat.com>
-Date: Sat, 23 May 2020 19:14:54 +0300
-Subject: [PATCH] KVM: VMX: enable X86_FEATURE_WAITPKG in KVM capabilities
+From 6129ed877d409037b79866327102c9dc59a302fe Mon Sep 17 00:00:00 2001
+From: Sean Christopherson <sean.j.christopherson@intel.com>
+Date: Wed, 27 May 2020 01:49:09 -0700
+Subject: [PATCH] KVM: x86/mmu: Set mmio_value to '0' if reserved #PF can't be
+ generated
 
-Even though we might not allow the guest to use WAITPKG's new
-instructions, we should tell KVM that the feature is supported by the
-host CPU.
+Set the mmio_value to '0' instead of simply clearing the present bit to
+squash a benign warning in kvm_mmu_set_mmio_spte_mask() that complains
+about the mmio_value overlapping the lower GFN mask on systems with 52
+bits of PA space.
 
-Note that vmx_waitpkg_supported checks that WAITPKG _can_ be set in
-secondary execution controls as specified by VMX capability MSR, rather
-that we actually enable it for a guest.
+Opportunistically clean up the code and comments.
 
 Cc: stable@vger.kernel.org
-Fixes: e69e72faa3a0 ("KVM: x86: Add support for user wait instructions")
-Suggested-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
-Message-Id: <20200523161455.3940-2-mlevitsk@redhat.com>
-Reviewed-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Fixes: d43e2675e96fc ("KVM: x86: only do L1TF workaround on affected processors")
+Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Message-Id: <20200527084909.23492-1-sean.j.christopherson@intel.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 
-diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
-index 89c766fad889..9b63ac8d97ee 100644
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -7138,6 +7138,9 @@ static __init void vmx_set_cpu_caps(void)
- 	/* CPUID 0x80000001 */
- 	if (!cpu_has_vmx_rdtscp())
- 		kvm_cpu_cap_clear(X86_FEATURE_RDTSCP);
-+
-+	if (vmx_waitpkg_supported())
-+		kvm_cpu_cap_check_and_set(X86_FEATURE_WAITPKG);
- }
+diff --git a/arch/x86/kvm/mmu/mmu.c b/arch/x86/kvm/mmu/mmu.c
+index 86619631ff6a..92d056954194 100644
+--- a/arch/x86/kvm/mmu/mmu.c
++++ b/arch/x86/kvm/mmu/mmu.c
+@@ -6143,25 +6143,16 @@ static void kvm_set_mmio_spte_mask(void)
+ 	u64 mask;
  
- static void vmx_request_immediate_exit(struct kvm_vcpu *vcpu)
+ 	/*
+-	 * Set the reserved bits and the present bit of an paging-structure
+-	 * entry to generate page fault with PFER.RSV = 1.
++	 * Set a reserved PA bit in MMIO SPTEs to generate page faults with
++	 * PFEC.RSVD=1 on MMIO accesses.  64-bit PTEs (PAE, x86-64, and EPT
++	 * paging) support a maximum of 52 bits of PA, i.e. if the CPU supports
++	 * 52-bit physical addresses then there are no reserved PA bits in the
++	 * PTEs and so the reserved PA approach must be disabled.
+ 	 */
+-
+-	/*
+-	 * Mask the uppermost physical address bit, which would be reserved as
+-	 * long as the supported physical address width is less than 52.
+-	 */
+-	mask = 1ull << 51;
+-
+-	/* Set the present bit. */
+-	mask |= 1ull;
+-
+-	/*
+-	 * If reserved bit is not supported, clear the present bit to disable
+-	 * mmio page fault.
+-	 */
+-	if (shadow_phys_bits == 52)
+-		mask &= ~1ull;
++	if (shadow_phys_bits < 52)
++		mask = BIT_ULL(51) | PT_PRESENT_MASK;
++	else
++		mask = 0;
+ 
+ 	kvm_mmu_set_mmio_spte_mask(mask, mask, ACC_WRITE_MASK | ACC_USER_MASK);
+ }
 
