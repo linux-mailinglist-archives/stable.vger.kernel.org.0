@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 774CD1F9EF4
-	for <lists+stable@lfdr.de>; Mon, 15 Jun 2020 20:00:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1870C1F9EF5
+	for <lists+stable@lfdr.de>; Mon, 15 Jun 2020 20:00:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729862AbgFOSAN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jun 2020 14:00:13 -0400
-Received: from mga02.intel.com ([134.134.136.20]:50570 "EHLO mga02.intel.com"
+        id S1729402AbgFOSA0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jun 2020 14:00:26 -0400
+Received: from mga02.intel.com ([134.134.136.20]:50585 "EHLO mga02.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728585AbgFOSAM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jun 2020 14:00:12 -0400
-IronPort-SDR: Z0TVx6EPNgak7rqOO7/oo0FP1Onzy+BxpS68RBdDm+0+9uWXsn2/+j4cXLI5KEzotho1/UWnpd
- RdXVAXLiowsA==
+        id S1728585AbgFOSAZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jun 2020 14:00:25 -0400
+IronPort-SDR: W5WiG3gZensmnGz6U/gzCqOqerLcIGTt1wqxGC7zw5AqrPoy8ZfMEn1IwPRppvNBZhZ4dmo6gs
+ 7gh8aPTwkQcw==
 X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
-Received: from orsmga005.jf.intel.com ([10.7.209.41])
-  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Jun 2020 11:00:07 -0700
-IronPort-SDR: bOEgbYn0PsJ2d0RmRhZMWR1s9x16PS2vE8450GwO760lhBgmLU2WbwvZHs3vVcP9XuyIb0PEfh
- KvZUCyQyYQiQ==
+Received: from fmsmga004.fm.intel.com ([10.253.24.48])
+  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Jun 2020 11:00:25 -0700
+IronPort-SDR: sw4+WFG0hElSW8LcadUuFGMLAQgylglBdyNtHlF/8OCUHPgoGgL5Vbv5Ru3S5O08gqFK8Oc9rN
+ DmwvB2KoOHoA==
 X-IronPort-AV: E=Sophos;i="5.73,515,1583222400"; 
-   d="scan'208";a="449485593"
+   d="scan'208";a="298600582"
 Received: from agluck-desk2.sc.intel.com ([10.3.52.68])
-  by orsmga005-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Jun 2020 11:00:07 -0700
+  by fmsmga004-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Jun 2020 11:00:24 -0700
 From:   Tony Luck <tony.luck@intel.com>
 To:     stable@vger.kernel.org
 Cc:     "Luck, Tony" <tony.luck@intel.com>, Jue Wang <juew@google.com>
-Subject: [PATCH stable 4.19, 5.4] x86/mm: Change so poison pages are either unmapped or marked uncacheable
-Date:   Mon, 15 Jun 2020 11:00:03 -0700
-Message-Id: <20200615180003.24390-1-tony.luck@intel.com>
+Subject: [PATCH stable 5.6, 5.7] x86/mm: Change so poison pages are either unmapped or marked uncacheable
+Date:   Mon, 15 Jun 2020 11:00:24 -0700
+Message-Id: <20200615180024.24452-1-tony.luck@intel.com>
 X-Mailer: git-send-email 2.21.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -84,11 +84,11 @@ Link: https://lore.kernel.org/r/20200520163546.GA7977@agluck-desk2.amr.corp.inte
  3 files changed, 23 insertions(+), 9 deletions(-)
 
 diff --git a/arch/x86/include/asm/set_memory.h b/arch/x86/include/asm/set_memory.h
-index 2ee8e469dcf5..162128cdfbf2 100644
+index ec2c0a094b5d..5948218f35c5 100644
 --- a/arch/x86/include/asm/set_memory.h
 +++ b/arch/x86/include/asm/set_memory.h
-@@ -85,28 +85,35 @@ void set_kernel_text_rw(void);
- void set_kernel_text_ro(void);
+@@ -86,28 +86,35 @@ int set_direct_map_default_noflush(struct page *page);
+ extern int kernel_set_to_readonly;
  
  #ifdef CONFIG_X86_64
 -static inline int set_mce_nospec(unsigned long pfn)
@@ -130,10 +130,10 @@ index 2ee8e469dcf5..162128cdfbf2 100644
  		pr_warn("Could not invalidate pfn=0x%lx from 1:1 map\n", pfn);
  	return rc;
 diff --git a/arch/x86/kernel/cpu/mce/core.c b/arch/x86/kernel/cpu/mce/core.c
-index aecb15ba66cd..fd76e3733dd3 100644
+index 54165f3569e8..c1a480a27164 100644
 --- a/arch/x86/kernel/cpu/mce/core.c
 +++ b/arch/x86/kernel/cpu/mce/core.c
-@@ -533,6 +533,13 @@ bool mce_is_memory_error(struct mce *m)
+@@ -529,6 +529,13 @@ bool mce_is_memory_error(struct mce *m)
  }
  EXPORT_SYMBOL_GPL(mce_is_memory_error);
  
@@ -147,16 +147,16 @@ index aecb15ba66cd..fd76e3733dd3 100644
  bool mce_is_correctable(struct mce *m)
  {
  	if (m->cpuvendor == X86_VENDOR_AMD && m->status & MCI_STATUS_DEFERRED)
-@@ -601,7 +608,7 @@ static int srao_decode_notifier(struct notifier_block *nb, unsigned long val,
- 	if (mce_usable_address(mce) && (mce->severity == MCE_AO_SEVERITY)) {
- 		pfn = mce->addr >> PAGE_SHIFT;
- 		if (!memory_failure(pfn, 0))
--			set_mce_nospec(pfn);
-+			set_mce_nospec(pfn, whole_page(mce));
- 	}
+@@ -600,7 +607,7 @@ static int uc_decode_notifier(struct notifier_block *nb, unsigned long val,
+ 
+ 	pfn = mce->addr >> PAGE_SHIFT;
+ 	if (!memory_failure(pfn, 0))
+-		set_mce_nospec(pfn);
++		set_mce_nospec(pfn, whole_page(mce));
  
  	return NOTIFY_OK;
-@@ -1103,7 +1110,7 @@ static int do_memory_failure(struct mce *m)
+ }
+@@ -1098,7 +1105,7 @@ static int do_memory_failure(struct mce *m)
  	if (ret)
  		pr_err("Memory error not recovered");
  	else
