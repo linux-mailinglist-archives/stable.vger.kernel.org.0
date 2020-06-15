@@ -2,81 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D45861F9926
-	for <lists+stable@lfdr.de>; Mon, 15 Jun 2020 15:41:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 67CAE1F995D
+	for <lists+stable@lfdr.de>; Mon, 15 Jun 2020 15:55:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730417AbgFONl2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jun 2020 09:41:28 -0400
-Received: from mail-wr1-f67.google.com ([209.85.221.67]:39964 "EHLO
-        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730144AbgFONl1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Jun 2020 09:41:27 -0400
-Received: by mail-wr1-f67.google.com with SMTP id h5so17211889wrc.7;
-        Mon, 15 Jun 2020 06:41:26 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=ldZ3qHesEPGPxRDy2PP+eNgQCVg0OujHEQewstkBEeU=;
-        b=jA5k23mlbwIzkQE4LMtlQnpaoBh53mSiTfiId1dOw8Mf2cErvL1nzI+UjNswKEwgO6
-         FPV4SF85jTtX3Cl31PQz++97s2ouDRvaGms2ThOWd5DBG4baTMwDrsk/oVkjpddxLyth
-         npGk2RY+ieASVplZEd0bTOx91lUDX/xvlmJqOSYFD9iZXuXs7pssjnhI80lWkJ0d0Eky
-         E7ZlnXxy1jpy4XhZ6Nv4cFzWdZAStzxBD1tLDgUU1GT95hdXMFFeBOIbeXp0dSk243W4
-         i+fty3zoSFWv/7JDB0vtlcLIlX2LUFFknQgXw8KUQ311LADnL6rcV3//idIk9zD+tDyp
-         xeRw==
-X-Gm-Message-State: AOAM531lBy6rLnL+wEUfwVqa5MvRtTsvB8uOWaYuwyI7ZDL0azv9+MMG
-        tmef1QIui/lAPZgdo+q3MFk=
-X-Google-Smtp-Source: ABdhPJxEQoPl9fMwozzagAz4U4ysT/MZSAaF26yHkz0oVX6eTwy/fgnKn3eGxjmHAf/0JWCAxrTRGw==
-X-Received: by 2002:adf:9205:: with SMTP id 5mr27655753wrj.232.1592228485925;
-        Mon, 15 Jun 2020 06:41:25 -0700 (PDT)
-Received: from kozik-lap ([194.230.155.184])
-        by smtp.googlemail.com with ESMTPSA id 104sm25964040wrl.25.2020.06.15.06.41.22
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Mon, 15 Jun 2020 06:41:25 -0700 (PDT)
-Date:   Mon, 15 Jun 2020 15:41:19 +0200
-From:   Krzysztof Kozlowski <krzk@kernel.org>
-To:     Vladimir Oltean <olteanv@gmail.com>
-Cc:     Mark Brown <broonie@kernel.org>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vladimir Oltean <vladimir.oltean@nxp.com>,
-        linux-spi <linux-spi@vger.kernel.org>,
-        lkml <linux-kernel@vger.kernel.org>,
-        Wolfram Sang <wsa@kernel.org>, stable@vger.kernel.org,
-        Pengutronix Kernel Team <kernel@pengutronix.de>
-Subject: Re: [PATCH v2 1/3] spi: spi-fsl-dspi: Fix external abort on
- interrupt in exit paths
-Message-ID: <20200615134119.GB3321@kozik-lap>
-References: <1592208439-17594-1-git-send-email-krzk@kernel.org>
- <e1f0326c-8ae8-ffb3-aace-10433b0c78a6@pengutronix.de>
- <20200615123052.GO4447@sirena.org.uk>
- <CA+h21hqC7hAenifvRqbwss=Sr+dAu3H9Dx=UF0TS0WVbkzTj2Q@mail.gmail.com>
- <20200615131006.GR4447@sirena.org.uk>
- <CA+h21hpusy=zx8AuUqk_4zShtst8QeNJxCPT4dMGh0jhm5uZng@mail.gmail.com>
+        id S1728773AbgFONzR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jun 2020 09:55:17 -0400
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:39167 "EHLO
+        wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728510AbgFONzQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Jun 2020 09:55:16 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailforward.west.internal (Postfix) with ESMTP id F3F2842A;
+        Mon, 15 Jun 2020 09:55:15 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Mon, 15 Jun 2020 09:55:16 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=Or8RTj
+        CvgsKiIuqdZgN1231FEvQ5LntnlIYAdn4LEoA=; b=IT69ocPeJ4TVgOXEq56nTV
+        Ftd2xZXnReGj48mcH0LZ/fXBT2oowuMLPmxzuejMs2RMx0rlgncQ5SdPahyZI5YH
+        YQ9ykKYmMcJwfCvErm60ajQTkT4hAnqu1ZRgF9KK4fgskmF+0CQWImEH+/AcMZuh
+        HKq4M9lhmlC61dGqT7tx+vaoqmolYyEH7iYF/K9DAeKrBmvA63uzmXk1Yc0j8qkf
+        hON8wAqaSH1hLjOOKHTaCS3mN3mx3pDdkelEE5AdJYS523Ims4Cn8lvNCnaf27w1
+        Q0sSiuleulG0BiZE9Ptl417sRxszlEMfB5QKiY0fVRl5z41rJV9qJdj6RDmwNs+w
+        ==
+X-ME-Sender: <xms:wn3nXms6NbYPYWvjSEMXTjDgJqXwHpZeacBsJHQav3pqXTDje-yVwQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudeikedgjedtucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
+    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushht
+    vghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
+    drtghomh
+X-ME-Proxy: <xmx:wn3nXrcdwFPWARZyw2pR4kuH_biUHCERw-M7ITLajq4bDL-wEtS-eg>
+    <xmx:wn3nXhxpk1G2rgUB47svgUZnyIeXFV-pU4iuIT02wbRVQM0aJ602hw>
+    <xmx:wn3nXhNV5p4b6FBJg_cIZS19n6iXQCZ1A_4QlQlmfq4sXL0B4j0YSQ>
+    <xmx:w33nXrENos9FV-pmW3Q9d9e8eiE7wItYhsnVfILKjjmtkpXV57OnjkAA_MY>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 9847F3280059;
+        Mon, 15 Jun 2020 09:55:14 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] KVM: VMX: enable X86_FEATURE_WAITPKG in KVM capabilities" failed to apply to 5.6-stable tree
+To:     mlevitsk@redhat.com, pbonzini@redhat.com,
+        sean.j.christopherson@intel.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 15 Jun 2020 15:55:02 +0200
+Message-ID: <1592229302136141@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <CA+h21hpusy=zx8AuUqk_4zShtst8QeNJxCPT4dMGh0jhm5uZng@mail.gmail.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jun 15, 2020 at 04:12:28PM +0300, Vladimir Oltean wrote:
-> On Mon, 15 Jun 2020 at 16:10, Mark Brown <broonie@kernel.org> wrote:
-> 
-> >
-> > It's a bit unusual to need to actually free the IRQ over suspend -
-> > what's driving that requirement here?
-> 
-> clk_disable_unprepare(dspi->clk); is driving the requirement - same as
-> in dspi_remove case, the module will fault when its registers are
-> accessed without a clock.
 
-In few cases when I have shared interrupt in different drivers, they
-were just disabling it during suspend. Why it has to be freed?
+The patch below does not apply to the 5.6-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-Best regards,
-Krzysztof
+thanks,
+
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 0abcc8f65cc23b65bc8d1614cc64b02b1641ed7c Mon Sep 17 00:00:00 2001
+From: Maxim Levitsky <mlevitsk@redhat.com>
+Date: Sat, 23 May 2020 19:14:54 +0300
+Subject: [PATCH] KVM: VMX: enable X86_FEATURE_WAITPKG in KVM capabilities
+
+Even though we might not allow the guest to use WAITPKG's new
+instructions, we should tell KVM that the feature is supported by the
+host CPU.
+
+Note that vmx_waitpkg_supported checks that WAITPKG _can_ be set in
+secondary execution controls as specified by VMX capability MSR, rather
+that we actually enable it for a guest.
+
+Cc: stable@vger.kernel.org
+Fixes: e69e72faa3a0 ("KVM: x86: Add support for user wait instructions")
+Suggested-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
+Message-Id: <20200523161455.3940-2-mlevitsk@redhat.com>
+Reviewed-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+
+diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
+index 89c766fad889..9b63ac8d97ee 100644
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -7138,6 +7138,9 @@ static __init void vmx_set_cpu_caps(void)
+ 	/* CPUID 0x80000001 */
+ 	if (!cpu_has_vmx_rdtscp())
+ 		kvm_cpu_cap_clear(X86_FEATURE_RDTSCP);
++
++	if (vmx_waitpkg_supported())
++		kvm_cpu_cap_check_and_set(X86_FEATURE_WAITPKG);
+ }
+ 
+ static void vmx_request_immediate_exit(struct kvm_vcpu *vcpu)
 
