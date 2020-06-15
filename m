@@ -2,114 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CB3591F98EC
-	for <lists+stable@lfdr.de>; Mon, 15 Jun 2020 15:34:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EA171F9908
+	for <lists+stable@lfdr.de>; Mon, 15 Jun 2020 15:36:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730436AbgFONeT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jun 2020 09:34:19 -0400
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:53499 "EHLO
-        wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730636AbgFONeQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Jun 2020 09:34:16 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id A5FDB621;
-        Mon, 15 Jun 2020 09:34:15 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Mon, 15 Jun 2020 09:34:15 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=zCLdOC
-        KJDG8lJSqHtuVWkvGL249d1wqucOV3eW3vwNw=; b=Pk9JKXMQZtgjKHAI2ozNTW
-        zLVVB0BQoObo+JUEZlZg6+6qbIN6tUI/5D61hDl85iIaJtCrP5ufbSOeHL6M8s8O
-        7rmFdtmjCzYIGHuezcf3IWpIpKqbp60KmXzqJdkQJ/kVwYtxeOqz5IMDAXBGq5UH
-        kYwCRczP26pLFA5a15OZu3cXS+BgUG9mSPO+3N/jeOhjGWhimj8/gkU/He5BaqLh
-        4ZnEMAhHb7wdgOnuFI5ihYxAOL1eMkaxhNvkiRkeLYjgbx/EG6AZhgqQcL1TBI21
-        CvoBF8tsKakgbbbZCpZQX1ynaMeSLHcjgjAhT4ReJWtpHBKDD/RXtK2tUQEDEYWg
-        ==
-X-ME-Sender: <xms:13jnXn6bJd-h8CvoLiSUHLQqBZ20Rtb5NiAN5objgzMBTO1KIKQX5w>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudeikedgieeiucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
-    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushht
-    vghrufhiiigvpeefnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
-    drtghomh
-X-ME-Proxy: <xmx:13jnXs6E1LBuBM99Y5P09ptY6DxH8pQfC0G445jbiOpRhQAWTTNkHg>
-    <xmx:13jnXuf3FUPj3Tra9UPGbEgv3YAFXe97AHe55jF8wXp49RLjxFh_hQ>
-    <xmx:13jnXoKD62yRispPY1RmJkSqT0NMptJFm-0bMzKMux31fGW4Zx2dLw>
-    <xmx:13jnXmlDa118qxW2lDFzyqf5vtC33W7Eg_Z2QAQ6xvMDRIEiL_R49LthlMQ>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id DE76A3280059;
-        Mon, 15 Jun 2020 09:34:14 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] x86/speculation: PR_SPEC_FORCE_DISABLE enforcement for" failed to apply to 4.9-stable tree
-To:     asteinhauser@google.com, tglx@linutronix.de
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 15 Jun 2020 15:33:57 +0200
-Message-ID: <1592228037105197@kroah.com>
+        id S1730412AbgFONgt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jun 2020 09:36:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43166 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730109AbgFONgt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jun 2020 09:36:49 -0400
+Received: from localhost (fw-tnat.cambridge.arm.com [217.140.96.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 25A9E207D3;
+        Mon, 15 Jun 2020 13:36:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1592228208;
+        bh=Hs7nuZ6Ujtne3R8pyXXb7XHOf/MxT4zald4XbINg9kg=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Gukh6y5LOywbiptR4BP1qZMvMTmpFHvYXpm1nVZvZ9nV80CgKS9R0DTuQq3twmQrp
+         U81TWQ1d3ltRvFYFgLou3mfE6NzIwPBeuXEvuhmp3YivqKtbeeG+suvV19pr/yOZ3B
+         4c30at3Lxnycj3JIwevk+++E03O+4Cx6BKNdY2kQ=
+Date:   Mon, 15 Jun 2020 14:36:46 +0100
+From:   Mark Brown <broonie@kernel.org>
+To:     Vladimir Oltean <olteanv@gmail.com>
+Cc:     Marc Kleine-Budde <mkl@pengutronix.de>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Vladimir Oltean <vladimir.oltean@nxp.com>,
+        linux-spi <linux-spi@vger.kernel.org>,
+        lkml <linux-kernel@vger.kernel.org>,
+        Wolfram Sang <wsa@kernel.org>, stable@vger.kernel.org,
+        Pengutronix Kernel Team <kernel@pengutronix.de>
+Subject: Re: [PATCH v2 1/3] spi: spi-fsl-dspi: Fix external abort on
+ interrupt in exit paths
+Message-ID: <20200615133646.GU4447@sirena.org.uk>
+References: <1592208439-17594-1-git-send-email-krzk@kernel.org>
+ <e1f0326c-8ae8-ffb3-aace-10433b0c78a6@pengutronix.de>
+ <20200615123052.GO4447@sirena.org.uk>
+ <CA+h21hqC7hAenifvRqbwss=Sr+dAu3H9Dx=UF0TS0WVbkzTj2Q@mail.gmail.com>
+ <20200615131006.GR4447@sirena.org.uk>
+ <CA+h21hpusy=zx8AuUqk_4zShtst8QeNJxCPT4dMGh0jhm5uZng@mail.gmail.com>
+ <20200615132441.GS4447@sirena.org.uk>
+ <CA+h21hpymKP5JGWZBNQTq4bZwJ6QZ3erACWV86nEaGsevZ++BA@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="i483Pv/KqyjCUwB1"
+Content-Disposition: inline
+In-Reply-To: <CA+h21hpymKP5JGWZBNQTq4bZwJ6QZ3erACWV86nEaGsevZ++BA@mail.gmail.com>
+X-Cookie: Offer may end without notice.
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+--i483Pv/KqyjCUwB1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-thanks,
+On Mon, Jun 15, 2020 at 04:29:15PM +0300, Vladimir Oltean wrote:
+> On Mon, 15 Jun 2020 at 16:24, Mark Brown <broonie@kernel.org> wrote:
 
-greg k-h
+> > I see - this could be fixed by having the interrupt handler bounce the
+> > clock on, there's a little overhead from that but hopefully not too
+> > much.  That should also help with the remove case I guess so long as the
+> > clock is registered before the interrupt is requested?
 
------------------- original commit in Linus's tree ------------------
+> Doesn't this mean that we risk leaving the clock enabled during suspend?
 
-From 4d8df8cbb9156b0a0ab3f802b80cb5db57acc0bf Mon Sep 17 00:00:00 2001
-From: Anthony Steinhauser <asteinhauser@google.com>
-Date: Sun, 7 Jun 2020 05:44:19 -0700
-Subject: [PATCH] x86/speculation: PR_SPEC_FORCE_DISABLE enforcement for
- indirect branches.
+If we suspend with the interrupt handler running but IIRC the suspend
+sequence will allow interrupt handlers to complete.
 
-Currently, it is possible to enable indirect branch speculation even after
-it was force-disabled using the PR_SPEC_FORCE_DISABLE option. Moreover, the
-PR_GET_SPECULATION_CTRL command gives afterwards an incorrect result
-(force-disabled when it is in fact enabled). This also is inconsistent
-vs. STIBP and the documention which cleary states that
-PR_SPEC_FORCE_DISABLE cannot be undone.
+> Is there any function in the SPI core that quiesces any pending
+> transactions, and then stops the controller? I would have expected
+> spi_controller_suspend to do that, but I'm not sure (it doesn't look
+> like it).
 
-Fix this by actually enforcing force-disabled indirect branch
-speculation. PR_SPEC_ENABLE called after PR_SPEC_FORCE_DISABLE now fails
-with -EPERM as described in the documentation.
+spi_stop_queue() should do this (but will time out if the queue is too
+busy).  It doesn't stop new transactions being issued, I'm guessing
+because that'll most likely cause more problems than it solves but that
+code predates my involvement.
 
-Fixes: 9137bb27e60e ("x86/speculation: Add prctl() control for indirect branch speculation")
-Signed-off-by: Anthony Steinhauser <asteinhauser@google.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: stable@vger.kernel.org
+--i483Pv/KqyjCUwB1
+Content-Type: application/pgp-signature; name="signature.asc"
 
-diff --git a/arch/x86/kernel/cpu/bugs.c b/arch/x86/kernel/cpu/bugs.c
-index 8d57562b1d2c..56f573aa764f 100644
---- a/arch/x86/kernel/cpu/bugs.c
-+++ b/arch/x86/kernel/cpu/bugs.c
-@@ -1175,11 +1175,14 @@ static int ib_prctl_set(struct task_struct *task, unsigned long ctrl)
- 			return 0;
- 		/*
- 		 * Indirect branch speculation is always disabled in strict
--		 * mode.
-+		 * mode. It can neither be enabled if it was force-disabled
-+		 * by a  previous prctl call.
-+
- 		 */
- 		if (spectre_v2_user_ibpb == SPECTRE_V2_USER_STRICT ||
- 		    spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT ||
--		    spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT_PREFERRED)
-+		    spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT_PREFERRED ||
-+		    task_spec_ib_force_disable(task))
- 			return -EPERM;
- 		task_clear_spec_ib_disable(task);
- 		task_update_spec_tif(task);
+-----BEGIN PGP SIGNATURE-----
 
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAl7neW0ACgkQJNaLcl1U
+h9Awewf/S60KrRHANcrt8yuP4f/0IVWXkNY5EEnxhSNYxYSGJpNXf0W4HNqSe1Yq
+4VO4Wb4cRXKId51u9uCltVuOosIyMMxtIGfT6qE+KS9yj/J7i0fwx/es5ULmYudk
+ncz1FbnZSCiK7vpBqsfwrzHeXBBTAOnnJplWozejxLXhec2fLPwhA0kU68AGyQFw
+QOaKoRUJSejGltsnaPCdmi7d+h4ET165V3NZyZ/WMfq36yq9oF4IHsTnIMydZaz4
+5svVPIKpqUobu/52IVDZ9Yn/SWkyWvLXKT6yVDKplLzCntW5SL8ihBWAMGS+zfgS
+rXihk1/dR5lRMfaFiEsMricY8Xaa8A==
+=bZvG
+-----END PGP SIGNATURE-----
+
+--i483Pv/KqyjCUwB1--
