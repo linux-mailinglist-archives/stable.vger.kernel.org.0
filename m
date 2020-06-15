@@ -2,106 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F0E851F9B6A
-	for <lists+stable@lfdr.de>; Mon, 15 Jun 2020 17:05:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0664F1F9BC3
+	for <lists+stable@lfdr.de>; Mon, 15 Jun 2020 17:18:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730878AbgFOPFi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jun 2020 11:05:38 -0400
-Received: from wforward5-smtp.messagingengine.com ([64.147.123.35]:40925 "EHLO
-        wforward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730800AbgFOPFh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Jun 2020 11:05:37 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id AA443427;
-        Mon, 15 Jun 2020 11:05:35 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Mon, 15 Jun 2020 11:05:35 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=98zLKY
-        AasT2N7N16DG1FTk1nt4Jm8q8O80MKG0yZwME=; b=bkm1kZZ+AKJsSS7h/kN3gx
-        +750n935CUVTQ6bI4ADUTcGu5TXNley0ioMtNfcsZYZgsALwd+62aCLsCndj7K15
-        S0bbb0c+kKn/kaLca4UelJTurtHRc6d18QNCLXD3sWvAmkiHvkgV7bHpy7R/QFLZ
-        Ome/AJepDW2QWlyzX25adCTQCOSxA4hX+JS85rS2JSzVIWP6obCHzNUqEJSCitjE
-        +cYK8oNgWnPVtuKkUHSr8YKdjb4cTxBXWxaM8WgU/VYGAOw0qNe1y7NeaexAAGfs
-        olq2A5dhUsby7xnLtkg+w7v1q3+LQ27iVmS10v+Koey6pFT7W8wY1nu5m3jHgn2w
-        ==
-X-ME-Sender: <xms:P47nXm4EXyIshUmIh8OSMhYg1L9fqd5h5buNy3rNjo_j8v2-1RzkxA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudeikedgkeefucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtjeenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepkeejgffftefgveeggeehudfgleehkedthedtiefhie
-    elieetveejvdfgvdeljeelnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgepfeenucfrrghrrghmpe
-    hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:P47nXv7SzcENIkNbtVOI7fbaz472Mw_rhtRAZ5xe0_gdQ4de0INjWQ>
-    <xmx:P47nXldiuy1zGlLVhoBuav_iKJ3yv9cdquNjroNXcO6VazRqAkiX0w>
-    <xmx:P47nXjJ1OjKH1eIVbQoZ1EZ3Of_A1k1L2q9TkSVYILIHrkwGJrkLLA>
-    <xmx:P47nXpknDoLchUbddd4UC0PfhAFFrYxhCUTZUU2o1tttH6_nYG4F2X8M7U4>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id E4B963280065;
-        Mon, 15 Jun 2020 11:05:34 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] ALSA: pcm: disallow linking stream to itself" failed to apply to 4.4-stable tree
-To:     mirq-linux@rere.qmqm.pl, tiwai@suse.de
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 15 Jun 2020 17:05:13 +0200
-Message-ID: <15922335138432@kroah.com>
+        id S1730158AbgFOPSd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jun 2020 11:18:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45612 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730147AbgFOPSd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Jun 2020 11:18:33 -0400
+Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com [IPv6:2607:f8b0:4864:20::1036])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94D0AC061A0E
+        for <stable@vger.kernel.org>; Mon, 15 Jun 2020 08:18:32 -0700 (PDT)
+Received: by mail-pj1-x1036.google.com with SMTP id ga6so6974831pjb.1
+        for <stable@vger.kernel.org>; Mon, 15 Jun 2020 08:18:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=4HI35qKiudWZZmIhL6UbwW8CX9wnRCUpDIEPSZf9/4Q=;
+        b=RrmHKXR51oJjteTZfSFpK+p8PDJ3QXbvpBXJHUcrfZonepNXTuqKYT0iM7E4Tt2kZC
+         Q2ZICrTUNpaKnuBfKy77Uv9jIGHpexxuaeB5t5q5LitNLWty8K8t97SE4jVTSKidDx0i
+         95TlOI4/UHd8JEANaq/4oYS/UBVk1INsCWDOqCd4gb3o7fLO0OxLCAlrBTlVD3Hoh/V1
+         QieB3X4GAPC6sUxufSXsMyHtOwV57F7JJbwAKXluCa1PkGhZUVEpNyY7WCApMvYMJf0G
+         uxpekoWigk+guIN4kqatAc1nIYl/7GZKGDYm78xibba1TsqHrJ4+PXyiV1pmHO8VfjKq
+         N++g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=4HI35qKiudWZZmIhL6UbwW8CX9wnRCUpDIEPSZf9/4Q=;
+        b=I0SLJMS6hB26NksW28HbCS6BL8EFce7SQvVm4kiOIVd1wcc8yRAGTPQ3eRSdL1MMv3
+         5nxdwM0dE5z8TbG/ci2d4DFW0cKD/IHPGDJqsfWCwRTKdfeYS+CI+/Ppivmk92DigFVm
+         YmjxTCyAPh5hJX8ymHI8fNUFyPKV1h0OCdqr4cXiVpNL5usWrBUg3opM6fRn3WfTmfsj
+         I9diOvosaAM9c7Sy3tkpsIkZyZqWoPnG1PL/b0Rcvn6NnReqASf0VC1V2j/VsPYVINoY
+         OncNL0T+0vMDBQY55+FNHwvPW7EWzceVou2ywMyXHrweRa2yZU7uNlKpsyEzPQQLH05Q
+         IOJw==
+X-Gm-Message-State: AOAM533DZ+ksVRr0oxfgxGw9vs2wRC74Rx6p/9XTntgFR5IETKTZToYS
+        RTQtexbWSK5RUxtXuXjU3gf6NqJuX0psMA==
+X-Google-Smtp-Source: ABdhPJzDCj5/HLDdtt6peIdtKzPDOU9UfaEYKzYjtukTIziCl1qMigp+OHBe0EZRGdxWDNcEJXRX1Q==
+X-Received: by 2002:a17:902:7c96:: with SMTP id y22mr21712858pll.293.1592234311410;
+        Mon, 15 Jun 2020 08:18:31 -0700 (PDT)
+Received: from [192.168.1.188] ([66.219.217.173])
+        by smtp.gmail.com with ESMTPSA id q1sm15328262pfk.132.2020.06.15.08.18.30
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 15 Jun 2020 08:18:30 -0700 (PDT)
+Subject: Re: FAILED: patch "[PATCH] io_uring: fix flush req->refs underflow"
+ failed to apply to 5.6-stable tree
+To:     gregkh@linuxfoundation.org, asml.silence@gmail.com
+Cc:     stable@vger.kernel.org
+References: <159222954019964@kroah.com>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <a4ac1fdd-576c-9cff-bc54-4d090f2bad2c@kernel.dk>
+Date:   Mon, 15 Jun 2020 09:18:29 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.8.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <159222954019964@kroah.com>
+Content-Type: text/plain; charset=windows-1252
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 6/15/20 7:59 AM, gregkh@linuxfoundation.org wrote:
+> 
+> The patch below does not apply to the 5.6-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
 
-The patch below does not apply to the 4.4-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Greg, if you could cherry pick this one:
 
-thanks,
+commit d8f1b9716cfd1a1f74c0fedad40c5f65a25aa208
+Author: Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>
+Date:   Sun Apr 26 15:54:43 2020 +0800
 
-greg k-h
+    io_uring: fix mismatched finish_wait() calls in io_uring_cancel_files()
 
------------------- original commit in Linus's tree ------------------
+first (which should also go into stable), the below will apply without
+conflicts after that.
 
-From 951e2736f4b11b58dc44d41964fa17c3527d882a Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>
-Date: Mon, 8 Jun 2020 18:50:39 +0200
-Subject: [PATCH] ALSA: pcm: disallow linking stream to itself
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-
-Prevent SNDRV_PCM_IOCTL_LINK linking stream to itself - the code
-can't handle it. Fixed commit is not where bug was introduced, but
-changes the context significantly.
-
-Cc: stable@vger.kernel.org
-Fixes: 0888c321de70 ("pcm_native: switch to fdget()/fdput()")
-Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
-Link: https://lore.kernel.org/r/89c4a2487609a0ed6af3ecf01cc972bdc59a7a2d.1591634956.git.mirq-linux@rere.qmqm.pl
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-
-diff --git a/sound/core/pcm_native.c b/sound/core/pcm_native.c
-index c08732998a42..eeab8850ed76 100644
---- a/sound/core/pcm_native.c
-+++ b/sound/core/pcm_native.c
-@@ -2176,6 +2176,12 @@ static int snd_pcm_link(struct snd_pcm_substream *substream, int fd)
- 	}
- 	pcm_file = f.file->private_data;
- 	substream1 = pcm_file->substream;
-+
-+	if (substream == substream1) {
-+		res = -EINVAL;
-+		goto _badf;
-+	}
-+
- 	group = kzalloc(sizeof(*group), GFP_KERNEL);
- 	if (!group) {
- 		res = -ENOMEM;
+-- 
+Jens Axboe
 
