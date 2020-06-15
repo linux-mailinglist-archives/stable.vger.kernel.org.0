@@ -2,68 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DDAB1FA018
-	for <lists+stable@lfdr.de>; Mon, 15 Jun 2020 21:24:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6701F1FA0E6
+	for <lists+stable@lfdr.de>; Mon, 15 Jun 2020 22:04:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728304AbgFOTYD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jun 2020 15:24:03 -0400
-Received: from smtprelay0035.hostedemail.com ([216.40.44.35]:44374 "EHLO
-        smtprelay.hostedemail.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728093AbgFOTYD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Jun 2020 15:24:03 -0400
-Received: from filter.hostedemail.com (clb03-v110.bra.tucows.net [216.40.38.60])
-        by smtprelay06.hostedemail.com (Postfix) with ESMTP id A63731818F1C1;
-        Mon, 15 Jun 2020 19:24:02 +0000 (UTC)
-X-Session-Marker: 6A6F6540706572636865732E636F6D
-X-Spam-Summary: 2,0,0,,d41d8cd98f00b204,joe@perches.com,,RULES_HIT:41:355:379:599:800:960:973:988:989:1260:1277:1311:1313:1314:1345:1359:1437:1515:1516:1518:1534:1539:1593:1594:1711:1730:1747:1777:1792:2393:2553:2559:2562:2828:3138:3139:3140:3141:3142:3352:3622:3865:3874:4321:5007:6119:7903:8603:10004:10400:10848:10967:11026:11232:11658:11914:12296:12297:12438:12740:12760:12895:13069:13311:13357:13439:14181:14659:14721:21080:21627:30054:30090:30091,0,RBL:none,CacheIP:none,Bayesian:0.5,0.5,0.5,Netcheck:none,DomainCache:0,MSF:not bulk,SPF:,MSBL:0,DNSBL:none,Custom_rules:0:0:0,LFtime:2,LUA_SUMMARY:none
-X-HE-Tag: push89_210d4b126df8
-X-Filterd-Recvd-Size: 1648
-Received: from XPS-9350.home (unknown [47.151.136.130])
-        (Authenticated sender: joe@perches.com)
-        by omf04.hostedemail.com (Postfix) with ESMTPA;
-        Mon, 15 Jun 2020 19:24:01 +0000 (UTC)
-Message-ID: <7abefbc81fc6aaefed6bbd2117e7bc97b90babe9.camel@perches.com>
-Subject: Re: [PATCH 1/4] proc/bootconfig: Fix to use correct quotes for value
-From:   Joe Perches <joe@perches.com>
-To:     Steven Rostedt <rostedt@goodmis.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>
-Cc:     stable@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
-Date:   Mon, 15 Jun 2020 12:24:00 -0700
-In-Reply-To: <20200615151139.5cc223fc@oasis.local.home>
-References: <159197538852.80267.10091816844311950396.stgit@devnote2>
-         <159197539793.80267.10836787284189465765.stgit@devnote2>
-         <20200615151139.5cc223fc@oasis.local.home>
-Content-Type: text/plain; charset="ISO-8859-1"
-User-Agent: Evolution 3.36.2-0ubuntu1 
+        id S1729836AbgFOUE2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jun 2020 16:04:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45990 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728773AbgFOUE2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jun 2020 16:04:28 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 19B072071A;
+        Mon, 15 Jun 2020 20:04:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1592251467;
+        bh=HpSZ+6XhbkSlkxONu9hFhrcjACPI8H0WHNJT01UGSnM=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=07mSqnzCcPF/Z4fkqrmDv/psU2Xh/EzRPRe7JWL1rPiTclrgNPMz6Ll2G92DJH1hS
+         mx7tZDSgJ9546Wa122WpGpdkf6U82ejgmVnKnGNe6uX74zvIskjhKVjg/FMeLsFLSl
+         jQfhL6AaTgtcMqPI+Ya3zvOHhkoMqijmXVJzvs7Y=
+Date:   Mon, 15 Jun 2020 22:04:22 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     stable <stable@vger.kernel.org>
+Subject: Re: Please add 17839856fd58 to the stable queue
+Message-ID: <20200615200422.GA206959@kroah.com>
+References: <CAHk-=wj-RATn3dNoBWgYaCSJGWotz3cRHFqWJwK-6GOLJK8o-w@mail.gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAHk-=wj-RATn3dNoBWgYaCSJGWotz3cRHFqWJwK-6GOLJK8o-w@mail.gmail.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 2020-06-15 at 15:11 -0400, Steven Rostedt wrote:
-> On Sat, 13 Jun 2020 00:23:18 +0900
-> Masami Hiramatsu <mhiramat@kernel.org> wrote:
-[]
-> > diff --git a/fs/proc/bootconfig.c b/fs/proc/bootconfig.c
-[]
-> > @@ -27,6 +27,7 @@ static int __init copy_xbc_key_value_list(char *dst, size_t size)
-> >  {
-> >  	struct xbc_node *leaf, *vnode;
-> >  	const char *val;
-> > +	char q;
-> >  	char *key, *end = dst + size;
-> >  	int ret = 0;
+On Mon, Jun 15, 2020 at 12:18:48PM -0700, Linus Torvalds wrote:
+> Commit 17839856fd58 ("gup: document and work around "COW can break
+> either way" issue") is a real fix, but wasn't marked for stable
+> because I wanted it to get more coverage testing in mainline first.
+> Not because the patch is all that complex or scary, but because I was
+> worried we'd find some odd case where it would make things slower by
+> triggering the GUP slowpath much more often due to people doing odd
+> things.
 > 
-> Hmm, shouldn't the above have the upside-down xmas tree format?
+> It turns out my worry seems to have been misplaced. The kernel test
+> robot did indeed trigger a case where this made a big difference, but
+> rather than being bad, it improved the odd corner-case test-case
+> performance by a factor of 20x by breaking the COW and triggering the
+> fast-case code that way, rather than the other way around.
 > 
-> 	struct xbc_node *leaf, *vnode;
-> 	char *key, *end = dst + size;
-> 	const char *val;
-> 	char q;
-> 	int ret = 0;
+> See
+> 
+>   https://lore.kernel.org/lkml/20200611040453.GK12456@shao2-debian/
+> 
+> for details.
+> 
+> So that commit fixes a bug, isn't expected to really make any
+> difference on any sane workload, and can apparently help the crazy
+> cases by a huge amount. Let's just push it to stable..
 
-Please don't infect kernel sources with that style oddity.
+Will go do that now, was waiting to see if this caused any problems,
+glad to see it hasn't.
 
-
+greg k-h
