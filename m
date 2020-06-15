@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E9C81F9BE8
-	for <lists+stable@lfdr.de>; Mon, 15 Jun 2020 17:22:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 313511F9BF0
+	for <lists+stable@lfdr.de>; Mon, 15 Jun 2020 17:25:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730517AbgFOPWX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jun 2020 11:22:23 -0400
-Received: from wforward5-smtp.messagingengine.com ([64.147.123.35]:49525 "EHLO
+        id S1730109AbgFOPZN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jun 2020 11:25:13 -0400
+Received: from wforward5-smtp.messagingengine.com ([64.147.123.35]:44979 "EHLO
         wforward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730321AbgFOPWW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Jun 2020 11:22:22 -0400
+        by vger.kernel.org with ESMTP id S1728773AbgFOPZN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Jun 2020 11:25:13 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id BB91D3B3;
-        Mon, 15 Jun 2020 11:22:21 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Mon, 15 Jun 2020 11:22:21 -0400
+        by mailforward.west.internal (Postfix) with ESMTP id 90B04340;
+        Mon, 15 Jun 2020 11:25:12 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Mon, 15 Jun 2020 11:25:12 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=IOI3Lx
-        9rHjmnhLCg2fiOUb59hvw0gCgui4Mvof94iLY=; b=twSPk7fDoaAoctPwt6zBk5
-        5ptFqkuN9+82aIOxoG6b542dCef3rFRospw2/SeIjkc7kXcyvfUAlruhLkOHMlbl
-        8tUkGGXHjTfFeNHL1uhjJ5FLtT7pT/Z16xhI2nEho1TeNJ8tiXW+vV92sttt1XWk
-        fLYH4kop+WMZ2bp3I0/vf3DrDOFompfVBT4ZTahDbHw6BDWX7k7e4oT98uqU6HJh
-        T+RPxnNiSYVa8Hs4ezimBzHec4Zerti/8Re7y5sSpTI8iDWLIQoB5fa52c27Bvl4
-        FlpRQQMJcpd/Eq3Z7kKAxQfYfRCCZ2PhSQ8W5rUr7ageoVA+TZkmyM/y55eHgRwQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=x6RL8H
+        9DhOTOmI4nRQq6l069jroLkQP4Tk6NLYoppDc=; b=HDlxEV0qR0xwgFVkuG2mKI
+        yUL3bh6lpcYrs8TFP3wbIt3wEb1j849JolWbyD9FO8SFEYYawciXKCb6P1/IPdrK
+        OlIhYq/PCvt0qHPlXdr6TwtZzSH72xCPpfAOo+ebn6lMSoO+bdLOLKO9gp+NtU54
+        lBmYVLR+ovqjQxqSlPUQRwpQT2rBOUpPVaWAlHSNRqJDezgp0WulLTIaZuQedd2z
+        pYM0GOhdPpfK9AH6zXyCaCL00ZXss3BaesGjqQfuj+2dp4i3/szY6K3sEsqmrxZR
+        3/nSvZ1bGwzKu+bc3vPshjo2FYxDFl7o28/NFUMea5XT1fi9W27znL/ndjMVzaaQ
         ==
-X-ME-Sender: <xms:LZLnXhaYFuJHHuoHF267bAMmrrxIPlT-ATK4qwEclp6GLadA3bJwVA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudeikedgkeejucetufdoteggodetrfdotf
+X-ME-Sender: <xms:2JLnXvuWi7yY4lKCA1trqBTyWuk67U2tSg0z6mWyC91LA912kzML9w>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudeikedgkeekucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
-    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgepudehnecurfgrrhgrmh
-    epmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:LZLnXoahgCC3LzrFEsRSnsu2m3p6qzmfpMCBuG8FjlNhxnGmTk--ZQ>
-    <xmx:LZLnXj-Cy3qCWKAE7-DwrDM57Argzb4f3lyFUPzc5HQNWS2G025jsA>
-    <xmx:LZLnXvp6ohgQm5JWT5tduGXjHEzyhzVqTlrBXMGLYWqUOf317hTIJQ>
-    <xmx:LZLnXiE_CRdNWe5R7epLcnpsogJNM7Gpccc0hmnriNWfymG0I9UKEVea6M8>
+    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
+    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushht
+    vghrufhiiigvpedunecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
+    drtghomh
+X-ME-Proxy: <xmx:2JLnXgfnbtJv4dmDcUs7t9HdZrLDCnqyc1pulHQJpuXGhabvH2c3mA>
+    <xmx:2JLnXiwAnUAOIVvB6mmasfL-h-lWGqDKFWwZQ4pVOEtF4uqAhII1OQ>
+    <xmx:2JLnXuMGdCbgLm4-rxFGfOO6kgp0G6NGudCRxFFd5wGNdkxUwpiAww>
+    <xmx:2JLnXsJTkC5pnw57Zf9iLwuzxJRbLJGS0S5Lbh9PbxpJkrJLF3l1eA8kiV8>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 05E0F3280066;
-        Mon, 15 Jun 2020 11:22:20 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] spi: bcm2835: Fix controller unregister order" failed to apply to 4.14-stable tree
-To:     lukas@wunner.de, broonie@kernel.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id CBA0E30614FA;
+        Mon, 15 Jun 2020 11:25:11 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] drm/amd/display: disable dcn20 abm feature for bring up" failed to apply to 5.6-stable tree
+To:     hersenxs.wu@amd.com, alexander.deucher@amd.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 15 Jun 2020 17:22:03 +0200
-Message-ID: <159223452398133@kroah.com>
+Date:   Mon, 15 Jun 2020 17:24:51 +0200
+Message-ID: <159223469188121@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -58,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 5.6-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -69,59 +69,48 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 9dd277ff92d06f6aa95b39936ad83981d781f49b Mon Sep 17 00:00:00 2001
-From: Lukas Wunner <lukas@wunner.de>
-Date: Fri, 15 May 2020 17:58:02 +0200
-Subject: [PATCH] spi: bcm2835: Fix controller unregister order
+From 96cb7cf13d8530099c256c053648ad576588c387 Mon Sep 17 00:00:00 2001
+From: hersen wu <hersenxs.wu@amd.com>
+Date: Thu, 28 Feb 2019 16:35:24 -0500
+Subject: [PATCH] drm/amd/display: disable dcn20 abm feature for bring up
 
-The BCM2835 SPI driver uses devm_spi_register_controller() on bind.
-As a consequence, on unbind, __device_release_driver() first invokes
-bcm2835_spi_remove() before unregistering the SPI controller via
-devres_release_all().
+[WHY] dcn20 enable usb-c dp ALT mode in dmcu. There is bug
+when enable abm feature which cause system crash. dal team
+will debug this bug later.
 
-This order is incorrect:  bcm2835_spi_remove() tears down the DMA
-channels and turns off the SPI controller, including its interrupts
-and clock.  The SPI controller is thus no longer usable.
+[HOW] disable dcn abm feature for dcn20.
 
-When the SPI controller is subsequently unregistered, it unbinds all
-its slave devices.  If their drivers need to access the SPI bus,
-e.g. to quiesce their interrupts, unbinding will fail.
+Signed-off-by: hersen wu <hersenxs.wu@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 
-As a rule, devm_spi_register_controller() must not be used if the
-->remove() hook performs teardown steps which shall be performed
-after unbinding of slaves.
-
-Fix by using the non-devm variant spi_register_controller().  Note that
-the struct spi_controller as well as the driver-private data are not
-freed until after bcm2835_spi_remove() has finished, so accessing them
-is safe.
-
-Fixes: 247263dba208 ("spi: bcm2835: use devm_spi_register_master()")
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Cc: stable@vger.kernel.org # v3.13+
-Link: https://lore.kernel.org/r/2397dd70cdbe95e0bc4da2b9fca0f31cb94e5aed.1589557526.git.lukas@wunner.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
-
-diff --git a/drivers/spi/spi-bcm2835.c b/drivers/spi/spi-bcm2835.c
-index 11c235879bb7..fd887a6492f4 100644
---- a/drivers/spi/spi-bcm2835.c
-+++ b/drivers/spi/spi-bcm2835.c
-@@ -1347,7 +1347,7 @@ static int bcm2835_spi_probe(struct platform_device *pdev)
- 		goto out_dma_release;
- 	}
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+index 5971aef4f033..72d14f680932 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -781,7 +781,7 @@ static int dm_late_init(void *handle)
+ 	unsigned int linear_lut[16];
+ 	int i;
+ 	struct dmcu *dmcu = adev->dm.dc->res_pool->dmcu;
+-	bool ret;
++	bool ret = false;
  
--	err = devm_spi_register_controller(&pdev->dev, ctlr);
-+	err = spi_register_controller(ctlr);
- 	if (err) {
- 		dev_err(&pdev->dev, "could not register SPI controller: %d\n",
- 			err);
-@@ -1374,6 +1374,8 @@ static int bcm2835_spi_remove(struct platform_device *pdev)
+ 	for (i = 0; i < 16; i++)
+ 		linear_lut[i] = 0xFFFF * i / 15;
+@@ -792,10 +792,13 @@ static int dm_late_init(void *handle)
+ 	params.backlight_lut_array_size = 16;
+ 	params.backlight_lut_array = linear_lut;
  
- 	bcm2835_debugfs_remove(bs);
+-	ret = dmcu_load_iram(dmcu, params);
++	/* todo will enable for navi10 */
++	if (adev->asic_type <= CHIP_RAVEN) {
++		ret = dmcu_load_iram(dmcu, params);
  
-+	spi_unregister_controller(ctlr);
-+
- 	/* Clear FIFOs, and disable the HW block */
- 	bcm2835_wr(bs, BCM2835_SPI_CS,
- 		   BCM2835_SPI_CS_CLEAR_RX | BCM2835_SPI_CS_CLEAR_TX);
+-	if (!ret)
+-		return -EINVAL;
++		if (!ret)
++			return -EINVAL;
++	}
+ 
+ 	return detect_mst_link_for_all_connectors(adev->ddev);
+ }
 
