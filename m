@@ -2,143 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C5B991F9FB9
-	for <lists+stable@lfdr.de>; Mon, 15 Jun 2020 20:56:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A4CE31F9FBD
+	for <lists+stable@lfdr.de>; Mon, 15 Jun 2020 20:57:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731279AbgFOS43 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jun 2020 14:56:29 -0400
-Received: from mga11.intel.com ([192.55.52.93]:3787 "EHLO mga11.intel.com"
+        id S1729844AbgFOS5q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jun 2020 14:57:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33374 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729124AbgFOS43 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jun 2020 14:56:29 -0400
-IronPort-SDR: nk0k6QHCYGXwPSnFvZFl/dBnL1+74csLAVpziisVevFqUeKK6r/7dfsjBVlgbd9qeQLFicrrzW
- lP66B+BU4liQ==
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga004.jf.intel.com ([10.7.209.38])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Jun 2020 11:56:28 -0700
-IronPort-SDR: uue+PSVCk3LyNJiZicIhIpDGOWTgpOaZGd4peX/xPnzbc3riDhuuZbZAGJCTfgo6Mqcp4uk/Pg
- rrGiau2KiYYQ==
-X-IronPort-AV: E=Sophos;i="5.73,515,1583222400"; 
-   d="scan'208";a="420470061"
-Received: from rdvivi-losangeles.jf.intel.com (HELO intel.com) ([10.165.21.202])
-  by orsmga004-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Jun 2020 11:56:28 -0700
-Date:   Mon, 15 Jun 2020 11:54:20 -0700
-From:   Rodrigo Vivi <rodrigo.vivi@intel.com>
-To:     "Bloomfield, Jon" <jon.bloomfield@intel.com>
-Cc:     "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
-        Alexandre Oliva <lxoliva@fsfla.org>,
-        "Nikula, Jani" <jani.nikula@intel.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Chris Wilson <chris@chris-wilson.co.uk>
-Subject: Re: [Intel-gfx] [PATCH] drm/i915: Include asm sources for {ivb,
- hsw}_clear_kernel.c
-Message-ID: <20200615185420.GA334084@intel.com>
-References: <159163988890.30073.8976615673203599761@build.alporthouse.com>
- <20200610201807.191440-1-rodrigo.vivi@intel.com>
- <AD48BB7FB99B174FBCC69E228F58B3B6B78F0D73@fmsmsx116.amr.corp.intel.com>
+        id S1729124AbgFOS5p (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jun 2020 14:57:45 -0400
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id BA94C20656;
+        Mon, 15 Jun 2020 18:57:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1592247465;
+        bh=NWVVT6SIA9QCKt9N/o9vk+11N+Glc4ICuhbSSl+eUbs=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=qwlUqB0UM7cQzSe31aMIgP+ifo278pdgwmImImkSPAZS0cQ87Nk3nlskyriixVz2C
+         PQMhY9sr6cGeXzoBMILI9673fZlwmwLeA+iCXo5Pp+wn/UYCZ5UVtttpKpCiGfBlIg
+         872wHFd8YggsES7Nuj6//LgH1LZ3E0cpgInXyvAQ=
+Date:   Mon, 15 Jun 2020 14:57:33 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     gregkh@linuxfoundation.org
+Cc:     asteinhauser@google.com, tglx@linutronix.de, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] x86/speculation: PR_SPEC_FORCE_DISABLE
+ enforcement for" failed to apply to 4.19-stable tree
+Message-ID: <20200615185733.GH5492@sasha-vm>
+References: <159222803512332@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <AD48BB7FB99B174FBCC69E228F58B3B6B78F0D73@fmsmsx116.amr.corp.intel.com>
+In-Reply-To: <159222803512332@kroah.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jun 12, 2020 at 02:15:02PM -0700, Bloomfield, Jon wrote:
-> > -----Original Message-----
-> > From: Intel-gfx <intel-gfx-bounces@lists.freedesktop.org> On Behalf Of
-> > Rodrigo Vivi
-> > Sent: Wednesday, June 10, 2020 1:18 PM
-> > To: intel-gfx@lists.freedesktop.org
-> > Cc: Alexandre Oliva <lxoliva@fsfla.org>; Nikula, Jani <jani.nikula@intel.com>;
-> > stable@vger.kernel.org; Chris Wilson <chris@chris-wilson.co.uk>
-> > Subject: [Intel-gfx] [PATCH] drm/i915: Include asm sources for {ivb,
-> > hsw}_clear_kernel.c
-> > 
-> > Alexandre Oliva has recently removed these files from Linux Libre
-> > with concerns that the sources weren't available.
-> > 
-> > The sources are available on IGT repository, and only open source
-> > tools are used to generate the {ivb,hsw}_clear_kernel.c files.
-> > 
-> > However, the remaining concern from Alexandre Oliva was around
-> > GPL license and the source not been present when distributing
-> > the code.
-> > 
-> > So, it looks like 2 alternatives are possible, the use of
-> > linux-firmware.git repository to store the blob or making sure
-> > that the source is also present in our tree. Since the goal
-> > is to limit the i915 firmware to only the micro-controller blobs
-> > let's make sure that we do include the asm sources here in our tree.
-> > 
-> > Btw, I tried to have some diligence here and make sure that the
-> > asms that these commits are adding are truly the source for
-> > the mentioned files:
-> > 
-> > igt$ ./scripts/generate_clear_kernel.sh -g ivb \
-> >      -m ~/mesa/build/src/intel/tools/i965_asm
-> > Output file not specified - using default file "ivb-cb_assembled"
-> > 
-> > Generating gen7 CB Kernel assembled file "ivb_clear_kernel.c"
-> > for i915 driver...
-> > 
-> > igt$ diff ~/i915/drm-tip/drivers/gpu/drm/i915/gt/ivb_clear_kernel.c \
-> >      ivb_clear_kernel.c
-> > 
-> > <  * Generated by: IGT Gpu Tools on Fri 21 Feb 2020 05:29:32 AM UTC
-> > >  * Generated by: IGT Gpu Tools on Mon 08 Jun 2020 10:00:54 AM PDT
-> > 61c61
-> > < };
-> > > };
-> > \ No newline at end of file
-> > 
-> > igt$ ./scripts/generate_clear_kernel.sh -g hsw \
-> >      -m ~/mesa/build/src/intel/tools/i965_asm
-> > Output file not specified - using default file "hsw-cb_assembled"
-> > 
-> > Generating gen7.5 CB Kernel assembled file "hsw_clear_kernel.c"
-> > for i915 driver...
-> > 
-> > igt$ diff ~/i915/drm-tip/drivers/gpu/drm/i915/gt/hsw_clear_kernel.c \
-> >      hsw_clear_kernel.c
-> > 5c5
-> > <  * Generated by: IGT Gpu Tools on Fri 21 Feb 2020 05:30:13 AM UTC
-> > >  * Generated by: IGT Gpu Tools on Mon 08 Jun 2020 10:01:42 AM PDT
-> > 61c61
-> > < };
-> > > };
-> > \ No newline at end of file
-> > 
-> > Used IGT and Mesa master repositories from Fri Jun 5 2020)
-> > IGT: 53e8c878a6fb ("tests/kms_chamelium: Force reprobe after replugging
-> >      the connector")
-> > Mesa: 5d13c7477eb1 ("radv: set keep_statistic_info with
-> >       RADV_DEBUG=shaderstats")
-> > Mesa built with: meson build -D platforms=drm,x11 -D dri-drivers=i965 \
-> >                  -D gallium-drivers=iris -D prefix=/usr \
-> > 		 -D libdir=/usr/lib64/ -Dtools=intel \
-> > 		 -Dkulkan-drivers=intel && ninja -C build
-> > 
-> > v2: Header clean-up and include build instructions in a readme (Chris)
-> >     Modified commit message to respect check-patch
-> > 
-> > Reference: http://www.fsfla.org/pipermail/linux-libre/2020-
-> > June/003374.html
-> > Reference: http://www.fsfla.org/pipermail/linux-libre/2020-
-> > June/003375.html
-> > Fixes: 47f8253d2b89 ("drm/i915/gen7: Clear all EU/L3 residual contexts")
-> > Cc: <stable@vger.kernel.org> # v5.7+
-> > Cc: Alexandre Oliva <lxoliva@fsfla.org>
-> > Cc: Prathap Kumar Valsan <prathap.kumar.valsan@intel.com>
-> > Cc: Akeem G Abodunrin <akeem.g.abodunrin@intel.com>
-> > Cc: Mika Kuoppala <mika.kuoppala@linux.intel.com>
-> > Cc: Chris Wilson <chris@chris-wilson.co.uk>
-> > Cc: Jani Nikula <jani.nikula@intel.com>
-> > Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-> > Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
-> 
-> Reviewed-by: Jon Bloomfield <jon.bloomfield@intel.com>
+On Mon, Jun 15, 2020 at 03:33:55PM +0200, gregkh@linuxfoundation.org wrote:
+>
+>The patch below does not apply to the 4.19-stable tree.
+>If someone wants it applied there, or to any other stable or longterm
+>tree, then please email the backport, including the original git commit
+>id to <stable@vger.kernel.org>.
+>
+>thanks,
+>
+>greg k-h
+>
+>------------------ original commit in Linus's tree ------------------
+>
+>From 4d8df8cbb9156b0a0ab3f802b80cb5db57acc0bf Mon Sep 17 00:00:00 2001
+>From: Anthony Steinhauser <asteinhauser@google.com>
+>Date: Sun, 7 Jun 2020 05:44:19 -0700
+>Subject: [PATCH] x86/speculation: PR_SPEC_FORCE_DISABLE enforcement for
+> indirect branches.
+>
+>Currently, it is possible to enable indirect branch speculation even after
+>it was force-disabled using the PR_SPEC_FORCE_DISABLE option. Moreover, the
+>PR_GET_SPECULATION_CTRL command gives afterwards an incorrect result
+>(force-disabled when it is in fact enabled). This also is inconsistent
+>vs. STIBP and the documention which cleary states that
+>PR_SPEC_FORCE_DISABLE cannot be undone.
+>
+>Fix this by actually enforcing force-disabled indirect branch
+>speculation. PR_SPEC_ENABLE called after PR_SPEC_FORCE_DISABLE now fails
+>with -EPERM as described in the documentation.
+>
+>Fixes: 9137bb27e60e ("x86/speculation: Add prctl() control for indirect branch speculation")
+>Signed-off-by: Anthony Steinhauser <asteinhauser@google.com>
+>Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+>Cc: stable@vger.kernel.org
 
-Thanks, pushed to dinq
+This patch now applies fine to all branches after we resolved the issues
+with the other IPBP patch.
+
+-- 
+Thanks,
+Sasha
