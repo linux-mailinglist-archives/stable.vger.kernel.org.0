@@ -2,54 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 865611F9B39
-	for <lists+stable@lfdr.de>; Mon, 15 Jun 2020 17:00:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 28D931F9B48
+	for <lists+stable@lfdr.de>; Mon, 15 Jun 2020 17:02:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730697AbgFOPAg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jun 2020 11:00:36 -0400
-Received: from wforward5-smtp.messagingengine.com ([64.147.123.35]:47899 "EHLO
+        id S1730912AbgFOPBs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jun 2020 11:01:48 -0400
+Received: from wforward5-smtp.messagingengine.com ([64.147.123.35]:45871 "EHLO
         wforward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730854AbgFOPAf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Jun 2020 11:00:35 -0400
+        by vger.kernel.org with ESMTP id S1730701AbgFOPBs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Jun 2020 11:01:48 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id 0957E736;
-        Mon, 15 Jun 2020 11:00:32 -0400 (EDT)
+        by mailforward.west.internal (Postfix) with ESMTP id 8AB6F63D;
+        Mon, 15 Jun 2020 11:01:46 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Mon, 15 Jun 2020 11:00:33 -0400
+  by compute1.internal (MEProxy); Mon, 15 Jun 2020 11:01:46 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=L+HUNc
-        9RxzM4S0WsRrwGZdTyXKA+8j9ydiTZ5KME+3k=; b=No/42/g5U7S82KJlnf3RjG
-        VPyfz8x3Yh1ttp6SysvVW8gwNgs1I5j3dbe8uVelLvJY6M/0u5izbXmZJeHkBI5m
-        MD5INOYwiHnL/uPQxk/F3GCXWCPU2HEuwa+lSx4UNTKawZ0cQgtPT45W4Jvamstn
-        /7MY2SdMagR3c5LBW+PImzghssj/Vx6DZjvzTTTHZ06QoS40CZdLj/Z/XStcCneH
-        VV7ZqzywjEUEjmBFfjD67hPdIe3Q81HPrO0MlaMH21Py1Qs90ftKiLCHFRkhuMba
-        Ta/FJOcGY3+YYwCTgDBUtuqql0XfCcOveHZuP6QFGCtExElZM8aabDXQ7w+eA4Pg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=jZxMRa
+        zFVx2BpT4llIvB0SxDre0g16KHxV8to7nie0M=; b=crpk/75c8VyJxNwvnh3jvz
+        1z/E+DN06+hxN5xYL9TSi9RRvVC1DVSoPEa7SgQd+yTyaAGy4jQe8gobRGFkAuKv
+        AxUw5KTimKX+0Fj4Qs5ZeM1HXNf/K9hbKzHlLBQR02XNLxgKyGWDCsSCi4ke2GK4
+        Og8JWCMm3duX87R0PRQbEhaQkIH2EYx9qjYQ5si4hdPWk/Ip5u/st0wDPvuMeP3G
+        dvvhGpQvqNom2lirX+QY34ykM53Q7i/+RW+NEZvoG2JJ84/7L/DK+2fQMKqAmGlv
+        FhQTwYZxM8HmpiQ+bMWHr8mRgD5YRtmuBo7OuoUgdivyXgopODukqTnYFLfdePrQ
         ==
-X-ME-Sender: <xms:EI3nXq_zdSC1RmU1UoY_B1XWt4U19l_9HzH6m3dEhzp71CV5pkUhFQ>
+X-ME-Sender: <xms:WY3nXtQbM6LwV3_6dFlGpNCwDXLBA8Ec0dEL8-rhm9KlFQ5IPWWUiQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudeikedgkeefucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
-    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgepudenucfrrghrrghmpe
-    hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:EI3nXqsXcnrxaw98UulnRNOvnnRfAXlj1JORMunFzUX76D_XXRXptQ>
-    <xmx:EI3nXgAO3La5p-mG4cpDZcomUAikrQ8zoejBxh6J5g3giFzEjkNo9A>
-    <xmx:EI3nXidiKb3ZXHnPjDNsnTWiSBuvfWWznk6GbEFNeCKMtr4bDpMtQw>
-    <xmx:EI3nXl3rRZpMZupXyw74j830e0erHVrmffC2DIGn0wape0jDFO9w5Bfps-U>
+    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
+    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushht
+    vghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
+    drtghomh
+X-ME-Proxy: <xmx:WY3nXmxtKcILQzAKTgQJTOO6bg2HitG2DBYP_Tokj-RHkXcrnZ6pUg>
+    <xmx:WY3nXi334mK_YHEE0PjYGkiBn-4DYc4pBZDRkSrFTa1ugs-sBLxajw>
+    <xmx:WY3nXlAYFS2IfQUS9l--LLpOK-IYWKn1g4x4SQ9wH5jt8i0CWSyVHQ>
+    <xmx:Wo3nXsdhrRY7k6D6Wt1p3UoO6cx43p3zWIvfG-gSUEcWqfTLA3FoDnrBuIY>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id E9FE530618B7;
-        Mon, 15 Jun 2020 11:00:31 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] x86/{mce,mm}: Unmap the entire page if the whole page is" failed to apply to 4.19-stable tree
-To:     tony.luck@intel.com, bp@suse.de, juew@google.com,
-        stable@vger.kernel.org, tglx@linutronix.de
+        by mail.messagingengine.com (Postfix) with ESMTPA id 2516430618B7;
+        Mon, 15 Jun 2020 11:01:45 -0400 (EDT)
+Subject: WTF: patch "[PATCH] smb3: Add new parm "nodelete"" was seriously submitted to be applied to the 5.7-stable tree?
+To:     stfrench@microsoft.com, pshilov@microsoft.com,
+        stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 15 Jun 2020 17:00:14 +0200
-Message-ID: <15922332144070@kroah.com>
+Date:   Mon, 15 Jun 2020 17:01:33 +0200
+Message-ID: <1592233293158227@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -58,11 +58,15 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+The patch below was submitted to be applied to the 5.7-stable tree.
 
-The patch below does not apply to the 4.19-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+I fail to see how this patch meets the stable kernel rules as found at
+Documentation/process/stable-kernel-rules.rst.
+
+I could be totally wrong, and if so, please respond to 
+<stable@vger.kernel.org> and let me know why this patch should be
+applied.  Otherwise, it is now dropped from my patch queues, never to be
+seen again.
 
 thanks,
 
@@ -70,177 +74,131 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 17fae1294ad9d711b2c3dd0edef479d40c76a5e8 Mon Sep 17 00:00:00 2001
-From: Tony Luck <tony.luck@intel.com>
-Date: Wed, 20 May 2020 09:35:46 -0700
-Subject: [PATCH] x86/{mce,mm}: Unmap the entire page if the whole page is
- affected and poisoned
+From 82e9367c43890cb6a870f700c9180c7eb2035684 Mon Sep 17 00:00:00 2001
+From: Steve French <stfrench@microsoft.com>
+Date: Tue, 19 May 2020 03:06:57 -0500
+Subject: [PATCH] smb3: Add new parm "nodelete"
 
-An interesting thing happened when a guest Linux instance took a machine
-check. The VMM unmapped the bad page from guest physical space and
-passed the machine check to the guest.
+In order to handle workloads where it is important to make sure that
+a buggy app did not delete content on the drive, the new mount option
+"nodelete" allows standard permission checks on the server to work,
+but prevents on the client any attempts to unlink a file or delete
+a directory on that mount point.  This can be helpful when running
+a little understood app on a network mount that contains important
+content that should not be deleted.
 
-Linux took all the normal actions to offline the page from the process
-that was using it. But then guest Linux crashed because it said there
-was a second machine check inside the kernel with this stack trace:
+Signed-off-by: Steve French <stfrench@microsoft.com>
+CC: Stable <stable@vger.kernel.org>
+Reviewed-by: Pavel Shilovsky <pshilov@microsoft.com>
 
-do_memory_failure
-    set_mce_nospec
-         set_memory_uc
-              _set_memory_uc
-                   change_page_attr_set_clr
-                        cpa_flush
-                             clflush_cache_range_opt
-
-This was odd, because a CLFLUSH instruction shouldn't raise a machine
-check (it isn't consuming the data). Further investigation showed that
-the VMM had passed in another machine check because is appeared that the
-guest was accessing the bad page.
-
-Fix is to check the scope of the poison by checking the MCi_MISC register.
-If the entire page is affected, then unmap the page. If only part of the
-page is affected, then mark the page as uncacheable.
-
-This assumes that VMMs will do the logical thing and pass in the "whole
-page scope" via the MCi_MISC register (since they unmapped the entire
-page).
-
-  [ bp: Adjust to x86/entry changes. ]
-
-Fixes: 284ce4011ba6 ("x86/memory_failure: Introduce {set, clear}_mce_nospec()")
-Reported-by: Jue Wang <juew@google.com>
-Signed-off-by: Tony Luck <tony.luck@intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Jue Wang <juew@google.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/20200520163546.GA7977@agluck-desk2.amr.corp.intel.com
-
-diff --git a/arch/x86/include/asm/set_memory.h b/arch/x86/include/asm/set_memory.h
-index ec2c0a094b5d..5948218f35c5 100644
---- a/arch/x86/include/asm/set_memory.h
-+++ b/arch/x86/include/asm/set_memory.h
-@@ -86,28 +86,35 @@ int set_direct_map_default_noflush(struct page *page);
- extern int kernel_set_to_readonly;
- 
- #ifdef CONFIG_X86_64
--static inline int set_mce_nospec(unsigned long pfn)
-+/*
-+ * Prevent speculative access to the page by either unmapping
-+ * it (if we do not require access to any part of the page) or
-+ * marking it uncacheable (if we want to try to retrieve data
-+ * from non-poisoned lines in the page).
-+ */
-+static inline int set_mce_nospec(unsigned long pfn, bool unmap)
- {
- 	unsigned long decoy_addr;
- 	int rc;
- 
- 	/*
--	 * Mark the linear address as UC to make sure we don't log more
--	 * errors because of speculative access to the page.
- 	 * We would like to just call:
--	 *      set_memory_uc((unsigned long)pfn_to_kaddr(pfn), 1);
-+	 *      set_memory_XX((unsigned long)pfn_to_kaddr(pfn), 1);
- 	 * but doing that would radically increase the odds of a
- 	 * speculative access to the poison page because we'd have
- 	 * the virtual address of the kernel 1:1 mapping sitting
- 	 * around in registers.
- 	 * Instead we get tricky.  We create a non-canonical address
- 	 * that looks just like the one we want, but has bit 63 flipped.
--	 * This relies on set_memory_uc() properly sanitizing any __pa()
-+	 * This relies on set_memory_XX() properly sanitizing any __pa()
- 	 * results with __PHYSICAL_MASK or PTE_PFN_MASK.
- 	 */
- 	decoy_addr = (pfn << PAGE_SHIFT) + (PAGE_OFFSET ^ BIT(63));
- 
--	rc = set_memory_uc(decoy_addr, 1);
-+	if (unmap)
-+		rc = set_memory_np(decoy_addr, 1);
-+	else
-+		rc = set_memory_uc(decoy_addr, 1);
- 	if (rc)
- 		pr_warn("Could not invalidate pfn=0x%lx from 1:1 map\n", pfn);
- 	return rc;
-diff --git a/arch/x86/kernel/cpu/mce/core.c b/arch/x86/kernel/cpu/mce/core.c
-index 30413325de22..ce9120c4f740 100644
---- a/arch/x86/kernel/cpu/mce/core.c
-+++ b/arch/x86/kernel/cpu/mce/core.c
-@@ -520,6 +520,14 @@ bool mce_is_memory_error(struct mce *m)
+diff --git a/fs/cifs/cifsfs.c b/fs/cifs/cifsfs.c
+index c31f362fa098..889f9c71049b 100644
+--- a/fs/cifs/cifsfs.c
++++ b/fs/cifs/cifsfs.c
+@@ -534,6 +534,8 @@ cifs_show_options(struct seq_file *s, struct dentry *root)
+ 		seq_puts(s, ",signloosely");
+ 	if (tcon->nocase)
+ 		seq_puts(s, ",nocase");
++	if (tcon->nodelete)
++		seq_puts(s, ",nodelete");
+ 	if (tcon->local_lease)
+ 		seq_puts(s, ",locallease");
+ 	if (tcon->retry)
+diff --git a/fs/cifs/cifsglob.h b/fs/cifs/cifsglob.h
+index 39b708d9d86d..4d261fd78fcb 100644
+--- a/fs/cifs/cifsglob.h
++++ b/fs/cifs/cifsglob.h
+@@ -562,6 +562,7 @@ struct smb_vol {
+ 	bool override_gid:1;
+ 	bool dynperm:1;
+ 	bool noperm:1;
++	bool nodelete:1;
+ 	bool mode_ace:1;
+ 	bool no_psx_acl:1; /* set if posix acl support should be disabled */
+ 	bool cifs_acl:1;
+@@ -1136,6 +1137,7 @@ struct cifs_tcon {
+ 	bool retry:1;
+ 	bool nocase:1;
+ 	bool nohandlecache:1; /* if strange server resource prob can turn off */
++	bool nodelete:1;
+ 	bool seal:1;      /* transport encryption for this mounted share */
+ 	bool unix_ext:1;  /* if false disable Linux extensions to CIFS protocol
+ 				for this mount even if server would support */
+diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
+index 329babc6b18a..57d1cc6bf86f 100644
+--- a/fs/cifs/connect.c
++++ b/fs/cifs/connect.c
+@@ -75,7 +75,7 @@ enum {
+ 	Opt_forceuid, Opt_noforceuid,
+ 	Opt_forcegid, Opt_noforcegid,
+ 	Opt_noblocksend, Opt_noautotune, Opt_nolease,
+-	Opt_hard, Opt_soft, Opt_perm, Opt_noperm,
++	Opt_hard, Opt_soft, Opt_perm, Opt_noperm, Opt_nodelete,
+ 	Opt_mapposix, Opt_nomapposix,
+ 	Opt_mapchars, Opt_nomapchars, Opt_sfu,
+ 	Opt_nosfu, Opt_nodfs, Opt_posixpaths,
+@@ -141,6 +141,7 @@ static const match_table_t cifs_mount_option_tokens = {
+ 	{ Opt_soft, "soft" },
+ 	{ Opt_perm, "perm" },
+ 	{ Opt_noperm, "noperm" },
++	{ Opt_nodelete, "nodelete" },
+ 	{ Opt_mapchars, "mapchars" }, /* SFU style */
+ 	{ Opt_nomapchars, "nomapchars" },
+ 	{ Opt_mapposix, "mapposix" }, /* SFM style */
+@@ -1760,6 +1761,9 @@ cifs_parse_mount_options(const char *mountdata, const char *devname,
+ 		case Opt_noperm:
+ 			vol->noperm = 1;
+ 			break;
++		case Opt_nodelete:
++			vol->nodelete = 1;
++			break;
+ 		case Opt_mapchars:
+ 			vol->sfu_remap = true;
+ 			vol->remap = false; /* disable SFM mapping */
+@@ -3362,6 +3366,8 @@ static int match_tcon(struct cifs_tcon *tcon, struct smb_vol *volume_info)
+ 		return 0;
+ 	if (tcon->no_lease != volume_info->no_lease)
+ 		return 0;
++	if (tcon->nodelete != volume_info->nodelete)
++		return 0;
+ 	return 1;
  }
- EXPORT_SYMBOL_GPL(mce_is_memory_error);
  
-+static bool whole_page(struct mce *m)
-+{
-+	if (!mca_cfg.ser || !(m->status & MCI_STATUS_MISCV))
-+		return true;
-+
-+	return MCI_MISC_ADDR_LSB(m->misc) >= PAGE_SHIFT;
-+}
-+
- bool mce_is_correctable(struct mce *m)
- {
- 	if (m->cpuvendor == X86_VENDOR_AMD && m->status & MCI_STATUS_DEFERRED)
-@@ -573,7 +581,7 @@ static int uc_decode_notifier(struct notifier_block *nb, unsigned long val,
+@@ -3597,6 +3603,7 @@ cifs_get_tcon(struct cifs_ses *ses, struct smb_vol *volume_info)
+ 	tcon->retry = volume_info->retry;
+ 	tcon->nocase = volume_info->nocase;
+ 	tcon->nohandlecache = volume_info->nohandlecache;
++	tcon->nodelete = volume_info->nodelete;
+ 	tcon->local_lease = volume_info->local_lease;
+ 	INIT_LIST_HEAD(&tcon->pending_opens);
  
- 	pfn = mce->addr >> PAGE_SHIFT;
- 	if (!memory_failure(pfn, 0)) {
--		set_mce_nospec(pfn);
-+		set_mce_nospec(pfn, whole_page(mce));
- 		mce->kflags |= MCE_HANDLED_UC;
+diff --git a/fs/cifs/inode.c b/fs/cifs/inode.c
+index 5d2965a23730..873b1effd412 100644
+--- a/fs/cifs/inode.c
++++ b/fs/cifs/inode.c
+@@ -1418,6 +1418,11 @@ int cifs_unlink(struct inode *dir, struct dentry *dentry)
+ 
+ 	xid = get_xid();
+ 
++	if (tcon->nodelete) {
++		rc = -EACCES;
++		goto unlink_out;
++	}
++
+ 	/* Unlink can be called from rename so we can not take the
+ 	 * sb->s_vfs_rename_mutex here */
+ 	full_path = build_path_from_dentry(dentry);
+@@ -1746,6 +1751,12 @@ int cifs_rmdir(struct inode *inode, struct dentry *direntry)
+ 		goto rmdir_exit;
  	}
  
-@@ -1173,11 +1181,12 @@ static void kill_me_maybe(struct callback_head *cb)
- 	int flags = MF_ACTION_REQUIRED;
- 
- 	pr_err("Uncorrected hardware memory error in user-access at %llx", p->mce_addr);
--	if (!(p->mce_status & MCG_STATUS_RIPV))
++	if (tcon->nodelete) {
++		rc = -EACCES;
++		cifs_put_tlink(tlink);
++		goto rmdir_exit;
++	}
 +
-+	if (!p->mce_ripv)
- 		flags |= MF_MUST_KILL;
+ 	rc = server->ops->rmdir(xid, tcon, full_path, cifs_sb);
+ 	cifs_put_tlink(tlink);
  
- 	if (!memory_failure(p->mce_addr >> PAGE_SHIFT, flags)) {
--		set_mce_nospec(p->mce_addr >> PAGE_SHIFT);
-+		set_mce_nospec(p->mce_addr >> PAGE_SHIFT, p->mce_whole_page);
- 		return;
- 	}
- 
-@@ -1331,7 +1340,8 @@ void noinstr do_machine_check(struct pt_regs *regs)
- 		BUG_ON(!on_thread_stack() || !user_mode(regs));
- 
- 		current->mce_addr = m.addr;
--		current->mce_status = m.mcgstatus;
-+		current->mce_ripv = !!(m.mcgstatus & MCG_STATUS_RIPV);
-+		current->mce_whole_page = whole_page(&m);
- 		current->mce_kill_me.func = kill_me_maybe;
- 		if (kill_it)
- 			current->mce_kill_me.func = kill_me_now;
-diff --git a/include/linux/sched.h b/include/linux/sched.h
-index c5d96e3e7fff..62c1de522fc5 100644
---- a/include/linux/sched.h
-+++ b/include/linux/sched.h
-@@ -1304,7 +1304,9 @@ struct task_struct {
- 
- #ifdef CONFIG_X86_MCE
- 	u64				mce_addr;
--	u64				mce_status;
-+	__u64				mce_ripv : 1,
-+					mce_whole_page : 1,
-+					__mce_reserved : 62;
- 	struct callback_head		mce_kill_me;
- #endif
- 
-diff --git a/include/linux/set_memory.h b/include/linux/set_memory.h
-index 86281ac7c305..860e0f843c12 100644
---- a/include/linux/set_memory.h
-+++ b/include/linux/set_memory.h
-@@ -26,7 +26,7 @@ static inline int set_direct_map_default_noflush(struct page *page)
- #endif
- 
- #ifndef set_mce_nospec
--static inline int set_mce_nospec(unsigned long pfn)
-+static inline int set_mce_nospec(unsigned long pfn, bool unmap)
- {
- 	return 0;
- }
 
