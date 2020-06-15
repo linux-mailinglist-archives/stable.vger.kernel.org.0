@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C87DD1F9BCE
-	for <lists+stable@lfdr.de>; Mon, 15 Jun 2020 17:21:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 492841F9BCF
+	for <lists+stable@lfdr.de>; Mon, 15 Jun 2020 17:21:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730212AbgFOPVC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1730269AbgFOPVC (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 15 Jun 2020 11:21:02 -0400
-Received: from wforward5-smtp.messagingengine.com ([64.147.123.35]:41737 "EHLO
+Received: from wforward5-smtp.messagingengine.com ([64.147.123.35]:46563 "EHLO
         wforward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730269AbgFOPVA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Jun 2020 11:21:00 -0400
+        by vger.kernel.org with ESMTP id S1730235AbgFOPVC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Jun 2020 11:21:02 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id EB1EB768;
-        Mon, 15 Jun 2020 11:20:59 -0400 (EDT)
+        by mailforward.west.internal (Postfix) with ESMTP id 6C21B7B2;
+        Mon, 15 Jun 2020 11:21:01 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Mon, 15 Jun 2020 11:21:00 -0400
+  by compute1.internal (MEProxy); Mon, 15 Jun 2020 11:21:01 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=M6zD5H
-        Waez5a9JQjvyRftAbaDThdl8y0lUux2QUMU3c=; b=t3CLfz+EsxfBgvaUJvTeK3
-        Vj8m7r/b3JvFgazsguW3dh0bQW6h6x5NbAS4QFR7oCI+P2FwLldR97YU4H6kmfDU
-        8lvB6eMGtQIYi+zjtb/eriWcw5m13SlyA1L3w5yLSVRoitxtv2Ynb0F7g/I6D5hm
-        5jwzHXFal+8Gpc7b4VQd45/A5RMtHxMgd4ytN9y+HxeiApooMGgRDPqgjn9vFyn0
-        Biu1saiyky2v55PRtQlBxepAszwvDMFE6ZOoBy5Ff8MbqTfl4THdRi0VFc8Mz/7g
-        irFkwuvFVPDlUdKb2TjpragDVubE7oNAdgH7eCNiAWOmkrFe5hR+uTP+Mb98MKgA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=RyVMZl
+        gM8Z0ZnQ1oZdZTo9LzWdcKSnJNq2PrQchD/1M=; b=WP1sAUcBbglHujXxQeUBcF
+        GxnYZ55klcXsIAN30OjDvF1LoM7TVSH8UdzkD5wydap6GL4iDulq4PvK/mwBb6ho
+        5EsQ41V/27toHZFufhlfeddI3GbQTBa61ZATRxTwvs4zJxjIe+EMqvAJSHb7CCtR
+        Zv01txKn8KaAH93Tiss/9pUZMKXUgbq3RnMIvh755SWD/zmimVcl7u72Fy1Nr3CJ
+        4tE+iy8FUFIKLr4xyMwlkdKOwGiq1Yp5qJKSvlJG0XPnwptcXD4YdXuQU+NmE2Vx
+        E9apVytLE3H6yAdsl+yYOChtGkb8mS6BGA1dvRdXxaQcwfq3ssCcxU0ACZE0cSuQ
         ==
-X-ME-Sender: <xms:25HnXk7f4qtnBCUoi6wM7SLlyn4Aoyunz9E6yAtZ4E0Nx4P5haFgvg>
+X-ME-Sender: <xms:3ZHnXsf8JNn6gh_RUHNtmN9_pUcwCBEWHBpReCw48-F4w1coDZ4nuw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudeikedgkeejucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
@@ -36,19 +36,19 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudeikedgkeejucetufdoteggod
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
     keefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgepgeenucfrrghrrghmpe
     hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:25HnXl5EF8zuhThVFPDNg7WnXrRA9sYenKTHtfgfiqCDeKAiQshHOA>
-    <xmx:25HnXjfoXE8gufu685Djjxj7fIiyjf-lJ3Qf_Kjz6uSOnzMvLuZmHA>
-    <xmx:25HnXpK1x0xghjjzpwrbkC4WMGOOj72HNvyL37ybgyu-txqyuNQb3A>
-    <xmx:25HnXiw1dNBQqFstaU8mgdibg_bHBMyDENI6lc3BXJJow_owypeWTgvhFRo>
+X-ME-Proxy: <xmx:3ZHnXuOGRJHkGU9iKYL4orWpjgIGrpQl0G3BaflOOqSvHEm5bZX_xg>
+    <xmx:3ZHnXti4AZa5G_aamkO1giGK0BXjoM3_47jB31xCLwKQZot9rXvh_w>
+    <xmx:3ZHnXh8w0WaUnQbx4LBhEpf5jAtRmYEsaRvpCB8jUyVrBPNBz84qNg>
+    <xmx:3ZHnXu0YjG-_LmvQcsvcJ2aHOamcVvA-9TCiEmKSTie3CnanFznenprh-Zo>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 3330A3280066;
-        Mon, 15 Jun 2020 11:20:59 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] spi: Fix controller unregister order" failed to apply to 4.4-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id B59A63280063;
+        Mon, 15 Jun 2020 11:21:00 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] spi: Fix controller unregister order" failed to apply to 4.9-stable tree
 To:     lukas@wunner.de, broonie@kernel.org, linus.walleij@linaro.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 15 Jun 2020 17:20:45 +0200
-Message-ID: <1592234445175159@kroah.com>
+Date:   Mon, 15 Jun 2020 17:20:46 +0200
+Message-ID: <159223444611250@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -58,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
