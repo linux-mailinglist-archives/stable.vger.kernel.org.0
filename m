@@ -2,53 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE30A1F8ED8
-	for <lists+stable@lfdr.de>; Mon, 15 Jun 2020 08:57:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B22F1F8EEC
+	for <lists+stable@lfdr.de>; Mon, 15 Jun 2020 08:59:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728485AbgFOG5S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jun 2020 02:57:18 -0400
-Received: from sonic311-17.consmr.mail.bf2.yahoo.com ([74.6.131.240]:40125
-        "EHLO sonic311-17.consmr.mail.bf2.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728283AbgFOG5R (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Jun 2020 02:57:17 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1592204237; bh=19dvBZ7onruyA9Kb+oMmS5rb2QWnDzjDcGlSAu5K3IA=; h=Date:From:Reply-To:Subject:References:From:Subject; b=WoFnbNc5dFUMUqr5s+GcNtjUsQMPhehvMeX31D8an9DESE9bMVRBZrv34KjuxXtCnOEMJQvDveBe55N3VcYj30AVNIUdregYj3r7kI5d5PBijkrUapfepSyguHLjkZx6Poqm/g11FdeGcb2XO7EsYviuYGNKfHcGvgGzxgGfvP1ZZMKLpQA+tobUSUA66IijI5OmIyj5yEXL88Aa50AAQqFgkPLwPZ3clbyxYyUpMsKIBdlEGVcZXr7aiLiC+AcDW/Jn+pFVcWBoCr0cGO/3CerrunDSEapLMp9GWBYocUT0fJUMoJt154kvnSoMha7Dzc5YL0Tepwq1i+EBfHV3Ug==
-X-YMail-OSG: _kt.h9cVM1k1PRms3zi2xIMWqmS.ZG01yOM_ieBCoiV0HgLgmmX5WKduEERvhUp
- 2m7t0zcrMbeF2C_XDzuVOvdkgtVoktQhxCrRIU1sed_TB3ljZlZPzGWSubEhxtWl.PbWKnB4_kxz
- _KMoM4F5dUc4pKWXCbXDZsY24M5d2AlPWElJS4Y5HoK3aBhPoSSr_..s6zjpTngSAKPZYQErevE8
- YnoQlwK77wtdm_AbgZldHnu7m6E7NYYY4nhAnF0SCJHQ1NzbNnFqhADznl6F0PxAHhjucg7SPauq
- KvH9Jqs9Du2WMauluAPtSMMTrR9MRo1qRZGGrWQIoacNEU1tb9wRPq.aJE5VOxo_a3_kPbO0MUG.
- yCvAdVc5nB6Mq4bTTq8_AQ2V19ug.wTnc29ttrN2eFhCvHrux5Gl6wqTgmgrbKir6QJd_HmdtF6A
- XukbqVhtG7nfbTNwQHygA58cJ7ju7rBgq0Uy1iYZQkyAxmciQOaz6KvJFj2v0f05_uXfiMhXV5lP
- ywjHSVTBN0zWa5WOotrfT4TeQ0Si4.yZiJvEBSqwWP2xLxR5de5.OeYjX4Qxc7qKk5VhQrPkRVmx
- YKQXY0jA1iuxFwT2_VCiupzNQ7ddpKsURKfSr4d.07r9sm.ZWkVcCwAswX09ldpJ4kZMQ2IwJJyz
- yCx5tPyhN_ufYvPGjIGY_P1tehkBiZj8oX9A1YiVbZzjYKUnowfdF5KkPVfwzg0TEI1OxszRJ6eN
- XJmBxgZf8ficZF0xb_5RVRBedDncUpyfxdjmXi83xV2KBs0SB5QwB23KjjUezKEBFfOwnJSNJVdF
- ZlkWNJDoyjQiw40P7tfW8iAmE16cido15GczVx6Bet3PXKqVYGRc00YiZ9PW4IbrNnuJzQnRRjdv
- AIWWYUBqIKLB8tOFumwkG4hdJrpTGw4qtd77Yn_YtAiKYEm.A6zDXShIiUstxHRosquoRGJDGhcX
- i2.QP_D_lBsV2PhCNdSfWWnAUixSAN_8ig_pu0gSr28OKEX3ZyE3jk4NePuLVbMxHamVBcWM.i_4
- 9vrDe7Ob0SY8di1QzzRsn6yoG9P8ToLBt9qE6IoYvho6kdxQx5K7EfZTifSWKWk6GxeKb6iydhn2
- OiJtkhnWJkJkHj5N5adH9sUp72xE3rnMv8UPQ2JvzNus7d00XeC7b2aH7I9PZx4zOwvmG5.KCKoS
- JUOwG.I8DwCjdm6Hajeph0RDIkH_BWR6T4SxFe3KsVjsurnS8kOfOrQuDe02xKvafpc.4joXhsAv
- tx0CPtX5CDP4T4ZsojwMutPXmKmC3uY5huZr7DA--
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic311.consmr.mail.bf2.yahoo.com with HTTP; Mon, 15 Jun 2020 06:57:17 +0000
-Date:   Mon, 15 Jun 2020 06:55:16 +0000 (UTC)
-From:   Brown <zxa16@gtabop.in>
-Reply-To: brownhilton02@gmail.com
-Message-ID: <1255514480.600639.1592204116104@mail.yahoo.com>
-Subject: GOOD DAY TO YOU,KINDLY CHECK THE MAIL I SNT TO YOU.
+        id S1728428AbgFOG7K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jun 2020 02:59:10 -0400
+Received: from mga03.intel.com ([134.134.136.65]:1518 "EHLO mga03.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728276AbgFOG7K (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jun 2020 02:59:10 -0400
+IronPort-SDR: 3H0cUk9W3U0O4ArSS9xW2Iv6nUtebNWsqmOxETyxK/FMkhyB8G3DOjEKdR6FbBOXHHMjfV5zQv
+ b0fVJ6kyL28A==
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga004.fm.intel.com ([10.253.24.48])
+  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Jun 2020 23:59:09 -0700
+IronPort-SDR: oic9DtRS/u/aAmXolUgNJg6D4j8JcEGeDTwsgVaArHwcIYnmEfIeobd+MKIYIiqtr8o0s9dQ38
+ WPDeQhMjkwdA==
+X-IronPort-AV: E=Sophos;i="5.73,514,1583222400"; 
+   d="scan'208";a="298418308"
+Received: from ideak-desk.fi.intel.com ([10.237.72.183])
+  by fmsmga004-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Jun 2020 23:59:08 -0700
+Date:   Mon, 15 Jun 2020 09:59:01 +0300
+From:   Imre Deak <imre.deak@intel.com>
+To:     Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
+Cc:     intel-gfx@lists.freedesktop.org,
+        Kunal Joshi <kunal1.joshi@intel.com>, stable@vger.kernel.org
+Subject: Re: [Intel-gfx] [PATCH] drm/i915/icl+: Fix hotplug interrupt
+ disabling after storm detection
+Message-ID: <20200615065901.GA16626@ideak-desk.fi.intel.com>
+Reply-To: imre.deak@intel.com
+References: <20200612121731.19596-1-imre.deak@intel.com>
+ <20200612131848.GH6112@intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-References: <1255514480.600639.1592204116104.ref@mail.yahoo.com>
-X-Mailer: WebService/1.1.16119 YMailNodin Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36
-To:     unlisted-recipients:; (no To-header on input)
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200612131848.GH6112@intel.com>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Fri, Jun 12, 2020 at 04:18:48PM +0300, Ville Syrjälä wrote:
+> On Fri, Jun 12, 2020 at 03:17:31PM +0300, Imre Deak wrote:
+> > Atm, hotplug interrupts on TypeC ports are left enabled after detecting
+> > an interrupt storm, fix this.
+> > 
+> > Reported-by: Kunal Joshi <kunal1.joshi@intel.com>
+> > References: https://gitlab.freedesktop.org/drm/intel/-/issues/351
+> > Bugzilla: https://gitlab.freedesktop.org/drm/intel/-/issues/1964
+> > Cc: Kunal Joshi <kunal1.joshi@intel.com>
+> > Cc: stable@vger.kernel.org
+> > Signed-off-by: Imre Deak <imre.deak@intel.com>
+> > ---
+> >  drivers/gpu/drm/i915/i915_irq.c | 1 +
+> >  1 file changed, 1 insertion(+)
+> > 
+> > diff --git a/drivers/gpu/drm/i915/i915_irq.c b/drivers/gpu/drm/i915/i915_irq.c
+> > index 8e823ba25f5f..710224d930c5 100644
+> > --- a/drivers/gpu/drm/i915/i915_irq.c
+> > +++ b/drivers/gpu/drm/i915/i915_irq.c
+> > @@ -3132,6 +3132,7 @@ static void gen11_hpd_irq_setup(struct drm_i915_private *dev_priv)
+> >  
+> >  	val = I915_READ(GEN11_DE_HPD_IMR);
+> >  	val &= ~hotplug_irqs;
+> > +	val |= ~enabled_irqs & hotplug_irqs;
+> >  	I915_WRITE(GEN11_DE_HPD_IMR, val);
+> >  	POSTING_READ(GEN11_DE_HPD_IMR);
+> 
+> Wondering if we should add a function for this just for consistency
+> with all the other platforms.
 
+Yes makes sense, or even abstract the hpd interrupt enabling using the
+hpd pin -> interrupt flag table. I think we could even extend that table
+with the pulse detection bits and register addresses. I'll check if
+something like this would work for all platforms.
 
-Good day to you, kindly confirm to me if you did receive the mail I sent to you yesterday.
-Regards,
-Brown.
+> Alhthough we don't strictly need one since we have no other users of
+> this register. So maybe not.
+> 
+> Anyways, patch is
+> Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+
+Thanks, pushed.
+
+> 
+> >  
+> > -- 
+> > 2.23.1
+> > 
+> > _______________________________________________
+> > Intel-gfx mailing list
+> > Intel-gfx@lists.freedesktop.org
+> > https://lists.freedesktop.org/mailman/listinfo/intel-gfx
+> 
+> -- 
+> Ville Syrjälä
+> Intel
