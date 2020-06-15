@@ -2,163 +2,143 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C9A1C1F9FAC
-	for <lists+stable@lfdr.de>; Mon, 15 Jun 2020 20:51:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C5B991F9FB9
+	for <lists+stable@lfdr.de>; Mon, 15 Jun 2020 20:56:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729354AbgFOSvc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jun 2020 14:51:32 -0400
-Received: from mga14.intel.com ([192.55.52.115]:17749 "EHLO mga14.intel.com"
+        id S1731279AbgFOS43 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jun 2020 14:56:29 -0400
+Received: from mga11.intel.com ([192.55.52.93]:3787 "EHLO mga11.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729124AbgFOSvc (ORCPT <rfc822;Stable@vger.kernel.org>);
-        Mon, 15 Jun 2020 14:51:32 -0400
-IronPort-SDR: nlrtp3eyU/HDFQKIeApEjtQvDSAlshpBQdUDwyKevWChHyh1vzCstlE28vcHfGo7u04W5DoNki
- M+F0hEHZpj6w==
+        id S1729124AbgFOS43 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jun 2020 14:56:29 -0400
+IronPort-SDR: nk0k6QHCYGXwPSnFvZFl/dBnL1+74csLAVpziisVevFqUeKK6r/7dfsjBVlgbd9qeQLFicrrzW
+ lP66B+BU4liQ==
 X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
-Received: from orsmga006.jf.intel.com ([10.7.209.51])
-  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Jun 2020 11:51:31 -0700
-IronPort-SDR: 6SFypKTBpRlY7Mnr1WCg9THktGjkywNwtBYqVdwfHUCMYJuTX/fawFASI/Q7gbeaDJ7k+7FhcE
- 2eYIc6limDzg==
-X-ExtLoop1: 1
+Received: from orsmga004.jf.intel.com ([10.7.209.38])
+  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Jun 2020 11:56:28 -0700
+IronPort-SDR: uue+PSVCk3LyNJiZicIhIpDGOWTgpOaZGd4peX/xPnzbc3riDhuuZbZAGJCTfgo6Mqcp4uk/Pg
+ rrGiau2KiYYQ==
 X-IronPort-AV: E=Sophos;i="5.73,515,1583222400"; 
-   d="scan'208";a="276655726"
-Received: from fmsmsx107.amr.corp.intel.com ([10.18.124.205])
-  by orsmga006.jf.intel.com with ESMTP; 15 Jun 2020 11:51:30 -0700
-Received: from fmsmsx151.amr.corp.intel.com (10.18.125.4) by
- fmsmsx107.amr.corp.intel.com (10.18.124.205) with Microsoft SMTP Server (TLS)
- id 14.3.439.0; Mon, 15 Jun 2020 11:51:30 -0700
-Received: from FMSEDG002.ED.cps.intel.com (10.1.192.134) by
- FMSMSX151.amr.corp.intel.com (10.18.125.4) with Microsoft SMTP Server (TLS)
- id 14.3.439.0; Mon, 15 Jun 2020 11:51:29 -0700
-Received: from NAM12-DM6-obe.outbound.protection.outlook.com (104.47.59.174)
- by edgegateway.intel.com (192.55.55.69) with Microsoft SMTP Server (TLS) id
- 14.3.439.0; Mon, 15 Jun 2020 11:51:30 -0700
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=SS2UDZ7SCAun7JD7uRnx0bl0LZpKqJVhQwyH+J9JNm5bfAmcHaTGR2uMGzNszTCbzzr5/GP57zZgF+3rrVfYHek6D0xQXyABbpm+7XM9ZtmTKsbaUMkhXK95T4M7myiNLNlN3TycvoeVSARo/3Uf+rRz73GLXq8AxbuaY31ppHJLqwI0nVQWv3i0UcvdN3zZrxY19bqfJCW9OuruqNn7QFWXuD7KGGenh230nB3u4g0liBW3yuqJj5k/g++MlWXruww/4Qni9X+vTcboTTQ+HaSBCS0h0qgitNe5QB0wJkQWt+FVkd7bnpYz8kVksAriI5loAh5nO+frERBtauliig==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=53Y4VcnXqRVfpwwnPW0aKgctY9ofS8Dj5G6b9L33igs=;
- b=CX4U7QYweAfknHt5a9lnlPZvmi/pE4K1E2Mkg8JiwNpOm1xGXHmqOjPZX72YUrm3xd6gr6409XV8f8NCMhu8fKpXmTrX+VDpn8eVbH3zxBfj8POY9eWQ9L+MvhqAxfYdvvei53uD23ozZ/LQei0KprCxc7E9iX+xNQ9ho8kYsTTL93l2w//0NyBWOgMcuh4cYxq7Y1SQUJLTC3UXvrk1G7qn7cqCpytPzA+oWhOuqMZ7zx5PlHb788UciPQzI+oZZiTANquyk+RAIY4Kr9Z46oO7e7OksTgwP+QSJnC/MNJS2y/fHVmmQ1gDGcS4nzQiEggPZY/0VlCDFbczCvsXKw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=intel.onmicrosoft.com;
- s=selector2-intel-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=53Y4VcnXqRVfpwwnPW0aKgctY9ofS8Dj5G6b9L33igs=;
- b=M/xWvYjCFsBbpK1b/axA2mq+vMR+TT8zngC+6Yf9b70S79McBSHURxZn3SB7n5UPl6QanbvJYpJNsH8EdO3k6Jp5LXIyXwXFgO0owzErYP4M+PlhIRQDxnsJzB3omQa3A421ZZs1xQT+Kkc+JcvVkq33l6qhSKvcWeqVzWvg1Og=
-Received: from SN6PR11MB2896.namprd11.prod.outlook.com (2603:10b6:805:d9::20)
- by SN6PR11MB3504.namprd11.prod.outlook.com (2603:10b6:805:d0::17) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3088.27; Mon, 15 Jun
- 2020 18:51:27 +0000
-Received: from SN6PR11MB2896.namprd11.prod.outlook.com
- ([fe80::ecf9:3d9e:8c8:75b0]) by SN6PR11MB2896.namprd11.prod.outlook.com
- ([fe80::ecf9:3d9e:8c8:75b0%3]) with mapi id 15.20.3088.028; Mon, 15 Jun 2020
- 18:51:27 +0000
-From:   "Brown, Aaron F" <aaron.f.brown@intel.com>
-To:     "Chen, Yu C" <yu.c.chen@intel.com>,
-        "Kirsher, Jeffrey T" <jeffrey.t.kirsher@intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        "Jakub Kicinski" <kuba@kernel.org>,
-        "Kok, Auke-jan H" <auke-jan.h.kok@intel.com>,
-        Jeff Garzik <jeff@garzik.org>
-CC:     "intel-wired-lan@lists.osuosl.org" <intel-wired-lan@lists.osuosl.org>,
-        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "Brown, Len" <len.brown@intel.com>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        "Shevchenko, Andriy" <andriy.shevchenko@intel.com>,
-        "Neftin, Sasha" <sasha.neftin@intel.com>,
-        "Lifshits, Vitaly" <vitaly.lifshits@intel.com>,
-        "Chen, Yu C" <yu.c.chen@intel.com>,
-        "Stable@vger.kernel.org" <Stable@vger.kernel.org>
-Subject: RE: [PATCH 1/2] e1000e: Do not wake up the system via WOL if device
- wakeup is disabled
-Thread-Topic: [PATCH 1/2] e1000e: Do not wake up the system via WOL if device
- wakeup is disabled
-Thread-Index: AQHWL5mc0ngXWRQgFUqdbYRE2QINUKjaLL7A
-Date:   Mon, 15 Jun 2020 18:51:27 +0000
-Message-ID: <SN6PR11MB2896298A90B37CEA0DC5A750BC9C0@SN6PR11MB2896.namprd11.prod.outlook.com>
-References: <cover.1590081982.git.yu.c.chen@intel.com>
- <9f7ede2e2e8152704258fc11ba3755ae93f50741.1590081982.git.yu.c.chen@intel.com>
-In-Reply-To: <9f7ede2e2e8152704258fc11ba3755ae93f50741.1590081982.git.yu.c.chen@intel.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-dlp-version: 11.2.0.6
-dlp-product: dlpe-windows
-dlp-reaction: no-action
-authentication-results: intel.com; dkim=none (message not signed)
- header.d=none;intel.com; dmarc=none action=none header.from=intel.com;
-x-originating-ip: [134.134.136.215]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 3f487dd3-b252-4d3c-0a7d-08d8115d1c39
-x-ms-traffictypediagnostic: SN6PR11MB3504:
-x-ld-processed: 46c98d88-e344-4ed4-8496-4ed7712e255d,ExtAddr
-x-ms-exchange-transport-forked: True
-x-microsoft-antispam-prvs: <SN6PR11MB3504E67536F56BD7964191E6BC9C0@SN6PR11MB3504.namprd11.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:4125;
-x-forefront-prvs: 04359FAD81
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: 1Ntxyetejkr8go7fqnto0H7OOluDbODAsL19Tq3cV5gp5jcSOK4sXCKmf7htbb9lCa+etwtBGzUv8jAr7rKwVh4G8Xf23fG8Vc9vjW7yBDhofJGreIS9nMbB5eqOj6fVv+E3apAStXD7UsreFeELDjTpc1o9nb+2uoenvsZaGC983WU6dTQo3f+CXnAZmbzG8mbqoDc0TQ2+x4zyJq+glFhZcFPwMoaLH1hJ3/ABJ0DrlkXdyBnxMum+St39EvwhluN/jaEGJBIcLx8gJmZ7nZXWCfFf/fGOeTQTaWM/HU0R1Kl0wKGGfCiRYZ7O0yJ83OadILpSby2xALSgHn01hA==
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SN6PR11MB2896.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFTY:;SFS:(136003)(346002)(376002)(396003)(39860400002)(366004)(53546011)(33656002)(8676002)(7696005)(6506007)(86362001)(186003)(478600001)(4326008)(5660300002)(55016002)(8936002)(9686003)(54906003)(110136005)(71200400001)(316002)(64756008)(66446008)(26005)(52536014)(83380400001)(66476007)(66556008)(2906002)(76116006)(66946007);DIR:OUT;SFP:1102;
-x-ms-exchange-antispam-messagedata: OjVeSFxJCtLCgntLMn1jTYp2OPXl5qbOV5fQLAhz/D0EzRLzm45OMPkhcBScWkSehGPP05XvAPaZc2iOlY/de972xgLTx82S7EM1szVli4fA02MynijRHxNmgrdGey2kfkT6u9TFKPl2Kpioatx0LYRyJlK9r30cykpYaQf0M9kZ6n2KQEMc0XohzX6w4Y86wHlspiU1k9AJJco8B6fiWgp2JhAZKHWAfeMhw+fT2B+WgG8LaRevyb3ZytN7dJMZJolLCrZUOLm/Y7RXa/bQmaOohv/SgEi/cAXBXdvPOkSQq0LYBpGF9caG9SlDnrLuv59FIzMURtDM3DwgxX3mppnl3iaWoPP5fDXSB9WUaIAnKX6cbFGkS3nKACs51nG9O+Duz0GmMcGd9aFNpMFK848E2GPDScO3PrcPcRcqlCSmq7I3GwKmszdwA01pgDP3C80M57ePCDmyGfU9AHvG/jxA5TE/YJWE0JrRjqFwTXXy5bFiD6wrjeean69eAi3W
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+   d="scan'208";a="420470061"
+Received: from rdvivi-losangeles.jf.intel.com (HELO intel.com) ([10.165.21.202])
+  by orsmga004-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Jun 2020 11:56:28 -0700
+Date:   Mon, 15 Jun 2020 11:54:20 -0700
+From:   Rodrigo Vivi <rodrigo.vivi@intel.com>
+To:     "Bloomfield, Jon" <jon.bloomfield@intel.com>
+Cc:     "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
+        Alexandre Oliva <lxoliva@fsfla.org>,
+        "Nikula, Jani" <jani.nikula@intel.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Chris Wilson <chris@chris-wilson.co.uk>
+Subject: Re: [Intel-gfx] [PATCH] drm/i915: Include asm sources for {ivb,
+ hsw}_clear_kernel.c
+Message-ID: <20200615185420.GA334084@intel.com>
+References: <159163988890.30073.8976615673203599761@build.alporthouse.com>
+ <20200610201807.191440-1-rodrigo.vivi@intel.com>
+ <AD48BB7FB99B174FBCC69E228F58B3B6B78F0D73@fmsmsx116.amr.corp.intel.com>
 MIME-Version: 1.0
-X-MS-Exchange-CrossTenant-Network-Message-Id: 3f487dd3-b252-4d3c-0a7d-08d8115d1c39
-X-MS-Exchange-CrossTenant-originalarrivaltime: 15 Jun 2020 18:51:27.4229
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: jPSJTVL3a2YaaB3poOIsnXyLFBA7g/uPfgPUkbVph+WajP/t9XOxP96SViQJq8XJC6u/EkvZzlCQjB8qmaBKeg==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN6PR11MB3504
-X-OriginatorOrg: intel.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <AD48BB7FB99B174FBCC69E228F58B3B6B78F0D73@fmsmsx116.amr.corp.intel.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-> From: Chen Yu <yu.c.chen@intel.com>
-> Sent: Thursday, May 21, 2020 10:59 AM
-> To: Kirsher, Jeffrey T <jeffrey.t.kirsher@intel.com>; David S. Miller
-> <davem@davemloft.net>; Jakub Kicinski <kuba@kernel.org>; Kok, Auke-jan H
-> <auke-jan.h.kok@intel.com>; Jeff Garzik <jeff@garzik.org>
-> Cc: intel-wired-lan@lists.osuosl.org; netdev@vger.kernel.org; linux-
-> kernel@vger.kernel.org; Brown, Len <len.brown@intel.com>; Rafael J. Wysoc=
-ki
-> <rjw@rjwysocki.net>; Shevchenko, Andriy <andriy.shevchenko@intel.com>;
-> Neftin, Sasha <sasha.neftin@intel.com>; Lifshits, Vitaly
-> <vitaly.lifshits@intel.com>; Chen, Yu C <yu.c.chen@intel.com>;
-> Stable@vger.kernel.org
-> Subject: [PATCH 1/2] e1000e: Do not wake up the system via WOL if device
-> wakeup is disabled
->=20
-> Currently the system will be woken up via WOL(Wake On Lan) even if the
-> device wakeup ability has been disabled via sysfs:
->  cat /sys/devices/pci0000:00/0000:00:1f.6/power/wakeup
->  disabled
->=20
-> The system should not be woken up if the user has explicitly
-> disabled the wake up ability for this device.
->=20
-> This patch clears the WOL ability of this network device if the
-> user has disabled the wake up ability in sysfs.
->=20
-> Fixes: bc7f75fa9788 ("[E1000E]: New pci-express e1000 driver")
-> Reported-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-> Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> Cc: <Stable@vger.kernel.org>
-> Signed-off-by: Chen Yu <yu.c.chen@intel.com>
-> ---
->  drivers/net/ethernet/intel/e1000e/netdev.c | 14 ++++++++++----
->  1 file changed, 10 insertions(+), 4 deletions(-)
->=20
-Tested-by: Aaron Brown <aaron.f.brown@intel.com>
+On Fri, Jun 12, 2020 at 02:15:02PM -0700, Bloomfield, Jon wrote:
+> > -----Original Message-----
+> > From: Intel-gfx <intel-gfx-bounces@lists.freedesktop.org> On Behalf Of
+> > Rodrigo Vivi
+> > Sent: Wednesday, June 10, 2020 1:18 PM
+> > To: intel-gfx@lists.freedesktop.org
+> > Cc: Alexandre Oliva <lxoliva@fsfla.org>; Nikula, Jani <jani.nikula@intel.com>;
+> > stable@vger.kernel.org; Chris Wilson <chris@chris-wilson.co.uk>
+> > Subject: [Intel-gfx] [PATCH] drm/i915: Include asm sources for {ivb,
+> > hsw}_clear_kernel.c
+> > 
+> > Alexandre Oliva has recently removed these files from Linux Libre
+> > with concerns that the sources weren't available.
+> > 
+> > The sources are available on IGT repository, and only open source
+> > tools are used to generate the {ivb,hsw}_clear_kernel.c files.
+> > 
+> > However, the remaining concern from Alexandre Oliva was around
+> > GPL license and the source not been present when distributing
+> > the code.
+> > 
+> > So, it looks like 2 alternatives are possible, the use of
+> > linux-firmware.git repository to store the blob or making sure
+> > that the source is also present in our tree. Since the goal
+> > is to limit the i915 firmware to only the micro-controller blobs
+> > let's make sure that we do include the asm sources here in our tree.
+> > 
+> > Btw, I tried to have some diligence here and make sure that the
+> > asms that these commits are adding are truly the source for
+> > the mentioned files:
+> > 
+> > igt$ ./scripts/generate_clear_kernel.sh -g ivb \
+> >      -m ~/mesa/build/src/intel/tools/i965_asm
+> > Output file not specified - using default file "ivb-cb_assembled"
+> > 
+> > Generating gen7 CB Kernel assembled file "ivb_clear_kernel.c"
+> > for i915 driver...
+> > 
+> > igt$ diff ~/i915/drm-tip/drivers/gpu/drm/i915/gt/ivb_clear_kernel.c \
+> >      ivb_clear_kernel.c
+> > 
+> > <  * Generated by: IGT Gpu Tools on Fri 21 Feb 2020 05:29:32 AM UTC
+> > >  * Generated by: IGT Gpu Tools on Mon 08 Jun 2020 10:00:54 AM PDT
+> > 61c61
+> > < };
+> > > };
+> > \ No newline at end of file
+> > 
+> > igt$ ./scripts/generate_clear_kernel.sh -g hsw \
+> >      -m ~/mesa/build/src/intel/tools/i965_asm
+> > Output file not specified - using default file "hsw-cb_assembled"
+> > 
+> > Generating gen7.5 CB Kernel assembled file "hsw_clear_kernel.c"
+> > for i915 driver...
+> > 
+> > igt$ diff ~/i915/drm-tip/drivers/gpu/drm/i915/gt/hsw_clear_kernel.c \
+> >      hsw_clear_kernel.c
+> > 5c5
+> > <  * Generated by: IGT Gpu Tools on Fri 21 Feb 2020 05:30:13 AM UTC
+> > >  * Generated by: IGT Gpu Tools on Mon 08 Jun 2020 10:01:42 AM PDT
+> > 61c61
+> > < };
+> > > };
+> > \ No newline at end of file
+> > 
+> > Used IGT and Mesa master repositories from Fri Jun 5 2020)
+> > IGT: 53e8c878a6fb ("tests/kms_chamelium: Force reprobe after replugging
+> >      the connector")
+> > Mesa: 5d13c7477eb1 ("radv: set keep_statistic_info with
+> >       RADV_DEBUG=shaderstats")
+> > Mesa built with: meson build -D platforms=drm,x11 -D dri-drivers=i965 \
+> >                  -D gallium-drivers=iris -D prefix=/usr \
+> > 		 -D libdir=/usr/lib64/ -Dtools=intel \
+> > 		 -Dkulkan-drivers=intel && ninja -C build
+> > 
+> > v2: Header clean-up and include build instructions in a readme (Chris)
+> >     Modified commit message to respect check-patch
+> > 
+> > Reference: http://www.fsfla.org/pipermail/linux-libre/2020-
+> > June/003374.html
+> > Reference: http://www.fsfla.org/pipermail/linux-libre/2020-
+> > June/003375.html
+> > Fixes: 47f8253d2b89 ("drm/i915/gen7: Clear all EU/L3 residual contexts")
+> > Cc: <stable@vger.kernel.org> # v5.7+
+> > Cc: Alexandre Oliva <lxoliva@fsfla.org>
+> > Cc: Prathap Kumar Valsan <prathap.kumar.valsan@intel.com>
+> > Cc: Akeem G Abodunrin <akeem.g.abodunrin@intel.com>
+> > Cc: Mika Kuoppala <mika.kuoppala@linux.intel.com>
+> > Cc: Chris Wilson <chris@chris-wilson.co.uk>
+> > Cc: Jani Nikula <jani.nikula@intel.com>
+> > Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+> > Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+> 
+> Reviewed-by: Jon Bloomfield <jon.bloomfield@intel.com>
 
-
+Thanks, pushed to dinq
