@@ -2,92 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 274601FA29F
-	for <lists+stable@lfdr.de>; Mon, 15 Jun 2020 23:16:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E39011FA2AC
+	for <lists+stable@lfdr.de>; Mon, 15 Jun 2020 23:21:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729714AbgFOVQx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jun 2020 17:16:53 -0400
-Received: from out4-smtp.messagingengine.com ([66.111.4.28]:38353 "EHLO
-        out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726207AbgFOVQw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Jun 2020 17:16:52 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.nyi.internal (Postfix) with ESMTP id 1C0505C00CF;
-        Mon, 15 Jun 2020 17:16:51 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Mon, 15 Jun 2020 17:16:51 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm1; bh=yDhzxQdrW72EMlzi/lWQrIa5fTs
-        6huXl/qAj2WZomGY=; b=V8dzegYygnlsoQVGRGPfpfSGzIuvstWxtFKfo1j5J1c
-        EReYrK18HFSSrHl13Ez6ZYJCyQAmJfu+BIoQtDSj0mFnu3F+Dgf5nXCx/sc5Hkjn
-        sH2wPNTcNB0oQmvmpY8ZIBeqWLwsYR13zd00uOgY3IVMGJu/R3hnP49soAl83qAh
-        GSr8Em43qej53X5wff+h0kdpDqb2yWNQrshoi9DkW2aGiXv/Cn49upSy4Jv6q0Hz
-        PVldceGTRgY46MSBQO3vvN5ipJlvy8U5boZ+Ze4AEIHe2ZlIRB+FvmGhHUyVc66Y
-        C6R7YFsqfnPTPYC5cscR2CySpcYVZu1j8iexDsD/P8Q==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=yDhzxQ
-        drW72EMlzi/lWQrIa5fTs6huXl/qAj2WZomGY=; b=D7KfT+Ct0ClH2K+9oNlu0r
-        Kr6L3kl/9krNOMBwa7sGwycN3dHdFlDHhzglXrBXPOuC8mCAtXApHAaey4n9+Mgo
-        89KvGkB/aNbXtkHO1sy5QiepRv9MHsJa4q43LVJzxDs/SH/VPrxtqnFjOEfkPpdD
-        fogVxOYV29CbyNhyy3TM1xhfeu6rPiN+ca42z73V+9+JWBFAdeAYFFL4QRJb+f0/
-        K4UEAgDvOuEN5HxIOyVmgVcxzw/GVZKRqpJo3XfIjC2pM/o7Y291SCzXI1GHwRC7
-        emQPDVWSnxDKdJzT6s8kQuI04IdHBclNiJBje26oofqz/VrVc+E++tyqAK0C0TPg
-        ==
-X-ME-Sender: <xms:QuXnXi6mz6JHh-93iEK_z4AYupX9SvMmNBBxBUzilEQLm0iZuk0URA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudeikedgudeitdcutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
-    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
-    enucfjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghg
-    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepveeuhe
-    ejgfffgfeivddukedvkedtleelleeghfeljeeiueeggeevueduudekvdetnecukfhppeek
-    fedrkeeirdekledruddtjeenucevlhhushhtvghrufhiiigvpedunecurfgrrhgrmhepmh
-    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:QuXnXr4xFUDNJCzEgkgkNSk43O694bEaVHeo3xtqz6ZXGCnE0s4UrA>
-    <xmx:QuXnXhc6P-pbN7M2kWr-XQbzG26Z0fWJc_X1v7dSlvXVINeXnL0bSw>
-    <xmx:QuXnXvLRM0_OSIwkPBsOSr_XKx-18Psf0xV492XsLYnzFgnQg3kqug>
-    <xmx:Q-XnXohABxqtO7CLTnNGon45GwBt_iQj5KuqAhuDHJUyvWNEid9Mnw>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 410A4328005D;
-        Mon, 15 Jun 2020 17:16:50 -0400 (EDT)
-Date:   Mon, 15 Jun 2020 23:16:42 +0200
-From:   Greg KH <greg@kroah.com>
-To:     20181129133119.29387-1-linus.walleij@linaro.org
-Cc:     Linus Walleij <linus.walleij@linaro.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Marc Zyngier <marc.zyngier@arm.com>,
-        Jason Cooper <jason@lakedaemon.net>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Hans Verkuil <hverkuil@xs4all.nl>
-Subject: Re: [PATCH] irq: Request and release resources for chained IRQs
-Message-ID: <20200615211642.GD1019647@kroah.com>
-References: <TZHZBQ.SOVDZ4DJB30O1@ixit.cz>
+        id S1729714AbgFOVV0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jun 2020 17:21:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41720 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726207AbgFOVV0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jun 2020 17:21:26 -0400
+Received: from oasis.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2820520679;
+        Mon, 15 Jun 2020 21:21:25 +0000 (UTC)
+Date:   Mon, 15 Jun 2020 17:21:23 -0400
+From:   Steven Rostedt <rostedt@goodmis.org>
+To:     Joe Perches <joe@perches.com>
+Cc:     Masami Hiramatsu <mhiramat@kernel.org>, stable@vger.kernel.org,
+        LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 1/4] proc/bootconfig: Fix to use correct quotes for
+ value
+Message-ID: <20200615172123.1fe77f3c@oasis.local.home>
+In-Reply-To: <7abefbc81fc6aaefed6bbd2117e7bc97b90babe9.camel@perches.com>
+References: <159197538852.80267.10091816844311950396.stgit@devnote2>
+        <159197539793.80267.10836787284189465765.stgit@devnote2>
+        <20200615151139.5cc223fc@oasis.local.home>
+        <7abefbc81fc6aaefed6bbd2117e7bc97b90babe9.camel@perches.com>
+X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <TZHZBQ.SOVDZ4DJB30O1@ixit.cz>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jun 15, 2020 at 10:23:53PM +0200, David Heidelberg wrote:
-> Hello,
+On Mon, 15 Jun 2020 12:24:00 -0700
+Joe Perches <joe@perches.com> wrote:
+
+> > Hmm, shouldn't the above have the upside-down xmas tree format?
+> > 
+> > 	struct xbc_node *leaf, *vnode;
+> > 	char *key, *end = dst + size;
+> > 	const char *val;
+> > 	char q;
+> > 	int ret = 0;  
 > 
-> is there chance to get this patch included
+> Please don't infect kernel sources with that style oddity.
 
-What patch?
+What do you mean? It's already "infected" all over the kernel, (has
+been for years!) and I kinda like it. It makes reading variables much
+easier on the eyes, and as I get older, that means a lot more ;-)
 
-Included where?
-
-> or could be this issue solved
-> with different approach?
-
-Such as what?
-
-Totally confused,
-
-greg k-h
+-- Steve
