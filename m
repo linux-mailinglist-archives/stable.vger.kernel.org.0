@@ -2,54 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 192811F9BDE
-	for <lists+stable@lfdr.de>; Mon, 15 Jun 2020 17:21:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE2061F9BE3
+	for <lists+stable@lfdr.de>; Mon, 15 Jun 2020 17:22:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730313AbgFOPVu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jun 2020 11:21:50 -0400
-Received: from wforward5-smtp.messagingengine.com ([64.147.123.35]:49713 "EHLO
+        id S1729825AbgFOPWN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jun 2020 11:22:13 -0400
+Received: from wforward5-smtp.messagingengine.com ([64.147.123.35]:54791 "EHLO
         wforward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730158AbgFOPVu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Jun 2020 11:21:50 -0400
+        by vger.kernel.org with ESMTP id S1728326AbgFOPWN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Jun 2020 11:22:13 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id 48D917D4;
-        Mon, 15 Jun 2020 11:21:49 -0400 (EDT)
+        by mailforward.west.internal (Postfix) with ESMTP id BEA7B368;
+        Mon, 15 Jun 2020 11:22:12 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Mon, 15 Jun 2020 11:21:49 -0400
+  by compute1.internal (MEProxy); Mon, 15 Jun 2020 11:22:13 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=dlcAF/
-        S24whyn7k4i/EehPa0K7kk7xyL1em33VQosH4=; b=LeXYJACubf7WFMKSnsjnMv
-        6m9x3DjrmqZW0biTuuD3ZX9W8xvMat81/6nuVtq6WbzJezXXHjouL3lE6ykP+U6N
-        mBw4Vd4DxR6NUyzBJdUs9zVIAu7LouXFTqmkKiFsKp4YZSTX54YIY2QYkLHlcNMg
-        SoAjtC/ZjEjSwSJu+5iHJfVcpB7hMc9ALAz/lk6llDQa5n3l/TRuBRpxjBNWaY8A
-        AJ124f0LMpEaqXcFefcB/czxpaL5K3Z6sVVm8/03rF3rZ4xIetNAQUyBnBh41nlh
-        9pku1GRhqVRzT/d/qpBDmkqr16yXBaIUssYmnYS3qkQQvQ+2OuXXWsYebA/l+GjQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=bL5tZK
+        GNf/K1uTrQ6hZUkVhX+74f12mPPKtmAz3J1G0=; b=aYNIGhWsGQCEZrtDZFEg+6
+        gGcyM69sh6n3Bz6RFhOQA1U/+DU/KgfOIHbdUcHJ0k+e2kDPdgPAx1xkEMsg0N1s
+        d6Z7J3O8xVi++6gT7mZrpy2j6g899fDAcpM5e+SEGRkcis52JD/OZ1lXUkc4+8u5
+        0t/trzLk8hLH0CdGry+huN00rZspq6lNeLgO+7uZDUz/eegeLSFTV2oxMWr7rI1B
+        6f0dBk1ymoxvJW53QwBBjBjc7ckHrB3qhaowkog1NU9wP7uVy15+uBJJjCuSFMfy
+        GjhK//ctdNVEjX+9+2YLwyvZRwo3d1oYDJxN4/z1/SXyZ/4w6GGVj8nEPpV71PzA
         ==
-X-ME-Sender: <xms:DJLnXjeEEHMJnUURc0gGd9NkIsqNqKEmjOAFW3sne-UdbOHaXOl6eA>
+X-ME-Sender: <xms:JJLnXstEDu8AK1tTFLLsPTtpKnL17O42PBOwLLv8Pi9v8P8cw9xQSQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudeikedgkeejucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgepuddunecurfgrrhgrmh
+    keefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgepuddvnecurfgrrhgrmh
     epmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:DJLnXpPRe7Er4gU6IwIaNfK7SP6TfndnooTm8fxLxZPYgPJXEczI7A>
-    <xmx:DJLnXsil5nQl_crClonee1kKLHOVtjoQo4mRAW_SrpCpR3L5H0PI6w>
-    <xmx:DJLnXk-yaYifSkuH4zk5wuRBVB5eRLqkYT04MFDmKE5VwSVa_pegTA>
-    <xmx:DJLnXoUYIS3rrvZyKjomwGkj2yFdcKADypwLLipIjXgR889NfJutOjOUo8g>
+X-ME-Proxy: <xmx:JJLnXpfI-1eHsodY8SCmUUdtUmHA-R7wjAQI9leEqejsmc9wQ3tKEA>
+    <xmx:JJLnXnxqAIHVTrJE_7kKncsuSwYFm_RAfEqAEOxYBV6t7FpooI-5mQ>
+    <xmx:JJLnXvMqDESP1qzxDqCOfau2AvOMRwG9qSLCYhX6qhzzSNrqK1CoMA>
+    <xmx:JJLnXlLXoe9ZvjcdWkFSF01NC892FgTFIK_8wFXn-fl25YG2dF0TU-sOA78>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 83C903280066;
-        Mon, 15 Jun 2020 11:21:48 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] spi: pxa2xx: Fix runtime PM ref imbalance on probe error" failed to apply to 4.19-stable tree
-To:     lukas@wunner.de, andriy.shevchenko@linux.intel.com,
-        broonie@kernel.org, jarkko.nikula@linux.intel.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 045B63280068;
+        Mon, 15 Jun 2020 11:22:11 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] spi: bcm2835: Fix controller unregister order" failed to apply to 4.19-stable tree
+To:     lukas@wunner.de, broonie@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 15 Jun 2020 17:21:37 +0200
-Message-ID: <15922344972213@kroah.com>
+Date:   Mon, 15 Jun 2020 17:22:00 +0200
+Message-ID: <1592234520147134@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -70,38 +69,59 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 65e318e17358a3fd4fcb5a69d89b14016dee2f06 Mon Sep 17 00:00:00 2001
+From 9dd277ff92d06f6aa95b39936ad83981d781f49b Mon Sep 17 00:00:00 2001
 From: Lukas Wunner <lukas@wunner.de>
-Date: Mon, 25 May 2020 14:25:03 +0200
-Subject: [PATCH] spi: pxa2xx: Fix runtime PM ref imbalance on probe error
+Date: Fri, 15 May 2020 17:58:02 +0200
+Subject: [PATCH] spi: bcm2835: Fix controller unregister order
 
-The PXA2xx SPI driver releases a runtime PM ref in the probe error path
-even though it hasn't acquired a ref earlier.
+The BCM2835 SPI driver uses devm_spi_register_controller() on bind.
+As a consequence, on unbind, __device_release_driver() first invokes
+bcm2835_spi_remove() before unregistering the SPI controller via
+devres_release_all().
 
-Apparently commit e2b714afee32 ("spi: pxa2xx: Disable runtime PM if
-controller registration fails") sought to copy-paste the invocation of
-pm_runtime_disable() from pxa2xx_spi_remove(), but erroneously copied
-the call to pm_runtime_put_noidle() as well.  Drop it.
+This order is incorrect:  bcm2835_spi_remove() tears down the DMA
+channels and turns off the SPI controller, including its interrupts
+and clock.  The SPI controller is thus no longer usable.
 
-Fixes: e2b714afee32 ("spi: pxa2xx: Disable runtime PM if controller registration fails")
+When the SPI controller is subsequently unregistered, it unbinds all
+its slave devices.  If their drivers need to access the SPI bus,
+e.g. to quiesce their interrupts, unbinding will fail.
+
+As a rule, devm_spi_register_controller() must not be used if the
+->remove() hook performs teardown steps which shall be performed
+after unbinding of slaves.
+
+Fix by using the non-devm variant spi_register_controller().  Note that
+the struct spi_controller as well as the driver-private data are not
+freed until after bcm2835_spi_remove() has finished, so accessing them
+is safe.
+
+Fixes: 247263dba208 ("spi: bcm2835: use devm_spi_register_master()")
 Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Reviewed-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: stable@vger.kernel.org # v4.17+
-Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Link: https://lore.kernel.org/r/58b2ac6942ca1f91aaeeafe512144bc5343e1d84.1590408496.git.lukas@wunner.de
+Cc: stable@vger.kernel.org # v3.13+
+Link: https://lore.kernel.org/r/2397dd70cdbe95e0bc4da2b9fca0f31cb94e5aed.1589557526.git.lukas@wunner.de
 Signed-off-by: Mark Brown <broonie@kernel.org>
 
-diff --git a/drivers/spi/spi-pxa2xx.c b/drivers/spi/spi-pxa2xx.c
-index f456ce18f79e..f6e87344a36c 100644
---- a/drivers/spi/spi-pxa2xx.c
-+++ b/drivers/spi/spi-pxa2xx.c
-@@ -1893,7 +1893,6 @@ static int pxa2xx_spi_probe(struct platform_device *pdev)
- 	return status;
+diff --git a/drivers/spi/spi-bcm2835.c b/drivers/spi/spi-bcm2835.c
+index 11c235879bb7..fd887a6492f4 100644
+--- a/drivers/spi/spi-bcm2835.c
++++ b/drivers/spi/spi-bcm2835.c
+@@ -1347,7 +1347,7 @@ static int bcm2835_spi_probe(struct platform_device *pdev)
+ 		goto out_dma_release;
+ 	}
  
- out_error_pm_runtime_enabled:
--	pm_runtime_put_noidle(&pdev->dev);
- 	pm_runtime_disable(&pdev->dev);
+-	err = devm_spi_register_controller(&pdev->dev, ctlr);
++	err = spi_register_controller(ctlr);
+ 	if (err) {
+ 		dev_err(&pdev->dev, "could not register SPI controller: %d\n",
+ 			err);
+@@ -1374,6 +1374,8 @@ static int bcm2835_spi_remove(struct platform_device *pdev)
  
- out_error_clock_enabled:
+ 	bcm2835_debugfs_remove(bs);
+ 
++	spi_unregister_controller(ctlr);
++
+ 	/* Clear FIFOs, and disable the HW block */
+ 	bcm2835_wr(bs, BCM2835_SPI_CS,
+ 		   BCM2835_SPI_CS_CLEAR_RX | BCM2835_SPI_CS_CLEAR_TX);
 
