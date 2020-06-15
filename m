@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DC241F9B37
-	for <lists+stable@lfdr.de>; Mon, 15 Jun 2020 17:00:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 19C9B1F9B38
+	for <lists+stable@lfdr.de>; Mon, 15 Jun 2020 17:00:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730860AbgFOPAc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jun 2020 11:00:32 -0400
-Received: from wforward5-smtp.messagingengine.com ([64.147.123.35]:38623 "EHLO
+        id S1730840AbgFOPAd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jun 2020 11:00:33 -0400
+Received: from wforward5-smtp.messagingengine.com ([64.147.123.35]:48419 "EHLO
         wforward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730854AbgFOPAb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Jun 2020 11:00:31 -0400
+        by vger.kernel.org with ESMTP id S1730859AbgFOPAc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Jun 2020 11:00:32 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id 475F876E;
-        Mon, 15 Jun 2020 11:00:30 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Mon, 15 Jun 2020 11:00:30 -0400
+        by mailforward.west.internal (Postfix) with ESMTP id BF5CF793;
+        Mon, 15 Jun 2020 11:00:31 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Mon, 15 Jun 2020 11:00:32 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=nikRID
-        DBUIkB4P8oJ0pwuaqTDPNssmtlxxXvDkY+BKM=; b=TGv/Fc7swTecsCMYAeoaIZ
-        J7RbF6qyt545RTgc/FowDGQkraQtwJh/9zxuYK9Zo99wlWVRAhaMNLbK6ffP/cz8
-        vng/JsdkZWBMM14wDfkgzXXL3y6/M//wF8L0HrFXg9BsyJV8TiQlsAxWKfFOxHnL
-        UMEA4gv8QURGPUSTV5UVnhD07IvlhmLJU9FTtZOB7XHPg2py1nc8m3s1TYayqz0u
-        yCJTLOfz6P3HZfEwFoQ4Ayd9qlsBb1V71OyM/NfdO23GXgaijRMqxQXOqg489QGK
-        Yh8khedIiGwowBBudSUqEcWSzAjAbiiRpWfLSR7PJFbXy2o0OyAY24TMNo+B5fJg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=PRjlmM
+        UENDQewJaDz/XcZeFud5OJRkyqbEbe7G1CBrY=; b=b0fiMwwwU2b5To92Y9yqPr
+        L3BH8Lms7qJYkn4cZfoQvVfmdJYKq4JZFz7KBNhbPRboZvNzxYY84L5ZZdut7ZLS
+        5vzYj4fFo3Iokh1t/T4HSXy9y1J3sQH7B8z3SLVkWGFcH19hquhHOIJME11Hdz6I
+        EuMI78WEiwG4fZXCzieUWqMPvnzKsTXdWBFhKt5MQy52BKskqwLUm0dLPPyl+qkL
+        ZoJu8C5bNBoC0nbwxujemdV2zM8riw8Yj9HWbXSmQmbWJGTuocbUi6FHcGgAnKVo
+        NbHLxELf9jZK7sFYTm4nUnEdTDlhwsedGNBs0kY2FngK6UjwZmy9/Ba2bK1AzMHw
         ==
-X-ME-Sender: <xms:DY3nXlMOQ-fq2Zy8Z0LmoRyHZEW4aqCfDfJYtVmtbRMF_THrC4ANbQ>
+X-ME-Sender: <xms:Do3nXiqb66wUO2Huibjfx4-YRRfSECTHNYlEMk8IhN93kyQXqHOZ6A>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudeikedgkeefucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
@@ -36,20 +36,20 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudeikedgkeefucetufdoteggod
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
     keefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgepudenucfrrghrrghmpe
     hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:DY3nXn_H5SzH0jyyD_UQdR2jmlaCQpIurw1-jGTqWVT0r6vdOguDBQ>
-    <xmx:DY3nXkRjhpFo_GXJZMeyWsrr1moWJ9KkskTOEgCa7rYXjasAEEoDUQ>
-    <xmx:DY3nXhvI-nJ6nP-v2iw4UT5AbXYxv217IgynY45eIebIIzQKHlrSZg>
-    <xmx:DY3nXtGb2mBDekWFZdNQjN6OXo1xuJcACmwO13vixEOF4Zcl3pONFxz9Umo>
+X-ME-Proxy: <xmx:D43nXgrpZgxgJ9j_lnTShQtgjy5bz5cpiobtWdjV7V4_auD4kEvN_A>
+    <xmx:D43nXnONyDXjSEUYwaEYhd1w7dNWekL5ytI694dFB9S5w2QT88AuQw>
+    <xmx:D43nXh74YHoXHNfYuYazbQak6_ToIlFsZiut7EbRFxoxyY4yHW0ufA>
+    <xmx:D43nXjSpR5ooQxjTAOHXuJ-QOKsL7YUBoqUHt595O7rvE0GW7PG69Sf7iwY>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 1401630618B7;
-        Mon, 15 Jun 2020 11:00:28 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] x86/{mce,mm}: Unmap the entire page if the whole page is" failed to apply to 5.4-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 9328B3280060;
+        Mon, 15 Jun 2020 11:00:30 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] x86/{mce,mm}: Unmap the entire page if the whole page is" failed to apply to 5.6-stable tree
 To:     tony.luck@intel.com, bp@suse.de, juew@google.com,
         stable@vger.kernel.org, tglx@linutronix.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 15 Jun 2020 17:00:12 +0200
-Message-ID: <15922332128410@kroah.com>
+Date:   Mon, 15 Jun 2020 17:00:13 +0200
+Message-ID: <15922332135132@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.6-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
