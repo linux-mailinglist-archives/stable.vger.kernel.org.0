@@ -2,82 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 541161F8ABF
-	for <lists+stable@lfdr.de>; Sun, 14 Jun 2020 22:44:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 15B541F8C09
+	for <lists+stable@lfdr.de>; Mon, 15 Jun 2020 03:19:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727793AbgFNUoQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Jun 2020 16:44:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43930 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726844AbgFNUoQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 14 Jun 2020 16:44:16 -0400
-Received: from mail-lj1-x22b.google.com (mail-lj1-x22b.google.com [IPv6:2a00:1450:4864:20::22b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F58CC08C5C2
-        for <stable@vger.kernel.org>; Sun, 14 Jun 2020 13:44:15 -0700 (PDT)
-Received: by mail-lj1-x22b.google.com with SMTP id s1so16760240ljo.0
-        for <stable@vger.kernel.org>; Sun, 14 Jun 2020 13:44:15 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:from:date:message-id:subject:to:cc;
-        bh=5M48B4L92DeZOP5t4irBa43CHn1nEXUvPd4V7AjWpmg=;
-        b=mnYzMlIssSrOfqMkbiMQRw/w1iuBn/lmD7GIhxrrJq59vLofDZUt8aTjM8oXcbsNe/
-         34oKT42xfBW4QScNiuwhJ11PkGYKPN7CsKVKnri8lC/0glLGF7dzKSBf6Rb0hee2pZYR
-         KDJlEPFh5t7KQXFX2AMTPb0b1S8OGRIi8cPCTM0sb5RmanrDpzRktgNNxFIX/XHnXLjk
-         HIfffUzt3k7Px2WQb9PAFxnyt8nh6TEuuI1TP+jDQIO2NwL7pTp7BLCv9D/YY1kcgihE
-         vgnn6tQSBuZxAmigmqHm/w1DouKRR7DTkIh+yREHY2gQE3UA3XKyhWHCJPV/Lj475hGx
-         wiIA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
-        bh=5M48B4L92DeZOP5t4irBa43CHn1nEXUvPd4V7AjWpmg=;
-        b=ef56T2flKFsHdLBvVinm/QjME9Fx7tdM+786IzAlyGfHs1Zr7BYPEXrsEW0CVGKcmc
-         ZKqPtSXOD6e39zQ17ijGozeCdFymLP2wfs7BQQ4IUxfWZsu7TJRTu1xKYTngAPkkBw+c
-         Z9AHpOEYLoPJB/lLuK6mEb4snBHjfThI92cMB1T3MqL7quzlHS1ExAZ59I4AMzRiNpnn
-         9rPlSf07DkrnB2UilUXlsCVXo939SmQZ8zSTG80V+FLfcQh4UR4KKb5WqCW15pifn7Tt
-         4MR6g58PoOPz0T/Z1BIjzCpzuiG8HJBI0BGW0revtNzSsNelD9xgdlDqBdSClLM70wDw
-         SStw==
-X-Gm-Message-State: AOAM532M2ROGzfBHOhnEsa4Or0EiXYnF+w9vFg3QDf1NR0IHaef0pKCa
-        RX54z3+JH757mQMvO6aMOxdZ5ElqK3YCctBzChTH2WatGgI=
-X-Google-Smtp-Source: ABdhPJytpkr1xNxbpX5p50QisGEsqWGeevq3vtc9xRu5K2dP/XaYRbyKmVnvwZ9kPwM9nsT81MpgcwOTM9VTXx+pXRs=
-X-Received: by 2002:a2e:a16d:: with SMTP id u13mr11802305ljl.362.1592167452733;
- Sun, 14 Jun 2020 13:44:12 -0700 (PDT)
+        id S1728031AbgFOBTF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Jun 2020 21:19:05 -0400
+Received: from szxga06-in.huawei.com ([45.249.212.32]:42246 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1727969AbgFOBTF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 14 Jun 2020 21:19:05 -0400
+Received: from DGGEMS409-HUB.china.huawei.com (unknown [172.30.72.58])
+        by Forcepoint Email with ESMTP id 334B27D8576459A523DB;
+        Mon, 15 Jun 2020 09:19:03 +0800 (CST)
+Received: from [127.0.0.1] (10.166.213.7) by DGGEMS409-HUB.china.huawei.com
+ (10.3.19.209) with Microsoft SMTP Server id 14.3.487.0; Mon, 15 Jun 2020
+ 09:19:01 +0800
+Subject: Re: [PATCH] powerpc/fsl_booke/32: fix build with
+ CONFIG_RANDOMIZE_BASE
+To:     Arseny Solokha <asolokha@kb.kras.ru>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        <linuxppc-dev@lists.ozlabs.org>
+CC:     Scott Wood <oss@buserror.net>,
+        Christophe Leroy <christophe.leroy@c-s.fr>,
+        <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>
+References: <20200613162801.1946619-1-asolokha@kb.kras.ru>
+From:   Jason Yan <yanaijie@huawei.com>
+Message-ID: <48e8cd6c-9128-e8f0-6fd6-0f93b84629ca@huawei.com>
+Date:   Mon, 15 Jun 2020 09:19:00 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
+ Thunderbird/68.4.2
 MIME-Version: 1.0
-From:   William Dauchy <wdauchy@gmail.com>
-Date:   Sun, 14 Jun 2020 22:44:00 +0200
-Message-ID: <CAJ75kXa6U1w2ahZ3avX5OdM+pRA-5CaudeLD30o0rMVSaJkKhg@mail.gmail.com>
-Subject: backport status of two sctp commits
-To:     stable <stable@vger.kernel.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20200613162801.1946619-1-asolokha@kb.kras.ru>
+Content-Type: text/plain; charset="gbk"; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Originating-IP: [10.166.213.7]
+X-CFilter-Loop: Reflected
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
 
-I found the following sctp commits:
+ÔÚ 2020/6/14 0:28, Arseny Solokha Ð´µÀ:
+> Building the current 5.8 kernel for a e500 machine with
+> CONFIG_RANDOMIZE_BASE set yields the following failure:
+> 
+>    arch/powerpc/mm/nohash/kaslr_booke.c: In function 'kaslr_early_init':
+>    arch/powerpc/mm/nohash/kaslr_booke.c:387:2: error: implicit declaration
+> of function 'flush_icache_range'; did you mean 'flush_tlb_range'?
+> [-Werror=implicit-function-declaration]
+> 
+> Indeed, including asm/cacheflush.h into kaslr_booke.c fixes the build.
+> 
+> The issue dates back to the introduction of that file and probably went
+> unnoticed because there's no in-tree defconfig with CONFIG_RANDOMIZE_BASE
+> set.
+> 
+> Fixes: 2b0e86cc5de6 ("powerpc/fsl_booke/32: implement KASLR infrastructure")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Arseny Solokha <asolokha@kb.kras.ru>
+> ---
+>   arch/powerpc/mm/nohash/kaslr_booke.c | 1 +
+>   1 file changed, 1 insertion(+)
+> 
 
-582eea230536a6f104097dd46205822005d5fe3a ("sctp: fix possibly using a
-bad saddr with a given dst")
-backported in the following stable versions: v5.6.x, v5.5.x, v4.19.x,
-v4.14.x, v4.9.x, v4.4.x.
+Reviewed-by: Jason Yan <yanaijie@huawei.com>
 
-5c3e82fe159622e46e91458c1a6509c321a62820 ("sctp: fix refcount bug in
-sctp_wfree")
-backported in the following stable versions: v5.6.x, v5.5.x, v4.19.x,
-v4.14.x, v4.9.x
-
-However I cannot find them in v5.4.x yet. I checked stable queue on
-netdev side (http://patchwork.ozlabs.org/bundle/davem/stable/?state=*)
-but also main stable queue
-https://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-
-I was wondering whether it was an oversight or was it expected?
-
-Sorry for the noise if I'm mistaken.
-
-Best regards,
--- 
-William
