@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 07E861F98C6
+	by mail.lfdr.de (Postfix) with ESMTP id EAA461F98C8
 	for <lists+stable@lfdr.de>; Mon, 15 Jun 2020 15:33:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730611AbgFONdl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jun 2020 09:33:41 -0400
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:34343 "EHLO
+        id S1730615AbgFONdn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jun 2020 09:33:43 -0400
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:49721 "EHLO
         wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730602AbgFONdl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Jun 2020 09:33:41 -0400
+        by vger.kernel.org with ESMTP id S1730604AbgFONdm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Jun 2020 09:33:42 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id 8BDBC621;
-        Mon, 15 Jun 2020 09:33:38 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Mon, 15 Jun 2020 09:33:38 -0400
+        by mailforward.west.internal (Postfix) with ESMTP id 05C8C689;
+        Mon, 15 Jun 2020 09:33:39 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Mon, 15 Jun 2020 09:33:40 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=98vHTh
-        yhRtHgad0Y8xOK9VrGzDMStRcpiNzeuTEORn0=; b=SHCPbPcxO/giKztqsym61M
-        RsdJYTKX2HmhKDKxAf7hSAkbHzq2U9Bd2GkMFIi3rLbAuzgmkGyLi1SP3IREFZtO
-        rmZJ1auTsy2u1AhjqE2HQp7k4ZW5PkLvh42+xVAcDC8DW+7xY4UMY/8szR0WcEnt
-        rcgH/UDMtXFCLVYPEDvUEhyX5sdP6bYJ6nB4WGTd1uZgYHzPh3XWEVnQozcGLfhg
-        N9drwSrWv+t5/BYTwYZjsXdnq76UnAi7FXX8wlZLspyZG5L8B5Vz3DUi79horZy/
-        tOR18r7mkoCzxEJBIC8k8ZsV9EJWnHbykRHOElryShm+n419teH8gQm1GgZ7RQtw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=7zgO3x
+        YUAGFcgAMNmEhyZR37OL3WWtUotKhIt4Zg17c=; b=heOm4pjaW/zel/wgNMgUR8
+        1tLZ+jPbhstSJs6g9JEnYm0t5XOOWJfgYZWzf1TzFlJqGd5UlufzLbZXHEa5ko7N
+        Eo/Q92s93EZ+VgBo4ZiVjrG8Irkq6AnYScppnOtCx7rgDCeXYMuKEM06+2AQ4wda
+        KsX7tOt5CjCmpRnPtG6i2oJZNCuEK3caJJbosAp6twFV4Zi+MFuqcMfLF9awe6Yi
+        0auLLlh9xCik2RKhh8dor4cSCOZl6RqdxeLlLb1iSIgId4+JGHXO2GKyV53EJLhj
+        SsUFk+g0z4bgyJYlx9EwyY+xpjp6wRfBk6xL1UbAjLCLeTxB5h1ziYoPfW/rwliQ
         ==
-X-ME-Sender: <xms:snjnXlNHeukwC8pJeOlk8AmpqbdJGDKInEHKgtYuNzIl_W_-gXo4og>
+X-ME-Sender: <xms:s3jnXogSbTQktSEqvSdLN5TGcvcq6nRcTYBlDOlnJyn66STtxehPgA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudeikedgieeiucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepheetudeuieekueejkeefkeevjeegueegvdduueelle
     fhveeigfdukedvteeigeehnecuffhomhgrihhnpegrmhgurdgtohhmnecukfhppeekfedr
-    keeirdekledruddtjeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrih
+    keeirdekledruddtjeenucevlhhushhtvghrufhiiigvpedvnecurfgrrhgrmhepmhgrih
     hlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:snjnXn8Mn0f-aO4yfcGGdW7iiyWiqzxjDMidS9-Vra5HL3qpOjOPrQ>
-    <xmx:snjnXkTEZgKybCgMYilzscfl-2DFygE0ocsGdLbO6Mw3F9qNZnBi7A>
-    <xmx:snjnXhsVqoUefKM9H_vgTG8YgcUt0-FAa_tUBIxFdSHru2az-TfJOg>
-    <xmx:snjnXjqwYiMeK0FlXzzVJ8vObdwOYHcQTTwCqXM6Su2wtOhn6gkOrWnOGTQ>
+X-ME-Proxy: <xmx:s3jnXhAwbZ4Vt5_wimDjdNZcLlqUuOzwXSRsT478bpmnmsSqlRNwYQ>
+    <xmx:s3jnXgEvzLOm4DH9fKYR9CQgedsORBVuC-qNv_3kKKPiZ6UZPFbTig>
+    <xmx:s3jnXpRV-ncS2lSF6k0TuE-u4PqUgKUZ-rs9eNeIIAd4ICr9Pzyqsw>
+    <xmx:s3jnXutUAY95Y_crGR6lFSSIgngPpGfSHZWyDMIwm-zZ6v4GG0bhTNQ9Yqc>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id ABD3C328005D;
-        Mon, 15 Jun 2020 09:33:37 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] x86/speculation: Avoid force-disabling IBPB based on STIBP" failed to apply to 4.19-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 3D1A03060FE7;
+        Mon, 15 Jun 2020 09:33:39 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] x86/speculation: Avoid force-disabling IBPB based on STIBP" failed to apply to 4.4-stable tree
 To:     asteinhauser@google.com, tglx@linutronix.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 15 Jun 2020 15:33:25 +0200
-Message-ID: <159222800515682@kroah.com>
+Date:   Mon, 15 Jun 2020 15:33:26 +0200
+Message-ID: <15922280062664@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -58,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
