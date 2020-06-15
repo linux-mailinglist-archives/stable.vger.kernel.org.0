@@ -2,104 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 574BB1FA2D1
-	for <lists+stable@lfdr.de>; Mon, 15 Jun 2020 23:32:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F33C1FA38A
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 00:30:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729714AbgFOVcw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jun 2020 17:32:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44732 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726207AbgFOVcw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jun 2020 17:32:52 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AB47620707;
-        Mon, 15 Jun 2020 21:32:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592256772;
-        bh=0MyJgletJ8hYzh6YngJ6WSyQ17x8eEN7XswnVrUBpzw=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Gnul/6Fl2ES++QLBmVTG/cvLDZAlkbaQkQtT/YrvfKqa4euxPJpSzhXB20X5kBzHI
-         vW7Nwj10FG0XM3omiGcrQ5cI61u2RnmN+zRwcxR7BuQVbph6Ni+aOMy8Wqi3TcKyAF
-         muSLwclfZzrz85T+O9bzCC79t4ipLYTcz6FIp7vc=
-Date:   Mon, 15 Jun 2020 17:32:50 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     gregkh@linuxfoundation.org
-Cc:     lukas@wunner.de, andriy.shevchenko@linux.intel.com,
-        baruch@tkos.co.il, broonie@kernel.org, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] spi: dw: Fix controller unregister order"
- failed to apply to 4.14-stable tree
-Message-ID: <20200615213250.GD1931@sasha-vm>
-References: <159223441416477@kroah.com>
+        id S1726313AbgFOWao (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jun 2020 18:30:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56052 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725960AbgFOWao (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Jun 2020 18:30:44 -0400
+Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44CEFC061A0E;
+        Mon, 15 Jun 2020 15:30:44 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20170209; h=Content-Transfer-Encoding:
+        Content-Type:In-Reply-To:MIME-Version:Date:Message-ID:From:References:Cc:To:
+        Subject:Sender:Reply-To:Content-ID:Content-Description;
+        bh=ZH82kEDnO4MMkOIjGxtV0H1o39gUn4nitjKfcLCk7bA=; b=N7zGJZ9ho6W/pZmaGsLZ5NOmPb
+        pGTG510/UaeSqZd3M4FvHGLwMlBWsRjEMxyDHoGVJ/gojhscjSkotbiQEnM9RVR/pKiIMxd6NVSAD
+        BuiA8MJFqJIt5xrtnB0SUk6jqPGGjKL2Ek0TucFtUjPx5Zxa3GG38wWGq1Mt9/YK8mR7ZVkZYAd75
+        W9FhQRpaHr9iSDm73wrzGmsGVrCdbM2fT/unVxyZI7vj7HbUVOwMtcSUHO+SM0Na0XVRiyI/9ssK+
+        fXivfpbLPxNTrRMslL0kE3gdxrmeJx4wKGAXto/08t3r0uTiKcRXPi+TXeUrzua+CTXrvDwqVeffs
+        Xj6Zo/bw==;
+Received: from [2601:1c0:6280:3f0::19c2]
+        by bombadil.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1jkxcp-0000tN-9X; Mon, 15 Jun 2020 22:30:43 +0000
+Subject: Re: [PATCH 1/4] proc/bootconfig: Fix to use correct quotes for value
+To:     Steven Rostedt <rostedt@goodmis.org>, Joe Perches <joe@perches.com>
+Cc:     Masami Hiramatsu <mhiramat@kernel.org>, stable@vger.kernel.org,
+        LKML <linux-kernel@vger.kernel.org>
+References: <159197538852.80267.10091816844311950396.stgit@devnote2>
+ <159197539793.80267.10836787284189465765.stgit@devnote2>
+ <20200615151139.5cc223fc@oasis.local.home>
+ <7abefbc81fc6aaefed6bbd2117e7bc97b90babe9.camel@perches.com>
+ <20200615172123.1fe77f3c@oasis.local.home>
+From:   Randy Dunlap <rdunlap@infradead.org>
+Message-ID: <ddb4adb9-bf01-abd4-38dd-d6d064569d6e@infradead.org>
+Date:   Mon, 15 Jun 2020 15:30:41 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.9.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <159223441416477@kroah.com>
+In-Reply-To: <20200615172123.1fe77f3c@oasis.local.home>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jun 15, 2020 at 05:20:14PM +0200, gregkh@linuxfoundation.org wrote:
->
->The patch below does not apply to the 4.14-stable tree.
->If someone wants it applied there, or to any other stable or longterm
->tree, then please email the backport, including the original git commit
->id to <stable@vger.kernel.org>.
->
->thanks,
->
->greg k-h
->
->------------------ original commit in Linus's tree ------------------
->
->From ca8b19d61e3fce5d2d7790cde27a0b57bcb3f341 Mon Sep 17 00:00:00 2001
->From: Lukas Wunner <lukas@wunner.de>
->Date: Mon, 25 May 2020 14:25:01 +0200
->Subject: [PATCH] spi: dw: Fix controller unregister order
->
->The Designware SPI driver uses devm_spi_register_controller() on bind.
->As a consequence, on unbind, __device_release_driver() first invokes
->dw_spi_remove_host() before unregistering the SPI controller via
->devres_release_all().
->
->This order is incorrect:  dw_spi_remove_host() shuts down the chip,
->rendering the SPI bus inaccessible even though the SPI controller is
->still registered.  When the SPI controller is subsequently unregistered,
->it unbinds all its slave devices.  Because their drivers cannot access
->the SPI bus, e.g. to quiesce interrupts, the slave devices may be left
->in an improper state.
->
->As a rule, devm_spi_register_controller() must not be used if the
->->remove() hook performs teardown steps which shall be performed after
->unregistering the controller and specifically after unbinding of slaves.
->
->Fix by reverting to the non-devm variant of spi_register_controller().
->
->An alternative approach would be to use device-managed functions for all
->steps in dw_spi_remove_host(), e.g. by calling devm_add_action_or_reset()
->on probe.  However that approach would add more LoC to the driver and
->it wouldn't lend itself as well to backporting to stable.
->
->Fixes: 04f421e7b0b1 ("spi: dw: use managed resources")
->Signed-off-by: Lukas Wunner <lukas@wunner.de>
->Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
->Cc: stable@vger.kernel.org # v3.14+
->Cc: Baruch Siach <baruch@tkos.co.il>
->Link: https://lore.kernel.org/r/3fff8cb8ae44a9893840d0688be15bb88c090a14.1590408496.git.lukas@wunner.de
->Signed-off-by: Mark Brown <broonie@kernel.org>
+On 6/15/20 2:21 PM, Steven Rostedt wrote:
+> On Mon, 15 Jun 2020 12:24:00 -0700
+> Joe Perches <joe@perches.com> wrote:
+> 
+>>> Hmm, shouldn't the above have the upside-down xmas tree format?
+>>>
+>>> 	struct xbc_node *leaf, *vnode;
+>>> 	char *key, *end = dst + size;
+>>> 	const char *val;
+>>> 	char q;
+>>> 	int ret = 0;  
+>>
+>> Please don't infect kernel sources with that style oddity.
+> 
+> What do you mean? It's already "infected" all over the kernel, (has
+> been for years!) and I kinda like it. It makes reading variables much
+> easier on the eyes, and as I get older, that means a lot more ;-)
 
-I took this additional patch:
+Yeah, there is some infection, more in some places than others,
+but I agree with Joe -- it's not needed or wanted by some of us.
 
-66b19d762378 ("spi: dw: fix possible race condition")
-
-And worked around the renames in :
-
-721483e28889 ("spi: dw: Convert to generalized SPI controller API")
-
-And queued these two patches for 4.14, 4.9, and 4.4.
 
 -- 
-Thanks,
-Sasha
+~Randy
+
