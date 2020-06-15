@@ -2,93 +2,182 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C33F61F9E31
-	for <lists+stable@lfdr.de>; Mon, 15 Jun 2020 19:13:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 774CD1F9EF4
+	for <lists+stable@lfdr.de>; Mon, 15 Jun 2020 20:00:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730970AbgFORNL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jun 2020 13:13:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34422 "EHLO mail.kernel.org"
+        id S1729862AbgFOSAN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jun 2020 14:00:13 -0400
+Received: from mga02.intel.com ([134.134.136.20]:50570 "EHLO mga02.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728585AbgFORNK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jun 2020 13:13:10 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EA85A20656;
-        Mon, 15 Jun 2020 17:13:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592241190;
-        bh=/sJhRQXhZDp1B/EEpvnskvVH6jfudfhtWBuKnN3whqo=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=mRGWtVvHvPXE7toOz/TQPS/RJ0xBnpl/z00wI8Cf8vKmH9WHIeNb+FTcGLPVvomT7
-         83Ck4fsSb4j0w2RSooBNux+Si3XA51R5/W4+Pwa4B4MBt34JB9sp3D7Qe92gdXPETx
-         /2E2V1f8YmvLh6zIMr2aVz0qGD8KTux+SJl1eqHw=
-Date:   Mon, 15 Jun 2020 13:13:08 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     gregkh@linuxfoundation.org
-Cc:     pbonzini@redhat.com, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] KVM: x86: only do L1TF workaround on
- affected processors" failed to apply to 4.19-stable tree
-Message-ID: <20200615171308.GF5492@sasha-vm>
-References: <159222779021249@kroah.com>
+        id S1728585AbgFOSAM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jun 2020 14:00:12 -0400
+IronPort-SDR: Z0TVx6EPNgak7rqOO7/oo0FP1Onzy+BxpS68RBdDm+0+9uWXsn2/+j4cXLI5KEzotho1/UWnpd
+ RdXVAXLiowsA==
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga005.jf.intel.com ([10.7.209.41])
+  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Jun 2020 11:00:07 -0700
+IronPort-SDR: bOEgbYn0PsJ2d0RmRhZMWR1s9x16PS2vE8450GwO760lhBgmLU2WbwvZHs3vVcP9XuyIb0PEfh
+ KvZUCyQyYQiQ==
+X-IronPort-AV: E=Sophos;i="5.73,515,1583222400"; 
+   d="scan'208";a="449485593"
+Received: from agluck-desk2.sc.intel.com ([10.3.52.68])
+  by orsmga005-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Jun 2020 11:00:07 -0700
+From:   Tony Luck <tony.luck@intel.com>
+To:     stable@vger.kernel.org
+Cc:     "Luck, Tony" <tony.luck@intel.com>, Jue Wang <juew@google.com>
+Subject: [PATCH stable 4.19, 5.4] x86/mm: Change so poison pages are either unmapped or marked uncacheable
+Date:   Mon, 15 Jun 2020 11:00:03 -0700
+Message-Id: <20200615180003.24390-1-tony.luck@intel.com>
+X-Mailer: git-send-email 2.21.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <159222779021249@kroah.com>
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jun 15, 2020 at 03:29:50PM +0200, gregkh@linuxfoundation.org wrote:
->
->The patch below does not apply to the 4.19-stable tree.
->If someone wants it applied there, or to any other stable or longterm
->tree, then please email the backport, including the original git commit
->id to <stable@vger.kernel.org>.
->
->thanks,
->
->greg k-h
->
->------------------ original commit in Linus's tree ------------------
->
->From d43e2675e96fc6ae1a633b6a69d296394448cc32 Mon Sep 17 00:00:00 2001
->From: Paolo Bonzini <pbonzini@redhat.com>
->Date: Tue, 19 May 2020 05:34:41 -0400
->Subject: [PATCH] KVM: x86: only do L1TF workaround on affected processors
->
->KVM stores the gfn in MMIO SPTEs as a caching optimization.  These are split
->in two parts, as in "[high 11111 low]", to thwart any attempt to use these bits
->in an L1TF attack.  This works as long as there are 5 free bits between
->MAXPHYADDR and bit 50 (inclusive), leaving bit 51 free so that the MMIO
->access triggers a reserved-bit-set page fault.
->
->The bit positions however were computed wrongly for AMD processors that have
->encryption support.  In this case, x86_phys_bits is reduced (for example
->from 48 to 43, to account for the C bit at position 47 and four bits used
->internally to store the SEV ASID and other stuff) while x86_cache_bits in
->would remain set to 48, and _all_ bits between the reduced MAXPHYADDR
->and bit 51 are set.  Then low_phys_bits would also cover some of the
->bits that are set in the shadow_mmio_value, terribly confusing the gfn
->caching mechanism.
->
->To fix this, avoid splitting gfns as long as the processor does not have
->the L1TF bug (which includes all AMD processors).  When there is no
->splitting, low_phys_bits can be set to the reduced MAXPHYADDR removing
->the overlap.  This fixes "npt=0" operation on EPYC processors.
->
->Thanks to Maxim Levitsky for bisecting this bug.
->
->Cc: stable@vger.kernel.org
->Fixes: 52918ed5fcf0 ("KVM: SVM: Override default MMIO mask if memory encryption is enabled")
->Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+From: "Luck, Tony" <tony.luck@intel.com>
 
-I took these two additional patches for 4.14 and 4.19:
+commit 17fae1294ad9d711b2c3dd0edef479d40c76a5e8 upstream
 
-26c44a63a291 ("KVM: x86/mmu: Consolidate "is MMIO SPTE" code")
-21dd7466353c ("kvm: x86: Fix L1TF mitigation for shadow MMU")
+An interesting thing happened when a guest Linux instance took
+a machine check. The VMM unmapped the bad page from guest physical
+space and passed the machine check to the guest.
 
+Linux took all the normal actions to offline the page from the process
+that was using it. But then guest Linux crashed because it said there
+was a second machine check inside the kernel with this stack trace:
+
+do_memory_failure
+    set_mce_nospec
+         set_memory_uc
+              _set_memory_uc
+                   change_page_attr_set_clr
+                        cpa_flush
+                             clflush_cache_range_opt
+
+This was odd, because a CLFLUSH instruction shouldn't raise a machine
+check (it isn't consuming the data). Further investigation showed that
+the VMM had passed in another machine check because is appeared that the
+guest was accessing the bad page.
+
+Fix is to check the scope of the poison by checking the MCi_MISC register.
+If the entire page is affected, then unmap the page. If only part of the
+page is affected, then mark the page as uncacheable.
+
+This assumes that VMMs will do the logical thing and pass in the "whole
+page scope" via the MCi_MISC register (since they unmapped the entire
+page).
+
+Reported-by: Jue Wang <juew@google.com>
+Tested-by: Jue Wang <juew@google.com>
+Fixes: 284ce4011ba6 ("x86/memory_failure: Introduce {set, clear}_mce_nospec()")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Tony Luck <tony.luck@intel.com>
+Signed-off-by: Tony Luck <tony.luck@intel.com>
+Link: https://lore.kernel.org/r/20200520163546.GA7977@agluck-desk2.amr.corp.intel.com
+---
+ arch/x86/include/asm/set_memory.h | 19 +++++++++++++------
+ arch/x86/kernel/cpu/mce/core.c    | 11 +++++++++--
+ include/linux/set_memory.h        |  2 +-
+ 3 files changed, 23 insertions(+), 9 deletions(-)
+
+diff --git a/arch/x86/include/asm/set_memory.h b/arch/x86/include/asm/set_memory.h
+index 2ee8e469dcf5..162128cdfbf2 100644
+--- a/arch/x86/include/asm/set_memory.h
++++ b/arch/x86/include/asm/set_memory.h
+@@ -85,28 +85,35 @@ void set_kernel_text_rw(void);
+ void set_kernel_text_ro(void);
+ 
+ #ifdef CONFIG_X86_64
+-static inline int set_mce_nospec(unsigned long pfn)
++/*
++ * Prevent speculative access to the page by either unmapping
++ * it (if we do not require access to any part of the page) or
++ * marking it uncacheable (if we want to try to retrieve data
++ * from non-poisoned lines in the page).
++ */
++static inline int set_mce_nospec(unsigned long pfn, bool unmap)
+ {
+ 	unsigned long decoy_addr;
+ 	int rc;
+ 
+ 	/*
+-	 * Mark the linear address as UC to make sure we don't log more
+-	 * errors because of speculative access to the page.
+ 	 * We would like to just call:
+-	 *      set_memory_uc((unsigned long)pfn_to_kaddr(pfn), 1);
++	 *      set_memory_XX((unsigned long)pfn_to_kaddr(pfn), 1);
+ 	 * but doing that would radically increase the odds of a
+ 	 * speculative access to the poison page because we'd have
+ 	 * the virtual address of the kernel 1:1 mapping sitting
+ 	 * around in registers.
+ 	 * Instead we get tricky.  We create a non-canonical address
+ 	 * that looks just like the one we want, but has bit 63 flipped.
+-	 * This relies on set_memory_uc() properly sanitizing any __pa()
++	 * This relies on set_memory_XX() properly sanitizing any __pa()
+ 	 * results with __PHYSICAL_MASK or PTE_PFN_MASK.
+ 	 */
+ 	decoy_addr = (pfn << PAGE_SHIFT) + (PAGE_OFFSET ^ BIT(63));
+ 
+-	rc = set_memory_uc(decoy_addr, 1);
++	if (unmap)
++		rc = set_memory_np(decoy_addr, 1);
++	else
++		rc = set_memory_uc(decoy_addr, 1);
+ 	if (rc)
+ 		pr_warn("Could not invalidate pfn=0x%lx from 1:1 map\n", pfn);
+ 	return rc;
+diff --git a/arch/x86/kernel/cpu/mce/core.c b/arch/x86/kernel/cpu/mce/core.c
+index aecb15ba66cd..fd76e3733dd3 100644
+--- a/arch/x86/kernel/cpu/mce/core.c
++++ b/arch/x86/kernel/cpu/mce/core.c
+@@ -533,6 +533,13 @@ bool mce_is_memory_error(struct mce *m)
+ }
+ EXPORT_SYMBOL_GPL(mce_is_memory_error);
+ 
++static bool whole_page(struct mce *m)
++{
++	if (!mca_cfg.ser || !(m->status & MCI_STATUS_MISCV))
++		return true;
++	return MCI_MISC_ADDR_LSB(m->misc) >= PAGE_SHIFT;
++}
++
+ bool mce_is_correctable(struct mce *m)
+ {
+ 	if (m->cpuvendor == X86_VENDOR_AMD && m->status & MCI_STATUS_DEFERRED)
+@@ -601,7 +608,7 @@ static int srao_decode_notifier(struct notifier_block *nb, unsigned long val,
+ 	if (mce_usable_address(mce) && (mce->severity == MCE_AO_SEVERITY)) {
+ 		pfn = mce->addr >> PAGE_SHIFT;
+ 		if (!memory_failure(pfn, 0))
+-			set_mce_nospec(pfn);
++			set_mce_nospec(pfn, whole_page(mce));
+ 	}
+ 
+ 	return NOTIFY_OK;
+@@ -1103,7 +1110,7 @@ static int do_memory_failure(struct mce *m)
+ 	if (ret)
+ 		pr_err("Memory error not recovered");
+ 	else
+-		set_mce_nospec(m->addr >> PAGE_SHIFT);
++		set_mce_nospec(m->addr >> PAGE_SHIFT, whole_page(m));
+ 	return ret;
+ }
+ 
+diff --git a/include/linux/set_memory.h b/include/linux/set_memory.h
+index 86281ac7c305..860e0f843c12 100644
+--- a/include/linux/set_memory.h
++++ b/include/linux/set_memory.h
+@@ -26,7 +26,7 @@ static inline int set_direct_map_default_noflush(struct page *page)
+ #endif
+ 
+ #ifndef set_mce_nospec
+-static inline int set_mce_nospec(unsigned long pfn)
++static inline int set_mce_nospec(unsigned long pfn, bool unmap)
+ {
+ 	return 0;
+ }
 -- 
-Thanks,
-Sasha
+2.21.1
+
