@@ -2,64 +2,64 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B4AD61FA157
-	for <lists+stable@lfdr.de>; Mon, 15 Jun 2020 22:21:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F04C1FA15E
+	for <lists+stable@lfdr.de>; Mon, 15 Jun 2020 22:23:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731015AbgFOUVD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jun 2020 16:21:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58486 "EHLO mail.kernel.org"
+        id S1728870AbgFOUVz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jun 2020 16:21:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59036 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730995AbgFOUVD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jun 2020 16:21:03 -0400
+        id S1731467AbgFOUVy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jun 2020 16:21:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 96E892074D;
-        Mon, 15 Jun 2020 20:21:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C17B02074D;
+        Mon, 15 Jun 2020 20:21:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592252462;
-        bh=ZHzqOyPZgyQtRrzhN3yGvrB4wrOElA05Gb0sW+MnX04=;
+        s=default; t=1592252513;
+        bh=Dw9Kj1Eh/GPhSFI5HK0KidQanqNj4ZjQFHrlJ2mp3z8=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=xncANb0CfueEv/vLhc/beFfkwNR1I94L2TJ9iAb7eFVnAg/jfmZ0D+cieERe/+kzB
-         5f/rpLqxzxMHxF6UHIsZp869EFz3Y83eEm82ZNtjIIIONacBVAGyybHEfBHJx9QJmf
-         k78DBlQa8Y0pvD1UsVMseD2YKkpJVFK5lgW4cO4w=
-Date:   Mon, 15 Jun 2020 22:20:57 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Jens Axboe <axboe@kernel.dk>
-Cc:     asml.silence@gmail.com, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] io_uring: fix flush req->refs underflow"
- failed to apply to 5.6-stable tree
-Message-ID: <20200615202057.GA437074@kroah.com>
-References: <159222954019964@kroah.com>
- <a4ac1fdd-576c-9cff-bc54-4d090f2bad2c@kernel.dk>
+        b=MKNfETPsAk2jOETo0b+q9pgRgsCUo+2vVoyEIaocYgJLEEfcK8e4C/90spr5EtUNe
+         UU5RBnJwirzTyT0wH7Yssce3cBT95ymniDoEscciiGRBntjoPB59yy58URZBMiKkw7
+         LX5+T1xDoE8671S/pW+kQc23Dx6bnNMgaylTdeog=
+Date:   Mon, 15 Jun 2020 22:21:48 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Takashi Iwai <tiwai@suse.de>
+Cc:     stable@vger.kernel.org,
+        =?utf-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirq-linux@rere.qmqm.pl>
+Subject: Re: [PATCH 4.19.y] ALSA: pcm: disallow linking stream to itself
+Message-ID: <20200615202148.GB437074@kroah.com>
+References: <20200615154119.1612-1-tiwai@suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <a4ac1fdd-576c-9cff-bc54-4d090f2bad2c@kernel.dk>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200615154119.1612-1-tiwai@suse.de>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jun 15, 2020 at 09:18:29AM -0600, Jens Axboe wrote:
-> On 6/15/20 7:59 AM, gregkh@linuxfoundation.org wrote:
-> > 
-> > The patch below does not apply to the 5.6-stable tree.
-> > If someone wants it applied there, or to any other stable or longterm
-> > tree, then please email the backport, including the original git commit
-> > id to <stable@vger.kernel.org>.
+On Mon, Jun 15, 2020 at 05:41:19PM +0200, Takashi Iwai wrote:
+> From: Michał Mirosław <mirq-linux@rere.qmqm.pl>
 > 
-> Greg, if you could cherry pick this one:
+> commit 951e2736f4b11b58dc44d41964fa17c3527d882a upstream.
 > 
-> commit d8f1b9716cfd1a1f74c0fedad40c5f65a25aa208
-> Author: Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>
-> Date:   Sun Apr 26 15:54:43 2020 +0800
+> Prevent SNDRV_PCM_IOCTL_LINK linking stream to itself - the code
+> can't handle it. Fixed commit is not where bug was introduced, but
+> changes the context significantly.
 > 
->     io_uring: fix mismatched finish_wait() calls in io_uring_cancel_files()
+> Cc: stable@vger.kernel.org
+> Fixes: 0888c321de70 ("pcm_native: switch to fdget()/fdput()")
+> Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+> Link: https://lore.kernel.org/r/89c4a2487609a0ed6af3ecf01cc972bdc59a7a2d.1591634956.git.mirq-linux@rere.qmqm.pl
+> Signed-off-by: Takashi Iwai <tiwai@suse.de>
 > 
-> first (which should also go into stable), the below will apply without
-> conflicts after that.
+> ---
+> 
+> Backported to 4.19.y.  It can be used for older branches, too.
 
-That worked great, thanks!
+Thanks, that worked.
 
 greg k-h
