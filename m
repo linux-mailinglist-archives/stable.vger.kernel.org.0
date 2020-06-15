@@ -2,101 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 18D441FA15F
-	for <lists+stable@lfdr.de>; Mon, 15 Jun 2020 22:23:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 164371FA166
+	for <lists+stable@lfdr.de>; Mon, 15 Jun 2020 22:25:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731472AbgFOUV7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jun 2020 16:21:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59136 "EHLO mail.kernel.org"
+        id S1729692AbgFOUZA convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Mon, 15 Jun 2020 16:25:00 -0400
+Received: from mga09.intel.com ([134.134.136.24]:27877 "EHLO mga09.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731467AbgFOUV7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jun 2020 16:21:59 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 19DC32074D;
-        Mon, 15 Jun 2020 20:21:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592252518;
-        bh=HI2BAY0H+qIOEZCzlTFo/ESz0Cmw03+IY6nmq2ZwN4M=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=DrYkvP4zVUo1z45W0u+1HZR1Aewv3M7zepx/+DhV1TwcqwmmYnY9uGUTt4KOUAhqM
-         rFg0iMiselOd7LCSWpbcvWqNm14GncyQWR6fNaTHUrjqAwSJPCJgS+wjFhnWpvdGIs
-         5tHIvJPYbMwF/4fN7yC6i+0JNH2ZrbTwePEQ8yeA=
-Date:   Mon, 15 Jun 2020 16:21:57 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     gregkh@linuxfoundation.org
-Cc:     tony.luck@intel.com, bp@suse.de, juew@google.com,
-        stable@vger.kernel.org, tglx@linutronix.de
-Subject: Re: FAILED: patch "[PATCH] x86/{mce,mm}: Unmap the entire page if
+        id S1728346AbgFOUZA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jun 2020 16:25:00 -0400
+IronPort-SDR: FF5O2tkpqGQA7JYMoW20ZWPcpxmwanSP59MbDWx8F/NwoeVexrbXqd7IaZXl1ePFrIoQ++35+4
+ 1RKsRXGNJNFQ==
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga005.jf.intel.com ([10.7.209.41])
+  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Jun 2020 13:24:59 -0700
+IronPort-SDR: 7N9t9KzsH/ks2ucGsS5IshxutQAHc2Ds7rXZC+ei1U2NRxrOTth5mutDh5hkJum/H0bQcvNv3d
+ x85hTYXGlu6w==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.73,516,1583222400"; 
+   d="scan'208";a="449533041"
+Received: from orsmsx102.amr.corp.intel.com ([10.22.225.129])
+  by orsmga005.jf.intel.com with ESMTP; 15 Jun 2020 13:24:59 -0700
+Received: from orsmsx157.amr.corp.intel.com (10.22.240.23) by
+ ORSMSX102.amr.corp.intel.com (10.22.225.129) with Microsoft SMTP Server (TLS)
+ id 14.3.439.0; Mon, 15 Jun 2020 13:24:59 -0700
+Received: from orsmsx115.amr.corp.intel.com ([169.254.4.56]) by
+ ORSMSX157.amr.corp.intel.com ([169.254.9.197]) with mapi id 14.03.0439.000;
+ Mon, 15 Jun 2020 13:24:58 -0700
+From:   "Luck, Tony" <tony.luck@intel.com>
+To:     Sasha Levin <sashal@kernel.org>,
+        "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
+CC:     "bp@suse.de" <bp@suse.de>, "juew@google.com" <juew@google.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "tglx@linutronix.de" <tglx@linutronix.de>
+Subject: RE: FAILED: patch "[PATCH] x86/{mce,mm}: Unmap the entire page if
  the whole page is" failed to apply to 5.7-stable tree
-Message-ID: <20200615202157.GB1931@sasha-vm>
-References: <1592233210137106@kroah.com>
+Thread-Topic: FAILED: patch "[PATCH] x86/{mce,mm}: Unmap the entire page if
+ the whole page is" failed to apply to 5.7-stable tree
+Thread-Index: AQHWQyXBSx9FvQtjiE6jGf4+i7LSYqjalEmA//+K3tA=
+Date:   Mon, 15 Jun 2020 20:24:58 +0000
+Message-ID: <3908561D78D1C84285E8C5FCA982C28F7F66C7E9@ORSMSX115.amr.corp.intel.com>
+References: <1592233210137106@kroah.com> <20200615202157.GB1931@sasha-vm>
+In-Reply-To: <20200615202157.GB1931@sasha-vm>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+dlp-product: dlpe-windows
+dlp-version: 11.2.0.6
+dlp-reaction: no-action
+x-originating-ip: [10.22.254.138]
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <1592233210137106@kroah.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jun 15, 2020 at 05:00:10PM +0200, gregkh@linuxfoundation.org wrote:
+>>  [ bp: Adjust to x86/entry changes. ]
 >
->The patch below does not apply to the 5.7-stable tree.
->If someone wants it applied there, or to any other stable or longterm
->tree, then please email the backport, including the original git commit
->id to <stable@vger.kernel.org>.
+> We need to "unadjust" it for the stable branches, and I dare not do it
+> myself :)
 >
->thanks,
->
->greg k-h
->
->------------------ original commit in Linus's tree ------------------
->
->From 17fae1294ad9d711b2c3dd0edef479d40c76a5e8 Mon Sep 17 00:00:00 2001
->From: Tony Luck <tony.luck@intel.com>
->Date: Wed, 20 May 2020 09:35:46 -0700
->Subject: [PATCH] x86/{mce,mm}: Unmap the entire page if the whole page is
-> affected and poisoned
->
->An interesting thing happened when a guest Linux instance took a machine
->check. The VMM unmapped the bad page from guest physical space and
->passed the machine check to the guest.
->
->Linux took all the normal actions to offline the page from the process
->that was using it. But then guest Linux crashed because it said there
->was a second machine check inside the kernel with this stack trace:
->
->do_memory_failure
->    set_mce_nospec
->         set_memory_uc
->              _set_memory_uc
->                   change_page_attr_set_clr
->                        cpa_flush
->                             clflush_cache_range_opt
->
->This was odd, because a CLFLUSH instruction shouldn't raise a machine
->check (it isn't consuming the data). Further investigation showed that
->the VMM had passed in another machine check because is appeared that the
->guest was accessing the bad page.
->
->Fix is to check the scope of the poison by checking the MCi_MISC register.
->If the entire page is affected, then unmap the page. If only part of the
->page is affected, then mark the page as uncacheable.
->
->This assumes that VMMs will do the logical thing and pass in the "whole
->page scope" via the MCi_MISC register (since they unmapped the entire
->page).
->
->  [ bp: Adjust to x86/entry changes. ]
+> Would picking up the original version from the mailing list work here as
+> a backport?
 
-We need to "unadjust" it for the stable branches, and I dare not do it
-myself :)
+I posted versions to stable@vger.kernel.org based on the original earlier
+today. 5.6 & 5.7 applied cleanly. 5.4 and 4.19 needed another small tweak.
 
-Would picking up the original version from the mailing list work here as
-a backport?
-
--- 
-Thanks,
-Sasha
+-Tony
