@@ -2,161 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EF7B91F8F26
-	for <lists+stable@lfdr.de>; Mon, 15 Jun 2020 09:15:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D86231F8F28
+	for <lists+stable@lfdr.de>; Mon, 15 Jun 2020 09:15:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728518AbgFOHPn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jun 2020 03:15:43 -0400
-Received: from mx2.suse.de ([195.135.220.15]:52616 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728285AbgFOHPn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jun 2020 03:15:43 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx2.suse.de (Postfix) with ESMTP id A7244ADC1;
-        Mon, 15 Jun 2020 07:15:44 +0000 (UTC)
-Received: by quack2.suse.cz (Postfix, from userid 1000)
-        id 3D6351E1289; Mon, 15 Jun 2020 09:15:40 +0200 (CEST)
+        id S1728523AbgFOHPp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jun 2020 03:15:45 -0400
+Received: from mail-ej1-f68.google.com ([209.85.218.68]:45721 "EHLO
+        mail-ej1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728285AbgFOHPo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Jun 2020 03:15:44 -0400
+Received: by mail-ej1-f68.google.com with SMTP id o15so16222986ejm.12;
+        Mon, 15 Jun 2020 00:15:44 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=ezGycCaw0ibZSkNzIrgHWo9J2DFW467MFyh+xHFUz3E=;
+        b=O6yD+qSscWe0AfixLx9UHYAYt3C4Ne+1rqLzlIwd4EpQVQrsWAGyzJAvrddu9hjIUa
+         p7l8NPDbe80SF78zdC7Nwh/NzH0xBduJuS9sSb2XDUa3j+TcOwe/YHB4yxEGG2lOsVAW
+         kktxKloWBfuPQ1tmSqvDNjrEh85AV1zGU8OM11RlBmBit2l8FBcInSNbHwpqG/Wvqb09
+         Lcd+I5rSzJ+wTgEAUp//gptCqSCvgycYEGkVUv1HedOwCXGkAmDIhC+jMXdZuGvnFKyy
+         F6XdY/T1nEuQfqysyCHBwKek4g8Lq9QjwlWfQWeHlms1/UxLHaqoDRVGjG9kLw6gCYC9
+         /h5Q==
+X-Gm-Message-State: AOAM533syom01D5vpKpsW9mkQffOXL42f3ZCcUo0JXlh/njzzhaAnkPg
+        xh4eYBFvVmq6LZl2qGoQV0zl1yPf
+X-Google-Smtp-Source: ABdhPJyACgZYA4G7jO6h9SuACk7c2pkUmuJBW+93Py4P2vGIh/O8MANjOSByTqWqt4O5P0q6434xnw==
+X-Received: by 2002:a17:906:3158:: with SMTP id e24mr23753833eje.543.1592205343381;
+        Mon, 15 Jun 2020 00:15:43 -0700 (PDT)
+Received: from kozik-lap ([194.230.155.184])
+        by smtp.googlemail.com with ESMTPSA id o16sm8519215ejg.106.2020.06.15.00.15.41
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Mon, 15 Jun 2020 00:15:42 -0700 (PDT)
 Date:   Mon, 15 Jun 2020 09:15:40 +0200
-From:   Jan Kara <jack@suse.cz>
-To:     Martijn Coenen <maco@android.com>
-Cc:     Jan Kara <jack@suse.cz>, linux-fsdevel@vger.kernel.org,
-        Christoph Hellwig <hch@infradead.org>, stable@vger.kernel.org
-Subject: Re: [PATCH 2/4] writeback: Avoid skipping inode writeback
-Message-ID: <20200615071540.GB9449@quack2.suse.cz>
-References: <20200611075033.1248-1-jack@suse.cz>
- <20200611081203.18161-2-jack@suse.cz>
- <CAB0TPYFOtDdS8BRk6aMhhB_5nxw4N7unqHCjgLFNh=YZC3vywA@mail.gmail.com>
+From:   Krzysztof Kozlowski <krzk@kernel.org>
+To:     Vladimir Oltean <olteanv@gmail.com>
+Cc:     Mark Brown <broonie@kernel.org>,
+        Vladimir Oltean <vladimir.oltean@nxp.com>,
+        linux-spi <linux-spi@vger.kernel.org>,
+        lkml <linux-kernel@vger.kernel.org>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
+        Wolfram Sang <wsa@kernel.org>, stable@vger.kernel.org
+Subject: Re: [PATCH 1/2] spi: spi-fsl-dspi: Fix external abort on interrupt
+ in exit paths
+Message-ID: <20200615071540.GB20941@kozik-lap>
+References: <1592132154-20175-1-git-send-email-krzk@kernel.org>
+ <CA+h21hpsmG+xUjWgaNcSojxeWYm4bcbMsn6_hmZrJ0A3zfVEag@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <CAB0TPYFOtDdS8BRk6aMhhB_5nxw4N7unqHCjgLFNh=YZC3vywA@mail.gmail.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <CA+h21hpsmG+xUjWgaNcSojxeWYm4bcbMsn6_hmZrJ0A3zfVEag@mail.gmail.com>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri 12-06-20 10:03:18, Martijn Coenen wrote:
-> Hi Jan,
-> 
-> On Thu, Jun 11, 2020 at 10:12 AM Jan Kara <jack@suse.cz> wrote:
-> > Reported-by: Martijn Coenen <maco@android.com>
-> > Fixes: 0ae45f63d4ef ("vfs: add support for a lazytime mount option")
-> > CC: stable@vger.kernel.org
-> > Signed-off-by: Jan Kara <jack@suse.cz>
-> 
-> Thanks again for the fix. We've been running this (well, v1) for over
-> 2 weeks across at least ~1000 Android devices with different kernel
-> versions, and I can confirm we haven't run into the issue this intends
-> to fix, or any other issues for that matter. The patch LGTM as well.
-> 
-> Reviewed-by: Martijn Coenen <maco@android.com>
-> Tested-by: Martijn Coenen <maco@android.com>
-
-Thanks for testing and review! I'll queue the patches in my tree and push
-them to Linus later this week.
-
-								Honza
-
-
-> 
+On Sun, Jun 14, 2020 at 06:48:04PM +0300, Vladimir Oltean wrote:
+> On Sun, 14 Jun 2020 at 13:57, Krzysztof Kozlowski <krzk@kernel.org> wrote:
+> >
+> > If interrupt comes late, during probe error path or device remove (could
+> > be triggered with CONFIG_DEBUG_SHIRQ), the interrupt handler
+> > dspi_interrupt() will access registers with the clock being disabled.  This
+> > leads to external abort on non-linefetch on Toradex Colibri VF50 module
+> > (with Vybrid VF5xx):
+> >
+> >     $ echo 4002d000.spi > /sys/devices/platform/soc/40000000.bus/4002d000.spi/driver/unbind
+> >
+> >     Unhandled fault: external abort on non-linefetch (0x1008) at 0x8887f02c
+> >     Internal error: : 1008 [#1] ARM
+> >     CPU: 0 PID: 136 Comm: sh Not tainted 5.7.0-next-20200610-00009-g5c913fa0f9c5-dirty #74
+> >     Hardware name: Freescale Vybrid VF5xx/VF6xx (Device Tree)
+> >       (regmap_mmio_read32le) from [<8061885c>] (regmap_mmio_read+0x48/0x68)
+> >       (regmap_mmio_read) from [<8060e3b8>] (_regmap_bus_reg_read+0x24/0x28)
+> >       (_regmap_bus_reg_read) from [<80611c50>] (_regmap_read+0x70/0x1c0)
+> >       (_regmap_read) from [<80611dec>] (regmap_read+0x4c/0x6c)
+> >       (regmap_read) from [<80678ca0>] (dspi_interrupt+0x3c/0xa8)
+> >       (dspi_interrupt) from [<8017acec>] (free_irq+0x26c/0x3cc)
+> >       (free_irq) from [<8017dcec>] (devm_irq_release+0x1c/0x20)
+> >       (devm_irq_release) from [<805f98ec>] (release_nodes+0x1e4/0x298)
+> >       (release_nodes) from [<805f9ac8>] (devres_release_all+0x40/0x60)
+> >       (devres_release_all) from [<805f5134>] (device_release_driver_internal+0x108/0x1ac)
+> >       (device_release_driver_internal) from [<805f521c>] (device_driver_detach+0x20/0x24)
+> >
+> > The resource-managed framework should not be used for interrupt handling,
+> > because the resource will be released too late - after disabling clocks.
+> > The interrupt handler is not prepared for such case.
+> >
+> > Fixes: 349ad66c0ab0 ("spi:Add Freescale DSPI driver for Vybrid VF610 platform")
+> > Cc: <stable@vger.kernel.org>
+> > Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+> >
 > > ---
-> >  fs/fs-writeback.c  | 17 ++++++++++++-----
-> >  include/linux/fs.h |  8 ++++++--
-> >  2 files changed, 18 insertions(+), 7 deletions(-)
-> >
-> > diff --git a/fs/fs-writeback.c b/fs/fs-writeback.c
-> > index ff0b18331590..f470c10641c5 100644
-> > --- a/fs/fs-writeback.c
-> > +++ b/fs/fs-writeback.c
-> > @@ -146,6 +146,7 @@ static void inode_io_list_del_locked(struct inode *inode,
-> >         assert_spin_locked(&wb->list_lock);
-> >         assert_spin_locked(&inode->i_lock);
-> >
-> > +       inode->i_state &= ~I_SYNC_QUEUED;
-> >         list_del_init(&inode->i_io_list);
-> >         wb_io_lists_depopulated(wb);
-> >  }
-> > @@ -1187,6 +1188,7 @@ static void redirty_tail_locked(struct inode *inode, struct bdi_writeback *wb)
-> >                         inode->dirtied_when = jiffies;
-> >         }
-> >         inode_io_list_move_locked(inode, wb, &wb->b_dirty);
-> > +       inode->i_state &= ~I_SYNC_QUEUED;
-> >  }
-> >
-> >  static void redirty_tail(struct inode *inode, struct bdi_writeback *wb)
-> > @@ -1262,8 +1264,11 @@ static int move_expired_inodes(struct list_head *delaying_queue,
-> >                         break;
-> >                 list_move(&inode->i_io_list, &tmp);
-> >                 moved++;
-> > +               spin_lock(&inode->i_lock);
-> >                 if (flags & EXPIRE_DIRTY_ATIME)
-> > -                       set_bit(__I_DIRTY_TIME_EXPIRED, &inode->i_state);
-> > +                       inode->i_state |= I_DIRTY_TIME_EXPIRED;
-> > +               inode->i_state |= I_SYNC_QUEUED;
-> > +               spin_unlock(&inode->i_lock);
-> >                 if (sb_is_blkdev_sb(inode->i_sb))
-> >                         continue;
-> >                 if (sb && sb != inode->i_sb)
-> > @@ -1438,6 +1443,7 @@ static void requeue_inode(struct inode *inode, struct bdi_writeback *wb,
-> >         } else if (inode->i_state & I_DIRTY_TIME) {
-> >                 inode->dirtied_when = jiffies;
-> >                 inode_io_list_move_locked(inode, wb, &wb->b_dirty_time);
-> > +               inode->i_state &= ~I_SYNC_QUEUED;
-> >         } else {
-> >                 /* The inode is clean. Remove from writeback lists. */
-> >                 inode_io_list_del_locked(inode, wb);
-> > @@ -2301,11 +2307,12 @@ void __mark_inode_dirty(struct inode *inode, int flags)
-> >                 inode->i_state |= flags;
-> >
-> >                 /*
-> > -                * If the inode is being synced, just update its dirty state.
-> > -                * The unlocker will place the inode on the appropriate
-> > -                * superblock list, based upon its state.
-> > +                * If the inode is queued for writeback by flush worker, just
-> > +                * update its dirty state. Once the flush worker is done with
-> > +                * the inode it will place it on the appropriate superblock
-> > +                * list, based upon its state.
-> >                  */
-> > -               if (inode->i_state & I_SYNC)
-> > +               if (inode->i_state & I_SYNC_QUEUED)
-> >                         goto out_unlock_inode;
-> >
-> >                 /*
-> > diff --git a/include/linux/fs.h b/include/linux/fs.h
-> > index 19ef6c88c152..48556efcdcf0 100644
-> > --- a/include/linux/fs.h
-> > +++ b/include/linux/fs.h
-> > @@ -2157,6 +2157,10 @@ static inline void kiocb_clone(struct kiocb *kiocb, struct kiocb *kiocb_src,
-> >   *
-> >   * I_DONTCACHE         Evict inode as soon as it is not used anymore.
-> >   *
-> > + * I_SYNC_QUEUED       Inode is queued in b_io or b_more_io writeback lists.
-> > + *                     Used to detect that mark_inode_dirty() should not move
-> > + *                     inode between dirty lists.
-> > + *
-> >   * Q: What is the difference between I_WILL_FREE and I_FREEING?
-> >   */
-> >  #define I_DIRTY_SYNC           (1 << 0)
-> > @@ -2174,12 +2178,12 @@ static inline void kiocb_clone(struct kiocb *kiocb, struct kiocb *kiocb_src,
-> >  #define I_DIO_WAKEUP           (1 << __I_DIO_WAKEUP)
-> >  #define I_LINKABLE             (1 << 10)
-> >  #define I_DIRTY_TIME           (1 << 11)
-> > -#define __I_DIRTY_TIME_EXPIRED 12
-> > -#define I_DIRTY_TIME_EXPIRED   (1 << __I_DIRTY_TIME_EXPIRED)
-> > +#define I_DIRTY_TIME_EXPIRED   (1 << 12)
-> >  #define I_WB_SWITCH            (1 << 13)
-> >  #define I_OVL_INUSE            (1 << 14)
-> >  #define I_CREATING             (1 << 15)
-> >  #define I_DONTCACHE            (1 << 16)
-> > +#define I_SYNC_QUEUED          (1 << 17)
-> >
-> >  #define I_DIRTY_INODE (I_DIRTY_SYNC | I_DIRTY_DATASYNC)
-> >  #define I_DIRTY (I_DIRTY_INODE | I_DIRTY_PAGES)
-> > --
-> > 2.16.4
-> >
--- 
-Jan Kara <jack@suse.com>
-SUSE Labs, CR
+> 
+> I don't buy this argument that "the resource-managed framework should
+> not be used for interrupt handling". What is it there for, then?
+
+It was created long time ago for memory allocations and since then
+people ported to all other possibilities and used in drivers.  Just
+because you can do something, does not necessarily mean that you
+should...
+
+> Could you just call disable_irq before clk_disable_unprepare instead
+> of this massive rework?
+
+This massive rework is 9 insertions and 4 deletions, indeed I made
+impressive, huge commit with significant impact. disable_irq() could work
+as well so if this is preferred, no problem from my side.
+
+Best regards,
+Krzysztof
+
