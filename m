@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE6A51F9964
-	for <lists+stable@lfdr.de>; Mon, 15 Jun 2020 15:56:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 19D561F996B
+	for <lists+stable@lfdr.de>; Mon, 15 Jun 2020 15:57:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730075AbgFON4a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jun 2020 09:56:30 -0400
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:53655 "EHLO
+        id S1730094AbgFON5W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jun 2020 09:57:22 -0400
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:60633 "EHLO
         wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729977AbgFON41 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Jun 2020 09:56:27 -0400
+        by vger.kernel.org with ESMTP id S1729766AbgFON5W (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Jun 2020 09:57:22 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id 14B186BD;
-        Mon, 15 Jun 2020 09:56:24 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Mon, 15 Jun 2020 09:56:24 -0400
+        by mailforward.west.internal (Postfix) with ESMTP id EC3796D8;
+        Mon, 15 Jun 2020 09:57:20 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Mon, 15 Jun 2020 09:57:21 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=edky0O
-        vejDKcogv73YF6M4/x4Xs4W0d8APm9VX2ZO4k=; b=cNi68eT5gYlLEwpWleCIZV
-        twUMe95WkjOK5q2pLvbzxGUsQt85+l87Qi0AwLWYRfQyJM9/a36BN3ucSolh1vIk
-        /buK7mZOjKjRi1klxka3pDMQTAopUAWnOhPv4zJ0HgeZ8iahb0rzSlwREr+VJdK2
-        GiFGfRHogBUuURcfRDX4gl1cspdW12S6YU2eShysnABSsMUoo3rePu93IzrIHnjz
-        rK6yMISBxcOWaQhxvnb2YrUOedRpmHYVDrNJks7eInOfgW6MLsSgAXyc7DGHmwqT
-        5nwii0AwwAHAqVqvpidPCLrRUtnfKsnoE+VvOrO+Tk0S+gO8Y13b+4u/+wRn/EtQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=LPTDS8
+        lXc1k6q+GWPyo66t+JvE3OKvZSHFqEdvtH2J4=; b=kwYruEFZ9FifYG7Q97rKZb
+        LFDmQ+7yz+Y0q4G51wuQz11Lb/txI37bjLWWlbIWZhAQI+uiwk8hS+PMWJ5soncf
+        PhfRCGGSPpUNgbLE2N8VwOfkWduAgYbRJ7eHSYuNsgCvIJIomj+Oaj1DruQpCBaf
+        Q2iEIfYNxYLdDWXLa0TDzcAzparYPtNula9FZn8YeVQUuLQDPhSZ79BXOkxPznk2
+        R6vwKyfx8j5qDt6czzztLf5nt7WsElwHrM2q+tTHjWUGojmwW5/x8YDamD+kBSon
+        k2W+hZOcy6oIXG7Uq6uWN6h8Mia/rmRA/bHyDotPMV1AHRt6OlbGQC8h957pnKhQ
         ==
-X-ME-Sender: <xms:B37nXgT3fYZSU2ZkJRvlbk_jV_tp9agKaLQdbBpETMUNY0ejxXVTBQ>
+X-ME-Sender: <xms:QH7nXvnNbOTYDLijPaHF75Gr1Kw3Apx17VEfsn0k-H2Ujz1AmZ7bfQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudeikedgjedtucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
-    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushht
-    vghrufhiiigvpeefnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
-    drtghomh
-X-ME-Proxy: <xmx:B37nXtzgNecQndhbeCNyIwgvtg5dOW_aJAjvjJijTsYajf6QopNjyw>
-    <xmx:B37nXt29JuS4blSFg2zVBYzwnUTJvr3H-L6HqTF4ZPF2gn1EQ_C9qw>
-    <xmx:B37nXkDRsuXcZhqTUrEsZ8dkWWuIAtKGCc4o5pYBPKwLkeQNuDIa1w>
-    <xmx:B37nXjfTKtiEfK5dJMCHFW2XCN3ImBSY9shbI90i8DKCwENXWbXJD2DOMIY>
+    gheqnecuggftrfgrthhtvghrnhepfeegtdefleeguddufeekvdefgeevkeeujefgieehfe
+    euudegvdffveekleetkeetnecuffhomhgrihhnpehrvgguhhgrthdrtghomhdpkhgvrhhn
+    vghlrdhorhhgnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushhtvghrufhiii
+    gvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:QH7nXi2F4xp4UKrqRn4kLFC78bVZOi90LLXL7kXkrF4phL4SOQtMTQ>
+    <xmx:QH7nXlp6Yp8mI0fYjZZRv3OX0i2CWgUspuEdV4qkWpnM1xHHkGtvCA>
+    <xmx:QH7nXnlgtnIBtJ4G3FTvJW94qqJCN3H8qFpTL24trBUqI2Svo2fwzw>
+    <xmx:QH7nXqhQUGnydKwoc7d3K3ivTWsBPheUa499_93ZP_WnzoolAb1bGWvSLrs>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 34ADB3060FE7;
-        Mon, 15 Jun 2020 09:56:23 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] KVM: x86/mmu: Set mmio_value to '0' if reserved #PF can't be" failed to apply to 4.19-stable tree
-To:     sean.j.christopherson@intel.com, pbonzini@redhat.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 12F083280059;
+        Mon, 15 Jun 2020 09:57:19 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] KVM: x86: Fix APIC page invalidation race" failed to apply to 4.9-stable tree
+To:     eiichi.tsukata@nutanix.com, pbonzini@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 15 Jun 2020 15:56:04 +0200
-Message-ID: <1592229364131214@kroah.com>
+Date:   Mon, 15 Jun 2020 15:57:06 +0200
+Message-ID: <15922294264649@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -58,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -69,62 +69,162 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 6129ed877d409037b79866327102c9dc59a302fe Mon Sep 17 00:00:00 2001
-From: Sean Christopherson <sean.j.christopherson@intel.com>
-Date: Wed, 27 May 2020 01:49:09 -0700
-Subject: [PATCH] KVM: x86/mmu: Set mmio_value to '0' if reserved #PF can't be
- generated
+From e649b3f0188f8fd34dd0dde8d43fd3312b902fb2 Mon Sep 17 00:00:00 2001
+From: Eiichi Tsukata <eiichi.tsukata@nutanix.com>
+Date: Sat, 6 Jun 2020 13:26:27 +0900
+Subject: [PATCH] KVM: x86: Fix APIC page invalidation race
 
-Set the mmio_value to '0' instead of simply clearing the present bit to
-squash a benign warning in kvm_mmu_set_mmio_spte_mask() that complains
-about the mmio_value overlapping the lower GFN mask on systems with 52
-bits of PA space.
+Commit b1394e745b94 ("KVM: x86: fix APIC page invalidation") tried
+to fix inappropriate APIC page invalidation by re-introducing arch
+specific kvm_arch_mmu_notifier_invalidate_range() and calling it from
+kvm_mmu_notifier_invalidate_range_start. However, the patch left a
+possible race where the VMCS APIC address cache is updated *before*
+it is unmapped:
 
-Opportunistically clean up the code and comments.
+  (Invalidator) kvm_mmu_notifier_invalidate_range_start()
+  (Invalidator) kvm_make_all_cpus_request(kvm, KVM_REQ_APIC_PAGE_RELOAD)
+  (KVM VCPU) vcpu_enter_guest()
+  (KVM VCPU) kvm_vcpu_reload_apic_access_page()
+  (Invalidator) actually unmap page
+
+Because of the above race, there can be a mismatch between the
+host physical address stored in the APIC_ACCESS_PAGE VMCS field and
+the host physical address stored in the EPT entry for the APIC GPA
+(0xfee0000).  When this happens, the processor will not trap APIC
+accesses, and will instead show the raw contents of the APIC-access page.
+Because Windows OS periodically checks for unexpected modifications to
+the LAPIC register, this will show up as a BSOD crash with BugCheck
+CRITICAL_STRUCTURE_CORRUPTION (109) we are currently seeing in
+https://bugzilla.redhat.com/show_bug.cgi?id=1751017.
+
+The root cause of the issue is that kvm_arch_mmu_notifier_invalidate_range()
+cannot guarantee that no additional references are taken to the pages in
+the range before kvm_mmu_notifier_invalidate_range_end().  Fortunately,
+this case is supported by the MMU notifier API, as documented in
+include/linux/mmu_notifier.h:
+
+	 * If the subsystem
+         * can't guarantee that no additional references are taken to
+         * the pages in the range, it has to implement the
+         * invalidate_range() notifier to remove any references taken
+         * after invalidate_range_start().
+
+The fix therefore is to reload the APIC-access page field in the VMCS
+from kvm_mmu_notifier_invalidate_range() instead of ..._range_start().
 
 Cc: stable@vger.kernel.org
-Fixes: d43e2675e96fc ("KVM: x86: only do L1TF workaround on affected processors")
-Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
-Message-Id: <20200527084909.23492-1-sean.j.christopherson@intel.com>
+Fixes: b1394e745b94 ("KVM: x86: fix APIC page invalidation")
+Fixes: https://bugzilla.kernel.org/show_bug.cgi?id=197951
+Signed-off-by: Eiichi Tsukata <eiichi.tsukata@nutanix.com>
+Message-Id: <20200606042627.61070-1-eiichi.tsukata@nutanix.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 
-diff --git a/arch/x86/kvm/mmu/mmu.c b/arch/x86/kvm/mmu/mmu.c
-index 86619631ff6a..92d056954194 100644
---- a/arch/x86/kvm/mmu/mmu.c
-+++ b/arch/x86/kvm/mmu/mmu.c
-@@ -6143,25 +6143,16 @@ static void kvm_set_mmio_spte_mask(void)
- 	u64 mask;
- 
- 	/*
--	 * Set the reserved bits and the present bit of an paging-structure
--	 * entry to generate page fault with PFER.RSV = 1.
-+	 * Set a reserved PA bit in MMIO SPTEs to generate page faults with
-+	 * PFEC.RSVD=1 on MMIO accesses.  64-bit PTEs (PAE, x86-64, and EPT
-+	 * paging) support a maximum of 52 bits of PA, i.e. if the CPU supports
-+	 * 52-bit physical addresses then there are no reserved PA bits in the
-+	 * PTEs and so the reserved PA approach must be disabled.
- 	 */
--
--	/*
--	 * Mask the uppermost physical address bit, which would be reserved as
--	 * long as the supported physical address width is less than 52.
--	 */
--	mask = 1ull << 51;
--
--	/* Set the present bit. */
--	mask |= 1ull;
--
--	/*
--	 * If reserved bit is not supported, clear the present bit to disable
--	 * mmio page fault.
--	 */
--	if (shadow_phys_bits == 52)
--		mask &= ~1ull;
-+	if (shadow_phys_bits < 52)
-+		mask = BIT_ULL(51) | PT_PRESENT_MASK;
-+	else
-+		mask = 0;
- 
- 	kvm_mmu_set_mmio_spte_mask(mask, mask, ACC_WRITE_MASK | ACC_USER_MASK);
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index c26dd1363151..24de847af52e 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -8270,9 +8270,8 @@ static void vcpu_load_eoi_exitmap(struct kvm_vcpu *vcpu)
+ 	kvm_x86_ops.load_eoi_exitmap(vcpu, eoi_exit_bitmap);
  }
+ 
+-int kvm_arch_mmu_notifier_invalidate_range(struct kvm *kvm,
+-		unsigned long start, unsigned long end,
+-		bool blockable)
++void kvm_arch_mmu_notifier_invalidate_range(struct kvm *kvm,
++					    unsigned long start, unsigned long end)
+ {
+ 	unsigned long apic_address;
+ 
+@@ -8283,8 +8282,6 @@ int kvm_arch_mmu_notifier_invalidate_range(struct kvm *kvm,
+ 	apic_address = gfn_to_hva(kvm, APIC_DEFAULT_PHYS_BASE >> PAGE_SHIFT);
+ 	if (start <= apic_address && apic_address < end)
+ 		kvm_make_all_cpus_request(kvm, KVM_REQ_APIC_PAGE_RELOAD);
+-
+-	return 0;
+ }
+ 
+ void kvm_vcpu_reload_apic_access_page(struct kvm_vcpu *vcpu)
+diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
+index d38d6b9c24be..e2f82131bb3e 100644
+--- a/include/linux/kvm_host.h
++++ b/include/linux/kvm_host.h
+@@ -1420,8 +1420,8 @@ static inline long kvm_arch_vcpu_async_ioctl(struct file *filp,
+ }
+ #endif /* CONFIG_HAVE_KVM_VCPU_ASYNC_IOCTL */
+ 
+-int kvm_arch_mmu_notifier_invalidate_range(struct kvm *kvm,
+-		unsigned long start, unsigned long end, bool blockable);
++void kvm_arch_mmu_notifier_invalidate_range(struct kvm *kvm,
++					    unsigned long start, unsigned long end);
+ 
+ #ifdef CONFIG_HAVE_KVM_VCPU_RUN_PID_CHANGE
+ int kvm_arch_vcpu_run_pid_change(struct kvm_vcpu *vcpu);
+diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+index 4db151f6101e..7b6013f2ba19 100644
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -155,10 +155,9 @@ static void kvm_uevent_notify_change(unsigned int type, struct kvm *kvm);
+ static unsigned long long kvm_createvm_count;
+ static unsigned long long kvm_active_vms;
+ 
+-__weak int kvm_arch_mmu_notifier_invalidate_range(struct kvm *kvm,
+-		unsigned long start, unsigned long end, bool blockable)
++__weak void kvm_arch_mmu_notifier_invalidate_range(struct kvm *kvm,
++						   unsigned long start, unsigned long end)
+ {
+-	return 0;
+ }
+ 
+ bool kvm_is_zone_device_pfn(kvm_pfn_t pfn)
+@@ -384,6 +383,18 @@ static inline struct kvm *mmu_notifier_to_kvm(struct mmu_notifier *mn)
+ 	return container_of(mn, struct kvm, mmu_notifier);
+ }
+ 
++static void kvm_mmu_notifier_invalidate_range(struct mmu_notifier *mn,
++					      struct mm_struct *mm,
++					      unsigned long start, unsigned long end)
++{
++	struct kvm *kvm = mmu_notifier_to_kvm(mn);
++	int idx;
++
++	idx = srcu_read_lock(&kvm->srcu);
++	kvm_arch_mmu_notifier_invalidate_range(kvm, start, end);
++	srcu_read_unlock(&kvm->srcu, idx);
++}
++
+ static void kvm_mmu_notifier_change_pte(struct mmu_notifier *mn,
+ 					struct mm_struct *mm,
+ 					unsigned long address,
+@@ -408,7 +419,6 @@ static int kvm_mmu_notifier_invalidate_range_start(struct mmu_notifier *mn,
+ {
+ 	struct kvm *kvm = mmu_notifier_to_kvm(mn);
+ 	int need_tlb_flush = 0, idx;
+-	int ret;
+ 
+ 	idx = srcu_read_lock(&kvm->srcu);
+ 	spin_lock(&kvm->mmu_lock);
+@@ -425,14 +435,9 @@ static int kvm_mmu_notifier_invalidate_range_start(struct mmu_notifier *mn,
+ 		kvm_flush_remote_tlbs(kvm);
+ 
+ 	spin_unlock(&kvm->mmu_lock);
+-
+-	ret = kvm_arch_mmu_notifier_invalidate_range(kvm, range->start,
+-					range->end,
+-					mmu_notifier_range_blockable(range));
+-
+ 	srcu_read_unlock(&kvm->srcu, idx);
+ 
+-	return ret;
++	return 0;
+ }
+ 
+ static void kvm_mmu_notifier_invalidate_range_end(struct mmu_notifier *mn,
+@@ -538,6 +543,7 @@ static void kvm_mmu_notifier_release(struct mmu_notifier *mn,
+ }
+ 
+ static const struct mmu_notifier_ops kvm_mmu_notifier_ops = {
++	.invalidate_range	= kvm_mmu_notifier_invalidate_range,
+ 	.invalidate_range_start	= kvm_mmu_notifier_invalidate_range_start,
+ 	.invalidate_range_end	= kvm_mmu_notifier_invalidate_range_end,
+ 	.clear_flush_young	= kvm_mmu_notifier_clear_flush_young,
 
