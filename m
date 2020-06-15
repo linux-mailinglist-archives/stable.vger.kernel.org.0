@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DB1B81FA14F
-	for <lists+stable@lfdr.de>; Mon, 15 Jun 2020 22:19:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 67DD21FA150
+	for <lists+stable@lfdr.de>; Mon, 15 Jun 2020 22:19:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728346AbgFOUTe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jun 2020 16:19:34 -0400
-Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:59897 "EHLO
+        id S1730943AbgFOUTi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jun 2020 16:19:38 -0400
+Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:47291 "EHLO
         forward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729692AbgFOUTe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Jun 2020 16:19:34 -0400
+        by vger.kernel.org with ESMTP id S1729692AbgFOUTi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Jun 2020 16:19:38 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id E0A2A1940664;
-        Mon, 15 Jun 2020 16:19:32 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Mon, 15 Jun 2020 16:19:32 -0400
+        by mailforward.nyi.internal (Postfix) with ESMTP id E7F2E1940679;
+        Mon, 15 Jun 2020 16:19:36 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Mon, 15 Jun 2020 16:19:36 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=0SKgOV
-        ZqAT55/GBoy2c072hgjNC23x0G9CFx2pCArAU=; b=N0QZEN1lffZJJ5jQP2dxKu
-        Fyfo+w/LSestsa9YdnTwfxTGo49lfW0Q0XgXEUpPKZuP7XFtWRg55RwoWo1ILYT2
-        kdwWS5hHNgY4jgbwkK8zPaMCtFZyVkgFiHl1oApthPFIpILwbtrbXgcip8YSAXv0
-        0oQKBW5pkap0Hm3da31e2/5igNwhVzNyuSkP1Gt9qnXZFImeoXxavxMDULWi+zQW
-        H0vqXXcG1AsD7YzA0TcMvGpxgcqdAsCty//FSeoDDSufdTpHWcoclxxjx1XmWtaB
-        sBwm26Kccq78bGNjU9YRwSyIT+Gq9zLgcrks7cn1UkHy8WpLs6QzT0wwxPdERzMg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=29SaQs
+        tWR7MStyJDlo0Vfrf1pYpg7jZadAhZYb0n8xw=; b=qh21OgwpmCdLOyeNJl2Ca/
+        klsAuGJiatyxUbJhSxxhVNhwI3lHdA1nWCr4M/0nOzmZ7WEoztnr5TV+toJSKMrQ
+        IitGn0Z142PYZVqZGgDRonjuLTX4D1vqmsMgZQVsEKpLrkF4Cita00qhHkCDisPS
+        bY52XG2jaH3rk85+N4dwAtNhbAQbo8SfeSxC4mF7K1o2JvTkiGSiPI3bwoUmi9Ng
+        X6cFU9OgZTl0xSYXPe9JBnQnP+suyHYYCO/zfvwUpe74pE+SlHnEx+Y8ZPqKzPnH
+        Du9roRr//gIoTypY0Qad63C4zCgfnOP0UrUnxKSPUMmipysLCadVIRNzCXBiGEOw
         ==
-X-ME-Sender: <xms:1NfnXlt85UKhDXLCb5qdEvKqQdNkm2qA7o7SmgjxTc2MUuYEztRK9Q>
+X-ME-Sender: <xms:2NfnXjdP2M1VGmHPu3sN4G6VQx9e9ob6NYanSdyA9V1bjnfSYdO7pA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudeikedgudeglecutefuodetggdotefrod
     ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
     necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
     dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
     rhhgqeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduud
     ekgeefleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhp
-    peekfedrkeeirdekledruddtjeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmh
+    peekfedrkeeirdekledruddtjeenucevlhhushhtvghrufhiiigvpedvnecurfgrrhgrmh
     epmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:1NfnXufQSX9iu4yr8PmYn8hTToqKeWe7Mtnu52vCbT7zKsBw1nqXCQ>
-    <xmx:1NfnXozUcWKJI9ni_ZYofI8UMnaVyMSZvA1iw3kfJ5NGtCglqdNQqw>
-    <xmx:1NfnXsOzYM2Qe8ygWyAbmoOLr07YwiXFaN1ns_aQDaDi1_meSq7X5w>
-    <xmx:1NfnXhbeHUuqnt881gVv4G1XYsnZpSNIXajNDj_kUHdvYM2lMeYPXw>
+X-ME-Proxy: <xmx:2NfnXpNA7_xxXn-YAFs7rPLgGmWgXRF3CV54smYtl87IsxtFRMj5yA>
+    <xmx:2NfnXsjoxp41OJ2nXIuLGjf9ScBGkgNmZbeWYf1zrhuw7X_E_LhC5w>
+    <xmx:2NfnXk85GJ0Lq9GHo7zthQ0-pvTBCDGGwOLuNEgJNc0F3101bj-f4g>
+    <xmx:2NfnXpJ994QFfcH2AR1MwV4Rr5rW9GqHX_ZZiYColo53Y7jW_BdVaA>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 7ACB23280065;
-        Mon, 15 Jun 2020 16:19:32 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] crypto: virtio: Fix use-after-free in" failed to apply to 4.19-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 7690A3061856;
+        Mon, 15 Jun 2020 16:19:36 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] crypto: virtio: Fix use-after-free in" failed to apply to 5.4-stable tree
 To:     longpeng2@huawei.com, arei.gonglei@huawei.com, clabbe@baylibre.com,
         davem@davemloft.net, herbert@gondor.apana.org.au,
         jasowang@redhat.com, mst@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 15 Jun 2020 22:19:27 +0200
-Message-ID: <1592252367137129@kroah.com>
+Date:   Mon, 15 Jun 2020 22:19:29 +0200
+Message-ID: <159225236994131@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
