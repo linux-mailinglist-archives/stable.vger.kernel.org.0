@@ -2,152 +2,161 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 79E7D1F8F0B
-	for <lists+stable@lfdr.de>; Mon, 15 Jun 2020 09:09:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF7B91F8F26
+	for <lists+stable@lfdr.de>; Mon, 15 Jun 2020 09:15:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728268AbgFOHJF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jun 2020 03:09:05 -0400
-Received: from mail-wm1-f66.google.com ([209.85.128.66]:37365 "EHLO
-        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728224AbgFOHJE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Jun 2020 03:09:04 -0400
-Received: by mail-wm1-f66.google.com with SMTP id y20so13631363wmi.2;
-        Mon, 15 Jun 2020 00:09:02 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=CzfiXSV5cv7JLhyjK1ps65bA0pz2gJTN5WUTi/AVjOM=;
-        b=Ynqo/ZRH0gR10UId3L/C36REV49+nHSDWTgP5p9D+v4EHXr4Jpq3vZYPxgxL8yvEQe
-         yDmPclSLHKtMA6B3u7cZr5VmRdbuQlXTM1dHT+u6ZdLmqB2FnRe2e9ojtevQLTCDE8Qb
-         xDP81R64LD2W9sUkOcxRHs9b4n65CmMHmULi0GByu0pw8QI+EslOruTh2BhWGx/5/eEP
-         /WENJ1BnOkTGig2WKU0m5VV2u3g97SnDNGJHd/gVUEtsO4KmREn+3+rOrjraoV7ab1YJ
-         8yVw+9QArnIIHBMBHQWauw4rQqXbQHuym6f/HbbB9kdVx3dlQ+EV6NsjpoGncP9sODSB
-         vLoA==
-X-Gm-Message-State: AOAM531fzIkdX9q5QGi+7di7UbxlupwlBtJekDN+2BXYe0VN6ekEIS6o
-        5ktwth0J8tsustVFH/BTkhU=
-X-Google-Smtp-Source: ABdhPJzUIpT/J8Oc+27seBA+4hhWIDmKRQV06drUxgz+9d2MuJiRDSIu5lQ4AQFOeS2bTs/qq+d86A==
-X-Received: by 2002:a1c:bb0b:: with SMTP id l11mr12131646wmf.31.1592204941742;
-        Mon, 15 Jun 2020 00:09:01 -0700 (PDT)
-Received: from kozik-lap ([194.230.155.184])
-        by smtp.googlemail.com with ESMTPSA id g82sm21623498wmf.1.2020.06.15.00.09.00
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Mon, 15 Jun 2020 00:09:00 -0700 (PDT)
-Date:   Mon, 15 Jun 2020 09:08:58 +0200
-From:   Krzysztof Kozlowski <krzk@kernel.org>
-To:     Vladimir Oltean <olteanv@gmail.com>
-Cc:     Mark Brown <broonie@kernel.org>,
-        Vladimir Oltean <vladimir.oltean@nxp.com>,
-        linux-spi <linux-spi@vger.kernel.org>,
-        lkml <linux-kernel@vger.kernel.org>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        Wolfram Sang <wsa@kernel.org>, stable@vger.kernel.org
-Subject: Re: [PATCH 2/2] spi: spi-fsl-dspi: Initialize completion before
- possible interrupt
-Message-ID: <20200615070858.GA20941@kozik-lap>
-References: <1592132154-20175-1-git-send-email-krzk@kernel.org>
- <1592132154-20175-2-git-send-email-krzk@kernel.org>
- <CA+h21ho_pa0H2MG-aAmUCFj37aYW4es-2V75P4KL-Zjq7qtfRQ@mail.gmail.com>
- <20200614111829.GA9694@kozik-lap>
- <CA+h21hqE3RbD2XTBbcRsMhsO2OaZ65tAaevFOr00p9ezu8O+iA@mail.gmail.com>
- <CA+h21hoVjJkGyxTEnh2Bixjoqxb12k-KK37U4Xy-27ntZz8aTw@mail.gmail.com>
- <20200614151247.GA2494@kozik-lap>
- <CA+h21hotvdXUgUzMaVfb_6EM-9kcoHvvnT4r+EHx7m6z4R0pxg@mail.gmail.com>
+        id S1728518AbgFOHPn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jun 2020 03:15:43 -0400
+Received: from mx2.suse.de ([195.135.220.15]:52616 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728285AbgFOHPn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jun 2020 03:15:43 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx2.suse.de (Postfix) with ESMTP id A7244ADC1;
+        Mon, 15 Jun 2020 07:15:44 +0000 (UTC)
+Received: by quack2.suse.cz (Postfix, from userid 1000)
+        id 3D6351E1289; Mon, 15 Jun 2020 09:15:40 +0200 (CEST)
+Date:   Mon, 15 Jun 2020 09:15:40 +0200
+From:   Jan Kara <jack@suse.cz>
+To:     Martijn Coenen <maco@android.com>
+Cc:     Jan Kara <jack@suse.cz>, linux-fsdevel@vger.kernel.org,
+        Christoph Hellwig <hch@infradead.org>, stable@vger.kernel.org
+Subject: Re: [PATCH 2/4] writeback: Avoid skipping inode writeback
+Message-ID: <20200615071540.GB9449@quack2.suse.cz>
+References: <20200611075033.1248-1-jack@suse.cz>
+ <20200611081203.18161-2-jack@suse.cz>
+ <CAB0TPYFOtDdS8BRk6aMhhB_5nxw4N7unqHCjgLFNh=YZC3vywA@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CA+h21hotvdXUgUzMaVfb_6EM-9kcoHvvnT4r+EHx7m6z4R0pxg@mail.gmail.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+In-Reply-To: <CAB0TPYFOtDdS8BRk6aMhhB_5nxw4N7unqHCjgLFNh=YZC3vywA@mail.gmail.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Jun 14, 2020 at 06:34:33PM +0300, Vladimir Oltean wrote:
-> On Sun, 14 Jun 2020 at 18:12, Krzysztof Kozlowski <krzk@kernel.org> wrote:
-> >
-> > On Sun, Jun 14, 2020 at 04:43:28PM +0300, Vladimir Oltean wrote:
-> > > On Sun, 14 Jun 2020 at 16:39, Vladimir Oltean <olteanv@gmail.com> wrote:
-> > > >
-> > > > On Sun, 14 Jun 2020 at 14:18, Krzysztof Kozlowski <krzk@kernel.org> wrote:
-> > > > >
-> > > > > On Sun, Jun 14, 2020 at 02:14:15PM +0300, Vladimir Oltean wrote:
-> > > > > > On Sun, 14 Jun 2020 at 13:56, Krzysztof Kozlowski <krzk@kernel.org> wrote:
-> > > > > > >
-> > > > > > > If interrupt fires early, the dspi_interrupt() could complete
-> > > > > > > (dspi->xfer_done) before its initialization happens.
-> > > > > > >
-> > > > > > > Fixes: 4f5ee75ea171 ("spi: spi-fsl-dspi: Replace interruptible wait queue with a simple completion")
-> > >
-> > > Also please note that this patch merely replaced an
-> > > init_waitqueue_head with init_completion. But the "bug" (if we can
-> > > call it that) originates from even before.
-> >
-> > Yeah, I know, the Fixes is not accurate. Backport to earlier kernels
-> > would be manual so I am not sure if accurate Fixes matter.
-> >
-> > >
-> > > > > > > Cc: <stable@vger.kernel.org>
-> > > > > > > Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-> > > > > > > ---
-> > > > > >
-> > > > > > Why would an interrupt fire before spi_register_controller, therefore
-> > > > > > before dspi_transfer_one_message could get called?
-> > > > > > Is this master or slave mode?
-> > > > >
-> > > > > I guess practically it won't fire.  It's more of a matter of logical
-> > > > > order and:
-> > > > > 1. Someone might fix the CONFIG_DEBUG_SHIRQ_FIXME one day,
-> > > >
-> > > > And what if CONFIG_DEBUG_SHIRQ_FIXME gets fixed? I uncommented it, and
-> > > > still no issues. dspi_interrupt checks the status bit of the hw, sees
-> > > > there's nothing to do, and returns IRQ_NONE.
-> >
-> > Indeed, still the logical way of initializing is to do it before any
-> > possible use.
-> >
-> > > >
-> > > > > 2. The hardware is actually initialized before and someone could attach
-> > > > >    to SPI bus some weird device.
-> > > > >
-> > > >
-> > > > Some weird device that does what?
-> >
-> > You never know what people will connect to a SoM :).
-> >
-> > Wolfram made actually much better point - bootloaders are known to
-> > initialize some things and leaving them in whatever state, assuming that
-> > Linux kernel will redo any initialization properly.
-> >
-> > Best regards,
-> > Krzysztof
-> >
+On Fri 12-06-20 10:03:18, Martijn Coenen wrote:
+> Hi Jan,
 > 
-> I don't buy the argument.
-> So ok, maybe some broken bootloader leaves a SPI_SR interrupt pending
-> (do you have any example of that?). But the driver clears interrupts
-> by writing SPI_SR_CLEAR in dspi_init (called _before_ requesting the
-> IRQ). It clears 10 bits from the status register. There are 2 points
-> to be made here:
-> - The dspi_interrupt only handles data availability interrupt
-> (SPI_SR_EOQF | SPI_SR_CMDTCF). Only then does it matter whether the
-> completion was already initialized or not. But these interrupts _are_
-> cleared. But assume they weren't. What would Linux even do with a SPI
-> transfer initiated by the previously running software environment? Why
-> would it be a smart thing to handle that data in the first place?
-> - The 10 bits from the status register are all the bits that can be
-> cleared. The rest of the register, if you look at it, contains the TX
-> FIFO Counter, the Transmit Next Pointer, the RX FIFO Counter, and the
-> Pop Next Pointer.
-> So, unless there's something I'm missing, I don't actually see how
-> this broken bootloader can do any harm to us.
+> On Thu, Jun 11, 2020 at 10:12 AM Jan Kara <jack@suse.cz> wrote:
+> > Reported-by: Martijn Coenen <maco@android.com>
+> > Fixes: 0ae45f63d4ef ("vfs: add support for a lazytime mount option")
+> > CC: stable@vger.kernel.org
+> > Signed-off-by: Jan Kara <jack@suse.cz>
+> 
+> Thanks again for the fix. We've been running this (well, v1) for over
+> 2 weeks across at least ~1000 Android devices with different kernel
+> versions, and I can confirm we haven't run into the issue this intends
+> to fix, or any other issues for that matter. The patch LGTM as well.
+> 
+> Reviewed-by: Martijn Coenen <maco@android.com>
+> Tested-by: Martijn Coenen <maco@android.com>
 
-Let's rephrase it: you think therefore that completion should be
-initialzed *after* requesting shared interrupts? You think that exactly
-that order shall be used in the source code?
+Thanks for testing and review! I'll queue the patches in my tree and push
+them to Linus later this week.
 
-Best regards,
-Krzysztof
+								Honza
 
 
+> 
+> > ---
+> >  fs/fs-writeback.c  | 17 ++++++++++++-----
+> >  include/linux/fs.h |  8 ++++++--
+> >  2 files changed, 18 insertions(+), 7 deletions(-)
+> >
+> > diff --git a/fs/fs-writeback.c b/fs/fs-writeback.c
+> > index ff0b18331590..f470c10641c5 100644
+> > --- a/fs/fs-writeback.c
+> > +++ b/fs/fs-writeback.c
+> > @@ -146,6 +146,7 @@ static void inode_io_list_del_locked(struct inode *inode,
+> >         assert_spin_locked(&wb->list_lock);
+> >         assert_spin_locked(&inode->i_lock);
+> >
+> > +       inode->i_state &= ~I_SYNC_QUEUED;
+> >         list_del_init(&inode->i_io_list);
+> >         wb_io_lists_depopulated(wb);
+> >  }
+> > @@ -1187,6 +1188,7 @@ static void redirty_tail_locked(struct inode *inode, struct bdi_writeback *wb)
+> >                         inode->dirtied_when = jiffies;
+> >         }
+> >         inode_io_list_move_locked(inode, wb, &wb->b_dirty);
+> > +       inode->i_state &= ~I_SYNC_QUEUED;
+> >  }
+> >
+> >  static void redirty_tail(struct inode *inode, struct bdi_writeback *wb)
+> > @@ -1262,8 +1264,11 @@ static int move_expired_inodes(struct list_head *delaying_queue,
+> >                         break;
+> >                 list_move(&inode->i_io_list, &tmp);
+> >                 moved++;
+> > +               spin_lock(&inode->i_lock);
+> >                 if (flags & EXPIRE_DIRTY_ATIME)
+> > -                       set_bit(__I_DIRTY_TIME_EXPIRED, &inode->i_state);
+> > +                       inode->i_state |= I_DIRTY_TIME_EXPIRED;
+> > +               inode->i_state |= I_SYNC_QUEUED;
+> > +               spin_unlock(&inode->i_lock);
+> >                 if (sb_is_blkdev_sb(inode->i_sb))
+> >                         continue;
+> >                 if (sb && sb != inode->i_sb)
+> > @@ -1438,6 +1443,7 @@ static void requeue_inode(struct inode *inode, struct bdi_writeback *wb,
+> >         } else if (inode->i_state & I_DIRTY_TIME) {
+> >                 inode->dirtied_when = jiffies;
+> >                 inode_io_list_move_locked(inode, wb, &wb->b_dirty_time);
+> > +               inode->i_state &= ~I_SYNC_QUEUED;
+> >         } else {
+> >                 /* The inode is clean. Remove from writeback lists. */
+> >                 inode_io_list_del_locked(inode, wb);
+> > @@ -2301,11 +2307,12 @@ void __mark_inode_dirty(struct inode *inode, int flags)
+> >                 inode->i_state |= flags;
+> >
+> >                 /*
+> > -                * If the inode is being synced, just update its dirty state.
+> > -                * The unlocker will place the inode on the appropriate
+> > -                * superblock list, based upon its state.
+> > +                * If the inode is queued for writeback by flush worker, just
+> > +                * update its dirty state. Once the flush worker is done with
+> > +                * the inode it will place it on the appropriate superblock
+> > +                * list, based upon its state.
+> >                  */
+> > -               if (inode->i_state & I_SYNC)
+> > +               if (inode->i_state & I_SYNC_QUEUED)
+> >                         goto out_unlock_inode;
+> >
+> >                 /*
+> > diff --git a/include/linux/fs.h b/include/linux/fs.h
+> > index 19ef6c88c152..48556efcdcf0 100644
+> > --- a/include/linux/fs.h
+> > +++ b/include/linux/fs.h
+> > @@ -2157,6 +2157,10 @@ static inline void kiocb_clone(struct kiocb *kiocb, struct kiocb *kiocb_src,
+> >   *
+> >   * I_DONTCACHE         Evict inode as soon as it is not used anymore.
+> >   *
+> > + * I_SYNC_QUEUED       Inode is queued in b_io or b_more_io writeback lists.
+> > + *                     Used to detect that mark_inode_dirty() should not move
+> > + *                     inode between dirty lists.
+> > + *
+> >   * Q: What is the difference between I_WILL_FREE and I_FREEING?
+> >   */
+> >  #define I_DIRTY_SYNC           (1 << 0)
+> > @@ -2174,12 +2178,12 @@ static inline void kiocb_clone(struct kiocb *kiocb, struct kiocb *kiocb_src,
+> >  #define I_DIO_WAKEUP           (1 << __I_DIO_WAKEUP)
+> >  #define I_LINKABLE             (1 << 10)
+> >  #define I_DIRTY_TIME           (1 << 11)
+> > -#define __I_DIRTY_TIME_EXPIRED 12
+> > -#define I_DIRTY_TIME_EXPIRED   (1 << __I_DIRTY_TIME_EXPIRED)
+> > +#define I_DIRTY_TIME_EXPIRED   (1 << 12)
+> >  #define I_WB_SWITCH            (1 << 13)
+> >  #define I_OVL_INUSE            (1 << 14)
+> >  #define I_CREATING             (1 << 15)
+> >  #define I_DONTCACHE            (1 << 16)
+> > +#define I_SYNC_QUEUED          (1 << 17)
+> >
+> >  #define I_DIRTY_INODE (I_DIRTY_SYNC | I_DIRTY_DATASYNC)
+> >  #define I_DIRTY (I_DIRTY_INODE | I_DIRTY_PAGES)
+> > --
+> > 2.16.4
+> >
+-- 
+Jan Kara <jack@suse.com>
+SUSE Labs, CR
