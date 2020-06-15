@@ -2,49 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C0311FA2B0
-	for <lists+stable@lfdr.de>; Mon, 15 Jun 2020 23:21:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 574BB1FA2D1
+	for <lists+stable@lfdr.de>; Mon, 15 Jun 2020 23:32:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731513AbgFOVVk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jun 2020 17:21:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41832 "EHLO mail.kernel.org"
+        id S1729714AbgFOVcw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jun 2020 17:32:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44732 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726207AbgFOVVk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jun 2020 17:21:40 -0400
+        id S1726207AbgFOVcw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jun 2020 17:32:52 -0400
 Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D63E420679;
-        Mon, 15 Jun 2020 21:21:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AB47620707;
+        Mon, 15 Jun 2020 21:32:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592256100;
-        bh=XxhXHsXm6DVZn5n0/lH3kJ6TKnJ/OFczrYxsyU3ttYI=;
+        s=default; t=1592256772;
+        bh=0MyJgletJ8hYzh6YngJ6WSyQ17x8eEN7XswnVrUBpzw=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=oZc3OMG52cvsyRd0cA4uqXGpIjfGo2c5vJ5XdnA5cKUGALvdS5AZEgIUrBcUIan32
-         MwaVw9xouYfysOpzRbFSi5Hy9oTe8ypxSiaipTJWX3biChNM6SrNNum7PHO/zas8MC
-         zYcE+WWKKjb/FTx3MmKDiyfjGRuLr7jCfI1+7+UQ=
-Date:   Mon, 15 Jun 2020 17:21:38 -0400
+        b=Gnul/6Fl2ES++QLBmVTG/cvLDZAlkbaQkQtT/YrvfKqa4euxPJpSzhXB20X5kBzHI
+         vW7Nwj10FG0XM3omiGcrQ5cI61u2RnmN+zRwcxR7BuQVbph6Ni+aOMy8Wqi3TcKyAF
+         muSLwclfZzrz85T+O9bzCC79t4ipLYTcz6FIp7vc=
+Date:   Mon, 15 Jun 2020 17:32:50 -0400
 From:   Sasha Levin <sashal@kernel.org>
 To:     gregkh@linuxfoundation.org
-Cc:     franck.lenormand@nxp.com, aisheng.dong@nxp.com,
-        leonard.crestez@nxp.com, shawnguo@kernel.org,
-        stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] firmware: imx: scu: Fix corruption of
- header" failed to apply to 5.7-stable tree
-Message-ID: <20200615212138.GC1931@sasha-vm>
-References: <15922334107128@kroah.com>
+Cc:     lukas@wunner.de, andriy.shevchenko@linux.intel.com,
+        baruch@tkos.co.il, broonie@kernel.org, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] spi: dw: Fix controller unregister order"
+ failed to apply to 4.14-stable tree
+Message-ID: <20200615213250.GD1931@sasha-vm>
+References: <159223441416477@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <15922334107128@kroah.com>
+In-Reply-To: <159223441416477@kroah.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jun 15, 2020 at 05:03:30PM +0200, gregkh@linuxfoundation.org wrote:
+On Mon, Jun 15, 2020 at 05:20:14PM +0200, gregkh@linuxfoundation.org wrote:
 >
->The patch below does not apply to the 5.7-stable tree.
+>The patch below does not apply to the 4.14-stable tree.
 >If someone wants it applied there, or to any other stable or longterm
 >tree, then please email the backport, including the original git commit
 >id to <stable@vger.kernel.org>.
@@ -55,38 +54,51 @@ On Mon, Jun 15, 2020 at 05:03:30PM +0200, gregkh@linuxfoundation.org wrote:
 >
 >------------------ original commit in Linus's tree ------------------
 >
->From f5f27b79eab80de0287c243a22169e4876b08d5e Mon Sep 17 00:00:00 2001
->From: Franck LENORMAND <franck.lenormand@nxp.com>
->Date: Thu, 26 Mar 2020 00:00:05 +0200
->Subject: [PATCH] firmware: imx: scu: Fix corruption of header
+>From ca8b19d61e3fce5d2d7790cde27a0b57bcb3f341 Mon Sep 17 00:00:00 2001
+>From: Lukas Wunner <lukas@wunner.de>
+>Date: Mon, 25 May 2020 14:25:01 +0200
+>Subject: [PATCH] spi: dw: Fix controller unregister order
 >
->The header of the message to send can be changed if the
->response is longer than the request:
-> - 1st word, the header is sent
-> - the remaining words of the message are sent
-> - the response is received asynchronously during the
->   execution of the loop, changing the size field in
->   the header
-> - the for loop test the termination condition using
->   the corrupted header
+>The Designware SPI driver uses devm_spi_register_controller() on bind.
+>As a consequence, on unbind, __device_release_driver() first invokes
+>dw_spi_remove_host() before unregistering the SPI controller via
+>devres_release_all().
 >
->It is the case for the API build_info which has just a
->header as request but 3 words in response.
+>This order is incorrect:  dw_spi_remove_host() shuts down the chip,
+>rendering the SPI bus inaccessible even though the SPI controller is
+>still registered.  When the SPI controller is subsequently unregistered,
+>it unbinds all its slave devices.  Because their drivers cannot access
+>the SPI bus, e.g. to quiesce interrupts, the slave devices may be left
+>in an improper state.
 >
->This issue is fixed storing the header locally instead of
->using a pointer on it.
+>As a rule, devm_spi_register_controller() must not be used if the
+>->remove() hook performs teardown steps which shall be performed after
+>unregistering the controller and specifically after unbinding of slaves.
 >
->Fixes: edbee095fafb (firmware: imx: add SCU firmware driver support)
+>Fix by reverting to the non-devm variant of spi_register_controller().
 >
->Signed-off-by: Franck LENORMAND <franck.lenormand@nxp.com>
->Reviewed-by: Leonard Crestez <leonard.crestez@nxp.com>
->Signed-off-by: Leonard Crestez <leonard.crestez@nxp.com>
->Cc: stable@vger.kernel.org
->Reviewed-by: Dong Aisheng <aisheng.dong@nxp.com>
->Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+>An alternative approach would be to use device-managed functions for all
+>steps in dw_spi_remove_host(), e.g. by calling devm_add_action_or_reset()
+>on probe.  However that approach would add more LoC to the driver and
+>it wouldn't lend itself as well to backporting to stable.
+>
+>Fixes: 04f421e7b0b1 ("spi: dw: use managed resources")
+>Signed-off-by: Lukas Wunner <lukas@wunner.de>
+>Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+>Cc: stable@vger.kernel.org # v3.14+
+>Cc: Baruch Siach <baruch@tkos.co.il>
+>Link: https://lore.kernel.org/r/3fff8cb8ae44a9893840d0688be15bb88c090a14.1590408496.git.lukas@wunner.de
+>Signed-off-by: Mark Brown <broonie@kernel.org>
 
-I've also grabbed f25a066d1a07 ("firmware: imx-scu: Support one TX and
-one RX") for 5.7, 5.6, and 5.4.
+I took this additional patch:
+
+66b19d762378 ("spi: dw: fix possible race condition")
+
+And worked around the renames in :
+
+721483e28889 ("spi: dw: Convert to generalized SPI controller API")
+
+And queued these two patches for 4.14, 4.9, and 4.4.
 
 -- 
 Thanks,
