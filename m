@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EF9F1FB81F
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:53:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 32CF71FB7AF
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:50:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730001AbgFPPx1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:53:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51602 "EHLO mail.kernel.org"
+        id S1732415AbgFPPs1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:48:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42670 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732864AbgFPPxZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:53:25 -0400
+        id S1732408AbgFPPsX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:48:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 235DE208D5;
-        Tue, 16 Jun 2020 15:53:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3039721473;
+        Tue, 16 Jun 2020 15:48:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322804;
-        bh=8DHEUyrxUYcT2iumm9RzdbJZzd0UEQ03DEP40wWww9U=;
+        s=default; t=1592322503;
+        bh=IVn/3drH1clXXqRbqRo2p9VUMcFT+JCYw8LrLMgWf0I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z3vA4xANUnKFI2Pu5VzCuuSXh1rhlDA/A3uXuQtmljNvGqIRrAgcFVIJLJFvSW6S9
-         uZzCQWreTJuaHwdO5Ypw7m27R919kpg5czFhIOWz8xl+ivC0E/3O6sSbdffCS3jIyz
-         MMDg+VFOcPcKsTfwTsuhGakjnBBSvaJA5G7StZW8=
+        b=dT0P1by0Dcb0KdekvGEOY/CLj5l0ovI1cX4bx7o0D0WCeMVZ3fUyswf6t+rewsRwT
+         MKMu3h8Bhf1Rn9XBPEW/GGfpcD3p+eGvcc0sDDhy0QsQUwDgY3ZDQUTKBjBOGvOaw4
+         UVX9n0jqUpOSz2DF3/1z6puJTfnVD8gd5JFz6k6w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxim Mikityanskiy <maximmi@mellanox.com>,
-        Saeed Mahameed <saeedm@mellanox.com>
-Subject: [PATCH 5.6 111/161] net/mlx5e: Fix repeated XSK usage on one channel
-Date:   Tue, 16 Jun 2020 17:35:01 +0200
-Message-Id: <20200616153111.643262034@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.7 128/163] KVM: nSVM: fix condition for filtering async PF
+Date:   Tue, 16 Jun 2020 17:35:02 +0200
+Message-Id: <20200616153112.945946713@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153106.402291280@linuxfoundation.org>
-References: <20200616153106.402291280@linuxfoundation.org>
+In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
+References: <20200616153106.849127260@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,44 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Mikityanskiy <maximmi@mellanox.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
 
-[ Upstream commit 36d45fb9d2fdf348d778bfe73f0427db1c6f9bc7 ]
+commit a3535be731c2a343912578465021f50937f7b099 upstream.
 
-After an XSK is closed, the relevant structures in the channel are not
-zeroed. If an XSK is opened the second time on the same channel without
-recreating channels, the stray values in the structures will lead to
-incorrect operation of queues, which causes CQE errors, and the new
-socket doesn't work at all.
+Async page faults have to be trapped in the host (L1 in this case),
+since the APF reason was passed from L0 to L1 and stored in the L1 APF
+data page.  This was completely reversed: the page faults were passed
+to the guest, a L2 hypervisor.
 
-This patch fixes the issue by explicitly zeroing XSK-related structs in
-the channel on XSK close. Note that those structs are zeroed on channel
-creation, and usually a configuration change (XDP program is set)
-happens on XSK open, which leads to recreating channels, so typical XSK
-usecases don't suffer from this issue. However, if XSKs are opened and
-closed on the same channel without removing the XDP program, this bug
-reproduces.
-
-Fixes: db05815b36cb ("net/mlx5e: Add XSK zero-copy support")
-Signed-off-by: Maxim Mikityanskiy <maximmi@mellanox.com>
-Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
+Cc: stable@vger.kernel.org
+Reviewed-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/ethernet/mellanox/mlx5/core/en/xsk/setup.c |    4 ++++
- 1 file changed, 4 insertions(+)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/en/xsk/setup.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en/xsk/setup.c
-@@ -152,6 +152,10 @@ void mlx5e_close_xsk(struct mlx5e_channe
- 	mlx5e_close_cq(&c->xskicosq.cq);
- 	mlx5e_close_xdpsq(&c->xsksq);
- 	mlx5e_close_cq(&c->xsksq.cq);
-+
-+	memset(&c->xskrq, 0, sizeof(c->xskrq));
-+	memset(&c->xsksq, 0, sizeof(c->xsksq));
-+	memset(&c->xskicosq, 0, sizeof(c->xskicosq));
- }
- 
- void mlx5e_activate_xsk(struct mlx5e_channel *c)
+---
+ arch/x86/kvm/svm/nested.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+--- a/arch/x86/kvm/svm/nested.c
++++ b/arch/x86/kvm/svm/nested.c
+@@ -834,8 +834,8 @@ int nested_svm_exit_special(struct vcpu_
+ 			return NESTED_EXIT_HOST;
+ 		break;
+ 	case SVM_EXIT_EXCP_BASE + PF_VECTOR:
+-		/* When we're shadowing, trap PFs, but not async PF */
+-		if (!npt_enabled && svm->vcpu.arch.apf.host_apf_reason == 0)
++		/* Trap async PF even if not shadowing */
++		if (!npt_enabled || svm->vcpu.arch.apf.host_apf_reason)
+ 			return NESTED_EXIT_HOST;
+ 		break;
+ 	default:
 
 
