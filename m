@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E51CE1FBAAB
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:13:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AF7521FBAA9
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:13:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731865AbgFPQNF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 12:13:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33046 "EHLO mail.kernel.org"
+        id S1731820AbgFPPnn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:43:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33130 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731828AbgFPPni (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:43:38 -0400
+        id S1731152AbgFPPnl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:43:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DD3B7208D5;
-        Tue, 16 Jun 2020 15:43:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6729421475;
+        Tue, 16 Jun 2020 15:43:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322218;
-        bh=nuyPltg19qoaXdjqgPcOi6VSiHkbYcLdjaks4P/9Jog=;
+        s=default; t=1592322221;
+        bh=jf1FBQnI/bPixSQ+NKyhPhPHwnkZyjW5PODZrSEkPNk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hi2xCFpBKor3JJJLUdnMC2UmmQUVezPSrn5KasSffr9OGZ/U6yF388ir+86/7Ppjd
-         0kmjHhSy2bSZZPsA0mZGe9jU7QS1qdNzkUbwb9EJzhtyNa6JHkiXJcPDVQyL6QqFcI
-         gtvabtGDJO1ywLPHNHsIAysPD29G3Q2bn6PsZbk4=
+        b=QFqK/tYf/Or67KG4GfaNBOC4kWEGEuN7LlZwUqe6hSDddFOFyMPS6lmV6aUixjKHy
+         W73ggjOaOlP8tjVIJe6pHO97uFRL87gBf9Mry3eC2FRe63DAhbnpDjJ8VLlXBm9kTM
+         XNe7gMWdRwAw2XgcndTzafYu08EWZwRiRhs3lD+0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>,
-        Maxim Levitsky <mlevitsk@redhat.com>,
-        Sean Christopherson <sean.j.christopherson@intel.com>
-Subject: [PATCH 5.7 046/163] KVM: VMX: enable X86_FEATURE_WAITPKG in KVM capabilities
-Date:   Tue, 16 Jun 2020 17:33:40 +0200
-Message-Id: <20200616153109.065725641@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.7 047/163] KVM: x86/mmu: Set mmio_value to 0 if reserved #PF cant be generated
+Date:   Tue, 16 Jun 2020 17:33:41 +0200
+Message-Id: <20200616153109.107992694@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
 References: <20200616153106.849127260@linuxfoundation.org>
@@ -44,42 +44,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Levitsky <mlevitsk@redhat.com>
+From: Sean Christopherson <sean.j.christopherson@intel.com>
 
-commit 0abcc8f65cc23b65bc8d1614cc64b02b1641ed7c upstream.
+commit 6129ed877d409037b79866327102c9dc59a302fe upstream.
 
-Even though we might not allow the guest to use WAITPKG's new
-instructions, we should tell KVM that the feature is supported by the
-host CPU.
+Set the mmio_value to '0' instead of simply clearing the present bit to
+squash a benign warning in kvm_mmu_set_mmio_spte_mask() that complains
+about the mmio_value overlapping the lower GFN mask on systems with 52
+bits of PA space.
 
-Note that vmx_waitpkg_supported checks that WAITPKG _can_ be set in
-secondary execution controls as specified by VMX capability MSR, rather
-that we actually enable it for a guest.
+Opportunistically clean up the code and comments.
 
 Cc: stable@vger.kernel.org
-Fixes: e69e72faa3a0 ("KVM: x86: Add support for user wait instructions")
-Suggested-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
-Message-Id: <20200523161455.3940-2-mlevitsk@redhat.com>
-Reviewed-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Fixes: d43e2675e96fc ("KVM: x86: only do L1TF workaround on affected processors")
+Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Message-Id: <20200527084909.23492-1-sean.j.christopherson@intel.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kvm/vmx/vmx.c |    3 +++
- 1 file changed, 3 insertions(+)
+ arch/x86/kvm/mmu/mmu.c |   27 +++++++++------------------
+ 1 file changed, 9 insertions(+), 18 deletions(-)
 
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -7138,6 +7138,9 @@ static __init void vmx_set_cpu_caps(void
- 	/* CPUID 0x80000001 */
- 	if (!cpu_has_vmx_rdtscp())
- 		kvm_cpu_cap_clear(X86_FEATURE_RDTSCP);
-+
-+	if (vmx_waitpkg_supported())
-+		kvm_cpu_cap_check_and_set(X86_FEATURE_WAITPKG);
- }
+--- a/arch/x86/kvm/mmu/mmu.c
++++ b/arch/x86/kvm/mmu/mmu.c
+@@ -6143,25 +6143,16 @@ static void kvm_set_mmio_spte_mask(void)
+ 	u64 mask;
  
- static void vmx_request_immediate_exit(struct kvm_vcpu *vcpu)
+ 	/*
+-	 * Set the reserved bits and the present bit of an paging-structure
+-	 * entry to generate page fault with PFER.RSV = 1.
++	 * Set a reserved PA bit in MMIO SPTEs to generate page faults with
++	 * PFEC.RSVD=1 on MMIO accesses.  64-bit PTEs (PAE, x86-64, and EPT
++	 * paging) support a maximum of 52 bits of PA, i.e. if the CPU supports
++	 * 52-bit physical addresses then there are no reserved PA bits in the
++	 * PTEs and so the reserved PA approach must be disabled.
+ 	 */
+-
+-	/*
+-	 * Mask the uppermost physical address bit, which would be reserved as
+-	 * long as the supported physical address width is less than 52.
+-	 */
+-	mask = 1ull << 51;
+-
+-	/* Set the present bit. */
+-	mask |= 1ull;
+-
+-	/*
+-	 * If reserved bit is not supported, clear the present bit to disable
+-	 * mmio page fault.
+-	 */
+-	if (shadow_phys_bits == 52)
+-		mask &= ~1ull;
++	if (shadow_phys_bits < 52)
++		mask = BIT_ULL(51) | PT_PRESENT_MASK;
++	else
++		mask = 0;
+ 
+ 	kvm_mmu_set_mmio_spte_mask(mask, mask, ACC_WRITE_MASK | ACC_USER_MASK);
+ }
 
 
