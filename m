@@ -2,115 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 28D591FAB1F
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 10:27:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F207A1FAB39
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 10:30:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726112AbgFPI1N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 04:27:13 -0400
-Received: from mx2.suse.de ([195.135.220.15]:49366 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726467AbgFPI1N (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 04:27:13 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx2.suse.de (Postfix) with ESMTP id 1F6DFAD7B;
-        Tue, 16 Jun 2020 08:27:15 +0000 (UTC)
-From:   Vlastimil Babka <vbabka@suse.cz>
-To:     vbabka@suse.cz
-Cc:     akpm@linux-foundation.org, alex.shi@linux.alibaba.com,
-        hughd@google.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        liwang@redhat.com, mgorman@techsingularity.net,
+        id S1726626AbgFPIaw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 04:30:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35154 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726112AbgFPIav (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Jun 2020 04:30:51 -0400
+Received: from mail-pl1-x642.google.com (mail-pl1-x642.google.com [IPv6:2607:f8b0:4864:20::642])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8771C05BD43;
+        Tue, 16 Jun 2020 01:30:51 -0700 (PDT)
+Received: by mail-pl1-x642.google.com with SMTP id d8so8056329plo.12;
+        Tue, 16 Jun 2020 01:30:51 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references;
+        bh=7tdeRgfUrKswh73pt/8hvKWXrWSAEqX+hL5gmVdJslc=;
+        b=WVYrFkdChaW6wX4uUhe2YweAwSrPz7Ai2FglsfN4vM9JqzkIUhxL8tdIguA+kyo92M
+         pzd06rF8By4xTOcy90xrua9jbVSh/Ta8i3cutZ/CiGnTdpDjIljhx+fZV/fmIEFWmAED
+         zuKRhYegPmJluLJSZ7tscVzl5InhIAaUuqQE98vEUN/y1tnhxTS6eucHCbYUuYPRyrsA
+         2Cqm9vSbtzPdnkmJ9S8/LwkDEu1SBeVv/kVYXw8yT/fPPyMkihgXeYX4qwRQMMM3oFtD
+         Eu0NNxNawF2sNbhtXwB9160R1WtK0pwhDhhHXLjImap7l/DEw9bOvqVuGlHW137Gpp5O
+         nk6w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references;
+        bh=7tdeRgfUrKswh73pt/8hvKWXrWSAEqX+hL5gmVdJslc=;
+        b=Y36N7at1iWBTPO6mftNAIS+y6q4n870e1x4BXDg+rPejnEVXX8Z+DcevvYGirla5Yx
+         XKqrZFzSad3p0LPctWEy2NyKjQh5b8Tuxy0bwQgMlefz2IsxeTDwNa4/gQz1pTsAyMK/
+         vRAS9bcOyE4AM8xxlzBK60P+whUjhZ0f71szXqU9xFxIG6+VRTPRyVG+26hqUgp64mec
+         TixL4rlOGMQQ+rsWZ1pYqJN8my8AfnHPJYMdRo71Ml0c57CpVxZUhCKLP8GqyF84xP05
+         NBRKULmkn3Xoz5qLOQkVuhEpc8X25SpZ5CxCpxc46FFwQfYYrEgxMdNp3cU8Assu27nZ
+         pQOQ==
+X-Gm-Message-State: AOAM530cB7aWLTnuN/QtihDDIaP4myrxzGLz1jXzFljcFMnU+WSSMCUf
+        TUGqf2mInP+Jw5fqDIyijVM=
+X-Google-Smtp-Source: ABdhPJw+vUuXBVXdxdPixEUWBdl54jeSPXqhfAAHT+DZOu2pszxCarRdjr28KdBCHVyVHNgAtljEKg==
+X-Received: by 2002:a17:90b:3d7:: with SMTP id go23mr1692308pjb.157.1592296251224;
+        Tue, 16 Jun 2020 01:30:51 -0700 (PDT)
+Received: from her0gyu-virtual-machine.localdomain ([1.221.137.163])
+        by smtp.gmail.com with ESMTPSA id u20sm17304847pfk.91.2020.06.16.01.30.49
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 16 Jun 2020 01:30:50 -0700 (PDT)
+From:   youngjun <her0gyugyu@gmail.com>
+To:     amir73il@gmail.com
+Cc:     linux-unionfs@vger.kernel.org, youngjun <her0gyugyu@gmail.com>,
         stable@vger.kernel.org
-Subject: [PATCH 1/2] mm, compaction: make capture control handling safe wrt interrupts
-Date:   Tue, 16 Jun 2020 10:26:48 +0200
-Message-Id: <20200616082649.27173-1-vbabka@suse.cz>
-X-Mailer: git-send-email 2.27.0
-In-Reply-To: <b17acf5b-5e8a-3edf-5a64-603bf6177312@suse.cz>
-References: <b17acf5b-5e8a-3edf-5a64-603bf6177312@suse.cz>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Subject: [PATCH 4/4] ovl: inode reference leak in ovl_is_inuse true case.
+Date:   Tue, 16 Jun 2020 17:30:43 +0900
+Message-Id: <20200616083043.25801-1-her0gyugyu@gmail.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20200615155645.32939-1-her0gyugyu@gmail.com>
+References: <20200615155645.32939-1-her0gyugyu@gmail.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hugh reports:
+When "ovl_is_inuse" true case, trap inode reference not put.
+plus adding the comment explaining sequence of
+ovl_is_inuse after ovl_setup_trap.
 
-=====
-While stressing compaction, one run oopsed on NULL capc->cc in
-__free_one_page()'s task_capc(zone): compact_zone_order() had been
-interrupted, and a page was being freed in the return from interrupt.
-
-Though you would not expect it from the source, both gccs I was using
-(a 4.8.1 and a 7.5.0) had chosen to compile compact_zone_order() with
-the ".cc = &cc" implemented by mov %rbx,-0xb0(%rbp) immediately before
-callq compact_zone - long after the "current->capture_control = &capc".
-An interrupt in between those finds capc->cc NULL (zeroed by an earlier
-rep stos).
-
-This could presumably be fixed by a barrier() before setting
-current->capture_control in compact_zone_order(); but would also need
-more care on return from compact_zone(), in order not to risk leaking
-a page captured by interrupt just before capture_control is reset.
-
-Maybe that is the preferable fix, but I felt safer for task_capc() to
-exclude the rather surprising possibility of capture at interrupt time.
-=====
-
-I have checked that gcc10 also behaves the same.
-
-The advantage of fix in compact_zone_order() is that we don't add another
-test in the page freeing hot path, and that it might prevent future problems
-if we stop exposing pointers to unitialized structures in current task.
-
-So this patch implements the suggestion for compact_zone_order() with barrier()
-(and WRITE_ONCE() to prevent store tearing) for setting
-current->capture_control, and prevents page leaking with WRITE_ONCE/READ_ONCE
-in the proper order.
-
-Fixes: 5e1f0f098b46 ("mm, compaction: capture a page under direct compaction")
-Cc: stable@vger.kernel.org # 5.1+
-Reported-by: Hugh Dickins <hughd@google.com>
-Suggested-by: Hugh Dickins <hughd@google.com>
-Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
+Fixes: 0be0bfd2de9d ("ovl: fix regression caused by overlapping layers..")
+Cc: <stable@vger.kernel.org> # v4.19+
+Reviewed-by: Amir Goldstein <amir73il@gmail.com>
+Signed-off-by: youngjun <her0gyugyu@gmail.com>
 ---
- mm/compaction.c | 17 ++++++++++++++---
- 1 file changed, 14 insertions(+), 3 deletions(-)
+ fs/overlayfs/super.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/mm/compaction.c b/mm/compaction.c
-index fd988b7e5f2b..86375605faa9 100644
---- a/mm/compaction.c
-+++ b/mm/compaction.c
-@@ -2316,15 +2316,26 @@ static enum compact_result compact_zone_order(struct zone *zone, int order,
- 		.page = NULL,
- 	};
+diff --git a/fs/overlayfs/super.c b/fs/overlayfs/super.c
+index 91476bc422f9..3097142b1e23 100644
+--- a/fs/overlayfs/super.c
++++ b/fs/overlayfs/super.c
+@@ -1493,14 +1493,22 @@ static int ovl_get_layers(struct super_block *sb, struct ovl_fs *ofs,
+ 		if (err < 0)
+ 			goto out;
  
--	current->capture_control = &capc;
-+	/*
-+	 * Make sure the structs are really initialized before we expose the
-+	 * capture control, in case we are interrupted and the interrupt handler
-+	 * frees a page.
-+	 */
-+	barrier();
-+	WRITE_ONCE(current->capture_control, &capc);
++		/*
++		 * Check if lower root conflicts with this overlay layers before checking
++		 * if it is in-use as upperdir/workdir of "another" mount, because we do
++		 * not bother to check in ovl_is_inuse() if the upperdir/workdir is in fact
++		 * in-use by our upperdir/workdir.
++		 */
+ 		err = ovl_setup_trap(sb, stack[i].dentry, &trap, "lowerdir");
+ 		if (err)
+ 			goto out;
  
- 	ret = compact_zone(&cc, &capc);
+ 		if (ovl_is_inuse(stack[i].dentry)) {
+ 			err = ovl_report_in_use(ofs, "lowerdir");
+-			if (err)
++			if (err) {
++				iput(trap);
+ 				goto out;
++			}
+ 		}
  
- 	VM_BUG_ON(!list_empty(&cc.freepages));
- 	VM_BUG_ON(!list_empty(&cc.migratepages));
- 
--	*capture = capc.page;
--	current->capture_control = NULL;
-+	/*
-+	 * Make sure we hide capture control first before we read the captured
-+	 * page pointer, otherwise an interrupt could free and capture a page
-+	 * and we would leak it.
-+	 */
-+	WRITE_ONCE(current->capture_control, NULL);
-+	*capture = READ_ONCE(capc.page);
- 
- 	return ret;
- }
+ 		mnt = clone_private_mount(&stack[i]);
 -- 
-2.27.0
+2.17.1
+
+Again, Great thanks Amir. I revise my patch through your kind guidance.
 
