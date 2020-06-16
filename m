@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DCC391FB8D4
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:00:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D9D61FB8D5
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:00:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732853AbgFPPxV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:53:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51474 "EHLO mail.kernel.org"
+        id S1732859AbgFPPxX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:53:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51544 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732645AbgFPPxU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:53:20 -0400
+        id S1732114AbgFPPxW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:53:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E9BAE208D5;
-        Tue, 16 Jun 2020 15:53:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B69FE207C4;
+        Tue, 16 Jun 2020 15:53:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322799;
-        bh=1BASumY08X9jKYnZYYImwDQRIC3ADcK3JVDtXC4Sdrs=;
+        s=default; t=1592322802;
+        bh=6mb25FkOw5ohSnBP7pmFf8WZ6p6jKa0VhuRgbk7vP94=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iFYmauMiTEefEUyMKbvGTon7lfblF/S0zqQ6hp+2QKjFRLn1j3saz/06lFuZrdTNp
-         eNQKOnS+ylbtFQpgMJKHhC0mUXVrqyD90hTYu75Cm6g1J68WlbIsmJ1he2A9/xQGYJ
-         Ih49ERhcU6zchyJrKqlMren3Gndngvv4Wi4/W18s=
+        b=hRD7hGT9BCGxlvawj7FDWFseSmDIL3km/DkWitushGwHNq1G7lu7zWJj8Q+MGLbVw
+         hJrdDdutG358NpGaQQyayKwTXzZKCKssO0fYfqZja0U1AV2bubxiDlqLig3QbJ6ZYO
+         GlhmYcSVqrwZODWAMpM6g8nMipsWsguvYiIJceNA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Shay Drory <shayd@mellanox.com>,
         Moshe Shemesh <moshe@mellanox.com>,
         Saeed Mahameed <saeedm@mellanox.com>
-Subject: [PATCH 5.6 109/161] net/mlx5: drain health workqueue in case of driver load error
-Date:   Tue, 16 Jun 2020 17:34:59 +0200
-Message-Id: <20200616153111.550361331@linuxfoundation.org>
+Subject: [PATCH 5.6 110/161] net/mlx5: Fix fatal error handling during device load
+Date:   Tue, 16 Jun 2020 17:35:00 +0200
+Message-Id: <20200616153111.597298264@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200616153106.402291280@linuxfoundation.org>
 References: <20200616153106.402291280@linuxfoundation.org>
@@ -46,102 +46,52 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Shay Drory <shayd@mellanox.com>
 
-[ Upstream commit 42ea9f1b5c625fad225d4ac96a7e757dd4199d9c ]
+[ Upstream commit b6e0b6bebe0732d5cac51f0791f269d2413b8980 ]
 
-In case there is a work in the health WQ when we teardown the driver,
-in driver load error flow, the health work will try to read dev->iseg,
-which was already unmap in mlx5_pci_close().
-Fix it by draining the health workqueue first thing in mlx5_pci_close().
+Currently, in case of fatal error during mlx5_load_one(), we cannot
+enter error state until mlx5_load_one() is finished, what can take
+several minutes until commands will get timeouts, because these commands
+can't be processed due to the fatal error.
+Fix it by setting dev->state as MLX5_DEVICE_STATE_INTERNAL_ERROR before
+requesting the lock.
 
-Trace of the error:
-BUG: unable to handle page fault for address: ffffb5b141c18014
-PF: supervisor read access in kernel mode
-PF: error_code(0x0000) - not-present page
-PGD 1fe95d067 P4D 1fe95d067 PUD 1fe95e067 PMD 1b7823067 PTE 0
-Oops: 0000 [#1] SMP PTI
-CPU: 3 PID: 6755 Comm: kworker/u128:2 Not tainted 5.2.0-net-next-mlx5-hv_stats-over-last-worked-hyperv #1
-Hardware name: Microsoft Corporation Virtual Machine/Virtual Machine, BIOS 090006  04/28/2016
-Workqueue: mlx5_healtha050:00:02.0 mlx5_fw_fatal_reporter_err_work [mlx5_core]
-RIP: 0010:ioread32be+0x30/0x40
-Code: 00 77 27 48 81 ff 00 00 01 00 76 07 0f b7 d7 ed 0f c8 c3 55 48 c7 c6 3b ee d5 9f 48 89 e5 e8 67 fc ff ff b8 ff ff ff ff 5d c3 <8b> 07 0f c8 c3 66 66 2e 0f 1f 84 00 00 00 00 00 48 81 fe ff ff 03
-RSP: 0018:ffffb5b14c56fd78 EFLAGS: 00010292
-RAX: ffffb5b141c18000 RBX: ffff8e9f78a801c0 RCX: 0000000000000000
-RDX: 0000000000000001 RSI: ffff8e9f7ecd7628 RDI: ffffb5b141c18014
-RBP: ffffb5b14c56fd90 R08: 0000000000000001 R09: 0000000000000000
-R10: ffff8e9f372a2c30 R11: ffff8e9f87f4bc40 R12: ffff8e9f372a1fc0
-R13: ffff8e9f78a80000 R14: ffffffffc07136a0 R15: ffff8e9f78ae6f20
-FS:  0000000000000000(0000) GS:ffff8e9f7ecc0000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: ffffb5b141c18014 CR3: 00000001c8f82006 CR4: 00000000003606e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- ? mlx5_health_try_recover+0x4d/0x270 [mlx5_core]
- mlx5_fw_fatal_reporter_recover+0x16/0x20 [mlx5_core]
- devlink_health_reporter_recover+0x1c/0x50
- devlink_health_report+0xfb/0x240
- mlx5_fw_fatal_reporter_err_work+0x65/0xd0 [mlx5_core]
- process_one_work+0x1fb/0x4e0
- ? process_one_work+0x16b/0x4e0
- worker_thread+0x4f/0x3d0
- kthread+0x10d/0x140
- ? process_one_work+0x4e0/0x4e0
- ? kthread_cancel_delayed_work_sync+0x20/0x20
- ret_from_fork+0x1f/0x30
-Modules linked in: nfsv3 rpcsec_gss_krb5 nfsv4 nfs fscache 8021q garp mrp stp llc ipmi_devintf ipmi_msghandler rpcrdma rdma_ucm ib_iser rdma_cm ib_umad iw_cm ib_ipoib libiscsi scsi_transport_iscsi ib_cm mlx5_ib ib_uverbs ib_core mlx5_core sb_edac crct10dif_pclmul crc32_pclmul ghash_clmulni_intel aesni_intel aes_x86_64 mlxfw crypto_simd cryptd glue_helper input_leds hyperv_fb intel_rapl_perf joydev serio_raw pci_hyperv pci_hyperv_mini mac_hid hv_balloon nfsd auth_rpcgss nfs_acl lockd grace sunrpc sch_fq_codel ip_tables x_tables autofs4 hv_utils hid_generic hv_storvsc ptp hid_hyperv hid hv_netvsc hyperv_keyboard pps_core scsi_transport_fc psmouse hv_vmbus i2c_piix4 floppy pata_acpi
-CR2: ffffb5b141c18014
----[ end trace b12c5503157cad24 ]---
-RIP: 0010:ioread32be+0x30/0x40
-Code: 00 77 27 48 81 ff 00 00 01 00 76 07 0f b7 d7 ed 0f c8 c3 55 48 c7 c6 3b ee d5 9f 48 89 e5 e8 67 fc ff ff b8 ff ff ff ff 5d c3 <8b> 07 0f c8 c3 66 66 2e 0f 1f 84 00 00 00 00 00 48 81 fe ff ff 03
-RSP: 0018:ffffb5b14c56fd78 EFLAGS: 00010292
-RAX: ffffb5b141c18000 RBX: ffff8e9f78a801c0 RCX: 0000000000000000
-RDX: 0000000000000001 RSI: ffff8e9f7ecd7628 RDI: ffffb5b141c18014
-RBP: ffffb5b14c56fd90 R08: 0000000000000001 R09: 0000000000000000
-R10: ffff8e9f372a2c30 R11: ffff8e9f87f4bc40 R12: ffff8e9f372a1fc0
-R13: ffff8e9f78a80000 R14: ffffffffc07136a0 R15: ffff8e9f78ae6f20
-FS:  0000000000000000(0000) GS:ffff8e9f7ecc0000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: ffffb5b141c18014 CR3: 00000001c8f82006 CR4: 00000000003606e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-BUG: sleeping function called from invalid context at ./include/linux/percpu-rwsem.h:38
-in_atomic(): 0, irqs_disabled(): 1, pid: 6755, name: kworker/u128:2
-INFO: lockdep is turned off.
-CPU: 3 PID: 6755 Comm: kworker/u128:2 Tainted: G      D           5.2.0-net-next-mlx5-hv_stats-over-last-worked-hyperv #1
-Hardware name: Microsoft Corporation Virtual Machine/Virtual Machine, BIOS 090006  04/28/2016
-Workqueue: mlx5_healtha050:00:02.0 mlx5_fw_fatal_reporter_err_work [mlx5_core]
-Call Trace:
- dump_stack+0x63/0x88
- ___might_sleep+0x10a/0x130
- __might_sleep+0x4a/0x80
- exit_signals+0x33/0x230
- ? blocking_notifier_call_chain+0x16/0x20
- do_exit+0xb1/0xc30
- ? kthread+0x10d/0x140
- ? process_one_work+0x4e0/0x4e0
-
-Fixes: 52c368dc3da7 ("net/mlx5: Move health and page alloc init to mdev_init")
+Fixes: c1d4d2e92ad6 ("net/mlx5: Avoid calling sleeping function by the health poll thread")
 Signed-off-by: Shay Drory <shayd@mellanox.com>
 Reviewed-by: Moshe Shemesh <moshe@mellanox.com>
 Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/main.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/net/ethernet/mellanox/mlx5/core/health.c |   14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/main.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/main.c
-@@ -794,6 +794,11 @@ err_disable:
+--- a/drivers/net/ethernet/mellanox/mlx5/core/health.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/health.c
+@@ -193,15 +193,23 @@ static bool reset_fw_if_needed(struct ml
  
- static void mlx5_pci_close(struct mlx5_core_dev *dev)
+ void mlx5_enter_error_state(struct mlx5_core_dev *dev, bool force)
  {
-+	/* health work might still be active, and it needs pci bar in
-+	 * order to know the NIC state. Therefore, drain the health WQ
-+	 * before removing the pci bars
-+	 */
-+	mlx5_drain_health_wq(dev);
- 	iounmap(dev->iseg);
- 	pci_clear_master(dev->pdev);
- 	release_bar(dev->pdev);
++	bool err_detected = false;
++
++	/* Mark the device as fatal in order to abort FW commands */
++	if ((check_fatal_sensors(dev) || force) &&
++	    dev->state == MLX5_DEVICE_STATE_UP) {
++		dev->state = MLX5_DEVICE_STATE_INTERNAL_ERROR;
++		err_detected = true;
++	}
+ 	mutex_lock(&dev->intf_state_mutex);
+-	if (dev->state == MLX5_DEVICE_STATE_INTERNAL_ERROR)
+-		goto unlock;
++	if (!err_detected && dev->state == MLX5_DEVICE_STATE_INTERNAL_ERROR)
++		goto unlock;/* a previous error is still being handled */
+ 	if (dev->state == MLX5_DEVICE_STATE_UNINITIALIZED) {
+ 		dev->state = MLX5_DEVICE_STATE_INTERNAL_ERROR;
+ 		goto unlock;
+ 	}
+ 
+-	if (check_fatal_sensors(dev) || force) {
++	if (check_fatal_sensors(dev) || force) { /* protected state setting */
+ 		dev->state = MLX5_DEVICE_STATE_INTERNAL_ERROR;
+ 		mlx5_cmd_flush(dev);
+ 	}
 
 
