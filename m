@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 75CF81FB6EF
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:43:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EF9F1FB81F
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:53:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730670AbgFPPl5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:41:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58086 "EHLO mail.kernel.org"
+        id S1730001AbgFPPx1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:53:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51602 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729835AbgFPPl4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:41:56 -0400
+        id S1732864AbgFPPxZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:53:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7104220C56;
-        Tue, 16 Jun 2020 15:41:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 235DE208D5;
+        Tue, 16 Jun 2020 15:53:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322116;
-        bh=Ktbx907Vc7Cf/keYgCLNc5qvxloSh/qfQ0N/wziWuKA=;
+        s=default; t=1592322804;
+        bh=8DHEUyrxUYcT2iumm9RzdbJZzd0UEQ03DEP40wWww9U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N1UfFABPgeBqj86WWadXhN/9A96uwPP4U0FchLH5RYvM9znLyyVwqvtLPBO3cTfir
-         mJx1+1U+adNGW3pxcIAm2O5236aLI9tGN35yXyRLeN7eTDBWD//uRiCXzjUK+vThWr
-         7UmULAFYn/FMQ9uMgnjIbr6Iy0vmQ/zwhUpVETqA=
+        b=z3vA4xANUnKFI2Pu5VzCuuSXh1rhlDA/A3uXuQtmljNvGqIRrAgcFVIJLJFvSW6S9
+         uZzCQWreTJuaHwdO5Ypw7m27R919kpg5czFhIOWz8xl+ivC0E/3O6sSbdffCS3jIyz
+         MMDg+VFOcPcKsTfwTsuhGakjnBBSvaJA5G7StZW8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qiujun Huang <hqjagain@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        syzbot+d403396d4df67ad0bd5f@syzkaller.appspotmail.com
-Subject: [PATCH 5.4 116/134] ath9x: Fix stack-out-of-bounds Write in ath9k_hif_usb_rx_cb
-Date:   Tue, 16 Jun 2020 17:35:00 +0200
-Message-Id: <20200616153106.337623361@linuxfoundation.org>
+        stable@vger.kernel.org, Maxim Mikityanskiy <maximmi@mellanox.com>,
+        Saeed Mahameed <saeedm@mellanox.com>
+Subject: [PATCH 5.6 111/161] net/mlx5e: Fix repeated XSK usage on one channel
+Date:   Tue, 16 Jun 2020 17:35:01 +0200
+Message-Id: <20200616153111.643262034@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153100.633279950@linuxfoundation.org>
-References: <20200616153100.633279950@linuxfoundation.org>
+In-Reply-To: <20200616153106.402291280@linuxfoundation.org>
+References: <20200616153106.402291280@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,57 +43,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiujun Huang <hqjagain@gmail.com>
+From: Maxim Mikityanskiy <maximmi@mellanox.com>
 
-commit 19d6c375d671ce9949a864fb9a03e19f5487b4d3 upstream.
+[ Upstream commit 36d45fb9d2fdf348d778bfe73f0427db1c6f9bc7 ]
 
-Add barrier to accessing the stack array skb_pool.
+After an XSK is closed, the relevant structures in the channel are not
+zeroed. If an XSK is opened the second time on the same channel without
+recreating channels, the stray values in the structures will lead to
+incorrect operation of queues, which causes CQE errors, and the new
+socket doesn't work at all.
 
-The case reported by syzbot:
-https://lore.kernel.org/linux-usb/0000000000003d7c1505a2168418@google.com
-BUG: KASAN: stack-out-of-bounds in ath9k_hif_usb_rx_stream
-drivers/net/wireless/ath/ath9k/hif_usb.c:626 [inline]
-BUG: KASAN: stack-out-of-bounds in ath9k_hif_usb_rx_cb+0xdf6/0xf70
-drivers/net/wireless/ath/ath9k/hif_usb.c:666
-Write of size 8 at addr ffff8881db309a28 by task swapper/1/0
+This patch fixes the issue by explicitly zeroing XSK-related structs in
+the channel on XSK close. Note that those structs are zeroed on channel
+creation, and usually a configuration change (XDP program is set)
+happens on XSK open, which leads to recreating channels, so typical XSK
+usecases don't suffer from this issue. However, if XSKs are opened and
+closed on the same channel without removing the XDP program, this bug
+reproduces.
 
-Call Trace:
-ath9k_hif_usb_rx_stream drivers/net/wireless/ath/ath9k/hif_usb.c:626
-[inline]
-ath9k_hif_usb_rx_cb+0xdf6/0xf70
-drivers/net/wireless/ath/ath9k/hif_usb.c:666
-__usb_hcd_giveback_urb+0x1f2/0x470 drivers/usb/core/hcd.c:1648
-usb_hcd_giveback_urb+0x368/0x420 drivers/usb/core/hcd.c:1713
-dummy_timer+0x1258/0x32ae drivers/usb/gadget/udc/dummy_hcd.c:1966
-call_timer_fn+0x195/0x6f0 kernel/time/timer.c:1404
-expire_timers kernel/time/timer.c:1449 [inline]
-__run_timers kernel/time/timer.c:1773 [inline]
-__run_timers kernel/time/timer.c:1740 [inline]
-run_timer_softirq+0x5f9/0x1500 kernel/time/timer.c:1786
-
-Reported-and-tested-by: syzbot+d403396d4df67ad0bd5f@syzkaller.appspotmail.com
-Signed-off-by: Qiujun Huang <hqjagain@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20200404041838.10426-5-hqjagain@gmail.com
+Fixes: db05815b36cb ("net/mlx5e: Add XSK zero-copy support")
+Signed-off-by: Maxim Mikityanskiy <maximmi@mellanox.com>
+Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/net/wireless/ath/ath9k/hif_usb.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/net/ethernet/mellanox/mlx5/core/en/xsk/setup.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/net/wireless/ath/ath9k/hif_usb.c
-+++ b/drivers/net/wireless/ath/ath9k/hif_usb.c
-@@ -612,6 +612,11 @@ static void ath9k_hif_usb_rx_stream(stru
- 			hif_dev->remain_skb = nskb;
- 			spin_unlock(&hif_dev->rx_lock);
- 		} else {
-+			if (pool_index == MAX_PKT_NUM_IN_TRANSFER) {
-+				dev_err(&hif_dev->udev->dev,
-+					"ath9k_htc: over RX MAX_PKT_NUM\n");
-+				goto err;
-+			}
- 			nskb = __dev_alloc_skb(pkt_len + 32, GFP_ATOMIC);
- 			if (!nskb) {
- 				dev_err(&hif_dev->udev->dev,
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en/xsk/setup.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en/xsk/setup.c
+@@ -152,6 +152,10 @@ void mlx5e_close_xsk(struct mlx5e_channe
+ 	mlx5e_close_cq(&c->xskicosq.cq);
+ 	mlx5e_close_xdpsq(&c->xsksq);
+ 	mlx5e_close_cq(&c->xsksq.cq);
++
++	memset(&c->xskrq, 0, sizeof(c->xskrq));
++	memset(&c->xsksq, 0, sizeof(c->xsksq));
++	memset(&c->xskicosq, 0, sizeof(c->xskicosq));
+ }
+ 
+ void mlx5e_activate_xsk(struct mlx5e_channel *c)
 
 
