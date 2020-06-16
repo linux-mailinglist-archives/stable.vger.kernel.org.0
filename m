@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D95111FBB05
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:16:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 590101FB9F6
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:08:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731185AbgFPPk2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:40:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55062 "EHLO mail.kernel.org"
+        id S1731682AbgFPPqr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:46:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39152 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731178AbgFPPk1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:40:27 -0400
+        id S1729867AbgFPPqq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:46:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 29EF12082F;
-        Tue, 16 Jun 2020 15:40:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1F7E92071A;
+        Tue, 16 Jun 2020 15:46:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322026;
-        bh=H74n6MAvvB1UwVfIs7kkoqmc7JsILcseQ+7gWMFrCa8=;
+        s=default; t=1592322404;
+        bh=hNqsT/ZksuoAUV5wXP1oPVvBuiiQkkr1eY9eKN7FN6w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bBseZwyeYFGPPLaruuVOktT24oOe0mUjAU3RiStX+tKVjBEeuwfq35vneVAefDluJ
-         uvU7VIjC+ryNVVyj8u3kj897Oe2dlmikhMhJWguFdm8BXEF/T6HwIWibPWmQuBpT29
-         vMq1Qx/O516axUnl8Dppqp92cvGq8xSMPBH2kPVY=
+        b=gG1kqQ3AR73Yvs9VEhKjxtKSzk6Hy1haIkPMfL2HwtPit12nEvZ2txTcknVfchQxF
+         etH23SmZgtd2TdWqrmYInbfVpneeAzVLcCp/ozkAI56soLvF8Hr8YCS4DCP4aVdczS
+         kzjmtVNNiv1HJOnIsTlhtNIK4juJoMDJt5krWLOs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
-        Xing Li <lixing@loongson.cn>, Huacai Chen <chenhc@lemote.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.4 106/134] KVM: MIPS: Define KVM_ENTRYHI_ASID to cpu_asid_mask(&boot_cpu_data)
-Date:   Tue, 16 Jun 2020 17:34:50 +0200
-Message-Id: <20200616153105.862420883@linuxfoundation.org>
+        stable@vger.kernel.org, butt3rflyh4ck <butterflyhuangxx@gmail.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Namjae Jeon <namjae.jeon@samsung.com>
+Subject: [PATCH 5.7 117/163] exfat: fix memory leak in exfat_parse_param()
+Date:   Tue, 16 Jun 2020 17:34:51 +0200
+Message-Id: <20200616153112.410137542@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153100.633279950@linuxfoundation.org>
-References: <20200616153100.633279950@linuxfoundation.org>
+In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
+References: <20200616153106.849127260@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,45 +44,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xing Li <lixing@loongson.cn>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-commit fe2b73dba47fb6d6922df1ad44e83b1754d5ed4d upstream.
+commit f341a7d8dcc4e3d01544d7bc145633f062ef6249 upstream.
 
-The code in decode_config4() of arch/mips/kernel/cpu-probe.c
+butt3rflyh4ck reported memory leak found by syzkaller.
 
-        asid_mask = MIPS_ENTRYHI_ASID;
-        if (config4 & MIPS_CONF4_AE)
-                asid_mask |= MIPS_ENTRYHI_ASIDX;
-        set_cpu_asid_mask(c, asid_mask);
+A param->string held by exfat_mount_options.
 
-set asid_mask to cpuinfo->asid_mask.
+BUG: memory leak
 
-So in order to support variable ASID_MASK, KVM_ENTRYHI_ASID should also
-be changed to cpu_asid_mask(&boot_cpu_data).
+unreferenced object 0xffff88801972e090 (size 8):
+  comm "syz-executor.2", pid 16298, jiffies 4295172466 (age 14.060s)
+  hex dump (first 8 bytes):
+    6b 6f 69 38 2d 75 00 00                          koi8-u..
+  backtrace:
+    [<000000005bfe35d6>] kstrdup+0x36/0x70 mm/util.c:60
+    [<0000000018ed3277>] exfat_parse_param+0x160/0x5e0
+fs/exfat/super.c:276
+    [<000000007680462b>] vfs_parse_fs_param+0x2b4/0x610
+fs/fs_context.c:147
+    [<0000000097c027f2>] vfs_parse_fs_string+0xe6/0x150
+fs/fs_context.c:191
+    [<00000000371bf78f>] generic_parse_monolithic+0x16f/0x1f0
+fs/fs_context.c:231
+    [<000000005ce5eb1b>] do_new_mount fs/namespace.c:2812 [inline]
+    [<000000005ce5eb1b>] do_mount+0x12bb/0x1b30 fs/namespace.c:3141
+    [<00000000b642040c>] __do_sys_mount fs/namespace.c:3350 [inline]
+    [<00000000b642040c>] __se_sys_mount fs/namespace.c:3327 [inline]
+    [<00000000b642040c>] __x64_sys_mount+0x18f/0x230 fs/namespace.c:3327
+    [<000000003b024e98>] do_syscall_64+0xf6/0x7d0
+arch/x86/entry/common.c:295
+    [<00000000ce2b698c>] entry_SYSCALL_64_after_hwframe+0x49/0xb3
 
-Cc: Stable <stable@vger.kernel.org>  #4.9+
-Reviewed-by: Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>
-Signed-off-by: Xing Li <lixing@loongson.cn>
-[Huacai: Change current_cpu_data to boot_cpu_data for optimization]
-Signed-off-by: Huacai Chen <chenhc@lemote.com>
-Message-Id: <1590220602-3547-2-git-send-email-chenhc@lemote.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+exfat_free() should call exfat_free_iocharset(), to prevent a leak
+in case we fail after parsing iocharset= but before calling
+get_tree_bdev().
+
+Additionally, there's no point copying param->string in
+exfat_parse_param() - just steal it, leaving NULL in param->string.
+That's independent from the leak or fix thereof - it's simply
+avoiding an extra copy.
+
+Fixes: 719c1e182916 ("exfat: add super block operations")
+Cc: stable@vger.kernel.org # v5.7
+Reported-by: butt3rflyh4ck <butterflyhuangxx@gmail.com>
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Namjae Jeon <namjae.jeon@samsung.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/mips/include/asm/kvm_host.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/exfat/super.c |   12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
---- a/arch/mips/include/asm/kvm_host.h
-+++ b/arch/mips/include/asm/kvm_host.h
-@@ -275,7 +275,7 @@ enum emulation_result {
- #define MIPS3_PG_FRAME		0x3fffffc0
+--- a/fs/exfat/super.c
++++ b/fs/exfat/super.c
+@@ -273,9 +273,8 @@ static int exfat_parse_param(struct fs_c
+ 		break;
+ 	case Opt_charset:
+ 		exfat_free_iocharset(sbi);
+-		opts->iocharset = kstrdup(param->string, GFP_KERNEL);
+-		if (!opts->iocharset)
+-			return -ENOMEM;
++		opts->iocharset = param->string;
++		param->string = NULL;
+ 		break;
+ 	case Opt_errors:
+ 		opts->errors = result.uint_32;
+@@ -630,7 +629,12 @@ static int exfat_get_tree(struct fs_cont
  
- #define VPN2_MASK		0xffffe000
--#define KVM_ENTRYHI_ASID	MIPS_ENTRYHI_ASID
-+#define KVM_ENTRYHI_ASID	cpu_asid_mask(&boot_cpu_data)
- #define TLB_IS_GLOBAL(x)	((x).tlb_lo[0] & (x).tlb_lo[1] & ENTRYLO_G)
- #define TLB_VPN2(x)		((x).tlb_hi & VPN2_MASK)
- #define TLB_ASID(x)		((x).tlb_hi & KVM_ENTRYHI_ASID)
+ static void exfat_free(struct fs_context *fc)
+ {
+-	kfree(fc->s_fs_info);
++	struct exfat_sb_info *sbi = fc->s_fs_info;
++
++	if (sbi) {
++		exfat_free_iocharset(sbi);
++		kfree(sbi);
++	}
+ }
+ 
+ static const struct fs_context_operations exfat_context_ops = {
 
 
