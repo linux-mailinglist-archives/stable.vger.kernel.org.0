@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C6CAF1FB6F2
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:43:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DF521FB701
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:43:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731594AbgFPPmC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:42:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58260 "EHLO mail.kernel.org"
+        id S1730067AbgFPPml (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:42:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59430 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729835AbgFPPmB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:42:01 -0400
+        id S1731701AbgFPPmh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:42:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B205521475;
-        Tue, 16 Jun 2020 15:42:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A6A5F208D5;
+        Tue, 16 Jun 2020 15:42:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322121;
-        bh=/kRiTW22n/YRbsgjLnLEa2C3qdhKObbL67ODnHqlvm8=;
+        s=default; t=1592322157;
+        bh=l2hHj3EQa2SlEqLMmln1qh6aS2lh3ArfQw+qqHxklF4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LkvhTyQVXIW2ZStXnQdUbXW9A7V4n32L4ODaqyrzQ/j+1apaCzFjNcGQ28bj1kRT5
-         sXV971lUyqQG9c9VxBBtxlLDzHUgaSM1GlB/NVijNE2hWUCiYF1nkTRbeE7tg8OPLj
-         REjH4btucLw4IRGWXQ7kPPm+PVxpWsAXpUC20/6I=
+        b=IS4lqPkGt38TO2lnviUWnMec6An1thonCL34XaxeI421NHOQ3BRG+2SAWBmWhOzyD
+         TFZmXURVOZIkflvJ8mP27F+XuRz5rIaZo0BnNk2VQOfmPyUNyixrhRj2L7U7CAsOCd
+         1TPZofT5U2daQRJoK5jogtcJt0YYcFY+1BYkBKyQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hangbin Liu <liuhangbin@gmail.com>,
+        stable@vger.kernel.org, Willem de Bruijn <willemb@google.com>,
+        Petar Penkov <ppenkov@google.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.7 001/163] ipv6: fix IPV6_ADDRFORM operation logic
-Date:   Tue, 16 Jun 2020 17:32:55 +0200
-Message-Id: <20200616153106.925316548@linuxfoundation.org>
+Subject: [PATCH 5.7 004/163] tun: correct header offsets in napi frags mode
+Date:   Tue, 16 Jun 2020 17:32:58 +0200
+Message-Id: <20200616153107.070996002@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
 References: <20200616153106.849127260@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -45,77 +44,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangbin Liu <liuhangbin@gmail.com>
+From: Willem de Bruijn <willemb@google.com>
 
-[ Upstream commit 79a1f0ccdbb4ad700590f61b00525b390cb53905 ]
+[ Upstream commit 96aa1b22bd6bb9fccf62f6261f390ed6f3e7967f ]
 
-Socket option IPV6_ADDRFORM supports UDP/UDPLITE and TCP at present.
-Previously the checking logic looks like:
-if (sk->sk_protocol == IPPROTO_UDP || sk->sk_protocol == IPPROTO_UDPLITE)
-	do_some_check;
-else if (sk->sk_protocol != IPPROTO_TCP)
-	break;
+Tun in IFF_NAPI_FRAGS mode calls napi_gro_frags. Unlike netif_rx and
+netif_gro_receive, this expects skb->data to point to the mac layer.
 
-After commit b6f6118901d1 ("ipv6: restrict IPV6_ADDRFORM operation"), TCP
-was blocked as the logic changed to:
-if (sk->sk_protocol == IPPROTO_UDP || sk->sk_protocol == IPPROTO_UDPLITE)
-	do_some_check;
-else if (sk->sk_protocol == IPPROTO_TCP)
-	do_some_check;
-	break;
-else
-	break;
+But skb_probe_transport_header, __skb_get_hash_symmetric, and
+xdp_do_generic in tun_get_user need skb->data to point to the network
+header. Flow dissection also needs skb->protocol set, so
+eth_type_trans has to be called.
 
-Then after commit 82c9ae440857 ("ipv6: fix restrict IPV6_ADDRFORM operation")
-UDP/UDPLITE were blocked as the logic changed to:
-if (sk->sk_protocol == IPPROTO_UDP || sk->sk_protocol == IPPROTO_UDPLITE)
-	do_some_check;
-if (sk->sk_protocol == IPPROTO_TCP)
-	do_some_check;
+Ensure the link layer header lies in linear as eth_type_trans pulls
+ETH_HLEN. Then take the same code paths for frags as for not frags.
+Push the link layer header back just before calling napi_gro_frags.
 
-if (sk->sk_protocol != IPPROTO_TCP)
-	break;
+By pulling up to ETH_HLEN from frag0 into linear, this disables the
+frag0 optimization in the special case when IFF_NAPI_FRAGS is used
+with zero length iov[0] (and thus empty skb->linear).
 
-Fix it by using Eric's code and simply remove the break in TCP check, which
-looks like:
-if (sk->sk_protocol == IPPROTO_UDP || sk->sk_protocol == IPPROTO_UDPLITE)
-	do_some_check;
-else if (sk->sk_protocol == IPPROTO_TCP)
-	do_some_check;
-else
-	break;
-
-Fixes: 82c9ae440857 ("ipv6: fix restrict IPV6_ADDRFORM operation")
-Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
+Fixes: 90e33d459407 ("tun: enable napi_gro_frags() for TUN/TAP driver")
+Signed-off-by: Willem de Bruijn <willemb@google.com>
+Acked-by: Petar Penkov <ppenkov@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/ipv6_sockglue.c |   13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ drivers/net/tun.c |   14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
---- a/net/ipv6/ipv6_sockglue.c
-+++ b/net/ipv6/ipv6_sockglue.c
-@@ -183,14 +183,15 @@ static int do_ipv6_setsockopt(struct soc
- 					retv = -EBUSY;
- 					break;
- 				}
--			}
--			if (sk->sk_protocol == IPPROTO_TCP &&
--			    sk->sk_prot != &tcpv6_prot) {
--				retv = -EBUSY;
-+			} else if (sk->sk_protocol == IPPROTO_TCP) {
-+				if (sk->sk_prot != &tcpv6_prot) {
-+					retv = -EBUSY;
-+					break;
-+				}
-+			} else {
- 				break;
- 			}
--			if (sk->sk_protocol != IPPROTO_TCP)
--				break;
+--- a/drivers/net/tun.c
++++ b/drivers/net/tun.c
+@@ -1871,8 +1871,11 @@ drop:
+ 		skb->dev = tun->dev;
+ 		break;
+ 	case IFF_TAP:
+-		if (!frags)
+-			skb->protocol = eth_type_trans(skb, tun->dev);
++		if (frags && !pskb_may_pull(skb, ETH_HLEN)) {
++			err = -ENOMEM;
++			goto drop;
++		}
++		skb->protocol = eth_type_trans(skb, tun->dev);
+ 		break;
+ 	}
+ 
+@@ -1929,9 +1932,12 @@ drop:
+ 	}
+ 
+ 	if (frags) {
++		u32 headlen;
 +
- 			if (sk->sk_state != TCP_ESTABLISHED) {
- 				retv = -ENOTCONN;
- 				break;
+ 		/* Exercise flow dissector code path. */
+-		u32 headlen = eth_get_headlen(tun->dev, skb->data,
+-					      skb_headlen(skb));
++		skb_push(skb, ETH_HLEN);
++		headlen = eth_get_headlen(tun->dev, skb->data,
++					  skb_headlen(skb));
+ 
+ 		if (unlikely(headlen > skb_headlen(skb))) {
+ 			this_cpu_inc(tun->pcpu_stats->rx_dropped);
 
 
