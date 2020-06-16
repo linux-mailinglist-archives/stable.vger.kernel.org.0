@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D20CB1FB7FA
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:53:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF2D61FB677
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:39:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732669AbgFPPv3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:51:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47988 "EHLO mail.kernel.org"
+        id S1730353AbgFPPhh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:37:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49192 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732664AbgFPPv1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:51:27 -0400
+        id S1730341AbgFPPhg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:37:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3B5D1208D5;
-        Tue, 16 Jun 2020 15:51:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 905F421473;
+        Tue, 16 Jun 2020 15:37:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322686;
-        bh=AU8kPO1hPe5EGPaST5+To5lYsboUwNEV7+7aWvUfdVY=;
+        s=default; t=1592321855;
+        bh=GYaX1YqQZt6ulDYChLulDhPXXIHjFgk/EtJsN+X+jb4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G+yTT5kljlEhuvJK7SHb9Pku84zKmGMJemHI816EOakBU06FjBN4O7sHmLmrpzCr7
-         kZgg/FH4imAG32j6njWYAeOQ1xeiRAsNymjsgHGe61Nfo4zFqz5K9M5WVLUYEbxdvx
-         vgt5P8FWq/Q7wypyzYbYGLIgGJm8bPBamOb389dM=
+        b=Mtxg+dTrTz/SDYNTmRnxkLOtKBdc+Sn+EPNBK1nXXRR1Vwhz20GIZ4r7uHypEpVEi
+         Z0OqqD/1ZFd0jB7NJuhTrDHcC4WP5NfbnolEshUMg2LxJMHsigSzLyroiaZ81H6HoF
+         +yM+dl/9lfPQ88xL4EPWmDU3CnBJk/v6kmV3dEkE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 034/161] smack: avoid unused sip variable warning
+        stable@vger.kernel.org,
+        Anthony Steinhauser <asteinhauser@google.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 5.4 040/134] x86/speculation: Prevent rogue cross-process SSBD shutdown
 Date:   Tue, 16 Jun 2020 17:33:44 +0200
-Message-Id: <20200616153108.013763072@linuxfoundation.org>
+Message-Id: <20200616153102.710786454@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153106.402291280@linuxfoundation.org>
-References: <20200616153106.402291280@linuxfoundation.org>
+In-Reply-To: <20200616153100.633279950@linuxfoundation.org>
+References: <20200616153100.633279950@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,166 +44,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Anthony Steinhauser <asteinhauser@google.com>
 
-[ Upstream commit 00720f0e7f288d29681d265c23b22bb0f0f4e5b4 ]
+commit dbbe2ad02e9df26e372f38cc3e70dab9222c832e upstream.
 
-The mix of IS_ENABLED() and #ifdef checks has left a combination
-that causes a warning about an unused variable:
+On context switch the change of TIF_SSBD and TIF_SPEC_IB are evaluated
+to adjust the mitigations accordingly. This is optimized to avoid the
+expensive MSR write if not needed.
 
-security/smack/smack_lsm.c: In function 'smack_socket_connect':
-security/smack/smack_lsm.c:2838:24: error: unused variable 'sip' [-Werror=unused-variable]
- 2838 |   struct sockaddr_in6 *sip = (struct sockaddr_in6 *)sap;
+This optimization is buggy and allows an attacker to shutdown the SSBD
+protection of a victim process.
 
-Change the code to use C-style checks consistently so the compiler
-can handle it correctly.
+The update logic reads the cached base value for the speculation control
+MSR which has neither the SSBD nor the STIBP bit set. It then OR's the
+SSBD bit only when TIF_SSBD is different and requests the MSR update.
 
-Fixes: 87fbfffcc89b ("broken ping to ipv6 linklocal addresses on debian buster")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+That means if TIF_SSBD of the previous and next task are the same, then
+the base value is not updated, even if TIF_SSBD is set. The MSR write is
+not requested.
+
+Subsequently if the TIF_STIBP bit differs then the STIBP bit is updated
+in the base value and the MSR is written with a wrong SSBD value.
+
+This was introduced when the per task/process conditional STIPB
+switching was added on top of the existing SSBD switching.
+
+It is exploitable if the attacker creates a process which enforces SSBD
+and has the contrary value of STIBP than the victim process (i.e. if the
+victim process enforces STIBP, the attacker process must not enforce it;
+if the victim process does not enforce STIBP, the attacker process must
+enforce it) and schedule it on the same core as the victim process. If
+the victim runs after the attacker the victim becomes vulnerable to
+Spectre V4.
+
+To fix this, update the MSR value independent of the TIF_SSBD difference
+and dependent on the SSBD mitigation method available. This ensures that
+a subsequent STIPB initiated MSR write has the correct state of SSBD.
+
+[ tglx: Handle X86_FEATURE_VIRT_SSBD & X86_FEATURE_VIRT_SSBD correctly
+        and massaged changelog ]
+
+Fixes: 5bfbe3ad5840 ("x86/speculation: Prepare for per task indirect branch speculation control")
+Signed-off-by: Anthony Steinhauser <asteinhauser@google.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: stable@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- security/smack/smack.h     |  6 ------
- security/smack/smack_lsm.c | 25 ++++++++-----------------
- 2 files changed, 8 insertions(+), 23 deletions(-)
+ arch/x86/kernel/process.c |   28 ++++++++++------------------
+ 1 file changed, 10 insertions(+), 18 deletions(-)
 
-diff --git a/security/smack/smack.h b/security/smack/smack.h
-index 62529f382942..335d2411abe4 100644
---- a/security/smack/smack.h
-+++ b/security/smack/smack.h
-@@ -148,7 +148,6 @@ struct smk_net4addr {
- 	struct smack_known	*smk_label;	/* label */
- };
+--- a/arch/x86/kernel/process.c
++++ b/arch/x86/kernel/process.c
+@@ -428,28 +428,20 @@ static __always_inline void __speculatio
  
--#if IS_ENABLED(CONFIG_IPV6)
- /*
-  * An entry in the table identifying IPv6 hosts.
-  */
-@@ -159,9 +158,7 @@ struct smk_net6addr {
- 	int			smk_masks;	/* mask size */
- 	struct smack_known	*smk_label;	/* label */
- };
--#endif /* CONFIG_IPV6 */
+ 	lockdep_assert_irqs_disabled();
  
--#ifdef SMACK_IPV6_PORT_LABELING
- /*
-  * An entry in the table identifying ports.
-  */
-@@ -174,7 +171,6 @@ struct smk_port_label {
- 	short			smk_sock_type;	/* Socket type */
- 	short			smk_can_reuse;
- };
--#endif /* SMACK_IPV6_PORT_LABELING */
- 
- struct smack_known_list_elem {
- 	struct list_head	list;
-@@ -335,9 +331,7 @@ extern struct smack_known smack_known_web;
- extern struct mutex	smack_known_lock;
- extern struct list_head smack_known_list;
- extern struct list_head smk_net4addr_list;
--#if IS_ENABLED(CONFIG_IPV6)
- extern struct list_head smk_net6addr_list;
--#endif /* CONFIG_IPV6 */
- 
- extern struct mutex     smack_onlycap_lock;
- extern struct list_head smack_onlycap_list;
-diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-index 8c61d175e195..14bf2f4aea3b 100644
---- a/security/smack/smack_lsm.c
-+++ b/security/smack/smack_lsm.c
-@@ -50,10 +50,8 @@
- #define SMK_RECEIVING	1
- #define SMK_SENDING	2
- 
--#ifdef SMACK_IPV6_PORT_LABELING
--DEFINE_MUTEX(smack_ipv6_lock);
-+static DEFINE_MUTEX(smack_ipv6_lock);
- static LIST_HEAD(smk_ipv6_port_list);
--#endif
- static struct kmem_cache *smack_inode_cache;
- struct kmem_cache *smack_rule_cache;
- int smack_enabled;
-@@ -2320,7 +2318,6 @@ static struct smack_known *smack_ipv4host_label(struct sockaddr_in *sip)
- 	return NULL;
- }
- 
--#if IS_ENABLED(CONFIG_IPV6)
- /*
-  * smk_ipv6_localhost - Check for local ipv6 host address
-  * @sip: the address
-@@ -2388,7 +2385,6 @@ static struct smack_known *smack_ipv6host_label(struct sockaddr_in6 *sip)
- 
- 	return NULL;
- }
--#endif /* CONFIG_IPV6 */
- 
- /**
-  * smack_netlabel - Set the secattr on a socket
-@@ -2477,7 +2473,6 @@ static int smack_netlabel_send(struct sock *sk, struct sockaddr_in *sap)
- 	return smack_netlabel(sk, sk_lbl);
- }
- 
--#if IS_ENABLED(CONFIG_IPV6)
- /**
-  * smk_ipv6_check - check Smack access
-  * @subject: subject Smack label
-@@ -2510,7 +2505,6 @@ static int smk_ipv6_check(struct smack_known *subject,
- 	rc = smk_bu_note("IPv6 check", subject, object, MAY_WRITE, rc);
- 	return rc;
- }
--#endif /* CONFIG_IPV6 */
- 
- #ifdef SMACK_IPV6_PORT_LABELING
- /**
-@@ -2599,6 +2593,7 @@ static void smk_ipv6_port_label(struct socket *sock, struct sockaddr *address)
- 	mutex_unlock(&smack_ipv6_lock);
- 	return;
- }
-+#endif
- 
- /**
-  * smk_ipv6_port_check - check Smack port access
-@@ -2661,7 +2656,6 @@ static int smk_ipv6_port_check(struct sock *sk, struct sockaddr_in6 *address,
- 
- 	return smk_ipv6_check(skp, object, address, act);
- }
--#endif /* SMACK_IPV6_PORT_LABELING */
- 
- /**
-  * smack_inode_setsecurity - set smack xattrs
-@@ -2836,24 +2830,21 @@ static int smack_socket_connect(struct socket *sock, struct sockaddr *sap,
- 		return 0;
- 	if (IS_ENABLED(CONFIG_IPV6) && sap->sa_family == AF_INET6) {
- 		struct sockaddr_in6 *sip = (struct sockaddr_in6 *)sap;
--#ifdef SMACK_IPV6_SECMARK_LABELING
--		struct smack_known *rsp;
--#endif
-+		struct smack_known *rsp = NULL;
- 
- 		if (addrlen < SIN6_LEN_RFC2133)
- 			return 0;
--#ifdef SMACK_IPV6_SECMARK_LABELING
--		rsp = smack_ipv6host_label(sip);
-+		if (__is_defined(SMACK_IPV6_SECMARK_LABELING))
-+			rsp = smack_ipv6host_label(sip);
- 		if (rsp != NULL) {
- 			struct socket_smack *ssp = sock->sk->sk_security;
- 
- 			rc = smk_ipv6_check(ssp->smk_out, rsp, sip,
- 					    SMK_CONNECTING);
- 		}
--#endif
--#ifdef SMACK_IPV6_PORT_LABELING
--		rc = smk_ipv6_port_check(sock->sk, sip, SMK_CONNECTING);
--#endif
-+		if (__is_defined(SMACK_IPV6_PORT_LABELING))
-+			rc = smk_ipv6_port_check(sock->sk, sip, SMK_CONNECTING);
-+
- 		return rc;
+-	/*
+-	 * If TIF_SSBD is different, select the proper mitigation
+-	 * method. Note that if SSBD mitigation is disabled or permanentely
+-	 * enabled this branch can't be taken because nothing can set
+-	 * TIF_SSBD.
+-	 */
+-	if (tif_diff & _TIF_SSBD) {
+-		if (static_cpu_has(X86_FEATURE_VIRT_SSBD)) {
++	/* Handle change of TIF_SSBD depending on the mitigation method. */
++	if (static_cpu_has(X86_FEATURE_VIRT_SSBD)) {
++		if (tif_diff & _TIF_SSBD)
+ 			amd_set_ssb_virt_state(tifn);
+-		} else if (static_cpu_has(X86_FEATURE_LS_CFG_SSBD)) {
++	} else if (static_cpu_has(X86_FEATURE_LS_CFG_SSBD)) {
++		if (tif_diff & _TIF_SSBD)
+ 			amd_set_core_ssb_state(tifn);
+-		} else if (static_cpu_has(X86_FEATURE_SPEC_CTRL_SSBD) ||
+-			   static_cpu_has(X86_FEATURE_AMD_SSBD)) {
+-			msr |= ssbd_tif_to_spec_ctrl(tifn);
+-			updmsr  = true;
+-		}
++	} else if (static_cpu_has(X86_FEATURE_SPEC_CTRL_SSBD) ||
++		   static_cpu_has(X86_FEATURE_AMD_SSBD)) {
++		updmsr |= !!(tif_diff & _TIF_SSBD);
++		msr |= ssbd_tif_to_spec_ctrl(tifn);
  	}
- 	if (sap->sa_family != AF_INET || addrlen < sizeof(struct sockaddr_in))
--- 
-2.25.1
-
+ 
+-	/*
+-	 * Only evaluate TIF_SPEC_IB if conditional STIBP is enabled,
+-	 * otherwise avoid the MSR write.
+-	 */
++	/* Only evaluate TIF_SPEC_IB if conditional STIBP is enabled. */
+ 	if (IS_ENABLED(CONFIG_SMP) &&
+ 	    static_branch_unlikely(&switch_to_cond_stibp)) {
+ 		updmsr |= !!(tif_diff & _TIF_SPEC_IB);
 
 
