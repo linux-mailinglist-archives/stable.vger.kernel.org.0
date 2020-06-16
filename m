@@ -2,43 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 32D351FB74F
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:47:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 196BA1FB8F1
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:00:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731564AbgFPPpD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:45:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35844 "EHLO mail.kernel.org"
+        id S1731325AbgFPPxH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:53:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51124 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731542AbgFPPpB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:45:01 -0400
+        id S1732836AbgFPPxG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:53:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C524821475;
-        Tue, 16 Jun 2020 15:45:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BDA8F208D5;
+        Tue, 16 Jun 2020 15:53:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322301;
-        bh=Z1qeNrPzQX2HeO121luRbN2+mEG0uHjTupsRDDT/lHY=;
+        s=default; t=1592322786;
+        bh=0JERohV4x/Bj7qeK8SMYNWYmz3BUXkYI0JZHeSB8q1g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JFGvF0y3pAGCnxpZjg7dAh364xWSBCclmciY/c+zPl+l1b55FPs5SnOY4PH3uVrxd
-         Qe4YepKuYqEqG3oZbeoAS5uw1hn9G8FAq9DADIB9pH9+/pdNVu5hPSA+ggtc7jqWPu
-         kCpUPPGgh2wsrYef5cYmiJ1f4pVgdzA/st+a39p8=
+        b=oMqYSVWB6rLVrFaIkmY/G9tfKk/4KNttlwc/A6Z0rnWRhI2rUVMDN6u/kmImtLr8B
+         wVVcAk3s9eN7/z/lt8OoCl1jKH7rvhHvrnrHTNtRavdQMokW9MMeSgQqEFPFYom+Ga
+         Q6n8xe2EHu8VRvqt1gVlttK/eoa7idWTjMJzDi/I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Walton Hoops <me@waltonhoops.com>,
-        Tomas Hlavaty <tom@logand.com>,
-        ARAI Shun-ichi <hermes@ceres.dti.ne.jp>,
-        Hideki EIRAKU <hdk1983@gmail.com>,
-        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.7 078/163] nilfs2: fix null pointer dereference at nilfs_segctor_do_construct()
-Date:   Tue, 16 Jun 2020 17:34:12 +0200
-Message-Id: <20200616153110.580658651@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?=E4=BA=BF=E4=B8=80?= <teroincn@gmail.com>,
+        Ard Biesheuvel <ardb@kernel.org>
+Subject: [PATCH 5.6 063/161] efi/efivars: Add missing kobject_put() in sysfs entry creation error path
+Date:   Tue, 16 Jun 2020 17:34:13 +0200
+Message-Id: <20200616153109.379226863@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
-References: <20200616153106.849127260@linuxfoundation.org>
+In-Reply-To: <20200616153106.402291280@linuxfoundation.org>
+References: <20200616153106.402291280@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,67 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-commit 8301c719a2bd131436438e49130ee381d30933f5 upstream.
+commit d8bd8c6e2cfab8b78b537715255be8d7557791c0 upstream.
 
-After commit c3aab9a0bd91 ("mm/filemap.c: don't initiate writeback if
-mapping has no dirty pages"), the following null pointer dereference has
-been reported on nilfs2:
+The documentation provided by kobject_init_and_add() clearly spells out
+the need to call kobject_put() on the kobject if an error is returned.
+Add this missing call to the error path.
 
-  BUG: kernel NULL pointer dereference, address: 00000000000000a8
-  #PF: supervisor read access in kernel mode
-  #PF: error_code(0x0000) - not-present page
-  PGD 0 P4D 0
-  Oops: 0000 [#1] SMP PTI
-  ...
-  RIP: 0010:percpu_counter_add_batch+0xa/0x60
-  ...
-  Call Trace:
-    __test_set_page_writeback+0x2d3/0x330
-    nilfs_segctor_do_construct+0x10d3/0x2110 [nilfs2]
-    nilfs_segctor_construct+0x168/0x260 [nilfs2]
-    nilfs_segctor_thread+0x127/0x3b0 [nilfs2]
-    kthread+0xf8/0x130
-    ...
-
-This crash turned out to be caused by set_page_writeback() call for
-segment summary buffers at nilfs_segctor_prepare_write().
-
-set_page_writeback() can call inc_wb_stat(inode_to_wb(inode),
-WB_WRITEBACK) where inode_to_wb(inode) is NULL if the inode of
-underlying block device does not have an associated wb.
-
-This fixes the issue by calling inode_attach_wb() in advance to ensure
-to associate the bdev inode with its wb.
-
-Fixes: c3aab9a0bd91 ("mm/filemap.c: don't initiate writeback if mapping has no dirty pages")
-Reported-by: Walton Hoops <me@waltonhoops.com>
-Reported-by: Tomas Hlavaty <tom@logand.com>
-Reported-by: ARAI Shun-ichi <hermes@ceres.dti.ne.jp>
-Reported-by: Hideki EIRAKU <hdk1983@gmail.com>
-Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Tested-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Cc: <stable@vger.kernel.org>	[5.4+]
-Link: http://lkml.kernel.org/r/20200608.011819.1399059588922299158.konishi.ryusuke@gmail.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: <stable@vger.kernel.org>
+Reported-by: 亿一 <teroincn@gmail.com>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/nilfs2/segment.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/firmware/efi/efivars.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/fs/nilfs2/segment.c
-+++ b/fs/nilfs2/segment.c
-@@ -2780,6 +2780,8 @@ int nilfs_attach_log_writer(struct super
- 	if (!nilfs->ns_writer)
- 		return -ENOMEM;
+--- a/drivers/firmware/efi/efivars.c
++++ b/drivers/firmware/efi/efivars.c
+@@ -522,8 +522,10 @@ efivar_create_sysfs_entry(struct efivar_
+ 	ret = kobject_init_and_add(&new_var->kobj, &efivar_ktype,
+ 				   NULL, "%s", short_name);
+ 	kfree(short_name);
+-	if (ret)
++	if (ret) {
++		kobject_put(&new_var->kobj);
+ 		return ret;
++	}
  
-+	inode_attach_wb(nilfs->ns_bdev->bd_inode, NULL);
-+
- 	err = nilfs_segctor_start_thread(nilfs->ns_writer);
- 	if (err) {
- 		kfree(nilfs->ns_writer);
+ 	kobject_uevent(&new_var->kobj, KOBJ_ADD);
+ 	if (efivar_entry_add(new_var, &efivar_sysfs_list)) {
 
 
