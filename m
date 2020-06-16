@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C9AEE1FBB89
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:22:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CB3E01FB999
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:05:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730085AbgFPQUP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 12:20:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47456 "EHLO mail.kernel.org"
+        id S1729794AbgFPQFJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 12:05:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44044 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729783AbgFPPgg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:36:36 -0400
+        id S1732473AbgFPPtM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:49:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4DAFB21655;
-        Tue, 16 Jun 2020 15:36:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C2F1F2071A;
+        Tue, 16 Jun 2020 15:49:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592321795;
-        bh=1ibSWb40h2ksUfir1sJ9yp6ZcqNYXZk2i/6KuaDpPFM=;
+        s=default; t=1592322552;
+        bh=cR0PP+/MQZYLqQf3bbJfXoLuvhvnjpmt6Okx0cKiyf4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yjbFSOE99xY+Oj8UdblfyKIq2M5Ig7VncOyXEgbUBEWCVw7xVMeNiJBU7xoLLK5w6
-         6ncmJFZGqAUTdN2zvucSVoJHprSh7yWHxdiqLz7VAM33iwA6SaXcG3sIATxF4Ia7Wu
-         JZjOkokwzC5qfqi3azKb0k2BD1AFQYnowtzsslAg=
+        b=ugzR4CCo6RiDW7hayB/yjARNCvFGaFMe8YkxepG4xMJGHEyWq8KiKIxER1s335Iy/
+         mpuxje/ygGgOdt8pPBpkompgBZnpdOl0OPQrZlWphe0b8l65MFRYoAwN6u6Vt4/fdQ
+         KBFHQvS2o1oNCh1/ABqhskzS2NzKdmv/c5itCu1E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 019/134] spi: dw: Fix native CS being unset
+        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Fangrui Song <maskray@google.com>,
+        Jeremy Fitzhardinge <jeremy@goop.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Vincenzo Frascino <vincenzo.frascino@arm.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Jian Cai <jiancai@google.com>,
+        Ilie Halip <ilie.halip@gmail.com>
+Subject: [PATCH 5.6 013/161] elfnote: mark all .note sections SHF_ALLOC
 Date:   Tue, 16 Jun 2020 17:33:23 +0200
-Message-Id: <20200616153101.634133752@linuxfoundation.org>
+Message-Id: <20200616153107.043647293@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153100.633279950@linuxfoundation.org>
-References: <20200616153100.633279950@linuxfoundation.org>
+In-Reply-To: <20200616153106.402291280@linuxfoundation.org>
+References: <20200616153106.402291280@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,78 +51,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 9aea644ca17b94f82ad7fa767cbc4509642f4420 ]
+From: Nick Desaulniers <ndesaulniers@google.com>
 
-Commit 6e0a32d6f376 ("spi: dw: Fix default polarity of native
-chipselect") attempted to fix the problem when GPIO active-high
-chip-select is utilized to communicate with some SPI slave. It fixed
-the problem, but broke the normal native CS support. At the same time
-the reversion commit ada9e3fcc175 ("spi: dw: Correct handling of native
-chipselect") didn't solve the problem either, since it just inverted
-the set_cs() polarity perception without taking into account that
-CS-high might be applicable. Here is what is done to finally fix the
-problem.
+commit 51da9dfb7f20911ae4e79e9b412a9c2d4c373d4b upstream.
 
-DW SPI controller demands any native CS being set in order to proceed
-with data transfer. So in order to activate the SPI communications we
-must set any bit in the Slave Select DW SPI controller register no
-matter whether the platform requests the GPIO- or native CS. Preferably
-it should be the bit corresponding to the SPI slave CS number. But
-currently the dw_spi_set_cs() method activates the chip-select
-only if the second argument is false. Since the second argument of the
-set_cs callback is expected to be a boolean with "is-high" semantics
-(actual chip-select pin state value), the bit in the DW SPI Slave
-Select register will be set only if SPI core requests the driver
-to set the CS in the low state. So this will work for active-low
-GPIO-based CS case, and won't work for active-high CS setting
-the bit when SPI core actually needs to deactivate the CS.
+ELFNOTE_START allows callers to specify flags for .pushsection assembler
+directives.  All callsites but ELF_NOTE use "a" for SHF_ALLOC.  For vdso's
+that explicitly use ELF_NOTE_START and BUILD_SALT, the same section is
+specified twice after preprocessing, once with "a" flag, once without.
+Example:
 
-This commit fixes the problem for all described cases. So no matter
-whether an SPI slave needs GPIO- or native-based CS with active-high
-or low signal the corresponding bit will be set in SER.
+.pushsection .note.Linux, "a", @note ;
+.pushsection .note.Linux, "", @note ;
 
-Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
-Fixes: ada9e3fcc175 ("spi: dw: Correct handling of native chipselect")
-Fixes: 6e0a32d6f376 ("spi: dw: Fix default polarity of native chipselect")
-Reviewed-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Acked-by: Linus Walleij <linus.walleij@linaro.org>
+While GNU as allows this ordering, it warns for the opposite ordering,
+making these directives position dependent.  We'd prefer not to precisely
+match this behavior in Clang's integrated assembler.  Instead, the non
+__ASSEMBLY__ definition of ELF_NOTE uses
+__attribute__((section(".note.Linux"))) which is created with SHF_ALLOC,
+so let's make the __ASSEMBLY__ definition of ELF_NOTE consistent with C
+and just always use "a" flag.
 
-Link: https://lore.kernel.org/r/20200515104758.6934-5-Sergey.Semin@baikalelectronics.ru
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This allows Clang to assemble a working mainline (5.6) kernel via:
+$ make CC=clang AS=clang
+
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
+Reviewed-by: Fangrui Song <maskray@google.com>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Vincenzo Frascino <vincenzo.frascino@arm.com>
+Link: https://github.com/ClangBuiltLinux/linux/issues/913
+Link: http://lkml.kernel.org/r/20200325231250.99205-1-ndesaulniers@google.com
+Debugged-by: Ilie Halip <ilie.halip@gmail.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Jian Cai <jiancai@google.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/spi/spi-dw.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ include/linux/elfnote.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spi-dw.c b/drivers/spi/spi-dw.c
-index d2ca3b357cfe..c7d2f74f0d69 100644
---- a/drivers/spi/spi-dw.c
-+++ b/drivers/spi/spi-dw.c
-@@ -128,12 +128,20 @@ void dw_spi_set_cs(struct spi_device *spi, bool enable)
- {
- 	struct dw_spi *dws = spi_controller_get_devdata(spi->controller);
- 	struct chip_data *chip = spi_get_ctldata(spi);
-+	bool cs_high = !!(spi->mode & SPI_CS_HIGH);
+--- a/include/linux/elfnote.h
++++ b/include/linux/elfnote.h
+@@ -54,7 +54,7 @@
+ .popsection				;
  
- 	/* Chip select logic is inverted from spi_set_cs() */
- 	if (chip && chip->cs_control)
- 		chip->cs_control(!enable);
+ #define ELFNOTE(name, type, desc)		\
+-	ELFNOTE_START(name, type, "")		\
++	ELFNOTE_START(name, type, "a")		\
+ 		desc			;	\
+ 	ELFNOTE_END
  
--	if (!enable)
-+	/*
-+	 * DW SPI controller demands any native CS being set in order to
-+	 * proceed with data transfer. So in order to activate the SPI
-+	 * communications we must set a corresponding bit in the Slave
-+	 * Enable register no matter whether the SPI core is configured to
-+	 * support active-high or active-low CS level.
-+	 */
-+	if (cs_high == enable)
- 		dw_writel(dws, DW_SPI_SER, BIT(spi->chip_select));
- 	else if (dws->cs_override)
- 		dw_writel(dws, DW_SPI_SER, 0);
--- 
-2.25.1
-
 
 
