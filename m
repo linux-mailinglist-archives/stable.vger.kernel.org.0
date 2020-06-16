@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AAC811FADAE
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 12:14:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B7C41FADB0
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 12:14:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728357AbgFPKO3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 06:14:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41592 "EHLO mail.kernel.org"
+        id S1728384AbgFPKOi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 06:14:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41714 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726052AbgFPKO3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 06:14:29 -0400
+        id S1726052AbgFPKOh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 06:14:37 -0400
 Received: from localhost.localdomain (NE2965lan1.rev.em-net.ne.jp [210.141.244.193])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0CED320734;
-        Tue, 16 Jun 2020 10:14:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 858DA20707;
+        Tue, 16 Jun 2020 10:14:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592302468;
-        bh=UXfCyP+Xp14GVhxH+a3ULCFKGys2vq8CRdRVm47yCYM=;
+        s=default; t=1592302477;
+        bh=YOsC4LLGB0qwQzuEjdsQ/IgIA0Osqe8PuO5b9rII9tU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0eSIpaJLvTtQWq2UAwb171QD2F/yQpSdGBSMbkC+lgOZvbJMUk9IQqDZ/SKOaN5gx
-         CLRBqlNUq9cW4p8PCIjD3iJXa63eMNdQUGsOdqs2yiXgNLPt1QiCrOE6uP4h/dQe/H
-         t1ObfSKLy5Ky2aJ4sqp0lRgJ4++Pny4n1pxboa9Y=
+        b=tvKObokm5xIinxRS7usU65KocXREG2e2lIlqcG+2/JeDwfdnMMzgaNKbVKqzOavT5
+         tw0aMOIsPhBMVMPOYye/HQ4j1Mxb6OSQZfuQcr0C44sNGdlaeWkE9IlG9ssmDA6REw
+         EsJ00ldYt3SjOHlLbkNl+ITOwpu8YRAoI/MwS97g=
 From:   Masami Hiramatsu <mhiramat@kernel.org>
 To:     Steven Rostedt <rostedt@goodmis.org>
 Cc:     stable@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH v2 3/4] tools/bootconfig: Fix to return 0 if succeeded to show the bootconfig
-Date:   Tue, 16 Jun 2020 19:14:25 +0900
-Message-Id: <159230246566.65555.11891772258543514487.stgit@devnote2>
+Subject: [PATCH v2 4/4] tools/bootconfig: Add testcase for show-command and quotes test
+Date:   Tue, 16 Jun 2020 19:14:34 +0900
+Message-Id: <159230247428.65555.2109472942519215104.stgit@devnote2>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <159230243779.65555.11413773790099102781.stgit@devnote2>
 References: <159230243779.65555.11413773790099102781.stgit@devnote2>
@@ -41,40 +41,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Fix bootconfig to return 0 if succeeded to show the bootconfig
-in initrd. Without this fix, "bootconfig INITRD" command
-returns !0 even if the command succeeded to show the bootconfig.
+Add testcases for the return value of the command to show
+bootconfig in initrd, and double/single quotes selecting.
 
-Fixes: 950313ebf79c ("tools: bootconfig: Add bootconfig command")
-Cc: stable@vger.kernel.org
 Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
 ---
   Changes in v2:
-   - Use goto for better reading.
+   - Update patch description.
 ---
- tools/bootconfig/main.c |   10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ tools/bootconfig/test-bootconfig.sh |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/tools/bootconfig/main.c b/tools/bootconfig/main.c
-index 21896a6675fd..e0878f5f74b1 100644
---- a/tools/bootconfig/main.c
-+++ b/tools/bootconfig/main.c
-@@ -207,11 +207,13 @@ int show_xbc(const char *path)
- 	}
+diff --git a/tools/bootconfig/test-bootconfig.sh b/tools/bootconfig/test-bootconfig.sh
+index eff16b77d5eb..3c2ab9e75730 100755
+--- a/tools/bootconfig/test-bootconfig.sh
++++ b/tools/bootconfig/test-bootconfig.sh
+@@ -55,6 +55,9 @@ echo "Apply command test"
+ xpass $BOOTCONF -a $TEMPCONF $INITRD
+ new_size=$(stat -c %s $INITRD)
  
- 	ret = load_xbc_from_initrd(fd, &buf);
--	if (ret < 0)
-+	if (ret < 0) {
- 		pr_err("Failed to load a boot config from initrd: %d\n", ret);
--	else
--		xbc_show_compact_tree();
--
-+		goto out;
-+	}
-+	xbc_show_compact_tree();
-+	ret = 0;
-+out:
- 	close(fd);
- 	free(buf);
++echo "Show command test"
++xpass $BOOTCONF $INITRD
++
+ echo "File size check"
+ xpass test $new_size -eq $(expr $bconf_size + $initrd_size + 9 + 12)
  
+@@ -114,6 +117,13 @@ xpass grep -q "bar" $OUTFILE
+ xpass grep -q "baz" $OUTFILE
+ xpass grep -q "qux" $OUTFILE
+ 
++echo "Double/single quotes test"
++echo "key = '\"string\"';" > $TEMPCONF
++$BOOTCONF -a $TEMPCONF $INITRD
++$BOOTCONF $INITRD > $TEMPCONF
++cat $TEMPCONF
++xpass grep \'\"string\"\' $TEMPCONF
++
+ echo "=== expected failure cases ==="
+ for i in samples/bad-* ; do
+   xfail $BOOTCONF -a $i $INITRD
 
