@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EF3851FB91D
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:01:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 68D481FB9D8
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:07:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732359AbgFPPwI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:52:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49172 "EHLO mail.kernel.org"
+        id S1732289AbgFPPrJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:47:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39900 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732746AbgFPPwG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:52:06 -0400
+        id S1731578AbgFPPrG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:47:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C008F21532;
-        Tue, 16 Jun 2020 15:52:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E2E5C2071A;
+        Tue, 16 Jun 2020 15:47:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322725;
-        bh=caW8/Y6VPKp5vVcWf/wLPLBPATAnCb5BJZT3tCjbtaY=;
+        s=default; t=1592322425;
+        bh=AYsOaqkq44XXpdqfqJmtNh/V7JdxTloW2kI9UsMF6Go=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DbBvCMGea3VY9sE6GkGvO83OjouwjbXsT40jqG3hWRyq/WjWgmQINank4fEmG5gAR
-         MqD6t8rjr5PxebNv8BDmShBn/qzfubO6k1EDUD5AyWjghksQfN0LP1D9oln0xKmrhO
-         54CG/T/Rx/IaZLBusn6un8CDxfRLQ8Zt2PPkPTkw=
+        b=ta4jhmyOX3IIvWSQ8OxHdzxBiJ6ONIY5S8xsI6PFacbiRxlVSnCX7l0ZpcH8zItKq
+         R8CqfU6/IZ9FEcL/oIjQkr1ECmRpGIuSuyPTo+mfS3sqL/VEa39PvLW4XpczDFuNkE
+         snrUgGnnENAL1BCVsJMYsZcIMSynG1LwGNE/8cFM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        youling257@gmail.com,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.6 080/161] ACPI: PM: Avoid using power resources if there are none for D0
+        stable@vger.kernel.org, Jue Wang <juew@google.com>,
+        Tony Luck <tony.luck@intel.com>, Borislav Petkov <bp@suse.de>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 5.7 096/163] x86/{mce,mm}: Unmap the entire page if the whole page is affected and poisoned
 Date:   Tue, 16 Jun 2020 17:34:30 +0200
-Message-Id: <20200616153110.188134630@linuxfoundation.org>
+Message-Id: <20200616153111.429328810@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153106.402291280@linuxfoundation.org>
-References: <20200616153106.402291280@linuxfoundation.org>
+In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
+References: <20200616153106.849127260@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,121 +44,145 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Tony Luck <tony.luck@intel.com>
 
-commit 956ad9d98b73f59e442cc119c98ba1e04e94fe6d upstream.
+commit 17fae1294ad9d711b2c3dd0edef479d40c76a5e8 upstream.
 
-As recently reported, some platforms provide a list of power
-resources for device power state D3hot, through the _PR3 object,
-but they do not provide a list of power resources for device power
-state D0.
+An interesting thing happened when a guest Linux instance took a machine
+check. The VMM unmapped the bad page from guest physical space and
+passed the machine check to the guest.
 
-Among other things, this causes acpi_device_get_power() to return
-D3hot as the current state of the device in question if all of the
-D3hot power resources are "on", because it sees the power_resources
-flag set and calls acpi_power_get_inferred_state() which finds that
-D3hot is the shallowest power state with all of the associated power
-resources turned "on", so that's what it returns.  Moreover, that
-value takes precedence over the acpi_dev_pm_explicit_get() return
-value, because it means a deeper power state.  The device may very
-well be in D0 physically at that point, however.
+Linux took all the normal actions to offline the page from the process
+that was using it. But then guest Linux crashed because it said there
+was a second machine check inside the kernel with this stack trace:
 
-Moreover, the presence of _PR3 without _PR0 for a given device
-means that only one D3-level power state can be supported by it.
-Namely, because there are no power resources to turn "off" when
-transitioning the device from D0 into D3cold (which should be
-supported since _PR3 is present), the evaluation of _PS3 should
-be sufficient to put it straight into D3cold, but this means that
-the effect of turning "on" the _PR3 power resources is unclear,
-so it is better to avoid doing that altogether.  Consequently,
-there is no practical way do distinguish D3cold from D3hot for
-the device in question and the power states of it can be labeled
-so that D3hot is the deepest supported one (and Linux assumes
-that putting a device into D3hot via ACPI may cause power to be
-removed from it anyway, for legacy reasons).
+do_memory_failure
+    set_mce_nospec
+         set_memory_uc
+              _set_memory_uc
+                   change_page_attr_set_clr
+                        cpa_flush
+                             clflush_cache_range_opt
 
-To work around the problem described above modify the ACPI
-enumeration of devices so that power resources are only used
-for device power management if the list of D0 power resources
-is not empty and make it mart D3cold as supported only if that
-is the case and the D3hot list of power resources is not empty
-too.
+This was odd, because a CLFLUSH instruction shouldn't raise a machine
+check (it isn't consuming the data). Further investigation showed that
+the VMM had passed in another machine check because is appeared that the
+guest was accessing the bad page.
 
-Fixes: ef85bdbec444 ("ACPI / scan: Consolidate extraction of power resources lists")
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=205057
-Link: https://lore.kernel.org/linux-acpi/20200603194659.185757-1-hdegoede@redhat.com/
-Reported-by: Hans de Goede <hdegoede@redhat.com>
-Tested-by: Hans de Goede <hdegoede@redhat.com>
-Tested-by: youling257@gmail.com
-Cc: 3.10+ <stable@vger.kernel.org> # 3.10+
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Fix is to check the scope of the poison by checking the MCi_MISC register.
+If the entire page is affected, then unmap the page. If only part of the
+page is affected, then mark the page as uncacheable.
+
+This assumes that VMMs will do the logical thing and pass in the "whole
+page scope" via the MCi_MISC register (since they unmapped the entire
+page).
+
+  [ bp: Adjust to x86/entry changes. ]
+
+Fixes: 284ce4011ba6 ("x86/memory_failure: Introduce {set, clear}_mce_nospec()")
+Reported-by: Jue Wang <juew@google.com>
+Signed-off-by: Tony Luck <tony.luck@intel.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Jue Wang <juew@google.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/20200520163546.GA7977@agluck-desk2.amr.corp.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/acpi/device_pm.c |    2 +-
- drivers/acpi/scan.c      |   28 +++++++++++++++++++---------
- 2 files changed, 20 insertions(+), 10 deletions(-)
+ arch/x86/include/asm/set_memory.h |   19 +++++++++++++------
+ arch/x86/kernel/cpu/mce/core.c    |   11 +++++++++--
+ include/linux/set_memory.h        |    2 +-
+ 3 files changed, 23 insertions(+), 9 deletions(-)
 
---- a/drivers/acpi/device_pm.c
-+++ b/drivers/acpi/device_pm.c
-@@ -186,7 +186,7 @@ int acpi_device_set_power(struct acpi_de
- 		 * possibly drop references to the power resources in use.
- 		 */
- 		state = ACPI_STATE_D3_HOT;
--		/* If _PR3 is not available, use D3hot as the target state. */
-+		/* If D3cold is not supported, use D3hot as the target state. */
- 		if (!device->power.states[ACPI_STATE_D3_COLD].flags.valid)
- 			target_state = state;
- 	} else if (!device->power.states[state].flags.valid) {
---- a/drivers/acpi/scan.c
-+++ b/drivers/acpi/scan.c
-@@ -919,12 +919,9 @@ static void acpi_bus_init_power_state(st
+--- a/arch/x86/include/asm/set_memory.h
++++ b/arch/x86/include/asm/set_memory.h
+@@ -86,28 +86,35 @@ int set_direct_map_default_noflush(struc
+ extern int kernel_set_to_readonly;
  
- 		if (buffer.length && package
- 		    && package->type == ACPI_TYPE_PACKAGE
--		    && package->package.count) {
--			int err = acpi_extract_power_resources(package, 0,
--							       &ps->resources);
--			if (!err)
--				device->power.flags.power_resources = 1;
--		}
-+		    && package->package.count)
-+			acpi_extract_power_resources(package, 0, &ps->resources);
+ #ifdef CONFIG_X86_64
+-static inline int set_mce_nospec(unsigned long pfn)
++/*
++ * Prevent speculative access to the page by either unmapping
++ * it (if we do not require access to any part of the page) or
++ * marking it uncacheable (if we want to try to retrieve data
++ * from non-poisoned lines in the page).
++ */
++static inline int set_mce_nospec(unsigned long pfn, bool unmap)
+ {
+ 	unsigned long decoy_addr;
+ 	int rc;
+ 
+ 	/*
+-	 * Mark the linear address as UC to make sure we don't log more
+-	 * errors because of speculative access to the page.
+ 	 * We would like to just call:
+-	 *      set_memory_uc((unsigned long)pfn_to_kaddr(pfn), 1);
++	 *      set_memory_XX((unsigned long)pfn_to_kaddr(pfn), 1);
+ 	 * but doing that would radically increase the odds of a
+ 	 * speculative access to the poison page because we'd have
+ 	 * the virtual address of the kernel 1:1 mapping sitting
+ 	 * around in registers.
+ 	 * Instead we get tricky.  We create a non-canonical address
+ 	 * that looks just like the one we want, but has bit 63 flipped.
+-	 * This relies on set_memory_uc() properly sanitizing any __pa()
++	 * This relies on set_memory_XX() properly sanitizing any __pa()
+ 	 * results with __PHYSICAL_MASK or PTE_PFN_MASK.
+ 	 */
+ 	decoy_addr = (pfn << PAGE_SHIFT) + (PAGE_OFFSET ^ BIT(63));
+ 
+-	rc = set_memory_uc(decoy_addr, 1);
++	if (unmap)
++		rc = set_memory_np(decoy_addr, 1);
++	else
++		rc = set_memory_uc(decoy_addr, 1);
+ 	if (rc)
+ 		pr_warn("Could not invalidate pfn=0x%lx from 1:1 map\n", pfn);
+ 	return rc;
+--- a/arch/x86/kernel/cpu/mce/core.c
++++ b/arch/x86/kernel/cpu/mce/core.c
+@@ -529,6 +529,13 @@ bool mce_is_memory_error(struct mce *m)
+ }
+ EXPORT_SYMBOL_GPL(mce_is_memory_error);
+ 
++static bool whole_page(struct mce *m)
++{
++	if (!mca_cfg.ser || !(m->status & MCI_STATUS_MISCV))
++		return true;
++	return MCI_MISC_ADDR_LSB(m->misc) >= PAGE_SHIFT;
++}
 +
- 		ACPI_FREE(buffer.pointer);
- 	}
+ bool mce_is_correctable(struct mce *m)
+ {
+ 	if (m->cpuvendor == X86_VENDOR_AMD && m->status & MCI_STATUS_DEFERRED)
+@@ -600,7 +607,7 @@ static int uc_decode_notifier(struct not
  
-@@ -971,14 +968,27 @@ static void acpi_bus_get_power_flags(str
- 		acpi_bus_init_power_state(device, i);
+ 	pfn = mce->addr >> PAGE_SHIFT;
+ 	if (!memory_failure(pfn, 0))
+-		set_mce_nospec(pfn);
++		set_mce_nospec(pfn, whole_page(mce));
  
- 	INIT_LIST_HEAD(&device->power.states[ACPI_STATE_D3_COLD].resources);
--	if (!list_empty(&device->power.states[ACPI_STATE_D3_HOT].resources))
--		device->power.states[ACPI_STATE_D3_COLD].flags.valid = 1;
+ 	return NOTIFY_OK;
+ }
+@@ -1098,7 +1105,7 @@ static int do_memory_failure(struct mce
+ 	if (ret)
+ 		pr_err("Memory error not recovered");
+ 	else
+-		set_mce_nospec(m->addr >> PAGE_SHIFT);
++		set_mce_nospec(m->addr >> PAGE_SHIFT, whole_page(m));
+ 	return ret;
+ }
  
--	/* Set defaults for D0 and D3hot states (always valid) */
-+	/* Set the defaults for D0 and D3hot (always supported). */
- 	device->power.states[ACPI_STATE_D0].flags.valid = 1;
- 	device->power.states[ACPI_STATE_D0].power = 100;
- 	device->power.states[ACPI_STATE_D3_HOT].flags.valid = 1;
+--- a/include/linux/set_memory.h
++++ b/include/linux/set_memory.h
+@@ -26,7 +26,7 @@ static inline int set_direct_map_default
+ #endif
  
-+	/*
-+	 * Use power resources only if the D0 list of them is populated, because
-+	 * some platforms may provide _PR3 only to indicate D3cold support and
-+	 * in those cases the power resources list returned by it may be bogus.
-+	 */
-+	if (!list_empty(&device->power.states[ACPI_STATE_D0].resources)) {
-+		device->power.flags.power_resources = 1;
-+		/*
-+		 * D3cold is supported if the D3hot list of power resources is
-+		 * not empty.
-+		 */
-+		if (!list_empty(&device->power.states[ACPI_STATE_D3_HOT].resources))
-+			device->power.states[ACPI_STATE_D3_COLD].flags.valid = 1;
-+	}
-+
- 	if (acpi_bus_init_power(device))
- 		device->flags.power_manageable = 0;
+ #ifndef set_mce_nospec
+-static inline int set_mce_nospec(unsigned long pfn)
++static inline int set_mce_nospec(unsigned long pfn, bool unmap)
+ {
+ 	return 0;
  }
 
 
