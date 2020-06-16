@@ -2,39 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A42E1FB7F7
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:53:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 32D351FB74F
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:47:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732662AbgFPPvU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:51:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47780 "EHLO mail.kernel.org"
+        id S1731564AbgFPPpD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:45:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35844 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732658AbgFPPvT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:51:19 -0400
+        id S1731542AbgFPPpB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:45:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7A8CF208D5;
-        Tue, 16 Jun 2020 15:51:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C524821475;
+        Tue, 16 Jun 2020 15:45:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322678;
-        bh=tsKDLnWFTSaaElZKoZK2jgT8PGZj3lzOrzE87+HxmHA=;
+        s=default; t=1592322301;
+        bh=Z1qeNrPzQX2HeO121luRbN2+mEG0uHjTupsRDDT/lHY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ql367wKCw+IQsM/wMyP11Vo0zOsnY4X4BGX5wo6bR/iUOTjprNoIT3H+mYL0J/yDd
-         xq3ojNf7aalbozuvlna4yEi+oykquFgDpDYd1w+0LIEf2EpVhUdrzE/eblmeM7DUkC
-         CV7343lmCccer/34cK4zAXprrjRvfM5MAn7qQCe8=
+        b=JFGvF0y3pAGCnxpZjg7dAh364xWSBCclmciY/c+zPl+l1b55FPs5SnOY4PH3uVrxd
+         Qe4YepKuYqEqG3oZbeoAS5uw1hn9G8FAq9DADIB9pH9+/pdNVu5hPSA+ggtc7jqWPu
+         kCpUPPGgh2wsrYef5cYmiJ1f4pVgdzA/st+a39p8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.6 060/161] powerpc/ptdump: Properly handle non standard page size
-Date:   Tue, 16 Jun 2020 17:34:10 +0200
-Message-Id: <20200616153109.235914013@linuxfoundation.org>
+        stable@vger.kernel.org, Walton Hoops <me@waltonhoops.com>,
+        Tomas Hlavaty <tom@logand.com>,
+        ARAI Shun-ichi <hermes@ceres.dti.ne.jp>,
+        Hideki EIRAKU <hdk1983@gmail.com>,
+        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.7 078/163] nilfs2: fix null pointer dereference at nilfs_segctor_do_construct()
+Date:   Tue, 16 Jun 2020 17:34:12 +0200
+Message-Id: <20200616153110.580658651@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153106.402291280@linuxfoundation.org>
-References: <20200616153106.402291280@linuxfoundation.org>
+In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
+References: <20200616153106.849127260@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,124 +48,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
 
-commit b00ff6d8c1c3898b0f768cbb38ef722d25bd2f39 upstream.
+commit 8301c719a2bd131436438e49130ee381d30933f5 upstream.
 
-In order to properly display information regardless of the page size,
-it is necessary to take into account real page size.
+After commit c3aab9a0bd91 ("mm/filemap.c: don't initiate writeback if
+mapping has no dirty pages"), the following null pointer dereference has
+been reported on nilfs2:
 
-Fixes: cabe8138b23c ("powerpc: dump as a single line areas mapping a single physical page.")
-Cc: stable@vger.kernel.org
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/a53b2a0ffd042a8d85464bf90d55bc5b970e00a1.1589866984.git.christophe.leroy@csgroup.eu
+  BUG: kernel NULL pointer dereference, address: 00000000000000a8
+  #PF: supervisor read access in kernel mode
+  #PF: error_code(0x0000) - not-present page
+  PGD 0 P4D 0
+  Oops: 0000 [#1] SMP PTI
+  ...
+  RIP: 0010:percpu_counter_add_batch+0xa/0x60
+  ...
+  Call Trace:
+    __test_set_page_writeback+0x2d3/0x330
+    nilfs_segctor_do_construct+0x10d3/0x2110 [nilfs2]
+    nilfs_segctor_construct+0x168/0x260 [nilfs2]
+    nilfs_segctor_thread+0x127/0x3b0 [nilfs2]
+    kthread+0xf8/0x130
+    ...
+
+This crash turned out to be caused by set_page_writeback() call for
+segment summary buffers at nilfs_segctor_prepare_write().
+
+set_page_writeback() can call inc_wb_stat(inode_to_wb(inode),
+WB_WRITEBACK) where inode_to_wb(inode) is NULL if the inode of
+underlying block device does not have an associated wb.
+
+This fixes the issue by calling inode_attach_wb() in advance to ensure
+to associate the bdev inode with its wb.
+
+Fixes: c3aab9a0bd91 ("mm/filemap.c: don't initiate writeback if mapping has no dirty pages")
+Reported-by: Walton Hoops <me@waltonhoops.com>
+Reported-by: Tomas Hlavaty <tom@logand.com>
+Reported-by: ARAI Shun-ichi <hermes@ceres.dti.ne.jp>
+Reported-by: Hideki EIRAKU <hdk1983@gmail.com>
+Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Tested-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Cc: <stable@vger.kernel.org>	[5.4+]
+Link: http://lkml.kernel.org/r/20200608.011819.1399059588922299158.konishi.ryusuke@gmail.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/mm/ptdump/ptdump.c |   21 ++++++++++++---------
- 1 file changed, 12 insertions(+), 9 deletions(-)
+ fs/nilfs2/segment.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/arch/powerpc/mm/ptdump/ptdump.c
-+++ b/arch/powerpc/mm/ptdump/ptdump.c
-@@ -60,6 +60,7 @@ struct pg_state {
- 	unsigned long start_address;
- 	unsigned long start_pa;
- 	unsigned long last_pa;
-+	unsigned long page_size;
- 	unsigned int level;
- 	u64 current_flags;
- 	bool check_wx;
-@@ -157,9 +158,9 @@ static void dump_addr(struct pg_state *s
- #endif
+--- a/fs/nilfs2/segment.c
++++ b/fs/nilfs2/segment.c
+@@ -2780,6 +2780,8 @@ int nilfs_attach_log_writer(struct super
+ 	if (!nilfs->ns_writer)
+ 		return -ENOMEM;
  
- 	pt_dump_seq_printf(st->seq, REG "-" REG " ", st->start_address, addr - 1);
--	if (st->start_pa == st->last_pa && st->start_address + PAGE_SIZE != addr) {
-+	if (st->start_pa == st->last_pa && st->start_address + st->page_size != addr) {
- 		pt_dump_seq_printf(st->seq, "[" REG "]", st->start_pa);
--		delta = PAGE_SIZE >> 10;
-+		delta = st->page_size >> 10;
- 	} else {
- 		pt_dump_seq_printf(st->seq, " " REG " ", st->start_pa);
- 		delta = (addr - st->start_address) >> 10;
-@@ -190,7 +191,7 @@ static void note_prot_wx(struct pg_state
- }
- 
- static void note_page(struct pg_state *st, unsigned long addr,
--	       unsigned int level, u64 val)
-+	       unsigned int level, u64 val, unsigned long page_size)
- {
- 	u64 flag = val & pg_level[level].mask;
- 	u64 pa = val & PTE_RPN_MASK;
-@@ -202,6 +203,7 @@ static void note_page(struct pg_state *s
- 		st->start_address = addr;
- 		st->start_pa = pa;
- 		st->last_pa = pa;
-+		st->page_size = page_size;
- 		pt_dump_seq_printf(st->seq, "---[ %s ]---\n", st->marker->name);
- 	/*
- 	 * Dump the section of virtual memory when:
-@@ -213,7 +215,7 @@ static void note_page(struct pg_state *s
- 	 */
- 	} else if (flag != st->current_flags || level != st->level ||
- 		   addr >= st->marker[1].start_address ||
--		   (pa != st->last_pa + PAGE_SIZE &&
-+		   (pa != st->last_pa + st->page_size &&
- 		    (pa != st->start_pa || st->start_pa != st->last_pa))) {
- 
- 		/* Check the PTE flags */
-@@ -241,6 +243,7 @@ static void note_page(struct pg_state *s
- 		st->start_address = addr;
- 		st->start_pa = pa;
- 		st->last_pa = pa;
-+		st->page_size = page_size;
- 		st->current_flags = flag;
- 		st->level = level;
- 	} else {
-@@ -256,7 +259,7 @@ static void walk_pte(struct pg_state *st
- 
- 	for (i = 0; i < PTRS_PER_PTE; i++, pte++) {
- 		addr = start + i * PAGE_SIZE;
--		note_page(st, addr, 4, pte_val(*pte));
-+		note_page(st, addr, 4, pte_val(*pte), PAGE_SIZE);
- 
- 	}
- }
-@@ -273,7 +276,7 @@ static void walk_pmd(struct pg_state *st
- 			/* pmd exists */
- 			walk_pte(st, pmd, addr);
- 		else
--			note_page(st, addr, 3, pmd_val(*pmd));
-+			note_page(st, addr, 3, pmd_val(*pmd), PMD_SIZE);
- 	}
- }
- 
-@@ -289,7 +292,7 @@ static void walk_pud(struct pg_state *st
- 			/* pud exists */
- 			walk_pmd(st, pud, addr);
- 		else
--			note_page(st, addr, 2, pud_val(*pud));
-+			note_page(st, addr, 2, pud_val(*pud), PUD_SIZE);
- 	}
- }
- 
-@@ -308,7 +311,7 @@ static void walk_pagetables(struct pg_st
- 			/* pgd exists */
- 			walk_pud(st, pgd, addr);
- 		else
--			note_page(st, addr, 1, pgd_val(*pgd));
-+			note_page(st, addr, 1, pgd_val(*pgd), PGDIR_SIZE);
- 	}
- }
- 
-@@ -363,7 +366,7 @@ static int ptdump_show(struct seq_file *
- 
- 	/* Traverse kernel page tables */
- 	walk_pagetables(&st);
--	note_page(&st, 0, 0, 0);
-+	note_page(&st, 0, 0, 0, 0);
- 	return 0;
- }
- 
++	inode_attach_wb(nilfs->ns_bdev->bd_inode, NULL);
++
+ 	err = nilfs_segctor_start_thread(nilfs->ns_writer);
+ 	if (err) {
+ 		kfree(nilfs->ns_writer);
 
 
