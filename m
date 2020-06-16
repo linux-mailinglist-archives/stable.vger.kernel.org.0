@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D01C1FB7C5
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:50:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B5F491FB709
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:43:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731957AbgFPPtX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:49:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44280 "EHLO mail.kernel.org"
+        id S1731014AbgFPPnE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:43:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60168 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731887AbgFPPtU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:49:20 -0400
+        id S1731713AbgFPPnD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:43:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8B9382071A;
-        Tue, 16 Jun 2020 15:49:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1E9A8208E4;
+        Tue, 16 Jun 2020 15:43:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322559;
-        bh=JaAgU929H/sHzVvkGs0E1ui40+lainALY9/ORBjgk5s=;
+        s=default; t=1592322182;
+        bh=6qGzqDRgQtxS+q1RhS4XN3NgSBMUArCOh0uuf57KmI4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oJLoRLjFYkMx0oyqjpRC33eI2It6daH0NIolgW04DucBLIv2n0LvvrAS2ip8dYXqN
-         koEnl/mtVy/BH3Uy+XN94Idch1Q9tC5JXeiB1QXsPZkpQ7gCOOjo2NZ8vFytqSq+rp
-         qg03yPfBrjRG6Er7XgcegkiNOADpYcbsd1jwWewk=
+        b=WBvsozOsNwxH7zhjRee1wZ+XZVZ7Z/uT3EL3TwiDHhkzBv0r1pm0uW1gsVJc3Upx9
+         cjcM1z/Wy7Jb/izB0+gRkRxFWK1DLSNDC1cKJA/vUZ7JKH3/yFq9KbZRTX6KkbCwCS
+         KvUZRi84ZiLJ5yj1OWDzjOWLMnfK2k10PVOE1xR4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oleg Nesterov <oleg@redhat.com>,
-        Fredrik Strupe <fredrik@strupe.net>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 016/161] ARM: 8977/1: ptrace: Fix mask for thumb breakpoint hook
-Date:   Tue, 16 Jun 2020 17:33:26 +0200
-Message-Id: <20200616153107.180362456@linuxfoundation.org>
+        stable@vger.kernel.org, Avi Kivity <avi@scylladb.com>,
+        Giuseppe Scrivano <gscrivan@redhat.com>,
+        Miklos Szeredi <mszeredi@redhat.com>,
+        Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 5.7 033/163] aio: fix async fsync creds
+Date:   Tue, 16 Jun 2020 17:33:27 +0200
+Message-Id: <20200616153108.456489455@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153106.402291280@linuxfoundation.org>
-References: <20200616153106.402291280@linuxfoundation.org>
+In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
+References: <20200616153106.849127260@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,53 +45,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fredrik Strupe <fredrik@strupe.net>
+From: Miklos Szeredi <mszeredi@redhat.com>
 
-[ Upstream commit 3866f217aaa81bf7165c7f27362eee5d7919c496 ]
+commit 530f32fc370fd1431ea9802dbc53ab5601dfccdb upstream.
 
-call_undef_hook() in traps.c applies the same instr_mask for both 16-bit
-and 32-bit thumb instructions. If instr_mask then is only 16 bits wide
-(0xffff as opposed to 0xffffffff), the first half-word of 32-bit thumb
-instructions will be masked out. This makes the function match 32-bit
-thumb instructions where the second half-word is equal to instr_val,
-regardless of the first half-word.
+Avi Kivity reports that on fuse filesystems running in a user namespace
+asyncronous fsync fails with EOVERFLOW.
 
-The result in this case is that all undefined 32-bit thumb instructions
-with the second half-word equal to 0xde01 (udf #1) work as breakpoints
-and will raise a SIGTRAP instead of a SIGILL, instead of just the one
-intended 16-bit instruction. An example of such an instruction is
-0xeaa0de01, which is unallocated according to Arm ARM and should raise a
-SIGILL, but instead raises a SIGTRAP.
+The reason is that f_ops->fsync() is called with the creds of the kthread
+performing aio work instead of the creds of the process originally
+submitting IOCB_CMD_FSYNC.
 
-This patch fixes the issue by setting all the bits in instr_mask, which
-will still match the intended 16-bit thumb instruction (where the
-upper half is always 0), but not any 32-bit thumb instructions.
+Fuse sends the creds of the caller in the request header and it needs to
+translate the uid and gid into the server's user namespace.  Since the
+kthread is running in init_user_ns, the translation will fail and the
+operation returns an error.
 
-Cc: Oleg Nesterov <oleg@redhat.com>
-Signed-off-by: Fredrik Strupe <fredrik@strupe.net>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+It can be argued that fsync doesn't actually need any creds, but just
+zeroing out those fields in the header (as with requests that currently
+don't take creds) is a backward compatibility risk.
+
+Instead of working around this issue in fuse, solve the core of the problem
+by calling the filesystem with the proper creds.
+
+Reported-by: Avi Kivity <avi@scylladb.com>
+Tested-by: Giuseppe Scrivano <gscrivan@redhat.com>
+Fixes: c9582eb0ff7d ("fuse: Fail all requests with invalid uids or gids")
+Cc: stable@vger.kernel.org  # 4.18+
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/arm/kernel/ptrace.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/aio.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/arch/arm/kernel/ptrace.c b/arch/arm/kernel/ptrace.c
-index b606cded90cd..4cc6a7eff635 100644
---- a/arch/arm/kernel/ptrace.c
-+++ b/arch/arm/kernel/ptrace.c
-@@ -219,8 +219,8 @@ static struct undef_hook arm_break_hook = {
+--- a/fs/aio.c
++++ b/fs/aio.c
+@@ -176,6 +176,7 @@ struct fsync_iocb {
+ 	struct file		*file;
+ 	struct work_struct	work;
+ 	bool			datasync;
++	struct cred		*creds;
  };
  
- static struct undef_hook thumb_break_hook = {
--	.instr_mask	= 0xffff,
--	.instr_val	= 0xde01,
-+	.instr_mask	= 0xffffffff,
-+	.instr_val	= 0x0000de01,
- 	.cpsr_mask	= PSR_T_BIT,
- 	.cpsr_val	= PSR_T_BIT,
- 	.fn		= break_trap,
--- 
-2.25.1
-
+ struct poll_iocb {
+@@ -1589,8 +1590,11 @@ static int aio_write(struct kiocb *req,
+ static void aio_fsync_work(struct work_struct *work)
+ {
+ 	struct aio_kiocb *iocb = container_of(work, struct aio_kiocb, fsync.work);
++	const struct cred *old_cred = override_creds(iocb->fsync.creds);
+ 
+ 	iocb->ki_res.res = vfs_fsync(iocb->fsync.file, iocb->fsync.datasync);
++	revert_creds(old_cred);
++	put_cred(iocb->fsync.creds);
+ 	iocb_put(iocb);
+ }
+ 
+@@ -1604,6 +1608,10 @@ static int aio_fsync(struct fsync_iocb *
+ 	if (unlikely(!req->file->f_op->fsync))
+ 		return -EINVAL;
+ 
++	req->creds = prepare_creds();
++	if (!req->creds)
++		return -ENOMEM;
++
+ 	req->datasync = datasync;
+ 	INIT_WORK(&req->work, aio_fsync_work);
+ 	schedule_work(&req->work);
 
 
