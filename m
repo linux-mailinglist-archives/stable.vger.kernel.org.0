@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A3EE81FB77A
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:47:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E5421FB6CA
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:43:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732210AbgFPPqg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:46:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38844 "EHLO mail.kernel.org"
+        id S1731164AbgFPPkZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:40:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54984 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732200AbgFPPqf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:46:35 -0400
+        id S1731156AbgFPPkY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:40:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A88F5214F1;
-        Tue, 16 Jun 2020 15:46:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 95E52208D5;
+        Tue, 16 Jun 2020 15:40:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322394;
-        bh=lC0Nos0Z2xN682tVmoX7eeKjh3ClUl7Mw27xlR7HuUg=;
+        s=default; t=1592322024;
+        bh=Ulqzpt6VEGVfjaXxLJmZCPm7KB28kKc91pX4iQtKkAw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EsFpV+mQTJObZa2B0eQiJZh9sG9R6gTu8gtbspsSldCot4Tt2E2JSpXgME2a/dXIj
-         J4GXc0vWEdAA86efBJuGv2HkdlRgxwqCQy+6hJcK8SKnTMqvwWchyOwkuGaD2ai8oc
-         8IcwVp4hGsq3f0iS+1R1QBgyqWsQ/hmKXPOtVFhQ=
+        b=PdHT4APC9oedb4fkS8o+rkxCz5VIjooocmEHQxkVCWRZ2teLN1JSizktzsz6dSjc3
+         NyvXFGYQoElthiRKhrrb/2NjLmk+ikZR/CS2QsCQfkSXPk7t9LAsNgOCDpKMgyqpAc
+         JuaZ3sReZB/O++iXsWm+8WitsxfgxUfPiIZ+NNIA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oz Shlomo <ozsh@mellanox.com>,
-        Roi Dayan <roid@mellanox.com>,
-        Saeed Mahameed <saeedm@mellanox.com>
-Subject: [PATCH 5.7 114/163] net/mlx5e: CT: Fix ipv6 nat header rewrite actions
-Date:   Tue, 16 Jun 2020 17:34:48 +0200
-Message-Id: <20200616153112.265339373@linuxfoundation.org>
+        stable@vger.kernel.org, Jim Mattson <jmattson@google.com>,
+        Xiaoyao Li <xiaoyao.li@intel.com>,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.4 105/134] KVM: nVMX: Consult only the "basic" exit reason when routing nested exit
+Date:   Tue, 16 Jun 2020 17:34:49 +0200
+Message-Id: <20200616153105.815572077@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
-References: <20200616153106.849127260@linuxfoundation.org>
+In-Reply-To: <20200616153100.633279950@linuxfoundation.org>
+References: <20200616153100.633279950@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,52 +45,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oz Shlomo <ozsh@mellanox.com>
+From: Sean Christopherson <sean.j.christopherson@intel.com>
 
-[ Upstream commit 0d156f2deda8675c29fa2b8b5ed9b374370e47f2 ]
+commit 2ebac8bb3c2d35f5135466490fc8eeaf3f3e2d37 upstream.
 
-Set the ipv6 word fields according to the hardware definitions.
+Consult only the basic exit reason, i.e. bits 15:0 of vmcs.EXIT_REASON,
+when determining whether a nested VM-Exit should be reflected into L1 or
+handled by KVM in L0.
 
-Fixes: ac991b48d43c ("net/mlx5e: CT: Offload established flows")
-Signed-off-by: Oz Shlomo <ozsh@mellanox.com>
-Reviewed-by: Roi Dayan <roid@mellanox.com>
-Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
+For better or worse, the switch statement in nested_vmx_exit_reflected()
+currently defaults to "true", i.e. reflects any nested VM-Exit without
+dedicated logic.  Because the case statements only contain the basic
+exit reason, any VM-Exit with modifier bits set will be reflected to L1,
+even if KVM intended to handle it in L0.
+
+Practically speaking, this only affects EXIT_REASON_MCE_DURING_VMENTRY,
+i.e. a #MC that occurs on nested VM-Enter would be incorrectly routed to
+L1, as "failed VM-Entry" is the only modifier that KVM can currently
+encounter.  The SMM modifiers will never be generated as KVM doesn't
+support/employ a SMI Transfer Monitor.  Ditto for "exit from enclave",
+as KVM doesn't yet support virtualizing SGX, i.e. it's impossible to
+enter an enclave in a KVM guest (L1 or L2).
+
+Fixes: 644d711aa0e1 ("KVM: nVMX: Deciding if L0 or L1 should handle an L2 exit")
+Cc: Jim Mattson <jmattson@google.com>
+Cc: Xiaoyao Li <xiaoyao.li@intel.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Message-Id: <20200227174430.26371-1-sean.j.christopherson@intel.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/ethernet/mellanox/mlx5/core/en/tc_ct.c |   16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/en/tc_ct.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en/tc_ct.c
-@@ -320,21 +320,21 @@ mlx5_tc_ct_parse_mangle_to_mod_act(struc
+---
+ arch/x86/kvm/vmx/nested.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/arch/x86/kvm/vmx/nested.c
++++ b/arch/x86/kvm/vmx/nested.c
+@@ -5357,7 +5357,7 @@ bool nested_vmx_exit_reflected(struct kv
+ 				vmcs_read32(VM_EXIT_INTR_ERROR_CODE),
+ 				KVM_ISA_VMX);
  
- 	case FLOW_ACT_MANGLE_HDR_TYPE_IP6:
- 		MLX5_SET(set_action_in, modact, length, 0);
--		if (offset == offsetof(struct ipv6hdr, saddr))
-+		if (offset == offsetof(struct ipv6hdr, saddr) + 12)
- 			field = MLX5_ACTION_IN_FIELD_OUT_SIPV6_31_0;
--		else if (offset == offsetof(struct ipv6hdr, saddr) + 4)
--			field = MLX5_ACTION_IN_FIELD_OUT_SIPV6_63_32;
- 		else if (offset == offsetof(struct ipv6hdr, saddr) + 8)
-+			field = MLX5_ACTION_IN_FIELD_OUT_SIPV6_63_32;
-+		else if (offset == offsetof(struct ipv6hdr, saddr) + 4)
- 			field = MLX5_ACTION_IN_FIELD_OUT_SIPV6_95_64;
--		else if (offset == offsetof(struct ipv6hdr, saddr) + 12)
-+		else if (offset == offsetof(struct ipv6hdr, saddr))
- 			field = MLX5_ACTION_IN_FIELD_OUT_SIPV6_127_96;
--		else if (offset == offsetof(struct ipv6hdr, daddr))
-+		else if (offset == offsetof(struct ipv6hdr, daddr) + 12)
- 			field = MLX5_ACTION_IN_FIELD_OUT_DIPV6_31_0;
--		else if (offset == offsetof(struct ipv6hdr, daddr) + 4)
--			field = MLX5_ACTION_IN_FIELD_OUT_DIPV6_63_32;
- 		else if (offset == offsetof(struct ipv6hdr, daddr) + 8)
-+			field = MLX5_ACTION_IN_FIELD_OUT_DIPV6_63_32;
-+		else if (offset == offsetof(struct ipv6hdr, daddr) + 4)
- 			field = MLX5_ACTION_IN_FIELD_OUT_DIPV6_95_64;
--		else if (offset == offsetof(struct ipv6hdr, daddr) + 12)
-+		else if (offset == offsetof(struct ipv6hdr, daddr))
- 			field = MLX5_ACTION_IN_FIELD_OUT_DIPV6_127_96;
- 		else
- 			return -EOPNOTSUPP;
+-	switch (exit_reason) {
++	switch ((u16)exit_reason) {
+ 	case EXIT_REASON_EXCEPTION_NMI:
+ 		if (is_nmi(intr_info))
+ 			return false;
 
 
