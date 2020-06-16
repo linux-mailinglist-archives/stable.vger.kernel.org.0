@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FA571FBA9D
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:13:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 367751FBA87
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:12:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731840AbgFPPnz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:43:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33512 "EHLO mail.kernel.org"
+        id S1731479AbgFPQL4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 12:11:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33840 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731861AbgFPPnw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:43:52 -0400
+        id S1731893AbgFPPoB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:44:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BAE14208E4;
-        Tue, 16 Jun 2020 15:43:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E7B95214F1;
+        Tue, 16 Jun 2020 15:44:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322231;
-        bh=haZufumXIivprfu8VoTRQ4JkgkKWPzkC5c1Tw18T4LE=;
+        s=default; t=1592322241;
+        bh=KZN4esAhNn4tE9475bsicHCYB2W4CJffoDW1qFb/rn8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ecaak1kPskQaEN9eNgnkPUkVIjmWzrCabd54QhiYyZI4TNynz1lzec8neNGVa/v5o
-         MkOckr+OKo4I5e3X8nQhEsbwWtngMbxlPF2/HIxW1OTN2D1kNM82jdjyW42XyXAsjE
-         LMD5nqZepVYGczlhO04/FDD6Ak6GJ1Z6LI0/lWQs=
+        b=Icr8ruwyNjiSi96SIdhxaJmS5XcVr8mW45ih3O0PFc2mIAzCHftsj3ZoErjuSeE81
+         s2jwpbNE1UObWHPUJXYFGcS8ASKVsz7ryqLJaxQExOAFQMudwqJZ1N/y+svXNW9j/r
+         BehYgcHhyLUr2nQbvedDQHLvZXPdQAFSP6VSQCpQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Denis <pro.denis@protonmail.com>,
+        Masashi Honma <masashi.honma@gmail.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 024/163] spi: dw: Fix native CS being unset
-Date:   Tue, 16 Jun 2020 17:33:18 +0200
-Message-Id: <20200616153108.047634478@linuxfoundation.org>
+Subject: [PATCH 5.7 025/163] ath9k_htc: Silence undersized packet warnings
+Date:   Tue, 16 Jun 2020 17:33:19 +0200
+Message-Id: <20200616153108.094854243@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
 References: <20200616153106.849127260@linuxfoundation.org>
@@ -48,76 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 9aea644ca17b94f82ad7fa767cbc4509642f4420 ]
+From: Masashi Honma <masashi.honma@gmail.com>
 
-Commit 6e0a32d6f376 ("spi: dw: Fix default polarity of native
-chipselect") attempted to fix the problem when GPIO active-high
-chip-select is utilized to communicate with some SPI slave. It fixed
-the problem, but broke the normal native CS support. At the same time
-the reversion commit ada9e3fcc175 ("spi: dw: Correct handling of native
-chipselect") didn't solve the problem either, since it just inverted
-the set_cs() polarity perception without taking into account that
-CS-high might be applicable. Here is what is done to finally fix the
-problem.
+[ Upstream commit 450edd2805982d14ed79733a82927d2857b27cac ]
 
-DW SPI controller demands any native CS being set in order to proceed
-with data transfer. So in order to activate the SPI communications we
-must set any bit in the Slave Select DW SPI controller register no
-matter whether the platform requests the GPIO- or native CS. Preferably
-it should be the bit corresponding to the SPI slave CS number. But
-currently the dw_spi_set_cs() method activates the chip-select
-only if the second argument is false. Since the second argument of the
-set_cs callback is expected to be a boolean with "is-high" semantics
-(actual chip-select pin state value), the bit in the DW SPI Slave
-Select register will be set only if SPI core requests the driver
-to set the CS in the low state. So this will work for active-low
-GPIO-based CS case, and won't work for active-high CS setting
-the bit when SPI core actually needs to deactivate the CS.
+Some devices like TP-Link TL-WN722N produces this kind of messages
+frequently.
 
-This commit fixes the problem for all described cases. So no matter
-whether an SPI slave needs GPIO- or native-based CS with active-high
-or low signal the corresponding bit will be set in SER.
+kernel: ath: phy0: Short RX data len, dropping (dlen: 4)
 
-Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
-Fixes: ada9e3fcc175 ("spi: dw: Correct handling of native chipselect")
-Fixes: 6e0a32d6f376 ("spi: dw: Fix default polarity of native chipselect")
-Reviewed-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Acked-by: Linus Walleij <linus.walleij@linaro.org>
+This warning is useful for developers to recognize that the device
+(Wi-Fi dongle or USB hub etc) is noisy but not for general users. So
+this patch make this warning to debug message.
 
-Link: https://lore.kernel.org/r/20200515104758.6934-5-Sergey.Semin@baikalelectronics.ru
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Reported-By: Denis <pro.denis@protonmail.com>
+Ref: https://bugzilla.kernel.org/show_bug.cgi?id=207539
+Fixes: cd486e627e67 ("ath9k_htc: Discard undersized packets")
+Signed-off-by: Masashi Honma <masashi.honma@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20200504214443.4485-1-masashi.honma@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-dw.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ drivers/net/wireless/ath/ath9k/htc_drv_txrx.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/spi/spi-dw.c b/drivers/spi/spi-dw.c
-index 31e3f866d11a..6c2d8df50507 100644
---- a/drivers/spi/spi-dw.c
-+++ b/drivers/spi/spi-dw.c
-@@ -128,12 +128,20 @@ void dw_spi_set_cs(struct spi_device *spi, bool enable)
- {
- 	struct dw_spi *dws = spi_controller_get_devdata(spi->controller);
- 	struct chip_data *chip = spi_get_ctldata(spi);
-+	bool cs_high = !!(spi->mode & SPI_CS_HIGH);
+diff --git a/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c b/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c
+index 9cec5c216e1f..118e5550b10c 100644
+--- a/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c
++++ b/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c
+@@ -999,9 +999,9 @@ static bool ath9k_rx_prepare(struct ath9k_htc_priv *priv,
+ 	 * which are not PHY_ERROR (short radar pulses have a length of 3)
+ 	 */
+ 	if (unlikely(!rs_datalen || (rs_datalen < 10 && !is_phyerr))) {
+-		ath_warn(common,
+-			 "Short RX data len, dropping (dlen: %d)\n",
+-			 rs_datalen);
++		ath_dbg(common, ANY,
++			"Short RX data len, dropping (dlen: %d)\n",
++			rs_datalen);
+ 		goto rx_next;
+ 	}
  
- 	/* Chip select logic is inverted from spi_set_cs() */
- 	if (chip && chip->cs_control)
- 		chip->cs_control(!enable);
- 
--	if (!enable)
-+	/*
-+	 * DW SPI controller demands any native CS being set in order to
-+	 * proceed with data transfer. So in order to activate the SPI
-+	 * communications we must set a corresponding bit in the Slave
-+	 * Enable register no matter whether the SPI core is configured to
-+	 * support active-high or active-low CS level.
-+	 */
-+	if (cs_high == enable)
- 		dw_writel(dws, DW_SPI_SER, BIT(spi->chip_select));
- 	else if (dws->cs_override)
- 		dw_writel(dws, DW_SPI_SER, 0);
 -- 
 2.25.1
 
