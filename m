@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 67D091FBB2A
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:17:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AF2E91FBA1F
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:09:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731573AbgFPQRV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 12:17:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52798 "EHLO mail.kernel.org"
+        id S1732089AbgFPPp2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:45:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36700 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730296AbgFPPjZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:39:25 -0400
+        id S1732082AbgFPPpY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:45:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4FB0F20B1F;
-        Tue, 16 Jun 2020 15:39:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9E39A20776;
+        Tue, 16 Jun 2020 15:45:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592321964;
-        bh=lMiw6z8M6Tmg7XUhbTCh6hOdFxHhL1CBBaI7l7SKsZY=;
+        s=default; t=1592322324;
+        bh=ImD1zoy+Fx0CsZrmk+QIEfgyjaPXOBH8d6zBqOiEGqI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v4MYZeWF1AlnV3biyUDaL9VI8TeCQET7ucIK6xws3tARkOkN8sv0KTRI7RuKwcvdx
-         Q+q+GcssxiD6FdfupNVDRmJKen9DS51VsFEOP/KADIooiJSAYMtwJ3rWvoPrajKNXg
-         Fnn809nwEagwJpHKrxGXw8PS+SiqtlvegBmzjGNg=
+        b=CpOqgXczEyrgSR+fRvZF2iIVWZcsbMWwjTQ3QUX/GEZyovB3KxuO4GtYCFKz0aGo3
+         Y/utlnCl9dFUpkkY22TlUsyoiKVgVMC3mNf7klEvQhynyftQ35O/+P6gVb2VjfaZNF
+         uH+RnCvCeFs010TMf97kKHUqxwXna4fje9SZXITk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Justin Chen <justinpopo6@gmail.com>,
+        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
         Kamal Dasu <kdasu.kdev@gmail.com>,
         Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.4 076/134] spi: bcm-qspi: when tx/rx buffer is NULL set to 0
+Subject: [PATCH 5.7 086/163] spi: bcm-qspi: Handle clock probe deferral
 Date:   Tue, 16 Jun 2020 17:34:20 +0200
-Message-Id: <20200616153104.422759588@linuxfoundation.org>
+Message-Id: <20200616153110.964339018@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153100.633279950@linuxfoundation.org>
-References: <20200616153100.633279950@linuxfoundation.org>
+In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
+References: <20200616153106.849127260@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,62 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Justin Chen <justinpopo6@gmail.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-commit 4df3bea7f9d2ddd9ac2c29ba945c7c4db2def29c upstream.
+commit 0392727c261bab65a35cd4f82ee9459bc237591d upstream.
 
-Currently we set the tx/rx buffer to 0xff when NULL. This causes
-problems with some spi slaves where 0xff is a valid command. Looking
-at other drivers, the tx/rx buffer is usually set to 0x00 when NULL.
-Following this convention solves the issue.
+The clock provider may not be ready by the time spi-bcm-qspi gets
+probed, handle probe deferral using devm_clk_get_optional().
 
-Fixes: fa236a7ef240 ("spi: bcm-qspi: Add Broadcom MSPI driver")
-Signed-off-by: Justin Chen <justinpopo6@gmail.com>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Kamal Dasu <kdasu.kdev@gmail.com>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20200420190853.45614-6-kdasu.kdev@gmail.com
+Link: https://lore.kernel.org/r/20200420190853.45614-2-kdasu.kdev@gmail.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/spi/spi-bcm-qspi.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/spi/spi-bcm-qspi.c |   12 +++++-------
+ 1 file changed, 5 insertions(+), 7 deletions(-)
 
 --- a/drivers/spi/spi-bcm-qspi.c
 +++ b/drivers/spi/spi-bcm-qspi.c
-@@ -670,7 +670,7 @@ static void read_from_hw(struct bcm_qspi
- 			if (buf)
- 				buf[tp.byte] = read_rxram_slot_u8(qspi, slot);
- 			dev_dbg(&qspi->pdev->dev, "RD %02x\n",
--				buf ? buf[tp.byte] : 0xff);
-+				buf ? buf[tp.byte] : 0x0);
- 		} else {
- 			u16 *buf = tp.trans->rx_buf;
+@@ -1222,6 +1222,11 @@ int bcm_qspi_probe(struct platform_devic
+ 	}
  
-@@ -678,7 +678,7 @@ static void read_from_hw(struct bcm_qspi
- 				buf[tp.byte / 2] = read_rxram_slot_u16(qspi,
- 								      slot);
- 			dev_dbg(&qspi->pdev->dev, "RD %04x\n",
--				buf ? buf[tp.byte] : 0xffff);
-+				buf ? buf[tp.byte / 2] : 0x0);
- 		}
+ 	qspi = spi_master_get_devdata(master);
++
++	qspi->clk = devm_clk_get_optional(&pdev->dev, NULL);
++	if (IS_ERR(qspi->clk))
++		return PTR_ERR(qspi->clk);
++
+ 	qspi->pdev = pdev;
+ 	qspi->trans_pos.trans = NULL;
+ 	qspi->trans_pos.byte = 0;
+@@ -1335,13 +1340,6 @@ int bcm_qspi_probe(struct platform_devic
+ 		qspi->soc_intc = NULL;
+ 	}
  
- 		update_qspi_trans_byte_count(qspi, &tp,
-@@ -733,13 +733,13 @@ static int write_to_hw(struct bcm_qspi *
- 	while (!tstatus && slot < MSPI_NUM_CDRAM) {
- 		if (tp.trans->bits_per_word <= 8) {
- 			const u8 *buf = tp.trans->tx_buf;
--			u8 val = buf ? buf[tp.byte] : 0xff;
-+			u8 val = buf ? buf[tp.byte] : 0x00;
- 
- 			write_txram_slot_u8(qspi, slot, val);
- 			dev_dbg(&qspi->pdev->dev, "WR %02x\n", val);
- 		} else {
- 			const u16 *buf = tp.trans->tx_buf;
--			u16 val = buf ? buf[tp.byte / 2] : 0xffff;
-+			u16 val = buf ? buf[tp.byte / 2] : 0x0000;
- 
- 			write_txram_slot_u16(qspi, slot, val);
- 			dev_dbg(&qspi->pdev->dev, "WR %04x\n", val);
+-	qspi->clk = devm_clk_get(&pdev->dev, NULL);
+-	if (IS_ERR(qspi->clk)) {
+-		dev_warn(dev, "unable to get clock\n");
+-		ret = PTR_ERR(qspi->clk);
+-		goto qspi_probe_err;
+-	}
+-
+ 	ret = clk_prepare_enable(qspi->clk);
+ 	if (ret) {
+ 		dev_err(dev, "failed to prepare clock\n");
 
 
