@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AC121FBA9F
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:13:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B7D541FBB50
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:18:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731875AbgFPQM3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 12:12:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33654 "EHLO mail.kernel.org"
+        id S1730491AbgFPPh7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:37:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49962 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731881AbgFPPn4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:43:56 -0400
+        id S1730487AbgFPPh7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:37:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C9C65208E4;
-        Tue, 16 Jun 2020 15:43:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EA91C20B1F;
+        Tue, 16 Jun 2020 15:37:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322236;
-        bh=tm5emzIZe1eyeA5dlv4d4lUnsTh7XE+ZpULMTA+WaiU=;
+        s=default; t=1592321878;
+        bh=Lq0rzd8/VWyjqzu7gI6W77XhrAJW8U6FGO1gnHwgDWU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wtZ3SIwF7Awg9OAfMvT0Ah5mFpixE30noSVSAUwsLFwVy+tjGFg8HA42yhr8PsXFm
-         vCL4fuMeZWGmo1ipWaEP2Lz7GaUzQePCpEAWCaj4U3ylidLyvJgaT+ZAZwxqwSeWjX
-         g6jT6ian/KtRmEPe+48keHT7yhwKvBo2BlUhXrnk=
+        b=bGG14uTMZUUgiGEr7jgkex61hPHlMHAxE3WNNPkW64uwxrP9W1gq7ZxwsPWl0O4OS
+         SjNevqU0cP620kdp9/qYAOOEzfJLk+M+pWJq//5JZ0csV8tpp3YE7LrhC4r2JAV4hN
+         KlMDpT3JHrl2xR9eob+M8Y4NKl0W4xbDPK0WZIBM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Dobias <dobias@2n.cz>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.7 052/163] ASoC: max9867: fix volume controls
-Date:   Tue, 16 Jun 2020 17:33:46 +0200
-Message-Id: <20200616153109.340396353@linuxfoundation.org>
+        stable@vger.kernel.org, Hill Ma <maahiuzeon@gmail.com>,
+        Borislav Petkov <bp@suse.de>
+Subject: [PATCH 5.4 043/134] x86/reboot/quirks: Add MacBook6,1 reboot quirk
+Date:   Tue, 16 Jun 2020 17:33:47 +0200
+Message-Id: <20200616153102.858974098@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
-References: <20200616153106.849127260@linuxfoundation.org>
+In-Reply-To: <20200616153100.633279950@linuxfoundation.org>
+References: <20200616153100.633279950@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,42 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Dobias <dobias@2n.cz>
+From: Hill Ma <maahiuzeon@gmail.com>
 
-commit 8ba4dc3cff8cbe2c571063a5fd7116e8bde563ca upstream.
+commit 140fd4ac78d385e6c8e6a5757585f6c707085f87 upstream.
 
-The xmax values for Master Playback Volume and Mic Boost
-Capture Volume are specified incorrectly (one greater)
-which results in the wrong dB gain being shown to the user
-in the case of Master Playback Volume.
+On MacBook6,1 reboot would hang unless parameter reboot=pci is added.
+Make it automatic.
 
-Signed-off-by: Pavel Dobias <dobias@2n.cz>
+Signed-off-by: Hill Ma <maahiuzeon@gmail.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20200515120757.24669-1-dobias@2n.cz
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://lkml.kernel.org/r/20200425200641.GA1554@cslab.localdomain
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/soc/codecs/max9867.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/x86/kernel/reboot.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/sound/soc/codecs/max9867.c
-+++ b/sound/soc/codecs/max9867.c
-@@ -46,13 +46,13 @@ static const SNDRV_CTL_TLVD_DECLARE_DB_R
- 
- static const struct snd_kcontrol_new max9867_snd_controls[] = {
- 	SOC_DOUBLE_R_TLV("Master Playback Volume", MAX9867_LEFTVOL,
--			MAX9867_RIGHTVOL, 0, 41, 1, max9867_master_tlv),
-+			MAX9867_RIGHTVOL, 0, 40, 1, max9867_master_tlv),
- 	SOC_DOUBLE_R_TLV("Line Capture Volume", MAX9867_LEFTLINELVL,
- 			MAX9867_RIGHTLINELVL, 0, 15, 1, max9867_line_tlv),
- 	SOC_DOUBLE_R_TLV("Mic Capture Volume", MAX9867_LEFTMICGAIN,
- 			MAX9867_RIGHTMICGAIN, 0, 20, 1, max9867_mic_tlv),
- 	SOC_DOUBLE_R_TLV("Mic Boost Capture Volume", MAX9867_LEFTMICGAIN,
--			MAX9867_RIGHTMICGAIN, 5, 4, 0, max9867_micboost_tlv),
-+			MAX9867_RIGHTMICGAIN, 5, 3, 0, max9867_micboost_tlv),
- 	SOC_SINGLE("Digital Sidetone Volume", MAX9867_SIDETONE, 0, 31, 1),
- 	SOC_SINGLE_TLV("Digital Playback Volume", MAX9867_DACLEVEL, 0, 15, 1,
- 			max9867_dac_tlv),
+--- a/arch/x86/kernel/reboot.c
++++ b/arch/x86/kernel/reboot.c
+@@ -197,6 +197,14 @@ static const struct dmi_system_id reboot
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "MacBook5"),
+ 		},
+ 	},
++	{	/* Handle problems with rebooting on Apple MacBook6,1 */
++		.callback = set_pci_reboot,
++		.ident = "Apple MacBook6,1",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Apple Inc."),
++			DMI_MATCH(DMI_PRODUCT_NAME, "MacBook6,1"),
++		},
++	},
+ 	{	/* Handle problems with rebooting on Apple MacBookPro5 */
+ 		.callback = set_pci_reboot,
+ 		.ident = "Apple MacBookPro5",
 
 
