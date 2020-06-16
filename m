@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6029E1FB9BF
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:06:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A9021FB9B5
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:06:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731083AbgFPQGV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 12:06:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42304 "EHLO mail.kernel.org"
+        id S1731957AbgFPQF7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 12:05:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43260 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732360AbgFPPsL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:48:11 -0400
+        id S1732434AbgFPPsj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:48:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CA41B20776;
-        Tue, 16 Jun 2020 15:48:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 95B0820776;
+        Tue, 16 Jun 2020 15:48:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322491;
-        bh=sOxhzpmmDRjatJXqcSrLLVy74KxqIyRrFovwlWN37Lc=;
+        s=default; t=1592322519;
+        bh=wvkG8oLcFXZiSR2IS2+UDxHhiG4WeeVdy5UKKuQIeE8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SxUnijn1Z4bKrSY3m2/sitFtLUrbZsgxLcYghTAbXBo98IXJY/iGcjS1ybZfmZu4I
-         33cP5nBprKqM6dy5RlopDvWxwwlmucLTPgfBnsYT4x9yqM9wcvzcHq2AO+nzftBJ23
-         M+SupOJMHWmFgvCR1UdKO55Fff3RSiMLPjui96+Q=
+        b=AVXK8eJpgy/cUvqNONo3Ih2PBeRThh+NCvWSCjYf0DSuAR/Twkb9UUN0AVNYodzYQ
+         rMrdatCVtXGmA06xk4lJQrgrQ0wRI1ROpLD/RPSItBGEBCX48mZz2n2sXXNetrWf+V
+         ukuSQBQ0dl12ur7ZznyxYKFHGo62eYNdtIlyFJZg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Eugen Hristev <eugen.hristev@microchip.com>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
         Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.7 151/163] mmc: sdhci-of-at91: fix CALCR register being rewritten
-Date:   Tue, 16 Jun 2020 17:35:25 +0200
-Message-Id: <20200616153114.038248740@linuxfoundation.org>
+Subject: [PATCH 5.7 154/163] mmc: uniphier-sd: call devm_request_irq() after tmio_mmc_host_probe()
+Date:   Tue, 16 Jun 2020 17:35:28 +0200
+Message-Id: <20200616153114.183049678@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
 References: <20200616153106.849127260@linuxfoundation.org>
@@ -44,41 +44,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eugen Hristev <eugen.hristev@microchip.com>
+From: Masahiro Yamada <yamada.masahiro@socionext.com>
 
-commit dbdea70f71d672c12bc4454e7c258a8f78194d74 upstream.
+commit 5d1f42e14b135773c0cc1d82e904c5b223783a9d upstream.
 
-When enabling calibration at reset, the CALCR register was completely
-rewritten. This may cause certain bits being deleted unintentedly.
-Fix by issuing a read-modify-write operation.
+Currently, tmio_mmc_irq() handler is registered before the host is
+fully initialized by tmio_mmc_host_probe(). I did not previously notice
+this problem.
 
-Fixes: 727d836a375a ("mmc: sdhci-of-at91: add DT property to enable calibration on full reset")
-Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
-Link: https://lore.kernel.org/r/20200527105659.142560-1-eugen.hristev@microchip.com
+The boot ROM of a new Socionext SoC unmasks interrupts (CTL_IRQ_MASK)
+somehow. The handler is invoked before tmio_mmc_host_probe(), then
+emits noisy call trace.
+
+Move devm_request_irq() below tmio_mmc_host_probe().
+
+Fixes: 3fd784f745dd ("mmc: uniphier-sd: add UniPhier SD/eMMC controller driver")
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
 Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20200511062158.1790924-1-yamada.masahiro@socionext.com
 Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mmc/host/sdhci-of-at91.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/mmc/host/uniphier-sd.c |   12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
---- a/drivers/mmc/host/sdhci-of-at91.c
-+++ b/drivers/mmc/host/sdhci-of-at91.c
-@@ -120,9 +120,12 @@ static void sdhci_at91_reset(struct sdhc
- 	    || mmc_gpio_get_cd(host->mmc) >= 0)
- 		sdhci_at91_set_force_card_detect(host);
+--- a/drivers/mmc/host/uniphier-sd.c
++++ b/drivers/mmc/host/uniphier-sd.c
+@@ -610,11 +610,6 @@ static int uniphier_sd_probe(struct plat
+ 		}
+ 	}
  
--	if (priv->cal_always_on && (mask & SDHCI_RESET_ALL))
--		sdhci_writel(host, SDMMC_CALCR_ALWYSON | SDMMC_CALCR_EN,
-+	if (priv->cal_always_on && (mask & SDHCI_RESET_ALL)) {
-+		u32 calcr = sdhci_readl(host, SDMMC_CALCR);
+-	ret = devm_request_irq(dev, irq, tmio_mmc_irq, IRQF_SHARED,
+-			       dev_name(dev), host);
+-	if (ret)
+-		goto free_host;
+-
+ 	if (priv->caps & UNIPHIER_SD_CAP_EXTENDED_IP)
+ 		host->dma_ops = &uniphier_sd_internal_dma_ops;
+ 	else
+@@ -642,8 +637,15 @@ static int uniphier_sd_probe(struct plat
+ 	if (ret)
+ 		goto free_host;
+ 
++	ret = devm_request_irq(dev, irq, tmio_mmc_irq, IRQF_SHARED,
++			       dev_name(dev), host);
++	if (ret)
++		goto remove_host;
 +
-+		sdhci_writel(host, calcr | SDMMC_CALCR_ALWYSON | SDMMC_CALCR_EN,
- 			     SDMMC_CALCR);
-+	}
- }
+ 	return 0;
  
- static const struct sdhci_ops sdhci_at91_sama5d2_ops = {
++remove_host:
++	tmio_mmc_host_remove(host);
+ free_host:
+ 	tmio_mmc_host_free(host);
+ 
 
 
