@@ -2,207 +2,228 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 67A501FB268
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 15:44:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 672221FB285
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 15:51:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729007AbgFPNoI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 09:44:08 -0400
-Received: from m43-7.mailgun.net ([69.72.43.7]:27162 "EHLO m43-7.mailgun.net"
+        id S1729067AbgFPNvc convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Tue, 16 Jun 2020 09:51:32 -0400
+Received: from mga01.intel.com ([192.55.52.88]:34801 "EHLO mga01.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728991AbgFPNoF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 09:44:05 -0400
-DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
- s=smtp; t=1592315044; h=Content-Transfer-Encoding: Content-Type:
- In-Reply-To: MIME-Version: Date: Message-ID: From: References: Cc: To:
- Subject: Sender; bh=neAnsfkRMgdLmxrFAs43gbDE9/rNCoat18mjJVvgJoU=; b=c9tqymhkloHgFvwk8XM/q4YwgrK6AlXcOCwI9HfKL148ujqhzaD/TYOXfO03VJSWT4Tj5TOB
- LPzPAJoBty4hbJn0xRIz76JjpWh41Mz9g4oDfame05gR2mFIKY1FNXJwdXAqgioEh2EDG3HS
- B3b/cKz2KSBaCzirH7hnEogJOck=
-X-Mailgun-Sending-Ip: 69.72.43.7
-X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
-Received: from smtp.codeaurora.org
- (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171]) by
- smtp-out-n01.prod.us-west-2.postgun.com with SMTP id
- 5ee8cc996bebe35deb85aa39 (version=TLS1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256); Tue, 16 Jun 2020 13:43:53
- GMT
-Received: by smtp.codeaurora.org (Postfix, from userid 1001)
-        id 7B2CEC43395; Tue, 16 Jun 2020 13:43:53 +0000 (UTC)
-X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
-        aws-us-west-2-caf-mail-1.web.codeaurora.org
-X-Spam-Level: 
-X-Spam-Status: No, score=-1.0 required=2.0 tests=ALL_TRUSTED,SPF_NONE,
-        URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
-Received: from [192.168.1.102] (unknown [183.83.143.239])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        (Authenticated sender: charante)
-        by smtp.codeaurora.org (Postfix) with ESMTPSA id BBD87C433C9;
-        Tue, 16 Jun 2020 13:43:49 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org BBD87C433C9
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=none smtp.mailfrom=charante@codeaurora.org
-Subject: Re: [PATCH v2] dma-buf: Move dma_buf_release() from fops to
- dentry_ops
-To:     Sumit Semwal <sumit.semwal@linaro.org>,
-        linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org
-Cc:     Chenbo Feng <fengc@google.com>, linux-kernel@vger.kernel.org,
-        linaro-mm-sig@lists.linaro.org,
-        syzbot+3643a18836bce555bff6@syzkaller.appspotmail.com,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>
-References: <20200611114418.19852-1-sumit.semwal@linaro.org>
-From:   Charan Teja Kalla <charante@codeaurora.org>
-Message-ID: <59f0062d-5ca9-84f1-ba92-c3463ff0e73d@codeaurora.org>
-Date:   Tue, 16 Jun 2020 19:13:47 +0530
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
- Thunderbird/68.9.0
-MIME-Version: 1.0
-In-Reply-To: <20200611114418.19852-1-sumit.semwal@linaro.org>
-Content-Type: text/plain; charset=utf-8
+        id S1729018AbgFPNvb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 09:51:31 -0400
+IronPort-SDR: wqzLe1Iun11kVRenbaSKxpbyskyV4yrYdpywC7sBXBzJjcbsYS3liYDrGbJQL4/kgpw4m2diT5
+ 9fVhgDBqZSdA==
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Jun 2020 06:51:30 -0700
+IronPort-SDR: ogW4H7xBR1Sr6HW6AaReAtVry2jrbZAZRyIw1lh+V1mRy224UiWIlJARsNhXBgxOa0Aot0hi8t
+ 8AEkucG69PyA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.73,518,1583222400"; 
+   d="scan'208";a="308461225"
+Received: from fmsmsx106.amr.corp.intel.com ([10.18.124.204])
+  by orsmga008.jf.intel.com with ESMTP; 16 Jun 2020 06:51:29 -0700
+Received: from fmsmsx126.amr.corp.intel.com (10.18.125.43) by
+ FMSMSX106.amr.corp.intel.com (10.18.124.204) with Microsoft SMTP Server (TLS)
+ id 14.3.439.0; Tue, 16 Jun 2020 06:51:28 -0700
+Received: from fmsmsx107.amr.corp.intel.com ([169.254.6.74]) by
+ FMSMSX126.amr.corp.intel.com ([169.254.1.76]) with mapi id 14.03.0439.000;
+ Tue, 16 Jun 2020 06:51:28 -0700
+From:   "Ruhl, Michael J" <michael.j.ruhl@intel.com>
+To:     Charan Teja Kalla <charante@codeaurora.org>,
+        Sumit Semwal <sumit.semwal@linaro.org>,
+        "open list:DMA BUFFER SHARING FRAMEWORK" 
+        <linux-media@vger.kernel.org>,
+        DRI mailing list <dri-devel@lists.freedesktop.org>
+CC:     Linaro MM SIG <linaro-mm-sig@lists.linaro.org>,
+        "vinmenon@codeaurora.org" <vinmenon@codeaurora.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: RE: [PATCH] dmabuf: use spinlock to access dmabuf->name
+Thread-Topic: [PATCH] dmabuf: use spinlock to access dmabuf->name
+Thread-Index: AQHWQWvsYI6eTL2/6UmOYEBVkPsE9KjbRi5A
+Date:   Tue, 16 Jun 2020 13:51:28 +0000
+Message-ID: <14063C7AD467DE4B82DEDB5C278E8663010F365EF5@fmsmsx107.amr.corp.intel.com>
+References: <316a5cf9-ca71-6506-bf8b-e79ded9055b2@codeaurora.org>
+In-Reply-To: <316a5cf9-ca71-6506-bf8b-e79ded9055b2@codeaurora.org>
+Accept-Language: en-US
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+dlp-product: dlpe-windows
+dlp-version: 11.2.0.6
+dlp-reaction: no-action
+x-originating-ip: [10.1.200.108]
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+MIME-Version: 1.0
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Thanks Sumit for the fix.
+>-----Original Message-----
+>From: dri-devel <dri-devel-bounces@lists.freedesktop.org> On Behalf Of
+>Charan Teja Kalla
+>Sent: Thursday, June 11, 2020 9:40 AM
+>To: Sumit Semwal <sumit.semwal@linaro.org>; open list:DMA BUFFER
+>SHARING FRAMEWORK <linux-media@vger.kernel.org>; DRI mailing list <dri-
+>devel@lists.freedesktop.org>
+>Cc: Linaro MM SIG <linaro-mm-sig@lists.linaro.org>;
+>vinmenon@codeaurora.org; LKML <linux-kernel@vger.kernel.org>;
+>stable@vger.kernel.org
+>Subject: [PATCH] dmabuf: use spinlock to access dmabuf->name
+>
+>There exists a sleep-while-atomic bug while accessing the dmabuf->name
+>under mutex in the dmabuffs_dname(). This is caused from the SELinux
+>permissions checks on a process where it tries to validate the inherited
+>files from fork() by traversing them through iterate_fd() (which
+>traverse files under spin_lock) and call
+>match_file(security/selinux/hooks.c) where the permission checks happen.
+>This audit information is logged using dump_common_audit_data() where it
+>calls d_path() to get the file path name. If the file check happen on
+>the dmabuf's fd, then it ends up in ->dmabuffs_dname() and use mutex to
+>access dmabuf->name. The flow will be like below:
+>flush_unauthorized_files()
+>  iterate_fd()
+>    spin_lock() --> Start of the atomic section.
+>      match_file()
+>        file_has_perm()
+>          avc_has_perm()
+>            avc_audit()
+>              slow_avc_audit()
+>	        common_lsm_audit()
+>		  dump_common_audit_data()
+>		    audit_log_d_path()
+>		      d_path()
+>                        dmabuffs_dname()
+>                          mutex_lock()--> Sleep while atomic.
+>
+>Call trace captured (on 4.19 kernels) is below:
+>___might_sleep+0x204/0x208
+>__might_sleep+0x50/0x88
+>__mutex_lock_common+0x5c/0x1068
+>__mutex_lock_common+0x5c/0x1068
+>mutex_lock_nested+0x40/0x50
+>dmabuffs_dname+0xa0/0x170
+>d_path+0x84/0x290
+>audit_log_d_path+0x74/0x130
+>common_lsm_audit+0x334/0x6e8
+>slow_avc_audit+0xb8/0xf8
+>avc_has_perm+0x154/0x218
+>file_has_perm+0x70/0x180
+>match_file+0x60/0x78
+>iterate_fd+0x128/0x168
+>selinux_bprm_committing_creds+0x178/0x248
+>security_bprm_committing_creds+0x30/0x48
+>install_exec_creds+0x1c/0x68
+>load_elf_binary+0x3a4/0x14e0
+>search_binary_handler+0xb0/0x1e0
+>
+>So, use spinlock to access dmabuf->name to avoid sleep-while-atomic.
+>
+>Cc: <stable@vger.kernel.org> [5.3+]
+>Signed-off-by: Charan Teja Reddy <charante@codeaurora.org>
+>---
+> drivers/dma-buf/dma-buf.c | 13 +++++++------
+> include/linux/dma-buf.h   |  1 +
+> 2 files changed, 8 insertions(+), 6 deletions(-)
+>
+>diff --git a/drivers/dma-buf/dma-buf.c b/drivers/dma-buf/dma-buf.c
+>index 01ce125..2e0456c 100644
+>--- a/drivers/dma-buf/dma-buf.c
+>+++ b/drivers/dma-buf/dma-buf.c
+>@@ -45,10 +45,10 @@ static char *dmabuffs_dname(struct dentry *dentry,
+>char *buffer, int buflen)
+> 	size_t ret = 0;
+>
+> 	dmabuf = dentry->d_fsdata;
+>-	dma_resv_lock(dmabuf->resv, NULL);
+>+	spin_lock(&dmabuf->name_lock);
+> 	if (dmabuf->name)
+> 		ret = strlcpy(name, dmabuf->name, DMA_BUF_NAME_LEN);
+>-	dma_resv_unlock(dmabuf->resv);
+>+	spin_unlock(&dmabuf->name_lock);
 
-On 6/11/2020 5:14 PM, Sumit Semwal wrote:
-> Charan Teja reported a 'use-after-free' in dmabuffs_dname [1], which
-> happens if the dma_buf_release() is called while the userspace is
-> accessing the dma_buf pseudo fs's dmabuffs_dname() in another process,
-> and dma_buf_release() releases the dmabuf object when the last reference
-> to the struct file goes away.
-> 
-> I discussed with Arnd Bergmann, and he suggested that rather than tying
-> the dma_buf_release() to the file_operations' release(), we can tie it to
-> the dentry_operations' d_release(), which will be called when the last ref
-> to the dentry is removed.
-> 
-> The path exercised by __fput() calls f_op->release() first, and then calls
-> dput, which eventually calls d_op->d_release().
-> 
-> In the 'normal' case, when no userspace access is happening via dma_buf
-> pseudo fs, there should be exactly one fd, file, dentry and inode, so
-> closing the fd will kill of everything right away.
-> 
-> In the presented case, the dentry's d_release() will be called only when
-> the dentry's last ref is released.
-> 
-> Therefore, lets move dma_buf_release() from fops->release() to
-> d_ops->d_release()
-> 
-> Many thanks to Arnd for his FS insights :)
-> 
-> [1]: https://lore.kernel.org/patchwork/patch/1238278/
-> 
-> Fixes: bb2bb9030425 ("dma-buf: add DMA_BUF_SET_NAME ioctls")
-> Reported-by: syzbot+3643a18836bce555bff6@syzkaller.appspotmail.com
-> Cc: <stable@vger.kernel.org> [5.3+]
-> Cc: Arnd Bergmann <arnd@arndb.de>
-> Reported-by: Charan Teja Reddy <charante@codeaurora.org>
-> Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-> Signed-off-by: Sumit Semwal <sumit.semwal@linaro.org>
-> 
+I am not really clear on why you need this lock.
 
-Tested this patch for Android running on Snapdragon hardware and see no
-issues.
-Tested-by: Charan Teja Reddy <charante@codeaurora.org>
+If name == NULL you have no issues.
+If name is real, you have no issues.
 
-> ---
-> v2: per Arnd: Moved dma_buf_release() above to avoid forward declaration;
->      removed dentry_ops check.
-> ---
->  drivers/dma-buf/dma-buf.c | 54 ++++++++++++++++++---------------------
->  1 file changed, 25 insertions(+), 29 deletions(-)
-> 
-> diff --git a/drivers/dma-buf/dma-buf.c b/drivers/dma-buf/dma-buf.c
-> index 01ce125f8e8d..412629601ad3 100644
-> --- a/drivers/dma-buf/dma-buf.c
-> +++ b/drivers/dma-buf/dma-buf.c
-> @@ -54,37 +54,11 @@ static char *dmabuffs_dname(struct dentry *dentry, char *buffer, int buflen)
->  			     dentry->d_name.name, ret > 0 ? name : "");
->  }
->  
-> -static const struct dentry_operations dma_buf_dentry_ops = {
-> -	.d_dname = dmabuffs_dname,
-> -};
-> -
-> -static struct vfsmount *dma_buf_mnt;
-> -
-> -static int dma_buf_fs_init_context(struct fs_context *fc)
-> -{
-> -	struct pseudo_fs_context *ctx;
-> -
-> -	ctx = init_pseudo(fc, DMA_BUF_MAGIC);
-> -	if (!ctx)
-> -		return -ENOMEM;
-> -	ctx->dops = &dma_buf_dentry_ops;
-> -	return 0;
-> -}
-> -
-> -static struct file_system_type dma_buf_fs_type = {
-> -	.name = "dmabuf",
-> -	.init_fs_context = dma_buf_fs_init_context,
-> -	.kill_sb = kill_anon_super,
-> -};
-> -
-> -static int dma_buf_release(struct inode *inode, struct file *file)
-> +static void dma_buf_release(struct dentry *dentry)
->  {
->  	struct dma_buf *dmabuf;
->  
-> -	if (!is_dma_buf_file(file))
-> -		return -EINVAL;
-> -
-> -	dmabuf = file->private_data;
-> +	dmabuf = dentry->d_fsdata;
->  
->  	BUG_ON(dmabuf->vmapping_counter);
->  
-> @@ -110,9 +84,32 @@ static int dma_buf_release(struct inode *inode, struct file *file)
->  	module_put(dmabuf->owner);
->  	kfree(dmabuf->name);
->  	kfree(dmabuf);
-> +}
-> +
-> +static const struct dentry_operations dma_buf_dentry_ops = {
-> +	.d_dname = dmabuffs_dname,
-> +	.d_release = dma_buf_release,
-> +};
-> +
-> +static struct vfsmount *dma_buf_mnt;
-> +
-> +static int dma_buf_fs_init_context(struct fs_context *fc)
-> +{
-> +	struct pseudo_fs_context *ctx;
-> +
-> +	ctx = init_pseudo(fc, DMA_BUF_MAGIC);
-> +	if (!ctx)
-> +		return -ENOMEM;
-> +	ctx->dops = &dma_buf_dentry_ops;
->  	return 0;
->  }
->  
-> +static struct file_system_type dma_buf_fs_type = {
-> +	.name = "dmabuf",
-> +	.init_fs_context = dma_buf_fs_init_context,
-> +	.kill_sb = kill_anon_super,
-> +};
-> +
->  static int dma_buf_mmap_internal(struct file *file, struct vm_area_struct *vma)
->  {
->  	struct dma_buf *dmabuf;
-> @@ -412,7 +409,6 @@ static void dma_buf_show_fdinfo(struct seq_file *m, struct file *file)
->  }
->  
->  static const struct file_operations dma_buf_fops = {
-> -	.release	= dma_buf_release,
->  	.mmap		= dma_buf_mmap_internal,
->  	.llseek		= dma_buf_llseek,
->  	.poll		= dma_buf_poll,
-> 
+If name is freed you will copy garbage, but the only way
+for that to happen is that _set_name or _release have to be called
+at just the right time.
 
--- 
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora
-Forum, a Linux Foundation Collaborative Project
+And the above would probably only be an issue if the set_name
+was called, so you will get NULL or a real name.
+
+Is there a reason for the lock here?
+
+Mike
+
+> 	return dynamic_dname(dentry, buffer, buflen, "/%s:%s",
+> 			     dentry->d_name.name, ret > 0 ? name : "");
+>@@ -335,7 +335,7 @@ static long dma_buf_set_name(struct dma_buf
+>*dmabuf, const char __user *buf)
+> 	if (IS_ERR(name))
+> 		return PTR_ERR(name);
+>
+>-	dma_resv_lock(dmabuf->resv, NULL);
+>+	spin_lock(&dmabuf->name_lock);
+> 	if (!list_empty(&dmabuf->attachments)) {
+> 		ret = -EBUSY;
+> 		kfree(name);
+>@@ -345,7 +345,7 @@ static long dma_buf_set_name(struct dma_buf
+>*dmabuf, const char __user *buf)
+> 	dmabuf->name = name;
+>
+> out_unlock:
+>-	dma_resv_unlock(dmabuf->resv);
+>+	spin_unlock(&dmabuf->name_lock);
+> 	return ret;
+> }
+>
+>@@ -405,10 +405,10 @@ static void dma_buf_show_fdinfo(struct seq_file
+>*m, struct file *file)
+> 	/* Don't count the temporary reference taken inside procfs seq_show
+>*/
+> 	seq_printf(m, "count:\t%ld\n", file_count(dmabuf->file) - 1);
+> 	seq_printf(m, "exp_name:\t%s\n", dmabuf->exp_name);
+>-	dma_resv_lock(dmabuf->resv, NULL);
+>+	spin_lock(&dmabuf->name_lock);
+> 	if (dmabuf->name)
+> 		seq_printf(m, "name:\t%s\n", dmabuf->name);
+>-	dma_resv_unlock(dmabuf->resv);
+>+	spin_unlock(&dmabuf->name_lock);
+> }
+>
+> static const struct file_operations dma_buf_fops = {
+>@@ -546,6 +546,7 @@ struct dma_buf *dma_buf_export(const struct
+>dma_buf_export_info *exp_info)
+> 	dmabuf->size = exp_info->size;
+> 	dmabuf->exp_name = exp_info->exp_name;
+> 	dmabuf->owner = exp_info->owner;
+>+	spin_lock_init(&dmabuf->name_lock);
+> 	init_waitqueue_head(&dmabuf->poll);
+> 	dmabuf->cb_excl.poll = dmabuf->cb_shared.poll = &dmabuf->poll;
+> 	dmabuf->cb_excl.active = dmabuf->cb_shared.active = 0;
+>diff --git a/include/linux/dma-buf.h b/include/linux/dma-buf.h
+>index ab0c156..93108fd 100644
+>--- a/include/linux/dma-buf.h
+>+++ b/include/linux/dma-buf.h
+>@@ -311,6 +311,7 @@ struct dma_buf {
+> 	void *vmap_ptr;
+> 	const char *exp_name;
+> 	const char *name;
+>+	spinlock_t name_lock;
+> 	struct module *owner;
+> 	struct list_head list_node;
+> 	void *priv;
+>--
+>The Qualcomm Innovation Center, Inc. is a member of the Code Aurora
+>Forum, a Linux Foundation Collaborative Project
+>_______________________________________________
+>dri-devel mailing list
+>dri-devel@lists.freedesktop.org
+>https://lists.freedesktop.org/mailman/listinfo/dri-devel
