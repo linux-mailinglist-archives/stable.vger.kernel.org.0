@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CA641FBAF2
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:16:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E0451FBAF4
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:16:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731465AbgFPPld (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:41:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57356 "EHLO mail.kernel.org"
+        id S1731999AbgFPQPb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 12:15:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57524 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730575AbgFPPld (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:41:33 -0400
+        id S1731483AbgFPPli (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:41:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4F631208E4;
-        Tue, 16 Jun 2020 15:41:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B6E4F208E4;
+        Tue, 16 Jun 2020 15:41:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322092;
-        bh=d97WpFy+5OREEuxVaheOyuxtpt3chE+sXqbZmAI3iho=;
+        s=default; t=1592322098;
+        bh=SdXodXkPThgCBOXk9IORgFIxiIspDDqkx22x+9JFdJU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SctYqyZ3sqWsg1If4Z1gnMOJRfC/ZKNYKRS+8cROMMn0TdKwnXrET33o0C5415HPg
-         UDS5QaBYHjV6fI4+alEP8DAH5BlNYUPAxu9WdbUmJrDY+XUUC8rD5EXXJtk+nJnWyX
-         XR8wF2JRZSDCW6WUUXuH6iRblZcp1PqUtGnooIKc=
+        b=Sfw9QPixgj4yVTa6TEbdJErwopLGL5aQxxs+pVelkntBfnNFnb/nrbvcpOHzyvrwt
+         AcYO36i2A5boxn3a4FA3/TxepJk1rgEYf/WQ1EJlafdpIDcG7sl8zh0FstpvZIBZgm
+         gajPT7s9wdAttNpZwi/JP0IQ2aQ3k6SHB/ojn084=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Subject: [PATCH 5.4 132/134] xen/pvcalls-back: test for errors when calling backend_connect()
-Date:   Tue, 16 Jun 2020 17:35:16 +0200
-Message-Id: <20200616153107.109738183@linuxfoundation.org>
+        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
+        Marc Zyngier <maz@kernel.org>
+Subject: [PATCH 5.4 134/134] KVM: arm64: Save the hosts PtrAuth keys in non-preemptible context
+Date:   Tue, 16 Jun 2020 17:35:18 +0200
+Message-Id: <20200616153107.201877658@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200616153100.633279950@linuxfoundation.org>
 References: <20200616153100.633279950@linuxfoundation.org>
@@ -44,36 +43,133 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Marc Zyngier <maz@kernel.org>
 
-commit c8d70a29d6bbc956013f3401f92a4431a9385a3c upstream.
+commit ef3e40a7ea8dbe2abd0a345032cd7d5023b9684f upstream.
 
-backend_connect() can fail, so switch the device to connected only if
-no error occurred.
+When using the PtrAuth feature in a guest, we need to save the host's
+keys before allowing the guest to program them. For that, we dump
+them in a per-CPU data structure (the so called host context).
 
-Fixes: 0a9c75c2c7258f2 ("xen/pvcalls: xenbus state handling")
+But both call sites that do this are in preemptible context,
+which may end up in disaster should the vcpu thread get preempted
+before reentering the guest.
+
+Instead, save the keys eagerly on each vcpu_load(). This has an
+increased overhead, but is at least safe.
+
 Cc: stable@vger.kernel.org
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Link: https://lore.kernel.org/r/20200511074231.19794-1-jgross@suse.com
-Reviewed-by: Stefano Stabellini <sstabellini@kernel.org>
-Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Reviewed-by: Mark Rutland <mark.rutland@arm.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
----
- drivers/xen/pvcalls-back.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/xen/pvcalls-back.c
-+++ b/drivers/xen/pvcalls-back.c
-@@ -1087,7 +1087,8 @@ static void set_backend_state(struct xen
- 		case XenbusStateInitialised:
- 			switch (state) {
- 			case XenbusStateConnected:
--				backend_connect(dev);
-+				if (backend_connect(dev))
-+					return;
- 				xenbus_switch_state(dev, XenbusStateConnected);
- 				break;
- 			case XenbusStateClosing:
+---
+ arch/arm/include/asm/kvm_emulate.h   |    3 ++-
+ arch/arm64/include/asm/kvm_emulate.h |    6 ------
+ arch/arm64/kvm/handle_exit.c         |   19 ++-----------------
+ virt/kvm/arm/arm.c                   |   22 +++++++++++++++++++++-
+ 4 files changed, 25 insertions(+), 25 deletions(-)
+
+--- a/arch/arm/include/asm/kvm_emulate.h
++++ b/arch/arm/include/asm/kvm_emulate.h
+@@ -363,6 +363,7 @@ static inline unsigned long vcpu_data_ho
+ 	}
+ }
+ 
+-static inline void vcpu_ptrauth_setup_lazy(struct kvm_vcpu *vcpu) {}
++static inline bool vcpu_has_ptrauth(struct kvm_vcpu *vcpu) { return false; }
++static inline void vcpu_ptrauth_disable(struct kvm_vcpu *vcpu) { }
+ 
+ #endif /* __ARM_KVM_EMULATE_H__ */
+--- a/arch/arm64/include/asm/kvm_emulate.h
++++ b/arch/arm64/include/asm/kvm_emulate.h
+@@ -97,12 +97,6 @@ static inline void vcpu_ptrauth_disable(
+ 	vcpu->arch.hcr_el2 &= ~(HCR_API | HCR_APK);
+ }
+ 
+-static inline void vcpu_ptrauth_setup_lazy(struct kvm_vcpu *vcpu)
+-{
+-	if (vcpu_has_ptrauth(vcpu))
+-		vcpu_ptrauth_disable(vcpu);
+-}
+-
+ static inline unsigned long vcpu_get_vsesr(struct kvm_vcpu *vcpu)
+ {
+ 	return vcpu->arch.vsesr_el2;
+--- a/arch/arm64/kvm/handle_exit.c
++++ b/arch/arm64/kvm/handle_exit.c
+@@ -162,31 +162,16 @@ static int handle_sve(struct kvm_vcpu *v
+ 	return 1;
+ }
+ 
+-#define __ptrauth_save_key(regs, key)						\
+-({										\
+-	regs[key ## KEYLO_EL1] = read_sysreg_s(SYS_ ## key ## KEYLO_EL1);	\
+-	regs[key ## KEYHI_EL1] = read_sysreg_s(SYS_ ## key ## KEYHI_EL1);	\
+-})
+-
+ /*
+  * Handle the guest trying to use a ptrauth instruction, or trying to access a
+  * ptrauth register.
+  */
+ void kvm_arm_vcpu_ptrauth_trap(struct kvm_vcpu *vcpu)
+ {
+-	struct kvm_cpu_context *ctxt;
+-
+-	if (vcpu_has_ptrauth(vcpu)) {
++	if (vcpu_has_ptrauth(vcpu))
+ 		vcpu_ptrauth_enable(vcpu);
+-		ctxt = vcpu->arch.host_cpu_context;
+-		__ptrauth_save_key(ctxt->sys_regs, APIA);
+-		__ptrauth_save_key(ctxt->sys_regs, APIB);
+-		__ptrauth_save_key(ctxt->sys_regs, APDA);
+-		__ptrauth_save_key(ctxt->sys_regs, APDB);
+-		__ptrauth_save_key(ctxt->sys_regs, APGA);
+-	} else {
++	else
+ 		kvm_inject_undefined(vcpu);
+-	}
+ }
+ 
+ /*
+--- a/virt/kvm/arm/arm.c
++++ b/virt/kvm/arm/arm.c
+@@ -354,6 +354,16 @@ int kvm_arch_vcpu_init(struct kvm_vcpu *
+ 	return kvm_vgic_vcpu_init(vcpu);
+ }
+ 
++#ifdef CONFIG_ARM64
++#define __ptrauth_save_key(regs, key)						\
++({										\
++	regs[key ## KEYLO_EL1] = read_sysreg_s(SYS_ ## key ## KEYLO_EL1);	\
++	regs[key ## KEYHI_EL1] = read_sysreg_s(SYS_ ## key ## KEYHI_EL1);	\
++})
++#else
++#define  __ptrauth_save_key(regs, key)	do { } while (0)
++#endif
++
+ void kvm_arch_vcpu_load(struct kvm_vcpu *vcpu, int cpu)
+ {
+ 	int *last_ran;
+@@ -386,7 +396,17 @@ void kvm_arch_vcpu_load(struct kvm_vcpu
+ 	else
+ 		vcpu_set_wfe_traps(vcpu);
+ 
+-	vcpu_ptrauth_setup_lazy(vcpu);
++	if (vcpu_has_ptrauth(vcpu)) {
++		struct kvm_cpu_context __maybe_unused *ctxt = vcpu->arch.host_cpu_context;
++
++		__ptrauth_save_key(ctxt->sys_regs, APIA);
++		__ptrauth_save_key(ctxt->sys_regs, APIB);
++		__ptrauth_save_key(ctxt->sys_regs, APDA);
++		__ptrauth_save_key(ctxt->sys_regs, APDB);
++		__ptrauth_save_key(ctxt->sys_regs, APGA);
++
++		vcpu_ptrauth_disable(vcpu);
++	}
+ }
+ 
+ void kvm_arch_vcpu_put(struct kvm_vcpu *vcpu)
 
 
