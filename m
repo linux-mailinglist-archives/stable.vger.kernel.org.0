@@ -2,38 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DD7F81FB855
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:55:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 17B5E1FB7A4
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:50:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731985AbgFPPzd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:55:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55630 "EHLO mail.kernel.org"
+        id S1732373AbgFPPsA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:48:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41882 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733082AbgFPPz3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:55:29 -0400
+        id S1732063AbgFPPr7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:47:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D70DE207C4;
-        Tue, 16 Jun 2020 15:55:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8E43720E65;
+        Tue, 16 Jun 2020 15:47:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322929;
-        bh=Xur/2ps7vCdybjS3oNBWCqE5T1fBUF+bZqPQ5Ga/7Nw=;
+        s=default; t=1592322479;
+        bh=LUaGMoUbjdbFQRmoKpjS+1KFdgYIxUgQbBO85tMnjrA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=APUyUx3kiFysd/1v8kCaQftFxYcHwaQoTHk+i0NG7zCTuXEOxlmV3jSxTajktz+IF
-         c/jn4fQUch51IKfY98u/7ppgjpQ64fSXZ4rTKsoeXfyVN7NhobzS6cJ2sykxVlDBxp
-         IwNdK228IxfVeXgvAPF7EHizfL6xkO7IBFS603Tk=
+        b=Zpe6IxKSxN8kbkGIDPN5j6E52zWds/P9tqjoh2/XsykyQgNgoog5CdmO08INd9rBY
+         HVi+H2jSvchYyBMhT5BLpWSLuSd2GSsSzVcJdeCKVBJ52PxXDu14iwxU5AWIhzd/nm
+         uwha/V3SKiGtsJGcVwvkXfcxGSbuJfYGLUYhkFHA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
-        James Morse <james.morse@arm.com>
-Subject: [PATCH 5.6 131/161] KVM: arm64: Stop writing aarch32s CSSELR into ACTLR
+        stable@vger.kernel.org,
+        syzbot+6f1624f937d9d6911e2d@syzkaller.appspotmail.com,
+        OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Marco Elver <elver@google.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.7 147/163] fat: dont allow to mount if the FAT length == 0
 Date:   Tue, 16 Jun 2020 17:35:21 +0200
-Message-Id: <20200616153112.595821051@linuxfoundation.org>
+Message-Id: <20200616153113.843610229@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153106.402291280@linuxfoundation.org>
-References: <20200616153106.402291280@linuxfoundation.org>
+In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
+References: <20200616153106.849127260@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,65 +48,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Morse <james.morse@arm.com>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
 
-commit 7c582bf4ed84f3eb58bdd1f63024a14c17551e7d upstream.
+commit b1b65750b8db67834482f758fc385bfa7560d228 upstream.
 
-aarch32 has pairs of registers to access the high and low parts of 64bit
-registers. KVM has a union of 64bit sys_regs[] and 32bit copro[]. The
-32bit accessors read the high or low part of the 64bit sys_reg[] value
-through the union.
+If FAT length == 0, the image doesn't have any data. And it can be the
+cause of overlapping the root dir and FAT entries.
 
-Both sys_reg_descs[] and cp15_regs[] list access_csselr() as the accessor
-for CSSELR{,_EL1}. access_csselr() is only aware of the 64bit sys_regs[],
-and expects r->reg to be 'CSSELR_EL1' in the enum, index 2 of the 64bit
-array.
+Also Windows treats it as invalid format.
 
-cp15_regs[] uses the 32bit copro[] alias of sys_regs[]. Here CSSELR is
-c0_CSSELR which is the same location in sys_reg[]. r->reg is 'c0_CSSELR',
-index 4 in the 32bit array.
-
-access_csselr() uses the 32bit r->reg value to access the 64bit array,
-so reads and write the wrong value. sys_regs[4], is ACTLR_EL1, which
-is subsequently save/restored when we enter the guest.
-
-ACTLR_EL1 is supposed to be read-only for the guest. This register
-only affects execution at EL1, and the host's value is restored before
-we return to host EL1.
-
-Convert the 32bit register index back to the 64bit version.
-
-Suggested-by: Marc Zyngier <maz@kernel.org>
-Signed-off-by: James Morse <james.morse@arm.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20200529150656.7339-2-james.morse@arm.com
+Reported-by: syzbot+6f1624f937d9d6911e2d@syzkaller.appspotmail.com
+Signed-off-by: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Marco Elver <elver@google.com>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Link: http://lkml.kernel.org/r/87r1wz8mrd.fsf@mail.parknet.co.jp
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm64/kvm/sys_regs.c |   10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ fs/fat/inode.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/arch/arm64/kvm/sys_regs.c
-+++ b/arch/arm64/kvm/sys_regs.c
-@@ -1280,10 +1280,16 @@ static bool access_clidr(struct kvm_vcpu
- static bool access_csselr(struct kvm_vcpu *vcpu, struct sys_reg_params *p,
- 			  const struct sys_reg_desc *r)
- {
-+	int reg = r->reg;
-+
-+	/* See the 32bit mapping in kvm_host.h */
-+	if (p->is_aarch32)
-+		reg = r->reg / 2;
-+
- 	if (p->is_write)
--		vcpu_write_sys_reg(vcpu, p->regval, r->reg);
-+		vcpu_write_sys_reg(vcpu, p->regval, reg);
- 	else
--		p->regval = vcpu_read_sys_reg(vcpu, r->reg);
-+		p->regval = vcpu_read_sys_reg(vcpu, reg);
- 	return true;
- }
+--- a/fs/fat/inode.c
++++ b/fs/fat/inode.c
+@@ -1520,6 +1520,12 @@ static int fat_read_bpb(struct super_blo
+ 		goto out;
+ 	}
  
++	if (bpb->fat_fat_length == 0 && bpb->fat32_length == 0) {
++		if (!silent)
++			fat_msg(sb, KERN_ERR, "bogus number of FAT sectors");
++		goto out;
++	}
++
+ 	error = 0;
+ 
+ out:
 
 
