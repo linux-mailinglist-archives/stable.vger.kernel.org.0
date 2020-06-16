@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BED21FBB00
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:16:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B52C61FBA0F
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:08:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731054AbgFPPj5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:39:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53910 "EHLO mail.kernel.org"
+        id S1732167AbgFPPqL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:46:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37952 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730235AbgFPPj4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:39:56 -0400
+        id S1732163AbgFPPqK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:46:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4701C20B1F;
-        Tue, 16 Jun 2020 15:39:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F08E92071A;
+        Tue, 16 Jun 2020 15:46:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592321995;
-        bh=CMRK0YGa62R+ERoa35vn8G2WswH6HGAdKOZ5PGYl8x0=;
+        s=default; t=1592322368;
+        bh=oluWiXeVGv0Ky+tN6UzP0UolWQyFZV9ATfA0OJh9XxE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tYp5TrNKp7mETQzA4umqWo8pSMla6n4OtujyIaODDFxanzU1ABa9B86J6Mfg/+PwG
-         YgNvGYqYEnBj2Dag4nP2emXinWgSisd0WSTe8i0q/3WtnyOXCnM++X+17YiMn2mtln
-         OWiAS4y0h1JH8K0y4vV3eNp7rgdaJgz8SSsWe470=
+        b=ofJ9MneWClrgcTAIk3gSvc1/ZR1LPFCsHooSBxLOk+58tfIAQQstvGesOs0cZglml
+         3Civ+V4S0O38qWLDkE1XPKYPJoBNYkvadG8THqk9vYOXRvwpaCXIzm0Tk52Z98O6gE
+         3q7ZhHAeksUwIQA4dj1/UEVis4Wuve1fn6Lt9em4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+7d2debdcdb3cb93c1e5e@syzkaller.appspotmail.com,
-        "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: [PATCH 5.4 095/134] proc: Use new_inode not new_inode_pseudo
+        stable@vger.kernel.org, Corentin Labbe <clabbe@baylibre.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.7 105/163] net: cadence: macb: disable NAPI on error
 Date:   Tue, 16 Jun 2020 17:34:39 +0200
-Message-Id: <20200616153105.332228385@linuxfoundation.org>
+Message-Id: <20200616153111.847797629@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153100.633279950@linuxfoundation.org>
-References: <20200616153100.633279950@linuxfoundation.org>
+In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
+References: <20200616153106.849127260@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,83 +43,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric W. Biederman <ebiederm@xmission.com>
+From: Corentin Labbe <clabbe@baylibre.com>
 
-commit ef1548adada51a2f32ed7faef50aa465e1b4c5da upstream.
+[ Upstream commit 014406babc1f5f887a08737566b5b356c7018242 ]
 
-Recently syzbot reported that unmounting proc when there is an ongoing
-inotify watch on the root directory of proc could result in a use
-after free when the watch is removed after the unmount of proc
-when the watcher exits.
+When the PHY is not working, the macb driver crash on a second try to
+setup it.
+[   78.545994] macb e000b000.ethernet eth0: Could not attach PHY (-19)
+ifconfig: SIOCSIFFLAGS: No such device
+[   78.655457] ------------[ cut here ]------------
+[   78.656014] kernel BUG at /linux-next/include/linux/netdevice.h:521!
+[   78.656504] Internal error: Oops - BUG: 0 [#1] SMP ARM
+[   78.657079] Modules linked in:
+[   78.657795] CPU: 0 PID: 122 Comm: ifconfig Not tainted 5.7.0-next-20200609 #1
+[   78.658202] Hardware name: Xilinx Zynq Platform
+[   78.659632] PC is at macb_open+0x220/0x294
+[   78.660160] LR is at 0x0
+[   78.660373] pc : [<c0b0a634>]    lr : [<00000000>]    psr: 60000013
+[   78.660716] sp : c89ffd70  ip : c8a28800  fp : c199bac0
+[   78.661040] r10: 00000000  r9 : c8838540  r8 : c8838568
+[   78.661362] r7 : 00000001  r6 : c8838000  r5 : c883c000  r4 : 00000000
+[   78.661724] r3 : 00000010  r2 : 00000000  r1 : 00000000  r0 : 00000000
+[   78.662187] Flags: nZCv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment none
+[   78.662635] Control: 10c5387d  Table: 08b64059  DAC: 00000051
+[   78.663035] Process ifconfig (pid: 122, stack limit = 0x(ptrval))
+[   78.663476] Stack: (0xc89ffd70 to 0xc8a00000)
+[   78.664121] fd60:                                     00000000 c89fe000 c8838000 c89fe000
+[   78.664866] fd80: 00000000 c11ff9ac c8838028 00000000 00000000 c0de6f2c 00000001 c1804eec
+[   78.665579] fda0: c19b8178 c8838000 00000000 ca760866 c8838000 00000001 00001043 c89fe000
+[   78.666355] fdc0: 00001002 c0de72f4 c89fe000 c0de8dc0 00008914 c89fe000 c199bac0 ca760866
+[   78.667111] fde0: c89ffddc c8838000 00001002 00000000 c8838138 c881010c 00008914 c0de7364
+[   78.667862] fe00: 00000000 c89ffe70 c89fe000 ffffffff c881010c c0e8bd48 00000003 00000000
+[   78.668601] fe20: c8838000 c8810100 39c1118f 00039c11 c89a0960 00001043 00000000 000a26d0
+[   78.669343] fe40: b6f43000 ca760866 c89a0960 00000051 befe6c50 00008914 c8b2a3c0 befe6c50
+[   78.670086] fe60: 00000003 ee610500 00000000 c0e8ef58 30687465 00000000 00000000 00000000
+[   78.670865] fe80: 00001043 00000000 000a26d0 b6f43000 c89a0600 ee40ae7c c8870d00 c0ddabf4
+[   78.671593] fea0: c89ffeec c0ddabf4 c89ffeec c199bac0 00008913 c0ddac48 c89ffeec c89fe000
+[   78.672324] fec0: befe6c50 ca760866 befe6c50 00008914 c89fe000 befe6c50 c8b2a3c0 c0dc00e4
+[   78.673088] fee0: c89a0480 00000201 00000cc0 30687465 00000000 00000000 00000000 00001002
+[   78.673822] ff00: 00000000 000a26d0 b6f43000 ca760866 00008914 c8b2a3c0 000a0ec4 c8b2a3c0
+[   78.674576] ff20: befe6c50 c04b21bc 000d5004 00000817 c89a0480 c0315f94 00000000 00000003
+[   78.675415] ff40: c19a2bc8 c8a3cc00 c89fe000 00000255 00000000 00000000 00000000 000d5000
+[   78.676182] ff60: 000f6000 c180b2a0 00000817 c0315e64 000d5004 c89fffb0 b6ec0c30 ca760866
+[   78.676928] ff80: 00000000 000b609b befe6c50 000a0ec4 00000036 c03002c4 c89fe000 00000036
+[   78.677673] ffa0: 00000000 c03000c0 000b609b befe6c50 00000003 00008914 befe6c50 000b609b
+[   78.678415] ffc0: 000b609b befe6c50 000a0ec4 00000036 befe6e0c befe6f1a 000d5150 00000000
+[   78.679154] ffe0: 000d41e4 befe6bf4 00019648 b6e4509c 20000010 00000003 00000000 00000000
+[   78.681059] [<c0b0a634>] (macb_open) from [<c0de6f2c>] (__dev_open+0xd0/0x154)
+[   78.681571] [<c0de6f2c>] (__dev_open) from [<c0de72f4>] (__dev_change_flags+0x16c/0x1c4)
+[   78.682015] [<c0de72f4>] (__dev_change_flags) from [<c0de7364>] (dev_change_flags+0x18/0x48)
+[   78.682493] [<c0de7364>] (dev_change_flags) from [<c0e8bd48>] (devinet_ioctl+0x5e4/0x75c)
+[   78.682945] [<c0e8bd48>] (devinet_ioctl) from [<c0e8ef58>] (inet_ioctl+0x1f0/0x3b4)
+[   78.683381] [<c0e8ef58>] (inet_ioctl) from [<c0dc00e4>] (sock_ioctl+0x39c/0x664)
+[   78.683818] [<c0dc00e4>] (sock_ioctl) from [<c04b21bc>] (ksys_ioctl+0x2d8/0x9c0)
+[   78.684343] [<c04b21bc>] (ksys_ioctl) from [<c03000c0>] (ret_fast_syscall+0x0/0x54)
+[   78.684789] Exception stack(0xc89fffa8 to 0xc89ffff0)
+[   78.685346] ffa0:                   000b609b befe6c50 00000003 00008914 befe6c50 000b609b
+[   78.686106] ffc0: 000b609b befe6c50 000a0ec4 00000036 befe6e0c befe6f1a 000d5150 00000000
+[   78.686710] ffe0: 000d41e4 befe6bf4 00019648 b6e4509c
+[   78.687582] Code: 9a000003 e5983078 e3130001 1affffef (e7f001f2)
+[   78.688788] ---[ end trace e3f2f6ab69754eae ]---
 
-Commit 69879c01a0c3 ("proc: Remove the now unnecessary internal mount
-of proc") made it easier to unmount proc and allowed syzbot to see the
-problem, but looking at the code it has been around for a long time.
+This is due to NAPI left enabled if macb_phylink_connect() fail.
 
-Looking at the code the fsnotify watch should have been removed by
-fsnotify_sb_delete in generic_shutdown_super.  Unfortunately the inode
-was allocated with new_inode_pseudo instead of new_inode so the inode
-was not on the sb->s_inodes list.  Which prevented
-fsnotify_unmount_inodes from finding the inode and removing the watch
-as well as made it so the "VFS: Busy inodes after unmount" warning
-could not find the inodes to warn about them.
-
-Make all of the inodes in proc visible to generic_shutdown_super,
-and fsnotify_sb_delete by using new_inode instead of new_inode_pseudo.
-The only functional difference is that new_inode places the inodes
-on the sb->s_inodes list.
-
-I wrote a small test program and I can verify that without changes it
-can trigger this issue, and by replacing new_inode_pseudo with
-new_inode the issues goes away.
-
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/000000000000d788c905a7dfa3f4@google.com
-Reported-by: syzbot+7d2debdcdb3cb93c1e5e@syzkaller.appspotmail.com
-Fixes: 0097875bd415 ("proc: Implement /proc/thread-self to point at the directory of the current thread")
-Fixes: 021ada7dff22 ("procfs: switch /proc/self away from proc_dir_entry")
-Fixes: 51f0885e5415 ("vfs,proc: guarantee unique inodes in /proc")
-Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
+Fixes: 7897b071ac3b ("net: macb: convert to phylink")
+Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- fs/proc/inode.c       |    2 +-
- fs/proc/self.c        |    2 +-
- fs/proc/thread_self.c |    2 +-
- 3 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/cadence/macb_main.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/fs/proc/inode.c
-+++ b/fs/proc/inode.c
-@@ -448,7 +448,7 @@ const struct inode_operations proc_link_
+--- a/drivers/net/ethernet/cadence/macb_main.c
++++ b/drivers/net/ethernet/cadence/macb_main.c
+@@ -2558,13 +2558,16 @@ static int macb_open(struct net_device *
  
- struct inode *proc_get_inode(struct super_block *sb, struct proc_dir_entry *de)
- {
--	struct inode *inode = new_inode_pseudo(sb);
-+	struct inode *inode = new_inode(sb);
+ 	err = macb_phylink_connect(bp);
+ 	if (err)
+-		goto pm_exit;
++		goto napi_exit;
  
- 	if (inode) {
- 		inode->i_ino = de->low_ino;
---- a/fs/proc/self.c
-+++ b/fs/proc/self.c
-@@ -43,7 +43,7 @@ int proc_setup_self(struct super_block *
- 	inode_lock(root_inode);
- 	self = d_alloc_name(s->s_root, "self");
- 	if (self) {
--		struct inode *inode = new_inode_pseudo(s);
-+		struct inode *inode = new_inode(s);
- 		if (inode) {
- 			inode->i_ino = self_inum;
- 			inode->i_mtime = inode->i_atime = inode->i_ctime = current_time(inode);
---- a/fs/proc/thread_self.c
-+++ b/fs/proc/thread_self.c
-@@ -43,7 +43,7 @@ int proc_setup_thread_self(struct super_
- 	inode_lock(root_inode);
- 	thread_self = d_alloc_name(s->s_root, "thread-self");
- 	if (thread_self) {
--		struct inode *inode = new_inode_pseudo(s);
-+		struct inode *inode = new_inode(s);
- 		if (inode) {
- 			inode->i_ino = thread_self_inum;
- 			inode->i_mtime = inode->i_atime = inode->i_ctime = current_time(inode);
+ 	netif_tx_start_all_queues(dev);
+ 
+ 	if (bp->ptp_info)
+ 		bp->ptp_info->ptp_init(dev);
+ 
++napi_exit:
++	for (q = 0, queue = bp->queues; q < bp->num_queues; ++q, ++queue)
++		napi_disable(&queue->napi);
+ pm_exit:
+ 	if (err) {
+ 		pm_runtime_put_sync(&bp->pdev->dev);
 
 
