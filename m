@@ -2,116 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 500CB1FC266
-	for <lists+stable@lfdr.de>; Wed, 17 Jun 2020 01:38:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 179E51FC271
+	for <lists+stable@lfdr.de>; Wed, 17 Jun 2020 01:51:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726407AbgFPXhf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 19:37:35 -0400
-Received: from us-smtp-2.mimecast.com ([205.139.110.61]:27732 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726271AbgFPXhf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Jun 2020 19:37:35 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1592350653;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc; bh=dAIoWCDMhMk4LZC+m7ZCXzqJOA4lfz/6pbetHLdYCkM=;
-        b=i1OEICvRqrmtiZFLfazhUukk1Gzw0k5qhFgsvO5whsznSsrRfWM4BFH1LYm3G7oPkNuAKQ
-        U0hsUNcy3zw5Vod82PBp9kzuoOvhI8P6VH70cNR3A9X4JIvDqRrL3sc98aE4DNpEpQsxSJ
-        kz1459iVOpf4tpK+5YryMAPa3jfLHC8=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-452-kOLjSPO9PqqAvDjvYIhBNQ-1; Tue, 16 Jun 2020 19:37:29 -0400
-X-MC-Unique: kOLjSPO9PqqAvDjvYIhBNQ-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id BBA33E919;
-        Tue, 16 Jun 2020 23:37:28 +0000 (UTC)
-Received: from npache.remote.csb (ovpn-115-159.rdu2.redhat.com [10.10.115.159])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id C2E7719C71;
-        Tue, 16 Jun 2020 23:37:25 +0000 (UTC)
-From:   Nico Pache <npache@redhat.com>
-To:     aquini@redhat.com, npache@redhat.com
-Cc:     Yihui Zeng <yzeng56@asu.edu>, stable@vger.kernel.org,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Heiko Carstens <heiko.carstens@de.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Subject: 
-Date:   Tue, 16 Jun 2020 19:37:21 -0400
-Message-Id: <20200616233721.19313-1-npache@redhat.com>
-Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1846533
-CVE:    CVE-2020-10773 
-Tested: https://datawarehouse-cki.apps.ocp.prod.psi.redhat.com/pipeline/601873
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+        id S1725894AbgFPXvS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 19:51:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36832 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725849AbgFPXvS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Jun 2020 19:51:18 -0400
+Received: from mail-pg1-x529.google.com (mail-pg1-x529.google.com [IPv6:2607:f8b0:4864:20::529])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9598C061573
+        for <stable@vger.kernel.org>; Tue, 16 Jun 2020 16:51:16 -0700 (PDT)
+Received: by mail-pg1-x529.google.com with SMTP id v11so342993pgb.6
+        for <stable@vger.kernel.org>; Tue, 16 Jun 2020 16:51:16 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=HWba4so9oyfD54BGeTBTyM6Vi3VnAbDlQ4TUrpNEy0U=;
+        b=ezab/muBAPuP4awYFI4WAwfk/Z1baE8bIea9SBuhYLmiHLhQtANFZWGiy+QojkbsZy
+         tt0Z0GPu8EGkLZD9bYteiUe0P+pvVbMGa1KIpVTcNrp47wIOFmaJyNp4vI/odvSVZffP
+         oofkLsHo3aKJzjSbcCqJXYwkrdeL3lpY7Pyl6ewx8FL2FeoWKPqs5zSda3UgdouGl0hm
+         LyglKjiTyxUOA28+piZBGgFnIQiwiuEvkjNcROq8yiIOkmIgXHXHpfFu8EDCDvQnyEKI
+         eTSy5HIGa/nfBlu+O12YnStOQ76AhvXY9QSxwb2DDqFM/RS1y4Y/yxRwSIFl9VbsVlq+
+         /VQQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=HWba4so9oyfD54BGeTBTyM6Vi3VnAbDlQ4TUrpNEy0U=;
+        b=OAI0DQ0rUQ0ec/iYwDavKpSAhYpNOL/TYUQfqVCvH47P27v5k3SnTdmG5ZFPxfh4yd
+         8by/Z63M3MYF1jvdt97UAsLoQKu5ni1xslvONpx45MMc+ADYwM4g6hegBYg0zMHbFDvD
+         RrkO2zE4QRQ9sGaas+ltu6uNzhMULbMqrRla4CuE1tR0skvRDD1MqHpXHVygAxj5RTky
+         XETv5uiZL0Y5uy0iws6DZ564RAQ7bo/UJogQ79C5tV4EwL50HKeGNmKCcqqm4bfJrgnd
+         4imt9Ug0rr8sISRUfJIWYZUleZK/giCovghh8nW5sTZ4OgfXZjql3khUCzahHQAeas/J
+         nvHg==
+X-Gm-Message-State: AOAM5308YEMxn3mLErdUyikOQCg+soRB9icbwMnEpaE6fshNzzqGBs0Q
+        EntQ/WVBxy/sH1pnwBf7s3NZTkx1Ipw=
+X-Google-Smtp-Source: ABdhPJzGm4ZTi5TwOEFvDHiRWRUtOzgHw6bz1MZjXid2DI4idcKjVMiAPL0w5biqyXyn4hNXWq5+rA==
+X-Received: by 2002:a62:68c6:: with SMTP id d189mr4341511pfc.135.1592351476011;
+        Tue, 16 Jun 2020 16:51:16 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id o20sm3436070pjw.19.2020.06.16.16.51.15
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 16 Jun 2020 16:51:15 -0700 (PDT)
+Message-ID: <5ee95af3.1c69fb81.272f8.9e4b@mx.google.com>
+Date:   Tue, 16 Jun 2020 16:51:15 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Branch: linux-4.4.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.4.226-83-g43fb0f9d5b32
+Subject: stable-rc/linux-4.4.y baseline: 55 runs,
+ 1 regressions (v4.4.226-83-g43fb0f9d5b32)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From ec13df6442492592eb6a0b21d65d0489ac91a180 Mon Sep 17 00:00:00 2001
-From: Yihui ZENG <yzeng56@asu.edu>
-Date: Fri, 25 Oct 2019 12:31:48 +0300
-Subject: [PATCH] s390/cmm: fix information leak in cmm_timeout_handler()
+stable-rc/linux-4.4.y baseline: 55 runs, 1 regressions (v4.4.226-83-g43fb0f=
+9d5b32)
 
-The problem is that we were putting the NUL terminator too far:
+Regressions Summary
+-------------------
 
-	buf[sizeof(buf) - 1] = '\0';
+platform    | arch   | lab          | compiler | defconfig        | results
+------------+--------+--------------+----------+------------------+--------
+qemu_x86_64 | x86_64 | lab-baylibre | gcc-8    | x86_64_defconfig | 0/1    =
 
-If the user input isn't NUL terminated and they haven't initialized the
-whole buffer then it leads to an info leak.  The NUL terminator should
-be:
 
-	buf[len - 1] = '\0';
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.4.y/kern=
+el/v4.4.226-83-g43fb0f9d5b32/plan/baseline/
 
-Signed-off-by: Yihui Zeng <yzeng56@asu.edu>
-Cc: stable@vger.kernel.org
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-[heiko.carstens@de.ibm.com: keep semantics of how *lenp and *ppos are handled]
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-(cherry picked from commit b8e51a6a9db94bc1fb18ae831b3dab106b5a4b5f)
-Signed-off-by: Nico Pache <npache@redhat.com>
----
- arch/s390/mm/cmm.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-4.4.y
+  Describe: v4.4.226-83-g43fb0f9d5b32
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      43fb0f9d5b3227048e6be520bfe64a40d3d8bd7d =
 
-diff --git a/arch/s390/mm/cmm.c b/arch/s390/mm/cmm.c
-index 9d84a1feefef..846561d4245e 100644
---- a/arch/s390/mm/cmm.c
-+++ b/arch/s390/mm/cmm.c
-@@ -306,16 +306,16 @@ static int cmm_timeout_handler(ctl_table *ctl, int write,  void __user *buffer,
- 	}
- 
- 	if (write) {
--		len = *lenp;
--		if (copy_from_user(buf, buffer,
--				   len > sizeof(buf) ? sizeof(buf) : len))
-+		len = min(*lenp, sizeof(buf));
-+		if (copy_from_user(buf, buffer, len))
- 			return -EFAULT;
--		buf[sizeof(buf) - 1] = '\0';
-+		buf[len - 1] = '\0';
- 		cmm_skip_blanks(buf, &p);
- 		nr = simple_strtoul(p, &p, 0);
- 		cmm_skip_blanks(p, &p);
- 		seconds = simple_strtoul(p, &p, 0);
- 		cmm_set_timeout(nr, seconds);
-+		*ppos += *lenp;
- 	} else {
- 		len = sprintf(buf, "%ld %ld\n",
- 			      cmm_timeout_pages, cmm_timeout_seconds);
-@@ -323,9 +323,9 @@ static int cmm_timeout_handler(ctl_table *ctl, int write,  void __user *buffer,
- 			len = *lenp;
- 		if (copy_to_user(buffer, buf, len))
- 			return -EFAULT;
-+		*lenp = len;
-+		*ppos += len;
- 	}
--	*lenp = len;
--	*ppos += len;
- 	return 0;
- }
- 
--- 
-2.18.1
 
+
+Test Regressions
+---------------- =
+
+
+
+platform    | arch   | lab          | compiler | defconfig        | results
+------------+--------+--------------+----------+------------------+--------
+qemu_x86_64 | x86_64 | lab-baylibre | gcc-8    | x86_64_defconfig | 0/1    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5ee9261f0e01b74aa997bf09
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig
+  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.226=
+-83-g43fb0f9d5b32/x86_64/x86_64_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
+x86_64.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.226=
+-83-g43fb0f9d5b32/x86_64/x86_64_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
+x86_64.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2019=
+.02-11-g17e793fa4728/x86/baseline/rootfs.cpio.gz =
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5ee9261f0e01b74aa997b=
+f0a
+      failing since 6 days (last pass: v4.4.226-24-gd275a29aa983, first fai=
+l: v4.4.226-37-g61ef7e7aaf1d) =20
