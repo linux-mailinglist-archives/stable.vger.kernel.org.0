@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 541971FB89B
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:58:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 170E21FB7B1
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:50:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732762AbgFPPyY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:54:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53500 "EHLO mail.kernel.org"
+        id S1732134AbgFPPsb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:48:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42874 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732976AbgFPPyW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:54:22 -0400
+        id S1732418AbgFPPs3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:48:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CF59B21527;
-        Tue, 16 Jun 2020 15:54:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7D6E52071A;
+        Tue, 16 Jun 2020 15:48:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322861;
-        bh=YR/fSLWDjp0B1QXPz2q4LAXzdeAvXobe2DK1zXxuYRw=;
+        s=default; t=1592322508;
+        bh=n6hO7kTq18ACOseJ0u75cyXpKuEp5UjJeYvXIuP/QJc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zfU1Gy3sELiJ1rZ77uZRpWLZLmkROD2IxxX99o7gSbSTT6RwK6QGzrkmVyUKFUa/N
-         uYuf7uTnVhOvCTOen6A5Hp1i3SpD3rDkip6Jcpa046kSE/N9MZiWPG9H4yN2lq4Mfl
-         KEMgDau4KD/nQf5mlhx1h14kM+6EiwLrcrFkpO2o=
+        b=qkcTaITRgF17kp3HnVo4QRsK8ksCW1NTq7JN/SwK4uiCykwAeSiYLDI217cCqqHIy
+         Y3GASzgx3CcnPXJ/kfQ1RNITPyYEwetLp+5mU2pc6swJy6/4Pq8HZ8s7EMa9FBhJ+4
+         N3RrCiArE0TZvToTuIw+CR5un3LHItWWwDliwMG8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jue Wang <juew@google.com>,
-        Tony Luck <tony.luck@intel.com>, Borislav Petkov <bp@suse.de>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 5.6 103/161] x86/{mce,mm}: Unmap the entire page if the whole page is affected and poisoned
-Date:   Tue, 16 Jun 2020 17:34:53 +0200
-Message-Id: <20200616153111.265371886@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Arnaud Pouliquen <arnaud.pouliquen@st.com>,
+        Tero Kristo <t-kristo@ti.com>, Suman Anna <s-anna@ti.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>
+Subject: [PATCH 5.7 120/163] remoteproc: Fall back to using parent memory pool if no dedicated available
+Date:   Tue, 16 Jun 2020 17:34:54 +0200
+Message-Id: <20200616153112.558164310@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153106.402291280@linuxfoundation.org>
-References: <20200616153106.402291280@linuxfoundation.org>
+In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
+References: <20200616153106.849127260@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,145 +46,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Luck <tony.luck@intel.com>
+From: Tero Kristo <t-kristo@ti.com>
 
-commit 17fae1294ad9d711b2c3dd0edef479d40c76a5e8 upstream.
+commit db9178a4f8c4e523f824892cb8bab00961b07385 upstream.
 
-An interesting thing happened when a guest Linux instance took a machine
-check. The VMM unmapped the bad page from guest physical space and
-passed the machine check to the guest.
+In some cases, like with OMAP remoteproc, we are not creating dedicated
+memory pool for the virtio device. Instead, we use the same memory pool
+for all shared memories. The current virtio memory pool handling forces
+a split between these two, as a separate device is created for it,
+causing memory to be allocated from bad location if the dedicated pool
+is not available. Fix this by falling back to using the parent device
+memory pool if dedicated is not available.
 
-Linux took all the normal actions to offline the page from the process
-that was using it. But then guest Linux crashed because it said there
-was a second machine check inside the kernel with this stack trace:
-
-do_memory_failure
-    set_mce_nospec
-         set_memory_uc
-              _set_memory_uc
-                   change_page_attr_set_clr
-                        cpa_flush
-                             clflush_cache_range_opt
-
-This was odd, because a CLFLUSH instruction shouldn't raise a machine
-check (it isn't consuming the data). Further investigation showed that
-the VMM had passed in another machine check because is appeared that the
-guest was accessing the bad page.
-
-Fix is to check the scope of the poison by checking the MCi_MISC register.
-If the entire page is affected, then unmap the page. If only part of the
-page is affected, then mark the page as uncacheable.
-
-This assumes that VMMs will do the logical thing and pass in the "whole
-page scope" via the MCi_MISC register (since they unmapped the entire
-page).
-
-  [ bp: Adjust to x86/entry changes. ]
-
-Fixes: 284ce4011ba6 ("x86/memory_failure: Introduce {set, clear}_mce_nospec()")
-Reported-by: Jue Wang <juew@google.com>
-Signed-off-by: Tony Luck <tony.luck@intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Jue Wang <juew@google.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/20200520163546.GA7977@agluck-desk2.amr.corp.intel.com
+Cc: stable@vger.kernel.org
+Reviewed-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+Acked-by: Arnaud Pouliquen <arnaud.pouliquen@st.com>
+Fixes: 086d08725d34 ("remoteproc: create vdev subdevice with specific dma memory pool")
+Signed-off-by: Tero Kristo <t-kristo@ti.com>
+Signed-off-by: Suman Anna <s-anna@ti.com>
+Link: https://lore.kernel.org/r/20200420160600.10467-2-s-anna@ti.com
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/include/asm/set_memory.h |   19 +++++++++++++------
- arch/x86/kernel/cpu/mce/core.c    |   11 +++++++++--
- include/linux/set_memory.h        |    2 +-
- 3 files changed, 23 insertions(+), 9 deletions(-)
+ drivers/remoteproc/remoteproc_virtio.c |   12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
---- a/arch/x86/include/asm/set_memory.h
-+++ b/arch/x86/include/asm/set_memory.h
-@@ -83,28 +83,35 @@ int set_direct_map_default_noflush(struc
- extern int kernel_set_to_readonly;
- 
- #ifdef CONFIG_X86_64
--static inline int set_mce_nospec(unsigned long pfn)
-+/*
-+ * Prevent speculative access to the page by either unmapping
-+ * it (if we do not require access to any part of the page) or
-+ * marking it uncacheable (if we want to try to retrieve data
-+ * from non-poisoned lines in the page).
-+ */
-+static inline int set_mce_nospec(unsigned long pfn, bool unmap)
- {
- 	unsigned long decoy_addr;
- 	int rc;
- 
- 	/*
--	 * Mark the linear address as UC to make sure we don't log more
--	 * errors because of speculative access to the page.
- 	 * We would like to just call:
--	 *      set_memory_uc((unsigned long)pfn_to_kaddr(pfn), 1);
-+	 *      set_memory_XX((unsigned long)pfn_to_kaddr(pfn), 1);
- 	 * but doing that would radically increase the odds of a
- 	 * speculative access to the poison page because we'd have
- 	 * the virtual address of the kernel 1:1 mapping sitting
- 	 * around in registers.
- 	 * Instead we get tricky.  We create a non-canonical address
- 	 * that looks just like the one we want, but has bit 63 flipped.
--	 * This relies on set_memory_uc() properly sanitizing any __pa()
-+	 * This relies on set_memory_XX() properly sanitizing any __pa()
- 	 * results with __PHYSICAL_MASK or PTE_PFN_MASK.
- 	 */
- 	decoy_addr = (pfn << PAGE_SHIFT) + (PAGE_OFFSET ^ BIT(63));
- 
--	rc = set_memory_uc(decoy_addr, 1);
-+	if (unmap)
-+		rc = set_memory_np(decoy_addr, 1);
-+	else
-+		rc = set_memory_uc(decoy_addr, 1);
- 	if (rc)
- 		pr_warn("Could not invalidate pfn=0x%lx from 1:1 map\n", pfn);
- 	return rc;
---- a/arch/x86/kernel/cpu/mce/core.c
-+++ b/arch/x86/kernel/cpu/mce/core.c
-@@ -527,6 +527,13 @@ bool mce_is_memory_error(struct mce *m)
- }
- EXPORT_SYMBOL_GPL(mce_is_memory_error);
- 
-+static bool whole_page(struct mce *m)
-+{
-+	if (!mca_cfg.ser || !(m->status & MCI_STATUS_MISCV))
-+		return true;
-+	return MCI_MISC_ADDR_LSB(m->misc) >= PAGE_SHIFT;
-+}
+--- a/drivers/remoteproc/remoteproc_virtio.c
++++ b/drivers/remoteproc/remoteproc_virtio.c
+@@ -376,6 +376,18 @@ int rproc_add_virtio_dev(struct rproc_vd
+ 				goto out;
+ 			}
+ 		}
++	} else {
++		struct device_node *np = rproc->dev.parent->of_node;
 +
- bool mce_is_correctable(struct mce *m)
- {
- 	if (m->cpuvendor == X86_VENDOR_AMD && m->status & MCI_STATUS_DEFERRED)
-@@ -598,7 +605,7 @@ static int uc_decode_notifier(struct not
++		/*
++		 * If we don't have dedicated buffer, just attempt to re-assign
++		 * the reserved memory from our parent. A default memory-region
++		 * at index 0 from the parent's memory-regions is assigned for
++		 * the rvdev dev to allocate from. Failure is non-critical and
++		 * the allocations will fall back to global pools, so don't
++		 * check return value either.
++		 */
++		of_reserved_mem_device_init_by_idx(dev, np, 0);
+ 	}
  
- 	pfn = mce->addr >> PAGE_SHIFT;
- 	if (!memory_failure(pfn, 0))
--		set_mce_nospec(pfn);
-+		set_mce_nospec(pfn, whole_page(mce));
- 
- 	return NOTIFY_OK;
- }
-@@ -1096,7 +1103,7 @@ static int do_memory_failure(struct mce
- 	if (ret)
- 		pr_err("Memory error not recovered");
- 	else
--		set_mce_nospec(m->addr >> PAGE_SHIFT);
-+		set_mce_nospec(m->addr >> PAGE_SHIFT, whole_page(m));
- 	return ret;
- }
- 
---- a/include/linux/set_memory.h
-+++ b/include/linux/set_memory.h
-@@ -26,7 +26,7 @@ static inline int set_direct_map_default
- #endif
- 
- #ifndef set_mce_nospec
--static inline int set_mce_nospec(unsigned long pfn)
-+static inline int set_mce_nospec(unsigned long pfn, bool unmap)
- {
- 	return 0;
- }
+ 	/* Allocate virtio device */
 
 
