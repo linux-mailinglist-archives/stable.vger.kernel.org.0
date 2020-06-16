@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 999AD1FBA32
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:10:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EBD7C1FB905
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:01:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732066AbgFPPpP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:45:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36354 "EHLO mail.kernel.org"
+        id S1729861AbgFPQAW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 12:00:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50662 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732064AbgFPPpO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:45:14 -0400
+        id S1732821AbgFPPwx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:52:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2FD4E21475;
-        Tue, 16 Jun 2020 15:45:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2B64C208D5;
+        Tue, 16 Jun 2020 15:52:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322313;
-        bh=8962jHZ6wsNggzyoa2RO/Of5rcPg7bGuiSWqOx/Swfg=;
+        s=default; t=1592322773;
+        bh=338AucczY2mLow4d9IdceneS8Dm9fzEUvS1ZacGLH8w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0ZGuYJibHBt7rkGWC8tyofwNTtnaUNjPJd0B3w+nn4Vd9+4JYY8y8/kZ4Iz4ffDdd
-         XjAwwkBNCOrGUIUjDDLAKPmrlWhDaTspGlzsaCJ89QKfIKEMzrNIdgY6LWe8iO8t/X
-         2DS94NPWnfhgIB2toe2bhnQYq68dqFxkR52b6x6A=
+        b=dIwyZzvhk5uI7bPLuLSN0tL+4N/srZ0qHBXfoE/yqyD1v8nZ/f5dq1KGz5WVIH242
+         9yxwnMyAqux0opK1DUb3UwjgHvRrDi2fH4o5walMuTu523v3bxQRidRsXkGpaIyEeX
+         GCM7QUh8EhXF+ig0SDG/CuIazPAfupZdzkPVxdVM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
-        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.7 083/163] spi: pxa2xx: Fix runtime PM ref imbalance on probe error
-Date:   Tue, 16 Jun 2020 17:34:17 +0200
-Message-Id: <20200616153110.823379882@linuxfoundation.org>
+        stable@vger.kernel.org, Chuhong Yuan <hslester96@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.6 068/161] ALSA: es1688: Add the missed snd_card_free()
+Date:   Tue, 16 Jun 2020 17:34:18 +0200
+Message-Id: <20200616153109.619370736@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
-References: <20200616153106.849127260@linuxfoundation.org>
+In-Reply-To: <20200616153106.402291280@linuxfoundation.org>
+References: <20200616153106.402291280@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,41 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Wunner <lukas@wunner.de>
+From: Chuhong Yuan <hslester96@gmail.com>
 
-commit 65e318e17358a3fd4fcb5a69d89b14016dee2f06 upstream.
+commit d9b8fbf15d05350b36081eddafcf7b15aa1add50 upstream.
 
-The PXA2xx SPI driver releases a runtime PM ref in the probe error path
-even though it hasn't acquired a ref earlier.
+snd_es968_pnp_detect() misses a snd_card_free() in a failed path.
+Add the missed function call to fix it.
 
-Apparently commit e2b714afee32 ("spi: pxa2xx: Disable runtime PM if
-controller registration fails") sought to copy-paste the invocation of
-pm_runtime_disable() from pxa2xx_spi_remove(), but erroneously copied
-the call to pm_runtime_put_noidle() as well.  Drop it.
-
-Fixes: e2b714afee32 ("spi: pxa2xx: Disable runtime PM if controller registration fails")
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Reviewed-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: stable@vger.kernel.org # v4.17+
-Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Link: https://lore.kernel.org/r/58b2ac6942ca1f91aaeeafe512144bc5343e1d84.1590408496.git.lukas@wunner.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: a20971b201ac ("ALSA: Merge es1688 and es968 drivers")
+Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200603092459.1424093-1-hslester96@gmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/spi/spi-pxa2xx.c |    1 -
- 1 file changed, 1 deletion(-)
+ sound/isa/es1688/es1688.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/spi/spi-pxa2xx.c
-+++ b/drivers/spi/spi-pxa2xx.c
-@@ -1893,7 +1893,6 @@ static int pxa2xx_spi_probe(struct platf
- 	return status;
- 
- out_error_pm_runtime_enabled:
--	pm_runtime_put_noidle(&pdev->dev);
- 	pm_runtime_disable(&pdev->dev);
- 
- out_error_clock_enabled:
+--- a/sound/isa/es1688/es1688.c
++++ b/sound/isa/es1688/es1688.c
+@@ -267,8 +267,10 @@ static int snd_es968_pnp_detect(struct p
+ 		return error;
+ 	}
+ 	error = snd_es1688_probe(card, dev);
+-	if (error < 0)
++	if (error < 0) {
++		snd_card_free(card);
+ 		return error;
++	}
+ 	pnp_set_card_drvdata(pcard, card);
+ 	snd_es968_pnp_is_probed = 1;
+ 	return 0;
 
 
