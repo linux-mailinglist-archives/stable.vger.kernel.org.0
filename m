@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5ED701FB915
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:01:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AE291FBA14
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:08:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729809AbgFPQBI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 12:01:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49784 "EHLO mail.kernel.org"
+        id S1731390AbgFPQIl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 12:08:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37786 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731912AbgFPPw0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:52:26 -0400
+        id S1731296AbgFPPqE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:46:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 68BB7207C4;
-        Tue, 16 Jun 2020 15:52:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B9B972071A;
+        Tue, 16 Jun 2020 15:46:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322745;
-        bh=eb0ZO+abAnKsh6kJbOHN1sf7otsMIXGioG5btf64/nE=;
+        s=default; t=1592322363;
+        bh=6mb25FkOw5ohSnBP7pmFf8WZ6p6jKa0VhuRgbk7vP94=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i6ytk/H2gzjDz9XsMbDwkCFQQs7oOau6iXCYJLPJzMm5K8N5cSqUbz+2bue6OZ+2G
-         zFgfiDvbIU5wg4uFSA3J9uDGdhzpjGCd59jjJek1K37WT3OX8/9V/Y8qBYIC7j7VGB
-         LtnLsQbn85eOlk33gEWaAoQcikpqE9McrgEH2zKY=
+        b=MHCYIsZGljt4EZ+glEWDPfatCwpCQvQINp/e0uP0m+WP9UaE5/YjSRV73OkTzUXJ1
+         u6nuQ9JrbB0DV65hs+Z/xUvb+UKndkBMFHxcfH9wkfmw9SauZywutjhDk49ND3nbVY
+         A2Lp9THiHr+Xy3GofPHN+DMw5KPCNEoLJ3dU7wg0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Tsuchiya Yuto <kitakar@gmail.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.6 087/161] spi: pxa2xx: Fix controller unregister order
+        stable@vger.kernel.org, Shay Drory <shayd@mellanox.com>,
+        Moshe Shemesh <moshe@mellanox.com>,
+        Saeed Mahameed <saeedm@mellanox.com>
+Subject: [PATCH 5.7 103/163] net/mlx5: Fix fatal error handling during device load
 Date:   Tue, 16 Jun 2020 17:34:37 +0200
-Message-Id: <20200616153110.515431407@linuxfoundation.org>
+Message-Id: <20200616153111.753324589@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153106.402291280@linuxfoundation.org>
-References: <20200616153106.402291280@linuxfoundation.org>
+In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
+References: <20200616153106.849127260@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,72 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Wunner <lukas@wunner.de>
+From: Shay Drory <shayd@mellanox.com>
 
-commit 32e5b57232c0411e7dea96625c415510430ac079 upstream.
+[ Upstream commit b6e0b6bebe0732d5cac51f0791f269d2413b8980 ]
 
-The PXA2xx SPI driver uses devm_spi_register_controller() on bind.
-As a consequence, on unbind, __device_release_driver() first invokes
-pxa2xx_spi_remove() before unregistering the SPI controller via
-devres_release_all().
+Currently, in case of fatal error during mlx5_load_one(), we cannot
+enter error state until mlx5_load_one() is finished, what can take
+several minutes until commands will get timeouts, because these commands
+can't be processed due to the fatal error.
+Fix it by setting dev->state as MLX5_DEVICE_STATE_INTERNAL_ERROR before
+requesting the lock.
 
-This order is incorrect:  pxa2xx_spi_remove() disables the chip,
-rendering the SPI bus inaccessible even though the SPI controller is
-still registered.  When the SPI controller is subsequently unregistered,
-it unbinds all its slave devices.  Because their drivers cannot access
-the SPI bus, e.g. to quiesce interrupts, the slave devices may be left
-in an improper state.
-
-As a rule, devm_spi_register_controller() must not be used if the
-->remove() hook performs teardown steps which shall be performed after
-unregistering the controller and specifically after unbinding of slaves.
-
-Fix by reverting to the non-devm variant of spi_register_controller().
-
-An alternative approach would be to use device-managed functions for all
-steps in pxa2xx_spi_remove(), e.g. by calling devm_add_action_or_reset()
-on probe.  However that approach would add more LoC to the driver and
-it wouldn't lend itself as well to backporting to stable.
-
-The improper use of devm_spi_register_controller() was introduced in 2013
-by commit a807fcd090d6 ("spi: pxa2xx: use devm_spi_register_master()"),
-but all earlier versions of the driver going back to 2006 were likewise
-broken because they invoked spi_unregister_master() at the end of
-pxa2xx_spi_remove(), rather than at the beginning.
-
-Fixes: e0c9905e87ac ("[PATCH] SPI: add PXA2xx SSP SPI Driver")
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: stable@vger.kernel.org # v2.6.17+
-Cc: Tsuchiya Yuto <kitakar@gmail.com>
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=206403#c1
-Link: https://lore.kernel.org/r/834c446b1cf3284d2660f1bee1ebe3e737cd02a9.1590408496.git.lukas@wunner.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: c1d4d2e92ad6 ("net/mlx5: Avoid calling sleeping function by the health poll thread")
+Signed-off-by: Shay Drory <shayd@mellanox.com>
+Reviewed-by: Moshe Shemesh <moshe@mellanox.com>
+Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/spi/spi-pxa2xx.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlx5/core/health.c |   14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
---- a/drivers/spi/spi-pxa2xx.c
-+++ b/drivers/spi/spi-pxa2xx.c
-@@ -1879,7 +1879,7 @@ static int pxa2xx_spi_probe(struct platf
+--- a/drivers/net/ethernet/mellanox/mlx5/core/health.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/health.c
+@@ -193,15 +193,23 @@ static bool reset_fw_if_needed(struct ml
  
- 	/* Register with the SPI framework */
- 	platform_set_drvdata(pdev, drv_data);
--	status = devm_spi_register_controller(&pdev->dev, controller);
-+	status = spi_register_controller(controller);
- 	if (status != 0) {
- 		dev_err(&pdev->dev, "problem registering spi controller\n");
- 		goto out_error_pm_runtime_enabled;
-@@ -1915,6 +1915,8 @@ static int pxa2xx_spi_remove(struct plat
- 
- 	pm_runtime_get_sync(&pdev->dev);
- 
-+	spi_unregister_controller(drv_data->controller);
+ void mlx5_enter_error_state(struct mlx5_core_dev *dev, bool force)
+ {
++	bool err_detected = false;
 +
- 	/* Disable the SSP at the peripheral and SOC level */
- 	pxa2xx_spi_write(drv_data, SSCR0, 0);
- 	clk_disable_unprepare(ssp->clk);
++	/* Mark the device as fatal in order to abort FW commands */
++	if ((check_fatal_sensors(dev) || force) &&
++	    dev->state == MLX5_DEVICE_STATE_UP) {
++		dev->state = MLX5_DEVICE_STATE_INTERNAL_ERROR;
++		err_detected = true;
++	}
+ 	mutex_lock(&dev->intf_state_mutex);
+-	if (dev->state == MLX5_DEVICE_STATE_INTERNAL_ERROR)
+-		goto unlock;
++	if (!err_detected && dev->state == MLX5_DEVICE_STATE_INTERNAL_ERROR)
++		goto unlock;/* a previous error is still being handled */
+ 	if (dev->state == MLX5_DEVICE_STATE_UNINITIALIZED) {
+ 		dev->state = MLX5_DEVICE_STATE_INTERNAL_ERROR;
+ 		goto unlock;
+ 	}
+ 
+-	if (check_fatal_sensors(dev) || force) {
++	if (check_fatal_sensors(dev) || force) { /* protected state setting */
+ 		dev->state = MLX5_DEVICE_STATE_INTERNAL_ERROR;
+ 		mlx5_cmd_flush(dev);
+ 	}
 
 
