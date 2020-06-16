@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A9111FBA17
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:08:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A25F1FB8FE
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:01:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732147AbgFPPqC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:46:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37742 "EHLO mail.kernel.org"
+        id S1732730AbgFPPwb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:52:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49712 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730466AbgFPPqB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:46:01 -0400
+        id S1732767AbgFPPwX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:52:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D9C1E20776;
-        Tue, 16 Jun 2020 15:45:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D4796208D5;
+        Tue, 16 Jun 2020 15:52:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322360;
-        bh=sAUUPTcJAOBj+ywLG0Apf3FigNgWAgi2fFowmb4K0Zs=;
+        s=default; t=1592322743;
+        bh=sXkEp1iCKGOb6vlUalvs5kX+brrJyhAxDQKUMCPhMTE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MUgzVWqCZMCqWRsgztydYEN/D+M5L80/5LC8rxIm1V0jJCyT3RersfHArIYomNy4M
-         +z+pCr40q4QRQrb02NoZ9F3MRDdGaL8mGb3vGatBvhsSYJQ/5tUftOJEYw0xZHkpdA
-         zdtjzw7G5tyguR8NBqK4ftwC7eboh3tQ1bVPGuos=
+        b=ZHuvHIErql5UzVBKpo9qVHdSnFZUhJctp/XTOwznZ/yyg6PhQ0rINz83xY7sSxIXk
+         CeRFjibqdWTq+oeL8cEQvcIMsS/mJg8UpEPnnGPV0C/xtFiV5YoHSlb7Bq7F4Ib2uW
+         iK9xMLH4beUPdmzvQXtBOJumfe217Z0DL4ghF37Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shay Drory <shayd@mellanox.com>,
-        Moshe Shemesh <moshe@mellanox.com>,
-        Saeed Mahameed <saeedm@mellanox.com>
-Subject: [PATCH 5.7 102/163] net/mlx5: drain health workqueue in case of driver load error
+        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.6 086/161] spi: Fix controller unregister order
 Date:   Tue, 16 Jun 2020 17:34:36 +0200
-Message-Id: <20200616153111.706796595@linuxfoundation.org>
+Message-Id: <20200616153110.467221859@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
-References: <20200616153106.849127260@linuxfoundation.org>
+In-Reply-To: <20200616153106.402291280@linuxfoundation.org>
+References: <20200616153106.402291280@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,104 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shay Drory <shayd@mellanox.com>
+From: Lukas Wunner <lukas@wunner.de>
 
-[ Upstream commit 42ea9f1b5c625fad225d4ac96a7e757dd4199d9c ]
+commit 84855678add8aba927faf76bc2f130a40f94b6f7 upstream.
 
-In case there is a work in the health WQ when we teardown the driver,
-in driver load error flow, the health work will try to read dev->iseg,
-which was already unmap in mlx5_pci_close().
-Fix it by draining the health workqueue first thing in mlx5_pci_close().
+When an SPI controller unregisters, it unbinds all its slave devices.
+For this, their drivers may need to access the SPI bus, e.g. to quiesce
+interrupts.
 
-Trace of the error:
-BUG: unable to handle page fault for address: ffffb5b141c18014
-PF: supervisor read access in kernel mode
-PF: error_code(0x0000) - not-present page
-PGD 1fe95d067 P4D 1fe95d067 PUD 1fe95e067 PMD 1b7823067 PTE 0
-Oops: 0000 [#1] SMP PTI
-CPU: 3 PID: 6755 Comm: kworker/u128:2 Not tainted 5.2.0-net-next-mlx5-hv_stats-over-last-worked-hyperv #1
-Hardware name: Microsoft Corporation Virtual Machine/Virtual Machine, BIOS 090006  04/28/2016
-Workqueue: mlx5_healtha050:00:02.0 mlx5_fw_fatal_reporter_err_work [mlx5_core]
-RIP: 0010:ioread32be+0x30/0x40
-Code: 00 77 27 48 81 ff 00 00 01 00 76 07 0f b7 d7 ed 0f c8 c3 55 48 c7 c6 3b ee d5 9f 48 89 e5 e8 67 fc ff ff b8 ff ff ff ff 5d c3 <8b> 07 0f c8 c3 66 66 2e 0f 1f 84 00 00 00 00 00 48 81 fe ff ff 03
-RSP: 0018:ffffb5b14c56fd78 EFLAGS: 00010292
-RAX: ffffb5b141c18000 RBX: ffff8e9f78a801c0 RCX: 0000000000000000
-RDX: 0000000000000001 RSI: ffff8e9f7ecd7628 RDI: ffffb5b141c18014
-RBP: ffffb5b14c56fd90 R08: 0000000000000001 R09: 0000000000000000
-R10: ffff8e9f372a2c30 R11: ffff8e9f87f4bc40 R12: ffff8e9f372a1fc0
-R13: ffff8e9f78a80000 R14: ffffffffc07136a0 R15: ffff8e9f78ae6f20
-FS:  0000000000000000(0000) GS:ffff8e9f7ecc0000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: ffffb5b141c18014 CR3: 00000001c8f82006 CR4: 00000000003606e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- ? mlx5_health_try_recover+0x4d/0x270 [mlx5_core]
- mlx5_fw_fatal_reporter_recover+0x16/0x20 [mlx5_core]
- devlink_health_reporter_recover+0x1c/0x50
- devlink_health_report+0xfb/0x240
- mlx5_fw_fatal_reporter_err_work+0x65/0xd0 [mlx5_core]
- process_one_work+0x1fb/0x4e0
- ? process_one_work+0x16b/0x4e0
- worker_thread+0x4f/0x3d0
- kthread+0x10d/0x140
- ? process_one_work+0x4e0/0x4e0
- ? kthread_cancel_delayed_work_sync+0x20/0x20
- ret_from_fork+0x1f/0x30
-Modules linked in: nfsv3 rpcsec_gss_krb5 nfsv4 nfs fscache 8021q garp mrp stp llc ipmi_devintf ipmi_msghandler rpcrdma rdma_ucm ib_iser rdma_cm ib_umad iw_cm ib_ipoib libiscsi scsi_transport_iscsi ib_cm mlx5_ib ib_uverbs ib_core mlx5_core sb_edac crct10dif_pclmul crc32_pclmul ghash_clmulni_intel aesni_intel aes_x86_64 mlxfw crypto_simd cryptd glue_helper input_leds hyperv_fb intel_rapl_perf joydev serio_raw pci_hyperv pci_hyperv_mini mac_hid hv_balloon nfsd auth_rpcgss nfs_acl lockd grace sunrpc sch_fq_codel ip_tables x_tables autofs4 hv_utils hid_generic hv_storvsc ptp hid_hyperv hid hv_netvsc hyperv_keyboard pps_core scsi_transport_fc psmouse hv_vmbus i2c_piix4 floppy pata_acpi
-CR2: ffffb5b141c18014
----[ end trace b12c5503157cad24 ]---
-RIP: 0010:ioread32be+0x30/0x40
-Code: 00 77 27 48 81 ff 00 00 01 00 76 07 0f b7 d7 ed 0f c8 c3 55 48 c7 c6 3b ee d5 9f 48 89 e5 e8 67 fc ff ff b8 ff ff ff ff 5d c3 <8b> 07 0f c8 c3 66 66 2e 0f 1f 84 00 00 00 00 00 48 81 fe ff ff 03
-RSP: 0018:ffffb5b14c56fd78 EFLAGS: 00010292
-RAX: ffffb5b141c18000 RBX: ffff8e9f78a801c0 RCX: 0000000000000000
-RDX: 0000000000000001 RSI: ffff8e9f7ecd7628 RDI: ffffb5b141c18014
-RBP: ffffb5b14c56fd90 R08: 0000000000000001 R09: 0000000000000000
-R10: ffff8e9f372a2c30 R11: ffff8e9f87f4bc40 R12: ffff8e9f372a1fc0
-R13: ffff8e9f78a80000 R14: ffffffffc07136a0 R15: ffff8e9f78ae6f20
-FS:  0000000000000000(0000) GS:ffff8e9f7ecc0000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: ffffb5b141c18014 CR3: 00000001c8f82006 CR4: 00000000003606e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-BUG: sleeping function called from invalid context at ./include/linux/percpu-rwsem.h:38
-in_atomic(): 0, irqs_disabled(): 1, pid: 6755, name: kworker/u128:2
-INFO: lockdep is turned off.
-CPU: 3 PID: 6755 Comm: kworker/u128:2 Tainted: G      D           5.2.0-net-next-mlx5-hv_stats-over-last-worked-hyperv #1
-Hardware name: Microsoft Corporation Virtual Machine/Virtual Machine, BIOS 090006  04/28/2016
-Workqueue: mlx5_healtha050:00:02.0 mlx5_fw_fatal_reporter_err_work [mlx5_core]
-Call Trace:
- dump_stack+0x63/0x88
- ___might_sleep+0x10a/0x130
- __might_sleep+0x4a/0x80
- exit_signals+0x33/0x230
- ? blocking_notifier_call_chain+0x16/0x20
- do_exit+0xb1/0xc30
- ? kthread+0x10d/0x140
- ? process_one_work+0x4e0/0x4e0
+However since commit ffbbdd21329f ("spi: create a message queueing
+infrastructure"), spi_destroy_queue() is executed before unbinding the
+slaves.  It sets ctlr->running = false, thereby preventing SPI bus
+access and causing unbinding of slave devices to fail.
 
-Fixes: 52c368dc3da7 ("net/mlx5: Move health and page alloc init to mdev_init")
-Signed-off-by: Shay Drory <shayd@mellanox.com>
-Reviewed-by: Moshe Shemesh <moshe@mellanox.com>
-Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
+Fix by unbinding slaves before calling spi_destroy_queue().
+
+Fixes: ffbbdd21329f ("spi: create a message queueing infrastructure")
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Cc: stable@vger.kernel.org # v3.4+
+Cc: Linus Walleij <linus.walleij@linaro.org>
+Link: https://lore.kernel.org/r/8aaf9d44c153fe233b17bc2dec4eb679898d7e7b.1589557526.git.lukas@wunner.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/ethernet/mellanox/mlx5/core/main.c |    5 +++++
- 1 file changed, 5 insertions(+)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/main.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/main.c
-@@ -795,6 +795,11 @@ err_disable:
+---
+ drivers/spi/spi.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+--- a/drivers/spi/spi.c
++++ b/drivers/spi/spi.c
+@@ -2768,6 +2768,8 @@ void spi_unregister_controller(struct sp
+ 	struct spi_controller *found;
+ 	int id = ctlr->bus_num;
  
- static void mlx5_pci_close(struct mlx5_core_dev *dev)
- {
-+	/* health work might still be active, and it needs pci bar in
-+	 * order to know the NIC state. Therefore, drain the health WQ
-+	 * before removing the pci bars
-+	 */
-+	mlx5_drain_health_wq(dev);
- 	iounmap(dev->iseg);
- 	pci_clear_master(dev->pdev);
- 	release_bar(dev->pdev);
++	device_for_each_child(&ctlr->dev, NULL, __unregister);
++
+ 	/* First make sure that this controller was ever added */
+ 	mutex_lock(&board_lock);
+ 	found = idr_find(&spi_master_idr, id);
+@@ -2780,7 +2782,6 @@ void spi_unregister_controller(struct sp
+ 	list_del(&ctlr->list);
+ 	mutex_unlock(&board_lock);
+ 
+-	device_for_each_child(&ctlr->dev, NULL, __unregister);
+ 	device_unregister(&ctlr->dev);
+ 	/* free bus id */
+ 	mutex_lock(&board_lock);
 
 
