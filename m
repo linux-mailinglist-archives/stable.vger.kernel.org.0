@@ -2,50 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D12471FB6FC
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:43:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 797C61FB65A
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:38:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730877AbgFPPmZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:42:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58896 "EHLO mail.kernel.org"
+        id S1729893AbgFPPg0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:36:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47064 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731658AbgFPPmW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:42:22 -0400
+        id S1729938AbgFPPg0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:36:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 37D09208E4;
-        Tue, 16 Jun 2020 15:42:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8AC3520B1F;
+        Tue, 16 Jun 2020 15:36:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322141;
-        bh=ttmHvu1rWbM1jMNTQNCdm7y1CzJeneuypIIqL8V6Ia8=;
+        s=default; t=1592321785;
+        bh=xMDz6SQSPtfKU/lZT9ySa1YMh2Q5E7v4to60fHvQga0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AlYC7Q2ITOwQBebf7dCuWkl8qGY9cngkclUn9qVMO/7ryixTrPHkl55U2pjdgiFiE
-         yp+CTawZmLxcECKN22FGAOVyqD0uXEFwCgy8tLKTY+HMIyehoweNl1gIz/GKpaufOh
-         KJ2rklGjRoO7mGXMIghKtNDvSQv7iJ0gbvwm4Dx8=
+        b=lm2wk5AubcmDbrcPYEB/2Dg8X4luapuskWStE/ykfdGe3uWjX5pmIVIvaA+9N8oKG
+         rrTH2t2eHJarw5W75a4FUeNCeoSsx2qzX7BMZFES2nI7qg0f5Gr5+N7H+aRNdmID32
+         7FY6cDS9ciobHXeQn5sD2Yj/JnZuc0jbDT9BLGb8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Waiman Long <longman@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Eric Biggers <ebiggers@google.com>,
-        David Howells <dhowells@redhat.com>,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        Joe Perches <joe@perches.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        David Rientjes <rientjes@google.com>,
-        Uladzislau Rezki <urezki@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 017/163] mm: add kvfree_sensitive() for freeing sensitive data objects
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Fangrui Song <maskray@google.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Stanislav Fomichev <sdf@google.com>,
+        Andrii Nakryiko <andriin@fb.com>,
+        Kees Cook <keescook@chromium.org>,
+        Maria Teguiani <teguiani@google.com>,
+        Matthias Maennich <maennich@google.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.4 007/134] bpf: Support llvm-objcopy for vmlinux BTF
 Date:   Tue, 16 Jun 2020 17:33:11 +0200
-Message-Id: <20200616153107.695662068@linuxfoundation.org>
+Message-Id: <20200616153101.024401350@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
-References: <20200616153106.849127260@linuxfoundation.org>
+In-Reply-To: <20200616153100.633279950@linuxfoundation.org>
+References: <20200616153100.633279950@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,161 +51,196 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Waiman Long <longman@redhat.com>
+From: Fangrui Song <maskray@google.com>
 
-[ Upstream commit d4eaa2837851db2bfed572898bfc17f9a9f9151e ]
+commit 90ceddcb495008ac8ba7a3dce297841efcd7d584 upstream.
 
-For kvmalloc'ed data object that contains sensitive information like
-cryptographic keys, we need to make sure that the buffer is always cleared
-before freeing it.  Using memset() alone for buffer clearing may not
-provide certainty as the compiler may compile it away.  To be sure, the
-special memzero_explicit() has to be used.
+Simplify gen_btf logic to make it work with llvm-objcopy. The existing
+'file format' and 'architecture' parsing logic is brittle and does not
+work with llvm-objcopy/llvm-objdump.
 
-This patch introduces a new kvfree_sensitive() for freeing those sensitive
-data objects allocated by kvmalloc().  The relevant places where
-kvfree_sensitive() can be used are modified to use it.
+'file format' output of llvm-objdump>=11 will match GNU objdump, but
+'architecture' (bfdarch) may not.
 
-Fixes: 4f0882491a14 ("KEYS: Avoid false positive ENOMEM error on key read")
-Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Waiman Long <longman@redhat.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Eric Biggers <ebiggers@google.com>
-Acked-by: David Howells <dhowells@redhat.com>
-Cc: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Cc: James Morris <jmorris@namei.org>
-Cc: "Serge E. Hallyn" <serge@hallyn.com>
-Cc: Joe Perches <joe@perches.com>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: David Rientjes <rientjes@google.com>
-Cc: Uladzislau Rezki <urezki@gmail.com>
-Link: http://lkml.kernel.org/r/20200407200318.11711-1-longman@redhat.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+.BTF in .tmp_vmlinux.btf is non-SHF_ALLOC. Add the SHF_ALLOC flag
+because it is part of vmlinux image used for introspection. C code
+can reference the section via linker script defined __start_BTF and
+__stop_BTF. This fixes a small problem that previous .BTF had the
+SHF_WRITE flag (objcopy -I binary -O elf* synthesized .data).
+
+Additionally, `objcopy -I binary` synthesized symbols
+_binary__btf_vmlinux_bin_start and _binary__btf_vmlinux_bin_stop (not
+used elsewhere) are replaced with more commonplace __start_BTF and
+__stop_BTF.
+
+Add 2>/dev/null because GNU objcopy (but not llvm-objcopy) warns
+"empty loadable segment detected at vaddr=0xffffffff81000000, is this intentional?"
+
+We use a dd command to change the e_type field in the ELF header from
+ET_EXEC to ET_REL so that lld will accept .btf.vmlinux.bin.o.  Accepting
+ET_EXEC as an input file is an extremely rare GNU ld feature that lld
+does not intend to support, because this is error-prone.
+
+The output section description .BTF in include/asm-generic/vmlinux.lds.h
+avoids potential subtle orphan section placement issues and suppresses
+--orphan-handling=warn warnings.
+
+Fixes: df786c9b9476 ("bpf: Force .BTF section start to zero when dumping from vmlinux")
+Fixes: cb0cc635c7a9 ("powerpc: Include .BTF section")
+Reported-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Fangrui Song <maskray@google.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Tested-by: Stanislav Fomichev <sdf@google.com>
+Tested-by: Andrii Nakryiko <andriin@fb.com>
+Reviewed-by: Stanislav Fomichev <sdf@google.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Acked-by: Andrii Nakryiko <andriin@fb.com>
+Acked-by: Michael Ellerman <mpe@ellerman.id.au> (powerpc)
+Link: https://github.com/ClangBuiltLinux/linux/issues/871
+Link: https://lore.kernel.org/bpf/20200318222746.173648-1-maskray@google.com
+Signed-off-by: Maria Teguiani <teguiani@google.com>
+Tested-by: Matthias Maennich <maennich@google.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- include/linux/mm.h       |  1 +
- mm/util.c                | 18 ++++++++++++++++++
- security/keys/internal.h | 11 -----------
- security/keys/keyctl.c   | 16 +++++-----------
- 4 files changed, 24 insertions(+), 22 deletions(-)
+ arch/powerpc/kernel/vmlinux.lds.S |    6 ------
+ include/asm-generic/vmlinux.lds.h |   22 +++++++++++++++++++---
+ kernel/bpf/sysfs_btf.c            |   11 +++++------
+ scripts/link-vmlinux.sh           |   24 ++++++++++--------------
+ 4 files changed, 34 insertions(+), 29 deletions(-)
 
-diff --git a/include/linux/mm.h b/include/linux/mm.h
-index f3fe7371855c..465e8ad671f8 100644
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -781,6 +781,7 @@ static inline void *kvcalloc(size_t n, size_t size, gfp_t flags)
- }
+--- a/arch/powerpc/kernel/vmlinux.lds.S
++++ b/arch/powerpc/kernel/vmlinux.lds.S
+@@ -326,12 +326,6 @@ SECTIONS
+ 		*(.branch_lt)
+ 	}
  
- extern void kvfree(const void *addr);
-+extern void kvfree_sensitive(const void *addr, size_t len);
+-#ifdef CONFIG_DEBUG_INFO_BTF
+-	.BTF : AT(ADDR(.BTF) - LOAD_OFFSET) {
+-		*(.BTF)
+-	}
+-#endif
+-
+ 	.opd : AT(ADDR(.opd) - LOAD_OFFSET) {
+ 		__start_opd = .;
+ 		KEEP(*(.opd))
+--- a/include/asm-generic/vmlinux.lds.h
++++ b/include/asm-generic/vmlinux.lds.h
+@@ -496,10 +496,12 @@
+ 		__start___modver = .;					\
+ 		KEEP(*(__modver))					\
+ 		__stop___modver = .;					\
+-		. = ALIGN((align));					\
+-		__end_rodata = .;					\
+ 	}								\
+-	. = ALIGN((align));
++									\
++	BTF								\
++									\
++	. = ALIGN((align));						\
++	__end_rodata = .;
+ 
+ /* RODATA & RO_DATA provided for backward compatibility.
+  * All archs are supposed to use RO_DATA() */
+@@ -589,6 +591,20 @@
+ 	}
  
  /*
-  * Mapcount of compound page as a whole, does not include mapped sub-pages.
-diff --git a/mm/util.c b/mm/util.c
-index 988d11e6c17c..dc1c877d5481 100644
---- a/mm/util.c
-+++ b/mm/util.c
-@@ -604,6 +604,24 @@ void kvfree(const void *addr)
- }
- EXPORT_SYMBOL(kvfree);
- 
-+/**
-+ * kvfree_sensitive - Free a data object containing sensitive information.
-+ * @addr: address of the data object to be freed.
-+ * @len: length of the data object.
-+ *
-+ * Use the special memzero_explicit() function to clear the content of a
-+ * kvmalloc'ed object containing sensitive data to make sure that the
-+ * compiler won't optimize out the data clearing.
++ * .BTF
 + */
-+void kvfree_sensitive(const void *addr, size_t len)
-+{
-+	if (likely(!ZERO_OR_NULL_PTR(addr))) {
-+		memzero_explicit((void *)addr, len);
-+		kvfree(addr);
++#ifdef CONFIG_DEBUG_INFO_BTF
++#define BTF								\
++	.BTF : AT(ADDR(.BTF) - LOAD_OFFSET) {				\
++		__start_BTF = .;					\
++		*(.BTF)							\
++		__stop_BTF = .;						\
 +	}
-+}
-+EXPORT_SYMBOL(kvfree_sensitive);
++#else
++#define BTF
++#endif
 +
- static inline void *__page_rmapping(struct page *page)
++/*
+  * Init task
+  */
+ #define INIT_TASK_DATA_SECTION(align)					\
+--- a/kernel/bpf/sysfs_btf.c
++++ b/kernel/bpf/sysfs_btf.c
+@@ -9,15 +9,15 @@
+ #include <linux/sysfs.h>
+ 
+ /* See scripts/link-vmlinux.sh, gen_btf() func for details */
+-extern char __weak _binary__btf_vmlinux_bin_start[];
+-extern char __weak _binary__btf_vmlinux_bin_end[];
++extern char __weak __start_BTF[];
++extern char __weak __stop_BTF[];
+ 
+ static ssize_t
+ btf_vmlinux_read(struct file *file, struct kobject *kobj,
+ 		 struct bin_attribute *bin_attr,
+ 		 char *buf, loff_t off, size_t len)
  {
- 	unsigned long mapping;
-diff --git a/security/keys/internal.h b/security/keys/internal.h
-index 6d0ca48ae9a5..153d35c20d3d 100644
---- a/security/keys/internal.h
-+++ b/security/keys/internal.h
-@@ -350,15 +350,4 @@ static inline void key_check(const struct key *key)
- #define key_check(key) do {} while(0)
- 
- #endif
--
--/*
-- * Helper function to clear and free a kvmalloc'ed memory object.
-- */
--static inline void __kvzfree(const void *addr, size_t len)
--{
--	if (addr) {
--		memset((void *)addr, 0, len);
--		kvfree(addr);
--	}
--}
- #endif /* _INTERNAL_H */
-diff --git a/security/keys/keyctl.c b/security/keys/keyctl.c
-index 5e01192e222a..edde63a63007 100644
---- a/security/keys/keyctl.c
-+++ b/security/keys/keyctl.c
-@@ -142,10 +142,7 @@ SYSCALL_DEFINE5(add_key, const char __user *, _type,
- 
- 	key_ref_put(keyring_ref);
-  error3:
--	if (payload) {
--		memzero_explicit(payload, plen);
--		kvfree(payload);
--	}
-+	kvfree_sensitive(payload, plen);
-  error2:
- 	kfree(description);
-  error:
-@@ -360,7 +357,7 @@ long keyctl_update_key(key_serial_t id,
- 
- 	key_ref_put(key_ref);
- error2:
--	__kvzfree(payload, plen);
-+	kvfree_sensitive(payload, plen);
- error:
- 	return ret;
+-	memcpy(buf, _binary__btf_vmlinux_bin_start + off, len);
++	memcpy(buf, __start_BTF + off, len);
+ 	return len;
  }
-@@ -914,7 +911,7 @@ long keyctl_read_key(key_serial_t keyid, char __user *buffer, size_t buflen)
- 		 */
- 		if (ret > key_data_len) {
- 			if (unlikely(key_data))
--				__kvzfree(key_data, key_data_len);
-+				kvfree_sensitive(key_data, key_data_len);
- 			key_data_len = ret;
- 			continue;	/* Allocate buffer */
- 		}
-@@ -923,7 +920,7 @@ long keyctl_read_key(key_serial_t keyid, char __user *buffer, size_t buflen)
- 			ret = -EFAULT;
- 		break;
- 	}
--	__kvzfree(key_data, key_data_len);
-+	kvfree_sensitive(key_data, key_data_len);
  
- key_put_out:
- 	key_put(key);
-@@ -1225,10 +1222,7 @@ long keyctl_instantiate_key_common(key_serial_t id,
- 		keyctl_change_reqkey_auth(NULL);
+@@ -30,15 +30,14 @@ static struct kobject *btf_kobj;
  
- error2:
--	if (payload) {
--		memzero_explicit(payload, plen);
--		kvfree(payload);
--	}
-+	kvfree_sensitive(payload, plen);
- error:
- 	return ret;
+ static int __init btf_vmlinux_init(void)
+ {
+-	if (!_binary__btf_vmlinux_bin_start)
++	if (!__start_BTF)
+ 		return 0;
+ 
+ 	btf_kobj = kobject_create_and_add("btf", kernel_kobj);
+ 	if (!btf_kobj)
+ 		return -ENOMEM;
+ 
+-	bin_attr_btf_vmlinux.size = _binary__btf_vmlinux_bin_end -
+-				    _binary__btf_vmlinux_bin_start;
++	bin_attr_btf_vmlinux.size = __stop_BTF - __start_BTF;
+ 
+ 	return sysfs_create_bin_file(btf_kobj, &bin_attr_btf_vmlinux);
  }
--- 
-2.25.1
-
+--- a/scripts/link-vmlinux.sh
++++ b/scripts/link-vmlinux.sh
+@@ -113,9 +113,6 @@ vmlinux_link()
+ gen_btf()
+ {
+ 	local pahole_ver
+-	local bin_arch
+-	local bin_format
+-	local bin_file
+ 
+ 	if ! [ -x "$(command -v ${PAHOLE})" ]; then
+ 		echo >&2 "BTF: ${1}: pahole (${PAHOLE}) is not available"
+@@ -133,17 +130,16 @@ gen_btf()
+ 	info "BTF" ${2}
+ 	LLVM_OBJCOPY=${OBJCOPY} ${PAHOLE} -J ${1}
+ 
+-	# dump .BTF section into raw binary file to link with final vmlinux
+-	bin_arch=$(LANG=C ${OBJDUMP} -f ${1} | grep architecture | \
+-		cut -d, -f1 | cut -d' ' -f2)
+-	bin_format=$(LANG=C ${OBJDUMP} -f ${1} | grep 'file format' | \
+-		awk '{print $4}')
+-	bin_file=.btf.vmlinux.bin
+-	${OBJCOPY} --change-section-address .BTF=0 \
+-		--set-section-flags .BTF=alloc -O binary \
+-		--only-section=.BTF ${1} $bin_file
+-	${OBJCOPY} -I binary -O ${bin_format} -B ${bin_arch} \
+-		--rename-section .data=.BTF $bin_file ${2}
++	# Create ${2} which contains just .BTF section but no symbols. Add
++	# SHF_ALLOC because .BTF will be part of the vmlinux image. --strip-all
++	# deletes all symbols including __start_BTF and __stop_BTF, which will
++	# be redefined in the linker script. Add 2>/dev/null to suppress GNU
++	# objcopy warnings: "empty loadable segment detected at ..."
++	${OBJCOPY} --only-section=.BTF --set-section-flags .BTF=alloc,readonly \
++		--strip-all ${1} ${2} 2>/dev/null
++	# Change e_type to ET_REL so that it can be used to link final vmlinux.
++	# Unlike GNU ld, lld does not allow an ET_EXEC input.
++	printf '\1' | dd of=${2} conv=notrunc bs=1 seek=16 status=none
+ }
+ 
+ # Create ${2} .o file with all symbols from the ${1} object file
 
 
