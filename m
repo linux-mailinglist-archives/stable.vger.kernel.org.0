@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4713A1FB6CE
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:43:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0655D1FB780
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:47:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731213AbgFPPkf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:40:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55200 "EHLO mail.kernel.org"
+        id S1730032AbgFPPqx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:46:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39422 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730401AbgFPPkc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:40:32 -0400
+        id S1732230AbgFPPqw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:46:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 78F98208D5;
-        Tue, 16 Jun 2020 15:40:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D223E214DB;
+        Tue, 16 Jun 2020 15:46:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322032;
-        bh=VBzTCvLr0GPpm7suJjfkrsyZqYDLp9KwBh5qcbrkXzU=;
+        s=default; t=1592322412;
+        bh=cB0xYbRke6CaPhv+2x3VkaVLolCq4Lq7+R793GDpnis=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WNXSdyqhh+fp705z65rc3dwIOPzwV1+I81+YVkGP+6gGFf381GvKAObCZ/HHbarvn
-         mTy7l/Tlpfe/dmPktBQXoScHcWIKRQ/wQwMqANLHkahL3lJ+4eqtMn9/zMQTpLfI6x
-         EmhE1DgzMwvpg64IYQshngCWOkBIc/vVDLr1lBKo=
+        b=G0OkRiPqdZDd5gFvbKo4vhzkEqd+cv+GDFaznmBmOG5Z/wECczI9e+BBFwEzMwCfZ
+         faM/el+7CkgEs7i1C+g42wWl/oBLtOfn7k1e02kR+0EP34ca/9i2kSfkOapz+GjHug
+         xybbWDVTCzFwQpp73JA2xBRJxr2fA5HuhNkTtvpA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,12 +30,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Eric Biggers <ebiggers@google.com>,
         Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 5.4 080/134] crypto: algapi - Avoid spurious modprobe on LOADED
-Date:   Tue, 16 Jun 2020 17:34:24 +0200
-Message-Id: <20200616153104.604379441@linuxfoundation.org>
+Subject: [PATCH 5.7 091/163] crypto: algapi - Avoid spurious modprobe on LOADED
+Date:   Tue, 16 Jun 2020 17:34:25 +0200
+Message-Id: <20200616153111.195011314@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153100.633279950@linuxfoundation.org>
-References: <20200616153100.633279950@linuxfoundation.org>
+In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
+References: <20200616153106.849127260@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -75,7 +75,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/crypto/algapi.c
 +++ b/crypto/algapi.c
-@@ -374,7 +374,7 @@ static void crypto_wait_for_test(struct
+@@ -403,7 +403,7 @@ static void crypto_wait_for_test(struct
  	err = wait_for_completion_killable(&larval->completion);
  	WARN_ON(err);
  	if (!err)
