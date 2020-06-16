@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 054321FBCD1
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 19:27:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 310B51FBCD3
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 19:27:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729988AbgFPR1H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 13:27:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44382 "EHLO mail.kernel.org"
+        id S1730034AbgFPR1T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 13:27:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44482 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729241AbgFPR1G (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 13:27:06 -0400
+        id S1729241AbgFPR1T (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 13:27:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CC72820707;
-        Tue, 16 Jun 2020 17:27:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7C97220B1F;
+        Tue, 16 Jun 2020 17:27:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592328425;
-        bh=gRirXb1IlNEoVekNHSJ628QpJkTj4a4exWMvKcFvVeQ=;
+        s=default; t=1592328438;
+        bh=f/INNJArfVD9P9bLLQuD4FxBExf8wszjQr86w8jf6+8=;
         h=From:To:Cc:Subject:Date:From;
-        b=LiHSBpvvv0AjdBc+vqbqyqlyUVO+j+qOiFlEBOzcxyYadHfTAznSxZgvnY/1+q0qs
-         u4lHb4vSBUnbkkDbqx9CrcvGjq4icotaknCUgZ5AAIl6uhoYddFidvl6xBfvQPmCx3
-         AAes2+XLWqDy76zjoI1puIpSwVi8dV3Gso83Piek=
+        b=2ZK0gTs7tuCygxgxgWqiNh+qhHW3Q5mortvpNPaT8l8BjorCZ8+oFL9vrNn9clpim
+         8cCYImLsRZpyU/nLnwYpW5QIm5AJANnugnukp3+Yc3C6syk25ORK0k1svpJiI13xRk
+         fcLisrdj4DXsf5QyTOWJmAMgLFQIlc0ySaQZYX0Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,19 +30,19 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
         ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
         stable@vger.kernel.org
-Subject: [PATCH 5.6 000/158] 5.6.19-rc2 review
-Date:   Tue, 16 Jun 2020 19:26:59 +0200
-Message-Id: <20200616172611.492085670@linuxfoundation.org>
+Subject: [PATCH 5.7 000/162] 5.7.3-rc2 review
+Date:   Tue, 16 Jun 2020 19:27:11 +0200
+Message-Id: <20200616172615.453746383@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 MIME-Version: 1.0
 User-Agent: quilt/0.66
 X-stable: review
 X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-5.6.19-rc2.gz
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-5.7.3-rc2.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-5.6.y
+X-KernelTest-Branch: linux-5.7.y
 X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 5.6.19-rc2
+X-KernelTest-Version: 5.7.3-rc2
 X-KernelTest-Deadline: 2020-06-18T17:26+00:00
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -51,18 +51,18 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 5.6.19 release.
-There are 158 patches in this series, all will be posted as a response
+This is the start of the stable review cycle for the 5.7.3 release.
+There are 162 patches in this series, all will be posted as a response
 to this one.  If anyone has any issues with these being applied, please
 let me know.
 
-Responses should be made by Thu, 18 Jun 2020 17:25:39 +0000.
+Responses should be made by Thu, 18 Jun 2020 17:25:43 +0000.
 Anything received after that time might be too late.
 
 The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.6.19-rc2.gz
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.7.3-rc2.gz
 or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.6.y
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.7.y
 and the diffstat can be found below.
 
 thanks,
@@ -73,13 +73,16 @@ greg k-h
 Pseudo-Shortlog of commits:
 
 Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 5.6.19-rc2
+    Linux 5.7.3-rc2
 
-Marc Zyngier <maz@kernel.org>
-    KVM: arm64: Save the host's PtrAuth keys in non-preemptible context
+John Stultz <john.stultz@linaro.org>
+    serial: amba-pl011: Make sure we initialize the port.lock spinlock
 
 Marc Zyngier <maz@kernel.org>
     KVM: arm64: Synchronize sysreg state on injecting an AArch32 exception
+
+Marc Zyngier <maz@kernel.org>
+    KVM: arm64: Save the host's PtrAuth keys in non-preemptible context
 
 Mattia Dongili <malattia@linux.it>
     platform/x86: sony-laptop: Make resuming thermal profile safer
@@ -210,11 +213,38 @@ Tero Kristo <t-kristo@ti.com>
 Eric W. Biederman <ebiederm@xmission.com>
     proc: Use new_inode not new_inode_pseudo
 
+Namjae Jeon <namjae.jeon@samsung.com>
+    exfat: fix incorrect update of stream entry in __exfat_truncate()
+
+Al Viro <viro@zeniv.linux.org.uk>
+    exfat: fix memory leak in exfat_parse_param()
+
 Yuxuan Shui <yshuiv7@gmail.com>
     ovl: initialize error in ovl_copy_xattr
 
 Amir Goldstein <amir73il@gmail.com>
     ovl: fix out of bounds access warning in ovl_check_fb_len()
+
+Oz Shlomo <ozsh@mellanox.com>
+    net/mlx5e: CT: Fix ipv6 nat header rewrite actions
+
+Valentin Longchamp <valentin@longchamp.me>
+    net: sched: export __netdev_watchdog_up()
+
+Grygorii Strashko <grygorii.strashko@ti.com>
+    net: ethernet: ti: am65-cpsw-nuss: fix ale parameters init
+
+Grygorii Strashko <grygorii.strashko@ti.com>
+    net: ethernet: ti: ale: fix allmulti for nu type ale
+
+Paolo Abeni <pabeni@redhat.com>
+    mptcp: fix races between shutdown and recvmsg
+
+Shannon Nelson <snelson@pensando.io>
+    ionic: wait on queue start until after IFF_UP
+
+Paolo Abeni <pabeni@redhat.com>
+    mptcp: don't leak msk in token container
 
 Parav Pandit <parav@mellanox.com>
     net/mlx5: Disable reload while removing the device
@@ -251,12 +281,6 @@ Peng Fan <peng.fan@nxp.com>
 
 Tony Luck <tony.luck@intel.com>
     x86/{mce,mm}: Unmap the entire page if the whole page is affected and poisoned
-
-Pavel Begunkov <asml.silence@gmail.com>
-    io_uring: fix flush req->refs underflow
-
-Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>
-    io_uring: fix mismatched finish_wait() calls in io_uring_cancel_files()
 
 Longpeng(Mike) <longpeng2@huawei.com>
     crypto: virtio: Fix src/dst scatterlist calculation in __virtio_crypto_skcipher_do_req()
@@ -360,6 +384,9 @@ Chuhong Yuan <hslester96@gmail.com>
 Fabio Estevam <festevam@gmail.com>
     watchdog: imx_sc_wdt: Fix reboot on crash
 
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+    serial: imx: Initialize lock for non-registered console
+
 Steve French <stfrench@microsoft.com>
     smb3: fix typo in mount options displayed in /proc/mounts
 
@@ -372,11 +399,23 @@ Steve French <stfrench@microsoft.com>
 Ard Biesheuvel <ardb@kernel.org>
     efi/efivars: Add missing kobject_put() in sysfs entry creation error path
 
+Jens Axboe <axboe@kernel.dk>
+    io_uring: allow O_NONBLOCK async retry
+
 Denis Efremov <efremov@linux.com>
     io_uring: use kvfree() in io_sqe_buffer_register()
 
+Jens Axboe <axboe@kernel.dk>
+    io_uring: re-set iov base/len for buffer select retry
+
+Pavel Begunkov <asml.silence@gmail.com>
+    io_uring: fix flush req->refs underflow
+
 Pavel Dobias <dobias@2n.cz>
     ASoC: max9867: fix volume controls
+
+Dan Murphy <dmurphy@ti.com>
+    ASoC: tlv320adcx140: Fix mic gain registers
 
 Christophe Leroy <christophe.leroy@csgroup.eu>
     powerpc/ptdump: Properly handle non standard page size
@@ -390,11 +429,20 @@ Felipe Franciosi <felipe@nutanix.com>
 Sean Christopherson <sean.j.christopherson@intel.com>
     KVM: x86/mmu: Set mmio_value to '0' if reserved #PF can't be generated
 
+Maxim Levitsky <mlevitsk@redhat.com>
+    KVM: VMX: enable X86_FEATURE_WAITPKG in KVM capabilities
+
 Paolo Bonzini <pbonzini@redhat.com>
     KVM: x86: allow KVM_STATE_NESTED_MTF_PENDING in kvm_state flags
 
+Maxim Levitsky <mlevitsk@redhat.com>
+    KVM: x86: don't expose MSR_IA32_UMWAIT_CONTROL unconditionally
+
 Kan Liang <kan.liang@linux.intel.com>
     perf/x86/intel: Add more available bits for OFFCORE_RESPONSE of Intel Tremont
+
+Thomas Gleixner <tglx@linutronix.de>
+    x86/vdso: Unbreak paravirt VDSO clocks
 
 Hill Ma <maahiuzeon@gmail.com>
     x86/reboot/quirks: Add MacBook6,1 reboot quirk
@@ -423,35 +471,23 @@ Vlastimil Babka <vbabka@suse.cz>
 Miklos Szeredi <mszeredi@redhat.com>
     aio: fix async fsync creds
 
-Yongqiang Sun <yongqiang.sun@amd.com>
-    drm/amd/display: Not doing optimize bandwidth if flip pending.
-
-Joseph Gravenor <joseph.gravenor@amd.com>
-    drm/amd/display: remove invalid dc_is_hw_initialized function
-
-Maurizio Lombardi <mlombard@redhat.com>
-    scsi: target: fix hang when multiple threads try to destroy the same iscsi session
-
-Maurizio Lombardi <mlombard@redhat.com>
-    scsi: target: remove boilerplate code
-
 Bjorn Helgaas <bhelgaas@google.com>
     PCI/PM: Adjust pcie_wait_for_link_delay() for caller delay
 
 Paolo Bonzini <pbonzini@redhat.com>
     KVM: x86: only do L1TF workaround on affected processors
 
-Kim Phillips <kim.phillips@amd.com>
-    x86/cpu/amd: Make erratum #1054 a legacy erratum
-
-Petr Tesarik <ptesarik@suse.com>
-    s390/pci: Log new handle in clp_disable_fh()
-
 Daniel Jordan <daniel.m.jordan@oracle.com>
     padata: add separate cpuhp node for CPUHP_PADATA_DEAD
 
 Jason Gunthorpe <jgg@ziepe.ca>
     RDMA/uverbs: Make the event_queue fds return POLLERR when disassociated
+
+Kim Phillips <kim.phillips@amd.com>
+    x86/cpu/amd: Make erratum #1054 a legacy erratum
+
+Petr Tesarik <ptesarik@suse.com>
+    s390/pci: Log new handle in clp_disable_fh()
 
 Arnd Bergmann <arnd@arndb.de>
     smack: avoid unused 'sip' variable warning
@@ -465,56 +501,29 @@ Sasha Levin <sashal@kernel.org>
 Cédric Le Goater <clg@kaod.org>
     powerpc/xive: Clear the page tables for the ESB IO mapping
 
-Saravana Kannan <saravanak@google.com>
-    driver core: Update device link status correctly for SYNC_STATE_ONLY links
-
 Amir Goldstein <amir73il@gmail.com>
     fanotify: fix ignore mask logic for events on child and on dir
 
-Vlad Buslov <vladbu@mellanox.com>
-    selftests: fix flower parent qdisc
-
-Waiman Long <longman@redhat.com>
-    mm: add kvfree_sensitive() for freeing sensitive data objects
+Saravana Kannan <saravanak@google.com>
+    driver core: Update device link status correctly for SYNC_STATE_ONLY links
 
 Masami Hiramatsu <mhiramat@kernel.org>
     perf probe: Accept the instance number of kretprobe event
 
-Sergio Paracuellos <sergio.paracuellos@gmail.com>
-    staging: mt7621-pci: properly power off dual-ported pcie phy
+Waiman Long <longman@redhat.com>
+    mm: add kvfree_sensitive() for freeing sensitive data objects
+
+Vlad Buslov <vladbu@mellanox.com>
+    selftests: fix flower parent qdisc
 
 Jérôme Pouiller <jerome.pouiller@silabs.com>
     staging: wfx: fix double free
 
-Thomas Falcon <tlfalcon@linux.ibm.com>
-    drivers/net/ibmvnic: Update VNIC protocol version reporting
-
-Andreas Gruenbacher <agruenba@redhat.com>
-    gfs2: Even more gfs2_find_jhead fixes
-
-Guo Ren <guoren@linux.alibaba.com>
-    csky: Fixup abiv2 syscall_trace break a4 & a5
-
-Dennis Kadioglu <denk@eclipso.email>
-    Input: synaptics - add a second working PNP_ID for Lenovo T470s
-
-Jens Axboe <axboe@kernel.dk>
-    sched/fair: Don't NUMA balance for kthreads
-
-Fredrik Strupe <fredrik@strupe.net>
-    ARM: 8977/1: ptrace: Fix mask for thumb breakpoint hook
-
-Hans de Goede <hdegoede@redhat.com>
-    Input: axp20x-pek - always register interrupt handlers
-
-Stephan Gerhold <stephan@gerhold.net>
-    Input: mms114 - fix handling of mms345l
+Sergio Paracuellos <sergio.paracuellos@gmail.com>
+    staging: mt7621-pci: properly power off dual-ported pcie phy
 
 Nick Desaulniers <ndesaulniers@google.com>
     elfnote: mark all .note sections SHF_ALLOC
-
-Fangrui Song <maskray@google.com>
-    bpf: Support llvm-objcopy for vmlinux BTF
 
 Tuong Lien <tuong.t.lien@dektech.com.au>
     tipc: fix NULL pointer dereference in streaming
@@ -524,6 +533,9 @@ Michal Vokáč <michal.vokac@ysoft.com>
 
 Cong Wang <xiyou.wangcong@gmail.com>
     genetlink: fix memory leaks in genl_family_rcv_msg_dumpit()
+
+Geliang Tang <geliangtang@gmail.com>
+    mptcp: bugfix for RM_ADDR option parsing
 
 Sameeh Jubran <sameehj@amazon.com>
     net: ena: xdp: update napi budget for DROP and ABORTED
@@ -557,23 +569,18 @@ Diffstat:
  Documentation/lzo.txt                              |  8 +-
  Makefile                                           |  4 +-
  arch/arm/boot/dts/at91-sama5d2_ptc_ek.dts          |  2 -
- arch/arm/include/asm/kvm_emulate.h                 |  3 +-
- arch/arm/include/asm/kvm_host.h                    |  2 +
- arch/arm/kernel/ptrace.c                           |  4 +-
  arch/arm64/include/asm/acpi.h                      |  5 +-
  arch/arm64/include/asm/kvm_emulate.h               |  6 --
- arch/arm64/include/asm/kvm_host.h                  |  8 +-
+ arch/arm64/include/asm/kvm_host.h                  |  6 +-
  arch/arm64/kvm/handle_exit.c                       | 19 +----
  arch/arm64/kvm/sys_regs.c                          | 10 ++-
- arch/csky/abiv2/inc/abi/entry.h                    |  2 +
- arch/csky/kernel/entry.S                           |  6 +-
  arch/mips/include/asm/kvm_host.h                   |  6 +-
- arch/powerpc/kernel/vmlinux.lds.S                  |  6 --
  arch/powerpc/mm/ptdump/ptdump.c                    | 21 ++---
  arch/powerpc/sysdev/xive/common.c                  |  5 ++
  arch/s390/pci/pci_clp.c                            |  3 +-
  arch/x86/events/intel/core.c                       |  4 +-
  arch/x86/include/asm/set_memory.h                  | 19 +++--
+ arch/x86/include/asm/vdso/gettimeofday.h           | 18 +++++
  arch/x86/kernel/cpu/amd.c                          |  3 +-
  arch/x86/kernel/cpu/bugs.c                         | 92 ++++++++++++---------
  arch/x86/kernel/cpu/mce/core.c                     | 11 ++-
@@ -582,11 +589,11 @@ Diffstat:
  arch/x86/kernel/time.c                             |  4 -
  arch/x86/kernel/vmlinux.lds.S                      |  4 +-
  arch/x86/kvm/mmu/mmu.c                             | 46 +++++------
- arch/x86/kvm/svm.c                                 |  6 +-
+ arch/x86/kvm/svm/nested.c                          |  6 +-
  arch/x86/kvm/vmx/nested.c                          |  4 +-
- arch/x86/kvm/vmx/vmx.c                             | 18 ++++-
+ arch/x86/kvm/vmx/vmx.c                             | 21 ++++-
  arch/x86/kvm/vmx/vmx.h                             |  3 +-
- arch/x86/kvm/x86.c                                 | 11 +--
+ arch/x86/kvm/x86.c                                 | 15 ++--
  arch/x86/mm/dump_pagetables.c                      | 33 +++++---
  arch/x86/pci/fixup.c                               |  4 +
  crypto/algapi.c                                    |  2 +-
@@ -609,15 +616,10 @@ Diffstat:
  drivers/edac/skx_common.h                          |  2 +-
  drivers/firmware/efi/efivars.c                     |  4 +-
  drivers/firmware/imx/imx-scu.c                     | 62 ++++++++++----
- drivers/gpu/drm/amd/display/dc/core/dc.c           | 23 +++++-
- drivers/gpu/drm/amd/display/dc/dc.h                |  1 -
  drivers/gpu/drm/i915/gem/i915_gem_userptr.c        |  8 ++
  drivers/gpu/drm/vkms/vkms_drv.h                    |  5 --
  drivers/gpu/drm/vkms/vkms_gem.c                    | 11 +--
  drivers/infiniband/core/uverbs_main.c              |  2 +
- drivers/input/misc/axp20x-pek.c                    | 72 +++++++++--------
- drivers/input/mouse/synaptics.c                    |  1 +
- drivers/input/touchscreen/mms114.c                 | 12 ++-
  .../media/common/videobuf2/videobuf2-dma-contig.c  | 20 +----
  drivers/mmc/core/sdio.c                            | 61 +++++++-------
  drivers/mmc/host/mmci_stm32_sdmmc.c                |  3 +
@@ -628,13 +630,16 @@ Diffstat:
  drivers/net/dsa/qca8k.c                            |  3 +-
  drivers/net/ethernet/amazon/ena/ena_netdev.c       | 10 +--
  drivers/net/ethernet/cadence/macb_main.c           | 14 ++--
- drivers/net/ethernet/ibm/ibmvnic.c                 |  8 +-
  drivers/net/ethernet/marvell/mvneta.c              | 13 +++
  drivers/net/ethernet/mellanox/mlx5/core/devlink.c  |  2 -
+ drivers/net/ethernet/mellanox/mlx5/core/en/tc_ct.c | 16 ++--
  .../net/ethernet/mellanox/mlx5/core/en/xsk/setup.c |  4 +
  drivers/net/ethernet/mellanox/mlx5/core/health.c   | 14 +++-
  drivers/net/ethernet/mellanox/mlx5/core/main.c     |  7 ++
  drivers/net/ethernet/mellanox/mlxsw/core_thermal.c | 23 +++++-
+ drivers/net/ethernet/pensando/ionic/ionic_lif.c    |  4 +-
+ drivers/net/ethernet/ti/am65-cpsw-nuss.c           |  2 +-
+ drivers/net/ethernet/ti/cpsw_ale.c                 | 49 ++++++++---
  drivers/net/net_failover.c                         |  3 +-
  drivers/net/tun.c                                  | 14 +++-
  drivers/net/vxlan.c                                |  4 +
@@ -661,10 +666,8 @@ Diffstat:
  drivers/spi/spi.c                                  |  3 +-
  drivers/staging/mt7621-pci/pci-mt7621.c            | 12 ++-
  drivers/staging/wfx/main.c                         |  1 -
- drivers/target/iscsi/iscsi_target.c                | 79 ++++++------------
- drivers/target/iscsi/iscsi_target.h                |  1 -
- drivers/target/iscsi/iscsi_target_configfs.c       |  5 +-
- drivers/target/iscsi/iscsi_target_login.c          |  5 +-
+ drivers/tty/serial/amba-pl011.c                    |  1 +
+ drivers/tty/serial/imx.c                           |  3 +
  drivers/video/fbdev/vt8500lcdfb.c                  |  1 +
  drivers/video/fbdev/w100fb.c                       |  2 +
  drivers/watchdog/imx_sc_wdt.c                      |  5 ++
@@ -672,9 +675,10 @@ Diffstat:
  fs/aio.c                                           |  8 ++
  fs/cifs/cifsfs.c                                   |  2 +-
  fs/cifs/smb2pdu.c                                  |  4 +-
+ fs/exfat/file.c                                    |  8 +-
+ fs/exfat/super.c                                   | 12 ++-
  fs/fat/inode.c                                     |  6 ++
- fs/gfs2/lops.c                                     | 15 ++--
- fs/io_uring.c                                      | 15 ++--
+ fs/io_uring.c                                      | 24 ++++--
  fs/nilfs2/segment.c                                |  2 +
  fs/notify/fanotify/fanotify.c                      |  5 +-
  fs/overlayfs/copy_up.c                             |  2 +-
@@ -682,7 +686,6 @@ Diffstat:
  fs/proc/inode.c                                    |  2 +-
  fs/proc/self.c                                     |  2 +-
  fs/proc/thread_self.c                              |  2 +-
- include/asm-generic/vmlinux.lds.h                  | 15 ++++
  include/linux/elfnote.h                            |  2 +-
  include/linux/kvm_host.h                           |  4 +-
  include/linux/mm.h                                 |  1 +
@@ -691,12 +694,8 @@ Diffstat:
  include/linux/set_memory.h                         |  2 +-
  include/media/videobuf2-dma-contig.h               |  2 +-
  include/net/inet_hashtables.h                      |  6 ++
- include/target/iscsi/iscsi_target_core.h           |  2 +-
- kernel/bpf/btf.c                                   |  9 +--
- kernel/bpf/sysfs_btf.c                             | 11 ++-
  kernel/events/core.c                               | 23 +++---
  kernel/padata.c                                    | 14 ++--
- kernel/sched/fair.c                                |  2 +-
  lib/bitmap.c                                       |  9 ++-
  lib/lzo/lzo1x_compress.c                           | 13 +++
  mm/gup.c                                           | 44 ++++++++--
@@ -708,9 +707,12 @@ Diffstat:
  net/bridge/br_arp_nd_proxy.c                       |  4 +
  net/dccp/proto.c                                   |  7 +-
  net/ipv6/ipv6_sockglue.c                           | 13 +--
+ net/mptcp/options.c                                |  2 +
+ net/mptcp/protocol.c                               | 45 ++++++-----
+ net/mptcp/subflow.c                                |  1 +
  net/netlink/genetlink.c                            | 94 +++++++++++++---------
+ net/sched/sch_generic.c                            |  1 +
  net/tipc/msg.c                                     |  4 +-
- scripts/link-vmlinux.sh                            | 24 +++---
  security/keys/internal.h                           | 11 ---
  security/keys/keyctl.c                             | 16 ++--
  security/smack/smack.h                             |  6 --
@@ -723,17 +725,18 @@ Diffstat:
  sound/pci/hda/hda_intel.c                          |  3 +
  sound/pci/hda/patch_realtek.c                      |  6 ++
  sound/soc/codecs/max9867.c                         |  4 +-
+ sound/soc/codecs/tlv320adcx140.c                   |  6 +-
  sound/usb/card.c                                   | 19 +++--
  sound/usb/quirks-table.h                           | 20 +++++
  sound/usb/usbaudio.h                               |  2 +-
  tools/perf/util/probe-event.c                      |  3 +-
  .../ftrace/test.d/ftrace/tracing-error-log.tc      |  2 +
- .../networking/timestamping/rxtimestamp.c          |  1 +
+ tools/testing/selftests/net/rxtimestamp.c          |  1 +
  .../tc-testing/tc-tests/filters/tests.json         |  6 +-
  tools/testing/selftests/tc-testing/tdc_batch.py    |  6 +-
  virt/kvm/arm/aarch32.c                             | 28 +++++++
- virt/kvm/arm/arm.c                                 | 22 ++++-
+ virt/kvm/arm/arm.c                                 | 18 ++++-
  virt/kvm/kvm_main.c                                | 26 +++---
- 180 files changed, 1292 insertions(+), 790 deletions(-)
+ 171 files changed, 1270 insertions(+), 682 deletions(-)
 
 
