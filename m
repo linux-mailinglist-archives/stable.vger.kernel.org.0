@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 05D791FB853
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:55:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B09A1FB84F
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:55:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732848AbgFPPz0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:55:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55060 "EHLO mail.kernel.org"
+        id S1733067AbgFPPzO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:55:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55164 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733047AbgFPPzK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:55:10 -0400
+        id S1732745AbgFPPzN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:55:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 20EB0208D5;
-        Tue, 16 Jun 2020 15:55:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D037221532;
+        Tue, 16 Jun 2020 15:55:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322910;
-        bh=rD/bwrRxEpefQW38GRQL6xrFKiUVHbl4w5atnj3+/nA=;
+        s=default; t=1592322913;
+        bh=wvkG8oLcFXZiSR2IS2+UDxHhiG4WeeVdy5UKKuQIeE8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CIxqqQgVSkrk+5fzIpTgvJ3gEAAc52ga7GaTa+rpUslbRmbSew4P1I7mQGxX1AEGH
-         tj3r0BZCPlAMFCMzi5mH5vlcKrBNu8U1IRl93MyiL+4+1JXOZNzOVvoKU/IyPriIK4
-         jaqsDRImlkwexJ7i845cBWIpP/d3v4JYZ51i80mE=
+        b=eph9299BMkjeABbAN7I7I5+VunYgCIMs99To5u6aeyQxVBRPVUocqwKe7ol9xc4Xf
+         1MgA/Hm9pc+yRtGvymk1TY+h+vuZ/5xaVMVeIuvM9LU+A0WhmfXPjdtfW8C4xKtygF
+         BURMv1Ei36iyAH0EEabW4BFV62vNUmrvr5Fs7Rjw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
         Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.6 151/161] mmc: tmio: Further fixup runtime PM management at remove
-Date:   Tue, 16 Jun 2020 17:35:41 +0200
-Message-Id: <20200616153113.534402978@linuxfoundation.org>
+Subject: [PATCH 5.6 152/161] mmc: uniphier-sd: call devm_request_irq() after tmio_mmc_host_probe()
+Date:   Tue, 16 Jun 2020 17:35:42 +0200
+Message-Id: <20200616153113.583131562@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200616153106.402291280@linuxfoundation.org>
 References: <20200616153106.402291280@linuxfoundation.org>
@@ -45,60 +44,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ulf Hansson <ulf.hansson@linaro.org>
+From: Masahiro Yamada <yamada.masahiro@socionext.com>
 
-commit 4bd784411aca022622e484eb262f5a0540ae732c upstream.
+commit 5d1f42e14b135773c0cc1d82e904c5b223783a9d upstream.
 
-Before calling tmio_mmc_host_probe(), the caller is required to enable
-clocks for its device, as to make it accessible when reading/writing
-registers during probe.
+Currently, tmio_mmc_irq() handler is registered before the host is
+fully initialized by tmio_mmc_host_probe(). I did not previously notice
+this problem.
 
-Therefore, the responsibility to disable these clocks, in the error path of
-->probe() and during ->remove(), is better managed outside
-tmio_mmc_host_remove(). As a matter of fact, callers of
-tmio_mmc_host_remove() already expects this to be the behaviour.
+The boot ROM of a new Socionext SoC unmasks interrupts (CTL_IRQ_MASK)
+somehow. The handler is invoked before tmio_mmc_host_probe(), then
+emits noisy call trace.
 
-However, there's a problem with tmio_mmc_host_remove() when the Kconfig
-option, CONFIG_PM, is set. More precisely, tmio_mmc_host_remove() may then
-disable the clock via runtime PM, which leads to clock enable/disable
-imbalance problems, when the caller of tmio_mmc_host_remove() also tries to
-disable the same clocks.
+Move devm_request_irq() below tmio_mmc_host_probe().
 
-To solve the problem, let's make sure tmio_mmc_host_remove() leaves the
-device with clocks enabled, but also make sure to disable the IRQs, as we
-normally do at ->runtime_suspend().
-
-Reported-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Tested-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Fixes: 3fd784f745dd ("mmc: uniphier-sd: add UniPhier SD/eMMC controller driver")
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20200519152434.6867-1-ulf.hansson@linaro.org
-Tested-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Link: https://lore.kernel.org/r/20200511062158.1790924-1-yamada.masahiro@socionext.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mmc/host/tmio_mmc_core.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/mmc/host/uniphier-sd.c |   12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
---- a/drivers/mmc/host/tmio_mmc_core.c
-+++ b/drivers/mmc/host/tmio_mmc_core.c
-@@ -1286,12 +1286,14 @@ void tmio_mmc_host_remove(struct tmio_mm
- 	cancel_work_sync(&host->done);
- 	cancel_delayed_work_sync(&host->delayed_reset_work);
- 	tmio_mmc_release_dma(host);
-+	tmio_mmc_disable_mmc_irqs(host, TMIO_MASK_ALL);
+--- a/drivers/mmc/host/uniphier-sd.c
++++ b/drivers/mmc/host/uniphier-sd.c
+@@ -610,11 +610,6 @@ static int uniphier_sd_probe(struct plat
+ 		}
+ 	}
  
--	pm_runtime_dont_use_autosuspend(&pdev->dev);
- 	if (host->native_hotplug)
- 		pm_runtime_put_noidle(&pdev->dev);
--	pm_runtime_put_sync(&pdev->dev);
+-	ret = devm_request_irq(dev, irq, tmio_mmc_irq, IRQF_SHARED,
+-			       dev_name(dev), host);
+-	if (ret)
+-		goto free_host;
+-
+ 	if (priv->caps & UNIPHIER_SD_CAP_EXTENDED_IP)
+ 		host->dma_ops = &uniphier_sd_internal_dma_ops;
+ 	else
+@@ -642,8 +637,15 @@ static int uniphier_sd_probe(struct plat
+ 	if (ret)
+ 		goto free_host;
+ 
++	ret = devm_request_irq(dev, irq, tmio_mmc_irq, IRQF_SHARED,
++			       dev_name(dev), host);
++	if (ret)
++		goto remove_host;
 +
- 	pm_runtime_disable(&pdev->dev);
-+	pm_runtime_dont_use_autosuspend(&pdev->dev);
-+	pm_runtime_put_noidle(&pdev->dev);
- }
- EXPORT_SYMBOL_GPL(tmio_mmc_host_remove);
+ 	return 0;
+ 
++remove_host:
++	tmio_mmc_host_remove(host);
+ free_host:
+ 	tmio_mmc_host_free(host);
  
 
 
