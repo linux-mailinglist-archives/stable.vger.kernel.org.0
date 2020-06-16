@@ -2,42 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F8DE1FBADE
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:15:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B2F471FBB63
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:22:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730404AbgFPQOx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 12:14:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58986 "EHLO mail.kernel.org"
+        id S1729983AbgFPPgb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:36:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47162 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731665AbgFPPmZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:42:25 -0400
+        id S1729969AbgFPPg3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:36:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D878520C56;
-        Tue, 16 Jun 2020 15:42:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4268C20C09;
+        Tue, 16 Jun 2020 15:36:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322144;
-        bh=x33DfcqvHmtV7bBLn53MbpkOd18BX8qs2S2kmHLyUbA=;
+        s=default; t=1592321787;
+        bh=cR0PP+/MQZYLqQf3bbJfXoLuvhvnjpmt6Okx0cKiyf4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0YXB0QsgOMuVvoHLya1yBmR1fBQUdAErkEnlU33oes9GBotgyq/36kS4JVrcfuYtZ
-         aZ10zCoXovO3xPaMJVsejz0cQ/TUIEKlKFv17POVenXW23wFZ/rdAMuvdJi6y+ZF1a
-         uySp5p62O1ohI0rycE54sc/6+Blfhho+7+q6Olzc=
+        b=gjC737vEpAvDXMFIOwBZg2zpv/bpxLkrF12fjXrrIOu32Wi6g+ieCQYAMWQGjx+Nv
+         81zY6sHp6W5reoidUtv+UUfIFJC5cMclZKC0BPBZzdclo9xocdpylAmwtlczUVCvB6
+         IgstLisMGV20AVU/IP5EBzo/tPbAhuxCkZ5rCNFs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yuxuan Shui <yshuiv7@gmail.com>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 018/163] perf probe: Accept the instance number of kretprobe event
+        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Fangrui Song <maskray@google.com>,
+        Jeremy Fitzhardinge <jeremy@goop.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Vincenzo Frascino <vincenzo.frascino@arm.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Jian Cai <jiancai@google.com>,
+        Ilie Halip <ilie.halip@gmail.com>
+Subject: [PATCH 5.4 008/134] elfnote: mark all .note sections SHF_ALLOC
 Date:   Tue, 16 Jun 2020 17:33:12 +0200
-Message-Id: <20200616153107.744754312@linuxfoundation.org>
+Message-Id: <20200616153101.080422549@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
-References: <20200616153106.849127260@linuxfoundation.org>
+In-Reply-To: <20200616153100.633279950@linuxfoundation.org>
+References: <20200616153100.633279950@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,70 +51,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+From: Nick Desaulniers <ndesaulniers@google.com>
 
-[ Upstream commit c6aab66a728b6518772c74bd9dff66e1a1c652fd ]
+commit 51da9dfb7f20911ae4e79e9b412a9c2d4c373d4b upstream.
 
-Since the commit 6a13a0d7b4d1 ("ftrace/kprobe: Show the maxactive number
-on kprobe_events") introduced to show the instance number of kretprobe
-events, the length of the 1st format of the kprobe event will not 1, but
-it can be longer.  This caused a parser error in perf-probe.
+ELFNOTE_START allows callers to specify flags for .pushsection assembler
+directives.  All callsites but ELF_NOTE use "a" for SHF_ALLOC.  For vdso's
+that explicitly use ELF_NOTE_START and BUILD_SALT, the same section is
+specified twice after preprocessing, once with "a" flag, once without.
+Example:
 
-Skip the length check the 1st format of the kprobe event to accept this
-instance number.
+.pushsection .note.Linux, "a", @note ;
+.pushsection .note.Linux, "", @note ;
 
-Without this fix:
+While GNU as allows this ordering, it warns for the opposite ordering,
+making these directives position dependent.  We'd prefer not to precisely
+match this behavior in Clang's integrated assembler.  Instead, the non
+__ASSEMBLY__ definition of ELF_NOTE uses
+__attribute__((section(".note.Linux"))) which is created with SHF_ALLOC,
+so let's make the __ASSEMBLY__ definition of ELF_NOTE consistent with C
+and just always use "a" flag.
 
-  # perf probe -a vfs_read%return
-  Added new event:
-    probe:vfs_read__return (on vfs_read%return)
+This allows Clang to assemble a working mainline (5.6) kernel via:
+$ make CC=clang AS=clang
 
-  You can now use it in all perf tools, such as:
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
+Reviewed-by: Fangrui Song <maskray@google.com>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Vincenzo Frascino <vincenzo.frascino@arm.com>
+Link: https://github.com/ClangBuiltLinux/linux/issues/913
+Link: http://lkml.kernel.org/r/20200325231250.99205-1-ndesaulniers@google.com
+Debugged-by: Ilie Halip <ilie.halip@gmail.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Jian Cai <jiancai@google.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-  	perf record -e probe:vfs_read__return -aR sleep 1
-
-  # perf probe -l
-  Semantic error :Failed to parse event name: r16:probe/vfs_read__return
-    Error: Failed to show event list.
-
-And with this fixes:
-
-  # perf probe -a vfs_read%return
-  ...
-  # perf probe -l
-    probe:vfs_read__return (on vfs_read%return)
-
-Fixes: 6a13a0d7b4d1 ("ftrace/kprobe: Show the maxactive number on kprobe_events")
-Reported-by: Yuxuan Shui <yshuiv7@gmail.com>
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Tested-by: Yuxuan Shui <yshuiv7@gmail.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: stable@vger.kernel.org
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=207587
-Link: http://lore.kernel.org/lkml/158877535215.26469.1113127926699134067.stgit@devnote2
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/probe-event.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ include/linux/elfnote.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/perf/util/probe-event.c b/tools/perf/util/probe-event.c
-index eea132f512b0..c6bcf5709564 100644
---- a/tools/perf/util/probe-event.c
-+++ b/tools/perf/util/probe-event.c
-@@ -1765,8 +1765,7 @@ int parse_probe_trace_command(const char *cmd, struct probe_trace_event *tev)
- 	fmt1_str = strtok_r(argv0_str, ":", &fmt);
- 	fmt2_str = strtok_r(NULL, "/", &fmt);
- 	fmt3_str = strtok_r(NULL, " \t", &fmt);
--	if (fmt1_str == NULL || strlen(fmt1_str) != 1 || fmt2_str == NULL
--	    || fmt3_str == NULL) {
-+	if (fmt1_str == NULL || fmt2_str == NULL || fmt3_str == NULL) {
- 		semantic_error("Failed to parse event name: %s\n", argv[0]);
- 		ret = -EINVAL;
- 		goto out;
--- 
-2.25.1
-
+--- a/include/linux/elfnote.h
++++ b/include/linux/elfnote.h
+@@ -54,7 +54,7 @@
+ .popsection				;
+ 
+ #define ELFNOTE(name, type, desc)		\
+-	ELFNOTE_START(name, type, "")		\
++	ELFNOTE_START(name, type, "a")		\
+ 		desc			;	\
+ 	ELFNOTE_END
+ 
 
 
