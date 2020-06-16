@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 93DBB1FBAC6
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:14:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E30F91FB997
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:05:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731729AbgFPPnD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:43:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60098 "EHLO mail.kernel.org"
+        id S1731635AbgFPQE4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 12:04:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44308 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731734AbgFPPm6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:42:58 -0400
+        id S1731274AbgFPPtX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:49:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0EAA421475;
-        Tue, 16 Jun 2020 15:42:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3AD1320776;
+        Tue, 16 Jun 2020 15:49:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322177;
-        bh=/QZGYAIN0gqiUx3t1SdQE7QFaFXH/0pTMIPJFFxdUFk=;
+        s=default; t=1592322562;
+        bh=jHd1X1zusmajFRLzbO/kks6/nt/Ek1Ar51xZCouIZN0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ttxRQosSvGQHw3wKCuZoAq4q8rVArTD5E+cyXUC1qwYs84kaPh8G1qhtsa8Ouo9LW
-         n9p6wn8/Y3YUEXp6y9OO+YdYSLjvUQEx6tPqET23r9G4cUD3Rk7uia17slSGGSlLJb
-         GV5wTP5BHJdFQJ2KkjdaqBW7OErEThhODeWNxGHY=
+        b=cHXmdfYkXRdju1J66APkhvTlZapBczps6WmwHlc4gAz76wjx+rLdruRYNjfNx8Y28
+         +0eWQ5yQPbeJ977PphkmMg5DyvlcxOmEPQKbUgVB47Ny+LcVuXg7IlUf+0cMCbJtJa
+         +J6xak4BCZ615skxJ772Q/EPsctoRtDYorBjR1WY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.7 031/163] KVM: x86: only do L1TF workaround on affected processors
-Date:   Tue, 16 Jun 2020 17:33:25 +0200
-Message-Id: <20200616153108.362285898@linuxfoundation.org>
+        stable@vger.kernel.org, Stefano Garzarella <sgarzare@redhat.com>,
+        Jens Axboe <axboe@kernel.dk>, Ingo Molnar <mingo@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 017/161] sched/fair: Dont NUMA balance for kthreads
+Date:   Tue, 16 Jun 2020 17:33:27 +0200
+Message-Id: <20200616153107.230078982@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
-References: <20200616153106.849127260@linuxfoundation.org>
+In-Reply-To: <20200616153106.402291280@linuxfoundation.org>
+References: <20200616153106.402291280@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,76 +45,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Bonzini <pbonzini@redhat.com>
+From: Jens Axboe <axboe@kernel.dk>
 
-commit d43e2675e96fc6ae1a633b6a69d296394448cc32 upstream.
+[ Upstream commit 18f855e574d9799a0e7489f8ae6fd8447d0dd74a ]
 
-KVM stores the gfn in MMIO SPTEs as a caching optimization.  These are split
-in two parts, as in "[high 11111 low]", to thwart any attempt to use these bits
-in an L1TF attack.  This works as long as there are 5 free bits between
-MAXPHYADDR and bit 50 (inclusive), leaving bit 51 free so that the MMIO
-access triggers a reserved-bit-set page fault.
+Stefano reported a crash with using SQPOLL with io_uring:
 
-The bit positions however were computed wrongly for AMD processors that have
-encryption support.  In this case, x86_phys_bits is reduced (for example
-from 48 to 43, to account for the C bit at position 47 and four bits used
-internally to store the SEV ASID and other stuff) while x86_cache_bits in
-would remain set to 48, and _all_ bits between the reduced MAXPHYADDR
-and bit 51 are set.  Then low_phys_bits would also cover some of the
-bits that are set in the shadow_mmio_value, terribly confusing the gfn
-caching mechanism.
+  BUG: kernel NULL pointer dereference, address: 00000000000003b0
+  CPU: 2 PID: 1307 Comm: io_uring-sq Not tainted 5.7.0-rc7 #11
+  RIP: 0010:task_numa_work+0x4f/0x2c0
+  Call Trace:
+   task_work_run+0x68/0xa0
+   io_sq_thread+0x252/0x3d0
+   kthread+0xf9/0x130
+   ret_from_fork+0x35/0x40
 
-To fix this, avoid splitting gfns as long as the processor does not have
-the L1TF bug (which includes all AMD processors).  When there is no
-splitting, low_phys_bits can be set to the reduced MAXPHYADDR removing
-the overlap.  This fixes "npt=0" operation on EPYC processors.
+which is task_numa_work() oopsing on current->mm being NULL.
 
-Thanks to Maxim Levitsky for bisecting this bug.
+The task work is queued by task_tick_numa(), which checks if current->mm is
+NULL at the time of the call. But this state isn't necessarily persistent,
+if the kthread is using use_mm() to temporarily adopt the mm of a task.
 
-Cc: stable@vger.kernel.org
-Fixes: 52918ed5fcf0 ("KVM: SVM: Override default MMIO mask if memory encryption is enabled")
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Change the task_tick_numa() check to exclude kernel threads in general,
+as it doesn't make sense to attempt ot balance for kthreads anyway.
 
+Reported-by: Stefano Garzarella <sgarzare@redhat.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Acked-by: Peter Zijlstra <peterz@infradead.org>
+Link: https://lore.kernel.org/r/865de121-8190-5d30-ece5-3b097dc74431@kernel.dk
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/mmu/mmu.c |   19 ++++++++++---------
- 1 file changed, 10 insertions(+), 9 deletions(-)
+ kernel/sched/fair.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/kvm/mmu/mmu.c
-+++ b/arch/x86/kvm/mmu/mmu.c
-@@ -335,6 +335,8 @@ void kvm_mmu_set_mmio_spte_mask(u64 mmio
- {
- 	BUG_ON((u64)(unsigned)access_mask != access_mask);
- 	BUG_ON((mmio_mask & mmio_value) != mmio_value);
-+	WARN_ON(mmio_value & (shadow_nonpresent_or_rsvd_mask << shadow_nonpresent_or_rsvd_mask_len));
-+	WARN_ON(mmio_value & shadow_nonpresent_or_rsvd_lower_gfn_mask);
- 	shadow_mmio_value = mmio_value | SPTE_MMIO_MASK;
- 	shadow_mmio_mask = mmio_mask | SPTE_SPECIAL_MASK;
- 	shadow_mmio_access_mask = access_mask;
-@@ -583,16 +585,15 @@ static void kvm_mmu_reset_all_pte_masks(
- 	 * the most significant bits of legal physical address space.
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index 603d3d3cbf77..efb15f0f464b 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -2682,7 +2682,7 @@ static void task_tick_numa(struct rq *rq, struct task_struct *curr)
+ 	/*
+ 	 * We don't care about NUMA placement if we don't have memory.
  	 */
- 	shadow_nonpresent_or_rsvd_mask = 0;
--	low_phys_bits = boot_cpu_data.x86_cache_bits;
--	if (boot_cpu_data.x86_cache_bits <
--	    52 - shadow_nonpresent_or_rsvd_mask_len) {
-+	low_phys_bits = boot_cpu_data.x86_phys_bits;
-+	if (boot_cpu_has_bug(X86_BUG_L1TF) &&
-+	    !WARN_ON_ONCE(boot_cpu_data.x86_cache_bits >=
-+			  52 - shadow_nonpresent_or_rsvd_mask_len)) {
-+		low_phys_bits = boot_cpu_data.x86_cache_bits
-+			- shadow_nonpresent_or_rsvd_mask_len;
- 		shadow_nonpresent_or_rsvd_mask =
--			rsvd_bits(boot_cpu_data.x86_cache_bits -
--				  shadow_nonpresent_or_rsvd_mask_len,
--				  boot_cpu_data.x86_cache_bits - 1);
--		low_phys_bits -= shadow_nonpresent_or_rsvd_mask_len;
--	} else
--		WARN_ON_ONCE(boot_cpu_has_bug(X86_BUG_L1TF));
-+			rsvd_bits(low_phys_bits, boot_cpu_data.x86_cache_bits - 1);
-+	}
+-	if (!curr->mm || (curr->flags & PF_EXITING) || work->next != work)
++	if ((curr->flags & (PF_EXITING | PF_KTHREAD)) || work->next != work)
+ 		return;
  
- 	shadow_nonpresent_or_rsvd_lower_gfn_mask =
- 		GENMASK_ULL(low_phys_bits - 1, PAGE_SHIFT);
+ 	/*
+-- 
+2.25.1
+
 
 
