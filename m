@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CDA5D1FB88C
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:57:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 099A61FB888
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:57:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730859AbgFPP5P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:57:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55462 "EHLO mail.kernel.org"
+        id S1730172AbgFPP5I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:57:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55536 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732659AbgFPPzY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:55:24 -0400
+        id S1732857AbgFPPz0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:55:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7B78521532;
-        Tue, 16 Jun 2020 15:55:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 282F1216C4;
+        Tue, 16 Jun 2020 15:55:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322924;
-        bh=HYWquZViGbGdIcbesak3htJvfn2PAB/KpqgGhH9wMTg=;
+        s=default; t=1592322926;
+        bh=d97WpFy+5OREEuxVaheOyuxtpt3chE+sXqbZmAI3iho=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v3bPteUVlKdnCT9O9Rh59KldQYFsJbYfkbqc6HgQqKRMI7dik0qiYaWIe10Ahxk+V
-         yrt1Trvtl4jThpOZUkkVhksTSr8nw3DsNHrIY4xlyi2xZL6Xf6tAcTF1AOlC6lCoBq
-         w8I/2OBP1X5p3XPP59Mn24osT5oQcImYHq9c+Aos=
+        b=jsq//8UHfo42HZA+84ukwwiKu4sgizIgr+sDiVJwCoxutDqqOCRhvTcXQHshFrdmu
+         d2dChZHd+lgNTLWUAcfvN9AuEE436EUIry2+zypZBYXOh6Ji6H6dJGqi0Dn77H+5zn
+         QEvTT/mbd4nqMXRpS1SJlwsP1uI9IlcimatRuV9c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Libor Pechacek <lpechacek@suse.cz>,
-        Jiri Kosina <jkosina@suse.cz>, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.6 156/161] block/floppy: fix contended case in floppy_queue_rq()
-Date:   Tue, 16 Jun 2020 17:35:46 +0200
-Message-Id: <20200616153113.776518867@linuxfoundation.org>
+        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
+        Stefano Stabellini <sstabellini@kernel.org>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Subject: [PATCH 5.6 157/161] xen/pvcalls-back: test for errors when calling backend_connect()
+Date:   Tue, 16 Jun 2020 17:35:47 +0200
+Message-Id: <20200616153113.827943075@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200616153106.402291280@linuxfoundation.org>
 References: <20200616153106.402291280@linuxfoundation.org>
@@ -43,69 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Kosina <jkosina@suse.cz>
+From: Juergen Gross <jgross@suse.com>
 
-commit 263c61581a38d0a5ad1f5f4a9143b27d68caeffd upstream.
+commit c8d70a29d6bbc956013f3401f92a4431a9385a3c upstream.
 
-Since the switch of floppy driver to blk-mq, the contended (fdc_busy) case
-in floppy_queue_rq() is not handled correctly.
+backend_connect() can fail, so switch the device to connected only if
+no error occurred.
 
-In case we reach floppy_queue_rq() with fdc_busy set (i.e. with the floppy
-locked due to another request still being in-flight), we put the request
-on the list of requests and return BLK_STS_OK to the block core, without
-actually scheduling delayed work / doing further processing of the
-request. This means that processing of this request is postponed until
-another request comes and passess uncontended.
-
-Which in some cases might actually never happen and we keep waiting
-indefinitely. The simple testcase is
-
-	for i in `seq 1 2000`; do echo -en $i '\r'; blkid --info /dev/fd0 2> /dev/null; done
-
-run in quemu. That reliably causes blkid eventually indefinitely hanging
-in __floppy_read_block_0() waiting for completion, as the BIO callback
-never happens, and no further IO is ever submitted on the (non-existent)
-floppy device. This was observed reliably on qemu-emulated device.
-
-Fix that by not queuing the request in the contended case, and return
-BLK_STS_RESOURCE instead, so that blk core handles the request
-rescheduling and let it pass properly non-contended later.
-
-Fixes: a9f38e1dec107a ("floppy: convert to blk-mq")
+Fixes: 0a9c75c2c7258f2 ("xen/pvcalls: xenbus state handling")
 Cc: stable@vger.kernel.org
-Tested-by: Libor Pechacek <lpechacek@suse.cz>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Link: https://lore.kernel.org/r/20200511074231.19794-1-jgross@suse.com
+Reviewed-by: Stefano Stabellini <sstabellini@kernel.org>
+Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/block/floppy.c |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/xen/pvcalls-back.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/block/floppy.c
-+++ b/drivers/block/floppy.c
-@@ -2902,17 +2902,17 @@ static blk_status_t floppy_queue_rq(stru
- 		 (unsigned long long) current_req->cmd_flags))
- 		return BLK_STS_IOERR;
- 
--	spin_lock_irq(&floppy_lock);
--	list_add_tail(&bd->rq->queuelist, &floppy_reqs);
--	spin_unlock_irq(&floppy_lock);
--
- 	if (test_and_set_bit(0, &fdc_busy)) {
- 		/* fdc busy, this new request will be treated when the
- 		   current one is done */
- 		is_alive(__func__, "old request running");
--		return BLK_STS_OK;
-+		return BLK_STS_RESOURCE;
- 	}
- 
-+	spin_lock_irq(&floppy_lock);
-+	list_add_tail(&bd->rq->queuelist, &floppy_reqs);
-+	spin_unlock_irq(&floppy_lock);
-+
- 	command_status = FD_COMMAND_NONE;
- 	__reschedule_timeout(MAXTIMEOUT, "fd_request");
- 	set_fdc(0);
+--- a/drivers/xen/pvcalls-back.c
++++ b/drivers/xen/pvcalls-back.c
+@@ -1087,7 +1087,8 @@ static void set_backend_state(struct xen
+ 		case XenbusStateInitialised:
+ 			switch (state) {
+ 			case XenbusStateConnected:
+-				backend_connect(dev);
++				if (backend_connect(dev))
++					return;
+ 				xenbus_switch_state(dev, XenbusStateConnected);
+ 				break;
+ 			case XenbusStateClosing:
 
 
