@@ -2,38 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B149E1FB963
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:04:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FA571FBA9D
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:13:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732111AbgFPPuM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:50:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45706 "EHLO mail.kernel.org"
+        id S1731840AbgFPPnz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:43:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33512 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732587AbgFPPuM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:50:12 -0400
+        id S1731861AbgFPPnw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:43:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2CDF42071A;
-        Tue, 16 Jun 2020 15:50:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BAE14208E4;
+        Tue, 16 Jun 2020 15:43:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322611;
-        bh=EASFF+si7Jeiw9r8N0JD86TinU8vNlBUIXAnCbib6X0=;
+        s=default; t=1592322231;
+        bh=haZufumXIivprfu8VoTRQ4JkgkKWPzkC5c1Tw18T4LE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mBIyxlWW8XSiwgrXY6AC59uFyup0y0q6KvR1+lebtrKebfIXoob1g0+6AbXvrYwJu
-         sIa11LL4HqcdMYBK3PWf0tx7H5FJAJuRZxUQf/Fgt74y52sHNqaWWXPX/UaUVxRT3z
-         o7C5BdiFnJ+ZwXsrDnjWtXAydq9GCWVDeQVizr00=
+        b=Ecaak1kPskQaEN9eNgnkPUkVIjmWzrCabd54QhiYyZI4TNynz1lzec8neNGVa/v5o
+         MkOckr+OKo4I5e3X8nQhEsbwWtngMbxlPF2/HIxW1OTN2D1kNM82jdjyW42XyXAsjE
+         LMD5nqZepVYGczlhO04/FDD6Ak6GJ1Z6LI0/lWQs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sameeh Jubran <sameehj@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.6 008/161] net: ena: xdp: update napi budget for DROP and ABORTED
+        stable@vger.kernel.org,
+        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 024/163] spi: dw: Fix native CS being unset
 Date:   Tue, 16 Jun 2020 17:33:18 +0200
-Message-Id: <20200616153106.807834339@linuxfoundation.org>
+Message-Id: <20200616153108.047634478@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153106.402291280@linuxfoundation.org>
-References: <20200616153106.402291280@linuxfoundation.org>
+In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
+References: <20200616153106.849127260@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,55 +48,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sameeh Jubran <sameehj@amazon.com>
+[ Upstream commit 9aea644ca17b94f82ad7fa767cbc4509642f4420 ]
 
-[ Upstream commit 3921a81c31df6057183aeb7f7d204003bf699d6f ]
+Commit 6e0a32d6f376 ("spi: dw: Fix default polarity of native
+chipselect") attempted to fix the problem when GPIO active-high
+chip-select is utilized to communicate with some SPI slave. It fixed
+the problem, but broke the normal native CS support. At the same time
+the reversion commit ada9e3fcc175 ("spi: dw: Correct handling of native
+chipselect") didn't solve the problem either, since it just inverted
+the set_cs() polarity perception without taking into account that
+CS-high might be applicable. Here is what is done to finally fix the
+problem.
 
-This patch fixes two issues with XDP:
+DW SPI controller demands any native CS being set in order to proceed
+with data transfer. So in order to activate the SPI communications we
+must set any bit in the Slave Select DW SPI controller register no
+matter whether the platform requests the GPIO- or native CS. Preferably
+it should be the bit corresponding to the SPI slave CS number. But
+currently the dw_spi_set_cs() method activates the chip-select
+only if the second argument is false. Since the second argument of the
+set_cs callback is expected to be a boolean with "is-high" semantics
+(actual chip-select pin state value), the bit in the DW SPI Slave
+Select register will be set only if SPI core requests the driver
+to set the CS in the low state. So this will work for active-low
+GPIO-based CS case, and won't work for active-high CS setting
+the bit when SPI core actually needs to deactivate the CS.
 
-1. If the XDP verdict is XDP_ABORTED we break the loop, which results in
-   us handling one buffer per napi cycle instead of the total budget
-   (usually 64). To overcome this simply change the xdp_verdict check to
-   != XDP_PASS. When the verdict is XDP_PASS, the skb is not expected to
-   be NULL.
+This commit fixes the problem for all described cases. So no matter
+whether an SPI slave needs GPIO- or native-based CS with active-high
+or low signal the corresponding bit will be set in SER.
 
-2. Update the residual budget for XDP_DROP and XDP_ABORTED, since
-   packets are handled in these cases.
+Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+Fixes: ada9e3fcc175 ("spi: dw: Correct handling of native chipselect")
+Fixes: 6e0a32d6f376 ("spi: dw: Fix default polarity of native chipselect")
+Reviewed-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Acked-by: Linus Walleij <linus.walleij@linaro.org>
 
-Fixes: 548c4940b9f1 ("net: ena: Implement XDP_TX action")
-Signed-off-by: Sameeh Jubran <sameehj@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20200515104758.6934-5-Sergey.Semin@baikalelectronics.ru
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/amazon/ena/ena_netdev.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/spi/spi-dw.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/amazon/ena/ena_netdev.c
-+++ b/drivers/net/ethernet/amazon/ena/ena_netdev.c
-@@ -1642,11 +1642,9 @@ static int ena_clean_rx_irq(struct ena_r
- 					 &next_to_clean);
+diff --git a/drivers/spi/spi-dw.c b/drivers/spi/spi-dw.c
+index 31e3f866d11a..6c2d8df50507 100644
+--- a/drivers/spi/spi-dw.c
++++ b/drivers/spi/spi-dw.c
+@@ -128,12 +128,20 @@ void dw_spi_set_cs(struct spi_device *spi, bool enable)
+ {
+ 	struct dw_spi *dws = spi_controller_get_devdata(spi->controller);
+ 	struct chip_data *chip = spi_get_ctldata(spi);
++	bool cs_high = !!(spi->mode & SPI_CS_HIGH);
  
- 		if (unlikely(!skb)) {
--			if (xdp_verdict == XDP_TX) {
-+			if (xdp_verdict == XDP_TX)
- 				ena_free_rx_page(rx_ring,
- 						 &rx_ring->rx_buffer_info[rx_ring->ena_bufs[0].req_id]);
--				res_budget--;
--			}
- 			for (i = 0; i < ena_rx_ctx.descs; i++) {
- 				rx_ring->free_ids[next_to_clean] =
- 					rx_ring->ena_bufs[i].req_id;
-@@ -1654,8 +1652,10 @@ static int ena_clean_rx_irq(struct ena_r
- 					ENA_RX_RING_IDX_NEXT(next_to_clean,
- 							     rx_ring->ring_size);
- 			}
--			if (xdp_verdict == XDP_TX || xdp_verdict == XDP_DROP)
-+			if (xdp_verdict != XDP_PASS) {
-+				res_budget--;
- 				continue;
-+			}
- 			break;
- 		}
+ 	/* Chip select logic is inverted from spi_set_cs() */
+ 	if (chip && chip->cs_control)
+ 		chip->cs_control(!enable);
  
+-	if (!enable)
++	/*
++	 * DW SPI controller demands any native CS being set in order to
++	 * proceed with data transfer. So in order to activate the SPI
++	 * communications we must set a corresponding bit in the Slave
++	 * Enable register no matter whether the SPI core is configured to
++	 * support active-high or active-low CS level.
++	 */
++	if (cs_high == enable)
+ 		dw_writel(dws, DW_SPI_SER, BIT(spi->chip_select));
+ 	else if (dws->cs_override)
+ 		dw_writel(dws, DW_SPI_SER, 0);
+-- 
+2.25.1
+
 
 
