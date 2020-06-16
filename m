@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E4B2A1FBAE1
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:15:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E81A11FBAD6
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:15:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731665AbgFPQPC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 12:15:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58478 "EHLO mail.kernel.org"
+        id S1731631AbgFPPmL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:42:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58570 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729835AbgFPPmH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:42:07 -0400
+        id S1731623AbgFPPmJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:42:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 040E1214F1;
-        Tue, 16 Jun 2020 15:42:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5AA80214DB;
+        Tue, 16 Jun 2020 15:42:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322126;
-        bh=ELu6WPG4+sAvh19uhN0GXT119B0iyYXi286G6sFTCZk=;
+        s=default; t=1592322128;
+        bh=iI/BZKi97QLx0JPtrtFK7ox1FG7npbhQVMDwhtTaRYU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HkMpvY1VU+FrOsQbCBM+XxLJmGTF8S0agy/VNTHbI4mZnLDLWfpjTfrFu3uvnr0p0
-         TOKgik5vGBQqbQmaKgiiExlGLN4d4AdtFwa5QeBWVRLVvrxufzYSnaXqEuze8pjGL2
-         a65v7JF0JlvDyXe3cBxmfKQ9uWiMuK5Bhq4qBLCQ=
+        b=GeWOlSO8zPXAeJgKIbdUgI16cio2151cOlDmhnKgi1q2xKzFrMtYIX5oQNN5TnU8Y
+         bbXJKY8VRhlWLpoiDFEwoo1cb8UJkDs/oESM2qIie5GkEwFw2OU8BVAucvBIskWDUN
+         EoR1/4nPr+Y4cxXjtDyryAUXTlo5lY7ETcrwfLOM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Michal=20Vok=C3=A1=C4=8D?= <michal.vokac@ysoft.com>,
-        Andrew Lunn <andrew@lunn.ch>,
+        syzbot+8eac6d030e7807c21d32@syzkaller.appspotmail.com,
+        Jon Maloy <jmaloy@redhat.com>,
+        Tuong Lien <tuong.t.lien@dektech.com.au>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.7 011/163] net: dsa: qca8k: Fix "Unexpected gfp" kernel exception
-Date:   Tue, 16 Jun 2020 17:33:05 +0200
-Message-Id: <20200616153107.410190387@linuxfoundation.org>
+Subject: [PATCH 5.7 012/163] tipc: fix NULL pointer dereference in streaming
+Date:   Tue, 16 Jun 2020 17:33:06 +0200
+Message-Id: <20200616153107.461137968@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
 References: <20200616153106.849127260@linuxfoundation.org>
@@ -45,68 +46,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Michal Vokáč" <michal.vokac@ysoft.com>
+From: Tuong Lien <tuong.t.lien@dektech.com.au>
 
-[ Upstream commit 67122a7910bf2135dc7f7ececfcf16a5bdb362c1 ]
+[ Upstream commit 5e9eeccc58f3e6bcc99b929670665d2ce047e9c9 ]
 
-Commit 7e99e3470172 ("net: dsa: remove dsa_switch_alloc helper")
-replaced the dsa_switch_alloc helper by devm_kzalloc in all DSA
-drivers. Unfortunately it introduced a typo in qca8k.c driver and
-wrong argument is passed to the devm_kzalloc function.
+syzbot found the following crash:
 
-This fix mitigates the following kernel exception:
+general protection fault, probably for non-canonical address 0xdffffc0000000019: 0000 [#1] PREEMPT SMP KASAN
+KASAN: null-ptr-deref in range [0x00000000000000c8-0x00000000000000cf]
+CPU: 1 PID: 7060 Comm: syz-executor394 Not tainted 5.7.0-rc6-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+RIP: 0010:__tipc_sendstream+0xbde/0x11f0 net/tipc/socket.c:1591
+Code: 00 00 00 00 48 39 5c 24 28 48 0f 44 d8 e8 fa 3e db f9 48 b8 00 00 00 00 00 fc ff df 48 8d bb c8 00 00 00 48 89 fa 48 c1 ea 03 <80> 3c 02 00 0f 85 e2 04 00 00 48 8b 9b c8 00 00 00 48 b8 00 00 00
+RSP: 0018:ffffc90003ef7818 EFLAGS: 00010202
+RAX: dffffc0000000000 RBX: 0000000000000000 RCX: ffffffff8797fd9d
+RDX: 0000000000000019 RSI: ffffffff8797fde6 RDI: 00000000000000c8
+RBP: ffff888099848040 R08: ffff88809a5f6440 R09: fffffbfff1860b4c
+R10: ffffffff8c305a5f R11: fffffbfff1860b4b R12: ffff88809984857e
+R13: 0000000000000000 R14: ffff888086aa4000 R15: 0000000000000000
+FS:  00000000009b4880(0000) GS:ffff8880ae700000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000000020000140 CR3: 00000000a7fdf000 CR4: 00000000001406e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ tipc_sendstream+0x4c/0x70 net/tipc/socket.c:1533
+ sock_sendmsg_nosec net/socket.c:652 [inline]
+ sock_sendmsg+0xcf/0x120 net/socket.c:672
+ ____sys_sendmsg+0x32f/0x810 net/socket.c:2352
+ ___sys_sendmsg+0x100/0x170 net/socket.c:2406
+ __sys_sendmmsg+0x195/0x480 net/socket.c:2496
+ __do_sys_sendmmsg net/socket.c:2525 [inline]
+ __se_sys_sendmmsg net/socket.c:2522 [inline]
+ __x64_sys_sendmmsg+0x99/0x100 net/socket.c:2522
+ do_syscall_64+0xf6/0x7d0 arch/x86/entry/common.c:295
+ entry_SYSCALL_64_after_hwframe+0x49/0xb3
+RIP: 0033:0x440199
+...
 
-  Unexpected gfp: 0x6 (__GFP_HIGHMEM|GFP_DMA32). Fixing up to gfp: 0x101 (GFP_DMA|__GFP_ZERO). Fix your code!
-  CPU: 1 PID: 44 Comm: kworker/1:1 Not tainted 5.5.9-yocto-ua #1
-  Hardware name: Freescale i.MX6 Quad/DualLite (Device Tree)
-  Workqueue: events deferred_probe_work_func
-  [<c0014924>] (unwind_backtrace) from [<c00123bc>] (show_stack+0x10/0x14)
-  [<c00123bc>] (show_stack) from [<c04c8fb4>] (dump_stack+0x90/0xa4)
-  [<c04c8fb4>] (dump_stack) from [<c00e1b10>] (new_slab+0x20c/0x214)
-  [<c00e1b10>] (new_slab) from [<c00e1cd0>] (___slab_alloc.constprop.0+0x1b8/0x540)
-  [<c00e1cd0>] (___slab_alloc.constprop.0) from [<c00e2074>] (__slab_alloc.constprop.0+0x1c/0x24)
-  [<c00e2074>] (__slab_alloc.constprop.0) from [<c00e4538>] (__kmalloc_track_caller+0x1b0/0x298)
-  [<c00e4538>] (__kmalloc_track_caller) from [<c02cccac>] (devm_kmalloc+0x24/0x70)
-  [<c02cccac>] (devm_kmalloc) from [<c030d888>] (qca8k_sw_probe+0x94/0x1ac)
-  [<c030d888>] (qca8k_sw_probe) from [<c0304788>] (mdio_probe+0x30/0x54)
-  [<c0304788>] (mdio_probe) from [<c02c93bc>] (really_probe+0x1e0/0x348)
-  [<c02c93bc>] (really_probe) from [<c02c9884>] (driver_probe_device+0x60/0x16c)
-  [<c02c9884>] (driver_probe_device) from [<c02c7fb0>] (bus_for_each_drv+0x70/0x94)
-  [<c02c7fb0>] (bus_for_each_drv) from [<c02c9708>] (__device_attach+0xb4/0x11c)
-  [<c02c9708>] (__device_attach) from [<c02c8148>] (bus_probe_device+0x84/0x8c)
-  [<c02c8148>] (bus_probe_device) from [<c02c8cec>] (deferred_probe_work_func+0x64/0x90)
-  [<c02c8cec>] (deferred_probe_work_func) from [<c0033c14>] (process_one_work+0x1d4/0x41c)
-  [<c0033c14>] (process_one_work) from [<c00340a4>] (worker_thread+0x248/0x528)
-  [<c00340a4>] (worker_thread) from [<c0039148>] (kthread+0x124/0x150)
-  [<c0039148>] (kthread) from [<c00090d8>] (ret_from_fork+0x14/0x3c)
-  Exception stack(0xee1b5fb0 to 0xee1b5ff8)
-  5fa0:                                     00000000 00000000 00000000 00000000
-  5fc0: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
-  5fe0: 00000000 00000000 00000000 00000000 00000013 00000000
-  qca8k 2188000.ethernet-1:0a: Using legacy PHYLIB callbacks. Please migrate to PHYLINK!
-  qca8k 2188000.ethernet-1:0a eth2 (uninitialized): PHY [2188000.ethernet-1:01] driver [Generic PHY]
-  qca8k 2188000.ethernet-1:0a eth1 (uninitialized): PHY [2188000.ethernet-1:02] driver [Generic PHY]
+This bug was bisected to commit 0a3e060f340d ("tipc: add test for Nagle
+algorithm effectiveness"). However, it is not the case, the trouble was
+from the base in the case of zero data length message sending, we would
+unexpectedly make an empty 'txq' queue after the 'tipc_msg_append()' in
+Nagle mode.
 
-Fixes: 7e99e3470172 ("net: dsa: remove dsa_switch_alloc helper")
-Signed-off-by: Michal Vokáč <michal.vokac@ysoft.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+A similar crash can be generated even without the bisected patch but at
+the link layer when it accesses the empty queue.
+
+We solve the issues by building at least one buffer to go with socket's
+header and an optional data section that may be empty like what we had
+with the 'tipc_msg_build()'.
+
+Note: the previous commit 4c21daae3dbc ("tipc: Fix NULL pointer
+dereference in __tipc_sendstream()") is obsoleted by this one since the
+'txq' will be never empty and the check of 'skb != NULL' is unnecessary
+but it is safe anyway.
+
+Reported-by: syzbot+8eac6d030e7807c21d32@syzkaller.appspotmail.com
+Fixes: c0bceb97db9e ("tipc: add smart nagle feature")
+Acked-by: Jon Maloy <jmaloy@redhat.com>
+Signed-off-by: Tuong Lien <tuong.t.lien@dektech.com.au>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/dsa/qca8k.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ net/tipc/msg.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/dsa/qca8k.c
-+++ b/drivers/net/dsa/qca8k.c
-@@ -1079,8 +1079,7 @@ qca8k_sw_probe(struct mdio_device *mdiod
- 	if (id != QCA8K_ID_QCA8337)
- 		return -ENODEV;
+--- a/net/tipc/msg.c
++++ b/net/tipc/msg.c
+@@ -221,7 +221,7 @@ int tipc_msg_append(struct tipc_msg *_hd
+ 	accounted = skb ? msg_blocks(buf_msg(skb)) : 0;
+ 	total = accounted;
  
--	priv->ds = devm_kzalloc(&mdiodev->dev, sizeof(*priv->ds),
--				QCA8K_NUM_PORTS);
-+	priv->ds = devm_kzalloc(&mdiodev->dev, sizeof(*priv->ds), GFP_KERNEL);
- 	if (!priv->ds)
- 		return -ENOMEM;
+-	while (rem) {
++	do {
+ 		if (!skb || skb->len >= mss) {
+ 			prev = skb;
+ 			skb = tipc_buf_acquire(mss, GFP_KERNEL);
+@@ -249,7 +249,7 @@ int tipc_msg_append(struct tipc_msg *_hd
+ 		skb_put(skb, cpy);
+ 		rem -= cpy;
+ 		total += msg_blocks(hdr) - curr;
+-	}
++	} while (rem);
+ 	return total - accounted;
+ }
  
 
 
