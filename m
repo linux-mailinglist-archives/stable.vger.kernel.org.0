@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D2191FBB51
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:18:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C9AEE1FBB89
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:22:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730604AbgFPQSp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 12:18:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49782 "EHLO mail.kernel.org"
+        id S1730085AbgFPQUP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 12:20:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47456 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730436AbgFPPhy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:37:54 -0400
+        id S1729783AbgFPPgg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:36:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D67DD20B1F;
-        Tue, 16 Jun 2020 15:37:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4DAFB21655;
+        Tue, 16 Jun 2020 15:36:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592321873;
-        bh=YMKDqWtYCpqzdmD2LyOrKcgSvCsg4dURgUkOnX/J7vQ=;
+        s=default; t=1592321795;
+        bh=1ibSWb40h2ksUfir1sJ9yp6ZcqNYXZk2i/6KuaDpPFM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2K1PGzqIgcjEP7rGhp8DqL4uWN8+xbA9gL6jEJ0pDawKAbo/UksbuuU8VCCNfNaGI
-         Hf9JE3us/Ol2s1sOZGsr4rqns6BTwa1FPfT3W3sbqsfAinV1nvibJ/JgtUXVYCGIpr
-         L+TJRZHILH+c9mOJeAXwc5V7VI/U4hlCB2WTKG0Y=
+        b=yjbFSOE99xY+Oj8UdblfyKIq2M5Ig7VncOyXEgbUBEWCVw7xVMeNiJBU7xoLLK5w6
+         6ncmJFZGqAUTdN2zvucSVoJHprSh7yWHxdiqLz7VAM33iwA6SaXcG3sIATxF4Ia7Wu
+         JZjOkokwzC5qfqi3azKb0k2BD1AFQYnowtzsslAg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Daniel Baluta <daniel.baluta@nxp.com>,
+        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 018/134] ASoC: SOF: imx: fix undefined reference issue
-Date:   Tue, 16 Jun 2020 17:33:22 +0200
-Message-Id: <20200616153101.577939137@linuxfoundation.org>
+Subject: [PATCH 5.4 019/134] spi: dw: Fix native CS being unset
+Date:   Tue, 16 Jun 2020 17:33:23 +0200
+Message-Id: <20200616153101.634133752@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200616153100.633279950@linuxfoundation.org>
 References: <20200616153100.633279950@linuxfoundation.org>
@@ -46,64 +48,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+[ Upstream commit 9aea644ca17b94f82ad7fa767cbc4509642f4420 ]
 
-[ Upstream commit cb0312f61c3e95c71ec8955a94d42bf7eb5ba617 ]
+Commit 6e0a32d6f376 ("spi: dw: Fix default polarity of native
+chipselect") attempted to fix the problem when GPIO active-high
+chip-select is utilized to communicate with some SPI slave. It fixed
+the problem, but broke the normal native CS support. At the same time
+the reversion commit ada9e3fcc175 ("spi: dw: Correct handling of native
+chipselect") didn't solve the problem either, since it just inverted
+the set_cs() polarity perception without taking into account that
+CS-high might be applicable. Here is what is done to finally fix the
+problem.
 
-make.cross ARCH=mips allyesconfig fails with the following error:
+DW SPI controller demands any native CS being set in order to proceed
+with data transfer. So in order to activate the SPI communications we
+must set any bit in the Slave Select DW SPI controller register no
+matter whether the platform requests the GPIO- or native CS. Preferably
+it should be the bit corresponding to the SPI slave CS number. But
+currently the dw_spi_set_cs() method activates the chip-select
+only if the second argument is false. Since the second argument of the
+set_cs callback is expected to be a boolean with "is-high" semantics
+(actual chip-select pin state value), the bit in the DW SPI Slave
+Select register will be set only if SPI core requests the driver
+to set the CS in the low state. So this will work for active-low
+GPIO-based CS case, and won't work for active-high CS setting
+the bit when SPI core actually needs to deactivate the CS.
 
-sound/soc/sof/sof-of-dev.o:(.data.sof_of_imx8qxp_desc+0x40): undefined
-reference to `sof_imx8x_ops'.
+This commit fixes the problem for all described cases. So no matter
+whether an SPI slave needs GPIO- or native-based CS with active-high
+or low signal the corresponding bit will be set in SER.
 
-This seems to be a Makefile order issue, solve by using the same
-structure as for Intel platforms.
+Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+Fixes: ada9e3fcc175 ("spi: dw: Correct handling of native chipselect")
+Fixes: 6e0a32d6f376 ("spi: dw: Fix default polarity of native chipselect")
+Reviewed-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Acked-by: Linus Walleij <linus.walleij@linaro.org>
 
-Fixes: f9ad75468453 ("ASoC: SOF: imx: fix reverse CONFIG_SND_SOC_SOF_OF
-dependency")
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Signed-off-by: Daniel Baluta <daniel.baluta@nxp.com>
-Link: https://lore.kernel.org/r/20200409071832.2039-3-daniel.baluta@oss.nxp.com
+Link: https://lore.kernel.org/r/20200515104758.6934-5-Sergey.Semin@baikalelectronics.ru
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/sof/imx/Kconfig | 17 +++++++++++++----
- 1 file changed, 13 insertions(+), 4 deletions(-)
+ drivers/spi/spi-dw.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/sof/imx/Kconfig b/sound/soc/sof/imx/Kconfig
-index b4f0426685c4..d44bbbf24735 100644
---- a/sound/soc/sof/imx/Kconfig
-+++ b/sound/soc/sof/imx/Kconfig
-@@ -11,17 +11,26 @@ config SND_SOC_SOF_IMX_TOPLEVEL
+diff --git a/drivers/spi/spi-dw.c b/drivers/spi/spi-dw.c
+index d2ca3b357cfe..c7d2f74f0d69 100644
+--- a/drivers/spi/spi-dw.c
++++ b/drivers/spi/spi-dw.c
+@@ -128,12 +128,20 @@ void dw_spi_set_cs(struct spi_device *spi, bool enable)
+ {
+ 	struct dw_spi *dws = spi_controller_get_devdata(spi->controller);
+ 	struct chip_data *chip = spi_get_ctldata(spi);
++	bool cs_high = !!(spi->mode & SPI_CS_HIGH);
  
- if SND_SOC_SOF_IMX_TOPLEVEL
+ 	/* Chip select logic is inverted from spi_set_cs() */
+ 	if (chip && chip->cs_control)
+ 		chip->cs_control(!enable);
  
-+config SND_SOC_SOF_IMX_OF
-+	def_tristate SND_SOC_SOF_OF
-+	select SND_SOC_SOF_IMX8 if SND_SOC_SOF_IMX8_SUPPORT
-+	help
-+	  This option is not user-selectable but automagically handled by
-+	  'select' statements at a higher level
-+
- config SND_SOC_SOF_IMX8_SUPPORT
- 	bool "SOF support for i.MX8"
--	depends on IMX_SCU
--	select IMX_DSP
- 	help
-           This adds support for Sound Open Firmware for NXP i.MX8 platforms
-           Say Y if you have such a device.
-           If unsure select "N".
- 
- config SND_SOC_SOF_IMX8
--	def_tristate SND_SOC_SOF_OF
--	depends on SND_SOC_SOF_IMX8_SUPPORT
-+	tristate
-+	depends on IMX_SCU
-+	select IMX_DSP
-+	help
-+	  This option is not user-selectable but automagically handled by
-+	  'select' statements at a higher level
- 
- endif ## SND_SOC_SOF_IMX_IMX_TOPLEVEL
+-	if (!enable)
++	/*
++	 * DW SPI controller demands any native CS being set in order to
++	 * proceed with data transfer. So in order to activate the SPI
++	 * communications we must set a corresponding bit in the Slave
++	 * Enable register no matter whether the SPI core is configured to
++	 * support active-high or active-low CS level.
++	 */
++	if (cs_high == enable)
+ 		dw_writel(dws, DW_SPI_SER, BIT(spi->chip_select));
+ 	else if (dws->cs_override)
+ 		dw_writel(dws, DW_SPI_SER, 0);
 -- 
 2.25.1
 
