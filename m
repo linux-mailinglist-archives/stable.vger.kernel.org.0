@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B6FA71FAEA4
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 12:52:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 019901FAEA5
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 12:52:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728633AbgFPKwk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1726805AbgFPKwk (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 16 Jun 2020 06:52:40 -0400
-Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:58601 "EHLO
+Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:53711 "EHLO
         forward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726805AbgFPKwj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Jun 2020 06:52:39 -0400
+        by vger.kernel.org with ESMTP id S1728168AbgFPKwk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Jun 2020 06:52:40 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 9F4EB1940525;
-        Tue, 16 Jun 2020 06:52:37 -0400 (EDT)
+        by mailforward.nyi.internal (Postfix) with ESMTP id 10695194050E;
+        Tue, 16 Jun 2020 06:52:39 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Tue, 16 Jun 2020 06:52:37 -0400
+  by compute1.internal (MEProxy); Tue, 16 Jun 2020 06:52:39 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=Lr/Gom
-        zLg9VgJ6u+OIljocVmfYprHlU/EZlSwUve3w4=; b=pCuD8JU7rVfCEBYZLjhc56
-        b6b5Qlov843wRoZbg3BRXmpEasqRceue3LeMYMMZkOUwRPTZUFJngaDPzV1tdJnb
-        vXegBHyZndNwa1YvNoD/n3waLYF6XRUwaUjZ8vUFjlUmEWy5C6CTDFesB83Z86fI
-        5w8Plo0yP0KUwQv8BFiYAxF/OoK1Ir9N4Dc/YXkWIguDEs5ymC+mnwoatQjZyxr8
-        qp19nzKU3pXhA9DcjaojsPgXT5cRuX2Ys2Qbk1VsGMpznWTK2gsIKWTgcm7jjLzJ
-        lyskkPC81OiP0V/Tn7IvWEpFj1hduc14pzXEB7PpW5bDJy5JjChAPe2DMknOcCsQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=Rmc4pE
+        aRbTL7S2yS4vmal/UgKM0dr+x3IQAW3OSnPMI=; b=fM/YHKEnpWrzncIUikffUP
+        AZ+oubsMrZaFmd3vaPboYscYZhPICqazFFTak466n/h9HS5mfyAMmbTAAHZ541AE
+        8qWXnz6BjdS2Dp8L0ck5PPy7xOPPevuLBvUpQyHg8XHGrHdW8r6RKNDR6LqCy1yP
+        2poJthlmznap/ZfFFcNNCUgj40j3XH6pYxMVk5jtU+ZF63jVVIQ0afMiQlw7L3MR
+        C6Fb4JAfuBrRKydGlLTuetn8Sw5tv45L2+ceVW+Jax91emRSy6G6RPxsEowC4bsk
+        lKXA93qUHdO2l303HaAezeZdY86QtEmFyPo3gCvZfGD37wxrMaJvtdIbBixIxR0w
         ==
-X-ME-Sender: <xms:daToXk6Fz3Zx1WUMF-KcsVDWe2i21zZ8IysXFxv1S-LO4oWDMrLF5Q>
+X-ME-Sender: <xms:dqToXl7hAd6TiWkdCmZFyx4IwwZ3EA7ueGIF6Fx6rf602Ttz1IetLw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudejtddgfeeiucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
@@ -36,21 +36,21 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudejtddgfeeiucetufdoteggod
     etveeuveeludejjefgteehnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushht
     vghrufhiiigvpeelnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
     drtghomh
-X-ME-Proxy: <xmx:daToXl7y_dcpETmtY3RMBlvYl_ArYxIrX9Te9Kc13qA7-Y-6df1g2w>
-    <xmx:daToXjf-6AiIpKbSc_9UKgF_0eTdBA08NDFH0GJDu-Gqbk6QkQZ3mQ>
-    <xmx:daToXpITMXHCDdc2wADcau4rr7pxXczKZfhO42LOpm0C7zk4tODymg>
-    <xmx:daToXtHHL39e5hiIRHI4egpozV9H4O47yPkn7E93gISvLlrJeGQ2Mg>
+X-ME-Proxy: <xmx:dqToXi6F5cWrjG95n9Xv9uwqoC66D8Ygh5wRcBESatDiiCBZXhp_sA>
+    <xmx:dqToXsdgKRoQiE2xRc3RcSk-YEJ2xs_TFfXxvzSgt1y3xHTqDmHIlw>
+    <xmx:dqToXuJq6F6dxAEtVNEx9U7CD-XJ-5csinOf-GAONRaawv4e25qcWg>
+    <xmx:d6ToXmGlFyz3t_T6HVpVlIwNW8ObdtvCb90L5AVaDeFK5UB2ODtxyA>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 3AD07328005E;
-        Tue, 16 Jun 2020 06:52:37 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] Revert "drm/amd/display: disable dcn20 abm feature for bring" failed to apply to 5.7-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 935ED328005E;
+        Tue, 16 Jun 2020 06:52:38 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] Revert "drm/amd/display: disable dcn20 abm feature for bring" failed to apply to 5.4-stable tree
 To:     harry.wentland@amd.com, Anthony.Koo@amd.com, Michael.Chiu@amd.com,
         alexander.deucher@amd.com, amonakov@ispras.ru, hersenxs.wu@amd.com,
         nicholas.kazlauskas@amd.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 16 Jun 2020 12:52:25 +0200
-Message-ID: <159230474558218@kroah.com>
+Date:   Tue, 16 Jun 2020 12:52:32 +0200
+Message-ID: <1592304752161231@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.7-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
