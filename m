@@ -2,46 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B2F471FBB63
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:22:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 347DC1FB98B
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:05:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729983AbgFPPgb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:36:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47162 "EHLO mail.kernel.org"
+        id S1732520AbgFPQEm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 12:04:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44494 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729969AbgFPPg3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:36:29 -0400
+        id S1732508AbgFPPtb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:49:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4268C20C09;
-        Tue, 16 Jun 2020 15:36:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5AC6A2071A;
+        Tue, 16 Jun 2020 15:49:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592321787;
-        bh=cR0PP+/MQZYLqQf3bbJfXoLuvhvnjpmt6Okx0cKiyf4=;
+        s=default; t=1592322570;
+        bh=C0AQZmqKYDSYCAAADdcgii1JJGtRlmPQWuBiuYvQsMw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gjC737vEpAvDXMFIOwBZg2zpv/bpxLkrF12fjXrrIOu32Wi6g+ieCQYAMWQGjx+Nv
-         81zY6sHp6W5reoidUtv+UUfIFJC5cMclZKC0BPBZzdclo9xocdpylAmwtlczUVCvB6
-         IgstLisMGV20AVU/IP5EBzo/tPbAhuxCkZ5rCNFs=
+        b=2o51I6XSfErdbQL3YAEshec4FTz3V5VscxFuEXVLOQlOSV/TrhJjoDUwPOkdXdmRS
+         E67x8qHjVyLi8STUThFDcBkIUSBPNj64s9wGmF1Ji5tBtpMWGf5wXi+JdvNwH6xtjL
+         7NphfWCxoYSLzenEcrO0jWz8yz8EMkl9mJTxZH9o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Fangrui Song <maskray@google.com>,
-        Jeremy Fitzhardinge <jeremy@goop.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vincenzo Frascino <vincenzo.frascino@arm.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Jian Cai <jiancai@google.com>,
-        Ilie Halip <ilie.halip@gmail.com>
-Subject: [PATCH 5.4 008/134] elfnote: mark all .note sections SHF_ALLOC
+        stable@vger.kernel.org, Vadim Pasternak <vadimp@mellanox.com>,
+        Jiri Pirko <jiri@mellanox.com>,
+        Ido Schimmel <idosch@mellanox.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.6 002/161] mlxsw: core: Use different get_trend() callbacks for different thermal zones
 Date:   Tue, 16 Jun 2020 17:33:12 +0200
-Message-Id: <20200616153101.080422549@linuxfoundation.org>
+Message-Id: <20200616153106.528385150@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153100.633279950@linuxfoundation.org>
-References: <20200616153100.633279950@linuxfoundation.org>
+In-Reply-To: <20200616153106.402291280@linuxfoundation.org>
+References: <20200616153106.402291280@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,58 +45,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nick Desaulniers <ndesaulniers@google.com>
+From: Vadim Pasternak <vadimp@mellanox.com>
 
-commit 51da9dfb7f20911ae4e79e9b412a9c2d4c373d4b upstream.
+[ Upstream commit 2dc2f760052da4925482ecdcdc5c94d4a599153c ]
 
-ELFNOTE_START allows callers to specify flags for .pushsection assembler
-directives.  All callsites but ELF_NOTE use "a" for SHF_ALLOC.  For vdso's
-that explicitly use ELF_NOTE_START and BUILD_SALT, the same section is
-specified twice after preprocessing, once with "a" flag, once without.
-Example:
+The driver registers three different types of thermal zones: For the
+ASIC itself, for port modules and for gearboxes.
 
-.pushsection .note.Linux, "a", @note ;
-.pushsection .note.Linux, "", @note ;
+Currently, all three types use the same get_trend() callback which does
+not work correctly for the ASIC thermal zone. The callback assumes that
+the device data is of type 'struct mlxsw_thermal_module', whereas for
+the ASIC thermal zone 'struct mlxsw_thermal' is passed as device data.
 
-While GNU as allows this ordering, it warns for the opposite ordering,
-making these directives position dependent.  We'd prefer not to precisely
-match this behavior in Clang's integrated assembler.  Instead, the non
-__ASSEMBLY__ definition of ELF_NOTE uses
-__attribute__((section(".note.Linux"))) which is created with SHF_ALLOC,
-so let's make the __ASSEMBLY__ definition of ELF_NOTE consistent with C
-and just always use "a" flag.
+Fix this by using one get_trend() callback for the ASIC thermal zone and
+another for the other two types.
 
-This allows Clang to assemble a working mainline (5.6) kernel via:
-$ make CC=clang AS=clang
-
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Reviewed-by: Fangrui Song <maskray@google.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Vincenzo Frascino <vincenzo.frascino@arm.com>
-Link: https://github.com/ClangBuiltLinux/linux/issues/913
-Link: http://lkml.kernel.org/r/20200325231250.99205-1-ndesaulniers@google.com
-Debugged-by: Ilie Halip <ilie.halip@gmail.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Jian Cai <jiancai@google.com>
+Fixes: 6f73862fabd9 ("mlxsw: core: Add the hottest thermal zone detection")
+Signed-off-by: Vadim Pasternak <vadimp@mellanox.com>
+Reviewed-by: Jiri Pirko <jiri@mellanox.com>
+Signed-off-by: Ido Schimmel <idosch@mellanox.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- include/linux/elfnote.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlxsw/core_thermal.c |   23 +++++++++++++++++----
+ 1 file changed, 19 insertions(+), 4 deletions(-)
 
---- a/include/linux/elfnote.h
-+++ b/include/linux/elfnote.h
-@@ -54,7 +54,7 @@
- .popsection				;
+--- a/drivers/net/ethernet/mellanox/mlxsw/core_thermal.c
++++ b/drivers/net/ethernet/mellanox/mlxsw/core_thermal.c
+@@ -391,8 +391,7 @@ static int mlxsw_thermal_set_trip_hyst(s
+ static int mlxsw_thermal_trend_get(struct thermal_zone_device *tzdev,
+ 				   int trip, enum thermal_trend *trend)
+ {
+-	struct mlxsw_thermal_module *tz = tzdev->devdata;
+-	struct mlxsw_thermal *thermal = tz->parent;
++	struct mlxsw_thermal *thermal = tzdev->devdata;
  
- #define ELFNOTE(name, type, desc)		\
--	ELFNOTE_START(name, type, "")		\
-+	ELFNOTE_START(name, type, "a")		\
- 		desc			;	\
- 	ELFNOTE_END
+ 	if (trip < 0 || trip >= MLXSW_THERMAL_NUM_TRIPS)
+ 		return -EINVAL;
+@@ -593,6 +592,22 @@ mlxsw_thermal_module_trip_hyst_set(struc
+ 	return 0;
+ }
  
++static int mlxsw_thermal_module_trend_get(struct thermal_zone_device *tzdev,
++					  int trip, enum thermal_trend *trend)
++{
++	struct mlxsw_thermal_module *tz = tzdev->devdata;
++	struct mlxsw_thermal *thermal = tz->parent;
++
++	if (trip < 0 || trip >= MLXSW_THERMAL_NUM_TRIPS)
++		return -EINVAL;
++
++	if (tzdev == thermal->tz_highest_dev)
++		return 1;
++
++	*trend = THERMAL_TREND_STABLE;
++	return 0;
++}
++
+ static struct thermal_zone_device_ops mlxsw_thermal_module_ops = {
+ 	.bind		= mlxsw_thermal_module_bind,
+ 	.unbind		= mlxsw_thermal_module_unbind,
+@@ -604,7 +619,7 @@ static struct thermal_zone_device_ops ml
+ 	.set_trip_temp	= mlxsw_thermal_module_trip_temp_set,
+ 	.get_trip_hyst	= mlxsw_thermal_module_trip_hyst_get,
+ 	.set_trip_hyst	= mlxsw_thermal_module_trip_hyst_set,
+-	.get_trend	= mlxsw_thermal_trend_get,
++	.get_trend	= mlxsw_thermal_module_trend_get,
+ };
+ 
+ static int mlxsw_thermal_gearbox_temp_get(struct thermal_zone_device *tzdev,
+@@ -643,7 +658,7 @@ static struct thermal_zone_device_ops ml
+ 	.set_trip_temp	= mlxsw_thermal_module_trip_temp_set,
+ 	.get_trip_hyst	= mlxsw_thermal_module_trip_hyst_get,
+ 	.set_trip_hyst	= mlxsw_thermal_module_trip_hyst_set,
+-	.get_trend	= mlxsw_thermal_trend_get,
++	.get_trend	= mlxsw_thermal_module_trend_get,
+ };
+ 
+ static int mlxsw_thermal_get_max_state(struct thermal_cooling_device *cdev,
 
 
