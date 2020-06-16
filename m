@@ -2,125 +2,145 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 019901FAEA5
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 12:52:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 81A4C1FAF88
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 13:52:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726805AbgFPKwk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 06:52:40 -0400
-Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:53711 "EHLO
-        forward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728168AbgFPKwk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Jun 2020 06:52:40 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 10695194050E;
-        Tue, 16 Jun 2020 06:52:39 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Tue, 16 Jun 2020 06:52:39 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=Rmc4pE
-        aRbTL7S2yS4vmal/UgKM0dr+x3IQAW3OSnPMI=; b=fM/YHKEnpWrzncIUikffUP
-        AZ+oubsMrZaFmd3vaPboYscYZhPICqazFFTak466n/h9HS5mfyAMmbTAAHZ541AE
-        8qWXnz6BjdS2Dp8L0ck5PPy7xOPPevuLBvUpQyHg8XHGrHdW8r6RKNDR6LqCy1yP
-        2poJthlmznap/ZfFFcNNCUgj40j3XH6pYxMVk5jtU+ZF63jVVIQ0afMiQlw7L3MR
-        C6Fb4JAfuBrRKydGlLTuetn8Sw5tv45L2+ceVW+Jax91emRSy6G6RPxsEowC4bsk
-        lKXA93qUHdO2l303HaAezeZdY86QtEmFyPo3gCvZfGD37wxrMaJvtdIbBixIxR0w
-        ==
-X-ME-Sender: <xms:dqToXl7hAd6TiWkdCmZFyx4IwwZ3EA7ueGIF6Fx6rf602Ttz1IetLw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudejtddgfeeiucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
-    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushht
-    vghrufhiiigvpeelnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
-    drtghomh
-X-ME-Proxy: <xmx:dqToXi6F5cWrjG95n9Xv9uwqoC66D8Ygh5wRcBESatDiiCBZXhp_sA>
-    <xmx:dqToXsdgKRoQiE2xRc3RcSk-YEJ2xs_TFfXxvzSgt1y3xHTqDmHIlw>
-    <xmx:dqToXuJq6F6dxAEtVNEx9U7CD-XJ-5csinOf-GAONRaawv4e25qcWg>
-    <xmx:d6ToXmGlFyz3t_T6HVpVlIwNW8ObdtvCb90L5AVaDeFK5UB2ODtxyA>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 935ED328005E;
-        Tue, 16 Jun 2020 06:52:38 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] Revert "drm/amd/display: disable dcn20 abm feature for bring" failed to apply to 5.4-stable tree
-To:     harry.wentland@amd.com, Anthony.Koo@amd.com, Michael.Chiu@amd.com,
-        alexander.deucher@amd.com, amonakov@ispras.ru, hersenxs.wu@amd.com,
-        nicholas.kazlauskas@amd.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 16 Jun 2020 12:52:32 +0200
-Message-ID: <1592304752161231@kroah.com>
+        id S1725843AbgFPLwb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 07:52:31 -0400
+Received: from us-smtp-2.mimecast.com ([207.211.31.81]:52511 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728344AbgFPLwa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Jun 2020 07:52:30 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1592308349;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=nC4omS0wZXEwgJ3j/b3OR0MRArgteyLwgrhrykedSUg=;
+        b=DNkfN8WiH3ivPI4Um9I3OPWfFTY5xgjFm4k7osOD7HX1bDdJxWh1W3hI0OF4KT39XXB8Ma
+        I/iBeVBVlxGENCAmv18idq7RFHCW63yEATQt4IFLZQxVzwHogijb/TYxLucgyKxrz+60be
+        40lYrHMuGVglw2QQoTQuUO9+i88wgX0=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-477-ldIpgm-fPC2e1l1xNjvZ9g-1; Tue, 16 Jun 2020 07:52:25 -0400
+X-MC-Unique: ldIpgm-fPC2e1l1xNjvZ9g-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 9300F18585BC;
+        Tue, 16 Jun 2020 11:52:23 +0000 (UTC)
+Received: from t480s.redhat.com (ovpn-114-106.ams2.redhat.com [10.36.114.106])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 6255E7CAA5;
+        Tue, 16 Jun 2020 11:52:21 +0000 (UTC)
+From:   David Hildenbrand <david@redhat.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     linux-mm@kvack.org, David Hildenbrand <david@redhat.com>,
+        stable@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Michal Hocko <mhocko@suse.com>,
+        Minchan Kim <minchan@kernel.org>,
+        Huang Ying <ying.huang@intel.com>,
+        Wei Yang <richard.weiyang@gmail.com>,
+        Mel Gorman <mgorman@techsingularity.net>
+Subject: [PATCH v1 1/3] mm/shuffle: don't move pages between zones and don't read garbage memmaps
+Date:   Tue, 16 Jun 2020 13:52:11 +0200
+Message-Id: <20200616115213.13109-2-david@redhat.com>
+In-Reply-To: <20200616115213.13109-1-david@redhat.com>
+References: <20200616115213.13109-1-david@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Especially with memory hotplug, we can have offline sections (with a
+garbage memmap) and overlapping zones. We have to make sure to only
+touch initialized memmaps (online sections managed by the buddy) and that
+the zone matches, to not move pages between zones.
 
-The patch below does not apply to the 5.4-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+To test if this can actually happen, I added a simple
+	BUG_ON(page_zone(page_i) != page_zone(page_j));
+right before the swap. When hotplugging a 256M DIMM to a 4G x86-64 VM and
+onlining the first memory block "online_movable" and the second memory
+block "online_kernel", it will trigger the BUG, as both zones (NORMAL
+and MOVABLE) overlap.
 
-thanks,
+This might result in all kinds of weird situations (e.g., double
+allocations, list corruptions, unmovable allocations ending up in the
+movable zone).
 
-greg k-h
+Fixes: e900a918b098 ("mm: shuffle initial free memory to improve memory-side-cache utilization")
+Cc: stable@vger.kernel.org # v5.2+
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Minchan Kim <minchan@kernel.org>
+Cc: Huang Ying <ying.huang@intel.com>
+Cc: Wei Yang <richard.weiyang@gmail.com>
+Cc: Mel Gorman <mgorman@techsingularity.net>
+Signed-off-by: David Hildenbrand <david@redhat.com>
+---
+ mm/shuffle.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
------------------- original commit in Linus's tree ------------------
-
-From 14ed1c908a7a623cc0cbf0203f8201d1b7d31d16 Mon Sep 17 00:00:00 2001
-From: Harry Wentland <harry.wentland@amd.com>
-Date: Thu, 28 May 2020 09:44:44 -0400
-Subject: [PATCH] Revert "drm/amd/display: disable dcn20 abm feature for bring
- up"
-
-This reverts commit 96cb7cf13d8530099c256c053648ad576588c387.
-
-This change was used for DCN2 bringup and is no longer desired.
-In fact it breaks backlight on DCN2 systems.
-
-Cc: Alexander Monakov <amonakov@ispras.ru>
-Cc: Hersen Wu <hersenxs.wu@amd.com>
-Cc: Anthony Koo <Anthony.Koo@amd.com>
-Cc: Michael Chiu <Michael.Chiu@amd.com>
-Signed-off-by: Harry Wentland <harry.wentland@amd.com>
-Acked-by: Alex Deucher <alexander.deucher@amd.com>
-Reviewed-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Reported-and-tested-by: Alexander Monakov <amonakov@ispras.ru>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
-
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-index d53c60b37cc6..f42e7e67ddba 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -1356,7 +1356,7 @@ static int dm_late_init(void *handle)
- 	unsigned int linear_lut[16];
- 	int i;
- 	struct dmcu *dmcu = NULL;
--	bool ret = false;
-+	bool ret;
+diff --git a/mm/shuffle.c b/mm/shuffle.c
+index 44406d9977c77..dd13ab851b3ee 100644
+--- a/mm/shuffle.c
++++ b/mm/shuffle.c
+@@ -58,25 +58,25 @@ module_param_call(shuffle, shuffle_store, shuffle_show, &shuffle_param, 0400);
+  * For two pages to be swapped in the shuffle, they must be free (on a
+  * 'free_area' lru), have the same order, and have the same migratetype.
+  */
+-static struct page * __meminit shuffle_valid_page(unsigned long pfn, int order)
++static struct page * __meminit shuffle_valid_page(struct zone *zone,
++						  unsigned long pfn, int order)
+ {
+-	struct page *page;
++	struct page *page = pfn_to_online_page(pfn);
  
- 	if (!adev->dm.fw_dmcu)
- 		return detect_mst_link_for_all_connectors(adev->ddev);
-@@ -1377,13 +1377,10 @@ static int dm_late_init(void *handle)
+ 	/*
+ 	 * Given we're dealing with randomly selected pfns in a zone we
+ 	 * need to ask questions like...
  	 */
- 	params.min_abm_backlight = 0x28F;
  
--	/* todo will enable for navi10 */
--	if (adev->asic_type <= CHIP_RAVEN) {
--		ret = dmcu_load_iram(dmcu, params);
-+	ret = dmcu_load_iram(dmcu, params);
+-	/* ...is the pfn even in the memmap? */
+-	if (!pfn_valid_within(pfn))
++	/* ... is the page managed by the buddy? */
++	if (!page)
+ 		return NULL;
  
--		if (!ret)
--			return -EINVAL;
--	}
-+	if (!ret)
-+		return -EINVAL;
+-	/* ...is the pfn in a present section or a hole? */
+-	if (!pfn_in_present_section(pfn))
++	/* ... is the page assigned to the same zone? */
++	if (page_zone(page) != zone)
+ 		return NULL;
  
- 	return detect_mst_link_for_all_connectors(adev->ddev);
- }
+ 	/* ...is the page free and currently on a free_area list? */
+-	page = pfn_to_page(pfn);
+ 	if (!PageBuddy(page))
+ 		return NULL;
+ 
+@@ -123,7 +123,7 @@ void __meminit __shuffle_zone(struct zone *z)
+ 		 * page_j randomly selected in the span @zone_start_pfn to
+ 		 * @spanned_pages.
+ 		 */
+-		page_i = shuffle_valid_page(i, order);
++		page_i = shuffle_valid_page(z, i, order);
+ 		if (!page_i)
+ 			continue;
+ 
+@@ -137,7 +137,7 @@ void __meminit __shuffle_zone(struct zone *z)
+ 			j = z->zone_start_pfn +
+ 				ALIGN_DOWN(get_random_long() % z->spanned_pages,
+ 						order_pages);
+-			page_j = shuffle_valid_page(j, order);
++			page_j = shuffle_valid_page(z, j, order);
+ 			if (page_j && page_j != page_i)
+ 				break;
+ 		}
+-- 
+2.26.2
 
