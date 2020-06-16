@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B26C81FB983
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:04:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B893F1FBB6E
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:22:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729948AbgFPQEQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 12:04:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45024 "EHLO mail.kernel.org"
+        id S1730264AbgFPPhR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:37:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48618 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732549AbgFPPtt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:49:49 -0400
+        id S1730256AbgFPPhP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:37:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 22A212071A;
-        Tue, 16 Jun 2020 15:49:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EB7A9214D8;
+        Tue, 16 Jun 2020 15:37:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322588;
-        bh=XzVd0lZiloehEKPbTGLt3ZQh1nAHtnKqZP4nBXUXmCk=;
+        s=default; t=1592321834;
+        bh=6qGzqDRgQtxS+q1RhS4XN3NgSBMUArCOh0uuf57KmI4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RFbG1Ip5DPrhDyqktXTquZ3fmSmt/a0GCLFb2KJl+Uk+Z71L9zaADCSOPktnkO5TL
-         gZW8APuuMHaQmBp/rV6PCwVbRcSXYBqcHOjn+kjuTIo65Oy6T5mUo22not+a6llmR7
-         cteLQdbMn8kaczeBAO+1tmJdXH/HBG257O0RkO6o=
+        b=r3d6zbW4UYMckZA2aUWyGXflJ6q+8NmKg+h1H27jDr8cNL2MTel6e8ypbyAhA6j4L
+         w6FTM5nhalbYg/zp83erNb0107tpZJt1AYCe9tJpaZkI+dQJ5i+5TJezLUqui5iQTo
+         egwuaAdltY4Rm1LdaqSCT4Awpx4tM5msogCLLYJo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vlad Buslov <vladbu@mellanox.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 026/161] selftests: fix flower parent qdisc
-Date:   Tue, 16 Jun 2020 17:33:36 +0200
-Message-Id: <20200616153107.645810197@linuxfoundation.org>
+        stable@vger.kernel.org, Avi Kivity <avi@scylladb.com>,
+        Giuseppe Scrivano <gscrivan@redhat.com>,
+        Miklos Szeredi <mszeredi@redhat.com>,
+        Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 5.4 033/134] aio: fix async fsync creds
+Date:   Tue, 16 Jun 2020 17:33:37 +0200
+Message-Id: <20200616153102.370182378@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153106.402291280@linuxfoundation.org>
-References: <20200616153106.402291280@linuxfoundation.org>
+In-Reply-To: <20200616153100.633279950@linuxfoundation.org>
+References: <20200616153100.633279950@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,86 +45,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vlad Buslov <vladbu@mellanox.com>
+From: Miklos Szeredi <mszeredi@redhat.com>
 
-[ Upstream commit 0531b0357ba37464e5c0033e1b7c69bbf5ecd8fb ]
+commit 530f32fc370fd1431ea9802dbc53ab5601dfccdb upstream.
 
-Flower tests used to create ingress filter with specified parent qdisc
-"parent ffff:" but dump them on "ingress". With recent commit that fixed
-tcm_parent handling in dump those are not considered same parent anymore,
-which causes iproute2 tc to emit additional "parent ffff:" in first line of
-filter dump output. The change in output causes filter match in tests to
-fail.
+Avi Kivity reports that on fuse filesystems running in a user namespace
+asyncronous fsync fails with EOVERFLOW.
 
-Prevent parent qdisc output when dumping filters in flower tests by always
-correctly specifying "ingress" parent both when creating and dumping
-filters.
+The reason is that f_ops->fsync() is called with the creds of the kthread
+performing aio work instead of the creds of the process originally
+submitting IOCB_CMD_FSYNC.
 
-Fixes: a7df4870d79b ("net_sched: fix tcm_parent in tc filter dump")
-Signed-off-by: Vlad Buslov <vladbu@mellanox.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fuse sends the creds of the caller in the request header and it needs to
+translate the uid and gid into the server's user namespace.  Since the
+kthread is running in init_user_ns, the translation will fail and the
+operation returns an error.
+
+It can be argued that fsync doesn't actually need any creds, but just
+zeroing out those fields in the header (as with requests that currently
+don't take creds) is a backward compatibility risk.
+
+Instead of working around this issue in fuse, solve the core of the problem
+by calling the filesystem with the proper creds.
+
+Reported-by: Avi Kivity <avi@scylladb.com>
+Tested-by: Giuseppe Scrivano <gscrivan@redhat.com>
+Fixes: c9582eb0ff7d ("fuse: Fail all requests with invalid uids or gids")
+Cc: stable@vger.kernel.org  # 4.18+
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- .../selftests/tc-testing/tc-tests/filters/tests.json        | 6 +++---
- tools/testing/selftests/tc-testing/tdc_batch.py             | 6 +++---
- 2 files changed, 6 insertions(+), 6 deletions(-)
+ fs/aio.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/tools/testing/selftests/tc-testing/tc-tests/filters/tests.json b/tools/testing/selftests/tc-testing/tc-tests/filters/tests.json
-index 8877f7b2b809..12aa4bc1f6a0 100644
---- a/tools/testing/selftests/tc-testing/tc-tests/filters/tests.json
-+++ b/tools/testing/selftests/tc-testing/tc-tests/filters/tests.json
-@@ -32,7 +32,7 @@
-         "setup": [
-             "$TC qdisc add dev $DEV2 ingress"
-         ],
--        "cmdUnderTest": "$TC filter add dev $DEV2 protocol ip pref 1 parent ffff: handle 0xffffffff flower action ok",
-+        "cmdUnderTest": "$TC filter add dev $DEV2 protocol ip pref 1 ingress handle 0xffffffff flower action ok",
-         "expExitCode": "0",
-         "verifyCmd": "$TC filter show dev $DEV2 ingress",
-         "matchPattern": "filter protocol ip pref 1 flower.*handle 0xffffffff",
-@@ -77,9 +77,9 @@
-         },
-         "setup": [
-             "$TC qdisc add dev $DEV2 ingress",
--            "$TC filter add dev $DEV2 protocol ip prio 1 parent ffff: flower dst_mac e4:11:22:11:4a:51 src_mac e4:11:22:11:4a:50 ip_proto tcp src_ip 1.1.1.1 dst_ip 2.2.2.2 action drop"
-+            "$TC filter add dev $DEV2 protocol ip prio 1 ingress flower dst_mac e4:11:22:11:4a:51 src_mac e4:11:22:11:4a:50 ip_proto tcp src_ip 1.1.1.1 dst_ip 2.2.2.2 action drop"
-         ],
--        "cmdUnderTest": "$TC filter add dev $DEV2 protocol ip prio 1 parent ffff: flower dst_mac e4:11:22:11:4a:51 src_mac e4:11:22:11:4a:50 ip_proto tcp src_ip 1.1.1.1 dst_ip 2.2.2.2 action drop",
-+        "cmdUnderTest": "$TC filter add dev $DEV2 protocol ip prio 1 ingress flower dst_mac e4:11:22:11:4a:51 src_mac e4:11:22:11:4a:50 ip_proto tcp src_ip 1.1.1.1 dst_ip 2.2.2.2 action drop",
-         "expExitCode": "2",
-         "verifyCmd": "$TC -s filter show dev $DEV2 ingress",
-         "matchPattern": "filter protocol ip pref 1 flower chain 0 handle",
-diff --git a/tools/testing/selftests/tc-testing/tdc_batch.py b/tools/testing/selftests/tc-testing/tdc_batch.py
-index 6a2bd2cf528e..995f66ce43eb 100755
---- a/tools/testing/selftests/tc-testing/tdc_batch.py
-+++ b/tools/testing/selftests/tc-testing/tdc_batch.py
-@@ -72,21 +72,21 @@ mac_prefix = args.mac_prefix
+--- a/fs/aio.c
++++ b/fs/aio.c
+@@ -176,6 +176,7 @@ struct fsync_iocb {
+ 	struct file		*file;
+ 	struct work_struct	work;
+ 	bool			datasync;
++	struct cred		*creds;
+ };
  
- def format_add_filter(device, prio, handle, skip, src_mac, dst_mac,
-                       share_action):
--    return ("filter add dev {} {} protocol ip parent ffff: handle {} "
-+    return ("filter add dev {} {} protocol ip ingress handle {} "
-             " flower {} src_mac {} dst_mac {} action drop {}".format(
-                 device, prio, handle, skip, src_mac, dst_mac, share_action))
+ struct poll_iocb {
+@@ -1589,8 +1590,11 @@ static int aio_write(struct kiocb *req,
+ static void aio_fsync_work(struct work_struct *work)
+ {
+ 	struct aio_kiocb *iocb = container_of(work, struct aio_kiocb, fsync.work);
++	const struct cred *old_cred = override_creds(iocb->fsync.creds);
  
+ 	iocb->ki_res.res = vfs_fsync(iocb->fsync.file, iocb->fsync.datasync);
++	revert_creds(old_cred);
++	put_cred(iocb->fsync.creds);
+ 	iocb_put(iocb);
+ }
  
- def format_rep_filter(device, prio, handle, skip, src_mac, dst_mac,
-                       share_action):
--    return ("filter replace dev {} {} protocol ip parent ffff: handle {} "
-+    return ("filter replace dev {} {} protocol ip ingress handle {} "
-             " flower {} src_mac {} dst_mac {} action drop {}".format(
-                 device, prio, handle, skip, src_mac, dst_mac, share_action))
+@@ -1604,6 +1608,10 @@ static int aio_fsync(struct fsync_iocb *
+ 	if (unlikely(!req->file->f_op->fsync))
+ 		return -EINVAL;
  
- 
- def format_del_filter(device, prio, handle, skip, src_mac, dst_mac,
-                       share_action):
--    return ("filter del dev {} {} protocol ip parent ffff: handle {} "
-+    return ("filter del dev {} {} protocol ip ingress handle {} "
-             "flower".format(device, prio, handle))
- 
- 
--- 
-2.25.1
-
++	req->creds = prepare_creds();
++	if (!req->creds)
++		return -ENOMEM;
++
+ 	req->datasync = datasync;
+ 	INIT_WORK(&req->work, aio_fsync_work);
+ 	schedule_work(&req->work);
 
 
