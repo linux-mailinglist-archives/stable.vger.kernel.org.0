@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 753831FBB0F
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:16:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ADE891FB923
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:01:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730807AbgFPQQQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 12:16:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55374 "EHLO mail.kernel.org"
+        id S1732721AbgFPQBj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 12:01:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48942 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731233AbgFPPki (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:40:38 -0400
+        id S1732728AbgFPPv6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:51:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E1A29208D5;
-        Tue, 16 Jun 2020 15:40:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B92F5207C4;
+        Tue, 16 Jun 2020 15:51:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322037;
-        bh=SdzzXG4s6yY4CHJfKGLydERemZf4mxij13IJs8Ym4VU=;
+        s=default; t=1592322717;
+        bh=z8VABR2iloijjO5oU3eoMWMuhLAhwBXfYG9CbcWJDuk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ead7pApDjHac7A9nb/XZX5nTfLENOIM+WT5GU1fJKHWZCROG8GMWyHv7fCtAMXrK6
-         NCNqAVvbbyMwXHjnhlLNoX/Crsy6vUlV5XXh/3bt1PFVLmRTaF/HPB28XT8mzmuvNF
-         DgQP308s91y5YTmCTKa+m8vbPK4dNPLF7ErwmLpg=
+        b=JFXIqocHV01nGb9kKqpQ4E7Z/oNrUSGZmvAqWDyh9Ks7Kv8M6dh5x0pT6YwhuX/kd
+         6JAstHDPdcH7o2uaVl2sA76JmWsSNE/JCbW24CVluaiJMncX1c4KpnYYT6qvAQP6ii
+         qRMdaLaaSifpDvloYJYK9iPJ28ub8OIsi3lsiD3Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jue Wang <juew@google.com>,
-        Tony Luck <tony.luck@intel.com>, Borislav Petkov <bp@suse.de>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 5.4 082/134] x86/{mce,mm}: Unmap the entire page if the whole page is affected and poisoned
-Date:   Tue, 16 Jun 2020 17:34:26 +0200
-Message-Id: <20200616153104.708626488@linuxfoundation.org>
+        stable@vger.kernel.org, Qiushi Wu <wu000273@umn.edu>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.6 077/161] ACPI: sysfs: Fix reference count leak in acpi_sysfs_add_hotplug_profile()
+Date:   Tue, 16 Jun 2020 17:34:27 +0200
+Message-Id: <20200616153110.047742478@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153100.633279950@linuxfoundation.org>
-References: <20200616153100.633279950@linuxfoundation.org>
+In-Reply-To: <20200616153106.402291280@linuxfoundation.org>
+References: <20200616153106.402291280@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,146 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Luck <tony.luck@intel.com>
+From: Qiushi Wu <wu000273@umn.edu>
 
-commit 17fae1294ad9d711b2c3dd0edef479d40c76a5e8 upstream.
+commit 6e6c25283dff866308c87b49434c7dbad4774cc0 upstream.
 
-An interesting thing happened when a guest Linux instance took a machine
-check. The VMM unmapped the bad page from guest physical space and
-passed the machine check to the guest.
+kobject_init_and_add() takes reference even when it fails.
+Thus, when kobject_init_and_add() returns an error,
+kobject_put() must be called to properly clean up the kobject.
 
-Linux took all the normal actions to offline the page from the process
-that was using it. But then guest Linux crashed because it said there
-was a second machine check inside the kernel with this stack trace:
-
-do_memory_failure
-    set_mce_nospec
-         set_memory_uc
-              _set_memory_uc
-                   change_page_attr_set_clr
-                        cpa_flush
-                             clflush_cache_range_opt
-
-This was odd, because a CLFLUSH instruction shouldn't raise a machine
-check (it isn't consuming the data). Further investigation showed that
-the VMM had passed in another machine check because is appeared that the
-guest was accessing the bad page.
-
-Fix is to check the scope of the poison by checking the MCi_MISC register.
-If the entire page is affected, then unmap the page. If only part of the
-page is affected, then mark the page as uncacheable.
-
-This assumes that VMMs will do the logical thing and pass in the "whole
-page scope" via the MCi_MISC register (since they unmapped the entire
-page).
-
-  [ bp: Adjust to x86/entry changes. ]
-
-Fixes: 284ce4011ba6 ("x86/memory_failure: Introduce {set, clear}_mce_nospec()")
-Reported-by: Jue Wang <juew@google.com>
-Signed-off-by: Tony Luck <tony.luck@intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Jue Wang <juew@google.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/20200520163546.GA7977@agluck-desk2.amr.corp.intel.com
+Fixes: 3f8055c35836 ("ACPI / hotplug: Introduce user space interface for hotplug profiles")
+Signed-off-by: Qiushi Wu <wu000273@umn.edu>
+Cc: 3.10+ <stable@vger.kernel.org> # 3.10+
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-
 ---
- arch/x86/include/asm/set_memory.h |   19 +++++++++++++------
- arch/x86/kernel/cpu/mce/core.c    |   11 +++++++++--
- include/linux/set_memory.h        |    2 +-
- 3 files changed, 23 insertions(+), 9 deletions(-)
+ drivers/acpi/sysfs.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/arch/x86/include/asm/set_memory.h
-+++ b/arch/x86/include/asm/set_memory.h
-@@ -85,28 +85,35 @@ void set_kernel_text_rw(void);
- void set_kernel_text_ro(void);
+--- a/drivers/acpi/sysfs.c
++++ b/drivers/acpi/sysfs.c
+@@ -993,8 +993,10 @@ void acpi_sysfs_add_hotplug_profile(stru
  
- #ifdef CONFIG_X86_64
--static inline int set_mce_nospec(unsigned long pfn)
-+/*
-+ * Prevent speculative access to the page by either unmapping
-+ * it (if we do not require access to any part of the page) or
-+ * marking it uncacheable (if we want to try to retrieve data
-+ * from non-poisoned lines in the page).
-+ */
-+static inline int set_mce_nospec(unsigned long pfn, bool unmap)
- {
- 	unsigned long decoy_addr;
- 	int rc;
+ 	error = kobject_init_and_add(&hotplug->kobj,
+ 		&acpi_hotplug_profile_ktype, hotplug_kobj, "%s", name);
+-	if (error)
++	if (error) {
++		kobject_put(&hotplug->kobj);
+ 		goto err_out;
++	}
  
- 	/*
--	 * Mark the linear address as UC to make sure we don't log more
--	 * errors because of speculative access to the page.
- 	 * We would like to just call:
--	 *      set_memory_uc((unsigned long)pfn_to_kaddr(pfn), 1);
-+	 *      set_memory_XX((unsigned long)pfn_to_kaddr(pfn), 1);
- 	 * but doing that would radically increase the odds of a
- 	 * speculative access to the poison page because we'd have
- 	 * the virtual address of the kernel 1:1 mapping sitting
- 	 * around in registers.
- 	 * Instead we get tricky.  We create a non-canonical address
- 	 * that looks just like the one we want, but has bit 63 flipped.
--	 * This relies on set_memory_uc() properly sanitizing any __pa()
-+	 * This relies on set_memory_XX() properly sanitizing any __pa()
- 	 * results with __PHYSICAL_MASK or PTE_PFN_MASK.
- 	 */
- 	decoy_addr = (pfn << PAGE_SHIFT) + (PAGE_OFFSET ^ BIT(63));
- 
--	rc = set_memory_uc(decoy_addr, 1);
-+	if (unmap)
-+		rc = set_memory_np(decoy_addr, 1);
-+	else
-+		rc = set_memory_uc(decoy_addr, 1);
- 	if (rc)
- 		pr_warn("Could not invalidate pfn=0x%lx from 1:1 map\n", pfn);
- 	return rc;
---- a/arch/x86/kernel/cpu/mce/core.c
-+++ b/arch/x86/kernel/cpu/mce/core.c
-@@ -533,6 +533,13 @@ bool mce_is_memory_error(struct mce *m)
- }
- EXPORT_SYMBOL_GPL(mce_is_memory_error);
- 
-+static bool whole_page(struct mce *m)
-+{
-+	if (!mca_cfg.ser || !(m->status & MCI_STATUS_MISCV))
-+		return true;
-+	return MCI_MISC_ADDR_LSB(m->misc) >= PAGE_SHIFT;
-+}
-+
- bool mce_is_correctable(struct mce *m)
- {
- 	if (m->cpuvendor == X86_VENDOR_AMD && m->status & MCI_STATUS_DEFERRED)
-@@ -601,7 +608,7 @@ static int srao_decode_notifier(struct n
- 	if (mce_usable_address(mce) && (mce->severity == MCE_AO_SEVERITY)) {
- 		pfn = mce->addr >> PAGE_SHIFT;
- 		if (!memory_failure(pfn, 0))
--			set_mce_nospec(pfn);
-+			set_mce_nospec(pfn, whole_page(mce));
- 	}
- 
- 	return NOTIFY_OK;
-@@ -1103,7 +1110,7 @@ static int do_memory_failure(struct mce
- 	if (ret)
- 		pr_err("Memory error not recovered");
- 	else
--		set_mce_nospec(m->addr >> PAGE_SHIFT);
-+		set_mce_nospec(m->addr >> PAGE_SHIFT, whole_page(m));
- 	return ret;
- }
- 
---- a/include/linux/set_memory.h
-+++ b/include/linux/set_memory.h
-@@ -26,7 +26,7 @@ static inline int set_direct_map_default
- #endif
- 
- #ifndef set_mce_nospec
--static inline int set_mce_nospec(unsigned long pfn)
-+static inline int set_mce_nospec(unsigned long pfn, bool unmap)
- {
- 	return 0;
- }
+ 	kobject_uevent(&hotplug->kobj, KOBJ_ADD);
+ 	return;
 
 
