@@ -2,64 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D51F1FBAC7
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:14:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E5EE21FBB87
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:22:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730569AbgFPPnH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:43:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60262 "EHLO mail.kernel.org"
+        id S1730912AbgFPQUF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 12:20:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47910 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731737AbgFPPnG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:43:06 -0400
+        id S1730085AbgFPPgv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:36:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A78A220C56;
-        Tue, 16 Jun 2020 15:43:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 06CBD20C56;
+        Tue, 16 Jun 2020 15:36:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322185;
-        bh=cfc5FjrY9vBGbt70tlqFyKkXVCs/JWORPS2LyxaMb0c=;
+        s=default; t=1592321811;
+        bh=y9zSkmYavV66nnxayzuBc+0Uy2uqrPOcA5zKy48njpI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C6AF0Zigar1wRvpKjFZvlVXnHFS7L9U233UhB5vuhlQweQaTHgbFvrLGlYdSuDYjr
-         i0j+MWdj9GssV9nog6U8//tpjGG/tGZnGYqz7ilUtzjFsRYAYjZkCnlp8DQ8H6pjRO
-         fK2HG9uz3OiApbWzazdGXUvN5CdtXmCmQRSsYw/M=
+        b=c4vfpb9aRi9HCUeiZadvHJ6hrUs6wuP+Yto2LukIbufRRLNVXAHrijDXKFbT7u28Y
+         OUORKtNevAJEylKhirHhDWVJtSLz5tBjJI7O5m8QACNFBME7LjSPEN1rCFXOoHA458
+         Z0LOX63+TR7A5hKyqQP0o8NsDDGbVIAerYFlFCiA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vlastimil Babka <vbabka@suse.cz>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Jiri Slaby <jslaby@suse.cz>, Jann Horn <jannh@google.com>,
-        Christoph Hellwig <hch@infradead.org>,
-        Christopher Lameter <cl@linux.com>,
-        Julian Wiedmann <jwi@linux.ibm.com>,
-        Ursula Braun <ubraun@linux.ibm.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        David Windsor <dave@nullcore.net>,
-        Pekka Enberg <penberg@kernel.org>,
-        David Rientjes <rientjes@google.com>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Laura Abbott <labbott@redhat.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Christoffer Dall <christoffer.dall@linaro.org>,
-        Dave Kleikamp <dave.kleikamp@oracle.com>,
-        Jan Kara <jack@suse.cz>,
-        Luis de Bethencourt <luisbg@kernel.org>,
-        Marc Zyngier <marc.zyngier@arm.com>,
-        Rik van Riel <riel@surriel.com>,
-        Matthew Garrett <mjg59@google.com>,
-        Michal Kubecek <mkubecek@suse.cz>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.7 034/163] usercopy: mark dma-kmalloc caches as usercopy caches
-Date:   Tue, 16 Jun 2020 17:33:28 +0200
-Message-Id: <20200616153108.503176174@linuxfoundation.org>
+        stable@vger.kernel.org, Andrew Cooper <andrew.cooper3@citrix.com>,
+        Kim Phillips <kim.phillips@amd.com>,
+        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 025/134] x86/cpu/amd: Make erratum #1054 a legacy erratum
+Date:   Tue, 16 Jun 2020 17:33:29 +0200
+Message-Id: <20200616153101.959455794@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
-References: <20200616153106.849127260@linuxfoundation.org>
+In-Reply-To: <20200616153100.633279950@linuxfoundation.org>
+References: <20200616153100.633279950@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -69,82 +44,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vlastimil Babka <vbabka@suse.cz>
+From: Kim Phillips <kim.phillips@amd.com>
 
-commit 49f2d2419d60a103752e5fbaf158cf8d07c0d884 upstream.
+[ Upstream commit e2abfc0448a46d8a137505aa180caf14070ec535 ]
 
-We have seen a "usercopy: Kernel memory overwrite attempt detected to
-SLUB object 'dma-kmalloc-1 k' (offset 0, size 11)!" error on s390x, as
-IUCV uses kmalloc() with __GFP_DMA because of memory address
-restrictions.  The issue has been discussed [2] and it has been noted
-that if all the kmalloc caches are marked as usercopy, there's little
-reason not to mark dma-kmalloc caches too.  The 'dma' part merely means
-that __GFP_DMA is used to restrict memory address range.
+Commit
 
-As Jann Horn put it [3]:
- "I think dma-kmalloc slabs should be handled the same way as normal
-  kmalloc slabs. When a dma-kmalloc allocation is freshly created, it is
-  just normal kernel memory - even if it might later be used for DMA -,
-  and it should be perfectly fine to copy_from_user() into such
-  allocations at that point, and to copy_to_user() out of them at the
-  end. If you look at the places where such allocations are created, you
-  can see things like kmemdup(), memcpy() and so on - all normal
-  operations that shouldn't conceptually be different from usercopy in
-  any relevant way."
+  21b5ee59ef18 ("x86/cpu/amd: Enable the fixed Instructions Retired
+		 counter IRPERF")
 
-Thus this patch marks the dma-kmalloc-* caches as usercopy.
+mistakenly added erratum #1054 as an OS Visible Workaround (OSVW) ID 0.
+Erratum #1054 is not OSVW ID 0 [1], so make it a legacy erratum.
 
-[1] https://bugzilla.suse.com/show_bug.cgi?id=1156053
-[2] https://lore.kernel.org/kernel-hardening/bfca96db-bbd0-d958-7732-76e36c667c68@suse.cz/
-[3] https://lore.kernel.org/kernel-hardening/CAG48ez1a4waGk9kB0WLaSbs4muSoK0AYAVk8=XYaKj4_+6e6Hg@mail.gmail.com/
+There would never have been a false positive on older hardware that
+has OSVW bit 0 set, since the IRPERF feature was not available.
 
-Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Acked-by: Jiri Slaby <jslaby@suse.cz>
-Cc: Jann Horn <jannh@google.com>
-Cc: Christoph Hellwig <hch@infradead.org>
-Cc: Christopher Lameter <cl@linux.com>
-Cc: Julian Wiedmann <jwi@linux.ibm.com>
-Cc: Ursula Braun <ubraun@linux.ibm.com>
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: David Windsor <dave@nullcore.net>
-Cc: Pekka Enberg <penberg@kernel.org>
-Cc: David Rientjes <rientjes@google.com>
-Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Laura Abbott <labbott@redhat.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: "Martin K. Petersen" <martin.petersen@oracle.com>
-Cc: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Christoffer Dall <christoffer.dall@linaro.org>
-Cc: Dave Kleikamp <dave.kleikamp@oracle.com>
-Cc: Jan Kara <jack@suse.cz>
-Cc: Luis de Bethencourt <luisbg@kernel.org>
-Cc: Marc Zyngier <marc.zyngier@arm.com>
-Cc: Rik van Riel <riel@surriel.com>
-Cc: Matthew Garrett <mjg59@google.com>
-Cc: Michal Kubecek <mkubecek@suse.cz>
-Link: http://lkml.kernel.org/r/7d810f6d-8085-ea2f-7805-47ba3842dc50@suse.cz
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+However, save a couple of RDMSR executions per thread, on modern
+system configurations that correctly set non-zero values in their
+OSVW_ID_Length MSRs.
 
+[1] Revision Guide for AMD Family 17h Models 00h-0Fh Processors. The
+revision guide is available from the bugzilla link below.
+
+Fixes: 21b5ee59ef18 ("x86/cpu/amd: Enable the fixed Instructions Retired counter IRPERF")
+Reported-by: Andrew Cooper <andrew.cooper3@citrix.com>
+Signed-off-by: Kim Phillips <kim.phillips@amd.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lkml.kernel.org/r/20200417143356.26054-1-kim.phillips@amd.com
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=206537
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/slab_common.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/x86/kernel/cpu/amd.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/mm/slab_common.c
-+++ b/mm/slab_common.c
-@@ -1303,7 +1303,8 @@ void __init create_kmalloc_caches(slab_f
- 			kmalloc_caches[KMALLOC_DMA][i] = create_kmalloc_cache(
- 				kmalloc_info[i].name[KMALLOC_DMA],
- 				kmalloc_info[i].size,
--				SLAB_CACHE_DMA | flags, 0, 0);
-+				SLAB_CACHE_DMA | flags, 0,
-+				kmalloc_info[i].size);
- 		}
- 	}
- #endif
+diff --git a/arch/x86/kernel/cpu/amd.c b/arch/x86/kernel/cpu/amd.c
+index c3f4dd4ae155..c553cafd0736 100644
+--- a/arch/x86/kernel/cpu/amd.c
++++ b/arch/x86/kernel/cpu/amd.c
+@@ -1117,8 +1117,7 @@ static const int amd_erratum_383[] =
+ 
+ /* #1054: Instructions Retired Performance Counter May Be Inaccurate */
+ static const int amd_erratum_1054[] =
+-	AMD_OSVW_ERRATUM(0, AMD_MODEL_RANGE(0x17, 0, 0, 0x2f, 0xf));
+-
++	AMD_LEGACY_ERRATUM(AMD_MODEL_RANGE(0x17, 0, 0, 0x2f, 0xf));
+ 
+ static bool cpu_has_amd_erratum(struct cpuinfo_x86 *cpu, const int *erratum)
+ {
+-- 
+2.25.1
+
 
 
