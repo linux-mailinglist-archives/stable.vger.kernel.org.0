@@ -2,43 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B147C1FB968
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:04:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 32F5C1FB99C
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:05:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732595AbgFPQD3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 12:03:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45800 "EHLO mail.kernel.org"
+        id S1732473AbgFPQFO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 12:05:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43878 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732588AbgFPPuO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:50:14 -0400
+        id S1732062AbgFPPtF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:49:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B55F120776;
-        Tue, 16 Jun 2020 15:50:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 718BC20776;
+        Tue, 16 Jun 2020 15:49:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322614;
-        bh=xHNThwycT2mB04bLrAmNaSzszSiGQNOOjv31QwYQJNk=;
+        s=default; t=1592322545;
+        bh=ELu6WPG4+sAvh19uhN0GXT119B0iyYXi286G6sFTCZk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uJijRN9JNI+3zjc5ayLPGhQyJJ1rLdVBbjWzNgX09JUdZ6hu1S2Y4DMi9zrnT35AV
-         TifXHHRLp6lfxEXNnpXiyN5osbI360shNGMnpxqwQ1LLwwihBvTnPmdcAyOYapc4vc
-         g3DeRQkcnbjqN8tGKWcqSkBUJRC5gsjRZQ76MdTM=
+        b=L9cuvx+v6nMqlYVeH0YvM4Ar1m3lxpFwSNx6vtUn9wx/Nd4mmwdIIYKSRtUXGnKCQ
+         y//usknQkzyHJf1IMOuUMYzSOJXSzI/XuYTP+IXcrr84NZDLJiNBUE3QHnmcTPq/Oh
+         opRKFUQOpSNJbHSC3VRaivTiPiuEaxJofAEvBtP8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+21f04f481f449c8db840@syzkaller.appspotmail.com,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Jiri Pirko <jiri@mellanox.com>,
-        YueHaibing <yuehaibing@huawei.com>,
-        Shaochun Chen <cscnull@gmail.com>,
-        Cong Wang <xiyou.wangcong@gmail.com>,
+        =?UTF-8?q?Michal=20Vok=C3=A1=C4=8D?= <michal.vokac@ysoft.com>,
+        Andrew Lunn <andrew@lunn.ch>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.6 009/161] genetlink: fix memory leaks in genl_family_rcv_msg_dumpit()
-Date:   Tue, 16 Jun 2020 17:33:19 +0200
-Message-Id: <20200616153106.855650807@linuxfoundation.org>
+Subject: [PATCH 5.6 010/161] net: dsa: qca8k: Fix "Unexpected gfp" kernel exception
+Date:   Tue, 16 Jun 2020 17:33:20 +0200
+Message-Id: <20200616153106.905571697@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200616153106.402291280@linuxfoundation.org>
 References: <20200616153106.402291280@linuxfoundation.org>
@@ -51,190 +45,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cong Wang <xiyou.wangcong@gmail.com>
+From: "Michal Vokáč" <michal.vokac@ysoft.com>
 
-[ Upstream commit c36f05559104b66bcd7f617e931e38c680227b74 ]
+[ Upstream commit 67122a7910bf2135dc7f7ececfcf16a5bdb362c1 ]
 
-There are two kinds of memory leaks in genl_family_rcv_msg_dumpit():
+Commit 7e99e3470172 ("net: dsa: remove dsa_switch_alloc helper")
+replaced the dsa_switch_alloc helper by devm_kzalloc in all DSA
+drivers. Unfortunately it introduced a typo in qca8k.c driver and
+wrong argument is passed to the devm_kzalloc function.
 
-1. Before we call ops->start(), whenever an error happens, we forget
-   to free the memory allocated in genl_family_rcv_msg_dumpit().
+This fix mitigates the following kernel exception:
 
-2. When ops->start() fails, the 'info' has been already installed on
-   the per socket control block, so we should not free it here. More
-   importantly, nlk->cb_running is still false at this point, so
-   netlink_sock_destruct() cannot free it either.
+  Unexpected gfp: 0x6 (__GFP_HIGHMEM|GFP_DMA32). Fixing up to gfp: 0x101 (GFP_DMA|__GFP_ZERO). Fix your code!
+  CPU: 1 PID: 44 Comm: kworker/1:1 Not tainted 5.5.9-yocto-ua #1
+  Hardware name: Freescale i.MX6 Quad/DualLite (Device Tree)
+  Workqueue: events deferred_probe_work_func
+  [<c0014924>] (unwind_backtrace) from [<c00123bc>] (show_stack+0x10/0x14)
+  [<c00123bc>] (show_stack) from [<c04c8fb4>] (dump_stack+0x90/0xa4)
+  [<c04c8fb4>] (dump_stack) from [<c00e1b10>] (new_slab+0x20c/0x214)
+  [<c00e1b10>] (new_slab) from [<c00e1cd0>] (___slab_alloc.constprop.0+0x1b8/0x540)
+  [<c00e1cd0>] (___slab_alloc.constprop.0) from [<c00e2074>] (__slab_alloc.constprop.0+0x1c/0x24)
+  [<c00e2074>] (__slab_alloc.constprop.0) from [<c00e4538>] (__kmalloc_track_caller+0x1b0/0x298)
+  [<c00e4538>] (__kmalloc_track_caller) from [<c02cccac>] (devm_kmalloc+0x24/0x70)
+  [<c02cccac>] (devm_kmalloc) from [<c030d888>] (qca8k_sw_probe+0x94/0x1ac)
+  [<c030d888>] (qca8k_sw_probe) from [<c0304788>] (mdio_probe+0x30/0x54)
+  [<c0304788>] (mdio_probe) from [<c02c93bc>] (really_probe+0x1e0/0x348)
+  [<c02c93bc>] (really_probe) from [<c02c9884>] (driver_probe_device+0x60/0x16c)
+  [<c02c9884>] (driver_probe_device) from [<c02c7fb0>] (bus_for_each_drv+0x70/0x94)
+  [<c02c7fb0>] (bus_for_each_drv) from [<c02c9708>] (__device_attach+0xb4/0x11c)
+  [<c02c9708>] (__device_attach) from [<c02c8148>] (bus_probe_device+0x84/0x8c)
+  [<c02c8148>] (bus_probe_device) from [<c02c8cec>] (deferred_probe_work_func+0x64/0x90)
+  [<c02c8cec>] (deferred_probe_work_func) from [<c0033c14>] (process_one_work+0x1d4/0x41c)
+  [<c0033c14>] (process_one_work) from [<c00340a4>] (worker_thread+0x248/0x528)
+  [<c00340a4>] (worker_thread) from [<c0039148>] (kthread+0x124/0x150)
+  [<c0039148>] (kthread) from [<c00090d8>] (ret_from_fork+0x14/0x3c)
+  Exception stack(0xee1b5fb0 to 0xee1b5ff8)
+  5fa0:                                     00000000 00000000 00000000 00000000
+  5fc0: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+  5fe0: 00000000 00000000 00000000 00000000 00000013 00000000
+  qca8k 2188000.ethernet-1:0a: Using legacy PHYLIB callbacks. Please migrate to PHYLINK!
+  qca8k 2188000.ethernet-1:0a eth2 (uninitialized): PHY [2188000.ethernet-1:01] driver [Generic PHY]
+  qca8k 2188000.ethernet-1:0a eth1 (uninitialized): PHY [2188000.ethernet-1:02] driver [Generic PHY]
 
-The first kind of memory leaks is easier to resolve, but the second
-one requires some deeper thoughts.
-
-After reviewing how netfilter handles this, the most elegant solution
-I find is just to use a similar way to allocate the memory, that is,
-moving memory allocations from caller into ops->start(). With this,
-we can solve both kinds of memory leaks: for 1), no memory allocation
-happens before ops->start(); for 2), ops->start() handles its own
-failures and 'info' is installed to the socket control block only
-when success. The only ugliness here is we have to pass all local
-variables on stack via a struct, but this is not hard to understand.
-
-Alternatively, we can introduce a ops->free() to solve this too,
-but it is overkill as only genetlink has this problem so far.
-
-Fixes: 1927f41a22a0 ("net: genetlink: introduce dump info struct to be available during dumpit op")
-Reported-by: syzbot+21f04f481f449c8db840@syzkaller.appspotmail.com
-Cc: "Jason A. Donenfeld" <Jason@zx2c4.com>
-Cc: Florian Westphal <fw@strlen.de>
-Cc: Pablo Neira Ayuso <pablo@netfilter.org>
-Cc: Jiri Pirko <jiri@mellanox.com>
-Cc: YueHaibing <yuehaibing@huawei.com>
-Cc: Shaochun Chen <cscnull@gmail.com>
-Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
+Fixes: 7e99e3470172 ("net: dsa: remove dsa_switch_alloc helper")
+Signed-off-by: Michal Vokáč <michal.vokac@ysoft.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netlink/genetlink.c |   94 +++++++++++++++++++++++++++++-------------------
- 1 file changed, 58 insertions(+), 36 deletions(-)
+ drivers/net/dsa/qca8k.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/net/netlink/genetlink.c
-+++ b/net/netlink/genetlink.c
-@@ -513,15 +513,58 @@ static void genl_family_rcv_msg_attrs_fr
- 		kfree(attrbuf);
- }
+--- a/drivers/net/dsa/qca8k.c
++++ b/drivers/net/dsa/qca8k.c
+@@ -1079,8 +1079,7 @@ qca8k_sw_probe(struct mdio_device *mdiod
+ 	if (id != QCA8K_ID_QCA8337)
+ 		return -ENODEV;
  
--static int genl_lock_start(struct netlink_callback *cb)
-+struct genl_start_context {
-+	const struct genl_family *family;
-+	struct nlmsghdr *nlh;
-+	struct netlink_ext_ack *extack;
-+	const struct genl_ops *ops;
-+	int hdrlen;
-+};
-+
-+static int genl_start(struct netlink_callback *cb)
- {
--	const struct genl_ops *ops = genl_dumpit_info(cb)->ops;
-+	struct genl_start_context *ctx = cb->data;
-+	const struct genl_ops *ops = ctx->ops;
-+	struct genl_dumpit_info *info;
-+	struct nlattr **attrs = NULL;
- 	int rc = 0;
+-	priv->ds = devm_kzalloc(&mdiodev->dev, sizeof(*priv->ds),
+-				QCA8K_NUM_PORTS);
++	priv->ds = devm_kzalloc(&mdiodev->dev, sizeof(*priv->ds), GFP_KERNEL);
+ 	if (!priv->ds)
+ 		return -ENOMEM;
  
-+	if (ops->validate & GENL_DONT_VALIDATE_DUMP)
-+		goto no_attrs;
-+
-+	if (ctx->nlh->nlmsg_len < nlmsg_msg_size(ctx->hdrlen))
-+		return -EINVAL;
-+
-+	attrs = genl_family_rcv_msg_attrs_parse(ctx->family, ctx->nlh, ctx->extack,
-+						ops, ctx->hdrlen,
-+						GENL_DONT_VALIDATE_DUMP_STRICT,
-+						true);
-+	if (IS_ERR(attrs))
-+		return PTR_ERR(attrs);
-+
-+no_attrs:
-+	info = genl_dumpit_info_alloc();
-+	if (!info) {
-+		kfree(attrs);
-+		return -ENOMEM;
-+	}
-+	info->family = ctx->family;
-+	info->ops = ops;
-+	info->attrs = attrs;
-+
-+	cb->data = info;
- 	if (ops->start) {
--		genl_lock();
-+		if (!ctx->family->parallel_ops)
-+			genl_lock();
- 		rc = ops->start(cb);
--		genl_unlock();
-+		if (!ctx->family->parallel_ops)
-+			genl_unlock();
-+	}
-+
-+	if (rc) {
-+		kfree(attrs);
-+		genl_dumpit_info_free(info);
-+		cb->data = NULL;
- 	}
- 	return rc;
- }
-@@ -548,7 +591,7 @@ static int genl_lock_done(struct netlink
- 		rc = ops->done(cb);
- 		genl_unlock();
- 	}
--	genl_family_rcv_msg_attrs_free(info->family, info->attrs, true);
-+	genl_family_rcv_msg_attrs_free(info->family, info->attrs, false);
- 	genl_dumpit_info_free(info);
- 	return rc;
- }
-@@ -573,43 +616,23 @@ static int genl_family_rcv_msg_dumpit(co
- 				      const struct genl_ops *ops,
- 				      int hdrlen, struct net *net)
- {
--	struct genl_dumpit_info *info;
--	struct nlattr **attrs = NULL;
-+	struct genl_start_context ctx;
- 	int err;
- 
- 	if (!ops->dumpit)
- 		return -EOPNOTSUPP;
- 
--	if (ops->validate & GENL_DONT_VALIDATE_DUMP)
--		goto no_attrs;
--
--	if (nlh->nlmsg_len < nlmsg_msg_size(hdrlen))
--		return -EINVAL;
--
--	attrs = genl_family_rcv_msg_attrs_parse(family, nlh, extack,
--						ops, hdrlen,
--						GENL_DONT_VALIDATE_DUMP_STRICT,
--						true);
--	if (IS_ERR(attrs))
--		return PTR_ERR(attrs);
--
--no_attrs:
--	/* Allocate dumpit info. It is going to be freed by done() callback. */
--	info = genl_dumpit_info_alloc();
--	if (!info) {
--		genl_family_rcv_msg_attrs_free(family, attrs, true);
--		return -ENOMEM;
--	}
--
--	info->family = family;
--	info->ops = ops;
--	info->attrs = attrs;
-+	ctx.family = family;
-+	ctx.nlh = nlh;
-+	ctx.extack = extack;
-+	ctx.ops = ops;
-+	ctx.hdrlen = hdrlen;
- 
- 	if (!family->parallel_ops) {
- 		struct netlink_dump_control c = {
- 			.module = family->module,
--			.data = info,
--			.start = genl_lock_start,
-+			.data = &ctx,
-+			.start = genl_start,
- 			.dump = genl_lock_dumpit,
- 			.done = genl_lock_done,
- 		};
-@@ -617,12 +640,11 @@ no_attrs:
- 		genl_unlock();
- 		err = __netlink_dump_start(net->genl_sock, skb, nlh, &c);
- 		genl_lock();
--
- 	} else {
- 		struct netlink_dump_control c = {
- 			.module = family->module,
--			.data = info,
--			.start = ops->start,
-+			.data = &ctx,
-+			.start = genl_start,
- 			.dump = ops->dumpit,
- 			.done = genl_parallel_done,
- 		};
 
 
