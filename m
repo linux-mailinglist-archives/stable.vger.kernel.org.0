@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 44EF11FB88D
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:57:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CDA5D1FB88C
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:57:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732744AbgFPP5P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1730859AbgFPP5P (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 16 Jun 2020 11:57:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55404 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:55462 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732745AbgFPPzW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:55:22 -0400
+        id S1732659AbgFPPzY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:55:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E7F7521527;
-        Tue, 16 Jun 2020 15:55:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7B78521532;
+        Tue, 16 Jun 2020 15:55:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322921;
-        bh=7iKMm7KSRQUJ5Y+WeKndqu7co8tjv7zaxZdV9VUdtYA=;
+        s=default; t=1592322924;
+        bh=HYWquZViGbGdIcbesak3htJvfn2PAB/KpqgGhH9wMTg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DQAnkUuNOpzQg+iuUcLdTRFuKnhFqOYJhnwXrDRzWRLdgDVpo7o+3MRUPn7CiC5sz
-         cp0B5ot9EkEFsq5uQzOh7oQsaRX3pzhrrEIXEr8vxLHrJmSSkf11P1p5fVhz6b7uy+
-         tc4QpsZBK8VUez0UEF7eELDJJZaAySliu/AmBvj4=
+        b=v3bPteUVlKdnCT9O9Rh59KldQYFsJbYfkbqc6HgQqKRMI7dik0qiYaWIe10Ahxk+V
+         yrt1Trvtl4jThpOZUkkVhksTSr8nw3DsNHrIY4xlyi2xZL6Xf6tAcTF1AOlC6lCoBq
+         w8I/2OBP1X5p3XPP59Mn24osT5oQcImYHq9c+Aos=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.6 155/161] mmc: sdio: Fix several potential memory leaks in mmc_sdio_init_card()
-Date:   Tue, 16 Jun 2020 17:35:45 +0200
-Message-Id: <20200616153113.728946582@linuxfoundation.org>
+        stable@vger.kernel.org, Libor Pechacek <lpechacek@suse.cz>,
+        Jiri Kosina <jkosina@suse.cz>, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.6 156/161] block/floppy: fix contended case in floppy_queue_rq()
+Date:   Tue, 16 Jun 2020 17:35:46 +0200
+Message-Id: <20200616153113.776518867@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200616153106.402291280@linuxfoundation.org>
 References: <20200616153106.402291280@linuxfoundation.org>
@@ -42,151 +43,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ulf Hansson <ulf.hansson@linaro.org>
+From: Jiri Kosina <jkosina@suse.cz>
 
-commit a94a59f43749b4f8cd81b8be87c95f9ef898d19d upstream.
+commit 263c61581a38d0a5ad1f5f4a9143b27d68caeffd upstream.
 
-Over the years, the code in mmc_sdio_init_card() has grown to become quite
-messy. Unfortunate this has also lead to that several paths are leaking
-memory in form of an allocated struct mmc_card, which includes additional
-data, such as initialized struct device for example.
+Since the switch of floppy driver to blk-mq, the contended (fdc_busy) case
+in floppy_queue_rq() is not handled correctly.
 
-Unfortunate, it's a too complex task find each offending commit. Therefore,
-this change fixes all memory leaks at once.
+In case we reach floppy_queue_rq() with fdc_busy set (i.e. with the floppy
+locked due to another request still being in-flight), we put the request
+on the list of requests and return BLK_STS_OK to the block core, without
+actually scheduling delayed work / doing further processing of the
+request. This means that processing of this request is postponed until
+another request comes and passess uncontended.
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Link: https://lore.kernel.org/r/20200430091640.455-3-ulf.hansson@linaro.org
+Which in some cases might actually never happen and we keep waiting
+indefinitely. The simple testcase is
+
+	for i in `seq 1 2000`; do echo -en $i '\r'; blkid --info /dev/fd0 2> /dev/null; done
+
+run in quemu. That reliably causes blkid eventually indefinitely hanging
+in __floppy_read_block_0() waiting for completion, as the BIO callback
+never happens, and no further IO is ever submitted on the (non-existent)
+floppy device. This was observed reliably on qemu-emulated device.
+
+Fix that by not queuing the request in the contended case, and return
+BLK_STS_RESOURCE instead, so that blk core handles the request
+rescheduling and let it pass properly non-contended later.
+
+Fixes: a9f38e1dec107a ("floppy: convert to blk-mq")
+Cc: stable@vger.kernel.org
+Tested-by: Libor Pechacek <lpechacek@suse.cz>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mmc/core/sdio.c |   58 ++++++++++++++++++++++--------------------------
- 1 file changed, 27 insertions(+), 31 deletions(-)
+ drivers/block/floppy.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
---- a/drivers/mmc/core/sdio.c
-+++ b/drivers/mmc/core/sdio.c
-@@ -584,7 +584,7 @@ try_again:
- 	 */
- 	err = mmc_send_io_op_cond(host, ocr, &rocr);
- 	if (err)
--		goto err;
-+		return err;
+--- a/drivers/block/floppy.c
++++ b/drivers/block/floppy.c
+@@ -2902,17 +2902,17 @@ static blk_status_t floppy_queue_rq(stru
+ 		 (unsigned long long) current_req->cmd_flags))
+ 		return BLK_STS_IOERR;
  
- 	/*
- 	 * For SPI, enable CRC as appropriate.
-@@ -592,17 +592,15 @@ try_again:
- 	if (mmc_host_is_spi(host)) {
- 		err = mmc_spi_set_crc(host, use_spi_crc);
- 		if (err)
--			goto err;
-+			return err;
- 	}
- 
- 	/*
- 	 * Allocate card structure.
- 	 */
- 	card = mmc_alloc_card(host, NULL);
--	if (IS_ERR(card)) {
--		err = PTR_ERR(card);
--		goto err;
--	}
-+	if (IS_ERR(card))
-+		return PTR_ERR(card);
- 
- 	if ((rocr & R4_MEMORY_PRESENT) &&
- 	    mmc_sd_get_cid(host, ocr & rocr, card->raw_cid, NULL) == 0) {
-@@ -610,19 +608,15 @@ try_again:
- 
- 		if (oldcard && (oldcard->type != MMC_TYPE_SD_COMBO ||
- 		    memcmp(card->raw_cid, oldcard->raw_cid, sizeof(card->raw_cid)) != 0)) {
--			mmc_remove_card(card);
--			pr_debug("%s: Perhaps the card was replaced\n",
--				mmc_hostname(host));
--			return -ENOENT;
-+			err = -ENOENT;
-+			goto mismatch;
- 		}
- 	} else {
- 		card->type = MMC_TYPE_SDIO;
- 
- 		if (oldcard && oldcard->type != MMC_TYPE_SDIO) {
--			mmc_remove_card(card);
--			pr_debug("%s: Perhaps the card was replaced\n",
--				mmc_hostname(host));
--			return -ENOENT;
-+			err = -ENOENT;
-+			goto mismatch;
- 		}
- 	}
- 
-@@ -677,7 +671,7 @@ try_again:
- 	if (!oldcard && card->type == MMC_TYPE_SD_COMBO) {
- 		err = mmc_sd_get_csd(host, card);
- 		if (err)
--			return err;
-+			goto remove;
- 
- 		mmc_decode_cid(card);
- 	}
-@@ -704,7 +698,12 @@ try_again:
- 			mmc_set_timing(card->host, MMC_TIMING_SD_HS);
- 		}
- 
--		goto finish;
-+		if (oldcard)
-+			mmc_remove_card(card);
-+		else
-+			host->card = card;
-+
-+		return 0;
- 	}
- 
- 	/*
-@@ -730,16 +729,14 @@ try_again:
- 		goto remove;
- 
- 	if (oldcard) {
--		int same = (card->cis.vendor == oldcard->cis.vendor &&
--			    card->cis.device == oldcard->cis.device);
--		mmc_remove_card(card);
--		if (!same) {
--			pr_debug("%s: Perhaps the card was replaced\n",
--				mmc_hostname(host));
--			return -ENOENT;
-+		if (card->cis.vendor == oldcard->cis.vendor &&
-+		    card->cis.device == oldcard->cis.device) {
-+			mmc_remove_card(card);
-+			card = oldcard;
-+		} else {
-+			err = -ENOENT;
-+			goto mismatch;
- 		}
+-	spin_lock_irq(&floppy_lock);
+-	list_add_tail(&bd->rq->queuelist, &floppy_reqs);
+-	spin_unlock_irq(&floppy_lock);
 -
--		card = oldcard;
+ 	if (test_and_set_bit(0, &fdc_busy)) {
+ 		/* fdc busy, this new request will be treated when the
+ 		   current one is done */
+ 		is_alive(__func__, "old request running");
+-		return BLK_STS_OK;
++		return BLK_STS_RESOURCE;
  	}
- 	card->ocr = ocr_card;
- 	mmc_fixup_device(card, sdio_fixup_methods);
-@@ -800,16 +797,15 @@ try_again:
- 		err = -EINVAL;
- 		goto remove;
- 	}
--finish:
--	if (!oldcard)
--		host->card = card;
+ 
++	spin_lock_irq(&floppy_lock);
++	list_add_tail(&bd->rq->queuelist, &floppy_reqs);
++	spin_unlock_irq(&floppy_lock);
 +
-+	host->card = card;
- 	return 0;
- 
-+mismatch:
-+	pr_debug("%s: Perhaps the card was replaced\n", mmc_hostname(host));
- remove:
--	if (!oldcard)
-+	if (oldcard != card)
- 		mmc_remove_card(card);
--
--err:
- 	return err;
- }
- 
+ 	command_status = FD_COMMAND_NONE;
+ 	__reschedule_timeout(MAXTIMEOUT, "fd_request");
+ 	set_fdc(0);
 
 
