@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CF4351FBA40
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:10:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 908131FBA4C
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:10:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732031AbgFPPoz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:44:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35566 "EHLO mail.kernel.org"
+        id S1730211AbgFPQKC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 12:10:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35654 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732032AbgFPPox (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:44:53 -0400
+        id S1731524AbgFPPo4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:44:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9596821475;
-        Tue, 16 Jun 2020 15:44:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4EA4B21475;
+        Tue, 16 Jun 2020 15:44:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322293;
-        bh=caW8/Y6VPKp5vVcWf/wLPLBPATAnCb5BJZT3tCjbtaY=;
+        s=default; t=1592322295;
+        bh=qPXtMOTdflutZMIJ3Kxe+EfHyqUsxZqyhk7CaUbd0Do=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RHqLnRT2xkznXfDQRe7RzB0AZ6fBmN35IxG0qC1ZBC2AMW++ErW/dO4XJYwaJv800
-         YdIqA7EQDwEAMYpntLDcxwyP2ewy6/R21LW5klwvsgLxyDNewQFYRGMBUuUerOpp8g
-         MZYq2Neb7JM1eBSr/cwmOe1zztDUJU7yk4U94t+g=
+        b=2RhHzeF6FcWwjVkj0fJ2D+N6ImbGM64JMTwLvH3N27tjqVQHxjOyfS0BSgIh/VMmT
+         Ohzv0EeTYiJID8rabn64Eb1dRiTJ4i2PSoP1tAaVYQ81+9sh6t3GftnGg7YNwZDo2b
+         Ft8RQ3tKrcn30HaEjqDNtJae9SgPX+AoVwQcjX34=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        youling257@gmail.com,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.7 075/163] ACPI: PM: Avoid using power resources if there are none for D0
-Date:   Tue, 16 Jun 2020 17:34:09 +0200
-Message-Id: <20200616153110.443637495@linuxfoundation.org>
+        stable@vger.kernel.org, Will Deacon <will@kernel.org>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Jeremy Linton <jeremy.linton@arm.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Subject: [PATCH 5.7 076/163] arm64: acpi: fix UBSAN warning
+Date:   Tue, 16 Jun 2020 17:34:10 +0200
+Message-Id: <20200616153110.486696417@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
 References: <20200616153106.849127260@linuxfoundation.org>
@@ -44,121 +46,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Nick Desaulniers <ndesaulniers@google.com>
 
-commit 956ad9d98b73f59e442cc119c98ba1e04e94fe6d upstream.
+commit a194c33f45f83068ef13bf1d16e26d4ca3ecc098 upstream.
 
-As recently reported, some platforms provide a list of power
-resources for device power state D3hot, through the _PR3 object,
-but they do not provide a list of power resources for device power
-state D0.
+Will reported a UBSAN warning:
 
-Among other things, this causes acpi_device_get_power() to return
-D3hot as the current state of the device in question if all of the
-D3hot power resources are "on", because it sees the power_resources
-flag set and calls acpi_power_get_inferred_state() which finds that
-D3hot is the shallowest power state with all of the associated power
-resources turned "on", so that's what it returns.  Moreover, that
-value takes precedence over the acpi_dev_pm_explicit_get() return
-value, because it means a deeper power state.  The device may very
-well be in D0 physically at that point, however.
+UBSAN: null-ptr-deref in arch/arm64/kernel/smp.c:596:6
+member access within null pointer of type 'struct acpi_madt_generic_interrupt'
+CPU: 0 PID: 0 Comm: swapper Not tainted 5.7.0-rc6-00124-g96bc42ff0a82 #1
+Call trace:
+ dump_backtrace+0x0/0x384
+ show_stack+0x28/0x38
+ dump_stack+0xec/0x174
+ handle_null_ptr_deref+0x134/0x174
+ __ubsan_handle_type_mismatch_v1+0x84/0xa4
+ acpi_parse_gic_cpu_interface+0x60/0xe8
+ acpi_parse_entries_array+0x288/0x498
+ acpi_table_parse_entries_array+0x178/0x1b4
+ acpi_table_parse_madt+0xa4/0x110
+ acpi_parse_and_init_cpus+0x38/0x100
+ smp_init_cpus+0x74/0x258
+ setup_arch+0x350/0x3ec
+ start_kernel+0x98/0x6f4
 
-Moreover, the presence of _PR3 without _PR0 for a given device
-means that only one D3-level power state can be supported by it.
-Namely, because there are no power resources to turn "off" when
-transitioning the device from D0 into D3cold (which should be
-supported since _PR3 is present), the evaluation of _PS3 should
-be sufficient to put it straight into D3cold, but this means that
-the effect of turning "on" the _PR3 power resources is unclear,
-so it is better to avoid doing that altogether.  Consequently,
-there is no practical way do distinguish D3cold from D3hot for
-the device in question and the power states of it can be labeled
-so that D3hot is the deepest supported one (and Linux assumes
-that putting a device into D3hot via ACPI may cause power to be
-removed from it anyway, for legacy reasons).
+This is from the use of the ACPI_OFFSET in
+arch/arm64/include/asm/acpi.h. Replace its use with offsetof from
+include/linux/stddef.h which should implement the same logic using
+__builtin_offsetof, so that UBSAN wont warn.
 
-To work around the problem described above modify the ACPI
-enumeration of devices so that power resources are only used
-for device power management if the list of D0 power resources
-is not empty and make it mart D3cold as supported only if that
-is the case and the D3hot list of power resources is not empty
-too.
-
-Fixes: ef85bdbec444 ("ACPI / scan: Consolidate extraction of power resources lists")
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=205057
-Link: https://lore.kernel.org/linux-acpi/20200603194659.185757-1-hdegoede@redhat.com/
-Reported-by: Hans de Goede <hdegoede@redhat.com>
-Tested-by: Hans de Goede <hdegoede@redhat.com>
-Tested-by: youling257@gmail.com
-Cc: 3.10+ <stable@vger.kernel.org> # 3.10+
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Reported-by: Will Deacon <will@kernel.org>
+Suggested-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Reviewed-by: Jeremy Linton <jeremy.linton@arm.com>
+Acked-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/lkml/20200521100952.GA5360@willie-the-truck/
+Link: https://lore.kernel.org/r/20200608203818.189423-1-ndesaulniers@google.com
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/acpi/device_pm.c |    2 +-
- drivers/acpi/scan.c      |   28 +++++++++++++++++++---------
- 2 files changed, 20 insertions(+), 10 deletions(-)
+ arch/arm64/include/asm/acpi.h |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/acpi/device_pm.c
-+++ b/drivers/acpi/device_pm.c
-@@ -186,7 +186,7 @@ int acpi_device_set_power(struct acpi_de
- 		 * possibly drop references to the power resources in use.
- 		 */
- 		state = ACPI_STATE_D3_HOT;
--		/* If _PR3 is not available, use D3hot as the target state. */
-+		/* If D3cold is not supported, use D3hot as the target state. */
- 		if (!device->power.states[ACPI_STATE_D3_COLD].flags.valid)
- 			target_state = state;
- 	} else if (!device->power.states[state].flags.valid) {
---- a/drivers/acpi/scan.c
-+++ b/drivers/acpi/scan.c
-@@ -919,12 +919,9 @@ static void acpi_bus_init_power_state(st
+--- a/arch/arm64/include/asm/acpi.h
++++ b/arch/arm64/include/asm/acpi.h
+@@ -12,6 +12,7 @@
+ #include <linux/efi.h>
+ #include <linux/memblock.h>
+ #include <linux/psci.h>
++#include <linux/stddef.h>
  
- 		if (buffer.length && package
- 		    && package->type == ACPI_TYPE_PACKAGE
--		    && package->package.count) {
--			int err = acpi_extract_power_resources(package, 0,
--							       &ps->resources);
--			if (!err)
--				device->power.flags.power_resources = 1;
--		}
-+		    && package->package.count)
-+			acpi_extract_power_resources(package, 0, &ps->resources);
-+
- 		ACPI_FREE(buffer.pointer);
- 	}
+ #include <asm/cputype.h>
+ #include <asm/io.h>
+@@ -31,14 +32,14 @@
+  * is therefore used to delimit the MADT GICC structure minimum length
+  * appropriately.
+  */
+-#define ACPI_MADT_GICC_MIN_LENGTH   ACPI_OFFSET(  \
++#define ACPI_MADT_GICC_MIN_LENGTH   offsetof(  \
+ 	struct acpi_madt_generic_interrupt, efficiency_class)
  
-@@ -971,14 +968,27 @@ static void acpi_bus_get_power_flags(str
- 		acpi_bus_init_power_state(device, i);
+ #define BAD_MADT_GICC_ENTRY(entry, end)					\
+ 	(!(entry) || (entry)->header.length < ACPI_MADT_GICC_MIN_LENGTH || \
+ 	(unsigned long)(entry) + (entry)->header.length > (end))
  
- 	INIT_LIST_HEAD(&device->power.states[ACPI_STATE_D3_COLD].resources);
--	if (!list_empty(&device->power.states[ACPI_STATE_D3_HOT].resources))
--		device->power.states[ACPI_STATE_D3_COLD].flags.valid = 1;
+-#define ACPI_MADT_GICC_SPE  (ACPI_OFFSET(struct acpi_madt_generic_interrupt, \
++#define ACPI_MADT_GICC_SPE  (offsetof(struct acpi_madt_generic_interrupt, \
+ 	spe_interrupt) + sizeof(u16))
  
--	/* Set defaults for D0 and D3hot states (always valid) */
-+	/* Set the defaults for D0 and D3hot (always supported). */
- 	device->power.states[ACPI_STATE_D0].flags.valid = 1;
- 	device->power.states[ACPI_STATE_D0].power = 100;
- 	device->power.states[ACPI_STATE_D3_HOT].flags.valid = 1;
- 
-+	/*
-+	 * Use power resources only if the D0 list of them is populated, because
-+	 * some platforms may provide _PR3 only to indicate D3cold support and
-+	 * in those cases the power resources list returned by it may be bogus.
-+	 */
-+	if (!list_empty(&device->power.states[ACPI_STATE_D0].resources)) {
-+		device->power.flags.power_resources = 1;
-+		/*
-+		 * D3cold is supported if the D3hot list of power resources is
-+		 * not empty.
-+		 */
-+		if (!list_empty(&device->power.states[ACPI_STATE_D3_HOT].resources))
-+			device->power.states[ACPI_STATE_D3_COLD].flags.valid = 1;
-+	}
-+
- 	if (acpi_bus_init_power(device))
- 		device->flags.power_manageable = 0;
- }
+ /* Basic configuration for ACPI */
 
 
