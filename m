@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1499D1FB808
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:53:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 343621FB69C
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:39:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732717AbgFPPwO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:52:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49384 "EHLO mail.kernel.org"
+        id S1730796AbgFPPiz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:38:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51744 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732759AbgFPPwN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:52:13 -0400
+        id S1729966AbgFPPix (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:38:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 66FB0207C4;
-        Tue, 16 Jun 2020 15:52:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5AFEC20B1F;
+        Tue, 16 Jun 2020 15:38:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322732;
-        bh=aeJVDlEjSdLDLdlvppBsDFafIzMahO0CTxavjubEvs4=;
+        s=default; t=1592321932;
+        bh=ROD4OS853yfOamcyXBqlH9ryzTfV4idnYgurUQsATrE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VT2QgVsPIZJYYzprm8rVRCtlG6/5m1ebPmZ61sQC0RzE74Lvacxg8hZRvEZWJGrxu
-         k2U9Za7ulPjcvl9J36hpWN/aHnXrOgAhqwujtZTniVHqZsD3qN/jK6xPmwRBUIhX6x
-         iaNe64r4d6mAH3t9OhV1d78RuCjmpUC89to/G3ak=
+        b=VKpRu1SmHHvcWAL9iS/gYG5dexsoLQENAg0+b3AyCAbfNPadDoRGjGBB4ehuqBLmg
+         DRdjfUJw1OLOxPoGSuuTRDlGCMQ51of3DajiPZ9dPY+IIf81FcmXVrxHx2Dtendlxb
+         eJCM+MC2Il6+XLIRawUXwLTOOc32FxhtlwNEJtD4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aurelien Aptel <aaptel@suse.com>,
-        Steve French <smfrench@gmail.com>,
-        Namjae Jeon <namjae.jeon@samsung.com>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 5.6 065/161] smb3: add indatalen that can be a non-zero value to calculation of credit charge in smb2 ioctl
+        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Tsuchiya Yuto <kitakar@gmail.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.4 071/134] spi: pxa2xx: Fix controller unregister order
 Date:   Tue, 16 Jun 2020 17:34:15 +0200
-Message-Id: <20200616153109.474849450@linuxfoundation.org>
+Message-Id: <20200616153104.177737040@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153106.402291280@linuxfoundation.org>
-References: <20200616153106.402291280@linuxfoundation.org>
+In-Reply-To: <20200616153100.633279950@linuxfoundation.org>
+References: <20200616153100.633279950@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,51 +45,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Namjae Jeon <namjae.jeon@samsung.com>
+From: Lukas Wunner <lukas@wunner.de>
 
-commit ebf57440ec59a36e1fc5fe91e31d66ae0d1662d0 upstream.
+commit 32e5b57232c0411e7dea96625c415510430ac079 upstream.
 
-Some of tests in xfstests failed with cifsd kernel server since commit
-e80ddeb2f70e. cifsd kernel server validates credit charge from client
-by calculating it base on max((InputCount + OutputCount) and
-(MaxInputResponse + MaxOutputResponse)) according to specification.
+The PXA2xx SPI driver uses devm_spi_register_controller() on bind.
+As a consequence, on unbind, __device_release_driver() first invokes
+pxa2xx_spi_remove() before unregistering the SPI controller via
+devres_release_all().
 
-MS-SMB2 specification describe credit charge calculation of smb2 ioctl :
+This order is incorrect:  pxa2xx_spi_remove() disables the chip,
+rendering the SPI bus inaccessible even though the SPI controller is
+still registered.  When the SPI controller is subsequently unregistered,
+it unbinds all its slave devices.  Because their drivers cannot access
+the SPI bus, e.g. to quiesce interrupts, the slave devices may be left
+in an improper state.
 
-If Connection.SupportsMultiCredit is TRUE, the server MUST validate
-CreditCharge based on the maximum of (InputCount + OutputCount) and
-(MaxInputResponse + MaxOutputResponse), as specified in section 3.3.5.2.5.
-If the validation fails, it MUST fail the IOCTL request with
-STATUS_INVALID_PARAMETER.
+As a rule, devm_spi_register_controller() must not be used if the
+->remove() hook performs teardown steps which shall be performed after
+unregistering the controller and specifically after unbinding of slaves.
 
-This patch add indatalen that can be a non-zero value to calculation of
-credit charge in SMB2_ioctl_init().
+Fix by reverting to the non-devm variant of spi_register_controller().
 
-Fixes: e80ddeb2f70e ("smb3: fix incorrect number of credits when ioctl
-MaxOutputResponse > 64K")
-Cc: Stable <stable@vger.kernel.org>
-Reviewed-by: Aurelien Aptel <aaptel@suse.com>
-Cc: Steve French <smfrench@gmail.com>
-Signed-off-by: Namjae Jeon <namjae.jeon@samsung.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+An alternative approach would be to use device-managed functions for all
+steps in pxa2xx_spi_remove(), e.g. by calling devm_add_action_or_reset()
+on probe.  However that approach would add more LoC to the driver and
+it wouldn't lend itself as well to backporting to stable.
+
+The improper use of devm_spi_register_controller() was introduced in 2013
+by commit a807fcd090d6 ("spi: pxa2xx: use devm_spi_register_master()"),
+but all earlier versions of the driver going back to 2006 were likewise
+broken because they invoked spi_unregister_master() at the end of
+pxa2xx_spi_remove(), rather than at the beginning.
+
+Fixes: e0c9905e87ac ("[PATCH] SPI: add PXA2xx SSP SPI Driver")
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: stable@vger.kernel.org # v2.6.17+
+Cc: Tsuchiya Yuto <kitakar@gmail.com>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=206403#c1
+Link: https://lore.kernel.org/r/834c446b1cf3284d2660f1bee1ebe3e737cd02a9.1590408496.git.lukas@wunner.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/cifs/smb2pdu.c |    4 +++-
+ drivers/spi/spi-pxa2xx.c |    4 +++-
  1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/fs/cifs/smb2pdu.c
-+++ b/fs/cifs/smb2pdu.c
-@@ -2868,7 +2868,9 @@ SMB2_ioctl_init(struct cifs_tcon *tcon,
- 	 * response size smaller.
- 	 */
- 	req->MaxOutputResponse = cpu_to_le32(max_response_size);
--	req->sync_hdr.CreditCharge = cpu_to_le16(DIV_ROUND_UP(max_response_size, SMB2_MAX_BUFFER_SIZE));
-+	req->sync_hdr.CreditCharge =
-+		cpu_to_le16(DIV_ROUND_UP(max(indatalen, max_response_size),
-+					 SMB2_MAX_BUFFER_SIZE));
- 	if (is_fsctl)
- 		req->Flags = cpu_to_le32(SMB2_0_IOCTL_IS_FSCTL);
- 	else
+--- a/drivers/spi/spi-pxa2xx.c
++++ b/drivers/spi/spi-pxa2xx.c
+@@ -1880,7 +1880,7 @@ static int pxa2xx_spi_probe(struct platf
+ 
+ 	/* Register with the SPI framework */
+ 	platform_set_drvdata(pdev, drv_data);
+-	status = devm_spi_register_controller(&pdev->dev, controller);
++	status = spi_register_controller(controller);
+ 	if (status != 0) {
+ 		dev_err(&pdev->dev, "problem registering spi controller\n");
+ 		goto out_error_pm_runtime_enabled;
+@@ -1916,6 +1916,8 @@ static int pxa2xx_spi_remove(struct plat
+ 
+ 	pm_runtime_get_sync(&pdev->dev);
+ 
++	spi_unregister_controller(drv_data->controller);
++
+ 	/* Disable the SSP at the peripheral and SOC level */
+ 	pxa2xx_spi_write(drv_data, SSCR0, 0);
+ 	clk_disable_unprepare(ssp->clk);
 
 
