@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0517D1FB6A0
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:39:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 719051FB814
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:53:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730826AbgFPPjC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:39:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51970 "EHLO mail.kernel.org"
+        id S1732819AbgFPPww (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:52:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50582 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730001AbgFPPjB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:39:01 -0400
+        id S1732426AbgFPPwv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:52:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3E7772145D;
-        Tue, 16 Jun 2020 15:39:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CB316207C4;
+        Tue, 16 Jun 2020 15:52:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592321940;
-        bh=baGHl5hLTwWSZ097fttXf6jMB83v9RrYXJVYBTj2+A8=;
+        s=default; t=1592322771;
+        bh=9p4Mo042Rqy4vJYBei02Cv/NT0DA2OR0anc2hVo4VZQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WzG/FaH+HtGPZu0pFkzuZebtfer0NgOMokbIfBWcq5m1hwMP5SbSPCNF/K1H7ecu4
-         Jzfaq9EpIqExPhEQ4q9yLcLTS1z5RYL8dD0cwzQjHuefN1eytS589Qu3USLReODhH8
-         nqx/a6qWzToHA+Yhb/aoRiLOOTX0hHkHsKysrvu8=
+        b=o2+WmjdWGZTGBVIqlYJ/vaULATE1YXSpk/95OoYQdEACHRG4/OtuqXcwS28COr0R8
+         1szj/ESt8EHjoHn0MGTNz6Pjl5C8CHWVpvProch1Xc3rsymcDXRPU0iG1DkNI/8G2k
+         +6fffkH7FfaNJ6ci58//4XFTsyX3XXx84dJpLZNs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.4 073/134] spi: bcm2835: Fix controller unregister order
+        stable@vger.kernel.org, Breno Lima <breno.lima@nxp.com>,
+        Fabio Estevam <festevam@gmail.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>
+Subject: [PATCH 5.6 067/161] watchdog: imx_sc_wdt: Fix reboot on crash
 Date:   Tue, 16 Jun 2020 17:34:17 +0200
-Message-Id: <20200616153104.277224970@linuxfoundation.org>
+Message-Id: <20200616153109.572647627@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153100.633279950@linuxfoundation.org>
-References: <20200616153100.633279950@linuxfoundation.org>
+In-Reply-To: <20200616153106.402291280@linuxfoundation.org>
+References: <20200616153106.402291280@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,62 +45,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Wunner <lukas@wunner.de>
+From: Fabio Estevam <festevam@gmail.com>
 
-commit 9dd277ff92d06f6aa95b39936ad83981d781f49b upstream.
+commit e56d48e92b1017b6a8dbe64923a889283733fd96 upstream.
 
-The BCM2835 SPI driver uses devm_spi_register_controller() on bind.
-As a consequence, on unbind, __device_release_driver() first invokes
-bcm2835_spi_remove() before unregistering the SPI controller via
-devres_release_all().
+Currently when running the samples/watchdog/watchdog-simple.c
+application and forcing a kernel crash by doing:
 
-This order is incorrect:  bcm2835_spi_remove() tears down the DMA
-channels and turns off the SPI controller, including its interrupts
-and clock.  The SPI controller is thus no longer usable.
+# ./watchdog-simple &
+# echo c > /proc/sysrq-trigger
 
-When the SPI controller is subsequently unregistered, it unbinds all
-its slave devices.  If their drivers need to access the SPI bus,
-e.g. to quiesce their interrupts, unbinding will fail.
+The system does not reboot as expected.
 
-As a rule, devm_spi_register_controller() must not be used if the
-->remove() hook performs teardown steps which shall be performed
-after unbinding of slaves.
+Fix it by calling imx_sc_wdt_set_timeout() to configure the i.MX8QXP
+watchdog with a proper timeout.
 
-Fix by using the non-devm variant spi_register_controller().  Note that
-the struct spi_controller as well as the driver-private data are not
-freed until after bcm2835_spi_remove() has finished, so accessing them
-is safe.
-
-Fixes: 247263dba208 ("spi: bcm2835: use devm_spi_register_master()")
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Cc: stable@vger.kernel.org # v3.13+
-Link: https://lore.kernel.org/r/2397dd70cdbe95e0bc4da2b9fca0f31cb94e5aed.1589557526.git.lukas@wunner.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Cc: <stable@vger.kernel.org>
+Fixes: 986857acbc9a ("watchdog: imx_sc: Add i.MX system controller watchdog support")
+Reported-by: Breno Lima <breno.lima@nxp.com>
+Signed-off-by: Fabio Estevam <festevam@gmail.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Tested-by: Breno Lima <breno.lima@nxp.com>
+Link: https://lore.kernel.org/r/20200412230122.5601-1-festevam@gmail.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/spi/spi-bcm2835.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/watchdog/imx_sc_wdt.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/drivers/spi/spi-bcm2835.c
-+++ b/drivers/spi/spi-bcm2835.c
-@@ -1330,7 +1330,7 @@ static int bcm2835_spi_probe(struct plat
- 		goto out_clk_disable;
- 	}
+--- a/drivers/watchdog/imx_sc_wdt.c
++++ b/drivers/watchdog/imx_sc_wdt.c
+@@ -177,6 +177,11 @@ static int imx_sc_wdt_probe(struct platf
+ 	wdog->timeout = DEFAULT_TIMEOUT;
  
--	err = devm_spi_register_controller(&pdev->dev, ctlr);
-+	err = spi_register_controller(ctlr);
- 	if (err) {
- 		dev_err(&pdev->dev, "could not register SPI controller: %d\n",
- 			err);
-@@ -1355,6 +1355,8 @@ static int bcm2835_spi_remove(struct pla
- 
- 	bcm2835_debugfs_remove(bs);
- 
-+	spi_unregister_controller(ctlr);
+ 	watchdog_init_timeout(wdog, 0, dev);
 +
- 	/* Clear FIFOs, and disable the HW block */
- 	bcm2835_wr(bs, BCM2835_SPI_CS,
- 		   BCM2835_SPI_CS_CLEAR_RX | BCM2835_SPI_CS_CLEAR_TX);
++	ret = imx_sc_wdt_set_timeout(wdog, wdog->timeout);
++	if (ret)
++		return ret;
++
+ 	watchdog_stop_on_reboot(wdog);
+ 	watchdog_stop_on_unregister(wdog);
+ 
 
 
