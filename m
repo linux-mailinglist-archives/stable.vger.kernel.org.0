@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 012E11FB7C7
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:50:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D1AE1FB662
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:38:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732500AbgFPPtY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:49:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44132 "EHLO mail.kernel.org"
+        id S1730040AbgFPPgn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:36:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47598 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732490AbgFPPtP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:49:15 -0400
+        id S1730027AbgFPPgl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:36:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6E7BB21473;
-        Tue, 16 Jun 2020 15:49:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7317D20C09;
+        Tue, 16 Jun 2020 15:36:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322554;
-        bh=MLqhFEY4rb9ifVdmWQOYU8217QDWLQ5r1hBtnHBxGUI=;
+        s=default; t=1592321801;
+        bh=GrEoOhZo2pGQjeRLcWJGgk6oFtyW3a2jBQ4YPkul6NI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cok8z7FydbxTnbMiVEZiUJ/YBVeSuNeOH+v6HkL+Godp9MITZIk/q+Aauf8jz8AQr
-         ulbg1gpS4PVaP/F/9CR0fj+xCTSAIw1nrkqgYVhBzUe9EWi4jd2Qu5oGZyAS3gvUsP
-         bFUWX+bhIT6Qvmtg3umImBBcsX3bvz7Z9soSCRw8=
+        b=WlPlJn8MtMPpLnlEjnOM18qKjw7RpPSOqxvd6bQBxqmYjBZGugjd173mGfln2i7iF
+         yL7lQg3LfU/fDpWvUywRG8xtkYmpOcMJ8m+AGpr2qDSfClQV7yAJ5UlLsXfd2UICYI
+         EldqEoFt0KxstPE5+E5yyPwDLARcugun9osVvvyw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andi Shyti <andi@etezian.org>,
-        Stephan Gerhold <stephan@gerhold.net>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Casey Schaufler <casey@schaufler-ca.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 014/161] Input: mms114 - fix handling of mms345l
-Date:   Tue, 16 Jun 2020 17:33:24 +0200
-Message-Id: <20200616153107.088778466@linuxfoundation.org>
+Subject: [PATCH 5.4 021/134] smack: avoid unused sip variable warning
+Date:   Tue, 16 Jun 2020 17:33:25 +0200
+Message-Id: <20200616153101.737744147@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153106.402291280@linuxfoundation.org>
-References: <20200616153106.402291280@linuxfoundation.org>
+In-Reply-To: <20200616153100.633279950@linuxfoundation.org>
+References: <20200616153100.633279950@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,68 +44,164 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephan Gerhold <stephan@gerhold.net>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 3f8f770575d911c989043d8f0fb8dec96360c41c ]
+[ Upstream commit 00720f0e7f288d29681d265c23b22bb0f0f4e5b4 ]
 
-MMS345L is another first generation touch screen from Melfas,
-which uses the same registers as MMS152.
+The mix of IS_ENABLED() and #ifdef checks has left a combination
+that causes a warning about an unused variable:
 
-However, using I2C_M_NOSTART for it causes errors when reading:
+security/smack/smack_lsm.c: In function 'smack_socket_connect':
+security/smack/smack_lsm.c:2838:24: error: unused variable 'sip' [-Werror=unused-variable]
+ 2838 |   struct sockaddr_in6 *sip = (struct sockaddr_in6 *)sap;
 
-	i2c i2c-0: sendbytes: NAK bailout.
-	mms114 0-0048: __mms114_read_reg: i2c transfer failed (-5)
+Change the code to use C-style checks consistently so the compiler
+can handle it correctly.
 
-The driver works fine as soon as I2C_M_NOSTART is removed.
-
-Reviewed-by: Andi Shyti <andi@etezian.org>
-Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
-Link: https://lore.kernel.org/r/20200405170904.61512-1-stephan@gerhold.net
-[dtor: removed separate mms345l handling, made everyone use standard
-transfer mode, propagated the 10bit addressing flag to the read part of the
-transfer as well.]
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Fixes: 87fbfffcc89b ("broken ping to ipv6 linklocal addresses on debian buster")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/touchscreen/mms114.c | 12 +++++-------
- 1 file changed, 5 insertions(+), 7 deletions(-)
+ security/smack/smack.h     |  6 ------
+ security/smack/smack_lsm.c | 25 ++++++++-----------------
+ 2 files changed, 8 insertions(+), 23 deletions(-)
 
-diff --git a/drivers/input/touchscreen/mms114.c b/drivers/input/touchscreen/mms114.c
-index 69c6d559eeb0..2ef1adaed9af 100644
---- a/drivers/input/touchscreen/mms114.c
-+++ b/drivers/input/touchscreen/mms114.c
-@@ -91,15 +91,15 @@ static int __mms114_read_reg(struct mms114_data *data, unsigned int reg,
- 	if (reg <= MMS114_MODE_CONTROL && reg + len > MMS114_MODE_CONTROL)
- 		BUG();
+diff --git a/security/smack/smack.h b/security/smack/smack.h
+index 62529f382942..335d2411abe4 100644
+--- a/security/smack/smack.h
++++ b/security/smack/smack.h
+@@ -148,7 +148,6 @@ struct smk_net4addr {
+ 	struct smack_known	*smk_label;	/* label */
+ };
  
--	/* Write register: use repeated start */
-+	/* Write register */
- 	xfer[0].addr = client->addr;
--	xfer[0].flags = I2C_M_TEN | I2C_M_NOSTART;
-+	xfer[0].flags = client->flags & I2C_M_TEN;
- 	xfer[0].len = 1;
- 	xfer[0].buf = &buf;
+-#if IS_ENABLED(CONFIG_IPV6)
+ /*
+  * An entry in the table identifying IPv6 hosts.
+  */
+@@ -159,9 +158,7 @@ struct smk_net6addr {
+ 	int			smk_masks;	/* mask size */
+ 	struct smack_known	*smk_label;	/* label */
+ };
+-#endif /* CONFIG_IPV6 */
  
- 	/* Read data */
- 	xfer[1].addr = client->addr;
--	xfer[1].flags = I2C_M_RD;
-+	xfer[1].flags = (client->flags & I2C_M_TEN) | I2C_M_RD;
- 	xfer[1].len = len;
- 	xfer[1].buf = val;
+-#ifdef SMACK_IPV6_PORT_LABELING
+ /*
+  * An entry in the table identifying ports.
+  */
+@@ -174,7 +171,6 @@ struct smk_port_label {
+ 	short			smk_sock_type;	/* Socket type */
+ 	short			smk_can_reuse;
+ };
+-#endif /* SMACK_IPV6_PORT_LABELING */
  
-@@ -428,10 +428,8 @@ static int mms114_probe(struct i2c_client *client,
- 	const void *match_data;
- 	int error;
+ struct smack_known_list_elem {
+ 	struct list_head	list;
+@@ -335,9 +331,7 @@ extern struct smack_known smack_known_web;
+ extern struct mutex	smack_known_lock;
+ extern struct list_head smack_known_list;
+ extern struct list_head smk_net4addr_list;
+-#if IS_ENABLED(CONFIG_IPV6)
+ extern struct list_head smk_net6addr_list;
+-#endif /* CONFIG_IPV6 */
  
--	if (!i2c_check_functionality(client->adapter,
--				I2C_FUNC_PROTOCOL_MANGLING)) {
--		dev_err(&client->dev,
--			"Need i2c bus that supports protocol mangling\n");
-+	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
-+		dev_err(&client->dev, "Not supported I2C adapter\n");
- 		return -ENODEV;
+ extern struct mutex     smack_onlycap_lock;
+ extern struct list_head smack_onlycap_list;
+diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+index ad22066eba04..12c0fa85d9f8 100644
+--- a/security/smack/smack_lsm.c
++++ b/security/smack/smack_lsm.c
+@@ -51,10 +51,8 @@
+ #define SMK_RECEIVING	1
+ #define SMK_SENDING	2
+ 
+-#ifdef SMACK_IPV6_PORT_LABELING
+-DEFINE_MUTEX(smack_ipv6_lock);
++static DEFINE_MUTEX(smack_ipv6_lock);
+ static LIST_HEAD(smk_ipv6_port_list);
+-#endif
+ static struct kmem_cache *smack_inode_cache;
+ struct kmem_cache *smack_rule_cache;
+ int smack_enabled;
+@@ -2326,7 +2324,6 @@ static struct smack_known *smack_ipv4host_label(struct sockaddr_in *sip)
+ 	return NULL;
+ }
+ 
+-#if IS_ENABLED(CONFIG_IPV6)
+ /*
+  * smk_ipv6_localhost - Check for local ipv6 host address
+  * @sip: the address
+@@ -2394,7 +2391,6 @@ static struct smack_known *smack_ipv6host_label(struct sockaddr_in6 *sip)
+ 
+ 	return NULL;
+ }
+-#endif /* CONFIG_IPV6 */
+ 
+ /**
+  * smack_netlabel - Set the secattr on a socket
+@@ -2483,7 +2479,6 @@ static int smack_netlabel_send(struct sock *sk, struct sockaddr_in *sap)
+ 	return smack_netlabel(sk, sk_lbl);
+ }
+ 
+-#if IS_ENABLED(CONFIG_IPV6)
+ /**
+  * smk_ipv6_check - check Smack access
+  * @subject: subject Smack label
+@@ -2516,7 +2511,6 @@ static int smk_ipv6_check(struct smack_known *subject,
+ 	rc = smk_bu_note("IPv6 check", subject, object, MAY_WRITE, rc);
+ 	return rc;
+ }
+-#endif /* CONFIG_IPV6 */
+ 
+ #ifdef SMACK_IPV6_PORT_LABELING
+ /**
+@@ -2605,6 +2599,7 @@ static void smk_ipv6_port_label(struct socket *sock, struct sockaddr *address)
+ 	mutex_unlock(&smack_ipv6_lock);
+ 	return;
+ }
++#endif
+ 
+ /**
+  * smk_ipv6_port_check - check Smack port access
+@@ -2667,7 +2662,6 @@ static int smk_ipv6_port_check(struct sock *sk, struct sockaddr_in6 *address,
+ 
+ 	return smk_ipv6_check(skp, object, address, act);
+ }
+-#endif /* SMACK_IPV6_PORT_LABELING */
+ 
+ /**
+  * smack_inode_setsecurity - set smack xattrs
+@@ -2842,24 +2836,21 @@ static int smack_socket_connect(struct socket *sock, struct sockaddr *sap,
+ 		return 0;
+ 	if (IS_ENABLED(CONFIG_IPV6) && sap->sa_family == AF_INET6) {
+ 		struct sockaddr_in6 *sip = (struct sockaddr_in6 *)sap;
+-#ifdef SMACK_IPV6_SECMARK_LABELING
+-		struct smack_known *rsp;
+-#endif
++		struct smack_known *rsp = NULL;
+ 
+ 		if (addrlen < SIN6_LEN_RFC2133)
+ 			return 0;
+-#ifdef SMACK_IPV6_SECMARK_LABELING
+-		rsp = smack_ipv6host_label(sip);
++		if (__is_defined(SMACK_IPV6_SECMARK_LABELING))
++			rsp = smack_ipv6host_label(sip);
+ 		if (rsp != NULL) {
+ 			struct socket_smack *ssp = sock->sk->sk_security;
+ 
+ 			rc = smk_ipv6_check(ssp->smk_out, rsp, sip,
+ 					    SMK_CONNECTING);
+ 		}
+-#endif
+-#ifdef SMACK_IPV6_PORT_LABELING
+-		rc = smk_ipv6_port_check(sock->sk, sip, SMK_CONNECTING);
+-#endif
++		if (__is_defined(SMACK_IPV6_PORT_LABELING))
++			rc = smk_ipv6_port_check(sock->sk, sip, SMK_CONNECTING);
++
+ 		return rc;
  	}
- 
+ 	if (sap->sa_family != AF_INET || addrlen < sizeof(struct sockaddr_in))
 -- 
 2.25.1
 
