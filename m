@@ -2,39 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7082A1FBAB8
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:13:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B26E41FBB82
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:22:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730765AbgFPQNo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 12:13:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60690 "EHLO mail.kernel.org"
+        id S1731659AbgFPQTo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 12:19:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48350 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730857AbgFPPnS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:43:18 -0400
+        id S1730205AbgFPPhH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:37:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 82EDF208D5;
-        Tue, 16 Jun 2020 15:43:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5E9E12098B;
+        Tue, 16 Jun 2020 15:37:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322198;
-        bh=Di7A8DqgIq+G+hPLGCoVapvoWC53An6Hshe1OCaGKiQ=;
+        s=default; t=1592321826;
+        bh=zpIpPomPOC5UU8WDjgESvYXTrjxI7qC3+cdXH6qAkQI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bD1IWd0neRtjRpwrV4edG+m58/JWOVzLuljn2Ji9rLTjLf2OBgIktiaX4PJVUkhvo
-         gCQg10HHrYRKB8DjV1FvUTcxg+Bv66suQNOsKIkde5373SNPy55PYsAT6+bZDPSeMK
-         38qcyl+IhK2ZLj46ulRlYR36SIzEXDnm4L7c2KWY=
+        b=LHek30uWBypu6+HJdutv0TY/HP76121wj0N30RUXigVSQheMV+WUSXQnmqW1KhANa
+         Q9lT0Qsd214ce5THHE+sUI1i56kbvCkZi8m6ZfasziHuG/uxompuzEy6HrC7ZdV1GJ
+         HKo7bURpzreXoWkvGnoJP28tB1V1zEGiPOocbXII=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Anthony Steinhauser <asteinhauser@google.com>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 5.7 039/163] x86/speculation: Avoid force-disabling IBPB based on STIBP and enhanced IBRS.
-Date:   Tue, 16 Jun 2020 17:33:33 +0200
-Message-Id: <20200616153108.739198133@linuxfoundation.org>
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Waiman Long <longman@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Eric Biggers <ebiggers@google.com>,
+        David Howells <dhowells@redhat.com>,
+        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        Joe Perches <joe@perches.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        David Rientjes <rientjes@google.com>,
+        Uladzislau Rezki <urezki@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 030/134] mm: add kvfree_sensitive() for freeing sensitive data objects
+Date:   Tue, 16 Jun 2020 17:33:34 +0200
+Message-Id: <20200616153102.223495522@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
-References: <20200616153106.849127260@linuxfoundation.org>
+In-Reply-To: <20200616153100.633279950@linuxfoundation.org>
+References: <20200616153100.633279950@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,222 +55,161 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anthony Steinhauser <asteinhauser@google.com>
+From: Waiman Long <longman@redhat.com>
 
-commit 21998a351512eba4ed5969006f0c55882d995ada upstream.
+[ Upstream commit d4eaa2837851db2bfed572898bfc17f9a9f9151e ]
 
-When STIBP is unavailable or enhanced IBRS is available, Linux
-force-disables the IBPB mitigation of Spectre-BTB even when simultaneous
-multithreading is disabled. While attempts to enable IBPB using
-prctl(PR_SET_SPECULATION_CTRL, PR_SPEC_INDIRECT_BRANCH, ...) fail with
-EPERM, the seccomp syscall (or its prctl(PR_SET_SECCOMP, ...) equivalent)
-which are used e.g. by Chromium or OpenSSH succeed with no errors but the
-application remains silently vulnerable to cross-process Spectre v2 attacks
-(classical BTB poisoning). At the same time the SYSFS reporting
-(/sys/devices/system/cpu/vulnerabilities/spectre_v2) displays that IBPB is
-conditionally enabled when in fact it is unconditionally disabled.
+For kvmalloc'ed data object that contains sensitive information like
+cryptographic keys, we need to make sure that the buffer is always cleared
+before freeing it.  Using memset() alone for buffer clearing may not
+provide certainty as the compiler may compile it away.  To be sure, the
+special memzero_explicit() has to be used.
 
-STIBP is useful only when SMT is enabled. When SMT is disabled and STIBP is
-unavailable, it makes no sense to force-disable also IBPB, because IBPB
-protects against cross-process Spectre-BTB attacks regardless of the SMT
-state. At the same time since missing STIBP was only observed on AMD CPUs,
-AMD does not recommend using STIBP, but recommends using IBPB, so disabling
-IBPB because of missing STIBP goes directly against AMD's advice:
-https://developer.amd.com/wp-content/resources/Architecture_Guidelines_Update_Indirect_Branch_Control.pdf
+This patch introduces a new kvfree_sensitive() for freeing those sensitive
+data objects allocated by kvmalloc().  The relevant places where
+kvfree_sensitive() can be used are modified to use it.
 
-Similarly, enhanced IBRS is designed to protect cross-core BTB poisoning
-and BTB-poisoning attacks from user space against kernel (and
-BTB-poisoning attacks from guest against hypervisor), it is not designed
-to prevent cross-process (or cross-VM) BTB poisoning between processes (or
-VMs) running on the same core. Therefore, even with enhanced IBRS it is
-necessary to flush the BTB during context-switches, so there is no reason
-to force disable IBPB when enhanced IBRS is available.
-
-Enable the prctl control of IBPB even when STIBP is unavailable or enhanced
-IBRS is available.
-
-Fixes: 7cc765a67d8e ("x86/speculation: Enable prctl mode for spectre_v2_user")
-Signed-off-by: Anthony Steinhauser <asteinhauser@google.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: stable@vger.kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 4f0882491a14 ("KEYS: Avoid false positive ENOMEM error on key read")
+Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Waiman Long <longman@redhat.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Eric Biggers <ebiggers@google.com>
+Acked-by: David Howells <dhowells@redhat.com>
+Cc: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Cc: James Morris <jmorris@namei.org>
+Cc: "Serge E. Hallyn" <serge@hallyn.com>
+Cc: Joe Perches <joe@perches.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: David Rientjes <rientjes@google.com>
+Cc: Uladzislau Rezki <urezki@gmail.com>
+Link: http://lkml.kernel.org/r/20200407200318.11711-1-longman@redhat.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/cpu/bugs.c |   87 +++++++++++++++++++++++++--------------------
- 1 file changed, 50 insertions(+), 37 deletions(-)
+ include/linux/mm.h       |  1 +
+ mm/util.c                | 18 ++++++++++++++++++
+ security/keys/internal.h | 11 -----------
+ security/keys/keyctl.c   | 16 +++++-----------
+ 4 files changed, 24 insertions(+), 22 deletions(-)
 
---- a/arch/x86/kernel/cpu/bugs.c
-+++ b/arch/x86/kernel/cpu/bugs.c
-@@ -588,7 +588,9 @@ early_param("nospectre_v1", nospectre_v1
- static enum spectre_v2_mitigation spectre_v2_enabled __ro_after_init =
- 	SPECTRE_V2_NONE;
- 
--static enum spectre_v2_user_mitigation spectre_v2_user __ro_after_init =
-+static enum spectre_v2_user_mitigation spectre_v2_user_stibp __ro_after_init =
-+	SPECTRE_V2_USER_NONE;
-+static enum spectre_v2_user_mitigation spectre_v2_user_ibpb __ro_after_init =
- 	SPECTRE_V2_USER_NONE;
- 
- #ifdef CONFIG_RETPOLINE
-@@ -734,15 +736,6 @@ spectre_v2_user_select_mitigation(enum s
- 		break;
- 	}
- 
--	/*
--	 * At this point, an STIBP mode other than "off" has been set.
--	 * If STIBP support is not being forced, check if STIBP always-on
--	 * is preferred.
--	 */
--	if (mode != SPECTRE_V2_USER_STRICT &&
--	    boot_cpu_has(X86_FEATURE_AMD_STIBP_ALWAYS_ON))
--		mode = SPECTRE_V2_USER_STRICT_PREFERRED;
--
- 	/* Initialize Indirect Branch Prediction Barrier */
- 	if (boot_cpu_has(X86_FEATURE_IBPB)) {
- 		setup_force_cpu_cap(X86_FEATURE_USE_IBPB);
-@@ -765,23 +758,36 @@ spectre_v2_user_select_mitigation(enum s
- 		pr_info("mitigation: Enabling %s Indirect Branch Prediction Barrier\n",
- 			static_key_enabled(&switch_mm_always_ibpb) ?
- 			"always-on" : "conditional");
-+
-+		spectre_v2_user_ibpb = mode;
- 	}
- 
--	/* If enhanced IBRS is enabled no STIBP required */
--	if (spectre_v2_enabled == SPECTRE_V2_IBRS_ENHANCED)
-+	/*
-+	 * If enhanced IBRS is enabled or SMT impossible, STIBP is not
-+	 * required.
-+	 */
-+	if (!smt_possible || spectre_v2_enabled == SPECTRE_V2_IBRS_ENHANCED)
- 		return;
- 
- 	/*
--	 * If SMT is not possible or STIBP is not available clear the STIBP
--	 * mode.
-+	 * At this point, an STIBP mode other than "off" has been set.
-+	 * If STIBP support is not being forced, check if STIBP always-on
-+	 * is preferred.
-+	 */
-+	if (mode != SPECTRE_V2_USER_STRICT &&
-+	    boot_cpu_has(X86_FEATURE_AMD_STIBP_ALWAYS_ON))
-+		mode = SPECTRE_V2_USER_STRICT_PREFERRED;
-+
-+	/*
-+	 * If STIBP is not available, clear the STIBP mode.
- 	 */
--	if (!smt_possible || !boot_cpu_has(X86_FEATURE_STIBP))
-+	if (!boot_cpu_has(X86_FEATURE_STIBP))
- 		mode = SPECTRE_V2_USER_NONE;
-+
-+	spectre_v2_user_stibp = mode;
-+
- set_mode:
--	spectre_v2_user = mode;
--	/* Only print the STIBP mode when SMT possible */
--	if (smt_possible)
--		pr_info("%s\n", spectre_v2_user_strings[mode]);
-+	pr_info("%s\n", spectre_v2_user_strings[mode]);
+diff --git a/include/linux/mm.h b/include/linux/mm.h
+index 53bad834adf5..3285dae06c03 100644
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -694,6 +694,7 @@ static inline void *kvcalloc(size_t n, size_t size, gfp_t flags)
  }
  
- static const char * const spectre_v2_strings[] = {
-@@ -1014,7 +1020,7 @@ void cpu_bugs_smt_update(void)
- {
- 	mutex_lock(&spec_ctrl_mutex);
+ extern void kvfree(const void *addr);
++extern void kvfree_sensitive(const void *addr, size_t len);
  
--	switch (spectre_v2_user) {
-+	switch (spectre_v2_user_stibp) {
- 	case SPECTRE_V2_USER_NONE:
- 		break;
- 	case SPECTRE_V2_USER_STRICT:
-@@ -1257,14 +1263,16 @@ static int ib_prctl_set(struct task_stru
- {
- 	switch (ctrl) {
- 	case PR_SPEC_ENABLE:
--		if (spectre_v2_user == SPECTRE_V2_USER_NONE)
-+		if (spectre_v2_user_ibpb == SPECTRE_V2_USER_NONE &&
-+		    spectre_v2_user_stibp == SPECTRE_V2_USER_NONE)
- 			return 0;
- 		/*
- 		 * Indirect branch speculation is always disabled in strict
- 		 * mode.
- 		 */
--		if (spectre_v2_user == SPECTRE_V2_USER_STRICT ||
--		    spectre_v2_user == SPECTRE_V2_USER_STRICT_PREFERRED)
-+		if (spectre_v2_user_ibpb == SPECTRE_V2_USER_STRICT ||
-+		    spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT ||
-+		    spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT_PREFERRED)
- 			return -EPERM;
- 		task_clear_spec_ib_disable(task);
- 		task_update_spec_tif(task);
-@@ -1275,10 +1283,12 @@ static int ib_prctl_set(struct task_stru
- 		 * Indirect branch speculation is always allowed when
- 		 * mitigation is force disabled.
- 		 */
--		if (spectre_v2_user == SPECTRE_V2_USER_NONE)
-+		if (spectre_v2_user_ibpb == SPECTRE_V2_USER_NONE &&
-+		    spectre_v2_user_stibp == SPECTRE_V2_USER_NONE)
- 			return -EPERM;
--		if (spectre_v2_user == SPECTRE_V2_USER_STRICT ||
--		    spectre_v2_user == SPECTRE_V2_USER_STRICT_PREFERRED)
-+		if (spectre_v2_user_ibpb == SPECTRE_V2_USER_STRICT ||
-+		    spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT ||
-+		    spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT_PREFERRED)
- 			return 0;
- 		task_set_spec_ib_disable(task);
- 		if (ctrl == PR_SPEC_FORCE_DISABLE)
-@@ -1309,7 +1319,8 @@ void arch_seccomp_spec_mitigate(struct t
- {
- 	if (ssb_mode == SPEC_STORE_BYPASS_SECCOMP)
- 		ssb_prctl_set(task, PR_SPEC_FORCE_DISABLE);
--	if (spectre_v2_user == SPECTRE_V2_USER_SECCOMP)
-+	if (spectre_v2_user_ibpb == SPECTRE_V2_USER_SECCOMP ||
-+	    spectre_v2_user_stibp == SPECTRE_V2_USER_SECCOMP)
- 		ib_prctl_set(task, PR_SPEC_FORCE_DISABLE);
+ /*
+  * Mapcount of compound page as a whole, does not include mapped sub-pages.
+diff --git a/mm/util.c b/mm/util.c
+index 3ad6db9a722e..ab358c64bbd3 100644
+--- a/mm/util.c
++++ b/mm/util.c
+@@ -594,6 +594,24 @@ void kvfree(const void *addr)
  }
+ EXPORT_SYMBOL(kvfree);
+ 
++/**
++ * kvfree_sensitive - Free a data object containing sensitive information.
++ * @addr: address of the data object to be freed.
++ * @len: length of the data object.
++ *
++ * Use the special memzero_explicit() function to clear the content of a
++ * kvmalloc'ed object containing sensitive data to make sure that the
++ * compiler won't optimize out the data clearing.
++ */
++void kvfree_sensitive(const void *addr, size_t len)
++{
++	if (likely(!ZERO_OR_NULL_PTR(addr))) {
++		memzero_explicit((void *)addr, len);
++		kvfree(addr);
++	}
++}
++EXPORT_SYMBOL(kvfree_sensitive);
++
+ static inline void *__page_rmapping(struct page *page)
+ {
+ 	unsigned long mapping;
+diff --git a/security/keys/internal.h b/security/keys/internal.h
+index 7e9914943616..1ca8bfaed0e8 100644
+--- a/security/keys/internal.h
++++ b/security/keys/internal.h
+@@ -350,15 +350,4 @@ static inline void key_check(const struct key *key)
+ #define key_check(key) do {} while(0)
+ 
  #endif
-@@ -1340,22 +1351,24 @@ static int ib_prctl_get(struct task_stru
- 	if (!boot_cpu_has_bug(X86_BUG_SPECTRE_V2))
- 		return PR_SPEC_NOT_AFFECTED;
- 
--	switch (spectre_v2_user) {
--	case SPECTRE_V2_USER_NONE:
-+	if (spectre_v2_user_ibpb == SPECTRE_V2_USER_NONE &&
-+	    spectre_v2_user_stibp == SPECTRE_V2_USER_NONE)
- 		return PR_SPEC_ENABLE;
--	case SPECTRE_V2_USER_PRCTL:
--	case SPECTRE_V2_USER_SECCOMP:
-+	else if (spectre_v2_user_ibpb == SPECTRE_V2_USER_STRICT ||
-+	    spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT ||
-+	    spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT_PREFERRED)
-+		return PR_SPEC_DISABLE;
-+	else if (spectre_v2_user_ibpb == SPECTRE_V2_USER_PRCTL ||
-+	    spectre_v2_user_ibpb == SPECTRE_V2_USER_SECCOMP ||
-+	    spectre_v2_user_stibp == SPECTRE_V2_USER_PRCTL ||
-+	    spectre_v2_user_stibp == SPECTRE_V2_USER_SECCOMP) {
- 		if (task_spec_ib_force_disable(task))
- 			return PR_SPEC_PRCTL | PR_SPEC_FORCE_DISABLE;
- 		if (task_spec_ib_disable(task))
- 			return PR_SPEC_PRCTL | PR_SPEC_DISABLE;
- 		return PR_SPEC_PRCTL | PR_SPEC_ENABLE;
--	case SPECTRE_V2_USER_STRICT:
--	case SPECTRE_V2_USER_STRICT_PREFERRED:
--		return PR_SPEC_DISABLE;
--	default:
-+	} else
- 		return PR_SPEC_NOT_AFFECTED;
+-
+-/*
+- * Helper function to clear and free a kvmalloc'ed memory object.
+- */
+-static inline void __kvzfree(const void *addr, size_t len)
+-{
+-	if (addr) {
+-		memset((void *)addr, 0, len);
+-		kvfree(addr);
 -	}
+-}
+ #endif /* _INTERNAL_H */
+diff --git a/security/keys/keyctl.c b/security/keys/keyctl.c
+index 5e01192e222a..edde63a63007 100644
+--- a/security/keys/keyctl.c
++++ b/security/keys/keyctl.c
+@@ -142,10 +142,7 @@ SYSCALL_DEFINE5(add_key, const char __user *, _type,
+ 
+ 	key_ref_put(keyring_ref);
+  error3:
+-	if (payload) {
+-		memzero_explicit(payload, plen);
+-		kvfree(payload);
+-	}
++	kvfree_sensitive(payload, plen);
+  error2:
+ 	kfree(description);
+  error:
+@@ -360,7 +357,7 @@ long keyctl_update_key(key_serial_t id,
+ 
+ 	key_ref_put(key_ref);
+ error2:
+-	__kvzfree(payload, plen);
++	kvfree_sensitive(payload, plen);
+ error:
+ 	return ret;
  }
+@@ -914,7 +911,7 @@ long keyctl_read_key(key_serial_t keyid, char __user *buffer, size_t buflen)
+ 		 */
+ 		if (ret > key_data_len) {
+ 			if (unlikely(key_data))
+-				__kvzfree(key_data, key_data_len);
++				kvfree_sensitive(key_data, key_data_len);
+ 			key_data_len = ret;
+ 			continue;	/* Allocate buffer */
+ 		}
+@@ -923,7 +920,7 @@ long keyctl_read_key(key_serial_t keyid, char __user *buffer, size_t buflen)
+ 			ret = -EFAULT;
+ 		break;
+ 	}
+-	__kvzfree(key_data, key_data_len);
++	kvfree_sensitive(key_data, key_data_len);
  
- int arch_prctl_spec_ctrl_get(struct task_struct *task, unsigned long which)
-@@ -1594,7 +1607,7 @@ static char *stibp_state(void)
- 	if (spectre_v2_enabled == SPECTRE_V2_IBRS_ENHANCED)
- 		return "";
+ key_put_out:
+ 	key_put(key);
+@@ -1225,10 +1222,7 @@ long keyctl_instantiate_key_common(key_serial_t id,
+ 		keyctl_change_reqkey_auth(NULL);
  
--	switch (spectre_v2_user) {
-+	switch (spectre_v2_user_stibp) {
- 	case SPECTRE_V2_USER_NONE:
- 		return ", STIBP: disabled";
- 	case SPECTRE_V2_USER_STRICT:
+ error2:
+-	if (payload) {
+-		memzero_explicit(payload, plen);
+-		kvfree(payload);
+-	}
++	kvfree_sensitive(payload, plen);
+ error:
+ 	return ret;
+ }
+-- 
+2.25.1
+
 
 
