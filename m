@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A64E1FBB6D
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:22:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B26C81FB983
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:04:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730246AbgFPPhN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:37:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48506 "EHLO mail.kernel.org"
+        id S1729948AbgFPQEQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 12:04:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45024 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730243AbgFPPhM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:37:12 -0400
+        id S1732549AbgFPPtt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:49:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 43F9C20C56;
-        Tue, 16 Jun 2020 15:37:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 22A212071A;
+        Tue, 16 Jun 2020 15:49:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592321831;
-        bh=9gmy1HztA2mjnSIrbqEUjMiWyJe09lRlOSUFVNxX+Kk=;
+        s=default; t=1592322588;
+        bh=XzVd0lZiloehEKPbTGLt3ZQh1nAHtnKqZP4nBXUXmCk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Uxn8aP7J47Bd+G7xZgFeH4hWF9XGDALsG67PChTZSwh16DHTV5CvFFpMrSHhSXXU9
-         iYUbyjsmsc2wWYt4+OfgyTpezDWzp5ivciKJZxzToXmeDK5vTb0vCgDaHmycnFs8uc
-         yAESMHwK4e6J7XJH0WbMroRQfU7v/8BlSLhZxNE4=
+        b=RFbG1Ip5DPrhDyqktXTquZ3fmSmt/a0GCLFb2KJl+Uk+Z71L9zaADCSOPktnkO5TL
+         gZW8APuuMHaQmBp/rV6PCwVbRcSXYBqcHOjn+kjuTIo65Oy6T5mUo22not+a6llmR7
+         cteLQdbMn8kaczeBAO+1tmJdXH/HBG257O0RkO6o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
-        Amir Goldstein <amir73il@gmail.com>,
+        stable@vger.kernel.org, Vlad Buslov <vladbu@mellanox.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 032/134] fanotify: fix ignore mask logic for events on child and on dir
+Subject: [PATCH 5.6 026/161] selftests: fix flower parent qdisc
 Date:   Tue, 16 Jun 2020 17:33:36 +0200
-Message-Id: <20200616153102.324231978@linuxfoundation.org>
+Message-Id: <20200616153107.645810197@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153100.633279950@linuxfoundation.org>
-References: <20200616153100.633279950@linuxfoundation.org>
+In-Reply-To: <20200616153106.402291280@linuxfoundation.org>
+References: <20200616153106.402291280@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,65 +44,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amir Goldstein <amir73il@gmail.com>
+From: Vlad Buslov <vladbu@mellanox.com>
 
-[ Upstream commit 2f02fd3fa13e51713b630164f8a8e5b42de8283b ]
+[ Upstream commit 0531b0357ba37464e5c0033e1b7c69bbf5ecd8fb ]
 
-The comments in fanotify_group_event_mask() say:
+Flower tests used to create ingress filter with specified parent qdisc
+"parent ffff:" but dump them on "ingress". With recent commit that fixed
+tcm_parent handling in dump those are not considered same parent anymore,
+which causes iproute2 tc to emit additional "parent ffff:" in first line of
+filter dump output. The change in output causes filter match in tests to
+fail.
 
-  "If the event is on dir/child and this mark doesn't care about
-   events on dir/child, don't send it!"
+Prevent parent qdisc output when dumping filters in flower tests by always
+correctly specifying "ingress" parent both when creating and dumping
+filters.
 
-Specifically, mount and filesystem marks do not care about events
-on child, but they can still specify an ignore mask for those events.
-For example, a group that has:
-- A mount mark with mask 0 and ignore_mask FAN_OPEN
-- An inode mark on a directory with mask FAN_OPEN | FAN_OPEN_EXEC
-  with flag FAN_EVENT_ON_CHILD
-
-A child file open for exec would be reported to group with the FAN_OPEN
-event despite the fact that FAN_OPEN is in ignore mask of mount mark,
-because the mark iteration loop skips over non-inode marks for events
-on child when calculating the ignore mask.
-
-Move ignore mask calculation to the top of the iteration loop block
-before excluding marks for events on dir/child.
-
-Link: https://lore.kernel.org/r/20200524072441.18258-1-amir73il@gmail.com
-Reported-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/linux-fsdevel/20200521162443.GA26052@quack2.suse.cz/
-Fixes: 55bf882c7f13 "fanotify: fix merging marks masks with FAN_ONDIR"
-Fixes: b469e7e47c8a "fanotify: fix handling of events on child..."
-Signed-off-by: Amir Goldstein <amir73il@gmail.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
+Fixes: a7df4870d79b ("net_sched: fix tcm_parent in tc filter dump")
+Signed-off-by: Vlad Buslov <vladbu@mellanox.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/notify/fanotify/fanotify.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ .../selftests/tc-testing/tc-tests/filters/tests.json        | 6 +++---
+ tools/testing/selftests/tc-testing/tdc_batch.py             | 6 +++---
+ 2 files changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/fs/notify/fanotify/fanotify.c b/fs/notify/fanotify/fanotify.c
-index deb13f0a0f7d..d24548ed31b9 100644
---- a/fs/notify/fanotify/fanotify.c
-+++ b/fs/notify/fanotify/fanotify.c
-@@ -171,6 +171,10 @@ static u32 fanotify_group_event_mask(struct fsnotify_group *group,
- 		if (!fsnotify_iter_should_report_type(iter_info, type))
- 			continue;
- 		mark = iter_info->marks[type];
-+
-+		/* Apply ignore mask regardless of ISDIR and ON_CHILD flags */
-+		marks_ignored_mask |= mark->ignored_mask;
-+
- 		/*
- 		 * If the event is on dir and this mark doesn't care about
- 		 * events on dir, don't send it!
-@@ -188,7 +192,6 @@ static u32 fanotify_group_event_mask(struct fsnotify_group *group,
- 			continue;
+diff --git a/tools/testing/selftests/tc-testing/tc-tests/filters/tests.json b/tools/testing/selftests/tc-testing/tc-tests/filters/tests.json
+index 8877f7b2b809..12aa4bc1f6a0 100644
+--- a/tools/testing/selftests/tc-testing/tc-tests/filters/tests.json
++++ b/tools/testing/selftests/tc-testing/tc-tests/filters/tests.json
+@@ -32,7 +32,7 @@
+         "setup": [
+             "$TC qdisc add dev $DEV2 ingress"
+         ],
+-        "cmdUnderTest": "$TC filter add dev $DEV2 protocol ip pref 1 parent ffff: handle 0xffffffff flower action ok",
++        "cmdUnderTest": "$TC filter add dev $DEV2 protocol ip pref 1 ingress handle 0xffffffff flower action ok",
+         "expExitCode": "0",
+         "verifyCmd": "$TC filter show dev $DEV2 ingress",
+         "matchPattern": "filter protocol ip pref 1 flower.*handle 0xffffffff",
+@@ -77,9 +77,9 @@
+         },
+         "setup": [
+             "$TC qdisc add dev $DEV2 ingress",
+-            "$TC filter add dev $DEV2 protocol ip prio 1 parent ffff: flower dst_mac e4:11:22:11:4a:51 src_mac e4:11:22:11:4a:50 ip_proto tcp src_ip 1.1.1.1 dst_ip 2.2.2.2 action drop"
++            "$TC filter add dev $DEV2 protocol ip prio 1 ingress flower dst_mac e4:11:22:11:4a:51 src_mac e4:11:22:11:4a:50 ip_proto tcp src_ip 1.1.1.1 dst_ip 2.2.2.2 action drop"
+         ],
+-        "cmdUnderTest": "$TC filter add dev $DEV2 protocol ip prio 1 parent ffff: flower dst_mac e4:11:22:11:4a:51 src_mac e4:11:22:11:4a:50 ip_proto tcp src_ip 1.1.1.1 dst_ip 2.2.2.2 action drop",
++        "cmdUnderTest": "$TC filter add dev $DEV2 protocol ip prio 1 ingress flower dst_mac e4:11:22:11:4a:51 src_mac e4:11:22:11:4a:50 ip_proto tcp src_ip 1.1.1.1 dst_ip 2.2.2.2 action drop",
+         "expExitCode": "2",
+         "verifyCmd": "$TC -s filter show dev $DEV2 ingress",
+         "matchPattern": "filter protocol ip pref 1 flower chain 0 handle",
+diff --git a/tools/testing/selftests/tc-testing/tdc_batch.py b/tools/testing/selftests/tc-testing/tdc_batch.py
+index 6a2bd2cf528e..995f66ce43eb 100755
+--- a/tools/testing/selftests/tc-testing/tdc_batch.py
++++ b/tools/testing/selftests/tc-testing/tdc_batch.py
+@@ -72,21 +72,21 @@ mac_prefix = args.mac_prefix
  
- 		marks_mask |= mark->mask;
--		marks_ignored_mask |= mark->ignored_mask;
- 	}
+ def format_add_filter(device, prio, handle, skip, src_mac, dst_mac,
+                       share_action):
+-    return ("filter add dev {} {} protocol ip parent ffff: handle {} "
++    return ("filter add dev {} {} protocol ip ingress handle {} "
+             " flower {} src_mac {} dst_mac {} action drop {}".format(
+                 device, prio, handle, skip, src_mac, dst_mac, share_action))
  
- 	test_mask = event_mask & marks_mask & ~marks_ignored_mask;
+ 
+ def format_rep_filter(device, prio, handle, skip, src_mac, dst_mac,
+                       share_action):
+-    return ("filter replace dev {} {} protocol ip parent ffff: handle {} "
++    return ("filter replace dev {} {} protocol ip ingress handle {} "
+             " flower {} src_mac {} dst_mac {} action drop {}".format(
+                 device, prio, handle, skip, src_mac, dst_mac, share_action))
+ 
+ 
+ def format_del_filter(device, prio, handle, skip, src_mac, dst_mac,
+                       share_action):
+-    return ("filter del dev {} {} protocol ip parent ffff: handle {} "
++    return ("filter del dev {} {} protocol ip ingress handle {} "
+             "flower".format(device, prio, handle))
+ 
+ 
 -- 
 2.25.1
 
