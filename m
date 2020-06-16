@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 30C751FB693
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:39:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A7E21FB749
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:47:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730645AbgFPPia (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:38:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50982 "EHLO mail.kernel.org"
+        id S1730157AbgFPPon (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:44:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35232 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729811AbgFPPi3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:38:29 -0400
+        id S1732011AbgFPPom (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:44:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E1BAC20B1F;
-        Tue, 16 Jun 2020 15:38:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1E72B21475;
+        Tue, 16 Jun 2020 15:44:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592321909;
+        s=default; t=1592322282;
         bh=z8VABR2iloijjO5oU3eoMWMuhLAhwBXfYG9CbcWJDuk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hEHJSAqSyYTuyqcsv3Zv/twv+ays4Q9pFkg92VMKmy4PvBhfr3qtQBQEj+RnXmMUW
-         TPebtlzC1rXoDe3SB1jRM21dKVL0xBnIV+15Q2mKDtvAR5OjQarVW9GV+6RrvtKFhc
-         kK4FW1t5hhm4eaMNJSiBe4xGZQnY02r4jsuJimn0=
+        b=zNHLxZ3mHYk8Ictk7lMHhJEb2YgGjjThphmoOaLE4hriz5V3Q/8hQ4o0tsCwP9jGK
+         uPotw2JPFV8lT/oSj4yxzQNGbOvEgaPRoSIqomyF3dnBUyCR23wCUmZ8At9lk4RFvT
+         cm1V73KbhJeRbm35YipWpJ2/NqjPS0993Y8mIe8U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Qiushi Wu <wu000273@umn.edu>,
         "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.4 062/134] ACPI: sysfs: Fix reference count leak in acpi_sysfs_add_hotplug_profile()
+Subject: [PATCH 5.7 072/163] ACPI: sysfs: Fix reference count leak in acpi_sysfs_add_hotplug_profile()
 Date:   Tue, 16 Jun 2020 17:34:06 +0200
-Message-Id: <20200616153103.744249070@linuxfoundation.org>
+Message-Id: <20200616153110.296258349@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153100.633279950@linuxfoundation.org>
-References: <20200616153100.633279950@linuxfoundation.org>
+In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
+References: <20200616153106.849127260@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
