@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 347DC1FB98B
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:05:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E27901FB95D
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:04:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732520AbgFPQEm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 12:04:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44494 "EHLO mail.kernel.org"
+        id S1732369AbgFPPuB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:50:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45300 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732508AbgFPPtb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:49:31 -0400
+        id S1732375AbgFPPt7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:49:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5AC6A2071A;
-        Tue, 16 Jun 2020 15:49:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 75C6121475;
+        Tue, 16 Jun 2020 15:49:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322570;
-        bh=C0AQZmqKYDSYCAAADdcgii1JJGtRlmPQWuBiuYvQsMw=;
+        s=default; t=1592322599;
+        bh=R8b4aXiaDVa9gpxOJ77HU6fmfPrXxPzH9NZlAi6jZ1U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2o51I6XSfErdbQL3YAEshec4FTz3V5VscxFuEXVLOQlOSV/TrhJjoDUwPOkdXdmRS
-         E67x8qHjVyLi8STUThFDcBkIUSBPNj64s9wGmF1Ji5tBtpMWGf5wXi+JdvNwH6xtjL
-         7NphfWCxoYSLzenEcrO0jWz8yz8EMkl9mJTxZH9o=
+        b=Kkn/A7fA3qTLJ5ihlq3e4PKiAsm4FxVX1BWqodl35DR6KB0cCl9QGIbm43ab3HIsU
+         kCQIRL97YZDgRXQXmdnP+Rcold/4xFq2rF7vh7So/UTS0hz6tP9QPNWc/rhFr+VrAF
+         fph8ohiTzgdGkBqzXBGolDi5yd2Aa/Pvz7wtyQWI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vadim Pasternak <vadimp@mellanox.com>,
-        Jiri Pirko <jiri@mellanox.com>,
-        Ido Schimmel <idosch@mellanox.com>,
+        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.6 002/161] mlxsw: core: Use different get_trend() callbacks for different thermal zones
-Date:   Tue, 16 Jun 2020 17:33:12 +0200
-Message-Id: <20200616153106.528385150@linuxfoundation.org>
+Subject: [PATCH 5.6 003/161] net_failover: fixed rollback in net_failover_open()
+Date:   Tue, 16 Jun 2020 17:33:13 +0200
+Message-Id: <20200616153106.573957731@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200616153106.402291280@linuxfoundation.org>
 References: <20200616153106.402291280@linuxfoundation.org>
@@ -45,83 +43,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vadim Pasternak <vadimp@mellanox.com>
+From: Vasily Averin <vvs@virtuozzo.com>
 
-[ Upstream commit 2dc2f760052da4925482ecdcdc5c94d4a599153c ]
+[ Upstream commit e8224bfe77293494626f6eec1884fee7b87d0ced ]
 
-The driver registers three different types of thermal zones: For the
-ASIC itself, for port modules and for gearboxes.
+found by smatch:
+drivers/net/net_failover.c:65 net_failover_open() error:
+ we previously assumed 'primary_dev' could be null (see line 43)
 
-Currently, all three types use the same get_trend() callback which does
-not work correctly for the ASIC thermal zone. The callback assumes that
-the device data is of type 'struct mlxsw_thermal_module', whereas for
-the ASIC thermal zone 'struct mlxsw_thermal' is passed as device data.
-
-Fix this by using one get_trend() callback for the ASIC thermal zone and
-another for the other two types.
-
-Fixes: 6f73862fabd9 ("mlxsw: core: Add the hottest thermal zone detection")
-Signed-off-by: Vadim Pasternak <vadimp@mellanox.com>
-Reviewed-by: Jiri Pirko <jiri@mellanox.com>
-Signed-off-by: Ido Schimmel <idosch@mellanox.com>
+Fixes: cfc80d9a1163 ("net: Introduce net_failover driver")
+Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlxsw/core_thermal.c |   23 +++++++++++++++++----
- 1 file changed, 19 insertions(+), 4 deletions(-)
+ drivers/net/net_failover.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/mellanox/mlxsw/core_thermal.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/core_thermal.c
-@@ -391,8 +391,7 @@ static int mlxsw_thermal_set_trip_hyst(s
- static int mlxsw_thermal_trend_get(struct thermal_zone_device *tzdev,
- 				   int trip, enum thermal_trend *trend)
- {
--	struct mlxsw_thermal_module *tz = tzdev->devdata;
--	struct mlxsw_thermal *thermal = tz->parent;
-+	struct mlxsw_thermal *thermal = tzdev->devdata;
- 
- 	if (trip < 0 || trip >= MLXSW_THERMAL_NUM_TRIPS)
- 		return -EINVAL;
-@@ -593,6 +592,22 @@ mlxsw_thermal_module_trip_hyst_set(struc
+--- a/drivers/net/net_failover.c
++++ b/drivers/net/net_failover.c
+@@ -61,7 +61,8 @@ static int net_failover_open(struct net_
  	return 0;
- }
  
-+static int mlxsw_thermal_module_trend_get(struct thermal_zone_device *tzdev,
-+					  int trip, enum thermal_trend *trend)
-+{
-+	struct mlxsw_thermal_module *tz = tzdev->devdata;
-+	struct mlxsw_thermal *thermal = tz->parent;
-+
-+	if (trip < 0 || trip >= MLXSW_THERMAL_NUM_TRIPS)
-+		return -EINVAL;
-+
-+	if (tzdev == thermal->tz_highest_dev)
-+		return 1;
-+
-+	*trend = THERMAL_TREND_STABLE;
-+	return 0;
-+}
-+
- static struct thermal_zone_device_ops mlxsw_thermal_module_ops = {
- 	.bind		= mlxsw_thermal_module_bind,
- 	.unbind		= mlxsw_thermal_module_unbind,
-@@ -604,7 +619,7 @@ static struct thermal_zone_device_ops ml
- 	.set_trip_temp	= mlxsw_thermal_module_trip_temp_set,
- 	.get_trip_hyst	= mlxsw_thermal_module_trip_hyst_get,
- 	.set_trip_hyst	= mlxsw_thermal_module_trip_hyst_set,
--	.get_trend	= mlxsw_thermal_trend_get,
-+	.get_trend	= mlxsw_thermal_module_trend_get,
- };
- 
- static int mlxsw_thermal_gearbox_temp_get(struct thermal_zone_device *tzdev,
-@@ -643,7 +658,7 @@ static struct thermal_zone_device_ops ml
- 	.set_trip_temp	= mlxsw_thermal_module_trip_temp_set,
- 	.get_trip_hyst	= mlxsw_thermal_module_trip_hyst_get,
- 	.set_trip_hyst	= mlxsw_thermal_module_trip_hyst_set,
--	.get_trend	= mlxsw_thermal_trend_get,
-+	.get_trend	= mlxsw_thermal_module_trend_get,
- };
- 
- static int mlxsw_thermal_get_max_state(struct thermal_cooling_device *cdev,
+ err_standby_open:
+-	dev_close(primary_dev);
++	if (primary_dev)
++		dev_close(primary_dev);
+ err_primary_open:
+ 	netif_tx_disable(dev);
+ 	return err;
 
 
