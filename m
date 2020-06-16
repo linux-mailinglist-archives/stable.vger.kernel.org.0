@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 37A051FBA47
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:10:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D8011FBB4D
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:18:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730955AbgFPPoj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:44:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34634 "EHLO mail.kernel.org"
+        id S1730561AbgFPPiK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:38:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50314 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731974AbgFPPoZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:44:25 -0400
+        id S1730552AbgFPPiJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:38:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3E8FF21475;
-        Tue, 16 Jun 2020 15:44:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4A0E620C56;
+        Tue, 16 Jun 2020 15:38:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322264;
-        bh=8oOdO8G5uDNdbKO90o2ZU39T1Bp6Ti8hqZkMXc9pX6k=;
+        s=default; t=1592321888;
+        bh=338AucczY2mLow4d9IdceneS8Dm9fzEUvS1ZacGLH8w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SqPbd67KDP5CyFebEseJUYtJ/DAy2uA3GwoTNOy0BEWXttzx/Zvq2utxXtBAV4+aX
-         hnpAN3vQfztLf15lDjx7CERex7+TVuvVV2R8XDP9+3xWfT2mbxr+suZoKorJkuKxZl
-         wgiLnktiT7s73yz+jsrtoF7IVexZ1xcPDtzYV2Os=
+        b=WG5k+/gNvwmslUD03xANP6dOwfJDSbTiUvpnwhl9L4SH7FqHvOzLGnxR2+L56zBvS
+         5YG+ER5ulsOenjD4BWKJVuMdrgt/1A0i2tbH2KraRODo4MdujbAPlOMx1dbLUoa8l/
+         bA5LQV0gjdkJxlSA4klhJcvsnNAJIQrT+G/wb2AI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Sakamoto <o-takashi@sakamocchi.jp>,
+        stable@vger.kernel.org, Chuhong Yuan <hslester96@gmail.com>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.7 065/163] ALSA: fireface: fix configuration error for nominal sampling transfer frequency
+Subject: [PATCH 5.4 055/134] ALSA: es1688: Add the missed snd_card_free()
 Date:   Tue, 16 Jun 2020 17:33:59 +0200
-Message-Id: <20200616153109.957335336@linuxfoundation.org>
+Message-Id: <20200616153103.409759933@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
-References: <20200616153106.849127260@linuxfoundation.org>
+In-Reply-To: <20200616153100.633279950@linuxfoundation.org>
+References: <20200616153100.633279950@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,67 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+From: Chuhong Yuan <hslester96@gmail.com>
 
-commit bbd6aac3ae15bef762af03bf62e35ace5c4292bd upstream.
+commit d9b8fbf15d05350b36081eddafcf7b15aa1add50 upstream.
 
-128000 and 192000 are congruence modulo 32000, thus it's wrong to
-distinguish them as multiple of 32000 and 48000 by modulo 32000 at
-first.
+snd_es968_pnp_detect() misses a snd_card_free() in a failed path.
+Add the missed function call to fix it.
 
-Additionally, used condition statement to detect quadruple speed can
-cause missing bit flag.
-
-Furthermore, counter to ensure the configuration is wrong and it
-causes false positive.
-
-This commit fixes the above three bugs.
-
+Fixes: a20971b201ac ("ALSA: Merge es1688 and es968 drivers")
+Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
 Cc: <stable@vger.kernel.org>
-Fixes: 60aec494b389 ("ALSA: fireface: support allocate_resources operation in latter protocol")
-Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
-Link: https://lore.kernel.org/r/20200510074301.116224-2-o-takashi@sakamocchi.jp
+Link: https://lore.kernel.org/r/20200603092459.1424093-1-hslester96@gmail.com
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/firewire/fireface/ff-protocol-latter.c |   12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ sound/isa/es1688/es1688.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/sound/firewire/fireface/ff-protocol-latter.c
-+++ b/sound/firewire/fireface/ff-protocol-latter.c
-@@ -107,18 +107,18 @@ static int latter_allocate_resources(str
- 	int err;
- 
- 	// Set the number of data blocks transferred in a second.
--	if (rate % 32000 == 0)
--		code = 0x00;
-+	if (rate % 48000 == 0)
-+		code = 0x04;
- 	else if (rate % 44100 == 0)
- 		code = 0x02;
--	else if (rate % 48000 == 0)
--		code = 0x04;
-+	else if (rate % 32000 == 0)
-+		code = 0x00;
- 	else
- 		return -EINVAL;
- 
- 	if (rate >= 64000 && rate < 128000)
- 		code |= 0x08;
--	else if (rate >= 128000 && rate < 192000)
-+	else if (rate >= 128000)
- 		code |= 0x10;
- 
- 	reg = cpu_to_le32(code);
-@@ -140,7 +140,7 @@ static int latter_allocate_resources(str
- 		if (curr_rate == rate)
- 			break;
+--- a/sound/isa/es1688/es1688.c
++++ b/sound/isa/es1688/es1688.c
+@@ -267,8 +267,10 @@ static int snd_es968_pnp_detect(struct p
+ 		return error;
  	}
--	if (count == 10)
-+	if (count > 10)
- 		return -ETIMEDOUT;
- 
- 	for (i = 0; i < ARRAY_SIZE(amdtp_rate_table); ++i) {
+ 	error = snd_es1688_probe(card, dev);
+-	if (error < 0)
++	if (error < 0) {
++		snd_card_free(card);
+ 		return error;
++	}
+ 	pnp_set_card_drvdata(pcard, card);
+ 	snd_es968_pnp_is_probed = 1;
+ 	return 0;
 
 
