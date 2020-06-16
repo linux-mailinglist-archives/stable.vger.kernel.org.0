@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D2161FB812
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:53:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 164BB1FB6C5
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:43:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732765AbgFPPwu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:52:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50504 "EHLO mail.kernel.org"
+        id S1729867AbgFPPkQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:40:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54472 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732813AbgFPPwt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:52:49 -0400
+        id S1729815AbgFPPkL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:40:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5934D21534;
-        Tue, 16 Jun 2020 15:52:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 03AA82145D;
+        Tue, 16 Jun 2020 15:40:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322768;
-        bh=ehGZLwBStwiNoBJPxCADAHxsq8vyqACAuHk60HMadMY=;
+        s=default; t=1592322011;
+        bh=KERNEO/I/JhTJOE7gZeiLLtKqNd+wcWeZV80AwRWTDw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ffseDg6qwoG0ruDJxqEiCrDHEZi/Rqm721V4nRv2gQ0/13iQc5FRRkd11Ck59GD+1
-         7dY4Ez2R+FdkioGZEivSr+2KzvRRNC4y71nza9nL4NSKCTuv4OAs89uU3J4Pcbh1C0
-         uR6FJIXl3p+aMy1feGeX7/5j/QWhUE8aHZs4VsdQ=
+        b=GLclMM2WpKM64IouccNwAqVEFe7JiDXN0fFBEKkmH+nb/S+HErDjKFX/t/BIGBpRU
+         mdufUAs5u9iaVVkrOZkVLcEAr/SumDFi1/6vJtqBmdBIPIiJ+WGcIJ5exl90K2cv95
+         M+hFveZMeKkWiU/QsN7J1gO5TE1Ggl9GnVj3ub0o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
+        stable@vger.kernel.org, Richard Purdie <rpurdie@rpsys.net>,
+        Antonino Daplas <adaplas@pol.net>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
         Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 5.6 095/161] crypto: cavium/nitrox - Fix nitrox_get_first_device() when ndevlist is fully iterated
+        Sam Ravnborg <sam@ravnborg.org>
+Subject: [PATCH 5.4 101/134] video: fbdev: w100fb: Fix a potential double free.
 Date:   Tue, 16 Jun 2020 17:34:45 +0200
-Message-Id: <20200616153110.904427046@linuxfoundation.org>
+Message-Id: <20200616153105.626004585@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153106.402291280@linuxfoundation.org>
-References: <20200616153106.402291280@linuxfoundation.org>
+In-Reply-To: <20200616153100.633279950@linuxfoundation.org>
+References: <20200616153100.633279950@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,43 +48,48 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-commit 320bdbd816156f9ca07e5fed7bfb449f2908dda7 upstream.
+commit 18722d48a6bb9c2e8d046214c0a5fd19d0a7c9f6 upstream.
 
-When a list is completely iterated with 'list_for_each_entry(x, ...)', x is
-not NULL at the end.
+Some memory is vmalloc'ed in the 'w100fb_save_vidmem' function and freed in
+the 'w100fb_restore_vidmem' function. (these functions are called
+respectively from the 'suspend' and the 'resume' functions)
 
-While at it, remove a useless initialization of the ndev variable. It
-is overridden by 'list_for_each_entry'.
+However, it is also freed in the 'remove' function.
 
-Fixes: f2663872f073 ("crypto: cavium - Register the CNN55XX supported crypto algorithms.")
-Cc: <stable@vger.kernel.org>
+In order to avoid a potential double free, set the corresponding pointer
+to NULL once freed in the 'w100fb_restore_vidmem' function.
+
+Fixes: aac51f09d96a ("[PATCH] w100fb: Rewrite for platform independence")
+Cc: Richard Purdie <rpurdie@rpsys.net>
+Cc: Antonino Daplas <adaplas@pol.net>
+Cc: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Cc: <stable@vger.kernel.org> # v2.6.14+
 Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200506181902.193290-1-christophe.jaillet@wanadoo.fr
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/crypto/cavium/nitrox/nitrox_main.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/video/fbdev/w100fb.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/crypto/cavium/nitrox/nitrox_main.c
-+++ b/drivers/crypto/cavium/nitrox/nitrox_main.c
-@@ -278,7 +278,7 @@ static void nitrox_remove_from_devlist(s
- 
- struct nitrox_device *nitrox_get_first_device(void)
- {
--	struct nitrox_device *ndev = NULL;
-+	struct nitrox_device *ndev;
- 
- 	mutex_lock(&devlist_lock);
- 	list_for_each_entry(ndev, &ndevlist, list) {
-@@ -286,7 +286,7 @@ struct nitrox_device *nitrox_get_first_d
- 			break;
+--- a/drivers/video/fbdev/w100fb.c
++++ b/drivers/video/fbdev/w100fb.c
+@@ -588,6 +588,7 @@ static void w100fb_restore_vidmem(struct
+ 		memsize=par->mach->mem->size;
+ 		memcpy_toio(remapped_fbuf + (W100_FB_BASE-MEM_WINDOW_BASE), par->saved_extmem, memsize);
+ 		vfree(par->saved_extmem);
++		par->saved_extmem = NULL;
  	}
- 	mutex_unlock(&devlist_lock);
--	if (!ndev)
-+	if (&ndev->list == &ndevlist)
- 		return NULL;
+ 	if (par->saved_intmem) {
+ 		memsize=MEM_INT_SIZE;
+@@ -596,6 +597,7 @@ static void w100fb_restore_vidmem(struct
+ 		else
+ 			memcpy_toio(remapped_fbuf + (W100_FB_BASE-MEM_WINDOW_BASE), par->saved_intmem, memsize);
+ 		vfree(par->saved_intmem);
++		par->saved_intmem = NULL;
+ 	}
+ }
  
- 	refcount_inc(&ndev->refcnt);
 
 
