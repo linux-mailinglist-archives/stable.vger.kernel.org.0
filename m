@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BC7B1FB3ED
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 16:14:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A1511FB3EF
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 16:15:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728928AbgFPOOj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 10:14:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46374 "EHLO mail.kernel.org"
+        id S1729113AbgFPOPI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 10:15:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46870 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726606AbgFPOOi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 10:14:38 -0400
+        id S1726606AbgFPOPH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 10:15:07 -0400
 Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CC80220707;
-        Tue, 16 Jun 2020 14:14:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B217B20707;
+        Tue, 16 Jun 2020 14:15:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592316877;
-        bh=IpgWt4VeNtZjDXhHubrVUaM99z26fAFMAd9BNS7nO5w=;
+        s=default; t=1592316906;
+        bh=zUXycbDFXLh8bC06Zpx34bfty3+JV+IJ1VKo0ZsJ6jI=;
         h=From:To:Cc:Subject:Date:From;
-        b=INycMNH49zUUNJICqGxRfJdhkgJVqr1yXlII2AI8GGXgQmHtimSZCXvX0AyrNssC8
-         qBg9OEc5ZUcfDltSevma16gYtGs2A5ewDvyo9P94ADisMIqraTRUX6Ft0ETkdHuQvx
-         s9rHwJB5MJnCJW+2tGv1zYyufkjDjAiKHY4Pnyn4=
+        b=gqaspMAMc+7/2AJasufzUAgrXdHauBuRbJcGu5qGUVqNtVK+RpAZl8vs6R5ZvH3HT
+         M+d1s47HA1a0UTJiI5cDFt+yGJg5Q7eGjTTuj0gr9f5LkkpE7k9XuSlgG4IN4tAuXB
+         CBPEVWYDwh+LRSDj2a0s5A+7Gqg3TXiJ5ay+buMk=
 Received: from 78.163-31-62.static.virginmediabusiness.co.uk ([62.31.163.78] helo=why.lan)
         by disco-boy.misterjones.org with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <maz@kernel.org>)
-        id 1jlCMG-003RUF-BZ; Tue, 16 Jun 2020 15:14:36 +0100
+        id 1jlCMj-003RV7-83; Tue, 16 Jun 2020 15:15:05 +0100
 From:   Marc Zyngier <maz@kernel.org>
 To:     stable@vger.kernel.org
 Cc:     James Morse <james.morse@arm.com>,
         Julien Thierry <julien.thierry.kdev@gmail.com>,
         Suzuki K Poulose <suzuki.poulose@arm.com>,
         kernel-team@android.com, Mark Rutland <mark.rutland@arm.com>
-Subject: [PATCH stable-5.4] KVM: arm64: Save the host's PtrAuth keys in non-preemptible context
-Date:   Tue, 16 Jun 2020 15:14:31 +0100
-Message-Id: <20200616141431.2217120-1-maz@kernel.org>
+Subject: [PATCH stable-5.6] KVM: arm64: Save the host's PtrAuth keys in non-preemptible context
+Date:   Tue, 16 Jun 2020 15:15:02 +0100
+Message-Id: <20200616141502.2217274-1-maz@kernel.org>
 X-Mailer: git-send-email 2.27.0
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -73,10 +73,10 @@ Signed-off-by: Marc Zyngier <maz@kernel.org>
  4 files changed, 25 insertions(+), 25 deletions(-)
 
 diff --git a/arch/arm/include/asm/kvm_emulate.h b/arch/arm/include/asm/kvm_emulate.h
-index 8e995ec796c8..cbde9fa15792 100644
+index 3944305e81df..b26c1aaf1e3c 100644
 --- a/arch/arm/include/asm/kvm_emulate.h
 +++ b/arch/arm/include/asm/kvm_emulate.h
-@@ -363,6 +363,7 @@ static inline unsigned long vcpu_data_host_to_guest(struct kvm_vcpu *vcpu,
+@@ -367,6 +367,7 @@ static inline unsigned long vcpu_data_host_to_guest(struct kvm_vcpu *vcpu,
  	}
  }
  
@@ -86,10 +86,10 @@ index 8e995ec796c8..cbde9fa15792 100644
  
  #endif /* __ARM_KVM_EMULATE_H__ */
 diff --git a/arch/arm64/include/asm/kvm_emulate.h b/arch/arm64/include/asm/kvm_emulate.h
-index 6ff84f1f3b4c..f47081b40523 100644
+index f658dda12364..0ab02e5ff712 100644
 --- a/arch/arm64/include/asm/kvm_emulate.h
 +++ b/arch/arm64/include/asm/kvm_emulate.h
-@@ -97,12 +97,6 @@ static inline void vcpu_ptrauth_disable(struct kvm_vcpu *vcpu)
+@@ -111,12 +111,6 @@ static inline void vcpu_ptrauth_disable(struct kvm_vcpu *vcpu)
  	vcpu->arch.hcr_el2 &= ~(HCR_API | HCR_APK);
  }
  
@@ -103,7 +103,7 @@ index 6ff84f1f3b4c..f47081b40523 100644
  {
  	return vcpu->arch.vsesr_el2;
 diff --git a/arch/arm64/kvm/handle_exit.c b/arch/arm64/kvm/handle_exit.c
-index 706cca23f0d2..1249f68a9418 100644
+index aacfc55de44c..e0a4bcdb9451 100644
 --- a/arch/arm64/kvm/handle_exit.c
 +++ b/arch/arm64/kvm/handle_exit.c
 @@ -162,31 +162,16 @@ static int handle_sve(struct kvm_vcpu *vcpu, struct kvm_run *run)
@@ -141,11 +141,11 @@ index 706cca23f0d2..1249f68a9418 100644
  
  /*
 diff --git a/virt/kvm/arm/arm.c b/virt/kvm/arm/arm.c
-index 86c6aa1cb58e..986fbc3cf667 100644
+index eda7b624eab8..0aca5514a58b 100644
 --- a/virt/kvm/arm/arm.c
 +++ b/virt/kvm/arm/arm.c
-@@ -354,6 +354,16 @@ int kvm_arch_vcpu_init(struct kvm_vcpu *vcpu)
- 	return kvm_vgic_vcpu_init(vcpu);
+@@ -332,6 +332,16 @@ void kvm_arch_vcpu_unblocking(struct kvm_vcpu *vcpu)
+ 	preempt_enable();
  }
  
 +#ifdef CONFIG_ARM64
@@ -161,9 +161,9 @@ index 86c6aa1cb58e..986fbc3cf667 100644
  void kvm_arch_vcpu_load(struct kvm_vcpu *vcpu, int cpu)
  {
  	int *last_ran;
-@@ -386,7 +396,17 @@ void kvm_arch_vcpu_load(struct kvm_vcpu *vcpu, int cpu)
+@@ -365,7 +375,17 @@ void kvm_arch_vcpu_load(struct kvm_vcpu *vcpu, int cpu)
  	else
- 		vcpu_set_wfe_traps(vcpu);
+ 		vcpu_set_wfx_traps(vcpu);
  
 -	vcpu_ptrauth_setup_lazy(vcpu);
 +	if (vcpu_has_ptrauth(vcpu)) {
