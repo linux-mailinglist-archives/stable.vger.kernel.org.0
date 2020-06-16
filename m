@@ -2,43 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DBD9F1FBB38
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:18:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C6C1F1FB92C
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:02:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730202AbgFPPir (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:38:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51484 "EHLO mail.kernel.org"
+        id S1731887AbgFPPv0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:51:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47912 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729916AbgFPPiq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:38:46 -0400
+        id S1731975AbgFPPvY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:51:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 696B520B1F;
-        Tue, 16 Jun 2020 15:38:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A92E021534;
+        Tue, 16 Jun 2020 15:51:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592321925;
-        bh=Z1qeNrPzQX2HeO121luRbN2+mEG0uHjTupsRDDT/lHY=;
+        s=default; t=1592322684;
+        bh=0flHJGe9CRxXDL9n/ZrVvA1+YI5hhssd0FQ5X+ScV40=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vezeWBxwRMb4XCU+EgCyrmN1iavJGO2MIB+ZYhSW3bD8BCARpeRszbNWLWK6rJBCC
-         /OcKTJF5zLinF1uiCjGZdNfBBEUKULF7ze/ZQXH6c/EPVrfKqQs73/q6A1N4x2S+Wo
-         6CXxJlIYGh2GeXYl4wBF86FogHZC/m0oeatj9RLk=
+        b=FB/lsefvgz6PT/UW3f7R1TROvVlJdTlIOBwejX1d7m5QHNb3Idfr9hYQxF4F+8XqB
+         eUAVc6S0tC/OQK4zPID5Zj1VKDrS+/y7o7+PF0tbpUSKQD+u0jclYi2dVJ5OsKdtJq
+         8QrKVxfmNaxR8uURg9DXM/RRbgmEq0iFWNA8C4Og=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Walton Hoops <me@waltonhoops.com>,
-        Tomas Hlavaty <tom@logand.com>,
-        ARAI Shun-ichi <hermes@ceres.dti.ne.jp>,
-        Hideki EIRAKU <hdk1983@gmail.com>,
-        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 068/134] nilfs2: fix null pointer dereference at nilfs_segctor_do_construct()
+        stable@vger.kernel.org, Denis Efremov <efremov@linux.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.6 062/161] io_uring: use kvfree() in io_sqe_buffer_register()
 Date:   Tue, 16 Jun 2020 17:34:12 +0200
-Message-Id: <20200616153104.031312267@linuxfoundation.org>
+Message-Id: <20200616153109.331869762@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153100.633279950@linuxfoundation.org>
-References: <20200616153100.633279950@linuxfoundation.org>
+In-Reply-To: <20200616153106.402291280@linuxfoundation.org>
+References: <20200616153106.402291280@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,67 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+From: Denis Efremov <efremov@linux.com>
 
-commit 8301c719a2bd131436438e49130ee381d30933f5 upstream.
+commit a8c73c1a614f6da6c0b04c393f87447e28cb6de4 upstream.
 
-After commit c3aab9a0bd91 ("mm/filemap.c: don't initiate writeback if
-mapping has no dirty pages"), the following null pointer dereference has
-been reported on nilfs2:
+Use kvfree() to free the pages and vmas, since they are allocated by
+kvmalloc_array() in a loop.
 
-  BUG: kernel NULL pointer dereference, address: 00000000000000a8
-  #PF: supervisor read access in kernel mode
-  #PF: error_code(0x0000) - not-present page
-  PGD 0 P4D 0
-  Oops: 0000 [#1] SMP PTI
-  ...
-  RIP: 0010:percpu_counter_add_batch+0xa/0x60
-  ...
-  Call Trace:
-    __test_set_page_writeback+0x2d3/0x330
-    nilfs_segctor_do_construct+0x10d3/0x2110 [nilfs2]
-    nilfs_segctor_construct+0x168/0x260 [nilfs2]
-    nilfs_segctor_thread+0x127/0x3b0 [nilfs2]
-    kthread+0xf8/0x130
-    ...
-
-This crash turned out to be caused by set_page_writeback() call for
-segment summary buffers at nilfs_segctor_prepare_write().
-
-set_page_writeback() can call inc_wb_stat(inode_to_wb(inode),
-WB_WRITEBACK) where inode_to_wb(inode) is NULL if the inode of
-underlying block device does not have an associated wb.
-
-This fixes the issue by calling inode_attach_wb() in advance to ensure
-to associate the bdev inode with its wb.
-
-Fixes: c3aab9a0bd91 ("mm/filemap.c: don't initiate writeback if mapping has no dirty pages")
-Reported-by: Walton Hoops <me@waltonhoops.com>
-Reported-by: Tomas Hlavaty <tom@logand.com>
-Reported-by: ARAI Shun-ichi <hermes@ceres.dti.ne.jp>
-Reported-by: Hideki EIRAKU <hdk1983@gmail.com>
-Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Tested-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Cc: <stable@vger.kernel.org>	[5.4+]
-Link: http://lkml.kernel.org/r/20200608.011819.1399059588922299158.konishi.ryusuke@gmail.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: d4ef647510b1 ("io_uring: avoid page allocation warnings")
+Signed-off-by: Denis Efremov <efremov@linux.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20200605093203.40087-1-efremov@linux.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/nilfs2/segment.c |    2 ++
- 1 file changed, 2 insertions(+)
+ fs/io_uring.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/fs/nilfs2/segment.c
-+++ b/fs/nilfs2/segment.c
-@@ -2780,6 +2780,8 @@ int nilfs_attach_log_writer(struct super
- 	if (!nilfs->ns_writer)
- 		return -ENOMEM;
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -6254,8 +6254,8 @@ static int io_sqe_buffer_register(struct
  
-+	inode_attach_wb(nilfs->ns_bdev->bd_inode, NULL);
-+
- 	err = nilfs_segctor_start_thread(nilfs->ns_writer);
- 	if (err) {
- 		kfree(nilfs->ns_writer);
+ 		ret = 0;
+ 		if (!pages || nr_pages > got_pages) {
+-			kfree(vmas);
+-			kfree(pages);
++			kvfree(vmas);
++			kvfree(pages);
+ 			pages = kvmalloc_array(nr_pages, sizeof(struct page *),
+ 						GFP_KERNEL);
+ 			vmas = kvmalloc_array(nr_pages,
 
 
