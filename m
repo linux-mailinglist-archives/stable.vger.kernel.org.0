@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 68B811FB711
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:43:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E66FC1FB7D1
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:50:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731804AbgFPPn3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:43:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32768 "EHLO mail.kernel.org"
+        id S1732042AbgFPPtw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:49:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45098 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731797AbgFPPn2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:43:28 -0400
+        id S1732014AbgFPPtv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:49:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D4779208E4;
-        Tue, 16 Jun 2020 15:43:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9C7702071A;
+        Tue, 16 Jun 2020 15:49:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322208;
-        bh=Wzn3XjHzpPwQWIlZS8NemT9LPOAPP3EdLDLU/Ufm+nM=;
+        s=default; t=1592322591;
+        bh=9gmy1HztA2mjnSIrbqEUjMiWyJe09lRlOSUFVNxX+Kk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hDHprG/F95CVccpS5MIHgE4jUvu191+cQsJGUe4EqzFA2sKdzfQvsjMl1QPEJHeZy
-         AdukwS1sPSQgcXGQp+DYO8EgI3AbZtKerZ+LrrJG8tL9Bb43K3Au/OHeu8JdK10hO3
-         T4Ny7WFQyxQsq9g0Qe8VAHTGXwwKkAAcpq2xDOp0=
+        b=apgcXrXKD7Eb0pGt/Y5XIfu5mTsTdr0GIFp5dIJhpY1WslKbbBBBH9/aYm9rwt/0Y
+         xu4MNb4/JqxB6Ph7dzsHCt4kDOYr9tQkjIZFbemqeuqW54O28rxitn/+DO/+on7Pfl
+         vZiskPWGBi5ofWWsVvFrdiC+ec4PIr25sadZGd5w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miklos Szeredi <miklos@szeredi.hu>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Miklos Szeredi <mszeredi@redhat.com>
-Subject: [PATCH 5.7 042/163] x86/vdso: Unbreak paravirt VDSO clocks
-Date:   Tue, 16 Jun 2020 17:33:36 +0200
-Message-Id: <20200616153108.879879486@linuxfoundation.org>
+        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
+        Amir Goldstein <amir73il@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 027/161] fanotify: fix ignore mask logic for events on child and on dir
+Date:   Tue, 16 Jun 2020 17:33:37 +0200
+Message-Id: <20200616153107.691857095@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
-References: <20200616153106.849127260@linuxfoundation.org>
+In-Reply-To: <20200616153106.402291280@linuxfoundation.org>
+References: <20200616153106.402291280@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,77 +44,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Amir Goldstein <amir73il@gmail.com>
 
-commit 7778d8417b74aded842eeb372961cfc460417fa0 upstream.
+[ Upstream commit 2f02fd3fa13e51713b630164f8a8e5b42de8283b ]
 
-The conversion of x86 VDSO to the generic clock mode storage broke the
-paravirt and hyperv clocksource logic. These clock sources have their own
-internal sequence counter to validate the clocksource at the point of
-reading it. This is necessary because the hypervisor can invalidate the
-clocksource asynchronously so a check during the VDSO data update is not
-sufficient. If the internal check during read invalidates the clocksource
-the read return U64_MAX. The original code checked this efficiently by
-testing whether the result (casted to signed) is negative, i.e. bit 63 is
-set. This was done that way because an extra indicator for the validity had
-more overhead.
+The comments in fanotify_group_event_mask() say:
 
-The conversion broke this check because the check was replaced by a check
-for a valid VDSO clock mode.
+  "If the event is on dir/child and this mark doesn't care about
+   events on dir/child, don't send it!"
 
-The wreckage manifests itself when the paravirt clock is installed as a
-valid VDSO clock and during runtime invalidated by the hypervisor,
-e.g. after a host suspend/resume cycle. After the invalidation the read
-function returns U64_MAX which is used as cycles and makes the clock jump
-by ~2200 seconds, and become stale until the 2200 seconds have elapsed
-where it starts to jump again. The period of this effect depends on the
-shift/mult pair of the clocksource and the jumps and staleness are an
-artifact of undefined but reproducible behaviour of math overflow.
+Specifically, mount and filesystem marks do not care about events
+on child, but they can still specify an ignore mask for those events.
+For example, a group that has:
+- A mount mark with mask 0 and ignore_mask FAN_OPEN
+- An inode mark on a directory with mask FAN_OPEN | FAN_OPEN_EXEC
+  with flag FAN_EVENT_ON_CHILD
 
-Implement an x86 version of the new vdso_cycles_ok() inline which adds this
-check back and a variant of vdso_clocksource_ok() which lets the compiler
-optimize it out to avoid the extra conditional. That's suboptimal when the
-system does not have a VDSO capable clocksource, but that's not the case
-which is optimized for.
+A child file open for exec would be reported to group with the FAN_OPEN
+event despite the fact that FAN_OPEN is in ignore mask of mount mark,
+because the mark iteration loop skips over non-inode marks for events
+on child when calculating the ignore mask.
 
-Fixes: 5d51bee725cc ("clocksource: Add common vdso clock mode storage")
-Reported-by: Miklos Szeredi <miklos@szeredi.hu>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Miklos Szeredi <mszeredi@redhat.com>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20200606221532.080560273@linutronix.de
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Move ignore mask calculation to the top of the iteration loop block
+before excluding marks for events on dir/child.
 
+Link: https://lore.kernel.org/r/20200524072441.18258-1-amir73il@gmail.com
+Reported-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/linux-fsdevel/20200521162443.GA26052@quack2.suse.cz/
+Fixes: 55bf882c7f13 "fanotify: fix merging marks masks with FAN_ONDIR"
+Fixes: b469e7e47c8a "fanotify: fix handling of events on child..."
+Signed-off-by: Amir Goldstein <amir73il@gmail.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/vdso/gettimeofday.h |   18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ fs/notify/fanotify/fanotify.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/arch/x86/include/asm/vdso/gettimeofday.h
-+++ b/arch/x86/include/asm/vdso/gettimeofday.h
-@@ -271,6 +271,24 @@ static __always_inline const struct vdso
- 	return __vdso_data;
- }
+diff --git a/fs/notify/fanotify/fanotify.c b/fs/notify/fanotify/fanotify.c
+index deb13f0a0f7d..d24548ed31b9 100644
+--- a/fs/notify/fanotify/fanotify.c
++++ b/fs/notify/fanotify/fanotify.c
+@@ -171,6 +171,10 @@ static u32 fanotify_group_event_mask(struct fsnotify_group *group,
+ 		if (!fsnotify_iter_should_report_type(iter_info, type))
+ 			continue;
+ 		mark = iter_info->marks[type];
++
++		/* Apply ignore mask regardless of ISDIR and ON_CHILD flags */
++		marks_ignored_mask |= mark->ignored_mask;
++
+ 		/*
+ 		 * If the event is on dir and this mark doesn't care about
+ 		 * events on dir, don't send it!
+@@ -188,7 +192,6 @@ static u32 fanotify_group_event_mask(struct fsnotify_group *group,
+ 			continue;
  
-+static inline bool arch_vdso_clocksource_ok(const struct vdso_data *vd)
-+{
-+	return true;
-+}
-+#define vdso_clocksource_ok arch_vdso_clocksource_ok
-+
-+/*
-+ * Clocksource read value validation to handle PV and HyperV clocksources
-+ * which can be invalidated asynchronously and indicate invalidation by
-+ * returning U64_MAX, which can be effectively tested by checking for a
-+ * negative value after casting it to s64.
-+ */
-+static inline bool arch_vdso_cycles_ok(u64 cycles)
-+{
-+	return (s64)cycles >= 0;
-+}
-+#define vdso_cycles_ok arch_vdso_cycles_ok
-+
- /*
-  * x86 specific delta calculation.
-  *
+ 		marks_mask |= mark->mask;
+-		marks_ignored_mask |= mark->ignored_mask;
+ 	}
+ 
+ 	test_mask = event_mask & marks_mask & ~marks_ignored_mask;
+-- 
+2.25.1
+
 
 
