@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8849A1FB764
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:47:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 719821FB6A1
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:39:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731186AbgFPPpn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:45:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37164 "EHLO mail.kernel.org"
+        id S1730829AbgFPPjC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:39:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51808 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731142AbgFPPpm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:45:42 -0400
+        id S1730800AbgFPPi4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:38:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D4C2D20C09;
-        Tue, 16 Jun 2020 15:45:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 04EED214DB;
+        Tue, 16 Jun 2020 15:38:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322342;
-        bh=rm1bzAXLBXkymLfucPHjI52gwCHPLfYj8Fb3tWjdOxM=;
+        s=default; t=1592321935;
+        bh=hrPJaqBtBAC9t2XIQGFN01J5C4GBN6PhtjcTxc7Cm6g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E9bh1UZ1DdFkq3JHLGmOfhZaWTV4H5EmkRg4zZrldxUEYIeFz0bTTD06v3zcdZlOC
-         s80tACP+KOopFOQT1dBbFoslhL3jvcrU4mQIuGEI0I+Cwr0518qnEgdauim64i+gxn
-         VQRNwAD2YOl1nRcupdR2un03rXYCnDknML9i7508=
+        b=KWhrxaH6G8DH4w5q5TRXjlTt+crlL7/ScURCsKlZZyw4kDcb+innCtm5BNBv/712E
+         ijeJ9R9KSfDIMNc5DoxxEkyfvOIFAvtP6cJxE2JYk9SLMwP9oQ2RzcgE0ClxuHjgRa
+         b53QjRWOVII5Z97gng4V/qaoEP0ZwCmOE+/jf6vA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.7 054/163] io_uring: re-set iov base/len for buffer select retry
-Date:   Tue, 16 Jun 2020 17:33:48 +0200
-Message-Id: <20200616153109.432071451@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.4 045/134] KVM: x86/mmu: Set mmio_value to 0 if reserved #PF cant be generated
+Date:   Tue, 16 Jun 2020 17:33:49 +0200
+Message-Id: <20200616153102.948427458@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
-References: <20200616153106.849127260@linuxfoundation.org>
+In-Reply-To: <20200616153100.633279950@linuxfoundation.org>
+References: <20200616153100.633279950@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,38 +44,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Sean Christopherson <sean.j.christopherson@intel.com>
 
-commit dddb3e26f6d88c5344d28cb5ff9d3d6fa05c4f7a upstream.
+commit 6129ed877d409037b79866327102c9dc59a302fe upstream.
 
-We already have the buffer selected, but we should set the iter list
-again.
+Set the mmio_value to '0' instead of simply clearing the present bit to
+squash a benign warning in kvm_mmu_set_mmio_spte_mask() that complains
+about the mmio_value overlapping the lower GFN mask on systems with 52
+bits of PA space.
 
-Cc: stable@vger.kernel.org # v5.7
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Opportunistically clean up the code and comments.
+
+Cc: stable@vger.kernel.org
+Fixes: d43e2675e96fc ("KVM: x86: only do L1TF workaround on affected processors")
+Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Message-Id: <20200527084909.23492-1-sean.j.christopherson@intel.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/io_uring.c |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ arch/x86/kvm/mmu.c |   27 +++++++++------------------
+ 1 file changed, 9 insertions(+), 18 deletions(-)
 
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -2333,8 +2333,14 @@ static ssize_t __io_iov_buffer_select(st
- static ssize_t io_iov_buffer_select(struct io_kiocb *req, struct iovec *iov,
- 				    bool needs_lock)
- {
--	if (req->flags & REQ_F_BUFFER_SELECTED)
-+	if (req->flags & REQ_F_BUFFER_SELECTED) {
-+		struct io_buffer *kbuf;
-+
-+		kbuf = (struct io_buffer *) (unsigned long) req->rw.addr;
-+		iov[0].iov_base = u64_to_user_ptr(kbuf->addr);
-+		iov[0].iov_len = kbuf->len;
- 		return 0;
-+	}
- 	if (!req->rw.len)
- 		return 0;
- 	else if (req->rw.len > 1)
+--- a/arch/x86/kvm/mmu.c
++++ b/arch/x86/kvm/mmu.c
+@@ -6248,25 +6248,16 @@ static void kvm_set_mmio_spte_mask(void)
+ 	u64 mask;
+ 
+ 	/*
+-	 * Set the reserved bits and the present bit of an paging-structure
+-	 * entry to generate page fault with PFER.RSV = 1.
++	 * Set a reserved PA bit in MMIO SPTEs to generate page faults with
++	 * PFEC.RSVD=1 on MMIO accesses.  64-bit PTEs (PAE, x86-64, and EPT
++	 * paging) support a maximum of 52 bits of PA, i.e. if the CPU supports
++	 * 52-bit physical addresses then there are no reserved PA bits in the
++	 * PTEs and so the reserved PA approach must be disabled.
+ 	 */
+-
+-	/*
+-	 * Mask the uppermost physical address bit, which would be reserved as
+-	 * long as the supported physical address width is less than 52.
+-	 */
+-	mask = 1ull << 51;
+-
+-	/* Set the present bit. */
+-	mask |= 1ull;
+-
+-	/*
+-	 * If reserved bit is not supported, clear the present bit to disable
+-	 * mmio page fault.
+-	 */
+-	if (shadow_phys_bits == 52)
+-		mask &= ~1ull;
++	if (shadow_phys_bits < 52)
++		mask = BIT_ULL(51) | PT_PRESENT_MASK;
++	else
++		mask = 0;
+ 
+ 	kvm_mmu_set_mmio_spte_mask(mask, mask, ACC_WRITE_MASK | ACC_USER_MASK);
+ }
 
 
