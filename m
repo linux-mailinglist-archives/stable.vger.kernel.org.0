@@ -2,126 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 54DF21FC191
-	for <lists+stable@lfdr.de>; Wed, 17 Jun 2020 00:33:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A4AFE1FC1E4
+	for <lists+stable@lfdr.de>; Wed, 17 Jun 2020 00:54:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725894AbgFPWcg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 18:32:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53056 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725849AbgFPWcg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Jun 2020 18:32:36 -0400
-Received: from mail-pf1-x42d.google.com (mail-pf1-x42d.google.com [IPv6:2607:f8b0:4864:20::42d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03169C061573
-        for <stable@vger.kernel.org>; Tue, 16 Jun 2020 15:32:35 -0700 (PDT)
-Received: by mail-pf1-x42d.google.com with SMTP id 23so112950pfw.10
-        for <stable@vger.kernel.org>; Tue, 16 Jun 2020 15:32:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=6Z8+poWxaUz2zvyYaHwQr0eS8ednXr/MXI7t5ugy6aY=;
-        b=zCvzGc765VhAoiF511dQsEVeu8/NCwGgl8FIRp+Y/19D1nMIyGItGGA7DNsuJS6bgY
-         gBNvnKLpAoc6SL+mQsghWjcOEmPQb7A49/+BFOgxD/8fej0FZgo9SFm0+Q/r0z3q9D89
-         d7E9eoyz9KxBdTkLtTEwEXBz5m1SkOEmxfyfBLMYU2KQ0ZGoyrqYPptPme+iXFn/FDxR
-         V3+/4EgMmEPeSapleeuKphnHNW1tnfos55U6PJNTyB/Wj5W3j5WlIGy6S6b6CHeiRd+O
-         aTLBDhR69dOsYsM2BkykwHwHzX9xvuL5wIMijEg8N1zQVjmI1aAqKsTHlDMK7CIcl8EV
-         /TrA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=6Z8+poWxaUz2zvyYaHwQr0eS8ednXr/MXI7t5ugy6aY=;
-        b=r4vFD3LVMcyQj2WVAORNp7sGW/o1cNUuhts+WLaYP3yDP2Mb6MXZYE2wZLrc1fnLfo
-         LDps+v83vv+AE9py/Lr0wXV3gGiLLuFOleL8db+B2Iw88F8gW32qHo8UpvfaB07PjCdR
-         oOSabz8Y7QDkxa+rB5BYnyxQZJg3UZcoLDSjgtZv8c1ttUEuSAybYKUYFWw/2dBFewW0
-         lZimfMfrp/8AjbwFgyoCBjSYMRtgIqTsMgcI+WhRo1FfVLnj1V8crQJYoTdI4KAOraq7
-         PEjnQvTNNsInQF9ewl1REhDTXhAnizG9vKKpAScoFy+NqXHrPnWlfOBuX1vfPHh2f4zH
-         /n7g==
-X-Gm-Message-State: AOAM531FHBmDSWBC5wZN09VaYCbLHU3weEDLIK/d48myxxPf+Tte3HB8
-        hh9Gf48VSf9XCmKNoymfv/vwErlgLsA=
-X-Google-Smtp-Source: ABdhPJwLyXXwytROfan1tg3RaA4c/xwY9SXEBqoDTAcTCICkKfVA0ZKDQYMf8nc0j5jlJx1Xi/TvVg==
-X-Received: by 2002:a63:5024:: with SMTP id e36mr3607852pgb.438.1592346754155;
-        Tue, 16 Jun 2020 15:32:34 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id d4sm3489595pjm.55.2020.06.16.15.32.32
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 16 Jun 2020 15:32:33 -0700 (PDT)
-Message-ID: <5ee94881.1c69fb81.542ce.95f6@mx.google.com>
-Date:   Tue, 16 Jun 2020 15:32:33 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1726494AbgFPWyJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 18:54:09 -0400
+Received: from mga01.intel.com ([192.55.52.88]:27234 "EHLO mga01.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726331AbgFPWyJ (ORCPT <rfc822;Stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 18:54:09 -0400
+IronPort-SDR: QU23xN/oTFHQb++PEvGJz/Jtd2fuZqp6zIT45BChreh2D+w7ePWmKSSaS2Q+M1JXDfAyJ6u6Jq
+ rdwJiDTOZNdg==
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga003.fm.intel.com ([10.253.24.29])
+  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Jun 2020 15:54:02 -0700
+IronPort-SDR: pJsoPHqkgonttE7mYGHtWz6+g9focEMcRDrX/RM+avHx7PXCrw5tS3Mj9d6kewhA7100ijfga7
+ RJw8f5b37KKg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.73,520,1583222400"; 
+   d="scan'208";a="317362144"
+Received: from jtkirshe-desk1.jf.intel.com ([134.134.177.86])
+  by FMSMGA003.fm.intel.com with ESMTP; 16 Jun 2020 15:53:56 -0700
+From:   Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+To:     davem@davemloft.net
+Cc:     Chen Yu <yu.c.chen@intel.com>, netdev@vger.kernel.org,
+        nhorman@redhat.com, sassmann@redhat.com,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Stable@vger.kernel.org, Aaron Brown <aaron.f.brown@intel.com>,
+        Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+Subject: [net 1/3] e1000e: Do not wake up the system via WOL if device wakeup is disabled
+Date:   Tue, 16 Jun 2020 15:53:52 -0700
+Message-Id: <20200616225354.2744572-2-jeffrey.t.kirsher@intel.com>
+X-Mailer: git-send-email 2.26.2
+In-Reply-To: <20200616225354.2744572-1-jeffrey.t.kirsher@intel.com>
+References: <20200616225354.2744572-1-jeffrey.t.kirsher@intel.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Branch: linux-5.6.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.6.16-245-gb60e06c98873
-Subject: stable-rc/linux-5.6.y baseline: 108 runs,
- 1 regressions (v5.6.16-245-gb60e06c98873)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.6.y baseline: 108 runs, 1 regressions (v5.6.16-245-gb60e0=
-6c98873)
+From: Chen Yu <yu.c.chen@intel.com>
 
-Regressions Summary
--------------------
+Currently the system will be woken up via WOL(Wake On LAN) even if the
+device wakeup ability has been disabled via sysfs:
+ cat /sys/devices/pci0000:00/0000:00:1f.6/power/wakeup
+ disabled
 
-platform             | arch | lab           | compiler | defconfig        |=
- results
----------------------+------+---------------+----------+------------------+=
---------
-exynos5422-odroidxu3 | arm  | lab-collabora | gcc-8    | exynos_defconfig |=
- 0/1    =
+The system should not be woken up if the user has explicitly
+disabled the wake up ability for this device.
 
+This patch clears the WOL ability of this network device if the
+user has disabled the wake up ability in sysfs.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.6.y/kern=
-el/v5.6.16-245-gb60e06c98873/plan/baseline/
+Fixes: bc7f75fa9788 ("[E1000E]: New pci-express e1000 driver")
+Reported-by: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Chen Yu <yu.c.chen@intel.com>
+Tested-by: Aaron Brown <aaron.f.brown@intel.com>
+Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+---
+ drivers/net/ethernet/intel/e1000e/netdev.c | 14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.6.y
-  Describe: v5.6.16-245-gb60e06c98873
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      b60e06c9887321691c8d341e86c085ed3a6a4138 =
+diff --git a/drivers/net/ethernet/intel/e1000e/netdev.c b/drivers/net/ethernet/intel/e1000e/netdev.c
+index a279f4fa9962..e2ad3f38c75c 100644
+--- a/drivers/net/ethernet/intel/e1000e/netdev.c
++++ b/drivers/net/ethernet/intel/e1000e/netdev.c
+@@ -6611,11 +6611,17 @@ static int __e1000_shutdown(struct pci_dev *pdev, bool runtime)
+ 	struct net_device *netdev = pci_get_drvdata(pdev);
+ 	struct e1000_adapter *adapter = netdev_priv(netdev);
+ 	struct e1000_hw *hw = &adapter->hw;
+-	u32 ctrl, ctrl_ext, rctl, status;
+-	/* Runtime suspend should only enable wakeup for link changes */
+-	u32 wufc = runtime ? E1000_WUFC_LNKC : adapter->wol;
++	u32 ctrl, ctrl_ext, rctl, status, wufc;
+ 	int retval = 0;
+ 
++	/* Runtime suspend should only enable wakeup for link changes */
++	if (runtime)
++		wufc = E1000_WUFC_LNKC;
++	else if (device_may_wakeup(&pdev->dev))
++		wufc = adapter->wol;
++	else
++		wufc = 0;
++
+ 	status = er32(STATUS);
+ 	if (status & E1000_STATUS_LU)
+ 		wufc &= ~E1000_WUFC_LNKC;
+@@ -6672,7 +6678,7 @@ static int __e1000_shutdown(struct pci_dev *pdev, bool runtime)
+ 	if (adapter->hw.phy.type == e1000_phy_igp_3) {
+ 		e1000e_igp3_phy_powerdown_workaround_ich8lan(&adapter->hw);
+ 	} else if (hw->mac.type >= e1000_pch_lpt) {
+-		if (!(wufc & (E1000_WUFC_EX | E1000_WUFC_MC | E1000_WUFC_BC)))
++		if (wufc && !(wufc & (E1000_WUFC_EX | E1000_WUFC_MC | E1000_WUFC_BC)))
+ 			/* ULP does not support wake from unicast, multicast
+ 			 * or broadcast.
+ 			 */
+-- 
+2.26.2
 
-
-
-Test Regressions
----------------- =
-
-
-
-platform             | arch | lab           | compiler | defconfig        |=
- results
----------------------+------+---------------+----------+------------------+=
---------
-exynos5422-odroidxu3 | arm  | lab-collabora | gcc-8    | exynos_defconfig |=
- 0/1    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5ee9195483eca04a6d97bf1e
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: exynos_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.6.y/v5.6.16-=
-245-gb60e06c98873/arm/exynos_defconfig/gcc-8/lab-collabora/baseline-exynos5=
-422-odroidxu3.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.6.y/v5.6.16-=
-245-gb60e06c98873/arm/exynos_defconfig/gcc-8/lab-collabora/baseline-exynos5=
-422-odroidxu3.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2019=
-.02-11-g17e793fa4728/armel/baseline/rootfs.cpio.gz =
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5ee9195483eca04a6d97b=
-f1f
-      failing since 14 days (last pass: v5.6.13-193-g67346f550ad8, first fa=
-il: v5.6.15-178-gc72fcbc7d224) =20
