@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ABF9A1FB9FC
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:08:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 58BAC1FB9DA
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:07:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732234AbgFPPqv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:46:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39334 "EHLO mail.kernel.org"
+        id S1732298AbgFPPrL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:47:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40084 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732230AbgFPPqu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:46:50 -0400
+        id S1732294AbgFPPrL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:47:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 48C3220E65;
-        Tue, 16 Jun 2020 15:46:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 224BE21475;
+        Tue, 16 Jun 2020 15:47:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322409;
-        bh=nGMpzdufhyG1R9GMDA0h4SH+Am4sZjqYSzjxJP4ZUdg=;
+        s=default; t=1592322430;
+        bh=Ww/3zxU6fbSSh6OUodW4LyHhRVCSyKXuqOzIlIhcuJs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mJxBrgi3M+FLLbhAOqEcqUVeiGujDV0FO2iIPNBzCnbQihngpvfcYvXrLpm4vsUbe
-         d8rCF5D79A7p7Y63u+6WBzlramjrOCieaYLgFrSnIpgNt9zl19GgQ83sEvGWmxbyo+
-         otzip3+4uBbZHCsOAuL9hlH0Sub1eQoe/61wGj+g=
+        b=N7YOepvPI6Cz7Uk7/oWLgovUDCIXOE45tXh7BC5tQtHFUgTYABpPrq+6V/5LDO7gm
+         vqX72KNbfuLoF4Z2rSdH95bi3fGvrE+hukeRrjyJ+Gcz6X4i9Jq7wniH2WKebyVp4p
+         kJfaf+X2W1bv4wHgVjNZ+/NOKWWq3qiPDq7R/eEI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+7d2debdcdb3cb93c1e5e@syzkaller.appspotmail.com,
-        "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: [PATCH 5.7 119/163] proc: Use new_inode not new_inode_pseudo
-Date:   Tue, 16 Jun 2020 17:34:53 +0200
-Message-Id: <20200616153112.507267988@linuxfoundation.org>
+        stable@vger.kernel.org, Suman Anna <s-anna@ti.com>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Arnaud Pouliquen <arnaud.pouliquen@st.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>
+Subject: [PATCH 5.7 121/163] remoteproc: Fix and restore the parenting hierarchy for vdev
+Date:   Tue, 16 Jun 2020 17:34:55 +0200
+Message-Id: <20200616153112.607448077@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
 References: <20200616153106.849127260@linuxfoundation.org>
@@ -44,83 +45,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric W. Biederman <ebiederm@xmission.com>
+From: Suman Anna <s-anna@ti.com>
 
-commit ef1548adada51a2f32ed7faef50aa465e1b4c5da upstream.
+commit c774ad010873bb89dcc0cdcb1e96aef6664d8caf upstream.
 
-Recently syzbot reported that unmounting proc when there is an ongoing
-inotify watch on the root directory of proc could result in a use
-after free when the watch is removed after the unmount of proc
-when the watcher exits.
+The commit 086d08725d34 ("remoteproc: create vdev subdevice with specific
+dma memory pool") has introduced a new vdev subdevice for each vdev
+declared in the firmware resource table and made it as the parent for the
+created virtio rpmsg devices instead of the previous remoteproc device.
+This changed the overall parenting hierarchy for the rpmsg devices, which
+were children of virtio devices, and does not allow the corresponding
+rpmsg drivers to retrieve the parent rproc device through the
+rproc_get_by_child() API.
 
-Commit 69879c01a0c3 ("proc: Remove the now unnecessary internal mount
-of proc") made it easier to unmount proc and allowed syzbot to see the
-problem, but looking at the code it has been around for a long time.
-
-Looking at the code the fsnotify watch should have been removed by
-fsnotify_sb_delete in generic_shutdown_super.  Unfortunately the inode
-was allocated with new_inode_pseudo instead of new_inode so the inode
-was not on the sb->s_inodes list.  Which prevented
-fsnotify_unmount_inodes from finding the inode and removing the watch
-as well as made it so the "VFS: Busy inodes after unmount" warning
-could not find the inodes to warn about them.
-
-Make all of the inodes in proc visible to generic_shutdown_super,
-and fsnotify_sb_delete by using new_inode instead of new_inode_pseudo.
-The only functional difference is that new_inode places the inodes
-on the sb->s_inodes list.
-
-I wrote a small test program and I can verify that without changes it
-can trigger this issue, and by replacing new_inode_pseudo with
-new_inode the issues goes away.
+Fix this by restoring the remoteproc device as the parent. The new vdev
+subdevice can continue to inherit the DMA attributes from the remoteproc's
+parent device (actual platform device).
 
 Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/000000000000d788c905a7dfa3f4@google.com
-Reported-by: syzbot+7d2debdcdb3cb93c1e5e@syzkaller.appspotmail.com
-Fixes: 0097875bd415 ("proc: Implement /proc/thread-self to point at the directory of the current thread")
-Fixes: 021ada7dff22 ("procfs: switch /proc/self away from proc_dir_entry")
-Fixes: 51f0885e5415 ("vfs,proc: guarantee unique inodes in /proc")
-Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
+Fixes: 086d08725d34 ("remoteproc: create vdev subdevice with specific dma memory pool")
+Signed-off-by: Suman Anna <s-anna@ti.com>
+Reviewed-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+Acked-by: Arnaud Pouliquen <arnaud.pouliquen@st.com>
+Link: https://lore.kernel.org/r/20200420160600.10467-3-s-anna@ti.com
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/proc/inode.c       |    2 +-
- fs/proc/self.c        |    2 +-
- fs/proc/thread_self.c |    2 +-
- 3 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/remoteproc/remoteproc_core.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/proc/inode.c
-+++ b/fs/proc/inode.c
-@@ -599,7 +599,7 @@ const struct inode_operations proc_link_
+--- a/drivers/remoteproc/remoteproc_core.c
++++ b/drivers/remoteproc/remoteproc_core.c
+@@ -517,7 +517,7 @@ static int rproc_handle_vdev(struct rpro
  
- struct inode *proc_get_inode(struct super_block *sb, struct proc_dir_entry *de)
- {
--	struct inode *inode = new_inode_pseudo(sb);
-+	struct inode *inode = new_inode(sb);
- 
- 	if (inode) {
- 		inode->i_ino = de->low_ino;
---- a/fs/proc/self.c
-+++ b/fs/proc/self.c
-@@ -43,7 +43,7 @@ int proc_setup_self(struct super_block *
- 	inode_lock(root_inode);
- 	self = d_alloc_name(s->s_root, "self");
- 	if (self) {
--		struct inode *inode = new_inode_pseudo(s);
-+		struct inode *inode = new_inode(s);
- 		if (inode) {
- 			inode->i_ino = self_inum;
- 			inode->i_mtime = inode->i_atime = inode->i_ctime = current_time(inode);
---- a/fs/proc/thread_self.c
-+++ b/fs/proc/thread_self.c
-@@ -43,7 +43,7 @@ int proc_setup_thread_self(struct super_
- 	inode_lock(root_inode);
- 	thread_self = d_alloc_name(s->s_root, "thread-self");
- 	if (thread_self) {
--		struct inode *inode = new_inode_pseudo(s);
-+		struct inode *inode = new_inode(s);
- 		if (inode) {
- 			inode->i_ino = thread_self_inum;
- 			inode->i_mtime = inode->i_atime = inode->i_ctime = current_time(inode);
+ 	/* Initialise vdev subdevice */
+ 	snprintf(name, sizeof(name), "vdev%dbuffer", rvdev->index);
+-	rvdev->dev.parent = rproc->dev.parent;
++	rvdev->dev.parent = &rproc->dev;
+ 	rvdev->dev.dma_pfn_offset = rproc->dev.parent->dma_pfn_offset;
+ 	rvdev->dev.release = rproc_rvdev_release;
+ 	dev_set_name(&rvdev->dev, "%s#%s", dev_name(rvdev->dev.parent), name);
 
 
