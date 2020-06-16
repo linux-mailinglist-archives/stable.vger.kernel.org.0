@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 857301FBA9B
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:13:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BA111FB93E
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:03:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731858AbgFPPnu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:43:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33404 "EHLO mail.kernel.org"
+        id S1732675AbgFPQCX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 12:02:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48060 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728448AbgFPPnt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:43:49 -0400
+        id S1732502AbgFPPv3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:51:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 33169208D5;
-        Tue, 16 Jun 2020 15:43:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9CE9E214DB;
+        Tue, 16 Jun 2020 15:51:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322228;
-        bh=tsKDLnWFTSaaElZKoZK2jgT8PGZj3lzOrzE87+HxmHA=;
+        s=default; t=1592322689;
+        bh=u5N459dcvBlfL8RvNPYveLVl7hbu5p0YY7+pQOJb8UA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ITXpQoLKcPz/GVKWfqEbdQeC0/8k2V+vvtke/4HslFQV1e6cgu8FXmWVQPv+SdKn5
-         CelU5BAR+IPnoCQeUsLhhbQvvoT5l9YvIVGST8AdAWC/UehFtSPCXG2ipdxFY2Ro44
-         ai3NHwn41u0hS7NgwS01b6g9LxQrsV+mYmKiRjww=
+        b=FTWO9F7PdfNt1Jo7z5UHh+j4VGSd7JUbcNUz9hqn2tbkVW/pELVWRm6Fdq1gbLEWP
+         SCGTbSxAm1amlLLe0fCED68KT6rhNYYOTN1eUtBajt/gT8liZLyRVwnT18C3yz4ROJ
+         0D8zynBxcR6gebBXTJe6BCOErIT0JZcaNDPc15oE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.7 050/163] powerpc/ptdump: Properly handle non standard page size
-Date:   Tue, 16 Jun 2020 17:33:44 +0200
-Message-Id: <20200616153109.245579324@linuxfoundation.org>
+        stable@vger.kernel.org, Leon Romanovsky <leonro@mellanox.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 035/161] RDMA/uverbs: Make the event_queue fds return POLLERR when disassociated
+Date:   Tue, 16 Jun 2020 17:33:45 +0200
+Message-Id: <20200616153108.060622517@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
-References: <20200616153106.849127260@linuxfoundation.org>
+In-Reply-To: <20200616153106.402291280@linuxfoundation.org>
+References: <20200616153106.402291280@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,124 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Jason Gunthorpe <jgg@mellanox.com>
 
-commit b00ff6d8c1c3898b0f768cbb38ef722d25bd2f39 upstream.
+[ Upstream commit eb356e6dc15a30af604f052cd0e170450193c254 ]
 
-In order to properly display information regardless of the page size,
-it is necessary to take into account real page size.
+If is_closed is set, and the event list is empty, then read() will return
+-EIO without blocking. After setting is_closed in
+ib_uverbs_free_event_queue(), we do trigger a wake_up on the poll_wait,
+but the fops->poll() function does not check it, so poll will continue to
+sleep on an empty list.
 
-Fixes: cabe8138b23c ("powerpc: dump as a single line areas mapping a single physical page.")
-Cc: stable@vger.kernel.org
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/a53b2a0ffd042a8d85464bf90d55bc5b970e00a1.1589866984.git.christophe.leroy@csgroup.eu
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 14e23bd6d221 ("RDMA/core: Fix locking in ib_uverbs_event_read")
+Link: https://lore.kernel.org/r/0-v1-ace813388969+48859-uverbs_poll_fix%25jgg@mellanox.com
+Reviewed-by: Leon Romanovsky <leonro@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/mm/ptdump/ptdump.c |   21 ++++++++++++---------
- 1 file changed, 12 insertions(+), 9 deletions(-)
+ drivers/infiniband/core/uverbs_main.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/arch/powerpc/mm/ptdump/ptdump.c
-+++ b/arch/powerpc/mm/ptdump/ptdump.c
-@@ -60,6 +60,7 @@ struct pg_state {
- 	unsigned long start_address;
- 	unsigned long start_pa;
- 	unsigned long last_pa;
-+	unsigned long page_size;
- 	unsigned int level;
- 	u64 current_flags;
- 	bool check_wx;
-@@ -157,9 +158,9 @@ static void dump_addr(struct pg_state *s
- #endif
+diff --git a/drivers/infiniband/core/uverbs_main.c b/drivers/infiniband/core/uverbs_main.c
+index 1bab8de14757..b94572e9c24f 100644
+--- a/drivers/infiniband/core/uverbs_main.c
++++ b/drivers/infiniband/core/uverbs_main.c
+@@ -296,6 +296,8 @@ static __poll_t ib_uverbs_event_poll(struct ib_uverbs_event_queue *ev_queue,
+ 	spin_lock_irq(&ev_queue->lock);
+ 	if (!list_empty(&ev_queue->event_list))
+ 		pollflags = EPOLLIN | EPOLLRDNORM;
++	else if (ev_queue->is_closed)
++		pollflags = EPOLLERR;
+ 	spin_unlock_irq(&ev_queue->lock);
  
- 	pt_dump_seq_printf(st->seq, REG "-" REG " ", st->start_address, addr - 1);
--	if (st->start_pa == st->last_pa && st->start_address + PAGE_SIZE != addr) {
-+	if (st->start_pa == st->last_pa && st->start_address + st->page_size != addr) {
- 		pt_dump_seq_printf(st->seq, "[" REG "]", st->start_pa);
--		delta = PAGE_SIZE >> 10;
-+		delta = st->page_size >> 10;
- 	} else {
- 		pt_dump_seq_printf(st->seq, " " REG " ", st->start_pa);
- 		delta = (addr - st->start_address) >> 10;
-@@ -190,7 +191,7 @@ static void note_prot_wx(struct pg_state
- }
- 
- static void note_page(struct pg_state *st, unsigned long addr,
--	       unsigned int level, u64 val)
-+	       unsigned int level, u64 val, unsigned long page_size)
- {
- 	u64 flag = val & pg_level[level].mask;
- 	u64 pa = val & PTE_RPN_MASK;
-@@ -202,6 +203,7 @@ static void note_page(struct pg_state *s
- 		st->start_address = addr;
- 		st->start_pa = pa;
- 		st->last_pa = pa;
-+		st->page_size = page_size;
- 		pt_dump_seq_printf(st->seq, "---[ %s ]---\n", st->marker->name);
- 	/*
- 	 * Dump the section of virtual memory when:
-@@ -213,7 +215,7 @@ static void note_page(struct pg_state *s
- 	 */
- 	} else if (flag != st->current_flags || level != st->level ||
- 		   addr >= st->marker[1].start_address ||
--		   (pa != st->last_pa + PAGE_SIZE &&
-+		   (pa != st->last_pa + st->page_size &&
- 		    (pa != st->start_pa || st->start_pa != st->last_pa))) {
- 
- 		/* Check the PTE flags */
-@@ -241,6 +243,7 @@ static void note_page(struct pg_state *s
- 		st->start_address = addr;
- 		st->start_pa = pa;
- 		st->last_pa = pa;
-+		st->page_size = page_size;
- 		st->current_flags = flag;
- 		st->level = level;
- 	} else {
-@@ -256,7 +259,7 @@ static void walk_pte(struct pg_state *st
- 
- 	for (i = 0; i < PTRS_PER_PTE; i++, pte++) {
- 		addr = start + i * PAGE_SIZE;
--		note_page(st, addr, 4, pte_val(*pte));
-+		note_page(st, addr, 4, pte_val(*pte), PAGE_SIZE);
- 
- 	}
- }
-@@ -273,7 +276,7 @@ static void walk_pmd(struct pg_state *st
- 			/* pmd exists */
- 			walk_pte(st, pmd, addr);
- 		else
--			note_page(st, addr, 3, pmd_val(*pmd));
-+			note_page(st, addr, 3, pmd_val(*pmd), PMD_SIZE);
- 	}
- }
- 
-@@ -289,7 +292,7 @@ static void walk_pud(struct pg_state *st
- 			/* pud exists */
- 			walk_pmd(st, pud, addr);
- 		else
--			note_page(st, addr, 2, pud_val(*pud));
-+			note_page(st, addr, 2, pud_val(*pud), PUD_SIZE);
- 	}
- }
- 
-@@ -308,7 +311,7 @@ static void walk_pagetables(struct pg_st
- 			/* pgd exists */
- 			walk_pud(st, pgd, addr);
- 		else
--			note_page(st, addr, 1, pgd_val(*pgd));
-+			note_page(st, addr, 1, pgd_val(*pgd), PGDIR_SIZE);
- 	}
- }
- 
-@@ -363,7 +366,7 @@ static int ptdump_show(struct seq_file *
- 
- 	/* Traverse kernel page tables */
- 	walk_pagetables(&st);
--	note_page(&st, 0, 0, 0);
-+	note_page(&st, 0, 0, 0, 0);
- 	return 0;
- }
- 
+ 	return pollflags;
+-- 
+2.25.1
+
 
 
