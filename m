@@ -2,51 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E5F531FB752
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:47:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 604CB1FB753
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:47:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731542AbgFPPpI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1731558AbgFPPpI (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 16 Jun 2020 11:45:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35982 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:36106 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732014AbgFPPpE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:45:04 -0400
+        id S1730829AbgFPPpG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:45:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 103F6214F1;
-        Tue, 16 Jun 2020 15:45:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E3E4821531;
+        Tue, 16 Jun 2020 15:45:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322303;
-        bh=UGvNsIBI77475V/aFFDuzHClccitPkM+H/tfhf9NUJ4=;
+        s=default; t=1592322306;
+        bh=wtNPFtGFotQHpz0yNm/HnBPZw/CMNGj4GaPvoRT6xos=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WFs1JyMW+Lj5qvjgW6+hud1sP1k7MZLDXp9kxh64nfPa/NCVRTwNDhcMKxudgfuU2
-         NbWPywI44B5nAJmc2ZTPTr+FH/6DhIAVWff81B+H+4E0qKZBvNEX1FezKxBQaRv6TS
-         KsZQmr1GhVhq8w9/JBWZMclmUj5hTp+oDXVn5YtE=
+        b=XwVRWt9W0ejVXkQyED8lCrjDjlJAC5ZevYFsgRJ0jzvqkNcz8n+00WRPXWLyi0GN8
+         nN8dzAxrnclUctikIrgzUFlQ6U7AFyfewcPxgLFUKh0+J8R8xBZTVU1zk6jGxJZHsT
+         7yUa8Zvivtkc9uNc2UxYJJhc/FXa6fyyGWPRNAgY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Gordeev <agordeev@linux.ibm.com>,
+        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
         Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Yury Norov <yury.norov@gmail.com>,
-        Amritha Nambiar <amritha.nambiar@intel.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Chris Wilson <chris@chris-wilson.co.uk>,
-        Kees Cook <keescook@chromium.org>,
-        Matthew Wilcox <willy@infradead.org>,
-        Miklos Szeredi <mszeredi@redhat.com>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        "Tobin C . Harding" <tobin@kernel.org>,
-        Vineet Gupta <vineet.gupta1@synopsys.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Willem de Bruijn <willemb@google.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.7 079/163] lib: fix bitmap_parse() on 64-bit big endian archs
-Date:   Tue, 16 Jun 2020 17:34:13 +0200
-Message-Id: <20200616153110.626629451@linuxfoundation.org>
+        Baruch Siach <baruch@tkos.co.il>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.7 080/163] spi: dw: Fix controller unregister order
+Date:   Tue, 16 Jun 2020 17:34:14 +0200
+Message-Id: <20200616153110.675419172@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
 References: <20200616153106.849127260@linuxfoundation.org>
@@ -59,70 +45,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Gordeev <agordeev@linux.ibm.com>
+From: Lukas Wunner <lukas@wunner.de>
 
-commit 81c4f4d924d5d009b5ed785a3e22b18d0f7b831f upstream.
+commit ca8b19d61e3fce5d2d7790cde27a0b57bcb3f341 upstream.
 
-Commit 2d6261583be0 ("lib: rework bitmap_parse()") does not take into
-account order of halfwords on 64-bit big endian architectures.  As
-result (at least) Receive Packet Steering, IRQ affinity masks and
-runtime kernel test "test_bitmap" get broken on s390.
+The Designware SPI driver uses devm_spi_register_controller() on bind.
+As a consequence, on unbind, __device_release_driver() first invokes
+dw_spi_remove_host() before unregistering the SPI controller via
+devres_release_all().
 
-[andriy.shevchenko@linux.intel.com: convert infinite while loop to a for loop]
-  Link: http://lkml.kernel.org/r/20200609140535.87160-1-andriy.shevchenko@linux.intel.com
+This order is incorrect:  dw_spi_remove_host() shuts down the chip,
+rendering the SPI bus inaccessible even though the SPI controller is
+still registered.  When the SPI controller is subsequently unregistered,
+it unbinds all its slave devices.  Because their drivers cannot access
+the SPI bus, e.g. to quiesce interrupts, the slave devices may be left
+in an improper state.
 
-Fixes: 2d6261583be0 ("lib: rework bitmap_parse()")
-Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: Yury Norov <yury.norov@gmail.com>
-Cc: Amritha Nambiar <amritha.nambiar@intel.com>
-Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: Miklos Szeredi <mszeredi@redhat.com>
-Cc: Rasmus Villemoes <linux@rasmusvillemoes.dk>
-Cc: Steffen Klassert <steffen.klassert@secunet.com>
-Cc: "Tobin C . Harding" <tobin@kernel.org>
-Cc: Vineet Gupta <vineet.gupta1@synopsys.com>
-Cc: Will Deacon <will.deacon@arm.com>
-Cc: Willem de Bruijn <willemb@google.com>
-Cc: <stable@vger.kernel.org>
-Link: http://lkml.kernel.org/r/1591634471-17647-1-git-send-email-agordeev@linux.ibm.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+As a rule, devm_spi_register_controller() must not be used if the
+->remove() hook performs teardown steps which shall be performed after
+unregistering the controller and specifically after unbinding of slaves.
+
+Fix by reverting to the non-devm variant of spi_register_controller().
+
+An alternative approach would be to use device-managed functions for all
+steps in dw_spi_remove_host(), e.g. by calling devm_add_action_or_reset()
+on probe.  However that approach would add more LoC to the driver and
+it wouldn't lend itself as well to backporting to stable.
+
+Fixes: 04f421e7b0b1 ("spi: dw: use managed resources")
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: stable@vger.kernel.org # v3.14+
+Cc: Baruch Siach <baruch@tkos.co.il>
+Link: https://lore.kernel.org/r/3fff8cb8ae44a9893840d0688be15bb88c090a14.1590408496.git.lukas@wunner.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- lib/bitmap.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/spi/spi-dw.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/lib/bitmap.c
-+++ b/lib/bitmap.c
-@@ -740,8 +740,9 @@ int bitmap_parse(const char *start, unsi
- 	int chunks = BITS_TO_U32(nmaskbits);
- 	u32 *bitmap = (u32 *)maskp;
- 	int unset_bit;
-+	int chunk;
- 
--	while (1) {
-+	for (chunk = 0; ; chunk++) {
- 		end = bitmap_find_region_reverse(start, end);
- 		if (start > end)
- 			break;
-@@ -749,7 +750,11 @@ int bitmap_parse(const char *start, unsi
- 		if (!chunks--)
- 			return -EOVERFLOW;
- 
--		end = bitmap_get_x32_reverse(start, end, bitmap++);
-+#if defined(CONFIG_64BIT) && defined(__BIG_ENDIAN)
-+		end = bitmap_get_x32_reverse(start, end, &bitmap[chunk ^ 1]);
-+#else
-+		end = bitmap_get_x32_reverse(start, end, &bitmap[chunk]);
-+#endif
- 		if (IS_ERR(end))
- 			return PTR_ERR(end);
+--- a/drivers/spi/spi-dw.c
++++ b/drivers/spi/spi-dw.c
+@@ -534,7 +534,7 @@ int dw_spi_add_host(struct device *dev,
+ 		}
  	}
+ 
+-	ret = devm_spi_register_controller(dev, master);
++	ret = spi_register_controller(master);
+ 	if (ret) {
+ 		dev_err(&master->dev, "problem registering spi master\n");
+ 		goto err_dma_exit;
+@@ -558,6 +558,8 @@ void dw_spi_remove_host(struct dw_spi *d
+ {
+ 	dw_spi_debugfs_remove(dws);
+ 
++	spi_unregister_controller(dws->master);
++
+ 	if (dws->dma_ops && dws->dma_ops->dma_exit)
+ 		dws->dma_ops->dma_exit(dws);
+ 
 
 
