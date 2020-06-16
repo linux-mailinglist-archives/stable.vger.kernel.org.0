@@ -2,126 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 78BAC1FC1F4
-	for <lists+stable@lfdr.de>; Wed, 17 Jun 2020 00:58:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 500CB1FC266
+	for <lists+stable@lfdr.de>; Wed, 17 Jun 2020 01:38:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726271AbgFPW5P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 18:57:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56850 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725941AbgFPW5O (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Jun 2020 18:57:14 -0400
-Received: from mail-pg1-x52d.google.com (mail-pg1-x52d.google.com [IPv6:2607:f8b0:4864:20::52d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 853B2C061573
-        for <stable@vger.kernel.org>; Tue, 16 Jun 2020 15:57:14 -0700 (PDT)
-Received: by mail-pg1-x52d.google.com with SMTP id e9so270533pgo.9
-        for <stable@vger.kernel.org>; Tue, 16 Jun 2020 15:57:14 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=7N3SvWNVjq92UsfGTN7y5p+QBZQAC/gIPtP2UnssofE=;
-        b=q3uzzA7vNS9tETgW1RDrq9tfSRLadQK4OdtTOW7fPvTmp5ENduJNA4Lhj4HmjgzDIW
-         NByTlin+l3FZv6JdHwAW7w3uj7GO7yNTjFjX3Suq1JhmqB3q7CAZpFt4z23ZcrHwFRcD
-         Kl0c/kcBevmTvGnJKnwCZFHKxd60Xq6B/v6p+AqLrPJroWtDARRjdrKWzeLsU1OD8eo0
-         R1VoUxnsoBO2RQ9i/I+2t83rHg69fV7eW2+1Ec/pun+ANweO+qwggrlpbZdTk1Rj+kme
-         tG3QZ8xvO0wwwD3mMDfBi//JIdVEEYW3Wnh76MLU3iA7c0dXHnfl8uAj/hZye2jUSugU
-         /Hgw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=7N3SvWNVjq92UsfGTN7y5p+QBZQAC/gIPtP2UnssofE=;
-        b=hWbSZN8g4Hf1M9r39+BJACFVfOwErdVPl3lgH8GT4ZvXSX1XlCb5YB2trQdXmfCDSv
-         abVWj8TJt5HiYO2lDiTfgPoA6cbiosnn9C273hR4ktCI/UIX2qJNuvyTku7b4LITWec1
-         2MTzYt+RXAR+GSBcFXSrQYs21k1a0Ye3bfq1/spYeDBuEUvLu9jG80Saejl9lkevviM/
-         B7kEqHVlIpDl9V4LBIqPqI15E7JSRfvVJfqPFmYpKsqaryO+5xR49f4DhSQ2bmqusd8J
-         S3nrsAcVeD4v/ZfE7GRHcXH2mLSFpFqD09PU4JjJ0E4MwKRrCfPnlmKvBqpvSRVqgw2i
-         JlmA==
-X-Gm-Message-State: AOAM533tfz85L6aNozm4lDuyrIcFNx1wD0bDSxoufU2PvpaM1grXJ7u8
-        mFvTGoxRLcnb9nlSUCUmyQfx8tyueuQ=
-X-Google-Smtp-Source: ABdhPJx5IHWchPoojzpDqAjSfghmrkEyEDK5BWB+BQr93MNN2oSSR7TL+/UWPQVkhTh9gbIR8Otvzg==
-X-Received: by 2002:a62:2cd7:: with SMTP id s206mr3967281pfs.305.1592348233498;
-        Tue, 16 Jun 2020 15:57:13 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id a19sm17925987pfd.165.2020.06.16.15.57.12
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 16 Jun 2020 15:57:12 -0700 (PDT)
-Message-ID: <5ee94e48.1c69fb81.3f3d7.9bf0@mx.google.com>
-Date:   Tue, 16 Jun 2020 15:57:12 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Branch: linux-5.4.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.4.44-206-ga7debb64f8b4
-Subject: stable-rc/linux-5.4.y baseline: 59 runs,
- 1 regressions (v5.4.44-206-ga7debb64f8b4)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+        id S1726407AbgFPXhf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 19:37:35 -0400
+Received: from us-smtp-2.mimecast.com ([205.139.110.61]:27732 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726271AbgFPXhf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Jun 2020 19:37:35 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1592350653;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc; bh=dAIoWCDMhMk4LZC+m7ZCXzqJOA4lfz/6pbetHLdYCkM=;
+        b=i1OEICvRqrmtiZFLfazhUukk1Gzw0k5qhFgsvO5whsznSsrRfWM4BFH1LYm3G7oPkNuAKQ
+        U0hsUNcy3zw5Vod82PBp9kzuoOvhI8P6VH70cNR3A9X4JIvDqRrL3sc98aE4DNpEpQsxSJ
+        kz1459iVOpf4tpK+5YryMAPa3jfLHC8=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-452-kOLjSPO9PqqAvDjvYIhBNQ-1; Tue, 16 Jun 2020 19:37:29 -0400
+X-MC-Unique: kOLjSPO9PqqAvDjvYIhBNQ-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id BBA33E919;
+        Tue, 16 Jun 2020 23:37:28 +0000 (UTC)
+Received: from npache.remote.csb (ovpn-115-159.rdu2.redhat.com [10.10.115.159])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id C2E7719C71;
+        Tue, 16 Jun 2020 23:37:25 +0000 (UTC)
+From:   Nico Pache <npache@redhat.com>
+To:     aquini@redhat.com, npache@redhat.com
+Cc:     Yihui Zeng <yzeng56@asu.edu>, stable@vger.kernel.org,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: 
+Date:   Tue, 16 Jun 2020 19:37:21 -0400
+Message-Id: <20200616233721.19313-1-npache@redhat.com>
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1846533
+CVE:    CVE-2020-10773 
+Tested: https://datawarehouse-cki.apps.ocp.prod.psi.redhat.com/pipeline/601873
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.4.y baseline: 59 runs, 1 regressions (v5.4.44-206-ga7debb=
-64f8b4)
+From ec13df6442492592eb6a0b21d65d0489ac91a180 Mon Sep 17 00:00:00 2001
+From: Yihui ZENG <yzeng56@asu.edu>
+Date: Fri, 25 Oct 2019 12:31:48 +0300
+Subject: [PATCH] s390/cmm: fix information leak in cmm_timeout_handler()
 
-Regressions Summary
--------------------
+The problem is that we were putting the NUL terminator too far:
 
-platform              | arch | lab          | compiler | defconfig       | =
-results
-----------------------+------+--------------+----------+-----------------+-=
--------
-at91-sama5d4_xplained | arm  | lab-baylibre | gcc-8    | sama5_defconfig | =
-0/1    =
+	buf[sizeof(buf) - 1] = '\0';
 
+If the user input isn't NUL terminated and they haven't initialized the
+whole buffer then it leads to an info leak.  The NUL terminator should
+be:
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.4.y/kern=
-el/v5.4.44-206-ga7debb64f8b4/plan/baseline/
+	buf[len - 1] = '\0';
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.4.y
-  Describe: v5.4.44-206-ga7debb64f8b4
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      a7debb64f8b4820a8a003bf3bd0b702a111b4a4b =
+Signed-off-by: Yihui Zeng <yzeng56@asu.edu>
+Cc: stable@vger.kernel.org
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+[heiko.carstens@de.ibm.com: keep semantics of how *lenp and *ppos are handled]
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+(cherry picked from commit b8e51a6a9db94bc1fb18ae831b3dab106b5a4b5f)
+Signed-off-by: Nico Pache <npache@redhat.com>
+---
+ arch/s390/mm/cmm.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
+diff --git a/arch/s390/mm/cmm.c b/arch/s390/mm/cmm.c
+index 9d84a1feefef..846561d4245e 100644
+--- a/arch/s390/mm/cmm.c
++++ b/arch/s390/mm/cmm.c
+@@ -306,16 +306,16 @@ static int cmm_timeout_handler(ctl_table *ctl, int write,  void __user *buffer,
+ 	}
+ 
+ 	if (write) {
+-		len = *lenp;
+-		if (copy_from_user(buf, buffer,
+-				   len > sizeof(buf) ? sizeof(buf) : len))
++		len = min(*lenp, sizeof(buf));
++		if (copy_from_user(buf, buffer, len))
+ 			return -EFAULT;
+-		buf[sizeof(buf) - 1] = '\0';
++		buf[len - 1] = '\0';
+ 		cmm_skip_blanks(buf, &p);
+ 		nr = simple_strtoul(p, &p, 0);
+ 		cmm_skip_blanks(p, &p);
+ 		seconds = simple_strtoul(p, &p, 0);
+ 		cmm_set_timeout(nr, seconds);
++		*ppos += *lenp;
+ 	} else {
+ 		len = sprintf(buf, "%ld %ld\n",
+ 			      cmm_timeout_pages, cmm_timeout_seconds);
+@@ -323,9 +323,9 @@ static int cmm_timeout_handler(ctl_table *ctl, int write,  void __user *buffer,
+ 			len = *lenp;
+ 		if (copy_to_user(buffer, buf, len))
+ 			return -EFAULT;
++		*lenp = len;
++		*ppos += len;
+ 	}
+-	*lenp = len;
+-	*ppos += len;
+ 	return 0;
+ }
+ 
+-- 
+2.18.1
 
-
-Test Regressions
----------------- =
-
-
-
-platform              | arch | lab          | compiler | defconfig       | =
-results
-----------------------+------+--------------+----------+-----------------+-=
--------
-at91-sama5d4_xplained | arm  | lab-baylibre | gcc-8    | sama5_defconfig | =
-0/1    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5ee91a11df46990a3d97bf1d
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: sama5_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.44-=
-206-ga7debb64f8b4/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama=
-5d4_xplained.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.44-=
-206-ga7debb64f8b4/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama=
-5d4_xplained.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2019=
-.02-11-g17e793fa4728/armel/baseline/rootfs.cpio.gz =
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5ee91a11df46990a3d97b=
-f1e
-      failing since 66 days (last pass: v5.4.30-54-g6f04e8ca5355, first fai=
-l: v5.4.30-81-gf163418797b9) =20
