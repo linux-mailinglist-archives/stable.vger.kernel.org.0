@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A73E81FBAD1
+	by mail.lfdr.de (Postfix) with ESMTP id 38E271FBAD0
 	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:14:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730894AbgFPPmg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:42:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59338 "EHLO mail.kernel.org"
+        id S1730995AbgFPQOZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 12:14:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59510 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731692AbgFPPmf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:42:35 -0400
+        id S1730939AbgFPPmk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:42:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2A84D20C56;
-        Tue, 16 Jun 2020 15:42:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 396EA208E4;
+        Tue, 16 Jun 2020 15:42:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322154;
-        bh=R8b4aXiaDVa9gpxOJ77HU6fmfPrXxPzH9NZlAi6jZ1U=;
+        s=default; t=1592322159;
+        bh=f4dWbME0zvTO4lNAmFwEvgbVjHjm7e7nyr1BsvdN+HM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q1DpcV358vQR6m6+HY5WLeVYQR/gSbhW4EDHnXoOJVnY7ZRKw2nMD9eH+BaKoRtKJ
-         Zj3TD4NM/dYgOeSwNe+z22GuRl9scutu8i0ASmrNF3IS8/EkdWdyTCS7GXQcVFckLI
-         DVtxQaX5bUH+WnxAcY+hbj9FXtePK7//b2Sq9X7g=
+        b=L/MFTqtrZk5z3eF9xclHqF7/oNEJmyNUCzXlWrRJ29uGVhRf4rHUZ/42xRmfVZC8W
+         m59ztvXPgByI/9zfFtE12tSNu5HLToVqseTyf0XKE5cYERvD+srDxultp/jpVFxYG/
+         LHXlAk/4wap4yV4ga5kEtmAt7QfPsOzraB/18Fm4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
+        stable@vger.kernel.org, Ido Schimmel <idosch@mellanox.com>,
+        Alla Segal <allas@mellanox.com>,
+        Nikolay Aleksandrov <nikolay@cumulusnetworks.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.7 003/163] net_failover: fixed rollback in net_failover_open()
-Date:   Tue, 16 Jun 2020 17:32:57 +0200
-Message-Id: <20200616153107.022748125@linuxfoundation.org>
+Subject: [PATCH 5.7 005/163] bridge: Avoid infinite loop when suppressing NS messages with invalid options
+Date:   Tue, 16 Jun 2020 17:32:59 +0200
+Message-Id: <20200616153107.117704051@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
 References: <20200616153106.849127260@linuxfoundation.org>
@@ -43,33 +45,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Averin <vvs@virtuozzo.com>
+From: Ido Schimmel <idosch@mellanox.com>
 
-[ Upstream commit e8224bfe77293494626f6eec1884fee7b87d0ced ]
+[ Upstream commit 53fc685243bd6fb90d90305cea54598b78d3cbfc ]
 
-found by smatch:
-drivers/net/net_failover.c:65 net_failover_open() error:
- we previously assumed 'primary_dev' could be null (see line 43)
+When neighbor suppression is enabled the bridge device might reply to
+Neighbor Solicitation (NS) messages on behalf of remote hosts.
 
-Fixes: cfc80d9a1163 ("net: Introduce net_failover driver")
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
+In case the NS message includes the "Source link-layer address" option
+[1], the bridge device will use the specified address as the link-layer
+destination address in its reply.
+
+To avoid an infinite loop, break out of the options parsing loop when
+encountering an option with length zero and disregard the NS message.
+
+This is consistent with the IPv6 ndisc code and RFC 4886 which states
+that "Nodes MUST silently discard an ND packet that contains an option
+with length zero" [2].
+
+[1] https://tools.ietf.org/html/rfc4861#section-4.3
+[2] https://tools.ietf.org/html/rfc4861#section-4.6
+
+Fixes: ed842faeb2bd ("bridge: suppress nd pkts on BR_NEIGH_SUPPRESS ports")
+Signed-off-by: Ido Schimmel <idosch@mellanox.com>
+Reported-by: Alla Segal <allas@mellanox.com>
+Tested-by: Alla Segal <allas@mellanox.com>
+Acked-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/net_failover.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/bridge/br_arp_nd_proxy.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/net/net_failover.c
-+++ b/drivers/net/net_failover.c
-@@ -61,7 +61,8 @@ static int net_failover_open(struct net_
- 	return 0;
- 
- err_standby_open:
--	dev_close(primary_dev);
-+	if (primary_dev)
-+		dev_close(primary_dev);
- err_primary_open:
- 	netif_tx_disable(dev);
- 	return err;
+--- a/net/bridge/br_arp_nd_proxy.c
++++ b/net/bridge/br_arp_nd_proxy.c
+@@ -276,6 +276,10 @@ static void br_nd_send(struct net_bridge
+ 	ns_olen = request->len - (skb_network_offset(request) +
+ 				  sizeof(struct ipv6hdr)) - sizeof(*ns);
+ 	for (i = 0; i < ns_olen - 1; i += (ns->opt[i + 1] << 3)) {
++		if (!ns->opt[i + 1]) {
++			kfree_skb(reply);
++			return;
++		}
+ 		if (ns->opt[i] == ND_OPT_SOURCE_LL_ADDR) {
+ 			daddr = ns->opt + i + sizeof(struct nd_opt_hdr);
+ 			break;
 
 
