@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A37D21FB64D
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:36:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 11C791FB6F8
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:43:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729805AbgFPPgO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:36:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46664 "EHLO mail.kernel.org"
+        id S1731645AbgFPPmQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:42:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58692 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728917AbgFPPgM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:36:12 -0400
+        id S1731635AbgFPPmO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:42:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0AF9520C09;
-        Tue, 16 Jun 2020 15:36:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8154E214DB;
+        Tue, 16 Jun 2020 15:42:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592321771;
-        bh=mlbf5webgelWXh1c2w76bsMcqMr/gV9ShhQ99iTpZc4=;
+        s=default; t=1592322134;
+        bh=djLqvwOIRLMfyQA3QMmRQ5njsQ6BvC6f0GfJ1VSuINc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U7UKEG3Na5OmN1Ob+g3pTEOoCUTAiFMhre9QJPa/gWFko2d/z7/YcrysWt5h+dsJu
-         noWbiWTFEFK0IEmCLytBCdAHEVmBWRINNgWs4bRnYLLUebAVg8glEiedjxyHg7dMKI
-         l2JxRJxf5ME5MykWKT78/w6dsR4US3YOdSL2y6XI=
+        b=Xn7Ktcl/aUw2au+U95jtXDBIjucxuLttWyvDJD0ThUKreQH/U2iAD18PsQEhaNHAb
+         IKoKJig8o/YRYlvNmfdrkJXDdRft1dQ+a7EQtbKpAYHhh1ExrvqdiHiPg5c6MYjGTP
+         Pgp/nHMDBgQEdJkAg9bL6eILcDr3D6hkUewzmbGw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vadim Pasternak <vadimp@mellanox.com>,
-        Jiri Pirko <jiri@mellanox.com>,
-        Ido Schimmel <idosch@mellanox.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 002/134] mlxsw: core: Use different get_trend() callbacks for different thermal zones
-Date:   Tue, 16 Jun 2020 17:33:06 +0200
-Message-Id: <20200616153100.765876058@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Sergio Paracuellos <sergio.paracuellos@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 014/163] staging: mt7621-pci: properly power off dual-ported pcie phy
+Date:   Tue, 16 Jun 2020 17:33:08 +0200
+Message-Id: <20200616153107.558370601@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153100.633279950@linuxfoundation.org>
-References: <20200616153100.633279950@linuxfoundation.org>
+In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
+References: <20200616153106.849127260@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,83 +44,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vadim Pasternak <vadimp@mellanox.com>
+From: Sergio Paracuellos <sergio.paracuellos@gmail.com>
 
-[ Upstream commit 2dc2f760052da4925482ecdcdc5c94d4a599153c ]
+[ Upstream commit 5fcded5e857cf66c9592e4be28c4dab4520c9177 ]
 
-The driver registers three different types of thermal zones: For the
-ASIC itself, for port modules and for gearboxes.
+Pcie phy for pcie0 and pcie1 is shared using a dual ported
+one. Current code was assuming that if nothing is connected
+in pcie0 it won't be also nothing connected in pcie1. This
+assumtion is wrong for some devices such us 'Mikrotik rbm33g'
+and 'ZyXEL LTE3301-PLUS' where only connecting a card to the
+second bus on the phy is possible. For such devices kernel
+hangs in the same point because of the wrong poweroff of the
+phy getting the following trace:
 
-Currently, all three types use the same get_trend() callback which does
-not work correctly for the ASIC thermal zone. The callback assumes that
-the device data is of type 'struct mlxsw_thermal_module', whereas for
-the ASIC thermal zone 'struct mlxsw_thermal' is passed as device data.
+mt7621-pci-phy 1e149000.pcie-phy: PHY for 0xbe149000 (dual port = 1)
+mt7621-pci-phy 1e14a000.pcie-phy: PHY for 0xbe14a000 (dual port = 0)
+mt7621-pci-phy 1e149000.pcie-phy: Xtal is 40MHz
+mt7621-pci-phy 1e14a000.pcie-phy: Xtal is 40MHz
+mt7621-pci 1e140000.pcie: pcie0 no card, disable it (RST & CLK)
+[hangs]
 
-Fix this by using one get_trend() callback for the ASIC thermal zone and
-another for the other two types.
+The wrong assumption is located in the 'mt7621_pcie_init_ports'
+function where we are just making a power off of the phy for
+slots 0 and 2 if nothing is connected in them. Hence, only
+poweroff the phy if nothing is connected in both slot 0 and
+slot 1 avoiding the kernel to hang.
 
-Fixes: 6f73862fabd9 ("mlxsw: core: Add the hottest thermal zone detection")
-Signed-off-by: Vadim Pasternak <vadimp@mellanox.com>
-Reviewed-by: Jiri Pirko <jiri@mellanox.com>
-Signed-off-by: Ido Schimmel <idosch@mellanox.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 5737cfe87a9c ("staging: mt7621-pci: avoid to poweroff the phy for slot one")
+Signed-off-by: Sergio Paracuellos <sergio.paracuellos@gmail.com>
+Link: https://lore.kernel.org/r/20200409111652.30964-1-sergio.paracuellos@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlxsw/core_thermal.c |   23 +++++++++++++++++----
- 1 file changed, 19 insertions(+), 4 deletions(-)
+ drivers/staging/mt7621-pci/pci-mt7621.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/mellanox/mlxsw/core_thermal.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/core_thermal.c
-@@ -390,8 +390,7 @@ static int mlxsw_thermal_set_trip_hyst(s
- static int mlxsw_thermal_trend_get(struct thermal_zone_device *tzdev,
- 				   int trip, enum thermal_trend *trend)
- {
--	struct mlxsw_thermal_module *tz = tzdev->devdata;
--	struct mlxsw_thermal *thermal = tz->parent;
-+	struct mlxsw_thermal *thermal = tzdev->devdata;
+diff --git a/drivers/staging/mt7621-pci/pci-mt7621.c b/drivers/staging/mt7621-pci/pci-mt7621.c
+index f58e3a51fc71..b9d460a9c041 100644
+--- a/drivers/staging/mt7621-pci/pci-mt7621.c
++++ b/drivers/staging/mt7621-pci/pci-mt7621.c
+@@ -502,17 +502,25 @@ static void mt7621_pcie_init_ports(struct mt7621_pcie *pcie)
  
- 	if (trip < 0 || trip >= MLXSW_THERMAL_NUM_TRIPS)
- 		return -EINVAL;
-@@ -592,6 +591,22 @@ mlxsw_thermal_module_trip_hyst_set(struc
- 	return 0;
+ 	mt7621_pcie_reset_ep_deassert(pcie);
+ 
++	tmp = NULL;
+ 	list_for_each_entry(port, &pcie->ports, list) {
+ 		u32 slot = port->slot;
+ 
+ 		if (!mt7621_pcie_port_is_linkup(port)) {
+ 			dev_err(dev, "pcie%d no card, disable it (RST & CLK)\n",
+ 				slot);
+-			if (slot != 1)
+-				phy_power_off(port->phy);
+ 			mt7621_control_assert(port);
+ 			mt7621_pcie_port_clk_disable(port);
+ 			port->enabled = false;
++
++			if (slot == 0) {
++				tmp = port;
++				continue;
++			}
++
++			if (slot == 1 && tmp && !tmp->enabled)
++				phy_power_off(tmp->phy);
++
+ 		}
+ 	}
  }
- 
-+static int mlxsw_thermal_module_trend_get(struct thermal_zone_device *tzdev,
-+					  int trip, enum thermal_trend *trend)
-+{
-+	struct mlxsw_thermal_module *tz = tzdev->devdata;
-+	struct mlxsw_thermal *thermal = tz->parent;
-+
-+	if (trip < 0 || trip >= MLXSW_THERMAL_NUM_TRIPS)
-+		return -EINVAL;
-+
-+	if (tzdev == thermal->tz_highest_dev)
-+		return 1;
-+
-+	*trend = THERMAL_TREND_STABLE;
-+	return 0;
-+}
-+
- static struct thermal_zone_device_ops mlxsw_thermal_module_ops = {
- 	.bind		= mlxsw_thermal_module_bind,
- 	.unbind		= mlxsw_thermal_module_unbind,
-@@ -603,7 +618,7 @@ static struct thermal_zone_device_ops ml
- 	.set_trip_temp	= mlxsw_thermal_module_trip_temp_set,
- 	.get_trip_hyst	= mlxsw_thermal_module_trip_hyst_get,
- 	.set_trip_hyst	= mlxsw_thermal_module_trip_hyst_set,
--	.get_trend	= mlxsw_thermal_trend_get,
-+	.get_trend	= mlxsw_thermal_module_trend_get,
- };
- 
- static int mlxsw_thermal_gearbox_temp_get(struct thermal_zone_device *tzdev,
-@@ -642,7 +657,7 @@ static struct thermal_zone_device_ops ml
- 	.set_trip_temp	= mlxsw_thermal_module_trip_temp_set,
- 	.get_trip_hyst	= mlxsw_thermal_module_trip_hyst_get,
- 	.set_trip_hyst	= mlxsw_thermal_module_trip_hyst_set,
--	.get_trend	= mlxsw_thermal_trend_get,
-+	.get_trend	= mlxsw_thermal_module_trend_get,
- };
- 
- static int mlxsw_thermal_get_max_state(struct thermal_cooling_device *cdev,
+-- 
+2.25.1
+
 
 
