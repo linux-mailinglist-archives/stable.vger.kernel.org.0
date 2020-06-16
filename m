@@ -2,39 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C40C1FBA34
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:10:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CB5BA1FB953
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:03:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732345AbgFPQJR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 12:09:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36470 "EHLO mail.kernel.org"
+        id S1731616AbgFPPu1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:50:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46190 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732075AbgFPPpQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:45:16 -0400
+        id S1732392AbgFPPuZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:50:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BAC982071A;
-        Tue, 16 Jun 2020 15:45:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E882720776;
+        Tue, 16 Jun 2020 15:50:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322316;
-        bh=0JERohV4x/Bj7qeK8SMYNWYmz3BUXkYI0JZHeSB8q1g=;
+        s=default; t=1592322624;
+        bh=oXxrqKU3RYuFHlbwhWmrhjiO0p/+PyjSyNfifVE7cVI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ym0j7mxC534CRlDoVwal6hMu8Jo+Kii0TPlVPxR86jkVyrK2W9brVgLjHnInS/pOY
-         jX322jd31qhJrlg9cPsb5qGAz4ChCxcSOqS7dTX5LafheOof/ffNPmNw/rRz/Ux4Ya
-         RpnRJL7iAc13uUrpGydYFuDVJt+JOqLPGUWcbTlg=
+        b=iryt4ZX8sO4ZKPeDKNeQB1Quf2irXnvhbS/KfHgN1zWPHOydQ1GRxyL514frc75uV
+         5eZm6eJc0WjW/69sFGDdMFU+YVSFDPvUNM/KFEnarwEX/OlLMM1D0o36TGg4vOPgj+
+         NLvXwhYnMSrUPDnPqw8+tovHlyrgGn602DF5bMD4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?=E4=BA=BF=E4=B8=80?= <teroincn@gmail.com>,
-        Ard Biesheuvel <ardb@kernel.org>
-Subject: [PATCH 5.7 057/163] efi/efivars: Add missing kobject_put() in sysfs entry creation error path
+        stable@vger.kernel.org, Naresh Kamboju <naresh.kamboju@linaro.org>,
+        kernel test robot <rong.a.chen@intel.com>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Brendan Higgins <brendanhiggins@google.com>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 041/161] kobject: Make sure the parent does not get released before its children
 Date:   Tue, 16 Jun 2020 17:33:51 +0200
-Message-Id: <20200616153109.579761829@linuxfoundation.org>
+Message-Id: <20200616153108.333633206@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
-References: <20200616153106.849127260@linuxfoundation.org>
+In-Reply-To: <20200616153106.402291280@linuxfoundation.org>
+References: <20200616153106.402291280@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,36 +49,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Heikki Krogerus <heikki.krogerus@linux.intel.com>
 
-commit d8bd8c6e2cfab8b78b537715255be8d7557791c0 upstream.
+[ Upstream commit 4ef12f7198023c09ad6d25b652bd8748c965c7fa ]
 
-The documentation provided by kobject_init_and_add() clearly spells out
-the need to call kobject_put() on the kobject if an error is returned.
-Add this missing call to the error path.
+In the function kobject_cleanup(), kobject_del(kobj) is
+called before the kobj->release(). That makes it possible to
+release the parent of the kobject before the kobject itself.
 
-Cc: <stable@vger.kernel.org>
-Reported-by: 亿一 <teroincn@gmail.com>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+To fix that, adding function __kboject_del() that does
+everything that kobject_del() does except release the parent
+reference. kobject_cleanup() then calls __kobject_del()
+instead of kobject_del(), and separately decrements the
+reference count of the parent kobject after kobj->release()
+has been called.
+
+Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
+Reported-by: kernel test robot <rong.a.chen@intel.com>
+Fixes: 7589238a8cf3 ("Revert "software node: Simplify software_node_release() function"")
+Suggested-by: "Rafael J. Wysocki" <rafael@kernel.org>
+Signed-off-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Reviewed-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Reviewed-by: Brendan Higgins <brendanhiggins@google.com>
+Tested-by: Brendan Higgins <brendanhiggins@google.com>
+Acked-by: Randy Dunlap <rdunlap@infradead.org>
+Link: https://lore.kernel.org/r/20200513151840.36400-1-heikki.krogerus@linux.intel.com
+Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/efi/efivars.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ lib/kobject.c | 30 ++++++++++++++++++++----------
+ 1 file changed, 20 insertions(+), 10 deletions(-)
 
---- a/drivers/firmware/efi/efivars.c
-+++ b/drivers/firmware/efi/efivars.c
-@@ -522,8 +522,10 @@ efivar_create_sysfs_entry(struct efivar_
- 	ret = kobject_init_and_add(&new_var->kobj, &efivar_ktype,
- 				   NULL, "%s", short_name);
- 	kfree(short_name);
--	if (ret)
-+	if (ret) {
-+		kobject_put(&new_var->kobj);
- 		return ret;
-+	}
+diff --git a/lib/kobject.c b/lib/kobject.c
+index 83198cb37d8d..2bd631460e18 100644
+--- a/lib/kobject.c
++++ b/lib/kobject.c
+@@ -599,14 +599,7 @@ int kobject_move(struct kobject *kobj, struct kobject *new_parent)
+ }
+ EXPORT_SYMBOL_GPL(kobject_move);
  
- 	kobject_uevent(&new_var->kobj, KOBJ_ADD);
- 	if (efivar_entry_add(new_var, &efivar_sysfs_list)) {
+-/**
+- * kobject_del() - Unlink kobject from hierarchy.
+- * @kobj: object.
+- *
+- * This is the function that should be called to delete an object
+- * successfully added via kobject_add().
+- */
+-void kobject_del(struct kobject *kobj)
++static void __kobject_del(struct kobject *kobj)
+ {
+ 	struct kernfs_node *sd;
+ 	const struct kobj_type *ktype;
+@@ -625,9 +618,23 @@ void kobject_del(struct kobject *kobj)
+ 
+ 	kobj->state_in_sysfs = 0;
+ 	kobj_kset_leave(kobj);
+-	kobject_put(kobj->parent);
+ 	kobj->parent = NULL;
+ }
++
++/**
++ * kobject_del() - Unlink kobject from hierarchy.
++ * @kobj: object.
++ *
++ * This is the function that should be called to delete an object
++ * successfully added via kobject_add().
++ */
++void kobject_del(struct kobject *kobj)
++{
++	struct kobject *parent = kobj->parent;
++
++	__kobject_del(kobj);
++	kobject_put(parent);
++}
+ EXPORT_SYMBOL(kobject_del);
+ 
+ /**
+@@ -663,6 +670,7 @@ EXPORT_SYMBOL(kobject_get_unless_zero);
+  */
+ static void kobject_cleanup(struct kobject *kobj)
+ {
++	struct kobject *parent = kobj->parent;
+ 	struct kobj_type *t = get_ktype(kobj);
+ 	const char *name = kobj->name;
+ 
+@@ -684,7 +692,7 @@ static void kobject_cleanup(struct kobject *kobj)
+ 	if (kobj->state_in_sysfs) {
+ 		pr_debug("kobject: '%s' (%p): auto cleanup kobject_del\n",
+ 			 kobject_name(kobj), kobj);
+-		kobject_del(kobj);
++		__kobject_del(kobj);
+ 	}
+ 
+ 	if (t && t->release) {
+@@ -698,6 +706,8 @@ static void kobject_cleanup(struct kobject *kobj)
+ 		pr_debug("kobject: '%s': free name\n", name);
+ 		kfree_const(name);
+ 	}
++
++	kobject_put(parent);
+ }
+ 
+ #ifdef CONFIG_DEBUG_KOBJECT_RELEASE
+-- 
+2.25.1
+
 
 
