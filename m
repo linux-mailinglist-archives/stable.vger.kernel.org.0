@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 37E811FB73F
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:46:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 932961FB7E4
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:51:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731973AbgFPPoY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:44:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34542 "EHLO mail.kernel.org"
+        id S1732626AbgFPPux (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:50:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47034 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730565AbgFPPoW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:44:22 -0400
+        id S1732205AbgFPPuv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:50:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8F2D921475;
-        Tue, 16 Jun 2020 15:44:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3B444207C4;
+        Tue, 16 Jun 2020 15:50:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322262;
-        bh=Fmt7OWxQ8GzI+MHevMs0ZHnD1FSVTqDy9UHdzRcOWMQ=;
+        s=default; t=1592322650;
+        bh=bJ5vHl2H8/BvNDVhsIs4pfBDlyCaMBFtm0KMc8o1C+U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eHRusZA+UE2cZTMDj8lRlz8jZJx9vAQMXB/QOYn8hfb8PsoS+zrS1kR4A/3lgIhs8
-         beLX64iEzum004e7eRvmskQbN2UfVR3en5Ozw07FheDBL/cKcRyFm3UDjLdMhZvarF
-         ke2gg4cwr8No2hjyRvVXCas0d7U6OdEGoy/8yrDQ=
+        b=s1fKUX3+M0Lq6ZSvmq3uanhrvCdcr5uJMgqez4iYxkkAdB7YROpJkCS1AsffQ2ilH
+         i7bapP6WkYq8zzlzMUs4njnN5ZsP3FVsCCgK159S5hqdO3CFJTdM9JXo6NDirYQBuO
+         6lGcmyVXtvIvVTReGsJZWSVHp2Y196ZPEinahk5E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hersen Wu <hersenxs.wu@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.7 064/163] ALSA: hda: add sienna_cichlid audio asic id for sienna_cichlid up
-Date:   Tue, 16 Jun 2020 17:33:58 +0200
-Message-Id: <20200616153109.910710034@linuxfoundation.org>
+        stable@vger.kernel.org, Xiaochun Lee <lixc17@lenovo.com>,
+        Bjorn Helgaas <bhelgaas@google.com>
+Subject: [PATCH 5.6 050/161] x86/PCI: Mark Intel C620 MROMs as having non-compliant BARs
+Date:   Tue, 16 Jun 2020 17:34:00 +0200
+Message-Id: <20200616153108.760510470@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
-References: <20200616153106.849127260@linuxfoundation.org>
+In-Reply-To: <20200616153106.402291280@linuxfoundation.org>
+References: <20200616153106.402291280@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,38 +43,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hersen Wu <hersenxs.wu@amd.com>
+From: Xiaochun Lee <lixc17@lenovo.com>
 
-commit 27a7c67012cfa6d79f87fbb51afa13c6c0e24e34 upstream.
+commit 1574051e52cb4b5b7f7509cfd729b76ca1117808 upstream.
 
-dp/hdmi ati hda is not shown in audio settings
+The Intel C620 Platform Controller Hub has MROM functions that have non-PCI
+registers (undocumented in the public spec) where BAR 0 is supposed to be,
+which results in messages like this:
 
-[ rearranged to a more appropriate place per device number order
-  -- tiwai ]
+  pci 0000:00:11.0: [Firmware Bug]: reg 0x30: invalid BAR (can't size)
 
-Signed-off-by: Hersen Wu <hersenxs.wu@amd.com>
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200603013137.1849404-1-alexander.deucher@amd.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Mark these MROM functions as having non-compliant BARs so we don't try to
+probe any of them.  There are no other BARs on these devices.
+
+See the Intel C620 Series Chipset Platform Controller Hub Datasheet,
+May 2019, Document Number 336067-007US, sec 2.1, 35.5, 35.6.
+
+[bhelgaas: commit log, add 0xa26d]
+Link: https://lore.kernel.org/r/1589513467-17070-1-git-send-email-lixiaochun.2888@163.com
+Signed-off-by: Xiaochun Lee <lixc17@lenovo.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/pci/hda/hda_intel.c |    3 +++
- 1 file changed, 3 insertions(+)
+ arch/x86/pci/fixup.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/sound/pci/hda/hda_intel.c
-+++ b/sound/pci/hda/hda_intel.c
-@@ -2662,6 +2662,9 @@ static const struct pci_device_id azx_id
- 	{ PCI_DEVICE(0x1002, 0xab20),
- 	  .driver_data = AZX_DRIVER_ATIHDMI_NS | AZX_DCAPS_PRESET_ATI_HDMI_NS |
- 	  AZX_DCAPS_PM_RUNTIME },
-+	{ PCI_DEVICE(0x1002, 0xab28),
-+	  .driver_data = AZX_DRIVER_ATIHDMI_NS | AZX_DCAPS_PRESET_ATI_HDMI_NS |
-+	  AZX_DCAPS_PM_RUNTIME },
- 	{ PCI_DEVICE(0x1002, 0xab38),
- 	  .driver_data = AZX_DRIVER_ATIHDMI_NS | AZX_DCAPS_PRESET_ATI_HDMI_NS |
- 	  AZX_DCAPS_PM_RUNTIME },
+--- a/arch/x86/pci/fixup.c
++++ b/arch/x86/pci/fixup.c
+@@ -572,6 +572,10 @@ DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_IN
+ DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_INTEL, 0x6f60, pci_invalid_bar);
+ DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_INTEL, 0x6fa0, pci_invalid_bar);
+ DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_INTEL, 0x6fc0, pci_invalid_bar);
++DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_INTEL, 0xa1ec, pci_invalid_bar);
++DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_INTEL, 0xa1ed, pci_invalid_bar);
++DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_INTEL, 0xa26c, pci_invalid_bar);
++DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_INTEL, 0xa26d, pci_invalid_bar);
+ 
+ /*
+  * Device [1022:7808]
 
 
