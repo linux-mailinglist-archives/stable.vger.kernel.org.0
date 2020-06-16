@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0095C1FBB36
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:18:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 039DB1FB940
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:03:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730741AbgFPPil (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:38:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51318 "EHLO mail.kernel.org"
+        id S1731947AbgFPQCa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 12:02:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47854 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730730AbgFPPik (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:38:40 -0400
+        id S1732496AbgFPPvX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:51:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 544C5214F1;
-        Tue, 16 Jun 2020 15:38:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1080C214DB;
+        Tue, 16 Jun 2020 15:51:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592321919;
-        bh=qPXtMOTdflutZMIJ3Kxe+EfHyqUsxZqyhk7CaUbd0Do=;
+        s=default; t=1592322681;
+        bh=tm5emzIZe1eyeA5dlv4d4lUnsTh7XE+ZpULMTA+WaiU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PWtkTPJQgtGoXT/cL1QzKPyyNSpEMKCiP5zFTJTn7t8c7BbWwTLxlmoJyalD08Rx3
-         SJNZG7Wt1tT8D7xymWMavqfcdNJgNgtTF73WpdNeaEvFmfB0K9sXRPnvpiSRccN8qw
-         zRP6KjX0QLTE5CYfhoUNYpLSS4Gn8/vAibZeHuVc=
+        b=upHbOABkb5iRfPHIo1+hLOhUhT2KznMXtTqCfjsyQ4K+dJLMNNVnHHgUfVu05oN9b
+         rxmLOaJjaFzArhP2PQcgJ5wbmUlNpzaDKY71gzG4P5cq44NhKMzNeef9CbeM0JXqwU
+         cmZ7P1lZ70fdTzHfZyS1YYPxueR3ApONiI0ivMu0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Will Deacon <will@kernel.org>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Jeremy Linton <jeremy.linton@arm.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Subject: [PATCH 5.4 066/134] arm64: acpi: fix UBSAN warning
-Date:   Tue, 16 Jun 2020 17:34:10 +0200
-Message-Id: <20200616153103.933415442@linuxfoundation.org>
+        stable@vger.kernel.org, Pavel Dobias <dobias@2n.cz>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.6 061/161] ASoC: max9867: fix volume controls
+Date:   Tue, 16 Jun 2020 17:34:11 +0200
+Message-Id: <20200616153109.282503835@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153100.633279950@linuxfoundation.org>
-References: <20200616153100.633279950@linuxfoundation.org>
+In-Reply-To: <20200616153106.402291280@linuxfoundation.org>
+References: <20200616153106.402291280@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,76 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nick Desaulniers <ndesaulniers@google.com>
+From: Pavel Dobias <dobias@2n.cz>
 
-commit a194c33f45f83068ef13bf1d16e26d4ca3ecc098 upstream.
+commit 8ba4dc3cff8cbe2c571063a5fd7116e8bde563ca upstream.
 
-Will reported a UBSAN warning:
+The xmax values for Master Playback Volume and Mic Boost
+Capture Volume are specified incorrectly (one greater)
+which results in the wrong dB gain being shown to the user
+in the case of Master Playback Volume.
 
-UBSAN: null-ptr-deref in arch/arm64/kernel/smp.c:596:6
-member access within null pointer of type 'struct acpi_madt_generic_interrupt'
-CPU: 0 PID: 0 Comm: swapper Not tainted 5.7.0-rc6-00124-g96bc42ff0a82 #1
-Call trace:
- dump_backtrace+0x0/0x384
- show_stack+0x28/0x38
- dump_stack+0xec/0x174
- handle_null_ptr_deref+0x134/0x174
- __ubsan_handle_type_mismatch_v1+0x84/0xa4
- acpi_parse_gic_cpu_interface+0x60/0xe8
- acpi_parse_entries_array+0x288/0x498
- acpi_table_parse_entries_array+0x178/0x1b4
- acpi_table_parse_madt+0xa4/0x110
- acpi_parse_and_init_cpus+0x38/0x100
- smp_init_cpus+0x74/0x258
- setup_arch+0x350/0x3ec
- start_kernel+0x98/0x6f4
-
-This is from the use of the ACPI_OFFSET in
-arch/arm64/include/asm/acpi.h. Replace its use with offsetof from
-include/linux/stddef.h which should implement the same logic using
-__builtin_offsetof, so that UBSAN wont warn.
-
-Reported-by: Will Deacon <will@kernel.org>
-Suggested-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: Jeremy Linton <jeremy.linton@arm.com>
-Acked-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Signed-off-by: Pavel Dobias <dobias@2n.cz>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/lkml/20200521100952.GA5360@willie-the-truck/
-Link: https://lore.kernel.org/r/20200608203818.189423-1-ndesaulniers@google.com
-Signed-off-by: Will Deacon <will@kernel.org>
+Link: https://lore.kernel.org/r/20200515120757.24669-1-dobias@2n.cz
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm64/include/asm/acpi.h |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ sound/soc/codecs/max9867.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/arm64/include/asm/acpi.h
-+++ b/arch/arm64/include/asm/acpi.h
-@@ -12,6 +12,7 @@
- #include <linux/efi.h>
- #include <linux/memblock.h>
- #include <linux/psci.h>
-+#include <linux/stddef.h>
+--- a/sound/soc/codecs/max9867.c
++++ b/sound/soc/codecs/max9867.c
+@@ -46,13 +46,13 @@ static const SNDRV_CTL_TLVD_DECLARE_DB_R
  
- #include <asm/cputype.h>
- #include <asm/io.h>
-@@ -31,14 +32,14 @@
-  * is therefore used to delimit the MADT GICC structure minimum length
-  * appropriately.
-  */
--#define ACPI_MADT_GICC_MIN_LENGTH   ACPI_OFFSET(  \
-+#define ACPI_MADT_GICC_MIN_LENGTH   offsetof(  \
- 	struct acpi_madt_generic_interrupt, efficiency_class)
- 
- #define BAD_MADT_GICC_ENTRY(entry, end)					\
- 	(!(entry) || (entry)->header.length < ACPI_MADT_GICC_MIN_LENGTH || \
- 	(unsigned long)(entry) + (entry)->header.length > (end))
- 
--#define ACPI_MADT_GICC_SPE  (ACPI_OFFSET(struct acpi_madt_generic_interrupt, \
-+#define ACPI_MADT_GICC_SPE  (offsetof(struct acpi_madt_generic_interrupt, \
- 	spe_interrupt) + sizeof(u16))
- 
- /* Basic configuration for ACPI */
+ static const struct snd_kcontrol_new max9867_snd_controls[] = {
+ 	SOC_DOUBLE_R_TLV("Master Playback Volume", MAX9867_LEFTVOL,
+-			MAX9867_RIGHTVOL, 0, 41, 1, max9867_master_tlv),
++			MAX9867_RIGHTVOL, 0, 40, 1, max9867_master_tlv),
+ 	SOC_DOUBLE_R_TLV("Line Capture Volume", MAX9867_LEFTLINELVL,
+ 			MAX9867_RIGHTLINELVL, 0, 15, 1, max9867_line_tlv),
+ 	SOC_DOUBLE_R_TLV("Mic Capture Volume", MAX9867_LEFTMICGAIN,
+ 			MAX9867_RIGHTMICGAIN, 0, 20, 1, max9867_mic_tlv),
+ 	SOC_DOUBLE_R_TLV("Mic Boost Capture Volume", MAX9867_LEFTMICGAIN,
+-			MAX9867_RIGHTMICGAIN, 5, 4, 0, max9867_micboost_tlv),
++			MAX9867_RIGHTMICGAIN, 5, 3, 0, max9867_micboost_tlv),
+ 	SOC_SINGLE("Digital Sidetone Volume", MAX9867_SIDETONE, 0, 31, 1),
+ 	SOC_SINGLE_TLV("Digital Playback Volume", MAX9867_DACLEVEL, 0, 15, 1,
+ 			max9867_dac_tlv),
 
 
