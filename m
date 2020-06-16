@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D1C61FB6BD
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:43:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C2AB1FB819
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:53:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730313AbgFPPj5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:39:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53828 "EHLO mail.kernel.org"
+        id S1732632AbgFPPxE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:53:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50958 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730006AbgFPPjx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:39:53 -0400
+        id S1732832AbgFPPxB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:53:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8A75B20C56;
-        Tue, 16 Jun 2020 15:39:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 783FC21527;
+        Tue, 16 Jun 2020 15:53:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592321993;
-        bh=6pBozKCjOHj7AkZeu8lezbDBJZhgI7O2YCTuNLUPR2U=;
+        s=default; t=1592322781;
+        bh=xUyXfkQdON4UZ0F/07NZKKPngMjnfR4FTYVv2FmUUpw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pS7gnx1SWiactv0l67uABneufoaUHEhD7rr8p1eU5LHjYezg6OCS1LVQ8hrx8ixoC
-         18EZChaaOzEKw41ftYMMfKty1iDYJvVzOGFmU+TutnsSBtvVSRjjGH7rVANsK+7t8x
-         aDy8T7JMTbXa6YqfMYCE78mXi8xE8MvJ+gH7YMgY=
+        b=NSh2OAf4rPPuB1+GByW3ygzOAv1G0QZiUZGvKdrSMrKjzgW7TRAoh638/IJqfBtjm
+         7VkaUycFEdZzbTH5op0FxbUMSvUwvr926InMgpWGj5i0uLm/nd7RSaR8ZEgtOwDfi8
+         hRsFJSCcxdem9581KxZgWw6LtCZzDdLRp3L7xiks=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.4 077/134] PM: runtime: clk: Fix clk_pm_runtime_get() error path
+        stable@vger.kernel.org, Takashi Sakamoto <o-takashi@sakamocchi.jp>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.6 071/161] ALSA: fireface: start IR context immediately
 Date:   Tue, 16 Jun 2020 17:34:21 +0200
-Message-Id: <20200616153104.461808830@linuxfoundation.org>
+Message-Id: <20200616153109.760871527@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153100.633279950@linuxfoundation.org>
-References: <20200616153100.633279950@linuxfoundation.org>
+In-Reply-To: <20200616153106.402291280@linuxfoundation.org>
+References: <20200616153106.402291280@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,42 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
 
-commit 64c7d7ea22d86cacb65d0c097cc447bc0e6d8abd upstream.
+commit f4588cc425beb62e355bc2a5de5d5c83e26a74ca upstream.
 
-clk_pm_runtime_get() assumes that the PM-runtime usage counter will
-be dropped by pm_runtime_get_sync() on errors, which is not the case,
-so PM-runtime references to devices acquired by the former are leaked
-on errors returned by the latter.
+In the latter models of RME Fireface series, device start to transfer
+packets several dozens of milliseconds. On the other hand, ALSA fireface
+driver starts IR context 2 milliseconds after the start. This results
+in loss to handle incoming packets on the context.
 
-Fix this by modifying clk_pm_runtime_get() to drop the reference if
-pm_runtime_get_sync() returns an error.
+This commit changes to start IR context immediately instead of
+postponement. For Fireface 800, this affects nothing because the device
+transfer packets 100 milliseconds or so after the start and this is
+within wait timeout.
 
-Fixes: 9a34b45397e5 clk: Add support for runtime PM
-Cc: 4.15+ <stable@vger.kernel.org> # 4.15+
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Reviewed-by: Ulf Hansson <ulf.hansson@linaro.org>
+Cc: <stable@vger.kernel.org>
+Fixes: acfedcbe1ce4 ("ALSA: firewire-lib: postpone to start IR context")
+Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+Link: https://lore.kernel.org/r/20200510074301.116224-3-o-takashi@sakamocchi.jp
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/clk/clk.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ sound/firewire/fireface/ff-stream.c |   10 +---------
+ 1 file changed, 1 insertion(+), 9 deletions(-)
 
---- a/drivers/clk/clk.c
-+++ b/drivers/clk/clk.c
-@@ -114,7 +114,11 @@ static int clk_pm_runtime_get(struct clk
- 		return 0;
+--- a/sound/firewire/fireface/ff-stream.c
++++ b/sound/firewire/fireface/ff-stream.c
+@@ -184,7 +184,6 @@ int snd_ff_stream_start_duplex(struct sn
+ 	 */
+ 	if (!amdtp_stream_running(&ff->rx_stream)) {
+ 		int spd = fw_parent_device(ff->unit)->max_speed;
+-		unsigned int ir_delay_cycle;
  
- 	ret = pm_runtime_get_sync(core->dev);
--	return ret < 0 ? ret : 0;
-+	if (ret < 0) {
-+		pm_runtime_put_noidle(core->dev);
-+		return ret;
-+	}
-+	return 0;
- }
+ 		err = ff->spec->protocol->begin_session(ff, rate);
+ 		if (err < 0)
+@@ -200,14 +199,7 @@ int snd_ff_stream_start_duplex(struct sn
+ 		if (err < 0)
+ 			goto error;
  
- static void clk_pm_runtime_put(struct clk_core *core)
+-		// The device postpones start of transmission mostly for several
+-		// cycles after receiving packets firstly.
+-		if (ff->spec->protocol == &snd_ff_protocol_ff800)
+-			ir_delay_cycle = 800;	// = 100 msec
+-		else
+-			ir_delay_cycle = 16;	// = 2 msec
+-
+-		err = amdtp_domain_start(&ff->domain, ir_delay_cycle);
++		err = amdtp_domain_start(&ff->domain, 0);
+ 		if (err < 0)
+ 			goto error;
+ 
 
 
