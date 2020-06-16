@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E4A51FBB28
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:17:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D62301FB91F
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:01:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729942AbgFPQRN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 12:17:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52890 "EHLO mail.kernel.org"
+        id S1732207AbgFPQBe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 12:01:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49100 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730928AbgFPPj2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:39:28 -0400
+        id S1732740AbgFPPwD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:52:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D759C20B1F;
-        Tue, 16 Jun 2020 15:39:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1FAF8207C4;
+        Tue, 16 Jun 2020 15:52:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592321967;
-        bh=tGu9iAfYSAIXV7Z+xfgVDc5pMnkYJe7lF1Y+08DJt5E=;
+        s=default; t=1592322722;
+        bh=yPmakgyZf3oG9P+PmWrdeHlR5ZNMhUmeT1qM0Vy9QHc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OwG5SGDUhN7Lpl4PEV0JfpQVEh0FF9Q+ovPxxv6xsSXUv6tpeSRd/JDb3jU3jQZQF
-         m2KX069dbfNk+y3RbD+S6+Si4e9CQU1OF2V1+H1T9XYEb2I2fyP3nMlJmKlwfsv7Lm
-         znlcp6/ZAUQd9v9kLjPyzN/T1tyE4YnrWz5GHtac=
+        b=zst4VZTEFPbGl1RFL4DSU7d+TwxXv7cua4drehbnUFFdhHWzmSJihPZsFe7wXgC1R
+         /H9SFtqHUcPdxGLu/8DKGHTE2ruUgJDz9/NNQvb0jsh+8k4w0l2EE5XMPrHr/Q8jDy
+         DSF3EYsBjEuK/2igQvVeO0AR/jcNgvaDDsgr9jWM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Franck LENORMAND <franck.lenormand@nxp.com>,
-        Leonard Crestez <leonard.crestez@nxp.com>,
-        Dong Aisheng <aisheng.dong@nxp.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 085/134] firmware: imx: scu: Fix corruption of header
+        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.6 079/161] ACPI: GED: add support for _Exx / _Lxx handler methods
 Date:   Tue, 16 Jun 2020 17:34:29 +0200
-Message-Id: <20200616153104.851059822@linuxfoundation.org>
+Message-Id: <20200616153110.139050486@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153100.633279950@linuxfoundation.org>
-References: <20200616153100.633279950@linuxfoundation.org>
+In-Reply-To: <20200616153106.402291280@linuxfoundation.org>
+References: <20200616153106.402291280@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,72 +43,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Franck LENORMAND <franck.lenormand@nxp.com>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-[ Upstream commit f5f27b79eab80de0287c243a22169e4876b08d5e ]
+commit ea6f3af4c5e63f6981c0b0ab8ebec438e2d5ef40 upstream.
 
-The header of the message to send can be changed if the
-response is longer than the request:
- - 1st word, the header is sent
- - the remaining words of the message are sent
- - the response is received asynchronously during the
-   execution of the loop, changing the size field in
-   the header
- - the for loop test the termination condition using
-   the corrupted header
+Per the ACPI spec, interrupts in the range [0, 255] may be handled
+in AML using individual methods whose naming is based on the format
+_Exx or _Lxx, where xx is the hex representation of the interrupt
+index.
 
-It is the case for the API build_info which has just a
-header as request but 3 words in response.
+Add support for this missing feature to our ACPI GED driver.
 
-This issue is fixed storing the header locally instead of
-using a pointer on it.
+Cc: v4.9+ <stable@vger.kernel.org> # v4.9+
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Fixes: edbee095fafb (firmware: imx: add SCU firmware driver support)
-
-Signed-off-by: Franck LENORMAND <franck.lenormand@nxp.com>
-Reviewed-by: Leonard Crestez <leonard.crestez@nxp.com>
-Signed-off-by: Leonard Crestez <leonard.crestez@nxp.com>
-Cc: stable@vger.kernel.org
-Reviewed-by: Dong Aisheng <aisheng.dong@nxp.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/imx/imx-scu.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/acpi/evged.c |   22 +++++++++++++++++++---
+ 1 file changed, 19 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/firmware/imx/imx-scu.c b/drivers/firmware/imx/imx-scu.c
-index a92adb9fdad6..e48d971ffb61 100644
---- a/drivers/firmware/imx/imx-scu.c
-+++ b/drivers/firmware/imx/imx-scu.c
-@@ -158,7 +158,7 @@ static void imx_scu_rx_callback(struct mbox_client *c, void *msg)
+--- a/drivers/acpi/evged.c
++++ b/drivers/acpi/evged.c
+@@ -79,6 +79,8 @@ static acpi_status acpi_ged_request_inte
+ 	struct resource r;
+ 	struct acpi_resource_irq *p = &ares->data.irq;
+ 	struct acpi_resource_extended_irq *pext = &ares->data.extended_irq;
++	char ev_name[5];
++	u8 trigger;
  
- static int imx_scu_ipc_write(struct imx_sc_ipc *sc_ipc, void *msg)
- {
--	struct imx_sc_rpc_msg *hdr = msg;
-+	struct imx_sc_rpc_msg hdr = *(struct imx_sc_rpc_msg *)msg;
- 	struct imx_sc_chan *sc_chan;
- 	u32 *data = msg;
- 	int ret;
-@@ -166,13 +166,13 @@ static int imx_scu_ipc_write(struct imx_sc_ipc *sc_ipc, void *msg)
- 	int i;
+ 	if (ares->type == ACPI_RESOURCE_TYPE_END_TAG)
+ 		return AE_OK;
+@@ -87,14 +89,28 @@ static acpi_status acpi_ged_request_inte
+ 		dev_err(dev, "unable to parse IRQ resource\n");
+ 		return AE_ERROR;
+ 	}
+-	if (ares->type == ACPI_RESOURCE_TYPE_IRQ)
++	if (ares->type == ACPI_RESOURCE_TYPE_IRQ) {
+ 		gsi = p->interrupts[0];
+-	else
++		trigger = p->triggering;
++	} else {
+ 		gsi = pext->interrupts[0];
++		trigger = p->triggering;
++	}
  
- 	/* Check size */
--	if (hdr->size > IMX_SC_RPC_MAX_MSG)
-+	if (hdr.size > IMX_SC_RPC_MAX_MSG)
- 		return -EINVAL;
+ 	irq = r.start;
  
--	dev_dbg(sc_ipc->dev, "RPC SVC %u FUNC %u SIZE %u\n", hdr->svc,
--		hdr->func, hdr->size);
-+	dev_dbg(sc_ipc->dev, "RPC SVC %u FUNC %u SIZE %u\n", hdr.svc,
-+		hdr.func, hdr.size);
- 
--	size = sc_ipc->fast_ipc ? 1 : hdr->size;
-+	size = sc_ipc->fast_ipc ? 1 : hdr.size;
- 	for (i = 0; i < size; i++) {
- 		sc_chan = &sc_ipc->chans[i % 4];
- 
--- 
-2.25.1
-
+-	if (ACPI_FAILURE(acpi_get_handle(handle, "_EVT", &evt_handle))) {
++	switch (gsi) {
++	case 0 ... 255:
++		sprintf(ev_name, "_%c%02hhX",
++			trigger == ACPI_EDGE_SENSITIVE ? 'E' : 'L', gsi);
++
++		if (ACPI_SUCCESS(acpi_get_handle(handle, ev_name, &evt_handle)))
++			break;
++		/* fall through */
++	default:
++		if (ACPI_SUCCESS(acpi_get_handle(handle, "_EVT", &evt_handle)))
++			break;
++
+ 		dev_err(dev, "cannot locate _EVT method\n");
+ 		return AE_ERROR;
+ 	}
 
 
