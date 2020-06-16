@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 48CD81FB85E
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:57:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 409281FB860
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:57:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732878AbgFPPzo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:55:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55942 "EHLO mail.kernel.org"
+        id S1730056AbgFPPzt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:55:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56008 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730949AbgFPPzn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:55:43 -0400
+        id S1730024AbgFPPzp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:55:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3AE93207C4;
-        Tue, 16 Jun 2020 15:55:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9D599207C4;
+        Tue, 16 Jun 2020 15:55:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322942;
-        bh=9LsHXU5o/B/7oKH7E4oU4W40c3T/IVPg5ovlaMl8Eac=;
+        s=default; t=1592322945;
+        bh=ruNSsfJCTPonu4mLKTusIRA8aOSqZO700jsa+VZrv2U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wkFQwRUkC7MCopPAV+n88s3hH9vMH96mjAHKczyD/8wJ82kPrQP/nKk0XCZSBRuCg
-         7Th363cKGQKcXzlS4vbw/1aUFHpkOGhVHu6IdnK6UawuOIHY4px90kwO5HWunLu8DW
-         EL8oOQllu5L0qe2wMBm1rWqyL+mvRtc3juR3V/ZU=
+        b=RgUokAdtweTDVKZr3K1x56FqyMIpPRQlpW7u2ow1OULNPIPyogCj2EoQHfF4MlSP8
+         QWlQ1cT5dBGIL1GMHA3q2bM7n03Fq+nw8ay8KQ89dVzmatPum7144cIYIB2bepbQrl
+         s/NIarj0wTS8qiZdgbHuAO5wJBDBfmQaklb7fLF8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sumit Saxena <sumit.saxena@broadcom.com>,
-        Chandrakanth Patil <chandrakanth.patil@broadcom.com>,
+        stable@vger.kernel.org, Hannes Reinecke <hare@suse.de>,
+        Dick Kennedy <dick.kennedy@broadcom.com>,
+        James Smart <jsmart2021@gmail.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.6 133/161] scsi: megaraid_sas: TM command refire leads to controller firmware crash
-Date:   Tue, 16 Jun 2020 17:35:23 +0200
-Message-Id: <20200616153112.691440839@linuxfoundation.org>
+Subject: [PATCH 5.6 134/161] scsi: lpfc: Fix negation of else clause in lpfc_prep_node_fc4type
+Date:   Tue, 16 Jun 2020 17:35:24 +0200
+Message-Id: <20200616153112.741155584@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200616153106.402291280@linuxfoundation.org>
 References: <20200616153106.402291280@linuxfoundation.org>
@@ -44,55 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sumit Saxena <sumit.saxena@broadcom.com>
+From: Dick Kennedy <dick.kennedy@broadcom.com>
 
-commit 6fd8525a70221c26823b1c7e912fb21f218fb0c5 upstream.
+commit f809da6db68a8be49e317f0ccfbced1af9258839 upstream.
 
-When TM command times out, driver invokes the controller reset. Post reset,
-driver re-fires pended TM commands which leads to firmware crash.
+Implementation of a previous patch added a condition to an if check that
+always end up with the if test being true. Execution of the else clause was
+inadvertently negated.  The additional condition check was incorrect and
+unnecessary after the other modifications had been done in that patch.
 
-Post controller reset, return pended TM commands back to OS.
+Remove the check from the if series.
 
-Link: https://lore.kernel.org/r/20200508085242.23406-1-chandrakanth.patil@broadcom.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Sumit Saxena <sumit.saxena@broadcom.com>
-Signed-off-by: Chandrakanth Patil <chandrakanth.patil@broadcom.com>
+Link: https://lore.kernel.org/r/20200501214310.91713-5-jsmart2021@gmail.com
+Fixes: b95b21193c85 ("scsi: lpfc: Fix loss of remote port after devloss due to lack of RPIs")
+Cc: <stable@vger.kernel.org> # v5.4+
+Reviewed-by: Hannes Reinecke <hare@suse.de>
+Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
+Signed-off-by: James Smart <jsmart2021@gmail.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/scsi/megaraid/megaraid_sas_fusion.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/scsi/lpfc/lpfc_ct.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/scsi/megaraid/megaraid_sas_fusion.c
-+++ b/drivers/scsi/megaraid/megaraid_sas_fusion.c
-@@ -4238,6 +4238,7 @@ void megasas_refire_mgmt_cmd(struct mega
- 	struct fusion_context *fusion;
- 	struct megasas_cmd *cmd_mfi;
- 	union MEGASAS_REQUEST_DESCRIPTOR_UNION *req_desc;
-+	struct MPI2_RAID_SCSI_IO_REQUEST *scsi_io_req;
- 	u16 smid;
- 	bool refire_cmd = 0;
- 	u8 result;
-@@ -4305,6 +4306,11 @@ void megasas_refire_mgmt_cmd(struct mega
- 			result = COMPLETE_CMD;
- 		}
+--- a/drivers/scsi/lpfc/lpfc_ct.c
++++ b/drivers/scsi/lpfc/lpfc_ct.c
+@@ -462,7 +462,6 @@ lpfc_prep_node_fc4type(struct lpfc_vport
+ 	struct lpfc_nodelist *ndlp;
  
-+		scsi_io_req = (struct MPI2_RAID_SCSI_IO_REQUEST *)
-+				cmd_fusion->io_request;
-+		if (scsi_io_req->Function == MPI2_FUNCTION_SCSI_TASK_MGMT)
-+			result = RETURN_CMD;
-+
- 		switch (result) {
- 		case REFIRE_CMD:
- 			megasas_fire_cmd_fusion(instance, req_desc);
-@@ -4533,7 +4539,6 @@ megasas_issue_tm(struct megasas_instance
- 	if (!timeleft) {
- 		dev_err(&instance->pdev->dev,
- 			"task mgmt type 0x%x timed out\n", type);
--		cmd_mfi->flags |= DRV_DCMD_SKIP_REFIRE;
- 		mutex_unlock(&instance->reset_mutex);
- 		rc = megasas_reset_fusion(instance->host, MFI_IO_TIMEOUT_OCR);
- 		mutex_lock(&instance->reset_mutex);
+ 	if ((vport->port_type != LPFC_NPIV_PORT) ||
+-	    (fc4_type == FC_TYPE_FCP) ||
+ 	    !(vport->ct_flags & FC_CT_RFF_ID) || !vport->cfg_restrict_login) {
+ 
+ 		ndlp = lpfc_setup_disc_node(vport, Did);
 
 
