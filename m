@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D4EBF1FBA5B
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:10:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 93DBB1FBAC6
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:14:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731586AbgFPQKs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 12:10:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34294 "EHLO mail.kernel.org"
+        id S1731729AbgFPPnD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:43:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60098 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730510AbgFPPoP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:44:15 -0400
+        id S1731734AbgFPPm6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:42:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AB47321475;
-        Tue, 16 Jun 2020 15:44:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0EAA421475;
+        Tue, 16 Jun 2020 15:42:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322254;
-        bh=dgxLg9/WAz14j7DRXHBtdt+AY2BI1lbUfEcpD6tDa5Y=;
+        s=default; t=1592322177;
+        bh=/QZGYAIN0gqiUx3t1SdQE7QFaFXH/0pTMIPJFFxdUFk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gyf/sZQg5P5dQDDHvLAAL1KhoV1Ys4eIDSJSAQKCHMmARo5S1e3ZxnBsGhAfvC6cK
-         tUm+4SxYtHC5/QD/0Ldo/5KA8GcopqdjlcLqXaXU6/1UiT1AI9NBE1pfRsrJs8j6IJ
-         tBzLhNOCxLBQ1uGxSL3XG1kaDWLz8NozAttG8fb8=
+        b=ttxRQosSvGQHw3wKCuZoAq4q8rVArTD5E+cyXUC1qwYs84kaPh8G1qhtsa8Ouo9LW
+         n9p6wn8/Y3YUEXp6y9OO+YdYSLjvUQEx6tPqET23r9G4cUD3Rk7uia17slSGGSlLJb
+         GV5wTP5BHJdFQJ2KkjdaqBW7OErEThhODeWNxGHY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Jordan <daniel.m.jordan@oracle.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        linux-crypto@vger.kernel.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 030/163] padata: add separate cpuhp node for CPUHP_PADATA_DEAD
-Date:   Tue, 16 Jun 2020 17:33:24 +0200
-Message-Id: <20200616153108.321662299@linuxfoundation.org>
+        stable@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.7 031/163] KVM: x86: only do L1TF workaround on affected processors
+Date:   Tue, 16 Jun 2020 17:33:25 +0200
+Message-Id: <20200616153108.362285898@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
 References: <20200616153106.849127260@linuxfoundation.org>
@@ -45,122 +42,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Jordan <daniel.m.jordan@oracle.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
 
-[ Upstream commit 3c2214b6027ff37945799de717c417212e1a8c54 ]
+commit d43e2675e96fc6ae1a633b6a69d296394448cc32 upstream.
 
-Removing the pcrypt module triggers this:
+KVM stores the gfn in MMIO SPTEs as a caching optimization.  These are split
+in two parts, as in "[high 11111 low]", to thwart any attempt to use these bits
+in an L1TF attack.  This works as long as there are 5 free bits between
+MAXPHYADDR and bit 50 (inclusive), leaving bit 51 free so that the MMIO
+access triggers a reserved-bit-set page fault.
 
-  general protection fault, probably for non-canonical
-    address 0xdead000000000122
-  CPU: 5 PID: 264 Comm: modprobe Not tainted 5.6.0+ #2
-  Hardware name: QEMU Standard PC
-  RIP: 0010:__cpuhp_state_remove_instance+0xcc/0x120
-  Call Trace:
-   padata_sysfs_release+0x74/0xce
-   kobject_put+0x81/0xd0
-   padata_free+0x12/0x20
-   pcrypt_exit+0x43/0x8ee [pcrypt]
+The bit positions however were computed wrongly for AMD processors that have
+encryption support.  In this case, x86_phys_bits is reduced (for example
+from 48 to 43, to account for the C bit at position 47 and four bits used
+internally to store the SEV ASID and other stuff) while x86_cache_bits in
+would remain set to 48, and _all_ bits between the reduced MAXPHYADDR
+and bit 51 are set.  Then low_phys_bits would also cover some of the
+bits that are set in the shadow_mmio_value, terribly confusing the gfn
+caching mechanism.
 
-padata instances wrongly use the same hlist node for the online and dead
-states, so __padata_free()'s second cpuhp remove call chokes on the node
-that the first poisoned.
+To fix this, avoid splitting gfns as long as the processor does not have
+the L1TF bug (which includes all AMD processors).  When there is no
+splitting, low_phys_bits can be set to the reduced MAXPHYADDR removing
+the overlap.  This fixes "npt=0" operation on EPYC processors.
 
-cpuhp multi-instance callbacks only walk forward in cpuhp_step->list and
-the same node is linked in both the online and dead lists, so the list
-corruption that results from padata_alloc() adding the node to a second
-list without removing it from the first doesn't cause problems as long
-as no instances are freed.
+Thanks to Maxim Levitsky for bisecting this bug.
 
-Avoid the issue by giving each state its own node.
+Cc: stable@vger.kernel.org
+Fixes: 52918ed5fcf0 ("KVM: SVM: Override default MMIO mask if memory encryption is enabled")
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Fixes: 894c9ef9780c ("padata: validate cpumask without removed CPU during offline")
-Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: Steffen Klassert <steffen.klassert@secunet.com>
-Cc: linux-crypto@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Cc: stable@vger.kernel.org # v5.4+
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/padata.h |  6 ++++--
- kernel/padata.c        | 14 ++++++++------
- 2 files changed, 12 insertions(+), 8 deletions(-)
+ arch/x86/kvm/mmu/mmu.c |   19 ++++++++++---------
+ 1 file changed, 10 insertions(+), 9 deletions(-)
 
-diff --git a/include/linux/padata.h b/include/linux/padata.h
-index a0d8b41850b2..693cae9bfe66 100644
---- a/include/linux/padata.h
-+++ b/include/linux/padata.h
-@@ -139,7 +139,8 @@ struct padata_shell {
- /**
-  * struct padata_instance - The overall control structure.
-  *
-- * @node: Used by CPU hotplug.
-+ * @cpu_online_node: Linkage for CPU online callback.
-+ * @cpu_dead_node: Linkage for CPU offline callback.
-  * @parallel_wq: The workqueue used for parallel work.
-  * @serial_wq: The workqueue used for serial work.
-  * @pslist: List of padata_shell objects attached to this instance.
-@@ -150,7 +151,8 @@ struct padata_shell {
-  * @flags: padata flags.
-  */
- struct padata_instance {
--	struct hlist_node		 node;
-+	struct hlist_node		cpu_online_node;
-+	struct hlist_node		cpu_dead_node;
- 	struct workqueue_struct		*parallel_wq;
- 	struct workqueue_struct		*serial_wq;
- 	struct list_head		pslist;
-diff --git a/kernel/padata.c b/kernel/padata.c
-index a6afa12fb75e..aae789896616 100644
---- a/kernel/padata.c
-+++ b/kernel/padata.c
-@@ -703,7 +703,7 @@ static int padata_cpu_online(unsigned int cpu, struct hlist_node *node)
- 	struct padata_instance *pinst;
- 	int ret;
- 
--	pinst = hlist_entry_safe(node, struct padata_instance, node);
-+	pinst = hlist_entry_safe(node, struct padata_instance, cpu_online_node);
- 	if (!pinst_has_cpu(pinst, cpu))
- 		return 0;
- 
-@@ -718,7 +718,7 @@ static int padata_cpu_dead(unsigned int cpu, struct hlist_node *node)
- 	struct padata_instance *pinst;
- 	int ret;
- 
--	pinst = hlist_entry_safe(node, struct padata_instance, node);
-+	pinst = hlist_entry_safe(node, struct padata_instance, cpu_dead_node);
- 	if (!pinst_has_cpu(pinst, cpu))
- 		return 0;
- 
-@@ -734,8 +734,9 @@ static enum cpuhp_state hp_online;
- static void __padata_free(struct padata_instance *pinst)
+--- a/arch/x86/kvm/mmu/mmu.c
++++ b/arch/x86/kvm/mmu/mmu.c
+@@ -335,6 +335,8 @@ void kvm_mmu_set_mmio_spte_mask(u64 mmio
  {
- #ifdef CONFIG_HOTPLUG_CPU
--	cpuhp_state_remove_instance_nocalls(CPUHP_PADATA_DEAD, &pinst->node);
--	cpuhp_state_remove_instance_nocalls(hp_online, &pinst->node);
-+	cpuhp_state_remove_instance_nocalls(CPUHP_PADATA_DEAD,
-+					    &pinst->cpu_dead_node);
-+	cpuhp_state_remove_instance_nocalls(hp_online, &pinst->cpu_online_node);
- #endif
+ 	BUG_ON((u64)(unsigned)access_mask != access_mask);
+ 	BUG_ON((mmio_mask & mmio_value) != mmio_value);
++	WARN_ON(mmio_value & (shadow_nonpresent_or_rsvd_mask << shadow_nonpresent_or_rsvd_mask_len));
++	WARN_ON(mmio_value & shadow_nonpresent_or_rsvd_lower_gfn_mask);
+ 	shadow_mmio_value = mmio_value | SPTE_MMIO_MASK;
+ 	shadow_mmio_mask = mmio_mask | SPTE_SPECIAL_MASK;
+ 	shadow_mmio_access_mask = access_mask;
+@@ -583,16 +585,15 @@ static void kvm_mmu_reset_all_pte_masks(
+ 	 * the most significant bits of legal physical address space.
+ 	 */
+ 	shadow_nonpresent_or_rsvd_mask = 0;
+-	low_phys_bits = boot_cpu_data.x86_cache_bits;
+-	if (boot_cpu_data.x86_cache_bits <
+-	    52 - shadow_nonpresent_or_rsvd_mask_len) {
++	low_phys_bits = boot_cpu_data.x86_phys_bits;
++	if (boot_cpu_has_bug(X86_BUG_L1TF) &&
++	    !WARN_ON_ONCE(boot_cpu_data.x86_cache_bits >=
++			  52 - shadow_nonpresent_or_rsvd_mask_len)) {
++		low_phys_bits = boot_cpu_data.x86_cache_bits
++			- shadow_nonpresent_or_rsvd_mask_len;
+ 		shadow_nonpresent_or_rsvd_mask =
+-			rsvd_bits(boot_cpu_data.x86_cache_bits -
+-				  shadow_nonpresent_or_rsvd_mask_len,
+-				  boot_cpu_data.x86_cache_bits - 1);
+-		low_phys_bits -= shadow_nonpresent_or_rsvd_mask_len;
+-	} else
+-		WARN_ON_ONCE(boot_cpu_has_bug(X86_BUG_L1TF));
++			rsvd_bits(low_phys_bits, boot_cpu_data.x86_cache_bits - 1);
++	}
  
- 	WARN_ON(!list_empty(&pinst->pslist));
-@@ -939,9 +940,10 @@ static struct padata_instance *padata_alloc(const char *name,
- 	mutex_init(&pinst->lock);
- 
- #ifdef CONFIG_HOTPLUG_CPU
--	cpuhp_state_add_instance_nocalls_cpuslocked(hp_online, &pinst->node);
-+	cpuhp_state_add_instance_nocalls_cpuslocked(hp_online,
-+						    &pinst->cpu_online_node);
- 	cpuhp_state_add_instance_nocalls_cpuslocked(CPUHP_PADATA_DEAD,
--						    &pinst->node);
-+						    &pinst->cpu_dead_node);
- #endif
- 
- 	put_online_cpus();
--- 
-2.25.1
-
+ 	shadow_nonpresent_or_rsvd_lower_gfn_mask =
+ 		GENMASK_ULL(low_phys_bits - 1, PAGE_SHIFT);
 
 
