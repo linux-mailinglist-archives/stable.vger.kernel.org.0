@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A90A1FB7D6
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:51:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB7251FB710
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:43:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732090AbgFPPuJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:50:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45506 "EHLO mail.kernel.org"
+        id S1731785AbgFPPnY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:43:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60832 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732222AbgFPPuH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:50:07 -0400
+        id S1731781AbgFPPnX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:43:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 412C42071A;
-        Tue, 16 Jun 2020 15:50:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B741721475;
+        Tue, 16 Jun 2020 15:43:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322606;
-        bh=s4jSCyrUMmdQJIoeCOcOl+KOd/yopV34FZ0iqG0c5/g=;
+        s=default; t=1592322203;
+        bh=XntC1FNYkP+J2zrvMQnq4mbbNnvaGrMS1ILo3IOE6Ac=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s9gr3kPVTY3/MewJRHKSp/PSOb5QyZNPAZwyOk3xFAeZ0uPRocaiXLmh0plDMoleH
-         P45DwEEcRPwy7MMYQj0sHNeeblxSURObunLlc2zf5glPF3aXntbwpfTQFMQ/X26ZAI
-         N/WUjtiQhZ5hjY1X4L6Zq3+w/yBkwkGEOxDHfEJQ=
+        b=oCtKYej2tCJJLbulqCDBNnQRhTTcVUbYLj9f0uqiggQPK7bKD6e/dRkZRkSLRhDFg
+         3/I10Zrp/GPgIuzJyhQndaZSfiHwRmn5XmwpjrPxnG+fLlAXr+y7TY8GHaOmvLZejP
+         2tI8AYqQcfer8LmM7lhkV//u/hlV0mvCFmW9+AxM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ido Schimmel <idosch@mellanox.com>,
-        Nikolay Aleksandrov <nikolay@cumulusnetworks.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.6 006/161] vxlan: Avoid infinite loop when suppressing NS messages with invalid options
-Date:   Tue, 16 Jun 2020 17:33:16 +0200
-Message-Id: <20200616153106.711391474@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Daniel Baluta <daniel.baluta@nxp.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 023/163] ASoC: SOF: imx: fix undefined reference issue
+Date:   Tue, 16 Jun 2020 17:33:17 +0200
+Message-Id: <20200616153107.998878026@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153106.402291280@linuxfoundation.org>
-References: <20200616153106.402291280@linuxfoundation.org>
+In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
+References: <20200616153106.849127260@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,48 +46,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ido Schimmel <idosch@mellanox.com>
+From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 
-[ Upstream commit 8066e6b449e050675df48e7c4b16c29f00507ff0 ]
+[ Upstream commit cb0312f61c3e95c71ec8955a94d42bf7eb5ba617 ]
 
-When proxy mode is enabled the vxlan device might reply to Neighbor
-Solicitation (NS) messages on behalf of remote hosts.
+make.cross ARCH=mips allyesconfig fails with the following error:
 
-In case the NS message includes the "Source link-layer address" option
-[1], the vxlan device will use the specified address as the link-layer
-destination address in its reply.
+sound/soc/sof/sof-of-dev.o:(.data.sof_of_imx8qxp_desc+0x40): undefined
+reference to `sof_imx8x_ops'.
 
-To avoid an infinite loop, break out of the options parsing loop when
-encountering an option with length zero and disregard the NS message.
+This seems to be a Makefile order issue, solve by using the same
+structure as for Intel platforms.
 
-This is consistent with the IPv6 ndisc code and RFC 4886 which states
-that "Nodes MUST silently discard an ND packet that contains an option
-with length zero" [2].
-
-[1] https://tools.ietf.org/html/rfc4861#section-4.3
-[2] https://tools.ietf.org/html/rfc4861#section-4.6
-
-Fixes: 4b29dba9c085 ("vxlan: fix nonfunctional neigh_reduce()")
-Signed-off-by: Ido Schimmel <idosch@mellanox.com>
-Acked-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: f9ad75468453 ("ASoC: SOF: imx: fix reverse CONFIG_SND_SOC_SOF_OF
+dependency")
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Signed-off-by: Daniel Baluta <daniel.baluta@nxp.com>
+Link: https://lore.kernel.org/r/20200409071832.2039-3-daniel.baluta@oss.nxp.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/vxlan.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ sound/soc/sof/imx/Kconfig | 17 +++++++++++++----
+ 1 file changed, 13 insertions(+), 4 deletions(-)
 
---- a/drivers/net/vxlan.c
-+++ b/drivers/net/vxlan.c
-@@ -1924,6 +1924,10 @@ static struct sk_buff *vxlan_na_create(s
- 	ns_olen = request->len - skb_network_offset(request) -
- 		sizeof(struct ipv6hdr) - sizeof(*ns);
- 	for (i = 0; i < ns_olen-1; i += (ns->opt[i+1]<<3)) {
-+		if (!ns->opt[i + 1]) {
-+			kfree_skb(reply);
-+			return NULL;
-+		}
- 		if (ns->opt[i] == ND_OPT_SOURCE_LL_ADDR) {
- 			daddr = ns->opt + i + sizeof(struct nd_opt_hdr);
- 			break;
+diff --git a/sound/soc/sof/imx/Kconfig b/sound/soc/sof/imx/Kconfig
+index 812749064ca8..9586635cf8ab 100644
+--- a/sound/soc/sof/imx/Kconfig
++++ b/sound/soc/sof/imx/Kconfig
+@@ -11,17 +11,26 @@ config SND_SOC_SOF_IMX_TOPLEVEL
+ 
+ if SND_SOC_SOF_IMX_TOPLEVEL
+ 
++config SND_SOC_SOF_IMX_OF
++	def_tristate SND_SOC_SOF_OF
++	select SND_SOC_SOF_IMX8 if SND_SOC_SOF_IMX8_SUPPORT
++	help
++	  This option is not user-selectable but automagically handled by
++	  'select' statements at a higher level
++
+ config SND_SOC_SOF_IMX8_SUPPORT
+ 	bool "SOF support for i.MX8"
+-	depends on IMX_SCU
+-	select IMX_DSP
+ 	help
+ 	  This adds support for Sound Open Firmware for NXP i.MX8 platforms
+ 	  Say Y if you have such a device.
+ 	  If unsure select "N".
+ 
+ config SND_SOC_SOF_IMX8
+-	def_tristate SND_SOC_SOF_OF
+-	depends on SND_SOC_SOF_IMX8_SUPPORT
++	tristate
++	depends on IMX_SCU
++	select IMX_DSP
++	help
++	  This option is not user-selectable but automagically handled by
++	  'select' statements at a higher level
+ 
+ endif ## SND_SOC_SOF_IMX_IMX_TOPLEVEL
+-- 
+2.25.1
+
 
 
