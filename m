@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C37251FB6E9
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:43:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 483C91FB8B4
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:58:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731506AbgFPPlo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:41:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57680 "EHLO mail.kernel.org"
+        id S1732916AbgFPP6O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:58:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53680 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730729AbgFPPln (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:41:43 -0400
+        id S1732986AbgFPPy1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:54:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BB85521531;
-        Tue, 16 Jun 2020 15:41:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0F879208D5;
+        Tue, 16 Jun 2020 15:54:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322103;
-        bh=ruNSsfJCTPonu4mLKTusIRA8aOSqZO700jsa+VZrv2U=;
+        s=default; t=1592322866;
+        bh=SGKlEm4akjwRBtp7JgMewDQ7F6ow21dNEkrsU9VG3ow=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qOgKUBKyx/WDAJCWFBly40E8pNjOjwmDpYLgF2mYxBD6t0jMa8/B3/RXeFsajDyAi
-         bmC3L1OTSQh0Qk7fWAKPQCUBeLDRdQPzX742GyJcpwG0so6EYvqgfSZe4bGctNtUGf
-         FFnkROh10ayfN1s9w17KzpMReD4kX4HDiV1Jnhuc=
+        b=S01rn2JrDfPAhcfwYHPsKpBLN31eYOpDhBN5K2Uq2tfpK0d2XiXBSbWrMaGtdbkJh
+         iexbsuavrDNRZGoMD+txDp8CTXTQmoHp+CI/e7wg0jsYpwNI8DJNrICJ3ZyuRX+TEl
+         8eCVdqtAhXCZi7INEGwlmeKVJnlAF1ACtiAWjngY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hannes Reinecke <hare@suse.de>,
-        Dick Kennedy <dick.kennedy@broadcom.com>,
-        James Smart <jsmart2021@gmail.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.4 111/134] scsi: lpfc: Fix negation of else clause in lpfc_prep_node_fc4type
+        stable@vger.kernel.org,
+        Franck LENORMAND <franck.lenormand@nxp.com>,
+        Leonard Crestez <leonard.crestez@nxp.com>,
+        Dong Aisheng <aisheng.dong@nxp.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 105/161] firmware: imx: scu: Fix corruption of header
 Date:   Tue, 16 Jun 2020 17:34:55 +0200
-Message-Id: <20200616153106.103157170@linuxfoundation.org>
+Message-Id: <20200616153111.360167837@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153100.633279950@linuxfoundation.org>
-References: <20200616153100.633279950@linuxfoundation.org>
+In-Reply-To: <20200616153106.402291280@linuxfoundation.org>
+References: <20200616153106.402291280@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,39 +47,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dick Kennedy <dick.kennedy@broadcom.com>
+From: Franck LENORMAND <franck.lenormand@nxp.com>
 
-commit f809da6db68a8be49e317f0ccfbced1af9258839 upstream.
+[ Upstream commit f5f27b79eab80de0287c243a22169e4876b08d5e ]
 
-Implementation of a previous patch added a condition to an if check that
-always end up with the if test being true. Execution of the else clause was
-inadvertently negated.  The additional condition check was incorrect and
-unnecessary after the other modifications had been done in that patch.
+The header of the message to send can be changed if the
+response is longer than the request:
+ - 1st word, the header is sent
+ - the remaining words of the message are sent
+ - the response is received asynchronously during the
+   execution of the loop, changing the size field in
+   the header
+ - the for loop test the termination condition using
+   the corrupted header
 
-Remove the check from the if series.
+It is the case for the API build_info which has just a
+header as request but 3 words in response.
 
-Link: https://lore.kernel.org/r/20200501214310.91713-5-jsmart2021@gmail.com
-Fixes: b95b21193c85 ("scsi: lpfc: Fix loss of remote port after devloss due to lack of RPIs")
-Cc: <stable@vger.kernel.org> # v5.4+
-Reviewed-by: Hannes Reinecke <hare@suse.de>
-Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
-Signed-off-by: James Smart <jsmart2021@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This issue is fixed storing the header locally instead of
+using a pointer on it.
 
+Fixes: edbee095fafb (firmware: imx: add SCU firmware driver support)
+
+Signed-off-by: Franck LENORMAND <franck.lenormand@nxp.com>
+Reviewed-by: Leonard Crestez <leonard.crestez@nxp.com>
+Signed-off-by: Leonard Crestez <leonard.crestez@nxp.com>
+Cc: stable@vger.kernel.org
+Reviewed-by: Dong Aisheng <aisheng.dong@nxp.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/lpfc/lpfc_ct.c |    1 -
- 1 file changed, 1 deletion(-)
+ drivers/firmware/imx/imx-scu.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
---- a/drivers/scsi/lpfc/lpfc_ct.c
-+++ b/drivers/scsi/lpfc/lpfc_ct.c
-@@ -462,7 +462,6 @@ lpfc_prep_node_fc4type(struct lpfc_vport
- 	struct lpfc_nodelist *ndlp;
+diff --git a/drivers/firmware/imx/imx-scu.c b/drivers/firmware/imx/imx-scu.c
+index e94a5585b698..b3da2e193ad2 100644
+--- a/drivers/firmware/imx/imx-scu.c
++++ b/drivers/firmware/imx/imx-scu.c
+@@ -158,7 +158,7 @@ static void imx_scu_rx_callback(struct mbox_client *c, void *msg)
  
- 	if ((vport->port_type != LPFC_NPIV_PORT) ||
--	    (fc4_type == FC_TYPE_FCP) ||
- 	    !(vport->ct_flags & FC_CT_RFF_ID) || !vport->cfg_restrict_login) {
+ static int imx_scu_ipc_write(struct imx_sc_ipc *sc_ipc, void *msg)
+ {
+-	struct imx_sc_rpc_msg *hdr = msg;
++	struct imx_sc_rpc_msg hdr = *(struct imx_sc_rpc_msg *)msg;
+ 	struct imx_sc_chan *sc_chan;
+ 	u32 *data = msg;
+ 	int ret;
+@@ -166,13 +166,13 @@ static int imx_scu_ipc_write(struct imx_sc_ipc *sc_ipc, void *msg)
+ 	int i;
  
- 		ndlp = lpfc_setup_disc_node(vport, Did);
+ 	/* Check size */
+-	if (hdr->size > IMX_SC_RPC_MAX_MSG)
++	if (hdr.size > IMX_SC_RPC_MAX_MSG)
+ 		return -EINVAL;
+ 
+-	dev_dbg(sc_ipc->dev, "RPC SVC %u FUNC %u SIZE %u\n", hdr->svc,
+-		hdr->func, hdr->size);
++	dev_dbg(sc_ipc->dev, "RPC SVC %u FUNC %u SIZE %u\n", hdr.svc,
++		hdr.func, hdr.size);
+ 
+-	size = sc_ipc->fast_ipc ? 1 : hdr->size;
++	size = sc_ipc->fast_ipc ? 1 : hdr.size;
+ 	for (i = 0; i < size; i++) {
+ 		sc_chan = &sc_ipc->chans[i % 4];
+ 
+-- 
+2.25.1
+
 
 
