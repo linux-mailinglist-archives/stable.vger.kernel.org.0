@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 67F711FB95E
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:04:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8EE5F1FBAD3
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:14:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732229AbgFPPuG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:50:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45362 "EHLO mail.kernel.org"
+        id S1730317AbgFPQOf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 12:14:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59234 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732567AbgFPPuC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:50:02 -0400
+        id S1731680AbgFPPmc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:42:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 23D142071A;
-        Tue, 16 Jun 2020 15:50:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BF19D208D5;
+        Tue, 16 Jun 2020 15:42:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322601;
-        bh=oI8bt8FHuEyhhxFsFd+uUjYBPVSPisKrstaA3CDzgjo=;
+        s=default; t=1592322152;
+        bh=SM+Nv9YF+KO0JqFA9dgYr8V4Xc8LFO0isYGvwpRQJAk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2rtNv6KOkdtlR2e46JCfRJ4tqmvmg6PuUdiYUXsfWRZBqIIapjiG8Rj2mzJd7yXIX
-         ko8YoSspqYCg4Fhip9B4gZv7Dpi5tshMNMKji91OSItslRkmIZ4I/HyDVTFr5RoMa9
-         uWqgjxKoH1tjeQtovqyGNT7WDyG/fPmL+7eQgqDU=
+        b=KlgL4x2KstJN6NQgagAxPzp6OhNzunrU4dE05Y1mBIyC8Zl/ITRsRrmn+YEmaR+ys
+         vTyLmzWJZ7iv0RX7iUB01t8DmOHke2tEI2MYEKo7CFe88cjuMV9VF+bXOS7IMbcIUz
+         B8MLaugwxL4JCcQUTSbeo7ofMBwaY//nWIuJb8eQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Willem de Bruijn <willemb@google.com>,
-        Petar Penkov <ppenkov@google.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.6 004/161] tun: correct header offsets in napi frags mode
+        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
+        Amir Goldstein <amir73il@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 020/163] fanotify: fix ignore mask logic for events on child and on dir
 Date:   Tue, 16 Jun 2020 17:33:14 +0200
-Message-Id: <20200616153106.619018416@linuxfoundation.org>
+Message-Id: <20200616153107.848384207@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153106.402291280@linuxfoundation.org>
-References: <20200616153106.402291280@linuxfoundation.org>
+In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
+References: <20200616153106.849127260@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,65 +44,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Willem de Bruijn <willemb@google.com>
+From: Amir Goldstein <amir73il@gmail.com>
 
-[ Upstream commit 96aa1b22bd6bb9fccf62f6261f390ed6f3e7967f ]
+[ Upstream commit 2f02fd3fa13e51713b630164f8a8e5b42de8283b ]
 
-Tun in IFF_NAPI_FRAGS mode calls napi_gro_frags. Unlike netif_rx and
-netif_gro_receive, this expects skb->data to point to the mac layer.
+The comments in fanotify_group_event_mask() say:
 
-But skb_probe_transport_header, __skb_get_hash_symmetric, and
-xdp_do_generic in tun_get_user need skb->data to point to the network
-header. Flow dissection also needs skb->protocol set, so
-eth_type_trans has to be called.
+  "If the event is on dir/child and this mark doesn't care about
+   events on dir/child, don't send it!"
 
-Ensure the link layer header lies in linear as eth_type_trans pulls
-ETH_HLEN. Then take the same code paths for frags as for not frags.
-Push the link layer header back just before calling napi_gro_frags.
+Specifically, mount and filesystem marks do not care about events
+on child, but they can still specify an ignore mask for those events.
+For example, a group that has:
+- A mount mark with mask 0 and ignore_mask FAN_OPEN
+- An inode mark on a directory with mask FAN_OPEN | FAN_OPEN_EXEC
+  with flag FAN_EVENT_ON_CHILD
 
-By pulling up to ETH_HLEN from frag0 into linear, this disables the
-frag0 optimization in the special case when IFF_NAPI_FRAGS is used
-with zero length iov[0] (and thus empty skb->linear).
+A child file open for exec would be reported to group with the FAN_OPEN
+event despite the fact that FAN_OPEN is in ignore mask of mount mark,
+because the mark iteration loop skips over non-inode marks for events
+on child when calculating the ignore mask.
 
-Fixes: 90e33d459407 ("tun: enable napi_gro_frags() for TUN/TAP driver")
-Signed-off-by: Willem de Bruijn <willemb@google.com>
-Acked-by: Petar Penkov <ppenkov@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Move ignore mask calculation to the top of the iteration loop block
+before excluding marks for events on dir/child.
+
+Link: https://lore.kernel.org/r/20200524072441.18258-1-amir73il@gmail.com
+Reported-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/linux-fsdevel/20200521162443.GA26052@quack2.suse.cz/
+Fixes: 55bf882c7f13 "fanotify: fix merging marks masks with FAN_ONDIR"
+Fixes: b469e7e47c8a "fanotify: fix handling of events on child..."
+Signed-off-by: Amir Goldstein <amir73il@gmail.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/tun.c |   14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
+ fs/notify/fanotify/fanotify.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/net/tun.c
-+++ b/drivers/net/tun.c
-@@ -1908,8 +1908,11 @@ drop:
- 		skb->dev = tun->dev;
- 		break;
- 	case IFF_TAP:
--		if (!frags)
--			skb->protocol = eth_type_trans(skb, tun->dev);
-+		if (frags && !pskb_may_pull(skb, ETH_HLEN)) {
-+			err = -ENOMEM;
-+			goto drop;
-+		}
-+		skb->protocol = eth_type_trans(skb, tun->dev);
- 		break;
- 	}
- 
-@@ -1966,9 +1969,12 @@ drop:
- 	}
- 
- 	if (frags) {
-+		u32 headlen;
+diff --git a/fs/notify/fanotify/fanotify.c b/fs/notify/fanotify/fanotify.c
+index c18459cea6f4..29a9de57c34c 100644
+--- a/fs/notify/fanotify/fanotify.c
++++ b/fs/notify/fanotify/fanotify.c
+@@ -232,6 +232,10 @@ static u32 fanotify_group_event_mask(struct fsnotify_group *group,
+ 		if (!fsnotify_iter_should_report_type(iter_info, type))
+ 			continue;
+ 		mark = iter_info->marks[type];
 +
- 		/* Exercise flow dissector code path. */
--		u32 headlen = eth_get_headlen(tun->dev, skb->data,
--					      skb_headlen(skb));
-+		skb_push(skb, ETH_HLEN);
-+		headlen = eth_get_headlen(tun->dev, skb->data,
-+					  skb_headlen(skb));
++		/* Apply ignore mask regardless of ISDIR and ON_CHILD flags */
++		marks_ignored_mask |= mark->ignored_mask;
++
+ 		/*
+ 		 * If the event is on dir and this mark doesn't care about
+ 		 * events on dir, don't send it!
+@@ -249,7 +253,6 @@ static u32 fanotify_group_event_mask(struct fsnotify_group *group,
+ 			continue;
  
- 		if (unlikely(headlen > skb_headlen(skb))) {
- 			this_cpu_inc(tun->pcpu_stats->rx_dropped);
+ 		marks_mask |= mark->mask;
+-		marks_ignored_mask |= mark->ignored_mask;
+ 	}
+ 
+ 	test_mask = event_mask & marks_mask & ~marks_ignored_mask;
+-- 
+2.25.1
+
 
 
