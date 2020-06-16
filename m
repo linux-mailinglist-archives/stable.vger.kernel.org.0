@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E13A41FBAFD
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:16:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C0C7D1FB9B4
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:06:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731308AbgFPPky (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:40:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55890 "EHLO mail.kernel.org"
+        id S1732192AbgFPPs1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:48:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42776 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731301AbgFPPkx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:40:53 -0400
+        id S1732413AbgFPPs0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:48:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C25C4208D5;
-        Tue, 16 Jun 2020 15:40:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D426720776;
+        Tue, 16 Jun 2020 15:48:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322053;
-        bh=L+ZIDbk7gGh2d8y06TrWjfNNB4BOtBVD11yTKaLw7C0=;
+        s=default; t=1592322506;
+        bh=zZwRYPHfxPr8Xw3EHAcsqmAxXoL1FwvL9a3v8YWMs3s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=POet3Sg+MvZAQ50ERy/i8eUjMR/Rk57cZXkt3sGj0FAuEVuaeqmtP4qe3zwHY2Cgh
-         0eWp0/1GcxctTP1xFRiyEtPgHJxdthtV0bmXNT6hIL2qwPa6OegwiY4BFBcTOXCCxI
-         xzsFXMYH6ieBR5z/MSHmqkvUn1sgZP9WStU28YU0=
+        b=1pz9l2uzW/obvbNgy/YCW0hx28B97tYcLZbAj2ZaMFbDheW/g3Fg11SwG7RA8fcH4
+         KMuVTHF6QkkDmEjqxSgPsmk0N2kkHE3dnMLde4+rz4oYLOsUZ5O+Rj88VqNfzwAioi
+         H9pm8IOB7aWSu+bev3Y9kVPqNpm+Mzd5lb0sG1BM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hillf Danton <hdanton@sina.com>,
-        syzbot+bfdd4a2f07be52351350@syzkaller.appspotmail.com,
-        Casey Schaufler <casey@schaufler-ca.com>
-Subject: [PATCH 5.4 118/134] Smack: slab-out-of-bounds in vsscanf
-Date:   Tue, 16 Jun 2020 17:35:02 +0200
-Message-Id: <20200616153106.437144871@linuxfoundation.org>
+        stable@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.7 129/163] KVM: nSVM: leave ASID aside in copy_vmcb_control_area
+Date:   Tue, 16 Jun 2020 17:35:03 +0200
+Message-Id: <20200616153112.993856959@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153100.633279950@linuxfoundation.org>
-References: <20200616153100.633279950@linuxfoundation.org>
+In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
+References: <20200616153106.849127260@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,45 +42,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Casey Schaufler <casey@schaufler-ca.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
 
-commit 84e99e58e8d1e26f04c097f4266e431a33987f36 upstream.
+commit 6c0238c4a62b3a0b1201aeb7e33a4636d552a436 upstream.
 
-Add barrier to soob. Return -EOVERFLOW if the buffer
-is exceeded.
+Restoring the ASID from the hsave area on VMEXIT is wrong, because its
+value depends on the handling of TLB flushes.  Just skipping the field in
+copy_vmcb_control_area will do.
 
-Suggested-by: Hillf Danton <hdanton@sina.com>
-Reported-by: syzbot+bfdd4a2f07be52351350@syzkaller.appspotmail.com
-Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- security/smack/smackfs.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ arch/x86/kvm/svm/nested.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/security/smack/smackfs.c
-+++ b/security/smack/smackfs.c
-@@ -878,11 +878,21 @@ static ssize_t smk_set_cipso(struct file
- 	else
- 		rule += strlen(skp->smk_known) + 1;
- 
-+	if (rule > data + count) {
-+		rc = -EOVERFLOW;
-+		goto out;
-+	}
-+
- 	ret = sscanf(rule, "%d", &maplevel);
- 	if (ret != 1 || maplevel > SMACK_CIPSO_MAXLEVEL)
- 		goto out;
- 
- 	rule += SMK_DIGITLEN;
-+	if (rule > data + count) {
-+		rc = -EOVERFLOW;
-+		goto out;
-+	}
-+
- 	ret = sscanf(rule, "%d", &catlen);
- 	if (ret != 1 || catlen > SMACK_CIPSO_MAXCATNUM)
- 		goto out;
+--- a/arch/x86/kvm/svm/nested.c
++++ b/arch/x86/kvm/svm/nested.c
+@@ -150,7 +150,7 @@ static void copy_vmcb_control_area(struc
+ 	dst->iopm_base_pa         = from->iopm_base_pa;
+ 	dst->msrpm_base_pa        = from->msrpm_base_pa;
+ 	dst->tsc_offset           = from->tsc_offset;
+-	dst->asid                 = from->asid;
++	/* asid not copied, it is handled manually for svm->vmcb.  */
+ 	dst->tlb_ctl              = from->tlb_ctl;
+ 	dst->int_ctl              = from->int_ctl;
+ 	dst->int_vector           = from->int_vector;
 
 
