@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D44D1FB86E
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:57:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB5B71FB7BE
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:50:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732515AbgFPP4P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:56:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56060 "EHLO mail.kernel.org"
+        id S1732468AbgFPPtA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:49:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43748 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730949AbgFPPzs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:55:48 -0400
+        id S1731956AbgFPPtA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:49:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 31BFF207C4;
-        Tue, 16 Jun 2020 15:55:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 094AD20776;
+        Tue, 16 Jun 2020 15:48:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322947;
-        bh=lz0QmYUpdiPvamXMQCfnRLqqLSzc8DlZx7YXj9CHO6g=;
+        s=default; t=1592322539;
+        bh=D08phPmLPEFAjRBvb1bT7wlfUFoPD9T/je8totMLYVk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C5S+A5U8J9rB5USbo6PNAY4zut07Btd2rteMjA3yzn9NghhH69Vcuyz29cBNL49Lr
-         QBz4jGYJ/lz3bTlwIXnn+pxt2asn7JDQhCfghlYTdzqEFhUf7fc0RX4oTjSz/O+vgm
-         M9nFeOtgiQKR5vLgMFGcRn2JfhNUacYR5FIu2NEE=
+        b=Hsx8OGv34LX+YpgEyihUoRG1zfGfxsDS35eD+75YvN8QxDQU2giakHItbntj9lroA
+         jhtEHQbFG+SvEqV0guJjp+Y62p5bRynLVbunV0dNZDUli+7fmkwU4xXqRYKNCuOP/R
+         NXy+MtvOvfKyOxZvHr6aKtJOLBHKnIn8RAH0MImo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Shivasharan S <shivasharan.srikanteshwara@broadcom.com>,
-        Chandrakanth Patil <chandrakanth.patil@broadcom.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.6 135/161] scsi: megaraid_sas: Replace undefined MFI_BIG_ENDIAN macro with __BIG_ENDIAN_BITFIELD macro
-Date:   Tue, 16 Jun 2020 17:35:25 +0200
-Message-Id: <20200616153112.793384651@linuxfoundation.org>
+        stable@vger.kernel.org, Ludovic Barre <ludovic.barre@st.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.7 152/163] mmc: mmci_sdmmc: fix DMA API warning overlapping mappings
+Date:   Tue, 16 Jun 2020 17:35:26 +0200
+Message-Id: <20200616153114.087442710@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153106.402291280@linuxfoundation.org>
-References: <20200616153106.402291280@linuxfoundation.org>
+In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
+References: <20200616153106.849127260@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,76 +43,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shivasharan S <shivasharan.srikanteshwara@broadcom.com>
+From: Ludovic Barre <ludovic.barre@st.com>
 
-commit b9d5e3e7f370a817c742fb089ac1a86dfe8947dc upstream.
+commit fe8d33bd33d527dee3155d2bccd714a655f37334 upstream.
 
-MFI_BIG_ENDIAN macro used in drivers structure bitfield to check the CPU
-big endianness is undefined which would break the code on big endian
-machine. __BIG_ENDIAN_BITFIELD kernel macro should be used in places of
-MFI_BIG_ENDIAN macro.
+Turning on CONFIG_DMA_API_DEBUG_SG results in the following warning:
+WARNING: CPU: 1 PID: 20 at kernel/dma/debug.c:500 add_dma_entry+0x16c/0x17c
+DMA-API: exceeded 7 overlapping mappings of cacheline 0x031d2645
+Modules linked in:
+CPU: 1 PID: 20 Comm: kworker/1:1 Not tainted 5.5.0-rc2-00021-gdeda30999c2b-dirty #49
+Hardware name: STM32 (Device Tree Support)
+Workqueue: events_freezable mmc_rescan
+[<c03138c0>] (unwind_backtrace) from [<c030d760>] (show_stack+0x10/0x14)
+[<c030d760>] (show_stack) from [<c0f2eb28>] (dump_stack+0xc0/0xd4)
+[<c0f2eb28>] (dump_stack) from [<c034a14c>] (__warn+0xd0/0xf8)
+[<c034a14c>] (__warn) from [<c034a530>] (warn_slowpath_fmt+0x94/0xb8)
+[<c034a530>] (warn_slowpath_fmt) from [<c03bca0c>] (add_dma_entry+0x16c/0x17c)
+[<c03bca0c>] (add_dma_entry) from [<c03bdf54>] (debug_dma_map_sg+0xe4/0x3d4)
+[<c03bdf54>] (debug_dma_map_sg) from [<c0d09244>] (sdmmc_idma_prep_data+0x94/0xf8)
+[<c0d09244>] (sdmmc_idma_prep_data) from [<c0d05a2c>] (mmci_prep_data+0x2c/0xb0)
+[<c0d05a2c>] (mmci_prep_data) from [<c0d073ec>] (mmci_start_data+0x134/0x2f0)
+[<c0d073ec>] (mmci_start_data) from [<c0d078d0>] (mmci_request+0xe8/0x154)
+[<c0d078d0>] (mmci_request) from [<c0cecb44>] (mmc_start_request+0x94/0xbc)
 
-Link: https://lore.kernel.org/r/20200508085130.23339-1-chandrakanth.patil@broadcom.com
-Fixes: a7faf81d7858 ("scsi: megaraid_sas: Set no_write_same only for Virtual Disk")
-Cc: <stable@vger.kernel.org> # v5.6+
-Signed-off-by: Shivasharan S <shivasharan.srikanteshwara@broadcom.com>
-Signed-off-by: Chandrakanth Patil <chandrakanth.patil@broadcom.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+DMA api debug brings to light leaking dma-mappings, dma_map_sg and
+dma_unmap_sg are not correctly balanced.
+
+If a request is prepared, the dma_map/unmap are done in asynchronous call
+pre_req (prep_data) and post_req (unprep_data). In this case the
+dma-mapping is right balanced.
+
+But if the request was not prepared, the data->host_cookie is define to
+zero and the dma_map/unmap must be done in the request.  The dma_map is
+called by mmci_dma_start (prep_data), but there is no dma_unmap in this
+case.
+
+This patch adds dma_unmap_sg when the dma is finalized and the data cookie
+is zero (request not prepared).
+
+Signed-off-by: Ludovic Barre <ludovic.barre@st.com>
+Link: https://lore.kernel.org/r/20200526155103.12514-2-ludovic.barre@st.com
+Fixes: 46b723dd867d ("mmc: mmci: add stm32 sdmmc variant")
+Cc: stable@vger.kernel.org
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/scsi/megaraid/megaraid_sas.h        |    4 ++--
- drivers/scsi/megaraid/megaraid_sas_fusion.h |    6 +++---
- 2 files changed, 5 insertions(+), 5 deletions(-)
+ drivers/mmc/host/mmci_stm32_sdmmc.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/scsi/megaraid/megaraid_sas.h
-+++ b/drivers/scsi/megaraid/megaraid_sas.h
-@@ -511,7 +511,7 @@ union MR_PROGRESS {
-  */
- struct MR_PD_PROGRESS {
- 	struct {
--#ifndef MFI_BIG_ENDIAN
-+#ifndef __BIG_ENDIAN_BITFIELD
- 		u32     rbld:1;
- 		u32     patrol:1;
- 		u32     clear:1;
-@@ -537,7 +537,7 @@ struct MR_PD_PROGRESS {
- 	};
+--- a/drivers/mmc/host/mmci_stm32_sdmmc.c
++++ b/drivers/mmc/host/mmci_stm32_sdmmc.c
+@@ -188,6 +188,9 @@ static int sdmmc_idma_start(struct mmci_
+ static void sdmmc_idma_finalize(struct mmci_host *host, struct mmc_data *data)
+ {
+ 	writel_relaxed(0, host->base + MMCI_STM32_IDMACTRLR);
++
++	if (!data->host_cookie)
++		sdmmc_idma_unprep_data(host, data, 0);
+ }
  
- 	struct {
--#ifndef MFI_BIG_ENDIAN
-+#ifndef __BIG_ENDIAN_BITFIELD
- 		u32     rbld:1;
- 		u32     patrol:1;
- 		u32     clear:1;
---- a/drivers/scsi/megaraid/megaraid_sas_fusion.h
-+++ b/drivers/scsi/megaraid/megaraid_sas_fusion.h
-@@ -774,7 +774,7 @@ struct MR_SPAN_BLOCK_INFO {
- struct MR_CPU_AFFINITY_MASK {
- 	union {
- 		struct {
--#ifndef MFI_BIG_ENDIAN
-+#ifndef __BIG_ENDIAN_BITFIELD
- 		u8 hw_path:1;
- 		u8 cpu0:1;
- 		u8 cpu1:1;
-@@ -866,7 +866,7 @@ struct MR_LD_RAID {
- 	__le16     seqNum;
- 
- struct {
--#ifndef MFI_BIG_ENDIAN
-+#ifndef __BIG_ENDIAN_BITFIELD
- 	u32 ldSyncRequired:1;
- 	u32 regTypeReqOnReadIsValid:1;
- 	u32 isEPD:1;
-@@ -889,7 +889,7 @@ struct {
- 	/* 0x30 - 0x33, Logical block size for the LD */
- 	u32 logical_block_length;
- 	struct {
--#ifndef MFI_BIG_ENDIAN
-+#ifndef __BIG_ENDIAN_BITFIELD
- 	/* 0x34, P_I_EXPONENT from READ CAPACITY 16 */
- 	u32 ld_pi_exp:4;
- 	/* 0x34, LOGICAL BLOCKS PER PHYSICAL
+ static void mmci_sdmmc_set_clkreg(struct mmci_host *host, unsigned int desired)
 
 
