@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E50851FBA01
+	by mail.lfdr.de (Postfix) with ESMTP id 0C7A41FB9FF
 	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:08:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729913AbgFPQH4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 12:07:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38924 "EHLO mail.kernel.org"
+        id S1731456AbgFPQHv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 12:07:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38984 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732216AbgFPPqh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:46:37 -0400
+        id S1729913AbgFPPqj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:46:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5538820776;
-        Tue, 16 Jun 2020 15:46:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DEB5F2071A;
+        Tue, 16 Jun 2020 15:46:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322396;
-        bh=JMlBOiZ+vCeIqMWFevpV9y3+A1JmqSlgaldOXzG2dsY=;
+        s=default; t=1592322399;
+        bh=8LJvB/LGfhmrVz2EdFOe5aBaXRcWDqE+WFazPqlgZTg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vf6xSHM577ciPFz67LuUyGpHOgD2jqicayJix/gx+rNBnIV9B2yu100VYaW+8olaF
-         dwFCV5dZjq+7yOgQKUdDec5+1Yn5o2TwafY5/0IR+MUXxzQTxjwzL248xgqGrnmG9T
-         F65tLOGTQJJ5vU688w7Sh4+d8/niEKNhQWjsB5Gs=
+        b=CBiAZS+32fW+PM8LwwQl08PK4HElbr/A5FfT+SJ5XWnCr749SZ+rcpAo5tiWWb4bS
+         nIV3Ki8haC4uDDoKhNo//m786OprgcmZKt0fNM6Ijk1KnZwIvpWILXn1N/VPR0301O
+         XYKwsF7R9LulSNrPIGGclUmLAB8SvD8dICFb9i1g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Amir Goldstein <amir73il@gmail.com>,
-        Miklos Szeredi <mszeredi@redhat.com>,
-        syzbot+61958888b1c60361a791@syzkaller.appspotmail.com
-Subject: [PATCH 5.7 115/163] ovl: fix out of bounds access warning in ovl_check_fb_len()
-Date:   Tue, 16 Jun 2020 17:34:49 +0200
-Message-Id: <20200616153112.311331992@linuxfoundation.org>
+        stable@vger.kernel.org, Yuxuan Shui <yshuiv7@gmail.com>,
+        Alexander Potapenko <glider@google.com>,
+        Miklos Szeredi <mszeredi@redhat.com>
+Subject: [PATCH 5.7 116/163] ovl: initialize error in ovl_copy_xattr
+Date:   Tue, 16 Jun 2020 17:34:50 +0200
+Message-Id: <20200616153112.359876631@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
 References: <20200616153106.849127260@linuxfoundation.org>
@@ -44,43 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amir Goldstein <amir73il@gmail.com>
+From: Yuxuan Shui <yshuiv7@gmail.com>
 
-commit 522f6e6cba6880a038e2bd88e10390b84cd3febd upstream.
+commit 520da69d265a91c6536c63851cbb8a53946974f0 upstream.
 
-syzbot reported out of bounds memory access from open_by_handle_at()
-with a crafted file handle that looks like this:
+In ovl_copy_xattr, if all the xattrs to be copied are overlayfs private
+xattrs, the copy loop will terminate without assigning anything to the
+error variable, thus returning an uninitialized value.
 
-  { .handle_bytes = 2, .handle_type = OVL_FILEID_V1 }
+If ovl_copy_xattr is called from ovl_clear_empty, this uninitialized error
+value is put into a pointer by ERR_PTR(), causing potential invalid memory
+accesses down the line.
 
-handle_bytes gets rounded down to 0 and we end up calling:
-  ovl_check_fh_len(fh, 0) => ovl_check_fb_len(fh + 3, -3)
+This commit initialize error with 0. This is the correct value because when
+there's no xattr to copy, because all xattrs are private, ovl_copy_xattr
+should succeed.
 
-But fh buffer is only 2 bytes long, so accessing struct ovl_fb at
-fh + 3 is illegal.
+This bug is discovered with the help of INIT_STACK_ALL and clang.
 
-Fixes: cbe7fba8edfc ("ovl: make sure that real fid is 32bit aligned in memory")
-Reported-and-tested-by: syzbot+61958888b1c60361a791@syzkaller.appspotmail.com
-Cc: <stable@vger.kernel.org> # v5.5
-Signed-off-by: Amir Goldstein <amir73il@gmail.com>
+Signed-off-by: Yuxuan Shui <yshuiv7@gmail.com>
+Link: https://bugs.chromium.org/p/chromium/issues/detail?id=1050405
+Fixes: 0956254a2d5b ("ovl: don't copy up opaqueness")
+Cc: stable@vger.kernel.org # v4.8
+Signed-off-by: Alexander Potapenko <glider@google.com>
 Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/overlayfs/overlayfs.h |    3 +++
- 1 file changed, 3 insertions(+)
+ fs/overlayfs/copy_up.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/overlayfs/overlayfs.h
-+++ b/fs/overlayfs/overlayfs.h
-@@ -355,6 +355,9 @@ int ovl_check_fb_len(struct ovl_fb *fb,
- 
- static inline int ovl_check_fh_len(struct ovl_fh *fh, int fh_len)
+--- a/fs/overlayfs/copy_up.c
++++ b/fs/overlayfs/copy_up.c
+@@ -47,7 +47,7 @@ int ovl_copy_xattr(struct dentry *old, s
  {
-+	if (fh_len < sizeof(struct ovl_fh))
-+		return -EINVAL;
-+
- 	return ovl_check_fb_len(&fh->fb, fh_len - OVL_FH_WIRE_OFFSET);
- }
+ 	ssize_t list_size, size, value_size = 0;
+ 	char *buf, *name, *value = NULL;
+-	int uninitialized_var(error);
++	int error = 0;
+ 	size_t slen;
  
+ 	if (!(old->d_inode->i_opflags & IOP_XATTR) ||
 
 
