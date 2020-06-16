@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 66E2D1FB6E6
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:43:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 79A671FB867
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:57:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731477AbgFPPlh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:41:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57438 "EHLO mail.kernel.org"
+        id S1732020AbgFPP4B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:56:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56276 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731476AbgFPPlg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:41:36 -0400
+        id S1733130AbgFPPz4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:55:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F1FD9207C4;
-        Tue, 16 Jun 2020 15:41:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6D2D6207C4;
+        Tue, 16 Jun 2020 15:55:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322095;
-        bh=QE52FG2xOUXV33Cg5XUI/t3yU+pakCPIncMqd6LhEz0=;
+        s=default; t=1592322955;
+        bh=vW18VRNYV9BtNXSDwWxZYN38v2KsWgMa+JvycMWRHYU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BUM98tTfisAxlRSuj9kTprkRM3XML6EpJB+HYyuuCibRzw8NZFACQddfJ3W/b2n8g
-         gE+zIBTC1VeSNxu84jloEopo7yG8tMFfMlq+Ahlu2KF9N/KiBJTtTcTS25JT7WN2HU
-         i0rVVujDyucAZmZ4RIMpU5gQsvWZH+sbOeSre+94=
+        b=gPB46nckNhqd/dvqngGPBDC9cNnUCirxXKV0pmIkloREgGUtO1fcKw/ypJFbAbhwJ
+         kUl/tXuP1ONmZQLlk8x+CrEdzcQYMlrj+oFv4E3xgdlBkM0sJVM+VNWwdihhsK+Uve
+         Mmn7rhJZT5Jtl2f1rZ0J3hopawdmhzRcDAmJacxg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Morse <james.morse@arm.com>,
-        Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 5.4 133/134] KVM: arm64: Synchronize sysreg state on injecting an AArch32 exception
-Date:   Tue, 16 Jun 2020 17:35:17 +0200
-Message-Id: <20200616153107.157813635@linuxfoundation.org>
+        stable@vger.kernel.org, Jim Mattson <jmattson@google.com>,
+        Xiaoyao Li <xiaoyao.li@intel.com>,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.6 128/161] KVM: nVMX: Consult only the "basic" exit reason when routing nested exit
+Date:   Tue, 16 Jun 2020 17:35:18 +0200
+Message-Id: <20200616153112.459145837@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153100.633279950@linuxfoundation.org>
-References: <20200616153100.633279950@linuxfoundation.org>
+In-Reply-To: <20200616153106.402291280@linuxfoundation.org>
+References: <20200616153106.402291280@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,112 +45,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Sean Christopherson <sean.j.christopherson@intel.com>
 
-commit 0370964dd3ff7d3d406f292cb443a927952cbd05 upstream.
+commit 2ebac8bb3c2d35f5135466490fc8eeaf3f3e2d37 upstream.
 
-On a VHE system, the EL1 state is left in the CPU most of the time,
-and only syncronized back to memory when vcpu_put() is called (most
-of the time on preemption).
+Consult only the basic exit reason, i.e. bits 15:0 of vmcs.EXIT_REASON,
+when determining whether a nested VM-Exit should be reflected into L1 or
+handled by KVM in L0.
 
-Which means that when injecting an exception, we'd better have a way
-to either:
-(1) write directly to the EL1 sysregs
-(2) synchronize the state back to memory, and do the changes there
+For better or worse, the switch statement in nested_vmx_exit_reflected()
+currently defaults to "true", i.e. reflects any nested VM-Exit without
+dedicated logic.  Because the case statements only contain the basic
+exit reason, any VM-Exit with modifier bits set will be reflected to L1,
+even if KVM intended to handle it in L0.
 
-For an AArch64, we already do (1), so we are safe. Unfortunately,
-doing the same thing for AArch32 would be pretty invasive. Instead,
-we can easily implement (2) by calling the put/load architectural
-backends, and keep preemption disabled. We can then reload the
-state back into EL1.
+Practically speaking, this only affects EXIT_REASON_MCE_DURING_VMENTRY,
+i.e. a #MC that occurs on nested VM-Enter would be incorrectly routed to
+L1, as "failed VM-Entry" is the only modifier that KVM can currently
+encounter.  The SMM modifiers will never be generated as KVM doesn't
+support/employ a SMI Transfer Monitor.  Ditto for "exit from enclave",
+as KVM doesn't yet support virtualizing SGX, i.e. it's impossible to
+enter an enclave in a KVM guest (L1 or L2).
 
+Fixes: 644d711aa0e1 ("KVM: nVMX: Deciding if L0 or L1 should handle an L2 exit")
+Cc: Jim Mattson <jmattson@google.com>
+Cc: Xiaoyao Li <xiaoyao.li@intel.com>
 Cc: stable@vger.kernel.org
-Reported-by: James Morse <james.morse@arm.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Message-Id: <20200227174430.26371-1-sean.j.christopherson@intel.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/include/asm/kvm_host.h   |    2 ++
- arch/arm64/include/asm/kvm_host.h |    2 ++
- virt/kvm/arm/aarch32.c            |   28 ++++++++++++++++++++++++++++
- 3 files changed, 32 insertions(+)
+ arch/x86/kvm/vmx/nested.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/arm/include/asm/kvm_host.h
-+++ b/arch/arm/include/asm/kvm_host.h
-@@ -421,4 +421,6 @@ static inline bool kvm_arm_vcpu_is_final
- 	return true;
- }
+--- a/arch/x86/kvm/vmx/nested.c
++++ b/arch/x86/kvm/vmx/nested.c
+@@ -5562,7 +5562,7 @@ bool nested_vmx_exit_reflected(struct kv
+ 				vmcs_read32(VM_EXIT_INTR_ERROR_CODE),
+ 				KVM_ISA_VMX);
  
-+#define kvm_arm_vcpu_loaded(vcpu)	(false)
-+
- #endif /* __ARM_KVM_HOST_H__ */
---- a/arch/arm64/include/asm/kvm_host.h
-+++ b/arch/arm64/include/asm/kvm_host.h
-@@ -679,4 +679,6 @@ bool kvm_arm_vcpu_is_finalized(struct kv
- #define kvm_arm_vcpu_sve_finalized(vcpu) \
- 	((vcpu)->arch.flags & KVM_ARM64_VCPU_SVE_FINALIZED)
- 
-+#define kvm_arm_vcpu_loaded(vcpu)	((vcpu)->arch.sysregs_loaded_on_cpu)
-+
- #endif /* __ARM64_KVM_HOST_H__ */
---- a/virt/kvm/arm/aarch32.c
-+++ b/virt/kvm/arm/aarch32.c
-@@ -33,6 +33,26 @@ static const u8 return_offsets[8][2] = {
- 	[7] = { 4, 4 },		/* FIQ, unused */
- };
- 
-+static bool pre_fault_synchronize(struct kvm_vcpu *vcpu)
-+{
-+	preempt_disable();
-+	if (kvm_arm_vcpu_loaded(vcpu)) {
-+		kvm_arch_vcpu_put(vcpu);
-+		return true;
-+	}
-+
-+	preempt_enable();
-+	return false;
-+}
-+
-+static void post_fault_synchronize(struct kvm_vcpu *vcpu, bool loaded)
-+{
-+	if (loaded) {
-+		kvm_arch_vcpu_load(vcpu, smp_processor_id());
-+		preempt_enable();
-+	}
-+}
-+
- /*
-  * When an exception is taken, most CPSR fields are left unchanged in the
-  * handler. However, some are explicitly overridden (e.g. M[4:0]).
-@@ -155,7 +175,10 @@ static void prepare_fault32(struct kvm_v
- 
- void kvm_inject_undef32(struct kvm_vcpu *vcpu)
- {
-+	bool loaded = pre_fault_synchronize(vcpu);
-+
- 	prepare_fault32(vcpu, PSR_AA32_MODE_UND, 4);
-+	post_fault_synchronize(vcpu, loaded);
- }
- 
- /*
-@@ -168,6 +191,9 @@ static void inject_abt32(struct kvm_vcpu
- 	u32 vect_offset;
- 	u32 *far, *fsr;
- 	bool is_lpae;
-+	bool loaded;
-+
-+	loaded = pre_fault_synchronize(vcpu);
- 
- 	if (is_pabt) {
- 		vect_offset = 12;
-@@ -191,6 +217,8 @@ static void inject_abt32(struct kvm_vcpu
- 		/* no need to shuffle FS[4] into DFSR[10] as its 0 */
- 		*fsr = DFSR_FSC_EXTABT_nLPAE;
- 	}
-+
-+	post_fault_synchronize(vcpu, loaded);
- }
- 
- void kvm_inject_dabt32(struct kvm_vcpu *vcpu, unsigned long addr)
+-	switch (exit_reason) {
++	switch ((u16)exit_reason) {
+ 	case EXIT_REASON_EXCEPTION_NMI:
+ 		if (is_nmi(intr_info))
+ 			return false;
 
 
