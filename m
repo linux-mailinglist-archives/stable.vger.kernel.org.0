@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F22D1FB658
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:38:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA6581FB6FA
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:43:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729937AbgFPPgZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:36:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46902 "EHLO mail.kernel.org"
+        id S1731623AbgFPPmU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:42:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58766 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729609AbgFPPgU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:36:20 -0400
+        id S1731653AbgFPPmR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:42:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F080420B1F;
-        Tue, 16 Jun 2020 15:36:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2F0F2208E4;
+        Tue, 16 Jun 2020 15:42:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592321779;
-        bh=f4dWbME0zvTO4lNAmFwEvgbVjHjm7e7nyr1BsvdN+HM=;
+        s=default; t=1592322136;
+        bh=hIHnApJ9WgvKETz2q3jIxCz4NB+t33uQCq2vQiNDRZ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D8E5EXsoDUs5W+FQ29XRa5o2BcHRC3mVRkihFmcuRmSizKsZS0ILS4zgew3vpHl3H
-         uA/HP0457MyZRnY00a7VOGaLqAJfyKRIJ85Kj3axLfMG0coAVaM4D5bXSxZduVx4s5
-         UZvm9i/R/5pu0gO+W/8DcMG2vODzaODpoVdsOJgc=
+        b=erTe6yFgleIsGzllfRYuJz8j0epkgsscd20GJwPmw7EgBEequoNH0vg3IirmytyJT
+         r3oiK80/e5BE3Owh6pHYqx0411Dv+ll5wlQgYcw/cIMasdaECFcnE9m31CpjoTYbZr
+         Gsp82Y6vsJudJoBscFnfhs3WuP69y/N/duaCumoE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ido Schimmel <idosch@mellanox.com>,
-        Alla Segal <allas@mellanox.com>,
-        Nikolay Aleksandrov <nikolay@cumulusnetworks.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 005/134] bridge: Avoid infinite loop when suppressing NS messages with invalid options
+        stable@vger.kernel.org,
+        =?UTF-8?q?J=C3=A9r=C3=B4me=20Pouiller?= 
+        <jerome.pouiller@silabs.com>,
+        =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 015/163] staging: wfx: fix double free
 Date:   Tue, 16 Jun 2020 17:33:09 +0200
-Message-Id: <20200616153100.917915774@linuxfoundation.org>
+Message-Id: <20200616153107.606632227@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153100.633279950@linuxfoundation.org>
-References: <20200616153100.633279950@linuxfoundation.org>
+In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
+References: <20200616153106.849127260@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,50 +46,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ido Schimmel <idosch@mellanox.com>
+From: Jérôme Pouiller <jerome.pouiller@silabs.com>
 
-[ Upstream commit 53fc685243bd6fb90d90305cea54598b78d3cbfc ]
+[ Upstream commit 832cc98141b4b93acbb9231ca9e36f7fbe347f47 ]
 
-When neighbor suppression is enabled the bridge device might reply to
-Neighbor Solicitation (NS) messages on behalf of remote hosts.
+In case of error in wfx_probe(), wdev->hw is freed. Since an error
+occurred, wfx_free_common() is called, then wdev->hw is freed again.
 
-In case the NS message includes the "Source link-layer address" option
-[1], the bridge device will use the specified address as the link-layer
-destination address in its reply.
-
-To avoid an infinite loop, break out of the options parsing loop when
-encountering an option with length zero and disregard the NS message.
-
-This is consistent with the IPv6 ndisc code and RFC 4886 which states
-that "Nodes MUST silently discard an ND packet that contains an option
-with length zero" [2].
-
-[1] https://tools.ietf.org/html/rfc4861#section-4.3
-[2] https://tools.ietf.org/html/rfc4861#section-4.6
-
-Fixes: ed842faeb2bd ("bridge: suppress nd pkts on BR_NEIGH_SUPPRESS ports")
-Signed-off-by: Ido Schimmel <idosch@mellanox.com>
-Reported-by: Alla Segal <allas@mellanox.com>
-Tested-by: Alla Segal <allas@mellanox.com>
-Acked-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Jérôme Pouiller <jerome.pouiller@silabs.com>
+Reviewed-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+Fixes: 4033714d6cbe ("staging: wfx: fix init/remove vs IRQ race")
+Link: https://lore.kernel.org/r/20200505123757.39506-4-Jerome.Pouiller@silabs.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bridge/br_arp_nd_proxy.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/staging/wfx/main.c | 1 -
+ 1 file changed, 1 deletion(-)
 
---- a/net/bridge/br_arp_nd_proxy.c
-+++ b/net/bridge/br_arp_nd_proxy.c
-@@ -276,6 +276,10 @@ static void br_nd_send(struct net_bridge
- 	ns_olen = request->len - (skb_network_offset(request) +
- 				  sizeof(struct ipv6hdr)) - sizeof(*ns);
- 	for (i = 0; i < ns_olen - 1; i += (ns->opt[i + 1] << 3)) {
-+		if (!ns->opt[i + 1]) {
-+			kfree_skb(reply);
-+			return;
-+		}
- 		if (ns->opt[i] == ND_OPT_SOURCE_LL_ADDR) {
- 			daddr = ns->opt + i + sizeof(struct nd_opt_hdr);
- 			break;
+diff --git a/drivers/staging/wfx/main.c b/drivers/staging/wfx/main.c
+index 3c4c240229ad..8f19bd0fd2a1 100644
+--- a/drivers/staging/wfx/main.c
++++ b/drivers/staging/wfx/main.c
+@@ -466,7 +466,6 @@ int wfx_probe(struct wfx_dev *wdev)
+ 
+ err2:
+ 	ieee80211_unregister_hw(wdev->hw);
+-	ieee80211_free_hw(wdev->hw);
+ err1:
+ 	wfx_bh_unregister(wdev);
+ 	return err;
+-- 
+2.25.1
+
 
 
