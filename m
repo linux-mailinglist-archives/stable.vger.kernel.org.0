@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C7451FBB22
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:17:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 60B3E1FBA19
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:08:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730192AbgFPPjp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:39:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53380 "EHLO mail.kernel.org"
+        id S1732138AbgFPPp7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:45:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37656 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730967AbgFPPjk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:39:40 -0400
+        id S1732135AbgFPPp6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:45:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BF05920B1F;
-        Tue, 16 Jun 2020 15:39:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6420A2071A;
+        Tue, 16 Jun 2020 15:45:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592321980;
-        bh=ZXs9ocW7Ed+eH9yAMQJE98d/MX0NoYJxO6UE9FsODYQ=;
+        s=default; t=1592322357;
+        bh=IeCCVXsdJ/qXFvYSg7J9mZxVLqajBfphaG43DACof6k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2duqi/M1o/oeXAUdHkuCJxWQqETJyq5IwHm4cRT5LmzX1SDxj4o+Jo5SRARCZ+2Vs
-         Gcz/c+aFFWX9FC6BnFTokx6IIbVYZi+gh7DOj+T+XG8rmtktEPRkhnQdHso8Rv57YY
-         HhKkwUmgFItkt7hNEV5LPu1r30H+1htkwbHrBRK8=
+        b=RlPwCh28jbyKBCXS1TQ0Da1XFoc1OerJbyKOhcR9foKqq0krPkUMiqvp37bKgR/KN
+         BySJ5pccJ1jxjqeqRSIHePixtB94mgejir3aEipxEQ4SyuFuZAu/HiBdyky5JzyYed
+         KDJqYVAFol8r2bzuu/gW/+DqAWLsftCOi+cO+L9Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Tanner Love <tannerlove@google.com>,
         Willem de Bruijn <willemb@google.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 090/134] selftests/net: in rxtimestamp getopt_long needs terminating null entry
-Date:   Tue, 16 Jun 2020 17:34:34 +0200
-Message-Id: <20200616153105.093713585@linuxfoundation.org>
+Subject: [PATCH 5.7 101/163] selftests/net: in rxtimestamp getopt_long needs terminating null entry
+Date:   Tue, 16 Jun 2020 17:34:35 +0200
+Message-Id: <20200616153111.660877354@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153100.633279950@linuxfoundation.org>
-References: <20200616153100.633279950@linuxfoundation.org>
+In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
+References: <20200616153106.849127260@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,11 +57,11 @@ Acked-by: Willem de Bruijn <willemb@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/networking/timestamping/rxtimestamp.c |    1 +
+ tools/testing/selftests/net/rxtimestamp.c |    1 +
  1 file changed, 1 insertion(+)
 
---- a/tools/testing/selftests/networking/timestamping/rxtimestamp.c
-+++ b/tools/testing/selftests/networking/timestamping/rxtimestamp.c
+--- a/tools/testing/selftests/net/rxtimestamp.c
++++ b/tools/testing/selftests/net/rxtimestamp.c
 @@ -115,6 +115,7 @@ static struct option long_options[] = {
  	{ "tcp", no_argument, 0, 't' },
  	{ "udp", no_argument, 0, 'u' },
