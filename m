@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 908131FBA4C
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:10:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0095C1FBB36
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:18:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730211AbgFPQKC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 12:10:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35654 "EHLO mail.kernel.org"
+        id S1730741AbgFPPil (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:38:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51318 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731524AbgFPPo4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:44:56 -0400
+        id S1730730AbgFPPik (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:38:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4EA4B21475;
-        Tue, 16 Jun 2020 15:44:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 544C5214F1;
+        Tue, 16 Jun 2020 15:38:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322295;
+        s=default; t=1592321919;
         bh=qPXtMOTdflutZMIJ3Kxe+EfHyqUsxZqyhk7CaUbd0Do=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2RhHzeF6FcWwjVkj0fJ2D+N6ImbGM64JMTwLvH3N27tjqVQHxjOyfS0BSgIh/VMmT
-         Ohzv0EeTYiJID8rabn64Eb1dRiTJ4i2PSoP1tAaVYQ81+9sh6t3GftnGg7YNwZDo2b
-         Ft8RQ3tKrcn30HaEjqDNtJae9SgPX+AoVwQcjX34=
+        b=PWtkTPJQgtGoXT/cL1QzKPyyNSpEMKCiP5zFTJTn7t8c7BbWwTLxlmoJyalD08Rx3
+         SJNZG7Wt1tT8D7xymWMavqfcdNJgNgtTF73WpdNeaEvFmfB0K9sXRPnvpiSRccN8qw
+         zRP6KjX0QLTE5CYfhoUNYpLSS4Gn8/vAibZeHuVc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -31,12 +31,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Nick Desaulniers <ndesaulniers@google.com>,
         Jeremy Linton <jeremy.linton@arm.com>,
         Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Subject: [PATCH 5.7 076/163] arm64: acpi: fix UBSAN warning
+Subject: [PATCH 5.4 066/134] arm64: acpi: fix UBSAN warning
 Date:   Tue, 16 Jun 2020 17:34:10 +0200
-Message-Id: <20200616153110.486696417@linuxfoundation.org>
+Message-Id: <20200616153103.933415442@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
-References: <20200616153106.849127260@linuxfoundation.org>
+In-Reply-To: <20200616153100.633279950@linuxfoundation.org>
+References: <20200616153100.633279950@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
