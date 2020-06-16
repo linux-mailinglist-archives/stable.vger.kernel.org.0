@@ -2,91 +2,142 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DCC91FB179
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 15:02:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A8821FB18C
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 15:05:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728865AbgFPNCo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 09:02:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49086 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728672AbgFPNCn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Jun 2020 09:02:43 -0400
-Received: from mail-ot1-x341.google.com (mail-ot1-x341.google.com [IPv6:2607:f8b0:4864:20::341])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33144C061573
-        for <stable@vger.kernel.org>; Tue, 16 Jun 2020 06:02:43 -0700 (PDT)
-Received: by mail-ot1-x341.google.com with SMTP id g5so15840496otg.6
-        for <stable@vger.kernel.org>; Tue, 16 Jun 2020 06:02:43 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=NzTqWXpX+jIvy6nNJlsuFOKnjF4HL8dCMVxHFmjhNpc=;
-        b=ZiAh19reRpuQMNnULfDrvDsIF/sHi3PNBI2av/6tLQoIpHlpsGZyVyf5/f9zfAkXsT
-         RvqRMv27tjZWKFR9Snu8Rk1bKEaoZyL/3MRnmiJD2SYG7VpqMcAfTK6UqN88hIEJj+VT
-         ZZoCkxccGShzokCjF5GTZ+PUN11Lr1oNW1HT862bUqaAOlMVCxgyKCPIV1P3uEkrqLi1
-         kxFv1PNr65IJYwIvN8H7k/8AJzUyeVk39JEE9mCjY/8kT+oymEOkTRGIvQYJsIyQkvwl
-         VTRqUzdDBZjs9D9mgj+yTLxxaJOBRalDP+g3Ki0j/9PsO5oPKeJHujNesCv6z51OEUI/
-         s7Lw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=NzTqWXpX+jIvy6nNJlsuFOKnjF4HL8dCMVxHFmjhNpc=;
-        b=UvDF7OJb88osIHvWZwMoDJwsLp+IHqZjnFOMYEAiXsd7xVMw1yCLZ+FDfv96noerBu
-         4MhnaBeKM5HGFnV76cAU6iuYrbEneho8dlVl4LNSgSLRYlPmT/xkrCq0MENHL7Uymd6H
-         83A4gfP4E/28kjNKZsMcPfIm31OycgOanzsiBSdZDBG9tdAhWOGws2lLkAuRXbh6/Mb4
-         02wafa6bvVMPrf5m+guJqWzKRJw68JGWsJsJp4XKbGJjMama2kclAVj4IfuQUQmj+5ZQ
-         VSipmbqgXuwlkjgsI/a66X8PqlDG+DFMStMcNIERFuSgYa2qcnTrqqTo7LBS/4kNd9QN
-         LYCA==
-X-Gm-Message-State: AOAM531Q7Irqd+nCxNDqJB2QMYlXSJFDCaADbESME3q6G//jHL5Hw4+J
-        maIWF1duPLpIlsyQikIkUJSbE12T4lUqAk6XglcO+A==
-X-Google-Smtp-Source: ABdhPJxsO1eVEcTPZvlTMUrXhz7ujf5MbjRiGA+lB51S5epUV5ph0XXmivVwvq7RJRM5fxua8F5YwdkG3RxhSDPGT/s=
-X-Received: by 2002:a05:6830:242e:: with SMTP id k14mr2249753ots.36.1592312562394;
- Tue, 16 Jun 2020 06:02:42 -0700 (PDT)
+        id S1728847AbgFPNFV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 09:05:21 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:24352 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1728696AbgFPNFT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Jun 2020 09:05:19 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1592312717;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=7nZX/JZoMn+I5qsocsgLqRgQUtpNpbf+EHIybmwJtOc=;
+        b=Kb1ntucIH/6101JMcJj/Quohma8qEmcmMwFqnZXJaANFqcO993o0plTYecMTky9PEKK8E+
+        FdsLdLUt8n/cP0JxjVNUiJKLD+G9+oc4hb+mic1vrT33io221HtRHjVQJVHfTNTWgh1fQf
+        +D0yScY7r1lA5CagffHtuiymwFSRh80=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-395-9xOyBG-QPzmPq6osX1JXvA-1; Tue, 16 Jun 2020 09:05:14 -0400
+X-MC-Unique: 9xOyBG-QPzmPq6osX1JXvA-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 108C8107B7CB;
+        Tue, 16 Jun 2020 13:05:07 +0000 (UTC)
+Received: from llong.remote.csb (ovpn-114-156.rdu2.redhat.com [10.10.114.156])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 3337D5D9E4;
+        Tue, 16 Jun 2020 13:05:01 +0000 (UTC)
+Subject: Re: [PATCH v4 1/3] mm/slab: Use memzero_explicit() in kzfree()
+To:     Eric Biggers <ebiggers@kernel.org>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        David Howells <dhowells@redhat.com>,
+        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Joe Perches <joe@perches.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        David Rientjes <rientjes@google.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        David Sterba <dsterba@suse.cz>,
+        "Jason A . Donenfeld" <Jason@zx2c4.com>, linux-mm@kvack.org,
+        keyrings@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-crypto@vger.kernel.org, linux-pm@vger.kernel.org,
+        linux-stm32@st-md-mailman.stormreply.com,
+        linux-amlogic@lists.infradead.org,
+        linux-mediatek@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
+        virtualization@lists.linux-foundation.org, netdev@vger.kernel.org,
+        linux-ppp@vger.kernel.org, wireguard@lists.zx2c4.com,
+        linux-wireless@vger.kernel.org, devel@driverdev.osuosl.org,
+        linux-scsi@vger.kernel.org, target-devel@vger.kernel.org,
+        linux-btrfs@vger.kernel.org, linux-cifs@vger.kernel.org,
+        linux-fscrypt@vger.kernel.org, ecryptfs@vger.kernel.org,
+        kasan-dev@googlegroups.com, linux-bluetooth@vger.kernel.org,
+        linux-wpan@vger.kernel.org, linux-sctp@vger.kernel.org,
+        linux-nfs@vger.kernel.org, tipc-discussion@lists.sourceforge.net,
+        linux-security-module@vger.kernel.org,
+        linux-integrity@vger.kernel.org, stable@vger.kernel.org
+References: <20200616015718.7812-1-longman@redhat.com>
+ <20200616015718.7812-2-longman@redhat.com>
+ <20200616033035.GB902@sol.localdomain>
+From:   Waiman Long <longman@redhat.com>
+Organization: Red Hat
+Message-ID: <56c2304c-73cc-8f48-d8d0-5dd6c39f33f3@redhat.com>
+Date:   Tue, 16 Jun 2020 09:05:00 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.4.1
 MIME-Version: 1.0
-References: <20200611114418.19852-1-sumit.semwal@linaro.org>
- <CAO_48GFVYOv8Km7fEh8iBPp7d5ziySBV0vB9nu_+oset6hBO8w@mail.gmail.com> <159231181752.18853.1290700688849491922@build.alporthouse.com>
-In-Reply-To: <159231181752.18853.1290700688849491922@build.alporthouse.com>
-From:   Sumit Semwal <sumit.semwal@linaro.org>
-Date:   Tue, 16 Jun 2020 18:32:31 +0530
-Message-ID: <CAO_48GE8K_nDXs_LDU9caRdP-aK9DWV3vXcD4EuVCxyShCBbmg@mail.gmail.com>
-Subject: Re: [PATCH v2] dma-buf: Move dma_buf_release() from fops to dentry_ops
-To:     Chris Wilson <chris@chris-wilson.co.uk>
-Cc:     "open list:DMA BUFFER SHARING FRAMEWORK" 
-        <linux-media@vger.kernel.org>,
-        DRI mailing list <dri-devel@lists.freedesktop.org>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Chenbo Feng <fengc@google.com>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Linaro MM SIG <linaro-mm-sig@lists.linaro.org>,
-        Charan Teja Reddy <charante@codeaurora.org>,
-        syzbot+3643a18836bce555bff6@syzkaller.appspotmail.com,
-        "# 3.4.x" <stable@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20200616033035.GB902@sol.localdomain>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Chris,
-
-On Tue, 16 Jun 2020 at 18:20, Chris Wilson <chris@chris-wilson.co.uk> wrote:
+On 6/15/20 11:30 PM, Eric Biggers wrote:
+> On Mon, Jun 15, 2020 at 09:57:16PM -0400, Waiman Long wrote:
+>> The kzfree() function is normally used to clear some sensitive
+>> information, like encryption keys, in the buffer before freeing it back
+>> to the pool. Memset() is currently used for the buffer clearing. However,
+>> it is entirely possible that the compiler may choose to optimize away the
+>> memory clearing especially if LTO is being used. To make sure that this
+>> optimization will not happen, memzero_explicit(), which is introduced
+>> in v3.18, is now used in kzfree() to do the clearing.
+>>
+>> Fixes: 3ef0e5ba4673 ("slab: introduce kzfree()")
+>> Cc: stable@vger.kernel.org
+>> Signed-off-by: Waiman Long <longman@redhat.com>
+>> ---
+>>   mm/slab_common.c | 2 +-
+>>   1 file changed, 1 insertion(+), 1 deletion(-)
+>>
+>> diff --git a/mm/slab_common.c b/mm/slab_common.c
+>> index 9e72ba224175..37d48a56431d 100644
+>> --- a/mm/slab_common.c
+>> +++ b/mm/slab_common.c
+>> @@ -1726,7 +1726,7 @@ void kzfree(const void *p)
+>>   	if (unlikely(ZERO_OR_NULL_PTR(mem)))
+>>   		return;
+>>   	ks = ksize(mem);
+>> -	memset(mem, 0, ks);
+>> +	memzero_explicit(mem, ks);
+>>   	kfree(mem);
+>>   }
+>>   EXPORT_SYMBOL(kzfree);
+> This is a good change, but the commit message isn't really accurate.  AFAIK, no
+> one has found any case where this memset() gets optimized out.  And even with
+> LTO, it would be virtually impossible due to all the synchronization and global
+> data structures that kfree() uses.  (Remember that this isn't the C standard
+> function "free()", so the compiler can't assign it any special meaning.)
+> Not to mention that LTO support isn't actually upstream yet.
 >
-> Quoting Sumit Semwal (2020-06-16 13:42:13)
-> > Hello,
-> >
-> > If there are no objections to this, I will plan to merge it soon.
->
-> I was going to suggest running it against our CI, but that's unavailable
-> at the moment.
->
-> There's a particularly nasty BUG_ON() in dma_buf_release that we hit
-> irregularly, that this might help with.
-Thanks for your reply; if the CI is going to be available in a couple
-of days, we could wait - it'd be definitely good to see a bug being
-splattered out!
+> I still agree with the change, but it might be helpful if the commit message
+> were honest that this is really a hardening measure and about properly conveying
+> the intent.  As-is this sounds like a critical fix, which might confuse people.
 
-> -Chris
+Yes, I agree that the commit log may look a bit scary. How about the 
+following:
 
-Best,
-Sumit.
+The kzfree() function is normally used to clear some sensitive
+information, like encryption keys, in the buffer before freeing it back
+to the pool. Memset() is currently used for buffer clearing. However
+unlikely, there is still a non-zero probability that the compiler may
+choose to optimize away the memory clearing especially if LTO is being
+used in the future. To make sure that this optimization will never
+happen, memzero_explicit(), which is introduced in v3.18, is now used
+in kzfree() to future-proof it.
+
+Cheers,
+Longman
+
