@@ -2,112 +2,159 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 78B971FA708
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 05:30:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B5481FA728
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 05:53:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726820AbgFPDal (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jun 2020 23:30:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53234 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725978AbgFPDai (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jun 2020 23:30:38 -0400
-Received: from sol.localdomain (c-107-3-166-239.hsd1.ca.comcast.net [107.3.166.239])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9B3B8206D7;
-        Tue, 16 Jun 2020 03:30:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592278237;
-        bh=cbCBV+GA89Kxk07F75+TVwUbSIVVlsmXitOPPgujt0g=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=CI14aWxQPw24ENjaHXJfOipbxs59iBOy6w+TeEVniGvJYBqy6D1cwSzDbSE5kI4lU
-         lIYg5jNgJLjG7j91Xm1X3e+BxtmR8FfP4CJnhYPkHwCMU6wjZ6YBjNC+nYJMCpp2N5
-         Vlpy20o3OcJdDug0iUS5K1iWjVtuIX+008M01eB4=
-Date:   Mon, 15 Jun 2020 20:30:35 -0700
-From:   Eric Biggers <ebiggers@kernel.org>
-To:     Waiman Long <longman@redhat.com>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        David Howells <dhowells@redhat.com>,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Joe Perches <joe@perches.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        David Rientjes <rientjes@google.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        David Sterba <dsterba@suse.cz>,
-        "Jason A . Donenfeld" <Jason@zx2c4.com>, linux-mm@kvack.org,
-        keyrings@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-crypto@vger.kernel.org, linux-pm@vger.kernel.org,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-amlogic@lists.infradead.org,
-        linux-mediatek@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
-        virtualization@lists.linux-foundation.org, netdev@vger.kernel.org,
-        linux-ppp@vger.kernel.org, wireguard@lists.zx2c4.com,
-        linux-wireless@vger.kernel.org, devel@driverdev.osuosl.org,
-        linux-scsi@vger.kernel.org, target-devel@vger.kernel.org,
-        linux-btrfs@vger.kernel.org, linux-cifs@vger.kernel.org,
-        linux-fscrypt@vger.kernel.org, ecryptfs@vger.kernel.org,
-        kasan-dev@googlegroups.com, linux-bluetooth@vger.kernel.org,
-        linux-wpan@vger.kernel.org, linux-sctp@vger.kernel.org,
-        linux-nfs@vger.kernel.org, tipc-discussion@lists.sourceforge.net,
-        linux-security-module@vger.kernel.org,
-        linux-integrity@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH v4 1/3] mm/slab: Use memzero_explicit() in kzfree()
-Message-ID: <20200616033035.GB902@sol.localdomain>
-References: <20200616015718.7812-1-longman@redhat.com>
- <20200616015718.7812-2-longman@redhat.com>
+        id S1726101AbgFPDxF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jun 2020 23:53:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48940 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725985AbgFPDxE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Jun 2020 23:53:04 -0400
+Received: from mail-pg1-x52f.google.com (mail-pg1-x52f.google.com [IPv6:2607:f8b0:4864:20::52f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6055C061A0E
+        for <stable@vger.kernel.org>; Mon, 15 Jun 2020 20:53:04 -0700 (PDT)
+Received: by mail-pg1-x52f.google.com with SMTP id l24so33950pgb.5
+        for <stable@vger.kernel.org>; Mon, 15 Jun 2020 20:53:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=ve+/ExGPS0JUJ25KQEIHvIjHu/7QFiIR/GM/4LrinGU=;
+        b=JcsyJdVK2EkrYC6d5c2JZlnk9WS2L7lqrMyZU1FfuLlZPh72UJjmGd0E1jO6z+ulQj
+         tQ4m6bbU4+RX2shaRugewPXtEeaNawtUg3WwoFwJrUdjgbxdZ27W8jHWGDPXEW6veCfP
+         ncNeY5krcw34uPprShLY8x+p/IRE2oNfOpxPZIfl9vobEzsjr/jDNZX+AZOkbAtghwUS
+         VZvIhDaQQYbu2nyRTl7qGeDJGIKE+4MOuEOuw0yieQOeZyqp2/YJESqfLJ/+Aui6jDwP
+         CfUaKgRGFmmngoDd+DEu0sNtuW3QTiEWyGC6wT7r9ISm2vRk6ZYHA8k/E15OyB0uBQk4
+         48lA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=ve+/ExGPS0JUJ25KQEIHvIjHu/7QFiIR/GM/4LrinGU=;
+        b=ocXm2h9C3PF+3Chm8PCy0daaaWvaJ+0SSZpJsjxvc5vLvRDPZqeRJ+L9hMGy+c1Pcr
+         KLdWouFWsfohJVpjPu08h/2bnqgU2l88blVheUk9xDnxmIuth+a+iH2NqT5g+9k2StFc
+         Ac02qAroxeDpHnAaRAicWIP6BXsi1m/a4KbyateLQpg/ji2NsfVd1b1krgaoJATChu1c
+         W0YSUbYxUpwVJXAjqjTJaVjkge7qTTjkfMboHPTXicT+jHTGVFXLLONar5YuWVw2qCmW
+         7/+/hFnK+pyCESQmIjKbZ2jwKIb7heDRQvlecIEwc3Xkk0ZWWirpiEdJh8TKtwk+07qf
+         MaQQ==
+X-Gm-Message-State: AOAM532CIM2z+JSTKzKRGk6dD7nRkIoy7knZ814p/nYDKN2voDiiOgNj
+        G0aauibZJW497VfAmB5mpq4FWXZUvao=
+X-Google-Smtp-Source: ABdhPJyeJeyiHwNo1M9L+wf0ditmd2d5Qt+Z5jrVil1S0phGlP8SeRm2BcHB4T9p5fuR1Hz6E84wIg==
+X-Received: by 2002:a62:1a45:: with SMTP id a66mr362934pfa.54.1592279583488;
+        Mon, 15 Jun 2020 20:53:03 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id f14sm824144pjq.36.2020.06.15.20.53.02
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 15 Jun 2020 20:53:02 -0700 (PDT)
+Message-ID: <5ee8421e.1c69fb81.1904f.387d@mx.google.com>
+Date:   Mon, 15 Jun 2020 20:53:02 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200616015718.7812-2-longman@redhat.com>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Branch: linux-5.6.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v5.6.16-190-gd73794b63b4e
+Subject: stable-rc/linux-5.6.y baseline: 76 runs,
+ 2 regressions (v5.6.16-190-gd73794b63b4e)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jun 15, 2020 at 09:57:16PM -0400, Waiman Long wrote:
-> The kzfree() function is normally used to clear some sensitive
-> information, like encryption keys, in the buffer before freeing it back
-> to the pool. Memset() is currently used for the buffer clearing. However,
-> it is entirely possible that the compiler may choose to optimize away the
-> memory clearing especially if LTO is being used. To make sure that this
-> optimization will not happen, memzero_explicit(), which is introduced
-> in v3.18, is now used in kzfree() to do the clearing.
-> 
-> Fixes: 3ef0e5ba4673 ("slab: introduce kzfree()")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Waiman Long <longman@redhat.com>
-> ---
->  mm/slab_common.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/mm/slab_common.c b/mm/slab_common.c
-> index 9e72ba224175..37d48a56431d 100644
-> --- a/mm/slab_common.c
-> +++ b/mm/slab_common.c
-> @@ -1726,7 +1726,7 @@ void kzfree(const void *p)
->  	if (unlikely(ZERO_OR_NULL_PTR(mem)))
->  		return;
->  	ks = ksize(mem);
-> -	memset(mem, 0, ks);
-> +	memzero_explicit(mem, ks);
->  	kfree(mem);
->  }
->  EXPORT_SYMBOL(kzfree);
+stable-rc/linux-5.6.y baseline: 76 runs, 2 regressions (v5.6.16-190-gd73794=
+b63b4e)
 
-This is a good change, but the commit message isn't really accurate.  AFAIK, no
-one has found any case where this memset() gets optimized out.  And even with
-LTO, it would be virtually impossible due to all the synchronization and global
-data structures that kfree() uses.  (Remember that this isn't the C standard
-function "free()", so the compiler can't assign it any special meaning.)
-Not to mention that LTO support isn't actually upstream yet.
+Regressions Summary
+-------------------
 
-I still agree with the change, but it might be helpful if the commit message
-were honest that this is really a hardening measure and about properly conveying
-the intent.  As-is this sounds like a critical fix, which might confuse people.
+platform             | arch   | lab           | compiler | defconfig       =
+ | results
+---------------------+--------+---------------+----------+-----------------=
+-+--------
+exynos5422-odroidxu3 | arm    | lab-collabora | gcc-8    | exynos_defconfig=
+ | 0/1    =
 
-- Eric
+qemu_x86_64          | x86_64 | lab-baylibre  | gcc-8    | x86_64_defconfig=
+ | 0/1    =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.6.y/kern=
+el/v5.6.16-190-gd73794b63b4e/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.6.y
+  Describe: v5.6.16-190-gd73794b63b4e
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      d73794b63b4ef9b4bd884d4e00d1fd78679a74e0 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch   | lab           | compiler | defconfig       =
+ | results
+---------------------+--------+---------------+----------+-----------------=
+-+--------
+exynos5422-odroidxu3 | arm    | lab-collabora | gcc-8    | exynos_defconfig=
+ | 0/1    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5ee80cd6c80f40beac97bf13
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: exynos_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.6.y/v5.6.16-=
+190-gd73794b63b4e/arm/exynos_defconfig/gcc-8/lab-collabora/baseline-exynos5=
+422-odroidxu3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.6.y/v5.6.16-=
+190-gd73794b63b4e/arm/exynos_defconfig/gcc-8/lab-collabora/baseline-exynos5=
+422-odroidxu3.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2019=
+.02-11-g17e793fa4728/armel/baseline/rootfs.cpio.gz =
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5ee80cd6c80f40beac97b=
+f14
+      failing since 14 days (last pass: v5.6.13-193-g67346f550ad8, first fa=
+il: v5.6.15-178-gc72fcbc7d224) =
+
+
+
+platform             | arch   | lab           | compiler | defconfig       =
+ | results
+---------------------+--------+---------------+----------+-----------------=
+-+--------
+qemu_x86_64          | x86_64 | lab-baylibre  | gcc-8    | x86_64_defconfig=
+ | 0/1    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5ee80efbc265d839af97bf2a
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig
+  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.6.y/v5.6.16-=
+190-gd73794b63b4e/x86_64/x86_64_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
+x86_64.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.6.y/v5.6.16-=
+190-gd73794b63b4e/x86_64/x86_64_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
+x86_64.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2019=
+.02-11-g17e793fa4728/x86/baseline/rootfs.cpio.gz =
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5ee80efbc265d839af97b=
+f2b
+      failing since 5 days (last pass: v5.6.15-178-g1c16267b1e40, first fai=
+l: v5.6.16-86-g1bece508f6a9) =20
