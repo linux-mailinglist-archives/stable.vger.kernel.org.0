@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E46B11FB951
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:03:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AF2D1FBA23
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:09:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732392AbgFPPue (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:50:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46432 "EHLO mail.kernel.org"
+        id S1732105AbgFPPpj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:45:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37034 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731004AbgFPPud (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:50:33 -0400
+        id S1731142AbgFPPph (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:45:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4368C214DB;
-        Tue, 16 Jun 2020 15:50:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AA33120776;
+        Tue, 16 Jun 2020 15:45:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322632;
-        bh=DKyteoJXwF6d2+gaakt8YvFgsdfoCeEc/SzAqfCFfMo=;
+        s=default; t=1592322337;
+        bh=98mUkrdbwddYhdPlGGCuuAKIc46kJxY1PfoxGBDKUdQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oAVMXGqWeo7DusYlNGtXxGkpImPrvbfSTMvklP8PhpABCGAx5XSzUnfI2aU/zI25g
-         1EkSnLIaE8s696R4ljbqa/ldmtHtWvMzgMtoD2QFr4tA0SIRE3Q4sqYAe1l5AksnyW
-         rU76mBdwjd/5cG+J/RJmYs1CWq24b6MLV4KlJoPw=
+        b=NpE8ZWCJa87KGLcgQsOuyUjwZd7sjep0j7CJ71lmAV7sAt+rPZRXG8GQVRqm9ASga
+         asEoN6ObeW+OgG9YiOtUieuZ2gJQ/GshbC3sSDkancuh6peiG/TeRP/MFoFH1H7ijh
+         7qNi7z4sxMEcJNbJchJhfSl1q+yYzJiZimLdx8qw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joseph Gravenor <joseph.gravenor@amd.com>,
-        Eric Yang <eric.yang2@amd.com>,
-        Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 044/161] drm/amd/display: remove invalid dc_is_hw_initialized function
-Date:   Tue, 16 Jun 2020 17:33:54 +0200
-Message-Id: <20200616153108.470101996@linuxfoundation.org>
+        stable@vger.kernel.org, Breno Lima <breno.lima@nxp.com>,
+        Fabio Estevam <festevam@gmail.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>
+Subject: [PATCH 5.7 062/163] watchdog: imx_sc_wdt: Fix reboot on crash
+Date:   Tue, 16 Jun 2020 17:33:56 +0200
+Message-Id: <20200616153109.814744666@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153106.402291280@linuxfoundation.org>
-References: <20200616153106.402291280@linuxfoundation.org>
+In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
+References: <20200616153106.849127260@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,55 +45,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joseph Gravenor <joseph.gravenor@amd.com>
+From: Fabio Estevam <festevam@gmail.com>
 
-[ Upstream commit e2d533eceb1feb0b8b965c3ff11184921532a28e ]
+commit e56d48e92b1017b6a8dbe64923a889283733fd96 upstream.
 
-[why/how]
-We found out that the register we read actually gets reset by SMU
-after we loose power, meaning this always returns true
+Currently when running the samples/watchdog/watchdog-simple.c
+application and forcing a kernel crash by doing:
 
-Signed-off-by: Joseph Gravenor <joseph.gravenor@amd.com>
-Reviewed-by: Eric Yang <eric.yang2@amd.com>
-Acked-by: Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+# ./watchdog-simple &
+# echo c > /proc/sysrq-trigger
+
+The system does not reboot as expected.
+
+Fix it by calling imx_sc_wdt_set_timeout() to configure the i.MX8QXP
+watchdog with a proper timeout.
+
+Cc: <stable@vger.kernel.org>
+Fixes: 986857acbc9a ("watchdog: imx_sc: Add i.MX system controller watchdog support")
+Reported-by: Breno Lima <breno.lima@nxp.com>
+Signed-off-by: Fabio Estevam <festevam@gmail.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Tested-by: Breno Lima <breno.lima@nxp.com>
+Link: https://lore.kernel.org/r/20200412230122.5601-1-festevam@gmail.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/gpu/drm/amd/display/dc/core/dc.c | 6 ------
- drivers/gpu/drm/amd/display/dc/dc.h      | 1 -
- 2 files changed, 7 deletions(-)
+ drivers/watchdog/imx_sc_wdt.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/core/dc.c b/drivers/gpu/drm/amd/display/dc/core/dc.c
-index 32a07665863f..48e4eb5a37dd 100644
---- a/drivers/gpu/drm/amd/display/dc/core/dc.c
-+++ b/drivers/gpu/drm/amd/display/dc/core/dc.c
-@@ -1362,12 +1362,6 @@ bool dc_commit_state(struct dc *dc, struct dc_state *context)
- 	return (result == DC_OK);
- }
+--- a/drivers/watchdog/imx_sc_wdt.c
++++ b/drivers/watchdog/imx_sc_wdt.c
+@@ -175,6 +175,11 @@ static int imx_sc_wdt_probe(struct platf
+ 	wdog->timeout = DEFAULT_TIMEOUT;
  
--bool dc_is_hw_initialized(struct dc *dc)
--{
--	struct dc_bios *dcb = dc->ctx->dc_bios;
--	return dcb->funcs->is_accelerated_mode(dcb);
--}
--
- bool dc_post_update_surfaces_to_stream(struct dc *dc)
- {
- 	int i;
-diff --git a/drivers/gpu/drm/amd/display/dc/dc.h b/drivers/gpu/drm/amd/display/dc/dc.h
-index 8ff25b5dd2f6..e8d126890d7e 100644
---- a/drivers/gpu/drm/amd/display/dc/dc.h
-+++ b/drivers/gpu/drm/amd/display/dc/dc.h
-@@ -1075,7 +1075,6 @@ unsigned int dc_get_current_backlight_pwm(struct dc *dc);
- unsigned int dc_get_target_backlight_pwm(struct dc *dc);
+ 	watchdog_init_timeout(wdog, 0, dev);
++
++	ret = imx_sc_wdt_set_timeout(wdog, wdog->timeout);
++	if (ret)
++		return ret;
++
+ 	watchdog_stop_on_reboot(wdog);
+ 	watchdog_stop_on_unregister(wdog);
  
- bool dc_is_dmcu_initialized(struct dc *dc);
--bool dc_is_hw_initialized(struct dc *dc);
- 
- enum dc_status dc_set_clock(struct dc *dc, enum dc_clock_type clock_type, uint32_t clk_khz, uint32_t stepping);
- void dc_get_clock(struct dc *dc, enum dc_clock_type clock_type, struct dc_clock_config *clock_cfg);
--- 
-2.25.1
-
 
 
