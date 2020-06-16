@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 343621FB69C
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:39:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C96F1FB756
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:47:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730796AbgFPPiz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:38:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51744 "EHLO mail.kernel.org"
+        id S1730829AbgFPPpM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:45:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36284 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729966AbgFPPix (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:38:53 -0400
+        id S1732014AbgFPPpL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:45:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5AFEC20B1F;
-        Tue, 16 Jun 2020 15:38:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C011E214F1;
+        Tue, 16 Jun 2020 15:45:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592321932;
-        bh=ROD4OS853yfOamcyXBqlH9ryzTfV4idnYgurUQsATrE=;
+        s=default; t=1592322311;
+        bh=xxVKiJYiKQHPVlsvJqfb6i1u1RbCOP2tXDKq74uJItw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VKpRu1SmHHvcWAL9iS/gYG5dexsoLQENAg0+b3AyCAbfNPadDoRGjGBB4ehuqBLmg
-         DRdjfUJw1OLOxPoGSuuTRDlGCMQ51of3DajiPZ9dPY+IIf81FcmXVrxHx2Dtendlxb
-         eJCM+MC2Il6+XLIRawUXwLTOOc32FxhtlwNEJtD4=
+        b=r9WzVN5TIumNQgMb7UB8bMc6Nbu+IMuP2HFRxCGbGuezMza8c2ynKm1Y51oNgZJ3u
+         tchM+q/hIa/IPmgAGEeQmQFfiDWVw9cxwokkTdGOGNjqNaMYXe1k8aZ3FPFBZgmSg0
+         Pc6wJmKG23ybApRkh29ZqcdjlNK0Cknbyy9dhe20=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,12 +30,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Tsuchiya Yuto <kitakar@gmail.com>,
         Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.4 071/134] spi: pxa2xx: Fix controller unregister order
-Date:   Tue, 16 Jun 2020 17:34:15 +0200
-Message-Id: <20200616153104.177737040@linuxfoundation.org>
+Subject: [PATCH 5.7 082/163] spi: pxa2xx: Fix controller unregister order
+Date:   Tue, 16 Jun 2020 17:34:16 +0200
+Message-Id: <20200616153110.775633502@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153100.633279950@linuxfoundation.org>
-References: <20200616153100.633279950@linuxfoundation.org>
+In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
+References: <20200616153106.849127260@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -94,7 +94,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/spi/spi-pxa2xx.c
 +++ b/drivers/spi/spi-pxa2xx.c
-@@ -1880,7 +1880,7 @@ static int pxa2xx_spi_probe(struct platf
+@@ -1884,7 +1884,7 @@ static int pxa2xx_spi_probe(struct platf
  
  	/* Register with the SPI framework */
  	platform_set_drvdata(pdev, drv_data);
