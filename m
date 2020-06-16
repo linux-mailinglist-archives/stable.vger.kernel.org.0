@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D275B1FB7AC
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:50:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 75CF81FB6EF
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:43:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731770AbgFPPsV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:48:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42500 "EHLO mail.kernel.org"
+        id S1730670AbgFPPl5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:41:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58086 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732402AbgFPPsT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:48:19 -0400
+        id S1729835AbgFPPl4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:41:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 122C321475;
-        Tue, 16 Jun 2020 15:48:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7104220C56;
+        Tue, 16 Jun 2020 15:41:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322498;
-        bh=31K/xXAjmx9ivj+GVlLUEC+9mIQeg4WPdAZ970qHfUE=;
+        s=default; t=1592322116;
+        bh=Ktbx907Vc7Cf/keYgCLNc5qvxloSh/qfQ0N/wziWuKA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BUwaG9AGeRVmtBZg112eP7ekZpt05tEr/Kc7tgHrPKzqFbyqnQ1i+983zoMzzSbUx
-         bk+tow5QfDvZxUW4Rh/6ID17lQNYI0feiXAmTEOWDpwtk24fqiztgXKb4Xrm6ExX2H
-         1p9/8AyOFu9mCmhXkxd6Ok27iYSLiBNz88QguD2U=
+        b=N1UfFABPgeBqj86WWadXhN/9A96uwPP4U0FchLH5RYvM9znLyyVwqvtLPBO3cTfir
+         mJx1+1U+adNGW3pxcIAm2O5236aLI9tGN35yXyRLeN7eTDBWD//uRiCXzjUK+vThWr
+         7UmULAFYn/FMQ9uMgnjIbr6Iy0vmQ/zwhUpVETqA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tomi Valkeinen <tomi.valkeinen@ti.com>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 5.7 126/163] media: videobuf2-dma-contig: fix bad kfree in vb2_dma_contig_clear_max_seg_size
+        stable@vger.kernel.org, Qiujun Huang <hqjagain@gmail.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        syzbot+d403396d4df67ad0bd5f@syzkaller.appspotmail.com
+Subject: [PATCH 5.4 116/134] ath9x: Fix stack-out-of-bounds Write in ath9k_hif_usb_rx_cb
 Date:   Tue, 16 Jun 2020 17:35:00 +0200
-Message-Id: <20200616153112.850479071@linuxfoundation.org>
+Message-Id: <20200616153106.337623361@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
-References: <20200616153106.849127260@linuxfoundation.org>
+In-Reply-To: <20200616153100.633279950@linuxfoundation.org>
+References: <20200616153100.633279950@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,89 +44,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tomi Valkeinen <tomi.valkeinen@ti.com>
+From: Qiujun Huang <hqjagain@gmail.com>
 
-commit 0d9668721311607353d4861e6c32afeb272813dc upstream.
+commit 19d6c375d671ce9949a864fb9a03e19f5487b4d3 upstream.
 
-Commit 9495b7e92f716ab2bd6814fab5e97ab4a39adfdd ("driver core: platform:
-Initialize dma_parms for platform devices") in v5.7-rc5 causes
-vb2_dma_contig_clear_max_seg_size() to kfree memory that was not
-allocated by vb2_dma_contig_set_max_seg_size().
+Add barrier to accessing the stack array skb_pool.
 
-The assumption in vb2_dma_contig_set_max_seg_size() seems to be that
-dev->dma_parms is always NULL when the driver is probed, and the case
-where dev->dma_parms has bee initialized by someone else than the driver
-(by calling vb2_dma_contig_set_max_seg_size) will cause a failure.
+The case reported by syzbot:
+https://lore.kernel.org/linux-usb/0000000000003d7c1505a2168418@google.com
+BUG: KASAN: stack-out-of-bounds in ath9k_hif_usb_rx_stream
+drivers/net/wireless/ath/ath9k/hif_usb.c:626 [inline]
+BUG: KASAN: stack-out-of-bounds in ath9k_hif_usb_rx_cb+0xdf6/0xf70
+drivers/net/wireless/ath/ath9k/hif_usb.c:666
+Write of size 8 at addr ffff8881db309a28 by task swapper/1/0
 
-All the current users of these functions are platform devices, which now
-always have dma_parms set by the driver core. To fix the issue for v5.7,
-make vb2_dma_contig_set_max_seg_size() return an error if dma_parms is
-NULL to be on the safe side, and remove the kfree code from
-vb2_dma_contig_clear_max_seg_size().
+Call Trace:
+ath9k_hif_usb_rx_stream drivers/net/wireless/ath/ath9k/hif_usb.c:626
+[inline]
+ath9k_hif_usb_rx_cb+0xdf6/0xf70
+drivers/net/wireless/ath/ath9k/hif_usb.c:666
+__usb_hcd_giveback_urb+0x1f2/0x470 drivers/usb/core/hcd.c:1648
+usb_hcd_giveback_urb+0x368/0x420 drivers/usb/core/hcd.c:1713
+dummy_timer+0x1258/0x32ae drivers/usb/gadget/udc/dummy_hcd.c:1966
+call_timer_fn+0x195/0x6f0 kernel/time/timer.c:1404
+expire_timers kernel/time/timer.c:1449 [inline]
+__run_timers kernel/time/timer.c:1773 [inline]
+__run_timers kernel/time/timer.c:1740 [inline]
+run_timer_softirq+0x5f9/0x1500 kernel/time/timer.c:1786
 
-For v5.8 we should remove the two functions and move the
-dma_set_max_seg_size() calls into the drivers.
-
-Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
-Fixes: 9495b7e92f71 ("driver core: platform: Initialize dma_parms for platform devices")
-Cc: stable@vger.kernel.org
-Acked-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Reviewed-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Reported-and-tested-by: syzbot+d403396d4df67ad0bd5f@syzkaller.appspotmail.com
+Signed-off-by: Qiujun Huang <hqjagain@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20200404041838.10426-5-hqjagain@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/common/videobuf2/videobuf2-dma-contig.c |   20 +-----------------
- include/media/videobuf2-dma-contig.h                  |    2 -
- 2 files changed, 3 insertions(+), 19 deletions(-)
+ drivers/net/wireless/ath/ath9k/hif_usb.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/drivers/media/common/videobuf2/videobuf2-dma-contig.c
-+++ b/drivers/media/common/videobuf2/videobuf2-dma-contig.c
-@@ -726,9 +726,8 @@ EXPORT_SYMBOL_GPL(vb2_dma_contig_memops)
- int vb2_dma_contig_set_max_seg_size(struct device *dev, unsigned int size)
- {
- 	if (!dev->dma_parms) {
--		dev->dma_parms = kzalloc(sizeof(*dev->dma_parms), GFP_KERNEL);
--		if (!dev->dma_parms)
--			return -ENOMEM;
-+		dev_err(dev, "Failed to set max_seg_size: dma_parms is NULL\n");
-+		return -ENODEV;
- 	}
- 	if (dma_get_max_seg_size(dev) < size)
- 		return dma_set_max_seg_size(dev, size);
-@@ -737,21 +736,6 @@ int vb2_dma_contig_set_max_seg_size(stru
- }
- EXPORT_SYMBOL_GPL(vb2_dma_contig_set_max_seg_size);
- 
--/*
-- * vb2_dma_contig_clear_max_seg_size() - release resources for DMA parameters
-- * @dev:	device for configuring DMA parameters
-- *
-- * This function releases resources allocated to configure DMA parameters
-- * (see vb2_dma_contig_set_max_seg_size() function). It should be called from
-- * device drivers on driver remove.
-- */
--void vb2_dma_contig_clear_max_seg_size(struct device *dev)
--{
--	kfree(dev->dma_parms);
--	dev->dma_parms = NULL;
--}
--EXPORT_SYMBOL_GPL(vb2_dma_contig_clear_max_seg_size);
--
- MODULE_DESCRIPTION("DMA-contig memory handling routines for videobuf2");
- MODULE_AUTHOR("Pawel Osciak <pawel@osciak.com>");
- MODULE_LICENSE("GPL");
---- a/include/media/videobuf2-dma-contig.h
-+++ b/include/media/videobuf2-dma-contig.h
-@@ -25,7 +25,7 @@ vb2_dma_contig_plane_dma_addr(struct vb2
- }
- 
- int vb2_dma_contig_set_max_seg_size(struct device *dev, unsigned int size);
--void vb2_dma_contig_clear_max_seg_size(struct device *dev);
-+static inline void vb2_dma_contig_clear_max_seg_size(struct device *dev) { }
- 
- extern const struct vb2_mem_ops vb2_dma_contig_memops;
- 
+--- a/drivers/net/wireless/ath/ath9k/hif_usb.c
++++ b/drivers/net/wireless/ath/ath9k/hif_usb.c
+@@ -612,6 +612,11 @@ static void ath9k_hif_usb_rx_stream(stru
+ 			hif_dev->remain_skb = nskb;
+ 			spin_unlock(&hif_dev->rx_lock);
+ 		} else {
++			if (pool_index == MAX_PKT_NUM_IN_TRANSFER) {
++				dev_err(&hif_dev->udev->dev,
++					"ath9k_htc: over RX MAX_PKT_NUM\n");
++				goto err;
++			}
+ 			nskb = __dev_alloc_skb(pkt_len + 32, GFP_ATOMIC);
+ 			if (!nskb) {
+ 				dev_err(&hif_dev->udev->dev,
 
 
