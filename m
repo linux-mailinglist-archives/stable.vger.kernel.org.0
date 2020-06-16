@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C82FC1FB8DC
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:00:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9BD011FB6DC
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:43:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731166AbgFPPxy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:53:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52486 "EHLO mail.kernel.org"
+        id S1731386AbgFPPlP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:41:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56658 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730974AbgFPPxv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:53:51 -0400
+        id S1730243AbgFPPlP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:41:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 98A66215A4;
-        Tue, 16 Jun 2020 15:53:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D887C208E4;
+        Tue, 16 Jun 2020 15:41:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322831;
-        bh=5aUVklj1rjK6pfvWwDVaAl5NVklxPRmwROZlVOmdiBc=;
+        s=default; t=1592322074;
+        bh=5um46MZsFbpHaxkZUw61HJPn4afteMOpE3jDZSIxDbk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VAQY8U1TC4+9bSmfT2I28jrgOdWlbsJTg24o3mVX/kqquE0FXGNG1kaaq9p5EjhDg
-         4VL/YxASxjIDvr40hpa80m0uUHgsWlLAJ8MocwJRz6ek9gDtHiFxXB23lPQT3fy6To
-         rY3my8t39f/O2M3oPZL9PYxRNnf/+sUmu5vNmUlU=
+        b=bc0zQqCXadtMqxy2wfdOQTLsQToUbTZaV4PIV/5h5pB1uSjwzPxG3FR+Lhpb3C9/u
+         ZUFzt2nmVawcyFjyqyJda7HE9ohlFxsDhfAjCA/JjqJJ4n66xh9Vgb0oeAUuIbH/gf
+         22ZE18dHHGN16OZYrMtBWxxDWf33tc/Uic5jqvhs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
-        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.6 120/161] cpufreq: Fix up cpufreq_boost_set_sw()
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.4 126/134] mmc: tmio: Further fixup runtime PM management at remove
 Date:   Tue, 16 Jun 2020 17:35:10 +0200
-Message-Id: <20200616153112.073591362@linuxfoundation.org>
+Message-Id: <20200616153106.821340873@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153106.402291280@linuxfoundation.org>
-References: <20200616153106.402291280@linuxfoundation.org>
+In-Reply-To: <20200616153100.633279950@linuxfoundation.org>
+References: <20200616153100.633279950@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,66 +45,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Ulf Hansson <ulf.hansson@linaro.org>
 
-commit 552abb884e97d26589964e5a8c7e736f852f95f0 upstream.
+commit 4bd784411aca022622e484eb262f5a0540ae732c upstream.
 
-After commit 18c49926c4bf ("cpufreq: Add QoS requests for userspace
-constraints") the return value of freq_qos_update_request(), that can
-be 1, passed by cpufreq_boost_set_sw() to its caller sometimes
-confuses the latter, which only expects to see 0 or negative error
-codes, so notice that cpufreq_boost_set_sw() can return an error code
-(which should not be -EINVAL for that matter) as soon as the first
-policy without a frequency table is found (because either all policies
-have a frequency table or none of them have it) and rework it to meet
-its caller's expectations.
+Before calling tmio_mmc_host_probe(), the caller is required to enable
+clocks for its device, as to make it accessible when reading/writing
+registers during probe.
 
-Fixes: 18c49926c4bf ("cpufreq: Add QoS requests for userspace constraints")
-Reported-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
-Reported-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
-Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
-Cc: 5.3+ <stable@vger.kernel.org> # 5.3+
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Therefore, the responsibility to disable these clocks, in the error path of
+->probe() and during ->remove(), is better managed outside
+tmio_mmc_host_remove(). As a matter of fact, callers of
+tmio_mmc_host_remove() already expects this to be the behaviour.
+
+However, there's a problem with tmio_mmc_host_remove() when the Kconfig
+option, CONFIG_PM, is set. More precisely, tmio_mmc_host_remove() may then
+disable the clock via runtime PM, which leads to clock enable/disable
+imbalance problems, when the caller of tmio_mmc_host_remove() also tries to
+disable the same clocks.
+
+To solve the problem, let's make sure tmio_mmc_host_remove() leaves the
+device with clocks enabled, but also make sure to disable the IRQs, as we
+normally do at ->runtime_suspend().
+
+Reported-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Tested-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20200519152434.6867-1-ulf.hansson@linaro.org
+Tested-by: Geert Uytterhoeven <geert+renesas@glider.be>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/cpufreq/cpufreq.c |   11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ drivers/mmc/host/tmio_mmc_core.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/cpufreq/cpufreq.c
-+++ b/drivers/cpufreq/cpufreq.c
-@@ -2515,26 +2515,27 @@ EXPORT_SYMBOL_GPL(cpufreq_update_limits)
- static int cpufreq_boost_set_sw(int state)
- {
- 	struct cpufreq_policy *policy;
--	int ret = -EINVAL;
+--- a/drivers/mmc/host/tmio_mmc_core.c
++++ b/drivers/mmc/host/tmio_mmc_core.c
+@@ -1285,12 +1285,14 @@ void tmio_mmc_host_remove(struct tmio_mm
+ 	cancel_work_sync(&host->done);
+ 	cancel_delayed_work_sync(&host->delayed_reset_work);
+ 	tmio_mmc_release_dma(host);
++	tmio_mmc_disable_mmc_irqs(host, TMIO_MASK_ALL);
  
- 	for_each_active_policy(policy) {
-+		int ret;
+-	pm_runtime_dont_use_autosuspend(&pdev->dev);
+ 	if (host->native_hotplug)
+ 		pm_runtime_put_noidle(&pdev->dev);
+-	pm_runtime_put_sync(&pdev->dev);
 +
- 		if (!policy->freq_table)
--			continue;
-+			return -ENXIO;
- 
- 		ret = cpufreq_frequency_table_cpuinfo(policy,
- 						      policy->freq_table);
- 		if (ret) {
- 			pr_err("%s: Policy frequency update failed\n",
- 			       __func__);
--			break;
-+			return ret;
- 		}
- 
- 		ret = freq_qos_update_request(policy->max_freq_req, policy->max);
- 		if (ret < 0)
--			break;
-+			return ret;
- 	}
- 
--	return ret;
-+	return 0;
+ 	pm_runtime_disable(&pdev->dev);
++	pm_runtime_dont_use_autosuspend(&pdev->dev);
++	pm_runtime_put_noidle(&pdev->dev);
  }
+ EXPORT_SYMBOL_GPL(tmio_mmc_host_remove);
  
- int cpufreq_boost_trigger_state(int state)
 
 
