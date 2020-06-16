@@ -2,120 +2,152 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CC4291FBE5A
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 20:43:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2223E1FBEAF
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 21:04:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726464AbgFPSni (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 14:43:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45612 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725911AbgFPSni (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Jun 2020 14:43:38 -0400
-Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3AAF1C061573
-        for <stable@vger.kernel.org>; Tue, 16 Jun 2020 11:43:38 -0700 (PDT)
-Received: by mail-pj1-x102a.google.com with SMTP id a45so1413817pje.1
-        for <stable@vger.kernel.org>; Tue, 16 Jun 2020 11:43:38 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=ZfkKHE0SxWre83DEvMptOMYyqSmKPeJBCFrthYxGKsY=;
-        b=JDVTwa9qk/V7MVizNIRKpTym0HYk6ZjZTQNKvRuySqZ6xBVCB0d2S/FC0RDbzg98kQ
-         AqQ4Qsr0qh7ccr4IJzvVCvUyoobfCX2lnDSvdUgmm1C/S/n53Wmek8J0kiTHJk9MqQCV
-         tFcHZkR03T6WEL23sl1A3s95aqgp9hGdUbOP8/uitzQ5qpokHneWJ9IQZjE38ix3S084
-         bvkW7IfD0MFWXxwfXw0gl1wRHsJqmwLyWgt0fykRedZz4IBAZt/7W3n0PPRvcrrwG67p
-         o7qG5Vu80tkbu5nf9fGNjd/4w2u0xT3g/oywDJLPr4xAEnHuzJPjDXcQVLek3aidf2sY
-         LWmg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=ZfkKHE0SxWre83DEvMptOMYyqSmKPeJBCFrthYxGKsY=;
-        b=aHG4zazuO88Dmy1MeuL15WEUU1afOHh80o3D86OjAHkctYFau4DtO+El10L8hMguHv
-         7Yru+QfRdjRRMDbwGcW7wFHv+bLxmbDy90BYVxuUnK7Oub/rRb4M5T4AKZu4WsUD1A5G
-         kr9W3uv2GNaVwTR9rjShFIfmzi39cqrxJ9uFxJI+jhMfSfObEI5tap/86DU2+YZ7zQ91
-         O0BaubtdDAWH1EXw59kv+32GC6esyRufLtpOne9vbmBFdm1uOZcOISodHrRdF3dI8AIl
-         pYlT8+WGDv3Ua+CPFcX1drxwNEng8veNzvRFRapg20MQIL9vhpBVhlNWCIwOC4/8FSqM
-         XUew==
-X-Gm-Message-State: AOAM5332Q97kD/mBSoaEPiTJvpxwzb/Yl76peSvOBbux6lUNfymjk4FX
-        0MtTZo7UQbHdLgp5ZAAOmBsSksQ+TNg=
-X-Google-Smtp-Source: ABdhPJz4phvJG4JFXaHI0MTU/YfAoM8Hy5+xbjs6Oss7e5+BH2a6FvTkdgd4BgSxbOxUQNA8hxXMFQ==
-X-Received: by 2002:a17:90a:1da6:: with SMTP id v35mr4145314pjv.177.1592333016963;
-        Tue, 16 Jun 2020 11:43:36 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id b3sm17636619pft.127.2020.06.16.11.43.35
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 16 Jun 2020 11:43:36 -0700 (PDT)
-Message-ID: <5ee912d8.1c69fb81.2b3e9.95a0@mx.google.com>
-Date:   Tue, 16 Jun 2020 11:43:36 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Branch: linux-4.4.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.4.226-83-gedd70df95815
-Subject: stable-rc/linux-4.4.y baseline: 35 runs,
- 1 regressions (v4.4.226-83-gedd70df95815)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+        id S1730529AbgFPTCg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 15:02:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55314 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730512AbgFPTCg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 15:02:36 -0400
+Received: from X1 (nat-ab2241.sltdut.senawave.net [162.218.216.4])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9784E20B1F;
+        Tue, 16 Jun 2020 19:02:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1592334155;
+        bh=C1HqxcDdssTZQOnJLHpArH5Jph5FN8jEmMKacfl9nL0=;
+        h=Date:From:To:Subject:From;
+        b=QVU5+2yjnGDfWiPAT5swmidjEzs4JDP3zBjmN7GeJDy9oNCS7yQlXUSpEo6JUIWa+
+         zkNhJ1WrEtSPmuvEF8ymlS6LVPG/nRZdETMzUZb+aOdYPaCTeqpTd++QVcIRkNnaNQ
+         VQTOxoVr/EHhPu5tiXA+QWRov52Frd80qgaN+vuA=
+Date:   Tue, 16 Jun 2020 12:02:35 -0700
+From:   akpm@linux-foundation.org
+To:     mm-commits@vger.kernel.org, willy@infradead.org, vbabka@suse.cz,
+        stable@vger.kernel.org, lists@colorremedies.com, hughd@google.com
+Subject:  + mm-fix-swap-cache-node-allocation-mask.patch added to -mm
+ tree
+Message-ID: <20200616190235.ovsZa%akpm@linux-foundation.org>
+User-Agent: s-nail v14.9.10
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.4.y baseline: 35 runs, 1 regressions (v4.4.226-83-gedd70d=
-f95815)
 
-Regressions Summary
--------------------
+The patch titled
+     Subject: mm: fix swap cache node allocation mask
+has been added to the -mm tree.  Its filename is
+     mm-fix-swap-cache-node-allocation-mask.patch
 
-platform    | arch   | lab          | compiler | defconfig        | results
-------------+--------+--------------+----------+------------------+--------
-qemu_x86_64 | x86_64 | lab-baylibre | gcc-8    | x86_64_defconfig | 0/1    =
+This patch should soon appear at
+    http://ozlabs.org/~akpm/mmots/broken-out/mm-fix-swap-cache-node-allocation-mask.patch
+and later at
+    http://ozlabs.org/~akpm/mmotm/broken-out/mm-fix-swap-cache-node-allocation-mask.patch
 
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.4.y/kern=
-el/v4.4.226-83-gedd70df95815/plan/baseline/
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-4.4.y
-  Describe: v4.4.226-83-gedd70df95815
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      edd70df9581599a24d32e781fb85e08e12c20164 =
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
 
+------------------------------------------------------
+From: Hugh Dickins <hughd@google.com>
+Subject: mm: fix swap cache node allocation mask
 
+https://bugzilla.kernel.org/show_bug.cgi?id=208085 reports that a slightly
+overcommitted load, testing swap and zram along with i915, splats and
+keeps on splatting, when it had better fail less noisily:
 
-Test Regressions
----------------- =
+gnome-shell: page allocation failure: order:0,
+mode:0x400d0(__GFP_IO|__GFP_FS|__GFP_COMP|__GFP_RECLAIMABLE),
+nodemask=(null),cpuset=/,mems_allowed=0
+CPU: 2 PID: 1155 Comm: gnome-shell Not tainted 5.7.0-1.fc33.x86_64 #1
+Call Trace:
+dump_stack+0x64/0x88
+warn_alloc.cold+0x75/0xd9
+__alloc_pages_slowpath.constprop.0+0xcfa/0xd30
+__alloc_pages_nodemask+0x2df/0x320
+alloc_slab_page+0x195/0x310
+allocate_slab+0x3c5/0x440
+___slab_alloc+0x40c/0x5f0
+__slab_alloc+0x1c/0x30
+kmem_cache_alloc+0x20e/0x220
+xas_nomem+0x28/0x70
+add_to_swap_cache+0x321/0x400
+__read_swap_cache_async+0x105/0x240
+swap_cluster_readahead+0x22c/0x2e0
+shmem_swapin+0x8e/0xc0
+shmem_swapin_page+0x196/0x740
+shmem_getpage_gfp+0x3a2/0xa60
+shmem_read_mapping_page_gfp+0x32/0x60
+shmem_get_pages+0x155/0x5e0 [i915]
+__i915_gem_object_get_pages+0x68/0xa0 [i915]
+i915_vma_pin+0x3fe/0x6c0 [i915]
+eb_add_vma+0x10b/0x2c0 [i915]
+i915_gem_do_execbuffer+0x704/0x3430 [i915]
+i915_gem_execbuffer2_ioctl+0x1ea/0x3e0 [i915]
+drm_ioctl_kernel+0x86/0xd0 [drm]
+drm_ioctl+0x206/0x390 [drm]
+ksys_ioctl+0x82/0xc0
+__x64_sys_ioctl+0x16/0x20
+do_syscall_64+0x5b/0xf0
+entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
+Reported on 5.7, but it goes back really to 3.1: when
+shmem_read_mapping_page_gfp() was implemented for use by i915, and
+allowed for __GFP_NORETRY and __GFP_NOWARN flags in most places, but
+missed swapin's "& GFP_KERNEL" mask for page tree node allocation in
+__read_swap_cache_async() - that was to mask off HIGHUSER_MOVABLE bits
+from what page cache uses, but GFP_RECLAIM_MASK is now what's needed.
 
+Link: http://lkml.kernel.org/r/alpine.LSU.2.11.2006151330070.11064@eggly.anvils
+Fixes: 68da9f055755 ("tmpfs: pass gfp to shmem_getpage_gfp")
+Signed-off-by: Hugh Dickins <hughd@google.com>
+Reviewed-by: Vlastimil Babka <vbabka@suse.cz>
+Reviewed-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Reported-by: Chris Murphy <lists@colorremedies.com>
+Analyzed-by: Vlastimil Babka <vbabka@suse.cz>
+Analyzed-by: Matthew Wilcox <willy@infradead.org>
+Tested-by: Chris Murphy <lists@colorremedies.com>
+Cc: <stable@vger.kernel.org>	[3.1+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
 
-platform    | arch   | lab          | compiler | defconfig        | results
-------------+--------+--------------+----------+------------------+--------
-qemu_x86_64 | x86_64 | lab-baylibre | gcc-8    | x86_64_defconfig | 0/1    =
+ mm/swap_state.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
+--- a/mm/swap_state.c~mm-fix-swap-cache-node-allocation-mask
++++ a/mm/swap_state.c
+@@ -21,7 +21,7 @@
+ #include <linux/vmalloc.h>
+ #include <linux/swap_slots.h>
+ #include <linux/huge_mm.h>
+-
++#include "internal.h"
+ 
+ /*
+  * swapper_space is a fiction, retained to simplify the path through
+@@ -429,7 +429,7 @@ struct page *__read_swap_cache_async(swp
+ 	__SetPageSwapBacked(page);
+ 
+ 	/* May fail (-ENOMEM) if XArray node allocation failed. */
+-	if (add_to_swap_cache(page, entry, gfp_mask & GFP_KERNEL)) {
++	if (add_to_swap_cache(page, entry, gfp_mask & GFP_RECLAIM_MASK)) {
+ 		put_swap_page(page, entry);
+ 		goto fail_unlock;
+ 	}
+_
 
-  Details:     https://kernelci.org/test/plan/id/5ee8deca6493dd6c7997bf15
+Patches currently in -mm which might be from hughd@google.com are
 
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig
-  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.226=
--83-gedd70df95815/x86_64/x86_64_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
-x86_64.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.226=
--83-gedd70df95815/x86_64/x86_64_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
-x86_64.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2019=
-.02-11-g17e793fa4728/x86/baseline/rootfs.cpio.gz =
+mm-fix-swap-cache-node-allocation-mask.patch
+mm-vmstat-add-events-for-pmd-based-thp-migration-without-split-fix.patch
 
-
-  * baseline.login: https://kernelci.org/test/case/id/5ee8deca6493dd6c7997b=
-f16
-      failing since 6 days (last pass: v4.4.226-24-gd275a29aa983, first fai=
-l: v4.4.226-37-g61ef7e7aaf1d) =20
