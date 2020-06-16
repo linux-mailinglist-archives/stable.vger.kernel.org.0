@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BDC0C1FB6C0
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:43:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7AF141FB773
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:47:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730250AbgFPPkE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:40:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54014 "EHLO mail.kernel.org"
+        id S1732190AbgFPPqV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:46:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38290 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731069AbgFPPj6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:39:58 -0400
+        id S1732163AbgFPPqS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:46:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C53E821475;
-        Tue, 16 Jun 2020 15:39:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0F5C72071A;
+        Tue, 16 Jun 2020 15:46:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592321998;
-        bh=rslNjUeVlj97qpEPQRjAVmForQmuPgw5erM9aaqm87g=;
+        s=default; t=1592322378;
+        bh=H2+Cp8gjTj/jO87CDcmTBryoXX5RnUkQjR6CJ67DnkU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mHCQOzofcOskyBdKz1V9ZtPwOVJdSCbsS2wyXDO8Hgm5G2AHHzyVXi9JdGGbluDFJ
-         ycit4+VHvKPvYTfLfGUnaCJH0XFg3GVrVpms3TWApFcv176KPnxyP4bNHcIf9jsZOh
-         iycz8KkkwxWBmBk1LAUFFABpkxFp1qN2IP/VswFk=
+        b=KbcvxLudGEwSL7EMwNp8XU+14xNv9rnE62PhIJEIIx0CKcBw8s66S1qyOR6uJ7Rdw
+         yEQjOMbPD3MVgL9A8RIl26NX03gVBjcKLP7XW8p/39O9fs0iPT/4wpHgOM7BCgxDW+
+         kOau2yI2aW1RI72WWzuzh9tFqhsflepS9uL+NRc4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Arnaud Pouliquen <arnaud.pouliquen@st.com>,
-        Tero Kristo <t-kristo@ti.com>, Suman Anna <s-anna@ti.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>
-Subject: [PATCH 5.4 096/134] remoteproc: Fall back to using parent memory pool if no dedicated available
-Date:   Tue, 16 Jun 2020 17:34:40 +0200
-Message-Id: <20200616153105.380956788@linuxfoundation.org>
+        stable@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
+        Matthieu Baerts <matthieu.baerts@tessares.net>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.7 108/163] mptcp: dont leak msk in token container
+Date:   Tue, 16 Jun 2020 17:34:42 +0200
+Message-Id: <20200616153111.982041311@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153100.633279950@linuxfoundation.org>
-References: <20200616153100.633279950@linuxfoundation.org>
+In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
+References: <20200616153106.849127260@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,52 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tero Kristo <t-kristo@ti.com>
+From: Paolo Abeni <pabeni@redhat.com>
 
-commit db9178a4f8c4e523f824892cb8bab00961b07385 upstream.
+[ Upstream commit 4b5af44129d0653a4df44e5511c7d480c61c8f3c ]
 
-In some cases, like with OMAP remoteproc, we are not creating dedicated
-memory pool for the virtio device. Instead, we use the same memory pool
-for all shared memories. The current virtio memory pool handling forces
-a split between these two, as a separate device is created for it,
-causing memory to be allocated from bad location if the dedicated pool
-is not available. Fix this by falling back to using the parent device
-memory pool if dedicated is not available.
+If a listening MPTCP socket has unaccepted sockets at close
+time, the related msks are freed via mptcp_sock_destruct(),
+which in turn does not invoke the proto->destroy() method
+nor the mptcp_token_destroy() function.
 
-Cc: stable@vger.kernel.org
-Reviewed-by: Mathieu Poirier <mathieu.poirier@linaro.org>
-Acked-by: Arnaud Pouliquen <arnaud.pouliquen@st.com>
-Fixes: 086d08725d34 ("remoteproc: create vdev subdevice with specific dma memory pool")
-Signed-off-by: Tero Kristo <t-kristo@ti.com>
-Signed-off-by: Suman Anna <s-anna@ti.com>
-Link: https://lore.kernel.org/r/20200420160600.10467-2-s-anna@ti.com
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Due to the above, the child msk socket is not removed from
+the token container, leading to later UaF.
+
+Address the issue explicitly removing the token even in the
+above error path.
+
+Fixes: 79c0949e9a09 ("mptcp: Add key generation and token tree")
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Reviewed-by: Matthieu Baerts <matthieu.baerts@tessares.net>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/remoteproc/remoteproc_virtio.c |   12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ net/mptcp/subflow.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/remoteproc/remoteproc_virtio.c
-+++ b/drivers/remoteproc/remoteproc_virtio.c
-@@ -375,6 +375,18 @@ int rproc_add_virtio_dev(struct rproc_vd
- 				goto out;
- 			}
- 		}
-+	} else {
-+		struct device_node *np = rproc->dev.parent->of_node;
-+
-+		/*
-+		 * If we don't have dedicated buffer, just attempt to re-assign
-+		 * the reserved memory from our parent. A default memory-region
-+		 * at index 0 from the parent's memory-regions is assigned for
-+		 * the rvdev dev to allocate from. Failure is non-critical and
-+		 * the allocations will fall back to global pools, so don't
-+		 * check return value either.
-+		 */
-+		of_reserved_mem_device_init_by_idx(dev, np, 0);
+--- a/net/mptcp/subflow.c
++++ b/net/mptcp/subflow.c
+@@ -393,6 +393,7 @@ static void mptcp_sock_destruct(struct s
+ 		sock_orphan(sk);
  	}
  
- 	/* Allocate virtio device */
++	mptcp_token_destroy(mptcp_sk(sk)->token);
+ 	inet_sock_destruct(sk);
+ }
+ 
 
 
