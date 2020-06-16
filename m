@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 092641FB9CA
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:07:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 11FB51FBAF1
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:16:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731540AbgFPQGj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 12:06:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41284 "EHLO mail.kernel.org"
+        id S1729853AbgFPPlc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:41:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57260 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732035AbgFPPro (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:47:44 -0400
+        id S1731455AbgFPPla (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:41:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4299420E65;
-        Tue, 16 Jun 2020 15:47:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 880BF207C4;
+        Tue, 16 Jun 2020 15:41:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322463;
-        bh=dRzrmPTneQJ2RejTL0DG0atWQiNUcoX1ztdDbR2Xwcg=;
+        s=default; t=1592322090;
+        bh=HYWquZViGbGdIcbesak3htJvfn2PAB/KpqgGhH9wMTg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ux3UA9nPnmU1Upqx9Syd66QO4FMGAYoiFPp4G9qBZEg762LM/ag86GbSOaWc95prh
-         ppZFEavr7skrydJy3v1Hr5ZArihS09HZS4U/xgTL8UmdHp5voelks856WaSJ1dd+fl
-         SijtFGxBG71xHdsKI1/5VDU19CKjfux3UaLd9CM0=
+        b=OBwjvy4kp6nlS02TSlLoWSEI9bLSibWoPWczE9AF/AyvAWWZzMVZDnj2e9D0OX/9R
+         2MwgGf8fysEVe1jM89Qqu+3ShbR0swawjV0Dm0vxucQH4VNYGlRJB7WlvxhqoFuIz2
+         xqNoekOj/qdrtYHW+YtHLXfrNsuTGEvRo/OEOQfE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qiujun Huang <hqjagain@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        syzbot+b1c61e5f11be5782f192@syzkaller.appspotmail.com
-Subject: [PATCH 5.7 141/163] ath9k: Fix use-after-free Write in ath9k_htc_rx_msg
+        stable@vger.kernel.org, Libor Pechacek <lpechacek@suse.cz>,
+        Jiri Kosina <jkosina@suse.cz>, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.4 131/134] block/floppy: fix contended case in floppy_queue_rq()
 Date:   Tue, 16 Jun 2020 17:35:15 +0200
-Message-Id: <20200616153113.563383851@linuxfoundation.org>
+Message-Id: <20200616153107.061913864@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
-References: <20200616153106.849127260@linuxfoundation.org>
+In-Reply-To: <20200616153100.633279950@linuxfoundation.org>
+References: <20200616153100.633279950@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,57 +43,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiujun Huang <hqjagain@gmail.com>
+From: Jiri Kosina <jkosina@suse.cz>
 
-commit e4ff08a4d727146bb6717a39a8d399d834654345 upstream.
+commit 263c61581a38d0a5ad1f5f4a9143b27d68caeffd upstream.
 
-Write out of slab bounds. We should check epid.
+Since the switch of floppy driver to blk-mq, the contended (fdc_busy) case
+in floppy_queue_rq() is not handled correctly.
 
-The case reported by syzbot:
-https://lore.kernel.org/linux-usb/0000000000006ac55b05a1c05d72@google.com
-BUG: KASAN: use-after-free in htc_process_conn_rsp
-drivers/net/wireless/ath/ath9k/htc_hst.c:131 [inline]
-BUG: KASAN: use-after-free in ath9k_htc_rx_msg+0xa25/0xaf0
-drivers/net/wireless/ath/ath9k/htc_hst.c:443
-Write of size 2 at addr ffff8881cea291f0 by task swapper/1/0
+In case we reach floppy_queue_rq() with fdc_busy set (i.e. with the floppy
+locked due to another request still being in-flight), we put the request
+on the list of requests and return BLK_STS_OK to the block core, without
+actually scheduling delayed work / doing further processing of the
+request. This means that processing of this request is postponed until
+another request comes and passess uncontended.
 
-Call Trace:
- htc_process_conn_rsp drivers/net/wireless/ath/ath9k/htc_hst.c:131
-[inline]
-ath9k_htc_rx_msg+0xa25/0xaf0
-drivers/net/wireless/ath/ath9k/htc_hst.c:443
-ath9k_hif_usb_reg_in_cb+0x1ba/0x630
-drivers/net/wireless/ath/ath9k/hif_usb.c:718
-__usb_hcd_giveback_urb+0x29a/0x550 drivers/usb/core/hcd.c:1650
-usb_hcd_giveback_urb+0x368/0x420 drivers/usb/core/hcd.c:1716
-dummy_timer+0x1258/0x32ae drivers/usb/gadget/udc/dummy_hcd.c:1966
-call_timer_fn+0x195/0x6f0 kernel/time/timer.c:1404
-expire_timers kernel/time/timer.c:1449 [inline]
-__run_timers kernel/time/timer.c:1773 [inline]
-__run_timers kernel/time/timer.c:1740 [inline]
-run_timer_softirq+0x5f9/0x1500 kernel/time/timer.c:1786
+Which in some cases might actually never happen and we keep waiting
+indefinitely. The simple testcase is
 
-Reported-and-tested-by: syzbot+b1c61e5f11be5782f192@syzkaller.appspotmail.com
-Signed-off-by: Qiujun Huang <hqjagain@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20200404041838.10426-4-hqjagain@gmail.com
+	for i in `seq 1 2000`; do echo -en $i '\r'; blkid --info /dev/fd0 2> /dev/null; done
+
+run in quemu. That reliably causes blkid eventually indefinitely hanging
+in __floppy_read_block_0() waiting for completion, as the BIO callback
+never happens, and no further IO is ever submitted on the (non-existent)
+floppy device. This was observed reliably on qemu-emulated device.
+
+Fix that by not queuing the request in the contended case, and return
+BLK_STS_RESOURCE instead, so that blk core handles the request
+rescheduling and let it pass properly non-contended later.
+
+Fixes: a9f38e1dec107a ("floppy: convert to blk-mq")
+Cc: stable@vger.kernel.org
+Tested-by: Libor Pechacek <lpechacek@suse.cz>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/wireless/ath/ath9k/htc_hst.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/block/floppy.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
---- a/drivers/net/wireless/ath/ath9k/htc_hst.c
-+++ b/drivers/net/wireless/ath/ath9k/htc_hst.c
-@@ -113,6 +113,9 @@ static void htc_process_conn_rsp(struct
+--- a/drivers/block/floppy.c
++++ b/drivers/block/floppy.c
+@@ -2902,17 +2902,17 @@ static blk_status_t floppy_queue_rq(stru
+ 		 (unsigned long long) current_req->cmd_flags))
+ 		return BLK_STS_IOERR;
  
- 	if (svc_rspmsg->status == HTC_SERVICE_SUCCESS) {
- 		epid = svc_rspmsg->endpoint_id;
-+		if (epid < 0 || epid >= ENDPOINT_MAX)
-+			return;
+-	spin_lock_irq(&floppy_lock);
+-	list_add_tail(&bd->rq->queuelist, &floppy_reqs);
+-	spin_unlock_irq(&floppy_lock);
+-
+ 	if (test_and_set_bit(0, &fdc_busy)) {
+ 		/* fdc busy, this new request will be treated when the
+ 		   current one is done */
+ 		is_alive(__func__, "old request running");
+-		return BLK_STS_OK;
++		return BLK_STS_RESOURCE;
+ 	}
+ 
++	spin_lock_irq(&floppy_lock);
++	list_add_tail(&bd->rq->queuelist, &floppy_reqs);
++	spin_unlock_irq(&floppy_lock);
 +
- 		service_id = be16_to_cpu(svc_rspmsg->service_id);
- 		max_msglen = be16_to_cpu(svc_rspmsg->max_msg_len);
- 		endpoint = &target->endpoint[epid];
+ 	command_status = FD_COMMAND_NONE;
+ 	__reschedule_timeout(MAXTIMEOUT, "fd_request");
+ 	set_fdc(0);
 
 
