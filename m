@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 34AFE1FA4DE
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 02:05:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DA181FA4EE
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 02:12:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726386AbgFPAFv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Jun 2020 20:05:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47810 "EHLO mail.kernel.org"
+        id S1726386AbgFPAMX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Jun 2020 20:12:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53504 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725960AbgFPAFv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Jun 2020 20:05:51 -0400
+        id S1725960AbgFPAMX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Jun 2020 20:12:23 -0400
 Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 737AF20739;
-        Tue, 16 Jun 2020 00:05:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B5F6420739;
+        Tue, 16 Jun 2020 00:12:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592265950;
-        bh=+UiisGvSamnV8qvpoHjLI1mtg5AHMxnzlc/N7NILwZw=;
+        s=default; t=1592266342;
+        bh=/RKb5pdgXdzXez/EfNLSKGLUCw2v8oEqAIceEodRjYE=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=FAJ6/sIaPBUGMRmQa1AZ43Kph7TVgqY5oZPgU5CGrYXevIjAj4PRHL2R1j0k/QAWR
-         9exTdSaARJAHsfKLMFGYKK6feAESCh8rLolBZzZ0N8rzN3QlwX+D5uh22Scp5ElZHx
-         piJTeMKBk0oag0UWDHcEpBA1JHV5DTfRgJViFG+E=
-Date:   Mon, 15 Jun 2020 20:05:49 -0400
+        b=UciE2mmYCJTD5EDOueTsqXam/+doIC4VGJaOwdCn2xK74pE+UnqO90W4uyNVn4Vtq
+         yQ4NFbsTqxDdG9fmobTu2bSd3gtefGplFRcPopVEnv+E6ZmVJzn9oj4XamLCuKWBaq
+         5hPUKXelcoQ3cDFaiBDn1GCeC67pIzPVicaK0qaE=
+Date:   Mon, 15 Jun 2020 20:12:20 -0400
 From:   Sasha Levin <sashal@kernel.org>
 To:     gregkh@linuxfoundation.org
-Cc:     lukas@wunner.de, broonie@kernel.org, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] spi: bcm2835: Fix controller unregister
- order" failed to apply to 4.19-stable tree
-Message-ID: <20200616000549.GI1931@sasha-vm>
-References: <1592234520147134@kroah.com>
+Cc:     lukas@wunner.de, andriy.shevchenko@linux.intel.com,
+        broonie@kernel.org, jarkko.nikula@linux.intel.com,
+        stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] spi: pxa2xx: Fix runtime PM ref imbalance
+ on probe error" failed to apply to 4.19-stable tree
+Message-ID: <20200616001220.GJ1931@sasha-vm>
+References: <15922344972213@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <1592234520147134@kroah.com>
+In-Reply-To: <15922344972213@kroah.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jun 15, 2020 at 05:22:00PM +0200, gregkh@linuxfoundation.org wrote:
+On Mon, Jun 15, 2020 at 05:21:37PM +0200, gregkh@linuxfoundation.org wrote:
 >
 >The patch below does not apply to the 4.19-stable tree.
 >If someone wants it applied there, or to any other stable or longterm
@@ -53,41 +55,31 @@ On Mon, Jun 15, 2020 at 05:22:00PM +0200, gregkh@linuxfoundation.org wrote:
 >
 >------------------ original commit in Linus's tree ------------------
 >
->From 9dd277ff92d06f6aa95b39936ad83981d781f49b Mon Sep 17 00:00:00 2001
+>From 65e318e17358a3fd4fcb5a69d89b14016dee2f06 Mon Sep 17 00:00:00 2001
 >From: Lukas Wunner <lukas@wunner.de>
->Date: Fri, 15 May 2020 17:58:02 +0200
->Subject: [PATCH] spi: bcm2835: Fix controller unregister order
+>Date: Mon, 25 May 2020 14:25:03 +0200
+>Subject: [PATCH] spi: pxa2xx: Fix runtime PM ref imbalance on probe error
 >
->The BCM2835 SPI driver uses devm_spi_register_controller() on bind.
->As a consequence, on unbind, __device_release_driver() first invokes
->bcm2835_spi_remove() before unregistering the SPI controller via
->devres_release_all().
+>The PXA2xx SPI driver releases a runtime PM ref in the probe error path
+>even though it hasn't acquired a ref earlier.
 >
->This order is incorrect:  bcm2835_spi_remove() tears down the DMA
->channels and turns off the SPI controller, including its interrupts
->and clock.  The SPI controller is thus no longer usable.
+>Apparently commit e2b714afee32 ("spi: pxa2xx: Disable runtime PM if
+>controller registration fails") sought to copy-paste the invocation of
+>pm_runtime_disable() from pxa2xx_spi_remove(), but erroneously copied
+>the call to pm_runtime_put_noidle() as well.  Drop it.
 >
->When the SPI controller is subsequently unregistered, it unbinds all
->its slave devices.  If their drivers need to access the SPI bus,
->e.g. to quiesce their interrupts, unbinding will fail.
->
->As a rule, devm_spi_register_controller() must not be used if the
->->remove() hook performs teardown steps which shall be performed
->after unbinding of slaves.
->
->Fix by using the non-devm variant spi_register_controller().  Note that
->the struct spi_controller as well as the driver-private data are not
->freed until after bcm2835_spi_remove() has finished, so accessing them
->is safe.
->
->Fixes: 247263dba208 ("spi: bcm2835: use devm_spi_register_master()")
+>Fixes: e2b714afee32 ("spi: pxa2xx: Disable runtime PM if controller registration fails")
 >Signed-off-by: Lukas Wunner <lukas@wunner.de>
->Cc: stable@vger.kernel.org # v3.13+
->Link: https://lore.kernel.org/r/2397dd70cdbe95e0bc4da2b9fca0f31cb94e5aed.1589557526.git.lukas@wunner.de
+>Reviewed-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+>Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+>Cc: stable@vger.kernel.org # v4.17+
+>Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+>Link: https://lore.kernel.org/r/58b2ac6942ca1f91aaeeafe512144bc5343e1d84.1590408496.git.lukas@wunner.de
 >Signed-off-by: Mark Brown <broonie@kernel.org>
 
-more work around master -> controller rename. Queued for 4.19, 4.14,
-4.9, and 4.4.
+I've also grabbed 1274204542f6 ("spi: pxa2xx: Balance runtime PM
+enable/disable on error") and worked around the master -> controller
+rename. queued for 4.19.
 
 -- 
 Thanks,
