@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 152C91FBA4F
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:10:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 555411FB929
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:02:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731164AbgFPQKW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 12:10:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35066 "EHLO mail.kernel.org"
+        id S1732636AbgFPPvF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:51:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47384 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730973AbgFPPoi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:44:38 -0400
+        id S1731904AbgFPPvF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:51:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0B148208E4;
-        Tue, 16 Jun 2020 15:44:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5508D207C4;
+        Tue, 16 Jun 2020 15:51:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322277;
-        bh=VBXFl5rrap52PdCywCuGn06civukTsCW7RWhVdI6q34=;
+        s=default; t=1592322663;
+        bh=him64+DPIChEX82ZwANJeJdiaQwo04Fo1rdBgwYSfcI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A6FQPWVLArjzwuvRDpyhN/F8oqNWU7izEOjEK7iND1yVaqDhiu2rZyX5+MWe0aDwU
-         EUJ8/7UP4MAAkdeE3YLu0Hegm5FGf1fhOiEuYtGAE7Qw+pgmYCs8pERYtb3/tlh+QO
-         1KaW6JACQPNGr11fJhDinK5+lzRlsEGavde1d/6c=
+        b=Jm9uZ4ycURdty9gGYaRyC8mS0cWl1hrLskxPmFN2TZFALauQD/LevJxnI78BKdSrv
+         dRGB8ua3tylinLmFedD93ZGURzaOi5598scfAjfqTcGLHDa9GDt+aMWDApVPMNmw7m
+         e8Eqiu9KZxXiXDvii4fd3r4OjE3plGxcYwfj3OB4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        Macpaul Lin <macpaul.lin@mediatek.com>
-Subject: [PATCH 5.7 070/163] ALSA: usb-audio: Fix inconsistent card PM state after resume
-Date:   Tue, 16 Jun 2020 17:34:04 +0200
-Message-Id: <20200616153110.199000277@linuxfoundation.org>
+        stable@vger.kernel.org, Stephane Eranian <eranian@google.com>,
+        Kan Liang <kan.liang@linux.intel.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Subject: [PATCH 5.6 055/161] perf/x86/intel: Add more available bits for OFFCORE_RESPONSE of Intel Tremont
+Date:   Tue, 16 Jun 2020 17:34:05 +0200
+Message-Id: <20200616153109.000502637@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
-References: <20200616153106.849127260@linuxfoundation.org>
+In-Reply-To: <20200616153106.402291280@linuxfoundation.org>
+References: <20200616153106.402291280@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,126 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Kan Liang <kan.liang@linux.intel.com>
 
-commit 862b2509d157c629dd26d7ac6c6cdbf043d332eb upstream.
+commit 0813c40556fce1eeefb996e020cc5339e0b84137 upstream.
 
-When a USB-audio interface gets runtime-suspended via auto-pm feature,
-the driver suspends all functionality and increment
-chip->num_suspended_intf.  Later on, when the system gets suspended to
-S3, the driver increments chip->num_suspended_intf again, skips the
-device changes, and sets the card power state to
-SNDRV_CTL_POWER_D3hot.  In return, when the system gets resumed from
-S3, the resume callback decrements chip->num_suspended_intf.  Since
-this refcount is still not zero (it's been runtime-suspended), the
-whole resume is skipped.  But there is a small pitfall here.
+The mask in the extra_regs for Intel Tremont need to be extended to
+allow more defined bits.
 
-The problem is that the driver doesn't restore the card power state
-after this resume call, leaving it as SNDRV_CTL_POWER_D3hot.  So,
-even after the system resume finishes, the card instance still appears
-as if it were system-suspended, and this confuses many ioctl accesses
-that are blocked unexpectedly.
+"Outstanding Requests" (bit 63) is only available on MSR_OFFCORE_RSP0;
 
-In details, we have two issues behind the scene: one is that the card
-power state is changed only when the refcount becomes zero, and
-another is that the prior auto-suspend check is kept in a boolean
-flag.  Although the latter problem is almost negligible since the
-auto-pm feature is imposed only on the primary interface, but this can
-be a potential problem on the devices with multiple interfaces.
-
-This patch addresses those issues by the following:
-
-- Replace chip->autosuspended boolean flag with chip->system_suspend
-  counter
-
-- At the first system-suspend, chip->num_suspended_intf is recorded to
-  chip->system_suspend
-
-- At system-resume, the card power state is restored when the
-  chip->num_suspended_intf refcount reaches to chip->system_suspend,
-  i.e. the state returns to the auto-suspended
-
-Also, the patch fixes yet another hidden problem by the code
-refactoring along with the fixes above: namely, when some resume
-procedure failed, the driver left chip->num_suspended_intf that was
-already decreased, and it might lead to the refcount unbalance.
-In the new code, the refcount decrement is done after the whole resume
-procedure, and the problem is avoided as well.
-
-Fixes: 0662292aec05 ("ALSA: usb-audio: Handle normal and auto-suspend equally")
-Reported-and-tested-by: Macpaul Lin <macpaul.lin@mediatek.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200603153709.6293-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 6daeb8737f8a ("perf/x86/intel: Add Tremont core PMU support")
+Reported-by: Stephane Eranian <eranian@google.com>
+Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/20200501125442.7030-1-kan.liang@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/usb/card.c     |   19 ++++++++++++-------
- sound/usb/usbaudio.h |    2 +-
- 2 files changed, 13 insertions(+), 8 deletions(-)
+ arch/x86/events/intel/core.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/sound/usb/card.c
-+++ b/sound/usb/card.c
-@@ -843,9 +843,6 @@ static int usb_audio_suspend(struct usb_
- 	if (chip == (void *)-1L)
- 		return 0;
+--- a/arch/x86/events/intel/core.c
++++ b/arch/x86/events/intel/core.c
+@@ -1892,8 +1892,8 @@ static __initconst const u64 tnt_hw_cach
  
--	chip->autosuspended = !!PMSG_IS_AUTO(message);
--	if (!chip->autosuspended)
--		snd_power_change_state(chip->card, SNDRV_CTL_POWER_D3hot);
- 	if (!chip->num_suspended_intf++) {
- 		list_for_each_entry(as, &chip->pcm_list, list) {
- 			snd_usb_pcm_suspend(as);
-@@ -858,6 +855,11 @@ static int usb_audio_suspend(struct usb_
- 			snd_usb_mixer_suspend(mixer);
- 	}
+ static struct extra_reg intel_tnt_extra_regs[] __read_mostly = {
+ 	/* must define OFFCORE_RSP_X first, see intel_fixup_er() */
+-	INTEL_UEVENT_EXTRA_REG(0x01b7, MSR_OFFCORE_RSP_0, 0xffffff9fffull, RSP_0),
+-	INTEL_UEVENT_EXTRA_REG(0x02b7, MSR_OFFCORE_RSP_1, 0xffffff9fffull, RSP_1),
++	INTEL_UEVENT_EXTRA_REG(0x01b7, MSR_OFFCORE_RSP_0, 0x800ff0ffffff9fffull, RSP_0),
++	INTEL_UEVENT_EXTRA_REG(0x02b7, MSR_OFFCORE_RSP_1, 0xff0ffffff9fffull, RSP_1),
+ 	EVENT_EXTRA_END
+ };
  
-+	if (!PMSG_IS_AUTO(message) && !chip->system_suspend) {
-+		snd_power_change_state(chip->card, SNDRV_CTL_POWER_D3hot);
-+		chip->system_suspend = chip->num_suspended_intf;
-+	}
-+
- 	return 0;
- }
- 
-@@ -871,10 +873,10 @@ static int __usb_audio_resume(struct usb
- 
- 	if (chip == (void *)-1L)
- 		return 0;
--	if (--chip->num_suspended_intf)
--		return 0;
- 
- 	atomic_inc(&chip->active); /* avoid autopm */
-+	if (chip->num_suspended_intf > 1)
-+		goto out;
- 
- 	list_for_each_entry(as, &chip->pcm_list, list) {
- 		err = snd_usb_pcm_resume(as);
-@@ -896,9 +898,12 @@ static int __usb_audio_resume(struct usb
- 		snd_usbmidi_resume(p);
- 	}
- 
--	if (!chip->autosuspended)
-+ out:
-+	if (chip->num_suspended_intf == chip->system_suspend) {
- 		snd_power_change_state(chip->card, SNDRV_CTL_POWER_D0);
--	chip->autosuspended = 0;
-+		chip->system_suspend = 0;
-+	}
-+	chip->num_suspended_intf--;
- 
- err_out:
- 	atomic_dec(&chip->active); /* allow autopm after this point */
---- a/sound/usb/usbaudio.h
-+++ b/sound/usb/usbaudio.h
-@@ -26,7 +26,7 @@ struct snd_usb_audio {
- 	struct usb_interface *pm_intf;
- 	u32 usb_id;
- 	struct mutex mutex;
--	unsigned int autosuspended:1;	
-+	unsigned int system_suspend;
- 	atomic_t active;
- 	atomic_t shutdown;
- 	atomic_t usage_count;
 
 
