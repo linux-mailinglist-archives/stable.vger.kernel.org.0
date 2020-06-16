@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D62171FB9D9
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:07:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 728651FB904
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:01:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731249AbgFPPrJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:47:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39998 "EHLO mail.kernel.org"
+        id S1732102AbgFPQAG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 12:00:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51022 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732286AbgFPPrI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:47:08 -0400
+        id S1731797AbgFPPxD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:53:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 907E721508;
-        Tue, 16 Jun 2020 15:47:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1B212208D5;
+        Tue, 16 Jun 2020 15:53:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322428;
-        bh=lMiw6z8M6Tmg7XUhbTCh6hOdFxHhL1CBBaI7l7SKsZY=;
+        s=default; t=1592322783;
+        bh=+z2rEzPrdmHOBWRCBOlmjBsTUF6O4EPLsLOg3tNTKG4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q3TxlSq0eXqNt3MyM9DQiIxpZyJ9Z5F0u1NWt27o7CG9X9kDAg0qvLxIRKbj3MnYX
-         KwtwGFUE1GOtNMH8eU1rmM3elE0nR+Eke6/1/cmAjiWD4Zd+SJSm74gTFeZ8C7jASP
-         QYcUvt5GPvEDMCSpFoJnQr6PgmLyCcQb4MxGfPBQ=
+        b=OUkPXvzgBblakl4kL+3cgjFzMZUrXrNg+sO3kur5Lxy4ySDIjqjgL0PoZwPTFNhBh
+         5iqe6ggppPQo+Qi6GYDCk55tyvqV0rV2ySiUTCB2frnq2dd6aRexMMXSvQg/O8mVxq
+         UOdGOFmW4l2+aphO9j56kfEtTCXF6q6CtDmrpAFY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Justin Chen <justinpopo6@gmail.com>,
-        Kamal Dasu <kdasu.kdev@gmail.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.7 087/163] spi: bcm-qspi: when tx/rx buffer is NULL set to 0
-Date:   Tue, 16 Jun 2020 17:34:21 +0200
-Message-Id: <20200616153111.014128001@linuxfoundation.org>
+        stable@vger.kernel.org, Hui Wang <hui.wang@canonical.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.6 072/161] ALSA: hda/realtek - add a pintbl quirk for several Lenovo machines
+Date:   Tue, 16 Jun 2020 17:34:22 +0200
+Message-Id: <20200616153109.808486710@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
-References: <20200616153106.849127260@linuxfoundation.org>
+In-Reply-To: <20200616153106.402291280@linuxfoundation.org>
+References: <20200616153106.402291280@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,62 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Justin Chen <justinpopo6@gmail.com>
+From: Hui Wang <hui.wang@canonical.com>
 
-commit 4df3bea7f9d2ddd9ac2c29ba945c7c4db2def29c upstream.
+commit 573fcbfd319ccef26caa3700320242accea7fd5c upstream.
 
-Currently we set the tx/rx buffer to 0xff when NULL. This causes
-problems with some spi slaves where 0xff is a valid command. Looking
-at other drivers, the tx/rx buffer is usually set to 0x00 when NULL.
-Following this convention solves the issue.
+A couple of Lenovo ThinkCentre machines all have 2 front mics and they
+use the same codec alc623 and have the same pin config, so add a
+pintbl entry for those machines to apply the fixup
+ALC283_FIXUP_HEADSET_MIC.
 
-Fixes: fa236a7ef240 ("spi: bcm-qspi: Add Broadcom MSPI driver")
-Signed-off-by: Justin Chen <justinpopo6@gmail.com>
-Signed-off-by: Kamal Dasu <kdasu.kdev@gmail.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20200420190853.45614-6-kdasu.kdev@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Hui Wang <hui.wang@canonical.com>
+Link: https://lore.kernel.org/r/20200608115541.9531-1-hui.wang@canonical.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/spi/spi-bcm-qspi.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ sound/pci/hda/patch_realtek.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/spi/spi-bcm-qspi.c
-+++ b/drivers/spi/spi-bcm-qspi.c
-@@ -670,7 +670,7 @@ static void read_from_hw(struct bcm_qspi
- 			if (buf)
- 				buf[tp.byte] = read_rxram_slot_u8(qspi, slot);
- 			dev_dbg(&qspi->pdev->dev, "RD %02x\n",
--				buf ? buf[tp.byte] : 0xff);
-+				buf ? buf[tp.byte] : 0x0);
- 		} else {
- 			u16 *buf = tp.trans->rx_buf;
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -8124,6 +8124,12 @@ static const struct snd_hda_pin_quirk al
+ 		ALC225_STANDARD_PINS,
+ 		{0x12, 0xb7a60130},
+ 		{0x17, 0x90170110}),
++	SND_HDA_PIN_QUIRK(0x10ec0623, 0x17aa, "Lenovo", ALC283_FIXUP_HEADSET_MIC,
++		{0x14, 0x01014010},
++		{0x17, 0x90170120},
++		{0x18, 0x02a11030},
++		{0x19, 0x02a1103f},
++		{0x21, 0x0221101f}),
+ 	{}
+ };
  
-@@ -678,7 +678,7 @@ static void read_from_hw(struct bcm_qspi
- 				buf[tp.byte / 2] = read_rxram_slot_u16(qspi,
- 								      slot);
- 			dev_dbg(&qspi->pdev->dev, "RD %04x\n",
--				buf ? buf[tp.byte] : 0xffff);
-+				buf ? buf[tp.byte / 2] : 0x0);
- 		}
- 
- 		update_qspi_trans_byte_count(qspi, &tp,
-@@ -733,13 +733,13 @@ static int write_to_hw(struct bcm_qspi *
- 	while (!tstatus && slot < MSPI_NUM_CDRAM) {
- 		if (tp.trans->bits_per_word <= 8) {
- 			const u8 *buf = tp.trans->tx_buf;
--			u8 val = buf ? buf[tp.byte] : 0xff;
-+			u8 val = buf ? buf[tp.byte] : 0x00;
- 
- 			write_txram_slot_u8(qspi, slot, val);
- 			dev_dbg(&qspi->pdev->dev, "WR %02x\n", val);
- 		} else {
- 			const u16 *buf = tp.trans->tx_buf;
--			u16 val = buf ? buf[tp.byte / 2] : 0xffff;
-+			u16 val = buf ? buf[tp.byte / 2] : 0x0000;
- 
- 			write_txram_slot_u16(qspi, slot, val);
- 			dev_dbg(&qspi->pdev->dev, "WR %04x\n", val);
 
 
