@@ -2,39 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 196BA1FB8F1
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:00:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E5F531FB752
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:47:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731325AbgFPPxH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:53:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51124 "EHLO mail.kernel.org"
+        id S1731542AbgFPPpI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:45:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35982 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732836AbgFPPxG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:53:06 -0400
+        id S1732014AbgFPPpE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:45:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BDA8F208D5;
-        Tue, 16 Jun 2020 15:53:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 103F6214F1;
+        Tue, 16 Jun 2020 15:45:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322786;
-        bh=0JERohV4x/Bj7qeK8SMYNWYmz3BUXkYI0JZHeSB8q1g=;
+        s=default; t=1592322303;
+        bh=UGvNsIBI77475V/aFFDuzHClccitPkM+H/tfhf9NUJ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oMqYSVWB6rLVrFaIkmY/G9tfKk/4KNttlwc/A6Z0rnWRhI2rUVMDN6u/kmImtLr8B
-         wVVcAk3s9eN7/z/lt8OoCl1jKH7rvhHvrnrHTNtRavdQMokW9MMeSgQqEFPFYom+Ga
-         Q6n8xe2EHu8VRvqt1gVlttK/eoa7idWTjMJzDi/I=
+        b=WFs1JyMW+Lj5qvjgW6+hud1sP1k7MZLDXp9kxh64nfPa/NCVRTwNDhcMKxudgfuU2
+         NbWPywI44B5nAJmc2ZTPTr+FH/6DhIAVWff81B+H+4E0qKZBvNEX1FezKxBQaRv6TS
+         KsZQmr1GhVhq8w9/JBWZMclmUj5hTp+oDXVn5YtE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?=E4=BA=BF=E4=B8=80?= <teroincn@gmail.com>,
-        Ard Biesheuvel <ardb@kernel.org>
-Subject: [PATCH 5.6 063/161] efi/efivars: Add missing kobject_put() in sysfs entry creation error path
+        stable@vger.kernel.org, Alexander Gordeev <agordeev@linux.ibm.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Yury Norov <yury.norov@gmail.com>,
+        Amritha Nambiar <amritha.nambiar@intel.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Chris Wilson <chris@chris-wilson.co.uk>,
+        Kees Cook <keescook@chromium.org>,
+        Matthew Wilcox <willy@infradead.org>,
+        Miklos Szeredi <mszeredi@redhat.com>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        "Tobin C . Harding" <tobin@kernel.org>,
+        Vineet Gupta <vineet.gupta1@synopsys.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Willem de Bruijn <willemb@google.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.7 079/163] lib: fix bitmap_parse() on 64-bit big endian archs
 Date:   Tue, 16 Jun 2020 17:34:13 +0200
-Message-Id: <20200616153109.379226863@linuxfoundation.org>
+Message-Id: <20200616153110.626629451@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153106.402291280@linuxfoundation.org>
-References: <20200616153106.402291280@linuxfoundation.org>
+In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
+References: <20200616153106.849127260@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,36 +59,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Alexander Gordeev <agordeev@linux.ibm.com>
 
-commit d8bd8c6e2cfab8b78b537715255be8d7557791c0 upstream.
+commit 81c4f4d924d5d009b5ed785a3e22b18d0f7b831f upstream.
 
-The documentation provided by kobject_init_and_add() clearly spells out
-the need to call kobject_put() on the kobject if an error is returned.
-Add this missing call to the error path.
+Commit 2d6261583be0 ("lib: rework bitmap_parse()") does not take into
+account order of halfwords on 64-bit big endian architectures.  As
+result (at least) Receive Packet Steering, IRQ affinity masks and
+runtime kernel test "test_bitmap" get broken on s390.
 
+[andriy.shevchenko@linux.intel.com: convert infinite while loop to a for loop]
+  Link: http://lkml.kernel.org/r/20200609140535.87160-1-andriy.shevchenko@linux.intel.com
+
+Fixes: 2d6261583be0 ("lib: rework bitmap_parse()")
+Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: Yury Norov <yury.norov@gmail.com>
+Cc: Amritha Nambiar <amritha.nambiar@intel.com>
+Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Miklos Szeredi <mszeredi@redhat.com>
+Cc: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Cc: Steffen Klassert <steffen.klassert@secunet.com>
+Cc: "Tobin C . Harding" <tobin@kernel.org>
+Cc: Vineet Gupta <vineet.gupta1@synopsys.com>
+Cc: Will Deacon <will.deacon@arm.com>
+Cc: Willem de Bruijn <willemb@google.com>
 Cc: <stable@vger.kernel.org>
-Reported-by: 亿一 <teroincn@gmail.com>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Link: http://lkml.kernel.org/r/1591634471-17647-1-git-send-email-agordeev@linux.ibm.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/firmware/efi/efivars.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ lib/bitmap.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/drivers/firmware/efi/efivars.c
-+++ b/drivers/firmware/efi/efivars.c
-@@ -522,8 +522,10 @@ efivar_create_sysfs_entry(struct efivar_
- 	ret = kobject_init_and_add(&new_var->kobj, &efivar_ktype,
- 				   NULL, "%s", short_name);
- 	kfree(short_name);
--	if (ret)
-+	if (ret) {
-+		kobject_put(&new_var->kobj);
- 		return ret;
-+	}
+--- a/lib/bitmap.c
++++ b/lib/bitmap.c
+@@ -740,8 +740,9 @@ int bitmap_parse(const char *start, unsi
+ 	int chunks = BITS_TO_U32(nmaskbits);
+ 	u32 *bitmap = (u32 *)maskp;
+ 	int unset_bit;
++	int chunk;
  
- 	kobject_uevent(&new_var->kobj, KOBJ_ADD);
- 	if (efivar_entry_add(new_var, &efivar_sysfs_list)) {
+-	while (1) {
++	for (chunk = 0; ; chunk++) {
+ 		end = bitmap_find_region_reverse(start, end);
+ 		if (start > end)
+ 			break;
+@@ -749,7 +750,11 @@ int bitmap_parse(const char *start, unsi
+ 		if (!chunks--)
+ 			return -EOVERFLOW;
+ 
+-		end = bitmap_get_x32_reverse(start, end, bitmap++);
++#if defined(CONFIG_64BIT) && defined(__BIG_ENDIAN)
++		end = bitmap_get_x32_reverse(start, end, &bitmap[chunk ^ 1]);
++#else
++		end = bitmap_get_x32_reverse(start, end, &bitmap[chunk]);
++#endif
+ 		if (IS_ERR(end))
+ 			return PTR_ERR(end);
+ 	}
 
 
