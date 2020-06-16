@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D1AE1FB662
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:38:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8951A1FB7C6
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:50:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730040AbgFPPgn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:36:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47598 "EHLO mail.kernel.org"
+        id S1732481AbgFPPtX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:49:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44188 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730027AbgFPPgl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:36:41 -0400
+        id S1731979AbgFPPtS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:49:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7317D20C09;
-        Tue, 16 Jun 2020 15:36:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E886A21475;
+        Tue, 16 Jun 2020 15:49:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592321801;
-        bh=GrEoOhZo2pGQjeRLcWJGgk6oFtyW3a2jBQ4YPkul6NI=;
+        s=default; t=1592322557;
+        bh=Z3DGRWOMQLerGZ/bOAAQDfRxRmJUKGSB4aII1yOLWlE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WlPlJn8MtMPpLnlEjnOM18qKjw7RpPSOqxvd6bQBxqmYjBZGugjd173mGfln2i7iF
-         yL7lQg3LfU/fDpWvUywRG8xtkYmpOcMJ8m+AGpr2qDSfClQV7yAJ5UlLsXfd2UICYI
-         EldqEoFt0KxstPE5+E5yyPwDLARcugun9osVvvyw=
+        b=gKFSLVWuqE7qpQifmsqIbF4MkAePxsI46F1D7J3898894IsXfnHa4n7EC0v8FYTBd
+         FZpZ2AQVYMn74y5csOgrQCkF9JC0tGcE1S79Kkmc5/YTLNHu0DDhJflyav/eKGbBW5
+         ri2XUTFnCXHG/qLraPQfWRS0usDMfSNxXUdTIb/Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Casey Schaufler <casey@schaufler-ca.com>,
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Chen-Yu Tsai <wens@csie.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 021/134] smack: avoid unused sip variable warning
+Subject: [PATCH 5.6 015/161] Input: axp20x-pek - always register interrupt handlers
 Date:   Tue, 16 Jun 2020 17:33:25 +0200
-Message-Id: <20200616153101.737744147@linuxfoundation.org>
+Message-Id: <20200616153107.133312146@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153100.633279950@linuxfoundation.org>
-References: <20200616153100.633279950@linuxfoundation.org>
+In-Reply-To: <20200616153106.402291280@linuxfoundation.org>
+References: <20200616153106.402291280@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,164 +45,167 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 00720f0e7f288d29681d265c23b22bb0f0f4e5b4 ]
+[ Upstream commit 9747070c11d6ae021ed7a8e96e2950ed46cd53a9 ]
 
-The mix of IS_ENABLED() and #ifdef checks has left a combination
-that causes a warning about an unused variable:
+On some X86 devices we do not register an input-device, because the
+power-button is also handled by the soc_button_array (GPIO) input driver,
+and we want to avoid reporting power-button presses to userspace twice.
 
-security/smack/smack_lsm.c: In function 'smack_socket_connect':
-security/smack/smack_lsm.c:2838:24: error: unused variable 'sip' [-Werror=unused-variable]
- 2838 |   struct sockaddr_in6 *sip = (struct sockaddr_in6 *)sap;
+Sofar when we did this we also did not register our interrupt handlers,
+since those were only necessary to report input events.
 
-Change the code to use C-style checks consistently so the compiler
-can handle it correctly.
+But on at least 2 device models the Medion Akoya E1239T and the GPD win,
+the GPIO pin used by the soc_button_array driver for the power-button
+cannot wakeup the system from suspend. Why this does not work is not clear,
+I've tried comparing the value of all relevant registers on the Cherry
+Trail SoC, with those from models where this does work. I've checked:
+PMC registers: FUNC_DIS, FUNC_DIS2, SOIX_WAKE_EN, D3_STS_0, D3_STS_1,
+D3_STDBY_STS_0, D3_STDBY_STS_1; PMC ACPI I/O regs: PM1_STS_EN, GPE0a_EN
+and they all have identical contents in the working and non working cases.
+I suspect that the firmware either sets some unknown register to a value
+causing this, or that it turns off a power-plane which is necessary for
+GPIO wakeups to work during suspend.
 
-Fixes: 87fbfffcc89b ("broken ping to ipv6 linklocal addresses on debian buster")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+What does work on the Medion Akoya E1239T is letting the AXP288 wakeup
+the system on a power-button press (the GPD win has a different PMIC).
+
+Move the registering of the power-button press/release interrupt-handler
+from axp20x_pek_probe_input_device() to axp20x_pek_probe() so that the
+PMIC will wakeup the system on a power-button press, even if we do not
+register an input device.
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Acked-by: Chen-Yu Tsai <wens@csie.org>
+Link: https://lore.kernel.org/r/20200426155757.297087-1-hdegoede@redhat.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/smack/smack.h     |  6 ------
- security/smack/smack_lsm.c | 25 ++++++++-----------------
- 2 files changed, 8 insertions(+), 23 deletions(-)
+ drivers/input/misc/axp20x-pek.c | 72 +++++++++++++++++----------------
+ 1 file changed, 37 insertions(+), 35 deletions(-)
 
-diff --git a/security/smack/smack.h b/security/smack/smack.h
-index 62529f382942..335d2411abe4 100644
---- a/security/smack/smack.h
-+++ b/security/smack/smack.h
-@@ -148,7 +148,6 @@ struct smk_net4addr {
- 	struct smack_known	*smk_label;	/* label */
- };
+diff --git a/drivers/input/misc/axp20x-pek.c b/drivers/input/misc/axp20x-pek.c
+index c8f87df93a50..9c6386b2af33 100644
+--- a/drivers/input/misc/axp20x-pek.c
++++ b/drivers/input/misc/axp20x-pek.c
+@@ -205,8 +205,11 @@ ATTRIBUTE_GROUPS(axp20x);
  
--#if IS_ENABLED(CONFIG_IPV6)
- /*
-  * An entry in the table identifying IPv6 hosts.
-  */
-@@ -159,9 +158,7 @@ struct smk_net6addr {
- 	int			smk_masks;	/* mask size */
- 	struct smack_known	*smk_label;	/* label */
- };
--#endif /* CONFIG_IPV6 */
- 
--#ifdef SMACK_IPV6_PORT_LABELING
- /*
-  * An entry in the table identifying ports.
-  */
-@@ -174,7 +171,6 @@ struct smk_port_label {
- 	short			smk_sock_type;	/* Socket type */
- 	short			smk_can_reuse;
- };
--#endif /* SMACK_IPV6_PORT_LABELING */
- 
- struct smack_known_list_elem {
- 	struct list_head	list;
-@@ -335,9 +331,7 @@ extern struct smack_known smack_known_web;
- extern struct mutex	smack_known_lock;
- extern struct list_head smack_known_list;
- extern struct list_head smk_net4addr_list;
--#if IS_ENABLED(CONFIG_IPV6)
- extern struct list_head smk_net6addr_list;
--#endif /* CONFIG_IPV6 */
- 
- extern struct mutex     smack_onlycap_lock;
- extern struct list_head smack_onlycap_list;
-diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-index ad22066eba04..12c0fa85d9f8 100644
---- a/security/smack/smack_lsm.c
-+++ b/security/smack/smack_lsm.c
-@@ -51,10 +51,8 @@
- #define SMK_RECEIVING	1
- #define SMK_SENDING	2
- 
--#ifdef SMACK_IPV6_PORT_LABELING
--DEFINE_MUTEX(smack_ipv6_lock);
-+static DEFINE_MUTEX(smack_ipv6_lock);
- static LIST_HEAD(smk_ipv6_port_list);
--#endif
- static struct kmem_cache *smack_inode_cache;
- struct kmem_cache *smack_rule_cache;
- int smack_enabled;
-@@ -2326,7 +2324,6 @@ static struct smack_known *smack_ipv4host_label(struct sockaddr_in *sip)
- 	return NULL;
- }
- 
--#if IS_ENABLED(CONFIG_IPV6)
- /*
-  * smk_ipv6_localhost - Check for local ipv6 host address
-  * @sip: the address
-@@ -2394,7 +2391,6 @@ static struct smack_known *smack_ipv6host_label(struct sockaddr_in6 *sip)
- 
- 	return NULL;
- }
--#endif /* CONFIG_IPV6 */
- 
- /**
-  * smack_netlabel - Set the secattr on a socket
-@@ -2483,7 +2479,6 @@ static int smack_netlabel_send(struct sock *sk, struct sockaddr_in *sap)
- 	return smack_netlabel(sk, sk_lbl);
- }
- 
--#if IS_ENABLED(CONFIG_IPV6)
- /**
-  * smk_ipv6_check - check Smack access
-  * @subject: subject Smack label
-@@ -2516,7 +2511,6 @@ static int smk_ipv6_check(struct smack_known *subject,
- 	rc = smk_bu_note("IPv6 check", subject, object, MAY_WRITE, rc);
- 	return rc;
- }
--#endif /* CONFIG_IPV6 */
- 
- #ifdef SMACK_IPV6_PORT_LABELING
- /**
-@@ -2605,6 +2599,7 @@ static void smk_ipv6_port_label(struct socket *sock, struct sockaddr *address)
- 	mutex_unlock(&smack_ipv6_lock);
- 	return;
- }
-+#endif
- 
- /**
-  * smk_ipv6_port_check - check Smack port access
-@@ -2667,7 +2662,6 @@ static int smk_ipv6_port_check(struct sock *sk, struct sockaddr_in6 *address,
- 
- 	return smk_ipv6_check(skp, object, address, act);
- }
--#endif /* SMACK_IPV6_PORT_LABELING */
- 
- /**
-  * smack_inode_setsecurity - set smack xattrs
-@@ -2842,24 +2836,21 @@ static int smack_socket_connect(struct socket *sock, struct sockaddr *sap,
- 		return 0;
- 	if (IS_ENABLED(CONFIG_IPV6) && sap->sa_family == AF_INET6) {
- 		struct sockaddr_in6 *sip = (struct sockaddr_in6 *)sap;
--#ifdef SMACK_IPV6_SECMARK_LABELING
--		struct smack_known *rsp;
--#endif
-+		struct smack_known *rsp = NULL;
- 
- 		if (addrlen < SIN6_LEN_RFC2133)
- 			return 0;
--#ifdef SMACK_IPV6_SECMARK_LABELING
--		rsp = smack_ipv6host_label(sip);
-+		if (__is_defined(SMACK_IPV6_SECMARK_LABELING))
-+			rsp = smack_ipv6host_label(sip);
- 		if (rsp != NULL) {
- 			struct socket_smack *ssp = sock->sk->sk_security;
- 
- 			rc = smk_ipv6_check(ssp->smk_out, rsp, sip,
- 					    SMK_CONNECTING);
- 		}
--#endif
--#ifdef SMACK_IPV6_PORT_LABELING
--		rc = smk_ipv6_port_check(sock->sk, sip, SMK_CONNECTING);
--#endif
-+		if (__is_defined(SMACK_IPV6_PORT_LABELING))
-+			rc = smk_ipv6_port_check(sock->sk, sip, SMK_CONNECTING);
+ static irqreturn_t axp20x_pek_irq(int irq, void *pwr)
+ {
+-	struct input_dev *idev = pwr;
+-	struct axp20x_pek *axp20x_pek = input_get_drvdata(idev);
++	struct axp20x_pek *axp20x_pek = pwr;
++	struct input_dev *idev = axp20x_pek->input;
 +
- 		return rc;
++	if (!idev)
++		return IRQ_HANDLED;
+ 
+ 	/*
+ 	 * The power-button is connected to ground so a falling edge (dbf)
+@@ -225,22 +228,9 @@ static irqreturn_t axp20x_pek_irq(int irq, void *pwr)
+ static int axp20x_pek_probe_input_device(struct axp20x_pek *axp20x_pek,
+ 					 struct platform_device *pdev)
+ {
+-	struct axp20x_dev *axp20x = axp20x_pek->axp20x;
+ 	struct input_dev *idev;
+ 	int error;
+ 
+-	axp20x_pek->irq_dbr = platform_get_irq_byname(pdev, "PEK_DBR");
+-	if (axp20x_pek->irq_dbr < 0)
+-		return axp20x_pek->irq_dbr;
+-	axp20x_pek->irq_dbr = regmap_irq_get_virq(axp20x->regmap_irqc,
+-						  axp20x_pek->irq_dbr);
+-
+-	axp20x_pek->irq_dbf = platform_get_irq_byname(pdev, "PEK_DBF");
+-	if (axp20x_pek->irq_dbf < 0)
+-		return axp20x_pek->irq_dbf;
+-	axp20x_pek->irq_dbf = regmap_irq_get_virq(axp20x->regmap_irqc,
+-						  axp20x_pek->irq_dbf);
+-
+ 	axp20x_pek->input = devm_input_allocate_device(&pdev->dev);
+ 	if (!axp20x_pek->input)
+ 		return -ENOMEM;
+@@ -255,24 +245,6 @@ static int axp20x_pek_probe_input_device(struct axp20x_pek *axp20x_pek,
+ 
+ 	input_set_drvdata(idev, axp20x_pek);
+ 
+-	error = devm_request_any_context_irq(&pdev->dev, axp20x_pek->irq_dbr,
+-					     axp20x_pek_irq, 0,
+-					     "axp20x-pek-dbr", idev);
+-	if (error < 0) {
+-		dev_err(&pdev->dev, "Failed to request dbr IRQ#%d: %d\n",
+-			axp20x_pek->irq_dbr, error);
+-		return error;
+-	}
+-
+-	error = devm_request_any_context_irq(&pdev->dev, axp20x_pek->irq_dbf,
+-					  axp20x_pek_irq, 0,
+-					  "axp20x-pek-dbf", idev);
+-	if (error < 0) {
+-		dev_err(&pdev->dev, "Failed to request dbf IRQ#%d: %d\n",
+-			axp20x_pek->irq_dbf, error);
+-		return error;
+-	}
+-
+ 	error = input_register_device(idev);
+ 	if (error) {
+ 		dev_err(&pdev->dev, "Can't register input device: %d\n",
+@@ -280,8 +252,6 @@ static int axp20x_pek_probe_input_device(struct axp20x_pek *axp20x_pek,
+ 		return error;
  	}
- 	if (sap->sa_family != AF_INET || addrlen < sizeof(struct sockaddr_in))
+ 
+-	device_init_wakeup(&pdev->dev, true);
+-
+ 	return 0;
+ }
+ 
+@@ -339,6 +309,18 @@ static int axp20x_pek_probe(struct platform_device *pdev)
+ 
+ 	axp20x_pek->axp20x = dev_get_drvdata(pdev->dev.parent);
+ 
++	axp20x_pek->irq_dbr = platform_get_irq_byname(pdev, "PEK_DBR");
++	if (axp20x_pek->irq_dbr < 0)
++		return axp20x_pek->irq_dbr;
++	axp20x_pek->irq_dbr = regmap_irq_get_virq(
++			axp20x_pek->axp20x->regmap_irqc, axp20x_pek->irq_dbr);
++
++	axp20x_pek->irq_dbf = platform_get_irq_byname(pdev, "PEK_DBF");
++	if (axp20x_pek->irq_dbf < 0)
++		return axp20x_pek->irq_dbf;
++	axp20x_pek->irq_dbf = regmap_irq_get_virq(
++			axp20x_pek->axp20x->regmap_irqc, axp20x_pek->irq_dbf);
++
+ 	if (axp20x_pek_should_register_input(axp20x_pek, pdev)) {
+ 		error = axp20x_pek_probe_input_device(axp20x_pek, pdev);
+ 		if (error)
+@@ -347,6 +329,26 @@ static int axp20x_pek_probe(struct platform_device *pdev)
+ 
+ 	axp20x_pek->info = (struct axp20x_info *)match->driver_data;
+ 
++	error = devm_request_any_context_irq(&pdev->dev, axp20x_pek->irq_dbr,
++					     axp20x_pek_irq, 0,
++					     "axp20x-pek-dbr", axp20x_pek);
++	if (error < 0) {
++		dev_err(&pdev->dev, "Failed to request dbr IRQ#%d: %d\n",
++			axp20x_pek->irq_dbr, error);
++		return error;
++	}
++
++	error = devm_request_any_context_irq(&pdev->dev, axp20x_pek->irq_dbf,
++					  axp20x_pek_irq, 0,
++					  "axp20x-pek-dbf", axp20x_pek);
++	if (error < 0) {
++		dev_err(&pdev->dev, "Failed to request dbf IRQ#%d: %d\n",
++			axp20x_pek->irq_dbf, error);
++		return error;
++	}
++
++	device_init_wakeup(&pdev->dev, true);
++
+ 	platform_set_drvdata(pdev, axp20x_pek);
+ 
+ 	return 0;
 -- 
 2.25.1
 
