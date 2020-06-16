@@ -2,43 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 986341FB8E7
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:00:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A3EE81FB77A
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:47:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732772AbgFPP71 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:59:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51968 "EHLO mail.kernel.org"
+        id S1732210AbgFPPqg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:46:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38844 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732308AbgFPPxi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:53:38 -0400
+        id S1732200AbgFPPqf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:46:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 77D55208D5;
-        Tue, 16 Jun 2020 15:53:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A88F5214F1;
+        Tue, 16 Jun 2020 15:46:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322818;
-        bh=Q9VzjPAFTOrJwsOtNxPwztfgd+T3mqZj6+9goc1O0fw=;
+        s=default; t=1592322394;
+        bh=lC0Nos0Z2xN682tVmoX7eeKjh3ClUl7Mw27xlR7HuUg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aAPlqmXVxvIAw44IKmzBAMz1+1/UUd5PHHN+fMKN7zn+7p2vwlyhyX4EJ4sMxXJHn
-         0uW6IEnDRf4qRfdL94AIHN9rHbN2PvKyTPWAY/f8E/wzOWijZmO5J79GOqaKmTFCMa
-         46sZ5fIELkclJyfwda3x0yY4KZDprYlpvJbHTpeY=
+        b=EsFpV+mQTJObZa2B0eQiJZh9sG9R6gTu8gtbspsSldCot4Tt2E2JSpXgME2a/dXIj
+         J4GXc0vWEdAA86efBJuGv2HkdlRgxwqCQy+6hJcK8SKnTMqvwWchyOwkuGaD2ai8oc
+         8IcwVp4hGsq3f0iS+1R1QBgyqWsQ/hmKXPOtVFhQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gonglei <arei.gonglei@huawei.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        virtualization@lists.linux-foundation.org,
-        "Longpeng(Mike)" <longpeng2@huawei.com>
-Subject: [PATCH 5.6 098/161] crypto: virtio: Fix dest length calculation in __virtio_crypto_skcipher_do_req()
+        stable@vger.kernel.org, Oz Shlomo <ozsh@mellanox.com>,
+        Roi Dayan <roid@mellanox.com>,
+        Saeed Mahameed <saeedm@mellanox.com>
+Subject: [PATCH 5.7 114/163] net/mlx5e: CT: Fix ipv6 nat header rewrite actions
 Date:   Tue, 16 Jun 2020 17:34:48 +0200
-Message-Id: <20200616153111.045388591@linuxfoundation.org>
+Message-Id: <20200616153112.265339373@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153106.402291280@linuxfoundation.org>
-References: <20200616153106.402291280@linuxfoundation.org>
+In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
+References: <20200616153106.849127260@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,51 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Longpeng(Mike) <longpeng2@huawei.com>
+From: Oz Shlomo <ozsh@mellanox.com>
 
-commit d90ca42012db2863a9a30b564a2ace6016594bda upstream.
+[ Upstream commit 0d156f2deda8675c29fa2b8b5ed9b374370e47f2 ]
 
-The src/dst length is not aligned with AES_BLOCK_SIZE(which is 16) in some
-testcases in tcrypto.ko.
+Set the ipv6 word fields according to the hardware definitions.
 
-For example, the src/dst length of one of cts(cbc(aes))'s testcase is 17, the
-crypto_virtio driver will set @src_data_len=16 but @dst_data_len=17 in this
-case and get a wrong at then end.
-
-  SRC: pp pp pp pp pp pp pp pp pp pp pp pp pp pp pp pp pp (17 bytes)
-  EXP: cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc pp (17 bytes)
-  DST: cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc 00 (pollute the last bytes)
-  (pp: plaintext  cc:ciphertext)
-
-Fix this issue by limit the length of dest buffer.
-
-Fixes: dbaf0624ffa5 ("crypto: add virtio-crypto driver")
-Cc: Gonglei <arei.gonglei@huawei.com>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: virtualization@lists.linux-foundation.org
-Cc: linux-kernel@vger.kernel.org
-Cc: stable@vger.kernel.org
-Signed-off-by: Longpeng(Mike) <longpeng2@huawei.com>
-Link: https://lore.kernel.org/r/20200602070501.2023-4-longpeng2@huawei.com
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Fixes: ac991b48d43c ("net/mlx5e: CT: Offload established flows")
+Signed-off-by: Oz Shlomo <ozsh@mellanox.com>
+Reviewed-by: Roi Dayan <roid@mellanox.com>
+Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/crypto/virtio/virtio_crypto_algs.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/mellanox/mlx5/core/en/tc_ct.c |   16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
---- a/drivers/crypto/virtio/virtio_crypto_algs.c
-+++ b/drivers/crypto/virtio/virtio_crypto_algs.c
-@@ -402,6 +402,7 @@ __virtio_crypto_skcipher_do_req(struct v
- 		goto free;
- 	}
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en/tc_ct.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en/tc_ct.c
+@@ -320,21 +320,21 @@ mlx5_tc_ct_parse_mangle_to_mod_act(struc
  
-+	dst_len = min_t(unsigned int, req->cryptlen, dst_len);
- 	pr_debug("virtio_crypto: src_len: %u, dst_len: %llu\n",
- 			req->cryptlen, dst_len);
- 
+ 	case FLOW_ACT_MANGLE_HDR_TYPE_IP6:
+ 		MLX5_SET(set_action_in, modact, length, 0);
+-		if (offset == offsetof(struct ipv6hdr, saddr))
++		if (offset == offsetof(struct ipv6hdr, saddr) + 12)
+ 			field = MLX5_ACTION_IN_FIELD_OUT_SIPV6_31_0;
+-		else if (offset == offsetof(struct ipv6hdr, saddr) + 4)
+-			field = MLX5_ACTION_IN_FIELD_OUT_SIPV6_63_32;
+ 		else if (offset == offsetof(struct ipv6hdr, saddr) + 8)
++			field = MLX5_ACTION_IN_FIELD_OUT_SIPV6_63_32;
++		else if (offset == offsetof(struct ipv6hdr, saddr) + 4)
+ 			field = MLX5_ACTION_IN_FIELD_OUT_SIPV6_95_64;
+-		else if (offset == offsetof(struct ipv6hdr, saddr) + 12)
++		else if (offset == offsetof(struct ipv6hdr, saddr))
+ 			field = MLX5_ACTION_IN_FIELD_OUT_SIPV6_127_96;
+-		else if (offset == offsetof(struct ipv6hdr, daddr))
++		else if (offset == offsetof(struct ipv6hdr, daddr) + 12)
+ 			field = MLX5_ACTION_IN_FIELD_OUT_DIPV6_31_0;
+-		else if (offset == offsetof(struct ipv6hdr, daddr) + 4)
+-			field = MLX5_ACTION_IN_FIELD_OUT_DIPV6_63_32;
+ 		else if (offset == offsetof(struct ipv6hdr, daddr) + 8)
++			field = MLX5_ACTION_IN_FIELD_OUT_DIPV6_63_32;
++		else if (offset == offsetof(struct ipv6hdr, daddr) + 4)
+ 			field = MLX5_ACTION_IN_FIELD_OUT_DIPV6_95_64;
+-		else if (offset == offsetof(struct ipv6hdr, daddr) + 12)
++		else if (offset == offsetof(struct ipv6hdr, daddr))
+ 			field = MLX5_ACTION_IN_FIELD_OUT_DIPV6_127_96;
+ 		else
+ 			return -EOPNOTSUPP;
 
 
