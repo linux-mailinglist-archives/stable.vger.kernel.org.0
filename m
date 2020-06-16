@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EFCC51FB9D4
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:07:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CDE721FB9D0
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:07:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731912AbgFPQHB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 12:07:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40428 "EHLO mail.kernel.org"
+        id S1729279AbgFPQG5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 12:06:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40506 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731610AbgFPPrU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:47:20 -0400
+        id S1732325AbgFPPrX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:47:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D41FB20776;
-        Tue, 16 Jun 2020 15:47:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8BDCD2071A;
+        Tue, 16 Jun 2020 15:47:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322440;
-        bh=tXCInQ492qS0VJvjkWDrgHfS0WMGwrboSxRtphkF/Fo=;
+        s=default; t=1592322443;
+        bh=mDDX03FzmPFI8VsvJmpXLYbjW3UZIUMBjMhepZSu4DI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rW5U0YRKejJCyG0AD5hBEeWUZvu+xpQEZ+bRpgD6unz95Dk3LQ4aMkYcxRFZp9bEs
-         LVjxyCL/CgFXrbLrOezhDfnIv5ORY3BpxLVdyoLoekLk77T3f1CLXH5rv0nPcxRgci
-         ZL2DmEjJi596TdZs1aB1Np8qRPlW4msyFAASmMY4=
+        b=bKR1lKR5BgLIuYnZKUnLEdA+v2PVbv203POs6+sRgAnXST5R9SgI3kMNEjpBS+JEp
+         8nVd+6Uxsx89JYXvspRa2U0qyFENmsZNWZBcvK6FQtdHy4cBmRAARCbLHrYmK34jfD
+         fCqo/YDOq1rgnDP94wqlHayh7cyWZv7O0MR/KKpI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
-        James Morse <james.morse@arm.com>
-Subject: [PATCH 5.7 133/163] KVM: arm64: Stop writing aarch32s CSSELR into ACTLR
-Date:   Tue, 16 Jun 2020 17:35:07 +0200
-Message-Id: <20200616153113.183145359@linuxfoundation.org>
+        stable@vger.kernel.org, James Morse <james.morse@arm.com>,
+        Marc Zyngier <maz@kernel.org>
+Subject: [PATCH 5.7 134/163] KVM: arm64: Make vcpu_cp1x() work on Big Endian hosts
+Date:   Tue, 16 Jun 2020 17:35:08 +0200
+Message-Id: <20200616153113.228643512@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
 References: <20200616153106.849127260@linuxfoundation.org>
@@ -43,65 +43,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Morse <james.morse@arm.com>
+From: Marc Zyngier <maz@kernel.org>
 
-commit 7c582bf4ed84f3eb58bdd1f63024a14c17551e7d upstream.
+commit 3204be4109ad681523e3461ce64454c79278450a upstream.
 
-aarch32 has pairs of registers to access the high and low parts of 64bit
-registers. KVM has a union of 64bit sys_regs[] and 32bit copro[]. The
-32bit accessors read the high or low part of the 64bit sys_reg[] value
-through the union.
+AArch32 CP1x registers are overlayed on their AArch64 counterparts
+in the vcpu struct. This leads to an interesting problem as they
+are stored in their CPU-local format, and thus a CP1x register
+doesn't "hit" the lower 32bit portion of the AArch64 register on
+a BE host.
 
-Both sys_reg_descs[] and cp15_regs[] list access_csselr() as the accessor
-for CSSELR{,_EL1}. access_csselr() is only aware of the 64bit sys_regs[],
-and expects r->reg to be 'CSSELR_EL1' in the enum, index 2 of the 64bit
-array.
+To workaround this unfortunate situation, introduce a bias trick
+in the vcpu_cp1x() accessors which picks the correct half of the
+64bit register.
 
-cp15_regs[] uses the 32bit copro[] alias of sys_regs[]. Here CSSELR is
-c0_CSSELR which is the same location in sys_reg[]. r->reg is 'c0_CSSELR',
-index 4 in the 32bit array.
-
-access_csselr() uses the 32bit r->reg value to access the 64bit array,
-so reads and write the wrong value. sys_regs[4], is ACTLR_EL1, which
-is subsequently save/restored when we enter the guest.
-
-ACTLR_EL1 is supposed to be read-only for the guest. This register
-only affects execution at EL1, and the host's value is restored before
-we return to host EL1.
-
-Convert the 32bit register index back to the 64bit version.
-
-Suggested-by: Marc Zyngier <maz@kernel.org>
-Signed-off-by: James Morse <james.morse@arm.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20200529150656.7339-2-james.morse@arm.com
+Reported-by: James Morse <james.morse@arm.com>
+Tested-by: James Morse <james.morse@arm.com>
+Acked-by: James Morse <james.morse@arm.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm64/kvm/sys_regs.c |   10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ arch/arm64/include/asm/kvm_host.h |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/arch/arm64/kvm/sys_regs.c
-+++ b/arch/arm64/kvm/sys_regs.c
-@@ -1305,10 +1305,16 @@ static bool access_clidr(struct kvm_vcpu
- static bool access_csselr(struct kvm_vcpu *vcpu, struct sys_reg_params *p,
- 			  const struct sys_reg_desc *r)
- {
-+	int reg = r->reg;
+--- a/arch/arm64/include/asm/kvm_host.h
++++ b/arch/arm64/include/asm/kvm_host.h
+@@ -405,8 +405,10 @@ void vcpu_write_sys_reg(struct kvm_vcpu
+  * CP14 and CP15 live in the same array, as they are backed by the
+  * same system registers.
+  */
+-#define vcpu_cp14(v,r)		((v)->arch.ctxt.copro[(r)])
+-#define vcpu_cp15(v,r)		((v)->arch.ctxt.copro[(r)])
++#define CPx_BIAS		IS_ENABLED(CONFIG_CPU_BIG_ENDIAN)
 +
-+	/* See the 32bit mapping in kvm_host.h */
-+	if (p->is_aarch32)
-+		reg = r->reg / 2;
-+
- 	if (p->is_write)
--		vcpu_write_sys_reg(vcpu, p->regval, r->reg);
-+		vcpu_write_sys_reg(vcpu, p->regval, reg);
- 	else
--		p->regval = vcpu_read_sys_reg(vcpu, r->reg);
-+		p->regval = vcpu_read_sys_reg(vcpu, reg);
- 	return true;
- }
++#define vcpu_cp14(v,r)		((v)->arch.ctxt.copro[(r) ^ CPx_BIAS])
++#define vcpu_cp15(v,r)		((v)->arch.ctxt.copro[(r) ^ CPx_BIAS])
  
+ struct kvm_vm_stat {
+ 	ulong remote_tlb_flush;
 
 
