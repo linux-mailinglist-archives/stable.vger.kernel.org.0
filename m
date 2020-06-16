@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BCC2C1FBB80
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:22:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 94FF61FB979
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:04:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729571AbgFPQTc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 12:19:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48676 "EHLO mail.kernel.org"
+        id S1732487AbgFPQDu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 12:03:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45220 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730266AbgFPPhR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:37:17 -0400
+        id S1731719AbgFPPt4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:49:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 74C6F20C56;
-        Tue, 16 Jun 2020 15:37:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 06C0221473;
+        Tue, 16 Jun 2020 15:49:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592321837;
-        bh=bBOGp/s6/QPgSVyXCfA7cetJ8me5h+oJ/UkLC/kJLwg=;
+        s=default; t=1592322596;
+        bh=RnGfq6XicmATSrcxTW6KBYrhcOmlfHfLCVHxBNwjR68=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HVwKj7l3TXRRtWB5S8nPlyqqpzAP9DOmcZ/eVz3oum3zx4/Vg2cZ9R9uDJBONhsi0
-         y66OoH4rVYO3S5LltplVwPSesMvryX1PGkiIb+mlaBgS0v6ed0L7vNz+rZI8BE8Svu
-         aMiKsCqdKF2fx1SB01/mfm5XrXIH9EAtGovmW1MQ=
+        b=vja6/PMUGukflHuEkHf6a/iujaU3zD2WfU7Q9DCZcjjDnL5wG7iK6NFrn85tR10P8
+         8ZE3KygC0SwBEyx85+gpjVTN4kCYCk1trwEGuc3aEZmT8MuDsnqJfSMDQiNgqvUbxJ
+         CD43HWu231B4/zD+6vdMN919PFwYR3e9twqscvOs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
-        Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 034/134] ipv4: fix a RCU-list lock in fib_triestat_seq_show
-Date:   Tue, 16 Jun 2020 17:33:38 +0200
-Message-Id: <20200616153102.422165991@linuxfoundation.org>
+Subject: [PATCH 5.6 029/161] powerpc/xive: Clear the page tables for the ESB IO mapping
+Date:   Tue, 16 Jun 2020 17:33:39 +0200
+Message-Id: <20200616153107.790285704@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153100.633279950@linuxfoundation.org>
-References: <20200616153100.633279950@linuxfoundation.org>
+In-Reply-To: <20200616153106.402291280@linuxfoundation.org>
+References: <20200616153106.402291280@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,66 +45,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qian Cai <cai@lca.pw>
+From: Cédric Le Goater <clg@kaod.org>
 
-[ Upstream commit fbe4e0c1b298b4665ee6915266c9d6c5b934ef4a ]
+[ Upstream commit a101950fcb78b0ba20cd487be6627dea58d55c2b ]
 
-fib_triestat_seq_show() calls hlist_for_each_entry_rcu(tb, head,
-tb_hlist) without rcu_read_lock() will trigger a warning,
+Commit 1ca3dec2b2df ("powerpc/xive: Prevent page fault issues in the
+machine crash handler") fixed an issue in the FW assisted dump of
+machines using hash MMU and the XIVE interrupt mode under the POWER
+hypervisor. It forced the mapping of the ESB page of interrupts being
+mapped in the Linux IRQ number space to make sure the 'crash kexec'
+sequence worked during such an event. But it didn't handle the
+un-mapping.
 
- net/ipv4/fib_trie.c:2579 RCU-list traversed in non-reader section!!
+This mapping is now blocking the removal of a passthrough IO adapter
+under the POWER hypervisor because it expects the guest OS to have
+cleared all page table entries related to the adapter. If some are
+still present, the RTAS call which isolates the PCI slot returns error
+9001 "valid outstanding translations".
 
- other info that might help us debug this:
+Remove these mapping in the IRQ data cleanup routine.
 
- rcu_scheduler_active = 2, debug_locks = 1
- 1 lock held by proc01/115277:
-  #0: c0000014507acf00 (&p->lock){+.+.}-{3:3}, at: seq_read+0x58/0x670
+Under KVM, this cleanup is not required because the ESB pages for the
+adapter interrupts are un-mapped from the guest by the hypervisor in
+the KVM XIVE native device. This is now redundant but it's harmless.
 
- Call Trace:
-  dump_stack+0xf4/0x164 (unreliable)
-  lockdep_rcu_suspicious+0x140/0x164
-  fib_triestat_seq_show+0x750/0x880
-  seq_read+0x1a0/0x670
-  proc_reg_read+0x10c/0x1b0
-  __vfs_read+0x3c/0x70
-  vfs_read+0xac/0x170
-  ksys_read+0x7c/0x140
-  system_call+0x5c/0x68
-
-Fix it by adding a pair of rcu_read_lock/unlock() and use
-cond_resched_rcu() to avoid the situation where walking of a large
-number of items  may prevent scheduling for a long time.
-
-Signed-off-by: Qian Cai <cai@lca.pw>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 1ca3dec2b2df ("powerpc/xive: Prevent page fault issues in the machine crash handler")
+Cc: stable@vger.kernel.org # v5.5+
+Signed-off-by: Cédric Le Goater <clg@kaod.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200429075122.1216388-2-clg@kaod.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/fib_trie.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/powerpc/sysdev/xive/common.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/net/ipv4/fib_trie.c b/net/ipv4/fib_trie.c
-index f12fa8da6127..1b851fd82613 100644
---- a/net/ipv4/fib_trie.c
-+++ b/net/ipv4/fib_trie.c
-@@ -2455,6 +2455,7 @@ static int fib_triestat_seq_show(struct seq_file *seq, void *v)
- 		   " %zd bytes, size of tnode: %zd bytes.\n",
- 		   LEAF_SIZE, TNODE_SIZE(0));
+diff --git a/arch/powerpc/sysdev/xive/common.c b/arch/powerpc/sysdev/xive/common.c
+index fe8d396e2301..16df9cc8f360 100644
+--- a/arch/powerpc/sysdev/xive/common.c
++++ b/arch/powerpc/sysdev/xive/common.c
+@@ -19,6 +19,7 @@
+ #include <linux/slab.h>
+ #include <linux/spinlock.h>
+ #include <linux/msi.h>
++#include <linux/vmalloc.h>
  
-+	rcu_read_lock();
- 	for (h = 0; h < FIB_TABLE_HASHSZ; h++) {
- 		struct hlist_head *head = &net->ipv4.fib_table_hash[h];
- 		struct fib_table *tb;
-@@ -2474,7 +2475,9 @@ static int fib_triestat_seq_show(struct seq_file *seq, void *v)
- 			trie_show_usage(seq, t->stats);
- #endif
- 		}
-+		cond_resched_rcu();
+ #include <asm/prom.h>
+ #include <asm/io.h>
+@@ -1013,12 +1014,16 @@ EXPORT_SYMBOL_GPL(is_xive_irq);
+ void xive_cleanup_irq_data(struct xive_irq_data *xd)
+ {
+ 	if (xd->eoi_mmio) {
++		unmap_kernel_range((unsigned long)xd->eoi_mmio,
++				   1u << xd->esb_shift);
+ 		iounmap(xd->eoi_mmio);
+ 		if (xd->eoi_mmio == xd->trig_mmio)
+ 			xd->trig_mmio = NULL;
+ 		xd->eoi_mmio = NULL;
  	}
-+	rcu_read_unlock();
- 
- 	return 0;
- }
+ 	if (xd->trig_mmio) {
++		unmap_kernel_range((unsigned long)xd->trig_mmio,
++				   1u << xd->esb_shift);
+ 		iounmap(xd->trig_mmio);
+ 		xd->trig_mmio = NULL;
+ 	}
 -- 
 2.25.1
 
