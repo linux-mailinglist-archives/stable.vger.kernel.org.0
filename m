@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 566091FB817
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:53:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 000211FB8F3
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:00:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732825AbgFPPw5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:52:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50796 "EHLO mail.kernel.org"
+        id S1731753AbgFPQAH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 12:00:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50888 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732823AbgFPPw4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:52:56 -0400
+        id S1731804AbgFPPw7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:52:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BFC19208D5;
-        Tue, 16 Jun 2020 15:52:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2FB99208D5;
+        Tue, 16 Jun 2020 15:52:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322776;
-        bh=86yjS12F00M5iig67fj51Gnv/ZGEDqWAQwXYxrrlrT4=;
+        s=default; t=1592322778;
+        bh=8oOdO8G5uDNdbKO90o2ZU39T1Bp6Ti8hqZkMXc9pX6k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P73qXm/InUft5rSj29kET6TLhhJRwa/+Lx55Lj+3pY5/lCp99+rHGKpF/lWee4GN7
-         W3/9YGjTfKq3fC/EJCcNZFQp/m9w9qJt/+UqKuTy0le55KuC2AxukSQbBKXDkDG7Dz
-         LmtU/ca0D+Jpi8WuLujkeIOhu1GR4am0d6DP41i0=
+        b=FeDG7ke8Bh7tmkLlahGfBUbKgiokZkHX/6DQIc0Sm/0R7mXhzjQ28Y7OSpWsG7Nbk
+         8pGoWj3fZvsbOrTyDJoDZiAzw2ZUXzRpgUTgzJ8OP3ZU0Ad2Wv/6uZJ0IzT0zA7Zuz
+         JCfJdz60GY0lzHpkv31j1yFlChc2iwzqtj44fVjo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hersen Wu <hersenxs.wu@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Takashi Sakamoto <o-takashi@sakamocchi.jp>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.6 069/161] ALSA: hda: add sienna_cichlid audio asic id for sienna_cichlid up
-Date:   Tue, 16 Jun 2020 17:34:19 +0200
-Message-Id: <20200616153109.666586911@linuxfoundation.org>
+Subject: [PATCH 5.6 070/161] ALSA: fireface: fix configuration error for nominal sampling transfer frequency
+Date:   Tue, 16 Jun 2020 17:34:20 +0200
+Message-Id: <20200616153109.713755288@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200616153106.402291280@linuxfoundation.org>
 References: <20200616153106.402291280@linuxfoundation.org>
@@ -44,38 +43,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hersen Wu <hersenxs.wu@amd.com>
+From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
 
-commit 27a7c67012cfa6d79f87fbb51afa13c6c0e24e34 upstream.
+commit bbd6aac3ae15bef762af03bf62e35ace5c4292bd upstream.
 
-dp/hdmi ati hda is not shown in audio settings
+128000 and 192000 are congruence modulo 32000, thus it's wrong to
+distinguish them as multiple of 32000 and 48000 by modulo 32000 at
+first.
 
-[ rearranged to a more appropriate place per device number order
-  -- tiwai ]
+Additionally, used condition statement to detect quadruple speed can
+cause missing bit flag.
 
-Signed-off-by: Hersen Wu <hersenxs.wu@amd.com>
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Furthermore, counter to ensure the configuration is wrong and it
+causes false positive.
+
+This commit fixes the above three bugs.
+
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200603013137.1849404-1-alexander.deucher@amd.com
+Fixes: 60aec494b389 ("ALSA: fireface: support allocate_resources operation in latter protocol")
+Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+Link: https://lore.kernel.org/r/20200510074301.116224-2-o-takashi@sakamocchi.jp
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/pci/hda/hda_intel.c |    3 +++
- 1 file changed, 3 insertions(+)
+ sound/firewire/fireface/ff-protocol-latter.c |   12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
---- a/sound/pci/hda/hda_intel.c
-+++ b/sound/pci/hda/hda_intel.c
-@@ -2659,6 +2659,9 @@ static const struct pci_device_id azx_id
- 	{ PCI_DEVICE(0x1002, 0xab20),
- 	  .driver_data = AZX_DRIVER_ATIHDMI_NS | AZX_DCAPS_PRESET_ATI_HDMI_NS |
- 	  AZX_DCAPS_PM_RUNTIME },
-+	{ PCI_DEVICE(0x1002, 0xab28),
-+	  .driver_data = AZX_DRIVER_ATIHDMI_NS | AZX_DCAPS_PRESET_ATI_HDMI_NS |
-+	  AZX_DCAPS_PM_RUNTIME },
- 	{ PCI_DEVICE(0x1002, 0xab38),
- 	  .driver_data = AZX_DRIVER_ATIHDMI_NS | AZX_DCAPS_PRESET_ATI_HDMI_NS |
- 	  AZX_DCAPS_PM_RUNTIME },
+--- a/sound/firewire/fireface/ff-protocol-latter.c
++++ b/sound/firewire/fireface/ff-protocol-latter.c
+@@ -107,18 +107,18 @@ static int latter_allocate_resources(str
+ 	int err;
+ 
+ 	// Set the number of data blocks transferred in a second.
+-	if (rate % 32000 == 0)
+-		code = 0x00;
++	if (rate % 48000 == 0)
++		code = 0x04;
+ 	else if (rate % 44100 == 0)
+ 		code = 0x02;
+-	else if (rate % 48000 == 0)
+-		code = 0x04;
++	else if (rate % 32000 == 0)
++		code = 0x00;
+ 	else
+ 		return -EINVAL;
+ 
+ 	if (rate >= 64000 && rate < 128000)
+ 		code |= 0x08;
+-	else if (rate >= 128000 && rate < 192000)
++	else if (rate >= 128000)
+ 		code |= 0x10;
+ 
+ 	reg = cpu_to_le32(code);
+@@ -140,7 +140,7 @@ static int latter_allocate_resources(str
+ 		if (curr_rate == rate)
+ 			break;
+ 	}
+-	if (count == 10)
++	if (count > 10)
+ 		return -ETIMEDOUT;
+ 
+ 	for (i = 0; i < ARRAY_SIZE(amdtp_rate_table); ++i) {
 
 
