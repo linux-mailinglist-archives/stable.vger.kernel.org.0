@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3ABBA1FB931
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:03:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6046D1FBB11
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:16:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732925AbgFPQBp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 12:01:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48706 "EHLO mail.kernel.org"
+        id S1730532AbgFPQQW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 12:16:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55254 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732715AbgFPPvu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:51:50 -0400
+        id S1731211AbgFPPkf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:40:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ED9CE207C4;
-        Tue, 16 Jun 2020 15:51:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1A62A207C4;
+        Tue, 16 Jun 2020 15:40:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322709;
-        bh=QWZhGhZw6SXi3y7+QniH5c40RvMZkswOJ864wEI/Dn4=;
+        s=default; t=1592322034;
+        bh=kWkYnOgyIZpYVEMaZD7avyMdh028gxcHAOd0VE+Y3yE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gaff/vqBhlU7gjmeiE7KVO+oPHJeMzt1hob3HgW3cHIMwDPqUWh2QdOKX1A67zTuy
-         gSoDrXYo4nCbUqMkCrIA/lckPX5BE20yljEWcAr98IkdfyK8ziyB/1MkqP52p7vCJe
-         hveoLYRIpVfTOkI9KCfdJmvtFyLyB9xM0zkRRatk=
+        b=QYOC+kHAqq1ElWfMIpHrGbNo/HeVJN2sM6hVv75myxeSKEZv6jC+aj91aChqqEg/o
+         GOrbNjP1aelEHvVcSLat3jWr9S5+o2mMLhlDriOYt5UFvc1C7sgn/Sv8qQ5atDMu8v
+         lY256uonTYXUWnmP8386WjZRbXppe0QuJq0EtOSA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.6 074/161] ALSA: pcm: fix snd_pcm_link() lockdep splat
-Date:   Tue, 16 Jun 2020 17:34:24 +0200
-Message-Id: <20200616153109.904646314@linuxfoundation.org>
+        stable@vger.kernel.org, Xiumei Mu <xmu@redhat.com>,
+        Wei Yongjun <weiyongjun1@huawei.com>,
+        Stephan Mueller <smueller@chronox.de>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 5.4 081/134] crypto: drbg - fix error return code in drbg_alloc_state()
+Date:   Tue, 16 Jun 2020 17:34:25 +0200
+Message-Id: <20200616153104.658751337@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153106.402291280@linuxfoundation.org>
-References: <20200616153106.402291280@linuxfoundation.org>
+In-Reply-To: <20200616153100.633279950@linuxfoundation.org>
+References: <20200616153100.633279950@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,88 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-commit e18035cf5cb3d2bf8e4f4d350a23608bd208b934 upstream.
+commit e0664ebcea6ac5e16da703409fb4bd61f8cd37d9 upstream.
 
-Add and use snd_pcm_stream_lock_nested() in snd_pcm_link/unlink
-implementation.  The code is fine, but generates a lockdep complaint:
+Fix to return negative error code -ENOMEM from the kzalloc error handling
+case instead of 0, as done elsewhere in this function.
 
-============================================
-WARNING: possible recursive locking detected
-5.7.1mq+ #381 Tainted: G           O
---------------------------------------------
-pulseaudio/4180 is trying to acquire lock:
-ffff888402d6f508 (&group->lock){-...}-{2:2}, at: snd_pcm_common_ioctl+0xda8/0xee0 [snd_pcm]
-
-but task is already holding lock:
-ffff8883f7a8cf18 (&group->lock){-...}-{2:2}, at: snd_pcm_common_ioctl+0xe4e/0xee0 [snd_pcm]
-
-other info that might help us debug this:
- Possible unsafe locking scenario:
-
-       CPU0
-       ----
-  lock(&group->lock);
-  lock(&group->lock);
-
- *** DEADLOCK ***
-
- May be due to missing lock nesting notation
-
-2 locks held by pulseaudio/4180:
- #0: ffffffffa1a05190 (snd_pcm_link_rwsem){++++}-{3:3}, at: snd_pcm_common_ioctl+0xca0/0xee0 [snd_pcm]
- #1: ffff8883f7a8cf18 (&group->lock){-...}-{2:2}, at: snd_pcm_common_ioctl+0xe4e/0xee0 [snd_pcm]
-[...]
-
-Cc: stable@vger.kernel.org
-Fixes: f57f3df03a8e ("ALSA: pcm: More fine-grained PCM link locking")
-Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
-Link: https://lore.kernel.org/r/37252c65941e58473b1219ca9fab03d48f47e3e3.1591610330.git.mirq-linux@rere.qmqm.pl
+Reported-by: Xiumei Mu <xmu@redhat.com>
+Fixes: db07cd26ac6a ("crypto: drbg - add FIPS 140-2 CTRNG for noise source")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Reviewed-by: Stephan Mueller <smueller@chronox.de>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-
 ---
- sound/core/pcm_native.c |   14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ crypto/drbg.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/sound/core/pcm_native.c
-+++ b/sound/core/pcm_native.c
-@@ -138,6 +138,16 @@ void snd_pcm_stream_lock_irq(struct snd_
- }
- EXPORT_SYMBOL_GPL(snd_pcm_stream_lock_irq);
+--- a/crypto/drbg.c
++++ b/crypto/drbg.c
+@@ -1294,8 +1294,10 @@ static inline int drbg_alloc_state(struc
+ 	if (IS_ENABLED(CONFIG_CRYPTO_FIPS)) {
+ 		drbg->prev = kzalloc(drbg_sec_strength(drbg->core->flags),
+ 				     GFP_KERNEL);
+-		if (!drbg->prev)
++		if (!drbg->prev) {
++			ret = -ENOMEM;
+ 			goto fini;
++		}
+ 		drbg->fips_primed = false;
+ 	}
  
-+static void snd_pcm_stream_lock_nested(struct snd_pcm_substream *substream)
-+{
-+	struct snd_pcm_group *group = &substream->self_group;
-+
-+	if (substream->pcm->nonatomic)
-+		mutex_lock_nested(&group->mutex, SINGLE_DEPTH_NESTING);
-+	else
-+		spin_lock_nested(&group->lock, SINGLE_DEPTH_NESTING);
-+}
-+
- /**
-  * snd_pcm_stream_unlock_irq - Unlock the PCM stream
-  * @substream: PCM substream
-@@ -2197,7 +2207,7 @@ static int snd_pcm_link(struct snd_pcm_s
- 	snd_pcm_stream_unlock_irq(substream);
- 
- 	snd_pcm_group_lock_irq(target_group, nonatomic);
--	snd_pcm_stream_lock(substream1);
-+	snd_pcm_stream_lock_nested(substream1);
- 	snd_pcm_group_assign(substream1, target_group);
- 	refcount_inc(&target_group->refs);
- 	snd_pcm_stream_unlock(substream1);
-@@ -2213,7 +2223,7 @@ static int snd_pcm_link(struct snd_pcm_s
- 
- static void relink_to_local(struct snd_pcm_substream *substream)
- {
--	snd_pcm_stream_lock(substream);
-+	snd_pcm_stream_lock_nested(substream);
- 	snd_pcm_group_assign(substream, &substream->self_group);
- 	snd_pcm_stream_unlock(substream);
- }
 
 
