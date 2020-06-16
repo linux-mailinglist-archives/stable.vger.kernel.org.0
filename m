@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 527541FBB06
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:16:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D5EF11FB9F5
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:08:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731151AbgFPPka (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:40:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55124 "EHLO mail.kernel.org"
+        id S1731141AbgFPPqp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:46:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39074 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731196AbgFPPk3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:40:29 -0400
+        id S1730243AbgFPPqm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:46:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D61A3207C4;
-        Tue, 16 Jun 2020 15:40:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 732C821473;
+        Tue, 16 Jun 2020 15:46:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322029;
+        s=default; t=1592322402;
         bh=ehGZLwBStwiNoBJPxCADAHxsq8vyqACAuHk60HMadMY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yvpgdwcg649maVWZINlj0nzNNn+g2HQO6pbEXkjs2R4XWQ4xMi8RUcy5GKMxOjQkj
-         yIzspkBBeb/o3C1K89Xa/N5yjvMOVR0uUjfxsHo/ycvvOo74nJINs+NBE0FtPnAzmG
-         Hek+fSHS4WqMlIZb2RCStI3x8Ylk2frKqTYDKkVI=
+        b=I68xg1G8p43b1DoxY5CDv4moflDLmILwosULffkwatPdT+Apws4oqglblxhKS2qSA
+         737jSVMbG2NNODiOSyYCEKDG540W3k/ApXb/6+08ZQPl1zgBvluD5i+lHkyvUwxqNn
+         aGGB4wTo33uFyYtWy9NL07UEfvk/rS+B5lIjWRIA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
         Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 5.4 079/134] crypto: cavium/nitrox - Fix nitrox_get_first_device() when ndevlist is fully iterated
-Date:   Tue, 16 Jun 2020 17:34:23 +0200
-Message-Id: <20200616153104.552206373@linuxfoundation.org>
+Subject: [PATCH 5.7 090/163] crypto: cavium/nitrox - Fix nitrox_get_first_device() when ndevlist is fully iterated
+Date:   Tue, 16 Jun 2020 17:34:24 +0200
+Message-Id: <20200616153111.154908502@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153100.633279950@linuxfoundation.org>
-References: <20200616153100.633279950@linuxfoundation.org>
+In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
+References: <20200616153106.849127260@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
