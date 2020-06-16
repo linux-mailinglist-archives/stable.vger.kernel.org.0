@@ -2,57 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F207A1FAB39
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 10:30:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4560A1FAB4F
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 10:33:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726626AbgFPIaw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 04:30:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35154 "EHLO
+        id S1726471AbgFPIdi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 04:33:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35596 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726112AbgFPIav (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Jun 2020 04:30:51 -0400
-Received: from mail-pl1-x642.google.com (mail-pl1-x642.google.com [IPv6:2607:f8b0:4864:20::642])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8771C05BD43;
-        Tue, 16 Jun 2020 01:30:51 -0700 (PDT)
-Received: by mail-pl1-x642.google.com with SMTP id d8so8056329plo.12;
-        Tue, 16 Jun 2020 01:30:51 -0700 (PDT)
+        with ESMTP id S1726052AbgFPIdh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Jun 2020 04:33:37 -0400
+Received: from mail-pf1-x444.google.com (mail-pf1-x444.google.com [IPv6:2607:f8b0:4864:20::444])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74A60C05BD43;
+        Tue, 16 Jun 2020 01:33:37 -0700 (PDT)
+Received: by mail-pf1-x444.google.com with SMTP id j1so9157499pfe.4;
+        Tue, 16 Jun 2020 01:33:37 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=7tdeRgfUrKswh73pt/8hvKWXrWSAEqX+hL5gmVdJslc=;
-        b=WVYrFkdChaW6wX4uUhe2YweAwSrPz7Ai2FglsfN4vM9JqzkIUhxL8tdIguA+kyo92M
-         pzd06rF8By4xTOcy90xrua9jbVSh/Ta8i3cutZ/CiGnTdpDjIljhx+fZV/fmIEFWmAED
-         zuKRhYegPmJluLJSZ7tscVzl5InhIAaUuqQE98vEUN/y1tnhxTS6eucHCbYUuYPRyrsA
-         2Cqm9vSbtzPdnkmJ9S8/LwkDEu1SBeVv/kVYXw8yT/fPPyMkihgXeYX4qwRQMMM3oFtD
-         Eu0NNxNawF2sNbhtXwB9160R1WtK0pwhDhhHXLjImap7l/DEw9bOvqVuGlHW137Gpp5O
-         nk6w==
+        bh=QKQejvBtg3av9F/iGZAAjpJ2+FU7i9mSORd83pRkwKI=;
+        b=kGGnaLdiu2xlVj51rLyrymTdIXbp/ogYBXlCMN4fE8rlpNT4mNYNPKeYYYkiVaRKuz
+         jXztKb9uo43Wbmjfa+IKBbeswKOxmIS8TU6mX/rc6UhK7etr4kqUE+teaWgnHzRIHXw/
+         032IZQqwr566LCdpfvRZN7aFVD4ztpzSkCEqmYdVzln7o7RldXQvMNh3Oyh8UuejREKQ
+         pNyfEyqBWjDPJOSeVEq/tC6jUI5VDoDO6uUEqqj+mlkbfa7SnuaWAWmrKU0yHwQEW7m/
+         cQJn2J9Djs5looot5aZWt5jZ8fSCb3ZWVklk2KFIoZHiSOXgoz/PLKjFWf9bcD3+z5lA
+         Pq1A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references;
-        bh=7tdeRgfUrKswh73pt/8hvKWXrWSAEqX+hL5gmVdJslc=;
-        b=Y36N7at1iWBTPO6mftNAIS+y6q4n870e1x4BXDg+rPejnEVXX8Z+DcevvYGirla5Yx
-         XKqrZFzSad3p0LPctWEy2NyKjQh5b8Tuxy0bwQgMlefz2IsxeTDwNa4/gQz1pTsAyMK/
-         vRAS9bcOyE4AM8xxlzBK60P+whUjhZ0f71szXqU9xFxIG6+VRTPRyVG+26hqUgp64mec
-         TixL4rlOGMQQ+rsWZ1pYqJN8my8AfnHPJYMdRo71Ml0c57CpVxZUhCKLP8GqyF84xP05
-         NBRKULmkn3Xoz5qLOQkVuhEpc8X25SpZ5CxCpxc46FFwQfYYrEgxMdNp3cU8Assu27nZ
-         pQOQ==
-X-Gm-Message-State: AOAM530cB7aWLTnuN/QtihDDIaP4myrxzGLz1jXzFljcFMnU+WSSMCUf
-        TUGqf2mInP+Jw5fqDIyijVM=
-X-Google-Smtp-Source: ABdhPJw+vUuXBVXdxdPixEUWBdl54jeSPXqhfAAHT+DZOu2pszxCarRdjr28KdBCHVyVHNgAtljEKg==
-X-Received: by 2002:a17:90b:3d7:: with SMTP id go23mr1692308pjb.157.1592296251224;
-        Tue, 16 Jun 2020 01:30:51 -0700 (PDT)
+        bh=QKQejvBtg3av9F/iGZAAjpJ2+FU7i9mSORd83pRkwKI=;
+        b=kZyg7t+VxM+YdZnMrbnLdh141v7J43kw0jzhK76zmGsml++pzZfsYddjvIGOPR5iGe
+         2ViToUOHpxOcj9ljNq83WX7vuKDPNUWOUg9z9LoY5e+NQUL4slNviBV3OoSjHqVWmX0x
+         8uJhBUT81MQVl4TMHHxz2C/+MyobgjU2p51l7dj/97VCzxd5CHBztezDrvT2FyvSduRe
+         5iv60crzBT1830gr+jXj/4GvhAaUDqtNA3ZK3uFWKu7XQEIvwAxexmjZEgKw3uCkaX8I
+         EoRN8c+UxYrNBcBbF8byXMBqppyJWC4ekfVOJKBzQNkpQLNYJ3Rx5XfWPtX5t2k0VJlz
+         EmUw==
+X-Gm-Message-State: AOAM530mjWcwlPeSKpNwnR0xrFTtcSLvBebpTjBFLvJJqxtmeNYwZ8an
+        g+9jqpriHkt3tPMMrzIooME=
+X-Google-Smtp-Source: ABdhPJyXSq0oGDjKVml62dLiiAvvoUed6V74N4szXQxoGMG6L5hmG2a7f1ctwXWUEsYB8rzwbr5XHw==
+X-Received: by 2002:a63:541c:: with SMTP id i28mr1319109pgb.344.1592296417007;
+        Tue, 16 Jun 2020 01:33:37 -0700 (PDT)
 Received: from her0gyu-virtual-machine.localdomain ([1.221.137.163])
-        by smtp.gmail.com with ESMTPSA id u20sm17304847pfk.91.2020.06.16.01.30.49
+        by smtp.gmail.com with ESMTPSA id i3sm1751246pjv.1.2020.06.16.01.33.35
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 16 Jun 2020 01:30:50 -0700 (PDT)
+        Tue, 16 Jun 2020 01:33:36 -0700 (PDT)
 From:   youngjun <her0gyugyu@gmail.com>
 To:     amir73il@gmail.com
 Cc:     linux-unionfs@vger.kernel.org, youngjun <her0gyugyu@gmail.com>,
         stable@vger.kernel.org
-Subject: [PATCH 4/4] ovl: inode reference leak in ovl_is_inuse true case.
-Date:   Tue, 16 Jun 2020 17:30:43 +0900
-Message-Id: <20200616083043.25801-1-her0gyugyu@gmail.com>
+Subject: [PATCH v4] ovl: inode reference leak in ovl_is_inuse true case.
+Date:   Tue, 16 Jun 2020 17:33:29 +0900
+Message-Id: <20200616083329.25876-1-her0gyugyu@gmail.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20200615155645.32939-1-her0gyugyu@gmail.com>
 References: <20200615155645.32939-1-her0gyugyu@gmail.com>
@@ -104,5 +104,6 @@ index 91476bc422f9..3097142b1e23 100644
 -- 
 2.17.1
 
-Again, Great thanks Amir. I revise my patch through your kind guidance.
+Sorry. I Wrongly sent subect version. I changed it to v4.
+Thank you Amir.
 
